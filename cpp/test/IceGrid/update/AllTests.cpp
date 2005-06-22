@@ -18,592 +18,170 @@ using namespace std;
 using namespace Test;
 using namespace IceGrid;
 
-class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    SessionKeepAliveThread(const Ice::LoggerPtr& logger, const IceUtil::Time& timeout) :
-	_logger(logger),
-	_timeout(timeout),
-	_terminated(false)
-    {
-    }
-
-    virtual void
-    run()
-    {
-	Lock sync(*this);
-	while(!_terminated)
-	{
-	    timedWait(_timeout);
-	    if(!_terminated)
-	    {
-		vector<SessionPrx>::iterator p = _sessions.begin();
-		while(p != _sessions.end())
-		{
-		    try
-		    {
-			(*p)->keepAlive();
-			++p;
-		    }
-		    catch(const Ice::Exception& ex)
-		    {
-			p = _sessions.erase(p);
-		    }
-		}
-	    }
-	}
-    }
-
-    void 
-    add(const SessionPrx& session)
-    {
-	Lock sync(*this);
-	_sessions.push_back(session);
-    }
-
-    void
-    terminate()
-    {
-	Lock sync(*this);
-	_terminated = true;
-	notify();
-    }
-
-private:
-
-    const Ice::LoggerPtr _logger;
-    vector<SessionPrx> _sessions;
-    const IceUtil::Time _timeout;
-    bool _terminated;
-};
-typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
-
-class RegistryObserverI : public RegistryObserver, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    RegistryObserverI() : _updated(false)
-    {
-    }
-
-    virtual void 
-    init(int serial, const ApplicationDescriptorSeq& apps, const Ice::StringSeq& nodes, const Ice::Current&)
-    {
-	Lock sync(*this);
-	for(ApplicationDescriptorSeq::const_iterator p = apps.begin(); p != apps.end(); ++p)
-	{
-	    this->applications.insert(make_pair((*p)->name, *p));
-	}
-	this->nodes = set<string>(nodes.begin(), nodes.end());
-	updated(serial);
-    }
-
-    virtual void
-    applicationAdded(int serial, const ApplicationDescriptorPtr& app, const Ice::Current&)
-    {
-	Lock sync(*this);
-	this->applications.insert(make_pair(app->name, app));
-	updated(serial);
-    }
-
-    virtual void 
-    applicationRemoved(int serial, const std::string& name, const Ice::Current&)
-    {
-	Lock sync(*this);
-	this->applications.erase(name);
-	updated(serial);
-    }
-
-    virtual void 
-    applicationUpdated(int serial, const ApplicationUpdateDescriptor& desc, const Ice::Current&)
-    {
-	Lock sync(*this);
-	for(map<string, string>::const_iterator p = desc.variables.begin(); p != desc.variables.end(); ++p)
-	{
-	    this->applications[desc.name]->variables[p->first] = p->second;
-	}
-	updated(serial);
-    }
-
-    virtual void 
-    applicationSynced(int serial, const ApplicationDescriptorPtr& app, const Ice::Current&)
-    {
-	Lock sync(*this);
-	this->applications[app->name] = app;
-	updated(serial);
-    }
-
-    virtual void
-    nodeUp(const string& name, const Ice::Current& current)
-    {
-	Lock sync(*this);
-	this->nodes.insert(name);
-	updated();
-    }
-
-    virtual void
-    nodeDown(const string& name, const Ice::Current& current)
-    {
-	Lock sync(*this);
-	this->nodes.erase(name);
-	updated();
-    }
-
-    void
-    waitForUpdate(const char* file, int line)
-    {
-	Lock sync(*this);
-	while(!_updated)
-	{
-	    if(!timedWait(IceUtil::Time::seconds(10)))
-	    {
-		test(false); // Timeout
-	    }
-	}
-	_updated = false;
-    }
-
-    int serial;
-    map<string, ApplicationDescriptorPtr> applications;
-    set<string> nodes;
-
-private:
-
-    void
-    updated(int serial = -1)
-    {
-	if(serial != -1)
-	{
-	    this->serial = serial;
-	}
-	_updated = true;
-	notifyAll();
-    }
-
-    bool _updated;
-};
-
-class NodeObserverI : public NodeObserver, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    NodeObserverI() : _updated(0)
-    {
-    }
-
-    virtual void 
-    init(const NodeDynamicInfoSeq& info, const Ice::Current& current)
-    {
-	Lock sync(*this);
-	for(NodeDynamicInfoSeq::const_iterator p = info.begin(); p != info.end(); ++p)
-	{
-	    this->nodes[p->name] = *p;
-	}
-	updated(current);
-    }
-
-    virtual void 
-    initNode(const NodeDynamicInfo& info, const Ice::Current& current)
-    {
-	Lock sync(*this);
-	this->nodes[info.name] = info;
-	updated(current);
-    }
-
-    virtual void
-    updateServer(const string& node, const ServerDynamicInfo& info, const Ice::Current& current)
-    {
-	Lock sync(*this);
-	ServerDynamicInfoSeq& servers = this->nodes[node].servers;
-	for(ServerDynamicInfoSeq::iterator p = servers.begin(); p != servers.end(); ++p)
-	{
-	    if(p->name == info.name)
-	    {
-		*p = info;
-	    }
-	}
-	updated(current);
-    }
-
-    virtual void
-    updateAdapter(const string& node, const AdapterDynamicInfo& info, const Ice::Current& current)
-    {
-	AdapterDynamicInfoSeq& adapters = this->nodes[node].adapters;
-	for(AdapterDynamicInfoSeq::iterator p = adapters.begin(); p != adapters.end(); ++p)
-	{
-	    if(p->id == info.id)
-	    {
-		*p = info;
-	    }
-	}
-	updated(current);
-    }
-
-    void
-    waitForUpdate(const char* file, int line)
-    {
-	Lock sync(*this);
-	while(!_updated)
-	{
-	    if(!timedWait(IceUtil::Time::seconds(10)))
-	    {
-		test(false); // Timeout
-	    }
-	}
-	--_updated;
-    }
-
-    map<string, NodeDynamicInfo> nodes;
-
-private:
-
-    void
-    updated(const Ice::Current& current)
-    {
-	++_updated;
-	notifyAll();
-    }
-
-    int _updated;
-};
-
 void 
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    SessionManagerPrx manager = SessionManagerPrx::checkedCast(communicator->stringToProxy("IceGrid/SessionManager"));
-    test(manager);
-
     AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
     test(admin);
 
     Ice::PropertiesPtr properties = communicator->getProperties();
 
-    SessionKeepAliveThreadPtr keepAlive;
-    keepAlive = new SessionKeepAliveThread(communicator->getLogger(), IceUtil::Time::seconds(5));
-    keepAlive->start();
-
     {
-	cout << "testing sessions... " << flush;
-	SessionPrx session1 = manager->createLocalSession("Observer1");
-	SessionPrx session2 = manager->createLocalSession("Observer2");
-	
-	keepAlive->add(session1);
-	keepAlive->add(session2);	
-	
-	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1");
-	RegistryObserverI* regObs1 = new RegistryObserverI();
-	Ice::ObjectPrx ro1 = adpt1->addWithUUID(regObs1);
-	NodeObserverI* nodeObs1 = new NodeObserverI();
-	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
-	adpt1->activate();
-	manager->ice_connection()->setAdapter(adpt1);	
-	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
-	
-	Ice::ObjectAdapterPtr adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "default");
-	RegistryObserverI* regObs2 = new RegistryObserverI();
- 	Ice::ObjectPrx ro2 = adpt2->addWithUUID(regObs2);
- 	NodeObserverI* nodeObs2 = new NodeObserverI();
- 	Ice::ObjectPrx no2 = adpt2->addWithUUID(nodeObs2);
- 	adpt2->activate();
- 	session2->setObservers(RegistryObserverPrx::uncheckedCast(ro2), NodeObserverPrx::uncheckedCast(no2));
-	
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	regObs2->waitForUpdate(__FILE__, __LINE__);
+	ApplicationDescriptorPtr testApp = new ApplicationDescriptor();
+	testApp->name = "TestApp";
+	admin->addApplication(testApp);
 
-	int serial = regObs1->serial;
-	test(serial == regObs2->serial);
+	ApplicationUpdateDescriptor empty;
+	empty.name = "TestApp";
+	ApplicationUpdateDescriptor update = empty;
 
-	try
-	{
-	    session1->startUpdate(serial + 1);
-	    test(false);
-	}
-	catch(const CacheOutOfDate&)
-	{
-	}
-	catch(const AccessDenied&)
-	{
-	    test(false);
-	}
+	cout << "testing server add... " << flush;
 
-	try
-	{
-	    session1->startUpdate(serial);
-	}
-	catch(const Ice::UserException&)
-	{
-	    test(false);
-	}
-
-	try
-	{
-	    session2->startUpdate(regObs2->serial);
-	    test(false);
-	}
-	catch(const AccessDenied& ex)
-	{
-	    test(ex.lockUserId == "Observer1");
-	}
-
-	try
-	{
-	    session1->finishUpdate();   
-	}
-	catch(const Ice::UserException&)
-	{
-	    test(false);
-	}
-
-	try
-	{
-	    session2->startUpdate(regObs2->serial);
-	}
-	catch(const Ice::UserException&)
-	{
-	    test(false);
-	}
-
-	try
-	{
-	    ApplicationDescriptorPtr app = new ApplicationDescriptor();
-	    app->name = "Application";
-	    session2->addApplication(app);
-	}
-	catch(const Ice::UserException&)
-	{
-	    test(false);
-	}
-
-	try
-	{
-	    session1->addApplication(new ApplicationDescriptor());
-	    test(false);
-	}
-	catch(const AccessDenied& ex)
-	{
-	}
-
-	try
-	{
-	    session2->finishUpdate();   
-	}
-	catch(const Ice::UserException&)
-	{
-	    test(false);
-	}
-
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	regObs2->waitForUpdate(__FILE__, __LINE__);
-
-	test(serial + 1 == regObs1->serial);
-	test(serial + 1 == regObs2->serial);
-	++serial;
-
-	try
-	{
-	    session1->startUpdate(serial);
-	    ApplicationUpdateDescriptor update;
-	    update.name = "Application";
-	    update.variables.insert(make_pair("test", "test"));
-	    session1->updateApplication(update);
-	    session1->finishUpdate();
-	}
-	catch(const Ice::UserException& ex)
-	{
-	    cerr << ex << endl;
-	    test(false);
-	}
-
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	regObs2->waitForUpdate(__FILE__, __LINE__);
-
-	test(serial + 1 == regObs1->serial);
-	test(serial + 1 == regObs2->serial);
-	++serial;
-
-	try
-	{
-	    ApplicationUpdateDescriptor update;
-	    update.name = "Application";
-	    session1->updateApplication(update);
-	    test(false);
-	}
-	catch(const AccessDenied&)
-	{
-	}
-
-	try
-	{
-	    session2->startUpdate(serial);
-	    session2->removeApplication("Application");
-	    session2->finishUpdate();
-	}
-	catch(const Ice::UserException&)
-	{
-	    test(false);
-	}
-
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	regObs2->waitForUpdate(__FILE__, __LINE__);
-
-	test(serial + 1 == regObs1->serial);
-	test(serial + 1 == regObs2->serial);
-	++serial;
-	
-	try
-	{
-	    session1->startUpdate(serial);
-	}
-	catch(const Ice::UserException& ex)
-	{
-	    test(false);
-	}
-	session1->destroy();
-
-	try
-	{
-	    session2->startUpdate(serial);
-	    session2->finishUpdate();
-	}
-	catch(const Ice::UserException& ex)
-	{
-	    test(false);
-	}
-	session2->destroy();
-
-	adpt1->deactivate();
-	adpt2->deactivate();
-
-	adpt1->waitForDeactivate();
-	adpt2->waitForDeactivate();
-
-	//
-	// TODO: test session reaping?
-	//
-
-	cout << "ok" << endl;
-    }
-
-    {
-	cout << "testing registry observer... " << flush;
-	SessionPrx session1 = manager->createLocalSession("Observer1");
-	
-	keepAlive->add(session1);
-	
-	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.1");
-	RegistryObserverI* regObs1 = new RegistryObserverI();
-	Ice::ObjectPrx ro1 = adpt1->addWithUUID(regObs1);
-	NodeObserverI* nodeObs1 = new NodeObserverI();
-	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
-	adpt1->activate();
-	manager->ice_connection()->setAdapter(adpt1);	
-	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
-	
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-
-	int serial = regObs1->serial;
-	test(find(regObs1->nodes.begin(), regObs1->nodes.end(), "localnode") != regObs1->nodes.end());
-	test(regObs1->applications.empty());	    
-
-	try
-	{
-	    ApplicationDescriptorPtr app = new ApplicationDescriptor();
-	    app->name = "Application";
-	    session1->startUpdate(serial);
-	    session1->addApplication(app);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications["Application"]);
-	    test(++serial == regObs1->serial);
-	}
-	catch(const Ice::UserException& ex)
-	{
-	    cerr << ex << endl;
-	    test(false);
-	}
-
-	try
-	{
-	    ApplicationUpdateDescriptor update;
-	    update.name = "Application";
-	    update.variables.insert(make_pair("test", "test"));
-	    session1->updateApplication(update);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications["Application"]);
-	    test(regObs1->applications["Application"]->variables["test"] == "test");
-	    test(++serial == regObs1->serial);
-	}
-	catch(const Ice::UserException& ex)
-	{
-	    cerr << ex << endl;
-	    test(false);
-	}
-
-	try
-	{
-	    ApplicationDescriptorPtr app; 
-	    app = ApplicationDescriptorPtr::dynamicCast(regObs1->applications["Application"]->ice_clone());
-	    app->variables.clear();
-	    app->variables["test1"] = "test";
-	    session1->syncApplication(app);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications["Application"]);
-	    test(regObs1->applications["Application"]->variables.size() == 1);
-	    test(regObs1->applications["Application"]->variables["test1"] == "test");
-	    test(++serial == regObs1->serial);
-	}
-	catch(const Ice::UserException& ex)
-	{
-	    cerr << ex << endl;
-	    test(false);
-	}
-
-	try
-	{
-	    session1->removeApplication("Application");
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications.empty());
-	    test(++serial == regObs1->serial);
-	}
-	catch(const Ice::UserException& ex)
-	{
-	    cerr << ex << endl;
-	    test(false);
-	}
-
-	//
-	// Setup a descriptor to deploy a node on the node.
-	//
-	ApplicationDescriptorPtr nodeApp = new ApplicationDescriptor();
-	nodeApp->name = "NodeApp";
-	ServerDescriptorPtr server = new ServerDescriptor();
-	server->name = "node-1";
-	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
-	AdapterDescriptor adapter;
-	adapter.name = "IceGrid.Node";
-	adapter.endpoints = "default";
-	adapter.id = "IceGrid.Node.node-1";
-	adapter.registerProcess = true;
-	server->adapters.push_back(adapter);
-	PropertyDescriptor prop;
-	prop.name = "IceGrid.Node.Name";
-	prop.value = "node-1";
-	server->properties.push_back(prop);
-	prop.name = "IceGrid.Node.Data";
-	prop.value = properties->getProperty("TestDir") + "/db/node-1";
-	server->properties.push_back(prop);
 	ServerInstanceDescriptor instance;
-	instance.descriptor = server;
 	instance.node = "localnode";
-	nodeApp->servers.push_back(instance);
-	
+	instance.descriptor = new ServerDescriptor();
+	instance.descriptor->name = "Server";
+	instance.descriptor->exe = properties->getProperty("TestDir") + "/server";
+	AdapterDescriptor adapter;
+	adapter.name = "Server";
+	adapter.endpoints = "default";
+	adapter.id = "ServerAdapter";
+	adapter.registerProcess = true;
+	ObjectDescriptor object;
+	object.proxy = communicator->stringToProxy("test@ServerAdapter");
+	object.type = "::Test::TestIntf";
+	object.adapterId = "ServerAdapter";
+	adapter.objects.push_back(object);
+	instance.descriptor->adapters.push_back(adapter);
+	update.servers.push_back(instance);
+	admin->updateApplication(update);
+
+	update.servers[0].descriptor->name = "Server2";
 	try
 	{
-	    session1->startUpdate(serial);
-	    session1->addApplication(nodeApp);
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications["NodeApp"]);
-	    test(++serial == regObs1->serial);
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException&)
+	{
+	    // Adapter already exists
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	
+	update.servers[0].descriptor->adapters[0].id = "ServerAdapter2";
+	try
+	{
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException&)
+	{
+	    // Object already exists
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	update.servers[0].descriptor->adapters[0].objects[0].proxy = communicator->stringToProxy("test2@ServerAdapter");
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	TemplateDescriptor templ;
+	templ.parameters.push_back("name");
+	templ.descriptor = new ServerDescriptor();
+	templ.descriptor->name = "${name}";
+	ServerDescriptorPtr server = ServerDescriptorPtr::dynamicCast(templ.descriptor);
+	server->exe = "${test.dir}/server";
+	adapter = AdapterDescriptor();
+	adapter.name = "Server";
+	adapter.endpoints = "default";
+	adapter.id = "${server}";
+	adapter.registerProcess = true;
+	object = ObjectDescriptor();
+	object.proxy = communicator->stringToProxy("${server}@" + adapter.id);
+	object.type = "::Test::TestIntf";
+	object.adapterId = adapter.id;
+	adapter.objects.push_back(object);
+	server->adapters.push_back(adapter);
+	update = empty;
+	update.serverTemplates["ServerTemplate"] = templ;
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	update = empty;
+	instance = ServerInstanceDescriptor();
+	instance._cpp_template = "ServerTemplate";
+	update.servers.push_back(instance);
+	try
+	{
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException&)
+	{
+	    // Missing parameter
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	update = empty;
+	update.variables["test.dir"] = properties->getProperty("TestDir");
+	update.variables["variable"] = "";
+	instance = ServerInstanceDescriptor();
+	instance._cpp_template = "ServerTemplate";
+	instance.parameterValues["name"] = "Server1";
+	update.servers.push_back(instance);
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	
+	cout << "ok" << endl;
+
+	cout << "test server remove... " << flush;
+	update = empty;
+	update.removeServers.push_back("Server2");
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	try
+	{
+	    admin->updateApplication(update);
 	}
 	catch(const DeploymentException& ex)
 	{
@@ -616,24 +194,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
-	admin->startServer("node-1");
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	test(regObs1->nodes.find("node-1") != regObs1->nodes.end());
-	admin->stopServer("node-1");
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	test(regObs1->nodes.find("node-1") == regObs1->nodes.end());
-
+	update = empty;
+	update.removeServerTemplates.push_back("ServerTemplate");
 	try
 	{
-	    session1->removeApplication("NodeApp");
-	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications.empty());
-	    test(++serial == regObs1->serial);
-	}
-	catch(const DeploymentException& ex)
-	{
-	    cerr << ex.reason << endl;
+	    admin->updateApplication(update);
 	    test(false);
+	}
+	catch(const DeploymentException&)
+	{
+	    // Server without template!
 	}
 	catch(const Ice::UserException& ex)
 	{
@@ -641,88 +211,423 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
-	session1->destroy();
-	adpt1->deactivate();
-	adpt1->waitForDeactivate();
-
+	update = empty;
+	update.removeServers.push_back("Server1");
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	
+	update = empty;
+	update.removeServerTemplates.push_back("ServerTemplate");
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 	cout << "ok" << endl;
+
+	cout << "test server update... " << flush;
+
+	instance = admin->getServerDescriptor("Server");
+	test(instance.descriptor);
+	PropertyDescriptor property;
+	property.name = "test";
+	property.value = "test";
+	instance.descriptor->properties.push_back(property);
+	update = empty;
+	update.servers.push_back(instance);
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+ 	instance = admin->getServerDescriptor("Server");
+	test(instance.descriptor);
+ 	test(instance.descriptor->properties.size() == 1);
+ 	test(instance.descriptor->properties[0].name == "test" && instance.descriptor->properties[0].value == "test");
+
+	update = empty;
+	update.serverTemplates["ServerTemplate"] = templ;
+	instance = ServerInstanceDescriptor();
+	instance._cpp_template = "ServerTemplate";
+	instance.parameterValues["name"] = "Server1";
+	update.servers.push_back(instance);
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	update = empty;
+	server->properties.push_back(property);
+	assert(templ.descriptor == server);
+	update.serverTemplates["ServerTemplate"] = templ;
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+ 	instance = admin->getServerDescriptor("Server1");
+	test(instance.descriptor);
+ 	test(instance.descriptor->properties.size() == 1);
+ 	test(instance.descriptor->properties[0].name == "test" && instance.descriptor->properties[0].value == "test");
+
+	instance = admin->getServerDescriptor("Server");
+	test(instance.descriptor);
+	adapter = AdapterDescriptor();
+	adapter.id = "Server1";
+	instance.descriptor->adapters.push_back(adapter);
+	update = empty;
+	update.servers.push_back(instance);
+	try
+	{
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException&)
+	{
+	    // Adapter already exists
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	instance = admin->getServerDescriptor("Server");
+	test(instance.descriptor);
+	adapter = AdapterDescriptor();
+	adapter.id = "ServerX";
+	object = ObjectDescriptor();
+	object.proxy = communicator->stringToProxy("test");
+	adapter.objects.push_back(object);
+	instance.descriptor->adapters.push_back(adapter);
+	update = empty;
+	update.servers.push_back(instance);
+	try
+	{
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException&)
+	{
+	    // Object already exists
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	cout << "ok" << endl;
+
+	admin->removeApplication("TestApp");
     }
 
     {
-	cout << "testing node observer... " << flush;
-	SessionPrx session1 = manager->createLocalSession("Observer1");
+	cout << "test variable update... " << flush;
+
+	PropertyDescriptorSeq properties;
+	PropertyDescriptor property;
+	property.name = "ApplicationVar";
+	property.value = "${appvar}";
+	properties.push_back(property);
+	property.name = "NodeVar";
+	property.value = "${nodevar}";
+	properties.push_back(property);
+	property.name = "ServerParamVar";
+	property.value = "${serverparamvar}";
+	properties.push_back(property);
+	property.name = "ServerVar";
+	property.value = "${servervar}";
+	properties.push_back(property);
+	property.name = "ServiceParamVar";
+	property.value = "${serviceparamvar}";
+	properties.push_back(property);
+	property.name = "ServiceVar";
+	property.value = "${servicevar}";
+	properties.push_back(property);
+
+	TemplateDescriptor serviceTempl;
+	serviceTempl.parameters.push_back("serviceparamvar");
+	serviceTempl.descriptor = new ServiceDescriptor();
+	serviceTempl.descriptor->variables["servicevar"] = "ServiceValue";
+	serviceTempl.descriptor->name = "Service";
+	serviceTempl.descriptor->properties = properties;
+
+	ServiceInstanceDescriptor service;
+	service._cpp_template = "ServiceTemplate";
+	service.parameterValues["serviceparamvar"] = "ServiceParamValue";
+
+	IceBoxDescriptorPtr icebox = new IceBoxDescriptor();
+	icebox->services.push_back(service);
+	icebox->interpreter = "icebox";
+	icebox->variables["servervar"] = "ServerValue";
+
+	TemplateDescriptor templ;
+	templ.parameters.push_back("name");
+	templ.parameters.push_back("serverparamvar");
+	templ.descriptor = icebox;
+
+	ApplicationDescriptorPtr testApp = new ApplicationDescriptor();
+	testApp->name = "TestApp";
+	testApp->variables["appvar"] = "AppValue";
+	testApp->serviceTemplates["ServiceTemplate"] = serviceTempl;
+	testApp->serverTemplates["IceBoxTemplate"] = templ;
+
+	NodeDescriptor node;
+	node.name = "node1";
+	node.variables["nodevar"] = "NodeValue";
+	testApp->nodes.push_back(node);
+
+	ServerInstanceDescriptor server;
+	server._cpp_template = "IceBoxTemplate";
+	server.parameterValues["name"] = "Server";
+	server.parameterValues["serverparamvar"] = "ServerParamValue";
+	server.node = "node1";
+	testApp->servers.push_back(server);
+
+	try
+	{
+	    admin->addApplication(testApp);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	ApplicationUpdateDescriptor empty;
+	empty.name = "TestApp";
+	ApplicationUpdateDescriptor update = empty;
+	update.removeVariables.push_back("appvar");
+	try
+	{
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    // Missing app variable
+	    //cerr << ex.reason << endl;
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	update = empty;
+	node.variables.clear();
+	update.nodes.push_back(node);
+	try
+	{
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    // Missing node variable
+	    //cerr << ex.reason << endl;
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	update = empty;
+	server = ServerInstanceDescriptor();
+	server._cpp_template = "IceBoxTemplate";
+	server.parameterValues["name"] = "Server";
+	server.node = "node1";
+	update.servers.push_back(server);
+	try
+	{
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    // Missing parameter
+	    //cerr << ex.reason << endl;
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	update = empty;
+	templ.descriptor->variables.erase("servervar");
+	update.serverTemplates["IceBoxTemplate"] = templ;
+	try
+	{
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    // Missing server variable
+	    //cerr << ex.reason << endl;
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	update = empty;
+	templ.descriptor->variables["servervar"] = "ServerValue";
+	IceBoxDescriptorPtr::dynamicCast(templ.descriptor)->services[0].parameterValues.erase("serviceparamvar");
+	update.serverTemplates["IceBoxTemplate"] = templ;
+	try
+	{
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    // Missing service param variable
+	    //cerr << ex.reason << endl;
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	update = empty;
+	IceBoxDescriptorPtr::dynamicCast(templ.descriptor)->services[0].parameterValues["serviceparamvar"] = 
+	    "ServiceParamValue";
+	update.serverTemplates["IceBoxTemplate"] = templ;
+	serviceTempl.descriptor->variables.erase("servicevar");
+	update.serviceTemplates["ServiceTemplate"] = serviceTempl;
+	try
+	{
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    // Missing service variable
+	    //cerr << ex.reason << endl;
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	testApp = admin->getApplicationDescriptor("TestApp");
+
+	update = empty;
+	update.variables["nodevar"] = "appoverride";
+	node = testApp->nodes[0];
+	node.variables["serverparamvar"] = "nodeoverride";
+	node.variables["servervar"] = "nodeoverride";
+	update.nodes.push_back(node);
+	templ = testApp->serverTemplates["IceBoxTemplate"];
+	templ.descriptor->variables["serviceparamvar"] = "serveroverride";
+	templ.descriptor->variables["servicevar"] = "serveroverride";
+	update.serverTemplates["IceBoxTemplate"] = templ;
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 	
-	keepAlive->add(session1);
+	ApplicationDescriptorPtr previousApp = testApp;
+	icebox = IceBoxDescriptorPtr::dynamicCast(testApp->servers[0].descriptor);	
+	PropertyDescriptorSeq previousProps = icebox->services[0].descriptor->properties;
+
+	testApp = admin->getApplicationDescriptor("TestApp");
+	icebox = IceBoxDescriptorPtr::dynamicCast(testApp->servers[0].descriptor);	
+	PropertyDescriptorSeq newProps = icebox->services[0].descriptor->properties;
+	test(newProps.size() == previousProps.size());
+	test(newProps == previousProps);
 	
-	Ice::ObjectAdapterPtr adpt1 = communicator->createObjectAdapter("Observer1.2");
-	RegistryObserverI* regObs1 = new RegistryObserverI();
-	Ice::ObjectPrx ro1 = adpt1->addWithUUID(regObs1);
-	NodeObserverI* nodeObs1 = new NodeObserverI();
-	Ice::ObjectPrx no1 = adpt1->addWithUUID(nodeObs1);
-	adpt1->activate();
-	manager->ice_connection()->setAdapter(adpt1);	
-	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
-	
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	nodeObs1->waitForUpdate(__FILE__, __LINE__);
+	update = empty;
+	node = previousApp->nodes[0];
+	node.variables["appvar"] = "nodeoverride";
+	update.nodes.push_back(node);
+	templ = previousApp->serverTemplates["IceBoxTemplate"];
+	templ.descriptor->variables["nodevar"] = "serveroverride";
+	update.serverTemplates["IceBoxTemplate"] = templ;
+	serviceTempl = previousApp->serviceTemplates["ServiceTemplate"];
+	serviceTempl.descriptor->variables["servervar"] = "serviceoverride";
+	update.serviceTemplates["ServiceTemplate"] = serviceTempl;
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 
-	int serial = regObs1->serial;
-	test(find(regObs1->nodes.begin(), regObs1->nodes.end(), "localnode") != regObs1->nodes.end());
-	test(regObs1->applications.empty());
-	test(nodeObs1->nodes.find("localnode") != nodeObs1->nodes.end());
-
-	ApplicationDescriptorPtr nodeApp = new ApplicationDescriptor();
-	nodeApp->name = "NodeApp";
-	ServerDescriptorPtr server = new ServerDescriptor();
-	server->name = "node-1";
-	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
-	AdapterDescriptor adapter;
-	adapter.name = "IceGrid.Node";
-	adapter.endpoints = "default";
-	adapter.id = "IceGrid.Node.node-1";
-	adapter.registerProcess = true;
-	server->adapters.push_back(adapter);
-	PropertyDescriptor prop;
-	prop.name = "IceGrid.Node.Name";
-	prop.value = "node-1";
-	server->properties.push_back(prop);
-	prop.name = "IceGrid.Node.Data";
-	prop.value = properties->getProperty("TestDir") + "/db/node-1";
-	server->properties.push_back(prop);
-	ServerInstanceDescriptor instance;
-	instance.descriptor = server;
-	instance.node = "localnode";
-	nodeApp->servers.push_back(instance);
-
-	admin->addApplication(nodeApp);
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-
-	admin->startServer("node-1");
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	test(regObs1->nodes.find("node-1") != regObs1->nodes.end());
-
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // initNode
-	test(nodeObs1->nodes.find("node-1") != nodeObs1->nodes.end());
-	test(nodeObs1->nodes["localnode"].servers.size() == 1);
-	test(nodeObs1->nodes["localnode"].servers[0].state == Active);
-	admin->stopServer("node-1");
-
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // adapterUpdate
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
-	test(nodeObs1->nodes["localnode"].servers[0].state == Inactive);
-
-	admin->removeApplication("NodeApp");
-
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	test(regObs1->nodes.find("node-1") == regObs1->nodes.end());
+	testApp = admin->getApplicationDescriptor("TestApp");
+	icebox = IceBoxDescriptorPtr::dynamicCast(testApp->servers[0].descriptor);	
+	newProps = icebox->services[0].descriptor->properties;
+	for(PropertyDescriptorSeq::const_iterator p = newProps.begin(); p != newProps.end(); ++p)
+	{
+	    if(p->name == "ApplicationVar")
+	    {
+		test(p->value == "nodeoverride");
+	    }
+	    else if(p->name == "NodeVar")
+	    {
+		test(p->value == "serveroverride");
+	    }
+	    else if(p->name == "ServerVar")
+	    {
+		test(p->value == "serviceoverride");
+	    }
+	    else if(p->name == "ServiceVar")
+	    {
+		test(p->value == "ServiceValue");
+	    }
+	    else if(p->name == "ServerParamVar")
+	    {
+		test(p->value == "ServerParamValue");
+	    }
+	    else if(p->name == "ServiceParamVar")
+	    {
+		test(p->value == "ServiceParamValue");
+	    }
+	    else
+	    {
+		test(false);
+	    }
+	}
 
 	cout << "ok" << endl;
     }
-
-    keepAlive->terminate();
-    keepAlive->getThreadControl().join();
-    keepAlive = 0;
 }

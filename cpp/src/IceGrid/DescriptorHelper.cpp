@@ -661,12 +661,17 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     newApp->name = oldApp->name;
     newApp->comment = oldApp->comment;
     newApp->targets = oldApp->targets;
-    newApp->variables = newUpdate.variables;
-    newApp->variables.insert(oldApp->variables.begin(), oldApp->variables.end());
+    newApp->variables = oldApp->variables;
+    for(map<string, string>::const_iterator q = newUpdate.variables.begin(); q != newUpdate.variables.end(); ++q)
+    {
+	newApp->variables[q->first] = q->second;
+	_variables->addVariable(q->first, q->second);
+    }
     Ice::StringSeq::const_iterator p;
     for(p = newUpdate.removeVariables.begin(); p != newUpdate.removeVariables.end(); ++p)
     {
 	newApp->variables.erase(*p);
+	_variables->remove(*p);
     }
 
     newApp->serverTemplates = newUpdate.serverTemplates;

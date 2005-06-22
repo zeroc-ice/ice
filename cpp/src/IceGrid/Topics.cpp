@@ -110,12 +110,19 @@ NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& ser
     {
 	if(p->name == server.name)
 	{
-	    *p = server;
+	    if(server.state == Destroyed || server.state == Inactive)
+	    {
+		servers.erase(p);
+	    }
+	    else
+	    {
+		*p = server;
+	    }
 	    break;
 	}
 	++p;
     }
-    if(p == servers.end())
+    if(server.state != Destroyed && server.state != Inactive && p == servers.end())
     {
 	servers.push_back(server);
     }
@@ -137,12 +144,19 @@ NodeObserverTopic::updateAdapter(const string& node, const AdapterDynamicInfo& a
     {
 	if(p->id == adapter.id)
 	{
-	    *p = adapter;
+	    if(adapter.proxy)
+	    {
+		*p = adapter;
+	    }
+	    else
+	    {
+		adapters.erase(p);
+	    }
 	    break;
 	}
 	++p;
     }
-    if(p == adapters.end())
+    if(adapter.proxy && p == adapters.end())
     {
 	adapters.push_back(adapter);
     }

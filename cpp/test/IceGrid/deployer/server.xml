@@ -1,6 +1,6 @@
 <icegrid>
 
-<server name="${name}" kind="cpp" exe="${test.dir}/server" activation="on-demand">
+<server name="${name}" exe="${test.dir}/server" activation="on-demand">
 
   <variable name="var0" value="val0"/>
 

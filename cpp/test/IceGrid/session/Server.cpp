@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestI.h>
 #include <TestCommon.h>
 
 using namespace std;
@@ -23,18 +22,7 @@ public:
 int
 Server::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-
-    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-    args = properties->parseCommandLineOptions("Test", args);
-    Ice::stringSeqToArgs(args, argc, argv);
-
-    string name = properties->getProperty("Ice.ProgramName");
-
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Server");
-    Ice::ObjectPtr object = new TestI(adapter, properties);
-    adapter->add(object, Ice::stringToIdentity(name));
-
     shutdownOnInterrupt();
     try
     {

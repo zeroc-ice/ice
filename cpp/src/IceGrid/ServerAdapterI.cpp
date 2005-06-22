@@ -189,20 +189,24 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current& cu
 	}
     }
 
+    bool updated = _proxy != prx;
     _proxy = prx;
 
-    NodeObserverPrx observer = _node->getObserver();
-    if(observer)
+    if(updated)
     {
-	AdapterDynamicInfo info;
-	info.id = _id;
-	info.proxy = _proxy;
-	try
+	NodeObserverPrx observer = _node->getObserver();
+	if(observer)
 	{
-	    observer->updateAdapter(_node->getName(current), info);
-	}
-	catch(const Ice::LocalException&)
-	{
+	    AdapterDynamicInfo info;
+	    info.id = _id;
+	    info.proxy = _proxy;
+	    try
+	    {
+		observer->updateAdapter(_node->getName(current), info);
+	    }
+	    catch(const Ice::LocalException&)
+	    {
+	    }
 	}
     }
 
