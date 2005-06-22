@@ -659,16 +659,12 @@ namespace IceInternal
 			    {
 				int load = (int)(_load + 0.5);
 
-				//Console.WriteLine("{0} {1} {2} {3}", _inUse, _running, load, _load);
-
 				//
 				// We add one to the load factor because on
 				// additional thread is needed for select().
 				//
 				if(load  + 1 < _running)
 				{
-				    //Console.WriteLine("delete thread!!!");
-
 				    Debug.Assert(_inUse > 0);
 				    --_inUse;
 				    

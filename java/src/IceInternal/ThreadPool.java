@@ -790,16 +790,12 @@ public final class ThreadPool
 			{
 			    int load = (int)(_load + 0.5);
 
-			    //System.out.println("" + _inUse + " " + _running + " " + load + " " + _load);
-
 			    //
 			    // We add one to the load factor because one
 			    // additional thread is needed for select().
 			    //
 			    if(load + 1 < _running)
 			    {
-				//System.out.println("delete thread!!!");
-
 				assert(_inUse > 0);
 				--_inUse;
 				
