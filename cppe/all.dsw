@@ -1260,10 +1260,10 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name ice
+    Project_Dep_Name testCommon
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name testCommon
+    Project_Dep_Name ice
     End Project Dependency
 }}}
 
@@ -1331,6 +1331,9 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name icec
+    End Project Dependency
 }}}
 
 ###############################################################################
