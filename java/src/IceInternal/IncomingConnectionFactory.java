@@ -375,83 +375,94 @@ public final class IncomingConnectionFactory extends EventHandler
 	EndpointHolder h = new EndpointHolder();
 	h.value = _endpoint;
 	_transceiver = _endpoint.serverTransceiver(h);
-	if(_transceiver != null)
+
+	try
 	{
-	    _endpoint = h.value;
-	    
-	    Ice.ConnectionI connection = null;
-	    
-	    try
+	    if(_transceiver != null)
 	    {
-		connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter);
-		connection.validate();
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		//
-		// If a connection object was constructed, then
-		// validate() must have raised the exception.
-		//
-		if(connection != null)
+		_endpoint = h.value;
+		
+		Ice.ConnectionI connection = null;
+		
+		try
 		{
-		    connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+		    connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter);
+		    connection.validate();
+		}
+		catch(Ice.LocalException ex)
+		{
+		    //
+		    // If a connection object was constructed, then
+		    // validate() must have raised the exception.
+		    //
+		    if(connection != null)
+		    {
+			connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+		    }
+		    
+		    return;
 		}
 		
-		return;
+		_connections.add(connection);
 	    }
-	    
-	    _connections.add(connection);
-	}
-	else
-	{
-	    h.value = _endpoint;
-	    _acceptor = _endpoint.acceptor(h);
-	    _endpoint = h.value;
-	    assert(_acceptor != null);
-	    _acceptor.listen();
-	    
-	    if(_instance.threadPerConnection())
+	    else
 	    {
-		try
+		h.value = _endpoint;
+		_acceptor = _endpoint.acceptor(h);
+		_endpoint = h.value;
+		assert(_acceptor != null);
+		_acceptor.listen();
+
+		if(_instance.threadPerConnection())
 		{
 		    //
 		    // If we are in thread per connection mode, we also use
 		    // one thread per incoming connection factory, that
 		    // accepts new connections on this endpoint.
 		    //
-		    _threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory();
-		    _threadPerIncomingConnectionFactory.start();
-		}
-		catch(java.lang.Exception ex)
-		{
-		    error("cannot create thread for incoming connection factory", ex);
-		    
 		    try
 		    {
-			_acceptor.close();
+			_threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory();
+			_threadPerIncomingConnectionFactory.start();
 		    }
-		    catch(Ice.LocalException e)
+		    catch(java.lang.Exception ex)
 		    {
-			// Here we ignore any exceptions in close().			
+			error("cannot create thread for incoming connection factory", ex);
+			throw ex;
 		    }
-
-		    //
-		    // Clean up for finalizer.
-		    //
-		    synchronized(this)
-		    {
-			_state = StateClosed;
-			_acceptor = null;
-			_connections = null;
-			_threadPerIncomingConnectionFactory = null;
-		    }
-
-		    Ice.SyscallException e = new Ice.SyscallException();
-		    e.initCause(ex);
-		    throw e;
 		}
 	    }
-        }
+	}
+	catch(java.lang.Exception ex)
+	{
+	    //
+	    // Clean up for finalizer.
+	    //
+		    
+	    if(_acceptor != null)
+	    {
+		try
+		{
+		    _acceptor.close();
+		}
+		catch(Ice.LocalException e)
+		{
+		    // Here we ignore any exceptions in close().			
+		}
+	    }
+
+	    synchronized(this)
+	    {
+		_state = StateClosed;
+		_acceptor = null;
+		_connections = null;
+		_threadPerIncomingConnectionFactory = null;
+	    }
+
+	    Ice.SyscallException e = new Ice.SyscallException();
+	    e.initCause(ex);
+	    throw e;
+	}
     }
 
     protected synchronized void
