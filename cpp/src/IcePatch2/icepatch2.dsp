@@ -87,8 +87,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 libeay32.lib ssleay32.lib libbz2d.lib /nologo /dll /debug /machine:I386 /out:"Debug/icepatch221d.dll" /implib:"Debug/icepatch2d.lib"
-# SUBTRACT LINK32 /pdb:none /incremental:no /nodefaultlib
+# ADD LINK32 libeay32.lib ssleay32.lib libbz2d.lib /nologo /dll /debug /machine:I386 /out:"Debug/icepatch221d.dll" /implib:"Debug/icepatch2d.lib" /FIXED:no
+# SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"

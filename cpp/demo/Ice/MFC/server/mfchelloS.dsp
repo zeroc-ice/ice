@@ -79,8 +79,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 iced.lib iceutild.lib /nologo /subsystem:windows /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../../lib"
-# SUBTRACT LINK32 /incremental:no
+# ADD LINK32 iced.lib iceutild.lib /nologo /subsystem:windows /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../../lib" /FIXED:no
+# SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
 
