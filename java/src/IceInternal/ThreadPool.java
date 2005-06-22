@@ -764,15 +764,42 @@ public final class ThreadPool
 			// Now we check if this thread can be destroyed, based
 			// on a load factor.
 			//
-			final double loadFactor = 0.05; // TODO: Configurable?
-			final double oneMinusLoadFactor = 1 - loadFactor;
-			_load = _load * oneMinusLoadFactor + _inUse * loadFactor;
-			
+
+			//
+			// The load factor jumps immediately to the number of
+			// threads that are currently in use, but decays
+			// exponentially if the number of threads in use is
+			// smaller than the load factor. This reflects that we
+			// create threads immediately when they are needed,
+			// but want the number of threads to slowly decline to
+			// the configured minimum.
+			//
+			double inUse = (double)_inUse;
+			if(_load < inUse)
+			{
+			    _load = inUse;
+			}
+			else
+			{
+			    final double loadFactor = 0.05; // TODO: Configurable?
+			    final double oneMinusLoadFactor = 1 - loadFactor;
+			    _load = _load * oneMinusLoadFactor + _inUse * loadFactor;
+			}
+
 			if(_running > _size)
 			{
-			    int load = (int)(_load + 1);
-			    if(load < _running)
+			    int load = (int)(_load + 0.5);
+
+			    //System.out.println("" + _inUse + " " + _running + " " + load + " " + _load);
+
+			    //
+			    // We add one to the load factor because one
+			    // additional thread is needed for select().
+			    //
+			    if(load + 1 < _running)
 			    {
+				//System.out.println("delete thread!!!");
+
 				assert(_inUse > 0);
 				--_inUse;
 				

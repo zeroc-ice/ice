@@ -633,15 +633,42 @@ namespace IceInternal
 			    // Now we check if this thread can be destroyed, based
 			    // on a load factor.
 			    //
-			    double loadFactor = 0.05; // TODO: Configurable?
-			    double oneMinusLoadFactor = 1 - loadFactor;
-			    _load = _load * oneMinusLoadFactor + _inUse * loadFactor;
-			    
+
+			    //
+			    // The load factor jumps immediately to the number of
+			    // threads that are currently in use, but decays
+			    // exponentially if the number of threads in use is
+			    // smaller than the load factor. This reflects that we
+			    // create threads immediately when they are needed,
+			    // but want the number of threads to slowly decline to
+			    // the configured minimum.
+			    //
+			    double inUse = (double)_inUse;
+			    if(_load < inUse)
+			    {
+				_load = inUse;
+			    }
+			    else
+			    {
+				double loadFactor = 0.05; // TODO: Configurable?
+				double oneMinusLoadFactor = 1 - loadFactor;
+				_load = _load * oneMinusLoadFactor + inUse * loadFactor;
+			    }
+
 			    if(_running > _size)
 			    {
-				int load = (int)(_load + 1);
-				if(load < _running)
+				int load = (int)(_load + 0.5);
+
+				//Console.WriteLine("{0} {1} {2} {3}", _inUse, _running, load, _load);
+
+				//
+				// We add one to the load factor because on
+				// additional thread is needed for select().
+				//
+				if(load  + 1 < _running)
 				{
+				    //Console.WriteLine("delete thread!!!");
+
 				    Debug.Assert(_inUse > 0);
 				    --_inUse;
 				    
