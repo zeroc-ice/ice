@@ -194,6 +194,17 @@ Ice::SocketException::ice_print(ostream& out) const
 }
 
 void
+Ice::FileException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nfile exception: " << errorToString(error);
+    if(!path.empty())
+    {
+	out << "\npath: " << path;
+    }
+}
+
+void
 Ice::ConnectFailedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

@@ -138,7 +138,7 @@ local exception ObjectAdapterDeactivatedException
  * the same adapter id.
  *
  **/
-#ifndef ICE_NO_ROUTER
+#ifndef ICE_NO_LOCATOR
 local exception ObjectAdapterIdInUseException
 {
     /**
@@ -310,6 +310,18 @@ local exception SyscallException
  **/
 local exception SocketException extends SyscallException
 {
+};
+
+/**
+ *
+ * This exception is a specialization of [SyscallException] for file
+ * errors.
+ *
+ **/
+local exception FileException extends SyscallException
+{
+    /** The path of the file responsible for the error. */
+    string path;
 };
 
 /**

@@ -222,7 +222,8 @@ Ice::PropertiesI::load(const std::string& file)
     ifstream in(file.c_str());
     if(!in)
     {
-        SyscallException ex(__FILE__, __LINE__);
+        FileException ex(__FILE__, __LINE__);
+	ex.path = file;
         ex.error = getSystemErrno();
         throw ex;
     }

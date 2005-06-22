@@ -62,6 +62,7 @@
 	 <property name="Name" value="${service}"/>
        </properties>    
      </service-template>
+
  
      <node name="node">
        <variable name="node1" value="test"/>
@@ -71,6 +72,17 @@
        <server-instance template="IceBoxTemplate" name="IceBox"/>
        <server-instance template="ServerTemplate" name="Server"/>
        <server-instance template="ServerTemplate" name="Server2"/>
+
+       <server name="node-1" exe="icegridnode">
+         <adapters>
+  	   <adapter name="IceGrid.Node" endpoints="default"/>
+         </adapters>
+	 <properties>
+	    <property name="IceGrid.Node.Name" value="${server}"/>
+	    <property name="IceGrid.Node.Data" value="db/${server}"/>
+	 </properties>
+       </server>
+
      </node>
 
   </application>
