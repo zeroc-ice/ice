@@ -882,11 +882,40 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		h = _endpoint;
-		_acceptor = _endpoint.acceptor(ref h);
-		_endpoint = h;
-		Debug.Assert(_acceptor != null);
-		_acceptor.listen();
+		try
+		{
+		    h = _endpoint;
+		    _acceptor = _endpoint.acceptor(ref h);
+		    _endpoint = h;
+		    Debug.Assert(_acceptor != null);
+		    _acceptor.listen();
+		}
+		catch(System.Exception)
+		{
+		    //
+		    // Clean up for finalizer.
+		    //
+		    
+		    if(_acceptor != null)
+		    {
+			try
+			{
+			    _acceptor.close();
+			}
+			catch(System.Exception)
+			{
+			    // Here we ignore any exceptions in close().			
+			}
+		    }
+
+		    lock(this)
+		    {
+			_state = StateClosed;
+			_acceptor = null;
+			_connections = null;
+		    }
+		    throw;
+		}
 	    }
 	}
 	
