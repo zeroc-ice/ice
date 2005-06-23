@@ -116,11 +116,11 @@ PostBuild_Cmds=copy $(OutDir)\testCommond.lib ..\..\lib\	copy $(OutDir)\testComm
 # PROP Intermediate_Dir "ReleaseStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-SLICE2CPPEFLAGS=-DICEE
 MTL=midl.exe
+SLICE2CPPEFLAGS=-DICEE
 CPP=cl.exe
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I ".." /I "../../include" /I "../include" /D "_LIB" /D "NDEBUG" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I ".." /I "../../include" /I "../include" /D "NDEBUG" /D "ICE_STATIC_LIBS" /D "_LIB" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /Fr /YX
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -132,7 +132,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy            $(OutDir)\testCommon.lib            ..\..\lib\ 
+PostBuild_Cmds=copy             $(OutDir)\testCommon.lib             ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 Debug Static"
@@ -148,11 +148,11 @@ PostBuild_Cmds=copy            $(OutDir)\testCommon.lib            ..\..\lib\
 # PROP Intermediate_Dir "DebugStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-SLICE2CPPEFLAGS=-DICEE
 MTL=midl.exe
+SLICE2CPPEFLAGS=-DICEE
 CPP=cl.exe
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /I "../include" /D "_LIB" /D "_DEBUG" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /I "../include" /D "_DEBUG" /D "ICE_STATIC_LIBS" /D "_LIB" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -165,7 +165,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy           $(OutDir)\testCommond.lib           ..\..\lib\ 
+PostBuild_Cmds=copy            $(OutDir)\testCommond.lib            ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
