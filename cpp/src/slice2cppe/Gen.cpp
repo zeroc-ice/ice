@@ -1962,40 +1962,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << eb;
 	}
 	
-	H << sp;
-	H << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
-	H << nl << "virtual void __read(::IceInternal::BasicStream*, bool);";
-
-	TypeStringList memberList;
-	DataMemberList dataMembers = p->dataMembers();
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    memberList.push_back(make_pair((*q)->type(), (*q)->name()));
-	}
-	C << sp;
-	C << nl << "void" << nl << scoped.substr(2)
-          << "::__write(::IceInternal::BasicStream* __os) const";
-	C << sb;
-	C << nl << "__os->writeTypeId(ice_staticId());";
-	C << nl << "__os->startWriteSlice();";
-	writeMarshalCode(C, memberList, 0);
-	C << nl << "__os->endWriteSlice();";
-	emitUpcall(base, "::__write(__os);");
-	C << eb;
-	C << sp;
-	C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is, bool __rid)";
-	C << sb;
-	C << nl << "if(__rid)";
-	C << sb;
-	C << nl << "::std::string myId;";
-	C << nl << "__is->readTypeId(myId);";
-	C << eb;
-	C << nl << "__is->startReadSlice();";
-	writeUnmarshalCode(C, memberList, 0);
-	C << nl << "__is->endReadSlice();";
-	emitUpcall(base, "::__read(__is, true);");
-	C << eb;
-
     }
 
     H << eb << ';';
@@ -2370,7 +2336,6 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "Prx&);";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "Prx&);";
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "Ptr&);";
-	H << nl << _dllExport << "void __patch__" << name << "Ptr(void*, ::Ice::ObjectPtr&);";
     }
 }
 

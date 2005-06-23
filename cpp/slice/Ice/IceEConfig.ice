@@ -14,7 +14,6 @@
 // Uncomment the following define if you want to build Ice-E
 // without Router support.
 //
-
 #define ICE_NO_ROUTER
 
 //
