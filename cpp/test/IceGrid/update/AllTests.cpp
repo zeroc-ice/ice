@@ -347,6 +347,97 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
+	cout << "test node add..." << flush;
+
+	ApplicationDescriptorPtr testApp = new ApplicationDescriptor();
+	testApp->name = "TestApp";
+	NodeDescriptor node;
+	node.name = "node1";
+	node.variables["node"] = "node1";
+	testApp->nodes.push_back(node);
+
+	try
+	{
+	    admin->addApplication(testApp);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	ApplicationUpdateDescriptor update;
+	update.name = "TestApp";
+	node.name = "node2";
+	node.variables["node"] = "node2";
+	update.nodes.push_back(node);
+
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	testApp = admin->getApplicationDescriptor("TestApp");
+	test(testApp->nodes.size() == 2);
+	int node1 = testApp->nodes[0].name == "node1" ? 0 : 1;
+	int node2 = testApp->nodes[0].name == "node2" ? 0 : 1;
+	test(testApp->nodes[node1].name == "node1" && testApp->nodes[node1].variables["node"] == "node1");
+	test(testApp->nodes[node2].name == "node2" && testApp->nodes[node2].variables["node"] == "node2");
+	cout << "ok" << endl;
+
+	cout << "test node update..." << flush;
+
+	node.name = "node2";
+	node.variables["node"] = "node2updated";
+	update.nodes.back() = node;
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	testApp = admin->getApplicationDescriptor("TestApp");
+	test(testApp->nodes.size() == 2);
+	node1 = testApp->nodes[0].name == "node1" ? 0 : 1;
+	node2 = testApp->nodes[0].name == "node2" ? 0 : 1;
+	test(testApp->nodes[node1].name == "node1" && testApp->nodes[node1].variables["node"] == "node1");
+	test(testApp->nodes[node2].name == "node2" && testApp->nodes[node2].variables["node"] == "node2updated");
+
+	cout << "ok" << endl;
+
+	cout << "test node remove..." << flush;
+
+	update.nodes.clear();
+	update.removeNodes.push_back("node1");
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	
+	testApp = admin->getApplicationDescriptor("TestApp");
+	test(testApp->nodes.size() == 1);
+	test(testApp->nodes[0].name == "node2" && testApp->nodes[0].variables["node"] == "node2updated");
+	
+	admin->removeApplication("TestApp");
+
+	cout << "ok" << endl;
+    }	
+
+    {
 	cout << "test variable update... " << flush;
 
 	PropertyDescriptorSeq properties;

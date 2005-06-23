@@ -689,19 +689,23 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     }
 
     newApp->nodes = newUpdate.nodes;
+    set<string> removed(newUpdate.removeNodes.begin(), newUpdate.removeNodes.end());
     for(NodeDescriptorSeq::const_iterator q = oldApp->nodes.begin(); q != oldApp->nodes.end(); ++q)
     {
-	NodeDescriptorSeq::const_iterator r;
-	for(r = newUpdate.nodes.begin(); r != newUpdate.nodes.end(); ++r)
+	if(removed.find(q->name) == removed.end())
 	{
-	    if(q->name == r->name)
+	    NodeDescriptorSeq::const_iterator r;
+	    for(r = newUpdate.nodes.begin(); r != newUpdate.nodes.end(); ++r)
 	    {
-		break;
+		if(q->name == r->name)
+		{
+		    break;
+		}
 	    }
-	}
-	if(r == newUpdate.nodes.end())
-	{
-	    newApp->nodes.push_back(*q);
+	    if(r == newUpdate.nodes.end())
+	    {
+		newApp->nodes.push_back(*q);
+	    }
 	}
     }
 
@@ -712,13 +716,13 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 	newApp->servers.push_back(*q);
     }
 
-    set<string> remove(newUpdate.removeServers.begin(), newUpdate.removeServers.end());
+    removed = set<string>(newUpdate.removeServers.begin(), newUpdate.removeServers.end());
     set<string> updated;
     for_each(newApp->servers.begin(), newApp->servers.end(), AddServerName(updated));
     for(ServerInstanceDescriptorSeq::const_iterator q = oldApp->servers.begin(); q != oldApp->servers.end(); ++q)
     {
 	ServerInstanceDescriptor inst = instantiate(*q); // Re-instantiate old servers.
-	if(updated.find(inst.descriptor->name) == updated.end() && remove.find(inst.descriptor->name) == remove.end())
+	if(updated.find(inst.descriptor->name) == updated.end() && removed.find(inst.descriptor->name) == removed.end())
 	{
 	    if(q->node != inst.node ||
 	       ServerDescriptorHelper(*this, q->descriptor) != ServerDescriptorHelper(*this, inst.descriptor))

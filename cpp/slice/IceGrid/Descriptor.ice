@@ -535,6 +535,13 @@ struct ApplicationUpdateDescriptor
      *
      **/
     NodeDescriptorSeq nodes;
+
+    /**
+     *
+     * The nodes to remove.
+     *
+     **/
+    Ice::StringSeq removeNodes;
     
     /**
      *
