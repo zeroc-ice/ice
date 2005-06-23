@@ -31,6 +31,10 @@ Changes since version 2.1.2
 Changes since version 2.1.1
 ---------------------------
 
+- Fixed a bug with dynamic thread pools, where new threads were
+  destroyed immediately after dispatch if <threadpool>.Size=1 and
+  <threadpool>.SizeMax > 1.
+
 - Added the configuration property Ice.Compression.Level to provide
   more control over the bzip2 algorithm used to compress Ice protocol
   messages.

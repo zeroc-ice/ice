@@ -37,7 +37,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _stackSize(0),
     _running(0),
     _inUse(0),
-    _load(0),
+    _load(1.0),
     _promote(true),
     _warnUdp(_instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 {
@@ -667,14 +667,37 @@ IceInternal::ThreadPool::run()
 		// Now we check if this thread can be destroyed, based
 		// on a load factor.
 		//
-		const double loadFactor = 0.05; // TODO: Configurable?
-		const double oneMinusLoadFactor = 1 - loadFactor;
-		_load = _load * oneMinusLoadFactor + _inUse * loadFactor;
+
+		//
+		// The load factor jumps immediately to the number of
+		// threads that are currently in use, but decays
+		// exponentially if the number of threads in use is
+		// smaller than the load factor. This reflects that we
+		// create threads immediately when they are needed,
+		// but want the number of threads to slowly decline to
+		// the configured minimum.
+		//
+		double inUse = static_cast<double>(_inUse);
+		if(_load < inUse)
+		{
+		    _load = inUse;
+		}
+		else
+		{
+		    const double loadFactor = 0.05; // TODO: Configurable?
+		    const double oneMinusLoadFactor = 1 - loadFactor;
+		    _load = _load * oneMinusLoadFactor + inUse * loadFactor;
+		}
 		
 		if(_running > _size)
 		{
-		    int load = static_cast<int>(_load + 1);
-		    if(load < _running)
+		    int load = static_cast<int>(_load + 0.5);
+
+		    //
+		    // We add one to the load factor because on
+		    // additional thread is needed for select().
+		    //
+		    if(load + 1 < _running)
 		    {
 			assert(_inUse > 0);
 			--_inUse;

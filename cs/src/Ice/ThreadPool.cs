@@ -43,7 +43,7 @@ namespace IceInternal
 	    _threadIndex = 0;
 	    _running = 0;
 	    _inUse = 0;
-	    _load = 0;
+	    _load = 1.0;
 	    _promote = true;
 	    _warnUdp = _instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 	    

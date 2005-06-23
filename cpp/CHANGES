@@ -1,6 +1,13 @@
 Changes since version 2.1.1
 ---------------------------
 
+TODO: This must be split: Some of the changes were done since version
+2.1.1, some were done since version 2.1.2.
+
+- Fixed a bug with dynamic thread pools, where new threads were
+  destroyed immediately after dispatch if <threadpool>.Size=1 and
+  <threadpool>.SizeMax > 1.
+
 - Added new features to the C++ mapping:
 
   - Structures, classes, and exceptions now have one-shot constructors.
