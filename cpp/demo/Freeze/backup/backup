@@ -25,10 +25,12 @@ case $1 in
           echo "====== Log backup ====="
           if [ ! -d $1/logs ] ; then mkdir $1/logs ; fi
           \rm -f db/logs/logs.*
-          for i in db/logs/log.*
+          cd db
+          for i in logs/log.*
           do
-             dd if=$i of=$1${i#db} bs=$pagesize
+             dd if=$i of=../$1/$i bs=$pagesize
           done
+          cd ..
           echo "===== Remove old logs ====="
           for i in $oldLogs
           do

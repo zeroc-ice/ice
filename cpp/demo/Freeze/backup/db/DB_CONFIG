@@ -8,7 +8,11 @@ set_lg_dir logs
 # (Optional) Additional Berkeley DB messages during recovery.
 #
 set_verbose DB_VERB_RECOVERY
-set_verbose DB_VERB_CHKPOINT
+
+#
+# Not available with DB 4.3
+#
+#set_verbose DB_VERB_CHKPOINT
 
 #
 # Reduces the size of log files only for demonstration purposes
