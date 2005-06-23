@@ -15,15 +15,6 @@ Package=<4>
     Project_Dep_Name ice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name icecpp
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cppe
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
 }}}
@@ -40,12 +31,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cppe
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name testCommon
@@ -69,12 +54,6 @@ Package=<4>
     Project_Dep_Name ice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name slice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cppe
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
 }}}
@@ -90,61 +69,25 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name interfaceC
+    Project_Dep_Name adapterdeactivationC
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name interfaceS
+    Project_Dep_Name adapterdeactivationCOL
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name ice
+    Project_Dep_Name adapterdeactivationS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name helloC
+    Project_Dep_Name bidirC
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name helloS
+    Project_Dep_Name bidirS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name valueC
+    Project_Dep_Name callbackC
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name valueS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name latencyC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name latencyS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name interfaceCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cppe
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name html
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name operationsC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name operationsCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name operationsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name inheritanceC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name inheritanceCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name inheritanceS
+    Project_Dep_Name callbackS
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name exceptionsC
@@ -156,51 +99,6 @@ Package=<4>
     Project_Dep_Name exceptionsS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name slice2docbook
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name faulttoleranceC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name faulttoleranceS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name locationForwardC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name locationForwardS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name asyncFHTC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name asyncFHTS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name phonebookC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name phonebookS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2freezej
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name phonebookCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name nestedC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name nestedS
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name facetsC
     End Project Dependency
     Begin Project Dependency
@@ -210,94 +108,37 @@ Package=<4>
     Project_Dep_Name facetsS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name objectsC
+    Project_Dep_Name faulttoleranceC
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name objectsCOL
+    Project_Dep_Name faulttoleranceS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name objectsS
+    Project_Dep_Name helloC
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name clockC
+    Project_Dep_Name helloS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name clockS
+    Project_Dep_Name ice
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name iceStorm
+    Project_Dep_Name icec
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name iceStormC
+    Project_Dep_Name inheritanceC
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name iceStormS
+    Project_Dep_Name inheritanceCOL
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name dbmap
+    Project_Dep_Name inheritanceS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name singleS
+    Project_Dep_Name latencyC
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name singleC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name complex
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name federationC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name federationS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2java
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name thread
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name callbackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name callbackS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name unicode
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icexml
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name loadPEM
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name certificateandkeyparsing
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name certificateverifier
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name certificateverificationC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name certificateverificationS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name configuration
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name bench
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libraryC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libraryCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name libraryS
+    Project_Dep_Name latencyS
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name locationC
@@ -306,217 +147,10 @@ Package=<4>
     Project_Dep_Name locationS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name inputUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloiceboxC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloiceboxS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icebox
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceboxC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceboxS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name evictorC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name evictorS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icecpp
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name adapterDeactivationC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name adapterDeactivationCOL
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name adapterDeactivationS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sliceexC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sliceexS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sliceobC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sliceobS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name uuid
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name workqueue
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name ctrlchandler
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name throughputC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name throughputS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name gcC
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name mfchelloC
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name mfchelloS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloicepackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloicepackS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloicepacksvc
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepack
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepacknode
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepackRegistry
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name deployerC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name deployerS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name deployersvc
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name freezescriptdbmap
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name freezescriptevictor
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name TransformDB
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name dumpdb
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cs
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sliceobAMDS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name checksumC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name checksumS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleicepackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleicepackS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleicepacksvc
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacier2
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacier2callbackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacier2callbackS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacier2router
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2py
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2vb
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name routerC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name routerS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name printerC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name printerS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simplefsC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simplefsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name streamC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name glacier2callbackSS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepatch2
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepatch2C
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepatch2calc
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icepatch2S
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name bidirC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name bidirS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name chatC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name chatS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name mfcpatchC
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name minimalC
@@ -525,7 +159,43 @@ Package=<4>
     Project_Dep_Name minimalS
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name nestedC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name nestedS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name operationsS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sliceexC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name sliceexS
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name testCommon
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name thread
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name throughputC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name throughputS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uuid
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name workqueue
     End Project Dependency
 }}}
 
@@ -641,9 +311,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name tcp
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -734,9 +401,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name tcp
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -750,7 +414,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name ice
+    Project_Dep_Name icec
     End Project Dependency
 }}}
 
@@ -779,9 +443,6 @@ Package=<5>
 
 Package=<4>
 {{{
-    Begin Project Dependency
-    Project_Dep_Name slice2cppe
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -848,9 +509,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name tcp
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -864,7 +522,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name ice
+    Project_Dep_Name icec
     End Project Dependency
 }}}
 
@@ -880,12 +538,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -936,7 +588,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name ice
+    Project_Dep_Name icec
     End Project Dependency
 }}}
 
@@ -957,24 +609,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "minimal"=.\minimal.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name tcp
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "minimalC"=.\demo\Ice\minimal\minimalC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -984,7 +618,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name tcp
+    Project_Dep_Name icec
     End Project Dependency
 }}}
 
@@ -1000,9 +634,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -1033,12 +664,6 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name icessl
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
@@ -1076,9 +701,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name tcp
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1114,9 +736,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name testCommon
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name tcp
     End Project Dependency
 }}}
 
