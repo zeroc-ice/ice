@@ -257,7 +257,7 @@ namespace IceInternal
 	    _seqDataStack = sd;
 
 	    int bytesLeft = _buf.remaining();
-	    if(_seqDataStack == null) // Outermost sequence
+	    if(_seqDataStack.previous == null) // Outermost sequence
 	    {
 		//
 		// The sequence must fit within the message.
@@ -301,6 +301,25 @@ namespace IceInternal
 	    }
 	}
 
+	public void checkFixedSeq(int numElements, int elemSize)
+	{
+	    int bytesLeft = _buf.remaining();
+	    if(_seqDataStack == null) // Outermost sequence
+	    {
+		//
+		// The sequence must fit within the message.
+		//
+		if(numElements * elemSize > bytesLeft) 
+		{
+		    throw new Ice.UnmarshalOutOfBoundsException();
+		}
+	    }
+	    else // Nested sequence
+	    {
+		checkSeq(bytesLeft - numElements * elemSize);
+	    }
+	}
+
 	public void endElement()
 	{
 	    Debug.Assert(_seqDataStack != null);
@@ -320,25 +339,6 @@ namespace IceInternal
 	    SeqData oldSeqData = _seqDataStack;
 	    Debug.Assert(oldSeqData != null);
 	    _seqDataStack = oldSeqData.previous;
-	}
-
-	public void checkFixedSeq(int numElements, int elemSize)
-	{
-	    int bytesLeft = _buf.remaining();
-	    if(_seqDataStack == null) // Outermost sequence
-	    {
-		//
-		// The sequence must fit within the message.
-		//
-		if(numElements * elemSize > bytesLeft) 
-		{
-		    throw new Ice.UnmarshalOutOfBoundsException();
-		}
-	    }
-	    else // Nested sequence
-	    {
-		checkSeq(bytesLeft - numElements * elemSize);
-	    }
 	}
 
 	public virtual void startWriteEncaps()

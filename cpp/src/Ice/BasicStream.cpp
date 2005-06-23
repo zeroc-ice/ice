@@ -186,7 +186,7 @@ IceInternal::BasicStream::startSeq(int numElements, int minSize)
     _seqDataStack = sd;
 
     int bytesLeft = static_cast<int>(b.end() - i);
-    if(_seqDataStack == 0) // Outermost sequence
+    if(_seqDataStack->previous == 0) // Outermost sequence
     {
 	//
 	// The sequence must fit within the message.
@@ -233,23 +233,6 @@ IceInternal::BasicStream::checkSeq(int bytesLeft)
 }
 
 void
-IceInternal::BasicStream::endSeq(int sz)
-{
-    if(sz == 0) // Pop only if something was pushed previously.
-    {
-	return;
-    }
-
-    //
-    // Pop the sequence stack.
-    //
-    SeqData* oldSeqData = _seqDataStack;
-    assert(oldSeqData);
-    _seqDataStack = oldSeqData->previous;
-    delete oldSeqData;
-}
-
-void
 IceInternal::BasicStream::checkFixedSeq(int numElements, int elemSize)
 {
     int bytesLeft = static_cast<int>(b.end() - i);
@@ -267,6 +250,23 @@ IceInternal::BasicStream::checkFixedSeq(int numElements, int elemSize)
     {
 	checkSeq(bytesLeft - numElements * elemSize);
     }
+}
+
+void
+IceInternal::BasicStream::endSeq(int sz)
+{
+    if(sz == 0) // Pop only if something was pushed previously.
+    {
+	return;
+    }
+
+    //
+    // Pop the sequence stack.
+    //
+    SeqData* oldSeqData = _seqDataStack;
+    assert(oldSeqData);
+    _seqDataStack = oldSeqData->previous;
+    delete oldSeqData;
 }
 
 IceInternal::BasicStream::WriteEncaps::WriteEncaps()

@@ -226,7 +226,7 @@ public class BasicStream
 	_seqDataStack = sd;
 
 	int bytesLeft = _buf.remaining();
-	if(_seqDataStack == null) // Outermost sequence
+	if(_seqDataStack.previous == null) // Outermost sequence
 	{
 	    //
 	    // The sequence must fit within the message.
@@ -273,6 +273,26 @@ public class BasicStream
     }
 
     public void
+    checkFixedSeq(int numElements, int elemSize)
+    {
+	int bytesLeft = _buf.remaining();
+	if(_seqDataStack == null) // Outermost sequence
+	{
+	    //
+	    // The sequence must fit within the message.
+	    //
+	    if(numElements * elemSize > bytesLeft) 
+	    {
+		throw new Ice.UnmarshalOutOfBoundsException();
+	    }
+	}
+	else // Nested sequence
+	{
+	    checkSeq(bytesLeft - numElements * elemSize);
+	}
+    }
+
+    public void
     endSeq(int sz)
     {
 	if(sz == 0) // Pop only if something was pushed previously.
@@ -293,26 +313,6 @@ public class BasicStream
     {
         assert(_seqDataStack != null);
 	--_seqDataStack.numElements;
-    }
-
-    public void
-    checkFixedSeq(int numElements, int elemSize)
-    {
-	int bytesLeft = _buf.remaining();
-	if(_seqDataStack == null) // Outermost sequence
-	{
-	    //
-	    // The sequence must fit within the message.
-	    //
-	    if(numElements * elemSize > bytesLeft) 
-	    {
-		throw new Ice.UnmarshalOutOfBoundsException();
-	    }
-	}
-	else // Nested sequence
-	{
-	    checkSeq(bytesLeft - numElements * elemSize);
-	}
     }
 
     public void

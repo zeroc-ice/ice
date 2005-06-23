@@ -56,13 +56,13 @@ public:
     void startSeq(int, int);
     void checkSeq();
     void checkSeq(int);
+    void checkFixedSeq(int, int); // For sequences of fixed-size types.
     void endElement()
     {
 	assert(_seqDataStack);
 	--_seqDataStack->numElements;
     }
     void endSeq(int);
-    void checkFixedSeq(int, int); // For sequences of fixed-size types.
 
     void startWriteEncaps();
     void endWriteEncaps();
