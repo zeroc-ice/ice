@@ -12,7 +12,7 @@ top_srcdir	= ..
 include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= Ice \
-		  TcpTransport
+		  IceC
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
