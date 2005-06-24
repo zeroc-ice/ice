@@ -1171,11 +1171,6 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << sb;
     if(!_ice)
     {
-        C << sp << nl << "#ifndef ICEE_PURE_CLIENT";
-    }
-    C << nl << "return "<< scoped << "::ice_staticId();";
-    if(!_ice)
-    {
         string flatName = p->flattenedScope() + p->name() + "_ids";
 
         StringList ids;
@@ -1186,9 +1181,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
         assert(scopedIter != ids.end());
         StringList::difference_type scopedPos = ice_distance(firstIter, scopedIter);
 
-        C << nl << "#else";
         C << nl << "return " << flatName << '[' << scopedPos << "];";
-        C << nl << "#endif // ICEE_PURE_CLIENT";
     }
     C << eb;
 
@@ -2431,18 +2424,6 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
 	H << sp;
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "Prx&);";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "Prx&);";
-
-        if(!_ice)
-        {
-	    H << sp << nl << "#ifndef ICEE_PURE_CLIENT" << sp;
-	}
-	
-	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "Ptr&);";
-
-        if(!_ice)
-        {
-	    H << sp << nl << "#endif // ICEE_PURE_CLIENT";
-	}
     }
 }
 
@@ -2491,23 +2472,6 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "v->__copyFrom(proxy);";
 	C << eb;
 	C << eb;
-
-        if(!_ice)
-        {
-	    C << sp << nl << "#ifndef ICEE_PURE_CLIENT";
-	}
-
-	C << sp;
-	C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
-	   << scope << name << "Ptr& v)";
-	C << sb;
-	C << nl << "__os->write(::Ice::ObjectPtr(v));";
-	C << eb;
-
-        if(!_ice)
-        {
-	    C << sp << nl << "#endif // ICEE_PURE_CLIENT";
-	}
     }
 
     return true;
