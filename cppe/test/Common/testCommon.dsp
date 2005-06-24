@@ -58,7 +58,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 ws2_32.lib rpcrt4.lib advapi32.lib /nologo /dll /incremental:yes /machine:I386 /out:"Release/testCommon21.dll" /implib:"Release/testCommon.lib"
+# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /dll /incremental:yes /machine:I386 /out:"Release/testCommon21.dll" /implib:"Release/testCommon.lib"
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Release
@@ -95,7 +95,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 ws2_32.lib rpcrt4.lib advapi32.lib /nologo /dll /debug /machine:I386 /out:"Debug/testCommon21d.dll" /implib:"Debug/testCommond.lib"
+# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /dll /debug /machine:I386 /out:"Debug/testCommon21d.dll" /implib:"Debug/testCommond.lib"
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Debug
@@ -116,8 +116,8 @@ PostBuild_Cmds=copy $(OutDir)\testCommond.lib ..\..\lib\	copy $(OutDir)\testComm
 # PROP Intermediate_Dir "ReleaseStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-SLICE2CPPEFLAGS=-DICEE
 MTL=midl.exe
+SLICE2CPPEFLAGS=-DICEE
 CPP=cl.exe
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I ".." /I "../../include" /I "../include" /D "NDEBUG" /D "ICE_STATIC_LIBS" /D "_LIB" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /c
@@ -133,7 +133,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy              $(OutDir)\testCommon.lib              ..\..\lib\ 
+PostBuild_Cmds=copy               $(OutDir)\testCommon.lib               ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 Debug Static"
@@ -149,8 +149,8 @@ PostBuild_Cmds=copy              $(OutDir)\testCommon.lib              ..\..\lib
 # PROP Intermediate_Dir "DebugStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-SLICE2CPPEFLAGS=-DICEE
 MTL=midl.exe
+SLICE2CPPEFLAGS=-DICEE
 CPP=cl.exe
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /I "../include" /D "_DEBUG" /D "ICE_STATIC_LIBS" /D "_LIB" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /GZ /c
@@ -166,7 +166,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy             $(OutDir)\testCommond.lib             ..\..\lib\ 
+PostBuild_Cmds=copy              $(OutDir)\testCommond.lib              ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
