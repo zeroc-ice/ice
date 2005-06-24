@@ -16,7 +16,7 @@
 module IceGrid
 {
 
-dictionary<string, string> StringStringDict;
+["java:type:java.util.TreeMap"] dictionary<string, string> StringStringDict;
 
 /**
  *
@@ -28,7 +28,7 @@ struct PropertyDescriptor
     string name;
     string value;
 };
-sequence<PropertyDescriptor> PropertyDescriptorSeq;
+["java:type:java.util.LinkedList"] sequence<PropertyDescriptor> PropertyDescriptorSeq;
 
 /**
  *
@@ -64,7 +64,7 @@ struct ObjectDescriptor
  * A sequence of object descriptors.
  *
  **/
-sequence<ObjectDescriptor> ObjectDescriptorSeq;
+["java:type:java.util.LinkedList"] sequence<ObjectDescriptor> ObjectDescriptorSeq;
 
 /**
  *
@@ -114,7 +114,7 @@ struct AdapterDescriptor
  * A sequence of adapter descriptors.
  *
  **/
-sequence<AdapterDescriptor> AdapterDescriptorSeq;
+["java:type:java.util.LinkedList"] sequence<AdapterDescriptor> AdapterDescriptorSeq;
 
 /**
  *
@@ -151,7 +151,7 @@ struct DbEnvDescriptor
  * A sequence of database environment descriptors.
  *
  **/
-sequence<DbEnvDescriptor> DbEnvDescriptorSeq;
+["java:type:java.util.LinkedList"] sequence<DbEnvDescriptor> DbEnvDescriptorSeq;
 
 /**
  *
@@ -319,7 +319,7 @@ struct ServerInstanceDescriptor
      **/
     Ice::StringSeq targets;
 };
-sequence<ServerInstanceDescriptor> ServerInstanceDescriptorSeq;
+["java:type:java.util.LinkedList"] sequence<ServerInstanceDescriptor> ServerInstanceDescriptorSeq;
 
 struct ServiceInstanceDescriptor
 {
@@ -353,7 +353,7 @@ struct ServiceInstanceDescriptor
      **/
     Ice::StringSeq targets;
 };
-sequence<ServiceInstanceDescriptor> ServiceInstanceDescriptorSeq;
+["java:type:java.util.LinkedList"] sequence<ServiceInstanceDescriptor> ServiceInstanceDescriptorSeq;
 
 struct TemplateDescriptor
 {
@@ -369,7 +369,7 @@ struct TemplateDescriptor
      * The name of the parameters required to instantiate the template.
      *
      **/
-    Ice::StringSeq parameters;
+    ["java:type:java.util.LinkedList"] Ice::StringSeq parameters;
 };
 dictionary<string, TemplateDescriptor> TemplateDescriptorDict;
 
@@ -411,7 +411,7 @@ struct NodeDescriptor
      **/
     StringStringDict variables;
 };
-sequence<NodeDescriptor> NodeDescriptorSeq;
+["java:type:java.util.LinkedList"] sequence<NodeDescriptor> NodeDescriptorSeq;
 
 /**
  *
@@ -476,7 +476,7 @@ class ApplicationDescriptor
      **/ 
     string comment;
 };
-sequence<ApplicationDescriptor> ApplicationDescriptorSeq;
+["java:type:java.util.LinkedList"] sequence<ApplicationDescriptor> ApplicationDescriptorSeq;
 
 struct ApplicationUpdateDescriptor
 {
