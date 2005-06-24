@@ -609,7 +609,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "minimalC"=..\..\icee\demo\Ice\minimal\client\minimalC.dsp - Package Owner=<4>
+Project: "minimalC"=.\demo\Ice\minimal\minimalC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -624,7 +624,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "minimalS"=..\..\icee\demo\Ice\minimal\server\minimalS.dsp - Package Owner=<4>
+Project: "minimalS"=.\demo\Ice\minimal\minimalS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

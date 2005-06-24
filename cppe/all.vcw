@@ -258,6 +258,36 @@ Package=<4>
 
 ###############################################################################
 
+Project: "minimalC"=.\demo\Ice\minimal\minimalC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name icec
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "minimalS"=.\demo\Ice\minimal\minimalS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "operationsC"=.\test\Ice\operations\operationsC.vcp - Package Owner=<4>
 
 Package=<5>
