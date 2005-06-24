@@ -478,6 +478,11 @@ class ApplicationDescriptor
 };
 ["java:type:java.util.LinkedList"] sequence<ApplicationDescriptor> ApplicationDescriptorSeq;
 
+class BoxedComment
+{
+    string value;
+};
+
 struct ApplicationUpdateDescriptor
 {
     /**
@@ -487,6 +492,13 @@ struct ApplicationUpdateDescriptor
      **/
     string name;
     
+    /**
+     *
+     * The updated comment (or null if the comment doesn't need to be updated).
+     *
+     **/
+    BoxedComment comment;
+
     /**
      *
      * The variables to update.

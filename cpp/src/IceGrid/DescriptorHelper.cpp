@@ -659,33 +659,40 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     _templates->setDescriptor(newApp);
 
     newApp->name = oldApp->name;
-    newApp->comment = oldApp->comment;
+    newApp->comment = newUpdate.comment ? newUpdate.comment->value : oldApp->comment;
     newApp->targets = oldApp->targets;
     newApp->variables = oldApp->variables;
-    for(map<string, string>::const_iterator q = newUpdate.variables.begin(); q != newUpdate.variables.end(); ++q)
-    {
-	newApp->variables[q->first] = q->second;
-	_variables->addVariable(q->first, q->second);
-    }
     Ice::StringSeq::const_iterator p;
     for(p = newUpdate.removeVariables.begin(); p != newUpdate.removeVariables.end(); ++p)
     {
 	newApp->variables.erase(*p);
 	_variables->remove(*p);
     }
+    for(map<string, string>::const_iterator q = newUpdate.variables.begin(); q != newUpdate.variables.end(); ++q)
+    {
+	newApp->variables[q->first] = q->second;
+	_variables->addVariable(q->first, q->second);
+    }
 
-    newApp->serverTemplates = newUpdate.serverTemplates;
-    newApp->serverTemplates.insert(oldApp->serverTemplates.begin(), oldApp->serverTemplates.end());
+    newApp->serverTemplates = oldApp->serverTemplates;
     for(p = newUpdate.removeServerTemplates.begin(); p != newUpdate.removeServerTemplates.end(); ++p)
     {
 	newApp->serverTemplates.erase(*p);
     }
+    TemplateDescriptorDict::const_iterator t;
+    for(t = newUpdate.serverTemplates.begin(); t != newUpdate.serverTemplates.end(); ++t)
+    {
+	newApp->serverTemplates[t->first] = t->second;
+    }
 
-    newApp->serviceTemplates = newUpdate.serviceTemplates;
-    newApp->serviceTemplates.insert(oldApp->serviceTemplates.begin(), oldApp->serviceTemplates.end());
+    newApp->serviceTemplates = oldApp->serviceTemplates;
     for(p = newUpdate.removeServiceTemplates.begin(); p != newUpdate.removeServiceTemplates.end(); ++p)
     {
 	newApp->serviceTemplates.erase(*p);
+    }
+    for(t = newUpdate.serviceTemplates.begin(); t != newUpdate.serviceTemplates.end(); ++t)
+    {
+	newApp->serviceTemplates[t->first] = t->second;
     }
 
     newApp->nodes = newUpdate.nodes;

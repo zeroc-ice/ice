@@ -718,7 +718,70 @@ allTests(const Ice::CommunicatorPtr& communicator)
 		test(false);
 	    }
 	}
+	admin->removeApplication("TestApp");
+	cout << "ok" << endl;
+    }
 
+    {
+	cout << "testing comment update..." << flush;
+
+	ApplicationDescriptorPtr testApp = new ApplicationDescriptor();
+	testApp->name = "TestApp";
+	testApp->comment = "Comment";
+	try
+	{
+	    admin->addApplication(testApp);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	testApp = admin->getApplicationDescriptor("TestApp");
+	test(testApp->comment == "Comment");
+	
+	ApplicationUpdateDescriptor update;
+	update.name = "TestApp";
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	testApp = admin->getApplicationDescriptor("TestApp");
+	test(testApp->comment == "Comment");
+
+	update.comment = new BoxedComment("updatedComment");
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	testApp = admin->getApplicationDescriptor("TestApp");
+	test(testApp->comment == "updatedComment");
+	    
+	update.comment = new BoxedComment("");
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	testApp = admin->getApplicationDescriptor("TestApp");
+	test(testApp->comment == "");
+
+	admin->removeApplication("TestApp");
+	
 	cout << "ok" << endl;
     }
 }
