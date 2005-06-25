@@ -110,7 +110,7 @@ public class TreeModelI implements TreeModel
 	_root = root;
     }
     
-    public void fireNodesChanged(TreeModelEvent e)
+    public void fireNodesChangedEvent(TreeModelEvent e)
     {
 	// Guaranteed to return a non-null array
         Object[] listeners = _listenerList.getListenerList();
@@ -124,7 +124,7 @@ public class TreeModelI implements TreeModel
         }
     }
     
-    public void fireStructureChanged(TreeModelEvent e)
+    public void fireStructureChangedEvent(TreeModelEvent e)
     {
 	// Guaranteed to return a non-null array
         Object[] listeners = _listenerList.getListenerList();
@@ -137,12 +137,37 @@ public class TreeModelI implements TreeModel
             }          
         }
     }
-
-
-    //
-    // TODO: add methods to fire events
-    // 
     
+    public void fireNodesInsertedEvent(TreeModelEvent e)
+    {
+	// Guaranteed to return a non-null array
+        Object[] listeners = _listenerList.getListenerList();
+	
+        for(int i = listeners.length - 2; i >=0 ; i -= 2)
+	{
+            if (listeners[i] == TreeModelListener.class) 
+	    {
+                ((TreeModelListener)listeners[i + 1]).treeNodesInserted(e);
+            }          
+        }
+    }
+
+    public void fireNodesRemovedEvent(TreeModelEvent e)
+    {
+	System.err.println("TreeModeI.fireNodesRemovedEvent");
+
+	// Guaranteed to return a non-null array
+        Object[] listeners = _listenerList.getListenerList();
+	
+        for(int i = listeners.length - 2; i >=0 ; i -= 2)
+	{
+            if (listeners[i] == TreeModelListener.class) 
+	    {
+		System.err.println("firing");
+                ((TreeModelListener)listeners[i + 1]).treeNodesRemoved(e);
+            }          
+        }
+    }
     
     private Object _root;
     private EventListenerList _listenerList = new EventListenerList();

@@ -14,12 +14,13 @@ class NodeVar extends Leaf
 {
     NodeVar(NodeDescriptor descriptor)
     {
-	_descriptor = descriptor;
+	super(descriptor.name);
+	rebuild(descriptor);
     }
 
-    public String toString()
+    void rebuild(NodeDescriptor descriptor)
     {
-	return _descriptor.name;
+	_descriptor = descriptor;
     }
 
     private NodeDescriptor _descriptor;

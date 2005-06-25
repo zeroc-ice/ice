@@ -256,19 +256,7 @@ class SessionKeeper
 			{
 			    public void run() 
 			    {
-				destroyObservers();
-				_model.lostSession();
-
-				JOptionPane.showMessageDialog(
-				    _parent,
-				    "Failed to contact the IceGrid registry: "  + e.toString(),
-				    "Session lost",
-				    JOptionPane.ERROR_MESSAGE);
-				
-				//
-				// Offer New Connection dialog
-				//
-				createSession(false);
+				sessionLost("Failed to contact the IceGrid registry: "  + e.toString());
 			    }
 			});
 		}
@@ -366,12 +354,11 @@ class SessionKeeper
 	    //
 	    // Discard session
 	    //
-	    _model.lostSession();
 	    destroyObservers();
 	    releaseSession();
+	    _model.sessionLost();
 	}
 	
-
 	Cursor oldCursor = parent.getCursor();
 
 	try
@@ -479,6 +466,28 @@ class SessionKeeper
 	return true;
     }
 
+
+    //
+    // Runs in UI thread
+    //
+    void sessionLost(String message)
+    {
+	destroyObservers();
+	releaseSession();
+	_model.sessionLost();
+
+	JOptionPane.showMessageDialog(
+	    _parent,
+	    message,
+	    "Session lost",
+	    JOptionPane.ERROR_MESSAGE);
+	
+	//
+	// Offer new Connection dialog
+	//
+	createSession(false);
+    }
+
     //
     // Runs in UI thread
     //
@@ -529,7 +538,7 @@ class SessionKeeper
 	    _nodeObserverIdentity.category = "nodeObserver";
 
 	    RegistryObserverI registryObserverServant = new RegistryObserverI(
-		_model);
+		this, _model);
 
 	    RegistryObserverPrx registryObserver = 
 		RegistryObserverPrxHelper.uncheckedCast(

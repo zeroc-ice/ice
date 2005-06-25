@@ -9,31 +9,22 @@
 package IceGrid.TreeNode;
 
 import IceGrid.ServiceInstanceDescriptor;
-import IceGrid.TemplateDescriptor;
 
 class ServiceInstances extends Parent
 {
-    ServiceInstances(ServiceInstanceDescriptor[] descriptors,
-		     java.util.Map serviceTemplates)
+    ServiceInstances(java.util.List descriptors)
     {
+	super("Service instances");
 	_descriptors = descriptors;
 
-	for(int i = 0; i < _descriptors.length; ++i)
+	java.util.Iterator p = _descriptors.iterator();
+	while(p.hasNext())
 	{
-	    TemplateDescriptor templateDescriptor =
-		(TemplateDescriptor)serviceTemplates.
-		get(_descriptors[i].template);
-
-	    addChild(new ServiceInstance(_descriptors[i],
-					 templateDescriptor));
+	    ServiceInstanceDescriptor descriptor = 
+		(ServiceInstanceDescriptor)p.next();
+	    addChild(new ServiceInstance(descriptor));
 	}
     }
 
-    public String toString()
-    {
-	return "Service instances";
-    }
-
-
-    private ServiceInstanceDescriptor[] _descriptors;
+    private java.util.List _descriptors;
 }

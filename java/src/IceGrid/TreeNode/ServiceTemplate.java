@@ -14,8 +14,19 @@ class ServiceTemplate extends Parent
 {
     ServiceTemplate(String name, TemplateDescriptor descriptor)
     {
-	_name = name;
+	super(name);
+	rebuild(descriptor);
+    }
+
+     void rebuild(TemplateDescriptor descriptor)
+    {
 	_descriptor = descriptor;
+	clearChildren();
+
+	//
+	// Fix-up parameters order
+	//
+	java.util.Collections.sort(_descriptor.parameters);
 	
 	_adapters = new Adapters(_descriptor.descriptor.adapters, true);
 	addChild(_adapters);
@@ -26,10 +37,9 @@ class ServiceTemplate extends Parent
 
     public String toString()
     {
-	return templateLabel(_name, _descriptor.parameters);
+	return templateLabel(_id, _descriptor.parameters);
     }
 
-    private String _name;
     private TemplateDescriptor _descriptor;
     private Adapters _adapters;
     private DbEnvs _dbEnvs;

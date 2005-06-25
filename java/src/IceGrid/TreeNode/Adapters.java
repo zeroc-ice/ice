@@ -12,23 +12,22 @@ import IceGrid.AdapterDescriptor;
 
 class Adapters extends Parent
 {
-    Adapters(AdapterDescriptor[] descriptors, boolean inTemplate)
+    Adapters(java.util.List descriptors, boolean inTemplate)
     {
+	super("Adapters");
+
 	_descriptors = descriptors;
 	_inTemplate = inTemplate;
 
-	for(int i = 0; i < _descriptors.length; ++i)
+	java.util.Iterator p = _descriptors.iterator();
+	while(p.hasNext())
 	{
-	    Adapter child = new Adapter(_descriptors[i], _inTemplate);
+	    AdapterDescriptor descriptor = (AdapterDescriptor)p.next();
+	    Adapter child = new Adapter(descriptor, _inTemplate);
 	    addChild(child);
 	}
     }
 
-    public String toString()
-    {
-	return "Adapters";
-    }
-
-    private AdapterDescriptor[] _descriptors;
+    private java.util.List _descriptors;
     private boolean _inTemplate;
 }

@@ -14,6 +14,8 @@ class ServiceTemplates extends Parent
 {
     ServiceTemplates(java.util.Map descriptors)
     {
+	super("Service templates");
+
 	_descriptors = descriptors;
 
 	java.util.Iterator p = _descriptors.entrySet().iterator();
@@ -26,11 +28,44 @@ class ServiceTemplates extends Parent
 	}
     }
 
-    public String toString()
+    void update(java.util.Map descriptors, String[] removeTemplates)
     {
-	return "Service templates";
-    }
+	//
+	// Note: _descriptors is updated by Application
+	//
+	
+	//
+	// One big set of removes
+	//
+	removeChildren(removeTemplates);
 
+	//
+	// One big set of updates, followed by inserts
+	//
+	java.util.Vector newChildren = new java.util.Vector();
+	java.util.Vector updatedChildren = new java.util.Vector();
+	
+	java.util.Iterator p = descriptors.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    String name = (String)entry.getKey();
+	    TemplateDescriptor templateDescriptor = (TemplateDescriptor)entry.getValue();
+	    ServiceTemplate child = (ServiceTemplate)findChild(name);
+	    if(child == null)
+	    {
+		newChildren.add(new ServiceTemplate(name, templateDescriptor));
+	    }
+	    else
+	    {
+		child.rebuild(templateDescriptor);
+		updatedChildren.add(child);
+	    }
+	}
+	
+	updateChildren((CommonBaseI[])updatedChildren.toArray(new CommonBaseI[0]));
+	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
+    }
 
     private java.util.Map _descriptors;
 }

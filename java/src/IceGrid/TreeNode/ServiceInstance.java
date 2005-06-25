@@ -13,11 +13,10 @@ import IceGrid.TemplateDescriptor;
 
 class ServiceInstance extends Parent
 {
-    ServiceInstance(ServiceInstanceDescriptor descriptor,
-		    TemplateDescriptor templateDescriptor)
+    ServiceInstance(ServiceInstanceDescriptor descriptor)
     {
+	super(descriptor.descriptor.name);
 	_descriptor = descriptor;
-	_templateDescriptor = templateDescriptor;
 	
 	if(_descriptor.descriptor != null)
 	{
@@ -31,27 +30,17 @@ class ServiceInstance extends Parent
 
     public String toString()
     {
-	String result = "";
+	String result = _descriptor.descriptor.name;
 
-	//
-	// The if Temporary
-	//
-	if(_descriptor.descriptor != null)
-	{
-	    result = _descriptor.descriptor.name;
-	}
-
-	if(_templateDescriptor != null)
+	if(!_descriptor.template.equals(""))
 	{
 	    result += ": " + templateLabel(_descriptor.template, 
-					   _templateDescriptor.parameters,
-					   _descriptor.parameterValues);
+					   _descriptor.parameterValues.values());
 	}
 	return result;
     }
 
     private ServiceInstanceDescriptor _descriptor;
-    private TemplateDescriptor _templateDescriptor;
     private Adapters _adapters;
     private DbEnvs _dbEnvs;
 }

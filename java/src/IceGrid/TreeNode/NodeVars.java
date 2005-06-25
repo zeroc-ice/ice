@@ -12,20 +12,51 @@ import IceGrid.NodeDescriptor;
 
 class NodeVars extends Parent
 {
-    NodeVars(NodeDescriptor[] descriptors)
+    NodeVars(java.util.List descriptors)
     {
-	_descriptors = descriptors;
-
-	for(int i = 0; i < _descriptors.length; ++i)
+	super("Node settings");
+	java.util.Iterator p = descriptors.iterator();
+	while(p.hasNext())
 	{
-	    addChild(new NodeVar(_descriptors[i]));
+	    NodeDescriptor descriptor = (NodeDescriptor)p.next();
+	    addChild(new NodeVar(descriptor));
 	}
     }
-
-    public String toString()
+    
+    void update(java.util.List descriptors, String[] removeNodes)
     {
-	return "Node settings";
-    }
+	//
+	// Note: _descriptors is updated by Application
+	//
+	
+	//
+	// One big set of removes
+	//
+	removeChildren(removeNodes);
 
-    private NodeDescriptor[] _descriptors;
+	//
+	// One big set of updates, followed by inserts
+	//
+	java.util.Vector newChildren = new java.util.Vector();
+	java.util.Vector updatedChildren = new java.util.Vector();
+	
+	java.util.Iterator p = descriptors.iterator();
+	while(p.hasNext())
+	{
+	    NodeDescriptor nodeDescriptor = (NodeDescriptor)p.next();
+	    NodeVar child = (NodeVar)findChild(nodeDescriptor.name);
+	    if(child == null)
+	    {
+		newChildren.add(new NodeVar(nodeDescriptor));
+	    }
+	    else
+	    {
+		child.rebuild(nodeDescriptor);
+		updatedChildren.add(child);
+	    }
+	}
+	
+	updateChildren((CommonBaseI[])updatedChildren.toArray(new CommonBaseI[0]));
+	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
+    }
 }

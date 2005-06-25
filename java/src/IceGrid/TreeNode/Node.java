@@ -8,6 +8,8 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import IceGrid.NodeDescriptor;
+
 class Node extends Parent
 {
     //
@@ -19,15 +21,25 @@ class Node extends Parent
     // TODO: consider showing per-application node variables
     //
 
-    Node(String name)
+    Node(String applicationName, NodeDescriptor descriptor)
     {
-	_name = name;
+	super(descriptor.name);
+	_applicationMap.put(applicationName, descriptor);
     }
 
-    public String toString()
+    void addApplication(String applicationName, NodeDescriptor descriptor)
     {
-	return _name;
+	_applicationMap.put(applicationName, descriptor);
+    }
+    
+    //
+    // Returns true when this node should be destroyed
+    //
+    boolean removeApplication(String applicationName)
+    {
+	_applicationMap.remove(applicationName);
+	return (_applicationMap.size() == 0);
     }
 
-    private String _name;
+    private java.util.Map _applicationMap = new java.util.HashMap();
 }

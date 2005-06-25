@@ -33,25 +33,22 @@ class ServerInstance extends Parent
     // Builds the server instance and all its sub-tree
     //
     ServerInstance(ServerInstanceDescriptor descriptor, 
-		   TemplateDescriptor templateDescriptor,
-		   java.util.Map serviceTemplates,
-		   NodeViewRoot nodeViewRoot)
+		   NodeViewRoot nodeViewRoot,
+		   boolean fireNodeViewEvent)
     {
+	super(descriptor.descriptor.name);
 	_state = ServerState.Inactive;
 	_pid = 0;
 	_nodeViewRoot = nodeViewRoot;
 	
-	update(descriptor, templateDescriptor, serviceTemplates, false);
+	rebuild(descriptor, fireNodeViewEvent);
     }
 
     //
     // Update the server instance and all its subtree
-    // (sends a structure change event ... we don't optimize)
     //
-    void update(ServerInstanceDescriptor newDescriptor, 
-		TemplateDescriptor newTemplateDescriptor,
-		java.util.Map serviceTemplates,
-		boolean fireEvent)
+    void rebuild(ServerInstanceDescriptor newDescriptor, 
+		 boolean fireNodeViewEvent)
     {
 	assert(newDescriptor != null);
 	clearChildren();
@@ -80,14 +77,12 @@ class ServerInstance extends Parent
 	}
 
 	_descriptor = newDescriptor;
-	_templateDescriptor = newTemplateDescriptor;
 	
 	if(_descriptor.descriptor instanceof IceBoxDescriptor)
 	{
 	    _iceBoxDescriptor = (IceBoxDescriptor)_descriptor.descriptor;
 	    
-	    _serviceInstances = new ServiceInstances(_iceBoxDescriptor.services,
-						     serviceTemplates);
+	    _serviceInstances = new ServiceInstances(_iceBoxDescriptor.services);
 	    addChild(_serviceInstances);
 	    _serviceInstances.addParent(this); // no-op when newNode == true
 	}
@@ -108,11 +103,7 @@ class ServerInstance extends Parent
 	{
 	    Node node =  _nodeViewRoot.findNode(_descriptor.node);
 	    addParent(node); // propagates to children
-	    node.addChild(this);
-	}
-	else if(fireEvent)
-	{
-	    // fireStructureChanged(this);
+	    node.addChild(this, fireNodeViewEvent);
 	}
     }
     
@@ -126,7 +117,7 @@ class ServerInstance extends Parent
 	    //
 	    // Change the node representation in all views
 	    //
-	    fireNodesChanged(this);
+	    fireNodeChangedEvent(this);
 	}
 	else
 	{
@@ -142,12 +133,11 @@ class ServerInstance extends Parent
     {
 	String result = _descriptor.descriptor.name;
 
-	if(_templateDescriptor != null)
+	if(!_descriptor.template.equals(""))
 	{
 	    
 	    result += ": " + templateLabel(_descriptor.template, 
-					   _templateDescriptor.parameters,
-					   _descriptor.parameterValues);
+					   _descriptor.parameterValues.values());
 	}
 	return result;
     }

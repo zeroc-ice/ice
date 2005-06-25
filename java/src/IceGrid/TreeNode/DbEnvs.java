@@ -12,22 +12,20 @@ import IceGrid.DbEnvDescriptor;
 
 class DbEnvs extends Parent
 {
-    DbEnvs(DbEnvDescriptor[] descriptors, boolean inTemplate)
+    DbEnvs(java.util.List descriptors, boolean inTemplate)
     {
+	super("DbEnvs");
 	_descriptors = descriptors;
 	_inTemplate = inTemplate;
 
-	for(int i = 0; i < _descriptors.length; ++i)
+	java.util.Iterator p = _descriptors.iterator();
+	while(p.hasNext())
 	{
-	    addChild(new DbEnv(_descriptors[i], _inTemplate));
+	    DbEnvDescriptor descriptor = (DbEnvDescriptor)p.next();
+	    addChild(new DbEnv(descriptor, _inTemplate));
 	}
     }
-    
-    public String toString()
-    {
-	return "DbEnvs";
-    }
 
-    private DbEnvDescriptor[] _descriptors;
+    private java.util.List _descriptors;
     private boolean _inTemplate;
 }

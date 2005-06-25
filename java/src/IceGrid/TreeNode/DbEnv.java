@@ -14,13 +14,10 @@ class DbEnv extends Leaf
 {
     DbEnv(DbEnvDescriptor descriptor, boolean inTemplate)
     {
+	super(descriptor.name);
+
 	_descriptor = descriptor;
 	_inTemplate = inTemplate;
-    }
-
-    public String toString()
-    {
-	return _descriptor.name;
     }
 
     private DbEnvDescriptor _descriptor;

@@ -93,48 +93,93 @@ class Model
     //                            -- adapters, databases (see above)
 
 
- 
     //
-    // WARNING: The following methods are called by the Server thread pool (or client 
-    // thread pool for bidir connections), not by the UI thread!
+    // The following methods all run in the UI thread
     //
 
-    void registryInit(int serial, final ApplicationDescriptor[] applications, String[] nodesUp)
+ 
+    void registryInit(int serial, final java.util.List applications, String[] nodesUp)
     {	
 	assert(_latestSerial == -1);
 	_latestSerial = serial;
 
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    NodeViewRoot nodeViewRoot = 
-			(NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
-		    
-		    nodeViewRoot.init(applications);
-
-		    ApplicationViewRoot applicationViewRoot =
-			(ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();
-
-		    applicationViewRoot.init(applications);
-		   
-		}
-	    });
+	NodeViewRoot nodeViewRoot = 
+	    (NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
+	nodeViewRoot.init(applications);
+	
+	ApplicationViewRoot applicationViewRoot =
+	    (ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();
+	applicationViewRoot.init(applications);
     }
 
-    void applicationAdded(int serial, ApplicationDescriptor desc)
+    void applicationAdded(ApplicationDescriptor desc)
     {
+	NodeViewRoot nodeViewRoot = 
+	    (NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
+	nodeViewRoot.put(desc.name, desc.nodes, true);
+
+	ApplicationViewRoot applicationViewRoot =
+	    (ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();
+	applicationViewRoot.applicationAdded(desc);
     }
 
-    void applicationRemoved(int serial, String name)
+    void applicationRemoved(String name)
     {
+	NodeViewRoot nodeViewRoot = 
+	    (NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
+	nodeViewRoot.remove(name);
+
+
+	ApplicationViewRoot applicationViewRoot =
+	    (ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();
+	applicationViewRoot.applicationRemoved(name);
+    }
+
+    void applicationSynced(ApplicationDescriptor desc)
+    {
+	NodeViewRoot nodeViewRoot = 
+	    (NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
+	nodeViewRoot.remove(desc.name);
+	nodeViewRoot.put(desc.name, desc.nodes, true);
+
+	ApplicationViewRoot applicationViewRoot =
+	    (ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();
+	
+	applicationViewRoot.applicationSynced(desc);
+    }
+
+    void applicationUpdated(ApplicationUpdateDescriptor desc)
+    {
+	NodeViewRoot nodeViewRoot = 
+	    (NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
+	
+	for(int i = 0; i < desc.removeNodes.length; ++i)
+	{
+	    nodeViewRoot.remove(desc.name, desc.removeNodes[i]);
+	}
+	nodeViewRoot.put(desc.name, desc.nodes, true);
+
+	ApplicationViewRoot applicationViewRoot =
+	    (ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();
+	
+	applicationViewRoot.applicationUpdated(desc);
+    }
+    
+    boolean updateSerial(int serial)
+    {
+	if(serial == _latestSerial + 1)
+	{
+	    _latestSerial = serial;
+	    return true;
+	}
+	else
+	{
+	    return false;
+	}
     }
 
 
-    //
-    // Runs in UI thread
-    //
-    void lostSession()
+    void sessionLost()
     {
 	_latestSerial = -1;
 
@@ -149,6 +194,9 @@ class Model
 	applicationViewRoot.clear();
     }
 
+	
+
+
     boolean save()
     {
 	return true;
@@ -158,6 +206,11 @@ class Model
     {
 	return true;
     }  
+
+    
+
+
+
 
 
     private int _latestSerial = -1;

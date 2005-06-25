@@ -9,32 +9,24 @@
 package IceGrid.TreeNode;
 
 import IceGrid.ApplicationDescriptor;
+import IceGrid.NodeDescriptor;
 import IceGrid.TreeModelI;
 
 public class NodeViewRoot extends Parent
 {
     public NodeViewRoot()
     {
-	super(TreeModelI.NODE_VIEW);
+	super("Nodes", TreeModelI.NODE_VIEW);
     }
 
-    public void init(ApplicationDescriptor[] applications)
+    public void init(java.util.List applications)
     {
 	assert(_children.size() == 0);
-	
-	for(int i = 0; i < applications.length; ++i)
+	java.util.Iterator p = applications.iterator();
+	while(p.hasNext())
 	{
-	    for(int j = 0 ; j < applications[i].nodes.length; ++j)
-	    {
-		String nodeName = applications[i].nodes[j].name;
-		if(!_nodeMap.containsKey(nodeName))
-		{
-		    Node child = new Node(nodeName);
-		    addChild(child);
-		    child.addParent(this);
-		    _nodeMap.put(nodeName, child);
-		}
-	    }
+	    ApplicationDescriptor descriptor = (ApplicationDescriptor)p.next();
+	    put(descriptor.name, descriptor.nodes, false);
 	}
     }
     
@@ -42,18 +34,77 @@ public class NodeViewRoot extends Parent
     {
 	_nodeMap.clear();
 	clearChildren();
-	fireStructureChanged(this);
+	fireStructureChangedEvent(this);
+    }
+
+    public void put(String applicationName, java.util.List nodeDescriptors,
+		    boolean fireEvent)
+    {
+	java.util.Iterator p = nodeDescriptors.iterator();
+
+	while(p.hasNext())
+	{
+	    NodeDescriptor descriptor = (NodeDescriptor)p.next();
+	    String nodeName = descriptor.name;
+	    
+	    Node child = (Node)findChild(nodeName);
+	    if(child == null)
+	    {
+		child = new Node(applicationName, descriptor);
+		_nodeMap.put(nodeName, child);
+		child.addParent(this);
+		addChild(child, fireEvent);
+	    }
+	    else
+	    {
+		child.addApplication(applicationName, 
+				     descriptor);
+	    }
+	}
+    }
+
+    public void remove(String applicationName)
+    {
+	int i = 0;
+	java.util.Iterator p = _children.iterator();
+
+	while(p.hasNext())
+	{
+	    Node child = (Node)p.next();
+	    if(child.removeApplication(applicationName))
+	    {
+		_nodeMap.remove(child.getId());
+		p.remove();
+		fireNodeRemovedEvent(this, child, i);
+	    }
+	    else
+	    {
+		++i;
+	    }
+	}
+    }
+    
+    public void remove(String applicationName, String nodeName)
+    {
+	Node child = (Node)_nodeMap.get(nodeName);
+	assert(child != null);
+
+	if(child.removeApplication(applicationName))
+	{
+	    _nodeMap.remove(nodeName);
+	    removeChild(nodeName, true);
+	}
+    }
+
+    public void removeServers(String[] removeServers)
+    {
+	// TODO: implement!
     }
 
 
     Node findNode(String name)
     {
 	return (Node)_nodeMap.get(name);
-    }
-
-    public String toString()
-    {
-	return "Nodes";
     }
 
     private java.util.Map _nodeMap = new java.util.HashMap();

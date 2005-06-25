@@ -9,57 +9,93 @@
 package IceGrid.TreeNode;
 
 import IceGrid.ApplicationDescriptor;
+import IceGrid.ApplicationUpdateDescriptor;
 
 class Application extends Parent
 {
     //
     // Builds the application and all its subtrees
     //
-    Application(ApplicationDescriptor descriptor, NodeViewRoot nodeViewRoot)
+    Application(ApplicationDescriptor descriptor, NodeViewRoot nodeViewRoot, 
+		boolean fireEvent)
     {
+	super(descriptor.name);
+
+	_descriptor = descriptor;
 	_nodeViewRoot = nodeViewRoot;
-	update(descriptor, false);
-    }
 
-    void update(ApplicationDescriptor newDescriptor, boolean fireEvent)
-    {
-	assert(newDescriptor != null);
-	clearChildren();
-	
-	_descriptor = newDescriptor;
-
-	_serverTemplates = new ServerTemplates(_descriptor.serverTemplates, _descriptor.serviceTemplates);
+	_serverTemplates = new ServerTemplates(_descriptor.serverTemplates);
 	addChild(_serverTemplates);
-	_serverTemplates.addParent(this); // no-op when this is not yet attached to its root
-	                                  // (i.e. during construction)
 	
 	_serviceTemplates = new ServiceTemplates(_descriptor.serviceTemplates);
 	addChild(_serviceTemplates);
-	_serviceTemplates.addParent(this);
 
 	_nodeVars = new NodeVars(_descriptor.nodes);
 	addChild(_nodeVars);
-	_nodeVars.addParent(this);
-	
+
 	_serverInstances = new ServerInstances(_descriptor.servers,
-					       _descriptor.serverTemplates, 
-					       _descriptor.serviceTemplates,
-					       _nodeViewRoot);
+					       _nodeViewRoot,
+					       fireEvent);
 	addChild(_serverInstances);
-	_serverInstances.addParent(this);
-
-	if(fireEvent)
-	{
-	    //    fireStructureChanged(this);
-	}
     }
- 
-    public String toString()
+
+    void update(ApplicationUpdateDescriptor desc)
     {
-	return _descriptor.name;
+	//
+	// Variables
+	//
+	for(int i = 0; i < desc.removeVariables.length; ++i)
+	{
+	    _descriptor.variables.remove(desc.removeVariables[i]);
+	}
+	_descriptor.variables.putAll(desc.variables);
+
+	//
+	// TODO: comment
+	//
+
+
+	//
+	// Server templates
+	//
+	for(int i = 0; i < desc.removeServerTemplates.length; ++i)
+	{
+	    _descriptor.serverTemplates.remove(desc.removeServerTemplates[i]);
+	}
+	_descriptor.serverTemplates.putAll(desc.serverTemplates);
+	_serverTemplates.update(desc.serverTemplates, desc.removeServerTemplates);
+	
+	//
+	// Service templates
+	//
+	for(int i = 0; i < desc.removeServiceTemplates.length; ++i)
+	{
+	    _descriptor.serviceTemplates.remove(desc.removeServiceTemplates[i]);
+	}
+	_descriptor.serviceTemplates.putAll(desc.serviceTemplates);
+	_serviceTemplates.update(desc.serviceTemplates, desc.removeServiceTemplates);
+
+	//
+	// Nodes
+	//
+	for(int i = 0; i < desc.removeNodes.length; ++i)
+	{
+	    _descriptor.nodes.remove(desc.removeNodes[i]);
+	}
+	_descriptor.nodes.addAll(desc.nodes);
+	_nodeVars.update(desc.nodes, desc.removeNodes);
+
+	//
+	// Servers
+	//
+	for(int i = 0; i < desc.removeServers.length; ++i)
+	{
+	    _descriptor.servers.remove(desc.removeServers[i]);
+	}
+	_descriptor.servers.addAll(desc.servers);
+	_serverInstances.update(desc.servers, desc.removeServers);
     }
 
-    
     private ApplicationDescriptor _descriptor;
     private NodeViewRoot _nodeViewRoot;
 

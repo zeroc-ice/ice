@@ -34,8 +34,8 @@ class Leaf extends CommonBaseI
 	return true;
     }
     
-    protected Leaf()
+    protected Leaf(String id)
     {
-	super(-1);
+	super(id, -1);
     }
 }

@@ -24,6 +24,11 @@ public interface CommonBase
     boolean isLeaf();
 
     //
+    // Unique within the scope of each parent
+    //
+    String getId();
+
+    //
     // Add this node as a parent. This operation does something
     // only when newParent a root node or was attached to a 
     // root node using addParent().

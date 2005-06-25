@@ -13,26 +13,35 @@ import IceGrid.TemplateDescriptor;
 
 class ServerTemplate extends Parent
 {
-    ServerTemplate(String name, TemplateDescriptor descriptor,
-		   java.util.Map serviceTemplates)
+    ServerTemplate(String name, TemplateDescriptor descriptor)
     {
-	_name = name;
+	super(name);
+	rebuild(descriptor);
+    }
+
+    void rebuild(TemplateDescriptor descriptor)
+    {
 	_descriptor = descriptor;
+	clearChildren();
+
+	//
+	// Fix-up parameters order
+	//
+	java.util.Collections.sort(_descriptor.parameters);
 	
 	if(_descriptor.descriptor instanceof IceBoxDescriptor)
 	{
 	    _iceBoxDescriptor = (IceBoxDescriptor)_descriptor.descriptor;
 	    
-	    _serviceInstances = new ServiceInstances(_iceBoxDescriptor.services, 
-						     serviceTemplates);
+	    _serviceInstances = new ServiceInstances(_iceBoxDescriptor.services);
 	    addChild(_serviceInstances);
 	}
 	else
 	{
+	    _serviceInstances = null;
 	    _iceBoxDescriptor = null;
 	}
 	
-
 	_adapters = new Adapters(_descriptor.descriptor.adapters, true);
 	addChild(_adapters);
 
@@ -40,12 +49,12 @@ class ServerTemplate extends Parent
 	addChild(_dbEnvs);
     }
 
+
     public String toString()
     {
-	return templateLabel(_name, _descriptor.parameters);
+	return templateLabel(_id, _descriptor.parameters);
     }
 
-    private String _name;
     private TemplateDescriptor _descriptor;
     private IceBoxDescriptor _iceBoxDescriptor;
 

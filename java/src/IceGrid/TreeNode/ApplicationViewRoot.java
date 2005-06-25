@@ -9,28 +9,29 @@
 package IceGrid.TreeNode;
 
 import IceGrid.ApplicationDescriptor;
+import IceGrid.ApplicationUpdateDescriptor;
 import IceGrid.TreeModelI;
 
 public class ApplicationViewRoot extends Parent
 {
     public ApplicationViewRoot(NodeViewRoot nodeViewRoot)
     {
-	super(TreeModelI.APPLICATION_VIEW);
+	super("Applications", TreeModelI.APPLICATION_VIEW);
 	_nodeViewRoot = nodeViewRoot;
     }
 
     //
     // The node view root must be (re-)initialized before the application view root
     // 
-    public void init(ApplicationDescriptor[] descriptors)
+    public void init(java.util.List descriptors)
     {
 	assert(_children.size() == 0);
-
-	_descriptors = descriptors;
-
-	for(int i = 0; i <  descriptors.length; ++i)
+	
+	java.util.Iterator p = descriptors.iterator();
+	while(p.hasNext())
 	{
-	    Application child = new  Application(descriptors[i], _nodeViewRoot);
+	    ApplicationDescriptor descriptor = (ApplicationDescriptor)p.next();
+	    Application child = new Application(descriptor, _nodeViewRoot, false);
 	    addChild(child);
 	    child.addParent(this);
 	}
@@ -38,22 +39,54 @@ public class ApplicationViewRoot extends Parent
 	//
 	// Fire structure change for both application and node views
 	//
-	fireStructureChanged(this);
-	_nodeViewRoot.fireStructureChanged(this);
+	fireStructureChangedEvent(this);
+	_nodeViewRoot.fireStructureChangedEvent(this);
     }
     
     public void clear()
     {
 	clearChildren();
-	_descriptors = null;
-	fireStructureChanged(this);
+	fireStructureChangedEvent(this);
     }
 
-    public String toString()
+    public void applicationAdded(ApplicationDescriptor desc)
     {
-	return "Applications";
+	applicationAdded(desc, true);
     }
 
-    private ApplicationDescriptor[] _descriptors;
+    private Application applicationAdded(ApplicationDescriptor desc, boolean fireEvent)
+    {
+	//
+	// This always fires insert events on the node view for the new server
+	// instances
+	//
+	Application child = new Application(desc, _nodeViewRoot, true); 
+	addChild(child, fireEvent);
+	return child;
+    }
+
+    public void applicationRemoved(String name)
+    {
+	applicationRemoved(name, true);
+    }
+    
+    private void applicationRemoved(String name, boolean fireEvent)
+    {
+	removeChild(name, fireEvent);
+    }
+
+    public void applicationSynced(ApplicationDescriptor desc)
+    {
+	applicationRemoved(desc.name, false);
+	Application child = applicationAdded(desc, false);
+	child.fireStructureChangedEvent(this);
+    }
+    
+    public void applicationUpdated(ApplicationUpdateDescriptor desc)
+    {
+	Application application = (Application)findChild(desc.name);
+	application.update(desc);
+    }
+
     private NodeViewRoot _nodeViewRoot;
 }

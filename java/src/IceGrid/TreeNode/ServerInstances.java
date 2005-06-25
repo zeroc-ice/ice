@@ -9,41 +9,71 @@
 package IceGrid.TreeNode;
 
 import IceGrid.ServerInstanceDescriptor;
-import IceGrid.TemplateDescriptor;
 
 class ServerInstances extends Parent
 {
-    ServerInstances(ServerInstanceDescriptor[] descriptors, 
-		    java.util.Map serverTemplates,
-		    java.util.Map serviceTemplates,
-		    NodeViewRoot nodeViewRoot)
+    ServerInstances(java.util.List descriptors, 
+		    NodeViewRoot nodeViewRoot,
+		    boolean fireEvent)
     {
+	super("Server instances");
 	_descriptors = descriptors;
 	_nodeViewRoot = nodeViewRoot;
 
-	for(int i = 0; i < _descriptors.length; ++i)
+	java.util.Iterator p = _descriptors.iterator();
+	while(p.hasNext())
 	{
-	    TemplateDescriptor templateDescriptor =
-		(TemplateDescriptor)serverTemplates.
-		get(_descriptors[i].template);
-
 	    //
 	    // The ServerInstance constructor inserts the new object in the 
 	    // node view model
 	    //
-	    ServerInstance child = new ServerInstance(_descriptors[i],
-						      templateDescriptor,
-						      serviceTemplates,
-						      _nodeViewRoot);
+	    ServerInstanceDescriptor descriptor = 
+		(ServerInstanceDescriptor)p.next();
+		
+	    ServerInstance child = new ServerInstance(descriptor,
+						      _nodeViewRoot,
+						      fireEvent);
 	    addChild(child);
 	}
     }
 
-    public String toString()
+    void update(java.util.List descriptors, String[] removeServers)
     {
-	return "Server instances";
+	//
+	// Note: _descriptors is updated by Application
+	//
+	
+	//
+	// One big set of removes
+	//
+	removeChildren(removeServers);
+
+	//
+	// One big set of updates, followed by inserts
+	//
+	java.util.Vector newChildren = new java.util.Vector();
+	java.util.Vector updatedChildren = new java.util.Vector();
+	
+	java.util.Iterator p = descriptors.iterator();
+	while(p.hasNext())
+	{
+	    ServerInstanceDescriptor descriptor = (ServerInstanceDescriptor)p.next();
+	    ServerInstance child = (ServerInstance)findChild(descriptor.descriptor.name);
+	    if(child == null)
+	    {
+		newChildren.add(new ServerInstance(descriptor, _nodeViewRoot, true));
+	    }
+	    else
+	    {
+		child.rebuild(descriptor, true);
+		updatedChildren.add(child);
+	    }
+	}
+	
+	updateChildren((CommonBaseI[])updatedChildren.toArray(new CommonBaseI[0]));
+	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
     }
 
-    private ServerInstanceDescriptor[] _descriptors;
+    private java.util.List _descriptors;
     private NodeViewRoot _nodeViewRoot;
 }

@@ -8,14 +8,20 @@
 // **********************************************************************
 package IceGrid;
 
+import javax.swing.SwingUtilities;
+
 class RegistryObserverI extends _RegistryObserverDisp
 {
 
-    RegistryObserverI(Model model)
+    RegistryObserverI(SessionKeeper sessionKeeper, Model model)
     {
+	_sessionKeeper = sessionKeeper;
 	_model = model;
     }
 
+    //
+    // Runs in the UI thread
+    //
     synchronized void waitForInit()
     {
 	//
@@ -41,53 +47,126 @@ class RegistryObserverI extends _RegistryObserverDisp
 	    }
 	}
 	
-	if(!_initialized)
+	if(_initialized)
+	{
+	    _model.registryInit(_serial, _applications, _nodesUp);
+	}
+	else
 	{
 	    throw new Ice.TimeoutException();
 	}
     }
 
 
-    public void init(int serial, ApplicationDescriptor[] applications, String[] nodesUp, Ice.Current current)
+    public synchronized void init(int serial, java.util.LinkedList applications, 
+				  String[] nodesUp, Ice.Current current)
     {
-	synchronized(this)
-	{
-	    _initialized = true;
-	    notify();
-	}
-
-	_model.registryInit(serial, applications, nodesUp);
+	_initialized = true;
+	_serial = serial;
+	_applications = applications;
+	_nodesUp = nodesUp;
+	notify();
     }
 
-    public void applicationAdded(int serial, ApplicationDescriptor desc, Ice.Current current)
+    public void applicationAdded(final int serial, final ApplicationDescriptor desc, 
+				 Ice.Current current)
     {
-	_model.applicationAdded(serial, desc);
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    if(_model.updateSerial(serial))
+		    {
+			_model.applicationAdded(desc);
+		    }
+		    else
+		    {
+			_sessionKeeper.sessionLost(
+			    "Received application update (new application) out of sequence");
+		    }
+		}
+	    });
     }
 
-    public void applicationRemoved(int serial, String name, Ice.Current current)
+    public void applicationRemoved(final int serial, final String name, 
+				   final Ice.Current current)
     {
-	_model.applicationRemoved(serial, name);
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    if(_model.updateSerial(serial))
+		    {
+			_model.applicationRemoved(name);
+		    }
+		    else
+		    {
+			_sessionKeeper.sessionLost(
+			    "Received application update (application removed) out of sequence");
+		    }
+		}
+	    });
     }
 
-    public void applicationSynced(int serial, ApplicationDescriptor desc, Ice.Current current)
+    public void applicationSynced(final int serial, final ApplicationDescriptor desc, 
+				  Ice.Current current)
     {
-
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    if(_model.updateSerial(serial))
+		    {
+			_model.applicationSynced(desc);
+		    }
+		    else
+		    {
+			_sessionKeeper.sessionLost(
+			    "Received application update (application synced) out of sequence");
+		    }
+		}
+	    });
     }
 
-    public void applicationUpdated(int serial, ApplicationUpdateDescriptor desc, Ice.Current current)
+    public void applicationUpdated(final int serial, final ApplicationUpdateDescriptor desc, 
+				   Ice.Current current)
     {
-
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    if(_model.updateSerial(serial))
+		    {
+			_model.applicationUpdated(desc);
+		    }
+		    else
+		    {
+			_sessionKeeper.sessionLost("Received application update out of sequence");
+		    }
+		}
+	    });
     }
     
     public void nodeUp(String name, Ice.Current current)
     {
+	
 
     }
+
     public void nodeDown(String name, Ice.Current current)
     {
 
     }
 
     private Model _model;
+    private SessionKeeper _sessionKeeper;
     private boolean _initialized = false;
+    
+    //
+    // Values given to init
+    //
+    private int _serial;
+    private java.util.LinkedList _applications;
+    private String[] _nodesUp;
+    
 };

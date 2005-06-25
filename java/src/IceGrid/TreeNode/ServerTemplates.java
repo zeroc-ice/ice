@@ -12,8 +12,10 @@ import IceGrid.TemplateDescriptor;
 
 class ServerTemplates extends Parent
 {
-    ServerTemplates(java.util.Map descriptors, java.util.Map serviceTemplates)
+    ServerTemplates(java.util.Map descriptors)
     {
+	super("Server templates");
+
 	_descriptors = descriptors;
 
 	java.util.Iterator p = _descriptors.entrySet().iterator();
@@ -22,15 +24,48 @@ class ServerTemplates extends Parent
 	{
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
 	    addChild(new ServerTemplate((String)entry.getKey(),
-					(TemplateDescriptor)entry.getValue(),
-					serviceTemplates));
+					(TemplateDescriptor)entry.getValue()));
 	}
     }
-
-    public String toString()
+    
+    void update(java.util.Map descriptors, String[] removeTemplates)
     {
-	return "Server templates";
-    }
+	//
+	// Note: _descriptors is updated by Application
+	//
+	
+	//
+	// One big set of removes
+	//
+	removeChildren(removeTemplates);
 
+	//
+	// One big set of updates, followed by inserts
+	//
+	java.util.Vector newChildren = new java.util.Vector();
+	java.util.Vector updatedChildren = new java.util.Vector();
+	
+	java.util.Iterator p = descriptors.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    String name = (String)entry.getKey();
+	    TemplateDescriptor templateDescriptor = (TemplateDescriptor)entry.getValue();
+	    ServerTemplate child = (ServerTemplate)findChild(name);
+	    if(child == null)
+	    {
+		newChildren.add(new ServerTemplate(name, templateDescriptor));
+	    }
+	    else
+	    {
+		child.rebuild(templateDescriptor);
+		updatedChildren.add(child);
+	    }
+	}
+	
+	updateChildren((CommonBaseI[])updatedChildren.toArray(new CommonBaseI[0]));
+	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
+    }
+    
     private java.util.Map _descriptors;
 }

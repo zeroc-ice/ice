@@ -23,6 +23,16 @@ abstract class CommonBaseI implements CommonBase
 	public CommonBase parent;
     }
 
+    public String toString()
+    {
+	return _id;
+    }
+
+    public String getId()
+    {
+	return _id;
+    }
+
     public void addParent(CommonBase parent)
     {
 	//
@@ -103,7 +113,7 @@ abstract class CommonBaseI implements CommonBase
     //
     // Fires a nodesChanged event with this node for this specific view
     //
-    void fireNodesChanged(Object source, int view)
+    void fireNodeChangedEvent(Object source, int view)
     {
 	//
 	// Bug if I am not in this view
@@ -130,25 +140,25 @@ abstract class CommonBaseI implements CommonBase
 	    childIndices[0] = _parents[view].getIndex(this);
 	    event = new TreeModelEvent(source, _parents[view].getPath(view), childIndices, children);
 	}
-	TreeModelI.getTreeModel(view).fireNodesChanged(event);
+	TreeModelI.getTreeModel(view).fireNodesChangedEvent(event);
     } 
     
     //
     // Fires a nodesChanged event with this node for all my views (usually just one)
     //
-    void fireNodesChanged(Object source)
+    void fireNodeChangedEvent(Object source)
     {
 	for(int i = 0; i < TreeModelI.VIEW_COUNT; ++i)
 	{
 	    if(_paths[i] != null)
 	    {
-		fireNodesChanged(source, i);
+		fireNodeChangedEvent(source, i);
 	    }
 	}
     } 
 
     
-    void fireStructureChanged(Object source, int view)
+    void fireStructureChangedEvent(Object source, int view)
     {
 	//
 	// Bug if I am not in this view
@@ -156,60 +166,46 @@ abstract class CommonBaseI implements CommonBase
 	assert(_paths[view] != null);
 
 	TreeModelEvent event = new TreeModelEvent(source, _paths[view]);
-	TreeModelI.getTreeModel(view).fireStructureChanged(event);
+	TreeModelI.getTreeModel(view).fireStructureChangedEvent(event);
     } 
     
-    void fireStructureChanged(Object source)
+    void fireStructureChangedEvent(Object source)
     {
 	for(int i = 0; i < TreeModelI.VIEW_COUNT; ++i)
 	{
 	    if(_paths[i] != null)
 	    {
-		fireStructureChanged(source, i);
+		fireStructureChangedEvent(source, i);
 	    }
 	}
     } 
 
-    static String templateLabel(String templateName, String[] parameters)
+    static String templateLabel(String templateName, java.util.Collection col)
     {
 	String result = templateName + "<";
-	int i = 0;
-	while(i < parameters.length)
+	
+	java.util.Iterator p = col.iterator();
+	boolean firstElement = true;
+	while(p.hasNext())
 	{
-	    result += parameters[i++];
-	    if(i < parameters.length)
+	    if(firstElement)
+	    {
+		firstElement = false;
+	    }
+	    else
 	    {
 		result += ", ";
 	    }
+	    result += (String)p.next();
 	}
 	result += ">";
 	return result;
     }
 
-    static String templateLabel(String templateName, String[] parameters, java.util.Map parameterValues)
+    protected CommonBaseI(String id, int rootForView)
     {
-	String result = templateName + "<";
-	int i = 0;
-	while(i < parameters.length)
-	{
-	    String value = (String)parameterValues.get(parameters[i]);
-	    if(value == null)
-	    {
-		value = "${" + parameters[i] + "}";
-	    }
-	    result += value;
-	    ++i;
-	    if(i < parameters.length)
-	    {
-		result += ", ";
-	    }
-	}
-	result += ">";
-	return result;
-    }
+	_id = id;
 
-    protected CommonBaseI(int rootForView)
-    {
 	if(rootForView >= 0)
 	{
 	    _paths[rootForView] = new TreePath(this);
@@ -220,5 +216,10 @@ abstract class CommonBaseI implements CommonBase
     // view to Path/Parent arrays
     //
     protected TreePath[] _paths = new TreePath[TreeModelI.VIEW_COUNT];
-    protected CommonBase[] _parents = new CommonBase[TreeModelI.VIEW_COUNT]; 
+    protected CommonBase[] _parents = new CommonBase[TreeModelI.VIEW_COUNT];
+
+    //
+    // Id (application name, server instance name etc)
+    //
+    protected String _id;
 }
