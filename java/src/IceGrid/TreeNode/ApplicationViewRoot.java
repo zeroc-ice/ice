@@ -78,8 +78,6 @@ public class ApplicationViewRoot extends Parent
 
     public void applicationSynced(ApplicationDescriptor desc)
     {
-	System.err.println("applicationSynced " + desc.name);
-
 	applicationRemoved(desc.name, false);
 	Application child = applicationAdded(desc, false);
 	child.fireStructureChangedEvent(this);
@@ -87,8 +85,6 @@ public class ApplicationViewRoot extends Parent
     
     public void applicationUpdated(ApplicationUpdateDescriptor desc)
     {
-	System.err.println("applicationUpdated " + desc.name);
-
 	Application application = (Application)findChild(desc.name);
 	application.update(desc);
     }

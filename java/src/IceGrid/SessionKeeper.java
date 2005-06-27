@@ -538,7 +538,7 @@ class SessionKeeper
 	    _nodeObserverIdentity.category = "nodeObserver";
 
 	    RegistryObserverI registryObserverServant = new RegistryObserverI(
-		this, _model);
+		this, _statusBar, _model);
 
 	    RegistryObserverPrx registryObserver = 
 		RegistryObserverPrxHelper.uncheckedCast(
