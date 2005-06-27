@@ -12,11 +12,7 @@
 
 /**
  *
- * &Freeze; provides automatic persistence for &Ice;
- * servants. &Freeze; provides a binary data format for maximum speed,
- * as well as an XML data format for maximum flexibility. Freeze
- * databases using the XML data format can be migrated when the
- * &Slice; description of the persistent data changes.
+ * &Freeze; provides automatic persistence for &Ice; servants.
  *
  **/
 module Freeze
