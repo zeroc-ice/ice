@@ -23,8 +23,8 @@ struct ToIfdef
 
 SLICE_API std::string normalizePath(const std::string&);
 SLICE_API std::string changeInclude(const std::string&, const std::vector<std::string>&);
-SLICE_API void printHeader(::IceUtil::Output&);
-SLICE_API void printVersionCheck(::IceUtil::Output&);
+SLICE_API void printHeader(::IceUtil::Output&, bool icee = false);
+SLICE_API void printVersionCheck(::IceUtil::Output&, bool icee = false);
 SLICE_API void printDllExportStuff(::IceUtil::Output&, const std::string&);
 
 SLICE_API std::string typeToString(const TypePtr&);

@@ -13,6 +13,12 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
+//
+// The Ice-E version.
+//
+#define ICEE_STRING_VERSION "1.0.0" // "A.B.C", with A=major, B=minor, C=patch
+#define ICEE_INT_VERSION 10000 	    // AABBCC, with AA=major, BB=minor, CC=patch
+
 char
 Slice::ToIfdef::operator()(char c)
 {
@@ -68,7 +74,7 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
 }
 
 void
-Slice::printHeader(Output& out)
+Slice::printHeader(Output& out, bool icee)
 {
     static const char* header =
 "// **********************************************************************\n"
@@ -82,18 +88,41 @@ Slice::printHeader(Output& out)
         ;
 
     out << header;
-    out << "\n// Ice version " << ICE_STRING_VERSION;
+    if(icee)
+    {
+        out << "\n// Ice-E version " << ICEE_STRING_VERSION;
+    }
+    else
+    {
+        out << "\n// Ice version " << ICE_STRING_VERSION;
+    }
 }
 
 void
-Slice::printVersionCheck(Output& out)
+Slice::printVersionCheck(Output& out, bool icee)
 {
     out << "\n";
     out << "\n#ifndef ICE_IGNORE_VERSION";
-    out << "\n#   if ICE_INT_VERSION / 100 != " << ICE_INT_VERSION / 100;
+    out << "\n#   if ICE_INT_VERSION / 100 != ";
+    if(icee)
+    {
+        out << ICEE_INT_VERSION / 100;
+    }
+    else
+    {
+        out << ICE_INT_VERSION / 100;
+    }
     out << "\n#       error Ice version mismatch!";
     out << "\n#   endif";
-    out << "\n#   if ICE_INT_VERSION % 100 < " << ICE_INT_VERSION % 100;
+    out << "\n#   if ICE_INT_VERSION % 100 < ";
+    if(icee)
+    {
+        out << ICEE_INT_VERSION % 100;
+    }
+    else
+    {
+        out << ICE_INT_VERSION % 100;
+    }
     out << "\n#       error Ice patch level mismatch!";
     out << "\n#   endif";
     out << "\n#endif";

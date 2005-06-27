@@ -140,8 +140,8 @@ Slice::Gen::Gen(const string& name, const string& base,	const string& headerExte
 	return;
     }
 
-    printHeader(H);
-    printHeader(C);
+    printHeader(H, true);
+    printHeader(C, true);
     H << "\n// Generated from file `" << changeInclude(_base, _includePaths) << ".ice'\n";
     C << "\n// Generated from file `" << changeInclude(_base, _includePaths) << ".ice'\n";
 
@@ -243,8 +243,8 @@ Slice::Gen::generate(const UnitPtr& p)
 
     H << "\n#include <Ice/UndefSysMacros.h>";
 
-    printVersionCheck(H);
-    printVersionCheck(C);
+    printVersionCheck(H, true);
+    printVersionCheck(C, true);
 
     printDllExportStuff(H, _dllExport);
     if(_dllExport.size())
