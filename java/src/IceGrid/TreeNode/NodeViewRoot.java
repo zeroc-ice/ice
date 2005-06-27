@@ -98,7 +98,18 @@ public class NodeViewRoot extends Parent
 
     public void removeServers(String[] removeServers)
     {
-	// TODO: implement!
+	if(removeServers.length > 0)
+	{
+	    java.util.List serverList = 
+		new java.util.LinkedList(java.util.Arrays.asList(removeServers));
+	    
+	    java.util.Iterator p = _nodeMap.values().iterator();
+	    while(p.hasNext() && serverList.size() > 0)
+	    {
+		Node node = (Node)p.next();
+		node.removeChildren(serverList);
+	    }
+	}
     }
 
 

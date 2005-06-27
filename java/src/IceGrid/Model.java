@@ -153,11 +153,13 @@ class Model
 	NodeViewRoot nodeViewRoot = 
 	    (NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
 	
+
 	for(int i = 0; i < desc.removeNodes.length; ++i)
 	{
 	    nodeViewRoot.remove(desc.name, desc.removeNodes[i]);
 	}
 	nodeViewRoot.put(desc.name, desc.nodes, true);
+	nodeViewRoot.removeServers(desc.removeServers);
 
 	ApplicationViewRoot applicationViewRoot =
 	    (ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();

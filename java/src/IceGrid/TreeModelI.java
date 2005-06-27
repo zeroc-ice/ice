@@ -154,8 +154,6 @@ public class TreeModelI implements TreeModel
 
     public void fireNodesRemovedEvent(TreeModelEvent e)
     {
-	System.err.println("TreeModeI.fireNodesRemovedEvent");
-
 	// Guaranteed to return a non-null array
         Object[] listeners = _listenerList.getListenerList();
 	
@@ -163,7 +161,6 @@ public class TreeModelI implements TreeModel
 	{
             if (listeners[i] == TreeModelListener.class) 
 	    {
-		System.err.println("firing");
                 ((TreeModelListener)listeners[i + 1]).treeNodesRemoved(e);
             }          
         }

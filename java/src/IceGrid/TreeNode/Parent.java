@@ -281,9 +281,6 @@ class Parent extends CommonBaseI
 	String[] ids = (String[])childIds.clone();
 	
 	java.util.Arrays.sort(ids);
-	
-	System.err.println("childIds.length == " + childIds.length);
-	System.err.println("ids.length == " + ids.length);
 
 	Object[] childrenToRemove = new Object[ids.length];
 	int[] indices = new int[ids.length];
@@ -295,10 +292,7 @@ class Parent extends CommonBaseI
 
 	while(p.hasNext() && j < ids.length)
 	{
-	    CommonBase child = (CommonBase)p.next();
-	    System.err.println("child.getId() == " + child.getId());
-	    System.err.println("ids[j] == " + ids[j]);
-	    
+	    CommonBase child = (CommonBase)p.next();	    
 	    if(ids[j].equals(child.getId()))
 	    {
 		childrenToRemove[k] = child;
@@ -317,8 +311,79 @@ class Parent extends CommonBaseI
 	fireNodesRemovedEvent(this, childrenToRemove, indices);
     }
 
-
     
+    //
+    // in childIds: the children to remove
+    // out childIds: the children not removed
+    //
+    void removeChildren(java.util.List childIds)
+    {
+	if(childIds.size() == 0)
+	{
+	    //
+	    // Nothing to do;
+	    //
+	    return;
+	}
+	
+	java.util.Collections.sort(childIds);
+
+	java.util.Vector childrenToRemove = new java.util.Vector(childIds.size());
+	int[] indices = new int[childIds.size()];
+
+	java.util.Iterator q = childIds.iterator();
+	java.util.Iterator p = _children.iterator();
+
+	int i = -1;
+	int k = 0;
+	while(q.hasNext() && p.hasNext())
+	{
+	    String id = (String)q.next();
+
+	    while(p.hasNext())
+	    {
+		CommonBase child = (CommonBase)p.next();
+		i++;
+
+		if(id.equals(child.getId()))
+		{
+		    childrenToRemove.add(child);
+		    indices[k++] = i;
+		    p.remove();
+		    q.remove();
+		    break; // while
+		}
+		else if(id.compareTo(child.getId()) < 0)
+		{
+		    //
+		    // Need to get next id
+		    //		    
+		    break; // while
+		}
+	    }
+	}
+	
+	if(k > 0)
+	{
+	    childrenToRemove.trimToSize();
+	    int[] trimedIndices;
+	    if(childIds.size() > 0)
+	    {
+		trimedIndices = new int[k];
+		System.arraycopy(indices, 0, trimedIndices, 0, k); 
+	    }
+	    else
+	    {
+		trimedIndices = indices;
+	    }
+
+	    fireNodesRemovedEvent(this, 
+				  childrenToRemove.toArray(), 
+				  trimedIndices);
+	}
+    }
+    
+
     void fireNodeInsertedEvent(Object source, Object child, int index)
     {
 	int[] childIndices = new int[1];
@@ -358,14 +423,6 @@ class Parent extends CommonBaseI
 	{
 	    if(_paths[i] != null)
 	    {
-		System.err.print("Path = ");
-		for(int j = 0; j < _paths[i].getPath().length; ++j)
-		{
-		    System.err.print(_paths[i].getPath()[j].toString()); 
-		}
-		System.err.println("");
-
-
 		TreeModelEvent event = new TreeModelEvent(source, _paths[i], 
 							  childIndices, children);
 		TreeModelI.getTreeModel(i).fireNodesRemovedEvent(event);
