@@ -14,6 +14,7 @@
 #include <PerfI.h>
 
 #include <algorithm>
+#include <math.h>
 
 using namespace std;
 
