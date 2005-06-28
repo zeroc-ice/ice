@@ -49,7 +49,7 @@ threadPerConnection = " --Ice.ThreadPerConnection"
 
 class ClientServerTest(TestUtil.Test) :
 
-    def run(self, name, directory, serverOptions, clientOptions):
+    def run(self, name, directory, clientOptions, serverOptions):
 
         TestUtil.Test.run(self, name, { "client" : clientOptions, "server" : serverOptions, "directory" : directory })
 
