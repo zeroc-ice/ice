@@ -9,25 +9,34 @@
 package IceGrid.TreeNode;
 
 import IceGrid.AdapterDescriptor;
+import IceGrid.Model;
 
 class Adapters extends Parent
 {
-    Adapters(java.util.List descriptors, boolean inTemplate)
+    Adapters(java.util.List descriptors, Model model, Node node)
     {
-	super("Adapters");
+	super("Adapters", model);
 
 	_descriptors = descriptors;
-	_inTemplate = inTemplate;
 
 	java.util.Iterator p = _descriptors.iterator();
 	while(p.hasNext())
 	{
 	    AdapterDescriptor descriptor = (AdapterDescriptor)p.next();
-	    Adapter child = new Adapter(descriptor, _inTemplate);
+	    Adapter child = new Adapter(descriptor, _model, node);
 	    addChild(child);
 	}
     }
 
+    void unregisterAll()
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Adapter adapter = (Adapter)p.next();
+	    adapter.unregister();
+	}
+    }
+
     private java.util.List _descriptors;
-    private boolean _inTemplate;
 }

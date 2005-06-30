@@ -8,6 +8,7 @@
 // **********************************************************************
 package IceGrid;
 
+import javax.swing.SwingUtilities;
 
 class NodeObserverI extends _NodeObserverDisp
 {
@@ -16,20 +17,64 @@ class NodeObserverI extends _NodeObserverDisp
 	_model = model;
     }
     
-    public void init(NodeDynamicInfo[] nodes, Ice.Current current)
+    public void init(final NodeDynamicInfo[] nodes, Ice.Current current)
     {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    for(int i = 0; i < nodes.length; ++i)
+		    {
+			_model.nodeUp(nodes[i]);
+		    }
+		}
+	    });
     }
 
-    public void initNode(NodeDynamicInfo node, Ice.Current current)
+    public void nodeUp(final NodeDynamicInfo nodeInfo, Ice.Current current)
     {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _model.nodeUp(nodeInfo);
+		}
+	    });			   
     }
 
-    public void updateServer(String node, ServerDynamicInfo updatedInfo, Ice.Current current)
+    public void nodeDown(final String nodeName, Ice.Current current)
     {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _model.nodeDown(nodeName);
+		}
+	    });			   
     }
 
-    public void updateAdapter(String node, AdapterDynamicInfo updatedInfo, Ice.Current current)
+    public void updateServer(final String node, final ServerDynamicInfo updatedInfo, 
+			     Ice.Current current)
+    {	
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _model.updateServer(node, updatedInfo);
+		}
+	    });
+    }
+
+    public void updateAdapter(final String node, final AdapterDynamicInfo updatedInfo, 
+			      Ice.Current current)
     {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _model.updateAdapter(node, updatedInfo);
+		}
+	    }); 
     }
 
     private Model _model;

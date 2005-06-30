@@ -10,6 +10,7 @@ package IceGrid.TreeNode;
 
 import javax.swing.tree.TreePath;
 import javax.swing.event.TreeModelEvent;
+import IceGrid.Model;
 import IceGrid.TreeModelI;
 
 //
@@ -175,7 +176,7 @@ class Parent extends CommonBaseI
 
     void removeChild(String id, boolean fireEvent)
     {
-	int i = 0;
+	int i = -1;
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
@@ -402,7 +403,7 @@ class Parent extends CommonBaseI
 	    {
 		TreeModelEvent event = new TreeModelEvent(source, _paths[i], 
 							  childIndices, children);
-		TreeModelI.getTreeModel(i).fireNodesInsertedEvent(event);
+		_model.getTreeModel(i).fireNodesInsertedEvent(event);
 	    }
 	}
     }
@@ -425,7 +426,7 @@ class Parent extends CommonBaseI
 	    {
 		TreeModelEvent event = new TreeModelEvent(source, _paths[i], 
 							  childIndices, children);
-		TreeModelI.getTreeModel(i).fireNodesRemovedEvent(event);
+		_model.getTreeModel(i).fireNodesRemovedEvent(event);
 	    }
 	}
     }
@@ -433,14 +434,14 @@ class Parent extends CommonBaseI
 
 
 
-    Parent(String id, int rootForView)
+    Parent(String id, Model model, int rootForView)
     {
-	super(id, rootForView);
+	super(id, model, rootForView);
     }
 
-    Parent(String id)
+    Parent(String id, Model model)
     {
-	this(id, -1);
+	this(id, model, -1);
     }
     
 

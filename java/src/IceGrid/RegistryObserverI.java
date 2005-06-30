@@ -50,7 +50,7 @@ class RegistryObserverI extends _RegistryObserverDisp
 	
 	if(_initialized)
 	{
-	    _model.registryInit(_serial, _applications, _nodesUp);
+	    _model.registryInit(_serial, _applications);
 	    _statusBar.setText("Connected; initialized (" + _serial + ")"); 
 	}
 	else
@@ -61,12 +61,11 @@ class RegistryObserverI extends _RegistryObserverDisp
 
 
     public synchronized void init(int serial, java.util.LinkedList applications, 
-				  String[] nodesUp, Ice.Current current)
+				  Ice.Current current)
     {
 	_initialized = true;
 	_serial = serial;
 	_applications = applications;
-	_nodesUp = nodesUp;
 	notify();
     }
 
@@ -157,16 +156,6 @@ class RegistryObserverI extends _RegistryObserverDisp
 	    });
     }
     
-    public void nodeUp(String name, Ice.Current current)
-    {
-	
-
-    }
-
-    public void nodeDown(String name, Ice.Current current)
-    {
-
-    }
 
     private SessionKeeper _sessionKeeper;
     private StatusBar _statusBar;
@@ -179,6 +168,4 @@ class RegistryObserverI extends _RegistryObserverDisp
     //
     private int _serial;
     private java.util.LinkedList _applications;
-    private String[] _nodesUp;
-    
 };

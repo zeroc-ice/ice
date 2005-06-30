@@ -9,16 +9,16 @@
 package IceGrid.TreeNode;
 
 import IceGrid.ServerInstanceDescriptor;
+import IceGrid.Model;
 
 class ServerInstances extends Parent
 {
     ServerInstances(java.util.List descriptors, 
-		    NodeViewRoot nodeViewRoot,
+		    Model model,
 		    boolean fireEvent)
     {
-	super("Server instances");
+	super("Server instances", model);
 	_descriptors = descriptors;
-	_nodeViewRoot = nodeViewRoot;
 
 	java.util.Iterator p = _descriptors.iterator();
 	while(p.hasNext())
@@ -31,7 +31,7 @@ class ServerInstances extends Parent
 		(ServerInstanceDescriptor)p.next();
 		
 	    ServerInstance child = new ServerInstance(descriptor,
-						      _nodeViewRoot,
+						      _model,
 						      fireEvent);
 	    addChild(child);
 	}
@@ -46,6 +46,11 @@ class ServerInstances extends Parent
 	//
 	// One big set of removes
 	//
+	for(int i = 0; i < removeServers.length; ++i)
+	{
+	    ServerInstance server = (ServerInstance)findChild(removeServers[i]);
+	    server.removeFromNode();
+	}
 	removeChildren(removeServers);
 
 	//
@@ -61,7 +66,7 @@ class ServerInstances extends Parent
 	    ServerInstance child = (ServerInstance)findChild(descriptor.descriptor.name);
 	    if(child == null)
 	    {
-		newChildren.add(new ServerInstance(descriptor, _nodeViewRoot, true));
+		newChildren.add(new ServerInstance(descriptor, _model, true));
 	    }
 	    else
 	    {
@@ -74,6 +79,16 @@ class ServerInstances extends Parent
 	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
     }
 
+    void removeFromNodes()
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    ServerInstance server = (ServerInstance)p.next();
+	    server.removeFromNode();
+	}
+    }
+
+
     private java.util.List _descriptors;
-    private NodeViewRoot _nodeViewRoot;
 }

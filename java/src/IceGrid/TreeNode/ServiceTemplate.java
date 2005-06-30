@@ -9,12 +9,13 @@
 package IceGrid.TreeNode;
 
 import IceGrid.TemplateDescriptor;
+import IceGrid.Model;
 
 class ServiceTemplate extends Parent
 {
-    ServiceTemplate(String name, TemplateDescriptor descriptor)
+    ServiceTemplate(String name, Model model, TemplateDescriptor descriptor)
     {
-	super(name);
+	super(name, model);
 	rebuild(descriptor);
     }
 
@@ -28,10 +29,10 @@ class ServiceTemplate extends Parent
 	//
 	java.util.Collections.sort(_descriptor.parameters);
 	
-	_adapters = new Adapters(_descriptor.descriptor.adapters, true);
+	_adapters = new Adapters(_descriptor.descriptor.adapters, _model, null);
 	addChild(_adapters);
 
-	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, true);
+	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, _model, true);
 	addChild(_dbEnvs);
     }
 

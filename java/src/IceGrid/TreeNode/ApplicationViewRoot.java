@@ -11,13 +11,13 @@ package IceGrid.TreeNode;
 import IceGrid.ApplicationDescriptor;
 import IceGrid.ApplicationUpdateDescriptor;
 import IceGrid.TreeModelI;
+import IceGrid.Model;
 
 public class ApplicationViewRoot extends Parent
 {
-    public ApplicationViewRoot(NodeViewRoot nodeViewRoot)
+    public ApplicationViewRoot(Model model)
     {
-	super("Applications", TreeModelI.APPLICATION_VIEW);
-	_nodeViewRoot = nodeViewRoot;
+	super("Applications", model, TreeModelI.APPLICATION_VIEW);
     }
 
     //
@@ -31,7 +31,7 @@ public class ApplicationViewRoot extends Parent
 	while(p.hasNext())
 	{
 	    ApplicationDescriptor descriptor = (ApplicationDescriptor)p.next();
-	    Application child = new Application(descriptor, _nodeViewRoot, false);
+	    Application child = new Application(descriptor, _model, false);
 	    addChild(child);
 	    child.addParent(this);
 	}
@@ -40,7 +40,7 @@ public class ApplicationViewRoot extends Parent
 	// Fire structure change for both application and node views
 	//
 	fireStructureChangedEvent(this);
-	_nodeViewRoot.fireStructureChangedEvent(this);
+	_model.getNodeViewRoot().fireStructureChangedEvent(this);
     }
     
     public void clear()
@@ -60,7 +60,7 @@ public class ApplicationViewRoot extends Parent
 	// This always fires insert events on the node view for the new server
 	// instances
 	//
-	Application child = new Application(desc, _nodeViewRoot, true); 
+	Application child = new Application(desc, _model, true); 
 	child.addParent(this);
 	addChild(child, fireEvent);
 	return child;
@@ -73,6 +73,12 @@ public class ApplicationViewRoot extends Parent
     
     private void applicationRemoved(String name, boolean fireEvent)
     {
+	Application application = (Application)findChild(name);
+	if(application != null)
+	{
+	    application.removeFromNodes();
+	}
+	
 	removeChild(name, fireEvent);
     }
 
@@ -88,6 +94,4 @@ public class ApplicationViewRoot extends Parent
 	Application application = (Application)findChild(desc.name);
 	application.update(desc);
     }
-
-    private NodeViewRoot _nodeViewRoot;
 }

@@ -18,7 +18,7 @@ import IceGrid.TreeNode.ApplicationViewRoot;
 // Where all the data are kept
 //
 
-class Model
+public class Model
 {
 
     //
@@ -94,77 +94,84 @@ class Model
 
 
     //
-    // The following methods all run in the UI thread
+    // All Model's methods run in the UI thread
     //
 
+    
+    public Ice.Communicator getCommunicator()
+    {
+	return _communicator;
+    }
+
+    public NodeViewRoot getNodeViewRoot()
+    {
+	return _nodeViewRoot;
+    }
+
+    public ApplicationViewRoot getApplicationViewRoot()
+    {
+	return _applicationViewRoot;
+    }
+    
+    public TreeModelI getTreeModel(int view)
+    {
+	if(view == TreeModelI.NODE_VIEW)
+	{
+	    return _nodeModel;
+	}
+	else if(view == TreeModelI.APPLICATION_VIEW)
+	{
+	    return _applicationModel;
+	}
+	else
+	{
+	    return null;
+	}
+    }
+
+
+    //
+    // From the Registry observer:
+    //
  
-    void registryInit(int serial, final java.util.List applications, String[] nodesUp)
+    void registryInit(int serial, final java.util.List applications)
     {	
 	assert(_latestSerial == -1);
 	_latestSerial = serial;
 
-	NodeViewRoot nodeViewRoot = 
-	    (NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
-	nodeViewRoot.init(applications);
-	
-	ApplicationViewRoot applicationViewRoot =
-	    (ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();
-	applicationViewRoot.init(applications);
+	_nodeViewRoot.init(applications);
+	_applicationViewRoot.init(applications);
     }
 
     void applicationAdded(ApplicationDescriptor desc)
     {
-	NodeViewRoot nodeViewRoot = 
-	    (NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
-	nodeViewRoot.put(desc.name, desc.nodes, true);
-
-	ApplicationViewRoot applicationViewRoot =
-	    (ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();
-	applicationViewRoot.applicationAdded(desc);
+	_nodeViewRoot.put(desc.name, desc.nodes, true);
+	_applicationViewRoot.applicationAdded(desc);
     }
 
     void applicationRemoved(String name)
     {
-	NodeViewRoot nodeViewRoot = 
-	    (NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
-	nodeViewRoot.remove(name);
-
-
-	ApplicationViewRoot applicationViewRoot =
-	    (ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();
-	applicationViewRoot.applicationRemoved(name);
+	_nodeViewRoot.remove(name);
+	_applicationViewRoot.applicationRemoved(name);
     }
 
     void applicationSynced(ApplicationDescriptor desc)
     {
-	NodeViewRoot nodeViewRoot = 
-	    (NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
-	nodeViewRoot.remove(desc.name);
-	nodeViewRoot.put(desc.name, desc.nodes, true);
-
-	ApplicationViewRoot applicationViewRoot =
-	    (ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();
-	
-	applicationViewRoot.applicationSynced(desc);
+	_nodeViewRoot.remove(desc.name);
+	_nodeViewRoot.put(desc.name, desc.nodes, true);
+	_applicationViewRoot.applicationSynced(desc);
     }
 
     void applicationUpdated(ApplicationUpdateDescriptor desc)
     {
-	NodeViewRoot nodeViewRoot = 
-	    (NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
-	
-
 	for(int i = 0; i < desc.removeNodes.length; ++i)
 	{
-	    nodeViewRoot.remove(desc.name, desc.removeNodes[i]);
+	    _nodeViewRoot.remove(desc.name, desc.removeNodes[i]);
 	}
-	nodeViewRoot.put(desc.name, desc.nodes, true);
-	nodeViewRoot.removeServers(desc.removeServers);
-
-	ApplicationViewRoot applicationViewRoot =
-	    (ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();
+	_nodeViewRoot.put(desc.name, desc.nodes, true);
+	_nodeViewRoot.removeServers(desc.removeServers);
 	
-	applicationViewRoot.applicationUpdated(desc);
+	_applicationViewRoot.applicationUpdated(desc);
     }
     
     boolean updateSerial(int serial)
@@ -181,23 +188,41 @@ class Model
     }
 
 
+    //
+    // From the Node observer:
+    //
+
+    void nodeUp(NodeDynamicInfo updatedInfo)
+    {
+	_nodeViewRoot.nodeUp(updatedInfo);
+    }
+
+    void nodeDown(String node)
+    {
+	_nodeViewRoot.nodeDown(node);
+    }
+
+    void updateServer(String node, ServerDynamicInfo updatedInfo)
+    {
+	_nodeViewRoot.updateServer(node, updatedInfo);
+    }
+
+    void updateAdapter(String node, AdapterDynamicInfo updatedInfo)
+    {
+	_nodeViewRoot.updateAdapter(node, updatedInfo);
+    }
+
+
+    //
+    // Other methods
+    //
+
     void sessionLost()
     {
 	_latestSerial = -1;
-
-	NodeViewRoot nodeViewRoot = 
-	    (NodeViewRoot)TreeModelI.getTreeModel(TreeModelI.NODE_VIEW).getRoot();
-	
-	nodeViewRoot.clear();
-	
-	ApplicationViewRoot applicationViewRoot =
-	    (ApplicationViewRoot)TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW).getRoot();
-	
-	applicationViewRoot.clear();
+	_nodeViewRoot.clear();
+	_applicationViewRoot.clear();
     }
-
-	
-
 
     boolean save()
     {
@@ -209,11 +234,25 @@ class Model
 	return true;
     }  
 
+    Model(Ice.Communicator communicator)
+    {
+	_communicator = communicator;
+	
+	_nodeViewRoot = new NodeViewRoot(this);
+	_nodeModel = new TreeModelI(_nodeViewRoot);
+
+	_applicationViewRoot = new ApplicationViewRoot(this);
+	_applicationModel = new TreeModelI(_applicationViewRoot);
+    }
+
     
 
+    private Ice.Communicator _communicator;
 
-
-
+    private NodeViewRoot _nodeViewRoot;
+    private ApplicationViewRoot _applicationViewRoot;
+    private TreeModelI _nodeModel;
+    private TreeModelI _applicationModel;
 
     private int _latestSerial = -1;
 }

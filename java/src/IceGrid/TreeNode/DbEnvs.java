@@ -9,12 +9,13 @@
 package IceGrid.TreeNode;
 
 import IceGrid.DbEnvDescriptor;
+import IceGrid.Model;
 
 class DbEnvs extends Parent
 {
-    DbEnvs(java.util.List descriptors, boolean inTemplate)
+    DbEnvs(java.util.List descriptors, Model model, boolean inTemplate)
     {
-	super("DbEnvs");
+	super("DbEnvs", model);
 	_descriptors = descriptors;
 	_inTemplate = inTemplate;
 
@@ -22,7 +23,7 @@ class DbEnvs extends Parent
 	while(p.hasNext())
 	{
 	    DbEnvDescriptor descriptor = (DbEnvDescriptor)p.next();
-	    addChild(new DbEnv(descriptor, _inTemplate));
+	    addChild(new DbEnv(descriptor, _model, _inTemplate));
 	}
     }
 

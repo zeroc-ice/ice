@@ -11,6 +11,7 @@ package IceGrid;
 import java.util.prefs.Preferences;
 import java.util.prefs.BackingStoreException;
 import javax.swing.*;
+import javax.swing.tree.TreeCellRenderer;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -46,9 +47,10 @@ public class MainPane extends JSplitPane
     }
   
 
-    MainPane()
+    MainPane(Model model)
     {
 	super(JSplitPane.HORIZONTAL_SPLIT, true);
+	_model = model;
 	setBorder(new EmptyBorder(10, 10, 10, 10));
 
 	//
@@ -59,16 +61,24 @@ public class MainPane extends JSplitPane
 	tabbedPane.putClientProperty(Options.NO_CONTENT_BORDER_KEY, Boolean.TRUE);
 	tabbedPane.setBorder(new ShadowBorder());
 
-	JTree nodeTree = new JTree(TreeModelI.getTreeModel(TreeModelI.NODE_VIEW));
+	TreeCellRenderer renderer = new CellRenderer();
+
+	JTree nodeTree = new JTree(_model.getTreeModel(TreeModelI.NODE_VIEW));
+	nodeTree.setCellRenderer(renderer);
+        ToolTipManager.sharedInstance().registerComponent(nodeTree);
+
 	JScrollPane nodeScroll = 
 	    new JScrollPane(nodeTree, 
 			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 			    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	nodeScroll.setBorder(Borders.DIALOG_BORDER);
+	
 
 	tabbedPane.addTab("Node View", nodeScroll);
 	
-	JTree appTree = new JTree(TreeModelI.getTreeModel(TreeModelI.APPLICATION_VIEW));
+	JTree appTree = new JTree(_model.getTreeModel(TreeModelI.APPLICATION_VIEW));
+	appTree.setCellRenderer(renderer);
+	ToolTipManager.sharedInstance().registerComponent(appTree);
 	JScrollPane appScroll = 
 	    new JScrollPane(appTree,
 			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
@@ -144,5 +154,5 @@ public class MainPane extends JSplitPane
         }
     }
 
-
+    private Model _model;
 }

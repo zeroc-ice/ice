@@ -9,17 +9,18 @@
 package IceGrid.TreeNode;
 
 import IceGrid.NodeDescriptor;
+import IceGrid.Model;
 
 class NodeVars extends Parent
 {
-    NodeVars(java.util.List descriptors)
+    NodeVars(java.util.List descriptors, Model model)
     {
-	super("Node settings");
+	super("Node settings", model);
 	java.util.Iterator p = descriptors.iterator();
 	while(p.hasNext())
 	{
 	    NodeDescriptor descriptor = (NodeDescriptor)p.next();
-	    addChild(new NodeVar(descriptor));
+	    addChild(new NodeVar(descriptor, model));
 	}
     }
     
@@ -47,7 +48,7 @@ class NodeVars extends Parent
 	    NodeVar child = (NodeVar)findChild(nodeDescriptor.name);
 	    if(child == null)
 	    {
-		newChildren.add(new NodeVar(nodeDescriptor));
+		newChildren.add(new NodeVar(nodeDescriptor, _model));
 	    }
 	    else
 	    {

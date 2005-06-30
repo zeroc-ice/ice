@@ -9,6 +9,7 @@
 package IceGrid.TreeNode;
 
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeCellRenderer;
 import javax.swing.JPopupMenu;
 import javax.swing.JPanel;
 
@@ -16,7 +17,7 @@ import javax.swing.JPanel;
 // CommonBase is similar to javax.swing.tree.TreeNode
 //
 
-public interface CommonBase
+public interface CommonBase extends TreeCellRenderer
 {
     Object getChildAt(int childIndex);
     int getChildCount();
@@ -80,5 +81,4 @@ public interface CommonBase
     // Get properties panel
     //
     JPanel getProperties(int view);
-
 }

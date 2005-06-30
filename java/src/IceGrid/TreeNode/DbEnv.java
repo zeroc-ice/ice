@@ -9,12 +9,13 @@
 package IceGrid.TreeNode;
 
 import IceGrid.DbEnvDescriptor;
+import IceGrid.Model;
 
 class DbEnv extends Leaf
 {
-    DbEnv(DbEnvDescriptor descriptor, boolean inTemplate)
+    DbEnv(DbEnvDescriptor descriptor, Model model, boolean inTemplate)
     {
-	super(descriptor.name);
+	super(descriptor.name, model);
 
 	_descriptor = descriptor;
 	_inTemplate = inTemplate;

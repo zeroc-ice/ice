@@ -22,7 +22,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
-
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.BorderStyle;
@@ -81,6 +80,9 @@ public class AdminGUI extends JFrame
 		}
 	    });
 	
+	_communicator = Ice.Util.initialize(args);
+	_model = new Model(_communicator);
+
 	initComponents();
 	
 	// Sizing / placement
@@ -94,14 +96,9 @@ public class AdminGUI extends JFrame
 	//
         // Display the window.
 	//
-	setVisible(true);
-
-	_communicator = Ice.Util.initialize(args);
-	_model = new Model();
-	_sessionKeeper = new SessionKeeper(this, _communicator, _model, _prefs, _statusBar);
-	
+	setVisible(true);	
+	_sessionKeeper = new SessionKeeper(this, _model, _prefs, _statusBar);
 	_sessionKeeper.createSession(true);
-
 	
     }
 
@@ -163,21 +160,13 @@ public class AdminGUI extends JFrame
 	}
 	return true;
     }
-
-    private Icon getIcon(String path)
-    {
-	java.net.URL imgURL = AdminGUI.class.getResource(path);
-	assert(imgURL != null);
-	return new ImageIcon(imgURL);
-    }
-
    
     private void initComponents()
     {
 	//
 	// MainPane
 	//
-	getContentPane().add(new MainPane(), BorderLayout.CENTER);
+	getContentPane().add(new MainPane(_model), BorderLayout.CENTER);
 
 	//
 	// Menu bar
@@ -222,7 +211,7 @@ public class AdminGUI extends JFrame
 	// actions that can be enabled/disabled are fields
 	//
 
-	Action connectAction = new AbstractAction("Connect...", getIcon("/icons/connect.gif"))
+	Action connectAction = new AbstractAction("Connect...", Utils.getIcon("/icons/connect.gif"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -235,7 +224,7 @@ public class AdminGUI extends JFrame
 	toolBar.add(connectAction);
 	toolBar.addSeparator();
 
-	_saveAction = new AbstractAction("Save", getIcon("/icons/save_edit.gif"))
+	_saveAction = new AbstractAction("Save", Utils.getIcon("/icons/save_edit.gif"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -247,7 +236,8 @@ public class AdminGUI extends JFrame
 	fileMenu.add(_saveAction);
 	toolBar.add(_saveAction);
 		
-	_discardAction = new AbstractAction("Discard all updates...", getIcon("/icons/undo_edit.gif"))
+	_discardAction = new AbstractAction("Discard all updates...", 
+					    Utils.getIcon("/icons/undo_edit.gif"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -270,7 +260,7 @@ public class AdminGUI extends JFrame
 	exitAction.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt F4"));
 	fileMenu.add(exitAction);
 
-	Action cutAction = new AbstractAction("Cut", getIcon("/icons/cut_edit.gif"))
+	Action cutAction = new AbstractAction("Cut", Utils.getIcon("/icons/cut_edit.gif"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -281,7 +271,7 @@ public class AdminGUI extends JFrame
 	editMenu.add(cutAction);
 	toolBar.add(cutAction);
 
-	Action copyAction = new AbstractAction("Copy", getIcon("/icons/copy_edit.gif"))
+	Action copyAction = new AbstractAction("Copy", Utils.getIcon("/icons/copy_edit.gif"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -292,7 +282,7 @@ public class AdminGUI extends JFrame
 	editMenu.add(copyAction);
 	toolBar.add(copyAction);
 	
-	_pasteAction = new AbstractAction("Paste", getIcon("/icons/paste_edit.gif"))
+	_pasteAction = new AbstractAction("Paste", Utils.getIcon("/icons/paste_edit.gif"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -306,7 +296,7 @@ public class AdminGUI extends JFrame
 	toolBar.add(_pasteAction);
 	toolBar.addSeparator();
 
-	Action deleteAction = new AbstractAction("Delete", getIcon("/icons/delete_edit.gif"))
+	Action deleteAction = new AbstractAction("Delete", Utils.getIcon("/icons/delete_edit.gif"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{

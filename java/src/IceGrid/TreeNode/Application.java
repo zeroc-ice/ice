@@ -10,33 +10,40 @@ package IceGrid.TreeNode;
 
 import IceGrid.ApplicationDescriptor;
 import IceGrid.ApplicationUpdateDescriptor;
+import IceGrid.Model;
 
 class Application extends Parent
 {
     //
     // Builds the application and all its subtrees
     //
-    Application(ApplicationDescriptor descriptor, NodeViewRoot nodeViewRoot, 
+    Application(ApplicationDescriptor descriptor, Model model, 
 		boolean fireEvent)
     {
-	super(descriptor.name);
+	super(descriptor.name, model);
 
 	_descriptor = descriptor;
-	_nodeViewRoot = nodeViewRoot;
 
-	_serverTemplates = new ServerTemplates(_descriptor.serverTemplates);
+	_serverTemplates = new ServerTemplates(_descriptor.serverTemplates,
+					       _model);
 	addChild(_serverTemplates);
 	
-	_serviceTemplates = new ServiceTemplates(_descriptor.serviceTemplates);
+	_serviceTemplates = new ServiceTemplates(_descriptor.serviceTemplates,
+						 _model);
 	addChild(_serviceTemplates);
 
-	_nodeVars = new NodeVars(_descriptor.nodes);
+	_nodeVars = new NodeVars(_descriptor.nodes, _model);
 	addChild(_nodeVars);
 
 	_serverInstances = new ServerInstances(_descriptor.servers,
-					       _nodeViewRoot,
+					       _model,
 					       fireEvent);
 	addChild(_serverInstances);
+    }
+
+    void removeFromNodes()
+    {
+	_serverInstances.removeFromNodes();
     }
 
     void update(ApplicationUpdateDescriptor desc)
@@ -97,7 +104,6 @@ class Application extends Parent
     }
 
     private ApplicationDescriptor _descriptor;
-    private NodeViewRoot _nodeViewRoot;
 
     //
     // Children

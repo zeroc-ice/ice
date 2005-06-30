@@ -9,12 +9,13 @@
 package IceGrid.TreeNode;
 
 import IceGrid.ServiceInstanceDescriptor;
+import IceGrid.Model;
 
 class ServiceInstances extends Parent
 {
-    ServiceInstances(java.util.List descriptors)
+    ServiceInstances(java.util.List descriptors, Model model, Node node)
     {
-	super("Service instances");
+	super("Service instances", model);
 	_descriptors = descriptors;
 
 	java.util.Iterator p = _descriptors.iterator();
@@ -22,7 +23,17 @@ class ServiceInstances extends Parent
 	{
 	    ServiceInstanceDescriptor descriptor = 
 		(ServiceInstanceDescriptor)p.next();
-	    addChild(new ServiceInstance(descriptor));
+	    addChild(new ServiceInstance(descriptor, _model, node));
+	}
+    }
+
+    void unregisterAdapters()
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    ServiceInstance instance = (ServiceInstance)p.next();
+	    instance.unregisterAdapters();
 	}
     }
 

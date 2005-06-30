@@ -8,6 +8,8 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import IceGrid.Model;
+
 //
 // Common implementation for leaf nodes.
 // 
@@ -34,8 +36,8 @@ class Leaf extends CommonBaseI
 	return true;
     }
     
-    protected Leaf(String id)
+    protected Leaf(String id, Model model)
     {
-	super(id, -1);
+	super(id, model, -1);
     }
 }

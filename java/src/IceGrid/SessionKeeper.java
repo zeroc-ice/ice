@@ -289,12 +289,11 @@ class SessionKeeper
     } 
 
 
-    SessionKeeper(Frame parent, Ice.Communicator communicator, Model model, 
+    SessionKeeper(Frame parent, Model model, 
 		  Preferences prefs, StatusBar statusBar)
     {
 	_parent = parent;
 	_connectDialog = new ConnectDialog();
-	_communicator = communicator;
 	_model = model;
 	_connectionPrefs = prefs.node("Connection");
 	_statusBar = statusBar;
@@ -306,7 +305,7 @@ class SessionKeeper
     void createSession(boolean autoconnectEnabled)
     {
 	ConnectInfo connectInfo = new ConnectInfo(_connectionPrefs, 
-						  _communicator);
+						  _model.getCommunicator());
 	boolean openDialog = true;
 	if(autoconnectEnabled && !connectInfo.useGlacier && 
 	   connectInfo.autoconnect)
@@ -386,7 +385,7 @@ class SessionKeeper
 		{
 		    defaultLocator = Ice.LocatorPrxHelper.
 			uncheckedCast(
-			    _communicator.stringToProxy(info.locatorProxy));
+			    _model.getCommunicator().stringToProxy(info.locatorProxy));
 		}
 		catch(Ice.LocalException e)
 		{
@@ -398,7 +397,7 @@ class SessionKeeper
 			JOptionPane.ERROR_MESSAGE);
 		    return false;
 		}
-		_communicator.setDefaultLocator(defaultLocator);
+		_model.getCommunicator().setDefaultLocator(defaultLocator);
 		
 		//
 		// TODO: timeout
@@ -406,7 +405,7 @@ class SessionKeeper
 		
 		SessionManagerPrx sessionManager = SessionManagerPrxHelper.
 		    uncheckedCast(
-			_communicator.stringToProxy(
+			_model.getCommunicator().stringToProxy(
 			    info.sessionManagerIdentity));
 		
 		try
@@ -525,7 +524,7 @@ class SessionKeeper
 	    // Create the object adapter for the observers
 	    //
 	    String uuid = Ice.Util.generateUUID();
-	    _observerAdapter = _communicator.createObjectAdapterWithEndpoints(
+	    _observerAdapter = _model.getCommunicator().createObjectAdapterWithEndpoints(
 		"Observers-" + uuid, "tcp");
 
 	    //
@@ -599,7 +598,6 @@ class SessionKeeper
     private Frame _parent;
     private ConnectDialog _connectDialog;
 
-    private Ice.Communicator _communicator;
     private Model _model;
     private Preferences _connectionPrefs;
     private StatusBar _statusBar;

@@ -30,34 +30,6 @@ public class TreeModelI implements TreeModel
     static public final int VIEW_COUNT = 2;
 
 
-    //
-    // The per-view TreeModel
-    //
-    static public TreeModelI getTreeModel(int view)
-    {
-	if(view == NODE_VIEW)
-	{
-	    if(_nodeModel == null)
-	    {
-		_nodeModel = new TreeModelI(new NodeViewRoot());
-	    }
-	    return _nodeModel;
-	}
-	else if(view == APPLICATION_VIEW)
-	{
-	    if(_applicationModel == null)
-	    {
-		_applicationModel = new TreeModelI(
-		    new ApplicationViewRoot((NodeViewRoot)getTreeModel(NODE_VIEW).getRoot()));
-	    }
-	    return _applicationModel;
-	}
-	else
-	{
-	    return null;
-	}
-    }
-
     public Object getRoot()
     {
 	return _root;

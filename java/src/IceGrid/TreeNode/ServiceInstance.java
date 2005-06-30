@@ -10,22 +10,25 @@ package IceGrid.TreeNode;
 
 import IceGrid.ServiceInstanceDescriptor;
 import IceGrid.TemplateDescriptor;
+import IceGrid.Model;
 
 class ServiceInstance extends Parent
 {
-    ServiceInstance(ServiceInstanceDescriptor descriptor)
+    ServiceInstance(ServiceInstanceDescriptor descriptor, Model model, Node node)
     {
-	super(descriptor.descriptor.name);
+	super(descriptor.descriptor.name, model);
 	_descriptor = descriptor;
 	
-	if(_descriptor.descriptor != null)
-	{
-	    _adapters = new Adapters(_descriptor.descriptor.adapters, false);
-	    addChild(_adapters);
+	_adapters = new Adapters(_descriptor.descriptor.adapters, _model, node);
+	addChild(_adapters);
 	    
-	    _dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, false);
-	    addChild(_dbEnvs);
-	}
+	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, _model, false);
+	addChild(_dbEnvs);
+    }
+
+    void unregisterAdapters()
+    {
+	_adapters.unregisterAll();
     }
 
     public String toString()

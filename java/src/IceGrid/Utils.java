@@ -6,24 +6,17 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-package IceGrid.TreeNode;
+package IceGrid;
 
-import IceGrid.NodeDescriptor;
-import IceGrid.Model;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
-class NodeVar extends Leaf
+public class Utils
 {
-    NodeVar(NodeDescriptor descriptor, Model model)
+    static public Icon getIcon(String path)
     {
-	super(descriptor.name, model);
-	rebuild(descriptor);
+	java.net.URL imgURL = Utils.class.getResource(path);
+	assert(imgURL != null);
+	return new ImageIcon(imgURL);
     }
-
-    void rebuild(NodeDescriptor descriptor)
-    {
-	_descriptor = descriptor;
-    }
-
-    private NodeDescriptor _descriptor;
-
 }

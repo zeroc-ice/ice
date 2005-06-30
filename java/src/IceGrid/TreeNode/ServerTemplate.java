@@ -10,12 +10,13 @@ package IceGrid.TreeNode;
 
 import IceGrid.IceBoxDescriptor;
 import IceGrid.TemplateDescriptor;
+import IceGrid.Model;
 
 class ServerTemplate extends Parent
 {
-    ServerTemplate(String name, TemplateDescriptor descriptor)
+    ServerTemplate(String name, Model model, TemplateDescriptor descriptor)
     {
-	super(name);
+	super(name, model);
 	rebuild(descriptor);
     }
 
@@ -33,7 +34,7 @@ class ServerTemplate extends Parent
 	{
 	    _iceBoxDescriptor = (IceBoxDescriptor)_descriptor.descriptor;
 	    
-	    _serviceInstances = new ServiceInstances(_iceBoxDescriptor.services);
+	    _serviceInstances = new ServiceInstances(_iceBoxDescriptor.services, _model, null);
 	    addChild(_serviceInstances);
 	}
 	else
@@ -42,10 +43,10 @@ class ServerTemplate extends Parent
 	    _iceBoxDescriptor = null;
 	}
 	
-	_adapters = new Adapters(_descriptor.descriptor.adapters, true);
+	_adapters = new Adapters(_descriptor.descriptor.adapters, _model, null);
 	addChild(_adapters);
 
-	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, true);
+	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, _model, true);
 	addChild(_dbEnvs);
     }
 

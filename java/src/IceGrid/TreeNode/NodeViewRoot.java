@@ -11,17 +11,23 @@ package IceGrid.TreeNode;
 import IceGrid.ApplicationDescriptor;
 import IceGrid.NodeDescriptor;
 import IceGrid.TreeModelI;
+import IceGrid.Model;
+import IceGrid.NodeDynamicInfo;
+import IceGrid.ServerDynamicInfo;
+import IceGrid.AdapterDynamicInfo;
+import IceGrid.ServerState;
 
 public class NodeViewRoot extends Parent
 {
-    public NodeViewRoot()
+    public NodeViewRoot(Model model)
     {
-	super("Nodes", TreeModelI.NODE_VIEW);
+	super("Nodes", model, TreeModelI.NODE_VIEW);
     }
 
     public void init(java.util.List applications)
     {
 	assert(_children.size() == 0);
+	
 	java.util.Iterator p = applications.iterator();
 	while(p.hasNext())
 	{
@@ -33,6 +39,8 @@ public class NodeViewRoot extends Parent
     public void clear()
     {
 	_nodeMap.clear();
+	_nodeServerInfoMap.clear();
+	_nodeAdapterInfoMap.clear();
 	clearChildren();
 	fireStructureChangedEvent(this);
     }
@@ -50,15 +58,16 @@ public class NodeViewRoot extends Parent
 	    Node child = (Node)findChild(nodeName);
 	    if(child == null)
 	    {
-		child = new Node(applicationName, descriptor);
+		java.util.Map serverInfoMap = (java.util.Map)_nodeServerInfoMap.get(nodeName);
+		java.util.Map adapterInfoMap = (java.util.Map)_nodeAdapterInfoMap.get(nodeName);
+		child = new Node(applicationName, _model, descriptor, serverInfoMap, adapterInfoMap);
 		_nodeMap.put(nodeName, child);
 		child.addParent(this);
 		addChild(child, fireEvent);
 	    }
 	    else
 	    {
-		child.addApplication(applicationName, 
-				     descriptor);
+		child.addApplication(applicationName, descriptor);
 	    }
 	}
     }
@@ -112,6 +121,103 @@ public class NodeViewRoot extends Parent
 	}
     }
 
+    public void nodeUp(NodeDynamicInfo updatedInfo)
+    {
+	String nodeName = updatedInfo.name;
+
+	java.util.Map serverMap = new java.util.HashMap();
+	System.err.println("nodeUp gives info on:");
+	for(int i = 0; i < updatedInfo.servers.length; ++i)
+	{
+	    System.err.println(updatedInfo.servers[i].name);
+	    if(updatedInfo.servers[i].state != ServerState.Destroyed)
+	    {
+		serverMap.put(updatedInfo.servers[i].name, updatedInfo.servers[i]);
+	    }
+	}
+
+	java.util.Map adapterMap = new java.util.HashMap();
+	for(int i = 0; i < updatedInfo.adapters.length; ++i)
+	{
+	    if(updatedInfo.adapters[i].proxy != null)
+	    {
+		adapterMap.put(updatedInfo.adapters[i].id, updatedInfo.adapters[i].proxy);
+	    }
+	}
+	
+	_nodeServerInfoMap.put(nodeName, serverMap);
+	_nodeAdapterInfoMap.put(nodeName, adapterMap);
+
+	Node node = findNode(nodeName);
+	if(node != null)
+	{
+	    node.up(serverMap, adapterMap);
+	}
+    }
+
+    public void nodeDown(String nodeName)
+    {
+	_nodeServerInfoMap.remove(nodeName);
+	_nodeAdapterInfoMap.remove(nodeName);
+
+	Node node = findNode(nodeName);
+	if(node != null)
+	{
+	    node.down();
+	}
+    }
+    
+    public void updateServer(String nodeName, ServerDynamicInfo updatedInfo)
+    {
+	java.util.Map serverMap = (java.util.Map)_nodeServerInfoMap.get(nodeName);
+	if(serverMap != null)
+	{
+	    if(updatedInfo.state == ServerState.Destroyed)
+	    {
+		serverMap.remove(updatedInfo.name);
+	    }
+	    else
+	    {
+		serverMap.put(updatedInfo.name, updatedInfo);
+	    }
+	    
+	    Node node = findNode(nodeName);
+	    if(node != null)
+	    {
+		node.updateServer(updatedInfo);
+	    }
+	}
+	//
+	// Else log a warning?
+	//
+
+    }
+
+    public void updateAdapter(String nodeName, AdapterDynamicInfo updatedInfo)
+    {
+	java.util.Map adapterMap = (java.util.Map)_nodeAdapterInfoMap.get(nodeName);
+	if(adapterMap != null)
+	{
+	    if(updatedInfo.proxy == null)
+	    {
+		adapterMap.remove(updatedInfo.id);
+	    }
+	    else
+	    {
+		adapterMap.put(updatedInfo.id, updatedInfo.proxy);
+	    }
+
+	    Node node = findNode(nodeName);
+	    if(node != null)
+	    {
+		node.updateAdapter(updatedInfo);
+	    }
+	}
+	//
+	// Else log a warning?
+	//
+    }
+    
 
     Node findNode(String name)
     {
@@ -119,4 +225,6 @@ public class NodeViewRoot extends Parent
     }
 
     private java.util.Map _nodeMap = new java.util.HashMap();
+    private java.util.Map _nodeServerInfoMap = new java.util.HashMap();
+    private java.util.Map _nodeAdapterInfoMap = new java.util.HashMap();
 }

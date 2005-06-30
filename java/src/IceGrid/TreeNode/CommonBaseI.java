@@ -8,12 +8,15 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import java.awt.Component;
 import javax.swing.tree.TreePath;
+import javax.swing.JTree;
 import javax.swing.JPopupMenu;
 import javax.swing.JPanel;
 import javax.swing.event.TreeModelEvent;
 
 import IceGrid.TreeModelI;
+import IceGrid.Model;
 
 abstract class CommonBaseI implements CommonBase
 { 
@@ -109,6 +112,17 @@ abstract class CommonBaseI implements CommonBase
 	return null;
     }
 
+    public Component getTreeCellRendererComponent(
+	JTree tree,
+	Object value,
+	boolean sel,
+	boolean expanded,
+	boolean leaf,
+	int row,
+	boolean hasFocus) 
+    {
+	return null;
+    }
 
     //
     // Fires a nodesChanged event with this node for this specific view
@@ -140,7 +154,7 @@ abstract class CommonBaseI implements CommonBase
 	    childIndices[0] = _parents[view].getIndex(this);
 	    event = new TreeModelEvent(source, _parents[view].getPath(view), childIndices, children);
 	}
-	TreeModelI.getTreeModel(view).fireNodesChangedEvent(event);
+	_model.getTreeModel(view).fireNodesChangedEvent(event);
     } 
     
     //
@@ -166,7 +180,7 @@ abstract class CommonBaseI implements CommonBase
 	assert(_paths[view] != null);
 
 	TreeModelEvent event = new TreeModelEvent(source, _paths[view]);
-	TreeModelI.getTreeModel(view).fireStructureChangedEvent(event);
+	_model.getTreeModel(view).fireStructureChangedEvent(event);
     } 
     
     void fireStructureChangedEvent(Object source)
@@ -202,9 +216,10 @@ abstract class CommonBaseI implements CommonBase
 	return result;
     }
 
-    protected CommonBaseI(String id, int rootForView)
+    protected CommonBaseI(String id, Model model, int rootForView)
     {
 	_id = id;
+	_model = model;
 
 	if(rootForView >= 0)
 	{
@@ -222,4 +237,9 @@ abstract class CommonBaseI implements CommonBase
     // Id (application name, server instance name etc)
     //
     protected String _id;
+
+    //
+    // The Model
+    //
+    protected IceGrid.Model _model; 
 }

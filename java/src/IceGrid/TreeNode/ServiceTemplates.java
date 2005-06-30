@@ -9,12 +9,13 @@
 package IceGrid.TreeNode;
 
 import IceGrid.TemplateDescriptor;
+import IceGrid.Model;
 
 class ServiceTemplates extends Parent
 {
-    ServiceTemplates(java.util.Map descriptors)
+    ServiceTemplates(java.util.Map descriptors, Model model)
     {
-	super("Service templates");
+	super("Service templates", model);
 
 	_descriptors = descriptors;
 
@@ -23,7 +24,7 @@ class ServiceTemplates extends Parent
 	while(p.hasNext())
 	{
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-	    addChild(new ServiceTemplate((String)entry.getKey(),
+	    addChild(new ServiceTemplate((String)entry.getKey(), _model,
 					 (TemplateDescriptor)entry.getValue()));
 	}
     }
@@ -54,7 +55,7 @@ class ServiceTemplates extends Parent
 	    ServiceTemplate child = (ServiceTemplate)findChild(name);
 	    if(child == null)
 	    {
-		newChildren.add(new ServiceTemplate(name, templateDescriptor));
+		newChildren.add(new ServiceTemplate(name, _model, templateDescriptor));
 	    }
 	    else
 	    {
