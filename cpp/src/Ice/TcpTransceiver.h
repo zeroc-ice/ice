@@ -51,6 +51,9 @@ private:
     fd_set _wFdSet;
 
     const std::string _desc;
+#ifdef _WIN32
+    const bool _isPeerLocal;
+#endif
 };
 
 }

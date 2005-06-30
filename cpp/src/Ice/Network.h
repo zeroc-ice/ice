@@ -111,6 +111,12 @@ ICE_PROTOCOL_API std::string lastErrorToString();
 ICE_PROTOCOL_API std::string fdToString(SOCKET);
 ICE_PROTOCOL_API std::string addrToString(const struct sockaddr_in&);
 
+#ifdef _WIN32
+ICE_PROTOCOL_API std::vector<struct sockaddr_in> getLocalAddresses();
+ICE_PROTOCOL_API bool isLocalAddress(const struct sockaddr_in&);
+ICE_PROTOCOL_API bool isPeerLocal(SOCKET);
+#endif
+
 }
 
 #endif
