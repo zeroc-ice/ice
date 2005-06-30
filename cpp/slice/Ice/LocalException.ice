@@ -10,9 +10,6 @@
 #ifndef ICE_LOCAL_EXCEPTION_ICE
 #define ICE_LOCAL_EXCEPTION_ICE
 
-#ifdef ICEE
-#include <Ice/IceEConfig.ice>
-#endif
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
 
@@ -138,7 +135,6 @@ local exception ObjectAdapterDeactivatedException
  * the same adapter id.
  *
  **/
-#ifndef ICE_NO_LOCATOR
 local exception ObjectAdapterIdInUseException
 {
     /**
@@ -148,7 +144,6 @@ local exception ObjectAdapterIdInUseException
      **/
     string id;
 };
-#endif
 
 /**
  *

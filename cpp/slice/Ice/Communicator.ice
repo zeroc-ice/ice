@@ -10,23 +10,14 @@
 #ifndef ICE_COMMUNICATOR_ICE
 #define ICE_COMMUNICATOR_ICE
 
-#ifdef ICEE
-#include <Ice/IceEConfig.ice>
-#endif
 #include <Ice/LoggerF.ice>
-#ifndef ICEE
 #include <Ice/StatsF.ice>
-#endif
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/PropertiesF.ice>
-#ifndef ICEE
 #include <Ice/ObjectFactoryF.ice>
-#endif
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
-#ifndef ICEE
 #include <Ice/PluginF.ice>
-#endif
 #include <Ice/Current.ice>
 
 /**
@@ -177,8 +168,6 @@ local interface Communicator
      **/
     ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
 
-#ifndef ICEE
-
     /**
      *
      * Add a servant factory to this communicator. Installing a
@@ -256,8 +245,6 @@ local interface Communicator
      **/
     nonmutating ObjectFactory findObjectFactory(string id);
 
-#endif /* ICEE */
-
     /**
      *
      * Set a default context on this communicator. Once set,
@@ -316,7 +303,6 @@ local interface Communicator
      **/
     void setLogger(Logger log);
 
-#ifndef ICEE
     /**
      *
      * Get the statistics callback object for this communicator.
@@ -341,9 +327,7 @@ local interface Communicator
      *
      **/
     void setStats(Stats st);
-#endif
 
-#ifndef ICE_NO_ROUTER
     /**
      *
      * Get the default router this communicator.
@@ -374,10 +358,6 @@ local interface Communicator
      *
      **/
     void setDefaultRouter(Router* rtr);
-
-#endif
-
-#ifndef ICE_NO_LOCATOR
 
     /**
      *
@@ -413,9 +393,6 @@ local interface Communicator
      **/
     void setDefaultLocator(Locator* loc);
 
-#endif
-
-#ifndef ICEE
     /**
      *
      * Get the plug-in manager for this communicator.
@@ -426,7 +403,6 @@ local interface Communicator
      *
      **/
     nonmutating PluginManager getPluginManager();
-#endif
 
     /**
      *

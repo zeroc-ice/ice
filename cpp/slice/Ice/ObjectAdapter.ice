@@ -10,9 +10,6 @@
 #ifndef ICE_OBJECT_ADAPTER_ICE
 #define ICE_OBJECT_ADAPTER_ICE
 
-#ifdef ICEE
-#include <Ice/IceEConfig.ice>
-#endif
 #include <Ice/CommunicatorF.ice>
 #ifndef ICEE
 #include <Ice/ServantLocatorF.ice>
@@ -498,7 +495,6 @@ local interface ObjectAdapter
      **/
     nonmutating Object* createReverseProxy(Identity id);
 
-#ifndef ICE_NO_ROUTER
     /**
      *
      * Add a router to this object adapter. By doing so,
@@ -520,9 +516,7 @@ local interface ObjectAdapter
      *
      **/
     void addRouter(Router* rtr);
-#endif
 
-#ifndef ICE_NO_LOCATOR
     /**
      * Set an &Ice; locator for this object adapter. By doing so, the
      * object adapter will register itself with the locator registry
@@ -538,7 +532,6 @@ local interface ObjectAdapter
      * 
      **/
     void setLocator(Locator* loc);
-#endif
 };
 
 };

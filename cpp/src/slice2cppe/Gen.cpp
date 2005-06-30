@@ -1165,24 +1165,20 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H << sp << nl << "virtual ::IceInternal::Handle< ::IceDelegate::Ice::Object> __createDelegate();";
     H << eb << ';';
 
+    string flatName = p->flattenedScope() + p->name() + "_ids";
+
+    StringList ids;
+    getIds(p, ids);
+
+    StringList::const_iterator firstIter = ids.begin();
+    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
+    assert(scopedIter != ids.end());
+    StringList::difference_type scopedPos = ice_distance(firstIter, scopedIter);
 
     C << sp;
     C << nl << "const ::std::string&" << nl << "IceProxy" << scoped << "::ice_staticId()";
     C << sb;
-    if(!_ice)
-    {
-        string flatName = p->flattenedScope() + p->name() + "_ids";
-
-        StringList ids;
-        getIds(p, ids);
-
-        StringList::const_iterator firstIter = ids.begin();
-        StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
-        assert(scopedIter != ids.end());
-        StringList::difference_type scopedPos = ice_distance(firstIter, scopedIter);
-
-        C << nl << "return " << flatName << '[' << scopedPos << "];";
-    }
+    C << nl << "return " << flatName << '[' << scopedPos << "];";
     C << eb;
 
     C << sp << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object>";
