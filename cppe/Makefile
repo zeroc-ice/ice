@@ -68,8 +68,8 @@ doc::
 
 install::
 	@( cd doc && $(MAKE) install ) || exit 1
-	$(INSTALL) ICE_LICENSE $(prefix)
-	$(INSTALL) LICENSE $(prefix)
+	$(call installdata,ICE_LICENSE,$(prefix))
+	$(call installdata,LICENSE,$(prefix))
 
 clean::
 	@( cd doc && $(MAKE) clean ) || exit 1

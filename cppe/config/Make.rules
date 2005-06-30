@@ -226,12 +226,29 @@ endif
 
 ifeq ($(installlib),)
     ifeq ($(STATICLIBS),yes)
-	installlib	= $(INSTALL) $(2)/$(5) $(1);
+	installlib	= $(INSTALL) $(2)/$(5) $(1); \
+			  chmod a+rx $(1)/$(5)
     else
         installlib	= $(INSTALL) $(2)/$(3) $(1); \
 			  rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
-			  rm -f $(1)/$(5); ln -s $(4) $(1)/$(5) 
+			  rm -f $(1)/$(5); ln -s $(4) $(1)/$(5); \
+			  chmod a+rx $(1)/$(3) 
     endif
+endif
+
+ifeq ($(installdata),)
+    installdata		= $(INSTALL_DATA) $(1) $(2); \
+			  chmod a+r $(2)/$(notdir $(1))
+endif
+
+ifeq ($(installprogram),)
+    installprogram	= $(INSTALL_PROGRAM) $(1) $(2); \
+			  chmod a+rx $(2)/$(notdir $(1))
+endif
+
+ifeq ($(mkdir),)
+    mkdir		= mkdir $(1) ; \
+			  chmod a+rx $(1)
 endif
 
 SLICEPARSERLIB		= $(ICE_HOME)/lib/$(call mklibfilename,Slice)
