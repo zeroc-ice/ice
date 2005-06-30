@@ -17,29 +17,25 @@ install::
 	@if test ! -d $(prefix) ; \
 	then \
 	    echo "Creating $(prefix)..." ; \
-	    mkdir $(prefix) ; \
-	    chmod a+rx $(prefix) ; \
+	    $(call mkdir,$(prefix)) ; \
 	fi
 
 	@if test ! -d $(install_libdir) ; \
 	then \
 	    echo "Creating $(install_libdir)..." ; \
-	    mkdir -p $(install_libdir) ; \
-	    chmod a+rx $(install_libdir) ; \
+	    $(call mkdir,$(install_libdir)) ; \
 	fi
 
 	@if test ! -d $(install_slicedir) ; \
 	then \
 	    echo "Creating $(install_slicedir)..." ; \
-	    mkdir $(install_slicedir) ; \
-	    chmod a+rx $(install_slicedir) ; \
+	    $(call mkdir,$(install_slicedir)) ; \
 	fi
 
 	@if test ! -d $(install_pythondir) ; \
 	then \
 	    echo "Creating $(install_pythondir)..." ; \
-	    mkdir $(install_pythondir) ; \
-	    chmod a+rx $(install_pythondir) ; \
+	    $(call mkdir,$(install_pythondir)) ; \
 	fi
 
 $(EVERYTHING)::
@@ -59,21 +55,22 @@ install::
 		then \
 		    echo "Creating $(install_slicedir)/$$i..." ; \
 		    mkdir $(install_slicedir)/$$i ; \
-		chmod a+rx $(install_slicedir)/$$i ; \
+		    chmod a+rx $(install_slicedir)/$$i ; \
 		fi ; \
 		cd $$i ; \
 		for f in *.ice ; \
 		do \
 		    echo "Installing $$i/$$f" ; \
-		    $(INSTALL_DATA) $$f $(install_slicedir)/$$i/$$f ; \
+		    $(INSTALL_DATA) $$f $(install_slicedir)/$$i ; \
+		    chmod a+r $(install_slicedir)/$$i/$$f ; \
 		done ; \
 		cd .. ; \
 	    done \
 	fi
 
 install::
-	$(INSTALL) ICE_LICENSE $(prefix)
-	$(INSTALL) LICENSE $(prefix)
+	$(call installdata,ICE_LICENSE,$(prefix))
+	$(call installdata,LICENSE,$(prefix))
 
 test::
 	@python $(top_srcdir)/allTests.py
