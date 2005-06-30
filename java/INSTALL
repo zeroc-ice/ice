@@ -162,7 +162,7 @@ If you want to rebuild the source code, you will need to obtain the
 
 http://ant.apache.org/
 
-Ice requires ant 1.6.1 or later, but we recommend using the most
+Ice requires ant 1.6.2 or later, but we recommend using the most
 recent release.
 
 You must also install ant's "optional tasks" (optional.jar) in the
