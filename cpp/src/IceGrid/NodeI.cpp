@@ -468,7 +468,7 @@ NodeI::initObserver(const Ice::StringSeq& servers)
 	info.name = _name;
 	info.servers = serverInfos;
 	info.adapters = adapterInfos;
-	_observer->initNode(info);
+	_observer->nodeUp(info);
     }
     catch(const Ice::LocalException&)
     {

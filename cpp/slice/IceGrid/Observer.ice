@@ -44,7 +44,9 @@ interface NodeObserver
 {
     ["ami"] void init(NodeDynamicInfoSeq nodes);
 
-    void initNode(NodeDynamicInfo node);
+    void nodeUp(NodeDynamicInfo node);
+
+    void nodeDown(string name);
 
     void updateServer(string node, ServerDynamicInfo updatedInfo);
 
@@ -53,15 +55,12 @@ interface NodeObserver
 
 interface RegistryObserver
 {
-    ["ami"] void init(int serial, ApplicationDescriptorSeq applications, Ice::StringSeq nodesUp);
+    ["ami"] void init(int serial, ApplicationDescriptorSeq applications);
 
     void applicationAdded(int serial, ApplicationDescriptor desc);
     void applicationRemoved(int serial, string name);
     void applicationSynced(int serial, ApplicationDescriptor desc);
     void applicationUpdated(int serial, ApplicationUpdateDescriptor desc);
-    
-    void nodeUp(string name);
-    void nodeDown(string name);
 };
 
 /**

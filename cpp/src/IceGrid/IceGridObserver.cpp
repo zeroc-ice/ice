@@ -76,14 +76,8 @@ class RegistryObserverI : public RegistryObserver
 public:
 
     virtual void 
-    init(int, const ApplicationDescriptorSeq&, const Ice::StringSeq& nodes, const Ice::Current&)
+    init(int, const ApplicationDescriptorSeq&, const Ice::Current&)
     {
-	cout << "active nodes: ";
-	for(Ice::StringSeq::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
-	{
-	    cout << *p << " ";
-	}
-	cout << endl;
     }
 
     virtual void
@@ -109,18 +103,6 @@ public:
     {
 	cout << "application `" << app->name << "' synced (serial = " << serial << ")" << endl;
     }
-
-    virtual void
-    nodeUp(const string& name, const Ice::Current& current)
-    {
-	cout << "node `" << name << "' is up" << endl;
-    }
-
-    virtual void
-    nodeDown(const string& name, const Ice::Current& current)
-    {
-	cout << "node `" << name << "' is down" << endl;
-    }
 };
 
 class NodeObserverI : public NodeObserver
@@ -132,12 +114,12 @@ public:
     {
 	for(NodeDynamicInfoSeq::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
 	{
-	    initNode(*p, c);
+	    nodeUp(*p, c);
 	}
     }
 
-    virtual void 
-    initNode(const NodeDynamicInfo& node, const Ice::Current&)
+    virtual void
+    nodeUp(const NodeDynamicInfo& node, const Ice::Current& current)
     {
 	cout << "node `" << node.name << "' servers: ";
 	for(ServerDynamicInfoSeq::const_iterator p = node.servers.begin(); p != node.servers.end(); ++p)
@@ -150,6 +132,12 @@ public:
 	    cout << p->id << " ";
 	}	
 	cout << endl;
+    }
+
+    virtual void
+    nodeDown(const string& name, const Ice::Current& current)
+    {
+	cout << "node `" << name << "' is down" << endl;
     }
 
     virtual void

@@ -14,10 +14,8 @@
 using namespace std;
 using namespace IceGrid;
 
-NodeSessionI::NodeSessionI(const DatabasePtr& database, const RegistryObserverPrx& observer, const string& name, 
-			   const NodePrx& node) : 
+NodeSessionI::NodeSessionI(const DatabasePtr& database, const string& name, const NodePrx& node) : 
     _database(database),
-    _observer(observer),
     _name(name),
     _node(node),
     _startTime(IceUtil::Time::now()),
@@ -28,16 +26,6 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database, const RegistryObserverPr
     try
     {
 	_database->addNode(name, this);
-	
-	try
-	{
-	    _observer->nodeUp(_name);
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    // TODO: Log a warning?
-	    cerr << ex << endl;
-	}
     }
     catch(...)
     {
@@ -78,15 +66,6 @@ NodeSessionI::destroy(const Ice::Current& current)
 
     _database->removeNode(_name);
 
-    try
-    {
-	_observer->nodeDown(_name);
-    }
-    catch(const Ice::LocalException&)
-    {
-	// TODO: Log a warning?
-    }
-    
     try
     {
 	current.adapter->remove(current.id);

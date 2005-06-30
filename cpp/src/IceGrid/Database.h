@@ -73,7 +73,7 @@ public:
     Database(const Ice::ObjectAdapterPtr&, const std::string&, int, const TraceLevelsPtr&);
     virtual ~Database();
 
-    void setRegistryObserver(const RegistryObserverPrx&);
+    void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&);
 
     void lock(int serial, ObserverSessionI*, const std::string&);
     void unlock(ObserverSessionI*);
@@ -144,6 +144,7 @@ private:
     const int _nodeSessionTimeout;
     const TraceLevelsPtr _traceLevels;
     RegistryObserverPrx _registryObserver;
+    NodeObserverPrx _nodeObserver;
 
     std::map<std::string, ServerEntryPtr> _servers;
     std::map<std::string, ServerEntryPtr> _serversByAdapterId;

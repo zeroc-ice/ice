@@ -221,31 +221,26 @@ Database::~Database()
 }
 
 void
-Database::setRegistryObserver(const RegistryObserverPrx& observer)
+Database::setObservers(const RegistryObserverPrx& registryObserver, const NodeObserverPrx& nodeObserver)
 {
     int serial;
     ApplicationDescriptorSeq applications;
-    Ice::StringSeq nodes;
     {
 	Lock sync(*this);
-	_registryObserver = observer;
+	_registryObserver = registryObserver;
+	_nodeObserver = nodeObserver;
 	serial = _serial;
 
 	for(StringApplicationDescriptorDict::const_iterator p = _descriptors.begin(); p != _descriptors.end(); ++p)
 	{
 	    applications.push_back(p->second);
 	}
-
-	for(map<string, NodeSessionIPtr>::const_iterator p = _nodes.begin(); p != _nodes.end(); ++p)
-	{
-	    nodes.push_back(p->first);
-	}
     }
 
     //
     // Notify the observers.
     //
-    _registryObserver->init(serial, applications, nodes);
+    _registryObserver->init(serial, applications);
 }
 
 void
@@ -715,14 +710,25 @@ Database::getNode(const string& name) const
 void 
 Database::removeNode(const string& name)
 {
-    Lock sync(*this);
-    if(_nodes.erase(name) > 0)
     {
-	if(_traceLevels->node > 0)
+	Lock sync(*this);
+	if(_nodes.erase(name) > 0)
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
-	    out << "removed node `" << name << "'";
+	    if(_traceLevels->node > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
+		out << "removed node `" << name << "'";
+	    }
 	}
+    }
+
+    try
+    {
+	_nodeObserver->nodeDown(name);
+    }
+    catch(const Ice::LocalException&)
+    {
+	// TODO: Log a warning?
     }
 }
 

@@ -355,7 +355,7 @@ RegistryI::start(bool nowarn)
     obj = registryAdapter->addWithUUID(regTopic)->ice_collocationOptimization(false);
     obj = obj->ice_locator(_communicator->getDefaultLocator());
     _registryObserver = RegistryObserverPrx::uncheckedCast(obj);
-    _database->setRegistryObserver(_registryObserver);
+    _database->setObservers(_registryObserver, _nodeObserver);
 
     //
     // Create the session manager.
@@ -403,7 +403,7 @@ NodeSessionPrx
 RegistryI::registerNode(const std::string& name, const NodePrx& node, const Ice::Current& c)
 {
     NodePrx n = NodePrx::uncheckedCast(node->ice_timeout(_nodeSessionTimeout));
-    NodeSessionIPtr session = new NodeSessionI(_database, _registryObserver, name, n);
+    NodeSessionIPtr session = new NodeSessionI(_database, name, n);
     NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(c.adapter->addWithUUID(session));
     _reaper->add(proxy, session);
     return proxy;

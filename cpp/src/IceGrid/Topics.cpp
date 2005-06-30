@@ -87,14 +87,26 @@ NodeObserverTopic::init(const NodeDynamicInfoSeq&, const Ice::Current&)
 }
 
 void
-NodeObserverTopic::initNode(const NodeDynamicInfo& info, const Ice::Current& current)
+NodeObserverTopic::nodeUp(const NodeDynamicInfo& info, const Ice::Current& current)
 {
     Lock sync(*this);
 
     _nodes.insert(make_pair(info.name, info));
 
-    _publisher->initNode(info);
+    _publisher->nodeUp(info);
 }
+
+void 
+NodeObserverTopic::nodeDown(const string& name, const Ice::Current&)
+{
+    Lock sync(*this);
+
+    assert(_nodes.find(name) != _nodes.end());
+    _nodes.erase(name);
+
+    _publisher->nodeDown(name);
+}
+
 
 void 
 NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& server, const Ice::Current&)
@@ -202,13 +214,6 @@ NodeObserverTopic::unsubscribe(const NodeObserverPrx& observer)
     _topic->unsubscribe(observer);
 }
 
-void
-NodeObserverTopic::removeNode(const string& name)
-{
-    Lock sync(*this);
-    _nodes.erase(name);
-}
-
 RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicPrx& topic, 
 					     const RegistryObserverPrx& publisher,
 					     NodeObserverTopic& nodeObserver) :
@@ -217,18 +222,14 @@ RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicPrx& topic,
 }
 
 void 
-RegistryObserverTopic::init(int serial,
-			    const ApplicationDescriptorSeq& apps, 
-			    const Ice::StringSeq& nodes, 
-			    const Ice::Current&)
+RegistryObserverTopic::init(int serial, const ApplicationDescriptorSeq& apps, const Ice::Current&)
 {
     Lock sync(*this);
 
     _serial = serial;
     _applications = apps;
-    _nodes = nodes;
 
-    _publisher->init(serial, apps, nodes);
+    _publisher->init(serial, apps);
 }
 
 void 
@@ -308,31 +309,6 @@ RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDes
 }
 
 void 
-RegistryObserverTopic::nodeUp(const string& name, const Ice::Current&)
-{
-    Lock sync(*this);
-
-    assert(find(_nodes.begin(), _nodes.end(), name) == _nodes.end());
-    _nodes.push_back(name);
-
-    _publisher->nodeUp(name);
-}
-
-void 
-RegistryObserverTopic::nodeDown(const string& name, const Ice::Current&)
-{
-    Lock sync(*this);
-
-    Ice::StringSeq::iterator p = find(_nodes.begin(), _nodes.end(), name);
-    assert(p != _nodes.end());
-    _nodes.erase(p);
-
-    _nodeObserver.removeNode(name);
-
-    _publisher->nodeDown(name);
-}
-
-void 
 RegistryObserverTopic::subscribe(const RegistryObserverPrx& observer, int serial)
 {
     while(true)
@@ -341,7 +317,7 @@ RegistryObserverTopic::subscribe(const RegistryObserverPrx& observer, int serial
 	{
 	    Lock sync(*this);
 	    assert(_serial != -1);
-	    observer->init_async(new RegistryInitCB(this, observer, _serial), _serial, _applications, _nodes);
+	    observer->init_async(new RegistryInitCB(this, observer, _serial), _serial, _applications);
 	    return;
 	}
 

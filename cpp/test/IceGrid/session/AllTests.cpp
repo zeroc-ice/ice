@@ -86,14 +86,13 @@ public:
     }
 
     virtual void 
-    init(int serial, const ApplicationDescriptorSeq& apps, const Ice::StringSeq& nodes, const Ice::Current&)
+    init(int serial, const ApplicationDescriptorSeq& apps, const Ice::Current&)
     {
 	Lock sync(*this);
 	for(ApplicationDescriptorSeq::const_iterator p = apps.begin(); p != apps.end(); ++p)
 	{
 	    this->applications.insert(make_pair((*p)->name, *p));
 	}
-	this->nodes = set<string>(nodes.begin(), nodes.end());
 	updated(serial);
     }
 
@@ -132,22 +131,6 @@ public:
 	updated(serial);
     }
 
-    virtual void
-    nodeUp(const string& name, const Ice::Current& current)
-    {
-	Lock sync(*this);
-	this->nodes.insert(name);
-	updated();
-    }
-
-    virtual void
-    nodeDown(const string& name, const Ice::Current& current)
-    {
-	Lock sync(*this);
-	this->nodes.erase(name);
-	updated();
-    }
-
     void
     waitForUpdate(const char* file, int line)
     {
@@ -165,7 +148,6 @@ public:
 
     int serial;
     map<string, ApplicationDescriptorPtr> applications;
-    set<string> nodes;
 
 private:
 
@@ -202,11 +184,19 @@ public:
 	updated(current);
     }
 
-    virtual void 
-    initNode(const NodeDynamicInfo& info, const Ice::Current& current)
+    virtual void
+    nodeUp(const NodeDynamicInfo& info, const Ice::Current& current)
     {
 	Lock sync(*this);
 	this->nodes[info.name] = info;
+	updated(current);
+    }
+
+    virtual void
+    nodeDown(const string& name, const Ice::Current& current)
+    {
+	Lock sync(*this);
+	this->nodes.erase(name);
 	updated(current);
     }
 
@@ -534,7 +524,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	regObs1->waitForUpdate(__FILE__, __LINE__);
 
 	int serial = regObs1->serial;
-	test(find(regObs1->nodes.begin(), regObs1->nodes.end(), "localnode") != regObs1->nodes.end());
+	test(nodeObs1->nodes.find("localnode") != nodeObs1->nodes.end());
 	test(regObs1->applications.empty());	    
 
 	try
@@ -649,10 +639,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	admin->startServer("node-1");
 	regObs1->waitForUpdate(__FILE__, __LINE__);
-	test(regObs1->nodes.find("node-1") != regObs1->nodes.end());
+	test(nodeObs1->nodes.find("node-1") != nodeObs1->nodes.end());
 	admin->stopServer("node-1");
 	regObs1->waitForUpdate(__FILE__, __LINE__);
-	test(regObs1->nodes.find("node-1") == regObs1->nodes.end());
+	test(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
 
 	try
 	{
@@ -697,7 +687,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	regObs1->waitForUpdate(__FILE__, __LINE__);
 	nodeObs1->waitForUpdate(__FILE__, __LINE__);
 
-	test(find(regObs1->nodes.begin(), regObs1->nodes.end(), "localnode") != regObs1->nodes.end());
+	test(nodeObs1->nodes.find("localnode") != nodeObs1->nodes.end());
 	test(regObs1->applications.empty());
 	test(nodeObs1->nodes.find("localnode") != nodeObs1->nodes.end());
 
@@ -729,7 +719,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	admin->startServer("node-1");
 	regObs1->waitForUpdate(__FILE__, __LINE__);
-	test(regObs1->nodes.find("node-1") != regObs1->nodes.end());
+	test(nodeObs1->nodes.find("node-1") != nodeObs1->nodes.end());
 
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
@@ -747,7 +737,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroyed)
 
 	regObs1->waitForUpdate(__FILE__, __LINE__);
-	test(regObs1->nodes.find("node-1") == regObs1->nodes.end());
+	test(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
 
 	ApplicationDescriptorPtr testApp = new ApplicationDescriptor();
 	testApp->name = "TestApp";
