@@ -19,7 +19,7 @@ prefix			= /opt/IceE-$(VERSION)
 # optimization. Otherwise Ice is build with debug information.
 #
 
-#OPTIMIZE		= yes
+OPTIMIZE		= yes
 
 #
 # Define STATICLIBS as yes if you want to build with static
