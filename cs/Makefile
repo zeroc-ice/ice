@@ -17,29 +17,25 @@ install::
 	@if test ! -d $(prefix) ; \
 	then \
 	    echo "Creating $(prefix)..." ; \
-	    mkdir $(prefix) ; \
-	    chmod a+rx $(prefix) ; \
+	    $(call mkdir,$(prefix)) ; \
 	fi
 
 	@if test ! -d $(install_bindir) ; \
 	then \
 	    echo "Creating $(install_bindir)..." ; \
-	    mkdir -p $(install_bindir) ; \
-	    chmod a+rx $(install_bindir) ; \
+	    $(call mkdir,$(install_bindir)) ; \
 	fi
 
 	@if test ! -d $(install_slicedir) ; \
 	then \
 	    echo "Creating $(install_slicedir)..." ; \
-	    mkdir $(install_slicedir) ; \
-	    chmod a+rx $(install_slicedir) ; \
+	    $(call mkdir,$(install_slicedir)) ; \
 	fi
 
 	@if test ! -d $(install_docdir) ; \
 	then \
 	    echo "Creating $(install_docdir)..." ; \
-	    mkdir $(install_docdir) ; \
-	    chmod a+rx $(install_docdir) ; \
+	    $(call mkdir,$(install_docdir)) ; \
 	fi
 
 $(EVERYTHING)::

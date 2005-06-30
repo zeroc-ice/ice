@@ -220,8 +220,8 @@ clean::
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-	$(INSTALL_PROGRAM) $(ADMIN) $(install_bindir)
-	$(INSTALL_PROGRAM) $(NODE_SERVER) $(install_bindir)
-	$(INSTALL_PROGRAM) $(REGISTRY_SERVER) $(install_bindir)
+	$(call installprogram,$(ADMIN),$(install_bindir))
+	$(call installprogram,$(NODE_SERVER),$(install_bindir))
+	$(call installprogram,$(REGISTRY_SERVER),$(install_bindir))
 
 include .depend

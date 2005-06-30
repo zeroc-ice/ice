@@ -120,6 +120,6 @@ clean::
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 	$(call installlib,$(install_libdir),$(libdir),$(SVCLIBFILENAME),$(SVCSONAME),$(SVCLIBNAME))
-	$(INSTALL_PROGRAM) $(ADMIN) $(install_bindir)
+	$(call installprogram,$(ADMIN),$(install_bindir))
 
 include .depend

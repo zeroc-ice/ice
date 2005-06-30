@@ -15,12 +15,12 @@ install::
 	@if test ! -d $(install_slicedir)/IceSSL ; \
 	then \
 	    echo "Creating $(install_slicedir)/IceSSL..." ; \
-	    mkdir $(install_slicedir)/IceSSL ; \
-	    chmod a+rx $(install_slicedir)/IceSSL ; \
+	    $(call mkdir,$(install_slicedir)/IceSSL) ; \
 	fi
 
 	@for i in *.ice ; \
 	do \
 	    echo "Installing $$i" ; \
 	    $(INSTALL_DATA) $$i $(install_slicedir)/IceSSL/$$i ; \
+	    chmod a+r $(install_slicedir)/IceSSL/$$i ; \
 	done

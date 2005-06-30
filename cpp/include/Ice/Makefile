@@ -15,12 +15,12 @@ install::
 	@if test ! -d $(install_includedir)/Ice ; \
 	then \
 	    echo "Creating $(install_includedir)/Ice..." ; \
-	    mkdir $(install_includedir)/Ice ; \
-	    chmod a+rx $(install_includedir)/Ice ; \
+	    $(call mkdir,$(install_includedir)/Ice) ; \
 	fi
 
 	@for i in *.h ; \
 	do \
 	    echo "Installing $$i" ; \
 	    $(INSTALL_DATA) $$i $(install_includedir)/Ice/$$i ; \
+	    chmod a+r $(install_includedir)/Ice/$$i ; \
 	done

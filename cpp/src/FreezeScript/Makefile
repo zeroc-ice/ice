@@ -55,7 +55,7 @@ clean::
 	rm -f Scanner.cpp
 
 install:: all
-	$(INSTALL_PROGRAM) $(TRANSFORMDB) $(install_bindir)
-	$(INSTALL_PROGRAM) $(DUMPDB) $(install_bindir)
+	$(call installprogram,$(TRANSFORMDB),$(install_bindir))
+	$(call installprogram,$(DUMPDB),$(install_bindir))
 
 include .depend

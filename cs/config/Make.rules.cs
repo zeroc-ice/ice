@@ -89,6 +89,9 @@ install_libdir		= $(prefix)/lib
 install_slicedir	= $(prefix)/slice
 
 INSTALL			= cp -fp
+INSTALL_PROGRAM		= ${INSTALL}
+INSTALL_LIBRARY		= ${INSTALL}
+INSTALL_DATA		= ${INSTALL}
 
 GACUTIL			= gacutil
 
@@ -99,6 +102,21 @@ LIBS			= $(bindir)/icecs.dll $(bindir)/glaciercs.dll
 MCSFLAGS = -warnaserror
 ifeq ($(DEBUG),yes)
     MCSFLAGS := $(MCSFLAGS) -debug -define:DEBUG
+endif
+
+ifeq ($(installdata),)
+    installdata		= $(INSTALL_DATA) $(1) $(2); \
+			  chmod a+r $(2)/$(notdir $(1))
+endif
+
+ifeq ($(installprogram),)
+    installprogram	= $(INSTALL_PROGRAM) $(1) $(2); \
+			  chmod a+rx $(2)/$(notdir $(1))
+endif
+
+ifeq ($(mkdir),)
+    mkdir		= mkdir $(1) ; \
+			  chmod a+rx $(1)
 endif
 
 SLICE2CS		= slice2cs

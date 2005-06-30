@@ -15,12 +15,12 @@ install::
 	@if test ! -d $(install_slicedir)/IceStorm ; \
 	then \
 	    echo "Creating $(install_slicedir)/IceStorm..." ; \
-	    mkdir $(install_slicedir)/IceStorm ; \
-	    chmod a+rx $(install_slicedir)/IceStorm ; \
+	    $(call mkdir,$(install_slicedir)/IceStorm) ; \
 	fi
 
 	@for i in *.ice ; \
 	do \
 	    echo "Installing $$i" ; \
 	    $(INSTALL_DATA) $$i $(install_slicedir)/IceStorm/$$i ; \
+	    chmod a+r $(install_slicedir)/IceStorm/$$i ; \
 	done

@@ -72,6 +72,6 @@ $(ROUTER): $(ROBJS) $(LIBTARGETS)
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-	$(INSTALL_PROGRAM) $(ROUTER) $(install_bindir)
+	$(call installprogram,$(ROUTER),$(install_bindir))
 
 include .depend

@@ -75,8 +75,8 @@ $(CALC): $(CALCOBJS) $(LIBTARGETS)
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-	$(INSTALL_PROGRAM) $(SERVER) $(install_bindir)
-	$(INSTALL_PROGRAM) $(CLIENT) $(install_bindir)
-	$(INSTALL_PROGRAM) $(CALC) $(install_bindir)
+	$(call installprogram,$(SERVER),$(install_bindir))
+	$(call installprogram,$(CLIENT),$(install_bindir))
+	$(call installprogram,$(CALC),$(install_bindir))
 
 include .depend

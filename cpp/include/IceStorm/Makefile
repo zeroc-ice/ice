@@ -15,12 +15,12 @@ install::
 	@if test ! -d $(install_includedir)/IceStorm ; \
 	then \
 	    echo "Creating $(install_includedir)/IceStorm..." ; \
-	    mkdir $(install_includedir)/IceStorm ; \
-	    chmod a+rx $(install_includedir)/IceStorm ; \
+	    $(call mkdir,$(install_includedir)/IceStorm) ; \
 	fi
 
 	@for i in *.h ; \
 	do \
 	    echo "Installing $$i" ; \
 	    $(INSTALL_DATA) $$i $(install_includedir)/IceStorm/$$i ; \
+	    chmod a+r $(install_includedir)/IceStorm/$$i ; \
 	done

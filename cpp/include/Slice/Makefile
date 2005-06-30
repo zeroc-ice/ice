@@ -15,12 +15,12 @@ install::
 	@if test ! -d $(install_includedir)/Slice ; \
 	then \
 	    echo "Creating $(install_includedir)/Slice..." ; \
-	    mkdir $(install_includedir)/Slice ; \
-	    chmod a+rx $(install_includedir)/Slice ; \
+	    $(call mkdir,$(install_includedir)/Slice) ; \
 	fi
 
 	@for i in *.h ; \
 	do \
 	    echo "Installing $$i" ; \
 	    $(INSTALL_DATA) $$i $(install_includedir)/Slice/$$i ; \
+	    chmod a+r $(install_includedir)/Slice/$$i
 	done

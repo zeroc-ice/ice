@@ -15,12 +15,12 @@ install::
 	@if test ! -d $(install_slicedir)/IceBox ; \
 	then \
 	    echo "Creating $(install_slicedir)/IceBox..." ; \
-	    mkdir $(install_slicedir)/IceBox ; \
-	    chmod a+rx $(install_slicedir)/IceBox ; \
+	    $(call mkdir,$(install_slicedir)/IceBox) ; \
 	fi
 
 	@for i in *.ice ; \
 	do \
 	    echo "Installing $$i" ; \
 	    $(INSTALL_DATA) $$i $(install_slicedir)/IceBox/$$i ; \
+	    chmod a+r $(install_slicedir)/IceBox/$$i ; \
 	done

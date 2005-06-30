@@ -62,28 +62,26 @@ install::
 	    if test ! -d $(install_docdir)/reference ; \
 	    then \
 		echo "Creating $(install_docdir)/reference..." ; \
-		mkdir $(install_docdir)/reference ; \
-		chmod a+rx $(install_docdir)/reference ; \
+		$(call mkdir,$(install_docdir)/reference) ; \
 	    fi ; \
 	    echo "Installing HTML..." ; \
-	    ${INSTALL_DATA} README.html $(install_docdir)/README.html ; \
-	    ${INSTALL_DATA} reference/*.html $(install_docdir)/reference ; \
+	    $(call installdata,README.html,$(install_docdir)) ; \
+	    $(call installdata,reference/*.html,$(install_docdir)/reference) ; \
 	    if test ! -d $(install_docdir)/reference/stylesheet-images ; \
 	    then \
 		echo "Creating $(install_docdir)/reference/stylesheet-images..." ; \
-		mkdir $(install_docdir)/reference/stylesheet-images ; \
-		chmod a+rx $(install_docdir)/reference/stylesheet-images ; \
+		$(call mkdir,$(install_docdir)/reference/stylesheet-images) ; \
 	    fi ; \
 	    echo "Installing images..." ; \
-	    ${INSTALL_DATA} images/*.gif $(install_docdir)/reference/stylesheet-images ; \
+	    $(call installdata,images/*.gif,$(install_docdir)/reference/stylesheet-images) ; \
 	fi
 	@if test -f reference.pdf ; \
 	then \
 	    echo "Installing reference.pdf..." ; \
-	    ${INSTALL_DATA} reference.pdf $(install_docdir) ; \
+	    $(call installdata,reference.pdf,$(install_docdir)) ; \
 	fi
 	@if test -f reference.dvi ; \
 	then \
 	    echo "Installing reference.dvi..." ; \
-	    ${INSTALL_DATA} reference.dvi $(install_docdir) ; \
+	    $(call installdata,reference.dvi,$(install_docdir)) ; \
 	fi

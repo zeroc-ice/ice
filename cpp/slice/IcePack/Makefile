@@ -15,12 +15,12 @@ install::
 	@if test ! -d $(install_slicedir)/IcePack ; \
 	then \
 	    echo "Creating $(install_slicedir)/IcePack..." ; \
-	    mkdir $(install_slicedir)/IcePack ; \
-	    chmod a+rx $(install_slicedir)/IcePack ; \
+	    $(call mkdir,$(install_slicedir)/IcePack) ; \
 	fi
 
 	@for i in *.ice ; \
 	do \
 	    echo "Installing $$i" ; \
 	    $(INSTALL_DATA) $$i $(install_slicedir)/IcePack/$$i ; \
+	    chmod a+r $(install_slicedir)/IcePack/$$i ; \
 	done

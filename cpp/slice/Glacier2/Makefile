@@ -15,12 +15,12 @@ install::
 	@if test ! -d $(install_slicedir)/Glacier2 ; \
 	then \
 	    echo "Creating $(install_slicedir)/Glacier2..." ; \
-	    mkdir $(install_slicedir)/Glacier2 ; \
-	    chmod a+rx $(install_slicedir)/Glacier2 ; \
+	    $(call mkdir,$(install_slicedir)/Glacier2) ; \
 	fi
 
 	@for i in *.ice ; \
 	do \
 	    echo "Installing $$i" ; \
 	    $(INSTALL_DATA) $$i $(install_slicedir)/Glacier2/$$i ; \
+	    chmod a+r $(install_slicedir)/Glacier2/$$i ; \
 	done

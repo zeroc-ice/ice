@@ -65,7 +65,7 @@ $(ADMIN): $(AOBJS) $(LIBTARGETS)
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-	$(INSTALL_PROGRAM) $(SERVER) $(install_bindir)
-	$(INSTALL_PROGRAM) $(ADMIN) $(install_bindir)
+	$(call installprogram,$(SERVER),$(install_bindir))
+	$(call installprogram,$(ADMIN),$(install_bindir))
 
 include .depend

@@ -36,13 +36,13 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 ifeq ($(NOGAC),)
 
 install:: all
-	$(INSTALL) $(bindir)/$(LIBNAME) $(install_bindir)
+	$(call installprogram,$(bindir)/$(LIBNAME),$(install_bindir))
 	cd $(install_bindir) && $(GACUTIL) -i $(LIBNAME) && cd -
 	
 else
 
 install:: all
-	$(INSTALL) $(bindir)/$(LIBNAME) $(install_bindir)
+	$(call installprogram,$(bindir)/$(LIBNAME),$(install_bindir))
 
 endif
 
