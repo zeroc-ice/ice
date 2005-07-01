@@ -81,7 +81,7 @@ public class AdminGUI extends JFrame
 	    });
 	
 	_communicator = Ice.Util.initialize(args);
-	_model = new Model(_communicator);
+	_model = new Model(_communicator, new StatusBarI());
 
 	initComponents();
 	
@@ -97,7 +97,7 @@ public class AdminGUI extends JFrame
         // Display the window.
 	//
 	setVisible(true);	
-	_sessionKeeper = new SessionKeeper(this, _model, _prefs, _statusBar);
+	_sessionKeeper = new SessionKeeper(this, _model, _prefs);
 	_sessionKeeper.createSession(true);
 	
     }
@@ -203,8 +203,7 @@ public class AdminGUI extends JFrame
 	//
 	// Status bar
 	//
-	_statusBar = new StatusBarI();
-	getContentPane().add(_statusBar, BorderLayout.PAGE_END);
+	getContentPane().add((StatusBarI)_model.getStatusBar(), BorderLayout.PAGE_END);
 
 	//
 	// Actions
@@ -337,8 +336,6 @@ public class AdminGUI extends JFrame
     private Action _saveAction;
     private Action _discardAction;
     private Action _pasteAction;
-
-    private StatusBarI _statusBar;
 
     private Preferences _prefs = Preferences.userNodeForPackage(getClass());
 

@@ -9,10 +9,14 @@
 package IceGrid.TreeNode;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
 import javax.swing.JPopupMenu;
 import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.Icon;
+import javax.swing.JMenuItem;
+import javax.swing.Action;
+import javax.swing.AbstractAction;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import IceGrid.TreeModelI;
@@ -26,9 +30,55 @@ import IceGrid.ServerDynamicInfo;
 
 class ServerInstance extends Parent
 {
+    static class PopupMenu extends JPopupMenu
+    {
+	PopupMenu()
+	{
+	    _startAction = new AbstractAction("Start")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _server.start();
+		}
+	    };
+
+	    _stopAction = new AbstractAction("Stop")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _server.stop();
+		}
+	    };
+
+	    add(_startAction);
+	    add(_stopAction);
+	}
+	
+	void setServer(ServerInstance server)
+	{
+	    _server = server;
+	    ServerState state = _server.getState();
+
+	    boolean canStart = (_server.getState() == ServerState.Inactive);
+	    _startAction.setEnabled(canStart);
+	    _stopAction.setEnabled(!canStart);
+	}
+
+	private ServerInstance _server;
+	private Action _startAction;
+	private Action _stopAction;
+
+    }
+
+
     public JPopupMenu getPopupMenu()
     {
-	return null;
+	if(_popup == null)
+	{
+	    _popup = new PopupMenu();
+	}
+	_popup.setServer(this);
+	return _popup;
     }
 
     public JPanel getProperties(int view)
@@ -208,6 +258,68 @@ class ServerInstance extends Parent
 	}
     }
    
+    void start()
+    {
+	//
+	// TODO: if this can take a long time, make the invocation in a separate thread
+	//
+
+	boolean started = false;
+	try
+	{
+	    _model.getStatusBar().setText("Starting server '" + _id + "'...");
+	    started = _model.getAdmin().startServer(_id);
+	}
+	catch(IceGrid.ServerNotExistException e)
+	{
+	    _model.getStatusBar().setText("Server '" + _id + "' no longer exists.");
+	}
+	catch(IceGrid.NodeUnreachableException e)
+	{
+	    _model.getStatusBar().setText("Could not reach the node for server '" + _id + "'.");
+	}
+	catch(Ice.LocalException e)
+	{
+	    _model.getStatusBar().setText("Starting server '" + _id + "'... failed: " + e.toString());
+	}
+	if(started)
+	{
+	    _model.getStatusBar().setText("Starting server '" + _id + "'... success!");
+	}
+	else
+	{
+	    _model.getStatusBar().setText("Starting server '" + _id + "'... failed!");
+	}
+    }
+
+    void stop()
+    {
+	try
+	{
+	    _model.getStatusBar().setText("Stopping server '" + _id + "'...");
+	    _model.getAdmin().stopServer(_id);
+	}
+	catch(IceGrid.ServerNotExistException e)
+	{
+	    _model.getStatusBar().setText("Server '" + _id + "' no longer exists.");
+	}
+	catch(IceGrid.NodeUnreachableException e)
+	{
+	    _model.getStatusBar().setText("Could not reach the node for server '" + _id + "'.");
+	}
+	catch(Ice.LocalException e)
+	{
+	    _model.getStatusBar().setText("Stopping server '" + _id + "'... failed: " + e.toString());
+	}
+	_model.getStatusBar().setText("Stopping server '" + _id + "'... done.");
+    }
+
+    ServerState getState()
+    {
+	return _state;
+    }
+
+
     public String toString()
     {
 	String result = _descriptor.descriptor.name;
@@ -250,5 +362,6 @@ class ServerInstance extends Parent
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon[] _icons;
+    static private PopupMenu _popup;
   
 }

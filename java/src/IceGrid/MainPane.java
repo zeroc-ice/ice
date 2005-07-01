@@ -12,24 +12,63 @@ import java.util.prefs.Preferences;
 import java.util.prefs.BackingStoreException;
 import javax.swing.*;
 import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.windows.WindowsLookAndFeel;
 import com.jgoodies.forms.factories.Borders;
-import javax.swing.border.EmptyBorder;
 
+import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.SplitPaneUI;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
-
 import javax.swing.border.AbstractBorder;
+
+import IceGrid.TreeNode.CommonBase;
+
 
 public class MainPane extends JSplitPane
 {
+    class PopupListener extends MouseAdapter
+    {
+	public void mousePressed(MouseEvent e) 
+	{
+	    maybeShowPopup(e);
+	}
+
+	public void mouseReleased(MouseEvent e) 
+	{
+	    maybeShowPopup(e);
+	}
+
+	private void maybeShowPopup(MouseEvent e) 
+	{
+	    if (e.isPopupTrigger()) 
+	    {
+		JTree tree = (JTree)e.getComponent();
+
+		TreePath path = tree.getPathForLocation(e.getX(), e.getY());
+		
+		if(path != null)
+		{
+		    CommonBase node = (CommonBase)path.getLastPathComponent();
+		    JPopupMenu popup = node.getPopupMenu();
+		    if(popup != null)
+		    {
+			popup.show(tree, e.getX(), e.getY());
+		    }
+		}
+	    }
+	}
+    }
+
+
     public void updateUI()
     {
 	super.updateUI();
@@ -62,10 +101,13 @@ public class MainPane extends JSplitPane
 	tabbedPane.setBorder(new ShadowBorder());
 
 	TreeCellRenderer renderer = new CellRenderer();
+	PopupListener popupListener = new PopupListener();
 
 	JTree nodeTree = new JTree(_model.getTreeModel(TreeModelI.NODE_VIEW));
 	nodeTree.setCellRenderer(renderer);
         ToolTipManager.sharedInstance().registerComponent(nodeTree);
+	nodeTree.addMouseListener(popupListener);
+
 
 	JScrollPane nodeScroll = 
 	    new JScrollPane(nodeTree, 
@@ -79,6 +121,8 @@ public class MainPane extends JSplitPane
 	JTree appTree = new JTree(_model.getTreeModel(TreeModelI.APPLICATION_VIEW));
 	appTree.setCellRenderer(renderer);
 	ToolTipManager.sharedInstance().registerComponent(appTree);
+	appTree.addMouseListener(popupListener);
+
 	JScrollPane appScroll = 
 	    new JScrollPane(appTree,
 			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 

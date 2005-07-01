@@ -13,10 +13,9 @@ import javax.swing.SwingUtilities;
 class RegistryObserverI extends _RegistryObserverDisp
 {
 
-    RegistryObserverI(SessionKeeper sessionKeeper, StatusBar statusBar, Model model)
+    RegistryObserverI(SessionKeeper sessionKeeper, Model model)
     {
 	_sessionKeeper = sessionKeeper;
-	_statusBar = statusBar;
 	_model = model;
     }
 
@@ -51,7 +50,7 @@ class RegistryObserverI extends _RegistryObserverDisp
 	if(_initialized)
 	{
 	    _model.registryInit(_serial, _applications);
-	    _statusBar.setText("Connected; initialized (" + _serial + ")"); 
+	    _model.getStatusBar().setText("Connected; initialized (" + _serial + ")"); 
 	}
 	else
 	{
@@ -79,7 +78,7 @@ class RegistryObserverI extends _RegistryObserverDisp
 		    if(_model.updateSerial(serial))
 		    {
 			_model.applicationAdded(desc);
-			_statusBar.setText("Connected; application '" 
+			_model.getStatusBar().setText("Connected; application '" 
 					   + desc.name + "' added (" + serial + ")"); 
 		    }
 		    else
@@ -101,35 +100,13 @@ class RegistryObserverI extends _RegistryObserverDisp
 		    if(_model.updateSerial(serial))
 		    {
 			_model.applicationRemoved(name);
-			_statusBar.setText("Connected; application '" 
+			_model.getStatusBar().setText("Connected; application '" 
 					   + name + "' removed (" + serial + ")"); 
 		    }
 		    else
 		    {
 			_sessionKeeper.sessionLost(
 			    "Received application update (application removed) out of sequence");
-		    }
-		}
-	    });
-    }
-
-    public void applicationSynced(final int serial, final ApplicationDescriptor desc, 
-				  Ice.Current current)
-    {
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    if(_model.updateSerial(serial))
-		    {
-			_model.applicationSynced(desc);
-			_statusBar.setText("Connected; application '" 
-					   + desc.name + "' sync-ed (" + serial + ")"); 
-		    }
-		    else
-		    {
-			_sessionKeeper.sessionLost(
-			    "Received application update (application sync-ed) out of sequence");
 		    }
 		}
 	    });
@@ -145,7 +122,7 @@ class RegistryObserverI extends _RegistryObserverDisp
 		    if(_model.updateSerial(serial))
 		    {
 			_model.applicationUpdated(desc);
-			_statusBar.setText("Connected; application '" 
+			_model.getStatusBar().setText("Connected; application '" 
 					   + desc.name + "' updated (" + serial + ")"); 
 		    }
 		    else
@@ -158,7 +135,6 @@ class RegistryObserverI extends _RegistryObserverDisp
     
 
     private SessionKeeper _sessionKeeper;
-    private StatusBar _statusBar;
     private Model _model;
  
     private boolean _initialized = false;

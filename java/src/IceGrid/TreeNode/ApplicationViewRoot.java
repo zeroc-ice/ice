@@ -51,27 +51,16 @@ public class ApplicationViewRoot extends Parent
 
     public void applicationAdded(ApplicationDescriptor desc)
     {
-	applicationAdded(desc, true);
-    }
-
-    private Application applicationAdded(ApplicationDescriptor desc, boolean fireEvent)
-    {
 	//
 	// This always fires insert events on the node view for the new server
 	// instances
 	//
 	Application child = new Application(desc, _model, true); 
 	child.addParent(this);
-	addChild(child, fireEvent);
-	return child;
+	addChild(child, true);
     }
-
+ 
     public void applicationRemoved(String name)
-    {
-	applicationRemoved(name, true);
-    }
-    
-    private void applicationRemoved(String name, boolean fireEvent)
     {
 	Application application = (Application)findChild(name);
 	if(application != null)
@@ -79,14 +68,7 @@ public class ApplicationViewRoot extends Parent
 	    application.removeFromNodes();
 	}
 	
-	removeChild(name, fireEvent);
-    }
-
-    public void applicationSynced(ApplicationDescriptor desc)
-    {
-	applicationRemoved(desc.name, false);
-	Application child = applicationAdded(desc, false);
-	child.fireStructureChangedEvent(this);
+	removeChild(name, true);
     }
     
     public void applicationUpdated(ApplicationUpdateDescriptor desc)

@@ -126,23 +126,19 @@ public class NodeViewRoot extends Parent
 	String nodeName = updatedInfo.name;
 
 	java.util.Map serverMap = new java.util.HashMap();
-	System.err.println("nodeUp gives info on:");
 	for(int i = 0; i < updatedInfo.servers.length; ++i)
 	{
-	    System.err.println(updatedInfo.servers[i].name);
-	    if(updatedInfo.servers[i].state != ServerState.Destroyed)
-	    {
-		serverMap.put(updatedInfo.servers[i].name, updatedInfo.servers[i]);
-	    }
+	    assert(updatedInfo.servers[i].state != ServerState.Destroyed);
+	    assert(updatedInfo.servers[i].state != ServerState.Inactive);
+
+	    serverMap.put(updatedInfo.servers[i].name, updatedInfo.servers[i]);
 	}
 
 	java.util.Map adapterMap = new java.util.HashMap();
 	for(int i = 0; i < updatedInfo.adapters.length; ++i)
 	{
-	    if(updatedInfo.adapters[i].proxy != null)
-	    {
-		adapterMap.put(updatedInfo.adapters[i].id, updatedInfo.adapters[i].proxy);
-	    }
+	    assert(updatedInfo.adapters[i].proxy != null);
+	    adapterMap.put(updatedInfo.adapters[i].id, updatedInfo.adapters[i].proxy);
 	}
 	
 	_nodeServerInfoMap.put(nodeName, serverMap);
@@ -172,7 +168,8 @@ public class NodeViewRoot extends Parent
 	java.util.Map serverMap = (java.util.Map)_nodeServerInfoMap.get(nodeName);
 	if(serverMap != null)
 	{
-	    if(updatedInfo.state == ServerState.Destroyed)
+	    if(updatedInfo.state == ServerState.Destroyed || 
+	       updatedInfo.state == ServerState.Inactive)
 	    {
 		serverMap.remove(updatedInfo.name);
 	    }

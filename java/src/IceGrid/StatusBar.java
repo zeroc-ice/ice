@@ -8,7 +8,7 @@
 // **********************************************************************
 package IceGrid;
 
-interface StatusBar
+public interface StatusBar
 {
     void setText(String text);
 }

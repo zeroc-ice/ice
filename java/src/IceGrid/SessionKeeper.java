@@ -139,7 +139,7 @@ class SessionKeeper
 	    setResizable(false);
 	}
 
-	boolean showDialog(ConnectInfo info)
+	boolean showDialog(Model.ConnectInfo info)
 	{
 	    if(isVisible() == false)
 	    {
@@ -168,7 +168,7 @@ class SessionKeeper
 	    }
 	}
 	
-	private ConnectInfo _info;
+	private Model.ConnectInfo _info;
 
 	private JTextField _locatorProxy;
 	private JTextField _username;
@@ -180,56 +180,7 @@ class SessionKeeper
 	private JTextField _sessionManagerIdentity;
     }
 
-    
-    static class ConnectInfo
-    {
-	ConnectInfo(Preferences connectionPrefs, 
-		    Ice.Communicator communicator)
-	{
-	    String defaultLocator = communicator.getProperties().
-		getProperty("Ice.Default.Locator");
-	    if(defaultLocator.equals(""))
-	    {
-		defaultLocator = "IceGrid/Locator:ssl -h hostname -p port -t timeout";
-	    }
-
-	    _connectionPrefs = connectionPrefs;
-	    locatorProxy = _connectionPrefs.
-		get("locatorProxy", defaultLocator);
-	    username = _connectionPrefs.get("username", username);
-	    useGlacier = _connectionPrefs.
-		getBoolean("useGlacier", useGlacier);
-	    autoconnect = _connectionPrefs.
-		getBoolean("autoconnect", autoconnect);
-	    adminIdentity = _connectionPrefs.
-		get("adminIdentity", adminIdentity);
-	    sessionManagerIdentity = _connectionPrefs.
-		get("sessionManagerIdentity", sessionManagerIdentity);
-	}
-
-	void save()
-	{
-	    _connectionPrefs.put("locatorProxy", locatorProxy);
-	    _connectionPrefs.put("username", username);
-	    _connectionPrefs.putBoolean("useGlacier", useGlacier);
-	    _connectionPrefs.putBoolean("autoconnect", autoconnect);
-	    _connectionPrefs.put("adminIdentity", adminIdentity);
-	    _connectionPrefs.put("sessionManagerIdentity", 
-				 sessionManagerIdentity);
-	}
-
-	String locatorProxy;
-	String username = System.getProperty("user.name");
-	char[] password;
-	boolean useGlacier = false;
-	boolean autoconnect = false;
-	String adminIdentity = "IceGrid/Admin";
-	String sessionManagerIdentity = "IceGrid/SessionManager";
-	
-	private Preferences _connectionPrefs;
-    }
-
-
+   
     //
     // We create a brand new Pinger thread for each session
     //
@@ -290,13 +241,12 @@ class SessionKeeper
 
 
     SessionKeeper(Frame parent, Model model, 
-		  Preferences prefs, StatusBar statusBar)
+		  Preferences prefs)
     {
 	_parent = parent;
 	_connectDialog = new ConnectDialog();
 	_model = model;
 	_connectionPrefs = prefs.node("Connection");
-	_statusBar = statusBar;
     }
 
     //
@@ -304,7 +254,7 @@ class SessionKeeper
     //
     void createSession(boolean autoconnectEnabled)
     {
-	ConnectInfo connectInfo = new ConnectInfo(_connectionPrefs, 
+	Model.ConnectInfo connectInfo = new Model.ConnectInfo(_connectionPrefs, 
 						  _model.getCommunicator());
 	boolean openDialog = true;
 	if(autoconnectEnabled && !connectInfo.useGlacier && 
@@ -325,7 +275,7 @@ class SessionKeeper
     //
     // Runs in UI thread
     //
-    private boolean doConnect(Component parent, ConnectInfo info)
+    private boolean doConnect(Component parent, Model.ConnectInfo info)
     {
 	if(_session != null)
 	{
@@ -379,41 +329,18 @@ class SessionKeeper
 	    }
 	    else
 	    {
-		
-		Ice.LocatorPrx defaultLocator = null;
-		try
+		if(!_model.setConnectInfo(info, parent, oldCursor))
 		{
-		    defaultLocator = Ice.LocatorPrxHelper.
-			uncheckedCast(
-			    _model.getCommunicator().stringToProxy(info.locatorProxy));
-		}
-		catch(Ice.LocalException e)
-		{
-		    parent.setCursor(oldCursor);
-		    JOptionPane.showMessageDialog(
-			parent,
-			"The locator proxy is invalid: " + e.toString(),
-			"Invalid locator proxy",
-			JOptionPane.ERROR_MESSAGE);
 		    return false;
 		}
-		_model.getCommunicator().setDefaultLocator(defaultLocator);
-		
-		//
-		// TODO: timeout
-		//
-		
-		SessionManagerPrx sessionManager = SessionManagerPrxHelper.
-		    uncheckedCast(
-			_model.getCommunicator().stringToProxy(
-			    info.sessionManagerIdentity));
 		
 		try
 		{
-		    _session = sessionManager.createLocalSession(info.username);
+		    _session = _model.getSessionManager().createLocalSession(info.username);
 		}
 		catch(Ice.LocalException e)
 		{
+		    _model.sessionLost();
 		    parent.setCursor(oldCursor);
 		    JOptionPane.showMessageDialog(parent,
 						  "Could not create session: "
@@ -424,7 +351,7 @@ class SessionKeeper
 		}
 	    }
 	    
-	    _statusBar.setText("Connected");
+	    _model.getStatusBar().setText("Connected");
 
 	    //
 	    // Start thread
@@ -509,7 +436,7 @@ class SessionKeeper
 	    }
 	    _thread = null;
 	    _session = null;
-	    _statusBar.setText("Not connected");
+	    _model.getStatusBar().setText("Not connected");
 	}
     }
 
@@ -537,7 +464,7 @@ class SessionKeeper
 	    _nodeObserverIdentity.category = "nodeObserver";
 
 	    RegistryObserverI registryObserverServant = new RegistryObserverI(
-		this, _statusBar, _model);
+		this, _model);
 
 	    RegistryObserverPrx registryObserver = 
 		RegistryObserverPrxHelper.uncheckedCast(
@@ -600,8 +527,7 @@ class SessionKeeper
 
     private Model _model;
     private Preferences _connectionPrefs;
-    private StatusBar _statusBar;
-
+  
     private Pinger _thread;
     private SessionPrx _session;
 

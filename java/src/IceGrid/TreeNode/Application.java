@@ -58,9 +58,18 @@ class Application extends Parent
 	_descriptor.variables.putAll(desc.variables);
 
 	//
-	// TODO: comment
+	// Targets and comment
 	//
 
+	if(desc.targets != null)
+	{
+	    _descriptor.targets = desc.targets.value;
+	}
+
+	if(desc.comment != null)
+	{
+	    _descriptor.comment = desc.comment.value;
+	}
 
 	//
 	// Server templates

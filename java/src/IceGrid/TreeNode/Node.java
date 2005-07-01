@@ -104,7 +104,7 @@ class Node extends Parent
 
 	    if(info == null)
 	    {
-		info = _unknownServerDynamicInfo;
+		info = _inactiveServerDynamicInfo;
 	    }
 	    child.updateDynamicInfo(info);
 	}
@@ -176,7 +176,7 @@ class Node extends Parent
 	    Object obj = _serverInfoMap.get(serverName);
 	    if(obj == null)
 	    {
-		return _unknownServerDynamicInfo;
+		return _inactiveServerDynamicInfo;
 	    }
 	    else
 	    {
@@ -259,4 +259,7 @@ class Node extends Parent
 
     static private ServerDynamicInfo _unknownServerDynamicInfo = 
        new ServerDynamicInfo();
+
+    static private ServerDynamicInfo _inactiveServerDynamicInfo = 
+       new ServerDynamicInfo(null, ServerState.Inactive, 0);
 }
