@@ -579,10 +579,10 @@ ServerI::setStateNoSync(ServerState st, const Ice::Current& current)
 	ServerDynamicInfo info;
 	info.name = _name;
 	info.state = st;
+
 	//
-	// NOTE: this must be done only for the active state. 
-	// Otherwise, we could get a deadlock since getPid()
-	// will lock the activator and since this method might 
+	// NOTE: this must be done only for the active state. Otherwise, we could get a 
+	// deadlock since getPid() will lock the activator and since this method might 
 	// be called from the activator locked.
 	//
 	info.pid = st == Active ? getPid(current) : 0;

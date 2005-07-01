@@ -146,6 +146,7 @@ public:
     std::auto_ptr<ServiceDescriptorHelper> addServiceTemplate(const std::string&, const IceXML::Attributes&);
 
     ApplicationUpdateDescriptor update(const ApplicationUpdateDescriptor&);
+    ApplicationUpdateDescriptor diff(const ApplicationDescriptorPtr&);
     void addServerInstance(const std::string&, const std::string&, const std::map<std::string, std::string>&);
 
     void instantiate();

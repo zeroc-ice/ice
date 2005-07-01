@@ -483,6 +483,11 @@ class BoxedComment
     string value;
 };
 
+class BoxedTargets
+{
+    Ice::StringSeq value;
+};
+
 struct ApplicationUpdateDescriptor
 {
     /**
@@ -494,7 +499,14 @@ struct ApplicationUpdateDescriptor
     
     /**
      *
-     * The updated comment (or null if the comment doesn't need to be updated).
+     * The updated targets (or null if the targets weren't updated).
+     *
+     **/
+    BoxedTargets targets;
+
+    /**
+     *
+     * The updated comment (or null if the comment weren't updated).
      *
      **/
     BoxedComment comment;

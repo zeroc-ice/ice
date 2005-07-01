@@ -693,157 +693,84 @@ Parser::diffApplication(const list<string>& args)
     out << sb;
 
     ApplicationDescriptorHelper newAppHelper(_communicator, newApp);
-    ApplicationDescriptorHelper origAppHelper(_communicator, origApp);
-
-    if(!origApp->serverTemplates.empty() || !newApp->serverTemplates.empty())
+    ApplicationUpdateDescriptor update = newAppHelper.diff(origApp);
+    if(!update.serverTemplates.empty() || !update.removeServerTemplates.empty())
     {
 	out << nl << "server templates";
 	out << sb;
-
-	set<string> oldTmpls;
-	set<string> newTmpls;
-	for(TemplateDescriptorDict::const_iterator p = origApp->serverTemplates.begin(); 
-	    p != origApp->serverTemplates.end(); ++p)
+	TemplateDescriptorDict::const_iterator p;
+	for(p = update.serverTemplates.begin(); p != update.serverTemplates.end(); ++p)
 	{
-	    oldTmpls.insert(p->first);
-	}
-	for(TemplateDescriptorDict::const_iterator p = newApp->serverTemplates.begin(); 
-	    p != newApp->serverTemplates.end(); ++p)
-	{
-	    newTmpls.insert(p->first);
-	}
-
-	set<string> added, removed, updated; 
-	set_difference(newTmpls.begin(), newTmpls.end(), oldTmpls.begin(), oldTmpls.end(), set_inserter(added));
-	set_difference(oldTmpls.begin(), oldTmpls.end(), newTmpls.begin(), newTmpls.end(), set_inserter(removed));
-
-	for(TemplateDescriptorDict::const_iterator p = newApp->serverTemplates.begin(); 
-	    p != newApp->serverTemplates.end(); ++p)
-	{
-	    ServerDescriptorPtr desc = ServerDescriptorPtr::dynamicCast(p->second.descriptor);
-	    TemplateDescriptorDict::const_iterator q = origApp->serverTemplates.find(p->first); 
-	    if(q != origApp->serverTemplates.end())
+	    if(newApp->serverTemplates.find(p->first) == newApp->serverTemplates.end())
 	    {
-		ServerDescriptorPtr orig = ServerDescriptorPtr::dynamicCast(q->second.descriptor);
-		if(ServerDescriptorHelper(newAppHelper, desc) != ServerDescriptorHelper(origAppHelper, orig))
-		{
-		    updated.insert(p->first);
-		}
+		out << nl << "server template `" << p->first << "' added";
+	    }
+	    else
+	    {
+		out << nl << "server template `" << p->first << "' updated";
 	    }
 	}
-	
-	for(set<string>::const_iterator p = added.begin(); p != added.end(); ++p)
+	Ice::StringSeq::const_iterator q;
+	for(q = update.removeServerTemplates.begin(); q != update.removeServerTemplates.end(); ++q)
 	{
-	    out << nl << "server template `" << *p << "' added";
-	}
-	for(set<string>::const_iterator p = updated.begin(); p != updated.end(); ++p)
-	{
-	    out << nl << "server template `" << *p << "' updated";
-	}
-	for(set<string>::const_iterator p = removed.begin(); p != removed.end(); ++p)
-	{
-	    out << nl << "server template `" << *p << "' removed";
+	    out << nl << "server template `" << *q << "' removed";
 	}
 	out << eb;
     }
 
-    if(!origApp->serviceTemplates.empty() || !newApp->serviceTemplates.empty())
+    if(!update.serviceTemplates.empty() || !update.removeServiceTemplates.empty())
     {
 	out << nl << "service templates";
 	out << sb;
-
-	set<string> oldTmpls;
-	set<string> newTmpls;
-	for(TemplateDescriptorDict::const_iterator p = origApp->serviceTemplates.begin(); 
-	    p != origApp->serviceTemplates.end(); ++p)
+	TemplateDescriptorDict::const_iterator p;
+	for(p = update.serviceTemplates.begin(); p != update.serviceTemplates.end(); ++p)
 	{
-	    oldTmpls.insert(p->first);
-	}
-	for(TemplateDescriptorDict::const_iterator p = newApp->serviceTemplates.begin(); 
-	    p != newApp->serviceTemplates.end(); ++p)
-	{
-	    newTmpls.insert(p->first);
-	}
-
-	set<string> added, removed, updated; 
-	set_difference(newTmpls.begin(), newTmpls.end(), oldTmpls.begin(), oldTmpls.end(), set_inserter(added));
-	set_difference(oldTmpls.begin(), oldTmpls.end(), newTmpls.begin(), newTmpls.end(), set_inserter(removed));
-
-	for(TemplateDescriptorDict::const_iterator p = newApp->serviceTemplates.begin(); 
-	    p != newApp->serviceTemplates.end(); ++p)
-	{
-	    ServiceDescriptorPtr desc = ServiceDescriptorPtr::dynamicCast(p->second.descriptor);
-	    TemplateDescriptorDict::const_iterator q = origApp->serviceTemplates.find(p->first); 
-	    if(q != origApp->serviceTemplates.end())
+	    if(origApp->serviceTemplates.find(p->first) == origApp->serviceTemplates.end())
 	    {
-		ServiceDescriptorPtr orig = ServiceDescriptorPtr::dynamicCast(q->second.descriptor);
-		if(ServiceDescriptorHelper(newAppHelper, desc) != ServiceDescriptorHelper(origAppHelper, orig))
-		{
-		    updated.insert(p->first);
-		}
+		out << nl << "service template `" << p->first << "' added";
+	    }
+	    else
+	    {
+		out << nl << "service template `" << p->first << "' updated";
 	    }
 	}
-	
-	for(set<string>::const_iterator p = added.begin(); p != added.end(); ++p)
+	Ice::StringSeq::const_iterator q;
+	for(q = update.removeServiceTemplates.begin(); q != update.removeServiceTemplates.end(); ++q)
 	{
-	    out << nl << "service template `" << *p << "' added";
+	    out << nl << "service template `" << *q << "' removed";
 	}
-	for(set<string>::const_iterator p = updated.begin(); p != updated.end(); ++p)
-	{
-	    out << nl << "service template `" << *p << "' updated";
-	}
-	for(set<string>::const_iterator p = removed.begin(); p != removed.end(); ++p)
-	{
-	    out << nl << "service template `" << *p << "' removed";
-	}
-
 	out << eb;
     }
 
-    if(!origApp->servers.empty() || !newApp->servers.empty())
+    if(!update.servers.empty() || !update.removeServers.empty())
     {
 	out << nl << "servers";
 	out << sb;
 
-	set<string> oldSvrs;
-	set<string> newSvrs;
-	for_each(origApp->servers.begin(), origApp->servers.end(), AddServerName(oldSvrs));
-	for_each(newApp->servers.begin(), newApp->servers.end(), AddServerName(newSvrs));
-
-	set<string> added, removed, updated; 
-	set_difference(newSvrs.begin(), newSvrs.end(), oldSvrs.begin(), oldSvrs.end(), set_inserter(added));
-	set_difference(oldSvrs.begin(), oldSvrs.end(), newSvrs.begin(), newSvrs.end(), set_inserter(removed));
-
-	for(ServerInstanceDescriptorSeq::const_iterator p = newApp->servers.begin(); p != newApp->servers.end(); ++p)
+	ServerInstanceDescriptorSeq::const_iterator p;
+	for(p = update.servers.begin(); p != update.servers.end(); ++p)
 	{
-	    ServerDescriptorPtr desc = ServerDescriptorPtr::dynamicCast(p->descriptor);
-	    for(ServerInstanceDescriptorSeq::const_iterator q = origApp->servers.begin(); 
-		q != origApp->servers.end(); ++q)
+	    ServerInstanceDescriptorSeq::const_iterator q; 
+	    for(q = origApp->servers.begin(); q != origApp->servers.end(); ++q)
 	    {
-		if(desc->name == q->descriptor->name)
+		if(p->descriptor->name == q->descriptor->name)
 		{
-		    ServerDescriptorPtr orig = q->descriptor;
-		    if(q->node != p->node ||
-		       ServerDescriptorHelper(newAppHelper, desc) != ServerDescriptorHelper(origAppHelper, orig))
-		    {
-			updated.insert(orig->name);
-		    }
 		    break;
 		}
 	    }
+	    if(q == origApp->servers.end())
+	    {
+		out << nl << "server `" << p->descriptor->name << "' added";
+	    }
+	    else
+	    {
+		out << nl << "server `" << p->descriptor->name << "' updated";
+	    }
 	}
-	
-	for(set<string>::const_iterator p = added.begin(); p != added.end(); ++p)
+	Ice::StringSeq::const_iterator q;
+	for(q = update.removeServers.begin(); q != update.removeServers.end(); ++q)
 	{
-	    out << nl << "server `" << *p << "' added";
-	}
-	for(set<string>::const_iterator p = updated.begin(); p != updated.end(); ++p)
-	{
-	    out << nl << "server `" << *p << "' updated";
-	}
-	for(set<string>::const_iterator p = removed.begin(); p != removed.end(); ++p)
-	{
-	    out << nl << "server `" << *p << "' removed";
+	    out << nl << "server `" << *q << "' removed";
 	}
 	out << eb;
     }

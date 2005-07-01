@@ -263,24 +263,6 @@ RegistryObserverTopic::applicationRemoved(int serial, const string& name, const 
 }
 
 void 
-RegistryObserverTopic::applicationSynced(int serial, const ApplicationDescriptorPtr& desc, const Ice::Current&)
-{
-    Lock sync(*this);
-
-    updateSerial(serial);
-    for(ApplicationDescriptorSeq::iterator p = _applications.begin(); p != _applications.end(); ++p)
-    {
-	if((*p)->name == desc->name)
-	{
-	    *p = desc;
-	    break;
-	}
-    }
-
-    _publisher->applicationSynced(serial, desc);
-}
-
-void 
 RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDescriptor& desc, const Ice::Current& c)
 {
     Lock sync(*this);

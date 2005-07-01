@@ -448,6 +448,7 @@ Database::syncApplicationDescriptor(ObserverSessionI* session, const Application
 {
     ServerEntrySeq entries;
     int serial;
+    ApplicationUpdateDescriptor update;
     {
 	Lock sync(*this);
 	checkSessionLock(session);
@@ -465,6 +466,7 @@ Database::syncApplicationDescriptor(ObserverSessionI* session, const Application
 	{
 	    ApplicationDescriptorHelper helper(_communicator, newDesc);
 	    helper.instantiate();
+	    update = helper.diff(p->second);
 	    descriptor = helper.getDescriptor();
 	}
 	catch(const string& msg)
@@ -485,7 +487,7 @@ Database::syncApplicationDescriptor(ObserverSessionI* session, const Application
     //
     // Notify the observers.
     //
-    _registryObserver->applicationSynced(serial, newDesc);
+    _registryObserver->applicationUpdated(serial, update);
 
     if(_traceLevels->application > 0)
     {

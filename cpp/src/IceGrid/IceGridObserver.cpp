@@ -97,12 +97,6 @@ public:
     {
 	cout << "application `" << desc.name << "' updated (serial = " << serial << ")" << endl;
     }
-
-    virtual void 
-    applicationSynced(int serial, const ApplicationDescriptorPtr& app, const Ice::Current&)
-    {
-	cout << "application `" << app->name << "' synced (serial = " << serial << ")" << endl;
-    }
 };
 
 class NodeObserverI : public NodeObserver

@@ -55,7 +55,6 @@ public:
 
     virtual void applicationAdded(int, const ApplicationDescriptorPtr&, const Ice::Current&);
     virtual void applicationRemoved(int, const std::string&, const Ice::Current&);
-    virtual void applicationSynced(int, const ApplicationDescriptorPtr&, const Ice::Current&);
     virtual void applicationUpdated(int, const ApplicationUpdateDescriptor&, const Ice::Current&);
 
     void subscribe(const RegistryObserverPrx&, int = -1);

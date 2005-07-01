@@ -59,7 +59,6 @@ interface RegistryObserver
 
     void applicationAdded(int serial, ApplicationDescriptor desc);
     void applicationRemoved(int serial, string name);
-    void applicationSynced(int serial, ApplicationDescriptor desc);
     void applicationUpdated(int serial, ApplicationUpdateDescriptor desc);
 };
 

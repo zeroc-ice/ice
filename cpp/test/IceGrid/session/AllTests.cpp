@@ -123,14 +123,6 @@ public:
 	updated(serial);
     }
 
-    virtual void 
-    applicationSynced(int serial, const ApplicationDescriptorPtr& app, const Ice::Current&)
-    {
-	Lock sync(*this);
-	this->applications[app->name] = app;
-	updated(serial);
-    }
-
     void
     waitForUpdate(const char* file, int line)
     {

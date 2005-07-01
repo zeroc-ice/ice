@@ -436,6 +436,10 @@ NodeI::initObserver(const Ice::StringSeq& servers)
 		server.name = *p;
 		server.pid = proxy->getPid();
 		server.state = proxy->getState();
+		if(server.state == Inactive)
+		{
+		    continue;
+		}
 		serverInfos.push_back(server);
 
 		StringAdapterPrxDict adapters = proxy->getAdapters();
