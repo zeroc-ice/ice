@@ -71,6 +71,7 @@ public class AdminGUI extends JFrame
     {
 	super("IceGrid Admin");	
 	setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+	setIconImage(Utils.getIcon("/icons/grid.png").getImage());
 
 	addWindowListener(new WindowAdapter() 
 	    { 

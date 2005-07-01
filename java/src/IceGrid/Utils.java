@@ -8,12 +8,11 @@
 // **********************************************************************
 package IceGrid;
 
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 public class Utils
 {
-    static public Icon getIcon(String path)
+    static public ImageIcon getIcon(String path)
     {
 	java.net.URL imgURL = Utils.class.getResource(path);
 	assert(imgURL != null);
