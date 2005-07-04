@@ -15,7 +15,7 @@
 namespace Ice
 {
 
-class ICE_API Print : public IceUtil::noncopyable
+class ICE_API Print : private IceUtil::noncopyable
 {
 public:
 
@@ -42,7 +42,7 @@ operator<<(Print& out, const T& val)
 
 ICE_API Print& operator<<(Print&, std::ios_base& (*)(std::ios_base&));
 
-class ICE_API Warning : public IceUtil::noncopyable
+class ICE_API Warning : private IceUtil::noncopyable
 {
 public:
 
@@ -69,7 +69,7 @@ operator<<(Warning& out, const T& val)
 
 ICE_API Warning& operator<<(Warning&, std::ios_base& (*)(std::ios_base&));
 
-class ICE_API Error : public IceUtil::noncopyable
+class ICE_API Error : private IceUtil::noncopyable
 {
 public:
 
@@ -96,7 +96,7 @@ operator<<(Error& out, const T& val)
 
 ICE_API Error& operator<<(Error&, std::ios_base& (*)(std::ios_base&));
 
-class ICE_API Trace : public IceUtil::noncopyable
+class ICE_API Trace : private IceUtil::noncopyable
 {
 public:
 

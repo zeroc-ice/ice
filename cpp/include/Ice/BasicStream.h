@@ -208,7 +208,7 @@ private:
     //
     Instance* _instance;
 
-    class ICE_API ReadEncaps : public ::IceUtil::noncopyable
+    class ICE_API ReadEncaps : private ::IceUtil::noncopyable
     {
     public:
 
@@ -231,7 +231,7 @@ private:
 	ReadEncaps* previous;
     };
 
-    class ICE_API WriteEncaps : public ::IceUtil::noncopyable
+    class ICE_API WriteEncaps : private ::IceUtil::noncopyable
     {
     public:
 

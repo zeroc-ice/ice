@@ -53,7 +53,7 @@ private:
 // Condition variable implementation. Conforms to the same semantics
 // as a POSIX threads condition variable.
 //
-class Cond : public noncopyable
+class Cond : private noncopyable
 {
 public:
 

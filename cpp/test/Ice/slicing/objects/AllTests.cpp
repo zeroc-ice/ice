@@ -159,14 +159,14 @@ class AMI_Test_SUnknownAsObjectI : public AMI_TestIntf_SUnknownAsObject, public 
     virtual void
     ice_response(const Ice::ObjectPtr& o)
     {
-	test(o->ice_id() == "::Ice::Object");
-	called();
+	test(false);
     }
 
     virtual void
     ice_exception(const Ice::Exception& exc)
     {
-	test(false);
+        test(exc.ice_name() == "Ice::NoObjectFactoryException");
+	called();
     }
 };
 
@@ -759,7 +759,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    o = test->SUnknownAsObject();
-	    test(o->ice_id() == "::Ice::Object");
+	    test(0);
+	}
+	catch(const Ice::NoObjectFactoryException&)
+	{
 	}
 	catch(...)
 	{
@@ -770,9 +773,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "unknown with Object as Object (AMI)... " << flush;
     {
-	AMI_Test_SUnknownAsObjectIPtr cb = new AMI_Test_SUnknownAsObjectI;
-	test->SUnknownAsObject_async(cb);
-	test(cb->check());
+	try
+	{
+	    AMI_Test_SUnknownAsObjectIPtr cb = new AMI_Test_SUnknownAsObjectI;
+	    test->SUnknownAsObject_async(cb);
+	    test(cb->check());
+	}
+	catch(...)
+	{
+	    test(0);
+	}
     }
     cout << "ok" << endl;
 

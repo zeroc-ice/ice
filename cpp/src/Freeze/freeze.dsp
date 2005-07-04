@@ -166,6 +166,11 @@ SOURCE=.\ObjectStore.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\PingObject.cpp
+# ADD CPP /I "."
+# End Source File
+# Begin Source File
+
 SOURCE=.\SharedDb.cpp
 # End Source File
 # Begin Source File
@@ -271,6 +276,10 @@ SOURCE=.\MapI.h
 # Begin Source File
 
 SOURCE=.\ObjectStore.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PingObject.h
 # End Source File
 # Begin Source File
 
@@ -636,6 +645,30 @@ BuildCmds= \
    $(BuildCmds)
 
 "Exception.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\PingObject.ice
+
+!IF  "$(CFG)" == "freeze - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "freeze - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\PingObject.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe PingObject.ice
+
+"PingObject.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"PingObject.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

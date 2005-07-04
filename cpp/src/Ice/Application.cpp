@@ -11,7 +11,7 @@
 #include <IceUtil/StaticMutex.h>
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Cond.h>
-#include <IceUtil/GC.h>
+#include <Ice/GC.h>
 #include <memory>
 
 using namespace std;

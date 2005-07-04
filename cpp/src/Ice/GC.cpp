@@ -7,14 +7,14 @@
 //
 // **********************************************************************
 
-#include <IceUtil/GC.h>
 #include <IceUtil/Time.h>
-#include <IceUtil/GCRecMutex.h>
-#include <IceUtil/GCShared.h>
+#include <Ice/GC.h>
+#include <Ice/GCRecMutex.h>
+#include <Ice/GCShared.h>
 #include <map>
 
 
-namespace IceUtil
+namespace IceInternal
 {
 
 void
@@ -36,10 +36,11 @@ recursivelyReachable(GCShared* p, GCObjectSet& o)
 }
 
 using namespace std;
+using namespace IceUtil;
 
-int IceUtil::GC::_numCollectors = 0;
+int IceInternal::GC::_numCollectors = 0;
 
-IceUtil::GC::GC(int interval, StatsCallback cb)
+IceInternal::GC::GC(int interval, StatsCallback cb)
 {
     Monitor<Mutex>::Lock sync(*this);
 
@@ -53,7 +54,7 @@ IceUtil::GC::GC(int interval, StatsCallback cb)
     _statsCallback = cb;
 }
 
-IceUtil::GC::~GC()
+IceInternal::GC::~GC()
 {
     Monitor<Mutex>::Lock sync(*this);
 
@@ -61,7 +62,7 @@ IceUtil::GC::~GC()
 }
 
 void
-IceUtil::GC::run()
+IceInternal::GC::run()
 {
     assert(_interval > 0);
 
@@ -97,7 +98,7 @@ IceUtil::GC::run()
 }
 
 void
-IceUtil::GC::stop()
+IceInternal::GC::stop()
 {
     {
 	Monitor<Mutex>::Lock sync(*this);
@@ -133,7 +134,7 @@ IceUtil::GC::stop()
 }
 
 void
-IceUtil::GC::collectGarbage()
+IceInternal::GC::collectGarbage()
 {
     //
     // Do nothing if the collector is running already.

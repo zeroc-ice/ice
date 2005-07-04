@@ -41,7 +41,7 @@ public:
     virtual void printHeader();
 };
 
-class SLICE_API JavaGenerator : public ::IceUtil::noncopyable
+class SLICE_API JavaGenerator : private ::IceUtil::noncopyable
 {
 public:
 

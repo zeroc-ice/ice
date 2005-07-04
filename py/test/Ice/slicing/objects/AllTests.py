@@ -89,11 +89,11 @@ class AMI_Test_SBSUnknownDerivedAsSBaseI(CallbackBase):
 
 class AMI_Test_SUnknownAsObjectI(CallbackBase):
     def ice_response(self, o):
-        test(o.ice_id() == "::Ice::Object")
-        self.called()
+        test(False)
 
     def ice_exception(self, exc):
-        test(False)
+        test(exc.ice_name() == "Ice::NoObjectFactoryException")
+        self.called()
 
 class AMI_Test_oneElementCycleI(CallbackBase):
     def ice_response(self, b):
@@ -447,15 +447,22 @@ def allTests(communicator):
     print "unknown with Object as Object... ",
     try:
         o = t.SUnknownAsObject()
-        test(o.ice_id() == "::Ice::Object")
+        test(False)
+    except Ice.NoObjectFactoryException:
+        pass
     except Ice.Exception:
         test(False)
     print "ok"
 
     print "unknown with Object as Object (AMI)... ",
-    cb = AMI_Test_SUnknownAsObjectI()
-    t.SUnknownAsObject_async(cb)
-    test(cb.check())
+    try:
+	cb = AMI_Test_SUnknownAsObjectI()
+	t.SUnknownAsObject_async(cb)
+	test(cb.check())
+    except Ice.NoObjectFactoryException:
+        pass
+    except Ice.Exception:
+        test(False)
     print "ok"
 
     print "one-element cycle... ",

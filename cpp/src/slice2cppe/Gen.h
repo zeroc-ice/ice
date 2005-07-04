@@ -16,7 +16,7 @@
 namespace Slice
 {
 
-class Gen : public ::IceUtil::noncopyable
+class Gen : private ::IceUtil::noncopyable
 {
 public:
 
@@ -53,7 +53,7 @@ private:
     bool _impl;
     bool _ice;
 
-    class TypesVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class TypesVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -83,7 +83,7 @@ private:
 	bool _ice;
     };
 
-    class ProxyDeclVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class ProxyDeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -104,7 +104,7 @@ private:
 	bool _ice;
     };
 
-    class ProxyVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class ProxyVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -127,7 +127,7 @@ private:
 	bool _ice;
     };
 
-    class DelegateVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class DelegateVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -150,7 +150,7 @@ private:
 	bool _ice;
     };
 
-    class ObjectDeclVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class ObjectDeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -169,7 +169,7 @@ private:
 	bool _ice;
     };
 
-    class ObjectVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class ObjectVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -195,7 +195,7 @@ private:
 	bool _ice;
     };
 
-    class IceInternalVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class IceInternalVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -215,7 +215,7 @@ private:
 	bool _ice;
     };
 
-    class HandleVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class HandleVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -235,7 +235,7 @@ private:
 	bool _ice;
     };
 
-    class ImplVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class ImplVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 

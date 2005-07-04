@@ -11,22 +11,23 @@
 #define ICE_GC_REC_MUTEX_H
 
 #include <IceUtil/RecMutex.h>
+#include <Ice/Config.h>
 
-namespace IceUtil
+namespace IceInternal
 {
 
-class ICE_UTIL_API GCRecMutex
+class ICE_API GCRecMutex
 {
 public:
 
     GCRecMutex();
     ~GCRecMutex();
-    RecMutex* _m;
+    ::IceUtil::RecMutex* _m;
 };
 
-extern ICE_UTIL_API GCRecMutex gcRecMutex;
+extern ICE_API GCRecMutex gcRecMutex;
 
-class ICE_UTIL_API GCRecMutexInit
+class ICE_API GCRecMutexInit
 {
 public:
 

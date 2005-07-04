@@ -18,7 +18,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/TraceLevels.h>
-#include <IceUtil/GC.h>
+#include <Ice/GC.h>
 
 using namespace std;
 using namespace Ice;
@@ -27,7 +27,7 @@ using namespace IceInternal;
 namespace IceInternal
 {
 
-IceUtil::Handle<IceUtil::GC> theCollector = 0;
+IceUtil::Handle<IceInternal::GC> theCollector = 0;
 
 }
 
@@ -52,7 +52,7 @@ static LoggerPtr gcLogger;
 static int gcInterval;
 
 static void
-printGCStats(const IceUtil::GCStats& stats)
+printGCStats(const IceInternal::GCStats& stats)
 {
     if(gcTraceLevel)
     {
@@ -422,7 +422,7 @@ Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties) :
 	}
 	if(++communicatorCount == 1)
 	{
-	    theCollector = new IceUtil::GC(gcInterval, printGCStats);
+	    theCollector = new IceInternal::GC(gcInterval, printGCStats);
 	    if(gcInterval > 0)
 	    {
 		theCollector->start();

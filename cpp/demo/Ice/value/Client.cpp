@@ -65,17 +65,6 @@ ValueClient::run(int argc, char* argv[])
     cout << "==> " << simple->message << endl;
 
     cout << '\n'
-	 << "Ok, this worked. Now let's try to transfer an object for a class\n"
-	 << "with operations as type ::Ice::Object. Because no factory is installed,\n"
-	 << "the class will be sliced to ::Ice::Object.\n"
-	 << "[press enter]\n";
-    cin.getline(c, 2);
-
-    ::Ice::ObjectPtr obj = initial->getPrinterAsObject();
-    cout << "==> The type ID of the received object is \"" << obj->ice_id() << "\"" << endl;
-    assert(obj->ice_id() == "::Ice::Object");
-
-    cout << '\n'
 	 << "Yes, this worked. Now let's try to transfer an object for a class\n"
 	 << "with operations as type ::Demo::Printer, without installing a factory first.\n"
 	 << "This should give us a `no factory' exception.\n"

@@ -859,6 +859,18 @@ local exception TwowayOnlyException
     string operation;
 };
 
+/**
+ *
+ * This exception is raised if [ice_clone] is called on
+ * a class that is derived from an abstract Slice class (that is,
+ * a class containing operations), and the derived class does not
+ * provide an implementation of the [ice_clone] operation (C++ only).
+ *
+ **/
+local exception CloneNotImplementedException
+{
+};
+
 };
 
 #endif

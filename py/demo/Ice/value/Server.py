@@ -30,9 +30,6 @@ class InitialI(Demo.Initial):
     def getSimple(self, current=None):
         return self._simple
 
-    def getPrinterAsObject(self, current=None):
-        return self._printer
-
     def getPrinter(self, current=None):
         return (self._printer, self._printerProxy)
 

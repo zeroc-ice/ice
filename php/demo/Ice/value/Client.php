@@ -70,17 +70,6 @@ try
     echo "==> ",$simple->message,"\n";
 
     echo "\n";
-    echo "Ok, this worked. Now let's try to transfer an object for a class\n";
-    echo "with operations as type ::Ice::Object. Because no factory is installed,\n";
-    echo "the class will be sliced to ::Ice::Object.\n";
-    echo "[press enter]\n";
-    fgets(STDIN);
-
-    $obj = $initial->getPrinterAsObject();
-    echo "==> The type ID of the received object is \"",get_class($obj),"\"\n";
-    assert(get_class($obj) == "Ice_ObjectImpl");
-
-    echo "\n";
     echo "Yes, this worked. Now let's try to transfer an object for a class\n";
     echo "with operations as type ::Printer, without installing a factory first.\n";
     echo "This should give us a `no factory' exception.\n";

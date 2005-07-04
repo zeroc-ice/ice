@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/GC.h>
+#include <Ice/GC.h>
 #include <Ice/CommunicatorI.h>
 #include <Ice/PropertiesI.h>
 #include <Ice/Initialize.h>
@@ -21,7 +21,7 @@ using namespace IceInternal;
 namespace IceInternal
 {
 
-extern IceUtil::Handle<IceUtil::GC> theCollector;
+extern IceUtil::Handle<IceInternal::GC> theCollector;
 
 }
 

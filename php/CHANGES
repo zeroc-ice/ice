@@ -1,3 +1,9 @@
+Changes since version 2.1.2
+---------------------------
+
+- Ice.ObjectImpl is now an abstract class that cannot be instantiated.
+  This change should be transparent to application code.
+
 Changes since version 2.1.0
 ---------------------------
 

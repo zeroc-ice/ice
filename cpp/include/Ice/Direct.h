@@ -19,7 +19,7 @@
 namespace IceInternal
 {
 
-class ICE_API Direct : public IceUtil::noncopyable
+class ICE_API Direct : private IceUtil::noncopyable
 {
 public:
 

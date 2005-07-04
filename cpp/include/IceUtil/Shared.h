@@ -146,12 +146,21 @@ inline int ice_atomic_exchange_add(int i, ice_atomic_t* v)
 namespace IceUtil
 {
 
-class ICE_UTIL_API SimpleShared : public noncopyable
+class ICE_UTIL_API SimpleShared
 {
 public:
 
     SimpleShared();
-    virtual ~SimpleShared();
+    SimpleShared(const SimpleShared&);
+
+    virtual ~SimpleShared()
+    {
+    }
+
+    SimpleShared& operator=(const SimpleShared&)
+    {
+        return *this;
+    }
 
     void __incRef()
     {
@@ -188,12 +197,21 @@ private:
     bool _noDelete;
 };
 
-class ICE_UTIL_API Shared : public noncopyable
+class ICE_UTIL_API Shared
 {
 public:
 
     Shared();
-    virtual ~Shared();
+    Shared(const Shared&);
+
+    virtual ~Shared()
+    {
+    }
+
+    Shared& operator=(const Shared&)
+    {
+        return *this;
+    }
 
     void __incRef()
     {

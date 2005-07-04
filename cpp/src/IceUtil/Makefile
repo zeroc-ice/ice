@@ -21,9 +21,6 @@ OBJS		= Base64.o \
 		  CtrlCHandler.o \
 		  Exception.o \
 		  Shared.o \
-		  GC.o \
-		  GCRecMutex.o \
-		  GCShared.o \
 		  InputUtil.o \
 		  MD5.o \
 		  MD5I.o \

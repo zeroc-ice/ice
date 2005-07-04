@@ -15,7 +15,7 @@
 
 //
 // "Handle" or "smart pointer" class for classes derived from
-// IceUtil::GCShared, IceUtil::Shared or IceUtil::SimpleShared.
+// IceUtil::Shared, IceUtil::SimpleShared, or Ice::GCShared.
 //
 namespace IceUtil
 {

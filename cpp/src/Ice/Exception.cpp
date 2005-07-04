@@ -491,3 +491,10 @@ Ice::TwowayOnlyException::ice_print(ostream& out) const
     Exception::ice_print(out);
     out << ":\n operation `" << operation << "' can only be invoked as a twoway request";
 }
+
+void
+Ice::CloneNotImplementedException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\n ice_clone() must be implemented in classes derived from abstract base classes";
+}

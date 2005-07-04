@@ -53,17 +53,6 @@ class Client(Ice.Application):
 	print "==> " + simple.message
 
 	print '\n'\
-	      "Ok, this worked. Now let's try to transfer an object for a class\n"\
-	      "with operations as type ::Ice::Object. Because no factory is installed,\n"\
-	      "the class will be sliced to ::Ice::Object.\n"\
-	      "[press enter]"
-	raw_input()
-
-	obj = initial.getPrinterAsObject()
-	print "==> The type ID of the received object is \"" + obj.ice_id() + "\""
-	assert(obj.ice_id() == "::Ice::Object")
-
-	print '\n'\
 	      "Yes, this worked. Now let's try to transfer an object for a class\n"\
 	      "with operations as type ::Demo::Printer, without installing a factory\n"\
 	      "first. This should give us a `no factory' exception.\n"\

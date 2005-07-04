@@ -64,8 +64,15 @@ function allTests()
     echo "testing unknown with Object as Object... ";
     flush();
     {
-        $o = $test->SUnknownAsObject();
-        test(get_class($o) == "Ice_ObjectImpl");
+	try
+	{
+	    $o = $test->SUnknownAsObject();
+	    test(false);
+	}
+        catch(Ice_NoObjectFactoryException $e)
+        {
+            test(get_class($e) == "Ice_NoObjectFactoryException");
+	}
     }
     echo "ok\n";
 

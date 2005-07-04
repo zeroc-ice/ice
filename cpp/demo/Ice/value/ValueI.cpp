@@ -34,12 +34,6 @@ InitialI::getSimple(const Ice::Current&)
     return _simple;
 }
 
-::Ice::ObjectPtr
-InitialI::getPrinterAsObject(const Ice::Current&)
-{
-    return _printer;
-}
-
 void
 InitialI::getPrinter(PrinterPtr& impl, PrinterPrx& proxy, const Ice::Current&)
 {

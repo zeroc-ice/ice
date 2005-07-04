@@ -41,6 +41,9 @@ OBJS		= Acceptor.o \
 		  FacetMap.o \
 		  FactoryTableDef.o \
 		  FactoryTable.o \
+		  GC.o \
+		  GCRecMutex.o \
+		  GCShared.o \
 		  Identity.o \
 		  IdentityUtil.o \
 		  IncomingAsync.o \

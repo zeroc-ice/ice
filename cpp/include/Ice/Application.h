@@ -15,7 +15,7 @@
 namespace Ice
 {
 
-class ICE_API Application : public IceUtil::noncopyable
+class ICE_API Application : private IceUtil::noncopyable
 {
 public:
 

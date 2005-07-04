@@ -17,7 +17,9 @@ IceUtil::SimpleShared::SimpleShared() :
 {
 }
 
-IceUtil::SimpleShared::~SimpleShared()
+IceUtil::SimpleShared::SimpleShared(const SimpleShared&) :
+    _ref(0),
+    _noDelete(false)
 {
 }
 
@@ -32,8 +34,15 @@ IceUtil::Shared::Shared() :
 #endif
 }
 
-IceUtil::Shared::~Shared()
+IceUtil::Shared::Shared(const Shared&) :
+#ifndef ICE_HAS_ATOMIC_FUNCTIONS
+    _ref(0),
+#endif
+    _noDelete(false)
 {
+#ifdef ICE_HAS_ATOMIC_FUNCTIONS
+    ice_atomic_set(&_ref, 0);
+#endif
 }
 
 int

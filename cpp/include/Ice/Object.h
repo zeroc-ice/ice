@@ -10,8 +10,8 @@
 #ifndef ICE_OBJECT_H
 #define ICE_OBJECT_H
 
-#include <IceUtil/GCShared.h>
 #include <IceUtil/Mutex.h>
+#include <Ice/GCShared.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/IncomingAsyncF.h>
@@ -49,18 +49,14 @@ namespace Ice
 // a servant class from both Ice::Object and IceUtil::Thread. However,
 // we never derive from IceUtil::GCShared more than once.
 //
-class ICE_API Object : public IceUtil::GCShared
+class ICE_API Object : public IceInternal::GCShared
 {
 public:
-
-    Object() {}
-    Object(const Object&) {}
-    
-    Object& operator=(const Object&) { return *this; }
 
     virtual bool operator==(const Object&) const;
     virtual bool operator!=(const Object&) const;
     virtual bool operator<(const Object&) const;
+
     virtual Int ice_hash() const;
 
     virtual bool ice_isA(const std::string&, const Current& = Current()) const;
@@ -91,8 +87,13 @@ public:
     virtual void __write(const OutputStreamPtr&) const;
     virtual void __read(const InputStreamPtr&, bool);
 
-    virtual void __gcReachable(IceUtil::GCObjectMultiSet&) const {}
+    virtual void __gcReachable(IceInternal::GCObjectMultiSet&) const {}
     virtual void __gcClear() {}
+
+protected:
+
+    Object() {} // This class is abstract.
+    virtual ~Object() {}
 };
 
 class ICE_API Blobject : virtual public Object

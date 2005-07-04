@@ -36,7 +36,7 @@ protected:
     ::IceUtil::Output& _out;
 };
 
-class Gen : public ::IceUtil::noncopyable
+class Gen : private ::IceUtil::noncopyable
 {
 public:
 

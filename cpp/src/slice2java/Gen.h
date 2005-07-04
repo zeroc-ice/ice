@@ -64,7 +64,7 @@ protected:
     void writeDispatch(::IceUtil::Output&, const ClassDefPtr&);
 };
 
-class Gen : public ::IceUtil::noncopyable
+class Gen : private ::IceUtil::noncopyable
 {
 public:
 

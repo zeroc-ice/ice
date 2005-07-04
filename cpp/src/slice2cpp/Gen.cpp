@@ -2452,38 +2452,25 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	 */
     }
 
-    if(!p->isAbstract() && !p->isLocal())
+    if(!p->isLocal())
     {
-	H << sp << nl << "void __copyMembers(" << fixKwd(p->scoped() + "Ptr") + ") const;";
-
-	C << sp;
-	C << nl << "void ";
-	C << nl << fixKwd(p->scoped()).substr(2) << "::__copyMembers(" << fixKwd(p->scoped() + "Ptr") << " __to) const";
-	C << sb;
-	if(base)
-	{
-	    emitUpcall(base, "::__copyMembers(__to);");
-	}
-	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    C << nl << "__to->" << fixKwd((*q)->name()) << " = " << fixKwd((*q)->name()) << ';';
-	}
-	C << eb;
-
 	H << nl << "virtual ::Ice::ObjectPtr ice_clone() const;";
 
 	C << sp;
 	C << nl << "::Ice::ObjectPtr";
 	C << nl << fixKwd(p->scoped()).substr(2) << "::ice_clone() const";
 	C << sb;
-	C << nl << fixKwd(p->scope()) << p->name() << "Ptr __p = new " << fixKwd(p->scoped()) << ';';
-	emitUpcall(p, "::__copyMembers(__p);");
-	C << nl << "return __p;";
+	if(!p->isAbstract())
+	{
+	    C << nl << fixKwd(p->scope()) << p->name() << "Ptr __p = new " << fixKwd(p->scoped()) << "(*this);";
+	    C << nl << "return __p;";
+	}
+	else
+	{
+	    C << nl << "throw ::Ice::CloneNotImplementedException(__FILE__, __LINE__);";
+	}
 	C << eb;
-    }
 
-    if(!p->isLocal())
-    {
 	ClassList allBases = p->allBases();
 	StringList ids;
 #if defined(__IBMCPP__) && defined(NDEBUG)
@@ -3126,32 +3113,32 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__incRef()";
 	C << sb;
-	C << nl << "IceUtil::gcRecMutex._m->lock();";
+	C << nl << "IceInternal::gcRecMutex._m->lock();";
 	C << nl << "assert(_ref >= 0);";
         C << nl << "if(_ref == 0)";
 	C << sb;
 	C.zeroIndent();
 	C << nl << "#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...";
 	C.restoreIndent();
-	C << nl << "IceUtil::gcObjects.insert(this);";
+	C << nl << "IceInternal::gcObjects.insert(this);";
 	C.zeroIndent();
 	C << nl << "#else";
 	C.restoreIndent();
-	C << nl << "std::pair<IceUtil::GCObjectSet::iterator, bool> rc = IceUtil::gcObjects.insert(this);";
+	C << nl << "std::pair<IceInternal::GCObjectSet::iterator, bool> rc = IceInternal::gcObjects.insert(this);";
 	C << nl << "assert(rc.second);";
 	C.zeroIndent();
 	C << nl << "#endif";
 	C.restoreIndent();
 	C << eb;
 	C << nl << "++_ref;";
-	C << nl << "IceUtil::gcRecMutex._m->unlock();";
+	C << nl << "IceInternal::gcRecMutex._m->unlock();";
 	C << eb;
 
 	H << nl << "virtual void __decRef();";
 
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__decRef()";
 	C << sb;
-	C << nl << "IceUtil::gcRecMutex._m->lock();";
+	C << nl << "IceInternal::gcRecMutex._m->lock();";
 	C << nl << "bool doDelete = false;";
 	C << nl << "assert(_ref > 0);";
 	C << nl << "if(--_ref == 0)";
@@ -3161,17 +3148,17 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
         C.zeroIndent();
 	C << nl << "#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...";
 	C.restoreIndent();
-	C << nl << "IceUtil::gcObjects.erase(this);";
+	C << nl << "IceInternal::gcObjects.erase(this);";
         C.zeroIndent();
 	C << nl << "#else";
 	C.restoreIndent();
-	C << nl << "IceUtil::GCObjectSet::size_type num = IceUtil::gcObjects.erase(this);";
+	C << nl << "IceInternal::GCObjectSet::size_type num = IceInternal::gcObjects.erase(this);";
 	C << nl << "assert(num == 1);";
         C.zeroIndent();
 	C << nl << "#endif";
 	C.restoreIndent();
 	C << eb;
-	C << nl << "IceUtil::gcRecMutex._m->unlock();";
+	C << nl << "IceInternal::gcRecMutex._m->unlock();";
 	C << nl << "if(doDelete)";
 	C << sb;
 	C << nl << "delete this;";
@@ -3185,9 +3172,9 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
     //
     if(canBeCyclic)
     {
-	H << nl << "virtual void __gcReachable(::IceUtil::GCObjectMultiSet&) const;";
+	H << nl << "virtual void __gcReachable(::IceInternal::GCObjectMultiSet&) const;";
 
-	C << sp << nl << "void" << nl << scoped.substr(2) << "::__gcReachable(::IceUtil::GCObjectMultiSet& _c) const";
+	C << sp << nl << "void" << nl << scoped.substr(2) << "::__gcReachable(::IceInternal::GCObjectMultiSet& _c) const";
 	C << sb;
 
 	string vc6Prefix;

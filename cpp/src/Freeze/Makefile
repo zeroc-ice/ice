@@ -32,6 +32,7 @@ OBJS		= CatalogData.o \
                   Index.o \
 	  	  MapI.o \
                   ObjectStore.o \
+		  PingObject.o \
                   SharedDbEnv.o \
                   SharedDb.o \
                   TransactionHolder.o \

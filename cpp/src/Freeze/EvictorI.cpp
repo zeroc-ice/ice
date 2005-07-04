@@ -13,6 +13,7 @@
 #include <IceUtil/StringUtil.h>
 #include <Freeze/Util.h>
 #include <Freeze/EvictorIteratorI.h>
+#include <Freeze/PingObject.h>
 
 #include <typeinfo>
 
@@ -287,7 +288,7 @@ Freeze::EvictorI::EvictorI(const ObjectAdapterPtr& adapter,
     _filename(filename),
     _createDb(createDb),
     _trace(0),
-    _pingObject(new Ice::Object)
+    _pingObject(new PingObject)
 {
     _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Evictor");
     _deadlockWarning = (_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0);
@@ -1160,12 +1161,9 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 	{
 	    if(_trace >= 3)
 	    {
-		if(_trace >= 3)
-		{
-		    Trace out(_communicator->getLogger(), "Freeze.Evictor");
-		    out << "ice_ping will raise ObjectNotExistException for \"" << identityToString(current.id)  
-			<< "\" with facet \"" << current.facet + "\"";
-		}
+		Trace out(_communicator->getLogger(), "Freeze.Evictor");
+		out << "ice_ping will raise ObjectNotExistException for \"" << identityToString(current.id)  
+		    << "\" with facet \"" << current.facet + "\"";
 	    }
 	    return 0;
 	}

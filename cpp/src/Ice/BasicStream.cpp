@@ -1519,6 +1519,15 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 	string id;
 	readTypeId(id);
 
+	//
+	// If we slice all the way down to Ice::Object, we throw
+	// because Ice::Object is abstract.
+	//
+        if(id == Ice::Object::ice_staticId())
+	{
+	    throw NoObjectFactoryException(__FILE__, __LINE__, "class sliced to ::Ice::Object, which is abstract", id);
+	}
+
         //
         // Try to find a factory registered for the specific type.
         //
@@ -1539,17 +1548,6 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
             {
                 v = userFactory->create(id);
             }
-        }
-
-        //
-        // There isn't a static factory for Ice::Object, so check for
-        // that case now.  We do this *after* the factory inquiries
-        // above so that a factory could be registered for
-        // "::Ice::Object".
-        //
-        if(!v && id == Ice::Object::ice_staticId())
-        {
-            v = new ::Ice::Object;
         }
 
         //

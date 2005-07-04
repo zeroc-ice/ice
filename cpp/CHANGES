@@ -1,3 +1,14 @@
+Changes since version 2.1.2
+---------------------------
+
+- Ice::Object is now an abstract class that cannot be instantiated.
+  This change should be transparent to application code.
+
+- For abstract classes, ice_clone() now throws a CloneNotImplementedException
+  if the concrete implementation class does not override ice_clone().
+  (Previously, ice_clone() incorrectly sliced the cloned abstract class to
+  the most derived-concrete class or Ice::Object.)
+
 Changes since version 2.1.1
 ---------------------------
 

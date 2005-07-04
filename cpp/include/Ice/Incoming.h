@@ -20,7 +20,7 @@
 namespace IceInternal
 {
 
-class ICE_API IncomingBase : public IceUtil::noncopyable
+class ICE_API IncomingBase : private IceUtil::noncopyable
 {
 protected:
 

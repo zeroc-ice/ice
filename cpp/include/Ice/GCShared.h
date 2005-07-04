@@ -7,35 +7,41 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_GC_SHARED_H
-#define ICE_UTIL_GC_SHARED_H
+#ifndef ICE_GC_SHARED_H
+#define ICE_GC_SHARED_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/GCRecMutex.h>
+#include <Ice/GCRecMutex.h>
 #include <set>
 
-namespace IceUtil
+namespace IceInternal
 {
 
 class GC;
 class GCShared;
 
 typedef std::set<GCShared*> GCObjectSet;
-extern ICE_UTIL_API GCObjectSet gcObjects; // Set of pointers to all existing classes with class data members.
+extern ICE_API GCObjectSet gcObjects; // Set of pointers to all existing classes with class data members.
 
 typedef std::multiset<GCShared*> GCObjectMultiSet;
 
-class ICE_UTIL_API GCShared : public noncopyable
+class ICE_API GCShared
 {
 public:
 
     GCShared();
-    virtual ~GCShared();
+    GCShared(const GCShared&);
+    virtual ~GCShared() {}
+
+    GCShared& operator=(const GCShared&)
+    {
+        return *this;
+    }
 
     virtual void __incRef(); // First derived class with class data members overrides this.
     virtual void __decRef(); // Ditto.
-    int __getRef() const;
-    void __setNoDelete(bool);
+    virtual int __getRef() const;
+    virtual void __setNoDelete(bool);
 
     int __getRefUnsafe() const
     {
@@ -57,7 +63,7 @@ protected:
     int _ref;
     bool _noDelete;
 
-    friend class IceUtil::GC; // Allows IceUtil::GC to read value of _ref.
+    friend class IceInternal::GC; // Allows IceInternal::GC to read value of _ref.
 };
 
 }

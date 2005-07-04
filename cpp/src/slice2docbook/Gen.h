@@ -17,7 +17,7 @@
 namespace Slice
 {
 
-class Gen : public ::IceUtil::noncopyable, public ParserVisitor
+class Gen : private ::IceUtil::noncopyable, public ParserVisitor
 {
 public:
 

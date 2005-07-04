@@ -7,29 +7,31 @@
 //
 // **********************************************************************
 
-#include <IceUtil/GCShared.h>
+#include <Ice/GCShared.h>
 
-namespace IceUtil
+namespace IceInternal
 {
 
 GCObjectSet gcObjects;
 
 }
 
-using namespace IceUtil;
+using namespace IceInternal;
 
-IceUtil::GCShared::GCShared() :
+IceInternal::GCShared::GCShared() :
     _ref(0),
     _noDelete(false)
 {
 }
 
-IceUtil::GCShared::~GCShared()
+IceInternal::GCShared::GCShared(const GCShared&) :
+    _ref(0),
+    _noDelete(false)
 {
 }
 
 void
-IceUtil::GCShared::__incRef()
+IceInternal::GCShared::__incRef()
 {
     gcRecMutex._m->lock();
     assert(_ref >= 0);
@@ -38,7 +40,7 @@ IceUtil::GCShared::__incRef()
 }
 
 void
-IceUtil::GCShared::__decRef()
+IceInternal::GCShared::__decRef()
 {
     gcRecMutex._m->lock();
     bool doDelete = false;
@@ -56,7 +58,7 @@ IceUtil::GCShared::__decRef()
 }
 
 int
-IceUtil::GCShared::__getRef() const
+IceInternal::GCShared::__getRef() const
 {
     gcRecMutex._m->lock();
     int ref = _ref;
@@ -65,7 +67,7 @@ IceUtil::GCShared::__getRef() const
 }
 
 void
-IceUtil::GCShared::__setNoDelete(bool b)
+IceInternal::GCShared::__setNoDelete(bool b)
 {
     gcRecMutex._m->lock();
     _noDelete = b;
@@ -73,7 +75,7 @@ IceUtil::GCShared::__setNoDelete(bool b)
 }
 
 void
-IceUtil::GCShared::__addObject(GCObjectMultiSet& c, GCShared* p)
+IceInternal::GCShared::__addObject(GCObjectMultiSet& c, GCShared* p)
 {
     gcRecMutex._m->lock();
     if(p)

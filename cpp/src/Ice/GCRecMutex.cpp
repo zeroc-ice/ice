@@ -7,14 +7,14 @@
 //
 // **********************************************************************
 
-#include <IceUtil/GCRecMutex.h>
+#include <Ice/GCRecMutex.h>
 
-namespace IceUtil
+namespace IceInternal
 {
 GCRecMutex gcRecMutex;
 }
 
-using namespace IceUtil;
+using namespace IceInternal;
 
 static int gcInitCount = 0;
 
@@ -22,7 +22,7 @@ GCRecMutex::GCRecMutex()
 {
     if(gcInitCount++ == 0)
     {
-	_m = new RecMutex;
+	_m = new IceUtil::RecMutex;
     }
 }
 
@@ -38,7 +38,7 @@ GCRecMutexInit::GCRecMutexInit()
 {
     if(gcInitCount++ == 0)
     {
-	gcRecMutex._m = new RecMutex;
+	gcRecMutex._m = new IceUtil::RecMutex;
     }
 }
 

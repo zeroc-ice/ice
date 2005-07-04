@@ -16,7 +16,7 @@
 namespace Slice
 {
 
-class Gen : public ::IceUtil::noncopyable
+class Gen : private ::IceUtil::noncopyable
 {
 public:
 
@@ -55,7 +55,7 @@ private:
     bool _checksum;
     bool _stream;
 
-    class TypesVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class TypesVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -85,7 +85,7 @@ private:
         bool _stream;
     };
 
-    class ProxyDeclVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class ProxyDeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -105,7 +105,7 @@ private:
 	std::string _dllExport;
     };
 
-    class ProxyVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class ProxyVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -127,7 +127,7 @@ private:
 	std::string _dllExport;
     };
 
-    class DelegateVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class DelegateVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -149,7 +149,7 @@ private:
 	std::string _dllExport;
     };
 
-    class DelegateMVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class DelegateMVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -171,7 +171,7 @@ private:
 	std::string _dllExport;
     };
 
-    class DelegateDVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class DelegateDVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -193,7 +193,7 @@ private:
 	std::string _dllExport;
     };
 
-    class ObjectDeclVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class ObjectDeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -211,7 +211,7 @@ private:
 	std::string _dllExport;
     };
 
-    class ObjectVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class ObjectVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -240,7 +240,7 @@ private:
         bool _stream;
     };
 
-    class IceInternalVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class IceInternalVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -259,7 +259,7 @@ private:
 	std::string _dllExport;
     };
 
-    class HandleVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class HandleVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -279,7 +279,7 @@ private:
         bool _stream;
     };
 
-    class ImplVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class ImplVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -308,7 +308,7 @@ private:
         void writeReturn(::IceUtil::Output&, const TypePtr&);
     };
 
-    class AsyncVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class AsyncVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
@@ -326,7 +326,7 @@ private:
 	std::string _dllExport;
     };
 
-    class AsyncImplVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class AsyncImplVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 

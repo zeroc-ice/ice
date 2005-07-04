@@ -29,7 +29,7 @@ namespace IceUtil
 // manually I've decided to leave them as virtual.
 //
 
-class ICE_UTIL_API OutputBase : public ::IceUtil::noncopyable
+class ICE_UTIL_API OutputBase : private ::IceUtil::noncopyable
 {
 public:
 

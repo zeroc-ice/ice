@@ -20,12 +20,6 @@ using namespace IceInternal;
 void IceInternal::incRef(Object* p) { p->__incRef(); }
 void IceInternal::decRef(Object* p) { p->__decRef(); }
 
-#if 0
-Ice::Object::Object()
-{
-}
-#endif
-
 bool
 Ice::Object::operator==(const Object& r) const
 {
@@ -88,8 +82,7 @@ Ice::Object::ice_staticId()
 ObjectPtr
 Ice::Object::ice_clone() const
 {
-    ObjectPtr __p = new Ice::Object;
-    return __p;
+    throw CloneNotImplementedException(__FILE__, __LINE__);
 }
 
 void

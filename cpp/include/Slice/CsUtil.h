@@ -16,7 +16,7 @@
 namespace Slice
 {
 
-class SLICE_API CsGenerator : public ::IceUtil::noncopyable
+class SLICE_API CsGenerator : private ::IceUtil::noncopyable
 {
 public:
 

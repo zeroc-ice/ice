@@ -14,28 +14,29 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
+#include <Ice/Config.h>
 
-namespace IceUtil
+namespace IceInternal
 {
 
-struct ICE_UTIL_API GCStats
+struct ICE_API GCStats
 {
     int examined;
     int collected;
-    Time time;
+    IceUtil::Time time;
 };
 
 class GC : public ::IceUtil::Thread, public ::IceUtil::Monitor< ::IceUtil::Mutex>
 {
 public:
 
-    typedef void (*StatsCallback)(const ::IceUtil::GCStats&);
+    typedef void (*StatsCallback)(const ::IceInternal::GCStats&);
 
-    ICE_UTIL_API GC(int, StatsCallback);
-    ICE_UTIL_API virtual ~GC();
-    ICE_UTIL_API virtual void run();
-    ICE_UTIL_API void stop();
-    ICE_UTIL_API void collectGarbage();
+    ICE_API GC(int, StatsCallback);
+    ICE_API virtual ~GC();
+    ICE_API virtual void run();
+    ICE_API void stop();
+    ICE_API void collectGarbage();
 
 private:
 

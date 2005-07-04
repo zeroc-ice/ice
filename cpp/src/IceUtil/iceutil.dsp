@@ -126,18 +126,6 @@ SOURCE=.\Exception.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\GC.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\GCRecMutex.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\GCShared.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\InputUtil.cpp
 # End Source File
 # Begin Source File
@@ -227,22 +215,6 @@ SOURCE=..\..\include\iceutil\Exception.h
 # Begin Source File
 
 SOURCE=..\..\include\iceutil\Functional.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\iceutil\GC.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\iceutil\GCF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\iceutil\GCRecMutex.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\iceutil\GCShared.h
 # End Source File
 # Begin Source File
 

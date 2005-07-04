@@ -214,6 +214,18 @@ SOURCE=.\FactoryTableDef.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\GC.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\GCRecMutex.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\GCShared.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Identity.cpp
 # End Source File
 # Begin Source File
@@ -587,6 +599,18 @@ SOURCE=..\..\include\ice\FactoryTableDef.h
 # Begin Source File
 
 SOURCE=..\..\include\ice\Functional.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\GC.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\GCRecMutex.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\GCShared.h
 # End Source File
 # Begin Source File
 
