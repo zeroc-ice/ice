@@ -99,6 +99,7 @@ public final class Util
     stringToIdentity(String s)
     {
         Identity ident = new Identity();
+	System.err.println(s);
 
         //
         // Find unescaped separator.
@@ -127,6 +128,7 @@ public final class Util
 
         if(slash == -1)
         {
+	    System.err.println("here");
             StringHolder token = new StringHolder();
             if(!IceUtil.StringUtil.unescapeString(s, 0, s.length(), token))
             {
@@ -134,6 +136,7 @@ public final class Util
                 ex.str = s;
                 throw ex;
             }
+	    System.err.println(token.value);
             ident.category = "";
             ident.name = token.value;
         }

@@ -164,6 +164,7 @@ public final class ReferenceFactory
         //
         Ice.Identity ident = Ice.Util.stringToIdentity(idstr);
 
+	IceUtil.Debug.Assert(ident.name != null);
         if(ident.name.length() == 0)
         {
             //

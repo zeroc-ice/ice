@@ -15,17 +15,25 @@
 
     <import file="config/common.xml"/>
 
-	<path id="bootclasspath">
-	  <pathelement path="/opt/WTK2.2/lib/cldcapi11.jar"/>
-	  <pathelement path="/opt/WTK2.2/lib/midpapi20.jar"/>
+    <target name="set-bootclasspath" if="midp" depends="config-init">
+        <path id="bootclasspath">
+	    <pathelement path="c:/WTK22/lib/cldcapi11.jar"/>
+	    <pathelement path="c:/WTK22/lib/midpapi20.jar"/>
 	</path>
+    </target>
+
+    <target name="set-empty-bootclasspath" unless="midp" depends="config-init">
+        <path id="bootclasspath">
+	</path>
+    </target>
+
 
     <!-- set global properties for this build -->
     <property name="src.dir" value="src"/>
     <property name="lib.dir" value="lib"/>
     <property name="cache.dir" value="depcache"/>
 	      
-    <target name="init" depends="config-init"/>
+    <target name="init" depends="config-init,set-bootclasspath,set-empty-bootclasspath"/>
 
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
@@ -55,10 +63,10 @@
     <target name="compile" depends="generate">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
-	<depend srcdir="${generated.dir}:${src.dir}:${target-profile}" destdir="${lib.dir}" cache="${cache.dir}"/>
-	<javac srcdir="${generated.dir}:${src.dir}:${target-profile}" destdir="${lib.dir}"
+	<depend srcdir="${generated.dir}:${src.dir}:${targetProfile}" destdir="${lib.dir}" cache="${cache.dir}"/>
+	<javac srcdir="${generated.dir}:${src.dir}:${targetProfile}" destdir="${lib.dir}"
 	    debug="${debug}" optimize="${optimize}" deprecation="on" source="1.3" target="1.3">
-<!--        	<bootclasspath refid="bootclasspath"/>   -->
+        	<bootclasspath refid="bootclasspath"/>  
 	</javac>
     </target>
 

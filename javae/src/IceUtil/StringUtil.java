@@ -297,17 +297,9 @@ public final class StringUtil
             start++;
         }
 
-        try
-        {
-            result.value = new String(bytes, 0, bc, "UTF8");
-        }
-        catch(java.io.UnsupportedEncodingException ex)
-        {
-	    if(Debug.ASSERT)
-	    {
-		Debug.Assert(false);
-	    }
-        }
+	java.io.ByteArrayOutputStream bs = new java.io.ByteArrayOutputStream(bytes.length);
+	bs.write(bytes, 0, bc);
+	result.value = bs.toString();
 
         return true;
     }

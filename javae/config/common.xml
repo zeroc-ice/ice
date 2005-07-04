@@ -124,4 +124,8 @@
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
 
+    <condition property="midp">
+        <equals arg1="${targetProfile}" arg2="midp" trim="true"/>
+    </condition>
+
 </project>

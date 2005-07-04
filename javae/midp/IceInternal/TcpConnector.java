@@ -189,7 +189,7 @@ final class TcpConnector implements Connector
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
 
-	_url = "tcp://" + host + ':' + port + "/";
+	_url = "socket://" + host + ':' + port + "/";
     }
 
     private Instance _instance;
