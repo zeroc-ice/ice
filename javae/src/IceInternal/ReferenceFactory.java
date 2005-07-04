@@ -32,8 +32,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        DirectReference ref = new DirectReference(_instance, ident, context, facet, mode, endpoints, routerInfo);
-	return updateCache(ref);
+        return new DirectReference(_instance, ident, context, facet, mode, endpoints, routerInfo);
     }
 
     public synchronized Reference
@@ -58,9 +57,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        IndirectReference ref = new IndirectReference(_instance, ident, context, facet, mode,
-						      adapterId, routerInfo, locatorInfo);
-	return updateCache(ref);
+        return new IndirectReference(_instance, ident, context, facet, mode, adapterId, routerInfo, locatorInfo);
     }
 
     public synchronized Reference
@@ -83,8 +80,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        FixedReference ref = new FixedReference(_instance, ident, context, facet, mode, fixedConnections);
-	return updateCache(ref);
+        return new FixedReference(_instance, ident, context, facet, mode, fixedConnections);
     }
 
     public synchronized Reference
@@ -523,18 +519,10 @@ public final class ReferenceFactory
         _instance = null;
         _defaultRouter = null;
         _defaultLocator = null;
-        _references.clear();
-    }
-
-    private Reference
-    updateCache(Reference ref)
-    {
-	return ref;
     }
 
     private Instance _instance;
     private Ice.RouterPrx _defaultRouter;
     private Ice.LocatorPrx _defaultLocator;
-    private java.util.Hashtable _references = new java.util.Hashtable();
     private int _hashUpdateCounter = 0;
 }
