@@ -215,7 +215,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 	    {
 	        String pattern = IceInternal.PropertyNames.validProps[i][0];
 		dotPos = pattern.indexOf('.');
-		assert(dotPos != -1);
+		IceUtil.Debug.Assert(dotPos != -1);
 		String propPrefix = pattern.substring(1, dotPos - 1);
 		if(!propPrefix.equals(prefix))
 		{

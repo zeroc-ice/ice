@@ -122,9 +122,17 @@ public final class Network
     public static String
     getLocalHost(boolean numeric)
     {
-        java.net.InetAddress addr = getLocalAddress();
-
-        return numeric ? addr.getHostAddress() : addr.getHostName();
+	byte[] addr = getLocalAddress();
+	StringBuffer buf = new StringBuffer();
+	for(int i = 0; i < addr.length; ++i)
+	{
+	    if(i != 0)
+	    {
+		buf.append('.');
+	    }
+	    buf.append(Byte.toString(addr[i]));
+	}
+	return buf.toString();
     }
 
     public static byte[]
