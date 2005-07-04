@@ -104,27 +104,6 @@ public class AllTests
             System.out.flush();
 
             {
-                Ice.Object o = initial.getTest2C2AsObject();
-                test(o != null);
-                test(!(o instanceof testpkg.Test2.C1)); // Sliced to Ice.Object
-                try
-                {
-                    initial.getTest2C2AsC1();
-                    test(false);
-                }
-                catch(Ice.NoObjectFactoryException ex)
-                {
-                    // Expected
-                }
-                try
-                {
-                    initial.getTest2C2AsC2();
-                    test(false);
-                }
-                catch(Ice.NoObjectFactoryException ex)
-                {
-                    // Expected
-                }
                 try
                 {
                     initial.throwTest2E2AsE1();
@@ -158,8 +137,6 @@ public class AllTests
                 // Define Ice.Package.Test2=testpkg and try again.
                 //
                 communicator.getProperties().setProperty("Ice.Package.Test2", "testpkg");
-                Ice.Object o = initial.getTest2C2AsObject();
-                test(o != null);
                 testpkg.Test2.C1 c1 = initial.getTest2C2AsC1();
                 test(c1 != null);
                 test(c1 instanceof testpkg.Test2.C2);
@@ -192,8 +169,6 @@ public class AllTests
                 // have already been cached for them, so now we use the Test3.* types.
                 //
                 communicator.getProperties().setProperty("Ice.Default.Package", "testpkg");
-                Ice.Object o = initial.getTest3C2AsObject();
-                test(o != null);
                 testpkg.Test3.C1 c1 = initial.getTest3C2AsC1();
                 test(c1 != null);
                 test(c1 instanceof testpkg.Test3.C2);

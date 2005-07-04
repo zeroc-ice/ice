@@ -225,14 +225,15 @@ public class AllTests
         public void
 	ice_response(Ice.Object o)
 	{
-	    test(o.ice_id().equals("::Ice::Object"));
-	    callback.called();
+	    test(false);
 	}
 
 	public void
 	ice_exception(Ice.LocalException exc)
 	{
-	    test(false);
+
+	    test(exc.ice_name().equals("Ice::NoObjectFactoryException"));
+	    callback.called();
 	}
 
 	public void
@@ -1142,7 +1143,10 @@ public class AllTests
 	    try
 	    {
 		o = test.SUnknownAsObject();
-		test(o.ice_id().equals("::Ice::Object"));
+		test(false);
+	    }
+	    catch(Ice.NoObjectFactoryException ex)
+	    {
 	    }
 	    catch(Exception ex)
 	    {

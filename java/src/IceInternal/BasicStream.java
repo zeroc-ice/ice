@@ -1271,6 +1271,15 @@ public class BasicStream
 	{
 	    String id = readTypeId();
 
+	    //
+	    // If we slice all the way down to Ice::Object, we throw
+	    // because Ice::Object is abstract.
+	    //
+	    if(id.equals(Ice.ObjectImpl.ice_staticId()))
+	    {
+	        throw new Ice.NoObjectFactoryException("class sliced to Ice.Object, which is abstract", id);
+	    }
+
             //
             // Try to find a factory registered for the specific type.
             //
@@ -1292,17 +1301,6 @@ public class BasicStream
                     v = userFactory.create(id);
                 }
             }
-
-            //
-            // There isn't a static factory for Ice::Object, so check
-            // for that case now.  We do this *after* the factory
-            // inquiries above so that a factory could be registered
-            // for "::Ice::Object".
-            //
-	    if(v == null && id.equals(Ice.ObjectImpl.ice_staticId()))
-	    {
-	        v = new Ice.ObjectImpl();
-	    }
 
             //
             // Last chance: check the table of static factories (i.e.,

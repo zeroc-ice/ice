@@ -9,7 +9,7 @@
 
 package Ice;
 
-public class ObjectImpl implements Object, java.lang.Cloneable
+public abstract class ObjectImpl implements Object, java.lang.Cloneable
 {
     public
     ObjectImpl()

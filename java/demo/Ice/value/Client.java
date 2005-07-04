@@ -57,17 +57,6 @@ public class Client extends Ice.Application
         System.out.println("==> " + simple.message);
 
         System.out.println();
-        System.out.println("Ok, this worked. Now let's try to transfer an object for a class");
-        System.out.println("with operations as type Ice.Object. Because no factory is installed,");
-        System.out.println("the class will be sliced to Ice.Object.");
-        System.out.println("[press enter]");
-        readline(in);
-
-	Ice.Object obj = initial.getPrinterAsObject();
-	System.out.println("The type ID of the received object is \"" + obj.ice_id() + "\"");
-	assert(obj.ice_id().equals("::Ice::Object"));
-
-        System.out.println();
         System.out.println("Yes, this worked. Now let's try to transfer an object for a class");
         System.out.println("with operations as type Demo.Printer, without installing a factory first.");
         System.out.println("This should give us a `no factory' exception.");

@@ -14,20 +14,17 @@ module Test
 {
 interface Initial
 {
-    Object getTest1C2AsObject();
     Test1::C1 getTest1C2AsC1();
     Test1::C2 getTest1C2AsC2();
     void throwTest1E2AsE1() throws Test1::E1;
     void throwTest1E2AsE2() throws Test1::E2;
     void throwTest1Notify() throws Test1::notify;
 
-    Object getTest2C2AsObject();
     Test2::C1 getTest2C2AsC1();
     Test2::C2 getTest2C2AsC2();
     void throwTest2E2AsE1() throws Test2::E1;
     void throwTest2E2AsE2() throws Test2::E2;
 
-    Object getTest3C2AsObject();
     Test3::C1 getTest3C2AsC1();
     Test3::C2 getTest3C2AsC2();
     void throwTest3E2AsE1() throws Test3::E1;

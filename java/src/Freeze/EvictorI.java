@@ -2300,6 +2300,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     
     private boolean _deadlockWarning;    
 
-    private Ice.Object _pingObject = new Ice.ObjectImpl();
+    private Ice.Object _pingObject = new PingObject();
 
 }
