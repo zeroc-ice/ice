@@ -77,10 +77,9 @@ public final class Network
 
         return false;
     }
-    /*
     
     public static boolean
-    notConnected(java.net.SocketException ex)
+    notConnected(java.io.IOException ex)
     {
 	String msg = ex.getMessage().toLowerCase();
 	if(msg.indexOf("transport endpoint is not connected") != -1)
@@ -90,7 +89,6 @@ public final class Network
 
 	return false;
     }
-    */
 
     public static void
     closeSocket(javax.microedition.io.SocketConnection connection)
@@ -106,24 +104,6 @@ public final class Network
 	    throw se;
 	}
     }
-    
-    /*
-    public static InetSocketAddress
-    getAddress(String host, int port)
-    {
-        try
-        {
-            java.net.InetAddress addr = java.net.InetAddress.getByName(host);
-            return new InetSocketAddress(addr, port);
-        }
-        catch(java.net.UnknownHostException ex)
-        {
-	    Ice.DNSException e = new Ice.DNSException();
-	    e.host = host;
-	    throw e;
-        }
-    }
-    */
 
     public static String
     getLocalHost(boolean numeric)
@@ -214,19 +194,6 @@ public final class Network
 
 	return s.toString();
     }
-
-    /*
-
-    public static String
-    addrToString(InetSocketAddress addr)
-    {
-        StringBuffer s = new StringBuffer();
-        s.append(addr.getAddress().getHostAddress());
-        s.append(':');
-        s.append(addr.getPort());
-        return s.toString();
-    }
-    */
 
     //
     // Attempt to parse a string containing an IP address into octets.
