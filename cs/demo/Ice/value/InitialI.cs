@@ -31,11 +31,6 @@ class InitialI : Initial
         return _simple;
     }
     
-    public override Ice.Object getPrinterAsObject(Ice.Current current)
-    {
-        return _printer;
-    }
-    
     public override void getPrinter(out Printer impl, out PrinterPrx proxy, Ice.Current current)
     {
         impl = _printer;

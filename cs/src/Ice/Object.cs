@@ -59,7 +59,7 @@ namespace Ice
 	void __read(InputStream __inS, bool __rid);
     }
 
-    public class ObjectImpl : Object
+    public abstract class ObjectImpl : Object
     {
         public ObjectImpl()
         {

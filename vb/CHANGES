@@ -1,3 +1,8 @@
+Changes since version 2.1.2
+---------------------------
+
+- Ice.ObjectImpl is now an abstract class that cannot be instantiated.
+  This change should be transparent to application code.
 
 Changes since version 2.1.1
 ---------------------------
@@ -6,7 +11,7 @@ Changes since version 2.1.1
   if an operation used an exception from an unrelated module in
   its exception specification.
 
-- Added constructors to for structures and classes to VB# mapping to
+- Added constructors to for structures and classes to VB mapping to
   allow structures and classes to be created and initialized in
   a single statement.
 

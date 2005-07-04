@@ -1198,6 +1198,15 @@ namespace IceInternal
 	    while(true)
 	    {
 		string id = readTypeId();
+
+		//
+		// If we slice all the way down to Ice::Object, we throw
+		// because Ice::Object is abstract.
+		//
+		if(id == Ice.ObjectImpl.ice_staticId())
+		{
+		    throw new Ice.NoObjectFactoryException("class sliced to Ice.Object, which is abstract");
+		}
 		
 		//
 		// Try to find a factory registered for the specific
@@ -1220,17 +1229,6 @@ namespace IceInternal
 		    {
 			v = userFactory.create(id);
 		    }
-		}
-		
-		//
-		// There isn't a static factory for Ice::Object, so
-		// check for that case now.  We do this *after* the
-		// factory inquiries above so that a factory could be
-		// registered for "::Ice::Object".
-		//
-		if(v == null && id.Equals(Ice.ObjectImpl.ice_staticId()))
-		{
-		    v = new Ice.ObjectImpl();
 		}
 		
 		//

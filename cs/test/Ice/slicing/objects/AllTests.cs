@@ -177,13 +177,13 @@ public class AllTests
     {
         public override void ice_response(Ice.Object o)
         {
-            AllTests.test(o.ice_id().Equals("::Ice::Object"));
-            callback.called();
+	    AllTests.test(false);
         }
         
         public override void ice_exception(Ice.Exception exc)
         {
-            AllTests.test(false);
+            AllTests.test(exc.GetType().FullName.Equals("Ice.NoObjectFactoryException"));
+            callback.called();
         }
         
         public virtual bool check()
@@ -910,8 +910,11 @@ public class AllTests
             try
             {
                 o = testPrx.SUnknownAsObject();
-                test(o.ice_id().Equals("::Ice::Object"));
+		test(false);
             }
+	    catch(Ice.NoObjectFactoryException)
+	    {
+	    }
             catch(Exception)
             {
                 test(false);
@@ -922,9 +925,16 @@ public class AllTests
         Console.Out.Write("unknown with Object as Object (AMI)... ");
         Console.Out.Flush();
         {
-            AMI_Test_SUnknownAsObjectI cb = new AMI_Test_SUnknownAsObjectI();
-            testPrx.SUnknownAsObject_async(cb);
-            test(cb.check());
+	    try
+	    {
+		AMI_Test_SUnknownAsObjectI cb = new AMI_Test_SUnknownAsObjectI();
+		testPrx.SUnknownAsObject_async(cb);
+		test(cb.check());
+	    }
+	    catch(Exception)
+	    {
+	        test(false);
+	    }
         }
         Console.Out.WriteLine("ok");
         

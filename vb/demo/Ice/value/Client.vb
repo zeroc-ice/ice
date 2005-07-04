@@ -41,17 +41,6 @@ Class Client
 	Console.Out.WriteLine("==> " & simple.message)
 
 	Console.Out.WriteLine()
-	Console.Out.WriteLine("Ok, this worked. Now let's try to transfer an object for a class")
-	Console.Out.WriteLine("with operations as type Ice.Object. Because no factory is installed,")
-	Console.Out.WriteLine("the class will be sliced to Ice.Object.")
-	Console.Out.WriteLine("[press enter]")
-	Console.In.ReadLine()
-
-	Dim obj As Ice.Object = initial.getPrinterAsObject()
-	Console.Out.WriteLine("The type ID of the received object is """ & obj.ice_id() & """")
-	Debug.Assert(obj.ice_id().Equals("::Ice::Object"))
-
-	Console.Out.WriteLine()
 	Console.Out.WriteLine("Yes, this worked. Now let's try to transfer an object for a class")
 	Console.Out.WriteLine("with operations as type Demo.Printer, without installing a factory first.")
 	Console.Out.WriteLine("This should give us a `no factory' exception.")

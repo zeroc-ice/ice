@@ -30,10 +30,6 @@ Public Class InitialI
         Return _simple
     End Function
 
-    Public Overloads Overrides Function getPrinterAsObject(ByVal current As Ice.Current) As Ice.Object
-        Return _printer
-    End Function
-
     Public Overloads Overrides Sub getPrinter(ByRef impl As Printer, ByRef proxy As PrinterPrx, ByVal current As Ice.Current)
         impl = _printer
         proxy = _printerProxy
