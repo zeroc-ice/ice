@@ -31,7 +31,116 @@ local exception InitializationException
      **/
     string reason;
 };
+
+/**
+ *
+ * This exception indicates that a failure occurred while initializing
+ * a plug-in.
+ *
+ **/
+local exception PluginInitializationException
+{
+    /**
+     *
+     * The reason for the failure.
+     *
+     **/
+    string reason;
+};
+
+/**
+ *
+ * This exception is raised if a feature is requested that is not
+ * supported with collocation optimization.
+ *
+ **/
+local exception CollocationOptimizationException
+{
+};
 #endif
+
+/**
+ *
+ * This exception is raised if an attempt is made to register a
+ * servant, servant locator, facet, object factory, plug-in, object
+ * adapter, object, or user exception factory more than once for the
+ * same ID.
+ *
+ **/
+local exception AlreadyRegisteredException
+{
+    /**
+     *
+     * The kind of object that is registered already: "servant",
+     * "servant locator", "facet", "object factory", "plug-in",
+     * "object adapter", "object", or "user exception factory".
+     *
+     **/
+    string kindOfObject;
+
+    /**
+     *
+     * The id (or name) of the object that is registered already.
+     *
+     **/
+    string id;
+};
+
+/**
+ *
+ * This exception is raised if an attempt is made to remove a servant,
+ * facet, object factory, plug-in, object adapter, object, or user
+ * exception factory that is not currently registered.
+ *
+ **/
+local exception NotRegisteredException
+{
+    /**
+     *
+     * The kind of object that could not be removed: "servant",
+     * "facet", "object factory", "plug-in", "object adapter",
+     * "object", or "user exception factory".
+     *
+     **/
+    string kindOfObject;
+
+    /**
+     *
+     * The id (or name) of the object that could not be removed.
+     *
+     **/
+    string id;
+};
+
+/**
+ *
+ * This exception is raised if an attempt is made to invoke an
+ * operation with [ice_oneway], [ice_batchOneway], [ice_datagram],
+ * or [ice_batchDatagram] and the operation has a return value,
+ * out parameters, or an exception specification.
+ *
+ **/
+local exception TwowayOnlyException
+{
+    /**
+     *
+     * The name of the operation that was invoked.
+     *
+     **/
+    string operation;
+};
+
+/**
+ *
+ * This exception is raised if [ice_clone] is called on
+ * a class that is derived from an abstract Slice class (that is,
+ * a class containing operations), and the derived class does not
+ * provide an implementation of the [ice_clone] operation (C++ only).
+ *
+ **/
+local exception CloneNotImplementedException
+{
+};
 
 /**
  *
@@ -591,18 +700,6 @@ local exception ForcedCloseConnectionException extends ProtocolException
 {
 };
 
-#ifndef ICEE
-/**
- *
- * This exception is a specialization of [ProtocolException],
- * indicating that a batch request has been aborted.
- *
- **/
-local exception AbortBatchRequestException extends ProtocolException
-{
-};
-#endif
-
 /**
  *
  * This exception is a specialization of [ProtocolException],
@@ -626,6 +723,16 @@ local exception CompressionNotSupportedException extends ProtocolException
 };
 
 #ifndef ICEE
+/**
+ *
+ * This exception is a specialization of [ProtocolException],
+ * indicating that a batch request has been aborted.
+ *
+ **/
+local exception AbortBatchRequestException extends ProtocolException
+{
+};
+
 /**
  *
  * This exception is a specialization of [ProtocolException] that is
@@ -671,31 +778,6 @@ local exception MarshalException extends ProtocolException
     string reason;
 };
 
-#ifndef ICEE
-/**
- *
- * This exception is a specialization of [MarshalException] that is
- * raised if no suitable object factory was found during object
- * unmarshaling.
- *
- * @see ObjectFactory
- * @see Communicator::addObjectFactory
- * @see Communicator::removeObjectFactory
- * @see Communicator::findObjectFactory
- *
- **/
-local exception NoObjectFactoryException extends MarshalException
-{
-    /**
-     *
-     * The absolute Slice type name of the object for which we
-     * could not find a factory.
-     *
-     **/
-    string type;
-};
-#endif
-
 /**
  *
  * This exception is a specialization of [MarshalException] that is
@@ -725,6 +807,29 @@ local exception UnmarshalOutOfBoundsException extends MarshalException
  **/
 local exception IllegalIndirectionException extends MarshalException
 {
+};
+
+/**
+ *
+ * This exception is a specialization of [MarshalException] that is
+ * raised if no suitable object factory was found during object
+ * unmarshaling.
+ *
+ * @see ObjectFactory
+ * @see Communicator::addObjectFactory
+ * @see Communicator::removeObjectFactory
+ * @see Communicator::findObjectFactory
+ *
+ **/
+local exception NoObjectFactoryException extends MarshalException
+{
+    /**
+     *
+     * The absolute Slice type name of the object for which we
+     * could not find a factory.
+     *
+     **/
+    string type;
 };
 #endif
 
@@ -760,116 +865,6 @@ local exception NegativeSizeException extends MarshalException
 {
 };
 
-#ifndef ICEE
-/**
- *
- * This exception indicates that a failure occurred while initializing
- * a plug-in.
- *
- **/
-local exception PluginInitializationException
-{
-    /**
-     *
-     * The reason for the failure.
-     *
-     **/
-    string reason;
-};
-
-/**
- *
- * This exception is raised if a feature is requested that is not
- * supported with collocation optimization.
- *
- **/
-local exception CollocationOptimizationException
-{
-};
-#endif
-
-/**
- *
- * This exception is raised if an attempt is made to register a
- * servant, servant locator, facet, object factory, plug-in, object
- * adapter, object, or user exception factory more than once for the
- * same ID.
- *
- **/
-local exception AlreadyRegisteredException
-{
-    /**
-     *
-     * The kind of object that is registered already: "servant",
-     * "servant locator", "facet", "object factory", "plug-in",
-     * "object adapter", "object", or "user exception factory".
-     *
-     **/
-    string kindOfObject;
-
-    /**
-     *
-     * The id (or name) of the object that is registered already.
-     *
-     **/
-    string id;
-};
-
-/**
- *
- * This exception is raised if an attempt is made to remove a servant,
- * facet, object factory, plug-in, object adapter, object, or user
- * exception factory that is not currently registered.
- *
- **/
-local exception NotRegisteredException
-{
-    /**
-     *
-     * The kind of object that could not be removed: "servant",
-     * "facet", "object factory", "plug-in", "object adapter",
-     * "object", or "user exception factory".
-     *
-     **/
-    string kindOfObject;
-
-    /**
-     *
-     * The id (or name) of the object that could not be removed.
-     *
-     **/
-    string id;
-};
-
-/**
- *
- * This exception is raised if an attempt is made to invoke an
- * operation with [ice_oneway], [ice_batchOneway], [ice_datagram],
- * or [ice_batchDatagram] and the operation has a return value,
- * out parameters, or an exception specification.
- *
- **/
-local exception TwowayOnlyException
-{
-    /**
-     *
-     * The name of the operation that was invoked.
-     *
-     **/
-    string operation;
-};
-
-/**
- *
- * This exception is raised if [ice_clone] is called on
- * a class that is derived from an abstract Slice class (that is,
- * a class containing operations), and the derived class does not
- * provide an implementation of the [ice_clone] operation (C++ only).
- *
- **/
-local exception CloneNotImplementedException
-{
-};
 
 };
 

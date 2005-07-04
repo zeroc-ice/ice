@@ -42,7 +42,7 @@ sequence<string> StringSeq;
 /** A sequence of objects. **/
 sequence<Object> ObjectSeq;
     
-#endif /* ICEE */
+#endif
     
 /** A sequence of object proxies. **/
 sequence<Object*> ObjectProxySeq;

@@ -12,7 +12,7 @@
 
 #include <Ice/CommunicatorF.ice>
 #ifndef ICEE
-#include <Ice/ServantLocatorF.ice>
+#  include <Ice/ServantLocatorF.ice>
 #endif
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
