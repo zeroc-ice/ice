@@ -229,7 +229,9 @@ Slice::Gen::generate(const UnitPtr& p)
     if(p->usesNonLocals())
     {
 	C << "\n#include <IceE/BasicStream.h>";
-	C << "\n#include <IceE/Object.h>";
+        C << "\n#ifndef ICEE_PURE_CLIENT";
+	C << "\n#  include <IceE/Object.h>";
+        C << "\n#endif";
     }
 
     if(p->hasNonLocalExceptions())
