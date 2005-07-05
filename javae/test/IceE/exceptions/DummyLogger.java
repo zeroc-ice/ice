@@ -28,4 +28,10 @@ public final class DummyLogger extends Ice.LocalObjectImpl implements Ice.Logger
     error(String message)
     {
     }
+
+    public java.lang.Object
+    ice_clone()
+    {
+	return new DummyLogger();
+    }
 }

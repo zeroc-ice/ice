@@ -16,4 +16,10 @@ public final class CookieI extends Cookie
     {
         return "blahblah";
     }
+
+    public java.lang.Object
+    ice_clone()
+    {
+	return new CookieI();
+    }
 }
