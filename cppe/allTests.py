@@ -54,7 +54,7 @@ def runTests(tests, num = 0):
 tests = [
     "IceE/thread", 
     "IceE/uuid", 
-    #"IceE/operations", 
+    "IceE/operations", 
     "IceE/exceptions", 
     "IceE/inheritance", 
     "IceE/facets", 
