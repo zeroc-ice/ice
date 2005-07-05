@@ -189,7 +189,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /YX /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I "." /I "../../include" /I "../../../include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICE_STATIC_LIBS" /YX /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I "." /I "../../include" /I "../../../include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_STATIC_LIBS" /YX /M$(CECrtMTDebug) /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -223,7 +223,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /YX /O2 /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /GR /GX /I "." /I "../../include" /I "../../../include" /D "ARM" /D "_ARM_" /D "ARMV4" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICE_STATIC_LIBS" /YX /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /GR /GX /I "." /I "../../include" /I "../../../include" /D "ARM" /D "_ARM_" /D "ARMV4" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_STATIC_LIBS" /YX /O2 /M$(CECrtMT) /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -257,7 +257,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /YX /Gs8192 /GF /c
-# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I "." /I "../../include" /I "../../../include" /D "DEBUG" /D "_i386_" /D "i_386_" /D "_X86_" /D "x86" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICE_STATIC_LIBS" /YX /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I "." /I "../../include" /I "../../../include" /D "DEBUG" /D "_i386_" /D "i_386_" /D "_X86_" /D "x86" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_STATIC_LIBS" /YX /Gs8192 /GF /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -291,7 +291,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /YX /Gs8192 /GF /O2 /c
-# ADD CPP /nologo /W3 /GR /GX /I "." /I "../../include" /I "../../../include" /D "_i386_" /D "i_386_" /D "_X86_" /D "x86" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICE_STATIC_LIBS" /YX /Gs8192 /GF /O2 /c
+# ADD CPP /nologo /W3 /GR /GX /I "." /I "../../include" /I "../../../include" /D "_i386_" /D "i_386_" /D "_X86_" /D "x86" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_STATIC_LIBS" /YX /Gs8192 /GF /O2 /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -324,33 +324,56 @@ SOURCE=.\AllTests.cpp
 !IF  "$(CFG)" == "exceptionsC - Win32 (WCE emulator) Release"
 
 DEP_CPP_ALLTE=\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_ALLTE=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
+	"..\..\..\include\Ice\BuiltinSequences.h"\
+	"..\..\..\include\Ice\Communicator.h"\
+	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
+	"..\..\..\include\Ice\Connection.h"\
+	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
+	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
+	"..\..\..\include\Ice\FacetMap.h"\
 	"..\..\..\include\Ice\FactoryTable.h"\
 	"..\..\..\include\Ice\FactoryTableDef.h"\
 	"..\..\..\include\Ice\Functional.h"\
 	"..\..\..\include\Ice\Handle.h"\
 	"..\..\..\include\Ice\Ice.h"\
 	"..\..\..\include\Ice\IceEConfig.h"\
+	"..\..\..\include\Ice\Identity.h"\
 	"..\..\..\include\Ice\IdentityUtil.h"\
 	"..\..\..\include\Ice\Incoming.h"\
 	"..\..\..\include\Ice\Initialize.h"\
 	"..\..\..\include\Ice\InstanceF.h"\
+	"..\..\..\include\Ice\LocalException.h"\
 	"..\..\..\include\Ice\LocalObject.h"\
 	"..\..\..\include\Ice\LocalObjectF.h"\
+	"..\..\..\include\Ice\LocatorF.h"\
+	"..\..\..\include\Ice\Logger.h"\
+	"..\..\..\include\Ice\LoggerF.h"\
 	"..\..\..\include\Ice\LoggerUtil.h"\
 	"..\..\..\include\Ice\Object.h"\
+	"..\..\..\include\Ice\ObjectAdapter.h"\
+	"..\..\..\include\Ice\ObjectAdapterF.h"\
 	"..\..\..\include\Ice\ObjectF.h"\
 	"..\..\..\include\Ice\Outgoing.h"\
+	"..\..\..\include\Ice\Properties.h"\
+	"..\..\..\include\Ice\PropertiesF.h"\
 	"..\..\..\include\Ice\Proxy.h"\
 	"..\..\..\include\Ice\ProxyF.h"\
 	"..\..\..\include\Ice\ProxyFactoryF.h"\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
+	"..\..\..\include\Ice\RouterF.h"\
 	"..\..\..\include\Ice\ServantManagerF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\Ice\UserExceptionFactory.h"\
 	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
 	"..\..\..\include\IceUtil\Cond.h"\
@@ -365,29 +388,6 @@ DEP_CPP_ALLTE=\
 	"..\..\..\include\IceUtil\StaticMutex.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_ALLTE=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\include\Ice\Communicator.h"\
-	"..\..\..\include\Ice\CommunicatorF.h"\
-	"..\..\..\include\Ice\Connection.h"\
-	"..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\Current.h"\
-	"..\..\..\include\Ice\FacetMap.h"\
-	"..\..\..\include\Ice\Identity.h"\
-	"..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\include\Ice\LocatorF.h"\
-	"..\..\..\include\Ice\Logger.h"\
-	"..\..\..\include\Ice\LoggerF.h"\
-	"..\..\..\include\Ice\ObjectAdapter.h"\
-	"..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\include\Ice\Properties.h"\
-	"..\..\..\include\Ice\PropertiesF.h"\
-	"..\..\..\include\Ice\RouterF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -436,33 +436,56 @@ NODEP_CPP_ALLTE=\
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE emulator) Debug"
 
 DEP_CPP_ALLTE=\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_ALLTE=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
+	"..\..\..\include\Ice\BuiltinSequences.h"\
+	"..\..\..\include\Ice\Communicator.h"\
+	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
+	"..\..\..\include\Ice\Connection.h"\
+	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
+	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
+	"..\..\..\include\Ice\FacetMap.h"\
 	"..\..\..\include\Ice\FactoryTable.h"\
 	"..\..\..\include\Ice\FactoryTableDef.h"\
 	"..\..\..\include\Ice\Functional.h"\
 	"..\..\..\include\Ice\Handle.h"\
 	"..\..\..\include\Ice\Ice.h"\
 	"..\..\..\include\Ice\IceEConfig.h"\
+	"..\..\..\include\Ice\Identity.h"\
 	"..\..\..\include\Ice\IdentityUtil.h"\
 	"..\..\..\include\Ice\Incoming.h"\
 	"..\..\..\include\Ice\Initialize.h"\
 	"..\..\..\include\Ice\InstanceF.h"\
+	"..\..\..\include\Ice\LocalException.h"\
 	"..\..\..\include\Ice\LocalObject.h"\
 	"..\..\..\include\Ice\LocalObjectF.h"\
+	"..\..\..\include\Ice\LocatorF.h"\
+	"..\..\..\include\Ice\Logger.h"\
+	"..\..\..\include\Ice\LoggerF.h"\
 	"..\..\..\include\Ice\LoggerUtil.h"\
 	"..\..\..\include\Ice\Object.h"\
+	"..\..\..\include\Ice\ObjectAdapter.h"\
+	"..\..\..\include\Ice\ObjectAdapterF.h"\
 	"..\..\..\include\Ice\ObjectF.h"\
 	"..\..\..\include\Ice\Outgoing.h"\
+	"..\..\..\include\Ice\Properties.h"\
+	"..\..\..\include\Ice\PropertiesF.h"\
 	"..\..\..\include\Ice\Proxy.h"\
 	"..\..\..\include\Ice\ProxyF.h"\
 	"..\..\..\include\Ice\ProxyFactoryF.h"\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
+	"..\..\..\include\Ice\RouterF.h"\
 	"..\..\..\include\Ice\ServantManagerF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\Ice\UserExceptionFactory.h"\
 	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
 	"..\..\..\include\IceUtil\Cond.h"\
@@ -477,29 +500,6 @@ DEP_CPP_ALLTE=\
 	"..\..\..\include\IceUtil\StaticMutex.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_ALLTE=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\include\Ice\Communicator.h"\
-	"..\..\..\include\Ice\CommunicatorF.h"\
-	"..\..\..\include\Ice\Connection.h"\
-	"..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\Current.h"\
-	"..\..\..\include\Ice\FacetMap.h"\
-	"..\..\..\include\Ice\Identity.h"\
-	"..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\include\Ice\LocatorF.h"\
-	"..\..\..\include\Ice\Logger.h"\
-	"..\..\..\include\Ice\LoggerF.h"\
-	"..\..\..\include\Ice\ObjectAdapter.h"\
-	"..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\include\Ice\Properties.h"\
-	"..\..\..\include\Ice\PropertiesF.h"\
-	"..\..\..\include\Ice\RouterF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -548,33 +548,56 @@ NODEP_CPP_ALLTE=\
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE ARMV4) Release"
 
 DEP_CPP_ALLTE=\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_ALLTE=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
+	"..\..\..\include\Ice\BuiltinSequences.h"\
+	"..\..\..\include\Ice\Communicator.h"\
+	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
+	"..\..\..\include\Ice\Connection.h"\
+	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
+	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
+	"..\..\..\include\Ice\FacetMap.h"\
 	"..\..\..\include\Ice\FactoryTable.h"\
 	"..\..\..\include\Ice\FactoryTableDef.h"\
 	"..\..\..\include\Ice\Functional.h"\
 	"..\..\..\include\Ice\Handle.h"\
 	"..\..\..\include\Ice\Ice.h"\
 	"..\..\..\include\Ice\IceEConfig.h"\
+	"..\..\..\include\Ice\Identity.h"\
 	"..\..\..\include\Ice\IdentityUtil.h"\
 	"..\..\..\include\Ice\Incoming.h"\
 	"..\..\..\include\Ice\Initialize.h"\
 	"..\..\..\include\Ice\InstanceF.h"\
+	"..\..\..\include\Ice\LocalException.h"\
 	"..\..\..\include\Ice\LocalObject.h"\
 	"..\..\..\include\Ice\LocalObjectF.h"\
+	"..\..\..\include\Ice\LocatorF.h"\
+	"..\..\..\include\Ice\Logger.h"\
+	"..\..\..\include\Ice\LoggerF.h"\
 	"..\..\..\include\Ice\LoggerUtil.h"\
 	"..\..\..\include\Ice\Object.h"\
+	"..\..\..\include\Ice\ObjectAdapter.h"\
+	"..\..\..\include\Ice\ObjectAdapterF.h"\
 	"..\..\..\include\Ice\ObjectF.h"\
 	"..\..\..\include\Ice\Outgoing.h"\
+	"..\..\..\include\Ice\Properties.h"\
+	"..\..\..\include\Ice\PropertiesF.h"\
 	"..\..\..\include\Ice\Proxy.h"\
 	"..\..\..\include\Ice\ProxyF.h"\
 	"..\..\..\include\Ice\ProxyFactoryF.h"\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
+	"..\..\..\include\Ice\RouterF.h"\
 	"..\..\..\include\Ice\ServantManagerF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\Ice\UserExceptionFactory.h"\
 	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
 	"..\..\..\include\IceUtil\Cond.h"\
@@ -589,29 +612,6 @@ DEP_CPP_ALLTE=\
 	"..\..\..\include\IceUtil\StaticMutex.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_ALLTE=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\include\Ice\Communicator.h"\
-	"..\..\..\include\Ice\CommunicatorF.h"\
-	"..\..\..\include\Ice\Connection.h"\
-	"..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\Current.h"\
-	"..\..\..\include\Ice\FacetMap.h"\
-	"..\..\..\include\Ice\Identity.h"\
-	"..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\include\Ice\LocatorF.h"\
-	"..\..\..\include\Ice\Logger.h"\
-	"..\..\..\include\Ice\LoggerF.h"\
-	"..\..\..\include\Ice\ObjectAdapter.h"\
-	"..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\include\Ice\Properties.h"\
-	"..\..\..\include\Ice\PropertiesF.h"\
-	"..\..\..\include\Ice\RouterF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -660,33 +660,56 @@ NODEP_CPP_ALLTE=\
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_ALLTE=\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_ALLTE=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
+	"..\..\..\include\Ice\BuiltinSequences.h"\
+	"..\..\..\include\Ice\Communicator.h"\
+	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
+	"..\..\..\include\Ice\Connection.h"\
+	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
+	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
+	"..\..\..\include\Ice\FacetMap.h"\
 	"..\..\..\include\Ice\FactoryTable.h"\
 	"..\..\..\include\Ice\FactoryTableDef.h"\
 	"..\..\..\include\Ice\Functional.h"\
 	"..\..\..\include\Ice\Handle.h"\
 	"..\..\..\include\Ice\Ice.h"\
 	"..\..\..\include\Ice\IceEConfig.h"\
+	"..\..\..\include\Ice\Identity.h"\
 	"..\..\..\include\Ice\IdentityUtil.h"\
 	"..\..\..\include\Ice\Incoming.h"\
 	"..\..\..\include\Ice\Initialize.h"\
 	"..\..\..\include\Ice\InstanceF.h"\
+	"..\..\..\include\Ice\LocalException.h"\
 	"..\..\..\include\Ice\LocalObject.h"\
 	"..\..\..\include\Ice\LocalObjectF.h"\
+	"..\..\..\include\Ice\LocatorF.h"\
+	"..\..\..\include\Ice\Logger.h"\
+	"..\..\..\include\Ice\LoggerF.h"\
 	"..\..\..\include\Ice\LoggerUtil.h"\
 	"..\..\..\include\Ice\Object.h"\
+	"..\..\..\include\Ice\ObjectAdapter.h"\
+	"..\..\..\include\Ice\ObjectAdapterF.h"\
 	"..\..\..\include\Ice\ObjectF.h"\
 	"..\..\..\include\Ice\Outgoing.h"\
+	"..\..\..\include\Ice\Properties.h"\
+	"..\..\..\include\Ice\PropertiesF.h"\
 	"..\..\..\include\Ice\Proxy.h"\
 	"..\..\..\include\Ice\ProxyF.h"\
 	"..\..\..\include\Ice\ProxyFactoryF.h"\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
+	"..\..\..\include\Ice\RouterF.h"\
 	"..\..\..\include\Ice\ServantManagerF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\Ice\UserExceptionFactory.h"\
 	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
 	"..\..\..\include\IceUtil\Cond.h"\
@@ -701,29 +724,6 @@ DEP_CPP_ALLTE=\
 	"..\..\..\include\IceUtil\StaticMutex.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_ALLTE=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\include\Ice\Communicator.h"\
-	"..\..\..\include\Ice\CommunicatorF.h"\
-	"..\..\..\include\Ice\Connection.h"\
-	"..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\Current.h"\
-	"..\..\..\include\Ice\FacetMap.h"\
-	"..\..\..\include\Ice\Identity.h"\
-	"..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\include\Ice\LocatorF.h"\
-	"..\..\..\include\Ice\Logger.h"\
-	"..\..\..\include\Ice\LoggerF.h"\
-	"..\..\..\include\Ice\ObjectAdapter.h"\
-	"..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\include\Ice\Properties.h"\
-	"..\..\..\include\Ice\PropertiesF.h"\
-	"..\..\..\include\Ice\RouterF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -772,12 +772,16 @@ NODEP_CPP_ALLTE=\
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE ARMV4) Debug Static"
 
 DEP_CPP_ALLTE=\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_ALLTE=\
 	"..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
 	"..\..\..\include\Ice\Connection.h"\
 	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
 	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
@@ -809,6 +813,7 @@ DEP_CPP_ALLTE=\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
 	"..\..\..\include\Ice\RouterF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\IceUtil\Config.h"\
 	"..\..\..\include\IceUtil\Exception.h"\
 	"..\..\..\include\IceUtil\Functional.h"\
@@ -817,22 +822,21 @@ DEP_CPP_ALLTE=\
 	"..\..\..\include\IceUtil\Mutex.h"\
 	"..\..\..\include\IceUtil\Shared.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_ALLTE=\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	
 
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE ARMV4) Release Static"
 
 DEP_CPP_ALLTE=\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_ALLTE=\
 	"..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
 	"..\..\..\include\Ice\Connection.h"\
 	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
 	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
@@ -864,6 +868,7 @@ DEP_CPP_ALLTE=\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
 	"..\..\..\include\Ice\RouterF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\IceUtil\Config.h"\
 	"..\..\..\include\IceUtil\Exception.h"\
 	"..\..\..\include\IceUtil\Functional.h"\
@@ -872,22 +877,22 @@ DEP_CPP_ALLTE=\
 	"..\..\..\include\IceUtil\Mutex.h"\
 	"..\..\..\include\IceUtil\Shared.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_ALLTE=\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	
 
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE emulator) Debug Static"
 
 DEP_CPP_ALLTE=\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_ALLTE=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
 	"..\..\..\include\Ice\Connection.h"\
 	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
 	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
@@ -919,6 +924,7 @@ DEP_CPP_ALLTE=\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
 	"..\..\..\include\Ice\RouterF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\IceUtil\Config.h"\
 	"..\..\..\include\IceUtil\Exception.h"\
 	"..\..\..\include\IceUtil\Functional.h"\
@@ -927,12 +933,6 @@ DEP_CPP_ALLTE=\
 	"..\..\..\include\IceUtil\Mutex.h"\
 	"..\..\..\include\IceUtil\Shared.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_ALLTE=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -980,6 +980,11 @@ NODEP_CPP_ALLTE=\
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE emulator) Release Static"
 
 DEP_CPP_ALLTE=\
+	"..\..\include\TestCommon.h"\
+	".\Test.h"\
+	
+NODEP_CPP_ALLTE=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
 	"..\..\..\include\Ice\BuiltinSequences.h"\
@@ -1045,53 +1050,48 @@ DEP_CPP_ALLTE=\
 	"..\..\..\include\IceUtil\Thread.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	"..\..\include\TestCommon.h"\
-	".\Test.h"\
-	{$(INCLUDE)}"config\_epilog.h"\
-	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
-	{$(INCLUDE)}"config\_prolog.h"\
-	{$(INCLUDE)}"config\stl_apcc.h"\
-	{$(INCLUDE)}"config\stl_apple.h"\
-	{$(INCLUDE)}"config\stl_as400.h"\
-	{$(INCLUDE)}"config\stl_bc.h"\
-	{$(INCLUDE)}"config\stl_como.h"\
-	{$(INCLUDE)}"config\stl_confix.h"\
-	{$(INCLUDE)}"config\stl_cray.h"\
-	{$(INCLUDE)}"config\stl_dec.h"\
-	{$(INCLUDE)}"config\stl_dec_vms.h"\
-	{$(INCLUDE)}"config\stl_dm.h"\
-	{$(INCLUDE)}"config\stl_evc.h"\
-	{$(INCLUDE)}"config\stl_fujitsu.h"\
-	{$(INCLUDE)}"config\stl_gcc.h"\
-	{$(INCLUDE)}"config\stl_hpacc.h"\
-	{$(INCLUDE)}"config\stl_ibm.h"\
-	{$(INCLUDE)}"config\stl_icc.h"\
-	{$(INCLUDE)}"config\stl_intel.h"\
-	{$(INCLUDE)}"config\stl_kai.h"\
-	{$(INCLUDE)}"config\stl_msvc.h"\
-	{$(INCLUDE)}"config\stl_mwerks.h"\
-	{$(INCLUDE)}"config\stl_mycomp.h"\
-	{$(INCLUDE)}"config\stl_sco.h"\
-	{$(INCLUDE)}"config\stl_sgi.h"\
-	{$(INCLUDE)}"config\stl_solaris.h"\
-	{$(INCLUDE)}"config\stl_sunpro.h"\
-	{$(INCLUDE)}"config\stl_symantec.h"\
-	{$(INCLUDE)}"config\stl_watcom.h"\
-	{$(INCLUDE)}"config\stl_wince.h"\
-	{$(INCLUDE)}"config\stlcomp.h"\
-	{$(INCLUDE)}"pthread.h"\
-	{$(INCLUDE)}"stl\_abbrevs.h"\
-	{$(INCLUDE)}"stl\_config.h"\
-	{$(INCLUDE)}"stl\_config_compat.h"\
-	{$(INCLUDE)}"stl\_config_compat_post.h"\
-	{$(INCLUDE)}"stl\_epilog.h"\
-	{$(INCLUDE)}"stl\_prolog.h"\
-	{$(INCLUDE)}"stl\_site_config.h"\
-	{$(INCLUDE)}"stl\_stlport_version.h"\
-	{$(INCLUDE)}"stl_user_config.h"\
-	
-NODEP_CPP_ALLTE=\
-	"..\..\..\..\..\usr\include\pthread.h"\
+	".\onfig\_epilog.h"\
+	".\onfig\_msvc_warnings_off.h"\
+	".\onfig\_prolog.h"\
+	".\onfig\stl_apcc.h"\
+	".\onfig\stl_apple.h"\
+	".\onfig\stl_as400.h"\
+	".\onfig\stl_bc.h"\
+	".\onfig\stl_como.h"\
+	".\onfig\stl_confix.h"\
+	".\onfig\stl_cray.h"\
+	".\onfig\stl_dec.h"\
+	".\onfig\stl_dec_vms.h"\
+	".\onfig\stl_dm.h"\
+	".\onfig\stl_evc.h"\
+	".\onfig\stl_fujitsu.h"\
+	".\onfig\stl_gcc.h"\
+	".\onfig\stl_hpacc.h"\
+	".\onfig\stl_ibm.h"\
+	".\onfig\stl_icc.h"\
+	".\onfig\stl_intel.h"\
+	".\onfig\stl_kai.h"\
+	".\onfig\stl_msvc.h"\
+	".\onfig\stl_mwerks.h"\
+	".\onfig\stl_mycomp.h"\
+	".\onfig\stl_sco.h"\
+	".\onfig\stl_sgi.h"\
+	".\onfig\stl_solaris.h"\
+	".\onfig\stl_sunpro.h"\
+	".\onfig\stl_symantec.h"\
+	".\onfig\stl_watcom.h"\
+	".\onfig\stl_wince.h"\
+	".\onfig\stlcomp.h"\
+	".\thread.h"\
+	".\tl\_abbrevs.h"\
+	".\tl\_config.h"\
+	".\tl\_config_compat.h"\
+	".\tl\_config_compat_post.h"\
+	".\tl\_epilog.h"\
+	".\tl\_prolog.h"\
+	".\tl\_site_config.h"\
+	".\tl\_stlport_version.h"\
+	".\tl_user_config.h"\
 	
 
 !ENDIF 
@@ -1104,33 +1104,57 @@ SOURCE=.\Client.cpp
 !IF  "$(CFG)" == "exceptionsC - Win32 (WCE emulator) Release"
 
 DEP_CPP_CLIEN=\
+	"..\..\include\TestApplication.h"\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_CLIEN=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
+	"..\..\..\include\Ice\BuiltinSequences.h"\
+	"..\..\..\include\Ice\Communicator.h"\
+	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
+	"..\..\..\include\Ice\Connection.h"\
+	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
+	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
+	"..\..\..\include\Ice\FacetMap.h"\
 	"..\..\..\include\Ice\FactoryTable.h"\
 	"..\..\..\include\Ice\FactoryTableDef.h"\
 	"..\..\..\include\Ice\Functional.h"\
 	"..\..\..\include\Ice\Handle.h"\
 	"..\..\..\include\Ice\Ice.h"\
 	"..\..\..\include\Ice\IceEConfig.h"\
+	"..\..\..\include\Ice\Identity.h"\
 	"..\..\..\include\Ice\IdentityUtil.h"\
 	"..\..\..\include\Ice\Incoming.h"\
 	"..\..\..\include\Ice\Initialize.h"\
 	"..\..\..\include\Ice\InstanceF.h"\
+	"..\..\..\include\Ice\LocalException.h"\
 	"..\..\..\include\Ice\LocalObject.h"\
 	"..\..\..\include\Ice\LocalObjectF.h"\
+	"..\..\..\include\Ice\LocatorF.h"\
+	"..\..\..\include\Ice\Logger.h"\
+	"..\..\..\include\Ice\LoggerF.h"\
 	"..\..\..\include\Ice\LoggerUtil.h"\
 	"..\..\..\include\Ice\Object.h"\
+	"..\..\..\include\Ice\ObjectAdapter.h"\
+	"..\..\..\include\Ice\ObjectAdapterF.h"\
 	"..\..\..\include\Ice\ObjectF.h"\
 	"..\..\..\include\Ice\Outgoing.h"\
+	"..\..\..\include\Ice\Properties.h"\
+	"..\..\..\include\Ice\PropertiesF.h"\
 	"..\..\..\include\Ice\Proxy.h"\
 	"..\..\..\include\Ice\ProxyF.h"\
 	"..\..\..\include\Ice\ProxyFactoryF.h"\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
+	"..\..\..\include\Ice\RouterF.h"\
 	"..\..\..\include\Ice\ServantManagerF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\Ice\UserExceptionFactory.h"\
 	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
 	"..\..\..\include\IceUtil\Cond.h"\
@@ -1145,30 +1169,6 @@ DEP_CPP_CLIEN=\
 	"..\..\..\include\IceUtil\StaticMutex.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	"..\..\include\TestApplication.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_CLIEN=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\include\Ice\Communicator.h"\
-	"..\..\..\include\Ice\CommunicatorF.h"\
-	"..\..\..\include\Ice\Connection.h"\
-	"..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\Current.h"\
-	"..\..\..\include\Ice\FacetMap.h"\
-	"..\..\..\include\Ice\Identity.h"\
-	"..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\include\Ice\LocatorF.h"\
-	"..\..\..\include\Ice\Logger.h"\
-	"..\..\..\include\Ice\LoggerF.h"\
-	"..\..\..\include\Ice\ObjectAdapter.h"\
-	"..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\include\Ice\Properties.h"\
-	"..\..\..\include\Ice\PropertiesF.h"\
-	"..\..\..\include\Ice\RouterF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -1217,33 +1217,57 @@ NODEP_CPP_CLIEN=\
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE emulator) Debug"
 
 DEP_CPP_CLIEN=\
+	"..\..\include\TestApplication.h"\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_CLIEN=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
+	"..\..\..\include\Ice\BuiltinSequences.h"\
+	"..\..\..\include\Ice\Communicator.h"\
+	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
+	"..\..\..\include\Ice\Connection.h"\
+	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
+	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
+	"..\..\..\include\Ice\FacetMap.h"\
 	"..\..\..\include\Ice\FactoryTable.h"\
 	"..\..\..\include\Ice\FactoryTableDef.h"\
 	"..\..\..\include\Ice\Functional.h"\
 	"..\..\..\include\Ice\Handle.h"\
 	"..\..\..\include\Ice\Ice.h"\
 	"..\..\..\include\Ice\IceEConfig.h"\
+	"..\..\..\include\Ice\Identity.h"\
 	"..\..\..\include\Ice\IdentityUtil.h"\
 	"..\..\..\include\Ice\Incoming.h"\
 	"..\..\..\include\Ice\Initialize.h"\
 	"..\..\..\include\Ice\InstanceF.h"\
+	"..\..\..\include\Ice\LocalException.h"\
 	"..\..\..\include\Ice\LocalObject.h"\
 	"..\..\..\include\Ice\LocalObjectF.h"\
+	"..\..\..\include\Ice\LocatorF.h"\
+	"..\..\..\include\Ice\Logger.h"\
+	"..\..\..\include\Ice\LoggerF.h"\
 	"..\..\..\include\Ice\LoggerUtil.h"\
 	"..\..\..\include\Ice\Object.h"\
+	"..\..\..\include\Ice\ObjectAdapter.h"\
+	"..\..\..\include\Ice\ObjectAdapterF.h"\
 	"..\..\..\include\Ice\ObjectF.h"\
 	"..\..\..\include\Ice\Outgoing.h"\
+	"..\..\..\include\Ice\Properties.h"\
+	"..\..\..\include\Ice\PropertiesF.h"\
 	"..\..\..\include\Ice\Proxy.h"\
 	"..\..\..\include\Ice\ProxyF.h"\
 	"..\..\..\include\Ice\ProxyFactoryF.h"\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
+	"..\..\..\include\Ice\RouterF.h"\
 	"..\..\..\include\Ice\ServantManagerF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\Ice\UserExceptionFactory.h"\
 	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
 	"..\..\..\include\IceUtil\Cond.h"\
@@ -1258,30 +1282,6 @@ DEP_CPP_CLIEN=\
 	"..\..\..\include\IceUtil\StaticMutex.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	"..\..\include\TestApplication.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_CLIEN=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\include\Ice\Communicator.h"\
-	"..\..\..\include\Ice\CommunicatorF.h"\
-	"..\..\..\include\Ice\Connection.h"\
-	"..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\Current.h"\
-	"..\..\..\include\Ice\FacetMap.h"\
-	"..\..\..\include\Ice\Identity.h"\
-	"..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\include\Ice\LocatorF.h"\
-	"..\..\..\include\Ice\Logger.h"\
-	"..\..\..\include\Ice\LoggerF.h"\
-	"..\..\..\include\Ice\ObjectAdapter.h"\
-	"..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\include\Ice\Properties.h"\
-	"..\..\..\include\Ice\PropertiesF.h"\
-	"..\..\..\include\Ice\RouterF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -1330,33 +1330,57 @@ NODEP_CPP_CLIEN=\
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE ARMV4) Release"
 
 DEP_CPP_CLIEN=\
+	"..\..\include\TestApplication.h"\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_CLIEN=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
+	"..\..\..\include\Ice\BuiltinSequences.h"\
+	"..\..\..\include\Ice\Communicator.h"\
+	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
+	"..\..\..\include\Ice\Connection.h"\
+	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
+	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
+	"..\..\..\include\Ice\FacetMap.h"\
 	"..\..\..\include\Ice\FactoryTable.h"\
 	"..\..\..\include\Ice\FactoryTableDef.h"\
 	"..\..\..\include\Ice\Functional.h"\
 	"..\..\..\include\Ice\Handle.h"\
 	"..\..\..\include\Ice\Ice.h"\
 	"..\..\..\include\Ice\IceEConfig.h"\
+	"..\..\..\include\Ice\Identity.h"\
 	"..\..\..\include\Ice\IdentityUtil.h"\
 	"..\..\..\include\Ice\Incoming.h"\
 	"..\..\..\include\Ice\Initialize.h"\
 	"..\..\..\include\Ice\InstanceF.h"\
+	"..\..\..\include\Ice\LocalException.h"\
 	"..\..\..\include\Ice\LocalObject.h"\
 	"..\..\..\include\Ice\LocalObjectF.h"\
+	"..\..\..\include\Ice\LocatorF.h"\
+	"..\..\..\include\Ice\Logger.h"\
+	"..\..\..\include\Ice\LoggerF.h"\
 	"..\..\..\include\Ice\LoggerUtil.h"\
 	"..\..\..\include\Ice\Object.h"\
+	"..\..\..\include\Ice\ObjectAdapter.h"\
+	"..\..\..\include\Ice\ObjectAdapterF.h"\
 	"..\..\..\include\Ice\ObjectF.h"\
 	"..\..\..\include\Ice\Outgoing.h"\
+	"..\..\..\include\Ice\Properties.h"\
+	"..\..\..\include\Ice\PropertiesF.h"\
 	"..\..\..\include\Ice\Proxy.h"\
 	"..\..\..\include\Ice\ProxyF.h"\
 	"..\..\..\include\Ice\ProxyFactoryF.h"\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
+	"..\..\..\include\Ice\RouterF.h"\
 	"..\..\..\include\Ice\ServantManagerF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\Ice\UserExceptionFactory.h"\
 	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
 	"..\..\..\include\IceUtil\Cond.h"\
@@ -1371,30 +1395,6 @@ DEP_CPP_CLIEN=\
 	"..\..\..\include\IceUtil\StaticMutex.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	"..\..\include\TestApplication.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_CLIEN=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\include\Ice\Communicator.h"\
-	"..\..\..\include\Ice\CommunicatorF.h"\
-	"..\..\..\include\Ice\Connection.h"\
-	"..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\Current.h"\
-	"..\..\..\include\Ice\FacetMap.h"\
-	"..\..\..\include\Ice\Identity.h"\
-	"..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\include\Ice\LocatorF.h"\
-	"..\..\..\include\Ice\Logger.h"\
-	"..\..\..\include\Ice\LoggerF.h"\
-	"..\..\..\include\Ice\ObjectAdapter.h"\
-	"..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\include\Ice\Properties.h"\
-	"..\..\..\include\Ice\PropertiesF.h"\
-	"..\..\..\include\Ice\RouterF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -1443,33 +1443,57 @@ NODEP_CPP_CLIEN=\
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CLIEN=\
+	"..\..\include\TestApplication.h"\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_CLIEN=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
+	"..\..\..\include\Ice\BuiltinSequences.h"\
+	"..\..\..\include\Ice\Communicator.h"\
+	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
+	"..\..\..\include\Ice\Connection.h"\
+	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
+	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
+	"..\..\..\include\Ice\FacetMap.h"\
 	"..\..\..\include\Ice\FactoryTable.h"\
 	"..\..\..\include\Ice\FactoryTableDef.h"\
 	"..\..\..\include\Ice\Functional.h"\
 	"..\..\..\include\Ice\Handle.h"\
 	"..\..\..\include\Ice\Ice.h"\
 	"..\..\..\include\Ice\IceEConfig.h"\
+	"..\..\..\include\Ice\Identity.h"\
 	"..\..\..\include\Ice\IdentityUtil.h"\
 	"..\..\..\include\Ice\Incoming.h"\
 	"..\..\..\include\Ice\Initialize.h"\
 	"..\..\..\include\Ice\InstanceF.h"\
+	"..\..\..\include\Ice\LocalException.h"\
 	"..\..\..\include\Ice\LocalObject.h"\
 	"..\..\..\include\Ice\LocalObjectF.h"\
+	"..\..\..\include\Ice\LocatorF.h"\
+	"..\..\..\include\Ice\Logger.h"\
+	"..\..\..\include\Ice\LoggerF.h"\
 	"..\..\..\include\Ice\LoggerUtil.h"\
 	"..\..\..\include\Ice\Object.h"\
+	"..\..\..\include\Ice\ObjectAdapter.h"\
+	"..\..\..\include\Ice\ObjectAdapterF.h"\
 	"..\..\..\include\Ice\ObjectF.h"\
 	"..\..\..\include\Ice\Outgoing.h"\
+	"..\..\..\include\Ice\Properties.h"\
+	"..\..\..\include\Ice\PropertiesF.h"\
 	"..\..\..\include\Ice\Proxy.h"\
 	"..\..\..\include\Ice\ProxyF.h"\
 	"..\..\..\include\Ice\ProxyFactoryF.h"\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
+	"..\..\..\include\Ice\RouterF.h"\
 	"..\..\..\include\Ice\ServantManagerF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\Ice\UserExceptionFactory.h"\
 	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
 	"..\..\..\include\IceUtil\Cond.h"\
@@ -1484,30 +1508,6 @@ DEP_CPP_CLIEN=\
 	"..\..\..\include\IceUtil\StaticMutex.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	"..\..\include\TestApplication.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_CLIEN=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\include\Ice\Communicator.h"\
-	"..\..\..\include\Ice\CommunicatorF.h"\
-	"..\..\..\include\Ice\Connection.h"\
-	"..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\Current.h"\
-	"..\..\..\include\Ice\FacetMap.h"\
-	"..\..\..\include\Ice\Identity.h"\
-	"..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\include\Ice\LocatorF.h"\
-	"..\..\..\include\Ice\Logger.h"\
-	"..\..\..\include\Ice\LoggerF.h"\
-	"..\..\..\include\Ice\ObjectAdapter.h"\
-	"..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\include\Ice\Properties.h"\
-	"..\..\..\include\Ice\PropertiesF.h"\
-	"..\..\..\include\Ice\RouterF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -1556,12 +1556,17 @@ NODEP_CPP_CLIEN=\
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE ARMV4) Debug Static"
 
 DEP_CPP_CLIEN=\
+	"..\..\include\TestApplication.h"\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_CLIEN=\
 	"..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
 	"..\..\..\include\Ice\Connection.h"\
 	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
 	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
@@ -1593,6 +1598,7 @@ DEP_CPP_CLIEN=\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
 	"..\..\..\include\Ice\RouterF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\IceUtil\Config.h"\
 	"..\..\..\include\IceUtil\Exception.h"\
 	"..\..\..\include\IceUtil\Functional.h"\
@@ -1601,23 +1607,22 @@ DEP_CPP_CLIEN=\
 	"..\..\..\include\IceUtil\Mutex.h"\
 	"..\..\..\include\IceUtil\Shared.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\include\TestApplication.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_CLIEN=\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	
 
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE ARMV4) Release Static"
 
 DEP_CPP_CLIEN=\
+	"..\..\include\TestApplication.h"\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_CLIEN=\
 	"..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
 	"..\..\..\include\Ice\Connection.h"\
 	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
 	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
@@ -1649,6 +1654,7 @@ DEP_CPP_CLIEN=\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
 	"..\..\..\include\Ice\RouterF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\IceUtil\Config.h"\
 	"..\..\..\include\IceUtil\Exception.h"\
 	"..\..\..\include\IceUtil\Functional.h"\
@@ -1657,23 +1663,23 @@ DEP_CPP_CLIEN=\
 	"..\..\..\include\IceUtil\Mutex.h"\
 	"..\..\..\include\IceUtil\Shared.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\include\TestApplication.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_CLIEN=\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	
 
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE emulator) Debug Static"
 
 DEP_CPP_CLIEN=\
+	"..\..\include\TestApplication.h"\
+	"..\..\include\TestCommon.h"\
+	
+NODEP_CPP_CLIEN=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\include\Ice\CommunicatorF.h"\
 	"..\..\..\include\Ice\Config.h"\
 	"..\..\..\include\Ice\Connection.h"\
 	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
 	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
@@ -1705,6 +1711,7 @@ DEP_CPP_CLIEN=\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
 	"..\..\..\include\Ice\RouterF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\IceUtil\Config.h"\
 	"..\..\..\include\IceUtil\Exception.h"\
 	"..\..\..\include\IceUtil\Functional.h"\
@@ -1713,13 +1720,6 @@ DEP_CPP_CLIEN=\
 	"..\..\..\include\IceUtil\Mutex.h"\
 	"..\..\..\include\IceUtil\Shared.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\include\TestApplication.h"\
-	"..\..\include\TestCommon.h"\
-	
-NODEP_CPP_CLIEN=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -1767,6 +1767,12 @@ NODEP_CPP_CLIEN=\
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE emulator) Release Static"
 
 DEP_CPP_CLIEN=\
+	"..\..\include\TestApplication.h"\
+	"..\..\include\TestCommon.h"\
+	".\Test.h"\
+	
+NODEP_CPP_CLIEN=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
 	"..\..\..\include\Ice\BuiltinSequences.h"\
@@ -1832,8 +1838,100 @@ DEP_CPP_CLIEN=\
 	"..\..\..\include\IceUtil\Thread.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	"..\..\include\TestApplication.h"\
-	"..\..\include\TestCommon.h"\
+	".\onfig\_epilog.h"\
+	".\onfig\_msvc_warnings_off.h"\
+	".\onfig\_prolog.h"\
+	".\onfig\stl_apcc.h"\
+	".\onfig\stl_apple.h"\
+	".\onfig\stl_as400.h"\
+	".\onfig\stl_bc.h"\
+	".\onfig\stl_como.h"\
+	".\onfig\stl_confix.h"\
+	".\onfig\stl_cray.h"\
+	".\onfig\stl_dec.h"\
+	".\onfig\stl_dec_vms.h"\
+	".\onfig\stl_dm.h"\
+	".\onfig\stl_evc.h"\
+	".\onfig\stl_fujitsu.h"\
+	".\onfig\stl_gcc.h"\
+	".\onfig\stl_hpacc.h"\
+	".\onfig\stl_ibm.h"\
+	".\onfig\stl_icc.h"\
+	".\onfig\stl_intel.h"\
+	".\onfig\stl_kai.h"\
+	".\onfig\stl_msvc.h"\
+	".\onfig\stl_mwerks.h"\
+	".\onfig\stl_mycomp.h"\
+	".\onfig\stl_sco.h"\
+	".\onfig\stl_sgi.h"\
+	".\onfig\stl_solaris.h"\
+	".\onfig\stl_sunpro.h"\
+	".\onfig\stl_symantec.h"\
+	".\onfig\stl_watcom.h"\
+	".\onfig\stl_wince.h"\
+	".\onfig\stlcomp.h"\
+	".\thread.h"\
+	".\tl\_abbrevs.h"\
+	".\tl\_config.h"\
+	".\tl\_config_compat.h"\
+	".\tl\_config_compat_post.h"\
+	".\tl\_epilog.h"\
+	".\tl\_prolog.h"\
+	".\tl\_site_config.h"\
+	".\tl\_stlport_version.h"\
+	".\tl_user_config.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Test.cpp
+
+!IF  "$(CFG)" == "exceptionsC - Win32 (WCE emulator) Release"
+
+DEP_CPP_TEST_=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\icee\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\icee\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalException.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
 	".\Test.h"\
 	{$(INCLUDE)}"config\_epilog.h"\
 	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
@@ -1878,397 +1976,205 @@ DEP_CPP_CLIEN=\
 	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
-NODEP_CPP_CLIEN=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\Test.cpp
-
-!IF  "$(CFG)" == "exceptionsC - Win32 (WCE emulator) Release"
-
-DEP_CPP_TEST_=\
-	"..\..\..\include\Ice\BasicStream.h"\
-	"..\..\..\include\Ice\Buffer.h"\
-	"..\..\..\include\Ice\Config.h"\
-	"..\..\..\include\Ice\EndpointF.h"\
-	"..\..\..\include\Ice\Exception.h"\
-	"..\..\..\include\Ice\FactoryTable.h"\
-	"..\..\..\include\Ice\FactoryTableDef.h"\
-	"..\..\..\include\Ice\Handle.h"\
-	"..\..\..\include\Ice\Incoming.h"\
-	"..\..\..\include\Ice\InstanceF.h"\
-	"..\..\..\include\Ice\LocalObject.h"\
-	"..\..\..\include\Ice\LocalObjectF.h"\
-	"..\..\..\include\Ice\Object.h"\
-	"..\..\..\include\Ice\ObjectF.h"\
-	"..\..\..\include\Ice\Outgoing.h"\
-	"..\..\..\include\Ice\Proxy.h"\
-	"..\..\..\include\Ice\ProxyF.h"\
-	"..\..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\..\include\Ice\ProxyHandle.h"\
-	"..\..\..\include\Ice\ReferenceF.h"\
-	"..\..\..\include\Ice\ServantManagerF.h"\
-	"..\..\..\include\Ice\UserExceptionFactory.h"\
-	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
-	"..\..\..\include\IceUtil\Cond.h"\
-	"..\..\..\include\IceUtil\Config.h"\
-	"..\..\..\include\IceUtil\Exception.h"\
-	"..\..\..\include\IceUtil\Handle.h"\
-	"..\..\..\include\IceUtil\Lock.h"\
-	"..\..\..\include\IceUtil\Monitor.h"\
-	"..\..\..\include\IceUtil\Mutex.h"\
-	"..\..\..\include\IceUtil\Shared.h"\
-	"..\..\..\include\IceUtil\StaticMutex.h"\
-	"..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\..\include\IceUtil\Time.h"\
-	
 NODEP_CPP_TEST_=\
 	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\Current.h"\
-	"..\..\..\include\Ice\Identity.h"\
-	"..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\Test.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
 	
 
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE emulator) Debug"
 
 DEP_CPP_TEST_=\
-	"..\..\..\include\Ice\BasicStream.h"\
-	"..\..\..\include\Ice\Buffer.h"\
-	"..\..\..\include\Ice\Config.h"\
-	"..\..\..\include\Ice\EndpointF.h"\
-	"..\..\..\include\Ice\Exception.h"\
-	"..\..\..\include\Ice\FactoryTable.h"\
-	"..\..\..\include\Ice\FactoryTableDef.h"\
-	"..\..\..\include\Ice\Handle.h"\
-	"..\..\..\include\Ice\Incoming.h"\
-	"..\..\..\include\Ice\InstanceF.h"\
-	"..\..\..\include\Ice\LocalObject.h"\
-	"..\..\..\include\Ice\LocalObjectF.h"\
-	"..\..\..\include\Ice\Object.h"\
-	"..\..\..\include\Ice\ObjectF.h"\
-	"..\..\..\include\Ice\Outgoing.h"\
-	"..\..\..\include\Ice\Proxy.h"\
-	"..\..\..\include\Ice\ProxyF.h"\
-	"..\..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\..\include\Ice\ProxyHandle.h"\
-	"..\..\..\include\Ice\ReferenceF.h"\
-	"..\..\..\include\Ice\ServantManagerF.h"\
-	"..\..\..\include\Ice\UserExceptionFactory.h"\
-	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
-	"..\..\..\include\IceUtil\Cond.h"\
-	"..\..\..\include\IceUtil\Config.h"\
-	"..\..\..\include\IceUtil\Exception.h"\
-	"..\..\..\include\IceUtil\Handle.h"\
-	"..\..\..\include\IceUtil\Lock.h"\
-	"..\..\..\include\IceUtil\Monitor.h"\
-	"..\..\..\include\IceUtil\Mutex.h"\
-	"..\..\..\include\IceUtil\Shared.h"\
-	"..\..\..\include\IceUtil\StaticMutex.h"\
-	"..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\..\include\IceUtil\Time.h"\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\icee\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\icee\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalException.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Test.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_TEST_=\
 	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\Current.h"\
-	"..\..\..\include\Ice\Identity.h"\
-	"..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\Test.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
 	
 
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE ARMV4) Release"
 
 DEP_CPP_TEST_=\
-	"..\..\..\include\Ice\BasicStream.h"\
-	"..\..\..\include\Ice\Buffer.h"\
-	"..\..\..\include\Ice\Config.h"\
-	"..\..\..\include\Ice\EndpointF.h"\
-	"..\..\..\include\Ice\Exception.h"\
-	"..\..\..\include\Ice\FactoryTable.h"\
-	"..\..\..\include\Ice\FactoryTableDef.h"\
-	"..\..\..\include\Ice\Handle.h"\
-	"..\..\..\include\Ice\Incoming.h"\
-	"..\..\..\include\Ice\InstanceF.h"\
-	"..\..\..\include\Ice\LocalObject.h"\
-	"..\..\..\include\Ice\LocalObjectF.h"\
-	"..\..\..\include\Ice\Object.h"\
-	"..\..\..\include\Ice\ObjectF.h"\
-	"..\..\..\include\Ice\Outgoing.h"\
-	"..\..\..\include\Ice\Proxy.h"\
-	"..\..\..\include\Ice\ProxyF.h"\
-	"..\..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\..\include\Ice\ProxyHandle.h"\
-	"..\..\..\include\Ice\ReferenceF.h"\
-	"..\..\..\include\Ice\ServantManagerF.h"\
-	"..\..\..\include\Ice\UserExceptionFactory.h"\
-	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
-	"..\..\..\include\IceUtil\Cond.h"\
-	"..\..\..\include\IceUtil\Config.h"\
-	"..\..\..\include\IceUtil\Exception.h"\
-	"..\..\..\include\IceUtil\Handle.h"\
-	"..\..\..\include\IceUtil\Lock.h"\
-	"..\..\..\include\IceUtil\Monitor.h"\
-	"..\..\..\include\IceUtil\Mutex.h"\
-	"..\..\..\include\IceUtil\Shared.h"\
-	"..\..\..\include\IceUtil\StaticMutex.h"\
-	"..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\..\include\IceUtil\Time.h"\
-	
-NODEP_CPP_TEST_=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\Current.h"\
-	"..\..\..\include\Ice\Identity.h"\
-	"..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\icee\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\icee\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalException.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
 	".\Test.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
 	
 
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TEST_=\
-	"..\..\..\include\Ice\BasicStream.h"\
-	"..\..\..\include\Ice\Buffer.h"\
-	"..\..\..\include\Ice\Config.h"\
-	"..\..\..\include\Ice\EndpointF.h"\
-	"..\..\..\include\Ice\Exception.h"\
-	"..\..\..\include\Ice\FactoryTable.h"\
-	"..\..\..\include\Ice\FactoryTableDef.h"\
-	"..\..\..\include\Ice\Handle.h"\
-	"..\..\..\include\Ice\Incoming.h"\
-	"..\..\..\include\Ice\InstanceF.h"\
-	"..\..\..\include\Ice\LocalObject.h"\
-	"..\..\..\include\Ice\LocalObjectF.h"\
-	"..\..\..\include\Ice\Object.h"\
-	"..\..\..\include\Ice\ObjectF.h"\
-	"..\..\..\include\Ice\Outgoing.h"\
-	"..\..\..\include\Ice\Proxy.h"\
-	"..\..\..\include\Ice\ProxyF.h"\
-	"..\..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\..\include\Ice\ProxyHandle.h"\
-	"..\..\..\include\Ice\ReferenceF.h"\
-	"..\..\..\include\Ice\ServantManagerF.h"\
-	"..\..\..\include\Ice\UserExceptionFactory.h"\
-	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
-	"..\..\..\include\IceUtil\Cond.h"\
-	"..\..\..\include\IceUtil\Config.h"\
-	"..\..\..\include\IceUtil\Exception.h"\
-	"..\..\..\include\IceUtil\Handle.h"\
-	"..\..\..\include\IceUtil\Lock.h"\
-	"..\..\..\include\IceUtil\Monitor.h"\
-	"..\..\..\include\IceUtil\Mutex.h"\
-	"..\..\..\include\IceUtil\Shared.h"\
-	"..\..\..\include\IceUtil\StaticMutex.h"\
-	"..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\..\include\IceUtil\Time.h"\
-	
-NODEP_CPP_TEST_=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\Current.h"\
-	"..\..\..\include\Ice\Identity.h"\
-	"..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\icee\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\icee\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalException.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
 	".\Test.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
 	
 
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE ARMV4) Debug Static"
 
 DEP_CPP_TEST_=\
+	".\Test.h"\
+	
+NODEP_CPP_TEST_=\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
 	"..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\include\Ice\Config.h"\
 	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
 	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
@@ -2291,6 +2197,7 @@ DEP_CPP_TEST_=\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
 	"..\..\..\include\Ice\ServantManagerF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\Ice\UserExceptionFactory.h"\
 	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
 	"..\..\..\include\IceUtil\Cond.h"\
@@ -2304,21 +2211,20 @@ DEP_CPP_TEST_=\
 	"..\..\..\include\IceUtil\StaticMutex.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	".\Test.h"\
-	
-NODEP_CPP_TEST_=\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	
 
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE ARMV4) Release Static"
 
 DEP_CPP_TEST_=\
+	".\Test.h"\
+	
+NODEP_CPP_TEST_=\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
 	"..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\include\Ice\Config.h"\
 	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
 	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
@@ -2341,6 +2247,7 @@ DEP_CPP_TEST_=\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
 	"..\..\..\include\Ice\ServantManagerF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\Ice\UserExceptionFactory.h"\
 	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
 	"..\..\..\include\IceUtil\Cond.h"\
@@ -2354,21 +2261,21 @@ DEP_CPP_TEST_=\
 	"..\..\..\include\IceUtil\StaticMutex.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	".\Test.h"\
-	
-NODEP_CPP_TEST_=\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	
 
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE emulator) Debug Static"
 
 DEP_CPP_TEST_=\
+	".\Test.h"\
+	
+NODEP_CPP_TEST_=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
 	"..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\include\Ice\Config.h"\
 	"..\..\..\include\Ice\ConnectionF.h"\
+	"..\..\..\include\Ice\ConnectionIF.h"\
 	"..\..\..\include\Ice\Current.h"\
 	"..\..\..\include\Ice\EndpointF.h"\
 	"..\..\..\include\Ice\Exception.h"\
@@ -2391,6 +2298,7 @@ DEP_CPP_TEST_=\
 	"..\..\..\include\Ice\ProxyHandle.h"\
 	"..\..\..\include\Ice\ReferenceF.h"\
 	"..\..\..\include\Ice\ServantManagerF.h"\
+	"..\..\..\include\Ice\UserConfig.h"\
 	"..\..\..\include\Ice\UserExceptionFactory.h"\
 	"..\..\..\include\Ice\UserExceptionFactoryF.h"\
 	"..\..\..\include\IceUtil\Cond.h"\
@@ -2404,12 +2312,6 @@ DEP_CPP_TEST_=\
 	"..\..\..\include\IceUtil\StaticMutex.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	".\Test.h"\
-	
-NODEP_CPP_TEST_=\
-	"..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\include\Ice\UserConfig.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -2457,6 +2359,10 @@ NODEP_CPP_TEST_=\
 !ELSEIF  "$(CFG)" == "exceptionsC - Win32 (WCE emulator) Release Static"
 
 DEP_CPP_TEST_=\
+	".\Test.h"\
+	
+NODEP_CPP_TEST_=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\include\Ice\Buffer.h"\
 	"..\..\..\include\Ice\BuiltinSequences.h"\
@@ -2499,52 +2405,48 @@ DEP_CPP_TEST_=\
 	"..\..\..\include\IceUtil\StaticMutex.h"\
 	"..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\include\IceUtil\Time.h"\
-	".\Test.h"\
-	{$(INCLUDE)}"config\_epilog.h"\
-	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
-	{$(INCLUDE)}"config\_prolog.h"\
-	{$(INCLUDE)}"config\stl_apcc.h"\
-	{$(INCLUDE)}"config\stl_apple.h"\
-	{$(INCLUDE)}"config\stl_as400.h"\
-	{$(INCLUDE)}"config\stl_bc.h"\
-	{$(INCLUDE)}"config\stl_como.h"\
-	{$(INCLUDE)}"config\stl_confix.h"\
-	{$(INCLUDE)}"config\stl_cray.h"\
-	{$(INCLUDE)}"config\stl_dec.h"\
-	{$(INCLUDE)}"config\stl_dec_vms.h"\
-	{$(INCLUDE)}"config\stl_dm.h"\
-	{$(INCLUDE)}"config\stl_evc.h"\
-	{$(INCLUDE)}"config\stl_fujitsu.h"\
-	{$(INCLUDE)}"config\stl_gcc.h"\
-	{$(INCLUDE)}"config\stl_hpacc.h"\
-	{$(INCLUDE)}"config\stl_ibm.h"\
-	{$(INCLUDE)}"config\stl_icc.h"\
-	{$(INCLUDE)}"config\stl_intel.h"\
-	{$(INCLUDE)}"config\stl_kai.h"\
-	{$(INCLUDE)}"config\stl_msvc.h"\
-	{$(INCLUDE)}"config\stl_mwerks.h"\
-	{$(INCLUDE)}"config\stl_mycomp.h"\
-	{$(INCLUDE)}"config\stl_sco.h"\
-	{$(INCLUDE)}"config\stl_sgi.h"\
-	{$(INCLUDE)}"config\stl_solaris.h"\
-	{$(INCLUDE)}"config\stl_sunpro.h"\
-	{$(INCLUDE)}"config\stl_symantec.h"\
-	{$(INCLUDE)}"config\stl_watcom.h"\
-	{$(INCLUDE)}"config\stl_wince.h"\
-	{$(INCLUDE)}"config\stlcomp.h"\
-	{$(INCLUDE)}"pthread.h"\
-	{$(INCLUDE)}"stl\_abbrevs.h"\
-	{$(INCLUDE)}"stl\_config.h"\
-	{$(INCLUDE)}"stl\_config_compat.h"\
-	{$(INCLUDE)}"stl\_config_compat_post.h"\
-	{$(INCLUDE)}"stl\_epilog.h"\
-	{$(INCLUDE)}"stl\_prolog.h"\
-	{$(INCLUDE)}"stl\_site_config.h"\
-	{$(INCLUDE)}"stl\_stlport_version.h"\
-	{$(INCLUDE)}"stl_user_config.h"\
-	
-NODEP_CPP_TEST_=\
-	"..\..\..\..\..\usr\include\pthread.h"\
+	".\onfig\_epilog.h"\
+	".\onfig\_msvc_warnings_off.h"\
+	".\onfig\_prolog.h"\
+	".\onfig\stl_apcc.h"\
+	".\onfig\stl_apple.h"\
+	".\onfig\stl_as400.h"\
+	".\onfig\stl_bc.h"\
+	".\onfig\stl_como.h"\
+	".\onfig\stl_confix.h"\
+	".\onfig\stl_cray.h"\
+	".\onfig\stl_dec.h"\
+	".\onfig\stl_dec_vms.h"\
+	".\onfig\stl_dm.h"\
+	".\onfig\stl_evc.h"\
+	".\onfig\stl_fujitsu.h"\
+	".\onfig\stl_gcc.h"\
+	".\onfig\stl_hpacc.h"\
+	".\onfig\stl_ibm.h"\
+	".\onfig\stl_icc.h"\
+	".\onfig\stl_intel.h"\
+	".\onfig\stl_kai.h"\
+	".\onfig\stl_msvc.h"\
+	".\onfig\stl_mwerks.h"\
+	".\onfig\stl_mycomp.h"\
+	".\onfig\stl_sco.h"\
+	".\onfig\stl_sgi.h"\
+	".\onfig\stl_solaris.h"\
+	".\onfig\stl_sunpro.h"\
+	".\onfig\stl_symantec.h"\
+	".\onfig\stl_watcom.h"\
+	".\onfig\stl_wince.h"\
+	".\onfig\stlcomp.h"\
+	".\thread.h"\
+	".\tl\_abbrevs.h"\
+	".\tl\_config.h"\
+	".\tl\_config_compat.h"\
+	".\tl\_config_compat_post.h"\
+	".\tl\_epilog.h"\
+	".\tl\_prolog.h"\
+	".\tl\_site_config.h"\
+	".\tl\_stlport_version.h"\
+	".\tl_user_config.h"\
 	
 
 !ENDIF 
@@ -2572,7 +2474,7 @@ SOURCE=.\Test.ice
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Test.ice
+	slice2cppe.exe Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2587,7 +2489,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Test.ice
+	slice2cppe.exe Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2602,7 +2504,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Test.ice
+	slice2cppe.exe Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2617,7 +2519,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Test.ice
+	slice2cppe.exe Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2632,7 +2534,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Test.ice
+	slice2cppe.exe Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2647,7 +2549,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Test.ice
+	slice2cppe.exe Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2662,7 +2564,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Test.ice
+	slice2cppe.exe Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2677,7 +2579,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Test.ice
+	slice2cppe.exe Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

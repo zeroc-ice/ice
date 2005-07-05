@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceE/IceE.h>
+#include <IceE/StaticMutex.h>
 
 #include <StaticMutexTest.h>
 #include <TestCommon.h>

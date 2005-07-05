@@ -3,7 +3,7 @@ Microsoft eMbedded Visual Tools Workspace File, Format Version 4.00
 
 ###############################################################################
 
-Project: "exceptionsC"=.\test\Ice\exceptions\exceptionsC.vcp - Package Owner=<4>
+Project: "exceptionsC"=.\test\IceE\exceptions\exceptionsC.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -21,7 +21,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "exceptionsCOL"=.\test\Ice\exceptions\exceptionsCOL.vcp - Package Owner=<4>
+Project: "exceptionsCOL"=.\test\IceE\exceptions\exceptionsCOL.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -39,28 +39,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "exceptionsS"=.\test\Ice\exceptions\exceptionsS.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name testCommon
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name tcp
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "facetsC"=.\test\Ice\facets\facetsC.vcp - Package Owner=<4>
+Project: "exceptionsS"=.\test\IceE\exceptions\exceptionsS.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -78,7 +57,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "facetsCOL"=.\test\Ice\facets\facetsCOL.vcp - Package Owner=<4>
+Project: "facetsC"=.\test\IceE\facets\facetsC.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -96,7 +75,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "facetsS"=.\test\Ice\facets\facetsS.vcp - Package Owner=<4>
+Project: "facetsCOL"=.\test\IceE\facets\facetsCOL.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -114,31 +93,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "ice"=.\src\Ice\ice.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "icec"=.\src\IceC\icec.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "inheritanceC"=.\test\Ice\inheritance\inheritanceC.vcp - Package Owner=<4>
+Project: "facetsS"=.\test\IceE\facets\facetsS.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -156,7 +111,31 @@ Package=<4>
 
 ###############################################################################
 
-Project: "inheritanceCOL"=.\test\Ice\inheritance\inheritanceCOL.vcp - Package Owner=<4>
+Project: "ice"=.\src\IceE\ice.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "icec"=.\src\IceEC\icec.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "inheritanceC"=.\test\IceE\inheritance\inheritanceC.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -174,7 +153,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "inheritanceS"=.\test\Ice\inheritance\inheritanceS.vcp - Package Owner=<4>
+Project: "inheritanceCOL"=.\test\IceE\inheritance\inheritanceCOL.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -192,7 +171,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "locationC"=.\test\Ice\location\locationC.vcp - Package Owner=<4>
+Project: "inheritanceS"=.\test\IceE\inheritance\inheritanceS.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -210,7 +189,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "locationS"=.\test\Ice\location\locationS.vcp - Package Owner=<4>
+Project: "locationC"=.\test\IceE\location\locationC.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -228,7 +207,25 @@ Package=<4>
 
 ###############################################################################
 
-Project: "mfchelloC"=.\demo\Ice\MFC\client\mfchelloC.vcp - Package Owner=<4>
+Project: "locationS"=.\test\IceE\location\locationS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "mfchelloC"=.\demo\IceE\MFC\client\mfchelloC.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -243,7 +240,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "mfchelloS"=.\demo\Ice\MFC\server\mfchelloS.vcp - Package Owner=<4>
+Project: "mfchelloS"=.\demo\IceE\MFC\server\mfchelloS.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -258,7 +255,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "minimalC"=.\demo\Ice\minimal\minimalC.vcp - Package Owner=<4>
+Project: "minimalC"=.\demo\IceE\minimal\minimalC.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -273,7 +270,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "minimalS"=.\demo\Ice\minimal\minimalS.vcp - Package Owner=<4>
+Project: "minimalS"=.\demo\IceE\minimal\minimalS.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -288,46 +285,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "operationsC"=.\test\Ice\operations\operationsC.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name testCommon
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "operationsCOL"=.\test\Ice\operations\operationsCOL.vcp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name testCommon
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name tcp
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "operationsS"=.\test\Ice\operations\operationsS.vcp - Package Owner=<4>
+Project: "operationsC"=.\test\IceE\operations\operationsC.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -345,7 +303,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sliceexC"=.\test\Ice\slicing\exceptions\sliceexC.vcp - Package Owner=<4>
+Project: "operationsCOL"=.\test\IceE\operations\operationsCOL.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -359,14 +317,47 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name testCommon
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "operationsS"=.\test\IceE\operations\operationsS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
     Begin Project Dependency
-    Project_Dep_Name tcp
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "sliceexS"=.\test\Ice\slicing\exceptions\sliceexS.vcp - Package Owner=<4>
+Project: "sliceexC"=.\test\IceE\slicing\sliceexC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "sliceexS"=.\test\IceE\slicing\sliceexS.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -399,7 +390,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "thread"=.\test\IceUtil\thread\thread.vcp - Package Owner=<4>
+Project: "thread"=.\test\IceE\thread\thread.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -417,7 +408,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "uuid"=.\test\IceUtil\uuid\uuid.vcp - Package Owner=<4>
+Project: "uuid"=.\test\IceE\uuid\uuid.vcp - Package Owner=<4>
 
 Package=<5>
 {{{
