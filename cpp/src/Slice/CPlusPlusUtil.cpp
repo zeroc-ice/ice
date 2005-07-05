@@ -101,51 +101,64 @@ Slice::printHeader(Output& out, bool icee)
 void
 Slice::printVersionCheck(Output& out, bool icee)
 {
-    out << "\n";
-    out << "\n#ifndef ICE_IGNORE_VERSION";
-    out << "\n#   if ICE_INT_VERSION / 100 != ";
     if(icee)
     {
-        out << ICEE_INT_VERSION / 100;
+        out << "\n";
+        out << "\n#ifndef ICEE_IGNORE_VERSION";
+        out << "\n#   if ICEE_INT_VERSION / 100 != " << ICEE_INT_VERSION / 100;
+        out << "\n#       error IceE version mismatch!";
+        out << "\n#   endif";
+        out << "\n#   if ICEE_INT_VERSION % 100 < " << ICEE_INT_VERSION % 100;
+        out << "\n#       error IceE patch level mismatch!";
+        out << "\n#   endif";
+        out << "\n#endif";
     }
     else
     {
-        out << ICE_INT_VERSION / 100;
+        out << "\n";
+        out << "\n#ifndef ICE_IGNORE_VERSION";
+        out << "\n#   if ICE_INT_VERSION / 100 != " << ICE_INT_VERSION / 100;
+        out << "\n#       error Ice version mismatch!";
+        out << "\n#   endif";
+        out << "\n#   if ICE_INT_VERSION % 100 < " << ICE_INT_VERSION % 100;
+        out << "\n#       error Ice patch level mismatch!";
+        out << "\n#   endif";
+        out << "\n#endif";
     }
-    out << "\n#       error Ice version mismatch!";
-    out << "\n#   endif";
-    out << "\n#   if ICE_INT_VERSION % 100 < ";
-    if(icee)
-    {
-        out << ICEE_INT_VERSION % 100;
-    }
-    else
-    {
-        out << ICE_INT_VERSION % 100;
-    }
-    out << "\n#       error Ice patch level mismatch!";
-    out << "\n#   endif";
-    out << "\n#endif";
 }
 
 void
-Slice::printDllExportStuff(Output& out, const string& dllExport)
+Slice::printDllExportStuff(Output& out, const string& dllExport, bool icee)
 {
     if(dllExport.size())
     {
-	out << sp;
-	out << "\n#ifndef " << dllExport;
-	out << "\n#   ifdef " << dllExport << "_EXPORTS";
-	out << "\n#       define " << dllExport << " ICE_DECLSPEC_EXPORT";
-	out << "\n#   else";
-	out << "\n#       define " << dllExport << " ICE_DECLSPEC_IMPORT";
-	out << "\n#   endif";
-	out << "\n#endif";
+    	if(icee)
+	{
+	    out << sp;
+	    out << "\n#ifndef " << dllExport;
+	    out << "\n#   ifdef " << dllExport << "_EXPORTS";
+	    out << "\n#       define " << dllExport << " ICEE_DECLSPEC_EXPORT";
+	    out << "\n#   else";
+	    out << "\n#       define " << dllExport << " ICEE_DECLSPEC_IMPORT";
+	    out << "\n#   endif";
+	    out << "\n#endif";
+	}
+	else
+	{
+	    out << sp;
+	    out << "\n#ifndef " << dllExport;
+	    out << "\n#   ifdef " << dllExport << "_EXPORTS";
+	    out << "\n#       define " << dllExport << " ICE_DECLSPEC_EXPORT";
+	    out << "\n#   else";
+	    out << "\n#       define " << dllExport << " ICE_DECLSPEC_IMPORT";
+	    out << "\n#   endif";
+	    out << "\n#endif";
+	}
     }
 }
 
 string
-Slice::typeToString(const TypePtr& type)
+Slice::typeToString(const TypePtr& type, bool icee)
 {
     static const char* builtinTable[] =
     {
@@ -162,10 +175,35 @@ Slice::typeToString(const TypePtr& type)
 	"::Ice::LocalObjectPtr"
     };
 
+    static const char* builtinTableE[] =
+    {
+	"::IceE::Byte",
+	"bool",
+	"::IceE::Short",
+	"::IceE::Int",
+	"::IceE::Long",
+	"::IceE::Float",
+	"::IceE::Double",
+	"::std::string",
+	"::IceE::ObjectPtr",
+	"::IceE::ObjectPrx",
+	"::IceE::LocalObjectPtr"
+    };
+
+    const char** table;
+    if(icee)
+    {
+        table = builtinTableE;
+    }
+    else
+    {
+        table = builtinTable;
+    }
+
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-	return builtinTable[builtin->kind()];
+	return table[builtin->kind()];
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
@@ -196,18 +234,18 @@ Slice::typeToString(const TypePtr& type)
 }
 
 string
-Slice::returnTypeToString(const TypePtr& type)
+Slice::returnTypeToString(const TypePtr& type, bool icee)
 {
     if(!type)
     {
 	return "void";
     }
 
-    return typeToString(type);
+    return typeToString(type, icee);
 }
 
 string
-Slice::inputTypeToString(const TypePtr& type)
+Slice::inputTypeToString(const TypePtr& type, bool icee)
 {
     static const char* inputBuiltinTable[] =
     {
@@ -224,10 +262,35 @@ Slice::inputTypeToString(const TypePtr& type)
 	"const ::Ice::LocalObjectPtr&"
     };
 
+    static const char* inputBuiltinTableE[] =
+    {
+	"::IceE::Byte",
+	"bool",
+	"::IceE::Short",
+	"::IceE::Int",
+	"::IceE::Long",
+	"::IceE::Float",
+	"::IceE::Double",
+	"const ::std::string&",
+	"const ::IceE::ObjectPtr&",
+	"const ::IceE::ObjectPrx&",
+	"const ::IceE::LocalObjectPtr&"
+    };
+
+    const char** table;
+    if(icee)
+    {
+        table = inputBuiltinTableE;
+    }
+    else
+    {
+        table = inputBuiltinTable;
+    }
+
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-	return inputBuiltinTable[builtin->kind()];
+	return table[builtin->kind()];
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
@@ -258,7 +321,7 @@ Slice::inputTypeToString(const TypePtr& type)
 }
 
 string
-Slice::outputTypeToString(const TypePtr& type)
+Slice::outputTypeToString(const TypePtr& type, bool icee)
 {
     static const char* outputBuiltinTable[] =
     {
@@ -275,6 +338,31 @@ Slice::outputTypeToString(const TypePtr& type)
 	"::Ice::LocalObjectPtr&"
     };
     
+    static const char* outputBuiltinTableE[] =
+    {
+	"::IceE::Byte&",
+	"bool&",
+	"::IceE::Short&",
+	"::IceE::Int&",
+	"::IceE::Long&",
+	"::IceE::Float&",
+	"::IceE::Double&",
+	"::std::string&",
+	"::IceE::ObjectPtr&",
+	"::IceE::ObjectPrx&",
+	"::IceE::LocalObjectPtr&"
+    };
+    
+    const char** table;
+    if(icee)
+    {
+        table = outputBuiltinTableE;
+    }
+    else
+    {
+        table = outputBuiltinTableE;
+    }
+
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
@@ -528,7 +616,7 @@ Slice::writeUnmarshalCode(Output& out, const list<pair<TypePtr, string> >& param
 }
 
 void
-Slice::writeAllocateCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret)
+Slice::writeAllocateCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret, bool icee)
 {
     list<pair<TypePtr, string> > ps = params;
     if(ret)
@@ -538,7 +626,7 @@ Slice::writeAllocateCode(Output& out, const list<pair<TypePtr, string> >& params
 
     for(list<pair<TypePtr, string> >::const_iterator p = ps.begin(); p != ps.end(); ++p)
     {
-	out << nl << typeToString(p->first) << ' ' << fixKwd(p->second) << ';';
+	out << nl << typeToString(p->first, icee) << ' ' << fixKwd(p->second) << ';';
     }
 }
 
