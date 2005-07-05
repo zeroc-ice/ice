@@ -10,12 +10,13 @@
 #ifndef ICEE_TRANSPORT_ACCEPTOR_H
 #define ICEE_TRANSPORT_ACCEPTOR_H
 
-#include <IceE/Shared.h>
 #include <IceE/TransceiverF.h>
 #include <IceE/InstanceF.h>
 #include <IceE/TraceLevelsF.h>
 #include <IceE/LoggerF.h>
 #include <IceE/AcceptorF.h>
+
+#include <IceE/Shared.h>
 
 #ifdef _WIN32
 typedef int ssize_t;

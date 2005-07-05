@@ -147,7 +147,7 @@ IceE::ObjectAdapter::activate()
 	}
 	catch(const AdapterAlreadyActiveException&)
 	{
-	    ObjectAdapterdInUseException ex(__FILE__, __LINE__);
+	    ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
 	    ex.id = _id;
 	    throw ex;
 	}

@@ -25,7 +25,7 @@
 #include <IceE/EndpointF.h>
 #include <IceE/RouterF.h>
 #include <IceE/LocatorF.h>
-//#include <IceE/LocatorInfoF.h>
+#include <IceE/LocatorInfoF.h>
 #include <IceE/FacetMap.h>
 #include <list>
 

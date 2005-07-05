@@ -16,9 +16,11 @@
 #include <IceE/Logger.h>
 #include <IceE/LoggerUtil.h>
 #include <IceE/Communicator.h>
-#include <IceE/ObjectAdapter.h>
-#include <IceE/Proxy.h>
-#include <IceE/Object.h>
+#ifndef ICEE_PURE_CLIENT
+#  include <IceE/ObjectAdapter.h>
+#  include <IceE/Object.h>
+#endif
+#  include <IceE/Proxy.h>
 #include <IceE/IdentityUtil.h>
 #include <IceE/Connection.h>
 #include <IceE/Functional.h>
