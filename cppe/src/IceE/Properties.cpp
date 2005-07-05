@@ -204,7 +204,7 @@ IceE::Properties::parseCommandLineOptions(const string& prefix, const StringSeq&
 StringSeq
 IceE::Properties::parseIceCommandLineOptions(const StringSeq& options)
 {
-    return parseCommandLineOptions("Ice", options);
+    return parseCommandLineOptions("IceE", options);
 }
 
 void
