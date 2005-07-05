@@ -366,7 +366,7 @@ Slice::outputTypeToString(const TypePtr& type, bool icee)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-	return outputBuiltinTable[builtin->kind()];
+	return table[builtin->kind()];
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
