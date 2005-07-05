@@ -10,8 +10,6 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-#include <Ice/Current.ice>
-
 module Test
 {
 
@@ -147,7 +145,7 @@ class MyClass
 
     void opByteSOneway(ByteS s);
 
-    Ice::Context opContext();
+    StringStringD opContext();
 };
 
 class MyDerivedClass extends MyClass
@@ -157,7 +155,7 @@ class MyDerivedClass extends MyClass
 
 interface TestCheckedCast
 {
-    Ice::Context getContext();
+    StringStringD getContext();
 };
 
 };
