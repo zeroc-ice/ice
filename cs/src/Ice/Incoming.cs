@@ -72,10 +72,6 @@ namespace IceInternal
 	    _current.adapter = adapter;
 	    _current.con = connection;
 	    
-	    _servant = null;
-	    
-	    _locator = null;
-	    
 	    Debug.Assert(_cookie == null);
 	    
 	    _response = response;
@@ -92,6 +88,10 @@ namespace IceInternal
 	
 	public virtual void reclaim()
 	{
+	    _servant = null;
+	    
+	    _locator = null;
+
 	    _cookie = null;
 
 	    if(_os != null)

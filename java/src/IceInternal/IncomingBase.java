@@ -71,10 +71,6 @@ public class IncomingBase
         _current.adapter = adapter;
         _current.con = connection;
 
-	_servant = null;
-
-	_locator = null;
-
 	if(_cookie == null)
 	{
 	    _cookie = new Ice.LocalObjectHolder();
@@ -95,6 +91,10 @@ public class IncomingBase
     public void
     reclaim()
     {
+	_servant = null;
+
+	_locator = null;
+
 	if(_cookie != null)
 	{
 	    _cookie.value = null;
