@@ -210,9 +210,9 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         H << "\n#ifndef ICEE_PURE_CLIENT";
 	H << "\n#  include <IceE/Object.h>";
+	H << "\n#  include <IceE/Incoming.h>";
         H << "\n#endif";
 	H << "\n#include <IceE/Outgoing.h>";
-	H << "\n#include <IceE/Incoming.h>";
 	C << "\n#include <IceE/LocalException.h>";
     }
 
