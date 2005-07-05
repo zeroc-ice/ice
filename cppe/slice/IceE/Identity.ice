@@ -39,20 +39,6 @@ struct Identity
     string category;
 };
 
-/**
- *
- * A mapping between identities and &Ice; objects.
- *
- **/
-local dictionary<Identity, Object> ObjectDict;
-
-/**
- *
- * A sequence of identities.
- *
- **/
-sequence<Identity> IdentitySeq;
-
 };
 
 #endif

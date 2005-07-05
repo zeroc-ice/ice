@@ -14,24 +14,13 @@
 #include <IceE/ObjectF.h>
 #include <IceE/ProxyF.h>
 #include <IceE/Current.h>
+#include <IceE/DispatchStatus.h>
 
 namespace IceEInternal
 {
 
 class Incoming;
 class BasicStream;
-
-enum DispatchStatus
-{
-    DispatchOK,
-    DispatchUserException,
-    DispatchObjectNotExist,
-    DispatchFacetNotExist,
-    DispatchOperationNotExist,
-    DispatchUnknownLocalException,
-    DispatchUnknownUserException,
-    DispatchUnknownException
-};
 
 }
 

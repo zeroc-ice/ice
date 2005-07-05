@@ -11,20 +11,6 @@
 #include <IceE/BasicStream.h>
 #include <IceE/Object.h>
 
-void
-IceE::__write(::IceEInternal::BasicStream* __os, ::IceE::OperationMode v)
-{
-    __os->write(static_cast< ::IceE::Byte>(v));
-}
-
-void
-IceE::__read(::IceEInternal::BasicStream* __is, ::IceE::OperationMode& v)
-{
-    ::IceE::Byte val;
-    __is->read(val);
-    v = static_cast< ::IceE::OperationMode>(val);
-}
-
 bool
 IceE::Current::operator==(const Current& __rhs) const
 {

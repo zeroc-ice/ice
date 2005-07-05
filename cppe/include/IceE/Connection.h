@@ -10,21 +10,24 @@
 #ifndef ICEE_CONNECTION_H
 #define ICEE_CONNECTION_H
 
+#include <IceE/ConnectionF.h>
+#include <IceE/OutgoingConnectionFactoryF.h>
+#include <IceE/InstanceF.h>
+#include <IceE/TransceiverF.h>
+#include <IceE/EndpointF.h>
+#include <IceE/LoggerF.h>
+#include <IceE/TraceLevelsF.h>
+
+#ifndef ICEE_PURE_CLIENT
+#  include <IceE/ObjectAdapterF.h>
+#  include <IceE/ServantManagerF.h>
+#  include <IceE/IncomingConnectionFactoryF.h>
+#endif
+
 #include <IceE/Mutex.h>
 #include <IceE/Monitor.h>
 #include <IceE/Time.h>
 #include <IceE/Thread.h> // For ThreadPerConnection.
-#include <IceE/Connection.h>
-#include <IceE/ConnectionF.h>
-#include <IceE/IncomingConnectionFactoryF.h>
-#include <IceE/OutgoingConnectionFactoryF.h>
-#include <IceE/InstanceF.h>
-#include <IceE/TransceiverF.h>
-#include <IceE/ObjectAdapterF.h>
-#include <IceE/ServantManagerF.h>
-#include <IceE/EndpointF.h>
-#include <IceE/LoggerF.h>
-#include <IceE/TraceLevelsF.h>
 #include <IceE/Identity.h>
 #include <IceE/BasicStream.h>
 
@@ -84,9 +87,11 @@ public:
 
     IceEInternal::EndpointPtr endpoint() const;
 
+//#ifndef ICEE_PURE_CLIENT
     void setAdapter(const ObjectAdapterPtr&); // From Connection.
     ObjectAdapterPtr getAdapter() const; // From Connection.
-    ObjectPrx createProxy(const Identity& ident) const; // From Connection.
+//#endif
+    ObjectPrx createProxy(const Identity&) const; // From Connection.
 
     void exception(const LocalException&);
     std::string type() const; // From Connection.
@@ -103,7 +108,9 @@ private:
 	       const IceEInternal::EndpointPtr&);
 #endif
     ~Connection();
+#ifndef ICEE_PURE_CLIENT
     friend class IceEInternal::IncomingConnectionFactory;
+#endif
     friend class IceEInternal::OutgoingConnectionFactory;
 
     enum State

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceE/Outgoing.h>
-#include <IceE/Object.h>
+#include <IceE/DispatchStatus.h>
 #include <IceE/Connection.h>
 #include <IceE/Reference.h>
 #include <IceE/Endpoint.h>

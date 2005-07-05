@@ -10,7 +10,7 @@
 #include <IceE/StringUtil.h>
 #include <IceE/TraceUtil.h>
 #include <IceE/Instance.h>
-#include <IceE/Object.h>
+#include <IceE/DispatchStatus.h>
 #include <IceE/Proxy.h>
 #include <IceE/TraceLevels.h>
 #include <IceE/Logger.h>
@@ -18,6 +18,7 @@
 #include <IceE/Protocol.h>
 #include <IceE/IdentityUtil.h>
 #include <IceE/SafeStdio.h>
+#include <IceE/OperationMode.h>
 
 using namespace std;
 using namespace IceE;

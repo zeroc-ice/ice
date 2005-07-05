@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceE/Object.h>
 #include <IceE/Communicator.h>
 #include <IceE/Properties.h>
 #include <IceE/Initialize.h>

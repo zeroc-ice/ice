@@ -116,8 +116,8 @@ PostBuild_Cmds=copy $(OutDir)\iceecd.lib ..\..\lib\	copy $(OutDir)\iceec10d.pdb 
 # PROP Intermediate_Dir "ReleaseStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-MTL=midl.exe
 SLICE2CPPEFLAGS=-DICEE
+MTL=midl.exe
 CPP=cl.exe
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I ".." /I "../../include" /D "NDEBUG" /D "ICEE_STATIC_LIBS" /D "_LIB" /D FD_SETSIZE=1024 /D "_CONSOLE" /D "ICEE_PURE_CLIENT" /FD /c
@@ -133,7 +133,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                               $(OutDir)\iceec.lib                               ..\..\lib\ 
+PostBuild_Cmds=copy                                $(OutDir)\iceec.lib                                ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "icec - Win32 Debug Static"
@@ -149,8 +149,8 @@ PostBuild_Cmds=copy                               $(OutDir)\iceec.lib           
 # PROP Intermediate_Dir "DebugStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-MTL=midl.exe
 SLICE2CPPEFLAGS=-DICEE
+MTL=midl.exe
 CPP=cl.exe
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_DEBUG" /D "ICEE_STATIC_LIBS" /D "_LIB" /D FD_SETSIZE=1024 /D "_CONSOLE" /D "ICEE_PURE_CLIENT" /FD /GZ /c
@@ -166,7 +166,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                              $(OutDir)\iceecd.lib                              ..\..\lib\ 
+PostBuild_Cmds=copy                               $(OutDir)\iceecd.lib                               ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
@@ -258,10 +258,6 @@ SOURCE=..\IceE\LocalObject.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Locator.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=..\IceE\LocatorInfo.cpp
 # End Source File
 # Begin Source File
@@ -282,7 +278,7 @@ SOURCE=..\IceE\Network.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\IceE\Object.cpp
+SOURCE=..\IceE\OperationMode.cpp
 # End Source File
 # Begin Source File
 
@@ -319,10 +315,6 @@ SOURCE=..\IceE\Reference.cpp
 # Begin Source File
 
 SOURCE=..\IceE\ReferenceFactory.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Router.cpp
 # End Source File
 # Begin Source File
 
@@ -554,14 +546,6 @@ SOURCE=..\..\include\IceE\LocalObjectF.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceE\Locator.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\IceE\LocatorF.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\IceE\LocatorInfo.h
 # End Source File
 # Begin Source File
@@ -606,11 +590,7 @@ SOURCE=..\IceE\Network.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\IceE\Object.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\IceE\ObjectF.h
+SOURCE=..\..\include\IceE\OperationMode.h
 # End Source File
 # Begin Source File
 
@@ -671,14 +651,6 @@ SOURCE=..\IceE\ReferenceFactory.h
 # Begin Source File
 
 SOURCE=..\IceE\ReferenceFactoryF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\IceE\Router.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\IceE\RouterF.h
 # End Source File
 # Begin Source File
 
@@ -1003,132 +975,6 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\IceE\Locator.ice
-
-!IF  "$(CFG)" == "icec - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\Locator.ice
-
-BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
-	move Locator.h ..\..\include\icee \
-	
-
-"..\..\include\icee\Locator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Locator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icec - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\Locator.ice
-
-BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
-	move Locator.h ..\..\include\icee \
-	
-
-"..\..\include\icee\Locator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Locator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icec - Win32 Release Static"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\Locator.ice
-
-BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
-	move Locator.h ..\..\include\icee \
-	
-
-"..\..\include\icee\Locator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Locator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icec - Win32 Debug Static"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\Locator.ice
-
-BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
-	move Locator.h ..\..\include\icee \
-	
-
-"..\..\include\icee\Locator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Locator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\IceE\LocatorF.ice
-
-!IF  "$(CFG)" == "icec - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\LocatorF.ice
-
-"..\..\include\icee\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/LocatorF.ice 
-	move LocatorF.h ..\..\include\icee 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icec - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\LocatorF.ice
-
-"..\..\include\icee\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/LocatorF.ice 
-	move LocatorF.h ..\..\include\icee 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icec - Win32 Release Static"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\LocatorF.ice
-
-"..\..\include\icee\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/LocatorF.ice 
-	move LocatorF.h ..\..\include\icee 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icec - Win32 Debug Static"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\LocatorF.ice
-
-"..\..\include\icee\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/LocatorF.ice 
-	move LocatorF.h ..\..\include\icee 
-	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\slice\IceE\Logger.ice
 
 !IF  "$(CFG)" == "icec - Win32 Release"
@@ -1251,136 +1097,6 @@ InputPath=..\..\slice\IceE\LoggerF.ice
 	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
-	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\IceE\Router.ice
-
-!IF  "$(CFG)" == "icec - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\Router.ice
-
-BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
-	move Router.h ..\..\include\icee \
-	
-
-"..\..\include\icee\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icec - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\Router.ice
-
-BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
-	move Router.h ..\..\include\icee \
-	
-
-"..\..\include\icee\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icec - Win32 Release Static"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\Router.ice
-
-BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
-	move Router.h ..\..\include\icee \
-	
-
-"..\..\include\icee\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icec - Win32 Debug Static"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\Router.ice
-
-BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
-	move Router.h ..\..\include\icee \
-	
-
-"..\..\include\icee\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\IceE\RouterF.ice
-
-!IF  "$(CFG)" == "icec - Win32 Release"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\RouterF.ice
-
-"..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/RouterF.ice 
-	move RouterF.h ..\..\include\icee 
-	del RouterF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icec - Win32 Debug"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\RouterF.ice
-
-"..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/RouterF.ice 
-	move RouterF.h ..\..\include\icee 
-	del RouterF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icec - Win32 Release Static"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\RouterF.ice
-
-"..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/RouterF.ice 
-	move RouterF.h ..\..\include\icee 
-	del RouterF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icec - Win32 Debug Static"
-
-# Begin Custom Build
-InputPath=..\..\slice\IceE\RouterF.ice
-
-"..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/RouterF.ice 
-	move RouterF.h ..\..\include\icee 
-	del RouterF.cpp 
 	
 # End Custom Build
 

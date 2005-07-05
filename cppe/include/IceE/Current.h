@@ -13,19 +13,10 @@
 #include <IceE/ObjectAdapterF.h>
 #include <IceE/ConnectionF.h>
 #include <IceE/Identity.h>
+#include <IceE/OperationMode.h>
 
 namespace IceE
 {
-
-enum OperationMode
-{
-    Normal,
-    Nonmutating,
-    Idempotent
-};
-
-ICEE_API void __write(::IceEInternal::BasicStream*, OperationMode);
-ICEE_API void __read(::IceEInternal::BasicStream*, OperationMode&);
 
 struct Current
 {

@@ -16,13 +16,13 @@
 #include <IceE/Transceiver.h>
 #include <IceE/Endpoint.h>
 #include <IceE/Outgoing.h>
-#include <IceE/Incoming.h>
 #include <IceE/LocalException.h>
 #include <IceE/Protocol.h>
 #include <IceE/ReferenceFactory.h> // For createProxy().
 #include <IceE/ProxyFactory.h> // For createProxy().
 #ifndef ICEE_PURE_CLIENT
 #    include <IceE/ObjectAdapter.h>
+#    include <IceE/Incoming.h>
 #endif
 
 using namespace std;

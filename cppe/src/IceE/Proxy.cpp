@@ -9,8 +9,6 @@
 
 #include <IceE/Proxy.h>
 #include <IceE/ProxyFactory.h>
-#include <IceE/Object.h>
-#include <IceE/ObjectAdapterFactory.h>
 #include <IceE/Outgoing.h>
 #include <IceE/Reference.h>
 #include <IceE/Endpoint.h>

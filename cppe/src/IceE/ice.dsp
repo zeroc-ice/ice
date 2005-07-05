@@ -116,8 +116,8 @@ PostBuild_Cmds=copy $(OutDir)\iceed.lib ..\..\lib\	copy $(OutDir)\icee10d.pdb ..
 # PROP Intermediate_Dir "ReleaseStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-MTL=midl.exe
 SLICE2CPPEFLAGS=-DICEE
+MTL=midl.exe
 CPP=cl.exe
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I ".." /I "../../include" /D "NDEBUG" /D "ICEE_STATIC_LIBS" /D "_LIB" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /c
@@ -133,7 +133,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                            $(OutDir)\icee.lib                            ..\..\lib\ 
+PostBuild_Cmds=copy                             $(OutDir)\icee.lib                             ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ice - Win32 Debug Static"
@@ -149,8 +149,8 @@ PostBuild_Cmds=copy                            $(OutDir)\icee.lib               
 # PROP Intermediate_Dir "DebugStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-MTL=midl.exe
 SLICE2CPPEFLAGS=-DICEE
+MTL=midl.exe
 CPP=cl.exe
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_DEBUG" /D "ICEE_STATIC_LIBS" /D "_LIB" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /GZ /c
@@ -166,7 +166,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                           $(OutDir)\iceed.lib                           ..\..\lib\ 
+PostBuild_Cmds=copy                            $(OutDir)\iceed.lib                            ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
@@ -282,10 +282,6 @@ SOURCE=.\Locator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\LocatorF.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\LocatorInfo.cpp
 # End Source File
 # Begin Source File
@@ -315,6 +311,10 @@ SOURCE=.\ObjectAdapter.cpp
 # Begin Source File
 
 SOURCE=.\ObjectAdapterFactory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\OperationMode.cpp
 # End Source File
 # Begin Source File
 
@@ -455,6 +455,10 @@ SOURCE=.\Network.h
 # Begin Source File
 
 SOURCE=.\ObjectAdapterFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\OperationMode.h
 # End Source File
 # Begin Source File
 
