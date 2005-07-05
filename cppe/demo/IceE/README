@@ -1,0 +1,50 @@
+Demos in this directory:
+
+- MFC
+
+  Shows how to use Ice in conjunction with the Microsoft Foundation
+  Classes.
+
+- bidir
+
+  This demo shows how to use bi-directional connections for
+  callbacks. This is typically used if the server cannot open a
+  connection to the client to send callbacks, for example, because
+  firewalls block incoming connections to the client.
+
+- callback
+
+  A simple callback demo that illustrates how a client can pass a
+  proxy to a server, invoke an operation in the server, and the server
+  call back into an object provided by the client as part of that
+  invocation.
+
+- hello
+
+  This demo illustrates how to invoke ordinary (twoway) operations, as
+  well as how to invoke oneway operations, use datagrams, secure
+  invocations, and how to used batched invocations.
+
+- latency
+
+  A simple latency test that measures the basic call dispatch delay of
+  Ice.
+
+- nested
+
+  A demo to illustrate how nested callbacks work, and how the size of
+  the thread pool affects the maximum nesting depth.
+
+- throughput
+
+  A simple throughput demo that allows you to send sequences of
+  various types between client and server and to measure the maximum
+  bandwidth that can be achieved using serialized synchronous
+  requests.
+
+- workqueue
+
+  This application illustrates the use of the threading and
+  synchronization primitives provided by the IceUtil library. It uses
+  IceUtil to implement a simple producer/ consumer queueing
+  application.

@@ -3,36 +3,36 @@
 // Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// ICEE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#include <Ice/Transceiver.h>
-#include <Ice/Instance.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Buffer.h>
-#include <Ice/Network.h>
-#include <Ice/LocalException.h>
-#include <IceUtil/SafeStdio.h>
+#include <IceE/Transceiver.h>
+#include <IceE/Instance.h>
+#include <IceE/TraceLevels.h>
+#include <IceE/LoggerUtil.h>
+#include <IceE/Buffer.h>
+#include <IceE/Network.h>
+#include <IceE/LocalException.h>
+#include <IceE/SafeStdio.h>
 
 using namespace std;
-using namespace Ice;
-using namespace IceInternal;
+using namespace IceE;
+using namespace IceEInternal;
 
-void IceInternal::incRef(Transceiver* p) { p->__incRef(); }
-void IceInternal::decRef(Transceiver* p) { p->__decRef(); }
+void IceEInternal::incRef(Transceiver* p) { p->__incRef(); }
+void IceEInternal::decRef(Transceiver* p) { p->__decRef(); }
 
 
 SOCKET
-IceInternal::Transceiver::fd()
+IceEInternal::Transceiver::fd()
 {
     assert(_fd != INVALID_SOCKET);
     return _fd;
 }
 
 void
-IceInternal::Transceiver::close()
+IceEInternal::Transceiver::close()
 {
     if(_traceLevels->network >= 1)
     {
@@ -60,7 +60,7 @@ IceInternal::Transceiver::close()
 }
 
 void
-IceInternal::Transceiver::shutdownWrite()
+IceEInternal::Transceiver::shutdownWrite()
 {
     if(_traceLevels->network >= 2)
     {
@@ -73,7 +73,7 @@ IceInternal::Transceiver::shutdownWrite()
 }
 
 void
-IceInternal::Transceiver::shutdownReadWrite()
+IceEInternal::Transceiver::shutdownReadWrite()
 {
     if(_traceLevels->network >= 2)
     {
@@ -86,7 +86,7 @@ IceInternal::Transceiver::shutdownReadWrite()
 }
 
 void
-IceInternal::Transceiver::write(Buffer& buf, int timeout)
+IceEInternal::Transceiver::write(Buffer& buf, int timeout)
 {
     Buffer::Container::difference_type packetSize = 
         static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
@@ -235,7 +235,7 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
 	if(_traceLevels->network >= 3)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
-	    out << IceUtil::printfToString("sent %d of %d", ret, packetSize) << " bytes via tcp\n" << toString();
+	    out << IceE::printfToString("sent %d of %d", ret, packetSize) << " bytes via tcp\n" << toString();
 	}
 
 	buf.i += ret;
@@ -248,7 +248,7 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
 }
 
 void
-IceInternal::Transceiver::read(Buffer& buf, int timeout)
+IceEInternal::Transceiver::read(Buffer& buf, int timeout)
 {
     Buffer::Container::difference_type packetSize = 
         static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
@@ -398,7 +398,7 @@ IceInternal::Transceiver::read(Buffer& buf, int timeout)
 	if(_traceLevels->network >= 3)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
-	    out << IceUtil::printfToString("received %d of %d", ret, packetSize) << " bytes via tcp\n" << toString();
+	    out << IceE::printfToString("received %d of %d", ret, packetSize) << " bytes via tcp\n" << toString();
 	}
 
 	buf.i += ret;
@@ -411,18 +411,18 @@ IceInternal::Transceiver::read(Buffer& buf, int timeout)
 }
 
 string
-IceInternal::Transceiver::type() const
+IceEInternal::Transceiver::type() const
 {
     return "tcp";
 }
 
 string
-IceInternal::Transceiver::toString() const
+IceEInternal::Transceiver::toString() const
 {
     return _desc;
 }
 
-IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
+IceEInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
     _fd(fd),
@@ -460,7 +460,7 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
 #endif
 }
 
-IceInternal::Transceiver::~Transceiver()
+IceEInternal::Transceiver::~Transceiver()
 {
     assert(_fd == INVALID_SOCKET);
 #ifdef _WIN32_WCE

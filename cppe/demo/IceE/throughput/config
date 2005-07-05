@@ -1,0 +1,5 @@
+Throughput.Throughput=throughput:default -p 10000
+Throughput.Endpoints=default -p 10000
+
+IceE.MonitorConnections=0
+IceE.ConnectionIdleTime=0

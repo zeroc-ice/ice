@@ -1,0 +1,8 @@
+Nested.Server.Endpoints=default -p 10000 -t 10000
+
+Nested.Client.NestedServer=nestedServer:default -p 10000 -t 10000
+Nested.Client.Endpoints=default -t 10000
+
+#IceE.Trace.Network=1
+#IceE.Trace.Protocol=1
+#IceE.Warn.Connections=1

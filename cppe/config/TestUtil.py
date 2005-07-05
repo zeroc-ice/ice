@@ -3,14 +3,14 @@
 #
 # Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 #
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# This copy of IceE is licensed to you under the terms described in the
+# ICEE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
 #
-# If you don't set "host" below, then the Ice library will try to find
-# out the IP address of this host. For the Ice test suite, it's best
+# If you don't set "host" below, then the IceE library will try to find
+# out the IP address of this host. For the IceE test suite, it's best
 # to set the IP address explicitly to 127.0.0.1. This avoid problems
 # with incorrect DNS or hostname setups.
 #
@@ -25,13 +25,13 @@ import sys, os, re
 
 def getIceVersion():
 
-    config = open(os.path.join(toplevel, "include", "IceUtil", "Config.h"), "r")
-    return re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
+    config = open(os.path.join(toplevel, "include", "IceE", "Config.h"), "r")
+    return re.search("ICEE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
 
 def getIceSoVersion():
 
-    config = open(os.path.join(toplevel, "include", "IceUtil", "Config.h"), "r")
-    intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
+    config = open(os.path.join(toplevel, "include", "IceE", "Config.h"), "r")
+    intVersion = int(re.search("ICEE_INT_VERSION ([0-9]*)", config.read()).group(1))
     majorVersion = intVersion / 10000
     minorVersion = intVersion / 100 - 100 * majorVersion    
     return '%d' % (majorVersion * 10 + minorVersion)
@@ -185,14 +185,14 @@ serverProtocol = ""
 clientServerProtocol = ""
 
 if host != "":
-    defaultHost = " --Ice.Default.Host=" + host
+    defaultHost = " --IceE.Default.Host=" + host
 else:
     defaultHost = ""
 
-commonClientOptions = " --Ice.NullHandleAbort --Ice.Warn.Connections"
+commonClientOptions = " --IceE.NullHandleAbort --IceE.Warn.Connections"
 
-commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.NullHandleAbort" + \
-                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30"
+commonServerOptions = " --IceE.PrintProcessId --IceE.PrintAdapterReady --IceE.NullHandleAbort" + \
+                      " --IceE.Warn.Connections --IceE.ServerIdleTime=30"
 
 clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions

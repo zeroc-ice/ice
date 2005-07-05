@@ -3,25 +3,25 @@
 // Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// ICEE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
 #include <TestCommon.h>
 #include <TestApplication.h>
-#include <IceUtil/StaticMutex.h>
-#include <IceUtil/Thread.h>
+#include <IceE/StaticMutex.h>
+#include <IceE/Thread.h>
 #ifndef _WIN32
-# include <IceUtil/Time.h>
+# include <IceE/Time.h>
 #endif
 
 
 #include <stdarg.h>
 
-using namespace Ice;
+using namespace IceE;
 using namespace std;
 
-class LoggerI : public Ice::Logger
+class LoggerI : public IceE::Logger
 {
 public:
 
@@ -40,7 +40,7 @@ public:
 	sprintf(buf, "%ld", GetTickCount());
 	s += buf;
 #else
- 	s += IceUtil::Time::now().toString();
+ 	s += IceE::Time::now().toString();
 #endif
 	s += ' ';
 	
@@ -87,7 +87,7 @@ public:
 static FILE* _tprintfp = 0;
 static HWND hEdit;
 static HWND mainWnd;
-static IceUtil::ThreadControl mainThread;
+static IceE::ThreadControl mainThread;
 
 void
 tprintf(const char* fmt, ...)
@@ -130,7 +130,7 @@ tprintf(const char* fmt, ...)
 	// to the main thread to do the EM_REPLACESEL. Calling SendMessage
 	// from a thread other than main is not permitted.
 	//
-	if(IceUtil::ThreadControl() != mainThread)
+	if(IceE::ThreadControl() != mainThread)
 	{
 	    wchar_t* wtext = new wchar_t[sizeof(wchar_t) * (curr - start)+1];
 	    mbstowcs(wtext, start, (curr - start) + 1);
@@ -159,7 +159,7 @@ tprintf(const char* fmt, ...)
     //
     // Process pending events.
     //
-    if(IceUtil::ThreadControl() == mainThread)
+    if(IceE::ThreadControl() == mainThread)
     {
 	MSG Msg;
 	while(PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
@@ -334,12 +334,12 @@ TestApplication::main(HINSTANCE hInstance)
 }
 #else
 
-static IceUtil::StaticMutex tprintMutex = ICE_STATIC_MUTEX_INITIALIZER;
+static IceE::StaticMutex tprintMutex = ICEE_STATIC_MUTEX_INITIALIZER;
 
 void
 tprintf(const char* fmt, ...)
 {
-    IceUtil::StaticMutex::Lock sync(tprintMutex);
+    IceE::StaticMutex::Lock sync(tprintMutex);
 
     va_list va;
     va_start(va, fmt);
@@ -407,7 +407,7 @@ TestApplication::TestApplication(const std::string& name)
 }
 
 void
-TestApplication::setCommunicator(const Ice::CommunicatorPtr& communicator)
+TestApplication::setCommunicator(const IceE::CommunicatorPtr& communicator)
 {
     _communicator = communicator;
     _communicator->setLogger(new LoggerI);
@@ -415,7 +415,7 @@ TestApplication::setCommunicator(const Ice::CommunicatorPtr& communicator)
     //_tprintfp = fopen(("log-" + _name + ".txt").c_str(), "w");
 }
 
-Ice::CommunicatorPtr
+IceE::CommunicatorPtr
 TestApplication::communicator()
 {
     return _communicator;

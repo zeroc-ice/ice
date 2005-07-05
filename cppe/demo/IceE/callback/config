@@ -1,0 +1,7 @@
+Callback.Client.CallbackServer=callback:tcp -p 10000
+Callback.Client.Endpoints=tcp
+Callback.Server.Endpoints=tcp -p 10000
+
+#IceE.Trace.Network=1
+#IceE.Trace.Protocol=1
+IceE.Warn.Connections=1

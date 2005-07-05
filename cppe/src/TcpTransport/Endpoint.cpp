@@ -3,31 +3,31 @@
 // Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// ICEE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#include <Ice/Endpoint.h>
-#include <Ice/Network.h>
-#include <Ice/Connector.h>
-#include <Ice/Transceiver.h>
-#include <Ice/BasicStream.h>
-#include <Ice/LocalException.h>
-#include <Ice/Instance.h>
-#include <Ice/DefaultsAndOverrides.h>
-#include <IceUtil/SafeStdio.h>
+#include <IceE/Endpoint.h>
+#include <IceE/Network.h>
+#include <IceE/Connector.h>
+#include <IceE/Transceiver.h>
+#include <IceE/BasicStream.h>
+#include <IceE/LocalException.h>
+#include <IceE/Instance.h>
+#include <IceE/DefaultsAndOverrides.h>
+#include <IceE/SafeStdio.h>
 #ifndef ICEE_PURE_CLIENT
-#    include <Ice/Acceptor.h>
+#    include <IceE/Acceptor.h>
 #endif
 
 using namespace std;
-using namespace Ice;
-using namespace IceInternal;
+using namespace IceE;
+using namespace IceEInternal;
 
-void IceInternal::incRef(Endpoint* p) { p->__incRef(); }
-void IceInternal::decRef(Endpoint* p) { p->__decRef(); }
+void IceEInternal::incRef(Endpoint* p) { p->__incRef(); }
+void IceEInternal::decRef(Endpoint* p) { p->__decRef(); }
 
-IceInternal::Endpoint::Endpoint(const InstancePtr& instance, const string& ho, Int po, Int ti) :
+IceEInternal::Endpoint::Endpoint(const InstancePtr& instance, const string& ho, Int po, Int ti) :
     _instance(instance),
     _host(ho),
     _port(po),
@@ -35,7 +35,7 @@ IceInternal::Endpoint::Endpoint(const InstancePtr& instance, const string& ho, I
 {
 }
 
-IceInternal::Endpoint::Endpoint(const InstancePtr& instance, const string& str) :
+IceEInternal::Endpoint::Endpoint(const InstancePtr& instance, const string& str) :
     _instance(instance),
     _port(0),
     _timeout(-1)
@@ -139,7 +139,7 @@ IceInternal::Endpoint::Endpoint(const InstancePtr& instance, const string& str) 
     }
 }
 
-IceInternal::Endpoint::Endpoint(BasicStream* s) :
+IceEInternal::Endpoint::Endpoint(BasicStream* s) :
     _instance(s->instance()),
     _port(0),
     _timeout(-1)
@@ -155,7 +155,7 @@ IceInternal::Endpoint::Endpoint(BasicStream* s) :
 }
 
 void
-IceInternal::Endpoint::streamWrite(BasicStream* s) const
+IceEInternal::Endpoint::streamWrite(BasicStream* s) const
 {
     s->write(TcpEndpointType);
     s->startWriteEncaps();
@@ -167,35 +167,35 @@ IceInternal::Endpoint::streamWrite(BasicStream* s) const
 }
 
 string
-IceInternal::Endpoint::toString() const
+IceEInternal::Endpoint::toString() const
 {
     string s;
     s += "tcp -h ";
     s += _host;
 
-    s += IceUtil::printfToString(" -p %d", _port);
+    s += IceE::printfToString(" -p %d", _port);
 
     if(_timeout != -1)
     {
-        s += IceUtil::printfToString(" -t %d", _timeout);
+        s += IceE::printfToString(" -t %d", _timeout);
     }
     return s;
 }
 
 Short
-IceInternal::Endpoint::type() const
+IceEInternal::Endpoint::type() const
 {
     return TcpEndpointType;
 }
 
 Int
-IceInternal::Endpoint::timeout() const
+IceEInternal::Endpoint::timeout() const
 {
     return _timeout;
 }
 
 EndpointPtr
-IceInternal::Endpoint::timeout(Int timeout) const
+IceEInternal::Endpoint::timeout(Int timeout) const
 {
     if(timeout == _timeout)
     {
@@ -208,25 +208,25 @@ IceInternal::Endpoint::timeout(Int timeout) const
 }
 
 bool
-IceInternal::Endpoint::unknown() const
+IceEInternal::Endpoint::unknown() const
 {
     return false;
 }
 
 ConnectorPtr
-IceInternal::Endpoint::connector() const
+IceEInternal::Endpoint::connector() const
 {
     return new Connector(_instance, _host, _port);
 }
 
 bool
-IceInternal::Endpoint::equivalent(const TransceiverPtr&) const
+IceEInternal::Endpoint::equivalent(const TransceiverPtr&) const
 {
     return false;
 }
 
 bool
-IceInternal::Endpoint::operator==(const Endpoint& r) const
+IceEInternal::Endpoint::operator==(const Endpoint& r) const
 {
     const Endpoint* p = dynamic_cast<const Endpoint*>(&r);
     assert(p);
@@ -270,13 +270,13 @@ IceInternal::Endpoint::operator==(const Endpoint& r) const
 }
 
 bool
-IceInternal::Endpoint::operator!=(const Endpoint& r) const
+IceEInternal::Endpoint::operator!=(const Endpoint& r) const
 {
     return !operator==(r);
 }
 
 bool
-IceInternal::Endpoint::operator<(const Endpoint& r) const
+IceEInternal::Endpoint::operator<(const Endpoint& r) const
 {
     const Endpoint* p = dynamic_cast<const Endpoint*>(&r);
     assert(p);
@@ -343,7 +343,7 @@ IceInternal::Endpoint::operator<(const Endpoint& r) const
 #ifndef ICEE_PURE_CLIENT
 
 AcceptorPtr
-IceInternal::Endpoint::acceptor(EndpointPtr& endp) const
+IceEInternal::Endpoint::acceptor(EndpointPtr& endp) const
 {
     Acceptor* p = new Acceptor(_instance, _host, _port);
     endp = new Endpoint(_instance, _host, p->effectivePort(), _timeout);
@@ -351,7 +351,7 @@ IceInternal::Endpoint::acceptor(EndpointPtr& endp) const
 }
 
 bool
-IceInternal::Endpoint::equivalent(const AcceptorPtr& acceptor) const
+IceEInternal::Endpoint::equivalent(const AcceptorPtr& acceptor) const
 {
     return acceptor->equivalent(_host, _port);
 }

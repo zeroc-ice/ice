@@ -3,33 +3,33 @@
 // Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// ICEE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#include <Ice/Acceptor.h>
-#include <Ice/Transceiver.h>
-#include <Ice/Instance.h>
-#include <Ice/TraceLevels.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Network.h>
-#include <Ice/Exception.h>
+#include <IceE/Acceptor.h>
+#include <IceE/Transceiver.h>
+#include <IceE/Instance.h>
+#include <IceE/TraceLevels.h>
+#include <IceE/LoggerUtil.h>
+#include <IceE/Network.h>
+#include <IceE/Exception.h>
 
 using namespace std;
-using namespace Ice;
-using namespace IceInternal;
+using namespace IceE;
+using namespace IceEInternal;
 
-void IceInternal::incRef(Acceptor* p) { p->__incRef(); }
-void IceInternal::decRef(Acceptor* p) { p->__decRef(); }
+void IceEInternal::incRef(Acceptor* p) { p->__incRef(); }
+void IceEInternal::decRef(Acceptor* p) { p->__decRef(); }
 
 SOCKET
-IceInternal::Acceptor::fd()
+IceEInternal::Acceptor::fd()
 {
     return _fd;
 }
 
 void
-IceInternal::Acceptor::close()
+IceEInternal::Acceptor::close()
 {
     if(_traceLevels->network >= 1)
     {
@@ -43,7 +43,7 @@ IceInternal::Acceptor::close()
 }
 
 void
-IceInternal::Acceptor::listen()
+IceEInternal::Acceptor::listen()
 {
     try
     {
@@ -63,7 +63,7 @@ IceInternal::Acceptor::listen()
 }
 
 TransceiverPtr
-IceInternal::Acceptor::accept(int timeout)
+IceEInternal::Acceptor::accept(int timeout)
 {
     SOCKET fd = doAccept(_fd, timeout);
     setBlock(fd, false);
@@ -78,7 +78,7 @@ IceInternal::Acceptor::accept(int timeout)
 }
 
 void
-IceInternal::Acceptor::connectToSelf()
+IceEInternal::Acceptor::connectToSelf()
 {
     SOCKET fd = createSocket();
     setBlock(fd, false);
@@ -87,13 +87,13 @@ IceInternal::Acceptor::connectToSelf()
 }
 
 string
-IceInternal::Acceptor::toString() const
+IceEInternal::Acceptor::toString() const
 {
     return addrToString(_addr);
 }
 
 bool
-IceInternal::Acceptor::equivalent(const string& host, int port) const
+IceEInternal::Acceptor::equivalent(const string& host, int port) const
 {
     struct sockaddr_in addr;
     getAddress(host, port, addr);
@@ -101,12 +101,12 @@ IceInternal::Acceptor::equivalent(const string& host, int port) const
 }
 
 int
-IceInternal::Acceptor::effectivePort()
+IceEInternal::Acceptor::effectivePort()
 {
     return ntohs(_addr.sin_port);
 }
 
-IceInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host, int port) :
+IceEInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host, int port) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
@@ -136,7 +136,7 @@ IceInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host,
     }
 }
 
-IceInternal::Acceptor::~Acceptor()
+IceEInternal::Acceptor::~Acceptor()
 {
     assert(_fd == INVALID_SOCKET);
 }

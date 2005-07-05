@@ -3,33 +3,33 @@
 // Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// ICEE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#include <Ice/EndpointFactory.h>
-#include <Ice/Endpoint.h>
-#include <Ice/LocalException.h>
-#include <Ice/BasicStream.h>
+#include <IceE/EndpointFactory.h>
+#include <IceE/Endpoint.h>
+#include <IceE/LocalException.h>
+#include <IceE/BasicStream.h>
 
 using namespace std;
-using namespace Ice;
-using namespace IceInternal;
+using namespace IceE;
+using namespace IceEInternal;
 
-void IceInternal::incRef(EndpointFactory* p) { p->__incRef(); }
-void IceInternal::decRef(EndpointFactory* p) { p->__decRef(); }
+void IceEInternal::incRef(EndpointFactory* p) { p->__incRef(); }
+void IceEInternal::decRef(EndpointFactory* p) { p->__decRef(); }
 
-IceInternal::EndpointFactory::EndpointFactory(const InstancePtr& instance)
+IceEInternal::EndpointFactory::EndpointFactory(const InstancePtr& instance)
     : _instance(instance)
 {
 }
 
-IceInternal::EndpointFactory::~EndpointFactory()
+IceEInternal::EndpointFactory::~EndpointFactory()
 {
 }
 
 EndpointPtr
-IceInternal::EndpointFactory::create(const std::string& str) const
+IceEInternal::EndpointFactory::create(const std::string& str) const
 {
     const string delim = " \t\n\r";
 
@@ -60,7 +60,7 @@ IceInternal::EndpointFactory::create(const std::string& str) const
 }
 
 EndpointPtr
-IceInternal::EndpointFactory::read(BasicStream* s) const
+IceEInternal::EndpointFactory::read(BasicStream* s) const
 {
     Short type;
     s->read(type);
@@ -78,7 +78,7 @@ IceInternal::EndpointFactory::read(BasicStream* s) const
 }
 
 void
-IceInternal::EndpointFactory::destroy()
+IceEInternal::EndpointFactory::destroy()
 {
     _instance = 0;
 }

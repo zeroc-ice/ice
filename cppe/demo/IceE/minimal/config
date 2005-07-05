@@ -1,0 +1,35 @@
+#
+# The client reads this property to create the reference to the
+# "hello" object in the server.
+#
+Hello.Proxy=hello:tcp -p 10000
+
+#
+# The server creates one single object adapter with the name
+# "Hello". The following line sets the endpoints for this
+# adapter.
+#
+Hello.Endpoints=tcp -p 10000
+
+#
+# Warn about connection exceptions
+#
+IceE.Warn.Connections=1
+
+#
+# Network Tracing
+#
+# 0 = no network tracing
+# 1 = trace connection establishment and closure
+# 2 = like 1, but more detailed
+# 3 = like 2, but also trace data transfer
+#
+IceE.Trace.Network=0
+
+#
+# Protocol Tracing
+#
+# 0 = no protocol tracing
+# 1 = trace protocol messages
+#
+IceE.Trace.Protocol=0

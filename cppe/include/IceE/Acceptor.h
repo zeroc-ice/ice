@@ -1,0 +1,62 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICEE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#ifndef ICEE_TRANSPORT_ACCEPTOR_H
+#define ICEE_TRANSPORT_ACCEPTOR_H
+
+#include <IceE/Shared.h>
+#include <IceE/TransceiverF.h>
+#include <IceE/InstanceF.h>
+#include <IceE/TraceLevelsF.h>
+#include <IceE/LoggerF.h>
+#include <IceE/AcceptorF.h>
+
+#ifdef _WIN32
+typedef int ssize_t;
+#else
+#   define SOCKET int
+#   include <netinet/in.h> // For struct sockaddr_in
+#endif
+
+namespace IceEInternal
+{
+
+class Endpoint;
+
+class ICEE_PROTOCOL_API Acceptor : public ::IceE::Shared
+{
+public:
+
+    SOCKET fd();
+    void close();
+    void listen();
+    TransceiverPtr accept(int);
+    void connectToSelf();
+    std::string toString() const;
+
+    bool equivalent(const std::string&, int) const;
+    int effectivePort();
+
+private:
+
+    Acceptor(const InstancePtr&, const std::string&, int);
+    virtual ~Acceptor();
+    friend class Endpoint;
+
+    InstancePtr _instance;
+    TraceLevelsPtr _traceLevels;
+    ::IceE::LoggerPtr _logger;
+    SOCKET _fd;
+    int _backlog;
+    struct sockaddr_in _addr;
+};
+
+}
+
+#endif

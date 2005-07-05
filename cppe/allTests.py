@@ -3,8 +3,8 @@
 #
 # Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 #
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# This copy of IceE is licensed to you under the terms described in the
+# ICEE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
@@ -52,16 +52,16 @@ def runTests(tests, num = 0):
 # List of all basic tests.
 #
 tests = [
-    "IceUtil/thread", 
-    "IceUtil/uuid", 
-    "Ice/operations", 
-    "Ice/exceptions", 
-    "Ice/inheritance", 
-    "Ice/facets", 
-    "Ice/faultTolerance", 
-    "Ice/location", 
-    #"Ice/adapterDeactivation", 
-    "Ice/slicing/exceptions", 
+    "IceE/thread", 
+    "IceE/uuid", 
+    #"IceE/operations", 
+    "IceE/exceptions", 
+    "IceE/inheritance", 
+    "IceE/facets", 
+    "IceE/faultTolerance", 
+    "IceE/location", 
+    #"IceE/adapterDeactivation", 
+    "IceE/slicing/exceptions", 
     ]
 
 #

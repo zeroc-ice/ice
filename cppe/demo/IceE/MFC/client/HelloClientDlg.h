@@ -1,0 +1,54 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+
+#ifndef HELLO_CLIENT_DLG_H
+#define HELLO_CLIENT_DLG_H
+
+#include "Hello.h"
+
+#pragma once
+
+class CHelloClientDlg : public CDialog
+{
+public:
+    CHelloClientDlg(const IceE::CommunicatorPtr&, CWnd* = NULL);
+
+    enum { IDD = IDD_HELLOCLIENT_DIALOG };
+
+protected:
+    virtual void DoDataExchange(CDataExchange*);    // DDX/DDV support
+
+protected:
+    IceE::CommunicatorPtr _communicator;
+    CComboBox* _mode;
+    CButton* _secure;
+    CButton* _timeout;
+    CStatic* _status;
+    Demo::HelloPrx _proxy;
+    Demo::HelloPrx _currentProxy;
+    int _currentMode;
+    bool _useSecure;
+    bool _useTimeout;
+    HICON _hIcon;
+
+    // Generated message map functions
+    virtual BOOL OnInitDialog();
+    afx_msg void OnPaint();
+    afx_msg HCURSOR OnQueryDragIcon();
+    afx_msg void OnSayHello();
+    afx_msg void OnFlush();
+    afx_msg void OnShutdown();
+    DECLARE_MESSAGE_MAP()
+
+    void updateProxy();
+    void handleException(const IceE::Exception&);
+};
+
+#endif

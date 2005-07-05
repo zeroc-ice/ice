@@ -102,7 +102,7 @@
 # generated from the section label.
 #
 
-Ice:
+IceE:
     ChangeUser
     Config
     Default.Host
