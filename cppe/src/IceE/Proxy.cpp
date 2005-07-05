@@ -161,7 +161,7 @@ IceEProxy::IceE::Object::ice_isA(const string& __id, const Context& __context)
 	try
 	{
 	    __checkTwowayOnly("ice_isA");
-	    Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
+	    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
 	    return __del->ice_isA(__id, __context);
 	}
 	catch(const NonRepeatable& __ex)
@@ -189,7 +189,7 @@ IceEProxy::IceE::Object::ice_ping(const Context& __context)
     {
 	try
 	{
-	    Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
+	    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
 	    __del->ice_ping(__context);
 	    return;
 	}
@@ -219,7 +219,7 @@ IceEProxy::IceE::Object::ice_ids(const Context& __context)
 	try
 	{
 	    __checkTwowayOnly("ice_ids");
-	    Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
+	    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
 	    return __del->ice_ids(__context);
 	}
 	catch(const NonRepeatable& __ex)
@@ -248,7 +248,7 @@ IceEProxy::IceE::Object::ice_id(const Context& __context)
 	try
 	{
 	    __checkTwowayOnly("ice_id");
-	    Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
+	    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
 	    return __del->ice_id(__context);
 	}
 	catch(const NonRepeatable& __ex)
@@ -284,7 +284,7 @@ IceEProxy::IceE::Object::ice_invoke(const string& operation,
     {
 	try
 	{
-	    Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
+	    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
 	    return __del->ice_invoke(operation, mode, inParams, outParams, context);
 	}
 	catch(const NonRepeatable& __ex)
@@ -535,7 +535,7 @@ IceEProxy::IceE::Object::ice_connection()
     {
 	try
 	{
-	    Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
+	    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
 	    return __del->ice_connection();
 	}
 	catch(const LocalException& __ex)
@@ -555,7 +555,7 @@ void
 IceEProxy::IceE::Object::__copyFrom(const ObjectPrx& from)
 {
     ReferencePtr ref;
-    Handle< ::IceEDelegate::IceE::Object> delegate;
+    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> delegate;
 
     {
 	::IceE::Mutex::Lock sync(*from.get());
@@ -636,14 +636,14 @@ IceEProxy::IceE::Object::__checkTwowayOnly(const char* name) const
     }
 }
 
-Handle< ::IceEDelegate::IceE::Object>
+::IceEInternal::Handle< ::IceEDelegate::IceE::Object>
 IceEProxy::IceE::Object::__getDelegate()
 {
     ::IceE::Mutex::Lock sync(*this);
 
     if(!_delegate)
     {
-	Handle< ::IceEDelegate::IceE::Object> delegate = __createDelegate();
+	IceEInternal::Handle< ::IceEDelegate::IceE::Object> delegate = __createDelegate();
 	delegate->setup(_reference);
 	_delegate = delegate;
 
@@ -664,10 +664,10 @@ IceEProxy::IceE::Object::__getDelegate()
     return _delegate;
 }
 
-Handle< ::IceEDelegate::IceE::Object>
+::IceEInternal::Handle< ::IceEDelegate::IceE::Object>
 IceEProxy::IceE::Object::__createDelegate()
 {
-    return Handle< ::IceEDelegate::IceE::Object>(new ::IceEDelegate::IceE::Object);
+    return ::IceEInternal::Handle< ::IceEDelegate::IceE::Object>(new ::IceEDelegate::IceE::Object);
 }
 
 const Context&

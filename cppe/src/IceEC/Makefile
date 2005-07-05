@@ -2,22 +2,22 @@
 #
 # Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 #
-# This copy of Ice is licensed to you under the terms described in the
+# This copy of IceE is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mklibfilename,IceCE,$(VERSION))
-SONAME          = $(call mksoname,IceCE,$(SOVERSION))  
-LIBNAME		= $(call mklibname,IceCE)
+LIBFILENAME     = $(call mklibfilename,IceEC,$(VERSION))
+SONAME          = $(call mksoname,IceEC,$(SOVERSION))  
+LIBNAME		= $(call mklibname,IceEC)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 TRANSPORT_DIR	= $(top_srcdir)/src/TcpTransport
 
-ICE_DIR	= $(top_srcdir)/src/Ice
+ICE_DIR	= $(top_srcdir)/src/IceE
 
 TRANSPORT_OBJS	= Acceptor.o \
 		  Connector.o \
@@ -31,26 +31,22 @@ ICE_OBJS	= BasicStream.o \
 		  Cond.o \
 		  Connection.o \
 		  DefaultsAndOverrides.o \
-		  Exception.o \
 		  ExceptionBase.o \
 		  FactoryTable.o \
 		  FactoryTableDef.o \
 		  IdentityUtil.o \
-		  Incoming.o \
-		  IncomingConnectionFactory.o \
 		  Initialize.o \
 		  Instance.o \
+		  LocalException.o \
 		  LocalObject.o \
 		  LocatorInfo.o \
 		  LoggerI.o \
 		  LoggerUtil.o \
 		  Network.o \
-		  Object.o \
-		  ObjectAdapterFactory.o \
-		  ObjectAdapterI.o \
+		  OperationMode.o \
 		  Outgoing.o \
 		  OutgoingConnectionFactory.o \
-		  PropertiesI.o \
+		  Properties.o \
 		  PropertyNames.o \
 		  Proxy.o \
 		  ProxyFactory.o \
@@ -61,7 +57,6 @@ ICE_OBJS	= BasicStream.o \
 		  RoutingTable.o \
 		  RWRecMutex.o \
 		  SafeStdio.o \
-		  ServantManager.o \
 		  Shared.o \
 		  StaticMutex.o \
 		  StringUtil.o \
@@ -73,18 +68,12 @@ ICE_OBJS	= BasicStream.o \
 		  UUID.o
 
 LOCAL_OBJS	= BuiltinSequences.o \
-		  Current.o \
 		  FacetMap.o \
 		  Identity.o \
-		  LocalException.o \
 		  Locator.o \
 		  LocatorF.o \
 		  Logger.o \
 		  LoggerF.o \
-		  ObjectAdapter.o \
-		  ObjectAdapterF.o \
-		  Properties.o \
-		  PropertiesF.o \
 		  Router.o \
 		  RouterF.o
 
@@ -99,23 +88,17 @@ TRANSPORT_SRCS	= $(TRANSPORT_DIR)/Acceptor.cpp \
 SRCS		= $(LOCAL_OBJS:.o=.cpp) $(TRANSPORT_SRCS)
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
-		  $(SDIR)/Current.ice \
 		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
-		  $(SDIR)/LocalException.ice \
 		  $(SDIR)/LocatorF.ice \
 		  $(SDIR)/Locator.ice \
 		  $(SDIR)/LoggerF.ice \
 		  $(SDIR)/Logger.ice \
-		  $(SDIR)/ObjectAdapterF.ice \
-		  $(SDIR)/ObjectAdapter.ice \
-		  $(SDIR)/PropertiesF.ice \
-		  $(SDIR)/Properties.ice \
 		  $(SDIR)/RouterF.ice \
 		  $(SDIR)/Router.ice
 
-HDIR		= $(includedir)/Ice
-SDIR		= $(slicedir)/Ice
+HDIR		= $(includedir)/IceE
+SDIR		= $(slicedir)/IceE
 
 include $(top_srcdir)/config/Make.rules
 ifeq ($(USE_SPARC_ASM),yes)
@@ -132,8 +115,8 @@ endif
 %.o: $(ICE_DIR)/%.cpp
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DICE_PROTOCOL_API_EXPORTS
-SLICE2CPPEFLAGS	:= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPEFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICEE_API_EXPORTS
+SLICE2CPPEFLAGS	:= --ice --include-dir IceE --dll-export ICEE_API $(SLICE2CPPEFLAGS)
 
 LINKWITH        := $(ICE_OS_LIBS)
 

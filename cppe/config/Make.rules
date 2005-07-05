@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 #
-# This copy of Ice is licensed to you under the terms described in the
+# This copy of IceE is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
@@ -16,14 +16,14 @@ prefix			= /opt/IceE-$(VERSION)
 
 #
 # Define OPTIMIZE as yes if you want to build with
-# optimization. Otherwise Ice is build with debug information.
+# optimization. Otherwise IceE is build with debug information.
 #
 
 OPTIMIZE		= yes
 
 #
 # Define STATICLIBS as yes if you want to build with static
-# libraries. Otherwise Ice is build with dynamic libraries.
+# libraries. Otherwise IceE is build with dynamic libraries.
 #
 
 #STATICLIBS		= yes
@@ -33,39 +33,6 @@ OPTIMIZE		= yes
 # that supports both 32 and 64 bit.
 #
 #LP64			:= yes
-
-
-#
-# Define GPL_BUILD as yes if you want to build a copy of Ice licensed
-# to you under the GNU Public License v2.
-# This adds a "no-warranty" notice and accompanying show commands
-# to interactive programs.
-#
-GPL_BUILD		:= yes
-
-#
-# Define USE_READLINE as yes if you want to build parts of Ice using 
-# readline on platforms where readline is available 
-# (see PLATFORM_HAS_READLINE in Make.rules.$(UNAME))
-#
-# readline is used by a number of Ice admin programs to provide
-# command history, an optional feature.
-#
-# readline is licensed by the Free Software Foundation under the
-# GNU Public License v2, and cannot be combined with GPL-incompatible
-# software in any program. In particular the OpenSSL license
-# is GPL-incompatible.
-# On Linux and other free operating systems, readline and OpenSSL
-# are usually distributed with the operating system, which may be
-# a solution to this incompatibility. 
-#
-# If you combine Ice with more GPL-incompatible software, or have 
-# licensed Ice under a commercial (non-GPL) license, you should
-# ponder the licensing implications of using readline. 
-# 
-ifeq ($(GPL_BUILD),yes)
-   USE_READLINE		   := yes
-endif
 
 #
 # The values below can be overridden by defining them as environment
@@ -83,16 +50,6 @@ endif
 
 #STLPORT_HOME		?= /opt/STLport
 
-#
-# If readline is not installed in a standard location where the
-# compiler can find it, AND you want to use readline,
-# set READLINE_HOME to the readline installation directory.
-#
-#
-
-#READLINE_HOME		?= /opt/readline
-
-
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
@@ -103,7 +60,7 @@ SOVERSION		= 10
 bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib
 includedir		= $(top_srcdir)/include
-slicedir		= $(ICE_HOME)/slice
+slicedir		= $(top_srcdir)/slice
 
 ifeq ($(LP64),yes)
     install_bindir	= $(prefix)/bin$(lp64suffix)
@@ -148,31 +105,9 @@ else
     STLPORT_LIBS	=
 endif
 
-#
-# The GPL_BUILD flag is used only where readline may be
-# used.
-#
-
-ifeq ($(GPL_BUILD),yes)
-    READLINE_FLAGS	= -DGPL_BUILD
-endif
-
-ifeq ($(PLATFORM_HAS_READLINE),yes)
-    ifeq ($(USE_READLINE),yes)
-	ifneq ($(READLINE_HOME),)
-	    READLINE_FLAGS	+=  -DHAVE_READLINE -I$(READLINE_HOME)/include
-	    READLINE_LIBS	= -L$(READLINE_HOME)/$(libsubdir) -lreadline -lncurses
-	else
-	    READLINE_FLAGS	+= -DHAVE_READLINE
-	    READLINE_LIBS	= -lreadline -lncurses
-	endif
-    endif
-endif
-
-
 CPPFLAGS		= -I$(includedir) $(STLPORT_FLAGS)
 ICECPPFLAGS		= -I$(slicedir)
-SLICE2CPPEFLAGS		= -DICEE $(ICECPPFLAGS)
+SLICE2CPPEFLAGS		= $(ICECPPFLAGS)
 
 LDFLAGS			=  $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
@@ -294,7 +229,7 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPPE) $(SLICEPARSERLIB)
 %.cpp: %.l
 	flex $(FLEXFLAGS) $<
 	rm -f $@
-	echo '#include <IceUtil/Config.h>' > $@
+	echo '#include <IceE/Config.h>' > $@
 	cat lex.yy.c >> $@
 	rm -f lex.yy.c
 

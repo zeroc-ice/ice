@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../../../..
+top_srcdir	= ../../..
 
 CLIENT		= client
 SERVER		= server
@@ -32,7 +32,7 @@ include $(top_srcdir)/config/Make.rules
 
 ICECPPFLAGS	:= -I. $(ICECPPFLAGS)
 
-CPPFLAGS	:= -I. -I../../../include $(CPPFLAGS)
+CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@

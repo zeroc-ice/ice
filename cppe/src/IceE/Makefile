@@ -34,7 +34,6 @@ LOCAL_OBJS	= BasicStream.o \
 		  Connection.o \
 		  Current.o \
 		  DefaultsAndOverrides.o \
-		  Exception.o \
 		  ExceptionBase.o \
 		  FacetMap.o \
 		  FactoryTable.o \
@@ -57,14 +56,11 @@ LOCAL_OBJS	= BasicStream.o \
 		  Network.o \
 		  Object.o \
 		  ObjectAdapter.o \
-		  ObjectAdapterF.o \
 		  ObjectAdapterFactory.o \
-		  ObjectAdapterI.o \
+		  OperationMode.o \
 		  Outgoing.o \
 		  OutgoingConnectionFactory.o \
 		  Properties.o \
-		  PropertiesF.o \
-		  PropertiesI.o \
 		  PropertyNames.o \
 		  Proxy.o \
 		  ProxyFactory.o \
@@ -99,23 +95,17 @@ TRANSPORT_SRCS	= $(TRANSPORT_DIR)/Acceptor.cpp \
 SRCS		= $(LOCAL_OBJS:.o=.cpp) $(TRANSPORT_SRCS)
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
-		  $(SDIR)/Current.ice \
 		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
-		  $(SDIR)/LocalException.ice \
 		  $(SDIR)/LocatorF.ice \
 		  $(SDIR)/Locator.ice \
 		  $(SDIR)/LoggerF.ice \
 		  $(SDIR)/Logger.ice \
-		  $(SDIR)/ObjectAdapterF.ice \
-		  $(SDIR)/ObjectAdapter.ice \
-		  $(SDIR)/PropertiesF.ice \
-		  $(SDIR)/Properties.ice \
 		  $(SDIR)/RouterF.ice \
 		  $(SDIR)/Router.ice
 
-HDIR		= $(includedir)/Ice
-SDIR		= $(slicedir)/Ice
+HDIR		= $(includedir)/IceE
+SDIR		= $(slicedir)/IceE
 
 include $(top_srcdir)/config/Make.rules
 ifeq ($(USE_SPARC_ASM),yes)
@@ -126,8 +116,8 @@ OBJS		:= 	$(OBJS) $(AOBJ)
 CFLAGS		:= 	$(CFLAGS) -fomit-frame-pointer
 endif
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DICE_PROTOCOL_API_EXPORTS
-SLICE2CPPEFLAGS	:= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPEFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICEE_API_EXPORTS 
+SLICE2CPPEFLAGS	:= --ice --include-dir IceE --dll-export ICEE_API $(SLICE2CPPEFLAGS)
 
 LINKWITH        := $(ICE_OS_LIBS)
 
