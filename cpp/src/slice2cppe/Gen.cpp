@@ -43,15 +43,14 @@ getIds(const ClassDefPtr& p, StringList& ids)
 
 Slice::Gen::Gen(const string& name, const string& base,	const string& headerExtension,
 	        const string& sourceExtension, const string& include, const vector<string>& includePaths,
-		const string& dllExport, const string& dir, bool imp, bool ice) :
+		const string& dllExport, const string& dir, bool imp) :
     _base(base),
     _headerExtension(headerExtension),
     _sourceExtension(sourceExtension),
     _include(include),
     _includePaths(includePaths),
     _dllExport(dllExport),
-    _impl(imp),
-    _ice(ice)
+    _impl(imp)
 {
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
@@ -196,7 +195,9 @@ Slice::Gen::generate(const UnitPtr& p)
 
     H << "\n#include <IceE/LocalObjectF.h>";
     H << "\n#include <IceE/ProxyF.h>";
-    H << "\n#include <IceE/ObjectF.h>";
+    H << "\n#ifndef ICEE_PURE_CLIENT";
+    H << "\n#  include <IceE/ObjectF.h>";
+    H << "\n#endif";
     H << "\n#include <IceE/Exception.h>";
     H << "\n#include <IceE/LocalObject.h>";
 
@@ -207,7 +208,9 @@ Slice::Gen::generate(const UnitPtr& p)
 
     if(p->hasNonLocalClassDefs())
     {
-	H << "\n#include <IceE/Object.h>";
+        H << "\n#ifndef ICEE_PURE_CLIENT";
+	H << "\n#  include <IceE/Object.h>";
+        H << "\n#endif";
 	H << "\n#include <IceE/Outgoing.h>";
 	H << "\n#include <IceE/Incoming.h>";
 	C << "\n#include <IceE/LocalException.h>";
@@ -252,28 +255,28 @@ Slice::Gen::generate(const UnitPtr& p)
 	_dllExport += " ";
     }
 
-    ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport, _ice);
+    ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);
     p->visit(&proxyDeclVisitor, false);
 
-    ObjectDeclVisitor objectDeclVisitor(H, C, _dllExport, _ice);
+    ObjectDeclVisitor objectDeclVisitor(H, C, _dllExport);
     p->visit(&objectDeclVisitor, false);
 
-    IceInternalVisitor iceInternalVisitor(H, C, _dllExport, _ice);
+    IceInternalVisitor iceInternalVisitor(H, C, _dllExport);
     p->visit(&iceInternalVisitor, false);
 
-    HandleVisitor handleVisitor(H, C, _dllExport, _ice);
+    HandleVisitor handleVisitor(H, C, _dllExport);
     p->visit(&handleVisitor, false);
 
-    TypesVisitor typesVisitor(H, C, _dllExport, _ice);
+    TypesVisitor typesVisitor(H, C, _dllExport);
     p->visit(&typesVisitor, false);
 
-    ObjectVisitor objectVisitor(H, C, _dllExport, _ice);
+    ObjectVisitor objectVisitor(H, C, _dllExport);
     p->visit(&objectVisitor, false);
 
-    ProxyVisitor proxyVisitor(H, C, _dllExport, _ice);
+    ProxyVisitor proxyVisitor(H, C, _dllExport);
     p->visit(&proxyVisitor, false);
 
-    DelegateVisitor delegateVisitor(H, C, _dllExport, _ice);
+    DelegateVisitor delegateVisitor(H, C, _dllExport);
     p->visit(&delegateVisitor, false);
 
     if(_impl)
@@ -297,8 +300,8 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport, bool ice) :
-    H(h), C(c), _dllExport(dllExport), _ice(ice)
+Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport)
 {
 }
 
@@ -1005,8 +1008,8 @@ Slice::Gen::TypesVisitor::emitUpcall(const ExceptionPtr& base, const string& cal
     C.restoreIndent();
 }
 
-Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& h, Output& c, const string& dllExport, bool ice) :
-    H(h), C(c), _dllExport(dllExport), _ice(ice)
+Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport)
 {
 }
 
@@ -1066,8 +1069,8 @@ Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     H << nl << _dllExport << "bool operator<(const " << name << "&, const " << name << "&);";
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport, bool ice) :
-    H(h), C(c), _dllExport(dllExport), _ice(ice)
+Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport)
 {
 }
 
@@ -1312,8 +1315,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << eb;
 }
 
-Slice::Gen::DelegateVisitor::DelegateVisitor(Output& h, Output& c, const string& dllExport, bool ice) :
-    H(h), C(c), _dllExport(dllExport), _ice(ice)
+Slice::Gen::DelegateVisitor::DelegateVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport)
 {
 }
 
@@ -1524,8 +1527,8 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
     C << eb;
 }
 
-Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& h, Output& c, const string& dllExport, bool ice) :
-    H(h), C(c), _dllExport(dllExport), _ice(ice)
+Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport)
 {
 }
 
@@ -1555,7 +1558,7 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     string name = fixKwd(p->name());
 
-    if(!_ice)
+    if(!p->isLocal())
     {
         H << sp << nl << "#ifndef ICEE_PURE_CLIENT";
     }
@@ -1565,14 +1568,14 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     H << nl << _dllExport << "bool operator!=(const " << name << "&, const " << name << "&);";
     H << nl << _dllExport << "bool operator<(const " << name << "&, const " << name << "&);";
 
-    if(!_ice)
+    if(!p->isLocal())
     {
         H << sp << nl << "#endif // ICEE_PURE_CLIENT";
     }
 }
 
-Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dllExport, bool ice) :
-    H(h), C(c), _dllExport(dllExport), _ice(ice)
+Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport)
 {
 }
 
@@ -1613,7 +1616,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList allDataMembers = p->allDataMembers();
     DataMemberList::const_iterator q;
 
-    if(!_ice)
+    if(!p->isLocal())
     {
         H << sp << nl << "#ifndef ICEE_PURE_CLIENT";
     }
@@ -1878,10 +1881,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	C << eb << ';';
 
-        if(!_ice)
-        {
-	    C << sp << nl << "#ifndef ICEE_PURE_CLIENT";
-	}
+	C << sp << nl << "#ifndef ICEE_PURE_CLIENT";
 
 	C << sp;
 	C << nl << "bool" << nl << fixKwd(p->scoped()).substr(2)
@@ -1910,10 +1910,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << sb;
 	C << nl << "return " << flatName << '[' << scopedPos << "];";
 	C << eb;
-    }
-    else if(!_ice)
-    {
-	C << sp << nl << "#ifndef ICEE_PURE_CLIENT";
     }
 
     return true;
@@ -2009,7 +2005,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     H << eb << ';';
 
-    if(!_ice)
+    if(!p->isLocal())
     {
         H << sp << nl << "#endif // ICEE_PURE_CLIENT";
     }
@@ -2057,10 +2053,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << sb;
 	C << nl << "return static_cast<const ::IceE::Object&>(l) < static_cast<const ::IceE::Object&>(r);";
 	C << eb;
-    }
 
-    if(!_ice)
-    {
         C << sp << nl << "#endif // ICEE_PURE_CLIENT";
     }
 }
@@ -2268,8 +2261,8 @@ Slice::Gen::ObjectVisitor::emitUpcall(const ClassDefPtr& base, const string& cal
     C.restoreIndent();
 }
 
-Slice::Gen::IceInternalVisitor::IceInternalVisitor(Output& h, Output& c, const string& dllExport, bool ice) :
-    H(h), C(c), _dllExport(dllExport), _ice(ice)
+Slice::Gen::IceInternalVisitor::IceInternalVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport)
 {
 }
 
@@ -2300,7 +2293,7 @@ Slice::Gen::IceInternalVisitor::visitClassDecl(const ClassDeclPtr& p)
     string scoped = fixKwd(p->scoped());
 
 
-    if(!_ice)
+    if(!p->isLocal())
     {
         H << sp << nl << "#ifndef ICEE_PURE_CLIENT";
     }
@@ -2309,13 +2302,10 @@ Slice::Gen::IceInternalVisitor::visitClassDecl(const ClassDeclPtr& p)
     H << nl << _dllExport << "void incRef(" << scoped << "*);";
     H << nl << _dllExport << "void decRef(" << scoped << "*);";
 
-    if(!_ice)
-    {
-        H << sp << nl << "#endif // ICEE_PURE_CLIENT";
-    }
-
     if(!p->isLocal())
     {
+        H << sp << nl << "#endif // ICEE_PURE_CLIENT";
+
 	H << sp;
 	H << nl << _dllExport << "void incRef(::IceEProxy" << scoped << "*);";
 	H << nl << _dllExport << "void decRef(::IceEProxy" << scoped << "*);";
@@ -2327,7 +2317,7 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string scoped = fixKwd(p->scoped());
 
-    if(!_ice)
+    if(!p->isLocal())
     {
         C << sp << nl << "#ifndef ICEE_PURE_CLIENT";
     }
@@ -2344,13 +2334,10 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << "p->__decRef();";
     C << eb;
 
-    if(!_ice)
-    {
-        C << sp << nl << "#endif // ICEE_PURE_CLIENT";
-    }
-
     if(!p->isLocal())
     {
+        C << sp << nl << "#endif // ICEE_PURE_CLIENT";
+
 	C << sp;
 	C << nl << "void" << nl << "IceEInternal::incRef(::IceEProxy" << scoped << "* p)";
 	C << sb;
@@ -2367,8 +2354,8 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
     return true;
 }
 
-Slice::Gen::HandleVisitor::HandleVisitor(Output& h, Output& c, const string& dllExport, bool ice) :
-    H(h), C(c), _dllExport(dllExport), _ice(ice)
+Slice::Gen::HandleVisitor::HandleVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h), C(c), _dllExport(dllExport)
 {
 }
 
@@ -2401,7 +2388,7 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
     string name = p->name();
     string scoped = fixKwd(p->scoped());
 
-    if(!_ice)
+    if(!p->isLocal())
     {
         H << sp << nl << "#ifndef ICEE_PURE_CLIENT";
     }
@@ -2409,13 +2396,10 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
     H << sp;
     H << nl << "typedef ::IceEInternal::Handle< " << scoped << "> " << name << "Ptr;";
 
-    if(!_ice)
-    {
-        H << sp << nl << "#endif // ICEE_PURE_CLIENT" << sp;
-    }
-
     if(!p->isLocal())
     {
+        H << sp << nl << "#endif // ICEE_PURE_CLIENT" << sp;
+
 	H << nl << "typedef ::IceEInternal::ProxyHandle< ::IceEProxy" << scoped << "> " << name << "Prx;";
 
 	H << sp;

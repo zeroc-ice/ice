@@ -28,8 +28,7 @@ public:
 	const std::vector<std::string>&,
 	const std::string&,
 	const std::string&,
-        bool,
-	bool);
+        bool);
     ~Gen();
 
     bool operator!() const; // Returns true if there was a constructor error
@@ -51,13 +50,12 @@ private:
     std::vector<std::string> _includePaths;
     std::string _dllExport;
     bool _impl;
-    bool _ice;
 
     class TypesVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-	TypesVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&, bool);
+	TypesVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -80,14 +78,13 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
-	bool _ice;
     };
 
     class ProxyDeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-	ProxyDeclVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&, bool);
+	ProxyDeclVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
@@ -101,14 +98,13 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
-	bool _ice;
     };
 
     class ProxyVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-	ProxyVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&, bool);
+	ProxyVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
@@ -124,14 +120,13 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
-	bool _ice;
     };
 
     class DelegateVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-	DelegateVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&, bool);
+	DelegateVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
@@ -147,14 +142,13 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
-	bool _ice;
     };
 
     class ObjectDeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-	ObjectDeclVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&, bool);
+	ObjectDeclVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -166,14 +160,13 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
-	bool _ice;
     };
 
     class ObjectVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-	ObjectVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&, bool);
+	ObjectVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -192,14 +185,13 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
-	bool _ice;
     };
 
     class IceInternalVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-	IceInternalVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&, bool);
+	IceInternalVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
@@ -212,14 +204,13 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
-	bool _ice;
     };
 
     class HandleVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-	HandleVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&, bool);
+	HandleVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -232,7 +223,6 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
-	bool _ice;
     };
 
     class ImplVisitor : private ::IceUtil::noncopyable, public ParserVisitor

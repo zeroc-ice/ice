@@ -200,7 +200,7 @@ main(int argc, char* argv[])
 		else
 		{
 		    Gen gen(argv[0], icecpp.getBaseName(), headerExtension, sourceExtension, include,
-			    includePaths, dllExport, output, impl, ice);
+			    includePaths, dllExport, output, impl);
 		    if(!gen)
 		    {
 			u->destroy();
