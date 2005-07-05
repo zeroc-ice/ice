@@ -202,7 +202,7 @@ USERDEP__TEST_="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. -I../../slice Test.ice
+	slice2cppe.exe -I. Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -218,7 +218,7 @@ USERDEP__TEST_="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. -I../../slice Test.ice
+	slice2cppe.exe -I. Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -234,7 +234,7 @@ USERDEP__TEST_="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. -I../../slice Test.ice
+	slice2cppe.exe -I. Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -250,7 +250,7 @@ USERDEP__TEST_="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. -I../../slice Test.ice
+	slice2cppe.exe -I. Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
