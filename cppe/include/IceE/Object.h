@@ -10,9 +10,7 @@
 #ifndef ICEE_OBJECT_H
 #define ICEE_OBJECT_H
 
-#include <IceE/Mutex.h>
 #include <IceE/ObjectF.h>
-#include <IceE/ProxyF.h>
 #include <IceE/Current.h>
 #include <IceE/DispatchStatus.h>
 

@@ -10,11 +10,11 @@
 #ifndef ICEE_TRANSPORT_TRANSCEIVER_H
 #define ICEE_TRANSPORT_TRANSCEIVER_H
 
-#include <IceE/Shared.h>
+#include <IceE/TransceiverF.h>
 #include <IceE/InstanceF.h>
 #include <IceE/TraceLevelsF.h>
 #include <IceE/LoggerF.h>
-#include <IceE/TransceiverF.h>
+#include <IceE/Shared.h>
 
 #ifdef _WIN32
 typedef int ssize_t;
@@ -29,7 +29,7 @@ class Connector;
 class Acceptor;
 class Buffer;
 
-class ICEE_PROTOCOL_API Transceiver : public ::IceE::Shared
+class ICEE_API Transceiver : public ::IceE::Shared
 {
 public:
 

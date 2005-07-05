@@ -13,17 +13,17 @@
 //
 // Uncomment to build with no Router support.
 //
-#define ICEE_NO_ROUTER
+//#define ICEE_NO_ROUTER
 
 //
 // Uncomment to build with no Locator support.
 //
-#define ICEE_NO_LOCATOR
+//#define ICEE_NO_LOCATOR
 
 //
 // Disable batch mode on the client side.
 //
-#define ICEE_NO_BATCH
+//#define ICEE_NO_BATCH
 
 //
 // Unless we're building a pure client batch mode cannot be disabled.
@@ -338,11 +338,11 @@ namespace IceEInternal
 {
 }
 
-#ifndef ICEE_PROTOCOL_API 
-#   ifdef ICEE_PROTOCOL_API_EXPORTS
-#       define ICEE_PROTOCOL_API ICEE_DECLSPEC_EXPORT
+#ifndef ICEE_API 
+#   ifdef ICEE_API_EXPORTS
+#       define ICEE_API ICEE_DECLSPEC_EXPORT
 #   else
-#       define ICEE_PROTOCOL_API ICEE_DECLSPEC_IMPORT
+#       define ICEE_API ICEE_DECLSPEC_IMPORT
 #   endif
 #endif
 

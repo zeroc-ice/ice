@@ -9,7 +9,6 @@
 
 #include <IceE/BasicStream.h>
 #include <IceE/Instance.h>
-#include <IceE/Proxy.h>
 #include <IceE/ProxyFactory.h>
 #include <IceE/UserExceptionFactory.h>
 #include <IceE/LocalException.h>

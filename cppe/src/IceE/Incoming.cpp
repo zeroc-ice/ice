@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <IceE/Incoming.h>
-#include <IceE/ObjectAdapter.h>
 #include <IceE/ServantManager.h>
 #include <IceE/Object.h>
 #include <IceE/Connection.h>

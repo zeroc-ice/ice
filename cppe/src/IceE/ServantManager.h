@@ -10,10 +10,10 @@
 #ifndef ICEE_SERVANT_MANAGER_H
 #define ICEE_SERVANT_MANAGER_H
 
-#include <IceE/Shared.h>
-#include <IceE/Mutex.h>
 #include <IceE/ServantManagerF.h>
 #include <IceE/InstanceF.h>
+#include <IceE/Shared.h>
+#include <IceE/Mutex.h>
 #include <IceE/Identity.h>
 #include <IceE/FacetMap.h>
 

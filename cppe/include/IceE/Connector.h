@@ -10,12 +10,12 @@
 #ifndef ICEE_TRANSPORT_CONNECTOR_H
 #define ICEE_TRANSPORT_CONNECTOR_H
 
-#include <IceE/Shared.h>
+#include <IceE/ConnectorF.h>
 #include <IceE/TransceiverF.h>
 #include <IceE/InstanceF.h>
 #include <IceE/TraceLevelsF.h>
 #include <IceE/LoggerF.h>
-#include <IceE/ConnectorF.h>
+#include <IceE/Shared.h>
 
 #ifndef _WIN32
 #   include <netinet/in.h> // For struct sockaddr_in
@@ -26,7 +26,7 @@ namespace IceEInternal
 
 class Endpoint;
 
-class ICEE_PROTOCOL_API Connector : public ::IceE::Shared
+class ICEE_API Connector : public ::IceE::Shared
 {
 public:
     

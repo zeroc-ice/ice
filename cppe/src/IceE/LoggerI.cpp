@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <IceE/Time.h>
 #include <IceE/LoggerI.h>
+#include <IceE/Time.h>
 
 using namespace std;
 using namespace IceE;

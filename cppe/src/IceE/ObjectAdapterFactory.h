@@ -10,14 +10,14 @@
 #ifndef ICEE_OBJECT_ADAPTER_FACTORY_H
 #define ICEE_OBJECT_ADAPTER_FACTORY_H
 
-#include <IceE/Shared.h>
-#include <IceE/Mutex.h>
-#include <IceE/Monitor.h>
-
 #include <IceE/ObjectAdapterF.h>
 #include <IceE/ProxyF.h>
 #include <IceE/CommunicatorF.h>
 #include <IceE/InstanceF.h>
+
+#include <IceE/Shared.h>
+#include <IceE/Mutex.h>
+#include <IceE/Monitor.h>
 
 namespace IceEInternal
 {

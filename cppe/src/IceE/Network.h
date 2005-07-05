@@ -69,41 +69,41 @@ typedef int socklen_t;
 namespace IceEInternal
 {
 
-ICEE_PROTOCOL_API bool interrupted();
-ICEE_PROTOCOL_API bool acceptInterrupted();
-ICEE_PROTOCOL_API bool noBuffers();
-ICEE_PROTOCOL_API bool wouldBlock();
-ICEE_PROTOCOL_API bool connectFailed();
-ICEE_PROTOCOL_API bool connectionRefused();
-ICEE_PROTOCOL_API bool connectInProgress();
-ICEE_PROTOCOL_API bool connectionLost();
-ICEE_PROTOCOL_API bool notConnected();
+ICEE_API bool interrupted();
+ICEE_API bool acceptInterrupted();
+ICEE_API bool noBuffers();
+ICEE_API bool wouldBlock();
+ICEE_API bool connectFailed();
+ICEE_API bool connectionRefused();
+ICEE_API bool connectInProgress();
+ICEE_API bool connectionLost();
+ICEE_API bool notConnected();
 
-ICEE_PROTOCOL_API SOCKET createSocket();
-ICEE_PROTOCOL_API void closeSocket(SOCKET);
-ICEE_PROTOCOL_API void shutdownSocketWrite(SOCKET);
-ICEE_PROTOCOL_API void shutdownSocketReadWrite(SOCKET);
+ICEE_API SOCKET createSocket();
+ICEE_API void closeSocket(SOCKET);
+ICEE_API void shutdownSocketWrite(SOCKET);
+ICEE_API void shutdownSocketReadWrite(SOCKET);
 
-ICEE_PROTOCOL_API void setBlock(SOCKET, bool);
-ICEE_PROTOCOL_API void setTcpNoDelay(SOCKET);
-ICEE_PROTOCOL_API void setKeepAlive(SOCKET);
-ICEE_PROTOCOL_API void setSendBufferSize(SOCKET, int);
+ICEE_API void setBlock(SOCKET, bool);
+ICEE_API void setTcpNoDelay(SOCKET);
+ICEE_API void setKeepAlive(SOCKET);
+ICEE_API void setSendBufferSize(SOCKET, int);
 
-ICEE_PROTOCOL_API void doBind(SOCKET, struct sockaddr_in&);
-ICEE_PROTOCOL_API void doListen(SOCKET, int);
-ICEE_PROTOCOL_API void doConnect(SOCKET, struct sockaddr_in&, int);
-ICEE_PROTOCOL_API SOCKET doAccept(SOCKET, int);
+ICEE_API void doBind(SOCKET, struct sockaddr_in&);
+ICEE_API void doListen(SOCKET, int);
+ICEE_API void doConnect(SOCKET, struct sockaddr_in&, int);
+ICEE_API SOCKET doAccept(SOCKET, int);
 
-ICEE_PROTOCOL_API void getAddress(const std::string&, int, struct sockaddr_in&);
-ICEE_PROTOCOL_API std::string getLocalHost(bool);
-ICEE_PROTOCOL_API bool compareAddress(const struct sockaddr_in&, const struct sockaddr_in&);
+ICEE_API void getAddress(const std::string&, int, struct sockaddr_in&);
+ICEE_API std::string getLocalHost(bool);
+ICEE_API bool compareAddress(const struct sockaddr_in&, const struct sockaddr_in&);
 
-ICEE_PROTOCOL_API std::string errorToString(int);
-ICEE_PROTOCOL_API std::string errorToStringDNS(int);
-ICEE_PROTOCOL_API std::string lastErrorToString();
+ICEE_API std::string errorToString(int);
+ICEE_API std::string errorToStringDNS(int);
+ICEE_API std::string lastErrorToString();
 
-ICEE_PROTOCOL_API std::string fdToString(SOCKET);
-ICEE_PROTOCOL_API std::string addrToString(const struct sockaddr_in&);
+ICEE_API std::string fdToString(SOCKET);
+ICEE_API std::string addrToString(const struct sockaddr_in&);
 
 }
 

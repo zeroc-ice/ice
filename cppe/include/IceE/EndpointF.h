@@ -16,8 +16,8 @@ namespace IceEInternal
 {
 
 class Endpoint;
-ICEE_PROTOCOL_API void incRef(Endpoint*);
-ICEE_PROTOCOL_API void decRef(Endpoint*);
+ICEE_API void incRef(Endpoint*);
+ICEE_API void decRef(Endpoint*);
 typedef IceEInternal::Handle<Endpoint> EndpointPtr;
 
 }

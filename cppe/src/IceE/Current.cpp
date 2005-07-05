@@ -8,8 +8,6 @@
 // **********************************************************************
 
 #include <IceE/Current.h>
-#include <IceE/BasicStream.h>
-#include <IceE/Object.h>
 
 bool
 IceE::Current::operator==(const Current& __rhs) const

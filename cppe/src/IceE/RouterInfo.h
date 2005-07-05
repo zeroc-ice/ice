@@ -14,12 +14,11 @@
 
 #ifndef ICEE_NO_ROUTER
 
-#include <IceE/Shared.h>
-#include <IceE/Mutex.h>
 #include <IceE/RouterInfoF.h>
 #include <IceE/RouterF.h>
-#include <IceE/ProxyF.h>
 #include <IceE/RoutingTableF.h>
+#include <IceE/Shared.h>
+#include <IceE/Mutex.h>
 
 namespace IceEInternal
 {

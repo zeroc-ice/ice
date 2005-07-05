@@ -10,7 +10,6 @@
 #include <IceE/ServantManager.h>
 #include <IceE/LocalException.h>
 #include <IceE/IdentityUtil.h>
-#include <IceE/LoggerUtil.h>
 #include <IceE/Instance.h>
 #include <IceE/StringUtil.h>
 

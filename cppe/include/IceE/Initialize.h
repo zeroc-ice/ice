@@ -18,8 +18,6 @@
 namespace IceE
 {
 
-ICEE_API void collectGarbage();
-
 ICEE_API StringSeq argsToStringSeq(int, char*[]);
 //
 // This function assumes that the string sequence only contains

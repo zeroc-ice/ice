@@ -10,12 +10,13 @@
 #ifndef ICEE_COMMUNICATOR_H
 #define ICEE_COMMUNICATOR_H
 
-#include <IceE/RecMutex.h>
-#include <IceE/StaticMutex.h>
-
-#include <IceE/Initialize.h>
 #include <IceE/CommunicatorF.h>
 #include <IceE/LoggerF.h>
+#include <IceE/PropertiesF.h>
+#include <IceE/InstanceF.h>
+
+#include <IceE/RecMutex.h>
+#include <IceE/Initialize.h> // For the friend declarations.
 
 namespace IceE
 {

@@ -10,11 +10,11 @@
 #ifndef ICEE_REFERENCE_FACTORY_H
 #define ICEE_REFERENCE_FACTORY_H
 
+#include <IceE/ReferenceFactoryF.h>
+#include <IceE/ConnectionF.h>
 #include <IceE/Shared.h>
 #include <IceE/Mutex.h>
-#include <IceE/ReferenceFactoryF.h>
 #include <IceE/Reference.h> // For Reference::Mode
-#include <IceE/ConnectionF.h>
 
 namespace IceEInternal
 {

@@ -11,7 +11,6 @@
 #include <IceE/DispatchStatus.h>
 #include <IceE/Connection.h>
 #include <IceE/Reference.h>
-#include <IceE/Endpoint.h>
 #include <IceE/LocalException.h>
 
 using namespace std;

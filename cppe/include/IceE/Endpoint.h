@@ -10,14 +10,16 @@
 #ifndef ICEE_TRANSPORT_ENDPOINT_H
 #define ICEE_TRANSPORT_ENDPOINT_H
 
-#include <IceE/Shared.h>
 #include <IceE/EndpointF.h>
-#ifndef ICEE_PURE_CLIENT
-#    include <IceE/AcceptorF.h>
-#endif
 #include <IceE/ConnectorF.h>
 #include <IceE/TransceiverF.h>
 #include <IceE/InstanceF.h>
+#include <IceE/LoggerF.h>
+#ifndef ICEE_PURE_CLIENT
+#    include <IceE/AcceptorF.h>
+#endif
+
+#include <IceE/Shared.h>
 
 namespace IceEInternal
 {
@@ -26,12 +28,7 @@ class BasicStream;
 
 const IceE::Short TcpEndpointType = 1;
 
-//
-// For UDP style transports there is no connector or acceptor.
-//
-//#define ICEE_TRANSPORT_NO_CONNECT
-
-class ICEE_PROTOCOL_API Endpoint : public IceE::Shared
+class ICEE_API Endpoint : public IceE::Shared
 {
 public:
 

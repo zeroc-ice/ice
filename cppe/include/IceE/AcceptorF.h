@@ -16,8 +16,8 @@ namespace IceEInternal
 {
 
 class Acceptor;
-ICEE_PROTOCOL_API void incRef(Acceptor*);
-ICEE_PROTOCOL_API void decRef(Acceptor*);
+ICEE_API void incRef(Acceptor*);
+ICEE_API void decRef(Acceptor*);
 typedef Handle<Acceptor> AcceptorPtr;
 
 }

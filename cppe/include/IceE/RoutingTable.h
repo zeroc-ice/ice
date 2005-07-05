@@ -10,10 +10,11 @@
 #ifndef ICEE_ROUTING_TABLE_H
 #define ICEE_ROUTING_TABLE_H
 
-#include <IceE/Shared.h>
-#include <IceE/Mutex.h>
 #include <IceE/RoutingTableF.h>
 #include <IceE/ProxyF.h>
+
+#include <IceE/Shared.h>
+#include <IceE/Mutex.h>
 #include <IceE/Identity.h>
 
 namespace IceE

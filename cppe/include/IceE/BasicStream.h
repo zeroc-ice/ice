@@ -12,6 +12,7 @@
 
 #include <IceE/InstanceF.h>
 #include <IceE/ProxyF.h>
+
 #include <IceE/Buffer.h>
 
 namespace IceE

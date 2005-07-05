@@ -7,11 +7,9 @@
 //
 // **********************************************************************
 
-#include <IceE/StringUtil.h>
 #include <IceE/TraceUtil.h>
-#include <IceE/Instance.h>
+#include <IceE/StringUtil.h>
 #include <IceE/DispatchStatus.h>
-#include <IceE/Proxy.h>
 #include <IceE/TraceLevels.h>
 #include <IceE/Logger.h>
 #include <IceE/BasicStream.h>

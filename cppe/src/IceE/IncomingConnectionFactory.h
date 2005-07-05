@@ -11,17 +11,18 @@
 #ifndef ICEE_INCOMING_CONNECTION_FACTORY_H
 #define ICEE_INCOMING_CONNECTION_FACTORY_H
 
+#include <IceE/IncomingConnectionFactoryF.h>
+#include <IceE/EndpointF.h>
+#include <IceE/ConnectionF.h>
+#include <IceE/ObjectAdapterF.h>
+#include <IceE/InstanceF.h>
+#include <IceE/AcceptorF.h>
+#include <IceE/TransceiverF.h>
+
 #include <IceE/Mutex.h>
 #include <IceE/Monitor.h>
 #include <IceE/Shared.h>
 #include <IceE/Thread.h>
-#include <IceE/EndpointF.h>
-#include <IceE/ConnectionF.h>
-#include <IceE/ObjectAdapterF.h>
-#include <IceE/IncomingConnectionFactoryF.h>
-#include <IceE/InstanceF.h>
-#include <IceE/AcceptorF.h>
-#include <IceE/TransceiverF.h>
 #include <list>
 
 namespace IceEInternal

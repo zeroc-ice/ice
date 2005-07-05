@@ -17,13 +17,13 @@
 #ifndef ICEE_NO_ROUTER
 #    include <IceE/RouterInfo.h>
 #    include <IceE/Router.h>
+#    include <IceE/Connection.h>
 #endif
 #ifndef ICEE_NO_LOCATOR
 #    include <IceE/LocatorInfo.h>
 #    include <IceE/Locator.h>
 #endif
 #include <IceE/Functional.h>
-#include <IceE/Connection.h>
 #include <IceE/OutgoingConnectionFactory.h>
 #include <IceE/LoggerUtil.h>
 #include <IceE/TraceLevels.h>

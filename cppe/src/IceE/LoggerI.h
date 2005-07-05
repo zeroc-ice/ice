@@ -10,8 +10,8 @@
 #ifndef ICEE_LOGGER_I_H
 #define ICEE_LOGGER_I_H
 
-#include <IceE/Mutex.h>
 #include <IceE/Logger.h>
+#include <IceE/Mutex.h>
 
 namespace IceE
 {

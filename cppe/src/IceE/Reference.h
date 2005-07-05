@@ -10,17 +10,20 @@
 #ifndef ICEE_REFERENCE_H
 #define ICEE_REFERENCE_H
 
-#include <IceE/Shared.h>
-#include <IceE/Mutex.h>
 #include <IceE/ReferenceF.h>
-#include <IceE/ReferenceFactoryF.h>
 #include <IceE/EndpointF.h>
 #include <IceE/InstanceF.h>
-#include <IceE/RouterF.h>
-#include <IceE/LocatorF.h>
-#include <IceE/RouterInfoF.h>
-#include <IceE/LocatorInfoF.h>
+#ifndef ICEE_NO_ROUTER
+#  include <IceE/RouterInfoF.h>
+#  include <IceE/RouterF.h>
+#endif
+#ifndef ICEE_NO_LOCATOR
+#  include <IceE/LocatorInfoF.h>
+#  include <IceE/LocatorF.h>
+#endif
 #include <IceE/ConnectionF.h>
+#include <IceE/Shared.h>
+#include <IceE/Mutex.h>
 #include <IceE/Identity.h>
 
 namespace IceEInternal

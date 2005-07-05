@@ -10,9 +10,6 @@
 #ifndef ICEE_INSTANCE_H
 #define ICEE_INSTANCE_H
 
-#include <IceE/Shared.h>
-#include <IceE/Mutex.h>
-#include <IceE/RecMutex.h>
 #include <IceE/InstanceF.h>
 #include <IceE/CommunicatorF.h>
 #include <IceE/PropertiesF.h>
@@ -28,6 +25,8 @@
 #ifndef ICEE_PURE_CLIENT
 #    include <IceE/ObjectAdapterFactoryF.h>
 #endif
+#include <IceE/Shared.h>
+#include <IceE/RecMutex.h>
 
 namespace IceE
 {

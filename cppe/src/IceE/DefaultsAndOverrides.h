@@ -10,9 +10,9 @@
 #ifndef ICEE_DEFAULTS_AND_OVERRIDES_H
 #define ICEE_DEFAULTS_AND_OVERRIDES_H
 
-#include <IceE/Shared.h>
 #include <IceE/DefaultsAndOverridesF.h>
 #include <IceE/PropertiesF.h>
+#include <IceE/Shared.h>
 
 namespace IceEInternal
 {

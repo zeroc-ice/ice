@@ -10,7 +10,6 @@
 #ifndef ICEE_COND_H
 #define ICEE_COND_H
 
-#include <IceE/Config.h>
 #include <IceE/Time.h>
 #include <IceE/ThreadException.h>
 

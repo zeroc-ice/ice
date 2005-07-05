@@ -10,7 +10,6 @@
 #ifndef ICEE_UUID_H
 #define ICEE_UUID_H
 
-#include <IceE/Config.h>
 #include <IceE/Exception.h>
 
 namespace IceE

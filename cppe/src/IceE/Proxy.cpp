@@ -11,12 +11,12 @@
 #include <IceE/ProxyFactory.h>
 #include <IceE/Outgoing.h>
 #include <IceE/Reference.h>
-#include <IceE/Endpoint.h>
 #include <IceE/Instance.h>
-#include <IceE/RouterInfo.h>
-#include <IceE/LocatorInfo.h>
 #include <IceE/BasicStream.h>
 #include <IceE/LocalException.h>
+#ifndef ICEE_NO_ROUTER
+#  include <IceE/RouterInfo.h>
+#endif
 
 using namespace std;
 using namespace IceE;

@@ -10,15 +10,14 @@
 #ifndef ICEE_OUTGOING_CONNECTION_FACTORY_H
 #define ICEE_OUTGOING_CONNECTION_FACTORY_H
 
-#include <IceE/Mutex.h>
-#include <IceE/Monitor.h>
 #include <IceE/OutgoingConnectionFactoryF.h>
 #include <IceE/ConnectionF.h>
 #include <IceE/InstanceF.h>
 #include <IceE/ObjectAdapterF.h>
 #include <IceE/EndpointF.h>
-#include <IceE/TransceiverF.h>
 #include <IceE/RouterF.h>
+#include <IceE/Mutex.h>
+#include <IceE/Monitor.h>
 #include <set>
 
 namespace IceEInternal

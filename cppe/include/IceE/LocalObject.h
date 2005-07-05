@@ -10,15 +10,8 @@
 #ifndef ICEE_LOCAL_OBJECT_H
 #define ICEE_LOCAL_OBJECT_H
 
-#include <IceE/Shared.h>
 #include <IceE/LocalObjectF.h>
-
-namespace IceEInternal
-{
-
-class BasicStream;
-
-}
+#include <IceE/Shared.h>
 
 namespace IceE
 {

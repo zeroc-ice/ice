@@ -22,13 +22,9 @@
 #include <IceE/ProxyFactory.h>
 #include <IceE/OutgoingConnectionFactory.h>
 #include <IceE/LocalException.h>
-#include <IceE/Exception.h>
 #include <IceE/Properties.h>
 #include <IceE/LoggerI.h>
-#include <IceE/Network.h>
 #include <IceE/EndpointFactory.h>
-#include <IceE/Endpoint.h>
-#include <IceE/Initialize.h>
 #ifndef ICEE_PURE_CLIENT
 #    include <IceE/ObjectAdapterFactory.h>
 #endif

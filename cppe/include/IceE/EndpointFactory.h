@@ -10,17 +10,17 @@
 #ifndef ICEE_ENDPOINT_FACTORY_H
 #define ICEE_ENDPOINT_FACTORY_H
 
-#include <IceE/Shared.h>
+#include <IceE/EndpointFactoryF.h>
 #include <IceE/EndpointF.h>
 #include <IceE/InstanceF.h>
-#include <IceE/EndpointFactoryF.h>
+#include <IceE/Shared.h>
 
 namespace IceEInternal
 {
 
 class BasicStream;
 
-class ICEE_PROTOCOL_API EndpointFactory : public ::IceE::Shared
+class ICEE_API EndpointFactory : public ::IceE::Shared
 {
 public:
 

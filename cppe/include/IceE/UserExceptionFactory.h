@@ -12,7 +12,6 @@
 
 #include <IceE/Shared.h>
 #include <IceE/Handle.h>
-#include <IceE/Config.h>
 
 namespace IceEInternal
 {

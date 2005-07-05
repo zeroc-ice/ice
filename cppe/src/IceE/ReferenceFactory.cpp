@@ -8,14 +8,16 @@
 // **********************************************************************
 
 #include <IceE/ReferenceFactory.h>
-#include <IceE/ProxyFactory.h>
 #include <IceE/LocalException.h>
 #include <IceE/Instance.h>
 #include <IceE/IdentityUtil.h>
-#include <IceE/Endpoint.h>
 #include <IceE/EndpointFactory.h>
-#include <IceE/RouterInfo.h>
-#include <IceE/LocatorInfo.h>
+#ifndef ICEE_NO_ROUTER
+#  include <IceE/RouterInfo.h>
+#endif
+#ifndef ICEE_NO_LOCATOR
+#  include <IceE/LocatorInfo.h>
+#endif
 #include <IceE/BasicStream.h>
 #include <IceE/StringUtil.h>
 

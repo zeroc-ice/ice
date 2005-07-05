@@ -13,17 +13,14 @@
 #include <IceE/LoggerUtil.h>
 #include <IceE/TraceLevels.h>
 #include <IceE/DefaultsAndOverrides.h>
-#include <IceE/Properties.h>
-#include <IceE/Transceiver.h>
 #include <IceE/Connector.h>
 #include <IceE/Endpoint.h>
 #include <IceE/RouterInfo.h>
 #include <IceE/LocalException.h>
 #include <IceE/Functional.h>
 #ifndef ICEE_NO_ROUTER
-#   include <IceE/Reference.h>
+#  include <IceE/Reference.h>
 #endif
-
 #include <list>
 
 using namespace std;

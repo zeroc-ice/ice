@@ -7,13 +7,11 @@
 //
 // **********************************************************************
 
-#include <IceE/UUID.h>
 #include <IceE/ObjectAdapter.h>
+#include <IceE/UUID.h>
 #include <IceE/Instance.h>
-#include <IceE/Proxy.h>
 #include <IceE/ProxyFactory.h>
 #include <IceE/ReferenceFactory.h>
-#include <IceE/Endpoint.h>
 #include <IceE/EndpointFactory.h>
 #include <IceE/IncomingConnectionFactory.h>
 #include <IceE/OutgoingConnectionFactory.h>
@@ -28,9 +26,10 @@
 #ifndef ICEE_NO_ROUTER
 #    include <IceE/RouterInfo.h>
 #    include <IceE/Router.h>
+#    include <IceE/Endpoint.h>
 #endif
 #include <IceE/LoggerUtil.h>
-#include <IceE/Communicator.h>
+
 #include <ctype.h>
 
 using namespace std;

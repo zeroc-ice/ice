@@ -48,7 +48,6 @@ ICEE_API void decRef(::IceEDelegate::IceE::Object*);
 
 }
 
-
 #include <IceE/ProxyHandle.h>
 
 namespace IceE

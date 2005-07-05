@@ -13,20 +13,6 @@
 
 using namespace std;
 
-void
-IceE::safesnprintf(char* buf, size_t size, const char* fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-#if defined(_WIN32) || defined(_WIN32_WCE)
-    _vsnprintf(buf, size-1, fmt, ap);
-#else
-    vsnprintf(buf, size-1, fmt, ap);
-#endif
-    buf[size-1] = '\0';
-    va_end(ap);
-}
-
 string
 IceE::printfToString(const char* fmt, ...)
 {

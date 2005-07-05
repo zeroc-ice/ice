@@ -26,7 +26,7 @@
 
 #include <IceE/Mutex.h>
 #include <IceE/Monitor.h>
-#include <IceE/Time.h>
+#include <IceE/Time.h> // XXX: This will result in a bug.
 #include <IceE/Thread.h> // For ThreadPerConnection.
 #include <IceE/Identity.h>
 #include <IceE/BasicStream.h>

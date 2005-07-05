@@ -10,12 +10,10 @@
 #ifndef ICEE_FACTORY_TABLE_DEF_H
 #define ICEE_FACTORY_TABLE_DEF_H
 
+#include <IceE/UserExceptionFactoryF.h>
+
 #include <IceE/StaticMutex.h>
 #include <IceE/Mutex.h>
-#include <IceE/UserExceptionFactoryF.h>
-#include <IceE/Config.h>
-#include <string>
-#include <map>
 
 namespace IceE
 {

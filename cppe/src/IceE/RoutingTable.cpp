@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#include <IceE/Config.h>
+
 #ifndef ICEE_NO_ROUTER
 
 #include <IceE/RoutingTable.h>

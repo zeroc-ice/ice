@@ -32,8 +32,6 @@ namespace IceE
 
 typedef IceEInternal::Handle< Object > ObjectPtr;
 
-void ICEE_API __patch__ObjectPtr(void*, ObjectPtr&);
-
 }
 
 #endif

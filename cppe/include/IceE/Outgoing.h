@@ -10,12 +10,13 @@
 #ifndef ICEE_OUTGOING_H
 #define ICEE_OUTGOING_H
 
-#include <IceE/Mutex.h>
-#include <IceE/Monitor.h>
 #include <IceE/ConnectionF.h>
 #include <IceE/ReferenceF.h>
+
+#include <IceE/Mutex.h>
+#include <IceE/Monitor.h>
 #include <IceE/BasicStream.h>
-#include <IceE/Current.h>
+#include <IceE/OperationMode.h>
 
 namespace IceE
 {

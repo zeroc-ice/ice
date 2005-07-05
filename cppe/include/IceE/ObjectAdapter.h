@@ -10,9 +10,6 @@
 #ifndef ICEE_OBJECT_ADAPTER_H
 #define ICEE_OBJECT_ADAPTER_H
 
-#include <IceE/Shared.h>
-#include <IceE/RecMutex.h>
-#include <IceE/Monitor.h>
 #include <IceE/ObjectAdapterF.h>
 #include <IceE/InstanceF.h>
 #include <IceE/ObjectAdapterFactoryF.h>
@@ -21,11 +18,15 @@
 #include <IceE/ServantManagerF.h>
 #include <IceE/ProxyF.h>
 #include <IceE/ObjectF.h>
-#include <IceE/Exception.h>
 #include <IceE/EndpointF.h>
 #include <IceE/RouterF.h>
 #include <IceE/LocatorF.h>
 #include <IceE/LocatorInfoF.h>
+
+#include <IceE/Exception.h>
+#include <IceE/Shared.h>
+#include <IceE/RecMutex.h>
+#include <IceE/Monitor.h>
 #include <IceE/FacetMap.h>
 #include <list>
 

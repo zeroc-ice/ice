@@ -7,14 +7,14 @@
 //
 // **********************************************************************
 
+#include <IceE/ProxyFactory.h>
 #include <IceE/Thread.h>
 #include <IceE/Time.h>
-#include <IceE/ProxyFactory.h>
 #include <IceE/Instance.h>
 #include <IceE/Proxy.h>
+#include <IceE/Reference.h>
 #include <IceE/ReferenceFactory.h>
 #include <IceE/LocatorInfo.h>
-#include <IceE/BasicStream.h>
 #include <IceE/Properties.h>
 #include <IceE/LoggerUtil.h>
 #include <IceE/TraceLevels.h>

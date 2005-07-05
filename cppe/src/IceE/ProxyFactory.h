@@ -10,12 +10,11 @@
 #ifndef ICEE_PROXY_FACTORY_H
 #define ICEE_PROXY_FACTORY_H
 
-#include <IceE/Shared.h>
-#include <IceE/Mutex.h>
 #include <IceE/ProxyFactoryF.h>
 #include <IceE/InstanceF.h>
 #include <IceE/ReferenceF.h>
 #include <IceE/ProxyF.h>
+#include <IceE/Shared.h>
 #include <IceE/Exception.h>
 
 namespace IceEInternal
