@@ -360,7 +360,7 @@ Slice::outputTypeToString(const TypePtr& type, bool icee)
     }
     else
     {
-        table = outputBuiltinTableE;
+        table = outputBuiltinTable;
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
