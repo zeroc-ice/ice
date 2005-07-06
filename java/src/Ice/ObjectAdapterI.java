@@ -120,8 +120,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                 try
                 {
 		    Process servant = new ProcessI(communicator);
-		    ProcessPrx proxy = ProcessPrxHelper.uncheckedCast(addWithUUID(servant));
-                    locatorRegistry.setServerProcessProxy(serverId, proxy);
+		    Ice.ObjectPrx proxy = createDirectProxy(addWithUUID(servant).ice_getIdentity());
+                    locatorRegistry.setServerProcessProxy(serverId, ProcessPrxHelper.uncheckedCast(proxy));
                 }
 		catch(ObjectAdapterDeactivatedException ex)
 		{
