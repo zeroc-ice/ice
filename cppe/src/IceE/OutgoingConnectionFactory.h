@@ -15,7 +15,7 @@
 #include <IceE/InstanceF.h>
 #include <IceE/ObjectAdapterF.h>
 #include <IceE/EndpointF.h>
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 #   include <IceE/RouterF.h>
 #endif
 #include <IceE/Mutex.h>
