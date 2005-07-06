@@ -328,8 +328,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		}
 
 		tm = Ice::Time::now() - tm;
-		printf("time for %d sequences: %fms\n", repetitions, tm.toMicroSeconds() * 1000.0);
-		printf("time per sequence: %fms\n", (tm / repetitions).toMicroSeconds() * 1000.0);
+		printf("time for %d sequences: %fms\n", repetitions, tm.toMicroSeconds() / 1000.0);
+		printf("time per sequence: %fms\n", (tm / repetitions).toMicroSeconds() / 1000.0);
 		int wireSize = 0;
 		switch(currentType)
 		{
