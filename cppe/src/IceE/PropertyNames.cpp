@@ -13,7 +13,7 @@
 
 #include <IceE/PropertyNames.h>
 
-const char* IceEInternal::PropertyNames::IceEProps[] =
+const char* IceInternal::PropertyNames::IceEProps[] =
 {
     "IceE.ChangeUser",
     "IceE.Config",
@@ -47,7 +47,7 @@ const char* IceEInternal::PropertyNames::IceEProps[] =
     0
 };
 
-ICEE_API const char* const* IceEInternal::PropertyNames::validProps[] =
+ICEE_API const char* const* IceInternal::PropertyNames::validProps[] =
 {
     IceEProps,
     0
