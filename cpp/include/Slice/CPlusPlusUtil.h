@@ -27,10 +27,10 @@ SLICE_API void printHeader(::IceUtil::Output&, bool icee = false);
 SLICE_API void printVersionCheck(::IceUtil::Output&, bool icee = false);
 SLICE_API void printDllExportStuff(::IceUtil::Output&, const std::string&, bool icee = false);
 
-SLICE_API std::string typeToString(const TypePtr&, bool icee = false);
-SLICE_API std::string returnTypeToString(const TypePtr&, bool icee = false);
-SLICE_API std::string inputTypeToString(const TypePtr&, bool icee = false);
-SLICE_API std::string outputTypeToString(const TypePtr&, bool icee = false);
+SLICE_API std::string typeToString(const TypePtr&);
+SLICE_API std::string returnTypeToString(const TypePtr&);
+SLICE_API std::string inputTypeToString(const TypePtr&);
+SLICE_API std::string outputTypeToString(const TypePtr&);
 
 SLICE_API std::string fixKwd(const std::string&);
 
@@ -41,7 +41,7 @@ SLICE_API void writeMarshalCode(::IceUtil::Output&, const std::list<std::pair<Ty
 SLICE_API void writeUnmarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
 				  const TypePtr&);
 SLICE_API void writeAllocateCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
-				 const TypePtr&, bool icee = false);
+				 const TypePtr&);
 SLICE_API void writeStreamMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool,
                                                const std::string& = "");
 SLICE_API void writeStreamMarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,

@@ -87,13 +87,25 @@ Slice::printHeader(Output& out, bool icee)
 "// **********************************************************************\n"
         ;
 
-    out << header;
+    static const char* iceeHeader =
+"// **********************************************************************\n"
+"//\n"
+"// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.\n"
+"//\n"
+"// This copy of Ice-E is licensed to you under the terms described in the\n"
+"// ICEE_LICENSE file included in this distribution.\n"
+"//\n"
+"// **********************************************************************\n"
+        ;
+
     if(icee)
     {
+    	out << iceeHeader;
         out << "\n// Ice-E version " << ICEE_STRING_VERSION;
     }
     else
     {
+        out << header;
         out << "\n// Ice version " << ICE_STRING_VERSION;
     }
 }
@@ -158,7 +170,7 @@ Slice::printDllExportStuff(Output& out, const string& dllExport, bool icee)
 }
 
 string
-Slice::typeToString(const TypePtr& type, bool icee)
+Slice::typeToString(const TypePtr& type)
 {
     static const char* builtinTable[] =
     {
@@ -175,35 +187,10 @@ Slice::typeToString(const TypePtr& type, bool icee)
 	"::Ice::LocalObjectPtr"
     };
 
-    static const char* builtinTableE[] =
-    {
-	"::IceE::Byte",
-	"bool",
-	"::IceE::Short",
-	"::IceE::Int",
-	"::IceE::Long",
-	"::IceE::Float",
-	"::IceE::Double",
-	"::std::string",
-	"::IceE::ObjectPtr",
-	"::IceE::ObjectPrx",
-	"::IceE::LocalObjectPtr"
-    };
-
-    const char** table;
-    if(icee)
-    {
-        table = builtinTableE;
-    }
-    else
-    {
-        table = builtinTable;
-    }
-
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-	return table[builtin->kind()];
+	return builtinTable[builtin->kind()];
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
@@ -234,18 +221,18 @@ Slice::typeToString(const TypePtr& type, bool icee)
 }
 
 string
-Slice::returnTypeToString(const TypePtr& type, bool icee)
+Slice::returnTypeToString(const TypePtr& type)
 {
     if(!type)
     {
 	return "void";
     }
 
-    return typeToString(type, icee);
+    return typeToString(type);
 }
 
 string
-Slice::inputTypeToString(const TypePtr& type, bool icee)
+Slice::inputTypeToString(const TypePtr& type)
 {
     static const char* inputBuiltinTable[] =
     {
@@ -262,35 +249,10 @@ Slice::inputTypeToString(const TypePtr& type, bool icee)
 	"const ::Ice::LocalObjectPtr&"
     };
 
-    static const char* inputBuiltinTableE[] =
-    {
-	"::IceE::Byte",
-	"bool",
-	"::IceE::Short",
-	"::IceE::Int",
-	"::IceE::Long",
-	"::IceE::Float",
-	"::IceE::Double",
-	"const ::std::string&",
-	"const ::IceE::ObjectPtr&",
-	"const ::IceE::ObjectPrx&",
-	"const ::IceE::LocalObjectPtr&"
-    };
-
-    const char** table;
-    if(icee)
-    {
-        table = inputBuiltinTableE;
-    }
-    else
-    {
-        table = inputBuiltinTable;
-    }
-
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-	return table[builtin->kind()];
+	return inputBuiltinTable[builtin->kind()];
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
@@ -321,7 +283,7 @@ Slice::inputTypeToString(const TypePtr& type, bool icee)
 }
 
 string
-Slice::outputTypeToString(const TypePtr& type, bool icee)
+Slice::outputTypeToString(const TypePtr& type)
 {
     static const char* outputBuiltinTable[] =
     {
@@ -338,35 +300,10 @@ Slice::outputTypeToString(const TypePtr& type, bool icee)
 	"::Ice::LocalObjectPtr&"
     };
     
-    static const char* outputBuiltinTableE[] =
-    {
-	"::IceE::Byte&",
-	"bool&",
-	"::IceE::Short&",
-	"::IceE::Int&",
-	"::IceE::Long&",
-	"::IceE::Float&",
-	"::IceE::Double&",
-	"::std::string&",
-	"::IceE::ObjectPtr&",
-	"::IceE::ObjectPrx&",
-	"::IceE::LocalObjectPtr&"
-    };
-    
-    const char** table;
-    if(icee)
-    {
-        table = outputBuiltinTableE;
-    }
-    else
-    {
-        table = outputBuiltinTable;
-    }
-
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-	return table[builtin->kind()];
+	return outputBuiltinTable[builtin->kind()];
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
@@ -616,7 +553,7 @@ Slice::writeUnmarshalCode(Output& out, const list<pair<TypePtr, string> >& param
 }
 
 void
-Slice::writeAllocateCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret, bool icee)
+Slice::writeAllocateCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret)
 {
     list<pair<TypePtr, string> > ps = params;
     if(ret)
@@ -626,7 +563,7 @@ Slice::writeAllocateCode(Output& out, const list<pair<TypePtr, string> >& params
 
     for(list<pair<TypePtr, string> >::const_iterator p = ps.begin(); p != ps.end(); ++p)
     {
-	out << nl << typeToString(p->first, icee) << ' ' << fixKwd(p->second) << ';';
+	out << nl << typeToString(p->first) << ' ' << fixKwd(p->second) << ';';
     }
 }
 
