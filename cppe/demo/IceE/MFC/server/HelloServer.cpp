@@ -44,21 +44,21 @@ BOOL CHelloServerApp::InitInstance()
     //
     // Create a communicator and object adapter.
     //
-    IceE::CommunicatorPtr communicator;
-    IceE::ObjectAdapterPtr adapter;
+    Ice::CommunicatorPtr communicator;
+    Ice::ObjectAdapterPtr adapter;
     LogIPtr log;
     try
     {
         int argc = 0;
-        IceE::PropertiesPtr properties = IceE::createProperties();
+        Ice::PropertiesPtr properties = IceE::createProperties();
 	properties->setProperty("Hello.Endpoints", "tcp -p 10000");
 	//properties->load("config");
-        communicator = IceE::initializeWithProperties(argc, 0, properties);
+        communicator = Ice::initializeWithProperties(argc, 0, properties);
         log = new LogI;
         communicator->setLogger(log);
         adapter = communicator->createObjectAdapter("Hello");
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
         AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
         return FALSE;
@@ -72,8 +72,8 @@ BOOL CHelloServerApp::InitInstance()
     //
     // Instantiate the servant.
     //
-    IceE::ObjectPtr servant = new HelloI(log, &dlg);
-    adapter->add(servant, IceE::stringToIdentity("hello"));
+    Ice::ObjectPtr servant = new HelloI(log, &dlg);
+    adapter->add(servant, Ice::stringToIdentity("hello"));
     adapter->activate();
     log->message("Ready to receive requests.");
 
@@ -96,7 +96,7 @@ BOOL CHelloServerApp::InitInstance()
     {
         communicator->destroy();
     }
-    catch(const IceE::Exception&)
+    catch(const Ice::Exception&)
     {
     }
 

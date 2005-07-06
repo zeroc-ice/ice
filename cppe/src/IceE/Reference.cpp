@@ -30,20 +30,20 @@
 #include <IceE/StringUtil.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(IceEInternal::Reference* p) { p->__incRef(); }
-void IceEInternal::decRef(IceEInternal::Reference* p) { p->__decRef(); }
+void IceInternal::incRef(IceInternal::Reference* p) { p->__incRef(); }
+void IceInternal::decRef(IceInternal::Reference* p) { p->__decRef(); }
 
 const Context&
-IceEInternal::Reference::getContext() const
+IceInternal::Reference::getContext() const
 {
     return _hasContext ? _context : _instance->getDefaultContext();
 }
 
 ReferencePtr
-IceEInternal::Reference::defaultContext() const
+IceInternal::Reference::defaultContext() const
 {
     if(!_hasContext)
     {
@@ -56,7 +56,7 @@ IceEInternal::Reference::defaultContext() const
 }
 
 ReferencePtr
-IceEInternal::Reference::changeContext(const Context& newContext) const
+IceInternal::Reference::changeContext(const Context& newContext) const
 {
     if(_hasContext && newContext == _context)
     {
@@ -69,7 +69,7 @@ IceEInternal::Reference::changeContext(const Context& newContext) const
 }
 
 ReferencePtr
-IceEInternal::Reference::changeMode(Mode newMode) const
+IceInternal::Reference::changeMode(Mode newMode) const
 {
     if(newMode == _mode)
     {
@@ -81,7 +81,7 @@ IceEInternal::Reference::changeMode(Mode newMode) const
 }
 
 ReferencePtr
-IceEInternal::Reference::changeIdentity(const Identity& newIdentity) const
+IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
 {
     if(newIdentity == _identity)
     {
@@ -93,7 +93,7 @@ IceEInternal::Reference::changeIdentity(const Identity& newIdentity) const
 }
 
 ReferencePtr
-IceEInternal::Reference::changeFacet(const string& newFacet) const
+IceInternal::Reference::changeFacet(const string& newFacet) const
 {
     if(newFacet == _facet)
     {
@@ -105,7 +105,7 @@ IceEInternal::Reference::changeFacet(const string& newFacet) const
 }
 
 ReferencePtr
-IceEInternal::Reference::changeDefault() const
+IceInternal::Reference::changeDefault() const
 {
     ReferencePtr r = _instance->referenceFactory()->copy(this);
     r->_mode = ModeTwoway;
@@ -118,7 +118,7 @@ IceEInternal::Reference::changeDefault() const
 Int
 Reference::hash() const
 {
-    IceE::Mutex::Lock sync(_hashMutex);
+    Ice::Mutex::Lock sync(_hashMutex);
 
     if(_hashInitialized)
     {
@@ -167,7 +167,7 @@ Reference::hash() const
 }
 
 void
-IceEInternal::Reference::streamWrite(BasicStream* s) const
+IceInternal::Reference::streamWrite(BasicStream* s) const
 {
     //
     // Don't write the identity here. Operations calling streamWrite
@@ -194,7 +194,7 @@ IceEInternal::Reference::streamWrite(BasicStream* s) const
 }
 
 string
-IceEInternal::Reference::toString() const
+IceInternal::Reference::toString() const
 {
     string s;
 
@@ -224,7 +224,7 @@ IceEInternal::Reference::toString() const
 	// the reference parser uses as separators, then we enclose
 	// the facet string in quotes.
 	//
-	string fs = IceE::escapeString(_facet, "");
+	string fs = Ice::escapeString(_facet, "");
 	if(fs.find_first_of(" \t\n\r:@") != string::npos)
 	{
             s += "\"";
@@ -264,7 +264,7 @@ IceEInternal::Reference::toString() const
 }
 
 bool
-IceEInternal::Reference::operator==(const Reference& r) const
+IceInternal::Reference::operator==(const Reference& r) const
 {
     //
     // Note: if(this == &r) test is performed by each non-abstract derived class.
@@ -299,13 +299,13 @@ IceEInternal::Reference::operator==(const Reference& r) const
 }
 
 bool
-IceEInternal::Reference::operator!=(const Reference& r) const
+IceInternal::Reference::operator!=(const Reference& r) const
 {
     return !operator==(r);
 }
 
 bool
-IceEInternal::Reference::operator<(const Reference& r) const
+IceInternal::Reference::operator<(const Reference& r) const
 {
     //
     // Note: if(this == &r) test is performed by each non-abstract derived class.
@@ -359,7 +359,7 @@ IceEInternal::Reference::operator<(const Reference& r) const
     return false;
 }
 
-IceEInternal::Reference::Reference(const InstancePtr& inst, const Identity& ident, const Context& ctx,
+IceInternal::Reference::Reference(const InstancePtr& inst, const Identity& ident, const Context& ctx,
                                   const string& fs, Mode md)
     : _instance(inst),
       _mode(md),
@@ -371,7 +371,7 @@ IceEInternal::Reference::Reference(const InstancePtr& inst, const Identity& iden
 {
 }
 
-IceEInternal::Reference::Reference(const Reference& r)
+IceInternal::Reference::Reference(const Reference& r)
     : _instance(r._instance),
       _mode(r._mode),
       _identity(r._identity),
@@ -382,10 +382,10 @@ IceEInternal::Reference::Reference(const Reference& r)
 {
 }
 
-void IceEInternal::incRef(IceEInternal::FixedReference* p) { p->__incRef(); }
-void IceEInternal::decRef(IceEInternal::FixedReference* p) { p->__decRef(); }
+void IceInternal::incRef(IceInternal::FixedReference* p) { p->__incRef(); }
+void IceInternal::decRef(IceInternal::FixedReference* p) { p->__decRef(); }
 
-IceEInternal::FixedReference::FixedReference(const InstancePtr& inst, const Identity& ident,
+IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const Identity& ident,
 					    const Context& ctx, const string& fs, Mode md,
 					    const vector<ConnectionPtr>& fixedConns)
     : Reference(inst, ident, ctx, fs, md),
@@ -394,13 +394,13 @@ IceEInternal::FixedReference::FixedReference(const InstancePtr& inst, const Iden
 }
 
 const vector<ConnectionPtr>&
-IceEInternal::FixedReference::getFixedConnections() const
+IceInternal::FixedReference::getFixedConnections() const
 {
     return _fixedConnections;
 }
 
 vector<EndpointPtr>
-IceEInternal::FixedReference::getEndpoints() const
+IceInternal::FixedReference::getEndpoints() const
 {
     return vector<EndpointPtr>();
 }
@@ -408,7 +408,7 @@ IceEInternal::FixedReference::getEndpoints() const
 #ifndef ICEE_NO_ROUTER
 
 ReferencePtr
-IceEInternal::FixedReference::changeRouter(const RouterPrx&) const
+IceInternal::FixedReference::changeRouter(const RouterPrx&) const
 {
     return FixedReferencePtr(const_cast<FixedReference*>(this));
 }
@@ -418,7 +418,7 @@ IceEInternal::FixedReference::changeRouter(const RouterPrx&) const
 #ifndef ICEE_NO_LOCATOR
 
 ReferencePtr
-IceEInternal::FixedReference::changeLocator(const LocatorPrx&) const
+IceInternal::FixedReference::changeLocator(const LocatorPrx&) const
 {
     return FixedReferencePtr(const_cast<FixedReference*>(this));
 }
@@ -426,13 +426,13 @@ IceEInternal::FixedReference::changeLocator(const LocatorPrx&) const
 #endif
 
 ReferencePtr
-IceEInternal::FixedReference::changeTimeout(int) const
+IceInternal::FixedReference::changeTimeout(int) const
 {
     return FixedReferencePtr(const_cast<FixedReference*>(this));
 }
 
 void
-IceEInternal::FixedReference::streamWrite(BasicStream* s) const
+IceInternal::FixedReference::streamWrite(BasicStream* s) const
 {
     MarshalException ex(__FILE__, __LINE__);
     ex.reason = "Cannot marshal a fixed reference";
@@ -440,7 +440,7 @@ IceEInternal::FixedReference::streamWrite(BasicStream* s) const
 }
 
 ConnectionPtr
-IceEInternal::FixedReference::getConnection() const
+IceInternal::FixedReference::getConnection() const
 {
     //
     // Randomize the order of connections.
@@ -462,7 +462,7 @@ IceEInternal::FixedReference::getConnection() const
 }
 
 bool
-IceEInternal::FixedReference::operator==(const Reference& r) const
+IceInternal::FixedReference::operator==(const Reference& r) const
 {
     if(this == &r)
     {
@@ -477,13 +477,13 @@ IceEInternal::FixedReference::operator==(const Reference& r) const
 }
 
 bool
-IceEInternal::FixedReference::operator!=(const Reference& r) const
+IceInternal::FixedReference::operator!=(const Reference& r) const
 {
     return !operator==(r);
 }
 
 bool
-IceEInternal::FixedReference::operator<(const Reference& r) const
+IceInternal::FixedReference::operator<(const Reference& r) const
 {
     if(this == &r)
     {
@@ -505,24 +505,24 @@ IceEInternal::FixedReference::operator<(const Reference& r) const
 }
 
 ReferencePtr
-IceEInternal::FixedReference::clone() const
+IceInternal::FixedReference::clone() const
 {
     return new FixedReference(*this);
 }
 
-IceEInternal::FixedReference::FixedReference(const FixedReference& r)
+IceInternal::FixedReference::FixedReference(const FixedReference& r)
     : Reference(r),
       _fixedConnections(r._fixedConnections)
 {
 }
 
-void IceEInternal::incRef(IceEInternal::RoutableReference* p) { p->__incRef(); }
-void IceEInternal::decRef(IceEInternal::RoutableReference* p) { p->__decRef(); }
+void IceInternal::incRef(IceInternal::RoutableReference* p) { p->__incRef(); }
+void IceInternal::decRef(IceInternal::RoutableReference* p) { p->__decRef(); }
 
 #ifndef ICEE_NO_ROUTER
 
 vector<EndpointPtr>
-IceEInternal::RoutableReference::getRoutedEndpoints() const
+IceInternal::RoutableReference::getRoutedEndpoints() const
 {
     if(_routerInfo)
     {
@@ -538,7 +538,7 @@ IceEInternal::RoutableReference::getRoutedEndpoints() const
 
 
 ReferencePtr
-IceEInternal::RoutableReference::changeDefault() const
+IceInternal::RoutableReference::changeDefault() const
 {
     RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(Reference::changeDefault());
     r->_routerInfo = getInstance()->routerManager()->get(getInstance()->referenceFactory()->getDefaultRouter());
@@ -546,7 +546,7 @@ IceEInternal::RoutableReference::changeDefault() const
 }
 
 ReferencePtr
-IceEInternal::RoutableReference::changeRouter(const RouterPrx& newRouter) const
+IceInternal::RoutableReference::changeRouter(const RouterPrx& newRouter) const
 {
     RouterInfoPtr newRouterInfo = getInstance()->routerManager()->get(newRouter);
     if(newRouterInfo == _routerInfo)
@@ -561,7 +561,7 @@ IceEInternal::RoutableReference::changeRouter(const RouterPrx& newRouter) const
 #endif
 
 bool
-IceEInternal::RoutableReference::operator==(const Reference& r) const
+IceInternal::RoutableReference::operator==(const Reference& r) const
 {
     //
     // Note: if(this == &r) test is performed by each non-abstract derived class.
@@ -580,13 +580,13 @@ IceEInternal::RoutableReference::operator==(const Reference& r) const
 }
 
 bool
-IceEInternal::RoutableReference::operator!=(const Reference& r) const
+IceInternal::RoutableReference::operator!=(const Reference& r) const
 {
     return !operator==(r);
 }
 
 bool
-IceEInternal::RoutableReference::operator<(const Reference& r) const
+IceInternal::RoutableReference::operator<(const Reference& r) const
 {
     if(this == &r)
     {
@@ -611,7 +611,7 @@ IceEInternal::RoutableReference::operator<(const Reference& r) const
     return false;
 }
 
-IceEInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Identity& ident,
+IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Identity& ident,
 						  const Context& ctx, const string& fs, Mode md
 #ifndef ICEE_NO_ROUTER
 						  , const RouterInfoPtr& rtrInfo
@@ -624,7 +624,7 @@ IceEInternal::RoutableReference::RoutableReference(const InstancePtr& inst, cons
 {
 }
 
-IceEInternal::RoutableReference::RoutableReference(const RoutableReference& r)
+IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
     : Reference(r)
 #ifndef ICEE_NO_ROUTER
       , _routerInfo(r._routerInfo)
@@ -632,10 +632,10 @@ IceEInternal::RoutableReference::RoutableReference(const RoutableReference& r)
 {
 }
 
-void IceEInternal::incRef(IceEInternal::DirectReference* p) { p->__incRef(); }
-void IceEInternal::decRef(IceEInternal::DirectReference* p) { p->__decRef(); }
+void IceInternal::incRef(IceInternal::DirectReference* p) { p->__incRef(); }
+void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
 
-IceEInternal::DirectReference::DirectReference(const InstancePtr& inst, const Identity& ident,
+IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Identity& ident,
 					      const Context& ctx, const string& fs, Mode md,
 					      const vector<EndpointPtr>& endpts
 #ifndef ICEE_NO_ROUTER
@@ -652,13 +652,13 @@ IceEInternal::DirectReference::DirectReference(const InstancePtr& inst, const Id
 }
 
 vector<EndpointPtr>
-IceEInternal::DirectReference::getEndpoints() const
+IceInternal::DirectReference::getEndpoints() const
 {
     return _endpoints;
 }
 
 DirectReferencePtr
-IceEInternal::DirectReference::changeEndpoints(const vector<EndpointPtr>& newEndpoints) const
+IceInternal::DirectReference::changeEndpoints(const vector<EndpointPtr>& newEndpoints) const
 {
     if(newEndpoints == _endpoints)
     {
@@ -670,7 +670,7 @@ IceEInternal::DirectReference::changeEndpoints(const vector<EndpointPtr>& newEnd
 }
 
 ReferencePtr
-IceEInternal::DirectReference::changeDefault() const
+IceInternal::DirectReference::changeDefault() const
 {
     //
     // Return an indirect reference if a default locator is set.
@@ -697,7 +697,7 @@ IceEInternal::DirectReference::changeDefault() const
 #ifndef ICEE_NO_LOCATOR
 
 ReferencePtr
-IceEInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
+IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
 {
     if(newLocator)
     {
@@ -718,7 +718,7 @@ IceEInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
 #endif
 
 ReferencePtr
-IceEInternal::DirectReference::changeTimeout(int newTimeout) const
+IceInternal::DirectReference::changeTimeout(int newTimeout) const
 {
     DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
     vector<EndpointPtr> newEndpoints;
@@ -732,7 +732,7 @@ IceEInternal::DirectReference::changeTimeout(int newTimeout) const
 }
 
 void
-IceEInternal::DirectReference::streamWrite(BasicStream* s) const
+IceInternal::DirectReference::streamWrite(BasicStream* s) const
 {
     RoutableReference::streamWrite(s);
 
@@ -752,7 +752,7 @@ IceEInternal::DirectReference::streamWrite(BasicStream* s) const
 }
 
 string
-IceEInternal::DirectReference::toString() const
+IceInternal::DirectReference::toString() const
 {
     string result = RoutableReference::toString();
 
@@ -770,7 +770,7 @@ IceEInternal::DirectReference::toString() const
 }
 
 ConnectionPtr
-IceEInternal::DirectReference::getConnection() const
+IceInternal::DirectReference::getConnection() const
 {
 #ifndef ICEE_NO_ROUTER
     vector<EndpointPtr> endpts = RoutableReference::getRoutedEndpoints();
@@ -810,7 +810,7 @@ IceEInternal::DirectReference::getConnection() const
 }
 
 bool
-IceEInternal::DirectReference::operator==(const Reference& r) const
+IceInternal::DirectReference::operator==(const Reference& r) const
 {
     if(this == &r)
     {
@@ -825,13 +825,13 @@ IceEInternal::DirectReference::operator==(const Reference& r) const
 }
 
 bool
-IceEInternal::DirectReference::operator!=(const Reference& r) const
+IceInternal::DirectReference::operator!=(const Reference& r) const
 {
     return !operator==(r);
 }
 
 bool
-IceEInternal::DirectReference::operator<(const Reference& r) const
+IceInternal::DirectReference::operator<(const Reference& r) const
 {
     if(this == &r)
     {
@@ -853,12 +853,12 @@ IceEInternal::DirectReference::operator<(const Reference& r) const
 }
 
 ReferencePtr
-IceEInternal::DirectReference::clone() const
+IceInternal::DirectReference::clone() const
 {
     return new DirectReference(*this);
 }
 
-IceEInternal::DirectReference::DirectReference(const DirectReference& r)
+IceInternal::DirectReference::DirectReference(const DirectReference& r)
     : RoutableReference(r),
       _endpoints(r._endpoints)
 {
@@ -866,10 +866,10 @@ IceEInternal::DirectReference::DirectReference(const DirectReference& r)
 
 #ifndef ICEE_NO_LOCATOR
 
-void IceEInternal::incRef(IceEInternal::IndirectReference* p) { p->__incRef(); }
-void IceEInternal::decRef(IceEInternal::IndirectReference* p) { p->__decRef(); }
+void IceInternal::incRef(IceInternal::IndirectReference* p) { p->__incRef(); }
+void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
 
-IceEInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
+IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
                                                   const Context& ctx, const string& fs, Mode md,
 						  const string& adptid
 #ifndef ICEE_NO_ROUTER
@@ -887,13 +887,13 @@ IceEInternal::IndirectReference::IndirectReference(const InstancePtr& inst, cons
 }
 
 vector<EndpointPtr>
-IceEInternal::IndirectReference::getEndpoints() const
+IceInternal::IndirectReference::getEndpoints() const
 {
     return vector<EndpointPtr>();
 }
 
 ReferencePtr
-IceEInternal::IndirectReference::changeDefault() const
+IceInternal::IndirectReference::changeDefault() const
 {
     //
     // Return a direct reference if no default locator is defined.
@@ -917,7 +917,7 @@ IceEInternal::IndirectReference::changeDefault() const
 }
 
 ReferencePtr
-IceEInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) const
+IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) const
 {
     //
     // Return a direct reference if a null locator is given.
@@ -945,7 +945,7 @@ IceEInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) con
 }
 
 ReferencePtr
-IceEInternal::IndirectReference::changeTimeout(int newTimeout) const
+IceInternal::IndirectReference::changeTimeout(int newTimeout) const
 {
     IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
     if(_locatorInfo)
@@ -957,7 +957,7 @@ IceEInternal::IndirectReference::changeTimeout(int newTimeout) const
 }
 
 void
-IceEInternal::IndirectReference::streamWrite(BasicStream* s) const
+IceInternal::IndirectReference::streamWrite(BasicStream* s) const
 {
     RoutableReference::streamWrite(s);
 
@@ -966,7 +966,7 @@ IceEInternal::IndirectReference::streamWrite(BasicStream* s) const
 }
 
 string
-IceEInternal::IndirectReference::toString() const
+IceInternal::IndirectReference::toString() const
 {
     string result = RoutableReference::toString();
     if(_adapterId.empty())
@@ -981,7 +981,7 @@ IceEInternal::IndirectReference::toString() const
     // reference parser uses as separators, then we enclose the
     // adapter id string in quotes.
     //
-    string a = IceE::escapeString(_adapterId, "");
+    string a = Ice::escapeString(_adapterId, "");
     if(a.find_first_of(" \t\n\r") != string::npos)
     {
 	result.append("\"");
@@ -996,7 +996,7 @@ IceEInternal::IndirectReference::toString() const
 }
 
 ConnectionPtr
-IceEInternal::IndirectReference::getConnection() const
+IceInternal::IndirectReference::getConnection() const
 {
     ConnectionPtr connection;
 
@@ -1074,7 +1074,7 @@ IceEInternal::IndirectReference::getConnection() const
 }
 
 bool
-IceEInternal::IndirectReference::operator==(const Reference& r) const
+IceInternal::IndirectReference::operator==(const Reference& r) const
 {
     if(this == &r)
     {
@@ -1089,13 +1089,13 @@ IceEInternal::IndirectReference::operator==(const Reference& r) const
 }
 
 bool
-IceEInternal::IndirectReference::operator!=(const Reference& r) const
+IceInternal::IndirectReference::operator!=(const Reference& r) const
 {
     return !operator==(r);
 }
 
 bool
-IceEInternal::IndirectReference::operator<(const Reference& r) const
+IceInternal::IndirectReference::operator<(const Reference& r) const
 {
     if(this == &r)
     {
@@ -1125,12 +1125,12 @@ IceEInternal::IndirectReference::operator<(const Reference& r) const
 }
 
 ReferencePtr
-IceEInternal::IndirectReference::clone() const
+IceInternal::IndirectReference::clone() const
 {
     return new IndirectReference(*this);
 }
 
-IceEInternal::IndirectReference::IndirectReference(const IndirectReference& r)
+IceInternal::IndirectReference::IndirectReference(const IndirectReference& r)
     : RoutableReference(r),
       _adapterId(r._adapterId),
       _locatorInfo(r._locatorInfo)
@@ -1140,14 +1140,14 @@ IceEInternal::IndirectReference::IndirectReference(const IndirectReference& r)
 #endif // ICEE_NO_LOCATOR
 
 vector<EndpointPtr>
-IceEInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints)
+IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints)
 {
     vector<EndpointPtr> endpoints = allEndpoints;
 
     //
     // Filter out unknown endpoints.
     //
-    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), IceE::constMemFun(&Endpoint::unknown)),
+    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&Endpoint::unknown)),
                     endpoints.end());
     
     //

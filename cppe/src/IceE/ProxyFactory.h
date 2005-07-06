@@ -17,24 +17,24 @@
 #include <IceE/Shared.h>
 #include <IceE/Exception.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class BasicStream;
 
-class ProxyFactory : public IceE::Shared
+class ProxyFactory : public Ice::Shared
 {
 public:
     
-    IceE::ObjectPrx stringToProxy(const std::string&) const;
-    std::string proxyToString(const IceE::ObjectPrx&) const;
+    Ice::ObjectPrx stringToProxy(const std::string&) const;
+    std::string proxyToString(const Ice::ObjectPrx&) const;
 
-    IceE::ObjectPrx streamToProxy(BasicStream*) const;
-    void proxyToStream(const IceE::ObjectPrx&, BasicStream*) const;
+    Ice::ObjectPrx streamToProxy(BasicStream*) const;
+    void proxyToStream(const Ice::ObjectPrx&, BasicStream*) const;
 
-    IceE::ObjectPrx referenceToProxy(const ReferencePtr&) const;
+    Ice::ObjectPrx referenceToProxy(const ReferencePtr&) const;
 
-    void checkRetryAfterException(const IceE::LocalException&, const ReferencePtr&, int&) const;
+    void checkRetryAfterException(const Ice::LocalException&, const ReferencePtr&, int&) const;
 
 private:
 

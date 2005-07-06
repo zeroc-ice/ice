@@ -13,17 +13,17 @@
 #include <IceE/LoggerF.h>
 #include <IceE/TraceLevelsF.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class BasicStream;
 
-void traceHeader(const char*, const BasicStream&, const ::IceE::LoggerPtr&, const TraceLevelsPtr&);
-void traceRequest(const char*, const BasicStream&, const ::IceE::LoggerPtr&, const TraceLevelsPtr&);
+void traceHeader(const char*, const BasicStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
+void traceRequest(const char*, const BasicStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
 #ifndef ICEE_NO_BATCH
-void traceBatchRequest(const char*, const BasicStream&, const ::IceE::LoggerPtr&, const TraceLevelsPtr&);
+void traceBatchRequest(const char*, const BasicStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
 #endif
-void traceReply(const char*, const BasicStream&, const ::IceE::LoggerPtr&, const TraceLevelsPtr&);
+void traceReply(const char*, const BasicStream&, const ::Ice::LoggerPtr&, const TraceLevelsPtr&);
 
 }
 

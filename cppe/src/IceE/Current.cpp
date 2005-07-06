@@ -10,13 +10,13 @@
 #include <IceE/Current.h>
 
 bool
-IceE::Current::operator==(const Current& __rhs) const
+Ice::Current::operator==(const Current& __rhs) const
 {
     return !operator!=(__rhs);
 }
 
 bool
-IceE::Current::operator!=(const Current& __rhs) const
+Ice::Current::operator!=(const Current& __rhs) const
 {
     if(this == &__rhs)
     {
@@ -54,7 +54,7 @@ IceE::Current::operator!=(const Current& __rhs) const
 }
 
 bool
-IceE::Current::operator<(const Current& __rhs) const
+Ice::Current::operator<(const Current& __rhs) const
 {
     if(this == &__rhs)
     {

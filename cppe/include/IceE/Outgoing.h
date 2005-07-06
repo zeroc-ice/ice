@@ -18,14 +18,14 @@
 #include <IceE/BasicStream.h>
 #include <IceE/OperationMode.h>
 
-namespace IceE
+namespace Ice
 {
 
 class LocalException;
 
 }
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 //
@@ -38,26 +38,26 @@ class ICEE_API NonRepeatable
 public:
 
     NonRepeatable(const NonRepeatable&);
-    NonRepeatable(const IceE::LocalException&);
-    const IceE::LocalException* get() const;
+    NonRepeatable(const Ice::LocalException&);
+    const Ice::LocalException* get() const;
 
 private:
 
     const NonRepeatable& operator=(const NonRepeatable&);
 
-    std::auto_ptr<IceE::LocalException> _ex;
+    std::auto_ptr<Ice::LocalException> _ex;
 };
 
-class ICEE_API Outgoing : private IceE::noncopyable, public IceE::Monitor<IceE::Mutex >
+class ICEE_API Outgoing : private Ice::noncopyable, public Ice::Monitor<Ice::Mutex >
 {
 public:
 
-    Outgoing(IceE::Connection*, Reference*, const std::string&, IceE::OperationMode, const IceE::Context&);
+    Outgoing(Ice::Connection*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context&);
 
     bool invoke(); // Returns true if ok, false if user exception.
-    void abort(const IceE::LocalException&);
+    void abort(const Ice::LocalException&);
     void finished(BasicStream&);
-    void finished(const IceE::LocalException&);
+    void finished(const Ice::LocalException&);
 
     // Inlined for speed optimization.
     BasicStream* is() { return &_is; }
@@ -69,10 +69,10 @@ private:
     // Optimization. The connection and the reference may not be
     // deleted while a stack-allocated Outgoing still holds it.
     //
-    IceE::Connection* _connection;
+    Ice::Connection* _connection;
     Reference* _reference;
 
-    std::auto_ptr<IceE::LocalException> _exception;
+    std::auto_ptr<Ice::LocalException> _exception;
 
     enum
     {

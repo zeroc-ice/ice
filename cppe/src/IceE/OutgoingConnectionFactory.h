@@ -20,10 +20,10 @@
 #include <IceE/Monitor.h>
 #include <set>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class OutgoingConnectionFactory : public IceE::Shared, public IceE::Monitor<IceE::Mutex>
+class OutgoingConnectionFactory : public Ice::Shared, public Ice::Monitor<Ice::Mutex>
 {
 public:
 
@@ -31,11 +31,11 @@ public:
 
     void waitUntilFinished();
 
-    IceE::ConnectionPtr create(const std::vector<EndpointPtr>&);
+    Ice::ConnectionPtr create(const std::vector<EndpointPtr>&);
 #ifndef ICEE_NO_ROUTER
-    void setRouter(const ::IceE::RouterPrx&);
+    void setRouter(const ::Ice::RouterPrx&);
 #endif
-    void removeAdapter(const ::IceE::ObjectAdapterPtr&);
+    void removeAdapter(const ::Ice::ObjectAdapterPtr&);
 #ifndef ICEE_NO_BATCH
     void flushBatchRequests();
 #endif
@@ -48,7 +48,7 @@ private:
 
     const InstancePtr _instance;
     bool _destroyed;
-    std::multimap<EndpointPtr, IceE::ConnectionPtr> _connections;
+    std::multimap<EndpointPtr, Ice::ConnectionPtr> _connections;
     std::set<EndpointPtr> _pending; // Endpoints for which connection establishment is pending.
 };
 

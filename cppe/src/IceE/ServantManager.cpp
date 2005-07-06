@@ -14,16 +14,16 @@
 #include <IceE/StringUtil.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(ServantManager* p) { p->__incRef(); }
-void IceEInternal::decRef(ServantManager* p) { p->__decRef(); }
+void IceInternal::incRef(ServantManager* p) { p->__incRef(); }
+void IceInternal::decRef(ServantManager* p) { p->__decRef(); }
 
 void
-IceEInternal::ServantManager::addServant(const ObjectPtr& object, const Identity& ident, const string& facet)
+IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity& ident, const string& facet)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
@@ -47,7 +47,7 @@ IceEInternal::ServantManager::addServant(const ObjectPtr& object, const Identity
 	    ex.id = identityToString(ident);
 	    if(!facet.empty())
 	    {
-		ex.id += " -f " + IceE::escapeString(facet, "");
+		ex.id += " -f " + Ice::escapeString(facet, "");
 	    }
 	    throw ex;
 	}
@@ -59,7 +59,7 @@ IceEInternal::ServantManager::addServant(const ObjectPtr& object, const Identity
 }
 
 ObjectPtr
-IceEInternal::ServantManager::removeServant(const Identity& ident, const string& facet)
+IceInternal::ServantManager::removeServant(const Identity& ident, const string& facet)
 {
     //
     // We return the removed servant to avoid releasing the last reference count
@@ -68,7 +68,7 @@ IceEInternal::ServantManager::removeServant(const Identity& ident, const string&
     //
     ObjectPtr servant = 0;
 
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
@@ -87,7 +87,7 @@ IceEInternal::ServantManager::removeServant(const Identity& ident, const string&
 	ex.id = identityToString(ident);
 	if(!facet.empty())
 	{
-	    ex.id += " -f " + IceE::escapeString(facet, "");
+	    ex.id += " -f " + Ice::escapeString(facet, "");
 	}
 	throw ex;
     }
@@ -111,9 +111,9 @@ IceEInternal::ServantManager::removeServant(const Identity& ident, const string&
 }
 
 FacetMap
-IceEInternal::ServantManager::removeAllFacets(const Identity& ident)
+IceInternal::ServantManager::removeAllFacets(const Identity& ident)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
@@ -148,9 +148,9 @@ IceEInternal::ServantManager::removeAllFacets(const Identity& ident)
 }
 
 ObjectPtr
-IceEInternal::ServantManager::findServant(const Identity& ident, const string& facet) const
+IceInternal::ServantManager::findServant(const Identity& ident, const string& facet) const
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
@@ -176,9 +176,9 @@ IceEInternal::ServantManager::findServant(const Identity& ident, const string& f
 }
 
 FacetMap
-IceEInternal::ServantManager::findAllFacets(const Identity& ident) const
+IceInternal::ServantManager::findAllFacets(const Identity& ident) const
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
@@ -203,9 +203,9 @@ IceEInternal::ServantManager::findAllFacets(const Identity& ident) const
 }
 
 bool
-IceEInternal::ServantManager::hasServant(const Identity& ident) const
+IceInternal::ServantManager::hasServant(const Identity& ident) const
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
@@ -229,14 +229,14 @@ IceEInternal::ServantManager::hasServant(const Identity& ident) const
     }
 }
 
-IceEInternal::ServantManager::ServantManager(const InstancePtr& instance, const string& adapterName)
+IceInternal::ServantManager::ServantManager(const InstancePtr& instance, const string& adapterName)
     : _instance(instance),
       _adapterName(adapterName),
       _servantMapMapHint(_servantMapMap.end())
 {
 }
 
-IceEInternal::ServantManager::~ServantManager()
+IceInternal::ServantManager::~ServantManager()
 {
     //
     // Don't check whether destroy() has been called. It might have
@@ -247,12 +247,12 @@ IceEInternal::ServantManager::~ServantManager()
 }
 
 void
-IceEInternal::ServantManager::destroy()
+IceInternal::ServantManager::destroy()
 {
     ServantMapMap servantMapMap;
 
     {
-	IceE::Mutex::Lock sync(*this);
+	Ice::Mutex::Lock sync(*this);
 	
 	assert(_instance); // Must not be called after destruction.
 	

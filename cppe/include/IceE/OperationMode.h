@@ -12,14 +12,14 @@
 
 #include <IceE/Config.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class BasicStream;
 
 }
 
-namespace IceE
+namespace Ice
 {
 
 enum OperationMode
@@ -29,8 +29,8 @@ enum OperationMode
     Idempotent
 };
 
-ICEE_API void __write(::IceEInternal::BasicStream*, OperationMode);
-ICEE_API void __read(::IceEInternal::BasicStream*, OperationMode&);
+ICEE_API void __write(::IceInternal::BasicStream*, OperationMode);
+ICEE_API void __read(::IceInternal::BasicStream*, OperationMode&);
 
 }
 

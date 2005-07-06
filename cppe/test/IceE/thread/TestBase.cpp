@@ -40,7 +40,7 @@ TestBase::start()
     {
 	run();
     }
-    catch(const IceE::Exception& e)
+    catch(const Ice::Exception& e)
     {
         tprintf("%s failed\n", e.toString().c_str());
 	throw TestFailed(_name);

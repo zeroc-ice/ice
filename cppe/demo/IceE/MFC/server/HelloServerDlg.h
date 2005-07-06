@@ -18,7 +18,7 @@
 class CHelloServerDlg : public CDialog
 {
 public:
-    CHelloServerDlg(const IceE::CommunicatorPtr&, const LogIPtr&, CWnd* = NULL);
+    CHelloServerDlg(const Ice::CommunicatorPtr&, const LogIPtr&, CWnd* = NULL);
 
     enum { IDD = IDD_HELLOSERVER_DIALOG };
 
@@ -26,7 +26,7 @@ protected:
     virtual void DoDataExchange(CDataExchange*);    // DDX/DDV support
 
 protected:
-    IceE::CommunicatorPtr _communicator;
+    Ice::CommunicatorPtr _communicator;
     LogIPtr _log;
     CEdit* _edit;
     HICON _hIcon;

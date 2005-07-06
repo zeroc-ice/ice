@@ -10,7 +10,7 @@
 #ifndef ICEE_LOGGER_ICE
 #define ICEE_LOGGER_ICE
 
-module IceE
+module Ice
 {
 
 /**

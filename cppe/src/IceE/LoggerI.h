@@ -13,7 +13,7 @@
 #include <IceE/Logger.h>
 #include <IceE/Mutex.h>
 
-namespace IceE
+namespace Ice
 {
 
 class LoggerI : public Logger
@@ -37,7 +37,7 @@ private:
     // A global mutex is used to avoid garbled output with multiple
     // communicators.
     //
-    static IceE::Mutex _globalMutex;
+    static Ice::Mutex _globalMutex;
 };
 
 }

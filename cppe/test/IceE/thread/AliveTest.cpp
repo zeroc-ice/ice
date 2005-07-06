@@ -12,11 +12,11 @@
 #include <TestCommon.h>
 
 using namespace std;
-using namespace IceE;
+using namespace Ice;
 
 static const string createTestName("thread alive");
 
-class CondVar : public IceE::Monitor<IceE::RecMutex>
+class CondVar : public Ice::Monitor<Ice::RecMutex>
 {
 public:
 
@@ -27,7 +27,7 @@ public:
 
     void waitForSignal()
     {
-	IceE::Monitor<IceE::RecMutex>::Lock lock(*this);
+	Ice::Monitor<Ice::RecMutex>::Lock lock(*this);
 	while(!_done)
 	{
 	    wait();
@@ -36,7 +36,7 @@ public:
 
     void signal()
     {
-	IceE::Monitor<IceE::RecMutex>::Lock lock(*this);
+	Ice::Monitor<Ice::RecMutex>::Lock lock(*this);
 	_done = true;
 	notify();
     }
@@ -62,7 +62,7 @@ public:
 	   _childCreated.signal();
 	   _parentReady.waitForSignal();
 	}
-	catch(IceE::ThreadLockedException &)
+	catch(Ice::ThreadLockedException &)
 	{
 	}
     }
@@ -90,7 +90,7 @@ AliveTest::run()
     CondVar childCreated;
     CondVar parentReady;
     AliveTestThreadPtr t = new AliveTestThread(childCreated, parentReady);
-    IceE::ThreadControl c = t->start();
+    Ice::ThreadControl c = t->start();
     childCreated.waitForSignal();
     test(c.isAlive());
     parentReady.signal();

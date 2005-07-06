@@ -12,7 +12,7 @@
 
 #include <IceE/Config.h>
 
-namespace IceE
+namespace Ice
 {
 
 class ICEE_API Exception

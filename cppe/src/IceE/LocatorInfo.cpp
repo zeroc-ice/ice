@@ -24,29 +24,29 @@
 #include <iterator>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(LocatorManager* p) { p->__incRef(); }
-void IceEInternal::decRef(LocatorManager* p) { p->__decRef(); }
+void IceInternal::incRef(LocatorManager* p) { p->__incRef(); }
+void IceInternal::decRef(LocatorManager* p) { p->__decRef(); }
 
-void IceEInternal::incRef(LocatorInfo* p) { p->__incRef(); }
-void IceEInternal::decRef(LocatorInfo* p) { p->__decRef(); }
+void IceInternal::incRef(LocatorInfo* p) { p->__incRef(); }
+void IceInternal::decRef(LocatorInfo* p) { p->__decRef(); }
 
-void IceEInternal::incRef(LocatorTable* p) { p->__incRef(); }
-void IceEInternal::decRef(LocatorTable* p) { p->__decRef(); }
+void IceInternal::incRef(LocatorTable* p) { p->__incRef(); }
+void IceInternal::decRef(LocatorTable* p) { p->__decRef(); }
 
-IceEInternal::LocatorManager::LocatorManager() :
+IceInternal::LocatorManager::LocatorManager() :
     _tableHint(_table.end())
 {
 }
 
 void
-IceEInternal::LocatorManager::destroy()
+IceInternal::LocatorManager::destroy()
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
-    for_each(_table.begin(), _table.end(), IceE::secondVoidMemFun<const LocatorPrx, LocatorInfo>(&LocatorInfo::destroy));
+    for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<const LocatorPrx, LocatorInfo>(&LocatorInfo::destroy));
 
     _table.clear();
     _tableHint = _table.end();
@@ -55,7 +55,7 @@ IceEInternal::LocatorManager::destroy()
 }
 
 LocatorInfoPtr
-IceEInternal::LocatorManager::get(const LocatorPrx& loc)
+IceInternal::LocatorManager::get(const LocatorPrx& loc)
 {
     if(!loc)
     {
@@ -68,7 +68,7 @@ IceEInternal::LocatorManager::get(const LocatorPrx& loc)
     // TODO: reap unused locator info objects?
     //
 
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     map<LocatorPrx, LocatorInfoPtr>::iterator p = _table.end();
     
@@ -111,23 +111,23 @@ IceEInternal::LocatorManager::get(const LocatorPrx& loc)
     return _tableHint->second;
 }
 
-IceEInternal::LocatorTable::LocatorTable()
+IceInternal::LocatorTable::LocatorTable()
 {
 }
 
 void
-IceEInternal::LocatorTable::clear()
+IceInternal::LocatorTable::clear()
 {
-     IceE::Mutex::Lock sync(*this);
+     Ice::Mutex::Lock sync(*this);
 
      _adapterEndpointsMap.clear();
      _objectMap.clear();
 }
 
 bool
-IceEInternal::LocatorTable::getAdapterEndpoints(const string& adapter, vector<EndpointPtr>& endpoints) const
+IceInternal::LocatorTable::getAdapterEndpoints(const string& adapter, vector<EndpointPtr>& endpoints) const
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     map<string, vector<EndpointPtr> >::const_iterator p = _adapterEndpointsMap.find(adapter);
     
@@ -143,17 +143,17 @@ IceEInternal::LocatorTable::getAdapterEndpoints(const string& adapter, vector<En
 }
 
 void
-IceEInternal::LocatorTable::addAdapterEndpoints(const string& adapter, const vector<EndpointPtr>& endpoints)
+IceInternal::LocatorTable::addAdapterEndpoints(const string& adapter, const vector<EndpointPtr>& endpoints)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     _adapterEndpointsMap.insert(make_pair(adapter, endpoints));
 }
 
 vector<EndpointPtr>
-IceEInternal::LocatorTable::removeAdapterEndpoints(const string& adapter)
+IceInternal::LocatorTable::removeAdapterEndpoints(const string& adapter)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     map<string, vector<EndpointPtr> >::iterator p = _adapterEndpointsMap.find(adapter);
     if(p == _adapterEndpointsMap.end())
@@ -169,9 +169,9 @@ IceEInternal::LocatorTable::removeAdapterEndpoints(const string& adapter)
 }
 
 bool 
-IceEInternal::LocatorTable::getProxy(const Identity& id, ObjectPrx& proxy) const
+IceInternal::LocatorTable::getProxy(const Identity& id, ObjectPrx& proxy) const
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     map<Identity, ObjectPrx>::const_iterator p = _objectMap.find(id);
     
@@ -187,16 +187,16 @@ IceEInternal::LocatorTable::getProxy(const Identity& id, ObjectPrx& proxy) const
 }
 
 void 
-IceEInternal::LocatorTable::addProxy(const Identity& id, const ObjectPrx& proxy)
+IceInternal::LocatorTable::addProxy(const Identity& id, const ObjectPrx& proxy)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     _objectMap.insert(make_pair(id, proxy));
 }
 
 ObjectPrx 
-IceEInternal::LocatorTable::removeProxy(const Identity& id)
+IceInternal::LocatorTable::removeProxy(const Identity& id)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     map<Identity, ObjectPrx>::iterator p = _objectMap.find(id);
     if(p == _objectMap.end())
@@ -209,7 +209,7 @@ IceEInternal::LocatorTable::removeProxy(const Identity& id)
     return proxy;
 }
 
-IceEInternal::LocatorInfo::LocatorInfo(const LocatorPrx& locator, const LocatorTablePtr& table) :
+IceInternal::LocatorInfo::LocatorInfo(const LocatorPrx& locator, const LocatorTablePtr& table) :
     _locator(locator),
     _table(table)
 {
@@ -218,34 +218,34 @@ IceEInternal::LocatorInfo::LocatorInfo(const LocatorPrx& locator, const LocatorT
 }
 
 void
-IceEInternal::LocatorInfo::destroy()
+IceInternal::LocatorInfo::destroy()
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     _locatorRegistry = 0;
     _table->clear();
 }
 
 bool
-IceEInternal::LocatorInfo::operator==(const LocatorInfo& rhs) const
+IceInternal::LocatorInfo::operator==(const LocatorInfo& rhs) const
 {
     return _locator == rhs._locator;
 }
 
 bool
-IceEInternal::LocatorInfo::operator!=(const LocatorInfo& rhs) const
+IceInternal::LocatorInfo::operator!=(const LocatorInfo& rhs) const
 {
     return _locator != rhs._locator;
 }
 
 bool
-IceEInternal::LocatorInfo::operator<(const LocatorInfo& rhs) const
+IceInternal::LocatorInfo::operator<(const LocatorInfo& rhs) const
 {
     return _locator < rhs._locator;
 }
 
 LocatorPrx
-IceEInternal::LocatorInfo::getLocator() const
+IceInternal::LocatorInfo::getLocator() const
 {
     //
     // No mutex lock necessary, _locator is immutable.
@@ -254,9 +254,9 @@ IceEInternal::LocatorInfo::getLocator() const
 }
 
 LocatorRegistryPrx
-IceEInternal::LocatorInfo::getLocatorRegistry()
+IceInternal::LocatorInfo::getLocatorRegistry()
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     if(!_locatorRegistry) // Lazy initialization.
     {
@@ -272,7 +272,7 @@ IceEInternal::LocatorInfo::getLocatorRegistry()
 }
 
 vector<EndpointPtr>
-IceEInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, bool& cached)
+IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, bool& cached)
 {
     vector<EndpointPtr> endpoints;
     ObjectPrx object;
@@ -384,7 +384,7 @@ IceEInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, bool& c
 }
 
 void
-IceEInternal::LocatorInfo::clearObjectCache(const IndirectReferencePtr& ref)
+IceInternal::LocatorInfo::clearObjectCache(const IndirectReferencePtr& ref)
 {
     if(ref->getAdapterId().empty())
     {
@@ -411,7 +411,7 @@ IceEInternal::LocatorInfo::clearObjectCache(const IndirectReferencePtr& ref)
 }
 
 void 
-IceEInternal::LocatorInfo::clearCache(const IndirectReferencePtr& ref)
+IceInternal::LocatorInfo::clearCache(const IndirectReferencePtr& ref)
 {
     if(!ref->getAdapterId().empty())
     {
@@ -447,7 +447,7 @@ IceEInternal::LocatorInfo::clearCache(const IndirectReferencePtr& ref)
 }
 
 void
-IceEInternal::LocatorInfo::trace(const string& msg,
+IceInternal::LocatorInfo::trace(const string& msg,
 	                        const IndirectReferencePtr& ref,
 				const vector<EndpointPtr>& endpoints)
 {

@@ -42,16 +42,16 @@ CHelloClientApp::InitInstance()
     //
     // Create a communicator.
     //
-    IceE::CommunicatorPtr communicator;
+    Ice::CommunicatorPtr communicator;
     try
     {
         int argc = 0;
-	IceE::PropertiesPtr properties = IceE::createProperties();
+	Ice::PropertiesPtr properties = IceE::createProperties();
 	properties->setProperty("Hello.Proxy", "hello:tcp -p 10000");
 	//properties->load("config");
-        communicator = IceE::initializeWithProperties(argc, 0, properties);
+        communicator = Ice::initializeWithProperties(argc, 0, properties);
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
         AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
         return FALSE;
@@ -68,7 +68,7 @@ CHelloClientApp::InitInstance()
     {
         communicator->destroy();
     }
-    catch(const IceE::Exception&)
+    catch(const Ice::Exception&)
     {
     }
 

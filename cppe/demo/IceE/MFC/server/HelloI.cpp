@@ -18,13 +18,13 @@ HelloI::HelloI(const LogIPtr& log, CDialog* dialog) :
 }
 
 void
-HelloI::sayHello(const IceE::Current&) const
+HelloI::sayHello(const Ice::Current&) const
 {
     _log->message("Hello World!");
 }
 
 void
-HelloI::shutdown(const IceE::Current&)
+HelloI::shutdown(const Ice::Current&)
 {
     if(_dialog)
     {

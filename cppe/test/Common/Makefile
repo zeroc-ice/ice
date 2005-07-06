@@ -3,7 +3,7 @@
 # Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# ICEE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
@@ -23,7 +23,7 @@ HDIR		= $(includedir)/Ice
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I../include $(CPPFLAGS) -DICE_TEST_COMMON_API_EXPORTS
+CPPFLAGS	:= -I../include $(CPPFLAGS) -DICEE_TEST_COMMON_API_EXPORTS
 
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)

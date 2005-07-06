@@ -28,23 +28,23 @@
 #include <IceE/Shared.h>
 #include <IceE/RecMutex.h>
 
-namespace IceE
+namespace Ice
 {
 
 class CommunicatorI;
 
 }
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class Instance : public IceE::Shared, public IceE::RecMutex
+class Instance : public Ice::Shared, public Ice::RecMutex
 {
 public:
 
-    IceE::PropertiesPtr properties() const;
-    IceE::LoggerPtr logger() const;
-    void logger(const IceE::LoggerPtr&);
+    Ice::PropertiesPtr properties() const;
+    Ice::LoggerPtr logger() const;
+    void logger(const Ice::LoggerPtr&);
     TraceLevelsPtr traceLevels() const;
     DefaultsAndOverridesPtr defaultsAndOverrides() const;
 #ifndef ICEE_NO_ROUTER
@@ -58,12 +58,12 @@ public:
     OutgoingConnectionFactoryPtr outgoingConnectionFactory() const;
     EndpointFactoryPtr endpointFactory() const;
     size_t messageSizeMax() const;
-    IceE::Int connectionIdleTime() const;
+    Ice::Int connectionIdleTime() const;
 #ifndef ICEE_NO_BATCH
     void flushBatchRequests();
 #endif
-    void setDefaultContext(const ::IceE::Context&);
-    const ::IceE::Context& getDefaultContext() const;
+    void setDefaultContext(const ::Ice::Context&);
+    const ::Ice::Context& getDefaultContext() const;
     size_t threadPerConnectionStackSize() const;
 
 #ifndef ICEE_PURE_CLIENT
@@ -72,15 +72,15 @@ public:
     
 private:
 
-    Instance(const IceE::CommunicatorPtr&, const IceE::PropertiesPtr&);
+    Instance(const Ice::CommunicatorPtr&, const Ice::PropertiesPtr&);
     virtual ~Instance();
     void finishSetup(int&, char*[]);
     void destroy();
-    friend class IceE::Communicator;
+    friend class Ice::Communicator;
 
     bool _destroyed;
-    const IceE::PropertiesPtr _properties; // Immutable, not reset by destroy().
-    IceE::LoggerPtr _logger; // Not reset by destroy().
+    const Ice::PropertiesPtr _properties; // Immutable, not reset by destroy().
+    Ice::LoggerPtr _logger; // Not reset by destroy().
     const TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
     const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     const size_t _messageSizeMax; // Immutable, not reset by destroy().
@@ -95,7 +95,7 @@ private:
     ProxyFactoryPtr _proxyFactory;
     OutgoingConnectionFactoryPtr _outgoingConnectionFactory;
     EndpointFactoryPtr _endpointFactory;
-    IceE::Context _defaultContext;
+    Ice::Context _defaultContext;
 
 #ifndef ICEE_PURE_CLIENT
     ObjectAdapterFactoryPtr _objectAdapterFactory;

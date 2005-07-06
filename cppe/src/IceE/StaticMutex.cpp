@@ -10,7 +10,7 @@
 #include <IceE/StaticMutex.h>
 
 #ifdef _WIN32
-void IceE::StaticMutex::initialize() const
+void Ice::StaticMutex::initialize() const
 {
     //
     // First we create the new critical section
@@ -39,4 +39,4 @@ void IceE::StaticMutex::initialize() const
 }
 #endif
 
-IceE::StaticMutex IceE::globalMutex = ICEE_STATIC_MUTEX_INITIALIZER;
+Ice::StaticMutex Ice::globalMutex = ICEE_STATIC_MUTEX_INITIALIZER;

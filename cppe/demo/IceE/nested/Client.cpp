@@ -11,11 +11,11 @@
 #include <NestedI.h>
 
 using namespace std;
-using namespace IceE;
+using namespace Ice;
 using namespace Demo;
 
 int
-run(int argc, char* argv[], const IceE::CommunicatorPtr& communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     PropertiesPtr properties = communicator->getProperties();
     const char* proxyProperty = "Nested.Client.NestedServer";
@@ -35,8 +35,8 @@ run(int argc, char* argv[], const IceE::CommunicatorPtr& communicator)
     }
 
     ObjectAdapterPtr adapter = communicator->createObjectAdapter("Nested.Client");
-    NestedPrx self = NestedPrx::uncheckedCast(adapter->createProxy(IceE::stringToIdentity("nestedClient")));
-    adapter->add(new NestedI(self), IceE::stringToIdentity("nestedClient"));
+    NestedPrx self = NestedPrx::uncheckedCast(adapter->createProxy(Ice::stringToIdentity("nestedClient")));
+    adapter->add(new NestedI(self), Ice::stringToIdentity("nestedClient"));
     adapter->activate();
 
     printf("Note: The maximum nesting level is sz * 2, with sz being\n");
@@ -77,16 +77,16 @@ int
 main(int argc, char* argv[])
 {
     int status;
-    IceE::CommunicatorPtr communicator;
+    Ice::CommunicatorPtr communicator;
 
     try
     {
-        IceE::PropertiesPtr properties = IceE::createProperties();
+        Ice::PropertiesPtr properties = Ice::createProperties();
         properties->load("config");
-        communicator = IceE::initializeWithProperties(argc, argv, properties);
+        communicator = Ice::initializeWithProperties(argc, argv, properties);
         status = run(argc, argv, communicator);
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
         fprintf(stderr, "%s\n", ex.toString().c_str());
         status = EXIT_FAILURE;
@@ -98,7 +98,7 @@ main(int argc, char* argv[])
         {
             communicator->destroy();
         }
-        catch(const IceE::Exception& ex)
+        catch(const Ice::Exception& ex)
         {
             fprintf(stderr, "%s\n", ex.toString().c_str());
             status = EXIT_FAILURE;

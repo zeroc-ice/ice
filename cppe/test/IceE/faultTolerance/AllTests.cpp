@@ -14,7 +14,7 @@
 using namespace std;
 using namespace Test;
 
-class CallbackBase : public IceE::Monitor<IceE::Mutex>
+class CallbackBase : public Ice::Monitor<Ice::Mutex>
 {
 public:
 
@@ -29,10 +29,10 @@ public:
 
     bool check()
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 	while(!_called)
 	{
-	    if(!timedWait(IceE::Time::seconds(30)))
+	    if(!timedWait(Ice::Time::seconds(30)))
 	    {
 		return false;
 	    }
@@ -45,7 +45,7 @@ protected:
 
     void called()
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 	assert(!_called);
 	_called = true;
 	notify();
@@ -57,7 +57,7 @@ private:
 };
 
 void
-allTests(const IceE::CommunicatorPtr& communicator, const vector<int>& ports)
+allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 {
     tprintf("testing stringToProxy...");
     string ref("test");
@@ -68,7 +68,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const vector<int>& ports)
         sprintf(buf, ":default -t 60000 -p %d", *p);
 	ref += buf;
     }
-    IceE::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     tprintf("ok\n");
 
@@ -106,11 +106,11 @@ allTests(const IceE::CommunicatorPtr& communicator, const vector<int>& ports)
 	        obj->abort();
 	        test(false);
 	    }
-	    catch(const IceE::ConnectionLostException&)
+	    catch(const Ice::ConnectionLostException&)
 	    {
 	        tprintf("ok\n");
 	    }
-	    catch(const IceE::ConnectFailedException&)
+	    catch(const Ice::ConnectFailedException&)
 	    {
 	        tprintf("ok\n");
 	    }
@@ -123,11 +123,11 @@ allTests(const IceE::CommunicatorPtr& communicator, const vector<int>& ports)
 	        obj->idempotentAbort();
 	        test(false);
 	    }
-	    catch(const IceE::ConnectionLostException&)
+	    catch(const Ice::ConnectionLostException&)
 	    {
 	        tprintf("ok\n");
 	    }
-	    catch(const IceE::ConnectFailedException&)
+	    catch(const Ice::ConnectFailedException&)
 	    {
 	        tprintf("ok\n");
 	    }
@@ -142,11 +142,11 @@ allTests(const IceE::CommunicatorPtr& communicator, const vector<int>& ports)
 	        obj->nonmutatingAbort();
 	        test(false);
 	    }
-	    catch(const IceE::ConnectionLostException&)
+	    catch(const Ice::ConnectionLostException&)
 	    {
 	        tprintf("ok\n");
 	    }
-	    catch(const IceE::ConnectFailedException&)
+	    catch(const Ice::ConnectFailedException&)
 	    {
 	        tprintf("ok\n");
 	    }
@@ -165,7 +165,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const vector<int>& ports)
 	obj->ice_ping();
 	test(false);
     }
-    catch(const IceE::LocalException&)
+    catch(const Ice::LocalException&)
     {
 	tprintf("ok\n");
     }

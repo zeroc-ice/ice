@@ -17,47 +17,47 @@ using namespace std;
 
 #ifdef _WIN32
 
-IceE::ThreadControl::ThreadControl()
+Ice::ThreadControl::ThreadControl()
 {
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     _handle = new HandleWrapper(GetCurrentThread(), false);
     _id = GetCurrentThreadId();
 }
 
-IceE::ThreadControl::ThreadControl(const HandleWrapperPtr& handle, ThreadId id)
+Ice::ThreadControl::ThreadControl(const HandleWrapperPtr& handle, ThreadId id)
 {
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     _handle = handle;
     _id = id;
 }
 
-IceE::ThreadControl::ThreadControl(const ThreadControl& tc)
+Ice::ThreadControl::ThreadControl(const ThreadControl& tc)
 {
     ThreadId id;
     HandleWrapperPtr handle;
     {
-	IceE::Mutex::Lock lock(tc._stateMutex);
+	Ice::Mutex::Lock lock(tc._stateMutex);
 	id = tc._id;
 	handle = tc._handle;
     }
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     _handle = handle;
     _id = id;
 }
 
-IceE::ThreadControl&
-IceE::ThreadControl::operator=(const ThreadControl& rhs)
+Ice::ThreadControl&
+Ice::ThreadControl::operator=(const ThreadControl& rhs)
 {
     if(&rhs != this)
     {
 	ThreadId id;
 	HandleWrapperPtr handle;
 	{
-	    IceE::Mutex::Lock lock(rhs._stateMutex);
+	    Ice::Mutex::Lock lock(rhs._stateMutex);
 	    handle = rhs._handle;
 	    id = rhs._id;
 	}
-	IceE::Mutex::Lock lock(_stateMutex);
+	Ice::Mutex::Lock lock(_stateMutex);
 	_handle = handle;
 	_id = id;
     }
@@ -65,40 +65,40 @@ IceE::ThreadControl::operator=(const ThreadControl& rhs)
 }
 
 bool
-IceE::ThreadControl::operator==(const ThreadControl& rhs) const
+Ice::ThreadControl::operator==(const ThreadControl& rhs) const
 {
     ThreadId id = rhs.id();
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     return _id == id;
 }
 
 bool
-IceE::ThreadControl::operator!=(const ThreadControl& rhs) const
+Ice::ThreadControl::operator!=(const ThreadControl& rhs) const
 {
     return !operator==(rhs);
 }
 
 bool
-IceE::ThreadControl::operator<(const ThreadControl& rhs) const
+Ice::ThreadControl::operator<(const ThreadControl& rhs) const
 {
     ThreadId id = rhs.id();
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     return _id < id;
 }
 
-IceE::ThreadId
-IceE::ThreadControl::id() const
+Ice::ThreadId
+Ice::ThreadControl::id() const
 {
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     return _id;
 }
 
 void
-IceE::ThreadControl::join()
+Ice::ThreadControl::join()
 {
     HandleWrapperPtr handle;
     {
-	IceE::Mutex::Lock lock(_stateMutex);
+	Ice::Mutex::Lock lock(_stateMutex);
 	handle = _handle;
     }
     int rc = WaitForSingleObject(handle->handle, INFINITE);
@@ -109,17 +109,17 @@ IceE::ThreadControl::join()
 }
 
 void
-IceE::ThreadControl::detach()
+Ice::ThreadControl::detach()
 {
     // No-op: Windows doesn't have the concept of detaching a thread.
 }
 
 bool
-IceE::ThreadControl::isAlive() const
+Ice::ThreadControl::isAlive() const
 {
     HandleWrapperPtr handle;
     {
-	IceE::Mutex::Lock lock(_stateMutex);
+	Ice::Mutex::Lock lock(_stateMutex);
 	handle = _handle;
     }
     DWORD rc;
@@ -131,7 +131,7 @@ IceE::ThreadControl::isAlive() const
 }
 
 void
-IceE::ThreadControl::sleep(const Time& timeout)
+Ice::ThreadControl::sleep(const Time& timeout)
 {
     timeval tv = timeout;
     long msec = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
@@ -139,7 +139,7 @@ IceE::ThreadControl::sleep(const Time& timeout)
 }
 
 void
-IceE::ThreadControl::yield()
+Ice::ThreadControl::yield()
 {
     //
     // A value of zero causes the thread to relinquish the remainder
@@ -149,22 +149,22 @@ IceE::ThreadControl::yield()
     Sleep(0);
 }
 
-IceE::Thread::Thread()
+Ice::Thread::Thread()
 {
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     _started = false;
     _id = 0;
     _handle = new HandleWrapper(0);
 }
 
-IceE::Thread::~Thread()
+Ice::Thread::~Thread()
 {
 }
 
-IceE::ThreadId
-IceE::Thread::id() const
+Ice::ThreadId
+Ice::Thread::id() const
 {
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     if(!_started)
     {
 	throw ThreadNotStartedException(__FILE__, __LINE__);
@@ -177,29 +177,29 @@ startHook(void* arg)
 {
     try
     {
-	IceE::Thread* rawThread = static_cast<IceE::Thread*>(arg);
+	Ice::Thread* rawThread = static_cast<Ice::Thread*>(arg);
 
         //
         // Initialize the random number generator in each thread.
         //
-        unsigned int seed = static_cast<unsigned int>(IceE::Time::now().toMicroSeconds());
+        unsigned int seed = static_cast<unsigned int>(Ice::Time::now().toMicroSeconds());
         srand(seed);            
 
 	//
 	// Ensure that the thread doesn't go away until run() has
 	// completed.
 	//
-	IceE::ThreadPtr thread = rawThread;
+	Ice::ThreadPtr thread = rawThread;
 
 	//
-	// See the comment in IceE::Thread::start() for details.
+	// See the comment in Ice::Thread::start() for details.
 	//
 	rawThread->__decRef();
 	thread->run();
     }
-    catch(const IceE::Exception& e)
+    catch(const Ice::Exception& e)
     {
-	fprintf(stderr, "IceE::Thread::run(): uncaught exception: %s\n", e.toString());
+	fprintf(stderr, "Ice::Thread::run(): uncaught exception: %s\n", e.toString());
     }
     return 0;
 }
@@ -208,15 +208,15 @@ startHook(void* arg)
 #include <process.h>
 #endif
 
-IceE::ThreadControl
-IceE::Thread::start(size_t stackSize)
+Ice::ThreadControl
+Ice::Thread::start(size_t stackSize)
 {
     //
     // Keep this alive for the duration of start
     //
-    IceE::ThreadPtr keepMe = this;
+    Ice::ThreadPtr keepMe = this;
 
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
 
     if(_started)
     {
@@ -252,10 +252,10 @@ IceE::Thread::start(size_t stackSize)
     return ThreadControl(_handle, _id);
 }
 
-IceE::ThreadControl
-IceE::Thread::getThreadControl() const
+Ice::ThreadControl
+Ice::Thread::getThreadControl() const
 {
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     if(!_started)
     {
 	throw ThreadNotStartedException(__FILE__, __LINE__);
@@ -264,7 +264,7 @@ IceE::Thread::getThreadControl() const
 }
 
 bool
-IceE::Thread::operator==(const Thread& rhs) const
+Ice::Thread::operator==(const Thread& rhs) const
 {
     //
     // Get rhs ID.
@@ -274,7 +274,7 @@ IceE::Thread::operator==(const Thread& rhs) const
     //
     // Check that this thread was started.
     //
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     if(!_started)
     {
 	throw ThreadNotStartedException(__FILE__, __LINE__);
@@ -288,13 +288,13 @@ IceE::Thread::operator==(const Thread& rhs) const
 }
 
 bool
-IceE::Thread::operator!=(const Thread& rhs) const
+Ice::Thread::operator!=(const Thread& rhs) const
 {
     return !operator==(rhs);
 }
 
 bool
-IceE::Thread::operator<(const Thread& rhs) const
+Ice::Thread::operator<(const Thread& rhs) const
 {
     //
     // Get rhs ID.
@@ -304,7 +304,7 @@ IceE::Thread::operator<(const Thread& rhs) const
     //
     // Check that this thread was started.
     //
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     if(!_started)
     {
 	throw ThreadNotStartedException(__FILE__, __LINE__);
@@ -319,73 +319,73 @@ IceE::Thread::operator<(const Thread& rhs) const
 
 #else
 
-IceE::ThreadControl::ThreadControl(ThreadId id)
+Ice::ThreadControl::ThreadControl(ThreadId id)
 {
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     _id = id;
 }
 
-IceE::ThreadControl::ThreadControl()
+Ice::ThreadControl::ThreadControl()
 {
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     _id = pthread_self();
 }
 
-IceE::ThreadControl::ThreadControl(const ThreadControl& tc)
+Ice::ThreadControl::ThreadControl(const ThreadControl& tc)
 {
     ThreadId id = tc.id();
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     _id = id;
 }
 
-IceE::ThreadControl&
-IceE::ThreadControl::operator=(const ThreadControl& rhs)
+Ice::ThreadControl&
+Ice::ThreadControl::operator=(const ThreadControl& rhs)
 {
     if(&rhs != this)
     {
 	ThreadId id = rhs.id();
-	IceE::Mutex::Lock lock(_stateMutex);
+	Ice::Mutex::Lock lock(_stateMutex);
 	_id = id;
     }
     return *this;
 }
 
 bool
-IceE::ThreadControl::operator==(const ThreadControl& rhs) const
+Ice::ThreadControl::operator==(const ThreadControl& rhs) const
 {
     ThreadId id = rhs.id();
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     return pthread_equal(_id, id);
 }
 
 bool
-IceE::ThreadControl::operator!=(const ThreadControl& rhs) const
+Ice::ThreadControl::operator!=(const ThreadControl& rhs) const
 {
     return !operator==(rhs);
 }
 
 bool
-IceE::ThreadControl::operator<(const ThreadControl& rhs) const
+Ice::ThreadControl::operator<(const ThreadControl& rhs) const
 {
     ThreadId id = rhs.id();
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     // NOTE: Linux specific
     return _id < id;
 }
 
-IceE::ThreadId
-IceE::ThreadControl::id() const
+Ice::ThreadId
+Ice::ThreadControl::id() const
 {
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     return _id;
 }
 
 void
-IceE::ThreadControl::join()
+Ice::ThreadControl::join()
 {
     ThreadId id;
     {
-	IceE::Mutex::Lock lock(_stateMutex);
+	Ice::Mutex::Lock lock(_stateMutex);
 	id = _id;
     }
     void* ignore = 0;
@@ -397,11 +397,11 @@ IceE::ThreadControl::join()
 }
 
 void
-IceE::ThreadControl::detach()
+Ice::ThreadControl::detach()
 {
     ThreadId id;
     {
-	IceE::Mutex::Lock lock(_stateMutex);
+	Ice::Mutex::Lock lock(_stateMutex);
 	id = _id;
     }
     int rc = pthread_detach(id);
@@ -412,12 +412,12 @@ IceE::ThreadControl::detach()
 }
 
 bool
-IceE::ThreadControl::isAlive() const
+Ice::ThreadControl::isAlive() const
 {
     int policy;
     int ret;
     struct sched_param param;
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
 
     ret = pthread_getschedparam(_id, &policy, &param);
 #ifdef __APPLE__
@@ -430,7 +430,7 @@ IceE::ThreadControl::isAlive() const
 }
 
 void
-IceE::ThreadControl::sleep(const Time& timeout)
+Ice::ThreadControl::sleep(const Time& timeout)
 {
     struct timeval tv = timeout;
     struct timespec ts;
@@ -440,26 +440,26 @@ IceE::ThreadControl::sleep(const Time& timeout)
 }
 
 void
-IceE::ThreadControl::yield()
+Ice::ThreadControl::yield()
 {
     sched_yield();
 }
 
-IceE::Thread::Thread()
+Ice::Thread::Thread()
 {
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     _started = false;
     _id = 0;
 }
 
-IceE::Thread::~Thread()
+Ice::Thread::~Thread()
 {
 }
 
-IceE::ThreadId
-IceE::Thread::id() const
+Ice::ThreadId
+Ice::Thread::id() const
 {
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     if(!_started)
     {
 	throw ThreadNotStartedException(__FILE__, __LINE__);
@@ -473,41 +473,41 @@ startHook(void* arg)
 {
     try
     {
-	IceE::Thread* rawThread = static_cast<IceE::Thread*>(arg);
+	Ice::Thread* rawThread = static_cast<Ice::Thread*>(arg);
 
 	//
 	// Ensure that the thread doesn't go away until run() has
 	// completed.
 	//
-	IceE::ThreadPtr thread = rawThread;
+	Ice::ThreadPtr thread = rawThread;
 
 	//
-	// See the comment in IceE::Thread::start() for details.
+	// See the comment in Ice::Thread::start() for details.
 	//
 	rawThread->__decRef();
 	thread->run();
     }
-    catch(const IceE::Exception& e)
+    catch(const Ice::Exception& e)
     {
-	//fprintf(stderr, "IceE::Thread::run(): uncaught exception: %s\n", e.toString());
+	//fprintf(stderr, "Ice::Thread::run(): uncaught exception: %s\n", e.toString());
     }
     catch(...)
     {
-	fprintf(stderr, "IceE::Thread::run(): uncaught exception\n");
+	fprintf(stderr, "Ice::Thread::run(): uncaught exception\n");
     }
     return 0;
 }
 }
 
-IceE::ThreadControl
-IceE::Thread::start(size_t stackSize)
+Ice::ThreadControl
+Ice::Thread::start(size_t stackSize)
 {
     //
     // Keep this alive for the duration of start
     //
-    IceE::ThreadPtr keepMe = this;
+    Ice::ThreadPtr keepMe = this;
 
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
 
     if(_started)
     {
@@ -562,10 +562,10 @@ IceE::Thread::start(size_t stackSize)
     return ThreadControl(_id);
 }
 
-IceE::ThreadControl
-IceE::Thread::getThreadControl() const
+Ice::ThreadControl
+Ice::Thread::getThreadControl() const
 {
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     if(!_started)
     {
 	throw ThreadNotStartedException(__FILE__, __LINE__);
@@ -574,7 +574,7 @@ IceE::Thread::getThreadControl() const
 }
 
 bool
-IceE::Thread::operator==(const Thread& rhs) const
+Ice::Thread::operator==(const Thread& rhs) const
 {
     //
     // Get rhs ID.
@@ -584,7 +584,7 @@ IceE::Thread::operator==(const Thread& rhs) const
     //
     // Check that this thread was started.
     //
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     if(!_started)
     {
 	throw ThreadNotStartedException(__FILE__, __LINE__);
@@ -598,13 +598,13 @@ IceE::Thread::operator==(const Thread& rhs) const
 }
 
 bool
-IceE::Thread::operator!=(const Thread& rhs) const
+Ice::Thread::operator!=(const Thread& rhs) const
 {
     return !operator==(rhs);
 }
 
 bool
-IceE::Thread::operator<(const Thread& rhs) const
+Ice::Thread::operator<(const Thread& rhs) const
 {
     //
     // Get rhs ID.
@@ -614,7 +614,7 @@ IceE::Thread::operator<(const Thread& rhs) const
     //
     // Check that this thread was started.
     //
-    IceE::Mutex::Lock lock(_stateMutex);
+    Ice::Mutex::Lock lock(_stateMutex);
     if(!_started)
     {
 	throw ThreadNotStartedException(__FILE__, __LINE__);

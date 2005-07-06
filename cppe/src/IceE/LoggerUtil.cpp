@@ -11,21 +11,21 @@
 #include <IceE/Logger.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-IceE::Print::Print(const LoggerPtr& logger) :
+Ice::Print::Print(const LoggerPtr& logger) :
     _logger(logger)
 {
 }
 
-IceE::Print::~Print()
+Ice::Print::~Print()
 {
     flush();
 }
 
 void
-IceE::Print::flush()
+Ice::Print::flush()
 {
     if(!_str.empty())
     {
@@ -35,23 +35,23 @@ IceE::Print::flush()
 }
 
 string&
-IceE::Print::__str()
+Ice::Print::__str()
 {
     return _str;
 }
 
-IceE::Warning::Warning(const LoggerPtr& logger) :
+Ice::Warning::Warning(const LoggerPtr& logger) :
     _logger(logger)
 {
 }
 
-IceE::Warning::~Warning()
+Ice::Warning::~Warning()
 {
     flush();
 }
 
 void
-IceE::Warning::flush()
+Ice::Warning::flush()
 {
     if(!_str.empty())
     {
@@ -61,23 +61,23 @@ IceE::Warning::flush()
 }
 
 string&
-IceE::Warning::__str()
+Ice::Warning::__str()
 {
     return _str;
 }
 
-IceE::Error::Error(const LoggerPtr& logger) :
+Ice::Error::Error(const LoggerPtr& logger) :
     _logger(logger)
 {
 }
 
-IceE::Error::~Error()
+Ice::Error::~Error()
 {
     flush();
 }
 
 void
-IceE::Error::flush()
+Ice::Error::flush()
 {
     if(!_str.empty())
     {
@@ -87,24 +87,24 @@ IceE::Error::flush()
 }
 
 string&
-IceE::Error::__str()
+Ice::Error::__str()
 {
     return _str;
 }
 
-IceE::Trace::Trace(const LoggerPtr& logger, const string& category) :
+Ice::Trace::Trace(const LoggerPtr& logger, const string& category) :
     _logger(logger),
     _category(category)
 {
 }
 
-IceE::Trace::~Trace()
+Ice::Trace::~Trace()
 {
     flush();
 }
 
 void
-IceE::Trace::flush()
+Ice::Trace::flush()
 {
     if(!_str.empty())
     {
@@ -114,7 +114,7 @@ IceE::Trace::flush()
 }
 
 string&
-IceE::Trace::__str()
+Ice::Trace::__str()
 {
     return _str;
 }

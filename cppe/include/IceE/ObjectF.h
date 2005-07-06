@@ -12,25 +12,25 @@
 
 #include <IceE/Handle.h>
 
-namespace IceE
+namespace Ice
 {
 
 class Object;
 
 }
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-ICEE_API void incRef(::IceE::Object*);
-ICEE_API void decRef(::IceE::Object*);
+ICEE_API void incRef(::Ice::Object*);
+ICEE_API void decRef(::Ice::Object*);
 
 }
 
-namespace IceE
+namespace Ice
 {
 
-typedef IceEInternal::Handle< Object > ObjectPtr;
+typedef IceInternal::Handle< Object > ObjectPtr;
 
 }
 

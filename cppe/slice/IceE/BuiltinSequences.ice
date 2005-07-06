@@ -10,7 +10,7 @@
 #ifndef ICEE_BUILTIN_SEQUENCES_ICE
 #define ICEE_BUILTIN_SEQUENCES_ICE
 
-module IceE
+module Ice
 {
 
 /** A sequence of bools. **/

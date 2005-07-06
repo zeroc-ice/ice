@@ -14,7 +14,7 @@
 #include <IceE/Lock.h>
 #include <IceE/ThreadException.h>
 
-namespace IceE
+namespace Ice
 {
 
 //
@@ -29,7 +29,7 @@ class Cond;
 //
 // In file included from Connection.cpp:20:
 // ../../include/IceE/Outgoing.h:88: warning: direct base
-// `IceE::noncopyable' inaccessible in `IceEInternal::Outgoing' due
+// `Ice::noncopyable' inaccessible in `IceInternal::Outgoing' due
 // to ambiguity
 //
 class Mutex
@@ -349,6 +349,6 @@ Mutex::willUnlock() const
     return true;
 }
 
-} // End namespace IceE
+} // End namespace Ice
 
 #endif

@@ -25,13 +25,13 @@ typedef int ssize_t;
 #   include <netinet/in.h> // For struct sockaddr_in
 #endif
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 // XXX: EndpointF?
 class Endpoint;
 
-class ICEE_API Acceptor : public ::IceE::Shared
+class ICEE_API Acceptor : public ::Ice::Shared
 {
 public:
 
@@ -53,7 +53,7 @@ private:
 
     InstancePtr _instance;
     TraceLevelsPtr _traceLevels;
-    ::IceE::LoggerPtr _logger;
+    ::Ice::LoggerPtr _logger;
     SOCKET _fd;
     int _backlog;
     struct sockaddr_in _addr;

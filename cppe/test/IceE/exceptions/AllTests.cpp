@@ -18,7 +18,7 @@ class EmptyI : virtual public Empty
 {
 };
 
-class CallbackBase : public IceE::Monitor<IceE::Mutex>
+class CallbackBase : public Ice::Monitor<Ice::Mutex>
 {
 public:
 
@@ -33,10 +33,10 @@ public:
 
     bool check()
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 	while(!_called)
 	{
-	    if(!timedWait(IceE::Time::seconds(5)))
+	    if(!timedWait(Ice::Time::seconds(5)))
 	    {
 		return false;
 	    }
@@ -49,7 +49,7 @@ protected:
 
     void called()
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 	assert(!_called);
 	_called = true;
 	notify();
@@ -61,29 +61,29 @@ private:
 };
 
 ThrowerPrx
-allTests(const IceE::CommunicatorPtr& communicator)
+allTests(const Ice::CommunicatorPtr& communicator)
 {
     tprintf("testing servant registration exceptions...");
     {
-	IceE::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
-	IceE::ObjectPtr obj = new EmptyI;
-	adapter->add(obj, IceE::stringToIdentity("x"));
+	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
+	Ice::ObjectPtr obj = new EmptyI;
+	adapter->add(obj, Ice::stringToIdentity("x"));
 	try
 	{
-	    adapter->add(obj, IceE::stringToIdentity("x"));
+	    adapter->add(obj, Ice::stringToIdentity("x"));
 	    test(false);
 	}
-	catch(const IceE::AlreadyRegisteredException&)
+	catch(const Ice::AlreadyRegisteredException&)
 	{
 	}
 
-	adapter->remove(IceE::stringToIdentity("x"));
+	adapter->remove(Ice::stringToIdentity("x"));
 	try
 	{
-	    adapter->remove(IceE::stringToIdentity("x"));
+	    adapter->remove(Ice::stringToIdentity("x"));
 	    test(false);
 	}
-	catch(const IceE::NotRegisteredException&)
+	catch(const Ice::NotRegisteredException&)
 	{
 	}
 
@@ -93,7 +93,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
 
     tprintf("testing stringToProxy...");
     string ref = "thrower:default -p 12345 -t 10000";
-    IceE::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     tprintf("ok\n");
 
@@ -114,7 +114,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
     {
 	test(ex.aMem == 1);
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	tprintf("%s\n", ex.toString().c_str());
 	test(false);
@@ -197,7 +197,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
 	test(ex.aMem == 1);
 	test(ex.a2Mem == 2);
     }
-    catch(const IceE::OperationNotExistException&)
+    catch(const Ice::OperationNotExistException&)
     {
 	//
         // This operation is not supported in Java.
@@ -255,7 +255,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
     {
 	test(ex.aMem == 1);
     }
-    catch(const IceE::OperationNotExistException&)
+    catch(const Ice::OperationNotExistException&)
     {
 	//
         // This operation is not supported in Java.
@@ -329,7 +329,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
 	    thrower->throwUndeclaredA(1);
 	    test(false);
 	}
-	catch(const IceE::UnknownUserException&)
+	catch(const Ice::UnknownUserException&)
 	{
 	}
 	catch(...)
@@ -342,7 +342,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
 	    thrower->throwUndeclaredB(1, 2);
 	    test(false);
 	}
-	catch(const IceE::UnknownUserException&)
+	catch(const Ice::UnknownUserException&)
 	{
 	}
 	catch(...)
@@ -355,7 +355,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
 	    thrower->throwUndeclaredC(1, 2, 3);
 	    test(false);
 	}
-	catch(const IceE::UnknownUserException&)
+	catch(const Ice::UnknownUserException&)
 	{
 	}
 	catch(...)
@@ -368,7 +368,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
 
     tprintf("catching object not exist exception...");
 
-    IceE::Identity id = IceE::stringToIdentity("does not exist");
+    Ice::Identity id = Ice::stringToIdentity("does not exist");
     try
     {
 	ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_newIdentity(id));
@@ -376,7 +376,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
 //	thrower2->ice_ping();
 	test(false);
     }
-    catch(const IceE::ObjectNotExistException& ex)
+    catch(const Ice::ObjectNotExistException& ex)
     {
 	test(ex.id == id);
     }
@@ -397,7 +397,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
 	    thrower2->ice_ping();
 	    test(false);
 	}
-	catch(const IceE::FacetNotExistException& ex)
+	catch(const Ice::FacetNotExistException& ex)
 	{
 	    test(ex.facet == "no such facet");
 	}
@@ -417,7 +417,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
 	thrower2->noSuchOperation();
 	test(false);
     }
-    catch(const IceE::OperationNotExistException& ex)
+    catch(const Ice::OperationNotExistException& ex)
     {
 	test(ex.operation == "noSuchOperation");
     }
@@ -435,7 +435,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
 	thrower->throwLocalException();
 	test(false);
     }
-    catch(const IceE::UnknownLocalException&)
+    catch(const Ice::UnknownLocalException&)
     {
     }
     catch(...)
@@ -452,7 +452,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
 	thrower->throwNonIceException();
 	test(false);
     }
-    catch(const IceE::UnknownException&)
+    catch(const Ice::UnknownException&)
     {
     }
     catch(...)

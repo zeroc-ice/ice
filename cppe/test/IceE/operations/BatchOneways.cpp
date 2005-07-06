@@ -25,7 +25,7 @@ batchOneways(const Test::MyClassPrx& p)
 	p->opByteSOneway(bs1);
 	test(true);
     }
-    catch(const IceE::MemoryLimitException&)
+    catch(const Ice::MemoryLimitException&)
     {
 	test(false);
     }
@@ -35,7 +35,7 @@ batchOneways(const Test::MyClassPrx& p)
 	p->opByteSOneway(bs2);
 	test(true);
     }
-    catch(const IceE::MemoryLimitException&)
+    catch(const Ice::MemoryLimitException&)
     {
 	test(false);
     }
@@ -45,7 +45,7 @@ batchOneways(const Test::MyClassPrx& p)
 	p->opByteSOneway(bs3);
 	test(false);
     }
-    catch(const IceE::MemoryLimitException&)
+    catch(const Ice::MemoryLimitException&)
     {
 	test(true);
     }
@@ -61,7 +61,7 @@ batchOneways(const Test::MyClassPrx& p)
 	    batch->opByteSOneway(bs1);
 	    test(true);
 	}
-	catch(const IceE::MemoryLimitException&)
+	catch(const Ice::MemoryLimitException&)
 	{
 	    test(false);
 	}
@@ -76,7 +76,7 @@ batchOneways(const Test::MyClassPrx& p)
 	    batch->opByteSOneway(bs1);
 	    test(i < 9);
 	}
-	catch(const IceE::MemoryLimitException&)
+	catch(const Ice::MemoryLimitException&)
 	{
 	    test(i == 9);
 	}
@@ -89,7 +89,7 @@ batchOneways(const Test::MyClassPrx& p)
 	    batch->opByteSOneway(bs1);
 	    test(true);
 	}
-	catch(const IceE::MemoryLimitException&)
+	catch(const Ice::MemoryLimitException&)
 	{
 	    test(false);
 	}

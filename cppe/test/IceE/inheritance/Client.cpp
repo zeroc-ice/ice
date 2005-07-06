@@ -26,9 +26,9 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-        setCommunicator(IceE::initialize(argc, argv));
+        setCommunicator(Ice::initialize(argc, argv));
 
-        InitialPrx allTests(const IceE::CommunicatorPtr&);
+        InitialPrx allTests(const Ice::CommunicatorPtr&);
         InitialPrx initial = allTests(communicator());
         initial->shutdown();
 

@@ -19,29 +19,29 @@
 #include <IceE/Mutex.h>
 #include <IceE/Monitor.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class ObjectAdapterFactory : public ::IceE::Shared, public ::IceE::Monitor< ::IceE::Mutex>
+class ObjectAdapterFactory : public ::Ice::Shared, public ::Ice::Monitor< ::Ice::Mutex>
 {
 public:
 
     void shutdown();
     void waitForShutdown();
 
-    ::IceE::ObjectAdapterPtr createObjectAdapter(const std::string&);
-    ::IceE::ObjectAdapterPtr findObjectAdapter(const ::IceE::ObjectPrx&);
+    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&);
+    ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrx&);
     void flushBatchRequests() const;
 
 private:
 
-    ObjectAdapterFactory(const InstancePtr&, const ::IceE::CommunicatorPtr&);
+    ObjectAdapterFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
     virtual ~ObjectAdapterFactory();
     friend class Instance;
 
     InstancePtr _instance;
-    ::IceE::CommunicatorPtr _communicator;
-    std::map<std::string, ::IceE::ObjectAdapterPtr> _adapters;
+    ::Ice::CommunicatorPtr _communicator;
+    std::map<std::string, ::Ice::ObjectAdapterPtr> _adapters;
     bool _waitForShutdown;
 };
 

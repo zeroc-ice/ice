@@ -19,7 +19,7 @@
 #   include <sys/time.h>
 #endif
 
-using namespace IceE;
+using namespace Ice;
 
 // XXX: WINCE -- we don't need to support this.
 Time::Time() :
@@ -28,7 +28,7 @@ Time::Time() :
 }
 
 Time
-IceE::Time::now()
+Ice::Time::now()
 {
 #if defined(_WIN32_WCE)
     //
@@ -57,24 +57,24 @@ IceE::Time::now()
 }
 
 Time
-IceE::Time::seconds(Int64 t)
+Ice::Time::seconds(Int64 t)
 {
     return Time(t * static_cast<Int64>(1000000));
 }
 
 Time
-IceE::Time::milliSeconds(Int64 t)
+Ice::Time::milliSeconds(Int64 t)
 {
     return Time(t * static_cast<Int64>(1000));
 }
 
 Time
-IceE::Time::microSeconds(Int64 t)
+Ice::Time::microSeconds(Int64 t)
 {
     return Time(t);
 }
 
-IceE::Time::operator timeval() const
+Ice::Time::operator timeval() const
 {
     timeval tv;
     tv.tv_sec = static_cast<long>(_usec / 1000000);
@@ -83,43 +83,43 @@ IceE::Time::operator timeval() const
 }
 
 Int64
-IceE::Time::toSeconds() const
+Ice::Time::toSeconds() const
 {
     return _usec / 1000000;
 }
 
 Int64
-IceE::Time::toMilliSeconds() const
+Ice::Time::toMilliSeconds() const
 {
     return _usec / 1000;
 }
 
 Int64
-IceE::Time::toMicroSeconds() const
+Ice::Time::toMicroSeconds() const
 {
     return _usec;
 }
 
 double
-IceE::Time::toSecondsDouble() const
+Ice::Time::toSecondsDouble() const
 {
     return _usec / 1000000.0;
 }
 
 double
-IceE::Time::toMilliSecondsDouble() const
+Ice::Time::toMilliSecondsDouble() const
 {
     return _usec / 1000.0;
 }
 
 double
-IceE::Time::toMicroSecondsDouble() const
+Ice::Time::toMicroSecondsDouble() const
 {
     return static_cast<double>(_usec);
 }
 
 std::string
-IceE::Time::toString() const
+Ice::Time::toString() const
 {
 #ifdef _WIN32_WCE
     Int64 l = _usec * 10;
@@ -141,7 +141,7 @@ IceE::Time::toString() const
     wcstombs(buf, time, sizeof(buf));
     out += buf;
 
-    out += IceE::printfToString(":%03d", static_cast<int>(_usec % 1000000 / 1000));
+    out += Ice::printfToString(":%03d", static_cast<int>(_usec % 1000000 / 1000));
 
     return out;
 #else
@@ -161,7 +161,7 @@ IceE::Time::toString() const
     strftime(buf, sizeof(buf), "%x %H:%M:%S", t);
 
     std::string out(buf);
-    out += IceE::printfToString(":%03d", static_cast<int>(_usec % 1000000 / 1000));
+    out += Ice::printfToString(":%03d", static_cast<int>(_usec % 1000000 / 1000));
     return out;
 #endif
 }

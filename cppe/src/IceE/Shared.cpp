@@ -9,21 +9,21 @@
 
 #include <IceE/Shared.h>
 
-using namespace IceE;
+using namespace Ice;
 
-IceE::SimpleShared::SimpleShared() :
+Ice::SimpleShared::SimpleShared() :
     _ref(0),
     _noDelete(false)
 {
 }
 
-IceE::SimpleShared::SimpleShared(const SimpleShared&) :
+Ice::SimpleShared::SimpleShared(const SimpleShared&) :
     _ref(0),
     _noDelete(false)
 {
 }
 
-IceE::Shared::Shared() :
+Ice::Shared::Shared() :
 #ifndef ICEE_HAS_ATOMIC_FUNCTIONS
     _ref(0),
 #endif
@@ -34,7 +34,7 @@ IceE::Shared::Shared() :
 #endif
 }
 
-IceE::Shared::Shared(const Shared&) :
+Ice::Shared::Shared(const Shared&) :
 #ifndef ICEE_HAS_ATOMIC_FUNCTIONS
     _ref(0),
 #endif
@@ -46,7 +46,7 @@ IceE::Shared::Shared(const Shared&) :
 }
 
 int
-IceE::Shared::__getRef() const
+Ice::Shared::__getRef() const
 {
 #if defined(_WIN32)
     return InterlockedExchangeAdd(const_cast<LONG*>(&_ref), 0);
@@ -61,7 +61,7 @@ IceE::Shared::__getRef() const
 }
 
 void
-IceE::Shared::__setNoDelete(bool b)
+Ice::Shared::__setNoDelete(bool b)
 {
     _noDelete = b;
 }

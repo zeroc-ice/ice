@@ -10,7 +10,7 @@
 #ifndef ICEE_FACET_MAP_ICE
 #define ICEE_FACET_MAP_ICE
 
-module IceE
+module Ice
 {
 
 /**

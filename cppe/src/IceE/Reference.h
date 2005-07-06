@@ -26,12 +26,12 @@
 #include <IceE/Mutex.h>
 #include <IceE/Identity.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class BasicStream;
 
-class Reference : public IceE::Shared
+class Reference : public Ice::Shared
 {
 public:
 
@@ -44,10 +44,10 @@ public:
     };
 
     Mode getMode() const { return _mode; }
-    const IceE::Identity& getIdentity() const { return _identity; }
+    const Ice::Identity& getIdentity() const { return _identity; }
     const std::string& getFacet() const { return _facet; }
     const InstancePtr& getInstance() const { return _instance; }
-    const IceE::Context& getContext() const;
+    const Ice::Context& getContext() const;
 
     ReferencePtr defaultContext() const;
 
@@ -58,9 +58,9 @@ public:
     // a new reference based on the existing one, with the
     // corresponding value changed.
     //
-    ReferencePtr changeContext(const IceE::Context&) const;
+    ReferencePtr changeContext(const Ice::Context&) const;
     ReferencePtr changeMode(Mode) const;
-    ReferencePtr changeIdentity(const IceE::Identity&) const;
+    ReferencePtr changeIdentity(const Ice::Identity&) const;
     bool hasContext() const { return _hasContext; }
     ReferencePtr changeFacet(const std::string&) const;
 
@@ -70,10 +70,10 @@ public:
     virtual ReferencePtr changeDefault() const;
 
 #ifndef ICEE_NO_ROUTER
-    virtual ReferencePtr changeRouter(const IceE::RouterPrx&) const = 0;
+    virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const = 0;
 #endif
 #ifndef ICEE_NO_LOCATOR
-    virtual ReferencePtr changeLocator(const IceE::LocatorPrx&) const = 0;
+    virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const = 0;
 #endif
     virtual ReferencePtr changeTimeout(int) const = 0;
 
@@ -92,7 +92,7 @@ public:
     //
     // Get a suitable connection for this reference.
     //
-    virtual IceE::ConnectionPtr getConnection() const = 0;
+    virtual Ice::ConnectionPtr getConnection() const = 0;
 
     virtual bool operator==(const Reference&) const = 0;
     virtual bool operator!=(const Reference&) const = 0;
@@ -102,7 +102,7 @@ public:
 
 protected:
 
-    Reference(const InstancePtr&, const IceE::Identity&, const IceE::Context&, const std::string&, Mode);
+    Reference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode);
     Reference(const Reference&);
 
 private:
@@ -110,13 +110,13 @@ private:
     InstancePtr _instance;
 
     Mode _mode;
-    IceE::Identity _identity;
+    Ice::Identity _identity;
     bool _hasContext;
-    IceE::Context _context;
+    Ice::Context _context;
     std::string _facet;
 
-    IceE::Mutex _hashMutex; // For lazy initialization of hash value.
-    mutable IceE::Int _hashValue;
+    Ice::Mutex _hashMutex; // For lazy initialization of hash value.
+    mutable Ice::Int _hashValue;
     mutable bool _hashInitialized;
 };
 
@@ -124,24 +124,24 @@ class FixedReference : public Reference
 {
 public:
 
-    FixedReference(const InstancePtr&, const IceE::Identity&, const IceE::Context&, const std::string&, Mode,
-	           const std::vector<IceE::ConnectionPtr>&);
+    FixedReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode,
+	           const std::vector<Ice::ConnectionPtr>&);
 
-    const std::vector<IceE::ConnectionPtr>& getFixedConnections() const;
+    const std::vector<Ice::ConnectionPtr>& getFixedConnections() const;
 
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
 #ifndef ICEE_NO_ROUTER
-    virtual ReferencePtr changeRouter(const IceE::RouterPrx&) const;
+    virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
 #endif
 #ifndef ICEE_NO_LOCATOR
-    virtual ReferencePtr changeLocator(const IceE::LocatorPrx&) const;
+    virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
 #endif
     virtual ReferencePtr changeTimeout(int) const;
 
     virtual void streamWrite(BasicStream*) const;
 
-    virtual IceE::ConnectionPtr getConnection() const;
+    virtual Ice::ConnectionPtr getConnection() const;
 
     virtual bool operator==(const Reference&) const;
     virtual bool operator!=(const Reference&) const;
@@ -155,7 +155,7 @@ protected:
 
 private:
 
-    std::vector<IceE::ConnectionPtr> _fixedConnections;
+    std::vector<Ice::ConnectionPtr> _fixedConnections;
 };
 
 class RoutableReference : public Reference
@@ -168,10 +168,10 @@ public:
 
     virtual ReferencePtr changeDefault() const;
 
-    virtual ReferencePtr changeRouter(const IceE::RouterPrx&) const;
+    virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
 #endif
 
-    virtual IceE::ConnectionPtr getConnection() const = 0;
+    virtual Ice::ConnectionPtr getConnection() const = 0;
 
     virtual bool operator==(const Reference&) const = 0;
     virtual bool operator!=(const Reference&) const = 0;
@@ -181,7 +181,7 @@ public:
 
 protected:
 
-    RoutableReference(const InstancePtr&, const IceE::Identity&, const IceE::Context&, const std::string&, Mode
+    RoutableReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode
 #ifndef ICEE_NO_ROUTER
 		      , const RouterInfoPtr&
 #endif
@@ -200,7 +200,7 @@ class DirectReference : public RoutableReference
 {
 public:
 
-    DirectReference(const InstancePtr&, const IceE::Identity&, const IceE::Context&, const std::string&, Mode,
+    DirectReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode,
 	            const std::vector<EndpointPtr>&
 #ifndef ICEE_NO_ROUTER
 		    , const RouterInfoPtr&
@@ -214,13 +214,13 @@ public:
     virtual ReferencePtr changeDefault() const;
 
 #ifndef ICEE_NO_LOCATOR
-    virtual ReferencePtr changeLocator(const IceE::LocatorPrx&) const;
+    virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
 #endif
     virtual ReferencePtr changeTimeout(int) const;
 
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
-    virtual IceE::ConnectionPtr getConnection() const;
+    virtual Ice::ConnectionPtr getConnection() const;
 
     virtual bool operator==(const Reference&) const;
     virtual bool operator!=(const Reference&) const;
@@ -243,7 +243,7 @@ class IndirectReference : public RoutableReference
 {
 public:
 
-    IndirectReference(const InstancePtr&, const IceE::Identity&, const IceE::Context&, const std::string&,
+    IndirectReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&,
                       Mode, const std::string&
 #ifndef ICEE_NO_ROUTER
 		      , const RouterInfoPtr&
@@ -257,12 +257,12 @@ public:
 
     virtual ReferencePtr changeDefault() const;
 
-    virtual ReferencePtr changeLocator(const IceE::LocatorPrx&) const;
+    virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
     virtual ReferencePtr changeTimeout(int) const;
 
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
-    virtual IceE::ConnectionPtr getConnection() const;
+    virtual Ice::ConnectionPtr getConnection() const;
 
     virtual bool operator==(const Reference&) const;
     virtual bool operator!=(const Reference&) const;

@@ -12,12 +12,12 @@
 
 #include <IceE/Handle.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class UserExceptionFactory;
 
-typedef ::IceE::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
+typedef ::Ice::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
 
 };
 

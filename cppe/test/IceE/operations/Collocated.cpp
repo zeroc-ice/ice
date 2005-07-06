@@ -26,7 +26,7 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	IceE::PropertiesPtr properties = IceE::getDefaultProperties(argc, argv);
+	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
 	
 	//
 	// We must set MessageSizeMax to an explicit values, because
@@ -39,21 +39,21 @@ public:
 	//properties->setProperty("IceE.Trace.Protocol", "10");
 	//properties->setProperty("IceE.Trace.Network", "10");
 	
-	setCommunicator(IceE::initialize(argc, argv));
+	setCommunicator(Ice::initialize(argc, argv));
 
-        IceE::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-        IceE::ObjectPtr object = new MyDerivedClassI(adapter, IceE::stringToIdentity("test"));
-        adapter->add(object, IceE::stringToIdentity("test"));
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
+        Ice::ObjectPtr object = new MyDerivedClassI(adapter, Ice::stringToIdentity("test"));
+        adapter->add(object, Ice::stringToIdentity("test"));
         adapter->activate();
 
         //
         // Make a separate adapter with a servant locator. We use this to test
-        // that ::IceE::Context is correctly passed to checkedCast() operation.
+        // that ::Ice::Context is correctly passed to checkedCast() operation.
         //
         adapter = communicator()->createObjectAdapter("CheckedCastAdapter");
         adapter->activate();
 
-        Test::MyClassPrx allTests(const IceE::CommunicatorPtr&);
+        Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
         allTests(communicator());
 
         return EXIT_SUCCESS;

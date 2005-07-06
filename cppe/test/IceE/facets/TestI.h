@@ -16,63 +16,63 @@ class AI : virtual public Test::A
 {
 public:
 
-    virtual std::string callA(const IceE::Current&);
+    virtual std::string callA(const Ice::Current&);
 };
 
 class BI : virtual public Test::B, virtual public AI
 {
 public:
 
-    virtual std::string callB(const IceE::Current&);
+    virtual std::string callB(const Ice::Current&);
 };
 
 class CI : virtual public Test::C, virtual public AI
 {
 public:
 
-    virtual std::string callC(const IceE::Current&);
+    virtual std::string callC(const Ice::Current&);
 };
 
 class DI : virtual public Test::D, virtual public BI, virtual public CI
 {
 public:
 
-    virtual std::string callD(const IceE::Current&);
+    virtual std::string callD(const Ice::Current&);
 };
 
 class EI : virtual public Test::E
 {
 public:
 
-    virtual std::string callE(const IceE::Current&);
+    virtual std::string callE(const Ice::Current&);
 };
 
 class FI : virtual public Test::F, virtual public EI
 {
 public:
 
-    virtual std::string callF(const IceE::Current&);
+    virtual std::string callF(const Ice::Current&);
 };
 
 class GI : virtual public Test::G
 {
 public:
 
-    GI(const IceE::CommunicatorPtr&);
-    virtual void shutdown(const IceE::Current&);
-    virtual std::string callG(const IceE::Current&);
+    GI(const Ice::CommunicatorPtr&);
+    virtual void shutdown(const Ice::Current&);
+    virtual std::string callG(const Ice::Current&);
 
 private:
 
-    IceE::CommunicatorPtr _communicator;
+    Ice::CommunicatorPtr _communicator;
 };
 
 class HI : virtual public Test::H, virtual public GI
 {
 public:
 
-    HI(const IceE::CommunicatorPtr&);
-    virtual std::string callH(const IceE::Current&);
+    HI(const Ice::CommunicatorPtr&);
+    virtual std::string callH(const Ice::Current&);
 };
 
 #endif

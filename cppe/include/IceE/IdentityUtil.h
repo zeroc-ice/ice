@@ -12,7 +12,7 @@
 
 #include <IceE/Identity.h>
 
-namespace IceE
+namespace Ice
 {
 
 ICEE_API Identity stringToIdentity(const std::string&);

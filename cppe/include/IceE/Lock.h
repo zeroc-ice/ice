@@ -13,7 +13,7 @@
 #include <IceE/Config.h>
 #include <IceE/ThreadException.h>
 
-namespace IceE
+namespace Ice
 {
 
 //
@@ -130,6 +130,6 @@ public:
     {}
 };
 
-} // End namespace IceE
+} // End namespace Ice
 
 #endif

@@ -222,7 +222,7 @@
 //
 // By deriving from this class, other classes are made non-copyable.
 //
-namespace IceE
+namespace Ice
 {
 
 //
@@ -324,17 +324,17 @@ const Int64 Int64Max = 0x7fffffffffffffffLL;
 #endif
 
 //
-// Define the IceE and IceEInternal namespace, so that we can use the following
+// Define the IceE and IceInternal namespace, so that we can use the following
 // everywhere in our code:
 //
-// using namespace IceE;
-// using namespace IceEInternal;
+// using namespace Ice;
+// using namespace IceInternal;
 //
-namespace IceE
+namespace Ice
 {
 }
 
-namespace IceEInternal
+namespace IceInternal
 {
 }
 
@@ -346,13 +346,13 @@ namespace IceEInternal
 #   endif
 #endif
 
-namespace IceE
+namespace Ice
 {
 
 typedef unsigned char Byte;
 typedef short Short;
 typedef int Int;
-typedef IceE::Int64 Long;
+typedef Ice::Int64 Long;
 typedef float Float;
 typedef double Double;
 

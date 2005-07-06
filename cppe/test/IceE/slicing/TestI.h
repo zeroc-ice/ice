@@ -16,28 +16,28 @@ class TestI : virtual public Test::TestIntf
 {
 public:
 
-    TestI(const ::IceE::ObjectAdapterPtr&);
-    virtual void baseAsBase(const ::IceE::Current&);
-    virtual void unknownDerivedAsBase(const ::IceE::Current&);
-    virtual void knownDerivedAsBase(const ::IceE::Current&);
-    virtual void knownDerivedAsKnownDerived(const ::IceE::Current&);
+    TestI(const ::Ice::ObjectAdapterPtr&);
+    virtual void baseAsBase(const ::Ice::Current&);
+    virtual void unknownDerivedAsBase(const ::Ice::Current&);
+    virtual void knownDerivedAsBase(const ::Ice::Current&);
+    virtual void knownDerivedAsKnownDerived(const ::Ice::Current&);
 
-    virtual void unknownIntermediateAsBase(const ::IceE::Current&);
-    virtual void knownIntermediateAsBase(const ::IceE::Current&);
-    virtual void knownMostDerivedAsBase(const ::IceE::Current&);
-    virtual void knownIntermediateAsKnownIntermediate(const ::IceE::Current&);
-    virtual void knownMostDerivedAsKnownIntermediate(const ::IceE::Current&);
-    virtual void knownMostDerivedAsKnownMostDerived(const ::IceE::Current&);
+    virtual void unknownIntermediateAsBase(const ::Ice::Current&);
+    virtual void knownIntermediateAsBase(const ::Ice::Current&);
+    virtual void knownMostDerivedAsBase(const ::Ice::Current&);
+    virtual void knownIntermediateAsKnownIntermediate(const ::Ice::Current&);
+    virtual void knownMostDerivedAsKnownIntermediate(const ::Ice::Current&);
+    virtual void knownMostDerivedAsKnownMostDerived(const ::Ice::Current&);
 
-    virtual void unknownMostDerived1AsBase(const ::IceE::Current&);
-    virtual void unknownMostDerived1AsKnownIntermediate(const ::IceE::Current&);
-    virtual void unknownMostDerived2AsBase(const ::IceE::Current&);
+    virtual void unknownMostDerived1AsBase(const ::Ice::Current&);
+    virtual void unknownMostDerived1AsKnownIntermediate(const ::Ice::Current&);
+    virtual void unknownMostDerived2AsBase(const ::Ice::Current&);
 
-    virtual void shutdown(const ::IceE::Current&);
+    virtual void shutdown(const ::Ice::Current&);
 
 private:
 
-    const ::IceE::ObjectAdapterPtr& _adapter;
+    const ::Ice::ObjectAdapterPtr& _adapter;
 };
 
 #endif

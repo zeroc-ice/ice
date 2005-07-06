@@ -14,10 +14,10 @@
 
 //#define ICEE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class ICEE_API Buffer : private IceE::noncopyable
+class ICEE_API Buffer : private Ice::noncopyable
 {
 public:
 
@@ -26,7 +26,7 @@ public:
 
     void swap(Buffer&);
 
-    class ICEE_API Container : private IceE::noncopyable
+    class ICEE_API Container : private Ice::noncopyable
     {
     public:
 
@@ -34,12 +34,12 @@ public:
 	// Standard vector-like operations.
 	//
 
-	typedef IceE::Byte value_type;
-	typedef IceE::Byte* iterator;
-	typedef const IceE::Byte* const_iterator;
-	typedef IceE::Byte& reference;
-	typedef const IceE::Byte& const_reference;
-	typedef IceE::Byte* pointer;
+	typedef Ice::Byte value_type;
+	typedef Ice::Byte* iterator;
+	typedef const Ice::Byte* const_iterator;
+	typedef Ice::Byte& reference;
+	typedef const Ice::Byte& const_reference;
+	typedef Ice::Byte* pointer;
 	typedef int difference_type;
 	typedef size_t size_type;
 

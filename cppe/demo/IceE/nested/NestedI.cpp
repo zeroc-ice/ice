@@ -11,7 +11,7 @@
 #include <NestedI.h>
 
 using namespace std;
-using namespace IceE;
+using namespace Ice;
 using namespace Demo;
 
 NestedI::NestedI(const NestedPrx& self) :
@@ -20,7 +20,7 @@ NestedI::NestedI(const NestedPrx& self) :
 }
 
 void
-NestedI::nestedCall(Int level, const NestedPrx& proxy, const IceE::Current& current)
+NestedI::nestedCall(Int level, const NestedPrx& proxy, const Ice::Current& current)
 {
     printf("%d\n", level);
     if(--level > 0)

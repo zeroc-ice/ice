@@ -14,14 +14,14 @@
 #include <IceE/TraceLevelsF.h>
 #include <IceE/PropertiesF.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class TraceLevels : public ::IceE::Shared
+class TraceLevels : public ::Ice::Shared
 {
 public:
 
-    TraceLevels(const ::IceE::PropertiesPtr&);
+    TraceLevels(const ::Ice::PropertiesPtr&);
 
     const int network;
     const char* networkCat;

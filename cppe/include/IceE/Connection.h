@@ -31,19 +31,19 @@
 #include <IceE/Identity.h>
 #include <IceE/BasicStream.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class Outgoing;
 
 }
 
-namespace IceE
+namespace Ice
 {
 
 class LocalException;
 
-class ICEE_API Connection : public IceE::Monitor<IceE::Mutex>, public IceE::Shared
+class ICEE_API Connection : public Ice::Monitor<Ice::Mutex>, public Ice::Shared
 {
 public:
 
@@ -70,22 +70,22 @@ public:
 #endif
     void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
 
-    void prepareRequest(IceEInternal::BasicStream*);
-    void sendRequest(IceEInternal::BasicStream*, IceEInternal::Outgoing*);
+    void prepareRequest(IceInternal::BasicStream*);
+    void sendRequest(IceInternal::BasicStream*, IceInternal::Outgoing*);
 
 #ifndef ICEE_NO_BATCH
-    void prepareBatchRequest(IceEInternal::BasicStream*);
-    void finishBatchRequest(IceEInternal::BasicStream*);
+    void prepareBatchRequest(IceInternal::BasicStream*);
+    void finishBatchRequest(IceInternal::BasicStream*);
     void abortBatchRequest();
     void flushBatchRequests(); // From Connection.
 #endif
 
 #ifndef ICEE_PURE_CLIENT
-    void sendResponse(IceEInternal::BasicStream*);
+    void sendResponse(IceInternal::BasicStream*);
     void sendNoResponse();
 #endif
 
-    IceEInternal::EndpointPtr endpoint() const;
+    IceInternal::EndpointPtr endpoint() const;
 
 //#ifndef ICEE_PURE_CLIENT
     void setAdapter(const ObjectAdapterPtr&); // From Connection.
@@ -95,23 +95,23 @@ public:
 
     void exception(const LocalException&);
     std::string type() const; // From Connection.
-    IceE::Int timeout() const; // From Connection.
+    Ice::Int timeout() const; // From Connection.
     std::string toString() const;  // From Connection
 
 private:
 
 #ifndef ICEE_PURE_CLIENT
-    Connection(const IceEInternal::InstancePtr&, const IceEInternal::TransceiverPtr&, 
-	       const IceEInternal::EndpointPtr&, const ObjectAdapterPtr&);
+    Connection(const IceInternal::InstancePtr&, const IceInternal::TransceiverPtr&, 
+	       const IceInternal::EndpointPtr&, const ObjectAdapterPtr&);
 #else
-    Connection(const IceEInternal::InstancePtr&, const IceEInternal::TransceiverPtr&, 
-	       const IceEInternal::EndpointPtr&);
+    Connection(const IceInternal::InstancePtr&, const IceInternal::TransceiverPtr&, 
+	       const IceInternal::EndpointPtr&);
 #endif
     ~Connection();
 #ifndef ICEE_PURE_CLIENT
-    friend class IceEInternal::IncomingConnectionFactory;
+    friend class IceInternal::IncomingConnectionFactory;
 #endif
-    friend class IceEInternal::OutgoingConnectionFactory;
+    friend class IceInternal::OutgoingConnectionFactory;
 
     enum State
     {
@@ -131,17 +131,17 @@ private:
     void initiateShutdown() const;
 
 #ifndef ICEE_PURE_CLIENT
-    void parseMessage(IceEInternal::BasicStream&, Int&, Int&, 
-		      IceEInternal::ServantManagerPtr&, ObjectAdapterPtr&);
-    void invokeAll(IceEInternal::BasicStream&, Int, Int,
-		   const IceEInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
+    void parseMessage(IceInternal::BasicStream&, Int&, Int&, 
+		      IceInternal::ServantManagerPtr&, ObjectAdapterPtr&);
+    void invokeAll(IceInternal::BasicStream&, Int, Int,
+		   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
 #else
-    void parseMessage(IceEInternal::BasicStream&, Int&);
+    void parseMessage(IceInternal::BasicStream&, Int&);
 #endif
 
     void run();
 
-    class ThreadPerConnection : public IceE::Thread
+    class ThreadPerConnection : public Ice::Thread
     {
     public:
 	
@@ -154,21 +154,21 @@ private:
     };
     friend class ThreadPerConnection;
     // Defined as mutable because "isFinished() const" sets this to 0.
-    mutable IceE::ThreadPtr _threadPerConnection;
+    mutable Ice::ThreadPtr _threadPerConnection;
 
-    const IceEInternal::InstancePtr _instance;
-    IceEInternal::TransceiverPtr _transceiver;
+    const IceInternal::InstancePtr _instance;
+    IceInternal::TransceiverPtr _transceiver;
     const std::string _desc;
     const std::string _type;
-    const IceEInternal::EndpointPtr _endpoint;
+    const IceInternal::EndpointPtr _endpoint;
 
 #ifndef ICEE_PURE_CLIENT
     ObjectAdapterPtr _adapter;
-    IceEInternal::ServantManagerPtr _servantManager;
+    IceInternal::ServantManagerPtr _servantManager;
 #endif
 
     const LoggerPtr _logger;
-    const IceEInternal::TraceLevelsPtr _traceLevels;
+    const IceInternal::TraceLevelsPtr _traceLevels;
 
     const bool _warn;
 
@@ -182,13 +182,13 @@ private:
 
     Int _nextRequestId;
 
-    std::map<Int, IceEInternal::Outgoing*> _requests;
-    std::map<Int, IceEInternal::Outgoing*>::iterator _requestsHint;
+    std::map<Int, IceInternal::Outgoing*> _requests;
+    std::map<Int, IceInternal::Outgoing*>::iterator _requestsHint;
 
     std::auto_ptr<LocalException> _exception;
 
 #ifndef ICEE_NO_BATCH
-    IceEInternal::BasicStream _batchStream;
+    IceInternal::BasicStream _batchStream;
     bool _batchStreamInUse;
     int _batchRequestNum;
 #endif
@@ -200,13 +200,13 @@ private:
     int _dispatchCount;
 
     State _state; // The current state.
-    IceE::Time _stateTime; // The last time when the state was changed.
+    Ice::Time _stateTime; // The last time when the state was changed.
 
     //
     // We have a separate mutex for sending, so that we don't block
     // the whole connection when we do a blocking send.
     //
-    IceE::Mutex _sendMutex;
+    Ice::Mutex _sendMutex;
 };
 
 }

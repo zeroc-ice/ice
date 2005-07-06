@@ -16,17 +16,17 @@ class TestI : public Test::TestIntf
 {
 public:
 
-    TestI(const IceE::ObjectAdapterPtr&);
+    TestI(const Ice::ObjectAdapterPtr&);
 
-    virtual void shutdown(const IceE::Current&);
-    virtual void abort(const IceE::Current&);
-    virtual void idempotentAbort(const IceE::Current&);
-    virtual void nonmutatingAbort(const IceE::Current&) const;
-    virtual IceE::Int pid(const IceE::Current&);
+    virtual void shutdown(const Ice::Current&);
+    virtual void abort(const Ice::Current&);
+    virtual void idempotentAbort(const Ice::Current&);
+    virtual void nonmutatingAbort(const Ice::Current&) const;
+    virtual Ice::Int pid(const Ice::Current&);
 
 private:
 
-    IceE::ObjectAdapterPtr _adapter;
+    Ice::ObjectAdapterPtr _adapter;
 };
 
 #endif

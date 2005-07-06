@@ -14,7 +14,7 @@
 using namespace std;
 
 string
-IceE::printfToString(const char* fmt, ...)
+Ice::printfToString(const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);

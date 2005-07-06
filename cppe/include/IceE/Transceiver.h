@@ -22,14 +22,14 @@ typedef int ssize_t;
 #   define SOCKET int
 #endif
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class Connector;
 class Acceptor;
 class Buffer;
 
-class ICEE_API Transceiver : public ::IceE::Shared
+class ICEE_API Transceiver : public ::Ice::Shared
 {
 public:
 
@@ -50,7 +50,7 @@ private:
     friend class Acceptor;
 
     const TraceLevelsPtr _traceLevels;
-    const IceE::LoggerPtr _logger;
+    const Ice::LoggerPtr _logger;
     
     SOCKET _fd;
 #ifdef _WIN32_WCE

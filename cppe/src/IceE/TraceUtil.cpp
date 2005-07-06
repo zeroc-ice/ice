@@ -19,8 +19,8 @@
 #include <IceE/OperationMode.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
 static void
 printIdentityFacetOperation(string& s, BasicStream& stream)
@@ -35,7 +35,7 @@ printIdentityFacetOperation(string& s, BasicStream& stream)
     s += "\nfacet = ";
     if(!facet.empty())
     {
-        s += IceE::escapeString(facet[0], "");
+        s += Ice::escapeString(facet[0], "");
     }
 
     string operation;
@@ -51,7 +51,7 @@ printRequestHeader(string& s, BasicStream& stream)
 
     Byte mode;
     stream.read(mode);
-    s += IceE::printfToString("\nmode = %d ", static_cast<int>(mode));
+    s += Ice::printfToString("\nmode = %d ", static_cast<int>(mode));
     switch(mode)
     {
 	case Normal:
@@ -110,19 +110,19 @@ printHeader(string& s, BasicStream& stream)
     Byte pMinor;
     stream.read(pMajor);
     stream.read(pMinor);
-    //IceE::printfToString("\nprotocol version = %d.%d", static_cast<unsigned>(pMajor),
+    //Ice::printfToString("\nprotocol version = %d.%d", static_cast<unsigned>(pMajor),
     //static_cast<unsigned>(pMinor);
 
     Byte eMajor;
     Byte eMinor;
     stream.read(eMajor);
     stream.read(eMinor);
-    //IceE::printfToString("\nencoding version = %d.%d", static_cast<unsigned>(eMajor),
+    //Ice::printfToString("\nencoding version = %d.%d", static_cast<unsigned>(eMajor),
     //static_cast<unsigned>(eMinor);
 
     Byte type;
     stream.read(type);
-    s += IceE::printfToString("\nmessage type = %d ", static_cast<int>(type));
+    s += Ice::printfToString("\nmessage type = %d ", static_cast<int>(type));
 
     switch(type)
     {
@@ -165,7 +165,7 @@ printHeader(string& s, BasicStream& stream)
 
     Byte compress;
     stream.read(compress);
-    s += IceE::printfToString("\ncompression status = %d ", static_cast<int>(compress));
+    s += Ice::printfToString("\ncompression status = %d ", static_cast<int>(compress));
 
     switch(compress)
     {
@@ -196,11 +196,11 @@ printHeader(string& s, BasicStream& stream)
 
     Int size;
     stream.read(size);
-    s += IceE::printfToString("\nmessage size = %d", size);
+    s += Ice::printfToString("\nmessage size = %d", size);
 }
 
 void
-IceEInternal::traceHeader(const char* heading, const BasicStream& str, const LoggerPtr& logger,
+IceInternal::traceHeader(const char* heading, const BasicStream& str, const LoggerPtr& logger,
 			 const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
@@ -218,7 +218,7 @@ IceEInternal::traceHeader(const char* heading, const BasicStream& str, const Log
 }
 
 void
-IceEInternal::traceRequest(const char* heading, const BasicStream& str, const LoggerPtr& logger,
+IceInternal::traceRequest(const char* heading, const BasicStream& str, const LoggerPtr& logger,
 			  const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
@@ -232,7 +232,7 @@ IceEInternal::traceRequest(const char* heading, const BasicStream& str, const Lo
 
 	Int requestId;
 	stream.read(requestId);
-	s += IceE::printfToString("\nrequest id = %d", requestId);
+	s += Ice::printfToString("\nrequest id = %d", requestId);
 	if(requestId == 0)
 	{
 	    s += " (oneway)";
@@ -247,7 +247,7 @@ IceEInternal::traceRequest(const char* heading, const BasicStream& str, const Lo
 
 #ifndef ICEE_NO_BATCH
 void
-IceEInternal::traceBatchRequest(const char* heading, const BasicStream& str, const LoggerPtr& logger,
+IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, const LoggerPtr& logger,
 			       const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
@@ -261,11 +261,11 @@ IceEInternal::traceBatchRequest(const char* heading, const BasicStream& str, con
 
 	int batchRequestNum;
 	stream.read(batchRequestNum);
-	s += IceE::printfToString("\nnumber of requests = %d", batchRequestNum);
+	s += Ice::printfToString("\nnumber of requests = %d", batchRequestNum);
 
 	for(int i = 0; i < batchRequestNum; ++i)
 	{
-	    s += IceE::printfToString("\nrequest #%d:", i);
+	    s += Ice::printfToString("\nrequest #%d:", i);
 	    printRequestHeader(s, stream);
 	    stream.skipEncaps();
 	}
@@ -277,7 +277,7 @@ IceEInternal::traceBatchRequest(const char* heading, const BasicStream& str, con
 #endif
 
 void
-IceEInternal::traceReply(const char* heading, const BasicStream& str, const LoggerPtr& logger,
+IceInternal::traceReply(const char* heading, const BasicStream& str, const LoggerPtr& logger,
 			const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
@@ -291,11 +291,11 @@ IceEInternal::traceReply(const char* heading, const BasicStream& str, const Logg
 
 	Int requestId;
 	stream.read(requestId);
-	s += IceE::printfToString("\nrequest id = %d", requestId);
+	s += Ice::printfToString("\nrequest id = %d", requestId);
 
 	Byte status;
 	stream.read(status);
-	s += IceE::printfToString("\nreply status = %d ", static_cast<int>(status));
+	s += Ice::printfToString("\nreply status = %d ", static_cast<int>(status));
 	switch(static_cast<DispatchStatus>(status))
 	{
 	    case DispatchOK:

@@ -17,17 +17,17 @@
 #include <IceE/Mutex.h>
 #include <IceE/Identity.h>
 
-namespace IceE
+namespace Ice
 {
 
 struct Identity;
 
 }
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class ICEE_API RoutingTable : public IceE::Shared, public IceE::Mutex
+class ICEE_API RoutingTable : public Ice::Shared, public Ice::Mutex
 {
 public:
 
@@ -41,17 +41,17 @@ public:
     //
     // Returns false if the Proxy exists already.
     //
-    bool add(const IceE::ObjectPrx&);
+    bool add(const Ice::ObjectPrx&);
 
     //
     // Returns null if no Proxy exists for the given identity.
     //
-    IceE::ObjectPrx get(const IceE::Identity&);
+    Ice::ObjectPrx get(const Ice::Identity&);
 
 private:
 
-    std::map<IceE::Identity, IceE::ObjectPrx> _table;
-    std::map<IceE::Identity, IceE::ObjectPrx>::iterator _tableHint;
+    std::map<Ice::Identity, Ice::ObjectPrx> _table;
+    std::map<Ice::Identity, Ice::ObjectPrx>::iterator _tableHint;
 };
 
 }

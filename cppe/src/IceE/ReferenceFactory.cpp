@@ -22,14 +22,14 @@
 #include <IceE/StringUtil.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(::IceEInternal::ReferenceFactory* p) { p->__incRef(); }
-void IceEInternal::decRef(::IceEInternal::ReferenceFactory* p) { p->__decRef(); }
+void IceInternal::incRef(::IceInternal::ReferenceFactory* p) { p->__incRef(); }
+void IceInternal::decRef(::IceInternal::ReferenceFactory* p) { p->__decRef(); }
 
 ReferencePtr
-IceEInternal::ReferenceFactory::copy(const Reference* r) const
+IceInternal::ReferenceFactory::copy(const Reference* r) const
 {
     Mutex::Lock sync(*this);
 
@@ -38,7 +38,7 @@ IceEInternal::ReferenceFactory::copy(const Reference* r) const
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    const IceE::Identity& ident = r->getIdentity();
+    const Ice::Identity& ident = r->getIdentity();
     if(ident.name.empty() && ident.category.empty())
     {
         return 0;
@@ -48,7 +48,7 @@ IceEInternal::ReferenceFactory::copy(const Reference* r) const
 }
 
 ReferencePtr
-IceEInternal::ReferenceFactory::create(const Identity& ident,
+IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const Context& context,
 				      const string& facet,
 				      Reference::Mode mode,
@@ -83,7 +83,7 @@ IceEInternal::ReferenceFactory::create(const Identity& ident,
 #ifndef ICEE_NO_LOCATOR
 
 ReferencePtr
-IceEInternal::ReferenceFactory::create(const Identity& ident,
+IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const Context& context,
 				      const string& facet,
 				      Reference::Mode mode,
@@ -119,11 +119,11 @@ IceEInternal::ReferenceFactory::create(const Identity& ident,
 #endif
 
 ReferencePtr
-IceEInternal::ReferenceFactory::create(const Identity& ident,
+IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const Context& context,
 				      const string& facet,
 				      Reference::Mode mode,
-				      const vector<IceE::ConnectionPtr>& fixedConnections)
+				      const vector<Ice::ConnectionPtr>& fixedConnections)
 {
     Mutex::Lock sync(*this);
 
@@ -144,7 +144,7 @@ IceEInternal::ReferenceFactory::create(const Identity& ident,
 }
 
 ReferencePtr
-IceEInternal::ReferenceFactory::create(const string& str)
+IceInternal::ReferenceFactory::create(const string& str)
 {
     if(str.empty())
     {
@@ -170,7 +170,7 @@ IceEInternal::ReferenceFactory::create(const string& str)
     // or double quotation marks.
     //
     string idstr;
-    end = IceE::checkQuote(s, beg);
+    end = Ice::checkQuote(s, beg);
     if(end == string::npos)
     {
 	ProxyParseException ex(__FILE__, __LINE__);
@@ -283,7 +283,7 @@ IceEInternal::ReferenceFactory::create(const string& str)
             if(s[argumentBeg] != '@' && s[argumentBeg] != ':' && s[argumentBeg] != '-')
             {
                 beg = argumentBeg;
-                end = IceE::checkQuote(s, beg);
+                end = Ice::checkQuote(s, beg);
                 if(end == string::npos)
                 {
 		    ProxyParseException ex(__FILE__, __LINE__);
@@ -310,7 +310,7 @@ IceEInternal::ReferenceFactory::create(const string& str)
 
 	//
 	// If any new options are added here,
-	// IceEInternal::Reference::toString() and its derived classes must be updated as well.
+	// IceInternal::Reference::toString() and its derived classes must be updated as well.
 	//
 	switch(option[1])
 	{
@@ -323,7 +323,7 @@ IceEInternal::ReferenceFactory::create(const string& str)
 		    throw ex;
 		}
 
-		if(!IceE::unescapeString(argument, 0, argument.size(), facet))
+		if(!Ice::unescapeString(argument, 0, argument.size(), facet))
 		{
 		    ProxyParseException ex(__FILE__, __LINE__);
 		    ex.str = str;
@@ -443,7 +443,7 @@ IceEInternal::ReferenceFactory::create(const string& str)
 		throw ex;
 	    }
 
-	    end = IceE::checkQuote(s, beg);
+	    end = Ice::checkQuote(s, beg);
 	    if(end == string::npos)
 	    {
 		ProxyParseException ex(__FILE__, __LINE__);
@@ -463,7 +463,7 @@ IceEInternal::ReferenceFactory::create(const string& str)
 		beg++; // Skip leading quote
 	    }
 
-	    if(!IceE::unescapeString(s, beg, end, adapter) || adapter.size() == 0)
+	    if(!Ice::unescapeString(s, beg, end, adapter) || adapter.size() == 0)
 	    {
 		ProxyParseException ex(__FILE__, __LINE__);
 		ex.str = str;
@@ -488,7 +488,7 @@ IceEInternal::ReferenceFactory::create(const string& str)
 }
 
 ReferencePtr
-IceEInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
+IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 {
     //
     // Don't read the identity here. Operations calling this
@@ -533,7 +533,7 @@ IceEInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
 #endif
 
-    IceE::Int sz;
+    Ice::Int sz;
     s->readSize(sz);
     
     if(sz > 0)
@@ -569,16 +569,16 @@ IceEInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 #ifndef ICEE_NO_ROUTER
 
 void
-IceEInternal::ReferenceFactory::setDefaultRouter(const RouterPrx& defaultRouter)
+IceInternal::ReferenceFactory::setDefaultRouter(const RouterPrx& defaultRouter)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     _defaultRouter = defaultRouter;
 }
 
 RouterPrx
-IceEInternal::ReferenceFactory::getDefaultRouter() const
+IceInternal::ReferenceFactory::getDefaultRouter() const
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     return _defaultRouter;
 }
 
@@ -587,28 +587,28 @@ IceEInternal::ReferenceFactory::getDefaultRouter() const
 #ifndef ICEE_NO_LOCATOR
 
 void
-IceEInternal::ReferenceFactory::setDefaultLocator(const LocatorPrx& defaultLocator)
+IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrx& defaultLocator)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     _defaultLocator = defaultLocator;
 }
 
 LocatorPrx
-IceEInternal::ReferenceFactory::getDefaultLocator() const
+IceInternal::ReferenceFactory::getDefaultLocator() const
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     return _defaultLocator;
 }
 
 #endif
 
-IceEInternal::ReferenceFactory::ReferenceFactory(const InstancePtr& instance) :
+IceInternal::ReferenceFactory::ReferenceFactory(const InstancePtr& instance) :
     _instance(instance)
 {
 }
 
 void
-IceEInternal::ReferenceFactory::destroy()
+IceInternal::ReferenceFactory::destroy()
 {
     Mutex::Lock sync(*this);
 

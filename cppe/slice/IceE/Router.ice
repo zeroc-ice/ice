@@ -10,7 +10,7 @@
 #ifndef ICEE_ROUTER_ICE
 #define ICEE_ROUTER_ICE
 
-module IceE
+module Ice
 {
 
 /**

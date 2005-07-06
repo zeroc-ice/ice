@@ -19,54 +19,54 @@ class EmptyI : virtual public Empty
 };
 
 GPrx
-allTests(const IceE::CommunicatorPtr& communicator)
+allTests(const Ice::CommunicatorPtr& communicator)
 {
     tprintf("testing facet registration exceptions...");
-    IceE::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
-    IceE::ObjectPtr obj = new EmptyI;
-    adapter->add(obj, IceE::stringToIdentity("d"));
-    adapter->addFacet(obj, IceE::stringToIdentity("d"), "facetABCD");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
+    Ice::ObjectPtr obj = new EmptyI;
+    adapter->add(obj, Ice::stringToIdentity("d"));
+    adapter->addFacet(obj, Ice::stringToIdentity("d"), "facetABCD");
     try
     {
-	adapter->addFacet(obj, IceE::stringToIdentity("d"), "facetABCD");
+	adapter->addFacet(obj, Ice::stringToIdentity("d"), "facetABCD");
 	test(false);
     }
-    catch(IceE::AlreadyRegisteredException&)
+    catch(Ice::AlreadyRegisteredException&)
     {
     }
-    adapter->removeFacet(IceE::stringToIdentity("d"), "facetABCD");
+    adapter->removeFacet(Ice::stringToIdentity("d"), "facetABCD");
     try
     {
-	adapter->removeFacet(IceE::stringToIdentity("d"), "facetABCD");
+	adapter->removeFacet(Ice::stringToIdentity("d"), "facetABCD");
 	test(false);
     }
-    catch(IceE::NotRegisteredException&)
+    catch(Ice::NotRegisteredException&)
     {
     }
     tprintf("ok\n");
 
     tprintf("testing removeAllFacets...");
-    IceE::ObjectPtr obj1 = new EmptyI;
-    IceE::ObjectPtr obj2 = new EmptyI;
-    adapter->addFacet(obj1, IceE::stringToIdentity("id1"), "f1");
-    adapter->addFacet(obj2, IceE::stringToIdentity("id1"), "f2");
-    IceE::ObjectPtr obj3 = new EmptyI;
-    adapter->addFacet(obj1, IceE::stringToIdentity("id2"), "f1");
-    adapter->addFacet(obj2, IceE::stringToIdentity("id2"), "f2");
-    adapter->addFacet(obj3, IceE::stringToIdentity("id2"), "");
-    IceE::FacetMap fm = adapter->removeAllFacets(IceE::stringToIdentity("id1"));
+    Ice::ObjectPtr obj1 = new EmptyI;
+    Ice::ObjectPtr obj2 = new EmptyI;
+    adapter->addFacet(obj1, Ice::stringToIdentity("id1"), "f1");
+    adapter->addFacet(obj2, Ice::stringToIdentity("id1"), "f2");
+    Ice::ObjectPtr obj3 = new EmptyI;
+    adapter->addFacet(obj1, Ice::stringToIdentity("id2"), "f1");
+    adapter->addFacet(obj2, Ice::stringToIdentity("id2"), "f2");
+    adapter->addFacet(obj3, Ice::stringToIdentity("id2"), "");
+    Ice::FacetMap fm = adapter->removeAllFacets(Ice::stringToIdentity("id1"));
     test(fm.size() == 2);
     test(fm["f1"] == obj1);
     test(fm["f2"] == obj2);
     try
     {
-	adapter->removeAllFacets(IceE::stringToIdentity("id1"));
+	adapter->removeAllFacets(Ice::stringToIdentity("id1"));
 	test(false);
     }
-    catch(IceE::NotRegisteredException&)
+    catch(Ice::NotRegisteredException&)
     {
     }
-    fm = adapter->removeAllFacets(IceE::stringToIdentity("id2"));
+    fm = adapter->removeAllFacets(Ice::stringToIdentity("id2"));
     test(fm.size() == 3);
     test(fm["f1"] == obj1);
     test(fm["f2"] == obj2);
@@ -77,7 +77,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
 
     tprintf("testing stringToProxy...");
     string ref = "d:default -p 12345 -t 10000";
-    IceE::ObjectPrx db = communicator->stringToProxy(ref);
+    Ice::ObjectPrx db = communicator->stringToProxy(ref);
     test(db);
     tprintf("ok\n");
 

@@ -25,10 +25,10 @@
 #include <IceE/Thread.h>
 #include <list>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class IncomingConnectionFactory : public IceE::Monitor<IceE::Mutex>, public IceE::Shared
+class IncomingConnectionFactory : public Ice::Monitor<Ice::Mutex>, public Ice::Shared
 {
 public:
 
@@ -41,7 +41,7 @@ public:
 
     EndpointPtr endpoint() const;
     bool equivalent(const EndpointPtr&) const;
-    std::list<IceE::ConnectionPtr> connections() const;
+    std::list<Ice::ConnectionPtr> connections() const;
 #ifndef ICEE_NO_BATCH
     void flushBatchRequests();
 #endif
@@ -50,9 +50,9 @@ public:
 
 private:
 
-    IncomingConnectionFactory(const InstancePtr&, const EndpointPtr&, const ::IceE::ObjectAdapterPtr&);
+    IncomingConnectionFactory(const InstancePtr&, const EndpointPtr&, const ::Ice::ObjectAdapterPtr&);
     virtual ~IncomingConnectionFactory();
-    friend class ::IceE::ObjectAdapter;
+    friend class ::Ice::ObjectAdapter;
 
     enum State
     {
@@ -65,7 +65,7 @@ private:
 
     void run();
 
-    class ThreadPerIncomingConnectionFactory : public IceE::Thread
+    class ThreadPerIncomingConnectionFactory : public Ice::Thread
     {
     public:
 	
@@ -77,18 +77,18 @@ private:
 	IncomingConnectionFactoryPtr _factory;
     };
     friend class ThreadPerIncomingConnectionFactory;
-    IceE::ThreadPtr _threadPerIncomingConnectionFactory;
+    Ice::ThreadPtr _threadPerIncomingConnectionFactory;
 
     const InstancePtr _instance;
     AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;
     const EndpointPtr _endpoint;
 
-    const ::IceE::ObjectAdapterPtr _adapter;
+    const ::Ice::ObjectAdapterPtr _adapter;
 
     const bool _warn;
 
-    std::list<IceE::ConnectionPtr> _connections;
+    std::list<Ice::ConnectionPtr> _connections;
 
     State _state;
 };

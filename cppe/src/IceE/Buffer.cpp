@@ -11,11 +11,11 @@
 #include <IceE/LocalException.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
 void
-IceEInternal::Buffer::swap(Buffer& other)
+IceInternal::Buffer::swap(Buffer& other)
 {
 #ifdef ICEE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
     Container::difference_type pos = i - b.begin();
@@ -30,7 +30,7 @@ IceEInternal::Buffer::swap(Buffer& other)
 }
 
 void
-IceEInternal::Buffer::Container::swap(Container& other)
+IceInternal::Buffer::Container::swap(Container& other)
 {
 #ifdef ICEE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
     if(_buf == _fixed)
@@ -71,7 +71,7 @@ IceEInternal::Buffer::Container::swap(Container& other)
 }
 
 void
-IceEInternal::Buffer::Container::resize(size_type n)
+IceInternal::Buffer::Container::resize(size_type n)
 {
     if(n == 0)
     {

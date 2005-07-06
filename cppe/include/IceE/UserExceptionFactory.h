@@ -13,10 +13,10 @@
 #include <IceE/Shared.h>
 #include <IceE/Handle.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class ICEE_API UserExceptionFactory : public IceE::Shared
+class ICEE_API UserExceptionFactory : public Ice::Shared
 {
 public:
 
@@ -24,7 +24,7 @@ public:
     virtual ~UserExceptionFactory() {}
 };
 
-typedef ::IceE::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
+typedef ::Ice::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
 
 };
 

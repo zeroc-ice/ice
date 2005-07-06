@@ -13,7 +13,7 @@
 using namespace std;
 
 void
-HelloI::sayHello(const IceE::Current&) const
+HelloI::sayHello(const Ice::Current&) const
 {
     printf("Hello World!\n");
 }

@@ -21,40 +21,40 @@
 #include <IceE/Functional.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(IncomingConnectionFactory* p) { p->__incRef(); }
-void IceEInternal::decRef(IncomingConnectionFactory* p) { p->__decRef(); }
+void IceInternal::incRef(IncomingConnectionFactory* p) { p->__incRef(); }
+void IceInternal::decRef(IncomingConnectionFactory* p) { p->__decRef(); }
 
 void
-IceEInternal::IncomingConnectionFactory::activate()
+IceInternal::IncomingConnectionFactory::activate()
 {
-    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
     setState(StateActive);
 }
 
 void
-IceEInternal::IncomingConnectionFactory::hold()
+IceInternal::IncomingConnectionFactory::hold()
 {
-    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
     setState(StateHolding);
 }
 
 void
-IceEInternal::IncomingConnectionFactory::destroy()
+IceInternal::IncomingConnectionFactory::destroy()
 {
-    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
     setState(StateClosed);
 }
 
 void
-IceEInternal::IncomingConnectionFactory::waitUntilHolding() const
+IceInternal::IncomingConnectionFactory::waitUntilHolding() const
 {
     list<ConnectionPtr> connections;
 
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 	
 	//
 	// First we wait until the connection factory itself is in holding
@@ -75,17 +75,17 @@ IceEInternal::IncomingConnectionFactory::waitUntilHolding() const
     //
     // Now we wait until each connection is in holding state.
     //
-    for_each(connections.begin(), connections.end(), IceE::constVoidMemFun(&Connection::waitUntilHolding));
+    for_each(connections.begin(), connections.end(), Ice::constVoidMemFun(&Connection::waitUntilHolding));
 }
 
 void
-IceEInternal::IncomingConnectionFactory::waitUntilFinished()
+IceInternal::IncomingConnectionFactory::waitUntilFinished()
 {
-    IceE::ThreadPtr threadPerIncomingConnectionFactory;
+    Ice::ThreadPtr threadPerIncomingConnectionFactory;
     list<ConnectionPtr> connections;
 
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 	
 	//
 	// First we wait until the factory is destroyed. If we are using
@@ -111,18 +111,18 @@ IceEInternal::IncomingConnectionFactory::waitUntilFinished()
 	threadPerIncomingConnectionFactory->getThreadControl().join();
     }
 
-    for_each(connections.begin(), connections.end(), IceE::voidMemFun(&Connection::waitUntilFinished));
+    for_each(connections.begin(), connections.end(), Ice::voidMemFun(&Connection::waitUntilFinished));
 }
 
 EndpointPtr
-IceEInternal::IncomingConnectionFactory::endpoint() const
+IceInternal::IncomingConnectionFactory::endpoint() const
 {
     // No mutex protection necessary, _endpoint is immutable.
     return _endpoint;
 }
 
 bool
-IceEInternal::IncomingConnectionFactory::equivalent(const EndpointPtr& endp) const
+IceInternal::IncomingConnectionFactory::equivalent(const EndpointPtr& endp) const
 {
     if(_transceiver)
     {
@@ -134,9 +134,9 @@ IceEInternal::IncomingConnectionFactory::equivalent(const EndpointPtr& endp) con
 }
 
 list<ConnectionPtr>
-IceEInternal::IncomingConnectionFactory::connections() const
+IceInternal::IncomingConnectionFactory::connections() const
 {
-    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 
     list<ConnectionPtr> result;
 
@@ -144,13 +144,13 @@ IceEInternal::IncomingConnectionFactory::connections() const
     // Only copy connections which have not been destroyed.
     //
     remove_copy_if(_connections.begin(), _connections.end(), back_inserter(result),
-		   IceE::constMemFun(&Connection::isDestroyed));
+		   Ice::constMemFun(&Connection::isDestroyed));
 
     return result;
 }
 
 void
-IceEInternal::IncomingConnectionFactory::flushBatchRequests()
+IceInternal::IncomingConnectionFactory::flushBatchRequests()
 {
     list<ConnectionPtr> c = connections(); // connections() is synchronized, so no need to synchronize here.
 
@@ -168,9 +168,9 @@ IceEInternal::IncomingConnectionFactory::flushBatchRequests()
 }
 
 string
-IceEInternal::IncomingConnectionFactory::toString() const
+IceInternal::IncomingConnectionFactory::toString() const
 {
-    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 
     if(_transceiver)
     {
@@ -181,7 +181,7 @@ IceEInternal::IncomingConnectionFactory::toString() const
     return _acceptor->toString();
 }
 
-IceEInternal::IncomingConnectionFactory::IncomingConnectionFactory(const InstancePtr& instance,
+IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const InstancePtr& instance,
 								  const EndpointPtr& endpoint,
 								  const ObjectAdapterPtr& adapter) :
     _instance(instance),
@@ -211,7 +211,7 @@ IceEInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instanc
 	_threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory(this);
 	_threadPerIncomingConnectionFactory->start(_instance->threadPerConnectionStackSize());
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	{
 	    Error out(_instance->logger());
@@ -237,9 +237,9 @@ IceEInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instanc
     __setNoDelete(false);
 }
 
-IceEInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
+IceInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
 {
-    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
     
     assert(_state == StateClosed);
     assert(!_acceptor);
@@ -248,7 +248,7 @@ IceEInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
 }
 
 void
-IceEInternal::IncomingConnectionFactory::setState(State state)
+IceInternal::IncomingConnectionFactory::setState(State state)
 {
     if(_state == state) // Don't switch twice.
     {
@@ -263,7 +263,7 @@ IceEInternal::IncomingConnectionFactory::setState(State state)
 	    {
 		return;
 	    }
-	    for_each(_connections.begin(), _connections.end(), IceE::voidMemFun(&Connection::activate));
+	    for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&Connection::activate));
 	    break;
 	}
 	
@@ -273,7 +273,7 @@ IceEInternal::IncomingConnectionFactory::setState(State state)
 	    {
 		return;
 	    }
-	    for_each(_connections.begin(), _connections.end(), IceE::voidMemFun(&Connection::hold));
+	    for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&Connection::hold));
 	    break;
 	}
 	
@@ -291,10 +291,10 @@ IceEInternal::IncomingConnectionFactory::setState(State state)
 #ifdef _STLP_BEGIN_NAMESPACE
 	    // voidbind2nd is an STLport extension for broken compilers in IceE/Functional.h
 	    for_each(_connections.begin(), _connections.end(),
-		     voidbind2nd(IceE::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
+		     voidbind2nd(Ice::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
 #else
 	    for_each(_connections.begin(), _connections.end(),
-		     bind2nd(IceE::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
+		     bind2nd(Ice::voidMemFun1(&Connection::destroy), Connection::ObjectAdapterDeactivated));
 #endif
 	    break;
 	}
@@ -305,7 +305,7 @@ IceEInternal::IncomingConnectionFactory::setState(State state)
 }
 
 void
-IceEInternal::IncomingConnectionFactory::run()
+IceInternal::IncomingConnectionFactory::run()
 {
     assert(_acceptor);
 
@@ -341,7 +341,7 @@ IceEInternal::IncomingConnectionFactory::run()
 	ConnectionPtr connection;
 	
 	{
-	    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 	    
 	    while(_state == StateHolding)
 	    {
@@ -384,7 +384,7 @@ IceEInternal::IncomingConnectionFactory::run()
 	    // Reap connections for which destruction has completed.
 	    //
 	    _connections.erase(remove_if(_connections.begin(), _connections.end(),
-					 IceE::constMemFun(&Connection::isFinished)),
+					 Ice::constMemFun(&Connection::isFinished)),
 			       _connections.end());
 	    
 	    //
@@ -417,14 +417,14 @@ IceEInternal::IncomingConnectionFactory::run()
     }
 }
 
-IceEInternal::IncomingConnectionFactory::ThreadPerIncomingConnectionFactory::ThreadPerIncomingConnectionFactory(
+IceInternal::IncomingConnectionFactory::ThreadPerIncomingConnectionFactory::ThreadPerIncomingConnectionFactory(
     const IncomingConnectionFactoryPtr& factory) :
     _factory(factory)
 {
 }
 
 void
-IceEInternal::IncomingConnectionFactory::ThreadPerIncomingConnectionFactory::run()
+IceInternal::IncomingConnectionFactory::ThreadPerIncomingConnectionFactory::run()
 {
     try
     {

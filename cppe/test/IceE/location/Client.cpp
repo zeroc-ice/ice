@@ -45,12 +45,12 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	IceE::PropertiesPtr properties = IceE::getDefaultProperties(argc, argv);
+	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
 	properties->setProperty("IceE.Default.Locator", "locator:default -p 12345");
 
-	setCommunicator(IceE::initialize(argc, argv));
+	setCommunicator(Ice::initialize(argc, argv));
 
-        void allTests(const IceE::CommunicatorPtr&, const string&);
+        void allTests(const Ice::CommunicatorPtr&, const string&);
         allTests(communicator(), "ServerManager:default -p 12345 -t 10000");
 
         return EXIT_SUCCESS;

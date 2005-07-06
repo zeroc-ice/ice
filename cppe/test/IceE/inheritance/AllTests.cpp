@@ -15,11 +15,11 @@ using namespace std;
 using namespace Test;
 
 InitialPrx
-allTests(const IceE::CommunicatorPtr& communicator)
+allTests(const Ice::CommunicatorPtr& communicator)
 {
     tprintf("testing stringToProxy...");
     string ref = "initial:default -p 12345 -t 10000";
-    IceE::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     tprintf("ok\n");
 

@@ -14,7 +14,7 @@
 #include <IceE/Lock.h>
 #include <IceE/ThreadException.h>
 
-namespace IceE
+namespace Ice
 {
 
 //
@@ -105,6 +105,6 @@ private:
     mutable int _count;
 };
 
-} // End namespace IceE
+} // End namespace Ice
 
 #endif

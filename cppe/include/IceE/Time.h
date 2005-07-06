@@ -12,7 +12,7 @@
 
 #include <IceE/Config.h>
 
-namespace IceE
+namespace Ice
 {
 
 class ICEE_API Time
@@ -210,6 +210,6 @@ private:
     Int64 _usec;
 };
 
-} // End namespace IceE
+} // End namespace Ice
 
 #endif

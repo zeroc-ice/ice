@@ -10,7 +10,7 @@
 #ifndef ICEE_LOCATOR_F_ICE
 #define ICEE_LOCATOR_F_ICE
 
-module IceE
+module Ice
 {
 
 interface Locator;

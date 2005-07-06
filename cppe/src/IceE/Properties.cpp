@@ -14,25 +14,25 @@
 #include <IceE/PropertyNames.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
 void
-IceEInternal::incRef(::IceE::Properties* p)
+IceInternal::incRef(::Ice::Properties* p)
 {
     p->__incRef();
 }
 
 void
-IceEInternal::decRef(::IceE::Properties* p)
+IceInternal::decRef(::Ice::Properties* p)
 {
     p->__decRef();
 }
 
 string
-IceE::Properties::getProperty(const string& key)
+Ice::Properties::getProperty(const string& key)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     map<string, string>::const_iterator p = _properties.find(key);
     if(p != _properties.end())
@@ -46,9 +46,9 @@ IceE::Properties::getProperty(const string& key)
 }
 
 string
-IceE::Properties::getPropertyWithDefault(const string& key, const string& value)
+Ice::Properties::getPropertyWithDefault(const string& key, const string& value)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     map<string, string>::const_iterator p = _properties.find(key);
     if(p != _properties.end())
@@ -62,15 +62,15 @@ IceE::Properties::getPropertyWithDefault(const string& key, const string& value)
 }
 
 Int
-IceE::Properties::getPropertyAsInt(const string& key)
+Ice::Properties::getPropertyAsInt(const string& key)
 {
     return getPropertyAsIntWithDefault(key, 0);
 }
 
 Int
-IceE::Properties::getPropertyAsIntWithDefault(const string& key, Int value)
+Ice::Properties::getPropertyAsIntWithDefault(const string& key, Int value)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     map<string, string>::const_iterator p = _properties.find(key);
     if(p != _properties.end())
@@ -82,9 +82,9 @@ IceE::Properties::getPropertyAsIntWithDefault(const string& key, Int value)
 }
 
 PropertyDict
-IceE::Properties::getPropertiesForPrefix(const string& prefix)
+Ice::Properties::getPropertiesForPrefix(const string& prefix)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     PropertyDict result;
     map<string, string>::const_iterator p;
@@ -100,7 +100,7 @@ IceE::Properties::getPropertiesForPrefix(const string& prefix)
 }
 
 void
-IceE::Properties::setProperty(const string& key, const string& value)
+Ice::Properties::setProperty(const string& key, const string& value)
 {
     if(key.empty())
     {
@@ -116,7 +116,7 @@ IceE::Properties::setProperty(const string& key, const string& value)
     if(dotPos != string::npos)
     {
 	string prefix = key.substr(0, dotPos);
-	for(const char* const** i = IceEInternal::PropertyNames::validProps; *i != 0; ++i)
+	for(const char* const** i = IceInternal::PropertyNames::validProps; *i != 0; ++i)
 	{
 	    string pattern(*i[0]);
 	    dotPos = pattern.find('.');
@@ -130,7 +130,7 @@ IceE::Properties::setProperty(const string& key, const string& value)
 	    bool found = false;
 	    for(const char* const* j = *i; *j != 0 && !found; ++j)
 	    {
-		found = IceE::match(key, *j);
+		found = Ice::match(key, *j);
 	    }
 	    if(!found)
 	    {
@@ -139,7 +139,7 @@ IceE::Properties::setProperty(const string& key, const string& value)
 	}
     }
 
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     //
     // Set or clear the property.
@@ -155,9 +155,9 @@ IceE::Properties::setProperty(const string& key, const string& value)
 }
 
 StringSeq
-IceE::Properties::getCommandLineOptions()
+Ice::Properties::getCommandLineOptions()
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     StringSeq result;
     result.reserve(_properties.size());
@@ -170,7 +170,7 @@ IceE::Properties::getCommandLineOptions()
 }
 
 StringSeq
-IceE::Properties::parseCommandLineOptions(const string& prefix, const StringSeq& options)
+Ice::Properties::parseCommandLineOptions(const string& prefix, const StringSeq& options)
 {
     string pfx = prefix;
     if(!pfx.empty() && pfx[pfx.size() - 1] != '.')
@@ -202,13 +202,13 @@ IceE::Properties::parseCommandLineOptions(const string& prefix, const StringSeq&
 }
 
 StringSeq
-IceE::Properties::parseIceCommandLineOptions(const StringSeq& options)
+Ice::Properties::parseIceCommandLineOptions(const StringSeq& options)
 {
     return parseCommandLineOptions("IceE", options);
 }
 
 void
-IceE::Properties::load(const std::string& file)
+Ice::Properties::load(const std::string& file)
 {
     FILE* in = fopen(file.c_str(), "r");
     if(!in)
@@ -228,23 +228,23 @@ IceE::Properties::load(const std::string& file)
 }
 
 PropertiesPtr
-IceE::Properties::clone()
+Ice::Properties::clone()
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     return new Properties(this);
 }
 
-IceE::Properties::Properties(const Properties* p) :
+Ice::Properties::Properties(const Properties* p) :
     _properties(p->_properties)
 {
 }
 
-IceE::Properties::Properties()
+Ice::Properties::Properties()
 {
     loadConfig();
 }
 
-IceE::Properties::Properties(StringSeq& args)
+Ice::Properties::Properties(StringSeq& args)
 {
     StringSeq::iterator q = args.begin();
     if(q != args.end())
@@ -284,7 +284,7 @@ IceE::Properties::Properties(StringSeq& args)
 }
 
 void
-IceE::Properties::parseLine(const string& line)
+Ice::Properties::parseLine(const string& line)
 {
     const string delim = " \t\r\n";
     string s = line;
@@ -334,7 +334,7 @@ IceE::Properties::parseLine(const string& line)
 }
 
 void
-IceE::Properties::loadConfig()
+Ice::Properties::loadConfig()
 {
     string value = getProperty("IceE.Config");
 

@@ -26,7 +26,7 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	IceE::PropertiesPtr properties = IceE::getDefaultProperties(argc, argv);
+	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
 	
 	//
 	// We must set MessageSizeMax to an explicit values, because
@@ -37,8 +37,8 @@ public:
 	//properties->setProperty("IceE.Trace.Network", "5");
 	//properties->setProperty("IceE.Trace.Protocol", "5");
 	
-	setCommunicator(IceE::initialize(argc, argv));
-        Test::MyClassPrx allTests(const IceE::CommunicatorPtr&);
+	setCommunicator(Ice::initialize(argc, argv));
+        Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
         Test::MyClassPrx myClass = allTests(communicator());
 
         tprintf("testing server shutdown... ");
@@ -48,7 +48,7 @@ public:
 	    myClass->opVoid();
 	    test(false);
         }
-        catch(const IceE::LocalException&)
+        catch(const Ice::LocalException&)
         {
             tprintf("ok\n");
         }

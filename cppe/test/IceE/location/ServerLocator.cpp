@@ -22,61 +22,61 @@ ServerLocatorRegistry::ServerLocatorRegistry()
 }
 
 void 
-ServerLocatorRegistry::setAdapterDirectProxy(const ::std::string& adapter, const ::IceE::ObjectPrx& object, 
-					     const ::IceE::Current&)
+ServerLocatorRegistry::setAdapterDirectProxy(const ::std::string& adapter, const ::Ice::ObjectPrx& object, 
+					     const ::Ice::Current&)
 {
     _adapters[adapter] = object;
 }
 
-IceE::ObjectPrx
+Ice::ObjectPrx
 ServerLocatorRegistry::getAdapter(const ::std::string& adapter) const
 {
-    ::std::map< string, ::IceE::ObjectPrx>::const_iterator p = _adapters.find(adapter);
+    ::std::map< string, ::Ice::ObjectPrx>::const_iterator p = _adapters.find(adapter);
     if(_adapters.find(adapter) == _adapters.end())
     {
-	throw IceE::AdapterNotFoundException();
+	throw Ice::AdapterNotFoundException();
     }
     return p->second;
 }
 
-IceE::ObjectPrx
-ServerLocatorRegistry::getObject(const ::IceE::Identity& id) const
+Ice::ObjectPrx
+ServerLocatorRegistry::getObject(const ::Ice::Identity& id) const
 {
-    ::std::map< ::IceE::Identity, ::IceE::ObjectPrx>::const_iterator p = _objects.find(id);
+    ::std::map< ::Ice::Identity, ::Ice::ObjectPrx>::const_iterator p = _objects.find(id);
     if(p == _objects.end())
     {
-	throw IceE::ObjectNotFoundException();
+	throw Ice::ObjectNotFoundException();
     }
 
     return p->second;
 }
 
 void
-ServerLocatorRegistry::addObject(const IceE::ObjectPrx& object)
+ServerLocatorRegistry::addObject(const Ice::ObjectPrx& object)
 {
     _objects[object->ice_getIdentity()] = object;
 }
 
-ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::IceE::LocatorRegistryPrx& registryPrx) :
+ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::Ice::LocatorRegistryPrx& registryPrx) :
     _registry(registry),
     _registryPrx(registryPrx)
 {
 }
 
-IceE::ObjectPrx
-ServerLocator::findObjectById(const IceE::Identity& id, const IceE::Current& current) const
+Ice::ObjectPrx
+ServerLocator::findObjectById(const Ice::Identity& id, const Ice::Current& current) const
 {
     return _registry->getObject(id);
 }
 
-IceE::ObjectPrx
-ServerLocator::findAdapterById(const string& id, const IceE::Current& current) const
+Ice::ObjectPrx
+ServerLocator::findAdapterById(const string& id, const Ice::Current& current) const
 {
     return _registry->getAdapter(id);
 }
 
-IceE::LocatorRegistryPrx
-ServerLocator::getRegistry(const ::IceE::Current&) const
+Ice::LocatorRegistryPrx
+ServerLocator::getRegistry(const ::Ice::Current&) const
 {
     return _registryPrx;
 }

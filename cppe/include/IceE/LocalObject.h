@@ -13,17 +13,17 @@
 #include <IceE/LocalObjectF.h>
 #include <IceE/Shared.h>
 
-namespace IceE
+namespace Ice
 {
 
-class ICEE_API LocalObject : virtual public ::IceE::Shared
+class ICEE_API LocalObject : virtual public ::Ice::Shared
 {
 public:
 
     virtual bool operator==(const LocalObject&) const;
     virtual bool operator!=(const LocalObject&) const;
     virtual bool operator<(const LocalObject&) const;
-    virtual ::IceE::Int ice_hash() const;
+    virtual ::Ice::Int ice_hash() const;
 };
 
 }

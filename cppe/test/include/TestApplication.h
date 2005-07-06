@@ -31,13 +31,13 @@ public:
 
     virtual int run(int, char*[]) = 0;
 
-    void setCommunicator(const IceE::CommunicatorPtr&);
-    IceE::CommunicatorPtr communicator();
+    void setCommunicator(const Ice::CommunicatorPtr&);
+    Ice::CommunicatorPtr communicator();
 
 private:
 
     const std::string _name;
-    IceE::CommunicatorPtr _communicator;
+    Ice::CommunicatorPtr _communicator;
 };
 
 #endif

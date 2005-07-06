@@ -17,10 +17,10 @@
 #include <IceE/LoggerUtil.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-IceEInternal::BasicStream::BasicStream(Instance* instance) :
+IceInternal::BasicStream::BasicStream(Instance* instance) :
     _instance(instance),
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
@@ -29,7 +29,7 @@ IceEInternal::BasicStream::BasicStream(Instance* instance) :
 {
 }
 
-IceEInternal::BasicStream::~BasicStream()
+IceInternal::BasicStream::~BasicStream()
 {
     while(_currentReadEncaps && _currentReadEncaps != &_preAllocatedReadEncaps)
     {
@@ -54,13 +54,13 @@ IceEInternal::BasicStream::~BasicStream()
 }
 
 Instance*
-IceEInternal::BasicStream::instance() const
+IceInternal::BasicStream::instance() const
 {
     return _instance;
 }
 
 void
-IceEInternal::BasicStream::swap(BasicStream& other)
+IceInternal::BasicStream::swap(BasicStream& other)
 {
     assert(_instance == other._instance);
 
@@ -159,7 +159,7 @@ IceEInternal::BasicStream::swap(BasicStream& other)
 //
 
 void
-IceEInternal::BasicStream::startSeq(int numElements, int minSize)
+IceInternal::BasicStream::startSeq(int numElements, int minSize)
 {
     if(numElements == 0) // Optimization to avoid pushing a useless stack frame.
     {
@@ -197,13 +197,13 @@ IceEInternal::BasicStream::startSeq(int numElements, int minSize)
 // within the message.
 //
 void
-IceEInternal::BasicStream::checkSeq()
+IceInternal::BasicStream::checkSeq()
 {
     checkSeq(static_cast<int>(b.end() - i));
 }
 
 void
-IceEInternal::BasicStream::checkSeq(int bytesLeft)
+IceInternal::BasicStream::checkSeq(int bytesLeft)
 {
     int size = 0;
     SeqData* sd = _seqDataStack;
@@ -221,7 +221,7 @@ IceEInternal::BasicStream::checkSeq(int bytesLeft)
 }
 
 void
-IceEInternal::BasicStream::checkFixedSeq(int numElements, int elemSize)
+IceInternal::BasicStream::checkFixedSeq(int numElements, int elemSize)
 {
     int bytesLeft = static_cast<int>(b.end() - i);
     if(_seqDataStack == 0) // Outermost sequence
@@ -241,7 +241,7 @@ IceEInternal::BasicStream::checkFixedSeq(int numElements, int elemSize)
 }
 
 void
-IceEInternal::BasicStream::endSeq(int sz)
+IceInternal::BasicStream::endSeq(int sz)
 {
     if(sz == 0) // Pop only if something was pushed previously.
     {
@@ -257,24 +257,24 @@ IceEInternal::BasicStream::endSeq(int sz)
     delete oldSeqData;
 }
 
-IceEInternal::BasicStream::WriteEncaps::WriteEncaps()
+IceInternal::BasicStream::WriteEncaps::WriteEncaps()
     : writeIndex(0), previous(0)
 {
 }
 
-IceEInternal::BasicStream::WriteEncaps::~WriteEncaps()
+IceInternal::BasicStream::WriteEncaps::~WriteEncaps()
 {
 }
 
 void
-IceEInternal::BasicStream::WriteEncaps::reset()
+IceInternal::BasicStream::WriteEncaps::reset()
 {
     writeIndex = 0;
     previous = 0;
 }
 
 void
-IceEInternal::BasicStream::WriteEncaps::swap(WriteEncaps& other)
+IceInternal::BasicStream::WriteEncaps::swap(WriteEncaps& other)
 {
     std::swap(start, other.start);
 
@@ -283,7 +283,7 @@ IceEInternal::BasicStream::WriteEncaps::swap(WriteEncaps& other)
 }
 
 void
-IceEInternal::BasicStream::startWriteEncaps()
+IceInternal::BasicStream::startWriteEncaps()
 {
     WriteEncaps* oldEncaps = _currentWriteEncaps;
     if(!oldEncaps) // First allocated encaps?
@@ -303,7 +303,7 @@ IceEInternal::BasicStream::startWriteEncaps()
 }
 
 void
-IceEInternal::BasicStream::endWriteEncaps()
+IceInternal::BasicStream::endWriteEncaps()
 {
     assert(_currentWriteEncaps);
     Container::size_type start = _currentWriteEncaps->start;
@@ -336,23 +336,23 @@ IceEInternal::BasicStream::endWriteEncaps()
     }
 }
 
-IceEInternal::BasicStream::ReadEncaps::ReadEncaps()
+IceInternal::BasicStream::ReadEncaps::ReadEncaps()
     : previous(0)
 {
 }
 
-IceEInternal::BasicStream::ReadEncaps::~ReadEncaps()
+IceInternal::BasicStream::ReadEncaps::~ReadEncaps()
 {
 }
 
 void
-IceEInternal::BasicStream::ReadEncaps::reset()
+IceInternal::BasicStream::ReadEncaps::reset()
 {
     previous = 0;
 }
 
 void
-IceEInternal::BasicStream::ReadEncaps::swap(ReadEncaps& other)
+IceInternal::BasicStream::ReadEncaps::swap(ReadEncaps& other)
 {
     std::swap(start, other.start);
     std::swap(sz, other.sz);
@@ -364,7 +364,7 @@ IceEInternal::BasicStream::ReadEncaps::swap(ReadEncaps& other)
 }
 
 void
-IceEInternal::BasicStream::startReadEncaps()
+IceInternal::BasicStream::startReadEncaps()
 {
     ReadEncaps* oldEncaps = _currentReadEncaps;
     if(!oldEncaps) // First allocated encaps?
@@ -416,7 +416,7 @@ IceEInternal::BasicStream::startReadEncaps()
 }
 
 void
-IceEInternal::BasicStream::endReadEncaps()
+IceInternal::BasicStream::endReadEncaps()
 {
     assert(_currentReadEncaps);
     Container::size_type start = _currentReadEncaps->start;
@@ -436,7 +436,7 @@ IceEInternal::BasicStream::endReadEncaps()
 }
 
 void
-IceEInternal::BasicStream::checkReadEncaps()
+IceInternal::BasicStream::checkReadEncaps()
 {
     assert(_currentReadEncaps);
     Container::size_type start = _currentReadEncaps->start;
@@ -448,14 +448,14 @@ IceEInternal::BasicStream::checkReadEncaps()
 }
 
 Int
-IceEInternal::BasicStream::getReadEncapsSize()
+IceInternal::BasicStream::getReadEncapsSize()
 {
     assert(_currentReadEncaps);
     return _currentReadEncaps->sz - static_cast<Int>(sizeof(Int)) - 2;
 }
 
 void
-IceEInternal::BasicStream::skipEncaps()
+IceInternal::BasicStream::skipEncaps()
 {
     Int sz;
     read(sz);
@@ -471,14 +471,14 @@ IceEInternal::BasicStream::skipEncaps()
 }
 
 void
-IceEInternal::BasicStream::startWriteSlice()
+IceInternal::BasicStream::startWriteSlice()
 {
     write(Int(0)); // Placeholder for the slice length.
     _writeSlice = b.size();
 }
 
 void
-IceEInternal::BasicStream::endWriteSlice()
+IceInternal::BasicStream::endWriteSlice()
 {
     Int sz = static_cast<Int>(b.size() - _writeSlice + sizeof(Int));
     Byte* dest = &(*(b.begin() + _writeSlice - sizeof(Int)));
@@ -498,7 +498,7 @@ IceEInternal::BasicStream::endWriteSlice()
 }
 
 void
-IceEInternal::BasicStream::startReadSlice()
+IceInternal::BasicStream::startReadSlice()
 {
     Int sz;
     read(sz);
@@ -510,12 +510,12 @@ IceEInternal::BasicStream::startReadSlice()
 }
 
 void
-IceEInternal::BasicStream::endReadSlice()
+IceInternal::BasicStream::endReadSlice()
 {
 }
 
 void
-IceEInternal::BasicStream::skipSlice()
+IceInternal::BasicStream::skipSlice()
 {
     Int sz;
     read(sz);
@@ -531,7 +531,7 @@ IceEInternal::BasicStream::skipSlice()
 }
 
 void
-IceEInternal::BasicStream::writeSize(Int v)
+IceInternal::BasicStream::writeSize(Int v)
 {
     assert(v >= 0);
     if(v > 254)
@@ -546,7 +546,7 @@ IceEInternal::BasicStream::writeSize(Int v)
 }
 
 void
-IceEInternal::BasicStream::readSize(IceE::Int& v)
+IceInternal::BasicStream::readSize(Ice::Int& v)
 {
     Byte byte;
     read(byte);
@@ -566,7 +566,7 @@ IceEInternal::BasicStream::readSize(IceE::Int& v)
 }
 
 void
-IceEInternal::BasicStream::writeBlob(const vector<Byte>& v)
+IceInternal::BasicStream::writeBlob(const vector<Byte>& v)
 {
     if(!v.empty())
     {
@@ -577,7 +577,7 @@ IceEInternal::BasicStream::writeBlob(const vector<Byte>& v)
 }
 
 void
-IceEInternal::BasicStream::readBlob(vector<Byte>& v, Int sz)
+IceInternal::BasicStream::readBlob(vector<Byte>& v, Int sz)
 {
     if(sz > 0)
     {
@@ -595,7 +595,7 @@ IceEInternal::BasicStream::readBlob(vector<Byte>& v, Int sz)
 }
 
 void
-IceEInternal::BasicStream::writeBlob(const IceE::Byte* v, Container::size_type sz)
+IceInternal::BasicStream::writeBlob(const Ice::Byte* v, Container::size_type sz)
 {
     if(sz > 0)
     {
@@ -606,7 +606,7 @@ IceEInternal::BasicStream::writeBlob(const IceE::Byte* v, Container::size_type s
 }
 
 void
-IceEInternal::BasicStream::readBlob(IceE::Byte* v, Container::size_type sz)
+IceInternal::BasicStream::readBlob(Ice::Byte* v, Container::size_type sz)
 {
     if(sz > 0)
     {
@@ -620,7 +620,7 @@ IceEInternal::BasicStream::readBlob(IceE::Byte* v, Container::size_type sz)
 }
 
 void
-IceEInternal::BasicStream::read(vector<Byte>& v)
+IceInternal::BasicStream::read(vector<Byte>& v)
 {
     Int sz;
     readSize(sz);
@@ -637,7 +637,7 @@ IceEInternal::BasicStream::read(vector<Byte>& v)
 }
 
 void
-IceEInternal::BasicStream::write(const vector<Byte>& v)
+IceInternal::BasicStream::write(const vector<Byte>& v)
 {
     Int sz = static_cast<Int>(v.size());
     writeSize(sz);
@@ -650,7 +650,7 @@ IceEInternal::BasicStream::write(const vector<Byte>& v)
 }
 
 void
-IceEInternal::BasicStream::write(const vector<bool>& v)
+IceInternal::BasicStream::write(const vector<bool>& v)
 {
     Int sz = static_cast<Int>(v.size());
     writeSize(sz);
@@ -663,7 +663,7 @@ IceEInternal::BasicStream::write(const vector<bool>& v)
 }
 
 void
-IceEInternal::BasicStream::read(vector<bool>& v)
+IceInternal::BasicStream::read(vector<bool>& v)
 {
     Int sz;
     readSize(sz);
@@ -681,7 +681,7 @@ IceEInternal::BasicStream::read(vector<bool>& v)
 }
 
 void
-IceEInternal::BasicStream::write(Short v)
+IceInternal::BasicStream::write(Short v)
 {
     Container::size_type pos = b.size();
     resize(pos + sizeof(Short));
@@ -699,7 +699,7 @@ IceEInternal::BasicStream::write(Short v)
 
 
 void
-IceEInternal::BasicStream::read(Short& v)
+IceInternal::BasicStream::read(Short& v)
 {
     if(b.end() - i < static_cast<int>(sizeof(Short)))
     {
@@ -719,7 +719,7 @@ IceEInternal::BasicStream::read(Short& v)
 }
 
 void
-IceEInternal::BasicStream::write(const vector<Short>& v)
+IceInternal::BasicStream::write(const vector<Short>& v)
 {
     Int sz = static_cast<Int>(v.size());
     writeSize(sz);
@@ -743,7 +743,7 @@ IceEInternal::BasicStream::write(const vector<Short>& v)
 }
 
 void
-IceEInternal::BasicStream::read(vector<Short>& v)
+IceInternal::BasicStream::read(vector<Short>& v)
 {
     Int sz;
     readSize(sz);
@@ -773,7 +773,7 @@ IceEInternal::BasicStream::read(vector<Short>& v)
 }
 
 void
-IceEInternal::BasicStream::write(Int v)
+IceInternal::BasicStream::write(Int v)
 {
     Container::size_type pos = b.size();
     resize(pos + sizeof(Int));
@@ -794,7 +794,7 @@ IceEInternal::BasicStream::write(Int v)
 }
 
 void
-IceEInternal::BasicStream::read(Int& v)
+IceInternal::BasicStream::read(Int& v)
 {
     if(b.end() - i < static_cast<int>(sizeof(Int)))
     {
@@ -818,7 +818,7 @@ IceEInternal::BasicStream::read(Int& v)
 }
 
 void
-IceEInternal::BasicStream::write(const vector<Int>& v)
+IceInternal::BasicStream::write(const vector<Int>& v)
 {
     Int sz = static_cast<Int>(v.size());
     writeSize(sz);
@@ -844,7 +844,7 @@ IceEInternal::BasicStream::write(const vector<Int>& v)
 }
 
 void
-IceEInternal::BasicStream::read(vector<Int>& v)
+IceInternal::BasicStream::read(vector<Int>& v)
 {
     Int sz;
     readSize(sz);
@@ -876,7 +876,7 @@ IceEInternal::BasicStream::read(vector<Int>& v)
 }
 
 void
-IceEInternal::BasicStream::write(Long v)
+IceInternal::BasicStream::write(Long v)
 {
     Container::size_type pos = b.size();
     resize(pos + sizeof(Long));
@@ -905,7 +905,7 @@ IceEInternal::BasicStream::write(Long v)
 }
 
 void
-IceEInternal::BasicStream::read(Long& v)
+IceInternal::BasicStream::read(Long& v)
 {
     if(b.end() - i < static_cast<int>(sizeof(Long)))
     {
@@ -937,7 +937,7 @@ IceEInternal::BasicStream::read(Long& v)
 } 
 
 void
-IceEInternal::BasicStream::write(const vector<Long>& v)
+IceInternal::BasicStream::write(const vector<Long>& v)
 {
     Int sz = static_cast<Int>(v.size());
     writeSize(sz);
@@ -967,7 +967,7 @@ IceEInternal::BasicStream::write(const vector<Long>& v)
 }
 
 void
-IceEInternal::BasicStream::read(vector<Long>& v)
+IceInternal::BasicStream::read(vector<Long>& v)
 {
     Int sz;
     readSize(sz);
@@ -1003,7 +1003,7 @@ IceEInternal::BasicStream::read(vector<Long>& v)
 }
 
 void
-IceEInternal::BasicStream::write(Float v)
+IceInternal::BasicStream::write(Float v)
 {
     Container::size_type pos = b.size();
     resize(pos + sizeof(Float));
@@ -1024,7 +1024,7 @@ IceEInternal::BasicStream::write(Float v)
 }
 
 void
-IceEInternal::BasicStream::read(Float& v)
+IceInternal::BasicStream::read(Float& v)
 {
     if(b.end() - i < static_cast<int>(sizeof(Float)))
     {
@@ -1048,7 +1048,7 @@ IceEInternal::BasicStream::read(Float& v)
 }
 
 void
-IceEInternal::BasicStream::write(const vector<Float>& v)
+IceInternal::BasicStream::write(const vector<Float>& v)
 {
     Int sz = static_cast<Int>(v.size());
     writeSize(sz);
@@ -1074,7 +1074,7 @@ IceEInternal::BasicStream::write(const vector<Float>& v)
 }
 
 void
-IceEInternal::BasicStream::read(vector<Float>& v)
+IceInternal::BasicStream::read(vector<Float>& v)
 {
     Int sz;
     readSize(sz);
@@ -1106,7 +1106,7 @@ IceEInternal::BasicStream::read(vector<Float>& v)
 }
 
 void
-IceEInternal::BasicStream::write(Double v)
+IceInternal::BasicStream::write(Double v)
 {
     Container::size_type pos = b.size();
     resize(pos + sizeof(Double));
@@ -1135,7 +1135,7 @@ IceEInternal::BasicStream::write(Double v)
 }
 
 void
-IceEInternal::BasicStream::read(Double& v)
+IceInternal::BasicStream::read(Double& v)
 {
     if(b.end() - i < static_cast<int>(sizeof(Double)))
     {
@@ -1167,7 +1167,7 @@ IceEInternal::BasicStream::read(Double& v)
 }
 
 void
-IceEInternal::BasicStream::write(const vector<Double>& v)
+IceInternal::BasicStream::write(const vector<Double>& v)
 {
     Int sz = static_cast<Int>(v.size());
     writeSize(sz);
@@ -1197,7 +1197,7 @@ IceEInternal::BasicStream::write(const vector<Double>& v)
 }
 
 void
-IceEInternal::BasicStream::read(vector<Double>& v)
+IceInternal::BasicStream::read(vector<Double>& v)
 {
     Int sz;
     readSize(sz);
@@ -1241,13 +1241,13 @@ IceEInternal::BasicStream::read(vector<Double>& v)
 //
 /*
 void
-IceEInternal::BasicStream::write(const char*)
+IceInternal::BasicStream::write(const char*)
 {
 }
 */
 
 void
-IceEInternal::BasicStream::write(const string& v)
+IceInternal::BasicStream::write(const string& v)
 {
     Int sz = static_cast<Int>(v.size());
     writeSize(sz);
@@ -1260,7 +1260,7 @@ IceEInternal::BasicStream::write(const string& v)
 }
 
 void
-IceEInternal::BasicStream::write(const vector<string>& v)
+IceInternal::BasicStream::write(const vector<string>& v)
 {
     Int sz = static_cast<Int>(v.size());
     writeSize(sz);
@@ -1275,7 +1275,7 @@ IceEInternal::BasicStream::write(const vector<string>& v)
 }
 
 void
-IceEInternal::BasicStream::read(string& v)
+IceInternal::BasicStream::read(string& v)
 {
     Int sz;
     readSize(sz);
@@ -1296,7 +1296,7 @@ IceEInternal::BasicStream::read(string& v)
 }
 
 void
-IceEInternal::BasicStream::read(vector<string>& v)
+IceInternal::BasicStream::read(vector<string>& v)
 {
     Int sz;
     readSize(sz);
@@ -1319,19 +1319,19 @@ IceEInternal::BasicStream::read(vector<string>& v)
 }
 
 void
-IceEInternal::BasicStream::write(const ObjectPrx& v)
+IceInternal::BasicStream::write(const ObjectPrx& v)
 {
     _instance->proxyFactory()->proxyToStream(v, this);
 }
 
 void
-IceEInternal::BasicStream::read(ObjectPrx& v)
+IceInternal::BasicStream::read(ObjectPrx& v)
 {
     v = _instance->proxyFactory()->streamToProxy(this);
 }
 
 void
-IceEInternal::BasicStream::write(const UserException& v)
+IceInternal::BasicStream::write(const UserException& v)
 {
     write(v.__usesClasses());
     v.__write(this);
@@ -1344,7 +1344,7 @@ IceEInternal::BasicStream::write(const UserException& v)
 }
 
 void
-IceEInternal::BasicStream::throwException()
+IceInternal::BasicStream::throwException()
 {
     bool usesClasses;
     read(usesClasses);
@@ -1392,17 +1392,17 @@ IceEInternal::BasicStream::throwException()
 }
 
 void
-IceEInternal::BasicStream::throwUnmarshalOutOfBoundsException(const char* file, int line)
+IceInternal::BasicStream::throwUnmarshalOutOfBoundsException(const char* file, int line)
 {
     throw UnmarshalOutOfBoundsException(file, line);
 }
 
 void
-IceEInternal::BasicStream::throwMemoryLimitException(const char* file, int line)
+IceInternal::BasicStream::throwMemoryLimitException(const char* file, int line)
 {
     throw MemoryLimitException(file, line);
 }
 
-IceEInternal::BasicStream::SeqData::SeqData(int num, int sz) : numElements(num), minSize(sz)
+IceInternal::BasicStream::SeqData::SeqData(int num, int sz) : numElements(num), minSize(sz)
 {
 }

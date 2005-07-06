@@ -12,31 +12,31 @@
 
 using namespace Test;
 
-ThrowerI::ThrowerI(const IceE::ObjectAdapterPtr& adapter) :
+ThrowerI::ThrowerI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {
 }
 
 void
-ThrowerI::shutdown(const IceE::Current&)
+ThrowerI::shutdown(const Ice::Current&)
 {
     _adapter->getCommunicator()->shutdown();
 }
 
 bool
-ThrowerI::supportsUndeclaredExceptions(const IceE::Current&)
+ThrowerI::supportsUndeclaredExceptions(const Ice::Current&)
 {
     return true;
 }
 
 bool
-ThrowerI::supportsAssertException(const IceE::Current&)
+ThrowerI::supportsAssertException(const Ice::Current&)
 {
     return false;
 }
 
 void
-ThrowerI::throwAasA(IceE::Int a, const IceE::Current&)
+ThrowerI::throwAasA(Ice::Int a, const Ice::Current&)
 {
     A ex;
     ex.aMem = a;
@@ -44,7 +44,7 @@ ThrowerI::throwAasA(IceE::Int a, const IceE::Current&)
 }
 
 void
-ThrowerI::throwAorDasAorD(IceE::Int a, const IceE::Current&)
+ThrowerI::throwAorDasAorD(Ice::Int a, const Ice::Current&)
 {
     if(a > 0)
     {
@@ -61,19 +61,19 @@ ThrowerI::throwAorDasAorD(IceE::Int a, const IceE::Current&)
 }
 
 void
-ThrowerI::throwBasA(IceE::Int a, IceE::Int b, const IceE::Current& current)
+ThrowerI::throwBasA(Ice::Int a, Ice::Int b, const Ice::Current& current)
 {
     throwBasB(a, b, current);
 }
 
 void
-ThrowerI::throwCasA(IceE::Int a, IceE::Int b, IceE::Int c, const IceE::Current& current)
+ThrowerI::throwCasA(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current& current)
 {
     throwCasC(a, b, c, current);
 }
 
 void
-ThrowerI::throwBasB(IceE::Int a, IceE::Int b, const IceE::Current&)
+ThrowerI::throwBasB(Ice::Int a, Ice::Int b, const Ice::Current&)
 {
     B ex;
     ex.aMem = a;
@@ -82,13 +82,13 @@ ThrowerI::throwBasB(IceE::Int a, IceE::Int b, const IceE::Current&)
 }
 
 void
-ThrowerI::throwCasB(IceE::Int a, IceE::Int b, IceE::Int c, const IceE::Current& current)
+ThrowerI::throwCasB(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current& current)
 {
     throwCasC(a, b, c, current);
 }
 
 void
-ThrowerI::throwCasC(IceE::Int a, IceE::Int b, IceE::Int c, const IceE::Current&)
+ThrowerI::throwCasC(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
 {
     C ex;
     ex.aMem = a;
@@ -98,7 +98,7 @@ ThrowerI::throwCasC(IceE::Int a, IceE::Int b, IceE::Int c, const IceE::Current&)
 }
 
 void
-ThrowerI::throwModA(IceE::Int a, IceE::Int a2, const IceE::Current&)
+ThrowerI::throwModA(Ice::Int a, Ice::Int a2, const Ice::Current&)
 {
     Mod::A ex;
     ex.aMem = a;
@@ -107,7 +107,7 @@ ThrowerI::throwModA(IceE::Int a, IceE::Int a2, const IceE::Current&)
 }
 
 void
-ThrowerI::throwUndeclaredA(IceE::Int a, const IceE::Current&)
+ThrowerI::throwUndeclaredA(Ice::Int a, const Ice::Current&)
 {
     A ex;
     ex.aMem = a;
@@ -115,7 +115,7 @@ ThrowerI::throwUndeclaredA(IceE::Int a, const IceE::Current&)
 }
 
 void
-ThrowerI::throwUndeclaredB(IceE::Int a, IceE::Int b, const IceE::Current&)
+ThrowerI::throwUndeclaredB(Ice::Int a, Ice::Int b, const Ice::Current&)
 {
     B ex;
     ex.aMem = a;
@@ -124,7 +124,7 @@ ThrowerI::throwUndeclaredB(IceE::Int a, IceE::Int b, const IceE::Current&)
 }
 
 void
-ThrowerI::throwUndeclaredC(IceE::Int a, IceE::Int b, IceE::Int c, const IceE::Current&)
+ThrowerI::throwUndeclaredC(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
 {
     C ex;
     ex.aMem = a;
@@ -134,19 +134,19 @@ ThrowerI::throwUndeclaredC(IceE::Int a, IceE::Int b, IceE::Int c, const IceE::Cu
 }
 
 void
-ThrowerI::throwLocalException(const IceE::Current&)
+ThrowerI::throwLocalException(const Ice::Current&)
 {
-    throw IceE::TimeoutException(__FILE__, __LINE__);
+    throw Ice::TimeoutException(__FILE__, __LINE__);
 }
 
 void
-ThrowerI::throwNonIceException(const IceE::Current&)
+ThrowerI::throwNonIceException(const Ice::Current&)
 {
     throw int(12345);
 }
 
 void
-ThrowerI::throwAssertException(const IceE::Current&)
+ThrowerI::throwAssertException(const Ice::Current&)
 {
     assert(false); // Not supported in C++.
 }

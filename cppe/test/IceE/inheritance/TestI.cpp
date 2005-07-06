@@ -13,54 +13,54 @@
 using namespace Test;
 
 MA::CAPrx
-CAI_::caop(const MA::CAPrx& p, const IceE::Current&)
+CAI_::caop(const MA::CAPrx& p, const Ice::Current&)
 {
     return p;
 }
 
 MB::CBPrx
-CBI::cbop(const MB::CBPrx& p, const IceE::Current&)
+CBI::cbop(const MB::CBPrx& p, const Ice::Current&)
 {
     return p;
 }
 
 MA::CCPrx
-CCI::ccop(const MA::CCPrx& p, const IceE::Current&)
+CCI::ccop(const MA::CCPrx& p, const Ice::Current&)
 {
     return p;
 }
 
 MA::CDPrx
-CDI::cdop(const MA::CDPrx& p, const IceE::Current&)
+CDI::cdop(const MA::CDPrx& p, const Ice::Current&)
 {
     return p;
 }
 
 MA::IAPrx
-IAI::iaop(const MA::IAPrx& p, const IceE::Current&)
+IAI::iaop(const MA::IAPrx& p, const Ice::Current&)
 {
     return p;
 }
 
 MB::IB1Prx
-IB1I::ib1op(const MB::IB1Prx& p, const IceE::Current&)
+IB1I::ib1op(const MB::IB1Prx& p, const Ice::Current&)
 {
     return p;
 }
 
 MB::IB2Prx
-IB2I::ib2op(const MB::IB2Prx& p, const IceE::Current&)
+IB2I::ib2op(const MB::IB2Prx& p, const Ice::Current&)
 {
     return p;
 }
 
 MA::ICPrx
-ICI::icop(const MA::ICPrx& p, const IceE::Current&)
+ICI::icop(const MA::ICPrx& p, const Ice::Current&)
 {
     return p;
 }
 
-InitialI::InitialI(const IceE::ObjectAdapterPtr& adapter) :
+InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {
     _ca = MA::CAPrx::uncheckedCast(_adapter->addWithUUID(new CAI_));
@@ -74,55 +74,55 @@ InitialI::InitialI(const IceE::ObjectAdapterPtr& adapter) :
 }
 
 void
-InitialI::shutdown(const IceE::Current&)
+InitialI::shutdown(const Ice::Current&)
 {
     _adapter->getCommunicator()->shutdown();
 }
 
 MA::CAPrx
-InitialI::caop(const IceE::Current&)
+InitialI::caop(const Ice::Current&)
 {
     return _ca;
 }
 
 MB::CBPrx
-InitialI::cbop(const IceE::Current&)
+InitialI::cbop(const Ice::Current&)
 {
     return _cb;
 }
 
 MA::CCPrx
-InitialI::ccop(const IceE::Current&)
+InitialI::ccop(const Ice::Current&)
 {
     return _cc;
 }
 
 MA::CDPrx
-InitialI::cdop(const IceE::Current&)
+InitialI::cdop(const Ice::Current&)
 {
     return _cd;
 }
 
 MA::IAPrx
-InitialI::iaop(const IceE::Current&)
+InitialI::iaop(const Ice::Current&)
 {
     return _ia;
 }
 
 MB::IB1Prx
-InitialI::ib1op(const IceE::Current&)
+InitialI::ib1op(const Ice::Current&)
 {
     return _ib1;
 }
 
 MB::IB2Prx
-InitialI::ib2op(const IceE::Current&)
+InitialI::ib2op(const Ice::Current&)
 {
     return _ib2;
 }
 
 MA::ICPrx
-InitialI::icop(const IceE::Current&)
+InitialI::icop(const Ice::Current&)
 {
     return _ic;
 }

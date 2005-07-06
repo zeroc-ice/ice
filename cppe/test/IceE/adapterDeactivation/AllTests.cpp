@@ -12,7 +12,7 @@
 #include <Test.h>
 
 using namespace std;
-using namespace IceE;
+using namespace Ice;
 using namespace Test;
 
 TestIntfPrx

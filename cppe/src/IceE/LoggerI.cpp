@@ -11,12 +11,12 @@
 #include <IceE/Time.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-IceE::Mutex IceE::LoggerI::_globalMutex;
+Ice::Mutex Ice::LoggerI::_globalMutex;
 
-IceE::LoggerI::LoggerI(const string& prefix, bool timestamp) : 
+Ice::LoggerI::LoggerI(const string& prefix, bool timestamp) : 
     _timestamp(timestamp)
 {
     if(!prefix.empty())
@@ -26,22 +26,22 @@ IceE::LoggerI::LoggerI(const string& prefix, bool timestamp) :
 }
 
 void
-IceE::LoggerI::print(const string& message)
+Ice::LoggerI::print(const string& message)
 {
-    IceE::Mutex::Lock sync(_globalMutex);
+    Ice::Mutex::Lock sync(_globalMutex);
 
     fprintf(stderr, "%s\n", message.c_str());
 }
 
 void
-IceE::LoggerI::trace(const string& category, const string& message)
+Ice::LoggerI::trace(const string& category, const string& message)
 {
-    IceE::Mutex::Lock sync(_globalMutex);
+    Ice::Mutex::Lock sync(_globalMutex);
 
     string s = "[ ";
     if(_timestamp)
     {
-	s += IceE::Time::now().toString() + " ";
+	s += Ice::Time::now().toString() + " ";
     }
     s += _prefix;
     if(!category.empty())
@@ -60,23 +60,23 @@ IceE::LoggerI::trace(const string& category, const string& message)
 }
 
 void
-IceE::LoggerI::warning(const string& message)
+Ice::LoggerI::warning(const string& message)
 {
-    IceE::Mutex::Lock sync(_globalMutex);
+    Ice::Mutex::Lock sync(_globalMutex);
     if(_timestamp)
     {
-        fprintf(stderr, "%s ", IceE::Time::now().toString().c_str());
+        fprintf(stderr, "%s ", Ice::Time::now().toString().c_str());
     }
     fprintf(stderr, "%s warning: %s\n", _prefix.c_str(), message.c_str());
 }
 
 void
-IceE::LoggerI::error(const string& message)
+Ice::LoggerI::error(const string& message)
 {
-    IceE::Mutex::Lock sync(_globalMutex);
+    Ice::Mutex::Lock sync(_globalMutex);
     if(_timestamp)
     {
-        fprintf(stderr, "%s ", IceE::Time::now().toString().c_str());
+        fprintf(stderr, "%s ", Ice::Time::now().toString().c_str());
     }
     fprintf(stderr, "%s error: %s\n", _prefix.c_str(), message.c_str());
 }

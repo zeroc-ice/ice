@@ -14,7 +14,7 @@
 #   include <dlfcn.h>
 #endif
 
-namespace IceE
+namespace Ice
 {
 
 FactoryTableWrapper factoryTableWrapper;	// Single global instance of the wrapper object that
@@ -29,9 +29,9 @@ ICEE_API FactoryTableDef* factoryTable;		// Single global instance of the factor
 // If the factory is present already, increment its reference count.
 //
 void
-IceE::FactoryTableDef::addExceptionFactory(const std::string& t, const IceEInternal::UserExceptionFactoryPtr& f)
+Ice::FactoryTableDef::addExceptionFactory(const std::string& t, const IceInternal::UserExceptionFactoryPtr& f)
 {
-    IceE::Mutex::Lock lock(_m);
+    Ice::Mutex::Lock lock(_m);
     EFTable::iterator i = _eft.find(t);
     if(i == _eft.end())
     {
@@ -46,10 +46,10 @@ IceE::FactoryTableDef::addExceptionFactory(const std::string& t, const IceEInter
 //
 // Return the exception factory for a given type ID
 //
-IceEInternal::UserExceptionFactoryPtr
-IceE::FactoryTableDef::getExceptionFactory(const std::string& t) const
+IceInternal::UserExceptionFactoryPtr
+Ice::FactoryTableDef::getExceptionFactory(const std::string& t) const
 {
-    IceE::Mutex::Lock lock(_m);
+    Ice::Mutex::Lock lock(_m);
     EFTable::const_iterator i = _eft.find(t);
 #ifdef __APPLE__
     if(i == _eft.end())
@@ -73,7 +73,7 @@ IceE::FactoryTableDef::getExceptionFactory(const std::string& t) const
 	i = _eft.find(t);
     }
 #endif
-    return i != _eft.end() ? i->second.first : IceEInternal::UserExceptionFactoryPtr();
+    return i != _eft.end() ? i->second.first : IceInternal::UserExceptionFactoryPtr();
 }
 
 //
@@ -83,9 +83,9 @@ IceE::FactoryTableDef::getExceptionFactory(const std::string& t) const
 // entry from the table.
 //
 void
-IceE::FactoryTableDef::removeExceptionFactory(const std::string& t)
+Ice::FactoryTableDef::removeExceptionFactory(const std::string& t)
 {
-    IceE::Mutex::Lock lock(_m);
+    Ice::Mutex::Lock lock(_m);
     EFTable::iterator i = _eft.find(t);
     if(i != _eft.end())
     {
@@ -102,12 +102,12 @@ IceE::FactoryTableDef::removeExceptionFactory(const std::string& t)
 // FactoryTableWrapper. This ensures that the global factoryTable variable is initialized
 // before it can be used, regardless of the order of initialization of global objects.
 //
-IceE::FactoryTableWrapper::FactoryTableWrapper()
+Ice::FactoryTableWrapper::FactoryTableWrapper()
 {
     initialize();
 }
 
-IceE::FactoryTableWrapper::~FactoryTableWrapper()
+Ice::FactoryTableWrapper::~FactoryTableWrapper()
 {
     finalize();
 }
@@ -117,9 +117,9 @@ IceE::FactoryTableWrapper::~FactoryTableWrapper()
 // the number of calls made.
 //
 void
-IceE::FactoryTableWrapper::initialize()
+Ice::FactoryTableWrapper::initialize()
 {
-    IceE::StaticMutex::Lock lock(_m);
+    Ice::StaticMutex::Lock lock(_m);
     if(_initCount == 0)
     {
 	factoryTable = new FactoryTableDef;
@@ -131,14 +131,14 @@ IceE::FactoryTableWrapper::initialize()
 // Delete the table if its reference count drops to zero.
 //
 void
-IceE::FactoryTableWrapper::finalize()
+Ice::FactoryTableWrapper::finalize()
 {
-    IceE::StaticMutex::Lock lock(_m);
+    Ice::StaticMutex::Lock lock(_m);
     if(--_initCount == 0)
     {
 	delete factoryTable;
     }
 }
 
-IceE::StaticMutex IceE::FactoryTableWrapper::_m = ICEE_STATIC_MUTEX_INITIALIZER;
-int IceE::FactoryTableWrapper::_initCount = 0;	// Initialization count
+Ice::StaticMutex Ice::FactoryTableWrapper::_m = ICEE_STATIC_MUTEX_INITIALIZER;
+int Ice::FactoryTableWrapper::_initCount = 0;	// Initialization count

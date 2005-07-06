@@ -37,9 +37,9 @@ menu()
 }
 
 int
-run(int argc, char* argv[], const IceE::CommunicatorPtr& communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    IceE::PropertiesPtr properties = communicator->getProperties();
+    Ice::PropertiesPtr properties = communicator->getProperties();
     const char* proxyProperty = "Throughput.Throughput";
     std::string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
@@ -48,7 +48,7 @@ run(int argc, char* argv[], const IceE::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    IceE::ObjectPrx base = communicator->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator->stringToProxy(proxy);
     ThroughputPrx throughput = ThroughputPrx::checkedCast(base);
     if(!throughput)
     {
@@ -99,7 +99,7 @@ run(int argc, char* argv[], const IceE::CommunicatorPtr& communicator)
 	    }
 	    while(c != EOF && c == '\n');
 
-	    IceE::Time tm = IceE::Time::now();
+	    Ice::Time tm = Ice::Time::now();
 	    const int repetitions = 1000;
 
 	    if(c == '1' || c == '2' || c == '3' || c == '4')
@@ -327,7 +327,7 @@ run(int argc, char* argv[], const IceE::CommunicatorPtr& communicator)
 		    }
 		}
 
-		tm = IceE::Time::now() - tm;
+		tm = Ice::Time::now() - tm;
 		printf("time for %d sequences: %fms\n", repetitions, tm.toMicroSeconds() * 1000.0);
 		printf("time per sequence: %fms\n", (tm / repetitions).toMicroSeconds() * 1000.0);
 		int wireSize = 0;
@@ -380,7 +380,7 @@ run(int argc, char* argv[], const IceE::CommunicatorPtr& communicator)
 		menu();
 	    }
 	}
-	catch(const IceE::Exception& ex)
+	catch(const Ice::Exception& ex)
 	{
 	    fprintf(stderr, "%s\n", ex.toString().c_str());
 	}
@@ -394,16 +394,16 @@ int
 main(int argc, char* argv[])
 {
     int status;
-    IceE::CommunicatorPtr communicator;
+    Ice::CommunicatorPtr communicator;
 
     try
     {
-	IceE::PropertiesPtr properties = IceE::createProperties();
+	Ice::PropertiesPtr properties = Ice::createProperties();
         properties->load("config");
-	communicator = IceE::initializeWithProperties(argc, argv, properties);
+	communicator = Ice::initializeWithProperties(argc, argv, properties);
 	status = run(argc, argv, communicator);
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	fprintf(stderr, "%s\n", ex.toString().c_str());
 	status = EXIT_FAILURE;
@@ -415,7 +415,7 @@ main(int argc, char* argv[])
 	{
 	    communicator->destroy();
 	}
-	catch(const IceE::Exception& ex)
+	catch(const Ice::Exception& ex)
 	{
 	    fprintf(stderr, "%s\n", ex.toString().c_str());
 	    status = EXIT_FAILURE;

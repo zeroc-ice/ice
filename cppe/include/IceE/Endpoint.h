@@ -21,26 +21,26 @@
 
 #include <IceE/Shared.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class BasicStream;
 
-const IceE::Short TcpEndpointType = 1;
+const Ice::Short TcpEndpointType = 1;
 
-class ICEE_API Endpoint : public IceE::Shared
+class ICEE_API Endpoint : public Ice::Shared
 {
 public:
 
-    Endpoint(const InstancePtr&, const std::string&, IceE::Int, IceE::Int);
+    Endpoint(const InstancePtr&, const std::string&, Ice::Int, Ice::Int);
     Endpoint(const InstancePtr&, const std::string&);
     Endpoint(BasicStream*);
 
     void streamWrite(BasicStream*) const;
     std::string toString() const;
-    IceE::Short type() const;
-    IceE::Int timeout() const;
-    EndpointPtr timeout(IceE::Int) const;
+    Ice::Short type() const;
+    Ice::Int timeout() const;
+    EndpointPtr timeout(Ice::Int) const;
     bool unknown() const;
     ConnectorPtr connector() const;
 #ifndef ICEE_PURE_CLIENT
@@ -63,8 +63,8 @@ private:
     //
     const InstancePtr _instance;
     const std::string _host;
-    const IceE::Int _port;
-    const IceE::Int _timeout;
+    const Ice::Int _port;
+    const Ice::Int _timeout;
 };
 
 }

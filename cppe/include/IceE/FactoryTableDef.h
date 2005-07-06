@@ -15,27 +15,27 @@
 #include <IceE/StaticMutex.h>
 #include <IceE/Mutex.h>
 
-namespace IceE
+namespace Ice
 {
 
-class ICEE_API FactoryTableDef : private IceE::noncopyable
+class ICEE_API FactoryTableDef : private Ice::noncopyable
 {
 public:
 
-    void addExceptionFactory(const ::std::string&, const IceEInternal::UserExceptionFactoryPtr&);
-    IceEInternal::UserExceptionFactoryPtr getExceptionFactory(const ::std::string&) const;
+    void addExceptionFactory(const ::std::string&, const IceInternal::UserExceptionFactoryPtr&);
+    IceInternal::UserExceptionFactoryPtr getExceptionFactory(const ::std::string&) const;
     void removeExceptionFactory(const ::std::string&);
 
 private:
 
-    IceE::Mutex _m;
+    Ice::Mutex _m;
 
-    typedef ::std::pair<IceEInternal::UserExceptionFactoryPtr, int> EFPair;
+    typedef ::std::pair<IceInternal::UserExceptionFactoryPtr, int> EFPair;
     typedef ::std::map< ::std::string, EFPair> EFTable;
     EFTable _eft;
 };
 
-class ICEE_API FactoryTableWrapper : private IceE::noncopyable
+class ICEE_API FactoryTableWrapper : private Ice::noncopyable
 {
 public:
 
@@ -48,7 +48,7 @@ private:
 
     void initialize();
     void finalize();
-    static IceE::StaticMutex _m;
+    static Ice::StaticMutex _m;
     static int _initCount;
 };
 

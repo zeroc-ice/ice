@@ -16,7 +16,7 @@
 
 #include <IceE/Config.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class PropertyNames

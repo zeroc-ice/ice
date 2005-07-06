@@ -13,11 +13,11 @@
 #include <IceE/LocalException.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
 StringSeq
-IceE::argsToStringSeq(int argc, char* argv[])
+Ice::argsToStringSeq(int argc, char* argv[])
 {
     StringSeq result;
     for(int i = 0; i < argc; i++)
@@ -28,7 +28,7 @@ IceE::argsToStringSeq(int argc, char* argv[])
 }
 
 void
-IceE::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
+Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
 {
     //
     // Shift all elements in argv which are present in args to the
@@ -61,19 +61,19 @@ IceE::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
 }
 
 PropertiesPtr
-IceE::createProperties()
+Ice::createProperties()
 {
     return new Properties();
 }
 
 PropertiesPtr
-IceE::createProperties(StringSeq& args)
+Ice::createProperties(StringSeq& args)
 {
     return new Properties(args);
 }
 
 PropertiesPtr
-IceE::createProperties(int& argc, char* argv[])
+Ice::createProperties(int& argc, char* argv[])
 {
     StringSeq args = argsToStringSeq(argc, argv);
     PropertiesPtr properties = createProperties(args);
@@ -94,7 +94,7 @@ public:
 static DefaultPropertiesDestroyer defaultPropertiesDestroyer;
 
 PropertiesPtr
-IceE::getDefaultProperties()
+Ice::getDefaultProperties()
 {
     if(!defaultProperties)
     {
@@ -104,7 +104,7 @@ IceE::getDefaultProperties()
 }
 
 PropertiesPtr
-IceE::getDefaultProperties(StringSeq& args)
+Ice::getDefaultProperties(StringSeq& args)
 {
     if(!defaultProperties)
     {
@@ -114,7 +114,7 @@ IceE::getDefaultProperties(StringSeq& args)
 }
 
 PropertiesPtr
-IceE::getDefaultProperties(int& argc, char* argv[])
+Ice::getDefaultProperties(int& argc, char* argv[])
 {
     StringSeq args = argsToStringSeq(argc, argv);
     PropertiesPtr properties = getDefaultProperties(args);
@@ -123,14 +123,14 @@ IceE::getDefaultProperties(int& argc, char* argv[])
 }
 
 CommunicatorPtr
-IceE::initialize(int& argc, char* argv[], Int version)
+Ice::initialize(int& argc, char* argv[], Int version)
 {
     PropertiesPtr properties = getDefaultProperties(argc, argv);
     return initializeWithProperties(argc, argv, properties, version);
 }
 
 CommunicatorPtr
-IceE::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
+Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
 {
 #ifndef ICEE_IGNORE_VERSION
     //
@@ -160,7 +160,7 @@ IceE::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& pro
 }
 
 InstancePtr
-IceEInternal::getInstance(const CommunicatorPtr& communicator)
+IceInternal::getInstance(const CommunicatorPtr& communicator)
 {
     return communicator->_instance;
 }

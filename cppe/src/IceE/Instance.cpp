@@ -40,35 +40,35 @@
 #endif
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-static IceE::StaticMutex staticMutex = ICEE_STATIC_MUTEX_INITIALIZER;
+static Ice::StaticMutex staticMutex = ICEE_STATIC_MUTEX_INITIALIZER;
 static bool oneOffDone = false;
 static int instanceCount = 0;
 static bool printProcessIdDone = false;
 
-namespace IceE
+namespace Ice
 {
 
 extern bool ICEE_API nullHandleAbort;
 
 }
 
-void IceEInternal::incRef(Instance* p) { p->__incRef(); }
-void IceEInternal::decRef(Instance* p) { p->__decRef(); }
+void IceInternal::incRef(Instance* p) { p->__incRef(); }
+void IceInternal::decRef(Instance* p) { p->__decRef(); }
 
 PropertiesPtr
-IceEInternal::Instance::properties() const
+IceInternal::Instance::properties() const
 {
     // No mutex lock, immutable.
     return _properties;
 }
 
 LoggerPtr
-IceEInternal::Instance::logger() const
+IceInternal::Instance::logger() const
 {
-    IceE::RecMutex::Lock sync(*this);
+    Ice::RecMutex::Lock sync(*this);
 
     //
     // Don't throw CommunicatorDestroyedException if destroyed. We
@@ -78,9 +78,9 @@ IceEInternal::Instance::logger() const
 }
 
 void
-IceEInternal::Instance::logger(const LoggerPtr& logger)
+IceInternal::Instance::logger(const LoggerPtr& logger)
 {
-    IceE::RecMutex::Lock sync(*this);
+    Ice::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -91,14 +91,14 @@ IceEInternal::Instance::logger(const LoggerPtr& logger)
 }
 
 TraceLevelsPtr
-IceEInternal::Instance::traceLevels() const
+IceInternal::Instance::traceLevels() const
 {
     // No mutex lock, immutable.
     return _traceLevels;
 }
 
 DefaultsAndOverridesPtr
-IceEInternal::Instance::defaultsAndOverrides() const
+IceInternal::Instance::defaultsAndOverrides() const
 {
     // No mutex lock, immutable.
     return _defaultsAndOverrides;
@@ -107,9 +107,9 @@ IceEInternal::Instance::defaultsAndOverrides() const
 #ifndef ICEE_NO_ROUTER
 
 RouterManagerPtr
-IceEInternal::Instance::routerManager() const
+IceInternal::Instance::routerManager() const
 {
-    IceE::RecMutex::Lock sync(*this);
+    Ice::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -124,9 +124,9 @@ IceEInternal::Instance::routerManager() const
 #ifndef ICEE_NO_LOCATOR
 
 LocatorManagerPtr
-IceEInternal::Instance::locatorManager() const
+IceInternal::Instance::locatorManager() const
 {
-    IceE::RecMutex::Lock sync(*this);
+    Ice::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -139,9 +139,9 @@ IceEInternal::Instance::locatorManager() const
 #endif
 
 ReferenceFactoryPtr
-IceEInternal::Instance::referenceFactory() const
+IceInternal::Instance::referenceFactory() const
 {
-    IceE::RecMutex::Lock sync(*this);
+    Ice::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -152,9 +152,9 @@ IceEInternal::Instance::referenceFactory() const
 }
 
 ProxyFactoryPtr
-IceEInternal::Instance::proxyFactory() const
+IceInternal::Instance::proxyFactory() const
 {
-    IceE::RecMutex::Lock sync(*this);
+    Ice::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -165,9 +165,9 @@ IceEInternal::Instance::proxyFactory() const
 }
 
 OutgoingConnectionFactoryPtr
-IceEInternal::Instance::outgoingConnectionFactory() const
+IceInternal::Instance::outgoingConnectionFactory() const
 {
-    IceE::RecMutex::Lock sync(*this);
+    Ice::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -179,9 +179,9 @@ IceEInternal::Instance::outgoingConnectionFactory() const
 
 #ifndef ICEE_PURE_CLIENT
 ObjectAdapterFactoryPtr
-IceEInternal::Instance::objectAdapterFactory() const
+IceInternal::Instance::objectAdapterFactory() const
 {
-    IceE::RecMutex::Lock sync(*this);
+    Ice::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -193,16 +193,16 @@ IceEInternal::Instance::objectAdapterFactory() const
 #endif
 
 size_t
-IceEInternal::Instance::threadPerConnectionStackSize() const
+IceInternal::Instance::threadPerConnectionStackSize() const
 {
     // No mutex lock, immutable.
     return _threadPerConnectionStackSize;
 }
 
 EndpointFactoryPtr
-IceEInternal::Instance::endpointFactory() const
+IceInternal::Instance::endpointFactory() const
 {
-    IceE::RecMutex::Lock sync(*this);
+    Ice::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -213,7 +213,7 @@ IceEInternal::Instance::endpointFactory() const
 }
 
 size_t
-IceEInternal::Instance::messageSizeMax() const
+IceInternal::Instance::messageSizeMax() const
 {
     // No mutex lock, immutable.
     return _messageSizeMax;
@@ -221,7 +221,7 @@ IceEInternal::Instance::messageSizeMax() const
 
 #ifndef ICEE_NO_BATCH
 void
-IceEInternal::Instance::flushBatchRequests()
+IceInternal::Instance::flushBatchRequests()
 {
 
     OutgoingConnectionFactoryPtr connectionFactory;
@@ -230,7 +230,7 @@ IceEInternal::Instance::flushBatchRequests()
 #endif
 
     {
-	IceE::RecMutex::Lock sync(*this);
+	Ice::RecMutex::Lock sync(*this);
 
 	if(_destroyed)
 	{
@@ -252,18 +252,18 @@ IceEInternal::Instance::flushBatchRequests()
 #endif
 
 void
-IceEInternal::Instance::setDefaultContext(const Context& ctx)
+IceInternal::Instance::setDefaultContext(const Context& ctx)
 {
     _defaultContext = ctx;
 }
 
 const Context&
-IceEInternal::Instance::getDefaultContext() const
+IceInternal::Instance::getDefaultContext() const
 {
     return _defaultContext;
 }
 
-IceEInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
+IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
     _destroyed(false),
     _properties(properties),
     _messageSizeMax(0),
@@ -273,7 +273,7 @@ IceEInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prop
     {
 	__setNoDelete(true);
 
-	IceE::StaticMutex::Lock sync(staticMutex);
+	Ice::StaticMutex::Lock sync(staticMutex);
 	instanceCount++;
 
 	if(!oneOffDone)
@@ -309,7 +309,7 @@ IceEInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prop
 	    }
 #endif
 	    
-	    unsigned int seed = static_cast<unsigned int>(IceE::Time::now().toMicroSeconds());
+	    unsigned int seed = static_cast<unsigned int>(Ice::Time::now().toMicroSeconds());
 	    srand(seed);
 #ifndef _WIN32
 	    srand48(seed);
@@ -317,7 +317,7 @@ IceEInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prop
 	    
 	    if(_properties->getPropertyAsInt("IceE.NullHandleAbort") > 0)
 	    {
-		IceE::nullHandleAbort = true;
+		Ice::nullHandleAbort = true;
 	    }
 	    
 #ifndef _WIN32
@@ -435,7 +435,7 @@ IceEInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prop
     catch(...)
     {
 	{
-	    IceE::StaticMutex::Lock sync(staticMutex);
+	    Ice::StaticMutex::Lock sync(staticMutex);
 	    --instanceCount;
 	}
 	destroy();
@@ -444,7 +444,7 @@ IceEInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prop
     }
 }
 
-IceEInternal::Instance::~Instance()
+IceInternal::Instance::~Instance()
 {
     assert(_destroyed);
     assert(!_referenceFactory);
@@ -461,7 +461,7 @@ IceEInternal::Instance::~Instance()
 #endif
     assert(!_endpointFactory);
 
-    IceE::StaticMutex::Lock sync(staticMutex);
+    Ice::StaticMutex::Lock sync(staticMutex);
     if(--instanceCount == 0)
     {
 #ifdef _WIN32
@@ -479,7 +479,7 @@ IceEInternal::Instance::~Instance()
 }
 
 void
-IceEInternal::Instance::finishSetup(int& argc, char* argv[])
+IceInternal::Instance::finishSetup(int& argc, char* argv[])
 {
     //
     // Get default router and locator proxies. Don't move this
@@ -511,7 +511,7 @@ IceEInternal::Instance::finishSetup(int& argc, char* argv[])
 	//
 	// Safe double-check locking (no dependent variable!)
 	// 
-	IceE::StaticMutex::Lock sync(staticMutex);
+	Ice::StaticMutex::Lock sync(staticMutex);
 	printProcessId = !printProcessIdDone;
 	
 	//
@@ -534,7 +534,7 @@ IceEInternal::Instance::finishSetup(int& argc, char* argv[])
 }
 
 void
-IceEInternal::Instance::destroy()
+IceInternal::Instance::destroy()
 {
     assert(!_destroyed);
 
@@ -561,7 +561,7 @@ IceEInternal::Instance::destroy()
 #endif
 
     {
-	IceE::RecMutex::Lock sync(*this);
+	Ice::RecMutex::Lock sync(*this);
 
 #ifndef ICEE_PURE_CLIENT
 	_objectAdapterFactory = 0;

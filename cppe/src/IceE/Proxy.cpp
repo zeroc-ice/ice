@@ -19,20 +19,20 @@
 #endif
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(::IceEProxy::IceE::Object* p) { p->__incRef(); }
-void IceEInternal::decRef(::IceEProxy::IceE::Object* p) { p->__decRef(); }
+void IceInternal::incRef(::IceProxy::Ice::Object* p) { p->__incRef(); }
+void IceInternal::decRef(::IceProxy::Ice::Object* p) { p->__decRef(); }
 
-void IceEInternal::incRef(::IceEDelegate::IceE::Object* p) { p->__incRef(); }
-void IceEInternal::decRef(::IceEDelegate::IceE::Object* p) { p->__decRef(); }
+void IceInternal::incRef(::IceDelegate::Ice::Object* p) { p->__incRef(); }
+void IceInternal::decRef(::IceDelegate::Ice::Object* p) { p->__decRef(); }
 
 void
-IceE::__write(::IceEInternal::BasicStream* __os, const ::IceE::Context& v, ::IceE::__U__Context)
+Ice::__write(::IceInternal::BasicStream* __os, const ::Ice::Context& v, ::Ice::__U__Context)
 {
-    __os->writeSize(::IceE::Int(v.size()));
-    ::IceE::Context::const_iterator p;
+    __os->writeSize(::Ice::Int(v.size()));
+    ::Ice::Context::const_iterator p;
     for(p = v.begin(); p != v.end(); ++p)
     {
 	__os->write(p->first);
@@ -41,21 +41,21 @@ IceE::__write(::IceEInternal::BasicStream* __os, const ::IceE::Context& v, ::Ice
 }
 
 void
-IceE::__read(::IceEInternal::BasicStream* __is, ::IceE::Context& v, ::IceE::__U__Context)
+Ice::__read(::IceInternal::BasicStream* __is, ::Ice::Context& v, ::Ice::__U__Context)
 {
-    ::IceE::Int sz;
+    ::Ice::Int sz;
     __is->readSize(sz);
     while(sz--)
     {
 	::std::pair<const  ::std::string, ::std::string> pair;
 	__is->read(const_cast< ::std::string&>(pair.first));
-	::IceE::Context::iterator __i = v.insert(v.end(), pair);
+	::Ice::Context::iterator __i = v.insert(v.end(), pair);
 	__is->read(__i->second);
     }
 }
 
-::IceE::ObjectPrx
-IceEInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId)
+::Ice::ObjectPrx
+IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId)
 {
 //
 // COMPILERBUG: Without this work-around, release VC7.0 and VC7.1
@@ -77,7 +77,7 @@ IceEInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string&
 #ifndef NDEBUG
 	    else
 	    {
-		assert(typeId != "::IceE::Object");
+		assert(typeId != "::Ice::Object");
 	    }
 #endif
 	}
@@ -88,8 +88,8 @@ IceEInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string&
     return 0;
 }
 
-::IceE::ObjectPrx
-IceEInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId, const Context& ctx)
+::Ice::ObjectPrx
+IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId, const Context& ctx)
 {
 //
 // COMPILERBUG: Without this work-around, release VC7.0 build crash
@@ -111,7 +111,7 @@ IceEInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string&
 #ifndef NDEBUG
 	    else
 	    {
-		assert(typeId != "::IceE::Object");
+		assert(typeId != "::Ice::Object");
 	    }
 #endif
 	}
@@ -123,37 +123,37 @@ IceEInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string&
 }
 
 bool
-IceEProxy::IceE::Object::operator==(const Object& r) const
+IceProxy::Ice::Object::operator==(const Object& r) const
 {
     return _reference == r._reference;
 }
 
 bool
-IceEProxy::IceE::Object::operator!=(const Object& r) const
+IceProxy::Ice::Object::operator!=(const Object& r) const
 {
     return _reference != r._reference;
 }
 
 bool
-IceEProxy::IceE::Object::operator<(const Object& r) const
+IceProxy::Ice::Object::operator<(const Object& r) const
 {
     return _reference < r._reference;
 }
 
 Int
-IceEProxy::IceE::Object::ice_hash() const
+IceProxy::Ice::Object::ice_hash() const
 {
     return _reference->hash();
 }
 
 bool
-IceEProxy::IceE::Object::ice_isA(const string& __id)
+IceProxy::Ice::Object::ice_isA(const string& __id)
 {
     return ice_isA(__id, _reference->getContext());
 }
 
 bool
-IceEProxy::IceE::Object::ice_isA(const string& __id, const Context& __context)
+IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
     int __cnt = 0;
     while(true)
@@ -161,7 +161,7 @@ IceEProxy::IceE::Object::ice_isA(const string& __id, const Context& __context)
 	try
 	{
 	    __checkTwowayOnly("ice_isA");
-	    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
+	    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_isA(__id, __context);
 	}
 	catch(const NonRepeatable& __ex)
@@ -176,20 +176,20 @@ IceEProxy::IceE::Object::ice_isA(const string& __id, const Context& __context)
 }
 
 void
-IceEProxy::IceE::Object::ice_ping()
+IceProxy::Ice::Object::ice_ping()
 {
     ice_ping(_reference->getContext());
 }
 
 void
-IceEProxy::IceE::Object::ice_ping(const Context& __context)
+IceProxy::Ice::Object::ice_ping(const Context& __context)
 {
     int __cnt = 0;
     while(true)
     {
 	try
 	{
-	    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
+	    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    __del->ice_ping(__context);
 	    return;
 	}
@@ -205,13 +205,13 @@ IceEProxy::IceE::Object::ice_ping(const Context& __context)
 }
 
 vector<string>
-IceEProxy::IceE::Object::ice_ids()
+IceProxy::Ice::Object::ice_ids()
 {
     return ice_ids(_reference->getContext());
 }
 
 vector<string>
-IceEProxy::IceE::Object::ice_ids(const Context& __context)
+IceProxy::Ice::Object::ice_ids(const Context& __context)
 {
     int __cnt = 0;
     while(true)
@@ -219,7 +219,7 @@ IceEProxy::IceE::Object::ice_ids(const Context& __context)
 	try
 	{
 	    __checkTwowayOnly("ice_ids");
-	    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
+	    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_ids(__context);
 	}
 	catch(const NonRepeatable& __ex)
@@ -234,13 +234,13 @@ IceEProxy::IceE::Object::ice_ids(const Context& __context)
 }
 
 string
-IceEProxy::IceE::Object::ice_id()
+IceProxy::Ice::Object::ice_id()
 {
     return ice_id(_reference->getContext());
 }
 
 string
-IceEProxy::IceE::Object::ice_id(const Context& __context)
+IceProxy::Ice::Object::ice_id(const Context& __context)
 {
     int __cnt = 0;
     while(true)
@@ -248,7 +248,7 @@ IceEProxy::IceE::Object::ice_id(const Context& __context)
 	try
 	{
 	    __checkTwowayOnly("ice_id");
-	    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
+	    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_id(__context);
 	}
 	catch(const NonRepeatable& __ex)
@@ -264,7 +264,7 @@ IceEProxy::IceE::Object::ice_id(const Context& __context)
 
 #ifndef ICEE_PURE_CLIENT
 bool
-IceEProxy::IceE::Object::ice_invoke(const string& operation,
+IceProxy::Ice::Object::ice_invoke(const string& operation,
 				  OperationMode mode,
 				  const vector<Byte>& inParams,
 				  vector<Byte>& outParams)
@@ -273,7 +273,7 @@ IceEProxy::IceE::Object::ice_invoke(const string& operation,
 }
 
 bool
-IceEProxy::IceE::Object::ice_invoke(const string& operation,
+IceProxy::Ice::Object::ice_invoke(const string& operation,
 				  OperationMode mode,
 				  const vector<Byte>& inParams,
 				  vector<Byte>& outParams,
@@ -284,7 +284,7 @@ IceEProxy::IceE::Object::ice_invoke(const string& operation,
     {
 	try
 	{
-	    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
+	    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_invoke(operation, mode, inParams, outParams, context);
 	}
 	catch(const NonRepeatable& __ex)
@@ -308,162 +308,162 @@ IceEProxy::IceE::Object::ice_invoke(const string& operation,
 #endif
 
 Context
-IceEProxy::IceE::Object::ice_getContext() const
+IceProxy::Ice::Object::ice_getContext() const
 {
     return _reference->getContext();
 }
 
 ObjectPrx
-IceEProxy::IceE::Object::ice_newContext(const Context& newContext) const
+IceProxy::Ice::Object::ice_newContext(const Context& newContext) const
 {
     if(_reference->hasContext() && newContext == _reference->getContext())
     {
-	return ObjectPrx(const_cast< ::IceEProxy::IceE::Object*>(this));
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceEProxy::IceE::Object());
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(_reference->changeContext(newContext));
 	return proxy;
     }
 }
 
 ObjectPrx
-IceEProxy::IceE::Object::ice_defaultContext() const
+IceProxy::Ice::Object::ice_defaultContext() const
 {
     if(!_reference->hasContext())
     {
-	return ObjectPrx(const_cast< ::IceEProxy::IceE::Object*>(this));
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceEProxy::IceE::Object());
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(_reference->defaultContext());
 	return proxy;
     }
 }
 
 Identity
-IceEProxy::IceE::Object::ice_getIdentity() const
+IceProxy::Ice::Object::ice_getIdentity() const
 {
     return _reference->getIdentity();
 }
 
 ObjectPrx
-IceEProxy::IceE::Object::ice_newIdentity(const Identity& newIdentity) const
+IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
 {
     if(newIdentity == _reference->getIdentity())
     {
-	return ObjectPrx(const_cast< ::IceEProxy::IceE::Object*>(this));
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceEProxy::IceE::Object());
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(_reference->changeIdentity(newIdentity));
 	return proxy;
     }
 }
 
 const string&
-IceEProxy::IceE::Object::ice_getFacet() const
+IceProxy::Ice::Object::ice_getFacet() const
 {
     return _reference->getFacet();
 }
 
 ObjectPrx
-IceEProxy::IceE::Object::ice_newFacet(const string& newFacet) const
+IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
 {
     if(newFacet == _reference->getFacet())
     {
-	return ObjectPrx(const_cast< ::IceEProxy::IceE::Object*>(this));
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceEProxy::IceE::Object());
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(_reference->changeFacet(newFacet));
 	return proxy;
     }
 }
 
 ObjectPrx
-IceEProxy::IceE::Object::ice_twoway() const
+IceProxy::Ice::Object::ice_twoway() const
 {
     ReferencePtr ref = _reference->changeMode(Reference::ModeTwoway);
     if(ref == _reference)
     {
-	return ObjectPrx(const_cast< ::IceEProxy::IceE::Object*>(this));
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceEProxy::IceE::Object());
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(ref);
 	return proxy;
     }
 }
 
 bool
-IceEProxy::IceE::Object::ice_isTwoway() const
+IceProxy::Ice::Object::ice_isTwoway() const
 {
     return _reference->getMode() == Reference::ModeTwoway;
 }
 
 ObjectPrx
-IceEProxy::IceE::Object::ice_oneway() const
+IceProxy::Ice::Object::ice_oneway() const
 {
     ReferencePtr ref = _reference->changeMode(Reference::ModeOneway);
     if(ref == _reference)
     {
-	return ObjectPrx(const_cast< ::IceEProxy::IceE::Object*>(this));
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceEProxy::IceE::Object());
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(ref);
 	return proxy;
     }
 }
 
 bool
-IceEProxy::IceE::Object::ice_isOneway() const
+IceProxy::Ice::Object::ice_isOneway() const
 {
     return _reference->getMode() == Reference::ModeOneway;
 }
 
 #ifndef ICEE_NO_BATCH
 ObjectPrx
-IceEProxy::IceE::Object::ice_batchOneway() const
+IceProxy::Ice::Object::ice_batchOneway() const
 {
     ReferencePtr ref = _reference->changeMode(Reference::ModeBatchOneway);
     if(ref == _reference)
     {
-	return ObjectPrx(const_cast< ::IceEProxy::IceE::Object*>(this));
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceEProxy::IceE::Object());
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(ref);
 	return proxy;
     }
 }
 
 bool
-IceEProxy::IceE::Object::ice_isBatchOneway() const
+IceProxy::Ice::Object::ice_isBatchOneway() const
 {
     return _reference->getMode() == Reference::ModeBatchOneway;
 }
 #endif
 
 ObjectPrx
-IceEProxy::IceE::Object::ice_timeout(int t) const
+IceProxy::Ice::Object::ice_timeout(int t) const
 {
     ReferencePtr ref = _reference->changeTimeout(t);
     if(ref == _reference)
     {
-	return ObjectPrx(const_cast< ::IceEProxy::IceE::Object*>(this));
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceEProxy::IceE::Object());
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(ref);
 	return proxy;
     }
@@ -472,16 +472,16 @@ IceEProxy::IceE::Object::ice_timeout(int t) const
 #ifndef ICEE_NO_ROUTER
 
 ObjectPrx
-IceEProxy::IceE::Object::ice_router(const RouterPrx& router) const
+IceProxy::Ice::Object::ice_router(const RouterPrx& router) const
 {
     ReferencePtr ref = _reference->changeRouter(router);
     if(ref == _reference)
     {
-	return ObjectPrx(const_cast< ::IceEProxy::IceE::Object*>(this));
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceEProxy::IceE::Object());
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(ref);
 	return proxy;
     }
@@ -492,16 +492,16 @@ IceEProxy::IceE::Object::ice_router(const RouterPrx& router) const
 #ifndef ICEE_NO_LOCATOR
 
 ObjectPrx
-IceEProxy::IceE::Object::ice_locator(const LocatorPrx& locator) const
+IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
 {
     ReferencePtr ref = _reference->changeLocator(locator);
     if(ref == _reference)
     {
-	return ObjectPrx(const_cast< ::IceEProxy::IceE::Object*>(this));
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceEProxy::IceE::Object());
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(ref);
 	return proxy;
     }
@@ -510,32 +510,32 @@ IceEProxy::IceE::Object::ice_locator(const LocatorPrx& locator) const
 #endif
 
 ObjectPrx
-IceEProxy::IceE::Object::ice_default() const
+IceProxy::Ice::Object::ice_default() const
 {
     ReferencePtr ref = _reference->changeDefault();
     ref = ref->changeDefault();
 
     if(ref == _reference)
     {
-	return ObjectPrx(const_cast< ::IceEProxy::IceE::Object*>(this));
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceEProxy::IceE::Object());
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(ref);
 	return proxy;
     }
 }
 
 ConnectionPtr
-IceEProxy::IceE::Object::ice_connection()
+IceProxy::Ice::Object::ice_connection()
 {
     int __cnt = 0;
     while(true)
     {
 	try
 	{
-	    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> __del = __getDelegate();
+	    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->ice_connection();
 	}
 	catch(const LocalException& __ex)
@@ -546,22 +546,22 @@ IceEProxy::IceE::Object::ice_connection()
 }
 
 ReferencePtr
-IceEProxy::IceE::Object::__reference() const
+IceProxy::Ice::Object::__reference() const
 {
     return _reference;
 }
 
 void
-IceEProxy::IceE::Object::__copyFrom(const ObjectPrx& from)
+IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
 {
     ReferencePtr ref;
-    ::IceEInternal::Handle< ::IceEDelegate::IceE::Object> delegate;
+    ::IceInternal::Handle< ::IceDelegate::Ice::Object> delegate;
 
     {
-	::IceE::Mutex::Lock sync(*from.get());
+	::Ice::Mutex::Lock sync(*from.get());
 
 	ref = from->_reference;
-	delegate = dynamic_cast< ::IceEDelegate::IceE::Object*>(from->_delegate.get());
+	delegate = dynamic_cast< ::IceDelegate::Ice::Object*>(from->_delegate.get());
     }
 
     //
@@ -582,13 +582,13 @@ IceEProxy::IceE::Object::__copyFrom(const ObjectPrx& from)
 }
 
 void
-IceEProxy::IceE::Object::__handleException(const LocalException& ex, int& cnt)
+IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 {
     //
     // Only _delegate needs to be mutex protected here.
     //
     {
-	::IceE::Mutex::Lock sync(*this);
+	::Ice::Mutex::Lock sync(*this);
 	_delegate = 0;
     }
 
@@ -607,13 +607,13 @@ IceEProxy::IceE::Object::__handleException(const LocalException& ex, int& cnt)
 }
 
 void
-IceEProxy::IceE::Object::__rethrowException(const LocalException& ex)
+IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
 {
     //
     // Only _delegate needs to be mutex protected here.
     //
     {
-	::IceE::Mutex::Lock sync(*this);
+	::Ice::Mutex::Lock sync(*this);
 	_delegate = 0;
     }
 
@@ -621,7 +621,7 @@ IceEProxy::IceE::Object::__rethrowException(const LocalException& ex)
 }
 
 void
-IceEProxy::IceE::Object::__checkTwowayOnly(const char* name) const
+IceProxy::Ice::Object::__checkTwowayOnly(const char* name) const
 {
     //
     // No mutex lock necessary, there is nothing mutable in this
@@ -636,14 +636,14 @@ IceEProxy::IceE::Object::__checkTwowayOnly(const char* name) const
     }
 }
 
-::IceEInternal::Handle< ::IceEDelegate::IceE::Object>
-IceEProxy::IceE::Object::__getDelegate()
+::IceInternal::Handle< ::IceDelegate::Ice::Object>
+IceProxy::Ice::Object::__getDelegate()
 {
-    ::IceE::Mutex::Lock sync(*this);
+    ::Ice::Mutex::Lock sync(*this);
 
     if(!_delegate)
     {
-	IceEInternal::Handle< ::IceEDelegate::IceE::Object> delegate = __createDelegate();
+	IceInternal::Handle< ::IceDelegate::Ice::Object> delegate = __createDelegate();
 	delegate->setup(_reference);
 	_delegate = delegate;
 
@@ -664,20 +664,20 @@ IceEProxy::IceE::Object::__getDelegate()
     return _delegate;
 }
 
-::IceEInternal::Handle< ::IceEDelegate::IceE::Object>
-IceEProxy::IceE::Object::__createDelegate()
+::IceInternal::Handle< ::IceDelegate::Ice::Object>
+IceProxy::Ice::Object::__createDelegate()
 {
-    return ::IceEInternal::Handle< ::IceEDelegate::IceE::Object>(new ::IceEDelegate::IceE::Object);
+    return ::IceInternal::Handle< ::IceDelegate::Ice::Object>(new ::IceDelegate::Ice::Object);
 }
 
 const Context&
-IceEProxy::IceE::Object::__defaultContext() const
+IceProxy::Ice::Object::__defaultContext() const
 {
     return _reference->getContext();
 }
 
 void
-IceEProxy::IceE::Object::setup(const ReferencePtr& ref)
+IceProxy::Ice::Object::setup(const ReferencePtr& ref)
 {
     //
     // No need to synchronize "*this", as this operation is only
@@ -690,15 +690,15 @@ IceEProxy::IceE::Object::setup(const ReferencePtr& ref)
     _reference = ref;
 }
 
-IceEDelegate::IceE::Object::~Object()
+IceDelegate::Ice::Object::~Object()
 {
 }
 
 bool
-IceEDelegate::IceE::Object::ice_isA(const string& __id, const Context& __context)
+IceDelegate::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
     static const string __operation("ice_isA");
-    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::IceE::Nonmutating, __context);
+    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __outS.is();
     BasicStream* __os = __outS.os();
     __os->write(__id);
@@ -711,18 +711,18 @@ IceEDelegate::IceE::Object::ice_isA(const string& __id, const Context& __context
 	}
         __is->read(__ret);
     }
-    catch(const ::IceE::LocalException& __ex)
+    catch(const ::Ice::LocalException& __ex)
     {
-        throw ::IceEInternal::NonRepeatable(__ex);
+        throw ::IceInternal::NonRepeatable(__ex);
     }
     return __ret;
 }
 
 void
-IceEDelegate::IceE::Object::ice_ping(const Context& __context)
+IceDelegate::Ice::Object::ice_ping(const Context& __context)
 {
     static const string __operation("ice_ping");
-    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::IceE::Nonmutating, __context);
+    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __outS.is();
     try
     {
@@ -731,17 +731,17 @@ IceEDelegate::IceE::Object::ice_ping(const Context& __context)
 	    __is->throwException();
 	}
     }
-    catch(const ::IceE::LocalException& __ex)
+    catch(const ::Ice::LocalException& __ex)
     {
-        throw ::IceEInternal::NonRepeatable(__ex);
+        throw ::IceInternal::NonRepeatable(__ex);
     }
 }
 
 vector<string>
-IceEDelegate::IceE::Object::ice_ids(const Context& __context)
+IceDelegate::Ice::Object::ice_ids(const Context& __context)
 {
     static const string __operation("ice_ids");
-    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::IceE::Nonmutating, __context);
+    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __outS.is();
     vector<string> __ret;
     try
@@ -752,18 +752,18 @@ IceEDelegate::IceE::Object::ice_ids(const Context& __context)
 	}
         __is->read(__ret);
     }
-    catch(const ::IceE::LocalException& __ex)
+    catch(const ::Ice::LocalException& __ex)
     {
-        throw ::IceEInternal::NonRepeatable(__ex);
+        throw ::IceInternal::NonRepeatable(__ex);
     }
     return __ret;
 }
 
 string
-IceEDelegate::IceE::Object::ice_id(const Context& __context)
+IceDelegate::Ice::Object::ice_id(const Context& __context)
 {
     static const string __operation("ice_id");
-    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::IceE::Nonmutating, __context);
+    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __outS.is();
     string __ret;
     try
@@ -774,16 +774,16 @@ IceEDelegate::IceE::Object::ice_id(const Context& __context)
 	}
         __is->read(__ret);
     }
-    catch(const ::IceE::LocalException& __ex)
+    catch(const ::Ice::LocalException& __ex)
     {
-        throw ::IceEInternal::NonRepeatable(__ex);
+        throw ::IceInternal::NonRepeatable(__ex);
     }
     return __ret;
 }
 
 #ifndef ICEE_PURE_CLIENT
 bool
-IceEDelegate::IceE::Object::ice_invoke(const string& operation,
+IceDelegate::Ice::Object::ice_invoke(const string& operation,
                                       OperationMode mode,
 				      const vector<Byte>& inParams,
 				      vector<Byte>& outParams,
@@ -801,9 +801,9 @@ IceEDelegate::IceE::Object::ice_invoke(const string& operation,
             Int sz = __is->getReadEncapsSize();
             __is->readBlob(outParams, sz);
         }
-        catch(const ::IceE::LocalException& __ex)
+        catch(const ::Ice::LocalException& __ex)
         {
-            throw ::IceEInternal::NonRepeatable(__ex);
+            throw ::IceInternal::NonRepeatable(__ex);
         }
     }
     return ok;
@@ -811,13 +811,13 @@ IceEDelegate::IceE::Object::ice_invoke(const string& operation,
 #endif
 
 ConnectionPtr
-IceEDelegate::IceE::Object::ice_connection()
+IceDelegate::Ice::Object::ice_connection()
 {
     return __connection;
 }
 
 void
-IceEDelegate::IceE::Object::__copyFrom(const ::IceEInternal::Handle< ::IceEDelegate::IceE::Object>& from)
+IceDelegate::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>& from)
 {
     //
     // No need to synchronize "from", as the delegate is immutable
@@ -837,7 +837,7 @@ IceEDelegate::IceE::Object::__copyFrom(const ::IceEInternal::Handle< ::IceEDeleg
 }
 
 void
-IceEDelegate::IceE::Object::setup(const ReferencePtr& ref)
+IceDelegate::Ice::Object::setup(const ReferencePtr& ref)
 {
     //
     // No need to synchronize "*this", as this operation is only
@@ -852,7 +852,7 @@ IceEDelegate::IceE::Object::setup(const ReferencePtr& ref)
 }
 
 bool
-IceE::proxyIdentityLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
+Ice::proxyIdentityLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
     if(!lhs && !rhs)
     {
@@ -873,7 +873,7 @@ IceE::proxyIdentityLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
 }
 
 bool
-IceE::proxyIdentityEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
+Ice::proxyIdentityEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
     if(!lhs && !rhs)
     {
@@ -894,7 +894,7 @@ IceE::proxyIdentityEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
 }
 
 bool
-IceE::proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
+Ice::proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
     if(!lhs && !rhs)
     {
@@ -939,7 +939,7 @@ IceE::proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
 }
 
 bool
-IceE::proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
+Ice::proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
     if(!lhs && !rhs)
     {

@@ -11,7 +11,7 @@
 #include <TestI.h>
 
 using namespace std;
-using namespace IceE;
+using namespace Ice;
 
 void
 TestI::transient(const Current& current)
@@ -29,7 +29,7 @@ void
 TestI::deactivate(const Current& current)
 {
     current.adapter->deactivate();
-    IceE::ThreadControl::sleep(IceE::Time::seconds(1));
+    Ice::ThreadControl::sleep(Ice::Time::seconds(1));
 }
 
 string

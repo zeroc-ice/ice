@@ -109,7 +109,7 @@ escapeChar(string::value_type b, string& s, const string& special)
 }
 
 string
-IceE::escapeString(const string& s, const string& special)
+Ice::escapeString(const string& s, const string& special)
 {
     string result;
     result.reserve(s.size());
@@ -123,7 +123,7 @@ IceE::escapeString(const string& s, const string& special)
 }
 
 bool
-IceE::unescapeString(const string& s, string::size_type start, string::size_type end, string& result)
+Ice::unescapeString(const string& s, string::size_type start, string::size_type end, string& result)
 {
     assert(end <= s.size());
     assert(start <= end);
@@ -236,7 +236,7 @@ IceE::unescapeString(const string& s, string::size_type start, string::size_type
 // If no matching closing quote is found, then -1 is returned.
 //
 string::size_type
-IceE::checkQuote(const string& s, string::size_type start)
+Ice::checkQuote(const string& s, string::size_type start)
 {
     string::value_type quoteChar = s[start];
     if(quoteChar == '"' || quoteChar == '\'')
@@ -263,7 +263,7 @@ IceE::checkQuote(const string& s, string::size_type start)
 // it's portable across platforms (whereas regex() isn't).
 //
 bool
-IceE::match(const string& s, const string& pat, bool matchPeriod)
+Ice::match(const string& s, const string& pat, bool matchPeriod)
 {
     assert(!s.empty());
     assert(!pat.empty());

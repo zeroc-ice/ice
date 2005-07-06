@@ -13,22 +13,10 @@
 
 #include <IceE/Config.h>
 
-namespace IceEProxy
+namespace IceProxy
 {
 
-namespace IceE
-{
-
-class Object;
-
-}
-
-}
-
-namespace IceEDelegate
-{
-
-namespace IceE
+namespace Ice
 {
 
 class Object;
@@ -37,23 +25,35 @@ class Object;
 
 }
 
-namespace IceEInternal
+namespace IceDelegate
 {
 
-ICEE_API void incRef(::IceEProxy::IceE::Object*);
-ICEE_API void decRef(::IceEProxy::IceE::Object*);
+namespace Ice
+{
 
-ICEE_API void incRef(::IceEDelegate::IceE::Object*);
-ICEE_API void decRef(::IceEDelegate::IceE::Object*);
+class Object;
+
+}
+
+}
+
+namespace IceInternal
+{
+
+ICEE_API void incRef(::IceProxy::Ice::Object*);
+ICEE_API void decRef(::IceProxy::Ice::Object*);
+
+ICEE_API void incRef(::IceDelegate::Ice::Object*);
+ICEE_API void decRef(::IceDelegate::Ice::Object*);
 
 }
 
 #include <IceE/ProxyHandle.h>
 
-namespace IceE
+namespace Ice
 {
 
-typedef IceEInternal::ProxyHandle< ::IceEProxy::IceE::Object> ObjectPrx;
+typedef IceInternal::ProxyHandle< ::IceProxy::Ice::Object> ObjectPrx;
 
 }
 

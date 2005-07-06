@@ -25,14 +25,14 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-        setCommunicator(IceE::initialize(argc, argv));
+        setCommunicator(Ice::initialize(argc, argv));
 
-        IceE::PropertiesPtr properties = communicator()->getProperties();
+        Ice::PropertiesPtr properties = communicator()->getProperties();
         properties->setProperty("IceE.Warn.Dispatch", "0");
         properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 2000");
-        IceE::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-        IceE::ObjectPtr object = new TestI(adapter);
-        adapter->add(object, IceE::stringToIdentity("Test"));
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
+        Ice::ObjectPtr object = new TestI(adapter);
+        adapter->add(object, Ice::stringToIdentity("Test"));
         adapter->activate();
 
 #ifndef _WIN32_WCE

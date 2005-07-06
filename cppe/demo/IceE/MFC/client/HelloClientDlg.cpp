@@ -16,7 +16,7 @@
 //#define new DEBUG_NEW
 //#endif
 
-CHelloClientDlg::CHelloClientDlg(const IceE::CommunicatorPtr& communicator, CWnd* pParent /*=NULL*/) :
+CHelloClientDlg::CHelloClientDlg(const Ice::CommunicatorPtr& communicator, CWnd* pParent /*=NULL*/) :
     CDialog(CHelloClientDlg::IDD, pParent), _communicator(communicator), _currentMode(0),
     _useSecure(false), _useTimeout(false)
 {
@@ -63,10 +63,10 @@ CHelloClientDlg::OnInitDialog()
     //
     // Create the proxy.
     //
-    IceE::PropertiesPtr properties = _communicator->getProperties();
+    Ice::PropertiesPtr properties = _communicator->getProperties();
     const char* proxyProperty = "Hello.Proxy";
     std::string proxy = properties->getProperty(proxyProperty);
-    IceE::ObjectPrx obj = _communicator->stringToProxy(proxy);
+    Ice::ObjectPrx obj = _communicator->stringToProxy(proxy);
     _proxy = Demo::HelloPrx::uncheckedCast(obj);
     _currentProxy = _proxy;
     _status->SetWindowText(CString(" Ready"));
@@ -132,7 +132,7 @@ CHelloClientDlg::OnSayHello()
             _status->SetWindowText(CString(" Sent request"));
         }
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
         handleException(ex);
     }
@@ -146,7 +146,7 @@ CHelloClientDlg::OnFlush()
         _communicator->flushBatchRequests();
         _status->SetWindowText(CString(" Flushed batch requests"));
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
         handleException(ex);
     }
@@ -168,7 +168,7 @@ CHelloClientDlg::OnShutdown()
             _status->SetWindowText(CString(" Sent shutdown request"));
         }
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
         handleException(ex);
     }
@@ -184,7 +184,7 @@ CHelloClientDlg::updateProxy()
         return;
     }
 
-    IceE::ObjectPrx proxy;
+    Ice::ObjectPrx proxy;
     switch(mode)
     {
     case 0:
@@ -221,18 +221,18 @@ CHelloClientDlg::updateProxy()
 }
 
 void
-CHelloClientDlg::handleException(const IceE::Exception& e)
+CHelloClientDlg::handleException(const Ice::Exception& e)
 {
     try
     {
         e.ice_throw();
     }
-    catch(const IceE::NoEndpointException&)
+    catch(const Ice::NoEndpointException&)
     {
         AfxMessageBox(CString("The proxy does not support the current configuration"),
                       MB_OK|MB_ICONEXCLAMATION);
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
         AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
     }

@@ -17,45 +17,45 @@
 #include <IceE/Locator.h>
 #include <IceE/ProxyF.h>
 
-class ServerLocatorRegistry : public IceE::LocatorRegistry
+class ServerLocatorRegistry : public Ice::LocatorRegistry
 {
 public:
 
     ServerLocatorRegistry();
     
-    virtual void setAdapterDirectProxy(const ::std::string&, const ::IceE::ObjectPrx&, const ::IceE::Current&);
+    virtual void setAdapterDirectProxy(const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
 
     //
     // Internal method
     //
-    ::IceE::ObjectPrx getAdapter(const ::std::string&) const;
-    ::IceE::ObjectPrx getObject(const ::IceE::Identity&) const;
-    void addObject(const ::IceE::ObjectPrx&);
+    ::Ice::ObjectPrx getAdapter(const ::std::string&) const;
+    ::Ice::ObjectPrx getObject(const ::Ice::Identity&) const;
+    void addObject(const ::Ice::ObjectPrx&);
 
 private:
     
-    ::std::map< ::std::string, ::IceE::ObjectPrx> _adapters;
-    ::std::map< ::IceE::Identity, ::IceE::ObjectPrx> _objects;
+    ::std::map< ::std::string, ::Ice::ObjectPrx> _adapters;
+    ::std::map< ::Ice::Identity, ::Ice::ObjectPrx> _objects;
 };
 
-typedef ::IceEInternal::Handle< ServerLocatorRegistry> ServerLocatorRegistryPtr;
+typedef ::IceInternal::Handle< ServerLocatorRegistry> ServerLocatorRegistryPtr;
 
-class ServerLocator : public ::IceE::Locator
+class ServerLocator : public ::Ice::Locator
 {
 public:
 
-    ServerLocator(const ::ServerLocatorRegistryPtr&, const ::IceE::LocatorRegistryPrx&);
+    ServerLocator(const ::ServerLocatorRegistryPtr&, const ::Ice::LocatorRegistryPrx&);
 
-    virtual ::IceE::ObjectPrx findObjectById(const ::IceE::Identity&, const ::IceE::Current&) const;
+    virtual ::Ice::ObjectPrx findObjectById(const ::Ice::Identity&, const ::Ice::Current&) const;
 
-    virtual ::IceE::ObjectPrx findAdapterById(const ::std::string&, const ::IceE::Current&) const;
+    virtual ::Ice::ObjectPrx findAdapterById(const ::std::string&, const ::Ice::Current&) const;
 
-    virtual ::IceE::LocatorRegistryPrx getRegistry(const ::IceE::Current&) const;
+    virtual ::Ice::LocatorRegistryPrx getRegistry(const ::Ice::Current&) const;
 
 private:
     
     ServerLocatorRegistryPtr _registry;
-    ::IceE::LocatorRegistryPrx _registryPrx;
+    ::Ice::LocatorRegistryPrx _registryPrx;
 };
 
 #endif

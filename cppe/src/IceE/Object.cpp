@@ -12,89 +12,89 @@
 #include <IceE/LocalException.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(Object* p) { p->__incRef(); }
-void IceEInternal::decRef(Object* p) { p->__decRef(); }
+void IceInternal::incRef(Object* p) { p->__incRef(); }
+void IceInternal::decRef(Object* p) { p->__decRef(); }
 
 bool
-IceE::Object::operator==(const Object& r) const
+Ice::Object::operator==(const Object& r) const
 {
     return this == &r;
 }
 
 bool
-IceE::Object::operator!=(const Object& r) const
+Ice::Object::operator!=(const Object& r) const
 {
     return this != &r;
 }
 
 bool
-IceE::Object::operator<(const Object& r) const
+Ice::Object::operator<(const Object& r) const
 {
     return this < &r;
 }
 
 Int
-IceE::Object::ice_hash() const
+Ice::Object::ice_hash() const
 {
     return static_cast<Int>(reinterpret_cast<Long>(this) >> 4);
 }
 
 static const string __Ice__Object_ids[] =
 {
-    "::IceE::Object"
+    "::Ice::Object"
 };
 
 bool
-IceE::Object::ice_isA(const string& s, const Current&) const
+Ice::Object::ice_isA(const string& s, const Current&) const
 {
     return s == __Ice__Object_ids[0];
 }
 
 void
-IceE::Object::ice_ping(const Current&) const
+Ice::Object::ice_ping(const Current&) const
 {
     // Nothing to do.
 }
 
 vector<string>
-IceE::Object::ice_ids(const Current&) const
+Ice::Object::ice_ids(const Current&) const
 {
     return vector<string>(&__Ice__Object_ids[0], &__Ice__Object_ids[1]);
 }
 
 const string&
-IceE::Object::ice_id(const Current&) const
+Ice::Object::ice_id(const Current&) const
 {
     return __Ice__Object_ids[0];
 }
 
 const ::std::string&
-IceE::Object::ice_staticId()
+Ice::Object::ice_staticId()
 {
     return __Ice__Object_ids[0];
 }
 
 ObjectPtr
-IceE::Object::ice_clone() const
+Ice::Object::ice_clone() const
 {
     throw new CloneNotImplementedException(__FILE__, __LINE__);
 }
 
 void
-IceE::Object::ice_preMarshal()
+Ice::Object::ice_preMarshal()
 {
 }
 
 void
-IceE::Object::ice_postUnmarshal()
+Ice::Object::ice_postUnmarshal()
 {
 }
 
 DispatchStatus
-IceE::Object::___ice_isA(Incoming& __inS, const Current& __current)
+Ice::Object::___ice_isA(Incoming& __inS, const Current& __current)
 {
     BasicStream* __is = __inS.is();
     BasicStream* __os = __inS.os();
@@ -106,14 +106,14 @@ IceE::Object::___ice_isA(Incoming& __inS, const Current& __current)
 }
 
 DispatchStatus
-IceE::Object::___ice_ping(Incoming&, const Current& __current)
+Ice::Object::___ice_ping(Incoming&, const Current& __current)
 {
     ice_ping(__current);
     return DispatchOK;
 }
 
 DispatchStatus
-IceE::Object::___ice_ids(Incoming& __inS, const Current& __current)
+Ice::Object::___ice_ids(Incoming& __inS, const Current& __current)
 {
     BasicStream* __os = __inS.os();
     vector<string> __ret = ice_ids(__current);
@@ -122,7 +122,7 @@ IceE::Object::___ice_ids(Incoming& __inS, const Current& __current)
 }
 
 DispatchStatus
-IceE::Object::___ice_id(Incoming& __inS, const Current& __current)
+Ice::Object::___ice_id(Incoming& __inS, const Current& __current)
 {
     BasicStream* __os = __inS.os();
     string __ret = ice_id(__current);
@@ -130,7 +130,7 @@ IceE::Object::___ice_id(Incoming& __inS, const Current& __current)
     return DispatchOK;
 }
 
-string IceE::Object::__all[] =
+string Ice::Object::__all[] =
 {
     "ice_id",
     "ice_ids",
@@ -139,7 +139,7 @@ string IceE::Object::__all[] =
 };
 
 DispatchStatus
-IceE::Object::__dispatch(Incoming& in, const Current& current)
+Ice::Object::__dispatch(Incoming& in, const Current& current)
 {
     pair<string*, string*> r =
 	equal_range(__all, __all + sizeof(__all) / sizeof(string), current.operation);
@@ -174,7 +174,7 @@ IceE::Object::__dispatch(Incoming& in, const Current& current)
 }
 
 DispatchStatus
-IceE::Blobject::__dispatch(Incoming& in, const Current& current)
+Ice::Blobject::__dispatch(Incoming& in, const Current& current)
 {
     vector<Byte> inParams;
     vector<Byte> outParams;

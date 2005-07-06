@@ -16,22 +16,22 @@
 #include <IceE/BasicStream.h>
 #include <IceE/Current.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class ICEE_API IncomingBase : private IceE::noncopyable
+class ICEE_API IncomingBase : private Ice::noncopyable
 {
 protected:
 
-    IncomingBase(Instance*, IceE::Connection*, const IceE::ObjectAdapterPtr&, bool);
+    IncomingBase(Instance*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool);
     IncomingBase(IncomingBase& in); // Adopts the argument. It must not be used afterwards.
     
-    void __warning(const IceE::Exception&) const;
+    void __warning(const Ice::Exception&) const;
     void __warning(const std::string&) const;
 
-    IceE::Current _current;
-    IceE::ObjectPtr _servant;
-    IceE::LocalObjectPtr _cookie;
+    Ice::Current _current;
+    Ice::ObjectPtr _servant;
+    Ice::LocalObjectPtr _cookie;
 
     bool _response;
 
@@ -41,14 +41,14 @@ protected:
     // Optimization. The connection may not be deleted while a
     // stack-allocated Incoming still holds it.
     //
-    IceE::Connection* _connection;
+    Ice::Connection* _connection;
 };
 
 class ICEE_API Incoming : public IncomingBase
 {
 public:
 
-    Incoming(Instance*, IceE::Connection*, const IceE::ObjectAdapterPtr&, bool);
+    Incoming(Instance*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool);
 
     void invoke(const ServantManagerPtr&);
 

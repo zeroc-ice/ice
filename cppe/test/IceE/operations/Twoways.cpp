@@ -25,19 +25,19 @@
 using namespace std;
 
 void
-twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
+twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
     {
 	p->opVoid();
     }
 
     {
-	IceE::Byte b;
-	IceE::Byte r;
+	Ice::Byte b;
+	Ice::Byte r;
 
-	r = p->opByte(IceE::Byte(0xff), IceE::Byte(0x0f), b);
-	test(b == IceE::Byte(0xf0));
-	test(r == IceE::Byte(0xff));
+	r = p->opByte(Ice::Byte(0xff), Ice::Byte(0x0f), b);
+	test(b == Ice::Byte(0xf0));
+	test(r == Ice::Byte(0xff));
     }
 
     {
@@ -50,10 +50,10 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     }
 
     {
-	IceE::Short s;
-	IceE::Int i;
-	IceE::Long l;
-	IceE::Long r;
+	Ice::Short s;
+	Ice::Int i;
+	Ice::Long l;
+	Ice::Long r;
 
 	r = p->opShortIntLong(10, 11, 12, s, i, l);
 	test(s == 10);
@@ -61,40 +61,40 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	test(l == 12);
 	test(r == 12);
 	
-	r = p->opShortIntLong(numeric_limits<IceE::Short>::min(), numeric_limits<IceE::Int>::min(),
-			      numeric_limits<IceE::Long>::min(), s, i, l);
-	test(s == numeric_limits<IceE::Short>::min());
-	test(i == numeric_limits<IceE::Int>::min());
-	test(l == numeric_limits<IceE::Long>::min());
-	test(r == numeric_limits<IceE::Long>::min());
+	r = p->opShortIntLong(numeric_limits<Ice::Short>::min(), numeric_limits<Ice::Int>::min(),
+			      numeric_limits<Ice::Long>::min(), s, i, l);
+	test(s == numeric_limits<Ice::Short>::min());
+	test(i == numeric_limits<Ice::Int>::min());
+	test(l == numeric_limits<Ice::Long>::min());
+	test(r == numeric_limits<Ice::Long>::min());
 	
-	r = p->opShortIntLong(numeric_limits<IceE::Short>::max(), numeric_limits<IceE::Int>::max(),
-			      numeric_limits<IceE::Long>::max(),	s, i, l);
-	test(s == numeric_limits<IceE::Short>::max());
-	test(i == numeric_limits<IceE::Int>::max());
-	test(l == numeric_limits<IceE::Long>::max());
-	test(r == numeric_limits<IceE::Long>::max());
+	r = p->opShortIntLong(numeric_limits<Ice::Short>::max(), numeric_limits<Ice::Int>::max(),
+			      numeric_limits<Ice::Long>::max(),	s, i, l);
+	test(s == numeric_limits<Ice::Short>::max());
+	test(i == numeric_limits<Ice::Int>::max());
+	test(l == numeric_limits<Ice::Long>::max());
+	test(r == numeric_limits<Ice::Long>::max());
     }
 
     {
-	IceE::Float f;
-	IceE::Double d;
-	IceE::Double r;
+	Ice::Float f;
+	Ice::Double d;
+	Ice::Double r;
 	
-	r = p->opFloatDouble(IceE::Float(3.14), IceE::Double(1.1E10), f, d);
-	test(f == IceE::Float(3.14));
-	test(d == IceE::Double(1.1E10));
-	test(r == IceE::Double(1.1E10));
+	r = p->opFloatDouble(Ice::Float(3.14), Ice::Double(1.1E10), f, d);
+	test(f == Ice::Float(3.14));
+	test(d == Ice::Double(1.1E10));
+	test(r == Ice::Double(1.1E10));
 
-	r = p->opFloatDouble(numeric_limits<IceE::Float>::min(), numeric_limits<IceE::Double>::min(), f, d);
-	test(f == numeric_limits<IceE::Float>::min());
-	test(d == numeric_limits<IceE::Double>::min());
-	test(r == numeric_limits<IceE::Double>::min());
+	r = p->opFloatDouble(numeric_limits<Ice::Float>::min(), numeric_limits<Ice::Double>::min(), f, d);
+	test(f == numeric_limits<Ice::Float>::min());
+	test(d == numeric_limits<Ice::Double>::min());
+	test(r == numeric_limits<Ice::Double>::min());
 
-	r = p->opFloatDouble(numeric_limits<IceE::Float>::max(), numeric_limits<IceE::Double>::max(), f, d);
-	test(f == numeric_limits<IceE::Float>::max());
-	test(d == numeric_limits<IceE::Double>::max());
-	test(r == numeric_limits<IceE::Double>::max());
+	r = p->opFloatDouble(numeric_limits<Ice::Float>::max(), numeric_limits<Ice::Double>::max(), f, d);
+	test(f == numeric_limits<Ice::Float>::max());
+	test(d == numeric_limits<Ice::Double>::max());
+	test(r == numeric_limits<Ice::Double>::max());
     }
 
     {
@@ -121,12 +121,12 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	Test::MyClassPrx r;
 	
 	r = p->opMyClass(p, c1, c2);
-	test(IceE::proxyIdentityAndFacetEqual(c1, p));
-	test(!IceE::proxyIdentityAndFacetEqual(c2, p));
-	test(IceE::proxyIdentityAndFacetEqual(r, p));
-	test(c1->ice_getIdentity() == IceE::stringToIdentity("test"));
-	test(c2->ice_getIdentity() == IceE::stringToIdentity("noSuchIdentity"));
-	test(r->ice_getIdentity() == IceE::stringToIdentity("test"));
+	test(Ice::proxyIdentityAndFacetEqual(c1, p));
+	test(!Ice::proxyIdentityAndFacetEqual(c2, p));
+	test(Ice::proxyIdentityAndFacetEqual(r, p));
+	test(c1->ice_getIdentity() == Ice::stringToIdentity("test"));
+	test(c2->ice_getIdentity() == Ice::stringToIdentity("noSuchIdentity"));
+	test(r->ice_getIdentity() == Ice::stringToIdentity("test"));
 	r->opVoid();
 	c1->opVoid();
 	try
@@ -134,14 +134,14 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    c2->opVoid();
 	    test(false);
 	}
-	catch(const IceE::ObjectNotExistException&)
+	catch(const Ice::ObjectNotExistException&)
 	{
 	}
 
 	r = p->opMyClass(0, c1, c2);
 	test(c1 == 0);
 	test(c2 != 0);
-	test(IceE::proxyIdentityAndFacetEqual(r, p));
+	test(Ice::proxyIdentityAndFacetEqual(r, p));
 	r->opVoid();
     }
 
@@ -171,34 +171,34 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	Test::ByteS bsi1;
 	Test::ByteS bsi2;
 
-	bsi1.push_back(IceE::Byte(0x01));
-	bsi1.push_back(IceE::Byte(0x11));
-	bsi1.push_back(IceE::Byte(0x12));
-	bsi1.push_back(IceE::Byte(0x22));
+	bsi1.push_back(Ice::Byte(0x01));
+	bsi1.push_back(Ice::Byte(0x11));
+	bsi1.push_back(Ice::Byte(0x12));
+	bsi1.push_back(Ice::Byte(0x22));
 
-	bsi2.push_back(IceE::Byte(0xf1));
-	bsi2.push_back(IceE::Byte(0xf2));
-	bsi2.push_back(IceE::Byte(0xf3));
-	bsi2.push_back(IceE::Byte(0xf4));
+	bsi2.push_back(Ice::Byte(0xf1));
+	bsi2.push_back(Ice::Byte(0xf2));
+	bsi2.push_back(Ice::Byte(0xf3));
+	bsi2.push_back(Ice::Byte(0xf4));
 
 	Test::ByteS bso;
 	Test::ByteS rso;
 
 	rso = p->opByteS(bsi1, bsi2, bso);
 	test(bso.size() == 4);
-	test(bso[0] == IceE::Byte(0x22));
-	test(bso[1] == IceE::Byte(0x12));
-	test(bso[2] == IceE::Byte(0x11));
-	test(bso[3] == IceE::Byte(0x01));
+	test(bso[0] == Ice::Byte(0x22));
+	test(bso[1] == Ice::Byte(0x12));
+	test(bso[2] == Ice::Byte(0x11));
+	test(bso[3] == Ice::Byte(0x01));
 	test(rso.size() == 8);
-	test(rso[0] == IceE::Byte(0x01));
-	test(rso[1] == IceE::Byte(0x11));
-	test(rso[2] == IceE::Byte(0x12));
-	test(rso[3] == IceE::Byte(0x22));
-	test(rso[4] == IceE::Byte(0xf1));
-	test(rso[5] == IceE::Byte(0xf2));
-	test(rso[6] == IceE::Byte(0xf3));
-	test(rso[7] == IceE::Byte(0xf4));
+	test(rso[0] == Ice::Byte(0x01));
+	test(rso[1] == Ice::Byte(0x11));
+	test(rso[2] == Ice::Byte(0x12));
+	test(rso[3] == Ice::Byte(0x22));
+	test(rso[4] == Ice::Byte(0xf1));
+	test(rso[5] == Ice::Byte(0xf2));
+	test(rso[6] == Ice::Byte(0xf3));
+	test(rso[7] == Ice::Byte(0xf4));
     }
 
     {
@@ -276,12 +276,12 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	Test::FloatS fsi;
 	Test::DoubleS dsi;
 
-	fsi.push_back(IceE::Float(3.14));
-	fsi.push_back(IceE::Float(1.11));
+	fsi.push_back(Ice::Float(3.14));
+	fsi.push_back(Ice::Float(1.11));
 
-	dsi.push_back(IceE::Double(1.1E10));
-	dsi.push_back(IceE::Double(1.2E10));
-	dsi.push_back(IceE::Double(1.3E10));
+	dsi.push_back(Ice::Double(1.1E10));
+	dsi.push_back(Ice::Double(1.2E10));
+	dsi.push_back(Ice::Double(1.3E10));
 
 	Test::FloatS fso;
 	Test::DoubleS dso;
@@ -289,18 +289,18 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
 	rso = p->opFloatDoubleS(fsi, dsi, fso, dso);
 	test(fso.size() == 2);
-	test(fso[0] == ::IceE::Float(3.14));
-	test(fso[1] == ::IceE::Float(1.11));
+	test(fso[0] == ::Ice::Float(3.14));
+	test(fso[1] == ::Ice::Float(1.11));
 	test(dso.size() == 3);
-	test(dso[0] == ::IceE::Double(1.3E10));
-	test(dso[1] == ::IceE::Double(1.2E10));
-	test(dso[2] == ::IceE::Double(1.1E10));
+	test(dso[0] == ::Ice::Double(1.3E10));
+	test(dso[1] == ::Ice::Double(1.2E10));
+	test(dso[2] == ::Ice::Double(1.1E10));
 	test(rso.size() == 5);
-	test(rso[0] == ::IceE::Double(1.1E10));
-	test(rso[1] == ::IceE::Double(1.2E10));
-	test(rso[2] == ::IceE::Double(1.3E10));
-	test(::IceE::Float(rso[3]) == ::IceE::Float(3.14));
-	test(::IceE::Float(rso[4]) == ::IceE::Float(1.11));
+	test(rso[0] == ::Ice::Double(1.1E10));
+	test(rso[1] == ::Ice::Double(1.2E10));
+	test(rso[2] == ::Ice::Double(1.3E10));
+	test(::Ice::Float(rso[3]) == ::Ice::Float(3.14));
+	test(::Ice::Float(rso[4]) == ::Ice::Float(1.11));
     }
 
     {
@@ -334,14 +334,14 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	Test::ByteSS bsi2;
 	bsi2.resize(2);
 
-	bsi1[0].push_back(IceE::Byte(0x01));
-	bsi1[0].push_back(IceE::Byte(0x11));
-	bsi1[0].push_back(IceE::Byte(0x12));
-	bsi1[1].push_back(IceE::Byte(0xff));
+	bsi1[0].push_back(Ice::Byte(0x01));
+	bsi1[0].push_back(Ice::Byte(0x11));
+	bsi1[0].push_back(Ice::Byte(0x12));
+	bsi1[1].push_back(Ice::Byte(0xff));
 
-	bsi2[0].push_back(IceE::Byte(0x0e));
-	bsi2[1].push_back(IceE::Byte(0xf2));
-	bsi2[1].push_back(IceE::Byte(0xf1));
+	bsi2[0].push_back(Ice::Byte(0x0e));
+	bsi2[1].push_back(Ice::Byte(0xf2));
+	bsi2[1].push_back(Ice::Byte(0xf1));
 
 	Test::ByteSS bso;
 	Test::ByteSS rso;
@@ -349,23 +349,23 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	rso = p->opByteSS(bsi1, bsi2, bso);
 	test(bso.size() == 2);
 	test(bso[0].size() == 1);
-	test(bso[0][0] == IceE::Byte(0xff));
+	test(bso[0][0] == Ice::Byte(0xff));
 	test(bso[1].size() == 3);
-	test(bso[1][0] == IceE::Byte(0x01));
-	test(bso[1][1] == IceE::Byte(0x11));
-	test(bso[1][2] == IceE::Byte(0x12));
+	test(bso[1][0] == Ice::Byte(0x01));
+	test(bso[1][1] == Ice::Byte(0x11));
+	test(bso[1][2] == Ice::Byte(0x12));
 	test(rso.size() == 4);
 	test(rso[0].size() == 3);
-	test(rso[0][0] == IceE::Byte(0x01));
-	test(rso[0][1] == IceE::Byte(0x11));
-	test(rso[0][2] == IceE::Byte(0x12));
+	test(rso[0][0] == Ice::Byte(0x01));
+	test(rso[0][1] == Ice::Byte(0x11));
+	test(rso[0][2] == Ice::Byte(0x12));
 	test(rso[1].size() == 1);
-	test(rso[1][0] == IceE::Byte(0xff));
+	test(rso[1][0] == Ice::Byte(0xff));
 	test(rso[2].size() == 1);
-	test(rso[2][0] == IceE::Byte(0x0e));
+	test(rso[2][0] == Ice::Byte(0x0e));
 	test(rso[3].size() == 2);
-	test(rso[3][0] == IceE::Byte(0xf2));
-	test(rso[3][1] == IceE::Byte(0xf1));
+	test(rso[3][0] == Ice::Byte(0xf2));
+	test(rso[3][1] == Ice::Byte(0xf1));
     }
 
     {
@@ -374,12 +374,12 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	Test::DoubleSS dsi;
 	dsi.resize(1);
 
-	fsi[0].push_back(IceE::Float(3.14));
-	fsi[1].push_back(IceE::Float(1.11));
+	fsi[0].push_back(Ice::Float(3.14));
+	fsi[1].push_back(Ice::Float(1.11));
 
-	dsi[0].push_back(IceE::Double(1.1E10));
-	dsi[0].push_back(IceE::Double(1.2E10));
-	dsi[0].push_back(IceE::Double(1.3E10));
+	dsi[0].push_back(Ice::Double(1.1E10));
+	dsi[0].push_back(Ice::Double(1.2E10));
+	dsi[0].push_back(Ice::Double(1.3E10));
 
 	Test::FloatSS fso;
 	Test::DoubleSS dso;
@@ -388,24 +388,24 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	rso = p->opFloatDoubleSS(fsi, dsi, fso, dso);
 	test(fso.size() == 3);
 	test(fso[0].size() == 1);
-	test(fso[0][0] == ::IceE::Float(3.14));
+	test(fso[0][0] == ::Ice::Float(3.14));
 	test(fso[1].size() == 1);
-	test(fso[1][0] == ::IceE::Float(1.11));
+	test(fso[1][0] == ::Ice::Float(1.11));
 	test(fso[2].size() == 0);
 	test(dso.size() == 1);
 	test(dso[0].size() == 3);
-	test(dso[0][0] == ::IceE::Double(1.1E10));
-	test(dso[0][1] == ::IceE::Double(1.2E10));
-	test(dso[0][2] == ::IceE::Double(1.3E10));
+	test(dso[0][0] == ::Ice::Double(1.1E10));
+	test(dso[0][1] == ::Ice::Double(1.2E10));
+	test(dso[0][2] == ::Ice::Double(1.3E10));
 	test(rso.size() == 2);
 	test(rso[0].size() == 3);
-	test(rso[0][0] == ::IceE::Double(1.1E10));
-	test(rso[0][1] == ::IceE::Double(1.2E10));
-	test(rso[0][2] == ::IceE::Double(1.3E10));
+	test(rso[0][0] == ::Ice::Double(1.1E10));
+	test(rso[0][1] == ::Ice::Double(1.2E10));
+	test(rso[0][2] == ::Ice::Double(1.3E10));
 	test(rso[1].size() == 3);
-	test(rso[1][0] == ::IceE::Double(1.1E10));
-	test(rso[1][1] == ::IceE::Double(1.2E10));
-	test(rso[1][2] == ::IceE::Double(1.3E10));
+	test(rso[1][0] == ::Ice::Double(1.1E10));
+	test(rso[1][1] == ::Ice::Double(1.2E10));
+	test(rso[1][2] == ::Ice::Double(1.3E10));
     }
 
     {
@@ -540,22 +540,22 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
     {
 	Test::LongFloatD di1;
-	di1[999999110] = IceE::Float(-1.1);
-	di1[999999111] = IceE::Float(123123.2);
+	di1[999999110] = Ice::Float(-1.1);
+	di1[999999111] = Ice::Float(123123.2);
 	Test::LongFloatD di2;
-	di2[999999110] = IceE::Float(-1.1);
-	di2[999999120] = IceE::Float(-100.4);
-	di2[999999130] = IceE::Float(0.5);
+	di2[999999110] = Ice::Float(-1.1);
+	di2[999999120] = Ice::Float(-100.4);
+	di2[999999130] = Ice::Float(0.5);
 
 	Test::LongFloatD _do;
 	Test::LongFloatD ro = p->opLongFloatD(di1, di2, _do);
 
 	test(_do == di1);
 	test(ro.size() == 4);
-	test(ro[999999110] == IceE::Float(-1.1));
-	test(ro[999999120] == IceE::Float(-100.4));
-	test(ro[999999111] == IceE::Float(123123.2));
-	test(ro[999999130] == IceE::Float(0.5));
+	test(ro[999999110] == Ice::Float(-1.1));
+	test(ro[999999120] == Ice::Float(-100.4));
+	test(ro[999999111] == Ice::Float(123123.2));
+	test(ro[999999130] == Ice::Float(0.5));
     }
 
     {
@@ -618,7 +618,7 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
     }
 
     {
-	IceE::Context ctx;
+	Ice::Context ctx;
 	ctx["one"] = "ONE";
 	ctx["two"] = "TWO";
 	ctx["three"] = "THREE";
@@ -645,18 +645,18 @@ twoways(const IceE::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    //
 	    // Test that default context is obtained correctly from communicator.
 	    //
-	    IceE::Context dflt;
+	    Ice::Context dflt;
 	    dflt["a"] = "b";
 	    communicator->setDefaultContext(dflt);
 	    test(p->opContext() == dflt);
 
-	    Test::MyClassPrx p2 = Test::MyClassPrx::uncheckedCast(p->ice_newContext(IceE::Context()));
+	    Test::MyClassPrx p2 = Test::MyClassPrx::uncheckedCast(p->ice_newContext(Ice::Context()));
 	    test(p2->opContext().empty());
 
 	    p2 = Test::MyClassPrx::uncheckedCast(p->ice_defaultContext());
 	    test(p2->opContext() == dflt);
 
-	    communicator->setDefaultContext(IceE::Context());
+	    communicator->setDefaultContext(Ice::Context());
 	    test(p->opContext().empty());
 	    test(p2->opContext().empty());
 	}

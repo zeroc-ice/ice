@@ -16,7 +16,7 @@
 
 #include <IceE/Handle.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class LocatorManager;

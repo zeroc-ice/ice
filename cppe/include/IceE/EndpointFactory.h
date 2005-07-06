@@ -15,12 +15,12 @@
 #include <IceE/InstanceF.h>
 #include <IceE/Shared.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class BasicStream;
 
-class ICEE_API EndpointFactory : public ::IceE::Shared
+class ICEE_API EndpointFactory : public ::Ice::Shared
 {
 public:
 

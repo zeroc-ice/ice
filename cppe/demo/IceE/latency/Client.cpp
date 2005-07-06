@@ -14,9 +14,9 @@ using namespace std;
 using namespace Demo;
 
 int
-run(int argc, char* argv[], const IceE::CommunicatorPtr& communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    IceE::PropertiesPtr properties = communicator->getProperties();
+    Ice::PropertiesPtr properties = communicator->getProperties();
     const char* proxyProperty = "Latency.Ping";
     std::string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
@@ -25,7 +25,7 @@ run(int argc, char* argv[], const IceE::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    IceE::ObjectPrx base = communicator->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator->stringToProxy(proxy);
     PingPrx ping = PingPrx::checkedCast(base);
     if(!ping)
     {
@@ -36,7 +36,7 @@ run(int argc, char* argv[], const IceE::CommunicatorPtr& communicator)
     // Initial ping to setup the connection.
     ping->ice_ping();
 
-    IceE::Time tm = IceE::Time::now();
+    Ice::Time tm = Ice::Time::now();
 
     const int repetitions = 100000;
     printf("pinging server %d times (this may take a while)\n", repetitions);
@@ -45,7 +45,7 @@ run(int argc, char* argv[], const IceE::CommunicatorPtr& communicator)
 	ping->ice_ping();
     }
 
-    tm = IceE::Time::now() - tm;
+    tm = Ice::Time::now() - tm;
 
     printf("time for %d pings: %fms\n", repetitions, tm.toMicroSeconds() / 1000.0);
     printf("time per ping: %fms\n", (tm / repetitions).toMicroSeconds() / 1000.0);
@@ -57,16 +57,16 @@ int
 main(int argc, char* argv[])
 {
     int status;
-    IceE::CommunicatorPtr communicator;
+    Ice::CommunicatorPtr communicator;
 
     try
     {
-	IceE::PropertiesPtr properties = IceE::createProperties();
+	Ice::PropertiesPtr properties = Ice::createProperties();
         properties->load("config");
-	communicator = IceE::initializeWithProperties(argc, argv, properties);
+	communicator = Ice::initializeWithProperties(argc, argv, properties);
 	status = run(argc, argv, communicator);
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	fprintf(stderr, "%s\n", ex.toString().c_str());
 	status = EXIT_FAILURE;
@@ -78,7 +78,7 @@ main(int argc, char* argv[])
 	{
 	    communicator->destroy();
 	}
-	catch(const IceE::Exception& ex)
+	catch(const Ice::Exception& ex)
 	{
 	    fprintf(stderr, "%s\n", ex.toString().c_str());
 	    status = EXIT_FAILURE;

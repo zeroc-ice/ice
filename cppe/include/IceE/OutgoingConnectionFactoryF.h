@@ -12,13 +12,13 @@
 
 #include <IceE/Handle.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class OutgoingConnectionFactory;
 ICEE_API void incRef(OutgoingConnectionFactory*);
 ICEE_API void decRef(OutgoingConnectionFactory*);
-typedef IceEInternal::Handle<OutgoingConnectionFactory> OutgoingConnectionFactoryPtr;
+typedef IceInternal::Handle<OutgoingConnectionFactory> OutgoingConnectionFactoryPtr;
 
 }
 

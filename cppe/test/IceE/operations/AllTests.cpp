@@ -15,11 +15,11 @@
 using namespace std;
 
 Test::MyClassPrx
-allTests(const IceE::CommunicatorPtr& communicator)
+allTests(const Ice::CommunicatorPtr& communicator)
 {
     tprintf("testing stringToProxy... ");
     string ref = "test:default -p 12345 -t 10000";
-    IceE::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     tprintf("ok\n");
 
@@ -34,7 +34,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
     test(cl == derived);
     
 #ifndef ICE_NO_LOCATOR
-    IceE::LocatorPrx loc = IceE::LocatorPrx::checkedCast(base);
+    Ice::LocatorPrx loc = Ice::LocatorPrx::checkedCast(base);
     test(loc == 0);
 #endif
 
@@ -42,7 +42,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
     // Upcasting
     //
     Test::MyClassPrx cl2 = Test::MyClassPrx::checkedCast(derived);
-    IceE::ObjectPrx obj = IceE::ObjectPrx::checkedCast(derived);
+    Ice::ObjectPrx obj = Ice::ObjectPrx::checkedCast(derived);
     test(cl2);
     test(obj);
     test(cl2 == obj);
@@ -60,12 +60,12 @@ allTests(const IceE::CommunicatorPtr& communicator)
     test(cl == derived);
     
 #ifndef ICE_NO_LOCATOR
-    loc = checkedCast<IceE::LocatorPrx>(base);
+    loc = checkedCast<Ice::LocatorPrx>(base);
     test(loc == 0);
 #endif
 
     cl2 = checkedCast<Test::MyClassPrx>(derived);
-    obj = checkedCast<IceE::ObjectPrx>(derived);
+    obj = checkedCast<Ice::ObjectPrx>(derived);
     test(cl2);
     test(obj);
     test(cl2 == obj);
@@ -76,17 +76,17 @@ allTests(const IceE::CommunicatorPtr& communicator)
 #ifdef UNDEFINED
     tprintf("testing checked cast with context... ");
     string cref = "test:default -p 12346 -t 10000";
-    IceE::ObjectPrx cbase = communicator->stringToProxy(cref);
+    Ice::ObjectPrx cbase = communicator->stringToProxy(cref);
     test(cbase);
 
     Test::TestCheckedCastPrx tccp = Test::TestCheckedCastPrx::checkedCast(cbase);
-    IceE::Context c = tccp->getContext();
+    Ice::Context c = tccp->getContext();
     test(c.size() == 0);
 
     c["one"] = "hello";
     c["two"] = "world";
     tccp = Test::TestCheckedCastPrx::checkedCast(cbase, c);
-    IceE::Context c2 = tccp->getContext();
+    Ice::Context c2 = tccp->getContext();
     test(c == c2);
 
     //
@@ -104,7 +104,7 @@ allTests(const IceE::CommunicatorPtr& communicator)
 #endif
 /*
     tprintf("testing twoway operations... ");
-    void twoways(const IceE::CommunicatorPtr&, const Test::MyClassPrx&);
+    void twoways(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
     twoways(communicator, cl);
     twoways(communicator, derived);
     derived->opDerived();

@@ -25,19 +25,19 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	IceE::PropertiesPtr properties = IceE::getDefaultProperties(argc, argv);
+	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
 	properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
 
-        setCommunicator(IceE::initialize(argc, argv));
+        setCommunicator(Ice::initialize(argc, argv));
 
-        IceE::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-        IceE::ObjectPtr d = new DI;
-        adapter->add(d, IceE::stringToIdentity("d"));
-        adapter->addFacet(d, IceE::stringToIdentity("d"), "facetABCD");
-        IceE::ObjectPtr f = new FI;
-        adapter->addFacet(f, IceE::stringToIdentity("d"), "facetEF");
-        IceE::ObjectPtr h = new HI(communicator());
-        adapter->addFacet(h, IceE::stringToIdentity("d"), "facetGH");
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
+        Ice::ObjectPtr d = new DI;
+        adapter->add(d, Ice::stringToIdentity("d"));
+        adapter->addFacet(d, Ice::stringToIdentity("d"), "facetABCD");
+        Ice::ObjectPtr f = new FI;
+        adapter->addFacet(f, Ice::stringToIdentity("d"), "facetEF");
+        Ice::ObjectPtr h = new HI(communicator());
+        adapter->addFacet(h, Ice::stringToIdentity("d"), "facetGH");
 
         adapter->activate();
 

@@ -12,25 +12,25 @@
 
 #include <IceE/Handle.h>
 
-namespace IceE
+namespace Ice
 {
 
 class Communicator;
 
 }
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-ICEE_API void incRef(::IceE::Communicator*);
-ICEE_API void decRef(::IceE::Communicator*);
+ICEE_API void incRef(::Ice::Communicator*);
+ICEE_API void decRef(::Ice::Communicator*);
 
 }
 
-namespace IceE
+namespace Ice
 {
 
-typedef ::IceEInternal::Handle< ::IceE::Communicator> CommunicatorPtr;
+typedef ::IceInternal::Handle< ::Ice::Communicator> CommunicatorPtr;
 
 }
 

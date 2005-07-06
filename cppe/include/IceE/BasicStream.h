@@ -15,14 +15,14 @@
 
 #include <IceE/Buffer.h>
 
-namespace IceE
+namespace Ice
 {
 
 class UserException;
 
 }
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class ICEE_API BasicStream : public Buffer
@@ -67,7 +67,7 @@ public:
     void startReadEncaps();
     void endReadEncaps();
     void checkReadEncaps();
-    IceE::Int getReadEncapsSize();
+    Ice::Int getReadEncapsSize();
     void skipEncaps();
 
     void startWriteSlice();
@@ -77,20 +77,20 @@ public:
     void endReadSlice();
     void skipSlice();
 
-    void writeSize(IceE::Int);
-    void readSize(IceE::Int&);
+    void writeSize(Ice::Int);
+    void readSize(Ice::Int&);
 
-    void writeBlob(const std::vector<IceE::Byte>&);
-    void readBlob(std::vector<IceE::Byte>&, IceE::Int);
+    void writeBlob(const std::vector<Ice::Byte>&);
+    void readBlob(std::vector<Ice::Byte>&, Ice::Int);
 
-    void writeBlob(const IceE::Byte*, Container::size_type);
-    void readBlob(IceE::Byte*, Container::size_type);
+    void writeBlob(const Ice::Byte*, Container::size_type);
+    void readBlob(Ice::Byte*, Container::size_type);
 
-    void write(IceE::Byte v)
+    void write(Ice::Byte v)
     {
 	b.push_back(v);
     }
-    void read(IceE::Byte& v)
+    void read(Ice::Byte& v)
     {
 	if(i >= b.end())
 	{
@@ -99,12 +99,12 @@ public:
 	v = *i++;
     }
 
-    void write(const std::vector<IceE::Byte>&);
-    void read(std::vector<IceE::Byte>&);
+    void write(const std::vector<Ice::Byte>&);
+    void read(std::vector<Ice::Byte>&);
 
     void write(bool v)
     {
-	b.push_back(static_cast<IceE::Byte>(v));
+	b.push_back(static_cast<Ice::Byte>(v));
     }
     void write(const std::vector<bool>&);
     void read(bool& v)
@@ -117,30 +117,30 @@ public:
     }
     void read(std::vector<bool>&);
 
-    void write(IceE::Short);
-    void read(IceE::Short&);
-    void write(const std::vector<IceE::Short>&);
-    void read(std::vector<IceE::Short>&);
+    void write(Ice::Short);
+    void read(Ice::Short&);
+    void write(const std::vector<Ice::Short>&);
+    void read(std::vector<Ice::Short>&);
 
-    void write(IceE::Int);
-    void read(IceE::Int&);
-    void write(const std::vector<IceE::Int>&);
-    void read(std::vector<IceE::Int>&);
+    void write(Ice::Int);
+    void read(Ice::Int&);
+    void write(const std::vector<Ice::Int>&);
+    void read(std::vector<Ice::Int>&);
 
-    void write(IceE::Long);
-    void read(IceE::Long&);
-    void write(const std::vector<IceE::Long>&);
-    void read(std::vector<IceE::Long>&);
+    void write(Ice::Long);
+    void read(Ice::Long&);
+    void write(const std::vector<Ice::Long>&);
+    void read(std::vector<Ice::Long>&);
 
-    void write(IceE::Float);
-    void read(IceE::Float&);
-    void write(const std::vector<IceE::Float>&);
-    void read(std::vector<IceE::Float>&);
+    void write(Ice::Float);
+    void read(Ice::Float&);
+    void write(const std::vector<Ice::Float>&);
+    void read(std::vector<Ice::Float>&);
 
-    void write(IceE::Double);
-    void read(IceE::Double&);
-    void write(const std::vector<IceE::Double>&);
-    void read(std::vector<IceE::Double>&);
+    void write(Ice::Double);
+    void read(Ice::Double&);
+    void write(const std::vector<Ice::Double>&);
+    void read(std::vector<Ice::Double>&);
 
     //
     // NOTE: This function is not implemented. It is declared here to
@@ -156,10 +156,10 @@ public:
     void read(std::string&);
     void read(std::vector<std::string>&);
 
-    void write(const IceE::ObjectPrx&);
-    void read(IceE::ObjectPrx&);
+    void write(const Ice::ObjectPrx&);
+    void read(Ice::ObjectPrx&);
 
-    void write(const IceE::UserException&);
+    void write(const Ice::UserException&);
     void throwException();
 
 private:
@@ -179,7 +179,7 @@ private:
     //
     Instance* _instance;
 
-    class ICEE_API ReadEncaps : private ::IceE::noncopyable
+    class ICEE_API ReadEncaps : private ::Ice::noncopyable
     {
     public:
 
@@ -189,15 +189,15 @@ private:
 	void swap(ReadEncaps&);
 
 	Container::size_type start;
-	IceE::Int sz;
+	Ice::Int sz;
 
-	IceE::Byte encodingMajor;
-	IceE::Byte encodingMinor;
+	Ice::Byte encodingMajor;
+	Ice::Byte encodingMinor;
 
 	ReadEncaps* previous;
     };
 
-    class ICEE_API WriteEncaps : private ::IceE::noncopyable
+    class ICEE_API WriteEncaps : private ::Ice::noncopyable
     {
     public:
 
@@ -208,7 +208,7 @@ private:
 
 	Container::size_type start;
 
-	IceE::Int writeIndex;
+	Ice::Int writeIndex;
 
 	WriteEncaps* previous;
     };

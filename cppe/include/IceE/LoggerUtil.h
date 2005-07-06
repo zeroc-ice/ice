@@ -12,11 +12,11 @@
 
 #include <IceE/LoggerF.h>
 
-namespace IceE
+namespace Ice
 {
 
 
-class ICEE_API Print : private IceE::noncopyable
+class ICEE_API Print : private Ice::noncopyable
 {
 public:
 
@@ -40,7 +40,7 @@ operator<<(Print& out, const std::string& val)
     return out;
 }
 
-class ICEE_API Warning : private IceE::noncopyable
+class ICEE_API Warning : private Ice::noncopyable
 {
 public:
 
@@ -64,7 +64,7 @@ operator<<(Warning& out, const std::string& val)
     return out;
 }
 
-class ICEE_API Error : private IceE::noncopyable
+class ICEE_API Error : private Ice::noncopyable
 {
 public:
 
@@ -88,7 +88,7 @@ operator<<(Error& out, const std::string& val)
     return out;
 }
 
-class ICEE_API Trace : private IceE::noncopyable
+class ICEE_API Trace : private Ice::noncopyable
 {
 public:
 

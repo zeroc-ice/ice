@@ -31,14 +31,14 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	IceE::PropertiesPtr properties = IceE::getDefaultProperties(argc, argv);
+	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
 
 	//
 	// This test aborts servers, so we don't want warnings.
 	//
 	properties->setProperty("IceE.Warn.Connections", "0");
 
-	setCommunicator(IceE::initialize(argc, argv));
+	setCommunicator(Ice::initialize(argc, argv));
 
         vector<int> ports;
         for(int i = 1; i < argc; ++i)
@@ -62,10 +62,10 @@ public:
 
         try
         {
-	    void allTests(const IceE::CommunicatorPtr&, const vector<int>&);
+	    void allTests(const Ice::CommunicatorPtr&, const vector<int>&);
 	    allTests(communicator(), ports);
         }
-        catch(const IceE::Exception& ex)
+        catch(const Ice::Exception& ex)
         {
 	    tprintf("%s\n", ex.toString().c_str());
 	    test(false);

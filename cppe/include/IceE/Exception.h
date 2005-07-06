@@ -13,17 +13,17 @@
 #include <IceE/ExceptionBase.h>
 #include <IceE/Handle.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class BasicStream;
 
 }
 
-namespace IceE
+namespace Ice
 {
 
-class ICEE_API LocalException : public IceE::Exception
+class ICEE_API LocalException : public Ice::Exception
 {
 public:    
 
@@ -33,7 +33,7 @@ public:
     virtual void ice_throw() const = 0;
 };
 
-class ICEE_API UserException : public IceE::Exception
+class ICEE_API UserException : public Ice::Exception
 {
 public:    
 
@@ -41,13 +41,13 @@ public:
     virtual Exception* ice_clone() const = 0;
     virtual void ice_throw() const = 0;
 
-    virtual void __write(::IceEInternal::BasicStream*) const = 0;
-    virtual void __read(::IceEInternal::BasicStream*, bool) = 0;
+    virtual void __write(::IceInternal::BasicStream*) const = 0;
+    virtual void __read(::IceInternal::BasicStream*, bool) = 0;
 
     virtual bool __usesClasses() const;
 };
 
-typedef ::IceEInternal::Handle<UserException> UserExceptionPtr;
+typedef ::IceInternal::Handle<UserException> UserExceptionPtr;
 
 }
 

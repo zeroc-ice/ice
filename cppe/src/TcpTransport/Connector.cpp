@@ -16,11 +16,11 @@
 #include <IceE/Exception.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(Connector* p) { p->__incRef(); }
-void IceEInternal::decRef(Connector* p) { p->__decRef(); }
+void IceInternal::incRef(Connector* p) { p->__incRef(); }
+void IceInternal::decRef(Connector* p) { p->__decRef(); }
 
 TransceiverPtr
 Connector::connect(int timeout)

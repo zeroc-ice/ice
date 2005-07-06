@@ -14,10 +14,10 @@
 #include <IceE/Identity.h>
 #include <IceE/BuiltinSequences.h>
 
-namespace IceE
+namespace Ice
 {
 
-class ICEE_API AlreadyRegisteredException : public ::IceE::LocalException
+class ICEE_API AlreadyRegisteredException : public ::Ice::LocalException
 {
 public:
 
@@ -26,14 +26,14 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string kindOfObject;
     ::std::string id;
 };
 
-class ICEE_API NotRegisteredException : public ::IceE::LocalException
+class ICEE_API NotRegisteredException : public ::Ice::LocalException
 {
 public:
 
@@ -42,14 +42,14 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string kindOfObject;
     ::std::string id;
 };
 
-class ICEE_API TwowayOnlyException : public ::IceE::LocalException
+class ICEE_API TwowayOnlyException : public ::Ice::LocalException
 {
 public:
 
@@ -58,13 +58,13 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string operation;
 };
 
-class ICEE_API CloneNotImplementedException : public ::IceE::LocalException
+class ICEE_API CloneNotImplementedException : public ::Ice::LocalException
 {
 public:
 
@@ -72,11 +72,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API UnknownException : public ::IceE::LocalException
+class ICEE_API UnknownException : public ::Ice::LocalException
 {
 public:
 
@@ -85,13 +85,13 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string unknown;
 };
 
-class ICEE_API UnknownLocalException : public ::IceE::UnknownException
+class ICEE_API UnknownLocalException : public ::Ice::UnknownException
 {
 public:
 
@@ -100,11 +100,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API UnknownUserException : public ::IceE::UnknownException
+class ICEE_API UnknownUserException : public ::Ice::UnknownException
 {
 public:
 
@@ -113,11 +113,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API VersionMismatchException : public ::IceE::LocalException
+class ICEE_API VersionMismatchException : public ::Ice::LocalException
 {
 public:
 
@@ -125,11 +125,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API CommunicatorDestroyedException : public ::IceE::LocalException
+class ICEE_API CommunicatorDestroyedException : public ::Ice::LocalException
 {
 public:
 
@@ -137,13 +137,13 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
 #ifndef ICEE_PURE_CLIENT
 
-class ICEE_API ObjectAdapterDeactivatedException : public ::IceE::LocalException
+class ICEE_API ObjectAdapterDeactivatedException : public ::Ice::LocalException
 {
 public:
 
@@ -152,13 +152,13 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string name;
 };
 
-class ICEE_API ObjectAdapterIdInUseException : public ::IceE::LocalException
+class ICEE_API ObjectAdapterIdInUseException : public ::Ice::LocalException
 {
 public:
 
@@ -167,14 +167,14 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string id;
 };
 #endif
 
-class ICEE_API NoEndpointException : public ::IceE::LocalException
+class ICEE_API NoEndpointException : public ::Ice::LocalException
 {
 public:
 
@@ -183,13 +183,13 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string proxy;
 };
 
-class ICEE_API EndpointParseException : public ::IceE::LocalException
+class ICEE_API EndpointParseException : public ::Ice::LocalException
 {
 public:
 
@@ -198,13 +198,13 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string str;
 };
 
-class ICEE_API IdentityParseException : public ::IceE::LocalException
+class ICEE_API IdentityParseException : public ::Ice::LocalException
 {
 public:
 
@@ -213,13 +213,13 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string str;
 };
 
-class ICEE_API ProxyParseException : public ::IceE::LocalException
+class ICEE_API ProxyParseException : public ::Ice::LocalException
 {
 public:
 
@@ -228,182 +228,182 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string str;
 };
 
-class ICEE_API IllegalIdentityException : public ::IceE::LocalException
+class ICEE_API IllegalIdentityException : public ::Ice::LocalException
 {
 public:
 
     IllegalIdentityException(const char*, int);
-    IllegalIdentityException(const char*, int, const ::IceE::Identity&);
+    IllegalIdentityException(const char*, int, const ::Ice::Identity&);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
-    ::IceE::Identity id;
+    ::Ice::Identity id;
 };
 
-class ICEE_API RequestFailedException : public ::IceE::LocalException
+class ICEE_API RequestFailedException : public ::Ice::LocalException
 {
 public:
 
     RequestFailedException(const char*, int);
-    RequestFailedException(const char*, int, const ::IceE::Identity&, const ::std::string&, const ::std::string&);
+    RequestFailedException(const char*, int, const ::Ice::Identity&, const ::std::string&, const ::std::string&);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
-    ::IceE::Identity id;
+    ::Ice::Identity id;
     ::std::string facet;
     ::std::string operation;
 };
 
-class ICEE_API ObjectNotExistException : public ::IceE::RequestFailedException
+class ICEE_API ObjectNotExistException : public ::Ice::RequestFailedException
 {
 public:
 
     ObjectNotExistException(const char*, int);
-    ObjectNotExistException(const char*, int, const ::IceE::Identity&, const ::std::string&, const ::std::string&);
+    ObjectNotExistException(const char*, int, const ::Ice::Identity&, const ::std::string&, const ::std::string&);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API FacetNotExistException : public ::IceE::RequestFailedException
+class ICEE_API FacetNotExistException : public ::Ice::RequestFailedException
 {
 public:
 
     FacetNotExistException(const char*, int);
-    FacetNotExistException(const char*, int, const ::IceE::Identity&, const ::std::string&, const ::std::string&);
+    FacetNotExistException(const char*, int, const ::Ice::Identity&, const ::std::string&, const ::std::string&);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API OperationNotExistException : public ::IceE::RequestFailedException
+class ICEE_API OperationNotExistException : public ::Ice::RequestFailedException
 {
 public:
 
     OperationNotExistException(const char*, int);
-    OperationNotExistException(const char*, int, const ::IceE::Identity&, const ::std::string&, const ::std::string&);
+    OperationNotExistException(const char*, int, const ::Ice::Identity&, const ::std::string&, const ::std::string&);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API SyscallException : public ::IceE::LocalException
+class ICEE_API SyscallException : public ::Ice::LocalException
 {
 public:
 
     SyscallException(const char*, int);
-    SyscallException(const char*, int, ::IceE::Int);
+    SyscallException(const char*, int, ::Ice::Int);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
-    ::IceE::Int error;
+    ::Ice::Int error;
 };
 
-class ICEE_API SocketException : public ::IceE::SyscallException
+class ICEE_API SocketException : public ::Ice::SyscallException
 {
 public:
 
     SocketException(const char*, int);
-    SocketException(const char*, int, ::IceE::Int);
+    SocketException(const char*, int, ::Ice::Int);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API FileException : public ::IceE::SyscallException
+class ICEE_API FileException : public ::Ice::SyscallException
 {
 public:
 
     FileException(const char*, int);
-    FileException(const char*, int, ::IceE::Int, const ::std::string&);
+    FileException(const char*, int, ::Ice::Int, const ::std::string&);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string path;
 };
 
-class ICEE_API ConnectFailedException : public ::IceE::SocketException
+class ICEE_API ConnectFailedException : public ::Ice::SocketException
 {
 public:
 
     ConnectFailedException(const char*, int);
-    ConnectFailedException(const char*, int, ::IceE::Int);
+    ConnectFailedException(const char*, int, ::Ice::Int);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API ConnectionRefusedException : public ::IceE::ConnectFailedException
+class ICEE_API ConnectionRefusedException : public ::Ice::ConnectFailedException
 {
 public:
 
     ConnectionRefusedException(const char*, int);
-    ConnectionRefusedException(const char*, int, ::IceE::Int);
+    ConnectionRefusedException(const char*, int, ::Ice::Int);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API ConnectionLostException : public ::IceE::SocketException
+class ICEE_API ConnectionLostException : public ::Ice::SocketException
 {
 public:
 
     ConnectionLostException(const char*, int);
-    ConnectionLostException(const char*, int, ::IceE::Int);
+    ConnectionLostException(const char*, int, ::Ice::Int);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API DNSException : public ::IceE::LocalException
+class ICEE_API DNSException : public ::Ice::LocalException
 {
 public:
 
     DNSException(const char*, int);
-    DNSException(const char*, int, ::IceE::Int, const ::std::string&);
+    DNSException(const char*, int, ::Ice::Int, const ::std::string&);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
-    ::IceE::Int error;
+    ::Ice::Int error;
     ::std::string host;
 };
 
-class ICEE_API TimeoutException : public ::IceE::LocalException
+class ICEE_API TimeoutException : public ::Ice::LocalException
 {
 public:
 
@@ -411,11 +411,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API ConnectTimeoutException : public ::IceE::TimeoutException
+class ICEE_API ConnectTimeoutException : public ::Ice::TimeoutException
 {
 public:
 
@@ -423,11 +423,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API CloseTimeoutException : public ::IceE::TimeoutException
+class ICEE_API CloseTimeoutException : public ::Ice::TimeoutException
 {
 public:
 
@@ -435,11 +435,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API ConnectionTimeoutException : public ::IceE::TimeoutException
+class ICEE_API ConnectionTimeoutException : public ::Ice::TimeoutException
 {
 public:
 
@@ -447,11 +447,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API ProtocolException : public ::IceE::LocalException
+class ICEE_API ProtocolException : public ::Ice::LocalException
 {
 public:
 
@@ -459,62 +459,62 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API BadMagicException : public ::IceE::ProtocolException
+class ICEE_API BadMagicException : public ::Ice::ProtocolException
 {
 public:
 
     BadMagicException(const char*, int);
-    BadMagicException(const char*, int, const ::IceE::ByteSeq&);
+    BadMagicException(const char*, int, const ::Ice::ByteSeq&);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
-    ::IceE::ByteSeq badMagic;
+    ::Ice::ByteSeq badMagic;
 };
 
-class ICEE_API UnsupportedProtocolException : public ::IceE::ProtocolException
+class ICEE_API UnsupportedProtocolException : public ::Ice::ProtocolException
 {
 public:
 
     UnsupportedProtocolException(const char*, int);
-    UnsupportedProtocolException(const char*, int, ::IceE::Int, ::IceE::Int, ::IceE::Int, ::IceE::Int);
+    UnsupportedProtocolException(const char*, int, ::Ice::Int, ::Ice::Int, ::Ice::Int, ::Ice::Int);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
-    ::IceE::Int badMajor;
-    ::IceE::Int badMinor;
-    ::IceE::Int major;
-    ::IceE::Int minor;
+    ::Ice::Int badMajor;
+    ::Ice::Int badMinor;
+    ::Ice::Int major;
+    ::Ice::Int minor;
 };
 
-class ICEE_API UnsupportedEncodingException : public ::IceE::ProtocolException
+class ICEE_API UnsupportedEncodingException : public ::Ice::ProtocolException
 {
 public:
 
     UnsupportedEncodingException(const char*, int);
-    UnsupportedEncodingException(const char*, int, ::IceE::Int, ::IceE::Int, ::IceE::Int, ::IceE::Int);
+    UnsupportedEncodingException(const char*, int, ::Ice::Int, ::Ice::Int, ::Ice::Int, ::Ice::Int);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
-    ::IceE::Int badMajor;
-    ::IceE::Int badMinor;
-    ::IceE::Int major;
-    ::IceE::Int minor;
+    ::Ice::Int badMajor;
+    ::Ice::Int badMinor;
+    ::Ice::Int major;
+    ::Ice::Int minor;
 };
 
-class ICEE_API UnknownMessageException : public ::IceE::ProtocolException
+class ICEE_API UnknownMessageException : public ::Ice::ProtocolException
 {
 public:
 
@@ -522,11 +522,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API ConnectionNotValidatedException : public ::IceE::ProtocolException
+class ICEE_API ConnectionNotValidatedException : public ::Ice::ProtocolException
 {
 public:
 
@@ -534,11 +534,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API UnknownRequestIdException : public ::IceE::ProtocolException
+class ICEE_API UnknownRequestIdException : public ::Ice::ProtocolException
 {
 public:
 
@@ -546,11 +546,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API UnknownReplyStatusException : public ::IceE::ProtocolException
+class ICEE_API UnknownReplyStatusException : public ::Ice::ProtocolException
 {
 public:
 
@@ -558,11 +558,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API CloseConnectionException : public ::IceE::ProtocolException
+class ICEE_API CloseConnectionException : public ::Ice::ProtocolException
 {
 public:
 
@@ -570,11 +570,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API ForcedCloseConnectionException : public ::IceE::ProtocolException
+class ICEE_API ForcedCloseConnectionException : public ::Ice::ProtocolException
 {
 public:
 
@@ -582,11 +582,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API IllegalMessageSizeException : public ::IceE::ProtocolException
+class ICEE_API IllegalMessageSizeException : public ::Ice::ProtocolException
 {
 public:
 
@@ -594,11 +594,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API CompressionNotSupportedException : public ::IceE::ProtocolException
+class ICEE_API CompressionNotSupportedException : public ::Ice::ProtocolException
 {
 public:
 
@@ -606,11 +606,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API MarshalException : public ::IceE::ProtocolException
+class ICEE_API MarshalException : public ::Ice::ProtocolException
 {
 public:
 
@@ -619,13 +619,13 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string reason;
 };
 
-class ICEE_API ProxyUnmarshalException : public ::IceE::MarshalException
+class ICEE_API ProxyUnmarshalException : public ::Ice::MarshalException
 {
 public:
 
@@ -634,11 +634,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API UnmarshalOutOfBoundsException : public ::IceE::MarshalException
+class ICEE_API UnmarshalOutOfBoundsException : public ::Ice::MarshalException
 {
 public:
 
@@ -647,11 +647,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API MemoryLimitException : public ::IceE::MarshalException
+class ICEE_API MemoryLimitException : public ::Ice::MarshalException
 {
 public:
 
@@ -660,11 +660,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API EncapsulationException : public ::IceE::MarshalException
+class ICEE_API EncapsulationException : public ::Ice::MarshalException
 {
 public:
 
@@ -673,11 +673,11 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 
-class ICEE_API NegativeSizeException : public ::IceE::MarshalException
+class ICEE_API NegativeSizeException : public ::Ice::MarshalException
 {
 public:
 
@@ -686,7 +686,7 @@ public:
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
-    virtual ::IceE::Exception* ice_clone() const;
+    virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
 

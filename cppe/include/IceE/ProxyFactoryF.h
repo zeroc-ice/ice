@@ -12,13 +12,13 @@
 
 #include <IceE/Handle.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class ProxyFactory;
 void incRef(ProxyFactory*);
 void decRef(ProxyFactory*);
-typedef IceEInternal::Handle<ProxyFactory> ProxyFactoryPtr;
+typedef IceInternal::Handle<ProxyFactory> ProxyFactoryPtr;
 
 }
 

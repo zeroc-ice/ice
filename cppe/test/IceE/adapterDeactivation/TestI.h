@@ -16,8 +16,8 @@ class TestI : public Test::TestIntf
 {
 public:
 
-    virtual void transient(const IceE::Current&);
-    virtual void deactivate(const IceE::Current&);
+    virtual void transient(const Ice::Current&);
+    virtual void deactivate(const Ice::Current&);
 };
 
 class CookieI : public Test::Cookie

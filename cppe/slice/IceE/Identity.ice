@@ -10,7 +10,7 @@
 #ifndef ICEE_IDENTITY_ICE
 #define ICEE_IDENTITY_ICE
 
-module IceE
+module Ice
 {
 
 /**

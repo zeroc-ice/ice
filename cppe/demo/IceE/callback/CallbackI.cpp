@@ -11,7 +11,7 @@
 #include <CallbackI.h>
 
 using namespace std;
-using namespace IceE;
+using namespace Ice;
 using namespace Demo;
 
 void

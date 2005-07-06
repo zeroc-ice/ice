@@ -22,21 +22,21 @@
 #include <IceE/SafeStdio.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(ProxyFactory* p) { p->__incRef(); }
-void IceEInternal::decRef(ProxyFactory* p) { p->__decRef(); }
+void IceInternal::incRef(ProxyFactory* p) { p->__incRef(); }
+void IceInternal::decRef(ProxyFactory* p) { p->__decRef(); }
 
 ObjectPrx
-IceEInternal::ProxyFactory::stringToProxy(const string& str) const
+IceInternal::ProxyFactory::stringToProxy(const string& str) const
 {
     ReferencePtr ref = _instance->referenceFactory()->create(str);
     return referenceToProxy(ref);
 }
 
 string
-IceEInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
+IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
 {
     if(proxy)
     {
@@ -49,7 +49,7 @@ IceEInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
 }
 
 ObjectPrx
-IceEInternal::ProxyFactory::streamToProxy(BasicStream* s) const
+IceInternal::ProxyFactory::streamToProxy(BasicStream* s) const
 {
     Identity ident;
     ident.__read(s);
@@ -59,7 +59,7 @@ IceEInternal::ProxyFactory::streamToProxy(BasicStream* s) const
 }
 
 void
-IceEInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s) const
+IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s) const
 {
     if(proxy)
     {
@@ -74,11 +74,11 @@ IceEInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s
 }
 
 ObjectPrx
-IceEInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
+IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 {
     if(ref)
     {
-        ObjectPrx proxy = new ::IceEProxy::IceE::Object;
+        ObjectPrx proxy = new ::IceProxy::Ice::Object;
         proxy->setup(ref);
         return proxy;
     }
@@ -89,7 +89,7 @@ IceEInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 }
 
 void
-IceEInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, const ReferencePtr& ref, int& cnt) const
+IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, const ReferencePtr& ref, int& cnt) const
 {
     //
     // We retry ObjectNotExistException if the reference is
@@ -141,7 +141,7 @@ IceEInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, c
             out << "re-trying operation call";
             if(cnt > 0 && _retryIntervals[cnt - 1] > 0)
             {
-                out << IceE::printfToString(" in %dms", _retryIntervals[cnt - 1]);
+                out << Ice::printfToString(" in %dms", _retryIntervals[cnt - 1]);
             }
             out << " because of exception\n" << ex.toString();
         }
@@ -151,7 +151,7 @@ IceEInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, c
             //
             // Sleep before retrying.
             //
-            IceE::ThreadControl::sleep(IceE::Time::milliSeconds(_retryIntervals[cnt - 1]));
+            Ice::ThreadControl::sleep(Ice::Time::milliSeconds(_retryIntervals[cnt - 1]));
         }
     }
     else
@@ -164,7 +164,7 @@ IceEInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, c
     }
 }
 
-IceEInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :
+IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :
     _instance(instance)
 {
     string str = _instance->properties()->getPropertyWithDefault("IceE.RetryIntervals", "0");
@@ -212,6 +212,6 @@ IceEInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :
     }
 }
 
-IceEInternal::ProxyFactory::~ProxyFactory()
+IceInternal::ProxyFactory::~ProxyFactory()
 {
 }

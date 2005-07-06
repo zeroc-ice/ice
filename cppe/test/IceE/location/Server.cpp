@@ -46,16 +46,16 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	IceE::PropertiesPtr properties = IceE::getDefaultProperties(argc, argv);
+	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
         properties->setProperty("ServerManager.Endpoints", "default -p 12345");
-        setCommunicator(IceE::initialize(argc, argv));
+        setCommunicator(Ice::initialize(argc, argv));
 
         //
         // Register the server manager. The server manager creates a
         // new 'server' (a server isn't a different process, it's just
         // a new communicator and object adapter).
         //
-        IceE::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ServerManager");
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ServerManager");
 
         //
         // We also register a sample server locator which implements
@@ -64,15 +64,15 @@ public:
         // interface.
         //
         ServerLocatorRegistryPtr registry = new ServerLocatorRegistry();
-        registry->addObject(adapter->createProxy(IceE::stringToIdentity("ServerManager")));
-        IceE::ObjectPtr object = new ServerManagerI(adapter, registry);
-        adapter->add(object, IceE::stringToIdentity("ServerManager"));
+        registry->addObject(adapter->createProxy(Ice::stringToIdentity("ServerManager")));
+        Ice::ObjectPtr object = new ServerManagerI(adapter, registry);
+        adapter->add(object, Ice::stringToIdentity("ServerManager"));
 
-        IceE::LocatorRegistryPrx registryPrx = 
-	    IceE::LocatorRegistryPrx::uncheckedCast(adapter->add(registry, IceE::stringToIdentity("registry")));
+        Ice::LocatorRegistryPrx registryPrx = 
+	    Ice::LocatorRegistryPrx::uncheckedCast(adapter->add(registry, Ice::stringToIdentity("registry")));
 
-        IceE::LocatorPtr locator = new ServerLocator(registry, registryPrx);
-        adapter->add(locator, IceE::stringToIdentity("locator"));
+        Ice::LocatorPtr locator = new ServerLocator(registry, registryPrx);
+        adapter->add(locator, Ice::stringToIdentity("locator"));
 
         adapter->activate();
 

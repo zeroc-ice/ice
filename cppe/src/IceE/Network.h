@@ -66,7 +66,7 @@ typedef int socklen_t;
 #   define NETDB_SUCCESS 0
 #endif
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 ICEE_API bool interrupted();

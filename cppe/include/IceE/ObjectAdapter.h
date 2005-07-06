@@ -30,10 +30,10 @@
 #include <IceE/FacetMap.h>
 #include <list>
 
-namespace IceE
+namespace Ice
 {
 
-class ICEE_API ObjectAdapter : public IceE::Monitor<IceE::RecMutex>, public ::IceE::Shared
+class ICEE_API ObjectAdapter : public Ice::Monitor<Ice::RecMutex>, public ::Ice::Shared
 {
 public:
 
@@ -73,34 +73,34 @@ public:
     void incDirectCount();
     void decDirectCount();
 
-    IceEInternal::ServantManagerPtr getServantManager() const;
+    IceInternal::ServantManagerPtr getServantManager() const;
 
 private:
 
-    ObjectAdapter(const IceEInternal::InstancePtr&, const CommunicatorPtr&, const std::string&);
+    ObjectAdapter(const IceInternal::InstancePtr&, const CommunicatorPtr&, const std::string&);
     ~ObjectAdapter();
-    friend class IceEInternal::ObjectAdapterFactory;
+    friend class IceInternal::ObjectAdapterFactory;
     
     ObjectPrx newProxy(const Identity&, const std::string&) const;
     ObjectPrx newDirectProxy(const Identity&, const std::string&) const;
     void checkForDeactivation() const;
     static void checkIdentity(const Identity&);
-    std::vector<IceEInternal::EndpointPtr> parseEndpoints(const std::string&) const;
+    std::vector<IceInternal::EndpointPtr> parseEndpoints(const std::string&) const;
 
     bool _deactivated;
-    IceEInternal::InstancePtr _instance;
+    IceInternal::InstancePtr _instance;
     CommunicatorPtr _communicator;
-    IceEInternal::ServantManagerPtr _servantManager;
+    IceInternal::ServantManagerPtr _servantManager;
     bool _printAdapterReadyDone;
     const std::string _name;
     const std::string _id;
-    std::vector<IceEInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
+    std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
 #ifndef ICEE_NO_ROUTER
-    std::vector<IceEInternal::EndpointPtr> _routerEndpoints;
+    std::vector<IceInternal::EndpointPtr> _routerEndpoints;
 #endif
-    std::vector<IceEInternal::EndpointPtr> _publishedEndpoints;
+    std::vector<IceInternal::EndpointPtr> _publishedEndpoints;
 #ifndef ICEE_NO_LOCATOR
-    IceEInternal::LocatorInfoPtr _locatorInfo;
+    IceInternal::LocatorInfoPtr _locatorInfo;
 #endif
     int _directCount; // The number of direct proxies dispatching on this object adapter.
     bool _waitForDeactivate;

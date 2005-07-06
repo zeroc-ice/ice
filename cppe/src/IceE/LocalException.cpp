@@ -13,377 +13,377 @@
 #include <IceE/Network.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-IceE::LocalException::LocalException(const char* file, int line) :
+Ice::LocalException::LocalException(const char* file, int line) :
     Exception(file, line)
 {
 }
 
-IceE::AlreadyRegisteredException::AlreadyRegisteredException(const char* __file, int __line) :
+Ice::AlreadyRegisteredException::AlreadyRegisteredException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::AlreadyRegisteredException::AlreadyRegisteredException(const char* __file, int __line, const ::std::string& __kindOfObject, const ::std::string& __id) :
+Ice::AlreadyRegisteredException::AlreadyRegisteredException(const char* __file, int __line, const ::std::string& __kindOfObject, const ::std::string& __id) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     kindOfObject(__kindOfObject),
     id(__id)
 {
 }
 
-static const char* __Ice__AlreadyRegisteredException_name = "IceE::AlreadyRegisteredException";
+static const char* __Ice__AlreadyRegisteredException_name = "Ice::AlreadyRegisteredException";
 
 const ::std::string
-IceE::AlreadyRegisteredException::ice_name() const
+Ice::AlreadyRegisteredException::ice_name() const
 {
     return __Ice__AlreadyRegisteredException_name;
 }
 
-::IceE::Exception*
-IceE::AlreadyRegisteredException::ice_clone() const
+::Ice::Exception*
+Ice::AlreadyRegisteredException::ice_clone() const
 {
     return new AlreadyRegisteredException(*this);
 }
 
 void
-IceE::AlreadyRegisteredException::ice_throw() const
+Ice::AlreadyRegisteredException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::NotRegisteredException::NotRegisteredException(const char* __file, int __line) :
+Ice::NotRegisteredException::NotRegisteredException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::NotRegisteredException::NotRegisteredException(const char* __file, int __line, const ::std::string& __kindOfObject, const ::std::string& __id) :
+Ice::NotRegisteredException::NotRegisteredException(const char* __file, int __line, const ::std::string& __kindOfObject, const ::std::string& __id) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     kindOfObject(__kindOfObject),
     id(__id)
 {
 }
 
-static const char* __Ice__NotRegisteredException_name = "IceE::NotRegisteredException";
+static const char* __Ice__NotRegisteredException_name = "Ice::NotRegisteredException";
 
 const ::std::string
-IceE::NotRegisteredException::ice_name() const
+Ice::NotRegisteredException::ice_name() const
 {
     return __Ice__NotRegisteredException_name;
 }
 
-::IceE::Exception*
-IceE::NotRegisteredException::ice_clone() const
+::Ice::Exception*
+Ice::NotRegisteredException::ice_clone() const
 {
     return new NotRegisteredException(*this);
 }
 
 void
-IceE::NotRegisteredException::ice_throw() const
+Ice::NotRegisteredException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::TwowayOnlyException::TwowayOnlyException(const char* __file, int __line) :
+Ice::TwowayOnlyException::TwowayOnlyException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::TwowayOnlyException::TwowayOnlyException(const char* __file, int __line, const ::std::string& __operation) :
+Ice::TwowayOnlyException::TwowayOnlyException(const char* __file, int __line, const ::std::string& __operation) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     operation(__operation)
 {
 }
 
-static const char* __Ice__TwowayOnlyException_name = "IceE::TwowayOnlyException";
+static const char* __Ice__TwowayOnlyException_name = "Ice::TwowayOnlyException";
 
 const ::std::string
-IceE::TwowayOnlyException::ice_name() const
+Ice::TwowayOnlyException::ice_name() const
 {
     return __Ice__TwowayOnlyException_name;
 }
 
-::IceE::Exception*
-IceE::TwowayOnlyException::ice_clone() const
+::Ice::Exception*
+Ice::TwowayOnlyException::ice_clone() const
 {
     return new TwowayOnlyException(*this);
 }
 
 void
-IceE::TwowayOnlyException::ice_throw() const
+Ice::TwowayOnlyException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::CloneNotImplementedException::CloneNotImplementedException(const char* __file, int __line) :
+Ice::CloneNotImplementedException::CloneNotImplementedException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__CloneNotImplementedException_name = "IceE::CloneNotImplementedException";
+static const char* __Ice__CloneNotImplementedException_name = "Ice::CloneNotImplementedException";
 
 const ::std::string
-IceE::CloneNotImplementedException::ice_name() const
+Ice::CloneNotImplementedException::ice_name() const
 {
     return __Ice__CloneNotImplementedException_name;
 }
 
-::IceE::Exception*
-IceE::CloneNotImplementedException::ice_clone() const
+::Ice::Exception*
+Ice::CloneNotImplementedException::ice_clone() const
 {
     return new CloneNotImplementedException(*this);
 }
 
 void
-IceE::CloneNotImplementedException::ice_throw() const
+Ice::CloneNotImplementedException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::UnknownException::UnknownException(const char* __file, int __line) :
+Ice::UnknownException::UnknownException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::UnknownException::UnknownException(const char* __file, int __line, const ::std::string& __unknown) :
+Ice::UnknownException::UnknownException(const char* __file, int __line, const ::std::string& __unknown) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     unknown(__unknown)
 {
 }
 
-static const char* __Ice__UnknownException_name = "IceE::UnknownException";
+static const char* __Ice__UnknownException_name = "Ice::UnknownException";
 
 const ::std::string
-IceE::UnknownException::ice_name() const
+Ice::UnknownException::ice_name() const
 {
     return __Ice__UnknownException_name;
 }
 
-::IceE::Exception*
-IceE::UnknownException::ice_clone() const
+::Ice::Exception*
+Ice::UnknownException::ice_clone() const
 {
     return new UnknownException(*this);
 }
 
 void
-IceE::UnknownException::ice_throw() const
+Ice::UnknownException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::UnknownLocalException::UnknownLocalException(const char* __file, int __line) :
+Ice::UnknownLocalException::UnknownLocalException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     UnknownException(__file, __line)
 #else
-    ::IceE::UnknownException(__file, __line)
+    ::Ice::UnknownException(__file, __line)
 #endif
 {
 }
 
-IceE::UnknownLocalException::UnknownLocalException(const char* __file, int __line, const ::std::string& __unknown) :
+Ice::UnknownLocalException::UnknownLocalException(const char* __file, int __line, const ::std::string& __unknown) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     UnknownException(__file, __line, __unknown)
 #else
-    ::IceE::UnknownException(__file, __line, __unknown)
+    ::Ice::UnknownException(__file, __line, __unknown)
 #endif
 {
 }
 
-static const char* __Ice__UnknownLocalException_name = "IceE::UnknownLocalException";
+static const char* __Ice__UnknownLocalException_name = "Ice::UnknownLocalException";
 
 const ::std::string
-IceE::UnknownLocalException::ice_name() const
+Ice::UnknownLocalException::ice_name() const
 {
     return __Ice__UnknownLocalException_name;
 }
 
-::IceE::Exception*
-IceE::UnknownLocalException::ice_clone() const
+::Ice::Exception*
+Ice::UnknownLocalException::ice_clone() const
 {
     return new UnknownLocalException(*this);
 }
 
 void
-IceE::UnknownLocalException::ice_throw() const
+Ice::UnknownLocalException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::UnknownUserException::UnknownUserException(const char* __file, int __line) :
+Ice::UnknownUserException::UnknownUserException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     UnknownException(__file, __line)
 #else
-    ::IceE::UnknownException(__file, __line)
+    ::Ice::UnknownException(__file, __line)
 #endif
 {
 }
 
-IceE::UnknownUserException::UnknownUserException(const char* __file, int __line, const ::std::string& __unknown) :
+Ice::UnknownUserException::UnknownUserException(const char* __file, int __line, const ::std::string& __unknown) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     UnknownException(__file, __line, __unknown)
 #else
-    ::IceE::UnknownException(__file, __line, __unknown)
+    ::Ice::UnknownException(__file, __line, __unknown)
 #endif
 {
 }
 
-static const char* __Ice__UnknownUserException_name = "IceE::UnknownUserException";
+static const char* __Ice__UnknownUserException_name = "Ice::UnknownUserException";
 
 const ::std::string
-IceE::UnknownUserException::ice_name() const
+Ice::UnknownUserException::ice_name() const
 {
     return __Ice__UnknownUserException_name;
 }
 
-::IceE::Exception*
-IceE::UnknownUserException::ice_clone() const
+::Ice::Exception*
+Ice::UnknownUserException::ice_clone() const
 {
     return new UnknownUserException(*this);
 }
 
 void
-IceE::UnknownUserException::ice_throw() const
+Ice::UnknownUserException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::VersionMismatchException::VersionMismatchException(const char* __file, int __line) :
+Ice::VersionMismatchException::VersionMismatchException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__VersionMismatchException_name = "IceE::VersionMismatchException";
+static const char* __Ice__VersionMismatchException_name = "Ice::VersionMismatchException";
 
 const ::std::string
-IceE::VersionMismatchException::ice_name() const
+Ice::VersionMismatchException::ice_name() const
 {
     return __Ice__VersionMismatchException_name;
 }
 
-::IceE::Exception*
-IceE::VersionMismatchException::ice_clone() const
+::Ice::Exception*
+Ice::VersionMismatchException::ice_clone() const
 {
     return new VersionMismatchException(*this);
 }
 
 void
-IceE::VersionMismatchException::ice_throw() const
+Ice::VersionMismatchException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::CommunicatorDestroyedException::CommunicatorDestroyedException(const char* __file, int __line) :
+Ice::CommunicatorDestroyedException::CommunicatorDestroyedException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__CommunicatorDestroyedException_name = "IceE::CommunicatorDestroyedException";
+static const char* __Ice__CommunicatorDestroyedException_name = "Ice::CommunicatorDestroyedException";
 
 const ::std::string
-IceE::CommunicatorDestroyedException::ice_name() const
+Ice::CommunicatorDestroyedException::ice_name() const
 {
     return __Ice__CommunicatorDestroyedException_name;
 }
 
-::IceE::Exception*
-IceE::CommunicatorDestroyedException::ice_clone() const
+::Ice::Exception*
+Ice::CommunicatorDestroyedException::ice_clone() const
 {
     return new CommunicatorDestroyedException(*this);
 }
 
 void
-IceE::CommunicatorDestroyedException::ice_throw() const
+Ice::CommunicatorDestroyedException::ice_throw() const
 {
     throw *this;
 }
 
 #ifndef ICEE_PURE_CLIENT
 
-IceE::ObjectAdapterDeactivatedException::ObjectAdapterDeactivatedException(const char* __file, int __line) :
+Ice::ObjectAdapterDeactivatedException::ObjectAdapterDeactivatedException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::ObjectAdapterDeactivatedException::ObjectAdapterDeactivatedException(const char* __file, int __line, const ::std::string& __name) :
+Ice::ObjectAdapterDeactivatedException::ObjectAdapterDeactivatedException(const char* __file, int __line, const ::std::string& __name) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     name(__name)
 {
 }
 
-static const char* __Ice__ObjectAdapterDeactivatedException_name = "IceE::ObjectAdapterDeactivatedException";
+static const char* __Ice__ObjectAdapterDeactivatedException_name = "Ice::ObjectAdapterDeactivatedException";
 
 const ::std::string
-IceE::ObjectAdapterDeactivatedException::ice_name() const
+Ice::ObjectAdapterDeactivatedException::ice_name() const
 {
     return __Ice__ObjectAdapterDeactivatedException_name;
 }
 
-::IceE::Exception*
-IceE::ObjectAdapterDeactivatedException::ice_clone() const
+::Ice::Exception*
+Ice::ObjectAdapterDeactivatedException::ice_clone() const
 {
     return new ObjectAdapterDeactivatedException(*this);
 }
 
 void
-IceE::ObjectAdapterDeactivatedException::ice_throw() const
+Ice::ObjectAdapterDeactivatedException::ice_throw() const
 {
     throw *this;
 }
 string
-IceE::ObjectAdapterDeactivatedException::toString() const
+Ice::ObjectAdapterDeactivatedException::toString() const
 {
     string out = Exception::toString();
     out +=  ":\nobject adapter `";
@@ -392,47 +392,47 @@ IceE::ObjectAdapterDeactivatedException::toString() const
     return out;
 }
 
-IceE::ObjectAdapterIdInUseException::ObjectAdapterIdInUseException(const char* __file, int __line) :
+Ice::ObjectAdapterIdInUseException::ObjectAdapterIdInUseException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::ObjectAdapterIdInUseException::ObjectAdapterIdInUseException(const char* __file, int __line, const ::std::string& __id) :
+Ice::ObjectAdapterIdInUseException::ObjectAdapterIdInUseException(const char* __file, int __line, const ::std::string& __id) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     id(__id)
 {
 }
 
-static const char* __Ice__ObjectAdapterIdInUseException_name = "IceE::ObjectAdapterIdInUseException";
+static const char* __Ice__ObjectAdapterIdInUseException_name = "Ice::ObjectAdapterIdInUseException";
 
 const ::std::string
-IceE::ObjectAdapterIdInUseException::ice_name() const
+Ice::ObjectAdapterIdInUseException::ice_name() const
 {
     return __Ice__ObjectAdapterIdInUseException_name;
 }
 
-::IceE::Exception*
-IceE::ObjectAdapterIdInUseException::ice_clone() const
+::Ice::Exception*
+Ice::ObjectAdapterIdInUseException::ice_clone() const
 {
     return new ObjectAdapterIdInUseException(*this);
 }
 
 void
-IceE::ObjectAdapterIdInUseException::ice_throw() const
+Ice::ObjectAdapterIdInUseException::ice_throw() const
 {
     throw *this;
 }
 
 string
-IceE::ObjectAdapterIdInUseException::toString() const
+Ice::ObjectAdapterIdInUseException::toString() const
 {
 #ifndef ICEE_NO_LOCATOR
     string out = Exception::toString();
@@ -447,215 +447,215 @@ IceE::ObjectAdapterIdInUseException::toString() const
 
 #endif // ICEE_PURE_CLIENT
 
-IceE::NoEndpointException::NoEndpointException(const char* __file, int __line) :
+Ice::NoEndpointException::NoEndpointException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::NoEndpointException::NoEndpointException(const char* __file, int __line, const ::std::string& __proxy) :
+Ice::NoEndpointException::NoEndpointException(const char* __file, int __line, const ::std::string& __proxy) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     proxy(__proxy)
 {
 }
 
-static const char* __Ice__NoEndpointException_name = "IceE::NoEndpointException";
+static const char* __Ice__NoEndpointException_name = "Ice::NoEndpointException";
 
 const ::std::string
-IceE::NoEndpointException::ice_name() const
+Ice::NoEndpointException::ice_name() const
 {
     return __Ice__NoEndpointException_name;
 }
 
-::IceE::Exception*
-IceE::NoEndpointException::ice_clone() const
+::Ice::Exception*
+Ice::NoEndpointException::ice_clone() const
 {
     return new NoEndpointException(*this);
 }
 
 void
-IceE::NoEndpointException::ice_throw() const
+Ice::NoEndpointException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::EndpointParseException::EndpointParseException(const char* __file, int __line) :
+Ice::EndpointParseException::EndpointParseException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::EndpointParseException::EndpointParseException(const char* __file, int __line, const ::std::string& __str) :
+Ice::EndpointParseException::EndpointParseException(const char* __file, int __line, const ::std::string& __str) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     str(__str)
 {
 }
 
-static const char* __Ice__EndpointParseException_name = "IceE::EndpointParseException";
+static const char* __Ice__EndpointParseException_name = "Ice::EndpointParseException";
 
 const ::std::string
-IceE::EndpointParseException::ice_name() const
+Ice::EndpointParseException::ice_name() const
 {
     return __Ice__EndpointParseException_name;
 }
 
-::IceE::Exception*
-IceE::EndpointParseException::ice_clone() const
+::Ice::Exception*
+Ice::EndpointParseException::ice_clone() const
 {
     return new EndpointParseException(*this);
 }
 
 void
-IceE::EndpointParseException::ice_throw() const
+Ice::EndpointParseException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::IdentityParseException::IdentityParseException(const char* __file, int __line) :
+Ice::IdentityParseException::IdentityParseException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::IdentityParseException::IdentityParseException(const char* __file, int __line, const ::std::string& __str) :
+Ice::IdentityParseException::IdentityParseException(const char* __file, int __line, const ::std::string& __str) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     str(__str)
 {
 }
 
-static const char* __Ice__IdentityParseException_name = "IceE::IdentityParseException";
+static const char* __Ice__IdentityParseException_name = "Ice::IdentityParseException";
 
 const ::std::string
-IceE::IdentityParseException::ice_name() const
+Ice::IdentityParseException::ice_name() const
 {
     return __Ice__IdentityParseException_name;
 }
 
-::IceE::Exception*
-IceE::IdentityParseException::ice_clone() const
+::Ice::Exception*
+Ice::IdentityParseException::ice_clone() const
 {
     return new IdentityParseException(*this);
 }
 
 void
-IceE::IdentityParseException::ice_throw() const
+Ice::IdentityParseException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::ProxyParseException::ProxyParseException(const char* __file, int __line) :
+Ice::ProxyParseException::ProxyParseException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::ProxyParseException::ProxyParseException(const char* __file, int __line, const ::std::string& __str) :
+Ice::ProxyParseException::ProxyParseException(const char* __file, int __line, const ::std::string& __str) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     str(__str)
 {
 }
 
-static const char* __Ice__ProxyParseException_name = "IceE::ProxyParseException";
+static const char* __Ice__ProxyParseException_name = "Ice::ProxyParseException";
 
 const ::std::string
-IceE::ProxyParseException::ice_name() const
+Ice::ProxyParseException::ice_name() const
 {
     return __Ice__ProxyParseException_name;
 }
 
-::IceE::Exception*
-IceE::ProxyParseException::ice_clone() const
+::Ice::Exception*
+Ice::ProxyParseException::ice_clone() const
 {
     return new ProxyParseException(*this);
 }
 
 void
-IceE::ProxyParseException::ice_throw() const
+Ice::ProxyParseException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::IllegalIdentityException::IllegalIdentityException(const char* __file, int __line) :
+Ice::IllegalIdentityException::IllegalIdentityException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::IllegalIdentityException::IllegalIdentityException(const char* __file, int __line, const ::IceE::Identity& __id) :
+Ice::IllegalIdentityException::IllegalIdentityException(const char* __file, int __line, const ::Ice::Identity& __id) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     id(__id)
 {
 }
 
-static const char* __Ice__IllegalIdentityException_name = "IceE::IllegalIdentityException";
+static const char* __Ice__IllegalIdentityException_name = "Ice::IllegalIdentityException";
 
 const ::std::string
-IceE::IllegalIdentityException::ice_name() const
+Ice::IllegalIdentityException::ice_name() const
 {
     return __Ice__IllegalIdentityException_name;
 }
 
-::IceE::Exception*
-IceE::IllegalIdentityException::ice_clone() const
+::Ice::Exception*
+Ice::IllegalIdentityException::ice_clone() const
 {
     return new IllegalIdentityException(*this);
 }
 
 void
-IceE::IllegalIdentityException::ice_throw() const
+Ice::IllegalIdentityException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::RequestFailedException::RequestFailedException(const char* __file, int __line) :
+Ice::RequestFailedException::RequestFailedException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::RequestFailedException::RequestFailedException(const char* __file, int __line, const ::IceE::Identity& __id, const ::std::string& __facet, const ::std::string& __operation) :
+Ice::RequestFailedException::RequestFailedException(const char* __file, int __line, const ::Ice::Identity& __id, const ::std::string& __facet, const ::std::string& __operation) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     id(__id),
     facet(__facet),
@@ -663,608 +663,608 @@ IceE::RequestFailedException::RequestFailedException(const char* __file, int __l
 {
 }
 
-static const char* __Ice__RequestFailedException_name = "IceE::RequestFailedException";
+static const char* __Ice__RequestFailedException_name = "Ice::RequestFailedException";
 
 const ::std::string
-IceE::RequestFailedException::ice_name() const
+Ice::RequestFailedException::ice_name() const
 {
     return __Ice__RequestFailedException_name;
 }
 
-::IceE::Exception*
-IceE::RequestFailedException::ice_clone() const
+::Ice::Exception*
+Ice::RequestFailedException::ice_clone() const
 {
     return new RequestFailedException(*this);
 }
 
 void
-IceE::RequestFailedException::ice_throw() const
+Ice::RequestFailedException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::ObjectNotExistException::ObjectNotExistException(const char* __file, int __line) :
+Ice::ObjectNotExistException::ObjectNotExistException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     RequestFailedException(__file, __line)
 #else
-    ::IceE::RequestFailedException(__file, __line)
+    ::Ice::RequestFailedException(__file, __line)
 #endif
 {
 }
 
-IceE::ObjectNotExistException::ObjectNotExistException(const char* __file, int __line, const ::IceE::Identity& __id, const ::std::string& __facet, const ::std::string& __operation) :
+Ice::ObjectNotExistException::ObjectNotExistException(const char* __file, int __line, const ::Ice::Identity& __id, const ::std::string& __facet, const ::std::string& __operation) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     RequestFailedException(__file, __line, __id, __facet, __operation)
 #else
-    ::IceE::RequestFailedException(__file, __line, __id, __facet, __operation)
+    ::Ice::RequestFailedException(__file, __line, __id, __facet, __operation)
 #endif
 {
 }
 
-static const char* __Ice__ObjectNotExistException_name = "IceE::ObjectNotExistException";
+static const char* __Ice__ObjectNotExistException_name = "Ice::ObjectNotExistException";
 
 const ::std::string
-IceE::ObjectNotExistException::ice_name() const
+Ice::ObjectNotExistException::ice_name() const
 {
     return __Ice__ObjectNotExistException_name;
 }
 
-::IceE::Exception*
-IceE::ObjectNotExistException::ice_clone() const
+::Ice::Exception*
+Ice::ObjectNotExistException::ice_clone() const
 {
     return new ObjectNotExistException(*this);
 }
 
 void
-IceE::ObjectNotExistException::ice_throw() const
+Ice::ObjectNotExistException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::FacetNotExistException::FacetNotExistException(const char* __file, int __line) :
+Ice::FacetNotExistException::FacetNotExistException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     RequestFailedException(__file, __line)
 #else
-    ::IceE::RequestFailedException(__file, __line)
+    ::Ice::RequestFailedException(__file, __line)
 #endif
 {
 }
 
-IceE::FacetNotExistException::FacetNotExistException(const char* __file, int __line, const ::IceE::Identity& __id, const ::std::string& __facet, const ::std::string& __operation) :
+Ice::FacetNotExistException::FacetNotExistException(const char* __file, int __line, const ::Ice::Identity& __id, const ::std::string& __facet, const ::std::string& __operation) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     RequestFailedException(__file, __line, __id, __facet, __operation)
 #else
-    ::IceE::RequestFailedException(__file, __line, __id, __facet, __operation)
+    ::Ice::RequestFailedException(__file, __line, __id, __facet, __operation)
 #endif
 {
 }
 
-static const char* __Ice__FacetNotExistException_name = "IceE::FacetNotExistException";
+static const char* __Ice__FacetNotExistException_name = "Ice::FacetNotExistException";
 
 const ::std::string
-IceE::FacetNotExistException::ice_name() const
+Ice::FacetNotExistException::ice_name() const
 {
     return __Ice__FacetNotExistException_name;
 }
 
-::IceE::Exception*
-IceE::FacetNotExistException::ice_clone() const
+::Ice::Exception*
+Ice::FacetNotExistException::ice_clone() const
 {
     return new FacetNotExistException(*this);
 }
 
 void
-IceE::FacetNotExistException::ice_throw() const
+Ice::FacetNotExistException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::OperationNotExistException::OperationNotExistException(const char* __file, int __line) :
+Ice::OperationNotExistException::OperationNotExistException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     RequestFailedException(__file, __line)
 #else
-    ::IceE::RequestFailedException(__file, __line)
+    ::Ice::RequestFailedException(__file, __line)
 #endif
 {
 }
 
-IceE::OperationNotExistException::OperationNotExistException(const char* __file, int __line, const ::IceE::Identity& __id, const ::std::string& __facet, const ::std::string& __operation) :
+Ice::OperationNotExistException::OperationNotExistException(const char* __file, int __line, const ::Ice::Identity& __id, const ::std::string& __facet, const ::std::string& __operation) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     RequestFailedException(__file, __line, __id, __facet, __operation)
 #else
-    ::IceE::RequestFailedException(__file, __line, __id, __facet, __operation)
+    ::Ice::RequestFailedException(__file, __line, __id, __facet, __operation)
 #endif
 {
 }
 
-static const char* __Ice__OperationNotExistException_name = "IceE::OperationNotExistException";
+static const char* __Ice__OperationNotExistException_name = "Ice::OperationNotExistException";
 
 const ::std::string
-IceE::OperationNotExistException::ice_name() const
+Ice::OperationNotExistException::ice_name() const
 {
     return __Ice__OperationNotExistException_name;
 }
 
-::IceE::Exception*
-IceE::OperationNotExistException::ice_clone() const
+::Ice::Exception*
+Ice::OperationNotExistException::ice_clone() const
 {
     return new OperationNotExistException(*this);
 }
 
 void
-IceE::OperationNotExistException::ice_throw() const
+Ice::OperationNotExistException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::SyscallException::SyscallException(const char* __file, int __line) :
+Ice::SyscallException::SyscallException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::SyscallException::SyscallException(const char* __file, int __line, ::IceE::Int __error) :
+Ice::SyscallException::SyscallException(const char* __file, int __line, ::Ice::Int __error) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     error(__error)
 {
 }
 
-static const char* __Ice__SyscallException_name = "IceE::SyscallException";
+static const char* __Ice__SyscallException_name = "Ice::SyscallException";
 
 const ::std::string
-IceE::SyscallException::ice_name() const
+Ice::SyscallException::ice_name() const
 {
     return __Ice__SyscallException_name;
 }
 
-::IceE::Exception*
-IceE::SyscallException::ice_clone() const
+::Ice::Exception*
+Ice::SyscallException::ice_clone() const
 {
     return new SyscallException(*this);
 }
 
 void
-IceE::SyscallException::ice_throw() const
+Ice::SyscallException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::SocketException::SocketException(const char* __file, int __line) :
+Ice::SocketException::SocketException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     SyscallException(__file, __line)
 #else
-    ::IceE::SyscallException(__file, __line)
+    ::Ice::SyscallException(__file, __line)
 #endif
 {
 }
 
-IceE::SocketException::SocketException(const char* __file, int __line, ::IceE::Int __error) :
+Ice::SocketException::SocketException(const char* __file, int __line, ::Ice::Int __error) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     SyscallException(__file, __line, __error)
 #else
-    ::IceE::SyscallException(__file, __line, __error)
+    ::Ice::SyscallException(__file, __line, __error)
 #endif
 {
 }
 
-static const char* __Ice__SocketException_name = "IceE::SocketException";
+static const char* __Ice__SocketException_name = "Ice::SocketException";
 
 const ::std::string
-IceE::SocketException::ice_name() const
+Ice::SocketException::ice_name() const
 {
     return __Ice__SocketException_name;
 }
 
-::IceE::Exception*
-IceE::SocketException::ice_clone() const
+::Ice::Exception*
+Ice::SocketException::ice_clone() const
 {
     return new SocketException(*this);
 }
 
 void
-IceE::SocketException::ice_throw() const
+Ice::SocketException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::FileException::FileException(const char* __file, int __line) :
+Ice::FileException::FileException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     SyscallException(__file, __line)
 #else
-    ::IceE::SyscallException(__file, __line)
+    ::Ice::SyscallException(__file, __line)
 #endif
 {
 }
 
-IceE::FileException::FileException(const char* __file, int __line, ::IceE::Int __error, const ::std::string& __path) :
+Ice::FileException::FileException(const char* __file, int __line, ::Ice::Int __error, const ::std::string& __path) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     SyscallException(__file, __line, __error),
 #else
-    ::IceE::SyscallException(__file, __line, __error),
+    ::Ice::SyscallException(__file, __line, __error),
 #endif
     path(__path)
 {
 }
 
-static const char* __Ice__FileException_name = "IceE::FileException";
+static const char* __Ice__FileException_name = "Ice::FileException";
 
 const ::std::string
-IceE::FileException::ice_name() const
+Ice::FileException::ice_name() const
 {
     return __Ice__FileException_name;
 }
 
-::IceE::Exception*
-IceE::FileException::ice_clone() const
+::Ice::Exception*
+Ice::FileException::ice_clone() const
 {
     return new FileException(*this);
 }
 
 void
-IceE::FileException::ice_throw() const
+Ice::FileException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::ConnectFailedException::ConnectFailedException(const char* __file, int __line) :
+Ice::ConnectFailedException::ConnectFailedException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     SocketException(__file, __line)
 #else
-    ::IceE::SocketException(__file, __line)
+    ::Ice::SocketException(__file, __line)
 #endif
 {
 }
 
-IceE::ConnectFailedException::ConnectFailedException(const char* __file, int __line, ::IceE::Int __error) :
+Ice::ConnectFailedException::ConnectFailedException(const char* __file, int __line, ::Ice::Int __error) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     SocketException(__file, __line, __error)
 #else
-    ::IceE::SocketException(__file, __line, __error)
+    ::Ice::SocketException(__file, __line, __error)
 #endif
 {
 }
 
-static const char* __Ice__ConnectFailedException_name = "IceE::ConnectFailedException";
+static const char* __Ice__ConnectFailedException_name = "Ice::ConnectFailedException";
 
 const ::std::string
-IceE::ConnectFailedException::ice_name() const
+Ice::ConnectFailedException::ice_name() const
 {
     return __Ice__ConnectFailedException_name;
 }
 
-::IceE::Exception*
-IceE::ConnectFailedException::ice_clone() const
+::Ice::Exception*
+Ice::ConnectFailedException::ice_clone() const
 {
     return new ConnectFailedException(*this);
 }
 
 void
-IceE::ConnectFailedException::ice_throw() const
+Ice::ConnectFailedException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::ConnectionRefusedException::ConnectionRefusedException(const char* __file, int __line) :
+Ice::ConnectionRefusedException::ConnectionRefusedException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ConnectFailedException(__file, __line)
 #else
-    ::IceE::ConnectFailedException(__file, __line)
+    ::Ice::ConnectFailedException(__file, __line)
 #endif
 {
 }
 
-IceE::ConnectionRefusedException::ConnectionRefusedException(const char* __file, int __line, ::IceE::Int __error) :
+Ice::ConnectionRefusedException::ConnectionRefusedException(const char* __file, int __line, ::Ice::Int __error) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ConnectFailedException(__file, __line, __error)
 #else
-    ::IceE::ConnectFailedException(__file, __line, __error)
+    ::Ice::ConnectFailedException(__file, __line, __error)
 #endif
 {
 }
 
-static const char* __Ice__ConnectionRefusedException_name = "IceE::ConnectionRefusedException";
+static const char* __Ice__ConnectionRefusedException_name = "Ice::ConnectionRefusedException";
 
 const ::std::string
-IceE::ConnectionRefusedException::ice_name() const
+Ice::ConnectionRefusedException::ice_name() const
 {
     return __Ice__ConnectionRefusedException_name;
 }
 
-::IceE::Exception*
-IceE::ConnectionRefusedException::ice_clone() const
+::Ice::Exception*
+Ice::ConnectionRefusedException::ice_clone() const
 {
     return new ConnectionRefusedException(*this);
 }
 
 void
-IceE::ConnectionRefusedException::ice_throw() const
+Ice::ConnectionRefusedException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::ConnectionLostException::ConnectionLostException(const char* __file, int __line) :
+Ice::ConnectionLostException::ConnectionLostException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     SocketException(__file, __line)
 #else
-    ::IceE::SocketException(__file, __line)
+    ::Ice::SocketException(__file, __line)
 #endif
 {
 }
 
-IceE::ConnectionLostException::ConnectionLostException(const char* __file, int __line, ::IceE::Int __error) :
+Ice::ConnectionLostException::ConnectionLostException(const char* __file, int __line, ::Ice::Int __error) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     SocketException(__file, __line, __error)
 #else
-    ::IceE::SocketException(__file, __line, __error)
+    ::Ice::SocketException(__file, __line, __error)
 #endif
 {
 }
 
-static const char* __Ice__ConnectionLostException_name = "IceE::ConnectionLostException";
+static const char* __Ice__ConnectionLostException_name = "Ice::ConnectionLostException";
 
 const ::std::string
-IceE::ConnectionLostException::ice_name() const
+Ice::ConnectionLostException::ice_name() const
 {
     return __Ice__ConnectionLostException_name;
 }
 
-::IceE::Exception*
-IceE::ConnectionLostException::ice_clone() const
+::Ice::Exception*
+Ice::ConnectionLostException::ice_clone() const
 {
     return new ConnectionLostException(*this);
 }
 
 void
-IceE::ConnectionLostException::ice_throw() const
+Ice::ConnectionLostException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::DNSException::DNSException(const char* __file, int __line) :
+Ice::DNSException::DNSException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-IceE::DNSException::DNSException(const char* __file, int __line, ::IceE::Int __error, const ::std::string& __host) :
+Ice::DNSException::DNSException(const char* __file, int __line, ::Ice::Int __error, const ::std::string& __host) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line),
 #else
-    ::IceE::LocalException(__file, __line),
+    ::Ice::LocalException(__file, __line),
 #endif
     error(__error),
     host(__host)
 {
 }
 
-static const char* __Ice__DNSException_name = "IceE::DNSException";
+static const char* __Ice__DNSException_name = "Ice::DNSException";
 
 const ::std::string
-IceE::DNSException::ice_name() const
+Ice::DNSException::ice_name() const
 {
     return __Ice__DNSException_name;
 }
 
-::IceE::Exception*
-IceE::DNSException::ice_clone() const
+::Ice::Exception*
+Ice::DNSException::ice_clone() const
 {
     return new DNSException(*this);
 }
 
 void
-IceE::DNSException::ice_throw() const
+Ice::DNSException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::TimeoutException::TimeoutException(const char* __file, int __line) :
+Ice::TimeoutException::TimeoutException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__TimeoutException_name = "IceE::TimeoutException";
+static const char* __Ice__TimeoutException_name = "Ice::TimeoutException";
 
 const ::std::string
-IceE::TimeoutException::ice_name() const
+Ice::TimeoutException::ice_name() const
 {
     return __Ice__TimeoutException_name;
 }
 
-::IceE::Exception*
-IceE::TimeoutException::ice_clone() const
+::Ice::Exception*
+Ice::TimeoutException::ice_clone() const
 {
     return new TimeoutException(*this);
 }
 
 void
-IceE::TimeoutException::ice_throw() const
+Ice::TimeoutException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::ConnectTimeoutException::ConnectTimeoutException(const char* __file, int __line) :
+Ice::ConnectTimeoutException::ConnectTimeoutException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     TimeoutException(__file, __line)
 #else
-    ::IceE::TimeoutException(__file, __line)
+    ::Ice::TimeoutException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__ConnectTimeoutException_name = "IceE::ConnectTimeoutException";
+static const char* __Ice__ConnectTimeoutException_name = "Ice::ConnectTimeoutException";
 
 const ::std::string
-IceE::ConnectTimeoutException::ice_name() const
+Ice::ConnectTimeoutException::ice_name() const
 {
     return __Ice__ConnectTimeoutException_name;
 }
 
-::IceE::Exception*
-IceE::ConnectTimeoutException::ice_clone() const
+::Ice::Exception*
+Ice::ConnectTimeoutException::ice_clone() const
 {
     return new ConnectTimeoutException(*this);
 }
 
 void
-IceE::ConnectTimeoutException::ice_throw() const
+Ice::ConnectTimeoutException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::CloseTimeoutException::CloseTimeoutException(const char* __file, int __line) :
+Ice::CloseTimeoutException::CloseTimeoutException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     TimeoutException(__file, __line)
 #else
-    ::IceE::TimeoutException(__file, __line)
+    ::Ice::TimeoutException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__CloseTimeoutException_name = "IceE::CloseTimeoutException";
+static const char* __Ice__CloseTimeoutException_name = "Ice::CloseTimeoutException";
 
 const ::std::string
-IceE::CloseTimeoutException::ice_name() const
+Ice::CloseTimeoutException::ice_name() const
 {
     return __Ice__CloseTimeoutException_name;
 }
 
-::IceE::Exception*
-IceE::CloseTimeoutException::ice_clone() const
+::Ice::Exception*
+Ice::CloseTimeoutException::ice_clone() const
 {
     return new CloseTimeoutException(*this);
 }
 
 void
-IceE::CloseTimeoutException::ice_throw() const
+Ice::CloseTimeoutException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::ConnectionTimeoutException::ConnectionTimeoutException(const char* __file, int __line) :
+Ice::ConnectionTimeoutException::ConnectionTimeoutException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     TimeoutException(__file, __line)
 #else
-    ::IceE::TimeoutException(__file, __line)
+    ::Ice::TimeoutException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__ConnectionTimeoutException_name = "IceE::ConnectionTimeoutException";
+static const char* __Ice__ConnectionTimeoutException_name = "Ice::ConnectionTimeoutException";
 
 const ::std::string
-IceE::ConnectionTimeoutException::ice_name() const
+Ice::ConnectionTimeoutException::ice_name() const
 {
     return __Ice__ConnectionTimeoutException_name;
 }
 
-::IceE::Exception*
-IceE::ConnectionTimeoutException::ice_clone() const
+::Ice::Exception*
+Ice::ConnectionTimeoutException::ice_clone() const
 {
     return new ConnectionTimeoutException(*this);
 }
 
 void
-IceE::ConnectionTimeoutException::ice_throw() const
+Ice::ConnectionTimeoutException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::ProtocolException::ProtocolException(const char* __file, int __line) :
+Ice::ProtocolException::ProtocolException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
 #else
-    ::IceE::LocalException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__ProtocolException_name = "IceE::ProtocolException";
+static const char* __Ice__ProtocolException_name = "Ice::ProtocolException";
 
 const ::std::string
-IceE::ProtocolException::ice_name() const
+Ice::ProtocolException::ice_name() const
 {
     return __Ice__ProtocolException_name;
 }
 
-::IceE::Exception*
-IceE::ProtocolException::ice_clone() const
+::Ice::Exception*
+Ice::ProtocolException::ice_clone() const
 {
     return new ProtocolException(*this);
 }
 
 void
-IceE::ProtocolException::ice_throw() const
+Ice::ProtocolException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::BadMagicException::BadMagicException(const char* __file, int __line) :
+Ice::BadMagicException::BadMagicException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line)
 #else
-    ::IceE::ProtocolException(__file, __line)
+    ::Ice::ProtocolException(__file, __line)
 #endif
 {
 }
 
-IceE::BadMagicException::BadMagicException(const char* __file, int __line, const ::IceE::ByteSeq& __badMagic) :
+Ice::BadMagicException::BadMagicException(const char* __file, int __line, const ::Ice::ByteSeq& __badMagic) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line),
 #else
-    ::IceE::ProtocolException(__file, __line),
+    ::Ice::ProtocolException(__file, __line),
 #endif
     badMagic(__badMagic)
 {
 }
 
-static const char* __Ice__BadMagicException_name = "IceE::BadMagicException";
+static const char* __Ice__BadMagicException_name = "Ice::BadMagicException";
 
 const ::std::string
-IceE::BadMagicException::ice_name() const
+Ice::BadMagicException::ice_name() const
 {
     return __Ice__BadMagicException_name;
 }
 
-::IceE::Exception*
-IceE::BadMagicException::ice_clone() const
+::Ice::Exception*
+Ice::BadMagicException::ice_clone() const
 {
     return new BadMagicException(*this);
 }
 
 void
-IceE::BadMagicException::ice_throw() const
+Ice::BadMagicException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::UnsupportedProtocolException::UnsupportedProtocolException(const char* __file, int __line) :
+Ice::UnsupportedProtocolException::UnsupportedProtocolException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line)
 #else
-    ::IceE::ProtocolException(__file, __line)
+    ::Ice::ProtocolException(__file, __line)
 #endif
 {
 }
 
-IceE::UnsupportedProtocolException::UnsupportedProtocolException(const char* __file, int __line, ::IceE::Int __badMajor, ::IceE::Int __badMinor, ::IceE::Int __major, ::IceE::Int __minor) :
+Ice::UnsupportedProtocolException::UnsupportedProtocolException(const char* __file, int __line, ::Ice::Int __badMajor, ::Ice::Int __badMinor, ::Ice::Int __major, ::Ice::Int __minor) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line),
 #else
-    ::IceE::ProtocolException(__file, __line),
+    ::Ice::ProtocolException(__file, __line),
 #endif
     badMajor(__badMajor),
     badMinor(__badMinor),
@@ -1273,40 +1273,40 @@ IceE::UnsupportedProtocolException::UnsupportedProtocolException(const char* __f
 {
 }
 
-static const char* __Ice__UnsupportedProtocolException_name = "IceE::UnsupportedProtocolException";
+static const char* __Ice__UnsupportedProtocolException_name = "Ice::UnsupportedProtocolException";
 
 const ::std::string
-IceE::UnsupportedProtocolException::ice_name() const
+Ice::UnsupportedProtocolException::ice_name() const
 {
     return __Ice__UnsupportedProtocolException_name;
 }
 
-::IceE::Exception*
-IceE::UnsupportedProtocolException::ice_clone() const
+::Ice::Exception*
+Ice::UnsupportedProtocolException::ice_clone() const
 {
     return new UnsupportedProtocolException(*this);
 }
 
 void
-IceE::UnsupportedProtocolException::ice_throw() const
+Ice::UnsupportedProtocolException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::UnsupportedEncodingException::UnsupportedEncodingException(const char* __file, int __line) :
+Ice::UnsupportedEncodingException::UnsupportedEncodingException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line)
 #else
-    ::IceE::ProtocolException(__file, __line)
+    ::Ice::ProtocolException(__file, __line)
 #endif
 {
 }
 
-IceE::UnsupportedEncodingException::UnsupportedEncodingException(const char* __file, int __line, ::IceE::Int __badMajor, ::IceE::Int __badMinor, ::IceE::Int __major, ::IceE::Int __minor) :
+Ice::UnsupportedEncodingException::UnsupportedEncodingException(const char* __file, int __line, ::Ice::Int __badMajor, ::Ice::Int __badMinor, ::Ice::Int __major, ::Ice::Int __minor) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line),
 #else
-    ::IceE::ProtocolException(__file, __line),
+    ::Ice::ProtocolException(__file, __line),
 #endif
     badMajor(__badMajor),
     badMinor(__badMinor),
@@ -1315,495 +1315,495 @@ IceE::UnsupportedEncodingException::UnsupportedEncodingException(const char* __f
 {
 }
 
-static const char* __Ice__UnsupportedEncodingException_name = "IceE::UnsupportedEncodingException";
+static const char* __Ice__UnsupportedEncodingException_name = "Ice::UnsupportedEncodingException";
 
 const ::std::string
-IceE::UnsupportedEncodingException::ice_name() const
+Ice::UnsupportedEncodingException::ice_name() const
 {
     return __Ice__UnsupportedEncodingException_name;
 }
 
-::IceE::Exception*
-IceE::UnsupportedEncodingException::ice_clone() const
+::Ice::Exception*
+Ice::UnsupportedEncodingException::ice_clone() const
 {
     return new UnsupportedEncodingException(*this);
 }
 
 void
-IceE::UnsupportedEncodingException::ice_throw() const
+Ice::UnsupportedEncodingException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::UnknownMessageException::UnknownMessageException(const char* __file, int __line) :
+Ice::UnknownMessageException::UnknownMessageException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line)
 #else
-    ::IceE::ProtocolException(__file, __line)
+    ::Ice::ProtocolException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__UnknownMessageException_name = "IceE::UnknownMessageException";
+static const char* __Ice__UnknownMessageException_name = "Ice::UnknownMessageException";
 
 const ::std::string
-IceE::UnknownMessageException::ice_name() const
+Ice::UnknownMessageException::ice_name() const
 {
     return __Ice__UnknownMessageException_name;
 }
 
-::IceE::Exception*
-IceE::UnknownMessageException::ice_clone() const
+::Ice::Exception*
+Ice::UnknownMessageException::ice_clone() const
 {
     return new UnknownMessageException(*this);
 }
 
 void
-IceE::UnknownMessageException::ice_throw() const
+Ice::UnknownMessageException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::ConnectionNotValidatedException::ConnectionNotValidatedException(const char* __file, int __line) :
+Ice::ConnectionNotValidatedException::ConnectionNotValidatedException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line)
 #else
-    ::IceE::ProtocolException(__file, __line)
+    ::Ice::ProtocolException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__ConnectionNotValidatedException_name = "IceE::ConnectionNotValidatedException";
+static const char* __Ice__ConnectionNotValidatedException_name = "Ice::ConnectionNotValidatedException";
 
 const ::std::string
-IceE::ConnectionNotValidatedException::ice_name() const
+Ice::ConnectionNotValidatedException::ice_name() const
 {
     return __Ice__ConnectionNotValidatedException_name;
 }
 
-::IceE::Exception*
-IceE::ConnectionNotValidatedException::ice_clone() const
+::Ice::Exception*
+Ice::ConnectionNotValidatedException::ice_clone() const
 {
     return new ConnectionNotValidatedException(*this);
 }
 
 void
-IceE::ConnectionNotValidatedException::ice_throw() const
+Ice::ConnectionNotValidatedException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::UnknownRequestIdException::UnknownRequestIdException(const char* __file, int __line) :
+Ice::UnknownRequestIdException::UnknownRequestIdException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line)
 #else
-    ::IceE::ProtocolException(__file, __line)
+    ::Ice::ProtocolException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__UnknownRequestIdException_name = "IceE::UnknownRequestIdException";
+static const char* __Ice__UnknownRequestIdException_name = "Ice::UnknownRequestIdException";
 
 const ::std::string
-IceE::UnknownRequestIdException::ice_name() const
+Ice::UnknownRequestIdException::ice_name() const
 {
     return __Ice__UnknownRequestIdException_name;
 }
 
-::IceE::Exception*
-IceE::UnknownRequestIdException::ice_clone() const
+::Ice::Exception*
+Ice::UnknownRequestIdException::ice_clone() const
 {
     return new UnknownRequestIdException(*this);
 }
 
 void
-IceE::UnknownRequestIdException::ice_throw() const
+Ice::UnknownRequestIdException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::UnknownReplyStatusException::UnknownReplyStatusException(const char* __file, int __line) :
+Ice::UnknownReplyStatusException::UnknownReplyStatusException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line)
 #else
-    ::IceE::ProtocolException(__file, __line)
+    ::Ice::ProtocolException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__UnknownReplyStatusException_name = "IceE::UnknownReplyStatusException";
+static const char* __Ice__UnknownReplyStatusException_name = "Ice::UnknownReplyStatusException";
 
 const ::std::string
-IceE::UnknownReplyStatusException::ice_name() const
+Ice::UnknownReplyStatusException::ice_name() const
 {
     return __Ice__UnknownReplyStatusException_name;
 }
 
-::IceE::Exception*
-IceE::UnknownReplyStatusException::ice_clone() const
+::Ice::Exception*
+Ice::UnknownReplyStatusException::ice_clone() const
 {
     return new UnknownReplyStatusException(*this);
 }
 
 void
-IceE::UnknownReplyStatusException::ice_throw() const
+Ice::UnknownReplyStatusException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::CloseConnectionException::CloseConnectionException(const char* __file, int __line) :
+Ice::CloseConnectionException::CloseConnectionException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line)
 #else
-    ::IceE::ProtocolException(__file, __line)
+    ::Ice::ProtocolException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__CloseConnectionException_name = "IceE::CloseConnectionException";
+static const char* __Ice__CloseConnectionException_name = "Ice::CloseConnectionException";
 
 const ::std::string
-IceE::CloseConnectionException::ice_name() const
+Ice::CloseConnectionException::ice_name() const
 {
     return __Ice__CloseConnectionException_name;
 }
 
-::IceE::Exception*
-IceE::CloseConnectionException::ice_clone() const
+::Ice::Exception*
+Ice::CloseConnectionException::ice_clone() const
 {
     return new CloseConnectionException(*this);
 }
 
 void
-IceE::CloseConnectionException::ice_throw() const
+Ice::CloseConnectionException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::ForcedCloseConnectionException::ForcedCloseConnectionException(const char* __file, int __line) :
+Ice::ForcedCloseConnectionException::ForcedCloseConnectionException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line)
 #else
-    ::IceE::ProtocolException(__file, __line)
+    ::Ice::ProtocolException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__ForcedCloseConnectionException_name = "IceE::ForcedCloseConnectionException";
+static const char* __Ice__ForcedCloseConnectionException_name = "Ice::ForcedCloseConnectionException";
 
 const ::std::string
-IceE::ForcedCloseConnectionException::ice_name() const
+Ice::ForcedCloseConnectionException::ice_name() const
 {
     return __Ice__ForcedCloseConnectionException_name;
 }
 
-::IceE::Exception*
-IceE::ForcedCloseConnectionException::ice_clone() const
+::Ice::Exception*
+Ice::ForcedCloseConnectionException::ice_clone() const
 {
     return new ForcedCloseConnectionException(*this);
 }
 
 void
-IceE::ForcedCloseConnectionException::ice_throw() const
+Ice::ForcedCloseConnectionException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::IllegalMessageSizeException::IllegalMessageSizeException(const char* __file, int __line) :
+Ice::IllegalMessageSizeException::IllegalMessageSizeException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line)
 #else
-    ::IceE::ProtocolException(__file, __line)
+    ::Ice::ProtocolException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__IllegalMessageSizeException_name = "IceE::IllegalMessageSizeException";
+static const char* __Ice__IllegalMessageSizeException_name = "Ice::IllegalMessageSizeException";
 
 const ::std::string
-IceE::IllegalMessageSizeException::ice_name() const
+Ice::IllegalMessageSizeException::ice_name() const
 {
     return __Ice__IllegalMessageSizeException_name;
 }
 
-::IceE::Exception*
-IceE::IllegalMessageSizeException::ice_clone() const
+::Ice::Exception*
+Ice::IllegalMessageSizeException::ice_clone() const
 {
     return new IllegalMessageSizeException(*this);
 }
 
 void
-IceE::IllegalMessageSizeException::ice_throw() const
+Ice::IllegalMessageSizeException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::CompressionNotSupportedException::CompressionNotSupportedException(const char* __file, int __line) :
+Ice::CompressionNotSupportedException::CompressionNotSupportedException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line)
 #else
-    ::IceE::ProtocolException(__file, __line)
+    ::Ice::ProtocolException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__CompressionNotSupportedException_name = "IceE::CompressionNotSupportedException";
+static const char* __Ice__CompressionNotSupportedException_name = "Ice::CompressionNotSupportedException";
 
 const ::std::string
-IceE::CompressionNotSupportedException::ice_name() const
+Ice::CompressionNotSupportedException::ice_name() const
 {
     return __Ice__CompressionNotSupportedException_name;
 }
 
-::IceE::Exception*
-IceE::CompressionNotSupportedException::ice_clone() const
+::Ice::Exception*
+Ice::CompressionNotSupportedException::ice_clone() const
 {
     return new CompressionNotSupportedException(*this);
 }
 
 void
-IceE::CompressionNotSupportedException::ice_throw() const
+Ice::CompressionNotSupportedException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::MarshalException::MarshalException(const char* __file, int __line) :
+Ice::MarshalException::MarshalException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line)
 #else
-    ::IceE::ProtocolException(__file, __line)
+    ::Ice::ProtocolException(__file, __line)
 #endif
 {
 }
 
-IceE::MarshalException::MarshalException(const char* __file, int __line, const ::std::string& __reason) :
+Ice::MarshalException::MarshalException(const char* __file, int __line, const ::std::string& __reason) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     ProtocolException(__file, __line),
 #else
-    ::IceE::ProtocolException(__file, __line),
+    ::Ice::ProtocolException(__file, __line),
 #endif
     reason(__reason)
 {
 }
 
-static const char* __Ice__MarshalException_name = "IceE::MarshalException";
+static const char* __Ice__MarshalException_name = "Ice::MarshalException";
 
 const ::std::string
-IceE::MarshalException::ice_name() const
+Ice::MarshalException::ice_name() const
 {
     return __Ice__MarshalException_name;
 }
 
-::IceE::Exception*
-IceE::MarshalException::ice_clone() const
+::Ice::Exception*
+Ice::MarshalException::ice_clone() const
 {
     return new MarshalException(*this);
 }
 
 void
-IceE::MarshalException::ice_throw() const
+Ice::MarshalException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::ProxyUnmarshalException::ProxyUnmarshalException(const char* __file, int __line) :
+Ice::ProxyUnmarshalException::ProxyUnmarshalException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     MarshalException(__file, __line)
 #else
-    ::IceE::MarshalException(__file, __line)
+    ::Ice::MarshalException(__file, __line)
 #endif
 {
 }
 
-IceE::ProxyUnmarshalException::ProxyUnmarshalException(const char* __file, int __line, const ::std::string& __reason) :
+Ice::ProxyUnmarshalException::ProxyUnmarshalException(const char* __file, int __line, const ::std::string& __reason) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     MarshalException(__file, __line, __reason)
 #else
-    ::IceE::MarshalException(__file, __line, __reason)
+    ::Ice::MarshalException(__file, __line, __reason)
 #endif
 {
 }
 
-static const char* __Ice__ProxyUnmarshalException_name = "IceE::ProxyUnmarshalException";
+static const char* __Ice__ProxyUnmarshalException_name = "Ice::ProxyUnmarshalException";
 
 const ::std::string
-IceE::ProxyUnmarshalException::ice_name() const
+Ice::ProxyUnmarshalException::ice_name() const
 {
     return __Ice__ProxyUnmarshalException_name;
 }
 
-::IceE::Exception*
-IceE::ProxyUnmarshalException::ice_clone() const
+::Ice::Exception*
+Ice::ProxyUnmarshalException::ice_clone() const
 {
     return new ProxyUnmarshalException(*this);
 }
 
 void
-IceE::ProxyUnmarshalException::ice_throw() const
+Ice::ProxyUnmarshalException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::UnmarshalOutOfBoundsException::UnmarshalOutOfBoundsException(const char* __file, int __line) :
+Ice::UnmarshalOutOfBoundsException::UnmarshalOutOfBoundsException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     MarshalException(__file, __line)
 #else
-    ::IceE::MarshalException(__file, __line)
+    ::Ice::MarshalException(__file, __line)
 #endif
 {
 }
 
-IceE::UnmarshalOutOfBoundsException::UnmarshalOutOfBoundsException(const char* __file, int __line, const ::std::string& __reason) :
+Ice::UnmarshalOutOfBoundsException::UnmarshalOutOfBoundsException(const char* __file, int __line, const ::std::string& __reason) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     MarshalException(__file, __line, __reason)
 #else
-    ::IceE::MarshalException(__file, __line, __reason)
+    ::Ice::MarshalException(__file, __line, __reason)
 #endif
 {
 }
 
-static const char* __Ice__UnmarshalOutOfBoundsException_name = "IceE::UnmarshalOutOfBoundsException";
+static const char* __Ice__UnmarshalOutOfBoundsException_name = "Ice::UnmarshalOutOfBoundsException";
 
 const ::std::string
-IceE::UnmarshalOutOfBoundsException::ice_name() const
+Ice::UnmarshalOutOfBoundsException::ice_name() const
 {
     return __Ice__UnmarshalOutOfBoundsException_name;
 }
 
-::IceE::Exception*
-IceE::UnmarshalOutOfBoundsException::ice_clone() const
+::Ice::Exception*
+Ice::UnmarshalOutOfBoundsException::ice_clone() const
 {
     return new UnmarshalOutOfBoundsException(*this);
 }
 
 void
-IceE::UnmarshalOutOfBoundsException::ice_throw() const
+Ice::UnmarshalOutOfBoundsException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::MemoryLimitException::MemoryLimitException(const char* __file, int __line) :
+Ice::MemoryLimitException::MemoryLimitException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     MarshalException(__file, __line)
 #else
-    ::IceE::MarshalException(__file, __line)
+    ::Ice::MarshalException(__file, __line)
 #endif
 {
 }
 
-IceE::MemoryLimitException::MemoryLimitException(const char* __file, int __line, const ::std::string& __reason) :
+Ice::MemoryLimitException::MemoryLimitException(const char* __file, int __line, const ::std::string& __reason) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     MarshalException(__file, __line, __reason)
 #else
-    ::IceE::MarshalException(__file, __line, __reason)
+    ::Ice::MarshalException(__file, __line, __reason)
 #endif
 {
 }
 
-static const char* __Ice__MemoryLimitException_name = "IceE::MemoryLimitException";
+static const char* __Ice__MemoryLimitException_name = "Ice::MemoryLimitException";
 
 const ::std::string
-IceE::MemoryLimitException::ice_name() const
+Ice::MemoryLimitException::ice_name() const
 {
     return __Ice__MemoryLimitException_name;
 }
 
-::IceE::Exception*
-IceE::MemoryLimitException::ice_clone() const
+::Ice::Exception*
+Ice::MemoryLimitException::ice_clone() const
 {
     return new MemoryLimitException(*this);
 }
 
 void
-IceE::MemoryLimitException::ice_throw() const
+Ice::MemoryLimitException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::EncapsulationException::EncapsulationException(const char* __file, int __line) :
+Ice::EncapsulationException::EncapsulationException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     MarshalException(__file, __line)
 #else
-    ::IceE::MarshalException(__file, __line)
+    ::Ice::MarshalException(__file, __line)
 #endif
 {
 }
 
-IceE::EncapsulationException::EncapsulationException(const char* __file, int __line, const ::std::string& __reason) :
+Ice::EncapsulationException::EncapsulationException(const char* __file, int __line, const ::std::string& __reason) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     MarshalException(__file, __line, __reason)
 #else
-    ::IceE::MarshalException(__file, __line, __reason)
+    ::Ice::MarshalException(__file, __line, __reason)
 #endif
 {
 }
 
-static const char* __Ice__EncapsulationException_name = "IceE::EncapsulationException";
+static const char* __Ice__EncapsulationException_name = "Ice::EncapsulationException";
 
 const ::std::string
-IceE::EncapsulationException::ice_name() const
+Ice::EncapsulationException::ice_name() const
 {
     return __Ice__EncapsulationException_name;
 }
 
-::IceE::Exception*
-IceE::EncapsulationException::ice_clone() const
+::Ice::Exception*
+Ice::EncapsulationException::ice_clone() const
 {
     return new EncapsulationException(*this);
 }
 
 void
-IceE::EncapsulationException::ice_throw() const
+Ice::EncapsulationException::ice_throw() const
 {
     throw *this;
 }
 
-IceE::NegativeSizeException::NegativeSizeException(const char* __file, int __line) :
+Ice::NegativeSizeException::NegativeSizeException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     MarshalException(__file, __line)
 #else
-    ::IceE::MarshalException(__file, __line)
+    ::Ice::MarshalException(__file, __line)
 #endif
 {
 }
 
-IceE::NegativeSizeException::NegativeSizeException(const char* __file, int __line, const ::std::string& __reason) :
+Ice::NegativeSizeException::NegativeSizeException(const char* __file, int __line, const ::std::string& __reason) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     MarshalException(__file, __line, __reason)
 #else
-    ::IceE::MarshalException(__file, __line, __reason)
+    ::Ice::MarshalException(__file, __line, __reason)
 #endif
 {
 }
 
-static const char* __Ice__NegativeSizeException_name = "IceE::NegativeSizeException";
+static const char* __Ice__NegativeSizeException_name = "Ice::NegativeSizeException";
 
 const ::std::string
-IceE::NegativeSizeException::ice_name() const
+Ice::NegativeSizeException::ice_name() const
 {
     return __Ice__NegativeSizeException_name;
 }
 
-::IceE::Exception*
-IceE::NegativeSizeException::ice_clone() const
+::Ice::Exception*
+Ice::NegativeSizeException::ice_clone() const
 {
     return new NegativeSizeException(*this);
 }
 
 void
-IceE::NegativeSizeException::ice_throw() const
+Ice::NegativeSizeException::ice_throw() const
 {
     throw *this;
 }
 
 bool
-IceE::UserException::__usesClasses() const
+Ice::UserException::__usesClasses() const
 {
     return false;
 }
 
 string
-IceE::UnknownException::toString() const
+Ice::UnknownException::toString() const
 {
     string out = Exception::toString();
     out +=  ":\nunknown exception";
@@ -1816,7 +1816,7 @@ IceE::UnknownException::toString() const
 }
 
 string
-IceE::UnknownLocalException::toString() const
+Ice::UnknownLocalException::toString() const
 {
     string out = Exception::toString();
     out += ":\nunknown local exception";
@@ -1829,7 +1829,7 @@ IceE::UnknownLocalException::toString() const
 }
 
 string
-IceE::UnknownUserException::toString() const
+Ice::UnknownUserException::toString() const
 {
     string out = Exception::toString();
     out += ":\nunknown user exception";
@@ -1842,7 +1842,7 @@ IceE::UnknownUserException::toString() const
 }
 
 string
-IceE::VersionMismatchException::toString() const
+Ice::VersionMismatchException::toString() const
 {
     string out = Exception::toString();
     out += ":\nIce library version mismatch";
@@ -1850,7 +1850,7 @@ IceE::VersionMismatchException::toString() const
 }
 
 string
-IceE::CommunicatorDestroyedException::toString() const
+Ice::CommunicatorDestroyedException::toString() const
 {
     string out = Exception::toString();
     out += ":\ncommunicator object destroyed";
@@ -1861,7 +1861,7 @@ IceE::CommunicatorDestroyedException::toString() const
 #endif
 
 string
-IceE::NoEndpointException::toString() const
+Ice::NoEndpointException::toString() const
 {
     string out = Exception::toString();
     out += ":\nno suitable endpoint available for proxy `";
@@ -1871,7 +1871,7 @@ IceE::NoEndpointException::toString() const
 }
 
 string
-IceE::EndpointParseException::toString() const
+Ice::EndpointParseException::toString() const
 {
     string out = Exception::toString();
     out += ":\nerror while parsing endpoint `";
@@ -1881,7 +1881,7 @@ IceE::EndpointParseException::toString() const
 }
 
 string
-IceE::IdentityParseException::toString() const
+Ice::IdentityParseException::toString() const
 {
     string out = Exception::toString();
     out += ":\nerror while parsing identity `";
@@ -1891,7 +1891,7 @@ IceE::IdentityParseException::toString() const
 }
 
 string
-IceE::ProxyParseException::toString() const
+Ice::ProxyParseException::toString() const
 {
     string out = Exception::toString();
     out += ":\nerror while parsing proxy `";
@@ -1901,7 +1901,7 @@ IceE::ProxyParseException::toString() const
 }
 
 string
-IceE::IllegalIdentityException::toString() const
+Ice::IllegalIdentityException::toString() const
 {
     string out = Exception::toString();
     out += ":\nillegal identity: `";
@@ -1922,7 +1922,7 @@ printFailedRequestData(string& out, const RequestFailedException& ex)
 }
 
 string
-IceE::RequestFailedException::toString() const
+Ice::RequestFailedException::toString() const
 {
     string out = Exception::toString();
     out += ":\nrequest failed";
@@ -1931,7 +1931,7 @@ IceE::RequestFailedException::toString() const
 }
 
 string
-IceE::ObjectNotExistException::toString() const
+Ice::ObjectNotExistException::toString() const
 {
     string out = Exception::toString();
     out += ":\nobject does not exist";
@@ -1940,7 +1940,7 @@ IceE::ObjectNotExistException::toString() const
 }
 
 string
-IceE::FacetNotExistException::toString() const
+Ice::FacetNotExistException::toString() const
 {
     string out = Exception::toString();
     out += ":\nfacet does not exist";
@@ -1949,7 +1949,7 @@ IceE::FacetNotExistException::toString() const
 }
 
 string
-IceE::OperationNotExistException::toString() const
+Ice::OperationNotExistException::toString() const
 {
     string out = Exception::toString();
     out += ":\noperation does not exist";
@@ -1958,7 +1958,7 @@ IceE::OperationNotExistException::toString() const
 }
 
 string
-IceE::SyscallException::toString() const
+Ice::SyscallException::toString() const
 {
     string out = Exception::toString();
     if(error != 0)
@@ -1970,7 +1970,7 @@ IceE::SyscallException::toString() const
 }
 
 string
-IceE::SocketException::toString() const
+Ice::SocketException::toString() const
 {
     string out = Exception::toString();
     out += ":\nsocket exception: ";
@@ -1979,7 +1979,7 @@ IceE::SocketException::toString() const
 }
 
 string
-IceE::FileException::toString() const
+Ice::FileException::toString() const
 {
     string out = Exception::toString();
     out += ":\nfile exception: ";
@@ -1993,7 +1993,7 @@ IceE::FileException::toString() const
 }
 
 string
-IceE::ConnectFailedException::toString() const
+Ice::ConnectFailedException::toString() const
 {
     string out = Exception::toString();
     out += ":\nconnect failed: ";
@@ -2002,7 +2002,7 @@ IceE::ConnectFailedException::toString() const
 }
 
 string
-IceE::ConnectionRefusedException::toString() const
+Ice::ConnectionRefusedException::toString() const
 {
     string out = Exception::toString();
     out += ":\nconnection refused: ";
@@ -2011,7 +2011,7 @@ IceE::ConnectionRefusedException::toString() const
 }
 
 string
-IceE::ConnectionLostException::toString() const
+Ice::ConnectionLostException::toString() const
 {
     string out = Exception::toString();
     out += ":\nconnection lost: ";
@@ -2027,7 +2027,7 @@ IceE::ConnectionLostException::toString() const
 }
 
 string
-IceE::DNSException::toString() const
+Ice::DNSException::toString() const
 {
     string out = Exception::toString();
     out += ":\nDNS error: ";
@@ -2038,7 +2038,7 @@ IceE::DNSException::toString() const
 }
 
 string
-IceE::TimeoutException::toString() const
+Ice::TimeoutException::toString() const
 {
     string out = Exception::toString();
     out += ":\ntimeout while sending or receiving data";
@@ -2046,7 +2046,7 @@ IceE::TimeoutException::toString() const
 }
 
 string
-IceE::ConnectTimeoutException::toString() const
+Ice::ConnectTimeoutException::toString() const
 {
     string out = Exception::toString();
     out += ":\ntimeout while establishing a connection";
@@ -2054,7 +2054,7 @@ IceE::ConnectTimeoutException::toString() const
 }
 
 string
-IceE::CloseTimeoutException::toString() const
+Ice::CloseTimeoutException::toString() const
 {
     string out = Exception::toString();
     out += ":\ntimeout while closing a connection";
@@ -2062,7 +2062,7 @@ IceE::CloseTimeoutException::toString() const
 }
 
 string
-IceE::ConnectionTimeoutException::toString() const
+Ice::ConnectionTimeoutException::toString() const
 {
     string out = Exception::toString();
     out += ":\nconnection has timed out";
@@ -2070,7 +2070,7 @@ IceE::ConnectionTimeoutException::toString() const
 }
 
 string
-IceE::ProtocolException::toString() const
+Ice::ProtocolException::toString() const
 {
     string out = Exception::toString();
     out += ":\nunknown protocol exception";
@@ -2078,29 +2078,29 @@ IceE::ProtocolException::toString() const
 }
 
 string
-IceE::BadMagicException::toString() const
+Ice::BadMagicException::toString() const
 {
     string out = Exception::toString();
     out += ":\nunknown magic number: ";
-    out += IceE::printfToString("0x%2X, 0x%2X, 0x%2X, 0x%2X", badMagic[0], badMagic[1], badMagic[2], badMagic[3]);
+    out += Ice::printfToString("0x%2X, 0x%2X, 0x%2X, 0x%2X", badMagic[0], badMagic[1], badMagic[2], badMagic[3]);
 
     return out;
 }
 
 string
-IceE::UnsupportedProtocolException::toString() const
+Ice::UnsupportedProtocolException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: unsupported protocol version: ";
-    out += IceE::printfToString("%d.%d", badMajor, badMinor);
+    out += Ice::printfToString("%d.%d", badMajor, badMinor);
     out += "\n(can only support protocols compatible with version ";
-    out += IceE::printfToString("%d.%d", major, minor);
+    out += Ice::printfToString("%d.%d", major, minor);
     out += ")";
     return out;
 }
 
 string
-IceE::UnsupportedEncodingException::toString() const
+Ice::UnsupportedEncodingException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: unsupported encoding version: ";
@@ -2115,7 +2115,7 @@ IceE::UnsupportedEncodingException::toString() const
 }
 
 string
-IceE::UnknownMessageException::toString() const
+Ice::UnknownMessageException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: unknown message type";
@@ -2123,7 +2123,7 @@ IceE::UnknownMessageException::toString() const
 }
 
 string
-IceE::ConnectionNotValidatedException::toString() const
+Ice::ConnectionNotValidatedException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: received message over unvalidated connection";
@@ -2131,7 +2131,7 @@ IceE::ConnectionNotValidatedException::toString() const
 }
 
 string
-IceE::UnknownRequestIdException::toString() const
+Ice::UnknownRequestIdException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: unknown request id";
@@ -2139,7 +2139,7 @@ IceE::UnknownRequestIdException::toString() const
 }
 
 string
-IceE::UnknownReplyStatusException::toString() const
+Ice::UnknownReplyStatusException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: unknown reply status";
@@ -2147,7 +2147,7 @@ IceE::UnknownReplyStatusException::toString() const
 }
 
 string
-IceE::CloseConnectionException::toString() const
+Ice::CloseConnectionException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: connection closed";
@@ -2155,7 +2155,7 @@ IceE::CloseConnectionException::toString() const
 }
 
 string
-IceE::ForcedCloseConnectionException::toString() const
+Ice::ForcedCloseConnectionException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: connection forcefully closed";
@@ -2163,7 +2163,7 @@ IceE::ForcedCloseConnectionException::toString() const
 }
 
 string
-IceE::IllegalMessageSizeException::toString() const
+Ice::IllegalMessageSizeException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: illegal message size";
@@ -2171,7 +2171,7 @@ IceE::IllegalMessageSizeException::toString() const
 }
 
 string
-IceE::CompressionNotSupportedException::toString() const
+Ice::CompressionNotSupportedException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: compressed messages not supported";
@@ -2179,7 +2179,7 @@ IceE::CompressionNotSupportedException::toString() const
 }
 
 string
-IceE::MarshalException::toString() const
+Ice::MarshalException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: error during marshaling or unmarshaling";
@@ -2192,7 +2192,7 @@ IceE::MarshalException::toString() const
 }
 
 string
-IceE::UnmarshalOutOfBoundsException::toString() const
+Ice::UnmarshalOutOfBoundsException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: out of bounds during unmarshaling";
@@ -2200,7 +2200,7 @@ IceE::UnmarshalOutOfBoundsException::toString() const
 }
 
 string
-IceE::ProxyUnmarshalException::toString() const
+Ice::ProxyUnmarshalException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: inconsistent proxy data during unmarshaling";
@@ -2208,7 +2208,7 @@ IceE::ProxyUnmarshalException::toString() const
 }
 
 string
-IceE::MemoryLimitException::toString() const
+Ice::MemoryLimitException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: memory limit exceeded";
@@ -2216,7 +2216,7 @@ IceE::MemoryLimitException::toString() const
 }
 
 string
-IceE::EncapsulationException::toString() const
+Ice::EncapsulationException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: illegal encapsulation";
@@ -2224,7 +2224,7 @@ IceE::EncapsulationException::toString() const
 }
 
 string
-IceE::NegativeSizeException::toString() const
+Ice::NegativeSizeException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: negative size for sequence, dictionary, etc.";
@@ -2232,7 +2232,7 @@ IceE::NegativeSizeException::toString() const
 }
 
 string
-IceE::AlreadyRegisteredException::toString() const
+Ice::AlreadyRegisteredException::toString() const
 {
     string out = Exception::toString();
     out += ":\n";
@@ -2244,7 +2244,7 @@ IceE::AlreadyRegisteredException::toString() const
 }
 
 string
-IceE::NotRegisteredException::toString() const
+Ice::NotRegisteredException::toString() const
 {
     string out = Exception::toString();
     out += ":\n no ";
@@ -2256,7 +2256,7 @@ IceE::NotRegisteredException::toString() const
 }
 
 string
-IceE::TwowayOnlyException::toString() const
+Ice::TwowayOnlyException::toString() const
 {
     string out = Exception::toString();
     out += ":\n operation `";
@@ -2266,7 +2266,7 @@ IceE::TwowayOnlyException::toString() const
 }
 
 string
-IceE::CloneNotImplementedException::toString() const
+Ice::CloneNotImplementedException::toString() const
 {
     string out = Exception::toString();
     out += ":\n ice_clone() must be implemented in classes derived from abstract base classes";

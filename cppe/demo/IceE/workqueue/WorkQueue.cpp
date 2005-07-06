@@ -17,7 +17,7 @@
 
 using namespace std;
 
-class WorkQueue : public IceE::Thread
+class WorkQueue : public Ice::Thread
 {
 public:
 
@@ -36,14 +36,14 @@ public:
 	    }
 
 	    printf("work item: %s\n", item.c_str());
-	    IceE::ThreadControl::sleep(IceE::Time::seconds(1));
+	    Ice::ThreadControl::sleep(Ice::Time::seconds(1));
 	}
     }
 
     void
     add(const string& item)
     {
-	IceE::Monitor<IceE::Mutex>::Lock lock(_monitor);
+	Ice::Monitor<Ice::Mutex>::Lock lock(_monitor);
 	if(_queue.empty())
 	{
 	    _monitor.notify();
@@ -56,7 +56,7 @@ private:
     string
     nextItem()
     {
-	IceE::Monitor<IceE::Mutex>::Lock lock(_monitor);
+	Ice::Monitor<Ice::Mutex>::Lock lock(_monitor);
 	while(_queue.empty())
 	{
 	    _monitor.wait();
@@ -68,11 +68,11 @@ private:
     }
 
 
-    IceE::Monitor<IceE::Mutex> _monitor;
+    Ice::Monitor<Ice::Mutex> _monitor;
     list<string> _queue;
 };
 
-typedef IceE::Handle<WorkQueue> WorkQueuePtr;
+typedef Ice::Handle<WorkQueue> WorkQueuePtr;
 
 int
 main()
@@ -80,7 +80,7 @@ main()
     try
     {
 	WorkQueuePtr h = new WorkQueue();
-	IceE::ThreadControl control = h->start();
+	Ice::ThreadControl control = h->start();
 	printf("Pushing work items");
 	printf("."); fflush(stdout);
 	h->add("item1");
@@ -98,7 +98,7 @@ main()
 	printf("Waiting for WorkQueue to terminate\n");
 	control.join();
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	fprintf(stderr, "%s\n", ex.toString().c_str());
 	return EXIT_FAILURE;

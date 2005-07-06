@@ -16,10 +16,10 @@
 #include <IceE/Mutex.h>
 #include <IceE/Reference.h> // For Reference::Mode
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class ReferenceFactory : public ::IceE::Shared, public ::IceE::Mutex
+class ReferenceFactory : public ::Ice::Shared, public ::Ice::Mutex
 {
 public:
 
@@ -31,7 +31,7 @@ public:
     //
     // Create a direct reference.
     //
-    ReferencePtr create(const ::IceE::Identity&, const ::IceE::Context&, const ::std::string&,
+    ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
 			Reference::Mode, const ::std::vector<EndpointPtr>&
 #ifndef ICEE_NO_ROUTER
 			, const RouterInfoPtr&
@@ -41,7 +41,7 @@ public:
     // Create an indirect reference.
     //
 #ifndef ICEE_NO_LOCATOR
-    ReferencePtr create(const ::IceE::Identity&, const ::IceE::Context&, const ::std::string&,
+    ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
 			Reference::Mode, const ::std::string&
 #ifndef ICEE_NO_ROUTER
 			, const RouterInfoPtr&
@@ -51,8 +51,8 @@ public:
     //
     // Create a fixed reference.
     //
-    ReferencePtr create(const ::IceE::Identity&, const ::IceE::Context&, const ::std::string&,
-	                Reference::Mode, const ::std::vector< ::IceE::ConnectionPtr>&);
+    ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
+	                Reference::Mode, const ::std::vector< ::Ice::ConnectionPtr>&);
 
     //
     // Create a reference from a string.
@@ -62,16 +62,16 @@ public:
     //
     // Create a reference by unmarshaling it from a stream.
     //
-    ReferencePtr create(const ::IceE::Identity&, BasicStream*);
+    ReferencePtr create(const ::Ice::Identity&, BasicStream*);
 
 #ifndef ICEE_NO_ROUTER
-    void setDefaultRouter(const ::IceE::RouterPrx&);
-    ::IceE::RouterPrx getDefaultRouter() const;
+    void setDefaultRouter(const ::Ice::RouterPrx&);
+    ::Ice::RouterPrx getDefaultRouter() const;
 #endif
 
 #ifndef ICEE_NO_LOCATOR
-    void setDefaultLocator(const ::IceE::LocatorPrx&);
-    ::IceE::LocatorPrx getDefaultLocator() const;
+    void setDefaultLocator(const ::Ice::LocatorPrx&);
+    ::Ice::LocatorPrx getDefaultLocator() const;
 #endif
 
 private:
@@ -82,10 +82,10 @@ private:
 
     InstancePtr _instance;
 #ifndef ICEE_NO_ROUTER
-    ::IceE::RouterPrx _defaultRouter;
+    ::Ice::RouterPrx _defaultRouter;
 #endif
 #ifndef ICEE_NO_LOCATOR
-    ::IceE::LocatorPrx _defaultLocator;
+    ::Ice::LocatorPrx _defaultLocator;
 #endif
 };
 

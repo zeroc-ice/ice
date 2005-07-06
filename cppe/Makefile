@@ -49,13 +49,6 @@ install::
 	    chmod a+rx $(install_slicedir) ; \
 	fi
 
-	@if test ! -d $(install_docdir) ; \
-	then \
-	    echo "Creating $(install_docdir)..." ; \
-	    mkdir $(install_docdir) ; \
-	    chmod a+rx $(install_docdir) ; \
-	fi
-
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
 	do \
@@ -63,16 +56,9 @@ $(EVERYTHING)::
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
 
-doc::
-	@( cd doc && $(MAKE) ) || exit 1
-
 install::
-	@( cd doc && $(MAKE) install ) || exit 1
 	$(call installdata,ICE_LICENSE,$(prefix))
 	$(call installdata,LICENSE,$(prefix))
-
-clean::
-	@( cd doc && $(MAKE) clean ) || exit 1
 
 test::
 	@python $(top_srcdir)/allTests.py

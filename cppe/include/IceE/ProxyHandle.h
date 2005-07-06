@@ -13,7 +13,7 @@
 #include <IceE/Handle.h>
 #include <IceE/Config.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 template<typename T> class ProxyHandle;
@@ -21,9 +21,9 @@ template<typename T> class Handle;
 
 }
 
-namespace IceEProxy 
+namespace IceProxy 
 { 
-namespace IceE
+namespace Ice
 {
 
 class Object;
@@ -31,55 +31,55 @@ class Object;
 }
 }
 
-namespace IceE
+namespace Ice
 {
 
-typedef ::IceEInternal::ProxyHandle< ::IceEProxy::IceE::Object> ObjectPrx;
+typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Object> ObjectPrx;
 
 class ObjectAdapter;
-typedef ::IceEInternal::Handle< ::IceE::ObjectAdapter> ObjectAdapterPtr;
+typedef ::IceInternal::Handle< ::Ice::ObjectAdapter> ObjectAdapterPtr;
 
 typedef ::std::map< ::std::string, ::std::string> Context;
 }
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 template<typename P> P 
-checkedCastImpl(const ::IceE::ObjectPrx&);
+checkedCastImpl(const ::Ice::ObjectPrx&);
 
 template<typename P> P 
-checkedCastImpl(const ::IceE::ObjectPrx&, const std::string&);
+checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
 
 template<typename P> P 
-checkedCastImpl(const ::IceE::ObjectPrx&, const ::IceE::Context&);
+checkedCastImpl(const ::Ice::ObjectPrx&, const ::Ice::Context&);
 
 template<typename P> P 
-checkedCastImpl(const ::IceE::ObjectPrx&, const std::string&, const ::IceE::Context&);
+checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&, const ::Ice::Context&);
 
 template<typename P> P 
-uncheckedCastImpl(const ::IceE::ObjectPrx&);
+uncheckedCastImpl(const ::Ice::ObjectPrx&);
 
 template<typename P> P
-uncheckedCastImpl(const ::IceE::ObjectPrx&, const std::string&);
+uncheckedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
 
 //
 // Upcast
 //
 template<typename T, typename Y> inline ProxyHandle<T> 
-checkedCastHelper(const ::IceEInternal::ProxyHandle<Y>& b, T*)
+checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, T*)
 {
     return b;
 }
 
 template<typename T, typename Y> inline ProxyHandle<T> 
-checkedCastHelper(const ::IceEInternal::ProxyHandle<Y>& b, T*, const ::IceE::Context&)
+checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, T*, const ::Ice::Context&)
 {
     return b;
 }
 
 template<typename T, typename Y> inline ProxyHandle<T> 
-uncheckedCastHelper(const ::IceEInternal::ProxyHandle<Y>& b, T*)
+uncheckedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, T*)
 {
     return b;
 }
@@ -88,37 +88,37 @@ uncheckedCastHelper(const ::IceEInternal::ProxyHandle<Y>& b, T*)
 // Downcast
 //
 template<typename T, typename Y> inline ProxyHandle<T> 
-checkedCastHelper(const ::IceEInternal::ProxyHandle<Y>& b, void*)
+checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, void*)
 {
     return checkedCastImpl<ProxyHandle<T> >(b);
 }
 
 template<typename T, typename Y> inline ProxyHandle<T> 
-checkedCastHelper(const ::IceEInternal::ProxyHandle<Y>& b, const ::IceE::Context& ctx)
+checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, const ::Ice::Context& ctx)
 {
     return checkedCastImpl<ProxyHandle<T> >(b, ctx);
 }
 
 template<typename T, typename Y> inline ProxyHandle<T> 
-checkedCastHelper(const ::IceEInternal::ProxyHandle<Y>& b, void*, const ::IceE::Context& ctx)
+checkedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, void*, const ::Ice::Context& ctx)
 {
     return checkedCastImpl<ProxyHandle<T> >(b, ctx);
 }
 
 template<typename T, typename Y> inline ProxyHandle<T> 
-uncheckedCastHelper(const ::IceEInternal::ProxyHandle<Y>& b, void*)
+uncheckedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, void*)
 {
     return uncheckedCastImpl<ProxyHandle<T> >(b);
 }
 
 
 //
-// Like IceEInternal::Handle, but specifically for proxies, with
+// Like IceInternal::Handle, but specifically for proxies, with
 // support for checkedCast() and uncheckedCast() instead of
 // dynamicCast().
 //
 template<typename T>
-class ProxyHandle : public ::IceE::HandleBase<T>
+class ProxyHandle : public ::Ice::HandleBase<T>
 {
 public:
     
@@ -144,7 +144,7 @@ public:
     }
 
     template<typename Y>
-    ProxyHandle(const ::IceE::Handle<Y>& r)
+    ProxyHandle(const ::Ice::Handle<Y>& r)
     {
 	this->_ptr = r._ptr;
 
@@ -217,7 +217,7 @@ public:
     }
 
     template<typename Y>
-    ProxyHandle& operator=(const ::IceE::Handle<Y>& r)
+    ProxyHandle& operator=(const ::Ice::Handle<Y>& r)
     {
 	if(this->_ptr != r._ptr)
 	{
@@ -264,38 +264,38 @@ public:
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r)
     {
 	Y* tag = 0;
-	return ::IceEInternal::checkedCastHelper<T>(r, tag);
+	return ::IceInternal::checkedCastHelper<T>(r, tag);
     }
 
     template<class Y>
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const std::string& f)
     {
-	return ::IceEInternal::checkedCastImpl<ProxyHandle>(r, f);
+	return ::IceInternal::checkedCastImpl<ProxyHandle>(r, f);
     }
 
     template<class Y>
-    static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const ::IceE::Context& ctx)
+    static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const ::Ice::Context& ctx)
     {
-	return ::IceEInternal::checkedCastHelper<T>(r, ctx);
+	return ::IceInternal::checkedCastHelper<T>(r, ctx);
     }
 
     template<class Y>
-    static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const std::string& f, const ::IceE::Context& ctx)
+    static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const std::string& f, const ::Ice::Context& ctx)
     {
-	return ::IceEInternal::checkedCastImpl<ProxyHandle>(r, f, ctx);
+	return ::IceInternal::checkedCastImpl<ProxyHandle>(r, f, ctx);
     }
 
     template<class Y>
     static ProxyHandle uncheckedCast(const ProxyHandle<Y>& r)
     {
 	Y* tag = 0;
-	return::IceEInternal::uncheckedCastHelper<T>(r, tag);
+	return::IceInternal::uncheckedCastHelper<T>(r, tag);
     }
 
     template<class Y>
     static ProxyHandle uncheckedCast(const ProxyHandle<Y>& r, const std::string& f)
     {
-	return ::IceEInternal::uncheckedCastImpl<ProxyHandle>(r, f);
+	return ::IceInternal::uncheckedCastImpl<ProxyHandle>(r, f);
     }
 };
 

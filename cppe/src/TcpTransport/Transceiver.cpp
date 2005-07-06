@@ -17,22 +17,22 @@
 #include <IceE/SafeStdio.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(Transceiver* p) { p->__incRef(); }
-void IceEInternal::decRef(Transceiver* p) { p->__decRef(); }
+void IceInternal::incRef(Transceiver* p) { p->__incRef(); }
+void IceInternal::decRef(Transceiver* p) { p->__decRef(); }
 
 
 SOCKET
-IceEInternal::Transceiver::fd()
+IceInternal::Transceiver::fd()
 {
     assert(_fd != INVALID_SOCKET);
     return _fd;
 }
 
 void
-IceEInternal::Transceiver::close()
+IceInternal::Transceiver::close()
 {
     if(_traceLevels->network >= 1)
     {
@@ -60,7 +60,7 @@ IceEInternal::Transceiver::close()
 }
 
 void
-IceEInternal::Transceiver::shutdownWrite()
+IceInternal::Transceiver::shutdownWrite()
 {
     if(_traceLevels->network >= 2)
     {
@@ -73,7 +73,7 @@ IceEInternal::Transceiver::shutdownWrite()
 }
 
 void
-IceEInternal::Transceiver::shutdownReadWrite()
+IceInternal::Transceiver::shutdownReadWrite()
 {
     if(_traceLevels->network >= 2)
     {
@@ -86,7 +86,7 @@ IceEInternal::Transceiver::shutdownReadWrite()
 }
 
 void
-IceEInternal::Transceiver::write(Buffer& buf, int timeout)
+IceInternal::Transceiver::write(Buffer& buf, int timeout)
 {
     Buffer::Container::difference_type packetSize = 
         static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
@@ -235,7 +235,7 @@ IceEInternal::Transceiver::write(Buffer& buf, int timeout)
 	if(_traceLevels->network >= 3)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
-	    out << IceE::printfToString("sent %d of %d", ret, packetSize) << " bytes via tcp\n" << toString();
+	    out << Ice::printfToString("sent %d of %d", ret, packetSize) << " bytes via tcp\n" << toString();
 	}
 
 	buf.i += ret;
@@ -248,7 +248,7 @@ IceEInternal::Transceiver::write(Buffer& buf, int timeout)
 }
 
 void
-IceEInternal::Transceiver::read(Buffer& buf, int timeout)
+IceInternal::Transceiver::read(Buffer& buf, int timeout)
 {
     Buffer::Container::difference_type packetSize = 
         static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
@@ -398,7 +398,7 @@ IceEInternal::Transceiver::read(Buffer& buf, int timeout)
 	if(_traceLevels->network >= 3)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);
-	    out << IceE::printfToString("received %d of %d", ret, packetSize) << " bytes via tcp\n" << toString();
+	    out << Ice::printfToString("received %d of %d", ret, packetSize) << " bytes via tcp\n" << toString();
 	}
 
 	buf.i += ret;
@@ -411,18 +411,18 @@ IceEInternal::Transceiver::read(Buffer& buf, int timeout)
 }
 
 string
-IceEInternal::Transceiver::type() const
+IceInternal::Transceiver::type() const
 {
     return "tcp";
 }
 
 string
-IceEInternal::Transceiver::toString() const
+IceInternal::Transceiver::toString() const
 {
     return _desc;
 }
 
-IceEInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
+IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
     _fd(fd),
@@ -460,7 +460,7 @@ IceEInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
 #endif
 }
 
-IceEInternal::Transceiver::~Transceiver()
+IceInternal::Transceiver::~Transceiver()
 {
     assert(_fd == INVALID_SOCKET);
 #ifdef _WIN32_WCE

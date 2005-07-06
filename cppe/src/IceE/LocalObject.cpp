@@ -10,32 +10,32 @@
 #include <IceE/LocalObject.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(LocalObject* p) { p->__incRef(); }
-void IceEInternal::decRef(LocalObject* p) { p->__decRef(); }
+void IceInternal::incRef(LocalObject* p) { p->__incRef(); }
+void IceInternal::decRef(LocalObject* p) { p->__decRef(); }
 
 bool
-IceE::LocalObject::operator==(const LocalObject& r) const
+Ice::LocalObject::operator==(const LocalObject& r) const
 {
     return this == &r;
 }
 
 bool
-IceE::LocalObject::operator!=(const LocalObject& r) const
+Ice::LocalObject::operator!=(const LocalObject& r) const
 {
     return this != &r;
 }
 
 bool
-IceE::LocalObject::operator<(const LocalObject& r) const
+Ice::LocalObject::operator<(const LocalObject& r) const
 {
     return this < &r;
 }
 
 Int
-IceE::LocalObject::ice_hash() const
+Ice::LocalObject::ice_hash() const
 {
     return static_cast<Int>(reinterpret_cast<Long>(this) >> 4);
 }

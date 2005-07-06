@@ -14,7 +14,7 @@
 #include <IceE/Cond.h>
 #include <IceE/Thread.h>
 
-namespace IceE
+namespace Ice
 {
 
 template <typename T>
@@ -362,6 +362,6 @@ private:
     mutable Cond _writers;
 };
 
-} // End namespace IceE
+} // End namespace Ice
 
 #endif

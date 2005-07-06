@@ -14,7 +14,7 @@
 #include <IceE/Handle.h>
 #include <IceE/Mutex.h>
 
-namespace IceE
+namespace Ice
 {
 
 class Time;
@@ -91,7 +91,7 @@ public:
     //
     // Detach a thread. Once a thread is detached, it cannot be
     // detached again, nor can it be joined with. Every thread that
-    // was created using the IceE::Thread class must either be
+    // was created using the Ice::Thread class must either be
     // joined with or detached exactly once. Detaching a thread a
     // second time, or detaching a thread that was previously joined
     // with results in undefined behavior.
@@ -116,7 +116,7 @@ private:
     ThreadId _id;
 };
 
-class ICEE_API Thread : virtual public IceE::Shared
+class ICEE_API Thread : virtual public Ice::Shared
 {
 public:
 

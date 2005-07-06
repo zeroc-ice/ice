@@ -19,33 +19,33 @@
 #include <IceE/Functional.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(RouterManager* p) { p->__incRef(); }
-void IceEInternal::decRef(RouterManager* p) { p->__decRef(); }
+void IceInternal::incRef(RouterManager* p) { p->__incRef(); }
+void IceInternal::decRef(RouterManager* p) { p->__decRef(); }
 
-void IceEInternal::incRef(RouterInfo* p) { p->__incRef(); }
-void IceEInternal::decRef(RouterInfo* p) { p->__decRef(); }
+void IceInternal::incRef(RouterInfo* p) { p->__incRef(); }
+void IceInternal::decRef(RouterInfo* p) { p->__decRef(); }
 
-IceEInternal::RouterManager::RouterManager() :
+IceInternal::RouterManager::RouterManager() :
     _tableHint(_table.end())
 {
 }
 
 void
-IceEInternal::RouterManager::destroy()
+IceInternal::RouterManager::destroy()
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
-    for_each(_table.begin(), _table.end(), IceE::secondVoidMemFun<const RouterPrx, RouterInfo>(&RouterInfo::destroy));
+    for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<const RouterPrx, RouterInfo>(&RouterInfo::destroy));
 
     _table.clear();
     _tableHint = _table.end();
 }
 
 RouterInfoPtr
-IceEInternal::RouterManager::get(const RouterPrx& rtr)
+IceInternal::RouterManager::get(const RouterPrx& rtr)
 {
     if(!rtr)
     {
@@ -54,7 +54,7 @@ IceEInternal::RouterManager::get(const RouterPrx& rtr)
 
     RouterPrx router = RouterPrx::uncheckedCast(rtr->ice_router(0)); // The router cannot be routed.
 
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     map<RouterPrx, RouterInfoPtr>::iterator p = _table.end();
     
@@ -83,7 +83,7 @@ IceEInternal::RouterManager::get(const RouterPrx& rtr)
     return _tableHint->second;
 }
 
-IceEInternal::RouterInfo::RouterInfo(const RouterPrx& router) :
+IceInternal::RouterInfo::RouterInfo(const RouterPrx& router) :
     _router(router),
     _routingTable(new RoutingTable)
 {
@@ -91,9 +91,9 @@ IceEInternal::RouterInfo::RouterInfo(const RouterPrx& router) :
 }
 
 void
-IceEInternal::RouterInfo::destroy()
+IceInternal::RouterInfo::destroy()
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     _clientProxy = 0;
     _serverProxy = 0;
@@ -102,25 +102,25 @@ IceEInternal::RouterInfo::destroy()
 }
 
 bool
-IceEInternal::RouterInfo::operator==(const RouterInfo& rhs) const
+IceInternal::RouterInfo::operator==(const RouterInfo& rhs) const
 {
     return _router == rhs._router;
 }
 
 bool
-IceEInternal::RouterInfo::operator!=(const RouterInfo& rhs) const
+IceInternal::RouterInfo::operator!=(const RouterInfo& rhs) const
 {
     return _router != rhs._router;
 }
 
 bool
-IceEInternal::RouterInfo::operator<(const RouterInfo& rhs) const
+IceInternal::RouterInfo::operator<(const RouterInfo& rhs) const
 {
     return _router < rhs._router;
 }
 
 RouterPrx
-IceEInternal::RouterInfo::getRouter() const
+IceInternal::RouterInfo::getRouter() const
 {
     //
     // No mutex lock necessary, _router is immutable.
@@ -129,9 +129,9 @@ IceEInternal::RouterInfo::getRouter() const
 }
 
 ObjectPrx
-IceEInternal::RouterInfo::getClientProxy()
+IceInternal::RouterInfo::getClientProxy()
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     if(!_clientProxy) // Lazy initialization.
     {
@@ -155,9 +155,9 @@ IceEInternal::RouterInfo::getClientProxy()
 }
 
 void
-IceEInternal::RouterInfo::setClientProxy(const ObjectPrx& clientProxy)
+IceInternal::RouterInfo::setClientProxy(const ObjectPrx& clientProxy)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     _clientProxy = clientProxy->ice_router(0); // The client proxy cannot be routed.
 
@@ -169,9 +169,9 @@ IceEInternal::RouterInfo::setClientProxy(const ObjectPrx& clientProxy)
 }
 
 ObjectPrx
-IceEInternal::RouterInfo::getServerProxy()
+IceInternal::RouterInfo::getServerProxy()
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     
     if(!_serverProxy) // Lazy initialization.
     {
@@ -188,15 +188,15 @@ IceEInternal::RouterInfo::getServerProxy()
 }
 
 void
-IceEInternal::RouterInfo::setServerProxy(const ObjectPrx& serverProxy)
+IceInternal::RouterInfo::setServerProxy(const ObjectPrx& serverProxy)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     _serverProxy = serverProxy->ice_router(0); // The server proxy cannot be routed.
 }
 
 void
-IceEInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
+IceInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
 {
     //
     // No mutex lock necessary, _routingTable is immutable, and
@@ -209,16 +209,16 @@ IceEInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
 }
 
 void
-IceEInternal::RouterInfo::setAdapter(const ObjectAdapterPtr& adapter)
+IceInternal::RouterInfo::setAdapter(const ObjectAdapterPtr& adapter)
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     _adapter = adapter;
 }
 
 ObjectAdapterPtr
-IceEInternal::RouterInfo::getAdapter() const
+IceInternal::RouterInfo::getAdapter() const
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
     return _adapter;
 }
 

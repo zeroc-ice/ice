@@ -17,32 +17,32 @@
 #include <IceE/Identity.h>
 #include <IceE/FacetMap.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class ServantManager : public IceE::Shared, public IceE::Mutex
+class ServantManager : public Ice::Shared, public Ice::Mutex
 {
 public:
 
-    void addServant(const IceE::ObjectPtr&, const IceE::Identity&, const std::string&);
-    IceE::ObjectPtr removeServant(const IceE::Identity&, const std::string&);
-    IceE::FacetMap removeAllFacets(const IceE::Identity&);
-    IceE::ObjectPtr findServant(const IceE::Identity&, const std::string&) const;
-    IceE::FacetMap findAllFacets(const IceE::Identity&) const;
-    bool hasServant(const IceE::Identity&) const;
+    void addServant(const Ice::ObjectPtr&, const Ice::Identity&, const std::string&);
+    Ice::ObjectPtr removeServant(const Ice::Identity&, const std::string&);
+    Ice::FacetMap removeAllFacets(const Ice::Identity&);
+    Ice::ObjectPtr findServant(const Ice::Identity&, const std::string&) const;
+    Ice::FacetMap findAllFacets(const Ice::Identity&) const;
+    bool hasServant(const Ice::Identity&) const;
 
 private:
 
     ServantManager(const InstancePtr&, const std::string&);
     ~ServantManager();
     void destroy();
-    friend class IceE::ObjectAdapter;
+    friend class Ice::ObjectAdapter;
 
     InstancePtr _instance;
 
     const std::string _adapterName;
 
-    typedef std::map<IceE::Identity, IceE::FacetMap> ServantMapMap;
+    typedef std::map<Ice::Identity, Ice::FacetMap> ServantMapMap;
 
     ServantMapMap _servantMapMap;
     mutable ServantMapMap::iterator _servantMapMapHint;

@@ -13,19 +13,19 @@
 #include <IceE/Functional.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(ObjectAdapterFactory* p) { p->__incRef(); }
-void IceEInternal::decRef(ObjectAdapterFactory* p) { p->__decRef(); }
+void IceInternal::incRef(ObjectAdapterFactory* p) { p->__incRef(); }
+void IceInternal::decRef(ObjectAdapterFactory* p) { p->__decRef(); }
 
 void
-IceEInternal::ObjectAdapterFactory::shutdown()
+IceInternal::ObjectAdapterFactory::shutdown()
 {
     map<string, ObjectAdapterPtr> adapters;
 
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 	
 	//
 	// Ignore shutdown requests if the object adapter factory has
@@ -49,7 +49,7 @@ IceEInternal::ObjectAdapterFactory::shutdown()
     // deadlocks.
     //
     //for_each(adapters.begin(), adapters.end(),
-	     //IceE::secondVoidMemFun<const string, ObjectAdapter>(&ObjectAdapter::deactivate));
+	     //Ice::secondVoidMemFun<const string, ObjectAdapter>(&ObjectAdapter::deactivate));
     for(map<string, ObjectAdapterPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
 	p->second->deactivate();
@@ -58,10 +58,10 @@ IceEInternal::ObjectAdapterFactory::shutdown()
 }
 
 void
-IceEInternal::ObjectAdapterFactory::waitForShutdown()
+IceInternal::ObjectAdapterFactory::waitForShutdown()
 {
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 	
 	//
 	// First we wait for the shutdown of the factory itself.
@@ -86,7 +86,7 @@ IceEInternal::ObjectAdapterFactory::waitForShutdown()
     // Now we wait for deactivation of each object adapter.
     //
     //for_each(_adapters.begin(), _adapters.end(),
-	     //IceE::secondVoidMemFun<const string, ObjectAdapter>(&ObjectAdapter::waitForDeactivate));
+	     //Ice::secondVoidMemFun<const string, ObjectAdapter>(&ObjectAdapter::waitForDeactivate));
     for(map<string, ObjectAdapterPtr>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
     {
 	p->second->waitForDeactivate();
@@ -98,7 +98,7 @@ IceEInternal::ObjectAdapterFactory::waitForShutdown()
     _adapters.clear();
 
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 
 	//
 	// Signal that waiting is complete.
@@ -109,9 +109,9 @@ IceEInternal::ObjectAdapterFactory::waitForShutdown()
 }
 
 ObjectAdapterPtr
-IceEInternal::ObjectAdapterFactory::createObjectAdapter(const string& name)
+IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name)
 {
-    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 
     if(!_instance)
     {
@@ -130,9 +130,9 @@ IceEInternal::ObjectAdapterFactory::createObjectAdapter(const string& name)
 }
 
 ObjectAdapterPtr
-IceEInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
+IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
 {
-    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 
     if(!_instance)
     {
@@ -157,7 +157,7 @@ IceEInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
     return 0;
 }
 
-namespace IceEInternal {
+namespace IceInternal {
 
 struct FlushAdapter
 {
@@ -170,11 +170,11 @@ struct FlushAdapter
 }
 
 void
-IceEInternal::ObjectAdapterFactory::flushBatchRequests() const
+IceInternal::ObjectAdapterFactory::flushBatchRequests() const
 {
     list<ObjectAdapterPtr> a;
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 
 	for(map<string, ObjectAdapterPtr>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
 	{
@@ -184,7 +184,7 @@ IceEInternal::ObjectAdapterFactory::flushBatchRequests() const
     for_each(a.begin(), a.end(), FlushAdapter());
 }
 
-IceEInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& instance,
+IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& instance,
 							const CommunicatorPtr& communicator) :
     _instance(instance),
     _communicator(communicator),
@@ -192,7 +192,7 @@ IceEInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& inst
 {
 }
 
-IceEInternal::ObjectAdapterFactory::~ObjectAdapterFactory()
+IceInternal::ObjectAdapterFactory::~ObjectAdapterFactory()
 {
     assert(!_instance);
     assert(!_communicator);

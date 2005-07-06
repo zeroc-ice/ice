@@ -11,15 +11,15 @@
 #include <IceE/BasicStream.h>
 
 void
-IceE::__write(::IceEInternal::BasicStream* __os, ::IceE::OperationMode v)
+Ice::__write(::IceInternal::BasicStream* __os, ::Ice::OperationMode v)
 {
-    __os->write(static_cast< ::IceE::Byte>(v));
+    __os->write(static_cast< ::Ice::Byte>(v));
 }
 
 void
-IceE::__read(::IceEInternal::BasicStream* __is, ::IceE::OperationMode& v)
+Ice::__read(::IceInternal::BasicStream* __is, ::Ice::OperationMode& v)
 {
-    ::IceE::Byte val;
+    ::Ice::Byte val;
     __is->read(val);
-    v = static_cast< ::IceE::OperationMode>(val);
+    v = static_cast< ::Ice::OperationMode>(val);
 }

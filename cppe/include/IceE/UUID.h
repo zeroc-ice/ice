@@ -12,7 +12,7 @@
 
 #include <IceE/Exception.h>
 
-namespace IceE
+namespace Ice
 {
 
 class ICEE_API UUIDGenerationException : public Exception

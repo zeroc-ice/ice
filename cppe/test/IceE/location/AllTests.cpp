@@ -19,17 +19,17 @@ using namespace std;
 using namespace Test;
 
 void
-allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
+allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 {
     ServerManagerPrx manager = ServerManagerPrx::checkedCast(communicator->stringToProxy(ref));
     test(manager);
 
     tprintf("testing stringToProxy...");
-    IceE::ObjectPrx base = communicator->stringToProxy("test @ TestAdapter");
-    IceE::ObjectPrx base2 = communicator->stringToProxy("test @ TestAdapter");
-    IceE::ObjectPrx base3 = communicator->stringToProxy("test");
-    IceE::ObjectPrx base4 = communicator->stringToProxy("ServerManager"); 
-    IceE::ObjectPrx base5 = communicator->stringToProxy("test2");
+    Ice::ObjectPrx base = communicator->stringToProxy("test @ TestAdapter");
+    Ice::ObjectPrx base2 = communicator->stringToProxy("test @ TestAdapter");
+    Ice::ObjectPrx base3 = communicator->stringToProxy("test");
+    Ice::ObjectPrx base4 = communicator->stringToProxy("ServerManager"); 
+    Ice::ObjectPrx base5 = communicator->stringToProxy("test2");
     tprintf("ok\n");
 
     tprintf("starting server...");
@@ -60,7 +60,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	obj2 = TestIntfPrx::checkedCast(base2);
 	obj2->ice_ping();
     }
-    catch(const IceE::LocalException&)
+    catch(const Ice::LocalException&)
     {
 	test(false);
     }
@@ -74,7 +74,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	obj3 = TestIntfPrx::checkedCast(base3);
 	obj3->ice_ping();
     }
-    catch(const IceE::LocalException&)
+    catch(const Ice::LocalException&)
     {
 	test(false);
     }
@@ -83,7 +83,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	obj2 = TestIntfPrx::checkedCast(base2);
 	obj2->ice_ping();
     }
-    catch(const IceE::LocalException&)
+    catch(const Ice::LocalException&)
     {
 	test(false);
     }
@@ -94,7 +94,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	obj2 = TestIntfPrx::checkedCast(base2);
 	obj2->ice_ping();
     }
-    catch(const IceE::LocalException&)
+    catch(const Ice::LocalException&)
     {
 	test(false);
     }
@@ -103,7 +103,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	obj3 = TestIntfPrx::checkedCast(base3);
 	obj3->ice_ping();
     }
-    catch(const IceE::LocalException&)
+    catch(const Ice::LocalException&)
     {
 	test(false);
     }
@@ -115,7 +115,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	obj2 = TestIntfPrx::checkedCast(base2);
 	obj2->ice_ping();
     }
-    catch(const IceE::LocalException&)
+    catch(const Ice::LocalException&)
     {
 	test(false);
     }
@@ -126,7 +126,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	obj3 = TestIntfPrx::checkedCast(base3);
 	obj3->ice_ping();
     }
-    catch(const IceE::LocalException&)
+    catch(const Ice::LocalException&)
     {
 	test(false);
     }
@@ -137,7 +137,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	obj2 = TestIntfPrx::checkedCast(base2);
 	obj2->ice_ping();
     }
-    catch(const IceE::LocalException&)
+    catch(const Ice::LocalException&)
     {
 	test(false);
     }
@@ -149,7 +149,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	obj5 = TestIntfPrx::checkedCast(base5);
 	obj5->ice_ping();
     }
-    catch(const IceE::LocalException&)
+    catch(const Ice::LocalException&)
     {
 	test(false);
     }
@@ -162,7 +162,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	base->ice_ping();
 	test(false);
     }
-    catch (const IceE::NotRegisteredException& ex)
+    catch (const Ice::NotRegisteredException& ex)
     {
 	test(ex.kindOfObject == "object");
 	test(ex.id == "unknown/unknown");
@@ -176,7 +176,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	base->ice_ping();
 	test(false);
     }
-    catch (const IceE::NotRegisteredException& ex)
+    catch (const Ice::NotRegisteredException& ex)
     {
 	test(ex.kindOfObject == "object adapter");
 	test(ex.id == "TestAdapterUnknown");
@@ -214,7 +214,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	obj2->ice_ping();
 	test(false);
     }
-    catch(const IceE::LocalException&)
+    catch(const Ice::LocalException&)
     {
     }
     try
@@ -222,7 +222,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	obj3->ice_ping();
 	test(false);
     }
-    catch(const IceE::LocalException&)
+    catch(const Ice::LocalException&)
     {
     }
     try
@@ -230,7 +230,7 @@ allTests(const IceE::CommunicatorPtr& communicator, const string& ref)
 	obj5->ice_ping();
 	test(false);
     }
-    catch(const IceE::LocalException&)
+    catch(const Ice::LocalException&)
     {
     }
     tprintf("ok\n");

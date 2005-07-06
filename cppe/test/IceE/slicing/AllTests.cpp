@@ -14,7 +14,7 @@
 using namespace std;
 using namespace Test;
 
-class CallbackBase : public IceE::Monitor<IceE::Mutex>
+class CallbackBase : public Ice::Monitor<Ice::Mutex>
 {
 public:
 
@@ -29,10 +29,10 @@ public:
 
     bool check()
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 	while(!_called)
 	{
-	    if(!timedWait(IceE::Time::seconds(5)))
+	    if(!timedWait(Ice::Time::seconds(5)))
 	    {
 		return false;
 	    }
@@ -45,7 +45,7 @@ protected:
 
     void called()
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 	assert(!_called);
 	_called = true;
 	notify();
@@ -57,9 +57,9 @@ private:
 };
 
 TestIntfPrx
-allTests(const IceE::CommunicatorPtr& communicator)
+allTests(const Ice::CommunicatorPtr& communicator)
 {
-    IceE::ObjectPrx obj = communicator->stringToProxy("Test:default -p 12345");
+    Ice::ObjectPrx obj = communicator->stringToProxy("Test:default -p 12345");
     TestIntfPrx test = TestIntfPrx::checkedCast(obj);
 
     tprintf("base... "); fflush(stdout);

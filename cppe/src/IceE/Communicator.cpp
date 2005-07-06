@@ -19,23 +19,23 @@
 #endif
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
 void
-IceEInternal::incRef(::IceE::Communicator* p)
+IceInternal::incRef(::Ice::Communicator* p)
 {
     p->__incRef();
 }
 
 void
-IceEInternal::decRef(::IceE::Communicator* p)
+IceInternal::decRef(::Ice::Communicator* p)
 {
     p->__decRef();
 }
 
 void
-IceE::Communicator::destroy()
+Ice::Communicator::destroy()
 {
     InstancePtr instance;
 
@@ -57,7 +57,7 @@ IceE::Communicator::destroy()
 }
 
 ObjectPrx
-IceE::Communicator::stringToProxy(const string& s) const
+Ice::Communicator::stringToProxy(const string& s) const
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)
@@ -68,7 +68,7 @@ IceE::Communicator::stringToProxy(const string& s) const
 }
 
 string
-IceE::Communicator::proxyToString(const ObjectPrx& proxy) const
+Ice::Communicator::proxyToString(const ObjectPrx& proxy) const
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)
@@ -79,7 +79,7 @@ IceE::Communicator::proxyToString(const ObjectPrx& proxy) const
 }
 
 PropertiesPtr
-IceE::Communicator::getProperties() const
+Ice::Communicator::getProperties() const
 {
     //
     // No check for destruction. It must be possible to access the
@@ -89,7 +89,7 @@ IceE::Communicator::getProperties() const
 }
 
 LoggerPtr
-IceE::Communicator::getLogger() const
+Ice::Communicator::getLogger() const
 {
     //
     // No check for destruction. It must be possible to access the
@@ -99,7 +99,7 @@ IceE::Communicator::getLogger() const
 }
 
 void
-IceE::Communicator::setLogger(const LoggerPtr& logger)
+Ice::Communicator::setLogger(const LoggerPtr& logger)
 {
     //
     // No check for destruction. It must be possible to set the logger
@@ -112,7 +112,7 @@ IceE::Communicator::setLogger(const LoggerPtr& logger)
 #ifndef ICEE_NO_ROUTER
 
 RouterPrx
-IceE::Communicator::getDefaultRouter() const
+Ice::Communicator::getDefaultRouter() const
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)
@@ -123,7 +123,7 @@ IceE::Communicator::getDefaultRouter() const
 }
 
 void
-IceE::Communicator::setDefaultRouter(const RouterPrx& router)
+Ice::Communicator::setDefaultRouter(const RouterPrx& router)
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)
@@ -138,7 +138,7 @@ IceE::Communicator::setDefaultRouter(const RouterPrx& router)
 #ifndef ICEE_NO_LOCATOR
 
 LocatorPrx
-IceE::Communicator::getDefaultLocator() const
+Ice::Communicator::getDefaultLocator() const
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)
@@ -149,7 +149,7 @@ IceE::Communicator::getDefaultLocator() const
 }
 
 void
-IceE::Communicator::setDefaultLocator(const LocatorPrx& locator)
+Ice::Communicator::setDefaultLocator(const LocatorPrx& locator)
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)
@@ -162,7 +162,7 @@ IceE::Communicator::setDefaultLocator(const LocatorPrx& locator)
 #endif
 
 void
-IceE::Communicator::setDefaultContext(const Context& ctx)
+Ice::Communicator::setDefaultContext(const Context& ctx)
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)
@@ -172,8 +172,8 @@ IceE::Communicator::setDefaultContext(const Context& ctx)
     _instance->setDefaultContext(ctx);
 }
 
-IceE::Context
-IceE::Communicator::getDefaultContext() const
+Ice::Context
+Ice::Communicator::getDefaultContext() const
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)
@@ -185,13 +185,13 @@ IceE::Communicator::getDefaultContext() const
 
 #ifndef ICEE_NO_BATCH
 void
-IceE::Communicator::flushBatchRequests()
+Ice::Communicator::flushBatchRequests()
 {
     _instance->flushBatchRequests();
 }
 #endif
 
-IceE::Communicator::Communicator(const PropertiesPtr& properties) :
+Ice::Communicator::Communicator(const PropertiesPtr& properties) :
     _destroyed(false)
 {
     __setNoDelete(true);
@@ -207,13 +207,13 @@ IceE::Communicator::Communicator(const PropertiesPtr& properties) :
     __setNoDelete(false);
 }
 
-IceE::Communicator::~Communicator()
+Ice::Communicator::~Communicator()
 {
     RecMutex::Lock sync(*this);
     if(!_destroyed)
     {
 	Warning out(_instance->logger());
-	out << "IceE::Communicator::destroy() has not been called";
+	out << "Ice::Communicator::destroy() has not been called";
     }
 
     if(_instance->__getRef() > 1)
@@ -231,7 +231,7 @@ IceE::Communicator::~Communicator()
 }
 
 void
-IceE::Communicator::finishSetup(int& argc, char* argv[])
+Ice::Communicator::finishSetup(int& argc, char* argv[])
 {
     _instance->finishSetup(argc, argv);
 }
@@ -239,7 +239,7 @@ IceE::Communicator::finishSetup(int& argc, char* argv[])
 #ifndef ICEE_PURE_CLIENT
 
 void
-IceE::Communicator::shutdown()
+Ice::Communicator::shutdown()
 { 
     ObjectAdapterFactoryPtr objectAdapterFactory;
 
@@ -261,7 +261,7 @@ IceE::Communicator::shutdown()
 }
 
 void
-IceE::Communicator::waitForShutdown()
+Ice::Communicator::waitForShutdown()
 {
     ObjectAdapterFactoryPtr objectAdapterFactory;
 
@@ -283,7 +283,7 @@ IceE::Communicator::waitForShutdown()
 }
 
 ObjectAdapterPtr
-IceE::Communicator::createObjectAdapter(const string& name)
+Ice::Communicator::createObjectAdapter(const string& name)
 {
     RecMutex::Lock sync(*this);
     if(_destroyed)
@@ -298,7 +298,7 @@ IceE::Communicator::createObjectAdapter(const string& name)
 }
 
 ObjectAdapterPtr
-IceE::Communicator::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
+Ice::Communicator::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
 {
     getProperties()->setProperty(name + ".Endpoints", endpoints);
     return createObjectAdapter(name);

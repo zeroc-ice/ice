@@ -11,23 +11,23 @@
 #include <IceE/UserExceptionFactory.h>
 
 //
-// This constructor initializes the single global IceE::factoryTable instance
+// This constructor initializes the single global Ice::factoryTable instance
 // from the outside (if it hasn't been initialized yet). The constructor here
 // is triggered by a file-static instance of FactoryTable in each
 // slice2cpp-generated header file that uses non-local exceptions or non-abstract classes.
-// This ensures that IceE::factoryTable is always initialized before it is used.
+// This ensures that Ice::factoryTable is always initialized before it is used.
 //
-IceE::FactoryTable::FactoryTable()
+Ice::FactoryTable::FactoryTable()
 {
 
-    IceE::factoryTableWrapper.initialize();
+    Ice::factoryTableWrapper.initialize();
 }
 
 //
 // Similarly, the destructor calls the finalize() method on the factory table wrapper which,
 // once the tables reference count drops to zero, deletes the table.
 //
-IceE::FactoryTable::~FactoryTable()
+Ice::FactoryTable::~FactoryTable()
 {
-    IceE::factoryTableWrapper.finalize();
+    Ice::factoryTableWrapper.finalize();
 }

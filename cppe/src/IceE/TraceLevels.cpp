@@ -11,13 +11,13 @@
 #include <IceE/Properties.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(TraceLevels* p) { p->__incRef(); }
-void IceEInternal::decRef(TraceLevels* p) { p->__decRef(); }
+void IceInternal::incRef(TraceLevels* p) { p->__incRef(); }
+void IceInternal::decRef(TraceLevels* p) { p->__decRef(); }
 
-IceEInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties) :
+IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties) :
     network(0),
     networkCat("Network"),
     protocol(0),

@@ -20,10 +20,10 @@
 #include <IceE/StringUtil.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-IceEInternal::IncomingBase::IncomingBase(Instance* instance, Connection* connection, 
+IceInternal::IncomingBase::IncomingBase(Instance* instance, Connection* connection, 
 					const ObjectAdapterPtr& adapter,
 					bool response) :
     _response(response),
@@ -34,7 +34,7 @@ IceEInternal::IncomingBase::IncomingBase(Instance* instance, Connection* connect
     _current.con = _connection;
 }
 
-IceEInternal::IncomingBase::IncomingBase(IncomingBase& in) :
+IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
     _current(in._current),
     _servant(in._servant),
     _cookie(in._cookie),
@@ -46,22 +46,22 @@ IceEInternal::IncomingBase::IncomingBase(IncomingBase& in) :
 }
 
 void
-IceEInternal::IncomingBase::__warning(const Exception& ex) const
+IceInternal::IncomingBase::__warning(const Exception& ex) const
 {
     __warning(ex.toString());
 }
 
 void
-IceEInternal::IncomingBase::__warning(const string& msg) const
+IceInternal::IncomingBase::__warning(const string& msg) const
 {
     Warning out(_os.instance()->logger());
     out << "dispatch exception: " << msg;
     out << "\nidentity: " << identityToString(_current.id);
-    out << "\nfacet: " << IceE::escapeString(_current.facet, "");
+    out << "\nfacet: " << Ice::escapeString(_current.facet, "");
     out << "\noperation: " << _current.operation;
 }
 
-IceEInternal::Incoming::Incoming(Instance* instance, Connection* connection, 
+IceInternal::Incoming::Incoming(Instance* instance, Connection* connection, 
 				const ObjectAdapterPtr& adapter,
 				bool response) :
     IncomingBase(instance, connection, adapter, response),
@@ -70,7 +70,7 @@ IceEInternal::Incoming::Incoming(Instance* instance, Connection* connection,
 }
 
 void
-IceEInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
+IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 {
     //
     // Read the current.

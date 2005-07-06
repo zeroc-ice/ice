@@ -37,7 +37,7 @@
 #   endif
 #endif
 
-namespace IceE
+namespace Ice
 {
 
 class Connection;
@@ -47,22 +47,22 @@ ICEE_API bool operator<(const Connection&, const Connection&);
 
 }
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-ICEE_API void incRef(::IceE::Connection*);
-ICEE_API void decRef(::IceE::Connection*);
+ICEE_API void incRef(::Ice::Connection*);
+ICEE_API void decRef(::Ice::Connection*);
 
 }
 
-namespace IceE
+namespace Ice
 {
 
-typedef ::IceEInternal::Handle< ::IceE::Connection> ConnectionPtr;
+typedef ::IceInternal::Handle< ::Ice::Connection> ConnectionPtr;
 
 }
 
-namespace IceE
+namespace Ice
 {
 
 }

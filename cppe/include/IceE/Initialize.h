@@ -15,7 +15,7 @@
 #include <IceE/InstanceF.h>
 #include <IceE/BuiltinSequences.h>
 
-namespace IceE
+namespace Ice
 {
 
 ICEE_API StringSeq argsToStringSeq(int, char*[]);
@@ -40,7 +40,7 @@ ICEE_API PropertiesPtr getDefaultProperties(int&, char*[]);
 
 }
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 //
@@ -48,7 +48,7 @@ namespace IceEInternal
 // not use this operation for regular application code! It is intended
 // to be used by modules such as Freeze.
 //
-ICEE_API InstancePtr getInstance(const ::IceE::CommunicatorPtr&);
+ICEE_API InstancePtr getInstance(const ::Ice::CommunicatorPtr&);
 
 }
 

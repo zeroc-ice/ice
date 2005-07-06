@@ -12,15 +12,15 @@
 #include <IceE/SafeStdio.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
 #ifdef __sun
 #    define INADDR_NONE (unsigned long)-1
 #endif
 
 bool
-IceEInternal::interrupted()
+IceInternal::interrupted()
 {
 #ifdef _WIN32
     return WSAGetLastError() == WSAEINTR;
@@ -34,7 +34,7 @@ IceEInternal::interrupted()
 }
 
 bool
-IceEInternal::noBuffers()
+IceInternal::noBuffers()
 {
 #ifdef _WIN32
     int error = WSAGetLastError();
@@ -46,7 +46,7 @@ IceEInternal::noBuffers()
 }
 
 bool
-IceEInternal::wouldBlock()
+IceInternal::wouldBlock()
 {
 #ifdef _WIN32
     return WSAGetLastError() == WSAEWOULDBLOCK;
@@ -56,7 +56,7 @@ IceEInternal::wouldBlock()
 }
 
 bool
-IceEInternal::connectFailed()
+IceInternal::connectFailed()
 {
 #ifdef _WIN32
     int error = WSAGetLastError();
@@ -77,7 +77,7 @@ IceEInternal::connectFailed()
 }
 
 bool
-IceEInternal::connectionRefused()
+IceInternal::connectionRefused()
 {
 #ifdef _WIN32
     int error = WSAGetLastError();
@@ -88,7 +88,7 @@ IceEInternal::connectionRefused()
 }
 
 bool
-IceEInternal::connectInProgress()
+IceInternal::connectInProgress()
 {
 #ifdef _WIN32
     return WSAGetLastError() == WSAEWOULDBLOCK;
@@ -98,7 +98,7 @@ IceEInternal::connectInProgress()
 }
 
 bool
-IceEInternal::connectionLost()
+IceInternal::connectionLost()
 {
 #ifdef _WIN32
     int error = WSAGetLastError();
@@ -116,7 +116,7 @@ IceEInternal::connectionLost()
 }
 
 bool
-IceEInternal::notConnected()
+IceInternal::notConnected()
 {
 #ifdef _WIN32
     return WSAGetLastError() == WSAENOTCONN;
@@ -126,7 +126,7 @@ IceEInternal::notConnected()
 }
 
 SOCKET
-IceEInternal::createSocket()
+IceInternal::createSocket()
 {
     SOCKET fd;
 
@@ -159,7 +159,7 @@ IceEInternal::createSocket()
 }
 
 void
-IceEInternal::closeSocket(SOCKET fd)
+IceInternal::closeSocket(SOCKET fd)
 {
 #ifdef _WIN32
     int error = WSAGetLastError();
@@ -183,7 +183,7 @@ IceEInternal::closeSocket(SOCKET fd)
 }
     
 void
-IceEInternal::shutdownSocketWrite(SOCKET fd)
+IceInternal::shutdownSocketWrite(SOCKET fd)
 {
     if(shutdown(fd, SHUT_WR) == SOCKET_ERROR)
     {
@@ -214,7 +214,7 @@ IceEInternal::shutdownSocketWrite(SOCKET fd)
 }
     
 void
-IceEInternal::shutdownSocketReadWrite(SOCKET fd)
+IceInternal::shutdownSocketReadWrite(SOCKET fd)
 {
     if(shutdown(fd, SHUT_RDWR) == SOCKET_ERROR)
     {
@@ -246,7 +246,7 @@ IceEInternal::shutdownSocketReadWrite(SOCKET fd)
 }
     
 void
-IceEInternal::setBlock(SOCKET fd, bool block)
+IceInternal::setBlock(SOCKET fd, bool block)
 {
     if(block)
     {
@@ -273,7 +273,7 @@ IceEInternal::setBlock(SOCKET fd, bool block)
 }
 
 void
-IceEInternal::setTcpNoDelay(SOCKET fd)
+IceInternal::setTcpNoDelay(SOCKET fd)
 {
     int flag = 1;
     if(setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
@@ -286,7 +286,7 @@ IceEInternal::setTcpNoDelay(SOCKET fd)
 }
     
 void
-IceEInternal::setKeepAlive(SOCKET fd)
+IceInternal::setKeepAlive(SOCKET fd)
 {
     int flag = 1;
     if(setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
@@ -299,7 +299,7 @@ IceEInternal::setKeepAlive(SOCKET fd)
 }
 
 void
-IceEInternal::setSendBufferSize(SOCKET fd, int sz)
+IceInternal::setSendBufferSize(SOCKET fd, int sz)
 {
     if(setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char*)&sz, int(sizeof(int))) == SOCKET_ERROR)
     {
@@ -311,7 +311,7 @@ IceEInternal::setSendBufferSize(SOCKET fd, int sz)
 }
 
 void
-IceEInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
+IceInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
 {
 #ifndef _WIN32
     int flag = 1;
@@ -343,7 +343,7 @@ IceEInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
 
 
 void
-IceEInternal::doConnect(SOCKET fd, struct sockaddr_in& addr, int timeout)
+IceInternal::doConnect(SOCKET fd, struct sockaddr_in& addr, int timeout)
 {
 #ifdef _WIN32
     //
@@ -568,7 +568,7 @@ repeatConnect:
 
 
 void
-IceEInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
+IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 {
     memset(&addr, 0, sizeof(struct sockaddr_in));
     addr.sin_family = AF_INET;
@@ -638,7 +638,7 @@ IceEInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 }
 
 string
-IceEInternal::getLocalHost(bool numeric)
+IceInternal::getLocalHost(bool numeric)
 {
     char host[1024 + 1];
     if(gethostname(host, 1024) == SOCKET_ERROR)
@@ -726,7 +726,7 @@ IceEInternal::getLocalHost(bool numeric)
 }
 
 bool
-IceEInternal::compareAddress(const struct sockaddr_in& addr1, const struct sockaddr_in& addr2)
+IceInternal::compareAddress(const struct sockaddr_in& addr1, const struct sockaddr_in& addr2)
 {
     return (addr1.sin_family == addr2.sin_family) &&
            (addr1.sin_port == addr2.sin_port) &&
@@ -736,7 +736,7 @@ IceEInternal::compareAddress(const struct sockaddr_in& addr1, const struct socka
 #ifdef _WIN32
 
 string
-IceEInternal::errorToString(int error)
+IceInternal::errorToString(int error)
 {
     if(error < WSABASEERR)
     {
@@ -921,7 +921,7 @@ IceEInternal::errorToString(int error)
 }
 
 string
-IceEInternal::errorToStringDNS(int error)
+IceInternal::errorToStringDNS(int error)
 {
     return errorToString(error);
 }
@@ -929,13 +929,13 @@ IceEInternal::errorToStringDNS(int error)
 #else
 
 string
-IceEInternal::errorToString(int error)
+IceInternal::errorToString(int error)
 {
     return strerror(error);
 }
 
 string
-IceEInternal::errorToStringDNS(int error)
+IceInternal::errorToStringDNS(int error)
 {
     return gai_strerror(error);
 }
@@ -943,7 +943,7 @@ IceEInternal::errorToStringDNS(int error)
 #endif
 
 string
-IceEInternal::lastErrorToString()
+IceInternal::lastErrorToString()
 {
 #ifdef _WIN32
     return errorToString(WSAGetLastError());
@@ -953,7 +953,7 @@ IceEInternal::lastErrorToString()
 }
 
 std::string
-IceEInternal::fdToString(SOCKET fd)
+IceInternal::fdToString(SOCKET fd)
 {
     if(fd == INVALID_SOCKET)
     {
@@ -993,7 +993,7 @@ IceEInternal::fdToString(SOCKET fd)
     s += inet_ntoa(localAddr.sin_addr);
     s += ":";
 
-    s += IceE::printfToString("%d", ntohs(localAddr.sin_port));
+    s += Ice::printfToString("%d", ntohs(localAddr.sin_port));
     if(peerNotConnected)
     {
 	s += "\nremote address = <not connected>";
@@ -1003,13 +1003,13 @@ IceEInternal::fdToString(SOCKET fd)
 	s += "\nremote address = ";
 	s += inet_ntoa(remoteAddr.sin_addr);
 	s += ":";
-	s += IceE::printfToString("%d", ntohs(remoteAddr.sin_port));
+	s += Ice::printfToString("%d", ntohs(remoteAddr.sin_port));
     }
     return s;
 }
 
 std::string
-IceEInternal::addrToString(const struct sockaddr_in& addr)
+IceInternal::addrToString(const struct sockaddr_in& addr)
 {
     //
     // inet_ntoa uses thread-specific data on Windows, Linux, Solaris
@@ -1018,14 +1018,14 @@ IceEInternal::addrToString(const struct sockaddr_in& addr)
     string s;
     s += inet_ntoa(addr.sin_addr);
     s += ":";
-    s += IceE::printfToString("%d", ntohs(addr.sin_port));
+    s += Ice::printfToString("%d", ntohs(addr.sin_port));
     return s;
 }
 
 #ifndef ICEE_PURE_CLIENT
 
 bool
-IceEInternal::acceptInterrupted()
+IceInternal::acceptInterrupted()
 {
     if(interrupted())
     {
@@ -1045,7 +1045,7 @@ IceEInternal::acceptInterrupted()
 }
 
 SOCKET
-IceEInternal::doAccept(SOCKET fd, int timeout)
+IceInternal::doAccept(SOCKET fd, int timeout)
 {
     int ret;
 
@@ -1130,7 +1130,7 @@ repeatAccept:
 }
 
 void
-IceEInternal::doListen(SOCKET fd, int backlog)
+IceInternal::doListen(SOCKET fd, int backlog)
 {
 repeatListen:
     if(::listen(fd, backlog) == SOCKET_ERROR)

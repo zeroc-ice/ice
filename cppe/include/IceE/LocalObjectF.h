@@ -12,25 +12,25 @@
 
 #include <IceE/Handle.h>
 
-namespace IceE
+namespace Ice
 {
 
 class LocalObject;
 
 }
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-ICEE_API void incRef(::IceE::LocalObject*);
-ICEE_API void decRef(::IceE::LocalObject*);
+ICEE_API void incRef(::Ice::LocalObject*);
+ICEE_API void decRef(::Ice::LocalObject*);
 
 }
 
-namespace IceE
+namespace Ice
 {
 
-typedef IceEInternal::Handle< LocalObject > LocalObjectPtr;
+typedef IceInternal::Handle< LocalObject > LocalObjectPtr;
 
 }
 

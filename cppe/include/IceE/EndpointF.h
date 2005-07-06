@@ -12,13 +12,13 @@
 
 #include <IceE/Handle.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class Endpoint;
 ICEE_API void incRef(Endpoint*);
 ICEE_API void decRef(Endpoint*);
-typedef IceEInternal::Handle<Endpoint> EndpointPtr;
+typedef IceInternal::Handle<Endpoint> EndpointPtr;
 
 }
 

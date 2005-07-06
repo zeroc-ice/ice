@@ -16,7 +16,7 @@ class HelloI : public ::Demo::Hello
 {
 public:
 
-    virtual void sayHello(const IceE::Current&) const;
+    virtual void sayHello(const Ice::Current&) const;
 };
 
 #endif

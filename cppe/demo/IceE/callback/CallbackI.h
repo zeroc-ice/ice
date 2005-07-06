@@ -16,8 +16,8 @@ class CallbackI : public Demo::Callback
 {
 public:
 
-    virtual void initiateCallback(const Demo::CallbackReceiverPrx&, const IceE::Current&);
-    virtual void shutdown(const IceE::Current&);
+    virtual void initiateCallback(const Demo::CallbackReceiverPrx&, const Ice::Current&);
+    virtual void shutdown(const Ice::Current&);
 };
 
 #endif

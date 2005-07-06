@@ -10,7 +10,7 @@
 #ifndef ICEE_DISPATCH_STATUS_H
 #define ICEE_DISPATCH_STATUS_H
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 enum DispatchStatus

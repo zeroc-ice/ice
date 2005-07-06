@@ -12,11 +12,11 @@
 #include <IceE/StringUtil.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
 Identity
-IceE::stringToIdentity(const string& s)
+Ice::stringToIdentity(const string& s)
 {
     Identity ident;
 
@@ -47,7 +47,7 @@ IceE::stringToIdentity(const string& s)
 
     if(slash == string::npos)
     {
-        if(!IceE::unescapeString(s, 0, s.size(), ident.name))
+        if(!Ice::unescapeString(s, 0, s.size(), ident.name))
         {
             IdentityParseException ex(__FILE__, __LINE__);
             ex.str = s;
@@ -56,7 +56,7 @@ IceE::stringToIdentity(const string& s)
     }
     else
     {
-        if(!IceE::unescapeString(s, 0, slash, ident.category))
+        if(!Ice::unescapeString(s, 0, slash, ident.category))
         {
             IdentityParseException ex(__FILE__, __LINE__);
             ex.str = s;
@@ -64,7 +64,7 @@ IceE::stringToIdentity(const string& s)
         }
         if(slash + 1 < s.size())
         {
-            if(!IceE::unescapeString(s, slash + 1, s.size(), ident.name))
+            if(!Ice::unescapeString(s, slash + 1, s.size(), ident.name))
             {
                 IdentityParseException ex(__FILE__, __LINE__);
                 ex.str = s;
@@ -77,14 +77,14 @@ IceE::stringToIdentity(const string& s)
 }
 
 string
-IceE::identityToString(const Identity& ident)
+Ice::identityToString(const Identity& ident)
 {
     if(ident.category.empty())
     {
-	return IceE::escapeString(ident.name, "/");
+	return Ice::escapeString(ident.name, "/");
     }
     else
     {
-	return IceE::escapeString(ident.category, "/") + '/' + IceE::escapeString(ident.name, "/");
+	return Ice::escapeString(ident.category, "/") + '/' + Ice::escapeString(ident.name, "/");
     }
 }

@@ -10,7 +10,7 @@
 #ifndef LOG_I_H
 #define LOG_I_H
 
-class LogI : public IceE::Logger
+class LogI : public Ice::Logger
 {
 public:
 
@@ -30,6 +30,6 @@ private:
     CEdit* _log;
 };
 
-typedef IceE::Handle<LogI> LogIPtr;
+typedef Ice::Handle<LogI> LogIPtr;
 
 #endif

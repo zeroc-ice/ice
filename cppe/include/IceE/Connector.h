@@ -21,12 +21,12 @@
 #   include <netinet/in.h> // For struct sockaddr_in
 #endif
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class Endpoint;
 
-class ICEE_API Connector : public ::IceE::Shared
+class ICEE_API Connector : public ::Ice::Shared
 {
 public:
     
@@ -41,7 +41,7 @@ private:
 
     InstancePtr _instance;
     TraceLevelsPtr _traceLevels;
-    ::IceE::LoggerPtr _logger;
+    ::Ice::LoggerPtr _logger;
     struct sockaddr_in _addr;
 };
 

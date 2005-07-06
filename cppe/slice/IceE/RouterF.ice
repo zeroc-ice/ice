@@ -10,7 +10,7 @@
 #ifndef ICEE_ROUTER_F_ICE
 #define ICEE_ROUTER_F_ICE
 
-module IceE
+module Ice
 {
 
 interface Router;

@@ -10,7 +10,7 @@
 #ifndef ICEE_LOGGER_F_ICE
 #define ICEE_LOGGER_F_ICE
 
-module IceE
+module Ice
 {
 
 local interface Logger;

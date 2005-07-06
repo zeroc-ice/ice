@@ -17,7 +17,7 @@ class NestedI : public Demo::Nested
 public:
 
     NestedI(const Demo::NestedPrx&);
-    virtual void nestedCall(IceE::Int, const Demo::NestedPrx&, const IceE::Current&);
+    virtual void nestedCall(Ice::Int, const Demo::NestedPrx&, const Ice::Current&);
 
 private:
 

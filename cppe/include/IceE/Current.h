@@ -15,18 +15,18 @@
 #include <IceE/Identity.h>
 #include <IceE/OperationMode.h>
 
-namespace IceE
+namespace Ice
 {
 
 struct Current
 {
-    ::IceE::ObjectAdapterPtr adapter;
-    ::IceE::ConnectionPtr con;
-    ::IceE::Identity id;
+    ::Ice::ObjectAdapterPtr adapter;
+    ::Ice::ConnectionPtr con;
+    ::Ice::Identity id;
     ::std::string facet;
     ::std::string operation;
-    ::IceE::OperationMode mode;
-    ::IceE::Context ctx;
+    ::Ice::OperationMode mode;
+    ::Ice::Context ctx;
 
     ICEE_API bool operator==(const Current&) const;
     ICEE_API bool operator!=(const Current&) const;

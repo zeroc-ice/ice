@@ -17,7 +17,7 @@
 #    include <IceE/Mutex.h>
 #endif
 
-namespace IceE
+namespace Ice
 {
 
 //
@@ -240,6 +240,6 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
 
 #endif
 
-} // End namespace IceE
+} // End namespace Ice
 
 #endif

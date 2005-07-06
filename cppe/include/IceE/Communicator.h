@@ -18,10 +18,10 @@
 #include <IceE/RecMutex.h>
 #include <IceE/Initialize.h> // For the friend declarations.
 
-namespace IceE
+namespace Ice
 {
 
-class ICEE_API Communicator : public ::IceE::RecMutex, public ::IceE::Shared
+class ICEE_API Communicator : public ::Ice::RecMutex, public ::Ice::Shared
 {
 public:
     
@@ -70,11 +70,11 @@ private:
 
     friend ICEE_API CommunicatorPtr initialize(int&, char*[], Int);
     friend ICEE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int);
-    friend ICEE_API ::IceEInternal::InstancePtr IceEInternal::getInstance(const ::IceE::CommunicatorPtr&);
+    friend ICEE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
     bool _destroyed;
-    ::IceEInternal::InstancePtr _instance;
-    ::IceE::Context _dfltContext;
+    ::IceInternal::InstancePtr _instance;
+    ::Ice::Context _dfltContext;
 };
 
 }

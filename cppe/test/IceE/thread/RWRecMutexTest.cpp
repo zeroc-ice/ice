@@ -14,7 +14,7 @@
 #include <TestCommon.h>
 
 using namespace std;
-using namespace IceE;
+using namespace Ice;
 
 static const std::string rwRecMutexTestName("read/write recursive mutex");
 

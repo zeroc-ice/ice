@@ -15,19 +15,19 @@
 #include <IceE/Mutex.h>
 #include <IceE/BuiltinSequences.h>
 
-namespace IceE
+namespace Ice
 {
 
 typedef ::std::map< ::std::string, ::std::string> PropertyDict;
 
-class ICEE_API Properties : public IceE::Mutex, public ::IceE::Shared
+class ICEE_API Properties : public Ice::Mutex, public ::Ice::Shared
 {
 public:
     
     std::string getProperty(const std::string&);
     std::string getPropertyWithDefault(const std::string&, const std::string&);
-    IceE::Int getPropertyAsInt(const std::string&);
-    IceE::Int getPropertyAsIntWithDefault(const std::string&, IceE::Int);
+    Ice::Int getPropertyAsInt(const std::string&);
+    Ice::Int getPropertyAsIntWithDefault(const std::string&, Ice::Int);
     PropertyDict getPropertiesForPrefix(const std::string&);
     void setProperty(const std::string&, const std::string&);
     StringSeq getCommandLineOptions();

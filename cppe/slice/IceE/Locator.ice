@@ -12,7 +12,7 @@
 
 #include <IceE/Identity.ice>
 
-module IceE
+module Ice
 {
 
 /**
@@ -80,7 +80,7 @@ interface Locator
      * be found.
      *
      **/
-    ["amd"] nonmutating Object* findObjectById(IceE::Identity id)
+    ["amd"] nonmutating Object* findObjectById(Ice::Identity id)
 	throws ObjectNotFoundException;
 
     /**

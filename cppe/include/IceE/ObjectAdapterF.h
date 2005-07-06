@@ -12,7 +12,7 @@
 
 #include <IceE/Handle.h>
 
-namespace IceE
+namespace Ice
 {
 
 class ObjectAdapter;
@@ -22,18 +22,18 @@ ICEE_API bool operator<(const ObjectAdapter&, const ObjectAdapter&);
 
 }
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-ICEE_API void incRef(::IceE::ObjectAdapter*);
-ICEE_API void decRef(::IceE::ObjectAdapter*);
+ICEE_API void incRef(::Ice::ObjectAdapter*);
+ICEE_API void decRef(::Ice::ObjectAdapter*);
 
 }
 
-namespace IceE
+namespace Ice
 {
 
-typedef ::IceEInternal::Handle< ::IceE::ObjectAdapter> ObjectAdapterPtr;
+typedef ::IceInternal::Handle< ::Ice::ObjectAdapter> ObjectAdapterPtr;
 
 }
 

@@ -15,28 +15,28 @@
 #include <IceE/Proxy.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(RoutingTable* p) { p->__incRef(); }
-void IceEInternal::decRef(RoutingTable* p) { p->__decRef(); }
+void IceInternal::incRef(RoutingTable* p) { p->__incRef(); }
+void IceInternal::decRef(RoutingTable* p) { p->__decRef(); }
 
-IceEInternal::RoutingTable::RoutingTable() :
+IceInternal::RoutingTable::RoutingTable() :
     _tableHint(_table.end())
 {
 }
 
 void
-IceEInternal::RoutingTable::clear()
+IceInternal::RoutingTable::clear()
 {
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     _table.clear();
     _tableHint = _table.end();
 }
 
 bool
-IceEInternal::RoutingTable::add(const ObjectPrx& prx)
+IceInternal::RoutingTable::add(const ObjectPrx& prx)
 {
     if(!prx)
     {
@@ -45,7 +45,7 @@ IceEInternal::RoutingTable::add(const ObjectPrx& prx)
 
     ObjectPrx proxy = prx->ice_default(); // We insert the proxy in its default form into the routing table.
 
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     map<Identity, ObjectPrx>::iterator p = _table.end();
     
@@ -74,14 +74,14 @@ IceEInternal::RoutingTable::add(const ObjectPrx& prx)
 }
 
 ObjectPrx
-IceEInternal::RoutingTable::get(const Identity& ident)
+IceInternal::RoutingTable::get(const Identity& ident)
 {
     if(ident.name.empty())
     {
 	return 0;
     }
 
-    IceE::Mutex::Lock sync(*this);
+    Ice::Mutex::Lock sync(*this);
 
     map<Identity, ObjectPrx>::iterator p = _table.end();
     

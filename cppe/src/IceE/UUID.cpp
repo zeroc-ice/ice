@@ -58,12 +58,12 @@ inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
 }
 
 
-IceE::UUIDGenerationException::UUIDGenerationException(const char* file, int line) :
+Ice::UUIDGenerationException::UUIDGenerationException(const char* file, int line) :
     Exception(file, line)
 {
 }
 
-const char* IceE::UUIDGenerationException::_name = "IceE::UUIDGenerationException";
+const char* Ice::UUIDGenerationException::_name = "Ice::UUIDGenerationException";
 
 #ifndef _WIN32
 //
@@ -77,7 +77,7 @@ const char* IceE::UUIDGenerationException::_name = "IceE::UUIDGenerationExceptio
 // a static mutex.
 //
 
-static IceE::StaticMutex staticMutex = ICEE_STATIC_MUTEX_INITIALIZER;
+static Ice::StaticMutex staticMutex = ICEE_STATIC_MUTEX_INITIALIZER;
 static int fd = -1;
 static char myPid[2];
 
@@ -93,7 +93,7 @@ public:
     
     ~UUIDCleanup()
     {
-         IceE::StaticMutex::Lock lock(staticMutex);
+         Ice::StaticMutex::Lock lock(staticMutex);
 	 if(fd != -1)
 	 {
 	     close(fd);
@@ -108,26 +108,26 @@ static UUIDCleanup uuidCleanup;
 #endif
 
 const string
-IceE::UUIDGenerationException::ice_name() const
+Ice::UUIDGenerationException::ice_name() const
 {
     return _name;
 }
 
-IceE::Exception*
-IceE::UUIDGenerationException::ice_clone() const
+Ice::Exception*
+Ice::UUIDGenerationException::ice_clone() const
 {
     return new UUIDGenerationException(*this);
 }
 
 void
-IceE::UUIDGenerationException::ice_throw() const
+Ice::UUIDGenerationException::ice_throw() const
 {
     throw *this;
 }
 
 
 string
-IceE::generateUUID()
+Ice::generateUUID()
 {
 #if defined(_WIN32 ) && !defined(_WIN32_WCE)
 
@@ -189,7 +189,7 @@ IceE::generateUUID()
 	//
 	// Serialize access to /dev/urandom; see comment above.
 	//
-	IceE::StaticMutex::Lock lock(staticMutex);
+	Ice::StaticMutex::Lock lock(staticMutex);
 	if(fd == -1)
 	{
 	    fd = open("/dev/urandom", O_RDONLY);

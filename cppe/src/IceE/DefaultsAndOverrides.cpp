@@ -12,13 +12,13 @@
 #include <IceE/Network.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(DefaultsAndOverrides* p) { p->__incRef(); }
-void IceEInternal::decRef(DefaultsAndOverrides* p) { p->__decRef(); }
+void IceInternal::incRef(DefaultsAndOverrides* p) { p->__incRef(); }
+void IceInternal::decRef(DefaultsAndOverrides* p) { p->__decRef(); }
 
-IceEInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties) :
+IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties) :
     overrideTimeout(false),
     overrideTimeoutValue(-1),
     overrideConnectTimeout(false),

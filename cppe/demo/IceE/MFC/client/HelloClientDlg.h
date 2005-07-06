@@ -18,7 +18,7 @@
 class CHelloClientDlg : public CDialog
 {
 public:
-    CHelloClientDlg(const IceE::CommunicatorPtr&, CWnd* = NULL);
+    CHelloClientDlg(const Ice::CommunicatorPtr&, CWnd* = NULL);
 
     enum { IDD = IDD_HELLOCLIENT_DIALOG };
 
@@ -26,7 +26,7 @@ protected:
     virtual void DoDataExchange(CDataExchange*);    // DDX/DDV support
 
 protected:
-    IceE::CommunicatorPtr _communicator;
+    Ice::CommunicatorPtr _communicator;
     CComboBox* _mode;
     CButton* _secure;
     CButton* _timeout;
@@ -48,7 +48,7 @@ protected:
     DECLARE_MESSAGE_MAP()
 
     void updateProxy();
-    void handleException(const IceE::Exception&);
+    void handleException(const Ice::Exception&);
 };
 
 #endif

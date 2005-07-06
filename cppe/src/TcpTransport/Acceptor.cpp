@@ -16,20 +16,20 @@
 #include <IceE/Exception.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(Acceptor* p) { p->__incRef(); }
-void IceEInternal::decRef(Acceptor* p) { p->__decRef(); }
+void IceInternal::incRef(Acceptor* p) { p->__incRef(); }
+void IceInternal::decRef(Acceptor* p) { p->__decRef(); }
 
 SOCKET
-IceEInternal::Acceptor::fd()
+IceInternal::Acceptor::fd()
 {
     return _fd;
 }
 
 void
-IceEInternal::Acceptor::close()
+IceInternal::Acceptor::close()
 {
     if(_traceLevels->network >= 1)
     {
@@ -43,7 +43,7 @@ IceEInternal::Acceptor::close()
 }
 
 void
-IceEInternal::Acceptor::listen()
+IceInternal::Acceptor::listen()
 {
     try
     {
@@ -63,7 +63,7 @@ IceEInternal::Acceptor::listen()
 }
 
 TransceiverPtr
-IceEInternal::Acceptor::accept(int timeout)
+IceInternal::Acceptor::accept(int timeout)
 {
     SOCKET fd = doAccept(_fd, timeout);
     setBlock(fd, false);
@@ -78,7 +78,7 @@ IceEInternal::Acceptor::accept(int timeout)
 }
 
 void
-IceEInternal::Acceptor::connectToSelf()
+IceInternal::Acceptor::connectToSelf()
 {
     SOCKET fd = createSocket();
     setBlock(fd, false);
@@ -87,13 +87,13 @@ IceEInternal::Acceptor::connectToSelf()
 }
 
 string
-IceEInternal::Acceptor::toString() const
+IceInternal::Acceptor::toString() const
 {
     return addrToString(_addr);
 }
 
 bool
-IceEInternal::Acceptor::equivalent(const string& host, int port) const
+IceInternal::Acceptor::equivalent(const string& host, int port) const
 {
     struct sockaddr_in addr;
     getAddress(host, port, addr);
@@ -101,12 +101,12 @@ IceEInternal::Acceptor::equivalent(const string& host, int port) const
 }
 
 int
-IceEInternal::Acceptor::effectivePort()
+IceInternal::Acceptor::effectivePort()
 {
     return ntohs(_addr.sin_port);
 }
 
-IceEInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host, int port) :
+IceInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host, int port) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
@@ -136,7 +136,7 @@ IceEInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host
     }
 }
 
-IceEInternal::Acceptor::~Acceptor()
+IceInternal::Acceptor::~Acceptor()
 {
     assert(_fd == INVALID_SOCKET);
 }

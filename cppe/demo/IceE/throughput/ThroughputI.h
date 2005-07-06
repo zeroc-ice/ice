@@ -38,75 +38,75 @@ public:
     }
 
     virtual void
-    sendByteSeq(const Demo::ByteSeq&, const IceE::Current&)
+    sendByteSeq(const Demo::ByteSeq&, const Ice::Current&)
     {
     }
 
     virtual Demo::ByteSeq
-    recvByteSeq(const IceE::Current&)
+    recvByteSeq(const Ice::Current&)
     {
 	return _byteSeq;
     }
 
     virtual Demo::ByteSeq
-    echoByteSeq(const Demo::ByteSeq& seq, const IceE::Current&)
+    echoByteSeq(const Demo::ByteSeq& seq, const Ice::Current&)
     {
 	return seq;
     }
 
     virtual void
-    sendStringSeq(const Demo::StringSeq&, const IceE::Current&)
+    sendStringSeq(const Demo::StringSeq&, const Ice::Current&)
     {
     }
 
     virtual Demo::StringSeq
-    recvStringSeq(const IceE::Current&)
+    recvStringSeq(const Ice::Current&)
     {
 	return _stringSeq;
     }
 
     virtual Demo::StringSeq
-    echoStringSeq(const Demo::StringSeq& seq, const IceE::Current&)
+    echoStringSeq(const Demo::StringSeq& seq, const Ice::Current&)
     {
 	return seq;
     }
 
     virtual void
-    sendStructSeq(const Demo::StringDoubleSeq&, const IceE::Current&)
+    sendStructSeq(const Demo::StringDoubleSeq&, const Ice::Current&)
     {
     }
 
     virtual Demo::StringDoubleSeq
-    recvStructSeq(const IceE::Current&)
+    recvStructSeq(const Ice::Current&)
     {
 	return _structSeq;
     }
 
     virtual Demo::StringDoubleSeq
-    echoStructSeq(const Demo::StringDoubleSeq& seq, const IceE::Current&)
+    echoStructSeq(const Demo::StringDoubleSeq& seq, const Ice::Current&)
     {
 	return seq;
     }
 
     virtual void
-    sendFixedSeq(const Demo::FixedSeq&, const IceE::Current&)
+    sendFixedSeq(const Demo::FixedSeq&, const Ice::Current&)
     {
     }
 
     virtual Demo::FixedSeq
-    recvFixedSeq(const IceE::Current&)
+    recvFixedSeq(const Ice::Current&)
     {
 	return _fixedSeq;
     }
 
     virtual Demo::FixedSeq
-    echoFixedSeq(const Demo::FixedSeq& seq, const IceE::Current&)
+    echoFixedSeq(const Demo::FixedSeq& seq, const Ice::Current&)
     {
 	return seq;
     }
 
     virtual void
-    shutdown(const IceE::Current& c)
+    shutdown(const Ice::Current& c)
     {
 	c.adapter->getCommunicator()->shutdown();
     }

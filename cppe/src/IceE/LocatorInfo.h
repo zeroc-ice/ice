@@ -21,10 +21,10 @@
 #include <IceE/Shared.h>
 #include <IceE/Mutex.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class LocatorManager : public IceE::Shared, public IceE::Mutex
+class LocatorManager : public Ice::Shared, public Ice::Mutex
 {
 public:
 
@@ -36,17 +36,17 @@ public:
     // Returns locator info for a given locator. Automatically creates
     // the locator info if it doesn't exist yet.
     //
-    LocatorInfoPtr get(const IceE::LocatorPrx&);
+    LocatorInfoPtr get(const Ice::LocatorPrx&);
 
 private:
 
-    std::map<IceE::LocatorPrx, LocatorInfoPtr> _table;
-    std::map<IceE::LocatorPrx, LocatorInfoPtr>::iterator _tableHint;
+    std::map<Ice::LocatorPrx, LocatorInfoPtr> _table;
+    std::map<Ice::LocatorPrx, LocatorInfoPtr>::iterator _tableHint;
 
-    std::map<IceE::Identity, LocatorTablePtr> _locatorTables;
+    std::map<Ice::Identity, LocatorTablePtr> _locatorTables;
 };
 
-class LocatorTable : public IceE::Shared, public IceE::Mutex
+class LocatorTable : public Ice::Shared, public Ice::Mutex
 {
 public:
 
@@ -58,21 +58,21 @@ public:
     void addAdapterEndpoints(const std::string&, const ::std::vector<EndpointPtr>&);
     ::std::vector<EndpointPtr> removeAdapterEndpoints(const std::string&);
 
-    bool getProxy(const IceE::Identity&, IceE::ObjectPrx&) const;
-    void addProxy(const IceE::Identity&, const IceE::ObjectPrx&);
-    IceE::ObjectPrx removeProxy(const IceE::Identity&);
+    bool getProxy(const Ice::Identity&, Ice::ObjectPrx&) const;
+    void addProxy(const Ice::Identity&, const Ice::ObjectPrx&);
+    Ice::ObjectPrx removeProxy(const Ice::Identity&);
     
 private:
 
     std::map<std::string, std::vector<EndpointPtr> > _adapterEndpointsMap;
-    std::map<IceE::Identity, IceE::ObjectPrx > _objectMap;
+    std::map<Ice::Identity, Ice::ObjectPrx > _objectMap;
 };
 
-class LocatorInfo : public IceE::Shared, public IceE::Mutex
+class LocatorInfo : public Ice::Shared, public Ice::Mutex
 {
 public:
 
-    LocatorInfo(const IceE::LocatorPrx&, const LocatorTablePtr&);
+    LocatorInfo(const Ice::LocatorPrx&, const LocatorTablePtr&);
 
     void destroy();
 
@@ -80,8 +80,8 @@ public:
     bool operator!=(const LocatorInfo&) const;
     bool operator<(const LocatorInfo&) const;
 
-    IceE::LocatorPrx getLocator() const;
-    IceE::LocatorRegistryPrx getLocatorRegistry();
+    Ice::LocatorPrx getLocator() const;
+    Ice::LocatorRegistryPrx getLocatorRegistry();
 
     std::vector<EndpointPtr> getEndpoints(const IndirectReferencePtr&, bool&);
     void clearCache(const IndirectReferencePtr&);
@@ -91,8 +91,8 @@ private:
 
     void trace(const std::string&, const IndirectReferencePtr&, const std::vector<EndpointPtr>&);
 
-    const IceE::LocatorPrx _locator;
-    IceE::LocatorRegistryPrx _locatorRegistry;
+    const Ice::LocatorPrx _locator;
+    Ice::LocatorRegistryPrx _locatorRegistry;
     const LocatorTablePtr _table;
 };
 

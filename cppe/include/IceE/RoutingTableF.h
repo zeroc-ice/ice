@@ -12,13 +12,13 @@
 
 #include <IceE/Handle.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class RoutingTable;
 ICEE_API void incRef(RoutingTable*);
 ICEE_API void decRef(RoutingTable*);
-typedef IceEInternal::Handle<RoutingTable> RoutingTablePtr;
+typedef IceInternal::Handle<RoutingTable> RoutingTablePtr;
 
 }
 

@@ -15,7 +15,7 @@
 #include <TestCommon.h>
 
 using namespace std;
-using namespace IceE;
+using namespace Ice;
 
 static const string createTestName("thread create");
 

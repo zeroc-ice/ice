@@ -13,23 +13,23 @@
 #include <IceE/BasicStream.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(EndpointFactory* p) { p->__incRef(); }
-void IceEInternal::decRef(EndpointFactory* p) { p->__decRef(); }
+void IceInternal::incRef(EndpointFactory* p) { p->__incRef(); }
+void IceInternal::decRef(EndpointFactory* p) { p->__decRef(); }
 
-IceEInternal::EndpointFactory::EndpointFactory(const InstancePtr& instance)
+IceInternal::EndpointFactory::EndpointFactory(const InstancePtr& instance)
     : _instance(instance)
 {
 }
 
-IceEInternal::EndpointFactory::~EndpointFactory()
+IceInternal::EndpointFactory::~EndpointFactory()
 {
 }
 
 EndpointPtr
-IceEInternal::EndpointFactory::create(const std::string& str) const
+IceInternal::EndpointFactory::create(const std::string& str) const
 {
     const string delim = " \t\n\r";
 
@@ -60,7 +60,7 @@ IceEInternal::EndpointFactory::create(const std::string& str) const
 }
 
 EndpointPtr
-IceEInternal::EndpointFactory::read(BasicStream* s) const
+IceInternal::EndpointFactory::read(BasicStream* s) const
 {
     Short type;
     s->read(type);
@@ -78,7 +78,7 @@ IceEInternal::EndpointFactory::read(BasicStream* s) const
 }
 
 void
-IceEInternal::EndpointFactory::destroy()
+IceInternal::EndpointFactory::destroy()
 {
     _instance = 0;
 }

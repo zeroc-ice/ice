@@ -20,10 +20,10 @@
 #include <IceE/Shared.h>
 #include <IceE/Mutex.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class RouterManager : public IceE::Shared, public IceE::Mutex
+class RouterManager : public Ice::Shared, public Ice::Mutex
 {
 public:
 
@@ -35,19 +35,19 @@ public:
     // Returns router info for a given router. Automatically creates
     // the router info if it doesn't exist yet.
     //
-    RouterInfoPtr get(const IceE::RouterPrx&);
+    RouterInfoPtr get(const Ice::RouterPrx&);
 
 private:
 
-    std::map<IceE::RouterPrx, RouterInfoPtr> _table;
-    std::map<IceE::RouterPrx, RouterInfoPtr>::iterator _tableHint;
+    std::map<Ice::RouterPrx, RouterInfoPtr> _table;
+    std::map<Ice::RouterPrx, RouterInfoPtr>::iterator _tableHint;
 };
 
-class RouterInfo : public IceE::Shared, public IceE::Mutex
+class RouterInfo : public Ice::Shared, public Ice::Mutex
 {
 public:
 
-    RouterInfo(const IceE::RouterPrx&);
+    RouterInfo(const Ice::RouterPrx&);
 
     void destroy();
 
@@ -55,22 +55,22 @@ public:
     bool operator!=(const RouterInfo&) const;
     bool operator<(const RouterInfo&) const;
 
-    IceE::RouterPrx getRouter() const;
-    IceE::ObjectPrx getClientProxy();
-    void setClientProxy(const IceE::ObjectPrx&);
-    IceE::ObjectPrx getServerProxy();
-    void setServerProxy(const IceE::ObjectPrx&);
-    void addProxy(const IceE::ObjectPrx&);
-    void setAdapter(const IceE::ObjectAdapterPtr&);
-    IceE::ObjectAdapterPtr getAdapter() const;
+    Ice::RouterPrx getRouter() const;
+    Ice::ObjectPrx getClientProxy();
+    void setClientProxy(const Ice::ObjectPrx&);
+    Ice::ObjectPrx getServerProxy();
+    void setServerProxy(const Ice::ObjectPrx&);
+    void addProxy(const Ice::ObjectPrx&);
+    void setAdapter(const Ice::ObjectAdapterPtr&);
+    Ice::ObjectAdapterPtr getAdapter() const;
 
 private:
 
-    const IceE::RouterPrx _router;
-    IceE::ObjectPrx _clientProxy;
-    IceE::ObjectPrx _serverProxy;
+    const Ice::RouterPrx _router;
+    Ice::ObjectPrx _clientProxy;
+    Ice::ObjectPrx _serverProxy;
     const RoutingTablePtr _routingTable;
-    IceE::ObjectAdapterPtr _adapter;
+    Ice::ObjectAdapterPtr _adapter;
 };
 
 }

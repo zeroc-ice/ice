@@ -11,14 +11,14 @@
 #include <CallbackI.h>
 
 using namespace std;
-using namespace IceE;
+using namespace Ice;
 using namespace Demo;
 
 int
-run(int argc, char* argv[], const IceE::CommunicatorPtr& communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Server");
-    adapter->add(new CallbackI, IceE::stringToIdentity("callback"));
+    adapter->add(new CallbackI, Ice::stringToIdentity("callback"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
@@ -28,16 +28,16 @@ int
 main(int argc, char* argv[])
 {
     int status;
-    IceE::CommunicatorPtr communicator;
+    Ice::CommunicatorPtr communicator;
 
     try
     {
-        IceE::PropertiesPtr properties = IceE::createProperties();
+        Ice::PropertiesPtr properties = Ice::createProperties();
         properties->load("config");
-        communicator = IceE::initializeWithProperties(argc, argv, properties);
+        communicator = Ice::initializeWithProperties(argc, argv, properties);
         status = run(argc, argv, communicator);
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
         fprintf(stderr, "%s\n", ex.toString().c_str());
         status = EXIT_FAILURE;
@@ -49,7 +49,7 @@ main(int argc, char* argv[])
         {
             communicator->destroy();
         }
-        catch(const IceE::Exception& ex)
+        catch(const Ice::Exception& ex)
         {
             fprintf(stderr, "%s\n", ex.toString().c_str());
             status = EXIT_FAILURE;

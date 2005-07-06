@@ -16,32 +16,32 @@ class ThrowerI : public Test::Thrower
 {
 public:
 
-    ThrowerI(const IceE::ObjectAdapterPtr&);
+    ThrowerI(const Ice::ObjectAdapterPtr&);
 
-    virtual void shutdown(const IceE::Current&);
-    virtual bool supportsUndeclaredExceptions(const IceE::Current&);
-    virtual bool supportsAssertException(const IceE::Current&);
+    virtual void shutdown(const Ice::Current&);
+    virtual bool supportsUndeclaredExceptions(const Ice::Current&);
+    virtual bool supportsAssertException(const Ice::Current&);
 
-    virtual void throwAasA(IceE::Int, const IceE::Current&);
-    virtual void throwAorDasAorD(IceE::Int, const IceE::Current&);
-    virtual void throwBasA(IceE::Int, IceE::Int, const IceE::Current&);
-    virtual void throwCasA(IceE::Int, IceE::Int, IceE::Int, const IceE::Current&);
-    virtual void throwBasB(IceE::Int, IceE::Int, const IceE::Current&);
-    virtual void throwCasB(IceE::Int, IceE::Int, IceE::Int, const IceE::Current&);
-    virtual void throwCasC(IceE::Int, IceE::Int, IceE::Int, const IceE::Current&);
+    virtual void throwAasA(Ice::Int, const Ice::Current&);
+    virtual void throwAorDasAorD(Ice::Int, const Ice::Current&);
+    virtual void throwBasA(Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwCasA(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwBasB(Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwCasB(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwCasC(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
 
-    virtual void throwModA(IceE::Int, IceE::Int, const IceE::Current&);
+    virtual void throwModA(Ice::Int, Ice::Int, const Ice::Current&);
     
-    virtual void throwUndeclaredA(IceE::Int, const IceE::Current&);
-    virtual void throwUndeclaredB(IceE::Int, IceE::Int, const IceE::Current&);
-    virtual void throwUndeclaredC(IceE::Int, IceE::Int, IceE::Int, const IceE::Current&);
-    virtual void throwLocalException(const IceE::Current&);
-    virtual void throwNonIceException(const IceE::Current&);
-    virtual void throwAssertException(const IceE::Current&);
+    virtual void throwUndeclaredA(Ice::Int, const Ice::Current&);
+    virtual void throwUndeclaredB(Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwUndeclaredC(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwLocalException(const Ice::Current&);
+    virtual void throwNonIceException(const Ice::Current&);
+    virtual void throwAssertException(const Ice::Current&);
 
 private:
 
-    IceE::ObjectAdapterPtr _adapter;
+    Ice::ObjectAdapterPtr _adapter;
 };
 
 #endif

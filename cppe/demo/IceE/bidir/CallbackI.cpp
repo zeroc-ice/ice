@@ -11,7 +11,7 @@
 #include <CallbackI.h>
 
 using namespace std;
-using namespace IceE;
+using namespace Ice;
 using namespace Demo;
 
 CallbackSenderI::CallbackSenderI() :
@@ -24,10 +24,10 @@ CallbackSenderI::CallbackSenderI() :
 void
 CallbackSenderI::destroy()
 {
-    IceE::ThreadPtr callbackSenderThread;
+    Ice::ThreadPtr callbackSenderThread;
 
     {
-	IceE::Monitor<IceE::Mutex>::Lock lock(*this);
+	Ice::Monitor<Ice::Mutex>::Lock lock(*this);
 	
 	printf("destroying callback sender\n");
 	_destroy = true;
@@ -44,7 +44,7 @@ CallbackSenderI::destroy()
 void
 CallbackSenderI::addClient(const Identity& ident, const Current& current)
 {
-    IceE::Monitor<IceE::Mutex>::Lock lock(*this);
+    Ice::Monitor<Ice::Mutex>::Lock lock(*this);
 
     printf("adding client `%s'\n", identityToString(ident).c_str());
 
@@ -61,11 +61,11 @@ CallbackSenderI::start()
 void
 CallbackSenderI::run()
 {
-    IceE::Monitor<IceE::Mutex>::Lock lock(*this);
+    Ice::Monitor<Ice::Mutex>::Lock lock(*this);
 
     while(!_destroy)
     {
-	timedWait(IceE::Time::seconds(2));
+	timedWait(Ice::Time::seconds(2));
 
 	if(!_destroy && !_clients.empty())
 	{

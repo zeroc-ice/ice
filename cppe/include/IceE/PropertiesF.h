@@ -12,25 +12,25 @@
 
 #include <IceE/Handle.h>
 
-namespace IceE
+namespace Ice
 {
 
 class Properties;
 
 }
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-ICEE_API void incRef(::IceE::Properties*);
-ICEE_API void decRef(::IceE::Properties*);
+ICEE_API void incRef(::Ice::Properties*);
+ICEE_API void decRef(::Ice::Properties*);
 
 }
 
-namespace IceE
+namespace Ice
 {
 
-typedef ::IceEInternal::Handle< ::IceE::Properties> PropertiesPtr;
+typedef ::IceInternal::Handle< ::Ice::Properties> PropertiesPtr;
 
 }
 

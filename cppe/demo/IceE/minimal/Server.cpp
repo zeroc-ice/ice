@@ -13,11 +13,11 @@
 using namespace std;
 
 int
-run(int argc, char* argv[], const IceE::CommunicatorPtr& communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    IceE::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Hello");
-    IceE::ObjectPtr object = new HelloI;
-    adapter->add(object, IceE::stringToIdentity("hello"));
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Hello");
+    Ice::ObjectPtr object = new HelloI;
+    adapter->add(object, Ice::stringToIdentity("hello"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
@@ -40,16 +40,16 @@ main(int argc, char* argv[])
 #endif
 
     int status;
-    IceE::CommunicatorPtr communicator;
+    Ice::CommunicatorPtr communicator;
 
     try
     {
-	IceE::PropertiesPtr properties = IceE::createProperties();
+	Ice::PropertiesPtr properties = Ice::createProperties();
         properties->load("config");
-	communicator = IceE::initializeWithProperties(argc, argv, properties);
+	communicator = Ice::initializeWithProperties(argc, argv, properties);
 	status = run(argc, argv, communicator);
     }
-    catch(const IceE::Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	fprintf(stderr, "%s\n", ex.toString().c_str());
 	status = EXIT_FAILURE;
@@ -61,7 +61,7 @@ main(int argc, char* argv[])
 	{
 	    communicator->destroy();
 	}
-	catch(const IceE::Exception& ex)
+	catch(const Ice::Exception& ex)
 	{
 	    fprintf(stderr, "%s\n", ex.toString().c_str());
 	    status = EXIT_FAILURE;

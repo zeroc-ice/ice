@@ -11,37 +11,37 @@
 #include <TestCommon.h>
 #include <TestI.h>
 
-TestI::TestI(const IceE::ObjectAdapterPtr& adapter) :
+TestI::TestI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {
 }
 
 void
-TestI::shutdown(const IceE::Current&)
+TestI::shutdown(const Ice::Current&)
 {
     _adapter->getCommunicator()->shutdown();
 }
 
 void
-TestI::abort(const IceE::Current&)
+TestI::abort(const Ice::Current&)
 {
     exit(0);
 }
 
 void
-TestI::idempotentAbort(const IceE::Current&)
+TestI::idempotentAbort(const Ice::Current&)
 {
     exit(0);
 }
 
 void
-TestI::nonmutatingAbort(const IceE::Current&) const
+TestI::nonmutatingAbort(const Ice::Current&) const
 {
     exit(0);
 }
 
-IceE::Int
-TestI::pid(const IceE::Current&)
+Ice::Int
+TestI::pid(const Ice::Current&)
 {
 #if defined(_WIN32)
     return _getpid();

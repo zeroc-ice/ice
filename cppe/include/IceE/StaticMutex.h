@@ -24,7 +24,7 @@
 #   endif
 #endif
 
-namespace IceE
+namespace Ice
 {
 
 //
@@ -251,6 +251,6 @@ StaticMutex::lock(LockState&) const
 
 #endif    
 
-} // End namespace IceE
+} // End namespace Ice
 
 #endif

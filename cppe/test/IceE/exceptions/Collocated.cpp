@@ -26,19 +26,19 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	IceE::PropertiesPtr properties = IceE::getDefaultProperties(argc, argv);
+	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
 
 	properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
         properties->setProperty("IceE.Warn.Dispatch", "0");
 
-        setCommunicator(IceE::initialize(argc, argv));
+        setCommunicator(Ice::initialize(argc, argv));
 
-        IceE::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-        IceE::ObjectPtr object = new ThrowerI(adapter);
-        adapter->add(object, IceE::stringToIdentity("thrower"));
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
+        Ice::ObjectPtr object = new ThrowerI(adapter);
+        adapter->add(object, Ice::stringToIdentity("thrower"));
         adapter->activate();
 
-        ThrowerPrx allTests(const IceE::CommunicatorPtr&);
+        ThrowerPrx allTests(const Ice::CommunicatorPtr&);
         allTests(communicator());
 
         return EXIT_SUCCESS;

@@ -12,13 +12,13 @@
 
 #include <IceE/Handle.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
 class Instance;
 ICEE_API void incRef(Instance*);
 ICEE_API void decRef(Instance*);
-typedef IceEInternal::Handle<Instance> InstancePtr;
+typedef IceInternal::Handle<Instance> InstancePtr;
 
 }
 

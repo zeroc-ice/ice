@@ -13,7 +13,7 @@
 using namespace std;
 
 void
-HelloI::sayHello(const IceE::Current& c) const
+HelloI::sayHello(const Ice::Current& c) const
 {
 #ifdef _WIN32_WCE
     c.adapter->getCommunicator()->getLogger()->trace("", "Hello World!");
@@ -23,7 +23,7 @@ HelloI::sayHello(const IceE::Current& c) const
 }
 
 void
-HelloI::shutdown(const IceE::Current& c)
+HelloI::shutdown(const Ice::Current& c)
 {
     printf("Shutting down...\n");
     c.adapter->getCommunicator()->shutdown();

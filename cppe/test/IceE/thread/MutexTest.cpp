@@ -13,7 +13,7 @@
 #include <TestCommon.h>
 
 using namespace std;
-using namespace IceE;
+using namespace Ice;
 
 static const string mutexTestName("mutex");
 
@@ -124,7 +124,7 @@ MutexTest::run()
 	{
 	    test(lock.tryAcquire() == false);
 	}
-	catch(const IceE::ThreadSyscallException& ex)
+	catch(const Ice::ThreadSyscallException& ex)
 	{
 	    //
 	    // pthread_mutex_trylock returns EDEADLK in FreeBSD's new threading implementation.

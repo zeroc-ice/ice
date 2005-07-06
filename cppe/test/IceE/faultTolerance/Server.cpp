@@ -36,10 +36,10 @@ public:
 	// our test servers may time out before they are used in the
 	// test.
     	//
-	IceE::PropertiesPtr properties = IceE::getDefaultProperties(argc, argv);
+	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
 	properties->setProperty("IceE.ServerIdleTime", "120"); // Two minutes.
 
-	setCommunicator(IceE::initialize(argc, argv));
+	setCommunicator(Ice::initialize(argc, argv));
 
         int port = 0;
         for(int i = 1; i < argc; ++i)
@@ -71,9 +71,9 @@ public:
         char buf[32];
         sprintf(buf, "default -p %d", port);
         properties->setProperty("TestAdapter.Endpoints", buf);
-        IceE::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-        IceE::ObjectPtr object = new TestI(adapter);
-        adapter->add(object, IceE::stringToIdentity("test"));
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
+        Ice::ObjectPtr object = new TestI(adapter);
+        adapter->add(object, Ice::stringToIdentity("test"));
         adapter->activate();
         communicator()->waitForShutdown();
         return EXIT_SUCCESS;

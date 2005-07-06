@@ -14,27 +14,27 @@
 #include <IceE/LocalException.h>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-IceEInternal::NonRepeatable::NonRepeatable(const NonRepeatable& ex)
+IceInternal::NonRepeatable::NonRepeatable(const NonRepeatable& ex)
 {
     _ex = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.get()->ice_clone()));
 }
 
-IceEInternal::NonRepeatable::NonRepeatable(const ::IceE::LocalException& ex)
+IceInternal::NonRepeatable::NonRepeatable(const ::Ice::LocalException& ex)
 {
     _ex = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 }
 
-const ::IceE::LocalException*
-IceEInternal::NonRepeatable::get() const
+const ::Ice::LocalException*
+IceInternal::NonRepeatable::get() const
 {
     assert(_ex.get());
     return _ex.get();
 }
 
-IceEInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const string& operation,
+IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const string& operation,
 				OperationMode mode, const Context& context) :
     _connection(connection),
     _reference(ref),
@@ -97,7 +97,7 @@ IceEInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const s
 }
 
 bool
-IceEInternal::Outgoing::invoke()
+IceInternal::Outgoing::invoke()
 {
     assert(_state == StateUnsent);
 
@@ -125,7 +125,7 @@ IceEInternal::Outgoing::invoke()
 	    bool timedOut = false;
 
 	    {
-		IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+		Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 
 		//
                 // It's possible that the request has already
@@ -143,7 +143,7 @@ IceEInternal::Outgoing::invoke()
 		{
 		    if(timeout >= 0)
 		    {	
-			timedWait(IceE::Time::milliSeconds(timeout));
+			timedWait(Ice::Time::milliSeconds(timeout));
 			
 			if(_state == StateInProgress)
 			{
@@ -170,7 +170,7 @@ IceEInternal::Outgoing::invoke()
 		// propagated to this Outgoing object.
 		//
 		{
-		    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+		    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 		    
 		    while(_state == StateInProgress)
 		    {
@@ -249,7 +249,7 @@ IceEInternal::Outgoing::invoke()
 }
 
 void
-IceEInternal::Outgoing::abort(const LocalException& ex)
+IceInternal::Outgoing::abort(const LocalException& ex)
 {
     assert(_state == StateUnsent);
     
@@ -276,9 +276,9 @@ IceEInternal::Outgoing::abort(const LocalException& ex)
 }
 
 void
-IceEInternal::Outgoing::finished(BasicStream& is)
+IceInternal::Outgoing::finished(BasicStream& is)
 {
-    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 
     assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
 
@@ -442,9 +442,9 @@ IceEInternal::Outgoing::finished(BasicStream& is)
 }
 
 void
-IceEInternal::Outgoing::finished(const LocalException& ex)
+IceInternal::Outgoing::finished(const LocalException& ex)
 {
-    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
     
     assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
 

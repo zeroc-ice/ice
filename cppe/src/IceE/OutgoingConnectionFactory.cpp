@@ -24,16 +24,16 @@
 #include <list>
 
 using namespace std;
-using namespace IceE;
-using namespace IceEInternal;
+using namespace Ice;
+using namespace IceInternal;
 
-void IceEInternal::incRef(OutgoingConnectionFactory* p) { p->__incRef(); }
-void IceEInternal::decRef(OutgoingConnectionFactory* p) { p->__decRef(); }
+void IceInternal::incRef(OutgoingConnectionFactory* p) { p->__incRef(); }
+void IceInternal::decRef(OutgoingConnectionFactory* p) { p->__decRef(); }
 
 void
-IceEInternal::OutgoingConnectionFactory::destroy()
+IceInternal::OutgoingConnectionFactory::destroy()
 {
-    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -43,11 +43,11 @@ IceEInternal::OutgoingConnectionFactory::destroy()
 #ifdef _STLP_BEGIN_NAMESPACE
     // voidbind2nd is an STLport extension for broken compilers in IceE/Functional.h
     for_each(_connections.begin(), _connections.end(),
-	     voidbind2nd(IceE::secondVoidMemFun1<EndpointPtr, Connection, Connection::DestructionReason>
+	     voidbind2nd(Ice::secondVoidMemFun1<EndpointPtr, Connection, Connection::DestructionReason>
 			 (&Connection::destroy), Connection::CommunicatorDestroyed));
 #else
     for_each(_connections.begin(), _connections.end(),
-	     bind2nd(IceE::secondVoidMemFun1<const EndpointPtr, Connection, Connection::DestructionReason>
+	     bind2nd(Ice::secondVoidMemFun1<const EndpointPtr, Connection, Connection::DestructionReason>
 		     (&Connection::destroy), Connection::CommunicatorDestroyed));
 #endif
 
@@ -56,12 +56,12 @@ IceEInternal::OutgoingConnectionFactory::destroy()
 }
 
 void
-IceEInternal::OutgoingConnectionFactory::waitUntilFinished()
+IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 {
     multimap<EndpointPtr, ConnectionPtr> connections;
 
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 	
 	//
 	// First we wait until the factory is destroyed. We also wait
@@ -81,17 +81,17 @@ IceEInternal::OutgoingConnectionFactory::waitUntilFinished()
     }
 
     for_each(connections.begin(), connections.end(),
-	     IceE::secondVoidMemFun<const EndpointPtr, Connection>(&Connection::waitUntilFinished));
+	     Ice::secondVoidMemFun<const EndpointPtr, Connection>(&Connection::waitUntilFinished));
 }
 
 ConnectionPtr
-IceEInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts)
+IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts)
 {
     assert(!endpts.empty());
     vector<EndpointPtr> endpoints = endpts;
 
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 
 	if(_destroyed)
 	{
@@ -294,7 +294,7 @@ IceEInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpt
     }
     
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 	
 	//
 	// Signal other threads that we are done with trying to
@@ -331,9 +331,9 @@ IceEInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpt
 #ifndef ICEE_NO_ROUTER
 
 void
-IceEInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
+IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 {
-    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -374,7 +374,7 @@ IceEInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 		{
 		    pr.first->second->setAdapter(adapter);
 		}
-		catch(const IceE::LocalException&)
+		catch(const Ice::LocalException&)
 		{
 		    //
 		    // Ignore, the connection is being closed or closed.
@@ -390,12 +390,12 @@ IceEInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 
 #ifndef ICEE_NO_BATCH
 void
-IceEInternal::OutgoingConnectionFactory::flushBatchRequests()
+IceInternal::OutgoingConnectionFactory::flushBatchRequests()
 {
     list<ConnectionPtr> c;
 
     {
-	IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
 
 	for(std::multimap<EndpointPtr, ConnectionPtr>::const_iterator p = _connections.begin();
 	    p != _connections.end();
@@ -419,13 +419,13 @@ IceEInternal::OutgoingConnectionFactory::flushBatchRequests()
 }
 #endif
 
-IceEInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(const InstancePtr& instance) :
+IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(const InstancePtr& instance) :
     _instance(instance),
     _destroyed(false)
 {
 }
 
-IceEInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
+IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
 {
     assert(_destroyed);
     assert(_connections.empty());
@@ -434,9 +434,9 @@ IceEInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
 #ifndef ICEE_PURE_CLIENT
 
 void
-IceEInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& adapter)
+IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& adapter)
 {
-    IceE::Monitor<IceE::Mutex>::Lock sync(*this);
+    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
     
     if(_destroyed)
     {
@@ -451,7 +451,7 @@ IceEInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& a
 	    {
 		p->second->setAdapter(0);
 	    }
-	    catch(const IceE::LocalException&)
+	    catch(const Ice::LocalException&)
 	    {
 		//
 		// Ignore, the connection is being closed or closed.

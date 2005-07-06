@@ -14,14 +14,14 @@
 #include <IceE/PropertiesF.h>
 #include <IceE/Shared.h>
 
-namespace IceEInternal
+namespace IceInternal
 {
 
-class DefaultsAndOverrides : public ::IceE::Shared
+class DefaultsAndOverrides : public ::Ice::Shared
 {
 public:
 
-    DefaultsAndOverrides(const ::IceE::PropertiesPtr&);
+    DefaultsAndOverrides(const ::Ice::PropertiesPtr&);
 
     std::string defaultHost;
 #ifndef ICEE_NO_ROUTER
@@ -32,9 +32,9 @@ public:
 #endif
 
     bool overrideTimeout;
-    IceE::Int overrideTimeoutValue;
+    Ice::Int overrideTimeoutValue;
     bool overrideConnectTimeout;
-    IceE::Int overrideConnectTimeoutValue;
+    Ice::Int overrideConnectTimeoutValue;
 };
 
 }
