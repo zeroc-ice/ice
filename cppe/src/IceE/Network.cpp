@@ -351,14 +351,12 @@ IceInternal::doConnect(SOCKET fd, struct sockaddr_in& addr, int timeout)
     // WIN32.
     //
     setSendBufferSize(fd, 64 * 1024);
-#endif
 
     //
     // Under WinCE its not possible to find out the connection failure
     // reason with SO_ERROR, so its necessary to use the WSAEVENT
-    // mechanism.
+    // mechanism. We use the same mechanism for any Winsock platform.
     //
-#ifdef _WIN32_WCE
     WSAEVENT event = WSACreateEvent();
     if(event == 0)
     {
@@ -390,10 +388,10 @@ repeatConnect:
 	    goto repeatConnect;
 	}
 	
-	int val;
 	if(connectInProgress())
 	{
-#ifdef _WIN32_WCE
+	    int val;
+#ifdef _WIN32
 	    WSAEVENT events[1];
 	    events[0] = event;
 	    long tout = (timeout >= 0) ? timeout : WSA_INFINITE;
@@ -447,34 +445,22 @@ repeatConnect:
 	    fd_set wFdSet;
 	    FD_ZERO(&wFdSet);
 	    FD_SET(fd, &wFdSet);
-#ifdef _WIN32
 	    //
-	    // WIN32 notifies about connection failures
+	    // Note that although we use a different mechanism for
+	    // WIN32, winsock notifies about connection failures
 	    // through the exception filedescriptors
 	    //
-	    fd_set xFdSet;
-	    FD_ZERO(&xFdSet);
-	    FD_SET(fd, &xFdSet);
-#endif
 	    if(timeout >= 0)
 	    {
 		struct timeval tv;
 		tv.tv_sec = timeout / 1000;
 		tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-#ifdef _WIN32
-		ret = ::select(fd + 1, 0, &wFdSet, &xFdSet, &tv);
-#else
 		ret = ::select(fd + 1, 0, &wFdSet, 0, &tv);
-#endif
 	    }
 	    else
 	    {
 
-#ifdef _WIN32
-		ret = ::select(fd + 1, 0, &wFdSet, &xFdSet, 0);
-#else
 		ret = ::select(fd + 1, 0, &wFdSet, 0, 0);
-#endif
 	    }
 	    
 	    if(ret == 0)
@@ -494,14 +480,12 @@ repeatConnect:
 		throw ex;
 	    }
 	    
-#ifdef _WIN32
 	    //
 	    // Strange windows bug: The following call to Sleep() is
 	    // necessary, otherwise no error is reported through
 	    // getsockopt.
 	    //
-	    Sleep(0);
-#endif
+	    //Sleep(0);
 	    socklen_t len = static_cast<socklen_t>(sizeof(int));
 	    if(getsockopt(fd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&val), &len) == SOCKET_ERROR)
 	    {
@@ -510,9 +494,8 @@ repeatConnect:
 		ex.error = getSocketErrno();
 		throw ex;
 	    }
+#endif
 
-#endif // _WIN32_WCE
-	    
 	    if(val > 0)
 	    {
 		closeSocket(fd);
