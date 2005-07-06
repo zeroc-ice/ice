@@ -192,7 +192,7 @@ else:
 commonClientOptions = " --IceE.NullHandleAbort --IceE.Warn.Connections"
 
 commonServerOptions = " --IceE.PrintProcessId --IceE.PrintAdapterReady --IceE.NullHandleAbort" + \
-                      " --IceE.Warn.Connections --IceE.ServerIdleTime=30"
+                      " --IceE.Warn.Connections"
 
 clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions

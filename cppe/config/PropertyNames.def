@@ -121,7 +121,6 @@ IceE:
     ProgramName
     RetryIntervals
     ServerId
-    ServerIdleTime
     StdErr
     StdOut
     ThreadPerConnection.StackSize
