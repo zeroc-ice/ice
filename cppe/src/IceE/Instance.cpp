@@ -558,6 +558,12 @@ IceInternal::Instance::destroy()
     {
         _outgoingConnectionFactory->waitUntilFinished();
     }
+#else
+    if(_outgoingConnectionFactory)
+    {
+        _outgoingConnectionFactory->destroy();
+        _outgoingConnectionFactory->waitUntilFinished();
+    }
 #endif
 
     {
