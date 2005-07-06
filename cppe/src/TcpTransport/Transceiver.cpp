@@ -40,7 +40,7 @@ IceInternal::Transceiver::close()
 	out << "closing tcp connection\n" << toString();
     }
 
-#ifdef _WIN32_WCE
+#ifdef _WIN32
     assert(_event != 0);
     WSACloseEvent(_event);
     _event = 0;
@@ -115,7 +115,7 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
 
 	if(ret == SOCKET_ERROR)
 	{
-#ifdef _WIN32_WCE
+#ifdef _WIN32
 	repeatError:
 #endif
 	if(interrupted())
@@ -131,7 +131,7 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
 
 	    if(wouldBlock())
 	    {
-#ifdef _WIN32_WCE
+#ifdef _WIN32
 		WSAEVENT events[1];
 		events[0] = _event;
     	    	long tout = (timeout >= 0) ? timeout : WSA_INFINITE;
@@ -278,7 +278,7 @@ IceInternal::Transceiver::read(Buffer& buf, int timeout)
 
 	if(ret == SOCKET_ERROR)
 	{
-#ifdef _WIN32_WCE
+#ifdef _WIN32
 	repeatError:
 #endif
 	    if(interrupted())
@@ -294,7 +294,7 @@ IceInternal::Transceiver::read(Buffer& buf, int timeout)
 
 	    if(wouldBlock())
 	    {
-#ifdef _WIN32_WCE
+#ifdef _WIN32
     	    	//
 		// This code is basically the same as the code in
 		// ::send above. Check that for detailed comments.
@@ -431,7 +431,7 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
     , _isPeerLocal(isPeerLocal(fd))
 #endif
 {
-#ifdef _WIN32_WCE
+#ifdef _WIN32
     _event = WSACreateEvent();
     if(_event == 0)
     {
@@ -466,7 +466,7 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
 IceInternal::Transceiver::~Transceiver()
 {
     assert(_fd == INVALID_SOCKET);
-#ifdef _WIN32_WCE
+#ifdef _WIN32
     assert(_event == 0);
 #endif
 }
