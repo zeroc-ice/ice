@@ -1148,3 +1148,107 @@ repeatListen:
 }
 
 #endif
+
+#ifdef _WIN32
+
+vector<struct sockaddr_in>
+IceInternal::getLocalAddresses()
+{
+    vector<struct sockaddr_in> result;
+    try
+    {
+        SOCKET fd = createSocket();
+
+        vector<unsigned char> buffer;
+        buffer.resize(1024);
+        unsigned long len = 0;
+        DWORD rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, &buffer[0], buffer.size(), &len, 0, 0);
+        if(rs == SOCKET_ERROR)
+        {
+            //
+            // If the buffer wasn't big enough, resize it to the
+            // required length and try again.
+            //
+            if(getSocketErrno() == WSAEFAULT)
+            {
+                buffer.resize(len);
+                rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, &buffer[0], buffer.size(), &len, 0, 0);
+            }
+
+            if(rs == SOCKET_ERROR)
+            {
+                closeSocket(fd);
+                SocketException ex(__FILE__, __LINE__);
+                ex.error = getSocketErrno();
+                throw ex;
+            }
+        }
+
+        //        // Add the local interface addresses.
+        //
+        SOCKET_ADDRESS_LIST* addrs = reinterpret_cast<SOCKET_ADDRESS_LIST*>(&buffer[0]);
+        for (int i = 0; i < addrs->iAddressCount; ++i)
+        {
+            result.push_back(*reinterpret_cast<struct sockaddr_in*>(addrs->Address[i].lpSockaddr));
+        }
+
+        //
+        // Add the loopback interface address.
+        //
+        struct sockaddr_in addr;
+        memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(0);
+        addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        result.push_back(addr);
+
+        closeSocket(fd);
+    }
+    catch(const Ice::LocalException&)
+    {
+        //
+        // TODO: Warning?
+        //
+    }
+    return result;
+}
+
+bool
+IceInternal::isLocalAddress(const struct sockaddr_in& addr)
+{
+    struct sockaddr_in addr0 = addr;
+    addr0.sin_port = htons(0); // Local interface addresses have the port set to 0.
+    vector<struct sockaddr_in> localAddrs = getLocalAddresses();
+    for(vector<struct sockaddr_in>::const_iterator p = localAddrs.begin(); p != localAddrs.end(); ++p)
+    {
+        if(compareAddress(addr0, *p))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+IceInternal::isPeerLocal(SOCKET fd)
+{
+    socklen_t remoteLen = static_cast<socklen_t>(sizeof(struct sockaddr_in));
+    struct sockaddr_in remoteAddr;
+    if(getpeername(fd, reinterpret_cast<struct sockaddr*>(&remoteAddr), &remoteLen) == SOCKET_ERROR)
+    {
+        if(notConnected())
+        {
+            return false;
+        }
+        else
+        {
+            closeSocket(fd);
+            SocketException ex(__FILE__, __LINE__);
+            ex.error = getSocketErrno();
+            throw ex;
+        }
+    }
+    return isLocalAddress(remoteAddr);
+}
+
+#endif

@@ -105,6 +105,12 @@ ICEE_API std::string lastErrorToString();
 ICEE_API std::string fdToString(SOCKET);
 ICEE_API std::string addrToString(const struct sockaddr_in&);
 
+#ifdef _WIN32
+ICEE_API std::vector<struct sockaddr_in> getLocalAddresses();
+ICEE_API bool isLocalAddress(const struct sockaddr_in&);
+ICEE_API bool isPeerLocal(SOCKET);
+#endif
+
 }
 
 #endif

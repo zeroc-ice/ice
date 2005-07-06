@@ -95,7 +95,7 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
     //
     // Limit packet size to avoid performance problems on WIN32
     //
-    if(packetSize > 64 * 1024)
+    if(_isPeerLocal && packetSize > 64 * 1024)
     {
 	packetSize = 64 * 1024;
     }
@@ -427,6 +427,9 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
     _logger(instance->logger()),
     _fd(fd),
     _desc(fdToString(fd))
+#ifdef _WIN32
+    , _isPeerLocal(isPeerLocal(fd))
+#endif
 {
 #ifdef _WIN32_WCE
     _event = WSACreateEvent();
