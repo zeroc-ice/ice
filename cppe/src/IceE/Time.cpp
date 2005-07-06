@@ -8,11 +8,8 @@
 // **********************************************************************
 
 #include <IceE/Time.h>
-#include <IceE/SafeStdio.h>
 
-#ifdef _WIN32_WCE
-#   include <time.h>
-#elif defined(_WIN32)
+#if defined(_WIN32)
 #   include <sys/timeb.h>
 #   include <time.h>
 #else
@@ -21,7 +18,6 @@
 
 using namespace Ice;
 
-// XXX: WINCE -- we don't need to support this.
 Time::Time() :
     _usec(0)
 {
@@ -32,19 +28,12 @@ Ice::Time::now()
 {
 #if defined(_WIN32_WCE)
     //
-    // Note that GetLocalTime doesn't return milliseconds. The only way to get
-    // ms is to use GetTickCount() and that is not time, that is a ms since
-    // the device was started.
+    // Note that GetTickCount returns the number of ms since the
+    // device was started. Time cannot be used to represent an
+    // absolute time on CE since GetLocalTime doesn't have millisecond
+    // resolution.
     //
-    SYSTEMTIME t;
-    GetLocalTime(&t);
-    FILETIME ft;
-    SystemTimeToFileTime(&t, &ft);
-    //
-    // This is hundreds of nanoseconds (ie: 0.1 microsecond).
-    //
-    Int64 l = (static_cast<ULONGLONG>(ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
-    return Time(l/10);
+    return Time(GetTickCount() * 1000);
 #elif defined(_WIN32)
     struct _timeb tb;
     _ftime(&tb);
@@ -116,54 +105,6 @@ double
 Ice::Time::toMicroSecondsDouble() const
 {
     return static_cast<double>(_usec);
-}
-
-std::string
-Ice::Time::toString() const
-{
-#ifdef _WIN32_WCE
-    Int64 l = _usec * 10;
-    FILETIME ft;
-    ft.dwLowDateTime = static_cast<DWORD>(l & 0xffffffff);
-    ft.dwHighDateTime = static_cast<DWORD>(l >> 32);
-    SYSTEMTIME t;
-    FileTimeToSystemTime(&ft, &t);
-    TCHAR date[32];
-    TCHAR time[32];
-    GetDateFormat(LOCALE_SYSTEM_DEFAULT, LOCALE_NOUSEROVERRIDE, &t, 0, date, sizeof(date));
-    GetTimeFormat(LOCALE_SYSTEM_DEFAULT, 0, &t, L"HH':'mm':'ss", time, sizeof(time));
-
-    char buf[32];
-    std::string out;
-    wcstombs(buf, date, sizeof(buf));
-    out += buf;
-    out += " ";
-    wcstombs(buf, time, sizeof(buf));
-    out += buf;
-
-    out += Ice::printfToString(":%03d", static_cast<int>(_usec % 1000000 / 1000));
-
-    return out;
-#else
-    time_t time = static_cast<long>(_usec / 1000000);
-
-    struct tm* t;
-#ifdef _WIN32
-    t = localtime(&time);
-#else
-    struct tm tr;
-    localtime_r(&time, &tr);
-    t = &tr;
-#endif
-
-    char buf[32];
-    // XXX: safe version of this?
-    strftime(buf, sizeof(buf), "%x %H:%M:%S", t);
-
-    std::string out(buf);
-    out += Ice::printfToString(":%03d", static_cast<int>(_usec % 1000000 / 1000));
-    return out;
-#endif
 }
 
 Time::Time(Int64 usec) :

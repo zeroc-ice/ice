@@ -20,7 +20,7 @@ class LoggerI : public Logger
 {
 public:
 
-    LoggerI(const std::string&, bool);
+    LoggerI(const std::string&);
 
     virtual void print(const std::string&);
     virtual void trace(const std::string&, const std::string&);
@@ -31,7 +31,6 @@ private:
 
     std::string _prefix;
     std::string _emptyPrefix;
-    bool _timestamp;
 
     //
     // A global mutex is used to avoid garbled output with multiple

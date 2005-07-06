@@ -40,8 +40,6 @@ public:
     double toMilliSecondsDouble() const;
     double toMicroSecondsDouble() const;
 
-    std::string toString() const;
-
     Time operator-() const
     {
 	return Time(-_usec);

@@ -110,7 +110,6 @@ IceE:
     Default.Package
     Default.Protocol
     Default.Router
-    Logger.Timestamp
     MessageSizeMax
     NullHandleAbort
     Override.ConnectTimeout

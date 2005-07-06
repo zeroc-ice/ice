@@ -376,8 +376,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	sync.release();
 	
 
-	_logger = new LoggerI(_properties->getProperty("IceE.ProgramName"), 
-			      _properties->getPropertyAsInt("IceE.Logger.Timestamp") > 0);
+	_logger = new LoggerI(_properties->getProperty("IceE.ProgramName"));
 
 	const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_properties);
 

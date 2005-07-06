@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <IceE/LoggerI.h>
-#include <IceE/Time.h>
 
 using namespace std;
 using namespace Ice;
@@ -16,8 +15,7 @@ using namespace IceInternal;
 
 Ice::Mutex Ice::LoggerI::_globalMutex;
 
-Ice::LoggerI::LoggerI(const string& prefix, bool timestamp) : 
-    _timestamp(timestamp)
+Ice::LoggerI::LoggerI(const string& prefix)
 {
     if(!prefix.empty())
     {
@@ -39,10 +37,6 @@ Ice::LoggerI::trace(const string& category, const string& message)
     Ice::Mutex::Lock sync(_globalMutex);
 
     string s = "[ ";
-    if(_timestamp)
-    {
-	s += Ice::Time::now().toString() + " ";
-    }
     s += _prefix;
     if(!category.empty())
     {
@@ -63,10 +57,6 @@ void
 Ice::LoggerI::warning(const string& message)
 {
     Ice::Mutex::Lock sync(_globalMutex);
-    if(_timestamp)
-    {
-        fprintf(stderr, "%s ", Ice::Time::now().toString().c_str());
-    }
     fprintf(stderr, "%s warning: %s\n", _prefix.c_str(), message.c_str());
 }
 
@@ -74,9 +64,5 @@ void
 Ice::LoggerI::error(const string& message)
 {
     Ice::Mutex::Lock sync(_globalMutex);
-    if(_timestamp)
-    {
-        fprintf(stderr, "%s ", Ice::Time::now().toString().c_str());
-    }
     fprintf(stderr, "%s error: %s\n", _prefix.c_str(), message.c_str());
 }
