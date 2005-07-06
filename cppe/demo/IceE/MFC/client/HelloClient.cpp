@@ -46,7 +46,7 @@ CHelloClientApp::InitInstance()
     try
     {
         int argc = 0;
-	Ice::PropertiesPtr properties = IceE::createProperties();
+	Ice::PropertiesPtr properties = Ice::createProperties();
 	properties->setProperty("Hello.Proxy", "hello:tcp -p 10000");
 	//properties->load("config");
         communicator = Ice::initializeWithProperties(argc, 0, properties);
