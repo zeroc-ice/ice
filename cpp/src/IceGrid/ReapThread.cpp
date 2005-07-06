@@ -15,7 +15,7 @@ using namespace std;
 using namespace IceGrid;
 
 ReapThread::ReapThread(int timeout) :
-    _timeout(IceUtil::Time::milliSeconds(timeout)),
+    _timeout(IceUtil::Time::seconds(timeout)),
     _terminated(false)
 {
 }

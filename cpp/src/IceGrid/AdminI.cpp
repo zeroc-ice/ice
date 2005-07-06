@@ -121,14 +121,20 @@ AdminI::getServerPid(const string& name, const Current&) const
 bool
 AdminI::startServer(const string& name, const Current&)
 {
-    ServerPrx server = _database->getServer(name);
+    int activationTimeout, deactivationTimeout;
+    ServerPrx server = _database->getServerWithTimeouts(name, activationTimeout, deactivationTimeout);
+    server = ServerPrx::uncheckedCast(server->ice_timeout(activationTimeout * 1000));
     try
     {
-	return server->start(Manual);
+	return server->start();
     }
     catch(const Ice::ObjectNotExistException&)
     {
 	throw ServerNotExistException();
+    }
+    catch(const Ice::TimeoutException&)
+    {
+	return false; // TODO: better exception?
     }
     catch(const Ice::LocalException&)
     {
@@ -139,7 +145,9 @@ AdminI::startServer(const string& name, const Current&)
 void
 AdminI::stopServer(const string& name, const Current&)
 {
-    ServerPrx server = _database->getServer(name);
+    int activationTimeout, deactivationTimeout;
+    ServerPrx server = _database->getServerWithTimeouts(name, activationTimeout, deactivationTimeout);
+    server = ServerPrx::uncheckedCast(server->ice_timeout(deactivationTimeout * 1000));
     try
     {
 	server->stop();
@@ -148,7 +156,10 @@ AdminI::stopServer(const string& name, const Current&)
     {
 	throw ServerNotExistException();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::TimeoutException&)
+    {
+    }
+    catch(const Ice::LocalException& ex)
     {
 	throw NodeUnreachableException();
     }
@@ -315,7 +326,7 @@ AdminI::getAllObjectDescriptors(const string& expression, const Ice::Current&) c
 bool
 AdminI::pingNode(const string& name, const Current&) const
 {
-    NodePrx node = NodePrx::uncheckedCast(_database->getNode(name)->ice_timeout(5000));
+    NodePrx node = NodePrx::uncheckedCast(_database->getNode(name)->ice_timeout(5000)); // TODO: use nodeSessionTimeout
     try
     {
 	node->ice_ping();

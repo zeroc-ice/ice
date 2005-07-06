@@ -95,6 +95,7 @@ public:
     XmlAttributesHelper(const DescriptorVariablesPtr&, const IceXML::Attributes&);
 
     bool contains(const std::string&);
+    int asInt(const std::string&, const std::string&);
     std::string operator()(const std::string&);
     std::string operator()(const std::string&, const std::string&);
 
@@ -144,6 +145,8 @@ public:
     void addServer(const ServerDescriptorPtr&);
     std::auto_ptr<ServerDescriptorHelper> addServerTemplate(const std::string&, const IceXML::Attributes&);
     std::auto_ptr<ServiceDescriptorHelper> addServiceTemplate(const std::string&, const IceXML::Attributes&);
+
+    void addReplicatedAdapter(const IceXML::Attributes&);
 
     ApplicationUpdateDescriptor update(const ApplicationUpdateDescriptor&);
     ApplicationUpdateDescriptor diff(const ApplicationDescriptorPtr&);

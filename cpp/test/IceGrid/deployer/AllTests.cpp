@@ -366,7 +366,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
 
     admin->updateApplication(update);
 
-    admin->startServer("Server1"); // Ensure Server1 is back.
+    test(admin->startServer("Server1")); // Ensure Server1 is back.
     try
     {
 	admin->startServer("Server2"); // Ensure Server2 was removed.
@@ -434,11 +434,26 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
     catch(const Ice::LocalException&)
     {
     }
-    admin->startServer("Server1");
-    
-    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
+    bool started = admin->startServer("Server1");
+    test(started);
+
+    try
+    {
+	obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
     test(obj->getProperty("Mode") == "manual");
-    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
+    try
+    {
+	obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
 
     cout << "ok" << endl;
 

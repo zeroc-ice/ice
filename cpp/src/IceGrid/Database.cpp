@@ -782,6 +782,13 @@ Database::getServerApplication(const string& name)
 ServerPrx
 Database::getServer(const string& name)
 {
+    int activationTimeout, deactivationTimeout;
+    return getServerWithTimeouts(name, activationTimeout, deactivationTimeout);
+}
+
+ServerPrx
+Database::getServerWithTimeouts(const string& name, int& activationTimeout, int& deactivationTimeout)
+{
     ServerEntryPtr entry;
     {
 	Lock sync(*this);
@@ -797,7 +804,7 @@ Database::getServer(const string& name)
 	ex.name = name;
 	throw ex;
     }
-    return entry->getProxy();
+    return entry->getProxy(activationTimeout, deactivationTimeout);
 }
 
 Ice::StringSeq
@@ -1300,9 +1307,10 @@ void
 Database::ServerEntry::sync()
 {
     map<string, AdapterPrx> adapters;
+    int at, dt;
     try
     {
-	sync(adapters);
+	sync(adapters, at, dt);
     }
     catch(const NodeUnreachableException&)
     {
@@ -1377,7 +1385,7 @@ Database::ServerEntry::getDescriptor()
 }
 
 ServerPrx
-Database::ServerEntry::getProxy()
+Database::ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout)
 {
     ServerPrx proxy;
     {
@@ -1385,6 +1393,8 @@ Database::ServerEntry::getProxy()
 	if(_proxy) // Synced
 	{
 	    proxy = _proxy;
+	    activationTimeout = _activationTimeout;
+	    deactivationTimeout = _deactivationTimeout;
 	}
     }
 
@@ -1401,7 +1411,7 @@ Database::ServerEntry::getProxy()
     }
 
     StringAdapterPrxDict adapters;
-    return sync(adapters);
+    return sync(adapters, activationTimeout, deactivationTimeout);
 }
 
 AdapterPrx
@@ -1429,12 +1439,13 @@ Database::ServerEntry::getAdapter(const string& id)
     }
 
     StringAdapterPrxDict adapters;
-    sync(adapters);
+    int activationTimeout, deactivationTimeout;
+    sync(adapters, activationTimeout, deactivationTimeout);
     return adapters[id];
 }
 
 ServerPrx
-Database::ServerEntry::sync(map<string, AdapterPrx>& adapters)
+Database::ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int& deactivationTimeout)
 {
     ServerDescriptorPtr load;
     string loadNode;
@@ -1495,7 +1506,8 @@ Database::ServerEntry::sync(map<string, AdapterPrx>& adapters)
 	{
 	    try
 	    {
-		proxy = _database.getNode(loadNode)->loadServer(load, adapters);
+		proxy = _database.getNode(loadNode)->loadServer(load, adapters, activationTimeout, deactivationTimeout);
+		proxy = ServerPrx::uncheckedCast(proxy->ice_collocationOptimization(false));
 	    }
 	    catch(const NodeNotExistException& ex)
 	    {
@@ -1503,10 +1515,14 @@ Database::ServerEntry::sync(map<string, AdapterPrx>& adapters)
 	    }
 	    catch(const DeploymentException& ex)
 	    {
-		// TODO: Warning
+		Ice::Warning out(_database._traceLevels->logger);
+		out << "failed to load server on node `" << loadNode << "':\n" << ex;
+		throw NodeUnreachableException();
 	    }
 	    catch(const Ice::LocalException& ex)
 	    {
+		Ice::Warning out(_database._traceLevels->logger);
+		out << "unexpected exception while loading on node `" << loadNode << "':\n" << ex;
 		throw NodeUnreachableException();
 	    }
 	}
@@ -1533,13 +1549,26 @@ Database::ServerEntry::sync(map<string, AdapterPrx>& adapters)
 	_loaded = _load;
 	_load.reset(0);
 	_destroy.reset(0);
-	_proxy = proxy ? ServerPrx::uncheckedCast(proxy->ice_timeout(_database._nodeSessionTimeout)) : ServerPrx();
+
+	//
+	// Set timeout on server and adapter proxies. Most of the
+	// calls on the proxies shouldn't block for longer than the
+	// node session timeout. Calls that might block for a longer
+	// time should set the correct timeout before invoking on the
+	// proxy (e.g.: server start/stop, adapter activate).
+	//
+	int timeout = _database._nodeSessionTimeout * 1000; // sec to ms
+	_proxy = proxy ? ServerPrx::uncheckedCast(proxy->ice_timeout(timeout)) : ServerPrx();
 	_adapters.clear();
 	for(StringAdapterPrxDict::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
 	{
-	    AdapterPrx adapter = AdapterPrx::uncheckedCast(p->second->ice_timeout(_database._nodeSessionTimeout));
+	    AdapterPrx adapter = AdapterPrx::uncheckedCast(p->second->ice_timeout(timeout));
 	    _adapters.insert(make_pair(p->first, adapter));
 	}
+	activationTimeout += _database._nodeSessionTimeout;
+	deactivationTimeout += _database._nodeSessionTimeout;
+	_activationTimeout = activationTimeout;
+	_deactivationTimeout = deactivationTimeout;
 	notifyAll();
     }
     if(!load && destroy)

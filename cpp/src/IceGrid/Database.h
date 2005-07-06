@@ -45,13 +45,13 @@ class Database : public IceUtil::Shared, public IceUtil::Mutex
 	void update(const ServerInstanceDescriptor&);
 	void destroy();
 	ServerInstanceDescriptor getDescriptor();
-	ServerPrx getProxy();
+	ServerPrx getProxy(int&, int&);
 	AdapterPrx getAdapter(const std::string&);
 	bool canRemove();
 
     private:
 
-	ServerPrx sync(StringAdapterPrxDict& adapters);
+	ServerPrx sync(StringAdapterPrxDict& adapters, int&, int&);
 
 	Database& _database;
 	std::auto_ptr<ServerInstanceDescriptor> _loaded;
@@ -61,6 +61,8 @@ class Database : public IceUtil::Shared, public IceUtil::Mutex
 	std::map<std::string, AdapterPrx> _adapters;
 	bool _synchronizing;
 	bool _failed;
+	int _activationTimeout;
+	int _deactivationTimeout;
     };
     friend class ServerEntry;
     friend struct AddComponent;
@@ -94,6 +96,7 @@ public:
     ServerInstanceDescriptor getServerDescriptor(const std::string&);
     std::string getServerApplication(const std::string&);
     ServerPrx getServer(const std::string&);
+    ServerPrx getServerWithTimeouts(const std::string&, int&, int&);
     Ice::StringSeq getAllServers(const std::string& = std::string());
     Ice::StringSeq getAllNodeServers(const std::string&);
 

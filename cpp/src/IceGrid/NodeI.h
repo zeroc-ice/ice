@@ -31,11 +31,11 @@ public:
     NodeI(const Ice::ObjectAdapterPtr&, const ActivatorPtr&, const WaitQueuePtr&, const TraceLevelsPtr&, 
 	  const NodePrx&, const std::string&);
 
-    virtual ServerPrx loadServer(const ServerDescriptorPtr&, StringAdapterPrxDict&, const Ice::Current&);
+    virtual ServerPrx loadServer(const ServerDescriptorPtr&, StringAdapterPrxDict&, int&, int&, const Ice::Current&);
     virtual void destroyServer(const std::string&, const Ice::Current&);
     
-    virtual std::string getName(const Ice::Current&) const;
-    virtual std::string getHostname(const Ice::Current&) const;
+    virtual std::string getName(const Ice::Current& = Ice::Current()) const;
+    virtual std::string getHostname(const Ice::Current& = Ice::Current()) const;
     virtual void shutdown(const Ice::Current&) const;
 
     WaitQueuePtr getWaitQueue() const;
@@ -63,6 +63,7 @@ private:
     const std::string _name;
     const std::string _hostname;
     const NodePrx _proxy;
+    const Ice::Int _waitTime;
     std::string _serversDir;
     std::string _tmpDir;
     unsigned long _serial;

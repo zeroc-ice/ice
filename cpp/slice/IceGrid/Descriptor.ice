@@ -103,6 +103,14 @@ struct AdapterDescriptor
 
     /**
      *
+     * If true the activator won't wait for this object adapter to
+     * consider the server active.
+     *
+     **/
+    bool noWaitForActivation;
+
+    /**
+     *
      * The object descriptor associated to this object adapter descriptor.
      *
      **/
@@ -260,6 +268,20 @@ class ServerDescriptor extends ComponentDescriptor
      *
      **/
     string activation;
+
+    /**
+     *
+     * The activation timeout.
+     *
+     **/
+    int activationTimeout;
+
+    /**
+     *
+     * The deactivation timeout.
+     *
+     **/
+    int deactivationTimeout;
 };
 dictionary<string, ServerDescriptor> ServerDescriptorDict;
 
@@ -415,6 +437,36 @@ struct NodeDescriptor
 
 /**
  *
+ * A replicated object adapter descriptor.
+ * 
+ **/
+enum LoadBalancingPolicy
+{
+    Random,
+    RoundRobin,
+    Adaptive
+};
+
+struct ReplicatedAdapterDescriptor
+{
+    /**
+     *
+     * The id of the replicated object adapter.
+     *
+     **/
+    string id;
+
+    /**
+     *
+     * The load balancing policy.
+     * 
+     **/
+    LoadBalancingPolicy loadBalancing;
+};
+sequence<ReplicatedAdapterDescriptor> ReplicatedAdapterDescriptorSeq; 
+
+/**
+ *
  * An application descriptor.
  *
  **/
@@ -461,6 +513,13 @@ class ApplicationDescriptor
      *
      **/
     ServerInstanceDescriptorSeq servers;
+
+    /**
+     *
+     * The replicated adapters.
+     *
+     **/
+    ReplicatedAdapterDescriptorSeq replicatedAdapters;
 
     /**
      *
@@ -599,8 +658,7 @@ enum ServerState
     /**
      *
      * The server is being activated and will change to the active
-     * state if the server fork succeeded or to the Inactive state if
-     * it failed.
+     * state when the registered server object adapters are activated.
      *
      **/
     Activating,

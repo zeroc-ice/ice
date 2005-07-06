@@ -231,7 +231,7 @@ RegistryI::start(bool nowarn)
     //
     // Start the reaper thread.
     //
-    _nodeSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 10) * 1000;
+    _nodeSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 10);
     _reaper = new ReapThread(_nodeSessionTimeout);
     _reaper->start();
 
@@ -402,7 +402,7 @@ RegistryI::stop()
 NodeSessionPrx
 RegistryI::registerNode(const std::string& name, const NodePrx& node, const Ice::Current& c)
 {
-    NodePrx n = NodePrx::uncheckedCast(node->ice_timeout(_nodeSessionTimeout));
+    NodePrx n = NodePrx::uncheckedCast(node->ice_timeout(_nodeSessionTimeout * 1000));
     NodeSessionIPtr session = new NodeSessionI(_database, name, n);
     NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(c.adapter->addWithUUID(session));
     _reaper->add(proxy, session);

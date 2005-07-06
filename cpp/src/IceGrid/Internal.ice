@@ -114,17 +114,11 @@ interface Server
      *
      * Start the server.
      *
-     * @param mode The activation mode requested, start returns false
-     * if the activation mode requested is not compatible with the
-     * server activation mode. For example if mode is Automatic and
-     * the server activation mode is Manual the start will return
-     * false.
-     *
      * @return True if the server was successfully started, false
      * otherwise.
      *
      **/
-    bool start(ServerActivation mode);
+    ["amd"] bool start();
 
     /**
      *
@@ -175,7 +169,7 @@ interface Server
      * @see ServerState
      *
      **/
-    ServerState getState();
+    nonmutating ServerState getState();
 
     /**
      *
@@ -185,14 +179,14 @@ interface Server
      * integer.
      *
      **/
-    int getPid();
+    nonmutating int getPid();
 
     /**
      *
      * Get the descriptor used to deploy this server.
      *
      **/
-    ServerDescriptor getDescriptor();
+    nonmutating ServerDescriptor getDescriptor();
 
     /**
      *
@@ -206,7 +200,7 @@ interface Server
      * Get the server activation mode.
      *
      **/
-    ServerActivation getActivationMode();
+    nonmutating ServerActivation getActivationMode();
 
     /**
      *
@@ -214,13 +208,6 @@ interface Server
      *
      **/
     ["ami"] void setProcess(Ice::Process* proc);
-
-    /**
-     *
-     * Get the server adapters.
-     * 
-     **/
-    StringAdapterPrxDict getAdapters();
 };
 
 interface Node
@@ -232,7 +219,8 @@ interface Node
      * they will be created.
      *
      **/
-    idempotent Server* loadServer(ServerDescriptor desc, out StringAdapterPrxDict adapters)
+    idempotent Server* loadServer(ServerDescriptor desc, out StringAdapterPrxDict adapters, out int activationTimeout,
+				  out int deactivationTimeout)
 	throws DeploymentException;
 
     /**

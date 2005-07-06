@@ -490,6 +490,18 @@ XmlAttributesHelper::contains(const string& name)
     return _attributes.find(name) != _attributes.end();
 }
 
+int
+XmlAttributesHelper::asInt(const string& name, const string& def)
+{
+    int value;
+    istringstream v(operator()(name, def));
+    if(!(v >> value) || !v.eof())
+    {
+	return 0;
+    }    
+    return value;
+}
+
 string 
 XmlAttributesHelper::operator()(const string& name)
 {
@@ -647,6 +659,29 @@ auto_ptr<ServiceDescriptorHelper>
 ApplicationDescriptorHelper::addServiceTemplate(const std::string& id, const IceXML::Attributes& attrs)
 {
     return auto_ptr<ServiceDescriptorHelper>(new ServiceDescriptorHelper(*this, attrs, id));
+}
+
+void
+ApplicationDescriptorHelper::addReplicatedAdapter(const IceXML::Attributes& attrs)
+{
+    XmlAttributesHelper attributes(_variables, attrs);
+
+    ReplicatedAdapterDescriptor adapter;
+    adapter.id = attributes("id");
+    string policy = attributes("load-balancing", "random");
+    if(policy == "random")
+    {
+	adapter.loadBalancing = Random;
+    }
+    else if(policy == "round-robin")
+    {
+	adapter.loadBalancing = RoundRobin;
+    }
+    else if(policy == "adaptive")
+    {
+	adapter.loadBalancing = Adaptive;
+    }
+    _descriptor->replicatedAdapters.push_back(adapter);
 }
 
 ApplicationUpdateDescriptor
@@ -1092,6 +1127,7 @@ ComponentDescriptorHelper::addAdapter(const IceXML::Attributes& attrs)
     }
     desc.endpoints = attributes("endpoints");
     desc.registerProcess = attributes("register", "false") == "true";
+    desc.noWaitForActivation = attributes("noWaitForActivation", "false") == "true";
     _descriptor->adapters.push_back(desc);
 }
 
@@ -1227,6 +1263,8 @@ ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, c
 	_descriptor->exe = attributes("exe");
     }
     _descriptor->interpreter = interpreter;
+    _descriptor->activationTimeout = attributes.asInt("activation-timeout", "0");
+    _descriptor->deactivationTimeout = attributes.asInt("deactivation-timeout", "0");
 
     ComponentDescriptorHelper::init(_descriptor, attrs);
 
@@ -1287,6 +1325,16 @@ ServerDescriptorHelper::operator==(const ServerDescriptorHelper& helper) const
     }
 
     if(_descriptor->pwd != helper._descriptor->pwd)
+    {
+	return false;
+    }
+
+    if(_descriptor->activationTimeout != helper._descriptor->activationTimeout)
+    {
+	return false;
+    }
+
+    if(_descriptor->deactivationTimeout != helper._descriptor->deactivationTimeout)
     {
 	return false;
     }

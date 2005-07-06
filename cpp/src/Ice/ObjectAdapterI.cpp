@@ -144,8 +144,8 @@ Ice::ObjectAdapterI::activate()
 	    try
 	    {
 		ProcessPtr servant = new ProcessI(communicator);
-		ProcessPrx proxy = ProcessPrx::uncheckedCast(addWithUUID(servant));
-		locatorRegistry->setServerProcessProxy(serverId, proxy);
+		Ice::ObjectPrx proxy = createDirectProxy(addWithUUID(servant)->ice_getIdentity());
+		locatorRegistry->setServerProcessProxy(serverId, ProcessPrx::uncheckedCast(proxy));
 	    }
 	    catch(const ObjectAdapterDeactivatedException&)
 	    {

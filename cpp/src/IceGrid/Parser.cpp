@@ -179,7 +179,14 @@ describeServer(Output& out, const Ice::CommunicatorPtr& communicator, const Serv
 	out << nl << "pwd = '" << server->pwd << "'";
     }
     out << nl << "activation = '" << server->activation << "'";
-
+    if(server->activationTimeout > 0)
+    {
+	out << nl << "activationTimeout = " << server->activationTimeout;
+    }
+    if(server->deactivationTimeout > 0)
+    {
+	out << nl << "deactivationTimeout = " << server->deactivationTimeout;
+    }
     if(!server->interpreterOptions.empty())
     {
 	out << nl << "interpreterOptions = '" << toString(server->interpreterOptions) << "'";

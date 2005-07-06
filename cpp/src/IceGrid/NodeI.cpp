@@ -34,6 +34,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _name(name),
     _hostname(IceInternal::getProtocolPluginFacade(adapter->getCommunicator())->getDefaultHost()),
     _proxy(proxy),
+    _waitTime(adapter->getCommunicator()->getProperties()->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60)),
     _serial(1)
 {
     const string dataDir = _adapter->getCommunicator()->getProperties()->getProperty("IceGrid.Node.Data");
@@ -45,7 +46,11 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
 }
 
 ServerPrx
-NodeI::loadServer(const ServerDescriptorPtr& desc, StringAdapterPrxDict& adapters, const Ice::Current& current)
+NodeI::loadServer(const ServerDescriptorPtr& desc, 
+		  StringAdapterPrxDict& adapters, 
+		  int& activationTimeout, 
+		  int& deactivationTimeout, 
+		  const Ice::Current& current)
 {
     Lock sync(*this);
     ++_serial;
@@ -55,13 +60,14 @@ NodeI::loadServer(const ServerDescriptorPtr& desc, StringAdapterPrxDict& adapter
     id.name = desc->name;
 
     Ice::ObjectPtr servant = current.adapter->find(id);
+    ServerPrx proxy = ServerPrx::uncheckedCast(current.adapter->createProxy(id));
     if(!servant)
     {
-	servant = new ServerI(this, _serversDir, desc->name);
+	servant = new ServerI(this, proxy, _serversDir, desc->name, _waitTime);
 	current.adapter->add(servant, id);
     }
-
-    ServerPrx proxy = ServerPrx::uncheckedCast(current.adapter->createProxy(id));
+    activationTimeout = desc->activationTimeout > 0 ? desc->activationTimeout : _waitTime;
+    deactivationTimeout = desc->deactivationTimeout > 0 ? desc->deactivationTimeout : _waitTime;
     proxy->load(desc, adapters);
     return proxy;
 }
@@ -427,38 +433,12 @@ NodeI::initObserver(const Ice::StringSeq& servers)
 	Ice::Identity id;
 	id.category = "IceGridServer";
 	id.name = *p;
-	if(_adapter->find(id))
+	ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
+	if(server)
 	{
-	    ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
 	    try
 	    {
-		ServerDynamicInfo server;
-		server.name = *p;
-		server.pid = proxy->getPid();
-		server.state = proxy->getState();
-		if(server.state == Inactive)
-		{
-		    continue;
-		}
-		serverInfos.push_back(server);
-
-		StringAdapterPrxDict adapters = proxy->getAdapters();
-		for(StringAdapterPrxDict::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
-		{
-		    AdapterDynamicInfo adapter;
-		    adapter.id = p->first;
-		    try
-		    {
-			adapter.proxy = p->second->getDirectProxy();
-		    }
-		    catch(const AdapterNotActiveException&)
-		    {
-		    }
-		    catch(const Ice::ObjectNotExistException&)
-		    {
-		    }
-		    adapterInfos.push_back(adapter);
-		}
+		server->addDynamicInfo(serverInfos, adapterInfos);
 	    }
 	    catch(const Ice::ObjectNotExistException&)
 	    {

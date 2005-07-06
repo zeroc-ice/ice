@@ -203,6 +203,10 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	}
 	else if(name == "node")
 	{
+	    if(!_currentApplication.get())
+	    {
+		error("the <server> element can only be a child of a <application> element");
+	    }
 	    _currentApplication->addNode(attrs);
 	}
 	else if(name == "server" || name == "server-instance")
@@ -270,6 +274,14 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 
 	    _currentService = _currentApplication->addServiceTemplate(attributes("id"), attrs);
 	    _currentComponent = _currentService.get();
+	}
+	else if(name == "replicated-adapter")
+	{
+	    if(!_currentApplication.get())
+	    {
+		error("the <replicated-adapter> element can only be a child of a <application> element");
+	    }
+	    _currentApplication->addReplicatedAdapter(attrs);
 	}
 	else if(name == "variable")
 	{
