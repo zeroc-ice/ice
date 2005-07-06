@@ -19,11 +19,11 @@
 #include <IceE/LocalException.h>
 #include <IceE/Properties.h>
 #include <IceE/Functional.h>
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 #    include <IceE/LocatorInfo.h>
 #    include <IceE/Locator.h>
 #endif
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 #    include <IceE/RouterInfo.h>
 #    include <IceE/Router.h>
 #    include <IceE/Endpoint.h>
@@ -88,7 +88,7 @@ Ice::ObjectAdapter::getCommunicator() const
 void
 Ice::ObjectAdapter::activate()
 {
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     LocatorRegistryPrx locatorRegistry;
 #endif
     bool printAdapterReady = false;
@@ -100,7 +100,7 @@ Ice::ObjectAdapter::activate()
 
 	if(!_printAdapterReadyDone)
 	{
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 	    if(_locatorInfo && !_id.empty())
 	    {
 		locatorRegistry = _locatorInfo->getLocatorRegistry();
@@ -118,7 +118,7 @@ Ice::ObjectAdapter::activate()
     // We must call on the locator registry outside the thread
     // synchronization, to avoid deadlocks.
     //
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     if(locatorRegistry)
     {
 	//
@@ -444,7 +444,7 @@ Ice::ObjectAdapter::createReverseProxy(const Identity& ident) const
 void
 Ice::ObjectAdapter::addRouter(const RouterPrx& router)
 {
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
     
     checkForDeactivation();
@@ -484,7 +484,7 @@ Ice::ObjectAdapter::addRouter(const RouterPrx& router)
 void
 Ice::ObjectAdapter::setLocator(const LocatorPrx& locator)
 {
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
     
     checkForDeactivation();
@@ -503,7 +503,7 @@ Ice::ObjectAdapter::isLocal(const ObjectPrx& proxy) const
     ReferencePtr ref = proxy->__reference();
     vector<EndpointPtr>::const_iterator p;
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(ref);
     if(ir)
     {
@@ -542,7 +542,7 @@ Ice::ObjectAdapter::isLocal(const ObjectPrx& proxy) const
     // router's server proxy endpoints (if any), are also considered
     // local.
     //
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {
 	if(binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
@@ -641,7 +641,7 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
 	endpts = _instance->properties()->getProperty(name + ".PublishedEndpoints");
 	_publishedEndpoints = parseEndpoints(endpts);
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	string router = _instance->properties()->getProperty(_name + ".Router");
 	if(!router.empty())
 	{
@@ -649,7 +649,7 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
 	}
 #endif
 	
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 	string locator = _instance->properties()->getProperty(_name + ".Locator");
 	if(!locator.empty())
 	{
@@ -696,12 +696,12 @@ Ice::ObjectAdapter::~ObjectAdapter()
 ObjectPrx
 Ice::ObjectAdapter::newProxy(const Identity& ident, const string& facet) const
 {
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     if(_id.empty())
     {
 #endif
 	return newDirectProxy(ident, facet);
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     }
     else
     {
@@ -710,7 +710,7 @@ Ice::ObjectAdapter::newProxy(const Identity& ident, const string& facet) const
 	//
 	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet,
 								 Reference::ModeTwoway, _id
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 								 , 0
 #endif
 								 , _locatorInfo
@@ -748,7 +748,7 @@ Ice::ObjectAdapter::newDirectProxy(const Identity& ident, const string& facet) c
     // any. This way, object references created by this object adapter
     // will also point to the router's server proxy endpoints.
     //
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     copy(_routerEndpoints.begin(), _routerEndpoints.end(), back_inserter(endpoints));
 #endif
     
@@ -757,7 +757,7 @@ Ice::ObjectAdapter::newDirectProxy(const Identity& ident, const string& facet) c
     //
     ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet, Reference::ModeTwoway,
 							     endpoints
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 							     , 0
 #endif
 							     );

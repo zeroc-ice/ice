@@ -28,10 +28,10 @@ namespace IceProxy
 namespace Ice
 {
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 class Router;
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 class Locator;
 #endif
 
@@ -42,12 +42,12 @@ class Locator;
 namespace IceInternal
 {
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 ICEE_API void incRef(::IceProxy::Ice::Router*);
 ICEE_API void decRef(::IceProxy::Ice::Router*);
 #endif
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 ICEE_API void incRef(::IceProxy::Ice::Locator*);
 ICEE_API void decRef(::IceProxy::Ice::Locator*);
 #endif
@@ -57,10 +57,10 @@ ICEE_API void decRef(::IceProxy::Ice::Locator*);
 namespace Ice
 {
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Router> RouterPrx;
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Locator> LocatorPrx;
 #endif
 
@@ -121,16 +121,16 @@ public:
     bool ice_isTwoway() const;
     ::Ice::ObjectPrx ice_oneway() const;
     bool ice_isOneway() const;
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
     ::Ice::ObjectPrx ice_batchOneway() const;
     bool ice_isBatchOneway() const;
 #endif
 
     ::Ice::ObjectPrx ice_timeout(int) const;
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
 #endif
     ::Ice::ObjectPrx ice_default() const;

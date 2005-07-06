@@ -9,7 +9,7 @@
 
 #include <IceE/Config.h>
 
-#ifndef ICE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 #include <IceE/IceE.h>
 #include <TestCommon.h>

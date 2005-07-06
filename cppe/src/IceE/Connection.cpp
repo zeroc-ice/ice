@@ -383,7 +383,7 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
     }
 }
 
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
 void
 Ice::Connection::prepareBatchRequest(BasicStream* os)
 {
@@ -718,7 +718,7 @@ Ice::Connection::Connection(const InstancePtr& instance,
     _traceLevels(_instance->traceLevels()), // Cached for better performance.
     _warn(_instance->properties()->getPropertyAsInt("IceE.Warn.Connections") > 0),
     _requestHdr(headerSize + sizeof(Int), 0),
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
     _requestBatchHdr(headerSize + sizeof(Int), 0),
     _batchStream(_instance.get()),
     _batchStreamInUse(false),
@@ -745,7 +745,7 @@ Ice::Connection::Connection(const InstancePtr& instance,
     requestHdr[8] = requestMsg;
     requestHdr[9] = 0;
 
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
     vector<Byte>& requestBatchHdr = const_cast<vector<Byte>&>(_requestBatchHdr);
     requestBatchHdr[0] = magic[0];
     requestBatchHdr[1] = magic[1];

@@ -14,12 +14,12 @@
 #include <IceE/IdentityUtil.h>
 #include <IceE/Endpoint.h>
 #include <IceE/BasicStream.h>
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 #    include <IceE/RouterInfo.h>
 #    include <IceE/Router.h>
 #    include <IceE/Connection.h>
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 #    include <IceE/LocatorInfo.h>
 #    include <IceE/Locator.h>
 #endif
@@ -251,7 +251,7 @@ IceInternal::Reference::toString() const
 	    break;
 	}
 
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
 	case ModeBatchOneway:
 	{
 	    s += " -O";
@@ -405,7 +405,7 @@ IceInternal::FixedReference::getEndpoints() const
     return vector<EndpointPtr>();
 }
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 ReferencePtr
 IceInternal::FixedReference::changeRouter(const RouterPrx&) const
@@ -415,7 +415,7 @@ IceInternal::FixedReference::changeRouter(const RouterPrx&) const
 
 #endif
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 ReferencePtr
 IceInternal::FixedReference::changeLocator(const LocatorPrx&) const
@@ -519,7 +519,7 @@ IceInternal::FixedReference::FixedReference(const FixedReference& r)
 void IceInternal::incRef(IceInternal::RoutableReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::RoutableReference* p) { p->__decRef(); }
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 vector<EndpointPtr>
 IceInternal::RoutableReference::getRoutedEndpoints() const
@@ -572,7 +572,7 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     {
         return false;
     }
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     return _routerInfo == rhs->_routerInfo;
 #else
     return true;
@@ -601,7 +601,7 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
         const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
         if(rhs)
         {
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
             return _routerInfo < rhs->_routerInfo;
 #else
 	    return true;
@@ -613,12 +613,12 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Identity& ident,
 						  const Context& ctx, const string& fs, Mode md
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 						  , const RouterInfoPtr& rtrInfo
 #endif
 						  )
     : Reference(inst, ident, ctx, fs, md)
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
       , _routerInfo(rtrInfo)
 #endif
 {
@@ -626,7 +626,7 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const
 
 IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
     : Reference(r)
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
       , _routerInfo(r._routerInfo)
 #endif
 {
@@ -638,12 +638,12 @@ void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Identity& ident,
 					      const Context& ctx, const string& fs, Mode md,
 					      const vector<EndpointPtr>& endpts
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 					      , const RouterInfoPtr& rtrInfo
 #endif
 					      )
     : RoutableReference(inst, ident, ctx, fs, md
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     			, rtrInfo
 #endif
 			),
@@ -675,26 +675,26 @@ IceInternal::DirectReference::changeDefault() const
     //
     // Return an indirect reference if a default locator is set.
     //
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     LocatorPrx loc = getInstance()->referenceFactory()->getDefaultLocator();
     if(loc)
     {
 	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(loc);
 	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
 							 ""
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 							 , 0
-#endif // ICEE_NO_ROUTER
+#endif // ICEE_HAS_ROUTER
 							 , newLocatorInfo);
     }
     else
-#endif // ICEE_NO_LOCATOR
+#endif // ICEE_HAS_LOCATOR
     {
 	return RoutableReference::changeDefault();
     }
 }
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 ReferencePtr
 IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
@@ -704,7 +704,7 @@ IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
 	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
 							 ""
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 							 , 0
 #endif
 							 , newLocatorInfo);
@@ -772,7 +772,7 @@ IceInternal::DirectReference::toString() const
 ConnectionPtr
 IceInternal::DirectReference::getConnection() const
 {
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     vector<EndpointPtr> endpts = RoutableReference::getRoutedEndpoints();
     if(endpts.empty())
     {
@@ -798,7 +798,7 @@ IceInternal::DirectReference::getConnection() const
     // (if any) to the new connection, so that callbacks from the
     // router can be received over this new connection.
     //
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     if(getRouterInfo())
     {
         connection->setAdapter(getRouterInfo()->getAdapter());
@@ -864,7 +864,7 @@ IceInternal::DirectReference::DirectReference(const DirectReference& r)
 {
 }
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 void IceInternal::incRef(IceInternal::IndirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
@@ -872,12 +872,12 @@ void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
                                                   const Context& ctx, const string& fs, Mode md,
 						  const string& adptid
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 						  , const RouterInfoPtr& rtrInfo
 #endif
 						  , const LocatorInfoPtr& locInfo)
     : RoutableReference(inst, ident, ctx, fs, md
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
      		  	, rtrInfo
 #endif
 			),
@@ -903,7 +903,7 @@ IceInternal::IndirectReference::changeDefault() const
     {
 	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
 							 vector<EndpointPtr>()
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 							 , getRouterInfo()
 #endif
 							 );
@@ -926,7 +926,7 @@ IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) cons
     {
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
 							 vector<EndpointPtr>()
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 							 , getRouterInfo()
 #endif
 							 );
@@ -1002,7 +1002,7 @@ IceInternal::IndirectReference::getConnection() const
 
     while(true)
     {
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	vector<EndpointPtr> endpts = RoutableReference::getRoutedEndpoints();
 #else
 	vector<EndpointPtr> endpts;
@@ -1029,7 +1029,7 @@ IceInternal::IndirectReference::getConnection() const
 	}
 	catch(const LocalException& ex)
 	{
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	    if(!getRouterInfo())
 #endif
 	    {
@@ -1062,7 +1062,7 @@ IceInternal::IndirectReference::getConnection() const
     // (if any) to the new connection, so that callbacks from the
     // router can be received over this new connection.
     //
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     if(getRouterInfo())
     {
         connection->setAdapter(getRouterInfo()->getAdapter());
@@ -1137,7 +1137,7 @@ IceInternal::IndirectReference::IndirectReference(const IndirectReference& r)
 {
 }
 
-#endif // ICEE_NO_LOCATOR
+#endif // ICEE_HAS_LOCATOR
 
 vector<EndpointPtr>
 IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints)

@@ -18,7 +18,7 @@
 #include <IceE/RouterInfo.h>
 #include <IceE/LocalException.h>
 #include <IceE/Functional.h>
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 #  include <IceE/Reference.h>
 #endif
 #include <list>
@@ -328,7 +328,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
     return connection;
 }
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 void
 IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
@@ -388,7 +388,7 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 
 #endif
 
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
 void
 IceInternal::OutgoingConnectionFactory::flushBatchRequests()
 {

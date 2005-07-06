@@ -24,10 +24,10 @@ public:
     DefaultsAndOverrides(const ::Ice::PropertiesPtr&);
 
     std::string defaultHost;
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     std::string defaultRouter;
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     std::string defaultLocator;
 #endif
 

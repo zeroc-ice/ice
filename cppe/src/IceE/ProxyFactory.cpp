@@ -96,7 +96,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     // indirect. Otherwise, we don't retry other *NotExistException,
     // which are all derived from RequestFailedException.
     //
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     if(dynamic_cast<const ObjectNotExistException*>(&ex))
     {
 	IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(ref);

@@ -33,17 +33,17 @@ public:
     //
     ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
 			Reference::Mode, const ::std::vector<EndpointPtr>&
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 			, const RouterInfoPtr&
 #endif
 			);
     //
     // Create an indirect reference.
     //
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
 			Reference::Mode, const ::std::string&
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 			, const RouterInfoPtr&
 #endif
 			, const LocatorInfoPtr&);
@@ -64,12 +64,12 @@ public:
     //
     ReferencePtr create(const ::Ice::Identity&, BasicStream*);
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     void setDefaultRouter(const ::Ice::RouterPrx&);
     ::Ice::RouterPrx getDefaultRouter() const;
 #endif
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     void setDefaultLocator(const ::Ice::LocatorPrx&);
     ::Ice::LocatorPrx getDefaultLocator() const;
 #endif
@@ -81,10 +81,10 @@ private:
     friend class Instance;
 
     InstancePtr _instance;
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     ::Ice::RouterPrx _defaultRouter;
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     ::Ice::LocatorPrx _defaultLocator;
 #endif
 };

@@ -12,10 +12,10 @@
 #include <IceE/Instance.h>
 #include <IceE/IdentityUtil.h>
 #include <IceE/EndpointFactory.h>
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 #  include <IceE/RouterInfo.h>
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 #  include <IceE/LocatorInfo.h>
 #endif
 #include <IceE/BasicStream.h>
@@ -53,7 +53,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const string& facet,
 				      Reference::Mode mode,
 				      const vector<EndpointPtr>& endpoints
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 				      , const RouterInfoPtr& routerInfo
 #endif
 				      )
@@ -74,13 +74,13 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     // Create new reference
     //
     return new DirectReference(_instance, ident, context, facet, mode, endpoints
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     			       , routerInfo
 #endif
 			       );
 }
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
@@ -88,7 +88,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const string& facet,
 				      Reference::Mode mode,
 				      const string& adapterId
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 				      , const RouterInfoPtr& routerInfo
 #endif
 				      , const LocatorInfoPtr& locatorInfo)
@@ -110,7 +110,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     return new IndirectReference(_instance, ident, context, facet, mode,
 				 adapterId
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 				 , routerInfo
 #endif
 				 , locatorInfo);
@@ -357,7 +357,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 		break;
 	    }
 
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
 	    case 'O':
 	    {
 		if(!argument.empty())
@@ -380,18 +380,18 @@ IceInternal::ReferenceFactory::create(const string& str)
 	}
     }
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
 #endif
 
     if(beg == string::npos)
     {
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 	return create(ident, Context(), facet, mode, ""
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 		     , routerInfo
 #endif
 		     , locatorInfo
@@ -426,13 +426,13 @@ IceInternal::ReferenceFactory::create(const string& str)
 		endpoints.push_back(endp);
 	    }
 	    return create(ident, Context(), facet, mode, endpoints
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	    		  , routerInfo
 #endif
 			  );
 	    break;
 	}
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 	case '@':
 	{
 	    beg = s.find_first_not_of(delim, beg + 1);
@@ -470,7 +470,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 		throw ex;
 	    }
 	    return create(ident, Context(), facet, mode, adapter
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	    		  , routerInfo
 #endif
 			  , locatorInfo
@@ -526,10 +526,10 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     vector<EndpointPtr> endpoints;
     string adapterId;
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
 #endif
 
@@ -545,17 +545,17 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	    endpoints.push_back(endpoint);
 	}
 	return create(ident, Context(), facet, mode, endpoints
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 		      , routerInfo
 #endif
 		      );
     }
     else
     {
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 	s->read(adapterId);
 	return create(ident, Context(), facet, mode, adapterId
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 		      , routerInfo
 #endif
 		      , locatorInfo
@@ -566,7 +566,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     }
 }
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 void
 IceInternal::ReferenceFactory::setDefaultRouter(const RouterPrx& defaultRouter)
@@ -584,7 +584,7 @@ IceInternal::ReferenceFactory::getDefaultRouter() const
 
 #endif
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 void
 IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrx& defaultLocator)
@@ -618,10 +618,10 @@ IceInternal::ReferenceFactory::destroy()
     }
 
     _instance = 0;
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     _defaultRouter = 0;
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     _defaultLocator = 0;
 #endif
 }

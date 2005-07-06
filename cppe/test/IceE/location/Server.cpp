@@ -9,24 +9,7 @@
 
 #include <IceE/IceE.h>
 
-#ifdef ICE_NO_LOCATOR
-
-#include <TestCommon.h>
-
-int
-main(int argc, char* argv[])
-{
-#ifdef _WIN32
-    tprintf("%d\n", _getpid());
-#else
-    tprintf("%d\n", getpid());
-#endif
-    tprintf("Adapter Ready\n");
-
-    return 0;
-}
-
-#else
+#ifdef ICEE_HAS_LOCATOR
 
 #include <ServerLocator.h>
 #include <TestApplication.h>
@@ -103,5 +86,22 @@ main(int argc, char** argv)
 }
 
 #endif
+
+#else
+
+#include <TestCommon.h>
+
+int
+main(int argc, char* argv[])
+{
+#ifdef _WIN32
+    tprintf("%d\n", _getpid());
+#else
+    tprintf("%d\n", getpid());
+#endif
+    tprintf("Adapter Ready\n");
+
+    return 0;
+}
 
 #endif

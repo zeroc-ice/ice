@@ -34,11 +34,11 @@ public:
     void waitUntilFinished();
 
     Ice::ConnectionPtr create(const std::vector<EndpointPtr>&);
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     void setRouter(const ::Ice::RouterPrx&);
 #endif
     void removeAdapter(const ::Ice::ObjectAdapterPtr&);
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
     void flushBatchRequests();
 #endif
 

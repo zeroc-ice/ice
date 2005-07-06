@@ -12,7 +12,7 @@
 
 #include <IceE/Config.h>
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 #include <IceE/RouterInfoF.h>
 #include <IceE/RouterF.h>

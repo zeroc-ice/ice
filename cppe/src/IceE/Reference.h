@@ -13,11 +13,11 @@
 #include <IceE/ReferenceF.h>
 #include <IceE/EndpointF.h>
 #include <IceE/InstanceF.h>
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 #  include <IceE/RouterInfoF.h>
 #  include <IceE/RouterF.h>
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 #  include <IceE/LocatorInfoF.h>
 #  include <IceE/LocatorF.h>
 #endif
@@ -69,10 +69,10 @@ public:
     //
     virtual ReferencePtr changeDefault() const;
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const = 0;
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const = 0;
 #endif
     virtual ReferencePtr changeTimeout(int) const = 0;
@@ -131,10 +131,10 @@ public:
 
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
 #endif
     virtual ReferencePtr changeTimeout(int) const;
@@ -162,7 +162,7 @@ class RoutableReference : public Reference
 {
 public:
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     const RouterInfoPtr& getRouterInfo() const { return _routerInfo; }
     std::vector<EndpointPtr> getRoutedEndpoints() const;
 
@@ -182,7 +182,7 @@ public:
 protected:
 
     RoutableReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 		      , const RouterInfoPtr&
 #endif
 		      );
@@ -191,7 +191,7 @@ protected:
 
 private:
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     RouterInfoPtr _routerInfo; // Null if no router is used.
 #endif
 };
@@ -202,7 +202,7 @@ public:
 
     DirectReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode,
 	            const std::vector<EndpointPtr>&
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 		    , const RouterInfoPtr&
 #endif
 		    );
@@ -213,7 +213,7 @@ public:
 
     virtual ReferencePtr changeDefault() const;
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
 #endif
     virtual ReferencePtr changeTimeout(int) const;
@@ -237,7 +237,7 @@ private:
     std::vector<EndpointPtr> _endpoints;
 };
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 class IndirectReference : public RoutableReference
 {
@@ -245,7 +245,7 @@ public:
 
     IndirectReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&,
                       Mode, const std::string&
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 		      , const RouterInfoPtr&
 #endif
 		      , const LocatorInfoPtr&);
@@ -280,7 +280,7 @@ private:
     LocatorInfoPtr _locatorInfo;
 };
 
-#endif // ICEE_NO_LOCATOR
+#endif // ICEE_HAS_LOCATOR
 
 std::vector<EndpointPtr> filterEndpoints(const std::vector<EndpointPtr>&);
 

@@ -47,10 +47,10 @@ public:
     void logger(const Ice::LoggerPtr&);
     TraceLevelsPtr traceLevels() const;
     DefaultsAndOverridesPtr defaultsAndOverrides() const;
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     RouterManagerPtr routerManager() const;
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     LocatorManagerPtr locatorManager() const;
 #endif
     ReferenceFactoryPtr referenceFactory() const;
@@ -59,7 +59,7 @@ public:
     EndpointFactoryPtr endpointFactory() const;
     size_t messageSizeMax() const;
     Ice::Int connectionIdleTime() const;
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
     void flushBatchRequests();
 #endif
     void setDefaultContext(const ::Ice::Context&);
@@ -85,10 +85,10 @@ private:
     const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     const size_t _messageSizeMax; // Immutable, not reset by destroy().
     const size_t _threadPerConnectionStackSize;
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     RouterManagerPtr _routerManager;
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     LocatorManagerPtr _locatorManager;
 #endif
     ReferenceFactoryPtr _referenceFactory;

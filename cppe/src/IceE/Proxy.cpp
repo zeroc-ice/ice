@@ -14,7 +14,7 @@
 #include <IceE/Instance.h>
 #include <IceE/BasicStream.h>
 #include <IceE/LocalException.h>
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 #  include <IceE/RouterInfo.h>
 #endif
 
@@ -429,7 +429,7 @@ IceProxy::Ice::Object::ice_isOneway() const
     return _reference->getMode() == Reference::ModeOneway;
 }
 
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
 ObjectPrx
 IceProxy::Ice::Object::ice_batchOneway() const
 {
@@ -469,7 +469,7 @@ IceProxy::Ice::Object::ice_timeout(int t) const
     }
 }
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 ObjectPrx
 IceProxy::Ice::Object::ice_router(const RouterPrx& router) const
@@ -489,7 +489,7 @@ IceProxy::Ice::Object::ice_router(const RouterPrx& router) const
 
 #endif
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 ObjectPrx
 IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
@@ -652,7 +652,7 @@ IceProxy::Ice::Object::__getDelegate()
 	// using a router, then add this proxy to the router info
 	// object.
 	//
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	RoutableReferencePtr rr = RoutableReferencePtr::dynamicCast(_reference);
 	if(rr && rr->getRouterInfo())
 	{

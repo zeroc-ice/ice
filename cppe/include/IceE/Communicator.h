@@ -43,17 +43,17 @@ public:
     LoggerPtr getLogger() const;
     void setLogger(const LoggerPtr&);
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     RouterPrx getDefaultRouter() const;
     void setDefaultRouter(const RouterPrx&);
 #endif
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     LocatorPrx getDefaultLocator() const;
     void setDefaultLocator(const LocatorPrx&);
 #endif
 
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
     void flushBatchRequests();
 #endif
 

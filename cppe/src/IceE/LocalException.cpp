@@ -434,7 +434,7 @@ Ice::ObjectAdapterIdInUseException::ice_throw() const
 string
 Ice::ObjectAdapterIdInUseException::toString() const
 {
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     string out = Exception::toString();
     out += ":\nobject adapter with id `";
     out += id; 

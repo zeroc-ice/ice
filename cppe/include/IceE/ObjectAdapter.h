@@ -95,11 +95,11 @@ private:
     const std::string _name;
     const std::string _id;
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     std::vector<IceInternal::EndpointPtr> _routerEndpoints;
 #endif
     std::vector<IceInternal::EndpointPtr> _publishedEndpoints;
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     IceInternal::LocatorInfoPtr _locatorInfo;
 #endif
     int _directCount; // The number of direct proxies dispatching on this object adapter.

@@ -11,32 +11,32 @@
 #define ICEE_CONFIG_H
 
 //
-// Uncomment to build with no Router support.
+// Comment to build without Router support.
 //
-//#define ICEE_NO_ROUTER
+#define ICEE_HAS_ROUTER
 
 //
-// Uncomment to build with no Locator support.
+// Comment to build without Locator support.
 //
-//#define ICEE_NO_LOCATOR
+#define ICEE_HAS_LOCATOR
 
 //
-// Disable batch mode on the client side.
+// Comment to disable batch mode on the client side.
 //
-//#define ICEE_NO_BATCH
+#define ICEE_HAS_BATCH
 
 //
 // Unless we're building a pure client batch mode cannot be disabled.
 //
-#if !defined(ICEE_PURE_CLIENT) && defined(ICEE_NO_BATCH)
-#  undef ICEE_NO_BATCH
+#if !defined(ICEE_PURE_CLIENT) && !defined(ICEE_HAS_BATCH)
+#  define ICEE_NO_BATCH
 #endif
 
 //
-// If building a pure client, also build with no router.
+// If building a pure client, we cannot also build with router.
 //
-#if defined(ICEE_PURE_CLIENT)
-#  define ICEE_NO_ROUTER
+#if defined(ICEE_PURE_CLIENT) && defined(ICEE_HAS_ROUTER)
+#  undef ICEE_HAS_ROUTER
 #endif
 
 //

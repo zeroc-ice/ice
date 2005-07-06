@@ -73,7 +73,7 @@ public:
     void prepareRequest(IceInternal::BasicStream*);
     void sendRequest(IceInternal::BasicStream*, IceInternal::Outgoing*);
 
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
     void prepareBatchRequest(IceInternal::BasicStream*);
     void finishBatchRequest(IceInternal::BasicStream*);
     void abortBatchRequest();
@@ -173,7 +173,7 @@ private:
     const bool _warn;
 
     const std::vector<Byte> _requestHdr;
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
     const std::vector<Byte> _requestBatchHdr;
 #endif
 #ifndef ICEE_PURE_CLIENT
@@ -187,7 +187,7 @@ private:
 
     std::auto_ptr<LocalException> _exception;
 
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
     IceInternal::BasicStream _batchStream;
     bool _batchStreamInUse;
     int _batchRequestNum;

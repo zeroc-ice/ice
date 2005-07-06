@@ -109,7 +109,7 @@ Ice::Communicator::setLogger(const LoggerPtr& logger)
     _instance->logger(logger);
 }
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 RouterPrx
 Ice::Communicator::getDefaultRouter() const
@@ -135,7 +135,7 @@ Ice::Communicator::setDefaultRouter(const RouterPrx& router)
 
 #endif
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 LocatorPrx
 Ice::Communicator::getDefaultLocator() const
@@ -183,7 +183,7 @@ Ice::Communicator::getDefaultContext() const
     return _instance->getDefaultContext();
 }
 
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
 void
 Ice::Communicator::flushBatchRequests()
 {

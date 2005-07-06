@@ -10,11 +10,11 @@
 #include <IceE/Instance.h>
 #include <IceE/TraceLevels.h>
 #include <IceE/DefaultsAndOverrides.h>
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 #    include <IceE/RouterInfo.h>
 #    include <IceE/Router.h>
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 #    include <IceE/LocatorInfo.h>
 #    include <IceE/Locator.h>
 #endif
@@ -104,7 +104,7 @@ IceInternal::Instance::defaultsAndOverrides() const
     return _defaultsAndOverrides;
 }
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 RouterManagerPtr
 IceInternal::Instance::routerManager() const
@@ -121,7 +121,7 @@ IceInternal::Instance::routerManager() const
 
 #endif
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 LocatorManagerPtr
 IceInternal::Instance::locatorManager() const
@@ -219,7 +219,7 @@ IceInternal::Instance::messageSizeMax() const
     return _messageSizeMax;
 }
 
-#ifndef ICEE_NO_BATCH
+#ifdef ICEE_HAS_BATCH
 void
 IceInternal::Instance::flushBatchRequests()
 {
@@ -410,11 +410,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    const_cast<size_t&>(_threadPerConnectionStackSize) = static_cast<size_t>(stackSize);
 	}
 
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	_routerManager = new RouterManager;
 #endif
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 	_locatorManager = new LocatorManager;
 #endif
 
@@ -453,10 +453,10 @@ IceInternal::Instance::~Instance()
 #ifndef ICEE_PURE_CLIENT
     assert(!_objectAdapterFactory);
 #endif
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     assert(!_routerManager);
 #endif
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     assert(!_locatorManager);
 #endif
     assert(!_endpointFactory);
@@ -486,7 +486,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     // initialization before the plug-in initialization!!! The proxies
     // might depend on endpoint factories to be installed by plug-ins.
     //
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
     if(!_defaultsAndOverrides->defaultRouter.empty())
     {
 	_referenceFactory->setDefaultRouter(
@@ -494,7 +494,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     }
 #endif
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     if(!_defaultsAndOverrides->defaultLocator.empty())
     {
 	_referenceFactory->setDefaultLocator(
@@ -584,7 +584,7 @@ IceInternal::Instance::destroy()
 	// _proxyFactory->destroy();
 	_proxyFactory = 0;
 	
-#ifndef ICEE_NO_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	if(_routerManager)
 	{
 	    _routerManager->destroy();
@@ -592,7 +592,7 @@ IceInternal::Instance::destroy()
 	}
 #endif
 
-#ifndef ICEE_NO_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 	if(_locatorManager)
 	{
 	    _locatorManager->destroy();
