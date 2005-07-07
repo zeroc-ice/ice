@@ -39,19 +39,19 @@ using namespace IceInternal;
 bool
 Ice::operator==(const ::Ice::ObjectAdapter& l, const ::Ice::ObjectAdapter& r)
 {
-    return l == r;
+    return &l == &r;
 }
 
 bool
 Ice::operator!=(const ::Ice::ObjectAdapter& l, const ::Ice::ObjectAdapter& r)
 {
-    return l != r;
+    return &l != &r;
 }
 
 bool
 Ice::operator<(const ::Ice::ObjectAdapter& l, const ::Ice::ObjectAdapter& r)
 {
-    return l < r;
+    return &l < &r;
 }
 
 void
