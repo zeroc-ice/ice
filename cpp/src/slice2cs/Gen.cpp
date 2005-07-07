@@ -3736,15 +3736,15 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << sp << nl << "public " << retS << ' ' << opName << spar << params << "Ice.Context __context" << epar;
 	_out << sb;
 
-	_out << nl << "IceInternal.Outgoing __outS = getOutgoing(\"" << op->name() << "\", " << sliceModeToIceMode(op)
-	     << ", __context, __compress);";
+	_out << nl << "IceInternal.Outgoing __og = getOutgoing(\"" << op->name() << "\", " << sliceModeToIceMode(op)
+	     << ", __context);";
 	_out << nl << "try";
 	_out << sb;
 	if(!inParams.empty())
 	{
 	    _out << nl << "try";
 	    _out << sb;
-	    _out << nl << "IceInternal.BasicStream __os = __outS.ostr();";
+	    _out << nl << "IceInternal.BasicStream __os = __og.ostr();";
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
 		writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), true, false, false);
@@ -3756,14 +3756,14 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    _out << eb;
 	    _out << nl << "catch(Ice.LocalException __ex)";
 	    _out << sb;
-	    _out << nl << "__outS.abort(__ex);";
+	    _out << nl << "__og.abort(__ex);";
 	    _out << eb;
 	}
 	if(!outParams.empty() || ret || !throws.empty())
 	{
-	    _out << nl << "IceInternal.BasicStream __is = __outS.istr();";
+	    _out << nl << "IceInternal.BasicStream __is = __og.istr();";
 	}
-	_out << nl << "if(!__outS.invoke())";
+	_out << nl << "if(!__og.invoke())";
 	_out << sb;
 	if(!throws.empty())
 	{
@@ -3865,7 +3865,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
         _out << nl << "finally";
         _out << sb;
-        _out << nl << "reclaimOutgoing(__outS);";
+        _out << nl << "reclaimOutgoing(__og);";
         _out << eb;
         _out << eb;
     }
