@@ -30,10 +30,6 @@ Demos in this directory:
   A simple latency test that measures the basic call dispatch delay of
   Ice-E.
 
-- nested
-
-  A demo to illustrate how nested callbacks work.
-
 - throughput
 
   A simple throughput demo that allows you to send sequences of

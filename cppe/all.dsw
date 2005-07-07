@@ -159,12 +159,6 @@ Package=<4>
     Project_Dep_Name minimalS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name nestedC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name nestedS
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name operationsC
     End Project Dependency
     Begin Project Dependency
@@ -622,36 +616,6 @@ Package=<4>
 ###############################################################################
 
 Project: "minimalS"=.\demo\IceE\minimal\minimalS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "nestedC"=.\demo\IceE\nested\nestedC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "nestedS"=.\demo\IceE\nested\nestedS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

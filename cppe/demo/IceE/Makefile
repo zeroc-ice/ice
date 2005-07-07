@@ -15,7 +15,6 @@ SUBDIRS		= hello \
 		  latency \
 		  throughput \
 		  callback \
-		  nested \
 		  bidir \
 		  minimal \
 		  workqueue
