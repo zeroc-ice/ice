@@ -3,12 +3,12 @@
 #
 # Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 #
-# This copy of Ice is licensed to you under the terms described in the
+# This copy of Ice-E is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import os, sys, shutil, fnmatch, re, glob, RPMTools
+import os, sys, shutil, fnmatch, re, glob
 
 #
 # Program usage.
@@ -18,7 +18,6 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    print "-d    Skip SGML documentation conversion."
     print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
@@ -229,169 +228,62 @@ if verbose:
     quiet = ""
 else:
     quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice")
-
-#
-# Copy KNOWN_ISSUES.txt.
-#
-shutil.copyfile(os.path.join("ice", "install", "vc71", "doc", "KNOWN_ISSUES.txt"), os.path.join("ice", "KNOWN_ISSUES.txt"))
+os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " icee")
 
 #
 # Remove files.
 #
 print "Removing unnecessary files..."
 filesToRemove = [ \
-    os.path.join("ice", "makedist.py"), \
-    os.path.join("ice", "makebindist.py"), \
-    os.path.join("ice", "newmakebindist.py"), \
-    os.path.join("ice", "RPMTools.py"), \
-    os.path.join("ice", "fixCopyright.py"), \
-    os.path.join("ice", "fixVersion.py"), \
-    os.path.join("ice", "certs", "makecerts"), \
+    os.path.join("icee", "makedist.py"), \
     ]
-filesToRemove.extend(find("ice", ".dummy"))
+filesToRemove.extend(find("icee", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
-shutil.rmtree(os.path.join("ice", "certs", "openssl"))
-shutil.rmtree(os.path.join("ice", "install"))
-
-#
-# Generate bison files.
-#
-print "Generating bison files..."
-cwd = os.getcwd()
-grammars = find("ice", "*.y")
-for x in grammars:
-    #
-    # Change to the directory containing the file.
-    #
-    (dir,file) = os.path.split(x)
-    os.chdir(dir)
-    (base,ext) = os.path.splitext(file)
-    #
-    # Run gmake to create the output files.
-    #
-    if verbose:
-        quiet = ""
-    else:
-        quiet = "-s"
-    if file == "cexp.y":
-        os.system("gmake " + quiet + " cexp.c")
-    else:
-        os.system("gmake " + quiet + " " + base + ".cpp")
-    #
-    # Edit the Makefile to comment out the grammar rules.
-    #
-    fixMakefile("Makefile", base)
-    #
-    # Edit the project file(s) to comment out the grammar rules.
-    #
-    for p in glob.glob("*.dsp"):
-        fixProject(p, file)
-    os.chdir(cwd)
-
-#
-# Generate flex files.
-#
-print "Generating flex files..."
-scanners = find("ice", "*.l")
-for x in scanners:
-    #
-    # Change to the directory containing the file.
-    #
-    (dir,file) = os.path.split(x)
-    os.chdir(dir)
-    (base,ext) = os.path.splitext(file)
-    #
-    # Run gmake to create the output files.
-    #
-    if verbose:
-        quiet = ""
-    else:
-        quiet = "-s"
-    os.system("gmake " + quiet + " " + base + ".cpp")
-    #
-    # Edit the Makefile to comment out the flex rules.
-    #
-    fixMakefile("Makefile", base)
-    #
-    # Edit the project file(s) to comment out the flex rules.
-    #
-    for p in glob.glob("*.dsp"):
-        fixProject(p, file)
-    os.chdir(cwd)
 
 #
 # Comment out the implicit parser and scanner rules in
 # config/Make.rules.
 #
 print "Fixing makefiles..."
-fixMakeRules(os.path.join("ice", "config", "Make.rules"))
+fixMakeRules(os.path.join("icee", "config", "Make.rules"))
 
 #
-# Generate HTML documentation. We need to build icecpp
-# and slice2docbook first.
+# Get Ice-E version.
 #
-if not skipDocs:
-    os.chdir(os.path.join("ice", "src", "icecpp"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "IceUtil"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "Slice"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2docbook"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "doc"))
-    os.system("gmake")
-    os.chdir(cwd)
-
-    #
-    # Clean the source directory.
-    #
-    os.chdir(os.path.join("ice", "src"))
-    os.system("gmake clean")
-    os.chdir(cwd)
-
-#
-# Get Ice version.
-#
-config = open(os.path.join("ice", "include", "IceUtil", "Config.h"), "r")
-version = re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
+config = open(os.path.join("icee", "include", "IceE", "Config.h"), "r")
+version = re.search("ICEE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
 
 print "Fixing version in README and INSTALL files..."
-fixVersion(find("ice", "README*"), version)
-fixVersion(find("ice", "INSTALL*"), version)
+fixVersion(find("icee", "README*"), version)
+fixVersion(find("icee", "INSTALL*"), version)
 
 #
 # Create archives.
 #
 print "Creating distribution..."
-icever = "Ice-" + version
-os.rename("ice", icever)
+iceever = "IceE-" + version
+os.rename("icee", iceever)
 if verbose:
     quiet = "v"
 else:
     quiet = ""
-os.system("tar c" + quiet + "f " + icever + ".tar " + icever)
-os.system("gzip -9 " + icever + ".tar")
+os.system("tar c" + quiet + "f " + iceever + ".tar " + iceever)
+os.system("gzip -9 " + iceever + ".tar")
 if verbose:
     quiet = ""
 else:
     quiet = "q"
-os.system("zip -9r" + quiet + " " + icever + ".zip " + icever)
+os.system("zip -9r" + quiet + " " + iceever + ".zip " + iceever)
 
 #
 # Copy files (README, etc.).
 #
-shutil.copyfile(os.path.join(icever, "CHANGES"), "Ice-" + version + "-CHANGES")
+#shutil.copyfile(os.path.join(iceever, "CHANGES"), "IceE-" + version + "-CHANGES")
 
 #
 # Done.
 #
 print "Cleaning up..."
-shutil.rmtree(icever)
+shutil.rmtree(iceever)
 print "Done."
