@@ -31,10 +31,12 @@ namespace IceInternal
 	//
 	// These functions allow this object to be reused, rather than reallocated.
 	//
-	public void reset(string operation, Ice.OperationMode mode, Ice.Context context)
+	public void reset(Reference r, string operation, Ice.OperationMode mode, Ice.Context context, bool compress)
 	{
+	    _reference = r;
 	    _state = StateUnsent;
 	    _exception = null;
+	    _compress = compress;
 	    
 	    writeHeader(operation, mode, context);
 	}

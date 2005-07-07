@@ -1841,6 +1841,43 @@ namespace Ice
 	    }
 	}
 
+	public IceInternal.Outgoing getOutgoing(IceInternal.Reference reference, string operation, OperationMode mode,
+						Context context, bool compress)
+	{
+	    IceInternal.Outgoing outg;
+	    
+	    lock(_outgoingCacheMutex)
+	    {
+		if(_outgoingCache == null)
+		{
+		    outg = new IceInternal.Outgoing(this, reference, operation, mode, context, compress);
+		}
+		else
+		{
+		    outg = _outgoingCache;
+		    _outgoingCache = _outgoingCache.next;
+		    outg.reset(reference, operation, mode, context, compress);
+		    outg.next = null;
+		}
+	    }
+	    
+	    return outg;
+	}
+
+	public void reclaimOutgoing(IceInternal.Outgoing outg)
+	{
+	    //
+	    // Clear references to Ice objects as soon as possible.
+	    //
+	    outg.reclaim();
+
+	    lock(_outgoingCacheMutex)
+	    {
+		outg.next = _outgoingCache;
+		_outgoingCache = outg;
+	    }
+	}
+
 	private IceInternal.Transceiver _transceiver;
 	private string _desc;
 	private string _type;
@@ -1886,6 +1923,9 @@ namespace Ice
 
 	private IceInternal.Incoming _incomingCache;
 	private object _incomingCacheMutex = new object();
+
+	private IceInternal.Outgoing _outgoingCache;
+	private object _outgoingCacheMutex = new object();
 
 	private static bool _compressionSupported;
 

@@ -27,15 +27,16 @@ public final class Outgoing
     }
 
     //
-    // These functions allow this object to be reused, rather than
-    // reallocated.
+    // These functions allow this object to be reused, rather than reallocated.
     //
     public void
-    reset(String operation, Ice.OperationMode mode, java.util.Map context)
+    reset(Reference ref, String operation, Ice.OperationMode mode, java.util.Map context, boolean compress)
 	throws NonRepeatable
     {
+	_reference = ref;
         _state = StateUnsent;
         _exception = null;
+	_compress = compress;
 
         writeHeader(operation, mode, context);
     }

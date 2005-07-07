@@ -2335,6 +2335,46 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
+    public IceInternal.Outgoing
+    getOutgoing(IceInternal.Reference reference, String operation, OperationMode mode, java.util.Map context,
+		boolean compress)
+	throws IceInternal.NonRepeatable
+    {
+	IceInternal.Outgoing out = null;
+
+	synchronized(_outgoingCacheMutex)
+	{
+	    if(_outgoingCache == null)
+	    {
+		out = new IceInternal.Outgoing(this, reference, operation, mode, context, compress);
+	    }
+	    else
+	    {
+		out = _outgoingCache;
+		_outgoingCache = _outgoingCache.next;
+		out.reset(reference, operation, mode, context, compress);
+		out.next = null;
+	    }
+	}
+
+	return out;
+    }
+
+    public void
+    reclaimOutgoing(IceInternal.Outgoing out)
+    {
+	//
+	// Clear references to Ice objects as soon as possible.
+	//
+	out.reclaim();
+
+	synchronized(_outgoingCacheMutex)
+	{
+	    out.next = _outgoingCache;
+	    _outgoingCache = out;
+	}
+    }
+
     private class ThreadPerConnection extends Thread
     {
 	public void
@@ -2398,6 +2438,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     private IceInternal.Incoming _incomingCache;
     private java.lang.Object _incomingCacheMutex = new java.lang.Object();
+
+    private IceInternal.Outgoing _outgoingCache;
+    private java.lang.Object _outgoingCacheMutex = new java.lang.Object();
 
     private static boolean _compressionSupported = IceInternal.BasicStream.compressible();
 
