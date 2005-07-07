@@ -81,8 +81,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:windows /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../../lib"
-# SUBTRACT LINK32 /incremental:no
+# ADD LINK32 /nologo /subsystem:windows /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../../lib" /fixed:no
+# SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "mfchelloC - Win32 Debug Static"
 
@@ -110,8 +110,8 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 IceEd.lib /nologo /subsystem:windows /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../../lib"
 # SUBTRACT BASE LINK32 /incremental:no
-# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /subsystem:windows /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../../lib"
-# SUBTRACT LINK32 /incremental:no
+# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /subsystem:windows /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../../lib" /fixed:no
+# SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "mfchelloC - Win32 Release Static"
 
