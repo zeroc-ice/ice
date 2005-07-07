@@ -47,8 +47,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     tm = Ice::Time::now() - tm;
 
-    printf("time for %d pings: %fms\n", repetitions, tm.toMicroSeconds() / 1000.0);
-    printf("time per ping: %fms\n", (tm / repetitions).toMicroSeconds() / 1000.0);
+    printf("time for %d pings: %fms\n", repetitions, tm.toMilliSecondsDouble());
+    printf("time per ping: %fms\n", tm.toMilliSecondsDouble() / repetitions);
 
     return EXIT_SUCCESS;
 }

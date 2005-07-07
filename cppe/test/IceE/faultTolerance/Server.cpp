@@ -31,14 +31,6 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-        //
-	// In this test, we need a longer server idle time, otherwise
-	// our test servers may time out before they are used in the
-	// test.
-    	//
-	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
-	properties->setProperty("IceE.ServerIdleTime", "120"); // Two minutes.
-
 	setCommunicator(Ice::initialize(argc, argv));
 
         int port = 0;
@@ -70,7 +62,7 @@ public:
 
         char buf[32];
         sprintf(buf, "default -p %d", port);
-        properties->setProperty("TestAdapter.Endpoints", buf);
+        communicator()->getProperties()->setProperty("TestAdapter.Endpoints", buf);
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr object = new TestI(adapter);
         adapter->add(object, Ice::stringToIdentity("test"));

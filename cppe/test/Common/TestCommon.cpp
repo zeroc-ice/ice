@@ -40,7 +40,7 @@ public:
 	sprintf(buf, "%ld", GetTickCount());
 	s += buf;
 #else
- 	s += Ice::Time::now().toString();
+ 	s += Ice::Time::now().toMilliSeconds();
 #endif
 	s += ' ';
 	
