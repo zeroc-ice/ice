@@ -9,11 +9,13 @@
 
 #include <IceE/Time.h>
 
-#if defined(_WIN32)
-#   include <sys/timeb.h>
-#   include <time.h>
-#else
-#   include <sys/time.h>
+#ifndef _WIN32_WCE
+#  if defined(_WIN32)
+#    include <sys/timeb.h>
+#    include <time.h>
+#  else
+#    include <sys/time.h>
+#  endif
 #endif
 
 using namespace Ice;
