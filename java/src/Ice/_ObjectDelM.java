@@ -15,7 +15,8 @@ public class _ObjectDelM implements _ObjectDel
     ice_isA(String __id, java.util.Map __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __og = getOutgoing("ice_isA", OperationMode.Nonmutating, __context);
+	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_isA", OperationMode.Nonmutating,
+							     __context, __compress);
         try
         {
             IceInternal.BasicStream __is = __og.is();
@@ -36,7 +37,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__og);
+	    __connection.reclaimOutgoing(__og);
         }
     }
 
@@ -44,7 +45,8 @@ public class _ObjectDelM implements _ObjectDel
     ice_ping(java.util.Map __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __og = getOutgoing("ice_ping", OperationMode.Nonmutating, __context);
+	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ping", OperationMode.Nonmutating,
+							     __context, __compress);
         try
         {
             if(!__og.invoke())
@@ -54,7 +56,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__og);
+	    __connection.reclaimOutgoing(__og);
         }
     }
 
@@ -62,7 +64,8 @@ public class _ObjectDelM implements _ObjectDel
     ice_ids(java.util.Map __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __og = getOutgoing("ice_ids", OperationMode.Nonmutating, __context);
+	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ids", OperationMode.Nonmutating,
+							     __context, __compress);
         try
         {
             IceInternal.BasicStream __is = __og.is();
@@ -81,7 +84,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__og);
+	    __connection.reclaimOutgoing(__og);
         }
     }
 
@@ -89,7 +92,8 @@ public class _ObjectDelM implements _ObjectDel
     ice_id(java.util.Map __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __og = getOutgoing("ice_id", OperationMode.Nonmutating, __context);
+	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_id", OperationMode.Nonmutating,
+							     __context, __compress);
         try
         {
             IceInternal.BasicStream __is = __og.is();
@@ -108,7 +112,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__og);
+	    __connection.reclaimOutgoing(__og);
         }
     }
 
@@ -116,7 +120,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams, java.util.Map __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __og = getOutgoing(operation, mode, __context);
+	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, operation, mode, __context, __compress);
         try
         {
             if(inParams != null)
@@ -145,7 +149,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__og);
+	    __connection.reclaimOutgoing(__og);
         }
     }
 
@@ -198,18 +202,5 @@ public class _ObjectDelM implements _ObjectDel
 	BooleanHolder compress = new BooleanHolder();
 	__connection = __reference.getConnection(compress);
         __compress = compress.value;
-    }
-    
-    protected IceInternal.Outgoing
-    getOutgoing(String operation, OperationMode mode, java.util.Map context)
-	throws IceInternal.NonRepeatable
-    {
-	return __connection.getOutgoing(__reference, operation, mode, context, __compress);
-    }
-
-    protected void
-    reclaimOutgoing(IceInternal.Outgoing out)
-    {
-	__connection.reclaimOutgoing(out);
     }
 }
