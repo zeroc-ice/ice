@@ -11,7 +11,14 @@ package IceGrid;
 import java.util.prefs.Preferences;
 import java.util.prefs.BackingStoreException;
 import javax.swing.*;
+
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+
 import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreeSelectionModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
@@ -20,10 +27,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.windows.WindowsLookAndFeel;
 import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
+
 
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.SplitPaneUI;
@@ -33,9 +43,9 @@ import javax.swing.border.AbstractBorder;
 import IceGrid.TreeNode.CommonBase;
 
 
-public class MainPane extends JSplitPane
+public class MainPane extends JSplitPane implements Model.TreeNodeSelector
 {
-    class PopupListener extends MouseAdapter
+    static class PopupListener extends MouseAdapter
     {
 	public void mousePressed(MouseEvent e) 
 	{
@@ -68,6 +78,68 @@ public class MainPane extends JSplitPane
 	}
     }
 
+    class SelectionListener implements TreeSelectionListener
+    {
+	SelectionListener(int view)
+	{
+	    _view = view;
+	}
+
+	public void valueChanged(TreeSelectionEvent e)
+	{
+	    TreePath path = e.getPath();
+	    if(path != null)
+	    {
+		CommonBase node = (CommonBase)path.getLastPathComponent();
+		node.displayProperties(_rightPane, _view);
+	    }
+	}
+
+	private int _view;
+
+    }
+
+    class TabListener implements ChangeListener
+    {
+	public void stateChanged(ChangeEvent e)
+	{
+	    JTabbedPane tabbedPane = (JTabbedPane)e.getSource();
+	    int selectedPane = tabbedPane.getSelectedIndex();
+	    if(selectedPane >= 0)
+	    {
+		if(_treeList.size() > selectedPane)
+		{
+		    JTree tree = (JTree)_treeList.get(selectedPane);
+		    TreePath path = tree.getSelectionPath();
+		    if(path != null)
+		    {
+			CommonBase node = (CommonBase)path.getLastPathComponent();
+
+			//
+			// Assumes the pane indexing matches the view indexing
+			//
+			node.displayProperties(_rightPane, selectedPane);
+			return;
+		    }
+		}
+	    }
+	    if(_rightPane != null)
+	    {
+		_rightPane.setTitle("Properties");
+		_rightPane.setContent(_emptyPanel);
+		_rightPane.validate();
+		_rightPane.repaint();
+	    }  
+	}
+
+	void add(JTree tree)
+	{
+	    _treeList.add(tree);
+	}
+
+	private java.util.List _treeList = new java.util.Vector();
+    }
+
 
     public void updateUI()
     {
@@ -80,7 +152,7 @@ public class MainPane extends JSplitPane
 	SplitPaneUI splitPaneUI = getUI();
 	if(splitPaneUI instanceof BasicSplitPaneUI) 
 	{
-	    BasicSplitPaneUI basicUI = (BasicSplitPaneUI) splitPaneUI;
+	    BasicSplitPaneUI basicUI = (BasicSplitPaneUI)splitPaneUI;
 	    basicUI.getDivider().setBorder(BorderFactory.createEmptyBorder());
 	}
     }
@@ -90,23 +162,34 @@ public class MainPane extends JSplitPane
     {
 	super(JSplitPane.HORIZONTAL_SPLIT, true);
 	_model = model;
-	setBorder(new EmptyBorder(10, 10, 10, 10));
+	_model.setTreeNodeSelector(this);
 
+	setBorder(new EmptyBorder(10, 10, 10, 10));
+	
 	//
 	// Left pane
 	//
-	JTabbedPane tabbedPane = new JTabbedPane();
-	tabbedPane.setMinimumSize(new Dimension(200, 300));
-	tabbedPane.putClientProperty(Options.NO_CONTENT_BORDER_KEY, Boolean.TRUE);
-	tabbedPane.setBorder(new ShadowBorder());
+	_tabbedPane = new JTabbedPane();
+	_tabbedPane.setMinimumSize(new Dimension(200, 300));
+	_tabbedPane.putClientProperty(Options.NO_CONTENT_BORDER_KEY, Boolean.TRUE);
+	_tabbedPane.setBorder(new ShadowBorder());
+	TabListener tabListener = new TabListener();
+	_tabbedPane.addChangeListener(tabListener);
 
 	TreeCellRenderer renderer = new CellRenderer();
 	PopupListener popupListener = new PopupListener();
+
 
 	JTree nodeTree = new JTree(_model.getTreeModel(TreeModelI.NODE_VIEW));
 	nodeTree.setCellRenderer(renderer);
         ToolTipManager.sharedInstance().registerComponent(nodeTree);
 	nodeTree.addMouseListener(popupListener);
+	
+	nodeTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+	SelectionListener treeSelectionListener = new SelectionListener(TreeModelI.NODE_VIEW);
+	nodeTree.addTreeSelectionListener(treeSelectionListener);
+	nodeTree.setRootVisible(true);
+	_treeArray[0] = nodeTree;
 
 
 	JScrollPane nodeScroll = 
@@ -116,36 +199,53 @@ public class MainPane extends JSplitPane
 	nodeScroll.setBorder(Borders.DIALOG_BORDER);
 	
 
-	tabbedPane.addTab("Node View", nodeScroll);
+	_tabbedPane.addTab("Node View", nodeScroll);
+	tabListener.add(nodeTree);
 	
 	JTree appTree = new JTree(_model.getTreeModel(TreeModelI.APPLICATION_VIEW));
 	appTree.setCellRenderer(renderer);
 	ToolTipManager.sharedInstance().registerComponent(appTree);
 	appTree.addMouseListener(popupListener);
 
+	appTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+	SelectionListener appSelectionListener = new SelectionListener(TreeModelI.APPLICATION_VIEW);
+	appTree.addTreeSelectionListener(appSelectionListener);
+	appTree.setRootVisible(true);
+	_treeArray[1] = appTree;
+		
 	JScrollPane appScroll = 
 	    new JScrollPane(appTree,
 			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 			    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	appScroll.setBorder(Borders.DIALOG_BORDER);
 	
-	tabbedPane.addTab("Application View", appScroll);
-	
+	_tabbedPane.addTab("Application View", appScroll);
+	tabListener.add(appTree);
 	
 	JPanel leftPane = new JPanel(new BorderLayout());
-	leftPane.add(tabbedPane);
+	leftPane.add(_tabbedPane);
 
 	//
 	// Right pane
 	//
-	JPanel rightPane = new com.jgoodies.uif_lite.panel.SimpleInternalFrame("Properties");
+	_rightPane = new SimpleInternalFrame("Properties");
+	_emptyPanel = new JPanel();
+	_emptyPanel.setBackground(Color.RED);
+	_rightPane.setContent(_emptyPanel);
 	
-	/* JScrollPane rightPane = new JScrollPane(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-						JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-	*/
 	setLeftComponent(leftPane);
-	setRightComponent(rightPane);
+	setRightComponent(_rightPane);
     }
+
+    public void selectNode(TreePath path, int view)
+    {
+	if(_tabbedPane.getSelectedIndex() != view)
+	{
+	    _tabbedPane.setSelectedIndex(view);
+	}
+	_treeArray[view].setSelectionPath(path);
+    }
+
 
     //
     // Adapted from JGoodies SimpleInternalFrame
@@ -199,4 +299,10 @@ public class MainPane extends JSplitPane
     }
 
     private Model _model;
+
+    private JTabbedPane _tabbedPane;
+    private JTree[] _treeArray = new JTree[TreeModelI.VIEW_COUNT];
+    private SimpleInternalFrame _rightPane;
+
+    static private JPanel _emptyPanel;
 }

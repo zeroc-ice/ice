@@ -112,6 +112,12 @@ class Application extends Parent
 	_serverInstances.update(desc.servers, desc.removeServers);
     }
 
+    ServerTemplate findServerTemplate(String id)
+    {
+	return (ServerTemplate)_serverTemplates.findChild(id);
+    }
+    
+
     private ApplicationDescriptor _descriptor;
 
     //

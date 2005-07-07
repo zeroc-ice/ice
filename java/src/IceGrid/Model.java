@@ -15,6 +15,7 @@ import java.awt.Cursor;
 import javax.swing.tree.TreeModel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.tree.TreePath;
 
 import IceGrid.TreeNode.NodeViewRoot;
 import IceGrid.TreeNode.ApplicationViewRoot;
@@ -96,6 +97,11 @@ public class Model
     //                            |
     //                            -- adapters, databases (see above)
 
+
+    public static interface TreeNodeSelector
+    {
+	void selectNode(TreePath path, int view);
+    }
 
     public static class ConnectInfo
     {
@@ -369,6 +375,16 @@ public class Model
 	return _statusBar;
     }
 
+    public void setTreeNodeSelector(TreeNodeSelector selector)
+    {
+	_treeNodeSelector = selector;
+    }
+
+    public TreeNodeSelector getTreeNodeSelector()
+    {
+	return _treeNodeSelector;
+    }
+
 
     Model(Ice.Communicator communicator, StatusBar statusBar)
     {
@@ -396,4 +412,6 @@ public class Model
     private TreeModelI _applicationModel;
 
     private int _latestSerial = -1;
+
+    private TreeNodeSelector _treeNodeSelector;
 }

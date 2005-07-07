@@ -117,7 +117,7 @@ class SessionKeeper
 	    builder.nextLine();
 	    builder.append("Username", _username);
 	    builder.nextLine();
-	    builder.append(_passwordLabel,_password);
+	    builder.append(_passwordLabel, _password);
 	    builder.appendSeparator("Options");
 	    builder.append("", _useGlacier);
 	    builder.nextLine();

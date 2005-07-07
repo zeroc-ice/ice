@@ -13,6 +13,8 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.JPopupMenu;
 import javax.swing.JPanel;
 
+import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
+
 //
 // CommonBase is similar to javax.swing.tree.TreeNode
 //
@@ -77,8 +79,6 @@ public interface CommonBase extends TreeCellRenderer
     //
     JPopupMenu getPopupMenu();
 
-    //
-    // Get properties panel
-    //
-    JPanel getProperties(int view);
+    void displayProperties(SimpleInternalFrame frame, int view);
+
 }

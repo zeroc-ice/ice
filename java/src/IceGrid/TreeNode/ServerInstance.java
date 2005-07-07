@@ -17,7 +17,20 @@ import javax.swing.Icon;
 import javax.swing.JMenuItem;
 import javax.swing.Action;
 import javax.swing.AbstractAction;
+import javax.swing.JTextField;
+import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 import javax.swing.tree.DefaultTreeCellRenderer;
+
+import javax.swing.JTextField;
+import javax.swing.JComboBox;
+import javax.swing.JButton;
+import javax.swing.JToggleButton;
+
+import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.factories.Borders;
 
 import IceGrid.TreeModelI;
 import IceGrid.IceBoxDescriptor;
@@ -30,6 +43,116 @@ import IceGrid.ServerDynamicInfo;
 
 class ServerInstance extends Parent
 {
+ 
+    static class Editor
+    {
+	JComponent getComponent()
+	{
+	    if(_scrollPane == null)
+	    {
+		//
+		// Build everything using JGoodies's DefaultFormBuilder
+		//
+		FormLayout layout = new FormLayout("right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		builder.setBorder(Borders.DLU2_BORDER);
+		builder.setRowGroupingEnabled(true);
+
+		builder.appendSeparator("Server Instance Descriptor");
+		
+		builder.append("Node");
+		builder.append(_node, 3);
+		builder.nextLine();
+
+		AbstractAction gotoTemplate = new AbstractAction("->")
+		    {
+			public void actionPerformed(ActionEvent e) 
+			{
+			    if(_server != null)
+			    {
+				CommonBase parent = _server.getParent(TreeModelI.APPLICATION_VIEW);
+				if(parent != null)
+				{
+				    Application app = (Application)parent.getParent(TreeModelI.APPLICATION_VIEW);
+				    if(app != null)
+				    {
+					ServerTemplate template = app.findServerTemplate(_template.getText());
+					if(template != null)
+					{
+					    _server.getModel().getTreeNodeSelector().selectNode(
+						template.getPath(TreeModelI.APPLICATION_VIEW), 
+						TreeModelI.APPLICATION_VIEW);
+					}
+				    }
+				}
+			    }
+			}
+		    };
+		gotoTemplate.putValue(Action.SHORT_DESCRIPTION, "Goto this template");
+
+
+		builder.append("Template", _template);
+		builder.append(new JButton(gotoTemplate));
+		builder.nextLine();
+
+		builder.append("Parameters", _parameterValues);
+		builder.append(new JButton("..."));
+		builder.nextLine();
+
+		_myDescriptor = new JComboBox();
+		_myDescriptor.addItem("");
+		_myDescriptor.addItem("ServerDescriptor");
+		_myDescriptor.addItem("IceBoxDescriptor");
+		builder.append("My Descriptor", _myDescriptor);
+		builder.append(new JToggleButton("Edit"));
+
+		builder.append("Targets");
+		builder.append(_targets, 3);
+		_targets.setEditable(false);
+		builder.nextLine();
+		_serverDescriptorRenderer.build(builder);
+
+		_scrollPane = new JScrollPane(builder.getPanel(),
+					      JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+					      JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		_scrollPane.setBorder(Borders.DIALOG_BORDER);
+	    }
+	    return _scrollPane;
+	}
+
+	void show(ServerInstance server)
+	{
+	    _server = server;
+	    ServerInstanceDescriptor descriptor = server.getDescriptor();
+	    _template.setText(descriptor.template);
+	    _node.setText(descriptor.node);
+	    
+	    Ice.StringHolder toolTipHolder = new Ice.StringHolder();
+	    
+	    _parameterValues.setText(Utils.stringify(descriptor.parameterValues, "=",
+						    ", ", toolTipHolder));
+	    _parameterValues.setToolTipText(toolTipHolder.value);
+
+	    _targets.setText(Utils.stringify(descriptor.targets, ", ", toolTipHolder));
+	    _targets.setToolTipText(toolTipHolder.value);
+
+	    _serverDescriptorRenderer.showDescriptor(descriptor.descriptor);
+	}
+
+	private JTextField _node = new JTextField(20);
+	private JTextField _template = new JTextField(20);
+	private JTextField _parameterValues = new JTextField(20);
+	private JComboBox _myDescriptor;
+	private JTextField _targets = new JTextField(20);
+
+	private ServerDescriptorRenderer _serverDescriptorRenderer =
+	  new ServerDescriptorRenderer();
+
+	private ServerInstance _server;
+
+	private JScrollPane _scrollPane;
+    }
+  
     static class PopupMenu extends JPopupMenu
     {
 	PopupMenu()
@@ -67,9 +190,8 @@ class ServerInstance extends Parent
 	private ServerInstance _server;
 	private Action _startAction;
 	private Action _stopAction;
-
     }
-
+    
 
     public JPopupMenu getPopupMenu()
     {
@@ -81,11 +203,21 @@ class ServerInstance extends Parent
 	return _popup;
     }
 
-    public JPanel getProperties(int view)
+    public void displayProperties(SimpleInternalFrame frame, int view)
     {
-	return null;
+	frame.setTitle("Properties for " + _id);
+	
+	if(_editor == null)
+	{
+	    _editor = new Editor();
+	}
+	_editor.show(this);
+	frame.setContent(_editor.getComponent());
+	frame.validate();
+	frame.repaint();
     }
-    
+	
+
     public Component getTreeCellRendererComponent(
 	    JTree tree,
 	    Object value,
@@ -319,6 +451,11 @@ class ServerInstance extends Parent
 	return _state;
     }
 
+    ServerInstanceDescriptor getDescriptor()
+    {
+	return _descriptor;
+    }
+
 
     public String toString()
     {
@@ -363,5 +500,6 @@ class ServerInstance extends Parent
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon[] _icons;
     static private PopupMenu _popup;
+    static private Editor _editor;
   
 }

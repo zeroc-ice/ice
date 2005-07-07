@@ -24,8 +24,8 @@ public class TreeModelI implements TreeModel
     //
     // Available views
     //
-    static public final int APPLICATION_VIEW = 0;
-    static public final int NODE_VIEW = 1;
+    static public final int NODE_VIEW = 0;
+    static public final int APPLICATION_VIEW = 1;
 
     static public final int VIEW_COUNT = 2;
 

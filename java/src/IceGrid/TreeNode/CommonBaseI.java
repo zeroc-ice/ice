@@ -9,11 +9,16 @@
 package IceGrid.TreeNode;
 
 import java.awt.Component;
-import javax.swing.tree.TreePath;
-import javax.swing.JTree;
 import javax.swing.JPopupMenu;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTree;
 import javax.swing.event.TreeModelEvent;
+import javax.swing.tree.TreePath;
+
+import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
+import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.forms.factories.DefaultComponentFactory;
 
 import IceGrid.TreeModelI;
 import IceGrid.Model;
@@ -104,12 +109,20 @@ abstract class CommonBaseI implements CommonBase
 	return null;
     }
 
-    public JPanel getProperties(int view)
+    public void displayProperties(SimpleInternalFrame frame, int view)
     {
-	//
-	// TODO: nicer emptyx panel
-	//
-	return null;
+	if(_panel == null)
+	{
+	    JLabel label = DefaultComponentFactory.getInstance().createTitle("This element has no property");
+	    _panel = new JPanel();
+	    _panel.add(label);
+	    _panel.setBorder(Borders.DIALOG_BORDER);
+	}
+
+	frame.setTitle("Properties");
+	frame.setContent(_panel);
+	frame.validate();
+	frame.repaint();
     }
 
     public Component getTreeCellRendererComponent(
@@ -227,6 +240,12 @@ abstract class CommonBaseI implements CommonBase
 	}
     }
 
+    Model getModel()
+    {
+	return _model;
+    }
+
+
     //
     // view to Path/Parent arrays
     //
@@ -242,4 +261,9 @@ abstract class CommonBaseI implements CommonBase
     // The Model
     //
     protected IceGrid.Model _model; 
+
+    //
+    // The default panel
+    //
+    protected JPanel _panel;
 }
