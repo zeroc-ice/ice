@@ -2,7 +2,7 @@ Demos in this directory:
 
 - MFC
 
-  Shows how to use Ice in conjunction with the Microsoft Foundation
+  Shows how to use Ice-E in conjunction with the Microsoft Foundation
   Classes.
 
 - bidir
@@ -28,12 +28,11 @@ Demos in this directory:
 - latency
 
   A simple latency test that measures the basic call dispatch delay of
-  Ice.
+  Ice-E.
 
 - nested
 
-  A demo to illustrate how nested callbacks work, and how the size of
-  the thread pool affects the maximum nesting depth.
+  A demo to illustrate how nested callbacks work.
 
 - throughput
 
@@ -45,6 +44,6 @@ Demos in this directory:
 - workqueue
 
   This application illustrates the use of the threading and
-  synchronization primitives provided by the IceUtil library. It uses
-  IceUtil to implement a simple producer/ consumer queueing
+  synchronization primitives provided by the Ice-E library. It uses
+  Ice-E to implement a simple producer/ consumer queueing
   application.

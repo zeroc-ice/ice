@@ -78,7 +78,7 @@ def writePreamble(lang):
 	    continue
 	if lang == "java":
 	    file.write("\n");
-	    file.write("package IceEInternal;\n")
+	    file.write("package IceInternal;\n")
 	    file.write("\n")
 	    file.write("public final class " + classname + '\n');
 	    file.write("{\n")
@@ -94,7 +94,7 @@ def writePreamble(lang):
 	header.write("\n")
 	header.write("#include <IceE/Config.h>")
 	header.write("\n")
-	header.write("namespace IceEInternal\n")
+	header.write("namespace IceInternal\n")
 	header.write("{\n")
 	header.write("\n")
 	header.write("class " + classname + '\n')
@@ -117,7 +117,7 @@ def writePostamble(lang, labels):
 	header.write("\n")
 	header.write("#endif\n");
 	file.write("\n");
-        file.write("ICEE_API const char* const* IceEInternal::" + classname + "::validProps[] =\n")
+        file.write("ICEE_API const char* const* IceInternal::" + classname + "::validProps[] =\n")
 	file.write("{\n")
 	for label, line in labels.iteritems():
 	    file.write("    " + label + "Props,\n")
@@ -142,7 +142,7 @@ def startSection(lang, label):
     file = outputFiles[0][1]
     if lang == "cpp":
 	file.write("\n");
-        file.write("const char* IceEInternal::" + classname + "::" + label + "Props[] =\n")
+        file.write("const char* IceInternal::" + classname + "::" + label + "Props[] =\n")
         file.write("{\n");
 	return
     if lang == "java":
@@ -336,7 +336,7 @@ if lang == "all":
     shutil.move("PropertyNames.h", os.path.join(toplevel, "src", "IceE"))
     processFile("java")
     if os.path.exists(os.path.join(toplevel, "..", "iceje")):
-        shutil.move("PropertyNames.java", os.path.join(toplevel, "..", "iceje", "src", "IceEInternal"));
+        shutil.move("PropertyNames.java", os.path.join(toplevel, "..", "iceje", "src", "IceInternal"));
 else:
     processFile(lang)
 

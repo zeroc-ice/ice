@@ -2,7 +2,6 @@
 Requirements
 ======================================================================
 
-
 Operating System
 ----------------
 
@@ -17,42 +16,18 @@ C++ compiler
 - Intel C++ 8.1
 
 
-Third-party libraries
----------------------
+Slice to Embedded C++ translator
+--------------------------------
 
-Ice has dependencies on a number of third-party libraries:
+You will need the Slice to Embedded C++ translator and supporting
+executables and libraries. You can download a binary distribution from 
+the ZeroC web site, or you can build the slice to Embedded C++ translator
+yourself.
 
-- Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx.
+Binary distributions for the supported platforms as well as the source
+distribution are available at
 
-  You can download the Berkeley DB source distribution from
-  http://www.sleepycat.com/download
-
-  Note that Ice for Java is not compatible with version 4.3, therefore
-  if you intend to use Ice for Java with Berkeley DB, you must use
-  version 4.2.52 and the option --enable-java.
-
-  If you are using RedHat 9 and do not want to use NPTL (New Posix
-  Thread Library), set LD_ASSUME_KERNEL=2.4.1 before running
-  configure.
-
-- expat 1.9x
-
-- OpenSSL 0.96 or 0.97
-
-- bzip2 1.0
-
-- readline and ncurses (optional, but used unless you set USE_READLINE
-  to no in config/Make.rules)
-
-expat, OpenSSL, bzip2, readline and ncurses are usually included with
-your Linux distribution, or you can download them from the following
-locations:
-
-expat          http://sourceforge.net/projects/expat/
-OpenSSL        http://www.openssl.org
-bzip2          http://sources.redhat.com/bzip2
-readline       http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
-ncurses        http://www.gnu.org/software/ncurses/ncurses.html
+http://www.zeroc.com/download.html
 
 
 Python
@@ -67,31 +42,31 @@ is not required.
 Compilation and Testing
 ======================================================================
 
-Extract the Ice archive in any directory you like (for example, in
+Extract the Ice-E archive in any directory you like (for example, in
 your home directory):
 
-$ tar xvfz Ice-@ver@.tar.gz
+$ tar xvfz IceE-@ver@.tar.gz
 
-Change the working directory to Ice-@ver@:
+Change the working directory to IceE-@ver@:
 
-$ cd Ice-@ver@
+$ cd IceE-@ver@
 
 Edit config/Make.rules to establish your build configuration. The
 comments in the file provide more information. Pay particular
 attention to the variables that define the locations of the third-
 party libraries.
 
-If you want to build Ice with the Intel C++ compiler, first set the
+If you want to build Ice-E with the Intel C++ compiler, first set the
 following environment variables:
 
 $ export CC=icc
 $ export CXX=icpc
 
-Now you're ready to build Ice:
+Now you're ready to build Ice-E:
 
 $ make
 
-This will build the Ice core libraries, services, tests and examples.
+This will build the Ice-E library, tests and examples.
 After a successful build, you can run the test suite, provided that
 you have installed Python:
 
@@ -104,11 +79,9 @@ $ python allTests.py
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".
 
-If you want to try out any of the demos, make sure to update your PATH
-environment variable to add the "bin" directory, and your
+If you want to try out any of the demos, make sure to update your
 LD_LIBRARY_PATH environment variable to add the "lib" directory:
 
-$ export PATH=`pwd`/bin:$PATH
 $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 
 
@@ -116,11 +89,7 @@ $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 64 bit builds on x86-64
 ======================================================================
 
-To build Ice in 64 bit mode, you need to do the following:
-
-- Obtain or build all the third-party dependencies, and put the 64 bit
-  libraries in the "lib64" directories. For example, put Berkeley DB
-  64 bit libraries in $DB_HOME/lib64.
+To build Ice-E in 64 bit mode, you need to do the following:
 
 - Set the environment variable LP64 to yes, as shown below:
 
@@ -133,12 +102,11 @@ To build Ice in 64 bit mode, you need to do the following:
 Installation
 ======================================================================
 
-Simply run "make install". This will install Ice in the directory
+Simply run "make install". This will install Ice-E in the directory
 specified by the "prefix" variable in config/Make.rules.
 
-After installation, make sure that the <prefix>/bin directory is in
-your PATH, and the <prefix>/lib directory is in your
-LD_LIBRARY_PATH. When compiling Ice programs, you must also make sure
+After installation, make sure the <prefix>/lib directory is in your
+LD_LIBRARY_PATH. When compiling Ice-E programs, you must also make sure
 to pass the location of the <prefix>/include directory to the compiler
 with the -I option, and the location of the <prefix>/lib directory
 with the -L option.
