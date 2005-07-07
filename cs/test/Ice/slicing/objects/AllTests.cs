@@ -906,10 +906,9 @@ public class AllTests
         Console.Out.Write("unknown with Object as Object... ");
         Console.Out.Flush();
         {
-            Ice.Object o;
             try
             {
-                o = testPrx.SUnknownAsObject();
+                testPrx.SUnknownAsObject();
 		test(false);
             }
 	    catch(Ice.NoObjectFactoryException)
