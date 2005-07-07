@@ -4116,15 +4116,15 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeDelegateThrowsClause(package, throws);
         out << sb;
 
-        out << nl << "IceInternal.Outgoing __outS = getOutgoing(\"" << op->name() << "\", " << sliceModeToIceMode(op)
-	    << ", __ctx);";
+        out << nl << "IceInternal.Outgoing __og = __connection.getOutgoing(__reference, \"" << op->name() << "\", "
+	    << sliceModeToIceMode(op) << ", __ctx, __compress);";
         out << nl << "try";
         out << sb;
         if(!inParams.empty())
         {
 	    out << nl << "try";
 	    out << sb;
-            out << nl << "IceInternal.BasicStream __os = __outS.os();";
+            out << nl << "IceInternal.BasicStream __os = __og.os();";
 	    iter = 0;
 	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
 	    {
@@ -4138,13 +4138,13 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << eb;
 	    out << nl << "catch(Ice.LocalException __ex)";
 	    out << sb;
-	    out << nl << "__outS.abort(__ex);";
+	    out << nl << "__og.abort(__ex);";
 	    out << eb;
 	}
-	out << nl << "boolean __ok = __outS.invoke();";
+	out << nl << "boolean __ok = __og.invoke();";
 	out << nl << "try";
 	out << sb;
-	out << nl << "IceInternal.BasicStream __is = __outS.is();";
+	out << nl << "IceInternal.BasicStream __is = __og.is();";
         out << nl << "if(!__ok)";
         out << sb;
 	out << nl << "try";
@@ -4206,7 +4206,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << nl << "finally";
         out << sb;
-        out << nl << "reclaimOutgoing(__outS);";
+        out << nl << "__connection.reclaimOutgoing(__og);";
         out << eb;
         out << eb;
     }
