@@ -127,6 +127,10 @@ Ice::FactoryTableWrapper::initialize()
     ++_initCount;
 }
 
+#include <iostream>
+
+using namespace std;
+
 //
 // Delete the table if its reference count drops to zero.
 //

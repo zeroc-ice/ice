@@ -338,14 +338,6 @@ namespace IceInternal
 {
 }
 
-#ifndef ICEE_API 
-#   ifdef ICEE_API_EXPORTS
-#       define ICEE_API ICEE_DECLSPEC_EXPORT
-#   else
-#       define ICEE_API ICEE_DECLSPEC_IMPORT
-#   endif
-#endif
-
 namespace Ice
 {
 
