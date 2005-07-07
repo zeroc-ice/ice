@@ -94,7 +94,7 @@ README file in each demo directory for a description of each demo.
 Installation
 ------------
 
-Put the bin/icecs.dll file where you want it and add that directorya
+Put the bin/icecs.dll file where you want it and add that directory
 to your MONO_PATH. When building applications, you need to reference
 the library with the -r option to mcs.
 
