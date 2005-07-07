@@ -17,7 +17,7 @@
 #include <IceE/Config.h>
 
 #ifdef _WIN32
-#   include <winsock.h>
+#   include <winsock2.h>
 typedef int ssize_t;
 #else
 #   include <unistd.h>
@@ -110,6 +110,8 @@ ICEE_API std::vector<struct sockaddr_in> getLocalAddresses();
 ICEE_API bool isLocalAddress(const struct sockaddr_in&);
 ICEE_API bool isPeerLocal(SOCKET);
 #endif
+
+ICEE_API int getSocketErrno();
 
 }
 

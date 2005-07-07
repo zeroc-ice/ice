@@ -155,15 +155,6 @@
 
 #   include <windows.h>
 
-//
-// MFC applications that include afxwin.h before this header will cause
-// windows.h to skip inclusion of winsock.h, so we include it here if
-// necessary.
-// 
-#   ifndef _WINSOCKAPI_
-#      include <winsock2.h>
-#   endif
-
 #ifdef _WIN32_WCE
 // return type for ... (ie; not a UDT or reference to a UDT.  Will
 // produce errors if applied using infix notation)
@@ -353,10 +344,8 @@ typedef double Double;
 // TODO: Should not be inline, this is not performance critical.
 #ifdef _WIN32
 inline int getSystemErrno() { return GetLastError(); }
-inline int getSocketErrno() { return WSAGetLastError(); }
 #else
 inline int getSystemErrno() { return errno; }
-inline int getSocketErrno() { return errno; }
 #endif
 
 #endif

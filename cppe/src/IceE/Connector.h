@@ -17,8 +17,10 @@
 #include <IceE/LoggerF.h>
 #include <IceE/Shared.h>
 
-#ifndef _WIN32
-#   include <netinet/in.h> // For struct sockaddr_in
+#ifdef _WIN32
+#  include <winsock2.h>
+#else
+#  include <netinet/in.h> // For struct sockaddr_in
 #endif
 
 namespace IceInternal

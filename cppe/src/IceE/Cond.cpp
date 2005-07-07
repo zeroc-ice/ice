@@ -42,8 +42,7 @@ Ice::Semaphore::wait() const
 bool
 Ice::Semaphore::timedWait(const Time& timeout) const
 {
-    timeval tv = timeout;
-    long msec = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+    long msec = (long)timeout.toMilliSeconds();
 
     int rc = WaitForSingleObject(_sem, msec);
     if(rc != WAIT_TIMEOUT && rc != WAIT_OBJECT_0)

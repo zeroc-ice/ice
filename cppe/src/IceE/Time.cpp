@@ -65,6 +65,7 @@ Ice::Time::microSeconds(Int64 t)
     return Time(t);
 }
 
+#ifndef _WIN32
 Ice::Time::operator timeval() const
 {
     timeval tv;
@@ -72,6 +73,7 @@ Ice::Time::operator timeval() const
     tv.tv_usec = static_cast<long>(_usec % 1000000);
     return tv;
 }
+#endif
 
 Int64
 Ice::Time::toSeconds() const

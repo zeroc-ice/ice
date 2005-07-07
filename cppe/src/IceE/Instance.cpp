@@ -33,7 +33,9 @@
 
 #include <stdio.h>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#   include <winsock2.h>
+#else
 #   include <signal.h>
 #   include <pwd.h>
 #   include <sys/types.h>
@@ -359,7 +361,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    if(WSAStartup(version, &data) != 0)
 	    {
 		SocketException ex(__FILE__, __LINE__);
-		ex.error = getSocketErrno();
+		ex.error = WSAGetLastError();
 		throw ex;
 	    }
 #endif

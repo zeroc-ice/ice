@@ -19,6 +19,16 @@ using namespace IceInternal;
 #    define INADDR_NONE (unsigned long)-1
 #endif
 
+int
+IceInternal::getSocketErrno()
+{
+#ifdef _WIN32
+    return WSAGetLastError();
+#else
+    return errno;
+#endif
+}
+
 bool
 IceInternal::interrupted()
 {

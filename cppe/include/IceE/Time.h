@@ -30,7 +30,9 @@ public:
     static Time milliSeconds(Int64);
     static Time microSeconds(Int64);
     
+#ifndef _WIN32
     operator timeval() const;
+#endif
 
     Int64 toSeconds() const;
     Int64 toMilliSeconds() const;
