@@ -21,8 +21,8 @@ ICE_DIR	= $(top_srcdir)/src/IceE
 
 TRANSPORT_OBJS	= Acceptor.o \
 		  Connector.o \
-		  Endpoint.o \
 		  EndpointFactory.o \
+		  TcpEndpoint.o \
 		  Transceiver.o
 
 ICE_OBJS	= BasicStream.o \
@@ -31,6 +31,7 @@ ICE_OBJS	= BasicStream.o \
 		  Cond.o \
 		  Connection.o \
 		  DefaultsAndOverrides.o \
+		  Endpoint.o \
 		  ExceptionBase.o \
 		  FactoryTable.o \
 		  FactoryTableDef.o \
@@ -65,6 +66,7 @@ ICE_OBJS	= BasicStream.o \
 		  Time.o \
 		  TraceLevels.o \
 		  TraceUtil.o \
+		  UnknownEndpoint.o \
 		  UUID.o
 
 LOCAL_OBJS	= BuiltinSequences.o \
@@ -81,8 +83,8 @@ OBJS		= $(LOCAL_OBJS) $(ICE_OBJS) $(TRANSPORT_OBJS)
 
 TRANSPORT_SRCS	= $(TRANSPORT_DIR)/Acceptor.cpp \
 		  $(TRANSPORT_DIR)/Connector.cpp \
-		  $(TRANSPORT_DIR)/Endpoint.cpp \
 		  $(TRANSPORT_DIR)/EndpointFactory.cpp \
+		  $(TRANSPORT_DIR)/TcpEndpoint.cpp \
 		  $(TRANSPORT_DIR)/Transceiver.cpp
 
 SRCS		= $(LOCAL_OBJS:.o=.cpp) $(TRANSPORT_SRCS)
