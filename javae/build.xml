@@ -27,7 +27,6 @@
 	</path>
     </target>
 
-
     <!-- set global properties for this build -->
     <property name="src.dir" value="src"/>
     <property name="lib.dir" value="lib"/>
