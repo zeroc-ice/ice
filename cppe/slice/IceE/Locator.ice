@@ -80,7 +80,7 @@ interface Locator
      * be found.
      *
      **/
-    ["amd"] nonmutating Object* findObjectById(Ice::Identity id)
+    nonmutating Object* findObjectById(Ice::Identity id)
 	throws ObjectNotFoundException;
 
     /**
@@ -96,7 +96,7 @@ interface Locator
      * found.
      *
      **/
-    ["amd"] nonmutating Object* findAdapterById(string id)
+    nonmutating Object* findAdapterById(string id)
 	throws AdapterNotFoundException;
 
     /**
@@ -141,7 +141,7 @@ interface LocatorRegistry
      * id is already active.
      *
      **/
-    ["amd"] idempotent void setAdapterDirectProxy(string id, Object* proxy)
+    idempotent void setAdapterDirectProxy(string id, Object* proxy)
 	throws AdapterNotFoundException, AdapterAlreadyActiveException;
 };
 

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_TRANSPORT_ENDPOINT_H
-#define ICEE_TRANSPORT_ENDPOINT_H
+#ifndef ICEE_ENDPOINT_H
+#define ICEE_ENDPOINT_H
 
 #include <IceE/EndpointF.h>
 #include <IceE/ConnectorF.h>
@@ -26,45 +26,75 @@ namespace IceInternal
 
 class BasicStream;
 
-const Ice::Short TcpEndpointType = 1;
-
 class ICEE_API Endpoint : public Ice::Shared
 {
 public:
 
-    Endpoint(const InstancePtr&, const std::string&, Ice::Int, Ice::Int);
-    Endpoint(const InstancePtr&, const std::string&);
-    Endpoint(BasicStream*);
-
-    void streamWrite(BasicStream*) const;
-    std::string toString() const;
-    Ice::Short type() const;
-    Ice::Int timeout() const;
-    EndpointPtr timeout(Ice::Int) const;
-    bool unknown() const;
-    ConnectorPtr connector() const;
-#ifndef ICEE_PURE_CLIENT
-    AcceptorPtr acceptor(EndpointPtr&) const;
-#endif
-
-    bool equivalent(const TransceiverPtr&) const;
-#ifndef ICEE_PURE_CLIENT
-    bool equivalent(const AcceptorPtr&) const;
-#endif
-
-    bool operator==(const Endpoint&) const;
-    bool operator!=(const Endpoint&) const;
-    bool operator<(const Endpoint&) const;
-
-private:
+    //
+    // Marshal the endpoint.
+    //
+    virtual void streamWrite(BasicStream*) const = 0;
 
     //
-    // All members are const, because endpoints are immutable.
+    // Convert the endpoint to its string form.
     //
-    const InstancePtr _instance;
-    const std::string _host;
-    const Ice::Int _port;
-    const Ice::Int _timeout;
+    virtual std::string toString() const = 0;
+
+    //
+    // Return the endpoint type.
+    //
+    virtual Ice::Short type() const = 0;
+
+    //
+    // Return the timeout for the endpoint in milliseconds. 0 means
+    // non-blocking, -1 means no timeout.
+    //
+    virtual Ice::Int timeout() const = 0;
+
+    //
+    // Return a new endpoint with a different timeout value, provided
+    // that timeouts are supported by the endpoint. Otherwise the same
+    // endpoint is returned.
+    //
+    virtual EndpointPtr timeout(Ice::Int) const = 0;
+    
+    //
+    // Return true if the endpoint type is unknown.
+    //
+    virtual bool unknown() const = 0;
+
+    //
+    // Return a connector for this endpoint, or null if no connector
+    // is available.
+    //
+    virtual ConnectorPtr connector() const = 0;
+
+    //
+    // Return an acceptor for this endpoint, or null if no acceptors
+    // is available. In case an acceptor is created, this operation
+    // also returns a new "effective" endpoint, which might differ
+    // from this endpoint, for example, if a dynamic port number is
+    // assigned.
+    //
+#ifndef ICEE_PURE_CLIENT
+    virtual AcceptorPtr acceptor(EndpointPtr&) const = 0;
+#endif
+
+    //
+    // Check whether the endpoint is equivalent to a specific
+    // Transceiver or Acceptor.
+    //
+    virtual bool equivalent(const TransceiverPtr&) const = 0;
+#ifndef ICEE_PURE_CLIENT
+    virtual bool equivalent(const AcceptorPtr&) const = 0;
+#endif
+
+    //
+    // Compare endpoints for sorting purposes.
+    //
+    virtual bool operator==(const Endpoint&) const = 0;
+    virtual bool operator!=(const Endpoint&) const = 0;
+    virtual bool operator<(const Endpoint&) const = 0;
 };
 
 }

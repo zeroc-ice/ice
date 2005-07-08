@@ -50,7 +50,7 @@ private:
 
     Acceptor(const InstancePtr&, const std::string&, int);
     virtual ~Acceptor();
-    friend class Endpoint;
+    friend class TcpEndpoint;
 
     InstancePtr _instance;
     TraceLevelsPtr _traceLevels;

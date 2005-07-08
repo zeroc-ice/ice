@@ -11,17 +11,17 @@
 #define ICEE_CONFIG_H
 
 //
-// Comment to build without Router support.
+// Uncomment to build with Router support.
 //
 //#define ICEE_HAS_ROUTER
 
 //
-// Comment to build without Locator support.
+// Uncomment to build with Locator support.
 //
 //#define ICEE_HAS_LOCATOR
 
 //
-// Comment to disable batch mode on the client side.
+// Uncomment to enable batch mode on the client side.
 //
 //#define ICEE_HAS_BATCH
 

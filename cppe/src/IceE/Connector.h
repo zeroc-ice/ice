@@ -39,7 +39,7 @@ private:
     
     Connector(const InstancePtr&, const std::string&, int);
     virtual ~Connector();
-    friend class Endpoint;
+    friend class TcpEndpoint;
 
     InstancePtr _instance;
     TraceLevelsPtr _traceLevels;

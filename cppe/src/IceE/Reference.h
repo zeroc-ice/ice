@@ -40,7 +40,9 @@ public:
 	ModeTwoway,
 	ModeOneway,
 	ModeBatchOneway,
-	ModeLast = ModeBatchOneway
+	ModeDatagram,
+	ModeBatchDatagram,
+	ModeLast = ModeBatchDatagram
     };
 
     Mode getMode() const { return _mode; }

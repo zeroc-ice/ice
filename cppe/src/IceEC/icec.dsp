@@ -116,8 +116,8 @@ PostBuild_Cmds=copy $(OutDir)\iceecd.lib ..\..\lib\	copy $(OutDir)\iceec10d.pdb 
 # PROP Intermediate_Dir "ReleaseStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-SLICE2CPPEFLAGS=-DICEE
 MTL=midl.exe
+SLICE2CPPEFLAGS=-DICEE
 CPP=cl.exe
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I ".." /I "../../include" /D "NDEBUG" /D "ICEE_STATIC_LIBS" /D "_LIB" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /D "ICEE_PURE_CLIENT" /FD /c
@@ -133,7 +133,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                 $(OutDir)\iceec.lib                                 ..\..\lib\ 
+PostBuild_Cmds=copy                                  $(OutDir)\iceec.lib                                  ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "icec - Win32 Debug Static"
@@ -149,8 +149,8 @@ PostBuild_Cmds=copy                                 $(OutDir)\iceec.lib         
 # PROP Intermediate_Dir "DebugStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-SLICE2CPPEFLAGS=-DICEE
 MTL=midl.exe
+SLICE2CPPEFLAGS=-DICEE
 CPP=cl.exe
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_DEBUG" /D "ICEE_STATIC_LIBS" /D "_LIB" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /D "ICEE_PURE_CLIENT" /FD /GZ /c
@@ -166,7 +166,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                $(OutDir)\iceecd.lib                                ..\..\lib\ 
+PostBuild_Cmds=copy                                 $(OutDir)\iceecd.lib                                 ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
@@ -214,7 +214,7 @@ SOURCE=..\IceE\DefaultsAndOverrides.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\TcpTransport\Endpoint.cpp
+SOURCE=..\IceE\Endpoint.cpp
 # End Source File
 # Begin Source File
 
@@ -342,6 +342,10 @@ SOURCE=..\IceE\StringUtil.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\TcpTransport\TcpEndpoint.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\IceE\Thread.cpp
 # End Source File
 # Begin Source File
@@ -363,6 +367,10 @@ SOURCE=..\IceE\TraceUtil.cpp
 # Begin Source File
 
 SOURCE=..\TcpTransport\Transceiver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\IceE\UnknownEndpoint.cpp
 # End Source File
 # Begin Source File
 

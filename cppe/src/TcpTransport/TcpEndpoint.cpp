@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceE/Endpoint.h>
+#include <TcpTransport/TcpEndpoint.h>
 #include <IceE/Network.h>
 #include <IceE/Connector.h>
 #include <IceE/Transceiver.h>
@@ -24,10 +24,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(Endpoint* p) { p->__incRef(); }
-void IceInternal::decRef(Endpoint* p) { p->__decRef(); }
-
-IceInternal::Endpoint::Endpoint(const InstancePtr& instance, const string& ho, Int po, Int ti) :
+IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string& ho, Int po, Int ti) :
     _instance(instance),
     _host(ho),
     _port(po),
@@ -35,7 +32,7 @@ IceInternal::Endpoint::Endpoint(const InstancePtr& instance, const string& ho, I
 {
 }
 
-IceInternal::Endpoint::Endpoint(const InstancePtr& instance, const string& str) :
+IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string& str) :
     _instance(instance),
     _port(0),
     _timeout(-1)
@@ -139,7 +136,7 @@ IceInternal::Endpoint::Endpoint(const InstancePtr& instance, const string& str) 
     }
 }
 
-IceInternal::Endpoint::Endpoint(BasicStream* s) :
+IceInternal::TcpEndpoint::TcpEndpoint(BasicStream* s) :
     _instance(s->instance()),
     _port(0),
     _timeout(-1)
@@ -155,7 +152,7 @@ IceInternal::Endpoint::Endpoint(BasicStream* s) :
 }
 
 void
-IceInternal::Endpoint::streamWrite(BasicStream* s) const
+IceInternal::TcpEndpoint::streamWrite(BasicStream* s) const
 {
     s->write(TcpEndpointType);
     s->startWriteEncaps();
@@ -167,7 +164,7 @@ IceInternal::Endpoint::streamWrite(BasicStream* s) const
 }
 
 string
-IceInternal::Endpoint::toString() const
+IceInternal::TcpEndpoint::toString() const
 {
     string s;
     s += "tcp -h ";
@@ -183,52 +180,52 @@ IceInternal::Endpoint::toString() const
 }
 
 Short
-IceInternal::Endpoint::type() const
+IceInternal::TcpEndpoint::type() const
 {
     return TcpEndpointType;
 }
 
 Int
-IceInternal::Endpoint::timeout() const
+IceInternal::TcpEndpoint::timeout() const
 {
     return _timeout;
 }
 
 EndpointPtr
-IceInternal::Endpoint::timeout(Int timeout) const
+IceInternal::TcpEndpoint::timeout(Int timeout) const
 {
     if(timeout == _timeout)
     {
-	return const_cast<Endpoint*>(this);
+	return const_cast<TcpEndpoint*>(this);
     }
     else
     {
-	return new Endpoint(_instance, _host, _port, timeout);
+	return new TcpEndpoint(_instance, _host, _port, timeout);
     }
 }
 
 bool
-IceInternal::Endpoint::unknown() const
+IceInternal::TcpEndpoint::unknown() const
 {
     return false;
 }
 
 ConnectorPtr
-IceInternal::Endpoint::connector() const
+IceInternal::TcpEndpoint::connector() const
 {
     return new Connector(_instance, _host, _port);
 }
 
 bool
-IceInternal::Endpoint::equivalent(const TransceiverPtr&) const
+IceInternal::TcpEndpoint::equivalent(const TransceiverPtr&) const
 {
     return false;
 }
 
 bool
-IceInternal::Endpoint::operator==(const Endpoint& r) const
+IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
 {
-    const Endpoint* p = dynamic_cast<const Endpoint*>(&r);
+    const TcpEndpoint* p = dynamic_cast<const TcpEndpoint*>(&r);
     assert(p);
 
     if(this == p)
@@ -270,15 +267,15 @@ IceInternal::Endpoint::operator==(const Endpoint& r) const
 }
 
 bool
-IceInternal::Endpoint::operator!=(const Endpoint& r) const
+IceInternal::TcpEndpoint::operator!=(const Endpoint& r) const
 {
     return !operator==(r);
 }
 
 bool
-IceInternal::Endpoint::operator<(const Endpoint& r) const
+IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
 {
-    const Endpoint* p = dynamic_cast<const Endpoint*>(&r);
+    const TcpEndpoint* p = dynamic_cast<const TcpEndpoint*>(&r);
     assert(p);
 
     if(this == p)
@@ -343,15 +340,15 @@ IceInternal::Endpoint::operator<(const Endpoint& r) const
 #ifndef ICEE_PURE_CLIENT
 
 AcceptorPtr
-IceInternal::Endpoint::acceptor(EndpointPtr& endp) const
+IceInternal::TcpEndpoint::acceptor(EndpointPtr& endp) const
 {
     Acceptor* p = new Acceptor(_instance, _host, _port);
-    endp = new Endpoint(_instance, _host, p->effectivePort(), _timeout);
+    endp = new TcpEndpoint(_instance, _host, p->effectivePort(), _timeout);
     return p;
 }
 
 bool
-IceInternal::Endpoint::equivalent(const AcceptorPtr& acceptor) const
+IceInternal::TcpEndpoint::equivalent(const AcceptorPtr& acceptor) const
 {
     return acceptor->equivalent(_host, _port);
 }

@@ -8,9 +8,10 @@
 // **********************************************************************
 
 #include <IceE/EndpointFactory.h>
-#include <IceE/Endpoint.h>
+#include <IceE/UnknownEndpoint.h>
 #include <IceE/LocalException.h>
 #include <IceE/BasicStream.h>
+#include <TcpTransport/TcpEndpoint.h>
 
 using namespace std;
 using namespace Ice;
@@ -51,7 +52,7 @@ IceInternal::EndpointFactory::create(const std::string& str) const
 
     if(protocol == "default" || protocol == "tcp")
     {
-	return new Endpoint(_instance, str.substr(end));
+	return new TcpEndpoint(_instance, str.substr(end));
     }
 
     EndpointParseException ex(__FILE__, __LINE__);
@@ -67,14 +68,10 @@ IceInternal::EndpointFactory::read(BasicStream* s) const
 
     if(type == TcpEndpointType)
     {
-        return new Endpoint(s);
+        return new TcpEndpoint(s);
     }
 
-    //
-    // XXX: What should this do? Old code returned UnknownEndpoint. Maybe that needs
-    // to be added back?
-    //
-    return 0;
+    return new UnknownEndpoint(type, s);
 }
 
 void
