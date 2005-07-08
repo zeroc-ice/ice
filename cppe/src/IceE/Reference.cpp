@@ -189,6 +189,8 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     }
     
     s->write(static_cast<Byte>(_mode));
+
+    s->write(false); // Secure
     
     // Derived class writes the remainder of the reference.
 }

@@ -533,6 +533,9 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
 #endif
 
+    bool secure;
+    s->read(secure);
+
     Ice::Int sz;
     s->readSize(sz);
     
