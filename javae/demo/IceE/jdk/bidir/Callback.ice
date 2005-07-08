@@ -10,7 +10,7 @@
 #ifndef CALLBACK_ICE
 #define CALLBACK_ICE
 
-#include <Ice/Identity.ice>
+#include <IceE/Identity.ice>
 
 module Demo
 {
