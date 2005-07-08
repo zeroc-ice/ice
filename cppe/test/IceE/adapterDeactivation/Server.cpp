@@ -9,6 +9,7 @@
 
 #include <IceE/IceE.h>
 #include <TestCommon.h>
+#include <TestI.h>
 
 using namespace std;
 using namespace Ice;
@@ -18,6 +19,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+    Ice::ObjectPtr object = new TestI;
+    adapter->add(object, Ice::stringToIdentity("test"));
     adapter->activate();
     adapter->waitForDeactivate();
     return EXIT_SUCCESS;
