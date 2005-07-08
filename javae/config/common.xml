@@ -76,22 +76,22 @@
     </condition>
 
     <target name="properties-cvs" if="is-cvs">
-        <available file="${env.ICE_HOME}/slice" property="is-cvs-valid"/>
-	<fail message="ICE_HOME is not set to a valid directory" unless="is-cvs-valid"/>
+        <available file="${env.ICEE_HOME}/slice" property="is-cvs-valid"/>
+	<fail message="ICEE_HOME is not set to a valid directory" unless="is-cvs-valid"/>
 
-	<property name="slice.dir" value="${env.ICE_HOME}/slice"/>
+	<property name="slice.dir" value="${env.ICEE_HOME}/slice"/>
 	<property name="lib.dir" value="${top.dir}/lib" />
 	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
     </target>
 
     <target name="properties-opt" if="is-opt">
-        <available file="${env.ICE_HOME}/lib" property="opt-lib-avail" />
-	<fail message="ICE_HOME is not set to a valid directory" unless="opt-lib-avail"/>
+        <available file="${env.ICEE_HOME}/lib" property="opt-lib-avail" />
+	<fail message="ICEE_HOME is not set to a valid directory" unless="opt-lib-avail"/>
 
-	 <property name="lib.dir" value="${env.ICE_HOME}/lib" />
+	<property name="lib.dir" value="${env.ICEE_HOME}/lib" />
 	
-	 <property name="slice.dir" value="${env.ICE_HOME}/slice"/>
-	 <taskdef name="slice2javae" classpath="${env.ICE_HOME}/ant" classname="Slice2JavaETask"/>
+	<property name="slice.dir" value="${env.ICEE_HOME}/slice"/>
+	<taskdef name="slice2javae" classpath="${env.ICEE_HOME}/ant" classname="Slice2JavaETask"/>
     </target>
 
     <target name="properties-src" if="is-src">
