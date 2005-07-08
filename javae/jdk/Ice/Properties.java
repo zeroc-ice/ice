@@ -329,7 +329,11 @@ public final class Properties
         {
             java.io.FileReader fr = new java.io.FileReader(file);
             java.io.BufferedReader br = new java.io.BufferedReader(fr);
-            parse(br);
+	    String line;
+	    while((line = br.readLine()) != null)
+	    {
+		parseLine(line);
+	    }
         }
         catch(java.io.IOException ex)
         {
@@ -339,26 +343,7 @@ public final class Properties
             throw se;
         }
     }
-    
-    private void
-    parse(java.io.BufferedReader in)
-    {
-        try
-        {
-            String line;
-            while((line = in.readLine()) != null)
-            {
-                parseLine(line);
-            }
-        }
-        catch(java.io.IOException ex)
-        {
-            SyscallException se = new SyscallException();
-            se.initCause(ex); // Exception chaining
-            throw se;
-        }
-    }
-    
+
     public java.lang.Object
     ice_clone()
     {
