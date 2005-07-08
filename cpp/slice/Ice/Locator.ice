@@ -129,7 +129,9 @@ interface LocatorRegistry
      *
      * Set the adapter endpoints with the locator registry.
      *
-     * @param id The adapter id.
+     * @param serverId The server id.
+     *
+     * @param adapterId The adapter id.
      *
      * @param proxy The adapter proxy (a dummy direct proxy created
      * by the adapter). The direct proxy contains the adapter
@@ -144,8 +146,8 @@ interface LocatorRegistry
      * id is already active.
      *
      **/
-    ["amd"] idempotent void setAdapterDirectProxy(string id, Object* proxy)
-	throws AdapterNotFoundException, AdapterAlreadyActiveException;
+    ["amd"] idempotent void setAdapterDirectProxy(string serverId, string adapterId, Object* proxy)
+	throws ServerNotFoundException, AdapterNotFoundException, AdapterAlreadyActiveException;
 
 #ifndef ICEE
     /**

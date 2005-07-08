@@ -39,10 +39,10 @@ struct ObjectDescriptor
 {
     /**
      *
-     * The object proxy.
+     * The identity of the object.
      *
      **/
-    Object* proxy;
+    Ice::Identity id;
 
     /**
      *
@@ -50,13 +50,6 @@ struct ObjectDescriptor
      *
      **/
     string type;
-    
-    /**
-     *
-     * The object adapter id.
-     *
-     **/
-    string adapterId;
 };
 
 /**
@@ -313,6 +306,13 @@ struct ServerInstanceDescriptor
 
     /**
      *
+     * The template parameter values.
+     *
+     **/
+    StringStringDict parameterValues;
+
+    /**
+     *
      * The node hosting the server.
      *
      **/
@@ -320,10 +320,10 @@ struct ServerInstanceDescriptor
 
     /**
      *
-     * The template parameter values.
+     * The targets used to deploy this instance.
      *
      **/
-    StringStringDict parameterValues;
+    Ice::StringSeq targets;
 
     /**
      *
@@ -332,14 +332,7 @@ struct ServerInstanceDescriptor
      * template and the instance variables.)
      *
      **/
-    ServerDescriptor descriptor;
-    
-    /**
-     *
-     * The targets used to deploy this instance.
-     *
-     **/
-    Ice::StringSeq targets;
+    ServerDescriptor descriptor;    
 };
 ["java:type:java.util.LinkedList"] sequence<ServerInstanceDescriptor> ServerInstanceDescriptorSeq;
 
@@ -361,19 +354,19 @@ struct ServiceInstanceDescriptor
 
     /**
      *
+     * The targets used to deploy this instance.
+     *
+     **/
+    Ice::StringSeq targets;
+
+    /**
+     *
      * The instantiated component descriptor (NOTE: this is provided
      * as a convenience. This descriptor can also be computed from the
      * template and the instance variables.)
      *
      **/
-    ServiceDescriptor descriptor;
-    
-    /**
-     *
-     * The targets used to deploy this instance.
-     *
-     **/
-    Ice::StringSeq targets;
+    ServiceDescriptor descriptor;    
 };
 ["java:type:java.util.LinkedList"] sequence<ServiceInstanceDescriptor> ServiceInstanceDescriptorSeq;
 
@@ -488,6 +481,13 @@ class ApplicationDescriptor
 
     /**
      *
+     * The replicated adapters.
+     *
+     **/
+    ReplicatedAdapterDescriptorSeq replicatedAdapters;
+
+    /**
+     *
      * The server templates.
      *
      **/
@@ -513,13 +513,6 @@ class ApplicationDescriptor
      *
      **/
     ServerInstanceDescriptorSeq servers;
-
-    /**
-     *
-     * The replicated adapters.
-     *
-     **/
-    ReplicatedAdapterDescriptorSeq replicatedAdapters;
 
     /**
      *
@@ -583,6 +576,20 @@ struct ApplicationUpdateDescriptor
      *
      **/
     Ice::StringSeq removeVariables;
+
+    /**
+     *
+     * The replicated adapters to update.
+     *
+     **/
+    ReplicatedAdapterDescriptorSeq replicatedAdapters;
+
+    /**
+     *
+     * The replicated adapters to remove.
+     *
+     **/
+    Ice::StringSeq removeReplicatedAdapters;
 
     /**
      *

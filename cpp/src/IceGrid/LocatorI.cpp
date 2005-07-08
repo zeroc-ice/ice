@@ -166,10 +166,11 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
 			       const Ice::Identity& id, 
 			       const Ice::Current& current) const
 {
-    ObjectDescriptor obj;
+    Ice::ObjectPrx proxy;
+    string adapterId;
     try
     {
-	obj = _database->getObjectDescriptor(id);
+	proxy = _database->getObjectProxy(id, adapterId);
     }
     catch(const ObjectNotExistException&)
     {
@@ -181,14 +182,14 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
     // proxy (which might caused the server activation). This will avoid the client to lookup for
     // the adapter id endpoints.
     //
-    if(!obj.adapterId.empty())
+    if(!adapterId.empty())
     {
-	Ice::AMD_Locator_findAdapterByIdPtr amiCB = new AMD_Locator_findAdapterByIdI(cb, obj.proxy);
-	findAdapterById_async(amiCB, obj.adapterId, current);
+	Ice::AMD_Locator_findAdapterByIdPtr amiCB = new AMD_Locator_findAdapterByIdI(cb, proxy);
+	findAdapterById_async(amiCB, adapterId, current);
     }
     else
     {
-	cb->ice_response(obj.proxy);
+	cb->ice_response(proxy);
     }
 }
     

@@ -6,6 +6,7 @@
       <adapter name="${name}" endpoints="default">
         <object identity="${server}-${name}" type="::Test"/>
       </adapter>
+      <adapter name="${name}.Replicated" endpoints="default" id="ReplicatedAdapter"/>
     </adapters>
 
     <properties>

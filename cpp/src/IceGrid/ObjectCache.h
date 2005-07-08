@@ -1,0 +1,71 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#ifndef ICE_GRID_OBJECTCACHE_H
+#define ICE_GRID_OBJECTCACHE_H
+
+#include <IceUtil/Mutex.h>
+#include <IceUtil/Shared.h>
+#include <Ice/CommunicatorF.h>
+#include <IceGrid/Cache.h>
+
+namespace IceGrid
+{
+
+class ObjectCache;
+
+class ServerEntry;
+typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
+
+class ObjectEntry;
+typedef IceUtil::Handle<ObjectEntry> ObjectEntryPtr;
+
+class ObjectEntry : public IceUtil::Shared
+{
+public:
+    
+    ObjectEntry(Cache<Ice::Identity, ObjectEntry>&, const Ice::Identity&);
+
+    void set(const Ice::CommunicatorPtr&, const std::string&, const ObjectDescriptor&);
+    Ice::ObjectPrx getProxy() const;
+    std::string getAdapterId() const;
+    const ObjectInfo& getObjectInfo() const;
+    std::string getType() const;
+
+    bool canRemove();
+    
+private:
+    
+    ObjectInfo _info;
+    std::string _adapterId;
+};
+typedef IceUtil::Handle<ObjectEntry> ObjectEntryPtr;
+
+class ObjectCache : public Cache<Ice::Identity, ObjectEntry>
+{
+public:
+
+    ObjectCache(const Ice::CommunicatorPtr&);
+
+    void add(const std::string&, const ObjectDescriptor&);
+    ObjectEntryPtr get(const Ice::Identity&) const;
+    ObjectEntryPtr remove(const Ice::Identity&);
+
+    Ice::ObjectProxySeq getObjectsWithType(const std::string&);
+    ObjectInfoSeq getAll(const std::string&);
+
+private:
+    
+    const Ice::CommunicatorPtr _communicator;
+    std::map<std::string, std::set<Ice::Identity> > _types;
+};
+
+};
+
+#endif

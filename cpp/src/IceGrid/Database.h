@@ -12,14 +12,17 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
-#include <IceUtil/Cache.h>
 #include <Freeze/ConnectionF.h>
 #include <Ice/CommunicatorF.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/StringApplicationDescriptorDict.h>
-#include <IceGrid/IdentityObjectDescDict.h>
+#include <IceGrid/IdentityObjectInfoDict.h>
 #include <IceGrid/StringObjectProxyDict.h>
+#include <IceGrid/ServerCache.h>
+#include <IceGrid/NodeCache.h>
+#include <IceGrid/ObjectCache.h>
+#include <IceGrid/AdapterCache.h>
 
 namespace IceGrid
 {
@@ -32,44 +35,11 @@ typedef IceUtil::Handle<NodeSessionI> NodeSessionIPtr;
 
 class ObserverSessionI;
 
+class ServerEntry;
+typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
+
 class Database : public IceUtil::Shared, public IceUtil::Mutex
 {
-    class ServerEntry : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
-    {
-    public:
-
-	ServerEntry(Database&, const ServerInstanceDescriptor&);
-
-	void sync();
-	bool needsSync() const;
-	void update(const ServerInstanceDescriptor&);
-	void destroy();
-	ServerInstanceDescriptor getDescriptor();
-	ServerPrx getProxy(int&, int&);
-	AdapterPrx getAdapter(const std::string&);
-	bool canRemove();
-
-    private:
-
-	ServerPrx sync(StringAdapterPrxDict& adapters, int&, int&);
-
-	Database& _database;
-	std::auto_ptr<ServerInstanceDescriptor> _loaded;
-	std::auto_ptr<ServerInstanceDescriptor> _load;
-	std::auto_ptr<ServerInstanceDescriptor> _destroy;
-	ServerPrx _proxy;
-	std::map<std::string, AdapterPrx> _adapters;
-	bool _synchronizing;
-	bool _failed;
-	int _activationTimeout;
-	int _deactivationTimeout;
-    };
-    friend class ServerEntry;
-    friend struct AddComponent;
-
-    typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
-    typedef std::vector<ServerEntryPtr> ServerEntrySeq;
-
 public:
     
     Database(const Ice::ObjectAdapterPtr&, const std::string&, int, const TraceLevelsPtr&);
@@ -102,16 +72,20 @@ public:
 
     void setAdapterDirectProxy(const std::string&, const Ice::ObjectPrx&);
     Ice::ObjectPrx getAdapterDirectProxy(const std::string&);
-    AdapterPrx getAdapter(const std::string&);
+    AdapterPrx getAdapter(const std::string&, const std::string& = std::string());
     Ice::StringSeq getAllAdapters(const std::string& = std::string());
 
-    void addObjectDescriptor(const ObjectDescriptor&);
-    void removeObjectDescriptor(const Ice::Identity&);
-    void updateObjectDescriptor(const Ice::ObjectPrx&);
-    ObjectDescriptor getObjectDescriptor(const Ice::Identity&);
+    void addObject(const ObjectInfo&);
+    void removeObject(const Ice::Identity&);
+    void updateObject(const Ice::ObjectPrx&);
+    Ice::ObjectPrx getObjectProxy(const Ice::Identity&, std::string&);
     Ice::ObjectPrx getObjectByType(const std::string&);
     Ice::ObjectProxySeq getObjectsWithType(const std::string&);
-    ObjectDescriptorSeq getAllObjectDescriptors(const std::string& = std::string());
+    ObjectInfo getObjectInfo(const Ice::Identity&);
+    ObjectInfoSeq getAllObjectInfos(const std::string& = std::string());
+
+    const TraceLevelsPtr& getTraceLevels() const;
+    int getNodeSessionTimeout() const;
 
 private:
 
@@ -124,18 +98,18 @@ private:
 		       const std::set<std::string>&, ServerEntrySeq&);
     void removeServers(const std::string&, const ServerInstanceDescriptorSeq&, const std::set<std::string>&, 
 		       ServerEntrySeq&);
+
     ServerEntryPtr addServer(const std::string&, const ServerInstanceDescriptor&);
     ServerEntryPtr updateServer(const ServerInstanceDescriptor&);
     ServerEntryPtr removeServer(const std::string&, const ServerInstanceDescriptor&);
-    void clearServer(const std::string&);
-    void addComponent(const ServerEntryPtr&, const ComponentDescriptorPtr&);
-    void removeComponent(const ComponentDescriptorPtr&);
 
     void checkServerForAddition(const std::string&);
     void checkAdapterForAddition(const std::string&);
     void checkObjectForAddition(const Ice::Identity&);
 
     void checkSessionLock(ObserverSessionI*);
+
+    friend struct AddComponent;
 
     static const std::string _descriptorDbName;
     static const std::string _objectDbName;
@@ -146,18 +120,20 @@ private:
     const std::string _envName;
     const int _nodeSessionTimeout;
     const TraceLevelsPtr _traceLevels;
+
+    NodeCache _nodeCache;
+    ObjectCache _objectCache;
+    AdapterCache _adapterCache;
+    ServerCache _serverCache;
+
     RegistryObserverPrx _registryObserver;
     NodeObserverPrx _nodeObserver;
 
-    std::map<std::string, ServerEntryPtr> _servers;
-    std::map<std::string, ServerEntryPtr> _serversByAdapterId;
-    std::map<std::string, std::set<std::string> > _serversByNode;
-    std::map<std::string, NodeSessionIPtr> _nodes;
     std::map<std::string, std::string> _applicationsByServerName;
  
     Freeze::ConnectionPtr _connection;
     StringApplicationDescriptorDict _descriptors;
-    IdentityObjectDescDict _objects;
+    IdentityObjectInfoDict _objects;
     StringObjectProxyDict _adapters;
     
     ObserverSessionI* _lock;

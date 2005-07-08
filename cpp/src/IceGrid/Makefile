@@ -59,8 +59,12 @@ NODE_OBJS	= NodeI.o \
 REGISTRY_OBJS   = RegistryI.o \
 		  StringObjectProxyDict.o \
 		  StringApplicationDescriptorDict.o \
-		  IdentityObjectDescDict.o \
+		  IdentityObjectInfoDict.o \
 		  Database.o \
+		  AdapterCache.o \
+		  ObjectCache.o \
+		  ServerCache.o \
+		  NodeCache.o \
 		  LocatorI.o \
 		  LocatorRegistryI.o \
 		  AdminI.o \
@@ -194,14 +198,14 @@ $(LOCAL_HDIR)/StringApplicationDescriptorDict.h StringApplicationDescriptorDict.
 clean::
 	rm -f StringApplicationDescriptorDict.h StringApplicationDescriptorDict.cpp
 
-$(LOCAL_HDIR)/IdentityObjectDescDict.h IdentityObjectDescDict.cpp: $(SLICE2FREEZE)
-	rm -f IdentityObjectDescDict.h IdentityObjectDescDict.cpp
-	$(SLICE2FREEZECMD) --dict IceGrid::IdentityObjectDescDict,Ice::Identity,IceGrid::ObjectDescriptor \
-	--dict-index IceGrid::IdentityObjectDescDict,type \
-	IdentityObjectDescDict ../../slice/Ice/Identity.ice $(LOCAL_SDIR)/Internal.ice
+$(LOCAL_HDIR)/IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(SLICE2FREEZE)
+	rm -f IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::IdentityObjectInfoDict,Ice::Identity,IceGrid::ObjectInfo \
+	--dict-index IceGrid::IdentityObjectInfoDict,type \
+	IdentityObjectInfoDict ../../slice/Ice/Identity.ice $(LOCAL_SDIR)/Internal.ice
 
 clean::
-	rm -f IdentityObjectDescDict.h IdentityObjectDescDict.cpp
+	rm -f IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
 
 $(LOCAL_HDIR)/StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp: $(SLICE2FREEZE)
 	rm -f StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp

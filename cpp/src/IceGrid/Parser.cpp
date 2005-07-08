@@ -99,7 +99,7 @@ describeObjectAdapter(Output& out, const Ice::CommunicatorPtr& communicator, con
 	if(!p->type.empty())
 	{
 	    out << sb;
-	    out << nl << "proxy = '" << communicator->proxyToString(p->proxy) << "' ";
+	    out << nl << "identity = '" << Ice::identityToString(p->id) << "' ";
 	    out << nl << "type = '" << p->type << "'";
 	    out << eb;
 	}
@@ -554,7 +554,43 @@ Parser::describeApplication(const list<string>& args)
 	{
 	    out << nl << "comment = " << application->comment;
 	}
-
+	if(!application->variables.empty())
+	{
+	    out << nl << "variables";
+	    out << sb;
+	    for(StringStringDict::const_iterator p = application->variables.begin(); p != application->variables.end(); 
+		++p)
+	    {
+		out << nl << p->first << " = '" << p->second << "'";
+	    }
+	    out << eb;
+	}
+	if(!application->replicatedAdapters.empty())
+	{
+	    out << nl << "replicated adapters";
+	    out << sb;
+	    for(ReplicatedAdapterDescriptorSeq::const_iterator p = application->replicatedAdapters.begin(); 
+		p != application->replicatedAdapters.end(); ++p)
+	    {
+		out << nl << "id = `" << p->id << "' load balancing = '";
+		switch(p->loadBalancing)
+		{
+		case Random:
+		    out << "random";
+		    break;
+		case RoundRobin:
+		    out << "round-robin";
+		    break;
+		case Adaptive:
+		    out << "adaptive";
+		    break;
+		default:
+		    assert(false);
+		}
+		out << "'";
+	    }
+	    out << eb;
+	}
 	if(!application->serverTemplates.empty())
 	{
 	    out << nl << "server templates";
@@ -1471,31 +1507,32 @@ Parser::describeObject(const list<string>& args)
 {
     try
     {
-	ObjectDescriptorSeq objects;
+	ObjectInfoSeq objects;
 	if(args.size() == 1)
 	{
 	    string arg = *(args.begin());
 	    if(arg.find('*') == string::npos)
 	    {
-		ObjectDescriptor desc = _admin->getObjectDescriptor(Ice::stringToIdentity(arg));
-		cout << "proxy = '" << _communicator->proxyToString(desc.proxy) << "'" << endl;
-		cout << "type = '" << desc.type << "'" << endl;
+		ObjectInfo info = _admin->getObjectInfo(Ice::stringToIdentity(arg));
+		cout << "proxy = '" << _communicator->proxyToString(info.proxy) << "'" << endl;
+		cout << "type = '" << info.type << "'" << endl;
 		return;
 	    }
 	    else
 	    {
-		objects = _admin->getAllObjectDescriptors(arg);
+		objects = _admin->getAllObjectInfos(arg);
 	    }
 	}
 	else
 	{
-	    objects = _admin->getAllObjectDescriptors("");
+	    objects = _admin->getAllObjectInfos("");
 	}
 	
-	for(ObjectDescriptorSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+	for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
 	{
 	    cout << "proxy = `" << _communicator->proxyToString(p->proxy) << "' type = `" << p->type << "'" << endl;
-	}	
+	}
+	
     }
     catch(const Ice::Exception& ex)
     {
@@ -1510,17 +1547,17 @@ Parser::listObject(const list<string>& args)
 {
     try
     {
-	ObjectDescriptorSeq objects;
+	ObjectInfoSeq objects;
 	if(args.size() == 1)
 	{
-	    objects = _admin->getAllObjectDescriptors(*(args.begin()));
+	    objects = _admin->getAllObjectInfos(*(args.begin()));
 	}
 	else
 	{
-	    objects = _admin->getAllObjectDescriptors("");
+	    objects = _admin->getAllObjectInfos("");
 	}
 	
-	for(ObjectDescriptorSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+	for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
 	{
 	    cout << Ice::identityToString(p->proxy->ice_getIdentity()) << endl;
 	}	

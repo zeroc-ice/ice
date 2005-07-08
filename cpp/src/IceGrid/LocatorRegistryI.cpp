@@ -103,7 +103,8 @@ LocatorRegistryI::LocatorRegistryI(const DatabasePtr& database, bool dynamicRegi
 
 void 
 LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr& cb,
-					      const string& id, 
+					      const string& serverId,
+					      const string& adapterId, 
 					      const Ice::ObjectPrx& proxy,
 					      const Ice::Current&)
 {
@@ -115,14 +116,14 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	    // Get the adapter from the registry and set its direct proxy.
 	    //
 	    AMI_Adapter_setDirectProxyPtr amiCB = new AMI_Adapter_setDirectProxyI(cb);
-	    _database->getAdapter(id)->setDirectProxy_async(amiCB, proxy);
+	    _database->getAdapter(adapterId, serverId)->setDirectProxy_async(amiCB, proxy);
 	    return;
 	}
 	catch(const AdapterNotExistException&)
 	{
 	    if(_dynamicRegistration)
 	    {
-		_database->setAdapterDirectProxy(id, proxy);
+		_database->setAdapterDirectProxy(adapterId, proxy);
 		cb->ice_response();
 		return;
 	    }

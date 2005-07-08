@@ -264,15 +264,15 @@ RegistryI::start(bool nowarn)
     ObjectPrx queryPrx = clientAdapter->createDirectProxy(queryId);
     try
     {
-	_database->removeObjectDescriptor(queryPrx->ice_getIdentity());
+	_database->removeObject(queryPrx->ice_getIdentity());
     }
     catch(const ObjectNotExistException&)
     {
     }	
-    ObjectDescriptor desc;
-    desc.proxy = queryPrx;
-    desc.type = "::IceGrid::Query";	
-    _database->addObjectDescriptor(desc);
+    ObjectInfo info;
+    info.proxy = queryPrx;
+    info.type = "::IceGrid::Query";	
+    _database->addObject(info);
 
     //
     // Create the admin interface and register it with the object registry.
@@ -284,14 +284,14 @@ RegistryI::start(bool nowarn)
     ObjectPrx adminPrx = adminAdapter->createDirectProxy(adminId);
     try
     {
-	_database->removeObjectDescriptor(adminPrx->ice_getIdentity());
+	_database->removeObject(adminPrx->ice_getIdentity());
     }
     catch(const ObjectNotExistException&)
     {
     }
-    desc.proxy = adminPrx;
-    desc.type = "::IceGrid::Admin";	
-    _database->addObjectDescriptor(desc);
+    info.proxy = adminPrx;
+    info.type = "::IceGrid::Admin";	
+    _database->addObject(info);
 
     //
     // Set the IceGrid.Registry.Internal adapter direct proxy directly in the database.
@@ -368,14 +368,14 @@ RegistryI::start(bool nowarn)
     ObjectPrx sessionManagerPrx = adminAdapter->createDirectProxy(sessionManagerId);
     try
     {
-	_database->removeObjectDescriptor(sessionManagerPrx->ice_getIdentity());
+	_database->removeObject(sessionManagerPrx->ice_getIdentity());
     }
     catch(const ObjectNotExistException&)
     {
     }
-    desc.proxy = sessionManagerPrx;
-    desc.type = "::IceGrid::SessionManager";
-    _database->addObjectDescriptor(desc);
+    info.proxy = sessionManagerPrx;
+    info.type = "::IceGrid::SessionManager";
+    _database->addObject(info);
 
     //
     // We are ready to go!

@@ -977,12 +977,12 @@ ServerI::addAdapter(const AdapterDescriptor& descriptor, const Ice::Current& cur
 {
     Ice::Identity id;
     id.category = "IceGridServerAdapter";
-    id.name = _desc->name + "-" + descriptor.id;
+    id.name = _desc->name + "-" + descriptor.id + "-" + _desc->name;
     AdapterPrx proxy = AdapterPrx::uncheckedCast(current.adapter->createProxy(id));
     ServerAdapterIPtr servant = ServerAdapterIPtr::dynamicCast(current.adapter->find(id));
     if(!servant)
     {
-	servant = new ServerAdapterI(_node, this, proxy, descriptor.id, _waitTime);
+	servant = new ServerAdapterI(_node, this, _desc->name, proxy, descriptor.id, _waitTime);
 	current.adapter->add(servant, id);
     }
     _adapters.insert(make_pair(descriptor.id, servant));
@@ -1180,3 +1180,4 @@ ServerI::toServerState(InternalServerState st) const
 	return IceGrid::Destroyed;
     }
 }
+

@@ -20,7 +20,8 @@ public:
     ServerLocatorRegistry();
     
     virtual void setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr&,
-					     const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
+					     const std::string&, const ::std::string&, const ::Ice::ObjectPrx&, 
+					     const ::Ice::Current&);
     virtual void setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr&,
 					     const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
 

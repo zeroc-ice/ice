@@ -108,6 +108,7 @@ IcePack::LocatorRegistryI::LocatorRegistryI(const AdapterRegistryPtr& adapterReg
 
 void 
 IcePack::LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr& cb,
+						       const string&,
 						       const string& id, 
 						       const Ice::ObjectPrx& proxy,
 						       const Ice::Current&)

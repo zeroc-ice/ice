@@ -364,7 +364,15 @@ allTests(const Ice::CommunicatorPtr& communicator, bool withTemplates)
 	update.servers.push_back(icebox2);
     }
 
-    admin->updateApplication(update);
+    try
+    {
+	admin->updateApplication(update);
+    }
+    catch(const DeploymentException& ex)
+    {
+	cerr << ex << ":\n" << ex.reason << endl;
+	test(false);
+    }
 
     test(admin->startServer("Server1")); // Ensure Server1 is back.
     try

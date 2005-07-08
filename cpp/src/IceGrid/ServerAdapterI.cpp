@@ -18,11 +18,13 @@ using namespace IceGrid;
 
 ServerAdapterI::ServerAdapterI(const NodeIPtr& node,
 			       const ServerIPtr& server, 
+			       const string& serverName,
 			       const AdapterPrx& proxy,
 			       const string& id,
 			       Ice::Int waitTime) :
     _node(node),
     _this(proxy),
+    _serverId(serverName),
     _id(id),
     _server(server),
     _waitTime(IceUtil::Time::seconds(waitTime))
@@ -50,7 +52,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
 	if(_node->getTraceLevels()->adapter > 2)
 	{
 	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
-	    out << "waiting for activation of server adapter `" << _id << "'";
+	    out << "waiting for activation of server `" + _serverId + "' adapter `" << _id << "'";
 	}
 
 	_activateCB.push_back(cb);
@@ -164,7 +166,7 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current& cu
     if(_node->getTraceLevels()->adapter > 1)
     {
 	Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
-	out << "server adapter `" << _id << "' " << (_proxy ? "activated" : "deactivated");
+	out << "server `" + _serverId + "' adapter `" << _id << "' " << (_proxy ? "activated" : "deactivated");
     }
 }
 
@@ -187,11 +189,11 @@ ServerAdapterI::activationFailed(bool timeout)
 	Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
 	if(timeout)
 	{
-	    out << "server adapter `" << _id << "' activation timed out";
+	    out << "server `" + _serverId + "' adapter `" << _id << "' activation timed out";
 	}
 	else
 	{
-	    out << "server adapter `" << _id << "' activation failed, couldn't start the server";
+	    out << "server `" + _serverId + "' adapter `" << _id << "' activation failed: server didn't start";
 	}
     }
 

@@ -119,7 +119,7 @@ Ice::ObjectAdapterI::activate()
 	{
 	    Identity ident;
 	    ident.name = "dummy";
-	    locatorRegistry->setAdapterDirectProxy(_id, createDirectProxy(ident));
+	    locatorRegistry->setAdapterDirectProxy(serverId, _id, createDirectProxy(ident));
 	}
 	catch(const ObjectAdapterDeactivatedException&)
 	{

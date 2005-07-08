@@ -44,6 +44,16 @@ enum ServerActivation
     Manual
 };
 
+struct ObjectInfo
+{
+    /** The proxy of the object. */
+    Object* proxy;
+
+    /** The type of the object. */
+    string type;
+};
+sequence<ObjectInfo> ObjectInfoSeq;
+
 /**
  *
  * The &IceGrid; administrative interface. <warning><para>Allowing
@@ -421,34 +431,33 @@ interface Admin
 
     /**
      *
-     * Get the object descriptor if the object with the given
-     * identity.
+     * Get the object info for the object with the given identity.
      *
      * @param id The identity of the object.
      *
-     * @return The object descriptor.
+     * @return The object info.
      *
      * @throws ObjectNotExistExcpetion Raised if the object cannot be
      * found.
      *
      **/
-    nonmutating ObjectDescriptor getObjectDescriptor(Ice::Identity id)
+    nonmutating ObjectInfo getObjectInfo(Ice::Identity id)
 	throws ObjectNotExistException;
 
     /**
      *
-     * Get the descriptors of all registered objects whose stringified
+     * Get the object info of all the registered objects whose stringified
      * identities match the given expression.
      *
      * @param expr The expression to match against the stringified
      * identities of registered objects. The expression may contain
      * a trailing wildcard (<literal>*</literal>) character.
      *
-     * @return All the object descriptors with a stringified identity
+     * @return All the object info with a stringified identity
      * matching the given expression.
      *
      **/
-    nonmutating ObjectDescriptorSeq getAllObjectDescriptors(string expr);
+    nonmutating ObjectInfoSeq getAllObjectInfos(string expr);
     
     /**
      *

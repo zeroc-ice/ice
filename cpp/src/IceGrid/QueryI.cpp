@@ -28,7 +28,8 @@ QueryI::~QueryI()
 Ice::ObjectPrx
 QueryI::findObjectById(const Ice::Identity& id, const Ice::Current&) const
 {
-    return _database->getObjectDescriptor(id).proxy;
+    string adapterId;
+    return _database->getObjectProxy(id, adapterId);
 }
 
 Ice::ObjectPrx 

@@ -275,9 +275,6 @@ AdminI::getAllAdapterIds(const Current&) const
 void 
 AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 {
-    ObjectDescriptor desc;
-    desc.proxy = proxy;
-    
     try
     {
 	addObjectWithType(proxy, proxy->ice_id(), current);
@@ -293,34 +290,34 @@ AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 void 
 AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 {
-    _database->updateObjectDescriptor(proxy);
+    _database->updateObject(proxy);
 }
 
 void 
 AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current&)
 {
-    ObjectDescriptor desc;
-    desc.proxy = proxy;
-    desc.type = type;
-    _database->addObjectDescriptor(desc);
+    ObjectInfo info;
+    info.proxy = proxy;
+    info.type = type;
+    _database->addObject(info);
 }
 
 void 
 AdminI::removeObject(const Ice::Identity& id, const Ice::Current&)
 {
-    _database->removeObjectDescriptor(id);
+    _database->removeObject(id);
 }
 
-ObjectDescriptor
-AdminI::getObjectDescriptor(const Ice::Identity& id, const Ice::Current&) const
+ObjectInfo
+AdminI::getObjectInfo(const Ice::Identity& id, const Ice::Current&) const
 {
-    return _database->getObjectDescriptor(id);
+    return _database->getObjectInfo(id);
 }
 
-ObjectDescriptorSeq
-AdminI::getAllObjectDescriptors(const string& expression, const Ice::Current&) const
+ObjectInfoSeq
+AdminI::getAllObjectInfos(const string& expression, const Ice::Current&) const
 {
-    return _database->getAllObjectDescriptors(expression);
+    return _database->getAllObjectInfos(expression);
 }
 
 bool

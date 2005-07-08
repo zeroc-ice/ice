@@ -26,7 +26,8 @@ class ServerAdapterI : public Adapter, public IceUtil::Mutex
 {
 public:
 
-    ServerAdapterI(const NodeIPtr&, const ServerIPtr&, const AdapterPrx&, const std::string&, Ice::Int);
+    ServerAdapterI(const NodeIPtr&, const ServerIPtr&, const std::string&, const AdapterPrx&, const std::string&, 
+		   Ice::Int);
     virtual ~ServerAdapterI();
 
     virtual void activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Current&);
@@ -40,6 +41,7 @@ private:
 
     const NodeIPtr _node;
     const AdapterPrx _this;
+    const std::string _serverId;
     const std::string _id;
     const ServerIPtr _server;
     const IceUtil::Time _waitTime;

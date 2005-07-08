@@ -2,6 +2,8 @@
 
   <application name="test">
 
+    <replicated-adapter id="ReplicatedAdapter"/>
+
     <node name="localnode">
 
       <include name="IceBox1" descriptor="icebox.xml"/>

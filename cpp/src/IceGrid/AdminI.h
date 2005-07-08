@@ -51,8 +51,8 @@ public:
     virtual void updateObject(const ::Ice::ObjectPrx&, const ::Ice::Current&);
     virtual void addObjectWithType(const ::Ice::ObjectPrx&, const ::std::string&, const ::Ice::Current&);
     virtual void removeObject(const ::Ice::Identity&, const ::Ice::Current&);
-    virtual ObjectDescriptor getObjectDescriptor(const Ice::Identity&, const ::Ice::Current&) const;
-    virtual ObjectDescriptorSeq getAllObjectDescriptors(const std::string&, const ::Ice::Current&) const;
+    virtual ObjectInfo getObjectInfo(const Ice::Identity&, const ::Ice::Current&) const;
+    virtual ObjectInfoSeq getAllObjectInfos(const std::string&, const ::Ice::Current&) const;
 
     virtual bool pingNode(const std::string&, const Ice::Current&) const;
     virtual void shutdownNode(const std::string&, const Ice::Current&);

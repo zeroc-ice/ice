@@ -35,6 +35,253 @@ struct Substitute : unary_function<string&, void>
     set<string>& _missing;
 };
 
+struct GetReplicatedAdapterId : unary_function<ReplicatedAdapterDescriptor&, const string&>
+{
+    const string&
+    operator()(const ReplicatedAdapterDescriptor& desc)
+    {
+	return desc.id;
+    }
+};
+
+struct GetNodeName : unary_function<NodeDescriptor&, const string&>
+{
+    const string&
+    operator()(const NodeDescriptor& desc)
+    {
+	return desc.name;
+    }
+};
+
+struct GetServerName : unary_function<ServerInstanceDescriptor&, const string&>
+{
+    const string&
+    operator()(const ServerInstanceDescriptor& desc)
+    {
+	assert(desc.descriptor);
+	return desc.descriptor->name;
+    }
+};
+
+struct ServerDescriptorEqual : std::binary_function<ServerDescriptorPtr&, ServerDescriptorPtr&, bool>
+{
+    ServerDescriptorEqual(ApplicationDescriptorHelper& helper) : _helper(helper)
+    {
+    }
+    
+    bool
+    operator()(const ServerDescriptorPtr& lhs, const ServerDescriptorPtr& rhs)
+    {
+	return ServerDescriptorHelper(_helper, lhs) == ServerDescriptorHelper(_helper, rhs);
+    }
+
+    ApplicationDescriptorHelper& _helper;
+};
+
+struct ServiceDescriptorEqual : std::binary_function<ServiceDescriptorPtr&, ServiceDescriptorPtr&, bool>
+{
+    ServiceDescriptorEqual(ApplicationDescriptorHelper& helper) : _helper(helper)
+    {
+    }
+    
+    bool
+    operator()(const ServiceDescriptorPtr& lhs, const ServiceDescriptorPtr& rhs)
+    {
+	return ServiceDescriptorHelper(_helper, lhs) == ServiceDescriptorHelper(_helper, rhs);
+    }
+
+    ApplicationDescriptorHelper& _helper;
+};
+
+struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, TemplateDescriptor&, bool>
+{
+    TemplateDescriptorEqual(ApplicationDescriptorHelper& helper) : _helper(helper)
+    {
+    }
+    
+    bool
+    operator()(const TemplateDescriptor& lhs, const TemplateDescriptor& rhs)
+    {
+	if(lhs.parameters != rhs.parameters)
+	{
+	    return false;
+	}
+	
+	ServerDescriptorPtr slhs = ServerDescriptorPtr::dynamicCast(lhs.descriptor);
+	ServerDescriptorPtr srhs = ServerDescriptorPtr::dynamicCast(lhs.descriptor);
+	if(slhs && srhs)
+	{
+	    return ServerDescriptorHelper(_helper, slhs) == ServerDescriptorHelper(_helper, srhs);
+	}
+
+	ServiceDescriptorPtr svclhs = ServiceDescriptorPtr::dynamicCast(lhs.descriptor);
+	ServiceDescriptorPtr svcrhs = ServiceDescriptorPtr::dynamicCast(lhs.descriptor);
+	if(svclhs && svcrhs)
+	{
+	    return ServiceDescriptorHelper(_helper, svclhs) == ServiceDescriptorHelper(_helper, svcrhs);
+	}
+
+	return false;
+    }
+
+    ApplicationDescriptorHelper& _helper;
+};
+
+struct ServerInstanceDescriptorEqual : std::binary_function<ServerInstanceDescriptor&, 
+							    ServerInstanceDescriptor&, 
+							    bool>
+{
+    ServerInstanceDescriptorEqual(ApplicationDescriptorHelper& helper) : _helper(helper)
+    {
+    }
+    
+    bool
+    operator()(const ServerInstanceDescriptor& lhs, const ServerInstanceDescriptor& rhs)
+    {
+	if(lhs._cpp_template != rhs._cpp_template)
+	{
+	    return false;
+	}
+	if(lhs.parameterValues != rhs.parameterValues)
+	{
+	    return false;
+	}
+	if(lhs.targets != rhs.targets)
+	{
+	    return false;
+	}
+	return ServerDescriptorHelper(_helper, lhs.descriptor) == ServerDescriptorHelper(_helper, rhs.descriptor);
+    }
+
+    ApplicationDescriptorHelper& _helper;
+};
+
+template <typename GetKeyFunc, typename Seq> Seq
+getSeqUpdatedElts(const Seq& lseq, const Seq& rseq, GetKeyFunc func)
+{
+    return getSeqUpdatedElts(lseq, rseq, func, equal_to<typename Seq::value_type>());
+}
+
+template <typename GetKeyFunc, typename EqFunc, typename Seq> Seq
+getSeqUpdatedElts(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq)
+{
+    Seq result;
+    for(typename Seq::const_iterator p = rseq.begin(); p != rseq.end(); ++p)
+    {
+	typename Seq::const_iterator q = lseq.begin();
+	for(; q != lseq.end(); ++q)
+	{
+	    if(func(*p) == func(*q))
+	    {
+		break;
+	    }
+	}
+	if(q == lseq.end() || !eq(*p, *q))
+	{
+	    result.push_back(*p);
+	}
+    }
+    return result;
+}
+
+template <typename GetKeyFunc, typename Seq> Ice::StringSeq 
+getSeqRemovedElts(const Seq& lseq, const Seq& rseq, GetKeyFunc func)
+{
+    Ice::StringSeq removed;
+    for(typename Seq::const_iterator p = lseq.begin(); p != lseq.end(); ++p)
+    {
+	typename Seq::const_iterator q;
+	for(q = rseq.begin(); q != rseq.end(); ++q)
+	{
+	    if(func(*p) == func(*q))
+	    {
+		break;
+	    }
+	}
+	if(q == rseq.end())
+	{
+	    removed.push_back(func(*p));
+	}
+    }
+    return removed;
+}
+
+template <typename GetKeyFunc, typename Seq> Seq
+updateSeqElts(const Seq& seq, const Seq& update, const Ice::StringSeq& remove, GetKeyFunc func)
+{
+    Seq result = update;
+    set<string> removed(remove.begin(), remove.end());
+    for(typename Seq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    {
+	if(removed.find(func(*p)) == removed.end())
+	{
+	    typename Seq::const_iterator q = update.begin();
+	    for(; q != update.end(); ++q)
+	    {
+		if(func(*p) == func(*q))
+		{
+		    break;
+		}
+	    }
+	    if(q == update.end())
+	    {
+		result.push_back(*p);
+	    }
+	}
+    }
+    return result;
+}
+
+template<typename Dict> Dict
+getDictUpdatedElts(const Dict& ldict, const Dict& rdict)
+{
+    return getDictUpdatedElts(ldict, rdict, equal_to<typename Dict::mapped_type>());
+}
+
+template<typename Dict, typename EqFunc> Dict
+getDictUpdatedElts(const Dict& ldict, const Dict& rdict, EqFunc eq)
+{
+    Dict result;
+    for(typename Dict::const_iterator p = rdict.begin(); p != rdict.end(); ++p)
+    {
+	typename Dict::const_iterator q = ldict.find(p->first);
+	if(q == ldict.end() || !eq(p->second, q->second))
+	{
+	    result.insert(*p);
+	}
+    }
+    return result;
+}
+
+template <typename Dict> Ice::StringSeq
+getDictRemovedElts(const Dict& ldict, const Dict& rdict)
+{
+    Ice::StringSeq removed;
+    for(typename Dict::const_iterator p = ldict.begin(); p != ldict.end(); ++p)
+    {
+	if(rdict.find(p->first) == rdict.end())
+	{
+	    removed.push_back(p->first);
+	}
+    }
+    return removed;
+}
+
+template <typename Dict> Dict
+updateDictElts(const Dict& dict, const Dict& update, const Ice::StringSeq& remove)
+{
+    Dict result = dict;
+    for(Ice::StringSeq::const_iterator p = remove.begin(); p != remove.end(); ++p)
+    {
+	result.erase(*p);
+    }
+    for(typename Dict::const_iterator q = update.begin(); q != update.end(); ++q)
+    {
+	result[q->first] = q->second;
+    }
+    return result;
+}
+
 }
 
 DescriptorVariables::DescriptorVariables()
@@ -696,8 +943,21 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
     newApp->name = oldApp->name;
     newApp->comment = newUpdate.comment ? newUpdate.comment->value : oldApp->comment;
     newApp->targets = oldApp->targets;
-    newApp->variables = oldApp->variables;
+
     Ice::StringSeq::const_iterator p;
+
+    //
+    // Copy the updated replicated adapters in the new descriptor and
+    // add back the old adapters which weren't removed.
+    //
+    newApp->replicatedAdapters = updateSeqElts(oldApp->replicatedAdapters, newUpdate.replicatedAdapters,
+					       newUpdate.removeReplicatedAdapters, GetReplicatedAdapterId());
+
+    //
+    // Copy the old variables in the new descriptor, remove the
+    // required variables and add the updated ones.
+    //
+    newApp->variables = oldApp->variables;
     for(p = newUpdate.removeVariables.begin(); p != newUpdate.removeVariables.end(); ++p)
     {
 	newApp->variables.erase(*p);
@@ -709,48 +969,19 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 	_variables->addVariable(q->first, q->second);
     }
 
-    newApp->serverTemplates = oldApp->serverTemplates;
-    for(p = newUpdate.removeServerTemplates.begin(); p != newUpdate.removeServerTemplates.end(); ++p)
-    {
-	newApp->serverTemplates.erase(*p);
-    }
-    TemplateDescriptorDict::const_iterator t;
-    for(t = newUpdate.serverTemplates.begin(); t != newUpdate.serverTemplates.end(); ++t)
-    {
-	newApp->serverTemplates[t->first] = t->second;
-    }
+    newApp->serverTemplates = 
+	updateDictElts(oldApp->serverTemplates, newUpdate.serverTemplates, newUpdate.removeServerTemplates);
+    newApp->serviceTemplates = 
+	updateDictElts(oldApp->serviceTemplates, newUpdate.serviceTemplates, newUpdate.removeServiceTemplates);
+    newApp->nodes = updateSeqElts(oldApp->nodes, newUpdate.nodes, newUpdate.removeNodes, GetNodeName());
 
-    newApp->serviceTemplates = oldApp->serviceTemplates;
-    for(p = newUpdate.removeServiceTemplates.begin(); p != newUpdate.removeServiceTemplates.end(); ++p)
-    {
-	newApp->serviceTemplates.erase(*p);
-    }
-    for(t = newUpdate.serviceTemplates.begin(); t != newUpdate.serviceTemplates.end(); ++t)
-    {
-	newApp->serviceTemplates[t->first] = t->second;
-    }
-
-    newApp->nodes = newUpdate.nodes;
-    set<string> removed(newUpdate.removeNodes.begin(), newUpdate.removeNodes.end());
-    for(NodeDescriptorSeq::const_iterator q = oldApp->nodes.begin(); q != oldApp->nodes.end(); ++q)
-    {
-	if(removed.find(q->name) == removed.end())
-	{
-	    NodeDescriptorSeq::const_iterator r;
-	    for(r = newUpdate.nodes.begin(); r != newUpdate.nodes.end(); ++r)
-	    {
-		if(q->name == r->name)
-		{
-		    break;
-		}
-	    }
-	    if(r == newUpdate.nodes.end())
-	    {
-		newApp->nodes.push_back(*q);
-	    }
-	}
-    }
-
+    //
+    // Copy the updated servers in the new descriptor and add back
+    // the old servers which weren't removed.
+    //
+    // NOTE: we also re-instantiate the old servers since their
+    // template might have changed.
+    //
     newApp->servers.clear();
     for(ServerInstanceDescriptorSeq::iterator q = newUpdate.servers.begin(); q != newUpdate.servers.end(); ++q)
     {
@@ -758,7 +989,7 @@ ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
 	newApp->servers.push_back(*q);
     }
 
-    removed = set<string>(newUpdate.removeServers.begin(), newUpdate.removeServers.end());
+    set<string> removed(newUpdate.removeServers.begin(), newUpdate.removeServers.end());
     set<string> updated;
     for_each(newApp->servers.begin(), newApp->servers.end(), AddServerName(updated));
     for(ServerInstanceDescriptorSeq::const_iterator q = oldApp->servers.begin(); q != oldApp->servers.end(); ++q)
@@ -785,160 +1016,27 @@ ApplicationDescriptorHelper::diff(const ApplicationDescriptorPtr& orig)
     update.comment = _descriptor->comment != orig->comment ? new BoxedComment(_descriptor->comment) : BoxedCommentPtr();
     update.targets = _descriptor->targets != orig->targets ? new BoxedTargets(_descriptor->targets) : BoxedTargetsPtr();
 
-    update.variables = _descriptor->variables;
-    map<string, string>::iterator p = update.variables.begin();
-    while(p != update.variables.end())
-    {
-	map<string, string>::const_iterator q = orig->variables.find(p->first);
-	if(q != orig->variables.end() && q->second == p->second)
-	{
-	    map<string, string>::iterator tmp = p++;
-	    update.variables.erase(tmp);
-	}
-	else
-	{
-	    ++p;
-	}
-    }
-    for(map<string, string>::const_iterator q = orig->variables.begin(); q != orig->variables.end(); ++q)
-    {
-	if(_descriptor->variables.find(q->first) == _descriptor->variables.end())
-	{
-	    update.removeVariables.push_back(q->first);
-	}
-    }
+    update.variables = getDictUpdatedElts(orig->variables, _descriptor->variables);
+    update.removeVariables = getDictRemovedElts(orig->variables, _descriptor->variables);
 
-    update.serverTemplates = _descriptor->serverTemplates;
-    TemplateDescriptorDict::iterator t = update.serverTemplates.begin();
-    while(t != update.serverTemplates.end())
-    {
-	TemplateDescriptorDict::const_iterator q = orig->serverTemplates.find(t->first);
-	if(q != orig->serverTemplates.end() && 
-	   q->second.parameters == t->second.parameters &&
-	   ServerDescriptorHelper(*this, ServerDescriptorPtr::dynamicCast(q->second.descriptor)) == 
-	   ServerDescriptorHelper(*this, ServerDescriptorPtr::dynamicCast(t->second.descriptor)))
-	{
-	    TemplateDescriptorDict::iterator tmp = t++;
-	    update.serverTemplates.erase(tmp);
-	}
-	else
-	{
-	    ++t;
-	}
-    }
-    for(t = orig->serverTemplates.begin(); t != orig->serverTemplates.end(); ++t)
-    {
-	if(_descriptor->serverTemplates.find(t->first) == _descriptor->serverTemplates.end())
-	{
-	    update.removeServerTemplates.push_back(t->first);
-	}
-    }
+    GetReplicatedAdapterId rk;
+    update.replicatedAdapters = getSeqUpdatedElts(orig->replicatedAdapters, _descriptor->replicatedAdapters, rk);
+    update.removeReplicatedAdapters = getSeqRemovedElts(orig->replicatedAdapters, _descriptor->replicatedAdapters, rk);
 
-    update.serviceTemplates = _descriptor->serviceTemplates;
-    t = update.serviceTemplates.begin();
-    while(t != update.serviceTemplates.end())
-    {
-	TemplateDescriptorDict::const_iterator q = orig->serviceTemplates.find(t->first);
-	if(q != orig->serviceTemplates.end() && 
-	   q->second.parameters == t->second.parameters &&
-	   ServiceDescriptorHelper(*this, ServiceDescriptorPtr::dynamicCast(q->second.descriptor)) ==
-	   ServiceDescriptorHelper(*this, ServiceDescriptorPtr::dynamicCast(t->second.descriptor)))
-	{
-	    TemplateDescriptorDict::iterator tmp = t++;
-	    update.serviceTemplates.erase(tmp);
-	}
-	else
-	{
-	    ++t;
-	}
-    }
-    for(t = orig->serviceTemplates.begin(); t != orig->serviceTemplates.end(); ++t)
-    {
- 	if(_descriptor->serviceTemplates.find(t->first) == _descriptor->serviceTemplates.end())
-	{
-	    update.removeServiceTemplates.push_back(t->first);
-	}
-    }
+    TemplateDescriptorEqual tmpleq(*this);
+    update.serverTemplates = getDictUpdatedElts(orig->serverTemplates, _descriptor->serverTemplates, tmpleq);
+    update.removeServerTemplates = getDictRemovedElts(orig->serverTemplates, _descriptor->serverTemplates);
+    update.serviceTemplates = getDictUpdatedElts(orig->serviceTemplates, _descriptor->serviceTemplates, tmpleq);
+    update.removeServiceTemplates = getDictRemovedElts(orig->serviceTemplates, _descriptor->serviceTemplates);
 
-    update.nodes = _descriptor->nodes;
-    NodeDescriptorSeq::iterator n = update.nodes.begin();
-    while(n != update.nodes.end())
-    {
-	NodeDescriptorSeq::const_iterator q;
-	for(q = orig->nodes.begin(); q != orig->nodes.end(); ++q)
-	{
-	    if(n->name == q->name)
-	    {
-		break;
-	    }
-	}
-	if(q != orig->nodes.end() && *n == *q)
-	{
-	    n = update.nodes.erase(n);
-	}
-	else
-	{
-	    ++n;
-	}
-    }
-    for(n = orig->nodes.begin(); n != orig->nodes.end(); ++n)
-    {
-	bool found = false;
-	for(NodeDescriptorSeq::const_iterator q = orig->nodes.begin(); q != orig->nodes.end(); ++q)
-	{
-	    if(n->name == q->name)
-	    {
-		found = true;
-		break;
-	    }
-	}
-	if(!found)
-	{
-	    update.removeNodes.push_back(n->name);
-	}
-    }
+    GetNodeName nk;
+    update.nodes = getSeqUpdatedElts(orig->nodes, _descriptor->nodes, nk);
+    update.removeNodes = getSeqRemovedElts(orig->nodes, _descriptor->nodes, nk);
 
-    update.servers = _descriptor->servers;
-    ServerInstanceDescriptorSeq::iterator i = update.servers.begin();
-    while(i != update.servers.end())
-    {
-	ServerInstanceDescriptorSeq::const_iterator q;
-	for(q = orig->servers.begin(); q != orig->servers.end(); ++q)
-	{
-	    if(i->descriptor->name == q->descriptor->name)
-	    {
-		break;
-	    }
-	}
-
-	if(q != orig->servers.end() && 
-	   i->_cpp_template == q->_cpp_template &&
-	   i->parameterValues == q->parameterValues &&
-	   i->targets == q->targets &&
-	   ServerDescriptorHelper(*this, q->descriptor) == ServerDescriptorHelper(*this, i->descriptor))
-	{
-	    i = update.servers.erase(i);
-	}
-	else
-	{
-	    ++i;
-	}
-    }
-    for(i = orig->servers.begin(); i != orig->servers.end(); ++i)
-    {
-	ServerInstanceDescriptorSeq::const_iterator q;
-	for(q = _descriptor->servers.begin(); q != _descriptor->servers.end(); ++q)
-	{
-	    if(i->descriptor->name == q->descriptor->name)
-	    {
-		break;
-	    }
-	}
-	if(q == _descriptor->servers.end())
-	{
-	    update.removeServers.push_back(i->descriptor->name);
-	}
-    }
+    GetServerName sn;
+    ServerInstanceDescriptorEqual svreq(*this);
+    update.servers = getSeqUpdatedElts(orig->servers, _descriptor->servers, sn, svreq);
+    update.removeServers = getSeqRemovedElts(orig->servers, _descriptor->servers, sn);
 
     return update;
 }
@@ -1127,7 +1225,7 @@ ComponentDescriptorHelper::addAdapter(const IceXML::Attributes& attrs)
     }
     desc.endpoints = attributes("endpoints");
     desc.registerProcess = attributes("register", "false") == "true";
-    desc.noWaitForActivation = attributes("noWaitForActivation", "false") == "true";
+    desc.noWaitForActivation = attributes("no-wait-for-activation", "false") == "true";
     _descriptor->adapters.push_back(desc);
 }
 
@@ -1138,8 +1236,7 @@ ComponentDescriptorHelper::addObject(const IceXML::Attributes& attrs)
 
     ObjectDescriptor object;
     object.type = attributes("type", "");
-    object.proxy = _communicator->stringToProxy(attributes("identity") + "@" + _descriptor->adapters.back().id);
-    object.adapterId = _descriptor->adapters.back().id;
+    object.id = Ice::stringToIdentity(attributes("identity"));
     _descriptor->adapters.back().objects.push_back(object);
 }
 
@@ -1207,10 +1304,8 @@ ComponentDescriptorHelper::instantiateImpl(const ComponentDescriptorPtr& desc, s
 	for(ObjectDescriptorSeq::iterator q = p->objects.begin(); q != p->objects.end(); ++q)
 	{
 	    substitute(q->type);
-	    substitute(q->adapterId);
-	    string proxy = _communicator->proxyToString(q->proxy);
-	    substitute(proxy);
-	    q->proxy = _communicator->stringToProxy(proxy);
+	    substitute(q->id.name);
+	    substitute(q->id.category);
 	}
     }
     for(PropertyDescriptorSeq::iterator p = desc->properties.begin(); p != desc->properties.end(); ++p)
@@ -1286,6 +1381,7 @@ ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, c
 	adapter.endpoints = attributes("endpoints");
 	adapter.id = _descriptor->name + "." + adapter.name;
 	adapter.registerProcess = true;
+	adapter.noWaitForActivation = false;
 	_descriptor->adapters.push_back(adapter);
     }
 
@@ -1361,12 +1457,16 @@ ServerDescriptorHelper::operator==(const ServerDescriptorHelper& helper) const
     {
 	return false;
     }
-    
+
     if(IceBoxDescriptorPtr::dynamicCast(_descriptor))
     {
 	IceBoxDescriptorPtr ilhs = IceBoxDescriptorPtr::dynamicCast(_descriptor);
 	IceBoxDescriptorPtr irhs = IceBoxDescriptorPtr::dynamicCast(helper._descriptor);
-	
+	if(!irhs)
+	{
+	    return false;
+	}
+
 	if(ilhs->endpoints != irhs->endpoints)
 	{
 	    return false;
@@ -1419,18 +1519,14 @@ ServerDescriptorHelper::operator==(const ServerDescriptorHelper& helper) const
 	{
 	    if(!p->descriptor)
 	    {
-		ServiceInstanceDescriptor instance = *p;
-		instance.descriptor = 0;
-		lsvcs.insert(instance);
+		lsvcs.insert(*p);
 	    }
 	}
 	for(ServiceInstanceDescriptorSeq::const_iterator p = irhs->services.begin(); p != irhs->services.end(); ++p)
 	{
 	    if(!p->descriptor)
 	    {
-		ServiceInstanceDescriptor instance = *p;
-		instance.descriptor = 0;
-		rsvcs.insert(instance);
+		rsvcs.insert(*p);
 	    }
 	}
 	if(lsvcs != rsvcs)
