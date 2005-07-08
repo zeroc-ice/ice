@@ -22,26 +22,5 @@ public final class ObjectHolder
         this.value = value;
     }
 
-    public class Patcher implements IceInternal.Patcher
-    {
-	public void
-	patch(Ice.Object v)
-	{
-	    value = v;
-	}
-
-	public String
-	type()
-	{
-	    return Ice.ObjectImpl.ice_staticId();
-	}
-    }
-
-    public Patcher
-    getPatcher()
-    {
-	return new Patcher();
-    }
-
     public Ice.Object value;
 }
