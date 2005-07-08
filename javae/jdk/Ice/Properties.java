@@ -9,7 +9,7 @@
 
 package Ice;
 
-public final class PropertiesI extends LocalObjectImpl implements Properties
+public final class Properties
 {
     public synchronized String
     getProperty(String key)
@@ -148,10 +148,10 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     public synchronized Properties
     _clone()
     {
-        return new PropertiesI(this);
+        return new Properties(this);
     }
 
-    PropertiesI(PropertiesI p)
+    Properties(Properties p)
     {
 	java.util.Enumeration e = p._properties.keys();
 	while(e.hasMoreElements())
@@ -162,12 +162,12 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 	}
     }
 
-    PropertiesI()
+    Properties()
     {
         loadConfig();
     }
 
-    PropertiesI(StringSeqHolder args)
+    Properties(StringSeqHolder args)
     {
         for(int i = 0; i < args.value.length; i++)
         {
@@ -207,6 +207,36 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 	    return;
 	}
 
+        int dotPos = key.indexOf('.');
+	if(dotPos != -1)
+	{
+	    String prefix = key.substring(0, dotPos);
+	    for(int i = 0; IceInternal.PropertyNames.validProps[i] != null; ++i)
+	    {
+	        String pattern = IceInternal.PropertyNames.validProps[i][0];
+		dotPos = pattern.indexOf('.');
+		IceUtil.Debug.Assert(dotPos != -1);
+		String propPrefix = pattern.substring(1, dotPos - 1);
+		if(!propPrefix.equals(prefix))
+		{
+		    continue;
+		}
+
+		boolean found = false;
+		for(int j = 0; IceInternal.PropertyNames.validProps[i][j] != null && !found; ++j)
+		{
+		    pattern = IceInternal.PropertyNames.validProps[i][j];
+		    java.util.regex.Pattern pComp = java.util.regex.Pattern.compile(pattern);
+		    java.util.regex.Matcher m = pComp.matcher(key);
+		    found = m.matches();
+		}
+		if(!found)
+		{
+		    System.err.println("warning: unknown property: " + key);
+		}
+	    }
+	}
+
 	//
 	// Set or clear the property.
 	//
@@ -219,7 +249,6 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 	    _properties.remove(key);
 	}
     }
-    
 
     private void
     parseLine(String line)
@@ -298,9 +327,9 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     {
         try
         {
-	    java.io.InputStreamReader reader = new java.io.InputStreamReader(
-		javax.microedition.io.Connector.openInputStream("file://" + filename));
-            parse(reader);
+            java.io.FileReader fr = new java.io.FileReader(filename);
+            java.io.BufferedReader br = new java.io.BufferedReader(fr);
+            parse(br);
         }
         catch(java.io.IOException ex)
         {
@@ -309,37 +338,14 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
             throw se;
         }
     }
-
-    private String
-    readLine(java.io.InputStreamReader in)
-	throws java.io.IOException
-    {
-	StringBuffer line = new StringBuffer(128);
-	try
-	{
-	    int ch = in.read();
-	    while(ch != '\n')
-	    {
-		line.append(ch);
-		ch = in.read();
-	    }
-	}
-	catch(java.io.EOFException ex)
-	{
-	    //
-	    // Pass through on EOF.
-	    //
-	}
-	return line.toString();
-    }
     
     private void
-    parse(java.io.InputStreamReader in)
+    parse(java.io.BufferedReader in)
     {
         try
         {
             String line;
-            while((line = readLine(in)) != null)
+            while((line = in.readLine()) != null)
             {
                 parseLine(line);
             }
@@ -355,9 +361,8 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     public java.lang.Object
     ice_clone()
     {
-	return new PropertiesI(this);
+	return new Properties(this);
     }
 
     private java.util.Hashtable _properties = new java.util.Hashtable();
 }
-
