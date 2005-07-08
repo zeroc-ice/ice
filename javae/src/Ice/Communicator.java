@@ -9,7 +9,7 @@
 
 package Ice;
 
-public final class CommunicatorI extends LocalObjectImpl implements Communicator
+public final class Communicator
 {
     public void
     destroy()
@@ -210,7 +210,7 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         _instance.flushBatchRequests();
     }
 
-    CommunicatorI(Properties properties)
+    Communicator(Properties properties)
     {
 	_destroyed = false;
         _instance = new IceInternal.Instance(this, properties);
@@ -255,20 +255,7 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         return _instance;
     }
 
-    protected
-    CommunicatorI(CommunicatorI source)
-    {
-	super(source);
-	_destroyed = source._destroyed;
-	_instance = source._instance;
-    }
-
-    public java.lang.Object
-    ice_clone()
-    {
-	return new CommunicatorI(this);
-    }
-
     private boolean _destroyed;
     private IceInternal.Instance _instance;
+    private java.util.Hashtable _dfltContext;
 }

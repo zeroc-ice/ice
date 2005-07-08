@@ -17,13 +17,13 @@ public class FixedReference extends Reference
 		   java.util.Hashtable ctx,
 		   String fs,
 		   int md,
-		   Ice.ConnectionI[] fixedConns)
+		   Ice.Connection[] fixedConns)
     {
     	super(inst, ident, ctx, fs, md);
         _fixedConnections = fixedConns;
     }
 
-    public final Ice.ConnectionI[]
+    public final Ice.Connection[]
     getFixedConnections()
     {
         return _fixedConnections;
@@ -62,7 +62,7 @@ public class FixedReference extends Reference
 	 throw ex;
     }
 
-    public Ice.ConnectionI
+    public Ice.Connection
     getConnection()
     {
 	if(_fixedConnections.length == 0)
@@ -75,7 +75,7 @@ public class FixedReference extends Reference
 	//
 	// Choose a random connection
 	//
-	Ice.ConnectionI connection = _fixedConnections[_rand.nextInt(_fixedConnections.length)];
+	Ice.Connection connection = _fixedConnections[_rand.nextInt(_fixedConnections.length)];
 	if(IceUtil.Debug.ASSERT)
 	{
 	    IceUtil.Debug.Assert(connection != null);
@@ -125,6 +125,6 @@ public class FixedReference extends Reference
 	return result;
     }
 
-    private Ice.ConnectionI _fixedConnections[];
+    private Ice.Connection _fixedConnections[];
     private java.util.Random _rand = new java.util.Random();
 }

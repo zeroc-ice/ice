@@ -199,7 +199,7 @@ public class Instance
     }
 
     //
-    // Only for use by Ice.CommunicatorI
+    // Only for use by Ice.Communicator
     //
     public
     Instance(Ice.Communicator communicator, Ice.Properties properties)
@@ -307,7 +307,7 @@ public class Instance
     }
 
     //
-    // Only for use by Ice.CommunicatorI
+    // Only for use by Ice.Communicator
     //
     public void
     destroy()

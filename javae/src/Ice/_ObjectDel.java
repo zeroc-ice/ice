@@ -15,7 +15,8 @@ public class _ObjectDel
     ice_isA(String __id, java.util.Hashtable __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __og = getOutgoing("ice_isA", OperationMode.Nonmutating, __context);
+        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_isA", OperationMode.Nonmutating,
+							     __context);
         try
         {
             IceInternal.BasicStream __is = __og.is();
@@ -36,7 +37,7 @@ public class _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__og);
+            __connection.reclaimOutgoing(__og);
         }
     }
 
@@ -44,7 +45,8 @@ public class _ObjectDel
     ice_ping(java.util.Hashtable __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __og = getOutgoing("ice_ping", OperationMode.Nonmutating, __context);
+        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ping", OperationMode.Nonmutating,
+							     __context);
         try
         {
             if(!__og.invoke())
@@ -54,7 +56,7 @@ public class _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__og);
+            __connection.reclaimOutgoing(__og);
         }
     }
 
@@ -62,7 +64,8 @@ public class _ObjectDel
     ice_ids(java.util.Hashtable __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __og = getOutgoing("ice_ids", OperationMode.Nonmutating, __context);
+        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ids", OperationMode.Nonmutating,
+							     __context);
         try
         {
             IceInternal.BasicStream __is = __og.is();
@@ -81,7 +84,7 @@ public class _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__og);
+            __connection.reclaimOutgoing(__og);
         }
     }
 
@@ -89,7 +92,8 @@ public class _ObjectDel
     ice_id(java.util.Hashtable __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __og = getOutgoing("ice_id", OperationMode.Nonmutating, __context);
+        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_id", OperationMode.Nonmutating,
+							     __context);
         try
         {
             IceInternal.BasicStream __is = __og.is();
@@ -108,15 +112,16 @@ public class _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__og);
+            __connection.reclaimOutgoing(__og);
         }
     }
 
     public boolean
-    ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams, java.util.Hashtable __context)
+    ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
+	       java.util.Hashtable __context)
         throws IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __og = getOutgoing(operation, mode, __context);
+        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, operation, mode, __context);
         try
         {
             if(inParams != null)
@@ -145,7 +150,7 @@ public class _ObjectDel
         }
         finally
         {
-            reclaimOutgoing(__og);
+            __connection.reclaimOutgoing(__og);
         }
     }
 
@@ -182,7 +187,7 @@ public class _ObjectDel
     }
 
     protected IceInternal.Reference __reference;
-    protected ConnectionI __connection;
+    protected Connection __connection;
 
     public void
     setup(IceInternal.Reference ref)
@@ -201,40 +206,4 @@ public class _ObjectDel
 	__reference = ref;
 	__connection = __reference.getConnection();
     }
-    
-    protected IceInternal.Outgoing
-    getOutgoing(String operation, OperationMode mode, java.util.Hashtable context)
-    {
-        IceInternal.Outgoing out;
-
-        synchronized(__outgoingMutex)
-        {
-            if(__outgoingCache == null)
-            {
-                out = new IceInternal.Outgoing(__connection, __reference, operation, mode, context);
-            }
-            else
-            {
-                out = __outgoingCache;
-                __outgoingCache = __outgoingCache.next;
-                out.reset(operation, mode, context);
-		out.next = null;
-            }
-        }
-
-        return out;
-    }
-
-    protected void
-    reclaimOutgoing(IceInternal.Outgoing out)
-    {
-        synchronized(__outgoingMutex)
-        {
-            out.next = __outgoingCache;
-            __outgoingCache = out;
-        }
-    }
-
-    private IceInternal.Outgoing __outgoingCache;
-    private java.lang.Object __outgoingMutex = new java.lang.Object();
 }

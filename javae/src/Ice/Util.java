@@ -14,13 +14,13 @@ public final class Util
     public static Properties
     createProperties()
     {
-        return new PropertiesI();
+        return new Properties();
     }
 
     public static Properties
     createProperties(StringSeqHolder args)
     {
-        return new PropertiesI(args);
+        return new Properties(args);
     }
 
     public static Properties
@@ -76,7 +76,7 @@ public final class Util
     {
 	args.value = properties.parseIceCommandLineOptions(args.value);
 
-        CommunicatorI result = new CommunicatorI(properties);
+        Communicator result = new Communicator(properties);
         result.finishSetup(args);
         return result;
     }
@@ -91,8 +91,7 @@ public final class Util
     public static IceInternal.Instance
     getInstance(Communicator communicator)
     {
-        CommunicatorI p = (CommunicatorI)communicator;
-        return p.getInstance();
+        return communicator.getInstance();
     }
 
     public static Identity

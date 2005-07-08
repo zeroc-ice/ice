@@ -9,7 +9,7 @@
 
 package Ice;
 
-public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
+public final class ObjectAdapter
 {
     public String
     getName()
@@ -376,7 +376,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         {
             IceInternal.IncomingConnectionFactory factory =
                 (IceInternal.IncomingConnectionFactory)e.nextElement();
-            ConnectionI[] conns = factory.connections();
+            Connection[] conns = factory.connections();
             for(int j = 0; j < conns.length; ++j)
             {
                 connections.addElement(conns[j]);
@@ -388,7 +388,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         // reference.
         //
         IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
-        ConnectionI[] arr = new ConnectionI[connections.size()];
+        Connection[] arr = new Connection[connections.size()];
         connections.copyInto( arr);
         IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.Hashtable(), "",
                                                                         IceInternal.Reference.ModeTwoway, arr);
@@ -595,7 +595,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     // Only for use by IceInternal.ObjectAdapterFactory
     //
     public
-    ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, String name)
+    ObjectAdapter(IceInternal.Instance instance, Communicator communicator, String name)
     {
 	_deactivated = false;
         _instance = instance;
@@ -690,7 +690,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // proxy for the reference.
 	    //
 	    IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
-            ConnectionI[] connections = new ConnectionI[0];
+            Connection[] connections = new Connection[0];
 	    IceInternal.Reference reference =
 		_instance.referenceFactory().create(ident, new java.util.Hashtable(), facet,
 		                                    IceInternal.Reference.ModeTwoway, _id, null,
@@ -739,10 +739,10 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         //
         // Create a reference and return a proxy for this reference.
         //
-        ConnectionI[] connections = new ConnectionI[0];
+        Connection[] connections = new Connection[0];
         IceInternal.Reference reference =
-	    _instance.referenceFactory().create(ident, new java.util.Hashtable(), facet, IceInternal.Reference.ModeTwoway,
-                                                endpoints, null);
+	    _instance.referenceFactory().create(ident, new java.util.Hashtable(), facet,
+						IceInternal.Reference.ModeTwoway, endpoints, null);
         return _instance.proxyFactory().referenceToProxy(reference);
     }
 
@@ -824,31 +824,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	return endpoints;
     }
 
-    protected
-    ObjectAdapterI(ObjectAdapterI source)
-    {
-	super(source);
-	_deactivated = source._deactivated;
-	_instance = source._instance;
-	_communicator = source._communicator;
-	_servantManager = source._servantManager;
-	_printAdapterReadyDone = source._printAdapterReadyDone;
-	_name = source._name;
-	_id = source._name;
-	_incomingConnectionFactories = source._incomingConnectionFactories;
-	_routerEndpoints = source._routerEndpoints;
-	_publishedEndpoints = source._publishedEndpoints;
-	_locatorInfo = source._locatorInfo;
-	_directCount = source._directCount;
-	_waitForDeactivate = source._waitForDeactivate;
-    }
-
-    public java.lang.Object
-    ice_clone()
-    {
-	return new ObjectAdapterI(this);
-    }
-    
     private boolean _deactivated;
     private IceInternal.Instance _instance;
     private Communicator _communicator;

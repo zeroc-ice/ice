@@ -198,7 +198,7 @@ public final class ServantManager
     }
 
     //
-    // Only for use by Ice.ObjectAdapterI.
+    // Only for use by Ice.ObjectAdapter.
     //
     public synchronized void
     destroy()

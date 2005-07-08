@@ -12,7 +12,7 @@ package IceInternal;
 public final class Outgoing
 {
     public
-    Outgoing(Ice.ConnectionI connection, Reference ref, String operation, Ice.OperationMode mode,
+    Outgoing(Ice.Connection connection, Reference ref, String operation, Ice.OperationMode mode,
 	     java.util.Hashtable context)
     {
         _connection = connection;
@@ -28,8 +28,9 @@ public final class Outgoing
     // This function allows this object to be reused, rather than reallocated.
     //
     public void
-    reset(String operation, Ice.OperationMode mode, java.util.Hashtable context)
+    reset(Reference ref, String operation, Ice.OperationMode mode, java.util.Hashtable context)
     {
+	_reference = ref;
         _state = StateUnsent;
         _exception = null;
 
@@ -501,7 +502,7 @@ public final class Outgoing
         _os.startWriteEncaps();
     }
 
-    private Ice.ConnectionI _connection;
+    private Ice.Connection _connection;
     private Reference _reference;
     private Ice.LocalException _exception;
 

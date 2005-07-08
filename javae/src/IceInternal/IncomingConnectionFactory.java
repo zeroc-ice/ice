@@ -70,7 +70,7 @@ public final class IncomingConnectionFactory
 	java.util.Enumeration e = connections.elements();
 	while(e.hasMoreElements())
 	{
-	    Ice.ConnectionI connection = (Ice.ConnectionI)e.nextElement();
+	    Ice.Connection connection = (Ice.Connection)e.nextElement();
 	    connection.waitUntilHolding();
 	}
     }
@@ -131,7 +131,7 @@ public final class IncomingConnectionFactory
 	java.util.Enumeration p = connections.elements();
 	while(p.hasMoreElements())
 	{
-	    Ice.ConnectionI connection = (Ice.ConnectionI)p.nextElement();
+	    Ice.Connection connection = (Ice.Connection)p.nextElement();
 	    connection.waitUntilFinished();
 	}
     }
@@ -158,7 +158,7 @@ public final class IncomingConnectionFactory
         return endp.equivalent(_acceptor);
     }
 
-    public synchronized Ice.ConnectionI[]
+    public synchronized Ice.Connection[]
     connections()
     {
 	java.util.Vector connections = new java.util.Vector();
@@ -169,14 +169,14 @@ public final class IncomingConnectionFactory
         java.util.Enumeration p = _connections.elements();
         while(p.hasMoreElements())
         {
-            Ice.ConnectionI connection = (Ice.ConnectionI)p.nextElement();
+            Ice.Connection connection = (Ice.Connection)p.nextElement();
             if(!connection.isDestroyed())
             {
                 connections.addElement(connection);
             }
         }
 
-        Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.size()];
+        Ice.Connection[] arr = new Ice.Connection[connections.size()];
         connections.copyInto(arr);
         return arr;
     }
@@ -184,7 +184,7 @@ public final class IncomingConnectionFactory
     public void
     flushBatchRequests()
     {
-        Ice.ConnectionI[] c = connections(); // connections() is synchronized, so no need to synchronize here.
+        Ice.Connection[] c = connections(); // connections() is synchronized, so no need to synchronize here.
 	for(int i = 0; i < c.length; i++)
 	{
 	    try
@@ -238,11 +238,11 @@ public final class IncomingConnectionFactory
 	    {
 		_endpoint = h.value;
 		
-		Ice.ConnectionI connection = null;
+		Ice.Connection connection = null;
 		
 		try
 		{
-		    connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter);
+		    connection = new Ice.Connection(_instance, _transceiver, _endpoint, _adapter);
 		    connection.validate();
 		}
 		catch(Ice.LocalException ex)
@@ -355,7 +355,7 @@ public final class IncomingConnectionFactory
                 java.util.Enumeration p = _connections.elements();
                 while(p.hasMoreElements())
                 {
-                    Ice.ConnectionI connection = (Ice.ConnectionI)p.nextElement();
+                    Ice.Connection connection = (Ice.Connection)p.nextElement();
                     connection.activate();
                 }
                 break;
@@ -371,7 +371,7 @@ public final class IncomingConnectionFactory
                 java.util.Enumeration p = _connections.elements();
                 while(p.hasMoreElements())
                 {
-                    Ice.ConnectionI connection = (Ice.ConnectionI)p.nextElement();
+                    Ice.Connection connection = (Ice.Connection)p.nextElement();
                     connection.hold();
                 }
                 break;
@@ -391,8 +391,8 @@ public final class IncomingConnectionFactory
                 java.util.Enumeration p = _connections.elements();
                 while(p.hasMoreElements())
                 {   
-                    Ice.ConnectionI connection = (Ice.ConnectionI)p.nextElement();
-                    connection.destroy(Ice.ConnectionI.ObjectAdapterDeactivated);
+                    Ice.Connection connection = (Ice.Connection)p.nextElement();
+                    connection.destroy(Ice.Connection.ObjectAdapterDeactivated);
                 }
 		break;
             }
@@ -453,7 +453,7 @@ public final class IncomingConnectionFactory
 		}
 	    }
 
-	    Ice.ConnectionI connection = null;
+	    Ice.Connection connection = null;
 
 	    synchronized(this)
 	    {
@@ -509,7 +509,7 @@ public final class IncomingConnectionFactory
 		java.util.Enumeration p = _connections.elements();
 		for(int i = _connections.size(); i > 0; --i)
 		{
-		    Ice.ConnectionI con = (Ice.ConnectionI)_connections.elementAt(i - 1);
+		    Ice.Connection con = (Ice.Connection)_connections.elementAt(i - 1);
 		    if(con.isFinished())
 		    {
 			_connections.removeElementAt(i - 1);
@@ -523,7 +523,7 @@ public final class IncomingConnectionFactory
 		{
 		    try
 		    {
-			connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
+			connection = new Ice.Connection(_instance, transceiver, _endpoint, _adapter);
 		    }
 		    catch(Ice.LocalException ex)
 		    {

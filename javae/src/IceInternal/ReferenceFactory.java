@@ -65,7 +65,7 @@ public final class ReferenceFactory
            java.util.Hashtable context,
            String facet,
            int mode,
-	   Ice.ConnectionI[] fixedConnections)
+	   Ice.Connection[] fixedConnections)
     {
         if(_instance == null)
         {

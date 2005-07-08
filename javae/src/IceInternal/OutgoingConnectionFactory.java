@@ -27,8 +27,8 @@ public final class OutgoingConnectionFactory
 	    java.util.Enumeration q = connectionList.elements();
 	    while(q.hasMoreElements())
 	    {
-		Ice.ConnectionI connection = (Ice.ConnectionI)q.nextElement();
-		connection.destroy(Ice.ConnectionI.CommunicatorDestroyed);
+		Ice.Connection connection = (Ice.Connection)q.nextElement();
+		connection.destroy(Ice.Connection.CommunicatorDestroyed);
 	    }
 	}
 
@@ -80,13 +80,13 @@ public final class OutgoingConnectionFactory
 	    java.util.Enumeration q = connectionList.elements();
 	    while(q.hasMoreElements())
 	    {
-		Ice.ConnectionI connection = (Ice.ConnectionI)q.nextElement();
+		Ice.Connection connection = (Ice.Connection)q.nextElement();
 		connection.waitUntilFinished();
 	    }
         }
     }
 
-    public Ice.ConnectionI
+    public Ice.Connection
     create(Endpoint[] endpts)
     {
 	if(IceUtil.Debug.ASSERT)
@@ -116,7 +116,7 @@ public final class OutgoingConnectionFactory
 
 		for(int i = connectionList.size(); i > 0 ; --i)
 		{
-		    Ice.ConnectionI con = (Ice.ConnectionI)connectionList.elementAt(i - 1);
+		    Ice.Connection con = (Ice.Connection)connectionList.elementAt(i - 1);
 		    if(con.isFinished())
 		    {
 			connectionList.removeElementAt(i - 1);
@@ -152,7 +152,7 @@ public final class OutgoingConnectionFactory
 			
 		    while(q.hasMoreElements())
 		    {
-			Ice.ConnectionI connection = (Ice.ConnectionI)q.nextElement();
+			Ice.Connection connection = (Ice.Connection)q.nextElement();
 			
 			//
 			// Don't return connections for which destruction has
@@ -220,7 +220,7 @@ public final class OutgoingConnectionFactory
 			
 			while(q.hasMoreElements())
 			{
-			    Ice.ConnectionI connection = (Ice.ConnectionI)q.nextElement();
+			    Ice.Connection connection = (Ice.Connection)q.nextElement();
 			    
 			    //
 			    // Don't return connections for which destruction has
@@ -247,7 +247,7 @@ public final class OutgoingConnectionFactory
 	    }
 	}
 
-	Ice.ConnectionI connection = null;
+	Ice.Connection connection = null;
 	Ice.LocalException exception = null;
 
 	for(int i = 0; i < endpoints.length; i++)
@@ -284,7 +284,7 @@ public final class OutgoingConnectionFactory
 			IceUtil.Debug.Assert(transceiver != null);
 		    }
 		}
-		connection = new Ice.ConnectionI(_instance, transceiver, endpoint, null);
+		connection = new Ice.Connection(_instance, transceiver, endpoint, null);
 		connection.validate();
 		break;
 	    }
@@ -353,7 +353,7 @@ public final class OutgoingConnectionFactory
 
 		if(_destroyed)
 		{
-		    connection.destroy(Ice.ConnectionI.CommunicatorDestroyed);
+		    connection.destroy(Ice.Connection.CommunicatorDestroyed);
 		    throw new Ice.CommunicatorDestroyedException();
 		}
 		else
@@ -410,7 +410,7 @@ public final class OutgoingConnectionFactory
 		    
 		    while(p.hasMoreElements())
 		    {
-			Ice.ConnectionI connection = (Ice.ConnectionI)p.nextElement();
+			Ice.Connection connection = (Ice.Connection)p.nextElement();
 			try
 			{
 			    connection.setAdapter(adapter);
@@ -443,7 +443,7 @@ public final class OutgoingConnectionFactory
 	    java.util.Enumeration q = connectionList.elements();
 	    while(q.hasMoreElements())
 	    {
-		Ice.ConnectionI connection = (Ice.ConnectionI)q.nextElement();
+		Ice.Connection connection = (Ice.Connection)q.nextElement();
 		if(connection.getAdapter() == adapter)
 		{
 		    try
@@ -483,7 +483,7 @@ public final class OutgoingConnectionFactory
 	java.util.Enumeration p = c.elements();
 	while(p.hasMoreElements())
 	{
-	    Ice.ConnectionI conn = (Ice.ConnectionI)p.nextElement();
+	    Ice.Connection conn = (Ice.Connection)p.nextElement();
 	    try
 	    {
 		conn.flushBatchRequests();

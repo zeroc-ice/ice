@@ -310,7 +310,7 @@ public abstract class Reference implements IceUtil.Cloneable
 	// Derived class writes the remainder of the string.
     }
 
-    public abstract Ice.ConnectionI getConnection();
+    public abstract Ice.Connection getConnection();
 
     public boolean
     equals(java.lang.Object obj)

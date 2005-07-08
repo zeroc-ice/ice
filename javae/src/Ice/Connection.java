@@ -9,21 +9,8 @@
 
 package Ice;
 
-public final class ConnectionI implements Connection
+public final class Connection
 {
-    public java.lang.Object
-    ice_clone()
-        throws IceUtil.CloneException
-    {
-	return new ConnectionI(this);
-    }
-
-    public int
-    ice_hash()
-    {
-        return hashCode();
-    }
-
     public void
     validate()
     {
@@ -432,7 +419,7 @@ public final class ConnectionI implements Connection
     };
 
     //
-    // TODO: Should not be a member function of ConnectionI.
+    // TODO: Should not be a member function of Connection.
     //
     public void
     prepareRequest(IceInternal.BasicStream os)
@@ -926,7 +913,7 @@ public final class ConnectionI implements Connection
             _adapter = adapter;
             if(_adapter != null)
             {
-                _servantManager = ((ObjectAdapterI)_adapter).getServantManager();
+                _servantManager = _adapter.getServantManager();
             }
             else
             {
@@ -948,7 +935,7 @@ public final class ConnectionI implements Connection
         // Create a reference and return a reverse proxy for this
         // reference.
         //
-        ConnectionI[] connections = new ConnectionI[1];
+        Connection[] connections = new Connection[1];
         connections[0] = this;
         IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.Hashtable(), "",
                                                                         IceInternal.Reference.ModeTwoway, connections);
@@ -985,31 +972,8 @@ public final class ConnectionI implements Connection
 	return _desc; // No mutex lock, _desc is immutable.
     }
 
-    protected
-    ConnectionI(ConnectionI source)
-    {
-	_instance = source._instance;
-	_transceiver = source._transceiver;
-	_desc = source._desc;
-	_type = source._type;
-	_endpoint = source._endpoint;
-	_adapter = source._adapter;
-	_logger = source._logger;
-	_traceLevels = source._traceLevels;
-	_warn = source._warn;
-	_nextRequestId = source._nextRequestId;
-	_batchStream = source._batchStream;
-	_batchStreamInUse = source._batchStreamInUse;
-	_batchRequestNum = source._batchRequestNum;
-	_dispatchCount = source._dispatchCount;
-	_state = source._state;
-	_stateTime = source._stateTime;
-	_servantManager = source._servantManager;
-	_threadPerConnection = source._threadPerConnection;
-    }
-
-    public ConnectionI(IceInternal.Instance instance, IceInternal.Transceiver transceiver, 
-		       IceInternal.Endpoint endpoint, ObjectAdapter adapter)
+    public Connection(IceInternal.Instance instance, IceInternal.Transceiver transceiver, 
+		      IceInternal.Endpoint endpoint, ObjectAdapter adapter)
     {
         _instance = instance;
         _transceiver = transceiver;
@@ -1030,7 +994,7 @@ public final class ConnectionI implements Connection
 
 	if(_adapter != null)
 	{
-	    _servantManager = ((ObjectAdapterI)_adapter).getServantManager();
+	    _servantManager = _adapter.getServantManager();
 	}
 	else
 	{
@@ -1817,6 +1781,39 @@ public final class ConnectionI implements Connection
         }
     }
 
+    public IceInternal.Outgoing
+    getOutgoing(IceInternal.Reference reference, String operation, OperationMode mode, java.util.Hashtable context)
+    {
+	IceInternal.Outgoing out;
+
+	synchronized(_outgoingCacheMutex)
+	{
+	    if(_outgoingCache == null)
+	    {
+		out = new IceInternal.Outgoing(this, reference, operation, mode, context);
+	    }
+	    else
+	    {
+		out = _outgoingCache;
+		_outgoingCache = _outgoingCache.next;
+		out.reset(reference, operation, mode, context);
+		out.next = null;
+	    }
+	}
+
+	return out;
+    }
+
+    public void
+    reclaimOutgoing(IceInternal.Outgoing out)
+    {
+	synchronized(_outgoingCacheMutex)
+	{
+	    out.next = _outgoingCache;
+	    _outgoingCache = out;
+	}
+    }
+
     private class ThreadPerConnection extends Thread
     {
 	public void
@@ -1824,11 +1821,11 @@ public final class ConnectionI implements Connection
 	{
 	    try
 	    {
-		ConnectionI.this.run();
+		Connection.this.run();
 	    }
 	    catch(Exception ex)
 	    {
-		ConnectionI.this.error("exception in thread per connection", ex);
+		Connection.this.error("exception in thread per connection", ex);
 	    }
 	}
     }
@@ -1871,4 +1868,7 @@ public final class ConnectionI implements Connection
 
     private IceInternal.Incoming _incomingCache;
     private java.lang.Object _incomingCacheMutex = new java.lang.Object();
+
+    private IceInternal.Outgoing _outgoingCache;
+    private java.lang.Object _outgoingCacheMutex = new java.lang.Object();
 }

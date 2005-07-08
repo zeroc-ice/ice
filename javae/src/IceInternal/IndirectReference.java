@@ -145,10 +145,10 @@ public class IndirectReference extends RoutableReference
 	return s.toString();
     }
 
-    public Ice.ConnectionI
+    public Ice.Connection
     getConnection()
     {
-	Ice.ConnectionI connection;
+	Ice.Connection connection;
 
 	while(true)
 	{

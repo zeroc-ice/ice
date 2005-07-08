@@ -114,7 +114,7 @@ public final class ObjectAdapterFactory
             return adapter;
         }
 
-        adapter = new Ice.ObjectAdapterI(_instance, _communicator, name);
+        adapter = new Ice.ObjectAdapter(_instance, _communicator, name);
         _adapters.put(name, adapter);
         return adapter;
     }
@@ -130,7 +130,7 @@ public final class ObjectAdapterFactory
         java.util.Enumeration i = _adapters.elements();
         while(i.hasMoreElements())
         {
-            Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)i.nextElement();
+            Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.nextElement();
 	    try
 	    {
 		if(adapter.isLocal(proxy))
@@ -162,7 +162,7 @@ public final class ObjectAdapterFactory
 	java.util.Enumeration p = a.elements();
 	while(p.hasMoreElements())
 	{
-	    ((Ice.ObjectAdapterI)p.nextElement()).flushBatchRequests();
+	    ((Ice.ObjectAdapter)p.nextElement()).flushBatchRequests();
 	}
     }
 
