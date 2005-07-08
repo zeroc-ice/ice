@@ -233,6 +233,8 @@ public abstract class Reference implements IceUtil.Cloneable
 
         s.writeByte((byte)_mode);
 
+	s.writeBool(false); // Secure
+
 	// Derived class writes the remainder of the reference.
     }
 
