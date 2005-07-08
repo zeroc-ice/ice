@@ -141,7 +141,7 @@ public:
     getAll(const std::string& expr)
     {
 	IceUtil::Mutex::Lock sync(*this);
-	return getMatchingKeys<std::map<std::string,TPtr> >(_entries, expr);
+	return getMatchingKeys<std::map<std::string,TPtr> >(Cache<std::string, T>::_entries, expr);
     }
 };
 
