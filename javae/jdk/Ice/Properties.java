@@ -323,17 +323,18 @@ public final class Properties
     }
 
     public synchronized void
-    load(String filename)
+    load(String file)
     {
         try
         {
-            java.io.FileReader fr = new java.io.FileReader(filename);
+            java.io.FileReader fr = new java.io.FileReader(file);
             java.io.BufferedReader br = new java.io.BufferedReader(fr);
             parse(br);
         }
         catch(java.io.IOException ex)
         {
-            SyscallException se = new SyscallException();
+            FileException se = new FileException();
+	    se.path = file;
             se.initCause(ex); // Exception chaining
             throw se;
         }
