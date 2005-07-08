@@ -293,17 +293,22 @@ public final class Properties
     }
 
     public synchronized void
-    load(String filename)
+    load(String file)
     {
         try
         {
 	    java.io.InputStreamReader reader = new java.io.InputStreamReader(
-		javax.microedition.io.Connector.openInputStream("file://" + filename));
-            parse(reader);
+		javax.microedition.io.Connector.openInputStream("file://" + file));
+	    String line;
+	    while((line = readLine(reader)) != null)
+	    {
+		parseLine(line);
+	    }
         }
         catch(java.io.IOException ex)
         {
-            SyscallException se = new SyscallException();
+            FileException se = new FileException();
+	    se.path = file;
             se.initCause(ex); // Exception chaining
             throw se;
         }
@@ -331,26 +336,7 @@ public final class Properties
 	}
 	return line.toString();
     }
-    
-    private void
-    parse(java.io.InputStreamReader in)
-    {
-        try
-        {
-            String line;
-            while((line = readLine(in)) != null)
-            {
-                parseLine(line);
-            }
-        }
-        catch(java.io.IOException ex)
-        {
-            SyscallException se = new SyscallException();
-            se.initCause(ex); // Exception chaining
-            throw se;
-        }
-    }
-    
+
     public java.lang.Object
     ice_clone()
     {
