@@ -96,11 +96,18 @@ namespace Ice
 		     Identity ident = new Identity();
 		     ident.category = "";
 		     ident.name = "dummy";
-		     locatorRegistry.setAdapterDirectProxy(_id, createDirectProxy(ident));
+		     locatorRegistry.setAdapterDirectProxy(serverId, _id, createDirectProxy(ident));
 		}
 		catch(Ice.ObjectAdapterDeactivatedException)
                 {
 		    // IGNORE: The object adapter is already inactive.
+		}
+		catch(Ice.ServerNotFoundException)
+		{
+		    NotRegisteredException ex1 = new NotRegisteredException();
+		    ex1.id = serverId;
+		    ex1.kindOfObject = "server";
+		    throw ex1;
 		}
 		catch(Ice.AdapterNotFoundException)
 		{

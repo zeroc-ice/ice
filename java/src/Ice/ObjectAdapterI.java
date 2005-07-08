@@ -95,11 +95,18 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		Identity ident = new Identity();
 		ident.category = "";
 		ident.name = "dummy";
-		locatorRegistry.setAdapterDirectProxy(_id, createDirectProxy(ident));
+		locatorRegistry.setAdapterDirectProxy(serverId, _id, createDirectProxy(ident));
 	    }
 	    catch(ObjectAdapterDeactivatedException ex)
 	    {
 		// IGNORE: The object adapter is already inactive.
+	    }
+	    catch(ServerNotFoundException ex)
+	    {
+		NotRegisteredException ex1 = new NotRegisteredException();
+		ex1.id = serverId;
+		ex1.kindOfObject = "server";
+		throw ex1;
 	    }
 	    catch(AdapterNotFoundException ex)
 	    {
