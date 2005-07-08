@@ -11,9 +11,7 @@
 #define ICE_LOCATOR_ICE
 
 #include <Ice/Identity.ice>
-#ifndef ICEE
 #include <Ice/ProcessF.ice>
-#endif
 
 module Ice
 {
@@ -149,7 +147,6 @@ interface LocatorRegistry
     ["amd"] idempotent void setAdapterDirectProxy(string serverId, string adapterId, Object* proxy)
 	throws ServerNotFoundException, AdapterNotFoundException, AdapterAlreadyActiveException;
 
-#ifndef ICEE
     /**
      *
      * Set the process proxy for a server.
@@ -164,7 +161,6 @@ interface LocatorRegistry
      **/
     ["amd"] idempotent void setServerProcessProxy(string id, Process* proxy)
 	throws ServerNotFoundException;
-#endif
 };
 
 };

@@ -16,7 +16,6 @@
 module Ice
 {
 
-#ifndef ICEE
 /**
  *
  * This exception is raised when a failure occurs during initialization.
@@ -57,7 +56,6 @@ local exception PluginInitializationException
 local exception CollocationOptimizationException
 {
 };
-#endif
 
 /**
  *
@@ -722,7 +720,6 @@ local exception CompressionNotSupportedException extends ProtocolException
 {
 };
 
-#ifndef ICEE
 /**
  *
  * This exception is a specialization of [ProtocolException],
@@ -760,7 +757,6 @@ local exception CompressionException extends ProtocolException
 local exception DatagramLimitException extends ProtocolException
 {
 };
-#endif
 
 /**
  *
@@ -798,7 +794,6 @@ local exception UnmarshalOutOfBoundsException extends MarshalException
 {
 };
 
-#ifndef ICEE
 /**
  *
  * This exception is a specialization of [MarshalException],
@@ -831,7 +826,6 @@ local exception NoObjectFactoryException extends MarshalException
      **/
     string type;
 };
-#endif
 
 /**
  *
