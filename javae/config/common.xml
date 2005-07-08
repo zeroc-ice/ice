@@ -29,7 +29,7 @@
 
     <condition property="installtype" value="rpm">
 	<and>
-	    <available file="/usr/share/slice"/>
+	    <available file="/usr/share/slice/IceE"/>
             <not>
                 <isset property="installtype"/>
             </not>
@@ -38,7 +38,7 @@
 
     <condition property="installtype" value="opt">
 	<and>
-	     <available file="${env.ICE_HOME}/slice" />
+	     <available file="${env.ICEE_HOME}/slice" />
             <not>
                 <isset property="installtype"/>
 	    </not>
