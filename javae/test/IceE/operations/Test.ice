@@ -10,8 +10,6 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-#include <Ice/Current.ice>
-
 module Test
 {
 
@@ -66,7 +64,7 @@ dictionary<long, float> LongFloatD;
 dictionary<string, string> StringStringD;
 dictionary<string, MyEnum> StringMyEnumD;
 
-["ami"] class MyClass
+class MyClass
 {
     void shutdown();
 
@@ -147,17 +145,17 @@ dictionary<string, MyEnum> StringMyEnumD;
 
     void opByteSOneway(ByteS s);
 
-    Ice::Context opContext();
+    StringStringD opContext();
 };
 
-["ami"] class MyDerivedClass extends MyClass
+class MyDerivedClass extends MyClass
 {
     void opDerived();
 };
 
 interface TestCheckedCast
 {
-    Ice::Context getContext();
+    StringStringD getContext();
 };
 
 };
