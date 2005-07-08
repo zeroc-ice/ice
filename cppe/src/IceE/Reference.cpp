@@ -518,10 +518,9 @@ IceInternal::FixedReference::FixedReference(const FixedReference& r)
 {
 }
 
+#ifdef ICEE_HAS_ROUTER
 void IceInternal::incRef(IceInternal::RoutableReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::RoutableReference* p) { p->__decRef(); }
-
-#ifdef ICEE_HAS_ROUTER
 
 vector<EndpointPtr>
 IceInternal::RoutableReference::getRoutedEndpoints() const
@@ -537,7 +536,6 @@ IceInternal::RoutableReference::getRoutedEndpoints() const
     }
     return vector<EndpointPtr>();
 }
-
 
 ReferencePtr
 IceInternal::RoutableReference::changeDefault() const
@@ -560,7 +558,6 @@ IceInternal::RoutableReference::changeRouter(const RouterPrx& newRouter) const
     return r;
 }
 
-#endif
 
 bool
 IceInternal::RoutableReference::operator==(const Reference& r) const
@@ -574,11 +571,7 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     {
         return false;
     }
-#ifdef ICEE_HAS_ROUTER
     return _routerInfo == rhs->_routerInfo;
-#else
-    return true;
-#endif
 }
 
 bool
@@ -603,55 +596,47 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
         const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
         if(rhs)
         {
-#ifdef ICEE_HAS_ROUTER
             return _routerInfo < rhs->_routerInfo;
-#else
-	    return true;
-#endif
         }
     }
     return false;
 }
 
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Identity& ident,
-						  const Context& ctx, const string& fs, Mode md
-#ifdef ICEE_HAS_ROUTER
-						  , const RouterInfoPtr& rtrInfo
-#endif
-						  )
-    : Reference(inst, ident, ctx, fs, md)
-#ifdef ICEE_HAS_ROUTER
-      , _routerInfo(rtrInfo)
-#endif
+						  const Context& ctx, const string& fs, Mode md,
+						  const RouterInfoPtr& rtrInfo)
+    : Reference(inst, ident, ctx, fs, md), _routerInfo(rtrInfo)
 {
 }
 
 IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
-    : Reference(r)
-#ifdef ICEE_HAS_ROUTER
-      , _routerInfo(r._routerInfo)
-#endif
+    : Reference(r), _routerInfo(r._routerInfo)
 {
 }
+#endif
 
 void IceInternal::incRef(IceInternal::DirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
 
+
+#ifdef ICEE_HAS_ROUTER
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Identity& ident,
 					      const Context& ctx, const string& fs, Mode md,
-					      const vector<EndpointPtr>& endpts
-#ifdef ICEE_HAS_ROUTER
-					      , const RouterInfoPtr& rtrInfo
-#endif
-					      )
-    : RoutableReference(inst, ident, ctx, fs, md
-#ifdef ICEE_HAS_ROUTER
-    			, rtrInfo
-#endif
-			),
-      _endpoints(endpts)
+					      const vector<EndpointPtr>& endpts, const RouterInfoPtr& rtrInfo) :
+
+    RoutableReference(inst, ident, ctx, fs, md, rtrInfo),
+    _endpoints(endpts)
 {
 }
+#else
+IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Identity& ident,
+					      const Context& ctx, const string& fs, Mode md,
+					      const vector<EndpointPtr>& endpts) :
+    Reference(inst, ident, ctx, fs, md),
+    _endpoints(endpts)
+{
+}
+#endif
 
 vector<EndpointPtr>
 IceInternal::DirectReference::getEndpoints() const
@@ -692,7 +677,7 @@ IceInternal::DirectReference::changeDefault() const
     else
 #endif // ICEE_HAS_LOCATOR
     {
-	return RoutableReference::changeDefault();
+	return Parent::changeDefault();
     }
 }
 
@@ -736,7 +721,7 @@ IceInternal::DirectReference::changeTimeout(int newTimeout) const
 void
 IceInternal::DirectReference::streamWrite(BasicStream* s) const
 {
-    RoutableReference::streamWrite(s);
+    Parent::streamWrite(s);
 
     Int sz = static_cast<Int>(_endpoints.size());
     s->writeSize(sz);
@@ -756,7 +741,7 @@ IceInternal::DirectReference::streamWrite(BasicStream* s) const
 string
 IceInternal::DirectReference::toString() const
 {
-    string result = RoutableReference::toString();
+    string result = Parent::toString();
 
     vector<EndpointPtr>::const_iterator p;
     for(p = _endpoints.begin(); p != _endpoints.end(); ++p)
@@ -775,7 +760,7 @@ ConnectionPtr
 IceInternal::DirectReference::getConnection() const
 {
 #ifdef ICEE_HAS_ROUTER
-    vector<EndpointPtr> endpts = RoutableReference::getRoutedEndpoints();
+    vector<EndpointPtr> endpts = Parent::getRoutedEndpoints();
     if(endpts.empty())
     {
 	endpts = _endpoints;
@@ -819,7 +804,7 @@ IceInternal::DirectReference::operator==(const Reference& r) const
         return true;
     }
     const DirectReference* rhs = dynamic_cast<const DirectReference*>(&r);
-    if(!rhs || !RoutableReference::operator==(r))
+    if(!rhs || !Parent::operator==(r))
     {
         return false;
     }
@@ -839,11 +824,11 @@ IceInternal::DirectReference::operator<(const Reference& r) const
     {
         return false;
     }
-    if(RoutableReference::operator<(r))
+    if(Parent::operator<(r))
     {
         return true;
     }
-    if(RoutableReference::operator==(r))
+    if(Parent::operator==(r))
     {
         const DirectReference* rhs = dynamic_cast<const DirectReference*>(&r);
         if(rhs)
@@ -861,8 +846,7 @@ IceInternal::DirectReference::clone() const
 }
 
 IceInternal::DirectReference::DirectReference(const DirectReference& r)
-    : RoutableReference(r),
-      _endpoints(r._endpoints)
+    : Parent(r), _endpoints(r._endpoints)
 {
 }
 
@@ -871,22 +855,27 @@ IceInternal::DirectReference::DirectReference(const DirectReference& r)
 void IceInternal::incRef(IceInternal::IndirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
 
+#ifdef ICEE_HAS_ROUTER
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
                                                   const Context& ctx, const string& fs, Mode md,
-						  const string& adptid
-#ifdef ICEE_HAS_ROUTER
-						  , const RouterInfoPtr& rtrInfo
-#endif
-						  , const LocatorInfoPtr& locInfo)
-    : RoutableReference(inst, ident, ctx, fs, md
-#ifdef ICEE_HAS_ROUTER
-     		  	, rtrInfo
-#endif
-			),
+						  const string& adptid, const RouterInfoPtr& rtrInfo,
+						  const LocatorInfoPtr& locInfo)
+    : RoutableReference(inst, ident, ctx, fs, md, rtrInfo),
       _adapterId(adptid),
       _locatorInfo(locInfo)
 {
 }
+#else
+IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
+                                                  const Context& ctx, const string& fs, Mode md,
+						  const string& adptid
+						  , const LocatorInfoPtr& locInfo)
+    : Reference(inst, ident, ctx, fs, md),
+      _adapterId(adptid),
+      _locatorInfo(locInfo)
+{
+}
+#endif
 
 vector<EndpointPtr>
 IceInternal::IndirectReference::getEndpoints() const
@@ -912,7 +901,7 @@ IceInternal::IndirectReference::changeDefault() const
     }
     else
     {
-	IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(RoutableReference::changeDefault());
+	IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(Parent::changeDefault());
 	r->_locatorInfo = getInstance()->locatorManager()->get(loc);
 	return r;
     }
@@ -961,7 +950,7 @@ IceInternal::IndirectReference::changeTimeout(int newTimeout) const
 void
 IceInternal::IndirectReference::streamWrite(BasicStream* s) const
 {
-    RoutableReference::streamWrite(s);
+    Parent::streamWrite(s);
 
     s->writeSize(0);
     s->write(_adapterId);
@@ -970,7 +959,7 @@ IceInternal::IndirectReference::streamWrite(BasicStream* s) const
 string
 IceInternal::IndirectReference::toString() const
 {
-    string result = RoutableReference::toString();
+    string result = Parent::toString();
     if(_adapterId.empty())
     {
         return result;
@@ -1005,7 +994,7 @@ IceInternal::IndirectReference::getConnection() const
     while(true)
     {
 #ifdef ICEE_HAS_ROUTER
-	vector<EndpointPtr> endpts = RoutableReference::getRoutedEndpoints();
+	vector<EndpointPtr> endpts = Parent::getRoutedEndpoints();
 #else
 	vector<EndpointPtr> endpts;
 #endif
@@ -1083,7 +1072,7 @@ IceInternal::IndirectReference::operator==(const Reference& r) const
         return true;
     }
     const IndirectReference* rhs = dynamic_cast<const IndirectReference*>(&r);
-    if(!rhs || !RoutableReference::operator==(r))
+    if(!rhs || !Parent::operator==(r))
     {
         return false;
     }
@@ -1103,11 +1092,11 @@ IceInternal::IndirectReference::operator<(const Reference& r) const
     {
         return false;
     }
-    if(RoutableReference::operator<(r))
+    if(Parent::operator<(r))
     {
         return true;
     }
-    if(RoutableReference::operator==(r))
+    if(Parent::operator==(r))
     {
         const IndirectReference* rhs = dynamic_cast<const IndirectReference*>(&r);
         if(rhs)
@@ -1133,9 +1122,7 @@ IceInternal::IndirectReference::clone() const
 }
 
 IceInternal::IndirectReference::IndirectReference(const IndirectReference& r)
-    : RoutableReference(r),
-      _adapterId(r._adapterId),
-      _locatorInfo(r._locatorInfo)
+    : Parent(r), _adapterId(r._adapterId), _locatorInfo(r._locatorInfo)
 {
 }
 
