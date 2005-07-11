@@ -477,8 +477,11 @@ public final class ReferenceFactory
             throw new Ice.ProxyUnmarshalException();
         }
 
-	s.readBool(); // Secure
-
+	//
+	// Read security byte and ignore.
+	//
+	s.readBool();
+       
         Endpoint[] endpoints;
 	String adapterId = "";
 

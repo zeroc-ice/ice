@@ -582,6 +582,7 @@ public class BasicStream
     public byte[]
     readByteSeq()
     {
+	    
         try
         {
             final int sz = readSize();
@@ -926,20 +927,10 @@ public class BasicStream
             final int len = v.length();
             if(len > 0)
             {
-                try
-                {
-                    byte[] arr = v.getBytes("UTF8");
-                    writeSize(arr.length);
-                    expand(arr.length);
-                    _buf.put(arr);
-                }
-                catch(java.io.UnsupportedEncodingException ex)
-                {
-		    if(IceUtil.Debug.ASSERT)
-		    {
-			IceUtil.Debug.Assert(false);
-		    }
-                }
+		byte[] arr = v.getBytes();
+		writeSize(arr.length);
+		expand(arr.length);
+		_buf.put(arr);
             }
             else
             {
@@ -1011,7 +1002,7 @@ public class BasicStream
 			// throw MarshalException if the string won't
 			// decode.
 			//
-                        return new String(_stringBytes, 0, len, "UTF8");
+                        return new String(_stringBytes, 0, len);
                     }
                     else
                     {
@@ -1019,14 +1010,6 @@ public class BasicStream
                     }
                 }
                 return new String(_stringChars, 0, len);
-            }
-            catch(java.io.UnsupportedEncodingException ex)
-            {
-		if(IceUtil.Debug.ASSERT)
-		{
-		    IceUtil.Debug.Assert(false);
-		}
-                return "";
             }
             catch(ByteBuffer.UnderflowException ex)
             {

@@ -202,7 +202,6 @@ public class _ObjectDel
 	    IceUtil.Debug.Assert(__reference == null);
 	    IceUtil.Debug.Assert(__connection == null);
 	}
-
 	__reference = ref;
 	__connection = __reference.getConnection();
     }

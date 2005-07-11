@@ -161,18 +161,7 @@ public final class StringUtil
     escapeString(String s, String special)
     {
         byte[] bytes = null;
-        try
-        {
-            bytes = s.getBytes("UTF8");
-        }
-        catch(java.io.UnsupportedEncodingException ex)
-        {
-	    if(Debug.ASSERT)
-	    {
-		Debug.Assert(false);
-	    }
-            return null;
-        }
+	bytes = s.getBytes();
 
         StringBuffer result = new StringBuffer(bytes.length);
 

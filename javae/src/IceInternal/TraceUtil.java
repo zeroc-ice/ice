@@ -50,7 +50,6 @@ public final class TraceUtil
             }
 
             printRequestHeader(ps, str);
-
             logger.trace(tl.protocolCat, os.toString());
             str.pos(p);
         }
@@ -205,8 +204,6 @@ public final class TraceUtil
             str.pos(p);
         }
     }
-
-//    private static java.util.Set slicingIds = new java.util.HashSet();
 
     public static void
     dumpStream(BasicStream stream)
