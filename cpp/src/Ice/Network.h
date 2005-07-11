@@ -17,7 +17,7 @@
 #include <Ice/Config.h>
 
 #ifdef _WIN32
-#   include <winsock.h>
+#   include <winsock2.h>
 typedef int ssize_t;
 #else
 #   include <unistd.h>
@@ -116,6 +116,8 @@ ICE_PROTOCOL_API std::vector<struct sockaddr_in> getLocalAddresses();
 ICE_PROTOCOL_API bool isLocalAddress(const struct sockaddr_in&);
 ICE_PROTOCOL_API bool isPeerLocal(SOCKET);
 #endif
+
+ICE_PROTOCOL_API int getSocketErrno();
 
 }
 

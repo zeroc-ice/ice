@@ -12,10 +12,12 @@
 #include <algorithm>
 #include <fstream>
 
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #ifndef _WIN32
+
 #   include <sys/wait.h>
 #endif
 
@@ -274,7 +276,7 @@ Slice::Preprocessor::close()
 {
     assert(_cppHandle);
 
-#ifndef WIN32
+#ifndef _WIN32
     int status = pclose(_cppHandle);
     _cppHandle = 0;
 
@@ -326,7 +328,7 @@ Slice::Preprocessor::checkInputFile()
 string
 Slice::Preprocessor::searchIceCpp()
 {
-#ifndef WIN32
+#ifndef _WIN32
     const char* icecpp = "icecpp";
 #else
     const char* icecpp = "icecpp.exe";
@@ -341,7 +343,7 @@ Slice::Preprocessor::searchIceCpp()
 	struct stat st;
 	if(stat(path.c_str(), &st) == 0)
 	{
-#ifndef WIN32
+#ifndef _WIN32
 	    if(st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))
 #else
 	    if(st.st_mode & (S_IEXEC))

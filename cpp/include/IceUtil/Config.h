@@ -98,15 +98,6 @@
 
 #   include <windows.h>
 
-//
-// MFC applications that include afxwin.h before this header will cause
-// windows.h to skip inclusion of winsock.h, so we include it here if
-// necessary.
-// 
-#   ifndef _WINSOCKAPI_
-#      include <winsock2.h>
-#   endif
-
 // '...' : forcing value to bool 'true' or 'false' (performance warning)
 #   pragma warning( disable : 4800 )
 // ... identifier was truncated to '255' characters in the debug information

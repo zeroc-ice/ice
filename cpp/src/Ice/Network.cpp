@@ -7,13 +7,6 @@
 //
 // **********************************************************************
 
-#ifdef _WIN32
-//
-// Prevents windows.h from including winsock.h
-//
-# define WIN32_LEAN_AND_MEAN 1
-#endif
-
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
 
@@ -29,6 +22,16 @@ using namespace IceInternal;
 #ifdef __sun
 #    define INADDR_NONE (unsigned long)-1
 #endif
+
+int
+IceInternal::getSocketErrno()
+{
+#ifdef _WIN32
+    return WSAGetLastError();
+#else
+    return errno;
+#endif
+}
 
 bool
 IceInternal::interrupted()

@@ -75,10 +75,8 @@ typedef double Double;
 // TODO: Should not be inline, this is not performance critical.
 #ifdef _WIN32
 inline int getSystemErrno() { return GetLastError(); }
-inline int getSocketErrno() { return WSAGetLastError(); }
 #else
 inline int getSystemErrno() { return errno; }
-inline int getSocketErrno() { return errno; }
 #endif
 
 #endif

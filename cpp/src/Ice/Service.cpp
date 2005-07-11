@@ -18,6 +18,7 @@
 #include <Ice/Properties.h>
 
 #ifdef _WIN32
+#   include <winsock2.h>
 #   include <Ice/EventLoggerI.h>
 #else
 #   include <Ice/Logger.h>

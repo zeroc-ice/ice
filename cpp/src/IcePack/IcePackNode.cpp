@@ -21,6 +21,7 @@
 #include <IcePack/DescriptorParser.h>
 
 #ifdef _WIN32
+#   include <winsock2.h>
 #   include <direct.h>
 #   include <sys/types.h>
 #   include <sys/stat.h>

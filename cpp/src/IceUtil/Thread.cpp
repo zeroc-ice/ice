@@ -138,9 +138,7 @@ IceUtil::ThreadControl::isAlive() const
 void
 IceUtil::ThreadControl::sleep(const Time& timeout)
 {
-    timeval tv = timeout;
-    long msec = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
-    Sleep(msec);
+    Sleep(static_cast<long>(timeout.toMilliSeconds()));
 }
 
 void

@@ -42,10 +42,7 @@ IceUtil::Semaphore::wait() const
 bool
 IceUtil::Semaphore::timedWait(const Time& timeout) const
 {
-    timeval tv = timeout;
-    long msec = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
-
-    int rc = WaitForSingleObject(_sem, msec);
+    int rc = WaitForSingleObject(_sem, static_cast<long>(timeout.toMilliSeconds()));
     if(rc != WAIT_TIMEOUT && rc != WAIT_OBJECT_0)
     {
 	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());

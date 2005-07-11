@@ -14,6 +14,7 @@
 #include <Ice/TransceiverF.h>
 
 #ifdef _WIN32
+#   include <winsock2.h>
 typedef int ssize_t;
 #else
 #   define SOCKET int

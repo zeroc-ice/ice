@@ -1,6 +1,11 @@
 Changes since version 2.1.2
 ---------------------------
 
+- IceUtil/Config.h no longer includes winsock.h under WIN32. Ice can
+  now build with WIN32_LEAN_AND_MEAN.
+
+- Removed operator timeval() from IceUtil::Time for WIN32.
+
 - Parsing a stringified proxy no longer completely fails if the proxy 
   contains an endpoint type which is unknown to the Ice runtime as long
   as the proxy contains other endpoints which are known. A warning is 

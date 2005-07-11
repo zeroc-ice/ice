@@ -106,7 +106,7 @@ using namespace IcePatch2;
 string
 IcePatch2::lastError()
 {
-#ifdef WIN32
+#ifdef _WIN32
     LPVOID lpMsgBuf = 0;
     DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			     FORMAT_MESSAGE_FROM_SYSTEM |

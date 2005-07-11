@@ -26,7 +26,7 @@ Time::Time() :
 Time
 IceUtil::Time::now()
 {
-#ifdef WIN32
+#ifdef _WIN32
     struct _timeb tb;
     _ftime(&tb);
     return Time(tb.time * static_cast<Int64>(1000000) + tb.millitm * static_cast<Int64>(1000));
@@ -55,6 +55,7 @@ IceUtil::Time::microSeconds(Int64 t)
     return Time(t);
 }
 
+#ifndef _WIN32
 IceUtil::Time::operator timeval() const
 {
     timeval tv;
@@ -62,6 +63,7 @@ IceUtil::Time::operator timeval() const
     tv.tv_usec = static_cast<long>(_usec % 1000000);
     return tv;
 }
+#endif
 
 Int64
 IceUtil::Time::toSeconds() const
