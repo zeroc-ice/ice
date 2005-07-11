@@ -130,4 +130,5 @@ IceE:
     Trace.Slicing
     Warn.Connections
     Warn.Dispatch
+    Warn.Endpoints
     Warn.Leaks
