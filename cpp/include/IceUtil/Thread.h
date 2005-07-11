@@ -23,21 +23,22 @@ class Time;
 struct HandleWrapper : public Shared
 {
     // Inline for performance reasons.
-    HandleWrapper(HANDLE h) :
-	handle(h)
+    HandleWrapper(HANDLE h, bool r = true) :
+	handle(h), release(r)
     {
     }
 
     // Inline for performance reasons.
     virtual ~HandleWrapper()
     {
-	if(handle)
+	if(handle && release)
 	{
 	    CloseHandle(handle);
 	}
     }
 
     HANDLE handle;
+    bool release;
 };
 
 typedef Handle<HandleWrapper> HandleWrapperPtr;

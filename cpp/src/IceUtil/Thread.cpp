@@ -18,15 +18,8 @@ using namespace std;
 IceUtil::ThreadControl::ThreadControl()
 {
     IceUtil::Mutex::Lock lock(_stateMutex);
-    _handle = new HandleWrapper(0);
+    _handle = new HandleWrapper(GetCurrentThread(), false);
     _id = GetCurrentThreadId();
-    HANDLE proc = GetCurrentProcess();
-    HANDLE current = GetCurrentThread();
-    int rc = DuplicateHandle(proc, current, proc, &_handle->handle, SYNCHRONIZE, TRUE, 0);
-    if(rc == 0)
-    {
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-    }
 }
 
 IceUtil::ThreadControl::ThreadControl(const HandleWrapperPtr& handle, ThreadId id)
