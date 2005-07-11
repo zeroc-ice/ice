@@ -446,7 +446,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 		ex.str = unknownEndpoints.front();
 		throw ex;
 	    }
-	    else
+	    else if(unknownEndpoints.size() != 0)
 	    {
 		Warning out(_instance->logger());
 	        out << "Proxy contains unknown endpoints:";

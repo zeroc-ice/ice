@@ -437,7 +437,7 @@ namespace IceInternal
 		    e2.str = es;
 		    throw e2;
 		}
-		else
+		else if(unknownEndpoints.Count != 0)
 		{
 		    string msg = "Proxy contains unknown endpoints:";
 		    int sz = unknownEndpoints.Count;

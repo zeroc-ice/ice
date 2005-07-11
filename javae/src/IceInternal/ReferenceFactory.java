@@ -379,7 +379,7 @@ public final class ReferenceFactory
 		e.str = (String)unknownEndpoints.elementAt(0);
 		throw e;
 	    }
-	    else
+	    else if(unknownEndpoints.size() != 0)
 	    {
 	        String msg = "Proxy contains unknown endpoints:";
 		java.util.Enumeration e = unknownEndpoints.elements();
