@@ -349,6 +349,7 @@ public final class ReferenceFactory
 
 	if(s.charAt(beg) == ':')
 	{
+	    java.util.Vector unknownEndpoints = new java.util.Vector();
 	    end = beg;
 
 	    while(end < s.length() && s.charAt(end) == ':')
@@ -363,8 +364,32 @@ public final class ReferenceFactory
 		
 		String es = s.substring(beg, end);
 		Endpoint endp = _instance.endpointFactoryManager().create(es);
-		endpoints.addElement(endp);
+		if(endp != null)
+		{
+		    endpoints.addElement(endp);
+		}
+		else
+		{
+		    unknownEndpoints.addElement(es);
+		}
 	    }
+	    if(endpoints.size() == 0)
+	    {
+	        Ice.EndpointParseException e = new Ice.EndpointParseException();
+		e.str = (String)unknownEndpoints.get(0);
+		throw e;
+	    }
+	    else
+	    {
+	        String msg = "Proxy contains unknown endpoints:";
+		java.util.Iterator iter = unknownEndpoints.iterator();
+		while(iter.hasNext())
+		{
+		    msg += " `" + (String)iter.next() + "'";
+		}
+		_instance.logger().warning(msg);
+	    }
+
 	    Endpoint[] endp = new Endpoint[endpoints.size()];
 	    endpoints.copyInto(endp);
 	    return create(ident, new java.util.Hashtable(), facet, mode, endp, routerInfo);

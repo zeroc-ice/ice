@@ -55,9 +55,7 @@ IceInternal::EndpointFactory::create(const std::string& str) const
 	return new TcpEndpoint(_instance, str.substr(end));
     }
 
-    EndpointParseException ex(__FILE__, __LINE__);
-    ex.str = str;
-    throw ex;
+    return 0;
 }
 
 EndpointPtr

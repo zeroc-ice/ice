@@ -912,6 +912,12 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 
 	    String s = endpts.substring(beg, end);
 	    IceInternal.Endpoint endp = _instance.endpointFactoryManager().create(s);
+	    if(endp == null)
+	    {
+	        Ice.EndpointParseException e = new Ice.EndpointParseException();
+		e.str = s;
+		throw e;
+	    }
 	    endpoints.add(endp);
 
 	    ++end;

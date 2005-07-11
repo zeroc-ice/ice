@@ -98,9 +98,7 @@ public final class EndpointFactoryManager
             }
         }
 
-	Ice.EndpointParseException ex = new Ice.EndpointParseException();
-	ex.str = str;
-	throw ex;
+	return null;
     }
 
     public synchronized Endpoint

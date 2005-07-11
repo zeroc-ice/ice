@@ -934,6 +934,12 @@ namespace Ice
 
 		string s = endpts.Substring(beg, (end) - (beg));
 		IceInternal.Endpoint endp = _instance.endpointFactoryManager().create(s);
+		if(endp == null)
+		{
+		    Ice.EndpointParseException e2 = new Ice.EndpointParseException();
+		    e2.str = s;
+		    throw e2;
+		}
 		endpoints.Add(endp);
 
 		++end;

@@ -407,6 +407,7 @@ namespace IceInternal
 
 	    if(s[beg] == ':')
 	    {
+	        ArrayList unknownEndpoints = new ArrayList();
 		end = beg;
 
 		while(end < s.Length && s[end] == ':')
@@ -421,8 +422,32 @@ namespace IceInternal
 		    
 		    string es = s.Substring(beg, end - beg);
 		    Endpoint endp = _instance.endpointFactoryManager().create(es);
-		    endpoints.Add(endp);
+		    if(endp != null)
+		    {
+		        endpoints.Add(endp);
+		    }
+		    else
+		    {
+		        unknownEndpoints.Add(endp);
+		    }
 		}
+		if(endpoints.Count == 0)
+		{
+		    Ice.EndpointParseException e2 = new Ice.EndpointParseException();
+		    e2.str = es;
+		    throw e2;
+		}
+		else
+		{
+		    string msg = "Proxy contains unknown endpoints:";
+		    int sz = unknownEndpoints.Count;
+		    for(int idx = 0; idx < sz; ++idx)
+		    {
+		        msg += " `" + (string)unknownEndpoints[idx] + "'";
+		    }
+		    _instance.logger().warning(msg);
+		}
+
 		Endpoint[] ep = (Endpoint[])endpoints.ToArray(typeof(Endpoint));
 		return create(ident, new Ice.Context(), facet, mode, secure, ep, routerInfo, true);
 	    }

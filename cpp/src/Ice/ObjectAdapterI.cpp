@@ -879,6 +879,12 @@ Ice::ObjectAdapterI::parseEndpoints(const string& str) const
 	
 	string s = endpts.substr(beg, end - beg);
 	EndpointPtr endp = _instance->endpointFactoryManager()->create(s);
+	if(endp == 0)
+	{
+	    EndpointParseException ex(__FILE__, __LINE__);
+	    ex.str = s;
+	    throw ex;
+	}
 	endpoints.push_back(endp);
 
 	++end;

@@ -16,6 +16,7 @@
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocatorInfo.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/BasicStream.h>
 #include <IceUtil/StringUtil.h>
 
@@ -415,6 +416,7 @@ IceInternal::ReferenceFactory::create(const string& str)
     {
 	case ':':
 	{
+	    vector<string> unknownEndpoints;
 	    end = beg;
 	    
 	    while(end < s.length() && s[end] == ':')
@@ -429,8 +431,31 @@ IceInternal::ReferenceFactory::create(const string& str)
 		
 		string es = s.substr(beg, end - beg);
 		EndpointPtr endp = _instance->endpointFactoryManager()->create(es);
-		endpoints.push_back(endp);
+		if(endp != 0)
+		{
+		    endpoints.push_back(endp);
+		}
+		else
+		{
+		    unknownEndpoints.push_back(es);
+		}
 	    }
+	    if(endpoints.size() == 0)
+	    {
+	        EndpointParseException ex(__FILE__, __LINE__);
+		ex.str = unknownEndpoints.front();
+		throw ex;
+	    }
+	    else
+	    {
+		Warning out(_instance->logger());
+	        out << "Proxy contains unknown endpoints:";
+	        for(unsigned int idx = 0; idx < unknownEndpoints.size(); ++idx)
+		{
+		    out << " `" << unknownEndpoints[idx] << "'";
+		}
+	    }
+
 	    return create(ident, Context(), facet, mode, secure, endpoints, routerInfo, true);
 	    break;
 	}

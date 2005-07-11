@@ -102,9 +102,7 @@ IceInternal::EndpointFactoryManager::create(const string& str) const
         }
     }
 
-    EndpointParseException ex(__FILE__, __LINE__);
-    ex.str = str;
-    throw ex;
+    return 0;
 }
 
 EndpointPtr
