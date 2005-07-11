@@ -1,6 +1,11 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Parsing a stringified proxy no longer completely fails if the proxy 
+  contains an endpoint type which is unknown to the Ice runtime as long
+  as the proxy contains other endpoints which are known. A warning is 
+  printed for the unknown types that are encountered.
+
 - Ice::Object is now an abstract class that cannot be instantiated.
   This change should be transparent to application code.
 
