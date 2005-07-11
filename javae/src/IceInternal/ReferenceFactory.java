@@ -376,16 +376,16 @@ public final class ReferenceFactory
 	    if(endpoints.size() == 0)
 	    {
 	        Ice.EndpointParseException e = new Ice.EndpointParseException();
-		e.str = (String)unknownEndpoints.get(0);
+		e.str = (String)unknownEndpoints.elementAt(0);
 		throw e;
 	    }
 	    else
 	    {
 	        String msg = "Proxy contains unknown endpoints:";
-		java.util.Iterator iter = unknownEndpoints.iterator();
-		while(iter.hasNext())
+		java.util.Enumeration e = unknownEndpoints.elements();
+		while(e.hasMoreElements())
 		{
-		    msg += " `" + (String)iter.next() + "'";
+		    msg += " `" + (String)e.nextElement() + "'";
 		}
 		_instance.logger().warning(msg);
 	    }
