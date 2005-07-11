@@ -437,7 +437,8 @@ namespace IceInternal
 		    e2.str = es;
 		    throw e2;
 		}
-		else if(unknownEndpoints.Count != 0)
+		else if(unknownEndpoints.Count != 0 &&
+		        _instance.properties().getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0))
 		{
 		    string msg = "Proxy contains unknown endpoints:";
 		    int sz = unknownEndpoints.Count;

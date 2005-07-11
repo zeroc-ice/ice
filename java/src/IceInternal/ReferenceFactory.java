@@ -424,7 +424,8 @@ public final class ReferenceFactory
 		e.str = (String)unknownEndpoints.get(0);
 		throw e;
 	    }
-	    else if(unknownEndpoints.size() != 0)
+	    else if(unknownEndpoints.size() != 0 &&
+	           _instance.properties().getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
 	    {
 	        String msg = "Proxy contains unknown endpoints:";
 		java.util.Iterator iter = unknownEndpoints.iterator();

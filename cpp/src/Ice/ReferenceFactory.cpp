@@ -18,6 +18,7 @@
 #include <Ice/LocatorInfo.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/BasicStream.h>
+#include <Ice/Properties.h>
 #include <IceUtil/StringUtil.h>
 
 using namespace std;
@@ -446,7 +447,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 		ex.str = unknownEndpoints.front();
 		throw ex;
 	    }
-	    else if(unknownEndpoints.size() != 0)
+	    else if(unknownEndpoints.size() != 0 && 
+	    	    _instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
 	    {
 		Warning out(_instance->logger());
 	        out << "Proxy contains unknown endpoints:";

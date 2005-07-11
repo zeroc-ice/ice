@@ -157,6 +157,7 @@ Ice:
     Warn.Connections
     Warn.Datagrams
     Warn.Dispatch
+    Warn.Endpoints
     Warn.Leaks
 
 IceBox:
