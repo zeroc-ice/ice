@@ -558,7 +558,7 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> delegate;
 
     {
-	::Ice::Mutex::Lock sync(*from.get());
+	::IceUtil::Mutex::Lock sync(*from.get());
 
 	ref = from->_reference;
 	delegate = dynamic_cast< ::IceDelegate::Ice::Object*>(from->_delegate.get());
@@ -588,7 +588,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     // Only _delegate needs to be mutex protected here.
     //
     {
-	::Ice::Mutex::Lock sync(*this);
+	::IceUtil::Mutex::Lock sync(*this);
 	_delegate = 0;
     }
 
@@ -613,7 +613,7 @@ IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
     // Only _delegate needs to be mutex protected here.
     //
     {
-	::Ice::Mutex::Lock sync(*this);
+	::IceUtil::Mutex::Lock sync(*this);
 	_delegate = 0;
     }
 
@@ -639,7 +639,7 @@ IceProxy::Ice::Object::__checkTwowayOnly(const char* name) const
 ::IceInternal::Handle< ::IceDelegate::Ice::Object>
 IceProxy::Ice::Object::__getDelegate()
 {
-    ::Ice::Mutex::Lock sync(*this);
+    ::IceUtil::Mutex::Lock sync(*this);
 
     if(!_delegate)
     {

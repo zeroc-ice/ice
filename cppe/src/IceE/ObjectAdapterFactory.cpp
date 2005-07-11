@@ -25,7 +25,7 @@ IceInternal::ObjectAdapterFactory::shutdown()
     map<string, ObjectAdapterPtr> adapters;
 
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
 	//
 	// Ignore shutdown requests if the object adapter factory has
@@ -61,7 +61,7 @@ void
 IceInternal::ObjectAdapterFactory::waitForShutdown()
 {
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
 	//
 	// First we wait for the shutdown of the factory itself.
@@ -98,7 +98,7 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
     _adapters.clear();
 
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 	//
 	// Signal that waiting is complete.
@@ -111,7 +111,7 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
 ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name)
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(!_instance)
     {
@@ -132,7 +132,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name)
 ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(!_instance)
     {
@@ -174,7 +174,7 @@ IceInternal::ObjectAdapterFactory::flushBatchRequests() const
 {
     list<ObjectAdapterPtr> a;
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 	for(map<string, ObjectAdapterPtr>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
 	{

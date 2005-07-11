@@ -14,7 +14,7 @@
 #include <IceE/Lock.h>
 #include <IceE/ThreadException.h>
 
-namespace Ice
+namespace IceUtil
 {
 
 //
@@ -29,7 +29,7 @@ class Cond;
 //
 // In file included from Connection.cpp:20:
 // ../../include/IceE/Outgoing.h:88: warning: direct base
-// `Ice::noncopyable' inaccessible in `IceInternal::Outgoing' due
+// `IceUtil::noncopyable' inaccessible in `IceInternal::Outgoing' due
 // to ambiguity
 //
 class Mutex

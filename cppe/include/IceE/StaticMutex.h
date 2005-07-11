@@ -24,7 +24,7 @@
 #   endif
 #endif
 
-namespace Ice
+namespace IceUtil
 {
 
 //

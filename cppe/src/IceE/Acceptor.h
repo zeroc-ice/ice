@@ -32,7 +32,7 @@ namespace IceInternal
 // XXX: EndpointF?
 class Endpoint;
 
-class ICEE_API Acceptor : public ::Ice::Shared
+class ICEE_API Acceptor : public ::IceUtil::Shared
 {
 public:
 

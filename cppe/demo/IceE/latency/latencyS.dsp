@@ -182,7 +182,7 @@ USERDEP__LATEN="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"
 InputPath=.\Latency.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Latency.ice
+	slice2cppe.exe Latency.ice
 
 "Latency.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -198,7 +198,7 @@ USERDEP__LATEN="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"
 InputPath=.\Latency.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Latency.ice
+	slice2cppe.exe Latency.ice
 
 "Latency.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -214,7 +214,7 @@ USERDEP__LATEN="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"
 InputPath=.\Latency.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Latency.ice
+	slice2cppe.exe Latency.ice
 
 "Latency.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -230,7 +230,7 @@ USERDEP__LATEN="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"
 InputPath=.\Latency.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Latency.ice
+	slice2cppe.exe Latency.ice
 
 "Latency.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

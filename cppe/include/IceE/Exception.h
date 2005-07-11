@@ -23,7 +23,9 @@ class BasicStream;
 namespace Ice
 {
 
-class ICEE_API LocalException : public Ice::Exception
+typedef IceUtil::Exception Exception;
+
+class ICEE_API LocalException : public IceUtil::Exception
 {
 public:    
 
@@ -33,7 +35,7 @@ public:
     virtual void ice_throw() const = 0;
 };
 
-class ICEE_API UserException : public Ice::Exception
+class ICEE_API UserException : public IceUtil::Exception
 {
 public:    
 

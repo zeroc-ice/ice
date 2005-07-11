@@ -30,6 +30,6 @@ private:
     CEdit* _log;
 };
 
-typedef Ice::Handle<LogI> LogIPtr;
+typedef IceUtil::Handle<LogI> LogIPtr;
 
 #endif

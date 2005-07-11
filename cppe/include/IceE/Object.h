@@ -25,7 +25,7 @@ class BasicStream;
 namespace Ice
 {
 
-class ICEE_API Object : public Ice::Shared
+class ICEE_API Object : public IceUtil::Shared
 {
 public:
 

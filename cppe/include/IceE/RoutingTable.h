@@ -27,7 +27,7 @@ struct Identity;
 namespace IceInternal
 {
 
-class ICEE_API RoutingTable : public Ice::Shared, public Ice::Mutex
+class ICEE_API RoutingTable : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 

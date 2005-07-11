@@ -18,15 +18,15 @@
 #  endif
 #endif
 
-using namespace Ice;
+using namespace IceUtil;
 
-Time::Time() :
+IceUtil::Time::Time() :
     _usec(0)
 {
 }
 
 Time
-Ice::Time::now()
+IceUtil::Time::now()
 {
 #if defined(_WIN32_WCE)
     //
@@ -48,25 +48,25 @@ Ice::Time::now()
 }
 
 Time
-Ice::Time::seconds(Int64 t)
+IceUtil::Time::seconds(Int64 t)
 {
     return Time(t * static_cast<Int64>(1000000));
 }
 
 Time
-Ice::Time::milliSeconds(Int64 t)
+IceUtil::Time::milliSeconds(Int64 t)
 {
     return Time(t * static_cast<Int64>(1000));
 }
 
 Time
-Ice::Time::microSeconds(Int64 t)
+IceUtil::Time::microSeconds(Int64 t)
 {
     return Time(t);
 }
 
 #ifndef _WIN32
-Ice::Time::operator timeval() const
+IceUtil::Time::operator timeval() const
 {
     timeval tv;
     tv.tv_sec = static_cast<long>(_usec / 1000000);
@@ -76,37 +76,37 @@ Ice::Time::operator timeval() const
 #endif
 
 Int64
-Ice::Time::toSeconds() const
+IceUtil::Time::toSeconds() const
 {
     return _usec / 1000000;
 }
 
 Int64
-Ice::Time::toMilliSeconds() const
+IceUtil::Time::toMilliSeconds() const
 {
     return _usec / 1000;
 }
 
 Int64
-Ice::Time::toMicroSeconds() const
+IceUtil::Time::toMicroSeconds() const
 {
     return _usec;
 }
 
 double
-Ice::Time::toSecondsDouble() const
+IceUtil::Time::toSecondsDouble() const
 {
     return _usec / 1000000.0;
 }
 
 double
-Ice::Time::toMilliSecondsDouble() const
+IceUtil::Time::toMilliSecondsDouble() const
 {
     return _usec / 1000.0;
 }
 
 double
-Ice::Time::toMicroSecondsDouble() const
+IceUtil::Time::toMicroSecondsDouble() const
 {
     return static_cast<double>(_usec);
 }

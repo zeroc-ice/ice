@@ -17,7 +17,7 @@ namespace IceInternal
 
 class UserExceptionFactory;
 
-typedef ::Ice::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
+typedef ::IceUtil::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
 
 };
 

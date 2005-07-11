@@ -14,7 +14,7 @@
 using namespace std;
 using namespace Test;
 
-class CallbackBase : public Ice::Monitor<Ice::Mutex>
+class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -29,10 +29,10 @@ public:
 
     bool check()
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	while(!_called)
 	{
-	    if(!timedWait(Ice::Time::seconds(5)))
+	    if(!timedWait(IceUtil::Time::seconds(5)))
 	    {
 		return false;
 	    }
@@ -45,7 +45,7 @@ protected:
 
     void called()
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	assert(!_called);
 	_called = true;
 	notify();

@@ -172,6 +172,6 @@ private:
     Ice::Context _ctx;
 };
 
-typedef Ice::Handle<TestCheckedCastI> TestCheckedCastIPtr;
+typedef IceUtil::Handle<TestCheckedCastI> TestCheckedCastIPtr;
 
 #endif

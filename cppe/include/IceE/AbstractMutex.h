@@ -13,7 +13,7 @@
 #include <IceE/Config.h>
 #include <IceE/Lock.h>
 
-namespace Ice
+namespace IceUtil
 {
 
 class AbstractMutex

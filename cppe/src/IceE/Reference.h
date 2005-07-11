@@ -31,7 +31,7 @@ namespace IceInternal
 
 class BasicStream;
 
-class Reference : public Ice::Shared
+class Reference : public IceUtil::Shared
 {
 public:
 
@@ -117,7 +117,7 @@ private:
     Ice::Context _context;
     std::string _facet;
 
-    Ice::Mutex _hashMutex; // For lazy initialization of hash value.
+    IceUtil::Mutex _hashMutex; // For lazy initialization of hash value.
     mutable Ice::Int _hashValue;
     mutable bool _hashInitialized;
 };

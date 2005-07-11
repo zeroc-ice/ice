@@ -25,7 +25,7 @@
 namespace IceInternal
 {
 
-class OutgoingConnectionFactory : public Ice::Shared, public Ice::Monitor<Ice::Mutex>
+class OutgoingConnectionFactory : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 

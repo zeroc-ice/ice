@@ -16,20 +16,20 @@ using namespace std;
 
 #   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
 
-Ice::RecMutex::RecMutex() :
+IceUtil::RecMutex::RecMutex() :
     _count(0)
 {
     InitializeCriticalSection(&_mutex);
 }
 
-Ice::RecMutex::~RecMutex()
+IceUtil::RecMutex::~RecMutex()
 {
     assert(_count == 0);
     DeleteCriticalSection(&_mutex);
 }
 
 void
-Ice::RecMutex::lock() const
+IceUtil::RecMutex::lock() const
 {
     EnterCriticalSection(&_mutex);
     if(++_count > 1)
@@ -39,7 +39,7 @@ Ice::RecMutex::lock() const
 }
 
 bool
-Ice::RecMutex::tryLock() const
+IceUtil::RecMutex::tryLock() const
 {
     if(!TryEnterCriticalSection(&_mutex))
     {
@@ -53,7 +53,7 @@ Ice::RecMutex::tryLock() const
 }
 
 void
-Ice::RecMutex::unlock() const
+IceUtil::RecMutex::unlock() const
 {
     if(--_count == 0)
     {
@@ -62,7 +62,7 @@ Ice::RecMutex::unlock() const
 }
 
 void
-Ice::RecMutex::unlock(LockState& state) const
+IceUtil::RecMutex::unlock(LockState& state) const
 {
     state.count = _count;
     _count = 0;
@@ -70,7 +70,7 @@ Ice::RecMutex::unlock(LockState& state) const
 }
 
 void
-Ice::RecMutex::lock(LockState& state) const
+IceUtil::RecMutex::lock(LockState& state) const
 {
     EnterCriticalSection(&_mutex);
     _count = state.count;
@@ -78,7 +78,7 @@ Ice::RecMutex::lock(LockState& state) const
 
 #   else
 
-Ice::RecMutex::RecMutex() :
+IceUtil::RecMutex::RecMutex() :
     _count(0)
 {
     _mutex = CreateMutex(0, false, 0);
@@ -88,7 +88,7 @@ Ice::RecMutex::RecMutex() :
     }
 }
 
-Ice::RecMutex::~RecMutex()
+IceUtil::RecMutex::~RecMutex()
 {
     assert(_count == 0);
     BOOL rc = CloseHandle(_mutex);
@@ -99,7 +99,7 @@ Ice::RecMutex::~RecMutex()
 }
 
 void
-Ice::RecMutex::lock() const
+IceUtil::RecMutex::lock() const
 {
     DWORD rc = WaitForSingleObject(_mutex, INFINITE);
     if(rc != WAIT_OBJECT_0)
@@ -125,7 +125,7 @@ Ice::RecMutex::lock() const
 }
 
 bool
-Ice::RecMutex::tryLock() const
+IceUtil::RecMutex::tryLock() const
 {
     DWORD rc = WaitForSingleObject(_mutex, 0);
     if(rc != WAIT_OBJECT_0)
@@ -144,7 +144,7 @@ Ice::RecMutex::tryLock() const
 }
 
 void
-Ice::RecMutex::unlock() const
+IceUtil::RecMutex::unlock() const
 {
     if(--_count == 0)
     {
@@ -157,7 +157,7 @@ Ice::RecMutex::unlock() const
 }
 
 void
-Ice::RecMutex::unlock(LockState& state) const
+IceUtil::RecMutex::unlock(LockState& state) const
 {
     state.count = _count;
     _count = 0;
@@ -169,7 +169,7 @@ Ice::RecMutex::unlock(LockState& state) const
 }
 
 void
-Ice::RecMutex::lock(LockState& state) const
+IceUtil::RecMutex::lock(LockState& state) const
 {
     DWORD rc = WaitForSingleObject(_mutex, INFINITE);
     if(rc != WAIT_OBJECT_0)
@@ -191,7 +191,7 @@ Ice::RecMutex::lock(LockState& state) const
 
 #else
 
-Ice::RecMutex::RecMutex() :
+IceUtil::RecMutex::RecMutex() :
     _count(0)
 {
     int rc;
@@ -229,7 +229,7 @@ Ice::RecMutex::RecMutex() :
 #endif
 }
 
-Ice::RecMutex::~RecMutex()
+IceUtil::RecMutex::~RecMutex()
 {
     assert(_count == 0);
     int rc = 0;
@@ -238,7 +238,7 @@ Ice::RecMutex::~RecMutex()
 }
 
 void
-Ice::RecMutex::lock() const
+IceUtil::RecMutex::lock() const
 {
     int rc = pthread_mutex_lock(&_mutex);
     if(rc != 0)
@@ -253,7 +253,7 @@ Ice::RecMutex::lock() const
 }
 
 bool
-Ice::RecMutex::tryLock() const
+IceUtil::RecMutex::tryLock() const
 {
     int rc = pthread_mutex_trylock(&_mutex);
     bool result = (rc == 0);
@@ -276,7 +276,7 @@ Ice::RecMutex::tryLock() const
 }
 
 void
-Ice::RecMutex::unlock() const
+IceUtil::RecMutex::unlock() const
 {
     if(--_count == 0)
     {
@@ -287,7 +287,7 @@ Ice::RecMutex::unlock() const
 }
 
 void
-Ice::RecMutex::unlock(LockState& state) const
+IceUtil::RecMutex::unlock(LockState& state) const
 {
     state.mutex = &_mutex;
     state.count = _count;
@@ -295,7 +295,7 @@ Ice::RecMutex::unlock(LockState& state) const
 }
 
 void
-Ice::RecMutex::lock(LockState& state) const
+IceUtil::RecMutex::lock(LockState& state) const
 {
     _count = state.count;
 }
@@ -303,7 +303,7 @@ Ice::RecMutex::lock(LockState& state) const
 #endif
 
 bool
-Ice::RecMutex::willUnlock() const
+IceUtil::RecMutex::willUnlock() const
 {
     return _count == 1;
 }

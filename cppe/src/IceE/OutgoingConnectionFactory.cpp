@@ -33,7 +33,7 @@ void IceInternal::decRef(OutgoingConnectionFactory* p) { p->__decRef(); }
 void
 IceInternal::OutgoingConnectionFactory::destroy()
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -61,7 +61,7 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
     multimap<EndpointPtr, ConnectionPtr> connections;
 
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
 	//
 	// First we wait until the factory is destroyed. We also wait
@@ -91,7 +91,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
     vector<EndpointPtr> endpoints = endpts;
 
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 	if(_destroyed)
 	{
@@ -294,7 +294,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
     }
     
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
 	//
 	// Signal other threads that we are done with trying to
@@ -333,7 +333,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 void
 IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -395,7 +395,7 @@ IceInternal::OutgoingConnectionFactory::flushBatchRequests()
     list<ConnectionPtr> c;
 
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 	for(std::multimap<EndpointPtr, ConnectionPtr>::const_iterator p = _connections.begin();
 	    p != _connections.end();
@@ -436,7 +436,7 @@ IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
 void
 IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& adapter)
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     if(_destroyed)
     {

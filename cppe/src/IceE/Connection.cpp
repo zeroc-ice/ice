@@ -53,7 +53,7 @@ Ice::operator<(const Connection& l, const Connection& r)
 void
 Ice::Connection::waitForValidation()
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     while(_state == StateNotValidated)
     {
@@ -71,14 +71,14 @@ Ice::Connection::waitForValidation()
 void
 Ice::Connection::activate()
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateActive);
 }
 
 void
 Ice::Connection::hold()
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateHolding);
 }
 #endif
@@ -86,7 +86,7 @@ Ice::Connection::hold()
 void
 Ice::Connection::destroy(DestructionReason reason)
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     switch(reason)
     {
@@ -109,7 +109,7 @@ Ice::Connection::destroy(DestructionReason reason)
 void
 Ice::Connection::close(bool force)
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(force)
     {
@@ -129,7 +129,7 @@ Ice::Connection::isDestroyed() const
     // factory might return destroyed (closing or closed) connections,
     // resulting in connection retry exhaustion.
     //
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     return _state >= StateClosing;
 }
@@ -137,7 +137,7 @@ Ice::Connection::isDestroyed() const
 bool
 Ice::Connection::isFinished() const
 {
-    Ice::ThreadPtr threadPerConnection;
+    IceUtil::ThreadPtr threadPerConnection;
 
     {
 	//
@@ -145,7 +145,7 @@ Ice::Connection::isFinished() const
 	// threads operating in this connection object, connection
 	// destruction is considered as not yet finished.
 	//
-	Ice::Monitor<Ice::Mutex>::TryLock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::TryLock sync(*this);
 	
 	if(!sync.acquired())
 	{
@@ -173,7 +173,7 @@ Ice::Connection::isFinished() const
 void
 Ice::Connection::waitUntilHolding() const
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     while(_state < StateHolding || _dispatchCount > 0)
     {
@@ -185,10 +185,10 @@ Ice::Connection::waitUntilHolding() const
 void
 Ice::Connection::waitUntilFinished()
 {
-    Ice::ThreadPtr threadPerConnection;
+    IceUtil::ThreadPtr threadPerConnection;
 
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
 	//
 	// We wait indefinitely until connection closing has been
@@ -210,10 +210,10 @@ Ice::Connection::waitUntilFinished()
 	{
 	    if(_state != StateClosed && _endpoint->timeout() >= 0)
 	    {
-		Ice::Time timeout = Ice::Time::milliSeconds(_endpoint->timeout());
-		Ice::Time waitTime = _stateTime + timeout - Ice::Time::now();
+		IceUtil::Time timeout = IceUtil::Time::milliSeconds(_endpoint->timeout());
+		IceUtil::Time waitTime = _stateTime + timeout - IceUtil::Time::now();
 		
-		if(waitTime > Ice::Time())
+		if(waitTime > IceUtil::Time())
 		{
 		    //
 		    // We must wait a bit longer until we close this
@@ -271,7 +271,7 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
     Int requestId;
 
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 	if(_exception.get())
 	{
@@ -315,7 +315,7 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 
     try
     {
-	Ice::Mutex::Lock sendSync(_sendMutex);
+	IceUtil::Mutex::Lock sendSync(_sendMutex);
 
 	if(!_transceiver) // Has the transceiver already been closed?
 	{
@@ -340,7 +340,7 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
     }
     catch(const LocalException& ex)
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	setState(StateClosed, ex);
 	assert(_exception.get());
 
@@ -387,7 +387,7 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 void
 Ice::Connection::prepareBatchRequest(BasicStream* os)
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     //
     // Wait if flushing is currently in progress.
@@ -430,7 +430,7 @@ Ice::Connection::prepareBatchRequest(BasicStream* os)
 void
 Ice::Connection::finishBatchRequest(BasicStream* os)
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     //
     // Get the batch stream back and increment the number of requests
@@ -450,7 +450,7 @@ Ice::Connection::finishBatchRequest(BasicStream* os)
 void
 Ice::Connection::abortBatchRequest()
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     //
     // Destroy and reset the batch stream and batch count. We cannot
@@ -474,7 +474,7 @@ void
 Ice::Connection::flushBatchRequests()
 {
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 	while(_batchStreamInUse && !_exception.get())
 	{
@@ -505,7 +505,7 @@ Ice::Connection::flushBatchRequests()
     
     try
     {
-	Ice::Mutex::Lock sendSync(_sendMutex);
+	IceUtil::Mutex::Lock sendSync(_sendMutex);
 
 	if(!_transceiver) // Has the transceiver already been closed?
 	{
@@ -540,7 +540,7 @@ Ice::Connection::flushBatchRequests()
     }
     catch(const LocalException& ex)
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	setState(StateClosed, ex);
 	assert(_exception.get());
 
@@ -552,7 +552,7 @@ Ice::Connection::flushBatchRequests()
     }
 
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 	//
 	// Reset the batch stream, and notify that flushing is over.
@@ -572,7 +572,7 @@ Ice::Connection::sendResponse(BasicStream* os)
 {
     try
     {
-	Ice::Mutex::Lock sendSync(_sendMutex);
+	IceUtil::Mutex::Lock sendSync(_sendMutex);
 
 	if(!_transceiver) // Has the transceiver already been closed?
 	{
@@ -597,12 +597,12 @@ Ice::Connection::sendResponse(BasicStream* os)
     }
     catch(const LocalException& ex)
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	setState(StateClosed, ex);
     }
 
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 	assert(_state > StateNotValidated);
 
@@ -628,7 +628,7 @@ Ice::Connection::sendResponse(BasicStream* os)
 void
 Ice::Connection::sendNoResponse()
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     assert(_state > StateNotValidated);
 
@@ -673,7 +673,7 @@ Ice::Connection::createProxy(const Identity& ident) const
 void
 Ice::Connection::exception(const LocalException& ex)
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateClosed, ex);
 }
 
@@ -731,7 +731,7 @@ Ice::Connection::Connection(const InstancePtr& instance,
     _requestsHint(_requests.end()),
     _dispatchCount(0),
     _state(StateNotValidated),
-    _stateTime(Ice::Time::now())
+    _stateTime(IceUtil::Time::now())
 {
     vector<Byte>& requestHdr = const_cast<vector<Byte>&>(_requestHdr);
     requestHdr[0] = magic[0];
@@ -812,7 +812,7 @@ Ice::Connection::Connection(const InstancePtr& instance,
 
 Ice::Connection::~Connection()
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     assert(_state == StateClosed);
     assert(!_transceiver);
@@ -827,7 +827,7 @@ Ice::Connection::validate()
     bool active;
 
     {
-        Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	    
         assert(_state == StateNotValidated);
         
@@ -946,7 +946,7 @@ Ice::Connection::validate()
     }
     catch(const LocalException& ex)
     {
-        Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         setState(StateClosed, ex);
         assert(_exception.get());
         _exception->ice_throw();
@@ -954,7 +954,7 @@ Ice::Connection::validate()
 
 #ifndef ICEE_PURE_CLIENT
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
 	//
 	// We start out in holding state.
@@ -963,7 +963,7 @@ Ice::Connection::validate()
     }
 #else
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
 	//
 	// We start out in active state.
@@ -1107,7 +1107,7 @@ Ice::Connection::setState(State state)
     }
 
     _state = state;
-    _stateTime = Ice::Time::now();
+    _stateTime = IceUtil::Time::now();
 
     notifyAll();
 
@@ -1130,7 +1130,7 @@ Ice::Connection::initiateShutdown() const
     assert(_state == StateClosing);
     assert(_dispatchCount == 0);
 
-    Ice::Mutex::Lock sendSync(_sendMutex);
+    IceUtil::Mutex::Lock sendSync(_sendMutex);
 
     //
     // Before we shut down, we send a close connection message.
@@ -1368,19 +1368,19 @@ Ice::Connection::invokeAll(BasicStream& stream, Int invokeNum, Int requestId,
     }
     catch(const LocalException& ex)
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	setState(StateClosed, ex);
     }
     catch(const std::exception& ex)
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	UnknownException uex(__FILE__, __LINE__);
 	uex.unknown = string("std::exception: ") + ex.what();
 	setState(StateClosed, uex);
     }
     catch(...)
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	UnknownException uex(__FILE__, __LINE__);
 	uex.unknown = "unknown c++ exception";
 	setState(StateClosed, uex);
@@ -1393,7 +1393,7 @@ Ice::Connection::invokeAll(BasicStream& stream, Int invokeNum, Int requestId,
     //
     if(invokeNum > 0)
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	assert(_dispatchCount > 0);
 	_dispatchCount -= invokeNum;
 	assert(_dispatchCount >= 0);
@@ -1419,7 +1419,7 @@ Ice::Connection::run()
     }
     catch(const LocalException&)
     {
-        Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         
         assert(_state == StateClosed);
         
@@ -1427,7 +1427,7 @@ Ice::Connection::run()
         // We must make sure that nobody is sending when we close
         // the transceiver.
         //
-        Ice::Mutex::Lock sendSync(_sendMutex);
+        IceUtil::Mutex::Lock sendSync(_sendMutex);
         
         try
         {
@@ -1444,7 +1444,7 @@ Ice::Connection::run()
     }
 	
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	setState(StateActive);
     }
 
@@ -1545,7 +1545,7 @@ Ice::Connection::run()
 	map<Int, Outgoing*> requests;
 
 	{
-	    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 #ifndef ICEE_PURE_CLIENT
 	    while(_state == StateHolding)
@@ -1573,7 +1573,7 @@ Ice::Connection::run()
 		// We must make sure that nobody is sending when we close
 		// the transceiver.
 		//
-		Ice::Mutex::Lock sendSync(_sendMutex);
+		IceUtil::Mutex::Lock sendSync(_sendMutex);
 		
 		try
 		{
@@ -1660,7 +1660,7 @@ Ice::Connection::ThreadPerConnection::run()
 void
 Ice::Connection::setAdapter(const ObjectAdapterPtr& adapter)
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(_exception.get())
     {
@@ -1704,7 +1704,7 @@ Ice::Connection::setAdapter(const ObjectAdapterPtr& adapter)
 ObjectAdapterPtr
 Ice::Connection::getAdapter() const
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     return _adapter;
 }
 #endif

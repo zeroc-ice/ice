@@ -21,7 +21,7 @@
 namespace Ice
 {
 
-class ICEE_API Communicator : public ::Ice::RecMutex, public ::Ice::Shared
+class ICEE_API Communicator : public ::IceUtil::RecMutex, public ::IceUtil::Shared
 {
 public:
     

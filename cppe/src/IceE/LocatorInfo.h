@@ -24,7 +24,7 @@
 namespace IceInternal
 {
 
-class LocatorManager : public Ice::Shared, public Ice::Mutex
+class LocatorManager : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
@@ -46,7 +46,7 @@ private:
     std::map<Ice::Identity, LocatorTablePtr> _locatorTables;
 };
 
-class LocatorTable : public Ice::Shared, public Ice::Mutex
+class LocatorTable : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
@@ -68,7 +68,7 @@ private:
     std::map<Ice::Identity, Ice::ObjectPrx > _objectMap;
 };
 
-class LocatorInfo : public Ice::Shared, public Ice::Mutex
+class LocatorInfo : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 

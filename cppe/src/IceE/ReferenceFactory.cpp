@@ -171,7 +171,7 @@ IceInternal::ReferenceFactory::create(const string& str)
     // or double quotation marks.
     //
     string idstr;
-    end = Ice::checkQuote(s, beg);
+    end = IceUtil::checkQuote(s, beg);
     if(end == string::npos)
     {
 	ProxyParseException ex(__FILE__, __LINE__);
@@ -284,7 +284,7 @@ IceInternal::ReferenceFactory::create(const string& str)
             if(s[argumentBeg] != '@' && s[argumentBeg] != ':' && s[argumentBeg] != '-')
             {
                 beg = argumentBeg;
-                end = Ice::checkQuote(s, beg);
+                end = IceUtil::checkQuote(s, beg);
                 if(end == string::npos)
                 {
 		    ProxyParseException ex(__FILE__, __LINE__);
@@ -324,7 +324,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 		    throw ex;
 		}
 
-		if(!Ice::unescapeString(argument, 0, argument.size(), facet))
+		if(!IceUtil::unescapeString(argument, 0, argument.size(), facet))
 		{
 		    ProxyParseException ex(__FILE__, __LINE__);
 		    ex.str = str;
@@ -599,14 +599,14 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 void
 IceInternal::ReferenceFactory::setDefaultRouter(const RouterPrx& defaultRouter)
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     _defaultRouter = defaultRouter;
 }
 
 RouterPrx
 IceInternal::ReferenceFactory::getDefaultRouter() const
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return _defaultRouter;
 }
 
@@ -617,14 +617,14 @@ IceInternal::ReferenceFactory::getDefaultRouter() const
 void
 IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrx& defaultLocator)
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     _defaultLocator = defaultLocator;
 }
 
 LocatorPrx
 IceInternal::ReferenceFactory::getDefaultLocator() const
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return _defaultLocator;
 }
 

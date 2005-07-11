@@ -12,39 +12,39 @@
 
 using namespace std;
 
-namespace Ice
+namespace IceUtil
 {
 
 bool ICEE_API nullHandleAbort = false;
 
 };
 
-Ice::Exception::Exception() :
+IceUtil::Exception::Exception() :
     _file(0),
     _line(0)
 {
 }
     
-Ice::Exception::Exception(const char* file, int line) :
+IceUtil::Exception::Exception(const char* file, int line) :
     _file(file),
     _line(line)
 {
 }
     
-Ice::Exception::~Exception()
+IceUtil::Exception::~Exception()
 {
 }
 
-const char* Ice::Exception::_name = "Ice::Exception";
+const char* IceUtil::Exception::_name = "IceUtil::Exception";
 
 const string
-Ice::Exception::ice_name() const
+IceUtil::Exception::ice_name() const
 {
     return _name;
 }
 
 string
-Ice::Exception::toString() const
+IceUtil::Exception::toString() const
 {
     string out;
     if(_file && _line > 0)
@@ -55,31 +55,31 @@ Ice::Exception::toString() const
     return out;
 }
 
-Ice::Exception*
-Ice::Exception::ice_clone() const
+IceUtil::Exception*
+IceUtil::Exception::ice_clone() const
 {
     return new Exception(*this);
 }
 
 void
-Ice::Exception::ice_throw() const
+IceUtil::Exception::ice_throw() const
 {
     throw *this;
 }
 
 const char*
-Ice::Exception::ice_file() const
+IceUtil::Exception::ice_file() const
 {
     return _file;
 }
 
 int
-Ice::Exception::ice_line() const
+IceUtil::Exception::ice_line() const
 {
     return _line;
 }
 
-Ice::NullHandleException::NullHandleException(const char* file, int line) :
+IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
     Exception(file, line)
 {
     if(nullHandleAbort)
@@ -95,22 +95,22 @@ Ice::NullHandleException::NullHandleException(const char* file, int line) :
     }
 }
 
-const char* Ice::NullHandleException::_name = "Ice::NullHandleException";
+const char* IceUtil::NullHandleException::_name = "IceUtil::NullHandleException";
 
 const string
-Ice::NullHandleException::ice_name() const
+IceUtil::NullHandleException::ice_name() const
 {
     return _name;
 }
 
-Ice::Exception*
-Ice::NullHandleException::ice_clone() const
+IceUtil::Exception*
+IceUtil::NullHandleException::ice_clone() const
 {
     return new NullHandleException(*this);
 }
 
 void
-Ice::NullHandleException::ice_throw() const
+IceUtil::NullHandleException::ice_throw() const
 {
     throw *this;
 }

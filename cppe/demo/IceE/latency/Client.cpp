@@ -36,7 +36,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // Initial ping to setup the connection.
     ping->ice_ping();
 
-    Ice::Time tm = Ice::Time::now();
+    IceUtil::Time tm = IceUtil::Time::now();
 
     const int repetitions = 100000;
     printf("pinging server %d times (this may take a while)\n", repetitions);
@@ -45,7 +45,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	ping->ice_ping();
     }
 
-    tm = Ice::Time::now() - tm;
+    tm = IceUtil::Time::now() - tm;
 
     printf("time for %d pings: %fms\n", repetitions, tm.toMilliSecondsDouble());
     printf("time per ping: %fms\n", tm.toMilliSecondsDouble() / repetitions);

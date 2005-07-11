@@ -22,7 +22,7 @@
 namespace IceInternal
 {
 
-class ObjectAdapterFactory : public ::Ice::Shared, public ::Ice::Monitor< ::Ice::Mutex>
+class ObjectAdapterFactory : public ::IceUtil::Shared, public ::IceUtil::Monitor< ::IceUtil::Mutex>
 {
 public:
 

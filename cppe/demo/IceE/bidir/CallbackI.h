@@ -16,9 +16,9 @@
 #include <set>
 
 class CallbackSenderI;
-typedef Ice::Handle<CallbackSenderI> CallbackSenderIPtr;
+typedef IceUtil::Handle<CallbackSenderI> CallbackSenderIPtr;
 
-class CallbackSenderI : public Demo::CallbackSender, public Ice::Monitor<Ice::Mutex>
+class CallbackSenderI : public Demo::CallbackSender, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
     
@@ -38,12 +38,12 @@ private:
     std::set<Demo::CallbackReceiverPrx> _clients;
 
     //
-    // We cannot derive CallbackSenderI from Ice::Thread, because
+    // We cannot derive CallbackSenderI from IceUtil::Thread, because
     // CallbackSenderI uses Ice::GCShared as base, and
-    // Ice::Thread uses Ice::Shared as base. These two base
+    // IceUtil::Thread uses IceUtil::Shared as base. These two base
     // classes are not compatible. Therefore we use this helper class.
     //
-    class CallbackSenderThread : public Ice::Thread
+    class CallbackSenderThread : public IceUtil::Thread
     {
     public:
 
@@ -62,7 +62,7 @@ private:
 	CallbackSenderIPtr _callbackSender;
     };
 
-    Ice::ThreadPtr _callbackSenderThread;
+    IceUtil::ThreadPtr _callbackSenderThread;
 
 };
 

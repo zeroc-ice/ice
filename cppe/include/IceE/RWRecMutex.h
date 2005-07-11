@@ -14,7 +14,7 @@
 #include <IceE/Cond.h>
 #include <IceE/Thread.h>
 
-namespace Ice
+namespace IceUtil
 {
 
 template <typename T>

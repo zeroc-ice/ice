@@ -20,7 +20,7 @@ namespace Ice
 
 typedef ::std::map< ::std::string, ::std::string> PropertyDict;
 
-class ICEE_API Properties : public Ice::Mutex, public ::Ice::Shared
+class ICEE_API Properties : public IceUtil::Mutex, public ::IceUtil::Shared
 {
 public:
     

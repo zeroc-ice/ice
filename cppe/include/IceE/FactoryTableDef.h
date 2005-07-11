@@ -18,7 +18,7 @@
 namespace Ice
 {
 
-class ICEE_API FactoryTableDef : private Ice::noncopyable
+class ICEE_API FactoryTableDef : private IceUtil::noncopyable
 {
 public:
 
@@ -28,14 +28,14 @@ public:
 
 private:
 
-    Ice::Mutex _m;
+    IceUtil::Mutex _m;
 
     typedef ::std::pair<IceInternal::UserExceptionFactoryPtr, int> EFPair;
     typedef ::std::map< ::std::string, EFPair> EFTable;
     EFTable _eft;
 };
 
-class ICEE_API FactoryTableWrapper : private Ice::noncopyable
+class ICEE_API FactoryTableWrapper : private IceUtil::noncopyable
 {
 public:
 
@@ -48,7 +48,7 @@ private:
 
     void initialize();
     void finalize();
-    static Ice::StaticMutex _m;
+    static IceUtil::StaticMutex _m;
     static int _initCount;
 };
 

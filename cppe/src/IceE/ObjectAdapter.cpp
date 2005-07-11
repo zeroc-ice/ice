@@ -78,7 +78,7 @@ Ice::ObjectAdapter::getName() const
 CommunicatorPtr
 Ice::ObjectAdapter::getCommunicator() const
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
 
@@ -94,7 +94,7 @@ Ice::ObjectAdapter::activate()
     bool printAdapterReady = false;
 
     {    
-	Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 	
 	checkForDeactivation();
 
@@ -163,7 +163,7 @@ Ice::ObjectAdapter::activate()
 void
 Ice::ObjectAdapter::hold()
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
 	
@@ -174,7 +174,7 @@ Ice::ObjectAdapter::hold()
 void
 Ice::ObjectAdapter::waitForHold()
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
 
@@ -189,7 +189,7 @@ Ice::ObjectAdapter::deactivate()
     OutgoingConnectionFactoryPtr outgoingConnectionFactory;
 
     {
-	Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 	
 	//
 	// Ignore deactivation requests if the object adapter has already
@@ -228,7 +228,7 @@ void
 Ice::ObjectAdapter::waitForDeactivate()
 {
     {
-	Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
 	//
 	// First we wait for deactivation of the adapter itself, and for
@@ -267,7 +267,7 @@ Ice::ObjectAdapter::waitForDeactivate()
     }
 
     {
-	Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
 	//
 	// Signal that waiting is complete.
@@ -299,7 +299,7 @@ Ice::ObjectAdapter::add(const ObjectPtr& object, const Identity& ident)
 ObjectPrx
 Ice::ObjectAdapter::addFacet(const ObjectPtr& object, const Identity& ident, const string& facet)
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
     checkIdentity(ident);
@@ -319,7 +319,7 @@ ObjectPrx
 Ice::ObjectAdapter::addFacetWithUUID(const ObjectPtr& object, const string& facet)
 {
     Identity ident;
-    ident.name = Ice::generateUUID();
+    ident.name = IceUtil::generateUUID();
     return addFacet(object, ident, facet);
 }
 
@@ -332,7 +332,7 @@ Ice::ObjectAdapter::remove(const Identity& ident)
 ObjectPtr
 Ice::ObjectAdapter::removeFacet(const Identity& ident, const string& facet)
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
     checkIdentity(ident);
@@ -343,7 +343,7 @@ Ice::ObjectAdapter::removeFacet(const Identity& ident, const string& facet)
 FacetMap
 Ice::ObjectAdapter::removeAllFacets(const Identity& ident)
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
     checkIdentity(ident);
@@ -360,7 +360,7 @@ Ice::ObjectAdapter::find(const Identity& ident) const
 ObjectPtr
 Ice::ObjectAdapter::findFacet(const Identity& ident, const string& facet) const
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
     checkIdentity(ident);
@@ -371,7 +371,7 @@ Ice::ObjectAdapter::findFacet(const Identity& ident, const string& facet) const
 FacetMap
 Ice::ObjectAdapter::findAllFacets(const Identity& ident) const
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
     checkIdentity(ident);
@@ -382,7 +382,7 @@ Ice::ObjectAdapter::findAllFacets(const Identity& ident) const
 ObjectPtr
 Ice::ObjectAdapter::findByProxy(const ObjectPrx& proxy) const
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
 
@@ -393,7 +393,7 @@ Ice::ObjectAdapter::findByProxy(const ObjectPrx& proxy) const
 ObjectPrx
 Ice::ObjectAdapter::createProxy(const Identity& ident) const
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
     checkIdentity(ident);
@@ -404,7 +404,7 @@ Ice::ObjectAdapter::createProxy(const Identity& ident) const
 ObjectPrx
 Ice::ObjectAdapter::createDirectProxy(const Identity& ident) const
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
     checkForDeactivation();
     checkIdentity(ident);
@@ -415,7 +415,7 @@ Ice::ObjectAdapter::createDirectProxy(const Identity& ident) const
 ObjectPrx
 Ice::ObjectAdapter::createReverseProxy(const Identity& ident) const
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
     checkForDeactivation();
     checkIdentity(ident);
@@ -445,7 +445,7 @@ void
 Ice::ObjectAdapter::addRouter(const RouterPrx& router)
 {
 #ifdef ICEE_HAS_ROUTER
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
     checkForDeactivation();
 
@@ -485,7 +485,7 @@ void
 Ice::ObjectAdapter::setLocator(const LocatorPrx& locator)
 {
 #ifdef ICEE_HAS_LOCATOR
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
     checkForDeactivation();
 
@@ -496,7 +496,7 @@ Ice::ObjectAdapter::setLocator(const LocatorPrx& locator)
 bool
 Ice::ObjectAdapter::isLocal(const ObjectPrx& proxy) const
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
 
@@ -560,7 +560,7 @@ Ice::ObjectAdapter::flushBatchRequests()
 {
     vector<IncomingConnectionFactoryPtr> f;
     {
-	Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 	f = _incomingConnectionFactories;
     }
     for_each(f.begin(), f.end(), Ice::voidMemFun(&IncomingConnectionFactory::flushBatchRequests));
@@ -569,7 +569,7 @@ Ice::ObjectAdapter::flushBatchRequests()
 void
 Ice::ObjectAdapter::incDirectCount()
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
  
     checkForDeactivation();
 
@@ -580,7 +580,7 @@ Ice::ObjectAdapter::incDirectCount()
 void
 Ice::ObjectAdapter::decDirectCount()
 {
-    Ice::Monitor<Ice::RecMutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     // Not check for deactivation here!
 

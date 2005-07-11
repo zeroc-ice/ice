@@ -40,7 +40,7 @@ public:
 	sprintf(buf, "%ld", GetTickCount());
 	s += buf;
 #else
- 	s += Ice::Time::now().toMilliSeconds();
+ 	s += IceUtil::Time::now().toMilliSeconds();
 #endif
 	s += ' ';
 	
@@ -87,7 +87,7 @@ public:
 static FILE* _tprintfp = 0;
 static HWND hEdit;
 static HWND mainWnd;
-static Ice::ThreadControl mainThread;
+static IceUtil::ThreadControl mainThread;
 
 void
 tprintf(const char* fmt, ...)
@@ -130,7 +130,7 @@ tprintf(const char* fmt, ...)
 	// to the main thread to do the EM_REPLACESEL. Calling SendMessage
 	// from a thread other than main is not permitted.
 	//
-	if(Ice::ThreadControl() != mainThread)
+	if(IceUtil::ThreadControl() != mainThread)
 	{
 	    wchar_t* wtext = new wchar_t[sizeof(wchar_t) * (curr - start)+1];
 	    mbstowcs(wtext, start, (curr - start) + 1);
@@ -159,7 +159,7 @@ tprintf(const char* fmt, ...)
     //
     // Process pending events.
     //
-    if(Ice::ThreadControl() == mainThread)
+    if(IceUtil::ThreadControl() == mainThread)
     {
 	MSG Msg;
 	while(PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
@@ -334,12 +334,12 @@ TestApplication::main(HINSTANCE hInstance)
 }
 #else
 
-static Ice::StaticMutex tprintMutex = ICEE_STATIC_MUTEX_INITIALIZER;
+static IceUtil::StaticMutex tprintMutex = ICEE_STATIC_MUTEX_INITIALIZER;
 
 void
 tprintf(const char* fmt, ...)
 {
-    Ice::StaticMutex::Lock sync(tprintMutex);
+    IceUtil::StaticMutex::Lock sync(tprintMutex);
 
     va_list va;
     va_start(va, fmt);

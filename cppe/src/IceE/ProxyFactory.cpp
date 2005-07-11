@@ -151,7 +151,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
             //
             // Sleep before retrying.
             //
-            Ice::ThreadControl::sleep(Ice::Time::milliSeconds(_retryIntervals[cnt - 1]));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(_retryIntervals[cnt - 1]));
         }
     }
     else

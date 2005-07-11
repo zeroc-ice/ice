@@ -29,7 +29,7 @@ IceInternal::RoutingTable::RoutingTable() :
 void
 IceInternal::RoutingTable::clear()
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     _table.clear();
     _tableHint = _table.end();
@@ -45,7 +45,7 @@ IceInternal::RoutingTable::add(const ObjectPrx& prx)
 
     ObjectPrx proxy = prx->ice_default(); // We insert the proxy in its default form into the routing table.
 
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     map<Identity, ObjectPrx>::iterator p = _table.end();
     
@@ -81,7 +81,7 @@ IceInternal::RoutingTable::get(const Identity& ident)
 	return 0;
     }
 
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     map<Identity, ObjectPrx>::iterator p = _table.end();
     

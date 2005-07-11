@@ -29,7 +29,7 @@ void
 TestI::deactivate(const Current& current)
 {
     current.adapter->deactivate();
-    Ice::ThreadControl::sleep(Ice::Time::seconds(1));
+    IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
 }
 
 string

@@ -20,7 +20,7 @@ namespace IceInternal
 
 class BasicStream;
 
-class ICEE_API EndpointFactory : public ::Ice::Shared
+class ICEE_API EndpointFactory : public ::IceUtil::Shared
 {
 public:
 

@@ -17,7 +17,7 @@
 namespace IceInternal
 {
 
-class ICEE_API Buffer : private Ice::noncopyable
+class ICEE_API Buffer : private IceUtil::noncopyable
 {
 public:
 
@@ -26,7 +26,7 @@ public:
 
     void swap(Buffer&);
 
-    class ICEE_API Container : private Ice::noncopyable
+    class ICEE_API Container : private IceUtil::noncopyable
     {
     public:
 

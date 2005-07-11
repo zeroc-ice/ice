@@ -32,7 +32,7 @@ IceInternal::decRef(::Ice::Properties* p)
 string
 Ice::Properties::getProperty(const string& key)
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     map<string, string>::const_iterator p = _properties.find(key);
     if(p != _properties.end())
@@ -48,7 +48,7 @@ Ice::Properties::getProperty(const string& key)
 string
 Ice::Properties::getPropertyWithDefault(const string& key, const string& value)
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     map<string, string>::const_iterator p = _properties.find(key);
     if(p != _properties.end())
@@ -70,7 +70,7 @@ Ice::Properties::getPropertyAsInt(const string& key)
 Int
 Ice::Properties::getPropertyAsIntWithDefault(const string& key, Int value)
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     map<string, string>::const_iterator p = _properties.find(key);
     if(p != _properties.end())
@@ -84,7 +84,7 @@ Ice::Properties::getPropertyAsIntWithDefault(const string& key, Int value)
 PropertyDict
 Ice::Properties::getPropertiesForPrefix(const string& prefix)
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     PropertyDict result;
     map<string, string>::const_iterator p;
@@ -130,7 +130,7 @@ Ice::Properties::setProperty(const string& key, const string& value)
 	    bool found = false;
 	    for(const char* const* j = *i; *j != 0 && !found; ++j)
 	    {
-		found = Ice::match(key, *j);
+		found = IceUtil::match(key, *j);
 	    }
 	    if(!found)
 	    {
@@ -139,7 +139,7 @@ Ice::Properties::setProperty(const string& key, const string& value)
 	}
     }
 
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     //
     // Set or clear the property.
@@ -157,7 +157,7 @@ Ice::Properties::setProperty(const string& key, const string& value)
 StringSeq
 Ice::Properties::getCommandLineOptions()
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     StringSeq result;
     result.reserve(_properties.size());
@@ -230,7 +230,7 @@ Ice::Properties::load(const std::string& file)
 PropertiesPtr
 Ice::Properties::clone()
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return new Properties(this);
 }
 

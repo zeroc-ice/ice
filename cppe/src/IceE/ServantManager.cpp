@@ -23,7 +23,7 @@ void IceInternal::decRef(ServantManager* p) { p->__decRef(); }
 void
 IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity& ident, const string& facet)
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
@@ -47,7 +47,7 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
 	    ex.id = identityToString(ident);
 	    if(!facet.empty())
 	    {
-		ex.id += " -f " + Ice::escapeString(facet, "");
+		ex.id += " -f " + IceUtil::escapeString(facet, "");
 	    }
 	    throw ex;
 	}
@@ -68,7 +68,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     //
     ObjectPtr servant = 0;
 
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
@@ -87,7 +87,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
 	ex.id = identityToString(ident);
 	if(!facet.empty())
 	{
-	    ex.id += " -f " + Ice::escapeString(facet, "");
+	    ex.id += " -f " + IceUtil::escapeString(facet, "");
 	}
 	throw ex;
     }
@@ -113,7 +113,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
 FacetMap
 IceInternal::ServantManager::removeAllFacets(const Identity& ident)
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
@@ -150,7 +150,7 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
 ObjectPtr
 IceInternal::ServantManager::findServant(const Identity& ident, const string& facet) const
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
@@ -178,7 +178,7 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
 FacetMap
 IceInternal::ServantManager::findAllFacets(const Identity& ident) const
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
@@ -205,7 +205,7 @@ IceInternal::ServantManager::findAllFacets(const Identity& ident) const
 bool
 IceInternal::ServantManager::hasServant(const Identity& ident) const
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
 
@@ -252,7 +252,7 @@ IceInternal::ServantManager::destroy()
     ServantMapMap servantMapMap;
 
     {
-	Ice::Mutex::Lock sync(*this);
+	IceUtil::Mutex::Lock sync(*this);
 	
 	assert(_instance); // Must not be called after destruction.
 	

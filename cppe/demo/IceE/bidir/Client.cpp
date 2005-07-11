@@ -47,7 +47,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Client");
     Identity ident;
-    ident.name = Ice::generateUUID();
+    ident.name = IceUtil::generateUUID();
     ident.category = "";
     adapter->add(new CallbackReceiverI, ident);
     adapter->activate();

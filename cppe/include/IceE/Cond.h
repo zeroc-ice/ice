@@ -17,7 +17,7 @@
 #    include <IceE/Mutex.h>
 #endif
 
-namespace Ice
+namespace IceUtil
 {
 
 //

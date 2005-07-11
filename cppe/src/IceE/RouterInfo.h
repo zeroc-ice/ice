@@ -23,7 +23,7 @@
 namespace IceInternal
 {
 
-class RouterManager : public Ice::Shared, public Ice::Mutex
+class RouterManager : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
@@ -43,7 +43,7 @@ private:
     std::map<Ice::RouterPrx, RouterInfoPtr>::iterator _tableHint;
 };
 
-class RouterInfo : public Ice::Shared, public Ice::Mutex
+class RouterInfo : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 

@@ -19,7 +19,7 @@
 namespace IceInternal
 {
 
-class ReferenceFactory : public ::Ice::Shared, public ::Ice::Mutex
+class ReferenceFactory : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 

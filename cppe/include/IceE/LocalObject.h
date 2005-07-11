@@ -16,7 +16,7 @@
 namespace Ice
 {
 
-class ICEE_API LocalObject : virtual public ::Ice::Shared
+class ICEE_API LocalObject : virtual public ::IceUtil::Shared
 {
 public:
 

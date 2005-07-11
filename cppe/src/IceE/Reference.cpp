@@ -118,7 +118,7 @@ IceInternal::Reference::changeDefault() const
 Int
 Reference::hash() const
 {
-    Ice::Mutex::Lock sync(_hashMutex);
+    IceUtil::Mutex::Lock sync(_hashMutex);
 
     if(_hashInitialized)
     {
@@ -226,7 +226,7 @@ IceInternal::Reference::toString() const
 	// the reference parser uses as separators, then we enclose
 	// the facet string in quotes.
 	//
-	string fs = Ice::escapeString(_facet, "");
+	string fs = IceUtil::escapeString(_facet, "");
 	if(fs.find_first_of(" \t\n\r:@") != string::npos)
 	{
             s += "\"";

@@ -14,7 +14,7 @@
 #include <IceE/Lock.h>
 #include <IceE/ThreadException.h>
 
-namespace Ice
+namespace IceUtil
 {
 
 //

@@ -12,22 +12,22 @@
 
 using namespace std;
 
-Ice::ThreadSyscallException::ThreadSyscallException(const char* file, int line, int err ): 
+IceUtil::ThreadSyscallException::ThreadSyscallException(const char* file, int line, int err ): 
     Exception(file, line),
     _error(err)
 {
 }
     
-const char* Ice::ThreadSyscallException::_name = "Ice::ThreadSyscallException";
+const char* IceUtil::ThreadSyscallException::_name = "IceUtil::ThreadSyscallException";
 
 const string
-Ice::ThreadSyscallException::ice_name() const
+IceUtil::ThreadSyscallException::ice_name() const
 {
     return _name;
 }
 
 string
-Ice::ThreadSyscallException::toString() const
+IceUtil::ThreadSyscallException::toString() const
 {
     string out = Exception::toString();
     if(_error != 0)
@@ -64,96 +64,96 @@ Ice::ThreadSyscallException::toString() const
     return out;
 }
 
-Ice::Exception*
-Ice::ThreadSyscallException::ice_clone() const
+IceUtil::Exception*
+IceUtil::ThreadSyscallException::ice_clone() const
 {
     return new ThreadSyscallException(*this);
 }
 
 void
-Ice::ThreadSyscallException::ice_throw() const
+IceUtil::ThreadSyscallException::ice_throw() const
 {
     throw *this;
 }
 
 int
-Ice::ThreadSyscallException::error() const
+IceUtil::ThreadSyscallException::error() const
 {
     return _error;
 }
 
 
-Ice::ThreadLockedException::ThreadLockedException(const char* file, int line) :
+IceUtil::ThreadLockedException::ThreadLockedException(const char* file, int line) :
     Exception(file, line)
 {
 }
 
-const char* Ice::ThreadLockedException::_name = "Ice::ThreadLockedException";
+const char* IceUtil::ThreadLockedException::_name = "IceUtil::ThreadLockedException";
 
 const string
-Ice::ThreadLockedException::ice_name() const
+IceUtil::ThreadLockedException::ice_name() const
 {
     return _name;
 }
 
-Ice::Exception*
-Ice::ThreadLockedException::ice_clone() const
+IceUtil::Exception*
+IceUtil::ThreadLockedException::ice_clone() const
 {
     return new ThreadLockedException(*this);
 }
 
 void
-Ice::ThreadLockedException::ice_throw() const
+IceUtil::ThreadLockedException::ice_throw() const
 {
     throw *this;
 }
 
-Ice::ThreadStartedException::ThreadStartedException(const char* file, int line) :
+IceUtil::ThreadStartedException::ThreadStartedException(const char* file, int line) :
     Exception(file, line)
 {
 }
 
-const char* Ice::ThreadStartedException::_name = "Ice::ThreadStartedException";
+const char* IceUtil::ThreadStartedException::_name = "IceUtil::ThreadStartedException";
 
 const string
-Ice::ThreadStartedException::ice_name() const
+IceUtil::ThreadStartedException::ice_name() const
 {
     return _name;
 }
 
-Ice::Exception*
-Ice::ThreadStartedException::ice_clone() const
+IceUtil::Exception*
+IceUtil::ThreadStartedException::ice_clone() const
 {
     return new ThreadStartedException(*this);
 }
 
 void
-Ice::ThreadStartedException::ice_throw() const
+IceUtil::ThreadStartedException::ice_throw() const
 {
     throw *this;
 }
 
-Ice::ThreadNotStartedException::ThreadNotStartedException(const char* file, int line) :
+IceUtil::ThreadNotStartedException::ThreadNotStartedException(const char* file, int line) :
     Exception(file, line)
 {
 }
 
-const char* Ice::ThreadNotStartedException::_name = "Ice::ThreadNotStartedException";
+const char* IceUtil::ThreadNotStartedException::_name = "IceUtil::ThreadNotStartedException";
 
 const string
-Ice::ThreadNotStartedException::ice_name() const
+IceUtil::ThreadNotStartedException::ice_name() const
 {
     return _name;
 }
 
-Ice::Exception*
-Ice::ThreadNotStartedException::ice_clone() const
+IceUtil::Exception*
+IceUtil::ThreadNotStartedException::ice_clone() const
 {
     return new ThreadNotStartedException(*this);
 }
 
 void
-Ice::ThreadNotStartedException::ice_throw() const
+IceUtil::ThreadNotStartedException::ice_throw() const
 {
     throw *this;
 }

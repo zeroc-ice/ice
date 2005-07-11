@@ -30,21 +30,21 @@ void IceInternal::decRef(IncomingConnectionFactory* p) { p->__decRef(); }
 void
 IceInternal::IncomingConnectionFactory::activate()
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateActive);
 }
 
 void
 IceInternal::IncomingConnectionFactory::hold()
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateHolding);
 }
 
 void
 IceInternal::IncomingConnectionFactory::destroy()
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateClosed);
 }
 
@@ -54,7 +54,7 @@ IceInternal::IncomingConnectionFactory::waitUntilHolding() const
     list<ConnectionPtr> connections;
 
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
 	//
 	// First we wait until the connection factory itself is in holding
@@ -81,11 +81,11 @@ IceInternal::IncomingConnectionFactory::waitUntilHolding() const
 void
 IceInternal::IncomingConnectionFactory::waitUntilFinished()
 {
-    Ice::ThreadPtr threadPerIncomingConnectionFactory;
+    IceUtil::ThreadPtr threadPerIncomingConnectionFactory;
     list<ConnectionPtr> connections;
 
     {
-	Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
 	//
 	// First we wait until the factory is destroyed. If we are using
@@ -136,7 +136,7 @@ IceInternal::IncomingConnectionFactory::equivalent(const EndpointPtr& endp) cons
 list<ConnectionPtr>
 IceInternal::IncomingConnectionFactory::connections() const
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     list<ConnectionPtr> result;
 
@@ -170,7 +170,7 @@ IceInternal::IncomingConnectionFactory::flushBatchRequests()
 string
 IceInternal::IncomingConnectionFactory::toString() const
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(_transceiver)
     {
@@ -239,7 +239,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 
 IceInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
 {
-    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     assert(_state == StateClosed);
     assert(!_acceptor);
@@ -341,7 +341,7 @@ IceInternal::IncomingConnectionFactory::run()
 	ConnectionPtr connection;
 	
 	{
-	    Ice::Monitor<Ice::Mutex>::Lock sync(*this);
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	    
 	    while(_state == StateHolding)
 	    {

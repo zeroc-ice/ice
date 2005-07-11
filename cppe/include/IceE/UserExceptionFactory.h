@@ -16,7 +16,7 @@
 namespace IceInternal
 {
 
-class ICEE_API UserExceptionFactory : public Ice::Shared
+class ICEE_API UserExceptionFactory : public IceUtil::Shared
 {
 public:
 
@@ -24,7 +24,7 @@ public:
     virtual ~UserExceptionFactory() {}
 };
 
-typedef ::Ice::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
+typedef ::IceUtil::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
 
 };
 

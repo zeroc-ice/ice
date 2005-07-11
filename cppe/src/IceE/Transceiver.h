@@ -30,7 +30,7 @@ class Connector;
 class Acceptor;
 class Buffer;
 
-class ICEE_API Transceiver : public ::Ice::Shared
+class ICEE_API Transceiver : public ::IceUtil::Shared
 {
 public:
 

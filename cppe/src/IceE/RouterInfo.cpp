@@ -36,7 +36,7 @@ IceInternal::RouterManager::RouterManager() :
 void
 IceInternal::RouterManager::destroy()
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     for_each(_table.begin(), _table.end(), Ice::secondVoidMemFun<const RouterPrx, RouterInfo>(&RouterInfo::destroy));
 
@@ -54,7 +54,7 @@ IceInternal::RouterManager::get(const RouterPrx& rtr)
 
     RouterPrx router = RouterPrx::uncheckedCast(rtr->ice_router(0)); // The router cannot be routed.
 
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     map<RouterPrx, RouterInfoPtr>::iterator p = _table.end();
     
@@ -93,7 +93,7 @@ IceInternal::RouterInfo::RouterInfo(const RouterPrx& router) :
 void
 IceInternal::RouterInfo::destroy()
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     _clientProxy = 0;
     _serverProxy = 0;
@@ -131,7 +131,7 @@ IceInternal::RouterInfo::getRouter() const
 ObjectPrx
 IceInternal::RouterInfo::getClientProxy()
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     if(!_clientProxy) // Lazy initialization.
     {
@@ -157,7 +157,7 @@ IceInternal::RouterInfo::getClientProxy()
 void
 IceInternal::RouterInfo::setClientProxy(const ObjectPrx& clientProxy)
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     _clientProxy = clientProxy->ice_router(0); // The client proxy cannot be routed.
 
@@ -171,7 +171,7 @@ IceInternal::RouterInfo::setClientProxy(const ObjectPrx& clientProxy)
 ObjectPrx
 IceInternal::RouterInfo::getServerProxy()
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     
     if(!_serverProxy) // Lazy initialization.
     {
@@ -190,7 +190,7 @@ IceInternal::RouterInfo::getServerProxy()
 void
 IceInternal::RouterInfo::setServerProxy(const ObjectPrx& serverProxy)
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
 
     _serverProxy = serverProxy->ice_router(0); // The server proxy cannot be routed.
 }
@@ -211,14 +211,14 @@ IceInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
 void
 IceInternal::RouterInfo::setAdapter(const ObjectAdapterPtr& adapter)
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     _adapter = adapter;
 }
 
 ObjectAdapterPtr
 IceInternal::RouterInfo::getAdapter() const
 {
-    Ice::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     return _adapter;
 }
 

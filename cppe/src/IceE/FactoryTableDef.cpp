@@ -31,7 +31,7 @@ ICEE_API FactoryTableDef* factoryTable;		// Single global instance of the factor
 void
 Ice::FactoryTableDef::addExceptionFactory(const std::string& t, const IceInternal::UserExceptionFactoryPtr& f)
 {
-    Ice::Mutex::Lock lock(_m);
+    IceUtil::Mutex::Lock lock(_m);
     EFTable::iterator i = _eft.find(t);
     if(i == _eft.end())
     {
@@ -49,7 +49,7 @@ Ice::FactoryTableDef::addExceptionFactory(const std::string& t, const IceInterna
 IceInternal::UserExceptionFactoryPtr
 Ice::FactoryTableDef::getExceptionFactory(const std::string& t) const
 {
-    Ice::Mutex::Lock lock(_m);
+    IceUtil::Mutex::Lock lock(_m);
     EFTable::const_iterator i = _eft.find(t);
 #ifdef __APPLE__
     if(i == _eft.end())
@@ -85,7 +85,7 @@ Ice::FactoryTableDef::getExceptionFactory(const std::string& t) const
 void
 Ice::FactoryTableDef::removeExceptionFactory(const std::string& t)
 {
-    Ice::Mutex::Lock lock(_m);
+    IceUtil::Mutex::Lock lock(_m);
     EFTable::iterator i = _eft.find(t);
     if(i != _eft.end())
     {
@@ -119,7 +119,7 @@ Ice::FactoryTableWrapper::~FactoryTableWrapper()
 void
 Ice::FactoryTableWrapper::initialize()
 {
-    Ice::StaticMutex::Lock lock(_m);
+    IceUtil::StaticMutex::Lock lock(_m);
     if(_initCount == 0)
     {
 	factoryTable = new FactoryTableDef;
@@ -133,12 +133,12 @@ Ice::FactoryTableWrapper::initialize()
 void
 Ice::FactoryTableWrapper::finalize()
 {
-    Ice::StaticMutex::Lock lock(_m);
+    IceUtil::StaticMutex::Lock lock(_m);
     if(--_initCount == 0)
     {
 	delete factoryTable;
     }
 }
 
-Ice::StaticMutex Ice::FactoryTableWrapper::_m = ICEE_STATIC_MUTEX_INITIALIZER;
+IceUtil::StaticMutex Ice::FactoryTableWrapper::_m = ICEE_STATIC_MUTEX_INITIALIZER;
 int Ice::FactoryTableWrapper::_initCount = 0;	// Initialization count

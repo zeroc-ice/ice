@@ -17,7 +17,7 @@
 namespace IceInternal
 {
 
-class DefaultsAndOverrides : public ::Ice::Shared
+class DefaultsAndOverrides : public ::IceUtil::Shared
 {
 public:
 

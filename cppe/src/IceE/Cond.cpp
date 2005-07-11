@@ -15,7 +15,7 @@
 
 #ifdef _WIN32
 
-Ice::Semaphore::Semaphore(long initial)
+IceUtil::Semaphore::Semaphore(long initial)
 {
     _sem = CreateSemaphore(0, initial, 0x7fffffff, 0);
     if(_sem == INVALID_HANDLE_VALUE)
@@ -24,13 +24,13 @@ Ice::Semaphore::Semaphore(long initial)
     }
 }
 
-Ice::Semaphore::~Semaphore()
+IceUtil::Semaphore::~Semaphore()
 {
     CloseHandle(_sem);
 }
 
 void
-Ice::Semaphore::wait() const
+IceUtil::Semaphore::wait() const
 {
     int rc = WaitForSingleObject(_sem, INFINITE);
     if(rc != WAIT_OBJECT_0)
@@ -40,7 +40,7 @@ Ice::Semaphore::wait() const
 }
 
 bool
-Ice::Semaphore::timedWait(const Time& timeout) const
+IceUtil::Semaphore::timedWait(const Time& timeout) const
 {
     long msec = (long)timeout.toMilliSeconds();
 
@@ -53,7 +53,7 @@ Ice::Semaphore::timedWait(const Time& timeout) const
 }
 
 void
-Ice::Semaphore::post(int count) const
+IceUtil::Semaphore::post(int count) const
 {
     int rc = ReleaseSemaphore(_sem, count, 0);
     if(rc == 0)
@@ -62,7 +62,7 @@ Ice::Semaphore::post(int count) const
     }
 }
 
-Ice::Cond::Cond() :
+IceUtil::Cond::Cond() :
     _gate(1),
     _blocked(0),
     _unblocked(0),
@@ -70,24 +70,24 @@ Ice::Cond::Cond() :
 {
 }
 
-Ice::Cond::~Cond()
+IceUtil::Cond::~Cond()
 {
 }
 
 void
-Ice::Cond::signal()
+IceUtil::Cond::signal()
 {
     wake(false);
 }
 
 void
-Ice::Cond::broadcast()
+IceUtil::Cond::broadcast()
 {
     wake(true);
 }
 
 void
-Ice::Cond::wake(bool broadcast)
+IceUtil::Cond::wake(bool broadcast)
 {
     //
     // Lock gate & mutex.
@@ -121,7 +121,7 @@ Ice::Cond::wake(bool broadcast)
 }
 
 void
-Ice::Cond::preWait() const
+IceUtil::Cond::preWait() const
 {
     _gate.wait();
     _blocked++;
@@ -129,7 +129,7 @@ Ice::Cond::preWait() const
 }
 
 void
-Ice::Cond::postWait(bool timedOut) const
+IceUtil::Cond::postWait(bool timedOut) const
 {
     _internal.lock();
     _unblocked++;
@@ -160,7 +160,7 @@ Ice::Cond::postWait(bool timedOut) const
 }
 
 void
-Ice::Cond::dowait() const
+IceUtil::Cond::dowait() const
 {
     try
     {
@@ -175,7 +175,7 @@ Ice::Cond::dowait() const
 }
 
 bool
-Ice::Cond::timedDowait(const Time& timeout) const
+IceUtil::Cond::timedDowait(const Time& timeout) const
 {
     try
     {
@@ -192,7 +192,7 @@ Ice::Cond::timedDowait(const Time& timeout) const
 
 #else
 
-Ice::Cond::Cond()
+IceUtil::Cond::Cond()
 {
     int rc;
 
@@ -217,7 +217,7 @@ Ice::Cond::Cond()
     }
 }
 
-Ice::Cond::~Cond()
+IceUtil::Cond::~Cond()
 {
     int rc = 0;
     rc = pthread_cond_destroy(&_cond);
@@ -225,7 +225,7 @@ Ice::Cond::~Cond()
 }
 
 void
-Ice::Cond::signal()
+IceUtil::Cond::signal()
 {
     int rc = pthread_cond_signal(&_cond);
     if(rc != 0)
@@ -235,7 +235,7 @@ Ice::Cond::signal()
 }
 
 void
-Ice::Cond::broadcast()
+IceUtil::Cond::broadcast()
 {
     int rc = pthread_cond_broadcast(&_cond);
     if(rc != 0)

@@ -213,7 +213,7 @@
 //
 // By deriving from this class, other classes are made non-copyable.
 //
-namespace Ice
+namespace IceUtil
 {
 
 //
@@ -335,7 +335,7 @@ namespace Ice
 typedef unsigned char Byte;
 typedef short Short;
 typedef int Int;
-typedef Ice::Int64 Long;
+typedef IceUtil::Int64 Long;
 typedef float Float;
 typedef double Double;
 

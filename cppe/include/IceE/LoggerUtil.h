@@ -16,7 +16,7 @@ namespace Ice
 {
 
 
-class ICEE_API Print : private Ice::noncopyable
+class ICEE_API Print : private IceUtil::noncopyable
 {
 public:
 
@@ -40,7 +40,7 @@ operator<<(Print& out, const std::string& val)
     return out;
 }
 
-class ICEE_API Warning : private Ice::noncopyable
+class ICEE_API Warning : private IceUtil::noncopyable
 {
 public:
 
@@ -64,7 +64,7 @@ operator<<(Warning& out, const std::string& val)
     return out;
 }
 
-class ICEE_API Error : private Ice::noncopyable
+class ICEE_API Error : private IceUtil::noncopyable
 {
 public:
 
@@ -88,7 +88,7 @@ operator<<(Error& out, const std::string& val)
     return out;
 }
 
-class ICEE_API Trace : private Ice::noncopyable
+class ICEE_API Trace : private IceUtil::noncopyable
 {
 public:
 

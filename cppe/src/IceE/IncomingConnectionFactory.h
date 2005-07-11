@@ -28,7 +28,7 @@
 namespace IceInternal
 {
 
-class IncomingConnectionFactory : public Ice::Monitor<Ice::Mutex>, public Ice::Shared
+class IncomingConnectionFactory : public IceUtil::Monitor<IceUtil::Mutex>, public IceUtil::Shared
 {
 public:
 
@@ -65,7 +65,7 @@ private:
 
     void run();
 
-    class ThreadPerIncomingConnectionFactory : public Ice::Thread
+    class ThreadPerIncomingConnectionFactory : public IceUtil::Thread
     {
     public:
 	
@@ -77,7 +77,7 @@ private:
 	IncomingConnectionFactoryPtr _factory;
     };
     friend class ThreadPerIncomingConnectionFactory;
-    Ice::ThreadPtr _threadPerIncomingConnectionFactory;
+    IceUtil::ThreadPtr _threadPerIncomingConnectionFactory;
 
     const InstancePtr _instance;
     AcceptorPtr _acceptor;

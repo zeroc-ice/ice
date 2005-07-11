@@ -13,7 +13,7 @@
 #include <TestCommon.h>
 
 using namespace std;
-using namespace Ice;
+using namespace IceUtil;
 
 class MonitorMutexTestThread : public Thread
 {

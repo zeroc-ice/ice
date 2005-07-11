@@ -57,7 +57,7 @@ IceInternal::IncomingBase::__warning(const string& msg) const
     Warning out(_os.instance()->logger());
     out << "dispatch exception: " << msg;
     out << "\nidentity: " << identityToString(_current.id);
-    out << "\nfacet: " << Ice::escapeString(_current.facet, "");
+    out << "\nfacet: " << IceUtil::escapeString(_current.facet, "");
     out << "\noperation: " << _current.operation;
 }
 

@@ -179,7 +179,7 @@ private:
     //
     Instance* _instance;
 
-    class ICEE_API ReadEncaps : private ::Ice::noncopyable
+    class ICEE_API ReadEncaps : private ::IceUtil::noncopyable
     {
     public:
 
@@ -197,7 +197,7 @@ private:
 	ReadEncaps* previous;
     };
 
-    class ICEE_API WriteEncaps : private ::Ice::noncopyable
+    class ICEE_API WriteEncaps : private ::IceUtil::noncopyable
     {
     public:
 

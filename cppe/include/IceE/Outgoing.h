@@ -48,7 +48,7 @@ private:
     std::auto_ptr<Ice::LocalException> _ex;
 };
 
-class ICEE_API Outgoing : private Ice::noncopyable, public Ice::Monitor<Ice::Mutex >
+class ICEE_API Outgoing : private IceUtil::noncopyable, public IceUtil::Monitor<IceUtil::Mutex >
 {
 public:
 

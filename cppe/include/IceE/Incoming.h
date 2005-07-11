@@ -19,7 +19,7 @@
 namespace IceInternal
 {
 
-class ICEE_API IncomingBase : private Ice::noncopyable
+class ICEE_API IncomingBase : private IceUtil::noncopyable
 {
 protected:
 

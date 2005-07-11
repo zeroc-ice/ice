@@ -20,7 +20,7 @@
 namespace IceInternal
 {
 
-class ServantManager : public Ice::Shared, public Ice::Mutex
+class ServantManager : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 

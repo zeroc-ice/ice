@@ -43,7 +43,7 @@ namespace Ice
 
 class LocalException;
 
-class ICEE_API Connection : public Ice::Monitor<Ice::Mutex>, public Ice::Shared
+class ICEE_API Connection : public IceUtil::Monitor<IceUtil::Mutex>, public IceUtil::Shared
 {
 public:
 
@@ -141,7 +141,7 @@ private:
 
     void run();
 
-    class ThreadPerConnection : public Ice::Thread
+    class ThreadPerConnection : public IceUtil::Thread
     {
     public:
 	
@@ -154,7 +154,7 @@ private:
     };
     friend class ThreadPerConnection;
     // Defined as mutable because "isFinished() const" sets this to 0.
-    mutable Ice::ThreadPtr _threadPerConnection;
+    mutable IceUtil::ThreadPtr _threadPerConnection;
 
     const IceInternal::InstancePtr _instance;
     IceInternal::TransceiverPtr _transceiver;
@@ -200,13 +200,13 @@ private:
     int _dispatchCount;
 
     State _state; // The current state.
-    Ice::Time _stateTime; // The last time when the state was changed.
+    IceUtil::Time _stateTime; // The last time when the state was changed.
 
     //
     // We have a separate mutex for sending, so that we don't block
     // the whole connection when we do a blocking send.
     //
-    Ice::Mutex _sendMutex;
+    IceUtil::Mutex _sendMutex;
 };
 
 }

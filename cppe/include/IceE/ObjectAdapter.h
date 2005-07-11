@@ -33,7 +33,7 @@
 namespace Ice
 {
 
-class ICEE_API ObjectAdapter : public Ice::Monitor<Ice::RecMutex>, public ::Ice::Shared
+class ICEE_API ObjectAdapter : public IceUtil::Monitor<IceUtil::RecMutex>, public ::IceUtil::Shared
 {
 public:
 

@@ -45,12 +45,12 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-static Ice::StaticMutex staticMutex = ICEE_STATIC_MUTEX_INITIALIZER;
+static IceUtil::StaticMutex staticMutex = ICEE_STATIC_MUTEX_INITIALIZER;
 static bool oneOffDone = false;
 static int instanceCount = 0;
 static bool printProcessIdDone = false;
 
-namespace Ice
+namespace IceUtil
 {
 
 extern bool ICEE_API nullHandleAbort;
@@ -70,7 +70,7 @@ IceInternal::Instance::properties() const
 LoggerPtr
 IceInternal::Instance::logger() const
 {
-    Ice::RecMutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     //
     // Don't throw CommunicatorDestroyedException if destroyed. We
@@ -82,7 +82,7 @@ IceInternal::Instance::logger() const
 void
 IceInternal::Instance::logger(const LoggerPtr& logger)
 {
-    Ice::RecMutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -111,7 +111,7 @@ IceInternal::Instance::defaultsAndOverrides() const
 RouterManagerPtr
 IceInternal::Instance::routerManager() const
 {
-    Ice::RecMutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -128,7 +128,7 @@ IceInternal::Instance::routerManager() const
 LocatorManagerPtr
 IceInternal::Instance::locatorManager() const
 {
-    Ice::RecMutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -143,7 +143,7 @@ IceInternal::Instance::locatorManager() const
 ReferenceFactoryPtr
 IceInternal::Instance::referenceFactory() const
 {
-    Ice::RecMutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -156,7 +156,7 @@ IceInternal::Instance::referenceFactory() const
 ProxyFactoryPtr
 IceInternal::Instance::proxyFactory() const
 {
-    Ice::RecMutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -169,7 +169,7 @@ IceInternal::Instance::proxyFactory() const
 OutgoingConnectionFactoryPtr
 IceInternal::Instance::outgoingConnectionFactory() const
 {
-    Ice::RecMutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -183,7 +183,7 @@ IceInternal::Instance::outgoingConnectionFactory() const
 ObjectAdapterFactoryPtr
 IceInternal::Instance::objectAdapterFactory() const
 {
-    Ice::RecMutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -204,7 +204,7 @@ IceInternal::Instance::threadPerConnectionStackSize() const
 EndpointFactoryPtr
 IceInternal::Instance::endpointFactory() const
 {
-    Ice::RecMutex::Lock sync(*this);
+    IceUtil::RecMutex::Lock sync(*this);
 
     if(_destroyed)
     {
@@ -232,7 +232,7 @@ IceInternal::Instance::flushBatchRequests()
 #endif
 
     {
-	Ice::RecMutex::Lock sync(*this);
+	IceUtil::RecMutex::Lock sync(*this);
 
 	if(_destroyed)
 	{
@@ -275,7 +275,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     {
 	__setNoDelete(true);
 
-	Ice::StaticMutex::Lock sync(staticMutex);
+	IceUtil::StaticMutex::Lock sync(staticMutex);
 	instanceCount++;
 
 	if(!oneOffDone)
@@ -311,7 +311,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    }
 #endif
 	    
-	    unsigned int seed = static_cast<unsigned int>(Ice::Time::now().toMicroSeconds());
+	    unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
 	    srand(seed);
 #ifndef _WIN32
 	    srand48(seed);
@@ -319,7 +319,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    
 	    if(_properties->getPropertyAsInt("IceE.NullHandleAbort") > 0)
 	    {
-		Ice::nullHandleAbort = true;
+		IceUtil::nullHandleAbort = true;
 	    }
 	    
 #ifndef _WIN32
@@ -436,7 +436,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     catch(...)
     {
 	{
-	    Ice::StaticMutex::Lock sync(staticMutex);
+	    IceUtil::StaticMutex::Lock sync(staticMutex);
 	    --instanceCount;
 	}
 	destroy();
@@ -462,7 +462,7 @@ IceInternal::Instance::~Instance()
 #endif
     assert(!_endpointFactory);
 
-    Ice::StaticMutex::Lock sync(staticMutex);
+    IceUtil::StaticMutex::Lock sync(staticMutex);
     if(--instanceCount == 0)
     {
 #ifdef _WIN32
@@ -512,7 +512,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
 	//
 	// Safe double-check locking (no dependent variable!)
 	// 
-	Ice::StaticMutex::Lock sync(staticMutex);
+	IceUtil::StaticMutex::Lock sync(staticMutex);
 	printProcessId = !printProcessIdDone;
 	
 	//
@@ -568,7 +568,7 @@ IceInternal::Instance::destroy()
 #endif
 
     {
-	Ice::RecMutex::Lock sync(*this);
+	IceUtil::RecMutex::Lock sync(*this);
 
 #ifndef ICEE_PURE_CLIENT
 	_objectAdapterFactory = 0;

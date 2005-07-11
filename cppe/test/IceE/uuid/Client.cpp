@@ -15,7 +15,7 @@
 #include <set>
 #include <vector>
 
-using namespace Ice;
+using namespace IceUtil;
 using namespace std;
 
 

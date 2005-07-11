@@ -190,7 +190,7 @@ USERDEP__HELLO="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe Hello.ice
 
 "Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -206,7 +206,7 @@ USERDEP__HELLO="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe Hello.ice
 
 "Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -222,7 +222,7 @@ USERDEP__HELLO="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe Hello.ice
 
 "Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -238,7 +238,7 @@ USERDEP__HELLO="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe Hello.ice
 
 "Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

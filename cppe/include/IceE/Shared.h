@@ -129,21 +129,21 @@ inline int ice_atomic_exchange_add(int i, ice_atomic_t* v)
 #endif
 
 //
-// Base classes for reference counted types. The Ice::Handle
+// Base classes for reference counted types. The IceUtil::Handle
 // template can be used for smart pointers to types derived from these
 // bases.
 //
-// Ice::SimpleShared
+// IceUtil::SimpleShared
 // =====================
 //
 // A non thread-safe base class for reference-counted types.
 //
-// Ice::Shared
+// IceUtil::Shared
 // ===============
 //
 // A thread-safe base class for reference-counted types.
 //
-namespace Ice
+namespace IceUtil
 {
 
 class ICEE_API SimpleShared

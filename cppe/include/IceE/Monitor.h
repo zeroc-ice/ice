@@ -14,7 +14,7 @@
 #include <IceE/Lock.h>
 #include <IceE/Cond.h>
 
-namespace Ice
+namespace IceUtil
 {
 
 //
@@ -73,18 +73,18 @@ private:
 //
 
 template <class T> inline
-Ice::Monitor<T>::Monitor() :
+IceUtil::Monitor<T>::Monitor() :
     _nnotify(0)
 {
 }
 
 template <class T> inline
-Ice::Monitor<T>::~Monitor()
+IceUtil::Monitor<T>::~Monitor()
 {
 }
 
 template <class T> inline void
-Ice::Monitor<T>::lock() const
+IceUtil::Monitor<T>::lock() const
 {
     _mutex.lock();
     if(_mutex.willUnlock())
@@ -98,7 +98,7 @@ Ice::Monitor<T>::lock() const
 }
 
 template <class T> inline void
-Ice::Monitor<T>::unlock() const
+IceUtil::Monitor<T>::unlock() const
 {
     if(_mutex.willUnlock())
     {
@@ -122,7 +122,7 @@ Ice::Monitor<T>::unlock() const
 }
 
 template <class T> inline bool
-Ice::Monitor<T>::tryLock() const
+IceUtil::Monitor<T>::tryLock() const
 {
     bool result = _mutex.tryLock();
     if(result && _mutex.willUnlock())
@@ -137,7 +137,7 @@ Ice::Monitor<T>::tryLock() const
 }
 
 template <class T> inline void
-Ice::Monitor<T>::wait() const
+IceUtil::Monitor<T>::wait() const
 {
     //
     // Perform any pending notifies
@@ -164,7 +164,7 @@ Ice::Monitor<T>::wait() const
 }
 
 template <class T> inline bool
-Ice::Monitor<T>::timedWait(const Time& timeout) const
+IceUtil::Monitor<T>::timedWait(const Time& timeout) const
 {
     //
     // Perform any pending notifies.
@@ -194,7 +194,7 @@ Ice::Monitor<T>::timedWait(const Time& timeout) const
 }
 
 template <class T> inline void
-Ice::Monitor<T>::notify()
+IceUtil::Monitor<T>::notify()
 {
     //
     // Increment the _nnotify flag, unless a broadcast has already
@@ -207,7 +207,7 @@ Ice::Monitor<T>::notify()
 }
 
 template <class T> inline void
-Ice::Monitor<T>::notifyAll()
+IceUtil::Monitor<T>::notifyAll()
 {
     //
     // -1 (indicates broadcast)
@@ -217,7 +217,7 @@ Ice::Monitor<T>::notifyAll()
 
 
 template <class T> inline void
-Ice::Monitor<T>::notifyImpl(int nnotify) const
+IceUtil::Monitor<T>::notifyImpl(int nnotify) const
 {
     //
     // Zero indicates no notifies.

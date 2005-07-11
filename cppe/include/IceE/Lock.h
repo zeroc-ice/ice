@@ -13,7 +13,7 @@
 #include <IceE/Config.h>
 #include <IceE/ThreadException.h>
 
-namespace Ice
+namespace IceUtil
 {
 
 //

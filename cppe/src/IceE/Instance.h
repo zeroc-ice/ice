@@ -38,7 +38,7 @@ class CommunicatorI;
 namespace IceInternal
 {
 
-class Instance : public Ice::Shared, public Ice::RecMutex
+class Instance : public IceUtil::Shared, public IceUtil::RecMutex
 {
 public:
 

@@ -15,11 +15,11 @@
 #include <TestCommon.h>
 
 using namespace std;
-using namespace Ice;
+using namespace IceUtil;
 
 static const string createTestName("thread start");
 
-static Ice::Mutex threadCountMutex;
+static IceUtil::Mutex threadCountMutex;
 static int threadCount = 0;
 
 class StartTestThread : public Thread
@@ -32,7 +32,7 @@ public:
 
     virtual void run()
     {
-	Ice::Mutex::Lock sync(threadCountMutex);
+	IceUtil::Mutex::Lock sync(threadCountMutex);
 	--threadCount;
     }
 };
@@ -72,7 +72,7 @@ StartTest::run()
 	for(int j = 0; j < 5; j++)
 	{
 	    {
-		Ice::Mutex::Lock sync(threadCountMutex);
+		IceUtil::Mutex::Lock sync(threadCountMutex);
 		++threadCount;
 	    }
 	    Thread* t = new StartTestThread;
@@ -84,7 +84,7 @@ StartTest::run()
 	while(true)
 	{
 	    {
-		Ice::Mutex::Lock sync(threadCountMutex);
+		IceUtil::Mutex::Lock sync(threadCountMutex);
 		if(threadCount == 0)
 		{
 		    break;

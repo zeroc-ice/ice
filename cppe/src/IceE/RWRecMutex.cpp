@@ -12,19 +12,19 @@
 #include <IceE/Time.h>
 
 
-Ice::RWRecMutex::RWRecMutex() :
+IceUtil::RWRecMutex::RWRecMutex() :
     _count(0),
     _writerId(0),
     _waitingWriters(0)
 {
 }
 
-Ice::RWRecMutex::~RWRecMutex()
+IceUtil::RWRecMutex::~RWRecMutex()
 {
 }
 
 void
-Ice::RWRecMutex::readLock() const
+IceUtil::RWRecMutex::readLock() const
 {
     Mutex::Lock lock(_mutex);
 
@@ -40,7 +40,7 @@ Ice::RWRecMutex::readLock() const
 }
 
 bool
-Ice::RWRecMutex::tryReadLock() const
+IceUtil::RWRecMutex::tryReadLock() const
 {
     Mutex::Lock lock(_mutex);
 
@@ -57,7 +57,7 @@ Ice::RWRecMutex::tryReadLock() const
 }
 
 bool
-Ice::RWRecMutex::timedReadLock(const Time& timeout) const
+IceUtil::RWRecMutex::timedReadLock(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
 
@@ -87,7 +87,7 @@ Ice::RWRecMutex::timedReadLock(const Time& timeout) const
 }
 
 void
-Ice::RWRecMutex::writeLock() const
+IceUtil::RWRecMutex::writeLock() const
 {
     Mutex::Lock lock(_mutex);
 
@@ -128,7 +128,7 @@ Ice::RWRecMutex::writeLock() const
 }
 
 bool
-Ice::RWRecMutex::tryWriteLock() const
+IceUtil::RWRecMutex::tryWriteLock() const
 {
     Mutex::Lock lock(_mutex);
 
@@ -159,7 +159,7 @@ Ice::RWRecMutex::tryWriteLock() const
 }
 
 bool
-Ice::RWRecMutex::timedWriteLock(const Time& timeout) const
+IceUtil::RWRecMutex::timedWriteLock(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
 
@@ -213,7 +213,7 @@ Ice::RWRecMutex::timedWriteLock(const Time& timeout) const
 }
 
 void
-Ice::RWRecMutex::unlock() const
+IceUtil::RWRecMutex::unlock() const
 {
     bool ww;
     bool wr;
@@ -282,7 +282,7 @@ Ice::RWRecMutex::unlock() const
 }
 
 void
-Ice::RWRecMutex::upgrade() const
+IceUtil::RWRecMutex::upgrade() const
 {
     Mutex::Lock lock(_mutex);
 
@@ -318,7 +318,7 @@ Ice::RWRecMutex::upgrade() const
 }
 
 bool
-Ice::RWRecMutex::timedUpgrade(const Time& timeout) const
+IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
 

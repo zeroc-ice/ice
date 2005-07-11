@@ -118,7 +118,7 @@ uncheckedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, void*)
 // dynamicCast().
 //
 template<typename T>
-class ProxyHandle : public ::Ice::HandleBase<T>
+class ProxyHandle : public ::IceUtil::HandleBase<T>
 {
 public:
     
@@ -144,7 +144,7 @@ public:
     }
 
     template<typename Y>
-    ProxyHandle(const ::Ice::Handle<Y>& r)
+    ProxyHandle(const ::IceUtil::Handle<Y>& r)
     {
 	this->_ptr = r._ptr;
 
@@ -217,7 +217,7 @@ public:
     }
 
     template<typename Y>
-    ProxyHandle& operator=(const ::Ice::Handle<Y>& r)
+    ProxyHandle& operator=(const ::IceUtil::Handle<Y>& r)
     {
 	if(this->_ptr != r._ptr)
 	{

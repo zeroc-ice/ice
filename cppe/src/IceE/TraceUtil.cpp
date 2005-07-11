@@ -35,7 +35,7 @@ printIdentityFacetOperation(string& s, BasicStream& stream)
     s += "\nfacet = ";
     if(!facet.empty())
     {
-        s += Ice::escapeString(facet[0], "");
+        s += IceUtil::escapeString(facet[0], "");
     }
 
     string operation;

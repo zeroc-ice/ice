@@ -2,7 +2,8 @@
 # The client reads this property to create the reference to the
 # "hello" object in the server.
 #
-Hello.Proxy=hello:tcp -p 10000
+#Hello.Proxy=hello:tcp -p 10000:udp -p 10000
+Hello.Proxy=hello:
 
 #
 # The server creates one single object adapter with the name

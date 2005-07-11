@@ -36,7 +36,7 @@ private:
     // A global mutex is used to avoid garbled output with multiple
     // communicators.
     //
-    static Ice::Mutex _globalMutex;
+    static IceUtil::Mutex _globalMutex;
 };
 
 }

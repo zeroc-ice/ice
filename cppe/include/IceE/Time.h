@@ -12,7 +12,7 @@
 
 #include <IceE/Config.h>
 
-namespace Ice
+namespace IceUtil
 {
 
 class ICEE_API Time

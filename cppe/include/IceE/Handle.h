@@ -15,9 +15,9 @@
 
 //
 // "Handle" or "smart pointer" class for classes derived from
-// Ice::Shared or Ice::SimpleShared.
+// IceUtil::Shared or IceUtil::SimpleShared.
 //
-namespace Ice
+namespace IceUtil
 {
 
 template<typename T>
@@ -242,9 +242,9 @@ public:
 
 //
 // "Handle" or "smart pointer" class for classes derived from
-// Ice::Shared, or Ice::SimpleShared.
+// IceUtil::Shared, or IceUtil::SimpleShared.
 //
-// In constrast to Ice::Handle, IceInternal::Handle requires the
+// In constrast to IceUtil::Handle, IceInternal::Handle requires the
 // declaration of the two global operations IceInternal::incRef(T*)
 // and IceInternal::decRef(T*). The use of global operations allows
 // this template to be used for types which are declared but not
@@ -256,7 +256,7 @@ namespace IceInternal
 {
 
 template<typename T>
-class Handle : public ::Ice::HandleBase<T>
+class Handle : public ::IceUtil::HandleBase<T>
 {
 public:
     
@@ -282,7 +282,7 @@ public:
     }
 
     template<typename Y>
-    Handle(const ::Ice::Handle<Y>& r)
+    Handle(const ::IceUtil::Handle<Y>& r)
     {
 	this->_ptr = r._ptr;
 
@@ -357,7 +357,7 @@ public:
     }
 
     template<typename Y>
-    Handle& operator=(const ::Ice::Handle<Y>& r)
+    Handle& operator=(const ::IceUtil::Handle<Y>& r)
     {
 	if(this->_ptr != r._ptr)
 	{
@@ -403,7 +403,7 @@ public:
     }
         
     template<class Y>
-    static Handle dynamicCast(const ::Ice::HandleBase<Y>& r)
+    static Handle dynamicCast(const ::IceUtil::HandleBase<Y>& r)
     {
 	return Handle(dynamic_cast<T*>(r._ptr));
     }
