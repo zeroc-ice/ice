@@ -54,7 +54,7 @@ class TcpAcceptor implements Acceptor
     public Transceiver
     accept(int timeout)
     {
-	javax.microedition.io.ServerSocketConnection incoming = null;
+	javax.microedition.io.SocketConnection incoming = null;
 	try
 	{
 	    if(timeout == -1)
@@ -65,7 +65,7 @@ class TcpAcceptor implements Acceptor
 	    {
 		timeout = 1;
 	    }
-	    incoming = (javax.microedition.io.ServerSocketConnection)_connection.acceptAndOpen();
+	    incoming = (javax.microedition.io.SocketConnection)_connection.acceptAndOpen();
 	}
 	catch(java.io.InterruptedIOException ex)
 	{

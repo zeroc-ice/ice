@@ -86,6 +86,7 @@ final class TcpTransceiver implements Transceiver
 		}
 		int rem = buf.remaining();
 		_out.write(data, pos, rem);
+		_out.flush();
 		buf.position(pos + rem);
 
 		if(_traceLevels.network >= 3)
@@ -93,7 +94,6 @@ final class TcpTransceiver implements Transceiver
 		    String s = "sent " + rem + " of " + buf.limit() + " bytes via tcp\n" + toString();
 		    _logger.trace(_traceLevels.networkCat, s);
 		}
-
 		break;
 	    }
 	    catch(java.io.InterruptedIOException ex)
@@ -152,7 +152,6 @@ final class TcpTransceiver implements Transceiver
 			String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
 			_logger.trace(_traceLevels.networkCat, s);
 		    }
-
 		    buf.position(pos + ret);
 		}
 	    }

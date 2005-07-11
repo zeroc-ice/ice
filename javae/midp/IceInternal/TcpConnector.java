@@ -109,6 +109,8 @@ final class TcpConnector implements Connector
 	    {
 		connection = (javax.microedition.io.SocketConnection)javax.microedition.io.Connector.open(_url);
 	    }
+
+	    connection.setSocketOption(javax.microedition.io.SocketConnection.DELAY, 0);
 	}
         catch(javax.microedition.io.ConnectionNotFoundException ex)
         {
@@ -189,7 +191,7 @@ final class TcpConnector implements Connector
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
 
-	_url = "socket://" + host + ':' + port + "/";
+	_url = "socket://" + host + ':' + port;
     }
 
     private Instance _instance;
