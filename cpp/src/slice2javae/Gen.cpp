@@ -673,7 +673,10 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             out << eb;
         }
         out << eb;
+	out << nl << "if(IceUtil.Debug.ASSERT)";
+	out << sb;
         out << sp << nl << "IceUtil.Debug.Assert(false);";
+        out << eb;
         out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
         out << eb;
     }
@@ -945,33 +948,26 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "return _ice_delegate.equals(((" << '_' << name << "Tie)rhs)._ice_delegate);";
     out << eb;
 
-    out << sp << nl << "public int" << nl << "hashCode()";
-    out << sb;
-    out << nl << "return _ice_delegate.hashCode();";
-    out << eb;
-
     if(p->isLocal())
     {
-        out << sp << nl << "public int" << nl << "ice_hash()";
-	out << sb;
-	out << nl << "return hashCode();";
-	out << eb;
-
 	out << sp << nl << "public java.lang.Object" << nl << "ice_clone()";
 	out.inc();
 	out << nl << "throws IceUtil.CloneException";
 	out.dec();
 	out << sb;
-	out << nl << "try";
-	out << sb;
-	out << nl << "return super.clone();";
+	out << sp << nl << "return new _" << name << "Tie(_ice_delegate);";
 	out << eb;
-	out << nl << "catch(java.lang.CloneNotSupportedException ex)";
+
+        out << sp << nl << "public int" << nl << "ice_hash()";
 	out << sb;
-	out << nl << "throw new IceUtil.CloneException(ex.getMessage());";
-	out << eb;
+	out << nl << "return hashCode();";
 	out << eb;
     }
+
+    out << sp << nl << "public int" << nl << "hashCode()";
+    out << sb;
+    out << nl << "return _ice_delegate.hashCode();";
+    out << eb;
 
     OperationList ops = p->allOperations();
     OperationList::const_iterator r;
@@ -1253,18 +1249,19 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeDispatch(out, p);
     }
 
-    if(!p->isInterface())
+    if(!p->isInterface() && !members.empty())
     {
-	out << sp << nl << "public void" << nl << "__copyFrom(" << name << " source)";
+	out << sp << nl << "protected void" << nl << "__copyFrom(java.lang.Object __obj)";
 	out << sb;
-	if(!bases.empty())
+	if(baseClass)
 	{
-	    out << nl << "super.__copyFrom(source);";
+	    out << nl << "super.__copyFrom(__obj);";
 	}
+	out << nl << name << " __src = (" << name << ")__obj;";
 	for(d = members.begin(); d != members.end(); ++d)
 	{
 	    string memberName = fixKwd((*d)->name());
-	    out << nl << memberName << " = " << "source." << memberName << ";";
+	    out << nl << memberName << " = __src." << memberName << ";";
 	}
 	out << eb;
     }
@@ -1515,7 +1512,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     Output& out = output();
 
-    out << sp << nl << "public final class " << name << " implements IceUtil.Cloneable";
+    out << sp << nl << "public final class " << name;
     out << sb;
 
     return true;
@@ -1541,6 +1538,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     vector<string> paramDecl;
     vector<string> paramNames;
+    vector<string>::const_iterator q;
     for(d = members.begin(); d != members.end(); ++d)
     {
 	string memberName = fixKwd((*d)->name());
@@ -1551,9 +1549,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     out << sp << nl << "public " << name << spar << paramDecl << epar;
     out << sb;
-    for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+    for(q = paramNames.begin(); q != paramNames.end(); ++q)
     {
-	out << nl << "this." << *i << " = " << *i << ';';
+	out << nl << "this." << *q << " = " << *q << ';';
     }
     out << eb;
 
@@ -1670,34 +1668,21 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "return __h;";
     out << eb;
 
-    out << sp << nl << "public void" << nl << "__copyFrom(" << name << " source)";
-    out << sb;
-    for(d = members.begin(); d != members.end(); ++d)
-    {
-	string memberName = fixKwd((*d)->name());
-	out << nl << memberName << " = " << "source." << memberName << ";";
-    }
-    out << eb;
-
     out << sp << nl << "public java.lang.Object" << nl << "ice_clone()";
     out.inc();
     out << nl << "throws IceUtil.CloneException";
     out.dec();
     out << sb;
-    out << nl << "try";
-    out << sb;
-    out << nl << name << " o = (" << name << ")getClass().newInstance();";
-    out << nl << "o.__copyFrom(this);";
-    out << nl << "return o;";
-    out << eb;
-    out << nl << "catch(java.lang.IllegalAccessException ex)";
-    out << sb;
-    out << nl << "throw new IceUtil.CloneException(ex.getMessage());";
-    out << eb;
-    out << nl << "catch(java.lang.InstantiationException ex)";
-    out << sb;
-    out << nl << "throw new IceUtil.CloneException(ex.getMessage());";
-    out << eb;
+    out << nl << "return new " << name << '(';
+    for(q = paramNames.begin(); q != paramNames.end(); ++q)
+    {
+	if(q != paramNames.begin())
+	{
+	    out << ", ";
+	}
+	out << *q;
+    }
+    out << ");";
     out << eb;
 
     if(!p->isLocal())
