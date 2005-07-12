@@ -1,3 +1,46 @@
+Configuration
+=============
+
+Ice-E supports a number of different configurations which alter the
+size of the binaries. By default the installation enables
+everything. To alter the configuration edit include/IceE/Config.h and
+alter the defines at the top of the header file.
+
+Router Support
+--------------
+
+If ICEE_HAS_ROUTER is defined Ice-E will be built with router
+support. If Ice-E is built without router support then you cannot use
+Ice-E with Glacier2.
+
+Locator Support
+--------------
+
+If ICEE_HAS_LOCATOR is defined Ice-E will be built with locator
+support. If Ice-E is built without locator support then you cannot use
+Ice-E with indirect proxies. See the Ice Manual for more information.
+
+Batch Messages Support
+----------------------
+
+This option only affects the pure client side library.  Batch messages
+cannot be disabled on the server side. If ICEE_HAS_BATCH is defined
+Ice-E will be built with batch message support. Ice-E is built without
+batch support then you cannot send batch messages.
+
+Pure Client Side Library
+------------------------
+
+The library only includes those pieces of Ice-E necessary for a pure
+client. Pure clients cannot use Glacier 2. The options
+ICEE_HAS_LOCATOR and ICEE_HAS_BATCH affect the size of the client side
+library.  To build your application to use this library you must
+define the preprocessor symbol ICEE_PURE_CLIENT when building your
+application.
+
+Installation
+============
+
 For installation instructions, please refer to the INSTALL.* file for
 your plaftorm.
 
