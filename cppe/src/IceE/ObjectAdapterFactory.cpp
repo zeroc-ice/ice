@@ -9,7 +9,7 @@
 
 #include <IceE/ObjectAdapterFactory.h>
 #include <IceE/ObjectAdapter.h>
-#include <IceE/LocalException.h>
+#include <IceE/LocalExceptions.h>
 #include <IceE/Functional.h>
 
 using namespace std;

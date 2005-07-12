@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceE/Buffer.h>
-#include <IceE/LocalException.h>
+#include <IceE/LocalExceptions.h>
 
 using namespace std;
 using namespace Ice;

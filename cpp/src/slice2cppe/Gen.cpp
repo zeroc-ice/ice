@@ -213,7 +213,7 @@ Slice::Gen::generate(const UnitPtr& p)
 	H << "\n#  include <IceE/Incoming.h>";
         H << "\n#endif";
 	H << "\n#include <IceE/Outgoing.h>";
-	C << "\n#include <IceE/LocalException.h>";
+	C << "\n#include <IceE/LocalExceptions.h>";
     }
 
     if(p->hasNonLocalExceptions())
@@ -236,7 +236,7 @@ Slice::Gen::generate(const UnitPtr& p)
 
     if(p->hasNonLocalExceptions())
     {
-        C << "\n#include <IceE/LocalException.h>";
+        C << "\n#include <IceE/LocalExceptions.h>";
     }
 
     StringList includes = p->includeFiles();

@@ -9,7 +9,7 @@
 
 #include <IceE/Object.h>
 #include <IceE/Incoming.h>
-#include <IceE/LocalException.h>
+#include <IceE/LocalExceptions.h>
 
 using namespace std;
 using namespace Ice;

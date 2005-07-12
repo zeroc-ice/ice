@@ -13,7 +13,7 @@
 #include <IceE/Reference.h>
 #include <IceE/Instance.h>
 #include <IceE/BasicStream.h>
-#include <IceE/LocalException.h>
+#include <IceE/LocalExceptions.h>
 #ifdef ICEE_HAS_ROUTER
 #  include <IceE/RouterInfo.h>
 #endif

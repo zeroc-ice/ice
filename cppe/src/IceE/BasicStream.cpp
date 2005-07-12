@@ -11,7 +11,7 @@
 #include <IceE/Instance.h>
 #include <IceE/ProxyFactory.h>
 #include <IceE/UserExceptionFactory.h>
-#include <IceE/LocalException.h>
+#include <IceE/LocalExceptions.h>
 #include <IceE/Protocol.h>
 #include <IceE/FactoryTable.h>
 #include <IceE/LoggerUtil.h>

@@ -45,7 +45,7 @@ LOCAL_OBJS	= BasicStream.o \
 		  IncomingConnectionFactory.o \
 		  Initialize.o \
 		  Instance.o \
-		  LocalException.o \
+		  LocalExceptions.o \
 		  LocalObject.o \
 		  Locator.o \
 		  LocatorF.o \

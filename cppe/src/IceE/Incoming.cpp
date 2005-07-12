@@ -11,7 +11,7 @@
 #include <IceE/ServantManager.h>
 #include <IceE/Object.h>
 #include <IceE/Connection.h>
-#include <IceE/LocalException.h>
+#include <IceE/LocalExceptions.h>
 #include <IceE/Instance.h>
 #include <IceE/Properties.h>
 #include <IceE/IdentityUtil.h>

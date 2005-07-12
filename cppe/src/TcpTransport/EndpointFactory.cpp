@@ -9,7 +9,7 @@
 
 #include <IceE/EndpointFactory.h>
 #include <IceE/UnknownEndpoint.h>
-#include <IceE/LocalException.h>
+#include <IceE/LocalExceptions.h>
 #include <IceE/BasicStream.h>
 #include <TcpTransport/TcpEndpoint.h>
 

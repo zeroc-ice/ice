@@ -10,7 +10,7 @@
 #include <IceE/StringUtil.h>
 #include <IceE/Properties.h>
 #include <IceE/Initialize.h>
-#include <IceE/LocalException.h>
+#include <IceE/LocalExceptions.h>
 
 using namespace std;
 using namespace Ice;

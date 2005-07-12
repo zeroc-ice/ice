@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceE/ReferenceFactory.h>
-#include <IceE/LocalException.h>
+#include <IceE/LocalExceptions.h>
 #include <IceE/Instance.h>
 #include <IceE/IdentityUtil.h>
 #include <IceE/EndpointFactory.h>

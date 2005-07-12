@@ -16,7 +16,7 @@
 #include <IceE/Connector.h>
 #include <IceE/Endpoint.h>
 #include <IceE/RouterInfo.h>
-#include <IceE/LocalException.h>
+#include <IceE/LocalExceptions.h>
 #include <IceE/Functional.h>
 #ifdef ICEE_HAS_ROUTER
 #  include <IceE/Reference.h>
