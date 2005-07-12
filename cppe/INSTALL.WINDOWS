@@ -6,27 +6,19 @@ Requirements
 Windows version
 ---------------
 
-TODO: NEEDS TO BE MODIFIED
-
-Ice-E has been extensively tested with Windows XP, Windows 2000 and
-Windows 98 SE. Ice-E is also expected to work on Windows 98, Windows ME,
-Windows NT 3.51, Windows NT 4.0 and Windows Server 2003.
-
+Ice-E has been extensively tested with Windows XP.
 
 C++ compiler
 ------------
 
 The following Microsoft Visual C++ compilers are supported:
 
-- Embedded Visual C++ 4.0 SP4 with STLport 5.0 (or later)
-
 - Visual C++ 6.0 SP5 with STLport 4.5 (or later)
 
 - Visual C++ .NET 2003 (aka VC 7.1)
 
-The STL (Standard Template Library) that is included with Embedded 
-Visual C++ 4.0 and Visual C++ 6.0 is not supported. You must use STLport
-for these comppilers.
+The STL (Standard Template Library) that is included with Visual C++ 6.0 
+is not supported. You must use STLport for these comppilers.
 
 For Visual C++ .NET 2003, you can use the included STL library.
 
@@ -48,12 +40,8 @@ http://www.zeroc.com/download.html
 STLport
 -------
 
-Ice-E required the following versions of STLport:
-
-- STLport 4.5 or later (required for Visual C++ 6.0)
-- STLport 5.0 or later (required for Embedded Visual C++ 4.0)
-
-You can download STLport at the following locations:
+Ice-E required STLport 4.5 or later for Visual C++ 6.0. You can download
+STLport at the following location:
 
 http://www.stlport.org/download.html
 
@@ -63,8 +51,7 @@ require the stream support provided by STLport.
 
 Users must configure Visual Studio to use STLPort:
 
-- In the Embedded Visual C++ 4.0 or Visual C++ 6.0 IDE, choose
-  Tools->Options->Directories
+- In the Visual C++ 6.0 IDE, choose Tools->Options->Directories
 
 - Select "Include files"
 
@@ -82,15 +69,6 @@ is not required.
 You can download a Python distribution for Windows from
 http://www.python.org/download
 
-Important note for Windows 98, Windows 98 SE and Windows ME users:
-
-The Windows 9x shell is too limited to run the Ice-E test suite. For
-these versions of Windows, you need Cygwin and the python interpreter
-that comes with Cygwin in order to run the test suite. Cygwin can be
-downloaded from:
-
-http://www.cygwin.com
-
 
 ======================================================================
 Compilation and Testing
@@ -99,18 +77,6 @@ Compilation and Testing
 Using your favorite Zip tool, unzip the Ice-E archive anywhere you like,
 then start the Microsoft Visual C++ IDE. You are now ready to compile 
 Ice-E.
-
-
-Embedded Visual C++ 4.0
------------------------
-
-Open the "all.vcw" workspace.
-
-TODO: MORE INFO HERE
-
-
-Visual C++ 6.0 and Visual C++ .NET 2003
----------------------------------------
 
 Open the "all.dsw" workspace. If you are using Visual C++ .NET, then the
 project files must first be converted from Visual C++ 6.0 to .NET format.
@@ -140,35 +106,6 @@ Ice-E DLLs.
 
 
 ======================================================================
-Windows 98, Windows 98 SE, Windows ME, Windows NT 3.51 
-======================================================================
-
-By default, Ice::Mutex and related classes are implemented using
-Windows' CriticalSection, and in particular they use the function
-TryEnterCriticalSection. This function is either not present or
-implemented as a "no-op" call on Windows 98, Windows 98 SE, Windows ME
-and Windows NT 3.51, so default Ice-E builds cannot be used on these
-versions of Windows.
-
-Ice::Mutex and related classes can also use "heavier" mutex
-objects that allow Ice-E to work on all Windows versions (>= 98). If you
-wish to build Ice-E in this configuration, you must first edit the file
-include\IceE\Config.h and remove the following lines:
-
-#   ifndef _WIN32_WINNT
-        //
-        // Necessary for TryEnterCriticalSection.
-        //
-#       define _WIN32_WINNT 0x0400
-#   endif
-
-On Windows 98, Windows 98 SE and Windows ME, we also recommend that
-you increase the number of connections supported by TCP/IP (to 500 for
-example). See MaxConnections at
-http://support.microsoft.com/default.aspx?scid=kb;EN-US;158474
-
-
-======================================================================
 Installation
 ======================================================================
 
@@ -180,6 +117,5 @@ contains all Ice-E DLLs.
 
 After installation, make sure to add the include directory to the
 Visual C++ "Include files" and the lib directory to the "Library files".
-In Embedded Visual C++ 4.0 or Visual C++ 6.0, choose 
-Tools->Options->Directories. In Visual C++ .NET, choose
-Tools->Options->Projects->VC++ Directories.
+In Visual C++ 6.0, choose Tools->Options->Directories. In Visual C++
+.NET, choose Tools->Options->Projects->VC++ Directories.
