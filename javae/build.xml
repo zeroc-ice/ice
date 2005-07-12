@@ -64,8 +64,8 @@
         <delete dir="${generated.dir}"/>
         <delete dir="${lib.dir}"/>
         <delete dir="${cache.dir}"/>
-        <!--ant inheritAll="false" dir="demo" target="clean"/-->
-        <!--ant inheritAll="false" dir="test" target="clean"/-->
+        <ant inheritAll="false" dir="demo" target="clean"/>
+        <ant inheritAll="false" dir="test" target="clean"/>
     </target>
 
 </project>
