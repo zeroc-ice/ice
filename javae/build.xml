@@ -15,24 +15,12 @@
 
     <import file="config/common.xml"/>
 
-    <target name="set-bootclasspath" if="midp" depends="config-init">
-        <path id="bootclasspath">
-	    <pathelement path="c:/WTK22/lib/cldcapi11.jar"/>
-	    <pathelement path="c:/WTK22/lib/midpapi20.jar"/>
-	</path>
-    </target>
-
-    <target name="set-empty-bootclasspath" unless="midp" depends="config-init">
-        <path id="bootclasspath">
-	</path>
-    </target>
-
     <!-- set global properties for this build -->
     <property name="src.dir" value="src"/>
     <property name="lib.dir" value="lib"/>
     <property name="cache.dir" value="depcache"/>
 	      
-    <target name="init" depends="config-init,set-bootclasspath,set-empty-bootclasspath"/>
+    <target name="init" depends="config-init"/>
 
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->

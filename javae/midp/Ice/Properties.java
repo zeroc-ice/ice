@@ -297,8 +297,23 @@ public final class Properties
     {
         try
         {
-	    java.io.InputStreamReader reader = new java.io.InputStreamReader(
-		javax.microedition.io.Connector.openInputStream("file://" + file));
+	    load(javax.microedition.io.Connector.openInputStream("file://" + file));
+        }
+        catch(java.io.IOException ex)
+        {
+            FileException se = new FileException();
+	    se.path = file;
+            se.initCause(ex); // Exception chaining
+            throw se;
+        }
+    }
+
+    public synchronized void
+    load(java.io.InputStream is)
+    {
+	try
+	{
+	    java.io.InputStreamReader reader = new java.io.InputStreamReader(is);
 	    String line;
 	    while((line = readLine(reader)) != null)
 	    {
@@ -308,7 +323,7 @@ public final class Properties
         catch(java.io.IOException ex)
         {
             FileException se = new FileException();
-	    se.path = file;
+	    se.path = is.toString();
             se.initCause(ex); // Exception chaining
             throw se;
         }

@@ -344,6 +344,27 @@ public final class Properties
         }
     }
 
+    public synchronized void
+    load(java.io.InputStream is)
+    {
+	try
+	{
+	    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(is));
+	    String line;
+	    while((line = reader.readLine() != null)
+	    {
+		parseLine(line);
+	    }
+        }
+        catch(java.io.IOException ex)
+        {
+            FileException se = new FileException();
+	    se.path = is.toString();
+            se.initCause(ex); // Exception chaining
+            throw se;
+        }
+    }
+
     public java.lang.Object
     ice_clone()
     {

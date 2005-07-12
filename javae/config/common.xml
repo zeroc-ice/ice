@@ -106,7 +106,7 @@
 	<taskdef name="slice2javae" classpath="${lib.dir}/ant" classname="Slice2JavaETask"/>
     </target>
     
-    <target name="config-init" depends="properties-cvs,properties-opt,properties-src,properties-rpm">
+    <target name="config-impl" depends="properties-cvs,properties-opt,properties-src,properties-rpm">
         <!-- Create the time stamp -->
         <tstamp/>
 
@@ -128,4 +128,18 @@
         <equals arg1="${targetProfile}" arg2="midp" trim="true"/>
     </condition>
 
+    <target name="set-bootclasspath" if="midp" depends="config-impl">
+        <path id="bootclasspath">
+	    <pathelement path="c:/WTK22/lib/cldcapi11.jar"/>
+	    <pathelement path="c:/WTK22/lib/midpapi20.jar"/>
+	</path>
+    </target>
+
+    <target name="set-empty-bootclasspath" unless="midp" depends="config-impl">
+        <path id="bootclasspath">
+	</path>
+    </target>
+
+    <target name="config-init" depends="config-impl,set-bootclasspath,set-empty-bootclasspath"/>
+    
 </project>
