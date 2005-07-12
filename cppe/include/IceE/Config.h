@@ -25,6 +25,13 @@
 //
 //#define ICEE_HAS_BATCH
 
+
+// ***********************************************************************
+//
+// User should not change anything below this line!
+//
+// ***********************************************************************
+
 //
 // Unless we're building a pure client batch mode cannot be disabled.
 //
