@@ -1796,12 +1796,6 @@ Ice::NegativeSizeException::ice_throw() const
     throw *this;
 }
 
-bool
-Ice::UserException::__usesClasses() const
-{
-    return false;
-}
-
 string
 Ice::UnknownException::toString() const
 {

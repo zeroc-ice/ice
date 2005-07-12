@@ -45,8 +45,6 @@ public:
 
     virtual void __write(::IceInternal::BasicStream*) const = 0;
     virtual void __read(::IceInternal::BasicStream*, bool) = 0;
-
-    virtual bool __usesClasses() const;
 };
 
 typedef ::IceInternal::Handle<UserException> UserExceptionPtr;

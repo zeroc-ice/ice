@@ -1333,14 +1333,8 @@ IceInternal::BasicStream::read(ObjectPrx& v)
 void
 IceInternal::BasicStream::write(const UserException& v)
 {
-    write(v.__usesClasses());
+    write(false);
     v.__write(this);
-#ifdef never
-    if(v.__usesClasses())
-    {
-	writePendingObjects();
-    }
-#endif
 }
 
 void
