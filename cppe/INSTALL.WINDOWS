@@ -46,8 +46,9 @@ STLport at the following location:
 http://www.stlport.org/download.html
 
 For STLport installation instructions, please refer to
-http://www.stlport.org/doc/install.html. Note that Ice-E does not
-require the stream support provided by STLport.
+http://www.stlport.org/doc/install.html. There is no need to compile 
+STLport for use with Ice-E, since Ice-E does not require the iostream 
+support provided by STLport.
 
 Users must configure Visual Studio to use STLPort:
 
