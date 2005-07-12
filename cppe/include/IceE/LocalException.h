@@ -2,45 +2,17 @@
 //
 // Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice-E is licensed to you under the terms described in the
+// This copy of Ice is licensed to you under the terms described in the
 // ICEE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-// Ice-E version 1.0.0
-// Generated from file `LocalException.ice'
+#ifndef ICEE_LOCAL_EXCEPTION_H
+#define ICEE_LOCAL_EXCEPTION_H
 
-#ifndef __IceE_LocalException_h__
-#define __IceE_LocalException_h__
-
-#include <IceE/LocalObjectF.h>
-#include <IceE/ProxyF.h>
-#ifndef ICEE_PURE_CLIENT
-#  include <IceE/ObjectF.h>
-#endif
 #include <IceE/Exception.h>
-#include <IceE/LocalObject.h>
-#include <IceE/Proxy.h>
 #include <IceE/Identity.h>
 #include <IceE/BuiltinSequences.h>
-#include <IceE/UndefSysMacros.h>
-
-#ifndef ICEE_IGNORE_VERSION
-#   if ICEE_INT_VERSION / 100 != 100
-#       error IceE version mismatch!
-#   endif
-#   if ICEE_INT_VERSION % 100 < 0
-#       error IceE patch level mismatch!
-#   endif
-#endif
-
-#ifndef ICEE_API
-#   ifdef ICEE_API_EXPORTS
-#       define ICEE_API ICEE_DECLSPEC_EXPORT
-#   else
-#       define ICEE_API ICEE_DECLSPEC_IMPORT
-#   endif
-#endif
 
 namespace Ice
 {
@@ -169,6 +141,8 @@ public:
     virtual void ice_throw() const;
 };
 
+#ifndef ICEE_PURE_CLIENT
+
 class ICEE_API ObjectAdapterDeactivatedException : public ::Ice::LocalException
 {
 public:
@@ -198,6 +172,7 @@ public:
 
     ::std::string id;
 };
+#endif
 
 class ICEE_API NoEndpointException : public ::Ice::LocalException
 {

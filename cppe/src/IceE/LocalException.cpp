@@ -2,28 +2,24 @@
 //
 // Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice-E is licensed to you under the terms described in the
+// This copy of Ice is licensed to you under the terms described in the
 // ICEE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-// Ice-E version 1.0.0
-// Generated from file `LocalException.ice'
-
 #include <IceE/LocalException.h>
-#include <IceE/BasicStream.h>
-#ifndef ICEE_PURE_CLIENT
-#  include <IceE/Object.h>
-#endif
+#include <IceE/SafeStdio.h>
+#include <IceE/IdentityUtil.h>
+#include <IceE/Network.h>
 
-#ifndef ICEE_IGNORE_VERSION
-#   if ICEE_INT_VERSION / 100 != 100
-#       error IceE version mismatch!
-#   endif
-#   if ICEE_INT_VERSION % 100 < 0
-#       error IceE patch level mismatch!
-#   endif
-#endif
+using namespace std;
+using namespace Ice;
+using namespace IceInternal;
+
+Ice::LocalException::LocalException(const char* file, int line) :
+    Exception(file, line)
+{
+}
 
 Ice::AlreadyRegisteredException::AlreadyRegisteredException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
@@ -346,6 +342,8 @@ Ice::CommunicatorDestroyedException::ice_throw() const
     throw *this;
 }
 
+#ifndef ICEE_PURE_CLIENT
+
 Ice::ObjectAdapterDeactivatedException::ObjectAdapterDeactivatedException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
@@ -383,6 +381,15 @@ void
 Ice::ObjectAdapterDeactivatedException::ice_throw() const
 {
     throw *this;
+}
+string
+Ice::ObjectAdapterDeactivatedException::toString() const
+{
+    string out = Exception::toString();
+    out +=  ":\nobject adapter `";
+    out += name;
+    out += "' deactivated";
+    return out;
 }
 
 Ice::ObjectAdapterIdInUseException::ObjectAdapterIdInUseException(const char* __file, int __line) :
@@ -423,6 +430,22 @@ Ice::ObjectAdapterIdInUseException::ice_throw() const
 {
     throw *this;
 }
+
+string
+Ice::ObjectAdapterIdInUseException::toString() const
+{
+#ifdef ICEE_HAS_LOCATOR
+    string out = Exception::toString();
+    out += ":\nobject adapter with id `";
+    out += id; 
+    out += "' is already in use";
+    return out;
+#else
+    return string("");
+#endif
+}
+
+#endif // ICEE_PURE_CLIENT
 
 Ice::NoEndpointException::NoEndpointException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
@@ -1771,4 +1794,475 @@ void
 Ice::NegativeSizeException::ice_throw() const
 {
     throw *this;
+}
+
+string
+Ice::UnknownException::toString() const
+{
+    string out = Exception::toString();
+    out +=  ":\nunknown exception";
+    if(!unknown.empty())
+    {
+	out += ":\n";
+	out += unknown;
+    }
+    return out;
+}
+
+string
+Ice::UnknownLocalException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nunknown local exception";
+    if(!unknown.empty())
+    {
+	out += ":\n";
+	out += unknown;
+    }
+    return out;
+}
+
+string
+Ice::UnknownUserException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nunknown user exception";
+    if(!unknown.empty())
+    {
+	out += ":\n";
+	out += unknown;
+    }
+    return out;
+}
+
+string
+Ice::VersionMismatchException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nIce library version mismatch";
+    return out;
+}
+
+string
+Ice::CommunicatorDestroyedException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\ncommunicator object destroyed";
+    return out;
+}
+
+#ifdef never
+#endif
+
+string
+Ice::NoEndpointException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nno suitable endpoint available for proxy `";
+    out += proxy;
+    out += "'";
+    return out;
+}
+
+string
+Ice::EndpointParseException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nerror while parsing endpoint `";
+    out += str;
+    out += "'";
+    return out;
+}
+
+string
+Ice::IdentityParseException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nerror while parsing identity `";
+    out += str; 
+    out += "'";
+    return out;
+}
+
+string
+Ice::ProxyParseException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nerror while parsing proxy `";
+    out += str;
+    out += "'";
+    return out;
+}
+
+string
+Ice::IllegalIdentityException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nillegal identity: `";
+    out += identityToString(id);
+    out += "'";
+    return out;
+}
+
+static void
+printFailedRequestData(string& out, const RequestFailedException& ex)
+{
+    out += "\nidentity: ";
+    out += identityToString(ex.id);
+    out += "\nfacet: ";
+    out += ex.facet;
+    out += "\noperation: ";
+    out += ex.operation;
+}
+
+string
+Ice::RequestFailedException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nrequest failed";
+    printFailedRequestData(out, *this);
+    return out;
+}
+
+string
+Ice::ObjectNotExistException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nobject does not exist";
+    printFailedRequestData(out, *this);
+    return out;
+}
+
+string
+Ice::FacetNotExistException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nfacet does not exist";
+    printFailedRequestData(out, *this);
+    return out;
+}
+
+string
+Ice::OperationNotExistException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\noperation does not exist";
+    printFailedRequestData(out, *this);
+    return out;
+}
+
+string
+Ice::SyscallException::toString() const
+{
+    string out = Exception::toString();
+    if(error != 0)
+    {
+        out += ":\nsyscall exception: ";
+	out += errorToString(error);
+    }
+    return out;
+}
+
+string
+Ice::SocketException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nsocket exception: ";
+    out += errorToString(error);
+    return out;
+}
+
+string
+Ice::FileException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nfile exception: ";
+    out += errorToString(error);
+    if(!path.empty())
+    {
+	out += "\npath: ";
+	out += path;
+    }
+    return out;
+}
+
+string
+Ice::ConnectFailedException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nconnect failed: ";
+    out += errorToString(error);
+    return out;
+}
+
+string
+Ice::ConnectionRefusedException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nconnection refused: ";
+    out += errorToString(error);
+    return out;
+}
+
+string
+Ice::ConnectionLostException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nconnection lost: ";
+    if(error == 0)
+    {
+	out += "recv() returned zero";
+    }
+    else
+    {
+	out += errorToString(error);
+    }
+    return out;
+}
+
+string
+Ice::DNSException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nDNS error: ";
+    out += errorToStringDNS(error);
+    out += "\nhost: ";
+    out += host;
+    return out;
+}
+
+string
+Ice::TimeoutException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\ntimeout while sending or receiving data";
+    return out;
+}
+
+string
+Ice::ConnectTimeoutException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\ntimeout while establishing a connection";
+    return out;
+}
+
+string
+Ice::CloseTimeoutException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\ntimeout while closing a connection";
+    return out;
+}
+
+string
+Ice::ConnectionTimeoutException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nconnection has timed out";
+    return out;
+}
+
+string
+Ice::ProtocolException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nunknown protocol exception";
+    return out;
+}
+
+string
+Ice::BadMagicException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nunknown magic number: ";
+    out += Ice::printfToString("0x%2X, 0x%2X, 0x%2X, 0x%2X", badMagic[0], badMagic[1], badMagic[2], badMagic[3]);
+
+    return out;
+}
+
+string
+Ice::UnsupportedProtocolException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: unsupported protocol version: ";
+    out += Ice::printfToString("%d.%d", badMajor, badMinor);
+    out += "\n(can only support protocols compatible with version ";
+    out += Ice::printfToString("%d.%d", major, minor);
+    out += ")";
+    return out;
+}
+
+string
+Ice::UnsupportedEncodingException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: unsupported encoding version: ";
+    out += badMajor;
+    out += ".";
+    out += badMinor;
+    out += "\n(can only support encodings compatible with version ";
+    out += major;
+    out += ".";
+    out += minor;
+    return out;
+}
+
+string
+Ice::UnknownMessageException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: unknown message type";
+    return out;
+}
+
+string
+Ice::ConnectionNotValidatedException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: received message over unvalidated connection";
+    return out;
+}
+
+string
+Ice::UnknownRequestIdException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: unknown request id";
+    return out;
+}
+
+string
+Ice::UnknownReplyStatusException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: unknown reply status";
+    return out;
+}
+
+string
+Ice::CloseConnectionException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: connection closed";
+    return out;
+}
+
+string
+Ice::ForcedCloseConnectionException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: connection forcefully closed";
+    return out;
+}
+
+string
+Ice::IllegalMessageSizeException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: illegal message size";
+    return out;
+}
+
+string
+Ice::CompressionNotSupportedException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: compressed messages not supported";
+    return out;
+}
+
+string
+Ice::MarshalException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: error during marshaling or unmarshaling";
+    if(!reason.empty())
+    {
+	out += ":\n";
+	out += reason;
+    }
+    return out;
+}
+
+string
+Ice::UnmarshalOutOfBoundsException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: out of bounds during unmarshaling";
+    return out;
+}
+
+string
+Ice::ProxyUnmarshalException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: inconsistent proxy data during unmarshaling";
+    return out;
+}
+
+string
+Ice::MemoryLimitException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: memory limit exceeded";
+    return out;
+}
+
+string
+Ice::EncapsulationException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: illegal encapsulation";
+    return out;
+}
+
+string
+Ice::NegativeSizeException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nprotocol error: negative size for sequence, dictionary, etc.";
+    return out;
+}
+
+string
+Ice::AlreadyRegisteredException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\n";
+    out += kindOfObject;
+    out += " with id `";
+    out += id; 
+    out += "' is already registered";
+    return out;
+}
+
+string
+Ice::NotRegisteredException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\n no ";
+    out += kindOfObject;
+    out += " with id `";
+    out += id;
+    out += "' is registered";
+    return out;
+}
+
+string
+Ice::TwowayOnlyException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\n operation `";
+    out += operation; 
+    out += "' can only be invoked as a twoway request";
+    return out;
+}
+
+string
+Ice::CloneNotImplementedException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\n ice_clone() must be implemented in classes derived from abstract base classes";
+    return out;
 }
