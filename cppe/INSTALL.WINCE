@@ -5,27 +5,35 @@ Requirements
 Version
 ---------------
 
-Ice-E has been extensively tested with the standard WinCE SDK 4.2.
+Ice-E has been extensively tested with the standard WinCE SDK 4.2
+under the following environments:
+
+- The STANDARDSDK_420 Emulator
+
+- Dell Axim v50
 
 C++ compiler
 ------------
 
 The following Microsoft Visual C++ compilers & SDKs are supported:
 
-- Embedded Visual C++ 4.0 SP4 with STLport 5.0 (or later)
-- Pocket PC SDK 4.2.
+- Microsoft eMbedded Visual C++ 4.0 SP4 with STLport 5.0 (or later)
+
+- Standard SDK for Windows CE .NET 4.2
+
 - The Pocket PC 2003 Run-time Type Information library
 
-The STL (Standard Template Library) that is included with Embedded
-Visual C++ 4.0 is not supported. You must use STLport with this compiler.
+The STL (Standard Template Library) that is included with Microsoft
+eMbedded Visual C++ 4.0 is not supported. You must use STLport with
+this compiler.
 
 Microsoft eMbedded Visual C++ (EVC) can be downloaded here:
 
 - http://www.microsoft.com/downloads/details.aspx?FamilyID=1dacdb3d-50d1-41b2-a107-fa75ae960856&displaylang=en
 
-Service patch 4 can be downloaded here:
+The Standard SDK for Windows CE .NET 4.2 can be downloaded here:
 
-- http://www.microsoft.com/downloads/details.aspx?FamilyID=4a4ed1f4-91d3-4dbe-986e-a812984318e5&displaylang=en#filelist
+- http://www.microsoft.com/downloads/details.aspx?FamilyID=A08F6991-16B0-4019-A174-0C40E6D25FE7&displaylang=en
 
 The Pocket PC 2003 Run-time Type Information library can be downloaded here:
 
@@ -95,8 +103,9 @@ Installing and Configuring
 
 Note: On some of our development machines after installing EVC 4.0 the
 IDE would hang upon start-up. In order to fix this we had to uninstall
-EVC 4.0 and then Microsoft Visual Studio 6.0. Then follow the installation instructions above,
-and after EVC is 
+both EVC 4.0 and Microsoft Visual Studio 6.0. Next, reinstall EVC 4.0
+following the instructions above. Once EVC is working, reinstall
+Microsoft Visual Studio 6.0.
 
 ======================================================================
 Compilation and Testing
@@ -106,8 +115,8 @@ Using your favorite Zip tool, unzip the Ice-E archive anywhere you
 like, then start the EVC 4.0 IDE. You are now ready to
 compile Ice-E.
 
-Embedded Visual C++ 4.0
------------------------
+Microsoft eMbedded Visual C++ 4.0
+---------------------------------
 
 Open the "all.vcw" workspace.
 
