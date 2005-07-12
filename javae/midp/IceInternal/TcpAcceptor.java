@@ -95,7 +95,7 @@ class TcpAcceptor implements Acceptor
 	try
 	{
 	    javax.microedition.io.Connection localConn =
-		javax.microedition.io.Connector.open("socket://" + _addr.getAddress() + ':' + _addr.getPort() + "/");
+		javax.microedition.io.Connector.open("socket://" + _addr.getAddress() + ':' + _addr.getPort());
 	    localConn.close();
 	}
 	catch(java.io.IOException ex)

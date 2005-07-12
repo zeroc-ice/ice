@@ -53,7 +53,6 @@ public abstract class LocalException extends RuntimeException
         out.setUseTab(false);
         out.print(getClass().getName());
         out.inc();
-// XXX        IceInternal.ValueWriter.write(this, out);
         return os.toString();
     }
 
