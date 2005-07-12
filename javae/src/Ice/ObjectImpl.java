@@ -9,7 +9,7 @@
 
 package Ice;
 
-public abstract class ObjectImpl implements Object, IceUtil.Cloneable
+public abstract class ObjectImpl implements Object
 {
     public
     ObjectImpl()
@@ -22,7 +22,9 @@ public abstract class ObjectImpl implements Object, IceUtil.Cloneable
     {
 	try
 	{
-	    return getClass().newInstance();
+	    ObjectImpl obj = (ObjectImpl)getClass().newInstance();
+	    obj.__copyFrom(this);
+	    return obj;
 	}
 	catch(java.lang.IllegalAccessException ex)
 	{
@@ -187,5 +189,10 @@ public abstract class ObjectImpl implements Object, IceUtil.Cloneable
 	    IceUtil.Debug.Assert(false);
 	}
         return IceInternal.DispatchStatus.DispatchOperationNotExist;
+    }
+
+    protected void
+    __copyFrom(java.lang.Object obj)
+    {
     }
 }

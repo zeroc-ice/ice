@@ -9,7 +9,7 @@
 
 package Ice;
 
-public final class Current implements IceUtil.Cloneable
+public final class Current
 {
     public ObjectAdapter adapter;
     public Connection con;

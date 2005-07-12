@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public abstract class Reference implements IceUtil.Cloneable
+public abstract class Reference
 {
     public final static int ModeTwoway = 0;
     public final static int ModeOneway = 1;
