@@ -133,7 +133,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                 $(OutDir)\icee.lib                                 ..\..\lib\ 
+PostBuild_Cmds=copy                                   $(OutDir)\icee.lib                                   ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ice - Win32 Debug Static"
@@ -166,7 +166,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                $(OutDir)\iceed.lib                                ..\..\lib\ 
+PostBuild_Cmds=copy                                  $(OutDir)\iceed.lib                                  ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
@@ -266,7 +266,7 @@ SOURCE=.\Instance.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\LocalException.cpp
+SOURCE=.\LocalExceptions.cpp
 # End Source File
 # Begin Source File
 
@@ -422,6 +422,26 @@ SOURCE=.\UUID.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=..\..\include\IceE\AbstractMutex.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\Algorithm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\Buffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\BuiltinSequences.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\Current.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\DefaultsAndOverrides.h
 # End Source File
 # Begin Source File
@@ -430,7 +450,27 @@ SOURCE=.\DefaultsAndOverridesF.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\IceE\DispatchStatus.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\ExceptionBase.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\FacetMap.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\IceE.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\IncomingConnectionFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\IncomingConnectionFactoryF.h
 # End Source File
 # Begin Source File
 
@@ -438,7 +478,15 @@ SOURCE=.\Instance.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\IceE\Iterator.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\LocatorInfo.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\LocatorInfoF.h
 # End Source File
 # Begin Source File
 
@@ -450,11 +498,35 @@ SOURCE=.\LoggerI.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\IceE\Monitor.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Network.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\IceE\Object.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\ObjectAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\ObjectAdapterF.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ObjectAdapterFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\ObjectAdapterFactoryF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\ObjectF.h
 # End Source File
 # Begin Source File
 
@@ -463,6 +535,10 @@ SOURCE=..\..\include\IceE\OperationMode.h
 # Begin Source File
 
 SOURCE=.\OutgoingConnectionFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\OutgoingConnectionFactoryF.h
 # End Source File
 # Begin Source File
 
@@ -486,6 +562,14 @@ SOURCE=.\ReferenceFactoryF.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\IceE\Router.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\RouterF.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\RouterInfo.h
 # End Source File
 # Begin Source File
@@ -494,7 +578,19 @@ SOURCE=.\RouterInfoF.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\IceE\RoutingTable.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\RoutingTableF.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ServantManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\Time.h
 # End Source File
 # Begin Source File
 
@@ -502,7 +598,19 @@ SOURCE=.\TraceLevels.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\IceE\TraceLevelsF.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\TraceUtil.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\UndefSysMacros.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceE\UUID.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

@@ -133,7 +133,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                   $(OutDir)\iceec.lib                                   ..\..\lib\ 
+PostBuild_Cmds=copy                                    $(OutDir)\iceec.lib                                    ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "icec - Win32 Debug Static"
@@ -166,7 +166,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                  $(OutDir)\iceecd.lib                                  ..\..\lib\ 
+PostBuild_Cmds=copy                                   $(OutDir)\iceecd.lib                                   ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
@@ -250,7 +250,7 @@ SOURCE=..\IceE\Instance.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\IceE\LocalException.cpp
+SOURCE=..\IceE\LocalExceptions.cpp
 # End Source File
 # Begin Source File
 
@@ -531,10 +531,6 @@ SOURCE=..\..\include\IceE\InstanceF.h
 # Begin Source File
 
 SOURCE=..\..\include\IceEUtil\Iterator.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\IceE\LocalException.h
 # End Source File
 # Begin Source File
 
