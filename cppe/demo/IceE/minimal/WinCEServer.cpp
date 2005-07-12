@@ -12,39 +12,13 @@
 
 using namespace std;
 
-class HelloI : public ::Demo::Hello
-{
-public:
-
-    virtual void
-    sayHello(const Ice::Current&) const
-    {
-	printf("Hello World!\n");
-    }
-};
-
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
-{
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Hello");
-    Ice::ObjectPtr object = new HelloI;
-    adapter->add(object, Ice::stringToIdentity("hello"));
-    adapter->activate();
-#ifndef _WIN32_WCE
-    communicator->waitForShutdown();
-#endif
-    return EXIT_SUCCESS;
-}
-
-#ifdef _WIN32_WCE
-
 #define IDC_MAIN_EDIT	101
 
 static HWND hEdit;
 static HWND mainWnd;
 static IceUtil::ThreadControl mainThread;
 
-void
+static void
 tprintf(const char* fmt, ...)
 {
     va_list va;
@@ -117,6 +91,18 @@ tprintf(const char* fmt, ...)
 	}
     }
 }
+
+class HelloI : public ::Demo::Hello
+{
+public:
+
+    virtual void
+    sayHello(const Ice::Current&) const
+    {
+	tprintf("Hello World!\n");
+    }
+};
+
 
 static LRESULT CALLBACK
 WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -221,7 +207,10 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	Ice::PropertiesPtr properties = Ice::createProperties();
 	properties->setProperty("Hello.Endpoints","tcp -p 10000");
 	communicator = Ice::initializeWithProperties(__argc, __argv, properties);
-	status = run(__argc, __argv, communicator);
+	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Hello");
+	Ice::ObjectPtr object = new HelloI;
+	adapter->add(object, Ice::stringToIdentity("hello"));
+	adapter->activate();
     }
     catch(const Ice::Exception& ex)
     {
@@ -251,41 +240,3 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
     }
     return status;
 }
-
-#else
-
-int
-main(int argc, char* argv[])
-{
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
-	status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	fprintf(stderr, "%s\n", ex.toString().c_str());
-	status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    fprintf(stderr, "%s\n", ex.toString().c_str());
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
-}
-#endif

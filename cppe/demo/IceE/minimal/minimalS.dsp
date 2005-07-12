@@ -157,10 +157,6 @@ SOURCE=.\Hello.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\HelloI.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Server.cpp
 # End Source File
 # End Group
@@ -170,10 +166,6 @@ SOURCE=.\Server.cpp
 # Begin Source File
 
 SOURCE=.\Hello.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\HelloI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

@@ -80,21 +80,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
-#ifdef _WIN32_WCE
-
-int WINAPI
-WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
-{
-    int argc = 0;
-    char** argv = 0;
-
-#else
-
 int
 main(int argc, char* argv[])
 {
 
-#endif
     int status;
     Ice::CommunicatorPtr communicator;
 
