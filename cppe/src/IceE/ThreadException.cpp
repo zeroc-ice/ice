@@ -33,7 +33,9 @@ IceUtil::ThreadSyscallException::toString() const
     if(_error != 0)
     {
 	out += ":\nthread syscall exception: ";
-#ifdef _WIN32
+#ifdef _WIN32_WCE
+	out += Ice::printfToString("thread error: %d", _error);
+#elif defined(_WIN32)
 	LPVOID lpMsgBuf = 0;
 	DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
 				 FORMAT_MESSAGE_FROM_SYSTEM |

@@ -11,7 +11,6 @@
 #include <IceE/Properties.h>
 #include <IceE/Initialize.h>
 #include <IceE/LocalException.h>
-#include <IceE/PropertyNames.h>
 
 using namespace std;
 using namespace Ice;
@@ -105,38 +104,6 @@ Ice::Properties::setProperty(const string& key, const string& value)
     if(key.empty())
     {
 	return;
-    }
-
-    //
-    // Check if the property is legal. (We write to stderr instead of
-    // using a logger because no logger may be established at the time
-    // the property is parsed.)
-    //
-    string::size_type dotPos = key.find('.');
-    if(dotPos != string::npos)
-    {
-	string prefix = key.substr(0, dotPos);
-	for(const char* const** i = IceInternal::PropertyNames::validProps; *i != 0; ++i)
-	{
-	    string pattern(*i[0]);
-	    dotPos = pattern.find('.');
-	    assert(dotPos != string::npos);
-	    string propPrefix = pattern.substr(0, dotPos);
-	    if(propPrefix != prefix)
-	    {
-		continue;
-	    }
-
-	    bool found = false;
-	    for(const char* const* j = *i; *j != 0 && !found; ++j)
-	    {
-		found = IceUtil::match(key, *j);
-	    }
-	    if(!found)
-	    {
-		fprintf(stderr, "warning: unknown property: %s\n", key.c_str());
-	    }
-	}
     }
 
     IceUtil::Mutex::Lock sync(*this);
