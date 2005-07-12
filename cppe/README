@@ -1,42 +1,58 @@
+Overview
+========
+
+In order to minimize the size of Ice-E applications, two versions of
+the run time library are provided:
+
+* The "client" library is suitable for applications requiring only
+  client-side functionality.
+
+* The "server" library supports client- and server-side functionality.
+
+A simple rule of thumb is to use the server library if your program
+creates an object adapter, otherwise you can use the client library.
+
+Users of the client library must define the preprocessor macro
+ICEE_PURE_CLIENT when compiling an application as well as link with
+the appropriate run time library.
+
+
 Configuration
 =============
 
-Ice-E supports a number of different configurations which alter the
-size of the binaries. By default the installation enables
-everything. To alter the configuration edit include/IceE/Config.h and
-alter the defines at the top of the header file.
+You may build the Ice-E run time libraries with certain components
+disabled in order to further reduce the size of your applications. The
+default configuration enables all of the optional components, but you
+can selectively disable them by editing the file include/IceE/Config.h
+and commenting out their corresponding preprocessor macros. The
+optional components are described below. For more information on these
+features, please refer to the Ice manual.
 
 Router Support
 --------------
 
-If ICEE_HAS_ROUTER is defined Ice-E will be built with router
-support. If Ice-E is built without router support then you cannot use
-Ice-E with Glacier2.
+If ICEE_HAS_ROUTER is defined, the Ice-E libraries will include
+support for routers. This component is necessary in order to use
+Ice-E with the Glacier2 router.
+
+Applications that use routers often also receive callbacks from remote
+servers. These applications must use the server library, because the
+client library does not provide support for callbacks.
 
 Locator Support
---------------
+---------------
 
-If ICEE_HAS_LOCATOR is defined Ice-E will be built with locator
-support. If Ice-E is built without locator support then you cannot use
-Ice-E with indirect proxies. See the Ice Manual for more information.
+If ICEE_HAS_LOCATOR is defined, the Ice-E libraries will include
+support for locators. This component is necessary in order to use
+indirect proxies in Ice-E.
 
 Batch Messages Support
 ----------------------
 
-This option only affects the pure client side library.  Batch messages
-cannot be disabled on the server side. If ICEE_HAS_BATCH is defined
-Ice-E will be built with batch message support. If Ice-E is built without
-batch support then you cannot send batch messages.
+If ICEE_HAS_BATCH is defined, the Ice-E client library will include
+support for sending batch messages. This feature cannot be disabled
+in the server library.
 
-Pure Client Side Library
-------------------------
-
-The library only includes those pieces of Ice-E necessary for a pure
-client. Pure clients cannot use Glacier 2. The options
-ICEE_HAS_LOCATOR and ICEE_HAS_BATCH affect the size of the client side
-library.  To build your application to use this library you must
-define the preprocessor symbol ICEE_PURE_CLIENT when building your
-application.
 
 Installation
 ============

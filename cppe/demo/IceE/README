@@ -41,5 +41,4 @@ Demos in this directory:
 
   This application illustrates the use of the threading and
   synchronization primitives provided by the Ice-E library. It uses
-  Ice-E to implement a simple producer/ consumer queueing
-  application.
+  Ice-E to implement a simple producer/consumer queueing application.

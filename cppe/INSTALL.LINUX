@@ -19,13 +19,13 @@ C++ compiler
 Slice to Embedded C++ translator
 --------------------------------
 
-You will need the Slice to Embedded C++ translator and supporting
-executables and libraries. You can download a binary distribution from 
-the ZeroC web site, or you can build the slice to Embedded C++ translator
-yourself.
+You will need the Slice to Embedded C++ translator (slice2cppe) and
+supporting executables and libraries. You can download a binary
+distribution from the ZeroC web site, or you can build the Slice to
+Embedded C++ translator yourself.
 
-Binary distributions for the supported platforms as well as the source
-distribution are available at
+Binary and source distributions for the supported platforms are
+available at
 
 http://www.zeroc.com/download.html
 
@@ -51,7 +51,9 @@ Change the working directory to IceE-@ver@:
 
 $ cd IceE-@ver@
 
-Edit config/Make.rules to establish your build configuration. The
+Review the README file to determine whether you want to modify the
+default set of features provided by the run time libraries. Next,
+edit config/Make.rules to establish your build configuration. The
 comments in the file provide more information. Pay particular
 attention to the variables that define the locations of the third-
 party libraries.
@@ -67,6 +69,7 @@ Now you're ready to build Ice-E:
 $ make
 
 This will build the Ice-E library, tests and examples.
+
 After a successful build, you can run the test suite, provided that
 you have installed Python:
 
