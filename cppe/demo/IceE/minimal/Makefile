@@ -18,8 +18,7 @@ OBJS		= Hello.o
 
 COBJS		= Client.o
 
-SOBJS		= HelloI.o \
-		  Server.o
+SOBJS		= Server.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
