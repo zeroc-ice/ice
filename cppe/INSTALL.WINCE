@@ -1,0 +1,131 @@
+======================================================================
+Requirements
+======================================================================
+
+Version
+---------------
+
+Ice-E has been extensively tested with the standard WinCE SDK 4.2.
+
+C++ compiler
+------------
+
+The following Microsoft Visual C++ compilers & SDKs are supported:
+
+- Embedded Visual C++ 4.0 SP4 with STLport 5.0 (or later)
+- Pocket PC SDK 4.2.
+- The Pocket PC 2003 Run-time Type Information library
+
+The STL (Standard Template Library) that is included with Embedded
+Visual C++ 4.0 is not supported. You must use STLport with this compiler.
+
+Microsoft eMbedded Visual C++ (EVC) can be downloaded here:
+
+- http://www.microsoft.com/downloads/details.aspx?FamilyID=1dacdb3d-50d1-41b2-a107-fa75ae960856&displaylang=en
+
+Service patch 4 can be downloaded here:
+
+- http://www.microsoft.com/downloads/details.aspx?FamilyID=4a4ed1f4-91d3-4dbe-986e-a812984318e5&displaylang=en#filelist
+
+The Pocket PC 2003 Run-time Type Information library can be downloaded here:
+
+- http://support.microsoft.com/default.aspx?scid=kb;%5BLN%5D;830482
+
+Slice to Embedded C++ translator
+--------------------------------
+
+You will need the Slice to Embedded C++ translator and supporting
+executables and libraries. You can download a binary distribution from
+the ZeroC web site, or you can build the slice to Embedded C++ translator
+yourself.
+
+Binary distributions for the supported platforms as well as the source
+distribution are available at
+
+http://www.zeroc.com/download.html
+
+STLport
+-------
+
+Ice-E requires STLport 5.0 or later. You can download STLport at the
+following locations:
+
+- http://www.stlport.org/download.html
+
+There is no need to compile STLport for use with Ice-E, since Ice-E
+does not require the iostream support provided by STLport.
+
+Users must configure Microsoft eMbedded Visual C++ to use STLPort:
+
+- In the IDE, choose Tools->Options->Directories
+
+- Select "Include files"
+
+- Add the include directory for STLport first in the list. (Note that
+  you must add the "include\stlport" directory, not just "include".)
+
+- Note that the Include files are per-platform/CPU. So it is necessary
+  to alter the build settings for each platform/CPU that you wish to
+  target.
+
+==========================
+Installing and Configuring
+==========================
+
+- Install EVC 4.0.
+
+- Install SP4. Re-enable the "Virtual Machine Network Services", if
+  necessary in your "Network Connections" settings.
+
+- If the EVC 4.0 distribution you've installed does not install 
+  "Standard SDK for Windows CE .NET 4.2" then you must uninstall the
+  SDK, and install the correct version.
+
+- Start EVC 4.0. You should have a listed platform "STANDARDSDK_420".
+  If you do not, you do not have the correct SDK installed.
+
+- Install the Run-time type information library. Extract the archive
+  and copy the contents into C:\Program Files\Windows CE Tools\wce420\STANDARDSDK_420\Lib
+  assuming you picked the default locations.
+
+- Unarchive the STLport 5.0 install. Add the directory as described above.
+
+- Add the location of the slice2cppe compiler to your
+  Tools->Options->Directories, "Executable files" list.
+
+Note: On some of our development machines after installing EVC 4.0 the
+IDE would hang upon start-up. In order to fix this we had to uninstall
+EVC 4.0 and then Microsoft Visual Studio 6.0. Then follow the installation instructions above,
+and after EVC is 
+
+======================================================================
+Compilation and Testing
+======================================================================
+
+Using your favorite Zip tool, unzip the Ice-E archive anywhere you
+like, then start the EVC 4.0 IDE. You are now ready to
+compile Ice-E.
+
+Embedded Visual C++ 4.0
+-----------------------
+
+Open the "all.vcw" workspace.
+
+If you want to build everything (including all CPUs) then select
+Build/Batch Build, and then select Rebuild All. Note that this will
+not copy the build output to any device.
+
+If you want to build only a specific configuration then first set the
+project configuration using Build/Set Active Configuration. Then
+select Build/Build <project>. This will build the project and copy the
+result to the appropriate device.
+
+In order to run the test suite you must first build each of the tests,
+and then manually run the server, and then the client. Any failures
+will be reported.
+
+======================================================================
+Installation
+======================================================================
+
+No automatic installation support is provided.

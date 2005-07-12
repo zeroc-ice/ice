@@ -25,14 +25,11 @@ IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties) :
     retry(0),
     retryCat("Retry"),
     location(0),
-    locationCat("Location"),
-    slicing(0),
-    slicingCat("Slicing")
+    locationCat("Location")
 {
     const string keyBase = "IceE.Trace.";
     const_cast<int&>(network) = properties->getPropertyAsInt(keyBase + networkCat);
     const_cast<int&>(protocol) = properties->getPropertyAsInt(keyBase + protocolCat);
     const_cast<int&>(retry) = properties->getPropertyAsInt(keyBase + retryCat);
     const_cast<int&>(location) = properties->getPropertyAsInt(keyBase + locationCat);
-    const_cast<int&>(slicing) = properties->getPropertyAsInt(keyBase + slicingCat);
 }
