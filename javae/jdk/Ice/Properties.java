@@ -351,7 +351,7 @@ public final class Properties
 	{
 	    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(is));
 	    String line;
-	    while((line = reader.readLine() != null)
+	    while((line = reader.readLine()) != null)
 	    {
 		parseLine(line);
 	    }
