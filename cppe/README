@@ -25,7 +25,7 @@ Batch Messages Support
 
 This option only affects the pure client side library.  Batch messages
 cannot be disabled on the server side. If ICEE_HAS_BATCH is defined
-Ice-E will be built with batch message support. Ice-E is built without
+Ice-E will be built with batch message support. If Ice-E is built without
 batch support then you cannot send batch messages.
 
 Pure Client Side Library
