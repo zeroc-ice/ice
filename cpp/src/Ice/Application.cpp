@@ -180,7 +180,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	// Ignore signals for a little while.
 	//
 	//
-	// Note that the ctrlCHanlder must be created BEFORE the communicator,
+	// Note that the _ctrlCHandler must be created BEFORE the communicator,
 	// since the communicator initialization may create threads.
 	//
 	_ctrlCHandler.reset(new IceUtil::CtrlCHandler);
