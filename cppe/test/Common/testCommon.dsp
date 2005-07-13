@@ -63,7 +63,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\testCommon.lib ..\..\lib\	copy $(OutDir)\testCommon10.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\testCommon10.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 Debug"
@@ -100,7 +100,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\testCommond.lib ..\..\lib\	copy $(OutDir)\testCommon10d.pdb ..\..\bin	copy $(OutDir)\testCommon10d.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\testCommon10d.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 Release Static"
@@ -130,11 +130,6 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD LIB32 /nologo
-# Begin Special Build Tool
-OutDir=.\ReleaseStatic
-SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                 $(OutDir)\testCommon.lib                 ..\..\lib\ 
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 Debug Static"
 
@@ -163,11 +158,6 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo /o"DebugStatic/testCommone.bsc"
 LIB32=link.exe -lib
 # ADD LIB32 /nologo /out:"DebugStatic\testCommond.lib"
-# Begin Special Build Tool
-OutDir=.\DebugStatic
-SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                $(OutDir)\testCommond.lib                ..\..\lib\ 
-# End Special Build Tool
 
 !ENDIF 
 
