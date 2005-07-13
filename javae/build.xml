@@ -47,7 +47,7 @@
         <mkdir dir="${cache.dir}"/>
 	<depend srcdir="${generated.dir}:${src.dir}:${targetProfile}" destdir="${toplib.dir}" cache="${cache.dir}"/>
 	<javac srcdir="${generated.dir}:${src.dir}:${targetProfile}" destdir="${toplib.dir}"
-	    debug="${debug}" optimize="${optimize}" deprecation="on" source="1.1" target="1.1">
+	    debug="${debug}" optimize="${optimize}" deprecation="on" target="1.1">
         	<bootclasspath refid="bootclasspath"/>  
 	</javac>
     </target>
