@@ -37,7 +37,7 @@ allCommonTests(const Ice::CommunicatorPtr& communicator)
     AdminPrx admin = AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
     test(admin);
 
-    cout << "test server registration... "  << flush;
+    cout << "testing server registration... "  << flush;
     Ice::StringSeq serverNames = admin->getAllServerNames();
     test(find(serverNames.begin(), serverNames.end(), "Server1") != serverNames.end());
     test(find(serverNames.begin(), serverNames.end(), "Server2") != serverNames.end());

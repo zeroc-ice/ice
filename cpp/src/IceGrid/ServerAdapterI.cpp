@@ -17,7 +17,7 @@ using namespace std;
 using namespace IceGrid;
 
 ServerAdapterI::ServerAdapterI(const NodeIPtr& node,
-			       const ServerIPtr& server, 
+			       ServerI* server, 
 			       const string& serverName,
 			       const AdapterPrx& proxy,
 			       const string& id,

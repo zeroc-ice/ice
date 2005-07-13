@@ -1013,6 +1013,7 @@ ApplicationUpdateDescriptor
 ApplicationDescriptorHelper::diff(const ApplicationDescriptorPtr& orig)
 {
     ApplicationUpdateDescriptor update;
+    update.name = _descriptor->name;
     update.comment = _descriptor->comment != orig->comment ? new BoxedComment(_descriptor->comment) : BoxedCommentPtr();
     update.targets = _descriptor->targets != orig->targets ? new BoxedTargets(_descriptor->targets) : BoxedTargetsPtr();
 
@@ -1364,7 +1365,7 @@ ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, c
     ComponentDescriptorHelper::init(_descriptor, attrs);
 
     _descriptor->pwd = attributes("pwd", "");
-    _descriptor->activation = attributes("activation", "manual");
+    _descriptor->activation = (attributes("activation", "manual") == "on-demand") ? OnDemand : Manual;
     
     if(interpreter == "icebox" || interpreter == "java-icebox")
     {

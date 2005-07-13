@@ -103,7 +103,7 @@ ServerCache::update(const ServerInstanceDescriptor& instance)
     if(old.node != instance.node)
     {
 	_nodeCache.get(old.node)->removeServer(entry);
-	_nodeCache.get(instance.node)->addServer(entry);
+	_nodeCache.get(instance.node, true)->addServer(entry);
     }
 
     forEachComponent(AddComponent(*this, entry))(instance);

@@ -20,13 +20,12 @@ class NodeI;
 typedef IceUtil::Handle<NodeI> NodeIPtr;
 
 class ServerI;
-typedef IceUtil::Handle<ServerI> ServerIPtr;
 
 class ServerAdapterI : public Adapter, public IceUtil::Mutex
 {
 public:
 
-    ServerAdapterI(const NodeIPtr&, const ServerIPtr&, const std::string&, const AdapterPrx&, const std::string&, 
+    ServerAdapterI(const NodeIPtr&, ServerI*, const std::string&, const AdapterPrx&, const std::string&, 
 		   Ice::Int);
     virtual ~ServerAdapterI();
 
@@ -43,7 +42,7 @@ private:
     const AdapterPrx _this;
     const std::string _serverId;
     const std::string _id;
-    const ServerIPtr _server;
+    ServerI* _server;
     const IceUtil::Time _waitTime;
 
     Ice::ObjectPrx _proxy;

@@ -21,7 +21,7 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 import IceGridAdmin
 
-name = os.path.join("IceGrid", "update")
+name = os.path.join("IceGrid", "session")
 testdir = os.path.join(toplevel, "test", name)
 client = os.path.join(testdir, "client")
 

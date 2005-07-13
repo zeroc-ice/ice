@@ -42,6 +42,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	instance.descriptor = new ServerDescriptor();
 	instance.descriptor->name = "Server";
 	instance.descriptor->exe = properties->getProperty("TestDir") + "/server";
+	instance.descriptor->activation = Manual;
 	AdapterDescriptor adapter;
 	adapter.name = "Server";
 	adapter.endpoints = "default";
@@ -103,6 +104,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	templ.descriptor = new ServerDescriptor();
 	templ.descriptor->name = "${name}";
 	ServerDescriptorPtr server = ServerDescriptorPtr::dynamicCast(templ.descriptor);
+	server->activation = Manual;
 	server->exe = "${test.dir}/server";
 	adapter = AdapterDescriptor();
 	adapter.name = "Server";
@@ -164,7 +166,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	
 	cout << "ok" << endl;
 
-	cout << "test server remove... " << flush;
+	cout << "testing server remove... " << flush;
 	update = empty;
 	update.removeServers.push_back("Server2");
 	try
@@ -234,7 +236,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	cout << "ok" << endl;
 
-	cout << "test server update... " << flush;
+	cout << "testing server update... " << flush;
 
 	instance = admin->getServerDescriptor("Server");
 	test(instance.descriptor);
@@ -345,7 +347,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-	cout << "test node add..." << flush;
+	cout << "testing node add... " << flush;
 
 	ApplicationDescriptorPtr testApp = new ApplicationDescriptor();
 	testApp->name = "TestApp";
@@ -388,7 +390,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(testApp->nodes[node2].name == "node2" && testApp->nodes[node2].variables["node"] == "node2");
 	cout << "ok" << endl;
 
-	cout << "test node update..." << flush;
+	cout << "testing node update... " << flush;
 
 	node.name = "node2";
 	node.variables["node"] = "node2updated";
@@ -412,7 +414,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	cout << "ok" << endl;
 
-	cout << "test node remove..." << flush;
+	cout << "testing node remove... " << flush;
 
 	update.nodes.clear();
 	update.removeNodes.push_back("node1");
@@ -436,7 +438,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }	
 
     {
-	cout << "test variable update... " << flush;
+	cout << "testing variable update... " << flush;
 
 	PropertyDescriptorSeq properties;
 	PropertyDescriptor property;
@@ -721,7 +723,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-	cout << "testing comment update..." << flush;
+	cout << "testing comment update... " << flush;
 
 	ApplicationDescriptorPtr testApp = new ApplicationDescriptor();
 	testApp->name = "TestApp";
@@ -780,6 +782,134 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	admin->removeApplication("TestApp");
 	
+	cout << "ok" << endl;
+    }
+
+    {
+	cout << "testing server node move... " << flush;
+	
+	ApplicationDescriptorPtr nodeApp = new ApplicationDescriptor();
+	nodeApp->name = "NodeApp";
+
+	ServerDescriptorPtr server = new ServerDescriptor();
+	server->name = "node-${index}";
+	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
+	server->activation = Manual;
+	AdapterDescriptor adapter;
+	adapter.name = "IceGrid.Node";
+	adapter.endpoints = "default";
+	adapter.id = "IceGrid.Node.node-${index}";
+	adapter.registerProcess = true;
+	adapter.noWaitForActivation = true;
+	server->adapters.push_back(adapter);
+	PropertyDescriptor prop;
+	prop.name = "IceGrid.Node.Name";
+	prop.value = "node-${index}";
+	server->properties.push_back(prop);
+	prop.name = "IceGrid.Node.Data";
+	prop.value = properties->getProperty("TestDir") + "/db/node-${index}";
+	server->properties.push_back(prop);
+	prop.name = "IceGrid.Node.PropertiesOverride";
+	prop.value = "Ice.Default.Host=127.0.0.1";
+	server->properties.push_back(prop);
+	nodeApp->serverTemplates["nodeTemplate"].descriptor = server;
+	nodeApp->serverTemplates["nodeTemplate"].parameters.push_back("index");
+
+	ServerInstanceDescriptor instance;
+	instance.node = "localnode";
+	instance._cpp_template = "nodeTemplate";
+
+	instance.parameterValues["index"] = "1";
+	nodeApp->servers.push_back(instance);
+
+	instance.parameterValues["index"] = "2";
+	nodeApp->servers.push_back(instance);
+	
+	try
+	{
+	    admin->addApplication(nodeApp);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	admin->startServer("node-1");
+	admin->startServer("node-2");
+	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(3));
+	test(admin->pingNode("node-1"));
+	test(admin->pingNode("node-2"));
+
+	ApplicationDescriptorPtr testApp = new ApplicationDescriptor();
+	testApp->name = "TestApp";
+	instance = ServerInstanceDescriptor();
+	instance.node = "node-1";
+	instance.descriptor = new ServerDescriptor();
+	instance.descriptor->name = "Server";
+	instance.descriptor->exe = properties->getProperty("TestDir") + "/server";
+	instance.descriptor->activation = Manual;
+	instance.descriptor->activationTimeout = 0;
+	instance.descriptor->deactivationTimeout = 0;
+ 	adapter.name = "Server";
+	adapter.endpoints = "default";
+	adapter.id = "ServerAdapter";
+	adapter.registerProcess = true;
+	adapter.noWaitForActivation = false;
+	instance.descriptor->adapters.push_back(adapter);
+	testApp->servers.push_back(instance);
+
+	admin->addApplication(testApp);
+	try
+	{
+	    admin->startServer("Server");
+	    test(admin->getServerState("Server") == Active);
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	
+	ApplicationUpdateDescriptor update;
+	update.name = "TestApp";
+	instance.node = "node-2";	
+	update.servers.push_back(instance);
+	admin->updateApplication(update);	
+	test(admin->getServerState("Server") == Inactive);
+
+	admin->startServer("Server");
+	test(admin->getServerState("Server") == Active);
+
+	update = ApplicationUpdateDescriptor();
+	update.name = "TestApp";
+	instance.node = "anUnknownNode";
+	update.servers.push_back(instance);
+	admin->updateApplication(update);	
+	try
+	{
+	    admin->getServerState("Server");
+	    test(false);
+	}
+	catch(const NodeUnreachableException&)
+	{
+	}
+
+	admin->removeApplication("TestApp");
+
+	admin->stopServer("node-1");
+	admin->stopServer("node-2");
+
+	try
+	{
+	    admin->removeApplication("NodeApp");
+	}
+	catch(const Ice::UserException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
 	cout << "ok" << endl;
     }
 }

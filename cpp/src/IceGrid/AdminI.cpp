@@ -336,9 +336,10 @@ AdminI::getAllObjectInfos(const string& expression, const Ice::Current&) const
 bool
 AdminI::pingNode(const string& name, const Current&) const
 {
-    NodePrx node = NodePrx::uncheckedCast(_database->getNode(name)->ice_timeout(5000)); // TODO: use nodeSessionTimeout
     try
     {
+	// TODO: use nodeSessionTimeout
+	NodePrx node = NodePrx::uncheckedCast(_database->getNode(name)->ice_timeout(5000));
 	node->ice_ping();
 	return true;
     }

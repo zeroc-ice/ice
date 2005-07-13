@@ -21,31 +21,6 @@ module IceGrid
 
 dictionary<string, Object*> StringObjectProxyDict;
 
-/**
- *
- * The server activation mode.
- *
- **/
-enum ServerActivation
-{
-    /**
-     *
-     * The server is activated on demand if a client requests one of
-     * the server's adapter endpoints and the server is not already
-     * running.
-     *
-     **/
-    OnDemand,
-
-    /**
-     *
-     * The server is activated manually through the administrative
-     * interface.
-     *
-     **/
-    Manual
-};
-
 struct ObjectInfo
 {
     /** The proxy of the object. */

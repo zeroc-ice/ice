@@ -11,6 +11,7 @@
 #define ICE_GRID_NODE_I_H
 
 #include <IceGrid/Internal.h>
+#include <IceGrid/WaitQueue.h>
 
 namespace IceGrid
 {
@@ -20,9 +21,6 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
 class Activator;
 typedef IceUtil::Handle<Activator> ActivatorPtr;
-
-class WaitQueue;
-typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;
 
 class NodeI : public Node, public IceUtil::Mutex
 {
@@ -70,8 +68,6 @@ private:
     NodeObserverPrx _observer;
     IceUtil::Mutex _sessionMutex;
     NodeSessionPrx _session;
-    std::set<std::string> _servers;
-    std::set<std::string> _adapters;
 };
 typedef IceUtil::Handle<NodeI> NodeIPtr;
 

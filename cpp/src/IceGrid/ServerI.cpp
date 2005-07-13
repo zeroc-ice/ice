@@ -756,6 +756,7 @@ ServerI::setState(InternalServerState st)
 void
 ServerI::setStateNoSync(InternalServerState st)
 {
+    InternalServerState previous = _state;
     _state = st;
 
     if(!_startCB.empty() && _state != ServerI::WaitForActivation)
@@ -769,26 +770,29 @@ ServerI::setStateNoSync(InternalServerState st)
 	_node->getWaitQueue()->notifyAllWaitingOn(this);
     }
 
-    NodeObserverPrx observer = _node->getObserver();
-    if(observer)
+    if(toServerState(previous) != toServerState(_state))
     {
-	ServerDynamicInfo info;
-	info.name = _name;
-	info.state = toServerState(st);
-
-	//
-	// NOTE: this must be done only for the active state. Otherwise, we could get a 
-	// deadlock since getPid() will lock the activator and since this method might 
-	// be called from the activator locked.
-	//
-	info.pid = st == ServerI::Active ? getPid() : 0;
-
-	try
+	NodeObserverPrx observer = _node->getObserver();
+	if(observer)
 	{
-	    observer->updateServer(_node->getName(), info);
-	}
-	catch(const Ice::LocalException&)
-	{
+	    ServerDynamicInfo info;
+	    info.name = _name;
+	    info.state = toServerState(st);
+	    
+	    //
+	    // NOTE: this must be done only for the active state. Otherwise, we could get a 
+	    // deadlock since getPid() will lock the activator and since this method might 
+	    // be called from the activator locked.
+	    //
+	    info.pid = st == ServerI::Active ? getPid() : 0;
+	    
+	    try
+	    {
+		observer->updateServer(_node->getName(), info);
+	    }
+	    catch(const Ice::LocalException&)
+	    {
+	    }
 	}
     }
 
@@ -840,7 +844,7 @@ ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& ada
 {
     _desc = descriptor;
     _serverDir = _serversDir + "/" + descriptor->name;
-    _activation = descriptor->activation  == "on-demand" ? OnDemand : Manual;
+    _activation = descriptor->activation;
     
     //
     // Make sure the server directories exists.

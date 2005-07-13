@@ -572,6 +572,7 @@ NodeService::stop()
     try
     {
         _waitQueue->destroy();
+	_waitQueue = 0;
     }
     catch(...)
     {
@@ -584,6 +585,7 @@ NodeService::stop()
     {
 	_keepAliveThread->terminate();
 	_keepAliveThread->getThreadControl().join();
+	_keepAliveThread = 0;
     }
 
     //
@@ -601,6 +603,7 @@ NodeService::stop()
     _activator = 0;
 
     _node->stop();
+    _node = 0;
 
     //
     // Shutdown the collocated registry.
@@ -608,6 +611,7 @@ NodeService::stop()
     if(_registry)
     {
 	_registry->stop();
+	_registry = 0;
     }
 
     return true;

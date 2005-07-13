@@ -116,6 +116,10 @@ public:
     applicationUpdated(int serial, const ApplicationUpdateDescriptor& desc, const Ice::Current&)
     {
 	Lock sync(*this);
+	for(Ice::StringSeq::const_iterator q = desc.removeVariables.begin(); q != desc.removeVariables.end(); ++q)
+	{
+	    this->applications[desc.name]->variables.erase(*q);
+	}
 	for(map<string, string>::const_iterator p = desc.variables.begin(); p != desc.variables.end(); ++p)
 	{
 	    this->applications[desc.name]->variables[p->first] = p->second;
@@ -592,11 +596,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	ServerDescriptorPtr server = new ServerDescriptor();
 	server->name = "node-1";
 	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
+	server->activation = Manual;
+	server->activationTimeout = 0;
+	server->deactivationTimeout = 0;
 	AdapterDescriptor adapter;
 	adapter.name = "IceGrid.Node";
 	adapter.endpoints = "default";
 	adapter.id = "IceGrid.Node.node-1";
 	adapter.registerProcess = true;
+	adapter.noWaitForActivation = true;
 	server->adapters.push_back(adapter);
 	PropertyDescriptor prop;
 	prop.name = "IceGrid.Node.Name";
@@ -629,11 +637,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // init
+
 	admin->startServer("node-1");
-	regObs1->waitForUpdate(__FILE__, __LINE__);
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeUp
 	test(nodeObs1->nodes.find("node-1") != nodeObs1->nodes.end());
+
 	admin->stopServer("node-1");
-	regObs1->waitForUpdate(__FILE__, __LINE__);
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeDown
 	test(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
 
 	try
@@ -677,17 +692,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	session1->setObserversByIdentity(ro1->ice_getIdentity(), no1->ice_getIdentity());
 	
 	regObs1->waitForUpdate(__FILE__, __LINE__);
-	nodeObs1->waitForUpdate(__FILE__, __LINE__);
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // init
 
 	test(nodeObs1->nodes.find("localnode") != nodeObs1->nodes.end());
 	test(regObs1->applications.empty());
-	test(nodeObs1->nodes.find("localnode") != nodeObs1->nodes.end());
 
 	ApplicationDescriptorPtr nodeApp = new ApplicationDescriptor();
 	nodeApp->name = "NodeApp";
 	ServerDescriptorPtr server = new ServerDescriptor();
 	server->name = "node-1";
 	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
+	server->activation = Manual;
+	server->activationTimeout = 0;
+	server->deactivationTimeout = 0;
 	AdapterDescriptor adapter;
 	adapter.name = "IceGrid.Node";
 	adapter.endpoints = "default";
@@ -710,12 +727,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	regObs1->waitForUpdate(__FILE__, __LINE__);
 
 	admin->startServer("node-1");
-	regObs1->waitForUpdate(__FILE__, __LINE__);
-	test(nodeObs1->nodes.find("node-1") != nodeObs1->nodes.end());
 
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // initNode
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeUp
 	test(nodeObs1->nodes.find("node-1") != nodeObs1->nodes.end());
 	test(nodeObs1->nodes["localnode"].servers.size() == 1);
 	test(nodeObs1->nodes["localnode"].servers[0].state == Active);
@@ -723,6 +738,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Deactivating)
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Inactive)
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeDown
 	test(nodeObs1->nodes["localnode"].servers[0].state == Inactive);
 
 	admin->removeApplication("NodeApp");
@@ -737,10 +753,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	instance.descriptor = new ServerDescriptor();
 	instance.descriptor->name = "Server";
 	instance.descriptor->exe = properties->getProperty("TestDir") + "/server";
+	instance.descriptor->activation = Manual;
+	instance.descriptor->activationTimeout = 0;
+	instance.descriptor->deactivationTimeout = 0;
 	adapter.name = "Server";
 	adapter.endpoints = "default";
 	adapter.id = "ServerAdapter";
 	adapter.registerProcess = true;
+	adapter.noWaitForActivation = false;
 	instance.descriptor->adapters.push_back(adapter);
 	testApp->servers.push_back(instance);
 
