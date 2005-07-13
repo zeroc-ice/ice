@@ -95,6 +95,7 @@ public:
     void listAllServers();
 
     void endpointsAdapter(const std::list<std::string>&);
+    void removeAdapter(const std::list<std::string>&);
     void listAllAdapters();
 
     void addObject(const std::list<std::string>&);

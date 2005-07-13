@@ -19,6 +19,8 @@
 module IceGrid
 {
 
+dictionary<string, Object*> StringObjectProxyDict;
+
 /**
  *
  * The server activation mode.
@@ -351,16 +353,43 @@ interface Admin
      *
      * Get the list of endpoints for an adapter.
      *
-     * @param id The adapter id.
+     * @param adapterId The adapter id.
      *
-     * @return The stringified adapter endpoints.
+     * @return A dictionary of adapter direct proxy classified by
+     * server id.
      *
      * @throws AdapterNotExistException Raised if the adapter is not
      * found.
      *
      **/
-    nonmutating string getAdapterEndpoints(string id)
+    nonmutating StringObjectProxyDict getAdapterEndpoints(string adapterId)
 	throws AdapterNotExistException, NodeUnreachableException;
+
+    /**
+     *
+     * Remove the adapter with the given adapter id and server id.
+     *
+     * @throws AdapterNotExistException Raised if the adapter is not
+     * found.
+     *
+     * @throws ServerNotExistException Raised if the server is not
+     * found.
+     *
+     **/
+    idempotent void removeAdapterWithServerId(string adapterId, string serverId)
+	throws AdapterNotExistException, ServerNotExistException;
+
+    /**
+     *
+     * Remove the adapter with the given id. If the adapter is
+     * replicated, all the replicas are removed.
+     *
+     * @throws AdapterNotExistException Raised if the adapter is not
+     * found.
+     *
+     **/
+    idempotent void removeAdapter(string adapterId)
+	throws AdapterNotExistException;
 
     /**
      *

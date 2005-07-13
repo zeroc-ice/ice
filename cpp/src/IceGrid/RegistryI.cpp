@@ -249,7 +249,7 @@ RegistryI::start(bool nowarn)
     ObjectPtr locatorRegistry = new LocatorRegistryI(_database, dynamicReg);
     ObjectPrx obj = serverAdapter->add(locatorRegistry, stringToIdentity("IceGrid/" + IceUtil::generateUUID()));
     LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(obj->ice_collocationOptimization(false));
-    ObjectPtr locator = new LocatorI(_database, locatorRegistryPrx); 
+    ObjectPtr locator = new LocatorI(_communicator, _database, locatorRegistryPrx); 
     const string locatorIdProperty = "IceGrid.Registry.LocatorIdentity";
     Identity locatorId = stringToIdentity(properties->getPropertyWithDefault(locatorIdProperty, "IceGrid/Locator"));
     clientAdapter->add(locator, locatorId);
@@ -299,13 +299,13 @@ RegistryI::start(bool nowarn)
     registryAdapter->add(this, stringToIdentity("IceGrid/Registry"));
     registryAdapter->activate();
     Ice::Identity dummy = Ice::stringToIdentity("dummy");
-    _database->setAdapterDirectProxy("IceGrid.Registry.Internal", registryAdapter->createDirectProxy(dummy));
+    _database->setAdapterDirectProxy("", "IceGrid.Registry.Internal", registryAdapter->createDirectProxy(dummy));
     
     //
     // Setup a internal locator to be used by the IceGrid registry itself. This locator is 
     // registered with the registry object adapter which is using an independant threadpool.
     //
-    locator = new LocatorI(_database, locatorRegistryPrx);
+    locator = new LocatorI(_communicator, _database, locatorRegistryPrx);
     registryAdapter->add(locator, locatorId);
     obj = registryAdapter->createDirectProxy(locatorId);
     _communicator->setDefaultLocator(LocatorPrx::uncheckedCast(obj->ice_collocationOptimization(false)));

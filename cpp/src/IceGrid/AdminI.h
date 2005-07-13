@@ -44,7 +44,9 @@ public:
     virtual ServerActivation getServerActivation(const ::std::string&, const Ice::Current&) const;
     virtual void setServerActivation(const ::std::string&, ServerActivation, const Ice::Current&);
 
-    virtual ::std::string getAdapterEndpoints(const ::std::string&, const ::Ice::Current&) const;
+    virtual StringObjectProxyDict getAdapterEndpoints(const ::std::string&, const ::Ice::Current&) const;
+    virtual void removeAdapterWithServerId(const std::string&, const std::string&, const Ice::Current&);
+    virtual void removeAdapter(const std::string&, const Ice::Current&);
     virtual Ice::StringSeq getAllAdapterIds(const ::Ice::Current&) const;
 
     virtual void addObject(const ::Ice::ObjectPrx&, const ::Ice::Current&);

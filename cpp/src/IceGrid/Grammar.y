@@ -202,6 +202,10 @@ command
 {
     parser->endpointsAdapter($3);
 }
+| ICE_GRID_ADAPTER ICE_GRID_REMOVE strings ';'
+{
+    parser->removeAdapter($3);
+}
 | ICE_GRID_ADAPTER ICE_GRID_LIST ';'
 {
     parser->listAllAdapters();

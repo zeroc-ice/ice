@@ -21,6 +21,7 @@ class AdapterCache;
 
 class ServerEntry;
 typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
+typedef std::vector<ServerEntryPtr> ServerEntrySeq;
 
 class AdapterEntry;
 typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
@@ -31,7 +32,8 @@ public:
     
     AdapterEntry(Cache<std::string, AdapterEntry>&, const std::string&);
 
-    AdapterPrx getProxy(const std::string& = std::string()) const;
+    AdapterPrx getProxy(const std::string&) const;
+    std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&);
     
     void enableReplication(LoadBalancingPolicy);
     void disableReplication();
@@ -47,7 +49,8 @@ private:
     const std::string _id;
     bool _replicated;
     LoadBalancingPolicy _loadBalancing;
-    std::map<std::string, ServerEntryPtr> _servers;
+    ServerEntrySeq _servers;
+    int _lastServer;
 };
 typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
 

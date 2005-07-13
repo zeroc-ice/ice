@@ -57,7 +57,7 @@ NODE_OBJS	= NodeI.o \
                   DescriptorParser.o
 
 REGISTRY_OBJS   = RegistryI.o \
-		  StringObjectProxyDict.o \
+		  StringObjectProxiesDict.o \
 		  StringApplicationDescriptorDict.o \
 		  IdentityObjectInfoDict.o \
 		  Database.o \
@@ -166,10 +166,10 @@ $(LOCAL_HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)/$(*F).ice
 
-$(LOCAL_HDIR)/StringObjectProxyDict.h StringObjectProxyDict.cpp: $(SLICE2FREEZE)
-	rm -f StringObjectProxyDict.h StringObjectProxyDict.cpp
-	$(SLICE2FREEZECMD) --dict IceGrid::StringObjectProxyDict,string,Object* \
-	StringObjectProxyDict ../../slice/Ice/BuiltinSequences.ice
+$(LOCAL_HDIR)/StringObjectProxiesDict.h StringObjectProxiesDict.cpp: $(SLICE2FREEZE)
+	rm -f StringObjectProxiesDict.h StringObjectProxiesDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::StringObjectProxiesDict,string,IceGrid::StringObjectProxyDict \
+	StringObjectProxiesDict $(LOCAL_SDIR)/Internal.ice
 
 clean::
 	rm -f StringObjectProxyDict.h StringObjectProxyDict.cpp

@@ -137,6 +137,9 @@ interface LocatorRegistry
      *
      * @throws AdapterNotFoundException Raised if the adapter cannot
      * be found, or if the locator only allows
+     * @throws ServerNotFoundException Raised if the server cannot
+     * be found and the adapter is a replicated adapter.
+     *
      * registered adapters to set their active proxy and the
      * adapter is not registered with the locator.
      *

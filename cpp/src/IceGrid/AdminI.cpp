@@ -244,26 +244,39 @@ AdminI::setServerActivation(const ::std::string& name, ServerActivation mode, co
     }
 }
 
-string 
-AdminI::getAdapterEndpoints(const string& id, const Current&) const
+StringObjectProxyDict
+AdminI::getAdapterEndpoints(const string& adapterId, const Current&) const
 {
-    AdapterPrx adapter = _database->getAdapter(id);
-    try
+    int count;
+    vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(adapterId, count);
+    StringObjectProxyDict adpts;
+    for(vector<pair<string, AdapterPrx> >::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
-	return _communicator->proxyToString(adapter->getDirectProxy());
+	try
+	{
+	    adpts[p->first] = p->second->getDirectProxy();
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+	catch(const Ice::Exception&)
+	{
+	    adpts[p->first] = 0;
+	}
     }
-    catch(AdapterNotActiveException&)
-    {
-	return "";
-    }
-    catch(const Ice::ObjectNotExistException&)
-    {
-	throw AdapterNotExistException();
-    }
-    catch(const Ice::LocalException&)
-    {
-	throw NodeUnreachableException();
-    }
+    return adpts;
+}
+
+void
+AdminI::removeAdapterWithServerId(const string& adapterId, const string& serverId, const Ice::Current&)
+{
+    _database->setAdapterDirectProxy(serverId, adapterId, 0);
+}
+
+void
+AdminI::removeAdapter(const string& adapterId, const Ice::Current&)
+{
+    _database->removeAdapter(adapterId);
 }
 
 StringSeq

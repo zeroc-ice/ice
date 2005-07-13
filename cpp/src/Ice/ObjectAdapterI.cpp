@@ -125,6 +125,13 @@ Ice::ObjectAdapterI::activate()
 	{
 	    // IGNORE: The object adapter is already inactive.
 	}
+	catch(const ServerNotFoundException&)
+	{
+	    NotRegisteredException ex(__FILE__, __LINE__);
+	    ex.kindOfObject = "server";
+	    ex.id = serverId;
+	    throw ex;
+	}
 	catch(const AdapterNotFoundException&)
 	{
 	    NotRegisteredException ex(__FILE__, __LINE__);

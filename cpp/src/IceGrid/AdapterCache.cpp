@@ -32,7 +32,8 @@ AdapterCache::get(const string& id, bool create) const
 AdapterEntry::AdapterEntry(Cache<string, AdapterEntry>& cache, const std::string& id) : 
     _cache(cache),
     _id(id),
-    _replicated(false)
+    _replicated(false),
+    _lastServer(0)
 {
 }
 
@@ -55,7 +56,7 @@ AdapterEntry::addServer(const ServerEntryPtr& entry)
 {
     Lock sync(*this);
     assert(_replicated || _servers.empty());
-    _servers.insert(make_pair(entry->getName(), entry));
+    _servers.push_back(entry);
 }
 
 void
@@ -64,7 +65,14 @@ AdapterEntry::removeServer(const ServerEntryPtr& entry)
     bool remove = false;
     {
 	Lock sync(*this);
-	_servers.erase(entry->getName());
+	for(ServerEntrySeq::iterator p = _servers.begin(); p != _servers.end(); ++p)
+	{
+	    if(entry.get() == p->get())
+	    {
+		_servers.erase(p);
+		break;
+	    }
+	}
 	remove = _servers.empty();
     }
     if(remove)
@@ -73,29 +81,103 @@ AdapterEntry::removeServer(const ServerEntryPtr& entry)
     }    
 }
 
-AdapterPrx
-AdapterEntry::getProxy(const string& serverId) const
+vector<pair<string, AdapterPrx> >
+AdapterEntry::getProxies(int& endpointCount)
 {
-    Lock sync(*this);
-    if(!_replicated)
+    vector<ServerEntryPtr> servers;
     {
-	return _servers.begin()->second->getAdapter(_id);
-    }
-    else
-    {
-	//
-	// TODO: implement load balancing strategies. This is also not really correct to use the first adapter 
-	// if the server id is empty this could  allow a server to always override the first server endpoints.
-	//
-	map<string, ServerEntryPtr>::const_iterator p = serverId.empty() ? _servers.begin() : _servers.find(serverId);
-	if(p == _servers.end())
+	Lock sync(*this);	
+	if(_servers.empty())
 	{
 	    AdapterNotExistException ex;
 	    ex.id = _id;
 	    throw ex;
 	}
-	return p->second->getAdapter(_id);
+
+	if(!_replicated)
+	{
+	    servers.push_back(_servers[0]);
+	}
+	else
+	{
+	    servers.reserve(_servers.size());
+	    switch(_loadBalancing)
+	    {
+	    case Random:
+		servers = _servers;
+		random_shuffle(servers.begin(), servers.end());
+		break;
+	    case RoundRobin:
+		for(unsigned int i = 0; i < _servers.size(); ++i)
+		{
+		    servers.push_back(_servers[(_lastServer + i) % _servers.size()]);
+		}
+		_lastServer = (_lastServer + 1) % _servers.size();
+		break;
+	    case Adaptive:
+		servers = _servers; // TODO
+		break;
+	    }
+	}
     }
+
+    vector<pair<string, AdapterPrx> > adapters;
+    for(vector<ServerEntryPtr>::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    {
+	try
+	{
+	    adapters.push_back(make_pair((*p)->getName(), (*p)->getAdapter(_id)));
+	}
+	catch(const NodeUnreachableException&)
+	{
+	}
+    }
+    if(adapters.empty())
+    {
+	throw NodeUnreachableException();
+    }
+    endpointCount = 1;
+    return adapters;
+}
+
+AdapterPrx
+AdapterEntry::getProxy(const string& serverId) const
+{
+    ServerEntryPtr server;
+    {
+	Lock sync(*this);
+	if(_servers.empty())
+	{
+	    AdapterNotExistException ex;
+	    ex.id = _id;
+	    throw ex;
+	}
+
+	if(!_replicated)
+	{
+	    server = _servers[0];
+	}
+	else
+	{
+	    for(ServerEntrySeq::const_iterator p = _servers.begin(); p != _servers.end(); ++p)
+	    {
+		if((*p)->getName() == serverId)
+		{
+		    server = *p;
+		    break;
+		}
+	    }
+	}
+    }
+
+    if(!server)
+    {
+	ServerNotExistException ex;
+	ex.name = serverId;
+	throw ex;
+    }
+
+    return server->getAdapter(_id);
 }
 
 bool

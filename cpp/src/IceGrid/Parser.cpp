@@ -419,7 +419,14 @@ Parser::usage()
 	"                            manual."
 	"\n"
         "adapter list                List all registered adapters.\n"
-	"adapter endpoints NAME      Get endpoints of adapter NAME.\n"
+	"adapter endpoints ID [SERVERID]\n"
+        "                            Get endpoints of adapter ID from server SERVERID.\n"
+	"                            If SERVERID is not specified, get the endpoints of all\n"
+        "                            the registered replicas.\n"
+	"adapter remove ID [SERVERID]\n"
+        "                            Remove the endpoints of adapter ID from server SERVERID.\n"
+	"                            If SERVERID is not specified, remove the endpoints of all\n"
+        "                            the registered replicas.\n"
 	"\n"
 	"object add PROXY [TYPE]     Add an object to the object registry,\n"
 	"                            optionally specifying its type.\n"
@@ -1375,22 +1382,68 @@ Parser::listAllServers()
 void
 Parser::endpointsAdapter(const list<string>& args)
 {
-    if(args.size() != 1)
+    if(args.size() < 1)
     {
-	error("`adapter endpoints' requires exactly one argument\n(`help' for more info)");
+	error("`adapter endpoints' requires at least one argument\n(`help' for more info)");
 	return;
     }
 
     try
     {
-	string endpoints = _admin->getAdapterEndpoints(args.front());
-	if(endpoints.empty())
+	list<string>::const_iterator p = args.begin();
+	string adapterId = *p++;
+	StringObjectProxyDict proxies = _admin->getAdapterEndpoints(adapterId);
+	if(args.size() > 1)
 	{
-	    cout << "<inactive>" << endl;
+	    string serverId = *p++;
+	    if(proxies.find(serverId) == proxies.end())
+	    {
+		throw ServerNotExistException();
+	    }
+
+	    string endpoints = _communicator->proxyToString(proxies[serverId]);
+	    cout << (endpoints.empty() ? "<inactive>" : endpoints) << endl;
 	}
 	else
 	{
-	    cout << endpoints << endl;
+	    for(StringObjectProxyDict::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+	    {
+		cout << (p->first.empty() ? "<empty>" : p->first) << ": ";
+		string endpoints = _communicator->proxyToString(p->second);
+		cout << (endpoints.empty() ? "<inactive>" : endpoints) << endl;
+	    }
+	}
+    }
+    catch(const Ice::Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+Parser::removeAdapter(const list<string>& args)
+{
+    if(args.size() < 1)
+    {
+	error("`adapter remove' requires at least one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	list<string>::const_iterator p = args.begin();
+	string adapterId = *p++;
+	StringObjectProxyDict proxies = _admin->getAdapterEndpoints(adapterId);
+	if(args.size() > 1)
+	{
+	    string serverId = *p++;
+	    _admin->removeAdapterWithServerId(adapterId, serverId);
+	}
+	else
+	{
+	    _admin->removeAdapter(adapterId);
 	}
     }
     catch(const Ice::Exception& ex)

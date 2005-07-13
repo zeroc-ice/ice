@@ -1425,6 +1425,11 @@ ServerDescriptorHelper::operator==(const ServerDescriptorHelper& helper) const
 	return false;
     }
 
+    if(_descriptor->activation != helper._descriptor->activation)
+    {
+	return false;
+    }
+
     if(_descriptor->activationTimeout != helper._descriptor->activationTimeout)
     {
 	return false;
