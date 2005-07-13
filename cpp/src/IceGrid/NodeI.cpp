@@ -66,9 +66,7 @@ NodeI::loadServer(const ServerDescriptorPtr& desc,
 	servant = new ServerI(this, proxy, _serversDir, desc->name, _waitTime);
 	current.adapter->add(servant, id);
     }
-    activationTimeout = desc->activationTimeout > 0 ? desc->activationTimeout : _waitTime;
-    deactivationTimeout = desc->deactivationTimeout > 0 ? desc->deactivationTimeout : _waitTime;
-    proxy->load(desc, adapters);
+    proxy->load(desc, adapters, activationTimeout, deactivationTimeout);
     return proxy;
 }
 

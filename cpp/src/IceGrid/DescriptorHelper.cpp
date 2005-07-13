@@ -1359,13 +1359,13 @@ ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, c
 	_descriptor->exe = attributes("exe");
     }
     _descriptor->interpreter = interpreter;
-    _descriptor->activationTimeout = attributes.asInt("activation-timeout", "0");
-    _descriptor->deactivationTimeout = attributes.asInt("deactivation-timeout", "0");
+    _descriptor->activationTimeout = attributes("activation-timeout", "0");
+    _descriptor->deactivationTimeout = attributes("deactivation-timeout", "0");
 
     ComponentDescriptorHelper::init(_descriptor, attrs);
 
     _descriptor->pwd = attributes("pwd", "");
-    _descriptor->activation = (attributes("activation", "manual") == "on-demand") ? OnDemand : Manual;
+    _descriptor->activation = attributes("activation", "manual");
     
     if(interpreter == "icebox" || interpreter == "java-icebox")
     {
@@ -1646,6 +1646,38 @@ ServerDescriptorHelper::instantiateImpl(const ServerDescriptorPtr& desc, set<str
 
     substitute(desc->exe);
     substitute(desc->pwd);
+    substitute(desc->activation);
+    if(!desc->activation.empty() && desc->activation != "manual" && desc->activation != "on-demand")
+    {
+	DeploymentException ex;
+	ex.reason = "invalid server `" + desc->name + "': unknown activation `" + desc->activation + "'";
+	throw ex;
+    }
+    substitute(desc->activationTimeout);
+    if(!desc->activationTimeout.empty())
+    {
+	int value;
+	istringstream v(desc->activationTimeout);
+	if(!(v >> value))
+	{
+	    DeploymentException ex;
+	    ex.reason = "invalid server `" + desc->name + "': activation timeout is not an integer value";
+	    throw ex;
+	}    
+    }
+    substitute(desc->deactivationTimeout);
+    if(!desc->deactivationTimeout.empty())
+    {
+	int value;
+	istringstream v(desc->deactivationTimeout);
+	if(!(v >> value))
+	{
+	    DeploymentException ex;
+	    ex.reason = "invalid server `" + desc->name + "': deactivation timeout is not an integer value";
+	    throw ex;
+	}    
+    }
+
     for_each(desc->options.begin(), desc->options.end(), substitute);
     for_each(desc->envs.begin(), desc->envs.end(), substitute);
     substitute(desc->interpreter);

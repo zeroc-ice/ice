@@ -20,31 +20,6 @@ module IceGrid
 
 /**
  *
- * The server activation mode.
- *
- **/
-enum ServerActivation
-{
-    /**
-     *
-     * The server is activated on demand if a client requests one of
-     * the server's adapter endpoints and the server is not already
-     * running.
-     *
-     **/
-    OnDemand,
-
-    /**
-     *
-     * The server is activated manually through the administrative
-     * interface.
-     *
-     **/
-    Manual
-};
-
-/**
- *
  * Property descriptor.
  * 
  **/
@@ -285,21 +260,23 @@ class ServerDescriptor extends ComponentDescriptor
      * The server initial activation mode.
      *
      **/
-    ServerActivation activation;
+    string activation;
 
     /**
      *
-     * The activation timeout.
+     * The activation timeout (an integer value representing the
+     * number of seconds to wait for activation).
      *
      **/
-    int activationTimeout;
+    string activationTimeout;
 
     /**
      *
-     * The deactivation timeout.
+     * The deactivation timeout (an integer value representing the
+     * number of seconds to wait for deactivation).
      *
      **/
-    int deactivationTimeout;
+    string deactivationTimeout;
 };
 dictionary<string, ServerDescriptor> ServerDescriptorDict;
 

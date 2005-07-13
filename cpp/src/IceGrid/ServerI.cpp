@@ -83,7 +83,8 @@ ServerI::~ServerI()
 }
 
 void
-ServerI::load(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapters, const Ice::Current& current)
+ServerI::load(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapters, int& activationTimeout,
+	      int& deactivationTimeout, const Ice::Current& current)
 {
     while(true)
     {
@@ -102,7 +103,7 @@ ServerI::load(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapt
 		//
 		try
 		{
-		    update(descriptor, adapters, current);
+		    update(descriptor, adapters, activationTimeout, deactivationTimeout, current);
 		}
 		catch(const string& msg)
 		{
@@ -499,8 +500,7 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
 	else
 	{
 	    Lock sync(*this);
-	    int timeout = _desc->activationTimeout > 0 ? _desc->activationTimeout : _waitTime;
-	    _node->getWaitQueue()->add(new WaitForActivationItem(this), IceUtil::Time::seconds(timeout));
+	    _node->getWaitQueue()->add(new WaitForActivationItem(this), IceUtil::Time::seconds(_activationTimeout));
 	    setStateNoSync(ServerI::WaitForActivation);
 	    checkActivation();
 	    notifyAll();
@@ -705,8 +705,7 @@ ServerI::stopInternal(bool kill, const Ice::Current& current)
 	    //
 	    // Wait for a notification.
 	    //
-	    int timeout = _desc->deactivationTimeout > 0 ? _desc->deactivationTimeout : _waitTime;
-	    bool notify = timedWait(IceUtil::Time::seconds(timeout));
+	    bool notify = timedWait(IceUtil::Time::seconds(_deactivationTimeout));
 	    if(!notify)
 	    {
 		assert(oldState == _state);
@@ -840,12 +839,26 @@ ServerI::setStateNoSync(InternalServerState st)
 }
 
 void
-ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapters, const Ice::Current& current)
+ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapters, int& activationTimeout,
+		int& deactivationTimeout, const Ice::Current& current)
 {
     _desc = descriptor;
     _serverDir = _serversDir + "/" + descriptor->name;
-    _activation = descriptor->activation;
-    
+    _activation = descriptor->activation  == "on-demand" ? OnDemand : Manual;
+
+    istringstream at(_desc->activationTimeout);
+    if(!(at >> _activationTimeout) || !at.eof() || _activationTimeout == 0)
+    {
+	_activationTimeout = _waitTime;
+    }
+    istringstream dt(_desc->deactivationTimeout);
+    if(!(dt >> _deactivationTimeout) || !dt.eof() || _deactivationTimeout == 0)
+    {
+	_deactivationTimeout = _waitTime;
+    }
+    activationTimeout = _activationTimeout;
+    deactivationTimeout = _deactivationTimeout;
+
     //
     // Make sure the server directories exists.
     //

@@ -107,7 +107,7 @@ interface Server
      * Load the server.
      *
      **/
-    void load(ServerDescriptor desc, out StringAdapterPrxDict adapters)
+    void load(ServerDescriptor desc, out StringAdapterPrxDict adapters, out int actTimeout, out int deactTimeout)
 	throws DeploymentException;
 
     /**

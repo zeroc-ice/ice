@@ -42,7 +42,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	instance.descriptor = new ServerDescriptor();
 	instance.descriptor->name = "Server";
 	instance.descriptor->exe = properties->getProperty("TestDir") + "/server";
-	instance.descriptor->activation = Manual;
 	AdapterDescriptor adapter;
 	adapter.name = "Server";
 	adapter.endpoints = "default";
@@ -104,7 +103,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	templ.descriptor = new ServerDescriptor();
 	templ.descriptor->name = "${name}";
 	ServerDescriptorPtr server = ServerDescriptorPtr::dynamicCast(templ.descriptor);
-	server->activation = Manual;
 	server->exe = "${test.dir}/server";
 	adapter = AdapterDescriptor();
 	adapter.name = "Server";
@@ -794,7 +792,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	ServerDescriptorPtr server = new ServerDescriptor();
 	server->name = "node-${index}";
 	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
-	server->activation = Manual;
 	AdapterDescriptor adapter;
 	adapter.name = "IceGrid.Node";
 	adapter.endpoints = "default";
@@ -848,9 +845,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	instance.descriptor = new ServerDescriptor();
 	instance.descriptor->name = "Server";
 	instance.descriptor->exe = properties->getProperty("TestDir") + "/server";
-	instance.descriptor->activation = Manual;
-	instance.descriptor->activationTimeout = 0;
-	instance.descriptor->deactivationTimeout = 0;
  	adapter.name = "Server";
 	adapter.endpoints = "default";
 	adapter.id = "ServerAdapter";

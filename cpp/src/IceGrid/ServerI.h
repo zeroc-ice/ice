@@ -43,7 +43,7 @@ public:
     ServerI(const NodeIPtr&, const ServerPrx&, const std::string&, const std::string&, int);
     virtual ~ServerI();
 
-    virtual void load(const ServerDescriptorPtr&, StringAdapterPrxDict&, const Ice::Current&);
+    virtual void load(const ServerDescriptorPtr&, StringAdapterPrxDict&, int&, int&, const Ice::Current&);
     virtual void start_async(const AMD_Server_startPtr&, const ::Ice::Current&);
     virtual void stop(const ::Ice::Current&);
     virtual void sendSignal(const std::string&, const ::Ice::Current&);
@@ -72,7 +72,7 @@ private:
     void setState(InternalServerState);
     void setStateNoSync(InternalServerState);
     
-    void update(const ServerDescriptorPtr&, StringAdapterPrxDict&, const Ice::Current&);
+    void update(const ServerDescriptorPtr&, StringAdapterPrxDict&, int&, int&, const Ice::Current&);
     AdapterPrx addAdapter(const AdapterDescriptor&, const Ice::Current&);
     void updateConfigFile(const std::string&, const ComponentDescriptorPtr&);
     void updateDbEnv(const std::string&, const DbEnvDescriptor&);
@@ -89,6 +89,8 @@ private:
     ServerDescriptorPtr _desc;
     InternalServerState _state;
     ServerActivation _activation;
+    int _activationTimeout;
+    int _deactivationTimeout;
     std::map<std::string, ServerAdapterIPtr> _adapters;
     bool _processRegistered;
     Ice::ProcessPrx _process;
