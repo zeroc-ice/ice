@@ -153,11 +153,19 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\Chat.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Client.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Hello.cpp
+SOURCE=.\Router.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Session.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -165,7 +173,15 @@ SOURCE=.\Hello.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Hello.h
+SOURCE=.\Chat.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Router.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Session.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -173,69 +189,199 @@ SOURCE=.\Hello.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Hello.ice
+SOURCE=.\Chat.ice
 
 !IF  "$(CFG)" == "chatC - Win32 Release"
 
-USERDEP__HELLO="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\Chat.ice
 
 BuildCmds= \
-	slice2cppe.exe Hello.ice
+	slice2cppe.exe -I. Chat.ice
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "chatC - Win32 Debug"
 
-USERDEP__HELLO="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\Chat.ice
 
 BuildCmds= \
-	slice2cppe.exe Hello.ice
+	slice2cppe.exe -I. Chat.ice
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "chatC - Win32 Debug Static"
 
-USERDEP__HELLO="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\Chat.ice
 
 BuildCmds= \
-	slice2cppe.exe Hello.ice
+	slice2cppe.exe -I. Chat.ice
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "chatC - Win32 Release Static"
 
-USERDEP__HELLO="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\Chat.ice
 
 BuildCmds= \
-	slice2cppe.exe Hello.ice
+	slice2cppe.exe -I. Chat.ice
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Router.ice
+
+!IF  "$(CFG)" == "chatC - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. -I../../../slice Router.ice
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "chatC - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. -I../../../slice Router.ice
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "chatC - Win32 Debug Static"
+
+# Begin Custom Build
+InputPath=.\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. -I../../../slice Router.ice
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "chatC - Win32 Release Static"
+
+# Begin Custom Build
+InputPath=.\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. -I../../../slice Router.ice
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Session.ice
+
+!IF  "$(CFG)" == "chatC - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\Session.ice
+
+BuildCmds= \
+	slice2cppe.exe Session.ice
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "chatC - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\Session.ice
+
+BuildCmds= \
+	slice2cppe.exe Session.ice
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "chatC - Win32 Debug Static"
+
+# Begin Custom Build
+InputPath=.\Session.ice
+
+BuildCmds= \
+	slice2cppe.exe Session.ice
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "chatC - Win32 Release Static"
+
+# Begin Custom Build
+InputPath=.\Session.ice
+
+BuildCmds= \
+	slice2cppe.exe Session.ice
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

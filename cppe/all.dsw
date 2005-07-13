@@ -188,6 +188,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name workqueue
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name chatC
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -238,6 +241,21 @@ Package=<4>
 ###############################################################################
 
 Project: "callbackS"=.\demo\IceE\callback\callbackS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "chatC"=.\demo\IceE\chat\chatC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
