@@ -972,7 +972,7 @@ IceInternal::IndirectReference::toString() const
     // reference parser uses as separators, then we enclose the
     // adapter id string in quotes.
     //
-    string a = Ice::escapeString(_adapterId, "");
+    string a = IceUtil::escapeString(_adapterId, "");
     if(a.find_first_of(" \t\n\r") != string::npos)
     {
 	result.append("\"");

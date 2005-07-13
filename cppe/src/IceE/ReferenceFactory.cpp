@@ -470,7 +470,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 		throw ex;
 	    }
 
-	    end = Ice::checkQuote(s, beg);
+	    end = IceUtil::checkQuote(s, beg);
 	    if(end == string::npos)
 	    {
 		ProxyParseException ex(__FILE__, __LINE__);
@@ -490,7 +490,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 		beg++; // Skip leading quote
 	    }
 
-	    if(!Ice::unescapeString(s, beg, end, adapter) || adapter.size() == 0)
+	    if(!IceUtil::unescapeString(s, beg, end, adapter) || adapter.size() == 0)
 	    {
 		ProxyParseException ex(__FILE__, __LINE__);
 		ex.str = str;
