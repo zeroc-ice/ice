@@ -588,6 +588,21 @@ Package=<4>
 
 ###############################################################################
 
+Project: "mfcchatC"=.\demo\IceE\chat\mfcchatC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "mfchelloC"=.\demo\IceE\MFC\client\mfchelloC.dsp - Package Owner=<4>
 
 Package=<5>
