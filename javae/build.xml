@@ -17,10 +17,11 @@
 
     <!-- set global properties for this build -->
     <property name="src.dir" value="src"/>
-    <property name="lib.dir" value="lib"/>
     <property name="cache.dir" value="depcache"/>
 	      
-    <target name="init" depends="config-init"/>
+    <target name="init" depends="config-init">
+	<property name="toplib.dir" value="${targetProfile}/lib"/>
+    </target>
 
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
@@ -42,17 +43,17 @@
     </target>
 
     <target name="compile" depends="generate">
-        <mkdir dir="${lib.dir}"/>
+        <mkdir dir="${toplib.dir}"/>
         <mkdir dir="${cache.dir}"/>
-	<depend srcdir="${generated.dir}:${src.dir}:${targetProfile}" destdir="${lib.dir}" cache="${cache.dir}"/>
-	<javac srcdir="${generated.dir}:${src.dir}:${targetProfile}" destdir="${lib.dir}"
-	    debug="${debug}" optimize="${optimize}" deprecation="on" source="1.3" target="1.3">
+	<depend srcdir="${generated.dir}:${src.dir}:${targetProfile}" destdir="${toplib.dir}" cache="${cache.dir}"/>
+	<javac srcdir="${generated.dir}:${src.dir}:${targetProfile}" destdir="${toplib.dir}"
+	    debug="${debug}" optimize="${optimize}" deprecation="on" source="1.1" target="1.1">
         	<bootclasspath refid="bootclasspath"/>  
 	</javac>
     </target>
 
     <target name="jar" depends="compile">
-        <jar jarfile="${lib.dir}/IceE.jar" basedir="${lib.dir}" excludes="IceE.jar"/>
+        <jar jarfile="${toplib.dir}/IceE.jar" basedir="${toplib.dir}" excludes="IceE.jar"/>
     </target>
 
     <target name="all" depends="jar">
@@ -62,7 +63,7 @@
 
     <target name="clean">
         <delete dir="${generated.dir}"/>
-        <delete dir="${lib.dir}"/>
+        <delete dir="${toplib.dir}"/>
         <delete dir="${cache.dir}"/>
         <ant inheritAll="false" dir="demo" target="clean"/>
         <ant inheritAll="false" dir="test" target="clean"/>

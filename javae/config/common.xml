@@ -80,7 +80,7 @@
 	<fail message="ICEE_HOME is not set to a valid directory" unless="is-cvs-valid"/>
 
 	<property name="slice.dir" value="${env.ICEE_HOME}/slice"/>
-	<property name="lib.dir" value="${top.dir}/lib" />
+	<property name="lib.dir" value="${top.dir}/${targetProfile}/lib" />
 	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
     </target>
 
@@ -88,6 +88,7 @@
         <available file="${env.ICEE_HOME}/lib" property="opt-lib-avail" />
 	<fail message="ICEE_HOME is not set to a valid directory" unless="opt-lib-avail"/>
 
+	<!-- TODO: fix lib.dir for targetProfile -->
 	<property name="lib.dir" value="${env.ICEE_HOME}/lib" />
 	
 	<property name="slice.dir" value="${env.ICEE_HOME}/slice"/>
@@ -95,12 +96,13 @@
     </target>
 
     <target name="properties-src" if="is-src">
-	<property name="lib.dir" value="${top.dir}/lib" />
+	<property name="lib.dir" value="${top.dir}/${targetProfile}/lib" />
 	<property name="slice.dir" value="${top.dir}/slice"/>
 	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
     </target>
 
     <target name="properties-rpm" if="is-rpm">
+	<!-- TODO: fix lib.dir for targetProfile -->
 	<property name="lib.dir" value="/usr/lib/Ice-ICE_VERSION" />
 	<property name="slice.dir" value="/usr/share/slice"/>
 	<taskdef name="slice2javae" classpath="${lib.dir}/ant" classname="Slice2JavaETask"/>
