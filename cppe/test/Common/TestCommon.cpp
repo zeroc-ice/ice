@@ -279,7 +279,7 @@ TestApplication::main(HINSTANCE hInstance)
 	extern char **__argv; 
 	status = run(__argc, __argv);
     }
-    catch(const TestSuiteFailed& e)
+    catch(const TestSuiteFailed&)
     {
 	tprintf("test failed\n");
     }
