@@ -13,17 +13,17 @@
 //
 // Uncomment to build with Router support.
 //
-//#define ICEE_HAS_ROUTER
+#define ICEE_HAS_ROUTER
 
 //
 // Uncomment to build with Locator support.
 //
-//#define ICEE_HAS_LOCATOR
+#define ICEE_HAS_LOCATOR
 
 //
 // Uncomment to enable batch mode on the client side.
 //
-//#define ICEE_HAS_BATCH
+#define ICEE_HAS_BATCH
 
 
 // ***********************************************************************

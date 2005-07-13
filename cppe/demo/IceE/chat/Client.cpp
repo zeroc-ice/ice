@@ -1,0 +1,182 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+//
+// This copy of IceE is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#include <IceE/IceE.h>
+#include <Router.h>
+#include <Chat.h>
+
+using namespace std;
+using namespace Ice;
+using namespace Demo;
+
+class ChatCallbackI : public ChatCallback
+{
+public:
+
+    virtual void
+    message(const string& data, const Current&)
+    {
+	printf("%s\n", data);
+    }
+};
+
+void
+menu()
+{
+    printf("enter /quit to exit.\n");
+}
+
+string
+trim(const string& s)
+{
+    static const string delims = "\t\r\n ";
+    string::size_type last = s.find_last_not_of(delims);
+    if(last != string::npos)
+    {
+        return s.substr(s.find_first_not_of(delims), last+1);
+    }
+    return s;
+}
+
+int
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+{
+    RouterPrx defaultRouter = communicator->getDefaultRouter();
+    if(!defaultRouter)
+    {
+        fprintf(stderr, "%s: no default router set\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(defaultRouter);
+    {
+        if(!router)
+        {
+	    fprintf(stderr, "%s: configured router is not a Glacier2 router\n", argv[0]);
+    	    return EXIT_FAILURE;
+        }
+    }
+
+    char buffer[1024];
+
+    ChatSessionPrx session;
+    while(true)
+    {
+	printf("This demo accepts any user-id / password combination.\n");
+
+        printf("user id: ");
+	fgets(buffer, 1024, stdin);
+	string id(buffer);
+        id = trim(id);
+
+        printf("password: ");
+	fgets(buffer, 1024, stdin);
+	string pw(buffer);
+        pw = trim(pw);
+
+        try
+        {
+	    session = ChatSessionPrx::uncheckedCast(router->createSession(id, pw));
+	    break;
+        }
+        catch(const Glacier2::PermissionDeniedException& ex)
+        {
+	    fprintf(stderr, "permission denied:\n%s", ex.toString().c_str()); 
+        }
+    }
+
+    string category = router->getServerProxy()->ice_getIdentity().category;
+    Identity callbackReceiverIdent;
+    callbackReceiverIdent.name = "callbackReceiver";
+    callbackReceiverIdent.category = category;
+
+    ObjectAdapterPtr adapter = communicator->createObjectAdapter("Chat.Client");
+    ChatCallbackPrx callback = ChatCallbackPrx::uncheckedCast(
+        adapter->add(new ChatCallbackI, callbackReceiverIdent));
+    adapter->activate();
+
+    session->setCallback(callback);
+
+    menu();
+
+    try
+    {
+        do
+        {
+	    printf("==> ");
+	    char* ret = fgets(buffer, 1024, stdin);
+	    if(ret == NULL)
+	    {
+	        break;
+	    }
+
+	    string s(buffer);
+	    s = trim(s);
+	    if(!s.empty())
+	    {
+	        if(s[0] == '/')
+	        {
+	    	    if(s == "/quit")
+	    	    {
+	    	        break;
+	    	    }
+	    	    menu();
+	        }
+	        else
+	        {
+	    	    session->say(s);
+	        }
+	    }
+	}
+	while(true);
+	router->destroySession();
+    }
+    catch(const Exception& ex)
+    {
+        fprintf(stderr, "%s\n", ex.toString().c_str());
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+int
+main(int argc, char* argv[])
+{
+    int status;
+    Ice::CommunicatorPtr communicator;
+
+    try
+    {
+        Ice::PropertiesPtr properties = Ice::createProperties();
+        properties->load("config");
+        communicator = Ice::initializeWithProperties(argc, argv, properties);
+        status = run(argc, argv, communicator);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        fprintf(stderr, "%s\n", ex.toString().c_str());
+        status = EXIT_FAILURE;
+    }
+
+    if(communicator)
+    {
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            fprintf(stderr, "%s\n", ex.toString().c_str());
+            status = EXIT_FAILURE;
+        }
+    }
+
+    return status;
+}
