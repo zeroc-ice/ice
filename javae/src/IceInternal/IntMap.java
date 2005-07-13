@@ -299,10 +299,10 @@ public class IntMap
         public Object
         nextElement()
         {
-            if(_modCount != _expectedModCount)
-            {
-                throw new IceUtil.ConcurrentModificationException();
-            }
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_modCount == _expectedModCount);
+	    }
             Entry e = _next;
             if(e == null)
             {
@@ -328,10 +328,10 @@ public class IntMap
             {
                 throw new IllegalStateException();
             }
-            if(_modCount != _expectedModCount)
-            {
-                throw new IceUtil.ConcurrentModificationException();
-            }
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_modCount == _expectedModCount);
+	    }
             int k = _current.key;
             _current = null;
             IntMap.this.remove(k);
