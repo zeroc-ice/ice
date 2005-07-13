@@ -19,14 +19,6 @@ Chat.Client.Router=Glacier2/router:tcp -p 10005
 Chat.Client.Endpoints=
 
 #
-# Ice.MonitorConnections defaults to the smaller of Ice.ACM.Client or
-# Ice.ACM.Server, which we set to 0 above. However we still want the
-# connection monitor thread for AMI timeouts (for completeness, even
-# if this demo doesn't use AMI).
-#
-IceE.MonitorConnections=60
-
-#
 # Connection retry is not possible with Glacier2. Connections must
 # remain established.
 #
@@ -36,6 +28,6 @@ IceE.RetryIntervals=-1
 # Other settings.
 #
 
-Ice.Trace.Network=1
-Ice.Trace.Protocol=1
-Ice.Warn.Connections=1
+#IceE.Trace.Network=1
+#IceE.Trace.Protocol=1
+#IceE.Warn.Connections=1

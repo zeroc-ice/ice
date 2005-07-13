@@ -122,7 +122,15 @@ CChatClientDlg::OnSend()
 
     int len = _edit->LineLength();
     _edit->GetLine(0, strText.GetBuffer(len), len);
-    _chat->say(std::string(strText));
+    try
+    {
+        _chat->say(std::string(strText));
+    }
+    catch(const Ice::ConnectionLostException&)
+    {
+        AfxMessageBox(CString("Login timed out due to inactivity"), MB_OK|MB_ICONEXCLAMATION);
+        OnShutdown();
+    }
     strText.ReleaseBuffer(len);
 
     //
