@@ -207,6 +207,8 @@ public final class Properties
 	    return;
 	}
 
+/** TODO: Replace this code with something compatible with JDK 1.1.
+ *
         int dotPos = key.indexOf('.');
 	if(dotPos != -1)
 	{
@@ -236,6 +238,7 @@ public final class Properties
 		}
 	    }
 	}
+*/
 
 	//
 	// Set or clear the property.
