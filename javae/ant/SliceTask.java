@@ -112,7 +112,7 @@ public class SliceTask extends org.apache.tools.ant.Task
     {
         if(_includePath == null) 
         {
-            _includePath = new Path(project);
+            _includePath = new Path(getProject());
         }
         return _includePath.createPath();
     }
