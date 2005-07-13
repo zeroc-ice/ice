@@ -257,7 +257,8 @@ class ServerDescriptor extends ComponentDescriptor
 
     /**
      *
-     * The server initial activation mode.
+     * The server initial activation mode (possible values are
+     * "on-demand" or "manual").
      *
      **/
     string activation;
