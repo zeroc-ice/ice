@@ -9,24 +9,6 @@
 
 public final class InitialI extends Test._InitialDisp
 {
-    public Ice.Object
-    getTest1C2AsObject(Ice.Current __current)
-    {
-        return new Test1.C2();
-    }
-
-    public Test1.C1
-    getTest1C2AsC1(Ice.Current __current)
-    {
-        return new Test1.C2();
-    }
-
-    public Test1.C2
-    getTest1C2AsC2(Ice.Current __current)
-    {
-        return new Test1.C2();
-    }
-
     public void
     throwTest1E2AsE1(Ice.Current __current)
         throws Test1.E1
@@ -48,24 +30,6 @@ public final class InitialI extends Test._InitialDisp
         throw new Test1._notify();
     }
 
-    public Ice.Object
-    getTest2C2AsObject(Ice.Current __current)
-    {
-        return new testpkg.Test2.C2();
-    }
-
-    public testpkg.Test2.C1
-    getTest2C2AsC1(Ice.Current __current)
-    {
-        return new testpkg.Test2.C2();
-    }
-
-    public testpkg.Test2.C2
-    getTest2C2AsC2(Ice.Current __current)
-    {
-        return new testpkg.Test2.C2();
-    }
-
     public void
     throwTest2E2AsE1(Ice.Current __current)
         throws testpkg.Test2.E1
@@ -78,24 +42,6 @@ public final class InitialI extends Test._InitialDisp
         throws testpkg.Test2.E2
     {
         throw new testpkg.Test2.E2();
-    }
-
-    public Ice.Object
-    getTest3C2AsObject(Ice.Current __current)
-    {
-        return new testpkg.Test3.C2();
-    }
-
-    public testpkg.Test3.C1
-    getTest3C2AsC1(Ice.Current __current)
-    {
-        return new testpkg.Test3.C2();
-    }
-
-    public testpkg.Test3.C2
-    getTest3C2AsC2(Ice.Current __current)
-    {
-        return new testpkg.Test3.C2();
     }
 
     public void

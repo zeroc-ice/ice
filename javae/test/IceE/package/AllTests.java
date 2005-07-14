@@ -18,32 +18,6 @@ public class AllTests
         }
     }
 
-    private static class TestFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
-    {
-        public Ice.Object
-        create(String type)
-        {
-            _invoked = true;
-            return null;
-        }
-
-        public void
-        destroy()
-        {
-            // Nothing to do
-        }
-
-        boolean
-        invoked()
-        {
-            boolean r = _invoked;
-            _invoked = false;
-            return r;
-        }
-
-        private boolean _invoked = false;
-    }
-
     public static Test.InitialPrx
     allTests(Ice.Communicator communicator)
     {
@@ -64,11 +38,6 @@ public class AllTests
         {
             System.out.print("testing types without package... ");
             System.out.flush();
-            Test1.C1 c1 = initial.getTest1C2AsC1();
-            test(c1 != null);
-            test(c1 instanceof Test1.C2);
-            Test1.C2 c2 = initial.getTest1C2AsC2();
-            test(c2 != null);
             try
             {
                 initial.throwTest1E2AsE1();
@@ -104,27 +73,6 @@ public class AllTests
             System.out.flush();
 
             {
-                Ice.Object o = initial.getTest2C2AsObject();
-                test(o != null);
-                test(!(o instanceof testpkg.Test2.C1)); // Sliced to Ice.Object
-                try
-                {
-                    initial.getTest2C2AsC1();
-                    test(false);
-                }
-                catch(Ice.NoObjectFactoryException ex)
-                {
-                    // Expected
-                }
-                try
-                {
-                    initial.getTest2C2AsC2();
-                    test(false);
-                }
-                catch(Ice.NoObjectFactoryException ex)
-                {
-                    // Expected
-                }
                 try
                 {
                     initial.throwTest2E2AsE1();
@@ -158,13 +106,6 @@ public class AllTests
                 // Define Ice.Package.Test2=testpkg and try again.
                 //
                 communicator.getProperties().setProperty("Ice.Package.Test2", "testpkg");
-                Ice.Object o = initial.getTest2C2AsObject();
-                test(o != null);
-                testpkg.Test2.C1 c1 = initial.getTest2C2AsC1();
-                test(c1 != null);
-                test(c1 instanceof testpkg.Test2.C2);
-                testpkg.Test2.C2 c2 = initial.getTest2C2AsC2();
-                test(c2 != null);
                 try
                 {
                     initial.throwTest2E2AsE1();
@@ -192,13 +133,6 @@ public class AllTests
                 // have already been cached for them, so now we use the Test3.* types.
                 //
                 communicator.getProperties().setProperty("Ice.Default.Package", "testpkg");
-                Ice.Object o = initial.getTest3C2AsObject();
-                test(o != null);
-                testpkg.Test3.C1 c1 = initial.getTest3C2AsC1();
-                test(c1 != null);
-                test(c1 instanceof testpkg.Test3.C2);
-                testpkg.Test3.C2 c2 = initial.getTest3C2AsC2();
-                test(c2 != null);
                 try
                 {
                     initial.throwTest3E2AsE1();
