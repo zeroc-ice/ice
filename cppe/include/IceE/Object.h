@@ -29,8 +29,6 @@ class ICEE_API Object : public IceUtil::Shared
 {
 public:
 
-    Object() {};
-
     virtual bool operator==(const Object&) const;
     virtual bool operator!=(const Object&) const;
     virtual bool operator<(const Object&) const;
@@ -61,6 +59,7 @@ public:
 
 protected:
 
+    Object() {};
     virtual ~Object() {} // This class is abstract.
 };
 

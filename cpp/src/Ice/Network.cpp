@@ -1015,6 +1015,12 @@ IceInternal::errorToString(int error)
 	    LocalFree(lpMsgBuf);
 	    return result;
 	}
+	else
+	{
+	    ostringstream os;
+	    os << "unknown error: " << error;
+	    return os.str();
+	}
     }
 
     switch(error)
@@ -1173,7 +1179,11 @@ IceInternal::errorToString(int error)
 	return "WSANO_DATA";
 
     default:
-	return "unknown socket error";
+    {
+	ostringstream os;
+	os << "unknown socket error: " << error;
+	return os.str();
+    }
     }
 }
 
