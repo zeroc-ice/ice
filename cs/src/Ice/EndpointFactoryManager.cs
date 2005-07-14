@@ -87,9 +87,6 @@ namespace IceInternal
 		}
 		
 		return null;
-		Ice.EndpointParseException e2 = new Ice.EndpointParseException();
-		e2.str = str;
-		throw e2;
 	    }
 	}
 	
