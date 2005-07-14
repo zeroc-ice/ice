@@ -42,9 +42,9 @@
 //
 // If building a pure client, we cannot also build with router.
 //
-#if defined(ICEE_PURE_CLIENT) && defined(ICEE_HAS_ROUTER)
-#  undef ICEE_HAS_ROUTER
-#endif
+//#if defined(ICEE_PURE_CLIENT) && defined(ICEE_HAS_ROUTER)
+//#  undef ICEE_HAS_ROUTER
+//#endif
 
 //
 // If using STLport we don't use iostreams and we don't want to
