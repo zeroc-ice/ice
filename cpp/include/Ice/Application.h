@@ -58,7 +58,7 @@ public:
     //
     // These methods can be used to temporarily block a signal and
     // arrange for delivery of a pending signal later. Any signal that
-    // is received after holdInterrupt() was called is remember and
+    // is received after holdInterrupt() was called is remembered and
     // delivered when releaseInterupt() is called. That signal is then
     // handled according to the signal disposition established with
     // destroyOnInterrupt(), shutdownOnInterrupt() or
