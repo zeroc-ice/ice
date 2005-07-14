@@ -337,9 +337,14 @@ public final class Properties
 	try
 	{
 	    int ch = in.read();
+	    if(ch == -1)
+	    {
+		return null;
+	    }
+	    
 	    while(ch != '\n')
 	    {
-		line.append(ch);
+		line.append((char)ch);
 		ch = in.read();
 	    }
 	}
