@@ -39,8 +39,10 @@ private:
 };
 
 CChatConfigDlg::CChatConfigDlg(const Ice::CommunicatorPtr& communicator, const LogIPtr& log, 
-			       CChatClientDlg* mainDiag, CWnd* pParent /*=NULL*/) :
-    CDialog(CChatConfigDlg::IDD, pParent), _communicator(communicator), _log(log), _mainDiag(mainDiag)
+			       CChatClientDlg* mainDiag, const CString& user, const CString& password,
+			       const CString& host, const CString& port, CWnd* pParent /*=NULL*/) :
+    CDialog(CChatConfigDlg::IDD, pParent), _communicator(communicator), _log(log), _mainDiag(mainDiag),
+    _user(user), _password(password), _host(host), _port(port)
 {
     _hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -75,6 +77,11 @@ CChatConfigDlg::OnInitDialog()
     _passedit = (CEdit*)GetDlgItem(IDC_PASSWORD);
     _hostedit = (CEdit*)GetDlgItem(IDC_HOST);
     _portedit = (CEdit*)GetDlgItem(IDC_PORT);
+
+    _useredit->SetWindowText(_user);
+    _passedit->SetWindowText(_password);
+    _hostedit->SetWindowText(_host);
+    _portedit->SetWindowText(_port);
 
     //
     // Set the focus to the username input
@@ -136,53 +143,50 @@ CChatConfigDlg::OnQueryDragIcon()
 void
 CChatConfigDlg::OnLogin()
 {
-    CString user, password, host, port;
-
     //
     // Read the username.
     //
     int len = _useredit->LineLength();
-    _useredit->GetLine(0, user.GetBuffer(len), len);
-    user.ReleaseBuffer(len);
+    _useredit->GetLine(0, _user.GetBuffer(len), len);
+    _user.ReleaseBuffer(len);
 
     //
     // Read the password.
     //
     len = _passedit->LineLength();
-    _passedit->GetLine(0, password.GetBuffer(len), len);
-    password.ReleaseBuffer(len);
+    _passedit->GetLine(0, _password.GetBuffer(len), len);
+    _password.ReleaseBuffer(len);
 
     //
     // Read the host.
     //
     len = _hostedit->LineLength();
-    _hostedit->GetLine(0, host.GetBuffer(len), len);
-    host.ReleaseBuffer(len);
+    _hostedit->GetLine(0, _host.GetBuffer(len), len);
+    _host.ReleaseBuffer(len);
 
     //
     // Read the port.
     //
     len = _portedit->LineLength();
-    _portedit->GetLine(0, port.GetBuffer(len), len);
-    port.ReleaseBuffer(len);
+    _portedit->GetLine(0, _port.GetBuffer(len), len);
+    _port.ReleaseBuffer(len);
 
     bool success = false;
     try
     {
-    	std::string routerStr = Ice::printfToString("Glacier2/router:tcp -p %s -h %s", port, host);
+    	std::string routerStr = Ice::printfToString("Glacier2/router:tcp -p %s -h %s", _port, _host);
 
-	Ice::RouterPrx defaultRouter = Ice::RouterPrx::uncheckedCast(_communicator->stringToProxy(routerStr));
-        _communicator->setDefaultRouter(defaultRouter);
-
-	Ice::PropertiesPtr properties = _communicator->getProperties();
-	properties->setProperty("Chat.Client.Router", routerStr);
-	properties->setProperty("Chat.Client.Endpoints", "");
-
-        Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(defaultRouter);
+        Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(_communicator->stringToProxy(routerStr));
         if(router)
 	{
+	    _communicator->setDefaultRouter(router);
+
+	    Ice::PropertiesPtr properties = _communicator->getProperties();
+	    properties->setProperty("Chat.Client.Router", routerStr);
+	    properties->setProperty("Chat.Client.Endpoints", "");
+
             Demo::ChatSessionPrx session = 
-	        Demo::ChatSessionPrx::uncheckedCast(router->createSession(std::string(user), std::string(password)));
+	        Demo::ChatSessionPrx::uncheckedCast(router->createSession(std::string(_user), std::string(_password)));
 
             std::string category = router->getServerProxy()->ice_getIdentity().category;
             Ice::Identity callbackReceiverIdent;
@@ -195,7 +199,7 @@ CChatConfigDlg::OnLogin()
             adapter->activate();
 
             session->setCallback(callback);
-	    _mainDiag->setSession(session);
+	    _mainDiag->setSession(session, _user, _password, _host, _port);
 	    success = true;
 	}
 	else
@@ -203,6 +207,10 @@ CChatConfigDlg::OnLogin()
             AfxMessageBox(CString("Configured router is not a Glacier2 router"), MB_OK|MB_ICONEXCLAMATION);
         }
 
+    }
+    catch(const Glacier2::CannotCreateSessionException& ex)
+    {
+        AfxMessageBox(CString(ex.reason.c_str()), MB_OK|MB_ICONEXCLAMATION);
     }
     catch(const Ice::Exception& ex)
     {

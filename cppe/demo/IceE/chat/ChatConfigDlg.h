@@ -18,7 +18,8 @@
 class CChatConfigDlg : public CDialog
 {
 public:
-    CChatConfigDlg(const Ice::CommunicatorPtr&, const LogIPtr&, CChatClientDlg*, CWnd* = NULL);
+    CChatConfigDlg(const Ice::CommunicatorPtr&, const LogIPtr&, CChatClientDlg*, const CString&, const CString&,
+    		   const CString&, const CString&, CWnd* = NULL);
 
     enum { IDD = IDD_CHATCONFIG_DIALOG };
 
@@ -29,10 +30,17 @@ protected:
     Ice::CommunicatorPtr _communicator;
     LogIPtr _log;
     CChatClientDlg* _mainDiag;
+
     CEdit* _useredit;
     CEdit* _passedit;
     CEdit* _hostedit;
     CEdit* _portedit;
+
+    CString _user;
+    CString _password;
+    CString _host;
+    CString _port;
+
     HICON _hIcon;
 
 

@@ -21,7 +21,7 @@ class CChatClientDlg : public CDialog
 public:
     CChatClientDlg(const Ice::CommunicatorPtr&, const LogIPtr&, CWnd* = NULL);
 
-    void setSession(const Demo::ChatSessionPrx&);
+    void setSession(const Demo::ChatSessionPrx&, CString, CString, CString, CString);
 
     enum { IDD = IDD_CHATCLIENT_DIALOG };
 
@@ -34,6 +34,11 @@ protected:
     LogIPtr _log;
     CEdit* _edit;
     HICON _hIcon;
+
+    CString _user;
+    CString _password;
+    CString _host;
+    CString _port;
 
     // Generated message map functions
     virtual BOOL OnInitDialog();

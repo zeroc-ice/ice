@@ -12,6 +12,7 @@
 #include "ChatClient.h"
 #include "ChatClientDlg.h"
 #include "ChatConfigDlg.h"
+#include "Router.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -19,15 +20,27 @@
 
 CChatClientDlg::CChatClientDlg(const Ice::CommunicatorPtr& communicator, const LogIPtr& log,
 			       CWnd* pParent /*=NULL*/) :
-    CDialog(CChatClientDlg::IDD, pParent), _communicator(communicator), _chat(0), _log(log)
+    CDialog(CChatClientDlg::IDD, pParent),
+    _communicator(communicator), 
+    _chat(0), 
+    _log(log),
+    _user(""),
+    _password(""),
+    _host(""),
+    _port("10005")
 {
     _hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
 void
-CChatClientDlg::setSession(const Demo::ChatSessionPrx& chat)
+CChatClientDlg::setSession(const Demo::ChatSessionPrx& chat, CString user, CString password, CString host,
+			   CString port)
 {
     _chat = chat;
+    _user = user;
+    _password = password;
+    _host = host;
+    _port = port;
 }
 
 void
@@ -160,14 +173,36 @@ CChatClientDlg::OnSend()
 void
 CChatClientDlg::OnLogin()
 {
-    CChatConfigDlg dlg(_communicator, _log, this);
-    dlg.DoModal();
+    if(_chat == 0)
+    {
+        CChatConfigDlg dlg(_communicator, _log, this, _user, _password, _host, _port);
+        dlg.DoModal();
+    }
+    else
+    {
+    	try
+	{
+	    Glacier2::RouterPrx::uncheckedCast(_communicator->getDefaultRouter())->destroySession();
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
+	}
+	_chat = 0;
+    }
 
-    if(_chat != 0)
+    if(_chat == 0)
+    {
+        _edit->EnableWindow(FALSE);
+        ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(FALSE);
+	(CEdit*)GetDlgItem(IDC_LOG2)->EnableWindow(FALSE);
+        ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText("Login");
+    }
+    else
     {
         _edit->EnableWindow(TRUE);
         ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(TRUE);
 	(CEdit*)GetDlgItem(IDC_LOG2)->EnableWindow(TRUE);
-        ((CButton*)GetDlgItem(IDC_CONFIG))->EnableWindow(FALSE);
+        ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText("Logout");
     }
 }
