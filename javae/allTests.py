@@ -58,8 +58,9 @@ tests = [ \
     "Ice/facets", \
     "Ice/faultTolerance", \
     "Ice/location", \
-    #"Ice/adapterDeactivation", \
-    "Ice/slicing/exceptions"
+    "Ice/adapterDeactivation", \
+    "Ice/slicing/exceptions", \
+    "Ice/package"
     ]
 
 def usage():
