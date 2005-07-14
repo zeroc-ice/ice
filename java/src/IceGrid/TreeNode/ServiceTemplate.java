@@ -13,13 +13,13 @@ import IceGrid.Model;
 
 class ServiceTemplate extends Parent
 {
-    ServiceTemplate(String name, Model model, TemplateDescriptor descriptor)
+    ServiceTemplate(String name, TemplateDescriptor descriptor, Model model)
     {
 	super(name, model);
 	rebuild(descriptor);
     }
 
-     void rebuild(TemplateDescriptor descriptor)
+    void rebuild(TemplateDescriptor descriptor)
     {
 	_descriptor = descriptor;
 	clearChildren();
@@ -29,10 +29,10 @@ class ServiceTemplate extends Parent
 	//
 	java.util.Collections.sort(_descriptor.parameters);
 	
-	_adapters = new Adapters(_descriptor.descriptor.adapters, _model, null);
+	_adapters = new Adapters(_descriptor.descriptor.adapters, _model);
 	addChild(_adapters);
 
-	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, _model, true);
+	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, _model);
 	addChild(_dbEnvs);
     }
 

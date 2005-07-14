@@ -8,16 +8,20 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import IceGrid.ServerInstanceDescriptor;
 import IceGrid.Model;
+import IceGrid.ServerInstanceDescriptor;
+import IceGrid.TemplateDescriptor;
+import IceGrid.TreeModelI;
+import IceGrid.Utils;
+
 
 class ServerInstances extends Parent
 {
     ServerInstances(java.util.List descriptors, 
-		    Model model,
+		    Application application,
 		    boolean fireEvent)
     {
-	super("Server instances", model);
+	super("Server instances", application.getModel());
 	_descriptors = descriptors;
 
 	java.util.Iterator p = _descriptors.iterator();
@@ -29,20 +33,25 @@ class ServerInstances extends Parent
 	    //
 	    ServerInstanceDescriptor descriptor = 
 		(ServerInstanceDescriptor)p.next();
+
+	    String serverName = computeServerName(descriptor, application);
 		
-	    ServerInstance child = new ServerInstance(descriptor,
-						      _model,
+	    ServerInstance child = new ServerInstance(serverName,
+						      descriptor,
+						      application,
 						      fireEvent);
 	    addChild(child);
 	}
     }
 
-    void update(java.util.List descriptors, String[] removeServers)
+    void update(java.util.List updates, String[] removeServers)
     {
 	//
 	// Note: _descriptors is updated by Application
 	//
 	
+	Application application = (Application)getParent(TreeModelI.APPLICATION_VIEW);
+
 	//
 	// One big set of removes
 	//
@@ -59,18 +68,21 @@ class ServerInstances extends Parent
 	java.util.Vector newChildren = new java.util.Vector();
 	java.util.Vector updatedChildren = new java.util.Vector();
 	
-	java.util.Iterator p = descriptors.iterator();
+	java.util.Iterator p = updates.iterator();
 	while(p.hasNext())
 	{
 	    ServerInstanceDescriptor descriptor = (ServerInstanceDescriptor)p.next();
-	    ServerInstance child = (ServerInstance)findChild(descriptor.descriptor.name);
+	    
+	    String serverName = computeServerName(descriptor, application);
+
+	    ServerInstance child = (ServerInstance)findChild(serverName);
 	    if(child == null)
 	    {
-		newChildren.add(new ServerInstance(descriptor, _model, true));
+		newChildren.add(new ServerInstance(serverName, descriptor, application, true));
 	    }
 	    else
 	    {
-		child.rebuild(descriptor, true);
+		child.rebuild(application, descriptor, true);
 		updatedChildren.add(child);
 	    }
 	}
@@ -89,6 +101,38 @@ class ServerInstances extends Parent
 	}
     }
 
+
+    static String computeServerName(ServerInstanceDescriptor instanceDescriptor, 
+				    Application application)
+    {
+	String nodeName = instanceDescriptor.node;
+
+	if(instanceDescriptor.template.length() > 0)
+	{
+	    //
+	    // Can't be null
+	    //
+	    TemplateDescriptor templateDescriptor = 
+		application.findServerTemplateDescriptor(instanceDescriptor.template);
+	    
+	    java.util.Map parameters = 
+		Utils.substituteVariables(instanceDescriptor.parameterValues,
+					  application.getNodeVariables(nodeName),
+					  application.getVariables());
+
+	    return Utils.substituteVariables(templateDescriptor.descriptor.name,
+					     parameters,
+					     application.getNodeVariables(nodeName),
+					     application.getVariables());
+	}
+	else
+	{
+	  
+	    return Utils.substituteVariables(instanceDescriptor.descriptor.name,
+					     application.getNodeVariables(nodeName),
+					     application.getVariables());
+	}
+    } 
 
     private java.util.List _descriptors;
 }

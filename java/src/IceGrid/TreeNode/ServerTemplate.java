@@ -8,19 +8,52 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JToggleButton;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeCellRenderer;
+
+import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
+
 import IceGrid.IceBoxDescriptor;
-import IceGrid.TemplateDescriptor;
 import IceGrid.Model;
+import IceGrid.ServerDescriptor;
+import IceGrid.TemplateDescriptor;
+import IceGrid.TreeModelI;
+import IceGrid.ServerDynamicInfo;
+import IceGrid.TemplateDescriptor;
+import IceGrid.Utils;
+
 
 class ServerTemplate extends Parent
 {
-    ServerTemplate(String name, Model model, TemplateDescriptor descriptor)
+    
+    //
+    // Application is needed to lookup service templates
+    //
+    ServerTemplate(String name, TemplateDescriptor descriptor, Application application)
     {
-	super(name, model);
-	rebuild(descriptor);
+	super(name, application.getModel());
+	rebuild(descriptor, application);
     }
 
-    void rebuild(TemplateDescriptor descriptor)
+    void rebuild(TemplateDescriptor descriptor, Application application)
     {
 	_descriptor = descriptor;
 	clearChildren();
@@ -34,7 +67,7 @@ class ServerTemplate extends Parent
 	{
 	    _iceBoxDescriptor = (IceBoxDescriptor)_descriptor.descriptor;
 	    
-	    _serviceInstances = new ServiceInstances(_iceBoxDescriptor.services, _model, null);
+	    _serviceInstances = new ServiceInstances(_iceBoxDescriptor.services, application);
 	    addChild(_serviceInstances);
 	}
 	else
@@ -43,10 +76,10 @@ class ServerTemplate extends Parent
 	    _iceBoxDescriptor = null;
 	}
 	
-	_adapters = new Adapters(_descriptor.descriptor.adapters, _model, null);
+	_adapters = new Adapters(_descriptor.descriptor.adapters, _model);
 	addChild(_adapters);
 
-	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, _model, true);
+	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, _model);
 	addChild(_dbEnvs);
     }
 
@@ -54,6 +87,11 @@ class ServerTemplate extends Parent
     public String toString()
     {
 	return templateLabel(_id, _descriptor.parameters);
+    }
+
+    public TemplateDescriptor getDescriptor()
+    {
+	return _descriptor;
     }
 
     private TemplateDescriptor _descriptor;

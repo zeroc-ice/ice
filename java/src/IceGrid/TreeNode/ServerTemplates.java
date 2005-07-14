@@ -8,14 +8,15 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import IceGrid.TemplateDescriptor;
 import IceGrid.Model;
+import IceGrid.TemplateDescriptor;
+import IceGrid.TreeModelI;
 
 class ServerTemplates extends Parent
 {
-    ServerTemplates(java.util.Map descriptors, Model model)
+    ServerTemplates(java.util.Map descriptors, Application application)
     {
-	super("Server templates", model);
+	super("Server templates", application.getModel());
 
 	_descriptors = descriptors;
 
@@ -24,17 +25,20 @@ class ServerTemplates extends Parent
 	while(p.hasNext())
 	{
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-	    addChild(new ServerTemplate((String)entry.getKey(), _model,
-					(TemplateDescriptor)entry.getValue()));
+	    addChild(new ServerTemplate((String)entry.getKey(),
+					(TemplateDescriptor)entry.getValue(),
+					application));
 	}
     }
     
-    void update(java.util.Map descriptors, String[] removeTemplates)
+    void update(java.util.Map updates, String[] removeTemplates)
     {
 	//
 	// Note: _descriptors is updated by Application
 	//
 	
+	Application application = (Application)getParent(TreeModelI.APPLICATION_VIEW);
+
 	//
 	// One big set of removes
 	//
@@ -46,7 +50,7 @@ class ServerTemplates extends Parent
 	java.util.Vector newChildren = new java.util.Vector();
 	java.util.Vector updatedChildren = new java.util.Vector();
 	
-	java.util.Iterator p = descriptors.entrySet().iterator();
+	java.util.Iterator p = updates.entrySet().iterator();
 	while(p.hasNext())
 	{
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
@@ -55,11 +59,11 @@ class ServerTemplates extends Parent
 	    ServerTemplate child = (ServerTemplate)findChild(name);
 	    if(child == null)
 	    {
-		newChildren.add(new ServerTemplate(name, _model, templateDescriptor));
+		newChildren.add(new ServerTemplate(name, templateDescriptor, application));
 	    }
 	    else
 	    {
-		child.rebuild(templateDescriptor);
+		child.rebuild(templateDescriptor, application);
 		updatedChildren.add(child);
 	    }
 	}

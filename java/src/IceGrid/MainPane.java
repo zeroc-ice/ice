@@ -78,7 +78,7 @@ public class MainPane extends JSplitPane implements Model.TreeNodeSelector
 	}
     }
 
-    class SelectionListener implements TreeSelectionListener
+    static class SelectionListener implements TreeSelectionListener
     {
 	SelectionListener(int view)
 	{
@@ -91,7 +91,7 @@ public class MainPane extends JSplitPane implements Model.TreeNodeSelector
 	    if(path != null)
 	    {
 		CommonBase node = (CommonBase)path.getLastPathComponent();
-		node.displayProperties(_rightPane, _view);
+		node.displayProperties();
 	    }
 	}
 
@@ -114,11 +114,7 @@ public class MainPane extends JSplitPane implements Model.TreeNodeSelector
 		    if(path != null)
 		    {
 			CommonBase node = (CommonBase)path.getLastPathComponent();
-
-			//
-			// Assumes the pane indexing matches the view indexing
-			//
-			node.displayProperties(_rightPane, selectedPane);
+			node.displayProperties();
 			return;
 		    }
 		}
@@ -170,7 +166,8 @@ public class MainPane extends JSplitPane implements Model.TreeNodeSelector
 	// Left pane
 	//
 	_tabbedPane = new JTabbedPane();
-	_tabbedPane.setMinimumSize(new Dimension(200, 300));
+	_tabbedPane.setPreferredSize(new Dimension(280, 350));
+	
 	_tabbedPane.putClientProperty(Options.NO_CONTENT_BORDER_KEY, Boolean.TRUE);
 	_tabbedPane.setBorder(new ShadowBorder());
 	TabListener tabListener = new TabListener();
@@ -232,6 +229,7 @@ public class MainPane extends JSplitPane implements Model.TreeNodeSelector
 	_emptyPanel = new JPanel();
 	_emptyPanel.setBackground(Color.RED);
 	_rightPane.setContent(_emptyPanel);
+	_model.setPropertiesFrame(_rightPane);
 	
 	setLeftComponent(leftPane);
 	setRightComponent(_rightPane);

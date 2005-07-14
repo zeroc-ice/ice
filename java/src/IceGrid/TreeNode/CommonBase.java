@@ -79,6 +79,5 @@ public interface CommonBase extends TreeCellRenderer
     //
     JPopupMenu getPopupMenu();
 
-    void displayProperties(SimpleInternalFrame frame, int view);
-
+    void displayProperties();
 }

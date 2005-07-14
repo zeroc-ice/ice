@@ -307,6 +307,21 @@ public class AdminGUI extends JFrame
 	editMenu.add(deleteAction);
 	toolBar.add(deleteAction);
 
+	toolBar.addSeparator();
+	Action substituteVarAction = new AbstractAction("${}")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _model.toggleSubstituteVariables();
+		}
+	    };
+
+	substituteVarAction.putValue(Action.SHORT_DESCRIPTION, 
+				     "Substitute variables and parameters in servers' properties");
+    
+	toolBar.add(new JToggleButton(substituteVarAction));
+
+
 	Action aboutAction = new AbstractAction("About...")
 	    {
 		public void actionPerformed(ActionEvent e) 

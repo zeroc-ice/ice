@@ -8,22 +8,73 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import IceGrid.Model;
+import IceGrid.ServiceDescriptor;
 import IceGrid.ServiceInstanceDescriptor;
 import IceGrid.TemplateDescriptor;
-import IceGrid.Model;
+
 
 class ServiceInstance extends Parent
 {
-    ServiceInstance(ServiceInstanceDescriptor descriptor, Model model, Node node)
+    ServiceInstance(String id,
+		    String displayString,
+		    ServiceInstanceDescriptor descriptor, 
+		    ServiceDescriptor serviceDescriptor,
+		    boolean editable, // False when the enclosing server instance
+		                      // is a template-instance
+		    java.util.Map serverParameters, // When the enclosing server instance
+		                                    // is a template instance,
+		                                    // this server's parameters (substituted);
+                                                    // null otherwise
+		    java.util.Map myParameters,     // When this is a template instance within
+		                                    // a server instance, descriptor.parameterValues
+		                                    // substituted using parameters + variables
+		    java.util.Map nodeVariables,
+		    java.util.Map appVariables,
+		    Model model, 
+		    Node node)
     {
-	super(descriptor.descriptor.name, model);
+	super(id, model);
+	_displayString = displayString;
 	_descriptor = descriptor;
-	
-	_adapters = new Adapters(_descriptor.descriptor.adapters, _model, node);
-	addChild(_adapters);
+	_editable = editable;
+
+	if(serviceDescriptor != null)
+	{
+	    boolean childrenEditable = _editable && (descriptor.template.length() == 0);
+
+	    //
+	    // For the children, the proper parameters can be used as variables.
+	    // Note that the fields of the service-instance itself should be
+	    // substituted with parameters (if any) + variables.
+	    //
+	    java.util.Map[] variables = null;
+	    if(node != null)
+	    {
+		variables = new java.util.Map[3];
+		if(myParameters != null)
+		{
+		    variables[0] = myParameters;
+		    assert(descriptor.template.length() > 0);
+		}
+		else
+		{
+		    variables[0] = serverParameters;
+		    assert(descriptor.template.length() == 0);
+		}
+		variables[1] = nodeVariables;
+		variables[2] = appVariables;
+	    }
 	    
-	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, _model, false);
-	addChild(_dbEnvs);
+	    _adapters = new Adapters(serviceDescriptor.adapters, 
+				     childrenEditable,
+				     variables, _model, node);
+	    addChild(_adapters);
+	    
+	    _dbEnvs = new DbEnvs(serviceDescriptor.dbEnvs, childrenEditable,
+				 variables, _model);
+	    addChild(_dbEnvs);
+	}
     }
 
     void unregisterAdapters()
@@ -33,17 +84,19 @@ class ServiceInstance extends Parent
 
     public String toString()
     {
-	String result = _descriptor.descriptor.name;
-
-	if(!_descriptor.template.equals(""))
+	if(_displayString != null)
 	{
-	    result += ": " + templateLabel(_descriptor.template, 
-					   _descriptor.parameterValues.values());
+	    return _displayString;
 	}
-	return result;
+	else
+	{
+	    return _id;
+	}
     }
 
     private ServiceInstanceDescriptor _descriptor;
+    private String _displayString;
+    private boolean _editable;
     private Adapters _adapters;
     private DbEnvs _dbEnvs;
 }

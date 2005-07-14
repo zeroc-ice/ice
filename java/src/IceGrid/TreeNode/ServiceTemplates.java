@@ -24,8 +24,9 @@ class ServiceTemplates extends Parent
 	while(p.hasNext())
 	{
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-	    addChild(new ServiceTemplate((String)entry.getKey(), _model,
-					 (TemplateDescriptor)entry.getValue()));
+	    addChild(new ServiceTemplate((String)entry.getKey(),
+					 (TemplateDescriptor)entry.getValue(),
+					 _model));
 	}
     }
 
@@ -55,7 +56,7 @@ class ServiceTemplates extends Parent
 	    ServiceTemplate child = (ServiceTemplate)findChild(name);
 	    if(child == null)
 	    {
-		newChildren.add(new ServiceTemplate(name, _model, templateDescriptor));
+		newChildren.add(new ServiceTemplate(name, templateDescriptor, _model));
 	    }
 	    else
 	    {

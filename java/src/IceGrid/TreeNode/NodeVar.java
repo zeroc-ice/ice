@@ -24,6 +24,11 @@ class NodeVar extends Leaf
 	_descriptor = descriptor;
     }
 
+    java.util.Map getVariables()
+    {
+	return _descriptor.variables;
+    }
+
     private NodeDescriptor _descriptor;
 
 }

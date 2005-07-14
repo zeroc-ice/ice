@@ -19,6 +19,36 @@ import IceGrid.TreeModelI;
 
 class Parent extends CommonBaseI
 {
+    
+    //
+    // Adapts parent to a ComboBoxModel
+    //
+    class ComboBoxModel extends javax.swing.AbstractListModel 
+	implements javax.swing.ComboBoxModel
+    {
+	public Object getElementAt(int index)
+	{
+	    return getChildAt(index);
+	}
+
+	public int getSize()
+	{
+	    return getChildCount();
+	}
+	
+	public Object getSelectedItem()
+	{
+	    return _selectedItem;
+	}
+
+	public void setSelectedItem(Object obj)
+	{
+	    _selectedItem = obj;
+	}
+
+	private Object _selectedItem;
+    }
+
     static class ChildComparator implements java.util.Comparator
     {
 	public int compare(Object o1, Object o2)
@@ -431,7 +461,10 @@ class Parent extends CommonBaseI
 	}
     }
 
-
+    javax.swing.ComboBoxModel getComboBoxModel()
+    {
+	return new ComboBoxModel();
+    }
 
 
     Parent(String id, Model model, int rootForView)

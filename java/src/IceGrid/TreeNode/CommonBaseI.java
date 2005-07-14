@@ -109,7 +109,7 @@ abstract class CommonBaseI implements CommonBase
 	return null;
     }
 
-    public void displayProperties(SimpleInternalFrame frame, int view)
+    public void displayProperties()
     {
 	if(_panel == null)
 	{
@@ -119,10 +119,11 @@ abstract class CommonBaseI implements CommonBase
 	    _panel.setBorder(Borders.DIALOG_BORDER);
 	}
 
-	frame.setTitle("Properties");
-	frame.setContent(_panel);
-	frame.validate();
-	frame.repaint();
+	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
+	propertiesFrame.setTitle("Properties");
+	propertiesFrame.setContent(_panel);
+	propertiesFrame.validate();
+	propertiesFrame.repaint();
     }
 
     public Component getTreeCellRendererComponent(

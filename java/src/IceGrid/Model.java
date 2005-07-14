@@ -20,6 +20,8 @@ import javax.swing.tree.TreePath;
 import IceGrid.TreeNode.NodeViewRoot;
 import IceGrid.TreeNode.ApplicationViewRoot;
 
+import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
+
 //
 // Where all the data are kept
 //
@@ -360,6 +362,19 @@ public class Model
 	return true;
     }  
 
+    void toggleSubstituteVariables()
+    {
+	_substituteVariables = !_substituteVariables;
+	//
+	// TODO: need to send a notification to redisplay current properties
+	//
+    }
+
+    public boolean substituteVariables()
+    {
+	return _substituteVariables;
+    }
+
     public AdminPrx getAdmin()
     {
 	return _admin;
@@ -385,6 +400,15 @@ public class Model
 	return _treeNodeSelector;
     }
 
+    public void setPropertiesFrame(SimpleInternalFrame frame)
+    {
+	_propertiesFrame = frame;
+    }
+
+    public SimpleInternalFrame getPropertiesFrame()
+    {
+	return _propertiesFrame;
+    }
 
     Model(Ice.Communicator communicator, StatusBar statusBar)
     {
@@ -414,4 +438,8 @@ public class Model
     private int _latestSerial = -1;
 
     private TreeNodeSelector _treeNodeSelector;
+
+    private boolean _substituteVariables = false;
+
+    private SimpleInternalFrame _propertiesFrame;
 }

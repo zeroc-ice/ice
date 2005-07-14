@@ -10,20 +10,45 @@ package IceGrid.TreeNode;
 
 import IceGrid.AdapterDescriptor;
 import IceGrid.Model;
+import IceGrid.Utils;
 
 class Adapters extends Parent
 {
-    Adapters(java.util.List descriptors, Model model, Node node)
+    //
+    // In server or service template
+    //
+    Adapters(java.util.List descriptors, Model model)
+    {
+	this(descriptors, true, null, model, null);
+    }
+    
+    //
+    // In server or service instance
+    //
+    Adapters(java.util.List descriptors, boolean editable, 
+	     java.util.Map[] variables,
+	     Model model, Node node)
     {
 	super("Adapters", model);
-
 	_descriptors = descriptors;
+	_editable = editable;
+	_variables = variables;
 
 	java.util.Iterator p = _descriptors.iterator();
 	while(p.hasNext())
 	{
 	    AdapterDescriptor descriptor = (AdapterDescriptor)p.next();
-	    Adapter child = new Adapter(descriptor, _model, node);
+	    
+	    String adapterName = descriptor.name;
+	    if(_variables != null)
+	    {
+		adapterName = Utils.substituteVariables(adapterName, 
+							_variables);
+	    }
+
+	    Adapter child = new Adapter(adapterName, descriptor, 
+					_editable, _variables, 
+					_model, node);
 	    addChild(child);
 	}
     }
@@ -39,4 +64,6 @@ class Adapters extends Parent
     }
 
     private java.util.List _descriptors;
+    private boolean _editable;
+    private java.util.Map[] _variables;
 }

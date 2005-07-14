@@ -10,7 +10,9 @@ package IceGrid.TreeNode;
 
 import IceGrid.ApplicationDescriptor;
 import IceGrid.ApplicationUpdateDescriptor;
+import IceGrid.TemplateDescriptor;
 import IceGrid.Model;
+
 
 class Application extends Parent
 {
@@ -24,20 +26,25 @@ class Application extends Parent
 
 	_descriptor = descriptor;
 
-	_serverTemplates = new ServerTemplates(_descriptor.serverTemplates,
-					       _model);
-	addChild(_serverTemplates);
-	
-	_serviceTemplates = new ServiceTemplates(_descriptor.serviceTemplates,
-						 _model);
-	addChild(_serviceTemplates);
-
 	_nodeVars = new NodeVars(_descriptor.nodes, _model);
 	addChild(_nodeVars);
 
-	_serverInstances = new ServerInstances(_descriptor.servers,
-					       _model,
-					       fireEvent);
+	//
+	// _serviceTemplates must be created before _serverTemplates
+	// and _serverInstances, since they may refer to them
+	//
+	_serviceTemplates = new ServiceTemplates(_descriptor.serviceTemplates, _model);
+						
+	addChild(_serviceTemplates);
+
+	_serverTemplates = new ServerTemplates(descriptor.serverTemplates, this);
+	addChild(_serverTemplates);
+	
+	//
+	// _serverInstances must be processed last, after the templates
+	// and the node variables have been created.
+	//
+	_serverInstances = new ServerInstances(_descriptor.servers, this, fireEvent);
 	addChild(_serverInstances);
     }
 
@@ -116,7 +123,50 @@ class Application extends Parent
     {
 	return (ServerTemplate)_serverTemplates.findChild(id);
     }
+
+    TemplateDescriptor findServerTemplateDescriptor(String templateName)
+    {
+	return (TemplateDescriptor)
+	    _descriptor.serverTemplates.get(templateName);
+    }
+
+    TemplateDescriptor findServiceTemplateDescriptor(String templateName)
+    {
+	return (TemplateDescriptor)
+	    _descriptor.serviceTemplates.get(templateName);
+    }
+
+
+    NodeVar findNodeVar(String id)
+    {
+	return (NodeVar)_nodeVars.findChild(id);
+    }
     
+    ServerTemplates getServerTemplates()
+    {
+	return _serverTemplates;
+    }
+
+    //
+    // Should only be used for reading
+    //
+    java.util.Map getVariables()
+    {
+	return _descriptor.variables;
+    }
+
+    java.util.Map getNodeVariables(String id)
+    {
+	NodeVar nodeVar = findNodeVar(id);
+	if(nodeVar != null)
+	{
+	    return nodeVar.getVariables();
+	}
+	else
+	{
+	    return null;
+	}
+    }
 
     private ApplicationDescriptor _descriptor;
 

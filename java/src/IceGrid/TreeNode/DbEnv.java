@@ -13,14 +13,17 @@ import IceGrid.Model;
 
 class DbEnv extends Leaf
 {
-    DbEnv(DbEnvDescriptor descriptor, Model model, boolean inTemplate)
+    DbEnv(String dbEnvName, DbEnvDescriptor descriptor, 
+	  boolean editable, java.util.Map[] variables,
+	  Model model)
     {
-	super(descriptor.name, model);
-
+	super(dbEnvName, model);
 	_descriptor = descriptor;
-	_inTemplate = inTemplate;
+	_editable = editable;
+	_variables = variables;
     }
 
     private DbEnvDescriptor _descriptor;
-    private boolean _inTemplate;
+    private boolean _editable;
+    private java.util.Map[] _variables;
 }
