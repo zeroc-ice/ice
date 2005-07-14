@@ -62,6 +62,251 @@ public final class Arrays
     }
 
     public static boolean
+    equals(boolean[] a1, boolean[] a2)
+    {
+	//
+	// If they are both null then they are equal.
+	//
+	if(a1 == null && a2 == null)
+	{
+	    return true;
+	}
+
+	//
+	// If one of them is null but the other is not, then they are not equal. This validity of this 'if'
+	// statement is order dependent on the previous 'if' statement.
+	//
+	if(a1 == null || a2 == null)
+	{
+	    return false;
+	}
+
+	if(a1.length != a2.length)
+	{
+	    return false;
+	}
+
+	for(int i = 0; i < a1.length; ++i)
+	{
+	    if(a1[i] != a2[i])
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    public static boolean
+    equals(byte[] a1, byte[] a2)
+    {
+	//
+	// If they are both null then they are equal.
+	//
+	if(a1 == null && a2 == null)
+	{
+	    return true;
+	}
+
+	//
+	// If one of them is null but the other is not, then they are not equal. This validity of this 'if'
+	// statement is order dependent on the previous 'if' statement.
+	//
+	if(a1 == null || a2 == null)
+	{
+	    return false;
+	}
+
+	if(a1.length != a2.length)
+	{
+	    return false;
+	}
+
+	for(int i = 0; i < a1.length; ++i)
+	{
+	    if(a1[i] != a2[i])
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    public static boolean
+    equals(short[] a1, short[] a2)
+    {
+	//
+	// If they are both null then they are equal.
+	//
+	if(a1 == null && a2 == null)
+	{
+	    return true;
+	}
+
+	//
+	// If one of them is null but the other is not, then they are not equal. This validity of this 'if'
+	// statement is order dependent on the previous 'if' statement.
+	//
+	if(a1 == null || a2 == null)
+	{
+	    return false;
+	}
+
+	if(a1.length != a2.length)
+	{
+	    return false;
+	}
+
+	for(int i = 0; i < a1.length; ++i)
+	{
+	    if(a1[i] != a2[i])
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    public static boolean
+    equals(int[] a1, int[] a2)
+    {
+	//
+	// If they are both null then they are equal.
+	//
+	if(a1 == null && a2 == null)
+	{
+	    return true;
+	}
+
+	//
+	// If one of them is null but the other is not, then they are not equal. This validity of this 'if'
+	// statement is order dependent on the previous 'if' statement.
+	//
+	if(a1 == null || a2 == null)
+	{
+	    return false;
+	}
+
+	if(a1.length != a2.length)
+	{
+	    return false;
+	}
+
+	for(int i = 0; i < a1.length; ++i)
+	{
+	    if(a1[i] != a2[i])
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    public static boolean
+    equals(long[] a1, long[] a2)
+    {
+	//
+	// If they are both null then they are equal.
+	//
+	if(a1 == null && a2 == null)
+	{
+	    return true;
+	}
+
+	//
+	// If one of them is null but the other is not, then they are not equal. This validity of this 'if'
+	// statement is order dependent on the previous 'if' statement.
+	//
+	if(a1 == null || a2 == null)
+	{
+	    return false;
+	}
+
+	if(a1.length != a2.length)
+	{
+	    return false;
+	}
+
+	for(int i = 0; i < a1.length; ++i)
+	{
+	    if(a1[i] != a2[i])
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    public static boolean
+    equals(float[] a1, float[] a2)
+    {
+	//
+	// If they are both null then they are equal.
+	//
+	if(a1 == null && a2 == null)
+	{
+	    return true;
+	}
+
+	//
+	// If one of them is null but the other is not, then they are not equal. This validity of this 'if'
+	// statement is order dependent on the previous 'if' statement.
+	//
+	if(a1 == null || a2 == null)
+	{
+	    return false;
+	}
+
+	if(a1.length != a2.length)
+	{
+	    return false;
+	}
+
+	for(int i = 0; i < a1.length; ++i)
+	{
+	    if(a1[i] != a2[i])
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    public static boolean
+    equals(double[] a1, double[] a2)
+    {
+	//
+	// If they are both null then they are equal.
+	//
+	if(a1 == null && a2 == null)
+	{
+	    return true;
+	}
+
+	//
+	// If one of them is null but the other is not, then they are not equal. This validity of this 'if'
+	// statement is order dependent on the previous 'if' statement.
+	//
+	if(a1 == null || a2 == null)
+	{
+	    return false;
+	}
+
+	if(a1.length != a2.length)
+	{
+	    return false;
+	}
+
+	for(int i = 0; i < a1.length; ++i)
+	{
+	    if(a1[i] != a2[i])
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    public static boolean
     equals(java.lang.Object[] a1, java.lang.Object[] a2)
     {
 	//
