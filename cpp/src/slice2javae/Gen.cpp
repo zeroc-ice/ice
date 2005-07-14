@@ -68,14 +68,14 @@ Slice::JavaEOutput::printHeader()
 "//\n"
 "// Copyright (c) 2005 ZeroC, Inc. All rights reserved.\n"
 "//\n"
-"// This copy of IceE is licensed to you under the terms described in the\n"
+"// This copy of Ice-E is licensed to you under the terms described in the\n"
 "// ICEE_LICENSE file included in this distribution.\n"
 "//\n"
 "// **********************************************************************\n"
         ;
 
     print(header);
-    print("\n// IceE version ");
+    print("\n// Ice-E version ");
     // TODO: Avoid hard coded version?
     //print(ICE_STRING_VERSION);
     print("1.0.0");
