@@ -8,20 +8,20 @@
 // **********************************************************************
 
 
-#ifndef CHAT_CLIENT_DLG_H
-#define CHAT_CLIENT_DLG_H
+#ifndef CHAT_CONFIG_DLG_H
+#define CHAT_CONFIG_DLG_H
 
 #pragma once
 
 #include "LogI.h"
 #include "Chat.h"
 
-class CChatClientDlg : public CDialog
+class CChatConfigDlg : public CDialog
 {
 public:
-    CChatClientDlg(const Ice::CommunicatorPtr&, const Demo::ChatSessionPrx&, const LogIPtr&, CWnd* = NULL);
+    CChatConfigDlg(const Ice::CommunicatorPtr&, const Demo::ChatSessionPrx&, const LogIPtr&, CWnd* = NULL);
 
-    enum { IDD = IDD_CHATCLIENT_DIALOG };
+    enum { IDD = IDD_CHATCONFIG_DIALOG };
 
 protected:
     virtual void DoDataExchange(CDataExchange*);    // DDX/DDV support
@@ -38,8 +38,7 @@ protected:
     virtual void OnCancel();
     afx_msg void OnPaint();
     afx_msg HCURSOR OnQueryDragIcon();
-    afx_msg void OnShutdown();
-    afx_msg void OnSend();
+    afx_msg void OnLogin();
     DECLARE_MESSAGE_MAP()
 };
 

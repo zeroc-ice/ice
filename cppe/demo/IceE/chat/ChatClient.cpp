@@ -11,6 +11,7 @@
 #include "stdafx.h"
 #include "ChatClient.h"
 #include "ChatClientDlg.h"
+#include "ChatConfigDlg.h"
 #include "Router.h"
 #include "Chat.h"
 #include "LogI.h"
@@ -125,13 +126,23 @@ BOOL CChatClientApp::InitInstance()
     }
 
     //
-    // Create the dialog.
+    // Create the config dialog.
     //
-    CChatClientDlg dlg(communicator, session, log);
+    CChatConfigDlg cfgdlg(communicator, session, log);
         
     //
-    // Show dialog and wait until it is closed, or until the servant receives
-    // a shutdown request.
+    // Show dialog and wait until it is closed.
+    //
+    m_pMainWnd = &cfgdlg;
+    cfgdlg.DoModal();
+
+    //
+    // Create the main dialog.
+    //
+    CChatClientDlg dlg(communicator, session, log);
+
+    //
+    // Show dialog and wait until it is closed.
     //
     m_pMainWnd = &dlg;
     dlg.DoModal();

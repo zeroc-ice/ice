@@ -8,8 +8,8 @@
 // **********************************************************************
 
 
-#ifndef HELLO_SERVER_H
-#define HELLO_SERVER_H
+#ifndef CHAT_CLIENT_H
+#define CHAT_CLIENT_H
 
 #pragma once
 
