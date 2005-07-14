@@ -97,7 +97,9 @@ IceInternal::RouterInfo::destroy()
 
     _clientProxy = 0;
     _serverProxy = 0;
+#ifndef ICEE_PURE_CLIENT
     _adapter = 0;
+#endif
     _routingTable->clear();
 }
 
@@ -208,6 +210,7 @@ IceInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
     }
 }
 
+#ifndef ICEE_PURE_CLIENT
 void
 IceInternal::RouterInfo::setAdapter(const ObjectAdapterPtr& adapter)
 {
@@ -221,5 +224,6 @@ IceInternal::RouterInfo::getAdapter() const
     IceUtil::Mutex::Lock sync(*this);
     return _adapter;
 }
+#endif
 
 #endif

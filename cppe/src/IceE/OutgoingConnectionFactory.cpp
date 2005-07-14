@@ -350,7 +350,9 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	// received over such connections.
 	//
 	ObjectPrx proxy = routerInfo->getClientProxy();
+#ifndef ICEE_PURE_CLIENT
 	ObjectAdapterPtr adapter = routerInfo->getAdapter();
+#endif
 	vector<EndpointPtr> endpoints = proxy->__reference()->getEndpoints();
 	vector<EndpointPtr>::const_iterator p;
 	for(p = endpoints.begin(); p != endpoints.end(); ++p)
@@ -365,6 +367,7 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 		endpoint = endpoint->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
 	    }
 
+#ifndef ICEE_PURE_CLIENT
 	    pair<multimap<EndpointPtr, ConnectionPtr>::iterator,
 		 multimap<EndpointPtr, ConnectionPtr>::iterator> pr = _connections.equal_range(endpoint);
 	    
@@ -382,8 +385,9 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 		}
 		++pr.first;
 	    }
+#endif
 	}
-    }    
+    }
 }
 
 #endif

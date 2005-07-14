@@ -22,47 +22,60 @@
 #include <IceE/Identity.h>
 #include <IceE/OperationMode.h>
 
-namespace IceProxy
-{
-
-namespace Ice
-{
-
 #ifdef ICEE_HAS_ROUTER
+
+namespace IceProxy { namespace Ice
+{
+
 class Router;
-#endif
-#ifdef ICEE_HAS_LOCATOR
-class Locator;
-#endif
 
-}
-
-}
+} }
 
 namespace IceInternal
 {
 
-#ifdef ICEE_HAS_ROUTER
 ICEE_API void incRef(::IceProxy::Ice::Router*);
 ICEE_API void decRef(::IceProxy::Ice::Router*);
-#endif
-
-#ifdef ICEE_HAS_LOCATOR
-ICEE_API void incRef(::IceProxy::Ice::Locator*);
-ICEE_API void decRef(::IceProxy::Ice::Locator*);
-#endif
 
 }
 
 namespace Ice
 {
 
-#ifdef ICEE_HAS_ROUTER
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Router> RouterPrx;
-#endif
+
+}
+
+#endif // ICEE_HAS_ROUTER
+
 #ifdef ICEE_HAS_LOCATOR
+
+namespace IceProxy { namespace Ice
+{
+
+class Locator;
+
+} }
+
+namespace IceInternal
+{
+
+ICEE_API void incRef(::IceProxy::Ice::Locator*);
+ICEE_API void decRef(::IceProxy::Ice::Locator*);
+
+}
+
+namespace Ice
+{
+
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Locator> LocatorPrx;
-#endif
+
+}
+
+#endif // ICEE_HAS_LOCATOR
+
+namespace Ice
+{
 
 class LocalException;
 

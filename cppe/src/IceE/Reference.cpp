@@ -780,12 +780,12 @@ IceInternal::DirectReference::getConnection() const
     ConnectionPtr connection = factory->create(filteredEndpoints);
     assert(connection);
 
+#if defined(ICEE_HAS_ROUTER) && !defined(ICEE_PURE_CLIENT)
     //
     // If we have a router, set the object adapter for this router
     // (if any) to the new connection, so that callbacks from the
     // router can be received over this new connection.
     //
-#ifdef ICEE_HAS_ROUTER
     if(getRouterInfo())
     {
         connection->setAdapter(getRouterInfo()->getAdapter());
@@ -1048,12 +1048,12 @@ IceInternal::IndirectReference::getConnection() const
 	break;
     }
 
+#if defined(ICEE_HAS_ROUTER) && !defined(ICEE_PURE_CLIENT)
     //
     // If we have a router, set the object adapter for this router
     // (if any) to the new connection, so that callbacks from the
     // router can be received over this new connection.
     //
-#ifdef ICEE_HAS_ROUTER
     if(getRouterInfo())
     {
         connection->setAdapter(getRouterInfo()->getAdapter());

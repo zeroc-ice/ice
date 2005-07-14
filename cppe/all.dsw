@@ -191,6 +191,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name chatC
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name mfcchatC
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -659,33 +662,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "minimalXC"=.\demo\IceE\minimalX\minimalXC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name icec
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "minimalXS"=.\demo\IceE\minimalX\minimalXS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
 }}}
 
 ###############################################################################

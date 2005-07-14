@@ -40,22 +40,6 @@
 #endif
 
 //
-// If building a pure client, we cannot also build with router.
-//
-//#if defined(ICEE_PURE_CLIENT) && defined(ICEE_HAS_ROUTER)
-//#  undef ICEE_HAS_ROUTER
-//#endif
-
-//
-// If using STLport we don't use iostreams and we don't want to
-// auto-link in the STLport runtime library.
-//
-//#define _STLP_NO_OWN_IOSTREAMS
-//#define _STLP_NO_NEW_IOSTREAMS
-//#define _STLP_NO_IOSTREAMS
-//#define _STLP_DONT_USE_AUTO_LINK
-
-//
 // Only supported/needed with VC6; Totally undocumented! And if you
 // set it lower than 512 bytes, the program crashes.  Either leave at
 // 0x200 or 0x1000

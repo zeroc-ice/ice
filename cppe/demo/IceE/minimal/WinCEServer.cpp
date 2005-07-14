@@ -11,6 +11,7 @@
 #include <Hello.h>
 
 using namespace std;
+using namespace Demo;
 
 #define IDC_MAIN_EDIT	101
 
@@ -92,7 +93,7 @@ tprintf(const char* fmt, ...)
     }
 }
 
-class HelloI : public ::Demo::Hello
+class HelloI : public Hello
 {
 public:
 
