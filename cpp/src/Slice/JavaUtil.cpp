@@ -463,7 +463,6 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-        string dictType = findMetaData(metaData);
         if(mode == TypeModeOut)
         {
             return getAbsolute(dict, package, "", "Holder");
@@ -475,6 +474,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
 		return "java.util.Hashtable";
 	    }
 	    
+	    string dictType = findMetaData(metaData);
             if(dictType.empty())
             {
                 StringList l = dict->getMetaData();
@@ -852,19 +852,23 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     // the type's Helper class for marshalling - we must
     // generate marshalling code inline.
     //
-    string listType = findMetaData(metaData);
-    StringList typeMetaData = seq->getMetaData();
-    if(listType.empty())
+    string listType;
+    if(_featureProfile != Slice::IceE)
     {
-        listType = findMetaData(typeMetaData);
-    }
-    else
-    {
-        string s = findMetaData(typeMetaData);
-        if(listType != s)
-        {
-            useHelper = false;
-        }
+	listType = findMetaData(metaData);
+	StringList typeMetaData = seq->getMetaData();
+	if(listType.empty())
+	{
+	    listType = findMetaData(typeMetaData);
+	}
+	else
+	{
+	    string s = findMetaData(typeMetaData);
+	    if(listType != s)
+	    {
+		useHelper = false;
+	    }
+	}
     }
 
     //
@@ -896,7 +900,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         // Stop if the inner sequence type has metadata.
         //
         string m = findMetaData(s->getMetaData());
-        if(!m.empty())
+        if(!m.empty() && _featureProfile != Slice::IceE)
         {
             break;
         }
