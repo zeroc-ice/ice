@@ -14,6 +14,8 @@ public class Collocated
     {
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+	Ice.Object object = new TestI();
+	adapter.add(object, Ice.Util.stringToIdentity("test"));
 	adapter.activate();
 
         AllTests.allTests(communicator);
