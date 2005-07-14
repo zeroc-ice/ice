@@ -19,6 +19,7 @@
         <ant dir="inheritance"/>
         <ant dir="location"/>
         <ant dir="operations"/>
+        <ant dir="package"/>
 	<ant dir="slicing"/> 
 	<!-- XXX refactor  <ant dir="translator"/> -->
     </target>
@@ -31,6 +32,7 @@
         <ant dir="inheritance" target="clean"/>
         <ant dir="location" target="clean"/>
         <ant dir="operations" target="clean"/>
+        <ant dir="package" target="clean"/>
 	<ant dir="slicing" target="clean"/> 
 	<!-- XXX refactor <ant dir="translator" target="clean"/> -->
     </target>
