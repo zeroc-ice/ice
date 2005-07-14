@@ -38,15 +38,11 @@ public class Client
 
         try
         {
-	    //
-	    // In this test, we need at least two threads in the
-	    // client side thread pool for nested AMI.
-	    //
 	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
 	    Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
 
 	    //
-	    // We must set MessageSizeMax to an explicit values,
+	    // We must set MessageSizeMax to an explicit value,
 	    // because we run tests to check whether
 	    // Ice.MemoryLimitException is raised as expected.
 	    //

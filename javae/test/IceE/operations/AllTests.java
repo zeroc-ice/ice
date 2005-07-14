@@ -39,7 +39,6 @@ public class AllTests
         test(cl.equals(derived));
         System.out.println("ok");
 
-/*
 	System.out.print("testing checked cast with context... ");
 	System.out.flush();
 	String cref = "test:default -p 12346 -t 10000";
@@ -47,17 +46,16 @@ public class AllTests
 	test(cbase != null);
 
 	Test.TestCheckedCastPrx tccp = Test.TestCheckedCastPrxHelper.checkedCast(cbase);
-	java.util.Map c = tccp.getContext();
+	java.util.Hashtable c = tccp.getContext();
 	test(c == null || c.size() == 0);
 
-	c = new java.util.HashMap();
+	c = new java.util.Hashtable();
 	c.put("one", "hello");
 	c.put("two", "world");
 	tccp = Test.TestCheckedCastPrxHelper.checkedCast(cbase, c);
-	java.util.Map c2 = tccp.getContext();
+	java.util.Hashtable c2 = tccp.getContext();
 	test(c.equals(c2));
 	System.out.println("ok");
-*/
 
         System.out.print("testing twoway operations... ");
         System.out.flush();
