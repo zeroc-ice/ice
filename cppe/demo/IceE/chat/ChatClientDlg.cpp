@@ -148,20 +148,18 @@ CChatClientDlg::OnSend()
 	return;
     }
 
-    CString strText;
+    CString text;
+    _edit->GetWindowText(text);
 
-    int len = _edit->LineLength();
-    _edit->GetLine(0, strText.GetBuffer(len), len);
     try
     {
-        _chat->say(std::string(strText));
+        _chat->say(std::string(text));
     }
     catch(const Ice::ConnectionLostException&)
     {
         AfxMessageBox(CString("Login timed out due to inactivity"), MB_OK|MB_ICONEXCLAMATION);
         EndDialog(0);
     }
-    strText.ReleaseBuffer(len);
 
     //
     // Clear text input and reset focus.
@@ -204,5 +202,6 @@ CChatClientDlg::OnLogin()
         ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(TRUE);
 	(CEdit*)GetDlgItem(IDC_LOG2)->EnableWindow(TRUE);
         ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText("Logout");
+        ((CEdit*)GetDlgItem(IDC_LOG))->SetFocus();
     }
 }

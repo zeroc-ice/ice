@@ -143,33 +143,10 @@ CChatConfigDlg::OnQueryDragIcon()
 void
 CChatConfigDlg::OnLogin()
 {
-    //
-    // Read the username.
-    //
-    int len = _useredit->LineLength();
-    _useredit->GetLine(0, _user.GetBuffer(len), len);
-    _user.ReleaseBuffer(len);
-
-    //
-    // Read the password.
-    //
-    len = _passedit->LineLength();
-    _passedit->GetLine(0, _password.GetBuffer(len), len);
-    _password.ReleaseBuffer(len);
-
-    //
-    // Read the host.
-    //
-    len = _hostedit->LineLength();
-    _hostedit->GetLine(0, _host.GetBuffer(len), len);
-    _host.ReleaseBuffer(len);
-
-    //
-    // Read the port.
-    //
-    len = _portedit->LineLength();
-    _portedit->GetLine(0, _port.GetBuffer(len), len);
-    _port.ReleaseBuffer(len);
+    _useredit->GetWindowText(_user);
+    _passedit->GetWindowText(_password);
+    _hostedit->GetWindowText(_host);
+    _portedit->GetWindowText(_port);
 
     bool success = false;
     try
