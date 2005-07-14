@@ -25,11 +25,6 @@ Demos in this directory:
   A simple latency test that measures the basic call dispatch delay of
   Ice.
 
-- nested
-
-  A demo to illustrate how nested callbacks work, and how the size of
-  the thread pool affects the maximum nesting depth.
-
 - throughput
 
   A simple throughput demo that allows you to send sequences of

@@ -16,7 +16,6 @@
         <ant dir="callback"/>
         <ant dir="hello"/>
         <ant dir="latency"/>
-        <ant dir="nested"/>
         <ant dir="throughput"/>
     </target>
 
@@ -25,7 +24,6 @@
         <ant dir="callback" target="clean"/>
         <ant dir="hello" target="clean"/>
         <ant dir="latency" target="clean"/>
-        <ant dir="nested" target="clean"/>
         <ant dir="throughput" target="clean"/>
     </target>
 
