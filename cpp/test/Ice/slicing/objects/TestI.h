@@ -59,7 +59,7 @@ public:
 
 private:
 
-    const ::Ice::ObjectAdapterPtr& _adapter;
+    const ::Ice::ObjectAdapterPtr _adapter;
 };
 
 #endif
