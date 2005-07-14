@@ -19,7 +19,9 @@
 class CChatClientDlg : public CDialog
 {
 public:
-    CChatClientDlg(const Ice::CommunicatorPtr&, const Demo::ChatSessionPrx&, const LogIPtr&, CWnd* = NULL);
+    CChatClientDlg(const Ice::CommunicatorPtr&, const LogIPtr&, CWnd* = NULL);
+
+    void setSession(const Demo::ChatSessionPrx&);
 
     enum { IDD = IDD_CHATCLIENT_DIALOG };
 
@@ -38,7 +40,7 @@ protected:
     virtual void OnCancel();
     afx_msg void OnPaint();
     afx_msg HCURSOR OnQueryDragIcon();
-    afx_msg void OnShutdown();
+    afx_msg void OnLogin();
     afx_msg void OnSend();
     DECLARE_MESSAGE_MAP()
 };

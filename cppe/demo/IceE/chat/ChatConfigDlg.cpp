@@ -9,6 +9,8 @@
 
 
 #include "stdafx.h"
+#include "IceE/SafeStdio.h"
+#include "Router.h"
 #include "ChatClient.h"
 #include "ChatConfigDlg.h"
 
@@ -16,9 +18,29 @@
 #define new DEBUG_NEW
 #endif
 
-CChatConfigDlg::CChatConfigDlg(const Ice::CommunicatorPtr& communicator, const Demo::ChatSessionPrx& chat,
-                               const LogIPtr& log, CWnd* pParent /*=NULL*/) :
-    CDialog(CChatConfigDlg::IDD, pParent), _communicator(communicator), _chat(chat), _log(log)
+class ChatCallbackI : public Demo::ChatCallback
+{
+public:
+
+    ChatCallbackI(LogIPtr log)
+        : _log(log)
+    {
+    }
+
+    virtual void
+    message(const std::string& data, const Ice::Current&)
+    {
+        _log->message(data);
+    }
+
+private:
+
+    LogIPtr _log;
+};
+
+CChatConfigDlg::CChatConfigDlg(const Ice::CommunicatorPtr& communicator, const LogIPtr& log, 
+			       CChatClientDlg* mainDiag, CWnd* pParent /*=NULL*/) :
+    CDialog(CChatConfigDlg::IDD, pParent), _communicator(communicator), _log(log), _mainDiag(mainDiag)
 {
     _hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -49,17 +71,15 @@ CChatConfigDlg::OnInitDialog()
     //
     // Retrieve the text input edit control.
     //
-    _edit = (CEdit*)GetDlgItem(IDC_LOG);
-
-    //
-    // Retrieve the chat display edit control.
-    //
-    CEdit* pass = (CEdit*)GetDlgItem(IDC_USER);
+    _useredit = (CEdit*)GetDlgItem(IDC_USER);
+    _passedit = (CEdit*)GetDlgItem(IDC_PASSWORD);
+    _hostedit = (CEdit*)GetDlgItem(IDC_HOST);
+    _portedit = (CEdit*)GetDlgItem(IDC_PORT);
 
     //
     // Set the focus to the username input
     //
-    ((CEdit*)GetDlgItem(IDC_USER))->SetFocus();
+    _useredit->SetFocus();
  
     return FALSE; // return FALSE because we explicitly set the focus
 }
@@ -67,7 +87,6 @@ CChatConfigDlg::OnInitDialog()
 void
 CChatConfigDlg::OnCancel()
 {
-    _log->setControl(0);
     CDialog::OnCancel();
 }
 
@@ -113,35 +132,85 @@ CChatConfigDlg::OnQueryDragIcon()
     return static_cast<HCURSOR>(_hIcon);
 }
 
-/*
-void
-CChatConfigDlg::OnSend()
-{
-    CString strText;
-
-    int len = _edit->LineLength();
-    _edit->GetLine(0, strText.GetBuffer(len), len);
-    try
-    {
-        _chat->say(std::string(strText));
-    }
-    catch(const Ice::ConnectionLostException&)
-    {
-        AfxMessageBox(CString("Login timed out due to inactivity"), MB_OK|MB_ICONEXCLAMATION);
-        OnShutdown();
-    }
-    strText.ReleaseBuffer(len);
-
-    //
-    // Clear text input and reset focus.
-    //
-    _edit->SetWindowText(CString(""));
-    ((CButton*)GetDlgItem(IDC_LOG))->SetFocus();
-}
-*/
 
 void
 CChatConfigDlg::OnLogin()
 {
-    EndDialog(0);
+    CString user, password, host, port;
+
+    //
+    // Read the username.
+    //
+    int len = _useredit->LineLength();
+    _useredit->GetLine(0, user.GetBuffer(len), len);
+    user.ReleaseBuffer(len);
+
+    //
+    // Read the password.
+    //
+    len = _passedit->LineLength();
+    _passedit->GetLine(0, password.GetBuffer(len), len);
+    password.ReleaseBuffer(len);
+
+    //
+    // Read the host.
+    //
+    len = _hostedit->LineLength();
+    _hostedit->GetLine(0, host.GetBuffer(len), len);
+    host.ReleaseBuffer(len);
+
+    //
+    // Read the port.
+    //
+    len = _portedit->LineLength();
+    _portedit->GetLine(0, port.GetBuffer(len), len);
+    port.ReleaseBuffer(len);
+
+    bool success = false;
+    try
+    {
+    	std::string routerStr = Ice::printfToString("Glacier2/router:tcp -p %s -h %s", port, host);
+
+	Ice::RouterPrx defaultRouter = Ice::RouterPrx::uncheckedCast(_communicator->stringToProxy(routerStr));
+        _communicator->setDefaultRouter(defaultRouter);
+
+	Ice::PropertiesPtr properties = _communicator->getProperties();
+	properties->setProperty("Chat.Client.Router", routerStr);
+	properties->setProperty("Chat.Client.Endpoints", "");
+
+        Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(defaultRouter);
+        if(router)
+	{
+            Demo::ChatSessionPrx session = 
+	        Demo::ChatSessionPrx::uncheckedCast(router->createSession(std::string(user), std::string(password)));
+
+            std::string category = router->getServerProxy()->ice_getIdentity().category;
+            Ice::Identity callbackReceiverIdent;
+            callbackReceiverIdent.name = "callbackReceiver";
+            callbackReceiverIdent.category = category;
+
+            Ice::ObjectAdapterPtr adapter = _communicator->createObjectAdapter("Chat.Client");
+            Demo::ChatCallbackPrx callback = Demo::ChatCallbackPrx::uncheckedCast(
+                adapter->add(new ChatCallbackI(_log), callbackReceiverIdent));
+            adapter->activate();
+
+            session->setCallback(callback);
+	    _mainDiag->setSession(session);
+	    success = true;
+	}
+	else
+        {
+            AfxMessageBox(CString("Configured router is not a Glacier2 router"), MB_OK|MB_ICONEXCLAMATION);
+        }
+
+    }
+    catch(const Ice::Exception& ex)
+    {
+        AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
+    }
+    
+    if(success)
+    {
+        EndDialog(0);
+    }
 }

@@ -11,16 +11,23 @@
 #include "stdafx.h"
 #include "ChatClient.h"
 #include "ChatClientDlg.h"
+#include "ChatConfigDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
-CChatClientDlg::CChatClientDlg(const Ice::CommunicatorPtr& communicator, const Demo::ChatSessionPrx& chat,
-                               const LogIPtr& log, CWnd* pParent /*=NULL*/) :
-    CDialog(CChatClientDlg::IDD, pParent), _communicator(communicator), _chat(chat), _log(log)
+CChatClientDlg::CChatClientDlg(const Ice::CommunicatorPtr& communicator, const LogIPtr& log,
+			       CWnd* pParent /*=NULL*/) :
+    CDialog(CChatClientDlg::IDD, pParent), _communicator(communicator), _chat(0), _log(log)
 {
     _hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+}
+
+void
+CChatClientDlg::setSession(const Demo::ChatSessionPrx& chat)
+{
+    _chat = chat;
 }
 
 void
@@ -33,7 +40,7 @@ BEGIN_MESSAGE_MAP(CChatClientDlg, CDialog)
     ON_WM_PAINT()
     ON_WM_QUERYDRAGICON()
     //}}AFX_MSG_MAP
-    ON_BN_CLICKED(IDC_SHUTDOWN, OnShutdown)
+    ON_BN_CLICKED(IDC_CONFIG, OnLogin)
     ON_BN_CLICKED(IDC_SEND, OnSend)
 END_MESSAGE_MAP()
 
@@ -51,17 +58,21 @@ CChatClientDlg::OnInitDialog()
     // Retrieve the text input edit control.
     //
     _edit = (CEdit*)GetDlgItem(IDC_LOG);
+    _edit->EnableWindow(FALSE);
+
+    ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(FALSE);
 
     //
     // Retrieve the chat display edit control.
     //
     CEdit* disp = (CEdit*)GetDlgItem(IDC_LOG2);
+    disp->EnableWindow(FALSE);
     _log->setControl(disp);
 
     //
     // Set the focus to the text input
     //
-    ((CButton*)GetDlgItem(IDC_LOG))->SetFocus();
+    ((CButton*)GetDlgItem(IDC_LOGIN))->SetFocus();
  
     return FALSE; // return FALSE because we explicitly set the focus
 }
@@ -118,6 +129,12 @@ CChatClientDlg::OnQueryDragIcon()
 void
 CChatClientDlg::OnSend()
 {
+    if(_chat == 0)
+    {
+        AfxMessageBox(CString("You must login first."), MB_OK|MB_ICONEXCLAMATION);
+	return;
+    }
+
     CString strText;
 
     int len = _edit->LineLength();
@@ -129,7 +146,7 @@ CChatClientDlg::OnSend()
     catch(const Ice::ConnectionLostException&)
     {
         AfxMessageBox(CString("Login timed out due to inactivity"), MB_OK|MB_ICONEXCLAMATION);
-        OnShutdown();
+        EndDialog(0);
     }
     strText.ReleaseBuffer(len);
 
@@ -141,7 +158,16 @@ CChatClientDlg::OnSend()
 }
 
 void
-CChatClientDlg::OnShutdown()
+CChatClientDlg::OnLogin()
 {
-    EndDialog(0);
+    CChatConfigDlg dlg(_communicator, _log, this);
+    dlg.DoModal();
+
+    if(_chat != 0)
+    {
+        _edit->EnableWindow(TRUE);
+        ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(TRUE);
+	(CEdit*)GetDlgItem(IDC_LOG2)->EnableWindow(TRUE);
+        ((CButton*)GetDlgItem(IDC_CONFIG))->EnableWindow(FALSE);
+    }
 }

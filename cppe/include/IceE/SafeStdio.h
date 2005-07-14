@@ -20,7 +20,6 @@ namespace Ice
 // 1. snprintf is _snprintf under windows.
 // 2. This function ensures the buffer is null terminated.
 //
-ICEE_API void safesnprintf(char*, size_t, const char*, ...);
 ICEE_API std::string printfToString(const char*, ...);
 
 }

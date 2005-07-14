@@ -11,8 +11,6 @@
 #include "stdafx.h"
 #include "ChatClient.h"
 #include "ChatClientDlg.h"
-#include "ChatConfigDlg.h"
-#include "Router.h"
 #include "Chat.h"
 #include "LogI.h"
 
@@ -23,27 +21,6 @@
 BEGIN_MESSAGE_MAP(CChatClientApp, CWinApp)
     ON_COMMAND(ID_HELP, CWinApp::OnHelp)
 END_MESSAGE_MAP()
-
-class ChatCallbackI : public Demo::ChatCallback
-{
-public:
-
-    ChatCallbackI(LogIPtr log)
-        : _log(log)
-    {
-    }
-
-    virtual void
-    message(const std::string& data, const Ice::Current&)
-    {
-	_log->message(data);
-    }
-
-private:
-
-    LogIPtr _log;
-};
-
 
 CChatClientApp::CChatClientApp()
 {
@@ -71,53 +48,15 @@ BOOL CChatClientApp::InitInstance()
     Ice::CommunicatorPtr communicator;
     Ice::ObjectAdapterPtr adapter;
     LogIPtr log;
-    Demo::ChatSessionPrx session;
     try
     {
         int argc = 0;
         Ice::PropertiesPtr properties = Ice::createProperties();
-	//properties->setProperty("Hello.Endpoints", "tcp -p 10000");
-	properties->load("config");
+	properties->setProperty("IceE.RetryIntervals", "-1");
 
         communicator = Ice::initializeWithProperties(argc, 0, properties);
         log = new LogI;
         communicator->setLogger(log);
-
-	Ice::RouterPrx defaultRouter = communicator->getDefaultRouter();
-	if(!defaultRouter)
-	{
-	    AfxMessageBox(CString("No default router set"), MB_OK|MB_ICONEXCLAMATION);
-	    return FALSE;
-	}
-
-	Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(defaultRouter);
-	if(!router)
-	{
-	    AfxMessageBox(CString("Configured router is not a Glacier2 router"), MB_OK|MB_ICONEXCLAMATION);
-	    return FALSE;
-	}
-
-        try
-        {
-            session = Demo::ChatSessionPrx::uncheckedCast(router->createSession("username", "password"));
-        }
-        catch(const Glacier2::PermissionDeniedException& ex)
-        {
-            AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
-            return FALSE;
-        }
-
-        std::string category = router->getServerProxy()->ice_getIdentity().category;
-        Ice::Identity callbackReceiverIdent;
-        callbackReceiverIdent.name = "callbackReceiver";
-        callbackReceiverIdent.category = category;
-
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Chat.Client");
-        Demo::ChatCallbackPrx callback = Demo::ChatCallbackPrx::uncheckedCast(
-            adapter->add(new ChatCallbackI(log), callbackReceiverIdent));
-        adapter->activate();
-
-        session->setCallback(callback); 
     }
     catch(const Ice::Exception& ex)
     {
@@ -126,20 +65,9 @@ BOOL CChatClientApp::InitInstance()
     }
 
     //
-    // Create the config dialog.
-    //
-    CChatConfigDlg cfgdlg(communicator, session, log);
-        
-    //
-    // Show dialog and wait until it is closed.
-    //
-    m_pMainWnd = &cfgdlg;
-    cfgdlg.DoModal();
-
-    //
     // Create the main dialog.
     //
-    CChatClientDlg dlg(communicator, session, log);
+    CChatClientDlg dlg(communicator, log);
 
     //
     // Show dialog and wait until it is closed.

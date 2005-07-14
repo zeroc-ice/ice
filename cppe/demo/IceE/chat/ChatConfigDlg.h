@@ -13,13 +13,12 @@
 
 #pragma once
 
-#include "LogI.h"
-#include "Chat.h"
+#include "ChatClientDlg.h"
 
 class CChatConfigDlg : public CDialog
 {
 public:
-    CChatConfigDlg(const Ice::CommunicatorPtr&, const Demo::ChatSessionPrx&, const LogIPtr&, CWnd* = NULL);
+    CChatConfigDlg(const Ice::CommunicatorPtr&, const LogIPtr&, CChatClientDlg*, CWnd* = NULL);
 
     enum { IDD = IDD_CHATCONFIG_DIALOG };
 
@@ -28,10 +27,14 @@ protected:
 
 protected:
     Ice::CommunicatorPtr _communicator;
-    Demo::ChatSessionPrx _chat;
     LogIPtr _log;
-    CEdit* _edit;
+    CChatClientDlg* _mainDiag;
+    CEdit* _useredit;
+    CEdit* _passedit;
+    CEdit* _hostedit;
+    CEdit* _portedit;
     HICON _hIcon;
+
 
     // Generated message map functions
     virtual BOOL OnInitDialog();

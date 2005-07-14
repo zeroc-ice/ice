@@ -170,6 +170,10 @@ SOURCE=.\ChatClientDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ChatConfigDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\LogI.cpp
 # End Source File
 # Begin Source File
@@ -200,6 +204,10 @@ SOURCE=.\ChatClient.h
 # Begin Source File
 
 SOURCE=.\ChatClientDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ChatConfigDlg.h
 # End Source File
 # Begin Source File
 
