@@ -172,7 +172,7 @@ Slice::JavaGenerator::open(const string& absolute)
 {
     assert(_out == 0);
 
-    JavaOutput* out = new JavaOutput;
+    JavaOutput* out = createOutput();
     if(out->openClass(absolute, _dir))
     {
         _out = out;
@@ -2312,6 +2312,12 @@ Slice::JavaGenerator::findMetaData(const StringList& metaData)
     }
 
     return "";
+}
+
+JavaOutput*
+Slice::JavaGenerator::createOutput()
+{
+    return new JavaOutput;
 }
 
 void

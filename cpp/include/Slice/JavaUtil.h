@@ -142,6 +142,10 @@ protected:
     //
     static std::string findMetaData(const StringList&);
 
+protected:
+
+    virtual JavaOutput* createOutput();
+
     Slice::FeatureProfile _featureProfile;
 
 private:
