@@ -16,6 +16,13 @@
 namespace Slice
 {
 
+class JavaEOutput : public JavaOutput
+{
+public:
+
+    virtual void printHeader();
+};
+
 class JavaVisitor : public JavaGenerator, public ParserVisitor
 {
 public:
@@ -25,6 +32,8 @@ public:
 protected:
 
     JavaVisitor(const std::string&);
+
+    virtual JavaOutput* createOutput();
 
     //
     // Compose the parameter lists for an operation.
@@ -50,8 +59,7 @@ protected:
     //
     // Generate code to compute a hash code for a type.
     //
-    void writeHashCode(::IceUtil::Output&, const TypePtr&, const std::string&, int&,
-                       const std::list<std::string>& = std::list<std::string>());
+    void writeHashCode(::IceUtil::Output&, const TypePtr&, const std::string&, int&);
 
     //
     // Generate dispatch methods for a class or interface.

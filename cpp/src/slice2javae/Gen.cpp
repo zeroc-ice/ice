@@ -60,6 +60,27 @@ sliceModeToIceMode(const OperationPtr& op)
     return mode;
 }
 
+void
+Slice::JavaEOutput::printHeader()
+{
+    static const char* header =
+"// **********************************************************************\n"
+"//\n"
+"// Copyright (c) 2005 ZeroC, Inc. All rights reserved.\n"
+"//\n"
+"// This copy of IceE is licensed to you under the terms described in the\n"
+"// ICEE_LICENSE file included in this distribution.\n"
+"//\n"
+"// **********************************************************************\n"
+        ;
+
+    print(header);
+    print("\n// IceE version ");
+    // TODO: Avoid hard coded version?
+    //print(ICE_STRING_VERSION);
+    print("1.0.0");
+}
+
 Slice::JavaVisitor::JavaVisitor(const string& dir) :
     JavaGenerator(dir, Slice::IceE)
 {
@@ -67,6 +88,12 @@ Slice::JavaVisitor::JavaVisitor(const string& dir) :
 
 Slice::JavaVisitor::~JavaVisitor()
 {
+}
+
+JavaOutput*
+Slice::JavaVisitor::createOutput()
+{
+    return new JavaEOutput;
 }
 
 vector<string>
@@ -145,8 +172,7 @@ Slice::JavaVisitor::writeDelegateThrowsClause(const string& package, const Excep
 }
 
 void
-Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string& name, int& iter,
-                                  const StringList& metaData)
+Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string& name, int& iter)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
@@ -217,32 +243,18 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        string listType = findMetaData(metaData);
-        if(listType.empty())
-        {
-            StringList l = seq->getMetaData();
-            listType = findMetaData(l);
-        }
-
-        out << nl << "if(" << name << " != null)";
-        out << sb;
-        if(!listType.empty())
-        {
-            out << nl << "__h = 5 * __h + " << name << ".hashCode();";
-        }
-        else
-        {
-            out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < " << name << ".length; __i" << iter
-		<< "++)";
-            out << sb;
-            ostringstream elem;
-            elem << name << "[__i" << iter << ']';
-            iter++;
-            writeHashCode(out, seq->type(), elem.str(), iter);
-            out << eb;
-        }
-        out << eb;
-        return;
+	out << nl << "if(" << name << " != null)";
+	out << sb;
+	out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < " << name << ".length; __i" << iter
+	    << "++)";
+	out << sb;
+	ostringstream elem;
+	elem << name << "[__i" << iter << ']';
+	iter++;
+	writeHashCode(out, seq->type(), elem.str(), iter);
+	out << eb;
+	out << eb;
+	return;
     }
 
     ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
@@ -1608,37 +1620,18 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         {
             //
             // We treat sequences differently because the native equals() method for
-            // a Java array does not perform a deep comparison. If the mapped type
-            // is not overridden via metadata, we use the helper method
-            // java.util.Arrays.equals() to compare native arrays.
+            // a Java array does not perform a deep comparison. We use the helper method
+            // IceUtil.Arrays.equals() to compare native arrays.
             //
             // For all other types, we can use the native equals() method.
             //
             SequencePtr seq = SequencePtr::dynamicCast((*d)->type());
             if(seq)
             {
-                StringList metaData = (*d)->getMetaData();
-                string listType = findMetaData(metaData);
-                if(listType.empty())
-                {
-                    StringList l = seq->getMetaData();
-                    listType = findMetaData(l);
-                }
-                if(!listType.empty())
-                {
-                    out << nl << "if(" << memberName << " != _r." << memberName << " && " << memberName
-                        << " != null && !" << memberName << ".equals(_r." << memberName << "))";
-                    out << sb;
-                    out << nl << "return false;";
-                    out << eb;
-                }
-                else
-                {
-                    out << nl << "if(!java.util.Arrays.equals(" << memberName << ", _r." << memberName << "))";
-                    out << sb;
-                    out << nl << "return false;";
-                    out << eb;
-                }
+		out << nl << "if(!IceUtil.Arrays.equals(" << memberName << ", _r." << memberName << "))";
+		out << sb;
+		out << nl << "return false;";
+		out << eb;
             }
             else
             {
@@ -1662,8 +1655,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     for(d = members.begin(); d != members.end(); ++d)
     {
         string memberName = fixKwd((*d)->name());
-        StringList metaData = (*d)->getMetaData();
-        writeHashCode(out, (*d)->type(), memberName, iter, metaData);
+        writeHashCode(out, (*d)->type(), memberName, iter);
     }
     out << nl << "return __h;";
     out << eb;
@@ -2435,7 +2427,7 @@ void
 Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 {
     //
-    // Don't generate helper for a dictionary containing a local type
+    // Don't generate helper for a dictionary containing a local type.
     //
     if(p->isLocal())
     {
@@ -2455,8 +2447,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         string package = getPackage(p);
         string keyS = typeToString(key, TypeModeIn, package);
         string valueS = typeToString(value, TypeModeIn, package);
-	StringList metaData = p->getMetaData();
-	string dictType = findMetaData(metaData);
         int iter;
         int i;
 
@@ -2559,89 +2549,11 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << eb;
         out << eb;
 
-	BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
-	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(value))
-	{
-	    //
-	    // The dictionary uses class values.
-	    //
-	    out << sp << nl << "private static class Patcher implements IceInternal.Patcher";
-	    out << sb;
-	    string keyTypeS = keyS;
-            BuiltinPtr b = BuiltinPtr::dynamicCast(key);
-	    if(b)
-	    {
-		switch(b->kind())
-		{
-                    case Builtin::KindByte:
-                    {
-                        keyTypeS = "java.lang.Byte";
-                        break;
-                    }
-                    case Builtin::KindBool:
-                    {
-                        keyTypeS = "java.lang.Boolean";
-                        break;
-                    }
-                    case Builtin::KindShort:
-                    {
-                        keyTypeS = "java.lang.Short";
-                        break;
-                    }
-                    case Builtin::KindInt:
-                    {
-                        keyTypeS = "java.lang.Integer";
-                        break;
-                    }
-                    case Builtin::KindLong:
-                    {
-                        keyTypeS = "java.lang.Long";
-                        break;
-                    }
-                    case Builtin::KindFloat:
-                    {
-                        keyTypeS = "java.lang.Float";
-                        break;
-                    }
-                    case Builtin::KindDouble:
-                    {
-                        keyTypeS = "java.lang.Double";
-                        break;
-                    }
-		    default:
-		    {
-			break;	// Do nothing
-		    }
-		}
-	    }
-	    out << sp << nl << "Patcher(java.util.Hashtable m, " << keyTypeS << " key)";
-	    out << sb;
-	    out << nl << "__m = m;";
-	    out << nl << "__key = key;";
-	    out << eb;
-
-	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
-	    out << sb;
-	    out << nl << valueS << " _v = (" << valueS << ")v;";
-	    out << nl << "__m.put(__key, v);";
-	    out << eb;
-
-	    out << sp << nl << "public String" << nl << "type()";
-	    out << sb;
-	    out << nl << "return \"" << value->typeId() << "\";";
-	    out << eb;
-
-	    out << sp << nl << "private java.util.Hashtable __m;";
-	    out << nl << "private " << keyTypeS << " __key;";
-	    out << eb;
-	}
-
-        out << sp << nl << "public static " << (dictType.empty() ? "java.util.Hashtable" : dictType);
+        out << sp << nl << "public static java.util.Hashtable";
         out << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
         out << nl << "int __sz = __is.readSize();";
-        out << nl << (dictType.empty() ? "java.util.Hashtable" : dictType) << " __r = new "
-	    << (dictType.empty() ? "java.util.Hashtable(__sz)" : dictType + "()") << ';';
+        out << nl << "java.util.Hashtable __r = new java.util.Hashtable(__sz);";
         out << nl << "for(int __i = 0; __i < __sz; __i++)";
         out << sb;
         iter = 0;
@@ -2725,10 +2637,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 		writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false);
             }
         }
-	if(!(builtin && builtin->kind() == Builtin::KindObject) && !ClassDeclPtr::dynamicCast(value))
-	{
-	    out << nl << "__r.put(__key, __value);";
-	}
+	out << nl << "__r.put(__key, __value);";
         out << eb;
         out << nl << "return __r;";
         out << eb;
@@ -3158,7 +3067,7 @@ Slice::Gen::BaseImplVisitor::writeReturn(Output& out, const TypePtr& type)
             }
             case Builtin::KindObject:
 	    {
-		assert("Ice objects cannot be returned by value in IceE." == 0);
+		cerr << "Ice objects cannot be returned by value in IceE." << endl;
 		break;
 	    }
         }
