@@ -26,8 +26,7 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
-	
+	Ice::PropertiesPtr properties = Ice::createProperties();
 	//
 	// We must set MessageSizeMax to an explicit values, because
 	// we run tests to check whether IceE.MemoryLimitException is
@@ -37,7 +36,15 @@ public:
 	//properties->setProperty("IceE.Trace.Network", "5");
 	//properties->setProperty("IceE.Trace.Protocol", "5");
 	
-	setCommunicator(Ice::initialize(argc, argv));
+	try
+	{
+	    properties->load("config");
+	}
+	catch(const Ice::FileException&)
+	{
+	}
+
+	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
         Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
         Test::MyClassPrx myClass = allTests(communicator());
 

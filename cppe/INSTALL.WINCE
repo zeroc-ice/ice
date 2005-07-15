@@ -12,6 +12,8 @@ under the following environments:
 
 - Dell Axim v50
 
+- HP iPaq hx2400.
+
 C++ compiler
 ------------
 
@@ -20,6 +22,8 @@ The following Microsoft Visual C++ compilers & SDKs are supported:
 - Microsoft eMbedded Visual C++ 4.0 SP4 with STLport 5.0 (or later)
 
 - Standard SDK for Windows CE .NET 4.2
+
+- Microsoft Pocket PC 2003 SDK
 
 - The Pocket PC 2003 Run-time Type Information library
 
@@ -34,6 +38,10 @@ Microsoft eMbedded Visual C++ (EVC) can be downloaded here:
 The Standard SDK for Windows CE .NET 4.2 can be downloaded here:
 
 - http://www.microsoft.com/downloads/details.aspx?FamilyID=A08F6991-16B0-4019-A174-0C40E6D25FE7&displaylang=en
+
+The Microsoft Pocket PC 2003 SDK can be downloaded here:
+
+- http://www.microsoft.com/downloads/details.aspx?FamilyID=9996b314-0364-4623-9ede-0b5fbb133652&displaylang=en
 
 The Pocket PC 2003 Run-time Type Information library can be downloaded here:
 
@@ -83,7 +91,7 @@ Installing and Configuring
 - Install EVC 4.0.
 
 - Install SP4. If necessary, re-enable the "Virtual Machine Network
-  Services" in your "Network Connections" settings.
+  Services" in the Platform Manager settings.
 
 - If your EVC 4.0 installation did not include "Standard SDK for
   Windows CE .NET 4.2," then you must uninstall the SDK and install
@@ -108,6 +116,10 @@ at start-up. In order to fix this problem we had to uninstall both
 EVC 4.0 and Microsoft Visual Studio 6.0. Next, we reinstalled EVC 4.0
 according to the instructions provided above. Finally, once EVC was
 working, we reinstalled Microsoft Visual Studio 6.0.
+
+If you want to compile and build for the Pocket PC 2003 SDK you must
+install the SDK, and install the Run-time type information
+library. This will appear as "Pocket PC 2003" in the listed platforms.
 
 ======================================================================
 Compilation and Testing

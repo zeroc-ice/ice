@@ -26,31 +26,31 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
-	
+	Ice::PropertiesPtr properties = Ice::createProperties();
+
 	//
 	// We must set MessageSizeMax to an explicit values, because
 	// we run tests to check whether IceE.MemoryLimitException is
 	// raised as expected.
 	//
 	properties->setProperty("IceE.MessageSizeMax", "100");
-	properties->setProperty("CheckedCastAdapter.Endpoints", "default -p 12346 -t 10000");
-        properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
-	//properties->setProperty("IceE.Trace.Protocol", "10");
-	//properties->setProperty("IceE.Trace.Network", "10");
-	
-	setCommunicator(Ice::initialize(argc, argv));
+	properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
+	//properties->setProperty("IceE.Trace.Network", "5");
+	//properties->setProperty("IceE.Trace.Protocol", "5");
+
+	try
+	{
+	    properties->load("config");
+	}
+	catch(const Ice::FileException&)
+	{
+	}
+
+	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr object = new MyDerivedClassI(adapter, Ice::stringToIdentity("test"));
         adapter->add(object, Ice::stringToIdentity("test"));
-        adapter->activate();
-
-        //
-        // Make a separate adapter with a servant locator. We use this to test
-        // that ::Ice::Context is correctly passed to checkedCast() operation.
-        //
-        adapter = communicator()->createObjectAdapter("CheckedCastAdapter");
         adapter->activate();
 
         Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);

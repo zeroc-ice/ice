@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
-// Used by HelloClient.rc
+// Microsoft eMbedded Visual C++ generated include file.
+// Used by HelloClientCE.rc
 //
 #define IDD_HELLOCLIENT_DIALOG          101
 #define IDR_MAINFRAME                   128

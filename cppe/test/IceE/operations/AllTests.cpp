@@ -18,7 +18,7 @@ Test::MyClassPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     tprintf("testing stringToProxy... ");
-    string ref = "test:default -p 12345 -t 10000";
+    string ref = communicator->getProperties()->getPropertyWithDefault("Test.Proxy", "test:default -p 12345 -t 10000");
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     tprintf("ok\n");
@@ -73,43 +73,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     tprintf("ok\n");
 
-#ifdef UNDEFINED
-    tprintf("testing checked cast with context... ");
-    string cref = "test:default -p 12346 -t 10000";
-    Ice::ObjectPrx cbase = communicator->stringToProxy(cref);
-    test(cbase);
-
-    Test::TestCheckedCastPrx tccp = Test::TestCheckedCastPrx::checkedCast(cbase);
-    Ice::Context c = tccp->getContext();
-    test(c.size() == 0);
-
-    c["one"] = "hello";
-    c["two"] = "world";
-    tccp = Test::TestCheckedCastPrx::checkedCast(cbase, c);
-    Ice::Context c2 = tccp->getContext();
-    test(c == c2);
-
-    //
-    // Now with alternate API
-    //
-    tccp = checkedCast<Test::TestCheckedCastPrx>(cbase);
-    c = tccp->getContext();
-    test(c.size() == 0);
-
-    tccp = checkedCast<Test::TestCheckedCastPrx>(cbase, c);
-    c2 = tccp->getContext();
-    test(c == c2);
-
-    tprintf("ok\n");
-#endif
-/*
     tprintf("testing twoway operations... ");
     void twoways(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
     twoways(communicator, cl);
     twoways(communicator, derived);
     derived->opDerived();
     tprintf("ok\n");
-    */
 
     tprintf("testing batch oneway operations... ");
     void batchOneways(const Test::MyClassPrx&);

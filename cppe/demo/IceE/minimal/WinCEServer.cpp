@@ -184,8 +184,20 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	return 0;
     }
 
+    RECT rect;
+    GetClientRect(GetDesktopWindow(), &rect);
+    int width = rect.right - rect.left;
+    if(width > 320)
+    {
+	width = 320;
+    }
+    int height = rect.bottom - rect.top;
+    if(height > 200)
+    {
+	height = 200;
+    }
     mainWnd = CreateWindow(windowClassName, L"Minimal Server", WS_VISIBLE|WS_OVERLAPPED|WS_SYSMENU|WS_SIZEBOX,
-			CW_USEDEFAULT, CW_USEDEFAULT, 320, 200,
+			CW_USEDEFAULT, CW_USEDEFAULT, width, height,
 			NULL, NULL, hInstance, NULL);
     if(mainWnd == NULL)
     {

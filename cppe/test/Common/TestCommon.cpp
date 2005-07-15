@@ -15,7 +15,6 @@
 # include <IceE/Time.h>
 #endif
 
-
 #include <stdarg.h>
 
 using namespace Ice;
@@ -259,8 +258,21 @@ TestApplication::main(HINSTANCE hInstance)
         mbstowcs(wName, _name.c_str(), len);
 	wName[len] = L'\0';
     }
+    
+    RECT rect;
+    GetClientRect(GetDesktopWindow(), &rect);
+    int width = rect.right - rect.left;
+    if(width > 320)
+    {
+	width = 320;
+    }
+    int height = rect.bottom - rect.top;
+    if(height > 200)
+    {
+	height = 200;
+    }
     mainWnd = CreateWindow(windowClassName, wName, WS_VISIBLE|WS_OVERLAPPED|WS_SYSMENU|WS_SIZEBOX,
-			CW_USEDEFAULT, CW_USEDEFAULT, 320, 200,
+			CW_USEDEFAULT, CW_USEDEFAULT, width, height,
 			NULL, NULL, hInstance, NULL);
     if(mainWnd == NULL)
     {

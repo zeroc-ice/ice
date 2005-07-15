@@ -26,26 +26,27 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
+	Ice::PropertiesPtr properties = Ice::createProperties();
 
 	properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
-	properties->setProperty("CheckedCastAdapter.Endpoints", "default -p 12346 -t 10000");
 	//properties->setProperty("IceE.Trace.Network", "5");
 	//properties->setProperty("IceE.Trace.Protocol", "5");
 
-	setCommunicator(Ice::initialize(argc, argv));
+	try
+	{
+	    properties->load("config");
+	}
+	catch(const Ice::FileException&)
+	{
+	}
+
+	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 	
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr object = new MyDerivedClassI(adapter, Ice::stringToIdentity("test"));
         adapter->add(object, Ice::stringToIdentity("test"));
         adapter->activate();
 
-        //
-        // Make a separate adapter with a servant locator. We use this to test
-        // that ::Ice::Context is correctly passed to checkedCast() operation.
-        //
-        adapter = communicator()->createObjectAdapter("CheckedCastAdapter");
-        adapter->activate();
 #ifndef _WIN32_WCE
         communicator()->waitForShutdown();
 #endif
