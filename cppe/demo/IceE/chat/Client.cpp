@@ -22,7 +22,7 @@ public:
     virtual void
     message(const string& data, const Current&)
     {
-	printf("%s\n", data);
+	printf("%s\n", data.c_str());
     }
 };
 

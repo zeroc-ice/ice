@@ -15,6 +15,7 @@ SUBDIRS		= hello \
 		  latency \
 		  throughput \
 		  callback \
+		  chat \
 		  bidir \
 		  minimal \
 		  workqueue
