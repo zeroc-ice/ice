@@ -42,10 +42,20 @@
         </javac>
     </target>
 
-    <target name="jar" depends="compile">
+    <target name="client-jar" depends="compile">
         <mkdir dir="./tmp"/>
 	<copy file="config" todir="./classes"/>
-	<jar destfile="./tmp/ClientMIDlet.jar" manifest="./MANIFEST.MF" excludes="ServerMIDlet.class" basedir="./classes"/>
+	      
+	<manifest file="MANIFEST.MF">
+	    <attribute name="Microedition-Configuration" value="CLDC-1.0"/>
+	    <attribute name="MIDlet-Name" value="ClientMIDlet"/>
+            <attribute name="MIDlet-Vendor" value="ZeroC"/>
+            <attribute name="MIDlet-1" value="ClientMIDlet, ,ClientMIDlet"/>
+	    <attribute name="MIDlet-Version" value="1.0"/>
+	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
+        </manifest>
+	      
+	<jar destfile="./tmp/ClientMIDlet.jar" manifest="./MANIFEST.MF" excludes="ServerMIDlet*.class" basedir="./classes"/>
         <jar destfile="./tmp/ClientMIDlet.jar" basedir="${lib.dir}" excludes="IceE.jar" update="true"/>
         <exec executable="${WTK}/bin/preverify">
            <arg line="-classpath ${WTKLIBS}"/>
@@ -54,12 +64,35 @@
         </exec>
     </target>
 
-    <target name="all" depends="jar"/>
+    <target name="server-jar" depends="compile">
+        <mkdir dir="./tmp"/>
+	<copy file="config" todir="./classes"/>
+	<manifest file="MANIFEST.MF">
+	    <attribute name="Microedition-Configuration" value="CLDC-1.0"/>
+	    <attribute name="MIDlet-Name" value="ServerMIDlet"/>
+            <attribute name="MIDlet-Vendor" value="ZeroC"/>
+            <attribute name="MIDlet-1" value="ServerMIDlet, ,ServerMIDlet"/>
+	    <attribute name="MIDlet-Version" value="1.0"/>
+	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
+        </manifest>
+
+        <jar destfile="./tmp/ServerMIDlet.jar" manifest="./MANIFEST.MF" excludes="ClientMIDlet.class"
+		basedir="./classes"/>
+        <jar destfile="./tmp/ServerMIDlet.jar" basedir="${lib.dir}" excludes="IceE.jar" update="true"/>
+        <exec executable="${WTK}/bin/preverify">
+           <arg line="-classpath ${WTKLIBS}"/>
+            <arg line="-d ."/>
+	    <arg line="./tmp/ServerMIDlet.jar"/>
+        </exec>
+    </target>
+
+    <target name="all" depends="client-jar,server-jar"/>
 
     <target name="clean">
         <delete dir="${class.dir}"/>
 	<delete dir="./tmp"/>
 	<delete file="./ClientMIDlet.jar"/>
+	<delete file="./ServerMIDlet.jar"/>
     </target>
 
 </project>

@@ -9,7 +9,7 @@ Hello.Proxy=hello:tcp -p 10000
 # "Hello". The following line sets the endpoints for this
 # adapter.
 #
-Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
+Hello.Endpoints=tcp -p 10000
 
 #
 # Warn about connection exceptions

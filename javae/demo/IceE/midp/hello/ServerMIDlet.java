@@ -9,7 +9,7 @@
 
 import Demo.*;
 
-public class ClientMIDlet
+public class ServerMIDlet
     extends javax.microedition.midlet.MIDlet
     implements javax.microedition.lcdui.CommandListener
 {
@@ -24,12 +24,35 @@ public class ClientMIDlet
     private static final javax.microedition.lcdui.Command CMD_EXIT =
         new javax.microedition.lcdui.Command("Exit", javax.microedition.lcdui.Command.EXIT, CMD_PRIORITY);
 
-    private static final javax.microedition.lcdui.Command CMD_HELLO =
-        new javax.microedition.lcdui.Command("Hello", javax.microedition.lcdui.Command.ITEM, CMD_PRIORITY);
+    private static final javax.microedition.lcdui.Command CMD_START =
+        new javax.microedition.lcdui.Command("Start", javax.microedition.lcdui.Command.ITEM, CMD_PRIORITY);
 
     private static final javax.microedition.lcdui.StringItem _msg =
-        new javax.microedition.lcdui.StringItem("\nStatus: ", "(no requests sent)");
+        new javax.microedition.lcdui.StringItem("\nStatus: ", "(no status)");
 
+    static class HelloI extends Demo._HelloDisp
+    {
+	public
+	HelloI(javax.microedition.lcdui.StringItem msg)
+	{
+	    _msg = msg;
+	}
+
+	public void
+	sayHello(Ice.Current current)
+	{
+	    _msg.setText("Hello World!");
+	}
+
+	public void
+	shutdown(Ice.Current current)
+	{
+	    _msg.setText("received shutdown request");
+	}
+
+	javax.microedition.lcdui.StringItem _msg = null;
+    }
+    
     protected void
     startApp()
     {
@@ -41,11 +64,11 @@ public class ClientMIDlet
 	if(_display == null)
 	{
 	    _display = javax.microedition.lcdui.Display.getDisplay(this);
-	    _form = new javax.microedition.lcdui.Form("Ice - Hello World Client");
-	    _form.append("Select the `Hello' command to send a request to the hello server.\n");
+	    _form = new javax.microedition.lcdui.Form("Ice - Hello World Server");
+	    _form.append("Select the `Hello' command to activate the hello server.\n");
 	    _form.append(_msg);
 	    _form.addCommand(CMD_EXIT);
-	    _form.addCommand(CMD_HELLO);
+	    _form.addCommand(CMD_START);
 	    _form.setCommandListener(this);
 	}
 	_display.setCurrent(_form);
@@ -92,36 +115,30 @@ public class ClientMIDlet
 	    {
 		handleExitCmd();
 	    }
-	    else if(cmd == CMD_HELLO)
+	    else if(cmd == CMD_START)
 	    {
-		handleHelloCmd();
+		handleStartCmd();
 	    }
 	}
     }
 
     public void
-    handleHelloCmd()
+    handleStartCmd()
     {
-	if(_helloPrx == null)
-	{
-	    Ice.Properties properties = _communicator.getProperties();
-	    String proxy = properties.getProperty("Hello.Proxy");
-	    if(proxy == null || proxy.length() == 0)
-	    {
-		_msg.setText("(unable to retrieve reference, please check the config file in the demo directory)");
-	    }
-	    Ice.ObjectPrx base = _communicator.stringToProxy(proxy);
-	    _helloPrx = HelloPrxHelper.checkedCast(base);
-	}
-
 	try
 	{
-	    _helloPrx.sayHello();
-	    _msg.setText("'sayHello()' succeeded");
+	    Ice.ObjectAdapter adapter = _communicator.createObjectAdapter("Hello");
+	    _msg.setText("init'd adapter");
+	    Ice.Object object = new HelloI(_msg);
+	    _msg.setText("servant init'd");
+	    adapter.add(object, Ice.Util.stringToIdentity("hello"));
+	    _msg.setText("servant added");
+	    adapter.activate();
 	}
 	catch(Exception ex)
 	{
-	    _msg.setText("'sayHello()' failed");
+	    ex.printStackTrace();
+//	    _msg.setText("Unable to initialize Ice server, please check your configuration and start again.");
 	}
     }
 
@@ -138,3 +155,4 @@ public class ClientMIDlet
 	return _form;
     }
 }
+
