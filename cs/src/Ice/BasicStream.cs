@@ -1195,17 +1195,21 @@ namespace IceInternal
 		return;
 	    }
 	    
+	    string mostDerivedId = readTypeId();
+	    string id = string.Copy(mostDerivedId);
+
 	    while(true)
 	    {
-		string id = readTypeId();
-
 		//
 		// If we slice all the way down to Ice::Object, we throw
 		// because Ice::Object is abstract.
 		//
 		if(id == Ice.ObjectImpl.ice_staticId())
 		{
-		    throw new Ice.NoObjectFactoryException("class sliced to Ice.Object, which is abstract");
+                    Ice.NoObjectFactoryException ex
+                        = new Ice.NoObjectFactoryException("class sliced to Ice.Object, which is abstract");
+                    ex.type = mostDerivedId;
+                    throw ex;
 		}
 		
 		//
@@ -1263,6 +1267,7 @@ namespace IceInternal
 			    TraceUtil.traceSlicing("class", id, _slicingCat, _instance.logger());
 			}
 			skipSlice(); // Slice off this derived part -- we don't understand it.
+			id = readTypeId(); // Read next id for next iteration.
 			continue;
 		    }
 		    else

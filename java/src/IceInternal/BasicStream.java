@@ -1267,17 +1267,19 @@ public class BasicStream
 	    return;
 	}
 
+	String mostDerivedId = readTypeId();
+	String id = new String(mostDerivedId);
+
 	while(true)
 	{
-	    String id = readTypeId();
-
 	    //
 	    // If we slice all the way down to Ice::Object, we throw
 	    // because Ice::Object is abstract.
 	    //
 	    if(id.equals(Ice.ObjectImpl.ice_staticId()))
 	    {
-	        throw new Ice.NoObjectFactoryException("class sliced to Ice.Object, which is abstract", id);
+	        throw new Ice.NoObjectFactoryException("class sliced to Ice.Object, which is abstract",
+		                                        mostDerivedId);
 	    }
 
             //
@@ -1334,6 +1336,7 @@ public class BasicStream
                         TraceUtil.traceSlicing("class", id, _slicingCat, _instance.logger());
                     }
                     skipSlice(); // Slice off this derived part -- we don't understand it.
+		    id = readTypeId(); // Read next id for next iteration.
                     continue;
                 }
                 else

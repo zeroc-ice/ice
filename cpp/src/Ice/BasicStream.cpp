@@ -1514,18 +1514,20 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
     }
     assert(index > 0);
 
+    string mostDerivedId;
+    readTypeId(mostDerivedId);
+    string id = mostDerivedId;
     while(true)
     {
-	string id;
-	readTypeId(id);
-
 	//
 	// If we slice all the way down to Ice::Object, we throw
 	// because Ice::Object is abstract.
 	//
         if(id == Ice::Object::ice_staticId())
 	{
-	    throw NoObjectFactoryException(__FILE__, __LINE__, "class sliced to ::Ice::Object, which is abstract", id);
+	    throw NoObjectFactoryException(__FILE__, __LINE__,
+	                                   "class sliced to ::Ice::Object, which is abstract",
+					   mostDerivedId);
 	}
 
         //
@@ -1581,6 +1583,7 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
                     traceSlicing("class", id, _slicingCat, _instance->logger());
                 }
                 skipSlice(); // Slice off this derived part -- we don't understand it.
+		readTypeId(id); // Read next id for next iteration.
                 continue;
             }
             else

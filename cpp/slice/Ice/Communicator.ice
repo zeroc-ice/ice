@@ -180,8 +180,7 @@ local interface Communicator
      * either because no factory was found, or because all factories
      * returned nil, the object is sliced to the next most-derived type
      * and the process repeats. If no factory is found that can create an
-     * instance, the Ice run-time will slice the object to the type
-     * Ice::Object.</para>
+     * instance, the Ice run-time throws [NoObjectFactoryException].</para>
      *
      * <para>The following order is used to locate a factory for a type:
      *
