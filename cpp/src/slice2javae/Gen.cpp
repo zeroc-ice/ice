@@ -76,9 +76,7 @@ Slice::JavaEOutput::printHeader()
 
     print(header);
     print("\n// Ice-E version ");
-    // TODO: Avoid hard coded version?
-    //print(ICE_STRING_VERSION);
-    print("1.0.0");
+    print(ICEE_STRING_VERSION);
 }
 
 Slice::JavaVisitor::JavaVisitor(const string& dir) :

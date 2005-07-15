@@ -88,7 +88,7 @@ main(int argc, char* argv[])
     }
     if(opts.isSet("v") || opts.isSet("version"))
     {
-	cout << ICE_STRING_VERSION << endl;
+	cout << ICEE_STRING_VERSION << endl;
 	return EXIT_SUCCESS;
     }
     if(opts.isSet("D"))

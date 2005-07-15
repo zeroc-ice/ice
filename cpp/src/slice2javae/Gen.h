@@ -13,6 +13,12 @@
 #include <Slice/Parser.h>
 #include <Slice/JavaUtil.h>
 
+//
+// The Ice-E version.
+//
+#define ICEE_STRING_VERSION "1.0.0" // "A.B.C", with A=major, B=minor, C=patch
+#define ICEE_INT_VERSION 10000      // AABBCC, with AA=major, BB=minor, CC=patch
+
 namespace Slice
 {
 
