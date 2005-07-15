@@ -1,0 +1,65 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+ -->
+
+<project name="demo_Ice_helloMIDlet" default="all" basedir=".">
+
+    <!-- set global properties for this build -->
+    <property name="top.dir" value="../../.."/>
+
+    <!-- Include common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+
+    <target name="init" depends="config-init"/>
+
+    <target name="generate" depends="init">
+        <!-- Create the output directory for generated code -->
+        <mkdir dir="${generated.dir}"/>
+        <slice2javae outputdir="${generated.dir}">
+            <fileset dir="../hello" includes="Hello.ice"/>
+        </slice2javae>
+    </target>
+
+    <target name="compile" depends="generate">
+        <mkdir dir="${class.dir}"/>
+	<javac srcdir="${generated.dir}" destdir ="${class.dir}" source="1.3" debug="${debug}">
+	    <bootclasspath refid="bootclasspath"/>  
+ 	    <classpath refid="ice.classpath"/>
+	</javac>
+        <javac srcdir="." destdir="${class.dir}" source="1.3" excludes="generated/**" debug="${debug}">
+	    <bootclasspath refid="bootclasspath"/>  
+            <classpath>
+	       <path refid="ice.classpath"/>
+	       <pathelement path="./classes"/>
+	    </classpath>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="./tmp"/>
+	<copy file="config" todir="./classes"/>
+	<jar destfile="./tmp/ClientMIDlet.jar" manifest="./MANIFEST.MF" basedir="./classes"/>
+        <jar destfile="./tmp/ClientMIDlet.jar" basedir="${lib.dir}" excludes="IceE.jar" update="true"/>
+        <exec executable="${WTK}/bin/preverify">
+           <arg line="-classpath ${WTKLIBS}"/>
+            <arg line="-d ."/>
+	    <arg line="./tmp/ClientMIDlet.jar"/>
+        </exec>
+    </target>
+
+    <target name="all" depends="jar"/>
+
+    <target name="clean">
+        <delete dir="${class.dir}"/>
+	<delete dir="./tmp"/>
+	<delete file="./ClientMIDlet.jar"/>
+    </target>
+
+</project>
