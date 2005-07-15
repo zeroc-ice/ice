@@ -19,6 +19,11 @@ Demos in this directory:
   call back into an object provided by the client as part of that
   invocation.
 
+- chat
+
+  A MFC and command line client the works with the Glacier2 chat demo
+  found in the Ice distibution.
+
 - hello
 
   This demo illustrates how to invoke ordinary (twoway) operations, as

@@ -1,4 +1,4 @@
-//Microsoft eMbedded Visual C++ generated resource script.
+//Microsoft Developer Studio generated resource script.
 //
 #include "resource.h"
 
@@ -74,7 +74,7 @@ IDR_MAINFRAME           ICON    DISCARDABLE     "res\\HelloServer.ico"
 IDD_HELLOSERVER_DIALOG DIALOGEX 0, 0, 154, 161
 STYLE WS_MAXIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
-CAPTION "Ice Hello Server"
+CAPTION "IceE Hello Server"
 FONT 8, "MS Shell Dlg"
 BEGIN
     EDITTEXT        IDC_LOG,7,7,140,120,ES_MULTILINE | ES_AUTOHSCROLL | 
