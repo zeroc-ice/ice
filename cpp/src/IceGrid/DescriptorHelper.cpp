@@ -108,14 +108,14 @@ struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, Templ
 	}
 	
 	ServerDescriptorPtr slhs = ServerDescriptorPtr::dynamicCast(lhs.descriptor);
-	ServerDescriptorPtr srhs = ServerDescriptorPtr::dynamicCast(lhs.descriptor);
+	ServerDescriptorPtr srhs = ServerDescriptorPtr::dynamicCast(rhs.descriptor);
 	if(slhs && srhs)
 	{
 	    return ServerDescriptorHelper(_helper, slhs) == ServerDescriptorHelper(_helper, srhs);
 	}
 
 	ServiceDescriptorPtr svclhs = ServiceDescriptorPtr::dynamicCast(lhs.descriptor);
-	ServiceDescriptorPtr svcrhs = ServiceDescriptorPtr::dynamicCast(lhs.descriptor);
+	ServiceDescriptorPtr svcrhs = ServiceDescriptorPtr::dynamicCast(rhs.descriptor);
 	if(svclhs && svcrhs)
 	{
 	    return ServiceDescriptorHelper(_helper, svclhs) == ServiceDescriptorHelper(_helper, svcrhs);
@@ -634,7 +634,7 @@ DescriptorTemplates::instantiateService(const DescriptorHelper& helper, const st
 	{
 	    unknown.insert(q->first);
 	}
-	substitute(q->second);
+ 	substitute(q->second);
     }
     if(!unknown.empty())
     {
@@ -655,27 +655,8 @@ DescriptorTemplates::instantiateService(const DescriptorHelper& helper, const st
     if(!missingParams.empty())
     {
 	ostringstream os;
-	os << "service template instance undefined parameters: ";
+ 	os << "service template instance undefined parameters: ";
 	copy(missingParams.begin(), missingParams.end(), ostream_iterator<string>(os, " "));
-	throw os.str();
-    }
-    for(map<string, string>::iterator q = params.begin(); q != params.end(); ++q)
-    {
-	substitute(q->second);
-    }
-
-    for(vector<string>::const_iterator q = p->second.parameters.begin(); q != p->second.parameters.end(); ++q)
-    {
-	if(params.find(*q) == params.end())
-	{
-	    missing.insert(*q);
-	}
-    }
-    if(!missing.empty())
-    {
-	ostringstream os;
-	os << "service template instance undefined parameters: ";
-	copy(missing.begin(), missing.end(), ostream_iterator<string>(os, " "));
 	throw os.str();
     }
     

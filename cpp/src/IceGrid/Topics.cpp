@@ -282,6 +282,11 @@ RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDes
 	    }
 	}
     }
+    catch(const std::string& msg)
+    {
+	//cerr << msg << endl;
+	assert(false);
+    }
     catch(...)
     {
 	assert(false);
