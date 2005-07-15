@@ -13,12 +13,6 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
-//
-// The Ice-E version.
-//
-#define ICEE_STRING_VERSION "1.0.0" // "A.B.C", with A=major, B=minor, C=patch
-#define ICEE_INT_VERSION 10000 	    // AABBCC, with AA=major, BB=minor, CC=patch
-
 char
 Slice::ToIfdef::operator()(char c)
 {
@@ -74,7 +68,7 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
 }
 
 void
-Slice::printHeader(Output& out, bool icee)
+Slice::printHeader(Output& out)
 {
     static const char* header =
 "// **********************************************************************\n"
@@ -87,85 +81,37 @@ Slice::printHeader(Output& out, bool icee)
 "// **********************************************************************\n"
         ;
 
-    static const char* iceeHeader =
-"// **********************************************************************\n"
-"//\n"
-"// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.\n"
-"//\n"
-"// This copy of Ice-E is licensed to you under the terms described in the\n"
-"// ICEE_LICENSE file included in this distribution.\n"
-"//\n"
-"// **********************************************************************\n"
-        ;
-
-    if(icee)
-    {
-    	out << iceeHeader;
-        out << "\n// Ice-E version " << ICEE_STRING_VERSION;
-    }
-    else
-    {
-        out << header;
-        out << "\n// Ice version " << ICE_STRING_VERSION;
-    }
+    out << header;
+    out << "\n// Ice version " << ICE_STRING_VERSION;
 }
 
 void
-Slice::printVersionCheck(Output& out, bool icee)
+Slice::printVersionCheck(Output& out)
 {
-    if(icee)
-    {
-        out << "\n";
-        out << "\n#ifndef ICEE_IGNORE_VERSION";
-        out << "\n#   if ICEE_INT_VERSION / 100 != " << ICEE_INT_VERSION / 100;
-        out << "\n#       error IceE version mismatch!";
-        out << "\n#   endif";
-        out << "\n#   if ICEE_INT_VERSION % 100 < " << ICEE_INT_VERSION % 100;
-        out << "\n#       error IceE patch level mismatch!";
-        out << "\n#   endif";
-        out << "\n#endif";
-    }
-    else
-    {
-        out << "\n";
-        out << "\n#ifndef ICE_IGNORE_VERSION";
-        out << "\n#   if ICE_INT_VERSION / 100 != " << ICE_INT_VERSION / 100;
-        out << "\n#       error Ice version mismatch!";
-        out << "\n#   endif";
-        out << "\n#   if ICE_INT_VERSION % 100 < " << ICE_INT_VERSION % 100;
-        out << "\n#       error Ice patch level mismatch!";
-        out << "\n#   endif";
-        out << "\n#endif";
-    }
+    out << "\n";
+    out << "\n#ifndef ICE_IGNORE_VERSION";
+    out << "\n#   if ICE_INT_VERSION / 100 != " << ICE_INT_VERSION / 100;
+    out << "\n#       error Ice version mismatch!";
+    out << "\n#   endif";
+    out << "\n#   if ICE_INT_VERSION % 100 < " << ICE_INT_VERSION % 100;
+    out << "\n#       error Ice patch level mismatch!";
+    out << "\n#   endif";
+    out << "\n#endif";
 }
 
 void
-Slice::printDllExportStuff(Output& out, const string& dllExport, bool icee)
+Slice::printDllExportStuff(Output& out, const string& dllExport)
 {
     if(dllExport.size())
     {
-    	if(icee)
-	{
-	    out << sp;
-	    out << "\n#ifndef " << dllExport;
-	    out << "\n#   ifdef " << dllExport << "_EXPORTS";
-	    out << "\n#       define " << dllExport << " ICEE_DECLSPEC_EXPORT";
-	    out << "\n#   else";
-	    out << "\n#       define " << dllExport << " ICEE_DECLSPEC_IMPORT";
-	    out << "\n#   endif";
-	    out << "\n#endif";
-	}
-	else
-	{
-	    out << sp;
-	    out << "\n#ifndef " << dllExport;
-	    out << "\n#   ifdef " << dllExport << "_EXPORTS";
-	    out << "\n#       define " << dllExport << " ICE_DECLSPEC_EXPORT";
-	    out << "\n#   else";
-	    out << "\n#       define " << dllExport << " ICE_DECLSPEC_IMPORT";
-	    out << "\n#   endif";
-	    out << "\n#endif";
-	}
+	out << sp;
+	out << "\n#ifndef " << dllExport;
+	out << "\n#   ifdef " << dllExport << "_EXPORTS";
+	out << "\n#       define " << dllExport << " ICE_DECLSPEC_EXPORT";
+	out << "\n#   else";
+	out << "\n#       define " << dllExport << " ICE_DECLSPEC_IMPORT";
+	out << "\n#   endif";
+	out << "\n#endif";
     }
 }
 
