@@ -27,12 +27,15 @@
         </slice2javae>
     </target>
 
-    <target name="compile" depends="generate">
+    <target name="compile-generated" depends="generate">
         <mkdir dir="${class.dir}"/>
         <javac srcdir="${generated.dir}" destdir="${class.dir}" debug="${debug}" target="1.1">
 	    <bootclasspath refid="bootclasspath"/>  
             <classpath refid="ice.classpath"/>
         </javac>
+    </target>
+
+    <target name="compile" depends="compile-generated" unless="midp">
         <javac srcdir="." destdir="${class.dir}" excludes="generated/**" debug="${debug}" target="1.1">
 	    <bootclasspath refid="bootclasspath"/>  
             <classpath refid="ice.classpath"/>

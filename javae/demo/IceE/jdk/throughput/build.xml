@@ -38,7 +38,7 @@
         </javac>
     </target>
     
-    <target name="all" depends="compile"/>
+    <target name="all" depends="compile" unless="midp"/>
 
     <target name="clean">
         <delete dir="${generated.dir}"/>

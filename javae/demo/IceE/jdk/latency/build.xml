@@ -27,7 +27,7 @@
         </slice2javae>
     </target>
 
-    <target name="compile" depends="generate">
+    <target name="compile" depends="generate" unless="midp">
         <mkdir dir="${class.dir}"/>
         <javac srcdir="${generated.dir}" destdir="${class.dir}" debug="${debug}" target="1.1">
             <classpath refid="ice.classpath"/>
