@@ -13,6 +13,12 @@
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
 
+//
+// The Ice-E version.
+//
+#define ICEE_STRING_VERSION "1.0.0" // "A.B.C", with A=major, B=minor, C=patch
+#define ICEE_INT_VERSION 10000      // AABBCC, with AA=major, BB=minor, CC=patch
+
 namespace Slice
 {
 
@@ -254,8 +260,6 @@ private:
         void writeReturn(::IceUtil::Output&, const TypePtr&);
     };
 
-private:
-
     class MetaDataVisitor : public ParserVisitor
     {
     public:
@@ -285,6 +289,9 @@ private:
     };
 
     static void validateMetaData(const UnitPtr&);
+    static void printHeader(IceUtil::Output&);
+    static void printVersionCheck(IceUtil::Output&);
+    static void printDllExportStuff(IceUtil::Output&, const std::string&);
 };
 
 }

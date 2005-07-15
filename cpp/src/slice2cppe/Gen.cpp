@@ -139,8 +139,8 @@ Slice::Gen::Gen(const string& name, const string& base,	const string& headerExte
 	return;
     }
 
-    printHeader(H, true);
-    printHeader(C, true);
+    printHeader(H);
+    printHeader(C);
     H << "\n// Generated from file `" << changeInclude(_base, _includePaths) << ".ice'\n";
     C << "\n// Generated from file `" << changeInclude(_base, _includePaths) << ".ice'\n";
 
@@ -248,10 +248,10 @@ Slice::Gen::generate(const UnitPtr& p)
 
     H << "\n#include <IceE/UndefSysMacros.h>";
 
-    printVersionCheck(H, true);
-    printVersionCheck(C, true);
+    printVersionCheck(H);
+    printVersionCheck(C);
 
-    printDllExportStuff(H, _dllExport, true);
+    printDllExportStuff(H, _dllExport);
     if(_dllExport.size())
     {
 	_dllExport += " ";
@@ -2778,13 +2778,6 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     return true;
 }
 
-void
-Slice::Gen::validateMetaData(const UnitPtr& unit)
-{
-    MetaDataVisitor visitor;
-    unit->visit(&visitor, false);
-}
-
 bool
 Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 {
@@ -2932,5 +2925,60 @@ Slice::Gen::MetaDataVisitor::validate(const ContainedPtr& cont)
             }
             _history.insert(s);
         }
+    }
+}
+
+void
+Slice::Gen::validateMetaData(const UnitPtr& unit)
+{
+    MetaDataVisitor visitor;
+    unit->visit(&visitor, false);
+}
+
+void
+Slice::Gen::printHeader(Output& out)
+{
+    static const char* header =
+"// **********************************************************************\n"
+"//\n"
+"// Copyright (c) 2005 ZeroC, Inc. All rights reserved.\n"
+"//\n"
+"// This copy of Ice-E is licensed to you under the terms described in the\n"
+"// ICEE_LICENSE file included in this distribution.\n"
+"//\n"
+"// **********************************************************************\n"
+        ;
+
+    out << header;
+    out << "\n// Ice-E version " << ICEE_STRING_VERSION;
+}
+
+void
+Slice::Gen::printVersionCheck(Output& out)
+{
+    out << "\n";
+    out << "\n#ifndef ICEE_IGNORE_VERSION";
+    out << "\n#   if ICEE_INT_VERSION / 100 != " << ICEE_INT_VERSION / 100;
+    out << "\n#       error IceE version mismatch!";
+    out << "\n#   endif";
+    out << "\n#   if ICEE_INT_VERSION % 100 < " << ICEE_INT_VERSION % 100;
+    out << "\n#       error IceE patch level mismatch!";
+    out << "\n#   endif";
+    out << "\n#endif";
+}
+
+void
+Slice::Gen::printDllExportStuff(Output& out, const string& dllExport)
+{
+    if(dllExport.size())
+    {
+	out << sp;
+	out << "\n#ifndef " << dllExport;
+	out << "\n#   ifdef " << dllExport << "_EXPORTS";
+	out << "\n#       define " << dllExport << " ICEE_DECLSPEC_EXPORT";
+	out << "\n#   else";
+	out << "\n#       define " << dllExport << " ICEE_DECLSPEC_IMPORT";
+	out << "\n#   endif";
+	out << "\n#endif";
     }
 }
