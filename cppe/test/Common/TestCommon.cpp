@@ -415,7 +415,9 @@ TestApplication::main(int ac, char* av[])
 TestApplication::TestApplication(const std::string& name)
     : _name(name)
 {
-
+#ifdef _WIN32_WCE
+    //_tprintfp = fopen(("log-" + _name + ".txt").c_str(), "w");
+#endif
 }
 
 void
@@ -424,7 +426,6 @@ TestApplication::setCommunicator(const Ice::CommunicatorPtr& communicator)
     _communicator = communicator;
     _communicator->setLogger(new LoggerI);
 
-    //_tprintfp = fopen(("log-" + _name + ".txt").c_str(), "w");
 }
 
 Ice::CommunicatorPtr

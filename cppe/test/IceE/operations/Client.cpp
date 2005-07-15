@@ -42,6 +42,13 @@ public:
 	}
 	catch(const Ice::FileException&)
 	{
+	    try
+	    {
+		properties->load("config.txt");
+	    }
+	    catch(const Ice::FileException&)
+	    {
+	    }
 	}
 
 	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
