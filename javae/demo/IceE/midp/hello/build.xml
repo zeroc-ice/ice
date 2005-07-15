@@ -45,7 +45,7 @@
     <target name="jar" depends="compile">
         <mkdir dir="./tmp"/>
 	<copy file="config" todir="./classes"/>
-	<jar destfile="./tmp/ClientMIDlet.jar" manifest="./MANIFEST.MF" basedir="./classes"/>
+	<jar destfile="./tmp/ClientMIDlet.jar" manifest="./MANIFEST.MF" excludes="ServerMIDlet.class" basedir="./classes"/>
         <jar destfile="./tmp/ClientMIDlet.jar" basedir="${lib.dir}" excludes="IceE.jar" update="true"/>
         <exec executable="${WTK}/bin/preverify">
            <arg line="-classpath ${WTKLIBS}"/>

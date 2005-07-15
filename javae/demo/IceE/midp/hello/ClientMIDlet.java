@@ -27,6 +27,9 @@ public class ClientMIDlet
     private static final javax.microedition.lcdui.Command CMD_HELLO =
         new javax.microedition.lcdui.Command("Hello", javax.microedition.lcdui.Command.ITEM, CMD_PRIORITY);
 
+    private static final javax.microedition.lcdui.StringItem _msg =
+        new javax.microedition.lcdui.StringItem("\nStatus: ", "(no requests sent)");
+
     protected void
     startApp()
     {
@@ -38,7 +41,9 @@ public class ClientMIDlet
 	if(_display == null)
 	{
 	    _display = javax.microedition.lcdui.Display.getDisplay(this);
-	    _form = new javax.microedition.lcdui.Form("Ice - Hello World");
+	    _form = new javax.microedition.lcdui.Form("Ice - Hello World Client");
+	    _form.append("Select the `Hello' command to send a request to the hello server.\n");
+	    _form.append(_msg);
 	    _form.addCommand(CMD_EXIT);
 	    _form.addCommand(CMD_HELLO);
 	    _form.setCommandListener(this);
@@ -111,7 +116,15 @@ public class ClientMIDlet
 	    _helloPrx = HelloPrxHelper.checkedCast(base);
 	}
 
-	_helloPrx.sayHello();
+	try
+	{
+	    _helloPrx.sayHello();
+	    _msg.setText("'sayHello()' succeeded");
+	}
+	catch(Exception ex)
+	{
+	    _msg.setText("'sayHello()' failed");
+	}
     }
 
     public void

@@ -2,7 +2,7 @@ MIDlet-Version: 1.0
 MIDlet-Vendor: ZeroC
 MIDlet-Jar-URL: ClientMIDlet.jar
 Microedition-Configuration: CLDC-1.0
-MIDlet-1: ClientMIDlet,  , Demo.ClientMIDlet
+MIDlet-1: ClientMIDlet,  , ClientMIDlet
 MicroEdition-Profile: MIDP-2.0
 MIDlet-Jar-Size: 266113
 MIDlet-Name: ClientMIDlet
