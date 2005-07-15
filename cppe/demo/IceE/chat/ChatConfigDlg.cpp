@@ -148,10 +148,34 @@ CChatConfigDlg::OnLogin()
     _hostedit->GetWindowText(_host);
     _portedit->GetWindowText(_port);
 
+    std::string user;
+    std::string password;
+    std::string host;
+    std::string port;
+#ifdef _WIN32_WCE
+    char buffer[64];
+    wcstombs(buffer, _user, 64);
+    user = buffer;
+
+    wcstombs(buffer, _password, 64);
+    password = buffer;
+
+    wcstombs(buffer, _host, 64);
+    host = buffer;
+
+    wcstombs(buffer, _port, 64);
+    port = buffer;
+#else
+    user = _user;
+    password = _password;
+    host = _host;
+    port = _port;
+#endif
+
     bool success = false;
     try
     {
-    	std::string routerStr = Ice::printfToString("Glacier2/router:tcp -p %s -h %s", _port, _host);
+    	std::string routerStr = Ice::printfToString("Glacier2/router:tcp -p %s -h %s", port.c_str(), host.c_str());
 
         Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(_communicator->stringToProxy(routerStr));
         if(router)
@@ -162,8 +186,7 @@ CChatConfigDlg::OnLogin()
 	    properties->setProperty("Chat.Client.Router", routerStr);
 	    properties->setProperty("Chat.Client.Endpoints", "");
 
-            Demo::ChatSessionPrx session = 
-	        Demo::ChatSessionPrx::uncheckedCast(router->createSession(std::string(_user), std::string(_password)));
+	    Demo::ChatSessionPrx session = Demo::ChatSessionPrx::uncheckedCast(router->createSession(user, password));
 
             std::string category = router->getServerProxy()->ice_getIdentity().category;
             Ice::Identity callbackReceiverIdent;

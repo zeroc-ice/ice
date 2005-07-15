@@ -153,7 +153,13 @@ CChatClientDlg::OnSend()
 
     try
     {
+#ifdef _WIN32_WCE
+	char buffer[256];
+	wcstombs(buffer, text, 256);
+	_chat->say(buffer);
+#else
         _chat->say(std::string(text));
+#endif
     }
     catch(const Ice::ConnectionLostException&)
     {
@@ -162,7 +168,11 @@ CChatClientDlg::OnSend()
         _edit->EnableWindow(FALSE);
         ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(FALSE);
 	(CEdit*)GetDlgItem(IDC_LOG2)->EnableWindow(FALSE);
+#ifdef _WIN32_WCE
+        ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText(L"Login");
+#else
         ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText("Login");
+#endif
 	return;
     }
 
@@ -199,14 +209,22 @@ CChatClientDlg::OnLogin()
         _edit->EnableWindow(FALSE);
         ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(FALSE);
 	(CEdit*)GetDlgItem(IDC_LOG2)->EnableWindow(FALSE);
+#ifdef _WIN32_WCE
+        ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText(L"Login");
+#else
         ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText("Login");
+#endif
     }
     else
     {
         _edit->EnableWindow(TRUE);
         ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(TRUE);
 	(CEdit*)GetDlgItem(IDC_LOG2)->EnableWindow(TRUE);
+#ifdef _WIN32_WCE
+        ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText(L"Logout");
+#else
         ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText("Logout");
+#endif
         ((CEdit*)GetDlgItem(IDC_LOG))->SetFocus();
     }
 }
