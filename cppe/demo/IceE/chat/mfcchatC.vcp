@@ -56,7 +56,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /d "_AFXDLL" /r
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /YX /Gs8192 /GF /O2 /c
-# ADD CPP /nologo /W3 /GR /GX /I "." /I "..\..\..\..\include" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "_AFXDLL" /YX /Gs8192 /GF /O2 /c
+# ADD CPP /nologo /W3 /GR /GX /I "." /I "..\..\..\include" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "_AFXDLL" /YX /Gs8192 /GF /O2 /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -65,7 +65,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 $(CEx86Corelibc) commctrl.lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 $(CEx86Corelibc) commctrl.lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"mfcchatC.exe" /subsystem:$(CESubsystem) /MACHINE:IX86
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug"
@@ -90,7 +90,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /d "_AFXDLL" /r
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /YX /Gs8192 /GF /c
-# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I "." /I "..\..\..\..\include" /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "_AFXDLL" /YX /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I "." /I "..\..\..\include" /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "_AFXDLL" /YX /Gs8192 /GF /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -99,7 +99,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 $(CEx86Corelibc) commctrl.lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 $(CEx86Corelibc) commctrl.lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"mfcchatC.exe" /subsystem:$(CESubsystem) /MACHINE:IX86
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release"
@@ -124,7 +124,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /d "_AFXDLL" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /YX /O2 /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /GR /GX /I "." /I "..\..\..\..\include" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "_AFXDLL" /YX /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /GR /GX /I "." /I "..\..\..\include" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "_AFXDLL" /YX /O2 /M$(CECrtMT) /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -133,7 +133,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /out:"mfcchatC.exe" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug"
@@ -158,7 +158,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /d "_AFXDLL" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /YX /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I "." /I "..\..\..\..\include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "_AFXDLL" /YX /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I "." /I "..\..\..\include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "_AFXDLL" /YX /M$(CECrtMTDebug) /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -167,7 +167,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"mfcchatC.exe" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug Static"
@@ -193,7 +193,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /d "_AFXDLL" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "_AFXDLL" /YX /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I "." /I "..\..\..\..\include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_AFXDLL" /D "ICEE_STATIC_LIBS" /YX /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I "." /I "..\..\..\include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_AFXDLL" /D "ICEE_STATIC_LIBS" /YX /M$(CECrtMTDebug) /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -203,7 +203,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 commctrl.lib coredll.lib ccrtrtti.lib ws2.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib ccrtrtti.lib ws2.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"mfcchatC.exe" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
@@ -229,7 +229,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /d "_AFXDLL" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "_AFXDLL" /YX /O2 /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /GR /GX /I "." /I "..\..\..\..\include" /D "ARM" /D "_ARM_" /D "ARMV4" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_AFXDLL" /D "ICEE_STATIC_LIBS" /YX /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /GR /GX /I "." /I "..\..\..\include" /D "ARM" /D "_ARM_" /D "ARMV4" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_AFXDLL" /D "ICEE_STATIC_LIBS" /YX /O2 /M$(CECrtMT) /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -239,7 +239,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 commctrl.lib coredll.lib ccrtrtti.lib ws2.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib ccrtrtti.lib ws2.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /out:"mfcchatC.exe" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
@@ -265,7 +265,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /d "_AFXDLL" /r
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "_AFXDLL" /YX /Gs8192 /GF /c
-# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I "." /I "..\..\..\..\include" /D "DEBUG" /D "_i386_" /D "i_386_" /D "_X86_" /D "x86" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_AFXDLL" /D "ICEE_STATIC_LIBS" /YX /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I "." /I "..\..\..\include" /D "DEBUG" /D "_i386_" /D "i_386_" /D "_X86_" /D "x86" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_AFXDLL" /D "ICEE_STATIC_LIBS" /YX /Gs8192 /GF /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -275,7 +275,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 $(CEx86Corelibc) commctrl.lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 $(CEx86Corelibc) commctrl.lib coredll.lib ccrtrtti.lib ws2.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 $(CEx86Corelibc) commctrl.lib coredll.lib ccrtrtti.lib ws2.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"mfcchatC.exe" /subsystem:$(CESubsystem) /MACHINE:IX86
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
@@ -301,7 +301,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /d "_AFXDLL" /r
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "_AFXDLL" /YX /Gs8192 /GF /O2 /c
-# ADD CPP /nologo /W3 /GR /GX /I "." /I "..\..\..\..\include" /D "_i386_" /D "i_386_" /D "_X86_" /D "x86" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_AFXDLL" /D "ICEE_STATIC_LIBS" /YX /Gs8192 /GF /O2 /c
+# ADD CPP /nologo /W3 /GR /GX /I "." /I "..\..\..\include" /D "_i386_" /D "i_386_" /D "_X86_" /D "x86" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_AFXDLL" /D "ICEE_STATIC_LIBS" /YX /Gs8192 /GF /O2 /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -311,7 +311,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 $(CEx86Corelibc) commctrl.lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 # SUBTRACT BASE LINK32 /pdb:none
-# ADD LINK32 $(CEx86Corelibc) commctrl.lib coredll.lib ccrtrtti.lib ws2.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 $(CEx86Corelibc) commctrl.lib coredll.lib ccrtrtti.lib ws2.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"wWinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /out:"mfcchatC.exe" /subsystem:$(CESubsystem) /MACHINE:IX86
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
@@ -331,47 +331,53 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Hello.cpp
+SOURCE=.\Chat.cpp
 
 !IF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release"
 
-DEP_CPP_HELLO=\
-	"..\..\..\..\include\IceE\BasicStream.h"\
-	"..\..\..\..\include\IceE\Buffer.h"\
-	"..\..\..\..\include\icee\BuiltinSequences.h"\
-	"..\..\..\..\include\IceE\Cond.h"\
-	"..\..\..\..\include\IceE\Config.h"\
-	"..\..\..\..\include\IceE\ConnectionF.h"\
-	"..\..\..\..\include\IceE\Current.h"\
-	"..\..\..\..\include\IceE\DispatchStatus.h"\
-	"..\..\..\..\include\IceE\Exception.h"\
-	"..\..\..\..\include\IceE\ExceptionBase.h"\
-	"..\..\..\..\include\IceE\Handle.h"\
-	"..\..\..\..\include\icee\Identity.h"\
-	"..\..\..\..\include\IceE\Incoming.h"\
-	"..\..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\..\include\IceE\LocalException.h"\
-	"..\..\..\..\include\IceE\LocalObject.h"\
-	"..\..\..\..\include\IceE\LocalObjectF.h"\
-	"..\..\..\..\include\IceE\Lock.h"\
-	"..\..\..\..\include\IceE\Monitor.h"\
-	"..\..\..\..\include\IceE\Mutex.h"\
-	"..\..\..\..\include\IceE\Object.h"\
-	"..\..\..\..\include\IceE\ObjectAdapterF.h"\
-	"..\..\..\..\include\IceE\ObjectF.h"\
-	"..\..\..\..\include\IceE\OperationMode.h"\
-	"..\..\..\..\include\IceE\Outgoing.h"\
-	"..\..\..\..\include\IceE\Proxy.h"\
-	"..\..\..\..\include\IceE\ProxyF.h"\
-	"..\..\..\..\include\IceE\ProxyFactoryF.h"\
-	"..\..\..\..\include\IceE\ProxyHandle.h"\
-	"..\..\..\..\include\IceE\ReferenceF.h"\
-	"..\..\..\..\include\IceE\ServantManagerF.h"\
-	"..\..\..\..\include\IceE\Shared.h"\
-	"..\..\..\..\include\IceE\ThreadException.h"\
-	"..\..\..\..\include\IceE\Time.h"\
-	"..\..\..\..\include\IceE\UndefSysMacros.h"\
-	".\Hello.h"\
+DEP_CPP_CHAT_=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\Session.h"\
 	{$(INCLUDE)}"config\_epilog.h"\
 	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
 	{$(INCLUDE)}"config\_prolog.h"\
@@ -415,49 +421,55 @@ DEP_CPP_HELLO=\
 	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
-NODEP_CPP_HELLO=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+NODEP_CPP_CHAT_=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug"
 
-DEP_CPP_HELLO=\
-	"..\..\..\..\include\IceE\BasicStream.h"\
-	"..\..\..\..\include\IceE\Buffer.h"\
-	"..\..\..\..\include\icee\BuiltinSequences.h"\
-	"..\..\..\..\include\IceE\Cond.h"\
-	"..\..\..\..\include\IceE\Config.h"\
-	"..\..\..\..\include\IceE\ConnectionF.h"\
-	"..\..\..\..\include\IceE\Current.h"\
-	"..\..\..\..\include\IceE\DispatchStatus.h"\
-	"..\..\..\..\include\IceE\Exception.h"\
-	"..\..\..\..\include\IceE\ExceptionBase.h"\
-	"..\..\..\..\include\IceE\Handle.h"\
-	"..\..\..\..\include\icee\Identity.h"\
-	"..\..\..\..\include\IceE\Incoming.h"\
-	"..\..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\..\include\IceE\LocalException.h"\
-	"..\..\..\..\include\IceE\LocalObject.h"\
-	"..\..\..\..\include\IceE\LocalObjectF.h"\
-	"..\..\..\..\include\IceE\Lock.h"\
-	"..\..\..\..\include\IceE\Monitor.h"\
-	"..\..\..\..\include\IceE\Mutex.h"\
-	"..\..\..\..\include\IceE\Object.h"\
-	"..\..\..\..\include\IceE\ObjectAdapterF.h"\
-	"..\..\..\..\include\IceE\ObjectF.h"\
-	"..\..\..\..\include\IceE\OperationMode.h"\
-	"..\..\..\..\include\IceE\Outgoing.h"\
-	"..\..\..\..\include\IceE\Proxy.h"\
-	"..\..\..\..\include\IceE\ProxyF.h"\
-	"..\..\..\..\include\IceE\ProxyFactoryF.h"\
-	"..\..\..\..\include\IceE\ProxyHandle.h"\
-	"..\..\..\..\include\IceE\ReferenceF.h"\
-	"..\..\..\..\include\IceE\ServantManagerF.h"\
-	"..\..\..\..\include\IceE\Shared.h"\
-	"..\..\..\..\include\IceE\ThreadException.h"\
-	"..\..\..\..\include\IceE\Time.h"\
-	"..\..\..\..\include\IceE\UndefSysMacros.h"\
-	".\Hello.h"\
+DEP_CPP_CHAT_=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\Session.h"\
 	{$(INCLUDE)}"config\_epilog.h"\
 	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
 	{$(INCLUDE)}"config\_prolog.h"\
@@ -501,805 +513,380 @@ DEP_CPP_HELLO=\
 	{$(INCLUDE)}"stl\_stlport_version.h"\
 	{$(INCLUDE)}"stl_user_config.h"\
 	
-NODEP_CPP_HELLO=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+NODEP_CPP_CHAT_=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release"
 
-DEP_CPP_HELLO=\
-	"..\..\..\..\include\IceE\BasicStream.h"\
-	"..\..\..\..\include\IceE\Buffer.h"\
-	"..\..\..\..\include\icee\BuiltinSequences.h"\
-	"..\..\..\..\include\IceE\Cond.h"\
-	"..\..\..\..\include\IceE\Config.h"\
-	"..\..\..\..\include\IceE\ConnectionF.h"\
-	"..\..\..\..\include\IceE\Current.h"\
-	"..\..\..\..\include\IceE\DispatchStatus.h"\
-	"..\..\..\..\include\IceE\Exception.h"\
-	"..\..\..\..\include\IceE\ExceptionBase.h"\
-	"..\..\..\..\include\IceE\Handle.h"\
-	"..\..\..\..\include\icee\Identity.h"\
-	"..\..\..\..\include\IceE\Incoming.h"\
-	"..\..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\..\include\IceE\LocalException.h"\
-	"..\..\..\..\include\IceE\LocalObject.h"\
-	"..\..\..\..\include\IceE\LocalObjectF.h"\
-	"..\..\..\..\include\IceE\Lock.h"\
-	"..\..\..\..\include\IceE\Monitor.h"\
-	"..\..\..\..\include\IceE\Mutex.h"\
-	"..\..\..\..\include\IceE\Object.h"\
-	"..\..\..\..\include\IceE\ObjectAdapterF.h"\
-	"..\..\..\..\include\IceE\ObjectF.h"\
-	"..\..\..\..\include\IceE\OperationMode.h"\
-	"..\..\..\..\include\IceE\Outgoing.h"\
-	"..\..\..\..\include\IceE\Proxy.h"\
-	"..\..\..\..\include\IceE\ProxyF.h"\
-	"..\..\..\..\include\IceE\ProxyFactoryF.h"\
-	"..\..\..\..\include\IceE\ProxyHandle.h"\
-	"..\..\..\..\include\IceE\ReferenceF.h"\
-	"..\..\..\..\include\IceE\ServantManagerF.h"\
-	"..\..\..\..\include\IceE\Shared.h"\
-	"..\..\..\..\include\IceE\ThreadException.h"\
-	"..\..\..\..\include\IceE\Time.h"\
-	"..\..\..\..\include\IceE\UndefSysMacros.h"\
-	".\Hello.h"\
+DEP_CPP_CHAT_=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\Session.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_HELLO=\
-	"..\..\..\..\include\IceE\BasicStream.h"\
-	"..\..\..\..\include\IceE\Buffer.h"\
-	"..\..\..\..\include\icee\BuiltinSequences.h"\
-	"..\..\..\..\include\IceE\Cond.h"\
-	"..\..\..\..\include\IceE\Config.h"\
-	"..\..\..\..\include\IceE\ConnectionF.h"\
-	"..\..\..\..\include\IceE\Current.h"\
-	"..\..\..\..\include\IceE\DispatchStatus.h"\
-	"..\..\..\..\include\IceE\Exception.h"\
-	"..\..\..\..\include\IceE\ExceptionBase.h"\
-	"..\..\..\..\include\IceE\Handle.h"\
-	"..\..\..\..\include\icee\Identity.h"\
-	"..\..\..\..\include\IceE\Incoming.h"\
-	"..\..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\..\include\IceE\LocalException.h"\
-	"..\..\..\..\include\IceE\LocalObject.h"\
-	"..\..\..\..\include\IceE\LocalObjectF.h"\
-	"..\..\..\..\include\IceE\Lock.h"\
-	"..\..\..\..\include\IceE\Monitor.h"\
-	"..\..\..\..\include\IceE\Mutex.h"\
-	"..\..\..\..\include\IceE\Object.h"\
-	"..\..\..\..\include\IceE\ObjectAdapterF.h"\
-	"..\..\..\..\include\IceE\ObjectF.h"\
-	"..\..\..\..\include\IceE\OperationMode.h"\
-	"..\..\..\..\include\IceE\Outgoing.h"\
-	"..\..\..\..\include\IceE\Proxy.h"\
-	"..\..\..\..\include\IceE\ProxyF.h"\
-	"..\..\..\..\include\IceE\ProxyFactoryF.h"\
-	"..\..\..\..\include\IceE\ProxyHandle.h"\
-	"..\..\..\..\include\IceE\ReferenceF.h"\
-	"..\..\..\..\include\IceE\ServantManagerF.h"\
-	"..\..\..\..\include\IceE\Shared.h"\
-	"..\..\..\..\include\IceE\ThreadException.h"\
-	"..\..\..\..\include\IceE\Time.h"\
-	"..\..\..\..\include\IceE\UndefSysMacros.h"\
-	".\Hello.h"\
+DEP_CPP_CHAT_=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\Session.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug Static"
 
-DEP_CPP_HELLO=\
-	".\Hello.h"\
-	
-NODEP_CPP_HELLO=\
-	"..\..\..\..\include\Ice\BasicStream.h"\
-	"..\..\..\..\include\Ice\Buffer.h"\
-	"..\..\..\..\include\Ice\Config.h"\
-	"..\..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\..\include\Ice\EndpointF.h"\
-	"..\..\..\..\include\Ice\Exception.h"\
-	"..\..\..\..\include\Ice\Handle.h"\
-	"..\..\..\..\include\Ice\Incoming.h"\
-	"..\..\..\..\include\Ice\InstanceF.h"\
-	"..\..\..\..\include\Ice\LocalObject.h"\
-	"..\..\..\..\include\Ice\LocalObjectF.h"\
-	"..\..\..\..\include\Ice\Object.h"\
-	"..\..\..\..\include\Ice\ObjectF.h"\
-	"..\..\..\..\include\Ice\Outgoing.h"\
-	"..\..\..\..\include\Ice\Proxy.h"\
-	"..\..\..\..\include\Ice\ProxyF.h"\
-	"..\..\..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\..\..\include\Ice\ProxyHandle.h"\
-	"..\..\..\..\include\Ice\ReferenceF.h"\
-	"..\..\..\..\include\Ice\ServantManagerF.h"\
-	"..\..\..\..\include\Ice\UserConfig.h"\
-	"..\..\..\..\include\IceUtil\Cond.h"\
-	"..\..\..\..\include\IceUtil\Config.h"\
-	"..\..\..\..\include\IceUtil\Exception.h"\
-	"..\..\..\..\include\IceUtil\Handle.h"\
-	"..\..\..\..\include\IceUtil\Lock.h"\
-	"..\..\..\..\include\IceUtil\Monitor.h"\
-	"..\..\..\..\include\IceUtil\Mutex.h"\
-	"..\..\..\..\include\IceUtil\Shared.h"\
-	"..\..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\..\..\include\IceUtil\Time.h"\
-	
-
-!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
-
-DEP_CPP_HELLO=\
-	".\Hello.h"\
-	
-NODEP_CPP_HELLO=\
-	"..\..\..\..\include\Ice\BasicStream.h"\
-	"..\..\..\..\include\Ice\Buffer.h"\
-	"..\..\..\..\include\Ice\Config.h"\
-	"..\..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\..\include\Ice\EndpointF.h"\
-	"..\..\..\..\include\Ice\Exception.h"\
-	"..\..\..\..\include\Ice\Handle.h"\
-	"..\..\..\..\include\Ice\Incoming.h"\
-	"..\..\..\..\include\Ice\InstanceF.h"\
-	"..\..\..\..\include\Ice\LocalObject.h"\
-	"..\..\..\..\include\Ice\LocalObjectF.h"\
-	"..\..\..\..\include\Ice\Object.h"\
-	"..\..\..\..\include\Ice\ObjectF.h"\
-	"..\..\..\..\include\Ice\Outgoing.h"\
-	"..\..\..\..\include\Ice\Proxy.h"\
-	"..\..\..\..\include\Ice\ProxyF.h"\
-	"..\..\..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\..\..\include\Ice\ProxyHandle.h"\
-	"..\..\..\..\include\Ice\ReferenceF.h"\
-	"..\..\..\..\include\Ice\ServantManagerF.h"\
-	"..\..\..\..\include\Ice\UserConfig.h"\
-	"..\..\..\..\include\IceUtil\Cond.h"\
-	"..\..\..\..\include\IceUtil\Config.h"\
-	"..\..\..\..\include\IceUtil\Exception.h"\
-	"..\..\..\..\include\IceUtil\Handle.h"\
-	"..\..\..\..\include\IceUtil\Lock.h"\
-	"..\..\..\..\include\IceUtil\Monitor.h"\
-	"..\..\..\..\include\IceUtil\Mutex.h"\
-	"..\..\..\..\include\IceUtil\Shared.h"\
-	"..\..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\..\..\include\IceUtil\Time.h"\
-	
-
-!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
-
-DEP_CPP_HELLO=\
-	".\Hello.h"\
-	
-NODEP_CPP_HELLO=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\..\include\Ice\BasicStream.h"\
-	"..\..\..\..\include\Ice\Buffer.h"\
-	"..\..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\..\include\Ice\Config.h"\
-	"..\..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\..\include\Ice\Current.h"\
-	"..\..\..\..\include\Ice\EndpointF.h"\
-	"..\..\..\..\include\Ice\Exception.h"\
-	"..\..\..\..\include\Ice\Handle.h"\
-	"..\..\..\..\include\Ice\Identity.h"\
-	"..\..\..\..\include\Ice\Incoming.h"\
-	"..\..\..\..\include\Ice\InstanceF.h"\
-	"..\..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\..\include\Ice\LocalObject.h"\
-	"..\..\..\..\include\Ice\LocalObjectF.h"\
-	"..\..\..\..\include\Ice\Object.h"\
-	"..\..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\..\include\Ice\ObjectF.h"\
-	"..\..\..\..\include\Ice\Outgoing.h"\
-	"..\..\..\..\include\Ice\Proxy.h"\
-	"..\..\..\..\include\Ice\ProxyF.h"\
-	"..\..\..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\..\..\include\Ice\ProxyHandle.h"\
-	"..\..\..\..\include\Ice\ReferenceF.h"\
-	"..\..\..\..\include\Ice\ServantManagerF.h"\
-	"..\..\..\..\include\Ice\UserConfig.h"\
-	"..\..\..\..\include\IceUtil\Cond.h"\
-	"..\..\..\..\include\IceUtil\Config.h"\
-	"..\..\..\..\include\IceUtil\Exception.h"\
-	"..\..\..\..\include\IceUtil\Handle.h"\
-	"..\..\..\..\include\IceUtil\Lock.h"\
-	"..\..\..\..\include\IceUtil\Monitor.h"\
-	"..\..\..\..\include\IceUtil\Mutex.h"\
-	"..\..\..\..\include\IceUtil\Shared.h"\
-	"..\..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\..\..\include\IceUtil\Time.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
-	
-
-!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
-
-DEP_CPP_HELLO=\
-	".\Hello.h"\
-	
-NODEP_CPP_HELLO=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\..\include\Ice\BasicStream.h"\
-	"..\..\..\..\include\Ice\Buffer.h"\
-	"..\..\..\..\include\Ice\Config.h"\
-	"..\..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\..\include\Ice\EndpointF.h"\
-	"..\..\..\..\include\Ice\Exception.h"\
-	"..\..\..\..\include\Ice\Handle.h"\
-	"..\..\..\..\include\Ice\Incoming.h"\
-	"..\..\..\..\include\Ice\InstanceF.h"\
-	"..\..\..\..\include\Ice\LocalObject.h"\
-	"..\..\..\..\include\Ice\LocalObjectF.h"\
-	"..\..\..\..\include\Ice\Object.h"\
-	"..\..\..\..\include\Ice\ObjectF.h"\
-	"..\..\..\..\include\Ice\Outgoing.h"\
-	"..\..\..\..\include\Ice\Proxy.h"\
-	"..\..\..\..\include\Ice\ProxyF.h"\
-	"..\..\..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\..\..\include\Ice\ProxyHandle.h"\
-	"..\..\..\..\include\Ice\ReferenceF.h"\
-	"..\..\..\..\include\Ice\ServantManagerF.h"\
-	"..\..\..\..\include\Ice\UserConfig.h"\
-	"..\..\..\..\include\IceUtil\Cond.h"\
-	"..\..\..\..\include\IceUtil\Config.h"\
-	"..\..\..\..\include\IceUtil\Exception.h"\
-	"..\..\..\..\include\IceUtil\Handle.h"\
-	"..\..\..\..\include\IceUtil\Lock.h"\
-	"..\..\..\..\include\IceUtil\Monitor.h"\
-	"..\..\..\..\include\IceUtil\Mutex.h"\
-	"..\..\..\..\include\IceUtil\Shared.h"\
-	"..\..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\..\..\include\IceUtil\Time.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
-	
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\HelloI.cpp
-
-!IF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release"
-
-DEP_CPP_HELLOI=\
-	".\HelloI.h"\
-	".\LogI.h"\
-	".\stdafx.h"\
-	
-NODEP_CPP_HELLOI=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\..\include\Ice\BasicStream.h"\
-	"..\..\..\..\include\Ice\Buffer.h"\
-	"..\..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\..\include\Ice\Communicator.h"\
-	"..\..\..\..\include\Ice\CommunicatorF.h"\
-	"..\..\..\..\include\Ice\Config.h"\
-	"..\..\..\..\include\Ice\Connection.h"\
-	"..\..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\..\include\Ice\Current.h"\
-	"..\..\..\..\include\Ice\EndpointF.h"\
-	"..\..\..\..\include\Ice\Exception.h"\
-	"..\..\..\..\include\Ice\FacetMap.h"\
-	"..\..\..\..\include\Ice\Functional.h"\
-	"..\..\..\..\include\Ice\Handle.h"\
-	"..\..\..\..\include\Ice\Ice.h"\
-	"..\..\..\..\include\Ice\IceEConfig.h"\
-	"..\..\..\..\include\Ice\Identity.h"\
-	"..\..\..\..\include\Ice\IdentityUtil.h"\
-	"..\..\..\..\include\Ice\Incoming.h"\
-	"..\..\..\..\include\Ice\Initialize.h"\
-	"..\..\..\..\include\Ice\InstanceF.h"\
-	"..\..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\..\include\Ice\LocalObject.h"\
-	"..\..\..\..\include\Ice\LocalObjectF.h"\
-	"..\..\..\..\include\Ice\LocatorF.h"\
-	"..\..\..\..\include\Ice\Logger.h"\
-	"..\..\..\..\include\Ice\LoggerF.h"\
-	"..\..\..\..\include\Ice\LoggerUtil.h"\
-	"..\..\..\..\include\Ice\Object.h"\
-	"..\..\..\..\include\Ice\ObjectAdapter.h"\
-	"..\..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\..\include\Ice\ObjectF.h"\
-	"..\..\..\..\include\Ice\Outgoing.h"\
-	"..\..\..\..\include\Ice\Properties.h"\
-	"..\..\..\..\include\Ice\PropertiesF.h"\
-	"..\..\..\..\include\Ice\Proxy.h"\
-	"..\..\..\..\include\Ice\ProxyF.h"\
-	"..\..\..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\..\..\include\Ice\ProxyHandle.h"\
-	"..\..\..\..\include\Ice\ReferenceF.h"\
-	"..\..\..\..\include\Ice\RouterF.h"\
-	"..\..\..\..\include\Ice\ServantManagerF.h"\
-	"..\..\..\..\include\Ice\UserConfig.h"\
-	"..\..\..\..\include\IceUtil\Cond.h"\
-	"..\..\..\..\include\IceUtil\Config.h"\
-	"..\..\..\..\include\IceUtil\Exception.h"\
-	"..\..\..\..\include\IceUtil\Functional.h"\
-	"..\..\..\..\include\IceUtil\Handle.h"\
-	"..\..\..\..\include\IceUtil\Lock.h"\
-	"..\..\..\..\include\IceUtil\Monitor.h"\
-	"..\..\..\..\include\IceUtil\Mutex.h"\
-	"..\..\..\..\include\IceUtil\Shared.h"\
-	"..\..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\..\..\include\IceUtil\Time.h"\
-	".\Hello.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
-	
-
-!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug"
-
-DEP_CPP_HELLOI=\
-	".\HelloI.h"\
-	".\LogI.h"\
-	".\stdafx.h"\
-	
-NODEP_CPP_HELLOI=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\..\include\Ice\BasicStream.h"\
-	"..\..\..\..\include\Ice\Buffer.h"\
-	"..\..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\..\include\Ice\Communicator.h"\
-	"..\..\..\..\include\Ice\CommunicatorF.h"\
-	"..\..\..\..\include\Ice\Config.h"\
-	"..\..\..\..\include\Ice\Connection.h"\
-	"..\..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\..\include\Ice\Current.h"\
-	"..\..\..\..\include\Ice\EndpointF.h"\
-	"..\..\..\..\include\Ice\Exception.h"\
-	"..\..\..\..\include\Ice\FacetMap.h"\
-	"..\..\..\..\include\Ice\Functional.h"\
-	"..\..\..\..\include\Ice\Handle.h"\
-	"..\..\..\..\include\Ice\Ice.h"\
-	"..\..\..\..\include\Ice\IceEConfig.h"\
-	"..\..\..\..\include\Ice\Identity.h"\
-	"..\..\..\..\include\Ice\IdentityUtil.h"\
-	"..\..\..\..\include\Ice\Incoming.h"\
-	"..\..\..\..\include\Ice\Initialize.h"\
-	"..\..\..\..\include\Ice\InstanceF.h"\
-	"..\..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\..\include\Ice\LocalObject.h"\
-	"..\..\..\..\include\Ice\LocalObjectF.h"\
-	"..\..\..\..\include\Ice\LocatorF.h"\
-	"..\..\..\..\include\Ice\Logger.h"\
-	"..\..\..\..\include\Ice\LoggerF.h"\
-	"..\..\..\..\include\Ice\LoggerUtil.h"\
-	"..\..\..\..\include\Ice\Object.h"\
-	"..\..\..\..\include\Ice\ObjectAdapter.h"\
-	"..\..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\..\include\Ice\ObjectF.h"\
-	"..\..\..\..\include\Ice\Outgoing.h"\
-	"..\..\..\..\include\Ice\Properties.h"\
-	"..\..\..\..\include\Ice\PropertiesF.h"\
-	"..\..\..\..\include\Ice\Proxy.h"\
-	"..\..\..\..\include\Ice\ProxyF.h"\
-	"..\..\..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\..\..\include\Ice\ProxyHandle.h"\
-	"..\..\..\..\include\Ice\ReferenceF.h"\
-	"..\..\..\..\include\Ice\RouterF.h"\
-	"..\..\..\..\include\Ice\ServantManagerF.h"\
-	"..\..\..\..\include\Ice\UserConfig.h"\
-	"..\..\..\..\include\IceUtil\Cond.h"\
-	"..\..\..\..\include\IceUtil\Config.h"\
-	"..\..\..\..\include\IceUtil\Exception.h"\
-	"..\..\..\..\include\IceUtil\Functional.h"\
-	"..\..\..\..\include\IceUtil\Handle.h"\
-	"..\..\..\..\include\IceUtil\Lock.h"\
-	"..\..\..\..\include\IceUtil\Monitor.h"\
-	"..\..\..\..\include\IceUtil\Mutex.h"\
-	"..\..\..\..\include\IceUtil\Shared.h"\
-	"..\..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\..\..\include\IceUtil\Time.h"\
-	".\Hello.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
-	
-
-!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release"
-
-DEP_CPP_HELLOI=\
-	".\HelloI.h"\
-	".\LogI.h"\
-	".\stdafx.h"\
-	
-NODEP_CPP_HELLOI=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\..\include\Ice\BasicStream.h"\
-	"..\..\..\..\include\Ice\Buffer.h"\
-	"..\..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\..\include\Ice\Communicator.h"\
-	"..\..\..\..\include\Ice\CommunicatorF.h"\
-	"..\..\..\..\include\Ice\Config.h"\
-	"..\..\..\..\include\Ice\Connection.h"\
-	"..\..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\..\include\Ice\Current.h"\
-	"..\..\..\..\include\Ice\EndpointF.h"\
-	"..\..\..\..\include\Ice\Exception.h"\
-	"..\..\..\..\include\Ice\FacetMap.h"\
-	"..\..\..\..\include\Ice\Functional.h"\
-	"..\..\..\..\include\Ice\Handle.h"\
-	"..\..\..\..\include\Ice\Ice.h"\
-	"..\..\..\..\include\Ice\IceEConfig.h"\
-	"..\..\..\..\include\Ice\Identity.h"\
-	"..\..\..\..\include\Ice\IdentityUtil.h"\
-	"..\..\..\..\include\Ice\Incoming.h"\
-	"..\..\..\..\include\Ice\Initialize.h"\
-	"..\..\..\..\include\Ice\InstanceF.h"\
-	"..\..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\..\include\Ice\LocalObject.h"\
-	"..\..\..\..\include\Ice\LocalObjectF.h"\
-	"..\..\..\..\include\Ice\LocatorF.h"\
-	"..\..\..\..\include\Ice\Logger.h"\
-	"..\..\..\..\include\Ice\LoggerF.h"\
-	"..\..\..\..\include\Ice\LoggerUtil.h"\
-	"..\..\..\..\include\Ice\Object.h"\
-	"..\..\..\..\include\Ice\ObjectAdapter.h"\
-	"..\..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\..\include\Ice\ObjectF.h"\
-	"..\..\..\..\include\Ice\Outgoing.h"\
-	"..\..\..\..\include\Ice\Properties.h"\
-	"..\..\..\..\include\Ice\PropertiesF.h"\
-	"..\..\..\..\include\Ice\Proxy.h"\
-	"..\..\..\..\include\Ice\ProxyF.h"\
-	"..\..\..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\..\..\include\Ice\ProxyHandle.h"\
-	"..\..\..\..\include\Ice\ReferenceF.h"\
-	"..\..\..\..\include\Ice\RouterF.h"\
-	"..\..\..\..\include\Ice\ServantManagerF.h"\
-	"..\..\..\..\include\Ice\UserConfig.h"\
-	"..\..\..\..\include\IceUtil\Cond.h"\
-	"..\..\..\..\include\IceUtil\Config.h"\
-	"..\..\..\..\include\IceUtil\Exception.h"\
-	"..\..\..\..\include\IceUtil\Functional.h"\
-	"..\..\..\..\include\IceUtil\Handle.h"\
-	"..\..\..\..\include\IceUtil\Lock.h"\
-	"..\..\..\..\include\IceUtil\Monitor.h"\
-	"..\..\..\..\include\IceUtil\Mutex.h"\
-	"..\..\..\..\include\IceUtil\Shared.h"\
-	"..\..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\..\..\include\IceUtil\Time.h"\
-	".\Hello.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
-	
-
-!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug"
-
-DEP_CPP_HELLOI=\
-	".\HelloI.h"\
-	".\LogI.h"\
-	".\stdafx.h"\
-	
-NODEP_CPP_HELLOI=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
-	"..\..\..\..\include\Ice\BasicStream.h"\
-	"..\..\..\..\include\Ice\Buffer.h"\
-	"..\..\..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\..\..\include\Ice\Communicator.h"\
-	"..\..\..\..\include\Ice\CommunicatorF.h"\
-	"..\..\..\..\include\Ice\Config.h"\
-	"..\..\..\..\include\Ice\Connection.h"\
-	"..\..\..\..\include\Ice\ConnectionF.h"\
-	"..\..\..\..\include\Ice\ConnectionIF.h"\
-	"..\..\..\..\include\Ice\Current.h"\
-	"..\..\..\..\include\Ice\EndpointF.h"\
-	"..\..\..\..\include\Ice\Exception.h"\
-	"..\..\..\..\include\Ice\FacetMap.h"\
-	"..\..\..\..\include\Ice\Functional.h"\
-	"..\..\..\..\include\Ice\Handle.h"\
-	"..\..\..\..\include\Ice\Ice.h"\
-	"..\..\..\..\include\Ice\IceEConfig.h"\
-	"..\..\..\..\include\Ice\Identity.h"\
-	"..\..\..\..\include\Ice\IdentityUtil.h"\
-	"..\..\..\..\include\Ice\Incoming.h"\
-	"..\..\..\..\include\Ice\Initialize.h"\
-	"..\..\..\..\include\Ice\InstanceF.h"\
-	"..\..\..\..\include\Ice\LocalException.h"\
-	"..\..\..\..\include\Ice\LocalObject.h"\
-	"..\..\..\..\include\Ice\LocalObjectF.h"\
-	"..\..\..\..\include\Ice\LocatorF.h"\
-	"..\..\..\..\include\Ice\Logger.h"\
-	"..\..\..\..\include\Ice\LoggerF.h"\
-	"..\..\..\..\include\Ice\LoggerUtil.h"\
-	"..\..\..\..\include\Ice\Object.h"\
-	"..\..\..\..\include\Ice\ObjectAdapter.h"\
-	"..\..\..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\..\..\include\Ice\ObjectF.h"\
-	"..\..\..\..\include\Ice\Outgoing.h"\
-	"..\..\..\..\include\Ice\Properties.h"\
-	"..\..\..\..\include\Ice\PropertiesF.h"\
-	"..\..\..\..\include\Ice\Proxy.h"\
-	"..\..\..\..\include\Ice\ProxyF.h"\
-	"..\..\..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\..\..\include\Ice\ProxyHandle.h"\
-	"..\..\..\..\include\Ice\ReferenceF.h"\
-	"..\..\..\..\include\Ice\RouterF.h"\
-	"..\..\..\..\include\Ice\ServantManagerF.h"\
-	"..\..\..\..\include\Ice\UserConfig.h"\
-	"..\..\..\..\include\IceUtil\Cond.h"\
-	"..\..\..\..\include\IceUtil\Config.h"\
-	"..\..\..\..\include\IceUtil\Exception.h"\
-	"..\..\..\..\include\IceUtil\Functional.h"\
-	"..\..\..\..\include\IceUtil\Handle.h"\
-	"..\..\..\..\include\IceUtil\Lock.h"\
-	"..\..\..\..\include\IceUtil\Monitor.h"\
-	"..\..\..\..\include\IceUtil\Mutex.h"\
-	"..\..\..\..\include\IceUtil\Shared.h"\
-	"..\..\..\..\include\IceUtil\ThreadException.h"\
-	"..\..\..\..\include\IceUtil\Time.h"\
-	".\Hello.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
-	
-
-!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug Static"
-
-DEP_CPP_HELLOI=\
-	".\stdafx.h"\
+DEP_CPP_CHAT_=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\Session.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
 
-DEP_CPP_HELLOI=\
-	".\stdafx.h"\
+DEP_CPP_CHAT_=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\Session.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
 
-DEP_CPP_HELLOI=\
-	".\stdafx.h"\
+DEP_CPP_CHAT_=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_CHAT_=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
 
-DEP_CPP_HELLOI=\
-	".\stdafx.h"\
+DEP_CPP_CHAT_=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_CHAT_=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ENDIF 
@@ -1311,15 +898,14 @@ SOURCE=.\ChatClient.cpp
 
 !IF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release"
 
-DEP_CPP_HELLOS=\
-	".\HelloI.h"\
+DEP_CPP_CHATC=\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
 	".\stdafx.h"\
 	
-NODEP_CPP_HELLOS=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+NODEP_CPP_CHATC=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\..\include\Ice\Buffer.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
@@ -1376,6 +962,7 @@ NODEP_CPP_HELLOS=\
 	"..\..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\..\include\IceUtil\Time.h"\
 	".\Hello.h"\
+	".\HelloI.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -1422,15 +1009,14 @@ NODEP_CPP_HELLOS=\
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug"
 
-DEP_CPP_HELLOS=\
-	".\HelloI.h"\
+DEP_CPP_CHATC=\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
 	".\stdafx.h"\
 	
-NODEP_CPP_HELLOS=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+NODEP_CPP_CHATC=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\..\include\Ice\Buffer.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
@@ -1487,6 +1073,7 @@ NODEP_CPP_HELLOS=\
 	"..\..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\..\include\IceUtil\Time.h"\
 	".\Hello.h"\
+	".\HelloI.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -1533,15 +1120,14 @@ NODEP_CPP_HELLOS=\
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release"
 
-DEP_CPP_HELLOS=\
-	".\HelloI.h"\
+DEP_CPP_CHATC=\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
 	".\stdafx.h"\
 	
-NODEP_CPP_HELLOS=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+NODEP_CPP_CHATC=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\..\include\Ice\Buffer.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
@@ -1598,6 +1184,7 @@ NODEP_CPP_HELLOS=\
 	"..\..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\..\include\IceUtil\Time.h"\
 	".\Hello.h"\
+	".\HelloI.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -1644,15 +1231,14 @@ NODEP_CPP_HELLOS=\
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_HELLOS=\
-	".\HelloI.h"\
+DEP_CPP_CHATC=\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
 	".\stdafx.h"\
 	
-NODEP_CPP_HELLOS=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+NODEP_CPP_CHATC=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BasicStream.h"\
 	"..\..\..\..\include\Ice\Buffer.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
@@ -1709,6 +1295,7 @@ NODEP_CPP_HELLOS=\
 	"..\..\..\..\include\IceUtil\ThreadException.h"\
 	"..\..\..\..\include\IceUtil\Time.h"\
 	".\Hello.h"\
+	".\HelloI.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -1755,42 +1342,268 @@ NODEP_CPP_HELLOS=\
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug Static"
 
-DEP_CPP_HELLOS=\
-	".\HelloI.h"\
+DEP_CPP_CHATC=\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
 	".\stdafx.h"\
+	
+NODEP_CPP_CHATC=\
+	".\HelloI.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
 
-DEP_CPP_HELLOS=\
-	".\HelloI.h"\
+DEP_CPP_CHATC=\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
 	".\stdafx.h"\
+	
+NODEP_CPP_CHATC=\
+	".\HelloI.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
 
-DEP_CPP_HELLOS=\
-	".\HelloI.h"\
+DEP_CPP_CHATC=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
+	".\Session.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_CHATC=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
 
-DEP_CPP_HELLOS=\
-	".\HelloI.h"\
+DEP_CPP_CHATC=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
+	".\Session.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_CHATC=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ENDIF 
@@ -1802,14 +1615,14 @@ SOURCE=.\ChatClientDlg.cpp
 
 !IF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release"
 
-DEP_CPP_HELLOSE=\
+DEP_CPP_CHATCL=\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
 	".\stdafx.h"\
 	
-NODEP_CPP_HELLOSE=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+NODEP_CPP_CHATCL=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\..\include\Ice\CommunicatorF.h"\
@@ -1903,14 +1716,14 @@ NODEP_CPP_HELLOSE=\
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug"
 
-DEP_CPP_HELLOSE=\
+DEP_CPP_CHATCL=\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
 	".\stdafx.h"\
 	
-NODEP_CPP_HELLOSE=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+NODEP_CPP_CHATCL=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\..\include\Ice\CommunicatorF.h"\
@@ -2004,14 +1817,14 @@ NODEP_CPP_HELLOSE=\
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release"
 
-DEP_CPP_HELLOSE=\
+DEP_CPP_CHATCL=\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
 	".\stdafx.h"\
 	
-NODEP_CPP_HELLOSE=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+NODEP_CPP_CHATCL=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\..\include\Ice\CommunicatorF.h"\
@@ -2105,14 +1918,14 @@ NODEP_CPP_HELLOSE=\
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_HELLOSE=\
+DEP_CPP_CHATCL=\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
 	".\stdafx.h"\
 	
-NODEP_CPP_HELLOSE=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+NODEP_CPP_CHATCL=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\..\include\Ice\CommunicatorF.h"\
@@ -2206,7 +2019,7 @@ NODEP_CPP_HELLOSE=\
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug Static"
 
-DEP_CPP_HELLOSE=\
+DEP_CPP_CHATCL=\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
@@ -2215,7 +2028,7 @@ DEP_CPP_HELLOSE=\
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
 
-DEP_CPP_HELLOSE=\
+DEP_CPP_CHATCL=\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
@@ -2224,20 +2037,1077 @@ DEP_CPP_HELLOSE=\
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
 
-DEP_CPP_HELLOSE=\
+DEP_CPP_CHATCL=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
+	".\ChatConfigDlg.h"\
 	".\LogI.h"\
+	".\Router.h"\
+	".\Session.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_CHATCL=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
 
-DEP_CPP_HELLOSE=\
+DEP_CPP_CHATCL=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
+	".\ChatConfigDlg.h"\
 	".\LogI.h"\
+	".\Router.h"\
+	".\Session.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_CHATCL=\
+	"..\..\..\..\..\usr\include\pthread.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\ChatConfigDlg.cpp
+
+!IF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release"
+
+DEP_CPP_CHATCO=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\SafeStdio.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\ChatClient.h"\
+	".\ChatClientDlg.h"\
+	".\ChatConfigDlg.h"\
+	".\LogI.h"\
+	".\Router.h"\
+	".\Session.h"\
+	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_CHATCO=\
+	"..\..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug"
+
+DEP_CPP_CHATCO=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\SafeStdio.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\ChatClient.h"\
+	".\ChatClientDlg.h"\
+	".\ChatConfigDlg.h"\
+	".\LogI.h"\
+	".\Router.h"\
+	".\Session.h"\
+	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_CHATCO=\
+	"..\..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_CHATCO=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\SafeStdio.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\ChatClient.h"\
+	".\ChatClientDlg.h"\
+	".\ChatConfigDlg.h"\
+	".\LogI.h"\
+	".\Router.h"\
+	".\Session.h"\
+	".\stdafx.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_CHATCO=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\SafeStdio.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\ChatClient.h"\
+	".\ChatClientDlg.h"\
+	".\ChatConfigDlg.h"\
+	".\LogI.h"\
+	".\Router.h"\
+	".\Session.h"\
+	".\stdafx.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug Static"
+
+DEP_CPP_CHATCO=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\SafeStdio.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\ChatClient.h"\
+	".\ChatClientDlg.h"\
+	".\ChatConfigDlg.h"\
+	".\LogI.h"\
+	".\Router.h"\
+	".\Session.h"\
+	".\stdafx.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
+
+DEP_CPP_CHATCO=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\SafeStdio.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\ChatClient.h"\
+	".\ChatClientDlg.h"\
+	".\ChatConfigDlg.h"\
+	".\LogI.h"\
+	".\Router.h"\
+	".\Session.h"\
+	".\stdafx.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
+
+DEP_CPP_CHATCO=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\SafeStdio.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\ChatClient.h"\
+	".\ChatClientDlg.h"\
+	".\ChatConfigDlg.h"\
+	".\LogI.h"\
+	".\Router.h"\
+	".\Session.h"\
+	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_CHATCO=\
+	"..\..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
+
+DEP_CPP_CHATCO=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\SafeStdio.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
+	".\ChatClient.h"\
+	".\ChatClientDlg.h"\
+	".\ChatConfigDlg.h"\
+	".\LogI.h"\
+	".\Router.h"\
+	".\Session.h"\
+	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_CHATCO=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ENDIF 
@@ -2254,7 +3124,7 @@ DEP_CPP_LOGI_=\
 	".\stdafx.h"\
 	
 NODEP_CPP_LOGI_=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\..\include\Ice\CommunicatorF.h"\
@@ -2353,7 +3223,7 @@ DEP_CPP_LOGI_=\
 	".\stdafx.h"\
 	
 NODEP_CPP_LOGI_=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\..\include\Ice\CommunicatorF.h"\
@@ -2452,7 +3322,7 @@ DEP_CPP_LOGI_=\
 	".\stdafx.h"\
 	
 NODEP_CPP_LOGI_=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\..\include\Ice\CommunicatorF.h"\
@@ -2551,7 +3421,7 @@ DEP_CPP_LOGI_=\
 	".\stdafx.h"\
 	
 NODEP_CPP_LOGI_=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\..\include\Ice\CommunicatorF.h"\
@@ -2660,8 +3530,111 @@ DEP_CPP_LOGI_=\
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
 
 DEP_CPP_LOGI_=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
 	".\LogI.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_LOGI_=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
@@ -2669,6 +3642,1132 @@ DEP_CPP_LOGI_=\
 DEP_CPP_LOGI_=\
 	".\LogI.h"\
 	".\stdafx.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Router.cpp
+
+!IF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release"
+
+DEP_CPP_ROUTE=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Router.h"\
+	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_ROUTE=\
+	"..\..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug"
+
+DEP_CPP_ROUTE=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Router.h"\
+	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_ROUTE=\
+	"..\..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_ROUTE=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Router.h"\
+	".\Session.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_ROUTE=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Router.h"\
+	".\Session.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug Static"
+
+DEP_CPP_ROUTE=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Router.h"\
+	".\Session.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
+
+DEP_CPP_ROUTE=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Router.h"\
+	".\Session.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
+
+DEP_CPP_ROUTE=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Router.h"\
+	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_ROUTE=\
+	"..\..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
+
+DEP_CPP_ROUTE=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Router.h"\
+	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_ROUTE=\
+	"..\..\..\..\..\usr\include\pthread.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Session.cpp
+
+!IF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release"
+
+DEP_CPP_SESSI=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_SESSI=\
+	"..\..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug"
+
+DEP_CPP_SESSI=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_SESSI=\
+	"..\..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_SESSI=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Session.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_SESSI=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Session.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug Static"
+
+DEP_CPP_SESSI=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Session.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
+
+DEP_CPP_SESSI=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Session.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
+
+DEP_CPP_SESSI=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_SESSI=\
+	"..\..\..\..\..\usr\include\pthread.h"\
+	
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
+
+DEP_CPP_SESSI=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_SESSI=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ENDIF 
@@ -2684,7 +4783,7 @@ DEP_CPP_STDAF=\
 	".\stdafx.h"\
 	
 NODEP_CPP_STDAF=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\..\include\Ice\CommunicatorF.h"\
@@ -2782,7 +4881,7 @@ DEP_CPP_STDAF=\
 	".\stdafx.h"\
 	
 NODEP_CPP_STDAF=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\..\include\Ice\CommunicatorF.h"\
@@ -2880,7 +4979,7 @@ DEP_CPP_STDAF=\
 	".\stdafx.h"\
 	
 NODEP_CPP_STDAF=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\..\include\Ice\CommunicatorF.h"\
@@ -2978,7 +5077,7 @@ DEP_CPP_STDAF=\
 	".\stdafx.h"\
 	
 NODEP_CPP_STDAF=\
-	"..\..\..\..\..\..\usr\include\pthread.h"\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\..\include\Ice\BuiltinSequences.h"\
 	"..\..\..\..\include\Ice\Communicator.h"\
 	"..\..\..\..\include\Ice\CommunicatorF.h"\
@@ -3085,7 +5184,110 @@ DEP_CPP_STDAF=\
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
 
 DEP_CPP_STDAF=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_STDAF=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
@@ -3103,15 +5305,19 @@ DEP_CPP_STDAF=\
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Hello.h
+SOURCE=.\Chat.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\HelloI.h
+SOURCE=.\ChatClient.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\ChatClientDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ChatConfigDlg.h
 # End Source File
 # Begin Source File
 
@@ -3123,6 +5329,14 @@ SOURCE=.\Resource.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Router.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Session.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\stdafx.h
 # End Source File
 # End Group
@@ -3131,125 +5345,125 @@ SOURCE=.\stdafx.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Hello.ice
+SOURCE=.\Chat.ice
 
 !IF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release"
 
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\Chat.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe -I. Chat.ice
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug"
 
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\Chat.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe -I. Chat.ice
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release"
 
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\Chat.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe -I. Chat.ice
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug"
 
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\Chat.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe -I. Chat.ice
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug Static"
 
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\Chat.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe -I. Chat.ice
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
 
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\Chat.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe -I. Chat.ice
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
 
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\Chat.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe -I. Chat.ice
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
 
 # Begin Custom Build
-InputPath=.\Hello.ice
+InputPath=.\Chat.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe -I. Chat.ice
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Chat.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -3279,6 +5493,260 @@ SOURCE=.\ChatClient.rc
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Router.ice
+
+!IF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release"
+
+# Begin Custom Build
+InputPath=.\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. -I../../../slice Router.ice
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug"
+
+# Begin Custom Build
+InputPath=.\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. -I../../../slice Router.ice
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release"
+
+# Begin Custom Build
+InputPath=.\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. -I../../../slice Router.ice
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug"
+
+# Begin Custom Build
+InputPath=.\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. -I../../../slice Router.ice
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug Static"
+
+# Begin Custom Build
+InputPath=.\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. -I../../../slice Router.ice
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
+
+# Begin Custom Build
+InputPath=.\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. -I../../../slice Router.ice
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
+
+# Begin Custom Build
+InputPath=.\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. -I../../../slice Router.ice
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
+
+# Begin Custom Build
+InputPath=.\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe -I. -I../../../slice Router.ice
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Session.ice
+
+!IF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release"
+
+# Begin Custom Build
+InputPath=.\Session.ice
+
+BuildCmds= \
+	slice2cppe.exe Session.ice
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug"
+
+# Begin Custom Build
+InputPath=.\Session.ice
+
+BuildCmds= \
+	slice2cppe.exe Session.ice
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release"
+
+# Begin Custom Build
+InputPath=.\Session.ice
+
+BuildCmds= \
+	slice2cppe.exe Session.ice
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug"
+
+# Begin Custom Build
+InputPath=.\Session.ice
+
+BuildCmds= \
+	slice2cppe.exe Session.ice
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Debug Static"
+
+# Begin Custom Build
+InputPath=.\Session.ice
+
+BuildCmds= \
+	slice2cppe.exe Session.ice
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
+
+# Begin Custom Build
+InputPath=.\Session.ice
+
+BuildCmds= \
+	slice2cppe.exe Session.ice
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
+
+# Begin Custom Build
+InputPath=.\Session.ice
+
+BuildCmds= \
+	slice2cppe.exe Session.ice
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release Static"
+
+# Begin Custom Build
+InputPath=.\Session.ice
+
+BuildCmds= \
+	slice2cppe.exe Session.ice
+
+"Session.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Session.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
 
 !ENDIF 
 
