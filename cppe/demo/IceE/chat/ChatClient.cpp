@@ -51,10 +51,7 @@ BOOL CChatClientApp::InitInstance()
     try
     {
         int argc = 0;
-        Ice::PropertiesPtr properties = Ice::createProperties();
-	properties->setProperty("IceE.RetryIntervals", "-1");
-
-        communicator = Ice::initializeWithProperties(argc, 0, properties);
+        communicator = Ice::initialize(argc, 0);
         log = new LogI;
         communicator->setLogger(log);
     }

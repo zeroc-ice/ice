@@ -158,7 +158,12 @@ CChatClientDlg::OnSend()
     catch(const Ice::ConnectionLostException&)
     {
         AfxMessageBox(CString("Login timed out due to inactivity"), MB_OK|MB_ICONEXCLAMATION);
-        EndDialog(0);
+	_chat = 0;
+        _edit->EnableWindow(FALSE);
+        ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(FALSE);
+	(CEdit*)GetDlgItem(IDC_LOG2)->EnableWindow(FALSE);
+        ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText("Login");
+	return;
     }
 
     //
