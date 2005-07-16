@@ -178,8 +178,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "ARMV4Debug Static"
-# PROP Intermediate_Dir "ARMV4Debug Static"
+# PROP Output_Dir "ARMV4DebugStatic"
+# PROP Intermediate_Dir "ARMV4DebugStatic"
 # PROP CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
 # PROP Ignore_Export_Lib 0
@@ -212,8 +212,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "ARMV4Release Static"
-# PROP Intermediate_Dir "ARMV4Release Static"
+# PROP Output_Dir "ARMV4ReleaseStatic"
+# PROP Intermediate_Dir "ARMV4ReleaseStatic"
 # PROP CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
 # PROP Ignore_Export_Lib 0
@@ -246,8 +246,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "emulatorDebug Static"
-# PROP Intermediate_Dir "emulatorDebug Static"
+# PROP Output_Dir "emulatorDebugStatic"
+# PROP Intermediate_Dir "emulatorDebugStatic"
 # PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
 # PROP Ignore_Export_Lib 0
@@ -280,8 +280,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "emulatorRelease Static"
-# PROP Intermediate_Dir "emulatorRelease Static"
+# PROP Output_Dir "emulatorReleaseStatic"
+# PROP Intermediate_Dir "emulatorReleaseStatic"
 # PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
 # PROP Ignore_Export_Lib 0
