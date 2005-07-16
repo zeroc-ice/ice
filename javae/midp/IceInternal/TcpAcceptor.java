@@ -150,7 +150,7 @@ class TcpAcceptor implements Acceptor
         {
 	    if(_traceLevels.network >= 2)
 	    {
-		String s = "attempting to bind to tcp socket <unknown:" + port + ">";
+		String s = "attempting to bind to tcp socket on port " + port;
 		_logger.trace(_traceLevels.networkCat, s);
 	    }
 	    _connection =
