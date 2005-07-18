@@ -223,7 +223,6 @@ SOURCE=.\Hello.ice
 
 !IF  "$(CFG)" == "mfchelloS - Win32 Release"
 
-USERDEP__HELLO="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Hello.ice
 
@@ -239,7 +238,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "mfchelloS - Win32 Debug"
 
-USERDEP__HELLO="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Hello.ice
 
@@ -255,7 +253,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "mfchelloS - Win32 Debug Static"
 
-USERDEP__HELLO="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Hello.ice
 
@@ -271,7 +268,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "mfchelloS - Win32 Release Static"
 
-USERDEP__HELLO="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Hello.ice
 

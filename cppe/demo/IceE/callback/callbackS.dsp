@@ -185,7 +185,6 @@ SOURCE=.\Callback.ice
 
 !IF  "$(CFG)" == "callbackS - Win32 Release"
 
-USERDEP__CALLB="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Callback.ice
 
@@ -201,7 +200,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "callbackS - Win32 Debug"
 
-USERDEP__CALLB="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Callback.ice
 
@@ -217,7 +215,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "callbackS - Win32 Debug Static"
 
-USERDEP__CALLB="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Callback.ice
 
@@ -233,7 +230,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "callbackS - Win32 Release Static"
 
-USERDEP__CALLB="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Callback.ice
 

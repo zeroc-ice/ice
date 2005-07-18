@@ -3119,7 +3119,7 @@ SOURCE=.\Test.ice
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe -I. -I$(ICE_HOME)/slice Test.ice
+	slice2cppe.exe -I. -I../../../slice Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -3134,7 +3134,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe -I. -I$(ICE_HOME)/slice Test.ice
+	slice2cppe.exe -I. -I../../../slice Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -3149,7 +3149,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe -I. -I$(ICE_HOME)/slice Test.ice
+	slice2cppe.exe -I. -I../../../slice Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -3164,7 +3164,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe -I. -I$(ICE_HOME)/slice Test.ice
+	slice2cppe.exe -I. -I../../../slice Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -3179,7 +3179,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe -I. -I$(ICE_HOME)/slice Test.ice
+	slice2cppe.exe -I. -I../../../slice Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -3194,7 +3194,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe -I. -I$(ICE_HOME)/slice Test.ice
+	slice2cppe.exe -I. -I../../../slice Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -3209,7 +3209,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe -I. -I$(ICE_HOME)/slice Test.ice
+	slice2cppe.exe -I. -I../../../slice Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -3224,7 +3224,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe -I. -I$(ICE_HOME)/slice Test.ice
+	slice2cppe.exe -I. -I../../../slice Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

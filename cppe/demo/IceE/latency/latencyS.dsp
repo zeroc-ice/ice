@@ -177,7 +177,6 @@ SOURCE=.\Latency.ice
 
 !IF  "$(CFG)" == "latencyS - Win32 Release"
 
-USERDEP__LATEN="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Latency.ice
 
@@ -193,7 +192,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "latencyS - Win32 Debug"
 
-USERDEP__LATEN="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Latency.ice
 
@@ -209,7 +207,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "latencyS - Win32 Debug Static"
 
-USERDEP__LATEN="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Latency.ice
 
@@ -225,7 +222,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "latencyS - Win32 Release Static"
 
-USERDEP__LATEN="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Latency.ice
 

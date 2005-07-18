@@ -181,7 +181,6 @@ SOURCE=.\Test.ice
 
 !IF  "$(CFG)" == "adapterdeactivationC - Win32 Release"
 
-USERDEP__TEST_="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 
@@ -197,7 +196,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "adapterdeactivationC - Win32 Debug"
 
-USERDEP__TEST_="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 
@@ -213,7 +211,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "adapterdeactivationC - Win32 Debug Static"
 
-USERDEP__TEST_="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 
@@ -229,7 +226,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "adapterdeactivationC - Win32 Release Static"
 
-USERDEP__TEST_="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice
 

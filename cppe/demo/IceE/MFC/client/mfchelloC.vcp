@@ -2045,7 +2045,7 @@ SOURCE=.\Hello.ice
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe Hello.ice
 
 "Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2060,7 +2060,7 @@ BuildCmds= \
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe Hello.ice
 
 "Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2075,7 +2075,7 @@ BuildCmds= \
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe Hello.ice
 
 "Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2090,7 +2090,7 @@ BuildCmds= \
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe Hello.ice
 
 "Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2105,7 +2105,7 @@ BuildCmds= \
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe Hello.ice
 
 "Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2120,7 +2120,7 @@ BuildCmds= \
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe Hello.ice
 
 "Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2135,7 +2135,7 @@ BuildCmds= \
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe Hello.ice
 
 "Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2150,7 +2150,7 @@ BuildCmds= \
 InputPath=.\Hello.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cppe.exe Hello.ice
+	slice2cppe.exe Hello.ice
 
 "Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

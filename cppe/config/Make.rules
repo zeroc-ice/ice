@@ -186,11 +186,7 @@ ifeq ($(mkdir),)
 			  chmod a+rx $(1)
 endif
 
-SLICEPARSERLIB		= $(ICE_HOME)/lib/$(call mklibfilename,Slice)
-SLICE2CPPE		= $(ICE_HOME)/bin/slice2cppe
-SLICE2XSD		= $(bindir)/slice2xsd
-SLICE2FREEZE		= $(bindir)/slice2freeze
-SLICE2DOCBOOK		= $(bindir)/slice2docbook
+SLICE2CPPE		= slice2cppe
 
 EVERYTHING		= all depend clean install
 
@@ -204,18 +200,18 @@ EVERYTHING		= all depend clean install
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 
-$(HDIR)/%F.h: $(SDIR)/%F.ice $(SLICE2CPPE) $(SLICEPARSERLIB)
+$(HDIR)/%F.h: $(SDIR)/%F.ice
 	rm -f $(HDIR)/$(*F)F.h $(*F)F.cpp
 	$(SLICE2CPPE) $(SLICE2CPPEFLAGS) $<
 	mv $(*F)F.h $(HDIR)
 	rm -f $(*F)F.cpp
 
-$(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPPE) $(SLICEPARSERLIB)
+$(HDIR)/%.h %.cpp: $(SDIR)/%.ice
 	rm -f $(HDIR)/$(*F).h $(*F).cpp
 	$(SLICE2CPPE) $(SLICE2CPPEFLAGS) $<
 	mv $(*F).h $(HDIR)
 
-%.h %.cpp: %.ice $(SLICE2CPPE) $(SLICEPARSERLIB)
+%.h %.cpp: %.ice
 	rm -f $(*F).h $(*F).cpp
 	$(SLICE2CPPE) $(SLICE2CPPEFLAGS) $(*F).ice	
 

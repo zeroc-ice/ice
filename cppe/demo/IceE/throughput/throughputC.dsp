@@ -177,7 +177,6 @@ SOURCE=.\Throughput.ice
 
 !IF  "$(CFG)" == "throughputC - Win32 Release"
 
-USERDEP__THROU="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Throughput.ice
 
@@ -193,7 +192,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "throughputC - Win32 Debug"
 
-USERDEP__THROU="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Throughput.ice
 
@@ -209,7 +207,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "throughputC - Win32 Debug Static"
 
-USERDEP__THROU="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Throughput.ice
 
@@ -225,7 +222,6 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "throughputC - Win32 Release Static"
 
-USERDEP__THROU="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Throughput.ice
 
