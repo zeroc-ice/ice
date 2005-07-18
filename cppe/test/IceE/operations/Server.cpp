@@ -33,7 +33,6 @@ public:
 	//properties->setProperty("IceE.Trace.Protocol", "5");
 
 	loadConfig(properties);
-
 	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 	
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");

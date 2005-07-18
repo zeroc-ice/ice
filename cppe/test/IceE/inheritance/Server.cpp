@@ -28,7 +28,8 @@ public:
 	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
         properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
 
-        setCommunicator(Ice::initialize(argc, argv));
+        loadConfig(properties);
+        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr object = new InitialI(adapter);

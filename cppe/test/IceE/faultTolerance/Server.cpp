@@ -31,7 +31,9 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	setCommunicator(Ice::initialize(argc, argv));
+        Ice::PropertiesPtr properties = Ice::createProperties();
+        loadConfig(properties);
+        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
         int port = 0;
         for(int i = 1; i < argc; ++i)
@@ -62,7 +64,7 @@ public:
 
         char buf[32];
         sprintf(buf, "default -p %d", port);
-        communicator()->getProperties()->setProperty("TestAdapter.Endpoints", buf);
+        properties->setProperty("TestAdapter.Endpoints", buf);
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr object = new TestI(adapter);
         adapter->add(object, Ice::stringToIdentity("test"));

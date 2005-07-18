@@ -31,7 +31,8 @@ public:
 	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
 	properties->setProperty("IceE.Default.Locator", "locator:default -p 12345");
 
-	setCommunicator(Ice::initialize(argc, argv));
+        loadConfig(properties);
+        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
         void allTests(const Ice::CommunicatorPtr&, const string&);
         allTests(communicator(), "ServerManager:default -p 12345 -t 10000");

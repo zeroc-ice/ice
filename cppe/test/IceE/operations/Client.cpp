@@ -37,8 +37,8 @@ public:
 	//properties->setProperty("IceE.Trace.Protocol", "5");
 	
 	loadConfig(properties);
-
 	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
+
         Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
         Test::MyClassPrx myClass = allTests(communicator());
 

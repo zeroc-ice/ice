@@ -25,9 +25,10 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-        setCommunicator(Ice::initialize(argc, argv));
+        Ice::PropertiesPtr properties = Ice::createProperties();
+        loadConfig(properties);
+        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
-        Ice::PropertiesPtr properties = communicator()->getProperties();
         properties->setProperty("IceE.Warn.Dispatch", "0");
         properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 2000");
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");

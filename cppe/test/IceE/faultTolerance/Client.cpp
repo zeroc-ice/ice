@@ -38,7 +38,8 @@ public:
 	//
 	properties->setProperty("IceE.Warn.Connections", "0");
 
-	setCommunicator(Ice::initialize(argc, argv));
+        loadConfig(properties);
+        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
         vector<int> ports;
         for(int i = 1; i < argc; ++i)

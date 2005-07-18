@@ -31,7 +31,9 @@ public:
     {
 	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
         properties->setProperty("ServerManager.Endpoints", "default -p 12345");
-        setCommunicator(Ice::initialize(argc, argv));
+
+        loadConfig(properties);
+        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
         //
         // Register the server manager. The server manager creates a
