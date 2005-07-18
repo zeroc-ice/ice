@@ -29,7 +29,7 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
+	Ice::PropertiesPtr properties = Ice::createProperties();
         properties->setProperty("ServerManager.Endpoints", "default -p 12345");
 
         loadConfig(properties);

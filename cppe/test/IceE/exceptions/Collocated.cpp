@@ -26,7 +26,7 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
+	Ice::PropertiesPtr properties = Ice::createProperties();
 
 	properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
         properties->setProperty("IceE.Warn.Dispatch", "0");

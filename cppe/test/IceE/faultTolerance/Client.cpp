@@ -31,7 +31,7 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
+	Ice::PropertiesPtr properties = Ice::createProperties();
 
 	//
 	// This test aborts servers, so we don't want warnings.
