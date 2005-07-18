@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceE/IceE.h>
+#include <TestCommon.h>
 #include <TestI.h>
 
 using namespace Test;
@@ -21,6 +22,9 @@ void
 ThrowerI::shutdown(const Ice::Current&)
 {
     _adapter->getCommunicator()->shutdown();
+#ifdef _WIN32_WCE
+    tprintf("The server has shutdown, close the window to terminate the server.");
+#endif
 }
 
 bool

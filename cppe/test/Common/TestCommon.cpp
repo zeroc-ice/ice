@@ -417,6 +417,7 @@ TestApplication::main(int ac, char* av[])
 	}
 	_communicator = 0;
     }
+
     return status;
 }
 #endif

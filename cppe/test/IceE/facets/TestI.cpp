@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceE/IceE.h>
+#include <TestCommon.h>
 #include <TestI.h>
 
 std::string
@@ -55,6 +56,9 @@ void
 GI::shutdown(const Ice::Current&)
 {
     _communicator->shutdown();
+#ifdef _WIN32_WCE
+    tprintf("The server has shutdown, close the window to terminate the server.");
+#endif
 }
 
 std::string

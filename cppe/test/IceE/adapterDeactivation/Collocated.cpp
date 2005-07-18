@@ -8,57 +8,58 @@
 // **********************************************************************
 
 #include <IceE/IceE.h>
-#include <TestCommon.h>
+#include <TestApplication.h>
 #include <TestI.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Test;
 
+class AdapterDeactivationTestApplication : public TestApplication
+{
+public:
+
+    AdapterDeactivationTestApplication()
+        : TestApplication("adapter deactivation collocated")
+    {
+    }
+
+    virtual int
+    run(int argc, char* argv[])
+    {
+        setCommunicator(Ice::initialize(argc, argv));
+
+	communicator()->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
+        Ice::ObjectPtr object = new TestI;
+        adapter->add(object, Ice::stringToIdentity("test"));
+        adapter->activate();
+
+        TestIntfPrx allTests(const CommunicatorPtr&);
+        allTests(communicator());
+
+        adapter->waitForDeactivate();
+
+        return EXIT_SUCCESS;
+    }
+};
+
+#ifdef _WIN32_WCE
+
+int WINAPI
+WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
+{
+    AdapterDeactivationTestApplication app;
+    return app.main(hInstance);
+}
+
+#else
+
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+main(int argc, char** argv)
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = new TestI;
-    adapter->add(object, Ice::stringToIdentity("test"));
-    adapter->activate();
-
-    TestIntfPrx allTests(const CommunicatorPtr&);
-    allTests(communicator);
-
-    adapter->waitForDeactivate();
-    return EXIT_SUCCESS;
+    AdapterDeactivationTestApplication app;
+    return app.main(argc, argv);
 }
 
-main(int argc, char* argv[])
-{
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-        communicator = Ice::initialize(argc, argv);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        fprintf(stderr, "%s\n", ex.toString().c_str());
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            fprintf(stderr, "%s\n", ex.toString().c_str());
-            status = EXIT_FAILURE;
-        }
-    }
-
-    return status;
-}
+#endif

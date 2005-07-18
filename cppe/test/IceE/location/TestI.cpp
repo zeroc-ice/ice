@@ -13,6 +13,7 @@
 
 #include <IceE/IceE.h>
 #include <IceE/Locator.h>
+#include <TestCommon.h>
 #include <TestI.h>
 
 using namespace Test;
@@ -66,6 +67,9 @@ ServerManagerI::shutdown(const Ice::Current&)
 	(*i)->destroy();
     }
     _adapter->getCommunicator()->shutdown();
+#ifdef _WIN32_WCE
+    tprintf("The server has shutdown, close the window to terminate the server.");
+#endif
 }
 
 
