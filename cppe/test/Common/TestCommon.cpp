@@ -20,7 +20,7 @@
 using namespace Ice;
 using namespace std;
 
-class LoggerI : public Ice::Logger
+class LoggerI : public Logger
 {
 public:
 
@@ -353,6 +353,37 @@ TestApplication::main(HINSTANCE hInstance)
 
     return status;
 }
+
+void
+TestApplication::loadConfig(const PropertiesPtr& properties)
+{
+    //
+    // COMPILERBUG: For some unknown reason the simple approach
+    // doesn't work under WinCE if you compile with optimization.  It
+    // looks like a compiler bug to me.
+    //
+    string config = "config";
+    WIN32_FIND_DATA data;
+    HANDLE h = FindFirstFile(L"config", &data);
+    if(h == INVALID_HANDLE_VALUE)
+    {
+	config = "config.txt";
+	HANDLE h = FindFirstFile(L"config.txt", &data);
+	if(h == INVALID_HANDLE_VALUE)
+	{
+	    return;
+	}
+    }
+    FindClose(h);
+
+    try
+    {
+	properties->load(config);
+    }
+    catch(const FileException&)
+    {
+    }
+}
 #else
 
 static IceUtil::StaticMutex tprintMutex = ICEE_STATIC_MUTEX_INITIALIZER;
@@ -420,6 +451,26 @@ TestApplication::main(int ac, char* av[])
 
     return status;
 }
+
+void
+TestApplication::loadConfig(const PropertiesPtr& properties)
+{
+    try
+    {
+	properties->load("config");
+    }
+    catch(const FileException&)
+    {
+	try
+	{
+	    properties->load("config.txt");
+	}
+	catch(const FileException&)
+	{
+	}
+    }
+}
+
 #endif
 
 TestApplication::TestApplication(const std::string& name)
@@ -431,19 +482,18 @@ TestApplication::TestApplication(const std::string& name)
 }
 
 void
-TestApplication::setCommunicator(const Ice::CommunicatorPtr& communicator)
+TestApplication::setCommunicator(const CommunicatorPtr& communicator)
 {
     _communicator = communicator;
     _communicator->setLogger(new LoggerI);
 
 }
 
-Ice::CommunicatorPtr
+CommunicatorPtr
 TestApplication::communicator()
 {
     return _communicator;
 }
-
 
 bool
 TestApplication::terminated() const

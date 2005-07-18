@@ -38,6 +38,8 @@ public:
 
     bool terminated() const;
 
+    void loadConfig(const Ice::PropertiesPtr&);
+
 private:
 
     const std::string _name;

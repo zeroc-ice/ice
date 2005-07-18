@@ -36,20 +36,7 @@ public:
 	//properties->setProperty("IceE.Trace.Network", "5");
 	//properties->setProperty("IceE.Trace.Protocol", "5");
 	
-	try
-	{
-	    properties->load("config");
-	}
-	catch(const Ice::FileException&)
-	{
-	    try
-	    {
-		properties->load("config.txt");
-	    }
-	    catch(const Ice::FileException&)
-	    {
-	    }
-	}
+	loadConfig(properties);
 
 	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
         Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
