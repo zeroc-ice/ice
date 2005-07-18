@@ -15,6 +15,7 @@ TARGETS		= $(CLIENT)
 
 OBJS		= Client.o \
 		  Chat.o \
+		  PingThread.o \
 		  Router.o \
 		  Session.o
 

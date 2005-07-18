@@ -69,7 +69,6 @@ ICE_OBJS	= BasicStream.o \
 		  UUID.o
 
 LOCAL_OBJS	= BuiltinSequences.o \
-		  FacetMap.o \
 		  Identity.o \
 		  Locator.o \
 		  LocatorF.o \
@@ -89,7 +88,6 @@ TRANSPORT_SRCS	= $(TRANSPORT_DIR)/Acceptor.cpp \
 SRCS		= $(LOCAL_OBJS:.o=.cpp) $(TRANSPORT_SRCS)
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
-		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
 		  $(SDIR)/LocatorF.ice \
 		  $(SDIR)/Locator.ice \
@@ -116,7 +114,7 @@ endif
 %.o: $(ICE_DIR)/%.cpp
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICEE_API_EXPORTS
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICEE_API_EXPORTS -DICEE_PURE_CLIENT
 SLICE2CPPEFLAGS	:= --ice --include-dir IceE --dll-export ICEE_API $(SLICE2CPPEFLAGS)
 
 LINKWITH        := $(ICE_OS_LIBS)
