@@ -14,6 +14,8 @@
 #include "Chat.h"
 #include "LogI.h"
 
+
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -30,6 +32,8 @@ CChatClientApp::CChatClientApp()
 // The one and only CChatClientApp object
 
 CChatClientApp theApp;
+
+#ifdef ICEE_HAS_ROUTER
 
 BOOL CChatClientApp::InitInstance()
 {
@@ -91,3 +95,15 @@ BOOL CChatClientApp::InitInstance()
     // application, rather than start the application's message pump.
     return FALSE;
 }
+
+#else
+
+BOOL CChatClientApp::InitInstance()
+{
+    InitCommonControls();
+    CWinApp::InitInstance();
+    AfxMessageBox(CString("This demo requires Ice-E built with router support."), MB_OK|MB_ICONEXCLAMATION);
+    return FALSE;
+}
+
+#endif

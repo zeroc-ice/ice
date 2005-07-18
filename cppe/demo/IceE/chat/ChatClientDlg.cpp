@@ -14,6 +14,9 @@
 #include "ChatConfigDlg.h"
 #include "Router.h"
 
+#ifdef ICEE_HAS_ROUTER
+
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -242,3 +245,5 @@ CChatClientDlg::OnLogin()
         ((CEdit*)GetDlgItem(IDC_LOG))->SetFocus();
     }
 }
+
+#endif

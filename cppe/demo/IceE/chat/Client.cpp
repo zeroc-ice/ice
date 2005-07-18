@@ -12,6 +12,8 @@
 #include <Router.h>
 #include <Chat.h>
 
+#ifdef ICEE_HAS_ROUTER
+
 using namespace std;
 using namespace Ice;
 using namespace Demo;
@@ -188,3 +190,14 @@ main(int argc, char* argv[])
 
     return status;
 }
+
+#else
+
+int
+main(int argc, char* argv[])
+{
+    fprintf(stderr, "This demo requires Ice-E be built with router support enabled.\n");
+    return -1;
+}
+
+#endif
