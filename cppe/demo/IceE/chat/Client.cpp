@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceE/IceE.h>
+#include <PingThread.h>
 #include <Router.h>
 #include <Chat.h>
 
@@ -91,6 +92,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         }
     }
 
+    SessionPingThreadPtr ping = new SessionPingThread(session);
+    ping->start();
+
     string category = router->getServerProxy()->ice_getIdentity().category;
     Identity callbackReceiverIdent;
     callbackReceiverIdent.name = "callbackReceiver";
@@ -140,9 +144,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     catch(const Exception& ex)
     {
         fprintf(stderr, "%s\n", ex.toString().c_str());
+	ping->destroy();
+	ping->getThreadControl().join();
         return EXIT_FAILURE;
     }
 
+    ping->destroy();
+    ping->getThreadControl().join();
     return EXIT_SUCCESS;
 }
 

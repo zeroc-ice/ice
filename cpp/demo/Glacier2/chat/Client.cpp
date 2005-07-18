@@ -15,6 +15,55 @@ using namespace std;
 using namespace Ice;
 using namespace Demo;
 
+class SessionPingThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    SessionPingThread(const Glacier2::SessionPrx& session) :
+        _session(session),
+        _timeout(IceUtil::Time::seconds(20)),
+        _destroy(false)
+    {
+    }
+
+    virtual void
+    run()
+    {
+        Lock sync(*this);
+        while(!_destroy)
+        {
+            timedWait(_timeout);
+            if(_destroy)
+            {
+                break;
+            }
+            try
+            {
+                _session->ice_ping();
+            }
+            catch(const Ice::Exception&)
+            {
+                break;
+            }
+        }
+    }
+
+    void
+    destroy()
+    {
+        Lock sync(*this);
+        _destroy = true;
+        notify();
+    }
+
+private:
+
+    const Glacier2::SessionPrx _session;
+    const IceUtil::Time _timeout;
+    bool _destroy;
+};
+typedef IceUtil::Handle<SessionPingThread> SessionPingThreadPtr;
+
 class ChatCallbackI : public ChatCallback
 {
 public:
@@ -75,6 +124,9 @@ public:
 	    }
 	}
 
+	SessionPingThreadPtr ping = new SessionPingThread(session);
+	ping->start();
+
 	string category = router->getServerProxy()->ice_getIdentity().category;
 	Identity callbackReceiverIdent;
 	callbackReceiverIdent.name = "callbackReceiver";
@@ -119,9 +171,16 @@ public:
 	catch(const Exception& ex)
 	{
 	    cerr << ex << endl;
+
+            ping->destroy();
+            ping->getThreadControl().join();
+
 	    return EXIT_FAILURE;
 	}
 
+        ping->destroy();
+        ping->getThreadControl().join();
+	
 	return EXIT_SUCCESS;
     }
 

@@ -178,6 +178,10 @@ SOURCE=.\LogI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\PingThread.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Router.cpp
 # End Source File
 # Begin Source File
@@ -212,6 +216,10 @@ SOURCE=.\ChatConfigDlg.h
 # Begin Source File
 
 SOURCE=.\LogI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PingThread.h
 # End Source File
 # Begin Source File
 

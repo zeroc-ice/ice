@@ -15,6 +15,7 @@
 
 #include "LogI.h"
 #include "Chat.h"
+#include "PingThread.h"
 
 class CChatClientDlg : public CDialog
 {
@@ -32,6 +33,8 @@ protected:
     Ice::CommunicatorPtr _communicator;
     Demo::ChatSessionPrx _chat;
     LogIPtr _log;
+
+    SessionPingThreadPtr _ping;
     CEdit* _edit;
     HICON _hIcon;
 

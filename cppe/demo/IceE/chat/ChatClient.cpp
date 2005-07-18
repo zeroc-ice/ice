@@ -43,10 +43,9 @@ BOOL CChatClientApp::InitInstance()
     CWinApp::InitInstance();
 
     //
-    // Create a communicator and object adapter.
+    // Create a communicator.
     //
     Ice::CommunicatorPtr communicator;
-    Ice::ObjectAdapterPtr adapter;
     LogIPtr log;
     try
     {

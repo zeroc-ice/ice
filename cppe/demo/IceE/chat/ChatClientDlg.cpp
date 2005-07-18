@@ -41,6 +41,9 @@ CChatClientDlg::setSession(const Demo::ChatSessionPrx& chat, CString user, CStri
     _password = password;
     _host = host;
     _port = port;
+
+    _ping = new SessionPingThread(_chat);
+    _ping->start();
 }
 
 void
@@ -71,19 +74,25 @@ CChatClientDlg::OnInitDialog()
     // Retrieve the text input edit control.
     //
     _edit = (CEdit*)GetDlgItem(IDC_LOG);
-    _edit->EnableWindow(FALSE);
 
-    ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(FALSE);
 
     //
-    // Retrieve the chat display edit control.
+    // Retrieve the chat display edit control for
+    // log output.
     //
     CEdit* disp = (CEdit*)GetDlgItem(IDC_LOG2);
-    disp->EnableWindow(FALSE);
     _log->setControl(disp);
 
     //
-    // Set the focus to the text input
+    // Disable the input, output and send as we are
+    // not logged in yet.
+    //
+    _edit->EnableWindow(FALSE);
+    disp->EnableWindow(FALSE);
+    ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(FALSE);
+
+    //
+    // Set the focus to the login button
     //
     ((CButton*)GetDlgItem(IDC_LOGIN))->SetFocus();
  
@@ -142,12 +151,10 @@ CChatClientDlg::OnQueryDragIcon()
 void
 CChatClientDlg::OnSend()
 {
-    if(_chat == 0)
-    {
-        AfxMessageBox(CString("You must login first."), MB_OK|MB_ICONEXCLAMATION);
-	return;
-    }
-
+    //
+    // Get text from the input edit box and forward it
+    // on to the chat server.
+    //
     CString text;
     _edit->GetWindowText(text);
 
@@ -161,19 +168,14 @@ CChatClientDlg::OnSend()
         _chat->say(std::string(text));
 #endif
     }
-    catch(const Ice::ConnectionLostException&)
+    catch(const Ice::Exception& e)
     {
-        AfxMessageBox(CString("Login timed out due to inactivity"), MB_OK|MB_ICONEXCLAMATION);
-	_chat = 0;
-        _edit->EnableWindow(FALSE);
-        ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(FALSE);
-	(CEdit*)GetDlgItem(IDC_LOG2)->EnableWindow(FALSE);
-#ifdef _WIN32_WCE
-        ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText(L"Login");
-#else
-        ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText("Login");
-#endif
-	return;
+        AfxMessageBox(CString(e.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
+
+	_ping->destroy();
+	_ping->getThreadControl().join();
+
+	EndDialog(0);
     }
 
     //
@@ -188,11 +190,21 @@ CChatClientDlg::OnLogin()
 {
     if(_chat == 0)
     {
+        //
+	// Login: Create and display login dialog.
+	//
         CChatConfigDlg dlg(_communicator, _log, this, _user, _password, _host, _port);
         dlg.DoModal();
     }
     else
     {
+        //
+	// Logout: Destroy session and stop ping thread.
+	//
+	_chat = 0;
+	_ping->destroy();
+	_ping->getThreadControl().join();
+
     	try
 	{
 	    Glacier2::RouterPrx::uncheckedCast(_communicator->getDefaultRouter())->destroySession();
@@ -201,9 +213,11 @@ CChatClientDlg::OnLogin()
 	{
 	    AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
 	}
-	_chat = 0;
     }
 
+    //
+    // Reset window state appropriate to logged in state.
+    //
     if(_chat == 0)
     {
         _edit->EnableWindow(FALSE);

@@ -161,6 +161,10 @@ SOURCE=.\Client.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\PingThread.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Router.cpp
 # End Source File
 # Begin Source File
@@ -174,6 +178,10 @@ SOURCE=.\Session.cpp
 # Begin Source File
 
 SOURCE=.\Chat.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PingThread.h
 # End Source File
 # Begin Source File
 
