@@ -20,8 +20,9 @@
 //
 
 
-#if defined(_WIN32_WCE)
+#ifdef _WIN32_WCE
 #   include <wincrypt.h>
+#   include <IceE/StaticMutex.h>
 #elif defined(_WIN32)
 #   include <rpc.h>
 #else
@@ -65,7 +66,37 @@ IceUtil::UUIDGenerationException::UUIDGenerationException(const char* file, int 
 
 const char* IceUtil::UUIDGenerationException::_name = "IceUtil::UUIDGenerationException";
 
-#ifndef _WIN32
+#ifdef _WIN32_WCE
+
+static IceUtil::StaticMutex staticMutex = ICEE_STATIC_MUTEX_INITIALIZER;
+static HCRYPTPROV cryptProv = 0;
+
+namespace
+{
+
+//
+// Close the crypt provider on exit.
+//
+class UUIDCleanup
+{
+public:
+    
+    ~UUIDCleanup()
+    {
+         IceUtil::StaticMutex::Lock lock(staticMutex);
+	 if(cryptProv != 0)
+	 {
+	     CryptReleaseContext(cryptProv, 0);
+	     cryptProv = 0;
+	 }
+    }
+};
+
+static UUIDCleanup uuidCleanup;
+
+}
+
+#elif !defined(_WIN32)
 //
 // Unfortunately on Linux (at least up to 2.6.9), concurrent access to /dev/urandom
 // can return the same value. Search for "Concurrent access to /dev/urandom" in the 
@@ -163,27 +194,27 @@ IceUtil::generateUUID()
     size_t index = 0;
 
 #ifdef _WIN32_WCE
-    //
-    // TODO: I suspect we should cache this provider.
-    //
-    HCRYPTPROV prov;
-    if(!CryptAcquireContext(&prov, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+
+    HCRYPTPROV localProv;
+
     {
-	throw UUIDGenerationException(__FILE__, __LINE__);
+	IceUtil::StaticMutex::Lock lock(staticMutex);
+	if(cryptProv == 0)
+	{
+	    if(!CryptAcquireContext(&cryptProv, 0, 0, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+	    {
+		throw UUIDGenerationException(__FILE__, __LINE__);
+	    }
+	}
+	localProv = cryptProv;
     }
-    
+
     memset(buffer, 0, 16);
-    if(!CryptGenRandom(prov, 16, (unsigned char*)buffer))
+    if(!CryptGenRandom(localProv, 16, (unsigned char*)buffer))
     {
-	bool rc = CryptReleaseContext(prov, 0);
-	assert(rc);
 	throw UUIDGenerationException(__FILE__, __LINE__);
     }
 
-    if(!CryptReleaseContext(prov, 0))
-    {
-	throw UUIDGenerationException(__FILE__, __LINE__);
-    }
 #else
     {
 	//

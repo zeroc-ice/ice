@@ -12,6 +12,8 @@
 
 #include <IceE/Config.h>
 #include <IceE/IceE.h>
+#include <IceE/Mutex.h>
+
 //
 // XXX: For ICEE_TEST_COMMON_API. We could create a TestConfig.h later, or
 // perhaps make Test/... subdirectory.
@@ -33,6 +35,8 @@ public:
 
     void setCommunicator(const Ice::CommunicatorPtr&);
     Ice::CommunicatorPtr communicator();
+
+    bool terminated() const;
 
 private:
 

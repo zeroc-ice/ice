@@ -71,6 +71,8 @@ public:
     }
 };
 
+static IceUtil::StaticMutex terminatedMutex = ICEE_STATIC_MUTEX_INITIALIZER;
+static bool appTerminated= false;
 
 #ifdef _WIN32_WCE
 
@@ -211,12 +213,19 @@ WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     break;
 
     case WM_CLOSE:
+    {
 	DestroyWindow(hWnd);
 	break;
+    }
 
+    case WM_QUIT:
     case WM_DESTROY:
+    {
 	PostQuitMessage(0);
+	IceUtil::StaticMutex::Lock sync(terminatedMutex);
+	appTerminated = true;
 	break;
+    }
 
     default:
 	return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -432,6 +441,14 @@ Ice::CommunicatorPtr
 TestApplication::communicator()
 {
     return _communicator;
+}
+
+
+bool
+TestApplication::terminated() const
+{
+    IceUtil::StaticMutex::Lock sync(terminatedMutex);
+    return appTerminated;
 }
 
 void

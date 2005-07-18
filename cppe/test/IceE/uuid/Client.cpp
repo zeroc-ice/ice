@@ -18,7 +18,6 @@
 using namespace IceUtil;
 using namespace std;
 
-
 static StaticMutex staticMutex = ICEE_STATIC_MUTEX_INITIALIZER;
 
 inline void usage(const char* myName)
@@ -26,21 +25,27 @@ inline void usage(const char* myName)
     tprintf("Usage: %s [number of UUIDs to generate] [number of threads]\n", myName);
 }
 
-class InsertThread : public Thread
+class InsertThread : public Thread, public Mutex
 {
 public:
 
     
     InsertThread(int threadId, set<string>& uuidSet, long howMany, bool verbose)
-	: _threadId(threadId), _uuidSet(uuidSet), _howMany(howMany), _verbose(verbose)
+	: _threadId(threadId), _uuidSet(uuidSet), _howMany(howMany), _verbose(verbose), _destroyed(false)
     {
     }
 
 
-    virtual void run()
+    virtual void
+    run()
     {
 	for(long i = 0; i < _howMany; i++)
 	{
+	    if(destroyed())
+	    {
+		return;
+	    }
+
 	    string uuid = generateUUID();
 
 	    StaticMutex::Lock lock(staticMutex);
@@ -53,20 +58,43 @@ public:
 
 	    test(ok.second);
 
+#ifdef _WIN32_WCE
+	    if(i > 0 && (i % 10) == 0)
+	    {
+		tprintf(".");
+	    }
+#else
 	    if(_verbose && i > 0 && (i % 100000 == 0))
 	    {
 		tprintf("Thread %d: generated %d UUIDs.\n", _threadId, i);
 	    }
+#endif
 	}
     }
 
+    void
+    destroy()
+    {
+	Lock sync(*this);
+	_destroyed = true;
+    }
+
+    bool
+    destroyed() const
+    {
+	Lock sync(*this);
+	return _destroyed;
+    }
 
 private:
+
     int _threadId;
     set<string>& _uuidSet;
     long _howMany;
     bool _verbose;
+    bool _destroyed;
 };
+typedef Handle<InsertThread> InsertThreadPtr;
 
 class UuidTestApplication : public TestApplication
 {
@@ -77,9 +105,14 @@ public:
     {
     }
 
-    virtual int run(int argc, char* argv[])
+    virtual int
+    run(int argc, char* argv[])
     {
+#ifdef _WIN32_WCE
+        long howMany = 3000;
+#else
         long howMany = 300000;
+#endif
         int threadCount = 3;
         bool verbose = false;
 
@@ -128,23 +161,68 @@ public:
 
         set<string> uuidSet;
     
-        vector<ThreadControl> threads;
+        vector<InsertThreadPtr> threads;
 
         Time start = Time::now();
         for(int i = 0; i < threadCount; i++)
         {
-	    ThreadPtr t = new InsertThread(i, uuidSet, howMany / threadCount, verbose); 
-	    threads.push_back(t->start());
+	    InsertThreadPtr t = new InsertThread(i, uuidSet, howMany / threadCount, verbose); 
+	    t->start();
+	    threads.push_back(t);
         }
-        for(vector<ThreadControl>::iterator p = threads.begin(); p != threads.end(); ++p)
+
+	vector<InsertThreadPtr>::iterator p;
+#ifdef _WIN32_WCE
+	while(!threads.empty())
+	{
+	    p = threads.begin();
+	    while(p != threads.end())
+	    {
+		ThreadControl control = (*p)->getThreadControl();
+		if(!control.isAlive())
+		{
+		    control.join();
+		    p = threads.erase(p);
+		}
+		else
+		{
+		    ++p;
+		}
+	    }
+
+	    MSG Msg;
+	    while(PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
+	    {
+		TranslateMessage(&Msg);
+		DispatchMessage(&Msg);
+	    }
+
+	    //
+	    // If the user terminated the app, the destroy all the
+	    // threads. This loop will end once all the threads have gone.
+	    //
+	    if(terminated())
+	    {
+		p = threads.begin();
+		while(p != threads.end())
+		{
+		    (*p)->destroy();
+		}
+	    }
+	}
+#else
+        for(p = threads.begin(); p != threads.end(); ++p)
         {
-	    p->join();
+	    (*p)->getThreadControl().join();
         }
+#endif
         Time finish = Time::now();
 
-        tprintf("ok\n");;
+        tprintf("ok\n");
 
+#ifndef _WIN32_WCE
         if(verbose)
+#endif
         {
             tprintf("Each UUID took an average of %f micro seconds to generate and insert into a set<string>.\n",
 	           (double) ((finish - start).toMicroSeconds()) / howMany);
