@@ -32,14 +32,13 @@ public:
     run(int argc, char* argv[])
     {
 	Ice::PropertiesPtr properties = Ice::createProperties();
+        loadConfig(properties);
+        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
 	//
 	// This test aborts servers, so we don't want warnings.
 	//
 	properties->setProperty("IceE.Warn.Connections", "0");
-
-        loadConfig(properties);
-        setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
         vector<int> ports;
         for(int i = 1; i < argc; ++i)
