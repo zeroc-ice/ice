@@ -171,7 +171,7 @@ Ice::Properties::parseCommandLineOptions(const string& prefix, const StringSeq& 
 StringSeq
 Ice::Properties::parseIceCommandLineOptions(const StringSeq& options)
 {
-    return parseCommandLineOptions("IceE", options);
+    return parseCommandLineOptions("Ice", options);
 }
 
 void
@@ -217,19 +217,19 @@ Ice::Properties::Properties(StringSeq& args)
     if(q != args.end())
     {
         //
-        // Use the first argument as the value for IceE.ProgramName. Replace
+        // Use the first argument as the value for Ice.ProgramName. Replace
         // any backslashes in this value with forward slashes, in case this
         // value is used by the event logger.
         //
         string name = *q;
         replace(name.begin(), name.end(), '\\', '/');
-	setProperty("IceE.ProgramName", name);
+	setProperty("Ice.ProgramName", name);
     }
     StringSeq tmp;
     while(q != args.end())
     {
         string s = *q;
-        if(s.find("--IceE.Config") == 0)
+        if(s.find("--Ice.Config") == 0)
         {
             if(s.find('=') == string::npos)
             {
@@ -303,7 +303,7 @@ Ice::Properties::parseLine(const string& line)
 void
 Ice::Properties::loadConfig()
 {
-    string value = getProperty("IceE.Config");
+    string value = getProperty("Ice.Config");
 
 #ifndef _WIN32_WCE
     if(value.empty() || value == "1")
@@ -338,5 +338,5 @@ Ice::Properties::loadConfig()
         }
     }
 
-    setProperty("IceE.Config", value);
+    setProperty("Ice.Config", value);
 }

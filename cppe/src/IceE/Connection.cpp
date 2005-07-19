@@ -716,7 +716,7 @@ Ice::Connection::Connection(const InstancePtr& instance,
 #endif
     _logger(_instance->logger()), // Cached for better performance.
     _traceLevels(_instance->traceLevels()), // Cached for better performance.
-    _warn(_instance->properties()->getPropertyAsInt("IceE.Warn.Connections") > 0),
+    _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
     _requestHdr(headerSize + sizeof(Int), 0),
 #ifdef ICEE_HAS_BATCH
     _requestBatchHdr(headerSize + sizeof(Int), 0),

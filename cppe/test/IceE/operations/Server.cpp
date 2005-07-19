@@ -29,8 +29,8 @@ public:
 	Ice::PropertiesPtr properties = Ice::createProperties();
 
 	properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
-	//properties->setProperty("IceE.Trace.Network", "5");
-	//properties->setProperty("IceE.Trace.Protocol", "5");
+	//properties->setProperty("Ice.Trace.Network", "5");
+	//properties->setProperty("Ice.Trace.Protocol", "5");
 
 	loadConfig(properties);
 	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));

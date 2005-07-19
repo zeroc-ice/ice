@@ -167,7 +167,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
 IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :
     _instance(instance)
 {
-    string str = _instance->properties()->getPropertyWithDefault("IceE.RetryIntervals", "0");
+    string str = _instance->properties()->getPropertyWithDefault("Ice.RetryIntervals", "0");
 
     string::size_type beg;
     string::size_type end = 0;

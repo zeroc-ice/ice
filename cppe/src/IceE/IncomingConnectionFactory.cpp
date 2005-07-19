@@ -187,7 +187,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     _instance(instance),
     _endpoint(endpoint),
     _adapter(adapter),
-    _warn(_instance->properties()->getPropertyAsInt("IceE.Warn.Connections") > 0),
+    _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
     _state(StateHolding)
 {
     if(_instance->defaultsAndOverrides()->overrideTimeout)

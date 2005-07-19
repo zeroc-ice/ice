@@ -29,7 +29,7 @@ public:
         loadConfig(properties);
         setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
-        properties->setProperty("IceE.Warn.Dispatch", "0");
+        properties->setProperty("Ice.Warn.Dispatch", "0");
         properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 2000");
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         Ice::ObjectPtr object = new TestI(adapter);

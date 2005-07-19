@@ -284,8 +284,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    // StdOut and StdErr redirection
 	    //
 
-	    string stdOutFilename = _properties->getProperty("IceE.StdOut");
-	    string stdErrFilename = _properties->getProperty("IceE.StdErr");
+	    string stdOutFilename = _properties->getProperty("Ice.StdOut");
+	    string stdErrFilename = _properties->getProperty("Ice.StdErr");
 	    
 	    if(stdOutFilename != "")
 	    {
@@ -331,13 +331,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    srand48(seed);
 #endif
 	    
-	    if(_properties->getPropertyAsInt("IceE.NullHandleAbort") > 0)
+	    if(_properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
 	    {
 		IceUtil::nullHandleAbort = true;
 	    }
 	    
 #ifndef _WIN32
-	    string newUser = _properties->getProperty("IceE.ChangeUser");
+	    string newUser = _properties->getProperty("Ice.ChangeUser");
 	    if(!newUser.empty())
 	    {
 		struct passwd* pw = getpwnam(newUser.c_str());
@@ -392,7 +392,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	sync.release();
 	
 
-	_logger = new LoggerI(_properties->getProperty("IceE.ProgramName"));
+	_logger = new LoggerI(_properties->getProperty("Ice.ProgramName"));
 
 	const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_properties);
 
@@ -400,7 +400,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 
 	{
 	    static const int defaultMessageSizeMax = 1024;
-	    Int num = _properties->getPropertyAsIntWithDefault("IceE.MessageSizeMax", defaultMessageSizeMax);
+	    Int num = _properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
 	    if(num < 1)
 	    {
 		const_cast<size_t&>(_messageSizeMax) = defaultMessageSizeMax * 1024; // Ignore stupid values.
@@ -417,7 +417,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	}
 
 	{
-	    Int stackSize = _properties->getPropertyAsInt("IceE.ThreadPerConnection.StackSize");
+	    Int stackSize = _properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
 	    if(stackSize < 0)
 	    {
 		stackSize = 0;
@@ -521,7 +521,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     // Show process id if requested (but only once).
     //
     bool printProcessId = false;
-    if(!printProcessIdDone && _properties->getPropertyAsInt("IceE.PrintProcessId") > 0)
+    if(!printProcessIdDone && _properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
     {
 	//
 	// Safe double-check locking (no dependent variable!)

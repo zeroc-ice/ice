@@ -30,13 +30,13 @@ public:
 
 	//
 	// We must set MessageSizeMax to an explicit values, because
-	// we run tests to check whether IceE.MemoryLimitException is
+	// we run tests to check whether Ice.MemoryLimitException is
 	// raised as expected.
 	//
-	properties->setProperty("IceE.MessageSizeMax", "100");
+	properties->setProperty("Ice.MessageSizeMax", "100");
 	properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
-	//properties->setProperty("IceE.Trace.Network", "5");
-	//properties->setProperty("IceE.Trace.Protocol", "5");
+	//properties->setProperty("Ice.Trace.Network", "5");
+	//properties->setProperty("Ice.Trace.Protocol", "5");
 
 	loadConfig(properties);
 	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));

@@ -14,7 +14,7 @@ Hello.Endpoints=tcp -p 10000
 #
 # Warn about connection exceptions
 #
-IceE.Warn.Connections=1
+Ice.Warn.Connections=1
 
 #
 # Network Tracing
@@ -24,7 +24,7 @@ IceE.Warn.Connections=1
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-IceE.Trace.Network=0
+Ice.Trace.Network=0
 
 #
 # Protocol Tracing
@@ -32,4 +32,4 @@ IceE.Trace.Network=0
 # 0 = no protocol tracing
 # 1 = trace protocol messages
 #
-IceE.Trace.Protocol=0
+Ice.Trace.Protocol=0

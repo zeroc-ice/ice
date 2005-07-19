@@ -2,7 +2,7 @@
 # The proxy to the Glacier2 router for all outgoing connections. This
 # must match the value of Glacier2.Client.Endpoints in config.glacier2.
 #
-IceE.Default.Router=Glacier2/router:tcp -p 10005
+Ice.Default.Router=Glacier2/router:tcp -p 10005
 
 #
 # The proxy for the Glacier2 router, installed in the client's
@@ -22,12 +22,12 @@ Chat.Client.Endpoints=
 # Connection retry is not possible with Glacier2. Connections must
 # remain established.
 #
-IceE.RetryIntervals=-1
+Ice.RetryIntervals=-1
 
 #
 # Other settings.
 #
 
-#IceE.Trace.Network=1
-#IceE.Trace.Protocol=1
-#IceE.Warn.Connections=1
+#Ice.Trace.Network=1
+#Ice.Trace.Protocol=1
+#Ice.Warn.Connections=1

@@ -169,7 +169,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    ex.operation = _current.operation;
 	}
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("IceE.Warn.Dispatch", 1) > 1)
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
 	{
 	    __warning(ex);
 	}
@@ -226,7 +226,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     {
 	_is.endReadEncaps();
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("IceE.Warn.Dispatch", 1) > 0)
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    __warning(ex);
 	}
@@ -250,7 +250,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     {
 	_is.endReadEncaps();
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("IceE.Warn.Dispatch", 1) > 0)
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    __warning(ex);
 	}
@@ -274,7 +274,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     {
 	_is.endReadEncaps();
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("IceE.Warn.Dispatch", 1) > 0)
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    __warning(ex);
 	}
@@ -298,7 +298,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     {
 	_is.endReadEncaps();
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("IceE.Warn.Dispatch", 1) > 0)
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    __warning(ex);
 	}
@@ -322,7 +322,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     {
 	_is.endReadEncaps();
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("IceE.Warn.Dispatch", 1) > 0)
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    __warning(ex);
 	}
@@ -346,7 +346,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     {
 	_is.endReadEncaps();
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("IceE.Warn.Dispatch", 1) > 0)
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    __warning(ex);
 	}
@@ -370,7 +370,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     {
 	_is.endReadEncaps();
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("IceE.Warn.Dispatch", 1) > 0)
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    __warning(string("std::exception: ") + ex.what());
 	}
@@ -395,7 +395,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     {
 	_is.endReadEncaps();
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("IceE.Warn.Dispatch", 1) > 0)
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    __warning("unknown c++ exception");
 	}

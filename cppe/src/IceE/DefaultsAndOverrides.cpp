@@ -24,33 +24,33 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     overrideConnectTimeout(false),
     overrideConnectTimeoutValue(-1)
 {
-    const_cast<string&>(defaultHost) = properties->getProperty("IceE.Default.Host");
+    const_cast<string&>(defaultHost) = properties->getProperty("Ice.Default.Host");
     if(defaultHost.empty())
     {
 	const_cast<string&>(defaultHost) = getLocalHost(true);
     }
 
 #ifdef ICEE_HAS_ROUTER
-    const_cast<string&>(defaultRouter) = properties->getProperty("IceE.Default.Router");
+    const_cast<string&>(defaultRouter) = properties->getProperty("Ice.Default.Router");
 #endif
 
     string value;
     
-    value = properties->getProperty("IceE.Override.Timeout");
+    value = properties->getProperty("Ice.Override.Timeout");
     if(!value.empty())
     {
 	const_cast<bool&>(overrideTimeout) = true;
-	const_cast<Int&>(overrideTimeoutValue) = properties->getPropertyAsInt("IceE.Override.Timeout");
+	const_cast<Int&>(overrideTimeoutValue) = properties->getPropertyAsInt("Ice.Override.Timeout");
     }
 
-    value = properties->getProperty("IceE.Override.ConnectTimeout");
+    value = properties->getProperty("Ice.Override.ConnectTimeout");
     if(!value.empty())
     {
 	const_cast<bool&>(overrideConnectTimeout) = true;
-	const_cast<Int&>(overrideConnectTimeoutValue) = properties->getPropertyAsInt("IceE.Override.ConnectTimeout");
+	const_cast<Int&>(overrideConnectTimeoutValue) = properties->getPropertyAsInt("Ice.Override.ConnectTimeout");
     }
 
 #ifdef ICEE_HAS_LOCATOR
-    const_cast<string&>(defaultLocator) = properties->getProperty("IceE.Default.Locator");
+    const_cast<string&>(defaultLocator) = properties->getProperty("Ice.Default.Locator");
 #endif
 }

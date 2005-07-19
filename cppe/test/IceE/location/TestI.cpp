@@ -32,7 +32,7 @@ ServerManagerI::startServer(const Ice::Current&)
     //
     // Simulate a server: create a new communicator and object
     // adapter. The object adapter is started on a system allocated
-    // port. The configuration used here contains the IceE.Locator
+    // port. The configuration used here contains the Ice.Locator
     // configuration variable. The new object adapter will register
     // its endpoints with the locator and create references containing
     // the adapter id instead of the endpoints.

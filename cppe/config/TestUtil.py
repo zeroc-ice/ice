@@ -185,14 +185,14 @@ serverProtocol = ""
 clientServerProtocol = ""
 
 if host != "":
-    defaultHost = " --IceE.Default.Host=" + host
+    defaultHost = " --Ice.Default.Host=" + host
 else:
     defaultHost = ""
 
-commonClientOptions = " --IceE.NullHandleAbort --IceE.Warn.Connections"
+commonClientOptions = " --Ice.NullHandleAbort --Ice.Warn.Connections"
 
-commonServerOptions = " --IceE.PrintProcessId --IceE.PrintAdapterReady --IceE.NullHandleAbort" + \
-                      " --IceE.Warn.Connections"
+commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.NullHandleAbort" + \
+                      " --Ice.Warn.Connections"
 
 clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions

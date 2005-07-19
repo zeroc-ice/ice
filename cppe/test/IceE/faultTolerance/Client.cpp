@@ -38,7 +38,7 @@ public:
 	//
 	// This test aborts servers, so we don't want warnings.
 	//
-	properties->setProperty("IceE.Warn.Connections", "0");
+	properties->setProperty("Ice.Warn.Connections", "0");
 
         vector<int> ports;
         for(int i = 1; i < argc; ++i)

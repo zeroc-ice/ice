@@ -106,7 +106,7 @@ Ice::ObjectAdapter::activate()
 		locatorRegistry = _locatorInfo->getLocatorRegistry();
 	    }
 #endif
-	    printAdapterReady = _instance->properties()->getPropertyAsInt("IceE.PrintAdapterReady") > 0;
+	    printAdapterReady = _instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 	    _printAdapterReadyDone = true;
 	}
 	
