@@ -284,13 +284,20 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    // StdOut and StdErr redirection
 	    //
 
-#ifndef _WIN32_WCE // XXX:DGB How do redirect on WinCE?
 	    string stdOutFilename = _properties->getProperty("IceE.StdOut");
 	    string stdErrFilename = _properties->getProperty("IceE.StdErr");
 	    
 	    if(stdOutFilename != "")
 	    {
-		FILE* file = freopen(stdOutFilename.c_str(), "a", stdout);
+	    	FILE * file;
+#ifdef _WIN32_WCE
+		wchar_t* wtext = new wchar_t[sizeof(wchar_t) * stdOutFilename.length()];
+		mbstowcs(wtext, stdOutFilename.c_str(), stdOutFilename.length());
+		file = _wfreopen(wtext, L"a", stdout);
+		delete wtext;
+#else
+		file = freopen(stdOutFilename.c_str(), "a", stdout);
+#endif
 		if(file == 0)
 		{
 		    SyscallException ex(__FILE__, __LINE__);
@@ -301,7 +308,15 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    
 	    if(stdErrFilename != "")
 	    {
-		FILE* file = freopen(stdErrFilename.c_str(), "a", stderr);
+	    	FILE* file;
+#ifdef _WIN32_WCE
+		wchar_t* wtext = new wchar_t[sizeof(wchar_t) * stdErrFilename.length()];
+		mbstowcs(wtext, stdErrFilename.c_str(), stdErrFilename.length());
+		file = _wfreopen(wtext, L"a", stderr);
+		delete wtext;
+#else
+		file = freopen(stdErrFilename.c_str(), "a", stderr);
+#endif
 		if(file == 0)
 		{
 		    SyscallException ex(__FILE__, __LINE__);
@@ -309,7 +324,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 		    throw ex;
 		}
 	    }
-#endif
 	    
 	    unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
 	    srand(seed);
