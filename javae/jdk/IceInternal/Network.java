@@ -130,7 +130,12 @@ public final class Network
 	    {
 		buf.append('.');
 	    }
-	    buf.append(Byte.toString(addr[i]));
+	    int b = addr[i];
+	    if(b < 0)
+	    {
+		b += 256;
+	    }
+	    buf.append(Integer.toString(b));
 	}
 	return buf.toString();
     }
