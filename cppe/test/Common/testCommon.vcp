@@ -137,11 +137,6 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 # ADD LINK32 winsock.lib uuid.lib commctrl.lib mmtimer.lib coredll.lib ccrtrtti.lib /nologo /base:"0x00100000" /stack:0x10000,0x1000 /entry:"_DllMainCRTStartup" /dll /nodefaultlib:"$(CENoDefaultLib)" /out:"ARMV4Rel/testCommone10.dll" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# Begin Special Build Tool
-OutDir=.\ARMV4Rel
-SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\testCommone.lib ..\..\lib\	copy $(OutDir)\testCommone10.dll ..\..\bin
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE ARMV4) Debug"
 
@@ -198,7 +193,7 @@ CPP=clarm.exe
 # ADD CPP /nologo /W3 /GR /GX /Zi /Od /I "../include" /I "../../include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "ICEE_STATIC_LIBS" /M$(CECrtMTDebug) /c
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"testCommond.lib"
+# ADD LIB32 /nologo /out:"ARMV4DebugStatic/testCommond.lib"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -225,7 +220,7 @@ CPP=clarm.exe
 # SUBTRACT CPP /YX
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"testCommon.lib"
+# ADD LIB32 /nologo
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -252,7 +247,7 @@ CPP=cl.exe
 # SUBTRACT CPP /YX
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"testCommond.lib"
+# ADD LIB32 /nologo /out:"emulatorDebugStatic/testCommond.lib"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -279,7 +274,7 @@ CPP=cl.exe
 # SUBTRACT CPP /YX
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"testCommon.lib"
+# ADD LIB32 /nologo
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
@@ -326,6 +321,7 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\Initialize.h"\
 	"..\..\include\IceE\InstanceF.h"\
+	"..\..\include\IceE\LocalExceptions.h"\
 	"..\..\include\IceE\LocalObject.h"\
 	"..\..\include\IceE\LocalObjectF.h"\
 	"..\..\include\IceE\LocatorInfoF.h"\
@@ -359,160 +355,155 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\UndefSysMacros.h"\
 	"..\include\TestApplication.h"\
 	"..\include\TestCommon.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\BuiltinSequences.h"\
-	"..\..\include\IceE\FacetMap.h"\
-	"..\..\include\IceE\Identity.h"\
-	"..\..\include\IceE\LocalException.h"\
-	"..\..\include\IceE\LocatorF.h"\
-	"..\..\include\IceE\Logger.h"\
-	"..\..\include\IceE\LoggerF.h"\
-	"..\..\include\IceE\RouterF.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
 	
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE emulator) Debug"
 
 DEP_CPP_TESTC=\
+	"..\..\include\IceE\BasicStream.h"\
+	"..\..\include\IceE\Buffer.h"\
+	"..\..\include\IceE\Communicator.h"\
+	"..\..\include\IceE\CommunicatorF.h"\
+	"..\..\include\IceE\Cond.h"\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Connection.h"\
+	"..\..\include\IceE\ConnectionF.h"\
+	"..\..\include\IceE\Current.h"\
+	"..\..\include\IceE\DispatchStatus.h"\
+	"..\..\include\IceE\EndpointF.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Functional.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IceE.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
+	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\include\IceE\Initialize.h"\
+	"..\..\include\IceE\InstanceF.h"\
+	"..\..\include\IceE\LocalExceptions.h"\
+	"..\..\include\IceE\LocalObject.h"\
+	"..\..\include\IceE\LocalObjectF.h"\
+	"..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\include\IceE\Lock.h"\
+	"..\..\include\IceE\LoggerUtil.h"\
+	"..\..\include\IceE\Monitor.h"\
+	"..\..\include\IceE\Mutex.h"\
+	"..\..\include\IceE\Object.h"\
+	"..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\include\IceE\ObjectF.h"\
+	"..\..\include\IceE\OperationMode.h"\
+	"..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\include\IceE\Properties.h"\
+	"..\..\include\IceE\PropertiesF.h"\
+	"..\..\include\IceE\Proxy.h"\
+	"..\..\include\IceE\ProxyF.h"\
+	"..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\include\IceE\ProxyHandle.h"\
+	"..\..\include\IceE\RecMutex.h"\
+	"..\..\include\IceE\ReferenceF.h"\
+	"..\..\include\IceE\ServantManagerF.h"\
+	"..\..\include\IceE\Shared.h"\
+	"..\..\include\IceE\StaticMutex.h"\
+	"..\..\include\IceE\Thread.h"\
+	"..\..\include\IceE\ThreadException.h"\
+	"..\..\include\IceE\Time.h"\
+	"..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\include\IceE\TransceiverF.h"\
+	"..\..\include\IceE\UndefSysMacros.h"\
 	"..\include\TestApplication.h"\
 	"..\include\TestCommon.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\Ice\BuiltinSequences.h"\
-	"..\..\include\Ice\Communicator.h"\
-	"..\..\include\Ice\CommunicatorF.h"\
-	"..\..\include\Ice\Config.h"\
-	"..\..\include\Ice\Connection.h"\
-	"..\..\include\Ice\ConnectionF.h"\
-	"..\..\include\Ice\ConnectionIF.h"\
-	"..\..\include\Ice\Current.h"\
-	"..\..\include\Ice\EndpointF.h"\
-	"..\..\include\Ice\Exception.h"\
-	"..\..\include\Ice\FacetMap.h"\
-	"..\..\include\Ice\Functional.h"\
-	"..\..\include\Ice\Handle.h"\
-	"..\..\include\Ice\Ice.h"\
-	"..\..\include\Ice\IceEConfig.h"\
-	"..\..\include\Ice\Identity.h"\
-	"..\..\include\Ice\IdentityUtil.h"\
-	"..\..\include\Ice\Initialize.h"\
-	"..\..\include\Ice\InstanceF.h"\
-	"..\..\include\Ice\LocalException.h"\
-	"..\..\include\Ice\LocalObject.h"\
-	"..\..\include\Ice\LocalObjectF.h"\
-	"..\..\include\Ice\LocatorF.h"\
-	"..\..\include\Ice\Logger.h"\
-	"..\..\include\Ice\LoggerF.h"\
-	"..\..\include\Ice\LoggerUtil.h"\
-	"..\..\include\Ice\Object.h"\
-	"..\..\include\Ice\ObjectAdapter.h"\
-	"..\..\include\Ice\ObjectAdapterF.h"\
-	"..\..\include\Ice\ObjectF.h"\
-	"..\..\include\Ice\Properties.h"\
-	"..\..\include\Ice\PropertiesF.h"\
-	"..\..\include\Ice\Proxy.h"\
-	"..\..\include\Ice\ProxyF.h"\
-	"..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\include\Ice\ProxyHandle.h"\
-	"..\..\include\Ice\ReferenceF.h"\
-	"..\..\include\Ice\RouterF.h"\
-	"..\..\include\Ice\UserConfig.h"\
-	"..\..\include\IceUtil\Config.h"\
-	"..\..\include\IceUtil\Exception.h"\
-	"..\..\include\IceUtil\Functional.h"\
-	"..\..\include\IceUtil\Handle.h"\
-	"..\..\include\IceUtil\Lock.h"\
-	"..\..\include\IceUtil\Mutex.h"\
-	"..\..\include\IceUtil\Shared.h"\
-	"..\..\include\IceUtil\StaticMutex.h"\
-	"..\..\include\IceUtil\Thread.h"\
-	"..\..\include\IceUtil\ThreadException.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
 	
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE ARMV4) Release"
@@ -538,6 +529,7 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\Initialize.h"\
 	"..\..\include\IceE\InstanceF.h"\
+	"..\..\include\IceE\LocalExceptions.h"\
 	"..\..\include\IceE\LocalObject.h"\
 	"..\..\include\IceE\LocalObjectF.h"\
 	"..\..\include\IceE\LocatorInfoF.h"\
@@ -571,16 +563,51 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\UndefSysMacros.h"\
 	"..\include\TestApplication.h"\
 	"..\include\TestCommon.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_TESTC=\
-	"..\..\include\IceE\BuiltinSequences.h"\
-	"..\..\include\IceE\FacetMap.h"\
-	"..\..\include\IceE\Identity.h"\
-	"..\..\include\IceE\LocalException.h"\
-	"..\..\include\IceE\LocatorF.h"\
-	"..\..\include\IceE\Logger.h"\
-	"..\..\include\IceE\LoggerF.h"\
-	"..\..\include\IceE\RouterF.h"\
+	"..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE ARMV4) Debug"
@@ -640,58 +667,51 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\UndefSysMacros.h"\
 	"..\include\TestApplication.h"\
 	"..\include\TestCommon.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\BuiltinSequences.h"\
-	"..\..\include\IceE\FacetMap.h"\
-	"..\..\include\IceE\Identity.h"\
-	"..\..\include\IceE\LocatorF.h"\
-	"..\..\include\IceE\Logger.h"\
-	"..\..\include\IceE\LoggerF.h"\
-	"..\..\include\IceE\RouterF.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
 	
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE ARMV4) Debug Static"
@@ -699,7 +719,6 @@ NODEP_CPP_TESTC=\
 DEP_CPP_TESTC=\
 	"..\..\include\IceE\BasicStream.h"\
 	"..\..\include\IceE\Buffer.h"\
-	"..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\include\IceE\Communicator.h"\
 	"..\..\include\IceE\CommunicatorF.h"\
 	"..\..\include\IceE\Cond.h"\
@@ -711,11 +730,9 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\EndpointF.h"\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
-	"..\..\include\IceE\FacetMap.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
 	"..\..\include\IceE\IceE.h"\
-	"..\..\include\IceE\Identity.h"\
 	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\Initialize.h"\
@@ -723,11 +740,8 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\LocalExceptions.h"\
 	"..\..\include\IceE\LocalObject.h"\
 	"..\..\include\IceE\LocalObjectF.h"\
-	"..\..\include\IceE\LocatorF.h"\
 	"..\..\include\IceE\LocatorInfoF.h"\
 	"..\..\include\IceE\Lock.h"\
-	"..\..\include\IceE\Logger.h"\
-	"..\..\include\IceE\LoggerF.h"\
 	"..\..\include\IceE\LoggerUtil.h"\
 	"..\..\include\IceE\Monitor.h"\
 	"..\..\include\IceE\Mutex.h"\
@@ -746,7 +760,6 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\ProxyHandle.h"\
 	"..\..\include\IceE\RecMutex.h"\
 	"..\..\include\IceE\ReferenceF.h"\
-	"..\..\include\IceE\RouterF.h"\
 	"..\..\include\IceE\ServantManagerF.h"\
 	"..\..\include\IceE\Shared.h"\
 	"..\..\include\IceE\StaticMutex.h"\
@@ -810,7 +823,6 @@ NODEP_CPP_TESTC=\
 DEP_CPP_TESTC=\
 	"..\..\include\IceE\BasicStream.h"\
 	"..\..\include\IceE\Buffer.h"\
-	"..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\include\IceE\Communicator.h"\
 	"..\..\include\IceE\CommunicatorF.h"\
 	"..\..\include\IceE\Cond.h"\
@@ -822,11 +834,9 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\EndpointF.h"\
 	"..\..\include\IceE\Exception.h"\
 	"..\..\include\IceE\ExceptionBase.h"\
-	"..\..\include\IceE\FacetMap.h"\
 	"..\..\include\IceE\Functional.h"\
 	"..\..\include\IceE\Handle.h"\
 	"..\..\include\IceE\IceE.h"\
-	"..\..\include\IceE\Identity.h"\
 	"..\..\include\IceE\IdentityUtil.h"\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\Initialize.h"\
@@ -834,11 +844,8 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\LocalExceptions.h"\
 	"..\..\include\IceE\LocalObject.h"\
 	"..\..\include\IceE\LocalObjectF.h"\
-	"..\..\include\IceE\LocatorF.h"\
 	"..\..\include\IceE\LocatorInfoF.h"\
 	"..\..\include\IceE\Lock.h"\
-	"..\..\include\IceE\Logger.h"\
-	"..\..\include\IceE\LoggerF.h"\
 	"..\..\include\IceE\LoggerUtil.h"\
 	"..\..\include\IceE\Monitor.h"\
 	"..\..\include\IceE\Mutex.h"\
@@ -857,7 +864,6 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\ProxyHandle.h"\
 	"..\..\include\IceE\RecMutex.h"\
 	"..\..\include\IceE\ReferenceF.h"\
-	"..\..\include\IceE\RouterF.h"\
 	"..\..\include\IceE\ServantManagerF.h"\
 	"..\..\include\IceE\Shared.h"\
 	"..\..\include\IceE\StaticMutex.h"\
@@ -973,155 +979,155 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\UndefSysMacros.h"\
 	"..\include\TestApplication.h"\
 	"..\include\TestCommon.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\IceE\BuiltinSequences.h"\
-	"..\..\include\IceE\FacetMap.h"\
-	"..\..\include\IceE\Identity.h"\
-	"..\..\include\IceE\LocatorF.h"\
-	"..\..\include\IceE\Logger.h"\
-	"..\..\include\IceE\LoggerF.h"\
-	"..\..\include\IceE\RouterF.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
 	
 
 !ELSEIF  "$(CFG)" == "testCommon - Win32 (WCE emulator) Release Static"
 
 DEP_CPP_TESTC=\
+	"..\..\include\IceE\BasicStream.h"\
+	"..\..\include\IceE\Buffer.h"\
+	"..\..\include\IceE\Communicator.h"\
+	"..\..\include\IceE\CommunicatorF.h"\
+	"..\..\include\IceE\Cond.h"\
+	"..\..\include\IceE\Config.h"\
+	"..\..\include\IceE\Connection.h"\
+	"..\..\include\IceE\ConnectionF.h"\
+	"..\..\include\IceE\Current.h"\
+	"..\..\include\IceE\DispatchStatus.h"\
+	"..\..\include\IceE\EndpointF.h"\
+	"..\..\include\IceE\Exception.h"\
+	"..\..\include\IceE\ExceptionBase.h"\
+	"..\..\include\IceE\Functional.h"\
+	"..\..\include\IceE\Handle.h"\
+	"..\..\include\IceE\IceE.h"\
+	"..\..\include\IceE\IdentityUtil.h"\
+	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\include\IceE\Initialize.h"\
+	"..\..\include\IceE\InstanceF.h"\
+	"..\..\include\IceE\LocalExceptions.h"\
+	"..\..\include\IceE\LocalObject.h"\
+	"..\..\include\IceE\LocalObjectF.h"\
+	"..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\include\IceE\Lock.h"\
+	"..\..\include\IceE\LoggerUtil.h"\
+	"..\..\include\IceE\Monitor.h"\
+	"..\..\include\IceE\Mutex.h"\
+	"..\..\include\IceE\Object.h"\
+	"..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\include\IceE\ObjectF.h"\
+	"..\..\include\IceE\OperationMode.h"\
+	"..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\include\IceE\Properties.h"\
+	"..\..\include\IceE\PropertiesF.h"\
+	"..\..\include\IceE\Proxy.h"\
+	"..\..\include\IceE\ProxyF.h"\
+	"..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\include\IceE\ProxyHandle.h"\
+	"..\..\include\IceE\RecMutex.h"\
+	"..\..\include\IceE\ReferenceF.h"\
+	"..\..\include\IceE\ServantManagerF.h"\
+	"..\..\include\IceE\Shared.h"\
+	"..\..\include\IceE\StaticMutex.h"\
+	"..\..\include\IceE\Thread.h"\
+	"..\..\include\IceE\ThreadException.h"\
+	"..\..\include\IceE\Time.h"\
+	"..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\include\IceE\TransceiverF.h"\
+	"..\..\include\IceE\UndefSysMacros.h"\
 	"..\include\TestApplication.h"\
 	"..\include\TestCommon.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
-	"..\..\include\Ice\BasicStream.h"\
-	"..\..\include\Ice\Buffer.h"\
-	"..\..\include\Ice\Communicator.h"\
-	"..\..\include\Ice\CommunicatorF.h"\
-	"..\..\include\Ice\Config.h"\
-	"..\..\include\Ice\Connection.h"\
-	"..\..\include\Ice\ConnectionF.h"\
-	"..\..\include\Ice\Current.h"\
-	"..\..\include\Ice\EndpointF.h"\
-	"..\..\include\Ice\Exception.h"\
-	"..\..\include\Ice\Functional.h"\
-	"..\..\include\Ice\Handle.h"\
-	"..\..\include\Ice\Ice.h"\
-	"..\..\include\Ice\IdentityUtil.h"\
-	"..\..\include\Ice\IncomingConnectionFactoryF.h"\
-	"..\..\include\Ice\Initialize.h"\
-	"..\..\include\Ice\InstanceF.h"\
-	"..\..\include\Ice\LocalObject.h"\
-	"..\..\include\Ice\LocalObjectF.h"\
-	"..\..\include\Ice\LoggerUtil.h"\
-	"..\..\include\Ice\Object.h"\
-	"..\..\include\Ice\ObjectF.h"\
-	"..\..\include\Ice\OutgoingConnectionFactoryF.h"\
-	"..\..\include\Ice\Proxy.h"\
-	"..\..\include\Ice\ProxyF.h"\
-	"..\..\include\Ice\ProxyFactoryF.h"\
-	"..\..\include\Ice\ProxyHandle.h"\
-	"..\..\include\Ice\ReferenceF.h"\
-	"..\..\include\Ice\ServantManagerF.h"\
-	"..\..\include\Ice\TraceLevelsF.h"\
-	"..\..\include\Ice\TransceiverF.h"\
-	"..\..\include\IceUtil\Cond.h"\
-	"..\..\include\IceUtil\Config.h"\
-	"..\..\include\IceUtil\Exception.h"\
-	"..\..\include\IceUtil\Functional.h"\
-	"..\..\include\IceUtil\Handle.h"\
-	"..\..\include\IceUtil\Lock.h"\
-	"..\..\include\IceUtil\Monitor.h"\
-	"..\..\include\IceUtil\Mutex.h"\
-	"..\..\include\IceUtil\RecMutex.h"\
-	"..\..\include\IceUtil\Shared.h"\
-	"..\..\include\IceUtil\StaticMutex.h"\
-	"..\..\include\IceUtil\Thread.h"\
-	"..\..\include\IceUtil\ThreadException.h"\
-	"..\..\include\IceUtil\Time.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_evc.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl\_stlport_version.h"\
-	".\tl_user_config.h"\
 	
 
 !ENDIF 
