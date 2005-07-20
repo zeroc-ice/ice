@@ -133,7 +133,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                     $(OutDir)\iceec.lib                                     ..\..\lib\ 
+PostBuild_Cmds=copy                                      $(OutDir)\iceec.lib                                      ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "icec - Win32 Debug Static"
@@ -166,7 +166,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                    $(OutDir)\iceecd.lib                                    ..\..\lib\ 
+PostBuild_Cmds=copy                                     $(OutDir)\iceecd.lib                                     ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
@@ -318,7 +318,7 @@ SOURCE=..\IceE\ReferenceFactory.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\IceE\Router.cpp
+SOURCE=.\Router.cpp
 # End Source File
 # Begin Source File
 
@@ -1223,6 +1223,136 @@ InputPath=..\..\slice\IceE\LoggerF.ice
 	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\IceE\Router.ice
+
+!IF  "$(CFG)" == "icec - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\IceE\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
+	move Router.h ..\..\include\icee \
+	
+
+"..\..\include\icee\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "icec - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\IceE\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
+	move Router.h ..\..\include\icee \
+	
+
+"..\..\include\icee\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "icec - Win32 Release Static"
+
+# Begin Custom Build
+InputPath=..\..\slice\IceE\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
+	move Router.h ..\..\include\icee \
+	
+
+"..\..\include\icee\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "icec - Win32 Debug Static"
+
+# Begin Custom Build
+InputPath=..\..\slice\IceE\Router.ice
+
+BuildCmds= \
+	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
+	move Router.h ..\..\include\icee \
+	
+
+"..\..\include\icee\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\IceE\RouterF.ice
+
+!IF  "$(CFG)" == "icec - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\IceE\RouterF.ice
+
+"..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
+	move RouterF.h ..\..\include\icee 
+	del RouterF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "icec - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\IceE\RouterF.ice
+
+"..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
+	move RouterF.h ..\..\include\icee 
+	del RouterF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "icec - Win32 Release Static"
+
+# Begin Custom Build
+InputPath=..\..\slice\IceE\RouterF.ice
+
+"..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
+	move RouterF.h ..\..\include\icee 
+	del RouterF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "icec - Win32 Debug Static"
+
+# Begin Custom Build
+InputPath=..\..\slice\IceE\RouterF.ice
+
+"..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
+	move RouterF.h ..\..\include\icee 
+	del RouterF.cpp 
 	
 # End Custom Build
 
