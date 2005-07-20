@@ -236,7 +236,7 @@ static const char* _coreTypes =
     "    function ice_postUnmarshal();\n"
     "}\n"
     "\n"
-    "class Ice_ObjectImpl implements Ice_Object\n"
+    "abstract class Ice_ObjectImpl implements Ice_Object\n"
     "{\n"
     "    function ice_preMarshal()\n"
     "    {\n"
@@ -1059,8 +1059,7 @@ IcePHP::CodeVisitor::visitConst(const Slice::ConstPtr& p)
         case Slice::Builtin::KindLong:
         {
             IceUtil::Int64 l;
-            string::size_type pos;
-            IceUtil::stringToInt64(value, l, pos);
+            IceUtil::stringToInt64(value, l);
             //
             // The platform's 'long' type may not be 64 bits, so we store 64-bit
             // values as a string.
