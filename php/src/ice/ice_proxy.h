@@ -19,6 +19,8 @@ extern "C"
 {
 ZEND_FUNCTION(Ice_ObjectPrx___construct);
 ZEND_FUNCTION(Ice_ObjectPrx___tostring);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_communicator);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_toString);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_isA);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_ping);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_id);
@@ -50,6 +52,8 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast);
 #define ICE_PHP_PROXY_FUNCTIONS \
     ZEND_FE(Ice_ObjectPrx___construct,           NULL) \
     ZEND_FE(Ice_ObjectPrx___tostring,            NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_communicator,      NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_toString,          NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_isA,               NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_ping,              NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_id,                NULL) \

@@ -143,6 +143,8 @@ static function_entry _methods[] =
 {
     {"__construct",         PHP_FN(Ice_ObjectPrx___construct),         NULL},
     {"__tostring",          PHP_FN(Ice_ObjectPrx___tostring),          NULL},
+    {"ice_communicator",    PHP_FN(Ice_ObjectPrx_ice_communicator),    NULL},
+    {"ice_toString",        PHP_FN(Ice_ObjectPrx_ice_toString),        NULL},
     {"ice_isA",             PHP_FN(Ice_ObjectPrx_ice_isA),             NULL},
     {"ice_ping",            PHP_FN(Ice_ObjectPrx_ice_ping),            NULL},
     {"ice_id",              PHP_FN(Ice_ObjectPrx_ice_id),              NULL},
@@ -263,6 +265,20 @@ ZEND_FUNCTION(Ice_ObjectPrx___tostring)
         throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_communicator)
+{
+    zval* zc = getCommunicatorZval(TSRMLS_C);
+
+    Z_TYPE_P(return_value) = IS_OBJECT;
+    return_value->value.obj = zc->value.obj;
+    Z_OBJ_HT_P(return_value)->add_ref(return_value TSRMLS_CC);
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_toString)
+{
+    ZEND_FN(Ice_ObjectPrx___tostring)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }
 
 ZEND_FUNCTION(Ice_ObjectPrx_ice_isA)
