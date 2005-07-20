@@ -135,6 +135,7 @@ import Ice_ServantLocator_ice
 class CommunicatorI(Communicator):
     def __init__(self, impl):
         self._impl = impl
+	impl._setWrapper(self)
 
     def destroy(self):
         self._impl.destroy()
@@ -241,7 +242,7 @@ class ObjectAdapterI(ObjectAdapter):
 
     def getCommunicator(self):
         communicator = self._impl.getCommunicator()
-        return CommunicatorI(communicator)
+        return communicator._getWrapper()
 
     def activate(self):
         self._impl.activate()

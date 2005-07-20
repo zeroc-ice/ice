@@ -23,6 +23,7 @@ bool initCommunicator(PyObject*);
 Ice::CommunicatorPtr getCommunicator(PyObject*);
 
 PyObject* createCommunicator(const Ice::CommunicatorPtr&);
+PyObject* getCommunicatorWrapper(const Ice::CommunicatorPtr&);
 
 }
 

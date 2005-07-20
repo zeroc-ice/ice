@@ -7,7 +7,7 @@ ObjectAdapter.o: ObjectAdapter.cpp ObjectAdapter.h Config.h Communicator.h Curre
 ObjectFactory.o: ObjectFactory.cpp ObjectFactory.h Config.h Types.h Util.h
 Operation.o: Operation.cpp Operation.h Config.h Current.h Proxy.h Types.h Util.h
 Properties.o: Properties.cpp Properties.h Config.h Util.h
-Proxy.o: Proxy.cpp Proxy.h Config.h Connection.h Util.h
+Proxy.o: Proxy.cpp Proxy.h Config.h Communicator.h Connection.h Util.h
 Slice.o: Slice.cpp Slice.h Config.h Util.h
 Types.o: Types.cpp Types.h Config.h Util.h Current.h Proxy.h
 Util.o: Util.cpp Util.h Config.h

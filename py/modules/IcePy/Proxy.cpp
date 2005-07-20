@@ -12,6 +12,7 @@
 #endif
 #include <Proxy.h>
 #include <structmember.h>
+#include <Communicator.h>
 #include <Connection.h>
 #include <Util.h>
 #include <Ice/Communicator.h>
@@ -111,16 +112,14 @@ proxyRepr(ProxyObject* self)
     return PyString_FromString(const_cast<char*>(str.c_str()));
 }
 
-#if 0
 #ifdef WIN32
 extern "C"
 #endif
 static PyObject*
 proxyIceCommunicator(ProxyObject* self)
 {
-    return;
+    return getCommunicatorWrapper(*self->communicator);
 }
-#endif
 
 #ifdef WIN32
 extern "C"
@@ -1184,10 +1183,8 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
 
 static PyMethodDef ProxyMethods[] =
 {
-#if 0
     { STRCAST("ice_communicator"), (PyCFunction)proxyIceCommunicator, METH_NOARGS,
-        PyDoc_STR(STRCAST("ice_communicator() -> Ice.CommunicatorPrx")) },
-#endif
+        PyDoc_STR(STRCAST("ice_communicator() -> Ice.Communicator")) },
     { STRCAST("ice_toString"), (PyCFunction)proxyRepr, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_toString() -> string")) },
     { STRCAST("ice_isA"), (PyCFunction)proxyIceIsA, METH_VARARGS,

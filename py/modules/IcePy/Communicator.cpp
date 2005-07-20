@@ -32,6 +32,9 @@ using namespace IcePy;
 
 static long _mainThreadId;
 
+typedef map<Ice::CommunicatorPtr, PyObject*> CommunicatorMap;
+static CommunicatorMap _communicatorMap;
+
 namespace IcePy
 {
 
@@ -44,6 +47,7 @@ struct CommunicatorObject
 {
     PyObject_HEAD
     Ice::CommunicatorPtr* communicator;
+    PyObject* wrapper;
     IceUtil::Monitor<IceUtil::Mutex>* shutdownMonitor;
     WaitForShutdownThreadPtr* shutdownThread;
     bool shutdown;
@@ -63,6 +67,7 @@ communicatorNew(PyObject* /*arg*/)
         return NULL;
     }
     self->communicator = 0;
+    self->wrapper = 0;
     self->shutdownMonitor = new IceUtil::Monitor<IceUtil::Mutex>;
     self->shutdownThread = 0;
     self->shutdown = false;
@@ -132,6 +137,13 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     ObjectFactoryPtr factory = new ObjectFactory;
     (*self->communicator)->addObjectFactory(factory, "");
 
+    CommunicatorMap::iterator p = _communicatorMap.find(communicator);
+    if(p != _communicatorMap.end())
+    {
+	_communicatorMap.erase(p);
+    }
+    _communicatorMap.insert(CommunicatorMap::value_type(communicator, (PyObject*)self));
+
     return 0;
 }
 
@@ -141,11 +153,16 @@ extern "C"
 static void
 communicatorDealloc(CommunicatorObject* self)
 {
+    CommunicatorMap::iterator p = _communicatorMap.find(*self->communicator);
+    assert(p != _communicatorMap.end());
+    _communicatorMap.erase(p);
+
     if(self->shutdownThread)
     {
         (*self->shutdownThread)->getThreadControl().join();
     }
     delete self->communicator;
+    Py_XDECREF(self->wrapper);
     delete self->shutdownMonitor;
     delete self->shutdownThread;
     PyObject_Del(self);
@@ -354,6 +371,36 @@ communicatorFlushBatchRequests(CommunicatorObject* self)
 
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorSetWrapper(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* wrapper;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &wrapper))
+    {
+        return NULL;
+    }
+
+    assert(self->wrapper == NULL);
+    self->wrapper = wrapper;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorGetWrapper(CommunicatorObject* self)
+{
+    assert(self->wrapper != NULL);
+    Py_INCREF(self->wrapper);
+    return self->wrapper;
 }
 
 #ifdef WIN32
@@ -823,6 +870,10 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("setDefaultLocator(proxy) -> None")) },
     { STRCAST("flushBatchRequests"), (PyCFunction)communicatorFlushBatchRequests, METH_NOARGS,
         PyDoc_STR(STRCAST("flushBatchRequests() -> None")) },
+    { STRCAST("_setWrapper"), (PyCFunction)communicatorSetWrapper, METH_VARARGS,
+        PyDoc_STR(STRCAST("internal function")) },
+    { STRCAST("_getWrapper"), (PyCFunction)communicatorGetWrapper, METH_NOARGS,
+        PyDoc_STR(STRCAST("internal function")) },
     { NULL, NULL} /* sentinel */
 };
 
@@ -907,12 +958,29 @@ IcePy::getCommunicator(PyObject* obj)
 PyObject*
 IcePy::createCommunicator(const Ice::CommunicatorPtr& communicator)
 {
+    CommunicatorMap::iterator p = _communicatorMap.find(communicator);
+    if(p != _communicatorMap.end())
+    {
+	Py_INCREF(p->second);
+	return p->second;
+    }
+
     CommunicatorObject* obj = communicatorNew(NULL);
     if(obj != NULL)
     {
         obj->communicator = new Ice::CommunicatorPtr(communicator);
     }
     return (PyObject*)obj;
+}
+
+PyObject*
+IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
+{
+    CommunicatorMap::iterator p = _communicatorMap.find(communicator);
+    assert(p != _communicatorMap.end());
+    CommunicatorObject* obj = (CommunicatorObject*)p->second;
+    Py_INCREF(obj->wrapper);
+    return obj->wrapper;
 }
 
 extern "C"
