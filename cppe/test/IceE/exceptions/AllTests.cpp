@@ -389,24 +389,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
     
     tprintf("catching facet not exist exception...");
 
+    ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower, "no such facet");
     try
     {
-	ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower, "no such facet");
-	try
-	{
-	    thrower2->ice_ping();
-	    test(false);
-	}
-	catch(const Ice::FacetNotExistException& ex)
-	{
-	    test(ex.facet == "no such facet");
-	}
-    }
-    catch(...)
-    {
+	thrower2->ice_ping();
 	test(false);
     }
-
+    catch(const Ice::FacetNotExistException& ex)
+    {
+	test(ex.facet == "no such facet");
+    }
     tprintf("ok\n");
     
     tprintf("catching operation not exist exception...");
