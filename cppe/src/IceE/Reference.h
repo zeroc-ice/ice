@@ -13,6 +13,7 @@
 #include <IceE/ReferenceF.h>
 #include <IceE/EndpointF.h>
 #include <IceE/InstanceF.h>
+#include <IceE/CommunicatorF.h>
 #ifdef ICEE_HAS_ROUTER
 #  include <IceE/RouterInfoF.h>
 #  include <IceE/RouterF.h>
