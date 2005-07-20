@@ -13,6 +13,10 @@ public interface ObjectPrx
 {
     int ice_hash();
 
+    Communicator ice_communicator();
+
+    String ice_toString();
+
     boolean ice_isA(String __id);
     boolean ice_isA(String __id, java.util.Map __context);
 

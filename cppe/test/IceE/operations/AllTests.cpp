@@ -23,6 +23,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(base);
     tprintf("ok\n");
 
+    tprintf("testing ice_communicator... ");
+    test(base->ice_communicator().get() == communicator.get());
+    tprintf("ok\n");
+
     tprintf("testing checked cast... ");
     Test::MyClassPrx cl = Test::MyClassPrx::checkedCast(base);
     test(cl);

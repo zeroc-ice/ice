@@ -23,6 +23,10 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(base);
     cout << "ok" << endl;
 
+    cout << "testing ice_communicator... " << flush;
+    test(base->ice_communicator() == communicator);
+    cout << "ok" << endl;
+
     cout << "testing checked cast... " << flush;
     Test::MyClassPrx cl = Test::MyClassPrx::checkedCast(base);
     test(cl);

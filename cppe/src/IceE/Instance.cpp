@@ -60,6 +60,12 @@ extern bool ICEE_API nullHandleAbort;
 void IceInternal::incRef(Instance* p) { p->__incRef(); }
 void IceInternal::decRef(Instance* p) { p->__decRef(); }
 
+CommunicatorPtr
+IceInternal::Instance::communicator() const
+{
+    return _communicator;
+}
+
 PropertiesPtr
 IceInternal::Instance::properties() const
 {
@@ -266,6 +272,7 @@ IceInternal::Instance::getDefaultContext() const
 }
 
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
+    _communicator(communicator.get()),
     _destroyed(false),
     _properties(properties),
     _messageSizeMax(0),

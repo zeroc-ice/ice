@@ -23,6 +23,21 @@ public class ObjectPrxHelperBase implements ObjectPrx
         return _reference.hashCode();
     }
 
+    public final Communicator ice_communicator()
+    {
+        return _reference.getCommunicator();
+    }
+
+    public final String toString()
+    {
+        return _reference.toString();
+    }
+
+    public final String ice_toString()
+    {
+        return toString();
+    }
+
     public final boolean
     ice_isA(String __id)
     {

@@ -11,6 +11,11 @@ package IceInternal;
 
 public final class Instance
 {
+    public Ice.Communicator communicator()
+    {
+        return _communicator;
+    }
+
     public Ice.Properties
     properties()
     {
@@ -298,6 +303,7 @@ public final class Instance
     public
     Instance(Ice.Communicator communicator, Ice.Properties properties)
     {
+        _communicator = communicator;
         _destroyed = false;
         _properties = properties;
 
@@ -685,6 +691,7 @@ public final class Instance
         }
     }
 
+    private Ice.Communicator _communicator;
     private boolean _destroyed;
     private final Ice.Properties _properties; // Immutable, not reset by destroy().
     private Ice.Logger _logger; // Not reset by destroy().

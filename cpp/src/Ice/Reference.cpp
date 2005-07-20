@@ -51,6 +51,12 @@ IceInternal::Reference::defaultContext() const
     return r;
 }
 
+CommunicatorPtr
+IceInternal::Reference::getCommunicator() const
+{
+    return _instance->communicator();
+}
+
 ReferencePtr
 IceInternal::Reference::changeContext(const Context& newContext) const
 {

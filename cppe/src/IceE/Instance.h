@@ -42,6 +42,7 @@ class Instance : public IceUtil::Shared, public IceUtil::RecMutex
 {
 public:
 
+    Ice::CommunicatorPtr communicator() const;
     Ice::PropertiesPtr properties() const;
     Ice::LoggerPtr logger() const;
     void logger(const Ice::LoggerPtr&);
@@ -78,6 +79,7 @@ private:
     void destroy();
     friend class Ice::Communicator;
 
+    Ice::Communicator* _communicator; // Not a Ptr, to avoid having Instance and CommunicatorI point at each other.
     bool _destroyed;
     const Ice::PropertiesPtr _properties; // Immutable, not reset by destroy().
     Ice::LoggerPtr _logger; // Not reset by destroy().

@@ -62,6 +62,10 @@ namespace IceInternal
 	    return r;
 	}
 
+	public Ice.Communicator getCommunicator()
+	{
+	    return _instance.communicator();
+	}
 	public abstract bool getSecure();
 	public abstract Endpoint[] getEndpoints();
 	public abstract bool getCollocationOptimization();

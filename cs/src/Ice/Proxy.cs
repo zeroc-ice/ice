@@ -18,6 +18,10 @@ namespace Ice
     {
         int ice_hash();
 
+	Communicator ice_communicator();
+
+	string ice_toString();
+
         bool ice_isA(string __id);
         bool ice_isA(string __id, Context __context);
 
@@ -82,6 +86,21 @@ namespace Ice
         {
             return _reference.GetHashCode();
         }
+
+        public Communicator ice_communicator()
+	{
+	    return _reference.getCommunicator();
+	}
+
+	public override string ToString()
+	{
+	    return _reference.ToString();
+	}
+
+	public string ice_toString()
+	{
+	    return ToString();
+	}
 
         public bool ice_isA(string __id)
         {

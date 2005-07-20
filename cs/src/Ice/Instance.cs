@@ -14,6 +14,11 @@ namespace IceInternal
 
     public sealed class Instance
     {
+	public Ice.Communicator communicator()
+	{
+	    return _communicator;
+	}
+
 	public Ice.Properties properties()
 	{
 	    // No mutex lock, immutable.
@@ -311,6 +316,7 @@ namespace IceInternal
 	//
 	public Instance(Ice.Communicator communicator, Ice.Properties properties)
 	{
+	    _communicator = communicator;
 	    _destroyed = false;
 	    _properties = properties;
 	        
@@ -658,6 +664,7 @@ namespace IceInternal
 	    }
 	}
 	
+	private Ice.Communicator _communicator;
 	private bool _destroyed;
 	private Ice.Properties _properties; // Immutable, not reset by destroy().
 	private Ice.Logger _logger; // Not reset by destroy().

@@ -50,6 +50,8 @@ public:
 
     ReferencePtr defaultContext() const;
 
+    Ice::CommunicatorPtr getCommunicator() const;
+
     virtual bool getSecure() const = 0;
     virtual std::vector<EndpointPtr> getEndpoints() const = 0;
     virtual bool getCollocationOptimization() const = 0;

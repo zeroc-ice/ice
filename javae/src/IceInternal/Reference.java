@@ -60,6 +60,11 @@ public abstract class Reference
 
     }
 
+    public final Ice.Communicator getCommunicator()
+    {
+        return _instance.communicator();
+    }
+
     public abstract Endpoint[] getEndpoints();
 
     //

@@ -62,6 +62,11 @@ public abstract class Reference implements Cloneable
 
     }
 
+    public final Ice.Communicator getCommunicator()
+    {
+        return _instance.communicator();
+    }
+
     public abstract boolean getSecure();
     public abstract Endpoint[] getEndpoints();
     public abstract boolean getCollocationOptimization();

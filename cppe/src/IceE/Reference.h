@@ -53,6 +53,8 @@ public:
 
     ReferencePtr defaultContext() const;
 
+    Ice::CommunicatorPtr getCommunicator() const;
+
     virtual std::vector<EndpointPtr> getEndpoints() const = 0;
 
     //

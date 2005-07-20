@@ -28,6 +28,11 @@ public class AllTests
         test(base != null);
         System.out.println("ok");
 
+    	System.out.print("testing ice_communicator... ");
+	System.out.flush();
+	test(base.ice_communicator() == communicator);
+	System.out.println("ok");
+
         System.out.print("testing checked cast... ");
         System.out.flush();
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(base);

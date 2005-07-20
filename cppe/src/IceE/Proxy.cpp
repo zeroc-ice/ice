@@ -146,6 +146,18 @@ IceProxy::Ice::Object::ice_hash() const
     return _reference->hash();
 }
 
+CommunicatorPtr
+IceProxy::Ice::Object::ice_communicator() const
+{
+    return _reference->getCommunicator();
+}
+
+string
+IceProxy::Ice::Object::ice_toString() const
+{
+    return _reference->toString();
+}
+
 bool
 IceProxy::Ice::Object::ice_isA(const string& __id)
 {

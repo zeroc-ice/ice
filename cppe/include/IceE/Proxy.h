@@ -21,6 +21,7 @@
 #include <IceE/Mutex.h>
 #include <IceE/Identity.h>
 #include <IceE/OperationMode.h>
+#include <IceE/CommunicatorF.h>
 
 #ifdef ICEE_HAS_ROUTER
 
@@ -103,6 +104,10 @@ public:
     bool operator!=(const Object&) const;
     bool operator<(const Object&) const;
     ::Ice::Int ice_hash() const;
+
+    ::Ice::CommunicatorPtr ice_communicator() const;
+
+    ::std::string ice_toString() const;
 
     bool ice_isA(const ::std::string&);
     bool ice_isA(const ::std::string&, const ::Ice::Context&);
