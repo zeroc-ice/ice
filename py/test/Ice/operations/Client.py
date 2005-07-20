@@ -29,7 +29,7 @@ def test(b):
 def run(args, communicator):
     myClass = AllTests.allTests(communicator)
 
-    print "testing server shutdown... ",
+    print "testing server shutdown...",
     myClass.shutdown()
     try:
         myClass.opVoid()
