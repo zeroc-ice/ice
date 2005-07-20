@@ -340,7 +340,7 @@ Slice::Gen::generate(const UnitPtr& p)
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport, bool stream) :
-    H(h), C(c), _dllExport(dllExport), _stream(stream)
+    H(h), C(c), _dllExport(dllExport), _stream(stream), _doneStaticSymbol(false)
 {
 }
 
@@ -715,7 +715,16 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     if(!p->isLocal())
     {
-	H << sp << nl << "static " << name << " __" << p->name() << "_init;";
+	//
+	// We need an instance here to trigger initialization if the implementation is in a shared libarry.
+	// But we do this only once per source file, because a single instance is sufficient to initialize
+	// all of the globals in a shared library.
+	//
+	if(!_doneStaticSymbol)
+	{
+	    _doneStaticSymbol = true;
+	    H << sp << nl << "static " << name << " __" << p->name() << "_init;";
+	}
     }
 }
 
@@ -2191,7 +2200,7 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 }
 
 Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dllExport, bool stream) :
-    H(h), C(c), _dllExport(dllExport), _stream(stream)
+    H(h), C(c), _dllExport(dllExport), _stream(stream), _doneStaticSymbol(false)
 {
 }
 
@@ -2785,7 +2794,16 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(!p->isAbstract() && !p->isLocal())
     {
-	H << sp << nl << "static " << scoped << " __" << p->name() << "_init;";
+	//
+	// We need an instance here to trigger initialization if the implementation is in a shared libarry.
+	// But we do this only once per source file, because a single instance is sufficient to initialize
+	// all of the globals in a shared library.
+	//
+	if(!_doneStaticSymbol)
+	{
+	    _doneStaticSymbol = true;
+	    H << sp << nl << "static " << scoped << " __" << p->name() << "_init;";
+	}
     }
 
     if(p->isLocal())

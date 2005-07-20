@@ -84,6 +84,7 @@ private:
 	::IceUtil::Output& C;
 
 	std::string _dllExport;
+	bool _doneStaticSymbol;
     };
 
     class ProxyDeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor

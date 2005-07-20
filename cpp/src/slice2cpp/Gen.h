@@ -83,6 +83,7 @@ private:
 
 	std::string _dllExport;
         bool _stream;
+	bool _doneStaticSymbol;
     };
 
     class ProxyDeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
@@ -238,6 +239,7 @@ private:
 
 	std::string _dllExport;
         bool _stream;
+	bool _doneStaticSymbol;
     };
 
     class IceInternalVisitor : private ::IceUtil::noncopyable, public ParserVisitor
