@@ -1,6 +1,9 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Added ice_communicator() and ice_toString() to proxies. The return
+  value of ice_communicator() is always the value of $ICE.
+
 - Ice.ObjectImpl is now an abstract class that cannot be instantiated.
   This change should be transparent to application code.
 
