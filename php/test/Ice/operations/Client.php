@@ -405,6 +405,11 @@ function allTests()
     test($base != null);
     echo "ok\n";
 
+    echo "testing ice_communicator... ";
+    flush();
+    test($base->ice_communicator() === $ICE);
+    echo "ok\n";
+
     echo "testing checked cast... ";
     flush();
     $cl = $base->ice_checkedCast("::Test::MyClass");
