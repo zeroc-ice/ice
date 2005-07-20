@@ -744,6 +744,12 @@ IceProxy::Ice::Object::__checkTwowayOnly(const char* name) const
     }
 }
 
+ostream&
+operator<<(ostream& os, const ::IceProxy::Ice::Object& p)
+{
+    return os << p.ice_toString();
+}
+
 Handle< ::IceDelegate::Ice::Object>
 IceProxy::Ice::Object::__getDelegate()
 {

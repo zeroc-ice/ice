@@ -9,6 +9,13 @@ Changes since version 2.1.2
   to use than communicator->stringToProxy() because you do
   not need the communicator to stringify a proxy that way.
 
+  operator<< is overloaded for proxies and proxy handles, so you can
+  write:
+
+  Ice::ObjectPrx o = ...;
+  cout << o << endl;		// Print stringified proxy, empty string if o is null
+  cout << *o << endl;		// Print stringified proxy
+
 - IceUtil/Config.h no longer includes winsock.h under WIN32. Ice can
   now build with WIN32_LEAN_AND_MEAN.
 

@@ -12,6 +12,7 @@
 
 #include <IceUtil/Handle.h>
 #include <Ice/Config.h>
+#include <iosfwd>
 
 namespace IceInternal
 {
@@ -299,6 +300,12 @@ public:
     }
 };
 
+}
+
+template<class OStream, class Y>
+OStream& operator<<(OStream& os, ::IceInternal::ProxyHandle<Y> p)
+{
+    return os << (p ? p->ice_toString() : "");
 }
 
 #endif

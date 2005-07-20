@@ -25,6 +25,7 @@
 #include <Ice/Current.h>
 #include <Ice/StreamF.h>
 #include <Ice/CommunicatorF.h>
+#include <iosfwd>
 
 namespace IceProxy
 {
@@ -159,6 +160,8 @@ private:
 };
 
 } }
+
+ICE_API ::std::ostream& operator<<(::std::ostream&, const ::IceProxy::Ice::Object&);
 
 namespace IceDelegate { namespace Ice
 {
