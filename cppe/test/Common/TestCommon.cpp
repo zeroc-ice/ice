@@ -476,15 +476,18 @@ TestApplication::loadConfig(const PropertiesPtr& properties)
 TestApplication::TestApplication(const std::string& name)
     : _name(name)
 {
-#ifdef _WIN32_WCE
-    //_tprintfp = fopen(("log-" + _name + ".txt").c_str(), "w");
-#endif
 }
 
 void
 TestApplication::setCommunicator(const CommunicatorPtr& communicator)
 {
     _communicator = communicator;
+#ifdef _WIN32_WCE
+    if(communicator->getProperties()->getPropertyWithDefault("LogToFile", "0") != "0")
+    {
+	_tprintfp = fopen(("log-" + _name + ".txt").c_str(), "w");
+    }
+#endif
     _communicator->setLogger(new LoggerI);
 
 }
