@@ -511,8 +511,7 @@ IcePHP::PrimitiveMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Ob
         else
         {
             string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
-            string::size_type pos;
-            if(!IceUtil::stringToInt64(sval, val, pos))
+            if(!IceUtil::stringToInt64(sval, val))
             {
                 php_error_docref(NULL TSRMLS_CC, E_ERROR, "invalid long value `%s'", Z_STRVAL_P(zv));
                 return false;
