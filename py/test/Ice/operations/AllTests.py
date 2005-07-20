@@ -28,17 +28,17 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def allTests(communicator):
-    print "testing stringToProxy... ",
+    print "testing stringToProxy...",
     ref = "test:default -p 12345 -t 10000"
     base = communicator.stringToProxy(ref)
     test(base)
     print "ok"
 
-    #print "testing ice_communicator... ",
-    #test(base.ice_communicator() == communicator)
-    #print "ok"
+    print "testing ice_communicator...",
+    test(base.ice_communicator() == communicator)
+    print "ok"
 
-    print "testing checked cast... ",
+    print "testing checked cast...",
     cl = Test.MyClassPrx.checkedCast(base)
     test(cl)
 
@@ -63,13 +63,13 @@ def allTests(communicator):
 
     print "ok"
 
-    print "testing twoway operations... ",
+    print "testing twoway operations...",
     Twoways.twoways(cl)
     Twoways.twoways(derived)
     derived.opDerived()
     print "ok"
 
-    print "testing twoway operations with AMI... ",
+    print "testing twoway operations with AMI...",
     TwowaysAMI.twowaysAMI(cl)
     TwowaysAMI.twowaysAMI(derived)
     print "ok"
