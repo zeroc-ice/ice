@@ -767,7 +767,7 @@ Ice.Default.Host=<replaceable>host</replaceable>
 If an endpoint is specified without a host name (i.e., without a
 <literal>-h <replaceable>host</replaceable></literal> option), the
 <replaceable>host</replaceable> value from this property is used
-instead. The default value is the local host name.
+instead. The default value is the IP address of the local host name.
 </para>
 </section>
 </section>
