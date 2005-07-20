@@ -278,6 +278,10 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, bool& ca
     ObjectPrx object;
     cached = true;    
 
+    // COMPILERFIX: EVC 4.0 sp4 ARMv4 compiler messes up exception
+    // handling on occasion.
+    auto_ptr<LocalException> exception;
+
     try
     {
 	if(!ref->getAdapterId().empty())
@@ -336,14 +340,14 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, bool& ca
 	NotRegisteredException ex(__FILE__, __LINE__);
 	ex.kindOfObject = "object adapter";
 	ex.id = ref->getAdapterId();
-	throw ex;
+	exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
     }
     catch(const ObjectNotFoundException&)
     {
 	NotRegisteredException ex(__FILE__, __LINE__);
 	ex.kindOfObject = "object";
 	ex.id = identityToString(ref->getIdentity());
-	throw ex;
+	exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
     }
     catch(const NotRegisteredException&)
     {
@@ -366,6 +370,11 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, bool& ca
 	    out << "reason = " << ex.toString();
 	}
 	throw;
+    }
+
+    if(exception.get())
+    {
+	exception->ice_throw();
     }
     
     if(ref->getInstance()->traceLevels()->location >= 1 && !endpoints.empty())
