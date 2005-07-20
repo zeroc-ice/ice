@@ -49,8 +49,8 @@ public:
 
     OperationI(const char*, PyObject*, int, PyObject*, PyObject*, PyObject*, PyObject*);
 
-    virtual PyObject* invoke(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject*, PyObject*);
-    virtual PyObject* invokeAsync(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject*, PyObject*, PyObject*);
+    virtual PyObject* invoke(const Ice::ObjectPrx&, PyObject*, PyObject*);
+    virtual PyObject* invokeAsync(const Ice::ObjectPrx&, PyObject*, PyObject*, PyObject*);
 
     virtual void dispatch(PyObject*, const Ice::AMD_Object_ice_invokePtr&, const vector<Ice::Byte>&,
                           const Ice::Current&);
@@ -190,10 +190,9 @@ operationInvoke(OperationObject* self, PyObject* args)
     }
 
     Ice::ObjectPrx prx = getProxy(pyProxy);
-    Ice::CommunicatorPtr communicator = getProxyCommunicator(pyProxy);
 
     assert(self->op);
-    return (*self->op)->invoke(prx, communicator, opArgs, ctx);
+    return (*self->op)->invoke(prx, opArgs, ctx);
 }
 
 #ifdef WIN32
@@ -218,10 +217,9 @@ operationInvokeAsync(OperationObject* self, PyObject* args)
     }
 
     Ice::ObjectPrx prx = getProxy(pyProxy);
-    Ice::CommunicatorPtr communicator = getProxyCommunicator(pyProxy);
 
     assert(self->op);
-    return (*self->op)->invokeAsync(prx, communicator, cb, opArgs, ctx);
+    return (*self->op)->invokeAsync(prx, cb, opArgs, ctx);
 }
 
 #ifdef WIN32
@@ -449,9 +447,10 @@ IcePy::OperationI::OperationI(const char* name, PyObject* mode, int amd, PyObjec
 }
 
 PyObject*
-IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communicator, PyObject* args,
-                          PyObject* pyctx)
+IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, PyObject* args, PyObject* pyctx)
 {
+    Ice::CommunicatorPtr communicator = proxy->ice_communicator();
+
     //
     // Marshal the input parameters to a byte sequence.
     //
@@ -556,9 +555,10 @@ IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPt
 }
 
 PyObject*
-IcePy::OperationI::invokeAsync(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communicator,
-                               PyObject* callback, PyObject* args, PyObject* pyctx)
+IcePy::OperationI::invokeAsync(const Ice::ObjectPrx& proxy, PyObject* callback, PyObject* args, PyObject* pyctx)
 {
+    Ice::CommunicatorPtr communicator = proxy->ice_communicator();
+
     //
     // Marshal the input parameters to a byte sequence.
     //
@@ -726,16 +726,26 @@ IcePy::OperationI::responseAsync(PyObject* callback, bool ok, const vector<Ice::
     {
         if(ok)
         {
-            //
-            // Unmarshal the results.
-            //
-            PyObjectHandle args = unmarshalResults(results, communicator);
-            if(args.get() == NULL)
-            {
-                assert(PyErr_Occurred());
-                PyErr_Print();
-                return;
-            }
+	    //
+	    // Unmarshal the results.
+	    //
+	    PyObjectHandle args;
+	    try
+	    {
+		args = unmarshalResults(results, communicator);
+		if(args.get() == NULL)
+		{
+		    assert(PyErr_Occurred());
+		    PyErr_Print();
+		    return;
+		}
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+		PyObjectHandle h = convertException(ex);
+		responseAsyncException(callback, h.get());
+		return;
+	    }
 
             PyObjectHandle method = PyObject_GetAttrString(callback, STRCAST("ice_response"));
             if(method.get() == NULL)
@@ -768,7 +778,7 @@ IcePy::OperationI::responseAsync(PyObject* callback, bool ok, const vector<Ice::
     catch(const Ice::Exception& ex)
     {
         ostringstream ostr;
-        ostr << "Exception occurred during AMI response for operation `" << _name << "':" << ex;
+        ostr << "Exception raised by AMI callback for operation `" << _name << "':" << ex;
         string str = ostr.str();
         PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
     }
