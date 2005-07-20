@@ -19,7 +19,8 @@ TestIntfPrx
 allTests(const CommunicatorPtr& communicator)
 {
     printf("testing stringToProxy...");
-    ObjectPrx base = communicator->stringToProxy("test:default -p 12345 -t 10000");
+    string ref = communicator->getProperties()->getPropertyWithDefault("Test.Proxy", "test:default -p 12345 -t 10000");
+    ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     printf("ok\n");
 

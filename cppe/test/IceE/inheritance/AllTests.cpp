@@ -18,7 +18,8 @@ InitialPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     tprintf("testing stringToProxy...");
-    string ref = "initial:default -p 12345 -t 10000";
+    string ref = 
+        communicator->getProperties()->getPropertyWithDefault("Initial.Proxy", "initial:default -p 12345 -t 10000");
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     tprintf("ok\n");

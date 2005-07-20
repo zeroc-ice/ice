@@ -76,7 +76,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     adapter->deactivate();
 
     tprintf("testing stringToProxy...");
-    string ref = "d:default -p 12345 -t 10000";
+    string ref = communicator->getProperties()->getPropertyWithDefault("D.Proxy", "d:default -p 12345 -t 10000");
     Ice::ObjectPrx db = communicator->stringToProxy(ref);
     test(db);
     tprintf("ok\n");
