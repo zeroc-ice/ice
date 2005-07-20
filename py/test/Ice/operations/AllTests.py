@@ -34,6 +34,10 @@ def allTests(communicator):
     test(base)
     print "ok"
 
+    #print "testing ice_communicator... ",
+    #test(base.ice_communicator() == communicator)
+    #print "ok"
+
     print "testing checked cast... ",
     cl = Test.MyClassPrx.checkedCast(base)
     test(cl)

@@ -111,6 +111,17 @@ proxyRepr(ProxyObject* self)
     return PyString_FromString(const_cast<char*>(str.c_str()));
 }
 
+#if 0
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceCommunicator(ProxyObject* self)
+{
+    return;
+}
+#endif
+
 #ifdef WIN32
 extern "C"
 #endif
@@ -1173,6 +1184,12 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
 
 static PyMethodDef ProxyMethods[] =
 {
+#if 0
+    { STRCAST("ice_communicator"), (PyCFunction)proxyIceCommunicator, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_communicator() -> Ice.CommunicatorPrx")) },
+#endif
+    { STRCAST("ice_toString"), (PyCFunction)proxyRepr, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_toString() -> string")) },
     { STRCAST("ice_isA"), (PyCFunction)proxyIceIsA, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_isA(type, [ctx]) -> bool")) },
     { STRCAST("ice_ping"), (PyCFunction)proxyIcePing, METH_VARARGS,
