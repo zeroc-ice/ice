@@ -65,7 +65,7 @@
     </target>
 
     <!-- Write the descriptor files -->
-    <target name="server-midlet">
+    <target name="server-midlet" if="midp">
 	<length property="jarfile-length" file="./TestMIDlet.jar"/>
 	<manifest file="server.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
@@ -83,7 +83,7 @@
         </manifest>
     </target>
 
-    <target name="client-midlet">
+    <target name="client-midlet" if="midp">
 	<length property="jarfile-length" file="./TestMIDlet.jar"/>
 	<manifest file="client.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
@@ -101,7 +101,7 @@
         </manifest>
     </target>
 
-    <target name="colloc-midlet">
+    <target name="colloc-midlet" if="midp">
 	<length property="jarfile-length" file="./TestMIDlet.jar"/>
 	<manifest file="colloc.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
@@ -117,7 +117,7 @@
         </manifest>
     </target>
 
-    <target name="midlets" depends="midlet-jar, server-midlet, client-midlet, colloc-midlet" if="midp"/>
+    <target name="midlets" depends="midlet-jar, server-midlet, client-midlet, colloc-midlet"/>
 
     <target name="all" depends="compile,midlets"/>
 
@@ -126,8 +126,8 @@
 	<delete dir="${class.dir}"/>
 	<delete dir="./tmp"/>
 	<delete file="./TestMIDlet.jar"/>
-	<delete>
-	    <fileset includes="./*.jad"/>
+	<delete quiet="true">
+	    <fileset dir="." includes="*.jad"/>
 	</delete>
     </target>
 
