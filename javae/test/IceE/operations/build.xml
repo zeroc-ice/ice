@@ -50,6 +50,7 @@
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
         </manifest>
 
+	<copy file="./config" todir="./classes"/>
 	<jar destfile="./tmp/TestMIDlet.jar" manifest="./MANIFEST.MF" basedir="./classes"/>
 	<jar destfile="./tmp/TestMIDlet.jar" manifest="./MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
 	    update="true"/>
