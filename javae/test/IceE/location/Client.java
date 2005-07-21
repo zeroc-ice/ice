@@ -9,10 +9,10 @@
 
 public class Client
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public static int
+    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
-	AllTests.allTests(communicator);
+	AllTests.allTests(communicator, out);
         return 0;
     }
 
@@ -35,7 +35,7 @@ public class Client
 	    //
 	    properties.setProperty("Ice.RetryIntervals", "0 0");
             communicator = Ice.Util.initializeWithProperties(args, properties);
-            status = run(args, communicator);
+            status = run(args, communicator, System.out);
         }
         catch (Ice.LocalException ex)
         {

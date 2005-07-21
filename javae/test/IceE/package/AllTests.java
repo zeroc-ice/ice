@@ -19,25 +19,25 @@ public class AllTests
     }
 
     public static Test.InitialPrx
-    allTests(Ice.Communicator communicator)
+    allTests(Ice.Communicator communicator, java.io.PrintStream out)
     {
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
+        out.print("testing stringToProxy... ");
+        out.flush();
         String ref = "initial:default -p 12345 -t 10000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing checked cast... ");
-        System.out.flush();
+        out.print("testing checked cast... ");
+        out.flush();
         Test.InitialPrx initial = Test.InitialPrxHelper.checkedCast(base);
         test(initial != null);
         test(initial.equals(base));
-        System.out.println("ok");
+        out.println("ok");
 
         {
-            System.out.print("testing types without package... ");
-            System.out.flush();
+            out.print("testing types without package... ");
+            out.flush();
             try
             {
                 initial.throwTest1E2AsE1();
@@ -65,12 +65,12 @@ public class AllTests
             {
                 // Expected
             }
-            System.out.println("ok");
+            out.println("ok");
         }
 
         {
-            System.out.print("testing types with package... ");
-            System.out.flush();
+            out.print("testing types with package... ");
+            out.flush();
 
             {
                 try
@@ -153,7 +153,7 @@ public class AllTests
                 }
             }
 
-            System.out.println("ok");
+            out.println("ok");
         }
 
         return initial;

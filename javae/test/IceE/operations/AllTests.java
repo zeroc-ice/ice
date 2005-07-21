@@ -19,22 +19,22 @@ public class AllTests
     }
 
     public static Test.MyClassPrx
-    allTests(Ice.Communicator communicator)
+    allTests(Ice.Communicator communicator, java.io.PrintStream out)
     {
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
+        out.print("testing stringToProxy... ");
+        out.flush();
         String ref = "test:default -p 12345 -t 10000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        System.out.println("ok");
+        out.println("ok");
 
-    	System.out.print("testing ice_communicator... ");
-	System.out.flush();
+    	out.print("testing ice_communicator... ");
+	out.flush();
 	test(base.ice_communicator() == communicator);
-	System.out.println("ok");
+	out.println("ok");
 
-        System.out.print("testing checked cast... ");
-        System.out.flush();
+        out.print("testing checked cast... ");
+        out.flush();
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(base);
         test(cl != null);
         Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper.checkedCast(cl);
@@ -42,10 +42,10 @@ public class AllTests
         test(cl.equals(base));
         test(derived.equals(base));
         test(cl.equals(derived));
-        System.out.println("ok");
+        out.println("ok");
 
-	System.out.print("testing checked cast with context... ");
-	System.out.flush();
+	out.print("testing checked cast with context... ");
+	out.flush();
 	String cref = "test:default -p 12346 -t 10000";
 	Ice.ObjectPrx cbase = communicator.stringToProxy(cref);
 	test(cbase != null);
@@ -60,20 +60,20 @@ public class AllTests
 	tccp = Test.TestCheckedCastPrxHelper.checkedCast(cbase, c);
 	java.util.Hashtable c2 = tccp.getContext();
 	test(c.equals(c2));
-	System.out.println("ok");
+	out.println("ok");
 
-        System.out.print("testing twoway operations... ");
-        System.out.flush();
+        out.print("testing twoway operations... ");
+        out.flush();
         Twoways.twoways(communicator, cl);
         Twoways.twoways(communicator, derived);
         derived.opDerived();
-        System.out.println("ok");
+        out.println("ok");
 
-	System.out.print("testing batch oneway operations... ");
-	System.out.flush();
+	out.print("testing batch oneway operations... ");
+	out.flush();
 	BatchOneways.batchOneways(cl);
 	BatchOneways.batchOneways(derived);
-	System.out.println("ok");
+	out.println("ok");
 
         return cl;
     }

@@ -122,6 +122,10 @@
         <delete dir="${generated.dir}"/>
 	<delete dir="${class.dir}"/>
 	<delete dir="./tmp"/>
+	<delete file="./TestMIDlet.jar"/>
+	<delete>
+	    <fileset includes="./*.jad"/>
+	</delete>
     </target>
 
 </project>

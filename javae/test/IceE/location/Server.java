@@ -9,8 +9,8 @@
 
 public class Server
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public static int
+    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
 	//
 	// Register the server manager. The server manager creates a new
@@ -53,7 +53,7 @@ public class Server
         try
         {
             communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
+            status = run(args, communicator, System.out);
         }
         catch(Ice.LocalException ex)
         {

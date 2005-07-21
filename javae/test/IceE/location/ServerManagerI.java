@@ -15,7 +15,7 @@ public class ServerManagerI extends _ServerManagerDisp
     {
 	_adapter = adapter;
 	_registry = registry;
-	_communicators = new java.util.ArrayList();
+	_communicators = new java.util.Vector();
     }
 
     public void
@@ -32,7 +32,7 @@ public class ServerManagerI extends _ServerManagerDisp
 	// containing the adapter id instead of the endpoints.
 	//
 	Ice.Communicator serverCommunicator = Ice.Util.initialize(argv);
-	_communicators.add(serverCommunicator);
+	_communicators.addElement(serverCommunicator);
 	serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
 	serverCommunicator.getProperties().setProperty("TestAdapter.AdapterId", "TestAdapter");
 	Ice.ObjectAdapter adapter = serverCommunicator.createObjectAdapter("TestAdapter");
@@ -56,15 +56,15 @@ public class ServerManagerI extends _ServerManagerDisp
     public void
     shutdown(Ice.Current current)
     {
-        java.util.Iterator i = _communicators.iterator();
-	while(i.hasNext())
+        java.util.Enumeration e = _communicators.elements();
+	while(e.hasMoreElements())
 	{
-	    ((Ice.Communicator)i.next()).destroy();
+	    ((Ice.Communicator)e.nextElement()).destroy();
 	}
 	_adapter.getCommunicator().shutdown();
     }
 
     private Ice.ObjectAdapter _adapter;
     private ServerLocatorRegistry _registry;
-    private java.util.ArrayList _communicators;
+    private java.util.Vector _communicators;
 }

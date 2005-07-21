@@ -10,9 +10,9 @@
 public class Client
 {
     public static int
-    run(String[] args, Ice.Communicator communicator)
+    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
-        Test.MyClassPrx myClass = AllTests.allTests(communicator);
+        Test.MyClassPrx myClass = AllTests.allTests(communicator, out);
 
         System.out.print("testing server shutdown... ");
         System.out.flush();
@@ -49,7 +49,7 @@ public class Client
 	    properties.setProperty("Ice.MessageSizeMax", "100");
 
             communicator = Ice.Util.initialize(argsH);
-            status = run(argsH.value, communicator);
+            status = run(argsH.value, communicator, System.out);
         }
         catch(Ice.LocalException ex)
         {

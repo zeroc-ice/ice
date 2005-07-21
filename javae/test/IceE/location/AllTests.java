@@ -21,33 +21,33 @@ public class AllTests
     }
 
     public static void
-    allTests(Ice.Communicator communicator)
+    allTests(Ice.Communicator communicator, java.io.PrintStream out)
     {
 	ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
 	    communicator.stringToProxy("ServerManager :default -t 10000 -p 12345"));
 	test(manager != null);
 
-	System.out.print("testing stringToProxy... ");
-        System.out.flush();
+	out.print("testing stringToProxy... ");
+        out.flush();
 	Ice.ObjectPrx base = communicator.stringToProxy("test @ TestAdapter");
 	Ice.ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
 	Ice.ObjectPrx base3 = communicator.stringToProxy("test");
 	Ice.ObjectPrx base4 = communicator.stringToProxy("ServerManager");
 	Ice.ObjectPrx base5 = communicator.stringToProxy("test2");
-	System.out.println("ok");
+	out.println("ok");
 
 	//
 	// Start a server, get the port of the adapter it's listening on,
 	// and add it to the configuration so that the client can locate
 	// the TestAdapter adapter.
 	//
-	System.out.print("starting server... ");
-        System.out.flush();
+	out.print("starting server... ");
+        out.flush();
 	manager.startServer();
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("testing checked cast... ");
-        System.out.flush();
+	out.print("testing checked cast... ");
+        out.flush();
 	TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
 	test(obj != null);
 	TestIntfPrx obj2 = TestIntfPrxHelper.checkedCast(base2);
@@ -58,10 +58,10 @@ public class AllTests
 	test(obj4 != null);
 	TestIntfPrx obj5 = TestIntfPrxHelper.checkedCast(base5);
 	test(obj5 != null);
-	System.out.println("ok");
+	out.println("ok");
  
-	System.out.print("testing id@AdapterId indirect proxy... ");
-        System.out.flush();
+	out.print("testing id@AdapterId indirect proxy... ");
+        out.flush();
 	obj.shutdown();
 	manager.startServer();
 	try
@@ -72,10 +72,10 @@ public class AllTests
 	{
 	    test(false);
 	}
-	System.out.println("ok");    
+	out.println("ok");    
     
-	System.out.print("testing identity indirect proxy... ");
-        System.out.flush();
+	out.print("testing identity indirect proxy... ");
+        out.flush();
 	obj.shutdown();
 	manager.startServer();
 	try
@@ -150,10 +150,10 @@ public class AllTests
 	    test(false);
 	}
 
-	System.out.println("ok");    
+	out.println("ok");    
 
-	System.out.print("testing reference with unknown identity... ");
-	System.out.flush();
+	out.print("testing reference with unknown identity... ");
+	out.flush();
 	try
 	{
 	    base = communicator.stringToProxy("unknown/unknown");
@@ -165,10 +165,10 @@ public class AllTests
 	    test(ex.kindOfObject.equals("object"));
 	    test(ex.id.equals("unknown/unknown"));
 	}
-	System.out.println("ok");	
+	out.println("ok");	
 
-	System.out.print("testing reference with unknown adapter... ");
-	System.out.flush();
+	out.print("testing reference with unknown adapter... ");
+	out.flush();
 	try
 	{
 	    base = communicator.stringToProxy("test @ TestAdapterUnknown");
@@ -180,23 +180,23 @@ public class AllTests
 	    test(ex.kindOfObject.equals("object adapter"));
 	    test(ex.id.equals("TestAdapterUnknown"));
 	}
-	System.out.println("ok");	
+	out.println("ok");	
 
-	System.out.print("testing object reference from server... ");
-        System.out.flush();
+	out.print("testing object reference from server... ");
+        out.flush();
 	HelloPrx hello = obj.getHello();
 	hello.sayHello();
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("testing object reference from server after shutdown... ");
-        System.out.flush();
+	out.print("testing object reference from server after shutdown... ");
+        out.flush();
 	obj.shutdown();
 	manager.startServer();
 	hello.sayHello();
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("testing object migration...");
-	System.out.flush();
+	out.print("testing object migration...");
+	out.flush();
 	hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
 	obj.migrateHello();
 	hello.sayHello();
@@ -204,10 +204,10 @@ public class AllTests
 	hello.sayHello();
 	obj.migrateHello();
 	hello.sayHello();
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("testing whether server is gone... ");
-        System.out.flush();
+	out.print("testing whether server is gone... ");
+        out.flush();
 	obj.shutdown();
 	try
 	{
@@ -216,12 +216,12 @@ public class AllTests
 	}
         catch(Ice.LocalException ex)
         {
-            System.out.println("ok");
+            out.println("ok");
         }
 
-	System.out.print("shutdown server manager... ");
-        System.out.flush();
+	out.print("shutdown server manager... ");
+        out.flush();
 	manager.shutdown();
-	System.out.println("ok");
+	out.println("ok");
     }
 }

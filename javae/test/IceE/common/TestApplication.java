@@ -204,7 +204,6 @@ public class TestApplication
 	    if(runClient != null && runClient.length() != 0 &&
 		    (runClient.equalsIgnoreCase("yes") || runClient.equalsIgnoreCase("true")))
 	    {
-		System.err.println("found client indicator");
 		_client = new ClientWrapper(parseArgs(clientArgString));
 		_outList.addCommand(CMD_STARTCLIENT);
 	    }
@@ -338,7 +337,7 @@ public class TestApplication
     static final private javax.microedition.lcdui.Command CMD_EXIT =
         new javax.microedition.lcdui.Command("Exit", javax.microedition.lcdui.Command.EXIT, CMD_PRIORITY);
     static final private javax.microedition.lcdui.Command CMD_STARTCLIENT =
-        new javax.microedition.lcdui.Command("Client", javax.microedition.lcdui.Command.ITEM, CMD_PRIORITY);
+        new javax.microedition.lcdui.Command("Run", javax.microedition.lcdui.Command.ITEM, CMD_PRIORITY);
    
     private javax.microedition.lcdui.Display _display;
     // private javax.microedition.lcdui.Form _form;
