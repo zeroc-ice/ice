@@ -184,7 +184,6 @@ public class TestApplication
 	    if(_display == null)
 	    {
 		_display = javax.microedition.lcdui.Display.getDisplay(this);
-		// _form = new javax.microedition.lcdui.Form("Ice - Test driver");
 		_outList.addCommand(CMD_EXIT);
 		_outList.setCommandListener(this);
 	    }
@@ -340,7 +339,6 @@ public class TestApplication
         new javax.microedition.lcdui.Command("Run", javax.microedition.lcdui.Command.ITEM, CMD_PRIORITY);
    
     private javax.microedition.lcdui.Display _display;
-    // private javax.microedition.lcdui.Form _form;
 
     private ServerWrapper _server;
     private ClientWrapper _client;
