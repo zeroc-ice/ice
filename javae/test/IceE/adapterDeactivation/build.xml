@@ -35,11 +35,94 @@
 	    target="1.1"/>
     </target>
 
-    <target name="all" depends="compile"/>
+    <target name="midlet-jar" if="midp">
+	<ant dir="../common" target="compile"/>
+        <mkdir dir="./tmp"/>
+	<manifest file="MANIFEST.MF">
+	    <attribute name="Microedition-Configuration" value="CLDC-1.0"/>
+	    <attribute name="MIDlet-Name" value="Test Driver"/>
+            <attribute name="MIDlet-Vendor" value="ZeroC"/>
+            <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
+	    <attribute name="MIDlet-Version" value="1.0"/>
+	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
+        </manifest>
+
+	<jar destfile="./tmp/TestMIDlet.jar" manifest="./MANIFEST.MF" basedir="./classes"/>
+	<jar destfile="./tmp/TestMIDlet.jar" manifest="./MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
+	    update="true"/>
+	<jar destfile="./tmp/TestMIDlet.jar" manifest="./MANIFEST.MF" basedir="../common/classes" update="true">
+	    <exclude name="./Client.class,./Server.class,./Collocated.class"/>
+	</jar>
+
+        <exec executable="${WTK}/bin/preverify">
+           <arg line="-classpath ${WTKLIBS}"/>
+            <arg line="-d ."/>
+	    <arg line="./tmp/TestMIDlet.jar"/>
+        </exec>
+    </target>
+
+    <!-- Write the descriptor files -->
+    <target name="server-midlet">
+	<length property="jarfile-length" file="./TestMIDlet.jar"/>
+	<manifest file="server.jad">
+	    <attribute name="MIDlet-Version" value="1.0"/>
+            <attribute name="MIDlet-Vendor" value="ZeroC"/>
+	    <attribute name="MIDlet-Jar-URL" value="TestMIDlet.jar"/>
+	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
+	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
+	    <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
+	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
+	    <attribute name="MIDlet-Name" value="TestServer"/>
+	    <attribute name="runclient" value="false"/>
+	    <attribute name="runserver" value="true"/>
+	    <attribute name="MIDlet-Permissions" 
+		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
+        </manifest>
+    </target>
+
+    <target name="client-midlet">
+	<length property="jarfile-length" file="./TestMIDlet.jar"/>
+	<manifest file="client.jad">
+	    <attribute name="MIDlet-Version" value="1.0"/>
+            <attribute name="MIDlet-Vendor" value="ZeroC"/>
+	    <attribute name="MIDlet-Jar-URL" value="TestMIDlet.jar"/>
+	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
+	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
+	    <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
+	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
+	    <attribute name="MIDlet-Name" value="TestServer"/>
+	    <attribute name="runclient" value="true"/>
+	    <attribute name="runserver" value="false"/>
+	    <attribute name="MIDlet-Permissions" 
+		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
+        </manifest>
+    </target>
+
+    <target name="colloc-midlet">
+	<length property="jarfile-length" file="./TestMIDlet.jar"/>
+	<manifest file="colloc.jad">
+	    <attribute name="MIDlet-Version" value="1.0"/>
+            <attribute name="MIDlet-Vendor" value="ZeroC"/>
+	    <attribute name="MIDlet-Jar-URL" value="TestMIDlet.jar"/>
+	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
+	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
+	    <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
+	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
+	    <attribute name="MIDlet-Name" value="TestServer"/>
+	    <attribute name="autoexit" value="true"/>
+	    <attribute name="MIDlet-Permissions" 
+		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
+        </manifest>
+    </target>
+
+    <target name="midlets" depends="midlet-jar, server-midlet, client-midlet, colloc-midlet" if="midp"/>
+
+    <target name="all" depends="compile,midlets"/>
 
     <target name="clean">
         <delete dir="${generated.dir}"/>
-        <delete dir="${class.dir}"/>
+	<delete dir="${class.dir}"/>
+	<delete dir="./tmp"/>
     </target>
 
 </project>

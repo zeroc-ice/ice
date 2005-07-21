@@ -21,34 +21,35 @@ public class AllTests
     }
 
     public static TestIntfPrx
-    allTests(Ice.Communicator communicator)
+    allTests(Ice.Communicator communicator, java.io.PrintStream out)
     {
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
-        String ref = "test:default -p 12345 -t 10000";
+        out.print("testing stringToProxy... ");
+        out.flush();
+        String ref = communicator.getProperties().getPropertyWithDefault("Test.Proxy", 
+		"test:default -p 12345 -t 10000");
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing checked cast... ");
-        System.out.flush();
+        out.print("testing checked cast... ");
+        out.flush();
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
         test(obj != null);
         test(obj.equals(base));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("creating/activating/deactivating object adapter in one operation... ");
-        System.out.flush();
+        out.print("creating/activating/deactivating object adapter in one operation... ");
+        out.flush();
         obj._transient();
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("deactivating object adapter in the server... ");
-        System.out.flush();
+        out.print("deactivating object adapter in the server... ");
+        out.flush();
         obj.deactivate();
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing whether server is gone... ");
-        System.out.flush();
+        out.print("testing whether server is gone... ");
+        out.flush();
         try
         {
             obj.ice_ping();
@@ -56,7 +57,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
-            System.out.println("ok");
+            out.println("ok");
         }
 
         return obj;

@@ -20,10 +20,11 @@ public final class Network
         // to search the exception message for distinguishing phrases.
         //
 
-        String msg = ex.getMessage().toLowerCase();
+        String msg = ex.getMessage();
 
         if(msg != null)
         {
+	    msg = msg.toLowerCase();
             final String[] msgs =
             {
                 "connection reset by peer", // ECONNRESET
@@ -57,10 +58,11 @@ public final class Network
 	// TODO: Confirm actual message under MIDP
         //
 
-        String msg = ex.getMessage().toLowerCase();
+        String msg = ex.getMessage();
 
         if(msg != null)
         {
+	    msg = msg.toLowerCase();
             final String[] msgs =
             {
                 "connection refused" // ECONNREFUSED
@@ -108,10 +110,6 @@ public final class Network
     public static String
     getLocalHost(boolean numeric)
     {
-	//
-	// TODO: This isn't right. We should pull the address from SocketConnection.getLocalAddress(). The problem
-	// is that we don't have an accessible socket at this point.
-	//
 	String result = System.getProperty("microedition.hostname");
 	if(result == null)
 	{

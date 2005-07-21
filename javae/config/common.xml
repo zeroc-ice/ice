@@ -132,8 +132,8 @@
 
     <target name="set-bootclasspath" if="midp" depends="config-impl">
         <path id="bootclasspath">
-	    <pathelement path="c:/WTK22/lib/cldcapi11.jar"/>
-	    <pathelement path="c:/WTK22/lib/midpapi20.jar"/>
+	    <pathelement path="/opt/WTK2.2/lib/cldcapi11.jar"/>
+	    <pathelement path="/opt/WTK2.2/lib/midpapi20.jar"/>
 	</path>
     </target>
 

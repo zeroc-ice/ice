@@ -66,6 +66,7 @@ class TcpAcceptor implements Acceptor
 		timeout = 1;
 	    }
 	    incoming = (javax.microedition.io.SocketConnection)_connection.acceptAndOpen();
+	    _actualAddr = new InetSocketAddress(incoming.getLocalAddress(), _addr.getPort());
 	}
 	catch(java.io.InterruptedIOException ex)
 	{
@@ -92,10 +93,20 @@ class TcpAcceptor implements Acceptor
     public void
     connectToSelf()
     {
+	//
+	// Under MIDP, its possible we don't know what our actual address is if no incoming connections have been
+	// attempted. If that is the case, then we are left with attempting a connection to localhost. 
+	//
+	if(_actualAddr == null)
+	{
+	    _actualAddr = new InetSocketAddress("localhost", _addr.getPort());
+	}
+
 	try
 	{
 	    javax.microedition.io.Connection localConn =
-		javax.microedition.io.Connector.open("socket://" + _addr.getAddress() + ':' + _addr.getPort());
+		javax.microedition.io.Connector.open("socket://" + _actualAddr.getAddress() + ':' + 
+			_actualAddr.getPort());
 	    localConn.close();
 	}
 	catch(java.io.IOException ex)
@@ -205,4 +216,5 @@ class TcpAcceptor implements Acceptor
     private javax.microedition.io.ServerSocketConnection _connection;
     private int _backlog;
     private InetSocketAddress _addr;
+    private InetSocketAddress _actualAddr;
 }

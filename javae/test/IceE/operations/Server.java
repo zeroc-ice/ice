@@ -9,7 +9,7 @@
 
 public class Server
 {
-    private static int
+    public static int
     run(String[] args, Ice.Communicator communicator)
     {
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345");

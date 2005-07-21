@@ -1,0 +1,37 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="test_Ice_common" default="all" basedir=".">
+
+    <!-- set global properties for this build -->
+    <property name="top.dir" value="../../.."/>
+
+    <!-- Include common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+
+    <target name="init" depends="config-init"/>
+
+    <target name="compile" depends="init" if="midp">
+        <mkdir dir="${class.dir}"/>
+        <javac srcdir="." destdir="${class.dir}" debug="${debug}" target="1.1">
+           <bootclasspath refid="bootclasspath"/>  
+	   <classpath refid="ice.classpath"/>
+        </javac>
+    </target>
+
+    <target name="all" depends="compile"/>
+
+    <target name="clean">
+        <delete dir="${generated.dir}"/>
+        <delete dir="${class.dir}"/>
+    </target>
+
+</project>

@@ -9,10 +9,10 @@
 
 public class Client
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public static int
+    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
-        AllTests.allTests(communicator);
+        AllTests.allTests(communicator, out);
         return 0;
     }
 
@@ -25,7 +25,7 @@ public class Client
         try
         {
             communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
+            status = run(args, communicator, System.out);
         }
         catch(Ice.LocalException ex)
         {

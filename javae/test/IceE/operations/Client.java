@@ -9,7 +9,7 @@
 
 public class Client
 {
-    private static int
+    public static int
     run(String[] args, Ice.Communicator communicator)
     {
         Test.MyClassPrx myClass = AllTests.allTests(communicator);

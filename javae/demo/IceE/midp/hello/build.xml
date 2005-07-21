@@ -58,7 +58,7 @@
 	<jar destfile="./tmp/ClientMIDlet.jar" manifest="./MANIFEST.MF" excludes="ServerMIDlet*.class" basedir="./classes"/>
         <jar destfile="./tmp/ClientMIDlet.jar" basedir="${lib.dir}" excludes="IceE.jar" update="true"/>
         <exec executable="${WTK}/bin/preverify">
-           <arg line="-classpath ${WTKLIBS}"/>
+            <arg line="-classpath ${WTKLIBS}"/>
             <arg line="-d ."/>
 	    <arg line="./tmp/ClientMIDlet.jar"/>
         </exec>
