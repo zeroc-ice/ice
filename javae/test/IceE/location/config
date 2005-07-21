@@ -1,0 +1,2 @@
+Ice.Default.Locator = locator:default -p 12345
+Ice.RetryIntervals = 0 0
