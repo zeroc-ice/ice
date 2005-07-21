@@ -9,8 +9,8 @@
 
 public class Collocated
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public static int
+    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
@@ -23,7 +23,7 @@ public class Collocated
         adapter.addFacet(h, Ice.Util.stringToIdentity("d"), "facetGH");
 	adapter.activate();
  
-        AllTests.allTests(communicator);
+        AllTests.allTests(communicator, out);
 
         return 0;
     }
@@ -37,7 +37,7 @@ public class Collocated
         try
         {
             communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
+            status = run(args, communicator, System.out);
         }
         catch(Ice.LocalException ex)
         {

@@ -11,10 +11,10 @@ import Test.*;
 
 public class Client
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public static int
+    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
-        ThrowerPrx thrower = AllTests.allTests(communicator);
+        ThrowerPrx thrower = AllTests.allTests(communicator, out);
         thrower.shutdown();
         return 0;
     }
@@ -28,7 +28,7 @@ public class Client
         try
         {
             communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
+            status = run(args, communicator, System.out);
         }
         catch(Ice.LocalException ex)
         {

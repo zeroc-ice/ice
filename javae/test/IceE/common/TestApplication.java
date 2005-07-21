@@ -307,7 +307,7 @@ public class TestApplication
     public void
     message(String msg)
     {
-	_out.println("MSG:" + msg);
+	_out.println(msg);
     }
 
     void
@@ -325,6 +325,7 @@ public class TestApplication
 		message(ex.toString());
 	    }
 	}
+	message("Done!");
     }
     
     private javax.microedition.lcdui.List _outList =

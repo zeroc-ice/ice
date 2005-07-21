@@ -21,9 +21,9 @@ public class AllTests
     }
 
     public static GPrx
-    allTests(Ice.Communicator communicator)
+    allTests(Ice.Communicator communicator, java.io.PrintStream out)
     {
-        System.out.print("testing facet registration exceptions... ");
+        out.print("testing facet registration exceptions... ");
 	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
 	Ice.Object obj = new EmptyI();
         adapter.add(obj, Ice.Util.stringToIdentity("d"));
@@ -45,9 +45,9 @@ public class AllTests
 	catch(Ice.NotRegisteredException ex)
 	{
 	}
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing removeAllFacets... ");
+        out.print("testing removeAllFacets... ");
 	Ice.Object obj1 = new EmptyI();
 	Ice.Object obj2 = new EmptyI();
 	adapter.addFacet(obj1, Ice.Util.stringToIdentity("id1"), "f1");
@@ -56,7 +56,7 @@ public class AllTests
 	adapter.addFacet(obj1, Ice.Util.stringToIdentity("id2"), "f1");
 	adapter.addFacet(obj2, Ice.Util.stringToIdentity("id2"), "f2");
 	adapter.addFacet(obj3, Ice.Util.stringToIdentity("id2"), "");
-	java.util.Map fm = adapter.removeAllFacets(Ice.Util.stringToIdentity("id1"));
+	java.util.Hashtable fm = adapter.removeAllFacets(Ice.Util.stringToIdentity("id1"));
 	test(fm.size() == 2);
 	test(fm.get("f1") == obj1);
 	test(fm.get("f2") == obj2);
@@ -73,64 +73,64 @@ public class AllTests
 	test(fm.get("f1") == obj1);
 	test(fm.get("f2") == obj2);
 	test(fm.get("") == obj3);
-        System.out.println("ok");
+        out.println("ok");
 
         adapter.deactivate();
 
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
+        out.print("testing stringToProxy... ");
+        out.flush();
         String ref = "d:default -p 12345 -t 10000";
         Ice.ObjectPrx db = communicator.stringToProxy(ref);
         test(db != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing checked cast... ");
-        System.out.flush();
+        out.print("testing checked cast... ");
+        out.flush();
         DPrx d = DPrxHelper.checkedCast(db);
         test(d != null);
         test(d.equals(db));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing non-facets A, B, C, and D... ");
-        System.out.flush();
+        out.print("testing non-facets A, B, C, and D... ");
+        out.flush();
         test(d.callA().equals("A"));
         test(d.callB().equals("B"));
         test(d.callC().equals("C"));
         test(d.callD().equals("D"));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing facets A, B, C, and D... ");
-        System.out.flush();
+        out.print("testing facets A, B, C, and D... ");
+        out.flush();
         DPrx df = DPrxHelper.checkedCast(d, "facetABCD");
         test(df != null);
         test(df.callA().equals("A"));
         test(df.callB().equals("B"));
         test(df.callC().equals("C"));
         test(df.callD().equals("D"));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing facets E and F... ");
-        System.out.flush();
+        out.print("testing facets E and F... ");
+        out.flush();
         FPrx ff = FPrxHelper.checkedCast(d, "facetEF");
         test(ff != null);
         test(ff.callE().equals("E"));
         test(ff.callF().equals("F"));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing facet G... ");
-        System.out.flush();
+        out.print("testing facet G... ");
+        out.flush();
         GPrx gf = GPrxHelper.checkedCast(ff, "facetGH");
         test(gf != null);
         test(gf.callG().equals("G"));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing whether casting preserves the facet... ");
-        System.out.flush();
+        out.print("testing whether casting preserves the facet... ");
+        out.flush();
         HPrx hf = HPrxHelper.checkedCast(gf);
         test(hf != null);
         test(hf.callG().equals("G"));
         test(hf.callH().equals("H"));
-        System.out.println("ok");
+        out.println("ok");
 
         return gf;
     }

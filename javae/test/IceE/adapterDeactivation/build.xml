@@ -109,7 +109,6 @@
 	    <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
 	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
 	    <attribute name="MIDlet-Name" value="TestServer"/>
-	    <attribute name="autoexit" value="true"/>
 	    <attribute name="MIDlet-Permissions" 
 		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
         </manifest>

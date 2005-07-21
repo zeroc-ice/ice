@@ -9,8 +9,8 @@
 
 public class Collocated
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public static int
+    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
 	//
 	// For this test, we need a dummy logger, otherwise the
@@ -24,7 +24,7 @@ public class Collocated
         adapter.add(object, Ice.Util.stringToIdentity("thrower"));
 	adapter.activate();
 
-        AllTests.allTests(communicator);
+        AllTests.allTests(communicator, out);
 
         return 0;
     }
@@ -38,7 +38,7 @@ public class Collocated
         try
         {
             communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
+            status = run(args, communicator, System.out);
         }
         catch(Ice.LocalException ex)
         {

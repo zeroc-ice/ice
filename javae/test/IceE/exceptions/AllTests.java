@@ -63,10 +63,10 @@ public class AllTests
     }
 
     public static ThrowerPrx
-    allTests(Ice.Communicator communicator)
+    allTests(Ice.Communicator communicator, java.io.PrintStream out)
     {
         {
-	    System.out.print("testing servant registration exceptions... ");
+	    out.print("testing servant registration exceptions... ");
 	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
 	    Ice.Object obj = new EmptyI();
 	    adapter.add(obj, Ice.Util.stringToIdentity("x"));
@@ -89,25 +89,25 @@ public class AllTests
 	    {
 	    }
 	    adapter.deactivate();
-	    System.out.println("ok");
+	    out.println("ok");
 	}
 
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
+        out.print("testing stringToProxy... ");
+        out.flush();
         String ref = "thrower:default -p 12345 -t 10000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing checked cast... ");
-        System.out.flush();
+        out.print("testing checked cast... ");
+        out.flush();
         ThrowerPrx thrower = ThrowerPrxHelper.checkedCast(base);
         test(thrower != null);
         test(thrower.equals(base));
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("catching exact types... ");
-        System.out.flush();
+        out.print("catching exact types... ");
+        out.flush();
 
         try
         {
@@ -182,10 +182,10 @@ public class AllTests
             test(false);
         }
 
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("catching base types... ");
-        System.out.flush();
+        out.print("catching base types... ");
+        out.flush();
 
         try
         {
@@ -216,10 +216,10 @@ public class AllTests
             test(false);
         }
 
-        System.out.println("ok");
+        out.println("ok");
 
-	System.out.print("catching derived types... ");
-	System.out.flush();
+	out.print("catching derived types... ");
+	out.flush();
 
         try
         {
@@ -268,12 +268,12 @@ public class AllTests
             test(false);
         }
 
-        System.out.println("ok");
+        out.println("ok");
 
 	if(thrower.supportsUndeclaredExceptions())
 	{
-	    System.out.print("catching unknown user exception... ");
-	    System.out.flush();
+	    out.print("catching unknown user exception... ");
+	    out.flush();
 	    
 	    try
 	    {
@@ -314,13 +314,13 @@ public class AllTests
 		test(false);
 	    }
 	    
-	    System.out.println("ok");
+	    out.println("ok");
 	}
 	
 	if(thrower.supportsAssertException())
 	{
-	    System.out.print("testing assert in the server... ");
-	    System.out.flush();
+	    out.print("testing assert in the server... ");
+	    out.flush();
 	    
 	    try
 	    {
@@ -335,11 +335,11 @@ public class AllTests
 		test(false);
 	    }
 	    
-	    System.out.println("ok");
+	    out.println("ok");
 	}
 
-	System.out.print("catching object not exist exception... ");
-	System.out.flush();
+	out.print("catching object not exist exception... ");
+	out.flush();
 
 	{
 	    Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
@@ -359,10 +359,10 @@ public class AllTests
 	    }
 	}
 
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("catching facet not exist exception... ");
-        System.out.flush();
+        out.print("catching facet not exist exception... ");
+        out.flush();
  
 	try
 	{
@@ -382,10 +382,10 @@ public class AllTests
             test(false);
         }
 
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("catching operation not exist exception... ");
-        System.out.flush();
+        out.print("catching operation not exist exception... ");
+        out.flush();
 
         try
         {
@@ -402,10 +402,10 @@ public class AllTests
             test(false);
         }
 
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("catching unknown local exception... ");
-        System.out.flush();
+        out.print("catching unknown local exception... ");
+        out.flush();
 
         try
         {
@@ -420,10 +420,10 @@ public class AllTests
             test(false);
         }
 
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("catching unknown non-Ice exception... ");
-        System.out.flush();
+        out.print("catching unknown non-Ice exception... ");
+        out.flush();
 
         try
         {
@@ -434,7 +434,7 @@ public class AllTests
         {
         }
 
-        System.out.println("ok");
+        out.println("ok");
 
         return thrower;
     }
