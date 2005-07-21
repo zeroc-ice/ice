@@ -5,7 +5,3 @@ Callback.Server.Endpoints=tcp -p 10000
 #Ice.Trace.Network=1
 #Ice.Trace.Protocol=1
 Ice.Warn.Connections=1
-
-# Active connection management must be disabled when using
-# bidirectional connections.
-Ice.ACM.Client=0
