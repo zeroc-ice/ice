@@ -715,9 +715,10 @@ IceDelegate::Ice::Object::ice_isA(const string& __id, const Context& __context)
     BasicStream* __os = __outS.os();
     __os->write(__id);
     bool __ret;
+    bool __ok = __outS.invoke();
     try
     {
-	if(!__outS.invoke())
+	if(!__ok)
 	{
 	    __is->throwException();
 	}
@@ -736,9 +737,10 @@ IceDelegate::Ice::Object::ice_ping(const Context& __context)
     static const string __operation("ice_ping");
     Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __outS.is();
+    bool __ok = __outS.invoke();
     try
     {
-	if(!__outS.invoke())
+	if(!__ok)
 	{
 	    __is->throwException();
 	}
@@ -756,9 +758,10 @@ IceDelegate::Ice::Object::ice_ids(const Context& __context)
     Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __outS.is();
     vector<string> __ret;
+    bool __ok = __outS.invoke();
     try
     {
-	if(!__outS.invoke())
+	if(!__ok)
 	{
 	    __is->throwException();
 	}
@@ -778,9 +781,10 @@ IceDelegate::Ice::Object::ice_id(const Context& __context)
     Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __outS.is();
     string __ret;
+    bool __ok = __outS.invoke();
     try
     {
-	if(!__outS.invoke())
+	if(!__ok)
 	{
 	    __is->throwException();
 	}
