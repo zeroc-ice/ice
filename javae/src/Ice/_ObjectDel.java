@@ -17,28 +17,36 @@ public class _ObjectDel
     {
         IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_isA", OperationMode.Nonmutating,
 							     __context);
-        try
-        {
-            IceInternal.BasicStream __is = __og.is();
-            IceInternal.BasicStream __os = __og.os();
-            __os.writeString(__id);
-            if(!__og.invoke())
-            {
-                throw new UnknownUserException();
-            }
-            try
-            {
-                return __is.readBool();
-            }
-            catch(LocalException __ex)
-            {
-                throw new IceInternal.NonRepeatable(__ex);
-            }
-        }
-        finally
-        {
-            __connection.reclaimOutgoing(__og);
-        }
+	try
+	{
+	    try
+	    {
+		IceInternal.BasicStream __os = __og.os();
+		__os.writeString(__id);
+	    }
+	    catch(Ice.LocalException __ex)
+	    {
+		__og.abort(__ex);
+	    }
+	    boolean __ok = __og.invoke();
+	    try
+	    {
+		IceInternal.BasicStream __is = __og.is();
+		if(!__ok)
+		{
+		    throw new UnknownUserException();
+		}
+		return __is.readBool();
+	    }
+	    catch(LocalException __ex)
+	    {
+		throw new IceInternal.NonRepeatable(__ex);
+	    }
+	}
+	finally
+	{
+	    __connection.reclaimOutgoing(__og);
+	}
     }
 
     public void
@@ -47,17 +55,25 @@ public class _ObjectDel
     {
         IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ping", OperationMode.Nonmutating,
 							     __context);
-        try
-        {
-            if(!__og.invoke())
-            {
-                throw new UnknownUserException();
-            }
-        }
-        finally
-        {
-            __connection.reclaimOutgoing(__og);
-        }
+	try
+	{
+	    boolean __ok = __og.invoke();
+	    try
+	    {
+		if(!__ok)
+		{
+		    throw new UnknownUserException();
+		}
+	    }
+	    catch(LocalException __ex)
+	    {
+		throw new IceInternal.NonRepeatable(__ex);
+	    }
+	}
+	finally
+	{
+	    __connection.reclaimOutgoing(__og);
+	}
     }
 
     public String[]
@@ -66,26 +82,27 @@ public class _ObjectDel
     {
         IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ids", OperationMode.Nonmutating,
 							     __context);
-        try
-        {
-            IceInternal.BasicStream __is = __og.is();
-            if(!__og.invoke())
-            {
-                throw new UnknownUserException();
-            }
-            try
-            {
-                return __is.readStringSeq();
-            }
-            catch(LocalException __ex)
-            {
-                throw new IceInternal.NonRepeatable(__ex);
-            }
-        }
-        finally
-        {
-            __connection.reclaimOutgoing(__og);
-        }
+	try
+	{
+	    boolean __ok = __og.invoke();
+	    try
+	    {
+		IceInternal.BasicStream __is = __og.is();
+		if(!__ok)
+		{
+		    throw new UnknownUserException();
+		}
+		return __is.readStringSeq();
+	    }
+	    catch(LocalException __ex)
+	    {
+		throw new IceInternal.NonRepeatable(__ex);
+	    }
+	}
+	finally
+	{
+	    __connection.reclaimOutgoing(__og);
+	}
     }
 
     public String
@@ -94,26 +111,27 @@ public class _ObjectDel
     {
         IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_id", OperationMode.Nonmutating,
 							     __context);
-        try
-        {
-            IceInternal.BasicStream __is = __og.is();
-            if(!__og.invoke())
-            {
-                throw new UnknownUserException();
-            }
-            try
-            {
-                return __is.readString();
-            }
-            catch(LocalException __ex)
-            {
-                throw new IceInternal.NonRepeatable(__ex);
-            }
-        }
-        finally
-        {
-            __connection.reclaimOutgoing(__og);
-        }
+	try
+	{
+	    boolean __ok = __og.invoke();
+	    try
+	    {
+		IceInternal.BasicStream __is = __og.is();
+		if(!__ok)
+		{
+		    throw new UnknownUserException();
+		}
+		return __is.readString();
+	    }
+	    catch(LocalException __ex)
+	    {
+		throw new IceInternal.NonRepeatable(__ex);
+	    }
+	}
+	finally
+	{
+	    __connection.reclaimOutgoing(__og);
+	}
     }
 
     public boolean
@@ -126,8 +144,15 @@ public class _ObjectDel
         {
             if(inParams != null)
             {
-                IceInternal.BasicStream __os = __og.os();
-                __os.writeBlob(inParams);
+		try
+		{
+		    IceInternal.BasicStream __os = __og.os();
+		    __os.writeBlob(inParams);
+		}
+		catch(Ice.LocalException __ex)
+		{
+		    __og.abort(__ex);
+		}
             }
             boolean ok = __og.invoke();
             if(__reference.getMode() == IceInternal.Reference.ModeTwoway)
