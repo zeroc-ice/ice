@@ -184,12 +184,6 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	{
 	    __handleException(__ex, __cnt);
 	}
-#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug.
-	catch(...)
-	{
-	    throw;
-	}
-#endif
     }
 }
 
@@ -219,12 +213,6 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 	{
 	    __handleException(__ex, __cnt);
 	}
-#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug.
-	catch(...)
-	{
-	    throw;
-	}
-#endif
     }
 }
 
@@ -254,12 +242,6 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 	{
 	    __handleException(__ex, __cnt);
 	}
-#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug.
-	catch(...)
-	{
-	    throw;
-	}
-#endif
     }
 }
 
@@ -289,12 +271,6 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 	{
 	    __handleException(__ex, __cnt);
 	}
-#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug.
-	catch(...)
-	{
-	    throw;
-	}
-#endif
     }
 }
 
@@ -339,12 +315,6 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	{
 	    __handleException(__ex, __cnt);
 	}
-#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug.
-	catch(...)
-	{
-	    throw;
-	}
-#endif
     }
 }
 #endif
@@ -584,12 +554,6 @@ IceProxy::Ice::Object::ice_connection()
 	{
 	    __handleException(__ex, __cnt);
 	}
-#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug.
-	catch(...)
-	{
-	    throw;
-	}
-#endif
     }
 }
 
@@ -775,6 +739,12 @@ IceDelegate::Ice::Object::ice_isA(const string& __id, const Context& __context)
     {
         throw ::IceInternal::NonRepeatable(__ex);
     }
+#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug.
+    catch(...)
+    {
+	throw;
+    }
+#endif
     return __ret;
 }
 
@@ -800,6 +770,12 @@ IceDelegate::Ice::Object::ice_ping(const Context& __context)
     {
         throw ::IceInternal::NonRepeatable(__ex);
     }
+#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug.
+    catch(...)
+    {
+	throw;
+    }
+#endif
 }
 
 vector<string>
@@ -826,6 +802,12 @@ IceDelegate::Ice::Object::ice_ids(const Context& __context)
     {
         throw ::IceInternal::NonRepeatable(__ex);
     }
+#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug.
+    catch(...)
+    {
+	throw;
+    }
+#endif
     return __ret;
 }
 
@@ -853,6 +835,12 @@ IceDelegate::Ice::Object::ice_id(const Context& __context)
     {
         throw ::IceInternal::NonRepeatable(__ex);
     }
+#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug.
+    catch(...)
+    {
+	throw;
+    }
+#endif
     return __ret;
 }
 
@@ -887,6 +875,12 @@ IceDelegate::Ice::Object::ice_invoke(const string& operation,
         {
             throw ::IceInternal::NonRepeatable(__ex);
         }
+#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug.
+	catch(...)
+	{
+	    throw;
+	}
+#endif
     }
     return ok;
 }
