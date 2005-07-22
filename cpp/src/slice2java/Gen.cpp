@@ -4147,21 +4147,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	out << nl << "IceInternal.BasicStream __is = __og.is();";
         out << nl << "if(!__ok)";
         out << sb;
-	out << nl << "try";
-	out << sb;
 	out << nl << "__is.throwException();";
-	out << eb;
-	for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
-	{
-	    out << nl << "catch(" << getAbsolute(*t, package) << " __ex)";
-	    out << sb;
-	    out << nl << "throw __ex;";
-	    out << eb;
-	}
-	out << nl << "catch(Ice.UserException __ex)";
-	out << sb;
-        out << nl << "throw new Ice.UnknownUserException();";
-	out << eb;
         out << eb;
         for(pli = outParams.begin(); pli != outParams.end(); ++pli)
         {
@@ -4198,6 +4184,17 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 		out << nl << "return __ret;";
 	    }
 	}
+	out << eb;
+	for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
+	{
+	    out << nl << "catch(" << getAbsolute(*t, package) << " __ex)";
+	    out << sb;
+	    out << nl << "throw __ex;";
+	    out << eb;
+	}
+	out << nl << "catch(Ice.UserException __ex)";
+	out << sb;
+        out << nl << "throw new Ice.UnknownUserException(__ex.ice_name());";
 	out << eb;
 	out << nl << "catch(Ice.LocalException __ex)";
 	out << sb;
@@ -4915,22 +4912,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	out << sb;
 	out << nl << "if(!__ok)";
         out << sb;
-	out << nl << "try";
-	out << sb;
 	out << nl << "__is.throwException();";
 	out << eb;
-	for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
-	{
-	    out << nl << "catch(" << getAbsolute(*r, classPkg) << " __ex)";
-	    out << sb;
-	    out << nl << "throw __ex;";
-	    out << eb;
-	}
-	out << nl << "catch(Ice.UserException __ex)";
-	out << sb;
-        out << nl << "throw new Ice.UnknownUserException();";
-	out << eb;
-        out << eb;
         for(pli = outParams.begin(); pli != outParams.end(); ++pli)
         {
             TypePtr paramType = (*pli)->type();
@@ -4963,19 +4946,24 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << nl << "__is.readPendingObjects();";
 	}
    	out << eb;
-	out << nl << "catch(Ice.LocalException __ex)";
-	out << sb;
-	out << nl << "__finished(__ex);";
-	out << nl << "return;";
-	out << eb;
-	if(!throws.empty())
+	for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
 	{
-	    out << nl << "catch(Ice.UserException __ex)";
+	    out << nl << "catch(" << getAbsolute(*r, classPkg) << " __ex)";
 	    out << sb;
 	    out << nl << "ice_exception(__ex);";
 	    out << nl << "return;";
 	    out << eb;
 	}
+	out << nl << "catch(Ice.UserException __ex)";
+	out << sb;
+        out << nl << "__finished(new Ice.UnknownUserException(__ex.ice_name()));";
+	out << nl << "return;";
+        out << eb;
+	out << nl << "catch(Ice.LocalException __ex)";
+	out << sb;
+	out << nl << "__finished(__ex);";
+	out << nl << "return;";
+	out << eb;
 	out << nl << "ice_response" << spar << args << epar << ';';
 	out << eb;
 	out << eb;
