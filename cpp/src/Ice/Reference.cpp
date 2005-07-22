@@ -501,9 +501,13 @@ IceInternal::FixedReference::changeTimeout(int) const
 void
 IceInternal::FixedReference::streamWrite(BasicStream* s) const
 {
-    MarshalException ex(__FILE__, __LINE__);
-    ex.reason = "Cannot marshal a fixed reference";
-    throw ex;
+    throw MarshalException(__FILE__, __LINE__, "Cannot marshal a fixed reference");
+}
+
+string
+IceInternal::FixedReference::toString() const
+{
+    throw MarshalException(__FILE__, __LINE__, "Cannot marshal a fixed reference");
 }
 
 ConnectionIPtr

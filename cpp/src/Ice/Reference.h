@@ -143,6 +143,7 @@ public:
     virtual ReferencePtr changeTimeout(int) const;
 
     virtual void streamWrite(BasicStream*) const;
+    virtual std::string toString() const;
 
     virtual Ice::ConnectionIPtr getConnection(bool&) const;
 

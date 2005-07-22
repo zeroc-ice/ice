@@ -145,6 +145,7 @@ public:
     virtual ReferencePtr changeTimeout(int) const;
 
     virtual void streamWrite(BasicStream*) const;
+    virtual std::string toString() const;
 
     virtual Ice::ConnectionPtr getConnection() const;
 

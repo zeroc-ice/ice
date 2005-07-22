@@ -740,6 +740,13 @@ namespace IceInternal
 	     throw ex;
 	}
 
+	public override string ToString()
+	{
+	     Ice.MarshalException ex = new Ice.MarshalException();
+	     ex.reason = "Cannot marshal a fixed reference";
+	     throw ex;
+	}
+
 	public override Ice.ConnectionI getConnection(out bool compress)
 	{
 	    Ice.ConnectionI[] filteredConns = filterConnections(_fixedConnections);
