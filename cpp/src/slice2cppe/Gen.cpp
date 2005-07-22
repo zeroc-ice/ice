@@ -1322,6 +1322,18 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "__handleException(__ex, __cnt);";
     C << eb;
+
+    C.zeroIndent();
+    C << nl << "#if defined(_MSC_VER) && (_MSC_VER == 1201) && (_M_ARM == 4) // EVC4 SP4 bug."; // COMPILERBUG
+    C.restoreIndent();
+    C << nl << "catch(...)";
+    C << sb;
+    C << nl << "throw;";
+    C << eb;
+    C.zeroIndent();
+    C << nl << "#endif";
+    C.restoreIndent();
+
     C << eb;
     C << eb;
 }

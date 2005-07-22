@@ -56,12 +56,10 @@ CallbackClient::run(int argc, char* argv[])
     }
 
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(defaultRouter);
+    if(!router)
     {
-	if(!router)
-	{
-	    cerr << argv[0] << ": configured router is not a Glacier2 router" << endl;
-	    return EXIT_FAILURE;
-	}
+	cerr << argv[0] << ": configured router is not a Glacier2 router" << endl;
+	return EXIT_FAILURE;
     }
 
     while(true)
