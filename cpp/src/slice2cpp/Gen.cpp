@@ -1960,9 +1960,9 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "throw;";
 	C << eb;
     }
-    C << nl << "catch(const ::Ice::UserException&)";
+    C << nl << "catch(const ::Ice::UserException& __ex)";
     C << sb;
-    C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__);";
+    C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());";
     C << eb;
     C << nl << "catch(const ::Ice::LocalException& __ex)";
     C << sb;
