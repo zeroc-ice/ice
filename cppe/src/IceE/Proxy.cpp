@@ -184,6 +184,12 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	{
 	    __handleException(__ex, __cnt);
 	}
+#if defined(_MSC_VER) && (_MSC_VER == 1201) && (_M_ARM == 4) // EVC4 SP4 bug.
+	catch(...)
+	{
+	    throw;
+	}
+#endif
     }
 }
 
@@ -213,6 +219,12 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 	{
 	    __handleException(__ex, __cnt);
 	}
+#if defined(_MSC_VER) && (_MSC_VER == 1201) && (_M_ARM == 4) // EVC4 SP4 bug.
+	catch(...)
+	{
+	    throw;
+	}
+#endif
     }
 }
 
@@ -242,6 +254,12 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 	{
 	    __handleException(__ex, __cnt);
 	}
+#if defined(_MSC_VER) && (_MSC_VER == 1201) && (_M_ARM == 4) // EVC4 SP4 bug.
+	catch(...)
+	{
+	    throw;
+	}
+#endif
     }
 }
 
@@ -271,6 +289,12 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 	{
 	    __handleException(__ex, __cnt);
 	}
+#if defined(_MSC_VER) && (_MSC_VER == 1201) && (_M_ARM == 4) // EVC4 SP4 bug.
+	catch(...)
+	{
+	    throw;
+	}
+#endif
     }
 }
 
@@ -315,6 +339,12 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	{
 	    __handleException(__ex, __cnt);
 	}
+#if defined(_MSC_VER) && (_MSC_VER == 1201) && (_M_ARM == 4) // EVC4 SP4 bug.
+	catch(...)
+	{
+	    throw;
+	}
+#endif
     }
 }
 #endif
@@ -554,6 +584,12 @@ IceProxy::Ice::Object::ice_connection()
 	{
 	    __handleException(__ex, __cnt);
 	}
+#if defined(_MSC_VER) && (_MSC_VER == 1201) && (_M_ARM == 4) // EVC4 SP4 bug.
+	catch(...)
+	{
+	    throw;
+	}
+#endif
     }
 }
 
@@ -731,7 +767,7 @@ IceDelegate::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	}
         __is->read(__ret);
     }
-    catch(const ::Ice::UserException& __ex)
+    catch(const ::Ice::UserException&)
     {
         throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
@@ -756,7 +792,7 @@ IceDelegate::Ice::Object::ice_ping(const Context& __context)
 	    __is->throwException();
 	}
     }
-    catch(const ::Ice::UserException& __ex)
+    catch(const ::Ice::UserException&)
     {
         throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
@@ -782,7 +818,7 @@ IceDelegate::Ice::Object::ice_ids(const Context& __context)
 	}
         __is->read(__ret);
     }
-    catch(const ::Ice::UserException& __ex)
+    catch(const ::Ice::UserException&)
     {
         throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
@@ -809,7 +845,7 @@ IceDelegate::Ice::Object::ice_id(const Context& __context)
 	}
         __is->read(__ret);
     }
-    catch(const ::Ice::UserException& __ex)
+    catch(const ::Ice::UserException&)
     {
         throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
