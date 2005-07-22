@@ -47,13 +47,7 @@ public abstract class LocalException extends RuntimeException
     public String
     toString()
     {
-	java.io.ByteArrayOutputStream os = new java.io.ByteArrayOutputStream();
-	java.io.PrintStream ps = new java.io.PrintStream(os);
-        IceUtil.OutputBase out = new IceUtil.OutputBase(ps);
-        out.setUseTab(false);
-        out.print(getClass().getName());
-        out.inc();
-        return os.toString();
+	return ice_name();
     }
 
     private Throwable _cause;

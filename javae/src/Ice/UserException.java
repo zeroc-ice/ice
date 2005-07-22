@@ -17,15 +17,7 @@ public abstract class UserException extends Exception
     public String
     toString()
     {
-        java.io.ByteArrayOutputStream sw = new java.io.ByteArrayOutputStream();
-        java.io.PrintStream pw = new java.io.PrintStream(sw);
-        IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
-        out.setUseTab(false);
-        out.print(getClass().getName());
-        out.inc();
-// XXX	IceInternal.ValueWriter.write(this, out);
-        pw.flush();
-        return sw.toString();
+	return ice_name();
     }
 
     public abstract void
@@ -33,10 +25,4 @@ public abstract class UserException extends Exception
 
     public abstract void
     __read(IceInternal.BasicStream __is, boolean __rid);
-
-    public boolean
-    __usesClasses()
-    {
-        return false;
-    }
 }

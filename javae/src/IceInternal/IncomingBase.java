@@ -95,18 +95,14 @@ public class IncomingBase
 	    IceUtil.Debug.Assert(_os != null);
 	}
 
-	java.io.ByteArrayOutputStream sw = new java.io.ByteArrayOutputStream();
-	java.io.PrintStream pw = new java.io.PrintStream(sw);
-	IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
-	out.setUseTab(false);
-	out.print("dispatch exception:");
-	out.print("\nidentity: " + Ice.Util.identityToString(_current.id));
-	out.print("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
-	out.print("\noperation: " + _current.operation);
-	out.print("\n");
-	out.print(ex.toString());
-	pw.flush();
-	_os.instance().logger().warning(sw.toString());
+	StringBuffer sb = new StringBuffer();
+	sb.append("dispatch exception:");
+	sb.append("\nidentity: " + Ice.Util.identityToString(_current.id));
+	sb.append("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
+	sb.append("\noperation: " + _current.operation);
+	sb.append("\n");
+	sb.append(ex.toString());
+	_os.instance().logger().warning(sb.toString());
     }
 
     protected Ice.Current _current;
