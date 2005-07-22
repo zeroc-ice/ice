@@ -1049,7 +1049,7 @@ public class BasicStream
     public void
     writeUserException(Ice.UserException v)
     {
-        writeBool(v.__usesClasses());
+        writeBool(false); // uses classes
 	v.__write(this);
     }
 
