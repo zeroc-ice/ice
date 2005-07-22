@@ -34,9 +34,13 @@ public class _ObjectDel
 		IceInternal.BasicStream __is = __og.is();
 		if(!__ok)
 		{
-		    throw new UnknownUserException();
+		    __is.throwException();
 		}
 		return __is.readBool();
+	    }
+	    catch(UserException __ex)
+	    {
+		throw new Ice.UnknownUserException(__ex.ice_name());
 	    }
 	    catch(LocalException __ex)
 	    {
@@ -60,10 +64,15 @@ public class _ObjectDel
 	    boolean __ok = __og.invoke();
 	    try
 	    {
+		IceInternal.BasicStream __is = __og.is();
 		if(!__ok)
 		{
-		    throw new UnknownUserException();
+		    __is.throwException();
 		}
+	    }
+	    catch(UserException __ex)
+	    {
+		throw new Ice.UnknownUserException(__ex.ice_name());
 	    }
 	    catch(LocalException __ex)
 	    {
@@ -90,9 +99,13 @@ public class _ObjectDel
 		IceInternal.BasicStream __is = __og.is();
 		if(!__ok)
 		{
-		    throw new UnknownUserException();
+		    __is.throwException();
 		}
 		return __is.readStringSeq();
+	    }
+	    catch(UserException __ex)
+	    {
+		throw new Ice.UnknownUserException(__ex.ice_name());
 	    }
 	    catch(LocalException __ex)
 	    {
@@ -119,9 +132,13 @@ public class _ObjectDel
 		IceInternal.BasicStream __is = __og.is();
 		if(!__ok)
 		{
-		    throw new UnknownUserException();
+		    __is.throwException();
 		}
 		return __is.readString();
+	    }
+	    catch(UserException __ex)
+	    {
+		throw new Ice.UnknownUserException(__ex.ice_name());
 	    }
 	    catch(LocalException __ex)
 	    {

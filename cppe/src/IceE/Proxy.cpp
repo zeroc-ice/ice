@@ -710,19 +710,30 @@ bool
 IceDelegate::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
     static const string __operation("ice_isA");
-    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
-    BasicStream* __is = __outS.is();
-    BasicStream* __os = __outS.os();
-    __os->write(__id);
-    bool __ret;
-    bool __ok = __outS.invoke();
+    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
     try
     {
+	BasicStream* __os = __og.os();
+	__os->write(__id);
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+	__og.abort(__ex);
+    }
+    bool __ret;
+    bool __ok = __og.invoke();
+    try
+    {
+	BasicStream* __is = __og.is();
 	if(!__ok)
 	{
 	    __is->throwException();
 	}
         __is->read(__ret);
+    }
+    catch(const ::Ice::UserException& __ex)
+    {
+        throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -735,15 +746,19 @@ void
 IceDelegate::Ice::Object::ice_ping(const Context& __context)
 {
     static const string __operation("ice_ping");
-    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
-    BasicStream* __is = __outS.is();
-    bool __ok = __outS.invoke();
+    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+    bool __ok = __og.invoke();
     try
     {
+	BasicStream* __is = __og.is();
 	if(!__ok)
 	{
 	    __is->throwException();
 	}
+    }
+    catch(const ::Ice::UserException& __ex)
+    {
+        throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -755,17 +770,21 @@ vector<string>
 IceDelegate::Ice::Object::ice_ids(const Context& __context)
 {
     static const string __operation("ice_ids");
-    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
-    BasicStream* __is = __outS.is();
+    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
     vector<string> __ret;
-    bool __ok = __outS.invoke();
+    bool __ok = __og.invoke();
     try
     {
+	BasicStream* __is = __og.is();
 	if(!__ok)
 	{
 	    __is->throwException();
 	}
         __is->read(__ret);
+    }
+    catch(const ::Ice::UserException& __ex)
+    {
+        throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -778,17 +797,21 @@ string
 IceDelegate::Ice::Object::ice_id(const Context& __context)
 {
     static const string __operation("ice_id");
-    Outgoing __outS(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
-    BasicStream* __is = __outS.is();
+    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
     string __ret;
-    bool __ok = __outS.invoke();
+    bool __ok = __og.invoke();
     try
     {
+	BasicStream* __is = __og.is();
 	if(!__ok)
 	{
 	    __is->throwException();
 	}
         __is->read(__ret);
+    }
+    catch(const ::Ice::UserException& __ex)
+    {
+        throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -805,15 +828,22 @@ IceDelegate::Ice::Object::ice_invoke(const string& operation,
 				      vector<Byte>& outParams,
 				      const Context& context)
 {
-    Outgoing __outS(__connection.get(), __reference.get(), operation, mode, context);
-    BasicStream* __os = __outS.os();
-    __os->writeBlob(inParams);
-    bool ok = __outS.invoke();
+    Outgoing __og(__connection.get(), __reference.get(), operation, mode, context);
+    try
+    {
+	BasicStream* __os = __og.os();
+	__os->writeBlob(inParams);
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+	__og.abort(__ex);
+    }
+    bool ok = __og.invoke();
     if(__reference->getMode() == Reference::ModeTwoway)
     {
         try
         {
-            BasicStream* __is = __outS.is();
+            BasicStream* __is = __og.is();
             Int sz = __is->getReadEncapsSize();
             __is->readBlob(outParams, sz);
         }
