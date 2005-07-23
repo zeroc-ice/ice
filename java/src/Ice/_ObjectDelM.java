@@ -19,21 +19,33 @@ public class _ObjectDelM implements _ObjectDel
 							     __context, __compress);
         try
         {
-            IceInternal.BasicStream __is = __og.is();
-            IceInternal.BasicStream __os = __og.os();
-            __os.writeString(__id);
-            if(!__og.invoke())
-            {
-                throw new UnknownUserException();
-            }
-            try
-            {
-                return __is.readBool();
-            }
-            catch(LocalException __ex)
-            {
-                throw new IceInternal.NonRepeatable(__ex);
-            }
+	    try
+	    {
+		IceInternal.BasicStream __os = __og.os();
+		__os.writeString(__id);
+	    }
+	    catch(LocalException __ex)
+	    {
+		__og.abort(__ex);
+	    }
+	    boolean __ok = __og.invoke();
+	    try
+	    {
+		IceInternal.BasicStream __is = __og.is();
+		if(!__ok)
+		{
+		    __is.throwException();
+		}
+		return __is.readBool();
+	    }
+	    catch(UserException __ex)
+	    {
+		throw new UnknownUserException(__ex.ice_name());
+	    }
+	    catch(LocalException __ex)
+	    {
+		throw new IceInternal.NonRepeatable(__ex);
+	    }
         }
         finally
         {
@@ -49,10 +61,23 @@ public class _ObjectDelM implements _ObjectDel
 							     __context, __compress);
         try
         {
-            if(!__og.invoke())
-            {
-                throw new UnknownUserException();
-            }
+	    boolean __ok = __og.invoke();
+	    try
+	    {
+		IceInternal.BasicStream __is = __og.is();
+		if(!__ok)
+		{
+		    __is.throwException();
+		}
+	    }
+	    catch(UserException __ex)
+	    {
+		throw new UnknownUserException(__ex.ice_name());
+	    }
+	    catch(LocalException __ex)
+	    {
+		throw new IceInternal.NonRepeatable(__ex);
+	    }
         }
         finally
         {
@@ -68,19 +93,24 @@ public class _ObjectDelM implements _ObjectDel
 							     __context, __compress);
         try
         {
-            IceInternal.BasicStream __is = __og.is();
-            if(!__og.invoke())
-            {
-                throw new UnknownUserException();
-            }
-            try
-            {
-                return __is.readStringSeq();
-            }
-            catch(LocalException __ex)
-            {
-                throw new IceInternal.NonRepeatable(__ex);
-            }
+	    boolean __ok = __og.invoke();
+	    try
+	    {
+		IceInternal.BasicStream __is = __og.is();
+		if(!__ok)
+		{
+		    __is.throwException();
+		}
+		return __is.readStringSeq();
+	    }
+	    catch(UserException __ex)
+	    {
+		throw new UnknownUserException(__ex.ice_name());
+	    }
+	    catch(LocalException __ex)
+	    {
+		throw new IceInternal.NonRepeatable(__ex);
+	    }
         }
         finally
         {
@@ -96,19 +126,24 @@ public class _ObjectDelM implements _ObjectDel
 							     __context, __compress);
         try
         {
-            IceInternal.BasicStream __is = __og.is();
-            if(!__og.invoke())
-            {
-                throw new UnknownUserException();
-            }
-            try
-            {
-                return __is.readString();
-            }
-            catch(LocalException __ex)
-            {
-                throw new IceInternal.NonRepeatable(__ex);
-            }
+	    boolean __ok = __og.invoke();
+	    try
+	    {
+		IceInternal.BasicStream __is = __og.is();
+		if(!__ok)
+		{
+		    __is.throwException();
+		}
+		return __is.readString();
+	    }
+	    catch(UserException __ex)
+	    {
+		throw new UnknownUserException(__ex.ice_name());
+	    }
+	    catch(LocalException __ex)
+	    {
+		throw new IceInternal.NonRepeatable(__ex);
+	    }
         }
         finally
         {
@@ -125,8 +160,15 @@ public class _ObjectDelM implements _ObjectDel
         {
             if(inParams != null)
             {
-                IceInternal.BasicStream __os = __og.os();
-                __os.writeBlob(inParams);
+		try
+		{
+		    IceInternal.BasicStream __os = __og.os();
+		    __os.writeBlob(inParams);
+		}
+		catch(LocalException __ex)
+		{
+		    __og.abort(__ex);
+		}
             }
             boolean ok = __og.invoke();
             if(__reference.getMode() == IceInternal.Reference.ModeTwoway)
