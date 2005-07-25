@@ -4218,7 +4218,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << " Implements _" << name << "Del." << opName; // TODO: should be containing class?
 	_out.inc();
 
-	_out << nl << "Dim __outS As IceInternal.Outgoing = getOutgoing(\""
+	_out << nl << "Dim __og As IceInternal.Outgoing = getOutgoing(\""
 	     << op->name() << "\", " << sliceModeToIceMode(op) << ", __context, __compress)";
 	_out << nl << "Try";
 	_out.inc();
@@ -4226,7 +4226,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << nl << "Try";
 	    _out.inc();
-	    _out << nl << "Dim __os As IceInternal.BasicStream = __outS.ostr()";
+	    _out << nl << "Dim __os As IceInternal.BasicStream = __og.ostr()";
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
 		writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), true, false, false);
@@ -4238,45 +4238,38 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    _out.dec();
 	    _out << nl << "Catch __ex As Ice.LocalException";
 	    _out.inc();
-	    _out << nl << "__outS.abort(__ex)";
+	    _out << nl << "__og.abort(__ex)";
 	    _out.dec();
 	    _out << nl << "End Try";
 	}
-	if(!outParams.empty() || ret || !throws.empty())
-	{
-	    _out << nl << "Dim __is As IceInternal.BasicStream = __outS.istr()";
-	}
-	_out << nl << "If Not __outS.invoke() Then";
+	_out << nl << "Dim __ok As Boolean = __og.invoke()";
+	_out << nl << "Try";
 	_out.inc();
-	if(!throws.empty())
+	_out << nl << "Dim __is As IceInternal.BasicStream = __og.istr()";
+	_out << nl << "If Not __ok Then";
+	_out.inc();
+	//
+	// The try/catch block is necessary because throwException()
+	// can raise UserException.
+	//
+	_out << nl << "Try";
+	_out.inc();
+	_out << nl << "__is.throwException()";
+	_out.dec();
+	for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
 	{
-            //
-            // The try/catch block is necessary because throwException()
-            // can raise UserException.
-            //
-            _out << nl << "Try";
-            _out.inc();
-            _out << nl << "__is.throwException()";
-            _out.dec();
-            for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
-            {
-                _out << nl << "Catch __ex As " << fixId((*t)->scoped());
-                _out.inc();
-                _out << nl << "Throw";
-                _out.dec();
-            }
-            _out << nl << "Catch __ex As Ice.UserException";
-	    _out << nl << "' ignore";
-	    _out << nl << "End Try";
+	    _out << nl << "Catch __ex As " << fixId((*t)->scoped());
+	    _out.inc();
+	    _out << nl << "Throw";
+	    _out.dec();
 	}
+	_out << nl << "Catch __ex As Ice.UserException";
+	_out.inc();
 	_out << nl << "Throw New Ice.UnknownUserException()";
 	_out.dec();
+	_out << nl << "End Try";
+	_out.dec();
 	_out << nl << "End If";
-	if(!outParams.empty() || ret)
-	{
-	    _out << nl << "Try";
-	    _out.inc();
-	}
 	for(q = outParams.begin(); q != outParams.end(); ++q)
 	{
 	    writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, false, true, "");
@@ -4338,19 +4331,16 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    }
 	    _out << nl << "Return __ret";
 	}
-        if(!outParams.empty() || ret)
-        {
-            _out.dec();
-            _out << nl << "Catch __ex As Ice.LocalException";
-            _out.inc();
-            _out << nl << "throw New IceInternal.NonRepeatable(__ex)";
-	    _out.dec();
-	    _out << nl << "End Try";
-        }
+	_out.dec();
+	_out << nl << "Catch __ex As Ice.LocalException";
+	_out.inc();
+	_out << nl << "throw New IceInternal.NonRepeatable(__ex)";
+	_out.dec();
+	_out << nl << "End Try";
         _out.dec();
         _out << nl << "Finally";
         _out.inc();
-        _out << nl << "reclaimOutgoing(__outS)";
+        _out << nl << "reclaimOutgoing(__og)";
         _out.dec();
 	_out << nl << "End Try";
 
