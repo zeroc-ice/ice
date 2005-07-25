@@ -847,13 +847,16 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	BasicStream* __is = __og.is();
 	if(!__ok)
 	{
-	    __is->throwException();
+	    try
+	    {
+		__is->throwException();
+	    }
+	    catch(const ::Ice::UserException& __ex)
+	    {
+		throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+	    }
 	}
         __is->read(__ret);
-    }
-    catch(const ::Ice::UserException& __ex)
-    {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -873,12 +876,15 @@ IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 	BasicStream* __is = __og.is();
 	if(!__ok)
 	{
-	    __is->throwException();
+	    try
+	    {
+		__is->throwException();
+	    }
+	    catch(const ::Ice::UserException& __ex)
+	    {
+		throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+	    }
 	}
-    }
-    catch(const ::Ice::UserException& __ex)
-    {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -898,13 +904,16 @@ IceDelegateM::Ice::Object::ice_ids(const Context& __context)
 	BasicStream* __is = __og.is();
 	if(!__ok)
 	{
-	    __is->throwException();
+	    try
+	    {
+		__is->throwException();
+	    }
+	    catch(const ::Ice::UserException& __ex)
+	    {
+		throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+	    }
 	}
 	__is->read(__ret);
-    }
-    catch(const ::Ice::UserException& __ex)
-    {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -925,13 +934,16 @@ IceDelegateM::Ice::Object::ice_id(const Context& __context)
 	BasicStream* __is = __og.is();
 	if(!__ok)
 	{
-	    __is->throwException();
+	    try
+	    {
+		__is->throwException();
+	    }
+	    catch(const ::Ice::UserException& __ex)
+	    {
+		throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+	    }
 	}
 	__is->read(__ret);
-    }
-    catch(const ::Ice::UserException& __ex)
-    {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
     }
     catch(const ::Ice::LocalException& __ex)
     {
