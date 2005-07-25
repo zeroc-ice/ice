@@ -2860,7 +2860,9 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	out << nl << "catch(Ice.UserException __ex)";
 	out << sb;
-        out << nl << "throw new Ice.UnknownUserException();";
+        out << nl << "Ice.UnknownUserException __uex = new Ice.UnknownUserException();";
+        out << nl << "__uex.unknown = __ex.ice_name();";
+        out << nl << "throw __uex;";
 	out << eb;
         out << eb;
         for(pli = outParams.begin(); pli != outParams.end(); ++pli)
