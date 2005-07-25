@@ -977,21 +977,36 @@ namespace Ice
             IceInternal.Outgoing __og = getOutgoing("ice_isA", OperationMode.Nonmutating, __context);
             try
             {
-                IceInternal.BasicStream __is = __og.istr();
-                IceInternal.BasicStream __os = __og.ostr();
-                __os.writeString(__id);
-                if(!__og.invoke())
-                {
-                    throw new UnknownUserException();
-                }
-                try
-                {
-                    return __is.readBool();
-                }
-                catch(LocalException __ex)
-                {
-                    throw new IceInternal.NonRepeatable(__ex);
-                }
+		try
+		{
+		    IceInternal.BasicStream __os = __og.ostr();
+		    __os.writeString(__id);
+		}
+		catch(LocalException __ex)
+		{
+		    __og.abort(__ex);
+		}
+		bool __ok = __og.invoke();
+		try
+		{
+		    IceInternal.BasicStream __is = __og.istr();
+		    if(!__ok)
+		    {
+			try
+			{
+			    __is.throwException();
+			}
+			catch(UserException __ex)
+			{
+			    throw new UnknownUserException();
+			}
+		    }
+		    return __is.readBool();
+		}
+		catch(LocalException __ex)
+		{
+		    throw new IceInternal.NonRepeatable(__ex);
+		}
             }
             finally
             {
@@ -1004,10 +1019,26 @@ namespace Ice
             IceInternal.Outgoing __og = getOutgoing("ice_ping", OperationMode.Nonmutating, __context);
             try
             {
-                if(!__og.invoke())
-                {
-                    throw new UnknownUserException();
-                }
+		bool __ok = __og.invoke();
+		try
+		{
+		    IceInternal.BasicStream __is = __og.istr();
+		    if(!__ok)
+		    {
+			try
+			{
+			    __is.throwException();
+			}
+			catch(UserException __ex)
+			{
+			    throw new UnknownUserException();
+			}
+		    }
+		}
+		catch(LocalException __ex)
+		{
+		    throw new IceInternal.NonRepeatable(__ex);
+		}
             }
             finally
             {
@@ -1020,19 +1051,27 @@ namespace Ice
             IceInternal.Outgoing __og = getOutgoing("ice_ids", OperationMode.Nonmutating, __context);
             try
             {
-                IceInternal.BasicStream __is = __og.istr();
-                if(!__og.invoke())
-                {
-                    throw new UnknownUserException();
-                }
-                try
-                {
-                    return __is.readStringSeq();
-                }
-                catch(LocalException __ex)
-                {
-                    throw new IceInternal.NonRepeatable(__ex);
-                }
+		bool __ok = __og.invoke();
+		try
+		{
+		    IceInternal.BasicStream __is = __og.istr();
+		    if(!__ok)
+		    {
+			try
+			{
+			    __is.throwException();
+			}
+			catch(UserException __ex)
+			{
+			    throw new UnknownUserException();
+			}
+		    }
+		    return __is.readStringSeq();
+		}
+		catch(LocalException __ex)
+		{
+		    throw new IceInternal.NonRepeatable(__ex);
+		}
             }
             finally
             {
@@ -1045,19 +1084,27 @@ namespace Ice
             IceInternal.Outgoing __og = getOutgoing("ice_id", OperationMode.Nonmutating, __context);
             try
             {
-                IceInternal.BasicStream __is = __og.istr();
-                if(!__og.invoke())
-                {
-                    throw new UnknownUserException();
-                }
-                try
-                {
-                    return __is.readString();
-                }
-                catch(LocalException __ex)
-                {
-                    throw new IceInternal.NonRepeatable(__ex);
-                }
+		bool __ok = __og.invoke();
+		try
+		{
+		    IceInternal.BasicStream __is = __og.istr();
+		    if(!__ok)
+		    {
+			try
+			{
+			    __is.throwException();
+			}
+			catch(UserException __ex)
+			{
+			    throw new UnknownUserException();
+			}
+		    }
+		    return __is.readString();
+		}
+		catch(LocalException __ex)
+		{
+		    throw new IceInternal.NonRepeatable(__ex);
+		}
             }
             finally
             {
@@ -1071,8 +1118,15 @@ namespace Ice
             IceInternal.Outgoing __og = getOutgoing(operation, mode, __context);
             try
             {
-                IceInternal.BasicStream __os = __og.ostr();
-                __os.writeBlob(inParams);
+		try
+		{
+		    IceInternal.BasicStream __os = __og.ostr();
+		    __os.writeBlob(inParams);
+		}
+		catch(LocalException __ex)
+		{
+		    __og.abort(__ex);
+		}
                 bool ok = __og.invoke();
                 outParams = null;
                 if(__reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)

@@ -3759,40 +3759,32 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    _out << nl << "__og.abort(__ex);";
 	    _out << eb;
 	}
-	if(!outParams.empty() || ret || !throws.empty())
-	{
-	    _out << nl << "IceInternal.BasicStream __is = __og.istr();";
-	}
-	_out << nl << "if(!__og.invoke())";
+	_out << nl << "bool __ok = __og.invoke();";
+	_out << nl << "try";
 	_out << sb;
-	if(!throws.empty())
+	_out << nl << "IceInternal.BasicStream __is = __og.istr();";
+	_out << nl << "if(!__ok)";
+	_out << sb;
+	//
+	// The try/catch block is necessary because throwException()
+	// can raise UserException.
+	//
+	_out << nl << "try";
+	_out << sb;
+	_out << nl << "__is.throwException();";
+	_out << eb;
+	for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
 	{
-            //
-            // The try/catch block is necessary because throwException()
-            // can raise UserException.
-            //
-            _out << nl << "try";
-            _out << sb;
-            _out << nl << "__is.throwException();";
-            _out << eb;
-            for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
-            {
-                _out << nl << "catch(" << fixId((*t)->scoped()) << ')';
-                _out << sb;
-                _out << nl << "throw;";
-                _out << eb;
-            }
-            _out << nl << "catch(Ice.UserException)";
-            _out << sb;
-            _out << eb;
+	    _out << nl << "catch(" << fixId((*t)->scoped()) << ')';
+	    _out << sb;
+	    _out << nl << "throw;";
+	    _out << eb;
 	}
+	_out << nl << "catch(Ice.UserException)";
+	_out << sb;
 	_out << nl << "throw new Ice.UnknownUserException();";
 	_out << eb;
-	if(!outParams.empty() || ret)
-	{
-	    _out << nl << "try";
-	    _out << sb;
-	}
+	_out << eb;
 	for(q = outParams.begin(); q != outParams.end(); ++q)
 	{
 	    writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, false, true, "");
@@ -3854,14 +3846,11 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    }
 	    _out << nl << "return __ret;";
 	}
-        if(!outParams.empty() || ret)
-        {
-            _out << eb;
-            _out << nl << "catch(Ice.LocalException __ex)";
-            _out << sb;
-            _out << nl << "throw new IceInternal.NonRepeatable(__ex);";
-            _out << eb;
-        }
+	_out << eb;
+	_out << nl << "catch(Ice.LocalException __ex)";
+	_out << sb;
+	_out << nl << "throw new IceInternal.NonRepeatable(__ex);";
+	_out << eb;
         _out << eb;
         _out << nl << "finally";
         _out << sb;
