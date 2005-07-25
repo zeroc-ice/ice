@@ -4140,20 +4140,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	C << nl << "if(!__ok)";
 	C << sb;
+	C << nl << "try";
+	C << sb;
 	C << nl << "__is->throwException();";
 	C << eb;
-	writeUnmarshalCode(C, outParams, ret);
-	if(p->returnsClasses())
-	{
-	    C << nl << "__is->readPendingObjects();";
-	}
-	C << eb;
-	C << nl << "catch(const ::Ice::LocalException& __ex)";
-	C << sb;
-	C << nl << "__finished(__ex);";
-	C << nl << "return;";
-	C << eb;
-
 	//
 	// Generate a catch block for each legal user exception.
 	// (See comment in DelegateMVisitor::visitOperation() for details.)
@@ -4175,9 +4165,21 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    C << nl << "return;";
 	    C << eb;
 	}
-	C << nl << "catch(const ::Ice::UserException&)";
+	C << nl << "catch(const ::Ice::UserException& __ex)";
 	C << sb;
-	C << nl << "ice_exception(::Ice::UnknownUserException(__FILE__, __LINE__));";
+	C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());";
+	C << eb;
+	C << eb;
+
+	writeUnmarshalCode(C, outParams, ret);
+	if(p->returnsClasses())
+	{
+	    C << nl << "__is->readPendingObjects();";
+	}
+	C << eb;
+	C << nl << "catch(const ::Ice::LocalException& __ex)";
+	C << sb;
+	C << nl << "__finished(__ex);";
 	C << nl << "return;";
 	C << eb;
 	C << nl << "ice_response" << spar << args << epar << ';';
