@@ -27,7 +27,6 @@ public class AllTests
 	Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
 	test(baseProxy != null);
 	Console.Out.WriteLine("ok");
-	Console.Out.WriteLine("p: " + baseProxy);
     	Console.Out.Write("testing ice_communicator... ");
 	Console.Out.Flush();
 	test(baseProxy.ice_communicator() == communicator);
