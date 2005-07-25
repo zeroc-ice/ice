@@ -1478,14 +1478,9 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
     C << nl << "::IceInternal::BasicStream* __is = __out.is();";
     C << nl << "if(!__ok)";
     C << sb;
+    C << nl << "try";
+    C << sb;
     C << nl << "__is->throwException();";
-    C << eb;
-    writeAllocateCode(C, TypeStringList(), ret);
-    writeUnmarshalCode(C, outParams, ret);
-    if(ret)
-    {
-	C << nl << "return __ret;";
-    }
     C << eb;
 
     //
@@ -1527,10 +1522,22 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "throw;";
 	C << eb;
     }
-    C << nl << "catch(const ::Ice::UserException&)";
+    C << nl << "catch(const ::Ice::UserException& __ex)";
     C << sb;
-    C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__);";
+    C << nl << "::Ice::UnknownUserException __uex(__FILE__, __LINE__);";
+    C << nl << "__uex.unknown = __ex.ice_name();";
+    C << nl << "throw __uex;";
     C << eb;
+    C << eb;
+
+    writeAllocateCode(C, TypeStringList(), ret);
+    writeUnmarshalCode(C, outParams, ret);
+    if(ret)
+    {
+	C << nl << "return __ret;";
+    }
+    C << eb;
+
     C << nl << "catch(const ::Ice::LocalException& __ex)";
     C << sb;
     C << nl << "throw ::IceInternal::NonRepeatable(__ex);";

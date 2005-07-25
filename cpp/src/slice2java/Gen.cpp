@@ -4147,7 +4147,21 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	out << nl << "IceInternal.BasicStream __is = __og.is();";
         out << nl << "if(!__ok)";
         out << sb;
+        out << nl << "try";
+        out << sb;
 	out << nl << "__is.throwException();";
+        out << eb;
+	for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
+	{
+	    out << nl << "catch(" << getAbsolute(*t, package) << " __ex)";
+	    out << sb;
+	    out << nl << "throw __ex;";
+	    out << eb;
+	}
+	out << nl << "catch(Ice.UserException __ex)";
+	out << sb;
+        out << nl << "throw new Ice.UnknownUserException(__ex.ice_name());";
+	out << eb;
         out << eb;
         for(pli = outParams.begin(); pli != outParams.end(); ++pli)
         {
@@ -4184,17 +4198,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 		out << nl << "return __ret;";
 	    }
 	}
-	out << eb;
-	for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
-	{
-	    out << nl << "catch(" << getAbsolute(*t, package) << " __ex)";
-	    out << sb;
-	    out << nl << "throw __ex;";
-	    out << eb;
-	}
-	out << nl << "catch(Ice.UserException __ex)";
-	out << sb;
-        out << nl << "throw new Ice.UnknownUserException(__ex.ice_name());";
 	out << eb;
 	out << nl << "catch(Ice.LocalException __ex)";
 	out << sb;

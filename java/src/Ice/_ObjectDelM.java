@@ -34,13 +34,16 @@ public class _ObjectDelM implements _ObjectDel
 		IceInternal.BasicStream __is = __og.is();
 		if(!__ok)
 		{
-		    __is.throwException();
+		    try
+		    {
+			__is.throwException();
+		    }
+		    catch(UserException __ex)
+		    {
+			throw new UnknownUserException(__ex.ice_name());
+		    }
 		}
 		return __is.readBool();
-	    }
-	    catch(UserException __ex)
-	    {
-		throw new UnknownUserException(__ex.ice_name());
 	    }
 	    catch(LocalException __ex)
 	    {
@@ -67,12 +70,15 @@ public class _ObjectDelM implements _ObjectDel
 		IceInternal.BasicStream __is = __og.is();
 		if(!__ok)
 		{
-		    __is.throwException();
+		    try
+		    {
+			__is.throwException();
+		    }
+		    catch(UserException __ex)
+		    {
+			throw new UnknownUserException(__ex.ice_name());
+		    }
 		}
-	    }
-	    catch(UserException __ex)
-	    {
-		throw new UnknownUserException(__ex.ice_name());
 	    }
 	    catch(LocalException __ex)
 	    {
@@ -99,13 +105,16 @@ public class _ObjectDelM implements _ObjectDel
 		IceInternal.BasicStream __is = __og.is();
 		if(!__ok)
 		{
-		    __is.throwException();
+		    try
+		    {
+			__is.throwException();
+		    }
+		    catch(UserException __ex)
+		    {
+			throw new UnknownUserException(__ex.ice_name());
+		    }
 		}
 		return __is.readStringSeq();
-	    }
-	    catch(UserException __ex)
-	    {
-		throw new UnknownUserException(__ex.ice_name());
 	    }
 	    catch(LocalException __ex)
 	    {
@@ -132,13 +141,16 @@ public class _ObjectDelM implements _ObjectDel
 		IceInternal.BasicStream __is = __og.is();
 		if(!__ok)
 		{
-		    __is.throwException();
+		    try
+		    {
+			__is.throwException();
+		    }
+		    catch(UserException __ex)
+		    {
+			throw new UnknownUserException(__ex.ice_name());
+		    }
 		}
 		return __is.readString();
-	    }
-	    catch(UserException __ex)
-	    {
-		throw new UnknownUserException(__ex.ice_name());
 	    }
 	    catch(LocalException __ex)
 	    {
