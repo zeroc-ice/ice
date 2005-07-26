@@ -35,6 +35,11 @@ CPPFLAGS	:= -I.. $(CPPFLAGS) -DSLICE_API_EXPORTS
 LINKWITH	:= -lIceUtil
 BISONFLAGS	:= --name-prefix "slice_" $(BISONFLAGS)
 
+ifeq ($(STATICLIBS),yes)
+$(libdir)/$(LIBNAME): $(OBJS)
+	rm -f $@
+	$(call mklib,$@,$(OBJS))
+else
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
 	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
@@ -46,6 +51,7 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
+endif
 
 # Needed for make -jn to work.
 ../Slice/Grammar.y: Grammar.h

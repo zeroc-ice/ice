@@ -126,6 +126,12 @@ KERBEROS_HOME		?= /usr/kerberos
 
 #READLINE_HOME		?= /opt/readline
 
+#
+# Support for creating static libraries is currently provided
+# only for building the Ice-E translators.
+#
+
+#STATICLIBS		= yes
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -272,11 +278,19 @@ ifeq ($(mksoname),)
 endif
 
 ifeq ($(mklibname),)
-    mklibname		= lib$(1).so
+    ifeq ($(STATICLIBS),yes)
+	mklibname	= lib$(1).a
+    else
+	mklibname	= lib$(1).so
+    endif
 endif
 
 ifndef mklibtargets
-    mklibtargets	= $(1) $(2) $(3)
+    ifeq ($(STATICLIBS),yes)
+	mklibtargets	= $(3)
+    else
+	mklibtargets	= $(1) $(2) $(3)
+    endif
 endif
 
 ifeq ($(mkshlib),)
@@ -284,10 +298,15 @@ ifeq ($(mkshlib),)
 endif
 
 ifeq ($(installlib),)
-    installlib		= $(INSTALL) $(2)/$(3) $(1); \
+    ifeq ($(STATICLIBS),yes)
+	installlib	= $(INSTALL) $(2)/$(5) $(1); \
+			  chmod a+rx $(1)/$(5) 
+    else
+	installlib	= $(INSTALL) $(2)/$(3) $(1); \
 			  rm -f $(1)/$(4); ln -s $(3) $(1)/$(4); \
 			  rm -f $(1)/$(5); ln -s $(4) $(1)/$(5); \
 			  chmod a+rx $(1)/$(3) 
+    endif
 endif
 
 ifeq ($(installdata),)
