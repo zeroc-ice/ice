@@ -13,6 +13,8 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= src include test demo slice
 
+INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir) $(install_slicedir) $(install_docdir)
+
 install::
 	@if test ! -d $(prefix) ; \
 	then \
@@ -20,35 +22,15 @@ install::
 	    $(call mkdir,$(prefix)) ; \
 	fi
 
-	@if test ! -d $(install_bindir) ; \
-	then \
-	    echo "Creating $(install_bindir)..." ; \
-	    $(call mkdir,$(install_bindir)) ; \
-	fi
-
-	@if test ! -d $(install_libdir) ; \
-	then \
-	    echo "Creating $(install_libdir)..." ; \
-	    $(call mkdir,$(install_libdir)) ; \
-	fi
-
-	@if test ! -d $(install_includedir) ; \
-	then \
-	    echo "Creating $(install_includedir)..." ; \
-	    $(call mkdir,$(install_includedir)) ; \
-	fi
-
-	@if test ! -d $(install_slicedir) ; \
-	then \
-	    echo "Creating $(install_slicedir)..." ; \
-	    $(call mkdir,$(install_slicedir)) ; \
-	fi
-
-	@if test ! -d $(install_docdir) ; \
-	then \
-	    echo "Creating $(install_docdir)..." ; \
-	    $(call mkdir,$(install_docdir)) ; \
-	fi
+	@for subdir in $(INSTALL_SUBDIRS); \
+	do \
+	    if test ! -d $$subdir ; \
+	    then \
+		echo "Creating $$subdir..." ; \
+		mkdir $$subdir ; \
+		chmod a+rx $$subdir ; \
+	    fi ; \
+	done
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
@@ -61,12 +43,18 @@ doc::
 	@( cd doc && $(MAKE) ) || exit 1
 
 install::
-	@( cd doc && $(MAKE) install ) || exit 1
+	@if test -d doc ; \
+	then \
+	    ( cd doc && $(MAKE) install ) || exit 1 ; \
+	fi
 	$(call installdata,ICE_LICENSE,$(prefix))
 	$(call installdata,LICENSE,$(prefix))
 
 clean::
-	@( cd doc && $(MAKE) clean ) || exit 1
+	@if test -d doc ; \
+	then \
+	    ( cd doc && $(MAKE) clean ) || exit 1 ; \
+	fi
 
 test::
 	@python $(top_srcdir)/allTests.py
