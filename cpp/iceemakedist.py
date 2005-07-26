@@ -369,6 +369,22 @@ makeFile.writelines(lines)
 makeFile.close()
 
 #
+# Disable install targets for libIceUtil, libSlice.
+#
+for makeFileName in [os.path.join("ice", "src", "IceUtil", "Makefile"), \
+		     os.path.join("ice", "src", "Slice", "Makefile")]:
+    makeFile = open(makeFileName, "r")
+    lines = makeFile.readlines()
+    makeFile.close()
+    for i in range(len(lines)):
+	if lines[i].find("install::") == 0:
+	    lines[i + 1] = "#" + lines[i + 1]
+	    break
+    makeFile = open(makeFileName, "w")
+    makeFile.writelines(lines)
+    makeFile.close()
+
+#
 # Get Ice-E version.
 #
 config = open(os.path.join("icee", "include", "IceE", "Config.h"), "r")
