@@ -38,6 +38,9 @@ SUBDIRS		= IceUtil \
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
 	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
+	    if test -d $$subdir ; \
+	    then \
+		echo "making $@ in $$subdir"; \
+		( cd $$subdir && $(MAKE) $@ ) || exit 1; \
+	    fi; \
 	done
