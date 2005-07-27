@@ -11,8 +11,8 @@
 # This file is included by Make.rules when uname is AIX.
 #
 
-CXX               	:= xlC_r
-CC                      := xlc_r -qcpluscmt
+CXX			= xlC_r
+CC			= xlc_r -qcpluscmt
 
 # 
 # -qstaticinline: make inline functions that were not inlined (typically 
@@ -32,32 +32,34 @@ CC                      := xlc_r -qcpluscmt
 #
 
 ifneq ($(OBJECT_MODE),64)
-    CXXARCHFLAGS        := -D_LARGE_FILES 
+    CXXARCHFLAGS	= -D_LARGE_FILES 
 endif
 
 CXXFLAGS		= -brtl -qrtti=all -qstaticinline $(CXXARCHFLAGS)
 
 ifeq ($(OPTIMIZE),yes)
-     CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS) -qinline
+     CXXFLAGS		+= -O2 -DNDEBUG -qinline
 else
-     CXXFLAGS		:= -g $(CXXFLAGS)
+     CXXFLAGS		+= -g
 endif
 
 
-LDPLATFORMFLAGS         = -Wl,-blibpath:$(prefix)/lib:/usr/lpp/xlopt:/usr/lib/threads:/usr/vacpp/lib:/usr/lib:/lib
+LDPLATFORMFLAGS		= -Wl,-blibpath:$(prefix)/lib:/usr/lpp/xlopt:/usr/lib/threads:/usr/vacpp/lib:/usr/lib:/lib
 
-mklibfilename           = lib$(1).a
-mklibname               = lib$(1).notused
-mklibtargets            = $(1)
+mklibfilename		= lib$(1).a
+mklibname		= lib$(1).a
+mklibtargets		= $(1)
 
-mkshlib                 = $(CXX) -qmkshrobj $(LDFLAGS) -o $(2) $(3) $(4) ; ar -rc $(1) $(2) ; rm $(2)
+mkshlib			= $(CXX) -qmkshrobj $(LDFLAGS) -o $(2) $(3) $(4) ; ar -rc $(1) $(2) ; rm $(2)
 
-installlib              = $(INSTALL) $(2)/$(3) $(1)
+mklib			= ar -rc $(1) $(2)
+
+installlib		= $(INSTALL) $(2)/$(3) $(1)
 
 BASELIBS		= -lIceUtil
 LIBS			= -lIce $(BASELIBS)
 
-ICEUTIL_OS_LIBS         :=
-ICE_OS_LIBS             :=
+ICEUTIL_OS_LIBS		=
+ICE_OS_LIBS		=
 
-export LIBPATH      := $(libdir):$(LIBPATH)
+export LIBPATH		:= $(libdir):$(LIBPATH)
