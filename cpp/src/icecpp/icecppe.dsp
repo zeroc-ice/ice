@@ -1,26 +1,26 @@
-# Microsoft Developer Studio Project File - Name="slice2javae" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="icecppe" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=slice2javae - Win32 Debug
+CFG=icecppe - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "slice2javae.mak".
+!MESSAGE NMAKE /f "icecppe.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "slice2javae.mak" CFG="slice2javae - Win32 Debug"
+!MESSAGE NMAKE /f "icecppe.mak" CFG="icecppe - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "slice2javae - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "slice2javae - Win32 Debug" (based on "Win32 (x86) Console Application")
-!MESSAGE "slice2javae - Win32 Release Static" (based on "Win32 (x86) Console Application")
-!MESSAGE "slice2javae - Win32 Debug Static" (based on "Win32 (x86) Console Application")
+!MESSAGE "icecppe - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "icecppe - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "icecppe - Win32 Release Static" (based on "Win32 (x86) Console Application")
+!MESSAGE "icecppe - Win32 Debug Static" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -30,7 +30,7 @@ CFG=slice2javae - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "slice2javae - Win32 Release"
+!IF  "$(CFG)" == "icecppe - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -53,16 +53,16 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 setargv.obj /nologo /subsystem:console /incremental:yes /machine:I386
+# ADD LINK32 setargv.obj advapi32.lib /nologo /subsystem:console /incremental:yes /machine:I386
 # SUBTRACT LINK32 /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
-TargetName=slice2javae
+TargetName=icecpp
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "slice2javae - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icecppe - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -85,16 +85,16 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 setargv.obj /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /FIXED:no
+# ADD LINK32 setargv.obj advapi32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /FIXED:no
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Debug
-TargetName=slice2javae
+TargetName=icecpp
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "slice2javae - Win32 Release Static"
+!ELSEIF  "$(CFG)" == "icecppe - Win32 Release Static"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -108,7 +108,7 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../include" /D "_CONSOLE" /D "NDEBUG" /D "ICE_STATIC_LIBS" /D "WIN32_LEAN_AND_MEAN" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../include" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -117,16 +117,16 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 rpcrt4.lib setargv.obj /nologo /subsystem:console /incremental:yes /machine:I386
+# ADD LINK32 setargv.obj advapi32.lib /nologo /subsystem:console /incremental:yes /machine:I386
 # SUBTRACT LINK32 /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
-TargetName=slice2javae
+TargetName=icecpp
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "slice2javae - Win32 Debug Static"
+!ELSEIF  "$(CFG)" == "icecppe - Win32 Debug Static"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -140,7 +140,7 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../include" /D "_CONSOLE" /D "_DEBUG" /D "ICE_STATIC_LIBS" /D "WIN32_LEAN_AND_MEAN" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../include" /D "_CONSOLE" /D "_DEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -149,11 +149,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 rpcrt4.lib setargv.obj /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /FIXED:no
+# ADD LINK32 setargv.obj advapi32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /FIXED:no
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\DebugStatic
-TargetName=slice2javae
+TargetName=icecpp
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
@@ -162,20 +162,25 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 
 # Begin Target
 
-# Name "slice2javae - Win32 Release"
-# Name "slice2javae - Win32 Debug"
-# Name "slice2javae - Win32 Release Static"
-# Name "slice2javae - Win32 Debug Static"
+# Name "icecppe - Win32 Release"
+# Name "icecppe - Win32 Debug"
+# Name "icecppe - Win32 Release Static"
+# Name "icecppe - Win32 Debug Static"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Gen.cpp
+SOURCE=.\cccp.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\Main.cpp
+SOURCE=.\cexp.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\prefix.c
+# ADD CPP /D "__STDC__"
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -183,12 +188,67 @@ SOURCE=.\Main.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Gen.h
+SOURCE=.\config.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\gansidecl.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\pcp.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\cexp.y
+
+!IF  "$(CFG)" == "icecppe - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\cexp.y
+
+"cexp.c" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	bison -o cexp.c cexp.y
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "icecppe - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\cexp.y
+
+"cexp.c" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	bison -o cexp.c cexp.y
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "icecppe - Win32 Release Static"
+
+# Begin Custom Build
+InputPath=.\cexp.y
+
+"cexp.c" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	bison -o cexp.c cexp.y
+
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "icecppe - Win32 Debug Static"
+
+# Begin Custom Build
+InputPath=.\cexp.y
+
+"cexp.c" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	bison -o cexp.c cexp.y
+
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # End Group
 # End Target
 # End Project

@@ -1,0 +1,122 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "icecppe"=.\src\icecpp\icecppe.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "icee"=.\icee.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name iceutile
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cppe
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2javae
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slicee
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icecppe
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "iceutile"=.\src\iceutil\iceutile.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "slice2cppe"=.\src\slice2cppe\slice2cppe.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name iceutile
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slicee
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "slice2javae"=.\src\slice2javae\slice2javae.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name iceutile
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slicee
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "slicee"=.\src\Slice\slicee.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name icecppe
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutile
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
