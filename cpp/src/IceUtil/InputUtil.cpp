@@ -15,6 +15,10 @@
 #include <limits.h>
 #endif
 
+#if defined(__hpux)
+#include <inttypes.h>
+#endif
+
 using namespace std;
 
 namespace IceUtil
