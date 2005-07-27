@@ -47,7 +47,7 @@
 //
 // TODO: more macros to support IBM Visual Age _Export syntax as well.
 //
-#if defined(_MSC_VER) || (defined(__HP_aCC) && defined(__HP_WINDLL))
+#if (defined(_MSC_VER) && !defined(ICE_STATIC_LIBS)) || (defined(__HP_aCC) && defined(__HP_WINDLL))
 #   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
 #elif defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x550)
