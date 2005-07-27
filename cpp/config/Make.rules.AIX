@@ -47,7 +47,13 @@ endif
 LDPLATFORMFLAGS		= -Wl,-blibpath:$(prefix)/lib:/usr/lpp/xlopt:/usr/lib/threads:/usr/vacpp/lib:/usr/lib:/lib
 
 mklibfilename		= lib$(1).a
-mklibname		= lib$(1).a
+
+ifeq ($(STATICLIBS),)
+	mklibname	= lib$(1).notused
+else
+	mklibname	= lib$(1).a
+endif
+
 mklibtargets		= $(1)
 
 mkshlib			= $(CXX) -qmkshrobj $(LDFLAGS) -o $(2) $(3) $(4) ; ar -rc $(1) $(2) ; rm $(2)
