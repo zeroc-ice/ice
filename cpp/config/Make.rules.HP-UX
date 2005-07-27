@@ -11,12 +11,12 @@
 # This file is included by Make.rules when uname is HP-UX..
 #
 
-CXX               	:= aCC
+CXX			= aCC
 
 ifeq ($(LP64),yes)
-    CXXARCHFLAGS        := +DD64
+    CXXARCHFLAGS	= +DD64
 else
-    CXXARCHFLAGS        := +DA2.0N
+    CXXARCHFLAGS	= +DA2.0N
 endif
 
 #
@@ -33,12 +33,16 @@ endif
 # 749: The cast from 'const DbTxnImp *' to 'const __db_txn *' is performed as a 'reinterpret_cast' (db_cxx.h only).
 DISABLEDWARNINGS        = +W307 +W361 +W829 +W849 +W740 +W749
 
-CXXFLAGS		= -AA +Z -mt $(DISABLEDWARNINGS) $(CXXARCHFLAGS)
+CXXFLAGS		= -AA -mt $(DISABLEDWARNINGS) $(CXXARCHFLAGS)
+
+ifeq ($(STATICLIBS),)
+    CXXFLAGS		+= +Z
+endif
 
 ifeq ($(OPTIMIZE),yes)
-     CXXFLAGS		:= -O -DNDEBUG $(CXXFLAGS)
+     CXXFLAGS		+= -O -DNDEBUG
 else
-     CXXFLAGS		:= -g0 $(CXXFLAGS)
+     CXXFLAGS		+= -g0
 endif
 
 #
@@ -72,16 +76,19 @@ LDPLATFORMFLAGS         =  -Wl,+s -Wl,+b$(prefix)/$(libsubdir) $(LIBPATH)
 
 mklibfilename           = $(if $(2),lib$(1).$(2),lib$(1).sl)
 mksoname                = $(if $(2),lib$(1).$(2),lib$(1).sl)
-mklibname               = lib$(1).sl
+ifeq ($(STATICLIBS),)
+    mklibname		= lib$(1).sl
+endif
 mkshlib                 = $(CXX) -b -Wl,-Bsymbolic $(LDFLAGS) -o $(1) -Wl,+h$(2) $(3) $(4)
+mklib			= ar cr $(1) $(2)
 
 BASELIBS		= -lIceUtil -lxnet -lpthread
 LIBS			= -lIce $(BASELIBS)
 
-ICEUTIL_OS_LIBS         := -lpthread -lrt
-ICE_OS_LIBS             :=
+ICEUTIL_OS_LIBS         = -lpthread -lrt
+ICE_OS_LIBS             =
 
-lp64suffix              := /pa20_64
+lp64suffix              = /pa20_64
 
 ifeq ($(LP64),yes)
     export LD_LIBRARY_PATH := $(libdir):$(LD_LIBRARY_PATH)
