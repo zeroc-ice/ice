@@ -30,6 +30,18 @@ public class ClientMIDlet
     private static final javax.microedition.lcdui.StringItem _msg =
         new javax.microedition.lcdui.StringItem("\nStatus: ", "(no requests sent)");
 
+    class HelloRequest
+	implements Runnable
+    {
+	public void
+	run()
+	{
+	    handleHelloCmd();
+	}
+    }
+
+    private HelloRequest _helloRequest = new HelloRequest();
+
     protected void
     startApp()
     {
@@ -94,7 +106,7 @@ public class ClientMIDlet
 	    }
 	    else if(cmd == CMD_HELLO)
 	    {
-		handleHelloCmd();
+		new Thread(_helloRequest).start();
 	    }
 	}
     }
@@ -113,7 +125,6 @@ public class ClientMIDlet
 	    Ice.ObjectPrx base = _communicator.stringToProxy(proxy);
 	    _helloPrx = HelloPrxHelper.checkedCast(base);
 	}
-
 	try
 	{
 	    _helloPrx.sayHello();
