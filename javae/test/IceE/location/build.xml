@@ -65,7 +65,7 @@
     <!-- Write the descriptor files -->
     <target name="server-midlet" if="midp">
 	<length property="jarfile-length" file="./TestMIDlet.jar"/>
-	<manifest file="server.jad">
+	<jadfile file="server.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
 	    <attribute name="MIDlet-Jar-URL" value="TestMIDlet.jar"/>
@@ -78,12 +78,12 @@
 	    <attribute name="runserver" value="true"/>
 	    <attribute name="MIDlet-Permissions" 
 		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
-        </manifest>
+        </jadfile>
     </target>
 
     <target name="client-midlet" if="midp">
 	<length property="jarfile-length" file="./TestMIDlet.jar"/>
-	<manifest file="client.jad">
+	<jadfile file="client.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
 	    <attribute name="MIDlet-Jar-URL" value="TestMIDlet.jar"/>
@@ -96,12 +96,12 @@
 	    <attribute name="runserver" value="false"/>
 	    <attribute name="MIDlet-Permissions" 
 		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
-        </manifest>
+        </jadfile>
     </target>
 
     <target name="colloc-midlet" if="midp">
 	<length property="jarfile-length" file="./TestMIDlet.jar"/>
-	<manifest file="colloc.jad">
+	<jadfile file="colloc.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
 	    <attribute name="MIDlet-Jar-URL" value="TestMIDlet.jar"/>
@@ -114,7 +114,7 @@
 	    <attribute name="runserver" value="true"/>
 	    <attribute name="MIDlet-Permissions" 
 		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
-        </manifest>
+        </jadfile>
     </target>
 
     <target name="midlets" depends="midlet-jar, server-midlet, client-midlet, colloc-midlet"/>

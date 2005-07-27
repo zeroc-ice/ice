@@ -229,18 +229,22 @@ public class TestApplication
 	}
 	catch(Exception ex)
 	{
-	    ex.printStackTrace();
+	    javax.microedition.lcdui.Alert a = 
+		new javax.microedition.lcdui.Alert("startApp alert", ex.getMessage(),
+			null, javax.microedition.lcdui.AlertType.ERROR);
+	    a.setTimeout(javax.microedition.lcdui.Alert.FOREVER);
+	    _display.setCurrent(a);
 	    throw new javax.microedition.midlet.MIDletStateChangeException(ex.getMessage());
 	}
 
 	if(_colloc != null)
 	{
-	    _display.setCurrent(_outList);
+	    message("Starting up colloc");
 	    new Thread(_colloc).start();
+	    message("Colloc started");
 	}
 	else if(_server != null)
 	{
-	    _display.setCurrent(_outList);
 	    new Thread(_server).start();
 	}
     }

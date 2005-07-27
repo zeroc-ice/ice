@@ -23,8 +23,9 @@ public class AllTests
     public static void
     allTests(Ice.Communicator communicator, java.io.PrintStream out)
     {
-	ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
-	    communicator.stringToProxy("ServerManager :default -t 10000 -p 12345"));
+	String serverManagerRef = communicator.getProperties().getPropertyWithDefault("Test.ServerManager", 
+	    "ServerManager :default -t 10000 -p 12345");
+	ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(communicator.stringToProxy(serverManagerRef));
 	test(manager != null);
 
 	out.print("testing stringToProxy... ");
