@@ -27,20 +27,20 @@ ifeq ($(CXX),CC)
     #
     # Which version of CC are we using?
     #
-    CCVERSION               := $(filter 5.%, $(shell CC -V 2>&1))
+    CCVERSION		    = $(filter 5.%, $(shell CC -V 2>&1))
 
     ifeq ($(LP64),yes)
-        CXXARCHFLAGS        := -xarch=v9
+        CXXARCHFLAGS	    = -xarch=v9
     endif
 
     ifeq ($(CCVERSION),5.3)
-        FLEX_NOLINE         := yes
-        BISON_NOLINE        := yes
-        TEMPLATE_REPOSITORY := SunWS_cache
+        FLEX_NOLINE	    = yes
+        BISON_NOLINE	    = yes
+        TEMPLATE_REPOSITORY = SunWS_cache
     else
         ifeq ($(CCVERSION),5.4)
-            CXXWARNFLAGS            := +w
-            TEMPLATE_REPOSITORY     := SunWS_cache
+            CXXWARNFLAGS	= +w
+            TEMPLATE_REPOSITORY	= SunWS_cache
         else
             #
             # Assumes >= 5.5
@@ -48,8 +48,8 @@ ifeq ($(CXX),CC)
             # -erroff=hidef is a (bad) work-around for
             # for Sun CC 5.5 bug #4852754
             #
-            CXXWARNFLAGS            := +w -erroff=hidef
-            CXXSCOPEFLAGS           := -xldscope=hidden
+            CXXWARNFLAGS    = +w -erroff=hidef
+            CXXSCOPEFLAGS   = -xldscope=hidden
         endif
     endif
 
@@ -60,52 +60,64 @@ ifeq ($(CXX),CC)
     # iterators.
     #
 
-    CXXFLAGS		= -KPIC -mt +p -features=tmplife $(CXXSCOPEFLAGS) $(CXXWARNFLAGS) $(CXXARCHFLAGS)
+    CXXFLAGS		    = -mt +p -features=tmplife $(CXXSCOPEFLAGS) $(CXXWARNFLAGS) $(CXXARCHFLAGS)
 
+    ifeq ($(STATICLIBS),)
+	CXXFLAGS	    += -KPIC
+    endif
 
     ifeq ($(OPTIMIZE),yes)
-        CXXFLAGS		:= -O -DNDEBUG $(CXXFLAGS)
+        CXXFLAGS	    += -O -DNDEBUG
     else
-        CXXFLAGS		:= -g $(CXXFLAGS)
+        CXXFLAGS	    += -g
     endif
 
     #
     # C++ run-time libraries, necessary for linking some shared libraries.
     #
-    CXXLIBS			= -lCstd -lCrun
+    CXXLIBS		    = -lCstd -lCrun
 
+    mkshlib		    = $(CXX) -G $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
 
-    mkshlib                 = $(CXX) -G $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
+    mklib		    = $(CXX) -xar -o $(1) $(2)
+
 endif
 
 ifeq ($(CXX),gcc)
-    CXX                 = g++
+    CXX			    = g++
 endif
 
 ifeq ($(CXX),g++)
 
     ifeq ($(LP64),yes)
-        CXXARCHFLAGS    := -m64
+        CXXARCHFLAGS	    = -m64
     endif
 
-    CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -fPIC -Wall -D_REENTRANT
+    CXXFLAGS		    = $(CXXARCHFLAGS) -ftemplate-depth-128 -Wall -D_REENTRANT
+
+    ifeq ($(STATICLIBS),)
+	CXXFLAGS	    += -fPIC
+    endif
 
     ifeq ($(OPTIMIZE),yes)
-        CXXFLAGS	:= -O2 -DNDEBUG $(CXXFLAGS)
+        CXXFLAGS	    += -O2 -DNDEBUG
     else
-        CXXFLAGS	:= -g $(CXXFLAGS)
+        CXXFLAGS	    += -g
     endif
     
-    mkshlib              = $(CXX) -shared $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
+    mkshlib		    = $(CXX) -shared $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
+
+    mklib		    = ar cr $(1) $(2)
+
 endif
 
-BASELIBS		= -lIceUtil -lpthread
-LIBS			= -lIce $(BASELIBS)
+BASELIBS		    = -lIceUtil -lpthread
+LIBS			    = -lIce $(BASELIBS)
 
-ICEUTIL_OS_LIBS         := -lpthread -lrt
-ICE_OS_LIBS             := -ldl -lsocket
+ICEUTIL_OS_LIBS		    = -lpthread -lrt
+ICE_OS_LIBS		    = -ldl -lsocket
 
-lp64suffix              := /sparcv9
+lp64suffix		    = /sparcv9
 
 ifeq ($(LP64),yes)
     export LD_LIBRARY_PATH_64	:= $(libdir):$(LD_LIBRARY_PATH_64)
