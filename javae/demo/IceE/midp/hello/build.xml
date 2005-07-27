@@ -62,6 +62,20 @@
             <arg line="-d ."/>
 	    <arg line="./tmp/ClientMIDlet.jar"/>
         </exec>
+	<length property="jarfile-length" file="./ClientMIDlet.jar"/>
+	<jadfile file="client.jad">
+	    <attribute name="MIDlet-Version" value="1.0"/>
+            <attribute name="MIDlet-Vendor" value="ZeroC"/>
+	    <attribute name="MIDlet-Jar-URL" value="ClientMIDlet.jar"/>
+	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
+	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
+	    <attribute name="MIDlet-1" value="ClientMIDlet, , ClientMIDlet"/>
+	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
+	    <attribute name="MIDlet-Name" value="ClientMIDlet"/>
+	    <attribute name="MIDlet-Permissions" 
+		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
+        </jadfile>
+
     </target>
 
     <target name="server-jar" depends="compile">
@@ -84,6 +98,19 @@
             <arg line="-d ."/>
 	    <arg line="./tmp/ServerMIDlet.jar"/>
         </exec>
+	<length property="jarfile-length" file="./ServerMIDlet.jar"/>
+	<jadfile file="server.jad">
+	    <attribute name="MIDlet-Version" value="1.0"/>
+            <attribute name="MIDlet-Vendor" value="ZeroC"/>
+	    <attribute name="MIDlet-Jar-URL" value="ServerMIDlet.jar"/>
+	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
+	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
+	    <attribute name="MIDlet-1" value="ServerMIDlet, , ServerMIDlet"/>
+	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
+	    <attribute name="MIDlet-Name" value="ServerMIDlet"/>
+	    <attribute name="MIDlet-Permissions" 
+		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
+        </jadfile>
     </target>
 
     <target name="all" depends="client-jar,server-jar"/>

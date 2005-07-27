@@ -128,17 +128,13 @@ public class ServerMIDlet
 	try
 	{
 	    Ice.ObjectAdapter adapter = _communicator.createObjectAdapter("Hello");
-	    _msg.setText("init'd adapter");
 	    Ice.Object object = new HelloI(_msg);
-	    _msg.setText("servant init'd");
 	    adapter.add(object, Ice.Util.stringToIdentity("hello"));
-	    _msg.setText("servant added");
 	    adapter.activate();
 	}
 	catch(Exception ex)
 	{
-	    ex.printStackTrace();
-//	    _msg.setText("Unable to initialize Ice server, please check your configuration and start again.");
+	    _msg.setText("Unable to initialize Ice server, please check your configuration and start again.");
 	}
     }
 
