@@ -258,6 +258,9 @@ filesToRemove = [ \
     os.path.join("ice", "all.dsw"), \
     os.path.join("ice", "all.dsp"), \
     os.path.join("ice", "allTests.py"), \
+    os.path.join("ice", "src", "icecpp", "icecpp.dsp"), \
+    os.path.join("ice", "src", "IceUtil", "iceutil.dsp"), \
+    os.path.join("ice", "src", "Slice", "slice.dsp"), \
     ]
 filesToRemove.extend(find("ice", ".dummy"))
 for x in filesToRemove:
@@ -423,6 +426,6 @@ os.system("zip -9r" + quiet + " " + icever + ".zip " + icever)
 # Done.
 #
 print "Cleaning up..."
-#shutil.rmtree(icever)
+shutil.rmtree(icever)
 shutil.rmtree("icee")
 print "Done."
