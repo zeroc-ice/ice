@@ -1,0 +1,4 @@
+#
+# Modify the -h argument to match the hostname or IP address for the server
+#
+Test.Proxy = Test:default -h 127.0.0.1 -p 12345 -t 2000
