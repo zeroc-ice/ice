@@ -15,7 +15,6 @@ package Test;
 
 public class StreamListAdapter extends java.io.OutputStream
 {
-
     public
     StreamListAdapter(javax.microedition.lcdui.List listui)
     {

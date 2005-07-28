@@ -22,7 +22,6 @@ public class TestApplication
     // to System.exit() in the driver's 'main()' methods. While this means the wrapper has to initialize a communicator
     // instance, this is actually a good thing as it affords some control over the driver while it is running.
     // 
-
     class WrapperBase
     {
 	public
@@ -337,9 +336,9 @@ public class TestApplication
 
     private static final int CMD_PRIORITY = 1;
 
-    static final private javax.microedition.lcdui.Command CMD_EXIT =
+    private javax.microedition.lcdui.Command CMD_EXIT =
         new javax.microedition.lcdui.Command("Exit", javax.microedition.lcdui.Command.EXIT, CMD_PRIORITY);
-    static final private javax.microedition.lcdui.Command CMD_STARTCLIENT =
+    private javax.microedition.lcdui.Command CMD_STARTCLIENT =
         new javax.microedition.lcdui.Command("Run", javax.microedition.lcdui.Command.ITEM, CMD_PRIORITY);
    
     private javax.microedition.lcdui.Display _display;
