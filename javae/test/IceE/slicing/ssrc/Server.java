@@ -9,8 +9,8 @@
 
 public class Server
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public static int
+    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
         Ice.Properties properties = communicator.getProperties();
         properties.setProperty("Ice.Warn.Dispatch", "0");
@@ -32,7 +32,7 @@ public class Server
         try
         {
             communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
+            status = run(args, communicator, System.out);
         }
         catch(Ice.LocalException ex)
         {

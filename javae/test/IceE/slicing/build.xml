@@ -76,6 +76,7 @@
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
         </manifest>
 
+	<copy overwrite="true" file="./config" todir="./cclasses"/>
 	<jar destfile="./tmp/ClientMIDlet.jar" manifest="./MANIFEST.MF" basedir="./cclasses"/>
 	<jar destfile="./tmp/ClientMIDlet.jar" manifest="./MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
 	    update="true"/>
@@ -119,7 +120,7 @@
     <!-- Write the descriptor files -->
     <target name="client-midlet" depends="client-midlet-jar" if="midp">
 	<length property="jarfile-length" file="./ClientMIDlet.jar"/>
-	<jadfile file="server.jad">
+	<jadfile file="client.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
 	    <attribute name="MIDlet-Jar-URL" value="ClientMIDlet.jar"/>
@@ -128,8 +129,8 @@
 	    <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
 	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
 	    <attribute name="MIDlet-Name" value="TestServer"/>
-	    <attribute name="runclient" value="false"/>
-	    <attribute name="runserver" value="true"/>
+	    <attribute name="runclient" value="true"/>
+	    <attribute name="runserver" value="false"/>
 	    <attribute name="MIDlet-Permissions" 
 		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
         </jadfile>

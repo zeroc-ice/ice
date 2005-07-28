@@ -63,24 +63,24 @@ public class AllTests
     }
 
     public static TestIntfPrx
-    allTests(Ice.Communicator communicator, boolean collocated)
+    allTests(Ice.Communicator communicator, boolean collocated, java.io.PrintStream out)
     {
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
+        out.print("testing stringToProxy... ");
+        out.flush();
         String ref = communicator.getProperties().getPropertyWithDefault("Test.Proxy", "Test:default -p 12345 -t 2000");
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing checked cast... ");
-        System.out.flush();
+        out.print("testing checked cast... ");
+        out.flush();
         TestIntfPrx test = TestIntfPrxHelper.checkedCast(base);
         test(test != null);
         test(test.equals(base));
-        System.out.println("ok");
+        out.println("ok");
 
-	System.out.print("base... ");
-        System.out.flush();
+	out.print("base... ");
+        out.flush();
 	{
 	    try
 	    {
@@ -97,10 +97,10 @@ public class AllTests
 		test(false);
 	    }
 	}
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("slicing of unknown derived... ");
-	System.out.flush();
+	out.print("slicing of unknown derived... ");
+	out.flush();
 	{
 	    try
 	    {
@@ -117,10 +117,10 @@ public class AllTests
 		test(false);
 	    }
 	}
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("non-slicing of known derived as base... ");
-	System.out.flush();
+	out.print("non-slicing of known derived as base... ");
+	out.flush();
 	{
 	    try
 	    {
@@ -138,10 +138,10 @@ public class AllTests
 		test(false);
 	    }
 	}
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("non-slicing of known derived as derived... ");
-	System.out.flush();
+	out.print("non-slicing of known derived as derived... ");
+	out.flush();
 	{
 	    try
 	    {
@@ -159,10 +159,10 @@ public class AllTests
 		test(false);
 	    }
 	}
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("slicing of unknown intermediate as base... ");
-	System.out.flush();
+	out.print("slicing of unknown intermediate as base... ");
+	out.flush();
 	{
 	    try
 	    {
@@ -179,10 +179,10 @@ public class AllTests
 		test(false);
 	    }
 	}
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("slicing of known intermediate as base... ");
-	System.out.flush();
+	out.print("slicing of known intermediate as base... ");
+	out.flush();
 	{
 	    try
 	    {
@@ -200,10 +200,10 @@ public class AllTests
 		test(false);
 	    }
 	}
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("slicing of known most derived as base... ");
-	System.out.flush();
+	out.print("slicing of known most derived as base... ");
+	out.flush();
 	{
 	    try
 	    {
@@ -222,10 +222,10 @@ public class AllTests
 		test(false);
 	    }
 	}
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("non-slicing of known intermediate as intermediate... ");
-	System.out.flush();
+	out.print("non-slicing of known intermediate as intermediate... ");
+	out.flush();
 	{
 	    try
 	    {
@@ -243,10 +243,10 @@ public class AllTests
 		test(false);
 	    }
 	}
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("non-slicing of known most derived as intermediate... ");
-	System.out.flush();
+	out.print("non-slicing of known most derived as intermediate... ");
+	out.flush();
 	{
 	    try
 	    {
@@ -265,10 +265,10 @@ public class AllTests
 		test(false);
 	    }
 	}
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("non-slicing of known most derived as most derived... ");
-	System.out.flush();
+	out.print("non-slicing of known most derived as most derived... ");
+	out.flush();
 	{
 	    try
 	    {
@@ -287,10 +287,10 @@ public class AllTests
 		test(false);
 	    }
 	}
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("slicing of unknown most derived, known intermediate as base... ");
-	System.out.flush();
+	out.print("slicing of unknown most derived, known intermediate as base... ");
+	out.flush();
 	{
 	    try
 	    {
@@ -308,10 +308,10 @@ public class AllTests
 		test(false);
 	    }
 	}
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("slicing of unknown most derived, known intermediate as intermediate... ");
-	System.out.flush();
+	out.print("slicing of unknown most derived, known intermediate as intermediate... ");
+	out.flush();
 	{
 	    try
 	    {
@@ -329,10 +329,10 @@ public class AllTests
 		test(false);
 	    }
 	}
-	System.out.println("ok");
+	out.println("ok");
 
-	System.out.print("slicing of unknown most derived, unknown intermediate thrown as base... ");
-	System.out.flush();
+	out.print("slicing of unknown most derived, unknown intermediate thrown as base... ");
+	out.flush();
 	{
 	    try
 	    {
@@ -349,7 +349,7 @@ public class AllTests
 		test(false);
 	    }
 	}
-	System.out.println("ok");
+	out.println("ok");
 
         return test;
     }
