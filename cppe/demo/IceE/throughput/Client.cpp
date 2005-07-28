@@ -87,7 +87,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     char currentType = '1';
     int seqSize = ByteSeqSize;
 
-    char c;
+    char c = EOF;
     do
     {
 	try

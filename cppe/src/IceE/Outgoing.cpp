@@ -58,6 +58,13 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
 	    break;
 	}
 #endif
+	default:
+	{
+	    //
+	    // TODO: Should this assert?
+	    //
+	    break;
+	}
     }
 
     _reference->getIdentity().__write(&_os);
@@ -243,6 +250,13 @@ IceInternal::Outgoing::invoke()
 	    break;
 	}
 #endif
+	default:
+	{
+	    //
+	    // TODO: Should this assert?
+	    //
+	    return false;
+	}
     }
 
     return true;

@@ -266,6 +266,13 @@ IceInternal::Reference::toString() const
 	    break;
 	}
 #endif
+	default:
+	{
+	    //
+	    // TODO: Should this assert?
+	    //
+	    break;
+	}
     }
 
     return s;

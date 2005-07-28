@@ -47,13 +47,13 @@ void
 CreateTest::run()
 {
     int nthreads = 4096;
+#ifdef _WIN32_WCE
     //
     // 4096 threads takes forever to start on the WinCe emulator.
     //
-#ifdef _WIN32_WCE
     nthreads = 512;
 #endif
-    for(int i = 0; i < 4096 ; ++i)
+    for(int i = 0; i < nthreads ; ++i)
     {
 	CreateTestThreadPtr t = new CreateTestThread();
 	ThreadControl control = t->start();

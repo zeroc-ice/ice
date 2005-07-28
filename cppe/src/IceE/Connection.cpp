@@ -718,17 +718,17 @@ Ice::Connection::Connection(const InstancePtr& instance,
     _traceLevels(_instance->traceLevels()), // Cached for better performance.
     _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
     _requestHdr(headerSize + sizeof(Int), 0),
+#ifndef ICEE_PURE_CLIENT
+    _replyHdr(headerSize, 0),
+#endif
+    _nextRequestId(1),
+    _requestsHint(_requests.end()),
 #ifdef ICEE_HAS_BATCH
     _requestBatchHdr(headerSize + sizeof(Int), 0),
     _batchStream(_instance.get()),
     _batchStreamInUse(false),
     _batchRequestNum(0),
 #endif
-#ifndef ICEE_PURE_CLIENT
-    _replyHdr(headerSize, 0),
-#endif
-    _nextRequestId(1),
-    _requestsHint(_requests.end()),
     _dispatchCount(0),
     _state(StateNotValidated),
     _stateTime(IceUtil::Time::now())
@@ -1534,8 +1534,8 @@ Ice::Connection::run()
 	}
 
 	Int requestId = 0;
-	Int invokeNum = 0;
 #ifndef ICEE_PURE_CLIENT
+	Int invokeNum = 0;
 	ServantManagerPtr servantManager;
 	ObjectAdapterPtr adapter;
 #endif

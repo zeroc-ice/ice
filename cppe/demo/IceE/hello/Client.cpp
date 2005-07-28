@@ -53,7 +53,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     menu();
 
-    char c;
+    char c = EOF;
     do
     {
 	try

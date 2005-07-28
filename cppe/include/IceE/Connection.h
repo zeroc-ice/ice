@@ -173,9 +173,6 @@ private:
     const bool _warn;
 
     const std::vector<Byte> _requestHdr;
-#ifdef ICEE_HAS_BATCH
-    const std::vector<Byte> _requestBatchHdr;
-#endif
 #ifndef ICEE_PURE_CLIENT
     const std::vector<Byte> _replyHdr;
 #endif
@@ -188,6 +185,7 @@ private:
     std::auto_ptr<LocalException> _exception;
 
 #ifdef ICEE_HAS_BATCH
+    const std::vector<Byte> _requestBatchHdr;
     IceInternal::BasicStream _batchStream;
     bool _batchStreamInUse;
     int _batchRequestNum;

@@ -25,6 +25,10 @@ class ICEE_TEST_COMMON_API TestApplication
 public:
 
     TestApplication(const std::string& = "");
+    virtual ~TestApplication()
+    {
+    }
+
 #ifdef _WIN32_WCE
     int main(HINSTANCE);
 #else

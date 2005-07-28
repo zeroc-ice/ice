@@ -41,7 +41,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     menu();
 
-    char c;
+    char c = EOF;
     do
     {
 	try
@@ -49,7 +49,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    printf("==> ");
 	    do
 	    {
-	    c = getchar();
+	        c = getchar();
 	    }
 	    while(c != EOF && c == '\n');
 	    if(c == 'h')
