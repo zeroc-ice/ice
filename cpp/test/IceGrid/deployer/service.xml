@@ -1,27 +1,23 @@
 <icegrid>
 
-  <service name="${name}" entry="TestService:create">
+  <service-template id="ServiceTemplate">
+    <parameter name="name"/>
+    <parameter name="NodeVarOverridedByParam"/>
+    <service name="${name}" entry="TestService:create">
 
-    <adapters>
-      <adapter name="${name}" endpoints="default">
-        <object identity="${server}-${name}" type="::Test"/>
+      <adapter name="${service}" endpoints="default">
+	<object identity="${server}-${service}" type="::Test"/>
       </adapter>
-      <adapter name="${name}.Replicated" endpoints="default" id="ReplicatedAdapter"/>
-    </adapters>
-
-    <properties>
-      <property name="${name}.InheritedVariable" value="${inheritedvar}"/>
       <property name="${name}.Identity" value="${server}-${name}"/>
       <property name="${name}.Type" value="standard"/>
       <property name="${name}.ServiceName" value="${name}"/>
-    </properties>
 
-    <target name="debug">
-      <properties>
-        <property name="${name}.DebugProperty" value="debug"/>
-      </properties>
-    </target>
+      <include descriptor="varproperties.xml"/>
 
-  </service>
+      <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
+      <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
+     
+    </service>
+  </service-template>
 
 </icegrid>

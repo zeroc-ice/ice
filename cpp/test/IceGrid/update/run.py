@@ -40,7 +40,12 @@ node1Dir = os.path.join(testdir, "db", "node-1")
 if not os.path.exists(node1Dir):
     os.mkdir(node1Dir)
 IceGridAdmin.cleanServerDir(node1Dir);
-    
+
+node2Dir = os.path.join(testdir, "db", "node-2")
+if not os.path.exists(node2Dir):
+    os.mkdir(node2Dir)
+IceGridAdmin.cleanServerDir(node2Dir);
+
 print "starting client...",
 clientPipe = os.popen(client + TestUtil.clientServerOptions + additionalOptions + " 2>&1")
 print "ok"

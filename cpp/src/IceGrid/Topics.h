@@ -53,7 +53,7 @@ public:
     RegistryObserverTopic(const IceStorm::TopicPrx&, const RegistryObserverPrx&, NodeObserverTopic&);
     virtual void init(int, const ApplicationDescriptorSeq&, const Ice::Current&);
 
-    virtual void applicationAdded(int, const ApplicationDescriptorPtr&, const Ice::Current&);
+    virtual void applicationAdded(int, const ApplicationDescriptor&, const Ice::Current&);
     virtual void applicationRemoved(int, const std::string&, const Ice::Current&);
     virtual void applicationUpdated(int, const ApplicationUpdateDescriptor&, const Ice::Current&);
 

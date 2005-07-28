@@ -15,6 +15,22 @@
 #include <fstream>
 
 using namespace std;
-using namespace Ice;
 using namespace IceGrid;
+
+string 
+IceGrid::toString(const vector<string>& v)
+{
+    ostringstream os;
+    Ice::StringSeq::const_iterator p = v.begin();
+    while(p != v.end())
+    {
+	os << *p;
+	++p;
+	if(p != v.end())
+	{
+	    os << " ";
+	}
+    }
+    return os.str();
+}
 

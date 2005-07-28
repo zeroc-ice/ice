@@ -2,109 +2,15 @@
 
   <application name="test">
 
-    <server-template id="ServerTemplate" name="${name}" exe="${test.dir}/server" activation="on-demand">
-
-      <parameter name="name"/>
-
-      <variable name="var0" value="val0"/>
-
-      <option>--Test.Test=2</option>
-      <option>--Test.Test1=0</option>
-
-      <target name="manual">
-        <properties>
-          <property name="Mode" value="manual"/>
-        </properties>
-      </target>
-
-      <adapters>
-        <adapter name="Server" endpoints="default">
-	  <object identity="${server}" type="::Test"/>
-        </adapter>
-      </adapters>
-
-      <properties>
-        <variable name="var0" value="val0prop"/>
-        <property name="Variable" value="${var0}"/>
-        <property name="Type" value="Server"/>
-        <property name="Name" value="${name}"/>
-        <property name="NameName" value="${name}${name}"/>
-        <property name="NameEscaped" value="$${name}"/>
-        <property name="NameEscapeEscaped" value="$$${name}"/> 
-        <property name="NameEscapedEscapeEscaped" value="$$$${name}"/> 
-        <property name="ManyEscape" value="$$$$$$$${name}"/>
-        <property name="Ice.Warn.Connections" value="1"/>
-      </properties>
-
-      <envs>
-        <env>MY_ENV_VARIABLE=12</env>
-      </envs>
-    </server-template>
-    
-    <service-template id="ServiceTemplate" name="${name}" entry="TestService:create">
-
-      <parameter name="name"/>
-
-      <adapters>
-        <adapter name="${service}" endpoints="default">
-          <object identity="${server}-${service}" type="::Test"/>
-        </adapter>
-      </adapters>
-
-      <properties>
-        <property name="${name}.InheritedVariable" value="${inheritedvar}"/>
-        <property name="${name}.Identity" value="${server}-${name}"/>
-        <property name="${name}.Type" value="standard"/>
-        <property name="${name}.ServiceName" value="${name}"/>
-      </properties>
-
-    </service-template>
-
-    <service-template id="FreezeServiceTemplate" name="${name}" entry="TestService:create">
-
-      <parameter name="name"/>
-
-      <adapters>
-	<adapter name="${name}" endpoints="default" id="${server}${name}Adapter">
-	  <object identity="${server}-${name}" type="::Test"/>
-	</adapter>
-      </adapters>
-
-      <properties>
-	<property name="${name}.Identity" value="${server}-${name}"/>
-	<property name="${name}.Type" value="freeze"/>
-	<property name="${name}.ServiceName" value="${name}"/>
-
-      </properties>
-
-      <dbenv name="${name}">
-	<dbproperty name="set_cachesize" value="0 52428800 1"/>
-      </dbenv>
-
-    </service-template>
-
-    <server-template id="IceBoxTemplate" name="${name}" interpreter="icebox" endpoints="default" 
-                     exe="${ice.dir}/bin/icebox" activation="on-demand">
-
-      <parameter name="name"/>
-
-      <variable name="inheritedvar" value="inherited"/>
-  
-      <service-instance template="ServiceTemplate" name="Service1"/>
-      <service-instance template="FreezeServiceTemplate" name="Service2"/>
-
-      <properties>
-        <property name="Ice.Warn.Connections" value="1"/>
-      </properties>
-    </server-template>
+    <!-- Include server templates -->
+    <include descriptor="icebox.xml"/>
+    <include descriptor="server.xml"/>    
 
     <node name="localnode">
-
       <server-instance template="IceBoxTemplate" name="IceBox1"/>
       <server-instance template="IceBoxTemplate" name="IceBox2"/>
       <server-instance template="ServerTemplate" name="Server1"/>
       <server-instance template="ServerTemplate" name="Server2"/>
-
     </node>
 
   </application>

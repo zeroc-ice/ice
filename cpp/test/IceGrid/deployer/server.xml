@@ -1,65 +1,48 @@
 <icegrid>
 
-<server name="${name}" exe="${test.dir}/server" activation="on-demand">
+  <server-template id="ServerTemplate">
 
-  <variable name="var0" value="val0"/>
+    <parameter name="name"/>
+    <parameter name="AppVarOverridedByParam"/>
+    <parameter name="Param1"/>
+    <parameter name="Param2"/>
+    <parameter name="ParamEscaped"/>
+    <parameter name="ParamDoubleEscaped"/>
 
-  <option>--Test.Test=2</option>
-  <option>--Test.Test1=0</option>
+    <server id="${name}" exe="${test.dir}/server" activation="on-demand">
 
-  <target name="manual">
-    <properties>
-      <property name="Mode" value="manual"/>
-    </properties>
-  </target>
+      <option>--Test.Test=2</option>
+      <option>--Test.Test1=0</option>
 
-  <adapters>
-    <adapter name="Server" endpoints="default">
-      <object identity="${name}" type="::Test"/>
-    </adapter>
-  </adapters>
+      <adapter name="Server" endpoints="default">
+	<object identity="${server}" type="::Test"/>
+      </adapter>
+      <adapter name="ReplicatedAdapter" endpoints="default" id="ReplicatedAdapter"/>
 
-  <variable name="var0" value="val0prop"/>
-  <target name="target1">
-    <variable name="var0" value="val0target1"/>
-  </target>
+      <property name="Type" value="Server"/>
+      <property name="Name" value="${name}"/>
+      <property name="NameName" value="${name}${name}"/>
+      <property name="NameEscaped" value="$${name}"/>
+      <property name="NameEscapeEscaped" value="$$${name}"/> 
+      <property name="NameEscapedEscapeEscaped" value="$$$${name}"/> 
+      <property name="ManyEscape" value="$$$$$$$${name}"/>
+      <property name="Ice.Warn.Connections" value="1"/>
 
-  <properties>
-    <property name="Variable" value="${var0}"/>
-    <property name="Type" value="Server"/>
-    <property name="Name" value="${name}"/>
-    <property name="NameName" value="${name}${name}"/>
-    <property name="NameEscaped" value="$${name}"/>
-    <property name="NameEscapeEscaped" value="$$${name}"/> 
-    <property name="NameEscapedEscapeEscaped" value="$$$${name}"/> 
-    <property name="ManyEscape" value="$$$$$$$${name}"/>
-    <property name="Ice.Warn.Connections" value="1"/>
-  </properties>
+      <include descriptor="varproperties.xml"/>
 
-  <target name="target1">
-    <properties>
-      <property name="Variable" value="${var0}"/>
-      <property name="Target1" value="1"/>
-    </properties>    
-  </target>
+      <property name="Param1Prop" value="${Param1}"/>
+      <property name="Param2Prop" value="${Param2}"/>
+      <property name="ParamEscapedProp" value="${ParamEscaped}"/>
+      <property name="ParamDoubleEscapedProp" value="${ParamDoubleEscaped}"/>
+      <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
+      <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
 
-  <target name="target2">
-    <properties>
-      <property name="Target2" value="1"/>
-    </properties>    
-  
-    <target name="target22">
-      <properties>
-        <property name="Target2" value="2"/>
-      </properties>    
-    </target>
+      <env>MY_ENV_VARIABLE=12</env>
 
-  </target>
+      <target name="moreproperties">
+         <property name="TargetProp" value="1"/>
+      </target>
 
-  <envs>
-    <env>MY_ENV_VARIABLE=12</env>
-  </envs>
-
-</server>
-
+    </server>
+  </server-template>
 </icegrid>

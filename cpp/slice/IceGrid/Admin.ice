@@ -56,6 +56,18 @@ struct ObjectInfo
 };
 sequence<ObjectInfo> ObjectInfoSeq;
 
+struct ServerInfo
+{
+    /** The server application. */
+    string application;
+
+    /** The server node. */
+    string node;
+       
+    /** The server descriptor. */
+    ServerDescriptor descriptor;
+};
+
 /**
  *
  * The &IceGrid; administrative interface. <warning><para>Allowing
@@ -150,37 +162,23 @@ interface Admin
 
     /**
      *
-     * Get a server descriptor.
+     * Get the server information for the server with the given id.
      *
-     * @param name The server name.
-     *
-     * @throws ServerNotExistException Raised if the server doesn't exist.
-     *
-     * @returns The server descriptor.
-     *
-     **/
-    nonmutating ServerInstanceDescriptor getServerDescriptor(string name)
-	throws ServerNotExistException;
-
-    /**
-     *
-     * Get the name of the application of the given server.
-     *
-     * @param name The server name.
+     * @param id The server id.
      *
      * @throws ServerNotExistException Raised if the server doesn't exist.
      *
-     * @returns The server descriptor.
+     * @returns The server information.
      *
      **/
-    nonmutating string getServerApplication(string name)
+    nonmutating ServerInfo getServerInfo(string id)
 	throws ServerNotExistException;
 
     /**
      *
      * Get a server's state.
      *
-     * @param name The name of the server.
+     * @param id The id of the server.
      *
      * @return The server state.
      * 
@@ -191,10 +189,10 @@ interface Admin
      * reached.
      *
      * @see getServerPid
-     * @see getAllServerNames
+     * @see getAllServerIds
      *
      **/
-    nonmutating ServerState getServerState(string name)
+    nonmutating ServerState getServerState(string id)
 	throws ServerNotExistException, NodeUnreachableException;
     
     /**
@@ -202,7 +200,7 @@ interface Admin
      * Get a server's system process id. The process id is operating
      * system dependent.
      *
-     * @param name The name of the server.
+     * @param id The id of the server.
      *
      * @return The server process id.
      * 
@@ -213,17 +211,17 @@ interface Admin
      * reached.
      *
      * @see getServerState
-     * @see getAllServerNames
+     * @see getAllServerIds
      *
      **/
-    nonmutating int getServerPid(string name)
+    nonmutating int getServerPid(string id)
 	throws ServerNotExistException, NodeUnreachableException;
 
     /**
      *
      * Get the server's activation mode.
      *
-     * @param name The name of the server.
+     * @param id The id of the server.
      *
      * @return The server activation mode.
      * 
@@ -234,17 +232,17 @@ interface Admin
      * reached.
      *
      * @see getServerState
-     * @see getAllServerNames
+     * @see getAllServerIds
      *
      **/
-    nonmutating ServerActivation getServerActivation(string name)
+    nonmutating ServerActivation getServerActivation(string id)
 	throws ServerNotExistException, NodeUnreachableException;
 
     /**
      *
      * Set the server's activation mode.
      *
-     * @param name The name of the server.
+     * @param id The id of the server.
      *
      * @return The server activation mode.
      * 
@@ -255,17 +253,17 @@ interface Admin
      * reached.
      *
      * @see getServerState
-     * @see getAllServerNames
+     * @see getAllServerIds
      *
      **/
-    void setServerActivation(string name, ServerActivation mode)
+    void setServerActivation(string id, ServerActivation mode)
 	throws ServerNotExistException, NodeUnreachableException;
 
     /**
      *
      * Start a server.
      *
-     * @param name The name of the server.
+     * @param id The id of the server.
      *
      * @return True if the server was successfully started, false
      * otherwise.
@@ -277,14 +275,14 @@ interface Admin
      * reached.
      *
      **/
-    bool startServer(string name)
+    bool startServer(string id)
 	throws ServerNotExistException, NodeUnreachableException;
 
     /**
      *
      * Stop a server.
      *
-     * @param name The name of the server.
+     * @param id The id of the server.
      *
      * @throws ServerNotExistException Raised if the server is not
      * found.
@@ -293,7 +291,7 @@ interface Admin
      * reached.
      *
      **/
-    void stopServer(string name)
+    void stopServer(string id)
 	throws ServerNotExistException, NodeUnreachableException;
 
 
@@ -301,7 +299,7 @@ interface Admin
      *
      * Send signal to a server.
      *
-     * @param name The name of the server.
+     * @param id The id of the server.
      *
      * @param signal The signal, for example SIGTERM or 15.
      *
@@ -315,14 +313,14 @@ interface Admin
      * by the target server.
      *
      **/
-    void sendSignal(string name, string signal)
+    void sendSignal(string id, string signal)
 	throws ServerNotExistException, NodeUnreachableException, BadSignalException;
 
     /**
      *
      * Write message on server stdout or stderr
      *
-     * @param name The name of the server.
+     * @param id The id of the server.
      *
      * @param message The message.
      *
@@ -335,19 +333,19 @@ interface Admin
      * reached.
      *
      **/
-    void writeMessage(string name, string message, int fd)
+    void writeMessage(string id, string message, int fd)
 	throws ServerNotExistException, NodeUnreachableException;
 
     /**
      *
-     * Get all the server names registered with &IceGrid;.
+     * Get all the server ids registered with &IceGrid;.
      *
-     * @return The server names.
+     * @return The server ids.
      *
      * @see getServerState
      *
      **/
-    nonmutating Ice::StringSeq getAllServerNames();
+    nonmutating Ice::StringSeq getAllServerIds();
 
     /**
      *

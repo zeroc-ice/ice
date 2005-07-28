@@ -74,7 +74,7 @@ private:
     
     void update(const ServerDescriptorPtr&, StringAdapterPrxDict&, int&, int&, const Ice::Current&);
     AdapterPrx addAdapter(const AdapterDescriptor&, const Ice::Current&);
-    void updateConfigFile(const std::string&, const ComponentDescriptorPtr&);
+    void updateConfigFile(const std::string&, const CommunicatorDescriptorPtr&);
     void updateDbEnv(const std::string&, const DbEnvDescriptor&);
     PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
     ServerState toServerState(InternalServerState) const;

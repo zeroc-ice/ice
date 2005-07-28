@@ -2,14 +2,78 @@
 
   <application name="test">
 
-    <replicated-adapter id="ReplicatedAdapter"/>
+    <!-- Include server templates -->
+    <include descriptor="icebox.xml"/>
+    <include descriptor="server.xml"/>    
+
+    <replicated-adapter id="ReplicatedAdapter">
+      <object identity="ReplicatedObject" type="::Test"/>
+    </replicated-adapter>
+
+    <!-- Variables for variable test -->
+    <variable name="AppVar" value="AppVar"/>
+    <variable name="RecursiveAppVar" value="${var1}"/>
+    <variable name="AppVarOverrided" value="OverrideMe"/>
+    <variable name="var1" value="${application}"/>
+    <variable name="AppVarDefinedInNode" value="${RecursiveNodeVar}"/>
+    <variable name="EscapedAppVar" value="$${escaped}"/>
+    <variable name="RecursiveEscapedAppVar" value="${EscapedAppVar}"/>
+    <variable name="Recursive2EscapedAppVar" value="${RecursiveEscapedAppVar}"/>
+    <variable name="test.dir" value="NotThisValue"/> 
+
+    <!-- Variables for parameter test -->
+    <variable name="AppVarOverridedByParam" value="Test"/>
 
     <node name="localnode">
+ 
+      <!-- Variables for variable test -->
+      <variable name="NodeVar" value="NodeVar"/>
+      <variable name="AppVarOverrided" value="OverridedInNode"/>
+      <variable name="RecursiveNodeVar" value="${node}"/>
 
-      <include name="IceBox1" descriptor="icebox.xml"/>
-      <include name="IceBox2" descriptor="icebox.xml"/>
-      <include name="Server1" descriptor="server.xml"/>
-      <include name="Server2" descriptor="server.xml" targets="target1 target2"/>
+      <!-- Variables for parameter test -->
+      <variable name="NodeVarOverridedByParam" value="Test"/>
+      <variable name="escaped" value="escapedvalue"/>
+      <variable name="varpe" value="$${escaped}"/>
+      <variable name="varpde" value="$$${escaped}"/>
+
+      <server-instance template="IceBoxTemplate" name="IceBox1" AppVarOverridedByParam="Overrided"/>
+      <server-instance template="IceBoxTemplate" name="IceBox2" AppVarOverridedByParam="Overrided"/>
+
+      <server-instance template="ServerTemplate" name="Server1"
+        AppVarOverridedByParam="Overrided" Param1="Param1"
+        Param2="${AppVar}" ParamEscaped="$${escaped}" ParamDoubleEscaped="$$${escaped}"/>
+      <server-instance template="ServerTemplate" name="Server2"
+        AppVarOverridedByParam="Overrided" Param1="Param12"
+        Param2="${AppVarOverrided}" ParamEscaped="${varpe}" ParamDoubleEscaped="${varpde}"/>
+
+      <server id="SimpleServer" exe="${test.dir}/server" activation="on-demand">
+        <adapter name="Server" endpoints="default">
+  	  <object identity="${server}" type="::Test"/>
+        </adapter>
+        <option>--Test.Test=2</option>
+        <include descriptor="varproperties.xml"/>
+        <env>MY_ENV_VARIABLE=12</env>
+      </server>
+
+      <icebox id="SimpleIceBox" exe="${ice.dir}/bin/icebox" activation="on-demand" endpoints="default">
+	<service name="SimpleService" entry="TestService:create">
+	  <adapter name="${service}" endpoints="default">
+	    <object identity="${server}-${service}" type="::Test"/>
+	  </adapter>
+	  <property name="${service}.Identity" value="${server}-${service}"/>
+	  <property name="${service}.Type" value="standard"/>
+	  <property name="${service}.ServiceName" value="${service}"/>
+	  <include descriptor="varproperties.xml"/>
+	</service>
+      </icebox>
+
+      <target name="moreservers">
+        <server-instance template="IceBoxTemplate" name="IceBox3" AppVarOverridedByParam="Overrided"/>
+        <server-instance template="ServerTemplate" name="Server3"
+          AppVarOverridedByParam="Overrided" Param1="Param12"
+          Param2="${AppVarOverrided}" ParamEscaped="${varpe}" ParamDoubleEscaped="${varpde}"/>
+      </target>
 
     </node>
 

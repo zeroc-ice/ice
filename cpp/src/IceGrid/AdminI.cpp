@@ -35,13 +35,13 @@ AdminI::~AdminI()
 }
 
 void
-AdminI::addApplication(const ApplicationDescriptorPtr& descriptor, const Current&)
+AdminI::addApplication(const ApplicationDescriptor& descriptor, const Current&)
 {
     _database->addApplicationDescriptor(0, descriptor);
 }
 
 void
-AdminI::syncApplication(const ApplicationDescriptorPtr& descriptor, const Current&)
+AdminI::syncApplication(const ApplicationDescriptor& descriptor, const Current&)
 {
     _database->syncApplicationDescriptor(0, descriptor);
 }
@@ -58,7 +58,7 @@ AdminI::removeApplication(const string& name, const Current&)
     _database->removeApplicationDescriptor(0, name);
 }
 
-ApplicationDescriptorPtr
+ApplicationDescriptor
 AdminI::getApplicationDescriptor(const string& name, const Current&) const
 {
     return _database->getApplicationDescriptor(name);
@@ -70,22 +70,16 @@ AdminI::getAllApplicationNames(const Current&) const
     return _database->getAllApplications();
 }
 
-ServerInstanceDescriptor
-AdminI::getServerDescriptor(const string& name, const Current&) const
+ServerInfo
+AdminI::getServerInfo(const string& id, const Current&) const
 {
-    return _database->getServerDescriptor(name);
-}
-
-string
-AdminI::getServerApplication(const string& name, const Current&) const
-{
-    return _database->getServerApplication(name);
+    return _database->getServerInfo(id);
 }
 
 ServerState
-AdminI::getServerState(const string& name, const Current&) const
+AdminI::getServerState(const string& id, const Current&) const
 {
-    ServerPrx server = _database->getServer(name);
+    ServerPrx server = _database->getServer(id);
     try
     {
 	return server->getState();
@@ -101,9 +95,9 @@ AdminI::getServerState(const string& name, const Current&) const
 }
 
 Ice::Int
-AdminI::getServerPid(const string& name, const Current&) const
+AdminI::getServerPid(const string& id, const Current&) const
 {
-    ServerPrx server = _database->getServer(name);
+    ServerPrx server = _database->getServer(id);
     try
     {
 	return server->getPid();
@@ -119,10 +113,10 @@ AdminI::getServerPid(const string& name, const Current&) const
 }
 
 bool
-AdminI::startServer(const string& name, const Current&)
+AdminI::startServer(const string& id, const Current&)
 {
     int activationTimeout, deactivationTimeout;
-    ServerPrx server = _database->getServerWithTimeouts(name, activationTimeout, deactivationTimeout);
+    ServerPrx server = _database->getServerWithTimeouts(id, activationTimeout, deactivationTimeout);
     server = ServerPrx::uncheckedCast(server->ice_timeout(activationTimeout * 1000));
     try
     {
@@ -143,10 +137,10 @@ AdminI::startServer(const string& name, const Current&)
 }
 
 void
-AdminI::stopServer(const string& name, const Current&)
+AdminI::stopServer(const string& id, const Current&)
 {
     int activationTimeout, deactivationTimeout;
-    ServerPrx server = _database->getServerWithTimeouts(name, activationTimeout, deactivationTimeout);
+    ServerPrx server = _database->getServerWithTimeouts(id, activationTimeout, deactivationTimeout);
     server = ServerPrx::uncheckedCast(server->ice_timeout(deactivationTimeout * 1000));
     try
     {
@@ -166,9 +160,9 @@ AdminI::stopServer(const string& name, const Current&)
 }
 
 void
-AdminI::sendSignal(const string& name, const string& signal, const Current&)
+AdminI::sendSignal(const string& id, const string& signal, const Current&)
 {
-    ServerPrx server = _database->getServer(name);
+    ServerPrx server = _database->getServer(id);
     try
     {
 	server->sendSignal(signal);
@@ -184,9 +178,9 @@ AdminI::sendSignal(const string& name, const string& signal, const Current&)
 }
 
 void
-AdminI::writeMessage(const string& name, const string& message, Int fd, const Current&)
+AdminI::writeMessage(const string& id, const string& message, Int fd, const Current&)
 {
-    ServerPrx server = _database->getServer(name);
+    ServerPrx server = _database->getServer(id);
     try
     {
 	server->writeMessage(message, fd);
@@ -203,15 +197,15 @@ AdminI::writeMessage(const string& name, const string& message, Int fd, const Cu
 
 
 StringSeq
-AdminI::getAllServerNames(const Current&) const
+AdminI::getAllServerIds(const Current&) const
 {
     return _database->getAllServers();
 }
 
 ServerActivation 
-AdminI::getServerActivation(const ::std::string& name, const Ice::Current&) const
+AdminI::getServerActivation(const ::std::string& id, const Ice::Current&) const
 {
-    ServerPrx server = _database->getServer(name);
+    ServerPrx server = _database->getServer(id);
     try
     {
 	return server->getActivationMode();
@@ -227,9 +221,9 @@ AdminI::getServerActivation(const ::std::string& name, const Ice::Current&) cons
 }
 
 void 
-AdminI::setServerActivation(const ::std::string& name, ServerActivation mode, const Ice::Current&)
+AdminI::setServerActivation(const ::std::string& id, ServerActivation mode, const Ice::Current&)
 {
-    ServerPrx server = _database->getServer(name);
+    ServerPrx server = _database->getServer(id);
     try
     {
 	server->setActivationMode(mode);

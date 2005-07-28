@@ -131,9 +131,14 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	    throw Ice::AdapterNotFoundException();
 	}
     }
+    catch(const NodeUnreachableException&)
+    {
+	cb->ice_response(); // TODO: print a warning?
+	return;
+    }
     catch(const Ice::LocalException&)
     {
-	cb->ice_response();
+	cb->ice_response(); // TODO: print a warning?
 	return;
     }
     
@@ -165,6 +170,11 @@ LocatorRegistryI::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_set
     }
     catch(const ServerNotExistException&)
     {
+    }
+    catch(const NodeUnreachableException&)
+    {
+	cb->ice_response(); // TODO: print a warning?
+	return;
     }
     catch(const Ice::LocalException&)
     {

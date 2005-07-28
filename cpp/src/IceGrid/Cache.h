@@ -51,7 +51,7 @@ public:
 
 protected:
 
-    ValuePtr 
+    virtual ValuePtr 
     getImpl(const Key& key, bool create = false)
     {
 	typename std::map<Key, ValuePtr>::iterator p = _entries.end();
@@ -88,7 +88,7 @@ protected:
 	}
     }
 
-    ValuePtr
+    virtual ValuePtr
     removeImpl(const Key& key)
     {
 	typename std::map<Key, ValuePtr>::iterator p = _entries.end();

@@ -40,15 +40,26 @@ AdapterEntry::AdapterEntry(Cache<string, AdapterEntry>& cache, const std::string
 void
 AdapterEntry::enableReplication(LoadBalancingPolicy policy)
 {
-    Lock sync(*this);
-    _replicated = true;
-    _loadBalancing = policy;
+    {
+	Lock sync(*this);
+	_replicated = true;
+	_loadBalancing = policy;
+    }
 }
 
 void
 AdapterEntry::disableReplication()
 {
-    _replicated = false;
+    bool remove;
+    {
+	Lock sync(*this);
+	_replicated = false;
+	remove = _servers.empty();
+    }
+    if(remove)
+    {
+	_cache.remove(_id);
+    }
 }
 
 void
@@ -73,12 +84,12 @@ AdapterEntry::removeServer(const ServerEntryPtr& entry)
 		break;
 	    }
 	}
-	remove = _servers.empty();
+	remove = _servers.empty() && !_replicated;
     }
     if(remove)
     {
 	_cache.remove(_id);
-    }    
+    }
 }
 
 vector<pair<string, AdapterPrx> >
@@ -126,7 +137,7 @@ AdapterEntry::getProxies(int& endpointCount)
     {
 	try
 	{
-	    adapters.push_back(make_pair((*p)->getName(), (*p)->getAdapter(_id)));
+	    adapters.push_back(make_pair((*p)->getId(), (*p)->getAdapter(_id)));
 	}
 	catch(const NodeUnreachableException&)
 	{
@@ -161,7 +172,7 @@ AdapterEntry::getProxy(const string& serverId) const
 	{
 	    for(ServerEntrySeq::const_iterator p = _servers.begin(); p != _servers.end(); ++p)
 	    {
-		if((*p)->getName() == serverId)
+		if((*p)->getId() == serverId)
 		{
 		    server = *p;
 		    break;
@@ -173,7 +184,7 @@ AdapterEntry::getProxy(const string& serverId) const
     if(!server)
     {
 	ServerNotExistException ex;
-	ex.name = serverId;
+	ex.id = serverId;
 	throw ex;
     }
 
@@ -184,5 +195,5 @@ bool
 AdapterEntry::canRemove()
 {
     Lock sync(*this);
-    return _servers.empty();
+    return _servers.empty() && !_replicated;
 }

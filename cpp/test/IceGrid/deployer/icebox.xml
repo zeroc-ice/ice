@@ -1,16 +1,22 @@
 <icegrid>
 
-  <server name="${name}" interpreter="icebox" endpoints="default" exe="${ice.dir}/bin/icebox" activation="on-demand">
+  <!-- Include service templates -->
+  <include descriptor="service.xml"/>
+  <include descriptor="freezeservice.xml"/>
 
-    <variable name="inheritedvar" value="inherited"/>
-  
-    <include name="Service1" descriptor="service.xml"/>
-    <include name="Service2" descriptor="freezeservice.xml"/>
+  <server-template id="IceBoxTemplate">
+    <parameter name="name"/>
+    <parameter name="AppVarOverridedByParam"/>
+    <icebox id="${name}" endpoints="default" exe="${ice.dir}/bin/icebox" activation="on-demand">  
+      <service-instance template="ServiceTemplate" name="Service1" NodeVarOverridedByParam="Overrided"/>
+      <service-instance template="FreezeServiceTemplate" name="Service2"/>
 
-    <properties>
+      <target name="moreservices">
+        <service-instance template="ServiceTemplate" name="Service3" NodeVarOverridedByParam="Overrided"/>
+      </target>
+
       <property name="Ice.Warn.Connections" value="1"/>
-    </properties>
-
-  </server>
+    </icebox>
+  </server-template>
 
 </icegrid>

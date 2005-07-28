@@ -38,6 +38,8 @@ class ObserverSessionI;
 class ServerEntry;
 typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
 
+class ApplicationHelper;
+
 class Database : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
@@ -50,21 +52,20 @@ public:
     void lock(int serial, ObserverSessionI*, const std::string&);
     void unlock(ObserverSessionI*);
 
-    void addApplicationDescriptor(ObserverSessionI*, const ApplicationDescriptorPtr&);
+    void addApplicationDescriptor(ObserverSessionI*, const ApplicationDescriptor&);
     void updateApplicationDescriptor(ObserverSessionI*, const ApplicationUpdateDescriptor&);
-    void syncApplicationDescriptor(ObserverSessionI*, const ApplicationDescriptorPtr&);
+    void syncApplicationDescriptor(ObserverSessionI*, const ApplicationDescriptor&);
     void removeApplicationDescriptor(ObserverSessionI*, const std::string&);
 
-    ApplicationDescriptorPtr getApplicationDescriptor(const std::string&);
+    ApplicationDescriptor getApplicationDescriptor(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());
 
     void addNode(const std::string&, const NodeSessionIPtr&);
     NodePrx getNode(const std::string&) const;
     void removeNode(const std::string&);
     Ice::StringSeq getAllNodes(const std::string& = std::string());
-    
-    ServerInstanceDescriptor getServerDescriptor(const std::string&);
-    std::string getServerApplication(const std::string&);
+
+    ServerInfo getServerInfo(const std::string&);
     ServerPrx getServer(const std::string&);
     ServerPrx getServerWithTimeouts(const std::string&, int&, int&);
     Ice::StringSeq getAllServers(const std::string& = std::string());
@@ -91,23 +92,16 @@ public:
 
 private:
 
-    void syncApplicationDescriptorNoSync(const ApplicationDescriptorPtr&, const ApplicationDescriptorPtr&, 
-					 ServerEntrySeq&);
-
-    void addServers(const std::string&, const ServerInstanceDescriptorSeq&, const std::set<std::string>&, 
-		    ServerEntrySeq&);
-    void updateServers(const ApplicationDescriptorPtr&, const ApplicationDescriptorPtr&,
-		       const std::set<std::string>&, ServerEntrySeq&);
-    void removeServers(const std::string&, const ServerInstanceDescriptorSeq&, const std::set<std::string>&, 
-		       ServerEntrySeq&);
-
-    ServerEntryPtr addServer(const std::string&, const ServerInstanceDescriptor&);
-    ServerEntryPtr updateServer(const ServerInstanceDescriptor&);
-    ServerEntryPtr removeServer(const std::string&, const ServerInstanceDescriptor&);
+    void checkForAddition(const ApplicationHelper&);
+    void checkForUpdate(const ApplicationHelper&, const ApplicationHelper&);
 
     void checkServerForAddition(const std::string&);
     void checkAdapterForAddition(const std::string&);
     void checkObjectForAddition(const Ice::Identity&);
+
+    void load(const ApplicationHelper&, ServerEntrySeq&);
+    void unload(const ApplicationHelper&, ServerEntrySeq&);
+    void reload(const ApplicationHelper&, const ApplicationHelper&, ServerEntrySeq&);
 
     void checkSessionLock(ObserverSessionI*);
 

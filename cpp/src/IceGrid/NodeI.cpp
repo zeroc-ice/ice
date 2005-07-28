@@ -57,13 +57,13 @@ NodeI::loadServer(const ServerDescriptorPtr& desc,
 
     Ice::Identity id;
     id.category = "IceGridServer";
-    id.name = desc->name;
+    id.name = desc->id;
 
     Ice::ObjectPtr servant = current.adapter->find(id);
     ServerPrx proxy = ServerPrx::uncheckedCast(current.adapter->createProxy(id));
     if(!servant)
     {
-	servant = new ServerI(this, proxy, _serversDir, desc->name, _waitTime);
+	servant = new ServerI(this, proxy, _serversDir, desc->id, _waitTime);
 	current.adapter->add(servant, id);
     }
     proxy->load(desc, adapters, activationTimeout, deactivationTimeout);

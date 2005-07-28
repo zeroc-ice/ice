@@ -89,7 +89,7 @@ ObserverSessionI::startUpdate(int serial, const Ice::Current& current)
 }
 
 void
-ObserverSessionI::addApplication(const ApplicationDescriptorPtr& app, const Ice::Current& current)
+ObserverSessionI::addApplication(const ApplicationDescriptor& app, const Ice::Current& current)
 {
     Lock sync(*this);
     if(_destroyed)
@@ -125,7 +125,7 @@ ObserverSessionI::updateApplication(const ApplicationUpdateDescriptor& update, c
 }
 
 void
-ObserverSessionI::syncApplication(const ApplicationDescriptorPtr& app, const Ice::Current& current)
+ObserverSessionI::syncApplication(const ApplicationDescriptor& app, const Ice::Current& current)
 {
     Lock sync(*this);
     if(_destroyed)

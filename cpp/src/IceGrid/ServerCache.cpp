@@ -18,34 +18,34 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-    struct AddComponent : std::unary_function<ComponentDescriptorPtr&, void>
+    struct AddCommunicator : std::unary_function<CommunicatorDescriptorPtr&, void>
     {
-	AddComponent(ServerCache& serverCache, const ServerEntryPtr& entry) :
+	AddCommunicator(ServerCache& serverCache, const ServerEntryPtr& entry) :
 	    _serverCache(serverCache), _entry(entry)
 	{
 	}
 	
 	void
-	operator()(const ComponentDescriptorPtr& desc)
+	operator()(const CommunicatorDescriptorPtr& desc)
 	{
-	    _serverCache.addComponent(desc, _entry);
+	    _serverCache.addCommunicator(desc, _entry);
 	}
 	
 	ServerCache& _serverCache;
 	const ServerEntryPtr _entry;
     };
 
-    struct RemoveComponent : std::unary_function<ComponentDescriptorPtr&, void>
+    struct RemoveCommunicator : std::unary_function<CommunicatorDescriptorPtr&, void>
     {
-	RemoveComponent(ServerCache& serverCache, const ServerEntryPtr& entry) : 
+	RemoveCommunicator(ServerCache& serverCache, const ServerEntryPtr& entry) : 
 	    _serverCache(serverCache), _entry(entry)
 	{
 	}
 
 	void
-	operator()(const ComponentDescriptorPtr& desc)
+	operator()(const CommunicatorDescriptorPtr& desc)
 	{
-	    _serverCache.removeComponent(desc, _entry);
+	    _serverCache.removeCommunicator(desc, _entry);
 	}
 
 	ServerCache& _serverCache;
@@ -59,79 +59,56 @@ ServerCache::ServerCache(Database& db, NodeCache& nodeCache, AdapterCache& adapt
 }
 
 ServerEntryPtr
-ServerCache::add(const string& name, const ServerInstanceDescriptor& instance, const string& application)
+ServerCache::add(const ServerInfo& info)
 {
     Lock sync(*this);
 
-    ServerEntryPtr entry = getImpl(name, true);
-    entry->update(instance, application);
-    _nodeCache.get(instance.node, true)->addServer(entry);
+    ServerEntryPtr entry = getImpl(info.descriptor->id, true);
+    entry->update(info);
+    _nodeCache.get(info.node, true)->addServer(entry);
 
-    forEachComponent(AddComponent(*this, entry))(instance);
+    forEachCommunicator(AddCommunicator(*this, entry))(info.descriptor);
     return entry;
 }
 
 ServerEntryPtr
-ServerCache::get(const string& name)
+ServerCache::get(const string& id)
 {
     Lock sync(*this);
-    ServerEntryPtr entry = getImpl(name);
+    ServerEntryPtr entry = getImpl(id);
     if(!entry)
     {
 	ServerNotExistException ex;
-	ex.name = name;
+	ex.id = id;
 	throw ex;
     }
     return entry;
 }
 
 ServerEntryPtr
-ServerCache::update(const ServerInstanceDescriptor& instance)
+ServerCache::remove(const string& id, bool destroy)
 {
     Lock sync(*this);
-    
-    ServerEntryPtr entry = getImpl(instance.descriptor->name);
-    assert(entry);
 
-    ServerInstanceDescriptor old = entry->getDescriptor();
-    forEachComponent(RemoveComponent(*this, entry))(old);
-
-    //
-    // If the node changed, move the server from the old node to the
-    // new one.
-    //
-    if(old.node != instance.node)
+    ServerEntryPtr entry = getImpl(id);
+    ServerInfo info = entry->getServerInfo();
+    if(destroy)
     {
-	_nodeCache.get(old.node)->removeServer(entry);
-	_nodeCache.get(instance.node, true)->addServer(entry);
+	entry->destroy();
     }
 
-    forEachComponent(AddComponent(*this, entry))(instance);
-    entry->update(instance);
+    _nodeCache.get(info.node)->removeServer(entry);
 
-    return entry;
-}
-
-ServerEntryPtr
-ServerCache::remove(const string& name)
-{
-    Lock sync(*this);
-
-    ServerEntryPtr entry = getImpl(name);
-    ServerInstanceDescriptor instance = entry->getDescriptor();
-    entry->destroy();
-    _nodeCache.get(instance.node)->removeServer(entry);
-
-    forEachComponent(RemoveComponent(*this, entry))(instance);
+    forEachCommunicator(RemoveCommunicator(*this, entry))(info.descriptor);
 
     return entry;
 }
 
 void
-ServerCache::clear(const string& name)
+ServerCache::clear(const string& id)
 {
     Lock sync(*this);
-    CacheByString<ServerEntry>::removeImpl(name);
+    CacheByString<ServerEntry>::removeImpl(id);
 }
 
 Database&
@@ -141,9 +118,9 @@ ServerCache::getDatabase() const
 }
 
 void
-ServerCache::addComponent(const ComponentDescriptorPtr& component, const ServerEntryPtr& entry)
+ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const ServerEntryPtr& entry)
 {
-    for(AdapterDescriptorSeq::const_iterator q = component->adapters.begin() ; q != component->adapters.end(); ++q)
+    for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
 	_adapterCache.get(q->id, true)->addServer(entry);
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
@@ -154,9 +131,9 @@ ServerCache::addComponent(const ComponentDescriptorPtr& component, const ServerE
 }
 
 void
-ServerCache::removeComponent(const ComponentDescriptorPtr& component, const ServerEntryPtr& entry)
+ServerCache::removeCommunicator(const CommunicatorDescriptorPtr& comm, const ServerEntryPtr& entry)
 {
-    for(AdapterDescriptorSeq::const_iterator q = component->adapters.begin() ; q != component->adapters.end(); ++q)
+    for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
 	_adapterCache.get(q->id)->removeServer(entry);
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
@@ -166,9 +143,9 @@ ServerCache::removeComponent(const ComponentDescriptorPtr& component, const Serv
     }
 }
 
-ServerEntry::ServerEntry(Cache<string, ServerEntry>& cache, const string& name) :
+ServerEntry::ServerEntry(Cache<string, ServerEntry>& cache, const string& id) :
     _cache(*dynamic_cast<ServerCache*>(&cache)), 
-    _name(name),
+    _id(id),
     _synchronizing(false)
 {
 }
@@ -195,17 +172,12 @@ ServerEntry::needsSync() const
 }
 
 void
-ServerEntry::update(const ServerInstanceDescriptor& instance, const std::string& application)
+ServerEntry::update(const ServerInfo& info)
 {
     Lock sync(*this);
 
-    auto_ptr<ServerInstanceDescriptor> descriptor(new ServerInstanceDescriptor());
-    *descriptor = instance;
-
-    if(!application.empty())
-    {
-	_application = application;
-    }
+    auto_ptr<ServerInfo> descriptor(new ServerInfo());
+    *descriptor = info;
 
     if(_loaded.get() && descriptor->node != _loaded->node)
     {
@@ -247,39 +219,21 @@ ServerEntry::destroy()
     _adapters.clear();
 }
 
-ServerInstanceDescriptor
-ServerEntry::getDescriptor() const
+ServerInfo
+ServerEntry::getServerInfo() const
 {
     Lock sync(*this);
     if(!_loaded.get() && !_load.get())
     {
 	throw ServerNotExistException();
     }
-    if(_proxy)
-    {
-	return *_loaded.get();
-    }
-    else 
-    {
-	return *_load.get();
-    }
+    return _proxy ? *_loaded : *_load;
 }
 
 string
-ServerEntry::getApplication() const
+ServerEntry::getId() const
 {
-    Lock sync(*this);
-    if(!_loaded.get() && !_load.get())
-    {
-	throw ServerNotExistException();
-    }
-    return _application;
-}
-
-string
-ServerEntry::getName() const
-{
-    return _name;
+    return _id;
 }
 
 ServerPrx
@@ -393,7 +347,7 @@ ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int
 	{
 	    try
 	    {
-		db.getNode(destroyNode)->destroyServer(destroy->name);
+		db.getNode(destroyNode)->destroyServer(destroy->id);
 	    }
 	    catch(const NodeNotExistException& ex)
 	    {
@@ -447,7 +401,7 @@ ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int
 	}
 	if(!load && destroy)
 	{
-	    _cache.clear(destroy->name);
+	    _cache.clear(destroy->id);
 	}
 	throw;
     }
@@ -492,7 +446,7 @@ ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int
     }
     if(!load && destroy)
     {
-	_cache.clear(destroy->name);
+	_cache.clear(destroy->id);
     }
     return proxy;
 }

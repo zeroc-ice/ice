@@ -32,8 +32,8 @@ public:
     virtual void setObserversByIdentity(const Ice::Identity&, const Ice::Identity&, const Ice::Current&); 
 
     virtual void startUpdate(int, const Ice::Current&);
-    virtual void addApplication(const ApplicationDescriptorPtr&, const Ice::Current&);
-    virtual void syncApplication(const ApplicationDescriptorPtr&, const Ice::Current&);
+    virtual void addApplication(const ApplicationDescriptor&, const Ice::Current&);
+    virtual void syncApplication(const ApplicationDescriptor&, const Ice::Current&);
     virtual void updateApplication(const ApplicationUpdateDescriptor&, const Ice::Current&);
     virtual void removeApplication(const std::string&, const Ice::Current&);
     virtual void finishUpdate(const Ice::Current&);

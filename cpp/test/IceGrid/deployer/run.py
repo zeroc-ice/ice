@@ -80,7 +80,7 @@ print "ok"
 #
 print "deploying application with target...",
 IceGridAdmin.addApplication(os.path.join(testdir, "application.xml"), \
-                            "debug test.localnode.Server1.manual ice.dir=" + toplevel + " test.dir=" + testdir)
+                            "moreservers moreservices moreproperties ice.dir=" + toplevel + " test.dir=" + testdir)
 print "ok"
 
 startClient("-t")
@@ -88,20 +88,6 @@ startClient("-t")
 print "removing application...",
 IceGridAdmin.removeApplication("test");
 print "ok"
-
-#
-# Deploy the application with templates, run the client and remove the application.
-#
-print "deploying application with templates...",
-IceGridAdmin.addApplication(os.path.join(testdir, "application_with_templates.xml"), \
-                            "ice.dir=" + toplevel + " " + "test.dir=" + testdir);
-print "ok"
-
-startClient("-e")
-
-print "removing application...",
-#IceGridAdmin.removeApplication("test");
-print "ok"    
 
 #
 # Shutdown IceGrid.

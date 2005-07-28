@@ -25,22 +25,21 @@ public:
     AdminI(const Ice::CommunicatorPtr&, const DatabasePtr&, const RegistryPtr&);
     virtual ~AdminI();
 
-    virtual void addApplication(const ApplicationDescriptorPtr&, const Ice::Current&);
-    virtual void syncApplication(const ApplicationDescriptorPtr&, const Ice::Current&);
+    virtual void addApplication(const ApplicationDescriptor&, const Ice::Current&);
+    virtual void syncApplication(const ApplicationDescriptor&, const Ice::Current&);
     virtual void updateApplication(const ApplicationUpdateDescriptor&, const Ice::Current&);
     virtual void removeApplication(const std::string&, const Ice::Current&);
-    virtual ApplicationDescriptorPtr getApplicationDescriptor(const ::std::string&, const Ice::Current&) const;
+    virtual ApplicationDescriptor getApplicationDescriptor(const ::std::string&, const Ice::Current&) const;
     virtual Ice::StringSeq getAllApplicationNames(const Ice::Current&) const;
 
-    virtual ServerInstanceDescriptor getServerDescriptor(const ::std::string&, const Ice::Current&) const;
-    virtual std::string getServerApplication(const ::std::string&, const Ice::Current&) const;
+    virtual ServerInfo getServerInfo(const ::std::string&, const Ice::Current&) const;
     virtual ServerState getServerState(const ::std::string&, const Ice::Current&) const;
     virtual Ice::Int getServerPid(const ::std::string&, const Ice::Current&) const;
     virtual bool startServer(const ::std::string&, const Ice::Current&);
     virtual void stopServer(const ::std::string&, const Ice::Current&);
     virtual void sendSignal(const ::std::string&, const ::std::string&, const Ice::Current&);
     virtual void writeMessage(const ::std::string&, const ::std::string&, Ice::Int, const Ice::Current&);
-    virtual Ice::StringSeq getAllServerNames(const Ice::Current&) const;
+    virtual Ice::StringSeq getAllServerIds(const Ice::Current&) const;
     virtual ServerActivation getServerActivation(const ::std::string&, const Ice::Current&) const;
     virtual void setServerActivation(const ::std::string&, ServerActivation, const Ice::Current&);
 

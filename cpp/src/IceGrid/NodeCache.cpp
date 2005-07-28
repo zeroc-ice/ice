@@ -41,7 +41,7 @@ void
 NodeEntry::addServer(const ServerEntryPtr& entry)
 {
     Lock sync(*this);
-    _servers.insert(make_pair(entry->getName(), entry));
+    _servers.insert(make_pair(entry->getId(), entry));
 }
 
 void
@@ -50,7 +50,7 @@ NodeEntry::removeServer(const ServerEntryPtr& entry)
     bool remove = false;
     {
 	Lock sync(*this);
-	_servers.erase(entry->getName());
+	_servers.erase(entry->getId());
 	remove = _servers.empty() && !_session;
     }
     if(remove)
@@ -112,7 +112,7 @@ NodeEntry::getServers() const
     Ice::StringSeq names;
     for(map<string, ServerEntryPtr>::const_iterator p = _servers.begin(); p != _servers.end(); ++p)
     {
-	names.push_back(p->second->getName());
+	names.push_back(p->second->getId());
     }
     return names;
 }

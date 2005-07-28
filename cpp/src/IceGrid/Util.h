@@ -22,43 +22,40 @@ inline set_inserter(T& container)
     return std::insert_iterator<T>(container, container.begin()); 
 }
 
+std::string toString(const std::vector<std::string>&);
+
 template<class Function>
-struct ForEachComponent : std::unary_function<ComponentDescriptorPtr&, void>
+struct ForEachCommunicator : std::unary_function<CommunicatorDescriptorPtr&, void>
 {
-    ForEachComponent(Function f) : _function(f)
+    ForEachCommunicator(Function f) : _function(f)
     {
     }
 
     void
-    operator()(const ServerInstanceDescriptor& instance)
+    operator()(const ServiceInstanceDescriptor& descriptor)
     {
-	operator()(instance.descriptor);
+	assert(descriptor.descriptor);
+	operator()(descriptor.descriptor);
     }
 
     void
-    operator()(const ServiceInstanceDescriptor& instance)
-    {
-	operator()(instance.descriptor);
-    }
-
-    void
-    operator()(const ComponentDescriptorPtr& descriptor)
+    operator()(const CommunicatorDescriptorPtr& descriptor)
     {
 	_function(descriptor);
 	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(descriptor);
 	if(iceBox)
 	{
-	    for_each(iceBox->services.begin(), iceBox->services.end(), forEachComponent(_function));
+	    for_each(iceBox->services.begin(), iceBox->services.end(), forEachCommunicator(_function));
 	}
     }
 
     Function _function;
 };
 
-template<typename Function> ForEachComponent<Function>
-inline forEachComponent(Function function) 
+template<typename Function> ForEachCommunicator<Function>
+inline forEachCommunicator(Function function) 
 { 
-    return ForEachComponent<Function>(function);
+    return ForEachCommunicator<Function>(function);
 }
 
 template<class T, class A>
@@ -96,26 +93,6 @@ inline getMatchingKeys(const T& m, const std::string& expression)
     }
     return keys;
 }
-
-struct AddServerName : std::unary_function<ServerInstanceDescriptor&, void>
-{
-    AddServerName(std::set<std::string>& names) : _names(names)
-    {
-    }
-
-    void
-    operator()(const ServerInstanceDescriptor& instance)
-    {
-	if(!_names.insert(instance.descriptor->name).second)
-	{
-	    DeploymentException ex;
-	    ex.reason = "invalid descriptor: duplicated server `" + instance.descriptor->name + "'";
-	    throw ex;
-	}
-    }
-
-    std::set<std::string>& _names;
-};
 
 };
 

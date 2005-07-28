@@ -91,16 +91,16 @@ public:
 	Lock sync(*this);
 	for(ApplicationDescriptorSeq::const_iterator p = apps.begin(); p != apps.end(); ++p)
 	{
-	    this->applications.insert(make_pair((*p)->name, *p));
+	    this->applications.insert(make_pair((*p).name, *p));
 	}
 	updated(serial);
     }
 
     virtual void
-    applicationAdded(int serial, const ApplicationDescriptorPtr& app, const Ice::Current&)
+    applicationAdded(int serial, const ApplicationDescriptor& app, const Ice::Current&)
     {
 	Lock sync(*this);
-	this->applications.insert(make_pair(app->name, app));
+	this->applications.insert(make_pair(app.name, app));
 	updated(serial);
     }
 
@@ -118,11 +118,11 @@ public:
 	Lock sync(*this);
 	for(Ice::StringSeq::const_iterator q = desc.removeVariables.begin(); q != desc.removeVariables.end(); ++q)
 	{
-	    this->applications[desc.name]->variables.erase(*q);
+	    this->applications[desc.name].variables.erase(*q);
 	}
 	for(map<string, string>::const_iterator p = desc.variables.begin(); p != desc.variables.end(); ++p)
 	{
-	    this->applications[desc.name]->variables[p->first] = p->second;
+	    this->applications[desc.name].variables[p->first] = p->second;
 	}
 	updated(serial);
     }
@@ -143,7 +143,7 @@ public:
     }
 
     int serial;
-    map<string, ApplicationDescriptorPtr> applications;
+    map<string, ApplicationDescriptor> applications;
 
 private:
 
@@ -200,7 +200,7 @@ public:
     updateServer(const string& node, const ServerDynamicInfo& info, const Ice::Current& current)
     {
 	Lock sync(*this);
-//	cerr << node << " " << info.name << " " << info.state << " " << info.pid << endl;
+	cerr << node << " " << info.name << " " << info.state << " " << info.pid << endl;
 	ServerDynamicInfoSeq& servers = this->nodes[node].servers;
 	ServerDynamicInfoSeq::iterator p;
 	for(p = servers.begin(); p != servers.end(); ++p)
@@ -383,8 +383,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    ApplicationDescriptorPtr app = new ApplicationDescriptor();
-	    app->name = "Application";
+	    ApplicationDescriptor app;
+	    app.name = "Application";
 	    session2->addApplication(app);
 	}
 	catch(const Ice::UserException&)
@@ -394,7 +394,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    session1->addApplication(new ApplicationDescriptor());
+	    session1->addApplication(ApplicationDescriptor());
 	    test(false);
 	}
 	catch(const AccessDenied& ex)
@@ -525,12 +525,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    ApplicationDescriptorPtr app = new ApplicationDescriptor();
-	    app->name = "Application";
+	    ApplicationDescriptor app;
+	    app.name = "Application";
 	    session1->startUpdate(serial);
 	    session1->addApplication(app);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications["Application"]);
+	    test(regObs1->applications.find("Application") != regObs1->applications.end());
 	    test(++serial == regObs1->serial);
 	}
 	catch(const Ice::UserException& ex)
@@ -546,8 +546,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    update.variables.insert(make_pair("test", "test"));
 	    session1->updateApplication(update);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications["Application"]);
-	    test(regObs1->applications["Application"]->variables["test"] == "test");
+	    test(regObs1->applications.find("Application") != regObs1->applications.end());
+	    test(regObs1->applications["Application"].variables["test"] == "test");
 	    test(++serial == regObs1->serial);
 	}
 	catch(const Ice::UserException& ex)
@@ -558,15 +558,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    ApplicationDescriptorPtr app; 
-	    app = ApplicationDescriptorPtr::dynamicCast(regObs1->applications["Application"]->ice_clone());
-	    app->variables.clear();
-	    app->variables["test1"] = "test";
+	    ApplicationDescriptor app; 
+	    app = regObs1->applications["Application"];
+	    app.variables.clear();
+	    app.variables["test1"] = "test";
 	    session1->syncApplication(app);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications["Application"]);
-	    test(regObs1->applications["Application"]->variables.size() == 1);
-	    test(regObs1->applications["Application"]->variables["test1"] == "test");
+	    test(regObs1->applications.find("Application") != regObs1->applications.end());
+	    test(regObs1->applications["Application"].variables.size() == 1);
+	    test(regObs1->applications["Application"].variables["test1"] == "test");
 	    test(++serial == regObs1->serial);
 	}
 	catch(const Ice::UserException& ex)
@@ -591,17 +591,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	//
 	// Setup a descriptor to deploy a node on the node.
 	//
-	ApplicationDescriptorPtr nodeApp = new ApplicationDescriptor();
-	nodeApp->name = "NodeApp";
+	ApplicationDescriptor nodeApp;
+	nodeApp.name = "NodeApp";
 	ServerDescriptorPtr server = new ServerDescriptor();
-	server->name = "node-1";
+	server->id = "node-1";
 	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
 	AdapterDescriptor adapter;
 	adapter.name = "IceGrid.Node";
-	adapter.endpoints = "default";
 	adapter.id = "IceGrid.Node.node-1";
 	adapter.registerProcess = true;
-	adapter.noWaitForActivation = true;
+	adapter.waitForActivation = false;
 	server->adapters.push_back(adapter);
 	PropertyDescriptor prop;
 	prop.name = "IceGrid.Node.Name";
@@ -610,17 +609,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	prop.name = "IceGrid.Node.Data";
 	prop.value = properties->getProperty("TestDir") + "/db/node-1";
 	server->properties.push_back(prop);
-	ServerInstanceDescriptor instance;
-	instance.descriptor = server;
-	instance.node = "localnode";
-	nodeApp->servers.push_back(instance);
+	prop.name = "IceGrid.Node.Endpoints";
+	prop.value = "default";
+	server->properties.push_back(prop);
+	NodeDescriptor node;
+	node.servers.push_back(server);
+	nodeApp.nodes["localnode"] = node;
 	
 	try
 	{
 	    session1->startUpdate(serial);
 	    session1->addApplication(nodeApp);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
-	    test(regObs1->applications["NodeApp"]);
+	    test(regObs1->applications.find("NodeApp") != regObs1->applications.end());
 	    test(++serial == regObs1->serial);
 	}
 	catch(const DeploymentException& ex)
@@ -694,14 +695,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(nodeObs1->nodes.find("localnode") != nodeObs1->nodes.end());
 	test(regObs1->applications.empty());
 
-	ApplicationDescriptorPtr nodeApp = new ApplicationDescriptor();
-	nodeApp->name = "NodeApp";
+	ApplicationDescriptor nodeApp;
+	nodeApp.name = "NodeApp";
 	ServerDescriptorPtr server = new ServerDescriptor();
-	server->name = "node-1";
+	server->id = "node-1";
 	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
 	AdapterDescriptor adapter;
 	adapter.name = "IceGrid.Node";
-	adapter.endpoints = "default";
 	adapter.id = "IceGrid.Node.node-1";
 	adapter.registerProcess = true;
 	server->adapters.push_back(adapter);
@@ -711,11 +711,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	server->properties.push_back(prop);
 	prop.name = "IceGrid.Node.Data";
 	prop.value = properties->getProperty("TestDir") + "/db/node-1";
-	server->properties.push_back(prop);
-	ServerInstanceDescriptor instance;
-	instance.descriptor = server;
-	instance.node = "localnode";
-	nodeApp->servers.push_back(instance);
+	server->properties.push_back(prop);	
+	prop.name = "IceGrid.Node.Endpoints";
+	prop.value = "default";
+	server->properties.push_back(prop);	
+	NodeDescriptor node;
+	node.servers.push_back(server);
+	nodeApp.nodes["localnode"] = node;
 
 	admin->addApplication(nodeApp);
 	regObs1->waitForUpdate(__FILE__, __LINE__);
@@ -741,19 +743,23 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	regObs1->waitForUpdate(__FILE__, __LINE__);
 	test(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
 
-	ApplicationDescriptorPtr testApp = new ApplicationDescriptor();
-	testApp->name = "TestApp";
-	instance.node = "localnode";
-	instance.descriptor = new ServerDescriptor();
-	instance.descriptor->name = "Server";
-	instance.descriptor->exe = properties->getProperty("TestDir") + "/server";
+	ApplicationDescriptor testApp;
+	testApp.name = "TestApp";
+	
+	server = new ServerDescriptor();
+	server->id = "Server";
+	server->exe = properties->getProperty("TestDir") + "/server";
 	adapter.name = "Server";
-	adapter.endpoints = "default";
 	adapter.id = "ServerAdapter";
 	adapter.registerProcess = true;
-	adapter.noWaitForActivation = false;
-	instance.descriptor->adapters.push_back(adapter);
-	testApp->servers.push_back(instance);
+	adapter.waitForActivation = true;
+	server->adapters.push_back(adapter);
+	prop.name = "ServerAdapter.Endpoints";
+	prop.value = "default";
+	server->properties.push_back(prop);
+	node = NodeDescriptor();
+	node.servers.push_back(server);
+	testApp.nodes["localnode"] = node;
 
 	admin->addApplication(testApp);
 	regObs1->waitForUpdate(__FILE__, __LINE__);

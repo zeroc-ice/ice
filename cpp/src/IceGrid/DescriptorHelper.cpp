@@ -10,30 +10,17 @@
 #include <Ice/Ice.h>
 #include <IceGrid/DescriptorHelper.h>
 #include <IceGrid/Util.h>
+#include <IceGrid/AdapterCache.h>
+#include <IceGrid/ServerCache.h>
 
 #include <iterator>
 
 using namespace std;
+using namespace IceUtil;
 using namespace IceGrid;
 
 namespace IceGrid
 {
-
-struct Substitute : unary_function<string&, void>
-{
-    Substitute(const DescriptorVariablesPtr& variables, set<string>& missing) : 
-	_variables(variables), _missing(missing)
-    {
-    } 
-
-    void operator()(string& v)
-    {
-	v.assign(_variables->substituteWithMissing(v, _missing));
-    }
-
-    const DescriptorVariablesPtr& _variables;
-    set<string>& _missing;
-};
 
 struct GetReplicatedAdapterId : unary_function<ReplicatedAdapterDescriptor&, const string&>
 {
@@ -44,61 +31,8 @@ struct GetReplicatedAdapterId : unary_function<ReplicatedAdapterDescriptor&, con
     }
 };
 
-struct GetNodeName : unary_function<NodeDescriptor&, const string&>
-{
-    const string&
-    operator()(const NodeDescriptor& desc)
-    {
-	return desc.name;
-    }
-};
-
-struct GetServerName : unary_function<ServerInstanceDescriptor&, const string&>
-{
-    const string&
-    operator()(const ServerInstanceDescriptor& desc)
-    {
-	assert(desc.descriptor);
-	return desc.descriptor->name;
-    }
-};
-
-struct ServerDescriptorEqual : std::binary_function<ServerDescriptorPtr&, ServerDescriptorPtr&, bool>
-{
-    ServerDescriptorEqual(ApplicationDescriptorHelper& helper) : _helper(helper)
-    {
-    }
-    
-    bool
-    operator()(const ServerDescriptorPtr& lhs, const ServerDescriptorPtr& rhs)
-    {
-	return ServerDescriptorHelper(_helper, lhs) == ServerDescriptorHelper(_helper, rhs);
-    }
-
-    ApplicationDescriptorHelper& _helper;
-};
-
-struct ServiceDescriptorEqual : std::binary_function<ServiceDescriptorPtr&, ServiceDescriptorPtr&, bool>
-{
-    ServiceDescriptorEqual(ApplicationDescriptorHelper& helper) : _helper(helper)
-    {
-    }
-    
-    bool
-    operator()(const ServiceDescriptorPtr& lhs, const ServiceDescriptorPtr& rhs)
-    {
-	return ServiceDescriptorHelper(_helper, lhs) == ServiceDescriptorHelper(_helper, rhs);
-    }
-
-    ApplicationDescriptorHelper& _helper;
-};
-
 struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, TemplateDescriptor&, bool>
 {
-    TemplateDescriptorEqual(ApplicationDescriptorHelper& helper) : _helper(helper)
-    {
-    }
-    
     bool
     operator()(const TemplateDescriptor& lhs, const TemplateDescriptor& rhs)
     {
@@ -106,54 +40,33 @@ struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, Templ
 	{
 	    return false;
 	}
-	
-	ServerDescriptorPtr slhs = ServerDescriptorPtr::dynamicCast(lhs.descriptor);
-	ServerDescriptorPtr srhs = ServerDescriptorPtr::dynamicCast(rhs.descriptor);
-	if(slhs && srhs)
-	{
-	    return ServerDescriptorHelper(_helper, slhs) == ServerDescriptorHelper(_helper, srhs);
-	}
 
-	ServiceDescriptorPtr svclhs = ServiceDescriptorPtr::dynamicCast(lhs.descriptor);
-	ServiceDescriptorPtr svcrhs = ServiceDescriptorPtr::dynamicCast(rhs.descriptor);
-	if(svclhs && svcrhs)
 	{
-	    return ServiceDescriptorHelper(_helper, svclhs) == ServiceDescriptorHelper(_helper, svcrhs);
+	    IceBoxDescriptorPtr slhs = IceBoxDescriptorPtr::dynamicCast(lhs.descriptor);
+	    IceBoxDescriptorPtr srhs = IceBoxDescriptorPtr::dynamicCast(rhs.descriptor);
+	    if(slhs && srhs)
+	    {
+		return IceBoxHelper(slhs) == IceBoxHelper(srhs);
+	    }
 	}
-
+	{
+	    ServerDescriptorPtr slhs = ServerDescriptorPtr::dynamicCast(lhs.descriptor);
+	    ServerDescriptorPtr srhs = ServerDescriptorPtr::dynamicCast(rhs.descriptor);
+	    if(slhs && srhs)
+	    {
+		return ServerHelper(slhs) == ServerHelper(srhs);
+	    }
+	}
+	{
+	    ServiceDescriptorPtr slhs = ServiceDescriptorPtr::dynamicCast(lhs.descriptor);
+	    ServiceDescriptorPtr srhs = ServiceDescriptorPtr::dynamicCast(rhs.descriptor);
+	    if(slhs && srhs)
+	    {
+		return ServiceHelper(slhs) == ServiceHelper(srhs);
+	    }   
+	}
 	return false;
     }
-
-    ApplicationDescriptorHelper& _helper;
-};
-
-struct ServerInstanceDescriptorEqual : std::binary_function<ServerInstanceDescriptor&, 
-							    ServerInstanceDescriptor&, 
-							    bool>
-{
-    ServerInstanceDescriptorEqual(ApplicationDescriptorHelper& helper) : _helper(helper)
-    {
-    }
-    
-    bool
-    operator()(const ServerInstanceDescriptor& lhs, const ServerInstanceDescriptor& rhs)
-    {
-	if(lhs._cpp_template != rhs._cpp_template)
-	{
-	    return false;
-	}
-	if(lhs.parameterValues != rhs.parameterValues)
-	{
-	    return false;
-	}
-	if(lhs.targets != rhs.targets)
-	{
-	    return false;
-	}
-	return ServerDescriptorHelper(_helper, lhs.descriptor) == ServerDescriptorHelper(_helper, rhs.descriptor);
-    }
-
-    ApplicationDescriptorHelper& _helper;
 };
 
 template <typename GetKeyFunc, typename Seq> Seq
@@ -284,210 +197,92 @@ updateDictElts(const Dict& dict, const Dict& update, const Ice::StringSeq& remov
 
 }
 
-DescriptorVariables::DescriptorVariables()
+Resolver::Resolver(const ApplicationHelper& app, const string& name, const map<string, string>& variables) : 
+    _application(app),
+    _context("application `" + name + "'"),
+    _variables(variables)
 {
+    _reserved["application"] = name;
+    _reserved["node"] = "";
+    _reserved["server"] = "";
+    _reserved["service"] = "";
 }
 
-DescriptorVariables::DescriptorVariables(const map<string, string>& variables)
+Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, bool params) :
+    _application(resolve._application),
+    _context(resolve._context),
+    _variables(resolve._variables),
+    _reserved(resolve._reserved)
 {
-    reset(variables, vector<string>());
-}
-
-string 
-DescriptorVariables::substitute(const string& v)
-{
-    set<string> missing;
-    string value = substituteImpl(v, missing);
-    if(!missing.empty())
+    if(params)
     {
-	if(missing.size() == 1)
-	{
-	    throw "unknown variable `" + *missing.begin() + "'";
-	}
-	else
-	{
-	    ostringstream os;
-	    os << "unknown variables: ";
-	    copy(missing.begin(), missing.end(), ostream_iterator<string>(os, " "));
-	    throw os.str();
-	}
-    }
-    return value;
-}
-
-string
-DescriptorVariables::substituteWithMissing(const string& v, set<string>& missing)
-{
-    return substituteImpl(v, missing);
-}
-
-void
-DescriptorVariables::dumpVariables() const
-{
-    vector<VariableScope>::const_reverse_iterator p = _scopes.rbegin();
-    while(p != _scopes.rend())
-    {
-	for(map<string, string>::const_iterator q = p->variables.begin(); q != p->variables.end(); ++q)
-	{
-	    cout << q->first << " = " << q->second << endl;
-	}
-	++p;
-    }
-}
-
-string
-DescriptorVariables::getVariable(const string& name)
-{
-    static const string empty;
-    vector<VariableScope>::reverse_iterator p = _scopes.rbegin();
-    while(p != _scopes.rend())
-    {
-	map<string, string>::const_iterator q = p->variables.find(name);
-	if(q != p->variables.end())
-	{
-	    p->used.insert(name);
-	    return q->second;
-	}
-	++p;
-    }
-    return empty;
-}
-
-bool
-DescriptorVariables::hasVariable(const string& name) const
-{
-    vector<VariableScope>::const_reverse_iterator p = _scopes.rbegin();
-    while(p != _scopes.rend())
-    {
-	map<string, string>::const_iterator q = p->variables.find(name);
-	if(q != p->variables.end())
-	{
-	    return true;
-	}
-	++p;
-    }
-    return false;
-}
-
-void
-DescriptorVariables::addVariable(const string& name, const string& value)
-{
-    if(_scopes.back().parameters.find(name) != _scopes.back().parameters.end())
-    {
-	throw "can't define variable `" + name + "': a parameter with the same was previously defined";
-    }
-    if(_scopes.back().used.find(name) != _scopes.back().used.end())
-    {
-	throw "can't redefine variable `" + name + "' after its use";
-    }
-    _scopes.back().variables[name] = value;
-}
-
-void
-DescriptorVariables::remove(const string& name)
-{
-    _scopes.back().variables.erase(name);
-}
-
-void
-DescriptorVariables::reset(const map<string, string>& vars, const vector<string>& targets)
-{
-    _scopes.clear();
-    push(vars);
-
-    _deploymentTargets = targets;
-}
-
-void
-DescriptorVariables::push(const map<string, string>& vars)
-{
-    VariableScope scope;
-    if(!_scopes.empty())
-    {
-	scope.substitution = _scopes.back().substitution;
+	_parameters = values;
     }
     else
     {
-	scope.substitution = true;
-    }
-    scope.variables = vars;
-    _scopes.push_back(scope);
-}
-
-void
-DescriptorVariables::push()
-{
-    push(map<string, string>());
-}
-
-void
-DescriptorVariables::pop()
-{
-    _scopes.pop_back();
-}
-
-map<string, string>
-DescriptorVariables::getCurrentScopeVariables() const
-{
-    return _scopes.back().variables;
-}
-
-vector<string>
-DescriptorVariables::getCurrentScopeParameters() const
-{
-    return vector<string>(_scopes.back().parameters.begin(), _scopes.back().parameters.end());
-}
-
-void
-DescriptorVariables::addParameter(const string& name)
-{
-    if(_scopes.back().variables.find(name) != _scopes.back().variables.end())
-    {
-	throw "can't declare parameter `" + name + "': a variable with the same was previously defined";
-    }
-    _scopes.back().parameters.insert(name);
-}
-
-vector<string>
-DescriptorVariables::getDeploymentTargets(const string& prefix) const
-{
-    if(prefix.empty())
-    {
-	return _deploymentTargets;
-    }
-
-    vector<string> targets;
-    for(vector<string>::const_iterator p = _deploymentTargets.begin(); p != _deploymentTargets.end(); ++p)
-    {
-	string::size_type pos = p->find(prefix);
-	if(pos != string::npos)
+	for(map<string, string>::const_iterator p = values.begin(); p != values.end(); ++p)
 	{
-	    targets.push_back(p->substr(prefix.size()));
+	    _variables[p->first] = p->second;
 	}
     }
-    return targets;
 }
 
-void
-DescriptorVariables::substitution(bool substitution)
+string 
+Resolver::operator()(const string& value, const string& name) const
 {
-    _scopes.back().substitution = substitution;
-}
-
-bool
-DescriptorVariables::substitution() const
-{
-    return _scopes.back().substitution;
+    try
+    {
+	return substitute(value, true);
+    }
+    catch(const string& msg)
+    {
+	throw "invalid value `" + value + "' for `" + name + "' in " + _context + ":\n" + msg;
+    }
 }
 
 string
-DescriptorVariables::substituteImpl(const string& v, set<string>& missing)
+Resolver::asInt(const string& value, const string& name) const
 {
-    if(!substitution())
+    string v = operator()(value, name);
+    if(!v.empty())
     {
-	return v;
+	int val;
+	if(!(istringstream(v) >> val))
+	{
+	    throw "invalid value `" + value + "' for `" + name + "' in " + _context + ":\nnot an integer";
+	}
     }
+    return v;
+}
 
+void
+Resolver::setReserved(const string& name, const string& value)
+{
+    assert(_reserved.find(name) != _reserved.end());
+    _reserved[name] = value;
+}    
+
+void
+Resolver::setContext(const string& context)
+{
+    _context = substitute(context, true);
+}
+
+TemplateDescriptor
+Resolver::getServerTemplate(const string& tmpl) const
+{
+    return _application.getServerTemplate(tmpl);
+}
+
+TemplateDescriptor
+Resolver::getServiceTemplate(const string& tmpl) const
+{
+    return _application.getServiceTemplate(tmpl);
+}
+
+string
+Resolver::substitute(const string& v, bool first) const
+{
     string value(v);
     string::size_type beg = 0;
     string::size_type end = 0;
@@ -518,1268 +313,1608 @@ DescriptorVariables::substituteImpl(const string& v, set<string>& missing)
 	
 	if(end == string::npos)
 	{
-	    throw "malformed variable name in the '" + value + "' value";
+	    throw "malformed variable name in the value `" + value + "'";
 	}
 	
 	string name = value.substr(beg + 2, end - beg - 2);
-	if(!hasVariable(name))
+	bool param;
+	string val = getVariable(name, first, param);
+	if(!param)
 	{
-	    missing.insert(name);
-	    ++beg;
-	    continue;	   
+	    val = substitute(val); // Recursive resolution
 	}
-	else
-	{
-	    string val = getVariable(name);
-	    value.replace(beg, end - beg + 1, val);
-	    beg += val.length();
-	}
+	value.replace(beg, end - beg + 1, val);
+	beg += val.length();
     }
 
     return value;
-}
-
-DescriptorTemplates::DescriptorTemplates(const ApplicationDescriptorPtr& descriptor) : _application(descriptor)
-{
-}
-
-void
-DescriptorTemplates::setDescriptor(const ApplicationDescriptorPtr& desc)
-{
-    _application = desc;
-}
-
-ServerDescriptorPtr
-DescriptorTemplates::instantiateServer(const DescriptorHelper& helper, 
-				       const string& name, 
-				       const map<string, string>& parameters)
-{
-    TemplateDescriptorDict::const_iterator p = _application->serverTemplates.find(name);
-    if(p == _application->serverTemplates.end())
-    {
-	throw "unknown template `" + name + "'";
-    }
-    
-    set<string> missing;
-    Substitute substitute(helper.getVariables(), missing);
-    map<string, string> params = parameters;
-
-    set<string> unknown;
-    for(map<string, string>::iterator q = params.begin(); q != params.end(); ++q)
-    {
-	if(find(p->second.parameters.begin(), p->second.parameters.end(), q->first) == p->second.parameters.end())
-	{
-	    unknown.insert(q->first);
-	}
-	substitute(q->second);
-    }
-    if(!unknown.empty())
-    {
-	ostringstream os;
-	os << "server template instance unknown parameters: ";
-	copy(unknown.begin(), unknown.end(), ostream_iterator<string>(os, " "));
-	throw os.str();
-    }
-
-    set<string> missingParams;
-    for(vector<string>::const_iterator q = p->second.parameters.begin(); q != p->second.parameters.end(); ++q)
-    {
-	if(params.find(*q) == params.end())
-	{
-	    missingParams.insert(*q);
-	}
-    }
-    if(!missingParams.empty())
-    {
-	ostringstream os;
-	os << "server template instance undefined parameters: ";
-	copy(missingParams.begin(), missingParams.end(), ostream_iterator<string>(os, " "));
-	throw os.str();
-    }
-    
-    helper.getVariables()->push(params);
-    ServerDescriptorPtr tmpl = ServerDescriptorPtr::dynamicCast(p->second.descriptor);
-    assert(tmpl);
-    ServerDescriptorPtr descriptor = ServerDescriptorHelper(helper, tmpl).instantiate(missing);
-    helper.getVariables()->pop();
-    if(!missing.empty())
-    {
-	ostringstream os;
-	os << "server template instance undefined variables: ";
-	copy(missing.begin(), missing.end(), ostream_iterator<string>(os, " "));
-	throw os.str();   
-    }
-
-    return descriptor;
-}
-
-ServiceDescriptorPtr
-DescriptorTemplates::instantiateService(const DescriptorHelper& helper, const string& name, 
-					const map<string, string>& parameters)
-{
-    TemplateDescriptorDict::const_iterator p = _application->serviceTemplates.find(name);
-    if(p == _application->serviceTemplates.end())
-    {
-	throw "unknown template `" + name + "'";
-    }
-    
-    set<string> missing;
-    Substitute substitute(helper.getVariables(), missing);
-    map<string, string> params = parameters;
-
-    set<string> unknown;
-    for(map<string, string>::iterator q = params.begin(); q != params.end(); ++q)
-    {
-	if(find(p->second.parameters.begin(), p->second.parameters.end(), q->first) == p->second.parameters.end())
-	{
-	    unknown.insert(q->first);
-	}
- 	substitute(q->second);
-    }
-    if(!unknown.empty())
-    {
-	ostringstream os;
-	os << "service template instance unknown parameters: ";
-	copy(unknown.begin(), unknown.end(), ostream_iterator<string>(os, " "));
-	throw os.str();
-    }
-
-    set<string> missingParams;
-    for(vector<string>::const_iterator q = p->second.parameters.begin(); q != p->second.parameters.end(); ++q)
-    {
-	if(params.find(*q) == params.end())
-	{
-	    missingParams.insert(*q);
-	}
-    }
-    if(!missingParams.empty())
-    {
-	ostringstream os;
- 	os << "service template instance undefined parameters: ";
-	copy(missingParams.begin(), missingParams.end(), ostream_iterator<string>(os, " "));
-	throw os.str();
-    }
-    
-    helper.getVariables()->push(params);
-    ServiceDescriptorPtr tmpl = ServiceDescriptorPtr::dynamicCast(p->second.descriptor);
-    assert(tmpl);
-    ServiceDescriptorPtr descriptor = ServiceDescriptorHelper(helper, tmpl).instantiate(missing);
-    helper.getVariables()->pop();
-
-    if(!missing.empty())
-    {
-	ostringstream os;
-	os << "service template instance undefined variables: ";
-	copy(missing.begin(), missing.end(), ostream_iterator<string>(os, " "));
-	throw os.str();   
-    }
-
-    return descriptor;
-}
-
-void
-DescriptorTemplates::addServerTemplate(const string& id, const ServerDescriptorPtr& desc, const Ice::StringSeq& vars)
-{
-    //
-    // Add the template to the application.
-    //
-    TemplateDescriptor tmpl;
-    tmpl.descriptor = desc;
-    tmpl.parameters = vars;
-    _application->serverTemplates.insert(make_pair(id, tmpl));
-}
-
-void
-DescriptorTemplates::addServiceTemplate(const string& id, const ServiceDescriptorPtr& desc, const Ice::StringSeq& vars)
-{
-    //
-    // Add the template to the application.
-    //
-    TemplateDescriptor tmpl;
-    tmpl.descriptor = desc;
-    tmpl.parameters = vars;
-    _application->serviceTemplates.insert(make_pair(id, tmpl));
-}
-
-ApplicationDescriptorPtr
-DescriptorTemplates::getApplicationDescriptor() const
-{
-    return _application;
-}
-
-XmlAttributesHelper::XmlAttributesHelper(const DescriptorVariablesPtr& variables, const IceXML::Attributes& attrs) :
-	_variables(variables), _attributes(attrs)
-{
-}
-
-bool
-XmlAttributesHelper::contains(const string& name)
-{
-    return _attributes.find(name) != _attributes.end();
-}
-
-int
-XmlAttributesHelper::asInt(const string& name, const string& def)
-{
-    int value;
-    istringstream v(operator()(name, def));
-    if(!(v >> value) || !v.eof())
-    {
-	return 0;
-    }    
-    return value;
-}
-
-string 
-XmlAttributesHelper::operator()(const string& name)
-{
-    IceXML::Attributes::const_iterator p = _attributes.find(name);
-    if(p == _attributes.end())
-    {
-	throw "missing attribute '" + name + "'";
-    }
-    string v = _variables->substitute(p->second);
-    if(v.empty())
-    {
-	throw "attribute '" + name + "' is empty";
-    }
-    return v;
 }
 
 string
-XmlAttributesHelper::operator()(const string& name, const string& def)
+Resolver::getVariable(const string& name, bool checkParams, bool& param) const
 {
-    IceXML::Attributes::const_iterator p = _attributes.find(name);
-    if(p == _attributes.end())
+    param = false;
+    map<string, string>::const_iterator p = _reserved.find(name);
+    if(p != _reserved.end())
     {
-	return _variables->substitute(def);
+	if(p->second.empty())
+	{
+	    throw "undefined variable `" + name + "'";
+	}
+	return p->second;
+    }
+    if(checkParams)
+    {
+	p = _parameters.find(name);
+	if(p != _parameters.end())
+	{
+	    param = true;
+	    return p->second;
+	}
+    }
+    p = _variables.find(name);
+    if(p != _variables.end())
+    {
+	return p->second;
+    }    
+    throw "undefined variable `" + name + "'";
+}
+
+CommunicatorHelper::CommunicatorHelper(const CommunicatorDescriptorPtr& desc) : 
+    _desc(desc)
+{
+    //
+    // TODO: Add validation
+    //
+}
+
+bool 
+CommunicatorHelper::operator==(const CommunicatorHelper& helper) const
+{
+    if(_desc->ice_id() != helper._desc->ice_id())
+    {
+	return false;
+    }
+
+    if(_desc->description != helper._desc->description)
+    {
+	return false;
+    }
+
+    if(set<AdapterDescriptor>(_desc->adapters.begin(), _desc->adapters.end())  != 
+       set<AdapterDescriptor>(helper._desc->adapters.begin(), helper._desc->adapters.end()))
+    {
+	return false;
+    }
+
+    if(set<PropertyDescriptor>(_desc->properties.begin(), _desc->properties.end()) != 
+       set<PropertyDescriptor>(helper._desc->properties.begin(), helper._desc->properties.end()))
+    {
+	return false;
+    }
+
+    if(set<DbEnvDescriptor>(_desc->dbEnvs.begin(), _desc->dbEnvs.end()) != 
+       set<DbEnvDescriptor>(helper._desc->dbEnvs.begin(), helper._desc->dbEnvs.end()))
+    {
+	return false;
+    }
+
+    return true;
+}
+
+bool
+CommunicatorHelper::operator!=(const CommunicatorHelper& helper) const
+{
+    return !operator==(helper);
+}
+
+void 
+CommunicatorHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
+{
+    for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
+    {	
+	adapterIds.insert(p->id);
+	for(ObjectDescriptorSeq::const_iterator q = p->objects.begin(); q != p->objects.end(); ++q)
+	{
+	    objectIds.insert(q->id);
+	}
+    }
+}
+
+void
+CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, const Resolver& resolve) const
+{
+    instance->description = resolve(_desc->description, "description");
+    for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
+    {
+	AdapterDescriptor adapter;
+	adapter.name = resolve(p->name, "object adapter name");
+	adapter.id = resolve(p->id, "object adapter id");
+	for(ObjectDescriptorSeq::const_iterator q = p->objects.begin(); q != p->objects.end(); ++q)
+	{
+	    ObjectDescriptor obj;
+	    obj.type = resolve(q->type, "object type");
+	    obj.id.name = resolve(q->id.name, "object identity name");
+	    obj.id.category = resolve(q->id.category, "object identity category");
+	    adapter.objects.push_back(obj);
+	}
+	instance->adapters.push_back(adapter);
+    }
+    for(PropertyDescriptorSeq::const_iterator p = _desc->properties.begin(); p != _desc->properties.end(); ++p)
+    {
+	PropertyDescriptor prop;
+	prop.name = resolve(p->name, "property name");
+	prop.value = resolve(p->value, "property value");
+	instance->properties.push_back(prop);
+    }
+    for(DbEnvDescriptorSeq::const_iterator p = _desc->dbEnvs.begin(); p != _desc->dbEnvs.end(); ++p)
+    {
+	DbEnvDescriptor dbEnv;
+	dbEnv.name = resolve(p->name, "database environment name");
+	dbEnv.dbHome = resolve(p->dbHome, "database environment home directory");
+	for(PropertyDescriptorSeq::const_iterator q = p->properties.begin(); q != p->properties.end(); ++q)
+	{
+	    PropertyDescriptor prop;
+	    prop.name = resolve(q->name, "database environment property name");
+	    prop.value = resolve(q->value, "database environment property value");
+	    dbEnv.properties.push_back(prop);
+	}
+	instance->dbEnvs.push_back(dbEnv);
+    }
+}
+
+void
+CommunicatorHelper::print(Output& out) const
+{
+    if(!_desc->description.empty())
+    {
+	out << nl << "description";
+	out << sb;
+	out << nl << _desc->description;
+	out << eb;
+    }
+    if(!_desc->properties.empty())
+    {
+	printProperties(out, _desc->properties);
+    }
+    {
+	for(DbEnvDescriptorSeq::const_iterator p = _desc->dbEnvs.begin(); p != _desc->dbEnvs.end(); ++p)
+	{
+	    printDbEnv(out, *p);
+	}
+    }
+    {
+	for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
+	{
+	    printObjectAdapter(out, *p);
+	}
+    }
+
+}
+
+void 
+CommunicatorHelper::printDbEnv(Output& out, const DbEnvDescriptor& dbEnv) const
+{
+    out << nl << "database environment '" << dbEnv.name << "'";
+    if(!dbEnv.dbHome.empty() || !dbEnv.properties.empty())
+    {
+	out << sb;
+	if(!dbEnv.dbHome.empty())
+	{
+	    out << nl << "home = '" << dbEnv.dbHome << "'";
+	}
+	if(!dbEnv.properties.empty())
+	{
+	    out << nl << "properties";
+	    out << sb;
+	    for(PropertyDescriptorSeq::const_iterator p = dbEnv.properties.begin(); p != dbEnv.properties.end(); ++p)
+	    {
+		out << nl << p->name << " = '" << p->value << "'";
+	    }
+	    out << eb;
+	}
+	out << eb;
+    }
+}
+
+void
+CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& adapter) const
+{
+    out << nl << "adapter '" << adapter.name << "'";
+    out << sb;
+    out << nl << "id = '" << adapter.id << "'";
+// TODO    out << nl << "endpoints = '" << adapter.endpoints << "'";
+    out << nl << "register process = '" << (adapter.registerProcess ? "true" : "false") << "'";
+    for(ObjectDescriptorSeq::const_iterator p = adapter.objects.begin(); p != adapter.objects.end(); ++p)
+    {
+	out << nl << "object";
+	if(!p->type.empty())
+	{
+	    out << sb;
+	    out << nl << "identity = '" << Ice::identityToString(p->id) << "' ";
+	    out << nl << "type = '" << p->type << "'";
+	    out << eb;
+	}
+    }
+    out << eb;
+}
+
+void
+CommunicatorHelper::printProperties(Output& out, const PropertyDescriptorSeq& properties) const
+{
+    out << nl << "properties";
+    out << sb;
+    for(PropertyDescriptorSeq::const_iterator p = properties.begin(); p != properties.end(); ++p)
+    {
+	out << nl << p->name << " = '" << p->value << "'";
+    }
+    out << eb;
+}
+
+ServiceHelper::ServiceHelper(const ServiceDescriptorPtr& descriptor) :
+    CommunicatorHelper(descriptor),
+    _desc(descriptor)
+{
+    //
+    // TODO: Add validation
+    //
+}
+
+bool 
+ServiceHelper::operator==(const ServiceHelper& helper) const
+{
+    if(!CommunicatorHelper::operator==(helper))
+    {
+	return false;
+    }
+
+    if(_desc->name != helper._desc->name)
+    {
+	return false;
+    }
+
+    if(_desc->entry != helper._desc->entry)
+    {
+	return false;
+    }
+
+    return true;
+}
+
+bool
+ServiceHelper::operator!=(const ServiceHelper& helper) const
+{
+    return !operator==(helper);
+}
+
+ServiceDescriptorPtr
+ServiceHelper::getDescriptor() const
+{
+    return _desc;
+}
+
+ServiceDescriptorPtr
+ServiceHelper::instantiate(const Resolver& resolver) const
+{
+    ServiceDescriptorPtr service = new ServiceDescriptor();
+    instantiateImpl(service, resolver);
+    return service;
+}
+
+void
+ServiceHelper::instantiateImpl(const ServiceDescriptorPtr& instance, const Resolver& resolve) const
+{
+    CommunicatorHelper::instantiateImpl(instance, resolve);
+    instance->name = resolve(_desc->name, "name");
+    instance->entry = resolve(_desc->entry, "entry");
+}
+
+void
+ServiceHelper::print(Output& out) const
+{
+    out << "service `" + _desc->name + "'";
+    out << sb;
+    out << nl << "entry = '" << _desc->entry << "'";
+    CommunicatorHelper::print(out);
+    out << eb;
+}
+
+ServerHelper::ServerHelper(const ServerDescriptorPtr& descriptor) :
+    CommunicatorHelper(descriptor),
+    _desc(descriptor)
+{
+    //
+    // TODO: Add validation
+    //
+
+    if(_desc->id.empty())
+    {
+	throw "invalid server descriptor: id is empty"; // TODO: Context?
+    }
+}
+
+bool 
+ServerHelper::operator==(const ServerHelper& helper) const
+{
+    if(!CommunicatorHelper::operator==(helper))
+    {
+	return false;
+    }
+
+    if(_desc->id != helper._desc->id)
+    {
+	return false;
+    }
+
+    if(_desc->exe != helper._desc->exe)
+    {
+	return false;
+    }
+
+    if(_desc->pwd != helper._desc->pwd)
+    {
+	return false;
+    }
+
+    if(_desc->activation != helper._desc->activation)
+    {
+	return false;
+    }
+
+    if(_desc->activationTimeout != helper._desc->activationTimeout)
+    {
+	return false;
+    }
+
+    if(_desc->deactivationTimeout != helper._desc->deactivationTimeout)
+    {
+	return false;
+    }
+
+    if(set<string>(_desc->options.begin(), _desc->options.end()) != 
+       set<string>(helper._desc->options.begin(), helper._desc->options.end()))
+    {
+	return false;
+    }
+
+    if(set<string>(_desc->envs.begin(), _desc->envs.end()) != 
+       set<string>(helper._desc->envs.begin(), helper._desc->envs.end()))
+    {
+	return false;
+    }
+
+    return true;
+}
+
+bool
+ServerHelper::operator!=(const ServerHelper& helper) const
+{
+    return !operator==(helper);
+}
+
+void
+ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance, const Resolver& resolve) const
+{
+    CommunicatorHelper::instantiateImpl(instance, resolve);
+
+    instance->id = resolve(_desc->id, "id");
+    instance->exe = resolve(_desc->exe, "executable");
+    instance->pwd = resolve(_desc->pwd, "working directory path");
+    instance->activation = resolve(_desc->activation, "activation");
+    if(!instance->activation.empty() && instance->activation != "manual" && instance->activation != "on-demand")
+    {
+	throw "invalid server `" + instance->id + "': unknown activation `" + instance->activation + "'";
+    }
+    instance->activationTimeout = resolve.asInt(_desc->activationTimeout, "activation timeout");
+    instance->deactivationTimeout = resolve(_desc->deactivationTimeout, "deactivation timeout");
+    for(Ice::StringSeq::const_iterator p = _desc->options.begin(); p != _desc->options.end(); ++p)
+    {
+	instance->options.push_back(resolve(*p, "option"));
+    }
+    for(Ice::StringSeq::const_iterator p = _desc->envs.begin(); p != _desc->envs.end(); ++p)
+    {
+	instance->envs.push_back(resolve(*p, "environment variable"));
+    }
+}
+
+ServerDescriptorPtr
+ServerHelper::getDescriptor() const
+{
+    return _desc;
+}
+
+ServerDescriptorPtr
+ServerHelper::instantiate(const Resolver& resolver) const
+{
+    ServerDescriptorPtr server = new ServerDescriptor();
+    instantiateImpl(server, resolver);
+    return server;
+}
+
+void
+ServerHelper::print(Output& out, const string& application, const string& node) const
+{
+    out << "server `" + _desc->id + "'";
+    out << sb;
+    printImpl(out, application, node);
+    out << eb;
+}
+
+void
+ServerHelper::printImpl(Output& out, const string& application, const string& node) const
+{
+    if(!application.empty())
+    {
+	out << nl << "application = '" << application << "'";
+    }
+    if(!node.empty())
+    {
+	out << nl << "node = '" << node << "'";
+    }
+    out << nl << "exe = '" << _desc->exe << "'";
+    if(!_desc->pwd.empty())
+    {
+	out << nl << "pwd = '" << _desc->pwd << "'";
+    }
+    out << nl << "activation = '" << _desc->activation << "'";
+    if(!_desc->activationTimeout.empty() && _desc->activationTimeout != "0")
+    {
+	out << nl << "activationTimeout = " << _desc->activationTimeout;
+    }
+    if(!_desc->deactivationTimeout.empty() && _desc->deactivationTimeout != "0")
+    {
+	out << nl << "deactivationTimeout = " << _desc->deactivationTimeout;
+    }
+    if(!_desc->options.empty())
+    {
+	out << nl << "options = '" << toString(_desc->options) << "'";
+    }
+    if(!_desc->envs.empty())
+    {
+	out << nl << "envs = '" << toString(_desc->envs) << "'";
+    }
+    CommunicatorHelper::print(out);
+}
+
+IceBoxHelper::IceBoxHelper(const IceBoxDescriptorPtr& descriptor, const Resolver& resolve) :
+    ServerHelper(descriptor),
+    _desc(descriptor)
+{
+    //
+    // TODO: Add validation (e.g.: ensure that service names are unique.)
+    //
+
+    for(ServiceInstanceDescriptorSeq::iterator p = _desc->services.begin(); p != _desc->services.end(); ++p)
+    {
+	_services.push_back(ServiceInstanceHelper(*p, resolve));
+	*p = _services.back().getInstance();
+    }
+}
+
+IceBoxHelper::IceBoxHelper(const IceBoxDescriptorPtr& descriptor) :
+    ServerHelper(descriptor),
+    _desc(descriptor)
+{
+    //
+    // TODO: Add validation
+    //
+
+    for(ServiceInstanceDescriptorSeq::const_iterator p = _desc->services.begin(); p != _desc->services.end(); ++p)
+    {
+	_services.push_back(ServiceInstanceHelper(*p));
+    }
+}
+
+bool 
+IceBoxHelper::operator==(const IceBoxHelper& helper) const
+{
+    if(!ServerHelper::operator==(helper))
+    {
+	return false;
+    }
+	
+    if(_services != helper._services)
+    {
+	return false;
+    }
+    
+    return true;
+}
+
+bool
+IceBoxHelper::operator!=(const IceBoxHelper& helper) const
+{
+    return !operator==(helper);
+}
+
+ServerDescriptorPtr
+IceBoxHelper::instantiate(const Resolver& resolver) const
+{
+    IceBoxDescriptorPtr iceBox = new IceBoxDescriptor();
+    instantiateImpl(iceBox, resolver);
+    return iceBox;
+}
+
+void
+IceBoxHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
+{
+    CommunicatorHelper::getIds(adapterIds, objectIds);
+    for(vector<ServiceInstanceHelper>::const_iterator p = _services.begin(); p != _services.end(); ++p)
+    {
+	p->getIds(adapterIds, objectIds);
+    }
+}
+
+void
+IceBoxHelper::instantiateImpl(const IceBoxDescriptorPtr& instance, const Resolver& resolver) const
+{
+    ServerHelper::instantiateImpl(instance, resolver);
+    for(vector<ServiceInstanceHelper>::const_iterator p = _services.begin(); p != _services.end(); ++p)
+    {
+	instance->services.push_back(p->getDescriptor());
+    }
+}
+
+void
+IceBoxHelper::print(Output& out, const string& application, const string& node) const
+{
+    out << "icebox `" + _desc->id + "'";
+    out << sb;
+// TODO    out << nl << "service manager endpoints = '" << iceBox->endpoints << "'";
+    printImpl(out, application, node);
+    for(vector<ServiceInstanceHelper>::const_iterator p = _services.begin(); p != _services.end(); ++p)
+    {
+	out << nl;
+	p->print(out);
+    }
+    out << eb;
+}
+
+map<string, string>
+InstanceHelper::instantiateParams(const Resolver& resolve, const string& tmpl, const map<string, string>& parameters,
+				  const vector<string>& requiredParameters)
+{
+    map<string, string> params;
+
+    set<string> unknown;
+    for(map<string, string>::const_iterator p = parameters.begin(); p != parameters.end(); ++p)
+    {
+	if(find(requiredParameters.begin(), requiredParameters.end(), p->first) == requiredParameters.end())
+	{
+	    unknown.insert(p->first);
+	}
+	params.insert(make_pair(p->first, resolve(p->second, "parameter")));
+    }
+    if(!unknown.empty())
+    {
+	ostringstream os;
+	os << "template `" + tmpl + "' instance unknown parameters: ";
+	copy(unknown.begin(), unknown.end(), ostream_iterator<string>(os, " "));
+	throw os.str();
+    }
+    
+    set<string> missingParams;
+    for(vector<string>::const_iterator q = requiredParameters.begin(); q != requiredParameters.end(); ++q)
+    {
+	if(params.find(*q) == params.end())
+	{
+	    missingParams.insert(*q);
+	}
+    }
+    if(!missingParams.empty())
+    {
+	ostringstream os;
+	os << "template `" + tmpl + "' instance undefined parameters: ";
+	copy(missingParams.begin(), missingParams.end(), ostream_iterator<string>(os, " "));
+	throw os.str();
+    }
+
+    return params;
+}
+
+ServiceInstanceHelper::ServiceInstanceHelper(const ServiceInstanceDescriptor& desc, const Resolver& resolve) :
+    _template(desc._cpp_template), 
+    _parameters(desc.parameterValues)
+{
+    //
+    // TODO: Add validation
+    //
+
+    ServiceDescriptorPtr def = desc.descriptor;
+    map<string, string> params;
+    if(!def)
+    {
+	if(_template.empty())
+	{
+	    throw "invalid service instance: no template defined";
+	}
+	TemplateDescriptor tmpl = resolve.getServiceTemplate(_template);
+	def = ServiceDescriptorPtr::dynamicCast(tmpl.descriptor);
+	params = instantiateParams(resolve, _template, _parameters, tmpl.parameters);
+    }
+    assert(def);
+    _definition = ServiceHelper(def);
+
+    Resolver svcResolve(resolve, params, true);
+    svcResolve.setReserved("service", svcResolve(def->name, "service name"));
+    svcResolve.setContext("service `${service}' from server `${server}'");
+    _instance = ServiceHelper(_definition.instantiate(svcResolve));
+}
+
+ServiceInstanceHelper::ServiceInstanceHelper(const ServiceInstanceDescriptor& desc) :
+    _template(desc._cpp_template), 
+    _parameters(desc.parameterValues)
+{
+    //
+    // TODO: Add validation
+    //
+
+    if(_template.empty())
+    {
+	//
+	// If the service instance is not a template instance, its
+	// descriptor must be set and contain the definition of the
+	// service.
+	//
+	if(!desc.descriptor)
+	{
+	    throw "invalid service instance: no template defined";
+	}
+	_definition = ServiceHelper(desc.descriptor);
     }
     else
     {
-	return _variables->substitute(p->second);
+	//
+	// If the service instance is a template instance and its
+	// descriptor is set, the descriptor contains the
+	// instantiation of the service definition.
+	//
+	if(desc.descriptor)
+	{
+	    _instance = ServiceHelper(desc.descriptor);
+	}
     }
 }
 
-DescriptorHelper::DescriptorHelper(const Ice::CommunicatorPtr& communicator, 
-				   const DescriptorVariablesPtr& vars,
-				   const DescriptorTemplatesPtr& templates) :
-    _communicator(communicator),
-    _variables(vars),
-    _templates(templates)
+bool
+ServiceInstanceHelper::operator==(const ServiceInstanceHelper& helper) const
 {
+    if(_template.empty())
+    {
+	return _definition == helper._definition;
+    }
+    else
+    {
+	return _template == helper._template && _parameters == helper._parameters;
+    }
 }
 
-DescriptorHelper::DescriptorHelper(const DescriptorHelper& desc) :
-    _communicator(desc._communicator),
-    _variables(desc._variables),
-    _templates(desc._templates)
+bool
+ServiceInstanceHelper::operator!=(const ServiceInstanceHelper& helper) const
 {
+    return !operator==(helper);
 }
 
-DescriptorHelper::~DescriptorHelper()
+ServiceInstanceDescriptor
+ServiceInstanceHelper::getDescriptor() const
 {
+    ServiceInstanceDescriptor desc;
+    desc._cpp_template = _template;
+    desc.parameterValues = _parameters;
+    desc.descriptor = _definition.getDescriptor();
+    return desc;
 }
 
-const DescriptorVariablesPtr&
-DescriptorHelper::getVariables() const
+ServiceInstanceDescriptor
+ServiceInstanceHelper::getInstance() const
 {
-    return _variables;
-}
-
-ApplicationDescriptorHelper::ApplicationDescriptorHelper(const Ice::CommunicatorPtr& communicator,
-							 const ApplicationDescriptorPtr& descriptor) :
-    DescriptorHelper(communicator, new DescriptorVariables(), new DescriptorTemplates(descriptor)),
-    _descriptor(descriptor)
-{
-    _variables->push(descriptor->variables);
-    _variables->addVariable("application", _descriptor->name);
-}
-
-ApplicationDescriptorHelper::ApplicationDescriptorHelper(const Ice::CommunicatorPtr& communicator,
-							 const DescriptorVariablesPtr& variables,
-							 const IceXML::Attributes& attrs) :
-    DescriptorHelper(communicator, variables, new DescriptorTemplates(new ApplicationDescriptor())),
-    _descriptor(_templates->getApplicationDescriptor())
-{
-    XmlAttributesHelper attributes(_variables, attrs);
-    _descriptor->name = attributes("name");
-    _descriptor->targets = _variables->getDeploymentTargets("");
-    _variables->addVariable("application", _descriptor->name);
+    assert(_instance.getDescriptor());
+    ServiceInstanceDescriptor desc;
+    desc._cpp_template = _template;
+    desc.parameterValues = _parameters;
+    desc.descriptor = _instance.getDescriptor();
+    return desc;
 }
 
 void
-ApplicationDescriptorHelper::endParsing()
+ServiceInstanceHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
 {
-    _descriptor->variables = _variables->getCurrentScopeVariables();
-}
-
-const ApplicationDescriptorPtr&
-ApplicationDescriptorHelper::getDescriptor() const
-{
-    return _descriptor;
+    assert(_instance.getDescriptor());
+    _instance.getIds(adapterIds, objectIds);
 }
 
 void
-ApplicationDescriptorHelper::setComment(const string& comment)
+ServiceInstanceHelper::print(Output& out) const
 {
-    _descriptor->comment = comment;
+    if(_instance.getDescriptor())
+    {
+	_instance.print(out);
+    }
+    else if(_template.empty())
+    {
+	_definition.print(out);
+    }
+    else
+    {
+	out << nl << "service instance";
+	out << sb;
+	out << nl << "template = " << _template;
+	out << nl << "parameters";
+	out << sb;
+	for(StringStringDict::const_iterator p = _parameters.begin(); p != _parameters.end(); ++p)
+	{
+	    out << nl << p->first << " = '" << p->second << "'";
+	}
+	out << eb;
+	out << eb;
+    }
+}
+
+ServerInstanceHelper::ServerInstanceHelper(const ServerInstanceDescriptor& desc, const Resolver& resolve) :
+    _template(desc._cpp_template), _parameters(desc.parameterValues)
+{
+    //
+    // TODO: Add validation
+    //
+
+    init(0, resolve);
+}
+
+ServerInstanceHelper::ServerInstanceHelper(const ServerDescriptorPtr& definition, const Resolver& resolve)
+{
+    //
+    // TODO: Add validation
+    //
+
+    init(definition, resolve);
 }
 
 void
-ApplicationDescriptorHelper::addNode(const IceXML::Attributes& attrs)
+ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver& resolve)
 {
-    XmlAttributesHelper attributes(_variables, attrs);
+    //
+    // Get the server definition if it's not set.
+    //
+    map<string, string> params;
+    ServerDescriptorPtr def = definition;
+    if(!def)
+    {
+	if(_template.empty())
+	{
+	    throw "invalid server instance: template is not defined";
+	}
+	
+	TemplateDescriptor tmpl = resolve.getServerTemplate(_template);
+	def = ServerDescriptorPtr::dynamicCast(tmpl.descriptor);
+	params = instantiateParams(resolve, _template, _parameters, tmpl.parameters);
+    }
+    assert(def);
+    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(def);
+    if(iceBox)
+    {
+	_definition = new IceBoxHelper(iceBox);
+    }
+    else
+    {
+	_definition = new ServerHelper(def);
+    }
+
+    Resolver svrResolve(resolve, params, true);
+    svrResolve.setReserved("server", svrResolve(def->id, "server name"));
+    svrResolve.setContext("server `${server}'");
+    if(iceBox)
+    {
+	_instance = new IceBoxHelper(IceBoxDescriptorPtr::dynamicCast(_definition->instantiate(svrResolve)),
+				     svrResolve);
+    }
+    else
+    {
+	_instance = new ServerHelper(_definition->instantiate(svrResolve));
+    }
+}
+
+bool
+ServerInstanceHelper::operator==(const ServerInstanceHelper& helper) const
+{
+    if(_template.empty())
+    {
+	return *_definition == *helper._definition;
+    }
+    else
+    {
+	return _template == helper._template && _parameters == helper._parameters;
+    }
+}
+
+bool
+ServerInstanceHelper::operator!=(const ServerInstanceHelper& helper) const
+{
+    return !operator==(helper);
+}
+
+string
+ServerInstanceHelper::getId() const
+{
+    assert(_instance);
+    return _instance->getDescriptor()->id;
+}
+
+ServerInstanceDescriptor
+ServerInstanceHelper::getDescriptor() const
+{
+    ServerInstanceDescriptor desc;
+    desc._cpp_template = _template;
+    desc.parameterValues = _parameters;
+    return desc;
+}
+
+ServerDescriptorPtr
+ServerInstanceHelper::getDefinition() const
+{
+    return _definition->getDescriptor();
+}
+
+ServerDescriptorPtr 
+ServerInstanceHelper::getInstance() const
+{
+    assert(_instance);
+    return _instance->getDescriptor();
+}
+
+void
+ServerInstanceHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
+{
+    assert(_instance);
+    _instance->getIds(adapterIds, objectIds);
+}
+
+NodeHelper::NodeHelper(const string& name, const NodeDescriptor& descriptor, const Resolver& appResolve) : 
+    _name(name),
+    _desc(descriptor)
+{
+    Resolver resolve(appResolve, _desc.variables, false);
+    resolve.setReserved("node", _name);
+    resolve.setContext("node `" + _name + "'");
+    for(ServerInstanceDescriptorSeq::const_iterator p = _desc.serverInstances.begin(); 
+	p != _desc.serverInstances.end(); ++p)
+    {
+	ServerInstanceHelper helper(*p, resolve);
+	if(!_serverInstances.insert(make_pair(helper.getId(), helper)).second)
+	{
+	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
+	}
+    }
+    for(ServerDescriptorSeq::const_iterator q = _desc.servers.begin(); q != _desc.servers.end(); ++q)
+    {
+	ServerInstanceHelper helper(*q, resolve);
+	if(!_servers.insert(make_pair(helper.getId(), helper)).second)
+	{
+	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
+	}
+    }
+
+    validate();
+}
+
+bool
+NodeHelper::operator==(const NodeHelper& helper) const
+{
+    if(_desc.variables != helper._desc.variables)
+    {
+	return false;
+    }
+
+    if(_serverInstances != helper._serverInstances)
+    {
+	return false;
+    }
+
+    if(_servers != helper._servers)
+    {
+	return false;
+    }
+
+    return true;
+}
+
+bool
+NodeHelper::operator!=(const NodeHelper& helper) const
+{
+    return !operator==(helper);
+}
+
+NodeUpdateDescriptor
+NodeHelper::diff(const NodeHelper& helper) const
+{
+    assert(_name == helper._name);
+
+    NodeUpdateDescriptor update;
+
+    update.name = _name;
+
+    update.variables = getDictUpdatedElts(helper._desc.variables, _desc.variables);
+    update.removeVariables = getDictRemovedElts(helper._desc.variables, _desc.variables);
     
-    string node = attributes("name");	
-    _variables->push();
-    _variables->addVariable("node", node);
-    for(NodeDescriptorSeq::const_iterator p = _descriptor->nodes.begin(); p != _descriptor->nodes.end(); ++p)
+    ServerInstanceHelperDict updated = getDictUpdatedElts(helper._serverInstances,_serverInstances);
+    for(ServerInstanceHelperDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
     {
-	if(p->name == node)
-	{
-	    _variables->push(p->variables);
-	    break;
-	}
+	update.serverInstances.push_back(p->second.getDescriptor());
     }
-}
+    update.removeServers = getDictRemovedElts(helper._serverInstances, _serverInstances);
 
-void
-ApplicationDescriptorHelper::endNodeParsing()
-{
-    NodeDescriptor node;
-    node.name = _variables->getVariable("node");
-    node.variables = _variables->getCurrentScopeVariables();
-    _descriptor->nodes.push_back(node);
-    _variables->pop();
-}
-
-
-void
-ApplicationDescriptorHelper::addServer(const string& tmpl, const IceXML::Attributes& attrs)
-{
-    assert(_variables->hasVariable("node"));
-    ServerInstanceDescriptor instance;
-    instance._cpp_template = tmpl;
-    instance.node = _variables->getVariable("node");
-    instance.parameterValues = attrs;
-    instance.parameterValues.erase("template");
-    _descriptor->servers.push_back(instantiate(instance));
-}
-
-void
-ApplicationDescriptorHelper::addServer(const ServerDescriptorPtr& descriptor)
-{
-    assert(_variables->hasVariable("node"));
-    ServerInstanceDescriptor instance;
-    instance.node = _variables->getVariable("node");
-    instance.descriptor = descriptor;
-    instance.targets = _variables->getDeploymentTargets(descriptor->name + ".");
-    _descriptor->servers.push_back(instance);
-}
-
-auto_ptr<ServerDescriptorHelper>
-ApplicationDescriptorHelper::addServerTemplate(const std::string& id, const IceXML::Attributes& attrs)
-{
-    return auto_ptr<ServerDescriptorHelper>(new ServerDescriptorHelper(*this, attrs, id));
-}
-
-auto_ptr<ServiceDescriptorHelper>
-ApplicationDescriptorHelper::addServiceTemplate(const std::string& id, const IceXML::Attributes& attrs)
-{
-    return auto_ptr<ServiceDescriptorHelper>(new ServiceDescriptorHelper(*this, attrs, id));
-}
-
-void
-ApplicationDescriptorHelper::addReplicatedAdapter(const IceXML::Attributes& attrs)
-{
-    XmlAttributesHelper attributes(_variables, attrs);
-
-    ReplicatedAdapterDescriptor adapter;
-    adapter.id = attributes("id");
-    string policy = attributes("load-balancing", "random");
-    if(policy == "random")
+    updated = getDictUpdatedElts(helper._servers, _servers);
+    for(ServerInstanceHelperDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
     {
-	adapter.loadBalancing = Random;
+	update.servers.push_back(p->second.getDefinition());
     }
-    else if(policy == "round-robin")
-    {
-	adapter.loadBalancing = RoundRobin;
-    }
-    else if(policy == "adaptive")
-    {
-	adapter.loadBalancing = Adaptive;
-    }
-    _descriptor->replicatedAdapters.push_back(adapter);
-}
-
-ApplicationUpdateDescriptor
-ApplicationDescriptorHelper::update(const ApplicationUpdateDescriptor& update)
-{
-    ApplicationUpdateDescriptor newUpdate = update;
-    ApplicationDescriptorPtr newApp = new ApplicationDescriptor();
-    ApplicationDescriptorPtr oldApp = _descriptor;
-    _descriptor = newApp;
-    _templates->setDescriptor(newApp);
-
-    newApp->name = oldApp->name;
-    newApp->comment = newUpdate.comment ? newUpdate.comment->value : oldApp->comment;
-    newApp->targets = oldApp->targets;
-
-    Ice::StringSeq::const_iterator p;
-
-    //
-    // Copy the updated replicated adapters in the new descriptor and
-    // add back the old adapters which weren't removed.
-    //
-    newApp->replicatedAdapters = updateSeqElts(oldApp->replicatedAdapters, newUpdate.replicatedAdapters,
-					       newUpdate.removeReplicatedAdapters, GetReplicatedAdapterId());
-
-    //
-    // Copy the old variables in the new descriptor, remove the
-    // required variables and add the updated ones.
-    //
-    newApp->variables = oldApp->variables;
-    for(p = newUpdate.removeVariables.begin(); p != newUpdate.removeVariables.end(); ++p)
-    {
-	newApp->variables.erase(*p);
-	_variables->remove(*p);
-    }
-    for(map<string, string>::const_iterator q = newUpdate.variables.begin(); q != newUpdate.variables.end(); ++q)
-    {
-	newApp->variables[q->first] = q->second;
-	_variables->addVariable(q->first, q->second);
-    }
-
-    newApp->serverTemplates = 
-	updateDictElts(oldApp->serverTemplates, newUpdate.serverTemplates, newUpdate.removeServerTemplates);
-    newApp->serviceTemplates = 
-	updateDictElts(oldApp->serviceTemplates, newUpdate.serviceTemplates, newUpdate.removeServiceTemplates);
-    newApp->nodes = updateSeqElts(oldApp->nodes, newUpdate.nodes, newUpdate.removeNodes, GetNodeName());
-
-    //
-    // Copy the updated servers in the new descriptor and add back
-    // the old servers which weren't removed.
-    //
-    // NOTE: we also re-instantiate the old servers since their
-    // template might have changed.
-    //
-    newApp->servers.clear();
-    for(ServerInstanceDescriptorSeq::iterator q = newUpdate.servers.begin(); q != newUpdate.servers.end(); ++q)
-    {
-	*q = instantiate(*q);
-	newApp->servers.push_back(*q);
-    }
-
-    set<string> removed(newUpdate.removeServers.begin(), newUpdate.removeServers.end());
-    set<string> updated;
-    for_each(newApp->servers.begin(), newApp->servers.end(), AddServerName(updated));
-    for(ServerInstanceDescriptorSeq::const_iterator q = oldApp->servers.begin(); q != oldApp->servers.end(); ++q)
-    {
-	ServerInstanceDescriptor inst = instantiate(*q); // Re-instantiate old servers.
-	if(updated.find(inst.descriptor->name) == updated.end() && removed.find(inst.descriptor->name) == removed.end())
-	{
-	    if(q->node != inst.node ||
-	       ServerDescriptorHelper(*this, q->descriptor) != ServerDescriptorHelper(*this, inst.descriptor))
-	    {
-		newUpdate.servers.push_back(inst);
-	    }
-	    newApp->servers.push_back(inst);
-	}
-    }
-
-    return newUpdate;
-}
-
-ApplicationUpdateDescriptor
-ApplicationDescriptorHelper::diff(const ApplicationDescriptorPtr& orig)
-{
-    ApplicationUpdateDescriptor update;
-    update.name = _descriptor->name;
-    update.comment = _descriptor->comment != orig->comment ? new BoxedComment(_descriptor->comment) : BoxedCommentPtr();
-    update.targets = _descriptor->targets != orig->targets ? new BoxedTargets(_descriptor->targets) : BoxedTargetsPtr();
-
-    update.variables = getDictUpdatedElts(orig->variables, _descriptor->variables);
-    update.removeVariables = getDictRemovedElts(orig->variables, _descriptor->variables);
-
-    GetReplicatedAdapterId rk;
-    update.replicatedAdapters = getSeqUpdatedElts(orig->replicatedAdapters, _descriptor->replicatedAdapters, rk);
-    update.removeReplicatedAdapters = getSeqRemovedElts(orig->replicatedAdapters, _descriptor->replicatedAdapters, rk);
-
-    TemplateDescriptorEqual tmpleq(*this);
-    update.serverTemplates = getDictUpdatedElts(orig->serverTemplates, _descriptor->serverTemplates, tmpleq);
-    update.removeServerTemplates = getDictRemovedElts(orig->serverTemplates, _descriptor->serverTemplates);
-    update.serviceTemplates = getDictUpdatedElts(orig->serviceTemplates, _descriptor->serviceTemplates, tmpleq);
-    update.removeServiceTemplates = getDictRemovedElts(orig->serviceTemplates, _descriptor->serviceTemplates);
-
-    GetNodeName nk;
-    update.nodes = getSeqUpdatedElts(orig->nodes, _descriptor->nodes, nk);
-    update.removeNodes = getSeqRemovedElts(orig->nodes, _descriptor->nodes, nk);
-
-    GetServerName sn;
-    ServerInstanceDescriptorEqual svreq(*this);
-    update.servers = getSeqUpdatedElts(orig->servers, _descriptor->servers, sn, svreq);
-    update.removeServers = getSeqRemovedElts(orig->servers, _descriptor->servers, sn);
-
+    Ice::StringSeq removed = getDictRemovedElts(helper._servers, _servers);
+    update.removeServers.insert(update.removeServers.end(), removed.begin(), removed.end());
     return update;
 }
 
 void
-ApplicationDescriptorHelper::addServerInstance(const string& tmpl, 
-					       const string& node, 
-					       const map<string, string>& parameters)
+NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolve)
 {
-    pushNodeVariables(node);
+    assert(update.name == _name);
+    Resolver resolve(appResolve, _desc.variables, false);
+    resolve.setReserved("node", _name);
+    resolve.setContext("node `" + _name + "'");
 
-    ServerInstanceDescriptor instance;
-    instance._cpp_template = tmpl;
-    instance.node = node;
-    instance.parameterValues = parameters;
-    instance.descriptor = _templates->instantiateServer(*this, tmpl, instance.parameterValues);
-    _descriptor->servers.push_back(instance);    
-
-    _variables->pop();
-}
-
-void
-ApplicationDescriptorHelper::instantiate()
-{
-    for(ServerInstanceDescriptorSeq::iterator p = _descriptor->servers.begin(); p != _descriptor->servers.end(); ++p)
+    //
+    // Remove the variables, the servers and server instances.
+    //
+    Ice::StringSeq::const_iterator r;
+    for(r = update.removeVariables.begin(); r != update.removeVariables.end(); ++r)
     {
-	*p = instantiate(*p);
+	_desc.variables.erase(*r);
     }
-}
-
-ServerInstanceDescriptor
-ApplicationDescriptorHelper::instantiate(const ServerInstanceDescriptor& inst)
-{
-    ServerInstanceDescriptor instance = inst;
-    pushNodeVariables(inst.node);
-    if(instance._cpp_template.empty())
+    for(r = update.removeServers.begin(); r != update.removeServers.end(); ++r)
     {
-	//
-	// We can't re-instantiate here -- this would break escaped variables.
-	//
-// 	assert(instance.descriptor);
-// 	set<string> missing;
-// 	instance.descriptor = ServerDescriptorHelper(*this, instance.descriptor).instantiate(missing);
-// 	if(!missing.empty())
-// 	{
-// 	    ostringstream os;
-// 	    os << "server undefined variables: ";
-// 	    copy(missing.begin(), missing.end(), ostream_iterator<string>(os, " "));
-// 	    throw os.str();
-// 	}
+	_serverInstances.erase(*r);
+	_servers.erase(*r);
     }
-    else
-    {
-	instance.descriptor = _templates->instantiateServer(*this, instance._cpp_template, instance.parameterValues);
-    }
-    _variables->pop();
-    return instance;
-}
 
-void
-ApplicationDescriptorHelper::pushNodeVariables(const string& node)
-{
-    NodeDescriptorSeq::const_iterator q;
-    for(q = _descriptor->nodes.begin(); q != _descriptor->nodes.end(); ++q)
+    for(map<string, string>::const_iterator p = update.variables.begin(); p != update.variables.end(); ++p)
     {
-	if(q->name == node)
+	_desc.variables[p->first] = p->second;
+    }
+
+    //
+    // Update the server instances, first we instantiate the server
+    // instances from the update, remove the old server instances that
+    // were updated, and then we re-instantiate the server instances
+    // that were not updated.
+    //
+    ServerInstanceHelperDict serverInstances;
+    serverInstances.swap(_serverInstances);
+    for(ServerInstanceDescriptorSeq::const_iterator q = update.serverInstances.begin(); 
+	q != update.serverInstances.end(); ++q)
+    {
+	ServerInstanceHelper helper(*q, resolve);
+	if(!_serverInstances.insert(make_pair(helper.getId(), helper)).second)
 	{
-	    _variables->push(q->variables);
-	    break;
+	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
+	}
+	serverInstances.erase(helper.getId());
+    }
+    for(ServerInstanceHelperDict::const_iterator q = serverInstances.begin(); q != serverInstances.end(); ++q)
+    {
+	ServerInstanceHelper helper(q->second.getDescriptor(), resolve); // Re-instantiate the server.
+	if(!_serverInstances.insert(make_pair(helper.getId(), helper)).second)
+	{
+	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
 	}
     }
-    if(q == _descriptor->nodes.end())
+
+    //
+    // Update the servers, first we instantiate the servers from the
+    // update, remove the old servers that were updated, and then we
+    // re-instantiate the servers that were not updated.
+    //
+    ServerInstanceHelperDict servers;
+    servers.swap(_servers);
+    for(ServerDescriptorSeq::const_iterator s = update.servers.begin(); s != update.servers.end(); ++s)
     {
-	_variables->push();
+	ServerInstanceHelper helper(*s, resolve);
+	if(!_servers.insert(make_pair(helper.getId(), helper)).second)
+	{
+	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
+	}
+	servers.erase(helper.getId());
+    }    
+    for(ServerInstanceHelperDict::const_iterator q = servers.begin(); q != servers.end(); ++q)
+    {
+	ServerInstanceHelper helper(q->second.getDefinition(), resolve); // Re-instantiate the server.
+	if(!_servers.insert(make_pair(helper.getId(), helper)).second)
+	{
+	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
+	}
     }
-    _variables->addVariable("node", node);
-}
 
-ComponentDescriptorHelper::ComponentDescriptorHelper(const DescriptorHelper& helper) : DescriptorHelper(helper)
-{
-}
+    //
+    // Update the node descriptor with the new server instances and servers.
+    //
+    _desc.serverInstances.clear();
+    for(ServerInstanceHelperDict::const_iterator t = _serverInstances.begin(); t != _serverInstances.end(); ++t)
+    {
+	_desc.serverInstances.push_back(t->second.getDescriptor());
+    }
 
-ComponentDescriptorHelper::ComponentDescriptorHelper(const Ice::CommunicatorPtr& communicator, 
-						     const DescriptorVariablesPtr& vars,
-						     const DescriptorTemplatesPtr& templates) :
-    DescriptorHelper(communicator, vars, templates)
-{
+    _desc.servers.clear();
+    for(ServerInstanceHelperDict::const_iterator u = _servers.begin(); u != _servers.end(); ++u)
+    {
+	_desc.servers.push_back(u->second.getDefinition());
+    }
 }
 
 void
-ComponentDescriptorHelper::init(const ComponentDescriptorPtr& descriptor, const IceXML::Attributes& attrs)
+NodeHelper::getIds(multiset<string>& serverIds, multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
 {
-    _descriptor = descriptor;
+    for(ServerInstanceHelperDict::const_iterator p = _serverInstances.begin(); p != _serverInstances.end(); ++p)
+    {
+	serverIds.insert(p->first);
+	p->second.getIds(adapterIds, objectIds);
+    }
+    for(ServerInstanceHelperDict::const_iterator q = _servers.begin(); q != _servers.end(); ++q)
+    {
+	serverIds.insert(q->first);
+	q->second.getIds(adapterIds, objectIds);
+    }    
+}
 
-    if(attrs.empty())
+const NodeDescriptor&
+NodeHelper::getDescriptor() const
+{
+    return _desc;
+}
+
+void
+NodeHelper::getServerInfos(const string& application, map<string, ServerInfo>& servers) const
+{
+    for(ServerInstanceHelperDict::const_iterator p = _serverInstances.begin(); p != _serverInstances.end(); ++p)
+    {
+	ServerInfo info;
+	info.node = _name;
+	info.application = application;
+	info.descriptor = p->second.getInstance();
+	servers.insert(make_pair(p->second.getId(), info));
+    }
+    for(ServerInstanceHelperDict::const_iterator p = _servers.begin(); p != _servers.end(); ++p)
+    {
+	ServerInfo info;
+	info.node = _name;
+	info.application = application;
+	info.descriptor = p->second.getInstance();
+	servers.insert(make_pair(p->second.getId(), info));
+    }
+}
+
+void
+NodeHelper::print(Output& out) const
+{
+    out << nl << "node '" << _name << "'";
+    out << sb;
+    if(!_desc.variables.empty())
+    {
+	out << nl << "variables";
+	out << sb;
+	for(StringStringDict::const_iterator q = _desc.variables.begin(); q != _desc.variables.end(); ++q)
+	{
+	    out << nl << q->first << " = '" << q->second << "'";
+	}
+	out << eb;
+    }
+
+    if(_serverInstances.empty() && _servers.empty())
+    {
+	return;
+    }
+    
+    out << nl << "servers";
+    out << sb;
+    for(ServerInstanceHelperDict::const_iterator p = _serverInstances.begin(); p != _serverInstances.end(); ++p)
+    {
+	out << nl << p->first;
+    }
+    for(ServerInstanceHelperDict::const_iterator p = _servers.begin(); p != _servers.end(); ++p)
+    {
+	out << nl << p->first;
+    }
+    out << eb;
+    out << eb;
+}
+
+void
+NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
+{
+    ServerInstanceHelperDict updated1 = getDictUpdatedElts(helper._serverInstances,_serverInstances);
+    Ice::StringSeq removed1 = getDictRemovedElts(helper._serverInstances, _serverInstances);
+    ServerInstanceHelperDict updated2 = getDictUpdatedElts(helper._servers,_servers);
+    Ice::StringSeq removed2 = getDictRemovedElts(helper._servers, _servers);
+    
+    ServerInstanceHelperDict updated;
+    Ice::StringSeq removed;
+    updated.insert(updated1.begin(), updated1.end());
+    removed.insert(removed.end(), removed1.begin(), removed1.end());
+    updated.insert(updated2.begin(), updated2.end());
+    removed.insert(removed.end(), removed2.begin(), removed2.end());
+
+    if(updated.empty() && removed.empty())
     {
 	return;
     }
 
-    XmlAttributesHelper attributes(_variables, attrs);
-    _descriptor->name = attributes("name");
-}
+    //
+    // TODO: Show updated variables?
+    //
 
-bool
-ComponentDescriptorHelper::operator==(const ComponentDescriptorHelper& helper) const
-{
-    if(_descriptor->ice_id() != helper._descriptor->ice_id())
+    out << nl << "node `" + _name + "' updated";
+    out << sb;
+
+    out << nl << "servers";
+    out << sb;
+    for(ServerInstanceHelperDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
     {
-	return false;
-    }
-
-    if(_descriptor->name != helper._descriptor->name)
-    {
-	return false;
-    }
-
-    if(_descriptor->comment != helper._descriptor->comment)
-    {
-	return false;
-    }
-
-    if(set<AdapterDescriptor>(_descriptor->adapters.begin(), _descriptor->adapters.end())  != 
-       set<AdapterDescriptor>(helper._descriptor->adapters.begin(), helper._descriptor->adapters.end()))
-    {
-	return false;
-    }
-
-    if(set<PropertyDescriptor>(_descriptor->properties.begin(), _descriptor->properties.end()) != 
-       set<PropertyDescriptor>(helper._descriptor->properties.begin(), helper._descriptor->properties.end()))
-    {
-	return false;
-    }
-
-    if(set<DbEnvDescriptor>(_descriptor->dbEnvs.begin(), _descriptor->dbEnvs.end()) != 
-       set<DbEnvDescriptor>(helper._descriptor->dbEnvs.begin(), helper._descriptor->dbEnvs.end()))
-    {
-	return false;
-    }
-
-    if(_descriptor->variables != helper._descriptor->variables)
-    {
-	return false;
-    }
-
-    return true;
-}
-
-bool
-ComponentDescriptorHelper::operator!=(const ComponentDescriptorHelper& helper) const
-{
-    return !operator==(helper);
-}
-
-void
-ComponentDescriptorHelper::setComment(const string& comment)
-{
-    _descriptor->comment = comment;
-}
-
-void
-ComponentDescriptorHelper::addProperty(const IceXML::Attributes& attrs)
-{
-    XmlAttributesHelper attributes(_variables, attrs);
-    PropertyDescriptor prop;
-    prop.name = attributes("name");
-    prop.value = attributes("value", "");
-    _descriptor->properties.push_back(prop);
-}
-
-void
-ComponentDescriptorHelper::addAdapter(const IceXML::Attributes& attrs)
-{
-    XmlAttributesHelper attributes(_variables, attrs);
-    
-    AdapterDescriptor desc;
-    desc.name = attributes("name");
-    desc.id = attributes("id", "");
-    if(desc.id.empty())
-    {
-	string fqn = "${server}";
-	if(ServiceDescriptorPtr::dynamicCast(_descriptor))
+	if(helper._serverInstances.find(p->first) == helper._serverInstances.end() &&
+	   helper._servers.find(p->first) == helper._servers.end())
 	{
-	    fqn += ".${service}";
+	    out << nl << "server `" << p->first << "' added";
 	}
-	desc.id = _variables->substitute(fqn) + "." + desc.name;
     }
-    desc.endpoints = attributes("endpoints");
-    desc.registerProcess = attributes("register", "false") == "true";
-    desc.noWaitForActivation = attributes("no-wait-for-activation", "false") == "true";
-    _descriptor->adapters.push_back(desc);
+    for(ServerInstanceHelperDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
+    {
+	if(helper._serverInstances.find(p->first) != helper._serverInstances.end() ||
+	   helper._servers.find(p->first) != helper._servers.end())
+	{
+	    out << nl << "server `" << p->first << "' updated";
+	}
+    }
+    for(Ice::StringSeq::const_iterator p = removed.begin(); p != removed.end(); ++p)
+    {
+	out << nl << "server `" << *p << "' removed";
+    }    
+    out << eb;
+
+    out << eb;
 }
 
 void
-ComponentDescriptorHelper::addObject(const IceXML::Attributes& attrs)
+NodeHelper::validate()
 {
-    XmlAttributesHelper attributes(_variables, attrs);
-
-    ObjectDescriptor object;
-    object.type = attributes("type", "");
-    object.id = Ice::stringToIdentity(attributes("identity"));
-    _descriptor->adapters.back().objects.push_back(object);
+    //
+    // TODO: Add validation
+    //    
 }
 
-void
-ComponentDescriptorHelper::addDbEnv(const IceXML::Attributes& attrs)
+ApplicationHelper::ApplicationHelper(const ApplicationDescriptor& desc) :
+    _desc(desc)
 {
-    XmlAttributesHelper attributes(_variables, attrs);
-
-    DbEnvDescriptor desc;
-    desc.name = attributes("name");
-
-
-    DbEnvDescriptorSeq::iterator p;
-    for(p = _descriptor->dbEnvs.begin(); p != _descriptor->dbEnvs.end(); ++p)
+    Resolver resolve(*this, _desc.name, desc.variables);
+    for(NodeDescriptorDict::const_iterator p = _desc.nodes.begin(); p != _desc.nodes.end(); ++p)
     {
-	//
-	// We are re-opening the dbenv element to define more properties.
-	//
-	if(p->name == desc.name)
-	{	
-	    break;
-	}
-    }
-
-    if(p != _descriptor->dbEnvs.end())
-    {
-	//
-	// Remove the previously defined dbenv, we'll add it back again when 
-	// the dbenv element end tag is reached.
-	//
-	desc = *p;
-	_descriptor->dbEnvs.erase(p);
-    }	
-
-    if(desc.dbHome.empty())
-    {
-	desc.dbHome = attributes("home", "");
+	_nodes.insert(make_pair(p->first, NodeHelper(p->first, p->second, resolve)));
     }
     
-    _descriptor->dbEnvs.push_back(desc);
+    validate();
 }
 
-void
-ComponentDescriptorHelper::addDbEnvProperty(const IceXML::Attributes& attrs)
+ApplicationUpdateDescriptor
+ApplicationHelper::diff(const ApplicationHelper& helper)
 {
-    XmlAttributesHelper attributes(_variables, attrs);
+    ApplicationUpdateDescriptor update;
 
-    PropertyDescriptor prop;
-    prop.name = attributes("name");
-    prop.value = attributes("value", "");
-    _descriptor->dbEnvs.back().properties.push_back(prop);
-}
-
-void
-ComponentDescriptorHelper::instantiateImpl(const ComponentDescriptorPtr& desc, set<string>& missing) const
-{
-    Substitute substitute(_variables, missing);
-    substitute(desc->name);
-    substitute(desc->comment);
-    for(AdapterDescriptorSeq::iterator p = desc->adapters.begin(); p != desc->adapters.end(); ++p)
+    update.name = _desc.name;
+    if(_desc.description != helper._desc.description)
     {
-	substitute(p->name);
-	substitute(p->id);
-	substitute(p->endpoints);
-	for(ObjectDescriptorSeq::iterator q = p->objects.begin(); q != p->objects.end(); ++q)
+	update.description = new BoxedDescription(_desc.description);
+    }
+
+    update.variables = getDictUpdatedElts(helper._desc.variables, _desc.variables);
+    update.removeVariables = getDictRemovedElts(helper._desc.variables, _desc.variables);
+
+    GetReplicatedAdapterId rk;
+    update.replicatedAdapters = getSeqUpdatedElts(helper._desc.replicatedAdapters, _desc.replicatedAdapters, rk);
+    update.removeReplicatedAdapters =getSeqRemovedElts(helper._desc.replicatedAdapters, _desc.replicatedAdapters, rk);
+
+    TemplateDescriptorEqual tmpleq;
+    update.serverTemplates = getDictUpdatedElts(helper._desc.serverTemplates, _desc.serverTemplates, tmpleq);
+    update.removeServerTemplates = getDictRemovedElts(helper._desc.serverTemplates, _desc.serverTemplates);
+    update.serviceTemplates = getDictUpdatedElts(helper._desc.serviceTemplates, _desc.serviceTemplates, tmpleq);
+    update.removeServiceTemplates = getDictRemovedElts(helper._desc.serviceTemplates, _desc.serviceTemplates);
+
+    NodeHelperDict updated = getDictUpdatedElts(helper._nodes, _nodes);
+    for(NodeHelperDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
+    {
+	NodeHelperDict::const_iterator q = helper._nodes.find(p->first);
+	if(q == helper._nodes.end())
 	{
-	    substitute(q->type);
-	    substitute(q->id.name);
-	    substitute(q->id.category);
+	    NodeUpdateDescriptor nodeUpdate;
+	    const NodeDescriptor& node = p->second.getDescriptor();
+	    nodeUpdate.name = p->first;
+	    nodeUpdate.variables = node.variables;
+	    nodeUpdate.servers = node.servers;
+	    nodeUpdate.serverInstances = node.serverInstances;
+	    update.nodes.push_back(nodeUpdate);
+	}
+	else
+	{
+	    update.nodes.push_back(p->second.diff(q->second));
 	}
     }
-    for(PropertyDescriptorSeq::iterator p = desc->properties.begin(); p != desc->properties.end(); ++p)
-    {
-	substitute(p->name);
-	substitute(p->value);	
-    }
-    for(DbEnvDescriptorSeq::iterator p = desc->dbEnvs.begin(); p != desc->dbEnvs.end(); ++p)
-    {
-	substitute(p->name);
-	substitute(p->dbHome);	
-	for(PropertyDescriptorSeq::iterator q = p->properties.begin(); q != p->properties.end(); ++q)
-	{
-	    substitute(q->name);
-	    substitute(q->value);	
-	}
-    }
-}
+    update.removeNodes = getDictRemovedElts(helper._nodes, _nodes);
 
-ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, const ServerDescriptorPtr& descriptor) :
-    ComponentDescriptorHelper(helper),
-    _descriptor(descriptor)
-{
-    ComponentDescriptorHelper::init(_descriptor);
-    _variables->push(_descriptor->variables);
-}
-
-ServerDescriptorHelper::ServerDescriptorHelper(const DescriptorHelper& helper, const IceXML::Attributes& attrs,
-					       const string& id) :
-    ComponentDescriptorHelper(helper),
-    _templateId(id)
-{
-    XmlAttributesHelper attributes(_variables, attrs);
-
-    _variables->push();
-    if(!_templateId.empty())
-    {
-	_variables->substitution(false);
-    }
-
-    string interpreter = attributes("interpreter", "");
-    if(interpreter == "icebox" || interpreter == "java-icebox")
-    {
-	_descriptor = new IceBoxDescriptor();
-	_descriptor->exe = attributes("exe", "");
-    }
-    else
-    {
-	_descriptor = new ServerDescriptor();
-	_descriptor->exe = attributes("exe");
-    }
-    _descriptor->interpreter = interpreter;
-    _descriptor->activationTimeout = attributes("activation-timeout", "0");
-    _descriptor->deactivationTimeout = attributes("deactivation-timeout", "0");
-
-    ComponentDescriptorHelper::init(_descriptor, attrs);
-
-    _descriptor->pwd = attributes("pwd", "");
-    _descriptor->activation = attributes("activation", "manual");
+    return update;
     
-    if(interpreter == "icebox" || interpreter == "java-icebox")
-    {
-	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(_descriptor);
-	iceBox->endpoints = attributes("endpoints");
-	
-	PropertyDescriptor prop;
-	prop.name = "IceBox.ServiceManager.Identity";
-	prop.value = _descriptor->name + "/ServiceManager";
-	_descriptor->properties.push_back(prop);
-	
-	AdapterDescriptor adapter;
-	adapter.name = "IceBox.ServiceManager";
-	adapter.endpoints = attributes("endpoints");
-	adapter.id = _descriptor->name + "." + adapter.name;
-	adapter.registerProcess = true;
-	adapter.noWaitForActivation = false;
-	_descriptor->adapters.push_back(adapter);
-    }
-
-    if(_templateId.empty())
-    {
-	_variables->addVariable("server", _descriptor->name);
-    }
-}
-
-ServerDescriptorHelper::~ServerDescriptorHelper()
-{
-    _variables->pop();    
 }
 
 void
-ServerDescriptorHelper::endParsing()
+ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
 {
-    if(!_templateId.empty())
+    if(update.description)
     {
-	_descriptor->variables = _variables->getCurrentScopeVariables();
-	_templates->addServerTemplate(_templateId, _descriptor, _variables->getCurrentScopeParameters());
-	_variables->substitution(true);
+	_desc.description = update.description->value;
     }
+
+    _desc.replicatedAdapters = updateSeqElts(_desc.replicatedAdapters, update.replicatedAdapters,
+					     update.removeReplicatedAdapters, GetReplicatedAdapterId());
+    
+    _desc.variables = updateDictElts(_desc.variables, update.variables, update.removeVariables);
+
+    _desc.serverTemplates = updateDictElts(_desc.serverTemplates, update.serverTemplates, 
+					   update.removeServerTemplates);
+
+    _desc.serviceTemplates = updateDictElts(_desc.serviceTemplates, update.serviceTemplates, 
+					    update.removeServiceTemplates);
+
+    Resolver resolve(*this, _desc.name, _desc.variables);
+    for(Ice::StringSeq::const_iterator p = update.removeNodes.begin(); p != update.removeNodes.end(); ++p)
+    {
+	_nodes.erase(*p);
+    }
+
+    //
+    // We first update or add the nodes from the update descriptor and
+    // then we re-instantiate the nodes which were not updated to make
+    // sure that their server instances are up to date.
+    //
+    NodeHelperDict nodes;
+    nodes.swap(_nodes);
+    for(NodeUpdateDescriptorSeq::const_iterator p = update.nodes.begin(); p != update.nodes.end(); ++p)
+    {
+	NodeHelperDict::iterator q = nodes.find(p->name);
+	if(q == nodes.end())
+	{
+	    NodeDescriptor desc;
+	    desc.variables = p->variables;
+	    desc.servers = p->servers;
+	    desc.serverInstances = p->serverInstances;
+	    _nodes.insert(make_pair(p->name, NodeHelper(p->name, desc, resolve)));
+	}
+	else
+	{
+	    q->second.update(*p, resolve);
+	    _nodes.insert(make_pair(p->name, q->second));
+	    nodes.erase(q);
+	}
+    }
+    for(NodeHelperDict::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
+    {
+	NodeHelper helper(p->first, p->second.getDescriptor(), resolve); // Re-instantiate the node.
+	_nodes.insert(make_pair(p->first, helper));
+    }
+
+    //
+    // Update the application desriptor.
+    //
+    _desc.nodes.clear();
+    for(NodeHelperDict::const_iterator t = _nodes.begin(); t != _nodes.end(); ++t)
+    {
+	_desc.nodes.insert(make_pair(t->first, t->second.getDescriptor()));
+    }
+
+    //
+    // Validate the new application descriptor.
+    //
+    validate();
 }
 
-bool
-ServerDescriptorHelper::operator==(const ServerDescriptorHelper& helper) const
+void
+ApplicationHelper::getIds(set<string>& serverIds, set<string>& adapterIds, set<Ice::Identity>& objectIds) const
 {
-    if(!ComponentDescriptorHelper::operator==(helper))
-    {
-	return false;
-    }
-
-    if(_descriptor->exe != helper._descriptor->exe)
-    {
-	return false;
-    }
-
-    if(_descriptor->pwd != helper._descriptor->pwd)
-    {
-	return false;
-    }
-
-    if(_descriptor->activation != helper._descriptor->activation)
-    {
-	return false;
-    }
-
-    if(_descriptor->activationTimeout != helper._descriptor->activationTimeout)
-    {
-	return false;
-    }
-
-    if(_descriptor->deactivationTimeout != helper._descriptor->deactivationTimeout)
-    {
-	return false;
-    }
-
-    if(set<string>(_descriptor->options.begin(), _descriptor->options.end()) != 
-       set<string>(helper._descriptor->options.begin(), helper._descriptor->options.end()))
-    {
-	return false;
-    }
-
-    if(set<string>(_descriptor->envs.begin(), _descriptor->envs.end()) != 
-       set<string>(helper._descriptor->envs.begin(), helper._descriptor->envs.end()))
-    {
-	return false;
-    }
+    multiset<string> sIds;
+    multiset<string> aIds;
+    multiset<Ice::Identity> oIds;
     
-    if(_descriptor->interpreter != helper._descriptor->interpreter)
+    for(NodeHelperDict::const_iterator p = _nodes.begin(); p != _nodes.end(); ++p)
     {
-	return false;
+	p->second.getIds(sIds, aIds, oIds);
     }
 
-    if(set<string>(_descriptor->interpreterOptions.begin(), _descriptor->interpreterOptions.end()) != 
-       set<string>(helper._descriptor->interpreterOptions.begin(), helper._descriptor->interpreterOptions.end()))
+    for(ReplicatedAdapterDescriptorSeq::const_iterator r = _desc.replicatedAdapters.begin();
+	r != _desc.replicatedAdapters.end(); ++r)
     {
-	return false;
+	aIds.insert(r->id);
+	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
+	{
+	    oIds.insert(o->id);
+	}
     }
 
-    if(IceBoxDescriptorPtr::dynamicCast(_descriptor))
-    {
-	IceBoxDescriptorPtr ilhs = IceBoxDescriptorPtr::dynamicCast(_descriptor);
-	IceBoxDescriptorPtr irhs = IceBoxDescriptorPtr::dynamicCast(helper._descriptor);
-	if(!irhs)
-	{
-	    return false;
-	}
+    copy(sIds.begin(), sIds.end(), inserter(serverIds, serverIds.begin()));
+    copy(aIds.begin(), aIds.end(), inserter(adapterIds, adapterIds.begin()));
+    copy(oIds.begin(), oIds.end(), inserter(objectIds, objectIds.begin()));
+}
 
-	if(ilhs->endpoints != irhs->endpoints)
+const ApplicationDescriptor&
+ApplicationHelper::getDescriptor() const
+{
+    return _desc;
+}
+
+TemplateDescriptor 
+ApplicationHelper::getServerTemplate(const string& name) const
+{
+    TemplateDescriptorDict::const_iterator p = _desc.serverTemplates.find(name);
+    if(p == _desc.serverTemplates.end())
+    {
+	throw "unknown server template `" + name + "'";
+    }
+    return p->second;
+}
+
+TemplateDescriptor 
+ApplicationHelper::getServiceTemplate(const string& name) const
+{
+    TemplateDescriptorDict::const_iterator p = _desc.serviceTemplates.find(name);
+    if(p == _desc.serviceTemplates.end())
+    {
+	throw "unknown service template `" + name + "'";
+    }
+    return p->second;
+}
+
+map<string, ServerInfo>
+ApplicationHelper::getServerInfos() const
+{
+    map<string, ServerInfo> servers;
+    for(NodeHelperDict::const_iterator n = _nodes.begin(); n != _nodes.end(); ++n)
+    {
+	n->second.getServerInfos(_desc.name, servers);
+    }
+    return servers;
+}
+
+void
+ApplicationHelper::print(Output& out) const
+{
+    out << "application '" << _desc.name << "'";
+    out << sb;
+    if(!_desc.description.empty())
+    {
+	out << nl << "description = " << _desc.description;
+    }
+    if(!_desc.variables.empty())
+    {
+	out << nl << "variables";
+	out << sb;
+	for(StringStringDict::const_iterator p = _desc.variables.begin(); p != _desc.variables.end(); 
+	    ++p)
 	{
-	    return false;
+	    out << nl << p->first << " = '" << p->second << "'";
 	}
-	
-	if(ilhs->services.size() != irhs->services.size())
+	out << eb;
+    }
+    if(!_desc.replicatedAdapters.empty())
+    {
+	out << nl << "replicated adapters";
+	out << sb;
+	for(ReplicatedAdapterDescriptorSeq::const_iterator p = _desc.replicatedAdapters.begin(); 
+	    p != _desc.replicatedAdapters.end(); ++p)
 	{
-	    return false;
-	}
-	
-	//
-	// First we compare the service instances which have a
-	// descriptor set (this is the case for services not based on
-	// a template or server instances).
-	//
-	for(ServiceInstanceDescriptorSeq::const_iterator p = ilhs->services.begin(); p != ilhs->services.end(); ++p)
-	{
-	    if(p->descriptor)
+	    out << nl << "id = `" << p->id << "' load balancing = '";
+	    switch(p->loadBalancing)
 	    {
-		bool found = false;
-		for(ServiceInstanceDescriptorSeq::const_iterator q = irhs->services.begin();
-		    q != irhs->services.end();
-		    ++q)
+	    case Random:
+		out << "random";
+		break;
+	    case RoundRobin:
+		out << "round-robin";
+		break;
+	    case Adaptive:
+		out << "adaptive";
+		break;
+	    default:
+		assert(false);
+	    }
+	    out << "'";
+	}
+	out << eb;
+    }
+    if(!_desc.serverTemplates.empty())
+    {
+	out << nl << "server templates";
+	out << sb;
+	for(TemplateDescriptorDict::const_iterator p = _desc.serverTemplates.begin();
+	    p != _desc.serverTemplates.end(); ++p)
+	{
+	    out << nl << p->first;
+	}
+	out << eb;
+    }
+    if(!_desc.serviceTemplates.empty())
+    {
+	out << nl << "service templates";
+	out << sb;
+	for(TemplateDescriptorDict::const_iterator p = _desc.serviceTemplates.begin();
+	    p != _desc.serviceTemplates.end(); ++p)
+	{
+	    out << nl << p->first;
+	}
+	out << eb;
+    }
+    if(!_nodes.empty())
+    {
+	for(NodeHelperDict::const_iterator p = _nodes.begin(); p != _nodes.end(); ++p)
+	{
+	    p->second.print(out);
+	}
+    }
+    out << eb;
+}
+
+void
+ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
+{
+    out << "application `" << _desc.name << "'";
+    out << sb;
+
+    //
+    // TODO: Show updated variables?
+    //
+
+    {
+	TemplateDescriptorEqual eq;
+	TemplateDescriptorDict updated = getDictUpdatedElts(helper._desc.serverTemplates, _desc.serverTemplates, eq);
+	Ice::StringSeq removed = getDictRemovedElts(helper._desc.serverTemplates, _desc.serverTemplates);
+	if(!updated.empty() || !removed.empty())
+	{
+	    out << nl << "server templates";
+	    out << sb;
+	    for(TemplateDescriptorDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
+	    {
+		if(helper._desc.serverTemplates.find(p->first) == helper._desc.serverTemplates.end())
 		{
-		    if(q->descriptor && p->descriptor->name == q->descriptor->name)
-		    {
-			found = true;
-			if(ServiceDescriptorHelper(*this, p->descriptor) !=
-			   ServiceDescriptorHelper(*this, q->descriptor))
-			{
-			    return false;
-			}
-			break;
-		    }
-		}
-		if(!found)
-		{
-		    return false;
+		    out << nl << "server template `" << p->first << "' added";
 		}
 	    }
-	}
-
-	//
-	// Then, we compare the service instances for which no
-	// descriptor is set.
-	//
-	set<ServiceInstanceDescriptor> lsvcs;
-	set<ServiceInstanceDescriptor> rsvcs;
-	for(ServiceInstanceDescriptorSeq::const_iterator p = ilhs->services.begin(); p != ilhs->services.end(); ++p)
-	{
-	    if(!p->descriptor)
+	    for(TemplateDescriptorDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
 	    {
-		lsvcs.insert(*p);
+		if(helper._desc.serverTemplates.find(p->first) != helper._desc.serverTemplates.end())
+		{
+		    out << nl << "server template `" << p->first << "' updated";
+		}
 	    }
-	}
-	for(ServiceInstanceDescriptorSeq::const_iterator p = irhs->services.begin(); p != irhs->services.end(); ++p)
-	{
-	    if(!p->descriptor)
+	    for(Ice::StringSeq::const_iterator p = removed.begin(); p != removed.end(); ++p)
 	    {
-		rsvcs.insert(*p);
+		out << nl << "server template `" << *p << "' removed";
 	    }
-	}
-	if(lsvcs != rsvcs)
-	{
-	    return false;
+	    out << eb;
 	}
     }
-    return true;
-}
-
-bool
-ServerDescriptorHelper::operator!=(const ServerDescriptorHelper& helper) const
-{
-    return !operator==(helper);
-}
-
-const ServerDescriptorPtr&
-ServerDescriptorHelper::getDescriptor() const
-{
-    return _descriptor;
-}
-
-const string&
-ServerDescriptorHelper::getTemplateId() const
-{
-    return _templateId;
-}
-
-auto_ptr<ServiceDescriptorHelper>
-ServerDescriptorHelper::addServiceTemplate(const std::string& id, const IceXML::Attributes& attrs)
-{
-    return auto_ptr<ServiceDescriptorHelper>(new ServiceDescriptorHelper(*this, attrs, id));
-}
-
-void
-ServerDescriptorHelper::addService(const string& tmpl, const IceXML::Attributes& attrs)
-{
-    XmlAttributesHelper attributes(_variables, attrs);
-    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(_descriptor);
-    if(!iceBox)
     {
-	throw "element <service> can only be a child of an IceBox <server> element";
-    }
-
-    ServiceInstanceDescriptor instance;
-    instance._cpp_template = tmpl;
-    instance.parameterValues = attrs;
-    instance.parameterValues.erase("template");
-    instance.descriptor = _templates->instantiateService(*this, instance._cpp_template, instance.parameterValues);
-    iceBox->services.push_back(instance);
-}
-
-void
-ServerDescriptorHelper::addService(const ServiceDescriptorPtr& descriptor)
-{
-    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(_descriptor);
-    if(!iceBox)
-    {
-	throw "element <service> can only be a child of an IceBox <server> element";
-    }
-
-    ServiceInstanceDescriptor instance;
-    instance.descriptor = descriptor;
-    if(_templateId.empty())
-    {
-	instance.targets = _variables->getDeploymentTargets(_descriptor->name + "." + descriptor->name + ".");
-    }
-    iceBox->services.push_back(instance);
-}
-
-void
-ServerDescriptorHelper::addOption(const string& option)
-{
-    _descriptor->options.push_back(option);
-}
-
-void
-ServerDescriptorHelper::addEnv(const string& env)
-{
-    _descriptor->envs.push_back(env);
-}
-
-void
-ServerDescriptorHelper::addInterpreterOption(const string& option)
-{
-    if(_descriptor->interpreter.empty())
-    {
-	throw "element <interpreter-option> can only be specified if the interpreter attribute of the <server> "
-	    "element is not empty";
-    }
-
-    _descriptor->interpreterOptions.push_back(option);
-}
-
-ServerDescriptorPtr
-ServerDescriptorHelper::instantiate(set<string>& missing) const
-{
-    ServerDescriptorPtr desc = ServerDescriptorPtr::dynamicCast(_descriptor->ice_clone());
-    instantiateImpl(desc, missing);
-    return desc;    
-}
-
-void
-ServerDescriptorHelper::instantiateImpl(const ServerDescriptorPtr& desc, set<string>& missing) const
-{
-    Substitute substitute(_variables, missing);
-    substitute(desc->name);
-    _variables->addVariable("server", desc->name);
-
-    ComponentDescriptorHelper::instantiateImpl(desc, missing);
-
-    substitute(desc->exe);
-    substitute(desc->pwd);
-    substitute(desc->activation);
-    if(!desc->activation.empty() && desc->activation != "manual" && desc->activation != "on-demand")
-    {
-	DeploymentException ex;
-	ex.reason = "invalid server `" + desc->name + "': unknown activation `" + desc->activation + "'";
-	throw ex;
-    }
-    substitute(desc->activationTimeout);
-    if(!desc->activationTimeout.empty())
-    {
-	int value;
-	istringstream v(desc->activationTimeout);
-	if(!(v >> value))
+	TemplateDescriptorEqual eq;
+	TemplateDescriptorDict updated = getDictUpdatedElts(helper._desc.serviceTemplates, _desc.serviceTemplates, eq);
+	Ice::StringSeq removed = getDictRemovedElts(helper._desc.serviceTemplates, _desc.serviceTemplates);
+	if(!updated.empty() || !removed.empty())
 	{
-	    DeploymentException ex;
-	    ex.reason = "invalid server `" + desc->name + "': activation timeout is not an integer value";
-	    throw ex;
-	}    
+	    out << nl << "service templates";
+	    out << sb;
+	    for(TemplateDescriptorDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
+	    {
+		if(helper._desc.serviceTemplates.find(p->first) == helper._desc.serviceTemplates.end())
+		{
+		    out << nl << "service template `" << p->first << "' added";
+		}
+	    }
+	    for(TemplateDescriptorDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
+	    {
+		if(helper._desc.serviceTemplates.find(p->first) != helper._desc.serviceTemplates.end())
+		{
+		    out << nl << "service template `" << p->first << "' updated";
+		}
+	    }
+	    for(Ice::StringSeq::const_iterator p = removed.begin(); p != removed.end(); ++p)
+	    {
+		out << nl << "service template `" << *p << "' removed";
+	    }
+	    out << eb;
+	}
     }
-    substitute(desc->deactivationTimeout);
-    if(!desc->deactivationTimeout.empty())
     {
-	int value;
-	istringstream v(desc->deactivationTimeout);
-	if(!(v >> value))
+	NodeHelperDict updated = getDictUpdatedElts(helper._nodes, _nodes);
+	Ice::StringSeq removed = getDictRemovedElts(helper._nodes, _nodes);
+	if(!updated.empty() || !removed.empty())
 	{
-	    DeploymentException ex;
-	    ex.reason = "invalid server `" + desc->name + "': deactivation timeout is not an integer value";
-	    throw ex;
-	}    
-    }
-
-    for_each(desc->options.begin(), desc->options.end(), substitute);
-    for_each(desc->envs.begin(), desc->envs.end(), substitute);
-    substitute(desc->interpreter);
-    for_each(desc->interpreterOptions.begin(), desc->interpreterOptions.end(), substitute);
-
-    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(desc);
-    if(iceBox)
-    {
- 	for(ServiceInstanceDescriptorSeq::iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
- 	{
-	    if(p->_cpp_template.empty())
+	    out << nl << "nodes";
+	    out << sb;
+	    for(NodeHelperDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
 	    {
-		ServiceDescriptorPtr service = p->descriptor;
-		assert(service);
-		p->descriptor = ServiceDescriptorHelper(*this, service).instantiate(missing);
+		NodeHelperDict::const_iterator q = helper._nodes.find(p->first);
+		if(q == helper._nodes.end())
+		{
+		    p->second.print(out);
+		}
 	    }
-	    else
+	    for(NodeHelperDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
 	    {
-		p->descriptor = _templates->instantiateService(*this, p->_cpp_template, p->parameterValues);
+		NodeHelperDict::const_iterator q = helper._nodes.find(p->first);
+		if(q != helper._nodes.end())
+		{
+		    p->second.printDiff(out, q->second);
+		}
 	    }
- 	}
+	    for(Ice::StringSeq::const_iterator p = removed.begin(); p != removed.end(); ++p)
+	    {
+		out << nl << "node `" << *p << "' removed";
+	    }
+	    out << eb;
+	}
     }
-}
-
-ServiceDescriptorHelper::ServiceDescriptorHelper(const DescriptorHelper& helper, const ServiceDescriptorPtr& desc) :
-    ComponentDescriptorHelper(helper),
-    _descriptor(desc)
-{
-    init(_descriptor);
-    _variables->push(_descriptor->variables);
-}
-
-ServiceDescriptorHelper::ServiceDescriptorHelper(const DescriptorHelper& helper, const IceXML::Attributes& attrs,
-						 const string& id) :
-    ComponentDescriptorHelper(helper),
-    _descriptor(new ServiceDescriptor()),
-    _templateId(id)
-{
-    XmlAttributesHelper attributes(_variables, attrs);
-
-    _variables->push();
-    if(!_templateId.empty())
-    {
-	_variables->substitution(false);
-    }
-
-    init(_descriptor, attrs);
-
-    _descriptor->entry = attributes("entry");
-    if(_templateId.empty())
-    {
-	_variables->addVariable("service", _descriptor->name);
-    }
-}
-
-ServiceDescriptorHelper::~ServiceDescriptorHelper()
-{
-    _variables->pop();
+    out << eb;
 }
 
 void
-ServiceDescriptorHelper::endParsing()
+ApplicationHelper::validate()
 {
-    if(!_templateId.empty())
+
+    //
+    // TODO: Add more validation
+    //
+
+    //
+    // Ensure the unicity of object ids, adapter ids and server ids.
+    //    
+    multiset<string> serverIds;
+    multiset<string> adapterIds;
+    multiset<Ice::Identity> objectIds;
+    set<string> replicatedAdapterIds;
+    for(ReplicatedAdapterDescriptorSeq::const_iterator r = _desc.replicatedAdapters.begin();
+	r != _desc.replicatedAdapters.end(); ++r)
     {
-	_descriptor->variables = _variables->getCurrentScopeVariables();
-	_templates->addServiceTemplate(_templateId, _descriptor, _variables->getCurrentScopeParameters());
-	_variables->substitution(true);
+	if(!replicatedAdapterIds.insert(r->id).second)
+	{
+	    throw "invalid application `" + _desc.name + "': duplicate replicated adapter `" + r->id + "'";
+	}
+	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
+	{
+	    objectIds.insert(o->id);
+	}
     }
-}
 
-bool
-ServiceDescriptorHelper::operator==(const ServiceDescriptorHelper& helper) const
-{
-    if(!ComponentDescriptorHelper::operator==(helper))
+    for(NodeHelperDict::const_iterator p = _nodes.begin(); p != _nodes.end(); ++p)
     {
-	return false;
+	p->second.getIds(serverIds, adapterIds, objectIds);
     }
 
-    if(_descriptor->entry != helper._descriptor->entry)
+    for(multiset<string>::const_iterator p = serverIds.begin(); p != serverIds.end(); ++p)
     {
-	return false;
+	if(serverIds.count(*p) > 1)
+	{
+	    throw "invalid application `" + _desc.name + "': duplicate server `" + *p + "'";
+	}
     }
-
-    return true;
-}
-
-bool
-ServiceDescriptorHelper::operator!=(const ServiceDescriptorHelper& helper) const
-{
-    return !operator==(helper);
-}
-
-ServiceDescriptorPtr
-ServiceDescriptorHelper::instantiate(set<string>& missing) const
-{
-    ServiceDescriptorPtr desc = ServiceDescriptorPtr::dynamicCast(_descriptor->ice_clone());
-    instantiateImpl(desc, missing);
-    return desc;    
-}
-
-const ServiceDescriptorPtr&
-ServiceDescriptorHelper::getDescriptor() const
-{
-    return _descriptor;
-}
-
-const string&
-ServiceDescriptorHelper::getTemplateId() const
-{
-    return _templateId;
-}
-
-void
-ServiceDescriptorHelper::instantiateImpl(const ServiceDescriptorPtr& desc, set<string>& missing) const
-{
-    Substitute substitute(_variables, missing);
-    substitute(desc->name);
-    _variables->addVariable("service", desc->name);
-
-    ComponentDescriptorHelper::instantiateImpl(desc, missing);
-
-    substitute(desc->entry);
+    for(multiset<string>::const_iterator p = adapterIds.begin(); p != adapterIds.end(); ++p)
+    {
+	if(adapterIds.count(*p) > 1 && replicatedAdapterIds.find(*p) == replicatedAdapterIds.end())
+	{
+	    throw "invalid application `" + _desc.name + "': duplicate adapter `" + *p + "'";
+	}
+    }
+    for(multiset<Ice::Identity>::const_iterator p = objectIds.begin(); p != objectIds.end(); ++p)
+    {
+	if(objectIds.count(*p) > 1)
+	{
+	    throw "invalid application `" + _desc.name + "': duplicate object `" + Ice::identityToString(*p) + "'";
+	}
+    }
 }

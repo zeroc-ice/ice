@@ -82,13 +82,6 @@ struct AdapterDescriptor
 
     /**
      *
-     * The object adapter endpoints.
-     *
-     **/
-    string endpoints;
-
-    /**
-     *
      * Flag to specify if the object adapter will register a process object.
      *
      **/
@@ -96,15 +89,15 @@ struct AdapterDescriptor
 
     /**
      *
-     * If true the activator won't wait for this object adapter to
-     * consider the server active.
+     * If true the activator will wait for this object adapter
+     * activation to mark the server as active.
      *
      **/
-    bool noWaitForActivation;
+    bool waitForActivation;
 
     /**
      *
-     * The object descriptor associated to this object adapter descriptor.
+     * The object descriptors associated to this object adapter.
      *
      **/
     ObjectDescriptorSeq objects;
@@ -133,8 +126,10 @@ struct DbEnvDescriptor
 
     /**
      *
-     * The home of the database environment (i.e.: the directory where the database file
-     * will be stored).
+     * The home of the database environment (i.e.: the directory where
+     * the database files will be stored). If empty, the node will
+     * provide a default database directory, otherwise the directory
+     * must exist.
      *
      **/
     string dbHome;
@@ -156,53 +151,38 @@ struct DbEnvDescriptor
 
 /**
  *
- * A component descriptor. A component is either an &Ice; server or
- * an &IceBox; service.
+ * A communicator descriptor.
  *
  **/
-class ComponentDescriptor
+class CommunicatorDescriptor
 {
     /**
      *
-     * The component nane.
-     *
-     **/
-    string name;
-
-    /**
-     *
-     * The variables defined in the component.
-     *
-     **/
-    StringStringDict variables;
-
-    /**
-     *
-     * The component object adapters.
+     * The object adapters.
      *
      **/
     AdapterDescriptorSeq adapters;
 
     /**
      *
-     * The component configuration properties.
+     * The configuration properties.
      *
      **/
     PropertyDescriptorSeq properties;
 
     /**
      *
-     * The component database environments.
+     * The database environments.
      *
      **/
     DbEnvDescriptorSeq dbEnvs;
 
     /**
      *
-     * Some comments on the component.
+     * A description of this descriptor.
      *
      **/
-    string comment;
+    string description;
 };
 
 /**
@@ -210,8 +190,15 @@ class ComponentDescriptor
  * An &Ice; server descriptor.
  *
  **/
-class ServerDescriptor extends ComponentDescriptor
+class ServerDescriptor extends CommunicatorDescriptor
 {
+    /**
+     *
+     * The server id. 
+     *
+     **/
+    string id;
+
     /**
      *
      * The path of the server executable.
@@ -232,21 +219,6 @@ class ServerDescriptor extends ComponentDescriptor
      *
      **/
     Ice::StringSeq options;
-
-    /**
-     *
-     * The name of the interpreter or empty if the executable isn't
-     * interpreted.
-     *
-     **/
-    string interpreter;
-
-    /**
-     *
-     * The command line options to pass to the interpreter.
-     *
-     **/
-    Ice::StringSeq interpreterOptions;
 
     /**
      *
@@ -280,6 +252,7 @@ class ServerDescriptor extends ComponentDescriptor
     string deactivationTimeout;
 };
 dictionary<string, ServerDescriptor> ServerDescriptorDict;
+sequence<ServerDescriptor> ServerDescriptorSeq;
 
 
 /**
@@ -287,8 +260,15 @@ dictionary<string, ServerDescriptor> ServerDescriptorDict;
  * An &IceBox; service descriptor.
  *
  **/
-class ServiceDescriptor extends ComponentDescriptor
+class ServiceDescriptor extends CommunicatorDescriptor
 {
+    /**
+     *
+     * The service name.
+     *
+     **/
+    string name;
+
     /**
      *
      * The entry point of the &IceBox; service.
@@ -297,6 +277,7 @@ class ServiceDescriptor extends ComponentDescriptor
     string entry;
 };
 dictionary<string, ServiceDescriptor> ServiceDescriptorDict;
+sequence<ServiceDescriptor> ServiceDescriptorSeq;
 
 struct ServerInstanceDescriptor
 {
@@ -313,31 +294,27 @@ struct ServerInstanceDescriptor
      *
      **/
     StringStringDict parameterValues;
-
-    /**
-     *
-     * The node hosting the server.
-     *
-     **/
-    string node;    
-
-    /**
-     *
-     * The targets used to deploy this instance.
-     *
-     **/
-    Ice::StringSeq targets;
-
-    /**
-     *
-     * The instantiated component descriptor (NOTE: this is provided
-     * as a convenience. This descriptor can also be computed from the
-     * template and the instance variables.)
-     *
-     **/
-    ServerDescriptor descriptor;    
 };
 ["java:type:java.util.LinkedList"] sequence<ServerInstanceDescriptor> ServerInstanceDescriptorSeq;
+dictionary<string, ServerInstanceDescriptor> ServerInstanceDescriptorDict;
+
+struct TemplateDescriptor
+{
+    /**
+     *
+     * The template.
+     *
+     **/
+    CommunicatorDescriptor descriptor;
+
+    /**
+     *
+     * The name of the parameters required to instantiate the template.
+     *
+     **/
+    ["java:type:java.util.LinkedList"] Ice::StringSeq parameters;
+};
+dictionary<string, TemplateDescriptor> TemplateDescriptorDict;
 
 struct ServiceInstanceDescriptor
 {
@@ -357,39 +334,13 @@ struct ServiceInstanceDescriptor
 
     /**
      *
-     * The targets used to deploy this instance.
+     * The service definition if the instance isn't a template
+     * instance (i.e.: if the template attribute is empty).
      *
      **/
-    Ice::StringSeq targets;
-
-    /**
-     *
-     * The instantiated component descriptor (NOTE: this is provided
-     * as a convenience. This descriptor can also be computed from the
-     * template and the instance variables.)
-     *
-     **/
-    ServiceDescriptor descriptor;    
+    ServiceDescriptor descriptor;
 };
 ["java:type:java.util.LinkedList"] sequence<ServiceInstanceDescriptor> ServiceInstanceDescriptorSeq;
-
-struct TemplateDescriptor
-{
-    /**
-     *
-     * The template.
-     *
-     **/
-    ComponentDescriptor descriptor;
-
-    /**
-     *
-     * The name of the parameters required to instantiate the template.
-     *
-     **/
-    ["java:type:java.util.LinkedList"] Ice::StringSeq parameters;
-};
-dictionary<string, TemplateDescriptor> TemplateDescriptorDict;
 
 /**
  *
@@ -404,32 +355,32 @@ class IceBoxDescriptor extends ServerDescriptor
      *
      **/
     ServiceInstanceDescriptorSeq services;
-
-    /**
-     *
-     * The endpoints of the &IceBox; service manager interface.
-     *
-     **/
-    string endpoints;
 };
 
 struct NodeDescriptor
 {
     /**
      *
-     * The node name.
-     * 
-     **/
-    string name;
-
-    /**
-     *
      * The variables defined for the node.
      *
      **/
     StringStringDict variables;
+
+    /**
+     *
+     * The server instances.
+     *
+     **/
+    ServerInstanceDescriptorSeq serverInstances;
+
+    /**
+     *
+     * Servers (which are not template instances).
+     *
+     **/
+    ServerDescriptorSeq servers;
 };
-["java:type:java.util.LinkedList"] sequence<NodeDescriptor> NodeDescriptorSeq;
+dictionary<string, NodeDescriptor> NodeDescriptorDict;
 
 /**
  *
@@ -458,6 +409,13 @@ struct ReplicatedAdapterDescriptor
      * 
      **/
     LoadBalancingPolicy loadBalancing;
+
+    /**
+     *
+     * The object descriptors associated to this object adapter.
+     *
+     **/
+    ObjectDescriptorSeq objects;
 };
 sequence<ReplicatedAdapterDescriptor> ReplicatedAdapterDescriptorSeq; 
 
@@ -466,7 +424,7 @@ sequence<ReplicatedAdapterDescriptor> ReplicatedAdapterDescriptorSeq;
  * An application descriptor.
  *
  **/
-class ApplicationDescriptor
+struct ApplicationDescriptor
 {
     /**
      *
@@ -508,40 +466,67 @@ class ApplicationDescriptor
      * The application nodes.
      *
      **/
-    NodeDescriptorSeq nodes;
+    NodeDescriptorDict nodes;
     
     /**
      *
-     * The server instances.
-     *
-     **/
-    ServerInstanceDescriptorSeq servers;
-
-    /**
-     *
-     * The targets used to deploy the application.
-     *
-     **/
-    Ice::StringSeq targets;
-
-    /**
-     *
-     * Some comments on the application.
+     * A description of the application;
      *
      **/ 
-    string comment;
+    string description;
 };
 ["java:type:java.util.LinkedList"] sequence<ApplicationDescriptor> ApplicationDescriptorSeq;
 
-class BoxedComment
+class BoxedDescription
 {
     string value;
 };
 
-class BoxedTargets
+struct NodeUpdateDescriptor
 {
-    Ice::StringSeq value;
+    /**
+     *
+     * The name of the node to update.
+     *
+     **/
+    string name;
+
+    /**
+     *
+     * The variables to update.
+     *
+     **/
+    StringStringDict variables;
+
+    /**
+     *
+     * The variables to remove.
+     *
+     **/
+    Ice::StringSeq removeVariables;
+
+    /**
+     *
+     * The server instances to update.
+     *
+     **/
+    ServerInstanceDescriptorSeq serverInstances;
+
+    /**
+     *
+     * The servers which are not template instances to update.
+     *
+     **/
+    ServerDescriptorSeq servers;
+
+    /**
+     *
+     * The ids of the servers to remove.
+     *
+     **/
+    Ice::StringSeq removeServers;    
 };
+sequence<NodeUpdateDescriptor> NodeUpdateDescriptorSeq;
 
 struct ApplicationUpdateDescriptor
 {
@@ -554,17 +539,10 @@ struct ApplicationUpdateDescriptor
     
     /**
      *
-     * The updated targets (or null if the targets weren't updated).
+     * The updated description (or null if the description wasn't updated).
      *
      **/
-    BoxedTargets targets;
-
-    /**
-     *
-     * The updated comment (or null if the comment weren't updated).
-     *
-     **/
-    BoxedComment comment;
+    BoxedDescription description;
 
     /**
      *
@@ -627,7 +605,7 @@ struct ApplicationUpdateDescriptor
      * The application nodes to update.
      *
      **/
-    NodeDescriptorSeq nodes;
+    NodeUpdateDescriptorSeq nodes;
 
     /**
      *
@@ -635,20 +613,6 @@ struct ApplicationUpdateDescriptor
      *
      **/
     Ice::StringSeq removeNodes;
-    
-    /**
-     *
-     * The server instances to update.
-     *
-     **/
-    ServerInstanceDescriptorSeq servers;
-
-    /**
-     *
-     * The name of the server instances to remove.
-     *
-     **/
-    Ice::StringSeq removeServers;
 };
 
 /**

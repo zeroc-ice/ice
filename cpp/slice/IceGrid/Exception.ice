@@ -54,7 +54,7 @@ exception ServerExistsException
  **/
 exception ServerNotExistException
 {
-    string name;
+    string id;
 };
 
 /**

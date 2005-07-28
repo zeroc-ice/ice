@@ -34,12 +34,11 @@ public:
     
     void sync();
     bool needsSync() const;
-    void update(const ServerInstanceDescriptor&, const std::string& = std::string());
+    void update(const ServerInfo&);
     void destroy();
 
-    ServerInstanceDescriptor getDescriptor() const;
-    std::string getApplication() const;
-    std::string getName() const;
+    ServerInfo getServerInfo() const;
+    std::string getId() const;
 
     ServerPrx getProxy(int&, int&);
     AdapterPrx getAdapter(const std::string&);
@@ -50,13 +49,12 @@ public:
 private:
     
     ServerPrx sync(StringAdapterPrxDict&, int&, int&);
-    
+
     ServerCache& _cache;
-    const std::string _name;
-    std::auto_ptr<ServerInstanceDescriptor> _loaded;
-    std::auto_ptr<ServerInstanceDescriptor> _load;
-    std::auto_ptr<ServerInstanceDescriptor> _destroy;
-    std::string _application;
+    const std::string _id;
+    std::auto_ptr<ServerInfo> _loaded;
+    std::auto_ptr<ServerInfo> _load;
+    std::auto_ptr<ServerInfo> _destroy;
 
     ServerPrx _proxy;
     std::map<std::string, AdapterPrx> _adapters;
@@ -75,10 +73,9 @@ public:
 
     ServerCache(Database&, NodeCache&, AdapterCache&, ObjectCache&);
 
-    ServerEntryPtr add(const std::string&, const ServerInstanceDescriptor&, const std::string&);
+    ServerEntryPtr add(const ServerInfo&);
     ServerEntryPtr get(const std::string&);
-    ServerEntryPtr update(const ServerInstanceDescriptor&);
-    ServerEntryPtr remove(const std::string&);
+    ServerEntryPtr remove(const std::string&, bool = true);
 
     void clear(const std::string&);
     
@@ -86,11 +83,11 @@ public:
 
 private:
     
-    void addComponent(const ComponentDescriptorPtr&, const ServerEntryPtr&);
-    void removeComponent(const ComponentDescriptorPtr&, const ServerEntryPtr&);
+    void addCommunicator(const CommunicatorDescriptorPtr&, const ServerEntryPtr&);
+    void removeCommunicator(const CommunicatorDescriptorPtr&, const ServerEntryPtr&);
 
-    friend struct AddComponent;
-    friend struct RemoveComponent;
+    friend struct AddCommunicator;
+    friend struct RemoveCommunicator;
 
     Database& _database;
     NodeCache& _nodeCache;

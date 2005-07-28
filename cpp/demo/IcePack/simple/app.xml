@@ -13,73 +13,51 @@
 
   <application name="Simple">
 
-     <variable name="id" value="app"/>
-     <variable name="name" value="test"/>
-     <variable name="name2" value="${name}"/>
-
-     <server-template id="ServerTemplate" name="${name}" exe="./server"> 
-       <adapters>
+     <server-template id="ServerTemplate"> 
+       <parameter name="name"/>
+       <server id="${name}" exe="./server">
 	 <adapter name="Hello" endpoints="tcp" register="true">
 	   <object identity="${server}-hello1" type="::Demo::Hello"/>
-	 </adapter>
-       </adapters>
-       <properties>
-	 <property name="Identity" value="${server}-hello1"/>
-	 <property name="Prop" value="${id}"/>
-       </properties>
+  	 </adapter>
+         <property name="Identity" value="${server}-hello1"/>
+       </server>
      </server-template>
 
-     <service-template id="HelloService" name="${name}" entry="HelloService:create">
+     <service-template id="HelloService">
        <parameter name="name"/>
-       <adapters>
+       <service name="${name}" entry="HelloService:create">
 	 <adapter name="Hello" endpoints="tcp">
-	   <object identity="hefllo2" type="::Demo::Hello"/>
+	   <object identity="hello2" type="::Demo::Hello"/>
 	 </adapter>
-       </adapters>
-       <properties>
 	 <property name="Identity" value="hello2"/>
 	 <property name="Name" value="${service}"/>
-       </properties>    
+       </service>
      </service-template>
 
-
-     <server-template id="IceBoxTemplate" name="${name}" interpreter="icebox" endpoints="default">
+     <server-template id="IceBoxTemplate">
        <parameter name="name"/>
-
-       <service-instance template="HelloService" name="Hello"/>
-
-       <service name="HelloService2" entry="HelloService:create">
-	 <parameter name="name"/>
-	 <adapters>
+       <icebox id="${name}" exe="icebox" interpreter="icebox" endpoints="default">
+         <service-instance template="HelloService" name="Hello"/>
+         <service name="HelloService2" entry="HelloService:create">
 	   <adapter name="Hello" endpoints="tcp">
 	     <object identity="hello3" type="::Demo::Hello"/>
 	   </adapter>
-	 </adapters>
-	 <properties>
 	   <property name="Identity" value="hello3"/>
 	   <property name="Name" value="${service}"/>
-	 </properties>    
-       </service>
-
+         </service>
+       </icebox>
      </server-template>
  
      <node name="node">
-       <variable name="node1" value="test"/>
-       <variable name="name" value="$${test}"/>
-       <variable name="name2" value="${name}"/>
 
        <server-instance template="IceBoxTemplate" name="IceBox"/>
        <server-instance template="ServerTemplate" name="Server"/>
        <server-instance template="ServerTemplate" name="Server2"/>
 
-       <server name="node-1" exe="icegridnode">
-         <adapters>
-  	   <adapter name="IceGrid.Node" endpoints="default"/>
-         </adapters>
-	 <properties>
-	    <property name="IceGrid.Node.Name" value="${server}"/>
-	    <property name="IceGrid.Node.Data" value="db/${server}"/>
-	 </properties>
+       <server id="node-1" exe="icegridnode">
+	 <adapter name="IceGrid.Node" endpoints="default"/>
+	 <property name="IceGrid.Node.Name" value="${server}"/>
+	 <property name="IceGrid.Node.Data" value="db/${server}"/>
        </server>
 
      </node>

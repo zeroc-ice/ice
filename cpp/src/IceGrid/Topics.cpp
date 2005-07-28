@@ -233,7 +233,7 @@ RegistryObserverTopic::init(int serial, const ApplicationDescriptorSeq& apps, co
 }
 
 void 
-RegistryObserverTopic::applicationAdded(int serial, const ApplicationDescriptorPtr& desc, const Ice::Current&)
+RegistryObserverTopic::applicationAdded(int serial, const ApplicationDescriptor& desc, const Ice::Current&)
 {
     Lock sync(*this);
 
@@ -252,7 +252,7 @@ RegistryObserverTopic::applicationRemoved(int serial, const string& name, const 
     updateSerial(serial);
     for(ApplicationDescriptorSeq::iterator p = _applications.begin(); p != _applications.end(); ++p)
     {
-	if((*p)->name == name)
+	if(p->name == name)
 	{
 	    _applications.erase(p);
 	    break;
@@ -268,15 +268,14 @@ RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDes
     Lock sync(*this);
 
     updateSerial(serial);
-    ApplicationUpdateDescriptor newDesc;
     try
     {
 	for(ApplicationDescriptorSeq::iterator p = _applications.begin(); p != _applications.end(); ++p)
 	{
-	    if((*p)->name == desc.name)
+	    if(p->name == desc.name)
 	    {
-		ApplicationDescriptorHelper helper(c.adapter->getCommunicator(), *p);
-		newDesc = helper.update(desc);
+		ApplicationHelper helper(*p);
+		helper.update(desc);
 		*p = helper.getDescriptor();
 		break;
 	    }
@@ -292,7 +291,7 @@ RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDes
 	assert(false);
     }
 
-    _publisher->applicationUpdated(serial, newDesc);
+    _publisher->applicationUpdated(serial, desc);
 }
 
 void 

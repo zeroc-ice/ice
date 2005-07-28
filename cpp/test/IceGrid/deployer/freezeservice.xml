@@ -1,28 +1,24 @@
 <icegrid>
 
-  <service name="${name}" entry="TestService:create">
+  <service-template id="FreezeServiceTemplate">
 
-    <adapters>
+    <parameter name="name"/>
+    <service name="${name}" entry="TestService:create">
       <adapter name="${name}" endpoints="default" id="${server}${name}Adapter">
-        <object identity="${server}-${name}" type="::Test"/>
+	<object identity="${server}-${name}" type="::Test"/>
       </adapter>
-    </adapters>
- 
-    <properties>
+
       <property name="${name}.Identity" value="${server}-${name}"/>
       <property name="${name}.Type" value="freeze"/>
       <property name="${name}.ServiceName" value="${name}"/>
 
-    </properties>
+      <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
+      <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>
 
-    <dbenv name="${name}">
-      <dbproperty name="set_cachesize" value="0 52428800 1"/>
-    </dbenv>
-
-    <target name="manual">
-      <property name="Mode" value="manual"/>
-    </target>
-
-  </service>
+      <dbenv name="${name}">
+	<dbproperty name="set_cachesize" value="0 52428800 1"/>
+      </dbenv>
+    </service>
+  </service-template>
 
 </icegrid>

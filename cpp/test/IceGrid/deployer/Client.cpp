@@ -39,8 +39,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     if(!withTarget)
     {
-	void allTests(const Ice::CommunicatorPtr&, bool);
-	allTests(communicator, withTemplates);
+	void allTests(const Ice::CommunicatorPtr&);
+	allTests(communicator);
     }
     else
     {

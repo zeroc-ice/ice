@@ -39,6 +39,7 @@ ADMIN_OBJS	= Grammar.o \
 		  Scanner.o \
 		  Parser.o \
                   DescriptorParser.o \
+                  DescriptorBuilder.o \
 		  DescriptorHelper.o \
 		  Util.o \
 		  Internal.o \
@@ -54,7 +55,8 @@ NODE_OBJS	= NodeI.o \
 		  ServerAdapterI.o \
 	          Activator.o \
 		  WaitQueue.o \
-                  DescriptorParser.o
+                  DescriptorParser.o \
+                  DescriptorBuilder.o
 
 REGISTRY_OBJS   = RegistryI.o \
 		  StringObjectProxiesDict.o \

@@ -458,31 +458,6 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
     // Compute the server command line options.
     //
     Ice::StringSeq options;
-    string exe;
-    if(!desc->interpreter.empty())
-    {
-	if(desc->interpreter == "icebox")
-	{
-	    exe = desc->exe.empty() ? "icebox" : desc->exe;
-	    copy(desc->interpreterOptions.begin(), desc->interpreterOptions.end(), back_inserter(options));	    
-	}
-	else if(desc->interpreter == "java-icebox")
-	{
-	    exe = desc->exe.empty() ? "java" : desc->exe;
-	    copy(desc->interpreterOptions.begin(), desc->interpreterOptions.end(), back_inserter(options));
-	    options.push_back("IceBox.Server");
-	}
-	else
-	{
-	    exe = desc->interpreter;
-	    copy(desc->interpreterOptions.begin(), desc->interpreterOptions.end(), back_inserter(options));
-	    options.push_back(desc->exe);
-	}
-    }
-    else
-    {
-	exe = desc->exe;
-    }
     copy(desc->options.begin(), desc->options.end(), back_inserter(options));
     options.push_back("--Ice.Config=" + _serverDir + "/config/config");
 
@@ -491,7 +466,7 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
 
     try
     {
-	bool started  = _node->getActivator()->activate(desc->name, exe, desc->pwd, options, envs, _this);
+	bool started  = _node->getActivator()->activate(desc->id, desc->exe, desc->pwd, options, envs, _this);
 	if(!started)
 	{
 	    setState(ServerI::Inactive);
@@ -627,7 +602,7 @@ ServerI::checkActivation()
     {
 	for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
 	{
-	    if(!p->noWaitForActivation && _activeAdapters.find(p->id) == _activeAdapters.end())
+	    if(p->waitForActivation && _activeAdapters.find(p->id) == _activeAdapters.end())
 	    {
 		return;
 	    }
@@ -660,7 +635,8 @@ ServerI::stopInternal(bool kill, const Ice::Current& current)
 		//
 		// Wait for the process to be set.
 		//
-		wait(); // TODO: timeout?
+		// TODO: use the deactivatiion timeout!
+		wait(); 
 	    }
 	}
 	process = _process;
@@ -843,7 +819,7 @@ ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& ada
 		int& deactivationTimeout, const Ice::Current& current)
 {
     _desc = descriptor;
-    _serverDir = _serversDir + "/" + descriptor->name;
+    _serverDir = _serversDir + "/" + descriptor->id;
     _activation = descriptor->activation  == "on-demand" ? OnDemand : Manual;
 
     istringstream at(_desc->activationTimeout);
@@ -994,12 +970,12 @@ ServerI::addAdapter(const AdapterDescriptor& descriptor, const Ice::Current& cur
 {
     Ice::Identity id;
     id.category = "IceGridServerAdapter";
-    id.name = _desc->name + "-" + descriptor.id + "-" + _desc->name;
+    id.name = _desc->id + "-" + descriptor.id + "-" + descriptor.name;
     AdapterPrx proxy = AdapterPrx::uncheckedCast(current.adapter->createProxy(id));
     ServerAdapterIPtr servant = ServerAdapterIPtr::dynamicCast(current.adapter->find(id));
     if(!servant)
     {
-	servant = new ServerAdapterI(_node, this, _desc->name, proxy, descriptor.id, _waitTime);
+	servant = new ServerAdapterI(_node, this, _desc->id, proxy, descriptor.id, _waitTime);
 	current.adapter->add(servant, id);
     }
     _adapters.insert(make_pair(descriptor.id, servant));
@@ -1008,20 +984,22 @@ ServerI::addAdapter(const AdapterDescriptor& descriptor, const Ice::Current& cur
 }
 
 void
-ServerI::updateConfigFile(const string& serverDir, const ComponentDescriptorPtr& descriptor)
+ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorPtr& descriptor)
 {
     string configFilePath;
 
     PropertyDescriptorSeq props;
     if(ServerDescriptorPtr::dynamicCast(descriptor))
     {
+	ServerDescriptorPtr serverDesc = ServerDescriptorPtr::dynamicCast(descriptor);
+
 	configFilePath = serverDir + "/config/config";
 
 	//
 	// Add server properties.
 	//
 	props.push_back(createProperty("# Server configuration"));
-	props.push_back(createProperty("Ice.ProgramName", descriptor->name));
+	props.push_back(createProperty("Ice.ProgramName", serverDesc->id));
 	copy(descriptor->properties.begin(), descriptor->properties.end(), back_inserter(props));
 
 	//
@@ -1043,9 +1021,10 @@ ServerI::updateConfigFile(const string& serverDir, const ComponentDescriptorPtr&
 	}
     }
     else
-    {
-	assert(ServiceDescriptorPtr::dynamicCast(descriptor));
-	configFilePath = serverDir + "/config/config_" + descriptor->name;
+    {	
+	ServiceDescriptorPtr serviceDesc = ServiceDescriptorPtr::dynamicCast(descriptor);
+	assert(serviceDesc);
+	configFilePath = serverDir + "/config/config_" + serviceDesc->name;
 	props.push_back(createProperty("# Service configuration"));
 	copy(descriptor->properties.begin(), descriptor->properties.end(), back_inserter(props));
     }
@@ -1066,7 +1045,6 @@ ServerI::updateConfigFile(const string& serverDir, const ComponentDescriptorPtr&
     for(AdapterDescriptorSeq::const_iterator p = descriptor->adapters.begin(); p != descriptor->adapters.end(); ++p)
     {
 	props.push_back(createProperty("# Object adapter " + p->name));
-	props.push_back(createProperty(p->name + ".Endpoints", p->endpoints));
 	props.push_back(createProperty(p->name + ".AdapterId", p->id));
 	if(p->registerProcess)
 	{
