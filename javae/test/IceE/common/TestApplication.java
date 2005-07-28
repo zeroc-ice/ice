@@ -34,6 +34,7 @@ public class TestApplication
 		properties.load(is);
 	    }
 	    _communicator = Ice.Util.initializeWithProperties(args, properties);
+	    _args = args;
 	}
 
 	public void
@@ -71,9 +72,16 @@ public class TestApplication
 	public void
 	run()
 	{
-	    if(_communicator != null)
+	    try
 	    {
-		Client.run(_args, _communicator, _out);
+		if(_communicator != null)
+		{
+		    Client.run(_args, _communicator, _out);
+		}
+	    }
+	    catch(Exception ex)
+	    {
+		ex.printStackTrace();
 	    }
 	}
     }
@@ -96,11 +104,18 @@ public class TestApplication
 	    // running. The other wrappers will pretty much have immediate feedback because they will actually be
 	    // running tests.
 	    //
-	    if(_communicator != null)
+	    try
 	    {
-		Server.run(_args, _communicator, _out);
+		if(_communicator != null)
+		{
+		    Server.run(_args, _communicator, _out);
+		}
+		done();
 	    }
-	    done();
+	    catch(Exception ex)
+	    {
+		ex.printStackTrace();
+	    }
 	}
     }
 
@@ -117,11 +132,18 @@ public class TestApplication
 	public void
 	run()
 	{
-	    if(_communicator != null)
+	    try
 	    {
-		Collocated.run(_args, _communicator, _out); 
+		if(_communicator != null)
+		{
+		    Collocated.run(_args, _communicator, _out); 
+		}
+		done();
 	    }
-	    done();
+	    catch(Exception ex)
+	    {
+		ex.printStackTrace();
+	    }
 	}
     }
 
@@ -144,9 +166,10 @@ public class TestApplication
 	    //
 	    // Locate space.
 	    //
-	    end = argString.indexOf(' ', end);
+	    end = argString.indexOf(' ', current);
 	    if(end == -1)
 	    {
+		v.addElement(argString.substring(current));
 		break;
 	    }
 

@@ -63,25 +63,30 @@ public class AllTests
     }
 
     public static void
-    allTests(Ice.Communicator communicator, int[] ports)
+    allTests(Ice.Communicator communicator, int[] ports, java.io.PrintStream out)
     {
-        System.out.print("testing stringToProxy... ");
-        System.out.flush();
+        out.print("testing stringToProxy... ");
+        out.flush();
         String ref = "test";
+	String host = communicator.getProperties().getProperty("Test.Host");
+	if(host.length() > 0)
+	{
+	    host = " -h " + host;
+	}
         for(int i = 0; i < ports.length; i++)
         {
-            ref += ":default -t 60000 -p " + ports[i];
+            ref += ":default -t 60000 -p " + ports[i] + host;
         }
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing checked cast... ");
-        System.out.flush();
+        out.print("testing checked cast... ");
+        out.flush();
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
         test(obj != null);
         test(obj.equals(base));
-        System.out.println("ok");
+        out.println("ok");
 
         int oldPid = 0;
         for(int i = 1, j = 0; i <= ports.length; ++i, ++j)
@@ -91,24 +96,24 @@ public class AllTests
 		j = 0;
 	    }
 
-	    System.out.print("testing server #" + i + "... ");
-	    System.out.flush();
+	    out.print("testing server #" + i + "... ");
+	    out.flush();
 	    int pid = obj.pid();
 	    test(pid != oldPid);
-	    System.out.println("ok");
+	    out.println("ok");
 	    oldPid = pid;
 
             if(j == 0)
             {
-		System.out.print("shutting down server #" + i + "... ");
-		System.out.flush();
+		out.print("shutting down server #" + i + "... ");
+		out.flush();
 		obj.shutdown();
-		System.out.println("ok");
+		out.println("ok");
             }
             else if(j == 1 || i + 1 > ports.length)
             {
-		System.out.print("aborting server #" + i + "... ");
-		System.out.flush();
+		out.print("aborting server #" + i + "... ");
+		out.flush();
 		try
 		{
 		    obj.abort();
@@ -116,21 +121,21 @@ public class AllTests
 		}
 		catch(Ice.ConnectionLostException ex)
 		{
-		    System.out.println("ok");
+		    out.println("ok");
 		}
 		catch(Ice.ConnectFailedException exc)
 		{
-		    System.out.println("ok");
+		    out.println("ok");
 		}
 		catch(Ice.SocketException ex)
 		{
-		    System.out.println("ok");
+		    out.println("ok");
 		}
             }
             else if(j == 2)
             {
-		System.out.print("aborting server #" + i + " and #" + (i + 1) + " with idempotent call... ");
-		System.out.flush();
+		out.print("aborting server #" + i + " and #" + (i + 1) + " with idempotent call... ");
+		out.flush();
 		try
 		{
 		    obj.idempotentAbort();
@@ -138,23 +143,23 @@ public class AllTests
 		}
 		catch(Ice.ConnectionLostException ex)
 		{
-		    System.out.println("ok");
+		    out.println("ok");
 		}
 		catch(Ice.ConnectFailedException exc)
 		{
-		    System.out.println("ok");
+		    out.println("ok");
 		}
 		catch(Ice.SocketException ex)
 		{
-		    System.out.println("ok");
+		    out.println("ok");
 		}
 
                 ++i;
             }
             else if(j == 3)
             {
-		System.out.print("aborting server #" + i + " and #" + (i + 1) + " with nonmutating call... ");
-		System.out.flush();
+		out.print("aborting server #" + i + " and #" + (i + 1) + " with nonmutating call... ");
+		out.flush();
 		try
 		{
 		    obj.nonmutatingAbort();
@@ -162,15 +167,15 @@ public class AllTests
 		}
 		catch(Ice.ConnectionLostException ex)
 		{
-		    System.out.println("ok");
+		    out.println("ok");
 		}
 		catch(Ice.ConnectFailedException exc)
 		{
-		    System.out.println("ok");
+		    out.println("ok");
 		}
 		catch(Ice.SocketException ex)
 		{
-		    System.out.println("ok");
+		    out.println("ok");
 		}
 
                 ++i;
@@ -181,8 +186,8 @@ public class AllTests
             }
         }
 
-        System.out.print("testing whether all servers are gone... ");
-        System.out.flush();
+        out.print("testing whether all servers are gone... ");
+        out.flush();
         try
         {
             obj.ice_ping();
@@ -190,7 +195,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
-            System.out.println("ok");
+            out.println("ok");
         }
     }
 }

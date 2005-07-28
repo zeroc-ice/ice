@@ -10,15 +10,15 @@
 public class Client
 {
     private static void
-    usage()
+    usage(java.io.PrintStream out)
     {
-        System.err.println("Usage: Client port...");
+        out.println("Usage: Client port...");
     }
 
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public static int
+    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
-        java.util.ArrayList ports = new java.util.ArrayList(args.length);
+        java.util.Vector ports = new java.util.Vector(args.length);
         for(int i = 0; i < args.length; i++)
         {
             if(args[i].charAt(0) == '-')
@@ -27,7 +27,7 @@ public class Client
                 // TODO: Arguments recognized by the communicator are not
                 // removed from the argument list.
                 //
-                //System.err.println("Client: unknown option `" + args[i] + "'");
+                //out.println("Client: unknown option `" + args[i] + "'");
                 //usage();
                 //return 1;
                 continue;
@@ -43,25 +43,25 @@ public class Client
                 ex.printStackTrace();
                 return 1;
             }
-            ports.add(new Integer(port));
+            ports.addElement(new Integer(port));
         }
 
         if(ports.isEmpty())
         {
-            System.err.println("Client: no ports specified");
-            usage();
+            out.println("Client: no ports specified");
+            usage(out);
             return 1;
         }
 
         int[] arr = new int[ports.size()];
         for(int i = 0; i < arr.length; i++)
         {
-            arr[i] = ((Integer)ports.get(i)).intValue();
+            arr[i] = ((Integer)ports.elementAt(i)).intValue();
         }
 
 	try
 	{
-	    AllTests.allTests(communicator, arr);
+	    AllTests.allTests(communicator, arr, out);
 	}
 	catch(Ice.LocalException ex)
 	{
@@ -89,7 +89,7 @@ public class Client
 	    properties.setProperty("Ice.Warn.Connections", "0");
 
             communicator = Ice.Util.initialize(argsH);
-            status = run(argsH.value, communicator);
+            status = run(argsH.value, communicator, System.out);
         }
         catch(Ice.LocalException ex)
         {
