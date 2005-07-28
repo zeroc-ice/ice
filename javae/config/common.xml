@@ -82,6 +82,7 @@
 	<property name="slice.dir" value="${env.ICEE_HOME}/slice"/>
 	<property name="lib.dir" value="${top.dir}/${targetProfile}/lib" />
 	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
+	<taskdef name="jadfile" classpath="${top.dir}/ant" classname="JADTask"/>
     </target>
 
     <target name="properties-opt" if="is-opt">
@@ -93,12 +94,14 @@
 	
 	<property name="slice.dir" value="${env.ICEE_HOME}/slice"/>
 	<taskdef name="slice2javae" classpath="${env.ICEE_HOME}/ant" classname="Slice2JavaETask"/>
+	<taskdef name="jadfile" classpath="${env.ICEE_HOME}/ant" classname="JADTask"/>
     </target>
 
     <target name="properties-src" if="is-src">
 	<property name="lib.dir" value="${top.dir}/${targetProfile}/lib" />
 	<property name="slice.dir" value="${top.dir}/slice"/>
 	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
+	<taskdef name="jadfile" classpath="${top.dir}/ant" classname="JADTask"/>
     </target>
 
     <target name="properties-rpm" if="is-rpm">
@@ -106,6 +109,7 @@
 	<property name="lib.dir" value="/usr/lib/Ice-ICE_VERSION" />
 	<property name="slice.dir" value="/usr/share/slice"/>
 	<taskdef name="slice2javae" classpath="${lib.dir}/ant" classname="Slice2JavaETask"/>
+	<taskdef name="jadfile" classpath="${lib.dir}/ant" classname="JADTask"/>
     </target>
     
     <target name="config-impl" depends="properties-cvs,properties-opt,properties-src,properties-rpm">

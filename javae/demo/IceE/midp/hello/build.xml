@@ -44,7 +44,7 @@
 
     <target name="client-jar" depends="compile">
         <mkdir dir="./tmp"/>
-	<copy file="config" todir="./classes"/>
+	<copy overwrite="true" file="config" todir="./classes"/>
 	      
 	<manifest file="MANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.0"/>
@@ -80,7 +80,7 @@
 
     <target name="server-jar" depends="compile">
         <mkdir dir="./tmp"/>
-	<copy file="config" todir="./classes"/>
+	<copy overwrite="true" file="config" todir="./classes"/>
 	<manifest file="MANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.0"/>
 	    <attribute name="MIDlet-Name" value="ServerMIDlet"/>
@@ -118,8 +118,11 @@
     <target name="clean">
         <delete dir="${class.dir}"/>
 	<delete dir="./tmp"/>
-	<delete file="./ClientMIDlet.jar"/>
-	<delete file="./ServerMIDlet.jar"/>
+	<delete quiet="true" file="./ClientMIDlet.jar"/>
+	<delete quiet="true" file="./ServerMIDlet.jar"/>
+	<delete quiet="true">
+	    <fileset dir="." includes="*.jad"/>
+	</delete>
     </target>
 
 </project>
