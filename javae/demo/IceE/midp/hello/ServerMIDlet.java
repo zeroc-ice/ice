@@ -13,23 +13,6 @@ public class ServerMIDlet
     extends javax.microedition.midlet.MIDlet
     implements javax.microedition.lcdui.CommandListener
 {
-    private javax.microedition.lcdui.Form _form;
-    private javax.microedition.lcdui.Display _display;
-
-    private Ice.Communicator _communicator;
-    private Demo.HelloPrx _helloPrx;
-
-    private static final int CMD_PRIORITY = 1;
-
-    private static final javax.microedition.lcdui.Command CMD_EXIT =
-        new javax.microedition.lcdui.Command("Exit", javax.microedition.lcdui.Command.EXIT, CMD_PRIORITY);
-
-    private static final javax.microedition.lcdui.Command CMD_START =
-        new javax.microedition.lcdui.Command("Start", javax.microedition.lcdui.Command.ITEM, CMD_PRIORITY);
-
-    private static final javax.microedition.lcdui.StringItem _msg =
-        new javax.microedition.lcdui.StringItem("\nStatus: ", "(no status)");
-
     static class HelloI extends Demo._HelloDisp
     {
 	public
@@ -150,5 +133,22 @@ public class ServerMIDlet
     {
 	return _form;
     }
+
+    private javax.microedition.lcdui.Form _form;
+    private javax.microedition.lcdui.Display _display;
+
+    private Ice.Communicator _communicator;
+    private Demo.HelloPrx _helloPrx;
+
+    private static final int CMD_PRIORITY = 1;
+
+    private javax.microedition.lcdui.Command CMD_EXIT =
+        new javax.microedition.lcdui.Command("Exit", javax.microedition.lcdui.Command.EXIT, CMD_PRIORITY);
+
+    private javax.microedition.lcdui.Command CMD_START =
+        new javax.microedition.lcdui.Command("Start", javax.microedition.lcdui.Command.ITEM, CMD_PRIORITY);
+
+    private javax.microedition.lcdui.StringItem _msg =
+        new javax.microedition.lcdui.StringItem("\nStatus: ", "(no status)");
 }
 

@@ -13,23 +13,6 @@ public class ClientMIDlet
     extends javax.microedition.midlet.MIDlet
     implements javax.microedition.lcdui.CommandListener
 {
-    private javax.microedition.lcdui.Form _form;
-    private javax.microedition.lcdui.Display _display;
-
-    private Ice.Communicator _communicator;
-    private Demo.HelloPrx _helloPrx;
-
-    private static final int CMD_PRIORITY = 1;
-
-    private static final javax.microedition.lcdui.Command CMD_EXIT =
-        new javax.microedition.lcdui.Command("Exit", javax.microedition.lcdui.Command.EXIT, CMD_PRIORITY);
-
-    private static final javax.microedition.lcdui.Command CMD_HELLO =
-        new javax.microedition.lcdui.Command("Hello", javax.microedition.lcdui.Command.ITEM, CMD_PRIORITY);
-
-    private static final javax.microedition.lcdui.StringItem _msg =
-        new javax.microedition.lcdui.StringItem("\nStatus: ", "(no requests sent)");
-
     class HelloRequest
 	implements Runnable
     {
@@ -39,8 +22,6 @@ public class ClientMIDlet
 	    handleHelloCmd();
 	}
     }
-
-    private HelloRequest _helloRequest = new HelloRequest();
 
     protected void
     startApp()
@@ -148,4 +129,23 @@ public class ClientMIDlet
     {
 	return _form;
     }
+
+    private HelloRequest _helloRequest = new HelloRequest();
+
+    private javax.microedition.lcdui.Form _form;
+    private javax.microedition.lcdui.Display _display;
+
+    private Ice.Communicator _communicator;
+    private Demo.HelloPrx _helloPrx;
+
+    private static final int CMD_PRIORITY = 1;
+
+    private javax.microedition.lcdui.Command CMD_EXIT =
+        new javax.microedition.lcdui.Command("Exit", javax.microedition.lcdui.Command.EXIT, CMD_PRIORITY);
+
+    private javax.microedition.lcdui.Command CMD_HELLO =
+        new javax.microedition.lcdui.Command("Hello", javax.microedition.lcdui.Command.ITEM, CMD_PRIORITY);
+
+    private javax.microedition.lcdui.StringItem _msg =
+        new javax.microedition.lcdui.StringItem("\nStatus: ", "(no requests sent)");
 }
