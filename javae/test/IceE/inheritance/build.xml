@@ -35,8 +35,8 @@
 	    target="1.1"/>
     </target>
 
-    <target name="midlet-jar" if="midp">
-	<ant dir="../common" target="compile"/>
+    <target name="midlet-jar" depends="compile" if="midp">
+	<ant dir="../common" inheritAll="false" target="compile"/>
         <mkdir dir="./tmp"/>
 	<manifest file="MANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.0"/>
@@ -62,7 +62,7 @@
     </target>
 
     <!-- Write the descriptor files -->
-    <target name="server-midlet" if="midp">
+    <target name="server-midlet" depends="midlet-jar" if="midp">
 	<length property="jarfile-length" file="./TestMIDlet.jar"/>
 	<jadfile file="server.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
@@ -80,7 +80,7 @@
         </jadfile>
     </target>
 
-    <target name="client-midlet" if="midp">
+    <target name="client-midlet" depends="midlet-jar" if="midp">
 	<length property="jarfile-length" file="./TestMIDlet.jar"/>
 	<jadfile file="client.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
@@ -98,7 +98,7 @@
         </jadfile>
     </target>
 
-    <target name="colloc-midlet" if="midp">
+    <target name="colloc-midlet" depends="midlet-jar" if="midp">
 	<length property="jarfile-length" file="./TestMIDlet.jar"/>
 	<jadfile file="colloc.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
@@ -114,7 +114,7 @@
         </jadfile>
     </target>
 
-    <target name="midlets" depends="midlet-jar, server-midlet, client-midlet, colloc-midlet"/>
+    <target name="midlets" depends="server-midlet, client-midlet, colloc-midlet"/>
 
     <target name="all" depends="compile,midlets"/>
 
@@ -122,7 +122,7 @@
         <delete dir="${generated.dir}"/>
 	<delete dir="${class.dir}"/>
 	<delete dir="./tmp"/>
-	<delete file="./TestMIDlet.jar"/>
+	<delete quiet="true" file="./TestMIDlet.jar"/>
 	<delete quiet="true">
 	    <fileset dir="." includes="*.jad"/>
 	</delete>
