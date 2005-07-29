@@ -22,7 +22,7 @@ class ServerManagerI : public Test::ServerManager
 {
 public:
 
-    ServerManagerI(const Ice::ObjectAdapterPtr&, const ServerLocatorRegistryPtr&);
+    ServerManagerI(const Ice::ObjectAdapterPtr&, const ServerLocatorRegistryPtr&, const Ice::PropertiesPtr&);
     
     virtual void startServer(const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
@@ -32,6 +32,7 @@ private:
     Ice::ObjectAdapterPtr _adapter;
     std::vector<Ice::CommunicatorPtr> _communicators;
     ServerLocatorRegistryPtr _registry;
+    Ice::PropertiesPtr _properties;
 };
 
 class HelloI : public Test::Hello

@@ -18,8 +18,9 @@
 
 using namespace Test;
 
-ServerManagerI::ServerManagerI(const Ice::ObjectAdapterPtr& adapter, const ServerLocatorRegistryPtr& registry) :
-    _adapter(adapter), _registry(registry)
+ServerManagerI::ServerManagerI(const Ice::ObjectAdapterPtr& adapter, const ServerLocatorRegistryPtr& registry,
+			       const Ice::PropertiesPtr& properties) :
+    _adapter(adapter), _registry(registry), _properties(properties)
 {
 }
 
@@ -37,8 +38,8 @@ ServerManagerI::startServer(const Ice::Current&)
     // its endpoints with the locator and create references containing
     // the adapter id instead of the endpoints.
     //
-    Ice::CommunicatorPtr serverCommunicator = Ice::initialize(argc, argv);
-    _communicators.push_back(serverCommunicator);
+    Ice::CommunicatorPtr serverCommunicator = Ice::initializeWithProperties(argc, argv, _properties);
+    _communicators.push_back(serverCommunicator); 
     serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints", "default");
     serverCommunicator->getProperties()->setProperty("TestAdapter.AdapterId", "TestAdapter");
     Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
