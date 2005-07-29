@@ -68,7 +68,7 @@
 	<ant dir="../../common" inheritAll="false" target="compile"/>
         <mkdir dir="./tmp"/>
 	<manifest file="MANIFEST.MF">
-	    <attribute name="Microedition-Configuration" value="CLDC-1.0"/>
+	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
 	    <attribute name="MIDlet-Name" value="Test Driver"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
             <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
@@ -95,7 +95,7 @@
 	<ant dir="../../common" inheritAll="false" target="compile"/>
         <mkdir dir="./tmp"/>
 	<manifest file="MANIFEST.MF">
-	    <attribute name="Microedition-Configuration" value="CLDC-1.0"/>
+	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
 	    <attribute name="MIDlet-Name" value="Test Driver"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
             <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
