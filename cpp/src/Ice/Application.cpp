@@ -346,7 +346,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	// 
 	_ctrlCHandler = 0;
     }
-    catch(const CtrlCHandlerException& e)
+    catch(const CtrlCHandlerException&)
     {
 	cerr << argv[0] << ": only one instance of the Application class can be used" << endl;
 	status = EXIT_FAILURE;
