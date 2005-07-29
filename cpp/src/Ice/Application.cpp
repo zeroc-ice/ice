@@ -100,6 +100,7 @@ static void destroyOnInterruptCallback(int signal)
 	assert(!_callbackInProgress);
 	_callbackInProgress = true;
 	_interrupted = true;
+	_destroyed = true;
     }
 	
     assert(_communicator != 0);
@@ -137,7 +138,6 @@ static void destroyOnInterruptCallback(int signal)
     {
 	StaticMutex::Lock lock(_mutex);
 	_callbackInProgress = false;
-	_destroyed = true;
     }
     _condVar->signal();
 }
@@ -311,7 +311,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	    {
 		_destroyed = true;
 		//
-		// And _communicator != true, meaning will be destroyed next,
+		// And _communicator != 0, meaning will be destroyed next,
 		// _destroyed = true also ensures that any remaining callback won't do anything
 		//
 	    }
