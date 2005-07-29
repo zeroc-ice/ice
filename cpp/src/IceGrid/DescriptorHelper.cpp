@@ -202,10 +202,26 @@ Resolver::Resolver(const ApplicationHelper& app, const string& name, const map<s
     _context("application `" + name + "'"),
     _variables(variables)
 {
+    //
+    // Add allowed reserved variables (reserved variables can't be
+    // overrided, in this implementation an empty reserved variable is
+    // considered to be undefined (see getVariable))
+    //
     _reserved["application"] = name;
     _reserved["node"] = "";
     _reserved["server"] = "";
     _reserved["service"] = "";
+
+    //
+    // Make sure the variables don't override reserved variables.
+    //
+    for(map<string, string>::const_iterator p = _variables.begin(); p != _variables.end(); ++p)
+    {
+	if(_reserved.find(p->first) != _reserved.end())
+	{
+	    throw "invalid variable `" + p->first + "' in " + _context + ":\nreserved variable name";
+	}
+    }
 }
 
 Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, bool params) :
@@ -217,11 +233,25 @@ Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, b
     if(params)
     {
 	_parameters = values;
+	for(map<string, string>::const_iterator p = _parameters.begin(); p != _parameters.end(); ++p)
+	{
+	    if(_reserved.find(p->first) != _reserved.end())
+	    {
+		throw "invalid parameter `" + p->first + "' in " + _context + ":\nreserved variable name";
+	    }
+	}
     }
     else
     {
 	for(map<string, string>::const_iterator p = values.begin(); p != values.end(); ++p)
 	{
+	    //
+	    // Make sure the variables don't override reserved variables.
+	    //
+	    if(_reserved.find(p->first) != _reserved.end())
+	    {
+		throw "invalid variable `" + p->first + "' in " + _context + ":\nreserved variable name";
+	    }
 	    _variables[p->first] = p->second;
 	}
     }
@@ -315,7 +345,13 @@ Resolver::substitute(const string& v, bool first) const
 	{
 	    throw "malformed variable name in the value `" + value + "'";
 	}
-	
+
+	//
+	// Get the name of the variable and get its value. If the name
+	// refered to a parameter we don't do any recursive
+	// substitution: the parameter value is computed at the point
+	// of definition.
+	//
 	string name = value.substr(beg + 2, end - beg - 2);
 	bool param;
 	string val = getVariable(name, first, param);
@@ -333,6 +369,11 @@ Resolver::substitute(const string& v, bool first) const
 string
 Resolver::getVariable(const string& name, bool checkParams, bool& param) const
 {
+    //
+    // We first check the reserved variables, then the parameters if
+    // necessary and finally the variables.
+    //
+
     param = false;
     map<string, string>::const_iterator p = _reserved.find(name);
     if(p != _reserved.end())
@@ -430,6 +471,8 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	AdapterDescriptor adapter;
 	adapter.name = resolve(p->name, "object adapter name");
 	adapter.id = resolve(p->id, "object adapter id");
+	adapter.registerProcess = p->registerProcess;
+	adapter.waitForActivation = p->waitForActivation;
 	for(ObjectDescriptorSeq::const_iterator q = p->objects.begin(); q != p->objects.end(); ++q)
 	{
 	    ObjectDescriptor obj;
@@ -525,6 +568,7 @@ CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& ada
     out << nl << "id = '" << adapter.id << "'";
 // TODO    out << nl << "endpoints = '" << adapter.endpoints << "'";
     out << nl << "register process = '" << (adapter.registerProcess ? "true" : "false") << "'";
+    out << nl << "wait for activation = '" << (adapter.waitForActivation ? "true" : "false") << "'";
     for(ObjectDescriptorSeq::const_iterator p = adapter.objects.begin(); p != adapter.objects.end(); ++p)
     {
 	out << nl << "object";
@@ -706,7 +750,7 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance, const Resolve
 	throw "invalid server `" + instance->id + "': unknown activation `" + instance->activation + "'";
     }
     instance->activationTimeout = resolve.asInt(_desc->activationTimeout, "activation timeout");
-    instance->deactivationTimeout = resolve(_desc->deactivationTimeout, "deactivation timeout");
+    instance->deactivationTimeout = resolve.asInt(_desc->deactivationTimeout, "deactivation timeout");
     for(Ice::StringSeq::const_iterator p = _desc->options.begin(); p != _desc->options.end(); ++p)
     {
 	instance->options.push_back(resolve(*p, "option"));
@@ -782,6 +826,16 @@ IceBoxHelper::IceBoxHelper(const IceBoxDescriptorPtr& descriptor, const Resolver
 {
     //
     // TODO: Add validation (e.g.: ensure that service names are unique.)
+    //
+
+    //
+    // This IceBoxHelper constructor is called for IceBox server
+    // instances. Here, we populate the server helper sequence and
+    // also update the IceBox descriptor service instances. The
+    // service instances of the descriptor contain instances of the
+    // services: the ServiceInstanceDescriptor::descriptor attribute
+    // is set with the instance descriptor of the service even for
+    // template instances.
     //
 
     for(ServiceInstanceDescriptorSeq::iterator p = _desc->services.begin(); p != _desc->services.end(); ++p)
@@ -1256,9 +1310,6 @@ void
 NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolve)
 {
     assert(update.name == _name);
-    Resolver resolve(appResolve, _desc.variables, false);
-    resolve.setReserved("node", _name);
-    resolve.setContext("node `" + _name + "'");
 
     //
     // Remove the variables, the servers and server instances.
@@ -1280,10 +1331,19 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     }
 
     //
+    // NOTE: It's important to create the resolver *after* updating the node variables!
+    //
+    Resolver resolve(appResolve, _desc.variables, false);
+    resolve.setReserved("node", _name);
+    resolve.setContext("node `" + _name + "'");
+
+    //
     // Update the server instances, first we instantiate the server
     // instances from the update, remove the old server instances that
     // were updated, and then we re-instantiate the server instances
-    // that were not updated.
+    // that were not updated. We also ensure that the re-instantiation
+    // isn't changing the id: this is not allowed, instead the old
+    // server should be removed first.
     //
     ServerInstanceHelperDict serverInstances;
     serverInstances.swap(_serverInstances);
@@ -1300,6 +1360,11 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     for(ServerInstanceHelperDict::const_iterator q = serverInstances.begin(); q != serverInstances.end(); ++q)
     {
 	ServerInstanceHelper helper(q->second.getDescriptor(), resolve); // Re-instantiate the server.
+	if(helper.getId() != q->first)
+	{
+	    throw "invalid update in node `" + _name + "':\n" +
+		"server instance id `" + q->first + "' changed to `" + helper.getId() + "'";
+	}
 	if(!_serverInstances.insert(make_pair(helper.getId(), helper)).second)
 	{
 	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
@@ -1309,7 +1374,9 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     //
     // Update the servers, first we instantiate the servers from the
     // update, remove the old servers that were updated, and then we
-    // re-instantiate the servers that were not updated.
+    // re-instantiate the servers that were not updated. We also
+    // ensure that the re-instantiation isn't changing the id: this is
+    // not allowed, instead the old server should be removed first.
     //
     ServerInstanceHelperDict servers;
     servers.swap(_servers);
@@ -1325,6 +1392,11 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     for(ServerInstanceHelperDict::const_iterator q = servers.begin(); q != servers.end(); ++q)
     {
 	ServerInstanceHelper helper(q->second.getDefinition(), resolve); // Re-instantiate the server.
+	if(helper.getId() != q->first)
+	{
+	    throw "invalid update in node `" + _name + "':\n" +
+		"server instance id `" + q->first + "' changed to `" + helper.getId() + "'";
+	}	
 	if(!_servers.insert(make_pair(helper.getId(), helper)).second)
 	{
 	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
@@ -1566,11 +1638,16 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
     _desc.serviceTemplates = updateDictElts(_desc.serviceTemplates, update.serviceTemplates, 
 					    update.removeServiceTemplates);
 
-    Resolver resolve(*this, _desc.name, _desc.variables);
+
     for(Ice::StringSeq::const_iterator p = update.removeNodes.begin(); p != update.removeNodes.end(); ++p)
     {
 	_nodes.erase(*p);
     }
+
+    //
+    // NOTE: It's important to create the resolver *after* updating the application variables!
+    //
+    Resolver resolve(*this, _desc.name, _desc.variables);
 
     //
     // We first update or add the nodes from the update descriptor and

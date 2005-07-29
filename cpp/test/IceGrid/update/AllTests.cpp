@@ -46,7 +46,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	server->exe = properties->getProperty("TestDir") + "/server";
 	AdapterDescriptor adapter;
 	adapter.name = "Server";
-	//adapter.endpoints = "default";
 	adapter.id = "ServerAdapter";
 	adapter.registerProcess = true;
 	ObjectDescriptor object;
@@ -108,7 +107,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	server->exe = "${test.dir}/server";
 	adapter = AdapterDescriptor();
 	adapter.name = "Server";
-//	adapter.endpoints = "default";
 	adapter.id = "${server}";
 	adapter.registerProcess = true;
 	object = ObjectDescriptor();
@@ -370,12 +368,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	ApplicationDescriptor testApp;
 	testApp.name = "TestApp";
 	NodeDescriptor node;
-	node.variables["node"] = "node1";
+	node.variables["nodename"] = "node1";
 	testApp.nodes["node1"] = node;
 
 	try
 	{
 	    admin->addApplication(testApp);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    cerr << ex.reason << endl;
 	}
 	catch(const Ice::Exception& ex)
 	{
@@ -387,7 +389,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	update.name = "TestApp";
 	NodeUpdateDescriptor nodeUpdate;
 	nodeUpdate.name = "node2";
-	nodeUpdate.variables["node"] = "node2";
+	nodeUpdate.variables["nodename"] = "node2";
 	update.nodes.push_back(nodeUpdate);
 
 	try
@@ -402,14 +404,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	testApp = admin->getApplicationDescriptor("TestApp");
 	test(testApp.nodes.size() == 2);
-	test(testApp.nodes["node1"].variables["node"] == "node1");
-	test(testApp.nodes["node2"].variables["node"] == "node2");
+	test(testApp.nodes["node1"].variables["nodename"] == "node1");
+	test(testApp.nodes["node2"].variables["nodename"] == "node2");
 	cout << "ok" << endl;
 
 	cout << "testing node update... " << flush;
 
 	nodeUpdate.name = "node2";
-	nodeUpdate.variables["node"] = "node2updated";
+	nodeUpdate.variables["nodename"] = "node2updated";
 	update.nodes.back() = nodeUpdate;
 	try
 	{
@@ -423,8 +425,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	testApp = admin->getApplicationDescriptor("TestApp");
 	test(testApp.nodes.size() == 2);
-	test(testApp.nodes["node1"].variables["node"] == "node1");
-	test(testApp.nodes["node2"].variables["node"] == "node2updated");
+	test(testApp.nodes["node1"].variables["nodename"] == "node1");
+	test(testApp.nodes["node2"].variables["nodename"] == "node2updated");
 
 	cout << "ok" << endl;
 
@@ -444,480 +446,406 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	
 	testApp = admin->getApplicationDescriptor("TestApp");
 	test(testApp.nodes.size() == 1);
-	test(testApp.nodes["node2"].variables["node"] == "node2updated");
+	test(testApp.nodes["node2"].variables["nodename"] == "node2updated");
 	
 	admin->removeApplication("TestApp");
 
 	cout << "ok" << endl;
     }	
 
-//     {
-// 	cout << "testing variable update... " << flush;
+    {
+	cout << "testing variable update... " << flush;
 
-// 	PropertyDescriptorSeq properties;
-// 	PropertyDescriptor property;
-// 	property.name = "ApplicationVar";
-// 	property.value = "${appvar}";
-// 	properties.push_back(property);
-// 	property.name = "NodeVar";
-// 	property.value = "${nodevar}";
-// 	properties.push_back(property);
-// 	property.name = "ServerParamVar";
-// 	property.value = "${serverparamvar}";
-// 	properties.push_back(property);
-// 	property.name = "ServerVar";
-// 	property.value = "${servervar}";
-// 	properties.push_back(property);
-// 	property.name = "ServiceParamVar";
-// 	property.value = "${serviceparamvar}";
-// 	properties.push_back(property);
-// 	property.name = "ServiceVar";
-// 	property.value = "${servicevar}";
-// 	properties.push_back(property);
+	PropertyDescriptorSeq properties;
+	PropertyDescriptor property;
+	property.name = "ApplicationVar";
+	property.value = "${appvar}";
+	properties.push_back(property);
+	property.name = "NodeVar";
+	property.value = "${nodevar}";
+	properties.push_back(property);
+	property.name = "ServerParamVar";
+	property.value = "${serverparamvar}";
+	properties.push_back(property);
 
-// 	TemplateDescriptor serviceTempl;
-// 	serviceTempl.parameters.push_back("serviceparamvar");
-// 	serviceTempl.descriptor = new ServiceDescriptor();
-// 	ServiceDescriptorPtr::dynamicCast(serviceTempl.descriptor)->name = "Service";
-// 	serviceTempl.descriptor->properties = properties;
+	TemplateDescriptor serviceTempl;
 
-// 	ServiceInstanceDescriptor service;
-// 	service._cpp_template = "ServiceTemplate";
-// 	service.parameterValues["serviceparamvar"] = "ServiceParamValue";
+	ServerDescriptorPtr server = new ServerDescriptor();
+	server->id = "${name}";
+	server->exe = "server";
+	server->properties = properties;
 
-// 	IceBoxDescriptorPtr icebox = new IceBoxDescriptor();
-// 	icebox->services.push_back(service);
-// 	icebox->exe = "icebox";
+	TemplateDescriptor templ;
+	templ.parameters.push_back("name");
+	templ.parameters.push_back("serverparamvar");
+	templ.descriptor = server;
 
-// 	TemplateDescriptor templ;
-// 	templ.parameters.push_back("name");
-// 	templ.parameters.push_back("serverparamvar");
-// 	templ.descriptor = icebox;
+	ApplicationDescriptor testApp;
+	testApp.name = "TestApp";
+	testApp.variables["appvar"] = "AppValue";
+	testApp.serverTemplates["ServerTemplate"] = templ;
 
-// 	ApplicationDescriptor testApp;
-// 	testApp.name = "TestApp";
-// 	testApp.variables["appvar"] = "AppValue";
-// 	testApp.serviceTemplates["ServiceTemplate"] = serviceTempl;
-// 	testApp.serverTemplates["IceBoxTemplate"] = templ;
+	NodeDescriptor node;
+	node.variables["nodevar"] = "NodeValue";
 
-// 	NodeDescriptor node;
-// 	node.variables["nodevar"] = "NodeValue";
+	ServerInstanceDescriptor serverInstance;
+	serverInstance._cpp_template = "ServerTemplate";
+	serverInstance.parameterValues["name"] = "Server";
+	serverInstance.parameterValues["serverparamvar"] = "ServerParamValue";
+	node.serverInstances.push_back(serverInstance);
 
-// 	ServerInstanceDescriptor server;
-// 	server._cpp_template = "IceBoxTemplate";
-// 	server.parameterValues["name"] = "Server";
-// 	server.parameterValues["serverparamvar"] = "ServerParamValue";
-// 	node.serverInstances.push_back(server);
+	testApp.nodes["node1"] = node;
 
-// 	testApp.nodes["node1"] = node;
+	try
+	{
+	    admin->addApplication(testApp);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    cerr << ex.reason << endl;
+	    test(false);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 
-// 	try
-// 	{
-// 	    admin->addApplication(testApp);
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
+	ApplicationUpdateDescriptor empty;
+	empty.name = "TestApp";
+	ApplicationUpdateDescriptor update = empty;
+	update.removeVariables.push_back("appvar");
+	try
+	{
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    // Missing app variable
+	    //cerr << ex.reason << endl;
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 
-// 	ApplicationUpdateDescriptor empty;
-// 	empty.name = "TestApp";
-// 	ApplicationUpdateDescriptor update = empty;
-// 	update.removeVariables.push_back("appvar");
-// 	try
-// 	{
-// 	    admin->updateApplication(update);
-// 	    test(false);
-// 	}
-// 	catch(const DeploymentException& ex)
-// 	{
-// 	    // Missing app variable
-// 	    //cerr << ex.reason << endl;
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
+	update = empty;
+	NodeUpdateDescriptor nodeUpdate;
+	nodeUpdate.name = "node1";
+	nodeUpdate.removeVariables.push_back("nodevar");
+	update.nodes.push_back(nodeUpdate);
+	try
+	{
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    // Missing node variable
+	    //cerr << ex.reason << endl;
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 
-// 	update = empty;
-// 	node.variables.clear();
-// 	update.nodes.push_back(node);
-// 	try
-// 	{
-// 	    admin->updateApplication(update);
-// 	    test(false);
-// 	}
-// 	catch(const DeploymentException& ex)
-// 	{
-// 	    // Missing node variable
-// 	    //cerr << ex.reason << endl;
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
+	update = empty;
+	serverInstance = ServerInstanceDescriptor();
+	serverInstance._cpp_template = "ServerTemplate";
+	serverInstance.parameterValues["name"] = "Server";
+	nodeUpdate = NodeUpdateDescriptor();
+	nodeUpdate.name = "node1";
+	nodeUpdate.serverInstances.push_back(serverInstance);
+	update.nodes.push_back(nodeUpdate);
+	try
+	{
+	    admin->updateApplication(update);
+	    test(false);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    // Missing parameter
+	    //cerr << ex.reason << endl;
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 
-// 	update = empty;
-// 	server = ServerInstanceDescriptor();
-// 	server._cpp_template = "IceBoxTemplate";
-// 	server.parameterValues["name"] = "Server";
-// 	server.node = "node1";
-// 	update.nodes[0].serverInstances.push_back(server);
-// 	try
-// 	{
-// 	    admin->updateApplication(update);
-// 	    test(false);
-// 	}
-// 	catch(const DeploymentException& ex)
-// 	{
-// 	    // Missing parameter
-// 	    //cerr << ex.reason << endl;
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
+	ServerInfo serverBefore = admin->getServerInfo("Server");
+	ApplicationDescriptor origApp = admin->getApplicationDescriptor("TestApp");
 
-// 	update = empty;
-// 	templ.descriptor->variables.erase("servervar");
-// 	update.serverTemplates["IceBoxTemplate"] = templ;
-// 	try
-// 	{
-// 	    admin->updateApplication(update);
-// 	    test(false);
-// 	}
-// 	catch(const DeploymentException& ex)
-// 	{
-// 	    // Missing server variable
-// 	    //cerr << ex.reason << endl;
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
-
-// 	update = empty;
-// 	templ.descriptor->variables["servervar"] = "ServerValue";
-// 	IceBoxDescriptorPtr::dynamicCast(templ.descriptor)->services[0].parameterValues.erase("serviceparamvar");
-// 	update.serverTemplates["IceBoxTemplate"] = templ;
-// 	try
-// 	{
-// 	    admin->updateApplication(update);
-// 	    test(false);
-// 	}
-// 	catch(const DeploymentException& ex)
-// 	{
-// 	    // Missing service param variable
-// 	    //cerr << ex.reason << endl;
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
-
-// 	update = empty;
-// 	IceBoxDescriptorPtr::dynamicCast(templ.descriptor)->services[0].parameterValues["serviceparamvar"] = 
-// 	    "ServiceParamValue";
-// 	update.serverTemplates["IceBoxTemplate"] = templ;
-// 	serviceTempl.descriptor->variables.erase("servicevar");
-// 	update.serviceTemplates["ServiceTemplate"] = serviceTempl;
-// 	try
-// 	{
-// 	    admin->updateApplication(update);
-// 	    test(false);
-// 	}
-// 	catch(const DeploymentException& ex)
-// 	{
-// 	    // Missing service variable
-// 	    //cerr << ex.reason << endl;
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
-
-// 	testApp = admin->getApplicationDescriptor("TestApp");
-
-// 	update = empty;
-// 	update.variables["nodevar"] = "appoverride";
-// 	node = testApp.nodes[0];
-// 	node.variables["serverparamvar"] = "nodeoverride";
-// 	node.variables["servervar"] = "nodeoverride";
-// 	update.nodes.push_back(node);
-// 	templ = testApp.serverTemplates["IceBoxTemplate"];
-// 	templ.descriptor->variables["serviceparamvar"] = "serveroverride";
-// 	templ.descriptor->variables["servicevar"] = "serveroverride";
-// 	update.serverTemplates["IceBoxTemplate"] = templ;
-// 	try
-// 	{
-// 	    admin->updateApplication(update);
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
+	update = empty;
+	update.variables["nodevar"] = "appoverride";
+	nodeUpdate = NodeUpdateDescriptor();
+	nodeUpdate.name = "node1";
+	nodeUpdate.variables["serverparamvar"] = "nodeoverride";
+	update.nodes.push_back(nodeUpdate);
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}	
 	
-// 	ApplicationDescriptor previousApp = testApp;
-// 	icebox = IceBoxDescriptorPtr::dynamicCast(testApp.servers[0].descriptor);	
-// 	PropertyDescriptorSeq previousProps = icebox->services[0].descriptor->properties;
-
-// 	testApp = admin->getApplicationDescriptor("TestApp");
-// 	icebox = IceBoxDescriptorPtr::dynamicCast(testApp.servers[0].descriptor);	
-// 	PropertyDescriptorSeq newProps = icebox->services[0].descriptor->properties;
-// 	test(newProps.size() == previousProps.size());
-// 	test(newProps == previousProps);
+	ServerInfo serverAfter = admin->getServerInfo("Server");
+	test(serverBefore.descriptor->properties.size() == serverAfter.descriptor->properties.size());
+	test(serverBefore.descriptor->properties == serverAfter.descriptor->properties);
 	
-// 	update = empty;
-// 	node = previousApp->nodes[0];
-// 	node.variables["appvar"] = "nodeoverride";
-// 	update.nodes.push_back(node);
-// 	templ = previousApp->serverTemplates["IceBoxTemplate"];
-// 	templ.descriptor->variables["nodevar"] = "serveroverride";
-// 	update.serverTemplates["IceBoxTemplate"] = templ;
-// 	serviceTempl = previousApp->serviceTemplates["ServiceTemplate"];
-// 	serviceTempl.descriptor->variables["servervar"] = "serviceoverride";
-// 	update.serviceTemplates["ServiceTemplate"] = serviceTempl;
-// 	try
-// 	{
-// 	    admin->updateApplication(update);
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
+	update = empty;
+	nodeUpdate = NodeUpdateDescriptor();
+	nodeUpdate.name = "node1";
+	nodeUpdate.variables["appvar"] = "nodeoverride";
+	update.nodes.push_back(nodeUpdate);
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 
-// 	testApp = admin->getApplicationDescriptor("TestApp");
-// 	icebox = IceBoxDescriptorPtr::dynamicCast(testApp.servers[0].descriptor);	
-// 	newProps = icebox->services[0].descriptor->properties;
-// 	for(PropertyDescriptorSeq::const_iterator p = newProps.begin(); p != newProps.end(); ++p)
-// 	{
-// 	    if(p->name == "ApplicationVar")
-// 	    {
-// 		test(p->value == "nodeoverride");
-// 	    }
-// 	    else if(p->name == "NodeVar")
-// 	    {
-// 		test(p->value == "serveroverride");
-// 	    }
-// 	    else if(p->name == "ServerVar")
-// 	    {
-// 		test(p->value == "serviceoverride");
-// 	    }
-// 	    else if(p->name == "ServiceVar")
-// 	    {
-// 		test(p->value == "ServiceValue");
-// 	    }
-// 	    else if(p->name == "ServerParamVar")
-// 	    {
-// 		test(p->value == "ServerParamValue");
-// 	    }
-// 	    else if(p->name == "ServiceParamVar")
-// 	    {
-// 		test(p->value == "ServiceParamValue");
-// 	    }
-// 	    else
-// 	    {
-// 		test(false);
-// 	    }
-// 	}
-// 	admin->removeApplication("TestApp");
-// 	cout << "ok" << endl;
-//     }
+	serverAfter = admin->getServerInfo("Server");
+	PropertyDescriptorSeq newProps = serverAfter.descriptor->properties;
+	for(PropertyDescriptorSeq::const_iterator p = newProps.begin(); p != newProps.end(); ++p)
+	{
+	    if(p->name == "ApplicationVar")
+	    {
+		test(p->value == "nodeoverride");
+	    }
+	    else if(p->name == "NodeVar")
+	    {
+		test(p->value == "NodeValue");
+	    }	    
+	    else if(p->name == "ServerParamVar")
+	    {
+		test(p->value == "ServerParamValue");
+	    }
+	    else
+	    {
+		test(false);
+	    }
+	}
+	admin->removeApplication("TestApp");
+	cout << "ok" << endl;
+    }
 
-//     {
-// 	cout << "testing comment update... " << flush;
+    {
+	cout << "testing description update... " << flush;
 
-// 	ApplicationDescriptor testApp;
-// 	testApp.name = "TestApp";
-// 	testApp.comment = "Comment";
-// 	try
-// 	{
-// 	    admin->addApplication(testApp);
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
-// 	testApp = admin->getApplicationDescriptor("TestApp");
-// 	test(testApp.comment == "Comment");
+	ApplicationDescriptor testApp;
+	testApp.name = "TestApp";
+	testApp.description = "Description";
+	try
+	{
+	    admin->addApplication(testApp);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	testApp = admin->getApplicationDescriptor("TestApp");
+	test(testApp.description == "Description");
 	
-// 	ApplicationUpdateDescriptor update;
-// 	update.name = "TestApp";
-// 	try
-// 	{
-// 	    admin->updateApplication(update);
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
-// 	testApp = admin->getApplicationDescriptor("TestApp");
-// 	test(testApp.comment == "Comment");
+	ApplicationUpdateDescriptor update;
+	update.name = "TestApp";
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	testApp = admin->getApplicationDescriptor("TestApp");
+	test(testApp.description == "Description");
 
-// 	update.comment = new BoxedComment("updatedComment");
-// 	try
-// 	{
-// 	    admin->updateApplication(update);
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
-// 	testApp = admin->getApplicationDescriptor("TestApp");
-// 	test(testApp.comment == "updatedComment");
+	update.description = new BoxedDescription("updatedDescription");
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	testApp = admin->getApplicationDescriptor("TestApp");
+	test(testApp.description == "updatedDescription");
 	    
-// 	update.comment = new BoxedComment("");
-// 	try
-// 	{
-// 	    admin->updateApplication(update);
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
-// 	testApp = admin->getApplicationDescriptor("TestApp");
-// 	test(testApp.comment == "");
+	update.description = new BoxedDescription("");
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	testApp = admin->getApplicationDescriptor("TestApp");
+	test(testApp.description == "");
 
-// 	admin->removeApplication("TestApp");
+	admin->removeApplication("TestApp");
 	
-// 	cout << "ok" << endl;
-//     }
+	cout << "ok" << endl;
+    }
 
-//     {
-// 	cout << "testing server node move... " << flush;
+    {
+	cout << "testing server node move... " << flush;
 	
-// 	ApplicationDescriptor nodeApp;
-// 	nodeApp.name = "NodeApp";
+	ApplicationDescriptor nodeApp;
+	nodeApp.name = "NodeApp";
 
-// 	ServerDescriptorPtr server = new ServerDescriptor();
-// 	server->id = "node-${index}";
-// 	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
-// 	AdapterDescriptor adapter;
-// 	adapter.name = "IceGrid.Node";
-// 	adapter.endpoints = "default";
-// 	adapter.id = "IceGrid.Node.node-${index}";
-// 	adapter.registerProcess = true;
-// 	adapter.waitForActivation = false;
-// 	server->adapters.push_back(adapter);
-// 	PropertyDescriptor prop;
-// 	prop.name = "IceGrid.Node.Name";
-// 	prop.value = "node-${index}";
-// 	server->properties.push_back(prop);
-// 	prop.name = "IceGrid.Node.Data";
-// 	prop.value = properties->getProperty("TestDir") + "/db/node-${index}";
-// 	server->properties.push_back(prop);
-// 	prop.name = "IceGrid.Node.PropertiesOverride";
-// 	prop.value = "Ice.Default.Host=127.0.0.1";
-// 	server->properties.push_back(prop);
-// 	nodeApp.serverTemplates["nodeTemplate"].descriptor = server;
-// 	nodeApp.serverTemplates["nodeTemplate"].parameters.push_back("index");
+	ServerDescriptorPtr server = new ServerDescriptor();
+	server->id = "node-${index}";
+	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
+	AdapterDescriptor adapter;
+	adapter.name = "IceGrid.Node";
+	adapter.id = "IceGrid.Node.node-${index}";
+	adapter.registerProcess = true;
+	adapter.waitForActivation = false;
+	server->adapters.push_back(adapter);
+	PropertyDescriptor prop;
+	prop.name = "IceGrid.Node.Name";
+	prop.value = "node-${index}";
+	server->properties.push_back(prop);
+	prop.name = "IceGrid.Node.Data";
+	prop.value = properties->getProperty("TestDir") + "/db/node-${index}";
+	server->properties.push_back(prop);
+	prop.name = "IceGrid.Node.Endpoints";
+	prop.value = "default";
+	server->properties.push_back(prop);
+	prop.name = "IceGrid.Node.PropertiesOverride";
+	prop.value = "Ice.Default.Host=127.0.0.1";
+	server->properties.push_back(prop);
+	nodeApp.serverTemplates["nodeTemplate"].descriptor = server;
+	nodeApp.serverTemplates["nodeTemplate"].parameters.push_back("index");
 
-// 	ServerInstanceDescriptor instance;
-// 	instance.node = "localnode";
-// 	instance._cpp_template = "nodeTemplate";
+	ServerInstanceDescriptor instance;
+	instance._cpp_template = "nodeTemplate";
+	instance.parameterValues["index"] = "1";
+	nodeApp.nodes["localnode"].serverInstances.push_back(instance);
+	instance.parameterValues["index"] = "2";
+	nodeApp.nodes["localnode"].serverInstances.push_back(instance);
 
-// 	instance.parameterValues["index"] = "1";
-// 	nodeApp.servers.push_back(instance);
+	try
+	{
+	    admin->addApplication(nodeApp);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 
-// 	instance.parameterValues["index"] = "2";
-// 	nodeApp.servers.push_back(instance);
+	admin->startServer("node-1");
+	admin->startServer("node-2");
+	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(3));
+	test(admin->pingNode("node-1"));
+	test(admin->pingNode("node-2"));
+
+	ApplicationDescriptor testApp;
+	testApp.name = "TestApp";
+	server = new ServerDescriptor();
+	server->id = "Server";
+	server->exe = properties->getProperty("TestDir") + "/server";
+ 	adapter.name = "Server";
+	adapter.id = "ServerAdapter";
+	adapter.registerProcess = true;
+	adapter.waitForActivation = true;
+	server->adapters.push_back(adapter);
+	prop.name = "Server.Endpoints";
+	prop.value = "default";
+	server->properties.push_back(prop);
+	testApp.nodes["node-1"].servers.push_back(server);
+
+	admin->addApplication(testApp);
+	try
+	{
+	    admin->startServer("Server");
+	    test(admin->getServerState("Server") == Active);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 	
-// 	try
-// 	{
-// 	    admin->addApplication(nodeApp);
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
-
-// 	admin->startServer("node-1");
-// 	admin->startServer("node-2");
-// 	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(3));
-// 	test(admin->pingNode("node-1"));
-// 	test(admin->pingNode("node-2"));
-
-// 	ApplicationDescriptor testApp;
-// 	testApp.name = "TestApp";
-// 	instance = ServerInstanceDescriptor();
-// 	instance.node = "node-1";
-// 	instance.descriptor = new ServerDescriptor();
-// 	instance.descriptor->id = "Server";
-// 	instance.descriptor->exe = properties->getProperty("TestDir") + "/server";
-//  	adapter.name = "Server";
-// 	adapter.endpoints = "default";
-// 	adapter.id = "ServerAdapter";
-// 	adapter.registerProcess = true;
-// 	adapter.waitForActivation = true;
-// 	instance.descriptor->adapters.push_back(adapter);
-// 	testApp.servers.push_back(instance);
-
-// 	admin->addApplication(testApp);
-// 	try
-// 	{
-// 	    admin->startServer("Server");
-// 	    test(admin->getServerState("Server") == Active);
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
+	ApplicationUpdateDescriptor update;
+	update.name = "TestApp";
 	
-// 	ApplicationUpdateDescriptor update;
-// 	update.name = "TestApp";
-// 	instance.node = "node-2";	
-// 	update.nodes[0].serverInstances.push_back(instance);
-// 	admin->updateApplication(update);	
-// 	test(admin->getServerState("Server") == Inactive);
+	NodeUpdateDescriptor nodeUpdate;
+	nodeUpdate.name = "node-1";
+	nodeUpdate.removeServers.push_back("Server");
+	update.nodes.push_back(nodeUpdate);
+	nodeUpdate.name = "node-2";
+	nodeUpdate.servers.push_back(server);
+	update.nodes.push_back(nodeUpdate);
 
-// 	admin->startServer("Server");
-// 	test(admin->getServerState("Server") == Active);
-// 	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+	admin->updateApplication(update);	
+	test(admin->getServerInfo("Server").node == "node-2" && admin->getServerState("Server") == Inactive);
 
-// 	update = ApplicationUpdateDescriptor();
-// 	update.name = "TestApp";
-// 	instance.node = "anUnknownNode";
-// 	update.nodes[0].serverInstances.push_back(instance);
-// 	admin->updateApplication(update);	
-// 	try
-// 	{
-// 	    admin->getServerState("Server");
-// 	    test(false);
-// 	}
-// 	catch(const NodeUnreachableException&)
-// 	{
-// 	}
+	admin->startServer("Server");
+	test(admin->getServerState("Server") == Active);
+	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
 
-// 	admin->removeApplication("TestApp");
+	update = ApplicationUpdateDescriptor();
+	update.name = "TestApp";
+	nodeUpdate = NodeUpdateDescriptor();
+	nodeUpdate.name = "node-2";
+	nodeUpdate.removeServers.push_back("Server");
+	update.nodes.push_back(nodeUpdate);
+	nodeUpdate = NodeUpdateDescriptor();
+	nodeUpdate.name = "unknownNode";
+	nodeUpdate.servers.push_back(server);
+	update.nodes.push_back(nodeUpdate);
 
-// 	admin->stopServer("node-1");
-// 	admin->stopServer("node-2");
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    cerr << ex.reason << endl;
+	    test(false);
+	}
 
-// 	try
-// 	{
-// 	    admin->removeApplication("NodeApp");
-// 	}
-// 	catch(const Ice::Exception& ex)
-// 	{
-// 	    cerr << ex << endl;
-// 	    test(false);
-// 	}
+	try
+	{
+	    admin->getServerState("Server");
+	    test(false);
+	}
+	catch(const NodeUnreachableException&)
+	{
+	}
 
-// 	cout << "ok" << endl;
-//     }
+	admin->removeApplication("TestApp");
+
+	admin->stopServer("node-1");
+	admin->stopServer("node-2");
+
+	try
+	{
+	    admin->removeApplication("NodeApp");
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+
+	cout << "ok" << endl;
+    }
 }

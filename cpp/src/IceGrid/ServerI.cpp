@@ -607,6 +607,7 @@ ServerI::checkActivation()
 		return;
 	    }
 	}
+
 	setStateNoSync(ServerI::Active);
 	notifyAll();
     }

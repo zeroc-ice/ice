@@ -172,6 +172,11 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
 	    Ice::Warning warn(_traceLevels->logger);
 	    warn << "invalid application `" << p->first << "':\n" << reason;
 	}
+	catch(const char* reason)
+	{
+	    Ice::Warning warn(_traceLevels->logger);
+	    warn << "invalid application `" << p->first << "':\n" << reason;
+	}
     }
 }
 
@@ -346,6 +351,12 @@ Database::updateApplicationDescriptor(ObserverSessionI* session, const Applicati
 	    ex.reason = reason;
 	    throw ex;
 	}
+	catch(const char* reason)
+	{
+	    DeploymentException ex;
+	    ex.reason = reason;
+	    throw ex;
+	}
 
 	serial = ++_serial;
     }    
@@ -400,6 +411,12 @@ Database::syncApplicationDescriptor(ObserverSessionI* session, const Application
 	    ex.reason = reason;
 	    throw ex;
 	}
+	catch(const char* reason)
+	{
+	    DeploymentException ex;
+	    ex.reason = reason;
+	    throw ex;
+	}
 
 	serial = ++_serial;
     }
@@ -441,6 +458,12 @@ Database::removeApplicationDescriptor(ObserverSessionI* session, const std::stri
 	    _descriptors.erase(p);
 	}
 	catch(const string& reason)
+	{
+	    DeploymentException ex;
+	    ex.reason = reason;
+	    throw ex;
+	}
+	catch(const char* reason)
 	{
 	    DeploymentException ex;
 	    ex.reason = reason;
@@ -1074,7 +1097,8 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
 	{
 	    load.push_back(p->second);
 	} 
-	else if(ServerHelper(p->second.descriptor) != ServerHelper(q->second.descriptor))
+	else if(p->second.node != q->second.node ||
+		ServerHelper(p->second.descriptor) != ServerHelper(q->second.descriptor))
 	{
 	    entries.push_back(_serverCache.remove(p->first, false)); // Don't destroy the server if it was updated.
 	    load.push_back(p->second);

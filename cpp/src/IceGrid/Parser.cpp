@@ -254,9 +254,6 @@ Parser::diffApplication(const list<string>& args)
 	return;
     }
 
-    ApplicationDescriptor newApp;
-    ApplicationDescriptor origApp;
-
     try
     {
 	StringSeq targets;
@@ -278,8 +275,15 @@ Parser::diffApplication(const list<string>& args)
 	    }
 	}
 
-	newApp = DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator);
-	origApp = _admin->getApplicationDescriptor(newApp.name);
+	ApplicationDescriptor newApp = DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator);
+	ApplicationDescriptor origApp = _admin->getApplicationDescriptor(newApp.name);
+
+	ApplicationHelper newAppHelper(newApp);
+	ApplicationHelper oldAppHelper(origApp);
+	
+	Output out(cout);
+	newAppHelper.printDiff(out, oldAppHelper);
+	out << nl;  
     }
     catch(const DeploymentException& ex)
     {
@@ -295,13 +299,6 @@ Parser::diffApplication(const list<string>& args)
 	error(s.str());
 	return;
     }
-
-    ApplicationHelper newAppHelper(newApp);
-    ApplicationHelper oldAppHelper(origApp);
-
-    Output out(cout);
-    newAppHelper.printDiff(out, oldAppHelper);
-    out << nl;
 }
 
 void
