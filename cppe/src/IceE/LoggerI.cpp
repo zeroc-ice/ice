@@ -57,12 +57,12 @@ void
 Ice::LoggerI::warning(const string& message)
 {
     IceUtil::Mutex::Lock sync(_globalMutex);
-    fprintf(stderr, "%s warning: %s\n", _prefix.c_str(), message.c_str());
+    fprintf(stderr, "%swarning: %s\n", _prefix.c_str(), message.c_str());
 }
 
 void
 Ice::LoggerI::error(const string& message)
 {
     IceUtil::Mutex::Lock sync(_globalMutex);
-    fprintf(stderr, "%s error: %s\n", _prefix.c_str(), message.c_str());
+    fprintf(stderr, "%serror: %s\n", _prefix.c_str(), message.c_str());
 }
