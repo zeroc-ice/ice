@@ -754,7 +754,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	adapter.registerProcess = true;
 	adapter.waitForActivation = true;
 	server->adapters.push_back(adapter);
-	prop.name = "ServerAdapter.Endpoints";
+	prop.name = "Server.Endpoints";
 	prop.value = "default";
 	server->properties.push_back(prop);
 	node = NodeDescriptor();
