@@ -69,7 +69,7 @@
         <mkdir dir="./tmp"/>
 	<manifest file="MANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
-	    <attribute name="MIDlet-Name" value="Test Driver"/>
+	    <attribute name="MIDlet-Name" value="TestDriver"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
             <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
 	    <attribute name="MIDlet-Version" value="1.0"/>
@@ -96,7 +96,7 @@
         <mkdir dir="./tmp"/>
 	<manifest file="MANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
-	    <attribute name="MIDlet-Name" value="Test Driver"/>
+	    <attribute name="MIDlet-Name" value="TestDriver"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
             <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
 	    <attribute name="MIDlet-Version" value="1.0"/>
@@ -128,7 +128,7 @@
 	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
 	    <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
 	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
-	    <attribute name="MIDlet-Name" value="TestServer"/>
+	    <attribute name="MIDlet-Name" value="TestDriver"/>
 	    <attribute name="runclient" value="true"/>
 	    <attribute name="runserver" value="false"/>
 	    <attribute name="MIDlet-Permissions" 
@@ -146,7 +146,7 @@
 	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
 	    <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
 	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
-	    <attribute name="MIDlet-Name" value="TestServer"/>
+	    <attribute name="MIDlet-Name" value="TestDriver"/>
 	    <attribute name="runclient" value="false"/>
 	    <attribute name="runserver" value="true"/>
 	    <attribute name="MIDlet-Permissions" 
