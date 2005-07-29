@@ -200,7 +200,7 @@ public:
     updateServer(const string& node, const ServerDynamicInfo& info, const Ice::Current& current)
     {
 	Lock sync(*this);
-	cerr << node << " " << info.name << " " << info.state << " " << info.pid << endl;
+//	cerr << node << " " << info.name << " " << info.state << " " << info.pid << endl;
 	ServerDynamicInfoSeq& servers = this->nodes[node].servers;
 	ServerDynamicInfoSeq::iterator p;
 	for(p = servers.begin(); p != servers.end(); ++p)
