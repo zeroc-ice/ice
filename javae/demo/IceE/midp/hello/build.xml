@@ -47,7 +47,7 @@
 	<copy overwrite="true" file="config" todir="./classes"/>
 	      
 	<manifest file="MANIFEST.MF">
-	    <attribute name="Microedition-Configuration" value="CLDC-1.0"/>
+	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
 	    <attribute name="MIDlet-Name" value="ClientMIDlet"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
             <attribute name="MIDlet-1" value="ClientMIDlet, ,ClientMIDlet"/>
