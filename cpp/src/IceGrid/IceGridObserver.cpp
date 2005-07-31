@@ -81,9 +81,9 @@ public:
     }
 
     virtual void
-    applicationAdded(int serial, const ApplicationDescriptorPtr& app, const Ice::Current&)
+    applicationAdded(int serial, const ApplicationDescriptor& app, const Ice::Current&)
     {
-	cout << "application `" << app->name << "' added (serial = " << serial << ")" << endl;
+	cout << "application `" << app.name << "' added (serial = " << serial << ")" << endl;
     }
 
     virtual void 

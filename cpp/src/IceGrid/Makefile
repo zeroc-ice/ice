@@ -95,6 +95,7 @@ SRCS		= $(LIB_OBJS:.o=.cpp) \
 		  $(COMMON_OBJS:.o=.cpp) \
 		  $(NODE_OBJS:.o=.cpp) \
 		  $(REGISTRY_OBJS:.o=.cpp) \
+	 	  $(OBSERVER_OBJS:.o=.cpp) \
 		  IceGridNode.cpp \
 		  IceGridRegistry.cpp
 
