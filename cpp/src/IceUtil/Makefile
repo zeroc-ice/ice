@@ -39,14 +39,6 @@ OBJS		= Base64.o \
 SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
-ifeq ($(USE_SPARC_ASM),yes)
-ASRC            =       IceAtomic.c
-AOBJ            =       IceAtomic.o
-SRCS            :=      $(SRCS) $(ASRC)
-OBJS            :=      $(OBJS) $(AOBJ)
-CFLAGS          :=      $(CFLAGS) -fomit-frame-pointer
-endif
-
 
 CPPFLAGS        := $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I..
 
