@@ -73,7 +73,7 @@ public final class Current
 	    {
 		return false;
 	    }
-	    if(ctx != _r.ctx && ctx != null && !ctx.equals(_r.ctx))
+	    if(ctx != _r.ctx && ctx != null && !IceUtil.Hashtable.equals(ctx, _r.ctx))
 	    {
 		return false;
 	    }

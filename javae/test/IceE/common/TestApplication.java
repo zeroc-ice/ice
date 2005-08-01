@@ -147,6 +147,27 @@ public class TestApplication
 	}
     }
 
+    class ShutdownTask 
+	implements Runnable
+    {
+	public void
+	run()
+	{
+	    if(_client != null)
+	    {
+		_client.shutdown();
+	    }
+	    if(_server != null)
+	    {
+		_server.shutdown();
+	    }
+	    if(_colloc != null)
+	    {
+		_colloc.shutdown();
+	    }
+	}
+    }
+
     //
     // Break a space delimited string into individual tokens.
     // 
@@ -284,22 +305,7 @@ public class TestApplication
     destroyApp(boolean unconditional)
 	throws javax.microedition.midlet.MIDletStateChangeException
     {
-	//
-	// The test wrapper will not destroy properly because it does not have direct access to the wrapped test
-	// driver's communicators.
-	//
-	if(_client != null)
-	{
-	    _client.shutdown();
-	}
-	if(_server != null)
-	{
-	    _server.shutdown();
-	}
-	if(_colloc != null)
-	{
-	    _colloc.shutdown();
-	}
+	new Thread(new ShutdownTask()).start();
     }
 
     public void
@@ -316,7 +322,6 @@ public class TestApplication
 		}
 		catch(javax.microedition.midlet.MIDletStateChangeException ex)
 		{
-
 		}
 	    }
 	    else if(cmd == CMD_STARTCLIENT)

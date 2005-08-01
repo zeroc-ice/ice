@@ -156,7 +156,7 @@ class Twoways
             test(rso.p == null);
             test(rso.e == Test.MyEnum.enum2);
             test(rso.s.s.equals("def"));
-            test(so.value.p.equals(p));
+            test(so.value.p.equals(p)); // XXX
             test(so.value.e == Test.MyEnum.enum3);
             test(so.value.s.s.equals("a new string"));
             so.value.p.opVoid();
