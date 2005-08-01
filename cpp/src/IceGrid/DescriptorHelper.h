@@ -25,10 +25,11 @@ public:
     Resolver(const ApplicationHelper&, const std::string&, const std::map<std::string, std::string>&);
     Resolver(const Resolver&, const std::map<std::string, std::string>&, bool);
 
-    std::string operator()(const std::string&, const std::string& = std::string()) const;
+    std::string operator()(const std::string&, const std::string& = std::string(), bool = true) const;
     std::string asInt(const std::string&, const std::string& = std::string()) const;
     void setReserved(const std::string&, const std::string&);
     void setContext(const std::string&);
+    void exception(const std::string&) const;
 
     TemplateDescriptor getServerTemplate(const std::string&) const;
     TemplateDescriptor getServiceTemplate(const std::string&) const;

@@ -219,9 +219,7 @@ Resolver::Resolver(const ApplicationHelper& app, const string& name, const map<s
     {
 	if(_reserved.find(p->first) != _reserved.end())
 	{
-	    DeploymentException ex;
-	    ex.reason = "invalid variable `" + p->first + "' in " + _context + ":\nreserved variable name";
-	    throw ex;
+	    exception("invalid variable `" + p->first + "': reserved variable name");
 	}
     }
 }
@@ -239,9 +237,7 @@ Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, b
 	{
 	    if(_reserved.find(p->first) != _reserved.end())
 	    {
-		DeploymentException ex;
-		ex.reason = "invalid parameter `" + p->first + "' in " + _context + ":\nreserved variable name";
-		throw ex;
+		exception("invalid parameter `" + p->first + ": reserved variable name");
 	    }
 	}
     }
@@ -254,9 +250,7 @@ Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, b
 	    //
 	    if(_reserved.find(p->first) != _reserved.end())
 	    {
-		DeploymentException ex;
-		ex.reason = "invalid variable `" + p->first + "' in " + _context + ":\nreserved variable name";
-		throw ex;
+		exception("invalid variable `" + p->first + ": reserved variable name");
 	    }
 	    _variables[p->first] = p->second;
 	}
@@ -264,18 +258,26 @@ Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, b
 }
 
 string 
-Resolver::operator()(const string& value, const string& name) const
+Resolver::operator()(const string& value, const string& name, const bool allowEmpty) const
 {
     try
     {
-	return substitute(value, true);
+	string val = substitute(value, true);
+	if(!allowEmpty && val.empty())
+	{
+	    throw "empty value";
+	}
+	return val;
     }
-    catch(const DeploymentException& e)
+    catch(const string& reason)
     {
-	DeploymentException ex;
-	ex.reason = "invalid value `" + value + "' for `" + name + "' in " + _context + ":\n" + e.reason;
-	throw ex;
+	exception("invalid value `" + value + "' for " + name + ": " + reason);
     }
+    catch(const char* reason)
+    {
+	exception("invalid value `" + value + "' for " + name + ": " + reason);
+    }
+    return ""; // To prevent compiler warning.
 }
 
 string
@@ -288,7 +290,7 @@ Resolver::asInt(const string& value, const string& name) const
 	if(!(istringstream(v) >> val))
 	{
 	    DeploymentException ex;
-	    ex.reason = "invalid value `" + value + "' for `" + name + "' in " + _context + ":\nnot an integer";
+	    ex.reason = "invalid value `" + value + "' for `" + name + "' in " + _context + ": not an integer";
 	    throw ex;
 	}
     }
@@ -305,7 +307,26 @@ Resolver::setReserved(const string& name, const string& value)
 void
 Resolver::setContext(const string& context)
 {
-    _context = substitute(context, true);
+    try
+    {
+	_context = substitute(context, true);
+    }
+    catch(const string& reason)
+    {
+	exception(reason);
+    }
+    catch(const char* reason)
+    {
+	exception(reason);
+    }
+}
+
+void
+Resolver::exception(const string& reason) const
+{
+    DeploymentException ex;
+    ex.reason = "invalid " + _context + ": " + reason;
+    throw ex;
 }
 
 TemplateDescriptor
@@ -353,9 +374,7 @@ Resolver::substitute(const string& v, bool first) const
 	
 	if(end == string::npos)
 	{
-	    DeploymentException ex;
-	    ex.reason = "malformed variable name in the value `" + value + "'";
-	    throw ex;
+	    throw "malformed variable name";
 	}
 
 	//
@@ -369,12 +388,11 @@ Resolver::substitute(const string& v, bool first) const
 	string val = getVariable(name, first, param);
 	if(!param)
 	{
-	    val = substitute(val); // Recursive resolution
+	    val = substitute(val, false); // Recursive resolution
 	}
 	value.replace(beg, end - beg + 1, val);
 	beg += val.length();
     }
-
     return value;
 }
 
@@ -392,9 +410,7 @@ Resolver::getVariable(const string& name, bool checkParams, bool& param) const
     {
 	if(p->second.empty())
 	{
-	    DeploymentException ex;
-	    ex.reason = "undefined variable `" + name + "'";
-	    throw ex;
+	    throw "undefined variable `" + name + "'";
 	}
 	return p->second;
     }
@@ -412,17 +428,13 @@ Resolver::getVariable(const string& name, bool checkParams, bool& param) const
     {
 	return p->second;
     }    
-    DeploymentException ex;
-    ex.reason = "undefined variable `" + name + "'";
-    throw ex;
+
+    throw "undefined variable `" + name + "'";
 }
 
 CommunicatorHelper::CommunicatorHelper(const CommunicatorDescriptorPtr& desc) : 
     _desc(desc)
 {
-    //
-    // TODO: Add validation
-    //
 }
 
 bool 
@@ -485,7 +497,7 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
     for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
     {
 	AdapterDescriptor adapter;
-	adapter.name = resolve(p->name, "object adapter name");
+	adapter.name = resolve(p->name, "object adapter name", false);
 	adapter.id = resolve(p->id, "object adapter id");
 	adapter.registerProcess = p->registerProcess;
 	adapter.waitForActivation = p->waitForActivation;
@@ -493,7 +505,7 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	{
 	    ObjectDescriptor obj;
 	    obj.type = resolve(q->type, "object type");
-	    obj.id.name = resolve(q->id.name, "object identity name");
+	    obj.id.name = resolve(q->id.name, "object identity name", false);
 	    obj.id.category = resolve(q->id.category, "object identity category");
 	    adapter.objects.push_back(obj);
 	}
@@ -509,12 +521,12 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
     for(DbEnvDescriptorSeq::const_iterator p = _desc->dbEnvs.begin(); p != _desc->dbEnvs.end(); ++p)
     {
 	DbEnvDescriptor dbEnv;
-	dbEnv.name = resolve(p->name, "database environment name");
+	dbEnv.name = resolve(p->name, "database environment name", false);
 	dbEnv.dbHome = resolve(p->dbHome, "database environment home directory");
 	for(PropertyDescriptorSeq::const_iterator q = p->properties.begin(); q != p->properties.end(); ++q)
 	{
 	    PropertyDescriptor prop;
-	    prop.name = resolve(q->name, "database environment property name");
+	    prop.name = resolve(q->name, "database environment property name", false);
 	    prop.value = resolve(q->value, "database environment property value");
 	    dbEnv.properties.push_back(prop);
 	}
@@ -665,8 +677,8 @@ void
 ServiceHelper::instantiateImpl(const ServiceDescriptorPtr& instance, const Resolver& resolve) const
 {
     CommunicatorHelper::instantiateImpl(instance, resolve);
-    instance->name = resolve(_desc->name, "name");
-    instance->entry = resolve(_desc->entry, "entry");
+    instance->name = resolve(_desc->name, "name", false);
+    instance->entry = resolve(_desc->entry, "entry", false);
 }
 
 void
@@ -683,16 +695,6 @@ ServerHelper::ServerHelper(const ServerDescriptorPtr& descriptor) :
     CommunicatorHelper(descriptor),
     _desc(descriptor)
 {
-    //
-    // TODO: Add validation
-    //
-
-    if(_desc->id.empty())
-    {
-	DeploymentException ex;
-	ex.reason = "invalid server descriptor: id is empty"; // TODO: Context?
-	throw ex;
-    }
 }
 
 bool 
@@ -759,15 +761,13 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance, const Resolve
 {
     CommunicatorHelper::instantiateImpl(instance, resolve);
 
-    instance->id = resolve(_desc->id, "id");
-    instance->exe = resolve(_desc->exe, "executable");
+    instance->id = resolve(_desc->id, "id", false);
+    instance->exe = resolve(_desc->exe, "executable", false);
     instance->pwd = resolve(_desc->pwd, "working directory path");
     instance->activation = resolve(_desc->activation, "activation");
     if(!instance->activation.empty() && instance->activation != "manual" && instance->activation != "on-demand")
     {
-	DeploymentException ex;
-	ex.reason = "invalid server `" + instance->id + "': unknown activation `" + instance->activation + "'";
-	throw ex;
+	resolve.exception("unknown activation `" + instance->activation + "'");
     }
     instance->activationTimeout = resolve.asInt(_desc->activationTimeout, "activation timeout");
     instance->deactivationTimeout = resolve.asInt(_desc->deactivationTimeout, "deactivation timeout");
@@ -957,7 +957,7 @@ InstanceHelper::instantiateParams(const Resolver& resolve, const string& tmpl, c
 	{
 	    unknown.insert(p->first);
 	}
-	params.insert(make_pair(p->first, resolve(p->second, "parameter")));
+	params.insert(make_pair(p->first, resolve(p->second, "parameter `" + p->first + "'")));
     }
     if(!unknown.empty())
     {
@@ -1010,7 +1010,7 @@ ServiceInstanceHelper::ServiceInstanceHelper(const ServiceInstanceDescriptor& de
     _definition = ServiceHelper(def);
 
     Resolver svcResolve(resolve, params, true);
-    svcResolve.setReserved("service", svcResolve(def->name, "service name"));
+    svcResolve.setReserved("service", svcResolve(def->name, "service name", false));
     svcResolve.setContext("service `${service}' from server `${server}'");
     _instance = ServiceHelper(_definition.instantiate(svcResolve));
 }
@@ -1019,10 +1019,6 @@ ServiceInstanceHelper::ServiceInstanceHelper(const ServiceInstanceDescriptor& de
     _template(desc._cpp_template), 
     _parameters(desc.parameterValues)
 {
-    //
-    // TODO: Add validation
-    //
-
     if(_template.empty())
     {
 	//
@@ -1174,7 +1170,7 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
     }
 
     Resolver svrResolve(resolve, params, true);
-    svrResolve.setReserved("server", svrResolve(def->id, "server name"));
+    svrResolve.setReserved("server", svrResolve(def->id, "server id", false));
     svrResolve.setContext("server `${server}'");
     if(iceBox)
     {
@@ -1246,6 +1242,11 @@ NodeHelper::NodeHelper(const string& name, const NodeDescriptor& descriptor, con
     _name(name),
     _desc(descriptor)
 {
+    if(_name.empty())
+    {
+	appResolve.exception("invalid node: empty name");
+    }
+
     Resolver resolve(appResolve, _desc.variables, false);
     resolve.setReserved("node", _name);
     resolve.setContext("node `" + _name + "'");
@@ -1581,6 +1582,11 @@ NodeHelper::validate()
 ApplicationHelper::ApplicationHelper(const ApplicationDescriptor& desc) :
     _desc(desc)
 {
+    if(_desc.name.empty())
+    {
+	throw "invalid application: empty name";
+    }
+
     Resolver resolve(*this, _desc.name, desc.variables);
     for(NodeDescriptorDict::const_iterator p = _desc.nodes.begin(); p != _desc.nodes.end(); ++p)
     {
