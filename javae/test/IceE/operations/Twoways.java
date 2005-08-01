@@ -156,7 +156,7 @@ class Twoways
             test(rso.p == null);
             test(rso.e == Test.MyEnum.enum2);
             test(rso.s.s.equals("def"));
-            test(so.value.p.equals(p)); // XXX
+            test(so.value.p.equals(p)); 
             test(so.value.e == Test.MyEnum.enum3);
             test(so.value.s.s.equals("a new string"));
             so.value.p.opVoid();
@@ -490,7 +490,7 @@ class Twoways
             Test.ByteBoolDHolder _do = new Test.ByteBoolDHolder();
             java.util.Hashtable ro = p.opByteBoolD(di1, di2, _do);
 
-            test(_do.value.equals(di1));
+            test(IceUtil.Hashtable.equals(_do.value, di1));
             test(ro.size() == 4);
             test(((Boolean)ro.get(new Byte((byte)10))).booleanValue() == true);
             test(((Boolean)ro.get(new Byte((byte)11))).booleanValue() == false);
@@ -510,7 +510,7 @@ class Twoways
             Test.ShortIntDHolder _do = new Test.ShortIntDHolder();
             java.util.Hashtable ro = p.opShortIntD(di1, di2, _do);
 
-            test(_do.value.equals(di1));
+            test(IceUtil.Hashtable.equals(_do.value, di1));
             test(ro.size() == 4);
             test(((Integer)ro.get(new Short((short)110))).intValue() == -1);
             test(((Integer)ro.get(new Short((short)111))).intValue() == -100);
@@ -530,7 +530,7 @@ class Twoways
             Test.LongFloatDHolder _do = new Test.LongFloatDHolder();
             java.util.Hashtable ro = p.opLongFloatD(di1, di2, _do);
 
-            test(_do.value.equals(di1));
+            test(IceUtil.Hashtable.equals(_do.value, di1));
             test(ro.size() == 4);
             test(((Float)ro.get(new Long(999999110L))).floatValue() == -1.1f);
             test(((Float)ro.get(new Long(999999120L))).floatValue() == -100.4f);
@@ -550,7 +550,7 @@ class Twoways
             Test.StringStringDHolder _do = new Test.StringStringDHolder();
             java.util.Hashtable ro = p.opStringStringD(di1, di2, _do);
 
-            test(_do.value.equals(di1));
+            test(IceUtil.Hashtable.equals(_do.value, di1));
             test(ro.size() == 4);
             test(((String)ro.get("foo")).equals("abc -1.1"));
             test(((String)ro.get("FOO")).equals("abc -100.4"));
@@ -570,7 +570,7 @@ class Twoways
             Test.StringMyEnumDHolder _do = new Test.StringMyEnumDHolder();
             java.util.Hashtable ro = p.opStringMyEnumD(di1, di2, _do);
 
-            test(_do.value.equals(di1));
+            test(IceUtil.Hashtable.equals(_do.value, di1));
             test(ro.size() == 4);
             test(((Test.MyEnum)ro.get("abc")) == Test.MyEnum.enum1);
             test(((Test.MyEnum)ro.get("qwerty")) == Test.MyEnum.enum3);
@@ -605,20 +605,20 @@ class Twoways
 	    {
 		test(p.ice_getContext().isEmpty());
 		java.util.Hashtable r = p.opContext();
-		test(!r.equals(ctx));
+		test(!IceUtil.Hashtable.equals(r, ctx));
 	    }
 	    {
 		java.util.Hashtable r = p.opContext(ctx);
 		test(p.ice_getContext().isEmpty());
-		test(r.equals(ctx));
+		test(IceUtil.Hashtable.equals(r, ctx));
 	    }
 	    {
 		Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_newContext(ctx));
-		test(p2.ice_getContext().equals(ctx));
+		test(IceUtil.Hashtable.equals(p2.ice_getContext(), ctx));
 		java.util.Hashtable r = p2.opContext();
-		test(r.equals(ctx));
+		test(IceUtil.Hashtable.equals(r, ctx));
 		r = p2.opContext(ctx);
-		test(r.equals(ctx));
+		test(IceUtil.Hashtable.equals(r, ctx));
 	    }
 	    {
 		//
@@ -627,13 +627,13 @@ class Twoways
 		java.util.Hashtable dflt = new java.util.Hashtable();
 		dflt.put("a", "b");
 		communicator.setDefaultContext(dflt);
-		test(p.opContext().equals(dflt));
+		test(IceUtil.Hashtable.equals(p.opContext(), dflt));
 
 		Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_newContext(new java.util.Hashtable()));
 		test(p2.opContext().isEmpty());
 
 		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
-		test(p2.opContext().equals(dflt));
+		test(IceUtil.Hashtable.equals(p2.opContext(), dflt));
 
 		communicator.setDefaultContext(new java.util.Hashtable());
 		test(p.opContext().isEmpty());
