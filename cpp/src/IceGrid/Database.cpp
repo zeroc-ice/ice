@@ -167,15 +167,10 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
 	{
 	    load(ApplicationHelper(p->second), entries);
 	}
-	catch(const string& reason)
+	catch(const DeploymentException& ex)
 	{
 	    Ice::Warning warn(_traceLevels->logger);
-	    warn << "invalid application `" << p->first << "':\n" << reason;
-	}
-	catch(const char* reason)
-	{
-	    Ice::Warning warn(_traceLevels->logger);
-	    warn << "invalid application `" << p->first << "':\n" << reason;
+	    warn << "invalid application `" << p->first << "':\n" << ex.reason;
 	}
     }
 }
@@ -263,39 +258,24 @@ Database::addApplicationDescriptor(ObserverSessionI* session, const ApplicationD
 	    throw ex;
 	}
 
-	try
-	{
-	    ApplicationHelper helper(desc);
-	    
-	    //
-	    // Ensure that the application servers, adapters and objects
-	    // aren't already registered.
-	    //
-	    checkForAddition(helper);
-	    
-	    //
-	    // Register the application servers, adapters, objects.
-	    //
-	    load(helper, entries);
-	    
-	    //
-	    // Save the application descriptor.
-	    //
-	    _descriptors.put(make_pair(desc.name, desc));
-	}
-	catch(const string& reason)
-	{
-	    DeploymentException ex;
-	    ex.reason = reason;
-	    throw ex;
-	}
-	catch(const char* reason)
-	{
-	    DeploymentException ex;
-	    ex.reason = reason;
-	    throw ex;
-	}
-
+	ApplicationHelper helper(desc);
+	
+	//
+	// Ensure that the application servers, adapters and objects
+	// aren't already registered.
+	//
+	checkForAddition(helper);
+	
+	//
+	// Register the application servers, adapters, objects.
+	//
+	load(helper, entries);
+	
+	//
+	// Save the application descriptor.
+	//
+	_descriptors.put(make_pair(desc.name, desc));
+	
 	serial = ++_serial;
     }
 
@@ -333,30 +313,15 @@ Database::updateApplicationDescriptor(ObserverSessionI* session, const Applicati
 	    throw ex;
 	}
 
-	try
-	{
-	    ApplicationHelper previous(p->second);
-	    ApplicationHelper helper(p->second);
-	    helper.update(update);
-	    
-	    checkForUpdate(previous, helper);
-	    
-	    reload(previous, helper, entries);
-	    
-	    _descriptors.put(make_pair(update.name, helper.getDescriptor()));
-	}
-	catch(const string& reason)
-	{
-	    DeploymentException ex;
-	    ex.reason = reason;
-	    throw ex;
-	}
-	catch(const char* reason)
-	{
-	    DeploymentException ex;
-	    ex.reason = reason;
-	    throw ex;
-	}
+	ApplicationHelper previous(p->second);
+	ApplicationHelper helper(p->second);
+	helper.update(update);
+	
+	checkForUpdate(previous, helper);
+	
+	reload(previous, helper, entries);
+	
+	_descriptors.put(make_pair(update.name, helper.getDescriptor()));
 
 	serial = ++_serial;
     }    
@@ -393,30 +358,15 @@ Database::syncApplicationDescriptor(ObserverSessionI* session, const Application
 	    throw ex;
 	}
 
-	try
-	{
-	    ApplicationHelper previous(p->second);
-	    ApplicationHelper helper(newDesc);
-	    update = helper.diff(previous);
-	    
-	    checkForUpdate(previous, helper);
-	    
-	    reload(previous, helper, entries);
-	    
-	    _descriptors.put(make_pair(newDesc.name, newDesc));
-	}
-	catch(const string& reason)
-	{
-	    DeploymentException ex;
-	    ex.reason = reason;
-	    throw ex;
-	}
-	catch(const char* reason)
-	{
-	    DeploymentException ex;
-	    ex.reason = reason;
-	    throw ex;
-	}
+	ApplicationHelper previous(p->second);
+	ApplicationHelper helper(newDesc);
+	update = helper.diff(previous);
+	
+	checkForUpdate(previous, helper);
+	
+	reload(previous, helper, entries);
+	
+	_descriptors.put(make_pair(newDesc.name, newDesc));
 
 	serial = ++_serial;
     }
@@ -450,25 +400,10 @@ Database::removeApplicationDescriptor(ObserverSessionI* session, const std::stri
 	    throw ApplicationNotExistException();
 	}
 	
-	try
-	{
-	    ApplicationHelper helper(p->second);
-	    unload(helper, entries);
-
-	    _descriptors.erase(p);
-	}
-	catch(const string& reason)
-	{
-	    DeploymentException ex;
-	    ex.reason = reason;
-	    throw ex;
-	}
-	catch(const char* reason)
-	{
-	    DeploymentException ex;
-	    ex.reason = reason;
-	    throw ex;
-	}
+	ApplicationHelper helper(p->second);
+	unload(helper, entries);
+	
+	_descriptors.erase(p);
 
 	serial = ++_serial;
     }

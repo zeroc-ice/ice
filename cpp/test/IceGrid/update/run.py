@@ -46,8 +46,11 @@ if not os.path.exists(node2Dir):
     os.mkdir(node2Dir)
 IceGridAdmin.cleanServerDir(node2Dir);
 
+nodeOverrideOptions = ' --NodePropertiesOverride="' + TestUtil.clientServerOptions.replace("--", "") + \
+	              ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0' + '"'
+
 print "starting client...",
-clientPipe = os.popen(client + TestUtil.clientServerOptions + additionalOptions + " 2>&1")
+clientPipe = os.popen(client + TestUtil.clientServerOptions + additionalOptions + nodeOverrideOptions + " 2>&1")
 print "ok"
 
 try:

@@ -728,10 +728,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	prop.value = "default";
 	server->properties.push_back(prop);
 	prop.name = "IceGrid.Node.PropertiesOverride";
-	prop.value = "Ice.Default.Host=127.0.0.1";
+	prop.value = properties->getProperty("NodePropertiesOverride");
 	server->properties.push_back(prop);
 	nodeApp.serverTemplates["nodeTemplate"].descriptor = server;
 	nodeApp.serverTemplates["nodeTemplate"].parameters.push_back("index");
+	server->properties.push_back(prop);
 
 	ServerInstanceDescriptor instance;
 	instance._cpp_template = "nodeTemplate";

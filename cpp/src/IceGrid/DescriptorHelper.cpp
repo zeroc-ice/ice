@@ -219,7 +219,9 @@ Resolver::Resolver(const ApplicationHelper& app, const string& name, const map<s
     {
 	if(_reserved.find(p->first) != _reserved.end())
 	{
-	    throw "invalid variable `" + p->first + "' in " + _context + ":\nreserved variable name";
+	    DeploymentException ex;
+	    ex.reason = "invalid variable `" + p->first + "' in " + _context + ":\nreserved variable name";
+	    throw ex;
 	}
     }
 }
@@ -237,7 +239,9 @@ Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, b
 	{
 	    if(_reserved.find(p->first) != _reserved.end())
 	    {
-		throw "invalid parameter `" + p->first + "' in " + _context + ":\nreserved variable name";
+		DeploymentException ex;
+		ex.reason = "invalid parameter `" + p->first + "' in " + _context + ":\nreserved variable name";
+		throw ex;
 	    }
 	}
     }
@@ -250,7 +254,9 @@ Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, b
 	    //
 	    if(_reserved.find(p->first) != _reserved.end())
 	    {
-		throw "invalid variable `" + p->first + "' in " + _context + ":\nreserved variable name";
+		DeploymentException ex;
+		ex.reason = "invalid variable `" + p->first + "' in " + _context + ":\nreserved variable name";
+		throw ex;
 	    }
 	    _variables[p->first] = p->second;
 	}
@@ -264,9 +270,11 @@ Resolver::operator()(const string& value, const string& name) const
     {
 	return substitute(value, true);
     }
-    catch(const string& msg)
+    catch(const DeploymentException& e)
     {
-	throw "invalid value `" + value + "' for `" + name + "' in " + _context + ":\n" + msg;
+	DeploymentException ex;
+	ex.reason = "invalid value `" + value + "' for `" + name + "' in " + _context + ":\n" + e.reason;
+	throw ex;
     }
 }
 
@@ -279,7 +287,9 @@ Resolver::asInt(const string& value, const string& name) const
 	int val;
 	if(!(istringstream(v) >> val))
 	{
-	    throw "invalid value `" + value + "' for `" + name + "' in " + _context + ":\nnot an integer";
+	    DeploymentException ex;
+	    ex.reason = "invalid value `" + value + "' for `" + name + "' in " + _context + ":\nnot an integer";
+	    throw ex;
 	}
     }
     return v;
@@ -343,7 +353,9 @@ Resolver::substitute(const string& v, bool first) const
 	
 	if(end == string::npos)
 	{
-	    throw "malformed variable name in the value `" + value + "'";
+	    DeploymentException ex;
+	    ex.reason = "malformed variable name in the value `" + value + "'";
+	    throw ex;
 	}
 
 	//
@@ -380,7 +392,9 @@ Resolver::getVariable(const string& name, bool checkParams, bool& param) const
     {
 	if(p->second.empty())
 	{
-	    throw "undefined variable `" + name + "'";
+	    DeploymentException ex;
+	    ex.reason = "undefined variable `" + name + "'";
+	    throw ex;
 	}
 	return p->second;
     }
@@ -398,7 +412,9 @@ Resolver::getVariable(const string& name, bool checkParams, bool& param) const
     {
 	return p->second;
     }    
-    throw "undefined variable `" + name + "'";
+    DeploymentException ex;
+    ex.reason = "undefined variable `" + name + "'";
+    throw ex;
 }
 
 CommunicatorHelper::CommunicatorHelper(const CommunicatorDescriptorPtr& desc) : 
@@ -673,7 +689,9 @@ ServerHelper::ServerHelper(const ServerDescriptorPtr& descriptor) :
 
     if(_desc->id.empty())
     {
-	throw "invalid server descriptor: id is empty"; // TODO: Context?
+	DeploymentException ex;
+	ex.reason = "invalid server descriptor: id is empty"; // TODO: Context?
+	throw ex;
     }
 }
 
@@ -747,7 +765,9 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance, const Resolve
     instance->activation = resolve(_desc->activation, "activation");
     if(!instance->activation.empty() && instance->activation != "manual" && instance->activation != "on-demand")
     {
-	throw "invalid server `" + instance->id + "': unknown activation `" + instance->activation + "'";
+	DeploymentException ex;
+	ex.reason = "invalid server `" + instance->id + "': unknown activation `" + instance->activation + "'";
+	throw ex;
     }
     instance->activationTimeout = resolve.asInt(_desc->activationTimeout, "activation timeout");
     instance->deactivationTimeout = resolve.asInt(_desc->deactivationTimeout, "deactivation timeout");
@@ -944,7 +964,7 @@ InstanceHelper::instantiateParams(const Resolver& resolve, const string& tmpl, c
 	ostringstream os;
 	os << "template `" + tmpl + "' instance unknown parameters: ";
 	copy(unknown.begin(), unknown.end(), ostream_iterator<string>(os, " "));
-	throw os.str();
+	throw DeploymentException(os.str());
     }
     
     set<string> missingParams;
@@ -960,7 +980,7 @@ InstanceHelper::instantiateParams(const Resolver& resolve, const string& tmpl, c
 	ostringstream os;
 	os << "template `" + tmpl + "' instance undefined parameters: ";
 	copy(missingParams.begin(), missingParams.end(), ostream_iterator<string>(os, " "));
-	throw os.str();
+	throw DeploymentException(os.str());
     }
 
     return params;
@@ -980,7 +1000,7 @@ ServiceInstanceHelper::ServiceInstanceHelper(const ServiceInstanceDescriptor& de
     {
 	if(_template.empty())
 	{
-	    throw "invalid service instance: no template defined";
+	    throw DeploymentException("invalid service instance: no template defined");
 	}
 	TemplateDescriptor tmpl = resolve.getServiceTemplate(_template);
 	def = ServiceDescriptorPtr::dynamicCast(tmpl.descriptor);
@@ -1012,7 +1032,7 @@ ServiceInstanceHelper::ServiceInstanceHelper(const ServiceInstanceDescriptor& de
 	//
 	if(!desc.descriptor)
 	{
-	    throw "invalid service instance: no template defined";
+	    throw DeploymentException("invalid service instance: no template defined");
 	}
 	_definition = ServiceHelper(desc.descriptor);
     }
@@ -1135,7 +1155,7 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
     {
 	if(_template.empty())
 	{
-	    throw "invalid server instance: template is not defined";
+	    throw DeploymentException("invalid server instance: template is not defined");
 	}
 	
 	TemplateDescriptor tmpl = resolve.getServerTemplate(_template);
@@ -1235,7 +1255,7 @@ NodeHelper::NodeHelper(const string& name, const NodeDescriptor& descriptor, con
 	ServerInstanceHelper helper(*p, resolve);
 	if(!_serverInstances.insert(make_pair(helper.getId(), helper)).second)
 	{
-	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
+	    throw DeploymentException("duplicate server `" + helper.getId() + "' in node `" + _name + "'");
 	}
     }
     for(ServerDescriptorSeq::const_iterator q = _desc.servers.begin(); q != _desc.servers.end(); ++q)
@@ -1243,7 +1263,7 @@ NodeHelper::NodeHelper(const string& name, const NodeDescriptor& descriptor, con
 	ServerInstanceHelper helper(*q, resolve);
 	if(!_servers.insert(make_pair(helper.getId(), helper)).second)
 	{
-	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
+	    throw DeploymentException("duplicate server `" + helper.getId() + "' in node `" + _name + "'");
 	}
     }
 
@@ -1353,7 +1373,7 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
 	ServerInstanceHelper helper(*q, resolve);
 	if(!_serverInstances.insert(make_pair(helper.getId(), helper)).second)
 	{
-	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
+	    throw DeploymentException("duplicate server `" + helper.getId() + "' in node `" + _name + "'");
 	}
 	serverInstances.erase(helper.getId());
     }
@@ -1362,12 +1382,12 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
 	ServerInstanceHelper helper(q->second.getDescriptor(), resolve); // Re-instantiate the server.
 	if(helper.getId() != q->first)
 	{
-	    throw "invalid update in node `" + _name + "':\n" +
-		"server instance id `" + q->first + "' changed to `" + helper.getId() + "'";
+	    throw DeploymentException("invalid update in node `" + _name + "':\n" +
+				      "server instance id `" + q->first + "' changed to `" + helper.getId() + "'");
 	}
 	if(!_serverInstances.insert(make_pair(helper.getId(), helper)).second)
 	{
-	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
+	    throw DeploymentException("duplicate server `" + helper.getId() + "' in node `" + _name + "'");
 	}
     }
 
@@ -1385,7 +1405,7 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
 	ServerInstanceHelper helper(*s, resolve);
 	if(!_servers.insert(make_pair(helper.getId(), helper)).second)
 	{
-	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
+	    throw DeploymentException("duplicate server `" + helper.getId() + "' in node `" + _name + "'");
 	}
 	servers.erase(helper.getId());
     }    
@@ -1394,12 +1414,12 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
 	ServerInstanceHelper helper(q->second.getDefinition(), resolve); // Re-instantiate the server.
 	if(helper.getId() != q->first)
 	{
-	    throw "invalid update in node `" + _name + "':\n" +
-		"server instance id `" + q->first + "' changed to `" + helper.getId() + "'";
+	    throw DeploymentException("invalid update in node `" + _name + "':\n" +
+				      "server instance id `" + q->first + "' changed to `" + helper.getId() + "'");
 	}	
 	if(!_servers.insert(make_pair(helper.getId(), helper)).second)
 	{
-	    throw "duplicate server `" + helper.getId() + "' in node `" + _name + "'";
+	    throw DeploymentException("duplicate server `" + helper.getId() + "' in node `" + _name + "'");
 	}
     }
 
@@ -1734,7 +1754,7 @@ ApplicationHelper::getServerTemplate(const string& name) const
     TemplateDescriptorDict::const_iterator p = _desc.serverTemplates.find(name);
     if(p == _desc.serverTemplates.end())
     {
-	throw "unknown server template `" + name + "'";
+	throw DeploymentException("unknown server template `" + name + "'");
     }
     return p->second;
 }
@@ -1745,7 +1765,7 @@ ApplicationHelper::getServiceTemplate(const string& name) const
     TemplateDescriptorDict::const_iterator p = _desc.serviceTemplates.find(name);
     if(p == _desc.serviceTemplates.end())
     {
-	throw "unknown service template `" + name + "'";
+	throw DeploymentException("unknown service template `" + name + "'");
     }
     return p->second;
 }
@@ -1960,7 +1980,8 @@ ApplicationHelper::validate()
     {
 	if(!replicatedAdapterIds.insert(r->id).second)
 	{
-	    throw "invalid application `" + _desc.name + "': duplicate replicated adapter `" + r->id + "'";
+	    throw DeploymentException("invalid application `" + _desc.name + "': duplicate replicated adapter `" + 
+				      r->id + "'");
 	}
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
 	{
@@ -1977,21 +1998,22 @@ ApplicationHelper::validate()
     {
 	if(serverIds.count(*p) > 1)
 	{
-	    throw "invalid application `" + _desc.name + "': duplicate server `" + *p + "'";
+	    throw DeploymentException("invalid application `" + _desc.name + "': duplicate server `" + *p + "'");
 	}
     }
     for(multiset<string>::const_iterator p = adapterIds.begin(); p != adapterIds.end(); ++p)
     {
 	if(adapterIds.count(*p) > 1 && replicatedAdapterIds.find(*p) == replicatedAdapterIds.end())
 	{
-	    throw "invalid application `" + _desc.name + "': duplicate adapter `" + *p + "'";
+	    throw DeploymentException("invalid application `" + _desc.name + "': duplicate adapter `" + *p + "'");
 	}
     }
     for(multiset<Ice::Identity>::const_iterator p = objectIds.begin(); p != objectIds.end(); ++p)
     {
 	if(objectIds.count(*p) > 1)
 	{
-	    throw "invalid application `" + _desc.name + "': duplicate object `" + Ice::identityToString(*p) + "'";
+	    throw DeploymentException("invalid application `" + _desc.name + "': duplicate object `" + 
+				      Ice::identityToString(*p) + "'");
 	}
     }
 }
