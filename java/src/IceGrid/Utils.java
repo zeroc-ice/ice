@@ -231,4 +231,199 @@ public class Utils
 	return substituteVariables(input,
 				   new java.util.Map[]{m1, m2, m3});
     }
+
+
+    static public class Resolver
+    {
+	//
+	// Simple resolver
+	//
+	public Resolver(java.util.Map[] variables)
+	{
+	    this(variables, null, null);
+	}
+
+	//
+	// Resolver for instance; parameters is not yet substituted
+	//
+	public Resolver(Resolver parent, java.util.TreeMap parameters)
+	{
+	    java.util.TreeMap substitutedParameters = 
+		substituteParameterValues(parameters, parent);
+
+	    _variables = parent._variables;
+	    _resolvedVariableCache = (java.util.HashMap)parent._resolvedVariableCache.clone();
+	    _parameters = substitutedParameters;
+	}
+
+
+	private Resolver(java.util.Map[] variables, // ordered read-only variable maps
+			 java.util.HashMap resolvedVariableCache, // null or read-write
+			 java.util.Map parameters) // null or read-only
+	{
+	    _variables = variables;
+	    _resolvedVariableCache = resolvedVariableCache;
+	    _parameters = parameters;
+
+	    assert _variables != null;
+	  
+	    if(_resolvedVariableCache == null)
+	    {
+		_resolvedVariableCache = new java.util.HashMap();
+	    }
+	    if(_parameters == null)
+	    {
+		_subResolver = this;
+	    }
+	    else
+	    {
+		_subResolver = new Resolver(_variables, _resolvedVariableCache, null);
+	    }
+	}
+
+	public String find(String name)
+	{
+	    if(_parameters != null)
+	    {
+		Object obj = _parameters.get(name);
+		if(obj != null)
+		{
+		    return (String)obj;
+		}
+	    }
+	  
+	    Object obj = _resolvedVariableCache.get(name);
+	    if(obj != null)
+	    {
+		return (String)obj;
+	    }
+	    else
+	    {
+		for(int i = 0; i < _variables.length; ++i)
+		{
+		    obj = _variables[i].get(name);
+		    if(obj != null)
+		    {
+			break;
+		    }
+		} 
+		if(obj != null)
+		{
+		    //
+		    // If I lookup up myself, I am in trouble!
+		    //
+		    _resolvedVariableCache.put(name, _recursiveDefError);
+		    String result = Utils.substitute((String)obj, _subResolver);
+		    _resolvedVariableCache.put(name, result);
+		    return result;
+		}
+		else
+		{
+		    return null;
+		}
+	    }
+	}
+
+	//
+	// Put this entry; particularly useful for predefined variables
+	//
+	public void put(String name, String value)
+	{
+	    _resolvedVariableCache.put(name, value);
+	}
+
+	//
+	// The sorted substituted parameters
+	//
+	public java.util.Map getParameters()
+	{
+	    return _parameters;
+	}
+
+	private java.util.Map[] _variables;
+	private java.util.HashMap _resolvedVariableCache;
+	private java.util.Map _parameters;
+	private Resolver _subResolver;
+	static private String _recursiveDefError = "<recursive def error>";
+    }
+
+    
+    static public String substitute(String input, Resolver resolver)
+    {
+	if(resolver == null)
+	{
+	    return input;
+	}
+
+	int beg = 0;
+	int end = 0;
+	
+	while((beg = input.indexOf("${", beg)) != -1)
+	{
+	    if(beg > 0 && input.charAt(beg - 1) == '$')
+	    {
+		int escape = beg - 1;
+		while(escape > 0 && input.charAt(escape = 1) == '$')
+		{
+		    --escape;
+		}
+		
+		input = input.substring(0, escape) + input.substring(beg - (beg - escape) / 2);
+		if((beg - escape) % 2 != 0)
+		{
+		    ++beg;
+		    continue;
+		}
+		else
+		{
+		    beg -= (beg - escape) / 2;
+		}
+	    }
+
+	    end = input.indexOf('}', beg);
+	    if(end == -1)
+	    {
+		//
+		// Malformed variable, can't substitute anything else
+		//
+		return input;
+	    }
+
+	    String name = input.substring(beg + 2, end);
+	    
+	    //
+	    // Resolve name
+	    //
+	    String val = resolver.find(name);  
+	    if(val != null)
+	    {
+		input = input.substring(0, beg) + val + input.substring(end + 1);
+		beg += val.length();
+	    }
+	    else
+	    {
+		// 
+		// No substitution, keep ${name} in the result
+		//
+		++beg;
+	    }
+	}
+	return input;
+    }
+
+    //
+    // Substitute all the values from the input map
+    //
+    static public java.util.TreeMap substituteParameterValues(java.util.TreeMap input, 
+							      Resolver resolver)
+    {
+	java.util.TreeMap result = (java.util.TreeMap)input.clone();
+	java.util.Iterator p = result.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    entry.setValue(substitute((String)entry.getValue(), resolver));
+	}
+	return result;
+    }
 }

@@ -86,29 +86,26 @@ class Parent extends CommonBaseI
 	return false;
     }
     
-    public void addParent(CommonBase parent)
+    public void setParent(CommonBase parent)
     {
-	assert(parent != null);
-	for(int i = 0; i < TreeModelI.VIEW_COUNT; i++)
-	{ 
-	    TreePath parentPath = parent.getPath(i);
-	    if(parentPath != null)
+	_parent = parent;
+	if(parent == null)
+	{
+	    _path = null;
+	}
+	else
+	{
+	    TreePath parentPath = _parent.getPath();
+	    if(parentPath == null)
 	    {
-		addParent(parent, parentPath, i);
+		_path = null;
+	    }
+	    else
+	    {
+		_path = parentPath.pathByAddingChild(this);
 	    }
 	}
-    }
-
-    public void addParent(CommonBase parent, TreePath parentPath, int view)
-    {
-	assert(parent != null);
-	assert(parentPath != null);
-	assert(_parents[view] == null);
-	assert(_paths[view] == null);
-
-	_parents[view] = parent;
-	_paths[view] = parentPath.pathByAddingChild(this);
-
+	
     	//
 	// Propagate to children
 	//
@@ -116,33 +113,7 @@ class Parent extends CommonBaseI
 	while(p.hasNext())
 	{
 	    CommonBase child = (CommonBase)p.next();
-	    child.addParent(this, _paths[view], view);
-	}
-    }
-
-    public void removeParent(CommonBase parent)
-    {
-	assert(parent != null);
-
-	for(int i = 0; i < TreeModelI.VIEW_COUNT; i++)
-	{ 
-	    if(_parents[i] == parent)
-	    {
-		removeParent(i);
-	    }
-	}
-    }
-
-    public void removeParent(int view)
-    {
-	_paths[view] = null;
-	_parents[view] = null;
-
-	java.util.Iterator p = _children.iterator();
-	while(p.hasNext())
-	{
-	    CommonBase child = (CommonBase)p.next();
-	    child.removeParent(view);
+	    child.setParent(this);
 	}
     }
 
@@ -427,15 +398,9 @@ class Parent extends CommonBaseI
     
     void fireNodesInsertedEvent(Object source, Object[] children, int[] childIndices)
     {	
-	for(int i = 0; i < TreeModelI.VIEW_COUNT; ++i)
-	{
-	    if(_paths[i] != null)
-	    {
-		TreeModelEvent event = new TreeModelEvent(source, _paths[i], 
-							  childIndices, children);
-		_model.getTreeModel(i).fireNodesInsertedEvent(event);
-	    }
-	}
+	assert _path != null;
+	TreeModelEvent event = new TreeModelEvent(source, _path, childIndices, children);
+	_model.getTreeModel().fireNodesInsertedEvent(event);
     }
 
     void fireNodeRemovedEvent(Object source, Object child, int index)
@@ -450,15 +415,11 @@ class Parent extends CommonBaseI
 
     void fireNodesRemovedEvent(Object source, Object[] children, int[] childIndices)
     {	
-	for(int i = 0; i < TreeModelI.VIEW_COUNT; ++i)
-	{
-	    if(_paths[i] != null)
-	    {
-		TreeModelEvent event = new TreeModelEvent(source, _paths[i], 
-							  childIndices, children);
-		_model.getTreeModel(i).fireNodesRemovedEvent(event);
-	    }
-	}
+	assert _path != null;
+
+	TreeModelEvent event = new TreeModelEvent(source, _path, 
+						  childIndices, children);
+	_model.getTreeModel().fireNodesRemovedEvent(event);
     }
 
     javax.swing.ComboBoxModel getComboBoxModel()
@@ -467,14 +428,14 @@ class Parent extends CommonBaseI
     }
 
 
-    Parent(String id, Model model, int rootForView)
+    Parent(String id, Model model, boolean root)
     {
-	super(id, model, rootForView);
+	super(id, model, root);
     }
 
     Parent(String id, Model model)
     {
-	this(id, model, -1);
+	this(id, model, false);
     }
     
 

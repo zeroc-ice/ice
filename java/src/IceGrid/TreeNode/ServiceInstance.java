@@ -68,7 +68,7 @@ class ServiceInstance extends Parent
 	    
 	    _adapters = new Adapters(serviceDescriptor.adapters, 
 				     childrenEditable,
-				     variables, _model, node);
+				     variables, _model);
 	    addChild(_adapters);
 	    
 	    _dbEnvs = new DbEnvs(serviceDescriptor.dbEnvs, childrenEditable,

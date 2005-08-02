@@ -12,7 +12,8 @@ import IceGrid.ApplicationDescriptor;
 import IceGrid.ApplicationUpdateDescriptor;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Model;
-
+import IceGrid.ServerDynamicInfo;
+import IceGrid.AdapterDynamicInfo;
 
 class Application extends Parent
 {
@@ -23,38 +24,34 @@ class Application extends Parent
 		boolean fireEvent)
     {
 	super(descriptor.name, model);
-
 	_descriptor = descriptor;
 
-	_nodeVars = new NodeVars(_descriptor.nodes, _model);
-	addChild(_nodeVars);
+	//
+	// TODO: add replicated adapter
+	//
 
-	//
-	// _serviceTemplates must be created before _serverTemplates
-	// and _serverInstances, since they may refer to them
-	//
-	_serviceTemplates = new ServiceTemplates(_descriptor.serviceTemplates, _model);
-						
+	_serviceTemplates = new ServiceTemplates(_descriptor.serviceTemplates,
+						 _model);	
 	addChild(_serviceTemplates);
 
-	_serverTemplates = new ServerTemplates(descriptor.serverTemplates, this);
+	_serverTemplates = new ServerTemplates(descriptor.serverTemplates,
+					       this);
 	addChild(_serverTemplates);
 	
-	//
-	// _serverInstances must be processed last, after the templates
-	// and the node variables have been created.
-	//
-	_serverInstances = new ServerInstances(_descriptor.servers, this, fireEvent);
-	addChild(_serverInstances);
-    }
-
-    void removeFromNodes()
-    {
-	_serverInstances.removeFromNodes();
+	_nodes = new Nodes(_descriptor.nodes, _model);
+	addChild(_nodes);
     }
 
     void update(ApplicationUpdateDescriptor desc)
     {
+	//
+	// Description
+	//
+	if(desc.description != null)
+	{
+	    _descriptor.description = desc.description.value;
+	}
+
 	//
 	// Variables
 	//
@@ -64,19 +61,18 @@ class Application extends Parent
 	}
 	_descriptor.variables.putAll(desc.variables);
 
-	//
-	// Targets and comment
-	//
 
-	if(desc.targets != null)
+	//
+	// Service templates
+	//
+	for(int i = 0; i < desc.removeServiceTemplates.length; ++i)
 	{
-	    _descriptor.targets = desc.targets.value;
+	    _descriptor.serviceTemplates.remove(desc.
+						removeServiceTemplates[i]);
 	}
-
-	if(desc.comment != null)
-	{
-	    _descriptor.comment = desc.comment.value;
-	}
+	_descriptor.serviceTemplates.putAll(desc.serviceTemplates);
+	_serviceTemplates.update(desc.serviceTemplates, 
+				 desc.removeServiceTemplates);
 
 	//
 	// Server templates
@@ -86,18 +82,9 @@ class Application extends Parent
 	    _descriptor.serverTemplates.remove(desc.removeServerTemplates[i]);
 	}
 	_descriptor.serverTemplates.putAll(desc.serverTemplates);
-	_serverTemplates.update(desc.serverTemplates, desc.removeServerTemplates);
+	_serverTemplates.update(desc.serverTemplates, 
+				desc.removeServerTemplates);
 	
-	//
-	// Service templates
-	//
-	for(int i = 0; i < desc.removeServiceTemplates.length; ++i)
-	{
-	    _descriptor.serviceTemplates.remove(desc.removeServiceTemplates[i]);
-	}
-	_descriptor.serviceTemplates.putAll(desc.serviceTemplates);
-	_serviceTemplates.update(desc.serviceTemplates, desc.removeServiceTemplates);
-
 	//
 	// Nodes
 	//
@@ -105,18 +92,8 @@ class Application extends Parent
 	{
 	    _descriptor.nodes.remove(desc.removeNodes[i]);
 	}
-	_descriptor.nodes.addAll(desc.nodes);
-	_nodeVars.update(desc.nodes, desc.removeNodes);
-
-	//
-	// Servers
-	//
-	for(int i = 0; i < desc.removeServers.length; ++i)
-	{
-	    _descriptor.servers.remove(desc.removeServers[i]);
-	}
-	_descriptor.servers.addAll(desc.servers);
-	_serverInstances.update(desc.servers, desc.removeServers);
+	_descriptor.nodes.putAll(_nodes.update(desc.nodes, 
+					       desc.removeNodes));
     }
 
     ServerTemplate findServerTemplate(String id)
@@ -137,9 +114,9 @@ class Application extends Parent
     }
 
 
-    NodeVar findNodeVar(String id)
+    Node findNode(String id)
     {
-	return (NodeVar)_nodeVars.findChild(id);
+	return (Node)_nodes.findChild(id);
     }
     
     ServerTemplates getServerTemplates()
@@ -157,16 +134,38 @@ class Application extends Parent
 
     java.util.Map getNodeVariables(String id)
     {
-	NodeVar nodeVar = findNodeVar(id);
-	if(nodeVar != null)
+	Node node = findNode(id);
+	if(node != null)
 	{
-	    return nodeVar.getVariables();
+	    return node.getVariables();
 	}
 	else
 	{
 	    return null;
 	}
     }
+
+    void nodeUp(String nodeName, java.util.Map serverMap, 
+		       java.util.Map adapterMap)
+    {
+	_nodes.nodeUp(nodeName, serverMap, adapterMap);
+    }
+
+    void nodeDown(String nodeName)
+    {
+	_nodes.nodeDown(nodeName);
+    }
+    
+    void updateServer(String nodeName, ServerDynamicInfo updatedInfo)
+    {
+	_nodes.updateServer(nodeName, updatedInfo);
+    }
+    
+    void updateAdapter(String nodeName, AdapterDynamicInfo updatedInfo)
+    {
+	_nodes.updateAdapter(nodeName, updatedInfo);
+    }
+    
 
     private ApplicationDescriptor _descriptor;
 
@@ -175,7 +174,5 @@ class Application extends Parent
     //
     private ServerTemplates _serverTemplates;
     private ServiceTemplates _serviceTemplates;
-    private NodeVars _nodeVars;
-    private ServerInstances _serverInstances;
-  
+    private Nodes _nodes;
 }

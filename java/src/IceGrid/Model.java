@@ -17,9 +17,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.TreePath;
 
-import IceGrid.TreeNode.NodeViewRoot;
-import IceGrid.TreeNode.ApplicationViewRoot;
-
+import IceGrid.TreeNode.Root;
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 //
@@ -29,7 +27,6 @@ import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 public class Model
 {
     //
-    // Application view:
     //
     // root
     //  |
@@ -66,43 +63,30 @@ public class Model
     //         |                     -- $database
     //         |
     //         |
-    //         -- server instances
-    //         |         |
-    //         |         -- $server instance
-    //         |               |
-    //         |             (like node view below)
-    //         |
-    //         -- node variables
+    //         -- nodes
+    //             |
+    //             -- $node
     //                  |
-    //                  -- $nodevar (leaf, shows per-application variables)
-    //
-    //
-    // Node view:
-    //
-    // root
-    //  |
-    //  -- $node
-    //        |
-    //        -- $instance
-    //              |
-    //              -- adapters
-    //              |    |
-    //              |    -- $adapter
-    //              |    
-    //              -- databases
-    //              |      |
-    //              |      -- $database
-    //              |  
-    //              -- services (only for IceBox servers)
-    //                     |
-    //                     -- $service
-    //                            |
-    //                            -- adapters, databases (see above)
+    //                   -- $instance
+    //                          |
+    //                          -- adapters
+    //                          |    |
+    //                          |    -- $adapter
+    //                          |    
+    //                          -- databases
+    //                          |      |
+    //                          |      -- $database
+    //                          |  
+    //                          -- services (only for IceBox servers)
+    //                                |
+    //                                 -- $service
+    //                                       |
+    //                                       -- adapters, databases (see above)
 
 
     public static interface TreeNodeSelector
     {
-	void selectNode(TreePath path, int view);
+	void selectNode(TreePath path);
     }
 
     public static class ConnectInfo
@@ -166,30 +150,15 @@ public class Model
 	return _communicator;
     }
 
-    public NodeViewRoot getNodeViewRoot()
+ 
+    public Root getRoot()
     {
-	return _nodeViewRoot;
-    }
-
-    public ApplicationViewRoot getApplicationViewRoot()
-    {
-	return _applicationViewRoot;
+	return _root;
     }
     
-    public TreeModelI getTreeModel(int view)
+    public TreeModelI getTreeModel()
     {
-	if(view == TreeModelI.NODE_VIEW)
-	{
-	    return _nodeModel;
-	}
-	else if(view == TreeModelI.APPLICATION_VIEW)
-	{
-	    return _applicationModel;
-	}
-	else
-	{
-	    return null;
-	}
+	return _treeModel;
     }
 
 
@@ -202,32 +171,22 @@ public class Model
 	assert(_latestSerial == -1);
 	_latestSerial = serial;
 
-	_nodeViewRoot.init(applications);
-	_applicationViewRoot.init(applications);
+	_root.init(applications);
     }
 
     void applicationAdded(ApplicationDescriptor desc)
     {
-	_nodeViewRoot.put(desc.name, desc.nodes, true);
-	_applicationViewRoot.applicationAdded(desc);
+	_root.applicationAdded(desc);
     }
 
     void applicationRemoved(String name)
     {
-	_nodeViewRoot.remove(name);
-	_applicationViewRoot.applicationRemoved(name);
+	_root.applicationRemoved(name);
     }
 
     void applicationUpdated(ApplicationUpdateDescriptor desc)
     {
-	for(int i = 0; i < desc.removeNodes.length; ++i)
-	{
-	    _nodeViewRoot.remove(desc.name, desc.removeNodes[i]);
-	}
-	_nodeViewRoot.put(desc.name, desc.nodes, true);
-	_nodeViewRoot.removeServers(desc.removeServers);
-	
-	_applicationViewRoot.applicationUpdated(desc);
+	_root.applicationUpdated(desc);
     }
     
     boolean updateSerial(int serial)
@@ -250,22 +209,22 @@ public class Model
 
     void nodeUp(NodeDynamicInfo updatedInfo)
     {
-	_nodeViewRoot.nodeUp(updatedInfo);
+	_root.nodeUp(updatedInfo);
     }
 
     void nodeDown(String node)
     {
-	_nodeViewRoot.nodeDown(node);
+	_root.nodeDown(node);
     }
 
     void updateServer(String node, ServerDynamicInfo updatedInfo)
     {
-	_nodeViewRoot.updateServer(node, updatedInfo);
+	_root.updateServer(node, updatedInfo);
     }
 
     void updateAdapter(String node, AdapterDynamicInfo updatedInfo)
     {
-	_nodeViewRoot.updateAdapter(node, updatedInfo);
+	_root.updateAdapter(node, updatedInfo);
     }
 
 
@@ -276,8 +235,7 @@ public class Model
     void sessionLost()
     {
 	_latestSerial = -1;
-	_nodeViewRoot.clear();
-	_applicationViewRoot.clear();
+	_root.clear();
 	_sessionManager = null;
 	_admin = null;
     }
@@ -415,25 +373,18 @@ public class Model
 	_communicator = communicator;
 	_statusBar = statusBar;
 	
-	_nodeViewRoot = new NodeViewRoot(this);
-	_nodeModel = new TreeModelI(_nodeViewRoot);
-
-	_applicationViewRoot = new ApplicationViewRoot(this);
-	_applicationModel = new TreeModelI(_applicationViewRoot);
+	_root = new Root(this);
+	_treeModel = new TreeModelI(_root);
     }
 
-    
 
     private Ice.Communicator _communicator;
     private StatusBar _statusBar;
     private SessionManagerPrx _sessionManager;
     private AdminPrx _admin;
 
-
-    private NodeViewRoot _nodeViewRoot;
-    private ApplicationViewRoot _applicationViewRoot;
-    private TreeModelI _nodeModel;
-    private TreeModelI _applicationModel;
+    private Root _root;
+    private TreeModelI _treeModel;
 
     private int _latestSerial = -1;
 

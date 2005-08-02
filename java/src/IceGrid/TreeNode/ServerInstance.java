@@ -90,22 +90,6 @@ class ServerInstance extends Parent
 
 		builder.setLineGapSize(LayoutStyle.getCurrent().getParagraphPad());
 		
-		//
-		// Node combo box
-		//
-		builder.append("Node");
-		builder.append(_node, _nodeButton);
-		builder.nextLine();
-	
-		//
-		// Targets field
-		//
-		builder.append("Targets");
-		_targets.setToolTipText("XML-descriptor targets used to deploy this server");
-		builder.append(_targets, 3);
-		_targets.setEditable(false);
-		builder.nextLine();
-
 		_serverDescriptorEditor.build(builder);
 
 		_scrollPane = new JScrollPane(builder.getPanel(),
@@ -118,12 +102,10 @@ class ServerInstance extends Parent
 
 	void show(ServerInstance server)
 	{
+	    /*
 	    _server = server;
 	    ServerInstanceDescriptor descriptor = server.getDescriptor();
 
-	    _node.setModel(_server.getModel().getNodeViewRoot().getComboBoxModel());
-	    _node.setSelectedItem(_server.getParent(TreeModelI.NODE_VIEW));
-      
 	    ServerDescriptor serverDescriptor = null;
 	    Ice.StringHolder toolTipHolder = new Ice.StringHolder();
 	   
@@ -131,7 +113,7 @@ class ServerInstance extends Parent
 
 	    if(descriptor.template.length() == 0)
 	    {
-		serverDescriptor = descriptor.descriptor;
+		serverDescriptor = null;
 		if(_server.getModel().substituteVariables())
 		{
 		    variables = new java.util.Map[] {
@@ -211,6 +193,7 @@ class ServerInstance extends Parent
 	    _targets.setToolTipText(toolTipHolder.value);
 
 	    _serverDescriptorEditor.show(serverDescriptor, variables);
+	    */
 	}
 	
 	Editor(boolean editDetails)
@@ -228,65 +211,13 @@ class ServerInstance extends Parent
 			if(template != null && _server != null)
 			{
 			    _server.getModel().getTreeNodeSelector().
-				selectNode(
-				    template.getPath(
-					TreeModelI.APPLICATION_VIEW), 
-				    TreeModelI.APPLICATION_VIEW);
+				selectNode(template.getPath());
 			}
 		    }
 		};
 	    gotoTemplate.putValue(Action.SHORT_DESCRIPTION, "Goto this template");
 	    _templateButton = new JButton(gotoTemplate);
 	    _parameterValuesButton = new JButton("...");
-
-	    //
-	    // gotoNode action
-	    //
-	    AbstractAction gotoNode = new AbstractAction("->")
-		{
-		    public void actionPerformed(ActionEvent e) 
-		    {
-			Node node = (Node)_node.getSelectedItem();
-			if(node != null)
-			{
-			    //
-			    // I have the node but I really want to get to the NodeVar;
-			    // too bad node does not contain them
-			    //
-			    
-			    if(_server != null)
-			    {
-				CommonBase parent = _server.getParent(
-				    TreeModelI.APPLICATION_VIEW);
-				if(parent != null)
-				{
-				    Application app = (Application)parent.getParent(
-					TreeModelI.APPLICATION_VIEW);
-				    if(app != null)
-				    {
-					NodeVar nodeVar = app.findNodeVar(
-					    node.getId());
-					
-					//
-					// TODO: offer to create a new nodeVar when
-					// nodeVar == null
-					//
-					if(nodeVar != null)
-					{
-					    _server.getModel().getTreeNodeSelector().
-						selectNode(
-						    nodeVar.getPath(
-							TreeModelI.APPLICATION_VIEW), 
-						    TreeModelI.APPLICATION_VIEW);
-					}
-				    }
-				}
-			    }
-			}
-		    }
-		};
-	    gotoNode.putValue(Action.SHORT_DESCRIPTION, "Show the variables for this node");
-	    _nodeButton = new JButton(gotoNode);
 	}
 
 
@@ -302,11 +233,6 @@ class ServerInstance extends Parent
 	private JLabel  _parameterValuesLabel = new JLabel("Parameters");
 	private JTextField _parameterValues = new JTextField(20);
 	private JButton _parameterValuesButton;
-
-	private JComboBox _node = new JComboBox();
-	private JButton _nodeButton;
-
-	private JTextField _targets = new JTextField(20);
 
 	private ServerDescriptorEditor _serverDescriptorEditor;
 
@@ -459,30 +385,6 @@ class ServerInstance extends Parent
 	rebuild(application, descriptor, fireNodeViewEvent);
     }
 
-
-    void removeFromNode()
-    {
-	removeFromNode(true);
-    }
-
-    private void removeFromNode(boolean fireNodeViewEvent)
-    {
-	if(_serviceInstances != null)
-	{
-	    _serviceInstances.unregisterAdapters();
-	}
-	if(_adapters != null)
-	{
-	    _adapters.unregisterAll();
-	}
-
-	Node node = (Node)getParent(TreeModelI.NODE_VIEW);
-	if(node != null)
-	{
-	    node.removeChild(_id, fireNodeViewEvent);
-	}
-    }
-
     //
     // Update the server instance and all its subtree
     //
@@ -490,36 +392,11 @@ class ServerInstance extends Parent
 		 ServerInstanceDescriptor newDescriptor, 
 		 boolean fireNodeViewEvent)
     {
+	/*
 	assert(newDescriptor != null);
-	removeFromNode(fireNodeViewEvent);
+	_descriptor = newDescriptor;
 	clearChildren();
 	
-	//
-	// First check if my node changed [node view]
-	// For the application view, the only way a server instance can change application 
-	// is by being removed and then re-added (i.e. not with an update)
-	//
-	boolean newNode = false;
-	
-	if(_descriptor == null)
-	{
-	    newNode = true;
-	}
-	else if(_descriptor.node != newDescriptor.node)
-	{
-	    newNode = true;
-	    //
-	    // Remove from existing node
-	    //
-	    CommonBase parent = _parents[TreeModelI.NODE_VIEW];
-	    assert(parent != null); // must be connected
-	    removeParent(parent);
-	    ((Parent)parent).removeChild(this);  
-	}
-	_descriptor = newDescriptor;
-	
-	Node node = _model.getNodeViewRoot().findNode(_descriptor.node);
-
 	java.util.Map appVariables = application.getVariables();
 	_nodeVariables = 
 	    application.getNodeVariables(_descriptor.node); // can be null
@@ -580,6 +457,8 @@ class ServerInstance extends Parent
 	    addParent(node); // propagates to children
 	    node.addChild(this, fireNodeViewEvent);
 	}
+
+	*/
     }
 
     void updateDynamicInfo(ServerDynamicInfo info)
@@ -675,22 +554,11 @@ class ServerInstance extends Parent
     {
 	return _descriptor;
     }
-
-    
-    Application getApplication()
-    {
-	CommonBase parent = getParent(TreeModelI.APPLICATION_VIEW);
-	return
-	    (Application)parent.getParent(TreeModelI.APPLICATION_VIEW);
-    }
-
-    java.util.Map getNodeVariables()
-    {
-	return _nodeVariables;
-    }
-    
+ 
     public String toString()
     {
+	return "";
+	/*
 	String result = _descriptor.descriptor.name;
 
 	if(!_descriptor.template.equals(""))
@@ -700,6 +568,7 @@ class ServerInstance extends Parent
 					   _descriptor.parameterValues.values());
 	}
 	return result;
+	*/
     }
 
     private static String toolTip(ServerState state, int pid)
@@ -719,7 +588,6 @@ class ServerInstance extends Parent
     private String _toolTip = toolTip(_state, _pid);
 
     private ServerInstanceDescriptor _descriptor;
-    private java.util.Map _nodeVariables;
 
     //
     // Children

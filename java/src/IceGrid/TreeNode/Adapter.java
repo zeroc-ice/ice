@@ -65,7 +65,7 @@ class Adapter extends Leaf
 
 		builder.append("", _registerProcess);
 		builder.nextLine();
-		builder.append("", _noWaitForActivation);
+		builder.append("", _waitForActivation);
 		builder.nextLine();
 
 		_scrollPane = new JScrollPane(builder.getPanel(),
@@ -95,10 +95,6 @@ class Adapter extends Leaf
 		Utils.substituteVariables(descriptor.id, variables));
 	    _id.setEditable(editable);
 
-	    _endpoints.setText(
-		Utils.substituteVariables(descriptor.endpoints, variables));
-	    _endpoints.setEditable(editable);
-
 	    Ice.StringHolder toolTipHolder = new Ice.StringHolder();
 	   
 	    Utils.Stringifier stringifier = new Utils.Stringifier()
@@ -127,8 +123,8 @@ class Adapter extends Leaf
 	    _registerProcess.setSelected(descriptor.registerProcess);
 	    _registerProcess.setEnabled(editable);
 
-	    _noWaitForActivation.setSelected(descriptor.noWaitForActivation);
-	    _noWaitForActivation.setEnabled(editable);
+	    _waitForActivation.setSelected(descriptor.waitForActivation);
+	    _waitForActivation.setEnabled(editable);
 	  
 	}
 
@@ -136,7 +132,7 @@ class Adapter extends Leaf
 	private JTextField _id = new JTextField(20);
 	private JTextField _endpoints = new JTextField(20);
 	private JCheckBox _registerProcess = new JCheckBox("Register Process");
-	private JCheckBox _noWaitForActivation = new JCheckBox("Don't wait for me");
+	private JCheckBox _waitForActivation = new JCheckBox("Wait for me");
 	private JTextField _objects = new JTextField(20);
 	private JButton _objectsButton = new JButton("...");
 
@@ -154,24 +150,17 @@ class Adapter extends Leaf
 	    int row,
 	    boolean hasFocus) 
     {
-	if(_node == null)
+	if(_cellRenderer == null)
 	{
-	    return null;
+	    //
+	    // Initialization
+	    //
+	    _cellRenderer = new DefaultTreeCellRenderer();
 	}
-	else
-	{
-	    if(_cellRenderer == null)
-	    {
-		//
-		// Initialization
-		//
-		_cellRenderer = new DefaultTreeCellRenderer();
-	    }
-	    
-	    _cellRenderer.setToolTipText(_toolTip);
-	    return _cellRenderer.getTreeCellRendererComponent(
-		tree, value, sel, expanded, leaf, row, hasFocus);
-	}
+	
+	_cellRenderer.setToolTipText(_toolTip);
+	return _cellRenderer.getTreeCellRendererComponent(
+	    tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     public void displayProperties()
@@ -193,38 +182,21 @@ class Adapter extends Leaf
 
     Adapter(String adapterName, AdapterDescriptor descriptor,
 	    boolean editable, java.util.Map[] variables,
-	    Model model, Node node)
+	    Model model)
     {
 	super(adapterName, model);
 	_descriptor = descriptor;
 	_editable = editable;
 	_variables = variables;
-	_node = node;
-
-	if(_node != null)
-	{
-	    _adapterId = Utils.substituteVariables(_descriptor.id, _variables);
-	    _proxy = node.registerAdapter(_adapterId, this);
-	    createToolTip();
-	}
-	//
-	// Otherwise we have an adapter in a template 
-	// (possibly in a service instance within a server template)
-	//
     }
 
     void unregister()
     {
-	if(_node != null)
-	{
-	    _node.unregisterAdapter(_adapterId);
-	    _node = null;
-	}
+	
     }
 
     void updateProxy(Ice.ObjectPrx proxy)
     {
-	assert(_node != null);
 	_proxy = proxy;
 	createToolTip();
 	fireNodeChangedEvent(this);
@@ -262,7 +234,6 @@ class Adapter extends Leaf
     private java.util.Map[] _variables;
 
     private String _adapterId;
-    private Node _node;
     private Ice.ObjectPrx _proxy;
     private String _toolTip;
 

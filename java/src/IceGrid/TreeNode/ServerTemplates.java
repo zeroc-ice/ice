@@ -37,7 +37,7 @@ class ServerTemplates extends Parent
 	// Note: _descriptors is updated by Application
 	//
 	
-	Application application = (Application)getParent(TreeModelI.APPLICATION_VIEW);
+	Application application = (Application)getParent();
 
 	//
 	// One big set of removes

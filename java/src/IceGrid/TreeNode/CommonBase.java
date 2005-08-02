@@ -32,47 +32,25 @@ public interface CommonBase extends TreeCellRenderer
     String getId();
 
     //
-    // Add this node as a parent. This operation does something
-    // only when newParent a root node or was attached to a 
-    // root node using addParent().
-    // addParent() is propagated to the child of this node.
+    // Set this node as a parent, and recursively update
+    // the path of all children.
     // This method has no effect on the parent->children relationship,
     // only child->parent.
     // 
-    void addParent(CommonBase newParent);
+    void setParent(CommonBase newParent);
 
     //
-    // Recursively destroys a sub-parent-tree: the children
-    // forget this parent, but it does not affect the parents
-    // knowledge about their children.
-    //
-    void removeParent(CommonBase parent);
-
-    
-    //
-    // Adds this parent for this view. Used by the view-less addParent
-    // to notify its children.
-    //
-    void addParent(CommonBase newParent, TreePath path, int view);
-
-    //
-    // Remove the parent for this view; used by the view-less 
-    // removeParent to notify its children.
-    //
-    void removeParent(int view);
-
-    //
-    // Get the parent for the given view
+    // Get this node's parent
     // This is used by nodes to create events
     // pointing to themselves
     //
-    CommonBase getParent(int view);
+    CommonBase getParent();
 
     //
-    // The path to this node for the given view;
+    // The path to this node
     // typically used by children to create TreeModelEvents
     //
-    TreePath getPath(int view);
+    TreePath getPath();
 
     //
     // Get pop-up menu

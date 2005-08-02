@@ -112,6 +112,7 @@ class Node extends Parent
 	//
 	// Update the state of all adapters
 	//
+	/*
 	p = _adapters.entrySet().iterator();
 	while(p.hasNext())
 	{
@@ -121,7 +122,8 @@ class Node extends Parent
 	    Ice.ObjectPrx proxy = (Ice.ObjectPrx)_adapterInfoMap.get(id);
 	    adapter.updateProxy(proxy);
 	}
-	
+	*/
+
 	fireNodeChangedEvent(this);
     }
 
@@ -143,28 +145,18 @@ class Node extends Parent
 	//
 	// Update the state of all adapters
 	//
+	/*
 	p = _adapters.values().iterator();
 	while(p.hasNext())
 	{
 	    Adapter adapter = (Adapter)p.next();
 	    adapter.updateProxy(null);
 	}
+	*/
 
 	fireNodeChangedEvent(this);
     }
-
-    void updateServer(ServerDynamicInfo info)
-    {
-	//
-	// NodeViewRoot updates the map
-	//
-	ServerInstance child = (ServerInstance)findChild(info.name);
-	if(child != null)
-	{
-	    child.updateDynamicInfo(info);
-	}
-    }
-    
+  
     ServerDynamicInfo getServerDynamicInfo(String serverName)
     {
 	if(_serverInfoMap == null)
@@ -184,72 +176,147 @@ class Node extends Parent
 	    }
 	}
     }
-
-    void updateAdapter(AdapterDynamicInfo info)
+    
+    /*
+    ServerInstances(java.util.List descriptors, 
+		    Application application,
+		    boolean fireEvent)
     {
-	//
-	// NodeViewRoot updates the map
-	//
-	Adapter adapter = (Adapter)_adapters.get(info.id);
-	if(adapter != null)
+	super("Server instances", application.getModel());
+	_descriptors = descriptors;
+
+	java.util.Iterator p = _descriptors.iterator();
+	while(p.hasNext())
 	{
-	    adapter.updateProxy(info.proxy);
+	    //
+	    // The ServerInstance constructor inserts the new object in the 
+	    // node view model
+	    //
+	    ServerInstanceDescriptor descriptor = 
+		(ServerInstanceDescriptor)p.next();
+
+	    
+
+	    String serverName = computeServerName(descriptor, application);
+		
+	    ServerInstance child = new ServerInstance(serverName,
+						      descriptor,
+						      application,
+						      fireEvent);
+	    addChild(child);
 	}
     }
-    
-    Node(String applicationName, Model model, NodeDescriptor descriptor,
+
+    void update(java.util.List updates, String[] removeServers)
+    {
+	//
+	// Note: _descriptors is updated by Application
+	//
+	
+	Application application = (Application)getParent(TreeModelI.APPLICATION_VIEW);
+
+	//
+	// One big set of removes
+	//
+	for(int i = 0; i < removeServers.length; ++i)
+	{
+	    ServerInstance server = (ServerInstance)findChild(removeServers[i]);
+	    server.removeFromNode();
+	}
+	removeChildren(removeServers);
+
+	//
+	// One big set of updates, followed by inserts
+	//
+	java.util.Vector newChildren = new java.util.Vector();
+	java.util.Vector updatedChildren = new java.util.Vector();
+	
+	java.util.Iterator p = updates.iterator();
+	while(p.hasNext())
+	{
+	    ServerInstanceDescriptor descriptor = (ServerInstanceDescriptor)p.next();
+	    
+	    String serverName = computeServerName(descriptor, application);
+
+	    ServerInstance child = (ServerInstance)findChild(serverName);
+	    if(child == null)
+	    {
+		newChildren.add(new ServerInstance(serverName, descriptor, application, true));
+	    }
+	    else
+	    {
+		child.rebuild(application, descriptor, true);
+		updatedChildren.add(child);
+	    }
+	}
+	
+	updateChildren((CommonBaseI[])updatedChildren.toArray(new CommonBaseI[0]));
+	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
+    }
+
+    void removeFromNodes()
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    ServerInstance server = (ServerInstance)p.next();
+	    server.removeFromNode();
+	}
+    }
+
+
+    static String computeServerName(ServerInstanceDescriptor instanceDescriptor, 
+				    Application application)
+    {
+	String nodeName = instanceDescriptor.node;
+
+	if(instanceDescriptor.template.length() > 0)
+	{
+	    //
+	    // Can't be null
+	    //
+	    TemplateDescriptor templateDescriptor = 
+		application.findServerTemplateDescriptor(instanceDescriptor.template);
+	    
+	    java.util.Map parameters = 
+		Utils.substituteVariables(instanceDescriptor.parameterValues,
+					  application.getNodeVariables(nodeName),
+					  application.getVariables());
+
+	    return Utils.substituteVariables(templateDescriptor.descriptor.name,
+					     parameters,
+					     application.getNodeVariables(nodeName),
+					     application.getVariables());
+	}
+	else
+	{
+	  
+	    return Utils.substituteVariables(instanceDescriptor.descriptor.name,
+					     application.getNodeVariables(nodeName),
+					     application.getVariables());
+	}
+    }
+
+    */
+  
+
+    java.util.Map  getVariables()
+    {
+	return null;
+    }
+
+
+    Node(String applicationName, Model model, 
+	 String nodeName, NodeDescriptor descriptor,
 	 java.util.Map serverInfoMap, java.util.Map adapterInfoMap)
     {
-	super(descriptor.name, model);
+	super(nodeName, model);
 	_serverInfoMap = serverInfoMap;
 	_adapterInfoMap = adapterInfoMap;
-	_applicationMap.put(applicationName, descriptor);
-    }
-
-    void addApplication(String applicationName, NodeDescriptor descriptor)
-    {
-	_applicationMap.put(applicationName, descriptor);
-    }
- 
-    //
-    // Returns true when this node should be destroyed
-    //
-    boolean removeApplication(String applicationName)
-    {
-	_applicationMap.remove(applicationName);
-	return (_applicationMap.size() == 0);
-    }
-
-
-    //
-    // The node maintains a map adapter id => Adapter
-    //
-    Ice.ObjectPrx registerAdapter(String id, Adapter adapter)
-    {
-	_adapters.put(id, adapter);
-	Ice.ObjectPrx result = null;
-	if(_adapterInfoMap != null)
-	{
-	    result = (Ice.ObjectPrx)_adapterInfoMap.get(id);
-	}
-	return result;
-    }
-
-    void unregisterAdapter(String id)
-    {
-	_adapters.remove(id);
-    }
-
-    private java.util.Map _applicationMap = new java.util.HashMap();
+    } 
     
     private java.util.Map _serverInfoMap;
     private java.util.Map _adapterInfoMap;
-
-    //
-    // Adapter id => Adapter
-    //
-    private java.util.Map _adapters = new java.util.HashMap();
-
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon _nodeUpOpen;

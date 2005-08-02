@@ -154,10 +154,6 @@ class ServerDescriptorEditor
 	if(descriptor instanceof IceBoxDescriptor)
 	{
 	    IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)descriptor;
-	    _endpoints.setText(
-		Utils.substituteVariables(iceBoxDescriptor.endpoints, variables));
-	    _endpointsLabel.setEnabled(true);
-	    _endpoints.setEnabled(true);
 	}
 	else
 	{
@@ -167,7 +163,7 @@ class ServerDescriptorEditor
 	}
 		
 	_name.setText(
-	    Utils.substituteVariables(descriptor.name, variables));
+	    Utils.substituteVariables(descriptor.id, variables));
 	
 	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
 
@@ -187,7 +183,7 @@ class ServerDescriptorEditor
 	_properties.setToolTipText(toolTipHolder.value);
 
 	_comment.setText(
-	    Utils.substituteVariables(descriptor.comment, variables));
+	    Utils.substituteVariables(descriptor.description, variables));
 	_exe.setText(
 	    Utils.substituteVariables(descriptor.exe, variables));
 

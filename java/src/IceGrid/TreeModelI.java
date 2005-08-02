@@ -16,9 +16,6 @@ import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeModelEvent;
 
-import IceGrid.TreeNode.NodeViewRoot;
-import IceGrid.TreeNode.ApplicationViewRoot;
-
 public class TreeModelI implements TreeModel
 {
     public Object getRoot()

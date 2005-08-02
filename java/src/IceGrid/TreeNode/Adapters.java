@@ -19,7 +19,7 @@ class Adapters extends Parent
     //
     Adapters(java.util.List descriptors, Model model)
     {
-	this(descriptors, true, null, model, null);
+	this(descriptors, true, null, model);
     }
     
     //
@@ -27,7 +27,7 @@ class Adapters extends Parent
     //
     Adapters(java.util.List descriptors, boolean editable, 
 	     java.util.Map[] variables,
-	     Model model, Node node)
+	     Model model)
     {
 	super("Adapters", model);
 	_descriptors = descriptors;
@@ -48,7 +48,7 @@ class Adapters extends Parent
 
 	    Adapter child = new Adapter(adapterName, descriptor, 
 					_editable, _variables, 
-					_model, node);
+					_model);
 	    addChild(child);
 	}
     }

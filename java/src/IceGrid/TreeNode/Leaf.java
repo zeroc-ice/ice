@@ -38,6 +38,6 @@ class Leaf extends CommonBaseI
     
     protected Leaf(String id, Model model)
     {
-	super(id, model, -1);
+	super(id, model, false);
     }
 }

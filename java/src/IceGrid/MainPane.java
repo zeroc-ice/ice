@@ -80,11 +80,6 @@ public class MainPane extends JSplitPane implements Model.TreeNodeSelector
 
     static class SelectionListener implements TreeSelectionListener
     {
-	SelectionListener(int view)
-	{
-	    _view = view;
-	}
-
 	public void valueChanged(TreeSelectionEvent e)
 	{
 	    TreePath path = e.getPath();
@@ -94,48 +89,7 @@ public class MainPane extends JSplitPane implements Model.TreeNodeSelector
 		node.displayProperties();
 	    }
 	}
-
-	private int _view;
-
     }
-
-    class TabListener implements ChangeListener
-    {
-	public void stateChanged(ChangeEvent e)
-	{
-	    JTabbedPane tabbedPane = (JTabbedPane)e.getSource();
-	    int selectedPane = tabbedPane.getSelectedIndex();
-	    if(selectedPane >= 0)
-	    {
-		if(_treeList.size() > selectedPane)
-		{
-		    JTree tree = (JTree)_treeList.get(selectedPane);
-		    TreePath path = tree.getSelectionPath();
-		    if(path != null)
-		    {
-			CommonBase node = (CommonBase)path.getLastPathComponent();
-			node.displayProperties();
-			return;
-		    }
-		}
-	    }
-	    if(_rightPane != null)
-	    {
-		_rightPane.setTitle("Properties");
-		_rightPane.setContent(_emptyPanel);
-		_rightPane.validate();
-		_rightPane.repaint();
-	    }  
-	}
-
-	void add(JTree tree)
-	{
-	    _treeList.add(tree);
-	}
-
-	private java.util.List _treeList = new java.util.Vector();
-    }
-
 
     public void updateUI()
     {
@@ -161,66 +115,28 @@ public class MainPane extends JSplitPane implements Model.TreeNodeSelector
 	_model.setTreeNodeSelector(this);
 
 	setBorder(new EmptyBorder(10, 10, 10, 10));
-	
-	//
-	// Left pane
-	//
-	_tabbedPane = new JTabbedPane();
-	_tabbedPane.setPreferredSize(new Dimension(280, 350));
-	
-	_tabbedPane.putClientProperty(Options.NO_CONTENT_BORDER_KEY, Boolean.TRUE);
-	_tabbedPane.setBorder(new ShadowBorder());
-	TabListener tabListener = new TabListener();
-	_tabbedPane.addChangeListener(tabListener);
 
 	TreeCellRenderer renderer = new CellRenderer();
 	PopupListener popupListener = new PopupListener();
 
+	_tree = new JTree(_model.getTreeModel());
+	_tree.setCellRenderer(renderer);
+	ToolTipManager.sharedInstance().registerComponent(_tree);
+	_tree.addMouseListener(popupListener);
 
-	JTree nodeTree = new JTree(_model.getTreeModel(TreeModelI.NODE_VIEW));
-	nodeTree.setCellRenderer(renderer);
-        ToolTipManager.sharedInstance().registerComponent(nodeTree);
-	nodeTree.addMouseListener(popupListener);
-	
-	nodeTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-	SelectionListener treeSelectionListener = new SelectionListener(TreeModelI.NODE_VIEW);
-	nodeTree.addTreeSelectionListener(treeSelectionListener);
-	nodeTree.setRootVisible(true);
-	_treeArray[0] = nodeTree;
-
-
-	JScrollPane nodeScroll = 
-	    new JScrollPane(nodeTree, 
-			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-			    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-	nodeScroll.setBorder(Borders.DIALOG_BORDER);
-	
-
-	_tabbedPane.addTab("Node View", nodeScroll);
-	tabListener.add(nodeTree);
-	
-	JTree appTree = new JTree(_model.getTreeModel(TreeModelI.APPLICATION_VIEW));
-	appTree.setCellRenderer(renderer);
-	ToolTipManager.sharedInstance().registerComponent(appTree);
-	appTree.addMouseListener(popupListener);
-
-	appTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-	SelectionListener appSelectionListener = new SelectionListener(TreeModelI.APPLICATION_VIEW);
-	appTree.addTreeSelectionListener(appSelectionListener);
-	appTree.setRootVisible(true);
-	_treeArray[1] = appTree;
+	_tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+	SelectionListener appSelectionListener = new SelectionListener();
+	_tree.addTreeSelectionListener(appSelectionListener);
+	_tree.setRootVisible(true);
 		
 	JScrollPane appScroll = 
-	    new JScrollPane(appTree,
+	    new JScrollPane(_tree,
 			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 			    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	appScroll.setBorder(Borders.DIALOG_BORDER);
 	
-	_tabbedPane.addTab("Application View", appScroll);
-	tabListener.add(appTree);
-	
 	JPanel leftPane = new JPanel(new BorderLayout());
-	leftPane.add(_tabbedPane);
+	leftPane.add(_tree);
 
 	//
 	// Right pane
@@ -235,15 +151,10 @@ public class MainPane extends JSplitPane implements Model.TreeNodeSelector
 	setRightComponent(_rightPane);
     }
 
-    public void selectNode(TreePath path, int view)
+    public void selectNode(TreePath path)
     {
-	if(_tabbedPane.getSelectedIndex() != view)
-	{
-	    _tabbedPane.setSelectedIndex(view);
-	}
-	_treeArray[view].setSelectionPath(path);
+	_tree.setSelectionPath(path);
     }
-
 
     //
     // Adapted from JGoodies SimpleInternalFrame
@@ -298,8 +209,7 @@ public class MainPane extends JSplitPane implements Model.TreeNodeSelector
 
     private Model _model;
 
-    private JTabbedPane _tabbedPane;
-    private JTree[] _treeArray = new JTree[TreeModelI.VIEW_COUNT];
+    private JTree _tree;
     private SimpleInternalFrame _rightPane;
 
     static private JPanel _emptyPanel;
