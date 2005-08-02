@@ -29,10 +29,12 @@ class ServiceTemplate extends Parent
 	//
 	java.util.Collections.sort(_descriptor.parameters);
 	
-	_adapters = new Adapters(_descriptor.descriptor.adapters, _model);
+	_adapters = new Adapters(_descriptor.descriptor.adapters, true, 
+				 null, _model);
 	addChild(_adapters);
 
-	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, _model);
+	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, true,
+			     null, _model);
 	addChild(_dbEnvs);
     }
 

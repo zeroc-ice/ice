@@ -216,8 +216,8 @@ class Server extends Parent
 			    _template.getSelectedItem();
 			if(template != null && _server != null)
 			{
-			    _server.getModel().getTreeNodeSelector().
-				selectNode(template.getPath());
+			    _server.getModel().getTree().setSelectionPath
+				(template.getPath());
 			}
 		    }
 		};
@@ -420,21 +420,26 @@ class Server extends Parent
 				     editable, _resolver, application);
 	    addChild(_services);
 	    _services.setParent(this);
+	    
+	    //
+	    // IceBox has not dbEnv
+	    //
+	    assert serverDescriptor.dbEnvs.size() == 0;
+	    _dbEnvs = null;
 	}
 	else
 	{
-	    _services = null;
+	    _services = null;   	
+	    _dbEnvs = new DbEnvs(serverDescriptor.dbEnvs, 
+				 editable, _resolver, _model);
+	    addChild(_dbEnvs);
+	    _dbEnvs.setParent(this);
 	}
 
 	_adapters = new Adapters(serverDescriptor.adapters, 
 				 editable, _resolver, _model);
 	addChild(_adapters);
 	_adapters.setParent(this);
-
-	_dbEnvs = new DbEnvs(serverDescriptor.dbEnvs, 
-			     editable, _resolver, _model);
-	addChild(_dbEnvs);
-	_dbEnvs.setParent(this);
     }
 
     void updateDynamicInfo(ServerDynamicInfo info)

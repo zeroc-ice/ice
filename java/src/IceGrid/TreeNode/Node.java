@@ -101,7 +101,7 @@ class Node extends Parent
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
-	    ServerInstance child = (ServerInstance)p.next();
+	    Server child = (Server)p.next();
 	    ServerDynamicInfo info = 
 		(ServerDynamicInfo)_serverInfoMap.get(child.getId());
 
@@ -141,7 +141,7 @@ class Node extends Parent
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
-	    ServerInstance child = (ServerInstance)p.next();
+	    Server child = (Server)p.next();
 	    child.updateDynamicInfo(_unknownServerDynamicInfo);
 	}
 

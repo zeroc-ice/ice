@@ -14,44 +14,20 @@ import IceGrid.Utils;
 
 class DbEnvs extends Parent
 {
-    //
-    // In server or service template
-    //
-    DbEnvs(java.util.List descriptors, Model model)
-    {
-	this(descriptors, true, null, model);
-    }
-
-    //
-    // In server or service instance
-    //
     DbEnvs(java.util.List descriptors, 
 	   boolean editable,
-	   java.util.Map[] variables,
+	   Utils.Resolver resolver,
 	   Model model)
     {
 	super("DbEnvs", model);
-	_descriptors = descriptors;
-	_editable = editable;
-	_variables = variables;
-
-	java.util.Iterator p = _descriptors.iterator();
+	java.util.Iterator p = descriptors.iterator();
 	while(p.hasNext())
 	{
 	    DbEnvDescriptor descriptor = (DbEnvDescriptor)p.next();
 	    
-	    String dbEnvName = descriptor.name;
-	    if(_variables != null)
-	    {
-		dbEnvName = Utils.substituteVariables(dbEnvName, _variables);
-	    }
-	    addChild(new DbEnv(dbEnvName, descriptor, _editable, _variables,
-			       _model));
+	    String dbEnvName = Utils.substitute(descriptor.name, resolver);
+	    addChild(new DbEnv(dbEnvName, descriptor, editable,
+			       resolver, _model));
 	}
     }
-
-    private java.util.List _descriptors;
-    private boolean _editable;
-    private java.util.Map[] _variables;
-  
 }

@@ -10,20 +10,21 @@ package IceGrid.TreeNode;
 
 import IceGrid.DbEnvDescriptor;
 import IceGrid.Model;
+import IceGrid.Utils;
 
 class DbEnv extends Leaf
 {
     DbEnv(String dbEnvName, DbEnvDescriptor descriptor, 
-	  boolean editable, java.util.Map[] variables,
+	  boolean editable, Utils.Resolver resolver,
 	  Model model)
     {
 	super(dbEnvName, model);
 	_descriptor = descriptor;
 	_editable = editable;
-	_variables = variables;
+	_resolver = resolver;
     }
 
     private DbEnvDescriptor _descriptor;
     private boolean _editable;
-    private java.util.Map[] _variables;
+    private Utils.Resolver _resolver;
 }

@@ -81,18 +81,15 @@ class Adapter extends Leaf
 	    _adapter = adapter;
 	    AdapterDescriptor descriptor = adapter.getDescriptor();
 
-	    final java.util.Map[] variables =
-		_adapter.getModel().substituteVariables() ?
-		adapter.getVariables() : null;
-
-	    boolean editable = adapter.isEditable() && (variables == null);
+	    boolean editable = adapter.isEditable();
+	    final Utils.Resolver resolver = adapter.getResolver();
 
 	    _name.setText(
-		Utils.substituteVariables(descriptor.name, variables));
+		Utils.substitute(descriptor.name, resolver));
 	    _name.setEditable(editable);
 
 	    _id.setText(
-		Utils.substituteVariables(descriptor.id, variables));
+		Utils.substitute(descriptor.id, resolver));
 	    _id.setEditable(editable);
 
 	    Ice.StringHolder toolTipHolder = new Ice.StringHolder();
@@ -103,12 +100,12 @@ class Adapter extends Leaf
 		{
 		    ObjectDescriptor od = (ObjectDescriptor)obj;
 		    Ice.Identity sid = new Ice.Identity(
-			Utils.substituteVariables(od.id.name, variables),
-			Utils.substituteVariables(od.id.category, variables));
+			Utils.substitute(od.id.name, resolver),
+			Utils.substitute(od.id.category, resolver));
 
 		    return Ice.Util.identityToString(sid)
 			+ " as '"
-			+ Utils.substituteVariables(od.type, variables)
+			+ Utils.substitute(od.type, resolver)
 			+ "'";
 		}
 	    };
@@ -181,19 +178,15 @@ class Adapter extends Leaf
 
 
     Adapter(String adapterName, AdapterDescriptor descriptor,
-	    boolean editable, java.util.Map[] variables,
+	    boolean editable, Utils.Resolver resolver,
 	    Model model)
     {
 	super(adapterName, model);
 	_descriptor = descriptor;
 	_editable = editable;
-	_variables = variables;
+	_resolver = resolver;
     }
 
-    void unregister()
-    {
-	
-    }
 
     void updateProxy(Ice.ObjectPrx proxy)
     {
@@ -207,14 +200,14 @@ class Adapter extends Leaf
 	return _descriptor;
     }
 
+    Utils.Resolver getResolver()
+    {
+	return _resolver;
+    }
+    
     boolean isEditable()
     {
 	return _editable;
-    }
-
-    java.util.Map[] getVariables()
-    {
-	return _variables;
     }
 
     private void createToolTip()
@@ -231,7 +224,7 @@ class Adapter extends Leaf
 
     private AdapterDescriptor _descriptor;
     private boolean _editable;
-    private java.util.Map[] _variables;
+    private Utils.Resolver _resolver;
 
     private String _adapterId;
     private Ice.ObjectPrx _proxy;

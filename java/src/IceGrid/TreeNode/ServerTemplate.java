@@ -69,20 +69,23 @@ class ServerTemplate extends Parent
 	    
 	    _services = new Services(_iceBoxDescriptor.services, true, null, application);
 	    addChild(_services);
+
+	    assert _descriptor.descriptor.dbEnvs.size() == 0;
+	    _dbEnvs = null;
 	}
 	else
 	{
 	    _services = null;
 	    _iceBoxDescriptor = null;
+
+	    _dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, true,
+			     null, _model);
+	    addChild(_dbEnvs);
 	}
 	
 	_adapters = new Adapters(_descriptor.descriptor.adapters, true, 
 				 null, _model);
 	addChild(_adapters);
-
-	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, true,
-			     null, _model);
-	addChild(_dbEnvs);
     }
 
 

@@ -20,8 +20,7 @@ class Application extends Parent
     //
     // Builds the application and all its subtrees
     //
-    Application(ApplicationDescriptor descriptor, Model model, 
-		boolean fireEvent)
+    Application(ApplicationDescriptor descriptor, Model model)
     {
 	super(descriptor.name, model);
 	_descriptor = descriptor;
@@ -38,7 +37,7 @@ class Application extends Parent
 					       this);
 	addChild(_serverTemplates);
 	
-	_nodes = new Nodes(_descriptor.nodes, _model);
+	_nodes = new Nodes(_descriptor.nodes, this);
 	addChild(_nodes);
     }
 
@@ -130,19 +129,6 @@ class Application extends Parent
     java.util.Map getVariables()
     {
 	return _descriptor.variables;
-    }
-
-    java.util.Map getNodeVariables(String id)
-    {
-	Node node = findNode(id);
-	if(node != null)
-	{
-	    return node.getVariables();
-	}
-	else
-	{
-	    return null;
-	}
     }
 
     void nodeUp(String nodeName, java.util.Map serverMap, 

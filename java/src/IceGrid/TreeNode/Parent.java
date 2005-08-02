@@ -200,6 +200,15 @@ class Parent extends CommonBaseI
 	_children.clear();
     }
 
+    void expandChildren()
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    CommonBase child = (CommonBase)p.next();
+	    _model.getTree().expandPath(child.getPath());
+	}
+    }
 
     //
     // The following methods fire events

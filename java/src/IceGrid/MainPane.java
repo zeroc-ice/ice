@@ -43,7 +43,7 @@ import javax.swing.border.AbstractBorder;
 import IceGrid.TreeNode.CommonBase;
 
 
-public class MainPane extends JSplitPane implements Model.TreeNodeSelector
+public class MainPane extends JSplitPane
 {
     static class PopupListener extends MouseAdapter
     {
@@ -112,31 +112,34 @@ public class MainPane extends JSplitPane implements Model.TreeNodeSelector
     {
 	super(JSplitPane.HORIZONTAL_SPLIT, true);
 	_model = model;
-	_model.setTreeNodeSelector(this);
 
 	setBorder(new EmptyBorder(10, 10, 10, 10));
 
 	TreeCellRenderer renderer = new CellRenderer();
 	PopupListener popupListener = new PopupListener();
 
-	_tree = new JTree(_model.getTreeModel());
-	_tree.setCellRenderer(renderer);
-	ToolTipManager.sharedInstance().registerComponent(_tree);
-	_tree.addMouseListener(popupListener);
+	JTree tree = new JTree(_model.getTreeModel());
+	tree.setBorder(new EmptyBorder(5, 5, 5, 5));
+	tree.setCellRenderer(renderer);
+	ToolTipManager.sharedInstance().registerComponent(tree);
+	tree.addMouseListener(popupListener);
 
-	_tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+	tree.getSelectionModel().setSelectionMode
+	    (TreeSelectionModel.SINGLE_TREE_SELECTION);
 	SelectionListener appSelectionListener = new SelectionListener();
-	_tree.addTreeSelectionListener(appSelectionListener);
-	_tree.setRootVisible(true);
+	tree.addTreeSelectionListener(appSelectionListener);
+	tree.setRootVisible(false);
+	_model.setTree(tree);
 		
 	JScrollPane appScroll = 
-	    new JScrollPane(_tree,
+	    new JScrollPane(tree,
 			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 			    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	appScroll.setBorder(Borders.DIALOG_BORDER);
 	
-	JPanel leftPane = new JPanel(new BorderLayout());
-	leftPane.add(_tree);
+	SimpleInternalFrame leftPane = new SimpleInternalFrame("Applications");
+	leftPane.setContent(tree);
+	leftPane.setPreferredSize(new Dimension(280, 350));
 
 	//
 	// Right pane
@@ -149,11 +152,6 @@ public class MainPane extends JSplitPane implements Model.TreeNodeSelector
 	
 	setLeftComponent(leftPane);
 	setRightComponent(_rightPane);
-    }
-
-    public void selectNode(TreePath path)
-    {
-	_tree.setSelectionPath(path);
     }
 
     //
@@ -208,8 +206,6 @@ public class MainPane extends JSplitPane implements Model.TreeNodeSelector
     }
 
     private Model _model;
-
-    private JTree _tree;
     private SimpleInternalFrame _rightPane;
 
     static private JPanel _emptyPanel;

@@ -14,6 +14,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import javax.swing.tree.TreeModel;
 import javax.swing.JOptionPane;
+import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.TreePath;
 
@@ -82,12 +83,6 @@ public class Model
     //                                 -- $service
     //                                       |
     //                                       -- adapters, databases (see above)
-
-
-    public static interface TreeNodeSelector
-    {
-	void selectNode(TreePath path);
-    }
 
     public static class ConnectInfo
     {
@@ -348,14 +343,14 @@ public class Model
 	return _statusBar;
     }
 
-    public void setTreeNodeSelector(TreeNodeSelector selector)
+    public void setTree(JTree tree)
     {
-	_treeNodeSelector = selector;
+	_tree = tree;
     }
 
-    public TreeNodeSelector getTreeNodeSelector()
+    public JTree getTree()
     {
-	return _treeNodeSelector;
+	return _tree;
     }
 
     public void setPropertiesFrame(SimpleInternalFrame frame)
@@ -388,7 +383,7 @@ public class Model
 
     private int _latestSerial = -1;
 
-    private TreeNodeSelector _treeNodeSelector;
+    private JTree _tree;
 
     private boolean _substituteVariables = false;
 

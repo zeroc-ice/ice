@@ -249,17 +249,33 @@ public class Utils
 	public Resolver(Resolver parent, java.util.TreeMap parameters)
 	{
 	    java.util.TreeMap substitutedParameters = 
-		substituteParameterValues(parameters, parent);
+		parent.substituteParameterValues(parameters);
 
 	    _variables = parent._variables;
 	    _resolvedVariableCache = (java.util.HashMap)parent._resolvedVariableCache.clone();
 	    _parameters = substitutedParameters;
 	}
-
+	
+	//
+	// Resolver for plain server
+	//
+	public Resolver(Resolver parent)
+	{
+	    _variables = parent._variables;
+	    _resolvedVariableCache = (java.util.HashMap)parent._resolvedVariableCache.clone();
+	    if(parent._parameters == null)
+	    {
+		_parameters = null;
+	    }
+	    else
+	    {
+		_parameters = (java.util.TreeMap)parent._parameters.clone();
+	    }
+	}
 
 	private Resolver(java.util.Map[] variables, // ordered read-only variable maps
 			 java.util.HashMap resolvedVariableCache, // null or read-write
-			 java.util.Map parameters) // null or read-only
+			 java.util.TreeMap parameters) // null or read-only
 	{
 	    _variables = variables;
 	    _resolvedVariableCache = resolvedVariableCache;
@@ -340,9 +356,82 @@ public class Utils
 	    return _parameters;
 	}
 
+	public String substitute(String input)
+	{
+	    int beg = 0;
+	    int end = 0;
+	    
+	    while((beg = input.indexOf("${", beg)) != -1)
+	    {
+		if(beg > 0 && input.charAt(beg - 1) == '$')
+		{
+		    int escape = beg - 1;
+		    while(escape > 0 && input.charAt(escape = 1) == '$')
+		    {
+			--escape;
+		    }
+		    
+		    input = input.substring(0, escape) + input.substring(beg - (beg - escape) / 2);
+		    if((beg - escape) % 2 != 0)
+		    {
+			++beg;
+			continue;
+		    }
+		    else
+		    {
+			beg -= (beg - escape) / 2;
+		    }
+		}
+		
+		end = input.indexOf('}', beg);
+		if(end == -1)
+		{
+		    //
+		    // Malformed variable, can't substitute anything else
+		    //
+		    return input;
+		}
+		
+		String name = input.substring(beg + 2, end);
+		
+		//
+		// Resolve name
+		//
+		String val = find(name);  
+		if(val != null)
+		{
+		    input = input.substring(0, beg) + val + input.substring(end + 1);
+		    beg += val.length();
+		}
+		else
+		{
+		    // 
+		    // No substitution, keep ${name} in the result
+		    //
+		    ++beg;
+		}
+	    }
+	    return input;
+	}
+
+	//
+	// Substitute all the values from the input map
+	//
+	public java.util.TreeMap substituteParameterValues(java.util.TreeMap input)
+	{
+	    java.util.TreeMap result = (java.util.TreeMap)input.clone();
+	    java.util.Iterator p = result.entrySet().iterator();
+	    while(p.hasNext())
+	    {
+		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+		entry.setValue(substitute((String)entry.getValue()));
+	    }
+	    return result;
+	}
+
 	private java.util.Map[] _variables;
 	private java.util.HashMap _resolvedVariableCache;
-	private java.util.Map _parameters;
+	private java.util.TreeMap _parameters;
 	private Resolver _subResolver;
 	static private String _recursiveDefError = "<recursive def error>";
     }
@@ -350,80 +439,13 @@ public class Utils
     
     static public String substitute(String input, Resolver resolver)
     {
-	if(resolver == null)
+	if(resolver != null)
+	{
+	    return resolver.substitute(input);
+	}
+	else
 	{
 	    return input;
 	}
-
-	int beg = 0;
-	int end = 0;
-	
-	while((beg = input.indexOf("${", beg)) != -1)
-	{
-	    if(beg > 0 && input.charAt(beg - 1) == '$')
-	    {
-		int escape = beg - 1;
-		while(escape > 0 && input.charAt(escape = 1) == '$')
-		{
-		    --escape;
-		}
-		
-		input = input.substring(0, escape) + input.substring(beg - (beg - escape) / 2);
-		if((beg - escape) % 2 != 0)
-		{
-		    ++beg;
-		    continue;
-		}
-		else
-		{
-		    beg -= (beg - escape) / 2;
-		}
-	    }
-
-	    end = input.indexOf('}', beg);
-	    if(end == -1)
-	    {
-		//
-		// Malformed variable, can't substitute anything else
-		//
-		return input;
-	    }
-
-	    String name = input.substring(beg + 2, end);
-	    
-	    //
-	    // Resolve name
-	    //
-	    String val = resolver.find(name);  
-	    if(val != null)
-	    {
-		input = input.substring(0, beg) + val + input.substring(end + 1);
-		beg += val.length();
-	    }
-	    else
-	    {
-		// 
-		// No substitution, keep ${name} in the result
-		//
-		++beg;
-	    }
-	}
-	return input;
-    }
-
-    //
-    // Substitute all the values from the input map
-    //
-    static public java.util.TreeMap substituteParameterValues(java.util.TreeMap input, 
-							      Resolver resolver)
-    {
-	java.util.TreeMap result = (java.util.TreeMap)input.clone();
-	java.util.Iterator p = result.entrySet().iterator();
-	while(p.hasNext())
-	{
-	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-	    entry.setValue(substitute((String)entry.getValue(), resolver));
-	}
-	return result;
     }
 }
