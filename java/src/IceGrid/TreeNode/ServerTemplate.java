@@ -67,19 +67,21 @@ class ServerTemplate extends Parent
 	{
 	    _iceBoxDescriptor = (IceBoxDescriptor)_descriptor.descriptor;
 	    
-	    _serviceInstances = new ServiceInstances(_iceBoxDescriptor.services, application);
-	    addChild(_serviceInstances);
+	    _services = new Services(_iceBoxDescriptor.services, true, null, application);
+	    addChild(_services);
 	}
 	else
 	{
-	    _serviceInstances = null;
+	    _services = null;
 	    _iceBoxDescriptor = null;
 	}
 	
-	_adapters = new Adapters(_descriptor.descriptor.adapters, _model);
+	_adapters = new Adapters(_descriptor.descriptor.adapters, true, 
+				 null, _model);
 	addChild(_adapters);
 
-	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, _model);
+	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, true,
+			     null, _model);
 	addChild(_dbEnvs);
     }
 
@@ -97,7 +99,7 @@ class ServerTemplate extends Parent
     private TemplateDescriptor _descriptor;
     private IceBoxDescriptor _iceBoxDescriptor;
 
-    private ServiceInstances _serviceInstances;
+    private Services _services;
     private Adapters _adapters;
     private DbEnvs _dbEnvs;
 }

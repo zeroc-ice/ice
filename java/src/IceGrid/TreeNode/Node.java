@@ -15,12 +15,15 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import IceGrid.NodeDescriptor;
-import IceGrid.Utils;
 import IceGrid.Model;
 import IceGrid.NodeDynamicInfo;
 import IceGrid.ServerDynamicInfo;
 import IceGrid.AdapterDynamicInfo;
+import IceGrid.ServerDescriptor;
+import IceGrid.ServerInstanceDescriptor;
 import IceGrid.ServerState;
+import IceGrid.TemplateDescriptor;
+import IceGrid.Utils;
 
 class Node extends Parent
 {
@@ -127,7 +130,7 @@ class Node extends Parent
 	fireNodeChangedEvent(this);
     }
 
-    void down()
+    boolean down()
     {
 	_serverInfoMap = null;
 	_adapterInfoMap = null;
@@ -154,7 +157,15 @@ class Node extends Parent
 	}
 	*/
 
-	fireNodeChangedEvent(this);
+	if(_descriptor == null)
+	{
+	    return true;
+	}
+	else
+	{
+	    fireNodeChangedEvent(this);
+	    return false;
+	}
     }
   
     ServerDynamicInfo getServerDynamicInfo(String serverName)
@@ -300,21 +311,100 @@ class Node extends Parent
     */
   
 
-    java.util.Map  getVariables()
-    {
-	return null;
-    }
-
-
-    Node(String applicationName, Model model, 
-	 String nodeName, NodeDescriptor descriptor,
-	 java.util.Map serverInfoMap, java.util.Map adapterInfoMap)
+    //
+    // Node created by NodeObserver
+    //
+    Node(String nodeName, Model model,
+	java.util.Map serverMap, java.util.Map adapterMap )
     {
 	super(nodeName, model);
-	_serverInfoMap = serverInfoMap;
-	_adapterInfoMap = adapterInfoMap;
+       
+    }
+
+    //
+    // Node created by RegistryObserver
+    //
+    Node(String nodeName, NodeDescriptor descriptor, Application application)
+    {
+	super(nodeName, application.getModel());
+	init(descriptor, application);
     } 
     
+    void init(NodeDescriptor descriptor, Application application)
+    {
+	assert _descriptor == null;
+	_descriptor = descriptor;
+
+	_resolver = new Utils.Resolver(new java.util.Map[]
+	    {_descriptor.variables, application.getVariables()});
+				       
+	_resolver.put("application", application.getId());
+	_resolver.put("node", getId());
+	
+	//
+	// Template instances
+	//
+	java.util.Iterator p = _descriptor.serverInstances.iterator();
+	while(p.hasNext())
+	{
+	    ServerInstanceDescriptor instanceDescriptor = 
+		(ServerInstanceDescriptor)p.next();
+	    
+	    //
+	    // Find template
+	    //
+	    TemplateDescriptor templateDescriptor = 
+		application.findServerTemplateDescriptor(instanceDescriptor.template);
+
+	    assert templateDescriptor != null;
+	    
+	    ServerDescriptor serverDescriptor = 
+		(ServerDescriptor)templateDescriptor.descriptor;
+	    
+	    assert serverDescriptor != null;
+	    
+	    //
+	    // Build resolver
+	    //
+	    Utils.Resolver instanceResolver = 
+		new Utils.Resolver(_resolver, instanceDescriptor.parameterValues);
+	    
+	    String serverId = instanceResolver.substitute(serverDescriptor.id);
+	    instanceResolver.put("server", serverId);
+	    
+	    //
+	    // Create server
+	    //
+	    addChild(new Server(serverId, instanceResolver, instanceDescriptor, 
+				serverDescriptor, application));
+	}
+
+	//
+	// Plain servers
+	//
+	p = _descriptor.servers.iterator();
+	while(p.hasNext())
+	{
+	    ServerDescriptor serverDescriptor = (ServerDescriptor)p.next();
+
+	    //
+	    // Build resolver
+	    //
+	    Utils.Resolver instanceResolver = new Utils.Resolver(_resolver);
+	    String serverId = instanceResolver.substitute(serverDescriptor.id);
+	    instanceResolver.put("server", serverId);
+	    
+	    //
+	    // Create server
+	    //
+	    addChild(new Server(serverId, instanceResolver, null, serverDescriptor, 
+				application));
+	}
+    }
+    
+    private NodeDescriptor _descriptor;
+    private Utils.Resolver _resolver;
+
     private java.util.Map _serverInfoMap;
     private java.util.Map _adapterInfoMap;
 
