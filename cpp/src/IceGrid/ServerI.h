@@ -81,7 +81,7 @@ private:
 
     const NodeIPtr _node;
     const ServerPrx _this;
-    const std::string _name;
+    const std::string _id;
     const Ice::Int _waitTime;
     const std::string _serversDir;
 

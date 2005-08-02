@@ -19,7 +19,7 @@ module IceGrid
 
 struct ServerDynamicInfo
 {
-    string name;
+    string id;
     ServerState state;
     int pid;
 };

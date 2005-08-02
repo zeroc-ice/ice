@@ -118,7 +118,7 @@ public:
 	cout << "node `" << node.name << "' servers: ";
 	for(ServerDynamicInfoSeq::const_iterator p = node.servers.begin(); p != node.servers.end(); ++p)
 	{
-	    cout << p->name << " ";
+	    cout << p->id << " ";
 	}
 	cout << "adapters: ";
 	for(AdapterDynamicInfoSeq::const_iterator p = node.adapters.begin(); p != node.adapters.end(); ++p)
@@ -137,7 +137,7 @@ public:
     virtual void
     updateServer(const string& node, const ServerDynamicInfo& info, const Ice::Current&)
     {
-	cout << "node `" << node << "' server `" << info.name << "' updated: pid = " << info.pid << " state = `";
+	cout << "node `" << node << "' server `" << info.id << "' updated: pid = " << info.pid << " state = `";
 	switch(info.state)
 	{
 	case Inactive:

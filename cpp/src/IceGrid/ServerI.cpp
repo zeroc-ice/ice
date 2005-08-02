@@ -67,10 +67,10 @@ private:
 
 }
 
-ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& serversDir, const string& name, int wt) :
+ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& serversDir, const string& id, int wt) :
     _node(node),
     _this(proxy),
-    _name(name),
+    _id(id),
     _waitTime(wt),
     _serversDir(serversDir),
     _state(ServerI::Inactive)
@@ -171,7 +171,7 @@ ServerI::stop(const Ice::Current& current)
 void
 ServerI::sendSignal(const string& signal, const Ice::Current& current)
 {
-    _node->getActivator()->sendSignal(_name, signal);
+    _node->getActivator()->sendSignal(_id, signal);
 }
 
 void
@@ -358,7 +358,7 @@ ServerI::getState(const Ice::Current&) const
 Ice::Int
 ServerI::getPid(const Ice::Current&) const
 {
-    return _node->getActivator()->getServerPid(_name);
+    return _node->getActivator()->getServerPid(_id);
 }
 
 void 
@@ -485,7 +485,7 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
     catch(const Ice::SyscallException& ex)
     {
 	Ice::Warning out(_node->getTraceLevels()->logger);
-	out << "activation failed for server `" << _name << "':\n";
+	out << "activation failed for server `" << _id << "':\n";
 	out << ex;
 
 	setState(ServerI::Inactive);
@@ -530,11 +530,11 @@ ServerI::activationFailed(bool timeout)
 	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
 	    if(timeout)
 	    {
-		out << "server `" << _name << "' activation timed out";
+		out << "server `" << _id << "' activation timed out";
 	    }	
 	    else
 	    {
-		out << "server `" << _name << "' activation failed";
+		out << "server `" << _id << "' activation failed";
 	    }
 	}
 	adapters = _adapters;
@@ -569,7 +569,7 @@ ServerI::addDynamicInfo(ServerDynamicInfoSeq& serverInfos, AdapterDynamicInfoSeq
 	adapters = _adapters;
 	info.state = toServerState(_state);
     }
-    info.name = _name;
+    info.id = _id;
     info.pid = info.state == IceGrid::Active ? getPid() : 0;
     serverInfos.push_back(info);
 
@@ -650,11 +650,11 @@ ServerI::stopInternal(bool kill, const Ice::Current& current)
 	//
 	if(kill)
 	{
-	    _node->getActivator()->kill(_name);
+	    _node->getActivator()->kill(_id);
 	}
 	else
 	{
-	    _node->getActivator()->deactivate(_name, process);
+	    _node->getActivator()->deactivate(_id, process);
 	}
 
 	//
@@ -693,13 +693,13 @@ ServerI::stopInternal(bool kill, const Ice::Current& current)
 	if(_node->getTraceLevels()->server > 1)
 	{
 	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-	    out << "graceful server shutdown timed out, killing server `" << _name << "'";
+	    out << "graceful server shutdown timed out, killing server `" << _id << "'";
 	}
     }
     catch(const Ice::Exception& ex)
     {
 	Ice::Warning out(_node->getTraceLevels()->logger);
-	out << "graceful server shutdown failed, killing server `" << _name << "':\n";
+	out << "graceful server shutdown failed, killing server `" << _id << "':\n";
 	out << ex;
     }
 
@@ -709,12 +709,12 @@ ServerI::stopInternal(bool kill, const Ice::Current& current)
     //
     try
     {
-	_node->getActivator()->kill(_name);
+	_node->getActivator()->kill(_id);
     }
     catch(const Ice::SyscallException& ex)
     {
 	Ice::Warning out(_node->getTraceLevels()->logger);
-	out << "deactivation failed for server `" << _name << "':\n";
+	out << "deactivation failed for server `" << _id << "':\n";
 	out << ex;
 	
 	setState(ServerI::Active);
@@ -752,7 +752,7 @@ ServerI::setStateNoSync(InternalServerState st)
 	if(observer)
 	{
 	    ServerDynamicInfo info;
-	    info.name = _name;
+	    info.id = _id;
 	    info.state = toServerState(st);
 	    
 	    //
@@ -777,39 +777,39 @@ ServerI::setStateNoSync(InternalServerState st)
 	if(_state == ServerI::Active)
 	{
 	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-	    out << "changed server `" << _name << "' state to `Active'";
+	    out << "changed server `" << _id << "' state to `Active'";
 	}
 	else if(_state == ServerI::Inactive)
 	{
 	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-	    out << "changed server `" << _name << "' state to `Inactive'";
+	    out << "changed server `" << _id << "' state to `Inactive'";
 	}
 	else if(_state == ServerI::Destroyed)
 	{
 	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-	    out << "changed server `" << _name << "' state to `Destroyed'";
+	    out << "changed server `" << _id << "' state to `Destroyed'";
 	}
 	else if(_node->getTraceLevels()->server > 2)
 	{
 	    if(_state == ServerI::WaitForActivation)
 	    {
 		Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-		out << "changed server `" << _name << "' state to `WaitForActivation'";
+		out << "changed server `" << _id << "' state to `WaitForActivation'";
 	    }
 	    else if(_state == ServerI::Activating)
 	    {
 		Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-		out << "changed server `" << _name << "' state to `Activating'";
+		out << "changed server `" << _id << "' state to `Activating'";
 	    }
 	    else if(_state == ServerI::Deactivating)
 	    {
 		Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-		out << "changed server `" << _name << "' state to `Deactivating'";
+		out << "changed server `" << _id << "' state to `Deactivating'";
 	    }
 	    else if(_state == ServerI::Destroying)
 	    {
 		Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-		out << "changed server `" << _name << "' state to `Destroying'";
+		out << "changed server `" << _id << "' state to `Destroying'";
 	    }
 	}
     }

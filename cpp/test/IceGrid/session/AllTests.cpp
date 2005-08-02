@@ -205,7 +205,7 @@ public:
 	ServerDynamicInfoSeq::iterator p;
 	for(p = servers.begin(); p != servers.end(); ++p)
 	{
-	    if(p->name == info.name)
+	    if(p->id == info.id)
 	    {
 		if(info.state == Destroyed)
 		{

@@ -120,7 +120,7 @@ NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& ser
     ServerDynamicInfoSeq::iterator p = servers.begin();
     while(p != servers.end())
     {
-	if(p->name == server.name)
+	if(p->id == server.id)
 	{
 	    if(server.state == Destroyed || server.state == Inactive)
 	    {
