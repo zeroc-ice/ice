@@ -252,7 +252,7 @@ class ServerDescriptor extends CommunicatorDescriptor
     string deactivationTimeout;
 };
 dictionary<string, ServerDescriptor> ServerDescriptorDict;
-sequence<ServerDescriptor> ServerDescriptorSeq;
+["java:type:java.util.LinkedList"] sequence<ServerDescriptor> ServerDescriptorSeq;
 
 
 /**
@@ -277,7 +277,7 @@ class ServiceDescriptor extends CommunicatorDescriptor
     string entry;
 };
 dictionary<string, ServiceDescriptor> ServiceDescriptorDict;
-sequence<ServiceDescriptor> ServiceDescriptorSeq;
+["java:type:java.util.LinkedList"] sequence<ServiceDescriptor> ServiceDescriptorSeq;
 
 struct ServerInstanceDescriptor
 {
