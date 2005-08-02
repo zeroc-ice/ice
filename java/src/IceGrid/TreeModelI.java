@@ -21,15 +21,6 @@ import IceGrid.TreeNode.ApplicationViewRoot;
 
 public class TreeModelI implements TreeModel
 {
-    //
-    // Available views
-    //
-    static public final int NODE_VIEW = 0;
-    static public final int APPLICATION_VIEW = 1;
-
-    static public final int VIEW_COUNT = 2;
-
-
     public Object getRoot()
     {
 	return _root;
@@ -140,8 +131,5 @@ public class TreeModelI implements TreeModel
     
     private Object _root;
     private EventListenerList _listenerList = new EventListenerList();
-
-    private static TreeModelI _nodeModel;
-    private static TreeModelI _applicationModel;
 }
 
