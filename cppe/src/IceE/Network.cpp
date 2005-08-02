@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceE/Network.h>
-#include <IceE/LocalExceptions.h>
+#include <IceE/LocalException.h>
 #include <IceE/SafeStdio.h>
 
 using namespace std;

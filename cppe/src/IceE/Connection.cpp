@@ -16,7 +16,7 @@
 #include <IceE/Transceiver.h>
 #include <IceE/Endpoint.h>
 #include <IceE/Outgoing.h>
-#include <IceE/LocalExceptions.h>
+#include <IceE/LocalException.h>
 #include <IceE/Protocol.h>
 #include <IceE/ReferenceFactory.h> // For createProxy().
 #include <IceE/ProxyFactory.h> // For createProxy().

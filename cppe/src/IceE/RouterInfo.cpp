@@ -14,7 +14,7 @@
 #include <IceE/RouterInfo.h>
 #include <IceE/Router.h>
 #include <IceE/RoutingTable.h>
-#include <IceE/LocalExceptions.h>
+#include <IceE/LocalException.h>
 #include <IceE/Connection.h> // For ice_connection()->timeout().
 #include <IceE/Functional.h>
 

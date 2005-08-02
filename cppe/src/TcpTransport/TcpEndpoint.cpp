@@ -12,7 +12,7 @@
 #include <IceE/Connector.h>
 #include <IceE/Transceiver.h>
 #include <IceE/BasicStream.h>
-#include <IceE/LocalExceptions.h>
+#include <IceE/LocalException.h>
 #include <IceE/Instance.h>
 #include <IceE/DefaultsAndOverrides.h>
 #include <IceE/SafeStdio.h>

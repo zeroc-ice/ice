@@ -38,7 +38,7 @@ ICE_OBJS	= BasicStream.o \
 		  IdentityUtil.o \
 		  Initialize.o \
 		  Instance.o \
-		  LocalExceptions.o \
+		  LocalException.o \
 		  LocalObject.o \
 		  LocatorInfo.o \
 		  LoggerI.o \

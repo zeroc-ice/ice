@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceE/LocalExceptions.h>
+#include <IceE/LocalException.h>
 #include <IceE/SafeStdio.h>
 #include <IceE/IdentityUtil.h>
 #include <IceE/Network.h>

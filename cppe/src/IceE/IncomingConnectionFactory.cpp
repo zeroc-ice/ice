@@ -17,7 +17,7 @@
 #include <IceE/Transceiver.h>
 #include <IceE/Acceptor.h>
 #include <IceE/Endpoint.h>
-#include <IceE/LocalExceptions.h>
+#include <IceE/LocalException.h>
 #include <IceE/Functional.h>
 
 using namespace std;

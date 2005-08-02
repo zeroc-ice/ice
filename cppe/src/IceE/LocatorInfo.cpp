@@ -13,7 +13,7 @@
 
 #include <IceE/LocatorInfo.h>
 #include <IceE/Locator.h>
-#include <IceE/LocalExceptions.h>
+#include <IceE/LocalException.h>
 #include <IceE/Instance.h>
 #include <IceE/TraceLevels.h>
 #include <IceE/LoggerUtil.h>

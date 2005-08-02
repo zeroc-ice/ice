@@ -18,7 +18,7 @@
 #include <IceE/Properties.h>
 #include <IceE/LoggerUtil.h>
 #include <IceE/TraceLevels.h>
-#include <IceE/LocalExceptions.h>
+#include <IceE/LocalException.h>
 #include <IceE/SafeStdio.h>
 
 using namespace std;

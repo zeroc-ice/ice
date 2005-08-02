@@ -13,7 +13,7 @@
 #include <IceE/ReferenceFactory.h>
 #include <IceE/ProxyFactory.h>
 #include <IceE/LoggerUtil.h>
-#include <IceE/LocalExceptions.h>
+#include <IceE/LocalException.h>
 #ifndef ICEE_PURE_CLIENT
 #    include <IceE/ObjectAdapterFactory.h>
 #endif

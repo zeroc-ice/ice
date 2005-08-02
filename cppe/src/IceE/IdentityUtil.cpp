@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceE/IdentityUtil.h>
-#include <IceE/LocalExceptions.h>
+#include <IceE/LocalException.h>
 #include <IceE/StringUtil.h>
 
 using namespace std;

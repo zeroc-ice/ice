@@ -11,7 +11,7 @@
 #define ICEE_ICEE_H
 
 #include <IceE/Initialize.h>
-#include <IceE/LocalExceptions.h>
+#include <IceE/LocalException.h>
 #include <IceE/Properties.h>
 #include <IceE/Logger.h>
 #include <IceE/LoggerUtil.h>

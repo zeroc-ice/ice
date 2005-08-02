@@ -16,7 +16,7 @@
 #include <IceE/IncomingConnectionFactory.h>
 #include <IceE/OutgoingConnectionFactory.h>
 #include <IceE/ServantManager.h>
-#include <IceE/LocalExceptions.h>
+#include <IceE/LocalException.h>
 #include <IceE/Properties.h>
 #include <IceE/Functional.h>
 #ifdef ICEE_HAS_LOCATOR

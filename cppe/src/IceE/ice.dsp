@@ -266,7 +266,7 @@ SOURCE=.\Instance.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\LocalExceptions.cpp
+SOURCE=.\LocalException.cpp
 # End Source File
 # Begin Source File
 

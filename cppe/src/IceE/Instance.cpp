@@ -21,7 +21,7 @@
 #include <IceE/ReferenceFactory.h>
 #include <IceE/ProxyFactory.h>
 #include <IceE/OutgoingConnectionFactory.h>
-#include <IceE/LocalExceptions.h>
+#include <IceE/LocalException.h>
 #include <IceE/Properties.h>
 #include <IceE/LoggerI.h>
 #include <IceE/EndpointFactory.h>

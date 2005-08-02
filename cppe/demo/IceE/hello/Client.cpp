@@ -67,6 +67,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    if(c == 't')
 	    {
 		twoway->sayHello();
+		communicator->getLogger()->warning("a message");
+		communicator->getLogger()->error("a message");
 	    }
 	    else if(c == 'o')
 	    {
