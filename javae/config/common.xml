@@ -27,15 +27,6 @@
 	</and>
     </condition>
 
-    <condition property="installtype" value="rpm">
-	<and>
-	    <available file="/usr/share/slice/IceE"/>
-            <not>
-                <isset property="installtype"/>
-            </not>
-	</and>
-    </condition>
-
     <condition property="installtype" value="opt">
 	<and>
 	     <available file="${env.ICEE_HOME}/slice" />
@@ -61,13 +52,6 @@
 	</and>
     </condition>
 
-    <condition property="is-rpm">
-	<and>
-	    <isset property="installtype"/>
-	    <equals arg1="rpm" arg2="${installtype}"/>
-	</and>
-    </condition>
-
     <condition property="is-src">
 	<and>
 	    <isset property="installtype"/>
@@ -79,7 +63,8 @@
         <available file="${env.ICEE_HOME}/slice" property="is-cvs-valid"/>
 	<fail message="ICEE_HOME is not set to a valid directory" unless="is-cvs-valid"/>
 
-	<property name="slice.dir" value="${env.ICEE_HOME}/slice"/>
+	<property name="slice.dir.1" value="${env.ICEE_HOME}/slice"/>
+	<property name="slice.dir.2" value="${top.dir}/slice"/>
 	<property name="lib.dir" value="${top.dir}/${targetProfile}/lib" />
 	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
 	<taskdef name="jadfile" classpath="${top.dir}/ant" classname="JADTask"/>
@@ -92,27 +77,21 @@
 	<!-- TODO: fix lib.dir for targetProfile -->
 	<property name="lib.dir" value="${env.ICEE_HOME}/lib" />
 	
-	<property name="slice.dir" value="${env.ICEE_HOME}/slice"/>
+	<property name="slice.dir.1" value="${env.ICEE_HOME}/slice"/>
+	<property name="slice.dir.2" value="${env.ICEE_HOME}/slice"/>
 	<taskdef name="slice2javae" classpath="${env.ICEE_HOME}/ant" classname="Slice2JavaETask"/>
 	<taskdef name="jadfile" classpath="${env.ICEE_HOME}/ant" classname="JADTask"/>
     </target>
 
     <target name="properties-src" if="is-src">
 	<property name="lib.dir" value="${top.dir}/${targetProfile}/lib" />
-	<property name="slice.dir" value="${top.dir}/slice"/>
+	<property name="slice.dir.1" value="${top.dir}/slice"/>
+	<property name="slice.dir.2" value="${top.dir}/slice"/>
 	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
 	<taskdef name="jadfile" classpath="${top.dir}/ant" classname="JADTask"/>
     </target>
 
-    <target name="properties-rpm" if="is-rpm">
-	<!-- TODO: fix lib.dir for targetProfile -->
-	<property name="lib.dir" value="/usr/lib/Ice-ICE_VERSION" />
-	<property name="slice.dir" value="/usr/share/slice"/>
-	<taskdef name="slice2javae" classpath="${lib.dir}/ant" classname="Slice2JavaETask"/>
-	<taskdef name="jadfile" classpath="${lib.dir}/ant" classname="JADTask"/>
-    </target>
-    
-    <target name="config-impl" depends="properties-cvs,properties-opt,properties-src,properties-rpm">
+    <target name="config-impl" depends="properties-cvs,properties-opt,properties-src">
         <!-- Create the time stamp -->
         <tstamp/>
 

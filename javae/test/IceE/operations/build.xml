@@ -24,9 +24,6 @@
         <mkdir dir="${generated.dir}"/>
         <slice2javae outputdir="${generated.dir}">
             <fileset dir="." includes="Test.ice"/>
-            <includepath>
-                <pathelement path="${slice.dir}" />
-            </includepath>
         </slice2javae>
     </target>
 

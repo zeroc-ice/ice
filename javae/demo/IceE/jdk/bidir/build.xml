@@ -24,7 +24,7 @@
         <mkdir dir="${generated.dir}"/>
         <slice2javae outputdir="${generated.dir}">
 	    <includepath>
-                <pathelement path="${slice.dir}"/>
+                <pathelement path="${slice.dir.1}"/>
             </includepath>
             <fileset dir="." includes="Callback.ice"/>
         </slice2javae>

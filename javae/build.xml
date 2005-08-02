@@ -28,16 +28,18 @@
         <mkdir dir="${generated.dir}"/>
         <slice2javae ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Ice">
             <includepath>
-                <pathelement path="${slice.dir}" />
+                <pathelement path="${slice.dir.1}" />
             </includepath>
-            <fileset dir="${slice.dir}/IceE">
+            <fileset dir="${slice.dir.1}/IceE">
                 <include name="BuiltinSequences.ice" />
                 <include name="FacetMap.ice" />
                 <include name="Identity.ice" />
-                <include name="LocalException.ice" />
                 <include name="Locator.ice" />
                 <include name="Logger.ice" />
                 <include name="Router.ice" />
+            </fileset>
+            <fileset dir="${slice.dir.2}/IceE">
+                <include name="LocalException.ice" />
             </fileset>
         </slice2javae>
     </target>
