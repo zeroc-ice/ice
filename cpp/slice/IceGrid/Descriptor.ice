@@ -526,7 +526,7 @@ struct NodeUpdateDescriptor
      **/
     Ice::StringSeq removeServers;    
 };
-sequence<NodeUpdateDescriptor> NodeUpdateDescriptorSeq;
+["java:type:java.util.LinkedList"] sequence<NodeUpdateDescriptor> NodeUpdateDescriptorSeq;
 
 struct ApplicationUpdateDescriptor
 {
