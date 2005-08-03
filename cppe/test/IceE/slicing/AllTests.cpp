@@ -59,7 +59,7 @@ private:
 TestIntfPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    string ref = communicator->getProperties()->getPropertyWithDefault("Test.Proxy", "Test:default -p 12345");
+    string ref = communicator->getProperties()->getPropertyWithDefault("Slicing.Proxy", "Test:default -p 12345");
     Ice::ObjectPrx obj = communicator->stringToProxy(ref);
     TestIntfPrx test = TestIntfPrx::checkedCast(obj);
 

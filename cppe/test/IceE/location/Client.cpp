@@ -34,9 +34,8 @@ public:
         loadConfig(properties);
         setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
-        void allTests(const Ice::CommunicatorPtr&, const string&);
-	allTests(communicator(), properties->getPropertyWithDefault(
-		     "Test.Locator.ServerManager", "ServerManager:default -p 12345 -t 10000"));
+        void allTests(const Ice::CommunicatorPtr&);
+	allTests(communicator());
 
         return EXIT_SUCCESS;
     }
