@@ -224,8 +224,8 @@ public:
         if(verbose)
 #endif
         {
-            tprintf("Each UUID took an average of %f micro seconds to generate and insert into a set<string>.\n",
-	           (double) ((finish - start).toMicroSeconds()) / howMany);
+            tprintf("Each UUID took an average of %.04f ms to generate and insert into a set<string>.\n",
+		    ((double) ((finish - start).toMilliSeconds())) / howMany);
         }
 
         return EXIT_SUCCESS;
