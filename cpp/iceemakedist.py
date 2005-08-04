@@ -411,9 +411,9 @@ for makeFileName in [os.path.join("ice", "src", "IceUtil", "Makefile"), \
 config = open(os.path.join("icee", "include", "IceE", "Config.h"), "r")
 version = re.search("ICEE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
 
-#print "Fixing version in README and INSTALL files..."
-#fixVersion(find("ice", "README*"), version)
-#fixVersion(find("ice", "INSTALL*"), version)
+print "Fixing version in README and INSTALL files..."
+fixVersion(find("ice", "README*"), version)
+fixVersion(find("ice", "INSTALL*"), version)
 
 #
 # Create archives.
