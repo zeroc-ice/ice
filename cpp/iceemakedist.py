@@ -232,6 +232,8 @@ os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -l " + tag + 
 	  "ice/include " +
 	  "ice/include/IceUtil " +
 	  "ice/include/Slice " +
+	  "ice/install " +
+	  "ice/install/icee " +
 	  "ice/lib " +
 	  "ice/src " +
 	  "ice/src/icecpp " +
@@ -244,10 +246,24 @@ os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -l " + tag + 
 	 )
 
 #
+# Copy Ice-E specific install files.
+#
+print "Copying icee install files..."
+shutil.copyfile(os.path.join("ice", "install", "icee", "ICE_LICENSE"), os.path.join("ice", "ICE_LICENSE"))
+shutil.copyfile(os.path.join("ice", "install", "icee", "INSTALL.LINUX"), os.path.join("ice", "INSTALL.LINUX"))
+shutil.copyfile(os.path.join("ice", "install", "icee", "INSTALL.WINDOWS"), os.path.join("ice", "INSTALL.WINDOWS"))
+
+#
 # Remove files.
 #
 print "Removing unnecessary files..."
 filesToRemove = [ \
+    os.path.join("ice", "CHANGES"), \
+    os.path.join("ice", "INSTALL.AIX"), \
+    os.path.join("ice", "INSTALL.FREEBSD"), \
+    os.path.join("ice", "INSTALL.HP-UX"), \
+    os.path.join("ice", "INSTALL.MACOSX"), \
+    os.path.join("ice", "INSTALL.SOLARIS"), \
     os.path.join("ice", "iceemakedist.py"), \
     os.path.join("ice", "makedist.py"), \
     os.path.join("ice", "makebindist.py"), \
@@ -266,6 +282,7 @@ filesToRemove = [ \
 filesToRemove.extend(find("ice", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
+shutil.rmtree(os.path.join("ice", "install"))
 
 #
 # Generate bison files.
