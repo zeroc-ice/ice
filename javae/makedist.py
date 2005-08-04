@@ -18,7 +18,6 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    print "-d    Skip SGML documentation conversion."
     print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
@@ -61,14 +60,11 @@ win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 # Check arguments
 #
 tag = "-rHEAD"
-skipDocs = 0
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
-    elif x == "-d":
-        skipDocs = 1
     elif x == "-v":
         verbose = 1
     elif x.startswith("-"):
@@ -78,10 +74,6 @@ for x in sys.argv[1:]:
         sys.exit(1)
     else:
         tag = "-r" + x
-
-if win32 and not skipDocs:
-    print sys.argv[0] + ": the documentation cannot be built on Windows."
-    sys.exit(1)
 
 #
 # Remove any existing "dist" directory and create a new one.
@@ -93,80 +85,39 @@ os.mkdir(distdir)
 os.chdir(distdir)
 
 #
-# Export Java sources from CVS.
+# Export Ice-EJ sources from CVS.
 #
 print "Checking out CVS tag " + tag + "..."
 if verbose:
     quiet = ""
 else:
     quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icej")
+os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " iceje icee/slice")
 
-#
-# Export C++ sources.
-#
-# NOTE: Assumes that the C++ and Java trees will use the same tag.
-#
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
 #
 # Copy Slice directories.
 #
-print "Copying Slice directories..."
-slicedirs = [\
-    "Freeze",\
-    "Glacier2",\
-    "Ice",\
-    "IceBox",\
-    "IcePack",\
-    "IceStorm",\
-]
-os.mkdir(os.path.join("icej", "slice"))
-for x in slicedirs:
-    shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icej", "slice", x), 1)
-#
-# Generate HTML documentation. We need to build icecpp
-# and slice2docbook first.
-#
-if not skipDocs:
-    print "Generating documentation..."
-    cwd = os.getcwd()
-    os.chdir(os.path.join("ice", "src", "icecpp"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "IceUtil"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "Slice"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2docbook"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "doc"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.mkdir(os.path.join("icej", "doc"))
-    os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icej", "doc", "reference"))
-    os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icej", "doc", "README.html"))
-    os.rename(os.path.join("ice", "doc", "images"), os.path.join("icej", "doc", "images"))
+print "Copying Slice files..."
+for x in os.listdir(os.path.join("icee", "slice", "IceE")):
+    shutil.copy(os.path.join("icee", "slice", "IceE", x), os.path.join("iceje", "slice", "IceE"))
 
 #
 # Remove files.
 #
 print "Removing unnecessary files..."
 filesToRemove = [ \
-    os.path.join("icej", "makedist.py"), \
+    os.path.join("iceje", "makedist.py"), \
     ]
-filesToRemove.extend(find("icej", ".dummy"))
+filesToRemove.extend(find("iceje", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
 
 #
-# Build sources.
+# Build sources (for JDK and MIDP).
 #
 print "Compiling..."
 cwd = os.getcwd()
-os.chdir("icej")
+os.chdir("iceje")
 if verbose:
     quiet = ""
 else:
@@ -174,38 +125,38 @@ else:
 os.system("ant" + quiet)
 
 #
-# Clean out the lib directory but save Ice.jar.
+# Clean out the lib directories but save IceE.jar.
 #
-os.rename(os.path.join("lib", "Ice.jar"), "Ice.jar")
-shutil.rmtree("lib")
-os.mkdir("lib")
-os.rename("Ice.jar", os.path.join("lib", "Ice.jar"))
+os.rename(os.path.join("jdk", "lib", "IceE.jar"), "IceE.jar")
+shutil.rmtree(os.path.join("jdk", "lib"))
+os.mkdir(os.path.join("jdk", "lib"))
+os.rename("IceE.jar", os.path.join("jdk", "lib", "IceE.jar"))
 
 os.chdir(cwd)
 
 #
 # Get Ice version.
 #
-config = open(os.path.join("icej", "src", "IceUtil", "Version.java"), "r")
-version = re.search("ICE_STRING_VERSION = \"([0-9\.]*)\"", config.read()).group(1)
+config = open(os.path.join("iceje", "src", "IceUtil", "Version.java"), "r")
+version = re.search("ICEE_STRING_VERSION = \"([0-9\.]*)\"", config.read()).group(1)
 
 print "Fixing version in README and INSTALL files..."
-fixVersion(find("ice", "README*"), version)
-fixVersion(find("ice", "INSTALL*"), version)
+fixVersion(find("iceje", "README*"), version)
+fixVersion(find("iceje", "INSTALL*"), version)
 
 #
 # Copy KNOWN_ISSUES.txt
 #
-shutil.copyfile(os.path.join("ice", "install", "vc71", "doc", "KNOWN_ISSUES.txt"), os.path.join("icej", "KNOWN_ISSUES.txt"))
+#shutil.copyfile(os.path.join("ice", "install", "vc71", "doc", "KNOWN_ISSUES.txt"), os.path.join("icej", "KNOWN_ISSUES.txt"))
 
-shutil.rmtree("ice")
+shutil.rmtree("icee")
 
 #
 # Create source archives.
 #
 print "Creating distribution..."
-icever = "IceJ-" + version
-os.rename("icej", icever)
+icever = "IceJE-" + version
+os.rename("iceje", icever)
 if verbose:
     quiet = "v"
 else:
@@ -220,7 +171,7 @@ os.system("zip -9 -r " + quiet + " " + icever + ".zip " + icever)
 #
 # Copy files (README, etc.).
 #
-shutil.copyfile(os.path.join(icever, "CHANGES"), "IceJ-" + version + "-CHANGES")
+#shutil.copyfile(os.path.join(icever, "CHANGES"), "IceJ-" + version + "-CHANGES")
 
 #
 # Done.
