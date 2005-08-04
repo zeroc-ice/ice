@@ -29,9 +29,11 @@ public:
     run(int argc, char* argv[])
     {
 	Ice::PropertiesPtr properties = Ice::createProperties();
-	properties->setProperty("Ice.Default.Locator", "locator:default -p 12345");
-
         loadConfig(properties);
+
+	properties->setProperty("Ice.Default.Locator",
+				properties->getPropertyWithDefault(
+				    "Location.Locator", "locator:default -p 12345"));
         setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
         void allTests(const Ice::CommunicatorPtr&);

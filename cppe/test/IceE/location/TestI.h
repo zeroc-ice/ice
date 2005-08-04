@@ -30,9 +30,9 @@ public:
 private:
 
     Ice::ObjectAdapterPtr _adapter;
-    std::vector<Ice::CommunicatorPtr> _communicators;
     ServerLocatorRegistryPtr _registry;
     Ice::PropertiesPtr _properties;
+    std::vector<Ice::CommunicatorPtr> _communicators;
 };
 
 class HelloI : public Test::Hello

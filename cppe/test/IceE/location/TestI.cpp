@@ -40,15 +40,13 @@ ServerManagerI::startServer(const Ice::Current&)
     //
     Ice::CommunicatorPtr serverCommunicator = Ice::initializeWithProperties(argc, argv, _properties);
     _communicators.push_back(serverCommunicator); 
-    serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints", "default");
-    serverCommunicator->getProperties()->setProperty("TestAdapter.AdapterId", "TestAdapter");
-    Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
 
-    serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default");
-    serverCommunicator->getProperties()->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
+    Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
     Ice::ObjectAdapterPtr adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
 
+    // Note that this assumes the server is running port 12345.
     Ice::ObjectPrx locator = serverCommunicator->stringToProxy("locator:default -p 12345");
+
     adapter->setLocator(Ice::LocatorPrx::uncheckedCast(locator));
     adapter2->setLocator(Ice::LocatorPrx::uncheckedCast(locator));
 
@@ -63,6 +61,14 @@ ServerManagerI::startServer(const Ice::Current&)
 void
 ServerManagerI::shutdown(const Ice::Current&)
 {
+    //
+    // Clear the registry.
+    //
+    _registry->clear();
+
+    //
+    // Destroy each of the communicators.
+    //
     for(::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
     {
 	(*i)->destroy();
@@ -72,7 +78,6 @@ ServerManagerI::shutdown(const Ice::Current&)
     tprintf("The server has shutdown, close the window to terminate the server.");
 #endif
 }
-
 
 TestI::TestI(const Ice::ObjectAdapterPtr& adapter, 
 	     const Ice::ObjectAdapterPtr& adapter2, 

@@ -57,6 +57,13 @@ ServerLocatorRegistry::addObject(const Ice::ObjectPrx& object)
     _objects[object->ice_getIdentity()] = object;
 }
 
+void
+ServerLocatorRegistry::clear()
+{
+    _objects.clear();
+    _adapters.clear();
+}
+
 ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::Ice::LocatorRegistryPrx& registryPrx) :
     _registry(registry),
     _registryPrx(registryPrx)

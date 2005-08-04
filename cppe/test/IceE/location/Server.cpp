@@ -33,6 +33,16 @@ public:
         properties->setProperty("ServerManager.Endpoints", "default -p 12345");
 
         loadConfig(properties);
+
+	//
+	// These properties cannot be overridden. The OAs started by
+	// the ServerManager must be local.
+	//
+	properties->setProperty("TestAdapter.Endpoints", "default");
+	properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
+	properties->setProperty("TestAdapter2.Endpoints", "default");
+	properties->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
+
         setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
         //

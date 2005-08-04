@@ -31,6 +31,7 @@ public:
     ::Ice::ObjectPrx getAdapter(const ::std::string&) const;
     ::Ice::ObjectPrx getObject(const ::Ice::Identity&) const;
     void addObject(const ::Ice::ObjectPrx&);
+    void clear();
 
 private:
     
