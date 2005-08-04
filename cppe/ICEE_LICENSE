@@ -4,7 +4,7 @@ This copy of Ice-E is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 as 
 published by the Free Software Foundation.
 
-Ice is distributed in the hope that it will be useful, but WITHOUT ANY 
+Ice-E is distributed in the hope that it will be useful, but WITHOUT ANY 
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 details.
@@ -15,10 +15,10 @@ copy of the license, write to the Free Software Foundation, 59 Temple
 Place, Suite 330, Boston, MA 02111 USA.
 
 In addition, as a special exception, ZeroC, Inc. gives permission to link 
-Ice with the OpenSSL library (or with modified versions of OpenSSL
+Ice-E with the OpenSSL library (or with modified versions of OpenSSL
 that use the same license as OpenSSL), and distribute linked
 combinations including the two. You must obey the GNU General Public 
 License version 2 in all respects for all of the code used other than 
-OpenSSL. If you modify this copy of Ice, you may extend this exception 
-to your version of Ice, but you are not obligated to do so. If you do 
+OpenSSL. If you modify this copy of Ice-E, you may extend this exception 
+to your version of Ice-E, but you are not obligated to do so. If you do 
 not wish to do so, delete this exception statement from your version.
