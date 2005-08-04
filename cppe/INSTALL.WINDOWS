@@ -40,7 +40,7 @@ http://www.zeroc.com/download.html
 STLport
 -------
 
-Ice-E required STLport 4.5 or later for Visual C++ 6.0. You can download
+Ice-E requires STLport 4.5 or later for Visual C++ 6.0. You can download
 STLport at the following location:
 
 http://www.stlport.org/download.html
