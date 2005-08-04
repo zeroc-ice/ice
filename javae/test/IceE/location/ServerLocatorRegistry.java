@@ -45,6 +45,6 @@ public class ServerLocatorRegistry extends Ice._LocatorRegistryDisp
 	_objects.put(object.ice_getIdentity(), object);
     }
     
-    private java.util.HashMap _adapters = new java.util.HashMap();
-    private java.util.HashMap _objects = new java.util.HashMap();
+    private java.util.Hashtable _adapters = new java.util.Hashtable();
+    private java.util.Hashtable _objects = new java.util.Hashtable();
 }
