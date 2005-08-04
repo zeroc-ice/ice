@@ -237,6 +237,7 @@ os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -l " + tag + 
 	  "ice/src/icecpp " +
 	  "ice/src/IceUtil " +
 	  "ice/src/Slice " +
+	  "ice/src/Slice/dummyinclude " +
 	  "ice/src/slice2cppe " +
 	  "ice/src/slice2javae " +
 	  "icee/include/IceE/Config.h "
