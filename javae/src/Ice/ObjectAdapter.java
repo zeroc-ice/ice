@@ -143,7 +143,6 @@ public final class ObjectAdapter
 	    return;
 	}
 	
-	final int sz = _incomingConnectionFactories.size();
 	java.util.Enumeration e = _incomingConnectionFactories.elements();
 	while(e.hasMoreElements())
 	{

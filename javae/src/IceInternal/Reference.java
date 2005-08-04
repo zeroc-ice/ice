@@ -339,7 +339,7 @@ public abstract class Reference
 	    return false;
 	}
 
-	if(!_context.equals(r._context))
+	if(!IceUtil.Hashtable.equals(_context, r._context))
 	{
 	    return false;
 	}

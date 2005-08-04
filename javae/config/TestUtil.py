@@ -51,7 +51,6 @@ def isWin9x():
 # Only used for C++ programs
 serverPids = []
 def killServers():
-
     global serverPids
 
     if isCygwin():

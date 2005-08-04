@@ -11,6 +11,78 @@ package IceInternal;
 
 final class TcpTransceiver implements Transceiver
 {
+    private class ReadThread extends Thread
+    {
+	ReadThread(BasicStream stream, int timeout)
+	{
+	    _stream = stream;
+	}
+
+	public void
+	run()
+	{
+	    try
+	    {
+		readImpl(_stream);
+	    }
+	    catch(RuntimeException ex)
+	    {
+		_ex = ex;
+	    }
+	    
+	    synchronized(this)
+	    {
+		_done = true;
+		notifyAll();
+	    }
+	}
+
+	public void 
+	read()
+	{
+	    long absoluteTimeout = System.currentTimeMillis() + _timeout;
+	    long interval = _timeout;
+	    
+	    synchronized(this)
+	    {
+		//
+		// The _done flag protects against the situation where the read thread has completed before we get
+		// this far in this call.
+		//
+		while(_ex == null && !_done)
+		{
+		    try
+		    {
+			wait(interval);
+			break;
+		    }
+		    catch(InterruptedException ex)
+		    {
+			//
+			// Reduce the wait interval by the amount of time already waited.
+			//
+			interval = absoluteTimeout - System.currentTimeMillis();
+			if(interval <= 0)
+			{
+			    throw new Ice.TimeoutException();
+			}
+			continue;
+		    }
+		}
+
+		if(_ex != null)
+		{
+		    throw _ex;
+		}
+	    }
+	}
+
+	int _timeout;
+	BasicStream _stream;
+	java.lang.RuntimeException _ex = null;
+	boolean _done = false;
+    }
+    
     public void
     close()
     {
@@ -46,9 +118,16 @@ final class TcpTransceiver implements Transceiver
     public void
     shutdownWrite()
     {
-	//
-	// Not implemented.
-	//
+	try
+	{
+	    _out.close();
+	}
+	catch(java.io.IOException ex)
+	{
+	    //
+	    // TODO: Take appropriate action here.
+	    //
+	}
     }
 
     public void
@@ -65,6 +144,18 @@ final class TcpTransceiver implements Transceiver
 	    IceUtil.Debug.Assert(_connection != null);
 	}
 
+	try
+	{
+	    _in.close();
+	    _out.close();
+	}
+	catch(java.io.IOException ex)
+	{
+	    //
+	    // TODO: Take appropriate action here.
+	    //
+	}
+	
 	_shutdown = true;
     }
 
@@ -112,6 +203,30 @@ final class TcpTransceiver implements Transceiver
     public void
     read(BasicStream stream, int timeout)
     {
+	//
+	// TODO: TcpConnector translates a 0 timeout to 1. Do we want to do the same here for consistency or do we
+	// assert?
+	//
+	IceUtil.Debug.Assert(timeout == -1 || timeout > 0);
+	if(timeout < 0)
+	{
+	    readImpl(stream);
+	}
+	else
+	{
+	    ReadThread t = new ReadThread(stream, timeout);
+	    t.start();
+
+	    //
+	    // This blocks until either an exception is thrown by readImpl() or the timeout expires.
+	    //
+	    t.read();
+	}
+    }
+
+    protected void
+    readImpl(BasicStream stream)
+    {
 	ByteBuffer buf = stream.prepareRead();
 
 	int remaining = 0;
@@ -122,18 +237,11 @@ final class TcpTransceiver implements Transceiver
 
 	byte[] data = buf.array();
 
-	int interval = 500;
-	if(timeout >= 0 && timeout < interval)
-	{
-	    interval = timeout;
-	}
-
 	while(buf.hasRemaining() && !_shutdown)
 	{
 	    int pos = buf.position();
 	    try
 	    {
-		// _fd.setSoTimeout(interval); XXX
 		if(IceUtil.Debug.ASSERT)
 		{
 		    IceUtil.Debug.Assert(_connection != null);
@@ -160,14 +268,6 @@ final class TcpTransceiver implements Transceiver
 		if(ex.bytesTransferred > 0)
 		{
 		    buf.position(pos + ex.bytesTransferred);
-		}
-		if(timeout >= 0)
-		{
-		    if(interval >= timeout)
-		    {
-			throw new Ice.TimeoutException();
-		    }
-		    timeout -= interval;
 		}
 	    }
 	    catch(java.io.IOException ex)
