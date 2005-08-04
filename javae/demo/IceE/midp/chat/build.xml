@@ -1,0 +1,134 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+ -->
+
+<project name="demo_Ice_chat" default="all" basedir=".">
+
+    <!-- set global properties for this build -->
+    <property name="top.dir" value="../../.."/>
+
+    <!-- Include common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+
+    <property name="tmp.dir" value="tmp"/>
+
+    <taskdef name="proguard" classname="proguard.ant.ProGuardTask" onerror="ignore"/>
+
+    <target name="init" depends="config-init"/>
+
+    <target name="generate" depends="init">
+        <!-- Create the output directory for generated code -->
+        <mkdir dir="${generated.dir}"/>
+        <slice2javae outputdir="${generated.dir}">
+	    <includepath>
+		<pathelement path="." />
+		<pathelement path="${slice.dir.1}" />
+	    </includepath>
+            <fileset dir=".">
+		<include name="Chat.ice"/>
+		<include name="Router.ice"/>
+		<include name="Session.ice"/>
+	    </fileset>
+        </slice2javae>
+    </target>
+
+    <target name="compile" depends="generate">
+        <mkdir dir="${class.dir}"/>
+	<javac srcdir="${generated.dir}" destdir ="${class.dir}" source="1.3" debug="${debug}">
+	    <bootclasspath refid="bootclasspath"/>  
+ 	    <classpath refid="ice.classpath"/>
+	</javac>
+        <javac srcdir="." destdir="${class.dir}" source="1.3" excludes="generated/**" debug="${debug}">
+	    <bootclasspath refid="bootclasspath"/>  
+            <classpath>
+	       <path refid="ice.classpath"/>
+	       <pathelement path="./classes"/>
+	    </classpath>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+	<mkdir dir="${tmp.dir}"/>
+	<manifest file="MANIFEST.MF">
+	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
+	    <attribute name="MIDlet-Name" value="ChatDemo"/>
+	    <attribute name="MIDlet-Vendor" value="ZeroC"/>
+	    <attribute name="MIDlet-1" value="ChatMIDlet,,ChatMIDlet"/>
+	    <attribute name="MIDlet-Version" value="1.0"/>
+	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
+        </manifest>
+
+	<jar destfile="${tmp.dir}/ChatDemo.jar" manifest="MANIFEST.MF" basedir="${class.dir}"/>
+        <jar destfile="${tmp.dir}/ChatDemo.jar" basedir="${lib.dir}" excludes="IceE.jar" update="true"/>
+    </target>
+
+    <target name="proguard" depends="jar">
+	<proguard obfuscate="false" optimize="false" printmapping="tmp/ChatDemo.map">
+	    <injar file="tmp/ChatDemo.jar"/>
+	    <libraryjar path="${WTKLIBS}"/>
+	    <outjar file="tmp/ChatDemo_pro.jar"/>
+	    <keep name="ChatMIDlet">
+		<method name="*"/>
+		<constructor parameters="*"/>
+	    </keep>
+	</proguard>
+	<move file="tmp/ChatDemo.jar" tofile="tmp/ChatDemo_orig.jar"/>
+	<move file="tmp/ChatDemo_pro.jar" tofile="tmp/ChatDemo.jar"/>
+    </target>
+
+    <target name="preverify" depends="proguard">
+	<exec executable="${WTK}/bin/preverify">
+	    <arg line="-classpath ${WTKLIBS}"/>
+	    <arg line="-d ."/>
+	    <arg line="${tmp.dir}/ChatDemo.jar"/>
+        </exec>
+    </target>
+
+    <target name="jad" depends="preverify">
+	<length property="jarfile-length" file="ChatDemo.jar"/>
+	<jadfile file="ChatDemo.jad">
+	    <attribute name="MIDlet-Version" value="1.0"/>
+            <attribute name="MIDlet-Vendor" value="ZeroC"/>
+	    <attribute name="MIDlet-Jar-URL" value="ChatDemo.jar"/>
+	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
+	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
+	    <attribute name="MIDlet-1" value="ChatMIDlet,,ChatMIDlet"/>
+	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
+	    <attribute name="MIDlet-Name" value="ChatDemo"/>
+	    <attribute name="MIDlet-Permissions" 
+		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
+        </jadfile>
+    </target>
+
+    <target name="prc" depends="jad">
+        <!-- jartoprc is a tool included with IBM's WME Developer Toolkit that converts
+	     MIDlets into a PalmOS resource file (PRC). We have to remove JAVA_HOME when
+	     running this program. -->
+	<exec executable="D:/WEMEDev/Tools/bin/jartoprc" newenvironment="true">
+	    <arg line="-jad:ChatDemo.jad"/>
+	    <arg line="-highRes"/>
+	    <arg line="-id:ZROC"/>
+	    <arg line="-name:ChatDemo"/>
+	    <env key="JAVA_HOME" value=""/>
+        </exec>
+    </target>
+
+    <target name="all" depends="jad"/>
+
+    <target name="clean">
+	<delete dir="${class.dir}"/>
+	<delete dir="${generated.dir}"/>
+	<delete dir="${tmp.dir}"/>
+	<delete quiet="true" file="ChatDemo.jar"/>
+	<delete quiet="true" file="ChatDemo.jad"/>
+	<delete quiet="true" file="ChatDemo.prc"/>
+    </target>
+
+</project>
