@@ -44,7 +44,7 @@ CFG=slicee - Win32 Debug
 # PROP Target_Dir ""
 CPP=cl.exe
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I ".." /I "../../include" /D "NDEBUG" /D "_USRDLL" /D "SLICE_API_EXPORTS" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I ".." /I "../../include" /I "dummyinclude" /D "NDEBUG" /D "_USRDLL" /D "SLICE_API_EXPORTS" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /Fr /YX
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -80,7 +80,7 @@ PostBuild_Cmds=copy $(OutDir)\slice.lib ..\..\lib\	copy $(OutDir)\slice22.dll ..
 # PROP Target_Dir ""
 CPP=cl.exe
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_DEBUG" /D "_USRDLL" /D "SLICE_API_EXPORTS" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /I "dummyinclude" /D "_DEBUG" /D "_USRDLL" /D "SLICE_API_EXPORTS" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -117,7 +117,7 @@ PostBuild_Cmds=copy $(OutDir)\sliced.lib ..\..\lib\	copy $(OutDir)\slice22d.pdb 
 MTL=midl.exe
 CPP=cl.exe
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I ".." /I "../../include" /D "NDEBUG" /D "ICE_STATIC_LIBS" /D "_LIB" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I ".." /I "../../include" /I "dummyinclude" /D "NDEBUG" /D "ICE_STATIC_LIBS" /D "_LIB" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /Fr /YX
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -130,7 +130,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                   $(OutDir)\slice.lib                                   ..\..\lib\ 
+PostBuild_Cmds=copy                                    $(OutDir)\slice.lib                                    ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "slicee - Win32 Debug Static"
@@ -149,7 +149,7 @@ PostBuild_Cmds=copy                                   $(OutDir)\slice.lib       
 MTL=midl.exe
 CPP=cl.exe
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_DEBUG" /D "ICE_STATIC_LIBS" /D "_LIB" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /I "dummyinclude" /D "_DEBUG" /D "ICE_STATIC_LIBS" /D "_LIB" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -162,7 +162,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                  $(OutDir)\sliced.lib                                  ..\..\lib\ 
+PostBuild_Cmds=copy                                   $(OutDir)\sliced.lib                                   ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
