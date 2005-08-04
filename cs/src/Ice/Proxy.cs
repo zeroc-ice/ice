@@ -996,7 +996,7 @@ namespace Ice
 			{
 			    __is.throwException();
 			}
-			catch(UserException __ex)
+			catch(UserException)
 			{
 			    throw new UnknownUserException();
 			}
@@ -1029,7 +1029,7 @@ namespace Ice
 			{
 			    __is.throwException();
 			}
-			catch(UserException __ex)
+			catch(UserException)
 			{
 			    throw new UnknownUserException();
 			}
@@ -1061,7 +1061,7 @@ namespace Ice
 			{
 			    __is.throwException();
 			}
-			catch(UserException __ex)
+			catch(UserException)
 			{
 			    throw new UnknownUserException();
 			}
@@ -1094,7 +1094,7 @@ namespace Ice
 			{
 			    __is.throwException();
 			}
-			catch(UserException __ex)
+			catch(UserException)
 			{
 			    throw new UnknownUserException();
 			}
