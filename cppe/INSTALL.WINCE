@@ -10,7 +10,7 @@ under the following environments:
 
 - The STANDARDSDK_420 Emulator
 
-- Dell Axim v50
+- Microsoft Device Emulator 1.0 Preview
 
 - HP iPaq hx2400.
 
@@ -24,6 +24,8 @@ The following Microsoft Visual C++ compilers & SDKs are supported:
 - Standard SDK for Windows CE .NET 4.2
 
 - Microsoft Pocket PC 2003 SDK
+
+- Microsoft Smartphone 2003 SDK
 
 - The Pocket PC 2003 Run-time Type Information library
 
@@ -43,9 +45,17 @@ The Microsoft Pocket PC 2003 SDK can be downloaded here:
 
 - http://www.microsoft.com/downloads/details.aspx?FamilyID=9996b314-0364-4623-9ede-0b5fbb133652&displaylang=en
 
+The Microsoft Smartphone 2003 SDK can be be downloaded here:
+
+- http://www.microsoft.com/downloads/details.aspx?FamilyID=a6c4f799-ec5c-427c-807c-4c0f96765a81&DisplayLang=en
+
 The Pocket PC 2003 Run-time Type Information library can be downloaded here:
 
 - http://support.microsoft.com/default.aspx?scid=kb;%5BLN%5D;830482
+
+Information on the Microsoft Device Emulator 1.0 Preview can be found her:
+
+http://msdn.microsoft.com/mobility/windowsmobile/downloads/emulatorpreview/default.aspx
 
 Slice to Embedded C++ translator
 --------------------------------
@@ -80,7 +90,7 @@ Users must configure Microsoft eMbedded Visual C++ to use STLPort:
 - Add the include directory for STLport first in the list. (Note that
   you must add the "include\stlport" directory, not just "include".)
 
-- Note that the Include files are per-platform/CPU, therefore it is
+- Note that "Include files" are per-platform/CPU, therefore it is
   necessary to modify the build settings for each platform/CPU that
   you wish to target.
 
@@ -111,15 +121,20 @@ Installing and Configuring
 - Add the location of the slice2cppe compiler to your "Executable
   files" list in Tools->Options->Directories.
 
+- Note that "Executable files" are per-platform/CPU, therefore it
+  is necessary to modify the build settings for each platform/CPU that
+  you wish to target.
+
 Note: On some of our development machines, the EVC 4.0 IDE would hang
 at start-up. In order to fix this problem we had to uninstall both
 EVC 4.0 and Microsoft Visual Studio 6.0. Next, we reinstalled EVC 4.0
 according to the instructions provided above. Finally, once EVC was
 working, we reinstalled Microsoft Visual Studio 6.0.
 
-If you want to compile and build for the Pocket PC 2003 SDK you must
-install the SDK, and install the Run-time type information
-library. This will appear as "Pocket PC 2003" in the listed platforms.
+If you want to compile and build for the Pocket PC 2003 SDK or
+Smartphone 2003 SDK you must install the appropriate SDK, and install
+the Run-time type information library. This will appear as "Pocket PC
+2003" or "Smartphone 2003" XXX: in the listed platforms.
 
 ======================================================================
 Compilation and Testing
