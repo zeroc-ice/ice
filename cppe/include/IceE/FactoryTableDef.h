@@ -15,7 +15,7 @@
 #include <IceE/StaticMutex.h>
 #include <IceE/Mutex.h>
 
-namespace Ice
+namespace IceInternal
 {
 
 class ICEE_API FactoryTableDef : private IceUtil::noncopyable

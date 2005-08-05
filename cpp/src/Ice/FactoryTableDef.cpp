@@ -14,7 +14,7 @@
 #   include <dlfcn.h>
 #endif
 
-namespace Ice
+namespace IceInternal
 {
 
 FactoryTableWrapper factoryTableWrapper;	// Single global instance of the wrapper object that
@@ -29,7 +29,7 @@ ICE_API FactoryTableDef* factoryTable;		// Single global instance of the factory
 // If the factory is present already, increment its reference count.
 //
 void
-Ice::FactoryTableDef::addExceptionFactory(const std::string& t, const IceInternal::UserExceptionFactoryPtr& f)
+IceInternal::FactoryTableDef::addExceptionFactory(const std::string& t, const IceInternal::UserExceptionFactoryPtr& f)
 {
     IceUtil::Mutex::Lock lock(_m);
     EFTable::iterator i = _eft.find(t);
@@ -47,7 +47,7 @@ Ice::FactoryTableDef::addExceptionFactory(const std::string& t, const IceInterna
 // Return the exception factory for a given type ID
 //
 IceInternal::UserExceptionFactoryPtr
-Ice::FactoryTableDef::getExceptionFactory(const std::string& t) const
+IceInternal::FactoryTableDef::getExceptionFactory(const std::string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     EFTable::const_iterator i = _eft.find(t);
@@ -83,7 +83,7 @@ Ice::FactoryTableDef::getExceptionFactory(const std::string& t) const
 // entry from the table.
 //
 void
-Ice::FactoryTableDef::removeExceptionFactory(const std::string& t)
+IceInternal::FactoryTableDef::removeExceptionFactory(const std::string& t)
 {
     IceUtil::Mutex::Lock lock(_m);
     EFTable::iterator i = _eft.find(t);
@@ -100,7 +100,7 @@ Ice::FactoryTableDef::removeExceptionFactory(const std::string& t)
 // Add a factory to the object factory table.
 //
 void
-Ice::FactoryTableDef::addObjectFactory(const std::string& t, const ObjectFactoryPtr& f)
+IceInternal::FactoryTableDef::addObjectFactory(const std::string& t, const Ice::ObjectFactoryPtr& f)
 {
     IceUtil::Mutex::Lock lock(_m);
     OFTable::iterator i = _oft.find(t);
@@ -118,7 +118,7 @@ Ice::FactoryTableDef::addObjectFactory(const std::string& t, const ObjectFactory
 // Return the object factory for a given type ID
 //
 Ice::ObjectFactoryPtr
-Ice::FactoryTableDef::getObjectFactory(const std::string& t) const
+IceInternal::FactoryTableDef::getObjectFactory(const std::string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     OFTable::const_iterator i = _oft.find(t);
@@ -144,7 +144,7 @@ Ice::FactoryTableDef::getObjectFactory(const std::string& t) const
 	i = _oft.find(t);
     }
 #endif
-    return i != _oft.end() ? i->second.first : ObjectFactoryPtr();
+    return i != _oft.end() ? i->second.first : Ice::ObjectFactoryPtr();
 }
 
 //
@@ -154,7 +154,7 @@ Ice::FactoryTableDef::getObjectFactory(const std::string& t) const
 // entry from the table.
 //
 void
-Ice::FactoryTableDef::removeObjectFactory(const std::string& t)
+IceInternal::FactoryTableDef::removeObjectFactory(const std::string& t)
 {
     IceUtil::Mutex::Lock lock(_m);
     OFTable::iterator i = _oft.find(t);
@@ -173,12 +173,12 @@ Ice::FactoryTableDef::removeObjectFactory(const std::string& t)
 // FactoryTableWrapper. This ensures that the global factoryTable variable is initialized
 // before it can be used, regardless of the order of initialization of global objects.
 //
-Ice::FactoryTableWrapper::FactoryTableWrapper()
+IceInternal::FactoryTableWrapper::FactoryTableWrapper()
 {
     initialize();
 }
 
-Ice::FactoryTableWrapper::~FactoryTableWrapper()
+IceInternal::FactoryTableWrapper::~FactoryTableWrapper()
 {
     finalize();
 }
@@ -188,7 +188,7 @@ Ice::FactoryTableWrapper::~FactoryTableWrapper()
 // the number of calls made.
 //
 void
-Ice::FactoryTableWrapper::initialize()
+IceInternal::FactoryTableWrapper::initialize()
 {
     IceUtil::StaticMutex::Lock lock(_m);
     if(_initCount == 0)
@@ -202,7 +202,7 @@ Ice::FactoryTableWrapper::initialize()
 // Delete the table if its reference count drops to zero.
 //
 void
-Ice::FactoryTableWrapper::finalize()
+IceInternal::FactoryTableWrapper::finalize()
 {
     IceUtil::StaticMutex::Lock lock(_m);
     if(--_initCount == 0)
@@ -211,5 +211,5 @@ Ice::FactoryTableWrapper::finalize()
     }
 }
 
-IceUtil::StaticMutex Ice::FactoryTableWrapper::_m = ICE_STATIC_MUTEX_INITIALIZER;
-int Ice::FactoryTableWrapper::_initCount = 0;	// Initialization count
+IceUtil::StaticMutex IceInternal::FactoryTableWrapper::_m = ICE_STATIC_MUTEX_INITIALIZER;
+int IceInternal::FactoryTableWrapper::_initCount = 0;	// Initialization count

@@ -17,7 +17,7 @@
 #include <string>
 #include <map>
 
-namespace Ice
+namespace IceInternal
 {
 
 class ICE_API FactoryTableDef : private IceUtil::noncopyable

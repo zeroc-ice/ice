@@ -12,7 +12,7 @@
 
 #include <IceE/FactoryTableDef.h>
 
-namespace Ice
+namespace IceInternal
 {
 
 class ICEE_API FactoryTable

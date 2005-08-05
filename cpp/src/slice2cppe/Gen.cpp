@@ -592,12 +592,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	C.inc();
 	C << sp << nl << factoryName << "__Init()";
 	C << sb;
-	C << nl << "::Ice::factoryTable->addExceptionFactory(\"" << p->scoped() << "\", " << scoped
+	C << nl << "::IceInternal::factoryTable->addExceptionFactory(\"" << p->scoped() << "\", " << scoped
 	  << "::ice_factory());";
 	C << eb;
 	C << sp << nl << "~" << factoryName << "__Init()";
 	C << sb;
-	C << nl << "::Ice::factoryTable->removeExceptionFactory(\"" << p->scoped() << "\");";
+	C << nl << "::IceInternal::factoryTable->removeExceptionFactory(\"" << p->scoped() << "\");";
 	C << eb;
 	C << eb << ';';
 	C << sp << nl << "static " << factoryName << "__Init "<< factoryName << "__i;";

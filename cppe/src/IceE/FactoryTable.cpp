@@ -17,17 +17,17 @@
 // slice2cpp-generated header file that uses non-local exceptions or non-abstract classes.
 // This ensures that Ice::factoryTable is always initialized before it is used.
 //
-Ice::FactoryTable::FactoryTable()
+IceInternal::FactoryTable::FactoryTable()
 {
 
-    Ice::factoryTableWrapper.initialize();
+    IceInternal::factoryTableWrapper.initialize();
 }
 
 //
 // Similarly, the destructor calls the finalize() method on the factory table wrapper which,
 // once the tables reference count drops to zero, deletes the table.
 //
-Ice::FactoryTable::~FactoryTable()
+IceInternal::FactoryTable::~FactoryTable()
 {
-    Ice::factoryTableWrapper.finalize();
+    IceInternal::factoryTableWrapper.finalize();
 }

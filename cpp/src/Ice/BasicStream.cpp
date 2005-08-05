@@ -1558,7 +1558,7 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
         //
         if(!v)
         {
-            ObjectFactoryPtr of = Ice::factoryTable->getObjectFactory(id);
+            ObjectFactoryPtr of = IceInternal::factoryTable->getObjectFactory(id);
             if(of)
             {
                 v = of->create(id);
