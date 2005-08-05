@@ -13,7 +13,7 @@
 //
 // Comment this out if you want to build without Router support.
 //
-//#define ICEE_HAS_ROUTER
+#define ICEE_HAS_ROUTER
 
 //
 // Comment this out if you want to build without Locator support.

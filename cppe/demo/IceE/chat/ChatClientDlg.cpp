@@ -16,7 +16,6 @@
 
 #ifdef ICEE_HAS_ROUTER
 
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -45,6 +44,9 @@ CChatClientDlg::setSession(const Demo::ChatSessionPrx& chat, CString user, CStri
     _host = host;
     _port = port;
 
+    //
+    // Create a ping thread to keep the session alive.
+    //
     _ping = new SessionPingThread(_chat);
     _ping->start();
 }
@@ -58,7 +60,6 @@ CChatClientDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CChatClientDlg, CDialog)
     ON_WM_PAINT()
     ON_WM_QUERYDRAGICON()
-    //}}AFX_MSG_MAP
     ON_BN_CLICKED(IDC_CONFIG, OnLogin)
     ON_BN_CLICKED(IDC_SEND, OnSend)
 END_MESSAGE_MAP()
@@ -77,7 +78,6 @@ CChatClientDlg::OnInitDialog()
     // Retrieve the text input edit control.
     //
     _edit = (CEdit*)GetDlgItem(IDC_LOG);
-
 
     //
     // Retrieve the chat display edit control for
@@ -109,9 +109,11 @@ CChatClientDlg::OnCancel()
     CDialog::OnCancel();
 }
 
+//
 // If you add a minimize button to your dialog, you will need the code below
 // to draw the icon.  For MFC applications using the document/view model,
 // this is automatically done for you by the framework.
+//
 
 void
 CChatClientDlg::OnPaint() 
@@ -143,8 +145,10 @@ CChatClientDlg::OnPaint()
 #endif
 }
 
+//
 // The system calls this function to obtain the cursor to display while the user drags
 // the minimized window.
+//
 HCURSOR
 CChatClientDlg::OnQueryDragIcon()
 {
@@ -185,7 +189,7 @@ CChatClientDlg::OnSend()
     // Clear text input and reset focus.
     //
     _edit->SetWindowText(CString(""));
-    ((CButton*)GetDlgItem(IDC_LOG))->SetFocus();
+    _edit->SetFocus();
 }
 
 void
@@ -223,6 +227,9 @@ CChatClientDlg::OnLogin()
     //
     if(_chat == 0)
     {
+    	//
+	// Logged out: Disable all except Login.
+	//
         _edit->EnableWindow(FALSE);
         ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(FALSE);
 	(CEdit*)GetDlgItem(IDC_LOG2)->EnableWindow(FALSE);
@@ -234,6 +241,9 @@ CChatClientDlg::OnLogin()
     }
     else
     {
+        //
+	// Logged in: Enable all and change Login to Logout
+	//
         _edit->EnableWindow(TRUE);
         ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(TRUE);
 	(CEdit*)GetDlgItem(IDC_LOG2)->EnableWindow(TRUE);
@@ -246,4 +256,4 @@ CChatClientDlg::OnLogin()
     }
 }
 
-#endif
+#endif // ICEE_HAS_ROUTER

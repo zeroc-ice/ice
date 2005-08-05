@@ -59,7 +59,6 @@ CChatConfigDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CChatConfigDlg, CDialog)
     ON_WM_PAINT()
     ON_WM_QUERYDRAGICON()
-    //}}AFX_MSG_MAP
     ON_BN_CLICKED(IDC_LOGIN, OnLogin)
 END_MESSAGE_MAP()
 
@@ -81,6 +80,9 @@ CChatConfigDlg::OnInitDialog()
     _hostedit = (CEdit*)GetDlgItem(IDC_HOST);
     _portedit = (CEdit*)GetDlgItem(IDC_PORT);
 
+    //
+    // Fill the windows with last info entered.
+    //
     _useredit->SetWindowText(_user);
     _passedit->SetWindowText(_password);
     _hostedit->SetWindowText(_host);
@@ -100,10 +102,11 @@ CChatConfigDlg::OnCancel()
     CDialog::OnCancel();
 }
 
+//
 // If you add a minimize button to your dialog, you will need the code below
 // to draw the icon.  For MFC applications using the document/view model,
 // this is automatically done for you by the framework.
-
+//
 void
 CChatConfigDlg::OnPaint() 
 {
@@ -134,8 +137,10 @@ CChatConfigDlg::OnPaint()
 #endif
 }
 
+//
 // The system calls this function to obtain the cursor to display while the user drags
 // the minimized window.
+//
 HCURSOR
 CChatConfigDlg::OnQueryDragIcon()
 {
@@ -146,6 +151,9 @@ CChatConfigDlg::OnQueryDragIcon()
 void
 CChatConfigDlg::OnLogin()
 {
+    //
+    // Retrieve the entered info from the edit controls.
+    //
     _useredit->GetWindowText(_user);
     _passedit->GetWindowText(_password);
     _hostedit->GetWindowText(_host);
@@ -226,4 +234,4 @@ CChatConfigDlg::OnLogin()
     }
 }
 
-#endif
+#endif // ICEE_HAS_ROUTER
