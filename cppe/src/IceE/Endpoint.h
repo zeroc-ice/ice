@@ -15,8 +15,9 @@
 #include <IceE/TransceiverF.h>
 #include <IceE/InstanceF.h>
 #include <IceE/LoggerF.h>
+
 #ifndef ICEE_PURE_CLIENT
-#    include <IceE/AcceptorF.h>
+#   include <IceE/AcceptorF.h>
 #endif
 
 #include <IceE/Shared.h>

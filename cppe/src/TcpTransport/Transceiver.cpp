@@ -118,7 +118,7 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
 #ifdef _WIN32
 	repeatError:
 #endif
-	if(interrupted())
+	    if(interrupted())
 	    {
 		continue;
 	    }
@@ -435,10 +435,11 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
     _event = WSACreateEvent();
     if(_event == 0)
     {
+	int error = WSAGetLastError();
     	closeSocket(_fd);
 
 	SocketException ex(__FILE__, __LINE__);
-	ex.error = getSocketErrno();
+	ex.error = error;
 	throw ex;
     }
 

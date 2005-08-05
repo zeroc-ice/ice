@@ -14,8 +14,9 @@
 #include <IceE/ProxyFactory.h>
 #include <IceE/LoggerUtil.h>
 #include <IceE/LocalException.h>
+
 #ifndef ICEE_PURE_CLIENT
-#    include <IceE/ObjectAdapterFactory.h>
+#   include <IceE/ObjectAdapterFactory.h>
 #endif
 
 using namespace std;
@@ -56,6 +57,53 @@ Ice::Communicator::destroy()
     }
 }
 
+#ifndef ICEE_PURE_CLIENT
+
+void
+Ice::Communicator::shutdown()
+{ 
+    ObjectAdapterFactoryPtr objectAdapterFactory;
+
+    {
+	RecMutex::Lock sync(*this);
+	if(_destroyed)
+	{
+	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
+	}
+	objectAdapterFactory = _instance->objectAdapterFactory();
+    }
+
+    //
+    // We must call shutdown on the object adapter factory outside the
+    // synchronization, otherwise the communicator is blocked during
+    // shutdown.
+    //
+    objectAdapterFactory->shutdown();
+}
+
+void
+Ice::Communicator::waitForShutdown()
+{
+    ObjectAdapterFactoryPtr objectAdapterFactory;
+
+    {
+	RecMutex::Lock sync(*this);
+	if(_destroyed)
+	{
+	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
+	}
+	objectAdapterFactory = _instance->objectAdapterFactory();
+    }
+
+    //
+    // We must call waitForShutdown on the object adapter factory 
+    // outside the synchronization, otherwise the communicator is
+    // blocked during shutdown.
+    //
+    objectAdapterFactory->waitForShutdown();
+}
+#endif
+
 ObjectPrx
 Ice::Communicator::stringToProxy(const string& s) const
 {
@@ -76,6 +124,54 @@ Ice::Communicator::proxyToString(const ObjectPrx& proxy) const
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     return _instance->proxyFactory()->proxyToString(proxy);
+}
+
+#ifndef ICEE_PURE_CLIENT
+
+ObjectAdapterPtr
+Ice::Communicator::createObjectAdapter(const string& name)
+{
+    RecMutex::Lock sync(*this);
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    
+    assert(_instance);
+    ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->createObjectAdapter(name);
+
+    return adapter;
+}
+
+ObjectAdapterPtr
+Ice::Communicator::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
+{
+    getProperties()->setProperty(name + ".Endpoints", endpoints);
+    return createObjectAdapter(name);
+}
+
+#endif
+
+void
+Ice::Communicator::setDefaultContext(const Context& ctx)
+{
+    RecMutex::Lock sync(*this);
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    _instance->setDefaultContext(ctx);
+}
+
+Ice::Context
+Ice::Communicator::getDefaultContext() const
+{
+    RecMutex::Lock sync(*this);
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    return _instance->getDefaultContext();
 }
 
 PropertiesPtr
@@ -161,34 +257,14 @@ Ice::Communicator::setDefaultLocator(const LocatorPrx& locator)
 
 #endif
 
-void
-Ice::Communicator::setDefaultContext(const Context& ctx)
-{
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-    _instance->setDefaultContext(ctx);
-}
-
-Ice::Context
-Ice::Communicator::getDefaultContext() const
-{
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-    return _instance->getDefaultContext();
-}
-
 #ifdef ICEE_HAS_BATCH
+
 void
 Ice::Communicator::flushBatchRequests()
 {
     _instance->flushBatchRequests();
 }
+
 #endif
 
 Ice::Communicator::Communicator(const PropertiesPtr& properties) :
@@ -236,72 +312,3 @@ Ice::Communicator::finishSetup(int& argc, char* argv[])
     _instance->finishSetup(argc, argv);
 }
 
-#ifndef ICEE_PURE_CLIENT
-
-void
-Ice::Communicator::shutdown()
-{ 
-    ObjectAdapterFactoryPtr objectAdapterFactory;
-
-    {
-	RecMutex::Lock sync(*this);
-	if(_destroyed)
-	{
-	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
-	}
-	objectAdapterFactory = _instance->objectAdapterFactory();
-    }
-
-    //
-    // We must call shutdown on the object adapter factory outside the
-    // synchronization, otherwise the communicator is blocked during
-    // shutdown.
-    //
-    objectAdapterFactory->shutdown();
-}
-
-void
-Ice::Communicator::waitForShutdown()
-{
-    ObjectAdapterFactoryPtr objectAdapterFactory;
-
-    {
-	RecMutex::Lock sync(*this);
-	if(_destroyed)
-	{
-	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
-	}
-	objectAdapterFactory = _instance->objectAdapterFactory();
-    }
-
-    //
-    // We must call waitForShutdown on the object adapter factory 
-    // outside the synchronization, otherwise the communicator is
-    // blocked during shutdown.
-    //
-    objectAdapterFactory->waitForShutdown();
-}
-
-ObjectAdapterPtr
-Ice::Communicator::createObjectAdapter(const string& name)
-{
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-    
-    assert(_instance);
-    ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->createObjectAdapter(name);
-
-    return adapter;
-}
-
-ObjectAdapterPtr
-Ice::Communicator::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
-{
-    getProperties()->setProperty(name + ".Endpoints", endpoints);
-    return createObjectAdapter(name);
-}
-
-#endif

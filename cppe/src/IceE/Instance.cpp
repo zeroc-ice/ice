@@ -31,8 +31,6 @@
 
 #include <IceE/StaticMutex.h>
 
-#include <stdio.h>
-
 #ifdef _WIN32
 #   include <winsock2.h>
 #else
@@ -524,6 +522,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     }
 #endif
 
+#ifndef _WIN32_WCE
     //
     // Show process id if requested (but only once).
     //
@@ -542,7 +541,6 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
 	printProcessIdDone = true;
     }
 
-#ifndef _WIN32_WCE
     if(printProcessId)
     {
 #ifdef _WIN32

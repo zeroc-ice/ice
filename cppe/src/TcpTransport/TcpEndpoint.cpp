@@ -17,7 +17,7 @@
 #include <IceE/DefaultsAndOverrides.h>
 #include <IceE/SafeStdio.h>
 #ifndef ICEE_PURE_CLIENT
-#    include <IceE/Acceptor.h>
+#   include <IceE/Acceptor.h>
 #endif
 
 using namespace std;

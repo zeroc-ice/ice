@@ -134,7 +134,7 @@ working, we reinstalled Microsoft Visual Studio 6.0.
 If you want to compile and build for the Pocket PC 2003 SDK or
 Smartphone 2003 SDK you must install the appropriate SDK, and install
 the Run-time type information library. This will appear as "Pocket PC
-2003" or "Smartphone 2003" XXX: in the listed platforms.
+2003" or "Smartphone 2003" in the listed platforms.
 
 ======================================================================
 Compilation and Testing

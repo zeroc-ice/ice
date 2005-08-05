@@ -15,7 +15,6 @@
 namespace Ice
 {
 
-
 class ICEE_API Print : private IceUtil::noncopyable
 {
 public:

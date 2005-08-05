@@ -11,17 +11,18 @@
 #define ICEE_CONFIG_H
 
 //
-// Uncomment to build with Router support.
+// Comment this out if you want to build without Router support.
 //
 //#define ICEE_HAS_ROUTER
 
 //
-// Uncomment to build with Locator support.
+// Comment this out if you want to build without Locator support.
 //
 #define ICEE_HAS_LOCATOR
 
 //
-// Uncomment to enable batch mode on the client side.
+// Comment this out if you want to build without batch mode on the
+// client side.
 //
 #define ICEE_HAS_BATCH
 
@@ -48,7 +49,7 @@
 //
 #if defined(_MSC_VER) && !defined(_WIN32_WCE) && (_MSC_VER < 1300) && defined(NDEBUG)
 #  pragma comment(linker,"/FILEALIGN:0x200")
-#endif // _MSC_VER >= 1000
+#endif
 
 //
 // Endianness
@@ -147,8 +148,10 @@
 #   include <windows.h>
 
 #ifdef _WIN32_WCE
-// return type for ... (ie; not a UDT or reference to a UDT.  Will
-// produce errors if applied using infix notation)
+    //
+    // return type for ... (ie; not a UDT or reference to a UDT.  Will
+    // produce errors if applied using infix notation)
+    //
 #   pragma warning( disable : 4284 )
 #endif
 
@@ -199,7 +202,6 @@
 #if defined(_MSC_VER) && (_MSC_VER < 1300) && !defined(_STLP_BEGIN_NAMESPACE)
 #   error "IceE for Visual C++ 6.0 and Embedded Visual C++ 4.0 require STLport"
 #endif
-
 
 //
 // By deriving from this class, other classes are made non-copyable.
@@ -297,24 +299,20 @@ const Int64 Int64Max = 0x7fffffffffffffffLL;
 #include <map>
 
 #if !defined(_WIN32_WCE)
-#if defined(_WIN32)
-#   include <process.h>
-#else
-#   include <sys/types.h>
-#   include <unistd.h>
-#endif
+#   if defined(_WIN32)
+#       include <process.h>
+#   else
+#       include <sys/types.h>
+#       include <unistd.h>
+#   endif
 #endif
 
 //
-// Define the IceE and IceInternal namespace, so that we can use the following
+// Define the IceInternal namespace, so that we can use the following
 // everywhere in our code:
 //
-// using namespace Ice;
 // using namespace IceInternal;
 //
-namespace Ice
-{
-}
 
 namespace IceInternal
 {

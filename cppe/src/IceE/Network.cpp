@@ -559,7 +559,6 @@ repeatConnect:
     }
 }
 
-
 void
 IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 {

@@ -23,17 +23,10 @@
 #include <IceE/OutgoingConnectionFactoryF.h>
 #include <IceE/EndpointFactoryF.h>
 #ifndef ICEE_PURE_CLIENT
-#    include <IceE/ObjectAdapterFactoryF.h>
+#   include <IceE/ObjectAdapterFactoryF.h>
 #endif
 #include <IceE/Shared.h>
 #include <IceE/RecMutex.h>
-
-namespace Ice
-{
-
-class CommunicatorI;
-
-}
 
 namespace IceInternal
 {
@@ -70,16 +63,17 @@ public:
 #ifndef ICEE_PURE_CLIENT
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
 #endif
-    
+
 private:
 
     Instance(const Ice::CommunicatorPtr&, const Ice::PropertiesPtr&);
     virtual ~Instance();
+
     void finishSetup(int&, char*[]);
     void destroy();
     friend class Ice::Communicator;
 
-    Ice::Communicator* _communicator; // Not a Ptr, to avoid having Instance and CommunicatorI point at each other.
+    Ice::Communicator* _communicator; // Not a Ptr, to avoid having Instance and Communicator point at each other.
     bool _destroyed;
     const Ice::PropertiesPtr _properties; // Immutable, not reset by destroy().
     Ice::LoggerPtr _logger; // Not reset by destroy().

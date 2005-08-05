@@ -37,8 +37,6 @@ class Cond;
 // These mutexes are POD types (see ISO C++ 9(4) and 8.5.1) and must be
 // initialized statically using ICEE_STATIC_MUTEX_INITIALIZER.
 //
-
-//
 class StaticMutex
 {
 public:
@@ -53,7 +51,6 @@ public:
     // Note that lock/tryLock & unlock in general should not be used
     // directly. Instead use Lock & TryLock.
     //
- 
     void lock() const;
 
     //
@@ -62,7 +59,6 @@ public:
     bool tryLock() const;
 
     void unlock() const;
-
 
 #ifdef _WIN32
 #   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
@@ -73,8 +69,6 @@ public:
 #else
     mutable pthread_mutex_t _mutex;
 #endif
-
-
 
 #ifndef _MSC_VER
 // COMPILERBUG
@@ -119,6 +113,7 @@ private:
 #endif
 
 
+//
 // A "shared" global mutex that can be used for very simple tasks
 // which should not lock any other mutexes.
 //

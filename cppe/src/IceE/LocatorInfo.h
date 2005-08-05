@@ -18,6 +18,7 @@
 #include <IceE/LocatorF.h>
 #include <IceE/ProxyF.h>
 #include <IceE/EndpointF.h>
+
 #include <IceE/Shared.h>
 #include <IceE/Mutex.h>
 

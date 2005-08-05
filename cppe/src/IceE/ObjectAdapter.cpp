@@ -30,8 +30,6 @@
 #endif
 #include <IceE/LoggerUtil.h>
 
-#include <ctype.h>
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -440,11 +438,10 @@ Ice::ObjectAdapter::createReverseProxy(const Identity& ident) const
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
-
+#ifdef ICEE_HAS_ROUTER
 void
 Ice::ObjectAdapter::addRouter(const RouterPrx& router)
 {
-#ifdef ICEE_HAS_ROUTER
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
     checkForDeactivation();
@@ -476,22 +473,20 @@ Ice::ObjectAdapter::addRouter(const RouterPrx& router)
 	//	
 	_instance->outgoingConnectionFactory()->setRouter(routerInfo->getRouter());
     }
-#endif
 }
+#endif
 
-
-
+#ifdef ICEE_HAS_LOCATOR
 void
 Ice::ObjectAdapter::setLocator(const LocatorPrx& locator)
 {
-#ifdef ICEE_HAS_LOCATOR
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
     checkForDeactivation();
 
     _locatorInfo = _instance->locatorManager()->get(locator);
-#endif
 }
+#endif
 
 bool
 Ice::ObjectAdapter::isLocal(const ObjectPrx& proxy) const
@@ -708,13 +703,14 @@ Ice::ObjectAdapter::newProxy(const Identity& ident, const string& facet) const
 	//
 	// Create a reference with the adapter id.
 	//
-	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet,
-								 Reference::ModeTwoway, _id
 #ifdef ICEE_HAS_ROUTER
-								 , 0
+	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet,Reference::ModeTwoway,
+								 _id, 0, _locatorInfo);
+
+#else
+	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet, Reference::ModeTwoway,
+								 _id, _locatorInfo);
 #endif
-								 , _locatorInfo
-								 );
 
 	//
 	// Return a proxy for the reference. 
@@ -755,12 +751,13 @@ Ice::ObjectAdapter::newDirectProxy(const Identity& ident, const string& facet) c
     //
     // Create a reference and return a proxy for this reference.
     //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet, Reference::ModeTwoway,
-							     endpoints
 #ifdef ICEE_HAS_ROUTER
-							     , 0
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet, Reference::ModeTwoway,
+							     endpoints, 0);
+#else
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet, Reference::ModeTwoway,
+							     endpoints);
 #endif
-							     );
     return _instance->proxyFactory()->referenceToProxy(ref);
 
 }

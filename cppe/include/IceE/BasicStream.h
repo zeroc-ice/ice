@@ -10,7 +10,6 @@
 #ifndef ICEE_BASIC_STREAM_H
 #define ICEE_BASIC_STREAM_H
 
-#include <IceE/InstanceF.h>
 #include <IceE/ProxyF.h>
 
 #include <IceE/Buffer.h>
@@ -24,6 +23,8 @@ class UserException;
 
 namespace IceInternal
 {
+
+class Instance;
 
 class ICEE_API BasicStream : public Buffer
 {

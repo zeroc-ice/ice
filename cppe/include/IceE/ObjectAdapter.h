@@ -19,15 +19,22 @@
 #include <IceE/ProxyF.h>
 #include <IceE/ObjectF.h>
 #include <IceE/EndpointF.h>
-#include <IceE/RouterF.h>
-#include <IceE/LocatorF.h>
-#include <IceE/LocatorInfoF.h>
+
+#ifdef ICEE_HAS_ROUTER
+#   include <IceE/RouterF.h>
+#endif
+
+#ifdef ICEE_HAS_LOCATOR
+#   include <IceE/LocatorF.h>
+#   include <IceE/LocatorInfoF.h>
+#endif
 
 #include <IceE/Exception.h>
 #include <IceE/Shared.h>
 #include <IceE/RecMutex.h>
 #include <IceE/Monitor.h>
 #include <IceE/FacetMap.h>
+#include <IceE/Proxy.h>
 #include <list>
 
 namespace Ice
@@ -63,8 +70,12 @@ public:
     ObjectPrx createDirectProxy(const Identity&) const;
     ObjectPrx createReverseProxy(const Identity&) const;
 
+#ifdef ICEE_HAS_ROUTER
     void addRouter(const RouterPrx&);
+#endif
+#ifdef ICEE_HAS_LOCATOR
     void setLocator(const LocatorPrx&);
+#endif
     
     bool isLocal(const ObjectPrx&) const;
 

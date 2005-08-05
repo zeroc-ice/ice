@@ -19,7 +19,7 @@
 #include <IceE/LocalException.h>
 #include <IceE/Functional.h>
 #ifdef ICEE_HAS_ROUTER
-#  include <IceE/Reference.h>
+#   include <IceE/Reference.h>
 #endif
 #include <list>
 

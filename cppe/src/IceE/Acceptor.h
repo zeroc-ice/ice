@@ -29,7 +29,6 @@ typedef int ssize_t;
 namespace IceInternal
 {
 
-// XXX: EndpointF?
 class Endpoint;
 
 class ICEE_API Acceptor : public ::IceUtil::Shared

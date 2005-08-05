@@ -15,7 +15,7 @@
 #include <IceE/BasicStream.h>
 #include <IceE/LocalException.h>
 #ifdef ICEE_HAS_ROUTER
-#  include <IceE/RouterInfo.h>
+#   include <IceE/RouterInfo.h>
 #endif
 
 using namespace std;

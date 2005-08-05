@@ -15,7 +15,13 @@
 #include <IceE/ReferenceF.h>
 #include <IceE/ProxyF.h>
 #include <IceE/Shared.h>
-#include <IceE/Exception.h>
+
+namespace Ice
+{
+
+class LocalException;
+
+}
 
 namespace IceInternal
 {

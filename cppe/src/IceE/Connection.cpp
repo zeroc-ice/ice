@@ -20,9 +20,11 @@
 #include <IceE/Protocol.h>
 #include <IceE/ReferenceFactory.h> // For createProxy().
 #include <IceE/ProxyFactory.h> // For createProxy().
+#include <IceE/BasicStream.h>
+
 #ifndef ICEE_PURE_CLIENT
-#    include <IceE/ObjectAdapter.h>
-#    include <IceE/Incoming.h>
+#   include <IceE/ObjectAdapter.h>
+#   include <IceE/Incoming.h>
 #endif
 
 using namespace std;
@@ -170,6 +172,7 @@ Ice::Connection::isFinished() const
 }
 
 #ifndef ICEE_PURE_CLIENT
+
 void
 Ice::Connection::waitUntilHolding() const
 {
@@ -180,6 +183,7 @@ Ice::Connection::waitUntilHolding() const
 	wait();
     }
 }
+
 #endif
 
 void
@@ -384,6 +388,7 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 }
 
 #ifdef ICEE_HAS_BATCH
+
 void
 Ice::Connection::prepareBatchRequest(BasicStream* os)
 {
@@ -564,9 +569,11 @@ Ice::Connection::flushBatchRequests()
 	notifyAll();
     }
 }
+
 #endif
 
 #ifndef ICEE_PURE_CLIENT
+
 void
 Ice::Connection::sendResponse(BasicStream* os)
 {
@@ -649,6 +656,7 @@ Ice::Connection::sendNoResponse()
 	setState(StateClosed, ex);
     }
 }
+
 #endif
 
 EndpointPtr
@@ -656,6 +664,61 @@ Ice::Connection::endpoint() const
 {
     return _endpoint; // No mutex protection necessary, _endpoint is immutable.
 }
+
+#ifndef ICEE_PURE_CLIENT
+
+void
+Ice::Connection::setAdapter(const ObjectAdapterPtr& adapter)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    if(_exception.get())
+    {
+	_exception->ice_throw();
+    }
+    
+    assert(_state < StateClosing);
+
+    //
+    // Before we set an adapter (or reset it) we wait until the
+    // dispatch count with any old adapter is zero.
+    //
+    // A deadlock can occur if we wait while an operation is
+    // outstanding on this adapter that holds a lock while
+    // calling this function (e.g., __getDelegate).
+    //
+    // In order to avoid such a deadlock, we only wait if the new
+    // adapter is different than the current one.
+    //
+    // TODO: Verify that this fix solves all cases.
+    //
+    if(_adapter.get() != adapter.get())
+    {
+	while(_dispatchCount > 0)
+	{
+	    wait();
+	}
+
+	_adapter = adapter;
+	if(_adapter)
+	{
+	    _servantManager = _adapter->getServantManager();
+	}
+	else
+	{
+	    _servantManager = 0;
+	}
+    }
+}
+
+ObjectAdapterPtr
+Ice::Connection::getAdapter() const
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    return _adapter;
+}
+
+#endif
 
 ObjectPrx
 Ice::Connection::createProxy(const Identity& ident) const
@@ -952,16 +1015,7 @@ Ice::Connection::validate()
         _exception->ice_throw();
     }
 
-#ifndef ICEE_PURE_CLIENT
-    {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	
-	//
-	// We start out in holding state.
-	//
-	setState(StateHolding);
-    }
-#else
+#ifdef ICEE_PURE_CLIENT
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
@@ -969,6 +1023,15 @@ Ice::Connection::validate()
 	// We start out in active state.
 	//
 	setState(StateActive);
+    }
+#else
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	
+	//
+	// We start out in holding state.
+	//
+	setState(StateHolding);
     }
 #endif
 }
@@ -1052,13 +1115,13 @@ Ice::Connection::setState(State state)
             // Can only switch from holding or not validated to
             // active.
 	    //
-#ifndef ICEE_PURE_CLIENT
-	    if(_state != StateHolding && _state != StateNotValidated)
+#ifdef ICEE_PURE_CLIENT
+	    if(_state != StateNotValidated)
 	    {
 		return;
 	    }
 #else
-	    if(_state != StateNotValidated)
+	    if(_state != StateHolding && _state != StateNotValidated)
 	    {
 		return;
 	    }
@@ -1553,7 +1616,6 @@ Ice::Connection::run()
 		wait();
 	    }
 #endif
-	    
 	    if(_state != StateClosed)
 	    {
 #ifndef ICEE_PURE_CLIENT
@@ -1610,7 +1672,6 @@ Ice::Connection::run()
 #ifndef ICEE_PURE_CLIENT
 	invokeAll(stream, invokeNum, requestId, servantManager, adapter);
 #endif
-
 	for(map<Int, Outgoing*>::iterator p = requests.begin(); p != requests.end(); ++p)
 	{
 	    p->second->finished(*_exception.get()); // The exception is immutable at this point.
@@ -1654,58 +1715,3 @@ Ice::Connection::ThreadPerConnection::run()
 
     _connection = 0; // Resolve cyclic dependency.
 }
-
-#ifndef ICEE_PURE_CLIENT
-
-void
-Ice::Connection::setAdapter(const ObjectAdapterPtr& adapter)
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-    if(_exception.get())
-    {
-	_exception->ice_throw();
-    }
-    
-    assert(_state < StateClosing);
-
-    //
-    // Before we set an adapter (or reset it) we wait until the
-    // dispatch count with any old adapter is zero.
-    //
-    // A deadlock can occur if we wait while an operation is
-    // outstanding on this adapter that holds a lock while
-    // calling this function (e.g., __getDelegate).
-    //
-    // In order to avoid such a deadlock, we only wait if the new
-    // adapter is different than the current one.
-    //
-    // TODO: Verify that this fix solves all cases.
-    //
-    if(_adapter.get() != adapter.get())
-    {
-	while(_dispatchCount > 0)
-	{
-	    wait();
-	}
-
-	_adapter = adapter;
-	if(_adapter)
-	{
-	    _servantManager = _adapter->getServantManager();
-	}
-	else
-	{
-	    _servantManager = 0;
-	}
-    }
-}
-
-ObjectAdapterPtr
-Ice::Connection::getAdapter() const
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    return _adapter;
-}
-#endif
-

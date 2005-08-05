@@ -19,9 +19,9 @@
 #include <IceE/TraceLevelsF.h>
 
 #ifndef ICEE_PURE_CLIENT
-#  include <IceE/ObjectAdapterF.h>
-#  include <IceE/ServantManagerF.h>
-#  include <IceE/IncomingConnectionFactoryF.h>
+#   include <IceE/ObjectAdapterF.h>
+#   include <IceE/ServantManagerF.h>
+#   include <IceE/IncomingConnectionFactoryF.h>
 #endif
 
 #include <IceE/Mutex.h>
@@ -29,12 +29,16 @@
 #include <IceE/Time.h>
 #include <IceE/Thread.h> // For ThreadPerConnection.
 #include <IceE/Identity.h>
-#include <IceE/BasicStream.h>
+
+#ifdef ICEE_HAS_BATCH
+#    include <IceE/BasicStream.h>
+#endif
 
 namespace IceInternal
 {
 
 class Outgoing;
+class BasicStream;
 
 }
 
@@ -87,10 +91,10 @@ public:
 
     IceInternal::EndpointPtr endpoint() const;
 
-//#ifndef ICEE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     void setAdapter(const ObjectAdapterPtr&); // From Connection.
     ObjectAdapterPtr getAdapter() const; // From Connection.
-//#endif
+#endif
     ObjectPrx createProxy(const Identity&) const; // From Connection.
 
     void exception(const LocalException&);

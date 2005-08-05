@@ -14,15 +14,18 @@
 #include <IceE/IdentityUtil.h>
 #include <IceE/Endpoint.h>
 #include <IceE/BasicStream.h>
+
 #ifdef ICEE_HAS_ROUTER
-#    include <IceE/RouterInfo.h>
-#    include <IceE/Router.h>
-#    include <IceE/Connection.h>
+#   include <IceE/RouterInfo.h>
+#   include <IceE/Router.h>
+#   include <IceE/Connection.h>
 #endif
+
 #ifdef ICEE_HAS_LOCATOR
-#    include <IceE/LocatorInfo.h>
-#    include <IceE/Locator.h>
+#   include <IceE/LocatorInfo.h>
+#   include <IceE/Locator.h>
 #endif
+
 #include <IceE/Functional.h>
 #include <IceE/OutgoingConnectionFactory.h>
 #include <IceE/LoggerUtil.h>
@@ -259,13 +262,12 @@ IceInternal::Reference::toString() const
 	    break;
 	}
 
-#ifdef ICEE_HAS_BATCH
 	case ModeBatchOneway:
 	{
 	    s += " -O";
 	    break;
 	}
-#endif
+
 	default:
 	{
 	    //
@@ -684,12 +686,13 @@ IceInternal::DirectReference::changeDefault() const
     if(loc)
     {
 	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(loc);
-	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
-							 ""
 #ifdef ICEE_HAS_ROUTER
-							 , 0
-#endif // ICEE_HAS_ROUTER
-							 , newLocatorInfo);
+	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
+							 "", 0, newLocatorInfo);
+#else
+	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
+							 "", newLocatorInfo);
+#endif
     }
     else
 #endif // ICEE_HAS_LOCATOR
@@ -706,12 +709,13 @@ IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
     if(newLocator)
     {
 	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
-	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 ""
 #ifdef ICEE_HAS_ROUTER
-							 , 0
+	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
+							 "", 0, newLocatorInfo);
+#else
+	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
+							 "", newLocatorInfo);
 #endif
-							 , newLocatorInfo);
     }
     else
     {
@@ -798,6 +802,7 @@ IceInternal::DirectReference::getConnection() const
     assert(connection);
 
 #if defined(ICEE_HAS_ROUTER) && !defined(ICEE_PURE_CLIENT)
+
     //
     // If we have a router, set the object adapter for this router
     // (if any) to the new connection, so that callbacks from the
@@ -809,7 +814,6 @@ IceInternal::DirectReference::getConnection() const
     }
 #endif
 
-    assert(connection);
     return connection;
 }
 
@@ -885,8 +889,7 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 #else
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
                                                   const Context& ctx, const string& fs, Mode md,
-						  const string& adptid
-						  , const LocatorInfoPtr& locInfo)
+						  const string& adptid, const LocatorInfoPtr& locInfo)
     : Reference(inst, ident, ctx, fs, md),
       _adapterId(adptid),
       _locatorInfo(locInfo)
@@ -909,12 +912,13 @@ IceInternal::IndirectReference::changeDefault() const
     LocatorPrx loc = getInstance()->referenceFactory()->getDefaultLocator();
     if(!loc)
     {
-	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
-							 vector<EndpointPtr>()
 #ifdef ICEE_HAS_ROUTER
-							 , getRouterInfo()
+	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
+							 vector<EndpointPtr>(), getRouterInfo());
+#else
+	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
+							 vector<EndpointPtr>());
 #endif
-							 );
     }
     else
     {
@@ -932,12 +936,13 @@ IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) cons
     //
     if(!newLocator)
     {
-	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 vector<EndpointPtr>()
 #ifdef ICEE_HAS_ROUTER
-							 , getRouterInfo()
+	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
+							 vector<EndpointPtr>(), getRouterInfo());
+#else
+	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
+							 vector<EndpointPtr>());
 #endif
-							 );
     }
     else
     {

@@ -13,10 +13,10 @@
 #include <IceE/IdentityUtil.h>
 #include <IceE/EndpointFactory.h>
 #ifdef ICEE_HAS_ROUTER
-#  include <IceE/RouterInfo.h>
+#   include <IceE/RouterInfo.h>
 #endif
 #ifdef ICEE_HAS_LOCATOR
-#  include <IceE/LocatorInfo.h>
+#   include <IceE/LocatorInfo.h>
 #endif
 #include <IceE/BasicStream.h>
 #include <IceE/StringUtil.h>
@@ -75,11 +75,11 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new DirectReference(_instance, ident, context, facet, mode, endpoints
 #ifdef ICEE_HAS_ROUTER
-    			       , routerInfo
+    return new DirectReference(_instance, ident, context, facet, mode, endpoints, routerInfo);
+#else
+    return new DirectReference(_instance, ident, context, facet, mode, endpoints);
 #endif
-			       );
 }
 
 #ifdef ICEE_HAS_LOCATOR
@@ -110,12 +110,11 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new IndirectReference(_instance, ident, context, facet, mode,
-				 adapterId
 #ifdef ICEE_HAS_ROUTER
-				 , routerInfo
+    return new IndirectReference(_instance, ident, context, facet, mode, adapterId, routerInfo, locatorInfo);
+#else
+    return new IndirectReference(_instance, ident, context, facet, mode, adapterId, locatorInfo);
 #endif
-				 , locatorInfo);
 }
 
 #endif
@@ -359,7 +358,6 @@ IceInternal::ReferenceFactory::create(const string& str)
 		break;
 	    }
 
-#ifdef ICEE_HAS_BATCH
 	    case 'O':
 	    {
 		if(!argument.empty())
@@ -371,7 +369,6 @@ IceInternal::ReferenceFactory::create(const string& str)
 		mode = Reference::ModeBatchOneway;
 		break;
 	    }
-#endif
 
 	    default:
 	    {
@@ -392,12 +389,11 @@ IceInternal::ReferenceFactory::create(const string& str)
     if(beg == string::npos)
     {
 #ifdef ICEE_HAS_LOCATOR
-	return create(ident, Context(), facet, mode, ""
-#ifdef ICEE_HAS_ROUTER
-		     , routerInfo
-#endif
-		     , locatorInfo
-		     );
+#   ifdef ICEE_HAS_ROUTER
+	return create(ident, Context(), facet, mode, "", routerInfo, locatorInfo);
+#   else
+	return create(ident, Context(), facet, mode, "", locatorInfo);
+#   endif
 #else	
 	ProxyParseException ex(__FILE__, __LINE__);
 	ex.str = str;
@@ -452,13 +448,14 @@ IceInternal::ReferenceFactory::create(const string& str)
 		}
 	    }
 
-	    return create(ident, Context(), facet, mode, endpoints
 #ifdef ICEE_HAS_ROUTER
-	    		  , routerInfo
+	    return create(ident, Context(), facet, mode, endpoints , routerInfo);
+#else
+	    return create(ident, Context(), facet, mode, endpoints);
 #endif
-			  );
 	    break;
 	}
+
 #ifdef ICEE_HAS_LOCATOR
 	case '@':
 	{
@@ -496,12 +493,12 @@ IceInternal::ReferenceFactory::create(const string& str)
 		ex.str = str;
 		throw ex;
 	    }
-	    return create(ident, Context(), facet, mode, adapter
+
 #ifdef ICEE_HAS_ROUTER
-	    		  , routerInfo
+	    return create(ident, Context(), facet, mode, adapter, routerInfo, locatorInfo);
+#else
+	    return create(ident, Context(), facet, mode, adapter, locatorInfo);
 #endif
-			  , locatorInfo
-			  );
 	    break;
 	}
 #endif
@@ -556,9 +553,6 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 #ifdef ICEE_HAS_ROUTER
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
 #endif
-#ifdef ICEE_HAS_LOCATOR
-    LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
-#endif
 
     bool secure;
     s->read(secure);
@@ -574,22 +568,23 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	    EndpointPtr endpoint = _instance->endpointFactory()->read(s);
 	    endpoints.push_back(endpoint);
 	}
-	return create(ident, Context(), facet, mode, endpoints
 #ifdef ICEE_HAS_ROUTER
-		      , routerInfo
+	return create(ident, Context(), facet, mode, endpoints, routerInfo);
+#else
+	return create(ident, Context(), facet, mode, endpoints);
 #endif
-		      );
     }
     else
     {
 #ifdef ICEE_HAS_LOCATOR
+	LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
 	s->read(adapterId);
-	return create(ident, Context(), facet, mode, adapterId
-#ifdef ICEE_HAS_ROUTER
-		      , routerInfo
-#endif
-		      , locatorInfo
-		      );
+#   ifdef ICEE_HAS_ROUTER
+	return create(ident, Context(), facet, mode, adapterId, routerInfo, locatorInfo);
+
+#   else
+	return create(ident, Context(), facet, mode, adapterId, locatorInfo);
+#   endif
 #else
 	throw ProxyUnmarshalException(__FILE__, __LINE__);
 #endif

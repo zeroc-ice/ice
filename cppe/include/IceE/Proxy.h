@@ -14,6 +14,7 @@
 #include <IceE/ProxyFactoryF.h>
 #include <IceE/ConnectionF.h>
 #include <IceE/ReferenceF.h>
+#include <IceE/CommunicatorF.h>
 //#include <IceE/RouterF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 //#include <IceE/LocatorF.h> // Can't include RouterF.h here, otherwise we have cyclic includes
 
@@ -21,7 +22,6 @@
 #include <IceE/Mutex.h>
 #include <IceE/Identity.h>
 #include <IceE/OperationMode.h>
-#include <IceE/CommunicatorF.h>
 
 #ifdef ICEE_HAS_ROUTER
 
