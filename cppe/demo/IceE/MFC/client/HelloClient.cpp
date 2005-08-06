@@ -47,8 +47,21 @@ CHelloClientApp::InitInstance()
     {
         int argc = 0;
 	Ice::PropertiesPtr properties = Ice::createProperties();
+	//
+	// Set a default value for Hello.Proxy so that the demo will
+	// run without a configuration file.
+	//
 	properties->setProperty("Hello.Proxy", "hello:tcp -p 10000");
-	//properties->load("config");
+	//
+	// Now, load the configuration file if present.
+	//
+	try
+	{
+	    properties->load("config");
+	}
+	catch(const Ice::FileException&)
+	{
+	}
         communicator = Ice::initializeWithProperties(argc, 0, properties);
     }
     catch(const Ice::Exception& ex)

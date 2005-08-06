@@ -51,14 +51,29 @@ BOOL CHelloServerApp::InitInstance()
     {
         int argc = 0;
         Ice::PropertiesPtr properties = Ice::createProperties();
+
+	//
+	// Set a default value for Hello.Endpoints so that the demo
+	// will run without a configuration file.
+	//
 	properties->setProperty("Hello.Endpoints", "tcp -p 10000");
-	//properties->load("config");
+
+	//
+	// Now, load the configuration file if present.
+	//
+	try
+	{
+	    properties->load("config");
+	}
+	catch(const Ice::FileException&)
+	{
+	}
         communicator = Ice::initializeWithProperties(argc, 0, properties);
         log = new LogI;
         communicator->setLogger(log);
         adapter = communicator->createObjectAdapter("Hello");
     }
-    catch(const Ice::Exception& ex)
+    catch(const IceUtil::Exception& ex)
     {
         AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
         return FALSE;

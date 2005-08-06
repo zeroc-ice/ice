@@ -48,7 +48,7 @@ protected:
     DECLARE_MESSAGE_MAP()
 
     void updateProxy();
-    void handleException(const Ice::Exception&);
+    void handleException(const IceUtil::Exception&);
 };
 
 #endif

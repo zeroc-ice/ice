@@ -132,7 +132,7 @@ CHelloClientDlg::OnSayHello()
             _status->SetWindowText(CString(" Sent request"));
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const IceUtil::Exception& ex)
     {
         handleException(ex);
     }
@@ -146,7 +146,7 @@ CHelloClientDlg::OnFlush()
         _communicator->flushBatchRequests();
         _status->SetWindowText(CString(" Flushed batch requests"));
     }
-    catch(const Ice::Exception& ex)
+    catch(const IceUtil::Exception& ex)
     {
         handleException(ex);
     }
@@ -168,7 +168,7 @@ CHelloClientDlg::OnShutdown()
             _status->SetWindowText(CString(" Sent shutdown request"));
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const IceUtil::Exception& ex)
     {
         handleException(ex);
     }
@@ -221,7 +221,7 @@ CHelloClientDlg::updateProxy()
 }
 
 void
-CHelloClientDlg::handleException(const Ice::Exception& e)
+CHelloClientDlg::handleException(const IceUtil::Exception& e)
 {
     try
     {
@@ -232,7 +232,7 @@ CHelloClientDlg::handleException(const Ice::Exception& e)
         AfxMessageBox(CString("The proxy does not support the current configuration"),
                       MB_OK|MB_ICONEXCLAMATION);
     }
-    catch(const Ice::Exception& ex)
+    catch(const IceUtil::Exception& ex)
     {
         AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
     }
