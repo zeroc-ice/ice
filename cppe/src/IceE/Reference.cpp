@@ -268,7 +268,8 @@ IceInternal::Reference::toString() const
 	    break;
 	}
 
-	default:
+	case ModeDatagram:
+	case ModeBatchDatagram:
 	{
 	    //
 	    // TODO: Should this assert?

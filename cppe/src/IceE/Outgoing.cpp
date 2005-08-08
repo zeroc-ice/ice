@@ -58,7 +58,8 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
 	    break;
 	}
 #endif
-	default:
+	case Reference::ModeDatagram:
+	case Reference::ModeBatchDatagram:
 	{
 	    //
 	    // TODO: Should this assert?
@@ -250,7 +251,8 @@ IceInternal::Outgoing::invoke()
 	    break;
 	}
 #endif
-	default:
+	case Reference::ModeDatagram:
+	case Reference::ModeBatchDatagram:
 	{
 	    //
 	    // TODO: Should this assert?
