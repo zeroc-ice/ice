@@ -60,6 +60,15 @@ CHelloClientDlg::OnInitDialog()
     //
     _mode->SetCurSel(_currentMode);
 
+
+    //
+    // Disable flush button if built without batch support.
+    //
+#ifndef ICEE_HAS_BATCH
+    (CButton*)GetDlgItem(IDC_FLUSH)->EnableWindow(FALSE);
+#endif
+
+
     //
     // Create the proxy.
     //
@@ -123,11 +132,13 @@ CHelloClientDlg::OnSayHello()
     {
         updateProxy();
         _currentProxy->sayHello();
+#ifdef ICEE_HAS_BATCH
         if(_currentProxy->ice_isBatchOneway())
         {
             _status->SetWindowText(CString(" Queued batch request"));
         }
         else
+#endif
         {
             _status->SetWindowText(CString(" Sent request"));
         }
@@ -141,6 +152,7 @@ CHelloClientDlg::OnSayHello()
 void
 CHelloClientDlg::OnFlush()
 {
+#ifdef ICEE_HAS_BATCH
     try
     {
         _communicator->flushBatchRequests();
@@ -150,6 +162,7 @@ CHelloClientDlg::OnFlush()
     {
         handleException(ex);
     }
+#endif
 }
 
 void
@@ -159,11 +172,13 @@ CHelloClientDlg::OnShutdown()
     {
         updateProxy();
         _currentProxy->shutdown();
+#ifdef ICEE_HAS_BATCH
         if(_currentProxy->ice_isBatchOneway())
         {
             _status->SetWindowText(CString(" Queued shutdown request"));
         }
         else
+#endif
         {
             _status->SetWindowText(CString(" Sent shutdown request"));
         }
@@ -194,8 +209,14 @@ CHelloClientDlg::updateProxy()
         proxy = _proxy->ice_oneway();
         break;
     case 2:
+#ifdef ICEE_HAS_BATCH
         proxy = _proxy->ice_batchOneway();
         break;
+#else
+        AfxMessageBox(CString("Batch mode is currently not enabled."),
+                      MB_OK|MB_ICONEXCLAMATION);
+	return;
+#endif
     default:
         assert(false);
     }

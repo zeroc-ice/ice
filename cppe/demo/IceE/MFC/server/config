@@ -16,7 +16,7 @@ Ice.Warn.Connections=1
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-Ice.Trace.Network=1
+Ice.Trace.Network=0
 
 #
 # Protocol Tracing
