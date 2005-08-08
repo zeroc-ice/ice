@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// This copy of Ice-E is licensed to you under the terms described in the
+// ICEE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -22,12 +22,14 @@ public:
     virtual void error(const std::string&);
 
     void message(const std::string&);
-    void setControl(CEdit*);
+    void setHandle(HWND);
 
 private:
 
+    void post(const std::string&);
+
     std::string _buffer;
-    CEdit* _log;
+    HWND _hwnd;
 };
 
 typedef IceUtil::Handle<LogI> LogIPtr;

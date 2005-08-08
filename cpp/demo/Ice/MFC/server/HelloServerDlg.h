@@ -38,6 +38,7 @@ protected:
     afx_msg HCURSOR OnQueryDragIcon();
     afx_msg void OnShutdown();
     afx_msg void OnClear();
+    afx_msg LRESULT OnLog(UINT, UINT);
     DECLARE_MESSAGE_MAP()
 };
 

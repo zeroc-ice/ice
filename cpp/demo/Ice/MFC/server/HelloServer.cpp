@@ -89,7 +89,7 @@ BOOL CHelloServerApp::InitInstance()
     //
     // Edit control no longer exists.
     //
-    log->setControl(0);
+    log->setHandle(0);
 
     //
     // Clean up.
