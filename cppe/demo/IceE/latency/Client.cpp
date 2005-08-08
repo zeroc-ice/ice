@@ -18,7 +18,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
     const char* proxyProperty = "Latency.Ping";
-    std::string proxy = properties->getProperty(proxyProperty);
+    string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
 	fprintf(stderr, "%s: property `%s' not set\n", argv[0], proxyProperty);
