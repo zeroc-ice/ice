@@ -358,7 +358,6 @@ DEP_CPP_CHAT_=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -387,6 +386,7 @@ NODEP_CPP_CHAT_=\
 	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\Chat.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -450,7 +450,6 @@ DEP_CPP_CHAT_=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -479,6 +478,7 @@ NODEP_CPP_CHAT_=\
 	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\Chat.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -542,7 +542,6 @@ DEP_CPP_CHAT_=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -570,6 +569,7 @@ DEP_CPP_CHAT_=\
 NODEP_CPP_CHAT_=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\Chat.h"\
 	".\Session.h"\
 	
@@ -591,7 +591,6 @@ DEP_CPP_CHAT_=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -619,6 +618,7 @@ DEP_CPP_CHAT_=\
 NODEP_CPP_CHAT_=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\Chat.h"\
 	".\Session.h"\
 	
@@ -640,7 +640,6 @@ DEP_CPP_CHAT_=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -668,6 +667,7 @@ DEP_CPP_CHAT_=\
 NODEP_CPP_CHAT_=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\Chat.h"\
 	".\Session.h"\
 	
@@ -677,6 +677,8 @@ NODEP_CPP_CHAT_=\
 DEP_CPP_CHAT_=\
 	"..\..\..\include\IceE\BasicStream.h"\
 	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
 	"..\..\..\include\IceE\Cond.h"\
 	"..\..\..\include\IceE\Config.h"\
 	"..\..\..\include\IceE\ConnectionF.h"\
@@ -687,9 +689,10 @@ DEP_CPP_CHAT_=\
 	"..\..\..\include\IceE\FactoryTable.h"\
 	"..\..\..\include\IceE\FactoryTableDef.h"\
 	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalException.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -713,12 +716,53 @@ DEP_CPP_CHAT_=\
 	"..\..\..\include\IceE\UndefSysMacros.h"\
 	"..\..\..\include\IceE\UserExceptionFactory.h"\
 	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
-	
-NODEP_CPP_CHAT_=\
-	"..\..\..\include\IceE\BuiltinSequences.h"\
-	"..\..\..\include\IceE\Identity.h"\
 	".\Chat.h"\
 	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_CHAT_=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
@@ -738,7 +782,6 @@ DEP_CPP_CHAT_=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -767,6 +810,7 @@ NODEP_CPP_CHAT_=\
 	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\Chat.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -830,7 +874,6 @@ DEP_CPP_CHAT_=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -859,6 +902,7 @@ NODEP_CPP_CHAT_=\
 	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\Chat.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -1371,13 +1415,125 @@ NODEP_CPP_CHATC=\
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
 
 DEP_CPP_CHATC=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalException.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
 	".\LogI.h"\
+	".\PingThread.h"\
+	".\Router.h"\
+	".\Session.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_CHATC=\
-	".\HelloI.h"\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
@@ -1406,7 +1562,6 @@ DEP_CPP_CHATC=\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
@@ -1451,6 +1606,7 @@ NODEP_CPP_CHATC=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\Logger.h"\
 	"..\..\..\include\IceE\LoggerF.h"\
@@ -1527,7 +1683,6 @@ DEP_CPP_CHATC=\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
@@ -1572,6 +1727,7 @@ NODEP_CPP_CHATC=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\Logger.h"\
 	"..\..\..\include\IceE\LoggerF.h"\
@@ -2045,10 +2201,127 @@ DEP_CPP_CHATCL=\
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
 
 DEP_CPP_CHATCL=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\FactoryTable.h"\
+	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\Incoming.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalException.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\Outgoing.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\SafeStdio.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\StaticMutex.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
+	"..\..\..\include\IceE\UserExceptionFactory.h"\
+	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Chat.h"\
 	".\ChatClient.h"\
 	".\ChatClientDlg.h"\
+	".\ChatConfigDlg.h"\
 	".\LogI.h"\
+	".\PingThread.h"\
+	".\Router.h"\
+	".\Session.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_CHATCL=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
@@ -2077,7 +2350,6 @@ DEP_CPP_CHATCL=\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
@@ -2123,6 +2395,7 @@ NODEP_CPP_CHATCL=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\Logger.h"\
 	"..\..\..\include\IceE\LoggerF.h"\
@@ -2201,7 +2474,6 @@ DEP_CPP_CHATCL=\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
@@ -2247,6 +2519,7 @@ NODEP_CPP_CHATCL=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\Logger.h"\
 	"..\..\..\include\IceE\LoggerF.h"\
@@ -2332,7 +2605,6 @@ DEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
@@ -2379,6 +2651,7 @@ NODEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\Logger.h"\
 	"..\..\..\include\IceE\LoggerF.h"\
@@ -2457,7 +2730,6 @@ DEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
@@ -2504,6 +2776,7 @@ NODEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\Logger.h"\
 	"..\..\..\include\IceE\LoggerF.h"\
@@ -2582,7 +2855,6 @@ DEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
@@ -2628,6 +2900,7 @@ NODEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\Logger.h"\
 	"..\..\..\include\IceE\LoggerF.h"\
@@ -2664,7 +2937,6 @@ DEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
@@ -2710,6 +2982,7 @@ NODEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\Logger.h"\
 	"..\..\..\include\IceE\LoggerF.h"\
@@ -2746,7 +3019,6 @@ DEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
@@ -2792,6 +3064,7 @@ NODEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\Logger.h"\
 	"..\..\..\include\IceE\LoggerF.h"\
@@ -2807,6 +3080,7 @@ NODEP_CPP_CHATCO=\
 DEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\BasicStream.h"\
 	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Communicator.h"\
 	"..\..\..\include\IceE\CommunicatorF.h"\
 	"..\..\..\include\IceE\Cond.h"\
@@ -2818,21 +3092,23 @@ DEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\EndpointF.h"\
 	"..\..\..\include\IceE\Exception.h"\
 	"..\..\..\include\IceE\ExceptionBase.h"\
-	"..\..\..\include\IceE\FactoryTable.h"\
-	"..\..\..\include\IceE\FactoryTableDef.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Functional.h"\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
 	"..\..\..\include\IceE\IdentityUtil.h"\
-	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalException.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
 	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
 	"..\..\..\include\IceE\LoggerUtil.h"\
 	"..\..\..\include\IceE\Monitor.h"\
 	"..\..\..\include\IceE\Mutex.h"\
@@ -2842,7 +3118,6 @@ DEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
 	"..\..\..\include\IceE\ObjectF.h"\
 	"..\..\..\include\IceE\OperationMode.h"\
-	"..\..\..\include\IceE\Outgoing.h"\
 	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Properties.h"\
 	"..\..\..\include\IceE\PropertiesF.h"\
@@ -2852,36 +3127,62 @@ DEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\ProxyHandle.h"\
 	"..\..\..\include\IceE\RecMutex.h"\
 	"..\..\..\include\IceE\ReferenceF.h"\
-	"..\..\..\include\IceE\SafeStdio.h"\
+	"..\..\..\include\IceE\RouterF.h"\
 	"..\..\..\include\IceE\ServantManagerF.h"\
 	"..\..\..\include\IceE\Shared.h"\
-	"..\..\..\include\IceE\StaticMutex.h"\
 	"..\..\..\include\IceE\Thread.h"\
 	"..\..\..\include\IceE\ThreadException.h"\
 	"..\..\..\include\IceE\Time.h"\
 	"..\..\..\include\IceE\TraceLevelsF.h"\
 	"..\..\..\include\IceE\TransceiverF.h"\
 	"..\..\..\include\IceE\UndefSysMacros.h"\
-	"..\..\..\include\IceE\UserExceptionFactory.h"\
-	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
-	".\ChatClient.h"\
-	".\ChatClientDlg.h"\
 	".\ChatConfigDlg.h"\
-	".\LogI.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_CHATCO=\
-	"..\..\..\include\IceE\BuiltinSequences.h"\
-	"..\..\..\include\IceE\FacetMap.h"\
-	"..\..\..\include\IceE\Identity.h"\
-	"..\..\..\include\IceE\LocatorF.h"\
-	"..\..\..\include\IceE\Logger.h"\
-	"..\..\..\include\IceE\LoggerF.h"\
-	"..\..\..\include\IceE\Router.h"\
-	"..\..\..\include\IceE\RouterF.h"\
-	".\Chat.h"\
-	".\Router.h"\
-	".\Session.h"\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
@@ -2910,7 +3211,6 @@ DEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
@@ -2957,6 +3257,7 @@ NODEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\Logger.h"\
 	"..\..\..\include\IceE\LoggerF.h"\
@@ -3035,7 +3336,6 @@ DEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
@@ -3082,6 +3382,7 @@ NODEP_CPP_CHATCO=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\Logger.h"\
 	"..\..\..\include\IceE\LoggerF.h"\
@@ -3547,8 +3848,111 @@ DEP_CPP_LOGI_=\
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
 
 DEP_CPP_LOGI_=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalException.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
 	".\LogI.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_LOGI_=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
@@ -3574,7 +3978,6 @@ DEP_CPP_LOGI_=\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
@@ -3613,6 +4016,7 @@ NODEP_CPP_LOGI_=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\Logger.h"\
 	"..\..\..\include\IceE\LoggerF.h"\
@@ -4145,6 +4549,7 @@ NODEP_CPP_PINGT=\
 DEP_CPP_PINGT=\
 	"..\..\..\include\IceE\BasicStream.h"\
 	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
 	"..\..\..\include\IceE\Cond.h"\
 	"..\..\..\include\IceE\Config.h"\
 	"..\..\..\include\IceE\ConnectionF.h"\
@@ -4184,53 +4589,53 @@ DEP_CPP_PINGT=\
 	"..\..\..\include\IceE\UserExceptionFactory.h"\
 	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
 	".\PingThread.h"\
+	".\Router.h"\
+	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_PINGT=\
 	"..\..\..\..\..\usr\include\pthread.h"\
-	".\onfig\_epilog.h"\
-	".\onfig\_msvc_warnings_off.h"\
-	".\onfig\_prolog.h"\
-	".\onfig\stl_apcc.h"\
-	".\onfig\stl_apple.h"\
-	".\onfig\stl_as400.h"\
-	".\onfig\stl_bc.h"\
-	".\onfig\stl_como.h"\
-	".\onfig\stl_confix.h"\
-	".\onfig\stl_cray.h"\
-	".\onfig\stl_dec.h"\
-	".\onfig\stl_dec_vms.h"\
-	".\onfig\stl_dm.h"\
-	".\onfig\stl_fujitsu.h"\
-	".\onfig\stl_gcc.h"\
-	".\onfig\stl_hpacc.h"\
-	".\onfig\stl_ibm.h"\
-	".\onfig\stl_icc.h"\
-	".\onfig\stl_intel.h"\
-	".\onfig\stl_kai.h"\
-	".\onfig\stl_msvc.h"\
-	".\onfig\stl_mwerks.h"\
-	".\onfig\stl_mycomp.h"\
-	".\onfig\stl_sco.h"\
-	".\onfig\stl_select_lib.h"\
-	".\onfig\stl_sgi.h"\
-	".\onfig\stl_solaris.h"\
-	".\onfig\stl_sunpro.h"\
-	".\onfig\stl_symantec.h"\
-	".\onfig\stl_watcom.h"\
-	".\onfig\stl_wince.h"\
-	".\onfig\stlcomp.h"\
-	".\onfig\vc_select_lib.h"\
-	".\Router.h"\
-	".\Session.h"\
-	".\thread.h"\
-	".\tl\_abbrevs.h"\
-	".\tl\_config.h"\
-	".\tl\_config_compat.h"\
-	".\tl\_config_compat_post.h"\
-	".\tl\_epilog.h"\
-	".\tl\_prolog.h"\
-	".\tl\_site_config.h"\
-	".\tl_user_config.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
@@ -4443,7 +4848,6 @@ DEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -4472,6 +4876,7 @@ NODEP_CPP_ROUTE=\
 	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\Router.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -4536,7 +4941,6 @@ DEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -4565,6 +4969,7 @@ NODEP_CPP_ROUTE=\
 	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\Router.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -4629,7 +5034,6 @@ DEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -4657,6 +5061,7 @@ DEP_CPP_ROUTE=\
 NODEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\Router.h"\
 	".\Router.h"\
 	".\Session.h"\
@@ -4679,7 +5084,6 @@ DEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -4707,6 +5111,7 @@ DEP_CPP_ROUTE=\
 NODEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\Router.h"\
 	".\Router.h"\
 	".\Session.h"\
@@ -4729,7 +5134,6 @@ DEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -4757,6 +5161,7 @@ DEP_CPP_ROUTE=\
 NODEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\Router.h"\
 	".\Router.h"\
 	".\Session.h"\
@@ -4767,6 +5172,8 @@ NODEP_CPP_ROUTE=\
 DEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\BasicStream.h"\
 	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
 	"..\..\..\include\IceE\Cond.h"\
 	"..\..\..\include\IceE\Config.h"\
 	"..\..\..\include\IceE\ConnectionF.h"\
@@ -4777,9 +5184,10 @@ DEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\FactoryTable.h"\
 	"..\..\..\include\IceE\FactoryTableDef.h"\
 	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalException.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -4795,6 +5203,7 @@ DEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\ProxyFactoryF.h"\
 	"..\..\..\include\IceE\ProxyHandle.h"\
 	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\Router.h"\
 	"..\..\..\include\IceE\ServantManagerF.h"\
 	"..\..\..\include\IceE\Shared.h"\
 	"..\..\..\include\IceE\StaticMutex.h"\
@@ -4803,13 +5212,53 @@ DEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\UndefSysMacros.h"\
 	"..\..\..\include\IceE\UserExceptionFactory.h"\
 	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
-	
-NODEP_CPP_ROUTE=\
-	"..\..\..\include\IceE\BuiltinSequences.h"\
-	"..\..\..\include\IceE\Identity.h"\
-	"..\..\..\include\IceE\Router.h"\
 	".\Router.h"\
 	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_ROUTE=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
@@ -4829,7 +5278,6 @@ DEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -4858,6 +5306,7 @@ NODEP_CPP_ROUTE=\
 	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\Router.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -4922,7 +5371,6 @@ DEP_CPP_ROUTE=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -4951,6 +5399,7 @@ NODEP_CPP_ROUTE=\
 	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\Router.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
@@ -5022,7 +5471,6 @@ DEP_CPP_SESSI=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -5051,6 +5499,7 @@ NODEP_CPP_SESSI=\
 	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -5113,7 +5562,6 @@ DEP_CPP_SESSI=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -5142,6 +5590,7 @@ NODEP_CPP_SESSI=\
 	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -5204,7 +5653,6 @@ DEP_CPP_SESSI=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -5232,6 +5680,7 @@ DEP_CPP_SESSI=\
 NODEP_CPP_SESSI=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\Session.h"\
 	
 
@@ -5252,7 +5701,6 @@ DEP_CPP_SESSI=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -5280,6 +5728,7 @@ DEP_CPP_SESSI=\
 NODEP_CPP_SESSI=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\Session.h"\
 	
 
@@ -5300,7 +5749,6 @@ DEP_CPP_SESSI=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -5328,6 +5776,7 @@ DEP_CPP_SESSI=\
 NODEP_CPP_SESSI=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\Session.h"\
 	
 
@@ -5336,6 +5785,8 @@ NODEP_CPP_SESSI=\
 DEP_CPP_SESSI=\
 	"..\..\..\include\IceE\BasicStream.h"\
 	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
 	"..\..\..\include\IceE\Cond.h"\
 	"..\..\..\include\IceE\Config.h"\
 	"..\..\..\include\IceE\ConnectionF.h"\
@@ -5346,9 +5797,10 @@ DEP_CPP_SESSI=\
 	"..\..\..\include\IceE\FactoryTable.h"\
 	"..\..\..\include\IceE\FactoryTableDef.h"\
 	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\Identity.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
+	"..\..\..\include\IceE\LocalException.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -5372,11 +5824,52 @@ DEP_CPP_SESSI=\
 	"..\..\..\include\IceE\UndefSysMacros.h"\
 	"..\..\..\include\IceE\UserExceptionFactory.h"\
 	"..\..\..\include\IceE\UserExceptionFactoryF.h"\
+	".\Session.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
 	
 NODEP_CPP_SESSI=\
-	"..\..\..\include\IceE\BuiltinSequences.h"\
-	"..\..\..\include\IceE\Identity.h"\
-	".\Session.h"\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
@@ -5396,7 +5889,6 @@ DEP_CPP_SESSI=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -5425,6 +5917,7 @@ NODEP_CPP_SESSI=\
 	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -5487,7 +5980,6 @@ DEP_CPP_SESSI=\
 	"..\..\..\include\IceE\Handle.h"\
 	"..\..\..\include\IceE\Incoming.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\Lock.h"\
@@ -5516,6 +6008,7 @@ NODEP_CPP_SESSI=\
 	"..\..\..\..\..\usr\include\pthread.h"\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -5969,7 +6462,110 @@ DEP_CPP_STDAF=\
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE ARMV4) Release Static"
 
 DEP_CPP_STDAF=\
+	"..\..\..\include\IceE\BasicStream.h"\
+	"..\..\..\include\IceE\Buffer.h"\
+	"..\..\..\include\IceE\BuiltinSequences.h"\
+	"..\..\..\include\IceE\Communicator.h"\
+	"..\..\..\include\IceE\CommunicatorF.h"\
+	"..\..\..\include\IceE\Cond.h"\
+	"..\..\..\include\IceE\Config.h"\
+	"..\..\..\include\IceE\Connection.h"\
+	"..\..\..\include\IceE\ConnectionF.h"\
+	"..\..\..\include\IceE\Current.h"\
+	"..\..\..\include\IceE\DispatchStatus.h"\
+	"..\..\..\include\IceE\EndpointF.h"\
+	"..\..\..\include\IceE\Exception.h"\
+	"..\..\..\include\IceE\ExceptionBase.h"\
+	"..\..\..\include\IceE\FacetMap.h"\
+	"..\..\..\include\IceE\Functional.h"\
+	"..\..\..\include\IceE\Handle.h"\
+	"..\..\..\include\IceE\IceE.h"\
+	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\IdentityUtil.h"\
+	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Initialize.h"\
+	"..\..\..\include\IceE\InstanceF.h"\
+	"..\..\..\include\IceE\LocalException.h"\
+	"..\..\..\include\IceE\LocalObject.h"\
+	"..\..\..\include\IceE\LocalObjectF.h"\
+	"..\..\..\include\IceE\LocatorF.h"\
+	"..\..\..\include\IceE\LocatorInfoF.h"\
+	"..\..\..\include\IceE\Lock.h"\
+	"..\..\..\include\IceE\Logger.h"\
+	"..\..\..\include\IceE\LoggerF.h"\
+	"..\..\..\include\IceE\LoggerUtil.h"\
+	"..\..\..\include\IceE\Monitor.h"\
+	"..\..\..\include\IceE\Mutex.h"\
+	"..\..\..\include\IceE\Object.h"\
+	"..\..\..\include\IceE\ObjectAdapter.h"\
+	"..\..\..\include\IceE\ObjectAdapterF.h"\
+	"..\..\..\include\IceE\ObjectAdapterFactoryF.h"\
+	"..\..\..\include\IceE\ObjectF.h"\
+	"..\..\..\include\IceE\OperationMode.h"\
+	"..\..\..\include\IceE\OutgoingConnectionFactoryF.h"\
+	"..\..\..\include\IceE\Properties.h"\
+	"..\..\..\include\IceE\PropertiesF.h"\
+	"..\..\..\include\IceE\Proxy.h"\
+	"..\..\..\include\IceE\ProxyF.h"\
+	"..\..\..\include\IceE\ProxyFactoryF.h"\
+	"..\..\..\include\IceE\ProxyHandle.h"\
+	"..\..\..\include\IceE\RecMutex.h"\
+	"..\..\..\include\IceE\ReferenceF.h"\
+	"..\..\..\include\IceE\RouterF.h"\
+	"..\..\..\include\IceE\ServantManagerF.h"\
+	"..\..\..\include\IceE\Shared.h"\
+	"..\..\..\include\IceE\Thread.h"\
+	"..\..\..\include\IceE\ThreadException.h"\
+	"..\..\..\include\IceE\Time.h"\
+	"..\..\..\include\IceE\TraceLevelsF.h"\
+	"..\..\..\include\IceE\TransceiverF.h"\
+	"..\..\..\include\IceE\UndefSysMacros.h"\
 	".\stdafx.h"\
+	{$(INCLUDE)}"config\_epilog.h"\
+	{$(INCLUDE)}"config\_msvc_warnings_off.h"\
+	{$(INCLUDE)}"config\_prolog.h"\
+	{$(INCLUDE)}"config\stl_apcc.h"\
+	{$(INCLUDE)}"config\stl_apple.h"\
+	{$(INCLUDE)}"config\stl_as400.h"\
+	{$(INCLUDE)}"config\stl_bc.h"\
+	{$(INCLUDE)}"config\stl_como.h"\
+	{$(INCLUDE)}"config\stl_confix.h"\
+	{$(INCLUDE)}"config\stl_cray.h"\
+	{$(INCLUDE)}"config\stl_dec.h"\
+	{$(INCLUDE)}"config\stl_dec_vms.h"\
+	{$(INCLUDE)}"config\stl_dm.h"\
+	{$(INCLUDE)}"config\stl_evc.h"\
+	{$(INCLUDE)}"config\stl_fujitsu.h"\
+	{$(INCLUDE)}"config\stl_gcc.h"\
+	{$(INCLUDE)}"config\stl_hpacc.h"\
+	{$(INCLUDE)}"config\stl_ibm.h"\
+	{$(INCLUDE)}"config\stl_icc.h"\
+	{$(INCLUDE)}"config\stl_intel.h"\
+	{$(INCLUDE)}"config\stl_kai.h"\
+	{$(INCLUDE)}"config\stl_msvc.h"\
+	{$(INCLUDE)}"config\stl_mwerks.h"\
+	{$(INCLUDE)}"config\stl_mycomp.h"\
+	{$(INCLUDE)}"config\stl_sco.h"\
+	{$(INCLUDE)}"config\stl_sgi.h"\
+	{$(INCLUDE)}"config\stl_solaris.h"\
+	{$(INCLUDE)}"config\stl_sunpro.h"\
+	{$(INCLUDE)}"config\stl_symantec.h"\
+	{$(INCLUDE)}"config\stl_watcom.h"\
+	{$(INCLUDE)}"config\stl_wince.h"\
+	{$(INCLUDE)}"config\stlcomp.h"\
+	{$(INCLUDE)}"pthread.h"\
+	{$(INCLUDE)}"stl\_abbrevs.h"\
+	{$(INCLUDE)}"stl\_config.h"\
+	{$(INCLUDE)}"stl\_config_compat.h"\
+	{$(INCLUDE)}"stl\_config_compat_post.h"\
+	{$(INCLUDE)}"stl\_epilog.h"\
+	{$(INCLUDE)}"stl\_prolog.h"\
+	{$(INCLUDE)}"stl\_site_config.h"\
+	{$(INCLUDE)}"stl\_stlport_version.h"\
+	{$(INCLUDE)}"stl_user_config.h"\
+	
+NODEP_CPP_STDAF=\
+	"..\..\..\..\..\usr\include\pthread.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Debug Static"
@@ -5995,7 +6591,6 @@ DEP_CPP_STDAF=\
 	"..\..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\..\include\IceE\Initialize.h"\
 	"..\..\..\include\IceE\InstanceF.h"\
-	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocalObject.h"\
 	"..\..\..\include\IceE\LocalObjectF.h"\
 	"..\..\..\include\IceE\LocatorInfoF.h"\
@@ -6033,6 +6628,7 @@ NODEP_CPP_STDAF=\
 	"..\..\..\include\IceE\BuiltinSequences.h"\
 	"..\..\..\include\IceE\FacetMap.h"\
 	"..\..\..\include\IceE\Identity.h"\
+	"..\..\..\include\IceE\LocalExceptions.h"\
 	"..\..\..\include\IceE\LocatorF.h"\
 	"..\..\..\include\IceE\Logger.h"\
 	"..\..\..\include\IceE\LoggerF.h"\
@@ -6271,7 +6867,7 @@ SOURCE=.\res\ChatClient.ico
 # End Source File
 # Begin Source File
 
-SOURCE=.\ChatClient.rc
+SOURCE=.\ChatClientCE.rc
 
 !IF  "$(CFG)" == "mfcchatC - Win32 (WCE emulator) Release"
 

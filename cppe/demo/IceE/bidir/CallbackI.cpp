@@ -7,11 +7,10 @@
 //
 // **********************************************************************
 
-#include <IceE/IceE.h>
 #include <CallbackI.h>
+#include <IceE/IceE.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 CallbackSenderI::CallbackSenderI() :
@@ -27,7 +26,7 @@ CallbackSenderI::destroy()
     IceUtil::ThreadPtr callbackSenderThread;
 
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+	Lock lock(*this);
 	
 	printf("destroying callback sender\n");
 	_destroy = true;
@@ -42,11 +41,11 @@ CallbackSenderI::destroy()
 }
 
 void
-CallbackSenderI::addClient(const Identity& ident, const Current& current)
+CallbackSenderI::addClient(const Ice::Identity& ident, const Ice::Current& current)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    Lock lock(*this);
 
-    printf("adding client `%s'\n", identityToString(ident).c_str());
+    printf("adding client `%s'\n", Ice::identityToString(ident).c_str());
 
     CallbackReceiverPrx client = CallbackReceiverPrx::uncheckedCast(current.con->createProxy(ident));
     _clients.insert(client);
@@ -61,7 +60,7 @@ CallbackSenderI::start()
 void
 CallbackSenderI::run()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    Lock lock(*this);
 
     while(!_destroy)
     {
@@ -79,9 +78,10 @@ CallbackSenderI::run()
 		    (*p)->callback(_num);
 		    ++p;
 		}
-		catch(const Exception& ex)
+		catch(const Ice::Exception& ex)
 		{
-		    fprintf(stderr, "removing client `%s':\n%s\n", identityToString((*p)->ice_getIdentity()).c_str(),
+		    fprintf(stderr, "removing client `%s':\n%s\n",
+			    Ice::identityToString((*p)->ice_getIdentity()).c_str(),
 		    	    ex.toString().c_str());
 		    _clients.erase(p++);
 		}

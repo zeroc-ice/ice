@@ -11,13 +11,12 @@
 #include <CallbackI.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Server");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Server");
     CallbackSenderIPtr sender = new CallbackSenderI;
     adapter->add(sender, Ice::stringToIdentity("sender"));
     adapter->activate();

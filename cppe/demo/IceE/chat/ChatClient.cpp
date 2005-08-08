@@ -8,17 +8,17 @@
 // **********************************************************************
 
 
-#include "stdafx.h"
-#include "ChatClient.h"
-#include "ChatClientDlg.h"
-#include "Chat.h"
-#include "LogI.h"
-
+#include <stdafx.h>
+#include <ChatClient.h>
+#include <ChatClientDlg.h>
+#include <Chat.h>
+#include <LogI.h>
 
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
 
 BEGIN_MESSAGE_MAP(CChatClientApp, CWinApp)
     ON_COMMAND(ID_HELP, CWinApp::OnHelp)
@@ -78,7 +78,7 @@ BOOL CChatClientApp::InitInstance()
     //
     // Edit control no longer exists.
     //
-    log->setControl(0);
+    log->setHandle(0);
 
     //
     // Clean up.

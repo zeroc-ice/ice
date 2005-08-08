@@ -8,46 +8,50 @@
 // **********************************************************************
 
 
-#include "stdafx.h"
-#include "IceE/SafeStdio.h"
-#include "Router.h"
-#include "ChatClient.h"
-#include "ChatConfigDlg.h"
+#include <stdafx.h>
+#include <ChatConfigDlg.h>
 
 #ifdef ICEE_HAS_ROUTER
-
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
-class ChatCallbackI : public Demo::ChatCallback
-{
-public:
+using namespace std;
 
-    ChatCallbackI(LogIPtr log)
-        : _log(log)
-    {
-    }
-
-    virtual void
-    message(const std::string& data, const Ice::Current&)
-    {
-        _log->message(data);
-    }
-
-private:
-
-    LogIPtr _log;
-};
-
-CChatConfigDlg::CChatConfigDlg(const Ice::CommunicatorPtr& communicator, const LogIPtr& log, 
-			       CChatClientDlg* mainDiag, const CString& user, const CString& password,
+CChatConfigDlg::CChatConfigDlg(const CString& user, const CString& password,
 			       const CString& host, const CString& port, CWnd* pParent /*=NULL*/) :
-    CDialog(CChatConfigDlg::IDD, pParent), _communicator(communicator), _log(log), _mainDiag(mainDiag),
-    _user(user), _password(password), _host(host), _port(port)
+    CDialog(CChatConfigDlg::IDD, pParent),
+    _user(user),
+    _password(password),
+    _host(host),
+    _port(port)
 {
     _hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+}
+
+CString
+CChatConfigDlg::getUser() const
+{
+    return _user;
+}
+
+CString
+CChatConfigDlg::getPassword() const
+{
+    return _password;
+}
+
+CString
+CChatConfigDlg::getHost() const
+{
+    return _host;
+}
+
+CString
+CChatConfigDlg::getPort() const
+{
+    return _port;
 }
 
 void
@@ -158,80 +162,7 @@ CChatConfigDlg::OnLogin()
     _passedit->GetWindowText(_password);
     _hostedit->GetWindowText(_host);
     _portedit->GetWindowText(_port);
-
-    std::string user;
-    std::string password;
-    std::string host;
-    std::string port;
-#ifdef _WIN32_WCE
-    char buffer[64];
-    wcstombs(buffer, _user, 64);
-    user = buffer;
-
-    wcstombs(buffer, _password, 64);
-    password = buffer;
-
-    wcstombs(buffer, _host, 64);
-    host = buffer;
-
-    wcstombs(buffer, _port, 64);
-    port = buffer;
-#else
-    user = _user;
-    password = _password;
-    host = _host;
-    port = _port;
-#endif
-
-    bool success = false;
-    try
-    {
-    	std::string routerStr = Ice::printfToString("Glacier2/router:tcp -p %s -h %s", port.c_str(), host.c_str());
-
-        Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(_communicator->stringToProxy(routerStr));
-        if(router)
-	{
-	    _communicator->setDefaultRouter(router);
-
-	    Ice::PropertiesPtr properties = _communicator->getProperties();
-	    properties->setProperty("Chat.Client.Router", routerStr);
-	    properties->setProperty("Chat.Client.Endpoints", "");
-
-	    Demo::ChatSessionPrx session = Demo::ChatSessionPrx::uncheckedCast(router->createSession(user, password));
-
-            std::string category = router->getServerProxy()->ice_getIdentity().category;
-            Ice::Identity callbackReceiverIdent;
-            callbackReceiverIdent.name = "callbackReceiver";
-            callbackReceiverIdent.category = category;
-
-            Ice::ObjectAdapterPtr adapter = _communicator->createObjectAdapter("Chat.Client");
-            Demo::ChatCallbackPrx callback = Demo::ChatCallbackPrx::uncheckedCast(
-                adapter->add(new ChatCallbackI(_log), callbackReceiverIdent));
-            adapter->activate();
-
-            session->setCallback(callback);
-	    _mainDiag->setSession(session, _user, _password, _host, _port);
-	    success = true;
-	}
-	else
-        {
-            AfxMessageBox(CString("Configured router is not a Glacier2 router"), MB_OK|MB_ICONEXCLAMATION);
-        }
-
-    }
-    catch(const Glacier2::CannotCreateSessionException& ex)
-    {
-        AfxMessageBox(CString(ex.reason.c_str()), MB_OK|MB_ICONEXCLAMATION);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
-    }
-    
-    if(success)
-    {
-        EndDialog(0);
-    }
+    EndDialog(IDOK);
 }
 
 #endif // ICEE_HAS_ROUTER

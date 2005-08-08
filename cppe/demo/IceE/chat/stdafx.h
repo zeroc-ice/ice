@@ -11,7 +11,7 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#ifndef UNDER_CE
+#ifndef _WIN32_WCE
 
 #if !defined(NDEBUG) && !defined(_STLP_DEBUG)
 #   define _STLP_DEBUG
@@ -32,14 +32,16 @@
 #endif
 
 //
-// _STLP_USE_MFC must be defined. We don't use iostreams so lets turn that off too.
+// _STLP_USE_MFC must be defined. We don't use iostreams so lets turn
+// that off too. This must defined here since some of the AFX header
+// files include STLport headers.
 //
 #define _STLP_USE_MFC
 #define _STLP_NO_OWN_IOSTREAMS
 #define _STLP_NO_NEW_IOSTREAMS
 #define _STLP_NO_IOSTREAMS
 
-#endif // UNDER_CE
+#endif // _WIN32_WCE
 
 #define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
 
@@ -49,7 +51,6 @@
 #if defined(_WIN32_WCE) && (_WIN32_WCE >= 211) && (_AFXDLL)
 #include <afxdtctl.h>		// MFC support for Internet Explorer 4 Common Controls
 #endif
-
 
 #ifndef _AFX_NO_AFXCMN_SUPPORT
 #include <afxcmn.h>			// MFC support for Windows Common Controls

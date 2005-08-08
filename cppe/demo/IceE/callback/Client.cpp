@@ -11,14 +11,13 @@
 #include <Callback.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 class CallbackReceiverI : public CallbackReceiver
 {
 public:
 
-    virtual void callback(const Current&)
+    virtual void callback(const Ice::Current&)
     {
 	printf("received callback\n");
     }
@@ -41,16 +40,16 @@ menu()
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    PropertiesPtr properties = communicator->getProperties();
+    Ice::PropertiesPtr properties = communicator->getProperties();
     const char* proxyProperty = "Callback.Client.CallbackServer";
-    std::string proxy = properties->getProperty(proxyProperty);
+    string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
 	fprintf(stderr, "%s: property `%s' not set\n", argv[0], proxyProperty);
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator->stringToProxy(proxy);
     CallbackPrx twoway = CallbackPrx::checkedCast(base->ice_twoway()->ice_timeout(-1));
     if(!twoway)
     {
@@ -60,12 +59,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
     CallbackPrx batchOneway = CallbackPrx::uncheckedCast(twoway->ice_batchOneway());
     
-    ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Client");
-    adapter->add(new CallbackReceiverI, stringToIdentity("callbackReceiver"));
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Client");
+    adapter->add(new CallbackReceiverI, Ice::stringToIdentity("callbackReceiver"));
     adapter->activate();
 
     CallbackReceiverPrx twowayR = CallbackReceiverPrx::uncheckedCast(
-	adapter->createProxy(stringToIdentity("callbackReceiver")));
+	adapter->createProxy(Ice::stringToIdentity("callbackReceiver")));
     CallbackReceiverPrx onewayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_oneway());
 
     menu();
@@ -115,7 +114,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		menu();
 	    }
 	}
-	catch(const Exception& ex)
+	catch(const Ice::Exception& ex)
 	{
 	    fprintf(stderr, "%s\n", ex.toString().c_str());
 	}

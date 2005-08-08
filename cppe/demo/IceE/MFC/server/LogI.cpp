@@ -7,13 +7,13 @@
 //
 // **********************************************************************
 
-#include "stdafx.h"
-#include "LogI.h"
+#include <stdafx.h>
+#include <LogI.h>
 
 using namespace std;
 
 LogI::LogI() :
-    _log(0)
+    _hwnd(0)
 {
 }
 
@@ -63,10 +63,9 @@ void
 LogI::message(const string& msg)
 {
     string line = msg + "\r\n";
-    if(_log)
+    if(_hwnd)
     {
-        _log->SetSel(-1, -1);
-        _log->ReplaceSel(CString(line.c_str()));
+	post(line);
     }
     else
     {
@@ -75,12 +74,21 @@ LogI::message(const string& msg)
 }
 
 void
-LogI::setControl(CEdit* log)
+LogI::setHandle(HWND hwnd)
 {
-    _log = log;
-    if(!_buffer.empty())
+    _hwnd = hwnd;
+    if(_hwnd != 0 && !_buffer.empty())
     {
-        _log->ReplaceSel(CString(_buffer.c_str()));
+	post(_buffer);
         _buffer.clear();
     }
+}
+
+void
+LogI::post(const string& data)
+{
+    assert(_hwnd != 0);
+    char* text = new char[data.size()+1];
+    strcpy(text, data.c_str());
+    ::PostMessage(_hwnd, WM_USER, (WPARAM)FALSE, (LPARAM)text);
 }

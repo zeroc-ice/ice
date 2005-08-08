@@ -29,6 +29,7 @@ protected:
     Ice::CommunicatorPtr _communicator;
     LogIPtr _log;
     CEdit* _edit;
+    CEdit* _display;
     HICON _hIcon;
 
     // Generated message map functions
@@ -38,6 +39,7 @@ protected:
     afx_msg HCURSOR OnQueryDragIcon();
     afx_msg void OnShutdown();
     afx_msg void OnClear();
+    afx_msg LRESULT OnLog(UINT, UINT);
     DECLARE_MESSAGE_MAP()
 };
 

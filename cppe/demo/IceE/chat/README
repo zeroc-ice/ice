@@ -16,7 +16,6 @@ Since Ice-E does not support SSL you must first mofify the
 "Glacier2.Client.Endpoints" property in config.glacier2 to use "tcp"
 instead of "ssl" as the endpoint type.
 
-
 Finally, start the Ice-E client. To start the command line client, run
 
 $ client

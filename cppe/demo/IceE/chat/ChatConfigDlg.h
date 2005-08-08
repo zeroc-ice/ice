@@ -13,23 +13,26 @@
 
 #pragma once
 
-#include "ChatClientDlg.h"
+#include <resource.h>
 
 class CChatConfigDlg : public CDialog
 {
 public:
-    CChatConfigDlg(const Ice::CommunicatorPtr&, const LogIPtr&, CChatClientDlg*, const CString&, const CString&,
-    		   const CString&, const CString&, CWnd* = NULL);
+
+    CChatConfigDlg(const CString&, const CString&, const CString&, const CString&, CWnd* = NULL);
 
     enum { IDD = IDD_CHATCONFIG_DIALOG };
 
+    CString getUser() const;
+    CString getPassword() const;
+    CString getHost() const;
+    CString getPort() const;
+
 protected:
+
     virtual void DoDataExchange(CDataExchange*);    // DDX/DDV support
 
 protected:
-    Ice::CommunicatorPtr _communicator;
-    LogIPtr _log;
-    CChatClientDlg* _mainDiag;
 
     CEdit* _useredit;
     CEdit* _passedit;
@@ -42,7 +45,6 @@ protected:
     CString _port;
 
     HICON _hIcon;
-
 
     // Generated message map functions
     virtual BOOL OnInitDialog();

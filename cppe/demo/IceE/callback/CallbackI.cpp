@@ -11,32 +11,31 @@
 #include <CallbackI.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 void
-CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Current& current)
+CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Ice::Current& current)
 {
     printf("initiating callback\n");
     try
     {
 	proxy->callback(current.ctx);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	fprintf(stderr, "%s\n", ex.toString().c_str());
     }
 }
 
 void
-CallbackI::shutdown(const Current& c)
+CallbackI::shutdown(const Ice::Current& c)
 {
     printf("shutting down...\n");
     try
     {
 	c.adapter->getCommunicator()->shutdown();
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	fprintf(stderr, "%s\n", ex.toString().c_str());
     }

@@ -7,15 +7,14 @@
 //
 // **********************************************************************
 
-#include <IceE/IceE.h>
 #include <PingThread.h>
 #include <Router.h>
 #include <Chat.h>
+#include <IceE/IceE.h>
 
 #ifdef ICEE_HAS_ROUTER
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 class ChatCallbackI : public ChatCallback
@@ -23,7 +22,7 @@ class ChatCallbackI : public ChatCallback
 public:
 
     virtual void
-    message(const string& data, const Current&)
+    message(const string& data, const Ice::Current&)
     {
 	printf("%s\n", data.c_str());
     }
@@ -50,7 +49,7 @@ trim(const string& s)
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    RouterPrx defaultRouter = communicator->getDefaultRouter();
+    Ice::RouterPrx defaultRouter = communicator->getDefaultRouter();
     if(!defaultRouter)
     {
         fprintf(stderr, "%s: no default router set\n", argv[0]);
@@ -98,11 +97,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     ping->start();
 
     string category = router->getServerProxy()->ice_getIdentity().category;
-    Identity callbackReceiverIdent;
+    Ice::Identity callbackReceiverIdent;
     callbackReceiverIdent.name = "callbackReceiver";
     callbackReceiverIdent.category = category;
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapter("Chat.Client");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Chat.Client");
     ChatCallbackPrx callback = ChatCallbackPrx::uncheckedCast(
         adapter->add(new ChatCallbackI, callbackReceiverIdent));
     adapter->activate();
@@ -143,7 +142,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	while(true);
 	router->destroySession();
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
         fprintf(stderr, "%s\n", ex.toString().c_str());
 	ping->destroy();

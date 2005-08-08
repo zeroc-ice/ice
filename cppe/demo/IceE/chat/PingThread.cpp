@@ -9,6 +9,8 @@
 
 #include <PingThread.h>
 
+using namespace std;
+
 SessionPingThread::SessionPingThread(const Glacier2::SessionPrx& session) :
     _session(session),
     _timeout(IceUtil::Time::seconds(20)),

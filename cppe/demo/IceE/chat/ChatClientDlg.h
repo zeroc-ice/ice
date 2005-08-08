@@ -13,35 +13,45 @@
 
 #pragma once
 
-#include "LogI.h"
-#include "Chat.h"
-#include "PingThread.h"
+#include <LogI.h>
+#include <Chat.h>
+#include <PingThread.h>
 
 class CChatClientDlg : public CDialog
 {
 public:
-    CChatClientDlg(const Ice::CommunicatorPtr&, const LogIPtr&, CWnd* = NULL);
 
-    void setSession(const Demo::ChatSessionPrx&, CString, CString, CString, CString);
+    CChatClientDlg(const Ice::CommunicatorPtr&, const LogIPtr&, CWnd* = NULL);
+    ~CChatClientDlg();
 
     enum { IDD = IDD_CHATCLIENT_DIALOG };
 
 protected:
+
     virtual void DoDataExchange(CDataExchange*);    // DDX/DDV support
+#ifndef _WIN32_WCE
+    virtual void OnOK();
+#endif
 
 protected:
-    Ice::CommunicatorPtr _communicator;
+
+    const Ice::CommunicatorPtr _communicator;
+    Ice::ObjectAdapterPtr _adapter;
+    Demo::ChatCallbackPrx _callback;
     Demo::ChatSessionPrx _chat;
-    LogIPtr _log;
+    const LogIPtr _log;
 
     SessionPingThreadPtr _ping;
     CEdit* _edit;
+    CEdit* _display;
     HICON _hIcon;
 
     CString _user;
     CString _password;
     CString _host;
     CString _port;
+
+    void setDialogState();
 
     // Generated message map functions
     virtual BOOL OnInitDialog();
@@ -50,6 +60,7 @@ protected:
     afx_msg HCURSOR OnQueryDragIcon();
     afx_msg void OnLogin();
     afx_msg void OnSend();
+    afx_msg LRESULT OnLog(UINT, UINT);
     DECLARE_MESSAGE_MAP()
 };
 

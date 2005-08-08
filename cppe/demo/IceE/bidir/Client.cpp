@@ -7,12 +7,11 @@
 //
 // **********************************************************************
 
-#include <IceE/UUID.h>
 #include <IceE/IceE.h>
+#include <IceE/UUID.h>
 #include <Callback.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 class CallbackReceiverI : public CallbackReceiver
@@ -20,7 +19,7 @@ class CallbackReceiverI : public CallbackReceiver
 public:
 
     virtual void
-    callback(Int num, const Current&)
+    callback(Ice::Int num, const Ice::Current&)
     {
 	printf("received callback #%d\n", num);
     }
@@ -29,9 +28,9 @@ public:
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    PropertiesPtr properties = communicator->getProperties();
+    Ice::PropertiesPtr properties = communicator->getProperties();
     const char* proxyProperty = "Callback.Client.CallbackServer";
-    std::string proxy = properties->getProperty(proxyProperty);
+    string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
 	fprintf(stderr, "%s: property `%s' not set\n", argv[0], proxyProperty);
@@ -45,8 +44,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Client");
-    Identity ident;
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Client");
+    Ice::Identity ident;
     ident.name = IceUtil::generateUUID();
     ident.category = "";
     adapter->add(new CallbackReceiverI, ident);
