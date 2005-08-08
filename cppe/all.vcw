@@ -453,6 +453,36 @@ Package=<4>
 
 ###############################################################################
 
+Project: "throughputC"=.\demo\IceE\throughput\throughputC.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name icec
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "throughputS"=.\demo\IceE\throughput\throughputS.vcp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "uuid"=.\test\IceE\uuid\uuid.vcp - Package Owner=<4>
 
 Package=<5>

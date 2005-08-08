@@ -1,0 +1,19 @@
+This demo allows you to send sequences of various types between client
+and server and to measure the maximum bandwidth that can be achieved
+using serialized synchronous requests.
+
+Due to the memory constraints of WinCE, the WinCE version of this demo
+uses reduced size sequences. Therefore if you wish to run cross-platform
+tests against a WinCE client or server it is necessary to run with
+reduced size sequences on your other platform as well. 
+
+To start the server with reduced sequences run:
+
+$ server --small
+
+and likewise for the client run:
+
+$ client --small
+
+Failure to ensure that both client and server are using the same sequence
+sizes will result in invalid output.

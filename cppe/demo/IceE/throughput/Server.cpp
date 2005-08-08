@@ -14,8 +14,20 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
+    //
+    // Check if we need to run with small sequences
+    //
+    int reduce = 1;
+    for(int i = 0; i < argc; ++i)
+    {
+        if(strcmp(argv[i], "--small") == 0)
+	{
+	    reduce = 100;
+	}
+    }
+
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Throughput");
-    Ice::ObjectPtr object = new ThroughputI;
+    Ice::ObjectPtr object = new ThroughputI(reduce);
     adapter->add(object, Ice::stringToIdentity("throughput"));
     adapter->activate();
     communicator->waitForShutdown();

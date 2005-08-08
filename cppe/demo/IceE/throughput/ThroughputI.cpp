@@ -12,19 +12,19 @@
 using namespace std;
 using namespace Demo;
 
-ThroughputI::ThroughputI() :
-    _byteSeq(ByteSeqSize, 0),
-    _stringSeq(StringSeqSize, "hello"),
-    _structSeq(StringDoubleSeqSize),
-    _fixedSeq(FixedSeqSize)
+ThroughputI::ThroughputI(int reduce) :
+    _byteSeq(ByteSeqSize / reduce, 0),
+    _stringSeq(StringSeqSize / reduce, "hello"),
+    _structSeq(StringDoubleSeqSize / reduce),
+    _fixedSeq(FixedSeqSize / reduce)
 {
     int i;
-    for(i = 0; i < StringDoubleSeqSize; ++i)
+    for(i = 0; i < StringDoubleSeqSize / reduce; ++i)
     {
 	_structSeq[i].s = "hello";
 	_structSeq[i].d = 3.14;
     }
-    for(i = 0; i < FixedSeqSize; ++i)
+    for(i = 0; i < FixedSeqSize / reduce; ++i)
     {
 	_fixedSeq[i].i = 0;
 	_fixedSeq[i].j = 0;

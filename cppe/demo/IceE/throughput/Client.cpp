@@ -39,6 +39,18 @@ menu()
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
+    //
+    // Check if we need to run with small sequences
+    //
+    int reduce = 1;
+    for(int i = 0; i < argc; ++i)
+    {
+        if(strcmp(argv[i], "--small") == 0)
+        {
+            reduce = 100;
+        }
+    }
+
     Ice::PropertiesPtr properties = communicator->getProperties();
     const char* proxyProperty = "Throughput.Throughput";
     std::string proxy = properties->getProperty(proxyProperty);
@@ -57,20 +69,19 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     ThroughputPrx throughputOneway = ThroughputPrx::uncheckedCast(throughput->ice_oneway());
 
-    ByteSeq byteSeq(ByteSeqSize, 0);
+    ByteSeq byteSeq(ByteSeqSize / reduce, 0);
 
-    StringSeq stringSeq(StringSeqSize, "hello");
+    StringSeq stringSeq(StringSeqSize / reduce, "hello");
 
-    StringDoubleSeq structSeq(StringDoubleSeqSize);
-    int i;
-    for(i = 0; i < StringDoubleSeqSize; ++i)
+    StringDoubleSeq structSeq(StringDoubleSeqSize / reduce);
+    for(i = 0; i < StringDoubleSeqSize / reduce; ++i)
     {
         structSeq[i].s = "hello";
 	structSeq[i].d = 3.14;
     }
 
-    FixedSeq fixedSeq(FixedSeqSize);
-    for(i = 0; i < FixedSeqSize; ++i)
+    FixedSeq fixedSeq(FixedSeqSize / reduce);
+    for(i = 0; i < FixedSeqSize / reduce; ++i)
     {
         fixedSeq[i].i = 0;
         fixedSeq[i].j = 0;
@@ -85,7 +96,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // By default use byte sequence.
     //
     char currentType = '1';
-    int seqSize = ByteSeqSize;
+    int seqSize = ByteSeqSize / reduce;
 
     char c = EOF;
     do
@@ -110,28 +121,28 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		    case '1':
 		    {
 		        printf("using byte sequences\n");
-			seqSize = ByteSeqSize;
+			seqSize = ByteSeqSize / reduce;
 			break;
 		    }
 
 		    case '2':
 		    {
 		        printf("using string sequences\n");
-			seqSize = StringSeqSize;
+			seqSize = StringSeqSize / reduce;
 			break;
 		    }
 
 		    case '3':
 		    {
 		        printf("using variable-length struct sequences\n");
-			seqSize = StringDoubleSeqSize;
+			seqSize = StringDoubleSeqSize / reduce;
 			break;
 		    }
 
 		    case '4':
 		    {
 		        printf("using fixed-length struct sequences\n");
-			seqSize = FixedSeqSize;
+			seqSize = FixedSeqSize / reduce;
 			break;
 		    }
 		}

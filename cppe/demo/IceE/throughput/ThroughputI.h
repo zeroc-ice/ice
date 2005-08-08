@@ -17,7 +17,7 @@ class ThroughputI : public Demo::Throughput
 {
 public:
 
-    ThroughputI();
+    ThroughputI(int);
 
     virtual void sendByteSeq(const Demo::ByteSeq&, const Ice::Current&);
     virtual Demo::ByteSeq recvByteSeq(const Ice::Current&);
