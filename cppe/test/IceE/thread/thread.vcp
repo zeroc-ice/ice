@@ -168,7 +168,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"threadClient.exe" /libpath:"..\..\..\lib" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"threadClient.exe" /libpath:"..\..\..\lib" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 
 !ELSEIF  "$(CFG)" == "thread - Win32 (WCE ARMV4) Debug Static"
 
@@ -203,7 +203,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 lib coredll.lib ccrtrtti.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"threadClient.exe" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 lib coredll.lib ccrtrtti.lib ws2.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"threadClient.exe" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 coredll.lib ccrtrtti.lib ws2.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /out:"threadClient.exe" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 
 !ELSEIF  "$(CFG)" == "thread - Win32 (WCE ARMV4) Release Static"
 
