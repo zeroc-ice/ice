@@ -43,7 +43,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // Check if we need to run with small sequences
     //
     int reduce = 1;
-    for(int i = 0; i < argc; ++i)
+    int i;
+    for(i = 0; i < argc; ++i)
     {
         if(strcmp(argv[i], "--small") == 0)
         {
