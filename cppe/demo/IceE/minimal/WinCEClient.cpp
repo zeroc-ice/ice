@@ -25,21 +25,27 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
     try
     {
 	communicator = Ice::initialize(__argc, __argv);
+	//
+	// We use a fixed string so that the demo will run without a
+	// configuration file.
+	//
 	HelloPrx hello = HelloPrx::checkedCast(communicator->stringToProxy("hello:tcp -p 10000"));
 	if(!hello)
 	{
 	    MessageBox(NULL, L"invalid proxy", L"Minimal Client", MB_ICONEXCLAMATION | MB_OK);
 	    return EXIT_FAILURE;
 	}
+
 	hello->sayHello();
+	MessageBox(NULL, L"Sent \"sayHello()\" message", L"Minimal Client", MB_ICONEXCLAMATION | MB_OK);
     }
     catch(const Ice::Exception& ex)
     {
-	char buf[1024];
-        sprintf(buf, "%s\n", ex.toString().c_str());
 	TCHAR wtext[1024];
-	mbstowcs(wtext, buf, strlen(buf));
-	MessageBox(NULL, wtext, L"Minimal Client", MB_ICONEXCLAMATION | MB_OK);
+	string err = ex.toString();
+	mbstowcs(wtext, err.c_str(), err.size());
+	MessageBox(NULL, wtext, L"Error", MB_ICONEXCLAMATION | MB_OK);
+
 	status = EXIT_FAILURE;
     }
 
@@ -51,7 +57,11 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	}
 	catch(const Ice::Exception& ex)
 	{
-	    fprintf(stderr, "%s\n", ex.toString().c_str());
+	    TCHAR wtext[1024];
+	    string err = ex.toString();
+	    mbstowcs(wtext, err.c_str(), err.size());
+	    MessageBox(NULL, wtext, L"Error", MB_ICONEXCLAMATION | MB_OK);
+
 	    status = EXIT_FAILURE;
 	}
     }

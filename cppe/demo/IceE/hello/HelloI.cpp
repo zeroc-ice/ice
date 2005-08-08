@@ -15,11 +15,7 @@ using namespace std;
 void
 HelloI::sayHello(const Ice::Current& c) const
 {
-#ifdef _WIN32_WCE
-    c.adapter->getCommunicator()->getLogger()->trace("", "Hello World!");
-#else
     printf("Hello World!\n");
-#endif
 }
 
 void

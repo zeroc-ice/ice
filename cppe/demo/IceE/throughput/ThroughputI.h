@@ -17,106 +17,28 @@ class ThroughputI : public Demo::Throughput
 {
 public:
 
-    ThroughputI() :
-	_byteSeq(Demo::ByteSeqSize, 0),
-	_stringSeq(Demo::StringSeqSize, "hello"),
-	_structSeq(Demo::StringDoubleSeqSize),
-	_fixedSeq(Demo::FixedSeqSize)
-    {
-	int i;
-        for(i = 0; i < Demo::StringDoubleSeqSize; ++i)
-	{
-	    _structSeq[i].s = "hello";
-	    _structSeq[i].d = 3.14;
-	}
-        for(i = 0; i < Demo::FixedSeqSize; ++i)
-	{
-	    _fixedSeq[i].i = 0;
-	    _fixedSeq[i].j = 0;
-	    _fixedSeq[i].d = 0;
-	}
-    }
+    ThroughputI();
 
-    virtual void
-    sendByteSeq(const Demo::ByteSeq&, const Ice::Current&)
-    {
-    }
-
-    virtual Demo::ByteSeq
-    recvByteSeq(const Ice::Current&)
-    {
-	return _byteSeq;
-    }
-
-    virtual Demo::ByteSeq
-    echoByteSeq(const Demo::ByteSeq& seq, const Ice::Current&)
-    {
-	return seq;
-    }
-
-    virtual void
-    sendStringSeq(const Demo::StringSeq&, const Ice::Current&)
-    {
-    }
-
-    virtual Demo::StringSeq
-    recvStringSeq(const Ice::Current&)
-    {
-	return _stringSeq;
-    }
-
-    virtual Demo::StringSeq
-    echoStringSeq(const Demo::StringSeq& seq, const Ice::Current&)
-    {
-	return seq;
-    }
-
-    virtual void
-    sendStructSeq(const Demo::StringDoubleSeq&, const Ice::Current&)
-    {
-    }
-
-    virtual Demo::StringDoubleSeq
-    recvStructSeq(const Ice::Current&)
-    {
-	return _structSeq;
-    }
-
-    virtual Demo::StringDoubleSeq
-    echoStructSeq(const Demo::StringDoubleSeq& seq, const Ice::Current&)
-    {
-	return seq;
-    }
-
-    virtual void
-    sendFixedSeq(const Demo::FixedSeq&, const Ice::Current&)
-    {
-    }
-
-    virtual Demo::FixedSeq
-    recvFixedSeq(const Ice::Current&)
-    {
-	return _fixedSeq;
-    }
-
-    virtual Demo::FixedSeq
-    echoFixedSeq(const Demo::FixedSeq& seq, const Ice::Current&)
-    {
-	return seq;
-    }
-
-    virtual void
-    shutdown(const Ice::Current& c)
-    {
-	c.adapter->getCommunicator()->shutdown();
-    }
+    virtual void sendByteSeq(const Demo::ByteSeq&, const Ice::Current&);
+    virtual Demo::ByteSeq recvByteSeq(const Ice::Current&);
+    virtual Demo::ByteSeq echoByteSeq(const Demo::ByteSeq&, const Ice::Current&);
+    virtual void sendStringSeq(const Demo::StringSeq&, const Ice::Current&);
+    virtual Demo::StringSeq recvStringSeq(const Ice::Current&);
+    virtual Demo::StringSeq echoStringSeq(const Demo::StringSeq&, const Ice::Current&);
+    virtual void sendStructSeq(const Demo::StringDoubleSeq&, const Ice::Current&);
+    virtual Demo::StringDoubleSeq recvStructSeq(const Ice::Current&);
+    virtual Demo::StringDoubleSeq echoStructSeq(const Demo::StringDoubleSeq&, const Ice::Current&);
+    virtual void sendFixedSeq(const Demo::FixedSeq&, const Ice::Current&);
+    virtual Demo::FixedSeq recvFixedSeq(const Ice::Current&);
+    virtual Demo::FixedSeq echoFixedSeq(const Demo::FixedSeq&, const Ice::Current&);
+    virtual void shutdown(const Ice::Current& c);
 
 private:
 
-    Demo::ByteSeq _byteSeq;
-    Demo::StringSeq _stringSeq;
-    Demo::StringDoubleSeq _structSeq;
-    Demo::FixedSeq _fixedSeq;
+    const Demo::ByteSeq _byteSeq;
+    const Demo::StringSeq _stringSeq;
+    /*const*/ Demo::StringDoubleSeq _structSeq;
+    /*const*/ Demo::FixedSeq _fixedSeq;
 };
 
 #endif
