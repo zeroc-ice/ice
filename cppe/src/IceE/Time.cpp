@@ -35,7 +35,7 @@ IceUtil::Time::now()
     // absolute time on CE since GetLocalTime doesn't have millisecond
     // resolution.
     //
-    return Time(GetTickCount() * 1000);
+    return Time(static_cast<Int64>(GetTickCount()) * 1000);
 #elif defined(_WIN32)
     struct _timeb tb;
     _ftime(&tb);

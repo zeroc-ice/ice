@@ -75,8 +75,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 
     if(!RegisterClass(&wc))
     {
-	MessageBox(NULL, L"Window Registration Failed!", L"Error!",
-		   MB_ICONEXCLAMATION | MB_OK);
+	MessageBox(NULL, L"Window Registration Failed!", L"Error!", MB_ICONEXCLAMATION | MB_OK);
 	return 0;
     }
 

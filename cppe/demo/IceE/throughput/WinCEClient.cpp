@@ -75,8 +75,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 
     if(!RegisterClass(&wc))
     {
-	MessageBox(NULL, L"Window Registration Failed!", L"Error!",
-		   MB_ICONEXCLAMATION | MB_OK);
+	MessageBox(NULL, L"Window Registration Failed!", L"Error!", MB_ICONEXCLAMATION | MB_OK);
 	return 0;
     }
 
@@ -380,7 +379,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 		}
 		tm = IceUtil::Time::now() - tm;
 	
-		wsprintf(buf, L"\r\ntime for %d sequences: %fms\r\ntime per sequence: %fms\r\n",
+		wsprintf(buf, L"\r\ntime for %d sequences: %.04fms\r\ntime per sequence: %.04fms\r\n",
 		         repetitions, tm.toMilliSecondsDouble(), tm.toMilliSecondsDouble() / repetitions);
 		::SendMessage(editHwnd, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)buf);
 
@@ -414,23 +413,13 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
                 {
                     mbit *= 2;
                 }
-		wsprintf(buf, L"throughput: %f MBit/s\r\n", mbit);
+		wsprintf(buf, L"throughput: %.04f MBit/s\r\n", mbit);
 		::SendMessage(editHwnd, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)buf);
 	    }
 	}
 	
-	::SendMessage(editHwnd, EM_REPLACESEL, (WPARAM)FALSE, 
-		      (LPARAM)L"\r\nThroughput tests completed\r\n");
+	::SendMessage(editHwnd, EM_REPLACESEL, (WPARAM)FALSE, (LPARAM)L"\r\nThroughput tests completed\r\n");
 
-	//
-	// Run the message pump.
-	//
-	MSG Msg;
-	while(GetMessage(&Msg, NULL, 0, 0) > 0)
-	{
-	    TranslateMessage(&Msg);
-	    DispatchMessage(&Msg);
-	}
     }
     catch(const Ice::Exception& ex)
     {
@@ -440,6 +429,16 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	MessageBox(NULL, wtext, L"Error", MB_ICONEXCLAMATION | MB_OK);
 
 	status = EXIT_FAILURE;
+    }
+
+    //
+    // Run the message pump.
+    //
+    MSG Msg;
+    while(GetMessage(&Msg, NULL, 0, 0) > 0)
+    {
+	TranslateMessage(&Msg);
+	DispatchMessage(&Msg);
     }
 
     if(communicator)
