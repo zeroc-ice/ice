@@ -107,7 +107,8 @@ final class TcpConnector implements Connector
 	    }
 	    else
 	    {
-		connection = (javax.microedition.io.SocketConnection)javax.microedition.io.Connector.open(_url);
+		connection = (javax.microedition.io.SocketConnection)javax.microedition.io.Connector.open(_url, 
+			javax.microedition.io.Connector.READ_WRITE, true);
 	    }
 
 	    connection.setSocketOption(javax.microedition.io.SocketConnection.DELAY, 0);

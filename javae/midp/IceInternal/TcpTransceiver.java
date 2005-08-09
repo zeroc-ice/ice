@@ -11,6 +11,9 @@ package IceInternal;
 
 final class TcpTransceiver implements Transceiver
 {
+    //
+    // TODO- This needs to be refactored. The two worker thread classes are essentially the same.
+    //
     private class ReadThread extends Thread
     {
 	ReadThread(BasicStream stream, int timeout)
@@ -47,6 +50,78 @@ final class TcpTransceiver implements Transceiver
 	    {
 		//
 		// The _done flag protects against the situation where the read thread has completed before we get
+		// this far in this call.
+		//
+		while(_ex == null && !_done)
+		{
+		    try
+		    {
+			wait(interval);
+			break;
+		    }
+		    catch(InterruptedException ex)
+		    {
+			//
+			// Reduce the wait interval by the amount of time already waited.
+			//
+			interval = absoluteTimeout - System.currentTimeMillis();
+			if(interval <= 0)
+			{
+			    throw new Ice.TimeoutException();
+			}
+			continue;
+		    }
+		}
+
+		if(_ex != null)
+		{
+		    throw _ex;
+		}
+	    }
+	}
+
+	int _timeout;
+	BasicStream _stream;
+	java.lang.RuntimeException _ex = null;
+	boolean _done = false;
+    }
+
+    private class WriteThread extends Thread
+    {
+	WriteThread(BasicStream stream, int timeout)
+	{
+	    _stream = stream;
+	}
+
+	public void
+	run()
+	{
+	    try
+	    {
+		writeImpl(_stream);
+	    }
+	    catch(RuntimeException ex)
+	    {
+		_ex = ex;
+	    }
+	    
+	    synchronized(this)
+	    {
+		_done = true;
+		notifyAll();
+	    }
+	}
+
+	public void 
+	write()
+	{
+	    long absoluteTimeout = System.currentTimeMillis() + _timeout;
+	    long interval = _timeout;
+	    
+	    synchronized(this)
+	    {
+		//
+		// The _done flag protects against the situation where the write thread has completed before we get
 		// this far in this call.
 		//
 		while(_ex == null && !_done)
@@ -162,6 +237,30 @@ final class TcpTransceiver implements Transceiver
     public void
     write(BasicStream stream, int timeout)
     {
+	//
+	// TODO: TcpConnector translates a 0 timeout to 1. Do we want to do the same here for consistency or do we
+	// assert?
+	//
+	IceUtil.Debug.Assert(timeout == -1 || timeout > 0);
+	if(timeout < 0)
+	{
+	    writeImpl(stream);
+	}
+	else
+	{
+	    WriteThread t = new WriteThread(stream, timeout);
+	    t.start();
+
+	    //
+	    // This blocks until either an exception is thrown by writeImpl() or the timeout expires.
+	    //
+	    t.write();
+	}
+    }
+
+    protected void
+    writeImpl(BasicStream stream)
+    {
         ByteBuffer buf = stream.prepareWrite();
 
 	byte[] data = buf.array();
@@ -175,6 +274,10 @@ final class TcpTransceiver implements Transceiver
 		{
 		    IceUtil.Debug.Assert(_connection != null);
 		}
+
+		//
+		// TODO: Investigate affect of possibly chunking data while writing.
+		//
 		int rem = buf.remaining();
 		_out.write(data, pos, rem);
 		_out.flush();
