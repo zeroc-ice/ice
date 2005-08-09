@@ -8,144 +8,152 @@
 // **********************************************************************
 
 //
+// CLDC does not provide reflection APIs, so we need to assume the presence of a packageless Client or Server
+// class.
+//
+// The test driver wrappers need to initiate the tests through the test driver's 'run' methods to circumvent calls
+// to System.exit() in the driver's 'main()' methods. While this means the wrapper has to initialize a communicator
+// instance, this is actually a good thing as it affords some control over the driver while it is running.
+// 
+class WrapperBase
+{
+    public
+    WrapperBase(String[] args, TestApplication app, java.io.PrintStream out)
+    {
+	Ice.Properties properties = Ice.Util.createProperties();
+	java.io.InputStream is = getClass().getResourceAsStream("config");
+	if(is != null)
+	{
+	    properties.load(is);
+	}
+	_communicator = Ice.Util.initializeWithProperties(args, properties);
+	_args = args;
+	_app = app;
+	_out = out;
+    }
+
+    public void
+    shutdown()
+    {
+	if(_communicator != null)
+	{
+	    try
+	    {
+		_communicator.shutdown();
+		_communicator.destroy();
+		_communicator = null;
+	    }
+	    catch(Exception ex)
+	    {
+		_app.message("Exception occurred on shutdown: " + ex.toString());
+	    }
+	}
+    }
+
+    protected Ice.Communicator _communicator;
+    protected String[] _args;
+    protected TestApplication _app;
+    protected java.io.PrintStream _out;
+}
+
+class ClientWrapper 
+    extends WrapperBase 
+    implements Runnable
+{
+    public
+    ClientWrapper(String[] args, TestApplication app, java.io.PrintStream out)
+    {
+	super(args, app, out);
+    }
+    
+    public void
+    run()
+    {
+	try
+	{
+	    if(_communicator != null)
+	    {
+		Client.run(_args, _communicator, _out);
+	    }
+	}
+	catch(Exception ex)
+	{
+	    _out.println(ex.toString());
+	    ex.printStackTrace();
+	}
+    }
+}
+
+class ServerWrapper 
+    extends WrapperBase
+    implements Runnable
+{
+    public
+    ServerWrapper(String[] args, TestApplication app, java.io.PrintStream out)
+    {
+	super(args, app, out);
+    }
+
+    public void
+    run()
+    {
+	//
+	// TODO: The server wrapper should provide some visual feedback to indicate that the server is up and
+	// running. The other wrappers will pretty much have immediate feedback because they will actually be
+	// running tests.
+	//
+	try
+	{
+	    if(_communicator != null)
+	    {
+		Server.run(_args, _communicator, _out);
+	    }
+	    _app.done();
+	}
+	catch(Exception ex)
+	{
+	    _out.println(ex.toString());
+	    ex.printStackTrace();
+	}
+    }
+}
+
+class CollocatedWrapper 
+    extends WrapperBase
+    implements Runnable
+{
+    public
+    CollocatedWrapper(String[] args, TestApplication app, java.io.PrintStream out)
+    {
+	super(args, app, out);
+    }
+
+    public void
+    run()
+    {
+	try
+	{
+	    if(_communicator != null)
+	    {
+		Collocated.run(_args, _communicator, _out); 
+	    }
+	    _app.done();
+	}
+	catch(Exception ex)
+	{
+	    _out.println(ex.toString());
+	    ex.printStackTrace();
+	}
+    }
+}
+
+//
 // Wraps a test driver class to run it within a MIDP environment.
 //
 public class TestApplication
     extends javax.microedition.midlet.MIDlet
     implements javax.microedition.lcdui.CommandListener
 {
-    //
-    // CLDC does not provide reflection APIs, so we need to assume the presence of a packageless Client or Server
-    // class.
-    //
-    // The test driver wrappers need to initiate the tests through the test driver's 'run' methods to circumvent calls
-    // to System.exit() in the driver's 'main()' methods. While this means the wrapper has to initialize a communicator
-    // instance, this is actually a good thing as it affords some control over the driver while it is running.
-    // 
-    class WrapperBase
-    {
-	public
-	WrapperBase(String[] args)
-	{
-	    Ice.Properties properties = Ice.Util.createProperties();
-	    java.io.InputStream is = getClass().getResourceAsStream("config");
-	    if(is != null)
-	    {
-		properties.load(is);
-	    }
-	    _communicator = Ice.Util.initializeWithProperties(args, properties);
-	    _args = args;
-	}
-
-	public void
-	shutdown()
-	{
-	    if(_communicator != null)
-	    {
-		try
-		{
-		    _communicator.shutdown();
-		    _communicator.destroy();
-		    _communicator = null;
-		}
-		catch(Exception ex)
-		{
-		    message("Exception occurred on shutdown: " + ex.toString());
-		}
-	    }
-	}
-
-	protected Ice.Communicator _communicator;
-	protected String[] _args;
-    }
-    
-    class ClientWrapper 
-	extends WrapperBase 
-	implements Runnable
-    {
-	public
-	ClientWrapper(String[] args)
-	{
-	    super(args);
-	}
-	
-	public void
-	run()
-	{
-	    try
-	    {
-		if(_communicator != null)
-		{
-		    Client.run(_args, _communicator, _out);
-		}
-	    }
-	    catch(Exception ex)
-	    {
-		ex.printStackTrace();
-	    }
-	}
-    }
-
-    class ServerWrapper 
-	extends WrapperBase
-	implements Runnable
-    {
-	public
-	ServerWrapper(String[] args)
-	{
-	    super(args);
-	}
-
-	public void
-	run()
-	{
-	    //
-	    // TODO: The server wrapper should provide some visual feedback to indicate that the server is up and
-	    // running. The other wrappers will pretty much have immediate feedback because they will actually be
-	    // running tests.
-	    //
-	    try
-	    {
-		if(_communicator != null)
-		{
-		    Server.run(_args, _communicator, _out);
-		}
-		done();
-	    }
-	    catch(Exception ex)
-	    {
-		ex.printStackTrace();
-	    }
-	}
-    }
-
-    class CollocatedWrapper 
-	extends WrapperBase
-	implements Runnable
-    {
-	public
-	CollocatedWrapper(String[] args)
-	{
-	    super(args);
-	}
-
-	public void
-	run()
-	{
-	    try
-	    {
-		if(_communicator != null)
-		{
-		    Collocated.run(_args, _communicator, _out); 
-		}
-		done();
-	    }
-	    catch(Exception ex)
-	    {
-		ex.printStackTrace();
-	    }
-	}
-    }
 
     class ShutdownTask 
 	implements Runnable
@@ -238,7 +246,7 @@ public class TestApplication
 	    if(runServer != null && runServer.length() != 0 &&
 		    (runServer.equalsIgnoreCase("yes") || runServer.equalsIgnoreCase("true")))
 	    {
-		_server = new ServerWrapper(parseArgs(serverArgString));
+		_server = new ServerWrapper(parseArgs(serverArgString), this, _out);
 	    }
 
 	    String runClient =  getAppProperty("runclient");
@@ -246,7 +254,7 @@ public class TestApplication
 	    if(runClient != null && runClient.length() != 0 &&
 		    (runClient.equalsIgnoreCase("yes") || runClient.equalsIgnoreCase("true")))
 	    {
-		_client = new ClientWrapper(parseArgs(clientArgString));
+		_client = new ClientWrapper(parseArgs(clientArgString), this, _out);
 		_outList.addCommand(CMD_STARTCLIENT);
 	    }
 
@@ -266,7 +274,7 @@ public class TestApplication
 		// If there is no server or client configuration assume a collocated case.
 		//
 		String collocArgs = getAppProperty("collocatedargs");
-		_colloc = new CollocatedWrapper(parseArgs(collocArgs));
+		_colloc = new CollocatedWrapper(parseArgs(collocArgs), this, _out);
 	    }
 	    _display.setCurrent(_outList);
 	}
