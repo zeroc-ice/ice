@@ -252,9 +252,7 @@ IceInternal::Outgoing::invoke()
 	case Reference::ModeDatagram:
 	case Reference::ModeBatchDatagram:
 	{
-	    //
-	    // TODO: Should this assert?
-	    //
+	    assert(false);
 	    return false;
 	}
     }

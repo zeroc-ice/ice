@@ -489,7 +489,11 @@ IceInternal::FixedReference::getConnection() const
     // datagram then we throw a NoEndpointException since IceE lacks
     // this support.
     //
-    if(getSecure() || getMode() == ModeDatagram || getMode() == ModeBatchDatagram || _fixedConnections.empty())
+    if(getSecure() || getMode() == ModeDatagram || getMode() == ModeBatchDatagram || _fixedConnections.empty()
+#ifndef ICEE_HAS_BATCH
+       || getMode() == ModeBatchOneway
+#endif
+      )
     {
 	NoEndpointException ex(__FILE__, __LINE__);
 	ex.proxy = toString();
@@ -822,6 +826,15 @@ IceInternal::DirectReference::toString() const
 ConnectionPtr
 IceInternal::DirectReference::getConnection() const
 {
+#ifndef ICEE_HAS_BATCH
+    if(getMode() == ModeBatchOneway)
+    {
+        NoEndpointException ex(__FILE__, __LINE__);
+	ex.proxy = toString();
+	throw ex;
+    }
+#endif
+
 #ifdef ICEE_HAS_ROUTER
     vector<EndpointPtr> endpts = Parent::getRoutedEndpoints();
     if(endpts.empty())
@@ -1053,6 +1066,15 @@ IceInternal::IndirectReference::toString() const
 ConnectionPtr
 IceInternal::IndirectReference::getConnection() const
 {
+#ifndef ICEE_HAS_BATCH
+    if(getMode() == ModeBatchOneway)
+    {
+        NoEndpointException ex(__FILE__, __LINE__);
+	ex.proxy = toString();
+	throw ex;
+    }
+#endif
+
     ConnectionPtr connection;
 
     while(true)
