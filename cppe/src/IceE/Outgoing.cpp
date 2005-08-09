@@ -61,9 +61,7 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
 	case Reference::ModeDatagram:
 	case Reference::ModeBatchDatagram:
 	{
-	    //
-	    // TODO: Should this assert?
-	    //
+	    assert(false);
 	    break;
 	}
     }
