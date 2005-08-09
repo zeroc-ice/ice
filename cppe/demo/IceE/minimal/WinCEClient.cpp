@@ -24,12 +24,29 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 
     try
     {
-	communicator = Ice::initialize(__argc, __argv);
+	Ice::PropertiesPtr properties = Ice::createProperties();
+
 	//
-	// We use a fixed string so that the demo will run without a
-	// configuration file.
+	// Set a default value for "Hello.Proxy" so that the demo will
+	// run without a configuration file.
 	//
-	HelloPrx hello = HelloPrx::checkedCast(communicator->stringToProxy("hello:tcp -p 10000"));
+	properties->setProperty("Hello.Proxy", "hello:tcp -p 10000");
+
+	//
+	// Now, load the configuration file if present. Under WinCE we
+	// use "config.txt" since it can be edited with pocket word.
+	//
+	try
+	{
+	    properties->load("config.txt");
+	}
+	catch(const Ice::FileException&)
+	{
+	}
+
+	communicator = Ice::initializeWithProperties(__argc, __argv, properties);
+
+	HelloPrx hello = HelloPrx::checkedCast(communicator->stringToProxy(properties->getProperty("Hello.Proxy")));
 	if(!hello)
 	{
 	    MessageBox(NULL, L"invalid proxy", L"Minimal Client", MB_ICONEXCLAMATION | MB_OK);

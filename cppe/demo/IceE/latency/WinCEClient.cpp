@@ -112,30 +112,28 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	Ice::PropertiesPtr properties = Ice::createProperties();
 
 	//
-	// Set a default value for Hello.Proxy so that the demo will
+	// Set a default value for Latency.Proxy so that the demo will
 	// run without a configuration file.
 	//
-	properties->setProperty("Latency.Ping", "ping:tcp -p 10000");
+	properties->setProperty("Latency.Proxy", "ping:tcp -p 10000");
 
 	//
-	// Now, load the configuration file if present.
+	// Now, load the configuration file if present. Under WinCE we
+	// use "config.txt" since it can be edited with pocket word.
 	//
 	try
 	{
-	    properties->load("config");
+	    properties->load("config.txt");
 	}
 	catch(const Ice::FileException&)
 	{
 	}
+
 	communicator = Ice::initializeWithProperties(__argc, __argv, properties);
 
-	const char* proxyProperty = "Latency.Ping";
+	const char* proxyProperty = "Latency.Proxy";
 	string proxy = properties->getProperty(proxyProperty);
 
-	//
-	// We use a fixed string so that the demo will run without a
-	// configuration file.
-	//
 	PingPrx ping = PingPrx::checkedCast(communicator->stringToProxy(proxy));
 	if(!ping)
 	{

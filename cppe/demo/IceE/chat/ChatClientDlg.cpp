@@ -109,6 +109,10 @@ END_MESSAGE_MAP()
 void
 CChatClientDlg::setDialogState()
 {
+    CWnd* sendWnd = GetDlgItem(IDC_SEND);
+    CWnd* configWnd = GetDlgItem(IDC_CONFIG);
+    CWnd* loginWnd = GetDlgItem(IDC_LOGIN);
+
     if(_chat == 0)
     {
     	//
@@ -116,24 +120,24 @@ CChatClientDlg::setDialogState()
 	//
         _edit->EnableWindow(FALSE);
         _display->EnableWindow(FALSE);
-        ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(FALSE);
+        sendWnd->EnableWindow(FALSE);
 #ifdef _WIN32_WCE
-        ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText(L"Login");
+        configWnd->SetWindowText(L"Login");
 #else
-        ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText("Login");
+        configWnd->SetWindowText("Login");
 #endif
 
 	//
 	// Set the focus to the login button
 	//
-	((CButton*)GetDlgItem(IDC_LOGIN))->SetFocus();
+	loginWnd->SetFocus();
 
 	//
 	// Set the default button.
 	//
-	::SendMessage(GetDlgItem(IDC_SEND)->m_hWnd, BM_SETSTYLE, (WPARAM)BS_PUSHBUTTON, (LPARAM)TRUE);
-	::SendMessage(m_hWnd, DM_SETDEFID, (WPARAM)IDC_CONFIG, 0);
-	::SendMessage(GetDlgItem(IDC_CONFIG)->m_hWnd, BM_SETSTYLE, (WPARAM)BS_DEFPUSHBUTTON, (LPARAM)TRUE);
+	sendWnd->SendMessage(BM_SETSTYLE, (WPARAM)BS_PUSHBUTTON, (LPARAM)TRUE);
+	SendMessage(DM_SETDEFID, (WPARAM)IDC_CONFIG, 0);
+	configWnd->SendMessage(BM_SETSTYLE, (WPARAM)BS_DEFPUSHBUTTON, (LPARAM)TRUE);
     }
     else
     {
@@ -142,20 +146,20 @@ CChatClientDlg::setDialogState()
 	//
         _edit->EnableWindow(TRUE);
         _display->EnableWindow(TRUE);
-        ((CButton*)GetDlgItem(IDC_SEND))->EnableWindow(TRUE);
+        sendWnd->EnableWindow(TRUE);
 #ifdef _WIN32_WCE
-        ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText(L"Logout");
+        configWnd->SetWindowText(L"Logout");
 #else
-        ((CButton*)GetDlgItem(IDC_CONFIG))->SetWindowText("Logout");
+        configWnd->SetWindowText("Logout");
 #endif
-        ((CEdit*)GetDlgItem(IDC_LOG))->SetFocus();
+        _edit->SetFocus();
 
 	//
 	// Set the default button.
 	//
-	::SendMessage(GetDlgItem(IDC_CONFIG)->m_hWnd, BM_SETSTYLE, (WPARAM)BS_PUSHBUTTON, (LPARAM)TRUE);
-	::SendMessage(m_hWnd, DM_SETDEFID, (WPARAM)IDC_SEND, 0);
-	::SendMessage(GetDlgItem(IDC_SEND)->m_hWnd, BM_SETSTYLE, (WPARAM)BS_DEFPUSHBUTTON, (LPARAM)TRUE);
+	configWnd->SendMessage(BM_SETSTYLE, (WPARAM)BS_PUSHBUTTON, (LPARAM)TRUE);
+	SendMessage(DM_SETDEFID, (WPARAM)IDC_SEND, 0);
+	sendWnd->SendMessage(BM_SETSTYLE, (WPARAM)BS_DEFPUSHBUTTON, (LPARAM)TRUE);
     }
 }
 

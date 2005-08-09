@@ -59,15 +59,22 @@ BOOL CHelloServerApp::InitInstance()
 	properties->setProperty("Hello.Endpoints", "tcp -p 10000");
 
 	//
-	// Now, load the configuration file if present.
+	// Now, load the configuration file if present. Under WinCE we
+	// use "config.txt" since it can be edited with pocket word.
 	//
+#ifdef _WIN32_WCE
+	string config = "config.txt";
+#else
+	string config = "config";
+#endif
 	try
 	{
-	    properties->load("config");
+	    properties->load(config);
 	}
-	catch(const Ice::FileException&)
+	catch(const FileException&)
 	{
 	}
+
         communicator = Ice::initializeWithProperties(argc, 0, properties);
         log = new LogI;
         communicator->setLogger(log);

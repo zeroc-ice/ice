@@ -112,30 +112,28 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	Ice::PropertiesPtr properties = Ice::createProperties();
 
 	//
-	// Set a default value for Hello.Proxy so that the demo will
+	// Set a default value for Throughput.Proxy so that the demo will
 	// run without a configuration file.
 	//
-	properties->setProperty("Throughput.Throughput", "throughput:tcp -p 10000");
+	properties->setProperty("Throughput.Proxy", "throughput:tcp -p 10000");
 
 	//
-	// Now, load the configuration file if present.
+	// Now, load the configuration file if present. Under WinCE we
+	// use "config.txt" since it can be edited with pocket word.
 	//
 	try
 	{
-	    properties->load("config");
+	    properties->load("config.txt");
 	}
 	catch(const Ice::FileException&)
 	{
 	}
+
 	communicator = Ice::initializeWithProperties(__argc, __argv, properties);
 
-	const char* proxyProperty = "Throughput.Throughput";
+	const char* proxyProperty = "Throughput.Proxy";
 	string proxy = properties->getProperty(proxyProperty);
 
-	//
-	// We use a fixed string so that the demo will run without a
-	// configuration file.
-	//
 	ThroughputPrx throughput = ThroughputPrx::checkedCast(communicator->stringToProxy(proxy));
 	if(!throughput)
 	{
@@ -204,7 +202,6 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	        data = L"fixed-length struct";
 		seqSize = FixedSeqSize / reduce;
 	    }
-
 	    
 	    for(int mode = 0; mode < 4; ++mode)
 	    {
@@ -227,7 +224,6 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 		{
 		    action = L"sending and receiving";
 		}
-	        
 
 	        wchar_t buf[1000];
 	        wsprintf(buf, L"\r\n%s %d %s sequences of size %d%s\r\n", action, repetitions, data, seqSize,

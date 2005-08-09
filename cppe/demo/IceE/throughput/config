@@ -1,2 +1,2 @@
-Throughput.Throughput=throughput:default -p 10000
+Throughput.Proxy=throughput:default -p 10000
 Throughput.Endpoints=default -p 10000

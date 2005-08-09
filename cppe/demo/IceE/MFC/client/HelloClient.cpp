@@ -52,16 +52,24 @@ CHelloClientApp::InitInstance()
 	// run without a configuration file.
 	//
 	properties->setProperty("Hello.Proxy", "hello:tcp -p 10000");
+
 	//
-	// Now, load the configuration file if present.
+	// Now, load the configuration file if present. Under WinCE we
+	// use "config.txt" since it can be edited with pocket word.
 	//
+#ifdef _WIN32_WCE
+	string config = "config.txt";
+#else
+	string config = "config";
+#endif
 	try
 	{
-	    properties->load("config");
+	    properties->load(config);
 	}
-	catch(const Ice::FileException&)
+	catch(const FileException&)
 	{
 	}
+
         communicator = Ice::initializeWithProperties(argc, 0, properties);
     }
     catch(const Ice::Exception& ex)

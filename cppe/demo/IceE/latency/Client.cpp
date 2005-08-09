@@ -17,7 +17,7 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
-    const char* proxyProperty = "Latency.Ping";
+    const char* proxyProperty = "Latency.Proxy";
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {

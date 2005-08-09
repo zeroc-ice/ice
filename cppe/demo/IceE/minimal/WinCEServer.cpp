@@ -153,6 +153,18 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	//
 	properties->setProperty("Hello.Endpoints","tcp -p 10000");
 
+	//
+	// Now, load the configuration file if present. Under WinCE we
+	// use "config.txt" since it can be edited with pocket word.
+	//
+	try
+	{
+	    properties->load("config.txt");
+	}
+	catch(const Ice::FileException&)
+	{
+	}
+
 	communicator = Ice::initializeWithProperties(__argc, __argv, properties);
 
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Hello");

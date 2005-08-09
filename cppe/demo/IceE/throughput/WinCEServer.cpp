@@ -25,7 +25,7 @@ WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	RECT rcClient;
 	GetClientRect(hWnd, &rcClient);
 	editHwnd = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"", 
-			       WS_CHILD | WS_VISIBLE | WS_VSCROLL /*| WS_HSCROLL*/ | ES_MULTILINE,
+			       WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE,
 			       0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top,
 			       hWnd, (HMENU)101, GetModuleHandle(NULL), NULL);
 	assert(editHwnd != NULL);
@@ -91,8 +91,8 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	height = 200;
     }
     HWND mainWnd = CreateWindow(windowClassName, L"Throughput Server", WS_VISIBLE|WS_OVERLAPPED|WS_SYSMENU|WS_SIZEBOX,
-			CW_USEDEFAULT, CW_USEDEFAULT, width, height,
-			NULL, NULL, hInstance, NULL);
+				CW_USEDEFAULT, CW_USEDEFAULT, width, height,
+				NULL, NULL, hInstance, NULL);
     if(mainWnd == NULL)
     {
 	MessageBox(NULL, L"Window Creation Failed!", L"Error!", MB_ICONEXCLAMATION | MB_OK);
@@ -112,6 +112,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
     try
     {
 	Ice::PropertiesPtr properties = Ice::createProperties();
+
 	//
 	// Set a default value for Latency.Endpoints so that the demo
 	// will run without a configuration file.
@@ -119,11 +120,12 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	properties->setProperty("Throughput.Endpoints","tcp -p 10000");
 
 	//
-	// Now, load the configuration file if present.
+	// Now, load the configuration file if present. Under WinCE we
+	// use "config.txt" since it can be edited with pocket word.
 	//
 	try
 	{
-	    properties->load("config");
+	    properties->load("config.txt");
 	}
 	catch(const Ice::FileException&)
 	{

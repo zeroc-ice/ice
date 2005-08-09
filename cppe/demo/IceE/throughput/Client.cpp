@@ -53,7 +53,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     Ice::PropertiesPtr properties = communicator->getProperties();
-    const char* proxyProperty = "Throughput.Throughput";
+    const char* proxyProperty = "Throughput.Proxy";
     std::string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
