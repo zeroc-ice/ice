@@ -56,6 +56,7 @@ public:
 
     Ice::CommunicatorPtr getCommunicator() const;
 
+    virtual bool getSecure() const = 0;
     virtual std::vector<EndpointPtr> getEndpoints() const = 0;
 
     //
@@ -134,6 +135,7 @@ public:
 
     const std::vector<Ice::ConnectionPtr>& getFixedConnections() const;
 
+    virtual bool getSecure() const;
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
 #ifdef ICEE_HAS_ROUTER
@@ -172,6 +174,7 @@ public:
     const RouterInfoPtr& getRouterInfo() const { return _routerInfo; }
     std::vector<EndpointPtr> getRoutedEndpoints() const;
 
+    virtual bool getSecure() const;
     virtual ReferencePtr changeDefault() const;
 
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
@@ -186,13 +189,14 @@ public:
 
 protected:
 
-    RoutableReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode,
-		      const RouterInfoPtr&);
+    RoutableReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&,
+		      Mode, bool, const RouterInfoPtr&);
     RoutableReference(const RoutableReference&);
 
 
 private:
 
+    bool _secure;
     RouterInfoPtr _routerInfo; // Null if no router is used.
 };
 #endif
@@ -207,7 +211,7 @@ class DirectReference :
 public:
 
     DirectReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode,
-	            const std::vector<EndpointPtr>&
+		    bool, const std::vector<EndpointPtr>&
 #ifdef ICEE_HAS_ROUTER
 		    , const RouterInfoPtr&
 #endif
@@ -261,7 +265,7 @@ class IndirectReference :
 public:
 
     IndirectReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&,
-                      Mode, const std::string&
+                      Mode, bool, const std::string&
 #ifdef ICEE_HAS_ROUTER
 		      , const RouterInfoPtr&
 #endif
@@ -304,7 +308,7 @@ private:
 
 #endif // ICEE_HAS_LOCATOR
 
-std::vector<EndpointPtr> filterEndpoints(const std::vector<EndpointPtr>&);
+std::vector<EndpointPtr> filterEndpoints(const std::vector<EndpointPtr>&, Reference::Mode, bool);
 
 }
 

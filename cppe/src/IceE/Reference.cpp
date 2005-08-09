@@ -169,6 +169,8 @@ Reference::hash() const
 	h = 5 * h + *p;
     }
 
+    h = 5 * h + static_cast<Int>(getSecure());
+
     _hashValue = h;
     _hashInitialized = true;
 
@@ -199,7 +201,7 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     
     s->write(static_cast<Byte>(_mode));
 
-    s->write(false); // Secure
+    s->write(getSecure());
     
     // Derived class writes the remainder of the reference.
 }
@@ -269,16 +271,26 @@ IceInternal::Reference::toString() const
 	}
 
 	case ModeDatagram:
+	{
+	    s += " -d";
+	    break;
+	}
+
 	case ModeBatchDatagram:
 	{
-	    //
-	    // TODO: Should this assert?
-	    //
+	    s += " -D";
 	    break;
 	}
     }
 
+    if(getSecure())
+    {
+	s += " -s";
+    }
+
     return s;
+
+    // Derived class writes the remainder of the string.
 }
 
 bool
@@ -417,6 +429,12 @@ IceInternal::FixedReference::getFixedConnections() const
     return _fixedConnections;
 }
 
+bool
+IceInternal::FixedReference::getSecure() const
+{
+    return false;
+}
+
 vector<EndpointPtr>
 IceInternal::FixedReference::getEndpoints() const
 {
@@ -467,7 +485,11 @@ IceInternal::FixedReference::getConnection() const
     //
     // Randomize the order of connections.
     //
-    if(_fixedConnections.empty())
+    // If a reference is secure or the mode is datagram or batch
+    // datagram then we throw a NoEndpointException since IceE lacks
+    // this support.
+    //
+    if(getSecure() || getMode() == ModeDatagram || getMode() == ModeBatchDatagram || _fixedConnections.empty())
     {
 	NoEndpointException ex(__FILE__, __LINE__);
 	ex.proxy = toString();
@@ -557,10 +579,17 @@ IceInternal::RoutableReference::getRoutedEndpoints() const
     return vector<EndpointPtr>();
 }
 
+bool
+IceInternal::RoutableReference::getSecure() const
+{
+    return _secure;
+}
+
 ReferencePtr
 IceInternal::RoutableReference::changeDefault() const
 {
     RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(Reference::changeDefault());
+    r->_secure = false;
     r->_routerInfo = getInstance()->routerManager()->get(getInstance()->referenceFactory()->getDefaultRouter());
     return r;
 }
@@ -591,6 +620,10 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     {
         return false;
     }
+    if(_secure != rhs->_secure)
+    {
+	return false;
+    }
     return _routerInfo == rhs->_routerInfo;
 }
 
@@ -616,6 +649,14 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
         const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
         if(rhs)
         {
+	    if(!_secure && rhs->_secure)
+	    {
+		return true;
+	    }
+	    else if(rhs->_secure < _secure)
+	    {
+		return false;
+	    }
             return _routerInfo < rhs->_routerInfo;
         }
     }
@@ -624,13 +665,13 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Identity& ident,
 						  const Context& ctx, const string& fs, Mode md,
-						  const RouterInfoPtr& rtrInfo)
-    : Reference(inst, ident, ctx, fs, md), _routerInfo(rtrInfo)
+						  bool sec, const RouterInfoPtr& rtrInfo)
+    : Reference(inst, ident, ctx, fs, md), _secure(sec), _routerInfo(rtrInfo)
 {
 }
 
 IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
-    : Reference(r), _routerInfo(r._routerInfo)
+    : Reference(r), _secure(r._secure), _routerInfo(r._routerInfo)
 {
 }
 #endif
@@ -641,16 +682,16 @@ void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
 
 #ifdef ICEE_HAS_ROUTER
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Identity& ident,
-					      const Context& ctx, const string& fs, Mode md,
+					      const Context& ctx, const string& fs, Mode md, bool sec,
 					      const vector<EndpointPtr>& endpts, const RouterInfoPtr& rtrInfo) :
 
-    RoutableReference(inst, ident, ctx, fs, md, rtrInfo),
+    RoutableReference(inst, ident, ctx, fs, md, sec, rtrInfo),
     _endpoints(endpts)
 {
 }
 #else
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Identity& ident,
-					      const Context& ctx, const string& fs, Mode md,
+					      const Context& ctx, const string& fs, Mode md, bool,
 					      const vector<EndpointPtr>& endpts) :
     Reference(inst, ident, ctx, fs, md),
     _endpoints(endpts)
@@ -688,10 +729,10 @@ IceInternal::DirectReference::changeDefault() const
     {
 	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(loc);
 #ifdef ICEE_HAS_ROUTER
-	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
+	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway, false,
 							 "", 0, newLocatorInfo);
 #else
-	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
+	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway, false,
 							 "", newLocatorInfo);
 #endif
     }
@@ -712,10 +753,10 @@ IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
 	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
 #ifdef ICEE_HAS_ROUTER
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 "", 0, newLocatorInfo);
+							 getSecure(), "", 0, newLocatorInfo);
 #else
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 "", newLocatorInfo);
+							 getSecure(), "", newLocatorInfo);
 #endif
     }
     else
@@ -790,7 +831,7 @@ IceInternal::DirectReference::getConnection() const
 #else
     vector<EndpointPtr> endpts = _endpoints;
 #endif
-    vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpts);
+    vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpts, getMode(), getSecure());
     if(filteredEndpoints.empty())
     {
         NoEndpointException ex(__FILE__, __LINE__);
@@ -879,17 +920,17 @@ void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
 
 #ifdef ICEE_HAS_ROUTER
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
-                                                  const Context& ctx, const string& fs, Mode md,
+                                                  const Context& ctx, const string& fs, Mode md, bool sec,
 						  const string& adptid, const RouterInfoPtr& rtrInfo,
 						  const LocatorInfoPtr& locInfo)
-    : RoutableReference(inst, ident, ctx, fs, md, rtrInfo),
+    : RoutableReference(inst, ident, ctx, fs, md, sec, rtrInfo),
       _adapterId(adptid),
       _locatorInfo(locInfo)
 {
 }
 #else
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
-                                                  const Context& ctx, const string& fs, Mode md,
+                                                  const Context& ctx, const string& fs, Mode md, bool,
 						  const string& adptid, const LocatorInfoPtr& locInfo)
     : Reference(inst, ident, ctx, fs, md),
       _adapterId(adptid),
@@ -914,10 +955,10 @@ IceInternal::IndirectReference::changeDefault() const
     if(!loc)
     {
 #ifdef ICEE_HAS_ROUTER
-	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
+	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway, false,
 							 vector<EndpointPtr>(), getRouterInfo());
 #else
-	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
+	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway, false,
 							 vector<EndpointPtr>());
 #endif
     }
@@ -939,10 +980,10 @@ IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) cons
     {
 #ifdef ICEE_HAS_ROUTER
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 vector<EndpointPtr>(), getRouterInfo());
+							 getSecure(), vector<EndpointPtr>(), getRouterInfo());
 #else
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
-							 vector<EndpointPtr>());
+							 getSecure(), vector<EndpointPtr>());
 #endif
     }
     else
@@ -1027,7 +1068,7 @@ IceInternal::IndirectReference::getConnection() const
 	    const IndirectReferencePtr self = const_cast<IndirectReference*>(this);
 	    endpts = _locatorInfo->getEndpoints(self, cached);
 	}
-	vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpts);
+	vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpts, getMode(), getSecure());
 	if(filteredEndpoints.empty())
 	{
 	    NoEndpointException ex(__FILE__, __LINE__);
@@ -1152,9 +1193,20 @@ IceInternal::IndirectReference::IndirectReference(const IndirectReference& r)
 #endif // ICEE_HAS_LOCATOR
 
 vector<EndpointPtr>
-IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints)
+IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints, Reference::Mode m, bool sec)
 {
-    vector<EndpointPtr> endpoints = allEndpoints;
+    vector<EndpointPtr> endpoints;
+
+    //
+    // If a secure endpoint, datagram or batch datagram endpoint is
+    // requested since IceE lacks this support we return no endpoints.
+    //
+    if(sec || m == Reference::ModeDatagram || m == Reference::ModeBatchDatagram)
+    {
+	return endpoints;
+    }
+
+    endpoints = allEndpoints;
 
     //
     // Filter out unknown endpoints.

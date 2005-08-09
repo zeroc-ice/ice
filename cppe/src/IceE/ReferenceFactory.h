@@ -32,7 +32,7 @@ public:
     // Create a direct reference.
     //
     ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
-			Reference::Mode, const ::std::vector<EndpointPtr>&
+			Reference::Mode, bool, const ::std::vector<EndpointPtr>&
 #ifdef ICEE_HAS_ROUTER
 			, const RouterInfoPtr&
 #endif
@@ -42,7 +42,7 @@ public:
     //
 #ifdef ICEE_HAS_LOCATOR
     ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
-			Reference::Mode, const ::std::string&
+			Reference::Mode, bool, const ::std::string&
 #ifdef ICEE_HAS_ROUTER
 			, const RouterInfoPtr&
 #endif

@@ -16,6 +16,8 @@
 //#define new DEBUG_NEW
 //#endif
 
+using namespace std;
+
 BEGIN_MESSAGE_MAP(CHelloClientApp, CWinApp)
     ON_COMMAND(ID_HELP, CWinApp::OnHelp)
 END_MESSAGE_MAP()
@@ -66,7 +68,7 @@ CHelloClientApp::InitInstance()
 	{
 	    properties->load(config);
 	}
-	catch(const FileException&)
+	catch(const Ice::FileException&)
 	{
 	}
 

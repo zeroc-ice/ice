@@ -17,6 +17,8 @@
 #define new DEBUG_NEW
 #endif
 
+using namespace std;
+
 BEGIN_MESSAGE_MAP(CHelloServerApp, CWinApp)
     ON_COMMAND(ID_HELP, CWinApp::OnHelp)
 END_MESSAGE_MAP()
@@ -71,7 +73,7 @@ BOOL CHelloServerApp::InitInstance()
 	{
 	    properties->load(config);
 	}
-	catch(const FileException&)
+	catch(const Ice::FileException&)
 	{
 	}
 
