@@ -264,6 +264,7 @@ final class TcpTransceiver implements Transceiver
         ByteBuffer buf = stream.prepareWrite();
 
 	byte[] data = buf.array();
+	int chunkSize = 512; // XXX- make configurable.
 
 	while(buf.hasRemaining())
 	{
@@ -279,6 +280,10 @@ final class TcpTransceiver implements Transceiver
 		// TODO: Investigate affect of possibly chunking data while writing.
 		//
 		int rem = buf.remaining();
+		if(chunkSize < rem)
+		{
+		    rem = chunkSize;
+		}
 		_out.write(data, pos, rem);
 		_out.flush();
 		buf.position(pos + rem);
@@ -288,7 +293,6 @@ final class TcpTransceiver implements Transceiver
 		    String s = "sent " + rem + " of " + buf.limit() + " bytes via tcp\n" + toString();
 		    _logger.trace(_traceLevels.networkCat, s);
 		}
-		break;
 	    }
 	    catch(java.io.InterruptedIOException ex)
 	    {
