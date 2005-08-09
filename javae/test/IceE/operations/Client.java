@@ -24,7 +24,7 @@ public class Client
         }
         catch(Ice.LocalException ex)
         {
-            System.out.println("ok");
+            out.println("ok");
         }
 
         return 0;

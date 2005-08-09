@@ -34,6 +34,7 @@ public class AllTests
 	test(base.ice_communicator() == communicator);
 	out.println("ok");
 
+	out.println(base);
         out.print("testing checked cast... ");
         out.flush();
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(base);
@@ -47,7 +48,8 @@ public class AllTests
 
 	out.print("testing checked cast with context... ");
 	out.flush();
-	String cref = "test:default -p 12346 -t 10000";
+        String cref = communicator.getProperties().getPropertyWithDefault("Test.Proxy2", 
+		"test:default -p 12346 -t 10000");
 	Ice.ObjectPrx cbase = communicator.stringToProxy(cref);
 	test(cbase != null);
 

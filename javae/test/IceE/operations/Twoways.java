@@ -108,7 +108,6 @@ class Twoways
             test(e.value == Test.MyEnum.enum2);
             test(r == Test.MyEnum.enum3);
         }
-
         {
             Test.MyClassPrxHolder c1 = new Test.MyClassPrxHolder();
             Test.MyClassPrxHolder c2 = new Test.MyClassPrxHolder();
