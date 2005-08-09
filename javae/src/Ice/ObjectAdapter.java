@@ -692,7 +692,7 @@ public final class ObjectAdapter
             Connection[] connections = new Connection[0];
 	    IceInternal.Reference reference =
 		_instance.referenceFactory().create(ident, new java.util.Hashtable(), facet,
-		                                    IceInternal.Reference.ModeTwoway, _id, null,
+		                                    IceInternal.Reference.ModeTwoway, false, _id, null,
                                                     _locatorInfo);
 	    return _instance.proxyFactory().referenceToProxy(reference);
 	}
@@ -741,7 +741,7 @@ public final class ObjectAdapter
         Connection[] connections = new Connection[0];
         IceInternal.Reference reference =
 	    _instance.referenceFactory().create(ident, new java.util.Hashtable(), facet,
-						IceInternal.Reference.ModeTwoway, endpoints, null);
+						IceInternal.Reference.ModeTwoway, false, endpoints, null);
         return _instance.proxyFactory().referenceToProxy(reference);
     }
 

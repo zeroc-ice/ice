@@ -217,6 +217,16 @@ public final class Outgoing
                 _connection.finishBatchRequest(_os);
                 break;
             }
+
+	    case Reference.ModeDatagram:
+	    case Reference.ModeBatchDatagram:
+	    {
+		if(IceUtil.Debug.ASSERT)
+		{
+	    	    IceUtil.Debug.Assert(false);
+		}
+	        return false;
+	    }
         }
 
         return true;
@@ -451,6 +461,16 @@ public final class Outgoing
                 _connection.prepareBatchRequest(_os);
                 break;
             }
+
+	    case Reference.ModeDatagram:
+	    case Reference.ModeBatchDatagram:
+	    {
+		if(IceUtil.Debug.ASSERT)
+		{
+	    	    IceUtil.Debug.Assert(false);
+		}
+	        break;
+	    }
         }
 
         _reference.getIdentity().__write(_os);

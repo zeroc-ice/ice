@@ -29,6 +29,12 @@ public class FixedReference extends Reference
         return _fixedConnections;
     }
 
+    public boolean
+    getSecure()
+    {
+        return false;
+    }
+
     public Endpoint[]
     getEndpoints()
     {
@@ -70,7 +76,7 @@ public class FixedReference extends Reference
     public Ice.Connection
     getConnection()
     {
-	if(_fixedConnections.length == 0)
+	if(getSecure() || getMode() == ModeDatagram || getMode() == ModeBatchDatagram || _fixedConnections.length == 0)
 	{
 	    Ice.NoEndpointException ex = new Ice.NoEndpointException();
 	    ex.proxy = toString();

@@ -32,10 +32,17 @@ public abstract class RoutableReference extends Reference
 	return new Endpoint[0];
     }
 
+    public final boolean
+    getSecure()
+    {
+        return _secure;
+    }
+
     public Reference
     changeDefault()
     {
 	RoutableReference r = (RoutableReference)super.changeDefault();
+	r._secure = false;
 	r._routerInfo = getInstance().routerManager().get(getInstance().referenceFactory().getDefaultRouter());
 	return r;
     }
@@ -66,6 +73,10 @@ public abstract class RoutableReference extends Reference
             return false;
         }
         RoutableReference rhs = (RoutableReference)obj; // Guaranteed to succeed.
+	if(_secure != rhs._secure)
+	{
+	    return false;
+	}
 	return _routerInfo == null ? rhs._routerInfo == null : _routerInfo.equals(rhs._routerInfo);
     }
 
@@ -90,11 +101,14 @@ public abstract class RoutableReference extends Reference
 		      java.util.Hashtable ctx,
 		      String fac,
 		      int md,
+		      boolean secure,
 		      RouterInfo rtrInfo)
     {
         super(inst, ident, ctx, fac, md);
+	_secure = secure;
 	_routerInfo = rtrInfo;
     }
 
+    private boolean _secure;
     private RouterInfo _routerInfo; // Null if no router is used.
 }

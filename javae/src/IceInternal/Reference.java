@@ -14,7 +14,9 @@ public abstract class Reference
     public final static int ModeTwoway = 0;
     public final static int ModeOneway = 1;
     public final static int ModeBatchOneway = 2;
-    public final static int ModeLast = ModeBatchOneway;
+    public final static int ModeDatagram = 3;
+    public final static int ModeBatchDatagram = 4;
+    public final static int ModeLast = ModeBatchDatagram;
 
     public final int
     getMode()
@@ -65,6 +67,7 @@ public abstract class Reference
         return _instance.communicator();
     }
 
+    public abstract boolean getSecure();
     public abstract Endpoint[] getEndpoints();
 
     //
@@ -206,6 +209,8 @@ public abstract class Reference
             h = 5 * h + (int)_facet.charAt(i);
         }
 
+	h = 5 * h + (getSecure() ? 1 : 0);
+
 	_hashValue = h;
 	_hashInitialized = true;
 
@@ -237,7 +242,9 @@ public abstract class Reference
         }
 
         s.writeByte((byte)_mode);
-	s.writeBool(false); // Secure
+
+	s.writeBool(getSecure());
+
 	// Derived class writes the remainder of the reference.
     }
 
@@ -306,7 +313,24 @@ public abstract class Reference
                 s.append(" -O");
                 break;
             }
+
+            case ModeDatagram:
+            {
+                s.append(" -d");
+                break;
+            }
+
+            case ModeBatchDatagram:
+            {
+                s.append(" -D");
+                break;
+            }
         }
+
+	if(getSecure())
+	{
+	    s.append(" -s");
+	}
 
         return s.toString();
 
@@ -428,6 +452,11 @@ public abstract class Reference
     filterEndpoints(Endpoint[] allEndpoints)
     {
         java.util.Vector endpoints = new java.util.Vector();
+
+	if(getSecure() || getMode() == Reference.ModeDatagram || getMode() == Reference.ModeBatchDatagram)
+	{
+	    return new Endpoint[0];
+	}
 
         //
         // Filter out unknown endpoints.

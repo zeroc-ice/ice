@@ -17,10 +17,11 @@ public class DirectReference extends RoutableReference
 		    java.util.Hashtable ctx,
 		    String fs,
 		    int md,
+		    boolean sec,
 		    Endpoint[] endpts,
 		    RouterInfo rtrInfo)
     {
-    	super(inst, ident, ctx, fs, md, rtrInfo);
+    	super(inst, ident, ctx, fs, md, sec, rtrInfo);
         _endpoints = endpts;
     }
 
@@ -51,7 +52,7 @@ public class DirectReference extends RoutableReference
 	if(loc != null)
 	{
 	    LocatorInfo newLocatorInfo = getInstance().locatorManager().get(loc);
-	    return getInstance().referenceFactory().create(getIdentity(), null, "", ModeTwoway, "", null,
+	    return getInstance().referenceFactory().create(getIdentity(), null, "", ModeTwoway, false, "", null,
 							   newLocatorInfo);
 	}
 	else
@@ -67,7 +68,7 @@ public class DirectReference extends RoutableReference
 	{
 	    LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
 	    return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
-							   "", null, newLocatorInfo);
+							   getSecure(), "", null, newLocatorInfo);
 	}
 	else
 	{

@@ -16,6 +16,7 @@ public final class ReferenceFactory
            java.util.Hashtable context,
            String facet,
            int mode,
+	   boolean secure,
            Endpoint[] endpoints,
            RouterInfo routerInfo)
     {
@@ -32,7 +33,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        return new DirectReference(_instance, ident, context, facet, mode, endpoints, routerInfo);
+        return new DirectReference(_instance, ident, context, facet, mode, secure, endpoints, routerInfo);
     }
 
     public synchronized Reference
@@ -40,6 +41,7 @@ public final class ReferenceFactory
            java.util.Hashtable context,
            String facet,
            int mode,
+	   boolean secure,
            String adapterId,
            RouterInfo routerInfo,
 	   LocatorInfo locatorInfo)
@@ -57,7 +59,8 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        return new IndirectReference(_instance, ident, context, facet, mode, adapterId, routerInfo, locatorInfo);
+        return new IndirectReference(_instance, ident, context, facet, mode, secure, adapterId, routerInfo, 
+				     locatorInfo);
     }
 
     public synchronized Reference
@@ -193,6 +196,7 @@ public final class ReferenceFactory
 
         String facet = "";
         int mode = Reference.ModeTwoway;
+	boolean secure = false;
 	String adapter = "";
 
         while(true)
@@ -328,6 +332,42 @@ public final class ReferenceFactory
                     break;
                 }
 
+                case 'd':
+                {
+                    if(argument != null)
+                    {
+                        Ice.ProxyParseException e = new Ice.ProxyParseException();
+			e.str = s;
+			throw e;
+                    }
+                    mode = Reference.ModeDatagram;
+                    break;
+                }
+
+                case 'D':
+                {
+                    if(argument != null)
+                    {
+                        Ice.ProxyParseException e = new Ice.ProxyParseException();
+			e.str = s;
+			throw e;
+                    }
+                    mode = Reference.ModeBatchDatagram;
+                    break;
+                }
+
+                case 's':
+                {
+                    if(argument != null)
+                    {
+                        Ice.ProxyParseException e = new Ice.ProxyParseException();
+			e.str = s;
+			throw e;
+                    }
+                    secure = true;
+                    break;
+                }
+
                 default:
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -342,7 +382,7 @@ public final class ReferenceFactory
 
 	if(beg == -1)
 	{
-	    return create(ident, new java.util.Hashtable(), facet, mode, "", routerInfo, locatorInfo);
+	    return create(ident, new java.util.Hashtable(), facet, mode, secure, "", routerInfo, locatorInfo);
 	}
 
         java.util.Vector endpoints = new java.util.Vector();
@@ -393,7 +433,7 @@ public final class ReferenceFactory
 
 	    Endpoint[] endp = new Endpoint[endpoints.size()];
 	    endpoints.copyInto(endp);
-	    return create(ident, new java.util.Hashtable(), facet, mode, endp, routerInfo);
+	    return create(ident, new java.util.Hashtable(), facet, mode, secure, endp, routerInfo);
 	}
 	else if(s.charAt(beg) == '@')
 	{
@@ -433,7 +473,7 @@ public final class ReferenceFactory
 		throw e;
 	    }
 	    adapter = token.value;
-	    return create(ident, new java.util.Hashtable(), facet, mode, adapter, routerInfo, locatorInfo);
+	    return create(ident, new java.util.Hashtable(), facet, mode, secure, adapter, routerInfo, locatorInfo);
 	}
 
 	Ice.ProxyParseException ex = new Ice.ProxyParseException();
@@ -478,10 +518,7 @@ public final class ReferenceFactory
             throw new Ice.ProxyUnmarshalException();
         }
 
-	//
-	// Read security byte and ignore.
-	//
-	s.readBool();
+	boolean secure = s.readBool();
        
         Endpoint[] endpoints;
 	String adapterId = "";
@@ -497,13 +534,13 @@ public final class ReferenceFactory
 	    {
 		endpoints[i] = _instance.endpointFactoryManager().read(s);
 	    }
-	    return create(ident, new java.util.Hashtable(), facet, mode, endpoints, routerInfo);
+	    return create(ident, new java.util.Hashtable(), facet, mode, secure, endpoints, routerInfo);
 	}
 	else
 	{
 	    endpoints = new Endpoint[0];
 	    adapterId = s.readString();
-	    return create(ident, new java.util.Hashtable(), facet, mode, adapterId, routerInfo, locatorInfo);
+	    return create(ident, new java.util.Hashtable(), facet, mode, secure, adapterId, routerInfo, locatorInfo);
 	}
     }
 
