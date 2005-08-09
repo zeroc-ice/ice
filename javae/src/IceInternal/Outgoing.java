@@ -150,8 +150,8 @@ public final class Outgoing
                 if(_exception != null)
                 {
 		    //
-		    // XXX- what we want to do is fill in the exception's stack trace, but there doesn't seem to be
-		    // a way to do this in CLDC.
+		    // TODO- what we want to do is fill in the exception's stack trace, but there doesn't seem to be
+		    // a way to do this yet in CLDC.
 		    //
 		    
                     //      
