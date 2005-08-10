@@ -182,6 +182,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     ib1o = ic->icop(ic);
     test(ib1o == ic);
     ib2o = ic->icop(ic);
+    test(ib2o == ic);
+    ico = ic->icop(ic);
     test(ico == ic);
 
     tprintf("ok\n");
