@@ -1788,7 +1788,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		else
 		{
 		    FeatureNotSupportedException ex = new FeatureNotSupportedException();
-		    ex.unsupportedFeature = "compression";
+		    ex.unsupportedFeature = "Cannot uncompress compressed message: "
+		    	+ "org.apache.tools.bzip2.CBZip2OutputStream was not found";
 		    throw ex;
 		}
 	    }
