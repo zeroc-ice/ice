@@ -11,7 +11,7 @@ A recent Linux distribution for x86 or x86-64.
 C++ compiler
 ------------
 
-- GCC 3.2, 3.3 or 3.4; or
+- GCC 3.2, 3.3, 3.4, 4.0.1; or
 
 - Intel C++ 8.1
 
@@ -20,9 +20,9 @@ Slice to Embedded C++ translator
 --------------------------------
 
 You will need the Slice to Embedded C++ translator (slice2cppe) and
-supporting executables and libraries. You can download a binary
-distribution from the ZeroC web site, or you can build the Slice to
-Embedded C++ translator yourself.
+preprocessor (icecpp). You can download a binary distribution from
+the ZeroC web site, or you can build the Slice to Embedded C++
+translator yourself.
 
 Binary and source distributions for the supported platforms are
 available at

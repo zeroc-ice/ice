@@ -12,7 +12,7 @@ under the following environments:
 
 - Microsoft Device Emulator 1.0 Preview
 
-- HP iPaq hx2400.
+- HP iPaq hx2400
 
 C++ compiler
 ------------
@@ -61,9 +61,9 @@ Slice to Embedded C++ translator
 --------------------------------
 
 You will need the Slice to Embedded C++ translator (slice2cppe) and
-supporting executables and libraries. You can download a binary
-distribution from the ZeroC web site, or you can build the Slice to
-Embedded C++ translator yourself.
+preprocessor (icecpp). You can download a binary distribution from the
+ZeroC web site, or you can build the Slice to Embedded C++ translator
+yourself.
 
 Binary and source distributions for the supported platforms are
 available at
@@ -147,6 +147,21 @@ Microsoft eMbedded Visual C++ 4.0
 ---------------------------------
 
 Open the "all.vcw" workspace.
+
+Eight build configurations are supported:
+
+  Win32 (WCE ARMV4) Release
+  Win32 (WCE ARMV4) Debug
+  Win32 (WCE ARMV4) Debug Static
+  Win32 (WCE ARMV4) Release Static
+  Win32 (WCE emulator) Release
+  Win32 (WCE emulator) Debug
+  Win32 (WCE emulator) Debug Static
+  Win32 (WCE emulator) Release Static
+
+Configurations whose names end in "Static" generate static libraries
+for the Ice-E run time, whereas the other configurations generate
+DLLs.
 
 If you want to build everything (including all CPUs) then select
 Build/Batch Build, and then select Rebuild All. Note that this will

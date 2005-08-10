@@ -27,9 +27,9 @@ Slice to Embedded C++ translator
 --------------------------------
 
 You will need the Slice to Embedded C++ translator (slice2cppe) and
-supporting executables and libraries. You can download a binary
-distribution from the ZeroC web site, or you can build the Slice to
-Embedded C++ translator yourself.
+preprocessor (icecpp). You can download a binary distribution from the
+ZeroC web site, or you can build the Slice to Embedded C++ translator
+yourself.
 
 Binary and source distributions for the supported platforms are
 available at
@@ -91,8 +91,19 @@ compile the tests or demos. To set your active project with Visual C++
 "all" or "minimal" in the class view, then use Project->Set as StartUp
 Project.
 
-To start the compilation, use Build->Build for Visual C++ 6.0, or
-Build->Build all/minimal for Visual C++ .NET, respectively.
+Four build configurations are supported:
+
+  Win32 Release
+  Win32 Debug
+  Win32 Release Static
+  Win32 Debug Static
+
+The first two create DLLs for the Ice-E run time, whereas the last two
+generate only static libraries.
+
+After selecting a build configuration, start the compilation using
+Build->Build for Visual C++ 6.0, or Build->Build all/minimal for
+Visual C++ .NET, respectively.
 
 If you built the tests you can run the test suite, provided that you
 have installed Python. Open a command prompt and change to the top-
