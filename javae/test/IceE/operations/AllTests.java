@@ -34,7 +34,6 @@ public class AllTests
 	test(base.ice_communicator() == communicator);
 	out.println("ok");
 
-	out.println(base);
         out.print("testing checked cast... ");
         out.flush();
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(base);
