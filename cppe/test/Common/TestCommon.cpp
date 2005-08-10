@@ -291,7 +291,6 @@ TestApplication::main(HINSTANCE hInstance)
 	extern int    __argc;
 	extern char **__argv; 
 	status = run(__argc, __argv);
-	tprintf("\ntest complete\n");
     }
     catch(const TestSuiteFailed&)
     {
