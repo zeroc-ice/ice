@@ -55,11 +55,13 @@ class ServerTemplates extends Parent
 	{
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
 	    String name = (String)entry.getKey();
-	    TemplateDescriptor templateDescriptor = (TemplateDescriptor)entry.getValue();
+	    TemplateDescriptor templateDescriptor 
+		= (TemplateDescriptor)entry.getValue();
 	    ServerTemplate child = (ServerTemplate)findChild(name);
 	    if(child == null)
 	    {
-		newChildren.add(new ServerTemplate(name, templateDescriptor, application));
+		newChildren.add(new ServerTemplate(name, templateDescriptor,
+						   application));
 	    }
 	    else
 	    {
@@ -68,8 +70,16 @@ class ServerTemplates extends Parent
 	    }
 	}
 	
-	updateChildren((CommonBaseI[])updatedChildren.toArray(new CommonBaseI[0]));
+	updateChildren((CommonBaseI[])updatedChildren.toArray
+		       (new CommonBaseI[0]));
 	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
+
+	p = newChildren.iterator();
+	while(p.hasNext())
+	{
+	    ServerTemplate serverTemplate = (ServerTemplate)p.next();
+	    serverTemplate.setParent(this);
+	}
     }
     
     private java.util.Map _descriptors;

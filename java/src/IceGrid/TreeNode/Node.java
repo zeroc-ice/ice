@@ -17,6 +17,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import IceGrid.NodeDescriptor;
 import IceGrid.Model;
 import IceGrid.NodeDynamicInfo;
+import IceGrid.NodeUpdateDescriptor;
 import IceGrid.ServerDynamicInfo;
 import IceGrid.AdapterDynamicInfo;
 import IceGrid.ServerDescriptor;
@@ -60,7 +61,7 @@ class Node extends Parent
 	//
 	// TODO: separate icons for open and close
 	//
-	if(_serverInfoMap != null) // up
+	if(_up)
 	{
 	    _cellRenderer.setToolTipText("Up and running");
 	    if(expanded)
@@ -90,72 +91,15 @@ class Node extends Parent
     }
     
     
-    void up(java.util.Map serverInfoMap, java.util.Map adapterInfoMap)
+    void up()
     {
-	_serverInfoMap = serverInfoMap;
-	_adapterInfoMap = adapterInfoMap;
-	
-	//
-	// Update the state of all servers
-	//
-	java.util.Iterator p = _children.iterator();
-	while(p.hasNext())
-	{
-	    Server child = (Server)p.next();
-	    ServerDynamicInfo info = 
-		(ServerDynamicInfo)_serverInfoMap.get(child.getId());
-
-	    if(info == null)
-	    {
-		info = _inactiveServerDynamicInfo;
-	    }
-	    child.updateDynamicInfo(info);
-	}
-	
-	//
-	// Update the state of all adapters
-	//
-	/*
-	p = _adapters.entrySet().iterator();
-	while(p.hasNext())
-	{
-	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-	    String id = (String) entry.getKey();
-	    Adapter adapter = (Adapter)entry.getValue();
-	    Ice.ObjectPrx proxy = (Ice.ObjectPrx)_adapterInfoMap.get(id);
-	    adapter.updateProxy(proxy);
-	}
-	*/
-
+	_up = true;
 	fireNodeChangedEvent(this);
     }
 
     boolean down()
     {
-	_serverInfoMap = null;
-	_adapterInfoMap = null;
-
-	//
-	// Update the state of all servers
-	//
-	java.util.Iterator p = _children.iterator();
-	while(p.hasNext())
-	{
-	    Server child = (Server)p.next();
-	    child.updateDynamicInfo(_unknownServerDynamicInfo);
-	}
-
-	//
-	// Update the state of all adapters
-	//
-	/*
-	p = _adapters.values().iterator();
-	while(p.hasNext())
-	{
-	    Adapter adapter = (Adapter)p.next();
-	    adapter.updateProxy(null);
-	}
-	*/
+	_up = false;
 
 	if(_descriptor == null)
 	{
@@ -167,74 +111,55 @@ class Node extends Parent
 	    return false;
 	}
     }
-  
-    ServerDynamicInfo getServerDynamicInfo(String serverName)
+
+    public void cleanup()
     {
-	if(_serverInfoMap == null)
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
 	{
-	    return _unknownServerDynamicInfo;
-	}
-	else
-	{
-	    Object obj = _serverInfoMap.get(serverName);
-	    if(obj == null)
-	    {
-		return _inactiveServerDynamicInfo;
-	    }
-	    else
-	    {
-		return (ServerDynamicInfo)obj;
-	    }
+	    Server server = (Server)p.next();
+	    server.cleanup();
 	}
     }
     
-    /*
-    ServerInstances(java.util.List descriptors, 
-		    Application application,
-		    boolean fireEvent)
+    NodeDescriptor update(NodeUpdateDescriptor update, Application application)
     {
-	super("Server instances", application.getModel());
-	_descriptors = descriptors;
-
-	java.util.Iterator p = _descriptors.iterator();
-	while(p.hasNext())
+	if(_descriptor == null)
 	{
-	    //
-	    // The ServerInstance constructor inserts the new object in the 
-	    // node view model
-	    //
-	    ServerInstanceDescriptor descriptor = 
-		(ServerInstanceDescriptor)p.next();
+	    NodeDescriptor descriptor = new NodeDescriptor(update.variables,
+							   update.serverInstances,
+							   update.servers);
 
-	    
-
-	    String serverName = computeServerName(descriptor, application);
-		
-	    ServerInstance child = new ServerInstance(serverName,
-						      descriptor,
-						      application,
-						      fireEvent);
-	    addChild(child);
+	    init(descriptor, application, true);
+	    return _descriptor;
 	}
-    }
 
-    void update(java.util.List updates, String[] removeServers)
-    {
 	//
-	// Note: _descriptors is updated by Application
+	// Otherwise it's a real update
 	//
-	
-	Application application = (Application)getParent(TreeModelI.APPLICATION_VIEW);
+
+	//
+	// Variables
+	//
+	for(int i = 0; i < update.removeVariables.length; ++i)
+	{
+	    _descriptor.variables.remove(update.removeVariables[i]);
+	}
+	_descriptor.variables.putAll(update.variables);
 
 	//
 	// One big set of removes
 	//
-	for(int i = 0; i < removeServers.length; ++i)
+	removeChildren(update.removeServers);
+
+	//
+	// Update _descriptor
+	//
+	for(int i = 0; i < update.removeServers.length; ++i)
 	{
-	    ServerInstance server = (ServerInstance)findChild(removeServers[i]);
-	    server.removeFromNode();
-	}
-	removeChildren(removeServers);
+	    _descriptor.serverInstances.remove(update.removeServers[i]);
+	    _descriptor.servers.remove(update.removeServers[i]);
+	} 
 
 	//
 	// One big set of updates, followed by inserts
@@ -242,95 +167,115 @@ class Node extends Parent
 	java.util.Vector newChildren = new java.util.Vector();
 	java.util.Vector updatedChildren = new java.util.Vector();
 	
-	java.util.Iterator p = updates.iterator();
+	java.util.Iterator p = update.serverInstances.iterator();
 	while(p.hasNext())
 	{
-	    ServerInstanceDescriptor descriptor = (ServerInstanceDescriptor)p.next();
+	    ServerInstanceDescriptor instanceDescriptor = 
+		(ServerInstanceDescriptor)p.next();
 	    
-	    String serverName = computeServerName(descriptor, application);
+	    //
+	    // Find template
+	    //
+	    TemplateDescriptor templateDescriptor = 
+		application.findServerTemplateDescriptor(instanceDescriptor.template);
 
-	    ServerInstance child = (ServerInstance)findChild(serverName);
-	    if(child == null)
+	    assert templateDescriptor != null;
+	    
+	    ServerDescriptor serverDescriptor = 
+		(ServerDescriptor)templateDescriptor.descriptor;
+	    
+	    assert serverDescriptor != null;
+	    
+	    //
+	    // Build resolver
+	    //
+	    Utils.Resolver instanceResolver = 
+		new Utils.Resolver(_resolver, instanceDescriptor.parameterValues);
+	    
+	    String serverId = instanceResolver.substitute(serverDescriptor.id);
+	    instanceResolver.put("server", serverId);
+	    
+	    //
+	    // Lookup server
+	    //
+	    Server server = (Server)findChild(serverId);
+	    if(server != null)
 	    {
-		newChildren.add(new ServerInstance(serverName, descriptor, application, true));
+		server.rebuild(instanceResolver, instanceDescriptor, serverDescriptor,
+			       application);
+		updatedChildren.add(server);
 	    }
 	    else
 	    {
-		child.rebuild(application, descriptor, true);
-		updatedChildren.add(child);
+		server = new Server(serverId, instanceResolver, instanceDescriptor, 
+				    serverDescriptor, application);
+		newChildren.add(server);
+		_descriptor.serverInstances.add(instanceDescriptor);
+	    }
+	    
+	}
+	
+	//
+	// Plain servers
+	//
+	p = update.servers.iterator();
+	while(p.hasNext())
+	{
+	    ServerDescriptor serverDescriptor = (ServerDescriptor)p.next();
+
+	    //
+	    // Build resolver
+	    //
+	    Utils.Resolver instanceResolver = new Utils.Resolver(_resolver);
+	    String serverId = instanceResolver.substitute(serverDescriptor.id);
+	    instanceResolver.put("server", serverId);
+	    
+	    //
+	    // Lookup server
+	    //
+	    Server server = (Server)findChild(serverId);
+	    
+	    if(server != null)
+	    {
+		server.rebuild(instanceResolver, null, serverDescriptor,
+			       application);
+		updatedChildren.add(server);
+	    }
+	    else
+	    {
+		server = new Server(serverId, instanceResolver, null, 
+				    serverDescriptor, application);
+		newChildren.add(server);
+		_descriptor.servers.add(serverDescriptor);
 	    }
 	}
 	
 	updateChildren((CommonBaseI[])updatedChildren.toArray(new CommonBaseI[0]));
 	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
-    }
 
-    void removeFromNodes()
-    {
-	java.util.Iterator p = _children.iterator();
+	p = newChildren.iterator();
 	while(p.hasNext())
 	{
-	    ServerInstance server = (ServerInstance)p.next();
-	    server.removeFromNode();
+	    Server server = (Server)p.next();
+	    server.setParent(this);
 	}
+
+	return null;
     }
-
-
-    static String computeServerName(ServerInstanceDescriptor instanceDescriptor, 
-				    Application application)
+   
+    Node(String nodeName, Model model)
     {
-	String nodeName = instanceDescriptor.node;
-
-	if(instanceDescriptor.template.length() > 0)
-	{
-	    //
-	    // Can't be null
-	    //
-	    TemplateDescriptor templateDescriptor = 
-		application.findServerTemplateDescriptor(instanceDescriptor.template);
-	    
-	    java.util.Map parameters = 
-		Utils.substituteVariables(instanceDescriptor.parameterValues,
-					  application.getNodeVariables(nodeName),
-					  application.getVariables());
-
-	    return Utils.substituteVariables(templateDescriptor.descriptor.name,
-					     parameters,
-					     application.getNodeVariables(nodeName),
-					     application.getVariables());
-	}
-	else
-	{
-	  
-	    return Utils.substituteVariables(instanceDescriptor.descriptor.name,
-					     application.getNodeVariables(nodeName),
-					     application.getVariables());
-	}
+	super(nodeName, model);  
+	_up = true;
     }
 
-    */
-  
-
-    //
-    // Node created by NodeObserver
-    //
-    Node(String nodeName, Model model,
-	java.util.Map serverMap, java.util.Map adapterMap )
-    {
-	super(nodeName, model);
-       
-    }
-
-    //
-    // Node created by RegistryObserver
-    //
     Node(String nodeName, NodeDescriptor descriptor, Application application)
     {
 	super(nodeName, application.getModel());
-	init(descriptor, application);
+	init(descriptor, application, false);
     } 
     
-    void init(NodeDescriptor descriptor, Application application)
+    void init(NodeDescriptor descriptor, Application application, boolean fireEvent)
     {
 	assert _descriptor == null;
 	_descriptor = descriptor;
@@ -375,8 +320,10 @@ class Node extends Parent
 	    //
 	    // Create server
 	    //
-	    addChild(new Server(serverId, instanceResolver, instanceDescriptor, 
-				serverDescriptor, application));
+	    Server server = new Server(serverId, instanceResolver, instanceDescriptor, 
+				       serverDescriptor, application);
+	    addChild(server);
+	    server.setParent(this);
 	}
 
 	//
@@ -397,26 +344,28 @@ class Node extends Parent
 	    //
 	    // Create server
 	    //
-	    addChild(new Server(serverId, instanceResolver, null, serverDescriptor, 
-				application));
+	    Server server = new Server(serverId, instanceResolver, null, serverDescriptor, 
+				       application);
+	    addChild(server);
+	    server.setParent(this);
 	}
+
+	if(fireEvent)
+	{
+	    fireNodeChangedEvent(this);
+	}
+	
     }
     
     private NodeDescriptor _descriptor;
     private Utils.Resolver _resolver;
 
-    private java.util.Map _serverInfoMap;
-    private java.util.Map _adapterInfoMap;
+    private boolean _up = false;
+    private java.util.Map _serverDynamicInfoMap;
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon _nodeUpOpen;
     static private Icon _nodeUpClosed;
     static private Icon _nodeDownOpen;
     static private Icon _nodeDownClosed;
-
-    static private ServerDynamicInfo _unknownServerDynamicInfo = 
-       new ServerDynamicInfo();
-
-    static private ServerDynamicInfo _inactiveServerDynamicInfo = 
-       new ServerDynamicInfo(null, ServerState.Inactive, 0);
 }

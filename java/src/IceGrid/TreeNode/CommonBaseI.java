@@ -35,6 +35,13 @@ abstract class CommonBaseI implements CommonBase
 	return _id;
     }
 
+    public void cleanup()
+    {
+	//
+	// Nothing to do
+	//
+    }
+
     public void setParent(CommonBase parent)
     {
 	_parent = parent;

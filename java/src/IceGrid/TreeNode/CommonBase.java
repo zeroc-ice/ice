@@ -31,6 +31,12 @@ public interface CommonBase extends TreeCellRenderer
     //
     String getId();
 
+    
+    //
+    // Clean-up when removed from the tree
+    //
+    void cleanup();
+
     //
     // Set this node as a parent, and recursively update
     // the path of all children.

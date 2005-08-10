@@ -67,7 +67,8 @@ class ServerTemplate extends Parent
 	{
 	    _iceBoxDescriptor = (IceBoxDescriptor)_descriptor.descriptor;
 	    
-	    _services = new Services(_iceBoxDescriptor.services, true, null, application);
+	    _services = new Services(_iceBoxDescriptor.services, true, null, 
+				     application);
 	    addChild(_services);
 
 	    assert _descriptor.descriptor.dbEnvs.size() == 0;

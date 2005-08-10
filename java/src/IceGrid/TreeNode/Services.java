@@ -90,5 +90,15 @@ class Services extends Parent
 	}
     }
 
+    public void cleanup()
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Service service = (Service)p.next();
+	    service.cleanup();
+	}
+    }
+
     private java.util.List _descriptors;
 }

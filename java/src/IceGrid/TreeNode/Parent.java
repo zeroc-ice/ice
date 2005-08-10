@@ -172,6 +172,7 @@ class Parent extends CommonBaseI
 
     void removeChild(CommonBase child)
     {
+	child.cleanup();
 	_children.remove(child);
     }
 
@@ -185,6 +186,7 @@ class Parent extends CommonBaseI
 	    i++;
 	    if(id.equals(child.getId()))
 	    {
+		child.cleanup();
 		p.remove();
 		if(fireEvent)
 		{
@@ -197,6 +199,12 @@ class Parent extends CommonBaseI
 
     void clearChildren()
     {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    CommonBase child = (CommonBase)p.next();
+	    child.cleanup();
+	}
 	_children.clear();
     }
 
@@ -306,6 +314,7 @@ class Parent extends CommonBaseI
 	    CommonBase child = (CommonBase)p.next();	    
 	    if(ids[j].equals(child.getId()))
 	    {
+		child.cleanup();
 		childrenToRemove[k] = child;
 		indices[k] = i;
 		p.remove();
@@ -358,6 +367,7 @@ class Parent extends CommonBaseI
 
 		if(id.equals(child.getId()))
 		{
+		    child.cleanup();
 		    childrenToRemove.add(child);
 		    indices[k++] = i;
 		    p.remove();

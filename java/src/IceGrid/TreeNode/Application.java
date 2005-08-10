@@ -25,9 +25,9 @@ class Application extends Parent
 	super(descriptor.name, model);
 	_descriptor = descriptor;
 
-	//
-	// TODO: add replicated adapter
-	//
+	_replicatedAdapters = new ReplicatedAdapters(_descriptor.replicatedAdapters,
+						     _model);
+	addChild(_replicatedAdapters);
 
 	_serviceTemplates = new ServiceTemplates(_descriptor.serviceTemplates,
 						 _model);	
@@ -62,6 +62,19 @@ class Application extends Parent
 
 
 	//
+	// Replicated adapters
+	//
+	for(int i = 0; i < desc.removeReplicatedAdapters.length; ++i)
+	{
+	    _descriptor.replicatedAdapters.remove(desc.
+						  removeReplicatedAdapters[i]);
+	}
+	_descriptor.replicatedAdapters.addAll(desc.replicatedAdapters);
+	_replicatedAdapters.update(desc.replicatedAdapters, 
+				   desc.removeReplicatedAdapters);
+
+
+	//
 	// Service templates
 	//
 	for(int i = 0; i < desc.removeServiceTemplates.length; ++i)
@@ -91,8 +104,10 @@ class Application extends Parent
 	{
 	    _descriptor.nodes.remove(desc.removeNodes[i]);
 	}
-	_descriptor.nodes.putAll(_nodes.update(desc.nodes, 
-					       desc.removeNodes));
+	//
+	// Updates also _descriptor.nodes
+	//
+	_nodes.update(desc.nodes, desc.removeNodes);
     }
 
     ServerTemplate findServerTemplate(String id)
@@ -131,10 +146,9 @@ class Application extends Parent
 	return _descriptor.variables;
     }
 
-    void nodeUp(String nodeName, java.util.Map serverMap, 
-		       java.util.Map adapterMap)
+    void nodeUp(String nodeName)
     {
-	_nodes.nodeUp(nodeName, serverMap, adapterMap);
+	_nodes.nodeUp(nodeName);
     }
 
     void nodeDown(String nodeName)
@@ -142,22 +156,18 @@ class Application extends Parent
 	_nodes.nodeDown(nodeName);
     }
     
-    void updateServer(String nodeName, ServerDynamicInfo updatedInfo)
+    public void cleanup()
     {
-	_nodes.updateServer(nodeName, updatedInfo);
+	_nodes.cleanup();
     }
-    
-    void updateAdapter(String nodeName, AdapterDynamicInfo updatedInfo)
-    {
-	_nodes.updateAdapter(nodeName, updatedInfo);
-    }
-    
+
 
     private ApplicationDescriptor _descriptor;
 
     //
     // Children
     //
+    private ReplicatedAdapters _replicatedAdapters;
     private ServerTemplates _serverTemplates;
     private ServiceTemplates _serviceTemplates;
     private Nodes _nodes;

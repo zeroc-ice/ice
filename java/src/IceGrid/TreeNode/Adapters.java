@@ -30,4 +30,14 @@ class Adapters extends Parent
 				 resolver, _model));
 	}
     }
+
+    public void cleanup()
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Adapter adapter = (Adapter)p.next();
+	    adapter.cleanup();
+	}
+    }
 }

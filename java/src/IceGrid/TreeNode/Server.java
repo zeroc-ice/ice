@@ -388,8 +388,13 @@ class Server extends Parent
 	   Application application)
     {
 	super(serverId, application.getModel());
-	rebuild(resolver, instanceDescriptor, serverDescriptor,
-		application);
+	Ice.IntHolder pid = new Ice.IntHolder();
+	_state = _model.getRoot().registerServer(resolver.find("node"),
+						 _id,
+						 this,
+						 pid);
+	_pid = pid.value;
+	rebuild(resolver, instanceDescriptor, serverDescriptor, application);
     }
 
     //
@@ -406,7 +411,7 @@ class Server extends Parent
 	_serverDescriptor = serverDescriptor;
 
 	clearChildren();
-
+	
 	boolean editable = (instanceDescriptor == null);
 
 	if(serverDescriptor instanceof IceBoxDescriptor)
@@ -442,30 +447,39 @@ class Server extends Parent
 	_adapters.setParent(this);
     }
 
-    void updateDynamicInfo(ServerDynamicInfo info)
-    {
-	updateDynamicInfo(info, true);
-    }
-    
-    private void updateDynamicInfo(ServerDynamicInfo info, boolean fireEvent)
-    {
-	if(info.state != _state || info.pid != _pid)
-	{
-	    _state = info.state;
-	    _pid = info.pid;
-	    _toolTip = toolTip(info.state, info.pid);
-	    _stateIconIndex = (_state == null ? 0 : _state.value() + 1); 
 
-	    if(fireEvent)
-	    {
-		//
-		// Change the node representation in all views
-		//
-		fireNodeChangedEvent(this);
-	    }
+    public void cleanup()
+    {
+	assert _resolver != null;
+
+	_model.getRoot().unregisterServer(_resolver.find("node"),
+					  _id,
+					  this);
+	_adapters.cleanup();
+	if(_services != null)
+	{
+	    _services.cleanup();
 	}
     }
-   
+    
+    
+    void updateDynamicInfo(ServerState state, int pid)
+    {
+	if(state != _state || pid != _pid)
+	{
+	    _state = state;
+	    _pid = pid;
+	    
+	    _toolTip = toolTip(_state, _pid);
+	    _stateIconIndex = _state.value() + 1;
+	
+	    //
+	    // Change the node representation in all views
+	    //
+	    fireNodeChangedEvent(this);
+	}
+    }
+
     void start()
     {
 	//

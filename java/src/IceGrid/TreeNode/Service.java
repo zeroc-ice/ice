@@ -55,6 +55,11 @@ class Service extends Parent
 	}
     }
 
+    public void cleanup()
+    {
+	_adapters.cleanup();
+    }
+
     private ServiceInstanceDescriptor _instanceDescriptor;
     private ServiceDescriptor _serviceDescriptor;
     private String _displayString;

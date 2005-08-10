@@ -185,11 +185,36 @@ class Adapter extends Leaf
 	_descriptor = descriptor;
 	_editable = editable;
 	_resolver = resolver;
+	
+	if(resolver != null)
+	{
+	    //
+	    // In a server instance
+	    //
+	    _adapterId = _resolver.substitute(_descriptor.id);
+	    
+	    _proxy = _model.getRoot().registerAdapter(_resolver.find("node"),
+						      _resolver.find("server"),
+						      _adapterId,
+						      this);
+	    createToolTip();
+	}
     }
 
+    public void cleanup()
+    {
+	if(_resolver != null)
+	{
+	    _model.getRoot().unregisterAdapter(_resolver.find("node"),
+					       _resolver.find("server"),
+					       _adapterId,
+					       this);
+	}
+    }
 
     void updateProxy(Ice.ObjectPrx proxy)
     {
+	assert _resolver != null;
 	_proxy = proxy;
 	createToolTip();
 	fireNodeChangedEvent(this);
