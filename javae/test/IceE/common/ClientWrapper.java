@@ -16,20 +16,7 @@ public class ClientWrapper
 	throws javax.microedition.midlet.MIDletStateChangeException
     {
 	super.startApp();
-	_screen.addCommand(CMD_STARTCLIENT);
-    }
-
-    public void
-    commandAction(javax.microedition.lcdui.Command cmd, javax.microedition.lcdui.Displayable source)
-    {
-	super.commandAction(cmd, source);
-	if(source == _screen)
-	{
-	    if(cmd == CMD_STARTCLIENT)
-	    {
-		new Thread(this).start();
-	    }
-	}
+	new Thread(this).start();
     }
     
     public void
@@ -48,7 +35,4 @@ public class ClientWrapper
 	    ex.printStackTrace();
 	}
     }
-
-    private javax.microedition.lcdui.Command CMD_STARTCLIENT =
-        new javax.microedition.lcdui.Command("Run", javax.microedition.lcdui.Command.ITEM, CMD_PRIORITY);
 }
