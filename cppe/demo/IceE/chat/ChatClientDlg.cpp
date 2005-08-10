@@ -425,7 +425,7 @@ CChatClientDlg::OnLogin()
 }
 
 LRESULT
-CChatClientDlg::OnLog(UINT wParam, UINT lParam)
+CChatClientDlg::OnLog(WPARAM wParam, LPARAM lParam)
 {
     char* text = (char*)lParam;
 
