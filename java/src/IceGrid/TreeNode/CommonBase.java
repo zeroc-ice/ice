@@ -15,6 +15,8 @@ import javax.swing.JPanel;
 
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
+import IceGrid.Model;
+
 //
 // CommonBase is similar to javax.swing.tree.TreeNode
 //
@@ -31,7 +33,8 @@ public interface CommonBase extends TreeCellRenderer
     //
     String getId();
 
-    
+    Model getModel();
+
     //
     // Clean-up when removed from the tree
     //

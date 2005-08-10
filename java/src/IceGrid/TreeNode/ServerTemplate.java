@@ -41,7 +41,7 @@ import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
 
-class ServerTemplate extends Parent
+class ServerTemplate extends PropertiesHolder
 {
     
     //
@@ -55,23 +55,24 @@ class ServerTemplate extends Parent
 
     void rebuild(TemplateDescriptor descriptor, Application application)
     {
-	_descriptor = descriptor;
+	_templateDescriptor = descriptor;
+	_descriptor = _templateDescriptor.descriptor;
 	clearChildren();
 
 	//
 	// Fix-up parameters order
 	//
-	java.util.Collections.sort(_descriptor.parameters);
+	java.util.Collections.sort(_templateDescriptor.parameters);
 	
-	if(_descriptor.descriptor instanceof IceBoxDescriptor)
+	if(_templateDescriptor.descriptor instanceof IceBoxDescriptor)
 	{
-	    _iceBoxDescriptor = (IceBoxDescriptor)_descriptor.descriptor;
+	    _iceBoxDescriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
 	    
 	    _services = new Services(_iceBoxDescriptor.services, true, null, 
 				     application);
 	    addChild(_services);
 
-	    assert _descriptor.descriptor.dbEnvs.size() == 0;
+	    assert _templateDescriptor.descriptor.dbEnvs.size() == 0;
 	    _dbEnvs = null;
 	}
 	else
@@ -79,12 +80,12 @@ class ServerTemplate extends Parent
 	    _services = null;
 	    _iceBoxDescriptor = null;
 
-	    _dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, true,
+	    _dbEnvs = new DbEnvs(_templateDescriptor.descriptor.dbEnvs, true,
 			     null, _model);
 	    addChild(_dbEnvs);
 	}
 	
-	_adapters = new Adapters(_descriptor.descriptor.adapters, true, 
+	_adapters = new Adapters(_templateDescriptor.descriptor.adapters, true, 
 				 null, _model);
 	addChild(_adapters);
     }
@@ -92,15 +93,15 @@ class ServerTemplate extends Parent
 
     public String toString()
     {
-	return templateLabel(_id, _descriptor.parameters);
+	return templateLabel(_id, _templateDescriptor.parameters);
     }
 
     public TemplateDescriptor getDescriptor()
     {
-	return _descriptor;
+	return _templateDescriptor;
     }
 
-    private TemplateDescriptor _descriptor;
+    private TemplateDescriptor _templateDescriptor;
     private IceBoxDescriptor _iceBoxDescriptor;
 
     private Services _services;

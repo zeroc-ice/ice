@@ -8,6 +8,8 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import javax.swing.AbstractListModel;
+
 import IceGrid.ReplicatedAdapterDescriptor;
 import IceGrid.Model;
 import IceGrid.Utils;
@@ -23,9 +25,6 @@ class ReplicatedAdapters extends Parent
 	    ReplicatedAdapterDescriptor descriptor 
 		= (ReplicatedAdapterDescriptor)p.next();
 	    
-	    //
-	    // TODO: need to substitute id?
-	    //
 	    addChild(new ReplicatedAdapter(descriptor, _model));
 	}
     }

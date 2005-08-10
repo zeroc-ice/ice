@@ -11,7 +11,7 @@ package IceGrid.TreeNode;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Model;
 
-class ServiceTemplate extends Parent
+class ServiceTemplate extends PropertiesHolder
 {
     ServiceTemplate(String name, TemplateDescriptor descriptor, Model model)
     {
@@ -21,29 +21,30 @@ class ServiceTemplate extends Parent
 
     void rebuild(TemplateDescriptor descriptor)
     {
-	_descriptor = descriptor;
+	_templateDescriptor = descriptor;
+	_descriptor = _templateDescriptor.descriptor;
 	clearChildren();
 
 	//
 	// Fix-up parameters order
 	//
-	java.util.Collections.sort(_descriptor.parameters);
+	java.util.Collections.sort(_templateDescriptor.parameters);
 	
-	_adapters = new Adapters(_descriptor.descriptor.adapters, true, 
+	_adapters = new Adapters(_templateDescriptor.descriptor.adapters, true, 
 				 null, _model);
 	addChild(_adapters);
 
-	_dbEnvs = new DbEnvs(_descriptor.descriptor.dbEnvs, true,
+	_dbEnvs = new DbEnvs(_templateDescriptor.descriptor.dbEnvs, true,
 			     null, _model);
 	addChild(_dbEnvs);
     }
 
     public String toString()
     {
-	return templateLabel(_id, _descriptor.parameters);
+	return templateLabel(_id, _templateDescriptor.parameters);
     }
 
-    private TemplateDescriptor _descriptor;
+    private TemplateDescriptor _templateDescriptor;
     private Adapters _adapters;
     private DbEnvs _dbEnvs;
 }

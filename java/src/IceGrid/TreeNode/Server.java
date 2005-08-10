@@ -40,6 +40,7 @@ import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 
 import IceGrid.IceBoxDescriptor;
 import IceGrid.Model;
+import IceGrid.PropertyDescriptor;
 import IceGrid.TemplateDescriptor;
 import IceGrid.TreeModelI;
 import IceGrid.ServerDescriptor;
@@ -55,7 +56,7 @@ import IceGrid.Utils;
 // - Server instance
 // - Icebox instance
 //
-class Server extends Parent
+class Server extends PropertiesHolder
 {
     static class Editor
     {
@@ -306,7 +307,7 @@ class Server extends Parent
 	// Pick the appropriate editor
 	//
 	Editor editor = null;
-	if(_instanceDescriptor != null || _model.substituteVariables())
+	if(_instanceDescriptor != null || _model.substitute())
 	{
 	    if(_editor == null)
 	    {
@@ -409,6 +410,7 @@ class Server extends Parent
 	_resolver = resolver;
 	_instanceDescriptor = instanceDescriptor;
 	_serverDescriptor = serverDescriptor;
+	_descriptor = serverDescriptor;
 
 	clearChildren();
 	

@@ -138,6 +138,11 @@ class Application extends Parent
 	return _serverTemplates;
     }
 
+    ReplicatedAdapters getReplicatedAdapters()
+    {
+	return _replicatedAdapters;
+    }
+
     //
     // Should only be used for reading
     //

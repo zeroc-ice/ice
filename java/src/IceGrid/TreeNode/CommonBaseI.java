@@ -185,7 +185,7 @@ abstract class CommonBaseI implements CommonBase
 	}
     }
 
-    Model getModel()
+    public Model getModel()
     {
 	return _model;
     }

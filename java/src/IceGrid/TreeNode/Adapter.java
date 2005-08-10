@@ -11,6 +11,7 @@ package IceGrid.TreeNode;
 import java.awt.Component;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -51,8 +52,8 @@ class Adapter extends Leaf
 		builder.append(_name, 3);
 		builder.nextLine();
 		
-		builder.append("Id" );
-		builder.append(_id, 3);
+		builder.append("Id", _id );
+		builder.append(_idButton);
 		builder.nextLine();
 		
 		builder.append("Endpoints" );
@@ -81,28 +82,47 @@ class Adapter extends Leaf
 	    _adapter = adapter;
 	    AdapterDescriptor descriptor = adapter.getDescriptor();
 
-	    boolean editable = adapter.isEditable();
-	    final Utils.Resolver resolver = adapter.getResolver();
+	    final Utils.Resolver resolver = adapter.getModel().substitute() ? adapter.getResolver() : null;
+	    boolean editable = adapter.isEditable() && resolver == null;
 
 	    _name.setText(
 		Utils.substitute(descriptor.name, resolver));
 	    _name.setEditable(editable);
 
-	    _id.setText(
-		Utils.substitute(descriptor.id, resolver));
+	    ReplicatedAdapters replicatedAdapters =
+		adapter.getApplication().getReplicatedAdapters();
+	    _id.setModel(replicatedAdapters.createComboBoxModel());
+
+	    String adapterId = Utils.substitute(descriptor.id, resolver);
+	    ReplicatedAdapter replicatedAdapter = 
+		(ReplicatedAdapter) replicatedAdapters.findChild(adapterId);
+	    
+	    if(replicatedAdapter != null)
+	    {
+		_id.setSelectedItem(replicatedAdapter);
+	    }
+	    else
+	    {
+		_id.setSelectedItem(adapterId);
+	    }
 	    _id.setEditable(editable);
+	    _id.setEnabled(editable);
+	   
+	    _endpoints.setText(
+		Utils.substitute(adapter.getEndpoints(), resolver));
+	    _endpoints.setEditable(editable);
 
 	    Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	   
+
 	    Utils.Stringifier stringifier = new Utils.Stringifier()
 	    {
 		public String toString(Object obj)
 		{
 		    ObjectDescriptor od = (ObjectDescriptor)obj;
-		    Ice.Identity sid = new Ice.Identity(
-			Utils.substitute(od.id.name, resolver),
-			Utils.substitute(od.id.category, resolver));
-
+		    Ice.Identity sid =
+			sid = new Ice.Identity(
+			    Utils.substitute(od.id.name, resolver),
+			    Utils.substitute(od.id.category, resolver));
 		    return Ice.Util.identityToString(sid)
 			+ " as '"
 			+ Utils.substitute(od.type, resolver)
@@ -126,12 +146,13 @@ class Adapter extends Leaf
 	}
 
 	private JTextField _name = new JTextField(20);
-	private JTextField _id = new JTextField(20);
+	private JComboBox _id = new JComboBox();
 	private JTextField _endpoints = new JTextField(20);
 	private JCheckBox _registerProcess = new JCheckBox("Register Process");
-	private JCheckBox _waitForActivation = new JCheckBox("Wait for me");
+	private JCheckBox _waitForActivation = new JCheckBox("Wait for Activation");
 	private JTextField _objects = new JTextField(20);
 	private JButton _objectsButton = new JButton("...");
+	private JButton _idButton = new JButton("->");
 
 	private Adapter _adapter;
 	private JScrollPane _scrollPane;
@@ -233,6 +254,23 @@ class Adapter extends Leaf
     boolean isEditable()
     {
 	return _editable;
+    }
+
+    String getEndpoints()
+    {
+	PropertiesHolder ph = (PropertiesHolder)getParent().getParent();
+	return ph.get(_descriptor.name + ".Endpoints");
+    }
+
+    void setEndpoints(String newEndpoints)
+    {
+	PropertiesHolder ph = (PropertiesHolder)getParent().getParent();
+	ph.put(_descriptor.name + ".Endpoints", newEndpoints);
+    }
+
+    Application getApplication()
+    {
+	return (Application)_path.getPath()[1];
     }
 
     private void createToolTip()

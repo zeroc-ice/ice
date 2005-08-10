@@ -14,7 +14,7 @@ import IceGrid.ServiceInstanceDescriptor;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
-class Service extends Parent
+class Service extends PropertiesHolder
 {
     Service(String name,
 	    String displayString,
@@ -28,10 +28,13 @@ class Service extends Parent
 	_displayString = displayString;
 	_instanceDescriptor = instanceDescriptor;
 	_serviceDescriptor = serviceDescriptor;
+	_descriptor = serviceDescriptor;
+
 	_editable = editable;
 	_resolver = resolver;
 
-	boolean childrenEditable = _editable && (_instanceDescriptor == null);
+	boolean childrenEditable = _editable && 
+	    (_instanceDescriptor.template.length() == 0);
 
 	_adapters = new Adapters(serviceDescriptor.adapters, 
 				 childrenEditable, resolver, _model);

@@ -44,6 +44,7 @@ class Parent extends CommonBaseI
 	public void setSelectedItem(Object obj)
 	{
 	    _selectedItem = obj;
+	    fireContentsChanged(this, -1, -1);
 	}
 
 	private Object _selectedItem;
@@ -441,7 +442,7 @@ class Parent extends CommonBaseI
 	_model.getTreeModel().fireNodesRemovedEvent(event);
     }
 
-    javax.swing.ComboBoxModel getComboBoxModel()
+    javax.swing.ComboBoxModel createComboBoxModel()
     {
 	return new ComboBoxModel();
     }
