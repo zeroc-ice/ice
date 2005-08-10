@@ -76,10 +76,33 @@ public class FixedReference extends Reference
     public Ice.Connection
     getConnection()
     {
+	//
+	// If a reference is secure or the mode is datagram or batch
+	// datagram then we throw a NoEndpointException since IceE lacks
+	// this support.
+	//
 	if(getSecure() || getMode() == ModeDatagram || getMode() == ModeBatchDatagram || _fixedConnections.length == 0)
 	{
-	    Ice.NoEndpointException ex = new Ice.NoEndpointException();
-	    ex.proxy = toString();
+	    if(_fixedConnections.length == 0)
+	    {
+		Ice.NoEndpointException ex = new Ice.NoEndpointException();
+		ex.proxy = toString();
+		throw ex;
+	    }
+
+	    Ice.FeatureNotSupportedException ex = new Ice.FeatureNotSupportedException();
+	    if(getSecure())
+	    {
+		ex.unsupportedFeature = "ssl";
+	    }
+	    else if(getMode() == ModeDatagram)
+	    {
+		ex.unsupportedFeature = "datagram";
+	    }
+	    else if(getMode() == ModeBatchDatagram)
+	    {
+		ex.unsupportedFeature = "batch datagram";
+	    }
 	    throw ex;
 	}
 

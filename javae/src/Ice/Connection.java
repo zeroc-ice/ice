@@ -1275,7 +1275,9 @@ public final class Connection
 	    byte compress = info.stream.readByte();
 	    if(compress == (byte)2)
 	    {
-	        throw new CompressionNotSupportedException();
+		FeatureNotSupportedException ex = new FeatureNotSupportedException();
+		ex.unsupportedFeature = "compression";
+		throw ex;
 	    }
 	    info.stream.pos(IceInternal.Protocol.headerSize);
 

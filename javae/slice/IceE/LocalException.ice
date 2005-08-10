@@ -671,17 +671,6 @@ local exception IllegalMessageSizeException extends ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException] that is
- * raised if a compressed protocol message has been received by an
- * &Ice; version that does not support compression.
- *
- **/
-local exception CompressionNotSupportedException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException] that is
  * raised upon an error during marshaling or unmarshaling data.
  *
  **/
@@ -747,6 +736,22 @@ local exception NegativeSizeException extends MarshalException
 {
 };
 
+/**
+ *
+ * This exception is raised if an unsupported feature is used. The
+ * unsupported feature string contains the name of the unsupported
+ * feature
+ *
+ **/
+local exception FeatureNotSupportedException
+{
+    /**
+     *
+     * The name of the unsupported feature.
+     *
+     **/
+    string unsupportedFeature;
+};
 
 };
 

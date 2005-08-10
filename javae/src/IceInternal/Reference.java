@@ -453,9 +453,27 @@ public abstract class Reference
     {
         java.util.Vector endpoints = new java.util.Vector();
 
-	if(getSecure() || getMode() == Reference.ModeDatagram || getMode() == Reference.ModeBatchDatagram)
+	//
+	// If a secure endpoint, datagram or batch datagram endpoint
+	// is requested since IceE lacks this support we throw an
+	// unsupported feature.
+	//
+	if(getSecure() || getMode() == ModeDatagram || getMode() == ModeBatchDatagram)
 	{
-	    return new Endpoint[0];
+	    Ice.FeatureNotSupportedException ex = new Ice.FeatureNotSupportedException();
+	    if(getSecure())
+	    {
+		ex.unsupportedFeature = "ssl";
+	    }
+	    else if(getMode() == ModeDatagram)
+	    {
+		ex.unsupportedFeature = "datagram";
+	    }
+	    else if(getMode() == ModeBatchDatagram)
+	    {
+		ex.unsupportedFeature = "batch datagram";
+	    }
+	    throw ex;
 	}
 
         //
