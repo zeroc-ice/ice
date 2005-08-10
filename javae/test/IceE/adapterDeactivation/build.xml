@@ -55,15 +55,38 @@
 	    <exclude name="./Client.class,./Server.class,./Collocated.class"/>
 	</jar>
 
+    </target>
+
+    <target name="obfuscate" depends="midlet-jar" if="hasProguard">
+	<taskdef resource="proguard/ant/task.properties"/>
+	<move overwrite="true" file="./tmp/TestMIDlet.jar" tofile="./tmp/TestMIDlet_orig.jar"/>
+	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on" allowaccessmodification="on" 
+	    printseeds="on">
+	    <injar file="./tmp/TestMIDlet_orig.jar"/>
+	    <outjar file="./tmp/TestMIDlet.jar"/>
+	    <libraryjar file="${WTK}/lib/midpapi20.jar"/>
+	    <libraryjar file="${WTK}/lib/cldcapi11.jar"/>
+	    <keep access="public" extends="javax.microedition.midlet.MIDlet"/>
+	    <keep name="TestApplication">
+		<method name="*"/>
+		<constructor parameters="*"/>
+	    </keep>
+	    <keepclasseswithmembernames>
+		<method access="native" />
+	    </keepclasseswithmembernames>
+	</proguard>
+    </target>
+
+    <target name="preverify" depends="obfuscate" if="midp">
         <exec executable="${WTK}/bin/preverify">
            <arg line="-classpath ${WTKLIBS}"/>
             <arg line="-d ."/>
 	    <arg line="./tmp/TestMIDlet.jar"/>
-        </exec>
+	</exec>
     </target>
 
     <!-- Write the descriptor files -->
-    <target name="server-midlet" depends="midlet-jar" if="midp">
+    <target name="server-midlet" depends="preverify" if="midp">
 	<length property="jarfile-length" file="./TestMIDlet.jar"/>
 	<jadfile file="server.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
@@ -81,7 +104,7 @@
         </jadfile>
     </target>
 
-    <target name="client-midlet" depends="midlet-jar" if="midp">
+    <target name="client-midlet" depends="preverify" if="midp">
 	<length property="jarfile-length" file="./TestMIDlet.jar"/>
 	<jadfile file="client.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
@@ -99,7 +122,7 @@
         </jadfile>
     </target>
 
-    <target name="colloc-midlet" depends="midlet-jar" if="midp">
+    <target name="colloc-midlet" depends="preverify" if="midp">
 	<length property="jarfile-length" file="./TestMIDlet.jar"/>
 	<jadfile file="colloc.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
