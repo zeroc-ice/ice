@@ -15,21 +15,21 @@
 prefix			= /opt/IceE-$(VERSION)
 
 #
-# Define OPTIMIZE as yes if you want to build with
-# optimization. Otherwise IceE is build with debug information.
+# Define OPTIMIZE as yes if you want to build with optimization.
+# Otherwise IceE is built with debug information.
 #
 
 OPTIMIZE		= yes
 
 #
-# Define STATICLIBS as yes if you want to build with static
-# libraries. Otherwise IceE is build with dynamic libraries.
+# Define STATICLIBS as yes if you want to build with static libraries.
+# Otherwise IceE is built with dynamic libraries.
 #
 
 #STATICLIBS		= yes
 
 #
-# Define LP64 as yes if you want to build in 64 bit mode on a platform
+# Define LP64 as yes if you want to build in 64-bit mode on a platform
 # that supports both 32 and 64 bit.
 #
 #LP64			:= yes
