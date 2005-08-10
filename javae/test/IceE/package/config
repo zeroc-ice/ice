@@ -1,1 +1,4 @@
-
+#
+# Override proxies here.
+#
+# Test.Proxy = initial:default -h remote-host-name -p 11510 -t 10000
