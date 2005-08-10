@@ -118,6 +118,7 @@ IceInternal::Reference::changeDefault() const
 {
     ReferencePtr r = _instance->referenceFactory()->copy(this);
     r->_mode = ModeTwoway;
+    r->_secure = false;
     r->_hasContext = false;
     r->_context.clear();
     r->_facet = "";
@@ -305,6 +306,11 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
+    if(_secure != r._secure)
+    {
+	return false;
+    }
+
     if(_identity != r._identity)
     {
 	return false;
@@ -350,6 +356,15 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return false;
     }
     
+    if(!_secure && r._secure)
+    {
+	return true;
+    }
+    else if(r._secure < _secure)
+    {
+	return false;
+    }
+
     if(_identity < r._identity)
     {
 	return true;
@@ -390,9 +405,10 @@ IceInternal::Reference::operator<(const Reference& r) const
 }
 
 IceInternal::Reference::Reference(const InstancePtr& inst, const Identity& ident, const Context& ctx,
-                                  const string& fs, Mode md)
+                                  const string& fs, Mode md, bool sec)
     : _instance(inst),
       _mode(md),
+      _secure(sec),
       _identity(ident),
       _hasContext(!ctx.empty()),
       _context(ctx),
@@ -404,6 +420,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const Identity& ident
 IceInternal::Reference::Reference(const Reference& r)
     : _instance(r._instance),
       _mode(r._mode),
+      _secure(r._secure),
       _identity(r._identity),
       _hasContext(r._hasContext),
       _context(r._context),
@@ -418,7 +435,7 @@ void IceInternal::decRef(IceInternal::FixedReference* p) { p->__decRef(); }
 IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const Identity& ident,
 					    const Context& ctx, const string& fs, Mode md,
 					    const vector<ConnectionPtr>& fixedConns)
-    : Reference(inst, ident, ctx, fs, md),
+    : Reference(inst, ident, ctx, fs, md, false),
       _fixedConnections(fixedConns)
 {
 }
@@ -427,12 +444,6 @@ const vector<ConnectionPtr>&
 IceInternal::FixedReference::getFixedConnections() const
 {
     return _fixedConnections;
-}
-
-bool
-IceInternal::FixedReference::getSecure() const
-{
-    return false;
 }
 
 vector<EndpointPtr>
@@ -607,17 +618,10 @@ IceInternal::RoutableReference::getRoutedEndpoints() const
     return vector<EndpointPtr>();
 }
 
-bool
-IceInternal::RoutableReference::getSecure() const
-{
-    return _secure;
-}
-
 ReferencePtr
 IceInternal::RoutableReference::changeDefault() const
 {
     RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(Reference::changeDefault());
-    r->_secure = false;
     r->_routerInfo = getInstance()->routerManager()->get(getInstance()->referenceFactory()->getDefaultRouter());
     return r;
 }
@@ -648,10 +652,6 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     {
         return false;
     }
-    if(_secure != rhs->_secure)
-    {
-	return false;
-    }
     return _routerInfo == rhs->_routerInfo;
 }
 
@@ -677,14 +677,6 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
         const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
         if(rhs)
         {
-	    if(!_secure && rhs->_secure)
-	    {
-		return true;
-	    }
-	    else if(rhs->_secure < _secure)
-	    {
-		return false;
-	    }
             return _routerInfo < rhs->_routerInfo;
         }
     }
@@ -694,12 +686,12 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Identity& ident,
 						  const Context& ctx, const string& fs, Mode md,
 						  bool sec, const RouterInfoPtr& rtrInfo)
-    : Reference(inst, ident, ctx, fs, md), _secure(sec), _routerInfo(rtrInfo)
+    : Reference(inst, ident, ctx, fs, md, sec), _routerInfo(rtrInfo)
 {
 }
 
 IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
-    : Reference(r), _secure(r._secure), _routerInfo(r._routerInfo)
+    : Reference(r), _routerInfo(r._routerInfo)
 {
 }
 #endif
@@ -719,9 +711,9 @@ IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Ide
 }
 #else
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Identity& ident,
-					      const Context& ctx, const string& fs, Mode md, bool,
+					      const Context& ctx, const string& fs, Mode md, bool sec,
 					      const vector<EndpointPtr>& endpts) :
-    Reference(inst, ident, ctx, fs, md),
+    Reference(inst, ident, ctx, fs, md, sec),
     _endpoints(endpts)
 {
 }
@@ -958,9 +950,9 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 }
 #else
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
-                                                  const Context& ctx, const string& fs, Mode md, bool,
+                                                  const Context& ctx, const string& fs, Mode md, bool sec,
 						  const string& adptid, const LocatorInfoPtr& locInfo)
-    : Reference(inst, ident, ctx, fs, md),
+    : Reference(inst, ident, ctx, fs, md, sec),
       _adapterId(adptid),
       _locatorInfo(locInfo)
 {

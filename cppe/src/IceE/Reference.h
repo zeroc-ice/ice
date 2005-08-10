@@ -47,6 +47,7 @@ public:
     };
 
     Mode getMode() const { return _mode; }
+    bool getSecure() const { return _secure; };
     const Ice::Identity& getIdentity() const { return _identity; }
     const std::string& getFacet() const { return _facet; }
     const InstancePtr& getInstance() const { return _instance; }
@@ -56,7 +57,6 @@ public:
 
     Ice::CommunicatorPtr getCommunicator() const;
 
-    virtual bool getSecure() const = 0;
     virtual std::vector<EndpointPtr> getEndpoints() const = 0;
 
     //
@@ -108,7 +108,7 @@ public:
 
 protected:
 
-    Reference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode);
+    Reference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode, bool);
     Reference(const Reference&);
 
 private:
@@ -116,6 +116,7 @@ private:
     InstancePtr _instance;
 
     Mode _mode;
+    bool _secure;
     Ice::Identity _identity;
     bool _hasContext;
     Ice::Context _context;
@@ -135,7 +136,6 @@ public:
 
     const std::vector<Ice::ConnectionPtr>& getFixedConnections() const;
 
-    virtual bool getSecure() const;
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
 #ifdef ICEE_HAS_ROUTER
@@ -174,7 +174,6 @@ public:
     const RouterInfoPtr& getRouterInfo() const { return _routerInfo; }
     std::vector<EndpointPtr> getRoutedEndpoints() const;
 
-    virtual bool getSecure() const;
     virtual ReferencePtr changeDefault() const;
 
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
@@ -196,7 +195,6 @@ protected:
 
 private:
 
-    bool _secure;
     RouterInfoPtr _routerInfo; // Null if no router is used.
 };
 #endif
