@@ -1112,7 +1112,8 @@ namespace Ice
 			}
 			else
 			{
-			    throw new CompressionNotSupportedException();
+			    throw new FeatureNotSupportedException(
+				"Cannot uncompress compressed message: libbz2 was not found");
 			}
 		    }
 		    stream.pos(IceInternal.Protocol.headerSize);
