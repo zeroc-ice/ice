@@ -91,6 +91,8 @@
 	<taskdef name="jadfile" classpath="${top.dir}/ant" classname="JADTask"/>
     </target>
 
+    <available classname="proguard.ant.ProGuardTask" classpath="{env.CLASSPATH}" property="hasProguard"/>
+
     <target name="config-impl" depends="properties-cvs,properties-opt,properties-src">
         <!-- Create the time stamp -->
         <tstamp/>
@@ -115,8 +117,7 @@
 
     <target name="set-bootclasspath" if="midp" depends="config-impl">
         <path id="bootclasspath">
-	    <pathelement path="/opt/WTK2.2/lib/cldcapi11.jar"/>
-	    <pathelement path="/opt/WTK2.2/lib/midpapi20.jar"/>
+	    <pathelement path="${WTKLIBS}"/>
 	</path>
     </target>
 
