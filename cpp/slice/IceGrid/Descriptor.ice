@@ -417,7 +417,7 @@ struct ReplicatedAdapterDescriptor
      **/
     ObjectDescriptorSeq objects;
 };
-sequence<ReplicatedAdapterDescriptor> ReplicatedAdapterDescriptorSeq; 
+["java:type:java.util.LinkedList"] sequence<ReplicatedAdapterDescriptor> ReplicatedAdapterDescriptorSeq; 
 
 /**
  *
