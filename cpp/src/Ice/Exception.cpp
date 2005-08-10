@@ -369,13 +369,6 @@ Ice::IllegalMessageSizeException::ice_print(ostream& out) const
 }
 
 void
-Ice::CompressionNotSupportedException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: compressed messages not supported";
-}
-
-void
 Ice::CompressionException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
@@ -497,4 +490,11 @@ Ice::CloneNotImplementedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\n ice_clone() must be implemented in classes derived from abstract base classes";
+}
+
+void
+Ice::FeatureNotSupportedException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nfeature `" << unsupportedFeature << "' is not supported.";
 }

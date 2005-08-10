@@ -1,6 +1,9 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Renamed CompressionNotSupportException to a more general
+  FeatureNotSupportedException.
+
 - Fixed a bug in proxyToString() for bidirectional proxies.
 
 - Added ice_communicator() to proxies. This function returns
