@@ -64,30 +64,33 @@
 	    debug="${debug}" target="1.1"/>
     </target>
 
+    <property name="testclient" value="ExceptionSliceClient"/>
+    <property name="testserver" value="ExceptionSliceServer"/>
+
     <target name="client-midlet-jar" depends="compile" if="midp">
 	<ant dir="../../common" inheritAll="false" target="compile"/>
         <mkdir dir="./tmp"/>
 	<manifest file="MANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
-	    <attribute name="MIDlet-Name" value="TestDriver"/>
+	    <attribute name="MIDlet-Name" value="${testclient}Test"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
-            <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
+            <attribute name="MIDlet-1" value="Client, , ClientWrapper"/>
 	    <attribute name="MIDlet-Version" value="1.0"/>
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
         </manifest>
 
 	<copy overwrite="true" file="./config" todir="./cclasses"/>
-	<jar destfile="./tmp/ClientMIDlet.jar" manifest="./MANIFEST.MF" basedir="./cclasses"/>
-	<jar destfile="./tmp/ClientMIDlet.jar" manifest="./MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
+	<jar destfile="./tmp/${testclient}.jar" manifest="./MANIFEST.MF" basedir="./cclasses"/>
+	<jar destfile="./tmp/${testclient}.jar" manifest="./MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
 	    update="true"/>
-	<jar destfile="./tmp/ClientMIDlet.jar" manifest="./MANIFEST.MF" basedir="../../common/classes" update="true">
+	<jar destfile="./tmp/${testclient}.jar" manifest="./MANIFEST.MF" basedir="../../common/classes" update="true">
 	    <exclude name="./Client.class,./Server.class,./Collocated.class"/>
 	</jar>
 
         <exec executable="${WTK}/bin/preverify">
            <arg line="-classpath ${WTKLIBS}"/>
             <arg line="-d ."/>
-	    <arg line="./tmp/ClientMIDlet.jar"/>
+	    <arg line="./tmp/${testclient}.jar"/>
         </exec>
     </target>
 
@@ -96,59 +99,55 @@
         <mkdir dir="./tmp"/>
 	<manifest file="MANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
-	    <attribute name="MIDlet-Name" value="TestDriver"/>
+	    <attribute name="MIDlet-Name" value="${testserver}Test"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
-            <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
+            <attribute name="MIDlet-1" value="Client, , ClientWrapper"/>
 	    <attribute name="MIDlet-Version" value="1.0"/>
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
         </manifest>
 
-	<jar destfile="./tmp/ServerMIDlet.jar" manifest="./MANIFEST.MF" basedir="./sclasses"/>
-	<jar destfile="./tmp/ServerMIDlet.jar" manifest="./MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
+	<jar destfile="./tmp/${testserver}.jar" manifest="./MANIFEST.MF" basedir="./sclasses"/>
+	<jar destfile="./tmp/${testserver}.jar" manifest="./MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
 	    update="true"/>
-	<jar destfile="./tmp/ServerMIDlet.jar" manifest="./MANIFEST.MF" basedir="../../common/classes" update="true">
+	<jar destfile="./tmp/${testserver}.jar" manifest="./MANIFEST.MF" basedir="../../common/classes" update="true">
 	    <exclude name="./Client.class,./Server.class,./Collocated.class"/>
 	</jar>
 
         <exec executable="${WTK}/bin/preverify">
            <arg line="-classpath ${WTKLIBS}"/>
             <arg line="-d ."/>
-	    <arg line="./tmp/ServerMIDlet.jar"/>
+	    <arg line="./tmp/${testserver}.jar"/>
         </exec>
     </target>
 
     <!-- Write the descriptor files -->
     <target name="client-midlet" depends="client-midlet-jar" if="midp">
-	<length property="jarfile-length" file="./ClientMIDlet.jar"/>
+	<length property="jarfile-length" file="./${testclient}.jar"/>
 	<jadfile file="client.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
-	    <attribute name="MIDlet-Jar-URL" value="ClientMIDlet.jar"/>
+	    <attribute name="MIDlet-Jar-URL" value="${testclient}.jar"/>
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
 	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
-	    <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
+	    <attribute name="MIDlet-1" value="Client, , ClientWrapper"/>
 	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
-	    <attribute name="MIDlet-Name" value="TestDriver"/>
-	    <attribute name="runclient" value="true"/>
-	    <attribute name="runserver" value="false"/>
+	    <attribute name="MIDlet-Name" value="${testclient}Test"/>
 	    <attribute name="MIDlet-Permissions" 
 		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
         </jadfile>
     </target>
 
     <target name="server-midlet" depends="server-midlet-jar" if="midp">
-	<length property="jarfile-length" file="./ServerMIDlet.jar"/>
+	<length property="jarfile-length" file="./${testserver}.jar"/>
 	<jadfile file="server.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
-	    <attribute name="MIDlet-Jar-URL" value="ServerMIDlet.jar"/>
+	    <attribute name="MIDlet-Jar-URL" value="${testserver}.jar"/>
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
 	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
-	    <attribute name="MIDlet-1" value="TestApplication, , TestApplication"/>
+	    <attribute name="MIDlet-1" value="Server, , ServerWrapper"/>
 	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
-	    <attribute name="MIDlet-Name" value="TestDriver"/>
-	    <attribute name="runclient" value="false"/>
-	    <attribute name="runserver" value="true"/>
+	    <attribute name="MIDlet-Name" value="${testserver}Test"/>
 	    <attribute name="MIDlet-Permissions" 
 		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
         </jadfile>
@@ -163,8 +162,8 @@
         <delete dir="${sgen.dir}"/>
         <delete dir="${cclass.dir}"/>
         <delete dir="${sclass.dir}"/>
-	<delete quiet="true" file="./ClientMIDlet.jar"/>
-	<delete quiet="true" file="./ServerMIDlet.jar"/>
+	<delete quiet="true" file="./${testclient}.jar"/>
+	<delete quiet="true" file="./${testserver}.jar"/>
 	<delete quiet="true">
 	    <fileset dir="." includes="*.jad"/>
 	</delete>

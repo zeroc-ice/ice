@@ -3,4 +3,4 @@ Ice.ServerIdleTime = 120
 #
 # Set Test.Host to the hostname or IP address for the server host machine.
 #
-Test.Host = eagle2
+# Test.Host = eagle2

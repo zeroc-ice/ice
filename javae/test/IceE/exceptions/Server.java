@@ -10,7 +10,7 @@
 public class Server
 {
     public static int
-    run(String[] args, Ice.Communicator communicator)
+    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
 	//
 	// For this test, we need a dummy logger, otherwise the
@@ -39,7 +39,7 @@ public class Server
         try
         {
             communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
+            status = run(args, communicator, System.out);
         }
         catch(Ice.LocalException ex)
         {
