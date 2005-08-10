@@ -29,6 +29,7 @@
 #    include <IceE/Endpoint.h>
 #endif
 #include <IceE/LoggerUtil.h>
+#include <ctype.h>
 
 using namespace std;
 using namespace Ice;
