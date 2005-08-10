@@ -495,8 +495,32 @@ IceInternal::FixedReference::getConnection() const
 #endif
       )
     {
-	NoEndpointException ex(__FILE__, __LINE__);
-	ex.proxy = toString();
+	if(_fixedConnections.empty())
+	{
+	    NoEndpointException ex(__FILE__, __LINE__);
+	    ex.proxy = toString();
+	    throw ex;
+	}
+
+	FeatureNotSupportedException ex(__FILE__, __LINE__);
+	if(getSecure())
+	{
+	    ex.unsupportedFeature = "ssl";
+	}
+	else if(getMode() == ModeDatagram)
+	{
+	    ex.unsupportedFeature = "datagram";
+	}
+	else if(getMode() == ModeBatchDatagram)
+	{
+	    ex.unsupportedFeature = "batch datagram";
+	}
+#ifndef ICEE_HAS_BATCH
+	else if(getMode() == ModeBatchOneway)
+	{
+	    ex.unsupportedFeature = "batch";
+	}
+#endif
 	throw ex;
     }
 
@@ -826,15 +850,6 @@ IceInternal::DirectReference::toString() const
 ConnectionPtr
 IceInternal::DirectReference::getConnection() const
 {
-#ifndef ICEE_HAS_BATCH
-    if(getMode() == ModeBatchOneway)
-    {
-        NoEndpointException ex(__FILE__, __LINE__);
-	ex.proxy = toString();
-	throw ex;
-    }
-#endif
-
 #ifdef ICEE_HAS_ROUTER
     vector<EndpointPtr> endpts = Parent::getRoutedEndpoints();
     if(endpts.empty())
@@ -1066,15 +1081,6 @@ IceInternal::IndirectReference::toString() const
 ConnectionPtr
 IceInternal::IndirectReference::getConnection() const
 {
-#ifndef ICEE_HAS_BATCH
-    if(getMode() == ModeBatchOneway)
-    {
-        NoEndpointException ex(__FILE__, __LINE__);
-	ex.proxy = toString();
-	throw ex;
-    }
-#endif
-
     ConnectionPtr connection;
 
     while(true)
@@ -1220,12 +1226,36 @@ IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints, Reference:
     vector<EndpointPtr> endpoints;
 
     //
-    // If a secure endpoint, datagram or batch datagram endpoint is
-    // requested since IceE lacks this support we return no endpoints.
+    // If a secure endpoint, batch (if batch is not supported),
+    // datagram or batch datagram endpoint is requested since IceE
+    // lacks this support we throw an unsupported feature.
     //
-    if(sec || m == Reference::ModeDatagram || m == Reference::ModeBatchDatagram)
+    if(sec || m == Reference::ModeDatagram || m == Reference::ModeBatchDatagram
+#ifndef ICEE_HAS_BATCH
+       || m == Reference::ModeBatchOneway
+#endif
+	)
     {
-	return endpoints;
+	FeatureNotSupportedException ex(__FILE__, __LINE__);
+	if(sec)
+	{
+	    ex.unsupportedFeature = "ssl";
+	}
+	else if(m == Reference::ModeDatagram)
+	{
+	    ex.unsupportedFeature = "datagram";
+	}
+	else if(m == Reference::ModeBatchDatagram)
+	{
+	    ex.unsupportedFeature = "batch datagram";
+	}
+#ifndef ICEE_HAS_BATCH
+	else if(m == Reference::ModeBatchOneway)
+	{
+	    ex.unsupportedFeature = "batch";
+	}
+#endif
+	throw ex;
     }
 
     endpoints = allEndpoints;

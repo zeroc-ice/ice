@@ -1251,7 +1251,9 @@ Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
 	stream.read(compress);
 	if(compress == 2)
 	{
-	    throw CompressionNotSupportedException(__FILE__, __LINE__);
+	    FeatureNotSupportedException ex(__FILE__, __LINE__);
+	    ex.unsupportedFeature = "compression";
+	    throw ex;
 	}
 	stream.i = stream.b.begin() + headerSize;
     

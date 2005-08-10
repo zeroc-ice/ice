@@ -1538,31 +1538,31 @@ Ice::IllegalMessageSizeException::ice_throw() const
     throw *this;
 }
 
-Ice::CompressionNotSupportedException::CompressionNotSupportedException(const char* __file, int __line) :
+Ice::FeatureNotSupportedException::FeatureNotSupportedException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    ProtocolException(__file, __line)
+    LocalException(__file, __line)
 #else
-    ::Ice::ProtocolException(__file, __line)
+    ::Ice::LocalException(__file, __line)
 #endif
 {
 }
 
-static const char* __Ice__CompressionNotSupportedException_name = "Ice::CompressionNotSupportedException";
+static const char* __Ice__FeatureNotSupportedException_name = "Ice::FeatureNotSupportedException";
 
 const ::std::string
-Ice::CompressionNotSupportedException::ice_name() const
+Ice::FeatureNotSupportedException::ice_name() const
 {
-    return __Ice__CompressionNotSupportedException_name;
+    return __Ice__FeatureNotSupportedException_name;
 }
 
 ::Ice::Exception*
-Ice::CompressionNotSupportedException::ice_clone() const
+Ice::FeatureNotSupportedException::ice_clone() const
 {
-    return new CompressionNotSupportedException(*this);
+    return new FeatureNotSupportedException(*this);
 }
 
 void
-Ice::CompressionNotSupportedException::ice_throw() const
+Ice::FeatureNotSupportedException::ice_throw() const
 {
     throw *this;
 }
@@ -1850,7 +1850,8 @@ Ice::CommunicatorDestroyedException::toString() const
     out += ":\ncommunicator object destroyed";
     return out;
 }
-
+
+
 #ifdef never
 #endif
 
@@ -1974,16 +1975,26 @@ Ice::SocketException::toString() const
 
 string
 Ice::FileException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nfile exception: ";
-    out += errorToString(error);
-    if(!path.empty())
-    {
-	out += "\npath: ";
-	out += path;
-    }
-    return out;
+{
+
+    string out = Exception::toString();
+
+    out += ":\nfile exception: ";
+
+    out += errorToString(error);
+
+    if(!path.empty())
+
+    {
+
+	out += "\npath: ";
+
+	out += path;
+
+    }
+
+    return out;
+
 }
 
 string
@@ -2165,10 +2176,12 @@ Ice::IllegalMessageSizeException::toString() const
 }
 
 string
-Ice::CompressionNotSupportedException::toString() const
+Ice::FeatureNotSupportedException::toString() const
 {
     string out = Exception::toString();
-    out += ":\nprotocol error: compressed messages not supported";
+    out += ":\nfeature `";
+    out += unsupportedFeature;
+    out += "' is not supported.";
     return out;
 }
 

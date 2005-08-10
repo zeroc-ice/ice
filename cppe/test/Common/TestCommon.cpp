@@ -9,16 +9,15 @@
 
 #include <TestCommon.h>
 #include <TestApplication.h>
+
 #include <IceE/StaticMutex.h>
 #include <IceE/Thread.h>
-#ifndef _WIN32
-# include <IceE/Time.h>
-#endif
+#include <IceE/Time.h>
 
 #include <stdarg.h>
 
-using namespace Ice;
 using namespace std;
+using namespace Ice;
 
 class LoggerI : public Logger
 {
@@ -35,9 +34,11 @@ public:
     {
 	string s = "[ ";
 #ifdef _WIN32
-	char buf[1024];
-	sprintf(buf, "%ld", GetTickCount());
-	s += buf;
+	{
+	    char buf[1024];
+	    sprintf(buf, "%ld", GetTickCount());
+	    s += buf;
+	}
 #else
  	s += IceUtil::Time::now().toMilliSeconds();
 #endif
@@ -187,14 +188,11 @@ WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_CREATE:
     {
-	//HFONT hfDefault;
-	
 	RECT rcClient;
 	GetClientRect(hWnd, &rcClient);
 	hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"", 
-			       WS_CHILD | WS_VISIBLE | WS_VSCROLL /*| WS_HSCROLL*/ | ES_MULTILINE,
+			       WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE,
 			       0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top,
-			       /*0,0,100,100,*/
 			       hWnd, (HMENU)IDC_MAIN_EDIT, GetModuleHandle(NULL), NULL);
 	assert(hEdit != NULL);
     }
@@ -202,12 +200,8 @@ WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_SIZE:
     {
-	HWND hEdit;
 	RECT rcClient;
-	
 	GetClientRect(hWnd, &rcClient);
-	
-	hEdit = GetDlgItem(hWnd, IDC_MAIN_EDIT);
 	SetWindowPos(hEdit, NULL, 0, 0, rcClient.right, rcClient.bottom, SWP_NOZORDER);
     }
     break;
@@ -243,7 +237,7 @@ TestApplication::main(HINSTANCE hInstance)
     wc.cbClsExtra	 = 0;
     wc.cbWndExtra	 = 0;
     wc.hInstance	 = hInstance;
-    wc.hIcon	         = LoadIcon(NULL, 0/*IDI_APPLICATION*/);
+    wc.hIcon	         = LoadIcon(NULL, 0);
     wc.hCursor	         = 0;
     wc.hbrBackground	 = (HBRUSH) GetStockObject(WHITE_BRUSH);
     wc.lpszMenuName      = NULL;
@@ -251,8 +245,7 @@ TestApplication::main(HINSTANCE hInstance)
 
     if(!RegisterClass(&wc))
     {
-	MessageBox(NULL, L"Window Registration Failed!", L"Error!",
-		   MB_ICONEXCLAMATION | MB_OK);
+	MessageBox(NULL, L"Window Registration Failed!", L"Error!", MB_ICONEXCLAMATION | MB_OK);
 	return 0;
     }
 
@@ -285,8 +278,7 @@ TestApplication::main(HINSTANCE hInstance)
 			NULL, NULL, hInstance, NULL);
     if(mainWnd == NULL)
     {
-	MessageBox(NULL, L"Window Creation Failed!", L"Error!",
-		   MB_ICONEXCLAMATION | MB_OK);
+	MessageBox(NULL, L"Window Creation Failed!", L"Error!", MB_ICONEXCLAMATION | MB_OK);
 	return 0;
     }
 
@@ -299,6 +291,7 @@ TestApplication::main(HINSTANCE hInstance)
 	extern int    __argc;
 	extern char **__argv; 
 	status = run(__argc, __argv);
+	tprintf("\ntest complete\n");
     }
     catch(const TestSuiteFailed&)
     {
@@ -314,7 +307,7 @@ TestApplication::main(HINSTANCE hInstance)
 	tprintf("std::exception: %s\n", ex.what());
 	status = EXIT_FAILURE;
     }
-    catch(const std::string& msg)
+    catch(const string& msg)
     {
 	tprintf("std::string: %s\n", msg.c_str());
 	status = EXIT_FAILURE;
@@ -420,7 +413,7 @@ TestApplication::main(int ac, char* av[])
 	tprintf("std::exception: %s\n", ex.what());
 	status = EXIT_FAILURE;
     }
-    catch(const std::string& msg)
+    catch(const string& msg)
     {
 	tprintf("std::string: %s\n", msg.c_str());
 	status = EXIT_FAILURE;

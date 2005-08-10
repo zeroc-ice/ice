@@ -598,16 +598,18 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API CompressionNotSupportedException : public ::Ice::ProtocolException
+class ICEE_API FeatureNotSupportedException : public ::Ice::LocalException
 {
 public:
 
-    CompressionNotSupportedException(const char*, int);
+    FeatureNotSupportedException(const char*, int);
 
     virtual const ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
+
+    ::std::string unsupportedFeature;
 };
 
 class ICEE_API MarshalException : public ::Ice::ProtocolException
