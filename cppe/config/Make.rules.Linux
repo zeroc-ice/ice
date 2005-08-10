@@ -118,7 +118,7 @@ endif
 
 BASELIBS		= $(STLPORT_LIBS) -lpthread 
 LIBS			= -lIceE $(BASELIBS)
-MINLIBS			= -lIceCE $(BASELIBS)
+MINLIBS			= -lIceEC $(BASELIBS)
 TESTLIBS		= -lTestCommon $(LIBS)
 
 ICEUTIL_OS_LIBS		= 
