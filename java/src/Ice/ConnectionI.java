@@ -1787,7 +1787,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		}
 		else
 		{
-		    throw new CompressionNotSupportedException();
+		    FeatureNotSupportedException ex = new FeatureNotSupportedException();
+		    ex.unsupportedFeature = "compression";
+		    throw ex;
 		}
 	    }
 	    info.stream.pos(IceInternal.Protocol.headerSize);
