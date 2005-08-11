@@ -229,56 +229,31 @@ private:
 };
 
 //
-// Some definitions for 64-bit integers.
+// Int64 typedef
 //
 #if defined(_MSC_VER)
-
 typedef __int64 Int64;
-const Int64 Int64Min = -9223372036854775808i64;
-const Int64 Int64Max =  9223372036854775807i64;
-
-#elif defined(__SUNPRO_CC)
-
-#   if defined(ICEE_64)
+#else
+#   if defined(ICE_64)
 typedef long Int64;
-const Int64 Int64Min = -0x7fffffffffffffffL-1L;
-const Int64 Int64Max = 0x7fffffffffffffffL;
 #   else
 typedef long long Int64;
-const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
-const Int64 Int64Max = 0x7fffffffffffffffLL;
 #   endif
-
-#else
-
-//
-// Assumes ISO C99 types
-//
-typedef int64_t Int64;
-#   ifdef INT64_MIN
-const Int64 Int64Min = INT64_MIN;
-#   else
-const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
-#   endif
-#   ifdef INT64_MAX
-const Int64 Int64Max = INT64_MAX;
-#   else
-const Int64 Int64Max = 0x7fffffffffffffffLL;
-#   endif
-
 #endif
-
-#if defined(_MSC_VER)
-#   define ICEE_INT64(n) n##i64
-#elif defined(__HP_aCC)
-#   define ICEE_INT64(n) n
-#elif defined(ICEE_64)
-#   define ICEE_INT64(n) n##L
-#else
-#   define ICEE_INT64(n) n##LL
-#endif
-
 }
+
+//
+// ICE_INT64: macro for Int64 litteral values
+//
+#if defined(_MSC_VER)
+#   define ICE_INT64(n) n##i64
+#elif defined(__HP_aCC)
+#   define ICE_INT64(n) n
+#elif defined(ICE_64)
+#   define ICE_INT64(n) n##L
+#else
+#   define ICE_INT64(n) n##LL
+#endif
 
 //
 // The Ice version.
