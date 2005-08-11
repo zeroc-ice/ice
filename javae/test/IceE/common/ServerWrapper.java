@@ -11,12 +11,38 @@ public class ServerWrapper
     extends TestApplication
     implements Runnable
 {
+    //
+    // Find the IP address once we've connected to the network and display it.
+    // 
+    class FindHostname 
+	extends Thread
+    {
+	public void
+	run()
+	{
+	    String s = System.getProperty("microedition.hostname");
+	    while(s == null || s.length() == 0)
+	    {
+		try
+		{
+		    sleep(5000);
+	       	}
+		catch(InterruptedException ex)
+		{
+		}
+		s = System.getProperty("microedition.hostname");
+	    }
+	    _out.println("Running with IP " +  s);
+	}
+    }
+
     protected void
     startApp()
 	throws javax.microedition.midlet.MIDletStateChangeException
     {
 	super.startApp();
 	new Thread(this).start();
+	new FindHostname().start();
     }
     
     public void
@@ -24,7 +50,6 @@ public class ServerWrapper
     {
 	try
 	{
-	    message("Running...");
 	    if(_communicator != null)
 	    {
 		Server.run(new String[0], _communicator, _out);

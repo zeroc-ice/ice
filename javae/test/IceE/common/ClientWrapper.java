@@ -28,6 +28,7 @@ public class ClientWrapper
 	    {
 		Client.run(new String[0], _communicator, _out);
 	    }
+	    done();
 	}
 	catch(Exception ex)
 	{
