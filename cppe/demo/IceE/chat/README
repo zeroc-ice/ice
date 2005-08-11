@@ -1,22 +1,22 @@
-This demo provides both a command line and MFC (Windows only) client 
-that operates with the Glacier2 chat demo that is located in the 
-full Ice distrubution (demo/Glacier2/chat). 
+This demo provides two versions of a client that communicates with
+the Glacier2 chat demo provided in the full Ice distrubution
+(demo/Glacier2/chat). You must build the Ice demo before you can
+run these clients.
 
-First download and build the demo from the Ice distribution. 
-
-To run the demo, first start the Ice chat server:
+To run the demo, change to the Ice demo directory and start the chat
+server:
 
 $ server
 
-In a separate window, start the Ice Glacier2 router:
+In a separate window, change to the Ice demo directory and modify
+the file config.glacier2 to replace "ssl" with "tcp" in the property
+Glacier2.Client.Endpoints.
+
+Next, start the Glacier2 router:
 
 $ glacier2router --Ice.Config=config.glacier2
 
-Since Ice-E does not support SSL you must first mofify the
-"Glacier2.Client.Endpoints" property in config.glacier2 to use "tcp"
-instead of "ssl" as the endpoint type.
-
-Finally, start the Ice-E client. To start the command line client, run
+Finally, start an Ice-E client. To start the command-line client, run
 
 $ client
 
@@ -24,6 +24,5 @@ To start the MFC client, run
 
 $ mfcclient
 
-Note: Ice-E must be built with router support enabled in order for this
-      demo to work.
-
+Note: Ice-E must be built with router support enabled in order for
+      this demo to work.
