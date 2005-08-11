@@ -1,5 +1,5 @@
 This demo provides two versions of a client that communicates with
-the Glacier2 chat demo provided in the full Ice distrubution
+the Glacier2 chat demo provided in the full Ice distribution
 (demo/Glacier2/chat). You must build the Ice demo before you can
 run these clients.
 
