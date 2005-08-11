@@ -264,7 +264,7 @@ final class TcpTransceiver implements Transceiver
         ByteBuffer buf = stream.prepareWrite();
 
 	byte[] data = buf.array();
-	int chunkSize = 512; // XXX- make configurable.
+	int chunkSize = WRITE_CHUNK; 
 
 	while(buf.hasRemaining())
 	{
@@ -276,11 +276,8 @@ final class TcpTransceiver implements Transceiver
 		    IceUtil.Debug.Assert(_connection != null);
 		}
 
-		//
-		// TODO: Investigate affect of possibly chunking data while writing.
-		//
 		int rem = buf.remaining();
-		if(chunkSize < rem)
+		if(chunkSize > 0 && chunkSize < rem)
 		{
 		    rem = chunkSize;
 		}
@@ -455,4 +452,5 @@ final class TcpTransceiver implements Transceiver
     private java.io.InputStream _in;
     private java.io.OutputStream _out;
     private volatile boolean _shutdown;
+    private static final int WRITE_CHUNK = 2048;
 }

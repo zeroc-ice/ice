@@ -9,6 +9,11 @@
 
 package Ice;
 
+//
+// The default logger for MIDP application simply stubs out the calls to the logger interface. MIDP apps generally
+// don't have a stderr or stdout to write to.
+//
+
 public final class LoggerI extends LocalObjectImpl implements Logger
 {
     public 
@@ -27,7 +32,7 @@ public final class LoggerI extends LocalObjectImpl implements Logger
     {
 	synchronized(_globalMutex)
 	{
-	    System.err.println(message);
+	    _out.println(message);
 	}
     }
 
@@ -57,7 +62,7 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 		s.append(message.substring(beg));
 	    }
 	    s.append(" ]");
-            System.err.println(s.toString());
+            _out.println(s.toString());
 	}
     }
 
@@ -75,7 +80,7 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	    s.append(_prefix);
 	    s.append("warning: ");
 	    s.append(message);
-	    System.err.println(s.toString());
+	    _out.println(s.toString());
 	}
     }
 
@@ -93,7 +98,7 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	    s.append(_prefix);
 	    s.append("error: ");
 	    s.append(message);
-	    System.err.println(s.toString());
+	    _out.println(s.toString());
 	}
     }
 
@@ -103,6 +108,7 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	super(source);
 	_prefix = source._prefix;
 	_timestamp = source._timestamp;
+	_out = source._out;
     }
     
     public java.lang.Object
@@ -114,4 +120,5 @@ public final class LoggerI extends LocalObjectImpl implements Logger
     String _prefix = "";
     static java.lang.Object _globalMutex = new java.lang.Object();
     boolean _timestamp = false;
+    java.io.PrintStream _out = System.err;
 }
