@@ -312,7 +312,7 @@ public class AdminGUI extends JFrame
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _model.toggleSubstituteVariables();
+		    _model.toggleSubstitute();
 		}
 	    };
 

@@ -134,11 +134,11 @@ public class MainPane extends JSplitPane
 	JScrollPane appScroll = 
 	    new JScrollPane(tree,
 			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-			    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-	appScroll.setBorder(Borders.DIALOG_BORDER);
+			    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	appScroll.setBorder(Borders.EMPTY_BORDER);
 	
 	SimpleInternalFrame leftPane = new SimpleInternalFrame("Applications");
-	leftPane.setContent(tree);
+	leftPane.setContent(appScroll);
 	leftPane.setPreferredSize(new Dimension(280, 350));
 
 	//

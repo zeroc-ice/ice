@@ -315,17 +315,17 @@ public class Model
 	return true;
     }  
 
-    void toggleSubstituteVariables()
+    void toggleSubstitute()
     {
-	_substituteVariables = !_substituteVariables;
+	_substitute = !_substitute;
 	//
 	// TODO: need to send a notification to redisplay current properties
 	//
     }
 
-    public boolean substituteVariables()
+    public boolean substitute()
     {
-	return _substituteVariables;
+	return _substitute;
     }
 
     public AdminPrx getAdmin()
@@ -385,7 +385,7 @@ public class Model
 
     private JTree _tree;
 
-    private boolean _substituteVariables = false;
+    private boolean _substitute = false;
 
     private SimpleInternalFrame _propertiesFrame;
 }
