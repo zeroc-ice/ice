@@ -153,7 +153,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 
 	StringSeq stringSeq(StringSeqSize / reduce, "hello");
 
-	StringDoubleSeq structSeq(StringDoubleSeqSize / 100);
+	StringDoubleSeq structSeq(StringDoubleSeqSize / reduce);
 	int i;
 	for(i = 0; i < StringDoubleSeqSize / reduce; ++i)
 	{

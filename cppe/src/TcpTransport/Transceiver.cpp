@@ -43,7 +43,11 @@ IceInternal::Transceiver::close()
 #ifdef _WIN32
     assert(_event != 0);
     WSACloseEvent(_event);
+    WSACloseEvent(_readEvent);
+    WSACloseEvent(_writeEvent);
     _event = 0;
+    _readEvent = 0;
+    _writeEvent = 0;
 #endif
 
     assert(_fd != INVALID_SOCKET);
@@ -132,10 +136,11 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
 	    if(wouldBlock())
 	    {
 #ifdef _WIN32
-		WSAEVENT events[1];
+		WSAEVENT events[2];
 		events[0] = _event;
+		events[1] = _writeEvent;
     	    	long tout = (timeout >= 0) ? timeout : WSA_INFINITE;
-		DWORD rc = WSAWaitForMultipleEvents(1, events, FALSE, tout, FALSE);
+		DWORD rc = WSAWaitForMultipleEvents(2, events, FALSE, tout, FALSE);
 		if(rc == WSA_WAIT_FAILED)
 		{
 		    //
@@ -154,31 +159,49 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
     	    	    assert(timeout >= 0);
 		    throw TimeoutException(__FILE__, __LINE__);
 		}
-		assert(rc == WSA_WAIT_EVENT_0);
 
-		WSANETWORKEVENTS nevents;
-		if(WSAEnumNetworkEvents(_fd, _event, &nevents) == SOCKET_ERROR)
+		if(rc == WSA_WAIT_EVENT_0)
 		{
-		    SocketException ex(__FILE__, __LINE__);
-		    ex.error = WSAGetLastError();
-		    throw ex;
+		    WSANETWORKEVENTS nevents;
+		    if(WSAEnumNetworkEvents(_fd, _event, &nevents) == SOCKET_ERROR)
+		    {
+			SocketException ex(__FILE__, __LINE__);
+			ex.error = WSAGetLastError();
+			throw ex;
+		    }
+
+		    //
+		    // If we have consumed a READ event, set the
+		    // _readEvent event.
+		    //
+		    if(nevents.lNetworkEvents & FD_READ)
+		    {
+			WSASetEvent(_readEvent);
+		    }
+
+		    //
+		    // This checks for an error on the fd (this would
+		    // be same as recv itself returning an error). In
+		    // the event of an error we set the error code,
+		    // and repeat the error handling.
+		    //
+		    if(nevents.lNetworkEvents & FD_WRITE && nevents.iErrorCode[FD_WRITE_BIT] != 0)
+		    {
+			WSASetLastError(nevents.iErrorCode[FD_WRITE_BIT]);
+			goto repeatError;
+		    }
+		    if(nevents.lNetworkEvents & FD_CLOSE && nevents.iErrorCode[FD_CLOSE_BIT] != 0)
+		    {
+			WSASetLastError(nevents.iErrorCode[FD_CLOSE_BIT]);
+			goto repeatError;
+		    }
 		}
-		//
-    	    	// This checks for an error on the fd (this would be
-    	    	// same as recv itself returning an error).
-		//
-		// In the event of an error we set the error code, and
-		// // repeat the error handling.
-		//
-		if(nevents.lNetworkEvents & FD_READ && nevents.iErrorCode[FD_READ_BIT] != 0)
+		else
 		{
-		    WSASetLastError(nevents.iErrorCode[FD_READ_BIT]);
-		    goto repeatError;
-		}
-		if(nevents.lNetworkEvents & FD_CLOSE && nevents.iErrorCode[FD_CLOSE_BIT] != 0)
-		{
-		    WSASetLastError(nevents.iErrorCode[FD_CLOSE_BIT]);
-		    goto repeatError;
+		    //
+		    // Otherwise the _writeEvent is set, reset it.
+		    //
+		    WSAResetEvent(_writeEvent);
 		}
 #else
 	    repeatSelect:
@@ -299,10 +322,11 @@ IceInternal::Transceiver::read(Buffer& buf, int timeout)
 		// This code is basically the same as the code in
 		// ::send above. Check that for detailed comments.
 		//
-		WSAEVENT events[1];
+		WSAEVENT events[2];
 		events[0] = _event;
+		events[1] = _readEvent;
     	    	long tout = (timeout >= 0) ? timeout : WSA_INFINITE;
-		DWORD rc = WSAWaitForMultipleEvents(1, events, FALSE, tout, FALSE);
+		DWORD rc = WSAWaitForMultipleEvents(2, events, FALSE, tout, FALSE);
 		if(rc == WSA_WAIT_FAILED)
 		{
 		    SocketException ex(__FILE__, __LINE__);
@@ -314,25 +338,49 @@ IceInternal::Transceiver::read(Buffer& buf, int timeout)
     	    	    assert(timeout >= 0);
 		    throw TimeoutException(__FILE__, __LINE__);
 		}
-		assert(rc == WSA_WAIT_EVENT_0);
 
-		WSANETWORKEVENTS nevents;
-		if(WSAEnumNetworkEvents(_fd, _event, &nevents) == SOCKET_ERROR)
+		if(rc == WSA_WAIT_EVENT_0)
 		{
-		    SocketException ex(__FILE__, __LINE__);
-		    ex.error = WSAGetLastError();
-		    throw ex;
-		}
+		    WSANETWORKEVENTS nevents;
+		    if(WSAEnumNetworkEvents(_fd, _event, &nevents) == SOCKET_ERROR)
+		    {
+			SocketException ex(__FILE__, __LINE__);
+			ex.error = WSAGetLastError();
+			throw ex;
+		    }
 
-		if(nevents.lNetworkEvents & FD_READ && nevents.iErrorCode[FD_READ_BIT] != 0)
-		{
-		    WSASetLastError(nevents.iErrorCode[FD_READ_BIT]);
-		    goto repeatError;
+		    //
+		    // If we have consumed a WRITE event, set the
+		    // _writeEvent event.
+		    //
+		    if(nevents.lNetworkEvents & FD_WRITE)
+		    {
+			WSASetEvent(_writeEvent);
+		    }
+
+		    //
+		    // This checks for an error on the fd (this would
+		    // be same as recv itself returning an error). In
+		    // the event of an error we set the error code,
+		    // and repeat the error handling.
+		    //
+		    if(nevents.lNetworkEvents & FD_READ && nevents.iErrorCode[FD_READ_BIT] != 0)
+		    {
+			WSASetLastError(nevents.iErrorCode[FD_READ_BIT]);
+			goto repeatError;
+		    }
+		    if(nevents.lNetworkEvents & FD_CLOSE && nevents.iErrorCode[FD_CLOSE_BIT] != 0)
+		    {
+			WSASetLastError(nevents.iErrorCode[FD_CLOSE_BIT]);
+			goto repeatError;
+		    }
 		}
-		if(nevents.lNetworkEvents & FD_CLOSE && nevents.iErrorCode[FD_CLOSE_BIT] != 0)
+		else
 		{
-		    WSASetLastError(nevents.iErrorCode[FD_CLOSE_BIT]);
-		    goto repeatError;
+		    //
+		    // Otherwise the _readEvent is set, reset it.
+		    //
+		    WSAResetEvent(_readEvent);
 		}
 #else
 	    repeatSelect:
@@ -433,9 +481,23 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
 {
 #ifdef _WIN32
     _event = WSACreateEvent();
-    if(_event == 0)
+    _readEvent = WSACreateEvent();
+    _writeEvent = WSACreateEvent();
+    if(_event == 0 || _readEvent == 0 || _writeEvent == 0)
     {
 	int error = WSAGetLastError();
+	if(_event != 0)
+	{
+	    WSACloseEvent(_event);
+	}
+	if(_readEvent != 0)
+	{
+	    WSACloseEvent(_readEvent);
+	}
+	if(_writeEvent != 0)
+	{
+	    WSACloseEvent(_writeEvent);
+	}
     	closeSocket(_fd);
 
 	SocketException ex(__FILE__, __LINE__);
@@ -444,14 +506,15 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
     }
 
     //
-    // Create a WSAEVENT which selects read/write and close for
-    // trigging.
+    // Select the READ, WRITE and CLOSE for trigging.
     //
     if(WSAEventSelect(_fd, _event, FD_READ|FD_WRITE|FD_CLOSE) == SOCKET_ERROR)
     {
 	int error = WSAGetLastError();
 
     	WSACloseEvent(_event);
+    	WSACloseEvent(_readEvent);
+    	WSACloseEvent(_writeEvent);
     	closeSocket(_fd);
 
 	SocketException ex(__FILE__, __LINE__);
@@ -469,5 +532,7 @@ IceInternal::Transceiver::~Transceiver()
     assert(_fd == INVALID_SOCKET);
 #ifdef _WIN32
     assert(_event == 0);
+    assert(_readEvent == 0);
+    assert(_writeEvent == 0);
 #endif
 }
