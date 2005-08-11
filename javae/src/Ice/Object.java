@@ -29,8 +29,5 @@ public interface Object
     String ice_id();
     String ice_id(Current current);
 
-    void ice_preMarshal();
-    void ice_postUnmarshal();
-
     IceInternal.DispatchStatus __dispatch(IceInternal.Incoming in, Current current);
 }

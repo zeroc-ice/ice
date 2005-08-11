@@ -51,9 +51,6 @@ public:
 
     virtual ObjectPtr ice_clone() const;
 
-    virtual void ice_preMarshal();
-    virtual void ice_postUnmarshal();
-
     static std::string __all[];
     virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 

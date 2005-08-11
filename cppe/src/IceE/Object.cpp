@@ -83,16 +83,6 @@ Ice::Object::ice_clone() const
     throw new CloneNotImplementedException(__FILE__, __LINE__);
 }
 
-void
-Ice::Object::ice_preMarshal()
-{
-}
-
-void
-Ice::Object::ice_postUnmarshal()
-{
-}
-
 DispatchStatus
 Ice::Object::___ice_isA(Incoming& __inS, const Current& __current)
 {
