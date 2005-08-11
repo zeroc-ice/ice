@@ -54,8 +54,10 @@ private:
     const Ice::LoggerPtr _logger;
     
     SOCKET _fd;
-#ifdef _WIN32
+#ifdef _WIN32_WCE
     WSAEVENT _event;
+    WSAEVENT _readEvent;
+    WSAEVENT _writeEvent;
 #else
     fd_set _wFdSet;
     fd_set _rFdSet;
