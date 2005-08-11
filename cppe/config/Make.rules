@@ -19,7 +19,7 @@ prefix			= /opt/IceE-$(VERSION)
 # Otherwise IceE is built with debug information.
 #
 
-OPTIMIZE		= yes
+#OPTIMIZE		= yes
 
 #
 # Define STATICLIBS as yes if you want to build with static libraries.
