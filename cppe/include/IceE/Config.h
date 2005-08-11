@@ -169,19 +169,6 @@
 #   pragma warning( disable : 4275 )
 //  ...: decorated name length exceeded, name was truncated
 #   pragma warning( disable : 4503 )  
-
-#elif (defined(__sun) && defined(__sparc)) || (defined(__hpux))
-#   include <inttypes.h>
-#else
-//
-// The ISO C99 standard specifies that in C++ implementations the
-// macros for minimum/maximum integer values should only be defined if
-// explicitly requested with __STDC_LIMIT_MACROS.
-//
-#   ifndef  __STDC_LIMIT_MACROS
-#      define __STDC_LIMIT_MACROS
-#   endif
-#   include <stdint.h>
 #endif
 
 //
