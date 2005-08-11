@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UNKNOWN_ENDPOINT_H
-#define ICE_UNKNOWN_ENDPOINT_H
+#ifndef ICEE_UNKNOWN_ENDPOINT_H
+#define ICEE_UNKNOWN_ENDPOINT_H
 
 #include <IceE/Endpoint.h>
 

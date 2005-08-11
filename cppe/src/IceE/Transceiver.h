@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_TRANSPORT_TRANSCEIVER_H
-#define ICEE_TRANSPORT_TRANSCEIVER_H
+#ifndef ICEE_TRANSCEIVER_H
+#define ICEE_TRANSCEIVER_H
 
 #include <IceE/TransceiverF.h>
 #include <IceE/InstanceF.h>
