@@ -1,5 +1,98 @@
-Overview
-========
+Introduction
+============
+
+Ice-E is a compact subset of Ice designed for embedded environments
+while retaining many of the features that have made Ice such a
+compelling alternative for distributed applications.
+
+
+Comparing Ice-E and Ice
+=======================
+
+In order to reduce the size of the Ice-E run time, several Ice
+features have been removed, and others are optional. The differences
+are discussed in the sections below.
+
+Concurrency Models
+------------------
+
+Ice-E supports only the thread-per-connection concurrency model; the
+thread pool concurrency model is not supported. Applications that
+make nested callbacks must be aware of the following limitations of
+the thread-per-connection model:
+
+* For bidirectional connections, the nested callback must be a oneway
+  invocation.
+
+* For regular (unidirectional) connections, the nested callback can
+  be a twoway invocation.
+
+* Only one level of nested callbacks is allowed.
+
+Transports
+----------
+
+Ice-E includes support for the TCP transport; UDP and SSL are not
+supported. The built-in TCP transport can be replaced with one of your
+own.
+
+Objects by Value
+----------------
+
+Ice-E does not allow Slice classes to be transmitted by value,
+although it is still possible to use Slice classes in a local context.
+
+Servant Locators
+----------------
+
+Ice-E does not support servant locators. Ice-E applications must
+use the active servant map.
+
+Collocation Optimization
+------------------------
+
+Support for collocation optimization has been removed. Note that
+Ice-E applications are still able to make invocations on collocated
+servants, but those invocations are not optimized and therefore will
+be marshaled and sent over the built-in transport.
+
+Other Removed Features
+----------------------
+
+Ice-E has also eliminated the following features:
+
+* Asynchronous invocation and dispatch
+* Streaming APIs
+* Active connection management
+* Protocol compression
+* Ice::Application and Ice::Service classes
+
+Optional Features
+-----------------
+
+Support for routers, locators and batch messages is enabled by
+default but can be removed in order to further reduce the size of
+the Ice-E run time. See the "Configuration" section below for more
+information.
+
+Compatibility
+-------------
+
+Ice-E and Ice share the same C++ mapping and remain source-code
+compatible, given the limitations described above. Furthermore,
+since the two products also share the same protocol, a distributed
+system can use any combination of Ice and Ice-E applications.
+
+Customization
+-------------
+
+If the current features do not meet your requirements, ZeroC can
+customize Ice-E for commercial users. Please contact us at
+info@zeroc.com for more information.
+
+
+Run-time Libraries
+==================
 
 In order to minimize the size of Ice-E applications, two versions of
 the run time library are provided:
