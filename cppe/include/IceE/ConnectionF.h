@@ -7,35 +7,10 @@
 //
 // **********************************************************************
 
-// Ice-E version 1.0.0
-// Generated from file `ConnectionF.ice'
+#ifndef ICEE_CONNECTION_F_H
+#define ICEE_CONNECTION_F_H
 
-#ifndef __Ice_ConnectionF_h__
-#define __Ice_ConnectionF_h__
-
-#include <IceE/LocalObjectF.h>
-#include <IceE/ProxyF.h>
-#include <IceE/ObjectF.h>
-#include <IceE/Exception.h>
-#include <IceE/LocalObject.h>
-#include <IceE/UndefSysMacros.h>
-
-#ifndef ICEE_IGNORE_VERSION
-#   if ICEE_INT_VERSION / 100 != 100
-#       error Ice version mismatch!
-#   endif
-#   if ICEE_INT_VERSION % 100 < 0
-#       error Ice patch level mismatch!
-#   endif
-#endif
-
-#ifndef ICEE_API
-#   ifdef ICEE_API_EXPORTS
-#       define ICEE_API ICEE_DECLSPEC_EXPORT
-#   else
-#       define ICEE_API ICEE_DECLSPEC_IMPORT
-#   endif
-#endif
+#include <IceE/Handle.h>
 
 namespace Ice
 {
@@ -59,11 +34,6 @@ namespace Ice
 {
 
 typedef ::IceInternal::Handle< ::Ice::Connection> ConnectionPtr;
-
-}
-
-namespace Ice
-{
 
 }
 
