@@ -41,7 +41,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 Client.o: Client.cpp
 	$(CXX) -c -DICE_PURE_CLIENT $(CPPFLAGS) $(CXXFLAGS) $<
 
-Throughput.o: Throughput.cpp
+ThroughputC.o Throughput.o: Throughput.cpp
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 	$(CXX) -c -DICE_PURE_CLIENT -o ThroughputC.o $(CPPFLAGS) $(CXXFLAGS) $<
 
