@@ -189,7 +189,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /GR /GX /Zi /Od /Gy /I ".." /I "../../include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D "_LIB" /D "ICE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /GR /GX /Zi /Od /Gy /I ".." /I "../../include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D "_LIB" /D "ICEE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /M$(CECrtMTDebug) /c
 # SUBTRACT CPP /YX
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
@@ -216,7 +216,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "NDEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /O2 /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /GR /GX /Gy /I ".." /I "../../include" /D "NDEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D "_LIB" /D "ICE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /GR /GX /Gy /I ".." /I "../../include" /D "NDEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D "_LIB" /D "ICEE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /O2 /M$(CECrtMT) /c
 # SUBTRACT CPP /YX
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
@@ -243,7 +243,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "_LIB" /YX /Gs8192 /GF /c
-# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I ".." /I "../../include" /D "DEBUG" /D "_i386_" /D "_X86_" /D "x86" /D "_LIB" /D "ICE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I ".." /I "../../include" /D "DEBUG" /D "_i386_" /D "_X86_" /D "x86" /D "_LIB" /D "ICEE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /Gs8192 /GF /c
 # SUBTRACT CPP /YX
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
@@ -270,7 +270,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "_LIB" /YX /Gs8192 /GF /O2 /c
-# ADD CPP /nologo /W3 /GR /GX /I ".." /I "../../include" /D "_i386_" /D "_X86_" /D "x86" /D "NDEBUG" /D "_LIB" /D "ICE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /Gs8192 /GF /O2 /c
+# ADD CPP /nologo /W3 /GR /GX /I ".." /I "../../include" /D "_i386_" /D "_X86_" /D "x86" /D "NDEBUG" /D "_LIB" /D "ICEE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /Gs8192 /GF /O2 /c
 # SUBTRACT CPP /YX
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
