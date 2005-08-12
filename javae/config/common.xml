@@ -91,7 +91,7 @@
 	<taskdef name="jadfile" classpath="${top.dir}/ant" classname="JADTask"/>
     </target>
 
-    <available classname="proguard.ant.ProGuardTask" classpath="{env.CLASSPATH}" property="hasProguard"/>
+    <available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" property="hasProguard"/>
 
     <target name="config-impl" depends="properties-cvs,properties-opt,properties-src">
         <!-- Create the time stamp -->
