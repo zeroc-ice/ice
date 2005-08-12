@@ -24,7 +24,7 @@ public class AllTests
     allTests(Ice.Communicator communicator, java.io.PrintStream out)
     {
 	String serverManagerRef = communicator.getProperties().getPropertyWithDefault("Test.ServerManager", 
-	    "ServerManager :default -t 10000 -p 10001");
+	    "ServerManager :default -t 10000 -p 12345");
 	ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(communicator.stringToProxy(serverManagerRef));
 	test(manager != null);
 

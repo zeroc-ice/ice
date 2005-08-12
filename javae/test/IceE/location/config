@@ -13,5 +13,5 @@
 # separate entries for host, port and timeout and the proxy is constructed out
 # of that.  For a MIDlet, the hostname almost certainly needs to be specified.
 #
-Ice.Default.Locator = locator:default -p 12345
+Ice.Default.Locator=locator:default -p 12345
 Ice.RetryIntervals = 0 0
