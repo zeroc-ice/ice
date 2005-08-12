@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_BUILTIN_SEQUENCES_ICE
-#define ICEE_BUILTIN_SEQUENCES_ICE
+#ifndef ICE_BUILTIN_SEQUENCES_ICE
+#define ICE_BUILTIN_SEQUENCES_ICE
 
 module Ice
 {

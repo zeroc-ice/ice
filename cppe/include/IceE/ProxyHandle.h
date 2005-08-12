@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_PROXY_HANDLE_H
-#define ICEE_PROXY_HANDLE_H
+#ifndef ICE_PROXY_HANDLE_H
+#define ICE_PROXY_HANDLE_H
 
 #include <IceE/Handle.h>
 #include <IceE/Config.h>

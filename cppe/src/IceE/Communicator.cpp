@@ -15,7 +15,7 @@
 #include <IceE/LoggerUtil.h>
 #include <IceE/LocalException.h>
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 #   include <IceE/ObjectAdapterFactory.h>
 #endif
 
@@ -57,7 +57,7 @@ Ice::Communicator::destroy()
     }
 }
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 
 void
 Ice::Communicator::shutdown()
@@ -126,7 +126,7 @@ Ice::Communicator::proxyToString(const ObjectPrx& proxy) const
     return _instance->proxyFactory()->proxyToString(proxy);
 }
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 
 ObjectAdapterPtr
 Ice::Communicator::createObjectAdapter(const string& name)
@@ -205,7 +205,7 @@ Ice::Communicator::setLogger(const LoggerPtr& logger)
     _instance->logger(logger);
 }
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 
 RouterPrx
 Ice::Communicator::getDefaultRouter() const
@@ -231,7 +231,7 @@ Ice::Communicator::setDefaultRouter(const RouterPrx& router)
 
 #endif
 
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
 
 LocatorPrx
 Ice::Communicator::getDefaultLocator() const
@@ -257,7 +257,7 @@ Ice::Communicator::setDefaultLocator(const LocatorPrx& locator)
 
 #endif
 
-#ifdef ICEE_HAS_BATCH
+#ifdef ICE_HAS_BATCH
 
 void
 Ice::Communicator::flushBatchRequests()

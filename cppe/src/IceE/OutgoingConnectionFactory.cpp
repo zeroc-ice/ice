@@ -18,7 +18,7 @@
 #include <IceE/RouterInfo.h>
 #include <IceE/LocalException.h>
 #include <IceE/Functional.h>
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 #   include <IceE/Reference.h>
 #endif
 #include <list>
@@ -247,7 +247,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	    TransceiverPtr transceiver = connector->connect(timeout);
 	    assert(transceiver);
 
-#ifdef ICEE_PURE_CLIENT
+#ifdef ICE_PURE_CLIENT
 	    connection = new Connection(_instance, transceiver, endpoint);
 #else
 	    connection = new Connection(_instance, transceiver, endpoint, 0);
@@ -328,7 +328,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
     return connection;
 }
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 
 void
 IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
@@ -350,7 +350,7 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	// received over such connections.
 	//
 	ObjectPrx proxy = routerInfo->getClientProxy();
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 	ObjectAdapterPtr adapter = routerInfo->getAdapter();
 #endif
 	vector<EndpointPtr> endpoints = proxy->__reference()->getEndpoints();
@@ -367,7 +367,7 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 		endpoint = endpoint->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
 	    }
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 	    pair<multimap<EndpointPtr, ConnectionPtr>::iterator,
 		 multimap<EndpointPtr, ConnectionPtr>::iterator> pr = _connections.equal_range(endpoint);
 	    
@@ -392,7 +392,7 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 
 #endif
 
-#ifdef ICEE_HAS_BATCH
+#ifdef ICE_HAS_BATCH
 void
 IceInternal::OutgoingConnectionFactory::flushBatchRequests()
 {
@@ -435,7 +435,7 @@ IceInternal::OutgoingConnectionFactory::~OutgoingConnectionFactory()
     assert(_connections.empty());
 }
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 
 void
 IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& adapter)

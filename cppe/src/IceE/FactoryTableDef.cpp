@@ -20,7 +20,7 @@ namespace IceInternal
 FactoryTableWrapper factoryTableWrapper;	// Single global instance of the wrapper object that
 						// initializes factoryTable.
 
-ICEE_API FactoryTableDef* factoryTable;		// Single global instance of the factory table for
+ICE_API FactoryTableDef* factoryTable;		// Single global instance of the factory table for
 						// non-local exceptions and non-abstract classes
 }
 
@@ -140,5 +140,5 @@ IceInternal::FactoryTableWrapper::finalize()
     }
 }
 
-IceUtil::StaticMutex IceInternal::FactoryTableWrapper::_m = ICEE_STATIC_MUTEX_INITIALIZER;
+IceUtil::StaticMutex IceInternal::FactoryTableWrapper::_m = ICE_STATIC_MUTEX_INITIALIZER;
 int IceInternal::FactoryTableWrapper::_initCount = 0;	// Initialization count

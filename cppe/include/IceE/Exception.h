@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_EXCEPTION_H
-#define ICEE_EXCEPTION_H
+#ifndef ICE_EXCEPTION_H
+#define ICE_EXCEPTION_H
 
 #include <IceE/ExceptionBase.h>
 #include <IceE/Handle.h>
@@ -25,7 +25,7 @@ namespace Ice
 
 typedef IceUtil::Exception Exception;
 
-class ICEE_API LocalException : public IceUtil::Exception
+class ICE_API LocalException : public IceUtil::Exception
 {
 public:    
 
@@ -35,7 +35,7 @@ public:
     virtual void ice_throw() const = 0;
 };
 
-class ICEE_API UserException : public IceUtil::Exception
+class ICE_API UserException : public IceUtil::Exception
 {
 public:    
 

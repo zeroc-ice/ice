@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_LOCAL_OBJECT_F_H
-#define ICEE_LOCAL_OBJECT_F_H
+#ifndef ICE_LOCAL_OBJECT_F_H
+#define ICE_LOCAL_OBJECT_F_H
 
 #include <IceE/Handle.h>
 
@@ -22,8 +22,8 @@ class LocalObject;
 namespace IceInternal
 {
 
-ICEE_API void incRef(::Ice::LocalObject*);
-ICEE_API void decRef(::Ice::LocalObject*);
+ICE_API void incRef(::Ice::LocalObject*);
+ICE_API void decRef(::Ice::LocalObject*);
 
 }
 

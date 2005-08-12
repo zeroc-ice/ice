@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_COMMUNICATOR_F_H
-#define ICEE_COMMUNICATOR_F_H
+#ifndef ICE_COMMUNICATOR_F_H
+#define ICE_COMMUNICATOR_F_H
 
 #include <IceE/Handle.h>
 
@@ -22,8 +22,8 @@ class Communicator;
 namespace IceInternal
 {
 
-ICEE_API void incRef(::Ice::Communicator*);
-ICEE_API void decRef(::Ice::Communicator*);
+ICE_API void incRef(::Ice::Communicator*);
+ICE_API void decRef(::Ice::Communicator*);
 
 }
 

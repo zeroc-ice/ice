@@ -308,7 +308,7 @@ Ice::Properties::loadConfig()
 #ifndef _WIN32_WCE
     if(value.empty() || value == "1")
     {
-        const char* s = getenv("ICEE_CONFIG");
+        const char* s = getenv("ICE_CONFIG");
         if(s && *s != '\0')
         {
             value = s;

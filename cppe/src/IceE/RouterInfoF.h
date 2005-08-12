@@ -7,12 +7,12 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_ROUTER_INFO_F_H
-#define ICEE_ROUTER_INFO_F_H
+#ifndef ICE_ROUTER_INFO_F_H
+#define ICE_ROUTER_INFO_F_H
 
 #include <IceE/Config.h>
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 
 #include <IceE/Handle.h>
 

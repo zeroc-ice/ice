@@ -7,15 +7,15 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_THREAD_EXCEPTION_H
-#define ICEE_THREAD_EXCEPTION_H
+#ifndef ICE_THREAD_EXCEPTION_H
+#define ICE_THREAD_EXCEPTION_H
 
 #include <IceE/Exception.h>
 
 namespace IceUtil
 {
 
-class ICEE_API ThreadSyscallException : public Exception
+class ICE_API ThreadSyscallException : public Exception
 {
 public:
 
@@ -32,7 +32,7 @@ private:
     static const char* _name;
 };
 
-class ICEE_API ThreadLockedException : public Exception
+class ICE_API ThreadLockedException : public Exception
 {
 public:
 
@@ -46,7 +46,7 @@ private:
     static const char* _name;
 };
 
-class ICEE_API ThreadStartedException : public Exception
+class ICE_API ThreadStartedException : public Exception
 {
 public:
 
@@ -60,7 +60,7 @@ private:
     static const char* _name;
 };
 
-class ICEE_API ThreadNotStartedException : public Exception
+class ICE_API ThreadNotStartedException : public Exception
 {
 public:
 

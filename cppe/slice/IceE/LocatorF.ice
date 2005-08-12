@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_LOCATOR_F_ICE
-#define ICEE_LOCATOR_F_ICE
+#ifndef ICE_LOCATOR_F_ICE
+#define ICE_LOCATOR_F_ICE
 
 module Ice
 {

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_LOCAL_OBJECT_H
-#define ICEE_LOCAL_OBJECT_H
+#ifndef ICE_LOCAL_OBJECT_H
+#define ICE_LOCAL_OBJECT_H
 
 #include <IceE/LocalObjectF.h>
 #include <IceE/Shared.h>
@@ -16,7 +16,7 @@
 namespace Ice
 {
 
-class ICEE_API LocalObject : virtual public ::IceUtil::Shared
+class ICE_API LocalObject : virtual public ::IceUtil::Shared
 {
 public:
 

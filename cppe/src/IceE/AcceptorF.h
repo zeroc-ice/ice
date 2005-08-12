@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_ACCEPTOR_F_H
-#define ICEE_ACCEPTOR_F_H
+#ifndef ICE_ACCEPTOR_F_H
+#define ICE_ACCEPTOR_F_H
 
 #include <IceE/Handle.h>
 
@@ -16,8 +16,8 @@ namespace IceInternal
 {
 
 class Acceptor;
-ICEE_API void incRef(Acceptor*);
-ICEE_API void decRef(Acceptor*);
+ICE_API void incRef(Acceptor*);
+ICE_API void decRef(Acceptor*);
 typedef Handle<Acceptor> AcceptorPtr;
 
 }

@@ -24,23 +24,23 @@ IceUtil::SimpleShared::SimpleShared(const SimpleShared&) :
 }
 
 IceUtil::Shared::Shared() :
-#ifndef ICEE_HAS_ATOMIC_FUNCTIONS
+#ifndef ICE_HAS_ATOMIC_FUNCTIONS
     _ref(0),
 #endif
     _noDelete(false)
 {
-#ifdef ICEE_HAS_ATOMIC_FUNCTIONS
+#ifdef ICE_HAS_ATOMIC_FUNCTIONS
     ice_atomic_set(&_ref, 0);
 #endif
 }
 
 IceUtil::Shared::Shared(const Shared&) :
-#ifndef ICEE_HAS_ATOMIC_FUNCTIONS
+#ifndef ICE_HAS_ATOMIC_FUNCTIONS
     _ref(0),
 #endif
     _noDelete(false)
 {
-#ifdef ICEE_HAS_ATOMIC_FUNCTIONS
+#ifdef ICE_HAS_ATOMIC_FUNCTIONS
     ice_atomic_set(&_ref, 0);
 #endif
 }
@@ -50,7 +50,7 @@ IceUtil::Shared::__getRef() const
 {
 #if defined(_WIN32)
     return InterlockedExchangeAdd(const_cast<LONG*>(&_ref), 0);
-#elif defined(ICEE_HAS_ATOMIC_FUNCTIONS)
+#elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
     return ice_atomic_exchange_add(0, const_cast<ice_atomic_t*>(&_ref));
 #else
     _mutex.lock();

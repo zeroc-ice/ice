@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_INSTANCE_F_H
-#define ICEE_INSTANCE_F_H
+#ifndef ICE_INSTANCE_F_H
+#define ICE_INSTANCE_F_H
 
 #include <IceE/Handle.h>
 
@@ -16,8 +16,8 @@ namespace IceInternal
 {
 
 class Instance;
-ICEE_API void incRef(Instance*);
-ICEE_API void decRef(Instance*);
+ICE_API void incRef(Instance*);
+ICE_API void decRef(Instance*);
 typedef IceInternal::Handle<Instance> InstancePtr;
 
 }

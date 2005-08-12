@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_ROUTER_ICE
-#define ICEE_ROUTER_ICE
+#ifndef ICE_ROUTER_ICE
+#define ICE_ROUTER_ICE
 
 module Ice
 {

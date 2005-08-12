@@ -7,17 +7,17 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_ROUTER_INFO_H
-#define ICEE_ROUTER_INFO_H
+#ifndef ICE_ROUTER_INFO_H
+#define ICE_ROUTER_INFO_H
 
 #include <IceE/Config.h>
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 
 #include <IceE/RouterInfoF.h>
 #include <IceE/RouterF.h>
 #include <IceE/RoutingTableF.h>
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 #    include <IceE/ObjectAdapterF.h>
 #endif
 #include <IceE/Shared.h>
@@ -64,7 +64,7 @@ public:
     Ice::ObjectPrx getServerProxy();
     void setServerProxy(const Ice::ObjectPrx&);
     void addProxy(const Ice::ObjectPrx&);
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
     void setAdapter(const Ice::ObjectAdapterPtr&);
     Ice::ObjectAdapterPtr getAdapter() const;
 #endif
@@ -75,7 +75,7 @@ private:
     Ice::ObjectPrx _clientProxy;
     Ice::ObjectPrx _serverProxy;
     const RoutingTablePtr _routingTable;
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
     Ice::ObjectAdapterPtr _adapter;
 #endif
 };

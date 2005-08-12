@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_CURRENT_H
-#define ICEE_CURRENT_H
+#ifndef ICE_CURRENT_H
+#define ICE_CURRENT_H
 
 #include <IceE/ObjectAdapterF.h>
 #include <IceE/ConnectionF.h>
@@ -28,9 +28,9 @@ struct Current
     ::Ice::OperationMode mode;
     ::Ice::Context ctx;
 
-    ICEE_API bool operator==(const Current&) const;
-    ICEE_API bool operator!=(const Current&) const;
-    ICEE_API bool operator<(const Current&) const;
+    ICE_API bool operator==(const Current&) const;
+    ICE_API bool operator!=(const Current&) const;
+    ICE_API bool operator<(const Current&) const;
 };
 
 }

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_INITIALIZE_H
-#define ICEE_INITIALIZE_H
+#ifndef ICE_INITIALIZE_H
+#define ICE_INITIALIZE_H
 
 #include <IceE/CommunicatorF.h>
 #include <IceE/PropertiesF.h>
@@ -18,25 +18,25 @@
 namespace Ice
 {
 
-ICEE_API StringSeq argsToStringSeq(int, char*[]);
+ICE_API StringSeq argsToStringSeq(int, char*[]);
 //
 // This function assumes that the string sequence only contains
 // elements of the argument vector. The function shifts the
 // the argument vector elements so that the vector matches the
 // contents of the sequence.
 //
-ICEE_API void stringSeqToArgs(const StringSeq&, int&, char*[]);
+ICE_API void stringSeqToArgs(const StringSeq&, int&, char*[]);
 
-ICEE_API PropertiesPtr createProperties();
-ICEE_API PropertiesPtr createProperties(StringSeq&);
-ICEE_API PropertiesPtr createProperties(int&, char*[]);
+ICE_API PropertiesPtr createProperties();
+ICE_API PropertiesPtr createProperties(StringSeq&);
+ICE_API PropertiesPtr createProperties(int&, char*[]);
 
-ICEE_API CommunicatorPtr initialize(int&, char*[], Int = ICEE_INT_VERSION);
-ICEE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int = ICEE_INT_VERSION);
+ICE_API CommunicatorPtr initialize(int&, char*[], Int = ICE_INT_VERSION);
+ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int = ICE_INT_VERSION);
 
-ICEE_API PropertiesPtr getDefaultProperties();
-ICEE_API PropertiesPtr getDefaultProperties(StringSeq&);
-ICEE_API PropertiesPtr getDefaultProperties(int&, char*[]);
+ICE_API PropertiesPtr getDefaultProperties();
+ICE_API PropertiesPtr getDefaultProperties(StringSeq&);
+ICE_API PropertiesPtr getDefaultProperties(int&, char*[]);
 
 }
 
@@ -48,7 +48,7 @@ namespace IceInternal
 // not use this operation for regular application code! It is intended
 // to be used by modules such as Freeze.
 //
-ICEE_API InstancePtr getInstance(const ::Ice::CommunicatorPtr&);
+ICE_API InstancePtr getInstance(const ::Ice::CommunicatorPtr&);
 
 }
 

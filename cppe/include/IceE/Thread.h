@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_THREAD_H
-#define ICEE_THREAD_H
+#ifndef ICE_THREAD_H
+#define ICE_THREAD_H
 
 #include <IceE/Shared.h>
 #include <IceE/Handle.h>
@@ -52,7 +52,7 @@ typedef Handle<HandleWrapper> HandleWrapperPtr;
     typedef pthread_t ThreadId;
 #endif
 
-class ICEE_API ThreadControl
+class ICE_API ThreadControl
 {
 public:
 
@@ -116,7 +116,7 @@ private:
     ThreadId _id;
 };
 
-class ICEE_API Thread : virtual public IceUtil::Shared
+class ICE_API Thread : virtual public IceUtil::Shared
 {
 public:
 

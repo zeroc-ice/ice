@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_FACTORY_TABLE_DEF_H
-#define ICEE_FACTORY_TABLE_DEF_H
+#ifndef ICE_FACTORY_TABLE_DEF_H
+#define ICE_FACTORY_TABLE_DEF_H
 
 #include <IceE/UserExceptionFactoryF.h>
 
@@ -18,7 +18,7 @@
 namespace IceInternal
 {
 
-class ICEE_API FactoryTableDef : private IceUtil::noncopyable
+class ICE_API FactoryTableDef : private IceUtil::noncopyable
 {
 public:
 
@@ -35,7 +35,7 @@ private:
     EFTable _eft;
 };
 
-class ICEE_API FactoryTableWrapper : private IceUtil::noncopyable
+class ICE_API FactoryTableWrapper : private IceUtil::noncopyable
 {
 public:
 
@@ -52,7 +52,7 @@ private:
     static int _initCount;
 };
 
-extern ICEE_API FactoryTableWrapper factoryTableWrapper;
+extern ICE_API FactoryTableWrapper factoryTableWrapper;
 
 }
 

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_OBJECT_F_H
-#define ICEE_OBJECT_F_H
+#ifndef ICE_OBJECT_F_H
+#define ICE_OBJECT_F_H
 
 #include <IceE/Handle.h>
 
@@ -22,8 +22,8 @@ class Object;
 namespace IceInternal
 {
 
-ICEE_API void incRef(::Ice::Object*);
-ICEE_API void decRef(::Ice::Object*);
+ICE_API void incRef(::Ice::Object*);
+ICE_API void decRef(::Ice::Object*);
 
 }
 

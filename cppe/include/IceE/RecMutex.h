@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_RMUTEX_H
-#define ICEE_RMUTEX_H
+#ifndef ICE_RMUTEX_H
+#define ICE_RMUTEX_H
 
 #include <IceE/Config.h>
 #include <IceE/Lock.h>
@@ -25,7 +25,7 @@ class Cond;
 //
 // Recursive Mutex implementation.
 //
-class ICEE_API RecMutex
+class ICE_API RecMutex
 {
 public:
 

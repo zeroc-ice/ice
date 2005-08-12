@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_RW_REC_MUTEX_H
-#define ICEE_RW_REC_MUTEX_H
+#ifndef ICE_RW_REC_MUTEX_H
+#define ICE_RW_REC_MUTEX_H
 
 #include <IceE/Mutex.h>
 #include <IceE/Cond.h>
@@ -259,7 +259,7 @@ public:
 // upgrade() or timedUpgrade() while holding a read lock promotes
 // the reader to a writer lock.
 //
-class ICEE_API RWRecMutex
+class ICE_API RWRecMutex
 {
 public:
 

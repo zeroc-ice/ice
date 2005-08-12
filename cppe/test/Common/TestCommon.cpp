@@ -72,7 +72,7 @@ public:
     }
 };
 
-static IceUtil::StaticMutex terminatedMutex = ICEE_STATIC_MUTEX_INITIALIZER;
+static IceUtil::StaticMutex terminatedMutex = ICE_STATIC_MUTEX_INITIALIZER;
 static bool appTerminated= false;
 
 #ifdef _WIN32_WCE
@@ -378,7 +378,7 @@ TestApplication::loadConfig(const PropertiesPtr& properties)
 }
 #else
 
-static IceUtil::StaticMutex tprintMutex = ICEE_STATIC_MUTEX_INITIALIZER;
+static IceUtil::StaticMutex tprintMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 void
 tprintf(const char* fmt, ...)

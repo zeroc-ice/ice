@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_OUTGOING_H
-#define ICEE_OUTGOING_H
+#ifndef ICE_OUTGOING_H
+#define ICE_OUTGOING_H
 
 #include <IceE/ConnectionF.h>
 #include <IceE/ReferenceF.h>
@@ -33,7 +33,7 @@ namespace IceInternal
 // that failed due to an exception is not repeatable if "at-most-once"
 // semantics must be guaranteed.
 //
-class ICEE_API NonRepeatable
+class ICE_API NonRepeatable
 {
 public:
 
@@ -48,7 +48,7 @@ private:
     std::auto_ptr<Ice::LocalException> _ex;
 };
 
-class ICEE_API Outgoing : private IceUtil::noncopyable, public IceUtil::Monitor<IceUtil::Mutex >
+class ICE_API Outgoing : private IceUtil::noncopyable, public IceUtil::Monitor<IceUtil::Mutex >
 {
 public:
 

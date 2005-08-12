@@ -30,7 +30,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 	const_cast<string&>(defaultHost) = getLocalHost(true);
     }
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
     const_cast<string&>(defaultRouter) = properties->getProperty("Ice.Default.Router");
 #endif
 
@@ -50,7 +50,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 	const_cast<Int&>(overrideConnectTimeoutValue) = properties->getPropertyAsInt("Ice.Override.ConnectTimeout");
     }
 
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     const_cast<string&>(defaultLocator) = properties->getProperty("Ice.Default.Locator");
 #endif
 }

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_COMMUNICATOR_H
-#define ICEE_COMMUNICATOR_H
+#ifndef ICE_COMMUNICATOR_H
+#define ICE_COMMUNICATOR_H
 
 #include <IceE/CommunicatorF.h>
 #include <IceE/LoggerF.h>
@@ -21,7 +21,7 @@
 namespace Ice
 {
 
-class ICEE_API Communicator : public ::IceUtil::RecMutex, public ::IceUtil::Shared
+class ICE_API Communicator : public ::IceUtil::RecMutex, public ::IceUtil::Shared
 {
 public:
     
@@ -43,17 +43,17 @@ public:
     LoggerPtr getLogger() const;
     void setLogger(const LoggerPtr&);
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
     RouterPrx getDefaultRouter() const;
     void setDefaultRouter(const RouterPrx&);
 #endif
 
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     LocatorPrx getDefaultLocator() const;
     void setDefaultLocator(const LocatorPrx&);
 #endif
 
-#ifdef ICEE_HAS_BATCH
+#ifdef ICE_HAS_BATCH
     void flushBatchRequests();
 #endif
 
@@ -68,9 +68,9 @@ private:
     //
     void finishSetup(int&, char*[]);
 
-    friend ICEE_API CommunicatorPtr initialize(int&, char*[], Int);
-    friend ICEE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int);
-    friend ICEE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
+    friend ICE_API CommunicatorPtr initialize(int&, char*[], Int);
+    friend ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int);
+    friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
     bool _destroyed;
     ::IceInternal::InstancePtr _instance;

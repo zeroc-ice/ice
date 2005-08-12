@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_TRACE_LEVELS_H
-#define ICEE_TRACE_LEVELS_H
+#ifndef ICE_TRACE_LEVELS_H
+#define ICE_TRACE_LEVELS_H
 
 #include <IceE/Shared.h>
 #include <IceE/TraceLevelsF.h>

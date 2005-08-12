@@ -68,7 +68,7 @@ const char* IceUtil::UUIDGenerationException::_name = "IceUtil::UUIDGenerationEx
 
 #ifdef _WIN32_WCE
 
-static IceUtil::StaticMutex staticMutex = ICEE_STATIC_MUTEX_INITIALIZER;
+static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
 static HCRYPTPROV cryptProv = 0;
 
 namespace
@@ -108,7 +108,7 @@ static UUIDCleanup uuidCleanup;
 // a static mutex.
 //
 
-static IceUtil::StaticMutex staticMutex = ICEE_STATIC_MUTEX_INITIALIZER;
+static IceUtil::StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
 static int fd = -1;
 static char myPid[2];
 

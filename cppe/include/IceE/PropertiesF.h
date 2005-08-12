@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_PROPERTIES_F_H
-#define ICEE_PROPERTIES_F_H
+#ifndef ICE_PROPERTIES_F_H
+#define ICE_PROPERTIES_F_H
 
 #include <IceE/Handle.h>
 
@@ -22,8 +22,8 @@ class Properties;
 namespace IceInternal
 {
 
-ICEE_API void incRef(::Ice::Properties*);
-ICEE_API void decRef(::Ice::Properties*);
+ICE_API void incRef(::Ice::Properties*);
+ICE_API void decRef(::Ice::Properties*);
 
 }
 

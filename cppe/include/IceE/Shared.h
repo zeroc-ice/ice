@@ -7,16 +7,16 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_SHARED_H
-#define ICEE_SHARED_H
+#ifndef ICE_SHARED_H
+#define ICE_SHARED_H
 
 #include <IceE/Config.h>
 
 //
 // Here are the sparc64+linux atomic functions, if you wish them.
 //
-#if defined(__linux) && defined(__sparc__) && defined(USE_SPARC_ASM) && !defined(ICEE_USE_MUTEX_SHARED)
-#   define ICEE_HAS_ATOMIC_FUNCTIONS
+#if defined(__linux) && defined(__sparc__) && defined(USE_SPARC_ASM) && !defined(ICE_USE_MUTEX_SHARED)
+#   define ICE_HAS_ATOMIC_FUNCTIONS
 extern "C" 
 {
 #include <asm-sparc64/atomic.h>
@@ -28,11 +28,11 @@ int __atomic_exchange_and_add(atomic_t *v, int i);
 #define ice_atomic_dec_and_test(v)  atomic_dec_and_test(v)
 #define ice_atomic_exchange_add(i,v)  (__atomic_exchange_and_add(v,i))
 
-#elif defined(ICEE_USE_MUTEX_SHARED)
+#elif defined(ICE_USE_MUTEX_SHARED)
 #   include <IceE/Mutex.h>
 
 #elif (defined(__linux) || defined(__FreeBSD__)) && (defined(__i386) || defined(__x86_64)) && !defined(__ICC)
-#   define ICEE_HAS_ATOMIC_FUNCTIONS
+#   define ICE_HAS_ATOMIC_FUNCTIONS
 
 // __ICC: The inline assembler causes problems with shared libraries.
 //
@@ -146,7 +146,7 @@ inline int ice_atomic_exchange_add(int i, ice_atomic_t* v)
 namespace IceUtil
 {
 
-class ICEE_API SimpleShared
+class ICE_API SimpleShared
 {
 public:
 
@@ -197,7 +197,7 @@ private:
     bool _noDelete;
 };
 
-class ICEE_API Shared
+class ICE_API Shared
 {
 public:
 
@@ -218,7 +218,7 @@ public:
 #if defined(_WIN32)
 	assert(InterlockedExchangeAdd(&_ref, 0) >= 0);
 	InterlockedIncrement(&_ref);
-#elif defined(ICEE_HAS_ATOMIC_FUNCTIONS)
+#elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
 	assert(ice_atomic_exchange_add(0, &_ref) >= 0);
 	ice_atomic_inc(&_ref);
 #else
@@ -238,7 +238,7 @@ public:
 	    _noDelete = true;
 	    delete this;
 	}
-#elif defined(ICEE_HAS_ATOMIC_FUNCTIONS)
+#elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
 	assert(ice_atomic_exchange_add(0, &_ref) > 0);
 	if(ice_atomic_dec_and_test(&_ref) && !_noDelete)
 	{
@@ -269,7 +269,7 @@ protected:
 
 #if defined(_WIN32)
     LONG _ref;
-#elif defined(ICEE_HAS_ATOMIC_FUNCTIONS)
+#elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
     ice_atomic_t _ref;
 #else
     int _ref;

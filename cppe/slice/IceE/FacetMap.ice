@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_FACET_MAP_ICE
-#define ICEE_FACET_MAP_ICE
+#ifndef ICE_FACET_MAP_ICE
+#define ICE_FACET_MAP_ICE
 
 module Ice
 {

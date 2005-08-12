@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_PROPERTIES_H
-#define ICEE_PROPERTIES_H
+#ifndef ICE_PROPERTIES_H
+#define ICE_PROPERTIES_H
 
 #include <IceE/PropertiesF.h>
 #include <IceE/Shared.h>
@@ -20,7 +20,7 @@ namespace Ice
 
 typedef ::std::map< ::std::string, ::std::string> PropertyDict;
 
-class ICEE_API Properties : public IceUtil::Mutex, public ::IceUtil::Shared
+class ICE_API Properties : public IceUtil::Mutex, public ::IceUtil::Shared
 {
 public:
     
@@ -42,9 +42,9 @@ private:
     Properties();
     Properties(StringSeq&);
 
-    friend ICEE_API PropertiesPtr createProperties();
-    friend ICEE_API PropertiesPtr createProperties(StringSeq&);
-    friend ICEE_API PropertiesPtr createProperties(int&, char*[]);
+    friend ICE_API PropertiesPtr createProperties();
+    friend ICE_API PropertiesPtr createProperties(StringSeq&);
+    friend ICE_API PropertiesPtr createProperties(int&, char*[]);
 
     void parseLine(const std::string&);
 

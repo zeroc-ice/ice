@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_DEFAULTS_AND_OVERRIDES_H
-#define ICEE_DEFAULTS_AND_OVERRIDES_H
+#ifndef ICE_DEFAULTS_AND_OVERRIDES_H
+#define ICE_DEFAULTS_AND_OVERRIDES_H
 
 #include <IceE/DefaultsAndOverridesF.h>
 #include <IceE/PropertiesF.h>
@@ -24,10 +24,10 @@ public:
     DefaultsAndOverrides(const ::Ice::PropertiesPtr&);
 
     std::string defaultHost;
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
     std::string defaultRouter;
 #endif
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     std::string defaultLocator;
 #endif
 

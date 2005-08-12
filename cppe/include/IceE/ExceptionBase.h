@@ -7,15 +7,15 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_EXCEPTION_BASE_H
-#define ICEE_EXCEPTION_BASE_H
+#ifndef ICE_EXCEPTION_BASE_H
+#define ICE_EXCEPTION_BASE_H
 
 #include <IceE/Config.h>
 
 namespace IceUtil
 {
 
-class ICEE_API Exception
+class ICE_API Exception
 {
 public:
 
@@ -36,7 +36,7 @@ private:
     static const char* _name;
 };
 
-class ICEE_API NullHandleException : public Exception
+class ICE_API NullHandleException : public Exception
 {
 public:
     

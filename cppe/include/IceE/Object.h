@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_OBJECT_H
-#define ICEE_OBJECT_H
+#ifndef ICE_OBJECT_H
+#define ICE_OBJECT_H
 
 #include <IceE/ObjectF.h>
 #include <IceE/Current.h>
@@ -25,7 +25,7 @@ class BasicStream;
 namespace Ice
 {
 
-class ICEE_API Object : public IceUtil::Shared
+class ICE_API Object : public IceUtil::Shared
 {
 public:
 
@@ -60,7 +60,7 @@ protected:
     virtual ~Object() {} // This class is abstract.
 };
 
-class ICEE_API Blobject : public Object
+class ICE_API Blobject : public Object
 {
 public:
 

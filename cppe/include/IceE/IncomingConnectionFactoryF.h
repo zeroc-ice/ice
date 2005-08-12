@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_INCOMING_CONNECTION_FACTORY_F_H
-#define ICEE_INCOMING_CONNECTION_FACTORY_F_H
+#ifndef ICE_INCOMING_CONNECTION_FACTORY_F_H
+#define ICE_INCOMING_CONNECTION_FACTORY_F_H
 
 #include <IceE/Handle.h>
 
@@ -16,8 +16,8 @@ namespace IceInternal
 {
 
 class IncomingConnectionFactory;
-ICEE_API void incRef(IncomingConnectionFactory*);
-ICEE_API void decRef(IncomingConnectionFactory*);
+ICE_API void incRef(IncomingConnectionFactory*);
+ICE_API void decRef(IncomingConnectionFactory*);
 typedef IceInternal::Handle<IncomingConnectionFactory> IncomingConnectionFactoryPtr;
 
 }

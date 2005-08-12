@@ -7,15 +7,15 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_FACTORYTABLE_H
-#define ICEE_FACTORYTABLE_H
+#ifndef ICE_FACTORYTABLE_H
+#define ICE_FACTORYTABLE_H
 
 #include <IceE/FactoryTableDef.h>
 
 namespace IceInternal
 {
 
-class ICEE_API FactoryTable
+class ICE_API FactoryTable
 {
 public:
 
@@ -25,7 +25,7 @@ public:
 
 static FactoryTable factoryTableInitializer;	// Dummy variable to force initialization of factoryTable
 
-extern ICEE_API FactoryTableDef* factoryTable;
+extern ICE_API FactoryTableDef* factoryTable;
 
 }
 

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_BASIC_STREAM_H
-#define ICEE_BASIC_STREAM_H
+#ifndef ICE_BASIC_STREAM_H
+#define ICE_BASIC_STREAM_H
 
 #include <IceE/ProxyF.h>
 
@@ -26,7 +26,7 @@ namespace IceInternal
 
 class Instance;
 
-class ICEE_API BasicStream : public Buffer
+class ICE_API BasicStream : public Buffer
 {
 public:
 
@@ -180,7 +180,7 @@ private:
     //
     Instance* _instance;
 
-    class ICEE_API ReadEncaps : private ::IceUtil::noncopyable
+    class ICE_API ReadEncaps : private ::IceUtil::noncopyable
     {
     public:
 
@@ -198,7 +198,7 @@ private:
 	ReadEncaps* previous;
     };
 
-    class ICEE_API WriteEncaps : private ::IceUtil::noncopyable
+    class ICE_API WriteEncaps : private ::IceUtil::noncopyable
     {
     public:
 

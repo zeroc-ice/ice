@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_USER_EXCEPTION_FACTORY_H
-#define ICEE_USER_EXCEPTION_FACTORY_H
+#ifndef ICE_USER_EXCEPTION_FACTORY_H
+#define ICE_USER_EXCEPTION_FACTORY_H
 
 #include <IceE/Shared.h>
 #include <IceE/Handle.h>
@@ -16,7 +16,7 @@
 namespace IceInternal
 {
 
-class ICEE_API UserExceptionFactory : public IceUtil::Shared
+class ICE_API UserExceptionFactory : public IceUtil::Shared
 {
 public:
 

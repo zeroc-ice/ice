@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_COND_H
-#define ICEE_COND_H
+#ifndef ICE_COND_H
+#define ICE_COND_H
 
 #include <IceE/Time.h>
 #include <IceE/ThreadException.h>
@@ -56,8 +56,8 @@ class Cond : private noncopyable
 {
 public:
 
-    ICEE_API Cond();
-    ICEE_API ~Cond();
+    ICE_API Cond();
+    ICE_API ~Cond();
 
     //
     // signal restarts one of the threads that are waiting on the
@@ -65,14 +65,14 @@ public:
     // nothing happens. If several threads are waiting on cond,
     // exactly one is restarted, but it is not specified which.
     //
-    ICEE_API void signal();
+    ICE_API void signal();
 
     //
     // broadcast restarts all the threads that are waiting on the
     // condition variable cond. Nothing happens if no threads are
     // waiting on cond.
     //
-    ICEE_API void broadcast();
+    ICE_API void broadcast();
 
     //
     // MSVC doesn't support out-of-class definitions of member
@@ -173,11 +173,11 @@ private:
 #endif
 
 #ifdef _WIN32
-    ICEE_API void wake(bool);
-    ICEE_API void preWait() const;
-    ICEE_API void postWait(bool) const;
-    ICEE_API bool timedDowait(const Time&) const;
-    ICEE_API void dowait() const;
+    ICE_API void wake(bool);
+    ICE_API void preWait() const;
+    ICE_API void postWait(bool) const;
+    ICE_API bool timedDowait(const Time&) const;
+    ICE_API void dowait() const;
 
     Mutex _internal;
     Semaphore _gate;

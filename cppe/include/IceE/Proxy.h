@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_PROXY_H
-#define ICEE_PROXY_H
+#ifndef ICE_PROXY_H
+#define ICE_PROXY_H
 
 #include <IceE/ProxyF.h>
 #include <IceE/ProxyFactoryF.h>
@@ -23,7 +23,7 @@
 #include <IceE/Identity.h>
 #include <IceE/OperationMode.h>
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 
 namespace IceProxy { namespace Ice
 {
@@ -35,8 +35,8 @@ class Router;
 namespace IceInternal
 {
 
-ICEE_API void incRef(::IceProxy::Ice::Router*);
-ICEE_API void decRef(::IceProxy::Ice::Router*);
+ICE_API void incRef(::IceProxy::Ice::Router*);
+ICE_API void decRef(::IceProxy::Ice::Router*);
 
 }
 
@@ -47,9 +47,9 @@ typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Router> RouterPrx;
 
 }
 
-#endif // ICEE_HAS_ROUTER
+#endif // ICE_HAS_ROUTER
 
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
 
 namespace IceProxy { namespace Ice
 {
@@ -61,8 +61,8 @@ class Locator;
 namespace IceInternal
 {
 
-ICEE_API void incRef(::IceProxy::Ice::Locator*);
-ICEE_API void decRef(::IceProxy::Ice::Locator*);
+ICE_API void incRef(::IceProxy::Ice::Locator*);
+ICE_API void decRef(::IceProxy::Ice::Locator*);
 
 }
 
@@ -73,7 +73,7 @@ typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Locator> LocatorPrx;
 
 }
 
-#endif // ICEE_HAS_LOCATOR
+#endif // ICE_HAS_LOCATOR
 
 namespace Ice
 {
@@ -83,8 +83,8 @@ class LocalException;
 typedef ::std::map< ::std::string, ::std::string> Context;
 
 class __U__Context { };
-ICEE_API void __write(::IceInternal::BasicStream*, const Context&, __U__Context);
-ICEE_API void __read(::IceInternal::BasicStream*, Context&, __U__Context);
+ICE_API void __write(::IceInternal::BasicStream*, const Context&, __U__Context);
+ICE_API void __read(::IceInternal::BasicStream*, Context&, __U__Context);
 
 }
 
@@ -96,7 +96,7 @@ namespace IceProxy { namespace Ice
 typedef ::std::map< ::std::string, ::std::string> Context;
 #endif
 
-class ICEE_API Object : public ::IceUtil::Shared, private ::IceUtil::Mutex
+class ICE_API Object : public ::IceUtil::Shared, private ::IceUtil::Mutex
 {
 public:
 
@@ -117,7 +117,7 @@ public:
     ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     ::std::string ice_id();
     ::std::string ice_id(const ::Ice::Context&);
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
     bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 	            ::std::vector< ::Ice::Byte>&); // Returns true if ok, false if user exception.
     bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
@@ -139,16 +139,16 @@ public:
     bool ice_isTwoway() const;
     ::Ice::ObjectPrx ice_oneway() const;
     bool ice_isOneway() const;
-#ifdef ICEE_HAS_BATCH
+#ifdef ICE_HAS_BATCH
     ::Ice::ObjectPrx ice_batchOneway() const;
     bool ice_isBatchOneway() const;
 #endif
 
     ::Ice::ObjectPrx ice_timeout(int) const;
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
     ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
 #endif
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
 #endif
     ::Ice::ObjectPrx ice_default() const;
@@ -183,7 +183,7 @@ private:
 namespace IceDelegate { namespace Ice
 {
 
-class ICEE_API Object : public ::IceUtil::Shared
+class ICE_API Object : public ::IceUtil::Shared
 {
 public:
 
@@ -193,7 +193,7 @@ public:
     void ice_ping(const ::Ice::Context&);
     ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     ::std::string ice_id(const ::Ice::Context&);
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
     bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
 #endif
@@ -218,11 +218,11 @@ private:
 namespace Ice
 {
 
-ICEE_API bool proxyIdentityLess(const ObjectPrx&, const ObjectPrx&);
-ICEE_API bool proxyIdentityEqual(const ObjectPrx&, const ObjectPrx&);
+ICE_API bool proxyIdentityLess(const ObjectPrx&, const ObjectPrx&);
+ICE_API bool proxyIdentityEqual(const ObjectPrx&, const ObjectPrx&);
 
-ICEE_API bool proxyIdentityAndFacetLess(const ObjectPrx&, const ObjectPrx&);
-ICEE_API bool proxyIdentityAndFacetEqual(const ObjectPrx&, const ObjectPrx&);
+ICE_API bool proxyIdentityAndFacetLess(const ObjectPrx&, const ObjectPrx&);
+ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrx&, const ObjectPrx&);
 
 struct ProxyIdentityLess : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
 {
@@ -329,8 +329,8 @@ uncheckedCastImpl(const ::Ice::ObjectPrx& b)
 //
 // Helper with type ID.
 //
-ICEE_API ::Ice::ObjectPrx checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&, const std::string&);
-ICEE_API ::Ice::ObjectPrx checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&, const std::string&,
+ICE_API ::Ice::ObjectPrx checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&, const std::string&);
+ICE_API ::Ice::ObjectPrx checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&, const std::string&,
                                          const ::Ice::Context&);
 
 //

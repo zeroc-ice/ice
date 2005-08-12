@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_ENDPOINT_F_H
-#define ICEE_ENDPOINT_F_H
+#ifndef ICE_ENDPOINT_F_H
+#define ICE_ENDPOINT_F_H
 
 #include <IceE/Handle.h>
 
@@ -16,8 +16,8 @@ namespace IceInternal
 {
 
 class Endpoint;
-ICEE_API void incRef(Endpoint*);
-ICEE_API void decRef(Endpoint*);
+ICE_API void incRef(Endpoint*);
+ICE_API void decRef(Endpoint*);
 typedef IceInternal::Handle<Endpoint> EndpointPtr;
 
 }

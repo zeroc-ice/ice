@@ -7,24 +7,29 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_CONFIG_H
-#define ICEE_CONFIG_H
+#ifndef ICE_CONFIG_H
+#define ICE_CONFIG_H
+
+//
+// We define a macro to determine that an IceE app is being built, and not Ice.
+//
+#define ICEE
 
 //
 // Comment this out if you want to build without Router support.
 //
-#define ICEE_HAS_ROUTER
+#define ICE_HAS_ROUTER
 
 //
 // Comment this out if you want to build without Locator support.
 //
-#define ICEE_HAS_LOCATOR
+#define ICE_HAS_LOCATOR
 
 //
 // Comment this out if you want to build without batch mode on the
 // client side.
 //
-#define ICEE_HAS_BATCH
+#define ICE_HAS_BATCH
 
 
 // ***********************************************************************
@@ -36,8 +41,8 @@
 //
 // Unless we're building a pure client batch mode cannot be disabled.
 //
-#if !defined(ICEE_PURE_CLIENT) && !defined(ICEE_HAS_BATCH)
-#  define ICEE_HAS_BATCH
+#if !defined(ICE_PURE_CLIENT) && !defined(ICE_HAS_BATCH)
+#  define ICE_HAS_BATCH
 #endif
 
 //
@@ -58,9 +63,9 @@
 // of Itanium (IA64) and MIPS.
 //
 #if defined(__i386) || defined(_M_IX86) || defined (__x86_64) || defined (_M_ARM) 
-#   define ICEE_LITTLE_ENDIAN
+#   define ICE_LITTLE_ENDIAN
 #elif defined(__sparc) || defined(__sparc__) || defined(__hppa) || defined(__ppc__) || defined(_ARCH_COM)
-#   define ICEE_BIG_ENDIAN
+#   define ICE_BIG_ENDIAN
 #else
 #   error "Unknown architecture"
 #endif
@@ -72,14 +77,14 @@
 //
 // We are a linux sparc, which forces 32 bit usr land, no matter the architecture
 //
-#   define  ICEE_32
+#   define  ICE_32
 #elif defined(__sun) && defined(__sparcv9) || \
       defined(__linux) && defined(__x86_64) || \
       defined(__hppa) && defined(__LP64__) || \
       defined(_ARCH_COM) && defined(__64BIT__)
-#   define ICEE_64
+#   define ICE_64
 #else
-#   define ICEE_32
+#   define ICE_32
 #endif
 
 //
@@ -88,24 +93,24 @@
 //
 // TODO: more macros to support IBM Visual Age _Export syntax as well.
 //
-#if ((defined(_MSC_VER) || defined(_WIN32_WCE)) && !defined(ICEE_STATIC_LIBS)) || (defined(__HP_aCC) && defined(__HP_WINDLL))
-#   define ICEE_DECLSPEC_EXPORT __declspec(dllexport)
-#   define ICEE_DECLSPEC_IMPORT __declspec(dllimport)
+#if ((defined(_MSC_VER) || defined(_WIN32_WCE)) && !defined(ICE_STATIC_LIBS)) || (defined(__HP_aCC) && defined(__HP_WINDLL))
+#   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
+#   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
 #elif defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x550)
-#   define ICEE_DECLSPEC_EXPORT __global
-#   define ICEE_DECLSPEC_IMPORT
+#   define ICE_DECLSPEC_EXPORT __global
+#   define ICE_DECLSPEC_IMPORT
 #else
-#   define ICEE_DECLSPEC_EXPORT /**/
-#   define ICEE_DECLSPEC_IMPORT /**/
+#   define ICE_DECLSPEC_EXPORT /**/
+#   define ICE_DECLSPEC_IMPORT /**/
 #endif
 
 //
 // Let's use these extensions with IceE:
 //
-#ifdef ICEE_API_EXPORTS
-#   define ICEE_API ICEE_DECLSPEC_EXPORT
+#ifdef ICE_API_EXPORTS
+#   define ICE_API ICE_DECLSPEC_EXPORT
 #else
-#   define ICEE_API ICEE_DECLSPEC_IMPORT
+#   define ICE_API ICE_DECLSPEC_IMPORT
 #endif
 
 //
@@ -245,8 +250,8 @@ typedef long long Int64;
 //
 // The Ice version.
 //
-#define ICEE_STRING_VERSION "1.0.0" // "A.B.C", with A=major, B=minor, C=patch
-#define ICEE_INT_VERSION 10000      // AABBCC, with AA=major, BB=minor, CC=patch
+#define ICE_STRING_VERSION "1.0.0" // "A.B.C", with A=major, B=minor, C=patch
+#define ICE_INT_VERSION 10000      // AABBCC, with AA=major, BB=minor, CC=patch
 
 //
 // Some include files we need almost everywhere

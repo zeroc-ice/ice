@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_ENDPOINT_H
-#define ICEE_ENDPOINT_H
+#ifndef ICE_ENDPOINT_H
+#define ICE_ENDPOINT_H
 
 #include <IceE/EndpointF.h>
 #include <IceE/ConnectorF.h>
@@ -16,7 +16,7 @@
 #include <IceE/InstanceF.h>
 #include <IceE/LoggerF.h>
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 #   include <IceE/AcceptorF.h>
 #endif
 
@@ -27,7 +27,7 @@ namespace IceInternal
 
 class BasicStream;
 
-class ICEE_API Endpoint : public IceUtil::Shared
+class ICE_API Endpoint : public IceUtil::Shared
 {
 public:
 
@@ -77,7 +77,7 @@ public:
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
     virtual AcceptorPtr acceptor(EndpointPtr&) const = 0;
 #endif
 
@@ -86,7 +86,7 @@ public:
     // Transceiver or Acceptor.
     //
     virtual bool equivalent(const TransceiverPtr&) const = 0;
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
     virtual bool equivalent(const AcceptorPtr&) const = 0;
 #endif
 

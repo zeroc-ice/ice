@@ -22,7 +22,7 @@
 #include <IceE/ProxyFactory.h> // For createProxy().
 #include <IceE/BasicStream.h>
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 #   include <IceE/ObjectAdapter.h>
 #   include <IceE/Incoming.h>
 #endif
@@ -69,7 +69,7 @@ Ice::Connection::waitForValidation()
     }
 }
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 void
 Ice::Connection::activate()
 {
@@ -92,7 +92,7 @@ Ice::Connection::destroy(DestructionReason reason)
 
     switch(reason)
     {
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 	case ObjectAdapterDeactivated:
 	{
 	    setState(StateClosing, ObjectAdapterDeactivatedException(__FILE__, __LINE__));
@@ -171,7 +171,7 @@ Ice::Connection::isFinished() const
     return true;
 }
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 
 void
 Ice::Connection::waitUntilHolding() const
@@ -304,7 +304,7 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	    // Fill in the request ID.
 	    //
 	    const Byte* p = reinterpret_cast<const Byte*>(&requestId);
-#ifdef ICEE_BIG_ENDIAN
+#ifdef ICE_BIG_ENDIAN
 	    reverse_copy(p, p + sizeof(Int), os->b.begin() + headerSize);
 #else
 	    copy(p, p + sizeof(Int), os->b.begin() + headerSize);
@@ -329,7 +329,7 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	
 	Int sz = static_cast<Int>(os->b.size());
 	const Byte* p = reinterpret_cast<const Byte*>(&sz);
-#ifdef ICEE_BIG_ENDIAN
+#ifdef ICE_BIG_ENDIAN
 	reverse_copy(p, p + sizeof(Int), os->b.begin() + 10);
 #else
 	copy(p, p + sizeof(Int), os->b.begin() + 10);
@@ -387,7 +387,7 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
     }
 }
 
-#ifdef ICEE_HAS_BATCH
+#ifdef ICE_HAS_BATCH
 
 void
 Ice::Connection::prepareBatchRequest(BasicStream* os)
@@ -522,7 +522,7 @@ Ice::Connection::flushBatchRequests()
 	// Fill in the number of requests in the batch.
 	//
 	const Byte* p = reinterpret_cast<const Byte*>(&_batchRequestNum);
-#ifdef ICEE_BIG_ENDIAN
+#ifdef ICE_BIG_ENDIAN
 	reverse_copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
 #else
 	copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
@@ -530,7 +530,7 @@ Ice::Connection::flushBatchRequests()
 	
 	Int sz = static_cast<Int>(_batchStream.b.size());
 	p = reinterpret_cast<const Byte*>(&sz);
-#ifdef ICEE_BIG_ENDIAN
+#ifdef ICE_BIG_ENDIAN
 	reverse_copy(p, p + sizeof(Int), _batchStream.b.begin() + 10);
 #else
 	copy(p, p + sizeof(Int), _batchStream.b.begin() + 10);
@@ -572,7 +572,7 @@ Ice::Connection::flushBatchRequests()
 
 #endif
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 
 void
 Ice::Connection::sendResponse(BasicStream* os)
@@ -589,7 +589,7 @@ Ice::Connection::sendResponse(BasicStream* os)
 
 	Int sz = static_cast<Int>(os->b.size());
 	const Byte* p = reinterpret_cast<const Byte*>(&sz);
-#ifdef ICEE_BIG_ENDIAN
+#ifdef ICE_BIG_ENDIAN
 	reverse_copy(p, p + sizeof(Int), os->b.begin() + 10);
 #else
 	copy(p, p + sizeof(Int), os->b.begin() + 10);
@@ -665,7 +665,7 @@ Ice::Connection::endpoint() const
     return _endpoint; // No mutex protection necessary, _endpoint is immutable.
 }
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 
 void
 Ice::Connection::setAdapter(const ObjectAdapterPtr& adapter)
@@ -758,7 +758,7 @@ Ice::Connection::toString() const
     return _desc; // No mutex lock, _desc is immutable.
 }
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 Ice::Connection::Connection(const InstancePtr& instance,
 			    const TransceiverPtr& transceiver,
 			    const EndpointPtr& endpoint,
@@ -774,19 +774,19 @@ Ice::Connection::Connection(const InstancePtr& instance,
     _desc(transceiver->toString()),
     _type(transceiver->type()),
     _endpoint(endpoint),
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
     _adapter(adapter),
 #endif
     _logger(_instance->logger()), // Cached for better performance.
     _traceLevels(_instance->traceLevels()), // Cached for better performance.
     _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
     _requestHdr(headerSize + sizeof(Int), 0),
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
     _replyHdr(headerSize, 0),
 #endif
     _nextRequestId(1),
     _requestsHint(_requests.end()),
-#ifdef ICEE_HAS_BATCH
+#ifdef ICE_HAS_BATCH
     _requestBatchHdr(headerSize + sizeof(Int), 0),
     _batchStream(_instance.get()),
     _batchStreamInUse(false),
@@ -808,7 +808,7 @@ Ice::Connection::Connection(const InstancePtr& instance,
     requestHdr[8] = requestMsg;
     requestHdr[9] = 0;
 
-#ifdef ICEE_HAS_BATCH
+#ifdef ICE_HAS_BATCH
     vector<Byte>& requestBatchHdr = const_cast<vector<Byte>&>(_requestBatchHdr);
     requestBatchHdr[0] = magic[0];
     requestBatchHdr[1] = magic[1];
@@ -822,7 +822,7 @@ Ice::Connection::Connection(const InstancePtr& instance,
     requestBatchHdr[9] = 0;
 #endif
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
     vector<Byte>& replyHdr = const_cast<vector<Byte>&>(_replyHdr);
     replyHdr[0] = magic[0];
     replyHdr[1] = magic[1];
@@ -886,7 +886,7 @@ Ice::Connection::~Connection()
 void
 Ice::Connection::validate()
 {
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
     bool active;
 
     {
@@ -917,7 +917,7 @@ Ice::Connection::validate()
     	    timeout = _endpoint->timeout();
         }
         
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
         if(active)
         {
     	    BasicStream os(_instance.get());
@@ -1015,7 +1015,7 @@ Ice::Connection::validate()
         _exception->ice_throw();
     }
 
-#ifdef ICEE_PURE_CLIENT
+#ifdef ICE_PURE_CLIENT
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
@@ -1073,7 +1073,7 @@ Ice::Connection::setState(State state, const LocalException& ex)
 		     dynamic_cast<const ForcedCloseConnectionException*>(_exception.get()) ||
 		     dynamic_cast<const ConnectionTimeoutException*>(_exception.get()) ||
 		     dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 		     dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get()) ||
 #endif
 		     (dynamic_cast<const ConnectionLostException*>(_exception.get()) && _state == StateClosing)))
@@ -1115,7 +1115,7 @@ Ice::Connection::setState(State state)
             // Can only switch from holding or not validated to
             // active.
 	    //
-#ifdef ICEE_PURE_CLIENT
+#ifdef ICE_PURE_CLIENT
 	    if(_state != StateNotValidated)
 	    {
 		return;
@@ -1129,7 +1129,7 @@ Ice::Connection::setState(State state)
 	    break;
 	}
 	
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 	case StateHolding:
 	{
 	    //
@@ -1228,7 +1228,7 @@ Ice::Connection::initiateShutdown() const
 
 void
 Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 			      ,Int& invokeNum, ServantManagerPtr& servantManager, ObjectAdapterPtr& adapter
 #endif
 )
@@ -1266,7 +1266,7 @@ Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
 		break;
 	    }
 	
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 	    case requestMsg:
 	    {
 		if(_state == StateClosing)
@@ -1383,7 +1383,7 @@ Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
     }
 }
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 void
 Ice::Connection::invokeAll(BasicStream& stream, Int invokeNum, Int requestId,
 			    const ServantManagerPtr& servantManager, const ObjectAdapterPtr& adapter)
@@ -1599,7 +1599,7 @@ Ice::Connection::run()
 	}
 
 	Int requestId = 0;
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 	Int invokeNum = 0;
 	ServantManagerPtr servantManager;
 	ObjectAdapterPtr adapter;
@@ -1612,7 +1612,7 @@ Ice::Connection::run()
 	{
 	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 	    while(_state == StateHolding)
 	    {
 		wait();
@@ -1620,7 +1620,7 @@ Ice::Connection::run()
 #endif
 	    if(_state != StateClosed)
 	    {
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 		parseMessage(stream, requestId, invokeNum, servantManager, adapter);
 #else
 		parseMessage(stream, requestId);
@@ -1671,7 +1671,7 @@ Ice::Connection::run()
 	// messages) must be done outside the thread synchronization,
 	// so that nested calls are possible.
 	//
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 	invokeAll(stream, invokeNum, requestId, servantManager, adapter);
 #endif
 	for(map<Int, Outgoing*>::iterator p = requests.begin(); p != requests.end(); ++p)

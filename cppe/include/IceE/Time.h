@@ -7,15 +7,15 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_TIME_H
-#define ICEE_TIME_H
+#ifndef ICE_TIME_H
+#define ICE_TIME_H
 
 #include <IceE/Config.h>
 
 namespace IceUtil
 {
 
-class ICEE_API Time
+class ICE_API Time
 {
 public:
 

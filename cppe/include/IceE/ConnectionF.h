@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_CONNECTION_F_H
-#define ICEE_CONNECTION_F_H
+#ifndef ICE_CONNECTION_F_H
+#define ICE_CONNECTION_F_H
 
 #include <IceE/Handle.h>
 
@@ -16,17 +16,17 @@ namespace Ice
 {
 
 class Connection;
-ICEE_API bool operator==(const Connection&, const Connection&);
-ICEE_API bool operator!=(const Connection&, const Connection&);
-ICEE_API bool operator<(const Connection&, const Connection&);
+ICE_API bool operator==(const Connection&, const Connection&);
+ICE_API bool operator!=(const Connection&, const Connection&);
+ICE_API bool operator<(const Connection&, const Connection&);
 
 }
 
 namespace IceInternal
 {
 
-ICEE_API void incRef(::Ice::Connection*);
-ICEE_API void decRef(::Ice::Connection*);
+ICE_API void incRef(::Ice::Connection*);
+ICE_API void decRef(::Ice::Connection*);
 
 }
 

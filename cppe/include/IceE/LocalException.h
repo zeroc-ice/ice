@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_LOCAL_EXCEPTION_H
-#define ICEE_LOCAL_EXCEPTION_H
+#ifndef ICE_LOCAL_EXCEPTION_H
+#define ICE_LOCAL_EXCEPTION_H
 
 #include <IceE/Exception.h>
 #include <IceE/Identity.h>
@@ -17,7 +17,7 @@
 namespace Ice
 {
 
-class ICEE_API AlreadyRegisteredException : public ::Ice::LocalException
+class ICE_API AlreadyRegisteredException : public ::Ice::LocalException
 {
 public:
 
@@ -33,7 +33,7 @@ public:
     ::std::string id;
 };
 
-class ICEE_API NotRegisteredException : public ::Ice::LocalException
+class ICE_API NotRegisteredException : public ::Ice::LocalException
 {
 public:
 
@@ -49,7 +49,7 @@ public:
     ::std::string id;
 };
 
-class ICEE_API TwowayOnlyException : public ::Ice::LocalException
+class ICE_API TwowayOnlyException : public ::Ice::LocalException
 {
 public:
 
@@ -64,7 +64,7 @@ public:
     ::std::string operation;
 };
 
-class ICEE_API CloneNotImplementedException : public ::Ice::LocalException
+class ICE_API CloneNotImplementedException : public ::Ice::LocalException
 {
 public:
 
@@ -76,7 +76,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API UnknownException : public ::Ice::LocalException
+class ICE_API UnknownException : public ::Ice::LocalException
 {
 public:
 
@@ -91,7 +91,7 @@ public:
     ::std::string unknown;
 };
 
-class ICEE_API UnknownLocalException : public ::Ice::UnknownException
+class ICE_API UnknownLocalException : public ::Ice::UnknownException
 {
 public:
 
@@ -104,7 +104,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API UnknownUserException : public ::Ice::UnknownException
+class ICE_API UnknownUserException : public ::Ice::UnknownException
 {
 public:
 
@@ -117,7 +117,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API VersionMismatchException : public ::Ice::LocalException
+class ICE_API VersionMismatchException : public ::Ice::LocalException
 {
 public:
 
@@ -129,7 +129,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API CommunicatorDestroyedException : public ::Ice::LocalException
+class ICE_API CommunicatorDestroyedException : public ::Ice::LocalException
 {
 public:
 
@@ -141,9 +141,9 @@ public:
     virtual void ice_throw() const;
 };
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 
-class ICEE_API ObjectAdapterDeactivatedException : public ::Ice::LocalException
+class ICE_API ObjectAdapterDeactivatedException : public ::Ice::LocalException
 {
 public:
 
@@ -158,7 +158,7 @@ public:
     ::std::string name;
 };
 
-class ICEE_API ObjectAdapterIdInUseException : public ::Ice::LocalException
+class ICE_API ObjectAdapterIdInUseException : public ::Ice::LocalException
 {
 public:
 
@@ -174,7 +174,7 @@ public:
 };
 #endif
 
-class ICEE_API NoEndpointException : public ::Ice::LocalException
+class ICE_API NoEndpointException : public ::Ice::LocalException
 {
 public:
 
@@ -189,7 +189,7 @@ public:
     ::std::string proxy;
 };
 
-class ICEE_API EndpointParseException : public ::Ice::LocalException
+class ICE_API EndpointParseException : public ::Ice::LocalException
 {
 public:
 
@@ -204,7 +204,7 @@ public:
     ::std::string str;
 };
 
-class ICEE_API IdentityParseException : public ::Ice::LocalException
+class ICE_API IdentityParseException : public ::Ice::LocalException
 {
 public:
 
@@ -219,7 +219,7 @@ public:
     ::std::string str;
 };
 
-class ICEE_API ProxyParseException : public ::Ice::LocalException
+class ICE_API ProxyParseException : public ::Ice::LocalException
 {
 public:
 
@@ -234,7 +234,7 @@ public:
     ::std::string str;
 };
 
-class ICEE_API IllegalIdentityException : public ::Ice::LocalException
+class ICE_API IllegalIdentityException : public ::Ice::LocalException
 {
 public:
 
@@ -249,7 +249,7 @@ public:
     ::Ice::Identity id;
 };
 
-class ICEE_API RequestFailedException : public ::Ice::LocalException
+class ICE_API RequestFailedException : public ::Ice::LocalException
 {
 public:
 
@@ -266,7 +266,7 @@ public:
     ::std::string operation;
 };
 
-class ICEE_API ObjectNotExistException : public ::Ice::RequestFailedException
+class ICE_API ObjectNotExistException : public ::Ice::RequestFailedException
 {
 public:
 
@@ -279,7 +279,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API FacetNotExistException : public ::Ice::RequestFailedException
+class ICE_API FacetNotExistException : public ::Ice::RequestFailedException
 {
 public:
 
@@ -292,7 +292,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API OperationNotExistException : public ::Ice::RequestFailedException
+class ICE_API OperationNotExistException : public ::Ice::RequestFailedException
 {
 public:
 
@@ -305,7 +305,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API SyscallException : public ::Ice::LocalException
+class ICE_API SyscallException : public ::Ice::LocalException
 {
 public:
 
@@ -320,7 +320,7 @@ public:
     ::Ice::Int error;
 };
 
-class ICEE_API SocketException : public ::Ice::SyscallException
+class ICE_API SocketException : public ::Ice::SyscallException
 {
 public:
 
@@ -333,7 +333,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API FileException : public ::Ice::SyscallException
+class ICE_API FileException : public ::Ice::SyscallException
 {
 public:
 
@@ -348,7 +348,7 @@ public:
     ::std::string path;
 };
 
-class ICEE_API ConnectFailedException : public ::Ice::SocketException
+class ICE_API ConnectFailedException : public ::Ice::SocketException
 {
 public:
 
@@ -361,7 +361,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API ConnectionRefusedException : public ::Ice::ConnectFailedException
+class ICE_API ConnectionRefusedException : public ::Ice::ConnectFailedException
 {
 public:
 
@@ -374,7 +374,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API ConnectionLostException : public ::Ice::SocketException
+class ICE_API ConnectionLostException : public ::Ice::SocketException
 {
 public:
 
@@ -387,7 +387,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API DNSException : public ::Ice::LocalException
+class ICE_API DNSException : public ::Ice::LocalException
 {
 public:
 
@@ -403,7 +403,7 @@ public:
     ::std::string host;
 };
 
-class ICEE_API TimeoutException : public ::Ice::LocalException
+class ICE_API TimeoutException : public ::Ice::LocalException
 {
 public:
 
@@ -415,7 +415,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API ConnectTimeoutException : public ::Ice::TimeoutException
+class ICE_API ConnectTimeoutException : public ::Ice::TimeoutException
 {
 public:
 
@@ -427,7 +427,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API CloseTimeoutException : public ::Ice::TimeoutException
+class ICE_API CloseTimeoutException : public ::Ice::TimeoutException
 {
 public:
 
@@ -439,7 +439,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API ConnectionTimeoutException : public ::Ice::TimeoutException
+class ICE_API ConnectionTimeoutException : public ::Ice::TimeoutException
 {
 public:
 
@@ -451,7 +451,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API ProtocolException : public ::Ice::LocalException
+class ICE_API ProtocolException : public ::Ice::LocalException
 {
 public:
 
@@ -463,7 +463,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API BadMagicException : public ::Ice::ProtocolException
+class ICE_API BadMagicException : public ::Ice::ProtocolException
 {
 public:
 
@@ -478,7 +478,7 @@ public:
     ::Ice::ByteSeq badMagic;
 };
 
-class ICEE_API UnsupportedProtocolException : public ::Ice::ProtocolException
+class ICE_API UnsupportedProtocolException : public ::Ice::ProtocolException
 {
 public:
 
@@ -496,7 +496,7 @@ public:
     ::Ice::Int minor;
 };
 
-class ICEE_API UnsupportedEncodingException : public ::Ice::ProtocolException
+class ICE_API UnsupportedEncodingException : public ::Ice::ProtocolException
 {
 public:
 
@@ -514,7 +514,7 @@ public:
     ::Ice::Int minor;
 };
 
-class ICEE_API UnknownMessageException : public ::Ice::ProtocolException
+class ICE_API UnknownMessageException : public ::Ice::ProtocolException
 {
 public:
 
@@ -526,7 +526,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API ConnectionNotValidatedException : public ::Ice::ProtocolException
+class ICE_API ConnectionNotValidatedException : public ::Ice::ProtocolException
 {
 public:
 
@@ -538,7 +538,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API UnknownRequestIdException : public ::Ice::ProtocolException
+class ICE_API UnknownRequestIdException : public ::Ice::ProtocolException
 {
 public:
 
@@ -550,7 +550,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API UnknownReplyStatusException : public ::Ice::ProtocolException
+class ICE_API UnknownReplyStatusException : public ::Ice::ProtocolException
 {
 public:
 
@@ -562,7 +562,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API CloseConnectionException : public ::Ice::ProtocolException
+class ICE_API CloseConnectionException : public ::Ice::ProtocolException
 {
 public:
 
@@ -574,7 +574,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API ForcedCloseConnectionException : public ::Ice::ProtocolException
+class ICE_API ForcedCloseConnectionException : public ::Ice::ProtocolException
 {
 public:
 
@@ -586,7 +586,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API IllegalMessageSizeException : public ::Ice::ProtocolException
+class ICE_API IllegalMessageSizeException : public ::Ice::ProtocolException
 {
 public:
 
@@ -598,7 +598,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API FeatureNotSupportedException : public ::Ice::LocalException
+class ICE_API FeatureNotSupportedException : public ::Ice::LocalException
 {
 public:
 
@@ -612,7 +612,7 @@ public:
     ::std::string unsupportedFeature;
 };
 
-class ICEE_API MarshalException : public ::Ice::ProtocolException
+class ICE_API MarshalException : public ::Ice::ProtocolException
 {
 public:
 
@@ -627,7 +627,7 @@ public:
     ::std::string reason;
 };
 
-class ICEE_API ProxyUnmarshalException : public ::Ice::MarshalException
+class ICE_API ProxyUnmarshalException : public ::Ice::MarshalException
 {
 public:
 
@@ -640,7 +640,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API UnmarshalOutOfBoundsException : public ::Ice::MarshalException
+class ICE_API UnmarshalOutOfBoundsException : public ::Ice::MarshalException
 {
 public:
 
@@ -653,7 +653,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API MemoryLimitException : public ::Ice::MarshalException
+class ICE_API MemoryLimitException : public ::Ice::MarshalException
 {
 public:
 
@@ -666,7 +666,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API EncapsulationException : public ::Ice::MarshalException
+class ICE_API EncapsulationException : public ::Ice::MarshalException
 {
 public:
 
@@ -679,7 +679,7 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICEE_API NegativeSizeException : public ::Ice::MarshalException
+class ICE_API NegativeSizeException : public ::Ice::MarshalException
 {
 public:
 

@@ -19,11 +19,11 @@
 #include <IceE/LocalException.h>
 #include <IceE/Properties.h>
 #include <IceE/Functional.h>
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
 #    include <IceE/LocatorInfo.h>
 #    include <IceE/Locator.h>
 #endif
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 #    include <IceE/RouterInfo.h>
 #    include <IceE/Router.h>
 #    include <IceE/Endpoint.h>
@@ -87,7 +87,7 @@ Ice::ObjectAdapter::getCommunicator() const
 void
 Ice::ObjectAdapter::activate()
 {
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     LocatorRegistryPrx locatorRegistry;
 #endif
     bool printAdapterReady = false;
@@ -99,7 +99,7 @@ Ice::ObjectAdapter::activate()
 
 	if(!_printAdapterReadyDone)
 	{
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
 	    if(_locatorInfo && !_id.empty())
 	    {
 		locatorRegistry = _locatorInfo->getLocatorRegistry();
@@ -117,7 +117,7 @@ Ice::ObjectAdapter::activate()
     // We must call on the locator registry outside the thread
     // synchronization, to avoid deadlocks.
     //
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     if(locatorRegistry)
     {
 	//
@@ -439,7 +439,7 @@ Ice::ObjectAdapter::createReverseProxy(const Identity& ident) const
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 void
 Ice::ObjectAdapter::addRouter(const RouterPrx& router)
 {
@@ -477,7 +477,7 @@ Ice::ObjectAdapter::addRouter(const RouterPrx& router)
 }
 #endif
 
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
 void
 Ice::ObjectAdapter::setLocator(const LocatorPrx& locator)
 {
@@ -499,7 +499,7 @@ Ice::ObjectAdapter::isLocal(const ObjectPrx& proxy) const
     ReferencePtr ref = proxy->__reference();
     vector<EndpointPtr>::const_iterator p;
 
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(ref);
     if(ir)
     {
@@ -538,7 +538,7 @@ Ice::ObjectAdapter::isLocal(const ObjectPrx& proxy) const
     // router's server proxy endpoints (if any), are also considered
     // local.
     //
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
     for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {
 	if(binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
@@ -637,7 +637,7 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
 	endpts = _instance->properties()->getProperty(name + ".PublishedEndpoints");
 	_publishedEndpoints = parseEndpoints(endpts);
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 	string router = _instance->properties()->getProperty(_name + ".Router");
 	if(!router.empty())
 	{
@@ -645,7 +645,7 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
 	}
 #endif
 	
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
 	string locator = _instance->properties()->getProperty(_name + ".Locator");
 	if(!locator.empty())
 	{
@@ -692,19 +692,19 @@ Ice::ObjectAdapter::~ObjectAdapter()
 ObjectPrx
 Ice::ObjectAdapter::newProxy(const Identity& ident, const string& facet) const
 {
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     if(_id.empty())
     {
 #endif
 	return newDirectProxy(ident, facet);
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     }
     else
     {
 	//
 	// Create a reference with the adapter id.
 	//
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet,Reference::ModeTwoway, false,
 								 _id, 0, _locatorInfo);
 
@@ -745,14 +745,14 @@ Ice::ObjectAdapter::newDirectProxy(const Identity& ident, const string& facet) c
     // any. This way, object references created by this object adapter
     // will also point to the router's server proxy endpoints.
     //
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
     copy(_routerEndpoints.begin(), _routerEndpoints.end(), back_inserter(endpoints));
 #endif
     
     //
     // Create a reference and return a proxy for this reference.
     //
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
     ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet, Reference::ModeTwoway, false,
 							     endpoints, 0);
 #else

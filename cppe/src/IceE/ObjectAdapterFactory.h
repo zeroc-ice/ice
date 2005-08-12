@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_OBJECT_ADAPTER_FACTORY_H
-#define ICEE_OBJECT_ADAPTER_FACTORY_H
+#ifndef ICE_OBJECT_ADAPTER_FACTORY_H
+#define ICE_OBJECT_ADAPTER_FACTORY_H
 
 #include <IceE/ObjectAdapterF.h>
 #include <IceE/ProxyF.h>

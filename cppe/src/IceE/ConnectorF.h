@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_CONNECTOR_F_H
-#define ICEE_CONNECTOR_F_H
+#ifndef ICE_CONNECTOR_F_H
+#define ICE_CONNECTOR_F_H
 
 #include <IceE/Handle.h>
 
@@ -16,8 +16,8 @@ namespace IceInternal
 {
 
 class Connector;
-ICEE_API void incRef(Connector*);
-ICEE_API void decRef(Connector*);
+ICE_API void incRef(Connector*);
+ICE_API void decRef(Connector*);
 typedef Handle<Connector> ConnectorPtr;
 
 }

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_IDENTITY_ICE
-#define ICEE_IDENTITY_ICE
+#ifndef ICE_IDENTITY_ICE
+#define ICE_IDENTITY_ICE
 
 module Ice
 {

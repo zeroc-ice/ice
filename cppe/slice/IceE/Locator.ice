@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_LOCATOR_ICE
-#define ICEE_LOCATOR_ICE
+#ifndef ICE_LOCATOR_ICE
+#define ICE_LOCATOR_ICE
 
 #include <IceE/Identity.ice>
 

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_STATIC_MUTEX_H
-#define ICEE_STATIC_MUTEX_H
+#ifndef ICE_STATIC_MUTEX_H
+#define ICE_STATIC_MUTEX_H
 
 #include <IceE/Config.h>
 #include <IceE/Lock.h>
@@ -35,7 +35,7 @@ class Cond;
 //
 // Simple non-recursive Mutex implementation.
 // These mutexes are POD types (see ISO C++ 9(4) and 8.5.1) and must be
-// initialized statically using ICEE_STATIC_MUTEX_INITIALIZER.
+// initialized statically using ICE_STATIC_MUTEX_INITIALIZER.
 //
 class StaticMutex
 {
@@ -97,7 +97,7 @@ private:
 
 #ifdef _WIN32
     inline bool initialized() const;
-    ICEE_API void initialize() const;
+    ICE_API void initialize() const;
 #endif
 
 #ifndef _MSC_VER
@@ -107,9 +107,9 @@ private:
 };
 
 #ifdef _WIN32
-#   define ICEE_STATIC_MUTEX_INITIALIZER { false }
+#   define ICE_STATIC_MUTEX_INITIALIZER { false }
 #else
-#   define ICEE_STATIC_MUTEX_INITIALIZER { PTHREAD_MUTEX_INITIALIZER }
+#   define ICE_STATIC_MUTEX_INITIALIZER { PTHREAD_MUTEX_INITIALIZER }
 #endif
 
 
@@ -117,7 +117,7 @@ private:
 // A "shared" global mutex that can be used for very simple tasks
 // which should not lock any other mutexes.
 //
-extern ICEE_API StaticMutex globalMutex;
+extern ICE_API StaticMutex globalMutex;
 
 //
 // For performance reasons the following functions are inlined.

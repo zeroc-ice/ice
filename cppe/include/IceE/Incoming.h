@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_INCOMING_H
-#define ICEE_INCOMING_H
+#ifndef ICE_INCOMING_H
+#define ICE_INCOMING_H
 
 #include <IceE/InstanceF.h>
 #include <IceE/ConnectionF.h>
@@ -19,7 +19,7 @@
 namespace IceInternal
 {
 
-class ICEE_API IncomingBase : private IceUtil::noncopyable
+class ICE_API IncomingBase : private IceUtil::noncopyable
 {
 protected:
 
@@ -44,7 +44,7 @@ protected:
     Ice::Connection* _connection;
 };
 
-class ICEE_API Incoming : public IncomingBase
+class ICE_API Incoming : public IncomingBase
 {
 public:
 

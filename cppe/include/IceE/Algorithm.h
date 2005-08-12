@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_ALGORITHM_H
-#define ICEE_ALGORITHM_H
+#ifndef ICE_ALGORITHM_H
+#define ICE_ALGORITHM_H
 
 #include <algorithm>
 

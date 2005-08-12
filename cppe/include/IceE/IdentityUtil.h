@@ -7,16 +7,16 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_IDENTITY_UTIL_H
-#define ICEE_IDENTITY_UTIL_H
+#ifndef ICE_IDENTITY_UTIL_H
+#define ICE_IDENTITY_UTIL_H
 
 #include <IceE/Identity.h>
 
 namespace Ice
 {
 
-ICEE_API Identity stringToIdentity(const std::string&);
-ICEE_API std::string identityToString(const Identity&);
+ICE_API Identity stringToIdentity(const std::string&);
+ICE_API std::string identityToString(const Identity&);
 
 }
 

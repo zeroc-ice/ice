@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_SAFE_STDIO_H
-#define ICEE_SAFE_STDIO_H
+#ifndef ICE_SAFE_STDIO_H
+#define ICE_SAFE_STDIO_H
 
 #include <IceE/Config.h>
 
@@ -20,7 +20,7 @@ namespace Ice
 // 1. snprintf is _snprintf under windows.
 // 2. This function ensures the buffer is null terminated.
 //
-ICEE_API std::string printfToString(const char*, ...);
+ICE_API std::string printfToString(const char*, ...);
 
 }
 

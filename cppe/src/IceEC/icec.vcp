@@ -58,7 +58,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "_USRDLL" /D "ICE_EXPORTS" /YX /Gs8192 /GF /O2 /c
-# ADD CPP /nologo /W3 /GR /GX /Oxs /I ".." /I "../../include" /D "_i386_" /D "_X86_" /D "x86" /D "NDEBUG" /D "_USRDLL" /D "ICEE_API_EXPORTS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /GR /GX /Oxs /I ".." /I "../../include" /D "_i386_" /D "_X86_" /D "x86" /D "NDEBUG" /D "_USRDLL" /D "ICE_API_EXPORTS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICE_PURE_CLIENT" /Gs8192 /GF /c
 # SUBTRACT CPP /YX
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -92,7 +92,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "_USRDLL" /D "ICE_EXPORTS" /YX /Gs8192 /GF /c
-# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I ".." /I "../../include" /D "DEBUG" /D "_i386_" /D "_X86_" /D "x86" /D "_USRDLL" /D "ICEE_API_EXPORTS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I ".." /I "../../include" /D "DEBUG" /D "_i386_" /D "_X86_" /D "x86" /D "_USRDLL" /D "ICE_API_EXPORTS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICE_PURE_CLIENT" /Gs8192 /GF /c
 # SUBTRACT CPP /YX
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -126,7 +126,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "_USRDLL" /D "ICE_EXPORTS" /YX /O2 /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /GR /GX /Gy /I ".." /I "../../include" /D "ARM" /D "_ARM_" /D "ARMV4" /D "NDEBUG" /D "_USRDLL" /D "ICEE_API_EXPORTS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /GR /GX /Gy /I ".." /I "../../include" /D "ARM" /D "_ARM_" /D "ARMV4" /D "NDEBUG" /D "_USRDLL" /D "ICE_API_EXPORTS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICE_PURE_CLIENT" /O2 /M$(CECrtMT) /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -159,7 +159,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_USRDLL" /D "ICE_EXPORTS" /YX /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /GR /GX /Zi /Od /Gy /I ".." /I "../../include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D "_USRDLL" /D "ICEE_API_EXPORTS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /GR /GX /Zi /Od /Gy /I ".." /I "../../include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D "_USRDLL" /D "ICE_API_EXPORTS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICE_PURE_CLIENT" /M$(CECrtMTDebug) /c
 # SUBTRACT CPP /YX
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -189,7 +189,7 @@ LINK32=link.exe
 # PROP Target_Dir ""
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /M$(CECrtMTDebug) /c
-# ADD CPP /nologo /W3 /GR /GX /Zi /Od /Gy /I ".." /I "../../include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D "_LIB" /D "ICEE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /GR /GX /Zi /Od /Gy /I ".." /I "../../include" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D "_LIB" /D "ICE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICE_PURE_CLIENT" /M$(CECrtMTDebug) /c
 # SUBTRACT CPP /YX
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
@@ -216,7 +216,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "NDEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /O2 /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /GR /GX /Gy /I ".." /I "../../include" /D "NDEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D "_LIB" /D "ICEE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /GR /GX /Gy /I ".." /I "../../include" /D "NDEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D "_LIB" /D "ICE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICE_PURE_CLIENT" /O2 /M$(CECrtMT) /c
 # SUBTRACT CPP /YX
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
@@ -243,7 +243,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /Zi /Od /D "DEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "_LIB" /YX /Gs8192 /GF /c
-# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I ".." /I "../../include" /D "DEBUG" /D "_i386_" /D "_X86_" /D "x86" /D "_LIB" /D "ICEE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /GR /GX /Zi /Od /I ".." /I "../../include" /D "DEBUG" /D "_i386_" /D "_X86_" /D "x86" /D "_LIB" /D "ICE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICE_PURE_CLIENT" /Gs8192 /GF /c
 # SUBTRACT CPP /YX
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
@@ -270,7 +270,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "_LIB" /YX /Gs8192 /GF /O2 /c
-# ADD CPP /nologo /W3 /GR /GX /I ".." /I "../../include" /D "_i386_" /D "_X86_" /D "x86" /D "NDEBUG" /D "_LIB" /D "ICEE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICEE_PURE_CLIENT" /Gs8192 /GF /O2 /c
+# ADD CPP /nologo /W3 /GR /GX /I ".." /I "../../include" /D "_i386_" /D "_X86_" /D "x86" /D "NDEBUG" /D "_LIB" /D "ICE_STATIC_LIBS" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "ICE_PURE_CLIENT" /Gs8192 /GF /O2 /c
 # SUBTRACT CPP /YX
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
@@ -30450,7 +30450,7 @@ SOURCE="..\..\slice\IceE\BuiltinSequences.ice"
 InputPath="..\..\slice\IceE\BuiltinSequences.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
 	move BuiltinSequences.h. ..\..\include\icee \
 	
 
@@ -30467,7 +30467,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\BuiltinSequences.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
 	move BuiltinSequences.h. ..\..\include\icee \
 	
 
@@ -30484,7 +30484,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\BuiltinSequences.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
 	move BuiltinSequences.h. ..\..\include\icee \
 	
 
@@ -30501,7 +30501,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\BuiltinSequences.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
 	move BuiltinSequences.h. ..\..\include\icee \
 	
 
@@ -30518,7 +30518,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\BuiltinSequences.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
 	move BuiltinSequences.h. ..\..\include\icee \
 	
 
@@ -30535,7 +30535,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\BuiltinSequences.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
 	move BuiltinSequences.h. ..\..\include\icee \
 	
 
@@ -30552,7 +30552,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\BuiltinSequences.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
 	move BuiltinSequences.h. ..\..\include\icee \
 	
 
@@ -30569,7 +30569,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\BuiltinSequences.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/BuiltinSequences.ice \
 	move BuiltinSequences.h. ..\..\include\icee \
 	
 
@@ -30593,7 +30593,7 @@ SOURCE="..\..\slice\IceE\FacetMap.ice"
 InputPath="..\..\slice\IceE\FacetMap.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
 	move FacetMap.h ..\..\include\icee \
 	
 
@@ -30610,7 +30610,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\FacetMap.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
 	move FacetMap.h ..\..\include\icee \
 	
 
@@ -30627,7 +30627,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\FacetMap.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
 	move FacetMap.h ..\..\include\icee \
 	
 
@@ -30644,7 +30644,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\FacetMap.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
 	move FacetMap.h ..\..\include\icee \
 	
 
@@ -30661,7 +30661,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\FacetMap.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
 	move FacetMap.h ..\..\include\icee \
 	
 
@@ -30678,7 +30678,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\FacetMap.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
 	move FacetMap.h ..\..\include\icee \
 	
 
@@ -30695,7 +30695,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\FacetMap.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
 	move FacetMap.h ..\..\include\icee \
 	
 
@@ -30712,7 +30712,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\FacetMap.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/FacetMap.ice \
 	move FacetMap.h ..\..\include\icee \
 	
 
@@ -30736,7 +30736,7 @@ SOURCE="..\..\slice\IceE\Identity.ice"
 InputPath="..\..\slice\IceE\Identity.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
 	move Identity.h ..\..\include\icee \
 	
 
@@ -30753,7 +30753,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Identity.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
 	move Identity.h ..\..\include\icee \
 	
 
@@ -30770,7 +30770,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Identity.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
 	move Identity.h ..\..\include\icee \
 	
 
@@ -30787,7 +30787,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Identity.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
 	move Identity.h ..\..\include\icee \
 	
 
@@ -30804,7 +30804,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Identity.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
 	move Identity.h ..\..\include\icee \
 	
 
@@ -30821,7 +30821,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Identity.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
 	move Identity.h ..\..\include\icee \
 	
 
@@ -30838,7 +30838,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Identity.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
 	move Identity.h ..\..\include\icee \
 	
 
@@ -30855,7 +30855,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Identity.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Identity.ice \
 	move Identity.h ..\..\include\icee \
 	
 
@@ -30879,7 +30879,7 @@ SOURCE="..\..\slice\IceE\Locator.ice"
 InputPath="..\..\slice\IceE\Locator.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
 	move Locator.h ..\..\include\icee \
 	
 
@@ -30896,7 +30896,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Locator.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
 	move Locator.h ..\..\include\icee \
 	
 
@@ -30913,7 +30913,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Locator.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
 	move Locator.h ..\..\include\icee \
 	
 
@@ -30930,7 +30930,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Locator.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
 	move Locator.h ..\..\include\icee \
 	
 
@@ -30947,7 +30947,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Locator.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
 	move Locator.h ..\..\include\icee \
 	
 
@@ -30964,7 +30964,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Locator.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
 	move Locator.h ..\..\include\icee \
 	
 
@@ -30981,7 +30981,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Locator.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
 	move Locator.h ..\..\include\icee \
 	
 
@@ -30998,7 +30998,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Locator.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Locator.ice \
 	move Locator.h ..\..\include\icee \
 	
 
@@ -31022,7 +31022,7 @@ SOURCE="..\..\slice\IceE\LocatorF.ice"
 InputPath="..\..\slice\IceE\LocatorF.ice"
 
 "..\..\include\icee\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
 	move LocatorF.h ..\..\include\icee 
 	
 # End Custom Build
@@ -31033,7 +31033,7 @@ InputPath="..\..\slice\IceE\LocatorF.ice"
 InputPath="..\..\slice\IceE\LocatorF.ice"
 
 "..\..\include\icee\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
 	move LocatorF.h ..\..\include\icee 
 	
 # End Custom Build
@@ -31044,7 +31044,7 @@ InputPath="..\..\slice\IceE\LocatorF.ice"
 InputPath="..\..\slice\IceE\LocatorF.ice"
 
 "..\..\include\icee\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
 	move LocatorF.h ..\..\include\icee 
 	
 # End Custom Build
@@ -31055,7 +31055,7 @@ InputPath="..\..\slice\IceE\LocatorF.ice"
 InputPath="..\..\slice\IceE\LocatorF.ice"
 
 "..\..\include\icee\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
 	move LocatorF.h ..\..\include\icee 
 	
 # End Custom Build
@@ -31066,7 +31066,7 @@ InputPath="..\..\slice\IceE\LocatorF.ice"
 InputPath="..\..\slice\IceE\LocatorF.ice"
 
 "..\..\include\icee\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
 	move LocatorF.h ..\..\include\icee 
 	
 # End Custom Build
@@ -31077,7 +31077,7 @@ InputPath="..\..\slice\IceE\LocatorF.ice"
 InputPath="..\..\slice\IceE\LocatorF.ice"
 
 "..\..\include\icee\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
 	move LocatorF.h ..\..\include\icee 
 	
 # End Custom Build
@@ -31088,7 +31088,7 @@ InputPath="..\..\slice\IceE\LocatorF.ice"
 InputPath="..\..\slice\IceE\LocatorF.ice"
 
 "..\..\include\icee\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
 	move LocatorF.h ..\..\include\icee 
 	
 # End Custom Build
@@ -31099,7 +31099,7 @@ InputPath="..\..\slice\IceE\LocatorF.ice"
 InputPath="..\..\slice\IceE\LocatorF.ice"
 
 "..\..\include\icee\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice 
 	move LocatorF.h ..\..\include\icee 
 	
 # End Custom Build
@@ -31117,7 +31117,7 @@ SOURCE="..\..\slice\IceE\Logger.ice"
 InputPath="..\..\slice\IceE\Logger.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
 	move Logger.h ..\..\include\icee \
 	
 
@@ -31134,7 +31134,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Logger.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
 	move Logger.h ..\..\include\icee \
 	
 
@@ -31151,7 +31151,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Logger.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
 	move Logger.h ..\..\include\icee \
 	
 
@@ -31168,7 +31168,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Logger.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
 	move Logger.h ..\..\include\icee \
 	
 
@@ -31185,7 +31185,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Logger.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
 	move Logger.h ..\..\include\icee \
 	
 
@@ -31202,7 +31202,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Logger.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
 	move Logger.h ..\..\include\icee \
 	
 
@@ -31219,7 +31219,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Logger.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
 	move Logger.h ..\..\include\icee \
 	
 
@@ -31236,7 +31236,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Logger.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice \
 	move Logger.h ..\..\include\icee \
 	
 
@@ -31260,7 +31260,7 @@ SOURCE="..\..\slice\IceE\LoggerF.ice"
 InputPath="..\..\slice\IceE\LoggerF.ice"
 
 "..\..\include\icee\LoggerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
 	
@@ -31272,7 +31272,7 @@ InputPath="..\..\slice\IceE\LoggerF.ice"
 InputPath="..\..\slice\IceE\LoggerF.ice"
 
 "..\..\include\icee\LoggerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
 	
@@ -31284,7 +31284,7 @@ InputPath="..\..\slice\IceE\LoggerF.ice"
 InputPath="..\..\slice\IceE\LoggerF.ice"
 
 "..\..\include\icee\LoggerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
 	
@@ -31296,7 +31296,7 @@ InputPath="..\..\slice\IceE\LoggerF.ice"
 InputPath="..\..\slice\IceE\LoggerF.ice"
 
 "..\..\include\icee\LoggerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
 	
@@ -31308,7 +31308,7 @@ InputPath="..\..\slice\IceE\LoggerF.ice"
 InputPath="..\..\slice\IceE\LoggerF.ice"
 
 "..\..\include\icee\LoggerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
 	
@@ -31320,7 +31320,7 @@ InputPath="..\..\slice\IceE\LoggerF.ice"
 InputPath="..\..\slice\IceE\LoggerF.ice"
 
 "..\..\include\icee\LoggerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
 	
@@ -31332,7 +31332,7 @@ InputPath="..\..\slice\IceE\LoggerF.ice"
 InputPath="..\..\slice\IceE\LoggerF.ice"
 
 "..\..\include\icee\LoggerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
 	
@@ -31344,7 +31344,7 @@ InputPath="..\..\slice\IceE\LoggerF.ice"
 InputPath="..\..\slice\IceE\LoggerF.ice"
 
 "..\..\include\icee\LoggerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
 	
@@ -31363,7 +31363,7 @@ SOURCE="..\..\slice\IceE\Router.ice"
 InputPath="..\..\slice\IceE\Router.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
 	move Router.h ..\..\include\icee \
 	
 
@@ -31380,7 +31380,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Router.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
 	move Router.h ..\..\include\icee \
 	
 
@@ -31397,7 +31397,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Router.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
 	move Router.h ..\..\include\icee \
 	
 
@@ -31414,7 +31414,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Router.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
 	move Router.h ..\..\include\icee \
 	
 
@@ -31431,7 +31431,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Router.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
 	move Router.h ..\..\include\icee \
 	
 
@@ -31448,7 +31448,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Router.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
 	move Router.h ..\..\include\icee \
 	
 
@@ -31465,7 +31465,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Router.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
 	move Router.h ..\..\include\icee \
 	
 
@@ -31482,7 +31482,7 @@ BuildCmds= \
 InputPath="..\..\slice\IceE\Router.ice"
 
 BuildCmds= \
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Router.ice \
 	move Router.h ..\..\include\icee \
 	
 
@@ -31506,7 +31506,7 @@ SOURCE="..\..\slice\IceE\RouterF.ice"
 InputPath="..\..\slice\IceE\RouterF.ice"
 
 "..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
 	move RouterF.h ..\..\include\icee 
 	del RouterF.cpp 
 	
@@ -31518,7 +31518,7 @@ InputPath="..\..\slice\IceE\RouterF.ice"
 InputPath="..\..\slice\IceE\RouterF.ice"
 
 "..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
 	move RouterF.h ..\..\include\icee 
 	del RouterF.cpp 
 	
@@ -31530,7 +31530,7 @@ InputPath="..\..\slice\IceE\RouterF.ice"
 InputPath="..\..\slice\IceE\RouterF.ice"
 
 "..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
 	move RouterF.h ..\..\include\icee 
 	del RouterF.cpp 
 	
@@ -31542,7 +31542,7 @@ InputPath="..\..\slice\IceE\RouterF.ice"
 InputPath="..\..\slice\IceE\RouterF.ice"
 
 "..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
 	move RouterF.h ..\..\include\icee 
 	del RouterF.cpp 
 	
@@ -31554,7 +31554,7 @@ InputPath="..\..\slice\IceE\RouterF.ice"
 InputPath="..\..\slice\IceE\RouterF.ice"
 
 "..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
 	move RouterF.h ..\..\include\icee 
 	del RouterF.cpp 
 	
@@ -31566,7 +31566,7 @@ InputPath="..\..\slice\IceE\RouterF.ice"
 InputPath="..\..\slice\IceE\RouterF.ice"
 
 "..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
 	move RouterF.h ..\..\include\icee 
 	del RouterF.cpp 
 	
@@ -31578,7 +31578,7 @@ InputPath="..\..\slice\IceE\RouterF.ice"
 InputPath="..\..\slice\IceE\RouterF.ice"
 
 "..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
 	move RouterF.h ..\..\include\icee 
 	del RouterF.cpp 
 	
@@ -31590,7 +31590,7 @@ InputPath="..\..\slice\IceE\RouterF.ice"
 InputPath="..\..\slice\IceE\RouterF.ice"
 
 "..\..\include\icee\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICEE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/RouterF.ice 
 	move RouterF.h ..\..\include\icee 
 	del RouterF.cpp 
 	

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_TRANSCEIVER_H
-#define ICEE_TRANSCEIVER_H
+#ifndef ICE_TRANSCEIVER_H
+#define ICE_TRANSCEIVER_H
 
 #include <IceE/TransceiverF.h>
 #include <IceE/InstanceF.h>
@@ -30,7 +30,7 @@ class Connector;
 class Acceptor;
 class Buffer;
 
-class ICEE_API Transceiver : public ::IceUtil::Shared
+class ICE_API Transceiver : public ::IceUtil::Shared
 {
 public:
 

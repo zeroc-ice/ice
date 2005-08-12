@@ -3,7 +3,7 @@
 // Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice-E is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// ICEE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -18,7 +18,7 @@
 using namespace IceUtil;
 using namespace std;
 
-static StaticMutex staticMutex = ICEE_STATIC_MUTEX_INITIALIZER;
+static StaticMutex staticMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 inline void usage(const char* myName)
 {

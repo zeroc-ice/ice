@@ -245,7 +245,7 @@ IceInternal::traceRequest(const char* heading, const BasicStream& str, const Log
     }
 }
 
-#ifdef ICEE_HAS_BATCH
+#ifdef ICE_HAS_BATCH
 void
 IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, const LoggerPtr& logger,
 			       const TraceLevelsPtr& tl)

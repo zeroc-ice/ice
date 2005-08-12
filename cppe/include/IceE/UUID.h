@@ -7,15 +7,15 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_UUID_H
-#define ICEE_UUID_H
+#ifndef ICE_UUID_H
+#define ICE_UUID_H
 
 #include <IceE/Exception.h>
 
 namespace IceUtil
 {
 
-class ICEE_API UUIDGenerationException : public Exception
+class ICE_API UUIDGenerationException : public Exception
 {
 public:
     
@@ -29,7 +29,7 @@ private:
     static const char* _name;
 };
 
-ICEE_API std::string generateUUID();
+ICE_API std::string generateUUID();
 
 }
 

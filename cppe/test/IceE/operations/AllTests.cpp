@@ -3,7 +3,7 @@
 // Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice-E is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// ICEE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
@@ -38,7 +38,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(derived == base);
     test(cl == derived);
     
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     Ice::LocatorPrx loc = Ice::LocatorPrx::checkedCast(base);
     test(loc == 0);
 #endif
@@ -64,7 +64,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(derived == base);
     test(cl == derived);
     
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     loc = checkedCast<Ice::LocatorPrx>(base);
     test(loc == 0);
 #endif

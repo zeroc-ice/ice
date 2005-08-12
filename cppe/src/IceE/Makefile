@@ -117,8 +117,8 @@ OBJS		:= 	$(OBJS) $(AOBJ)
 CFLAGS		:= 	$(CFLAGS) -fomit-frame-pointer
 endif
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICEE_API_EXPORTS 
-SLICE2CPPEFLAGS	:= --ice --include-dir IceE --dll-export ICEE_API $(SLICE2CPPEFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_API_EXPORTS 
+SLICE2CPPEFLAGS	:= --ice --include-dir IceE --dll-export ICE_API $(SLICE2CPPEFLAGS)
 
 LINKWITH        := $(ICE_OS_LIBS)
 

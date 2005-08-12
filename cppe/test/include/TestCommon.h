@@ -13,15 +13,15 @@
 #include <IceE/Config.h>
 #include <IceE/IceE.h>
 
-#ifdef ICEE_TEST_COMMON_API_EXPORTS
-#   define ICEE_TEST_COMMON_API ICEE_DECLSPEC_EXPORT
+#ifdef ICE_TEST_COMMON_API_EXPORTS
+#   define ICE_TEST_COMMON_API ICE_DECLSPEC_EXPORT
 #else
-#   define ICEE_TEST_COMMON_API ICEE_DECLSPEC_IMPORT
+#   define ICE_TEST_COMMON_API ICE_DECLSPEC_IMPORT
 #endif
 
-ICEE_TEST_COMMON_API void tprintf(const char* fmt, ...);
+ICE_TEST_COMMON_API void tprintf(const char* fmt, ...);
 
-ICEE_TEST_COMMON_API void testFailed(const char*, const char*, unsigned int);
+ICE_TEST_COMMON_API void testFailed(const char*, const char*, unsigned int);
 
 #define test(ex) ((ex) ? ((void)0) : testFailed(#ex, __FILE__, __LINE__))
 

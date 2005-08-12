@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_ENDPOINT_FACTORY_H
-#define ICEE_ENDPOINT_FACTORY_H
+#ifndef ICE_ENDPOINT_FACTORY_H
+#define ICE_ENDPOINT_FACTORY_H
 
 #include <IceE/EndpointFactoryF.h>
 #include <IceE/EndpointF.h>
@@ -20,7 +20,7 @@ namespace IceInternal
 
 class BasicStream;
 
-class ICEE_API EndpointFactory : public ::IceUtil::Shared
+class ICE_API EndpointFactory : public ::IceUtil::Shared
 {
 public:
 

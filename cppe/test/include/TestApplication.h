@@ -15,12 +15,12 @@
 #include <IceE/Mutex.h>
 
 //
-// XXX: For ICEE_TEST_COMMON_API. We could create a TestConfig.h later, or
+// XXX: For ICE_TEST_COMMON_API. We could create a TestConfig.h later, or
 // perhaps make Test/... subdirectory.
 //
 #include <TestCommon.h>
 
-class ICEE_TEST_COMMON_API TestApplication
+class ICE_TEST_COMMON_API TestApplication
 {
 public:
 

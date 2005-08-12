@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_INCOMING_CONNECTION_FACTORY_H
-#define ICEE_INCOMING_CONNECTION_FACTORY_H
+#ifndef ICE_INCOMING_CONNECTION_FACTORY_H
+#define ICE_INCOMING_CONNECTION_FACTORY_H
 
 #include <IceE/IncomingConnectionFactoryF.h>
 #include <IceE/EndpointF.h>
@@ -42,7 +42,7 @@ public:
     EndpointPtr endpoint() const;
     bool equivalent(const EndpointPtr&) const;
     std::list<Ice::ConnectionPtr> connections() const;
-#ifdef ICEE_HAS_BATCH
+#ifdef ICE_HAS_BATCH
     void flushBatchRequests();
 #endif
 

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_OPERATION_MODE_H
-#define ICEE_OPERATION_MODE_H
+#ifndef ICE_OPERATION_MODE_H
+#define ICE_OPERATION_MODE_H
 
 #include <IceE/Config.h>
 
@@ -29,8 +29,8 @@ enum OperationMode
     Idempotent
 };
 
-ICEE_API void __write(::IceInternal::BasicStream*, OperationMode);
-ICEE_API void __read(::IceInternal::BasicStream*, OperationMode&);
+ICE_API void __write(::IceInternal::BasicStream*, OperationMode);
+ICE_API void __read(::IceInternal::BasicStream*, OperationMode&);
 
 }
 

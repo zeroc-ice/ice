@@ -71,7 +71,7 @@ IceInternal::UnknownEndpoint::connector() const
     return 0;
 }
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 AcceptorPtr
 IceInternal::UnknownEndpoint::acceptor(EndpointPtr& endp) const
 {
@@ -86,7 +86,7 @@ IceInternal::UnknownEndpoint::equivalent(const TransceiverPtr&) const
     return false;
 }
 
-#ifndef ICEE_PURE_CLIENT
+#ifndef ICE_PURE_CLIENT
 bool
 IceInternal::UnknownEndpoint::equivalent(const AcceptorPtr&) const
 {

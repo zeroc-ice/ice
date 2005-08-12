@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_ROUTING_TABLE_F_H
-#define ICEE_ROUTING_TABLE_F_H
+#ifndef ICE_ROUTING_TABLE_F_H
+#define ICE_ROUTING_TABLE_F_H
 
 #include <IceE/Handle.h>
 
@@ -16,8 +16,8 @@ namespace IceInternal
 {
 
 class RoutingTable;
-ICEE_API void incRef(RoutingTable*);
-ICEE_API void decRef(RoutingTable*);
+ICE_API void incRef(RoutingTable*);
+ICE_API void decRef(RoutingTable*);
 typedef IceInternal::Handle<RoutingTable> RoutingTablePtr;
 
 }

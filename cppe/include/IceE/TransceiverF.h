@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_TRANSCEIVER_F_H
-#define ICEE_TRANSCEIVER_F_H
+#ifndef ICE_TRANSCEIVER_F_H
+#define ICE_TRANSCEIVER_F_H
 
 #include <IceE/Handle.h>
 
@@ -16,8 +16,8 @@ namespace IceInternal
 {
 
 class Transceiver;
-ICEE_API void incRef(Transceiver*);
-ICEE_API void decRef(Transceiver*);
+ICE_API void incRef(Transceiver*);
+ICE_API void decRef(Transceiver*);
 typedef Handle<Transceiver> TransceiverPtr;
 
 }

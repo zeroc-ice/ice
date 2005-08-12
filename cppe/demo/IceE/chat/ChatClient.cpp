@@ -33,7 +33,7 @@ CChatClientApp::CChatClientApp()
 
 CChatClientApp theApp;
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 
 BOOL CChatClientApp::InitInstance()
 {

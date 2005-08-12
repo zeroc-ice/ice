@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_REFERENCE_F_H
-#define ICEE_REFERENCE_F_H
+#ifndef ICE_REFERENCE_F_H
+#define ICE_REFERENCE_F_H
 
 #include <IceE/Handle.h>
 
@@ -16,28 +16,28 @@ namespace IceInternal
 {
 
 class Reference;
-ICEE_API void incRef(Reference*);
-ICEE_API void decRef(Reference*);
+ICE_API void incRef(Reference*);
+ICE_API void decRef(Reference*);
 typedef IceInternal::Handle<Reference> ReferencePtr;
 
 class FixedReference;
-ICEE_API void incRef(FixedReference*);
-ICEE_API void decRef(FixedReference*);
+ICE_API void incRef(FixedReference*);
+ICE_API void decRef(FixedReference*);
 typedef IceInternal::Handle<FixedReference> FixedReferencePtr;
 
 class RoutableReference;
-ICEE_API void incRef(RoutableReference*);
-ICEE_API void decRef(RoutableReference*);
+ICE_API void incRef(RoutableReference*);
+ICE_API void decRef(RoutableReference*);
 typedef IceInternal::Handle<RoutableReference> RoutableReferencePtr;
 
 class DirectReference;
-ICEE_API void incRef(DirectReference*);
-ICEE_API void decRef(DirectReference*);
+ICE_API void incRef(DirectReference*);
+ICE_API void decRef(DirectReference*);
 typedef IceInternal::Handle<DirectReference> DirectReferencePtr;
 
 class IndirectReference;
-ICEE_API void incRef(IndirectReference*);
-ICEE_API void decRef(IndirectReference*);
+ICE_API void incRef(IndirectReference*);
+ICE_API void decRef(IndirectReference*);
 typedef IceInternal::Handle<IndirectReference> IndirectReferencePtr;
 
 

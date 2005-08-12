@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_ROUTING_TABLE_H
-#define ICEE_ROUTING_TABLE_H
+#ifndef ICE_ROUTING_TABLE_H
+#define ICE_ROUTING_TABLE_H
 
 #include <IceE/RoutingTableF.h>
 #include <IceE/ProxyF.h>
@@ -27,7 +27,7 @@ struct Identity;
 namespace IceInternal
 {
 
-class ICEE_API RoutingTable : public IceUtil::Shared, public IceUtil::Mutex
+class ICE_API RoutingTable : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 

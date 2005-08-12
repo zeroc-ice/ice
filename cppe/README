@@ -106,7 +106,7 @@ A simple rule of thumb is to use the server library if your program
 creates an object adapter, otherwise you can use the client library.
 
 Users of the client library must define the preprocessor macro
-ICEE_PURE_CLIENT when compiling an application as well as link with
+ICE_PURE_CLIENT when compiling an application as well as link with
 the appropriate run time library.
 
 
@@ -124,7 +124,7 @@ features, please refer to the Ice manual.
 Router Support
 --------------
 
-If ICEE_HAS_ROUTER is defined, the Ice-E libraries will include
+If ICE_HAS_ROUTER is defined, the Ice-E libraries will include
 support for routers. This component is necessary in order to use
 Ice-E with the Glacier2 router.
 
@@ -135,14 +135,14 @@ client library does not provide support for callbacks.
 Locator Support
 ---------------
 
-If ICEE_HAS_LOCATOR is defined, the Ice-E libraries will include
+If ICE_HAS_LOCATOR is defined, the Ice-E libraries will include
 support for locators. This component is necessary in order to use
 indirect proxies in Ice-E.
 
 Batch Messages Support
 ----------------------
 
-If ICEE_HAS_BATCH is defined, the Ice-E client library will include
+If ICE_HAS_BATCH is defined, the Ice-E client library will include
 support for sending batch messages. This feature cannot be disabled
 in the server library.
 

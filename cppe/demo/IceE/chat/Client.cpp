@@ -12,7 +12,7 @@
 #include <Chat.h>
 #include <IceE/IceE.h>
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 
 using namespace std;
 using namespace Demo;

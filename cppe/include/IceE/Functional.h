@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_FUNCTIONAL_H
-#define ICEE_FUNCTIONAL_H
+#ifndef ICE_FUNCTIONAL_H
+#define ICE_FUNCTIONAL_H
 
 #include <IceE/Handle.h>
 #include <functional>

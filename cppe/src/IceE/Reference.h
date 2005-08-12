@@ -7,18 +7,18 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_REFERENCE_H
-#define ICEE_REFERENCE_H
+#ifndef ICE_REFERENCE_H
+#define ICE_REFERENCE_H
 
 #include <IceE/ReferenceF.h>
 #include <IceE/EndpointF.h>
 #include <IceE/InstanceF.h>
 #include <IceE/CommunicatorF.h>
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 #  include <IceE/RouterInfoF.h>
 #  include <IceE/RouterF.h>
 #endif
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
 #  include <IceE/LocatorInfoF.h>
 #  include <IceE/LocatorF.h>
 #endif
@@ -75,10 +75,10 @@ public:
     //
     virtual ReferencePtr changeDefault() const;
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const = 0;
 #endif
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const = 0;
 #endif
     virtual ReferencePtr changeTimeout(int) const = 0;
@@ -138,10 +138,10 @@ public:
 
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
 #endif
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
 #endif
     virtual ReferencePtr changeTimeout(int) const;
@@ -166,7 +166,7 @@ private:
     std::vector<Ice::ConnectionPtr> _fixedConnections;
 };
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 class RoutableReference : public Reference
 {
 public:
@@ -200,7 +200,7 @@ private:
 #endif
 
 class DirectReference :
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
     public RoutableReference
 #else
     public Reference
@@ -210,7 +210,7 @@ public:
 
     DirectReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode,
 		    bool, const std::vector<EndpointPtr>&
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 		    , const RouterInfoPtr&
 #endif
 		    );
@@ -221,7 +221,7 @@ public:
 
     virtual ReferencePtr changeDefault() const;
 
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
 #endif
     virtual ReferencePtr changeTimeout(int) const;
@@ -244,17 +244,17 @@ private:
 
     std::vector<EndpointPtr> _endpoints;
 
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
     typedef RoutableReference Parent;
 #else
     typedef Reference Parent;
 #endif
 };
 
-#ifdef ICEE_HAS_LOCATOR
+#ifdef ICE_HAS_LOCATOR
 
 class IndirectReference :
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
     public RoutableReference
 #else
     public Reference
@@ -264,7 +264,7 @@ public:
 
     IndirectReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&,
                       Mode, bool, const std::string&
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
 		      , const RouterInfoPtr&
 #endif
 		      , const LocatorInfoPtr&);
@@ -297,14 +297,14 @@ private:
 
     std::string _adapterId;
     LocatorInfoPtr _locatorInfo;
-#ifdef ICEE_HAS_ROUTER
+#ifdef ICE_HAS_ROUTER
     typedef RoutableReference Parent;
 #else
     typedef Reference Parent;
 #endif
 };
 
-#endif // ICEE_HAS_LOCATOR
+#endif // ICE_HAS_LOCATOR
 
 std::vector<EndpointPtr> filterEndpoints(const std::vector<EndpointPtr>&, Reference::Mode, bool);
 

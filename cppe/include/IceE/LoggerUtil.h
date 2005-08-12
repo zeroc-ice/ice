@@ -7,15 +7,15 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_LOGGER_UTIL_H
-#define ICEE_LOGGER_UTIL_H
+#ifndef ICE_LOGGER_UTIL_H
+#define ICE_LOGGER_UTIL_H
 
 #include <IceE/LoggerF.h>
 
 namespace Ice
 {
 
-class ICEE_API Print : private IceUtil::noncopyable
+class ICE_API Print : private IceUtil::noncopyable
 {
 public:
 
@@ -39,7 +39,7 @@ operator<<(Print& out, const std::string& val)
     return out;
 }
 
-class ICEE_API Warning : private IceUtil::noncopyable
+class ICE_API Warning : private IceUtil::noncopyable
 {
 public:
 
@@ -63,7 +63,7 @@ operator<<(Warning& out, const std::string& val)
     return out;
 }
 
-class ICEE_API Error : private IceUtil::noncopyable
+class ICE_API Error : private IceUtil::noncopyable
 {
 public:
 
@@ -87,7 +87,7 @@ operator<<(Error& out, const std::string& val)
     return out;
 }
 
-class ICEE_API Trace : private IceUtil::noncopyable
+class ICE_API Trace : private IceUtil::noncopyable
 {
 public:
 

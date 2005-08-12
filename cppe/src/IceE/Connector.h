@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_CONNECTOR_H
-#define ICEE_CONNECTOR_H
+#ifndef ICE_CONNECTOR_H
+#define ICE_CONNECTOR_H
 
 #include <IceE/ConnectorF.h>
 #include <IceE/TransceiverF.h>
@@ -28,7 +28,7 @@ namespace IceInternal
 
 class Endpoint;
 
-class ICEE_API Connector : public ::IceUtil::Shared
+class ICE_API Connector : public ::IceUtil::Shared
 {
 public:
     

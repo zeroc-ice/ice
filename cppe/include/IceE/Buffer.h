@@ -7,17 +7,17 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_BUFFER_H
-#define ICEE_BUFFER_H
+#ifndef ICE_BUFFER_H
+#define ICE_BUFFER_H
 
 #include <IceE/Config.h>
 
-//#define ICEE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+//#define ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
 
 namespace IceInternal
 {
 
-class ICEE_API Buffer : private IceUtil::noncopyable
+class ICE_API Buffer : private IceUtil::noncopyable
 {
 public:
 
@@ -26,7 +26,7 @@ public:
 
     void swap(Buffer&);
 
-    class ICEE_API Container : private IceUtil::noncopyable
+    class ICE_API Container : private IceUtil::noncopyable
     {
     public:
 
@@ -43,7 +43,7 @@ public:
 	typedef int difference_type;
 	typedef size_t size_type;
 
-#ifdef ICEE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
 	Container() :
 	    _buf(_fixed),
 	    _size(0),
@@ -61,7 +61,7 @@ public:
 
 	~Container()
 	{
-#ifdef ICEE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
 	    if(_buf != _fixed)
 	    {
 		free(_buf);
@@ -105,7 +105,7 @@ public:
 	
 	void clear()
 	{
-#ifdef ICEE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
 	    if(_buf != _fixed)
 	    {
 		free(_buf);
@@ -150,7 +150,7 @@ public:
 	size_type _size;
 	size_type _capacity;
 
-#ifdef ICEE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
 	//
 	// For small buffers, we stack-allocate the memory. Only when
 	// a buffer size larger than _fixedSize is requested, we

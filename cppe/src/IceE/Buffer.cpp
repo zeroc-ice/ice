@@ -17,7 +17,7 @@ using namespace IceInternal;
 void
 IceInternal::Buffer::swap(Buffer& other)
 {
-#ifdef ICEE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
     Container::difference_type pos = i - b.begin();
     Container::difference_type otherPos = other.i - other.b.begin();
     b.swap(other.b);
@@ -32,7 +32,7 @@ IceInternal::Buffer::swap(Buffer& other)
 void
 IceInternal::Buffer::Container::swap(Container& other)
 {
-#ifdef ICEE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
     if(_buf == _fixed)
     {
 	if(other._buf == other._fixed)
@@ -84,7 +84,7 @@ IceInternal::Buffer::Container::resize(size_type n)
 	    _capacity = std::max<size_type>(n, 2 * _capacity);
 	    _capacity = std::max<size_type>(static_cast<size_type>(240), _capacity);
 	    
-#ifdef ICEE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
 	    if(_buf != _fixed)
 	    {
 		_buf = reinterpret_cast<pointer>(realloc(_buf, _capacity));

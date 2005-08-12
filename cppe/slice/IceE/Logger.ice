@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_LOGGER_ICE
-#define ICEE_LOGGER_ICE
+#ifndef ICE_LOGGER_ICE
+#define ICE_LOGGER_ICE
 
 module Ice
 {

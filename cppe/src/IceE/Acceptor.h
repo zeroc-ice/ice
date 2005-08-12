@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEE_ACCEPTOR_H
-#define ICEE_ACCEPTOR_H
+#ifndef ICE_ACCEPTOR_H
+#define ICE_ACCEPTOR_H
 
 #include <IceE/TransceiverF.h>
 #include <IceE/InstanceF.h>
@@ -31,7 +31,7 @@ namespace IceInternal
 
 class Endpoint;
 
-class ICEE_API Acceptor : public ::IceUtil::Shared
+class ICE_API Acceptor : public ::IceUtil::Shared
 {
 public:
 
