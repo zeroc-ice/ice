@@ -12,7 +12,16 @@ public class Server
     public static int
     run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
+	//
+	// When running as a MIDlet the properties for the server may be
+	// overridden by configuration. If it isn't then we assume
+	// defaults.
+	//
+	if(communicator.getProperties().getProperty("TestAdapter.Endpoints").length() == 0)
+	{
+	    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
+	}
+
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new InitialI(adapter);
         adapter.add(object, Ice.Util.stringToIdentity("initial"));

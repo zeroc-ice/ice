@@ -63,14 +63,12 @@ public class AllTests
 	java.util.Hashtable c2 = tccp.getContext();
 	test(IceUtil.Hashtable.equals(c, c2));
 	out.println("ok");
-
         out.print("testing twoway operations... ");
         out.flush();
         Twoways.twoways(communicator, cl);
         Twoways.twoways(communicator, derived);
         derived.opDerived();
         out.println("ok");
-
 	out.print("testing batch oneway operations... ");
 	out.flush();
 	BatchOneways.batchOneways(cl);

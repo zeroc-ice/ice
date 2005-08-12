@@ -12,17 +12,30 @@ public class Server
     public static int
     run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345");
+	//
+	// When running as a MIDlet the properties for the server may be
+	// overridden by configuration. If it isn't then we assume
+	// defaults.
+	//
+	if(communicator.getProperties().getProperty("TestAdapter.Endpoints").length() == 0)
+	{
+	    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345");
+	}
+
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new MyDerivedClassI(adapter, Ice.Util.stringToIdentity("test"));
         adapter.add(object, Ice.Util.stringToIdentity("test"));
         adapter.activate();
 
 	//
-	// Make a separate adapter. We use this to test that Ice::Context is correctly passed
-	// to checkedCast() operation.
+	// Make a separate adapter. We use this to test that
+	// Ice::Context is correctly passed to checkedCast() operation.
 	//
-	communicator.getProperties().setProperty("CheckedCastAdapter.Endpoints", "default -p 12346 -t 10000");
+	if(communicator.getProperties().getProperty("CheckedCastAdapter.Endpoints").length() == 0)
+	{
+	    communicator.getProperties().setProperty("CheckedCastAdapter.Endpoints", "default -p 12346 -t 10000");
+	}
+
 	adapter = communicator.createObjectAdapter("CheckedCastAdapter");
         object = new TestCheckedCastI();
         adapter.add(object, Ice.Util.stringToIdentity("test"));

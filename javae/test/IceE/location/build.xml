@@ -61,7 +61,7 @@
     <target name="obfuscate" depends="midlet-jar" if="hasProguard">
 	<taskdef resource="proguard/ant/task.properties"/>
 	<move overwrite="true" file="./tmp/${testname}.jar" tofile="./tmp/${testname}_orig.jar"/>
-	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on" allowaccessmodification="on" 
+	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="off" allowaccessmodification="on" 
 	    printseeds="on">
 	    <injar file="./tmp/${testname}_orig.jar"/>
 	    <outjar file="./tmp/${testname}.jar"/>

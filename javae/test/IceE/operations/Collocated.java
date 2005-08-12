@@ -12,6 +12,7 @@ public class Collocated
     public static int
     run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
+	communicator.getProperties().setProperty("Test.Proxy", "test:default -p 12345 -t 10000");
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new MyDerivedClassI(adapter, Ice.Util.stringToIdentity("test"));
@@ -22,7 +23,9 @@ public class Collocated
 	// Make a separate adapter. We use this to test that Ice::Context is correctly passed
 	// to checkedCast() operation.
 	//
+	communicator.getProperties().setProperty("Test.ProxyWithContext", "test:default -p 12346 -t 10000");
 	communicator.getProperties().setProperty("CheckedCastAdapter.Endpoints", "default -p 12346 -t 10000");
+
 	adapter = communicator.createObjectAdapter("CheckedCastAdapter");
         object = new TestCheckedCastI();
         adapter.add(object, Ice.Util.stringToIdentity("test"));

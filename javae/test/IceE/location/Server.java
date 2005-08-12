@@ -13,13 +13,20 @@ public class Server
     run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
 	//
+	// When running as a MIDlet the properties for the server may be
+	// overridden by configuration. If it isn't then we assume
+	// defaults.
+	//
+	if(communicator.getProperties().getProperty("ServerManagerAdapter.Endpoints").length() == 0)
+	{
+	    communicator.getProperties().setProperty("ServerManagerAdapter.Endpoints", "default -p 12345 -t 30000");
+	}
+
+	//
 	// Register the server manager. The server manager creates a new
 	// 'server' (a server isn't a different process, it's just a new
 	// communicator and object adapter).
 	//
-	Ice.Properties properties = communicator.getProperties();
-	properties.setProperty("ServerManagerAdapter.Endpoints", "default -p 12345 -t 30000");
-
 	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
 
 	//

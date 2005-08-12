@@ -1,6 +1,22 @@
-Ice.ServerIdleTime = 120
+# **********************************************************************
+#
+# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
 
 #
-# Set Test.Host to the hostname or IP address for the server host machine.
+# TODO: We need a good description of what needs to be done here. Either that
+# or MIDlets could use a different sort of configuration for proxies, such as
+# separate entries for host, port and timeout and the proxy is constructed out
+# of that.  For a MIDlet, the hostname almost certainly needs to be specified.
+#
+
+#
+# Set Test.Host to the hostname or IP address for the server host.
 #
 # Test.Host = eagle2
+
+Ice.ServerIdleTime = 120
