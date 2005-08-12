@@ -452,5 +452,5 @@ final class TcpTransceiver implements Transceiver
     private java.io.InputStream _in;
     private java.io.OutputStream _out;
     private volatile boolean _shutdown;
-    private static final int WRITE_CHUNK = 2048;
+    private static final int WRITE_CHUNK = 512;
 }
