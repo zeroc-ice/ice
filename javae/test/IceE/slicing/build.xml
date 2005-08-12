@@ -12,7 +12,7 @@
 <project name="test_Ice_slicing_objects" default="all" basedir=".">
 
     <!-- set global properties for this build -->
-    <property name="top.dir" value="../../../.."/>
+    <property name="top.dir" value="../../.."/>
 
     <!-- Include common definitions -->
     <import file="${top.dir}/config/common.xml"/>
@@ -64,11 +64,11 @@
 	    debug="${debug}" target="1.1"/>
     </target>
 
-    <property name="testclient" value="ExSliceClient"/>
-    <property name="testserver" value="ExSliceServer"/>
+    <property name="testclient" value="SliceClient"/>
+    <property name="testserver" value="SliceServer"/>
 
     <target name="client-midlet-jar" depends="compile" if="midp">
-	<ant dir="../../common" inheritAll="false" target="compile"/>
+	<ant dir="../common" inheritAll="false" target="compile"/>
         <mkdir dir="./tmp"/>
 	<manifest file="CLIENTMANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
@@ -82,7 +82,7 @@
 	<jar destfile="./tmp/${testclient}.jar" manifest="./CLIENTMANIFEST.MF" basedir="./cclasses"/>
 	<jar destfile="./tmp/${testclient}.jar" manifest="./CLIENTMANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
 	    update="true"/>
-	<jar destfile="./tmp/${testclient}.jar" manifest="./CLIENTMANIFEST.MF" basedir="../../common/classes" update="true">
+	<jar destfile="./tmp/${testclient}.jar" manifest="./CLIENTMANIFEST.MF" basedir="../common/classes" update="true">
 	    <exclude name="./Client.class,./Server.class,./Collocated.class"/>
 	</jar>
     </target>
@@ -128,7 +128,7 @@
     </target>
 
     <target name="server-midlet-jar" depends="compile" if="midp">
-	<ant dir="../../common" inheritAll="false" target="compile"/>
+	<ant dir="../common" inheritAll="false" target="compile"/>
         <mkdir dir="./tmp"/>
 	<manifest file="MANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
@@ -141,7 +141,7 @@
 	<jar destfile="./tmp/${testserver}.jar" manifest="./MANIFEST.MF" basedir="./sclasses"/>
 	<jar destfile="./tmp/${testserver}.jar" manifest="./MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
 	    update="true"/>
-	<jar destfile="./tmp/${testserver}.jar" manifest="./MANIFEST.MF" basedir="../../common/classes" update="true">
+	<jar destfile="./tmp/${testserver}.jar" manifest="./MANIFEST.MF" basedir="../common/classes" update="true">
 	    <exclude name="./Client.class,./Server.class,./Collocated.class"/>
 	</jar>
     </target>
