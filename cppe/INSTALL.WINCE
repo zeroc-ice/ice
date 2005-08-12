@@ -53,16 +53,16 @@ The Pocket PC 2003 Run-time Type Information library can be downloaded here:
 
 - http://support.microsoft.com/default.aspx?scid=kb;%5BLN%5D;830482
 
-Information on the Microsoft Device Emulator 1.0 Preview can be found her:
+Information on the Microsoft Device Emulator 1.0 Preview can be found here:
 
 http://msdn.microsoft.com/mobility/windowsmobile/downloads/emulatorpreview/default.aspx
 
-Slice to Embedded C++ translator
+Slice-to-Embedded-C++ translator
 --------------------------------
 
-You will need the Slice to Embedded C++ translator (slice2cppe) and
+You will need the Slice-to-Embedded-C++ translator (slice2cppe) and
 preprocessor (icecpp). You can download a binary distribution from the
-ZeroC web site, or you can build the Slice to Embedded C++ translator
+ZeroC web site, or you can build the Slice-to-Embedded-C++ translator
 yourself.
 
 Binary and source distributions for the supported platforms are

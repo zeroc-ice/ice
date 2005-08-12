@@ -23,12 +23,12 @@ is not supported. You must use STLport with this compiler.
 For Visual C++ .NET 2003, you can use the included STL library.
 
 
-Slice to Embedded C++ translator
+Slice-to-Embedded-C++ translator
 --------------------------------
 
-You will need the Slice to Embedded C++ translator (slice2cppe) and
+You will need the Slice-to-Embedded-C++ translator (slice2cppe) and
 preprocessor (icecpp). You can download a binary distribution from the
-ZeroC web site, or you can build the Slice to Embedded C++ translator
+ZeroC web site, or you can build the Slice-to-Embedded-C++ translator
 yourself.
 
 Binary and source distributions for the supported platforms are

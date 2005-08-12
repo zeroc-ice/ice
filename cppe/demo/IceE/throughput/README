@@ -3,9 +3,9 @@ and server and to measure the maximum bandwidth that can be achieved
 using serialized synchronous requests.
 
 Due to the memory constraints of WinCE, the WinCE version of this demo
-uses reduced size sequences. Therefore if you wish to run cross-
-platform tests against a WinCE client or server it is necessary to run
-with reduced size sequences on your other platform as well. 
+uses reduced-size sequences. Therefore, if you wish to run cross-
+platform tests against a WinCE client or server, it is necessary to run
+with reduced-size sequences on your other platform as well. 
 
 To start the server with reduced sequences, use this command:
 
