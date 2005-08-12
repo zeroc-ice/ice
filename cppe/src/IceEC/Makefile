@@ -19,8 +19,7 @@ TRANSPORT_DIR	= $(top_srcdir)/src/TcpTransport
 
 ICE_DIR	= $(top_srcdir)/src/IceE
 
-TRANSPORT_OBJS	= Acceptor.o \
-		  Connector.o \
+TRANSPORT_OBJS	= Connector.o \
 		  EndpointFactory.o \
 		  TcpEndpoint.o \
 		  Transceiver.o
@@ -88,13 +87,14 @@ TRANSPORT_SRCS	= $(TRANSPORT_DIR)/Acceptor.cpp \
 SRCS		= $(LOCAL_OBJS:.o=.cpp) $(TRANSPORT_SRCS)
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
+		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
-		  $(SDIR)/LocatorF.ice \
 		  $(SDIR)/Locator.ice \
-		  $(SDIR)/LoggerF.ice \
+		  $(SDIR)/LocatorF.ice \
 		  $(SDIR)/Logger.ice \
-		  $(SDIR)/RouterF.ice \
-		  $(SDIR)/Router.ice
+		  $(SDIR)/LoggerF.ice \
+		  $(SDIR)/Router.ice \
+		  $(SDIR)/RouterF.ice
 
 HDIR		= $(includedir)/IceE
 SDIR		= $(slicedir)/IceE

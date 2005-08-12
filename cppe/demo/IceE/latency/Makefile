@@ -32,10 +32,17 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ LatencyC.o $(COBJS) $(MINLIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+
+Client.o: Client.cpp
+	$(CXX) -c -DICE_PURE_CLIENT $(CPPFLAGS) $(CXXFLAGS) $<
+
+Latency.o: Latency.cpp
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c -DICE_PURE_CLIENT -o LatencyC.o $(CPPFLAGS) $(CXXFLAGS) $<
 
 include .depend
