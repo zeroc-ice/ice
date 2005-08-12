@@ -114,6 +114,7 @@ public class ServerMIDlet
 	    Ice.Object object = new HelloI(_msg);
 	    adapter.add(object, Ice.Util.stringToIdentity("hello"));
 	    adapter.activate();
+	    _msg.setText("Using address " + System.getProperty("microedition.hostname"));
 	}
 	catch(Exception ex)
 	{

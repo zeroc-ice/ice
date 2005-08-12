@@ -42,84 +42,126 @@
         </javac>
     </target>
 
-    <target name="client-jar" depends="compile">
+    <target name="client-jar" depends="compile" if="midp">
         <mkdir dir="./tmp"/>
 	<copy overwrite="true" file="config" todir="./classes"/>
 	      
-	<manifest file="MANIFEST.MF">
+	<manifest file="CLIENTMANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
-	    <attribute name="MIDlet-Name" value="ClientMIDlet"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
-            <attribute name="MIDlet-1" value="ClientMIDlet, ,ClientMIDlet"/>
 	    <attribute name="MIDlet-Version" value="1.0"/>
+	    <attribute name="MIDlet-Name" value="Hello World Client"/>
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
         </manifest>
 	      
-	<jar destfile="./tmp/ClientMIDlet.jar" manifest="./MANIFEST.MF" excludes="ServerMIDlet*.class" basedir="./classes"/>
-        <jar destfile="./tmp/ClientMIDlet.jar" basedir="${lib.dir}" excludes="IceE.jar" update="true"/>
+	<jar destfile="./tmp/HelloClient.jar" manifest="./CLIENTMANIFEST.MF" excludes="ServerMIDlet*.class" 
+	    basedir="./classes"/>
+	<jar destfile="./tmp/HelloClient.jar" manifest="./CLIENTMANIFEST.MF" basedir="${lib.dir}" excludes="IceE.jar" update="true"/>
+    </target>
+
+    <target name="client-obfuscate" depends="client-jar" if="hasProguard">
+	<taskdef resource="proguard/ant/task.properties"/>
+	<move overwrite="true" file="./tmp/HelloClient.jar" tofile="./tmp/HelloClient_orig.jar"/>
+	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on" allowaccessmodification="on" 
+	    printseeds="on">
+	    <injar file="./tmp/HelloClient_orig.jar"/>
+	    <outjar file="./tmp/HelloClient.jar"/>
+	    <libraryjar file="${WTK}/lib/midpapi20.jar"/>
+	    <libraryjar file="${WTK}/lib/cldcapi11.jar"/>
+	    <keep access="public" extends="javax.microedition.midlet.MIDlet"/>
+	    <keepclasseswithmembernames>
+		<method access="native" />
+	    </keepclasseswithmembernames>
+	</proguard>
+    </target>
+
+    <target name="client-preverify" depends="client-obfuscate" if="midp">
         <exec executable="${WTK}/bin/preverify">
             <arg line="-classpath ${WTKLIBS}"/>
             <arg line="-d ."/>
-	    <arg line="./tmp/ClientMIDlet.jar"/>
-        </exec>
-	<length property="jarfile-length" file="./ClientMIDlet.jar"/>
-	<jadfile file="client.jad">
+	    <arg line="./tmp/HelloClient.jar"/>
+	</exec>
+    </target>
+
+    <target name="client-jad" depends="client-preverify" if="midp">
+	<length property="client-jarfile-length" file="./HelloClient.jar"/>
+	<jadfile file="HelloClient.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
-	    <attribute name="MIDlet-Jar-URL" value="ClientMIDlet.jar"/>
+	    <attribute name="MIDlet-Jar-URL" value="HelloClient.jar"/>
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
 	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
-	    <attribute name="MIDlet-1" value="ClientMIDlet, , ClientMIDlet"/>
-	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
-	    <attribute name="MIDlet-Name" value="ClientMIDlet"/>
+	    <attribute name="MIDlet-1" value="Client, , ClientMIDlet"/>
+	    <attribute name="MIDlet-Jar-Size" value="${client-jarfile-length}"/>
+	    <attribute name="MIDlet-Name" value="Hello World Client"/>
 	    <attribute name="MIDlet-Permissions" 
 		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
         </jadfile>
-
     </target>
 
     <target name="server-jar" depends="compile">
         <mkdir dir="./tmp"/>
 	<copy overwrite="true" file="config" todir="./classes"/>
-	<manifest file="MANIFEST.MF">
+	<manifest file="SERVERMANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.0"/>
-	    <attribute name="MIDlet-Name" value="ServerMIDlet"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
-            <attribute name="MIDlet-1" value="ServerMIDlet, ,ServerMIDlet"/>
 	    <attribute name="MIDlet-Version" value="1.0"/>
+	    <attribute name="MIDlet-Name" value="Hello World Server"/>
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
         </manifest>
 
-        <jar destfile="./tmp/ServerMIDlet.jar" manifest="./MANIFEST.MF" excludes="ClientMIDlet.class"
-		basedir="./classes"/>
-        <jar destfile="./tmp/ServerMIDlet.jar" basedir="${lib.dir}" excludes="IceE.jar" update="true"/>
+        <jar destfile="./tmp/HelloServer.jar" manifest="./SERVERMANIFEST.MF" excludes="ClientMIDlet.class"
+	    basedir="./classes"/>
+	<jar destfile="./tmp/HelloServer.jar" manifest="./SERVERMANIFEST.MF" basedir="${lib.dir}" excludes="IceE.jar" update="true"/>
+    </target>
+
+    <target name="server-obfuscate" depends="server-jar" if="hasProguard">
+	<taskdef resource="proguard/ant/task.properties"/>
+	<move overwrite="true" file="./tmp/HelloServer.jar" tofile="./tmp/HelloServer_orig.jar"/>
+	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on" allowaccessmodification="on" 
+	    printseeds="on">
+	    <injar file="./tmp/HelloServer_orig.jar"/>
+	    <outjar file="./tmp/HelloServer.jar"/>
+	    <libraryjar file="${WTK}/lib/midpapi20.jar"/>
+	    <libraryjar file="${WTK}/lib/cldcapi11.jar"/>
+	    <keep access="public" extends="javax.microedition.midlet.MIDlet"/>
+	    <keepclasseswithmembernames>
+		<method access="native" />
+	    </keepclasseswithmembernames>
+	</proguard>
+    </target>
+
+    <target name="server-preverify" depends="server-obfuscate" if="midp">
         <exec executable="${WTK}/bin/preverify">
            <arg line="-classpath ${WTKLIBS}"/>
             <arg line="-d ."/>
-	    <arg line="./tmp/ServerMIDlet.jar"/>
-        </exec>
-	<length property="jarfile-length" file="./ServerMIDlet.jar"/>
-	<jadfile file="server.jad">
+	    <arg line="./tmp/HelloServer.jar"/>
+	</exec>
+    </target>
+
+    <target name="server-jad" depends="server-preverify" if="midp">
+	<length property="server-jarfile-length" file="./HelloServer.jar"/>
+	<jadfile file="HelloServer.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
-	    <attribute name="MIDlet-Jar-URL" value="ServerMIDlet.jar"/>
+	    <attribute name="MIDlet-Jar-URL" value="HelloServer.jar"/>
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
 	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
-	    <attribute name="MIDlet-1" value="ServerMIDlet, , ServerMIDlet"/>
-	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
-	    <attribute name="MIDlet-Name" value="ServerMIDlet"/>
+	    <attribute name="MIDlet-1" value="Hello World Server, , ServerMIDlet"/>
+	    <attribute name="MIDlet-Jar-Size" value="${server-jarfile-length}"/>
+	    <attribute name="MIDlet-Name" value="Hello World Server"/>
 	    <attribute name="MIDlet-Permissions" 
 		value="javax.microedition.io.Connector.socket, javax.microedition.io.Connector.serversocket"/>
         </jadfile>
     </target>
 
-    <target name="all" depends="client-jar,server-jar"/>
+    <target name="all" depends="client-jad, server-jad"/>
 
     <target name="clean">
         <delete dir="${class.dir}"/>
 	<delete dir="./tmp"/>
-	<delete quiet="true" file="./ClientMIDlet.jar"/>
-	<delete quiet="true" file="./ServerMIDlet.jar"/>
+	<delete quiet="true" file="./HelloClient.jar"/>
+	<delete quiet="true" file="./HelloServer.jar"/>
 	<delete quiet="true">
 	    <fileset dir="." includes="*.jad"/>
 	</delete>
