@@ -133,7 +133,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                       $(OutDir)\iceec.lib                                       ..\..\lib\ 
+PostBuild_Cmds=copy                                        $(OutDir)\iceec.lib                                        ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "icec - Win32 Debug Static"
@@ -166,7 +166,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                      $(OutDir)\iceecd.lib                                      ..\..\lib\ 
+PostBuild_Cmds=copy                                       $(OutDir)\iceecd.lib                                       ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
@@ -1188,7 +1188,7 @@ SOURCE=..\..\slice\IceE\LoggerF.ice
 InputPath=..\..\slice\IceE\LoggerF.ice
 
 "..\..\include\icee\LoggerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/LoggerF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
 	
@@ -1200,7 +1200,7 @@ InputPath=..\..\slice\IceE\LoggerF.ice
 InputPath=..\..\slice\IceE\LoggerF.ice
 
 "..\..\include\icee\LoggerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/LoggerF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
 	
@@ -1212,7 +1212,7 @@ InputPath=..\..\slice\IceE\LoggerF.ice
 InputPath=..\..\slice\IceE\LoggerF.ice
 
 "..\..\include\icee\LoggerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/LoggerF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
 	
@@ -1224,7 +1224,7 @@ InputPath=..\..\slice\IceE\LoggerF.ice
 InputPath=..\..\slice\IceE\LoggerF.ice
 
 "..\..\include\icee\LoggerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice -DICEE ../../slice/IceE/LoggerF.ice 
+	slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice 
 	move LoggerF.h ..\..\include\icee 
 	del LoggerF.cpp 
 	
