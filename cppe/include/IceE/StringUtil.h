@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_STRING_UTIL_H
-#define ICE_STRING_UTIL_H
+#ifndef ICEE_STRING_UTIL_H
+#define ICEE_STRING_UTIL_H
 
 #include <IceE/Config.h>
 

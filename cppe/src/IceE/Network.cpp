@@ -858,7 +858,7 @@ IceInternal::addrToString(const struct sockaddr_in& addr)
     return s;
 }
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
 
 bool
 IceInternal::acceptInterrupted()

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_FACTORY_H
-#define ICE_ENDPOINT_FACTORY_H
+#ifndef ICEE_ENDPOINT_FACTORY_H
+#define ICEE_ENDPOINT_FACTORY_H
 
 #include <IceE/EndpointFactoryF.h>
 #include <IceE/EndpointF.h>

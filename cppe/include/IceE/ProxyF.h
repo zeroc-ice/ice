@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROXY_F_H
-#define ICE_PROXY_F_H
+#ifndef ICEE_PROXY_F_H
+#define ICEE_PROXY_F_H
 
 #include <IceE/Config.h>
 

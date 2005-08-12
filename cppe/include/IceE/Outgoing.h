@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OUTGOING_H
-#define ICE_OUTGOING_H
+#ifndef ICEE_OUTGOING_H
+#define ICEE_OUTGOING_H
 
 #include <IceE/ConnectionF.h>
 #include <IceE/ReferenceF.h>

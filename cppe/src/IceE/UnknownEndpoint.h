@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UNKNOWN_ENDPOINT_H
-#define ICE_UNKNOWN_ENDPOINT_H
+#ifndef ICEE_UNKNOWN_ENDPOINT_H
+#define ICEE_UNKNOWN_ENDPOINT_H
 
 #include <IceE/Endpoint.h>
 
@@ -28,11 +28,11 @@ public:
     virtual EndpointPtr timeout(Ice::Int) const;
     virtual bool unknown() const;
     virtual ConnectorPtr connector() const;
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     virtual AcceptorPtr acceptor(EndpointPtr&) const;
 #endif
     virtual bool equivalent(const TransceiverPtr&) const;
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     virtual bool equivalent(const AcceptorPtr&) const;
 #endif
 

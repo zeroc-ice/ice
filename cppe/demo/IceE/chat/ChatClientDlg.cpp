@@ -15,7 +15,7 @@
 #include <Router.h>
 #include <IceE/SafeStdio.h>
 
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -437,4 +437,4 @@ CChatClientDlg::OnLog(WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-#endif // ICE_HAS_ROUTER
+#endif // ICEE_HAS_ROUTER

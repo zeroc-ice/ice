@@ -16,7 +16,7 @@
 #include <IceE/Instance.h>
 #include <IceE/DefaultsAndOverrides.h>
 #include <IceE/SafeStdio.h>
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
 #   include <IceE/Acceptor.h>
 #endif
 
@@ -337,7 +337,7 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
     return false;
 }
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
 
 AcceptorPtr
 IceInternal::TcpEndpoint::acceptor(EndpointPtr& endp) const

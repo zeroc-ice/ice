@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECTOR_F_H
-#define ICE_CONNECTOR_F_H
+#ifndef ICEE_CONNECTOR_F_H
+#define ICEE_CONNECTOR_F_H
 
 #include <IceE/Handle.h>
 

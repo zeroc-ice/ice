@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROXY_H
-#define ICE_PROXY_H
+#ifndef ICEE_PROXY_H
+#define ICEE_PROXY_H
 
 #include <IceE/ProxyF.h>
 #include <IceE/ProxyFactoryF.h>
@@ -23,7 +23,7 @@
 #include <IceE/Identity.h>
 #include <IceE/OperationMode.h>
 
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 namespace IceProxy { namespace Ice
 {
@@ -47,9 +47,9 @@ typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Router> RouterPrx;
 
 }
 
-#endif // ICE_HAS_ROUTER
+#endif // ICEE_HAS_ROUTER
 
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 namespace IceProxy { namespace Ice
 {
@@ -73,7 +73,7 @@ typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Locator> LocatorPrx;
 
 }
 
-#endif // ICE_HAS_LOCATOR
+#endif // ICEE_HAS_LOCATOR
 
 namespace Ice
 {
@@ -117,7 +117,7 @@ public:
     ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     ::std::string ice_id();
     ::std::string ice_id(const ::Ice::Context&);
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 	            ::std::vector< ::Ice::Byte>&); // Returns true if ok, false if user exception.
     bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
@@ -139,16 +139,16 @@ public:
     bool ice_isTwoway() const;
     ::Ice::ObjectPrx ice_oneway() const;
     bool ice_isOneway() const;
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
     ::Ice::ObjectPrx ice_batchOneway() const;
     bool ice_isBatchOneway() const;
 #endif
 
     ::Ice::ObjectPrx ice_timeout(int) const;
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
     ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
 #endif
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
 #endif
     ::Ice::ObjectPrx ice_default() const;
@@ -193,7 +193,7 @@ public:
     void ice_ping(const ::Ice::Context&);
     ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     ::std::string ice_id(const ::Ice::Context&);
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
 #endif

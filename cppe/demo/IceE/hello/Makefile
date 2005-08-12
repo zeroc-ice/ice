@@ -40,10 +40,10 @@ $(SERVER): $(OBJS) $(SOBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
 Client.o: Client.cpp
-	$(CXX) -c -DICE_PURE_CLIENT $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c -DICEE_PURE_CLIENT $(CPPFLAGS) $(CXXFLAGS) $<
 
 HelloC.o Hello.o: Hello.cpp
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
-	$(CXX) -c -DICE_PURE_CLIENT -o HelloC.o $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c -DICEE_PURE_CLIENT -o HelloC.o $(CPPFLAGS) $(CXXFLAGS) $<
 
 include .depend

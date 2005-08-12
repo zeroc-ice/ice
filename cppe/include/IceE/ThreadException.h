@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_THREAD_EXCEPTION_H
-#define ICE_THREAD_EXCEPTION_H
+#ifndef ICEE_THREAD_EXCEPTION_H
+#define ICEE_THREAD_EXCEPTION_H
 
 #include <IceE/Exception.h>
 

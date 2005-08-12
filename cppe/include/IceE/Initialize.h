@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_INITIALIZE_H
-#define ICE_INITIALIZE_H
+#ifndef ICEE_INITIALIZE_H
+#define ICEE_INITIALIZE_H
 
 #include <IceE/CommunicatorF.h>
 #include <IceE/PropertiesF.h>
@@ -31,8 +31,8 @@ ICE_API PropertiesPtr createProperties();
 ICE_API PropertiesPtr createProperties(StringSeq&);
 ICE_API PropertiesPtr createProperties(int&, char*[]);
 
-ICE_API CommunicatorPtr initialize(int&, char*[], Int = ICE_INT_VERSION);
-ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int = ICE_INT_VERSION);
+ICE_API CommunicatorPtr initialize(int&, char*[], Int = ICEE_INT_VERSION);
+ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int = ICEE_INT_VERSION);
 
 ICE_API PropertiesPtr getDefaultProperties();
 ICE_API PropertiesPtr getDefaultProperties(StringSeq&);

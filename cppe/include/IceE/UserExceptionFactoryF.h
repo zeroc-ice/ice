@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_USER_EXCEPTION_FACTORYF_H
-#define ICE_USER_EXCEPTION_FACTORYF_H
+#ifndef ICEE_USER_EXCEPTION_FACTORYF_H
+#define ICEE_USER_EXCEPTION_FACTORYF_H
 
 #include <IceE/Handle.h>
 

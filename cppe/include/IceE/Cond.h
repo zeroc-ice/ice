@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_COND_H
-#define ICE_COND_H
+#ifndef ICEE_COND_H
+#define ICEE_COND_H
 
 #include <IceE/Time.h>
 #include <IceE/ThreadException.h>

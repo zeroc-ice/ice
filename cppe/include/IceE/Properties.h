@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROPERTIES_H
-#define ICE_PROPERTIES_H
+#ifndef ICEE_PROPERTIES_H
+#define ICEE_PROPERTIES_H
 
 #include <IceE/PropertiesF.h>
 #include <IceE/Shared.h>

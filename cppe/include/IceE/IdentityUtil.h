@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_IDENTITY_UTIL_H
-#define ICE_IDENTITY_UTIL_H
+#ifndef ICEE_IDENTITY_UTIL_H
+#define ICEE_IDENTITY_UTIL_H
 
 #include <IceE/Identity.h>
 

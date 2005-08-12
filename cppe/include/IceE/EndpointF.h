@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_F_H
-#define ICE_ENDPOINT_F_H
+#ifndef ICEE_ENDPOINT_F_H
+#define ICEE_ENDPOINT_F_H
 
 #include <IceE/Handle.h>
 

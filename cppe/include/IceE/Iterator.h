@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ITERATOR_H
-#define ICE_ITERATOR_H
+#ifndef ICEE_ITERATOR_H
+#define ICEE_ITERATOR_H
 
 #include <iterator>
 

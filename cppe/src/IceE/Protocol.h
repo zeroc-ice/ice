@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROTOCOL_H
-#define ICE_PROTOCOL_H
+#ifndef ICEE_PROTOCOL_H
+#define ICEE_PROTOCOL_H
 
 #include <IceE/Config.h>
 

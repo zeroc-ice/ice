@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_THREAD_H
-#define ICE_THREAD_H
+#ifndef ICEE_THREAD_H
+#define ICEE_THREAD_H
 
 #include <IceE/Shared.h>
 #include <IceE/Handle.h>

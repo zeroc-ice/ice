@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ABSTRACT_MUTEX_H
-#define ICE_ABSTRACT_MUTEX_H
+#ifndef ICEE_ABSTRACT_MUTEX_H
+#define ICEE_ABSTRACT_MUTEX_H
 
 #include <IceE/Config.h>
 #include <IceE/Lock.h>

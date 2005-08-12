@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_DISPATCH_STATUS_H
-#define ICE_DISPATCH_STATUS_H
+#ifndef ICEE_DISPATCH_STATUS_H
+#define ICEE_DISPATCH_STATUS_H
 
 namespace IceInternal
 {

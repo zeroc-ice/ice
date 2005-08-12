@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOCK_H
-#define ICE_LOCK_H
+#ifndef ICEE_LOCK_H
+#define ICEE_LOCK_H
 
 #include <IceE/Config.h>
 #include <IceE/ThreadException.h>

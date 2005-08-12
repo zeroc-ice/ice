@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_INCOMING_CONNECTION_FACTORY_F_H
-#define ICE_INCOMING_CONNECTION_FACTORY_F_H
+#ifndef ICEE_INCOMING_CONNECTION_FACTORY_F_H
+#define ICEE_INCOMING_CONNECTION_FACTORY_F_H
 
 #include <IceE/Handle.h>
 

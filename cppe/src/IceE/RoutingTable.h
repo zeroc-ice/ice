@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ROUTING_TABLE_H
-#define ICE_ROUTING_TABLE_H
+#ifndef ICEE_ROUTING_TABLE_H
+#define ICEE_ROUTING_TABLE_H
 
 #include <IceE/RoutingTableF.h>
 #include <IceE/ProxyF.h>

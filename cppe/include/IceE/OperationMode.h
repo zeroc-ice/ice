@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OPERATION_MODE_H
-#define ICE_OPERATION_MODE_H
+#ifndef ICEE_OPERATION_MODE_H
+#define ICEE_OPERATION_MODE_H
 
 #include <IceE/Config.h>
 

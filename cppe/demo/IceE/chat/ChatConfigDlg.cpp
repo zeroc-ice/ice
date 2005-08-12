@@ -11,7 +11,7 @@
 #include <stdafx.h>
 #include <ChatConfigDlg.h>
 
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -165,4 +165,4 @@ CChatConfigDlg::OnLogin()
     EndDialog(IDOK);
 }
 
-#endif // ICE_HAS_ROUTER
+#endif // ICEE_HAS_ROUTER

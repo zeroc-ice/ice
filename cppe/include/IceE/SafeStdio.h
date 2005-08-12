@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SAFE_STDIO_H
-#define ICE_SAFE_STDIO_H
+#ifndef ICEE_SAFE_STDIO_H
+#define ICEE_SAFE_STDIO_H
 
 #include <IceE/Config.h>
 

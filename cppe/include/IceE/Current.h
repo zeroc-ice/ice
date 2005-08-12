@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CURRENT_H
-#define ICE_CURRENT_H
+#ifndef ICEE_CURRENT_H
+#define ICEE_CURRENT_H
 
 #include <IceE/ObjectAdapterF.h>
 #include <IceE/ConnectionF.h>

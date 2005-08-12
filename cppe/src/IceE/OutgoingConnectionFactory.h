@@ -7,15 +7,15 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OUTGOING_CONNECTION_FACTORY_H
-#define ICE_OUTGOING_CONNECTION_FACTORY_H
+#ifndef ICEE_OUTGOING_CONNECTION_FACTORY_H
+#define ICEE_OUTGOING_CONNECTION_FACTORY_H
 
 #include <IceE/OutgoingConnectionFactoryF.h>
 #include <IceE/ConnectionF.h>
 #include <IceE/InstanceF.h>
 #include <IceE/ObjectAdapterF.h>
 #include <IceE/EndpointF.h>
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 #   include <IceE/RouterF.h>
 #endif
 #include <IceE/Mutex.h>
@@ -34,11 +34,11 @@ public:
     void waitUntilFinished();
 
     Ice::ConnectionPtr create(const std::vector<EndpointPtr>&);
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
     void setRouter(const ::Ice::RouterPrx&);
 #endif
     void removeAdapter(const ::Ice::ObjectAdapterPtr&);
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
     void flushBatchRequests();
 #endif
 

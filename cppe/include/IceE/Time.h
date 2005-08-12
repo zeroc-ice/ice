@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TIME_H
-#define ICE_TIME_H
+#ifndef ICEE_TIME_H
+#define ICEE_TIME_H
 
 #include <IceE/Config.h>
 

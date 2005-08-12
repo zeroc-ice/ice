@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_HANDLE_H
-#define ICE_HANDLE_H
+#ifndef ICEE_HANDLE_H
+#define ICEE_HANDLE_H
 
 #include <IceE/ExceptionBase.h>
 #include <algorithm> // This isn't needed, but the generated code depends on it.

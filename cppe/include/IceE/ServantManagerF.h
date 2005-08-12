@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SERVANT_MANAGER_F_H
-#define ICE_SERVANT_MANAGER_F_H
+#ifndef ICEE_SERVANT_MANAGER_F_H
+#define ICEE_SERVANT_MANAGER_F_H
 
 #include <IceE/Handle.h>
 

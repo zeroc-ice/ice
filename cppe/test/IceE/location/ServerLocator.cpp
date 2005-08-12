@@ -9,7 +9,7 @@
 
 #include <IceE/Config.h>
 
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 #include <IceE/IceE.h>
 
 #include <IceE/BuiltinSequences.h>

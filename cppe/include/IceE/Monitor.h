@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_MONITOR_H
-#define ICE_MONITOR_H
+#ifndef ICEE_MONITOR_H
+#define ICEE_MONITOR_H
 
 #include <IceE/Config.h>
 #include <IceE/Lock.h>

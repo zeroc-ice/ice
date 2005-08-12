@@ -7,29 +7,24 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONFIG_H
-#define ICE_CONFIG_H
-
-//
-// We define a macro to determine that an IceE app is being built, and not Ice.
-//
-#define ICEE
+#ifndef ICEE_CONFIG_H
+#define ICEE_CONFIG_H
 
 //
 // Comment this out if you want to build without Router support.
 //
-#define ICE_HAS_ROUTER
+#define ICEE_HAS_ROUTER
 
 //
 // Comment this out if you want to build without Locator support.
 //
-#define ICE_HAS_LOCATOR
+#define ICEE_HAS_LOCATOR
 
 //
 // Comment this out if you want to build without batch mode on the
 // client side.
 //
-#define ICE_HAS_BATCH
+#define ICEE_HAS_BATCH
 
 
 // ***********************************************************************
@@ -41,8 +36,8 @@
 //
 // Unless we're building a pure client batch mode cannot be disabled.
 //
-#if !defined(ICE_PURE_CLIENT) && !defined(ICE_HAS_BATCH)
-#  define ICE_HAS_BATCH
+#if !defined(ICEE_PURE_CLIENT) && !defined(ICEE_HAS_BATCH)
+#  define ICEE_HAS_BATCH
 #endif
 
 //
@@ -93,7 +88,7 @@
 //
 // TODO: more macros to support IBM Visual Age _Export syntax as well.
 //
-#if ((defined(_MSC_VER) || defined(_WIN32_WCE)) && !defined(ICE_STATIC_LIBS)) || (defined(__HP_aCC) && defined(__HP_WINDLL))
+#if ((defined(_MSC_VER) || defined(_WIN32_WCE)) && !defined(ICEE_STATIC_LIBS)) || (defined(__HP_aCC) && defined(__HP_WINDLL))
 #   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
 #elif defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x550)
@@ -248,10 +243,10 @@ typedef long long Int64;
 #endif
 
 //
-// The Ice version.
+// The Ice-E version.
 //
-#define ICE_STRING_VERSION "1.0.0" // "A.B.C", with A=major, B=minor, C=patch
-#define ICE_INT_VERSION 10000      // AABBCC, with AA=major, BB=minor, CC=patch
+#define ICEE_STRING_VERSION "1.0.0" // "A.B.C", with A=major, B=minor, C=patch
+#define ICEE_INT_VERSION 10000      // AABBCC, with AA=major, BB=minor, CC=patch
 
 //
 // Some include files we need almost everywhere

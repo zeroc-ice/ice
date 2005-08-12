@@ -51,7 +51,7 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
 	    break;
 	}
 
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
 	case Reference::ModeBatchOneway:
 	{
 	    _connection->prepareBatchRequest(&_os);
@@ -236,7 +236,7 @@ IceInternal::Outgoing::invoke()
 	    break;
 	}
 
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
 	case Reference::ModeBatchOneway:
 	{
 	    //
@@ -270,7 +270,7 @@ IceInternal::Outgoing::abort(const LocalException& ex)
     // notify the connection about that we give up ownership of the
     // batch stream.
     //
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
     if(_reference->getMode() == Reference::ModeBatchOneway)
     {
 	_connection->abortBatchRequest();

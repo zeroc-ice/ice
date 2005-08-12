@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_NETWORK_H
-#define ICE_NETWORK_H
+#ifndef ICEE_NETWORK_H
+#define ICEE_NETWORK_H
 
 #ifdef __hpux
 #   define _XOPEN_SOURCE_EXTENDED

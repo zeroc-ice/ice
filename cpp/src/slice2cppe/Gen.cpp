@@ -195,7 +195,7 @@ Slice::Gen::generate(const UnitPtr& p)
 
     H << "\n#include <IceE/LocalObjectF.h>";
     H << "\n#include <IceE/ProxyF.h>";
-    H << "\n#ifndef ICE_PURE_CLIENT";
+    H << "\n#ifndef ICEE_PURE_CLIENT";
     H << "\n#  include <IceE/ObjectF.h>";
     H << "\n#endif";
     H << "\n#include <IceE/Exception.h>";
@@ -208,7 +208,7 @@ Slice::Gen::generate(const UnitPtr& p)
 
     if(p->hasNonLocalClassDefs())
     {
-        H << "\n#ifndef ICE_PURE_CLIENT";
+        H << "\n#ifndef ICEE_PURE_CLIENT";
 	H << "\n#  include <IceE/Object.h>";
 	H << "\n#  include <IceE/Incoming.h>";
         H << "\n#endif";
@@ -229,7 +229,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if(p->usesNonLocals())
     {
 	C << "\n#include <IceE/BasicStream.h>";
-        C << "\n#ifndef ICE_PURE_CLIENT";
+        C << "\n#ifndef ICEE_PURE_CLIENT";
 	C << "\n#  include <IceE/Object.h>";
         C << "\n#endif";
     }
@@ -1602,7 +1602,7 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 
     if(!p->isLocal())
     {
-        H << sp << nl << "#ifndef ICE_PURE_CLIENT";
+        H << sp << nl << "#ifndef ICEE_PURE_CLIENT";
     }
     
     H << sp << nl << "class " << name << ';';
@@ -1612,7 +1612,7 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 
     if(!p->isLocal())
     {
-        H << sp << nl << "#endif // ICE_PURE_CLIENT";
+        H << sp << nl << "#endif // ICEE_PURE_CLIENT";
     }
 }
 
@@ -1660,7 +1660,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isLocal())
     {
-        H << sp << nl << "#ifndef ICE_PURE_CLIENT";
+        H << sp << nl << "#ifndef ICEE_PURE_CLIENT";
     }
 
     H << sp << nl << "class " << _dllExport << name << " : ";
@@ -1923,7 +1923,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	C << eb << ';';
 
-	C << sp << nl << "#ifndef ICE_PURE_CLIENT";
+	C << sp << nl << "#ifndef ICEE_PURE_CLIENT";
 
 	C << sp;
 	C << nl << "bool" << nl << fixKwd(p->scoped()).substr(2)
@@ -2049,7 +2049,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(!p->isLocal())
     {
-        H << sp << nl << "#endif // ICE_PURE_CLIENT";
+        H << sp << nl << "#endif // ICEE_PURE_CLIENT";
     }
 
     if(p->isLocal())
@@ -2096,7 +2096,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << nl << "return static_cast<const ::Ice::Object&>(l) < static_cast<const ::Ice::Object&>(r);";
 	C << eb;
 
-        C << sp << nl << "#endif // ICE_PURE_CLIENT";
+        C << sp << nl << "#endif // ICEE_PURE_CLIENT";
     }
 }
 
@@ -2337,7 +2337,7 @@ Slice::Gen::IceInternalVisitor::visitClassDecl(const ClassDeclPtr& p)
 
     if(!p->isLocal())
     {
-        H << sp << nl << "#ifndef ICE_PURE_CLIENT";
+        H << sp << nl << "#ifndef ICEE_PURE_CLIENT";
     }
     
     H << sp;
@@ -2346,7 +2346,7 @@ Slice::Gen::IceInternalVisitor::visitClassDecl(const ClassDeclPtr& p)
 
     if(!p->isLocal())
     {
-        H << sp << nl << "#endif // ICE_PURE_CLIENT";
+        H << sp << nl << "#endif // ICEE_PURE_CLIENT";
 
 	H << sp;
 	H << nl << _dllExport << "void incRef(::IceProxy" << scoped << "*);";
@@ -2361,7 +2361,7 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isLocal())
     {
-        C << sp << nl << "#ifndef ICE_PURE_CLIENT";
+        C << sp << nl << "#ifndef ICEE_PURE_CLIENT";
     }
     
     C << sp;
@@ -2378,7 +2378,7 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isLocal())
     {
-        C << sp << nl << "#endif // ICE_PURE_CLIENT";
+        C << sp << nl << "#endif // ICEE_PURE_CLIENT";
 
 	C << sp;
 	C << nl << "void" << nl << "IceInternal::incRef(::IceProxy" << scoped << "* p)";
@@ -2432,7 +2432,7 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
 
     if(!p->isLocal())
     {
-        H << sp << nl << "#ifndef ICE_PURE_CLIENT";
+        H << sp << nl << "#ifndef ICEE_PURE_CLIENT";
     }
     
     H << sp;
@@ -2440,7 +2440,7 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
 
     if(!p->isLocal())
     {
-        H << sp << nl << "#endif // ICE_PURE_CLIENT" << sp;
+        H << sp << nl << "#endif // ICEE_PURE_CLIENT" << sp;
 
 	H << nl << "typedef ::IceInternal::ProxyHandle< ::IceProxy" << scoped << "> " << name << "Prx;";
 
@@ -2997,11 +2997,11 @@ void
 Slice::Gen::printVersionCheck(Output& out)
 {
     out << "\n";
-    out << "\n#ifndef ICE_IGNORE_VERSION";
-    out << "\n#   if ICE_INT_VERSION / 100 != " << ICEE_INT_VERSION / 100;
+    out << "\n#ifndef ICEE_IGNORE_VERSION";
+    out << "\n#   if ICEE_INT_VERSION / 100 != " << ICEE_INT_VERSION / 100;
     out << "\n#       error IceE version mismatch!";
     out << "\n#   endif";
-    out << "\n#   if ICE_INT_VERSION % 100 < " << ICEE_INT_VERSION % 100;
+    out << "\n#   if ICEE_INT_VERSION % 100 < " << ICEE_INT_VERSION % 100;
     out << "\n#       error IceE patch level mismatch!";
     out << "\n#   endif";
     out << "\n#endif";

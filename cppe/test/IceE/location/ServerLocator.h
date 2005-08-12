@@ -12,7 +12,7 @@
 
 #include <IceE/Config.h>
 
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 #include <IceE/Locator.h>
 #include <IceE/ProxyF.h>

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOCAL_EXCEPTION_H
-#define ICE_LOCAL_EXCEPTION_H
+#ifndef ICEE_LOCAL_EXCEPTION_H
+#define ICEE_LOCAL_EXCEPTION_H
 
 #include <IceE/Exception.h>
 #include <IceE/Identity.h>
@@ -141,7 +141,7 @@ public:
     virtual void ice_throw() const;
 };
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
 
 class ICE_API ObjectAdapterDeactivatedException : public ::Ice::LocalException
 {

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_DEFAULTS_AND_OVERRIDES_F_H
-#define ICE_DEFAULTS_AND_OVERRIDES_F_H
+#ifndef ICEE_DEFAULTS_AND_OVERRIDES_F_H
+#define ICEE_DEFAULTS_AND_OVERRIDES_F_H
 
 #include <IceE/Handle.h>
 

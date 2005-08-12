@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OBJECT_ADAPTER_H
-#define ICE_OBJECT_ADAPTER_H
+#ifndef ICEE_OBJECT_ADAPTER_H
+#define ICEE_OBJECT_ADAPTER_H
 
 #include <IceE/ObjectAdapterF.h>
 #include <IceE/InstanceF.h>
@@ -20,11 +20,11 @@
 #include <IceE/ObjectF.h>
 #include <IceE/EndpointF.h>
 
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 #   include <IceE/RouterF.h>
 #endif
 
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 #   include <IceE/LocatorF.h>
 #   include <IceE/LocatorInfoF.h>
 #endif
@@ -70,10 +70,10 @@ public:
     ObjectPrx createDirectProxy(const Identity&) const;
     ObjectPrx createReverseProxy(const Identity&) const;
 
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
     void addRouter(const RouterPrx&);
 #endif
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     void setLocator(const LocatorPrx&);
 #endif
     
@@ -106,11 +106,11 @@ private:
     const std::string _name;
     const std::string _id;
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
     std::vector<IceInternal::EndpointPtr> _routerEndpoints;
 #endif
     std::vector<IceInternal::EndpointPtr> _publishedEndpoints;
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     IceInternal::LocatorInfoPtr _locatorInfo;
 #endif
     int _directCount; // The number of direct proxies dispatching on this object adapter.

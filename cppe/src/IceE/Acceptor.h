@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ACCEPTOR_H
-#define ICE_ACCEPTOR_H
+#ifndef ICEE_ACCEPTOR_H
+#define ICEE_ACCEPTOR_H
 
 #include <IceE/TransceiverF.h>
 #include <IceE/InstanceF.h>

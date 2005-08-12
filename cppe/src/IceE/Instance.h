@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_INSTANCE_H
-#define ICE_INSTANCE_H
+#ifndef ICEE_INSTANCE_H
+#define ICEE_INSTANCE_H
 
 #include <IceE/InstanceF.h>
 #include <IceE/CommunicatorF.h>
@@ -22,7 +22,7 @@
 #include <IceE/ProxyFactoryF.h>
 #include <IceE/OutgoingConnectionFactoryF.h>
 #include <IceE/EndpointFactoryF.h>
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
 #   include <IceE/ObjectAdapterFactoryF.h>
 #endif
 #include <IceE/Shared.h>
@@ -41,10 +41,10 @@ public:
     void logger(const Ice::LoggerPtr&);
     TraceLevelsPtr traceLevels() const;
     DefaultsAndOverridesPtr defaultsAndOverrides() const;
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
     RouterManagerPtr routerManager() const;
 #endif
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     LocatorManagerPtr locatorManager() const;
 #endif
     ReferenceFactoryPtr referenceFactory() const;
@@ -53,14 +53,14 @@ public:
     EndpointFactoryPtr endpointFactory() const;
     size_t messageSizeMax() const;
     Ice::Int connectionIdleTime() const;
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
     void flushBatchRequests();
 #endif
     void setDefaultContext(const ::Ice::Context&);
     const ::Ice::Context& getDefaultContext() const;
     size_t threadPerConnectionStackSize() const;
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
 #endif
 
@@ -81,10 +81,10 @@ private:
     const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     const size_t _messageSizeMax; // Immutable, not reset by destroy().
     const size_t _threadPerConnectionStackSize;
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
     RouterManagerPtr _routerManager;
 #endif
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     LocatorManagerPtr _locatorManager;
 #endif
     ReferenceFactoryPtr _referenceFactory;
@@ -93,7 +93,7 @@ private:
     EndpointFactoryPtr _endpointFactory;
     Ice::Context _defaultContext;
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     ObjectAdapterFactoryPtr _objectAdapterFactory;
 #endif
 };

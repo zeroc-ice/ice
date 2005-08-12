@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROXY_FACTORY_H
-#define ICE_PROXY_FACTORY_H
+#ifndef ICEE_PROXY_FACTORY_H
+#define ICEE_PROXY_FACTORY_H
 
 #include <IceE/ProxyFactoryF.h>
 #include <IceE/InstanceF.h>

@@ -9,7 +9,7 @@
 
 #include <IceE/Config.h>
 
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 #include <IceE/RoutingTable.h>
 #include <IceE/Proxy.h>

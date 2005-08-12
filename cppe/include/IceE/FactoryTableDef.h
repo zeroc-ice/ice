@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_FACTORY_TABLE_DEF_H
-#define ICE_FACTORY_TABLE_DEF_H
+#ifndef ICEE_FACTORY_TABLE_DEF_H
+#define ICEE_FACTORY_TABLE_DEF_H
 
 #include <IceE/UserExceptionFactoryF.h>
 

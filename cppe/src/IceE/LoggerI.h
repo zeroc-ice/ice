@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOGGER_I_H
-#define ICE_LOGGER_I_H
+#ifndef ICEE_LOGGER_I_H
+#define ICEE_LOGGER_I_H
 
 #include <IceE/Logger.h>
 #include <IceE/Mutex.h>

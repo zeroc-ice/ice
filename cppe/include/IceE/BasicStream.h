@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_BASIC_STREAM_H
-#define ICE_BASIC_STREAM_H
+#ifndef ICEE_BASIC_STREAM_H
+#define ICEE_BASIC_STREAM_H
 
 #include <IceE/ProxyF.h>
 

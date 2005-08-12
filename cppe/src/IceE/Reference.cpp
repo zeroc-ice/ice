@@ -15,13 +15,13 @@
 #include <IceE/Endpoint.h>
 #include <IceE/BasicStream.h>
 
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 #   include <IceE/RouterInfo.h>
 #   include <IceE/Router.h>
 #   include <IceE/Connection.h>
 #endif
 
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 #   include <IceE/LocatorInfo.h>
 #   include <IceE/Locator.h>
 #endif
@@ -452,7 +452,7 @@ IceInternal::FixedReference::getEndpoints() const
     return vector<EndpointPtr>();
 }
 
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 ReferencePtr
 IceInternal::FixedReference::changeRouter(const RouterPrx&) const
@@ -462,7 +462,7 @@ IceInternal::FixedReference::changeRouter(const RouterPrx&) const
 
 #endif
 
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 ReferencePtr
 IceInternal::FixedReference::changeLocator(const LocatorPrx&) const
@@ -501,7 +501,7 @@ IceInternal::FixedReference::getConnection() const
     // this support.
     //
     if(getSecure() || getMode() == ModeDatagram || getMode() == ModeBatchDatagram || _fixedConnections.empty()
-#ifndef ICE_HAS_BATCH
+#ifndef ICEE_HAS_BATCH
        || getMode() == ModeBatchOneway
 #endif
       )
@@ -526,7 +526,7 @@ IceInternal::FixedReference::getConnection() const
 	{
 	    ex.unsupportedFeature = "batch datagram";
 	}
-#ifndef ICE_HAS_BATCH
+#ifndef ICEE_HAS_BATCH
 	else if(getMode() == ModeBatchOneway)
 	{
 	    ex.unsupportedFeature = "batch";
@@ -599,7 +599,7 @@ IceInternal::FixedReference::FixedReference(const FixedReference& r)
 {
 }
 
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 void IceInternal::incRef(IceInternal::RoutableReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::RoutableReference* p) { p->__decRef(); }
 
@@ -700,7 +700,7 @@ void IceInternal::incRef(IceInternal::DirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
 
 
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Identity& ident,
 					      const Context& ctx, const string& fs, Mode md, bool sec,
 					      const vector<EndpointPtr>& endpts, const RouterInfoPtr& rtrInfo) :
@@ -743,12 +743,12 @@ IceInternal::DirectReference::changeDefault() const
     //
     // Return an indirect reference if a default locator is set.
     //
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     LocatorPrx loc = getInstance()->referenceFactory()->getDefaultLocator();
     if(loc)
     {
 	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(loc);
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway, false,
 							 "", 0, newLocatorInfo);
 #else
@@ -757,13 +757,13 @@ IceInternal::DirectReference::changeDefault() const
 #endif
     }
     else
-#endif // ICE_HAS_LOCATOR
+#endif // ICEE_HAS_LOCATOR
     {
 	return Parent::changeDefault();
     }
 }
 
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 ReferencePtr
 IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
@@ -771,7 +771,7 @@ IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
     if(newLocator)
     {
 	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
 							 getSecure(), "", 0, newLocatorInfo);
 #else
@@ -842,7 +842,7 @@ IceInternal::DirectReference::toString() const
 ConnectionPtr
 IceInternal::DirectReference::getConnection() const
 {
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
     vector<EndpointPtr> endpts = Parent::getRoutedEndpoints();
     if(endpts.empty())
     {
@@ -863,7 +863,7 @@ IceInternal::DirectReference::getConnection() const
     ConnectionPtr connection = factory->create(filteredEndpoints);
     assert(connection);
 
-#if defined(ICE_HAS_ROUTER) && !defined(ICE_PURE_CLIENT)
+#if defined(ICEE_HAS_ROUTER) && !defined(ICEE_PURE_CLIENT)
 
     //
     // If we have a router, set the object adapter for this router
@@ -933,12 +933,12 @@ IceInternal::DirectReference::DirectReference(const DirectReference& r)
 {
 }
 
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 void IceInternal::incRef(IceInternal::IndirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
 
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
                                                   const Context& ctx, const string& fs, Mode md, bool sec,
 						  const string& adptid, const RouterInfoPtr& rtrInfo,
@@ -974,7 +974,7 @@ IceInternal::IndirectReference::changeDefault() const
     LocatorPrx loc = getInstance()->referenceFactory()->getDefaultLocator();
     if(!loc)
     {
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway, false,
 							 vector<EndpointPtr>(), getRouterInfo());
 #else
@@ -998,7 +998,7 @@ IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) cons
     //
     if(!newLocator)
     {
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
 							 getSecure(), vector<EndpointPtr>(), getRouterInfo());
 #else
@@ -1077,7 +1077,7 @@ IceInternal::IndirectReference::getConnection() const
 
     while(true)
     {
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	vector<EndpointPtr> endpts = Parent::getRoutedEndpoints();
 #else
 	vector<EndpointPtr> endpts;
@@ -1104,7 +1104,7 @@ IceInternal::IndirectReference::getConnection() const
 	}
 	catch(const LocalException& ex)
 	{
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 	    if(!getRouterInfo())
 #endif
 	    {
@@ -1132,7 +1132,7 @@ IceInternal::IndirectReference::getConnection() const
 	break;
     }
 
-#if defined(ICE_HAS_ROUTER) && !defined(ICE_PURE_CLIENT)
+#if defined(ICEE_HAS_ROUTER) && !defined(ICEE_PURE_CLIENT)
     //
     // If we have a router, set the object adapter for this router
     // (if any) to the new connection, so that callbacks from the
@@ -1210,7 +1210,7 @@ IceInternal::IndirectReference::IndirectReference(const IndirectReference& r)
 {
 }
 
-#endif // ICE_HAS_LOCATOR
+#endif // ICEE_HAS_LOCATOR
 
 vector<EndpointPtr>
 IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints, Reference::Mode m, bool sec)
@@ -1223,7 +1223,7 @@ IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints, Reference:
     // lacks this support we throw an unsupported feature.
     //
     if(sec || m == Reference::ModeDatagram || m == Reference::ModeBatchDatagram
-#ifndef ICE_HAS_BATCH
+#ifndef ICEE_HAS_BATCH
        || m == Reference::ModeBatchOneway
 #endif
 	)
@@ -1241,7 +1241,7 @@ IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints, Reference:
 	{
 	    ex.unsupportedFeature = "batch datagram";
 	}
-#ifndef ICE_HAS_BATCH
+#ifndef ICEE_HAS_BATCH
 	else if(m == Reference::ModeBatchOneway)
 	{
 	    ex.unsupportedFeature = "batch";

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_INSTANCE_F_H
-#define ICE_INSTANCE_F_H
+#ifndef ICEE_INSTANCE_F_H
+#define ICEE_INSTANCE_F_H
 
 #include <IceE/Handle.h>
 

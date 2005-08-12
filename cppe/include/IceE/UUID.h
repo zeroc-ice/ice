@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UUID_H
-#define ICE_UUID_H
+#ifndef ICEE_UUID_H
+#define ICEE_UUID_H
 
 #include <IceE/Exception.h>
 

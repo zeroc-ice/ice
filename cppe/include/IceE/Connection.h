@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECTION_H
-#define ICE_CONNECTION_H
+#ifndef ICEE_CONNECTION_H
+#define ICEE_CONNECTION_H
 
 #include <IceE/ConnectionF.h>
 #include <IceE/OutgoingConnectionFactoryF.h>
@@ -18,7 +18,7 @@
 #include <IceE/LoggerF.h>
 #include <IceE/TraceLevelsF.h>
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
 #   include <IceE/ObjectAdapterF.h>
 #   include <IceE/ServantManagerF.h>
 #   include <IceE/IncomingConnectionFactoryF.h>
@@ -30,7 +30,7 @@
 #include <IceE/Thread.h> // For ThreadPerConnection.
 #include <IceE/Identity.h>
 
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
 #    include <IceE/BasicStream.h>
 #endif
 
@@ -54,12 +54,12 @@ public:
     void waitForValidation();
     enum DestructionReason
     {
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
 	ObjectAdapterDeactivated,
 #endif
 	CommunicatorDestroyed
     };
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     void activate();
     void hold();
 #endif
@@ -69,7 +69,7 @@ public:
     bool isDestroyed() const;
     bool isFinished() const;
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     void waitUntilHolding() const;
 #endif
     void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
@@ -77,21 +77,21 @@ public:
     void prepareRequest(IceInternal::BasicStream*);
     void sendRequest(IceInternal::BasicStream*, IceInternal::Outgoing*);
 
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
     void prepareBatchRequest(IceInternal::BasicStream*);
     void finishBatchRequest(IceInternal::BasicStream*);
     void abortBatchRequest();
     void flushBatchRequests(); // From Connection.
 #endif
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     void sendResponse(IceInternal::BasicStream*);
     void sendNoResponse();
 #endif
 
     IceInternal::EndpointPtr endpoint() const;
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     void setAdapter(const ObjectAdapterPtr&); // From Connection.
     ObjectAdapterPtr getAdapter() const; // From Connection.
 #endif
@@ -104,7 +104,7 @@ public:
 
 private:
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     Connection(const IceInternal::InstancePtr&, const IceInternal::TransceiverPtr&, 
 	       const IceInternal::EndpointPtr&, const ObjectAdapterPtr&);
 #else
@@ -112,7 +112,7 @@ private:
 	       const IceInternal::EndpointPtr&);
 #endif
     ~Connection();
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     friend class IceInternal::IncomingConnectionFactory;
 #endif
     friend class IceInternal::OutgoingConnectionFactory;
@@ -121,7 +121,7 @@ private:
     {
 	StateNotValidated,
 	StateActive,
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
 	StateHolding,
 #endif
 	StateClosing,
@@ -134,7 +134,7 @@ private:
 
     void initiateShutdown() const;
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     void parseMessage(IceInternal::BasicStream&, Int&, Int&, 
 		      IceInternal::ServantManagerPtr&, ObjectAdapterPtr&);
     void invokeAll(IceInternal::BasicStream&, Int, Int,
@@ -166,7 +166,7 @@ private:
     const std::string _type;
     const IceInternal::EndpointPtr _endpoint;
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     ObjectAdapterPtr _adapter;
     IceInternal::ServantManagerPtr _servantManager;
 #endif
@@ -177,7 +177,7 @@ private:
     const bool _warn;
 
     const std::vector<Byte> _requestHdr;
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     const std::vector<Byte> _replyHdr;
 #endif
 
@@ -188,7 +188,7 @@ private:
 
     std::auto_ptr<LocalException> _exception;
 
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
     const std::vector<Byte> _requestBatchHdr;
     IceInternal::BasicStream _batchStream;
     bool _batchStreamInUse;

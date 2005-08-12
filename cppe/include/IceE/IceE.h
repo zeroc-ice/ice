@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ICE_H
-#define ICE_ICE_H
+#ifndef ICEE_ICE_H
+#define ICEE_ICE_H
 
 #include <IceE/Initialize.h>
 #include <IceE/LocalException.h>
@@ -16,7 +16,7 @@
 #include <IceE/Logger.h>
 #include <IceE/LoggerUtil.h>
 #include <IceE/Communicator.h>
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
 #   include <IceE/ObjectAdapter.h>
 #   include <IceE/Object.h>
 #endif

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ROUTING_TABLE_F_H
-#define ICE_ROUTING_TABLE_F_H
+#ifndef ICEE_ROUTING_TABLE_F_H
+#define ICEE_ROUTING_TABLE_F_H
 
 #include <IceE/Handle.h>
 

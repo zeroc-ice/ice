@@ -38,7 +38,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(derived == base);
     test(cl == derived);
     
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     Ice::LocatorPrx loc = Ice::LocatorPrx::checkedCast(base);
     test(loc == 0);
 #endif
@@ -64,7 +64,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(derived == base);
     test(cl == derived);
     
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     loc = checkedCast<Ice::LocatorPrx>(base);
     test(loc == 0);
 #endif

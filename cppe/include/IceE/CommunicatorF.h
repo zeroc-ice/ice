@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_COMMUNICATOR_F_H
-#define ICE_COMMUNICATOR_F_H
+#ifndef ICEE_COMMUNICATOR_F_H
+#define ICEE_COMMUNICATOR_F_H
 
 #include <IceE/Handle.h>
 

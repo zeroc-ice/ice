@@ -109,13 +109,6 @@ HDIR		= $(includedir)/IceE
 SDIR		= $(slicedir)/IceE
 
 include $(top_srcdir)/config/Make.rules
-ifeq ($(USE_SPARC_ASM),yes)
-ASRC		= 	IceAtomic.c
-AOBJ		= 	IceAtomic.o
-SRCS		:= 	$(SRCS) $(ASRCS)
-OBJS		:= 	$(OBJS) $(AOBJ)
-CFLAGS		:= 	$(CFLAGS) -fomit-frame-pointer
-endif
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_API_EXPORTS 
 SLICE2CPPEFLAGS	:= --ice --include-dir IceE --dll-export ICE_API $(SLICE2CPPEFLAGS)

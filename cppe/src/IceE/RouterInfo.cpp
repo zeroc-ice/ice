@@ -9,7 +9,7 @@
 
 #include <IceE/Config.h>
 
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
 
 #include <IceE/RouterInfo.h>
 #include <IceE/Router.h>
@@ -97,7 +97,7 @@ IceInternal::RouterInfo::destroy()
 
     _clientProxy = 0;
     _serverProxy = 0;
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
     _adapter = 0;
 #endif
     _routingTable->clear();
@@ -210,7 +210,7 @@ IceInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
     }
 }
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
 void
 IceInternal::RouterInfo::setAdapter(const ObjectAdapterPtr& adapter)
 {

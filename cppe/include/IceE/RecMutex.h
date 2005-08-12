@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_RMUTEX_H
-#define ICE_RMUTEX_H
+#ifndef ICEE_RMUTEX_H
+#define ICEE_RMUTEX_H
 
 #include <IceE/Config.h>
 #include <IceE/Lock.h>

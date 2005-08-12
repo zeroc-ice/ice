@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_FACTORYTABLE_H
-#define ICE_FACTORYTABLE_H
+#ifndef ICEE_FACTORYTABLE_H
+#define ICEE_FACTORYTABLE_H
 
 #include <IceE/FactoryTableDef.h>
 

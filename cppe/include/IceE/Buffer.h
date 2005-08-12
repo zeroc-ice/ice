@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_BUFFER_H
-#define ICE_BUFFER_H
+#ifndef ICEE_BUFFER_H
+#define ICEE_BUFFER_H
 
 #include <IceE/Config.h>
 

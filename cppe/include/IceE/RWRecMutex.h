@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_RW_REC_MUTEX_H
-#define ICE_RW_REC_MUTEX_H
+#ifndef ICEE_RW_REC_MUTEX_H
+#define ICEE_RW_REC_MUTEX_H
 
 #include <IceE/Mutex.h>
 #include <IceE/Cond.h>

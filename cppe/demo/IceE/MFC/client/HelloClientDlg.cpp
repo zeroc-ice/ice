@@ -64,7 +64,7 @@ CHelloClientDlg::OnInitDialog()
     //
     // Disable flush button if built without batch support.
     //
-#ifndef ICE_HAS_BATCH
+#ifndef ICEE_HAS_BATCH
     (CButton*)GetDlgItem(IDC_FLUSH)->EnableWindow(FALSE);
 #endif
 
@@ -132,7 +132,7 @@ CHelloClientDlg::OnSayHello()
     {
         updateProxy();
         _currentProxy->sayHello();
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
         if(_currentProxy->ice_isBatchOneway())
         {
             _status->SetWindowText(CString(" Queued batch request"));
@@ -152,7 +152,7 @@ CHelloClientDlg::OnSayHello()
 void
 CHelloClientDlg::OnFlush()
 {
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
     try
     {
         _communicator->flushBatchRequests();
@@ -172,7 +172,7 @@ CHelloClientDlg::OnShutdown()
     {
         updateProxy();
         _currentProxy->shutdown();
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
         if(_currentProxy->ice_isBatchOneway())
         {
             _status->SetWindowText(CString(" Queued shutdown request"));
@@ -209,7 +209,7 @@ CHelloClientDlg::updateProxy()
         proxy = _proxy->ice_oneway();
         break;
     case 2:
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
         proxy = _proxy->ice_batchOneway();
         break;
 #else

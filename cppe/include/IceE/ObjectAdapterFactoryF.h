@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OBJECT_ADAPTER_FACTORY_F_H
-#define ICE_OBJECT_ADAPTER_FACTORY_F_H
+#ifndef ICEE_OBJECT_ADAPTER_FACTORY_F_H
+#define ICEE_OBJECT_ADAPTER_FACTORY_F_H
 
 #include <IceE/Handle.h>
 

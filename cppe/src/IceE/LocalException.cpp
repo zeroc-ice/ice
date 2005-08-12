@@ -342,7 +342,7 @@ Ice::CommunicatorDestroyedException::ice_throw() const
     throw *this;
 }
 
-#ifndef ICE_PURE_CLIENT
+#ifndef ICEE_PURE_CLIENT
 
 Ice::ObjectAdapterDeactivatedException::ObjectAdapterDeactivatedException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
@@ -434,7 +434,7 @@ Ice::ObjectAdapterIdInUseException::ice_throw() const
 string
 Ice::ObjectAdapterIdInUseException::toString() const
 {
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     string out = Exception::toString();
     out += ":\nobject adapter with id `";
     out += id; 
@@ -445,7 +445,7 @@ Ice::ObjectAdapterIdInUseException::toString() const
 #endif
 }
 
-#endif // ICE_PURE_CLIENT
+#endif // ICEE_PURE_CLIENT
 
 Ice::NoEndpointException::NoEndpointException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug

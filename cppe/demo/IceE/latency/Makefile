@@ -39,10 +39,10 @@ $(SERVER): $(OBJS) $(SOBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
 Client.o: Client.cpp
-	$(CXX) -c -DICE_PURE_CLIENT $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c -DICEE_PURE_CLIENT $(CPPFLAGS) $(CXXFLAGS) $<
 
 LatencyC.o Latency.o: Latency.cpp
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
-	$(CXX) -c -DICE_PURE_CLIENT -o LatencyC.o $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c -DICEE_PURE_CLIENT -o LatencyC.o $(CPPFLAGS) $(CXXFLAGS) $<
 
 include .depend

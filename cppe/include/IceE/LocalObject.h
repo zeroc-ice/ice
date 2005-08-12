@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOCAL_OBJECT_H
-#define ICE_LOCAL_OBJECT_H
+#ifndef ICEE_LOCAL_OBJECT_H
+#define ICEE_LOCAL_OBJECT_H
 
 #include <IceE/LocalObjectF.h>
 #include <IceE/Shared.h>

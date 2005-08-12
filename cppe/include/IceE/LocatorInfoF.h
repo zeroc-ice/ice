@@ -7,12 +7,12 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOCATOR_INFO_F_H
-#define ICE_LOCATOR_INFO_F_H
+#ifndef ICEE_LOCATOR_INFO_F_H
+#define ICEE_LOCATOR_INFO_F_H
 
 #include <IceE/Config.h>
 
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
 
 #include <IceE/Handle.h>
 

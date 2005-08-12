@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_EXCEPTION_H
-#define ICE_EXCEPTION_H
+#ifndef ICEE_EXCEPTION_H
+#define ICEE_EXCEPTION_H
 
 #include <IceE/ExceptionBase.h>
 #include <IceE/Handle.h>

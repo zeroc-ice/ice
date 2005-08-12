@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_COMMUNICATOR_H
-#define ICE_COMMUNICATOR_H
+#ifndef ICEE_COMMUNICATOR_H
+#define ICEE_COMMUNICATOR_H
 
 #include <IceE/CommunicatorF.h>
 #include <IceE/LoggerF.h>
@@ -43,17 +43,17 @@ public:
     LoggerPtr getLogger() const;
     void setLogger(const LoggerPtr&);
 
-#ifdef ICE_HAS_ROUTER
+#ifdef ICEE_HAS_ROUTER
     RouterPrx getDefaultRouter() const;
     void setDefaultRouter(const RouterPrx&);
 #endif
 
-#ifdef ICE_HAS_LOCATOR
+#ifdef ICEE_HAS_LOCATOR
     LocatorPrx getDefaultLocator() const;
     void setDefaultLocator(const LocatorPrx&);
 #endif
 
-#ifdef ICE_HAS_BATCH
+#ifdef ICEE_HAS_BATCH
     void flushBatchRequests();
 #endif
 

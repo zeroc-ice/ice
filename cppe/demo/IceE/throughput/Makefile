@@ -39,10 +39,10 @@ $(SERVER): $(OBJS) $(SOBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
 Client.o: Client.cpp
-	$(CXX) -c -DICE_PURE_CLIENT $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c -DICEE_PURE_CLIENT $(CPPFLAGS) $(CXXFLAGS) $<
 
 ThroughputC.o Throughput.o: Throughput.cpp
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
-	$(CXX) -c -DICE_PURE_CLIENT -o ThroughputC.o $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c -DICEE_PURE_CLIENT -o ThroughputC.o $(CPPFLAGS) $(CXXFLAGS) $<
 
 include .depend
