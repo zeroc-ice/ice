@@ -11,29 +11,29 @@ public class ServerWrapper
     extends TestApplication
     implements Runnable
 {
-    //
-    // Find the IP address once we've connected to the network and display it.
-    // 
-    class FindHostname 
-	extends Thread
+    protected void
+    initIce()
     {
-	public void
-	run()
+	Ice.Properties properties = Ice.Util.createProperties();
+	java.io.InputStream is = getClass().getResourceAsStream("config");
+	if(is != null)
 	{
-	    String s = System.getProperty("microedition.hostname");
-	    while(s == null || s.length() == 0)
-	    {
-		try
-		{
-		    sleep(5000);
-	       	}
-		catch(InterruptedException ex)
-		{
-		}
-		s = System.getProperty("microedition.hostname");
-	    }
-	    _out.println("Running with IP " +  s);
+	    properties.load(is);
 	}
+
+	try
+	{
+	    _hostnameConnection = 
+		(javax.microedition.io.ServerSocketConnection)javax.microedition.io.Connector.open("socket://");
+	    properties.setProperty("Ice.Default.Host", _hostnameConnection.getLocalAddress());
+	    _out.println("Running on " + _hostnameConnection.getLocalAddress());
+	}
+	catch(Exception ex)
+	{
+	    _out.println("Unable to set default host");
+	}
+
+	_communicator = Ice.Util.initializeWithProperties(new String[0], properties);
     }
 
     protected void
@@ -42,7 +42,6 @@ public class ServerWrapper
     {
 	super.startApp();
 	new Thread(this).start();
-	new FindHostname().start();
     }
     
     public void
@@ -62,4 +61,6 @@ public class ServerWrapper
 	    ex.printStackTrace();
 	}
     }
+
+    protected javax.microedition.io.ServerSocketConnection _hostnameConnection;  
 }

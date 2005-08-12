@@ -43,6 +43,19 @@ public class TestApplication
     }
 
     protected void
+    initIce()
+    {
+	Ice.Properties properties = Ice.Util.createProperties();
+	java.io.InputStream is = getClass().getResourceAsStream("config");
+	if(is != null)
+	{
+	    properties.load(is);
+	}
+
+	_communicator = Ice.Util.initializeWithProperties(new String[0], properties);
+    }
+
+    protected void
     startApp()
 	throws javax.microedition.midlet.MIDletStateChangeException
     {
@@ -56,14 +69,7 @@ public class TestApplication
 	    }
 	    _out = new java.io.PrintStream(new Test.StreamListAdapter((javax.microedition.lcdui.List)_screen));
 	    _display.setCurrent(_screen);
-
-	    Ice.Properties properties = Ice.Util.createProperties();
-	    java.io.InputStream is = getClass().getResourceAsStream("config");
-	    if(is != null)
-	    {
-		properties.load(is);
-	    }
-	    _communicator = Ice.Util.initializeWithProperties(new String[0], properties);
+	    initIce();
 	}
 	catch(Exception ex)
 	{
