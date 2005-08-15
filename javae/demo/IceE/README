@@ -34,11 +34,11 @@ Demos in this directory:
 
 - helloMIDlet
  
-  This demo implements a simplified version of a hello client and server that
-  illustrates how to build and package a simple J2ME MIDlet. 
+  This demo implements a simplified version of a hello client and
+  server that illustrates how to build and package a simple J2ME
+  MIDlet. 
 
 - chat
 
   J2ME MIDlet that works with the Glacier2 chat demo found in the Ice
   distribution.
-
