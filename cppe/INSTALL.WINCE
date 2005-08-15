@@ -27,7 +27,7 @@ The following Microsoft Visual C++ compilers & SDKs are supported:
 
 - Microsoft Smartphone 2003 SDK
 
-- The Pocket PC 2003 Run-time Type Information library
+- The Pocket PC 2003 Run-Time Type Information library
 
 The STL (Standard Template Library) that is included with Microsoft
 eMbedded Visual C++ 4.0 is not supported. You must use STLport with
@@ -172,7 +172,7 @@ project configuration using Build/Set Active Configuration. Then
 select Build/Build <project>. This will build the project and copy the
 result to the appropriate device.
 
-In order to run the test suite you must first build each of the tests,
+In order to run the test suite, you must first build each of the tests,
 and then manually run the server followed by the client. Any failures
 will be reported.
 
