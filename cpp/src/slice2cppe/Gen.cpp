@@ -239,17 +239,6 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <IceE/LocalException.h>";
     }
 
-    //
-    // COMPILERFIX: EVC 4.  Cannot find a way to work around the
-    // "recursive on all control paths, function will cause runtime
-    // stack overflow" for the exception test, hence we disable the
-    // warning ONLY in the generated code.
-    //
-    C << "\n";
-    C << "\n#ifdef _WIN32_WCE";
-    C << "\n#   pragma warning( disable : 4717 )";
-    C << "\n#endif";
-
     StringList includes = p->includeFiles();
 
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
