@@ -22,7 +22,7 @@
         <ant dir="operations"/>
         <ant dir="package"/>
 	<ant dir="slicing"/> 
-	<!-- XXX refactor  <ant dir="translator"/> -->
+	<ant dir="translator"/> 
     </target>
 
     <target name="clean">
@@ -36,7 +36,7 @@
         <ant dir="operations" target="clean"/>
         <ant dir="package" target="clean"/>
 	<ant dir="slicing" target="clean"/> 
-	<!-- XXX refactor <ant dir="translator" target="clean"/> -->
+	<ant dir="translator" target="clean"/> 
     </target>
 
 </project>
