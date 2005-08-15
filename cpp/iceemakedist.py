@@ -250,6 +250,7 @@ os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -l " + tag + 
 #
 print "Copying icee install files..."
 shutil.copyfile(os.path.join("ice", "install", "icee", "ICE_LICENSE"), os.path.join("ice", "ICE_LICENSE"))
+shutil.copyfile(os.path.join("ice", "install", "icee", "README"), os.path.join("ice", "README"))
 shutil.copyfile(os.path.join("ice", "install", "icee", "INSTALL.LINUX"), os.path.join("ice", "INSTALL.LINUX"))
 shutil.copyfile(os.path.join("ice", "install", "icee", "INSTALL.WINDOWS"), os.path.join("ice", "INSTALL.WINDOWS"))
 
