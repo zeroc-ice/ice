@@ -6,7 +6,9 @@ Requirements
 Windows version
 ---------------
 
-The Ice-E translators have been extensively tested with Windows XP.
+The Ice-E translators have been extensively tested on Windows XP and
+Windows 2000.
+
 
 C++ compiler
 ------------
@@ -25,17 +27,18 @@ For Visual C++ .NET 2003, you can use the included STL library.
 
 
 STLport
----------------------
+-------
 
 Ice-E translators require STLport 4.5 or later for Visual C++ 6.0. You
 can download STLport at the following location:
 
 http://www.stlport.org/download.html
 
-For STLport installation instructions, please refer to
-http://www.stlport.org/doc/install.html. 
+STLport installation instructions can be found at
 
-Users must configure Visual Studio to use STLPort:
+http://www.stlport.org/doc/install.html
+
+You must also configure Visual Studio to use STLPort:
 
 - In the Visual C++ 6.0 IDE, choose Tools->Options->Directories
 
@@ -44,29 +47,42 @@ Users must configure Visual Studio to use STLPort:
 - Add the include directory for STLport first in the list. (Note that
   you must add the "include\stlport" directory, not just "include".)
 
+
 ======================================================================
 Compilation
 ======================================================================
 
-Using your favorite Zip tool, unzip the Ice-E translator archive anywhere
-you like, then start the Microsoft Visual C++ IDE.
+Using your favorite Zip tool, unzip the Ice-E translator archive
+anywhere you like, then start the Microsoft Visual C++ IDE.
 
 Open the "icee.dsw" workspace. If you are using Visual C++ .NET, then
 the project files must first be converted from Visual C++ 6.0 to .NET
 format.
 
-Set your active project to "icee". This will build all the Ice-E
-translators. To set your active project with Visual C++ 6.0, use 
-Project->Set Active Project. For Visual C++ .NET, click on "icee" in the
-class view, then use Project->Set as StartUp Project.
+Set your active project to "icee" to build all of the Ice-E
+translator executables. Four build configurations are supported:
+
+  Win32 Release
+  Win32 Debug
+  Win32 Release Static
+  Win32 Debug Static
+
+The first two generate DLLs for the supporting libraries required
+by the translators, whereas the last two generate static libraries.
+We recommend using a static configuration in order to avoid potential
+conflicts with an existing Ice installation.
+
+To set your active project with Visual C++ 6.0, use Project->Set
+Active Project. For Visual C++ .NET, click on "icee" in the class
+view, then use Project->Set as StartUp Project.
 
 To start the compilation, use Build->Build for Visual C++ 6.0, or
-Build->Build all/minimal for Visual C++ .NET, respectively.
+Build->Build icee for Visual C++ .NET, respectively.
 
 
 ======================================================================
 Installation
 ======================================================================
 
-No automatic installation support is provided: you need to copy the
+No automatic installation support is provided; you need to copy the
 contents of the bin directory to your preferred location. 

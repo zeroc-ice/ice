@@ -18,7 +18,7 @@ C++ compiler
 
 
 ======================================================================
-Compilation and Testing
+Compilation
 ======================================================================
 
 Extract the Ice-E translator archive in any directory you like (for
@@ -31,19 +31,22 @@ Change the working directory to IceE-trans-@ver@:
 $ cd IceE-trans-@ver@
 
 Edit config/Make.rules to establish your build configuration. The
-comments in the file provide more information. 
+comments in the file provide more information. We recommend building
+with static libraries in order to avoid potential conflicts with an
+existing Ice installation.
 
-If you want to build the translators with the Intel C++ compiler, first 
-set the following environment variables:
+If you want to build the translators with the Intel C++ compiler,
+first set the following environment variables:
 
 $ export CC=icc
 $ export CXX=icpc
 
-Now you're ready to build the Ice-E translators:
+Now you're ready to build the translators:
 
 $ make
 
-This will build both the C++ and Java slice translator for Ice-E.
+This will build the Slice-to-C++ and Slice-to-Java translators for
+Ice-E.
 
 
 ======================================================================
@@ -69,7 +72,7 @@ the directory specified by the "prefix" variable in config/Make.rules.
 
 After installation, make sure that the <prefix>/bin directory is in
 your PATH, and the <prefix>/lib directory is in your
-LD_LIBRARY_PATH. 
+LD_LIBRARY_PATH (if you built dynamic libraries). 
 
 If LP64 is set to yes, the libraries are installed in <prefix>/lib64
 and the programs are installed in <prefix>/bin64. No other changes are
