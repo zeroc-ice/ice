@@ -409,7 +409,7 @@ for makeFileName in [os.path.join("ice", "src", "IceUtil", "Makefile"), \
 # Get Ice-E version.
 #
 config = open(os.path.join("icee", "include", "IceE", "Config.h"), "r")
-version = re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
+version = re.search("ICEE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
 
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("ice", "README*"), version)
