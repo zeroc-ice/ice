@@ -12,7 +12,7 @@ A recent Linux distribution for x86 or x86-64.
 C++ compiler
 ------------
 
-- GCC 3.2, 3.3 or 3.4; or
+- GCC 3.2, 3.3, 3.4, 4.0.1; or
 
 - Intel C++ 8.1
 
