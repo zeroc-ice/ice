@@ -133,7 +133,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                        $(OutDir)\iceec.lib                                        ..\..\lib\ 
+PostBuild_Cmds=copy                                         $(OutDir)\iceec.lib                                         ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "icec - Win32 Debug Static"
@@ -166,7 +166,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                       $(OutDir)\iceecd.lib                                       ..\..\lib\ 
+PostBuild_Cmds=copy                                        $(OutDir)\iceecd.lib                                        ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
@@ -423,10 +423,6 @@ SOURCE=..\..\include\IceE\CommunicatorF.h
 # Begin Source File
 
 SOURCE=..\..\include\IceE\Cond.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\IceE\Config.h
 # End Source File
 # Begin Source File
 

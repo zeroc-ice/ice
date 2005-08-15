@@ -19,8 +19,10 @@ menu()
     printf("usage:\n");
     printf("t: send greeting as twoway\n");
     printf("o: send greeting as oneway\n");
+#ifdef ICEE_HAS_BATCH
     printf("O: send greeting as batch oneway\n");
     printf("f: flush all batch requests\n");
+#endif
     printf("T: set a timeout\n");
     printf("s: shutdown server\n");
     printf("x: exit\n");
@@ -47,7 +49,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
     HelloPrx oneway = HelloPrx::uncheckedCast(twoway->ice_oneway());
+#ifdef ICEE_HAS_BATCH
     HelloPrx batchOneway = HelloPrx::uncheckedCast(twoway->ice_batchOneway());
+#endif
 
     int timeout = -1;
 
@@ -72,6 +76,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    {
 		oneway->sayHello();
 	    }
+#ifdef ICEE_HAS_BATCH
 	    else if(c == 'O')
 	    {
 		batchOneway->sayHello();
@@ -80,6 +85,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    {
 		communicator->flushBatchRequests();
 	    }
+#endif
 	    else if(c == 'T')
 	    {
 		if(timeout == -1)
@@ -93,8 +99,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		
 		twoway = HelloPrx::uncheckedCast(twoway->ice_timeout(timeout));
 		oneway = HelloPrx::uncheckedCast(oneway->ice_timeout(timeout));
+#ifdef ICEE_HAS_BATCH
 		batchOneway = HelloPrx::uncheckedCast(batchOneway->ice_timeout(timeout));
-		
+#endif		
 		if(timeout == -1)
 		{
 		    printf("timeout is now switched off\n");
