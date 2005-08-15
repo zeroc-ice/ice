@@ -22,13 +22,9 @@ struct smnpTest4Struct
     smnpStruct s;
     smnpStructSeq seq;
     smnpStringStructDict dict;
-    smnpClass c;
-    smnpInterface i;
 };
 
 sequence<smnpStruct> smnpTest4StructSeq;
-
-dictionary<smnpStruct, smnpBaseClass> smnpTest4StructClassSeq;
 
 interface smnpTest4Interface extends smnpInterface {};
 
@@ -38,8 +34,6 @@ exception smnpTest4Exception extends smnpException
     smnpStruct s1;
     smnpStructSeq seq1;
     smnpStringStructDict dict1;
-    smnpClass c1;
-    smnpInterface i1;
 };
 
 class smnpTest4Class extends smnpBaseClass implements smnpBaseInterface
@@ -49,14 +43,10 @@ class smnpTest4Class extends smnpBaseClass implements smnpBaseInterface
                  smnpStruct i2,
                  smnpStructSeq i3,
                  smnpStringStructDict i4,
-                 smnpInterface i5,
-                 smnpClass i6,
                  out smnpEnum o1,
                  out smnpStruct o2,
                  out smnpStructSeq o3,
-                 out smnpStringStructDict o4,
-                 out smnpInterface o5,
-                 out smnpClass o6)
+                 out smnpStringStructDict o4)
         throws smnpException;
 
     ["ami"]
@@ -65,14 +55,10 @@ class smnpTest4Class extends smnpBaseClass implements smnpBaseInterface
                  smnpStruct i2,
                  smnpStructSeq i3,
                  smnpStringStructDict i4,
-                 smnpInterface i5,
-                 smnpClass i6,
                  out smnpEnum o1,
                  out smnpStruct o2,
                  out smnpStructSeq o3,
-                 out smnpStringStructDict o4,
-                 out smnpInterface o5,
-                 out smnpClass o6)
+                 out smnpStringStructDict o4)
         throws smnpException;
 
     ["amd"]
@@ -81,14 +67,10 @@ class smnpTest4Class extends smnpBaseClass implements smnpBaseInterface
                  smnpStruct i2,
                  smnpStructSeq i3,
                  smnpStringStructDict i4,
-                 smnpInterface i5,
-                 smnpClass i6,
                  out smnpEnum o1,
                  out smnpStruct o2,
                  out smnpStructSeq o3,
-                 out smnpStringStructDict o4,
-                 out smnpInterface o5,
-                 out smnpClass o6)
+                 out smnpStringStructDict o4)
         throws smnpException;
 };
 

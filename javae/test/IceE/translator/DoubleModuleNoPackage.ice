@@ -55,7 +55,6 @@ exception dmnpBaseException
     dmnpStruct s;
     dmnpStructSeq seq;
     dmnpStringStructDict dict;
-    dmnpClass c;
 };
 
 exception dmnpException extends dmnpBaseException

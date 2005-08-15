@@ -55,7 +55,6 @@ exception smwpBaseException
     smwpStruct s;
     smwpStructSeq seq;
     smwpStringStructDict dict;
-    smwpClass c;
 };
 
 exception smwpException extends smwpBaseException

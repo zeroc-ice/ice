@@ -26,13 +26,9 @@ struct dmwpTest10Struct
     dmwpStruct s;
     dmwpStructSeq seq;
     dmwpStringStructDict dict;
-    dmwpClass c;
-    dmwpInterface i;
 };
 
 sequence<dmwpStruct> dmwpTest10StructSeq;
-
-dictionary<dmwpStruct, dmwpBaseClass> dmwpTest10StructClassSeq;
 
 interface dmwpTest10Interface extends dmwpInterface {};
 
@@ -42,8 +38,6 @@ exception dmwpTest10Exception extends dmwpException
     dmwpStruct s1;
     dmwpStructSeq seq1;
     dmwpStringStructDict dict1;
-    dmwpClass c1;
-    dmwpInterface i1;
 };
 
 class dmwpTest10Class extends dmwpBaseClass implements dmwpBaseInterface
@@ -53,14 +47,10 @@ class dmwpTest10Class extends dmwpBaseClass implements dmwpBaseInterface
                   dmwpStruct i2,
                   dmwpStructSeq i3,
                   dmwpStringStructDict i4,
-                  dmwpInterface i5,
-                  dmwpClass i6,
                   out dmwpEnum o1,
                   out dmwpStruct o2,
                   out dmwpStructSeq o3,
-                  out dmwpStringStructDict o4,
-                  out dmwpInterface o5,
-                  out dmwpClass o6)
+                  out dmwpStringStructDict o4)
         throws dmwpException;
 
     ["ami"]
@@ -69,14 +59,10 @@ class dmwpTest10Class extends dmwpBaseClass implements dmwpBaseInterface
                   dmwpStruct i2,
                   dmwpStructSeq i3,
                   dmwpStringStructDict i4,
-                  dmwpInterface i5,
-                  dmwpClass i6,
                   out dmwpEnum o1,
                   out dmwpStruct o2,
                   out dmwpStructSeq o3,
-                  out dmwpStringStructDict o4,
-                  out dmwpInterface o5,
-                  out dmwpClass o6)
+                  out dmwpStringStructDict o4)
         throws dmwpException;
 
     ["amd"]
@@ -85,14 +71,10 @@ class dmwpTest10Class extends dmwpBaseClass implements dmwpBaseInterface
                   dmwpStruct i2,
                   dmwpStructSeq i3,
                   dmwpStringStructDict i4,
-                  dmwpInterface i5,
-                  dmwpClass i6,
                   out dmwpEnum o1,
                   out dmwpStruct o2,
                   out dmwpStructSeq o3,
-                  out dmwpStringStructDict o4,
-                  out dmwpInterface o5,
-                  out dmwpClass o6)
+                  out dmwpStringStructDict o4)
         throws dmwpException;
 };
 

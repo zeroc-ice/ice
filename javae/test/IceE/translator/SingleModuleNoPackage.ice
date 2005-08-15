@@ -53,7 +53,6 @@ exception smnpBaseException
     smnpStruct s;
     smnpStructSeq seq;
     smnpStringStructDict dict;
-    smnpClass c;
 };
 
 exception smnpException extends smnpBaseException

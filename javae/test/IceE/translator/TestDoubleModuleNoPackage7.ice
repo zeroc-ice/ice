@@ -26,13 +26,9 @@ struct dmnpTest7Struct
     dmnpStruct s;
     dmnpStructSeq seq;
     dmnpStringStructDict dict;
-    dmnpClass c;
-    dmnpInterface i;
 };
 
 sequence<dmnpStruct> dmnpTest7StructSeq;
-
-dictionary<dmnpStruct, dmnpBaseClass> dmnpTest7StructClassSeq;
 
 interface dmnpTest7Interface extends dmnpInterface {};
 
@@ -42,8 +38,6 @@ exception dmnpTest7Exception extends dmnpException
     dmnpStruct s1;
     dmnpStructSeq seq1;
     dmnpStringStructDict dict1;
-    dmnpClass c1;
-    dmnpInterface i1;
 };
 
 class dmnpTest7Class extends dmnpBaseClass implements dmnpBaseInterface
@@ -53,14 +47,10 @@ class dmnpTest7Class extends dmnpBaseClass implements dmnpBaseInterface
                  dmnpStruct i2,
                  dmnpStructSeq i3,
                  dmnpStringStructDict i4,
-                 dmnpInterface i5,
-                 dmnpClass i6,
                  out dmnpEnum o1,
                  out dmnpStruct o2,
                  out dmnpStructSeq o3,
-                 out dmnpStringStructDict o4,
-                 out dmnpInterface o5,
-                 out dmnpClass o6)
+                 out dmnpStringStructDict o4)
         throws dmnpException;
 
     ["ami"]
@@ -69,14 +59,10 @@ class dmnpTest7Class extends dmnpBaseClass implements dmnpBaseInterface
                  dmnpStruct i2,
                  dmnpStructSeq i3,
                  dmnpStringStructDict i4,
-                 dmnpInterface i5,
-                 dmnpClass i6,
                  out dmnpEnum o1,
                  out dmnpStruct o2,
                  out dmnpStructSeq o3,
-                 out dmnpStringStructDict o4,
-                 out dmnpInterface o5,
-                 out dmnpClass o6)
+                 out dmnpStringStructDict o4)
         throws dmnpException;
 
     ["amd"]
@@ -85,14 +71,10 @@ class dmnpTest7Class extends dmnpBaseClass implements dmnpBaseInterface
                  dmnpStruct i2,
                  dmnpStructSeq i3,
                  dmnpStringStructDict i4,
-                 dmnpInterface i5,
-                 dmnpClass i6,
                  out dmnpEnum o1,
                  out dmnpStruct o2,
                  out dmnpStructSeq o3,
-                 out dmnpStringStructDict o4,
-                 out dmnpInterface o5,
-                 out dmnpClass o6)
+                 out dmnpStringStructDict o4)
         throws dmnpException;
 };
 

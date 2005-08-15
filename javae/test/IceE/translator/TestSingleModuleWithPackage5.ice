@@ -22,13 +22,9 @@ struct smwpTest5Struct
     smwpStruct s;
     smwpStructSeq seq;
     smwpStringStructDict dict;
-    smwpClass c;
-    smwpInterface i;
 };
 
 sequence<smwpStruct> smwpTest5StructSeq;
-
-dictionary<smwpStruct, smwpBaseClass> smwpTest5StructClassSeq;
 
 interface smwpTest5Interface extends smwpInterface {};
 
@@ -38,8 +34,6 @@ exception smwpTest5Exception extends smwpException
     smwpStruct s1;
     smwpStructSeq seq1;
     smwpStringStructDict dict1;
-    smwpClass c1;
-    smwpInterface i1;
 };
 
 class smwpTest5Class extends smwpBaseClass implements smwpBaseInterface
@@ -49,14 +43,10 @@ class smwpTest5Class extends smwpBaseClass implements smwpBaseInterface
                  smwpStruct i2,
                  smwpStructSeq i3,
                  smwpStringStructDict i4,
-                 smwpInterface i5,
-                 smwpClass i6,
                  out smwpEnum o1,
                  out smwpStruct o2,
                  out smwpStructSeq o3,
-                 out smwpStringStructDict o4,
-                 out smwpInterface o5,
-                 out smwpClass o6)
+                 out smwpStringStructDict o4)
         throws smwpException;
 
     ["ami"]
@@ -65,14 +55,10 @@ class smwpTest5Class extends smwpBaseClass implements smwpBaseInterface
                  smwpStruct i2,
                  smwpStructSeq i3,
                  smwpStringStructDict i4,
-                 smwpInterface i5,
-                 smwpClass i6,
                  out smwpEnum o1,
                  out smwpStruct o2,
                  out smwpStructSeq o3,
-                 out smwpStringStructDict o4,
-                 out smwpInterface o5,
-                 out smwpClass o6)
+                 out smwpStringStructDict o4)
         throws smwpException;
 
     ["amd"]
@@ -81,14 +67,10 @@ class smwpTest5Class extends smwpBaseClass implements smwpBaseInterface
                  smwpStruct i2,
                  smwpStructSeq i3,
                  smwpStringStructDict i4,
-                 smwpInterface i5,
-                 smwpClass i6,
                  out smwpEnum o1,
                  out smwpStruct o2,
                  out smwpStructSeq o3,
-                 out smwpStringStructDict o4,
-                 out smwpInterface o5,
-                 out smwpClass o6)
+                 out smwpStringStructDict o4)
         throws smwpException;
 };
 

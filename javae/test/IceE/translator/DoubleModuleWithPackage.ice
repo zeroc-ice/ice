@@ -57,7 +57,6 @@ exception dmwpBaseException
     dmwpStruct s;
     dmwpStructSeq seq;
     dmwpStringStructDict dict;
-    dmwpClass c;
 };
 
 exception dmwpException extends dmwpBaseException

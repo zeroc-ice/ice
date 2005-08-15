@@ -24,13 +24,9 @@ struct dmwpTest6Struct
     ::M1::M2::dmwpStruct s;
     ::M1::M2::dmwpStructSeq seq;
     ::M1::M2::dmwpStringStructDict dict;
-    ::M1::M2::dmwpClass c;
-    ::M1::M2::dmwpInterface i;
 };
 
 sequence<::M1::M2::dmwpStruct> dmwpTest6StructSeq;
-
-dictionary<::M1::M2::dmwpStruct, ::M1::M2::dmwpBaseClass> dmwpTest6StructClassSeq;
 
 interface dmwpTest6Interface extends ::M1::M2::dmwpInterface {};
 
@@ -40,8 +36,6 @@ exception dmwpTest6Exception extends ::M1::M2::dmwpException
     ::M1::M2::dmwpStruct s1;
     ::M1::M2::dmwpStructSeq seq1;
     ::M1::M2::dmwpStringStructDict dict1;
-    ::M1::M2::dmwpClass c1;
-    ::M1::M2::dmwpInterface i1;
 };
 
 class dmwpTest6Class extends ::M1::M2::dmwpBaseClass implements ::M1::M2::dmwpBaseInterface
@@ -51,14 +45,10 @@ class dmwpTest6Class extends ::M1::M2::dmwpBaseClass implements ::M1::M2::dmwpBa
                  ::M1::M2::dmwpStruct i2,
                  ::M1::M2::dmwpStructSeq i3,
                  ::M1::M2::dmwpStringStructDict i4,
-                 ::M1::M2::dmwpInterface i5,
-                 ::M1::M2::dmwpClass i6,
                  out ::M1::M2::dmwpEnum o1,
                  out ::M1::M2::dmwpStruct o2,
                  out ::M1::M2::dmwpStructSeq o3,
-                 out ::M1::M2::dmwpStringStructDict o4,
-                 out ::M1::M2::dmwpInterface o5,
-                 out ::M1::M2::dmwpClass o6)
+                 out ::M1::M2::dmwpStringStructDict o4)
         throws ::M1::M2::dmwpException;
 
     ["ami"]
@@ -67,14 +57,10 @@ class dmwpTest6Class extends ::M1::M2::dmwpBaseClass implements ::M1::M2::dmwpBa
                  ::M1::M2::dmwpStruct i2,
                  ::M1::M2::dmwpStructSeq i3,
                  ::M1::M2::dmwpStringStructDict i4,
-                 ::M1::M2::dmwpInterface i5,
-                 ::M1::M2::dmwpClass i6,
                  out ::M1::M2::dmwpEnum o1,
                  out ::M1::M2::dmwpStruct o2,
                  out ::M1::M2::dmwpStructSeq o3,
-                 out ::M1::M2::dmwpStringStructDict o4,
-                 out ::M1::M2::dmwpInterface o5,
-                 out ::M1::M2::dmwpClass o6)
+                 out ::M1::M2::dmwpStringStructDict o4)
         throws ::M1::M2::dmwpException;
 
     ["amd"]
@@ -83,14 +69,10 @@ class dmwpTest6Class extends ::M1::M2::dmwpBaseClass implements ::M1::M2::dmwpBa
                  ::M1::M2::dmwpStruct i2,
                  ::M1::M2::dmwpStructSeq i3,
                  ::M1::M2::dmwpStringStructDict i4,
-                 ::M1::M2::dmwpInterface i5,
-                 ::M1::M2::dmwpClass i6,
                  out ::M1::M2::dmwpEnum o1,
                  out ::M1::M2::dmwpStruct o2,
                  out ::M1::M2::dmwpStructSeq o3,
-                 out ::M1::M2::dmwpStringStructDict o4,
-                 out ::M1::M2::dmwpInterface o5,
-                 out ::M1::M2::dmwpClass o6)
+                 out ::M1::M2::dmwpStringStructDict o4)
         throws ::M1::M2::dmwpException;
 };
 
