@@ -18,6 +18,7 @@
 #ifdef ICEE_HAS_ROUTER
 #   include <IceE/RouterF.h>
 #endif
+#include <IceE/Shared.h>
 #include <IceE/Mutex.h>
 #include <IceE/Monitor.h>
 #include <set>
