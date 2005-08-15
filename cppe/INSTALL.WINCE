@@ -181,3 +181,47 @@ Installation
 ======================================================================
 
 No automatic installation support is provided.
+
+
+======================================================================
+Known Issues
+======================================================================
+
+When building with EVC many of these messages are displayed:
+
+c:\src\icee\src\IceE\UUID.cpp(33): Could not find the file unistd.h.
+c:\src\icee\include\IceE\Config.h(268): Could not find the file unistd.h.
+C:\SRC\STLPORT\5.0RC2\STLPORT\STLPORT\pthread.h(24): Could not find the file /usr/include/pthread.h.
+
+For details on this problem see:
+- http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vcce/htm/evc_guide10_4.asp
+- http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vccore/html/_core_Excluding_Files_When_Dependency_Checking.asp
+
+In order to resolve this problem add the following to your
+SYSINCL.DAT (on my machine c:\Program Files\Microsoft eMbedded C++ 4.0\Common\Evc\bin\SYSINCL.DAT),
+and restart EVC.
+
+unistd.h
+pthread.h
+features.h
+isynonym.hpp
+stl_is.h
+mcompile.h
+standards.h
+sys/cdefs.h
+stdexcept.stdh
+CoreSwitches_AC.h
+ConditionalMacros_AC.h
+Types_AC.h
+ConditionalMacros.h
+mslGlobals.h
+ansi_parms.h
+sys/features_test.h
+sys/socket.h
+sys/time.h
+sys/select.h
+netinet/in.h
+netinet/tcp.h
+arpa/inet.h
+netdb.h
+
