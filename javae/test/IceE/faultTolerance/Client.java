@@ -48,10 +48,39 @@ public class Client
 
         if(ports.isEmpty())
         {
+	    //
+	    // MIDlets won't have command line options, but they can
+	    // configure a port range by specificying a start port and a
+	    // number of ports to configure.
+	    //
+	    String startPort = communicator.getProperties().getProperty("Test.FirstPort");
+	    String nPorts = communicator.getProperties().getProperty("Test.ServerCount");
+
+	    int firstPort = 0;
+	    int n = 0;
+	    try
+	    {
+		firstPort = Integer.parseInt(startPort);
+		n = Integer.parseInt(nPorts);
+	    }
+            catch(NumberFormatException ex)
+            {
+                ex.printStackTrace();
+                return 1;
+            }
+
+	    for(int i = 0; i < n; ++i)
+	    {
+		ports.addElement(new Integer(firstPort++));
+	    }
+        }
+
+        if(ports.isEmpty())
+        {
             out.println("Client: no ports specified");
             usage(out);
             return 1;
-        }
+	}
 
         int[] arr = new int[ports.size()];
         for(int i = 0; i < arr.length; i++)

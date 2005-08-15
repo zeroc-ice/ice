@@ -17,6 +17,8 @@
 #
 # Set Test.Host to the hostname or IP address for the server host.
 #
-# Test.Host = eagle2
+Test.Host=localhost
+Test.FirstPort=12345
+Test.ServerCount= 13
 
 Ice.ServerIdleTime = 120
