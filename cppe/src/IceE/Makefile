@@ -87,13 +87,8 @@ LOCAL_OBJS	= BasicStream.o \
 
 OBJS		= $(LOCAL_OBJS) $(TRANSPORT_OBJS)
 
-TRANSPORT_SRCS	= $(TRANSPORT_DIR)/Acceptor.cpp \
-		  $(TRANSPORT_DIR)/Connector.cpp \
-		  $(TRANSPORT_DIR)/EndpointFactory.cpp \
-		  $(TRANSPORT_DIR)/TcpEndpoint.cpp \
-		  $(TRANSPORT_DIR)/Transceiver.cpp
-
-SRCS		= $(LOCAL_OBJS:.o=.cpp) $(TRANSPORT_SRCS)
+SRCS		= $(LOCAL_OBJS:.o=.cpp) \
+		  $(patsubst %.o,$(TRANSPORT_DIR)/%.cpp,$(TRANSPORT_OBJS)) 
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/FacetMap.ice \
