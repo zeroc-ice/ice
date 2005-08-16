@@ -1,6 +1,8 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Added unsupported and untested "support" for Tru64 (with gcc)
+
 - Renamed CompressionNotSupportException to a more general
   FeatureNotSupportedException.
 

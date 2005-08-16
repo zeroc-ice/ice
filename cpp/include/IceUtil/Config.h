@@ -16,9 +16,11 @@
 // Most CPUs support only one endianness, with the notable exceptions
 // of Itanium (IA64) and MIPS.
 //
-#if defined(__i386) || defined(_M_IX86) || defined (__x86_64)
+#if defined(__i386) || defined(_M_IX86) || defined (__x86_64) || \
+    defined(__alpha__)
 #   define ICE_LITTLE_ENDIAN
-#elif defined(__sparc) || defined(__sparc__) || defined(__hppa) || defined(__ppc__) || defined(_ARCH_COM)
+#elif defined(__sparc) || defined(__sparc__) || defined(__hppa) || \
+      defined(__ppc__) || defined(_ARCH_COM)
 #   define ICE_BIG_ENDIAN
 #else
 #   error "Unknown architecture"
@@ -29,13 +31,15 @@
 //
 #if defined(__linux) && defined(__sparc__)
 //
-// We are a linux sparc, which forces 32 bit usr land, no matter the architecture
+// We are a linux sparc, which forces 32 bit usr land, no matter 
+// the architecture
 //
 #   define  ICE_32
-#elif defined(__sun) && defined(__sparcv9) || \
-      defined(__linux) && defined(__x86_64) || \
-      defined(__hppa) && defined(__LP64__) || \
-      defined(_ARCH_COM) && defined(__64BIT__)
+#elif defined(__sun) && defined(__sparcv9)      || \
+      defined(__linux) && defined(__x86_64)     || \
+      defined(__hppa) && defined(__LP64__)      || \
+      defined(_ARCH_COM) && defined(__64BIT__)  || \
+      defined(__alpha__)
 #   define ICE_64
 #else
 #   define ICE_32
@@ -47,7 +51,8 @@
 //
 // TODO: more macros to support IBM Visual Age _Export syntax as well.
 //
-#if (defined(_MSC_VER) && !defined(ICE_STATIC_LIBS)) || (defined(__HP_aCC) && defined(__HP_WINDLL))
+#if (defined(_MSC_VER) && !defined(ICE_STATIC_LIBS)) || \
+    (defined(__HP_aCC) && defined(__HP_WINDLL))
 #   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
 #elif defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x550)
@@ -150,7 +155,8 @@ class noncopyable
 protected:
 
     noncopyable() { }
-    ~noncopyable() { } // May not be virtual! Classes without virtual operations also derive from noncopyable.
+    ~noncopyable() { } // May not be virtual! Classes without virtual 
+                       // operations also derive from noncopyable.
 
 private:
 

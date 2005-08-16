@@ -147,7 +147,7 @@ idFunction()
 {
 #if defined(_WIN32)
     return static_cast<unsigned long>(GetCurrentThreadId());
-#elif defined(__FreeBSD__) || defined(__APPLE__)
+#elif defined(__FreeBSD__) || defined(__APPLE__) || defined(__osf1__)
     //
     // On FreeBSD, pthread_t is a pointer to a per-thread structure
     // 

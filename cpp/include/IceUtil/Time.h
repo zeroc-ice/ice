@@ -12,6 +12,10 @@
 
 #include <IceUtil/Config.h>
 
+#ifndef _WIN32
+#   include <sys/time.h>
+#endif
+
 namespace IceUtil
 {
 
