@@ -28,7 +28,7 @@ sequence<ServerDynamicInfo> ServerDynamicInfoSeq;
 struct AdapterDynamicInfo
 {
     string id;
-    // string serverId;
+    string serverId;
     Object* proxy;
 };
 sequence<AdapterDynamicInfo> AdapterDynamicInfoSeq;

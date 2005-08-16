@@ -143,6 +143,7 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current& cu
 	{
 	    AdapterDynamicInfo info;
 	    info.id = _id;
+	    info.serverId = _serverId;
 	    info.proxy = _proxy;
 	    try
 	    {
