@@ -101,6 +101,7 @@
 	    <fileset dir="${lib.dir}">
 		<include name="*.jar"/>
 	    </fileset>
+	    <pathelement location="${lib.dir}"/>
 	</path>
     </target>
 
