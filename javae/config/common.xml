@@ -91,7 +91,6 @@
 	<taskdef name="jadfile" classpath="${top.dir}/ant" classname="JADTask"/>
     </target>
 
-    <available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" property="hasProguard"/>
 
     <target name="config-impl" depends="properties-cvs,properties-opt,properties-src">
         <!-- Create the time stamp -->
@@ -113,6 +112,13 @@
 
     <condition property="midp">
         <equals arg1="${targetProfile}" arg2="midp" trim="true"/>
+    </condition>
+
+    <condition property="hasProguard">
+	<and>
+	    <isset property="midp"/>
+	    <available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}"/>
+	</and>
     </condition>
 
     <target name="set-bootclasspath" if="midp" depends="config-impl">
