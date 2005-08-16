@@ -84,12 +84,10 @@ Open the "all.dsw" workspace. If you are using Visual C++ .NET, then
 the project files must first be converted from Visual C++ 6.0 to .NET
 format.
 
-Set your active project to either "all" or "minimal". "all" will
-compile everything including the tests and demos. "minimal" will not
-compile the tests or demos. To set your active project with Visual C++
-6.0, use Project->Set Active Project. For Visual C++ .NET, click on
-"all" or "minimal" in the class view, then use Project->Set as StartUp
-Project.
+Set your active project to "all" to compile everything including the
+tests and demos. To set your active project with Visual C++ 6.0,
+use Project->Set Active Project. For Visual C++ .NET, click on "all" 
+in the class view, then use Project->Set as StartUp Project.
 
 Four build configurations are supported:
 
