@@ -54,7 +54,7 @@
 	</javac>
     </target>
 
-    <target name="jar" depends="compile">
+    <target name="jar" depends="compile" unless="midp">
         <jar jarfile="${toplib.dir}/IceE.jar" basedir="${toplib.dir}" excludes="IceE.jar"/>
     </target>
 
