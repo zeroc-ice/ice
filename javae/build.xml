@@ -63,7 +63,7 @@
         <ant inheritAll="false" dir="test"/>
     </target>
 
-    <target name="clean">
+    <target name="clean" depends="init">
         <delete dir="${generated.dir}"/>
         <delete dir="${toplib.dir}"/>
         <delete dir="${cache.dir}"/>
