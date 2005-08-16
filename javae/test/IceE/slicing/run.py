@@ -20,7 +20,7 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-name = os.path.join("Ice", "slicing")
+name = os.path.join("IceE", "slicing")
 testdir = os.path.join(toplevel, "test", name)
 
 print "tests with regular server."

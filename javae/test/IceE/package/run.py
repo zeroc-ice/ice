@@ -20,7 +20,7 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-name = os.path.join("Ice", "package")
+name = os.path.join("IceE", "package")
 testdir = os.path.join(toplevel, "test", name)
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
 

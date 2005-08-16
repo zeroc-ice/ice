@@ -12,11 +12,11 @@
 <project name="test" default="all" basedir=".">
 
     <target name="all">
-        <ant dir="Ice"/>
+        <ant dir="IceE"/>
     </target>
 
     <target name="clean">
-        <ant dir="Ice" target="clean"/>
+        <ant dir="IceE" target="clean"/>
     </target>
 
 </project>

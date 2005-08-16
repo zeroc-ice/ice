@@ -52,15 +52,15 @@ def runTests(tests, num = 0):
 # List of all basic tests.
 #
 tests = [ \
-    "Ice/operations", \
-    "Ice/exceptions", \
-    "Ice/inheritance", \
-    "Ice/facets", \
-    "Ice/faultTolerance", \
-    "Ice/location", \
-    "Ice/adapterDeactivation", \
-    "Ice/slicing", \
-    "Ice/package"
+    "IceE/operations", \
+    "IceE/exceptions", \
+    "IceE/inheritance", \
+    "IceE/facets", \
+    "IceE/faultTolerance", \
+    "IceE/location", \
+    "IceE/adapterDeactivation", \
+    "IceE/slicing", \
+    "IceE/package"
     ]
 
 def usage():

@@ -20,7 +20,7 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-name = os.path.join("Ice", "exceptions")
+name = os.path.join("IceE", "exceptions")
 testdir = os.path.join(toplevel, "test", name)
 
 print "tests with regular server."
