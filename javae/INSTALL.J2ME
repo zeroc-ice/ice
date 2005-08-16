@@ -1,0 +1,143 @@
+The following sections describe the requirements for using Ice-E for
+Java with Java2 Micro Edition (J2ME) and provide instructions for
+installing it.
+
+
+======================================================================
+Requirements
+======================================================================
+
+
+Operating systems
+-----------------
+
+The J2ME version of Ice-E for Java has been tested in the following
+environments:
+
+* Linux and Windows 2000/XP using J2ME emulators from Sun and Nokia
+* A Nokia Series40 mobile phone
+* A PalmOS 5 mobile phone running IBM's JVM
+
+In addition to the Ice-E for Java classes, you will also need the
+Slice-to-Embedded-Java translator (see below). ZeroC provides
+translator binaries for supported platforms. On other platforms, you
+can either download and port the source code for the translator, or
+you can run the translator on a supported platform and copy the
+resulting Java files to your target platform.
+
+
+Java version
+------------
+
+Ice-E for Java requires a J2ME that supports the Mobile Information
+Device Profile (MIDP) 2.0 and Connected Limited Device Configuration
+(CLDC) 1.1.
+
+
+Slice translator
+----------------
+
+You will need the Slice-to-Embedded-Java translator (slice2javae)
+and the Slice preprocessor (icecpp). You can download binary and
+source distributions from the ZeroC web site:
+
+http://www.zeroc.com/download.html
+
+
+J2ME Tools
+----------
+
+Sun's Java Wireless Toolkit includes the MIDP and CLDC classes,
+as well as an emulator and supporting development tools:
+
+http://java.sun.com/products/sjwtoolkit/index.html
+
+Nokia?
+
+ProGuard?
+
+
+======================================================================
+Testing
+======================================================================
+
+The Ice-E for Java tests are provided in MIDlet format suitable for
+use in a J2ME emulator. All of the tests have client and server
+components, and you can run either component in an emulator. You can
+also run a "collocated" version of most tests, in which the client
+and server components are collocated in the same process.
+
+A simple way to get started is to run the server using the JDK, and
+the client in an emulator on the same host. For example, to run the
+exceptions test we need to do the following:
+
+1. In a console window, change to the test directory:
+
+   $ cd test/IceE/exceptions
+
+2. Start the test server using the JDK. On Unix, the command looks
+   like this:
+
+   $ java -classpath ../../../jdk/lib/IceE.jar:classes:$CLASSPATH \
+     Server
+
+   The Windows command looks similar:
+
+   > java -classpath "../../../jdk/lib/IceE.jar;classes;%CLASSPATH%" \
+     Server
+
+3. Run the test client in an emulator. Using Sun's Wireless Toolkit
+   emulator, the command looks like this:
+
+   $ emulator -Xdescriptor:Exceptions.jad
+
+   After the emulator window appears, select the Client application
+   in the list and launch it.
+
+If you want to run a test on a J2ME device, you will need to modify
+the test's configuration file in order to specify a hostname in
+proxies and endpoints, and then rebuild the JAR file (see "Compiling
+the Source" below).
+
+
+======================================================================
+Compiling the Source
+======================================================================
+
+There is generally no need to compile Ice-E for Java because this
+distribution already contains the class files for the Ice-E core,
+examples and tests.
+
+If you want to rebuild the source code, follow these steps:
+
+1. Ensure that 'ant' version 1.6.3 or later is installed. To verify
+   your version of ant, run
+
+   $ ant -version
+
+   The latest version of ant is available here:
+
+   http://ant.apache.org/
+
+2. Add the directory containing the Slice translator (slice2javae) to
+   your PATH.
+
+3. Review config/build.properties and set targetProfile=midp. The
+   comments in this file provide more information.
+
+4. Clean the existing source tree:
+
+   $ ant clean
+
+5. Finally, compile the sources:
+
+   $ ant
+
+
+======================================================================
+Installation
+======================================================================
+
+No automatic installation for Ice-E for Java is supported. Simply copy
+the classes from the midp/lib directory to the directory of your
+choice.

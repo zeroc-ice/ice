@@ -5,6 +5,11 @@ Ice-E is a compact subset of Ice designed for embedded environments
 while retaining many of the features that have made Ice such a
 compelling alternative for distributed applications.
 
+Ice-E for Java is supported in two environments: Java Development
+Kit (JDK) 1.1 or later, and Java2 Micro Edition (J2ME). For
+installation information, see the files INSTALL.JDK and INSTALL.J2ME,
+respectively.
+
 
 Comparing Ice-E and Ice
 =======================
@@ -82,9 +87,3 @@ Customization
 If the current features do not meet your requirements, ZeroC can
 customize Ice-E for commercial users. Please contact us at
 info@zeroc.com for more information.
-
-
-Installation
-============
-
-Please see the file INSTALL for installation instructions.

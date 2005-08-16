@@ -1,0 +1,119 @@
+The following sections describe the requirements for using Ice-E for
+Java with the Java Development Kit (JDK) and provide instructions for
+installing it.
+
+
+======================================================================
+Requirements
+======================================================================
+
+
+Operating systems
+-----------------
+
+The JDK version of Ice-E for Java has been tested under Linux and
+Windows 2000/XP. Due to the portability of Java, it is very likely
+that it will also work on other platforms for which a suitable Java
+implementation is available.
+
+In addition to the Ice-E for Java classes, you will also need the
+Slice-to-Embedded-Java translator (see below). ZeroC provides
+translator binaries for supported platforms. On other platforms, you
+can either download and port the source code for the translator, or
+you can run the translator on a supported platform and copy the
+resulting Java files to your target platform.
+
+
+Java version
+------------
+
+The JDK version of Ice-E for Java requires JDK 1.1 or later.
+
+
+Slice translator
+----------------
+
+You will need the Slice-to-Embedded-Java translator (slice2javae)
+and the Slice preprocessor (icecpp). You can download binary and
+source distributions from the ZeroC web site:
+
+http://www.zeroc.com/download.html
+
+
+Python
+------
+
+To run the automated test suite, you will need Python 2.2 or later. 
+If you have no interest in running the test scripts, Python is not 
+required. Linux distributions usually include Python. For Windows 
+2000/XP, you can download a Python distribution from:
+
+http://www.python.org/download
+
+
+======================================================================
+Testing
+======================================================================
+
+You can run the test suite provided that you have installed Python:
+
+python allTests.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
+
+If you want to try out any of the demos, make sure to add
+jdk/lib/IceE.jar and "classes" to your CLASSPATH. Then change to the
+desired demo directory and follow the instructions in the README file.
+If no README file is present, the demo can be run by entering the
+following command to start the server:
+
+$ java Server
+
+Then in a separate window enter the following command to start the
+client:
+
+$ java Client
+
+
+======================================================================
+Compiling the Source
+======================================================================
+
+There is generally no need to compile Ice-E for Java because this
+distribution already contains the class files for the Ice-E core,
+examples and tests.
+
+If you want to rebuild the source code, follow these steps:
+
+1. Ensure that 'ant' version 1.6.3 or later is installed. To verify
+   your version of ant, run
+
+   $ ant -version
+
+   The latest version of ant is available here:
+
+   http://ant.apache.org/
+
+2. Add the directory containing the Slice translator (slice2javae) to
+   your PATH.
+
+3. Review config/build.properties. The comments in this file provide
+   more information.
+
+4. Clean the existing source tree:
+
+   $ ant clean
+
+5. Finally, compile the sources:
+
+   $ ant
+
+
+======================================================================
+Installation
+======================================================================
+
+No automatic installation for Ice-E for Java is supported. Simply copy
+jdk/lib/IceE.jar to the directory of your choice, and then add
+IceE.jar to your CLASSPATH.
