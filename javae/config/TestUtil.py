@@ -131,7 +131,7 @@ if isWin32():
 else:
     sep = ":"
 
-os.environ["CLASSPATH"] = os.path.join(toplevel, "jdk", "lib") + sep + os.getenv("CLASSPATH", "")
+os.environ["CLASSPATH"] = os.path.join(toplevel, "jdk", "lib", "IceE.jar") + sep + os.getenv("CLASSPATH", "")
 
 clientProtocol = ""
 serverProtocol = ""
