@@ -9,7 +9,7 @@
  **********************************************************************
  -->
 
-<project name="demo_Ice_chat" default="all" basedir=".">
+<project name="demo_IceE_chat" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>

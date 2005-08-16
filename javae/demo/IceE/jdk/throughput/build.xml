@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="demo_Ice_throughput" default="all" basedir=".">
+<project name="demo_IceE_throughput" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
@@ -38,7 +38,7 @@
         </javac>
     </target>
     
-    <target name="all" depends="compile" unless="midp"/>
+    <target name="all" depends="compile"/>
 
     <target name="clean">
         <delete dir="${generated.dir}"/>

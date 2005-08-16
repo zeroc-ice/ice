@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="test_Ice" default="all" basedir=".">
+<project name="test_IceE" default="all" basedir=".">
   
     <target name="all">
 	<ant dir="common"/>

@@ -9,7 +9,7 @@
  **********************************************************************
  -->
 
-<project name="demo_Ice_hello" default="all" basedir=".">
+<project name="demo_IceE_hello" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
@@ -35,7 +35,7 @@
         </javac>
     </target>
 
-    <target name="compile" depends="compile-generated" unless="midp">
+    <target name="compile" depends="compile-generated">
         <javac srcdir="." destdir="${class.dir}" excludes="generated/**" debug="${debug}" target="1.1">
 	    <bootclasspath refid="bootclasspath"/>  
             <classpath refid="ice.classpath"/>
