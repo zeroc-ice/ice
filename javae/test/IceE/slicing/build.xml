@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="test_Ice_slicing_objects" default="all" basedir=".">
+<project name="test_IceE_slicing" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
@@ -69,7 +69,7 @@
 
     <target name="client-midlet-jar" depends="compile" if="midp">
 	<ant dir="../common" inheritAll="false" target="compile"/>
-        <mkdir dir="./tmp"/>
+        <mkdir dir="tmp"/>
 	<manifest file="CLIENTMANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
@@ -78,22 +78,22 @@
 	    <attribute name="MIDlet-Name" value="${testclient}Test"/>
         </manifest>
 
-	<copy overwrite="true" file="./config" todir="./cclasses"/>
-	<jar destfile="./tmp/${testclient}.jar" manifest="./CLIENTMANIFEST.MF" basedir="./cclasses"/>
-	<jar destfile="./tmp/${testclient}.jar" manifest="./CLIENTMANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
+	<copy overwrite="true" file="config" todir="cclasses"/>
+	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="cclasses"/>
+	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
 	    update="true"/>
-	<jar destfile="./tmp/${testclient}.jar" manifest="./CLIENTMANIFEST.MF" basedir="../common/classes" update="true">
-	    <exclude name="./Client.class,./Server.class,./Collocated.class"/>
+	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="../common/classes" update="true">
+	    <exclude name="Client.class,Server.class,Collocated.class"/>
 	</jar>
     </target>
 
     <target name="obfuscate-client" depends="client-midlet-jar" if="hasProguard">
 	<taskdef resource="proguard/ant/task.properties"/>
-	<move overwrite="true" file="./tmp/${testclient}.jar" tofile="./tmp/${testclient}_orig.jar"/>
+	<move overwrite="true" file="tmp/${testclient}.jar" tofile="tmp/${testclient}_orig.jar"/>
 	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="off" allowaccessmodification="on" 
 	    printseeds="on">
-	    <injar file="./tmp/${testclient}_orig.jar"/>
-	    <outjar file="./tmp/${testclient}.jar"/>
+	    <injar file="tmp/${testclient}_orig.jar"/>
+	    <outjar file="tmp/${testclient}.jar"/>
 	    <libraryjar file="${WTK}/lib/midpapi20.jar"/>
 	    <libraryjar file="${WTK}/lib/cldcapi11.jar"/>
 	    <keep access="public" extends="javax.microedition.midlet.MIDlet"/>
@@ -107,12 +107,12 @@
         <exec executable="${WTK}/bin/preverify">
            <arg line="-classpath ${WTKLIBS}"/>
             <arg line="-d ."/>
-	    <arg line="./tmp/${testclient}.jar"/>
+	    <arg line="tmp/${testclient}.jar"/>
 	</exec>
     </target>
 
     <target name="client-midlet" depends="preverify-client" if="midp">
-	<length property="clientjarfile-length" file="./${testclient}.jar"/>
+	<length property="clientjarfile-length" file="${testclient}.jar"/>
 	<jadfile file="${testclient}.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
@@ -129,7 +129,7 @@
 
     <target name="server-midlet-jar" depends="compile" if="midp">
 	<ant dir="../common" inheritAll="false" target="compile"/>
-        <mkdir dir="./tmp"/>
+        <mkdir dir="tmp"/>
 	<manifest file="MANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
@@ -138,21 +138,21 @@
 	    <attribute name="MIDlet-Name" value="${testserver}Test"/>
         </manifest>
 
-	<jar destfile="./tmp/${testserver}.jar" manifest="./MANIFEST.MF" basedir="./sclasses"/>
-	<jar destfile="./tmp/${testserver}.jar" manifest="./MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
+	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="sclasses"/>
+	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
 	    update="true"/>
-	<jar destfile="./tmp/${testserver}.jar" manifest="./MANIFEST.MF" basedir="../common/classes" update="true">
-	    <exclude name="./Client.class,./Server.class,./Collocated.class"/>
+	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true">
+	    <exclude name="Client.class,Server.class,Collocated.class"/>
 	</jar>
     </target>
 
     <target name="obfuscate-server" depends="server-midlet-jar" if="hasProguard">
 	<taskdef resource="proguard/ant/task.properties"/>
-	<move overwrite="true" file="./tmp/${testserver}.jar" tofile="./tmp/${testserver}_orig.jar"/>
-	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="off" allowaccessmodification="on" 
-	    printseeds="on">
-	    <injar file="./tmp/${testserver}_orig.jar"/>
-	    <outjar file="./tmp/${testserver}.jar"/>
+	<move overwrite="true" file="tmp/${testserver}.jar" tofile="tmp/${testserver}_orig.jar"/>
+	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="off"
+	    allowaccessmodification="on" printseeds="on">
+	    <injar file="tmp/${testserver}_orig.jar"/>
+	    <outjar file="tmp/${testserver}.jar"/>
 	    <libraryjar file="${WTK}/lib/midpapi20.jar"/>
 	    <libraryjar file="${WTK}/lib/cldcapi11.jar"/>
 	    <keep access="public" extends="javax.microedition.midlet.MIDlet"/>
@@ -166,12 +166,12 @@
         <exec executable="${WTK}/bin/preverify">
            <arg line="-classpath ${WTKLIBS}"/>
             <arg line="-d ."/>
-	    <arg line="./tmp/${testserver}.jar"/>
+	    <arg line="tmp/${testserver}.jar"/>
 	</exec>
     </target>
 
     <target name="server-midlet" depends="preverify-server" if="midp">
-	<length property="jarfile-length" file="./${testserver}.jar"/>
+	<length property="jarfile-length" file="${testserver}.jar"/>
 	<jadfile file="${testserver}.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
@@ -195,8 +195,8 @@
         <delete dir="${sgen.dir}"/>
         <delete dir="${cclass.dir}"/>
         <delete dir="${sclass.dir}"/>
-	<delete quiet="true" file="./${testclient}.jar"/>
-	<delete quiet="true" file="./${testserver}.jar"/>
+	<delete quiet="true" file="${testclient}.jar"/>
+	<delete quiet="true" file="${testserver}.jar"/>
 	<delete quiet="true">
 	    <fileset dir="." includes="*.jad"/>
 	</delete>

@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="test_Ice_facets" default="all" basedir=".">
+<project name="test_IceE_facets" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
@@ -39,7 +39,7 @@
 
     <target name="midlet-jar" depends="compile" if="midp">
 	<ant dir="../common" inheritAll="false" target="compile"/>
-        <mkdir dir="./tmp"/>
+        <mkdir dir="tmp"/>
 	<manifest file="MANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
 	    <attribute name="MIDlet-Name" value="${testname}Test"/>
@@ -48,23 +48,23 @@
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
         </manifest>
 
-	<copy overwrite="true" file="./config" todir="./classes"/>
-	<jar destfile="./tmp/${testname}.jar" manifest="./MANIFEST.MF" basedir="./classes"/>
-	<jar destfile="./tmp/${testname}.jar" manifest="./MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
+	<copy overwrite="true" file="config" todir="classes"/>
+	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="classes"/>
+	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
 	    update="true"/>
-	<jar destfile="./tmp/${testname}.jar" manifest="./MANIFEST.MF" basedir="../common/classes" update="true">
-	    <exclude name="./Client.class,./Server.class,./Collocated.class"/>
+	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true">
+	    <exclude name="Client.class,Server.class,Collocated.class"/>
 	</jar>
 
     </target>
 
     <target name="obfuscate" depends="midlet-jar" if="hasProguard">
 	<taskdef resource="proguard/ant/task.properties"/>
-	<move overwrite="true" file="./tmp/${testname}.jar" tofile="./tmp/${testname}_orig.jar"/>
-	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on" allowaccessmodification="on" 
-	    printseeds="on">
-	    <injar file="./tmp/${testname}_orig.jar"/>
-	    <outjar file="./tmp/${testname}.jar"/>
+	<move overwrite="true" file="tmp/${testname}.jar" tofile="tmp/${testname}_orig.jar"/>
+	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on"
+	    allowaccessmodification="on" printseeds="on">
+	    <injar file="tmp/${testname}_orig.jar"/>
+	    <outjar file="tmp/${testname}.jar"/>
 	    <libraryjar file="${WTK}/lib/midpapi20.jar"/>
 	    <libraryjar file="${WTK}/lib/cldcapi11.jar"/>
 	    <keep access="public" extends="javax.microedition.midlet.MIDlet"/>
@@ -78,13 +78,13 @@
         <exec executable="${WTK}/bin/preverify">
            <arg line="-classpath ${WTKLIBS}"/>
             <arg line="-d ."/>
-	    <arg line="./tmp/${testname}.jar"/>
+	    <arg line="tmp/${testname}.jar"/>
 	</exec>
     </target>
 
     <!-- Write the descriptor files -->
     <target name="midlet" depends="preverify" if="midp">
-	<length property="jarfile-length" file="./${testname}.jar"/>
+	<length property="jarfile-length" file="${testname}.jar"/>
 	<jadfile file="${testname}.jad">
 	    <attribute name="MIDlet-Version" value="1.0"/>
             <attribute name="MIDlet-Vendor" value="ZeroC"/>
@@ -106,9 +106,9 @@
     <target name="clean">
         <delete dir="${generated.dir}"/>
 	<delete dir="${class.dir}"/>
-	<delete dir="./tmp"/>
-	<delete quiet="true" file="./${testname}.jar"/>
-	<delete quiet="true" file="./${testname}.jad"/>
+	<delete dir="tmp"/>
+	<delete quiet="true" file="${testname}.jar"/>
+	<delete quiet="true" file="${testname}.jad"/>
     </target>
 
 </project>

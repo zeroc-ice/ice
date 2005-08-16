@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="test_Ice_translator" default="all" basedir=".">
+<project name="test_IceE_translator" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
