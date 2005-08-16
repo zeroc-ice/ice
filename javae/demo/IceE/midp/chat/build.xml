@@ -19,8 +19,6 @@
 
     <property name="tmp.dir" value="tmp"/>
 
-    <taskdef name="proguard" classname="proguard.ant.ProGuardTask" onerror="ignore"/>
-
     <target name="init" depends="config-init"/>
 
     <target name="generate" depends="init">
@@ -69,7 +67,8 @@
         <jar destfile="${tmp.dir}/ChatDemo.jar" basedir="${lib.dir}" excludes="IceE.jar" update="true"/>
     </target>
 
-    <target name="proguard" depends="jar">
+    <target name="obfuscate" depends="jar" if="hasProguard">
+	<taskdef resource="proguard/ant/task.properties"/>
 	<proguard obfuscate="false" optimize="false" printmapping="tmp/ChatDemo.map">
 	    <injar file="tmp/ChatDemo.jar"/>
 	    <libraryjar path="${WTKLIBS}"/>
@@ -83,7 +82,7 @@
 	<move file="tmp/ChatDemo_pro.jar" tofile="tmp/ChatDemo.jar"/>
     </target>
 
-    <target name="preverify" depends="proguard">
+    <target name="preverify" depends="obfuscate">
 	<exec executable="${WTK}/bin/preverify">
 	    <arg line="-classpath ${WTKLIBS}"/>
 	    <arg line="-d ."/>
