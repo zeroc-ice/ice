@@ -100,8 +100,8 @@ The first two create DLLs for the Ice-E run time, whereas the last two
 generate only static libraries.
 
 After selecting a build configuration, start the compilation using
-Build->Build for Visual C++ 6.0, or Build->Build all/minimal for
-Visual C++ .NET, respectively.
+Build->Build for Visual C++ 6.0, or Build->Build all for Visual C++
+.NET.
 
 If you built the tests you can run the test suite, provided that you
 have installed Python. Open a command prompt and change to the top-
