@@ -12,26 +12,26 @@ import Demo.*;
 public final class ThroughputI extends _ThroughputDisp
 {
     public
-    ThroughputI()
+    ThroughputI(int reduce)
     {
-        _byteSeq = new byte[ByteSeqSize.value];
+        _byteSeq = new byte[ByteSeqSize.value / reduce];
 
-	_stringSeq = new String[StringSeqSize.value];
-	for(int i = 0; i < StringSeqSize.value; ++i)
+	_stringSeq = new String[StringSeqSize.value / reduce];
+	for(int i = 0; i < StringSeqSize.value / reduce; ++i)
 	{
 	    _stringSeq[i] = "hello";
 	}
 
-	_structSeq = new StringDouble[StringDoubleSeqSize.value];
-	for(int i = 0; i < StringDoubleSeqSize.value; ++i)
+	_structSeq = new StringDouble[StringDoubleSeqSize.value / reduce];
+	for(int i = 0; i < StringDoubleSeqSize.value / reduce; ++i)
 	{
 	    _structSeq[i] = new StringDouble();
 	    _structSeq[i].s = "hello";
 	    _structSeq[i].d = 3.14;
 	}
 
-	_fixedSeq = new Fixed[FixedSeqSize.value];
-	for(int i = 0; i < FixedSeqSize.value; ++i)
+	_fixedSeq = new Fixed[FixedSeqSize.value / reduce];
+	for(int i = 0; i < FixedSeqSize.value / reduce; ++i)
 	{
 	    _fixedSeq[i] = new Fixed();
 	    _fixedSeq[i].i = 0;

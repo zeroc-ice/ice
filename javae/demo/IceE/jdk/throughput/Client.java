@@ -38,6 +38,18 @@ public class Client
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
+        //
+	// Check if we need to run with small sequences.
+	//
+	int reduce = 1;
+	for(int i = 0; i < args.length; ++i)
+	{
+	    if(args[i].equals("--small"))
+	    {
+	        reduce = 100;
+	    }
+	}
+
         Ice.Properties properties = communicator.getProperties();
         final String refProperty = "Throughput.Throughput";
         String ref = properties.getProperty(refProperty);
@@ -56,24 +68,24 @@ public class Client
         }
 	ThroughputPrx throughputOneway = ThroughputPrxHelper.uncheckedCast(throughput.ice_oneway());
 
-        byte[] byteSeq = new byte[ByteSeqSize.value];
+        byte[] byteSeq = new byte[ByteSeqSize.value / reduce];
 
-	String[] stringSeq = new String[StringSeqSize.value];
-	for(int i = 0; i < StringSeqSize.value; ++i)
+	String[] stringSeq = new String[StringSeqSize.value / reduce];
+	for(int i = 0; i < StringSeqSize.value / reduce; ++i)
 	{
 	    stringSeq[i] = "hello";
 	}
 
-	StringDouble[] structSeq = new StringDouble[StringDoubleSeqSize.value];
-	for(int i = 0; i < StringDoubleSeqSize.value; ++i)
+	StringDouble[] structSeq = new StringDouble[StringDoubleSeqSize.value / reduce];
+	for(int i = 0; i < StringDoubleSeqSize.value / reduce; ++i)
 	{
 	    structSeq[i] = new StringDouble();
 	    structSeq[i].s = "hello";
 	    structSeq[i].d = 3.14;
 	}
 
-	Fixed[] fixedSeq = new Fixed[FixedSeqSize.value];
-	for(int i = 0; i < FixedSeqSize.value; ++i)
+	Fixed[] fixedSeq = new Fixed[FixedSeqSize.value / reduce];
+	for(int i = 0; i < FixedSeqSize.value / reduce; ++i)
 	{
 	    fixedSeq[i] = new Fixed();
 	    fixedSeq[i].i = 0;
@@ -86,7 +98,7 @@ public class Client
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
 
 	char currentType = '1';
-	int seqSize = ByteSeqSize.value;
+	int seqSize = ByteSeqSize.value / reduce;
 
 	// Initial ping to setup the connection.
 	throughput.ice_ping();

@@ -12,8 +12,20 @@ public class Server
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
+        //
+        // Check if we need to run with small sequences.
+        //
+        int reduce = 1;
+        for(int i = 0; i < args.length; ++i)
+        {
+            if(args[i].equals("--small"))
+            {
+                reduce = 100;
+            }
+        }
+
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Throughput");
-        Ice.Object object = new ThroughputI();
+        Ice.Object object = new ThroughputI(reduce);
         adapter.add(object, Ice.Util.stringToIdentity("throughput"));
         adapter.activate();
         communicator.waitForShutdown();
