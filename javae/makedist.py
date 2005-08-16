@@ -30,10 +30,10 @@ def find(path, patt):
     files = os.listdir(path)
     for x in files:
         fullpath = os.path.join(path, x);
-        if os.path.isdir(fullpath) and not os.path.islink(fullpath):
-            result.extend(find(fullpath, patt))
-        elif fnmatch.fnmatch(x, patt):
+        if fnmatch.fnmatch(x, patt):
             result.append(fullpath)
+        elif os.path.isdir(fullpath) and not os.path.islink(fullpath):
+            result.extend(find(fullpath, patt))
     return result
 
 #
@@ -122,17 +122,33 @@ if verbose:
     quiet = ""
 else:
     quiet = " -q"
-os.system("ant" + quiet)
+os.system("ant" + quiet + " -DtargetProfile=jdk")
+os.system("ant" + quiet + " -DtargetProfile=midp")
 
 #
-# Clean out the lib directories but save IceE.jar.
+# Clean out the jdk/lib directory but save IceE.jar.
+# Preserve the classes in midp/lib.
 #
 os.rename(os.path.join("jdk", "lib", "IceE.jar"), "IceE.jar")
 shutil.rmtree(os.path.join("jdk", "lib"))
 os.mkdir(os.path.join("jdk", "lib"))
 os.rename("IceE.jar", os.path.join("jdk", "lib", "IceE.jar"))
 
+#
+# Clean out the translator test directory.
+#
+os.chdir(os.path.join("test", "IceE", "translator"))
+os.system("ant" + quiet + " clean")
+
 os.chdir(cwd)
+
+#
+# Remove all generated directories.
+#
+generatedDirs = find("iceje", "generated")
+for x in generatedDirs:
+    shutil.rmtree(x)
+shutil.rmtree(os.path.join("iceje", "depcache"))
 
 #
 # Get Ice version.
