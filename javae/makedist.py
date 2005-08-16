@@ -122,8 +122,8 @@ if verbose:
     quiet = ""
 else:
     quiet = " -q"
-os.system("ant" + quiet + " -DtargetProfile=jdk")
-os.system("ant" + quiet + " -DtargetProfile=midp")
+os.system("ant" + quiet + " -DtargetProfile=jdk -Doptimize=on -Ddebug=off")
+os.system("ant" + quiet + " -DtargetProfile=midp -Doptimize=on -Ddebug=off")
 
 #
 # Clean out the jdk/lib directory but save IceE.jar.
