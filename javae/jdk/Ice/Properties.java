@@ -207,39 +207,6 @@ public final class Properties
 	    return;
 	}
 
-/** TODO: Replace this code with something compatible with JDK 1.1.
- *
-        int dotPos = key.indexOf('.');
-	if(dotPos != -1)
-	{
-	    String prefix = key.substring(0, dotPos);
-	    for(int i = 0; IceInternal.PropertyNames.validProps[i] != null; ++i)
-	    {
-	        String pattern = IceInternal.PropertyNames.validProps[i][0];
-		dotPos = pattern.indexOf('.');
-		IceUtil.Debug.Assert(dotPos != -1);
-		String propPrefix = pattern.substring(1, dotPos - 1);
-		if(!propPrefix.equals(prefix))
-		{
-		    continue;
-		}
-
-		boolean found = false;
-		for(int j = 0; IceInternal.PropertyNames.validProps[i][j] != null && !found; ++j)
-		{
-		    pattern = IceInternal.PropertyNames.validProps[i][j];
-		    java.util.regex.Pattern pComp = java.util.regex.Pattern.compile(pattern);
-		    java.util.regex.Matcher m = pComp.matcher(key);
-		    found = m.matches();
-		}
-		if(!found)
-		{
-		    System.err.println("warning: unknown property: " + key);
-		}
-	    }
-	}
-*/
-
 	//
 	// Set or clear the property.
 	//
