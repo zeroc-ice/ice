@@ -82,9 +82,8 @@
 	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="cclasses"/>
 	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
 	    update="true"/>
-	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="../common/classes" update="true">
-	    <exclude name="Client.class,Server.class,Collocated.class"/>
-	</jar>
+	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="../common/classes" update="true"
+	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
     </target>
 
     <target name="obfuscate-client" depends="client-midlet-jar" if="hasProguard">
@@ -141,9 +140,8 @@
 	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="sclasses"/>
 	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
 	    update="true"/>
-	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true">
-	    <exclude name="Client.class,Server.class,Collocated.class"/>
-	</jar>
+	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true"
+	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
     </target>
 
     <target name="obfuscate-server" depends="server-midlet-jar" if="hasProguard">

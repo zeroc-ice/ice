@@ -55,10 +55,8 @@
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="classes"/>
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
 	    update="true"/>
-	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true">
-	    <exclude name="Client.class,Server.class,Collocated.class"/>
-	</jar>
-
+	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true"
+	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
     </target>
 
     <target name="obfuscate" depends="midlet-jar" if="hasProguard">

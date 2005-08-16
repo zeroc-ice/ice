@@ -49,15 +49,12 @@
         </manifest>
 
 	<copy overwrite="true" file="config" todir="classes"/>
-	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="classes">
-	    <exclude name="Server.class"/>
-	</jar>
+	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="classes"
+	    excludes="**/Server.class"/>
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
 	    update="true"/>
-	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true">
-	    <exclude name="Client.class"/>
-	</jar>
-
+	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true"
+	    excludes="**/Client.class"/>
     </target>
 
     <target name="obfuscate" depends="midlet-jar" if="hasProguard">
