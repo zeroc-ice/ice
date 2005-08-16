@@ -27,8 +27,8 @@ Demos in this directory:
 - hello
 
   This demo illustrates how to invoke ordinary (twoway) operations, as
-  well as how to invoke oneway operations, use datagrams, secure
-  invocations, and how to used batched invocations.
+  well as how to invoke oneway operations and how to use batched 
+  invocations.
 
 - latency
 
