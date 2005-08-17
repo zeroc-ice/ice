@@ -59,12 +59,11 @@
     <target name="obfuscate" depends="midlet-jar" if="hasProguard">
 	<taskdef resource="proguard/ant/task.properties"/>
 	<move overwrite="true" file="tmp/${testname}.jar" tofile="tmp/${testname}_orig.jar"/>
-	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on" allowaccessmodification="on" 
-	    printseeds="on">
+	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on"
+	    allowaccessmodification="on" printseeds="on">
 	    <injar file="tmp/${testname}_orig.jar"/>
 	    <outjar file="tmp/${testname}.jar"/>
-	    <libraryjar file="${WTK}/lib/midpapi20.jar"/>
-	    <libraryjar file="${WTK}/lib/cldcapi11.jar"/>
+	    <libraryjar refid="wtklibs"/>
 	    <keep access="public" extends="javax.microedition.midlet.MIDlet"/>
 	    <keepclasseswithmembernames>
 		<method access="native" />
@@ -107,6 +106,7 @@
 	<delete dir="tmp"/>
 	<delete quiet="true" file="${testname}.jar"/>
 	<delete quiet="true" file="${testname}.jad"/>
+	<delete quiet="true" file="MANIFEST.MF"/>
     </target>
 
 </project>

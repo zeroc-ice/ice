@@ -89,12 +89,11 @@
     <target name="obfuscate-client" depends="client-midlet-jar" if="hasProguard">
 	<taskdef resource="proguard/ant/task.properties"/>
 	<move overwrite="true" file="tmp/${testclient}.jar" tofile="tmp/${testclient}_orig.jar"/>
-	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="off" allowaccessmodification="on" 
-	    printseeds="on">
+	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="off"
+	    allowaccessmodification="on" printseeds="on">
 	    <injar file="tmp/${testclient}_orig.jar"/>
 	    <outjar file="tmp/${testclient}.jar"/>
-	    <libraryjar file="${WTK}/lib/midpapi20.jar"/>
-	    <libraryjar file="${WTK}/lib/cldcapi11.jar"/>
+	    <libraryjar refid="wtklibs"/>
 	    <keep access="public" extends="javax.microedition.midlet.MIDlet"/>
 	    <keepclasseswithmembernames>
 		<method access="native" />
@@ -151,8 +150,7 @@
 	    allowaccessmodification="on" printseeds="on">
 	    <injar file="tmp/${testserver}_orig.jar"/>
 	    <outjar file="tmp/${testserver}.jar"/>
-	    <libraryjar file="${WTK}/lib/midpapi20.jar"/>
-	    <libraryjar file="${WTK}/lib/cldcapi11.jar"/>
+	    <libraryjar refid="wtklibs"/>
 	    <keep access="public" extends="javax.microedition.midlet.MIDlet"/>
 	    <keepclasseswithmembernames>
 		<method access="native" />
@@ -193,11 +191,13 @@
         <delete dir="${sgen.dir}"/>
         <delete dir="${cclass.dir}"/>
         <delete dir="${sclass.dir}"/>
+        <delete dir="tmp"/>
 	<delete quiet="true" file="${testclient}.jar"/>
+	<delete quiet="true" file="${testclient}.jad"/>
 	<delete quiet="true" file="${testserver}.jar"/>
-	<delete quiet="true">
-	    <fileset dir="." includes="*.jad"/>
-	</delete>
+	<delete quiet="true" file="${testserver}.jad"/>
+	<delete quiet="true" file="CLIENTMANIFEST.MF"/>
+	<delete quiet="true" file="MANIFEST.MF"/>
     </target>
 
 </project>

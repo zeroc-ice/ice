@@ -71,7 +71,7 @@
 	<taskdef resource="proguard/ant/task.properties"/>
 	<proguard obfuscate="false" optimize="false" printmapping="tmp/ChatDemo.map">
 	    <injar file="tmp/ChatDemo.jar"/>
-	    <libraryjar path="${WTKLIBS}"/>
+	    <libraryjar refid="wtklibs"/>
 	    <outjar file="tmp/ChatDemo_pro.jar"/>
 	    <keep name="ChatMIDlet">
 		<method name="*"/>
@@ -128,6 +128,7 @@
 	<delete quiet="true" file="ChatDemo.jar"/>
 	<delete quiet="true" file="ChatDemo.jad"/>
 	<delete quiet="true" file="ChatDemo.prc"/>
+	<delete quiet="true" file="MANIFEST.MF"/>
     </target>
 
 </project>
