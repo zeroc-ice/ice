@@ -22,7 +22,7 @@ public class LoginForm extends Form implements CommandListener, Runnable
 	_user = new TextField("Name", "", 255, TextField.ANY);
 	_password = new TextField("Password", "", 255, TextField.PASSWORD);
 	_server = new TextField("Server", "", 255, TextField.ANY);
-	_port = new TextField("Port", "", 255, TextField.NUMERIC);
+	_port = new TextField("Port", "10005", 255, TextField.NUMERIC);
 
 	append(_user);
 	append(_password);
