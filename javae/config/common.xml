@@ -108,6 +108,13 @@
     <dirname property="common.basedir" file="${ant.file.common}"/>
     <property file="${common.basedir}/build.properties"/>
 
+    <path id="wtklibs">
+	<pathelement location="${CLDCLIB}"/>
+	<pathelement location="${MIDPLIB}"/>
+    </path>
+
+    <property name="WTKLIBS" refid="wtklibs"/>
+
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
 
@@ -123,9 +130,7 @@
     </condition>
 
     <target name="set-bootclasspath" if="midp" depends="config-impl">
-        <path id="bootclasspath">
-	    <pathelement path="${WTKLIBS}"/>
-	</path>
+        <path id="bootclasspath" path="${WTKLIBS}"/>
     </target>
 
     <target name="set-empty-bootclasspath" unless="midp" depends="config-impl">
