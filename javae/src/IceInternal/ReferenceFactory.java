@@ -403,7 +403,7 @@ public final class ReferenceFactory
 		}
 		
 		String es = s.substring(beg, end);
-		Endpoint endp = _instance.endpointFactoryManager().create(es);
+		Endpoint endp = _instance.endpointFactory().create(es);
 		if(endp != null)
 		{
 		    endpoints.addElement(endp);
@@ -532,7 +532,7 @@ public final class ReferenceFactory
 	    endpoints = new Endpoint[sz];
 	    for(int i = 0; i < sz; i++)
 	    {
-		endpoints[i] = _instance.endpointFactoryManager().read(s);
+		endpoints[i] = _instance.endpointFactory().read(s);
 	    }
 	    return create(ident, new java.util.Hashtable(), facet, mode, secure, endpoints, routerInfo);
 	}

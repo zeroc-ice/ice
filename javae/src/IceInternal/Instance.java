@@ -130,15 +130,15 @@ public class Instance
 	return _threadPerConnectionStackSize;
     }
 
-    public synchronized EndpointFactoryManager
-    endpointFactoryManager()
+    public synchronized EndpointFactory
+    endpointFactory()
     {
 	if(_destroyed)
 	{
 	    throw new Ice.CommunicatorDestroyedException();
 	}
 
-        return _endpointFactoryManager;
+        return _endpointFactory;
     }
 
     public int
@@ -258,9 +258,7 @@ public class Instance
 
             _proxyFactory = new ProxyFactory(this);
 
-            _endpointFactoryManager = new EndpointFactoryManager(this);
-            EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(this);
-            _endpointFactoryManager.add(tcpEndpointFactory);
+            _endpointFactory = new EndpointFactory(this);
 
 	    _defaultContext = _emptyContext;
 
@@ -286,7 +284,7 @@ public class Instance
         IceUtil.Debug.FinalizerAssert(_objectAdapterFactory == null);
         IceUtil.Debug.FinalizerAssert(_routerManager == null);
         IceUtil.Debug.FinalizerAssert(_locatorManager == null);
-        IceUtil.Debug.FinalizerAssert(_endpointFactoryManager == null);
+        IceUtil.Debug.FinalizerAssert(_endpointFactory == null);
 
 	//
 	// Do not call parent's finalizer, CLDC Object does not have it.
@@ -371,10 +369,10 @@ public class Instance
                 _locatorManager = null;
             }
 
-            if(_endpointFactoryManager != null)
+            if(_endpointFactory != null)
             {
-                _endpointFactoryManager.destroy();
-                _endpointFactoryManager = null;
+                _endpointFactory.destroy();
+                _endpointFactory = null;
             }
 	    
 	    _destroyed = true;
@@ -422,7 +420,7 @@ public class Instance
     private OutgoingConnectionFactory _outgoingConnectionFactory;
     private ObjectAdapterFactory _objectAdapterFactory;
     private final int _threadPerConnectionStackSize;
-    private EndpointFactoryManager _endpointFactoryManager;
+    private EndpointFactory _endpointFactory;
     private java.util.Hashtable _defaultContext;
     private static java.util.Hashtable _emptyContext = new java.util.Hashtable();
 

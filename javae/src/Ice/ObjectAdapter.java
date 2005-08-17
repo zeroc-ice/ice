@@ -814,7 +814,7 @@ public final class ObjectAdapter
 	    }
 
 	    String s = endpts.substring(beg, end);
-	    IceInternal.Endpoint endp = _instance.endpointFactoryManager().create(s);
+	    IceInternal.Endpoint endp = _instance.endpointFactory().create(s);
 	    if(endp == null)
 	    {
 	        Ice.EndpointParseException e = new Ice.EndpointParseException();
