@@ -22,6 +22,7 @@ public class ChatMIDlet extends MIDlet
 		// Ignore.
 	    }
 	}
+	notifyDestroyed();
     }
 
     protected void

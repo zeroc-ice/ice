@@ -116,11 +116,22 @@ public class ChatForm extends Form implements CommandListener
 	    }
 	}
 
-	public synchronized void
+	public void
 	destroy()
 	{
-	    _destroy = true;
-	    notify();
+	    synchronized(this)
+	    {
+		_destroy = true;
+		notify();
+	    }
+	    try
+	    {
+		join();
+	    }
+	    catch(Exception ex)
+	    {
+		// Ignore.
+	    }
 	}
 
 	boolean _destroy = false;
