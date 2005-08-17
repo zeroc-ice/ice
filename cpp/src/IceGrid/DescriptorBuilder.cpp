@@ -93,15 +93,15 @@ ApplicationDescriptorBuilder::addReplicatedAdapter(const XmlAttributesHelper& at
     string policy = attrs("load-balancing", "random");
     if(policy == "random")
     {
-	adapter.loadBalancing = Random;
+	adapter.loadBalancing = new RandomLoadBalancingPolicy();
     }
     else if(policy == "round-robin")
     {
-	adapter.loadBalancing = RoundRobin;
+	adapter.loadBalancing = new RoundRobinLoadBalancingPolicy();
     }
-    else if(policy == "adaptive")
+    else
     {
-	adapter.loadBalancing = Adaptive;
+	throw "invalid load balancing policy `" + policy + "'";
     }
     _descriptor.replicatedAdapters.push_back(adapter);
 }

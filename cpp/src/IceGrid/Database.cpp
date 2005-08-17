@@ -464,14 +464,7 @@ Database::removeNode(const string& name)
 {
     _nodeCache.get(name)->setSession(0);
 
-    try
-    {
-	_nodeObserver->nodeDown(name);
-    }
-    catch(const Ice::LocalException&)
-    {
-	// TODO: Log a warning?
-    }
+    _nodeObserver->nodeDown(name);
 }
 
 Ice::StringSeq 
@@ -613,11 +606,6 @@ Database::removeAdapter(const string& adapterId)
 AdapterPrx
 Database::getAdapter(const string& id, const string& serverId)
 {
-    //
-    // TODO: Perhaps we should also cache the adapter proxies here
-    // instead of doing multiple lookups.
-    //
-
     //
     // First we check if the given adapter id is associated to a
     // server, if that's the case we get the adapter proxy from the

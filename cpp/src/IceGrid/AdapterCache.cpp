@@ -38,7 +38,7 @@ AdapterEntry::AdapterEntry(Cache<string, AdapterEntry>& cache, const std::string
 }
 
 void
-AdapterEntry::enableReplication(LoadBalancingPolicy policy)
+AdapterEntry::enableReplication(const LoadBalancingPolicyPtr& policy)
 {
     {
 	Lock sync(*this);
@@ -112,22 +112,18 @@ AdapterEntry::getProxies(int& endpointCount)
 	else
 	{
 	    servers.reserve(_servers.size());
-	    switch(_loadBalancing)
+	    if(RoundRobinLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	    {
-	    case Random:
-		servers = _servers;
-		random_shuffle(servers.begin(), servers.end());
-		break;
-	    case RoundRobin:
 		for(unsigned int i = 0; i < _servers.size(); ++i)
 		{
 		    servers.push_back(_servers[(_lastServer + i) % _servers.size()]);
 		}
 		_lastServer = (_lastServer + 1) % _servers.size();
-		break;
-	    case Adaptive:
-		servers = _servers; // TODO
-		break;
+	    }
+	    else // if(RandomLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
+	    {
+		servers = _servers;
+		random_shuffle(servers.begin(), servers.end());
 	    }
 	}
     }
@@ -147,7 +143,11 @@ AdapterEntry::getProxies(int& endpointCount)
     {
 	throw NodeUnreachableException();
     }
-    endpointCount = 1;
+
+    //
+    // TODO: Set to a configurable number of replicas.
+    //
+    endpointCount = 1; //servers.size();
     return adapters;
 }
 

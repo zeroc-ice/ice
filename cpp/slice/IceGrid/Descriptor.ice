@@ -382,18 +382,23 @@ struct NodeDescriptor
 };
 dictionary<string, NodeDescriptor> NodeDescriptorDict;
 
+class LoadBalancingPolicy
+{
+};
+
+class RandomLoadBalancingPolicy extends LoadBalancingPolicy
+{
+};
+
+class RoundRobinLoadBalancingPolicy extends LoadBalancingPolicy
+{
+};
+
 /**
  *
  * A replicated object adapter descriptor.
  * 
  **/
-enum LoadBalancingPolicy
-{
-    Random,
-    RoundRobin,
-    Adaptive
-};
-
 struct ReplicatedAdapterDescriptor
 {
     /**

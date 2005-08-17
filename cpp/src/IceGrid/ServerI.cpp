@@ -257,9 +257,10 @@ ServerI::destroy(const Ice::Current& current)
     {
 	removeRecursive(_serverDir);
     }
-    catch(const string&)
+    catch(const string& msg)
     {
-	// TODO: warning?
+	Ice::Warning out(_node->getTraceLevels()->logger);
+	out << "couldn't remove directory `" + _serverDir + "':\n" + msg;
     }
     
     //
@@ -636,8 +637,7 @@ ServerI::stopInternal(bool kill, const Ice::Current& current)
 		//
 		// Wait for the process to be set.
 		//
-		// TODO: use the deactivatiion timeout!
-		wait(); 
+		timedWait(IceUtil::Time::seconds(_deactivationTimeout));
 	    }
 	}
 	process = _process;
@@ -703,7 +703,6 @@ ServerI::stopInternal(bool kill, const Ice::Current& current)
 	out << ex;
     }
 
-    
     //
     // The server is still not inactive, kill it.
     //
@@ -851,7 +850,7 @@ ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& ada
 	    throw "can't find `dbs' directory in `" + _serverDir + "'";
 	}
     }
-    catch(const string& message)
+    catch(const string& msg)
     {
 	//
 	// TODO: log message?
@@ -892,11 +891,10 @@ ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& ada
 	    {
 		remove(_serverDir + "/config/" + *p);
 	    }
-	    catch(const string& message)
+	    catch(const string& msg)
 	    {
-		//
-		// TODO: warning
-		//
+		Ice::Warning out(_node->getTraceLevels()->logger);
+		out << "couldn't remove file `" + _serverDir + "/config/" + *p + "':\n" + msg;
 	    }
 	}
     }
@@ -923,11 +921,10 @@ ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& ada
 	{
 	    removeRecursive(_serverDir + "/dbs/" + *p);
 	}
-	catch(const string&)
+	catch(const string& msg)
 	{
-	    //
-	    // TODO: warning
-	    //
+	    Ice::Warning out(_node->getTraceLevels()->logger);
+	    out << "couldn't remove directory `" + _serverDir + "/dbs/" + *p + "':\n" + msg;
 	}
     }
 

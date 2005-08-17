@@ -35,7 +35,7 @@ public:
     AdapterPrx getProxy(const std::string&) const;
     std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&);
     
-    void enableReplication(LoadBalancingPolicy);
+    void enableReplication(const LoadBalancingPolicyPtr&);
     void disableReplication();
 
     void addServer(const ServerEntryPtr&);
@@ -48,7 +48,7 @@ private:
     Cache<std::string, AdapterEntry>& _cache;
     const std::string _id;
     bool _replicated;
-    LoadBalancingPolicy _loadBalancing;
+    LoadBalancingPolicyPtr _loadBalancing;
     ServerEntrySeq _servers;
     int _lastServer;
 };

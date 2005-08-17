@@ -1815,19 +1815,17 @@ ApplicationHelper::print(Output& out) const
 	    p != _desc.replicatedAdapters.end(); ++p)
 	{
 	    out << nl << "id = `" << p->id << "' load balancing = '";
-	    switch(p->loadBalancing)
+	    if(RandomLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
 	    {
-	    case Random:
 		out << "random";
-		break;
-	    case RoundRobin:
+	    }
+	    else if(RoundRobinLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
+	    {
 		out << "round-robin";
-		break;
-	    case Adaptive:
-		out << "adaptive";
-		break;
-	    default:
-		assert(false);
+	    }
+	    else
+	    {
+		out << "<unknown load balancing policy>";
 	    }
 	    out << "'";
 	}

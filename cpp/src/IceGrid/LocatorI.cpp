@@ -261,6 +261,9 @@ LocatorI::Request::sendResponse()
     }
     else if(_proxies.size() > 1)
     {
+	//
+	// TODO: This is not correct, stringifying a proxy might discard some endpoints!
+	//
 	string proxy = "dummy";
 	for(vector<Ice::ObjectPrx>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
 	{
