@@ -95,13 +95,6 @@ else:
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " iceje icee/slice")
 
 #
-# Copy Slice directories.
-#
-print "Copying Slice files..."
-for x in os.listdir(os.path.join("icee", "slice", "IceE")):
-    shutil.copy(os.path.join("icee", "slice", "IceE", x), os.path.join("iceje", "slice", "IceE"))
-
-#
 # Remove files.
 #
 print "Removing unnecessary files..."
@@ -122,8 +115,7 @@ if verbose:
     quiet = ""
 else:
     quiet = " -q"
-os.system("ant" + quiet + " -DtargetProfile=jdk -Doptimize=on -Ddebug=off")
-os.system("ant" + quiet + " -DtargetProfile=midp -Doptimize=on -Ddebug=off")
+os.system("ant" + quiet + " -Dmidp=on -Doptimize=on -Ddebug=off")
 
 #
 # Clean out the jdk/lib directory but save IceE.jar.
