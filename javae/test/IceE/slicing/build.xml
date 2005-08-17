@@ -53,14 +53,14 @@
 
     <target name="compile" depends="generate">
         <mkdir dir="${cclass.dir}"/>
-        <javac srcdir="${cgen.dir}" destdir="${cclass.dir}" classpath="${lib.dir}" debug="${debug}"
+        <javac srcdir="${cgen.dir}" destdir="${cclass.dir}" classpath="${jdk.lib.dir}" debug="${debug}"
 	    target="1.1"/>
-        <javac srcdir="${csrc.dir}" destdir="${cclass.dir}" classpath="${lib.dir}" excludes="${cgen.dir}/**"
+        <javac srcdir="${csrc.dir}" destdir="${cclass.dir}" classpath="${jdk.lib.dir}" excludes="${cgen.dir}/**"
 	    debug="${debug}" target="1.1"/>
         <mkdir dir="${sclass.dir}"/>
-        <javac srcdir="${sgen.dir}" destdir="${sclass.dir}" classpath="${lib.dir}" debug="${debug}"
+        <javac srcdir="${sgen.dir}" destdir="${sclass.dir}" classpath="${jdk.lib.dir}" debug="${debug}"
 	    target="1.1"/>
-        <javac srcdir="${ssrc.dir}" destdir="${sclass.dir}" classpath="${lib.dir}" excludes="${sgen.dir}/**"
+        <javac srcdir="${ssrc.dir}" destdir="${sclass.dir}" classpath="${jdk.lib.dir}" excludes="${sgen.dir}/**"
 	    debug="${debug}" target="1.1"/>
     </target>
 
@@ -80,8 +80,7 @@
 
 	<copy overwrite="true" file="config" todir="cclasses"/>
 	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="cclasses"/>
-	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
-	    update="true"/>
+	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
 	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="../common/classes" update="true"
 	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
     </target>
@@ -137,8 +136,7 @@
         </manifest>
 
 	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="sclasses"/>
-	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="${lib.dir}" excludes="**/IceE.jar"
-	    update="true"/>
+	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
 	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true"
 	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
     </target>

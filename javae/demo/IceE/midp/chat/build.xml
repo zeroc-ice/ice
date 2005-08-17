@@ -17,8 +17,6 @@
     <!-- Include common definitions -->
     <import file="${top.dir}/config/common.xml"/>
 
-    <property name="tmp.dir" value="tmp"/>
-
     <target name="init" depends="config-init"/>
 
     <target name="generate" depends="init">
@@ -27,7 +25,7 @@
         <slice2javae outputdir="${generated.dir}">
 	    <includepath>
 		<pathelement path="." />
-		<pathelement path="${slice.dir.1}" />
+		<pathelement path="${slice.dir}" />
 	    </includepath>
             <fileset dir=".">
 		<include name="Chat.ice"/>
@@ -40,20 +38,20 @@
     <target name="compile" depends="generate">
         <mkdir dir="${class.dir}"/>
 	<javac srcdir="${generated.dir}" destdir ="${class.dir}" source="1.3" debug="${debug}">
-	    <bootclasspath refid="bootclasspath"/>  
- 	    <classpath refid="ice.classpath"/>
+	    <bootclasspath refid="midp.bootclasspath"/>  
+ 	    <classpath refid="midp.classpath"/>
 	</javac>
         <javac srcdir="." destdir="${class.dir}" source="1.3" excludes="generated/**" debug="${debug}">
-	    <bootclasspath refid="bootclasspath"/>  
+	    <bootclasspath refid="midp.bootclasspath"/>  
             <classpath>
-	       <path refid="ice.classpath"/>
-	       <pathelement path="./classes"/>
+	       <path refid="midp.classpath"/>
+	       <pathelement path="classes"/>
 	    </classpath>
         </javac>
     </target>
 
     <target name="jar" depends="compile">
-	<mkdir dir="${tmp.dir}"/>
+	<mkdir dir="tmp"/>
 	<manifest file="MANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
 	    <attribute name="MIDlet-Name" value="ChatDemo"/>
@@ -63,8 +61,8 @@
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
         </manifest>
 
-	<jar destfile="${tmp.dir}/ChatDemo.jar" manifest="MANIFEST.MF" basedir="${class.dir}"/>
-        <jar destfile="${tmp.dir}/ChatDemo.jar" basedir="${lib.dir}" excludes="IceE.jar" update="true"/>
+	<jar destfile="tmp/ChatDemo.jar" manifest="MANIFEST.MF" basedir="${class.dir}"/>
+        <jar destfile="tmp/ChatDemo.jar" basedir="${midp.lib.dir}" excludes="IceE.jar" update="true"/>
     </target>
 
     <target name="obfuscate" depends="jar" if="hasProguard">
@@ -86,7 +84,7 @@
 	<exec executable="${WTK}/bin/preverify">
 	    <arg line="-classpath ${WTKLIBS}"/>
 	    <arg line="-d ."/>
-	    <arg line="${tmp.dir}/ChatDemo.jar"/>
+	    <arg line="tmp/ChatDemo.jar"/>
         </exec>
     </target>
 
@@ -124,7 +122,7 @@
     <target name="clean">
 	<delete dir="${class.dir}"/>
 	<delete dir="${generated.dir}"/>
-	<delete dir="${tmp.dir}"/>
+	<delete dir="tmp"/>
 	<delete quiet="true" file="ChatDemo.jar"/>
 	<delete quiet="true" file="ChatDemo.jad"/>
 	<delete quiet="true" file="ChatDemo.prc"/>

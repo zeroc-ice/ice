@@ -17,7 +17,7 @@
     <!-- Include common definitions -->
     <import file="${top.dir}/config/common.xml"/>
   
-    <target name="jdk-demos" unless="midp">
+    <target name="jdk-demos">
         <ant dir="bidir" inheritAll="false"/>
         <ant dir="callback" inheritAll="false"/>
         <ant dir="hello" inheritAll="false"/>

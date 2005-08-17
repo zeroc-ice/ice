@@ -21,10 +21,8 @@
 
     <target name="compile" depends="init" if="midp">
         <mkdir dir="${class.dir}"/>
-        <javac srcdir="." destdir="${class.dir}" debug="${debug}" target="1.1">
-           <bootclasspath refid="bootclasspath"/>  
-	   <classpath refid="ice.classpath"/>
-        </javac>
+        <javac srcdir="." destdir="${class.dir}" debug="${debug}" target="1.1" classpathref="midp.classpath"
+	    bootclasspathref="midp.bootclasspath"/>
     </target>
 
     <target name="all" depends="compile"/>

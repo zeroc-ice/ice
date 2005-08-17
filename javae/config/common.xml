@@ -14,97 +14,6 @@
     <!-- get access to env variables globally -->
     <property environment="env"/>
 
-    <!-- Figure out install type -->
-
-    <available file="${top.dir}/makedist.py" property="installtype" value="cvs" />
-
-    <condition property="installtype" value="src">
-	<and>
-            <available file="${top.dir}/slice"/>
-            <not>
-                <isset property="installtype"/>
-            </not>
-	</and>
-    </condition>
-
-    <condition property="installtype" value="opt">
-	<and>
-	     <available file="${env.ICEE_HOME}/slice" />
-            <not>
-                <isset property="installtype"/>
-	    </not>
-	</and>
-    </condition>
-    
-    <fail message="Unable to detect a valid Ice installation." unless="installtype" />
-
-    <condition property="is-cvs">
-	<and>
-	    <isset property="installtype"/>
-	    <equals arg1="cvs" arg2="${installtype}"/>
-	</and>
-    </condition>
-
-    <condition property="is-opt">
-	<and>
-	    <isset property="installtype"/>
-	    <equals arg1="opt" arg2="${installtype}"/>
-	</and>
-    </condition>
-
-    <condition property="is-src">
-	<and>
-	    <isset property="installtype"/>
-	    <equals arg1="src" arg2="${installtype}"/>
-	</and>
-    </condition>
-
-    <target name="properties-cvs" if="is-cvs">
-        <available file="${env.ICEE_HOME}/slice" property="is-cvs-valid"/>
-	<fail message="ICEE_HOME is not set to a valid directory" unless="is-cvs-valid"/>
-
-	<property name="slice.dir.1" value="${env.ICEE_HOME}/slice"/>
-	<property name="slice.dir.2" value="${top.dir}/slice"/>
-	<property name="lib.dir" value="${top.dir}/${targetProfile}/lib" />
-	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
-	<taskdef name="jadfile" classpath="${top.dir}/ant" classname="JADTask"/>
-    </target>
-
-    <target name="properties-opt" if="is-opt">
-        <available file="${env.ICEE_HOME}/lib" property="opt-lib-avail" />
-	<fail message="ICEE_HOME is not set to a valid directory" unless="opt-lib-avail"/>
-
-	<!-- TODO: fix lib.dir for targetProfile -->
-	<property name="lib.dir" value="${env.ICEE_HOME}/lib" />
-	
-	<property name="slice.dir.1" value="${env.ICEE_HOME}/slice"/>
-	<property name="slice.dir.2" value="${env.ICEE_HOME}/slice"/>
-	<taskdef name="slice2javae" classpath="${env.ICEE_HOME}/ant" classname="Slice2JavaETask"/>
-	<taskdef name="jadfile" classpath="${env.ICEE_HOME}/ant" classname="JADTask"/>
-    </target>
-
-    <target name="properties-src" if="is-src">
-	<property name="lib.dir" value="${top.dir}/${targetProfile}/lib" />
-	<property name="slice.dir.1" value="${top.dir}/slice"/>
-	<property name="slice.dir.2" value="${top.dir}/slice"/>
-	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
-	<taskdef name="jadfile" classpath="${top.dir}/ant" classname="JADTask"/>
-    </target>
-
-
-    <target name="config-impl" depends="properties-cvs,properties-opt,properties-src">
-        <!-- Create the time stamp -->
-        <tstamp/>
-
-	<!-- Ice classpath -->
-	<path id="ice.classpath">
-	    <fileset dir="${lib.dir}">
-		<include name="*.jar"/>
-	    </fileset>
-	    <pathelement location="${lib.dir}"/>
-	</path>
-    </target>
-
     <dirname property="common.basedir" file="${ant.file.common}"/>
     <property file="${common.basedir}/build.properties"/>
 
@@ -118,10 +27,6 @@
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
 
-    <condition property="midp">
-        <equals arg1="${targetProfile}" arg2="midp" trim="true"/>
-    </condition>
-
     <condition property="hasProguard">
 	<and>
 	    <isset property="midp"/>
@@ -129,15 +34,26 @@
 	</and>
     </condition>
 
-    <target name="set-bootclasspath" if="midp" depends="config-impl">
-        <path id="bootclasspath" path="${WTKLIBS}"/>
-    </target>
+    <target name="config-init">
+        <!-- Create the time stamp -->
+        <tstamp/>
 
-    <target name="set-empty-bootclasspath" unless="midp" depends="config-impl">
-        <path id="bootclasspath">
+	<property name="slice.dir" value="${top.dir}/slice"/>
+	<property name="jdk.lib.dir" value="${top.dir}/jdk/lib" />
+	<property name="midp.lib.dir" value="${top.dir}/midp/lib" />
+	<taskdef name="slice2javae" classpath="${top.dir}/ant" classname="Slice2JavaETask"/>
+	<taskdef name="jadfile" classpath="${top.dir}/ant" classname="JADTask"/>
+
+	<!-- classpath for compiling with JDK -->
+	<path id="jdk.classpath">
+	    <fileset dir="${jdk.lib.dir}">
+		<include name="*.jar"/>
+	    </fileset>
 	</path>
-    </target>
 
-    <target name="config-init" depends="config-impl,set-bootclasspath,set-empty-bootclasspath"/>
+	<!-- classpath and bootclasspath for compiling with J2ME -->
+	<path id="midp.classpath" location="${jdk.lib.dir}"/>
+        <path id="midp.bootclasspath" path="${WTKLIBS}"/>
+    </target>
     
 </project>
