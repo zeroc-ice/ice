@@ -108,7 +108,10 @@ There is generally no need to compile Ice-E for Java because this
 distribution already contains the class files for the Ice-E core,
 examples and tests.
 
-If you want to rebuild the source code, follow these steps:
+In order to rebuild the source code, you must have Sun's Java
+Wireless Toolkit installed (see "J2ME Tools" above).
+
+Follow these steps to rebuild the source:
 
 1. Ensure that 'ant' version 1.6.3 or later is installed. To verify
    your version of ant, run
@@ -122,8 +125,10 @@ If you want to rebuild the source code, follow these steps:
 2. Add the directory containing the Slice translator (slice2javae) to
    your PATH.
 
-3. Review config/build.properties and set targetProfile=midp. The
-   comments in this file provide more information.
+3. Edit config/build.properties and set midp=on. Review the remaining
+   properties, which are described by comments in the file. Change
+   the value of WTK to reflect your installation directory for the
+   Wireless Toolkit.
 
 4. Clean the existing source tree:
 
