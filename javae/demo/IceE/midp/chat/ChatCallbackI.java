@@ -18,7 +18,7 @@ public class ChatCallbackI extends Demo._ChatCallbackDisp
     public void
     message(String data, Ice.Current current)
     {
-	_console.addText(data);
+	_console.addText(data + "\n");
     }
 
     private Console _console;
