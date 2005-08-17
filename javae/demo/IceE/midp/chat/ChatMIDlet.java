@@ -41,7 +41,7 @@ public class ChatMIDlet extends MIDlet
     {
 	try
 	{
-	    final String[] args = { "--Ice.Trace.Network=3", "--Ice.Trace.Protocol" };
+	    final String[] args = new String[0];
 	    _communicator = Ice.Util.initialize(args);
 	}
 	catch(Exception ex)
