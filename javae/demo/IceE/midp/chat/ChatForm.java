@@ -12,13 +12,14 @@ import javax.microedition.lcdui.*;
 public class ChatForm extends Form implements CommandListener
 {
     public
-    ChatForm(ChatMIDlet parent, String user, Demo.ChatSessionPrx session)
+    ChatForm(ChatMIDlet parent, String user, Demo.ChatSessionPrx session, Glacier2.RouterPrx router)
     {
 	super("Chat Demo");
 
 	_parent = parent;
 	_user = user;
 	_session = session;
+	_router = router;
 
 	StringItem str = new StringItem(null, "Messages");
 	_message = new TextField(null, "", 255, TextField.ANY);
@@ -53,6 +54,14 @@ public class ChatForm extends Form implements CommandListener
 	if(c.getCommandType() == Command.EXIT)
 	{
 	    _pingThread.destroy();
+	    try
+	    {
+		_router.destroySession();
+	    }
+	    catch(Exception ex)
+	    {
+		// Ignore.
+	    }
 	    _parent.destroy();
 	}
 	else
@@ -140,6 +149,7 @@ public class ChatForm extends Form implements CommandListener
     private ChatMIDlet _parent;
     private String _user;
     private Demo.ChatSessionPrx _session;
+    private Glacier2.RouterPrx _router;
     private Console _console;
     private TextField _message;
     private PingThread _pingThread;

@@ -109,23 +109,12 @@ public class LoginForm extends Form implements CommandListener, Runnable
 		callbackReceiverIdent.name = "callbackReceiver";
 		callbackReceiverIdent.category = category;
 
-		ChatForm cf = new ChatForm(_parent, user, session);
+		ChatForm cf = new ChatForm(_parent, user, session, router);
 
 		Ice.ObjectAdapter adapter = _communicator.createObjectAdapter("Chat.Client");
 		Demo.ChatCallbackPrx callback = Demo.ChatCallbackPrxHelper.uncheckedCast(
 		    adapter.add(new ChatCallbackI(cf.getConsole()), callbackReceiverIdent));
 		adapter.activate();
-		{
-		    Ice.Object o = adapter.find(callbackReceiverIdent);
-		    if(o == null)
-		    {
-			System.err.println("\n\nMissing servant for " + Ice.Util.identityToString(callbackReceiverIdent) + "!!\n\n");
-		    }
-		    else
-		    {
-			System.err.println("\n\nFound servant for " + Ice.Util.identityToString(callbackReceiverIdent) + "!!\n\n");
-		    }
-		}
 
 		session.setCallback(callback);
 
