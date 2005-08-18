@@ -1,6 +1,14 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Fixed a bug in the slice2cs code generator: if an operation
+  had a parameter named i or szx, incorrect code was generated
+  in some cases.
+
+- Fixed a bug in the slice2vb code generator: if an operation
+  had a parameter named ix or spx, incorrect code was generated
+  in some cases.
+
 - Added unsupported and untested "support" for Tru64 (with gcc)
 
 - Renamed CompressionNotSupportException to a more general
