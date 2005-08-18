@@ -13,13 +13,21 @@ public class ClientMIDlet
     extends javax.microedition.midlet.MIDlet
     implements javax.microedition.lcdui.CommandListener
 {
-    class HelloRequest
-	implements Runnable
+    class HelloRequest implements Runnable
     {
 	public void
 	run()
 	{
 	    handleHelloCmd();
+	}
+    }
+
+    class Shutdown implements Runnable
+    {
+	public void
+	run()
+	{
+	    handleExitCmd();
 	}
     }
 
@@ -83,7 +91,7 @@ public class ClientMIDlet
 	{
 	    if(cmd == CMD_EXIT)
 	    {
-		handleExitCmd();
+		new Thread(new Shutdown()).start();
 	    }
 	    else if(cmd == CMD_HELLO)
 	    {

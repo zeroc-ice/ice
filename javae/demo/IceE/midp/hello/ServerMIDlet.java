@@ -35,6 +35,24 @@ public class ServerMIDlet
 
 	javax.microedition.lcdui.StringItem _msg = null;
     }
+
+    class StartServer implements Runnable
+    {
+	public void
+	run()
+	{
+	    handleStartCmd();
+	}
+    }
+
+    class StopServer implements Runnable
+    {
+	public void
+	run()
+	{
+	    handleExitCmd();
+	}
+    }
     
     protected void
     startApp()
@@ -96,11 +114,11 @@ public class ServerMIDlet
 	{
 	    if(cmd == CMD_EXIT)
 	    {
-		handleExitCmd();
+		new Thread(new StopServer()).start();
 	    }
 	    else if(cmd == CMD_START)
 	    {
-		handleStartCmd();
+		new Thread(new StartServer()).start();
 	    }
 	}
     }
