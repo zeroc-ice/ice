@@ -11,10 +11,21 @@
 
 <project name="demo_IceE" default="all" basedir=".">
 
-    <target name="all">
+    <!-- set global properties for this build -->
+    <property name="top.dir" value="../.."/>
+
+    <!-- Include common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+
+    <target name="jdk-demos">
         <ant dir="jdk" inheritAll="false" />
+    </target>
+    
+    <target name="midp-demos" if="midp">
         <ant dir="midp" inheritAll="false" />
     </target>
+
+    <target name="all" depends="jdk-demos,midp-demos"/>
 
     <target name="clean">
         <ant dir="jdk" target="clean" inheritAll="false" />

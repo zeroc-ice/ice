@@ -11,18 +11,10 @@
 
 <project name="demo_IceE_midp" default="all" basedir=".">
 
-    <!-- set global properties for this build -->
-    <property name="top.dir" value="../../.."/>
-
-    <!-- Include common definitions -->
-    <import file="${top.dir}/config/common.xml"/>
-  
-    <target name="midp-demos" if="midp">
+    <target name="all">
         <ant dir="chat" inheritAll="false"/>
         <ant dir="hello" inheritAll="false"/>
     </target>
-
-    <target name="all" depends="midp-demos"/>
 
     <target name="clean">
         <ant dir="chat" target="clean" inheritAll="false"/>

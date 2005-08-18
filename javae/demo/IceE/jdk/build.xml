@@ -11,13 +11,7 @@
 
 <project name="demo_IceE_jdk" default="all" basedir=".">
 
-    <!-- set global properties for this build -->
-    <property name="top.dir" value="../../.."/>
-
-    <!-- Include common definitions -->
-    <import file="${top.dir}/config/common.xml"/>
-  
-    <target name="jdk-demos">
+    <target name="all">
         <ant dir="bidir" inheritAll="false"/>
         <ant dir="callback" inheritAll="false"/>
         <ant dir="hello" inheritAll="false"/>
@@ -25,8 +19,6 @@
         <ant dir="throughput" inheritAll="false"/>
     </target>
   
-    <target name="all" depends="jdk-demos"/>
-
     <target name="clean">
         <ant dir="bidir" target="clean" inheritAll="false"/>
         <ant dir="callback" target="clean" inheritAll="false"/>
