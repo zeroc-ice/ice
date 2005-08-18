@@ -52,16 +52,17 @@ as well as an emulator and supporting development tools:
 
 http://java.sun.com/products/sjwtoolkit/index.html
 
-Nokia's J2ME developer suite and Platform SDKs include the MIDP and CLDC
-classes as well as emulators for different phone types and supporting
-development tools. 
+Nokia's J2ME developer suite and Platform SDKs include the MIDP and
+CLDC classes as well as emulators for different phone types and
+supporting development tools:
 
 http://forum.nokia.com/
 
-ProGuard is a free Java class file obfuscate and shrinker tool that can
-dramatically shrink the size of your Java applications. 
+ProGuard is a free Java class file optimizer that can dramatically
+shrink the size of your Java applications:
 
 http://proguard.sourceforge.net/
+
 
 ======================================================================
 Testing
