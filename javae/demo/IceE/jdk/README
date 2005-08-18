@@ -16,7 +16,7 @@ Demos in this directory:
 
 - chat
 
-  Command-line client that work with the Glacier2 chat demo found in
+  Command-line client that works with the Glacier2 chat demo found in
   the Ice distibution.
 
 - hello
