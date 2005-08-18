@@ -1,4 +1,4 @@
-JDK demos in this directory:
+Demos in this directory:
 
 - bidir
 
@@ -31,17 +31,3 @@ JDK demos in this directory:
   various types between client and server and to measure the maximum
   bandwidth that can be achieved using serialized synchronous
   requests.
-
-J2ME demos in this directory:
-
-- chat
-
-  J2ME MIDlet that works with the Glacier2 chat demo found in the Ice
-  distribution.
-
-- helloMIDlet
- 
-  This demo implements a simplified version of a hello client and
-  server that illustrates how to build and package a simple J2ME
-  MIDlet. 
-
