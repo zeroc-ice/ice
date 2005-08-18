@@ -1,6 +1,10 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Fixed a bug in the slice2vb code generator: if an operation
+  had a parameter named ix or spx, incorrect code was generated
+  in some cases.
+
 - Added ice_communicator() to proxies. This function returns
   the communicator that was used to create the proxy.
 
