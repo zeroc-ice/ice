@@ -125,14 +125,11 @@ public class Client
                 }
             }
             while(true);
+	    router.destroySession();
 	}
-	catch(java.io.IOException ex)
+	catch(Exception ex)
 	{
 	    ex.printStackTrace();
-	}
-	catch(Ice.LocalException ex)
-	{
-            ex.printStackTrace();
 	}
 
 	ping.destroy();
