@@ -2,14 +2,14 @@
 # The client reads this property to create the reference to the
 # "hello" object in the server.
 #
-Hello.Proxy=hello:tcp -h 142.163.161.52 -p 10001 -t 20000
+Hello.Proxy=hello:tcp -p 12345 -t 20000
 
 #
 # The server creates one single object adapter with the name
 # "Hello". The following line sets the endpoints for this
 # adapter.
 #
-Hello.Endpoints=tcp -p 10002
+Hello.Endpoints=tcp -p 12345
 
 #
 # Warn about connection exceptions
