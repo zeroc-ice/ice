@@ -41,7 +41,18 @@ public class ServerMIDlet
 	public void
 	run()
 	{
-	    handleStartCmd();
+	    try
+	    {
+		Ice.ObjectAdapter adapter = _communicator.createObjectAdapter("Hello");
+		Ice.Object object = new HelloI(_msg);
+		adapter.add(object, Ice.Util.stringToIdentity("hello"));
+		adapter.activate();
+		_msg.setText("Using address " + System.getProperty("microedition.hostname"));
+	    }
+	    catch(Exception ex)
+	    {
+		_msg.setText("Unable to initialize Ice server, please check your configuration and start again.");
+	    }
 	}
     }
 
@@ -66,13 +77,12 @@ public class ServerMIDlet
 	{
 	    _display = javax.microedition.lcdui.Display.getDisplay(this);
 	    _form = new javax.microedition.lcdui.Form("Ice - Hello World Server");
-	    _form.append("Select the `Hello' command to activate the hello server.\n");
 	    _form.append(_msg);
 	    _form.addCommand(CMD_EXIT);
-	    _form.addCommand(CMD_START);
 	    _form.setCommandListener(this);
 	}
 	_display.setCurrent(_form);
+	new Thread(new StartServer()).start();
     }
 
     protected void
@@ -116,27 +126,6 @@ public class ServerMIDlet
 	    {
 		new Thread(new StopServer()).start();
 	    }
-	    else if(cmd == CMD_START)
-	    {
-		new Thread(new StartServer()).start();
-	    }
-	}
-    }
-
-    public void
-    handleStartCmd()
-    {
-	try
-	{
-	    Ice.ObjectAdapter adapter = _communicator.createObjectAdapter("Hello");
-	    Ice.Object object = new HelloI(_msg);
-	    adapter.add(object, Ice.Util.stringToIdentity("hello"));
-	    adapter.activate();
-	    _msg.setText("Using address " + System.getProperty("microedition.hostname"));
-	}
-	catch(Exception ex)
-	{
-	    _msg.setText("Unable to initialize Ice server, please check your configuration and start again.");
 	}
     }
 
@@ -163,9 +152,6 @@ public class ServerMIDlet
 
     private javax.microedition.lcdui.Command CMD_EXIT =
         new javax.microedition.lcdui.Command("Exit", javax.microedition.lcdui.Command.EXIT, CMD_PRIORITY);
-
-    private javax.microedition.lcdui.Command CMD_START =
-        new javax.microedition.lcdui.Command("Start", javax.microedition.lcdui.Command.ITEM, CMD_PRIORITY);
 
     private javax.microedition.lcdui.StringItem _msg =
         new javax.microedition.lcdui.StringItem("\nStatus: ", "(no status)");
