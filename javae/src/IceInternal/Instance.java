@@ -170,15 +170,25 @@ public class Instance
     public java.util.Hashtable
     getDefaultContext()
     {
-	java.util.Hashtable result = new java.util.Hashtable(_defaultContext.size());
-	java.util.Enumeration e = _defaultContext.keys();
-	while(e.hasMoreElements())
+	//
+	// JDK 1.1 raises IllegalArgumentException if we pass 0 as the initial capacity.
+	//
+	if(_defaultContext.isEmpty())
 	{
-	    java.lang.Object key = e.nextElement();
-	    java.lang.Object value = _defaultContext.get(key);
-	    result.put(key, value);
+	    return new java.util.Hashtable();
 	}
-	return result;
+	else
+	{
+	    java.util.Hashtable result = new java.util.Hashtable(_defaultContext.size());
+	    java.util.Enumeration e = _defaultContext.keys();
+	    while(e.hasMoreElements())
+	    {
+		java.lang.Object key = e.nextElement();
+		java.lang.Object value = _defaultContext.get(key);
+		result.put(key, value);
+	    }
+	    return result;
+	}
     }
 
     public void
