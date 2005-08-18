@@ -1,0 +1,20 @@
+This demo contains  client that communicates with the Glacier2 chat
+demo provided in the full Ice distribution (demo/Glacier2/chat). You
+must build the Ice demo before you can run this demo.
+
+To run the demo, change to the Ice demo directory and start the chat
+server:
+
+$ server
+
+In a separate window, change to the Ice demo directory and modify
+the file config.glacier2 to replace "ssl" with "tcp" in the property
+Glacier2.Client.Endpoints.
+
+Next, start the Glacier2 router:
+
+$ glacier2router --Ice.Config=config.glacier2
+
+Finally, start an Ice-E client. To start the command-line client, run
+
+$ java Client

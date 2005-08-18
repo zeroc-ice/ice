@@ -24,10 +24,10 @@
         <mkdir dir="${generated.dir}"/>
         <slice2javae outputdir="${generated.dir}">
 	    <includepath>
-		<pathelement path="." />
+		<pathelement path="../../jdk/chat" />
 		<pathelement path="${slice.dir}" />
 	    </includepath>
-            <fileset dir=".">
+            <fileset dir="../../jdk/chat">
 		<include name="Chat.ice"/>
 		<include name="Router.ice"/>
 		<include name="Session.ice"/>
