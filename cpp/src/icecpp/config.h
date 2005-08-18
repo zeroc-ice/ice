@@ -12,9 +12,9 @@
 // configure script from the gcc-2.8.1 distribution.
 //
 
-#if defined(__linux) || defined(__FreeBSD__) || defined(__sun) || \
-    defined(__hpux) || defined(__APPLE__) || defined(_AIX) || \ 
-    defined(__osf1__)
+#if defined(__linux) || defined(__FreeBSD__) \
+    || defined(__sun) || defined(__hpux) || defined(__APPLE__) \
+    || defined(_AIX) || defined(__osf1__)
 #   define TIME_WITH_SYS_TIME 1
 #   define HAVE_BCMP 1
 #   define HAVE_BCOPY 1
