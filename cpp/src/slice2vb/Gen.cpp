@@ -4219,7 +4219,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out.inc();
 
 	_out << nl << "Dim __og As IceInternal.Outgoing = getOutgoing(\""
-	     << op->name() << "\", " << sliceModeToIceMode(op) << ", __context, __compress)";
+	     << op->name() << "\", " << sliceModeToIceMode(op) << ", __context)";
 	_out << nl << "Try";
 	_out.inc();
 	if(!inParams.empty())
