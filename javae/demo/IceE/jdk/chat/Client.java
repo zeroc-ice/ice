@@ -62,8 +62,6 @@ public class Client
 	        return 1;
 	    }
 
-	    System.out.println(pw + " " + id);
-
 	    try
 	    {
 	        session = ChatSessionPrxHelper.uncheckedCast(router.createSession(id, pw));
