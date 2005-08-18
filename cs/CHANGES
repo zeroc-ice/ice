@@ -1,6 +1,10 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Fixed a bug in the slice2cs code generator: if an operation
+  had a parameter named i or szx, incorrect code was generated
+  in some cases.
+
 - Fixed a bug in proxyToString() for bidirectional proxies.
 
 - Added ice_communicator() to proxies. This function returns
