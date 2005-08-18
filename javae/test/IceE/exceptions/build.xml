@@ -61,7 +61,7 @@
 	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="off"
 	    allowaccessmodification="on" printseeds="on">
 	    <injar file="tmp/${testname}_orig.jar"/>
-	    <outjar file="/tmp/${testname}.jar"/>
+	    <outjar file="tmp/${testname}.jar"/>
 	    <libraryjar refid="wtklibs"/>
 	    <keep access="public" extends="javax.microedition.midlet.MIDlet"/>
 	    <keepclasseswithmembernames>
