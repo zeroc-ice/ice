@@ -1,4 +1,4 @@
-This demo contains  client that communicates with the Glacier2 chat
+This demo contains a client that communicates with the Glacier2 chat
 demo provided in the full Ice distribution (demo/Glacier2/chat). You
 must build the Ice demo before you can run this demo.
 
@@ -15,6 +15,6 @@ Next, start the Glacier2 router:
 
 $ glacier2router --Ice.Config=config.glacier2
 
-Finally, start an Ice-E client. To start the command-line client, run
+Finally, start the Ice-E client:
 
 $ java Client
