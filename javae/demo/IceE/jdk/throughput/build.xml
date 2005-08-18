@@ -9,10 +9,10 @@
  **********************************************************************
 -->
 
-<project name="demo_IceE_throughput" default="all" basedir=".">
+<project name="demo_IceE_jdk_throughput" default="all" basedir=".">
 
     <!-- set global properties for this build -->
-    <property name="top.dir" value="../../.."/>
+    <property name="top.dir" value="../../../.."/>
 
     <!-- Include common definitions -->
     <import file="${top.dir}/config/common.xml"/>

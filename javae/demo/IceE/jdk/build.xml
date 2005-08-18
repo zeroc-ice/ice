@@ -1,0 +1,38 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice-E is licensed to you under the terms described in the
+ ICEE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="demo_IceE_jdk" default="all" basedir=".">
+
+    <!-- set global properties for this build -->
+    <property name="top.dir" value="../../.."/>
+
+    <!-- Include common definitions -->
+    <import file="${top.dir}/config/common.xml"/>
+  
+    <target name="jdk-demos">
+        <ant dir="bidir" inheritAll="false"/>
+        <ant dir="callback" inheritAll="false"/>
+        <ant dir="hello" inheritAll="false"/>
+        <ant dir="latency" inheritAll="false"/>
+        <ant dir="throughput" inheritAll="false"/>
+    </target>
+  
+    <target name="all" depends="jdk-demos"/>
+
+    <target name="clean">
+        <ant dir="bidir" target="clean" inheritAll="false"/>
+        <ant dir="callback" target="clean" inheritAll="false"/>
+        <ant dir="hello" target="clean" inheritAll="false"/>
+        <ant dir="latency" target="clean" inheritAll="false"/>
+        <ant dir="throughput" target="clean" inheritAll="false"/>
+    </target>
+
+</project>

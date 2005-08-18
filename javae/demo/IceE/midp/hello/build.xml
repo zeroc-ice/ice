@@ -9,10 +9,10 @@
  **********************************************************************
  -->
 
-<project name="demo_IceE_helloMIDlet" default="all" basedir=".">
+<project name="demo_IceE_midp_hello" default="all" basedir=".">
 
     <!-- set global properties for this build -->
-    <property name="top.dir" value="../../.."/>
+    <property name="top.dir" value="../../../.."/>
 
     <!-- Include common definitions -->
     <import file="${top.dir}/config/common.xml"/>
@@ -23,7 +23,7 @@
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
         <slice2javae outputdir="${generated.dir}">
-            <fileset dir="../hello" includes="Hello.ice"/>
+            <fileset dir="../../jdk/hello" includes="Hello.ice"/>
         </slice2javae>
     </target>
 

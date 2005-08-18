@@ -1,0 +1,47 @@
+JDK demos in this directory:
+
+- bidir
+
+  This demo shows how to use bi-directional connections for
+  callbacks. This is typically used if the server cannot open a
+  connection to the client to send callbacks, for example, because
+  firewalls block incoming connections to the client.
+
+- callback
+
+  A simple callback demo that illustrates how a client can pass a
+  proxy to a server, invoke an operation in the server, and the server
+  call back into an object provided by the client as part of that
+  invocation.
+
+- hello
+
+  This demo illustrates how to invoke ordinary (twoway) operations, as
+  well as how to invoke oneway operations and how to use batched
+  invocations.
+
+- latency
+
+  A simple latency test that measures the basic call dispatch delay of
+  Ice.
+
+- throughput
+
+  A simple throughput demo that allows you to send sequences of
+  various types between client and server and to measure the maximum
+  bandwidth that can be achieved using serialized synchronous
+  requests.
+
+J2ME demos in this directory:
+
+- chat
+
+  J2ME MIDlet that works with the Glacier2 chat demo found in the Ice
+  distribution.
+
+- helloMIDlet
+ 
+  This demo implements a simplified version of a hello client and
+  server that illustrates how to build and package a simple J2ME
+  MIDlet. 
+

@@ -11,35 +11,14 @@
 
 <project name="demo_IceE" default="all" basedir=".">
 
-    <!-- set global properties for this build -->
-    <property name="top.dir" value="../.."/>
-
-    <!-- Include common definitions -->
-    <import file="${top.dir}/config/common.xml"/>
-  
-    <target name="jdk-demos">
-        <ant dir="bidir" inheritAll="false"/>
-        <ant dir="callback" inheritAll="false"/>
-        <ant dir="hello" inheritAll="false"/>
-        <ant dir="latency" inheritAll="false"/>
-        <ant dir="throughput" inheritAll="false"/>
+    <target name="all">
+        <ant dir="jdk" inheritAll="false" />
+        <ant dir="midp" inheritAll="false" />
     </target>
-  
-    <target name="midp-demos" if="midp">
-        <ant dir="chat" inheritAll="false"/>
-        <ant dir="helloMIDlet" inheritAll="false"/>
-    </target>
-
-    <target name="all" depends="jdk-demos,midp-demos"/>
 
     <target name="clean">
-        <ant dir="bidir" target="clean" inheritAll="false"/>
-        <ant dir="callback" target="clean" inheritAll="false"/>
-        <ant dir="chat" target="clean" inheritAll="false"/>
-        <ant dir="hello" target="clean" inheritAll="false"/>
-        <ant dir="helloMIDlet" target="clean" inheritAll="false"/>
-        <ant dir="latency" target="clean" inheritAll="false"/>
-        <ant dir="throughput" target="clean" inheritAll="false"/>
+        <ant dir="jdk" target="clean" inheritAll="false" />
+        <ant dir="midp" target="clean" inheritAll="false" />
     </target>
 
 </project>
