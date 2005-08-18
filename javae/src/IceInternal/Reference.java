@@ -495,10 +495,10 @@ public abstract class Reference
         java.util.Enumeration e = endpoints.elements();
 	while(e.hasMoreElements())
 	{
-	    int index = r.nextInt() % endpoints.size();
+	    int index = Math.abs(r.nextInt() % endpoints.size());
 	    while(arr[index] != null)
 	    {
-		index = r.nextInt() % endpoints.size();
+		index = Math.abs(r.nextInt() % endpoints.size());
 	    }
 	    
 	    arr[index] = (IceInternal.Endpoint)e.nextElement();

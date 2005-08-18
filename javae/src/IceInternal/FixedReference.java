@@ -109,7 +109,7 @@ public class FixedReference extends Reference
 	//
 	// Choose a random connection
 	//
-	Ice.Connection connection = _fixedConnections[_rand.nextInt() % _fixedConnections.length];
+	Ice.Connection connection = _fixedConnections[Math.abs(_rand.nextInt() % _fixedConnections.length)];
 	if(IceUtil.Debug.ASSERT)
 	{
 	    IceUtil.Debug.Assert(connection != null);
