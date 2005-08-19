@@ -20,3 +20,6 @@ Finally, start the MIDlet. To run it in the WTK emulator, do the
 following:
 
 $ emulator -Xdescriptor:ChatDemo.jad
+
+In the login form, enter any name and password, followed by the
+host and port of the Glacier2 router.
