@@ -995,10 +995,10 @@ IceSSL::SslTransceiver::showSelectedCipherInfo(BIO* bio)
     cipher = SSL_get_current_cipher(_sslConnection);
 
     str = SSL_CIPHER_get_name(cipher);
-    BIO_printf(bio, "Cipher Version: %s\n", ((str != 0) ? str : "(NONE)"));
+    BIO_printf(bio, "Cipher Name: %s\n", ((str != 0) ? str : "(NONE)"));
 
     str = SSL_CIPHER_get_version(cipher);
-    BIO_printf(bio, "Cipher Name:    %s\n", ((str != 0) ? str : "(NONE)"));
+    BIO_printf(bio, "Cipher Version:    %s\n", ((str != 0) ? str : "(NONE)"));
 }
 
 void
