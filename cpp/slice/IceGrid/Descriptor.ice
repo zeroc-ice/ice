@@ -185,6 +185,19 @@ class CommunicatorDescriptor
     string description;
 };
 
+struct PatchDescriptor
+{
+    /** The proxy of the IcePatch2 server. */
+    string proxy;
+
+    /** The destination directory. */
+    string destination;
+
+    /** The source directories. */
+    Ice::StringSeq sources;
+};
+sequence<PatchDescriptor> PatchDescriptorSeq;
+
 /**
  *
  * An &Ice; server descriptor.
@@ -250,6 +263,13 @@ class ServerDescriptor extends CommunicatorDescriptor
      *
      **/
     string deactivationTimeout;
+
+    /**
+     *
+     * The patch descriptors.
+     *
+     **/
+    PatchDescriptorSeq patchs;
 };
 dictionary<string, ServerDescriptor> ServerDescriptorDict;
 ["java:type:java.util.LinkedList"] sequence<ServerDescriptor> ServerDescriptorSeq;

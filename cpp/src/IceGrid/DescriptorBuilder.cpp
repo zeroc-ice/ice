@@ -437,6 +437,21 @@ ServerDescriptorBuilder::addServiceInstance(const XmlAttributesHelper& desc)
     throw "<service-instance> element can only be a child of an <icebox> element";
 }
 
+void
+ServerDescriptorBuilder::addPatch(const XmlAttributesHelper& attrs)
+{
+    PatchDescriptor desc;
+    desc.proxy = attrs("proxy", "");
+    desc.destination = attrs("destination", "");
+    _descriptor->patchs.push_back(desc);
+}
+
+void
+ServerDescriptorBuilder::addPatchDirectory(const string& directory)
+{
+    _descriptor->patchs.back().sources.push_back(directory);
+}
+
 IceBoxDescriptorBuilder::IceBoxDescriptorBuilder(const XmlAttributesHelper& attrs)
 {
     init(new IceBoxDescriptor(), attrs);

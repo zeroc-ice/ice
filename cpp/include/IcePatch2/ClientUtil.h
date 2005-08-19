@@ -47,6 +47,7 @@ class ICE_PATCH2_API Patcher : public IceUtil::Shared
 public:
 
     Patcher(const Ice::CommunicatorPtr&, const PatcherFeedbackPtr&);
+    Patcher(const FileServerPrx&, const PatcherFeedbackPtr&, const std::string&, bool, Ice::Int, Ice::Int);
     virtual ~Patcher();
 
     //
@@ -68,6 +69,7 @@ public:
 
 private:
 
+    void init(const FileServerPrx&);
     bool removeFiles(const FileInfoSeq&);
     bool updateFiles(const FileInfoSeq&);
     bool updateFilesInternal(const FileInfoSeq&, const DecompressorPtr&);

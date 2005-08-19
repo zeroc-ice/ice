@@ -747,6 +747,12 @@ ServerHelper::operator==(const ServerHelper& helper) const
 	return false;
     }
 
+    if(set<PatchDescriptor>(_desc->patchs.begin(), _desc->patchs.end()) !=
+       set<PatchDescriptor>(helper._desc->patchs.begin(), helper._desc->patchs.end()))
+    {
+	return false;
+    }
+
     return true;
 }
 
@@ -778,6 +784,17 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance, const Resolve
     for(Ice::StringSeq::const_iterator p = _desc->envs.begin(); p != _desc->envs.end(); ++p)
     {
 	instance->envs.push_back(resolve(*p, "environment variable"));
+    }
+    for(PatchDescriptorSeq::const_iterator p = _desc->patchs.begin(); p != _desc->patchs.end(); ++p)
+    {
+	PatchDescriptor patch;
+	patch.destination = resolve(p->destination, "patch destination directory");
+	patch.proxy = resolve(p->proxy, "patch server proxy");
+	for(Ice::StringSeq::const_iterator q = p->sources.begin(); q != p->sources.end(); ++q)
+	{
+	    patch.sources.push_back(resolve(*q, "patch source directory"));
+	}
+	instance->patchs.push_back(patch);
     }
 }
 
@@ -836,6 +853,17 @@ ServerHelper::printImpl(Output& out, const string& application, const string& no
     if(!_desc->envs.empty())
     {
 	out << nl << "envs = '" << toString(_desc->envs) << "'";
+    }
+    if(!_desc->patchs.empty())
+    {
+	for(PatchDescriptorSeq::const_iterator p = _desc->patchs.begin(); p != _desc->patchs.end(); ++p)
+	{
+	    out << nl << "patch `" << p->destination << "'";
+	    out << sb;
+	    out << nl << "proxy = '" << p->proxy << "'";
+	    out << nl << "sources = " << toString(p->sources);
+	    out << eb;
+	}
     }
     CommunicatorHelper::print(out);
 }

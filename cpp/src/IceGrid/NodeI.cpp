@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <Ice/ProtocolPluginFacade.h> // Just to get the hostname
 #include <IcePatch2/Util.h>
+#include <IcePatch2/ClientUtil.h>
 #include <IceGrid/NodeI.h>
 #include <IceGrid/Activator.h>
 #include <IceGrid/ServerI.h>
@@ -20,6 +21,151 @@
 using namespace std;
 using namespace IcePatch2;
 using namespace IceGrid;
+
+class LogPatcherFeedback : public PatcherFeedback
+{
+public:
+
+    LogPatcherFeedback(const TraceLevelsPtr& traceLevels) : 
+	_traceLevels(traceLevels),
+	_startedPatch(false),
+	_lastProgress(0)
+    {
+    }
+
+    void 
+    setPatchingPath(const string& path)
+    {
+	_path = path;
+	_startedPatch = false;
+	_lastProgress = 0;
+    }
+
+    virtual bool
+    noFileSummary(const string& reason)
+    {
+	if(_traceLevels->patch > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+	    out << "Can't load summary file (will perform a thorough patch):\n" << reason;
+	}
+	return true;
+    }
+
+    virtual bool
+    checksumStart()
+    {
+	if(_traceLevels->patch > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+	    out << "Started checksum calculation";
+	}
+	return true;
+    }
+
+    virtual bool
+    checksumProgress(const string& path)
+    {
+	if(_traceLevels->patch > 2)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+	    out << "Calculating checksum for " << getBasename(path);
+	}
+	return true;
+    }
+
+    virtual bool
+    checksumEnd()
+    {
+	if(_traceLevels->patch > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+	    out << "Finished checksum calculation";
+	}
+	return true;
+    }
+
+    virtual bool
+    fileListStart()
+    {
+	if(_traceLevels->patch > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+	    out << "Getting list of file to patch";
+	}
+	return true;
+    }
+
+    virtual bool
+    fileListProgress(Ice::Int percent)
+    {
+	return true;
+    }
+
+    virtual bool
+    fileListEnd()
+    {
+	if(_traceLevels->patch > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+	    out << "Getting list of file to patch completed";
+	}
+	return true;
+    }
+
+    virtual bool
+    patchStart(const string& path, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
+    {
+	if(_traceLevels->patch > 1 && totalSize > (1024 * 1024))
+	{
+	    int progress = static_cast<int>(static_cast<double>(totalProgress) / totalSize * 100.0);
+	    progress /= 5;
+	    progress *= 5;
+	    if(progress != _lastProgress)
+	    {
+		_lastProgress = progress;
+		Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+		out << (_path.empty() ? "Downloaded " : (_path + ": downloaded " ));
+		out << progress << "% (" << totalProgress << '/' << totalSize << ')';
+	    }
+	}
+	else if(_traceLevels->patch > 0)
+	{
+	    if(!_startedPatch)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+		int roundedSize = totalSize / 1024;
+		if(roundedSize == 0 && totalSize > 0)
+		{
+		    roundedSize = 1;
+		}
+		out << (_path.empty() ? "Downloading " : (_path + ": downloading " )) << roundedSize << "KB";
+		_startedPatch = true;
+	    }
+	}
+	
+	return true;
+    }
+
+    virtual bool
+    patchProgress(Ice::Long progress, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
+    {
+	return true;
+    }
+
+    virtual bool
+    patchEnd()
+    {	
+	return true;
+    }
+
+private:
+
+    const TraceLevelsPtr _traceLevels;
+    bool _startedPatch;
+    int _lastProgress;
+    string _path;
+};
 
 NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
 	     const ActivatorPtr& activator, 
@@ -67,6 +213,15 @@ NodeI::loadServer(const ServerDescriptorPtr& desc,
 	current.adapter->add(servant, id);
     }
     proxy->load(desc, adapters, activationTimeout, deactivationTimeout);
+
+    for(PatchDescriptorSeq::const_iterator p = desc->patchs.begin(); p != desc->patchs.end(); ++p)
+    {
+	PatchDirectory& patch = _directories[p->destination];
+	patch.proxy = _adapter->getCommunicator()->stringToProxy(p->proxy);
+	patch.directories.insert(p->sources.begin(), p->sources.end());
+	patch.servers.insert(ServerIPtr::dynamicCast(servant));
+    }
+    
     return proxy;
 }
 
@@ -80,7 +235,8 @@ NodeI::destroyServer(const string& name, const Ice::Current& current)
     id.category = "IceGridServer";
     id.name = name;
 
-    if(!current.adapter->find(id))
+    Ice::ObjectPtr servant = current.adapter->find(id);
+    if(!servant)
     {
 	try
 	{
@@ -97,7 +253,21 @@ NodeI::destroyServer(const string& name, const Ice::Current& current)
 	ServerPrx proxy = ServerPrx::uncheckedCast(current.adapter->createProxy(id));
 	try
 	{
+	    ServerDescriptorPtr desc = proxy->getDescriptor();
 	    proxy->destroy();
+	    for(PatchDescriptorSeq::const_iterator p = desc->patchs.begin(); p != desc->patchs.end(); ++p)
+	    {
+		PatchDirectory& patch = _directories[p->destination];
+		for(Ice::StringSeq::const_iterator q = p->sources.begin(); q != p->sources.end(); ++q)
+		{
+		    patch.directories.erase(*q);
+		}
+		patch.servers.erase(ServerIPtr::dynamicCast(servant));
+		if(patch.servers.empty())
+		{
+		    _directories.erase(p->destination);
+		}
+	    }
 	}
 	catch(const Ice::LocalException&)
 	{
@@ -121,6 +291,93 @@ void
 NodeI::shutdown(const Ice::Current&) const
 {
     _activator->shutdown();
+}
+
+void
+NodeI::patch(const ServerIPtr& server, const string& directory) const
+{
+    Lock sync(*this);
+    map<string, PatchDirectory>::const_iterator p = _directories.find(directory);
+    assert(p != _directories.end());
+    
+    const PatchDirectory& patch = p->second;
+
+    for(set<ServerIPtr>::const_iterator p = patch.servers.begin(); p != patch.servers.end(); ++p)
+    {
+	if(*p != server)
+	{
+	    (*p)->startUpdating();
+	}
+    }
+
+    try
+    {
+	FileServerPrx server = FileServerPrx::checkedCast(patch.proxy);
+	if(!server)
+	{
+	    throw "proxy `" + getCommunicator()->proxyToString(patch.proxy) + "' is not a file server.";
+	}
+
+	PatcherFeedbackPtr feedback = new LogPatcherFeedback(_traceLevels);
+	PatcherPtr patcher = new Patcher(server, feedback, directory, false, 100, 0);
+	bool aborted = !patcher->prepare();
+	if(!aborted)
+	{
+	    if(patch.directories.empty())
+	    {
+		aborted = !patcher->patch("");
+	    }
+	    else
+	    {
+		vector<string> sources;
+		copy(patch.directories.begin(), patch.directories.end(), back_inserter(sources)); 
+		for(vector<string>::const_iterator p = sources.begin(); p != sources.end(); ++p)
+		{
+		    dynamic_cast<LogPatcherFeedback*>(feedback.get())->setPatchingPath(*p);
+		    if(!patcher->patch(*p))
+		    {
+			aborted = true;
+			break;
+		    }
+		}
+	    }
+	}
+	
+	if(!aborted)
+	{
+	    patcher->finish();
+	}
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	ostringstream os;
+	os << "patch for `" + directory + "' failed:\n";
+	os << ex;
+	_traceLevels->logger->warning(os.str());
+    }
+    catch(const string& ex)
+    {
+	_traceLevels->logger->error("patch for `" + directory + "' failed:\n" + ex);
+    }
+    catch(...)
+    {
+	for(set<ServerIPtr>::const_iterator p = patch.servers.begin(); p != patch.servers.end(); ++p)
+	{
+	    if(*p != server)
+	    {
+		(*p)->finishUpdating();
+	    }
+	}
+	throw;
+    }
+    
+    for(set<ServerIPtr>::const_iterator p = patch.servers.begin(); p != patch.servers.end(); ++p)
+    {
+	if(*p != server)
+	{
+	    (*p)->finishUpdating();
+	}
+    }
 }
 
 Ice::CommunicatorPtr

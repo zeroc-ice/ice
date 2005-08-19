@@ -147,52 +147,6 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
     _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100)),
     _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.Remove", 1))
 {
-    if(_dataDir.empty())
-    {
-	throw string("no data directory specified");
-    }
-
-    //
-    // Make sure that _chunkSize doesn't exceed MessageSizeMax, otherwise
-    // it won't work at all.
-    //
-    int sizeMax = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
-    if(_chunkSize < 1)
-    {
-	const_cast<Int&>(_chunkSize) = 1;
-    }
-    else if(_chunkSize > sizeMax)
-    {
-        const_cast<Int&>(_chunkSize) = sizeMax;
-    }
-    if(_chunkSize == sizeMax)
-    {
-        const_cast<Int&>(_chunkSize) = _chunkSize * 1024 - 512; // Leave some headroom for protocol header.
-    }
-    else
-    {
-	const_cast<Int&>(_chunkSize) *= 1024;
-    }
-
-    if(!isAbsolute(_dataDir))
-    {
-#ifdef _WIN32
-	char cwd[_MAX_PATH];
-	if(_getcwd(cwd, _MAX_PATH) == NULL)
-	{
-	    throw "cannot get the current directory:\n" + lastError();
-	}
-#else
-	char cwd[PATH_MAX];
-	if(getcwd(cwd, PATH_MAX) == NULL)
-	{
-	    throw "cannot get the current directory:\n" + lastError();
-	}
-#endif
-    
-	const_cast<string&>(_dataDir) = simplify(string(cwd) + '/' + _dataDir);
-    }
-	
     PropertiesPtr properties = communicator->getProperties();
 
     const char* endpointsProperty = "IcePatch2.Endpoints";
@@ -206,12 +160,28 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
     const Identity id = stringToIdentity(properties->getPropertyWithDefault(idProperty, "IcePatch2/server"));
     
     ObjectPrx serverBase = communicator->stringToProxy(identityToString(id) + ':' + endpoints);
-    const_cast<FileServerPrx&>(_serverCompress) = FileServerPrx::checkedCast(serverBase->ice_compress(true));
-    if(!_serverCompress)
+    FileServerPrx server = FileServerPrx::checkedCast(serverBase);
+    if(!server)
     {
 	throw "proxy `" + identityToString(id) + ':' + endpoints + "' is not a file server.";
     }
-    const_cast<FileServerPrx&>(_serverNoCompress) = FileServerPrx::checkedCast(_serverCompress->ice_compress(false));
+
+    init(server);
+}
+
+IcePatch2::Patcher::Patcher(const FileServerPrx& server,
+			    const PatcherFeedbackPtr& feedback,
+			    const string& dataDir,
+			    bool thorough,
+			    Ice::Int chunkSize,
+			    Ice::Int remove) :
+    _feedback(feedback),
+    _dataDir(simplify(dataDir)),
+    _thorough(thorough),
+    _chunkSize(chunkSize),
+    _remove(remove)
+{
+    init(server);
 }
 
 IcePatch2::Patcher::~Patcher()
@@ -531,6 +501,59 @@ IcePatch2::Patcher::finish()
     _log.close();
 
     saveFileInfoSeq(_dataDir, _localFiles);
+}
+
+void
+IcePatch2::Patcher::init(const FileServerPrx& server)
+{
+    if(_dataDir.empty())
+    {
+	throw string("no data directory specified");
+    }
+
+    //
+    // Make sure that _chunkSize doesn't exceed MessageSizeMax, otherwise
+    // it won't work at all.
+    //
+    int sizeMax = server->ice_communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
+    if(_chunkSize < 1)
+    {
+	const_cast<Int&>(_chunkSize) = 1;
+    }
+    else if(_chunkSize > sizeMax)
+    {
+        const_cast<Int&>(_chunkSize) = sizeMax;
+    }
+    if(_chunkSize == sizeMax)
+    {
+        const_cast<Int&>(_chunkSize) = _chunkSize * 1024 - 512; // Leave some headroom for protocol header.
+    }
+    else
+    {
+	const_cast<Int&>(_chunkSize) *= 1024;
+    }
+
+    if(!isAbsolute(_dataDir))
+    {
+#ifdef _WIN32
+	char cwd[_MAX_PATH];
+	if(_getcwd(cwd, _MAX_PATH) == NULL)
+	{
+	    throw "cannot get the current directory:\n" + lastError();
+	}
+#else
+	char cwd[PATH_MAX];
+	if(getcwd(cwd, PATH_MAX) == NULL)
+	{
+	    throw "cannot get the current directory:\n" + lastError();
+	}
+#endif
+    
+	const_cast<string&>(_dataDir) = simplify(string(cwd) + '/' + _dataDir);
+    }
+	
+    const_cast<FileServerPrx&>(_serverCompress) = FileServerPrx::uncheckedCast(server->ice_compress(true));
+    const_cast<FileServerPrx&>(_serverNoCompress) = FileServerPrx::uncheckedCast(server->ice_compress(false));
 }
 
 bool

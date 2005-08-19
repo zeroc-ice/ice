@@ -48,6 +48,7 @@ yyerror(const char* s)
 %token ICE_GRID_STRING
 %token ICE_GRID_START
 %token ICE_GRID_STOP
+%token ICE_GRID_PATCH
 %token ICE_GRID_SIGNAL
 %token ICE_GRID_STDOUT
 %token ICE_GRID_STDERR
@@ -169,6 +170,10 @@ command
 | ICE_GRID_SERVER ICE_GRID_STOP strings ';'
 {
     parser->stopServer($3);
+}
+| ICE_GRID_SERVER ICE_GRID_PATCH strings ';'
+{
+    parser->patchServer($3);
 }
 | ICE_GRID_SERVER ICE_GRID_SIGNAL strings ';'
 {

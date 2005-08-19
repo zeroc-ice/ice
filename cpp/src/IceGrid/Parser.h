@@ -86,6 +86,7 @@ public:
     void removeServer(const std::list<std::string>&);
     void startServer(const std::list<std::string>&);
     void stopServer(const std::list<std::string>&);
+    void patchServer(const std::list<std::string>&);
     void signalServer(const std::list<std::string>&);
     void writeMessage(const std::list<std::string>&, int fd);
     void describeServer(const std::list<std::string>&);

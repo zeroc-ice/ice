@@ -68,6 +68,7 @@ private:
     bool _isTopLevel;
     bool _inAdapter;
     bool _inDbEnv;
+    bool _inPatch;
 };
 
 }
@@ -324,6 +325,15 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		_currentCommunicator->addObject(attributes);
 	    }
 	}
+	else if(name == "patch")
+	{
+	    if(!_currentServer.get() || _currentServer.get() != _currentCommunicator)
+	    {
+		error("the <patch> element can only be a child of a <server> or <icebox> element");
+	    }
+	    _currentServer->addPatch(attrs);
+	    _inPatch = true;
+	}
 	else if(name == "dbenv")
 	{
 	    if(!_currentCommunicator)
@@ -449,6 +459,14 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	}
 	_currentServer->addEnv(elementValue());
     }
+    else if(name == "directory")
+    {
+	if(!_inPatch)
+	{
+		error("the <directory> element can only be a child of a <patch> element");
+	}
+	_currentServer->addPatchDirectory(elementValue());
+    }
     else if(name == "adapter")
     {
 	_inAdapter = false;
@@ -460,6 +478,10 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     else if(name == "dbenv")
     {
 	_inDbEnv = false;
+    }
+    else if(name == "patch")
+    {
+	_inPatch = false;
     }
 
     _elements.pop();

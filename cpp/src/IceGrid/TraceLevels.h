@@ -42,6 +42,9 @@ public:
     const int activator;
     const char* activatorCat;
 
+    const int patch;
+    const char* patchCat;
+
     const Ice::LoggerPtr logger;
 };
 

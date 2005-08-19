@@ -26,6 +26,8 @@ TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::Logger
     objectCat("Object"),
     activator(0),
     activatorCat("Activator"),
+    patch(0),
+    patchCat("Patch"),
     logger(theLogger)
 {
     string keyBase = isNode ? "IceGrid.Node.Trace." : "IceGrid.Registry.Trace.";
@@ -35,6 +37,7 @@ TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::Logger
     const_cast<int&>(adapter) = properties->getPropertyAsInt(keyBase + adapterCat);
     const_cast<int&>(object) = properties->getPropertyAsInt(keyBase + objectCat);
     const_cast<int&>(activator) = properties->getPropertyAsInt(keyBase + activatorCat);
+    const_cast<int&>(patch) = properties->getPropertyAsInt(keyBase + patchCat);
 }
 
 TraceLevels::~TraceLevels()

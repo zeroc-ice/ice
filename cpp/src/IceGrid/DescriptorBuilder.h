@@ -159,6 +159,8 @@ public:
     virtual void addEnv(const std::string&);
     virtual void addService(const ServiceDescriptorPtr&);
     virtual void addServiceInstance(const XmlAttributesHelper&);
+    virtual void addPatch(const XmlAttributesHelper&);
+    virtual void addPatchDirectory(const std::string&);
 
     const ServerDescriptorPtr& getDescriptor() const { return _descriptor; } 
 

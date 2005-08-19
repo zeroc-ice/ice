@@ -131,6 +131,14 @@ interface Server
 
     /**
      *
+     * Patch a server. This methods does nothing if the server has no
+     * data to patch.
+     * 
+     **/
+    void patch();
+
+    /**
+     *
      * Send signal to the server
      *
      **/

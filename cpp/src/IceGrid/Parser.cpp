@@ -89,6 +89,7 @@ Parser::usage()
 	"server pid ID               Get server ID pid.\n"
 	"server start ID             Start server ID.\n"
 	"server stop ID              Stop server ID.\n"
+	"server patch ID             Patch server ID.\n"
         "server signal ID SIGNAL     Send SIGNAL (e.g. SIGTERM or 15) to server ID.\n"
         "server stdout ID MESSAGE    Write MESSAGE on server ID's stdout.\n"
 	"server stderr ID MESSAGE    Write MESSAGE on server ID's stderr.\n"
@@ -686,6 +687,27 @@ Parser::stopServer(const list<string>& args)
     try
     {
 	_admin->stopServer(args.front());
+    }
+    catch(const Ice::Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+Parser::patchServer(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`server patch' requires exactly one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	_admin->patchServer(args.front());
     }
     catch(const Ice::Exception& ex)
     {

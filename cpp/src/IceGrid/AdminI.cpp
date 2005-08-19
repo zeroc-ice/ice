@@ -160,6 +160,24 @@ AdminI::stopServer(const string& id, const Current&)
 }
 
 void
+AdminI::patchServer(const string& id, const Current&)
+{
+    ServerPrx server = _database->getServer(id);
+    try
+    {
+	server->patch();
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+	throw ServerNotExistException();
+    }
+    catch(const Ice::LocalException&)
+    {
+	throw NodeUnreachableException();
+    }
+}
+
+void
 AdminI::sendSignal(const string& id, const string& signal, const Current&)
 {
     ServerPrx server = _database->getServer(id);

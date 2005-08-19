@@ -22,6 +22,9 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 class Activator;
 typedef IceUtil::Handle<Activator> ActivatorPtr;
 
+class ServerI;
+typedef IceUtil::Handle<ServerI> ServerIPtr;
+
 class NodeI : public Node, public IceUtil::Mutex
 {
 public:
@@ -35,6 +38,8 @@ public:
     virtual std::string getName(const Ice::Current& = Ice::Current()) const;
     virtual std::string getHostname(const Ice::Current& = Ice::Current()) const;
     virtual void shutdown(const Ice::Current&) const;
+
+    virtual void patch(const ServerIPtr&, const std::string&) const;
 
     WaitQueuePtr getWaitQueue() const;
     Ice::CommunicatorPtr getCommunicator() const;
@@ -68,6 +73,14 @@ private:
     NodeObserverPrx _observer;
     IceUtil::Mutex _sessionMutex;
     NodeSessionPrx _session;
+
+    struct PatchDirectory
+    {
+	Ice::ObjectPrx proxy;
+	std::multiset<std::string> directories;
+	std::set<ServerIPtr> servers;
+    };
+    std::map<std::string, PatchDirectory> _directories;
 };
 typedef IceUtil::Handle<NodeI> NodeIPtr;
 

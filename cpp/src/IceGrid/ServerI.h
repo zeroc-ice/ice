@@ -37,7 +37,8 @@ public:
 	Active,
 	Deactivating,
 	Destroying,
-	Destroyed
+	Destroyed,
+	Updating
     };
 
     ServerI(const NodeIPtr&, const ServerPrx&, const std::string&, const std::string&, int);
@@ -45,7 +46,8 @@ public:
 
     virtual void load(const ServerDescriptorPtr&, StringAdapterPrxDict&, int&, int&, const Ice::Current&);
     virtual void start_async(const AMD_Server_startPtr&, const ::Ice::Current&);
-    virtual void stop(const ::Ice::Current&);
+    virtual void stop(const ::Ice::Current& = Ice::Current());
+    virtual void patch(const ::Ice::Current&);
     virtual void sendSignal(const std::string&, const ::Ice::Current&);
     virtual void writeMessage(const std::string&, Ice::Int, const ::Ice::Current&);
     virtual void destroy(const ::Ice::Current&);
@@ -65,10 +67,13 @@ public:
     void activationFailed(bool);
     void addDynamicInfo(ServerDynamicInfoSeq&, AdapterDynamicInfoSeq&) const;
 
+    void startUpdating();
+    void finishUpdating();
+
 private:
     
     void checkActivation();
-    void stopInternal(bool, const Ice::Current&);
+    void stopInternal(bool);
     void setState(InternalServerState);
     void setStateNoSync(InternalServerState);
     

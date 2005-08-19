@@ -294,6 +294,21 @@ interface Admin
     void stopServer(string id)
 	throws ServerNotExistException, NodeUnreachableException;
 
+    /**
+     *
+     * Patch a server.
+     *
+     * @param id The id of the server.
+     *
+     * @throws ServerNotExistException Raised if the server is not
+     * found.
+     *
+     * @throws NodeUnreachableException Raised if the node could not be
+     * reached.
+     *
+     **/
+    void patchServer(string id)
+	throws ServerNotExistException, NodeUnreachableException;
 
     /**
      *

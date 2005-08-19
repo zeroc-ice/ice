@@ -86,40 +86,29 @@ void
 ServerI::load(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapters, int& activationTimeout,
 	      int& deactivationTimeout, const Ice::Current& current)
 {
-    while(true)
-    {
-	{
-	    Lock sync(*this);
-	    if(_state == ServerI::Destroying || _state == ServerI::Destroyed)
-	    {
-		Ice::ObjectNotExistException ex(__FILE__,__LINE__);
-		ex.id = _this->ice_getIdentity();
-		throw ex;
-	    }
-	    else if(_state == ServerI::Inactive)
-	    {
-		//
-		// If the server is inactive we can update its descriptor and its directory.
-		//
-		try
-		{
-		    update(descriptor, adapters, activationTimeout, deactivationTimeout, current);
-		}
-		catch(const string& msg)
-		{
-		    DeploymentException ex;
-		    ex.reason = msg;
-		    throw ex;
-		}
-		return;
-	    }
-	}
+    startUpdating();
 
-	//
-	// If the server is active we stop it and try again to update it.
-	//
-	stop(current);
+    //
+    // If the server is inactive we can update its descriptor and its directory.
+    //
+    try
+    {
+	update(descriptor, adapters, activationTimeout, deactivationTimeout, current);
     }
+    catch(const string& msg)
+    {
+	finishUpdating();
+	DeploymentException ex;
+	ex.reason = msg;
+	throw ex;
+    }
+    catch(...)
+    {
+	finishUpdating();
+	throw;
+    }
+
+    finishUpdating();
 }
 
 void
@@ -129,7 +118,7 @@ ServerI::start_async(const AMD_Server_startPtr& amdCB, const Ice::Current& curre
 }
 
 void
-ServerI::stop(const Ice::Current& current)
+ServerI::stop(const Ice::Current&)
 {
     while(true)
     {
@@ -137,6 +126,7 @@ ServerI::stop(const Ice::Current& current)
 	switch(_state)
 	{
 	case ServerI::Inactive:
+	case ServerI::Updating:
 	{
 	    return;
 	}
@@ -165,7 +155,30 @@ ServerI::stop(const Ice::Current& current)
 	break;
     }
 
-    stopInternal(false, current);
+    stopInternal(false);
+}
+
+void
+ServerI::patch(const ::Ice::Current& current)
+{
+    //
+    // Patch the server data.
+    //
+    startUpdating();
+    try
+    {
+	ServerDescriptorPtr desc = getDescriptor(current);
+	for(PatchDescriptorSeq::const_iterator p = desc->patchs.begin(); p != desc->patchs.end(); ++p)
+	{
+	    _node->patch(this, p->destination);
+	}
+    }
+    catch(...)
+    {
+	finishUpdating();
+	throw;
+    }
+    finishUpdating();
 }
 
 void
@@ -214,6 +227,7 @@ ServerI::destroy(const Ice::Current& current)
 	}
 	case ServerI::Activating:
 	case ServerI::Deactivating:
+	case ServerI::Updating:
 	{
 	    wait(); // TODO: Timeout?
 	    continue;
@@ -233,7 +247,7 @@ ServerI::destroy(const Ice::Current& current)
 
     if(stop)
     {
-	stopInternal(true, current);
+	stopInternal(true);
     }
 
     //
@@ -280,6 +294,7 @@ ServerI::terminated(const Ice::Current& current)
 	switch(_state)
 	{
 	case ServerI::Inactive:
+	case ServerI::Updating:
 	{
 	    assert(false);
 	}
@@ -416,6 +431,7 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
 	}
 	case ServerI::Activating:
 	case ServerI::Deactivating:
+	case ServerI::Updating:
 	{
 	    wait(); // TODO: Timeout?
 	    continue;
@@ -596,6 +612,46 @@ ServerI::addDynamicInfo(ServerDynamicInfoSeq& serverInfos, AdapterDynamicInfoSeq
 }
 
 void
+ServerI::startUpdating()
+{
+    while(true)
+    {
+	{
+	    Lock sync(*this);
+	    if(_state == ServerI::Destroying || _state == ServerI::Destroyed)
+	    {
+		Ice::ObjectNotExistException ex(__FILE__,__LINE__);
+		ex.id = _this->ice_getIdentity();
+		throw ex;
+	    }
+	    else if(_state == ServerI::Updating)
+	    {
+		wait(); // Only one update at a time!
+	    }
+	    else if(_state == ServerI::Inactive)
+	    {
+		_state = ServerI::Updating;
+		return;
+	    }
+	}
+
+	//
+	// If the server is active we stop it and try again to update it.
+	//
+	stop();
+    }
+}
+
+void
+ServerI::finishUpdating()
+{
+    Lock sync(*this);
+    assert(_state == ServerI::Updating);
+    _state = ServerI::Inactive;
+    notifyAll();
+}
+
+void
 ServerI::checkActivation()
 {
     //assert(locked());
@@ -615,7 +671,7 @@ ServerI::checkActivation()
 }
 
 void
-ServerI::stopInternal(bool kill, const Ice::Current& current)
+ServerI::stopInternal(bool kill)
 {
     Ice::ProcessPrx process;
     if(!kill)
@@ -818,6 +874,7 @@ void
 ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapters, int& activationTimeout,
 		int& deactivationTimeout, const Ice::Current& current)
 {
+    Lock sync(*this);
     _desc = descriptor;
     _serverDir = _serversDir + "/" + descriptor->id;
     _activation = descriptor->activation  == "on-demand" ? OnDemand : Manual;

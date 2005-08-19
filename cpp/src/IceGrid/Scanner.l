@@ -149,6 +149,10 @@ NL	[\n]
     return ICE_GRID_START;
 }
 
+"patch" {
+    return ICE_GRID_PATCH;
+}
+
 "stop" {
     return ICE_GRID_STOP;
 }
