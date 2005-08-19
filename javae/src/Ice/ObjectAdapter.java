@@ -834,8 +834,8 @@ public final class ObjectAdapter
     private Communicator _communicator;
     private IceInternal.ServantManager _servantManager;
     private boolean _printAdapterReadyDone;
-    final private String _name;
-    final private String _id;
+    private /*final*/ String _name;
+    private /*final*/ String _id;
     private java.util.Vector _incomingConnectionFactories = new java.util.Vector();
     private java.util.Vector _routerEndpoints = new java.util.Vector();
     private java.util.Vector _publishedEndpoints;

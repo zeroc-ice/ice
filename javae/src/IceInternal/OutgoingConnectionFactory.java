@@ -516,7 +516,7 @@ public final class OutgoingConnectionFactory
 	//
     }
 
-    private final Instance _instance;
+    private /*final*/ Instance _instance;
     private boolean _destroyed;
     private java.util.Hashtable _connections = new java.util.Hashtable();
     private java.util.Hashtable _pending = new java.util.Hashtable();

@@ -58,5 +58,9 @@ public interface ObjectPrx
 
     Connection ice_connection();
 
-    boolean equals(java.lang.Object r);
+    //
+    // javac 1.1 emits a bogus error about this method causing ambiguity with
+    // the declaration in java.lang.Object.
+    //
+    //boolean equals(java.lang.Object r);
 }

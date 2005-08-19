@@ -151,9 +151,9 @@ public final class RouterInfo
         return _adapter;
     }
 
-    private final Ice.RouterPrx _router;
+    private /*final*/ Ice.RouterPrx _router;
     private Ice.ObjectPrx _clientProxy;
     private Ice.ObjectPrx _serverProxy;
-    private final Ice.RoutingTable _routingTable;
+    private /*final*/ Ice.RoutingTable _routingTable;
     private Ice.ObjectAdapter _adapter;
 }

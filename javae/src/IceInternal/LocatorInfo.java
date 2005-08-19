@@ -294,8 +294,8 @@ public final class LocatorInfo
 	ref.getInstance().logger().trace(ref.getInstance().traceLevels().locationCat, s.toString());
     }
 
-    private final Ice.LocatorPrx _locator;
+    private /*final*/ Ice.LocatorPrx _locator;
     private Ice.LocatorRegistryPrx _locatorRegistry;
-    private final LocatorTable _table;
+    private /*final*/ LocatorTable _table;
 }
 

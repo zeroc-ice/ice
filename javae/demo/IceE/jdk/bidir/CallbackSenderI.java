@@ -54,10 +54,10 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 	    {
 		++_num;
 
-		java.util.Iterator p = _clients.iterator();
-		while(p.hasNext())
+		int i = 0;
+		while(i < _clients.size())
 		{
-		    CallbackReceiverPrx r = (CallbackReceiverPrx)p.next();
+		    CallbackReceiverPrx r = (CallbackReceiverPrx)_clients.elementAt(i);
 		    try
 		    {
 			r.callback(_num);
@@ -66,8 +66,10 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 		    {
 			System.out.println("removing client `" + Ice.Util.identityToString(r.ice_getIdentity()) + "':");
 			ex.printStackTrace();
-			p.remove();
+			_clients.removeElementAt(i);
+			continue;
 		    }
+		    ++i;
 		}
 	    }
 	}
