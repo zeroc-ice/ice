@@ -279,7 +279,7 @@ public final class IncomingConnectionFactory
 		//
 		try
 		{
-		    _threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory();
+		    _threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory(this);
 		    _threadPerIncomingConnectionFactory.start();
 		}
 		catch(java.lang.Exception ex)
@@ -402,21 +402,21 @@ public final class IncomingConnectionFactory
 	notifyAll();
     }
 
-    private void
+    public void
     warning(Ice.LocalException ex)
     {
         String s = "connection exception:\n" + ex.toString() + '\n' + _acceptor.toString();
         _instance.logger().warning(s);
     }
 
-    private void
+    public void
     error(String msg, Exception ex)
     {
 	String s = msg + ":\n" + toString() + ex.toString();
 	_instance.logger().error(s);
     }
 
-    private void
+    public void
     run()
     {
 	if(IceUtil.Debug.ASSERT)
@@ -547,18 +547,25 @@ public final class IncomingConnectionFactory
 
     private class ThreadPerIncomingConnectionFactory extends Thread
     {
+	ThreadPerIncomingConnectionFactory(IncomingConnectionFactory factory)
+	{
+	    _factory = factory;
+	}
+
 	public void
 	run()
 	{
 	    try
 	    {
-		IncomingConnectionFactory.this.run();
+		_factory.run();
 	    }
 	    catch(Exception ex)
 	    {
-		IncomingConnectionFactory.this.error("exception in thread per incoming connection factory", ex);
+		_factory.error("exception in thread per incoming connection factory", ex);
 	    }
 	}
+
+	IncomingConnectionFactory _factory;
     }
     private Thread _threadPerIncomingConnectionFactory;
 

@@ -1007,7 +1007,7 @@ public final class Connection
 	    // If we are in thread per connection mode, create the thread
 	    // for this connection.
 	    //
-	    _threadPerConnection = new ThreadPerConnection();
+	    _threadPerConnection = new ThreadPerConnection(this);
 	    _threadPerConnection.start();
 	}
 	catch(java.lang.Exception ex)
@@ -1507,7 +1507,7 @@ public final class Connection
 	}
     }
 
-    private void
+    public void
     run()
     {
 	//
@@ -1736,14 +1736,14 @@ public final class Connection
 	}
     }
 
-    private void
+    public void
     warning(String msg, Exception ex)
     {
         String s = msg + ":\n" + ex.toString() + _desc;
         _logger.warning(s);
     }
 
-    private void
+    public void
     error(String msg, Exception ex)
     {
         String s = msg + ":\n" + _desc + ex.toString();
@@ -1818,18 +1818,25 @@ public final class Connection
 
     private class ThreadPerConnection extends Thread
     {
+	ThreadPerConnection(Connection connection)
+	{
+	    _connection = connection;
+	}
+
 	public void
 	run()
 	{
 	    try
 	    {
-		Connection.this.run();
+		_connection.run();
 	    }
 	    catch(Exception ex)
 	    {
-		Connection.this.error("exception in thread per connection", ex);
+		_connection.error("exception in thread per connection", ex);
 	    }
 	}
+
+	Connection _connection;
     }
     private Thread _threadPerConnection;
 

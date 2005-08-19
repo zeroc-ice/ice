@@ -19,6 +19,7 @@ def usage():
     print "Options:"
     print "-h    Show this message."
     print "-v    Be verbose."
+    print "-j    Use default JDK compiler."
     print
     print "If no tag is specified, HEAD is used."
 
@@ -56,17 +57,26 @@ def fixVersion(files, version):
 #
 win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 
+sep = ""
+if win32:
+    sep = ";"
+else:
+    sep = ":"
+
 #
 # Check arguments
 #
 tag = "-rHEAD"
 verbose = 0
+defaultCompiler = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
     elif x == "-v":
         verbose = 1
+    elif x == "-j":
+	defaultCompiler = 1
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
@@ -74,6 +84,14 @@ for x in sys.argv[1:]:
         sys.exit(1)
     else:
         tag = "-r" + x
+
+if not defaultCompiler:
+    if not os.environ.has_key("JAVA11_HOME"):
+	print sys.argv[0] + ": JAVA11_HOME is not defined."
+	print "Specify the -j option to use the default compiler, otherwise"
+	print "define JAVA11_HOME as the installation directory for JDK 1.1."
+	sys.exit(1)
+    java11Home = os.environ["JAVA11_HOME"]
 
 #
 # Remove any existing "dist" directory and create a new one.
@@ -85,7 +103,7 @@ os.mkdir(distdir)
 os.chdir(distdir)
 
 #
-# Export Ice-EJ sources from CVS.
+# Export IceJE sources from CVS.
 #
 print "Checking out CVS tag " + tag + "..."
 if verbose:
@@ -115,6 +133,10 @@ if verbose:
     quiet = ""
 else:
     quiet = " -q"
+if not defaultCompiler:
+    classpath = os.getcwd() + "/ant"
+    os.environ["CLASSPATH"] = classpath
+    os.system("ant" + quiet + " -Dbuild.compiler=Javac11 -Djava11.home=" + java11Home + " -Doptimize=on -Ddebug=off")
 os.system("ant" + quiet + " -Dmidp=on -Doptimize=on -Ddebug=off")
 
 #
