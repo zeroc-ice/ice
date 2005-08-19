@@ -51,9 +51,6 @@ public class LoginForm extends Form implements CommandListener, Runnable
     public void
     run()
     {
-	//
-	// Ensure that the username and password match.
-	//
 	String user = _user.getString();
 	String password = _password.getString();
 

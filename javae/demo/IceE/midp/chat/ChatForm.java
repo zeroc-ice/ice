@@ -53,45 +53,14 @@ public class ChatForm extends Form implements CommandListener
     {
 	if(c.getCommandType() == Command.EXIT)
 	{
-	    _pingThread.destroy();
-	    try
-	    {
-		_router.destroySession();
-	    }
-	    catch(Exception ex)
-	    {
-		// Ignore.
-	    }
-	    _parent.destroy();
+	    new ExitThread().start();
 	}
 	else
 	{
 	    String message = _message.getString();
-	    new SendThread(message).start();
 	    _message.setString("");
+	    new SendThread(message).start();
 	}
-    }
-
-    private class SendThread extends Thread
-    {
-	SendThread(String message)
-	{
-	    _message = message;
-	}
-
-	public void
-	run()
-	{
-	    try
-	    {
-		_session.say(_message);
-	    }
-	    catch(Exception ex)
-	    {
-	    }
-	}
-
-	String _message;
     }
 
     private class PingThread extends Thread
@@ -144,6 +113,46 @@ public class ChatForm extends Form implements CommandListener
 	}
 
 	boolean _destroy = false;
+    }
+
+    private class ExitThread extends Thread
+    {
+	public void
+	run()
+	{
+	    ChatForm.this._pingThread.destroy();
+	    try
+	    {
+		ChatForm.this._router.destroySession();
+	    }
+	    catch(Exception ex)
+	    {
+		// Ignore.
+	    }
+	    ChatForm.this._parent.destroy();
+	}
+    }
+
+    private class SendThread extends Thread
+    {
+	SendThread(String message)
+	{
+	    _message = message;
+	}
+
+	public void
+	run()
+	{
+	    try
+	    {
+		_session.say(_message);
+	    }
+	    catch(Exception ex)
+	    {
+	    }
+	}
+
+	String _message;
     }
 
     private ChatMIDlet _parent;
