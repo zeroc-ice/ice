@@ -56,13 +56,6 @@ public class LoginForm extends Form implements CommandListener, Runnable
 	//
 	String user = _user.getString();
 	String password = _password.getString();
-	if(!user.equals(password))
-	{
-	    Alert alert = new Alert("Login Error", "Name and password do not match", null, AlertType.ERROR);
-	    alert.setTimeout(Alert.FOREVER);
-	    Display.getDisplay(_parent).setCurrent(alert, this);
-	    return;
-	}
 
 	//
 	// Validate server address.
