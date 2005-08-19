@@ -2550,8 +2550,11 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << sp << nl << "public static java.util.Hashtable";
         out << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
+	//
+	// JDK 1.1 raises IllegalArgumentException if you pass 0 to the Hashtable constructor.
+	//
         out << nl << "int __sz = __is.readSize();";
-        out << nl << "java.util.Hashtable __r = new java.util.Hashtable(__sz);";
+        out << nl << "java.util.Hashtable __r = new java.util.Hashtable(__sz == 0 ? 1 : __sz);";
         out << nl << "for(int __i = 0; __i < __sz; __i++)";
         out << sb;
         iter = 0;
