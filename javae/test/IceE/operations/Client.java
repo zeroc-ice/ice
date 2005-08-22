@@ -14,8 +14,8 @@ public class Client
     {
         Test.MyClassPrx myClass = AllTests.allTests(communicator, out);
 
-        System.out.print("testing server shutdown... ");
-        System.out.flush();
+        out.print("testing server shutdown... ");
+        out.flush();
         myClass.shutdown();
         try
         {
