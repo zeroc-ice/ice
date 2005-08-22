@@ -15,10 +15,11 @@ public sealed class TestCheckedCastI : Test._TestCheckedCastDisp
         cb.ice_response(_ctx);
     }
 
-    public void
-    setContext(Ice.Context ctx)
+    public override bool
+    ice_isA(string s, Ice.Current current)
     {
-        _ctx = ctx;
+        _ctx = current.ctx;
+	return base.ice_isA(s, current);
     }
 
     private Ice.Context _ctx;

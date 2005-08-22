@@ -45,7 +45,7 @@ public class AllTests
 
 	Console.Out.Write("testing checked cast with context... ");
 	Console.Out.Flush();
-	string cref = "test:default -p 12346 -t 2000";
+	string cref = "context:default -p 12345 -t 2000";
 	Ice.ObjectPrx cbase = communicator.stringToProxy(cref);
 	test(cbase != null);
 
