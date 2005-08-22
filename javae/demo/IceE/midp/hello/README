@@ -1,9 +1,10 @@
-This demo provides a MIDlet client and server that implements a simplified
-version of the hello world demo from the full Ice distribution. The client and
-server can be used together or with a hello client or server from a different
-Ice distribution.
+This demo provides a MIDlet client and server that implements a
+simplified version of the hello world demo from the full Ice
+distribution. The client and server can be used together or with a
+hello client or server from a different Ice distribution.
 
-Run the following command to start the server MIDlet in the WTK emulator:
+Run the following command to start the server MIDlet in the WTK
+emulator:
 
 $ emulator -Xdescriptor:HelloServer.jad
 
@@ -11,7 +12,7 @@ To run the client, use the following:
 
 $ emulator -Xdescriptor:HelloClient.jad
 
-If you are running the client and server on different hosts, or wish to have
-them communicate on IP ports other than the configured defaults, you need to
-edit the config file in this directory and modify the Hello.Proxy and
-Hello.Endpoints entries and rebuild.
+If you are running the client and server on different hosts, or wish
+to have them communicate on IP ports other than the configured
+defaults, you need to edit the config file in this directory,
+modify the Hello.Proxy and Hello.Endpoints entries, and rebuild.
