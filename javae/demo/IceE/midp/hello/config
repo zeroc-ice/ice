@@ -5,9 +5,8 @@
 Hello.Proxy=hello:tcp -p 12345 -t 20000
 
 #
-# The server creates one single object adapter with the name
-# "Hello". The following line sets the endpoints for this
-# adapter.
+# The server creates an object adapter with the name "Hello".
+# The following line sets the endpoints for this adapter.
 #
 Hello.Endpoints=tcp -p 12345
 
