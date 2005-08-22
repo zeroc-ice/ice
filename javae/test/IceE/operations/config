@@ -13,4 +13,5 @@
 
 Ice.MessageSizeMax = 100
 Test.Proxy=test:default -p 12345  -t 10000
+Test.ProxyWithContext=context:default -p 12345  -t 10000
 TestAdapter.Endpoints=default -p 12345 -t 10000
