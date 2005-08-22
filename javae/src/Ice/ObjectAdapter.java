@@ -417,7 +417,7 @@ public final class ObjectAdapter
             for(int i = 0; i < _routerEndpoints.size() - 1; ++i)
             {
 		//
-		// TODO: Will this not fail if there are three router endpoints in row for some reason? 
+		// TODO: Will this not fail if there are three router endpoints in row for some reason?
 		//
                 java.lang.Object o1 = _routerEndpoints.elementAt(i);
                 java.lang.Object o2 = _routerEndpoints.elementAt(i + 1);

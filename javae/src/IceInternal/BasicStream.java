@@ -995,12 +995,10 @@ public class BasicStream
                         //
 			// TODO: If the string contains garbage bytes
 			// that won't correctly decode as UTF, the
-			// behavior of this constructor is
-			// undefined. It would be better to explicitly
-			// decode using
-			// java.nio.charset.CharsetDecoder and to
-			// throw MarshalException if the string won't
-			// decode.
+			// behavior of this constructor is undefined. It
+			// would be better to explicitly decode using
+			// java.nio.charset.CharsetDecoder and to throw
+			// MarshalException if the string won't decode.
 			//
                         return new String(_stringBytes, 0, len);
                     }
@@ -1281,8 +1279,9 @@ public class BasicStream
         if(factory == null)
         {
 	    /*
-	      XXX- LinkageError is not available in CLDC. The try/catch block has no meaning unless a replacement
-	      for checking if a class is instantiable or not.
+	      TODO- LinkageError is not available in CLDC. The try/catch
+	      block has no meaning unless a replacement for checking if
+	      a class is instantiable or not.
 	      
             try
             {
@@ -1370,8 +1369,9 @@ public class BasicStream
             //
             // Ensure the class is instantiable.
 	    //
-	    // XXX- Need to check for abstract classes.
-            //
+	    // TODO- Need to check for abstract classes. CLDC 
+	    // currently doesn't provide sufficient APIs for checking
+	    //
 	    if(!c.isInterface())
 	    {
 		return c;

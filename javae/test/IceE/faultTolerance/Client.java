@@ -27,9 +27,9 @@ public class Client
                 // TODO: Arguments recognized by the communicator are not
                 // removed from the argument list.
                 //
-                //out.println("Client: unknown option `" + args[i] + "'");
-                //usage();
-                //return 1;
+                // out.println("Client: unknown option `" + args[i] + "'");
+                // usage();
+                // return 1;
                 continue;
             }
 

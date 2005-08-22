@@ -12,7 +12,8 @@ package IceInternal;
 final class TcpTransceiver implements Transceiver
 {
     //
-    // TODO- This needs to be refactored. The two worker thread classes are essentially the same.
+    // TODO- This needs to be refactored. The two worker thread classes
+    // are essentially the same.
     //
     private class ReadThread extends Thread
     {
@@ -200,7 +201,7 @@ final class TcpTransceiver implements Transceiver
 	catch(java.io.IOException ex)
 	{
 	    //
-	    // TODO: Take appropriate action here.
+	    // Ignore.
 	    //
 	}
     }
@@ -222,12 +223,22 @@ final class TcpTransceiver implements Transceiver
 	try
 	{
 	    _in.close();
+	}
+	catch(java.io.IOException ex)
+	{
+	    //
+	    // Ignore.
+	    //
+	}
+	
+	try
+	{
 	    _out.close();
 	}
 	catch(java.io.IOException ex)
 	{
 	    //
-	    // TODO: Take appropriate action here.
+	    // Ignore.
 	    //
 	}
 	
@@ -237,11 +248,16 @@ final class TcpTransceiver implements Transceiver
     public void
     write(BasicStream stream, int timeout)
     {
-	//
-	// TODO: TcpConnector translates a 0 timeout to 1. Do we want to do the same here for consistency or do we
-	// assert?
-	//
-	IceUtil.Debug.Assert(timeout == -1 || timeout > 0);
+	if(timeout == 0)
+	{
+	    //
+	    // 0 means "don't block" but a zero timeout doesn't mean
+	    // anything. We'll translate it to something ludicrously
+	    // short to provide a non-blocking affect.
+	    //
+	    timeout = 1;
+	}
+	
 	if(timeout < 0)
 	{
 	    writeImpl(stream);
@@ -252,7 +268,8 @@ final class TcpTransceiver implements Transceiver
 	    t.start();
 
 	    //
-	    // This blocks until either an exception is thrown by writeImpl() or the timeout expires.
+	    // This blocks until either an exception is thrown by
+	    // writeImpl() or the timeout expires.
 	    //
 	    t.write();
 	}
@@ -307,11 +324,16 @@ final class TcpTransceiver implements Transceiver
     public void
     read(BasicStream stream, int timeout)
     {
-	//
-	// TODO: TcpConnector translates a 0 timeout to 1. Do we want to do the same here for consistency or do we
-	// assert?
-	//
-	IceUtil.Debug.Assert(timeout == -1 || timeout > 0);
+	if(timeout == 0)
+	{
+	    //
+	    // 0 means "don't block" but a zero timeout doesn't mean
+	    // anything. We'll translate it to something ludicrously
+	    // short to provide a non-blocking affect.
+	    //
+	    timeout = 1;
+	}
+	
 	if(timeout < 0)
 	{
 	    readImpl(stream);
@@ -322,7 +344,8 @@ final class TcpTransceiver implements Transceiver
 	    t.start();
 
 	    //
-	    // This blocks until either an exception is thrown by readImpl() or the timeout expires.
+	    // This blocks until either an exception is thrown by
+	    // readImpl() or the timeout expires.
 	    //
 	    t.read();
 	}

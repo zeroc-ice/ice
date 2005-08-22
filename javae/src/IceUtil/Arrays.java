@@ -15,7 +15,8 @@ public final class Arrays
     search(Object[] array, Object item)
     {
 	//
-	// TODO: Array is expected to be sorted, so this would be better implemented as a binary search.
+	// TODO: Array is expected to be sorted so this would be better
+	// implemented as a binary search.
 	//
 	for(int i = 0 ; i < array.length ; ++i)
 	{
