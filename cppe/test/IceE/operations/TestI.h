@@ -165,13 +165,11 @@ class TestCheckedCastI : public Test::TestCheckedCast
 public:
 
     virtual Ice::Context getContext(const Ice::Current&);
-    void setContext(const Ice::Context& c);
-
+    virtual bool ice_isA(const std::string&, const Ice::Current&) const;
+    
 private:
 
-    Ice::Context _ctx;
+    mutable Ice::Context _ctx;
 };
-
-typedef IceUtil::Handle<TestCheckedCastI> TestCheckedCastIPtr;
 
 #endif

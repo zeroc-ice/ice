@@ -78,6 +78,36 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     tprintf("ok\n");
 
+    tprintf("testing checked cast with context...");
+    ref = communicator->getProperties()->getPropertyWithDefault(
+	"Operations.ContextProxy", "context:default -p 12345 -t 10000");
+    Ice::ObjectPrx cbase = communicator->stringToProxy(ref);
+    test(cbase);
+
+    Test::TestCheckedCastPrx tccp = Test::TestCheckedCastPrx::checkedCast(cbase);
+    Ice::Context c = tccp->getContext();
+    test(c.size() == 0);
+
+    c["one"] = "hello";
+    c["two"] = "world";
+    tccp = Test::TestCheckedCastPrx::checkedCast(cbase, c);
+    Ice::Context c2 = tccp->getContext();
+    test(c == c2);
+
+    //
+    // Now with alternate API
+    //
+    tccp = checkedCast<Test::TestCheckedCastPrx>(cbase);
+    c = tccp->getContext();
+    test(c.size() == 0);
+
+    tccp = checkedCast<Test::TestCheckedCastPrx>(cbase, c);
+    c2 = tccp->getContext();
+    test(c == c2);
+
+    tprintf("ok\n");
+//XXXX:
+
     tprintf("testing twoway operations... ");
     void twoways(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
     twoways(communicator, cl);

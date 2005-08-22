@@ -370,8 +370,9 @@ TestCheckedCastI::getContext(const Ice::Current& c)
     return _ctx;
 }
 
-void
-TestCheckedCastI::setContext(const Ice::Context& ctx)
+bool
+TestCheckedCastI::ice_isA(const std::string& s, const Ice::Current& current) const
 {
-    _ctx = ctx;
+    _ctx = current.ctx;
+    return TestCheckedCast::ice_isA(s, current);
 }

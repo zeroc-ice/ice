@@ -36,9 +36,12 @@ public:
 	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 	
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-        Ice::ObjectPtr object = new MyDerivedClassI(adapter, Ice::stringToIdentity("test"));
-        adapter->add(object, Ice::stringToIdentity("test"));
+	Ice::Identity id = Ice::stringToIdentity("test");
+        adapter->add(new MyDerivedClassI(adapter, id), id);
+	adapter->add(new TestCheckedCastI, Ice::stringToIdentity("context"));
         adapter->activate();
+
+	adapter->activate();
 
 #ifndef _WIN32_WCE
         communicator()->waitForShutdown();
