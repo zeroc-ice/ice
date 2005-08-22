@@ -7,11 +7,9 @@
 #
 # **********************************************************************
 
-#
-# TODO: We need a good description of what needs to be done here. Either that
-# or MIDlets could use a different sort of configuration for proxies, such as
-# separate entries for host, port and timeout and the proxy is constructed out
-# of that.  For a MIDlet, the hostname almost certainly needs to be specified.
-#
+# The MIDlet version of the Ice-E tests use this configuration file to
+# configure proxies and endpoints. Modify the properties listed below as
+# appropriate for the network configuration for your test.
 
 Test.Proxy=d:default -p 12345 -t 10000
+TestAdapter.Endpoints=default -p 12345 -t 10000

@@ -7,12 +7,17 @@
 #
 # **********************************************************************
 
+# The MIDlet version of the Ice-E tests use this configuration file to
+# configure proxies and endpoints. Modify the properties listed below as
+# appropriate for the network configuration for your test.
 #
-# TODO: We need a good description of what needs to be done here. Either that
-# or MIDlets could use a different sort of configuration for proxies, such as
-# separate entries for host, port and timeout and the proxy is constructed out
-# of that.  For a MIDlet, the hostname almost certainly needs to be specified.
-#
+# The server portion of this test is currently not implemented as MIDlets.
+
+# The client MIDlet generates a list of proxies using a target hostname
+# (Test.Host), a 'starting port' (Test.FirstPort), and the number of
+# faultTolerance test servers to be tested against (Test.ServerCount). The test
+# servers must all be running on the same host and must be running on ports in
+# the range Test.FirstPort to Test.FirstPort + Test.ServerCount.
 
 #
 # Set Test.Host to the hostname or IP address for the server host.
