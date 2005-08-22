@@ -14,12 +14,12 @@ class TcpAcceptor implements Acceptor
     public void
     close()
     {
-        if(_traceLevels.network >= 1)
-        {
-            String s = "stopping to accept tcp connections at " + toString();
-            _logger.trace(_traceLevels.networkCat, s);
-        }
-
+	if(_traceLevels.network >=1)
+	{
+	    String s = "stopping to accept tcp connections at " + toString();
+	    _logger.trace(_traceLevels.networkCat, s);
+	}
+	
 	javax.microedition.io.ServerSocketConnection connection;
 	synchronized(this)
         {
@@ -66,7 +66,6 @@ class TcpAcceptor implements Acceptor
 		timeout = 1;
 	    }
 	    incoming = (javax.microedition.io.SocketConnection)_connection.acceptAndOpen();
-	    _actualAddr = new InetSocketAddress(incoming.getLocalAddress(), _addr.getPort());
 	}
 	catch(java.io.InterruptedIOException ex)
 	{
@@ -93,20 +92,23 @@ class TcpAcceptor implements Acceptor
     public void
     connectToSelf()
     {
-	//
-	// Under MIDP, its possible we don't know what our actual address is if no incoming connections have been
-	// attempted. If that is the case, then we are left with attempting a connection to localhost. 
-	//
-	if(_actualAddr == null)
+	String ip = System.getProperty("microedition.hostname");
+	if(ip == null || ip.length() == 0 || ip.equals("0.0.0.0"))
 	{
-	    _actualAddr = new InetSocketAddress("localhost", _addr.getPort());
+	    try
+	    {
+		ip = _connection.getLocalAddress();
+	    }
+	    catch(java.io.IOException ex)
+	    {
+		ip = "127.0.0.1";
+	    }
 	}
 
 	try
 	{
 	    javax.microedition.io.Connection localConn =
-		javax.microedition.io.Connector.open("socket://" + _actualAddr.getAddress() + ':' + 
-			_actualAddr.getPort());
+		javax.microedition.io.Connector.open("socket://" + ip + ':' + _connection.getLocalPort());
 	    localConn.close();
 	}
 	catch(java.io.IOException ex)
@@ -216,5 +218,4 @@ class TcpAcceptor implements Acceptor
     private javax.microedition.io.ServerSocketConnection _connection;
     private int _backlog;
     private InetSocketAddress _addr;
-    private InetSocketAddress _actualAddr;
 }
