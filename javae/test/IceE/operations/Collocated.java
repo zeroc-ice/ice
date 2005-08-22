@@ -13,6 +13,7 @@ public class Collocated
     run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
     {
 	communicator.getProperties().setProperty("Test.Proxy", "test:default -p 12345 -t 10000");
+	communicator.getProperties().setProperty("Test.ProxyWithContext", "context:default -p 12345 -t 10000");
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
 	Ice.Identity id = Ice.Util.stringToIdentity("test");
