@@ -15,10 +15,11 @@ public final class TestCheckedCastI extends Test._TestCheckedCastDisp
         return _ctx;
     }
 
-    public void
-    setContext(java.util.Map ctx)
+    public boolean
+    ice_isA(String s, Ice.Current current)
     {
-        _ctx = ctx;
+        _ctx = current.ctx;
+        return super.ice_isA(s, current);
     }
 
     private java.util.Map _ctx;

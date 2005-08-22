@@ -14,19 +14,10 @@ public class Server
     {
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object object = new MyDerivedClassI(adapter, Ice.Util.stringToIdentity("test"));
-        adapter.add(object, Ice.Util.stringToIdentity("test"));
+        Ice.Identity id = Ice.Util.stringToIdentity("test");
+        adapter.add(new MyDerivedClassI(adapter, id), id);
+        adapter.add(new TestCheckedCastI(), Ice.Util.stringToIdentity("context"));
         adapter.activate();
-
-	//
-	// Make a separate adapter with a servant locator. We use this to test
-	// that ::Ice::Context is correctly passed to checkedCast() operation.
-	//
-	communicator.getProperties().setProperty("CheckedCastAdapter.Endpoints", "default -p 12346 -t 10000");
-	adapter = communicator.createObjectAdapter("CheckedCastAdapter");
-	Ice.ServantLocator checkedCastLocator = new CheckedCastLocator();
-	adapter.addServantLocator(checkedCastLocator, "");
-	adapter.activate();
 
         communicator.waitForShutdown();
         return 0;
