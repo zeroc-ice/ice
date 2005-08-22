@@ -144,26 +144,11 @@ public:
 
     virtual void getContext_async(const Test::AMD_TestCheckedCast_getContextPtr& cb,
                                                     const Ice::Current&);
-    void setContext(const Ice::Context& c);
-
-private:
-    Ice::Context _ctx;
-};
-
-typedef IceUtil::Handle<TestCheckedCastI> TestCheckedCastIPtr;
-
-class CheckedCastLocator : public Ice::ServantLocator
-{
-public:
-
-    CheckedCastLocator();
-    virtual Ice::ObjectPtr locate(const Ice::Current& c, Ice::LocalObjectPtr&);
-    virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
-    virtual void deactivate(const ::std::string&);
+    virtual bool ice_isA(const std::string&, const Ice::Current&) const;
 
 private:
 
-    TestCheckedCastIPtr _servant;
+    mutable Ice::Context _ctx;
 };
 
 #endif

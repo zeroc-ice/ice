@@ -366,33 +366,9 @@ TestCheckedCastI::getContext(const Ice::Current& c)
     return _ctx;
 }
 
-void
-TestCheckedCastI::setContext(const Ice::Context& ctx)
+bool
+TestCheckedCastI::ice_isA(const std::string& s, const Ice::Current& current) const
 {
-    _ctx = ctx;
-}
-
-CheckedCastLocator::CheckedCastLocator() :
-    _servant(new TestCheckedCastI)
-{
-}
-
-Ice::ObjectPtr
-CheckedCastLocator::locate(const Ice::Current& c, Ice::LocalObjectPtr&)
-{
-    if(c.operation == "ice_isA")
-    {
-	_servant->setContext(c.ctx);
-    }
-    return _servant;
-}
-
-void
-CheckedCastLocator::finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&)
-{
-}
-
-void
-CheckedCastLocator::deactivate(const std::string&)
-{
+    _ctx = current.ctx;
+    return TestCheckedCast::ice_isA(s, current);
 }

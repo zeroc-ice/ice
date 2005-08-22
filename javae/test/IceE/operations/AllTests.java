@@ -48,7 +48,7 @@ public class AllTests
 	out.print("testing checked cast with context... ");
 	out.flush();
         String cref = communicator.getProperties().getPropertyWithDefault("Test.ProxyWithContext", 
-		"test:default -p 12346 -t 10000");
+		"context:default -p 12345 -t 10000");
 	Ice.ObjectPrx cbase = communicator.stringToProxy(cref);
 	test(cbase != null);
 

@@ -17,18 +17,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = new MyDerivedClassI(adapter, Ice::stringToIdentity("test"));
-    adapter->add(object, Ice::stringToIdentity("test"));
-    adapter->activate();
-
-    //
-    // Make a separate adapter with a servant locator. We use this to test
-    // that ::Ice::Context is correctly passed to checkedCast() operation.
-    //
-    communicator->getProperties()->setProperty("CheckedCastAdapter.Endpoints", "default -p 12346 -t 10000");
-    adapter = communicator->createObjectAdapter("CheckedCastAdapter");
-    Ice::ServantLocatorPtr checkedCastLocator = new CheckedCastLocator();
-    adapter->addServantLocator(checkedCastLocator, "");
+    Ice::Identity id = Ice::stringToIdentity("test");
+    adapter->add(new MyDerivedClassI(adapter, id), id);
+    adapter->add(new TestCheckedCastI, Ice::stringToIdentity("context"));
     adapter->activate();
 
     communicator->waitForShutdown();

@@ -165,27 +165,11 @@ class TestCheckedCastI : public Test::TestCheckedCast
 public:
 
     virtual Ice::Context getContext(const Ice::Current&);
-    void setContext(const Ice::Context& c);
+    virtual bool ice_isA(const std::string&, const Ice::Current&) const;
 
 private:
 
-    Ice::Context _ctx;
-};
-
-typedef IceUtil::Handle<TestCheckedCastI> TestCheckedCastIPtr;
-
-class CheckedCastLocator : public Ice::ServantLocator
-{
-public:
-
-    CheckedCastLocator();
-    virtual Ice::ObjectPtr locate(const Ice::Current& c, Ice::LocalObjectPtr&);
-    virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
-    virtual void deactivate(const ::std::string&);
-
-private:
-
-    TestCheckedCastIPtr _servant;
+    mutable Ice::Context _ctx;
 };
 
 #endif
