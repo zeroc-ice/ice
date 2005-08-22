@@ -342,7 +342,7 @@ public final class Properties
 		return null;
 	    }
 	    
-	    while(ch != '\n')
+	    while(ch != '\n' && ch != -1)
 	    {
 		line.append((char)ch);
 		ch = in.read();

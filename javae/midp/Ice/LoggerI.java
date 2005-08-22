@@ -23,6 +23,24 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	{
 	    _prefix = prefix + ": ";
 	}
+	/*
+	String logURL = "socket://142.163.163.194:33456";
+	try
+	{
+	    javax.microedition.io.SocketConnection s = 
+		(javax.microedition.io.SocketConnection)javax.microedition.io.Connector.open(logURL);
+	    
+	    s.setSocketOption(javax.microedition.io.SocketConnection.DELAY, 0);
+	    s.setSocketOption(javax.microedition.io.SocketConnection.LINGER, 0);
+	    s.setSocketOption(javax.microedition.io.SocketConnection.KEEPALIVE, 0);
+	    
+	    _out = new java.io.PrintStream(s.openOutputStream());
+	}
+	catch(java.io.IOException ex)
+	{
+	    // Ignore.
+	}
+	*/
 
 	_timestamp = timestamp;
     }
@@ -33,6 +51,7 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	synchronized(_globalMutex)
 	{
 	    _out.println(message);
+	    _out.flush();
 	}
     }
 
@@ -63,6 +82,7 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	    }
 	    s.append(" ]");
             _out.println(s.toString());
+	    _out.flush();
 	}
     }
 
@@ -81,6 +101,7 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	    s.append("warning: ");
 	    s.append(message);
 	    _out.println(s.toString());
+	    _out.flush();
 	}
     }
 
@@ -99,6 +120,7 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	    s.append("error: ");
 	    s.append(message);
 	    _out.println(s.toString());
+	    _out.flush();
 	}
     }
 
