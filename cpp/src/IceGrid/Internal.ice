@@ -135,7 +135,8 @@ interface Server
      * data to patch.
      * 
      **/
-    void patch();
+    void patch()
+	throws  PatchException;
 
     /**
      *
@@ -237,6 +238,17 @@ interface Node
      *
      **/
     idempotent void destroyServer(string name);
+
+    /**
+     *
+     * Patch a list of directories. The node will patch the data from
+     * the given destination directories. If some servers using a
+     * destination directory to patch are active, this method will
+     * raise a PatchException.
+     * 
+     **/
+    idempotent void patch(Ice::StringSeq directories)
+	throws  PatchException;
 
     /**
      *

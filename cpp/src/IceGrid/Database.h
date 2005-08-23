@@ -67,7 +67,7 @@ public:
 
     ServerInfo getServerInfo(const std::string&);
     ServerPrx getServer(const std::string&);
-    ServerPrx getServerWithTimeouts(const std::string&, int&, int&);
+    ServerPrx getServerWithTimeouts(const std::string&, int&, int&, std::string&);
     Ice::StringSeq getAllServers(const std::string& = std::string());
     Ice::StringSeq getAllNodeServers(const std::string&);
 

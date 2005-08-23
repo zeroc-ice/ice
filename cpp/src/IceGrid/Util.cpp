@@ -18,7 +18,7 @@ using namespace std;
 using namespace IceGrid;
 
 string 
-IceGrid::toString(const vector<string>& v)
+IceGrid::toString(const vector<string>& v, const string& sep)
 {
     ostringstream os;
     Ice::StringSeq::const_iterator p = v.begin();
@@ -28,7 +28,7 @@ IceGrid::toString(const vector<string>& v)
 	++p;
 	if(p != v.end())
 	{
-	    os << " ";
+	    os << sep;
 	}
     }
     return os.str();

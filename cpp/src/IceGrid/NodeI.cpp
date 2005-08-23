@@ -15,6 +15,7 @@
 #include <IceGrid/Activator.h>
 #include <IceGrid/ServerI.h>
 #include <IceGrid/ServerAdapterI.h>
+#include <IceGrid/Util.h>
 #include <IceGrid/WaitQueue.h>
 #include <IceGrid/TraceLevels.h>
 
@@ -275,6 +276,15 @@ NodeI::destroyServer(const string& name, const Ice::Current& current)
     }
 }
 
+void
+NodeI::patch(const Ice::StringSeq& directories, const Ice::Current&)
+{
+    for(Ice::StringSeq::const_iterator p = directories.begin(); p != directories.end(); ++p)
+    {
+	patch(ServerIPtr(), *p);
+    }
+}
+
 std::string
 NodeI::getName(const Ice::Current&) const
 {
@@ -302,62 +312,94 @@ NodeI::patch(const ServerIPtr& server, const string& directory) const
     
     const PatchDirectory& patch = p->second;
 
-    for(set<ServerIPtr>::const_iterator p = patch.servers.begin(); p != patch.servers.end(); ++p)
-    {
-	if(*p != server)
-	{
-	    (*p)->startUpdating();
-	}
-    }
-
     try
     {
-	FileServerPrx server = FileServerPrx::checkedCast(patch.proxy);
-	if(!server)
+	vector<string> running;
+	for(set<ServerIPtr>::const_iterator p = patch.servers.begin(); p != patch.servers.end(); ++p)
 	{
-	    throw "proxy `" + getCommunicator()->proxyToString(patch.proxy) + "' is not a file server.";
-	}
-
-	PatcherFeedbackPtr feedback = new LogPatcherFeedback(_traceLevels);
-	PatcherPtr patcher = new Patcher(server, feedback, directory, false, 100, 0);
-	bool aborted = !patcher->prepare();
-	if(!aborted)
-	{
-	    if(patch.directories.empty())
+	    if(*p != server)
 	    {
-		aborted = !patcher->patch("");
-	    }
-	    else
-	    {
-		vector<string> sources;
-		copy(patch.directories.begin(), patch.directories.end(), back_inserter(sources)); 
-		for(vector<string>::const_iterator p = sources.begin(); p != sources.end(); ++p)
+		if(!(*p)->startUpdating(false))
 		{
-		    dynamic_cast<LogPatcherFeedback*>(feedback.get())->setPatchingPath(*p);
-		    if(!patcher->patch(*p))
-		    {
-			aborted = true;
-			break;
-		    }
+		    running.push_back((*p)->getId());
 		}
 	    }
 	}
-	
-	if(!aborted)
+	if(!running.empty())
 	{
-	    patcher->finish();
+	    PatchException ex;
+	    ex.reason = "patch for `" + directory + "' on node `" + _name + "' failed:\n";
+	    if(running.size() == 1)
+	    {
+		ex.reason += "server `" + toString(running) + "' is active";
+	    }
+	    else
+	    {
+		ex.reason += "servers `" + toString(running, ", ") + "' are active";
+	    }
+	    throw ex;
 	}
-    }
-    catch(const Ice::LocalException& ex)
-    {
-	ostringstream os;
-	os << "patch for `" + directory + "' failed:\n";
-	os << ex;
-	_traceLevels->logger->warning(os.str());
-    }
-    catch(const string& ex)
-    {
-	_traceLevels->logger->error("patch for `" + directory + "' failed:\n" + ex);
+
+	try
+	{
+	    FileServerPrx server = FileServerPrx::checkedCast(patch.proxy);
+	    if(!server)
+	    {
+		throw "proxy `" + getCommunicator()->proxyToString(patch.proxy) + "' is not a file server.";
+	    }
+	    
+	    PatcherFeedbackPtr feedback = new LogPatcherFeedback(_traceLevels);
+	    PatcherPtr patcher = new Patcher(server, feedback, directory, false, 100, 0);
+	    bool aborted = !patcher->prepare();
+	    if(!aborted)
+	    {
+		if(patch.directories.empty())
+		{
+		    aborted = !patcher->patch("");
+		}
+		else
+		{
+		    vector<string> sources;
+		    copy(patch.directories.begin(), patch.directories.end(), back_inserter(sources)); 
+		    for(vector<string>::const_iterator p = sources.begin(); p != sources.end(); ++p)
+		    {
+			dynamic_cast<LogPatcherFeedback*>(feedback.get())->setPatchingPath(*p);
+			if(!patcher->patch(*p))
+			{
+			    aborted = true;
+			    break;
+			}
+		    }
+		}
+	    }
+	    
+	    if(!aborted)
+	    {
+		patcher->finish();
+	    }
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    ostringstream os;
+	    os << "patch for `" + directory + "' on node `" + _name + "' failed:\n";
+	    os << ex;
+	    _traceLevels->logger->warning(os.str());
+	    throw PatchException(os.str());
+	}
+	catch(const string& ex)
+	{
+	    string msg = "patch for `" + directory + "' on node `" + _name + "' failed:\n" + ex;
+	    _traceLevels->logger->error(msg);
+	    throw PatchException(msg);
+	}
+
+	for(set<ServerIPtr>::const_iterator p = patch.servers.begin(); p != patch.servers.end(); ++p)
+	{
+	    if(*p != server)
+	    {
+		(*p)->finishUpdating();
+	    }
+	}
     }
     catch(...)
     {
@@ -369,14 +411,6 @@ NodeI::patch(const ServerIPtr& server, const string& directory) const
 	    }
 	}
 	throw;
-    }
-    
-    for(set<ServerIPtr>::const_iterator p = patch.servers.begin(); p != patch.servers.end(); ++p)
-    {
-	if(*p != server)
-	{
-	    (*p)->finishUpdating();
-	}
     }
 }
 

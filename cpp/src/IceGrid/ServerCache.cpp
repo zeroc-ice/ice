@@ -155,9 +155,10 @@ ServerEntry::sync()
 {
     map<string, AdapterPrx> adapters;
     int at, dt;
+    string node;
     try
     {
-	sync(adapters, at, dt);
+	sync(adapters, at, dt, node);
     }
     catch(const NodeUnreachableException&)
     {
@@ -237,7 +238,7 @@ ServerEntry::getId() const
 }
 
 ServerPrx
-ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout)
+ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& node)
 {
     ServerPrx proxy;
     {
@@ -247,6 +248,7 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout)
 	    proxy = _proxy;
 	    activationTimeout = _activationTimeout;
 	    deactivationTimeout = _deactivationTimeout;
+	    node = _loaded->node;
 	}
     }
 
@@ -263,7 +265,7 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout)
     }
 
     StringAdapterPrxDict adapters;
-    proxy = sync(adapters, activationTimeout, deactivationTimeout);
+    proxy = sync(adapters, activationTimeout, deactivationTimeout, node);
     if(!proxy)
     {
 	throw ServerNotExistException();
@@ -297,7 +299,8 @@ ServerEntry::getAdapter(const string& id)
 
     StringAdapterPrxDict adapters;
     int activationTimeout, deactivationTimeout;
-    sync(adapters, activationTimeout, deactivationTimeout);
+    string node;
+    sync(adapters, activationTimeout, deactivationTimeout, node);
     AdapterPrx adapter = adapters[id];
     if(!adapter)
     {
@@ -307,7 +310,7 @@ ServerEntry::getAdapter(const string& id)
 }
 
 ServerPrx
-ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int& deactivationTimeout)
+ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int& deactivationTimeout, string& node)
 {
     ServerDescriptorPtr load;
     string loadNode;
@@ -370,6 +373,7 @@ ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int
 	    try
 	    {
 		proxy = db.getNode(loadNode)->loadServer(load, adapters, activationTimeout, deactivationTimeout);
+		node = loadNode;
 		proxy = ServerPrx::uncheckedCast(proxy->ice_collocationOptimization(false));
 	    }
 	    catch(const NodeNotExistException& ex)

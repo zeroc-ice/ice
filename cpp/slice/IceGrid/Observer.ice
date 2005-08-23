@@ -151,7 +151,7 @@ interface Session extends Glacier2::Session
      *
      **/
     void addApplication(ApplicationDescriptor application)
-	throws AccessDenied, DeploymentException, ApplicationExistsException;
+	throws AccessDenied, DeploymentException;
 
     /**
      *

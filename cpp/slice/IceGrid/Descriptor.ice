@@ -197,6 +197,7 @@ struct PatchDescriptor
     Ice::StringSeq sources;
 };
 sequence<PatchDescriptor> PatchDescriptorSeq;
+dictionary<string, PatchDescriptor> PatchDescriptorDict;
 
 /**
  *
@@ -270,6 +271,13 @@ class ServerDescriptor extends CommunicatorDescriptor
      *
      **/
     PatchDescriptorSeq patchs;
+
+    /**
+     *
+     * The application patch definition used by the server.
+     *
+     **/
+    Ice::StringSeq usePatchs;
 };
 dictionary<string, ServerDescriptor> ServerDescriptorDict;
 ["java:type:java.util.LinkedList"] sequence<ServerDescriptor> ServerDescriptorSeq;
@@ -492,7 +500,14 @@ struct ApplicationDescriptor
      *
      **/
     NodeDescriptorDict nodes;
-    
+
+    /**
+     *
+     * The application patch descriptors.
+     *
+     **/
+    PatchDescriptorDict patchs;
+
     /**
      *
      * A description of the application;

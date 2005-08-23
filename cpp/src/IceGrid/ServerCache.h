@@ -40,7 +40,7 @@ public:
     ServerInfo getServerInfo() const;
     std::string getId() const;
 
-    ServerPrx getProxy(int&, int&);
+    ServerPrx getProxy(int&, int&, std::string&);
     AdapterPrx getAdapter(const std::string&);
 
     bool canRemove();
@@ -48,7 +48,7 @@ public:
     
 private:
     
-    ServerPrx sync(StringAdapterPrxDict&, int&, int&);
+    ServerPrx sync(StringAdapterPrxDict&, int&, int&, std::string&);
 
     ServerCache& _cache;
     const std::string _id;

@@ -65,6 +65,8 @@ Parser::usage()
         "                            described in DESC and the current deployment.\n"
 	"application update DESC [TARGET ... ] [NAME=VALUE ... ]\n"
 	"                            Update the application described in DESC.\n"
+	"application patch NAME [PATCHID]\n"
+	"                            Patch the given application data.\n"
 	"application list            List all deployed applications.\n"
 	"                            to the application."
         "\n"
@@ -161,23 +163,9 @@ Parser::addApplication(const list<string>& args)
 
 	_admin->addApplication(DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator));
     }
-    catch(const IceXML::ParserException& ex)
-    {
-	ostringstream s;
-	s << ex;
-	error(s.str());
-    }
-    catch(const DeploymentException& ex)
-    {
-	ostringstream s;
-	s << ex << ":\n" << ex.reason;
-	error(s.str());	
-    }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -198,17 +186,9 @@ Parser::removeApplication(const list<string>& args)
 
 	_admin->removeApplication(name);
     }
-    catch(const DeploymentException& ex)
-    {
-	ostringstream s;
-	s << ex << ":\n" << ex.reason;
-	error(s.str());	
-    }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -232,17 +212,9 @@ Parser::describeApplication(const list<string>& args)
 	helper.print(out);
 	out << nl;
     }
-    catch(const DeploymentException& ex)
-    {
-	ostringstream s;
-	s << ex << ":\n" << ex.reason;
-	error(s.str());	
-    }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -286,19 +258,9 @@ Parser::diffApplication(const list<string>& args)
 	newAppHelper.printDiff(out, oldAppHelper);
 	out << nl;  
     }
-    catch(const DeploymentException& ex)
-    {
-	ostringstream s;
-	s << ex << ":\n" << ex.reason;
-	error(s.str());	
-	return;
-    }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
-	return;
+	exception(ex);
     }
 }
 
@@ -334,23 +296,37 @@ Parser::updateApplication(const list<string>& args)
 
 	_admin->syncApplication(DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator));
     }
-    catch(const IceXML::ParserException& ex)
+    catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
-    catch(const DeploymentException& ex)
+}
+
+void
+Parser::patchApplication(const list<string>& args)
+{
+    if(args.size() < 1)
     {
-	ostringstream s;
-	s << ex << ":\n" << ex.reason;
-	error(s.str());	
+	error("`application patch' requires at least one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	list<string>::const_iterator p = args.begin();
+
+	string name = *p++;
+	string patch;
+	if(p != args.end())
+	{
+	    patch = *p++;
+	}
+
+	_admin->patchApplication(name, patch);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -364,9 +340,7 @@ Parser::listAllApplications()
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -419,9 +393,7 @@ Parser::describeServerTemplate(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -462,23 +434,9 @@ Parser::instantiateServerTemplate(const list<string>& args)
 	update.nodes.push_back(nodeUpdate);
 	_admin->updateApplication(update);
     }
-    catch(const IceXML::ParserException& ex)
-    {
-	ostringstream s;
-	s << ex;
-	error(s.str());
-    }
-    catch(const DeploymentException& ex)
-    {
-	ostringstream s;
-	s << ex << ":\n" << ex.reason;
-	error(s.str());	
-    }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -531,9 +489,7 @@ Parser::describeServiceTemplate(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -559,9 +515,7 @@ Parser::pingNode(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -580,9 +534,7 @@ Parser::shutdownNode(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -601,9 +553,7 @@ Parser::removeNode(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -617,9 +567,7 @@ Parser::listAllNodes()
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -645,9 +593,7 @@ Parser::removeServer(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }    
 }
 
@@ -669,9 +615,7 @@ Parser::startServer(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -690,9 +634,7 @@ Parser::stopServer(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -711,9 +653,7 @@ Parser::patchServer(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -734,9 +674,7 @@ Parser::signalServer(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -758,9 +696,7 @@ Parser::writeMessage(const list<string>& args, int fd)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -790,9 +726,7 @@ Parser::describeServer(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -843,9 +777,7 @@ Parser::stateServer(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -864,9 +796,7 @@ Parser::pidServer(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -900,9 +830,7 @@ Parser::activationServer(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -916,9 +844,7 @@ Parser::listAllServers()
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -959,9 +885,7 @@ Parser::endpointsAdapter(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -991,9 +915,7 @@ Parser::removeAdapter(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -1007,9 +929,7 @@ Parser::listAllAdapters()
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -1038,17 +958,9 @@ Parser::addObject(const list<string>& args)
 	    _admin->addObject(_communicator->stringToProxy(proxy));
 	}
     }
-    catch(const DeploymentException& ex)
-    {
-	ostringstream s;
-	s << ex << ":\n" << ex.reason;
-	error(s.str());	
-    }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -1067,9 +979,7 @@ Parser::removeObject(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -1092,9 +1002,7 @@ Parser::findObject(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -1132,9 +1040,7 @@ Parser::describeObject(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -1160,9 +1066,7 @@ Parser::listObject(const list<string>& args)
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -1175,9 +1079,7 @@ Parser::shutdown()
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+	exception(ex);
     }
 }
 
@@ -1490,4 +1392,77 @@ Parser::Parser(const CommunicatorPtr& communicator, const AdminPrx& admin, const
     _admin(admin),
     _query(query)
 {
+}
+
+void
+Parser::exception(const Ice::Exception& ex)
+{
+    try
+    {
+	ex.ice_throw();
+    }
+    catch(const ApplicationNotExistException& ex)
+    {
+	error("couldn't find application `" + ex.name + "'");
+    }
+    catch(const NodeNotExistException& ex)
+    {
+	error("couldn't find node `" + ex.name + "'");
+    }
+    catch(const ServerNotExistException& ex)
+    {
+	error("couldn't find server `" + ex.id + "'");
+    }
+    catch(const AdapterNotExistException& ex)
+    {
+	error("couldn't find adapter `" + ex.id + "'");
+    }
+    catch(const ObjectExistsException& ex)
+    {
+	error("object `" + Ice::identityToString(ex.id) + "' already exists");
+    }
+    catch(const ObjectNotExistException& ex)
+    {
+	error("couldn't find object `" + Ice::identityToString(ex.id) + "'");
+    }
+    catch(const DeploymentException& ex)
+    {
+	ostringstream s;
+	s << ex << ":\n" << ex.reason;
+	error(s.str());	
+    }
+    catch(const PatchException& ex)
+    {
+	ostringstream s;
+	s << ex << ":\n" << ex.reason;
+	error(s.str());
+    }
+    catch(const BadSignalException& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+    catch(const NodeUnreachableException& ex)
+    {
+	error("node `" + ex.name + "' couldn't be reached:\n" + ex.reason);
+    }
+    catch(const IceXML::ParserException& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	ostringstream s;
+	s << "couldn't reach the IceGrid registry:\n" << ex;
+	throw s.str();
+    }
+    catch(const Ice::Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
 }

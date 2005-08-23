@@ -86,7 +86,7 @@ void
 ServerI::load(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapters, int& activationTimeout,
 	      int& deactivationTimeout, const Ice::Current& current)
 {
-    startUpdating();
+    startUpdating(true);
 
     //
     // If the server is inactive we can update its descriptor and its directory.
@@ -164,7 +164,7 @@ ServerI::patch(const ::Ice::Current& current)
     //
     // Patch the server data.
     //
-    startUpdating();
+    startUpdating(true);
     try
     {
 	ServerDescriptorPtr desc = getDescriptor(current);
@@ -611,8 +611,8 @@ ServerI::addDynamicInfo(ServerDynamicInfoSeq& serverInfos, AdapterDynamicInfoSeq
     }
 }
 
-void
-ServerI::startUpdating()
+bool
+ServerI::startUpdating(bool deactivate)
 {
     while(true)
     {
@@ -627,18 +627,26 @@ ServerI::startUpdating()
 	    else if(_state == ServerI::Updating)
 	    {
 		wait(); // Only one update at a time!
+		continue;
 	    }
 	    else if(_state == ServerI::Inactive)
 	    {
 		_state = ServerI::Updating;
-		return;
+		return true;
 	    }
 	}
 
 	//
 	// If the server is active we stop it and try again to update it.
 	//
-	stop();
+	if(deactivate)
+	{
+	    stop();
+	}
+	else
+	{
+	    return false;
+	}
     }
 }
 
@@ -646,9 +654,17 @@ void
 ServerI::finishUpdating()
 {
     Lock sync(*this);
-    assert(_state == ServerI::Updating);
-    _state = ServerI::Inactive;
-    notifyAll();
+    if(_state == ServerI::Updating)
+    {
+	_state = ServerI::Inactive;
+	notifyAll();
+    }
+}
+
+const string&
+ServerI::getId() const
+{
+    return _id;
 }
 
 void

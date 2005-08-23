@@ -22,13 +22,14 @@ class AdminI : public Admin, public IceUtil::Mutex
 {
 public:
 
-    AdminI(const Ice::CommunicatorPtr&, const DatabasePtr&, const RegistryPtr&);
+    AdminI(const Ice::CommunicatorPtr&, const DatabasePtr&, const RegistryPtr&, int);
     virtual ~AdminI();
 
     virtual void addApplication(const ApplicationDescriptor&, const Ice::Current&);
     virtual void syncApplication(const ApplicationDescriptor&, const Ice::Current&);
     virtual void updateApplication(const ApplicationUpdateDescriptor&, const Ice::Current&);
     virtual void removeApplication(const std::string&, const Ice::Current&);
+    virtual void patchApplication(const std::string&, const std::string&, const Ice::Current&);
     virtual ApplicationDescriptor getApplicationDescriptor(const ::std::string&, const Ice::Current&) const;
     virtual Ice::StringSeq getAllApplicationNames(const Ice::Current&) const;
 
@@ -71,6 +72,7 @@ private:
     Ice::CommunicatorPtr _communicator;
     DatabasePtr _database;
     RegistryPtr _registry;
+    int _nodeSessionTimeout;
 };
 
 }

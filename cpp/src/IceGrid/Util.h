@@ -22,7 +22,7 @@ inline set_inserter(T& container)
     return std::insert_iterator<T>(container, container.begin()); 
 }
 
-std::string toString(const std::vector<std::string>&);
+std::string toString(const std::vector<std::string>&, const std::string& = std::string(" "));
 
 template<class Function>
 struct ForEachCommunicator : std::unary_function<CommunicatorDescriptorPtr&, void>

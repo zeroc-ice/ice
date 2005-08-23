@@ -25,15 +25,17 @@ public:
     Resolver(const ApplicationHelper&, const std::string&, const std::map<std::string, std::string>&);
     Resolver(const Resolver&, const std::map<std::string, std::string>&, bool);
 
-    std::string operator()(const std::string&, const std::string& = std::string(), bool = true) const;
+    std::string operator()(const std::string&, const std::string& = std::string(), bool = true, bool = true) const;
     std::string asInt(const std::string&, const std::string& = std::string()) const;
     void setReserved(const std::string&, const std::string&);
     void setContext(const std::string&);
+
     void exception(const std::string&) const;
 
     TemplateDescriptor getServerTemplate(const std::string&) const;
     TemplateDescriptor getServiceTemplate(const std::string&) const;
-
+    PatchDescriptor getPatchDescriptor(const std::string&) const;
+    
 private:
 
     std::string substitute(const std::string&, bool = false) const;
@@ -234,6 +236,7 @@ public:
     void getIds(std::multiset<std::string>&, std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
     const NodeDescriptor& getDescriptor() const;
     void getServerInfos(const std::string&, std::map<std::string, ServerInfo>&) const;
+    void getPatchDirs(const std::string&, const Resolver&, std::map<std::string, std::vector<std::string> >&) const;
 
     void print(IceUtil::Output&) const;
     void printDiff(IceUtil::Output&, const NodeHelper&) const;
@@ -263,10 +266,12 @@ public:
     const ApplicationDescriptor& getDescriptor() const;
     TemplateDescriptor getServerTemplate(const std::string&) const;
     TemplateDescriptor getServiceTemplate(const std::string&) const;
+    PatchDescriptor getPatchDescriptor(const std::string&) const;
 
     void print(IceUtil::Output&) const;
     void printDiff(IceUtil::Output&, const ApplicationHelper&) const;
     std::map<std::string, ServerInfo> getServerInfos() const;
+    std::map<std::string, std::vector<std::string> > getNodesPatchDirs(const std::string&) const;
 
 private:
 

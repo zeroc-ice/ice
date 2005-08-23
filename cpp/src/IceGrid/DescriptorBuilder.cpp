@@ -181,6 +181,23 @@ ApplicationDescriptorBuilder::addServiceTemplate(const string& id, const Templat
     }
 }
 
+void 
+ApplicationDescriptorBuilder::addPatch(const XmlAttributesHelper& attrs)
+{
+    _lastPatch = attrs("id");
+    PatchDescriptor desc;
+    desc.proxy = attrs("proxy", "");
+    desc.destination = attrs("destination", "");
+    _descriptor.patchs.insert(make_pair(_lastPatch, desc));
+}
+
+void
+ApplicationDescriptorBuilder::addPatchDirectory(const string& directory)
+{
+    assert(!_lastPatch.empty());
+    _descriptor.patchs[_lastPatch].sources.push_back(directory);
+}
+
 bool
 ApplicationDescriptorBuilder::isOverride(const string& name)
 {
@@ -450,6 +467,12 @@ void
 ServerDescriptorBuilder::addPatchDirectory(const string& directory)
 {
     _descriptor->patchs.back().sources.push_back(directory);
+}
+
+void
+ServerDescriptorBuilder::addUsePatch(const XmlAttributesHelper& attrs)
+{
+    _descriptor->usePatchs.push_back(attrs("id"));
 }
 
 IceBoxDescriptorBuilder::IceBoxDescriptorBuilder(const XmlAttributesHelper& attrs)

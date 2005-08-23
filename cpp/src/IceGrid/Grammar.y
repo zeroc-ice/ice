@@ -123,6 +123,10 @@ command
 {
     parser->describeApplication($3);
 }
+| ICE_GRID_APPLICATION ICE_GRID_PATCH strings ';'
+{
+    parser->patchApplication($3);
+}
 | ICE_GRID_SERVER ICE_GRID_TEMPLATE ICE_GRID_DESCRIBE strings ';'
 {
     parser->describeServerTemplate($4);

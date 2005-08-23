@@ -253,9 +253,7 @@ Database::addApplicationDescriptor(ObserverSessionI* session, const ApplicationD
 	//
 	if(_descriptors.find(desc.name) != _descriptors.end())
 	{
-	    ApplicationExistsException ex;
-	    ex.name = desc.name;
-	    throw ex;
+	    throw DeploymentException("application `" + desc.name + "' already exists");
 	}
 
 	ApplicationHelper helper(desc);
@@ -480,16 +478,17 @@ Database::getServerInfo(const std::string& name)
 }
 
 ServerPrx
-Database::getServer(const string& name)
+Database::getServer(const string& id)
 {
     int activationTimeout, deactivationTimeout;
-    return getServerWithTimeouts(name, activationTimeout, deactivationTimeout);
+    string node;
+    return getServerWithTimeouts(id, activationTimeout, deactivationTimeout, node);
 }
 
 ServerPrx
-Database::getServerWithTimeouts(const string& name, int& activationTimeout, int& deactivationTimeout)
+Database::getServerWithTimeouts(const string& id, int& activationTimeout, int& deactivationTimeout, string& node)
 {
-    return _serverCache.get(name)->getProxy(activationTimeout, deactivationTimeout);
+    return _serverCache.get(id)->getProxy(activationTimeout, deactivationTimeout, node);
 }
 
 Ice::StringSeq

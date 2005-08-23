@@ -72,6 +72,7 @@ public:
     void describeApplication(const std::list<std::string>&);
     void diffApplication(const std::list<std::string>&);
     void updateApplication(const std::list<std::string>&);
+    void patchApplication(const std::list<std::string>&);
     void listAllApplications();
 
     void describeServerTemplate(const std::list<std::string>&);
@@ -129,6 +130,7 @@ public:
 private:
 
     Parser(const Ice::CommunicatorPtr&, const IceGrid::AdminPrx&, const IceGrid::QueryPrx&);
+    void exception(const Ice::Exception&);
 
     std::string _commands;
     Ice::CommunicatorPtr _communicator;

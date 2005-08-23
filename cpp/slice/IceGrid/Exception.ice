@@ -17,32 +17,10 @@ module IceGrid
 
 /**
  *
- * This exception is raised if a server with the same name already
- * exists.
- *
- **/
-exception ApplicationExistsException
-{
-    string name;
-};
-
-/**
- *
  * This exception is raised if an application does not exist.
  *
  **/
 exception ApplicationNotExistException
-{
-    string name;
-};
-
-/**
- *
- * This exception is raised if a server with the same name already
- * exists.
- *
- **/
-exception ServerExistsException
 {
     string name;
 };
@@ -119,7 +97,11 @@ exception DeploymentException
  **/
 exception NodeUnreachableException
 {
+    /** The name of the node which is not reachable. */
     string name;
+
+    /** The reason why the node couldn't be reached. */
+    string reason;
 };
 
 /**
@@ -130,6 +112,16 @@ exception NodeUnreachableException
  **/
 exception BadSignalException
 {
+};
+
+/**
+ *
+ * This exception is raised if the patching failed.
+ *
+ **/
+exception PatchException
+{
+    string reason;
 };
 
 };

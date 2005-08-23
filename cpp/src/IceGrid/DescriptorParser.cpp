@@ -327,12 +327,27 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	}
 	else if(name == "patch")
 	{
+	    if(!_currentApplication.get() && (!_currentServer.get() || _currentServer.get() != _currentCommunicator))
+	    {
+		error("the <patch> element can only be a child of an <application>, <server> or <icebox> element");
+	    }
+	    if(!_currentServer.get())
+	    {
+		_currentApplication->addPatch(attrs);
+	    }
+	    else
+	    {
+		_currentServer->addPatch(attrs);
+	    }
+	    _inPatch = true;
+	}
+	else if(name == "use-patch")
+	{
 	    if(!_currentServer.get() || _currentServer.get() != _currentCommunicator)
 	    {
-		error("the <patch> element can only be a child of a <server> or <icebox> element");
+		error("the <use-patch> element can only be a child of a <server> or <icebox> element");
 	    }
-	    _currentServer->addPatch(attrs);
-	    _inPatch = true;
+	    _currentServer->addUsePatch(attrs);
 	}
 	else if(name == "dbenv")
 	{
@@ -465,7 +480,14 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	{
 		error("the <directory> element can only be a child of a <patch> element");
 	}
-	_currentServer->addPatchDirectory(elementValue());
+	if(!_currentServer.get())
+	{
+	    _currentApplication->addPatchDirectory(elementValue());
+	}
+	else
+	{
+	    _currentServer->addPatchDirectory(elementValue());
+	}
     }
     else if(name == "adapter")
     {

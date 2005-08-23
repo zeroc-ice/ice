@@ -89,7 +89,7 @@ interface Admin
      *
      **/
     void addApplication(ApplicationDescriptor descriptor)
-	throws DeploymentException, ApplicationExistsException;
+	throws DeploymentException;
 
     /**
      *
@@ -144,6 +144,22 @@ interface Admin
      **/
     void removeApplication(string name)
 	throws ApplicationNotExistException;
+
+    /**
+     *
+     * Patch the given application data. If the patch argument is an
+     * empty string, all the application servers depending on patch
+     * data will be patched.
+     *
+     * @param name The application name.
+     *
+     * @param patch The patch identifier or an empty string.
+     *
+     * @throws PatchException Raised if the patch failed.
+     *
+     **/
+    void patchApplication(string name, string patch)
+	throws ApplicationNotExistException, PatchException;
 
     /**
      *
@@ -308,7 +324,7 @@ interface Admin
      *
      **/
     void patchServer(string id)
-	throws ServerNotExistException, NodeUnreachableException;
+	throws ServerNotExistException, NodeUnreachableException, PatchException;
 
     /**
      *

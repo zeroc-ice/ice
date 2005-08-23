@@ -67,9 +67,9 @@ public:
     void activationFailed(bool);
     void addDynamicInfo(ServerDynamicInfoSeq&, AdapterDynamicInfoSeq&) const;
 
-    void startUpdating();
+    bool startUpdating(bool);
     void finishUpdating();
-
+    const std::string& getId() const;
 private:
     
     void checkActivation();

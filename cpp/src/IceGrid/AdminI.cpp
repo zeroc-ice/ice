@@ -21,12 +21,72 @@ using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
+class ServerProxyWrapper
+{
+public:
+
+    ServerProxyWrapper(const DatabasePtr& database, const string& id) : _id(id)
+    {
+	_proxy = database->getServerWithTimeouts(id, _activationTimeout, _deactivationTimeout, _node);
+    }
+    
+    void
+    useActivationTimeout()
+    {
+	_proxy = ServerPrx::uncheckedCast(_proxy->ice_timeout(_activationTimeout * 1000));
+    }
+
+    void
+    useDeactivationTimeout()
+    {
+	_proxy = ServerPrx::uncheckedCast(_proxy->ice_timeout(_deactivationTimeout * 1000));
+    }
+
+    IceProxy::IceGrid::Server* 
+    operator->() const
+    {
+	return _proxy.get();
+    }
+
+    void
+    handleException(const Ice::Exception& ex)
+    {
+	try
+	{
+	    ex.ice_throw();
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	    throw ServerNotExistException(_id);
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    ostringstream os;
+	    os << ex;
+
+	    NodeUnreachableException ex;
+	    ex.name = _node;
+	    ex.reason = os.str();
+	}
+    }
+
+private:
+
+    string _id;
+    ServerPrx _proxy;
+    int _activationTimeout;
+    int _deactivationTimeout;
+    string _node;
+};
+
 AdminI::AdminI(const CommunicatorPtr& communicator, 
 	       const DatabasePtr& database,
-	       const RegistryPtr& registry) :
+	       const RegistryPtr& registry,
+	       int nodeSessionTimeout) :
     _communicator(communicator),
     _database(database),
-    _registry(registry)
+    _registry(registry),
+    _nodeSessionTimeout(nodeSessionTimeout)
 {
 }
 
@@ -58,6 +118,30 @@ AdminI::removeApplication(const string& name, const Current&)
     _database->removeApplicationDescriptor(0, name);
 }
 
+void
+AdminI::patchApplication(const string& name, const string& patch, const Current&)
+{
+    ApplicationHelper helper(_database->getApplicationDescriptor(name));
+    map<string, vector<string> > nodes = helper.getNodesPatchDirs(patch);
+    for(map<string, vector<string> >::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
+    {
+	try
+	{
+	    NodePrx n = NodePrx::uncheckedCast(_database->getNode(p->first)->ice_timeout(_nodeSessionTimeout * 1000));
+	    n->patch(p->second);
+	}
+	catch(const NodeNotExistException&)
+	{
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+	catch(const Ice::LocalException&)
+	{
+	}
+    }
+}
+
 ApplicationDescriptor
 AdminI::getApplicationDescriptor(const string& name, const Current&) const
 {
@@ -79,137 +163,110 @@ AdminI::getServerInfo(const string& id, const Current&) const
 ServerState
 AdminI::getServerState(const string& id, const Current&) const
 {
-    ServerPrx server = _database->getServer(id);
+    ServerProxyWrapper proxy(_database, id);
     try
     {
-	return server->getState();
+	return proxy->getState();
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch(const Ice::Exception& ex)
     {
-	throw ServerNotExistException();
-    }
-    catch(const Ice::LocalException& ex)
-    {
-	throw NodeUnreachableException();
+	proxy.handleException(ex);
+	return Inactive;
     }
 }
 
 Ice::Int
 AdminI::getServerPid(const string& id, const Current&) const
 {
-    ServerPrx server = _database->getServer(id);
+    ServerProxyWrapper proxy(_database, id);
     try
     {
-	return server->getPid();
+	return proxy->getPid();
     }
-    catch(const Ice::ObjectNotExistException& ex)
+    catch(const Ice::Exception& ex)
     {
-	throw ServerNotExistException();
-    }
-    catch(const Ice::LocalException& ex)
-    {
-	throw NodeUnreachableException();
+	proxy.handleException(ex);
+	return 0;
     }
 }
 
 bool
 AdminI::startServer(const string& id, const Current&)
 {
-    int activationTimeout, deactivationTimeout;
-    ServerPrx server = _database->getServerWithTimeouts(id, activationTimeout, deactivationTimeout);
-    server = ServerPrx::uncheckedCast(server->ice_timeout(activationTimeout * 1000));
+    ServerProxyWrapper proxy(_database, id);
+    proxy.useActivationTimeout();
     try
     {
-	return server->start();
-    }
-    catch(const Ice::ObjectNotExistException&)
-    {
-	throw ServerNotExistException();
+	return proxy->start();
     }
     catch(const Ice::TimeoutException&)
     {
 	return false; // TODO: better exception?
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::Exception& ex)
     {
-	throw NodeUnreachableException();
+	proxy.handleException(ex);
     }
+    return true;
 }
 
 void
 AdminI::stopServer(const string& id, const Current&)
 {
-    int activationTimeout, deactivationTimeout;
-    ServerPrx server = _database->getServerWithTimeouts(id, activationTimeout, deactivationTimeout);
-    server = ServerPrx::uncheckedCast(server->ice_timeout(deactivationTimeout * 1000));
+    ServerProxyWrapper proxy(_database, id);
+    proxy.useDeactivationTimeout();
     try
     {
-	server->stop();
-    }
-    catch(const Ice::ObjectNotExistException&)
-    {
-	throw ServerNotExistException();
+	proxy->stop();
     }
     catch(const Ice::TimeoutException&)
     {
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::Exception& ex)
     {
-	throw NodeUnreachableException();
+	proxy.handleException(ex);
     }
 }
 
 void
 AdminI::patchServer(const string& id, const Current&)
 {
-    ServerPrx server = _database->getServer(id);
+    ServerProxyWrapper proxy(_database, id);
     try
     {
-	server->patch();
+	proxy->patch();
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch(const Ice::Exception& ex)
     {
-	throw ServerNotExistException();
-    }
-    catch(const Ice::LocalException&)
-    {
-	throw NodeUnreachableException();
+	proxy.handleException(ex);
     }
 }
 
 void
 AdminI::sendSignal(const string& id, const string& signal, const Current&)
 {
-    ServerPrx server = _database->getServer(id);
+    ServerProxyWrapper proxy(_database, id);
     try
     {
-	server->sendSignal(signal);
+	return proxy->sendSignal(signal);
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch(const Ice::Exception& ex)
     {
-	throw ServerNotExistException();
-    }
-    catch(const Ice::LocalException&)
-    {
-	throw NodeUnreachableException();
+	proxy.handleException(ex);
     }
 }
 
 void
 AdminI::writeMessage(const string& id, const string& message, Int fd, const Current&)
 {
-    ServerPrx server = _database->getServer(id);
+    ServerProxyWrapper proxy(_database, id);
     try
     {
-	server->writeMessage(message, fd);
+	proxy->writeMessage(message, fd);
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch(const Ice::Exception& ex)
     {
-	throw ServerNotExistException();
-    }
-    catch(const Ice::LocalException&)
-    {
-	throw NodeUnreachableException();
+	proxy.handleException(ex);
     }
 }
 
@@ -223,36 +280,29 @@ AdminI::getAllServerIds(const Current&) const
 ServerActivation 
 AdminI::getServerActivation(const ::std::string& id, const Ice::Current&) const
 {
-    ServerPrx server = _database->getServer(id);
+    ServerProxyWrapper proxy(_database, id);
     try
     {
-	return server->getActivationMode();
+	return proxy->getActivationMode();
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch(const Ice::Exception& ex)
     {
-	throw ServerNotExistException();
-    }
-    catch(const Ice::LocalException&)
-    {
-	throw NodeUnreachableException();
+	proxy.handleException(ex);
+	return Manual;
     }
 }
 
 void 
 AdminI::setServerActivation(const ::std::string& id, ServerActivation mode, const Ice::Current&)
 {
-    ServerPrx server = _database->getServer(id);
+    ServerProxyWrapper proxy(_database, id);
     try
     {
-	server->setActivationMode(mode);
+	proxy->setActivationMode(mode);
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch(const Ice::Exception& ex)
     {
-	throw ServerNotExistException();
-    }
-    catch(const Ice::LocalException&)
-    {
-	throw NodeUnreachableException();
+	proxy.handleException(ex);
     }
 }
 
@@ -304,10 +354,14 @@ AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
     {
 	addObjectWithType(proxy, proxy->ice_id(), current);
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	ostringstream os;
+	os << "failed to invoke ice_id() on proxy `" + _communicator->proxyToString(proxy) + "':\n";
+	os << ex;
+
 	DeploymentException ex;
-	ex.reason = "Couldn't invoke on the object to get its interface.";
+	ex.reason =  os.str();
 	throw ex;
     }
 }
@@ -350,8 +404,7 @@ AdminI::pingNode(const string& name, const Current&) const
 {
     try
     {
-	// TODO: use nodeSessionTimeout
-	NodePrx node = NodePrx::uncheckedCast(_database->getNode(name)->ice_timeout(5000));
+	NodePrx node = NodePrx::uncheckedCast(_database->getNode(name)->ice_timeout(_nodeSessionTimeout * 1000));
 	node->ice_ping();
 	return true;
     }
