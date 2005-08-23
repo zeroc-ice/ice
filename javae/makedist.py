@@ -17,9 +17,10 @@ def usage():
     print "Usage: " + sys.argv[0] + " [options] [tag]"
     print
     print "Options:"
-    print "-h    Show this message."
-    print "-v    Be verbose."
-    print "-j    Use default JDK compiler."
+    print "-h              Show this message."
+    print "-v              Be verbose."
+    print "-j              Use default JDK compiler."
+    print "-Dname=value    Define an ant property."
     print
     print "If no tag is specified, HEAD is used."
 
@@ -69,6 +70,7 @@ else:
 tag = "-rHEAD"
 verbose = 0
 defaultCompiler = 0
+antArgs = ""
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
@@ -77,6 +79,8 @@ for x in sys.argv[1:]:
         verbose = 1
     elif x == "-j":
 	defaultCompiler = 1
+    elif x.startswith("-D"):
+	antArgs = antArgs + ' ' + x
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
@@ -134,10 +138,15 @@ if verbose:
 else:
     quiet = " -q"
 if not defaultCompiler:
+    oldcp = ""
+    if os.environ.has_key("CLASSPATH"):
+	oldcp = os.environ["CLASSPATH"]
     classpath = os.getcwd() + "/ant"
     os.environ["CLASSPATH"] = classpath
-    os.system("ant " + quiet + " -Dbuild.compiler=Javac11 -Djava11.home=" + java11Home + " -Doptimize=on -Ddebug=off ")
-os.system("ant" + quiet + " -Dmidp=on -Doptimize=on -Ddebug=off")
+    os.system("ant " + quiet + " -Dbuild.compiler=Javac11 -Djava11.home=" + java11Home + " -Doptimize=on -Ddebug=off " +
+	      antArgs)
+    os.environ["CLASSPATH"] = oldcp
+os.system("ant" + quiet + " -Dmidp=on -Doptimize=on -Ddebug=off " + antArgs)
 
 #
 # Clean out the jdk/lib directory but save IceE.jar.
