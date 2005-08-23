@@ -39,8 +39,8 @@
         <mkdir dir="${midp.class.dir}"/>
         <javac srcdir="${generated.dir}" destdir="${midp.class.dir}" classpath="${midp.lib.dir}" debug="${debug}"
 	    target="1.1"/>
-        <javac srcdir="." destdir="${midp.class.dir}" classpath="${midp.lib.dir}" excludes="generated/**" debug="${debug}"
-	    target="1.1"/>
+        <javac srcdir="." destdir="${midp.class.dir}" classpath="${midp.lib.dir}" excludes="generated/**"
+	    debug="${debug}" target="1.1"/>
     </target>
 
     <property name="testname" value="Inheritance"/>
@@ -59,7 +59,7 @@
 	<copy overwrite="true" file="config" todir="${midp.class.dir}"/>
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.class.dir}"/>
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
-	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true"
+	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="../common/midp" update="true"
 	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
     </target>
 

@@ -59,7 +59,7 @@
 	<copy overwrite="true" file="config" todir="${midp.class.dir}"/>
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.class.dir}"/>
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
-	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true"
+	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="../common/midp" update="true"
 	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
     </target>
 

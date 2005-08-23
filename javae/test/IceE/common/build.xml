@@ -20,8 +20,8 @@
     <target name="init" depends="config-init"/>
 
     <target name="compile" depends="init" if="midp">
-        <mkdir dir="${class.dir}"/>
-        <javac srcdir="." destdir="${class.dir}" debug="${debug}" target="1.1" classpathref="midp.classpath"
+        <mkdir dir="${midp.class.dir}"/>
+        <javac srcdir="." destdir="${midp.class.dir}" debug="${debug}" target="1.1" classpathref="midp.classpath"
 	    bootclasspathref="midp.bootclasspath"/>
     </target>
 
@@ -29,7 +29,7 @@
 
     <target name="clean">
         <delete dir="${generated.dir}"/>
-        <delete dir="${class.dir}"/>
+        <delete dir="${midp.class.dir}"/>
     </target>
 
 </project>

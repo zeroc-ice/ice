@@ -97,7 +97,7 @@
 	<copy overwrite="true" file="config" todir="${midp.cclass.dir}"/>
 	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="${midp.cclass.dir}"/>
 	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
-	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="../common/classes" update="true"
+	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="../common/midp" update="true"
 	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
     </target>
 
@@ -153,7 +153,7 @@
 
 	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="${midp.sclass.dir}"/>
 	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
-	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true"
+	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="../common/midp" update="true"
 	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
     </target>
 
