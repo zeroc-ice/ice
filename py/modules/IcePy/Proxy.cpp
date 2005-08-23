@@ -1016,11 +1016,15 @@ extern "C"
 static PyObject*
 proxyIceCheckedCast(PyObject* type, PyObject* args)
 {
+    //
+    // ice_checkedCast is called from generated code, therefore we always expect
+    // to receive all four arguments.
+    //
     PyObject* obj;
     char* id;
-    char* facet;
+    PyObject* facetOrCtx = 0;
     PyObject* ctx = 0;
-    if(!PyArg_ParseTuple(args, STRCAST("OssO"), &obj, &id, &facet, &ctx))
+    if(!PyArg_ParseTuple(args, STRCAST("OsOO"), &obj, &id, &facetOrCtx, &ctx))
     {
         return NULL;
     }
@@ -1037,18 +1041,39 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
         return NULL;
     }
 
-    if(ctx == 0 || ctx == Py_None)
+    char* facet = STRCAST("");
+
+    if(PyString_Check(facetOrCtx))
+    {
+	facet = PyString_AS_STRING(facetOrCtx);
+    }
+    else if(PyDict_Check(facetOrCtx))
+    {
+	if(ctx != Py_None)
+	{
+	    PyErr_Format(PyExc_ValueError, STRCAST("facet argument to checkedCast must be a string"));
+	    return NULL;
+	}
+	ctx = facetOrCtx;
+    }
+    else if(facetOrCtx != Py_None)
+    {
+	PyErr_Format(PyExc_ValueError, STRCAST("second argument to checkedCast must be a facet or context"));
+	return NULL;
+    }
+
+    if(ctx != Py_None && !PyDict_Check(ctx))
+    {
+	PyErr_Format(PyExc_ValueError, STRCAST("context argument to checkedCast must be a dictionary"));
+	return NULL;
+    }
+
+    if(ctx == Py_None)
     {
 	return checkedCastImpl((ProxyObject*)obj, id, facet, type);
     }
     else
     {
-	if(!PyDict_Check(ctx))
-	{
-	    PyErr_Format(PyExc_ValueError, STRCAST("context argument must be a dictionary"));
-	    return NULL;
-	}
-
 	Ice::Context c;
 	if(!dictionaryToContext(ctx, c))
 	{
@@ -1103,9 +1128,9 @@ static PyObject*
 proxyCheckedCast(PyObject* /*self*/, PyObject* args)
 {
     PyObject* obj;
-    char* facet = STRCAST("");
-    PyObject* ctx = 0;
-    if(!PyArg_ParseTuple(args, STRCAST("O|sO"), &obj, &facet, &ctx))
+    PyObject* arg1 = 0;
+    PyObject* arg2 = 0;
+    if(!PyArg_ParseTuple(args, STRCAST("O|OO"), &obj, &arg1, &arg2))
     {
         return NULL;
     }
@@ -1122,18 +1147,61 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
         return NULL;
     }
 
-    if(ctx == 0 || ctx == Py_None)
+    char* facet = STRCAST("");
+    PyObject* ctx = 0;
+
+    if(arg1 != 0 && arg2 != 0)
+    {
+	if(arg1 == Py_None)
+	{
+	    arg1 = 0;
+	}
+
+	if(arg2 == Py_None)
+	{
+	    arg2 = 0;
+	}
+
+	if(arg1 != 0)
+	{
+	    if(!PyString_Check(arg1))
+	    {
+		PyErr_Format(PyExc_ValueError, STRCAST("facet argument to checkedCast must be a string"));
+		return NULL;
+	    }
+	    facet = PyString_AS_STRING(arg1);
+	}
+
+	if(arg2 != 0 && !PyDict_Check(arg2))
+	{
+	    PyErr_Format(PyExc_ValueError, STRCAST("context argument to checkedCast must be a dictionary"));
+	    return NULL;
+	}
+	ctx = arg2;
+    }
+    else if(arg1 != 0 && arg1 != Py_None)
+    {
+	if(PyString_Check(arg1))
+	{
+	    facet = PyString_AS_STRING(arg1);
+	}
+	else if(PyDict_Check(arg1))
+	{
+	    ctx = arg1;
+	}
+	else
+	{
+	    PyErr_Format(PyExc_ValueError, STRCAST("second argument to checkedCast must be a facet or context"));
+	    return NULL;
+	}
+    }
+
+    if(ctx == 0)
     {
 	return checkedCastImpl((ProxyObject*)obj, "::Ice::Object", facet, NULL);
     }
     else
     {
-	if(!PyDict_Check(ctx))
-	{
-	    PyErr_Format(PyExc_ValueError, STRCAST("context argument must be a dictionary"));
-	    return NULL;
-	}
-
 	Ice::Context c;
 	if(!dictionaryToContext(ctx, c))
 	{
@@ -1244,7 +1312,7 @@ static PyMethodDef ProxyMethods[] =
     { STRCAST("ice_connection"), (PyCFunction)proxyIceConnection, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_connection() -> Ice.Connection")) },
     { STRCAST("ice_checkedCast"), (PyCFunction)proxyIceCheckedCast, METH_VARARGS | METH_CLASS,
-        PyDoc_STR(STRCAST("ice_checkedCast(proxy, id) -> proxy")) },
+        PyDoc_STR(STRCAST("ice_checkedCast(proxy, id[, facetOrCtx[, ctx]]) -> proxy")) },
     { STRCAST("ice_uncheckedCast"), (PyCFunction)proxyIceUncheckedCast, METH_VARARGS | METH_CLASS,
         PyDoc_STR(STRCAST("ice_uncheckedCast(proxy) -> proxy")) },
     { STRCAST("checkedCast"), (PyCFunction)proxyCheckedCast, METH_VARARGS | METH_STATIC,
