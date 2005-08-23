@@ -120,12 +120,9 @@ public class ServerMIDlet
     public void
     commandAction(javax.microedition.lcdui.Command cmd, javax.microedition.lcdui.Displayable source)
     {
-	if(source == _form)
+	if(source == _form && cmd == CMD_EXIT)
 	{
-	    if(cmd == CMD_EXIT)
-	    {
-		new Thread(new StopServer()).start();
-	    }
+	    new Thread(new StopServer()).start();
 	}
     }
 

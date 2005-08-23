@@ -243,7 +243,13 @@ public final class IncomingConnectionFactory
 		try
 		{
 		    connection = new Ice.Connection(_instance, _transceiver, _endpoint, _adapter);
-		    connection.validate();
+
+		    //
+		    // Wait for the connection to be validated by the
+		    // connection thread.  Once the connection has
+		    // been validated it will be activated also.
+		    //
+		    connection.waitForValidation();
 		}
 		catch(Ice.LocalException ex)
 		{

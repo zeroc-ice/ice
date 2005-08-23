@@ -11,6 +11,31 @@ package Ice;
 
 public final class Connection
 {
+
+    synchronized public void
+    waitForValidation()
+    {
+	while(_state == StateNotValidated)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	}
+	
+	if(_state >= StateClosing)
+	{
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_exception != null);
+	    }
+	    throw _exception;
+	}
+    }
+
     public void
     validate()
     {
@@ -18,37 +43,6 @@ public final class Connection
 	    
 	synchronized(this)
 	{
-	    if(_threadPerConnection != Thread.currentThread())
-	    {
-	        //
-	        // In thread per connection mode, this connection's thread
-	        // will take care of connection validation. Therefore all we
-	        // have to do here is to wait until this thread has completed
-	        // validation.
-	        //
-	        while(_state == StateNotValidated)
-	        {
-	    	    try
-	    	    {
-	    	        wait();
-	    	    }
-	    	    catch(InterruptedException ex)
-	    	    {
-	    	    }
-	        }
-		    
-	        if(_state >= StateClosing)
-	        {
-		    if(IceUtil.Debug.ASSERT)
-		    {
-			IceUtil.Debug.Assert(_exception != null);
-		    }
-	    	    throw _exception;
-	        }
-	        
-	        return;
-	    }
-
 	    if(IceUtil.Debug.ASSERT)
 	    {
 		IceUtil.Debug.Assert(_state == StateNotValidated);

@@ -285,7 +285,12 @@ public final class OutgoingConnectionFactory
 		    }
 		}
 		connection = new Ice.Connection(_instance, transceiver, endpoint, null);
-		connection.validate();
+		//
+		// Wait for the connection to be validated by the
+		// connection thread.  Once the connection has been
+		// validated it will be activated also.
+		//
+		connection.waitForValidation();
 		break;
 	    }
 	    catch(Ice.LocalException ex)
