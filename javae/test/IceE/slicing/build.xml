@@ -205,6 +205,8 @@
         <delete dir="${sgen.dir}"/>
         <delete dir="${cclass.dir}"/>
         <delete dir="${sclass.dir}"/>
+	<delete dir="${midp.cclass.dir}"/>
+	<delete dir="${midp.sclass.dir}"/>
         <delete dir="tmp"/>
 	<delete quiet="true" file="${testclient}.jar"/>
 	<delete quiet="true" file="${testclient}.jad"/>

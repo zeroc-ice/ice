@@ -112,6 +112,7 @@
     <target name="clean">
         <delete dir="${generated.dir}"/>
 	<delete dir="${class.dir}"/>
+	<delete dir="${midp.class.dir}"/>
 	<delete dir="tmp"/>
 	<delete quiet="true" file="${testname}.jar"/>
 	<delete quiet="true" file="${testname}.jad"/>
