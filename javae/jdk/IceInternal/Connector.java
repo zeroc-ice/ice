@@ -9,13 +9,13 @@
 
 package IceInternal;
 
-final class TcpConnector implements Connector
+final class Connector
 {
     private static class ConnectThread extends Thread
     {
-	ConnectThread(String addr)
+	ConnectThread(InetSocketAddress addr)
 	{
-	    _url = addr;
+	    _addr = addr;
 	}
 
 	public void
@@ -23,12 +23,10 @@ final class TcpConnector implements Connector
 	{
 	    try
 	    {
-		javax.microedition.io.Connection connection =
-		    javax.microedition.io.Connector.open(_url,  javax.microedition.io.Connector.READ_WRITE,
-							 true);
+		java.net.Socket fd = new java.net.Socket(_addr.getAddress(), _addr.getPort());
 		synchronized(this)
 		{
-		    _connection = connection;
+		    _fd = fd;
 		    notifyAll();
 		}
 	    }
@@ -42,15 +40,15 @@ final class TcpConnector implements Connector
 	    }
 	}
 
-	javax.microedition.io.Connection
-	getConnection(int timeout)
+	java.net.Socket
+	getFd(int timeout)
 	    throws java.io.IOException
 	{
-	    javax.microedition.io.Connection connection = null;
+	    java.net.Socket fd = null;
 
 	    synchronized(this)
 	    {
-		while(_connection == null && _ex == null)
+		while(_fd == null && _ex == null)
 		{
 		    try
 		    {
@@ -68,16 +66,16 @@ final class TcpConnector implements Connector
 		    throw _ex;
 		}
 
-		connection = _connection;
-		_connection = null;
+		fd = _fd;
+		_fd = null;
 	    }
 
-	    return connection;
+	    return fd;
 	}
 
-	private String _url;
+	private InetSocketAddress _addr;
+	private java.net.Socket _fd;
 	private java.io.IOException _ex;
-	private javax.microedition.io.Connection _connection;
     }
 
     public Transceiver
@@ -89,7 +87,7 @@ final class TcpConnector implements Connector
 	    _logger.trace(_traceLevels.networkCat, s);
 	}
 
-	javax.microedition.io.SocketConnection connection = null;
+	java.net.Socket fd = null;
 	try
 	{
 	    //
@@ -97,29 +95,26 @@ final class TcpConnector implements Connector
 	    //
 	    if(timeout >= 0)
 	    {
-		ConnectThread ct = new ConnectThread(_url);
+		ConnectThread ct = new ConnectThread(_addr);
 		ct.start();
-		connection = (javax.microedition.io.SocketConnection)ct.getConnection(timeout == 0 ? 1 : timeout);
-		if(connection == null)
+		fd = ct.getFd(timeout == 0 ? 1 : timeout);
+		if(fd == null)
 		{
 		    throw new Ice.ConnectTimeoutException();
 		}
 	    }
 	    else
 	    {
-		connection = (javax.microedition.io.SocketConnection)javax.microedition.io.Connector.open(_url, 
-			javax.microedition.io.Connector.READ_WRITE, true);
+		fd = new java.net.Socket(_addr.getAddress(), _addr.getPort());
 	    }
-
-	    connection.setSocketOption(javax.microedition.io.SocketConnection.DELAY, 0);
 	}
-        catch(javax.microedition.io.ConnectionNotFoundException ex)
+        catch(java.net.ConnectException ex)
         {
-	    if(connection != null)
+	    if(fd != null)
 	    {
 		try
 		{
-		    connection.close();
+		    fd.close();
 		}
 		catch(java.io.IOException e)
 		{
@@ -139,11 +134,11 @@ final class TcpConnector implements Connector
         }
 	catch(java.io.IOException ex)
 	{
-	    if(connection != null)
+	    if(fd != null)
 	    {
 		try
 		{
-		    connection.close();
+		    fd.close();
 		}
 		catch(java.io.IOException e)
 		{
@@ -155,11 +150,11 @@ final class TcpConnector implements Connector
 	}
 	catch(RuntimeException ex)
 	{
-	    if(connection != null)
+	    if(fd != null)
 	    {
 		try
 		{
-		    connection.close();
+		    fd.close();
 		}
 		catch(java.io.IOException e)
 		{
@@ -170,33 +165,33 @@ final class TcpConnector implements Connector
 
 	if(_traceLevels.network >= 1)
 	{
-	    String s = "tcp connection established\n" + Network.toString(connection);
+	    String s = "tcp connection established\n" + IceInternal.Network.fdToString(fd);
 	    _logger.trace(_traceLevels.networkCat, s);
 	}
 
-	return new TcpTransceiver(_instance, connection);
+	return new Transceiver(_instance, fd);
     }
 
     public String
     toString()
     {
-	return _url;
+        return Network.addrToString(_addr);
     }
 
     //
     // Only for use by TcpEndpoint
     //
-    TcpConnector(Instance instance, String host, int port)
+    Connector(Instance instance, String host, int port)
     {
         _instance = instance;
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
 
-	_url = "socket://" + host + ':' + port;
+        _addr = Network.getAddress(host, port);
     }
 
     private Instance _instance;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
-    private String _url;
+    private InetSocketAddress _addr;
 }

@@ -259,7 +259,7 @@ final class TcpEndpoint implements Endpoint
     public Connector
     connector()
     {
-        return new TcpConnector(_instance, _host, _port);
+        return new Connector(_instance, _host, _port);
     }
 
     //
@@ -272,7 +272,7 @@ final class TcpEndpoint implements Endpoint
     public Acceptor
     acceptor(EndpointHolder endpoint)
     {
-        TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
+        Acceptor p = new Acceptor(_instance, _host, _port);
         endpoint.value = new TcpEndpoint(_instance, _host, p.effectivePort(), _timeout);
         return p;
     }
@@ -290,16 +290,7 @@ final class TcpEndpoint implements Endpoint
     public boolean
     equivalent(Acceptor acceptor)
     {
-        TcpAcceptor tcpAcceptor = null;
-        try
-        {
-            tcpAcceptor = (TcpAcceptor)acceptor;
-        }
-        catch(ClassCastException ex)
-        {
-            return false;
-        }
-        return tcpAcceptor.equivalent(_host, _port);
+        return acceptor.equivalent(_host, _port);
     }
 
     public int

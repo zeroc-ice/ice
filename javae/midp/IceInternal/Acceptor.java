@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-class TcpAcceptor implements Acceptor
+class Acceptor
 {
     public void
     close()
@@ -86,7 +86,7 @@ class TcpAcceptor implements Acceptor
 	    _logger.trace(_traceLevels.networkCat, s);
 	}
 
-	return new TcpTransceiver(_instance, incoming);
+	return new Transceiver(_instance, incoming);
     }
 
     public void
@@ -141,7 +141,7 @@ class TcpAcceptor implements Acceptor
     //
     // The host argument is ignored in the MIDP profile.
     //
-    TcpAcceptor(Instance instance, String host, int port)
+    Acceptor(Instance instance, String host, int port)
     {
         _instance = instance;
         _traceLevels = instance.traceLevels();

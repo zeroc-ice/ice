@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-final class TcpTransceiver implements Transceiver
+final public class Transceiver
 {
     //
     // TODO- This needs to be refactored. The two worker thread classes
@@ -431,9 +431,9 @@ final class TcpTransceiver implements Transceiver
     }
 
     //
-    // Only for use by TcpConnector, TcpAcceptor
+    // Only for use by Connector, Acceptor
     //
-    TcpTransceiver(Instance instance, javax.microedition.io.Connection connection)
+    Transceiver(Instance instance, javax.microedition.io.Connection connection)
     {
         _connection = (javax.microedition.io.SocketConnection)connection;
         _traceLevels = instance.traceLevels();

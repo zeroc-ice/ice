@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-final class TcpTransceiver implements Transceiver
+final public class Transceiver
 {
     public void
     close()
@@ -224,9 +224,9 @@ final class TcpTransceiver implements Transceiver
     }
 
     //
-    // Only for use by TcpConnector, TcpAcceptor
+    // Only for use by Connector, Acceptor
     //
-    TcpTransceiver(Instance instance, java.net.Socket fd)
+    Transceiver(Instance instance, java.net.Socket fd)
     {
         _fd = fd;
         _traceLevels = instance.traceLevels();

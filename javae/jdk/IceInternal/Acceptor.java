@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-class TcpAcceptor implements Acceptor
+class Acceptor
 {
     public void
     close()
@@ -87,7 +87,7 @@ class TcpAcceptor implements Acceptor
 	    _logger.trace(_traceLevels.networkCat, s);
 	}
 
-	return new TcpTransceiver(_instance, fd);
+	return new Transceiver(_instance, fd);
     }
 
     public void
@@ -125,7 +125,7 @@ class TcpAcceptor implements Acceptor
         return _addr.getPort();
     }
 
-    TcpAcceptor(Instance instance, String host, int port)
+    Acceptor(Instance instance, String host, int port)
     {
         _instance = instance;
         _traceLevels = instance.traceLevels();
