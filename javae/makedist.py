@@ -38,19 +38,6 @@ def find(path, patt):
     return result
 
 #
-# Find directories matching a pattern
-#
-def findDirs(path, patt):
-    result = [ ]
-    files = os.listdir(path)
-    for x in files:
-        fullpath = os.path.join(path, x)
-        if fnmatch.fnmatch(x, patt) and os.path.isdir(fullpath):
-            result.append(fullpath)
-            result.extend(find(fullpath, patt))
-    return result
-
-#
 # Fix version in README, INSTALL files
 #
 def fixVersion(files, version):
@@ -188,7 +175,7 @@ print "Fixing version in README and INSTALL files..."
 fixVersion(find("iceje", "README*"), version)
 fixVersion(find("iceje", "INSTALL*"), version)
 
-midpDirs = findDirs(os.path.join("iceje", "test", "IceE"), "midp*")
+midpDirs = find("iceje", "midp*")
 for x in midpDirs:
     shutil.rmtree(x)
 
