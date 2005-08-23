@@ -39,7 +39,7 @@
         <mkdir dir="${midp.class.dir}"/>
         <javac srcdir="${generated.dir}" destdir="${midp.class.dir}" classpath="${midp.lib.dir}" debug="${debug}"
 	    target="1.1"/>
-        <javac srcdir="." destdir="${class.dir}" classpath="${midp.lib.dir}" excludes="generated/**" debug="${debug}"
+        <javac srcdir="." destdir="${midp.class.dir}" classpath="${midp.lib.dir}" excludes="generated/**" debug="${debug}"
 	    target="1.1"/>
     </target>
 
