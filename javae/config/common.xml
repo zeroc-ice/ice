@@ -17,6 +17,9 @@
     <dirname property="common.basedir" file="${ant.file.common}"/>
     <property file="${common.basedir}/build.properties"/>
 
+    <available property="wtkfound" file="${WTK}" type="dir"/>
+    <fail if="midp" unless="wtkfound" message="WTK directory (${WTK}) does not exist"/>
+
     <path id="wtklibs">
 	<pathelement location="${CLDCLIB}"/>
 	<pathelement location="${MIDPLIB}"/>
