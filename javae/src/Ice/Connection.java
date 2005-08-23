@@ -806,12 +806,6 @@ public final class Connection
     public String
     toString()
     {
-	return _toString();
-    }
-
-    public String
-    _toString()
-    {
 	return _desc; // No mutex lock, _desc is immutable.
     }
 
@@ -930,15 +924,6 @@ public final class Connection
 	    {
 		synchronized(_sendMutex)
 		{
-		    if(_transceiver == null) // Has the transceiver already been closed?
-		    {
-			if(IceUtil.Debug.ASSERT)
-			{
-			    IceUtil.Debug.Assert(_exception != null);
-			}
-			throw _exception; // The exception is immutable at this point.
-		    }
-
 		    IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
 		    os.writeBlob(IceInternal.Protocol.magic);
 		    os.writeByte(IceInternal.Protocol.protocolMajor);
