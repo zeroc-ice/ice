@@ -136,7 +136,7 @@ else:
 if not defaultCompiler:
     classpath = os.getcwd() + "/ant"
     os.environ["CLASSPATH"] = classpath
-    os.system("ant" + quiet + " -Dbuild.compiler=Javac11 -Djava11.home=" + java11Home + " -Doptimize=on -Ddebug=off")
+    os.system("ant " + quiet + " -Dbuild.compiler=Javac11 -Djava11.home=" + java11Home + " -Doptimize=on -Ddebug=off ")
 os.system("ant" + quiet + " -Dmidp=on -Doptimize=on -Ddebug=off")
 
 #
@@ -169,6 +169,7 @@ shutil.rmtree(os.path.join("iceje", "depcache"))
 #
 config = open(os.path.join("iceje", "src", "IceUtil", "Version.java"), "r")
 version = re.search("ICEE_STRING_VERSION = \"([0-9\.]*)\"", config.read()).group(1)
+config.close()
 
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("iceje", "README*"), version)
@@ -184,6 +185,17 @@ fixVersion(find("iceje", "INSTALL*"), version)
 #
 print "Creating distribution..."
 icever = "IceJE-" + version
+
+#
+# Windows requires that the destination directory does not exist,
+# while on Unix it will automatically be removed.
+#
+try:
+    shutil.rmtree(icever)
+except:
+    # ignore
+    pass
+
 os.rename("iceje", icever)
 if verbose:
     quiet = "v"
