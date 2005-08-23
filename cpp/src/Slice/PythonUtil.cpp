@@ -627,9 +627,9 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
         }
 
-        _out << sp << nl << "def checkedCast(proxy, facet='', _ctx=None):";
+        _out << sp << nl << "def checkedCast(proxy, facetOrCtx=None, _ctx=None):";
         _out.inc();
-        _out << nl << "return _M_" << abs << "Prx.ice_checkedCast(proxy, '" << scoped << "', facet, _ctx)";
+        _out << nl << "return _M_" << abs << "Prx.ice_checkedCast(proxy, '" << scoped << "', facetOrCtx, _ctx)";
         _out.dec();
         _out << nl << "checkedCast = staticmethod(checkedCast)";
 
