@@ -36,157 +36,6 @@ public final class Connection
 	}
     }
 
-    public void
-    validate()
-    {
-	boolean active;
-	    
-	synchronized(this)
-	{
-	    if(IceUtil.Debug.ASSERT)
-	    {
-		IceUtil.Debug.Assert(_state == StateNotValidated);
-	    }
-		
-	    if(_adapter != null)
-	    {
-	        active = true; // The server side has the active role for connection validation.
-	    }
-	    else
-	    {
-	        active = false; // The client side has the passive role for connection validation.
-	    }	    
-	}
-
-	try
-	{
-	    int timeout;
-	    IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-	    if(defaultsAndOverrides.overrideConnectTimeout)
-	    {
-	        timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
-	    }
-	    else
-	    {
-	        timeout = _endpoint.timeout();
-	    }
-
-	    if(active)
-	    {
-		synchronized(_sendMutex)
-		{
-		    if(_transceiver == null) // Has the transceiver already been closed?
-		    {
-			if(IceUtil.Debug.ASSERT)
-			{
-			    IceUtil.Debug.Assert(_exception != null);
-			}
-			throw _exception; // The exception is immutable at this point.
-		    }
-
-		    IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
-		    os.writeBlob(IceInternal.Protocol.magic);
-		    os.writeByte(IceInternal.Protocol.protocolMajor);
-		    os.writeByte(IceInternal.Protocol.protocolMinor);
-		    os.writeByte(IceInternal.Protocol.encodingMajor);
-		    os.writeByte(IceInternal.Protocol.encodingMinor);
-		    os.writeByte(IceInternal.Protocol.validateConnectionMsg);
-		    os.writeByte((byte)0); // Compression status (always zero for validate connection).
-		    os.writeInt(IceInternal.Protocol.headerSize); // Message size.
-		    IceInternal.TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
-		    try
-		    {
-			_transceiver.write(os, timeout);
-		    }
-		    catch(Ice.TimeoutException ex)
-		    {
-			throw new Ice.ConnectTimeoutException();
-		    }
-		}
-	    }
-	    else
-	    {
-	        IceInternal.BasicStream is = new IceInternal.BasicStream(_instance);
-	        is.resize(IceInternal.Protocol.headerSize, true);
-	        is.pos(0);
-	        try
-	        {
-	    	    _transceiver.read(is, timeout);
-	        }
-	        catch(Ice.TimeoutException ex)
-	        {
-	    	    throw new Ice.ConnectTimeoutException();
-	        }
-		if(IceUtil.Debug.ASSERT)
-		{
-		    IceUtil.Debug.Assert(is.pos() == IceInternal.Protocol.headerSize);
-		}
-	        is.pos(0);
-	        byte[] m = is.readBlob(4);
-	        if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
-	           m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
-	        {
-	            BadMagicException ex = new BadMagicException();
-	    	    ex.badMagic = m;
-	    	    throw ex;
-	        }
-	        byte pMajor = is.readByte();
-	        byte pMinor = is.readByte();
-	        if(pMajor != IceInternal.Protocol.protocolMajor)
-	        {
-	    	    UnsupportedProtocolException e = new UnsupportedProtocolException();
-	    	    e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-	    	    e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-	    	    e.major = IceInternal.Protocol.protocolMajor;
-	    	    e.minor = IceInternal.Protocol.protocolMinor;
-	    	    throw e;
-	        }
-	        byte eMajor = is.readByte();
-	        byte eMinor = is.readByte();
-	        if(eMajor != IceInternal.Protocol.encodingMajor)
-	        {
-	    	    UnsupportedEncodingException e = new UnsupportedEncodingException();
-	    	    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-	    	    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-	    	    e.major = IceInternal.Protocol.encodingMajor;
-	    	    e.minor = IceInternal.Protocol.encodingMinor;
-	    	    throw e;
-	        }
-	        byte messageType = is.readByte();
-	        if(messageType != IceInternal.Protocol.validateConnectionMsg)
-	        {
-	    	    throw new ConnectionNotValidatedException();
-	        }
-	        byte compress = is.readByte(); // Ignore compression status for validate connection.
-	        int size = is.readInt();
-	        if(size != IceInternal.Protocol.headerSize)
-	        {
-	    	    throw new IllegalMessageSizeException();
-	        }
-	        IceInternal.TraceUtil.traceHeader("received validate connection", is, _logger, _traceLevels);
-	    }
-	}
-	catch(LocalException ex)
-	{
-	    synchronized(this)
-	    {
-		setState(StateClosed, ex);
-		if(IceUtil.Debug.ASSERT)
-		{
-		    IceUtil.Debug.Assert(_exception != null);
-		}
-		throw _exception;
-	    }
-	}
-	
-	synchronized(this)
-	{
-	    //
-	    // We start out in holding state.
-	    //
-	    setState(StateHolding);
-	}
-    }
 
     public synchronized void
     activate()
@@ -1041,6 +890,158 @@ public final class Connection
     private static final int StateHolding = 2;
     private static final int StateClosing = 3;
     private static final int StateClosed = 4;
+
+    private void
+    validate()
+    {
+	boolean active;
+	    
+	synchronized(this)
+	{
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_state == StateNotValidated);
+	    }
+		
+	    if(_adapter != null)
+	    {
+	        active = true; // The server side has the active role for connection validation.
+	    }
+	    else
+	    {
+	        active = false; // The client side has the passive role for connection validation.
+	    }	    
+	}
+
+	try
+	{
+	    int timeout;
+	    IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+	    if(defaultsAndOverrides.overrideConnectTimeout)
+	    {
+	        timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
+	    }
+	    else
+	    {
+	        timeout = _endpoint.timeout();
+	    }
+
+	    if(active)
+	    {
+		synchronized(_sendMutex)
+		{
+		    if(_transceiver == null) // Has the transceiver already been closed?
+		    {
+			if(IceUtil.Debug.ASSERT)
+			{
+			    IceUtil.Debug.Assert(_exception != null);
+			}
+			throw _exception; // The exception is immutable at this point.
+		    }
+
+		    IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
+		    os.writeBlob(IceInternal.Protocol.magic);
+		    os.writeByte(IceInternal.Protocol.protocolMajor);
+		    os.writeByte(IceInternal.Protocol.protocolMinor);
+		    os.writeByte(IceInternal.Protocol.encodingMajor);
+		    os.writeByte(IceInternal.Protocol.encodingMinor);
+		    os.writeByte(IceInternal.Protocol.validateConnectionMsg);
+		    os.writeByte((byte)0); // Compression status (always zero for validate connection).
+		    os.writeInt(IceInternal.Protocol.headerSize); // Message size.
+		    IceInternal.TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
+		    try
+		    {
+			_transceiver.write(os, timeout);
+		    }
+		    catch(Ice.TimeoutException ex)
+		    {
+			throw new Ice.ConnectTimeoutException();
+		    }
+		}
+	    }
+	    else
+	    {
+	        IceInternal.BasicStream is = new IceInternal.BasicStream(_instance);
+	        is.resize(IceInternal.Protocol.headerSize, true);
+	        is.pos(0);
+	        try
+	        {
+	    	    _transceiver.read(is, timeout);
+	        }
+	        catch(Ice.TimeoutException ex)
+	        {
+	    	    throw new Ice.ConnectTimeoutException();
+	        }
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(is.pos() == IceInternal.Protocol.headerSize);
+		}
+	        is.pos(0);
+	        byte[] m = is.readBlob(4);
+	        if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
+	           m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
+	        {
+	            BadMagicException ex = new BadMagicException();
+	    	    ex.badMagic = m;
+	    	    throw ex;
+	        }
+	        byte pMajor = is.readByte();
+	        byte pMinor = is.readByte();
+	        if(pMajor != IceInternal.Protocol.protocolMajor)
+	        {
+	    	    UnsupportedProtocolException e = new UnsupportedProtocolException();
+	    	    e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
+	    	    e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
+	    	    e.major = IceInternal.Protocol.protocolMajor;
+	    	    e.minor = IceInternal.Protocol.protocolMinor;
+	    	    throw e;
+	        }
+	        byte eMajor = is.readByte();
+	        byte eMinor = is.readByte();
+	        if(eMajor != IceInternal.Protocol.encodingMajor)
+	        {
+	    	    UnsupportedEncodingException e = new UnsupportedEncodingException();
+	    	    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+	    	    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+	    	    e.major = IceInternal.Protocol.encodingMajor;
+	    	    e.minor = IceInternal.Protocol.encodingMinor;
+	    	    throw e;
+	        }
+	        byte messageType = is.readByte();
+	        if(messageType != IceInternal.Protocol.validateConnectionMsg)
+	        {
+	    	    throw new ConnectionNotValidatedException();
+	        }
+	        byte compress = is.readByte(); // Ignore compression status for validate connection.
+	        int size = is.readInt();
+	        if(size != IceInternal.Protocol.headerSize)
+	        {
+	    	    throw new IllegalMessageSizeException();
+	        }
+	        IceInternal.TraceUtil.traceHeader("received validate connection", is, _logger, _traceLevels);
+	    }
+	}
+	catch(LocalException ex)
+	{
+	    synchronized(this)
+	    {
+		setState(StateClosed, ex);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_exception != null);
+		}
+		throw _exception;
+	    }
+	}
+	
+	synchronized(this)
+	{
+	    //
+	    // We start out in holding state.
+	    //
+	    setState(StateHolding);
+	}
+    }
 
     private void
     setState(int state, LocalException ex)
