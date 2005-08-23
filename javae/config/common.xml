@@ -25,6 +25,7 @@
     <property name="WTKLIBS" refid="wtklibs"/>
 
     <property name="class.dir" value="classes"/>
+    <property name="midp.class.dir" value="midp"/>
     <property name="generated.dir" value="generated"/>
 
     <condition property="hasProguard">
