@@ -216,11 +216,23 @@ class MyDerivedClassI(Test.MyDerivedClass):
     def opDerived_async(self, cb, current=None):
         cb.ice_response()
 
+class TestCheckedCastI(Test.TestCheckedCast):
+    def __init__(self):
+	self.ctx = None
+
+    def getContext(self, current):
+	return self.ctx;
+
+    def ice_isA(self, s, current):
+	self.ctx = current.ctx
+	return Test.TestCheckedCast.ice_isA(self, s, current)
+
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    object = MyDerivedClassI(adapter, Ice.stringToIdentity("test"))
-    adapter.add(object, Ice.stringToIdentity("test"))
+    id = Ice.stringToIdentity("test")
+    adapter.add(MyDerivedClassI(adapter, id), id)
+    adapter.add(TestCheckedCastI(), Ice.stringToIdentity("context"))
     adapter.activate()
     communicator.waitForShutdown()
     return True

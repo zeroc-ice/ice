@@ -152,6 +152,11 @@ dictionary<string, MyEnum> StringMyEnumD;
     void opDerived();
 };
 
+interface TestCheckedCast
+{
+    StringStringD getContext();
+};
+
 };
 
 #endif

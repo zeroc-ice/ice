@@ -63,6 +63,23 @@ def allTests(communicator):
 
     print "ok"
 
+    print "testing checked cast with context... ",
+    cref = "context:default -p 12345 -t 10000";
+    cbase = communicator.stringToProxy(cref);
+    test(cbase != None);
+
+    tccp = Test.TestCheckedCastPrx.checkedCast(cbase);
+    c = tccp.getContext();
+    test(c == None or len(c) == 0);
+
+    c = { }
+    c["one"] = "hello";
+    c["two"] =  "world";
+    tccp = Test.TestCheckedCastPrx.checkedCast(cbase, c);
+    c2 = tccp.getContext();
+    test(c == c2)
+    print "ok"
+
     print "testing twoway operations...",
     Twoways.twoways(cl)
     Twoways.twoways(derived)
