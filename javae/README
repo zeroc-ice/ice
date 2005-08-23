@@ -87,3 +87,10 @@ Customization
 If the current features do not meet your requirements, ZeroC can
 customize Ice-E for commercial users. Please contact us at
 info@zeroc.com for more information.
+
+Ice-E for Java Unsupported Features
+-----------------------------------
+
+The Ice.StdErr and Ice.StdOut properties are not supported as the CLDC
+does not provide a mechanism for reassigning the stderr and stdout
+streams.
