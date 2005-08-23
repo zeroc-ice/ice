@@ -29,15 +29,23 @@
 
     <target name="compile" depends="generate">
         <mkdir dir="${class.dir}"/>
-        <javac srcdir="${generated.dir}" destdir="${class.dir}" classpath="${jdk.lib.dir}" debug="${debug}"
+        <javac srcdir="${generated.dir}" destdir="${class.dir}" classpath="${jdk.lib.dir}/IceE.jar" debug="${debug}"
 	    target="1.1"/>
-        <javac srcdir="." destdir="${class.dir}" classpath="${jdk.lib.dir}" excludes="generated/**" debug="${debug}"
-	    target="1.1"/>
+        <javac srcdir="." destdir="${class.dir}" classpath="${jdk.lib.dir}/IceE.jar" excludes="generated/**"
+	    debug="${debug}" target="1.1"/>
+    </target>
+
+    <target name="midp-compile" depends="generate" if="midp">
+        <mkdir dir="${midp.class.dir}"/>
+	<javac srcdir="${generated.dir}" destdir="${midp.class.dir}" classpath="${midp.lib.dir}" 
+	    debug="${debug}" target="1.1"/>
+        <javac srcdir="." destdir="${midp.class.dir}" classpath="${midp.lib.dir}" excludes="generated/**"
+	    debug="${debug}" target="1.1"/>
     </target>
 
     <property name="testname" value="AdapterDeactivation"/>
 
-    <target name="midlet-jar" depends="compile" if="midp">
+    <target name="midlet-jar" depends="midp-compile" if="midp">
 	<ant dir="../common" inheritAll="false" target="compile"/>
         <mkdir dir="tmp"/>
 	<manifest file="MANIFEST.MF">
@@ -48,8 +56,8 @@
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
         </manifest>
 
-	<copy overwrite="true" file="config" todir="classes"/>
-	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="classes"/>
+	<copy overwrite="true" file="config" todir="${midp.class.dir}"/>
+	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.class.dir}"/>
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true"
 	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>

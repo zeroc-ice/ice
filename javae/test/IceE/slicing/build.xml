@@ -21,6 +21,9 @@
 
     <property name="cclass.dir" value="cclasses"/>
     <property name="sclass.dir" value="sclasses"/>
+    <property name="midp.cclass.dir" value="midpclient"/>
+    <property name="midp.sclass.dir" value="midpserver"/>
+
     <property name="cgen.dir" value="cgenerated"/>
     <property name="sgen.dir" value="sgenerated"/>
     <property name="csrc.dir" value="csrc"/>
@@ -64,10 +67,23 @@
 	    debug="${debug}" target="1.1"/>
     </target>
 
+    <target name="midp-compile" depends="generate" if="midp">
+        <mkdir dir="${midp.cclass.dir}"/>
+        <javac srcdir="${cgen.dir}" destdir="${midp.cclass.dir}" classpath="${midp.lib.dir}" debug="${debug}"
+	    target="1.1"/>
+        <javac srcdir="${csrc.dir}" destdir="${midp.cclass.dir}" classpath="${midp.lib.dir}" excludes="${cgen.dir}/**"
+	    debug="${debug}" target="1.1"/>
+        <mkdir dir="${midp.sclass.dir}"/>
+        <javac srcdir="${sgen.dir}" destdir="${midp.sclass.dir}" classpath="${midp.lib.dir}" debug="${debug}"
+	    target="1.1"/>
+        <javac srcdir="${ssrc.dir}" destdir="${midp.sclass.dir}" classpath="${midp.lib.dir}" excludes="${sgen.dir}/**"
+	    debug="${debug}" target="1.1"/>
+    </target>
+
     <property name="testclient" value="SliceClient"/>
     <property name="testserver" value="SliceServer"/>
 
-    <target name="client-midlet-jar" depends="compile" if="midp">
+    <target name="client-midlet-jar" depends="midp-compile" if="midp">
 	<ant dir="../common" inheritAll="false" target="compile"/>
         <mkdir dir="tmp"/>
 	<manifest file="CLIENTMANIFEST.MF">
@@ -78,8 +94,8 @@
 	    <attribute name="MIDlet-Name" value="${testclient}Test"/>
         </manifest>
 
-	<copy overwrite="true" file="config" todir="cclasses"/>
-	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="cclasses"/>
+	<copy overwrite="true" file="config" todir="${midp.cclass.dir}"/>
+	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="${midp.cclass.dir}"/>
 	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
 	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="../common/classes" update="true"
 	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
@@ -124,7 +140,7 @@
         </jadfile>
     </target>
 
-    <target name="server-midlet-jar" depends="compile" if="midp">
+    <target name="server-midlet-jar" depends="midp-compile" if="midp">
 	<ant dir="../common" inheritAll="false" target="compile"/>
         <mkdir dir="tmp"/>
 	<manifest file="MANIFEST.MF">
@@ -135,7 +151,7 @@
 	    <attribute name="MIDlet-Name" value="${testserver}Test"/>
         </manifest>
 
-	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="sclasses"/>
+	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="${midp.sclass.dir}"/>
 	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
 	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="../common/classes" update="true"
 	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>

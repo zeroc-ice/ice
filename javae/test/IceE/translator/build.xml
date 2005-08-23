@@ -19,7 +19,7 @@
 
     <target name="init" depends="config-init"/>
 
-    <target name="generate" depends="init" unless="java11.home">
+    <target name="generate" depends="init" unless="build.compiler">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
         <slice2javae outputdir="${generated.dir}" tie="on">
@@ -66,7 +66,7 @@
         </slice2javae>
     </target>
 
-    <target name="compile" depends="generate" unless="java11.home">
+    <target name="compile" depends="generate" unless="build.compiler">
         <mkdir dir="${class.dir}"/>
         <javac srcdir="${generated.dir}" destdir="${class.dir}" classpath="${jdk.lib.dir}" debug="${debug}"
 	    target="1.1"/>
