@@ -15,7 +15,7 @@ The J2ME version of Ice-E for Java has been tested in the following
 environments:
 
 * Linux and Windows 2000/XP using J2ME emulators from Sun and Nokia
-* A Nokia Series40 mobile phone
+* A Nokia Series 40 mobile phone
 * A PalmOS 5 mobile phone running IBM's JVM
 
 In addition to the Ice-E for Java classes, you will also need the
