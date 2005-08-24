@@ -3,7 +3,7 @@ and server and to measure the maximum bandwidth that can be achieved
 using serialized synchronous requests.
 
 It is possible to run this demo with reduced-size sequences on platforms
-that may have memory contraints that make the full-size sequences 
+that may have memory constraints that make the full-size sequences 
 unusable.
 
 To start the server with reduced sequences, use this command:
