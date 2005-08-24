@@ -184,7 +184,7 @@ print "Fixing version in README and INSTALL files..."
 fixVersion(find("iceje", "README*"), version)
 fixVersion(find("iceje", "INSTALL*"), version)
 
-midpDirs = find("iceje", "midp*")
+midpDirs = find(os.path.join("iceje", "test", "IceE"), "midp*")
 for x in midpDirs:
     shutil.rmtree(x)
 
