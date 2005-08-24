@@ -11,11 +11,17 @@ Requirements
 Operating systems
 -----------------
 
-The JDK version of Ice-E for Java has been tested under Linux and
-Windows 2000/XP, and Windows CE 4.2 with CrEme 3.26
-(http://www.nsicom.com) on a Pocket PC 2003 (HP iPAQ PXA270). Due to
-the portability of Java, it is very likely that it will also work on
-other platforms for which a suitable Java implementation is available.
+The JDK version of Ice-E for Java has been tested in the following
+environments:
+
+* Linux RedHat 9 and Fedora Core 3 using JDK 1.1.8 and 1.4.2
+* Windows 2000/XP using JDK 1.1.8 and 1.4.2
+* Windows CE 4.2 with CrEme 3.26 (http://www.nsicom.com) on a Pocket
+  PC 2003 (HP iPAQ PXA270).
+
+Due to the portability of Java, it is very likely that it will also
+work on other platforms for which a suitable Java implementation is
+available.
 
 In addition to the Ice-E for Java classes, you will also need the
 Slice-to-Embedded-Java translator (see below). ZeroC provides
@@ -85,7 +91,13 @@ There is generally no need to compile Ice-E for Java because this
 distribution already contains the class files for the Ice-E core,
 examples and tests.
 
-If you want to rebuild the source code, follow these steps:
+If you want to rebuild the source code, be aware that the ant
+utility is required, and furthermore that ant only runs under newer
+versions of Java. Therefore, if you want to compile Ice-E for Java
+using an older version of Java that is incapable of executing ant,
+such as 1.1.x, then special precautions are necessary (see below).
+
+Follow these steps to rebuild the source code:
 
 1. Ensure that 'ant' version 1.6.3 or later is installed. To verify
    your version of ant, run
@@ -100,15 +112,28 @@ If you want to rebuild the source code, follow these steps:
    your PATH.
 
 3. Review config/build.properties. The comments in this file provide
-   more information.
+   more information. The midp property should only be defined if you
+   want to enable J2ME support and have the necessary tools (see
+   INSTALL.J2ME for more information).
 
 4. Clean the existing source tree:
 
    $ ant clean
 
-5. Finally, compile the sources:
+5. Finally, compile the sources. To build Ice-E using a newer Java
+   compiler, run
 
    $ ant
+
+   To build Ice-E using Java 1.1.x, do the following:
+
+   a. Add the full pathname of IceEJ-@ver@/ant to your CLASSPATH.
+
+   b. Run ant with the following arguments:
+
+   $ ant -Dbuild.compiler=Javac11 -Djava11.home=<JDK_DIR>
+
+   Replace <JDK_DIR> with your installation directory for JDK 1.1.8.
 
 
 ======================================================================
