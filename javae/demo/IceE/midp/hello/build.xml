@@ -62,7 +62,7 @@
 	<taskdef resource="proguard/ant/task.properties"/>
 	<move overwrite="true" file="tmp/HelloClient.jar" tofile="tmp/HelloClient_orig.jar"/>
 	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on"
-	    allowaccessmodification="on" printseeds="on">
+	    allowaccessmodification="on" printseeds="on" usemixedcaseclassnames="off">
 	    <injar file="tmp/HelloClient_orig.jar"/>
 	    <outjar file="tmp/HelloClient.jar"/>
 	    <libraryjar refid="wtklibs"/>
@@ -118,7 +118,7 @@
 	<taskdef resource="proguard/ant/task.properties"/>
 	<move overwrite="true" file="tmp/HelloServer.jar" tofile="tmp/HelloServer_orig.jar"/>
 	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on"
-	    allowaccessmodification="on" printseeds="on">
+	    allowaccessmodification="on" printseeds="on" usemixedcaseclassnames="off">
 	    <injar file="tmp/HelloServer_orig.jar"/>
 	    <outjar file="tmp/HelloServer.jar"/>
 	    <libraryjar refid="wtklibs"/>

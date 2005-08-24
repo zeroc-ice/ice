@@ -67,17 +67,17 @@
 
     <target name="obfuscate" depends="jar" if="hasProguard">
 	<taskdef resource="proguard/ant/task.properties"/>
-	<proguard obfuscate="false" optimize="false" printmapping="tmp/ChatDemo.map">
-	    <injar file="tmp/ChatDemo.jar"/>
+	<move overwrite="true" file="tmp/ChatDemo.jar" tofile="tmp/ChatDemo_orig.jar"/>
+	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on"
+	    allowaccessmodification="on" printseeds="on" usemixedcaseclassnames="off">
+	    <injar file="tmp/ChatDemo_orig.jar"/>
+	    <outjar file="tmp/ChatDemo.jar"/>
 	    <libraryjar refid="wtklibs"/>
-	    <outjar file="tmp/ChatDemo_pro.jar"/>
-	    <keep name="ChatMIDlet">
-		<method name="*"/>
-		<constructor parameters="*"/>
-	    </keep>
+	    <keep access="public" extends="javax.microedition.midlet.MIDlet"/>
+	    <keepclasseswithmembernames>
+		<method access="native" />
+	    </keepclasseswithmembernames>
 	</proguard>
-	<move file="tmp/ChatDemo.jar" tofile="tmp/ChatDemo_orig.jar"/>
-	<move file="tmp/ChatDemo_pro.jar" tofile="tmp/ChatDemo.jar"/>
     </target>
 
     <target name="preverify" depends="obfuscate">
