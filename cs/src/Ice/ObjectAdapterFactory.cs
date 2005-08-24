@@ -18,6 +18,8 @@ namespace IceInternal
     {
 	public void shutdown()
 	{
+	    Hashtable adapters;
+
 	    lock(this)
 	    {
 		//
@@ -28,16 +30,22 @@ namespace IceInternal
 		{
 		    return;
 		}
-		
-		foreach(Ice.ObjectAdapter adapter in _adapters.Values)
-		{
-		    adapter.deactivate();
-		}
+
+		adapters = _adpaters;
 		
 		_instance = null;
 		_communicator = null;
 		
 		System.Threading.Monitor.PulseAll(this);
+	    }
+
+	    //
+	    // Deactivate outside the thread synchronization, to avoid
+	    // deadlocks.
+	    //
+	    foreach(Ice.ObjectAdapter adapter in adapters.Values)
+	    {
+	        adapter.deactivate();
 	    }
 	}
 	
