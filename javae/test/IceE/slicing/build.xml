@@ -56,15 +56,15 @@
 
     <target name="compile" depends="generate">
         <mkdir dir="${cclass.dir}"/>
-        <javac srcdir="${cgen.dir}" destdir="${cclass.dir}" classpath="${jdk.lib.dir}" debug="${debug}"
+        <javac srcdir="${cgen.dir}" destdir="${cclass.dir}" classpath="${jdk.lib.dir}/IceE.jar" debug="${debug}"
 	    target="1.1"/>
-        <javac srcdir="${csrc.dir}" destdir="${cclass.dir}" classpath="${jdk.lib.dir}" excludes="${cgen.dir}/**"
-	    debug="${debug}" target="1.1"/>
+        <javac srcdir="${csrc.dir}" destdir="${cclass.dir}" classpath="${jdk.lib.dir}/IceE.jar"
+            excludes="${cgen.dir}/**" debug="${debug}" target="1.1"/>
         <mkdir dir="${sclass.dir}"/>
-        <javac srcdir="${sgen.dir}" destdir="${sclass.dir}" classpath="${jdk.lib.dir}" debug="${debug}"
+        <javac srcdir="${sgen.dir}" destdir="${sclass.dir}" classpath="${jdk.lib.dir}/IceE.jar" debug="${debug}"
 	    target="1.1"/>
-        <javac srcdir="${ssrc.dir}" destdir="${sclass.dir}" classpath="${jdk.lib.dir}" excludes="${sgen.dir}/**"
-	    debug="${debug}" target="1.1"/>
+        <javac srcdir="${ssrc.dir}" destdir="${sclass.dir}" classpath="${jdk.lib.dir}/IceE.jar"
+            excludes="${sgen.dir}/**" debug="${debug}" target="1.1"/>
     </target>
 
     <target name="midp-compile" depends="generate" if="midp">
