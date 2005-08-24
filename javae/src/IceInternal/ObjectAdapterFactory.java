@@ -11,29 +11,44 @@ package IceInternal;
 
 public final class ObjectAdapterFactory
 {
-    public synchronized void
+    public void
     shutdown()
     {
-	//
-	// Ignore shutdown requests if the object adapter factory has
-	// already been shut down.
-	//
-	if(_instance == null)
+        Ice.ObjectAdapter[] adapters = null;
+
+        synchronized(this)
 	{
-	    return;
+	    //
+	    // Ignore shutdown requests if the object adapter factory has
+	    // already been shut down.
+	    //
+	    if(_instance == null)
+	    {
+	        return;
+	    }
+
+	    adapters = new Ice.ObjectAdapter[_adapters.size()];
+	    int i = 0;
+	    java.util.Enumeration e = _adapters.elements();
+	    while(e.hasMoreElements())
+	    {
+	        adapters[i++] = (Ice.ObjectAdapter)e.nextElement();
+	    }
+
+	    _instance = null;
+	    _communicator = null;
+	
+	    notifyAll();
 	}
 
-        java.util.Enumeration i = _adapters.elements();
-        while(i.hasMoreElements())
-        {
-            Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.nextElement();
-            adapter.deactivate();
-        }
-
-	_instance = null;
-	_communicator = null;
-	
-	notifyAll();
+	//
+	// Deactivate outside the thread synchronization, to avoid
+	// deadlocks.
+	//
+	for(int i = 0; i < adapters.length; ++i)
+	{
+	    adapters[i].deactivate();
+	}
     }
 
     public void
