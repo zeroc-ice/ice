@@ -23,7 +23,6 @@
     <path id="wtklibs">
 	<pathelement location="${CLDCLIB}"/>
 	<pathelement location="${MIDPLIB}"/>
-	<pathelement location="${FSRLIB}"/>
     </path>
 
     <property name="WTKLIBS" refid="wtklibs"/>
