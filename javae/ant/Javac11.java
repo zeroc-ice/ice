@@ -16,7 +16,7 @@ import org.apache.tools.ant.taskdefs.LogStreamHandler;
 
 //
 // This is a "compiler adapter" that allows us to execute a Java 1.1 compiler
-// to build the JDK portions of IceJE.
+// to build the JDK portions of IceEJ.
 //
 // The ant property java11.home must be defined and specify the installation
 // directory of JDK 1.1.

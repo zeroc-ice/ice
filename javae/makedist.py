@@ -107,7 +107,7 @@ os.mkdir(distdir)
 os.chdir(distdir)
 
 #
-# Export IceJE sources from CVS.
+# Export IceEJ sources from CVS.
 #
 print "Checking out CVS tag " + tag + "..."
 if verbose:
