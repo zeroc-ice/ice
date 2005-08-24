@@ -38,7 +38,7 @@ public class Console extends CustomItem
 	_topLine = -1;
     }
 
-    public void
+    public synchronized void
     setText(String text)
     {
 	_lines.removeAllElements();
@@ -55,7 +55,7 @@ public class Console extends CustomItem
 	repaint();
     }
 
-    public void
+    public synchronized void
     addText(String text)
     {
 	if(text != null && text.length() > 0)
@@ -92,7 +92,7 @@ public class Console extends CustomItem
 	return _maxWidth;
     }
 
-    protected void
+    protected synchronized void
     paint(Graphics g, int w, int h)
     {
 	//
@@ -150,7 +150,7 @@ public class Console extends CustomItem
 	g.drawRect(0, 0, _textWidth - 1, _actualHeight - 1);
     }
 
-    protected void
+    protected synchronized void
     sizeChanged(int w, int h)
     {
 	if(w != _actualWidth || h != _actualHeight)
@@ -163,39 +163,6 @@ public class Console extends CustomItem
 	    formatText(0);
 	}
     }
-
-    /*
-    protected void
-    keyReleased(int keyCode)
-    {
-	int action = getGameAction(keyCode);
-	if(action == Canvas.UP)
-	{
-	    if(_topLine == -1 && _lines.size() > _linesPerPage)
-	    {
-		_topLine = _lines.size() - _linesPerPage - 1;
-		repaint();
-	    }
-	    else if(_topLine > 0)
-	    {
-		--_topLine;
-		repaint();
-	    }
-	}
-	else if(action == Canvas.DOWN)
-	{
-	    if(_topLine >= 0)
-	    {
-		++_topLine;
-		if(_topLine + _linesPerPage > _lines.size())
-		{
-		    _topLine = -1;
-		}
-		repaint();
-	    }
-	}
-    }
-    */
 
     protected boolean
     traverse(int dir, int viewportWidth, int viewportHeight, int[] visRect_inout)
