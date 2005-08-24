@@ -240,9 +240,8 @@ public final class Communicator
 	}
 	catch(RuntimeException ex)
 	{
-	    _instance.destroy();
-	    _instance = null;
 	    _destroyed = true;
+	    _instance.destroy();
 	    throw ex;
 	}
     }

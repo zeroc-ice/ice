@@ -137,10 +137,7 @@ Ice::Communicator::createObjectAdapter(const string& name)
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     
-    assert(_instance);
-    ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->createObjectAdapter(name);
-
-    return adapter;
+    return _instance->objectAdapterFactory()->createObjectAdapter(name);
 }
 
 ObjectAdapterPtr
@@ -309,6 +306,14 @@ Ice::Communicator::~Communicator()
 void
 Ice::Communicator::finishSetup(int& argc, char* argv[])
 {
-    _instance->finishSetup(argc, argv);
+    try
+    {
+	_instance->finishSetup(argc, argv);
+    }
+    catch(...)
+    {
+	_destroyed = true;
+	_instance->destroy();
+	throw;
+    }
 }
-
