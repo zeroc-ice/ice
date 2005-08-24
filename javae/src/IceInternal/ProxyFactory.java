@@ -42,21 +42,6 @@ public final class ProxyFactory
         return referenceToProxy(ref);
     }
 
-    public Ice.ObjectPrx
-    referenceToProxy(Reference ref)
-    {
-        if(ref != null)
-        {
-            Ice.ObjectPrxHelperBase proxy = new Ice.ObjectPrxHelperBase();
-            proxy.setup(ref);
-            return proxy;
-        }
-        else
-        {
-            return null;
-        }
-    }
-
     public void
     proxyToStream(Ice.ObjectPrx proxy, BasicStream s)
     {
@@ -73,6 +58,21 @@ public final class ProxyFactory
             ident.name = "";
             ident.category = "";
             ident.__write(s);
+        }
+    }
+
+    public Ice.ObjectPrx
+    referenceToProxy(Reference ref)
+    {
+        if(ref != null)
+        {
+            Ice.ObjectPrxHelperBase proxy = new Ice.ObjectPrxHelperBase();
+            proxy.setup(ref);
+            return proxy;
+        }
+        else
+        {
+            return null;
         }
     }
 
