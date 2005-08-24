@@ -185,6 +185,9 @@ namespace Ice
 	
 	public void deactivate()
 	{
+	    IceInternal.OutgoingConnectionFactory outgoingConnectionFactory;
+	    ArrayList incomingConnectionFactories;
+
 	    lock(this)
 	    {
 		//
@@ -196,20 +199,33 @@ namespace Ice
 		    return;
 		}
 		
-		int sz = _incomingConnectionFactories.Count;
-		for(int i = 0; i < sz; ++i)
-		{
-		    IceInternal.IncomingConnectionFactory factory =
-			(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories[i];
-		    factory.destroy();
-		}
-		
-		_instance.outgoingConnectionFactory().removeAdapter(this);
+		incomingConnectionFactories = new ArrayList(_incomingConnectionFactories);
+		outgoingConnectionFactory = _instance.outgoingConnectionFactory();
 		
 		_deactivated = true;
 		
 		System.Threading.Monitor.PulseAll(this);
 	    }
+
+	    //
+	    // Must be called outside the thread synchronization, because
+	    // Connection::destroy() might block when sending a CloseConnection
+	    // message.
+	    //
+	    int sz = incomingConnectionFactories.Count;
+	    for(int i = 0; i < sz; ++i)
+	    {
+		IceInternal.IncomingConnectionFactory factory =
+		    (IceInternal.IncomingConnectionFactory)incomingConnectionFactories[i];
+		factory.destroy();
+	    }
+
+	    //
+	    // Must be called outside the thread synchronization, because
+	    // changing the object adapter might block if there are still
+	    // requests being dispatched.
+	    //
+	    outgoingConnectionFactory.removeAdapter(this);
 	}
 	
 	public void waitForDeactivate()

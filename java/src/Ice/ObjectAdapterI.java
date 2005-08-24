@@ -178,31 +178,49 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	}
     } 
 
-    public synchronized void
+    public void
     deactivate()
     {
-	//
-	// Ignore deactivation requests if the object adapter has
-	// already been deactivated.
-	//
-	if(_deactivated)
+	IceInternal.OutgoingConnectionFactory outgoingConnectionFactory;
+	java.util.ArrayList incomingConnectionFactories;
+	synchronized(this)
 	{
-	    return;
+	    //
+	    // Ignore deactivation requests if the object adapter has
+	    // already been deactivated.
+	    //
+	    if(_deactivated)
+	    {
+		return;
+	    }
+	    
+	    incomingConnectionFactories = new java.util.ArrayList(_incomingConnectionFactories);
+	    outgoingConnectionFactory = _instance.outgoingConnectionFactory();
+	    
+	    _deactivated = true;
+	    
+	    notifyAll();
 	}
-	
-	final int sz = _incomingConnectionFactories.size();
+
+	//
+	// Must be called outside the thread synchronization, because
+	// Connection::destroy() might block when sending a CloseConnection
+	// message.
+	//
+	final int sz = incomingConnectionFactories.size();
 	for(int i = 0; i < sz; ++i)
 	{
 	    IceInternal.IncomingConnectionFactory factory =
-		(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+		(IceInternal.IncomingConnectionFactory)incomingConnectionFactories.get(i);
 	    factory.destroy();
 	}
-	
-	_instance.outgoingConnectionFactory().removeAdapter(this);
-	
-	_deactivated = true;
-	
-	notifyAll();
+
+	//
+	// Must be called outside the thread synchronization, because
+	// changing the object adapter might block if there are still
+	// requests being dispatched.
+	//
+	outgoingConnectionFactory.removeAdapter(this);
     }
 
     public void
