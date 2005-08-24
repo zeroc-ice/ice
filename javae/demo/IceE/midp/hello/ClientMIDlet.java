@@ -111,8 +111,16 @@ public class ClientMIDlet
 	    {
 		_msg.setText("(unable to retrieve reference, please check the config file in the demo directory)");
 	    }
-	    Ice.ObjectPrx base = _communicator.stringToProxy(proxy);
-	    _helloPrx = HelloPrxHelper.checkedCast(base);
+	    try
+	    {
+		Ice.ObjectPrx base = _communicator.stringToProxy(proxy);
+		_helloPrx = HelloPrxHelper.checkedCast(base);
+	    }
+	    catch(Exception ex)
+	    {
+		_msg.setText("'sayHello()' failed");
+		return;
+	    }
 	}
 	try
 	{
