@@ -168,10 +168,22 @@ os.chdir(cwd)
 #
 # Remove all generated directories.
 #
-generatedDirs = find("iceje", "generated")
-for x in generatedDirs:
+dirsToRemove = find("iceje", "generated")
+for x in dirsToRemove:
     shutil.rmtree(x)
 shutil.rmtree(os.path.join("iceje", "depcache"))
+
+#
+# Remove all manifest files and some unnecessary directories.
+#
+dirsToRemove = find(os.path.join("iceje", "demo", "IceE", "midp"), "classes")
+dirsToRemove.extend(find(os.path.join("iceje", "demo", "IceE", "midp"), "tmp"))
+dirsToRemove.extend(find(os.path.join("iceje", "test", "IceE"), "tmp"))
+for x in dirsToRemove:
+    shutil.rmtree(x)
+filesToRemove = find("iceje", "*.MF")
+for x in filesToRemove:
+    os.remove(x)
 
 #
 # Get Ice version.
