@@ -19,7 +19,7 @@ public class FixedReference extends Reference
 		   int md,
 		   Ice.Connection[] fixedConns)
     {
-    	super(inst, ident, ctx, fs, md);
+    	super(inst, ident, ctx, fs, md, false);
         _fixedConnections = fixedConns;
     }
 
@@ -27,12 +27,6 @@ public class FixedReference extends Reference
     getFixedConnections()
     {
         return _fixedConnections;
-    }
-
-    public boolean
-    getSecure()
-    {
-        return false;
     }
 
     public Endpoint[]

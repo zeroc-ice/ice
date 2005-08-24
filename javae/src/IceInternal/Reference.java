@@ -24,6 +24,12 @@ public abstract class Reference
         return _mode;
     }
 
+    public final boolean
+    getSecure()
+    {
+        return _secure;
+    }
+
     public final Ice.Identity
     getIdentity()
     {
@@ -67,7 +73,6 @@ public abstract class Reference
         return _instance.communicator();
     }
 
-    public abstract boolean getSecure();
     public abstract Endpoint[] getEndpoints();
 
     //
@@ -166,6 +171,7 @@ public abstract class Reference
     {
 	Reference r = _instance.referenceFactory().copy(this);
 	r._mode = ModeTwoway;
+	r._secure = false;
 	r._hasContext = false;
 	r._context = _emptyContext;
 	r._facet = "";
@@ -353,6 +359,11 @@ public abstract class Reference
             return false;
         }
 
+	if(_secure != r._secure)
+	{
+	    return false;
+	}
+
         if(!_identity.equals(r._identity))
         {
             return false;
@@ -402,6 +413,7 @@ public abstract class Reference
     private Instance _instance;
 
     private int _mode;
+    private boolean _secure;
     private Ice.Identity _identity;
     private boolean _hasContext;
     private java.util.Hashtable _context;
@@ -424,7 +436,8 @@ public abstract class Reference
               Ice.Identity ident,
 	      java.util.Hashtable ctx,
               String fac,
-              int md)
+              int md,
+	      boolean sec)
     {
         //
         // Validate string arguments.
@@ -438,6 +451,7 @@ public abstract class Reference
 
         _instance = inst;
         _mode = md;
+        _secure = sec;
         _identity = ident;
 	_hasContext = ctx != null && !ctx.isEmpty();
 	_context = ctx == null ? _emptyContext : ctx;
