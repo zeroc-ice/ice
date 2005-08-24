@@ -93,9 +93,9 @@ examples and tests.
 
 If you want to rebuild the source code, be aware that the ant
 utility is required, and furthermore that ant only runs under newer
-versions of Java. Therefore, if you want to compile Ice-E for Java
-using an older version of Java that is incapable of executing ant,
-such as 1.1.x, then special precautions are necessary (see below).
+versions of Java. Special precautions are necessary if you want to
+compile Ice-E using an older version of Java that is incapable of
+executing ant, such as 1.1.x.
 
 Follow these steps to rebuild the source code:
 
