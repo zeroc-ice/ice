@@ -457,5 +457,14 @@ Ice::CommunicatorI::~CommunicatorI()
 void
 Ice::CommunicatorI::finishSetup(int& argc, char* argv[])
 {
-    _instance->finishSetup(argc, argv);
+    try
+    {
+	_instance->finishSetup(argc, argv);
+    }
+    catch(...)
+    {
+	_destroyed = true;
+	_instance->destroy();
+	throw;
+    }
 }

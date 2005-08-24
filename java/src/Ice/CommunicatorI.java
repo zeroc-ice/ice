@@ -18,11 +18,12 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
 
 	synchronized(this)
 	{
-	    if(!_destroyed) // Don't destroy twice.
+	    if(_destroyed) // Don't destroy twice.
 	    {
-		_destroyed = true;
-		instance = _instance;
+		return;
 	    }
+	    _destroyed = true;
+	    instance = _instance;
 	}
 
 	if(instance != null)

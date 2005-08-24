@@ -324,12 +324,8 @@ namespace Ice
 	    }
 	    catch(System.Exception)
 	    {
+		_destroyed = true;
 		_instance.destroy();
-		_instance = null;
-		lock(this)
-		{
-		    _destroyed = true;
-		}
 		throw;
 	    }
 	}
