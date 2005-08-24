@@ -197,7 +197,7 @@ for x in midpDirs:
 # Create source archives.
 #
 print "Creating distribution..."
-icever = "IceJE-" + version
+icever = "IceEJ-" + version
 
 #
 # Windows requires that the destination directory does not exist,
