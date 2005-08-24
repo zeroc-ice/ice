@@ -131,19 +131,37 @@ public final class ObjectAdapter
 	}
     } 
 
-    public synchronized void
+    public void
     deactivate()
     {
-	//
-	// Ignore deactivation requests if the object adapter has
-	// already been deactivated.
-	//
-	if(_deactivated)
+	java.util.Vector incomingConnectionFactories;
+	IceInternal.OutgoingConnectionFactory outgoingConnectionFactory;
+
+	synchronized(this)
 	{
-	    return;
+	    //
+	    // Ignore deactivation requests if the object adapter has
+	    // already been deactivated.
+	    //
+	    if(_deactivated)
+	    {
+		return;
+	    }
+
+	    incomingConnectionFactories = (java.util.Vector)_incomingConnectionFactories.clone();
+	    outgoingConnectionFactory = _instance.outgoingConnectionFactory();
+	    
+	    _deactivated = true;
+
+	    notifyAll();
 	}
-	
-	java.util.Enumeration e = _incomingConnectionFactories.elements();
+
+	//
+	// Must be called outside the thread synchronization, because
+	// Connection::destroy() might block when sending a
+	// CloseConnection message.
+	//
+	java.util.Enumeration e = incomingConnectionFactories.elements();
 	while(e.hasMoreElements())
 	{
 	    IceInternal.IncomingConnectionFactory factory =
@@ -151,11 +169,12 @@ public final class ObjectAdapter
 	    factory.destroy();
 	}
 	
-	_instance.outgoingConnectionFactory().removeAdapter(this);
-	
-	_deactivated = true;
-	
-	notifyAll();
+	//
+	// Must be called outside the thread synchronization, because
+	// changing the object adapter might block if there are still
+	// requests being dispatched.
+	//
+	outgoingConnectionFactory.removeAdapter(this);
     }
 
     public void
@@ -195,7 +214,6 @@ public final class ObjectAdapter
 	    }
 	    _waitForDeactivate = true;
 	}
-	
 	
 	//
 	// Now we wait for until all incoming connection factories are
@@ -531,12 +549,7 @@ public final class ObjectAdapter
 	java.util.Vector f;
 	synchronized(this)
 	{
-	    f = new java.util.Vector(_incomingConnectionFactories.size());
-	    java.util.Enumeration e = _incomingConnectionFactories.elements();
-	    while(e.hasMoreElements())
-	    {
-		f.addElement(e.nextElement());
-	    }
+	    f = (java.util.Vector)_incomingConnectionFactories.clone();
 	}
 	java.util.Enumeration i = f.elements();
 	while(i.hasMoreElements())
