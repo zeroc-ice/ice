@@ -361,10 +361,6 @@ public final class OutgoingConnectionFactory
 		    connection.destroy(Ice.Connection.CommunicatorDestroyed);
 		    throw new Ice.CommunicatorDestroyedException();
 		}
-		else
-		{
-		    connection.activate();
-		}
 	    }
 	}
 	

@@ -108,11 +108,11 @@ final public class Incoming extends IncomingBase
 	    {
 	        if(servantManager != null && servantManager.hasServant(_current.id))
 	        {
-	    	status = DispatchStatus.DispatchFacetNotExist;
+		    status = DispatchStatus.DispatchFacetNotExist;
 	        }
 	        else
 	        {
-	    	status = DispatchStatus.DispatchObjectNotExist;
+		    status = DispatchStatus.DispatchObjectNotExist;
 	        }
 	    }
 	    else

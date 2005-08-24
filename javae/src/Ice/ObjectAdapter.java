@@ -148,7 +148,17 @@ public final class ObjectAdapter
 		return;
 	    }
 
-	    incomingConnectionFactories = (java.util.Vector)_incomingConnectionFactories.clone();
+	    
+	    //
+	    // No clone call with J2ME.
+	    //
+	    //incomingConnectionFactories = (java.util.Vector)_incomingConnectionFactories.clone();
+	    incomingConnectionFactories = new java.util.Vector(_incomingConnectionFactories.size());
+            java.util.Enumeration e = _incomingConnectionFactories.elements();
+            while(e.hasMoreElements())
+            {
+                incomingConnectionFactories.addElement(e.nextElement());
+            }
 	    outgoingConnectionFactory = _instance.outgoingConnectionFactory();
 	    
 	    _deactivated = true;
@@ -549,7 +559,16 @@ public final class ObjectAdapter
 	java.util.Vector f;
 	synchronized(this)
 	{
-	    f = (java.util.Vector)_incomingConnectionFactories.clone();
+	    //
+	    // No clone() call with J2ME.
+	    //
+	    //f = (java.util.Vector)_incomingConnectionFactories.clone();
+	    f = new java.util.Vector(_incomingConnectionFactories.size());
+            java.util.Enumeration e = _incomingConnectionFactories.elements();
+            while(e.hasMoreElements())
+            {
+                f.addElement(e.nextElement());
+            }
 	}
 	java.util.Enumeration i = f.elements();
 	while(i.hasMoreElements())

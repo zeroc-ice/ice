@@ -56,6 +56,10 @@ public final class IncomingConnectionFactory
 	    // outside the thread synchronization.
 	    //
 
+	    //
+	    // No clone call with J2Me.
+	    //
+	    //connections = (java.util.Vector)_connections.clone();
 	    connections = new java.util.Vector(_connections.size());
 	    java.util.Enumeration e = _connections.elements();
 	    while(e.hasMoreElements())
