@@ -23,6 +23,7 @@
     <path id="wtklibs">
 	<pathelement location="${CLDCLIB}"/>
 	<pathelement location="${MIDPLIB}"/>
+	<pathelement location="${FSRLIB}"/>
     </path>
 
     <property name="WTKLIBS" refid="wtklibs"/>
@@ -56,7 +57,7 @@
 	</path>
 
 	<!-- classpath and bootclasspath for compiling with J2ME -->
-	<path id="midp.classpath" location="${jdk.lib.dir}"/>
+	<path id="midp.classpath" location="${midp.lib.dir}"/>
         <path id="midp.bootclasspath" path="${WTKLIBS}"/>
     </target>
     
