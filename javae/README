@@ -70,6 +70,13 @@ java.util.Hashtable instead.
 
 Metadata to customize the mapping for sequences is ignored.
 
+Property Changes
+----------------
+
+The properties Ice.StdErr and Ice.StdOut properties are not supported, 
+since J2ME does not provide a mechanism for reassigning the stderr and
+stdout streams.
+
 Other Removed Features
 ----------------------
 
@@ -87,10 +94,3 @@ Customization
 If the current features do not meet your requirements, ZeroC can
 customize Ice-E for commercial users. Please contact us at
 info@zeroc.com for more information.
-
-Ice-E for Java Unsupported Features
------------------------------------
-
-The Ice.StdErr and Ice.StdOut properties are not supported as the CLDC
-does not provide a mechanism for reassigning the stderr and stdout
-streams.

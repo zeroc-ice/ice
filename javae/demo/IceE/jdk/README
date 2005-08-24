@@ -2,10 +2,10 @@ Demos in this directory:
 
 - bidir
 
-  This demo shows how to use bi-directional connections for
-  callbacks. This is typically used if the server cannot open a
-  connection to the client to send callbacks, for example, because
-  firewalls block incoming connections to the client.
+  This demo shows how to use bi-directional connections for callbacks.
+  This is typically used when the server cannot open a connection to
+  the client to send callbacks, for example, because firewalls block
+  incoming connections to the client.
 
 - callback
 
@@ -27,8 +27,7 @@ Demos in this directory:
 
 - latency
 
-  A simple latency test that measures the basic call dispatch delay of
-  Ice.
+  A simple latency test that measures basic call dispatch delay.
 
 - throughput
 
