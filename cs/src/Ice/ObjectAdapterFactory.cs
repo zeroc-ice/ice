@@ -31,7 +31,7 @@ namespace IceInternal
 		    return;
 		}
 
-		adapters = _adpaters;
+		adapters = _adapters;
 		
 		_instance = null;
 		_communicator = null;
