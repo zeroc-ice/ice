@@ -30,6 +30,9 @@ struct FileInfo
 
     /** The size of the compressed file in number of bytes. **/
     int size;
+
+    /** The executable flag. */
+    bool executable;
 };
 
 /**

@@ -47,7 +47,7 @@ public:
     }
 
     void
-    add(const FileInfo info)
+    add(const FileInfo& info)
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	if(!_exception.empty())
@@ -115,6 +115,7 @@ public:
 	    try
 	    {
 		decompressFile(_dataDir + '/' + info.path);
+		setFileFlags(_dataDir + '/' + info.path, info);
 		remove(_dataDir + '/' + info.path + ".bz2");
 	    }
 	    catch(const string& ex)
@@ -370,26 +371,59 @@ IcePatch2::Patcher::prepare()
 
 		if(node0Nxt < 256)
 		{
-		    _serverNoCompress->getFileInfoSeq_async(nxtCB, node0Nxt);
+		    _serverCompress->getFileInfoSeq_async(nxtCB, node0Nxt);
 		}
 
 		FileInfoSeq files = curCB->getFileInfoSeq();
 		
-		sort(files.begin(), files.end(), FileInfoLess());
+ 		sort(files.begin(), files.end(), FileInfoLess());
 		files.erase(unique(files.begin(), files.end(), FileInfoEqual()), files.end());
-		
+
+		//
+		// Compute the set of files which were removed.
+		//
 		set_difference(tree0.nodes[node0].files.begin(),
 			       tree0.nodes[node0].files.end(),
 			       files.begin(),
 			       files.end(),
 			       back_inserter(_removeFiles),
-			       FileInfoLess());
-		
+			       FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
+
+		//
+		// Compute the set of files which were updated (either the file contents, flags or both).
+		//
+		FileInfoSeq updatedFiles;
+		updatedFiles.reserve(files.size());
+				    
 		set_difference(files.begin(),
 			       files.end(),
 			       tree0.nodes[node0].files.begin(),
 			       tree0.nodes[node0].files.end(),
-			       back_inserter(_updateFiles),
+			       back_inserter(updatedFiles),
+			       FileInfoLess());
+
+		//
+		// Compute the set of files whose contents was updated.
+		//
+		FileInfoSeq contentsUpdatedFiles;
+		contentsUpdatedFiles.reserve(files.size());
+
+		set_difference(files.begin(),
+			       files.end(),
+			       tree0.nodes[node0].files.begin(),
+			       tree0.nodes[node0].files.end(),
+			       back_inserter(contentsUpdatedFiles),
+			       FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
+		copy(contentsUpdatedFiles.begin(), contentsUpdatedFiles.end(), back_inserter(_updateFiles));
+
+		//
+		// Compute the set of files whose flags were updated.
+		//
+		set_difference(updatedFiles.begin(),
+			       updatedFiles.end(),
+			       contentsUpdatedFiles.begin(),
+			       contentsUpdatedFiles.end(),
+			       back_inserter(_updateFlags),
 			       FileInfoLess());
 	    }
 
@@ -403,11 +437,12 @@ IcePatch2::Patcher::prepare()
 	{
 	    return false;
 	}
-    }
-    
+    }    
+
     sort(_removeFiles.begin(), _removeFiles.end(), FileInfoLess());
     sort(_updateFiles.begin(), _updateFiles.end(), FileInfoLess());
-
+    sort(_updateFlags.begin(), _updateFlags.end(), FileInfoLess());
+		
     string pathLog = simplify(_dataDir + '/' + logFile);
     _log.open(pathLog.c_str());
     if(!_log)
@@ -436,6 +471,14 @@ IcePatch2::Patcher::patch(const string& d)
 	if(!_updateFiles.empty())
 	{
 	    if(!updateFiles(_updateFiles))
+	    {
+		return false;
+	    }
+	}
+
+	if(!_updateFlags.empty())
+	{
+	    if(!updateFlags(_updateFlags))
 	    {
 		return false;
 	    }
@@ -475,6 +518,19 @@ IcePatch2::Patcher::patch(const string& d)
 	    }
 	}
 
+	FileInfoSeq updateFlag;
+	for(p = _updateFlags.begin(); p != _updateFlags.end(); ++p)
+	{
+	    if(p->path == dir)
+	    {
+		updateFlag.push_back(*p);
+	    }
+	    else if(p->path.compare(0, dirWithSlash.size(), dirWithSlash) == 0)
+	    {
+		updateFlag.push_back(*p);
+	    }
+	}
+
 	if(!remove.empty())
 	{
 	    if(!removeFiles(remove))
@@ -491,6 +547,14 @@ IcePatch2::Patcher::patch(const string& d)
 	    }
 	}
 	
+	if(!updateFlag.empty())
+	{
+	    if(!updateFlags(updateFlag))
+	    {
+		return false;
+	    }
+	}
+
 	return true;
     }
 }
@@ -862,3 +926,53 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 
     return true;
 }
+
+bool
+IcePatch2::Patcher::updateFlags(const FileInfoSeq& files)
+{
+    for(FileInfoSeq::const_iterator p = files.begin(); p != files.end(); ++p)
+    {
+	if(p->size >= 0) // Regular file?
+	{
+	    setFileFlags(_dataDir + '/' + p->path, *p);
+	}
+    }
+
+    //
+    // Remove the old files whose flags were updated from the set of
+    // local files.
+    // 
+    FileInfoSeq localFiles;
+    localFiles.reserve(_localFiles.size());
+    set_difference(_localFiles.begin(),
+		   _localFiles.end(),
+		   files.begin(),
+		   files.end(),
+		   back_inserter(localFiles),
+		   FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags.
+
+    //
+    // Add the new files to the set of local file. 
+    //
+    _localFiles.clear();
+    set_union(localFiles.begin(),
+	      localFiles.end(),
+	      files.begin(),
+	      files.end(),
+	      back_inserter(_localFiles),
+	      FileInfoLess());
+
+    FileInfoSeq newUpdateFlags;
+
+    set_difference(_updateFlags.begin(),
+		   _updateFlags.end(),
+		   files.begin(),
+		   files.end(),
+		   back_inserter(newUpdateFlags),
+		   FileInfoLess());
+	
+    _updateFlags.swap(newUpdateFlags);
+
+    return true;
+}
+

@@ -48,6 +48,7 @@ ICE_PATCH2_API void createDirectoryRecursive(const std::string&);
 
 ICE_PATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);
 ICE_PATCH2_API void decompressFile(const std::string&);
+ICE_PATCH2_API void setFileFlags(const std::string&, const FileInfo&);
 
 struct FileInfoEqual: public std::binary_function<const FileInfo&, const FileInfo&, bool>
 {
@@ -72,22 +73,33 @@ struct FileInfoEqual: public std::binary_function<const FileInfo&, const FileInf
 	    return false;
 	}
 
+	if(lhs.executable != rhs.executable)
+	{
+	    return false;
+	}
+	
 	return lhs.checksum == rhs.checksum;
     }
 };
 
-struct FileInfoLess: public std::binary_function<const FileInfo&, const FileInfo&, bool>
+struct FileInfoWithoutFlagsLess: public std::binary_function<const FileInfo&, const FileInfo&, bool>
 {
     bool
     operator()(const FileInfo& lhs, const FileInfo& rhs)
     {
+	return compareWithoutFlags(lhs, rhs) < 0;
+    }
+
+    int
+    compareWithoutFlags(const FileInfo& lhs, const FileInfo& rhs)
+    {
 	if(lhs.path < rhs.path)
 	{
-	    return true;
+	    return -1;
 	}
 	else if(rhs.path < lhs.path)
 	{
-	    return false;
+	    return 1;
 	}
 
 	//
@@ -100,14 +112,42 @@ struct FileInfoLess: public std::binary_function<const FileInfo&, const FileInfo
 	Ice::Int rsz = rhs.size > 0 ? 0 : rhs.size;
 	if(lsz < rsz)
 	{
-	    return true;
+	    return -1;
 	}
 	else if(rsz < lsz)
+	{
+	    return 1;
+	}
+
+	if(lhs.checksum < rhs.checksum)
+	{
+	    return -1;
+	}
+	else if(rhs.checksum < lhs.checksum)
+	{
+	    return 1;
+	}
+	
+	return 0;
+    }
+};
+
+struct FileInfoLess : public FileInfoWithoutFlagsLess
+{
+    bool
+    operator()(const FileInfo& lhs, const FileInfo& rhs)
+    {
+	int rc = compareWithoutFlags(lhs, rhs);
+	if(rc < 0)
+	{
+	    return true;
+	}
+	else if(rc > 0)
 	{
 	    return false;
 	}
 
-	return lhs.checksum < rhs.checksum;
+	return lhs.executable < rhs.executable;
     }
 };
 

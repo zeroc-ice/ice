@@ -73,6 +73,7 @@ private:
     bool removeFiles(const FileInfoSeq&);
     bool updateFiles(const FileInfoSeq&);
     bool updateFilesInternal(const FileInfoSeq&, const DecompressorPtr&);
+    bool updateFlags(const FileInfoSeq&);
 
     const PatcherFeedbackPtr _feedback;
     const std::string _dataDir;
@@ -84,6 +85,7 @@ private:
 
     FileInfoSeq _localFiles;
     FileInfoSeq _updateFiles;
+    FileInfoSeq _updateFlags;
     FileInfoSeq _removeFiles;
 
     std::ofstream _log;
