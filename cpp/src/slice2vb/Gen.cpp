@@ -2343,8 +2343,21 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out.zeroIndent();
     _out << sp << nl << "#End Region"; // Slice data members
 
-    _out << sp << nl << "#Region \"Constructor\"";
+    bool isClass = p->hasMetaData("vb:class");
+
+    _out << sp << nl << "#Region \"Constructor";
+    if(isClass)
+    {
+        _out << "s";
+    }
+    _out << "\"";
     _out.restoreIndent();
+
+    if(isClass)
+    {
+        _out << sp << nl << "Public Sub New()";
+	_out << nl << "End Sub";
+    }
 
     _out << sp << nl << "Public Sub New" << spar;
     vector<string> paramDecl;
@@ -2362,7 +2375,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     {
         _out << nl << "Me." << *i << " = " << *i;
     }
-    bool isClass = p->hasMetaData("vb:class");
     bool patchStruct = !isClass && classMembers.size() != 0;
     if(!p->isLocal() && patchStruct)
     {
@@ -2372,7 +2384,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "End Sub";
 
     _out.zeroIndent();
-    _out << sp << nl << "#End Region"; // Constructor
+    _out << sp << nl << "#End Region"; // Constructor(s)
     _out.restoreIndent();
 
     if(isClass)
