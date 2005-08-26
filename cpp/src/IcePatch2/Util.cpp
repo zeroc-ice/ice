@@ -717,6 +717,7 @@ IcePatch2::decompressFile(const string& pa)
 void
 IcePatch2::setFileFlags(const string& pa, const FileInfo& info)
 {
+#ifndef _WIN32 // Windows doesn't support the executable flag
     const string path = simplify(pa);
     struct stat buf;
     if(stat(path.c_str(), &buf) == -1)
@@ -724,6 +725,7 @@ IcePatch2::setFileFlags(const string& pa, const FileInfo& info)
 	throw "cannot stat `" + path + "':\n" + lastError();
     }
     chmod(path.c_str(), info.executable ? buf.st_mode | S_IXUSR : buf.st_mode & ~S_IXUSR);
+#endif
 }
 
 static bool
@@ -826,7 +828,11 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 	    FileInfo info;
 	    info.path = relPath;
 	    info.size = 0;
+#ifdef _WIN32
+	    info.executable = false; // Windows doesn't support the executable flag
+#else
 	    info.executable = buf.st_mode & S_IXUSR;
+#endif
 
 	    ByteSeq bytes(relPath.size() + buf.st_size);
 	    copy(relPath.begin(), relPath.end(), bytes.begin());
