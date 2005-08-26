@@ -815,7 +815,11 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out.inc();
 	    if(isArray)
 	    {
-		out << nl << param << "(__ix).__read(" << stream << ")";
+		if(st->hasMetaData("vb:class"))
+		{
+		    out << nl << param << "(__ix) = New " << typeS;
+		}
+  		out << nl << param << "(__ix).__read(" << stream << ")";
 	    }
 	    else
 	    {

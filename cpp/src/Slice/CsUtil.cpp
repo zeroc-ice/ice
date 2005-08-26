@@ -777,6 +777,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << sb;
 	    if(isArray)
 	    {
+		if(st->hasMetaData("cs:class"))
+		{
+		    out << nl << param << "[__ix] = new " << typeS << "();";
+		}
 		out << nl << param << "[__ix].__read(" << stream << ");";
 	    }
 	    else
