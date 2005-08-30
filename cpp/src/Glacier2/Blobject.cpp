@@ -80,10 +80,8 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 		_requestQueue = 0;
 	    }
 	    
-	    __setNoDelete(false);
 	    throw;
 	}
-	__setNoDelete(false);
     }
 }
 
