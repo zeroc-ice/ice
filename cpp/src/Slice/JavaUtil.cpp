@@ -1112,6 +1112,14 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         else
         {
             string typeS = getAbsolute(seq, package);
+	    ostringstream o;
+	    o << origContentS;
+	    int d = depth;
+	    while(d--)
+	    {
+		o << "[]";
+	    }
+	    string cont = o.str();
             if(marshal)
             {
                 out << nl << "if(" << v << " == null)";
@@ -1121,14 +1129,14 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "else";
                 out << sb;
                 out << nl << stream << ".writeSize(" << v << ".size());";
-                ostringstream o;
-                o << "__i" << iter;
+                ostringstream oit;
+                oit << "__i" << iter;
                 iter++;
-                string it = o.str();
+                string it = oit.str();
                 out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
                 out << nl << "while(" << it << ".hasNext())";
                 out << sb;
-                out << nl << origContentS << " __elem = (" << origContentS << ")" << it << ".next();";
+                out << nl << cont << " __elem = (" << cont << ")" << it << ".next();";
                 writeMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
                 out << eb; // while
                 out << eb; // else
@@ -1136,9 +1144,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             else
             {
                 bool isObject = false;
-		BuiltinPtr builtin = BuiltinPtr::dynamicCast(origContent);
-                ClassDeclPtr cl = ClassDeclPtr::dynamicCast(origContent);
-		if((builtin && builtin->kind() == Builtin::KindObject) || cl)
+                ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+		if((b && b->kind() == Builtin::KindObject) || cl)
                 {
                     isObject = true;
                 }
@@ -1154,7 +1161,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		}
                 if(isObject)
                 {
-                    if(builtin)
+                    if(b)
                     {
                         out << nl << "final String __type" << iter << " = Ice.ObjectImpl.ice_staticId();";
                     }
@@ -1189,7 +1196,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		}
 		else
 		{
-		    out << nl << origContentS << " __elem;";
+		    out << nl << cont << " __elem;";
 		    writeMarshalUnmarshalCode(out, package, type, "__elem", false, iter, false);
 		}
 		if(!isObject)
@@ -1208,7 +1215,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		//
 		if(type->isVariableLength())
 		{
-		    if(!SequencePtr::dynamicCast(seq->type()))
+		    if(!SequencePtr::dynamicCast(type))
 		    {
 			//
 			// No need to check for directly nested sequences because, at the at start of each
@@ -1807,12 +1814,14 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
     }
     string origContentS = typeToString(origContent, TypeModeIn, package);
 
+    TypePtr type = seq->type();
+
     if(!listType.empty())
     {
         //
         // Marshal/unmarshal a custom sequence type
         //
-        BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
+        BuiltinPtr b = BuiltinPtr::dynamicCast(type);
         if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
         {
             if(marshal)
@@ -2007,6 +2016,14 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
         else
         {
             string typeS = getAbsolute(seq, package);
+	    ostringstream o;
+	    o << origContentS;
+	    int d = depth;
+	    while(d--)
+	    {
+		o << "[]";
+	    }
+	    string cont = o.str();
             if(marshal)
             {
                 out << nl << "if(" << v << " == null)";
@@ -2016,24 +2033,23 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "else";
                 out << sb;
                 out << nl << stream << ".writeSize(" << v << ".size());";
-                ostringstream o;
-                o << "__i" << iter;
+                ostringstream oit;
+                oit << "__i" << iter;
                 iter++;
-                string it = o.str();
+                string it = oit.str();
                 out << nl << "java.util.Iterator " << it << " = " << v << ".iterator();";
                 out << nl << "while(" << it << ".hasNext())";
                 out << sb;
-                out << nl << origContentS << " __elem = (" << origContentS << ")" << it << ".next();";
-                writeStreamMarshalUnmarshalCode(out, package, seq->type(), "__elem", true, iter, false);
+                out << nl << cont << " __elem = (" << cont << ")" << it << ".next();";
+                writeStreamMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
                 out << eb; // while
                 out << eb; // else
             }
             else
             {
                 bool isObject = false;
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(origContent);
-                ClassDeclPtr cl = ClassDeclPtr::dynamicCast(origContent);
-                if((builtin && builtin->kind() == Builtin::KindObject) || cl)
+                ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+                if((b && b->kind() == Builtin::KindObject) || cl)
                 {
                     isObject = true;
                 }
@@ -2041,7 +2057,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "final int __len" << iter << " = " << stream << ".readSize();";
                 if(isObject)
                 {
-                    if(builtin)
+                    if(b)
                     {
                         out << nl << "final String __type" << iter << " = Ice.ObjectImpl.ice_staticId();";
                     }
@@ -2071,13 +2087,13 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                     ostringstream patchParams;
                     patchParams << "new IceInternal.ListPatcher(" << v << ", " << origContentS << ".class, __type"
                                 << iter << ", __i" << iter << ')';
-                    writeStreamMarshalUnmarshalCode(out, package, seq->type(), "__elem", false, iter, false,
+                    writeStreamMarshalUnmarshalCode(out, package, type, "__elem", false, iter, false,
                                                     StringList(), patchParams.str());
                 }
                 else
                 {
-                    out << nl << origContentS << " __elem;";
-                    writeStreamMarshalUnmarshalCode(out, package, seq->type(), "__elem", false, iter, false);
+                    out << nl << cont << " __elem;";
+                    writeStreamMarshalUnmarshalCode(out, package, type, "__elem", false, iter, false);
                 }
                 if(!isObject)
                 {
@@ -2090,7 +2106,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
     }
     else
     {
-        BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
+        BuiltinPtr b = BuiltinPtr::dynamicCast(type);
         if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy)
         {
             switch(b->kind())
@@ -2217,7 +2233,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                 ostringstream o;
                 o << v << "[__i" << iter << "]";
                 iter++;
-                writeStreamMarshalUnmarshalCode(out, package, seq->type(), o.str(), true, iter, false);
+                writeStreamMarshalUnmarshalCode(out, package, type, o.str(), true, iter, false);
                 out << eb;
                 out << eb;
             }
@@ -2267,12 +2283,12 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                 {
                     patchParams << "new IceInternal.SequencePatcher(" << v << ", " << origContentS
                                 << ".class, __type" << iter << ", __i" << iter << ')';
-                    writeStreamMarshalUnmarshalCode(out, package, seq->type(), o.str(), false, iter, false,
+                    writeStreamMarshalUnmarshalCode(out, package, type, o.str(), false, iter, false,
                                                     StringList(), patchParams.str());
                 }
                 else
                 {
-                    writeStreamMarshalUnmarshalCode(out, package, seq->type(), o.str(), false, iter, false);
+                    writeStreamMarshalUnmarshalCode(out, package, type, o.str(), false, iter, false);
                 }
                 out << eb;
                 iter++;
