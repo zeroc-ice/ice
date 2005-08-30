@@ -58,7 +58,7 @@
 	    update="true"/>
     </target>
 
-    <target name="client-obfuscate" depends="client-jar" if="hasProguard">
+    <target name="client-obfuscate" depends="client-jar" if="hasProguardAndMIDP">
 	<taskdef resource="proguard/ant/task.properties"/>
 	<move overwrite="true" file="tmp/HelloClient.jar" tofile="tmp/HelloClient_orig.jar"/>
 	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on"
@@ -114,7 +114,7 @@
 	    update="true"/>
     </target>
 
-    <target name="server-obfuscate" depends="server-jar" if="hasProguard">
+    <target name="server-obfuscate" depends="server-jar" if="hasProguardAndMIDP">
 	<taskdef resource="proguard/ant/task.properties"/>
 	<move overwrite="true" file="tmp/HelloServer.jar" tofile="tmp/HelloServer_orig.jar"/>
 	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on"

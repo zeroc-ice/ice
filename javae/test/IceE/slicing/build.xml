@@ -101,7 +101,7 @@
 	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
     </target>
 
-    <target name="obfuscate-client" depends="client-midlet-jar" if="hasProguard">
+    <target name="obfuscate-client" depends="client-midlet-jar" if="hasProguardAndMIDP">
 	<taskdef resource="proguard/ant/task.properties"/>
 	<move overwrite="true" file="tmp/${testclient}.jar" tofile="tmp/${testclient}_orig.jar"/>
 	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="off"
@@ -157,7 +157,7 @@
 	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
     </target>
 
-    <target name="obfuscate-server" depends="server-midlet-jar" if="hasProguard">
+    <target name="obfuscate-server" depends="server-midlet-jar" if="hasProguardAndMIDP">
 	<taskdef resource="proguard/ant/task.properties"/>
 	<move overwrite="true" file="tmp/${testserver}.jar" tofile="tmp/${testserver}_orig.jar"/>
 	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="off"

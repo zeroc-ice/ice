@@ -65,7 +65,7 @@
         <jar destfile="tmp/ChatDemo.jar" basedir="${midp.lib.dir}" excludes="IceE.jar" update="true"/>
     </target>
 
-    <target name="obfuscate" depends="jar" if="hasProguard">
+    <target name="obfuscate" depends="jar" if="hasProguardAndMIDP">
 	<taskdef resource="proguard/ant/task.properties"/>
 	<move overwrite="true" file="tmp/ChatDemo.jar" tofile="tmp/ChatDemo_orig.jar"/>
 	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on"

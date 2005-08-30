@@ -32,9 +32,13 @@
     <property name="generated.dir" value="generated"/>
 
     <condition property="hasProguard">
+	<available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}"/>
+    </condition>
+
+    <condition property="hasProguardAndMIDP">
 	<and>
+	    <isset property="hasProguard"/>
 	    <isset property="midp"/>
-	    <available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}"/>
 	</and>
     </condition>
 

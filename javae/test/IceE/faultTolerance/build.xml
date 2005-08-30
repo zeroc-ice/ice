@@ -64,7 +64,7 @@
 	    excludes="**/Client.class"/>
     </target>
 
-    <target name="obfuscate" depends="midlet-jar" if="hasProguard">
+    <target name="obfuscate" depends="midlet-jar" if="hasProguardAndMIDP">
 	<taskdef resource="proguard/ant/task.properties"/>
 	<move overwrite="true" file="tmp/${testname}.jar" tofile="tmp/${testname}_orig.jar"/>
 	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on"
