@@ -168,7 +168,7 @@ os.chdir(cwd)
 #
 # Remove all generated directories.
 #
-dirsToRemove = find("iceje", "generated")
+dirsToRemove = find("iceje", "*generated")
 for x in dirsToRemove:
     shutil.rmtree(x)
 shutil.rmtree(os.path.join("iceje", "depcache"))
