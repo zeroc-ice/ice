@@ -35,6 +35,28 @@
             classpathref="jdk.classpath"/>
     </target>
 
+    <target name="obfuscate" depends="compile" if="hasProguard">
+	<taskdef resource="proguard/ant/task.properties"/>
+	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on"
+	    allowaccessmodification="on" printseeds="on" usemixedcaseclassnames="off">
+	    <injar path="classes:${jdk.lib.dir}/IceE.jar"/>
+	    <outjar file="HelloClient.jar"/>
+	    <libraryjar path="${java.home}/lib/rt.jar"/>
+	    <keep name="Client">
+		<method name="main"/>
+	    </keep>
+	</proguard>
+	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on"
+	    allowaccessmodification="on" printseeds="on" usemixedcaseclassnames="off">
+	    <injar path="classes:${jdk.lib.dir}/IceE.jar"/>
+	    <outjar file="HelloServer.jar"/>
+	    <libraryjar path="${java.home}/lib/rt.jar"/>
+	    <keep name="Server">
+		<method name="main"/>
+	    </keep>
+	</proguard>
+    </target>
+
     <target name="all" depends="compile"/>
 
     <target name="clean">
