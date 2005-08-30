@@ -47,7 +47,7 @@
         AppVarOverridedByParam="Overrided" Param1="Param12"
         Param2="${AppVarOverrided}" ParamEscaped="${varpe}" ParamDoubleEscaped="${varpde}"/>
 
-      <server id="SimpleServer" exe="${test.dir}/server" activation="on-demand">
+      <server id="SimpleServer" exe="${test.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">
   	  <object identity="${server}" type="::Test"/>
         </adapter>
@@ -56,7 +56,7 @@
         <env>MY_ENV_VARIABLE=12</env>
       </server>
 
-      <icebox id="SimpleIceBox" exe="${ice.dir}/bin/icebox" activation="on-demand" endpoints="default">
+      <icebox id="SimpleIceBox" exe="${ice.dir}/bin/icebox" activation="on-demand" endpoints="default" pwd=".">
 	<service name="SimpleService" entry="TestService:create">
 	  <adapter name="${service}" endpoints="default">
 	    <object identity="${server}-${service}" type="::Test"/>

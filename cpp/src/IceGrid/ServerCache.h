@@ -33,7 +33,6 @@ public:
     ServerEntry(Cache<std::string, ServerEntry>&, const std::string&);
     
     void sync();
-    bool needsSync() const;
     void update(const ServerInfo&);
     void destroy();
 
@@ -62,7 +61,6 @@ private:
     int _deactivationTimeout;
 
     bool _synchronizing;
-    bool _failed;
 };
 typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
 typedef std::vector<ServerEntryPtr> ServerEntrySeq;

@@ -1,7 +1,7 @@
 <icegrid>
   <application name="Test">
     <node name="localnode">
-      <server id="server" exe="${test.dir}/server" activation="on-demand">
+      <server id="server" exe="${test.dir}/server" activation="on-demand" pwd=".">
 
         <adapter name="TestAdapter" endpoints="default" register="true" id="TestAdapter">
 	  <object identity="test" type="Test"/>

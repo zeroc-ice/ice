@@ -107,7 +107,7 @@ interface Server
      * Load the server.
      *
      **/
-    void load(ServerDescriptor desc, out StringAdapterPrxDict adapters, out int actTimeout, out int deactTimeout)
+    void update(ServerDescriptor desc, bool load, out StringAdapterPrxDict adpts, out int actT, out int deactT)
 	throws DeploymentException;
 
     /**
@@ -247,7 +247,7 @@ interface Node
      * raise a PatchException.
      * 
      **/
-    idempotent void patch(Ice::StringSeq directories)
+    idempotent void patch(Ice::StringSeq directories, Ice::StringSeq serverDirs)
 	throws  PatchException;
 
     /**

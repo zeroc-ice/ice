@@ -44,6 +44,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	ServerDescriptorPtr server = new ServerDescriptor();
 	server->id = "Server";
 	server->exe = properties->getProperty("TestDir") + "/server";
+	server->pwd = ".";
 	AdapterDescriptor adapter;
 	adapter.name = "Server";
 	adapter.id = "ServerAdapter";
@@ -105,6 +106,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	server = ServerDescriptorPtr::dynamicCast(templ.descriptor);
 	server->id = "${name}";
 	server->exe = "${test.dir}/server";
+	server->pwd = ".";
 	adapter = AdapterDescriptor();
 	adapter.name = "Server";
 	adapter.id = "${server}";
@@ -473,6 +475,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	ServerDescriptorPtr server = new ServerDescriptor();
 	server->id = "${name}";
 	server->exe = "server";
+	server->pwd = ".";
 	server->properties = properties;
 
 	TemplateDescriptor templ;
@@ -711,6 +714,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	ServerDescriptorPtr server = new ServerDescriptor();
 	server->id = "node-${index}";
 	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
+	server->pwd = ".";
 	AdapterDescriptor adapter;
 	adapter.name = "IceGrid.Node";
 	adapter.id = "IceGrid.Node.node-${index}";
@@ -762,6 +766,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	server = new ServerDescriptor();
 	server->id = "Server";
 	server->exe = properties->getProperty("TestDir") + "/server";
+	server->pwd = ".";
  	adapter.name = "Server";
 	adapter.id = "ServerAdapter";
 	adapter.registerProcess = true;

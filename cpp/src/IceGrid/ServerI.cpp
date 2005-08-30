@@ -83,8 +83,8 @@ ServerI::~ServerI()
 }
 
 void
-ServerI::load(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapters, int& activationTimeout,
-	      int& deactivationTimeout, const Ice::Current& current)
+ServerI::update(const ServerDescriptorPtr& descriptor, bool load, StringAdapterPrxDict& adapters,
+		int& activationTimeout, int& deactivationTimeout, const Ice::Current& current)
 {
     startUpdating(true);
 
@@ -93,7 +93,7 @@ ServerI::load(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapt
     //
     try
     {
-	update(descriptor, adapters, activationTimeout, deactivationTimeout, current);
+	updateImpl(descriptor, load, adapters, activationTimeout, deactivationTimeout, current);
     }
     catch(const string& msg)
     {
@@ -481,9 +481,15 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
     Ice::StringSeq envs;
     copy(desc->envs.begin(), desc->envs.end(), back_inserter(envs));
 
+    string pwd = desc->pwd;
+    if(pwd.empty())
+    {
+	pwd = _serverDir + "/data";
+    }
+
     try
     {
-	bool started  = _node->getActivator()->activate(desc->id, desc->exe, desc->pwd, options, envs, _this);
+	bool started  = _node->getActivator()->activate(desc->id, desc->exe, pwd, options, envs, _this);
 	if(!started)
 	{
 	    setState(ServerI::Inactive);
@@ -887,8 +893,8 @@ ServerI::setStateNoSync(InternalServerState st)
 }
 
 void
-ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& adapters, int& activationTimeout,
-		int& deactivationTimeout, const Ice::Current& current)
+ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, StringAdapterPrxDict& adapters,
+		    int& activationTimeout, int& deactivationTimeout, const Ice::Current& current)
 {
     Lock sync(*this);
     _desc = descriptor;
@@ -922,6 +928,10 @@ ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& ada
 	{
 	    throw "can't find `dbs' directory in `" + _serverDir + "'";
 	}
+	if(find(contents.begin(), contents.end(), "data") == contents.end())
+	{
+	    throw "can't find `data' directory in `" + _serverDir + "'";
+	}
     }
     catch(const string& msg)
     {
@@ -932,20 +942,22 @@ ServerI::update(const ServerDescriptorPtr& descriptor, StringAdapterPrxDict& ada
 	createDirectory(_serverDir);
 	createDirectory(_serverDir + "/config");
 	createDirectory(_serverDir + "/dbs");
+	createDirectory(_serverDir + "/data");
     }
 
     //
     // Update the configuration file(s) of the server if necessary.
     //
     Ice::StringSeq knownFiles;
-    updateConfigFile(_serverDir, descriptor);
+    updateConfigFile(_serverDir, descriptor, load);
     knownFiles.push_back("config");
     IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(descriptor);
     if(iceBox)
     {
-	for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+	for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); 
+	    ++p)
 	{
-	    updateConfigFile(_serverDir, ServiceDescriptorPtr::dynamicCast(p->descriptor));
+	    updateConfigFile(_serverDir, ServiceDescriptorPtr::dynamicCast(p->descriptor), load);
 	    knownFiles.push_back("config_" + p->descriptor->name);
 	}
     }
@@ -1055,7 +1067,7 @@ ServerI::addAdapter(const AdapterDescriptor& descriptor, const Ice::Current& cur
 }
 
 void
-ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorPtr& descriptor)
+ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorPtr& descriptor, bool rewrite)
 {
     string configFilePath;
 
@@ -1142,9 +1154,15 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
     }
 
     // 
-    // Only update the properties on the disk if they are different.
+    // Only update the properties on the disk if they are different or
+    // if we're asked to (properties are always re-written after the
+    // server is loaded/updated for the first time after the node was
+    // started, if the node data directory patch has changed, the
+    // changes will be taken into account into the configuration
+    // files.)
     //
-    if(set<PropertyDescriptor>(orig.begin(), orig.end()) != set<PropertyDescriptor>(props.begin(), props.end()))
+    if(rewrite ||
+       set<PropertyDescriptor>(orig.begin(), orig.end()) != set<PropertyDescriptor>(props.begin(), props.end()))
     {
 	ofstream configfile;
 	configfile.open(configFilePath.c_str(), ios::out);

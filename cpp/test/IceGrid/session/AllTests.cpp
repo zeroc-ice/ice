@@ -200,7 +200,7 @@ public:
     updateServer(const string& node, const ServerDynamicInfo& info, const Ice::Current& current)
     {
 	Lock sync(*this);
-//	cerr << node << " " << info.name << " " << info.state << " " << info.pid << endl;
+//	cerr << node << " " << info.id << " " << info.state << " " << info.pid << endl;
 	ServerDynamicInfoSeq& servers = this->nodes[node].servers;
 	ServerDynamicInfoSeq::iterator p;
 	for(p = servers.begin(); p != servers.end(); ++p)
@@ -596,6 +596,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	ServerDescriptorPtr server = new ServerDescriptor();
 	server->id = "node-1";
 	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
+	server->pwd = ".";
 	AdapterDescriptor adapter;
 	adapter.name = "IceGrid.Node";
 	adapter.id = "IceGrid.Node.node-1";
@@ -700,10 +701,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	ServerDescriptorPtr server = new ServerDescriptor();
 	server->id = "node-1";
 	server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
+	server->pwd = ".";
 	AdapterDescriptor adapter;
 	adapter.name = "IceGrid.Node";
 	adapter.id = "IceGrid.Node.node-1";
 	adapter.registerProcess = true;
+	adapter.waitForActivation = false;
 	server->adapters.push_back(adapter);
 	PropertyDescriptor prop;
 	prop.name = "IceGrid.Node.Name";
@@ -749,6 +752,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	server = new ServerDescriptor();
 	server->id = "Server";
 	server->exe = properties->getProperty("TestDir") + "/server";
+	server->pwd = ".";
 	adapter.name = "Server";
 	adapter.id = "ServerAdapter";
 	adapter.registerProcess = true;

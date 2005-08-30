@@ -122,13 +122,13 @@ void
 AdminI::patchApplication(const string& name, const string& patch, const Current&)
 {
     ApplicationHelper helper(_database->getApplicationDescriptor(name));
-    map<string, vector<string> > nodes = helper.getNodesPatchDirs(patch);
-    for(map<string, vector<string> >::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
+    map<string, pair<Ice::StringSeq, Ice::StringSeq> > nodes = helper.getNodesPatchDirs(patch);
+    for(map<string, pair<Ice::StringSeq, Ice::StringSeq> >::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
     {
 	try
 	{
 	    NodePrx n = NodePrx::uncheckedCast(_database->getNode(p->first)->ice_timeout(_nodeSessionTimeout * 1000));
-	    n->patch(p->second);
+	    n->patch(p->second.first, p->second.second);
 	}
 	catch(const NodeNotExistException&)
 	{

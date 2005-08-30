@@ -9,7 +9,7 @@
     <parameter name="ParamEscaped"/>
     <parameter name="ParamDoubleEscaped"/>
 
-    <server id="${name}" exe="${test.dir}/server" activation="on-demand">
+    <server id="${name}" exe="${test.dir}/server" activation="on-demand" pwd=".">
 
       <option>--Test.Test=2</option>
       <option>--Test.Test1=0</option>

@@ -600,6 +600,20 @@ struct ApplicationUpdateDescriptor
 
     /**
      *
+     * The patch descriptors to update.
+     *
+     **/
+    PatchDescriptorDict patchs;
+    
+    /**
+     *
+     * The patch descriptors to remove.
+     *
+     **/
+    Ice::StringSeq removePatchs;
+
+    /**
+     *
      * The replicated adapters to update.
      *
      **/

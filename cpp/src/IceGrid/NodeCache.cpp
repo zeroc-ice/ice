@@ -84,10 +84,7 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
 	    Lock sync(*this);
 	    for(map<string, ServerEntryPtr>::const_iterator q = _servers.begin() ; q != _servers.end(); ++q)
 	    {
-		if(q->second->needsSync())
-		{
-		    entries.push_back(q->second);
-		}
+		entries.push_back(q->second);
 	    }
 	}
 	for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));

@@ -68,6 +68,7 @@ protected:
     void printDbEnv(IceUtil::Output&, const DbEnvDescriptor&) const;
     void printObjectAdapter(IceUtil::Output&, const AdapterDescriptor&) const;
     void printProperties(IceUtil::Output&, const PropertyDescriptorSeq&) const;
+    virtual std::string getProperty(const std::string&) const;
 
     void instantiateImpl(const CommunicatorDescriptorPtr&, const Resolver&) const;
     
@@ -204,6 +205,7 @@ public:
     bool operator!=(const ServerInstanceHelper&) const;
 
     std::string getId() const;
+    bool getPatchDirs(const std::string&, const Resolver&, std::set<std::string>&) const;
     ServerInstanceDescriptor getDescriptor() const;
     ServerDescriptorPtr getDefinition() const;
     ServerDescriptorPtr getInstance() const;
@@ -236,14 +238,13 @@ public:
     void getIds(std::multiset<std::string>&, std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
     const NodeDescriptor& getDescriptor() const;
     void getServerInfos(const std::string&, std::map<std::string, ServerInfo>&) const;
-    void getPatchDirs(const std::string&, const Resolver&, std::map<std::string, std::vector<std::string> >&) const;
+    std::pair<Ice::StringSeq, Ice::StringSeq> getPatchDirs(const std::string&, const Resolver&) const;
 
     void print(IceUtil::Output&) const;
     void printDiff(IceUtil::Output&, const NodeHelper&) const;
+    void validate(const Resolver&) const;
 
 private:
-
-    void validate();
 
     std::string _name;
     NodeDescriptor _desc;
@@ -271,11 +272,11 @@ public:
     void print(IceUtil::Output&) const;
     void printDiff(IceUtil::Output&, const ApplicationHelper&) const;
     std::map<std::string, ServerInfo> getServerInfos() const;
-    std::map<std::string, std::vector<std::string> > getNodesPatchDirs(const std::string&) const;
+    std::map<std::string, std::pair<Ice::StringSeq, Ice::StringSeq> > getNodesPatchDirs(const std::string&) const;
 
 private:
 
-    void validate();
+    void validate(const Resolver&) const;
 
     ApplicationDescriptor _desc;
 

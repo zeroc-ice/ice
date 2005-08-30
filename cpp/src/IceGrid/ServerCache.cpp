@@ -165,13 +165,6 @@ ServerEntry::sync()
     }
 }
 
-bool
-ServerEntry::needsSync() const
-{
-    Lock sync(*this);
-    return _failed;
-}
-
 void
 ServerEntry::update(const ServerInfo& info)
 {
@@ -329,7 +322,6 @@ ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int
 	}
 
 	_synchronizing = true;
-	_failed = false;
 	if(_load.get())
 	{
 	    load = _load->descriptor;
@@ -400,7 +392,6 @@ ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int
 	    Lock sync(*this);
 	    _synchronizing = false;
 	    _destroy.reset(0);
-	    _failed = true;
 	    notifyAll();
 	}
 	if(!load && destroy)

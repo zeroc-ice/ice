@@ -281,7 +281,17 @@ RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDes
 	    }
 	}
     }
+    catch(const DeploymentException& ex)
+    {
+	cerr << ex.reason << endl;
+	//assert(false);
+    }
     catch(const std::string& msg)
+    {
+	cerr << msg << endl;
+	//assert(false);
+    }
+    catch(const char* msg)
     {
 	cerr << msg << endl;
 	//assert(false);

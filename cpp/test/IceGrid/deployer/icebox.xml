@@ -7,7 +7,7 @@
   <server-template id="IceBoxTemplate">
     <parameter name="name"/>
     <parameter name="AppVarOverridedByParam"/>
-    <icebox id="${name}" endpoints="default" exe="${ice.dir}/bin/icebox" activation="on-demand">  
+    <icebox id="${name}" endpoints="default" exe="${ice.dir}/bin/icebox" activation="on-demand" pwd=".">  
       <service-instance template="ServiceTemplate" name="Service1" NodeVarOverridedByParam="Overrided"/>
       <service-instance template="FreezeServiceTemplate" name="Service2"/>
 
