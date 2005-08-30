@@ -548,6 +548,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    throw ex;
 	}
     }
+
+    return 0; // Unreachable, fixes compiler warning.
 }
 
 ReferencePtr

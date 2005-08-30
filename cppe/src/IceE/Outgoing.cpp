@@ -51,8 +51,8 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
 	    break;
 	}
 
-#ifdef ICEE_HAS_BATCH
 	case Reference::ModeBatchOneway:
+#ifdef ICEE_HAS_BATCH
 	{
 	    _connection->prepareBatchRequest(&_os);
 	    break;
@@ -236,8 +236,8 @@ IceInternal::Outgoing::invoke()
 	    break;
 	}
 
-#ifdef ICEE_HAS_BATCH
 	case Reference::ModeBatchOneway:
+#ifdef ICEE_HAS_BATCH
 	{
 	    //
 	    // For batch oneways, the same rules as for
