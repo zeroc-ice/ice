@@ -126,7 +126,7 @@ RSC=rc.exe
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "_USRDLL" /D "ICE_EXPORTS" /YX /O2 /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /GR /GX /Gy /I "../include" /I "../../include" /D "ARM" /D "_ARM_" /D "ARMV4" /D "NDEBUG" /D "ICE_TEST_COMMON_API_EXPORTS" /D "UNICODE" /D "_UNICODE" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "_USRDLL" /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /GR /GX /Oxs /Gy /I "../include" /I "../../include" /D "ARM" /D "_ARM_" /D "ARMV4" /D "NDEBUG" /D "ICE_TEST_COMMON_API_EXPORTS" /D "UNICODE" /D "_UNICODE" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "_USRDLL"  /M$(CECrtMT) /c
 # SUBTRACT CPP /YX
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -216,7 +216,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "NDEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /YX /O2 /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /GR /GX /Gy /I "../include" /I "../../include" /D "NDEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "ICEE_STATIC_LIBS" /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /GR /GX /Oxs /Gy /I "../include" /I "../../include" /D "NDEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "ICEE_STATIC_LIBS"  /M$(CECrtMT) /c
 # SUBTRACT CPP /YX
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
@@ -270,7 +270,7 @@ BSC32=bscmake.exe
 # PROP Target_Dir ""
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /GR /GX /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "_LIB" /YX /Gs8192 /GF /O2 /c
-# ADD CPP /nologo /W3 /GR /GX /I "../include" /I "../../include" /D "_i386_" /D "_X86_" /D "x86" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "ICEE_STATIC_LIBS" /Gs8192 /GF /O2 /c
+# ADD CPP /nologo /W3 /GR /GX /Oxs /I "../include" /I "../../include" /D "_i386_" /D "_X86_" /D "x86" /D "NDEBUG" /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "_LIB" /D "ICEE_STATIC_LIBS" /Gs8192 /GF  /c
 # SUBTRACT CPP /YX
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
@@ -321,7 +321,6 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\Initialize.h"\
 	"..\..\include\IceE\InstanceF.h"\
-	"..\..\include\IceE\LocalExceptions.h"\
 	"..\..\include\IceE\LocalObject.h"\
 	"..\..\include\IceE\LocalObjectF.h"\
 	"..\..\include\IceE\LocatorInfoF.h"\
@@ -358,6 +357,7 @@ DEP_CPP_TESTC=\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\..\include\IceE\LocalExceptions.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -425,7 +425,6 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\Initialize.h"\
 	"..\..\include\IceE\InstanceF.h"\
-	"..\..\include\IceE\LocalExceptions.h"\
 	"..\..\include\IceE\LocalObject.h"\
 	"..\..\include\IceE\LocalObjectF.h"\
 	"..\..\include\IceE\LocatorInfoF.h"\
@@ -462,6 +461,7 @@ DEP_CPP_TESTC=\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\..\include\IceE\LocalExceptions.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -529,7 +529,6 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\Initialize.h"\
 	"..\..\include\IceE\InstanceF.h"\
-	"..\..\include\IceE\LocalExceptions.h"\
 	"..\..\include\IceE\LocalObject.h"\
 	"..\..\include\IceE\LocalObjectF.h"\
 	"..\..\include\IceE\LocatorInfoF.h"\
@@ -566,6 +565,7 @@ DEP_CPP_TESTC=\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\..\include\IceE\LocalExceptions.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -633,7 +633,6 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\Initialize.h"\
 	"..\..\include\IceE\InstanceF.h"\
-	"..\..\include\IceE\LocalExceptions.h"\
 	"..\..\include\IceE\LocalObject.h"\
 	"..\..\include\IceE\LocalObjectF.h"\
 	"..\..\include\IceE\LocatorInfoF.h"\
@@ -670,6 +669,7 @@ DEP_CPP_TESTC=\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\..\include\IceE\LocalExceptions.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -737,7 +737,6 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\Initialize.h"\
 	"..\..\include\IceE\InstanceF.h"\
-	"..\..\include\IceE\LocalExceptions.h"\
 	"..\..\include\IceE\LocalObject.h"\
 	"..\..\include\IceE\LocalObjectF.h"\
 	"..\..\include\IceE\LocatorInfoF.h"\
@@ -774,6 +773,7 @@ DEP_CPP_TESTC=\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\..\include\IceE\LocalExceptions.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -841,7 +841,6 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\Initialize.h"\
 	"..\..\include\IceE\InstanceF.h"\
-	"..\..\include\IceE\LocalExceptions.h"\
 	"..\..\include\IceE\LocalObject.h"\
 	"..\..\include\IceE\LocalObjectF.h"\
 	"..\..\include\IceE\LocatorInfoF.h"\
@@ -878,6 +877,7 @@ DEP_CPP_TESTC=\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\..\include\IceE\LocalExceptions.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -945,7 +945,6 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\Initialize.h"\
 	"..\..\include\IceE\InstanceF.h"\
-	"..\..\include\IceE\LocalExceptions.h"\
 	"..\..\include\IceE\LocalObject.h"\
 	"..\..\include\IceE\LocalObjectF.h"\
 	"..\..\include\IceE\LocatorInfoF.h"\
@@ -982,6 +981,7 @@ DEP_CPP_TESTC=\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\..\include\IceE\LocalExceptions.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
@@ -1049,7 +1049,6 @@ DEP_CPP_TESTC=\
 	"..\..\include\IceE\IncomingConnectionFactoryF.h"\
 	"..\..\include\IceE\Initialize.h"\
 	"..\..\include\IceE\InstanceF.h"\
-	"..\..\include\IceE\LocalExceptions.h"\
 	"..\..\include\IceE\LocalObject.h"\
 	"..\..\include\IceE\LocalObjectF.h"\
 	"..\..\include\IceE\LocatorInfoF.h"\
@@ -1086,6 +1085,7 @@ DEP_CPP_TESTC=\
 	
 NODEP_CPP_TESTC=\
 	"..\..\..\..\usr\include\pthread.h"\
+	"..\..\include\IceE\LocalExceptions.h"\
 	".\onfig\_epilog.h"\
 	".\onfig\_msvc_warnings_off.h"\
 	".\onfig\_prolog.h"\
