@@ -2,9 +2,11 @@ module MetadataTest
 {
     sequence<int> IntSeq;
     ["java:type:java.util.LinkedList"] sequence<int> IntList;
+    ["java:type:java.util.LinkedList"] sequence<IntSeq> IntSeqList;
 
     sequence<Object> ObjectSeq;
     ["java:type:java.util.LinkedList"] sequence<Object> ObjectList;
+    ["java:type:java.util.LinkedList"] sequence<ObjectSeq> ObjectSeqList;
 
     dictionary<string, string> StringDict;
     ["java:type:java.util.HashMap"] dictionary<string, string> StringMap;
