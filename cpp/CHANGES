@@ -1,34 +1,38 @@
 Changes since version 2.1.2
 ---------------------------
 
-- Fixed a bug in the slice2cs code generator: if an operation
-  had a parameter named i or szx, incorrect code was generated
-  in some cases.
+- Fixed a bug in the slice2java code generator, which could cause
+  incorrect code to be generated for certain custom sequence types.
 
-- Fixed a bug in the slice2vb code generator: if an operation
-  had a parameter named ix or spx, incorrect code was generated
-  in some cases.
+- Fixed a bug in the slice2cs code generator: if an operation had a
+  parameter named i or szx, incorrect code was generated in some
+  cases.
 
-- Added unsupported and untested "support" for Tru64 (with gcc)
+- Fixed a bug in the slice2vb code generator: if an operation had a
+  parameter named ix or spx, incorrect code was generated in some
+  cases.
+
+- Added unsupported and untested "support" for Tru64 (with gcc).
 
 - Renamed CompressionNotSupportException to a more general
   FeatureNotSupportedException.
 
 - Fixed a bug in proxyToString() for bidirectional proxies.
 
-- Added ice_communicator() to proxies. This function returns
-  the communicator that was used to create the proxy.
+- Added ice_communicator() to proxies. This function returns the
+  communicator that was used to create the proxy.
 
-- Added ice_toString() to proxies. This function returns
-  the stringified proxy. This function can be more convenient
-  to use than communicator->stringToProxy() because you do
-  not need the communicator to stringify a proxy that way.
+- Added ice_toString() to proxies. This function returns the
+  stringified proxy. This function can be more convenient to use than
+  communicator->stringToProxy() because you do not need the
+  communicator to stringify a proxy that way.
 
   operator<< is overloaded for proxies and proxy handles, so you can
   write:
 
   Ice::ObjectPrx o = ...;
-  cout << o << endl;		// Print stringified proxy, empty string if o is null
+  cout << o << endl;		// Print stringified proxy, empty
+				// string if o is null
   cout << *o << endl;		// Print stringified proxy
 
 - IceUtil/Config.h no longer includes winsock.h under WIN32. Ice can
@@ -36,33 +40,24 @@ Changes since version 2.1.2
 
 - Removed operator timeval() from IceUtil::Time for WIN32.
 
-- Parsing a stringified proxy no longer completely fails if the proxy 
-  contains an endpoint type which is unknown to the Ice runtime as long
-  as the proxy contains other endpoints which are known. A warning is 
-  printed for the unknown types that are encountered.
+- Parsing a stringified proxy no longer completely fails if the proxy
+  contains an endpoint type that is unknown to the Ice runtime as
+  long as the proxy contains other endpoints that are known. A warning
+  is printed for the unknown types that are encountered.
 
 - Ice::Object is now an abstract class that cannot be instantiated.
   This change should be transparent to application code.
 
-- For abstract classes, ice_clone() now throws a CloneNotImplementedException
-  if the concrete implementation class does not override ice_clone().
-  (Previously, ice_clone() incorrectly sliced the cloned abstract class to
-  the most derived-concrete class or Ice::Object.)
-
-Changes since version 2.1.1
----------------------------
-
-TODO: This must be split: Some of the changes were done since version
-2.1.1, some were done since version 2.1.2.
-
-- Fixed a bug with dynamic thread pools, where new threads were
-  destroyed immediately after dispatch if <threadpool>.Size=1 and
-  <threadpool>.SizeMax > 1.
+- For abstract classes, ice_clone() now throws a
+  CloneNotImplementedException if the concrete implementation class
+  does not override ice_clone().  (Previously, ice_clone()
+  incorrectly sliced the cloned abstract class to the most derived-
+  concrete class or Ice::Object.)
 
 - Added new features to the C++ mapping:
 
-  - Structures, classes, and exceptions now have one-shot constructors.
-    For example, for a class
+  - Classes and exceptions now have one-shot constructors. For
+    example, for a class
 
       class Example {
           int i;
@@ -77,14 +72,13 @@ TODO: This must be split: Some of the changes were done since version
 	  // ...
       };
 
-    This allows you to construct a structure, class, or exception
-    and supply values for the data members in a single statement,
-    instead of having to assign to the members of a default-constructed
-    instance.
+    This allows you to construct a class or exception and supply
+    values for the data members in a single statement, instead of
+    having to assign to the members of a default-constructed instance.
 
     For derived exceptions and classes, the constructor expects values
-    for all data members, including those of base exceptions or classes,
-    in base-to-derived order of declaration.
+    for all data members, including those of base exceptions or
+    classes, in base-to-derived order of declaration.
 
   - Classes are now copyable and assignable. For example, using the
     previous Example class, the following statements are now valid
@@ -98,6 +92,15 @@ TODO: This must be split: Some of the changes were done since version
 
 - Removed IceSSL's internal handshake retry loop, along with the
   related property IceSSL.Client.Handshake.Retries.
+
+Changes since version 2.1.1
+---------------------------
+
+- Fixed a bug in proxyToString() for bidirectional proxies.
+
+- Fixed a bug with dynamic thread pools, where new threads were
+  destroyed immediately after dispatch if <threadpool>.Size=1 and
+  <threadpool>.SizeMax > 1.
 
 - Fixed a few Windows bugs in the Ice::Service class.
 
@@ -131,7 +134,7 @@ TODO: This must be split: Some of the changes were done since version
 
 - Fixed a bug in the Glacier2 router where buffered mode serialized
   twoway requests when it should not.
-  
+
 Changes since version 2.1.0
 ---------------------------
 
