@@ -199,6 +199,7 @@ IceInternal::createSocket(bool udp)
     // 
     if(!SetHandleInformation(reinterpret_cast<HANDLE>(fd), HANDLE_FLAG_INHERIT, 0))
     {
+	closesocket(fd)
 	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
 	throw ex;
