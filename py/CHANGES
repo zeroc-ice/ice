@@ -1,13 +1,13 @@
 Changes since version 2.1.2
 ---------------------------
 
-- Added ice_communicator() to proxies. This function returns
-  the communicator that was used to create the proxy.
+- Added ice_communicator() to proxies. This function returns the
+  communicator that was used to create the proxy.
 
-- Added ice_toString() to proxies. This function returns
-  the stringified proxy. This function can be more convenient
-  to use than communicator.proxyToString() because you do
-  not need the communicator to stringify a proxy that way.
+- Added ice_toString() to proxies. This function returns the
+  stringified proxy. This function can be more convenient to use than
+  communicator.proxyToString() because you do not need the
+  communicator to stringify a proxy that way.
 
 - Ice.ObjectImpl is now an abstract class that cannot be instantiated.
   This change should be transparent to application code.
