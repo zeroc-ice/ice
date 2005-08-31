@@ -19,11 +19,12 @@ import IceGrid.ServerDynamicInfo;
 import IceGrid.AdapterDynamicInfo;
 import IceGrid.ServerState;
 
-public class Nodes extends Parent
+public class Nodes extends EditableParent
 {
     public Nodes(java.util.Map nodeMap, Application application)
+	throws DuplicateIdException
     {
-	super("Nodes", application.getModel());
+	super(false, "Nodes", application.getModel());
 	_descriptors = nodeMap;
 
 	java.util.Iterator p = nodeMap.entrySet().iterator();
@@ -32,7 +33,7 @@ public class Nodes extends Parent
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
 	    String nodeName = (String)entry.getKey();
 	    NodeDescriptor nodeDescriptor = (NodeDescriptor)entry.getValue();
-	    addChild(new Node(nodeName, nodeDescriptor, application));
+	    addChild(new Node(false, nodeName, nodeDescriptor, application));
 	}
 	
 	//
@@ -49,8 +50,49 @@ public class Nodes extends Parent
 	    }
 	}
     }
+
+    Nodes(Nodes o)
+    {
+	super(o);
+	_descriptors = o._descriptors;
+
+	//
+	// Deep-copy children
+	//
+	java.util.Iterator p = o._children.iterator();
+	while(p.hasNext())
+	{
+	    try
+	    {
+		addChild(new Server((Server)p.next()));
+	    }
+	    catch(DuplicateIdException e)
+	    {
+		assert false;
+	    }
+	}
+    }
+
+    void update() throws DuplicateIdException
+    {
+	java.util.Iterator p = _descriptors.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    String nodeName = (String)entry.getKey();
+	    NodeDescriptor nodeDescriptor = (NodeDescriptor)entry.getValue();
+
+	    Node node = findNode(nodeName);
+	    if(node != null)
+	    {
+		node.update();
+	    }
+	}
+	purgeChildren(_descriptors.keySet());
+    }
    
     void update(java.util.List updates, String[] removeNodes)
+	throws DuplicateIdException
     {
 	Application application = (Application)getParent();
 
@@ -80,7 +122,7 @@ public class Nodes extends Parent
 								   update.serverInstances,
 								   update.servers);
 		_descriptors.put(update.name, nodeDescriptor);
-		node = new Node(update.name, nodeDescriptor, application);
+		node = new Node(false, update.name, nodeDescriptor, application);
 		newChildren.add(node);
 	    }
 	    else
@@ -97,8 +139,8 @@ public class Nodes extends Parent
 	p = newChildren.iterator();
 	while(p.hasNext())
 	{
-	    ServerTemplate serverTemplate = (ServerTemplate)p.next();
-	    serverTemplate.setParent(this);
+	    Node node = (Node)p.next();
+	    node.setParent(this);
 	}
     }
 
@@ -108,7 +150,15 @@ public class Nodes extends Parent
 	if(node == null)
 	{
 	    node = new Node(nodeName, _model);
-	    addChild(node, true);
+	    try
+	    {
+		addChild(node, true);
+	    }
+	    catch(DuplicateIdException e)
+	    {
+		// Impossible
+		assert false;
+	    }
 	}
 	else
 	{
@@ -134,13 +184,13 @@ public class Nodes extends Parent
 	//
     }
     
-    public void cleanup()
+    public void unregister()
     {
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
 	    Node node = (Node)p.next();
-	    node.cleanup();
+	    node.unregister();
 	}
     }
 

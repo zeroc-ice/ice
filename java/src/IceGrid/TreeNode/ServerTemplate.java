@@ -41,22 +41,37 @@ import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
 
-class ServerTemplate extends PropertiesHolder
+class ServerTemplate extends EditableParent
 {
     
     //
     // Application is needed to lookup service templates
     //
-    ServerTemplate(String name, TemplateDescriptor descriptor, Application application)
+    ServerTemplate(boolean brandNew, String name, TemplateDescriptor descriptor, 
+		   Application application)
+	throws DuplicateIdException
     {
-	super(name, application.getModel());
+	super(brandNew, name, application.getModel());
 	rebuild(descriptor, application);
     }
 
+    ServerTemplate(ServerTemplate o)
+    {
+	super(o, true);
+	_templateDescriptor = o._templateDescriptor;
+	_iceBoxDescriptor = o._iceBoxDescriptor;
+	_services = o._services;
+	_dbEnvs = o._dbEnvs;
+	_adapters = o._adapters;
+	
+	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor, this);
+    }
+
     void rebuild(TemplateDescriptor descriptor, Application application)
+	throws DuplicateIdException
     {
 	_templateDescriptor = descriptor;
-	_descriptor = _templateDescriptor.descriptor;
+	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor, this);
 	clearChildren();
 
 	//
@@ -68,7 +83,7 @@ class ServerTemplate extends PropertiesHolder
 	{
 	    _iceBoxDescriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
 	    
-	    _services = new Services(_iceBoxDescriptor.services, true, null, 
+	    _services = new Services(_iceBoxDescriptor.services, this, null, 
 				     application);
 	    addChild(_services);
 
@@ -86,10 +101,14 @@ class ServerTemplate extends PropertiesHolder
 	}
 	
 	_adapters = new Adapters(_templateDescriptor.descriptor.adapters, true, 
-				 null, _model);
+				 null, null, _model);
 	addChild(_adapters);
     }
 
+    public PropertiesHolder getPropertiesHolder()
+    {
+	return _propertiesHolder;
+    }
 
     public String toString()
     {
@@ -107,4 +126,6 @@ class ServerTemplate extends PropertiesHolder
     private Services _services;
     private Adapters _adapters;
     private DbEnvs _dbEnvs;
+
+    private PropertiesHolder _propertiesHolder;
 }

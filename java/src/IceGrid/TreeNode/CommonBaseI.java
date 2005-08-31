@@ -35,7 +35,7 @@ abstract class CommonBaseI implements CommonBase
 	return _id;
     }
 
-    public void cleanup()
+    public void unregister()
     {
 	//
 	// Nothing to do
@@ -72,7 +72,18 @@ abstract class CommonBaseI implements CommonBase
     {
 	return _parent;
     }
-
+    
+    public Editable getEditable()
+    {
+	if(_parent != null)
+	{
+	    return _parent.getEditable();
+	}
+	else
+	{
+	    return null;
+	}
+    }
 
     public JPopupMenu getPopupMenu()
     {
@@ -107,6 +118,11 @@ abstract class CommonBaseI implements CommonBase
 	boolean leaf,
 	int row,
 	boolean hasFocus) 
+    {
+	return null;
+    }
+
+    public PropertiesHolder getPropertiesHolder()
     {
 	return null;
     }
@@ -182,6 +198,30 @@ abstract class CommonBaseI implements CommonBase
 	if(root)
 	{
 	    _path = new TreePath(this);
+	}
+    }
+
+    protected CommonBaseI(CommonBaseI o)
+    {
+	//
+	// Not attached to any tree yet
+	//
+	_path = null;
+	_parent = null;
+
+	_id = o._id;
+	_model = o._model;
+    }
+
+    Application getApplication()
+    {
+	if(_path == null || _path.getPathCount() < 2)
+	{
+	    return null;
+	}
+	else
+	{
+	    return (Application)_path.getPath()[1];
 	}
     }
 

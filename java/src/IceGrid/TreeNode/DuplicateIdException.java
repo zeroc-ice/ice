@@ -8,20 +8,20 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import IceGrid.DbEnvDescriptor;
-import IceGrid.Model;
-import IceGrid.Utils;
-
-class DbEnv extends Leaf
+class DuplicateIdException extends Exception
 {
-    DbEnv(String dbEnvName, DbEnvDescriptor descriptor, 
-	  Utils.Resolver resolver, Model model)
+    DuplicateIdException(Parent parent, String id)
     {
-	super(dbEnvName, model);
-	_descriptor = descriptor;
-	_resolver = resolver;
+	_parent = parent;
+	_id = id;
     }
 
-    private DbEnvDescriptor _descriptor;
-    private Utils.Resolver _resolver;
+    public String toString()
+    {
+	return _parent.getId() + " cannot have two children with '" 
+	    + _id + "' as id";
+    }
+
+    private Parent _parent;
+    private String _id;
 }

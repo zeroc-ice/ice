@@ -14,37 +14,37 @@ import IceGrid.ServiceInstanceDescriptor;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
-class Service extends PropertiesHolder
+class Service extends Parent
 {
     Service(String name,
 	    String displayString,
 	    ServiceInstanceDescriptor instanceDescriptor, 
 	    ServiceDescriptor serviceDescriptor,
-	    boolean editable,
+	    Editable editable,
 	    Utils.Resolver resolver,
+	    Application application,
 	    Model model)
+	throws DuplicateIdException
     {
 	super(name, model);
 	_displayString = displayString;
 	_instanceDescriptor = instanceDescriptor;
 	_serviceDescriptor = serviceDescriptor;
-	_descriptor = serviceDescriptor;
+	_propertiesHolder = new PropertiesHolder(serviceDescriptor, editable);
 
-	_editable = editable;
+	_isEditable = editable != null;
 	_resolver = resolver;
 
-	boolean childrenEditable = _editable && 
-	    (_instanceDescriptor.template.length() == 0);
+	boolean areChildrenEditable = _instanceDescriptor.template.length() == 0 && editable != null;
 
 	_adapters = new Adapters(serviceDescriptor.adapters, 
-				 childrenEditable, resolver, _model);
+				 areChildrenEditable, resolver, application, _model);
 	addChild(_adapters);
 	
 	_dbEnvs = new DbEnvs(serviceDescriptor.dbEnvs, 
-			     childrenEditable, resolver, _model);
+			     areChildrenEditable, resolver, _model);
 	addChild(_dbEnvs);
     }
-
 
     public String toString()
     {
@@ -58,16 +58,23 @@ class Service extends PropertiesHolder
 	}
     }
 
-    public void cleanup()
+    public PropertiesHolder getPropertiesHolder()
     {
-	_adapters.cleanup();
+	return _propertiesHolder;
+    }
+
+    public void unregister()
+    {
+	_adapters.unregister();
     }
 
     private ServiceInstanceDescriptor _instanceDescriptor;
     private ServiceDescriptor _serviceDescriptor;
     private String _displayString;
-    private boolean _editable;
+    private boolean _isEditable;
     private Utils.Resolver _resolver;
     private Adapters _adapters;
     private DbEnvs _dbEnvs;
+
+    private PropertiesHolder _propertiesHolder;
 }

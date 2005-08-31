@@ -11,11 +11,12 @@ package IceGrid.TreeNode;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Model;
 
-class ServiceTemplates extends Parent
+class ServiceTemplates extends EditableParent
 {
     ServiceTemplates(java.util.Map descriptors, Model model)
+	throws DuplicateIdException
     {
-	super("Service templates", model);
+	super(false, "Service templates", model);
 
 	_descriptors = descriptors;
 
@@ -24,13 +25,60 @@ class ServiceTemplates extends Parent
 	while(p.hasNext())
 	{
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-	    addChild(new ServiceTemplate((String)entry.getKey(),
+	    addChild(new ServiceTemplate(false, (String)entry.getKey(),
 					 (TemplateDescriptor)entry.getValue(),
 					 _model));
 	}
     }
 
+    ServiceTemplates(ServiceTemplates o)
+    {
+	super(o);
+	_descriptors = o._descriptors;
+
+	//
+	// Deep-copy children
+	//
+	java.util.Iterator p = o._children.iterator();
+	while(p.hasNext())
+	{
+	    try
+	    {
+		addChild(new ServiceTemplate((ServiceTemplate)p.next()));
+	    }
+	    catch(DuplicateIdException e)
+	    {
+		assert false;
+	    }
+	}
+    }
+
+    void update() throws DuplicateIdException
+    {
+	//
+	// The only template-descriptor update going through the
+	// update() calls is the update or removal of one template;
+	// template addition does not require a complex validation.
+	//
+	java.util.Iterator p = _descriptors.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    String templateId = (String)entry.getKey();
+	    TemplateDescriptor d = (TemplateDescriptor)entry.getValue();
+
+	    ServiceTemplate t = (ServiceTemplate)findChild(templateId);
+	    if(t != null)
+	    {
+		t.rebuild(d);
+	    }
+	}
+	purgeChildren(_descriptors.keySet());
+    }
+
+
     void update(java.util.Map descriptors, String[] removeTemplates)
+	throws DuplicateIdException
     {
 	//
 	// Note: _descriptors is updated by Application
@@ -57,8 +105,8 @@ class ServiceTemplates extends Parent
 	    ServiceTemplate child = (ServiceTemplate)findChild(name);
 	    if(child == null)
 	    {
-		newChildren.add(new ServiceTemplate(name, templateDescriptor,
-						    _model));
+		newChildren.add(new ServiceTemplate(false, name, 
+						    templateDescriptor, _model));
 	    }
 	    else
 	    {

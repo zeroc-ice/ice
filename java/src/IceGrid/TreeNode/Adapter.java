@@ -9,6 +9,10 @@
 package IceGrid.TreeNode;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -38,6 +42,37 @@ class Adapter extends Leaf
 	    if(_scrollPane == null)
 	    {
 		//
+		// gotoReplicatedAdapter action
+		//
+		AbstractAction gotoReplicatedAdapter = new AbstractAction("->")
+		    {
+			public void actionPerformed(ActionEvent e) 
+			{
+			    Object obj = _id.getSelectedItem();
+			    if(obj != null && _adapter != null)
+			    {
+				ReplicatedAdapter ra = null;
+				if(obj instanceof ReplicatedAdapter)
+				{
+				    ra = (ReplicatedAdapter)obj;
+				}
+				else
+				{
+				    ra = _adapter.getApplication().
+					findReplicatedAdapter((String)obj);
+				}
+				if(ra != null)
+				{
+				    _adapter.getModel().getTree().setSelectionPath
+					(ra.getPath());
+				}
+			    }
+			}
+		    };
+		gotoReplicatedAdapter.putValue(Action.SHORT_DESCRIPTION, "Goto this replicated adapter");
+
+
+		//
 		// Build everything using JGoodies's DefaultFormBuilder
 		//
 		FormLayout layout = new FormLayout(
@@ -52,6 +87,7 @@ class Adapter extends Leaf
 		builder.append(_name, 3);
 		builder.nextLine();
 		
+		_idButton = new JButton(gotoReplicatedAdapter);
 		builder.append("Id", _id );
 		builder.append(_idButton);
 		builder.nextLine();
@@ -89,13 +125,19 @@ class Adapter extends Leaf
 		Utils.substitute(descriptor.name, resolver));
 	    _name.setEditable(editable);
 
+	    //
+	    // Need to make control editable & enabled before changing it
+	    //
+	    _id.setEnabled(true);
+	    _id.setEditable(true);
+
 	    ReplicatedAdapters replicatedAdapters =
 		adapter.getApplication().getReplicatedAdapters();
 	    _id.setModel(replicatedAdapters.createComboBoxModel());
 
 	    String adapterId = Utils.substitute(descriptor.id, resolver);
 	    ReplicatedAdapter replicatedAdapter = 
-		(ReplicatedAdapter) replicatedAdapters.findChild(adapterId);
+		(ReplicatedAdapter)replicatedAdapters.findChild(adapterId);
 	    
 	    if(replicatedAdapter != null)
 	    {
@@ -105,9 +147,9 @@ class Adapter extends Leaf
 	    {
 		_id.setSelectedItem(adapterId);
 	    }
-	    _id.setEditable(editable);
 	    _id.setEnabled(editable);
-	   
+	    _id.setEditable(editable);
+
 	    _endpoints.setText(
 		Utils.substitute(adapter.getEndpoints(), resolver));
 	    _endpoints.setEditable(editable);
@@ -134,8 +176,7 @@ class Adapter extends Leaf
 		Utils.stringify(descriptor.objects, stringifier,
 				", ", toolTipHolder));
 	    _objects.setToolTipText(toolTipHolder.value);
-	    _objects.setEditable(editable);
-	    _objectsButton.setEnabled(editable);
+	    _objects.setEditable(false);
 
 	    _registerProcess.setSelected(descriptor.registerProcess);
 	    _registerProcess.setEnabled(editable);
@@ -152,7 +193,7 @@ class Adapter extends Leaf
 	private JCheckBox _waitForActivation = new JCheckBox("Wait for Activation");
 	private JTextField _objects = new JTextField(20);
 	private JButton _objectsButton = new JButton("...");
-	private JButton _idButton = new JButton("->");
+	private JButton _idButton;
 
 	private Adapter _adapter;
 	private JScrollPane _scrollPane;
@@ -199,36 +240,35 @@ class Adapter extends Leaf
 
 
     Adapter(String adapterName, AdapterDescriptor descriptor,
-	    boolean editable, Utils.Resolver resolver,
-	    Model model)
+	    Utils.Resolver resolver, Application application, Model model)
     {
 	super(adapterName, model);
 	_descriptor = descriptor;
-	_editable = editable;
 	_resolver = resolver;
 	
 	if(resolver != null)
 	{
+	    assert application != null;
 	    //
 	    // In a server instance
 	    //
-	    _adapterId = _resolver.substitute(_descriptor.id);
+	    _instanceId 
+		= new AdapterInstanceId(_resolver.find("server"),
+					_resolver.substitute(_descriptor.id));
 	    
-	    _proxy = _model.getRoot().registerAdapter(_resolver.find("node"),
-						      _resolver.find("server"),
-						      _adapterId,
-						      this);
+	    _proxy = application.registerAdapter(_resolver.find("node"),
+						 _instanceId,
+						 this);
 	    createToolTip();
 	}
     }
 
-    public void cleanup()
+    public void unregister()
     {
-	if(_resolver != null)
+	if(_instanceId != null)
 	{
-	    _model.getRoot().unregisterAdapter(_resolver.find("node"),
-					       _resolver.find("server"),
-					       _adapterId,
+	    getApplication().unregisterAdapter(_resolver.find("node"),
+					       _instanceId,
 					       this);
 	}
     }
@@ -253,7 +293,7 @@ class Adapter extends Leaf
     
     boolean isEditable()
     {
-	return _editable;
+	return ((Adapters)_parent).isEditable();
     }
 
     String getEndpoints()
@@ -268,9 +308,9 @@ class Adapter extends Leaf
 	ph.put(_descriptor.name + ".Endpoints", newEndpoints);
     }
 
-    Application getApplication()
+    AdapterInstanceId getInstanceId()
     {
-	return (Application)_path.getPath()[1];
+	return _instanceId;
     }
 
     private void createToolTip()
@@ -286,10 +326,10 @@ class Adapter extends Leaf
     }
 
     private AdapterDescriptor _descriptor;
-    private boolean _editable;
     private Utils.Resolver _resolver;
+    private boolean _isEditable;
 
-    private String _adapterId;
+    private AdapterInstanceId _instanceId;
     private Ice.ObjectPrx _proxy;
     private String _toolTip;
 

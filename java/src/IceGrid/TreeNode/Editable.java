@@ -8,20 +8,13 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import IceGrid.DbEnvDescriptor;
 import IceGrid.Model;
-import IceGrid.Utils;
 
-class DbEnv extends Leaf
+
+interface Editable
 {
-    DbEnv(String dbEnvName, DbEnvDescriptor descriptor, 
-	  Utils.Resolver resolver, Model model)
-    {
-	super(dbEnvName, model);
-	_descriptor = descriptor;
-	_resolver = resolver;
-    }
-
-    private DbEnvDescriptor _descriptor;
-    private Utils.Resolver _resolver;
+    boolean isModified();
+    void markModified();
 }
+
+

@@ -12,11 +12,12 @@ import IceGrid.Model;
 import IceGrid.TemplateDescriptor;
 import IceGrid.TreeModelI;
 
-class ServerTemplates extends Parent
+class ServerTemplates extends EditableParent
 {
     ServerTemplates(java.util.Map descriptors, Application application)
+	throws DuplicateIdException
     {
-	super("Server templates", application.getModel());
+	super(false, "Server templates", application.getModel());
 
 	_descriptors = descriptors;
 
@@ -25,19 +26,68 @@ class ServerTemplates extends Parent
 	while(p.hasNext())
 	{
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-	    addChild(new ServerTemplate((String)entry.getKey(),
+	    addChild(new ServerTemplate(false, (String)entry.getKey(),
 					(TemplateDescriptor)entry.getValue(),
 					application));
 	}
     }
+
+    ServerTemplates(ServerTemplates o)
+    {
+	super(o);
+	_descriptors = o._descriptors;
+
+	//
+	// Deep-copy children
+	//
+	java.util.Iterator p = o._children.iterator();
+	while(p.hasNext())
+	{
+	    try
+	    {
+		addChild(new ServerTemplate((ServerTemplate)p.next()));
+	    }
+	    catch(DuplicateIdException e)
+	    {
+		assert false;
+	    }
+	}
+    }
+
+    void update() throws DuplicateIdException
+    {
+	//
+	// The only template-descriptor update going through the
+	// update() calls is the update or removal of one template;
+	// template addition does not require a complex validation.
+	//
+
+	Application application = getApplication();
+
+	java.util.Iterator p = _descriptors.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    String templateId = (String)entry.getKey();
+	    TemplateDescriptor d = (TemplateDescriptor)entry.getValue();
+
+	    ServerTemplate t = (ServerTemplate)findChild(templateId);
+	    if(t != null)
+	    {
+		t.rebuild(d, application);
+	    }
+	}
+	purgeChildren(_descriptors.keySet());
+    }
     
     void update(java.util.Map updates, String[] removeTemplates)
+	throws DuplicateIdException
     {
 	//
 	// Note: _descriptors is updated by Application
 	//
 	
-	Application application = (Application)getParent();
+	Application application = getApplication();
 
 	//
 	// One big set of removes
@@ -60,7 +110,7 @@ class ServerTemplates extends Parent
 	    ServerTemplate child = (ServerTemplate)findChild(name);
 	    if(child == null)
 	    {
-		newChildren.add(new ServerTemplate(name, templateDescriptor,
+		newChildren.add(new ServerTemplate(false, name, templateDescriptor,
 						   application));
 	    }
 	    else

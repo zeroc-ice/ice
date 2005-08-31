@@ -12,12 +12,19 @@ import IceGrid.CommunicatorDescriptor;
 import IceGrid.Model;
 import IceGrid.PropertyDescriptor;
 
-class PropertiesHolder extends Parent
+class PropertiesHolder
 {
-    String get(String key)
+    PropertiesHolder(CommunicatorDescriptor descriptor,
+		     Editable editable)
     {
 	assert _descriptor != null;
 
+	_descriptor = descriptor;
+	_editable = editable;
+    }
+
+    String get(String key)
+    {
 	java.util.Iterator p = _descriptor.properties.iterator();
 	while(p.hasNext())
 	{
@@ -32,11 +39,7 @@ class PropertiesHolder extends Parent
 
     void put(String key, String value)
     {
-	//
-	// TODO mark-modified?
-	//
-
-	assert _descriptor != null;
+	assert _editable != null;
 	
 	java.util.Iterator p = _descriptor.properties.iterator();
 	while(p.hasNext())
@@ -49,13 +52,9 @@ class PropertiesHolder extends Parent
 	    }
 	}
 	_descriptor.properties.add(new PropertyDescriptor(key, value));
+	_editable.markModified();
     }
 
-    PropertiesHolder(String id, Model model)
-    {
-	super(id, model);
-    }
-
-    protected CommunicatorDescriptor _descriptor;
-
+    private CommunicatorDescriptor _descriptor;
+    private Editable _editable;
 }

@@ -17,9 +17,10 @@ import IceGrid.Utils;
 class Services extends Parent
 {
     Services(java.util.List descriptors,
-	     boolean editable,
+	     Editable editable,
 	     Utils.Resolver resolver, // Null within template
 	     Application application)
+	throws DuplicateIdException
     {
 	super("Services", application.getModel());    
 	_descriptors = descriptors;
@@ -79,24 +80,25 @@ class Services extends Parent
 		    serviceName = serviceDescriptor.name;
 		}
 	    }
-	       
+	    
 	    addChild(new Service(serviceName, 
 				 displayString,
 				 descriptor, 
 				 serviceDescriptor,
 				 editable, 
 				 serviceResolver,
+				 application,
 				 _model));
 	}
     }
 
-    public void cleanup()
+    public void unregister()
     {
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
 	    Service service = (Service)p.next();
-	    service.cleanup();
+	    service.unregister();
 	}
     }
 

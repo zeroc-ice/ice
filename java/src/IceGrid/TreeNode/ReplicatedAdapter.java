@@ -12,18 +12,33 @@ import IceGrid.ReplicatedAdapterDescriptor;
 import IceGrid.Model;
 import IceGrid.Utils;
 
-class ReplicatedAdapter extends Leaf
+class ReplicatedAdapter extends EditableLeaf
 {
-    ReplicatedAdapter(ReplicatedAdapterDescriptor descriptor,
-	  Model model)
+    ReplicatedAdapter(boolean brandNew, 
+		      ReplicatedAdapterDescriptor descriptor,
+		      Model model)
     {
-	super(descriptor.id, model);
+	//
+	// Make the assumption that app variables can't be used in
+	// the descriptor.id
+	//
+
+	super(brandNew, descriptor.id, model);
 	rebuild(descriptor);
+    }
+
+    ReplicatedAdapter(ReplicatedAdapter o)
+    {
+	super(o);
+	_descriptor = o._descriptor;
     }
 
     void rebuild(ReplicatedAdapterDescriptor descriptor)
     {
 	_descriptor = descriptor;
+	//
+	// And that's it since there is no children
+	//
     }
 
     private ReplicatedAdapterDescriptor _descriptor;

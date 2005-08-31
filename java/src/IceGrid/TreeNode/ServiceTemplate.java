@@ -11,18 +11,31 @@ package IceGrid.TreeNode;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Model;
 
-class ServiceTemplate extends PropertiesHolder
+class ServiceTemplate extends EditableParent
 {
-    ServiceTemplate(String name, TemplateDescriptor descriptor, Model model)
+    ServiceTemplate(boolean brandNew, String name, 
+		    TemplateDescriptor descriptor, Model model)
+	throws DuplicateIdException
     {
-	super(name, model);
+	super(brandNew, name, model);
 	rebuild(descriptor);
     }
+    
+    ServiceTemplate(ServiceTemplate o)
+    {
+	super(o, true);
+	_templateDescriptor = o._templateDescriptor;
+	_adapters = o._adapters;
+	_dbEnvs = o._dbEnvs;
+	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor, this);
+    }
+
 
     void rebuild(TemplateDescriptor descriptor)
+	throws DuplicateIdException
     {
 	_templateDescriptor = descriptor;
-	_descriptor = _templateDescriptor.descriptor;
+	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor, this);
 	clearChildren();
 
 	//
@@ -31,12 +44,17 @@ class ServiceTemplate extends PropertiesHolder
 	java.util.Collections.sort(_templateDescriptor.parameters);
 	
 	_adapters = new Adapters(_templateDescriptor.descriptor.adapters, true, 
-				 null, _model);
+				 null, null, _model);
 	addChild(_adapters);
 
 	_dbEnvs = new DbEnvs(_templateDescriptor.descriptor.dbEnvs, true,
 			     null, _model);
 	addChild(_dbEnvs);
+    }
+
+    public PropertiesHolder getPropertiesHolder()
+    {
+	return _propertiesHolder;
     }
 
     public String toString()
@@ -47,4 +65,6 @@ class ServiceTemplate extends PropertiesHolder
     private TemplateDescriptor _templateDescriptor;
     private Adapters _adapters;
     private DbEnvs _dbEnvs;
+
+    private PropertiesHolder _propertiesHolder;
 }

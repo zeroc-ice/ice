@@ -56,7 +56,7 @@ import IceGrid.Utils;
 // - Server instance
 // - Icebox instance
 //
-class Server extends PropertiesHolder
+class Server extends EditableParent
 {
     static class Editor
     {
@@ -380,22 +380,46 @@ class Server extends PropertiesHolder
     }
 
 
+    public PropertiesHolder getPropertiesHolder()
+    {
+	return _propertiesHolder;
+    }
+
     //
     // Builds the server and all its sub-tree
     //
-    Server(String serverId, Utils.Resolver resolver,
-	   ServerInstanceDescriptor instanceDescriptor,
+    Server(boolean brandNew, String serverId, 
+	   Utils.Resolver resolver, ServerInstanceDescriptor instanceDescriptor,
 	   ServerDescriptor serverDescriptor,
-	   Application application)
+	   Application application) throws DuplicateIdException
     {
-	super(serverId, application.getModel());
+	super(brandNew, serverId, application.getModel());
 	Ice.IntHolder pid = new Ice.IntHolder();
-	_state = _model.getRoot().registerServer(resolver.find("node"),
+	_state = getApplication().registerServer(resolver.find("node"),
 						 _id,
 						 this,
 						 pid);
 	_pid = pid.value;
 	rebuild(resolver, instanceDescriptor, serverDescriptor, application);
+    }
+
+    Server(Server o)
+    {
+	super(o, true);
+
+	_state = o._state;
+	_stateIconIndex = o._stateIconIndex;
+	_pid = o._pid;
+	_toolTip = o._toolTip;
+
+	_instanceDescriptor = o._instanceDescriptor;
+	_serverDescriptor = o._serverDescriptor;
+
+	Utils.Resolver _resolver = o._resolver;
+
+	_services = o._services;
+	_adapters = o._adapters;
+	_dbEnvs = o._dbEnvs;
     }
 
     //
@@ -404,27 +428,24 @@ class Server extends PropertiesHolder
     void rebuild(Utils.Resolver resolver,  
 		 ServerInstanceDescriptor instanceDescriptor,
 		 ServerDescriptor serverDescriptor,
-		 Application application)
+		 Application application) throws DuplicateIdException
     {
 	assert serverDescriptor != null;
 	_resolver = resolver;
 	_instanceDescriptor = instanceDescriptor;
 	_serverDescriptor = serverDescriptor;
-	_descriptor = serverDescriptor;
-
 	clearChildren();
 	
-	boolean editable = (instanceDescriptor == null);
+	boolean isEditable = (instanceDescriptor == null);
+	_propertiesHolder = new PropertiesHolder(serverDescriptor, 
+						 isEditable ? this : null);	
 
 	if(serverDescriptor instanceof IceBoxDescriptor)
 	{
 	    IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)serverDescriptor;
-	    
-	    //
-	    // We need to pass the node to register the adapters
-	    // 
+	   
 	    _services = new Services(iceBoxDescriptor.services,
-				     editable, _resolver, application);
+				     isEditable ? this : null, _resolver, application);
 	    addChild(_services);
 	    _services.setParent(this);
 	    
@@ -438,29 +459,26 @@ class Server extends PropertiesHolder
 	{
 	    _services = null;   	
 	    _dbEnvs = new DbEnvs(serverDescriptor.dbEnvs, 
-				 editable, _resolver, _model);
+				 isEditable, _resolver, _model);
 	    addChild(_dbEnvs);
 	    _dbEnvs.setParent(this);
 	}
 
 	_adapters = new Adapters(serverDescriptor.adapters, 
-				 editable, _resolver, _model);
+				 isEditable, _resolver, application, _model);
 	addChild(_adapters);
 	_adapters.setParent(this);
     }
 
-
-    public void cleanup()
+    public void unregister()
     {
-	assert _resolver != null;
-
-	_model.getRoot().unregisterServer(_resolver.find("node"),
+	getApplication().unregisterServer(_resolver.find("node"),
 					  _id,
 					  this);
-	_adapters.cleanup();
+	_adapters.unregister();
 	if(_services != null)
 	{
-	    _services.cleanup();
+	    _services.unregister();
 	}
     }
     
@@ -585,6 +603,8 @@ class Server extends PropertiesHolder
     private ServerDescriptor _serverDescriptor;
 
     private Utils.Resolver _resolver;
+
+    private PropertiesHolder _propertiesHolder;
 
     //
     // Children

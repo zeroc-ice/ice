@@ -7,42 +7,37 @@
 //
 // **********************************************************************
 package IceGrid.TreeNode;
-
 import IceGrid.Model;
 
-//
-// Common implementation for leaf nodes.
-// 
-
-class Leaf extends CommonBaseI
+class EditableLeaf extends Leaf implements Editable
 {
-    public Object getChildAt(int childIndex)
+    public boolean isModified()
     {
-	return null;
-    }
-    
-    public int getChildCount()
-    {
-	return 0;
+	return _modified;
     }
 
-    public int getIndex(Object child)
+    public void markModified()
     {
-	return -1;
-    }
-    
-    public boolean isLeaf()
-    {
-	return true;
-    }
-    
-    protected Leaf(String id, Model model)
-    {
-	super(id, model, false);
+	_modified = true;
     }
 
-    protected Leaf(Leaf o)
+    public Editable getEditable()
+    {
+	return this;
+    }
+
+    protected EditableLeaf(boolean brandNew, String id, Model model)
+    {
+	super(id, model);
+	_modified = brandNew;
+    }
+
+    protected EditableLeaf(EditableLeaf o)
     {
 	super(o);
+	_modified = o._modified;
     }
+
+
+    private boolean _modified;
 }

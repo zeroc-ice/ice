@@ -43,6 +43,8 @@ class Parent extends CommonBaseI
 
 	public void setSelectedItem(Object obj)
 	{
+	    System.err.println("setSelectedItem");
+
 	    _selectedItem = obj;
 	    fireContentsChanged(this, -1, -1);
 	}
@@ -132,12 +134,13 @@ class Parent extends CommonBaseI
 	return null;
     }
 
-    void addChild(CommonBase child)
+    void addChild(CommonBase child) throws DuplicateIdException
     {
 	addChild(child, false);
     }
 
     void addChild(CommonBase child, boolean fireEvent)
+	throws DuplicateIdException
     {
 	//
 	// Sorted insert
@@ -150,7 +153,13 @@ class Parent extends CommonBaseI
 	while(p.hasNext())
 	{
 	    CommonBase existingChild = (CommonBase)p.next();
-	    if(id.compareTo(existingChild.getId()) < 0)
+	    int cmp = id.compareTo(existingChild.getId());
+
+	    if(cmp == 0)
+	    {
+		throw new DuplicateIdException(this, id);
+	    }
+	    if(cmp < 0)
 	    {
 		break; // while
 	    }
@@ -173,7 +182,7 @@ class Parent extends CommonBaseI
 
     void removeChild(CommonBase child)
     {
-	child.cleanup();
+	child.unregister();
 	_children.remove(child);
     }
 
@@ -187,7 +196,7 @@ class Parent extends CommonBaseI
 	    i++;
 	    if(id.equals(child.getId()))
 	    {
-		child.cleanup();
+		child.unregister();
 		p.remove();
 		if(fireEvent)
 		{
@@ -204,7 +213,7 @@ class Parent extends CommonBaseI
 	while(p.hasNext())
 	{
 	    CommonBase child = (CommonBase)p.next();
-	    child.cleanup();
+	    child.unregister();
 	}
 	_children.clear();
     }
@@ -232,6 +241,7 @@ class Parent extends CommonBaseI
     }
 
     void addChildren(CommonBaseI[] newChildren)
+	throws DuplicateIdException
     {
 	if(newChildren.length == 0)
 	{
@@ -259,7 +269,12 @@ class Parent extends CommonBaseI
 	    while(p.hasNext()) 
 	    {
 		CommonBase existingChild = (CommonBase)p.next();
-		if(id.compareTo(existingChild.getId()) < 0)
+		int cmp = id.compareTo(existingChild.getId());
+		if(cmp == 0)
+		{
+		    throw new DuplicateIdException(this, id);
+		}
+		if(cmp < 0)
 		{
 		    break; // while
 		}
@@ -315,7 +330,7 @@ class Parent extends CommonBaseI
 	    CommonBase child = (CommonBase)p.next();	    
 	    if(ids[j].equals(child.getId()))
 	    {
-		child.cleanup();
+		child.unregister();
 		childrenToRemove[k] = child;
 		indices[k] = i;
 		p.remove();
@@ -368,7 +383,7 @@ class Parent extends CommonBaseI
 
 		if(id.equals(child.getId()))
 		{
-		    child.cleanup();
+		    child.unregister();
 		    childrenToRemove.add(child);
 		    indices[k++] = i;
 		    p.remove();
@@ -458,6 +473,20 @@ class Parent extends CommonBaseI
 	this(id, model, false);
     }
     
+    protected Parent(Parent o)
+    {
+	this(o, false);
+	// Derived class is responsible to populate the children
+    }
+
+    protected Parent(Parent o, boolean copyChildren)
+    {
+	super(o);
+	if(copyChildren)
+	{
+	    _children = o._children;
+	}
+    }
 
     protected java.util.List _children = new java.util.LinkedList();
     private ChildComparator _childComparator = new ChildComparator();

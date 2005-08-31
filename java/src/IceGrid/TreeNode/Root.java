@@ -18,39 +18,8 @@ import IceGrid.ServerState;
 import IceGrid.TreeModelI;
 
 
-public class Root extends Parent
+public class Root extends EditableParent
 {
-    static class AdapterInstanceId
-    {
-	AdapterInstanceId(String serverId, String adapterId)
-	{
-	    this.serverId = serverId;
-	    this.adapterId = adapterId;
-	}
-
-	public boolean equals(Object obj)
-	{
-	    try
-	    {
-		AdapterInstanceId other = (AdapterInstanceId)obj;
-		return serverId.equals(other.serverId) 
-		    && adapterId.equals(other.adapterId);
-	    }
-	    catch(ClassCastException e)
-	    {
-		return false;
-	    }
-	}
-	
-	public int hashCode()
-	{
-	    return serverId.hashCode() ^ adapterId.hashCode();
-	}
-	
-	String serverId;
-	String adapterId;
-    };
-
     static class DynamicInfo
     {
 	//
@@ -67,7 +36,7 @@ public class Root extends Parent
 
     public Root(Model model)
     {
-	super("Applications", model, true);
+	super(false, "Applications", model, true);
     }
 
     public void init(java.util.List descriptors)
@@ -78,9 +47,22 @@ public class Root extends Parent
 	while(p.hasNext())
 	{
 	    ApplicationDescriptor descriptor = (ApplicationDescriptor)p.next();
-	    Application child = new Application(descriptor, _model);
-	    addChild(child);
-	    child.setParent(this);
+	    try
+	    {
+		 Application child = new Application(descriptor, _model);
+		addChild(child);
+		child.setParent(this);
+	    }
+	    catch(DuplicateIdException e)
+	    {
+		//
+		// Bug in the IceGrid registry
+		//
+		System.err.println("Failed to create application " 
+				   + descriptor.name  + ": "
+				   + e.toString());
+		assert false;
+	    }
 	}
 	fireStructureChangedEvent(this);
 	expandChildren();
@@ -94,9 +76,22 @@ public class Root extends Parent
 
     public void applicationAdded(ApplicationDescriptor desc)
     {
-	Application child = new Application(desc, _model); 
-	child.setParent(this);
-	addChild(child, true);
+	try
+	{
+	    Application child = new Application(desc, _model); 
+	    child.setParent(this);
+	    addChild(child, true);
+	}
+	catch(DuplicateIdException e)
+	{
+	    //
+	    // Bug in the IceGrid registry
+	    //
+	    System.err.println("Failed to create application " 
+			       + desc.name  + ": "
+			       + e.toString());
+	    assert false;
+	}
 	expandChildren();
     }
  
@@ -108,8 +103,21 @@ public class Root extends Parent
     
     public void applicationUpdated(ApplicationUpdateDescriptor desc)
     {
-	Application application = (Application)findChild(desc.name);
-	application.update(desc);
+	try
+	{
+	    Application application = (Application)findChild(desc.name);
+	    application.update(desc);
+	}
+	catch(DuplicateIdException e)
+	{
+	    //
+	    // Bug in the IceGrid registry
+	    //
+	    System.err.println("Failed to update application " 
+			       + desc.name  + ": "
+			       + e.toString());
+	    assert false;
+	}
 	expandChildren();
     }
 
@@ -127,48 +135,19 @@ public class Root extends Parent
 	    info.serverInfoMap.put(updatedInfo.servers[i].id, updatedInfo.servers[i]);
 	}
 	
-	//
-	// Need to tell *every* server on this node
-	//
-	java.util.List serverList = (java.util.List)_nodeServerMap.get(nodeName);
-	if(serverList != null)
-	{
-	    java.util.Iterator p = serverList.iterator();
-	    while(p.hasNext())
-	    {
-		Server server = (Server)p.next();
-		ServerDynamicInfo serverInfo = (ServerDynamicInfo)info.
-		    serverInfoMap.get(server.getId());
-		if(serverInfo == null)
-		{
-		    server.updateDynamicInfo(ServerState.Inactive, 0);
-		}
-		else
-		{
-		    server.updateDynamicInfo(serverInfo.state, serverInfo.pid);
-		}
-	    }
-	}
-
 	for(int i = 0; i < updatedInfo.adapters.length; ++i)
 	{
+	    assert(updatedInfo.adapters[i].proxy != null);
 	    AdapterInstanceId instanceId = new AdapterInstanceId(
-		"" /* updatedInfo.adapters[i].serverId */, updatedInfo.adapters[i].id);
-
+		updatedInfo.adapters[i].serverId, updatedInfo.adapters[i].id);
 	    info.adapterInfoMap.put(instanceId, updatedInfo.adapters[i].proxy);
-
-	    Adapter adapter = (Adapter)_adapterMap.get(instanceId);
-	    if(adapter != null)
-	    {
-		adapter.updateProxy(updatedInfo.adapters[i].proxy);
-	    }
 	}
 
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
 	    Application application = (Application)p.next();
-	    application.nodeUp(nodeName);
+	    application.nodeUp(nodeName, info);
 	}
     }
 
@@ -181,26 +160,6 @@ public class Root extends Parent
 	{
 	    Application application = (Application)p.next();
 	    application.nodeDown(nodeName);
-	}
-
-	java.util.List serverList = (java.util.List)_nodeServerMap.get(nodeName);
-	if(serverList != null)
-	{
-	    while(p.hasNext())
-	    {
-		Server server = (Server)p.next();
-		server.updateDynamicInfo(null, 0);
-	    }
-	}
-
-	java.util.List adapterList = (java.util.List)_nodeAdapterMap.get(nodeName);
-	if(adapterList != null)
-	{
-	    while(p.hasNext())
-	    {
-	        Adapter adapter = (Adapter)p.next();
-		adapter.updateProxy(null);
-	    }
 	}
     }
 
@@ -218,13 +177,14 @@ public class Root extends Parent
 	assert info != null;
 	info.serverInfoMap.put(updatedInfo.id, updatedInfo);
 	
-	//
-	// Is a corresponding Server registered?
-	//
-	Server server = (Server)_serverMap.get(updatedInfo.id);
-	if(server != null)
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
 	{
-	    server.updateDynamicInfo(updatedInfo.state, updatedInfo.pid);
+	    Application application = (Application)p.next();
+	    if(application.updateServer(updatedInfo))
+	    {
+		break; // while
+	    }
 	}
     }
 
@@ -239,126 +199,41 @@ public class Root extends Parent
 	    = new AdapterInstanceId("" /* updatedInfo.serverId */, updatedInfo.id);
 	info.adapterInfoMap.put(instanceId, updatedInfo.proxy);
 	
-	//
-	// Is a corresponding Adapter registered?
-	//
-	Adapter adapter = (Adapter)_adapterMap.get(instanceId);
-	if(adapter != null)
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
 	{
-	    adapter.updateProxy(updatedInfo.proxy);
-	}
-    }
-    
-    Ice.ObjectPrx registerAdapter(String nodeName, String serverId, String adapterId,
-				  Adapter adapter)
-    {
-	AdapterInstanceId instanceId = new AdapterInstanceId(serverId, adapterId);
-
-	_adapterMap.put(instanceId, adapter);
-	
-	java.util.List adapterList = (java.util.List)_nodeAdapterMap.get(nodeName);
-	if(adapterList == null)
-	{
-	    adapterList = new java.util.LinkedList();
-	    _nodeAdapterMap.put(nodeName, adapterList);
-	}
-	adapterList.add(adapter);
-	
-	DynamicInfo info = (DynamicInfo)_dynamicInfoMap.get(nodeName);
-	if(info == null)
-	{
-	    // Node is down
-	    return null;
-	}
-	else
-	{
-	    return (Ice.ObjectPrx)info.adapterInfoMap.get(instanceId);
-	}
-    }
-    
-    void unregisterAdapter(String nodeName, String serverId, String adapterId, 
-			   Adapter adapter)
-    {
-	AdapterInstanceId instanceId = new AdapterInstanceId(serverId, adapterId);
-	_adapterMap.remove(instanceId);
-
-	java.util.List adapterList = (java.util.List)_nodeAdapterMap.get(nodeName);
-	if(adapterList != null)
-	{
-	    adapterList.remove(adapter);
-	}
-    }
-
-    ServerState registerServer(String nodeName, String serverId, Server server,
-			       Ice.IntHolder pid)
-    {
-	_serverMap.put(serverId, server);
-	
-	java.util.List serverList = (java.util.List)_nodeServerMap.get(nodeName);
-	if(serverList == null)
-	{
-	    serverList = new java.util.LinkedList();
-	    _nodeServerMap.put(nodeName, serverList);
-	}
-	serverList.add(server);
-
-	DynamicInfo info = (DynamicInfo)_dynamicInfoMap.get(nodeName);
-	if(info == null)
-	{	
-	    // Node is down
-	    pid.value = 0;
-	    return null;
-	}
-	else
-	{
-	    ServerDynamicInfo serverInfo = (ServerDynamicInfo)info.
-		serverInfoMap.get(serverId);
-	    if(serverInfo == null)
+	    Application application = (Application)p.next();
+	    if(application.updateAdapter(instanceId, updatedInfo.proxy))
 	    {
-		pid.value = 0;
-		return ServerState.Inactive;
-	    }
-	    else
-	    {
-		pid.value = serverInfo.pid;
-		return serverInfo.state;
+		break; // while
 	    }
 	}
     }
     
-    void unregisterServer(String nodeName, String serverId, Server server)
+    DynamicInfo getDynamicInfo(String nodeName)
     {
-	_serverMap.remove(serverId);
-	java.util.List serverList = (java.util.List)_nodeServerMap.get(nodeName);
-	if(serverList != null)
-	{
-	    serverList.remove(server);
-	}
+	return (DynamicInfo)_dynamicInfoMap.get(nodeName);
     }
 
+    void restore(Application copy)
+    {
+	//
+	// TODO: fire event or not?
+	//
+	removeChild(copy.getId(), true);
+	try
+	{
+	    addChild(copy, true);
+	}
+	catch(DuplicateIdException e)
+	{
+	    assert false; // impossible
+	}
+    }
     
     //
     // Nodename to DynamicInfo
     //
     private java.util.Map _dynamicInfoMap = new java.util.HashMap();
 
-    //
-    // AdapterInstanceId to Adapter
-    //
-    private java.util.Map _adapterMap = new java.util.HashMap();
-
-    //
-    // Nodename to list of Adapter (used when a node goes down)
-    //
-    private java.util.Map _nodeAdapterMap = new java.util.HashMap();
-
-    //
-    // ServerId to Server
-    //
-    private java.util.Map _serverMap = new java.util.HashMap();
-
-    //
-    // Nodename to list of Server (used when a node goes down)
-    //
-    private java.util.Map _nodeServerMap = new java.util.HashMap();
 }

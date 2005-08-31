@@ -36,9 +36,10 @@ public interface CommonBase extends TreeCellRenderer
     Model getModel();
 
     //
-    // Clean-up when removed from the tree
+    // Unregister this element with the enclosing application;
+    // often no-op
     //
-    void cleanup();
+    void unregister();
 
     //
     // Set this node as a parent, and recursively update
@@ -67,4 +68,14 @@ public interface CommonBase extends TreeCellRenderer
     JPopupMenu getPopupMenu();
 
     void displayProperties();
+
+    //
+    // Get properties
+    //
+    PropertiesHolder getPropertiesHolder();
+
+    //
+    // The enclosing editable
+    //
+    Editable getEditable();
 }

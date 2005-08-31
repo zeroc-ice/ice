@@ -14,22 +14,57 @@ import IceGrid.ReplicatedAdapterDescriptor;
 import IceGrid.Model;
 import IceGrid.Utils;
 
-class ReplicatedAdapters extends Parent
+class ReplicatedAdapters extends EditableParent
 {
     ReplicatedAdapters(java.util.List descriptors, Model model)
+	throws DuplicateIdException
     {
-	super("Replicated Adapters", model);
-	java.util.Iterator p = descriptors.iterator();
+	super(false, "Replicated Adapters", model);
+	_descriptors = descriptors;
+
+	java.util.Iterator p = _descriptors.iterator();
 	while(p.hasNext())
 	{
 	    ReplicatedAdapterDescriptor descriptor 
 		= (ReplicatedAdapterDescriptor)p.next();
 	    
-	    addChild(new ReplicatedAdapter(descriptor, _model));
+	    addChild(new ReplicatedAdapter(false, descriptor, _model));
 	}
     }
 
+    ReplicatedAdapters(ReplicatedAdapters o)
+	throws DuplicateIdException
+    {
+	super(o);
+	java.util.Iterator p = o._children.iterator();
+	while(p.hasNext())
+	{
+	    ReplicatedAdapter ra = (ReplicatedAdapter)p.next();
+	    addChild(new ReplicatedAdapter(ra));
+	}
+    }
+
+    void update() throws DuplicateIdException
+    {
+	java.util.Set keepSet = new java.util.HashSet();
+
+	java.util.Iterator p = _descriptors.iterator();
+	while(p.hasNext())
+	{
+	    ReplicatedAdapterDescriptor descriptor 
+		= (ReplicatedAdapterDescriptor)p.next();
+	    keepSet.add(descriptor.id);
+
+	    ReplicatedAdapter ra = (ReplicatedAdapter)findChild(descriptor.id);
+	    assert ra != null;
+	    ra.rebuild(descriptor);
+	}
+	purgeChildren(keepSet);
+    }
+
+
     void update(java.util.List descriptors, String[] removeAdapters)
+	throws DuplicateIdException
     {
 	_descriptors = descriptors;
 
@@ -54,7 +89,7 @@ class ReplicatedAdapters extends Parent
 		= (ReplicatedAdapter)findChild(descriptor.id);
 	    if(child == null)
 	    {
-		newChildren.add(new ReplicatedAdapter(descriptor,
+		newChildren.add(new ReplicatedAdapter(false, descriptor,
 						      _model));
 	    }
 	    else

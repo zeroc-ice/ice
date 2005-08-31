@@ -26,7 +26,7 @@ import IceGrid.ServerState;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
-class Node extends Parent
+class Node extends EditableParent
 {
     //
     // Node creation/deletion/renaming is done by starting/restarting
@@ -112,17 +112,18 @@ class Node extends Parent
 	}
     }
 
-    public void cleanup()
+    public void unregister()
     {
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
 	    Server server = (Server)p.next();
-	    server.cleanup();
+	    server.unregister();
 	}
     }
     
     NodeDescriptor update(NodeUpdateDescriptor update, Application application)
+	throws DuplicateIdException
     {
 	if(_descriptor == null)
 	{
@@ -207,7 +208,7 @@ class Node extends Parent
 	    }
 	    else
 	    {
-		server = new Server(serverId, instanceResolver, instanceDescriptor, 
+		server = new Server(false, serverId, instanceResolver, instanceDescriptor, 
 				    serverDescriptor, application);
 		newChildren.add(server);
 		_descriptor.serverInstances.add(instanceDescriptor);
@@ -243,7 +244,7 @@ class Node extends Parent
 	    }
 	    else
 	    {
-		server = new Server(serverId, instanceResolver, null, 
+		server = new Server(false, serverId, instanceResolver, null, 
 				    serverDescriptor, application);
 		newChildren.add(server);
 		_descriptor.servers.add(serverDescriptor);
@@ -265,17 +266,44 @@ class Node extends Parent
    
     Node(String nodeName, Model model)
     {
-	super(nodeName, model);  
+	super(false, nodeName, model);  
 	_up = true;
     }
 
-    Node(String nodeName, NodeDescriptor descriptor, Application application)
+    Node(boolean brandNew, String nodeName, NodeDescriptor descriptor, Application application)
+	throws DuplicateIdException
     {
-	super(nodeName, application.getModel());
+	super(brandNew, nodeName, application.getModel());
 	init(descriptor, application, false);
     } 
     
+    Node(Node o)
+    {
+	super(o);
+	_descriptor = o._descriptor;
+	_resolver = o._resolver;
+	_up = o._up;
+
+	//
+	// Deep-copy children
+	//
+	java.util.Iterator p = o._children.iterator();
+	while(p.hasNext())
+	{
+	    Server server = (Server)p.next();
+	    try
+	    {
+		addChild(new Server(server));
+	    }
+	    catch(DuplicateIdException e)
+	    {
+		assert false; // impossible
+	    }
+	}
+    }
+
     void init(NodeDescriptor descriptor, Application application, boolean fireEvent)
+	throws DuplicateIdException
     {
 	assert _descriptor == null;
 	_descriptor = descriptor;
@@ -320,7 +348,7 @@ class Node extends Parent
 	    //
 	    // Create server
 	    //
-	    Server server = new Server(serverId, instanceResolver, instanceDescriptor, 
+	    Server server = new Server(false, serverId, instanceResolver, instanceDescriptor, 
 				       serverDescriptor, application);
 	    addChild(server);
 	    server.setParent(this);
@@ -344,7 +372,7 @@ class Node extends Parent
 	    //
 	    // Create server
 	    //
-	    Server server = new Server(serverId, instanceResolver, null, serverDescriptor, 
+	    Server server = new Server(false, serverId, instanceResolver, null, serverDescriptor, 
 				       application);
 	    addChild(server);
 	    server.setParent(this);
@@ -354,14 +382,133 @@ class Node extends Parent
 	{
 	    fireNodeChangedEvent(this);
 	}
-	
     }
     
+    
+    void update() throws DuplicateIdException
+    {
+	if(_descriptor == null)
+	{
+	    //
+	    // Nothing to do
+	    //
+	    return;
+	}
+
+	Application application = getApplication();
+
+	_resolver = new Utils.Resolver(new java.util.Map[]
+	    {_descriptor.variables, application.getVariables()});
+				       
+	_resolver.put("application", application.getId());
+	_resolver.put("node", getId());
+	
+	//
+	// Existing servers not in this list will be removed
+	//
+	java.util.Set serverIdSet = new java.util.HashSet();
+
+	//
+	// Template instances
+	//
+	java.util.Iterator p = _descriptor.serverInstances.iterator();
+	while(p.hasNext())
+	{
+	    ServerInstanceDescriptor instanceDescriptor = 
+		(ServerInstanceDescriptor)p.next();
+	    
+	    //
+	    // Find template
+	    //
+	    TemplateDescriptor templateDescriptor = 
+		application.findServerTemplateDescriptor(instanceDescriptor.template);
+
+	    if(templateDescriptor != null)
+	    {    
+		ServerDescriptor serverDescriptor = 
+		    (ServerDescriptor)templateDescriptor.descriptor;
+		
+		assert serverDescriptor != null;
+		
+		//
+		// Build resolver
+		//
+		Utils.Resolver instanceResolver = 
+		    new Utils.Resolver(_resolver, instanceDescriptor.parameterValues);
+	    
+		String serverId = instanceResolver.substitute(serverDescriptor.id);
+		instanceResolver.put("server", serverId);
+		serverIdSet.add(serverId);
+		
+		//
+		// Lookup server
+		//
+		Server server = (Server)findChild(serverId);
+		if(server != null)
+		{
+		    server.rebuild(instanceResolver, instanceDescriptor, 
+				   serverDescriptor, application);
+		}
+		else
+		{
+		    //
+		    // Create server
+		    //
+		    server = new Server(true, serverId, instanceResolver, instanceDescriptor, 
+					serverDescriptor, application);
+		    addChild(server);
+		    server.setParent(this);   
+		}
+	    }
+	    //
+	    // Otherwise this template-instance will most likely be deleted
+	    //
+	}
+
+	//
+	// Plain servers
+	//
+	p = _descriptor.servers.iterator();
+	while(p.hasNext())
+	{
+	    ServerDescriptor serverDescriptor = (ServerDescriptor)p.next();
+
+	    //
+	    // Build resolver
+	    //
+	    Utils.Resolver instanceResolver = new Utils.Resolver(_resolver);
+	    String serverId = instanceResolver.substitute(serverDescriptor.id);
+	    instanceResolver.put("server", serverId);
+	    serverIdSet.add(serverId);
+
+	    //
+	    // Lookup server
+	    //
+	    Server server = (Server)findChild(serverId);
+	    if(server != null)
+	    {
+		server.rebuild(instanceResolver, null, serverDescriptor, application);
+	    }
+	    else
+	    {
+		//
+		// Create server
+		//
+		server = new Server(true, serverId, instanceResolver, null, serverDescriptor, 
+				    application);
+		addChild(server);
+		server.setParent(this);
+	    }
+	}
+
+	purgeChildren(serverIdSet);
+	
+    }
+
     private NodeDescriptor _descriptor;
     private Utils.Resolver _resolver;
 
     private boolean _up = false;
-    private java.util.Map _serverDynamicInfoMap;
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon _nodeUpOpen;

@@ -14,10 +14,14 @@ import IceGrid.Utils;
 
 class Adapters extends Parent
 {
-    Adapters(java.util.List descriptors, boolean editable, 
-	     Utils.Resolver resolver, Model model)
+    Adapters(java.util.List descriptors, boolean isEditable, 
+	     Utils.Resolver resolver, Application application, 
+	     Model model)
+	throws DuplicateIdException
     {
 	super("Adapters", model);
+	_isEditable = isEditable;
+
 	java.util.Iterator p = descriptors.iterator();
 	while(p.hasNext())
 	{
@@ -26,18 +30,25 @@ class Adapters extends Parent
 	    String adapterName = Utils.substitute(descriptor.name,
 						  resolver);
 	    
-	    addChild(new Adapter(adapterName, descriptor, editable, 
-				 resolver, _model));
+	    addChild(new Adapter(adapterName, descriptor, 
+				 resolver, application, _model));
 	}
     }
-
-    public void cleanup()
+    
+    public void unregister()
     {
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
 	    Adapter adapter = (Adapter)p.next();
-	    adapter.cleanup();
+	    adapter.unregister();
 	}
     }
+
+    boolean isEditable()
+    {
+	return _isEditable;
+    }
+
+    private boolean _isEditable;
 }
