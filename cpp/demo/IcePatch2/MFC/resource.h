@@ -19,6 +19,7 @@
 #define IDC_THOROUGH                    1015
 #define IDC_PATH                        1016
 #define IDC_SELECTDIR                   1017
+#define IDC_ORPHAN                      1018
 #define IDC_FILE                        1023
 #define IDC_TOTAL                       1024
 #define IDC_SPEED                       1025

@@ -24,9 +24,11 @@ a new command window and execute this command:
 
 > mkdir C:\icepatch_download
 
-Now you can start the IcePatch2 client:
+Now you can start the IcePatch2 client (You will also need to pass a 
+"IcePatch2.Endpoints" argument if you use a endpoint other than the
+one shown above when you start icepatch2server):
 
-> patch --IcePatch2.Endpoints="tcp -h 127.0.0.1 -p 10000"
+> patch
 
 Click the "..." button to the right of the Patch Directory field and
 select the empty directory you just created. Then click the "Patch"

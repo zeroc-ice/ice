@@ -71,7 +71,7 @@ IDR_MAINFRAME           ICON    DISCARDABLE     "PatchClient.ico"
 // Dialog
 //
 
-IDD_PATCHCLIENT_DIALOG DIALOGEX 0, 0, 234, 145
+IDD_PATCHCLIENT_DIALOG DIALOGEX 0, 0, 234, 148
 STYLE DS_FIXEDSYS | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
     WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
@@ -83,17 +83,17 @@ BEGIN
     PUSHBUTTON      "...",IDC_SELECTDIR,209,7,18,14,BS_CENTER,
                     WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
     CONTROL         "Thorough",IDC_THOROUGH,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,63,29,47,10
+                    WS_TABSTOP,33,25,47,10
     PUSHBUTTON      "Patch",IDC_STARTPATCH,122,27,50,14
     PUSHBUTTON      "Cancel",IDC_CANCELPATCH,177,27,50,14
-    LTEXT           "",IDC_STATUSBAR,0,132,117,12,SS_CENTERIMAGE | 
+    LTEXT           "",IDC_STATUSBAR,0,135,117,12,SS_CENTERIMAGE | 
                     SS_ENDELLIPSIS,WS_EX_STATICEDGE
     CONTROL         "Progress1",IDC_PROGRESS,"msctls_progress32",WS_GROUP,
-                    118,132,81,12,WS_EX_STATICEDGE
-    RTEXT           "",IDC_PERCENT,200,132,33,12,SS_CENTERIMAGE,
+                    118,135,81,12,WS_EX_STATICEDGE
+    RTEXT           "",IDC_PERCENT,200,135,33,12,SS_CENTERIMAGE,
                     WS_EX_STATICEDGE
     LTEXT           "Patch Directory:",IDC_STATIC,7,10,52,8
-    GROUPBOX        "Patch Information",IDC_STATIC,7,46,220,78,0,
+    GROUPBOX        "Patch Information",IDC_STATIC,7,53,220,78,0,
                     WS_EX_TRANSPARENT
     CONTROL         "Current File:",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP,13,
                     63,46,8
@@ -106,6 +106,8 @@ BEGIN
     LTEXT           "",IDC_FILE,63,59,156,14,SS_CENTERIMAGE,WS_EX_STATICEDGE
     LTEXT           "",IDC_SPEED,63,101,156,14,SS_CENTERIMAGE | NOT WS_GROUP,
                     WS_EX_STATICEDGE
+    CONTROL         "Remove Orphans",IDC_ORPHAN,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,33,37,71,10
 END
 
 
@@ -164,7 +166,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 227
         TOPMARGIN, 7
-        BOTTOMMARGIN, 138
+        BOTTOMMARGIN, 141
     END
 END
 #endif    // APSTUDIO_INVOKED

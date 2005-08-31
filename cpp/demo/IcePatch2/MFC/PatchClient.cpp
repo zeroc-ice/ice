@@ -56,11 +56,9 @@ CPatchClientApp::InitInstance()
     }
 
     Ice::PropertiesPtr properties = communicator->getProperties();
-    CString path = properties->getPropertyWithDefault("IcePatch2.Endpoints", "").c_str();
-    if(path.IsEmpty())
+    if(properties->getProperty("IcePatch2.Endpoints").empty())
     {
-	AfxMessageBox(CString("Please run with the --IcePatch2.Endpoints option."), MB_OK|MB_ICONEXCLAMATION);
-        return FALSE;
+        properties->setProperty("IcePatch2.Endpoints", "tcp -h 127.0.0.1 -p 10000");
     }
 
     CPatchDlg dlg(communicator);

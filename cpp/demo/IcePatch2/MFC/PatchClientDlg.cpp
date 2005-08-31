@@ -259,6 +259,7 @@ CPatchDlg::OnInitDialog()
     //
     _path = (CEdit*)GetDlgItem(IDC_PATH);
     _thorough = (CButton*)GetDlgItem(IDC_THOROUGH);
+    _remove = (CButton*)GetDlgItem(IDC_ORPHAN);
     _select = (CButton*)GetDlgItem(IDC_SELECTDIR);
     _start = (CButton*)GetDlgItem(IDC_STARTPATCH);
     _cancel = (CButton*)GetDlgItem(IDC_CANCELPATCH);
@@ -278,6 +279,9 @@ CPatchDlg::OnInitDialog()
 
     CString thorough = properties->getPropertyWithDefault("IcePatch2.Thorough", "0").c_str();
     _thorough->SetCheck(thorough != "0");
+
+    CString remove = properties->getPropertyWithDefault("IcePatch2.Remove", "0").c_str();
+    _remove->SetCheck(remove != "0");
 
     //
     // Indicate ready status.
@@ -362,12 +366,6 @@ CPatchDlg::OnStartPatch()
 	Ice::PropertiesPtr properties = _communicator->getProperties();
 
 	//
-	// Since this is a demo, we want to prevent files from
-	// accidental deletion.
-	//
-	properties->setProperty("IcePatch2.Remove", "0");
-
-	//
 	// Set the patch directory.
 	// 
 	CString path;
@@ -385,6 +383,12 @@ CPatchDlg::OnStartPatch()
 	std::string thorough = _thorough->GetCheck() == BST_CHECKED ? "1" : "0";
 	properties->setProperty("IcePatch2.Thorough", thorough);
 
+	//
+	// Set the remove orphan flag.
+	//
+	std::string remove = _remove->GetCheck() == BST_CHECKED ? "1" : "0";
+	properties->setProperty("IcePatch2.Remove", remove);
+
         DialogPatcherFeedbackPtr feedback = new DialogPatcherFeedback(this);
 	IcePatch2::PatcherPtr patcher = new IcePatch2::Patcher(_communicator, feedback);
 
@@ -394,6 +398,7 @@ CPatchDlg::OnStartPatch()
 	_path->EnableWindow(false);
 	_select->EnableWindow(false);
 	_thorough->EnableWindow(false);
+	_remove->EnableWindow(false);
 	_start->EnableWindow(false);
 
 	//
@@ -440,6 +445,7 @@ CPatchDlg::reset(const CString& status)
     _path->EnableWindow(true);
     _select->EnableWindow(true);
     _thorough->EnableWindow(true);
+    _remove->EnableWindow(true);
     _start->EnableWindow(true);
 
     _status->SetWindowText(status);

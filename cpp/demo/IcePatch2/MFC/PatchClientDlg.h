@@ -43,6 +43,7 @@ protected:
     IceUtil::Time _startTime;
     CEdit* _path;
     CButton* _thorough;
+    CButton* _remove;
     CButton* _select;
     CButton* _start;
     CButton* _cancel;
