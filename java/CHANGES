@@ -1,28 +1,26 @@
 Changes since version 2.1.2
 ---------------------------
 
-- Fixed a bug in proxyToString() for bidirectional proxies.
+- Added ice_communicator() to proxies. This function returns the
+  communicator that was used to create the proxy.
 
-- Added ice_communicator() to proxies. This function returns
-  the communicator that was used to create the proxy.
-
-- Added ice_toString() to proxies. This function returns
-  the stringified proxy. This function can be more convenient
-  to use than communicator.stringToProxy() because you do
-  not need the communicator to stringify a proxy that way.
+- Added ice_toString() to proxies. This function returns the
+  stringified proxy. This function can be more convenient to use than
+  communicator.stringToProxy() because you do not need the
+  communicator to stringify a proxy that way.
 
 - Parsing a stringified proxy no longer completely fails if the proxy
-  contains an endpoint type which is unknown to the Ice runtime as long
-  as the proxy contains other endpoints which are known. A warning is
-  printed for the unknown types that are encountered.
+  contains an endpoint type that is unknown to the Ice runtime as
+  long as the proxy contains other endpoints that are known. A warning
+  is printed for the unknown types that are encountered.
 
 - Ice.ObjectImpl is now an abstract class that cannot be instantiated.
   This change should be transparent to application code.
 
 - Added new features to the Java mapping:
 
-  - Structures, classes, and exceptions now have one-shot constructors.
-    For example, for a class
+  - Structures, classes, and exceptions now have one-shot
+    constructors. For example, for a class
 
       class Example {
           int i;
@@ -37,17 +35,19 @@ Changes since version 2.1.2
 	  // ...
       }
 
-    This allows you to construct a structure, class, or exception
-    and supply values for the data members in a single statement,
-    instead of having to assign to the members of a default-constructed
+    This allows you to construct a structure, class, or exception and
+    supply values for the data members in a single statement, instead
+    of having to assign to the members of a default-constructed
     instance.
 
     For derived exceptions and classes, the constructor expects values
-    for all data members, including those of base exceptions or classes,
-    in base-to-derived order of declaration.
+    for all data members, including those of base exceptions or
+    classes, in base-to-derived order of declaration.
 
 Changes since version 2.1.1
 ---------------------------
+
+- Fixed a bug in proxyToString() for bidirectional proxies.
 
 - Fixed a bug with dynamic thread pools, where new threads were
   destroyed immediately after dispatch if <threadpool>.Size=1 and
@@ -734,7 +734,7 @@ Changes since version 1.0.1
   larger than zero. By default timestamps are disabled.
 
 - Improved IceBox service deactivation. Instead of successively
-  stoping a service and destroying its communicator, services are now
+  stopping a service and destroying its communicator, services are now
   all stopped first and then their communicators are destroyed.
 
 - Modified the Ice protocol to marshal sizes more efficiently.
