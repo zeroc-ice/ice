@@ -1,24 +1,49 @@
 Changes since version 2.1.2
 ---------------------------
 
-- Fixed a bug in the slice2vb code generator: for sequences of
-  Slice structs that used the class mapping, the generated code
-  caused a run-time error.
+- Fixed a bug in the slice2vb code generator: for sequences of Slice
+  structs that used the class mapping, the generated code caused a
+  run-time error.
 
-- Fixed a bug in the slice2vb code generator: if an operation
-  had a parameter named ix or spx, incorrect code was generated
-  in some cases.
+- Fixed a bug in the slice2vb code generator: if an operation had a
+  parameter named ix or spx, incorrect code was generated in some
+  cases.
 
-- Added ice_communicator() to proxies. This function returns
-  the communicator that was used to create the proxy.
+- Added ice_communicator() to proxies. This function returns the
+  communicator that was used to create the proxy.
 
-- Added ice_toString() to proxies. This function returns
-  the stringified proxy. This function can be more convenient
-  to use than communicator.stringToProxy() because you do
-  not need the communicator to stringify a proxy that way.
+- Added ice_toString() to proxies. This function returns the
+  stringified proxy. This function can be more convenient to use than
+  communicator.stringToProxy() because you do not need the
+  communicator to stringify a proxy that way.
 
 - Ice.ObjectImpl is now an abstract class that cannot be instantiated.
   This change should be transparent to application code.
+
+- Added new features to the Visual Basic mapping:
+
+  - Structures, classes, and exceptions now have one-shot
+    constructors. For example, for a class
+
+      class Example {
+          int i;
+	  string s;
+      };
+
+    the following constructors are generated:
+
+      Public Class Example Inherits Ice.ObjectImpl
+	  Public Sub New() ...
+	  Public Sub New(ByVal i as Integer, ByVal s As String) ...
+
+    This allows you to construct a structure, class, or exception and
+    supply values for the data members in a single statement, instead
+    of having to assign to the members of a default-constructed
+    instance.
+
+    For derived exceptions and classes, the constructor expects values
+    for all data members, including those of base exceptions or
+    classes, in base-to-derived order of declaration.
 
 Changes since version 2.1.1
 ---------------------------
@@ -26,10 +51,6 @@ Changes since version 2.1.1
 - Fixed a bug in the code generator: incorrect code was generated
   if an operation used an exception from an unrelated module in
   its exception specification.
-
-- Added constructors to for structures and classes to VB mapping to
-  allow structures and classes to be created and initialized in
-  a single statement.
 
 Changes since version 2.1.0
 ---------------------------
