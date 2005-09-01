@@ -252,6 +252,7 @@ IceGrid:
     Node.Trace.Activator
     Node.Trace.Adapter
     Node.Trace.Server
+    Node.Trace.Patch
     Node.WaitTime
     Node.BackgroundRegistration
     Registry.Admin.AdapterId

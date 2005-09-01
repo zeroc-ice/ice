@@ -2142,7 +2142,7 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
 		NodeHelperDict::const_iterator q = helper._nodes.find(r->first);
 		if(q != helper._nodes.end())
 		{
-		    p->second.printDiff(out, q->second);
+		    r->second.printDiff(out, q->second);
 		}
 	    }
 	    for(Ice::StringSeq::const_iterator s = removed.begin(); s != removed.end(); ++s)

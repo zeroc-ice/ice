@@ -12,6 +12,7 @@
 #include <IceGrid/Admin.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/TraceLevels.h>
+#include <IceGrid/Util.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -441,13 +442,13 @@ Activator::activate(const string& name,
 	    out << "\n";
 	    out << "path = " << path << "\n";
 	    out << "pwd = " << pwd << "\n";
-	    out << "args = ";
-
-	    StringSeq::const_iterator p = args.begin();
-            ++p;
-	    for(StringSeq::const_iterator q = p; q != args.end(); ++q)
+	    if(!envs.empty())
 	    {
-		out << " " << *q;
+		out << "envs = " << toString(envs, ", ") << "\n";
+	    }
+	    if(!args.empty())
+	    {
+		out << "args = " << toString(args);
 	    }
 	}
     }

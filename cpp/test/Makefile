@@ -18,7 +18,8 @@ SUBDIRS		= IceUtil \
 		  IcePack \
 		  Freeze \
 		  FreezeScript \
-		  Glacier2
+		  Glacier2 \
+		  IceGrid
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

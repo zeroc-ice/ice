@@ -65,6 +65,71 @@ private:
     const ServerIPtr _server;
 };
 
+struct EnvironmentEval : std::unary_function<string, string>
+{
+    string
+    operator()(const std::string& value)
+    {
+	string::size_type assignment = value.find("=");
+	if(assignment == string::npos || assignment >= value.size() - 1)
+	{
+	    return value;
+	}
+
+	string v = value.substr(assignment + 1);
+	assert(v.size());
+	string::size_type beg = 0;
+	string::size_type end;
+#ifdef _WIN32
+// 	char buf[32767];
+// 	while((beg = v.find("%", beg)) != string::npos && beg < v.size() - 1)
+// 	{
+// 	    end = v.find("%");
+// 	    if(end == string::npos)
+// 	    {
+// 		return v;
+// 	    }
+// 	    string variable = v.substr(beg + 2, end - beg - 2);
+// 	    int ret = GetEnvironmentVariable(variable.c_str(), buf, sizeof(buf));
+//          string valstr = ret > 0 ? string(buf) : "";
+// 	    v.replace(beg, end - beg + 1, valstr);
+// 	    beg += strlen(value);
+// 	}
+	return value;
+#else
+	while((beg = v.find("$", beg)) != string::npos && beg < v.size() - 1)
+	{
+	    string variable;
+	    if(v[beg + 1] == '{')
+	    {
+		end = v.find("}");
+		if(end == string::npos)
+		{
+		    return v;
+		}
+		variable = v.substr(beg + 2, end - beg - 2);
+	    }
+	    else
+	    {
+		end = beg + 1;
+		while((isalnum(v[end]) || v[end] == '_')  && end < v.size())
+		{
+		    ++end;
+		}
+		variable = v.substr(beg + 1, end - beg - 1);
+		--end;
+	    }
+
+	    char* val = getenv(variable.c_str());
+	    string valstr = val ? string(val) : "";
+	    v.replace(beg, end - beg + 1, valstr);
+	    beg += valstr.size();
+	}
+#endif
+	return value.substr(0, assignment) + "=" + v;
+    }
+};
+
 }
 
 ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& serversDir, const string& id, int wt) :
@@ -479,7 +544,7 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
     options.push_back("--Ice.Config=" + _serverDir + "/config/config");
 
     Ice::StringSeq envs;
-    copy(desc->envs.begin(), desc->envs.end(), back_inserter(envs));
+    transform(desc->envs.begin(), desc->envs.end(), back_inserter(envs), EnvironmentEval());
 
     string pwd = desc->pwd;
     if(pwd.empty())

@@ -33,7 +33,8 @@ SUBDIRS		= IceUtil \
 		  IceStorm \
 		  IcePack \
 		  Glacier2 \
-		  IcePatch2
+		  IcePatch2 \
+		  IceGrid
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
