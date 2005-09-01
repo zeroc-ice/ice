@@ -804,6 +804,13 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         return;
     }
 
+    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    if(dict)
+    {
+        writeDictionaryMarshalUnmarshalCode(out, package, dict, v, marshal, iter, true, metaData);
+        return;
+    }
+
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
@@ -821,6 +828,285 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     else
     {
         out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
+    }
+}
+
+void
+Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
+                                                          const string& package,
+                                                          const DictionaryPtr& dict,
+                                                          const string& param,
+                                                          bool marshal,
+                                                          int& iter,
+                                                          bool useHelper,
+                                                          const StringList& metaData)
+{
+    string stream = marshal ? "__os" : "__is";
+    string v = param;
+
+    //
+    // Marshalling does not require any special checks if
+    // allowed to use helper.
+    //
+    if(useHelper && marshal)
+    {
+        string typeS = getAbsolute(dict, package);
+        out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
+	return;
+    }
+
+    //
+    // Check for metadata that overrides the default dictionary
+    // mapping. If no metadata is found, we use a regular Java
+    // HashMap. If metadata is found, the value of the metadata
+    // must be the name of a class which implements the
+    // java.util.Map interface.
+    //
+    // There are two sources of metadata - that passed into
+    // this function (which most likely comes from a data
+    // member definition), and that associated with the type
+    // itself. If data member metadata is found, and does
+    // not match the type's metadata, then we cannot use
+    // the type's Helper class for marshalling - we must
+    // generate marshalling code inline.
+    //
+    string mapType;
+    if(_featureProfile != Slice::IceE)
+    {
+	mapType = findMetaData(metaData);
+	StringList typeMetaData = dict->getMetaData();
+	if(mapType.empty())
+	{
+	    mapType = findMetaData(typeMetaData);
+	}
+	else
+	{
+	    string s = findMetaData(typeMetaData);
+	    if(mapType != s)
+	    {
+		useHelper = false;
+	    }
+	}
+    }
+
+    //
+    // If we can use the map's helper, it's easy.
+    //
+    if(useHelper)
+    {
+        string typeS = getAbsolute(dict, package);
+        out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
+        return;
+    }
+
+    TypePtr key = dict->keyType();
+    TypePtr value = dict->valueType();
+
+    string valueS = typeToString(value, TypeModeIn, package);
+    int i;
+
+    if(marshal)
+    {
+        out << nl << "if(" << v << " == null)";
+        out << sb;
+        out << nl << "__os.writeSize(0);";
+        out << eb;
+        out << nl << "else";
+        out << sb;
+        out << nl << "__os.writeSize(" << v << ".size());";
+        out << nl << "java.util.Iterator __i = " << v << ".entrySet().iterator();";
+        out << nl << "while(__i.hasNext())";
+        out << sb;
+        out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i.next();";
+        iter = 0;
+        for(i = 0; i < 2; i++)
+        {
+            string val;
+            string arg;
+            TypePtr type;
+            if(i == 0)
+            {
+                arg = "__e.getKey()";
+                type = key;
+            }
+            else
+            {
+                arg = "__e.getValue()";
+                type = value;
+            }
+
+            BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+            if(b)
+            {
+                switch(b->kind())
+                {
+                    case Builtin::KindByte:
+                    {
+                        val = "((java.lang.Byte)" + arg + ").byteValue()";
+                        break;
+                    }
+                    case Builtin::KindBool:
+                    {
+                        val = "((java.lang.Boolean)" + arg + ").booleanValue()";
+                        break;
+                    }
+                    case Builtin::KindShort:
+                    {
+                        val = "((java.lang.Short)" + arg + ").shortValue()";
+                        break;
+                    }
+                    case Builtin::KindInt:
+                    {
+                        val = "((java.lang.Integer)" + arg + ").intValue()";
+                        break;
+                    }
+                    case Builtin::KindLong:
+                    {
+                        val = "((java.lang.Long)" + arg + ").longValue()";
+                        break;
+                    }
+                    case Builtin::KindFloat:
+                    {
+                        val = "((java.lang.Float)" + arg + ").floatValue()";
+                        break;
+                    }
+                    case Builtin::KindDouble:
+                    {
+                        val = "((java.lang.Double)" + arg + ").doubleValue()";
+                        break;
+                    }
+                    case Builtin::KindString:
+                    case Builtin::KindObject:
+                    case Builtin::KindObjectProxy:
+                    {
+                        break;
+                    }
+                    case Builtin::KindLocalObject:
+                    {
+                        assert(false);
+                        break;
+                    }
+                }
+            }
+
+            if(val.empty())
+            {
+                val = "((" + typeToString(type, TypeModeIn, package) + ')' + arg + ')';
+            }
+            writeMarshalUnmarshalCode(out, package, type, val, true, iter, false);
+        }
+        out << eb;
+        out << eb;
+    }
+    else
+    {
+        out << nl << "int __sz = __is.readSize();";
+        out << nl << v << " = new " << (mapType.empty() ? "java.util.HashMap(__sz)" : mapType + "()") << ';';
+        out << nl << "for(int __i = 0; __i < __sz; __i++)";
+        out << sb;
+        iter = 0;
+        for(i = 0; i < 2; i++)
+        {
+            string arg;
+            TypePtr type;
+            if(i == 0)
+            {
+                arg = "__key";
+                type = key;
+            }
+            else
+            {
+                arg = "__value";
+                type = value;
+            }
+
+            BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+            if(b)
+            {
+                switch(b->kind())
+                {
+                    case Builtin::KindByte:
+                    {
+                        out << nl << "java.lang.Byte " << arg << " = new java.lang.Byte(__is.readByte());";
+                        break;
+                    }
+                    case Builtin::KindBool:
+                    {
+                        out << nl << "java.lang.Boolean " << arg << " = new java.lang.Boolean(__is.readBool());";
+                        break;
+                    }
+                    case Builtin::KindShort:
+                    {
+                        out << nl << "java.lang.Short " << arg << " = new java.lang.Short(__is.readShort());";
+                        break;
+                    }
+                    case Builtin::KindInt:
+                    {
+                        out << nl << "java.lang.Integer " << arg << " = new java.lang.Integer(__is.readInt());";
+                        break;
+                    }
+                    case Builtin::KindLong:
+                    {
+                        out << nl << "java.lang.Long " << arg << " = new java.lang.Long(__is.readLong());";
+                        break;
+                    }
+                    case Builtin::KindFloat:
+                    {
+                        out << nl << "java.lang.Float " << arg << " = new java.lang.Float(__is.readFloat());";
+                        break;
+                    }
+                    case Builtin::KindDouble:
+                    {
+                        out << nl << "java.lang.Double " << arg << " = new java.lang.Double(__is.readDouble());";
+                        break;
+                    }
+                    case Builtin::KindString:
+                    {
+                        out << nl << "java.lang.String " << arg << " = __is.readString();";
+                        break;
+                    }
+                    case Builtin::KindObject:
+                    {
+                        out << nl << "__is.readObject(new IceInternal.DictionaryPatcher(" << v << ", " 
+			    << valueS <<".class, \"" << value->typeId() << "\", __key));";
+                        break;
+                    }
+                    case Builtin::KindObjectProxy:
+                    {
+                        out << nl << "Ice.ObjectPrx " << arg << " = __is.readProxy();";
+                        break;
+                    }
+                    case Builtin::KindLocalObject:
+                    {
+                        assert(false);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                string s = typeToString(type, TypeModeIn, package);
+		BuiltinPtr builtin2 = BuiltinPtr::dynamicCast(type);
+		if((builtin2 && builtin2->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
+		{
+		    writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
+					      "new IceInternal.DictionaryPatcher(" + v + ", " + valueS + 
+					      ".class, \"" + value->typeId() + 
+					      "\", __key)");
+		}
+		else
+		{
+		    out << nl << s << ' ' << arg << ';';
+		    writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false);
+		}
+            }
+        }
+	BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
+	if(!(builtin && builtin->kind() == Builtin::KindObject) && !ClassDeclPtr::dynamicCast(value))
+	{
+	    out << nl << "" << v << ".put(__key, __value);";
+	}
+        out << eb;
     }
 }
 
@@ -1712,6 +1998,13 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
         return;
     }
 
+    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    if(dict)
+    {
+        writeStreamDictionaryMarshalUnmarshalCode(out, package, dict, v, marshal, iter, true, metaData);
+        return;
+    }
+
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
@@ -1729,6 +2022,278 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
     else
     {
         out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
+    }
+}
+
+void
+Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
+                                                                const string& package,
+                                                                const DictionaryPtr& dict,
+                                                                const string& param,
+                                                                bool marshal,
+                                                                int& iter,
+                                                                bool useHelper,
+                                                                const StringList& metaData)
+{
+    string stream = marshal ? "__outS" : "__inS";
+    string v = param;
+
+    //
+    // Marshalling does not require any special checks if
+    // allowed to use helper.
+    //
+    if(useHelper && marshal)
+    {
+        string typeS = getAbsolute(dict, package);
+        out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
+	return;
+    }
+
+    //
+    // Check for metadata that overrides the default dictionary
+    // mapping. If no metadata is found, we use a regular Java
+    // HashMap. If metadata is found, the value of the metadata
+    // must be the name of a class which implements the
+    // java.util.Map interface.
+    //
+    // There are two sources of metadata - that passed into
+    // this function (which most likely comes from a data
+    // member definition), and that associated with the type
+    // itself. If data member metadata is found, and does
+    // not match the type's metadata, then we cannot use
+    // the type's Helper class for marshalling - we must
+    // generate marshalling code inline.
+    //
+    string mapType = findMetaData(metaData);
+    StringList typeMetaData = dict->getMetaData();
+    if(mapType.empty())
+    {
+        mapType = findMetaData(typeMetaData);
+    }
+    else
+    {
+        string s = findMetaData(typeMetaData);
+        if(mapType != s)
+        {
+            useHelper = false;
+        }
+    }
+
+    //
+    // If we can use the sequence's helper, it's easy.
+    //
+    if(useHelper)
+    {
+        string typeS = getAbsolute(dict, package);
+        out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
+        return;
+    }
+
+    TypePtr key = dict->keyType();
+    TypePtr value = dict->valueType();
+
+    string valueS = typeToString(value, TypeModeIn, package);
+    int i;
+
+    if(marshal)
+    {
+        out << nl << "if(" << v << " == null)";
+        out << sb;
+        out << nl << "__outS.writeSize(0);";
+        out << eb;
+        out << nl << "else";
+        out << sb;
+        out << nl << "__outS.writeSize(" << v << ".size());";
+        out << nl << "java.util.Iterator __i = " << v << ".entrySet().iterator();";
+        out << nl << "while(__i.hasNext())";
+        out << sb;
+        out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i.next();";
+        for(i = 0; i < 2; i++)
+        {
+            string val;
+            string arg;
+            TypePtr type;
+            if(i == 0)
+            {
+                arg = "__e.getKey()";
+                type = key;
+            }
+            else
+            {
+                arg = "__e.getValue()";
+                type = value;
+            }
+
+            BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+            if(b)
+            {
+                switch(b->kind())
+                {
+                    case Builtin::KindByte:
+                    {
+                        val = "((java.lang.Byte)" + arg + ").byteValue()";
+                        break;
+                    }
+                    case Builtin::KindBool:
+                    {
+                        val = "((java.lang.Boolean)" + arg + ").booleanValue()";
+                        break;
+                    }
+                    case Builtin::KindShort:
+                    {
+                        val = "((java.lang.Short)" + arg + ").shortValue()";
+                        break;
+                    }
+                    case Builtin::KindInt:
+                    {
+                        val = "((java.lang.Integer)" + arg + ").intValue()";
+                        break;
+                    }
+                    case Builtin::KindLong:
+                    {
+                        val = "((java.lang.Long)" + arg + ").longValue()";
+                        break;
+                    }
+                    case Builtin::KindFloat:
+                    {
+                        val = "((java.lang.Float)" + arg + ").floatValue()";
+                        break;
+                    }
+                    case Builtin::KindDouble:
+                    {
+                        val = "((java.lang.Double)" + arg + ").doubleValue()";
+                        break;
+                    }
+                    case Builtin::KindString:
+                    case Builtin::KindObject:
+                    case Builtin::KindObjectProxy:
+                    {
+                        break;
+                    }
+                    case Builtin::KindLocalObject:
+                    {
+                        assert(false);
+                        break;
+                    }
+                }
+            }
+
+            if(val.empty())
+            {
+                val = "((" + typeToString(type, TypeModeIn, package) + ')' + arg + ')';
+            }
+            writeStreamMarshalUnmarshalCode(out, package, type, val, true, iter, false);
+        }
+        out << eb;
+        out << eb;
+     }
+     else
+     {
+        out << nl << "int __sz = __inS.readSize();";
+	out << nl << v << " = new " << (mapType.empty() ? "java.util.HashMap(__sz)" : mapType + "()") << ';';
+        out << nl << "for(int __i = 0; __i < __sz; __i++)";
+        out << sb;
+        for(i = 0; i < 2; i++)
+        {
+            string arg;
+            TypePtr type;
+            if(i == 0)
+            {
+                arg = "__key";
+                type = key;
+            }
+            else
+            {
+                arg = "__value";
+                type = value;
+            }
+
+            BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+            if(b)
+            {
+                switch(b->kind())
+                {
+                    case Builtin::KindByte:
+                    {
+                        out << nl << "java.lang.Byte " << arg << " = new java.lang.Byte(__inS.readByte());";
+                        break;
+                    }
+                    case Builtin::KindBool:
+                    {
+                        out << nl << "java.lang.Boolean " << arg << " = new java.lang.Boolean(__inS.readBool());";
+                        break;
+                    }
+                    case Builtin::KindShort:
+                    {
+                        out << nl << "java.lang.Short " << arg << " = new java.lang.Short(__inS.readShort());";
+                        break;
+                    }
+                    case Builtin::KindInt:
+                    {
+                        out << nl << "java.lang.Integer " << arg << " = new java.lang.Integer(__inS.readInt());";
+                        break;
+                    }
+                    case Builtin::KindLong:
+                    {
+                        out << nl << "java.lang.Long " << arg << " = new java.lang.Long(__inS.readLong());";
+                        break;
+                    }
+                    case Builtin::KindFloat:
+                    {
+                        out << nl << "java.lang.Float " << arg << " = new java.lang.Float(__inS.readFloat());";
+                        break;
+                    }
+                    case Builtin::KindDouble:
+                    {
+                        out << nl << "java.lang.Double " << arg << " = new java.lang.Double(__inS.readDouble());";
+                        break;
+                    }
+                    case Builtin::KindString:
+                    {
+                        out << nl << "java.lang.String " << arg << " = __inS.readString();";
+                        break;
+                    }
+                    case Builtin::KindObject:
+                    {
+                        out << nl << "__inS.readObject(new IceInternal.DictionaryPatcher(" << v << ", "
+			    << valueS << ".class, \"" << value->typeId() << "\", __key));";
+                        break;
+                    }
+                    case Builtin::KindObjectProxy:
+                    {
+                        out << nl << "Ice.ObjectPrx " << arg << " = __inS.readProxy();";
+                        break;
+                    }
+                    case Builtin::KindLocalObject:
+                    {
+                        assert(false);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                string s = typeToString(type, TypeModeIn, package);
+                BuiltinPtr builtin2 = BuiltinPtr::dynamicCast(type);
+                if((builtin2 && builtin2->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
+                {
+                    writeStreamMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
+                                                    "new IceInternal.DictionaryPatcher(" + v + ", " +
+						    valueS + ".class, \"" + value->typeId() + "\", __key)");
+                }
+                else
+                {
+                    out << nl << s << ' ' << arg << ';';
+                    writeStreamMarshalUnmarshalCode(out, package, type, arg, false, iter, false);
+                }
+            }
+        }
+	BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
+        if(!(builtin && builtin->kind() == Builtin::KindObject) && !ClassDeclPtr::dynamicCast(value))
+        {
+            out << nl << "" << v << ".put(__key, __value);";
+        }
+        out << eb;
     }
 }
 

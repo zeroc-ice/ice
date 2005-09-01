@@ -117,6 +117,13 @@ protected:
 				   const std::string& patchParams = "");
 
     //
+    // Generate code to marshal or unmarshal a dictionary type.
+    //
+    void writeDictionaryMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const DictionaryPtr&,
+                                           const std::string&, bool, int&, bool,
+                                           const StringList& = StringList());
+
+    //
     // Generate code to marshal or unmarshal a sequence type.
     //
     void writeSequenceMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const SequencePtr&,
@@ -129,6 +136,13 @@ protected:
     void writeStreamMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&, const std::string&,
                                          bool, int&, bool = false, const StringList& = StringList(),
 				         const std::string& patchParams = "");
+
+    //
+    // Generate code to marshal or unmarshal a dictionary type using the public stream API.
+    //
+    void writeStreamDictionaryMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const DictionaryPtr&,
+                                                   const std::string&, bool, int&, bool,
+                                                   const StringList& = StringList());
 
     //
     // Generate code to marshal or unmarshal a sequence type using the public stream API.
