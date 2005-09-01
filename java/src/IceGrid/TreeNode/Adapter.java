@@ -298,13 +298,15 @@ class Adapter extends Leaf
 
     String getEndpoints()
     {
-	PropertiesHolder ph = (PropertiesHolder)getParent().getParent();
+	PropertiesHolder ph = getParent().getParent().getPropertiesHolder();
+	assert ph != null;
 	return ph.get(_descriptor.name + ".Endpoints");
     }
 
     void setEndpoints(String newEndpoints)
     {
-	PropertiesHolder ph = (PropertiesHolder)getParent().getParent();
+	PropertiesHolder ph = getParent().getParent().getPropertiesHolder();
+	assert ph != null;
 	ph.put(_descriptor.name + ".Endpoints", newEndpoints);
     }
 

@@ -17,7 +17,7 @@ class PropertiesHolder
     PropertiesHolder(CommunicatorDescriptor descriptor,
 		     Editable editable)
     {
-	assert _descriptor != null;
+	assert descriptor != null;
 
 	_descriptor = descriptor;
 	_editable = editable;

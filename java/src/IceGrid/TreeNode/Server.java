@@ -395,10 +395,10 @@ class Server extends EditableParent
     {
 	super(brandNew, serverId, application.getModel());
 	Ice.IntHolder pid = new Ice.IntHolder();
-	_state = getApplication().registerServer(resolver.find("node"),
-						 _id,
-						 this,
-						 pid);
+	_state = application.registerServer(resolver.find("node"),
+					    _id,
+					    this,
+					    pid);
 	_pid = pid.value;
 	rebuild(resolver, instanceDescriptor, serverDescriptor, application);
     }
