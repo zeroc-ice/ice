@@ -10,13 +10,17 @@
 top_srcdir	= ../../..
 
 CLIENT		= client
+SERVER		= server
 
-TARGETS		= $(CLIENT)
+TARGETS		= $(CLIENT) $(SERVER)
 
 COBJS		= Client.o \
 		  AllTests.o
 
-SRCS		= $(COBJS:.o=.cpp)
+SOBJS		= Server.o
+
+SRCS		= $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -26,6 +30,10 @@ LINKWITH	:= -lIce -lIceUtil
 $(CLIENT): $(COBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIceGrid -lGlacier2 $(LIBS)
+
+$(SERVER): $(SOBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
 
 clean::
 	rm -rf db/node/servers
