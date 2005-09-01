@@ -3307,6 +3307,17 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     string package = getPackage(p);
     StringList metaData = p->getMetaData();
     string mapType = findMetaData(metaData);
+    string formalType, actualType;
+    if(mapType.empty())
+    {
+	formalType = "java.util.Map";
+	actualType = "java.util.HashMap";
+    }
+    else
+    {
+	formalType = mapType;
+	actualType = mapType;
+    }
 
     if(open(helper))
     {
@@ -3322,14 +3333,20 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         writeDictionaryMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
 	out << eb;
 
-        out << sp << nl << "public static " << (mapType.empty() ? "java.util.Map" : mapType);
-	out << nl << "read(IceInternal.BasicStream __is)";
-        out << sb;
-	out << nl << (mapType.empty() ? "java.util.Map" : mapType) << " __v;";
-        iter = 0;
+	out << sp << nl << "public static " << formalType
+	    << nl << "read(IceInternal.BasicStream __is)";
+	out << sb;
+	out << nl << actualType << " __v = new " << actualType << "();";
+	out << nl << "read(__is, __v);";
+	out << nl << "return __v;";
+	out << eb;
+
+	out << sp << nl << "public static void"
+	    << nl << "read(IceInternal.BasicStream __is, java.util.Map __v)";
+	out << sb;
+	iter = 0;
 	writeDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
-        out << nl << "return __v;";
-        out << eb;
+	out << eb;
 
         if(_stream)
         {
@@ -3339,13 +3356,20 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 	    writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
             out << eb;
 
-	    out << sp << nl << "public static " << (mapType.empty() ? "java.util.Map" : mapType)
+	    out << sp << nl << "public static " << formalType
                 << nl << "read(Ice.InputStream __inS)";
             out << sb;
-	    out << nl << (mapType.empty() ? "java.util.Map" : mapType) << " __v;";
-	    writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
-            out << nl << "return __v;";
+	    out << nl << actualType << " __v = new " << actualType << "();";
+	    out << nl << "read(__inS, __v);";
+	    out << nl << "return __v;";
             out << eb;
+
+	    out << sp << nl << "public static void"
+		<< nl << "read(Ice.InputStream __inS, java.util.Map __v)";
+	    out << sb;
+	    iter = 0;
+	    writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
+	    out << eb;
         }
 
         out << eb;

@@ -857,18 +857,17 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
 
     //
     // Check for metadata that overrides the default dictionary
-    // mapping. If no metadata is found, we use a regular Java
-    // HashMap. If metadata is found, the value of the metadata
+    // mapping. If metadata is found, the value of the metadata
     // must be the name of a class which implements the
     // java.util.Map interface.
     //
     // There are two sources of metadata - that passed into
     // this function (which most likely comes from a data
     // member definition), and that associated with the type
-    // itself. If data member metadata is found, and does
-    // not match the type's metadata, then we cannot use
-    // the type's Helper class for marshalling - we must
-    // generate marshalling code inline.
+    // itself. If data member metadata is found, and it does
+    // not match the type's metadata, then we have to allocate
+    // the map ourselves and use a different overloading
+    // of the Helper class' read method for unmarshalling.
     //
     string mapType;
     if(_featureProfile != Slice::IceE)
@@ -879,12 +878,21 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
 	{
 	    mapType = findMetaData(typeMetaData);
 	}
-	else
+	else if(useHelper)
 	{
 	    string s = findMetaData(typeMetaData);
 	    if(mapType != s)
 	    {
-		useHelper = false;
+		//
+		// Data member metadata is defined, and it does not match the
+		// type's metadata (which might also be empty), therefore we
+		// allocate the custom type directly and then use the helper
+		// to unmarshal the dictionary.
+		//
+		string typeS = getAbsolute(dict, package);
+		out << nl << v << " = new " << mapType << "();";
+		out << nl << typeS << "Helper.read(" << stream << ", " << v << ");";
+		return;
 	    }
 	}
     }
@@ -905,6 +913,11 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
     string valueS = typeToString(value, TypeModeIn, package);
     int i;
 
+    ostringstream o;
+    o << iter;
+    string iterS = o.str();
+    iter++;
+
     if(marshal)
     {
         out << nl << "if(" << v << " == null)";
@@ -914,11 +927,10 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
         out << nl << "else";
         out << sb;
         out << nl << "__os.writeSize(" << v << ".size());";
-        out << nl << "java.util.Iterator __i = " << v << ".entrySet().iterator();";
-        out << nl << "while(__i.hasNext())";
+        out << nl << "java.util.Iterator __i" << iterS << " = " << v << ".entrySet().iterator();";
+        out << nl << "while(__i" << iterS << ".hasNext())";
         out << sb;
-        out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i.next();";
-        iter = 0;
+        out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i" << iterS << ".next();";
         for(i = 0; i < 2; i++)
         {
             string val;
@@ -1000,11 +1012,9 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
     }
     else
     {
-        out << nl << "int __sz = __is.readSize();";
-        out << nl << v << " = new " << (mapType.empty() ? "java.util.HashMap(__sz)" : mapType + "()") << ';';
-        out << nl << "for(int __i = 0; __i < __sz; __i++)";
+        out << nl << "int __sz" << iterS << " = __is.readSize();";
+        out << nl << "for(int __i" << iterS << " = 0; __i" << iterS << " < __sz" << iterS << "; __i" << iterS << "++)";
         out << sb;
-        iter = 0;
         for(i = 0; i < 2; i++)
         {
             string arg;
@@ -1086,13 +1096,11 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
             else
             {
                 string s = typeToString(type, TypeModeIn, package);
-		BuiltinPtr builtin2 = BuiltinPtr::dynamicCast(type);
-		if((builtin2 && builtin2->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
+		if(ClassDeclPtr::dynamicCast(type))
 		{
 		    writeMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
-					      "new IceInternal.DictionaryPatcher(" + v + ", " + valueS + 
-					      ".class, \"" + value->typeId() + 
-					      "\", __key)");
+					      "new IceInternal.DictionaryPatcher(" + v + ", " + s + ".class, \"" +
+					      type->typeId() + "\", __key)");
 		}
 		else
 		{
@@ -2051,32 +2059,40 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
 
     //
     // Check for metadata that overrides the default dictionary
-    // mapping. If no metadata is found, we use a regular Java
-    // HashMap. If metadata is found, the value of the metadata
+    // mapping. If metadata is found, the value of the metadata
     // must be the name of a class which implements the
     // java.util.Map interface.
     //
     // There are two sources of metadata - that passed into
     // this function (which most likely comes from a data
     // member definition), and that associated with the type
-    // itself. If data member metadata is found, and does
-    // not match the type's metadata, then we cannot use
-    // the type's Helper class for marshalling - we must
-    // generate marshalling code inline.
+    // itself. If data member metadata is found, and it does
+    // not match the type's metadata, then we have to allocate
+    // the map ourselves and use a different overloading
+    // of the Helper class' read method for unmarshalling.
     //
     string mapType = findMetaData(metaData);
     StringList typeMetaData = dict->getMetaData();
     if(mapType.empty())
     {
-        mapType = findMetaData(typeMetaData);
+	mapType = findMetaData(typeMetaData);
     }
-    else
+    else if(useHelper)
     {
-        string s = findMetaData(typeMetaData);
-        if(mapType != s)
-        {
-            useHelper = false;
-        }
+	string s = findMetaData(typeMetaData);
+	if(mapType != s)
+	{
+	    //
+	    // Data member metadata is defined, and it does not match the
+	    // type's metadata (which might also be empty), therefore we
+	    // allocate the custom type directly and then use the helper
+	    // to unmarshal the dictionary.
+	    //
+	    string typeS = getAbsolute(dict, package);
+	    out << nl << v << " = new " << mapType << "();";
+	    out << nl << typeS << "Helper.read(" << stream << ", " << v << ");";
+	    return;
+	}
     }
 
     //
@@ -2095,6 +2111,11 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
     string valueS = typeToString(value, TypeModeIn, package);
     int i;
 
+    ostringstream o;
+    o << iter;
+    string iterS = o.str();
+    iter++;
+
     if(marshal)
     {
         out << nl << "if(" << v << " == null)";
@@ -2104,10 +2125,10 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
         out << nl << "else";
         out << sb;
         out << nl << "__outS.writeSize(" << v << ".size());";
-        out << nl << "java.util.Iterator __i = " << v << ".entrySet().iterator();";
-        out << nl << "while(__i.hasNext())";
+        out << nl << "java.util.Iterator __i" << iterS << " = " << v << ".entrySet().iterator();";
+        out << nl << "while(__i" << iterS << ".hasNext())";
         out << sb;
-        out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i.next();";
+        out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i" << iterS << ".next();";
         for(i = 0; i < 2; i++)
         {
             string val;
@@ -2189,9 +2210,8 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
      }
      else
      {
-        out << nl << "int __sz = __inS.readSize();";
-	out << nl << v << " = new " << (mapType.empty() ? "java.util.HashMap(__sz)" : mapType + "()") << ';';
-        out << nl << "for(int __i = 0; __i < __sz; __i++)";
+        out << nl << "int __sz" << iterS << " = __inS.readSize();";
+        out << nl << "for(int __i" << iterS << " = 0; __i" << iterS << " < __sz" << iterS << "; __i" << iterS << "++)";
         out << sb;
         for(i = 0; i < 2; i++)
         {
@@ -2274,12 +2294,11 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
             else
             {
                 string s = typeToString(type, TypeModeIn, package);
-                BuiltinPtr builtin2 = BuiltinPtr::dynamicCast(type);
-                if((builtin2 && builtin2->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
+                if(ClassDeclPtr::dynamicCast(type))
                 {
                     writeStreamMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
-                                                    "new IceInternal.DictionaryPatcher(" + v + ", " +
-						    valueS + ".class, \"" + value->typeId() + "\", __key)");
+                                                    "new IceInternal.DictionaryPatcher(" + v + ", " + s +
+						    ".class, \"" + type->typeId() + "\", __key)");
                 }
                 else
                 {
