@@ -79,7 +79,6 @@ struct EnvironmentEval : std::unary_function<string, string>
 	string v = value.substr(assignment + 1);
 	assert(v.size());
 	string::size_type beg = 0;
-	string::size_type end;
 #ifdef _WIN32
 // 	char buf[32767];
 // 	while((beg = v.find("%", beg)) != string::npos && beg < v.size() - 1)
@@ -97,6 +96,7 @@ struct EnvironmentEval : std::unary_function<string, string>
 // 	}
 	return value;
 #else
+	string::size_type end;
 	while((beg = v.find("$", beg)) != string::npos && beg < v.size() - 1)
 	{
 	    string variable;
