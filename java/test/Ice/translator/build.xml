@@ -31,7 +31,7 @@
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
-        <slice2java outputdir="${generated.dir}" tie="on">
+        <slice2java outputdir="${generated.dir}" tie="on" stream="on">
             <includepath>
                 <pathelement path="." />
             </includepath>
@@ -56,7 +56,7 @@
             <fileset dir="." includes="TestSingleModuleWithPackage13.ice"/>
         </slice2java>
         <!-- We use 2 tasks to limit the size of the slice2java command line -->
-        <slice2java outputdir="${generated.dir}" tie="on">
+        <slice2java outputdir="${generated.dir}" tie="on" stream="on">
             <includepath>
                 <pathelement path="." />
             </includepath>

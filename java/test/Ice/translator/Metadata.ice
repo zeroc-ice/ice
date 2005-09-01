@@ -9,7 +9,7 @@ module MetadataTest
     ["java:type:java.util.LinkedList"] sequence<ObjectSeq> ObjectSeqList;
 
     dictionary<string, string> StringDict;
-    ["java:type:java.util.HashMap"] dictionary<string, string> StringMap;
+    ["java:type:java.util.TreeMap"] dictionary<string, string> StringMap;
 
     class C
     {
@@ -25,6 +25,8 @@ module MetadataTest
 
 	StringDict stringDictMember;
 	StringMap stringMapMember;
+	["java:type:java.util.TreeMap"] StringDict modifiedStringDictMember;
+	["java:type:java.util.IdentityHashMap"] StringMap modifiedStringMapMember;
 
         IntSeq opIntSeq(IntSeq inArg, out IntSeq outArg);
         IntList opIntList(IntList inArg, out IntList outArg);
