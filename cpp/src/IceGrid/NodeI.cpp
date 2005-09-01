@@ -19,6 +19,10 @@
 #include <IceGrid/WaitQueue.h>
 #include <IceGrid/TraceLevels.h>
 
+#ifdef _WIN32
+#   include <direct.h> // For _getcwd
+#endif
+
 using namespace std;
 using namespace IcePatch2;
 using namespace IceGrid;
@@ -139,7 +143,7 @@ public:
 	    if(!_startedPatch)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-		int roundedSize = totalSize / 1024;
+		int roundedSize = static_cast<int>(static_cast<double>(totalSize) / 1024);
 		if(roundedSize == 0 && totalSize > 0)
 		{
 		    roundedSize = 1;
@@ -303,11 +307,12 @@ NodeI::destroyServer(const string& name, const Ice::Current& current)
 void
 NodeI::patch(const Ice::StringSeq& directories, const Ice::StringSeq& serverDirs, const Ice::Current&)
 {
-    for(Ice::StringSeq::const_iterator p = directories.begin(); p != directories.end(); ++p)
+    Ice::StringSeq::const_iterator p;
+    for(p = directories.begin(); p != directories.end(); ++p)
     {
 	patch(ServerIPtr(), *p);
     }
-    for(Ice::StringSeq::const_iterator p = serverDirs.begin(); p != serverDirs.end(); ++p)
+    for(p = serverDirs.begin(); p != serverDirs.end(); ++p)
     {
 	patch(ServerIPtr(), _serversDir + "/" + *p + "/data");
     }
@@ -349,7 +354,8 @@ NodeI::patch(const ServerIPtr& server, const string& directory) const
     try
     {
 	vector<string> running;
-	for(set<ServerIPtr>::const_iterator p = patch.servers.begin(); p != patch.servers.end(); ++p)
+	set<ServerIPtr>::const_iterator p;
+	for(p = patch.servers.begin(); p != patch.servers.end(); ++p)
 	{
 	    if(*p != server)
 	    {
@@ -428,7 +434,7 @@ NodeI::patch(const ServerIPtr& server, const string& directory) const
 	    throw PatchException(msg);
 	}
 
-	for(set<ServerIPtr>::const_iterator p = patch.servers.begin(); p != patch.servers.end(); ++p)
+	for(p = patch.servers.begin(); p != patch.servers.end(); ++p)
 	{
 	    if(*p != server)
 	    {
@@ -516,13 +522,15 @@ NodeI::keepAlive()
 	    setSession(RegistryPrx::uncheckedCast(registry)->registerNode(_name, _proxy));
 	    checkConsistency();
 	}
-	catch(const NodeActiveException& ex)
+	catch(const NodeActiveException&)
 	{
 	    _traceLevels->logger->error("a node with the same name is already registered and active");
 	}
 	catch(const Ice::LocalException& ex)
 	{
-	    _traceLevels->logger->warning("couldn't contact the IceGrid registry");
+	    ostringstream os;
+	    os << "couldn't contact the IceGrid registry:\n" << ex;
+	    _traceLevels->logger->warning(os.str());
 	}
     }
 }
@@ -690,13 +698,14 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 
     try
     {
-	for(Ice::StringSeq::const_iterator p = contents.begin(); p != --contents.end(); ++p)
+	Ice::StringSeq::const_iterator p;
+	for(p = contents.begin(); p != --contents.end(); ++p)
 	{
 	    rename(_tmpDir + "/" + *(p + 1), _tmpDir + "/" + *p);
 	}
 	createDirectoryRecursive(_tmpDir + "/servers-0");
 	
-	for(vector<string>::const_iterator p = remove.begin(); p != remove.end(); ++p)
+	for(p = remove.begin(); p != remove.end(); ++p)
 	{
 	    rename(_serversDir + "/" + *p, _tmpDir + "/servers-0/" + *p);
 	}
@@ -724,7 +733,8 @@ NodeI::canRemoveServerDirectory(const string& name)
 
     contents = readDirectory(_serversDir + "/" + name + "/config");
 
-    for(Ice::StringSeq::const_iterator p = contents.begin() ; p != contents.end(); ++p)
+    Ice::StringSeq::const_iterator p;
+    for(p = contents.begin() ; p != contents.end(); ++p)
     {
 	if(p->find("config") != 0)
 	{
@@ -733,7 +743,7 @@ NodeI::canRemoveServerDirectory(const string& name)
     }
 
     contents = readDirectory(_serversDir + "/" + name + "/dbs");
-    for(Ice::StringSeq::const_iterator p = contents.begin() ; p != contents.end(); ++p)
+    for(p = contents.begin() ; p != contents.end(); ++p)
     {
 	Ice::StringSeq files = readDirectory(_serversDir + "/" + name + "/dbs/" + *p);
 	remove(files.begin(), files.end(), "DB_CONFIG");

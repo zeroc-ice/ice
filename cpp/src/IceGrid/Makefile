@@ -175,23 +175,7 @@ $(LOCAL_HDIR)/StringObjectProxiesDict.h StringObjectProxiesDict.cpp: $(SLICE2FRE
 	StringObjectProxiesDict $(LOCAL_SDIR)/Internal.ice
 
 clean::
-	rm -f StringObjectProxyDict.h StringObjectProxyDict.cpp
-
-$(LOCAL_HDIR)/StringStringSeqDict.h StringStringSeqDict.cpp: $(SLICE2FREEZE)
-	rm -f StringStringSeqDict.h StringStringSeqDict.cpp
-	$(SLICE2FREEZECMD) --dict IceGrid::StringStringSeqDict,string,Ice::StringSeq \
-	StringStringSeqDict ../../slice/Ice/BuiltinSequences.ice
-
-clean::
-	rm -f StringStringSeqDict.h StringStringSeqDict.cpp
-
-$(LOCAL_HDIR)/StringServerDescriptorDict.h StringServerDescriptorDict.cpp: $(SLICE2FREEZE)
-	rm -f StringServerDescriptorDict.h StringServerDescriptorDict.cpp
-	$(SLICE2FREEZECMD) --dict IceGrid::StringServerDescriptorDict,string,IceGrid::ServerDescriptor \
-	StringServerDescriptorDict ../../slice/IceGrid/Admin.ice
-
-clean::
-	rm -f StringServerDescriptorDict.h StringServerDescriptorDict.cpp
+	rm -f StringObjectProxiesDict.h StringObjectProxiesDict.cpp
 
 $(LOCAL_HDIR)/StringApplicationDescriptorDict.h StringApplicationDescriptorDict.cpp: $(SLICE2FREEZE)
 	rm -f StringApplicationDescriptorDict.h StringApplicationDescriptorDict.cpp
@@ -209,14 +193,6 @@ $(LOCAL_HDIR)/IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(SLICE2FREEZ
 
 clean::
 	rm -f IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
-
-$(LOCAL_HDIR)/StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp: $(SLICE2FREEZE)
-	rm -f StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp
-	$(SLICE2FREEZECMD) --dict IceGrid::StringObjectProxySeqDict,string,Ice::ObjectProxySeq \
-	StringObjectProxySeqDict $(slicedir)/Ice/BuiltinSequences.ice
-
-clean::
-	rm -f StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp
 
 # Needed for make -jn to work.
 #../IceGrid/Grammar.y: Grammar.h

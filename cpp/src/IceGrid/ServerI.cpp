@@ -933,7 +933,7 @@ ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, StringAdap
 	    throw "can't find `data' directory in `" + _serverDir + "'";
 	}
     }
-    catch(const string& msg)
+    catch(const string&)
     {
 	//
 	// TODO: log message?
@@ -968,7 +968,8 @@ ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, StringAdap
     Ice::StringSeq configFiles = readDirectory(_serverDir + "/config");
     Ice::StringSeq toDel;
     set_difference(configFiles.begin(), configFiles.end(), knownFiles.begin(), knownFiles.end(), back_inserter(toDel));
-    for(Ice::StringSeq::const_iterator p = toDel.begin(); p != toDel.end(); ++p)
+    Ice::StringSeq::const_iterator p;
+    for(p = toDel.begin(); p != toDel.end(); ++p)
     {
 	if(p->find("config_") == 0)
 	{
@@ -988,10 +989,10 @@ ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, StringAdap
     // Update the database environments if necessary.
     //
     Ice::StringSeq knownDbEnvs;
-    for(DbEnvDescriptorSeq::const_iterator p = descriptor->dbEnvs.begin(); p != descriptor->dbEnvs.end(); ++p)
+    for(DbEnvDescriptorSeq::const_iterator q = descriptor->dbEnvs.begin(); q != descriptor->dbEnvs.end(); ++q)
     {
-	updateDbEnv(_serverDir, *p);
-	knownDbEnvs.push_back(p->name);
+	updateDbEnv(_serverDir, *q);
+	knownDbEnvs.push_back(q->name);
     }
 
     //
@@ -1000,7 +1001,7 @@ ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, StringAdap
     Ice::StringSeq dbEnvs = readDirectory(_serverDir + "/dbs");
     toDel.clear();
     set_difference(dbEnvs.begin(), dbEnvs.end(), knownDbEnvs.begin(), knownDbEnvs.end(), back_inserter(toDel));
-    for(Ice::StringSeq::const_iterator p = toDel.begin(); p != toDel.end(); ++p)
+    for(p = toDel.begin(); p != toDel.end(); ++p)
     {
 	try
 	{
@@ -1019,28 +1020,28 @@ ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, StringAdap
     _processRegistered = false;
     map<string, ServerAdapterIPtr> oldAdapters;
     oldAdapters.swap(_adapters);
-    for(AdapterDescriptorSeq::const_iterator p = descriptor->adapters.begin(); p != descriptor->adapters.end(); ++p)
+    for(AdapterDescriptorSeq::const_iterator r = descriptor->adapters.begin(); r != descriptor->adapters.end(); ++r)
     {
-	adapters.insert(make_pair(p->id, addAdapter(*p, current)));
-	oldAdapters.erase(p->id);
+	adapters.insert(make_pair(r->id, addAdapter(*r, current)));
+	oldAdapters.erase(r->id);
     }
     if(iceBox)
     {
-	for(ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
+	for(ServiceInstanceDescriptorSeq::const_iterator s = iceBox->services.begin(); s != iceBox->services.end(); ++s)
 	{
-	    ServiceDescriptorPtr s = ServiceDescriptorPtr::dynamicCast(p->descriptor);
-	    for(AdapterDescriptorSeq::const_iterator q = s->adapters.begin(); q != s->adapters.end(); ++q)
+	    ServiceDescriptorPtr svc = ServiceDescriptorPtr::dynamicCast(s->descriptor);
+	    for(AdapterDescriptorSeq::const_iterator t = svc->adapters.begin(); t != svc->adapters.end(); ++t)
 	    {
-		adapters.insert(make_pair(q->id, addAdapter(*q, current)));
-		oldAdapters.erase(q->id);
+		adapters.insert(make_pair(t->id, addAdapter(*t, current)));
+		oldAdapters.erase(t->id);
 	    }
 	}
     }
-    for(map<string, ServerAdapterIPtr>::const_iterator p = oldAdapters.begin(); p != oldAdapters.end(); ++p)
+    for(map<string, ServerAdapterIPtr>::const_iterator t = oldAdapters.begin(); t != oldAdapters.end(); ++t)
     {
 	try
 	{
-	    p->second->destroy(current);
+	    t->second->destroy(current);
 	}
 	catch(const Ice::LocalException&)
 	{
@@ -1125,13 +1126,13 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
     //
     // Add object adapter properties.
     //
-    for(AdapterDescriptorSeq::const_iterator p = descriptor->adapters.begin(); p != descriptor->adapters.end(); ++p)
+    for(AdapterDescriptorSeq::const_iterator q = descriptor->adapters.begin(); q != descriptor->adapters.end(); ++q)
     {
-	props.push_back(createProperty("# Object adapter " + p->name));
-	props.push_back(createProperty(p->name + ".AdapterId", p->id));
-	if(p->registerProcess)
+	props.push_back(createProperty("# Object adapter " + q->name));
+	props.push_back(createProperty(q->name + ".AdapterId", q->id));
+	if(q->registerProcess)
 	{
-	    props.push_back(createProperty(p->name + ".RegisterProcess", "1"));
+	    props.push_back(createProperty(q->name + ".RegisterProcess", "1"));
 	}
     }
 
@@ -1197,7 +1198,7 @@ ServerI::updateDbEnv(const string& serverDir, const DbEnvDescriptor& dbEnv)
 	{
 	    IcePatch2::createDirectory(dbEnvHome);
 	}
-	catch(const string& message)
+	catch(const string&)
 	{
 	}
     }

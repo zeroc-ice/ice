@@ -44,7 +44,7 @@ public:
 			(*p)->keepAlive();
 			++p;
 		    }
-		    catch(const Ice::Exception& ex)
+		    catch(const Ice::Exception&)
 		    {
 			p = _sessions.erase(p);
 		    }
@@ -397,7 +397,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session1->addApplication(ApplicationDescriptor());
 	    test(false);
 	}
-	catch(const AccessDenied& ex)
+	catch(const AccessDenied&)
 	{
 	}
 
@@ -422,7 +422,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session1->startUpdate(serial);
 	    ApplicationUpdateDescriptor update;
 	    update.name = "Application";
-	    update.variables.insert(make_pair("test", "test"));
+	    update.variables.insert(make_pair(string("test"), string("test")));
 	    session1->updateApplication(update);
 	    session1->finishUpdate();
 	}
@@ -472,7 +472,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    session1->startUpdate(serial);
 	}
-	catch(const Ice::UserException& ex)
+	catch(const Ice::UserException&)
 	{
 	    test(false);
 	}
@@ -483,7 +483,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session2->startUpdate(serial);
 	    session2->finishUpdate();
 	}
-	catch(const Ice::UserException& ex)
+	catch(const Ice::UserException&)
 	{
 	    test(false);
 	}
@@ -543,7 +543,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    ApplicationUpdateDescriptor update;
 	    update.name = "Application";
-	    update.variables.insert(make_pair("test", "test"));
+	    update.variables.insert(make_pair(string("test"), string("test")));
 	    session1->updateApplication(update);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(regObs1->applications.find("Application") != regObs1->applications.end());

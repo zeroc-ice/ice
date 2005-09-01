@@ -158,7 +158,7 @@ ServerEntry::sync()
     string node;
     try
     {
-	sync(adapters, at, dt, node);
+	syncImpl(adapters, at, dt, node);
     }
     catch(const NodeUnreachableException&)
     {
@@ -252,13 +252,13 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 	    proxy->ice_ping();
 	    return proxy;
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException&)
 	{
 	}
     }
 
     StringAdapterPrxDict adapters;
-    proxy = sync(adapters, activationTimeout, deactivationTimeout, node);
+    proxy = syncImpl(adapters, activationTimeout, deactivationTimeout, node);
     if(!proxy)
     {
 	throw ServerNotExistException();
@@ -285,7 +285,7 @@ ServerEntry::getAdapter(const string& id)
 	    proxy->ice_ping();
 	    return proxy;
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException&)
 	{
 	}
     }
@@ -293,7 +293,7 @@ ServerEntry::getAdapter(const string& id)
     StringAdapterPrxDict adapters;
     int activationTimeout, deactivationTimeout;
     string node;
-    sync(adapters, activationTimeout, deactivationTimeout, node);
+    syncImpl(adapters, activationTimeout, deactivationTimeout, node);
     AdapterPrx adapter = adapters[id];
     if(!adapter)
     {
@@ -303,7 +303,7 @@ ServerEntry::getAdapter(const string& id)
 }
 
 ServerPrx
-ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int& deactivationTimeout, string& node)
+ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, int& deactivationTimeout, string& node)
 {
     ServerDescriptorPtr load;
     string loadNode;
@@ -344,14 +344,14 @@ ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int
 	    {
 		db.getNode(destroyNode)->destroyServer(destroy->id);
 	    }
-	    catch(const NodeNotExistException& ex)
+	    catch(const NodeNotExistException&)
 	    {
 		if(!load)
 		{
 		    throw NodeUnreachableException();
 		}
 	    }
-	    catch(const Ice::LocalException& ex)
+	    catch(const Ice::LocalException&)
 	    {
 		if(!load)
 		{
@@ -364,11 +364,11 @@ ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int
 	{
 	    try
 	    {
-		proxy = db.getNode(loadNode)->loadServer(load, adapters, activationTimeout, deactivationTimeout);
+		proxy = db.getNode(loadNode)->loadServer(load, adpts, activationTimeout, deactivationTimeout);
 		node = loadNode;
 		proxy = ServerPrx::uncheckedCast(proxy->ice_collocationOptimization(false));
 	    }
-	    catch(const NodeNotExistException& ex)
+	    catch(const NodeNotExistException&)
 	    {
 		throw NodeUnreachableException();
 	    }
@@ -386,7 +386,7 @@ ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int
 	    }
 	}
     }
-    catch(const NodeUnreachableException& ex)
+    catch(const NodeUnreachableException&)
     {
 	{
 	    Lock sync(*this);
@@ -420,7 +420,7 @@ ServerEntry::sync(map<string, AdapterPrx>& adapters, int& activationTimeout, int
 	    int timeout = db.getNodeSessionTimeout() * 1000; // sec to ms
 	    _proxy = ServerPrx::uncheckedCast(proxy->ice_timeout(timeout));
 	    _adapters.clear();
-	    for(StringAdapterPrxDict::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+	    for(StringAdapterPrxDict::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
 	    {
 		AdapterPrx adapter = AdapterPrx::uncheckedCast(p->second->ice_timeout(timeout));
 		_adapters.insert(make_pair(p->first, adapter));

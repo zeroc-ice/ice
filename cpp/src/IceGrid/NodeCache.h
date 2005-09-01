@@ -13,6 +13,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
 #include <IceGrid/Cache.h>
+#include <IceGrid/Internal.h>
 
 namespace IceGrid
 {

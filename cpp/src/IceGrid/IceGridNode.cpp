@@ -9,6 +9,7 @@
 
 #include <IceUtil/UUID.h>
 #include <Ice/Ice.h>
+#include <Ice/ProtocolPluginFacade.h> // Just to get the hostname
 #include <Ice/Locator.h>
 #include <Ice/Service.h>
 #include <IceGrid/Activator.h>
@@ -414,17 +415,12 @@ NodeService::start(int argc, char* argv[])
     string name = properties->getProperty("IceGrid.Node.Name");
     if(name.empty())
     {
-        char host[1024 + 1];
-        if(gethostname(host, 1024) != 0)
+        string hostname = IceInternal::getProtocolPluginFacade(communicator())->getDefaultHost();
+	if(!nowarn)
         {
-            syserror("property `IceGrid.Node.Name' is not set and couldn't get the hostname:");
-            return false;
+            warning("property `IceGrid.Node.Name' is not set, using hostname: " + hostname);
         }
-        else if(!nowarn)
-        {
-            warning("property `IceGrid.Node.Name' is not set, using hostname: " + string(host));
-        }
-	properties->setProperty("IceGrid.Node.Name", string(host));
+	properties->setProperty("IceGrid.Node.Name", hostname);
     }
 
     //
@@ -478,7 +474,7 @@ NodeService::start(int argc, char* argv[])
 	catch(const Ice::ServerNotFoundException&)
 	{
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException&)
 	{
 	}
     }

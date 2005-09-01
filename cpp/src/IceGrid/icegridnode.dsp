@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /I "dummyinclude" /D "NDEBUG" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /I "dummyinclude" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -74,7 +74,7 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /I "dummyinclude" /D "_DEBUG" /D "_CONSOLE" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /I "dummyinclude" /D "_CONSOLE" /D "_DEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -83,8 +83,8 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib setargv.obj /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"../../../lib"
-# SUBTRACT LINK32 /incremental:no /nodefaultlib
+# ADD LINK32 ws2_32.lib setargv.obj /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"../../../lib" /FIXED:no
+# SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Debug
 TargetName=icegridnode
@@ -107,15 +107,7 @@ SOURCE=.\Activator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\AdapterFactory.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\AdapterI.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\AdapterRegistryI.cpp
+SOURCE=.\AdapterCache.cpp
 # End Source File
 # Begin Source File
 
@@ -123,7 +115,15 @@ SOURCE=.\AdminI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ApplicationRegistryI.cpp
+SOURCE=.\Database.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DescriptorBuilder.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DescriptorHelper.cpp
 # End Source File
 # Begin Source File
 
@@ -131,19 +131,11 @@ SOURCE=.\DescriptorParser.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\DescriptorUtil.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\DescriptorVisitor.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\icegridnode.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IdentityObjectDescDict.cpp
+SOURCE=.\IdentityObjectInfoDict.cpp
 # End Source File
 # Begin Source File
 
@@ -159,15 +151,23 @@ SOURCE=.\LocatorRegistryI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\NodeCache.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\NodeI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\NodeRegistryI.cpp
+SOURCE=.\NodeSessionI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ObjectRegistryI.cpp
+SOURCE=.\ObjectCache.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ObserverSessionI.cpp
 # End Source File
 # Begin Source File
 
@@ -175,7 +175,11 @@ SOURCE=.\QueryI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Registry.cpp
+SOURCE=.\ReapThread.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\RegistryI.cpp
 # End Source File
 # Begin Source File
 
@@ -183,7 +187,7 @@ SOURCE=.\ServerAdapterI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServerFactory.cpp
+SOURCE=.\ServerCache.cpp
 # End Source File
 # Begin Source File
 
@@ -191,27 +195,27 @@ SOURCE=.\ServerI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServerRegistryI.cpp
+SOURCE=.\SessionManagerI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringObjectProxyDict.cpp
+SOURCE=.\StringApplicationDescriptorDict.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringObjectProxySeqDict.cpp
+SOURCE=.\StringObjectProxiesDict.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringServerDescriptorDict.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\StringStringSeqDict.cpp
+SOURCE=.\Topics.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\TraceLevels.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Util.cpp
 # End Source File
 # Begin Source File
 
@@ -451,84 +455,6 @@ BuildCmds= \
    $(BuildCmds)
 
 "StringObjectProxySeqDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\dummy4.ice
-
-!IF  "$(CFG)" == "icegridnode - Win32 Release"
-
-USERDEP__DUMMY4="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	
-# Begin Custom Build
-InputPath=.\dummy4.ice
-
-BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice --dict IceGrid::StringStringSeqDict,string,Ice::StringSeq StringStringSeqDict ../../slice/Ice/BuiltinSequences.ice
-
-"StringStringSeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"StringStringSeqDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icegridnode - Win32 Debug"
-
-USERDEP__DUMMY4="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
-# Begin Custom Build
-InputPath=.\dummy4.ice
-
-BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice --dict IceGrid::StringStringSeqDict,string,Ice::StringSeq StringStringSeqDict ../../slice/Ice/BuiltinSequences.ice
-
-"StringStringSeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"StringStringSeqDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=.\dummy5.ice
-
-!IF  "$(CFG)" == "icegridnode - Win32 Release"
-
-USERDEP__DUMMY5="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	
-# Begin Custom Build
-InputPath=.\dummy5.ice
-
-BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice --dict IceGrid::StringServerDescriptorDict,string,IceGrid::ServerDescriptor StringServerDescriptorDict ../../slice/IceGrid/Admin.ice
-
-"StringServerDescriptorDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"StringServerDescriptorDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icegridnode - Win32 Debug"
-
-USERDEP__DUMMY5="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
-# Begin Custom Build
-InputPath=.\dummy5.ice
-
-BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice --dict IceGrid::StringServerDescriptorDict,string,IceGrid::ServerDescriptor StringServerDescriptorDict ../../slice/IceGrid/Admin.ice
-
-"StringServerDescriptorDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"StringServerDescriptorDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

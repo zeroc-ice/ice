@@ -47,7 +47,7 @@ public:
     
 private:
     
-    ServerPrx sync(StringAdapterPrxDict&, int&, int&, std::string&);
+    ServerPrx syncImpl(StringAdapterPrxDict&, int&, int&, std::string&);
 
     ServerCache& _cache;
     const std::string _id;

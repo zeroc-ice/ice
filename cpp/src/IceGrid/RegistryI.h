@@ -11,15 +11,7 @@
 #define ICE_GRID_REGISTRYI_H
 
 #include <IceGrid/Internal.h>
-#include <IceStorm/IceStorm.h>
-
-namespace IceStorm
-{
-
-class TopicManagerI;
-typedef IceUtil::Handle<TopicManagerI> TopicManagerIPtr;
-
-}
+#include <IceStorm/Service.h>
 
 namespace IceGrid
 {
@@ -53,8 +45,7 @@ private:
     ReapThreadPtr _reaper;
     int _nodeSessionTimeout;
 
-    IceStorm::TopicManagerIPtr _topicManager;
-    IceStorm::TopicManagerPrx _topicManagerProxy;
+    IceStorm::ServicePtr _iceStorm;
     RegistryObserverPrx _registryObserver;
     NodeObserverPrx _nodeObserver;
 };

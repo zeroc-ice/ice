@@ -9,11 +9,7 @@
 
 #include <IceStorm/TopicManagerI.h>
 #include <IceStorm/TraceLevels.h>
-#include <IceBox/IceBox.h>
-
-#ifndef ICESTORM_SERVICE_API
-#   define ICESTORM_SERVICE_API ICE_DECLSPEC_EXPORT
-#endif
+#include <IceStorm/Service.h>
 
 using namespace std;
 using namespace Ice;
@@ -23,7 +19,7 @@ using namespace Freeze;
 namespace IceStorm
 {
 
-class ICESTORM_SERVICE_API ServiceI : public ::IceBox::Service
+class ServiceI : public ::IceStorm::Service
 {
 public:
 
@@ -34,11 +30,21 @@ public:
 		       const CommunicatorPtr&,
 		       const StringSeq&);
 
+    virtual void start(const CommunicatorPtr&, 
+		       const ObjectAdapterPtr&, 
+		       const ObjectAdapterPtr&,
+		       const string&, 
+		       const Ice::Identity&,
+		       const string&);
+
+    virtual TopicManagerPrx getTopicManager() const;    
+
     virtual void stop();
 
 private:
 
     TopicManagerIPtr _manager;
+    TopicManagerPrx _managerProxy;
     ObjectAdapterPtr _topicAdapter;
     ObjectAdapterPtr _publishAdapter;
 };
@@ -48,12 +54,26 @@ private:
 extern "C"
 {
 
-ICESTORM_SERVICE_API ::IceBox::Service*
+ICE_STORM_SERVICE_API ::IceBox::Service*
 create(CommunicatorPtr communicator)
 {
     return new ServiceI;
 }
 
+}
+
+ServicePtr
+IceStorm::Service::create(const CommunicatorPtr& communicator,
+			  const ObjectAdapterPtr& topicAdapter,
+			  const ObjectAdapterPtr& publishAdapter,
+			  const string& name,
+			  const Ice::Identity& id,
+			  const string& dbEnv)
+{
+    ServiceI* service = new ServiceI;
+    ServicePtr svc = service;
+    service->start(communicator, topicAdapter, publishAdapter, name, id, dbEnv);
+    return svc;
 }
 
 IceStorm::ServiceI::ServiceI()
@@ -76,18 +96,48 @@ IceStorm::ServiceI::start(const string& name,
     //
     // We use the name of the service for the name of the database environment.
     //
+    Ice::Identity id = stringToIdentity(name + "/TopicManager");
     _manager = new TopicManagerI(communicator, _topicAdapter, _publishAdapter, traceLevels, name, "topics");
-    _topicAdapter->add(_manager, stringToIdentity(name + "/TopicManager"));
+    _managerProxy = TopicManagerPrx::uncheckedCast(_topicAdapter->add(_manager, id));
 
     _topicAdapter->activate();
     _publishAdapter->activate();
 }
 
 void
+IceStorm::ServiceI::start(const CommunicatorPtr& communicator,
+			  const ObjectAdapterPtr& topicAdapter,
+			  const ObjectAdapterPtr& publishAdapter,
+			  const string& name,
+			  const Ice::Identity& id,
+			  const string& dbEnv)
+{
+    TraceLevelsPtr traceLevels = new TraceLevels(name, communicator->getProperties(), communicator->getLogger());
+
+    //
+    // We use the name of the service for the name of the database environment.
+    //
+    _manager = new TopicManagerI(communicator, topicAdapter, publishAdapter, traceLevels, dbEnv, "topics");
+    _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->add(_manager, id));
+}
+
+TopicManagerPrx
+IceStorm::ServiceI::getTopicManager() const
+{
+    return _managerProxy;
+}
+
+void
 IceStorm::ServiceI::stop()
 {
-    _topicAdapter->deactivate();
-    _publishAdapter->deactivate();
+    if(_topicAdapter)
+    {
+	_topicAdapter->deactivate();
+    }
+    if(_publishAdapter)
+    {
+	_publishAdapter->deactivate();
+    }
 
     //
     // It's necessary to reap all destroyed topics on shutdown.

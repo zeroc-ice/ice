@@ -85,6 +85,10 @@ tests = [ \
     "FreezeScript/evictor", \
     "IcePack/simple", \
     "IcePack/deployer", \
+    "IceGrid/simple", \
+    "IceGrid/deployer", \
+    "IceGrid/session", \
+    "IceGrid/update", \
     "Glacier2/router", \
     ]
 

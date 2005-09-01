@@ -1,3 +1,3 @@
 //
-// This file is necessary to compile StringObjectProxyDict under msdev.
+// This file is necessary to compile StringObjectProxiesDict under msdev.
 //

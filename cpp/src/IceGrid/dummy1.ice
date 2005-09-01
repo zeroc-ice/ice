@@ -1,3 +1,3 @@
 //
-// This file is necessary to compile IdentityObjectDescDict under msdev.
-//
+// This file is necessary to compile IdentityObjectInfoDict under msdev.
+//D

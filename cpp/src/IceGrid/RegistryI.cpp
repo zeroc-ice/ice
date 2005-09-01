@@ -22,8 +22,7 @@
 #include <IceGrid/SessionManagerI.h>
 #include <IceGrid/Topics.h>
 
-#include <IceStorm/TraceLevels.h>
-#include <IceStorm/TopicManagerI.h>
+#include <IceStorm/Service.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -313,11 +312,11 @@ RegistryI::start(bool nowarn)
     //
     // Create the internal IceStorm service.
     //
-    IceStorm::TraceLevelsPtr t = new IceStorm::TraceLevels("IceGrid.Registry", properties, _communicator->getLogger());
-    _topicManager = new IceStorm::TopicManagerI(
-	_communicator, registryAdapter, registryAdapter, t, "Registry", "topics");
-    _topicManagerProxy = IceStorm::TopicManagerPrx::uncheckedCast(
-	registryAdapter->add(_topicManager, stringToIdentity("IceGrid/TopicManager")));
+    const string topicMgrIdProperty = "IceGrid.Registry.TopicManagerIdentity";
+    Identity topicMgrId = stringToIdentity(properties->getPropertyWithDefault(topicMgrIdProperty, 
+									      "IceGrid/TopicManager"));
+    _iceStorm = IceStorm::Service::create(_communicator, registryAdapter, registryAdapter, "IceGrid.Registry", 
+ 					  topicMgrId, "Registry");
 
     //
     // Create the registry and node observer topic.
@@ -326,19 +325,19 @@ RegistryI::start(bool nowarn)
     IceStorm::TopicPrx registryObserverTopic;
     try
     {
-	registryObserverTopic = _topicManagerProxy->create("RegistryObserver");
+	registryObserverTopic = _iceStorm->getTopicManager()->create("RegistryObserver");
     }
     catch(const IceStorm::TopicExists&)
     {
-	registryObserverTopic = _topicManagerProxy->retrieve("RegistryObserver");
+	registryObserverTopic = _iceStorm->getTopicManager()->retrieve("RegistryObserver");
     }
     try
     {
-	nodeObserverTopic = _topicManagerProxy->create("NodeObserver");
+	nodeObserverTopic = _iceStorm->getTopicManager()->create("NodeObserver");
     }
     catch(const IceStorm::TopicExists&)
     {
-	nodeObserverTopic = _topicManagerProxy->retrieve("NodeObserver");
+	nodeObserverTopic = _iceStorm->getTopicManager()->retrieve("NodeObserver");
     }
 
     obj = nodeObserverTopic->getPublisher()->ice_collocationOptimization(false);
@@ -396,7 +395,7 @@ RegistryI::stop()
     _reaper->terminate();
     _reaper->getThreadControl().join();
 
-    _topicManager->shutdown();
+    _iceStorm->stop();
 }
 
 NodeSessionPrx
@@ -424,5 +423,5 @@ RegistryI::shutdown(const Ice::Current& current)
 IceStorm::TopicManagerPrx
 RegistryI::getTopicManager()
 {
-    return _topicManagerProxy;
+    return _iceStorm->getTopicManager();
 }

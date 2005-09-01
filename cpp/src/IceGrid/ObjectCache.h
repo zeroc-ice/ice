@@ -14,6 +14,7 @@
 #include <IceUtil/Shared.h>
 #include <Ice/CommunicatorF.h>
 #include <IceGrid/Cache.h>
+#include <IceGrid/Internal.h>
 
 namespace IceGrid
 {

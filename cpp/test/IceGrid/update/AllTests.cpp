@@ -523,7 +523,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    admin->updateApplication(update);
 	    test(false);
 	}
-	catch(const DeploymentException& ex)
+	catch(const DeploymentException&)
 	{
 	    // Missing app variable
 	    //cerr << ex.reason << endl;
@@ -544,7 +544,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    admin->updateApplication(update);
 	    test(false);
 	}
-	catch(const DeploymentException& ex)
+	catch(const DeploymentException&)
 	{
 	    // Missing node variable
 	    //cerr << ex.reason << endl;
@@ -568,7 +568,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    admin->updateApplication(update);
 	    test(false);
 	}
-	catch(const DeploymentException& ex)
+	catch(const DeploymentException&)
 	{
 	    // Missing parameter
 	    //cerr << ex.reason << endl;

@@ -59,10 +59,10 @@ public:
 	{
 	    throw ServerNotExistException(_id);
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException& e)
 	{
 	    ostringstream os;
-	    os << ex;
+	    os << e;
 
 	    NodeUnreachableException ex;
 	    ex.name = _node;
@@ -248,7 +248,7 @@ AdminI::sendSignal(const string& id, const string& signal, const Current&)
     ServerProxyWrapper proxy(_database, id);
     try
     {
-	return proxy->sendSignal(signal);
+	proxy->sendSignal(signal);
     }
     catch(const Ice::Exception& ex)
     {
@@ -354,11 +354,11 @@ AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
     {
 	addObjectWithType(proxy, proxy->ice_id(), current);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException& e)
     {
 	ostringstream os;
 	os << "failed to invoke ice_id() on proxy `" + _communicator->proxyToString(proxy) + "':\n";
-	os << ex;
+	os << e;
 
 	DeploymentException ex;
 	ex.reason =  os.str();

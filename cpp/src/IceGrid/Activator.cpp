@@ -18,7 +18,6 @@
 #include <signal.h>
 #include <fcntl.h>
 
-
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;

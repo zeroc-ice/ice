@@ -150,6 +150,7 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
     _descriptors(_connection, _descriptorDbName),
     _objects(_connection, _objectDbName),
     _adapters(_connection, _adapterDbName),
+    _lock(0), 
     _serial(0)
 {
     //
@@ -994,12 +995,13 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
     // Unload/load replicated adapters.
     //
     const ReplicatedAdapterDescriptorSeq& oldAdpts = oldApp.getDescriptor().replicatedAdapters;
-    for(ReplicatedAdapterDescriptorSeq::const_iterator r = oldAdpts.begin(); r != oldAdpts.end(); ++r)
+    ReplicatedAdapterDescriptorSeq::const_iterator r;
+    for(r = oldAdpts.begin(); r != oldAdpts.end(); ++r)
     {
 	_adapterCache.get(r->id, false)->disableReplication();
     }
     const ReplicatedAdapterDescriptorSeq& newAdpts = newApp.getDescriptor().replicatedAdapters;
-    for(ReplicatedAdapterDescriptorSeq::const_iterator r = newAdpts.begin(); r != newAdpts.end(); ++r)
+    for(r = newAdpts.begin(); r != newAdpts.end(); ++r)
     {
 	_adapterCache.get(r->id, true)->enableReplication(r->loadBalancing);
     }
@@ -1012,7 +1014,8 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
     // updated servers to reload them after.
     //
     vector<ServerInfo> load;
-    for(map<string, ServerInfo>::const_iterator p = newServers.begin(); p != newServers.end(); ++p)
+    map<string, ServerInfo>::const_iterator p;
+    for(p = newServers.begin(); p != newServers.end(); ++p)
     {
 	map<string, ServerInfo>::const_iterator q = oldServers.find(p->first);
 	if(q == oldServers.end())
@@ -1026,7 +1029,7 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
 	    load.push_back(p->second);
 	}
     }
-    for(map<string, ServerInfo>::const_iterator p = oldServers.begin(); p != oldServers.end(); ++p)
+    for(p = oldServers.begin(); p != oldServers.end(); ++p)
     {
 	map<string, ServerInfo>::const_iterator q = newServers.find(p->first);
 	if(q == newServers.end())
@@ -1038,8 +1041,8 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
     //
     // Load added servers and reload updated ones.
     //
-    for(vector<ServerInfo>::const_iterator p = load.begin(); p != load.end(); ++p)
+    for(vector<ServerInfo>::const_iterator q = load.begin(); q != load.end(); ++q)
     {
-	entries.push_back(_serverCache.add(*p));
+	entries.push_back(_serverCache.add(*q));
     }
 }

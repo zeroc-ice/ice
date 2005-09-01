@@ -8,12 +8,12 @@ CFG=icegridregistry - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "icegridRegistry.mak".
+!MESSAGE NMAKE /f "icegridregistry.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "icegridRegistry.mak" CFG="icegridregistry - Win32 Debug"
+!MESSAGE NMAKE /f "icegridregistry.mak" CFG="icegridregistry - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /I "dummyinclude" /D "NDEBUG" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /I "dummyinclude" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -55,7 +55,7 @@ LINK32=link.exe
 # SUBTRACT LINK32 /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
-TargetName=icegridRegistry
+TargetName=icegridregistry
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
@@ -74,7 +74,7 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /I "dummyinclude" /D "_DEBUG" /D "_CONSOLE" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /I "dummyinclude" /D "_CONSOLE" /D "_DEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -83,11 +83,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 setargv.obj /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"../../../lib"
-# SUBTRACT LINK32 /incremental:no /nodefaultlib
+# ADD LINK32 setargv.obj /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"../../../lib" /FIXED:no
+# SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Debug
-TargetName=icegridRegistry
+TargetName=icegridregistry
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
@@ -103,15 +103,7 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\AdapterFactory.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\AdapterI.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\AdapterRegistryI.cpp
+SOURCE=.\AdapterCache.cpp
 # End Source File
 # Begin Source File
 
@@ -119,15 +111,11 @@ SOURCE=.\AdminI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ApplicationRegistryI.cpp
+SOURCE=.\Database.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\DescriptorUtil.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\DescriptorVisitor.cpp
+SOURCE=.\DescriptorHelper.cpp
 # End Source File
 # Begin Source File
 
@@ -135,7 +123,7 @@ SOURCE=.\icegridregistry.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IdentityObjectDescDict.cpp
+SOURCE=.\IdentityObjectInfoDict.cpp
 # End Source File
 # Begin Source File
 
@@ -151,11 +139,19 @@ SOURCE=.\LocatorRegistryI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\NodeRegistryI.cpp
+SOURCE=.\NodeCache.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ObjectRegistryI.cpp
+SOURCE=.\NodeSessionI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ObjectCache.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ObserverSessionI.cpp
 # End Source File
 # Begin Source File
 
@@ -163,31 +159,39 @@ SOURCE=.\QueryI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Registry.cpp
+SOURCE=.\ReapThread.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServerRegistryI.cpp
+SOURCE=.\RegistryI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringObjectProxyDict.cpp
+SOURCE=.\ServerCache.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringObjectProxySeqDict.cpp
+SOURCE=.\SessionManagerI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringServerDescriptorDict.cpp
+SOURCE=.\StringApplicationDescriptorDict.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringStringSeqDict.cpp
+SOURCE=.\StringObjectProxiesDict.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Topics.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\TraceLevels.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Util.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -219,7 +223,7 @@ SOURCE=.\ComponentBuilder.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IdentityObjectDescDict.h
+SOURCE=.\IdentityObjectInfoDict.h
 # End Source File
 # Begin Source File
 
@@ -255,11 +259,11 @@ SOURCE=.\ServerRegistryI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringObjectProxyDict.h
+SOURCE=.\StringApplicationDescriptorDict.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringObjectProxySeqDict.h
+SOURCE=.\StringObjectProxiesDict.h
 # End Source File
 # Begin Source File
 
@@ -280,12 +284,12 @@ USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"
 InputPath=.\dummy1.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice -I.. --dict IceGrid::IdentityObjectDescDict,Ice::Identity,IceGrid::ObjectDescriptor IdentityObjectDescDict ../../slice/Ice/Identity.ice ../IceGrid/Internal.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice -I.. --dict IceGrid::IdentityObjectInfoDict,Ice::Identity,IceGrid::ObjectInfo --dict-index IceGrid::IdentityObjectInfoDict,type IdentityObjectInfoDict ../../slice/Ice/Identity.ice ../../slice/IceGrid/Admin.ice
 
-"IdentityObjectDescDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"IdentityObjectInfoDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"IdentityObjectDescDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"IdentityObjectInfoDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -296,12 +300,12 @@ USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"
 InputPath=.\dummy1.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice -I.. --dict IceGrid::IdentityObjectDescDict,Ice::Identity,IceGrid::ObjectDescriptor IdentityObjectDescDict ../../slice/Ice/Identity.ice ../IceGrid/Internal.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice -I.. --dict IceGrid::IdentityObjectInfoDict,Ice::Identity,IceGrid::ObjectInfo --dict-index IceGrid::IdentityObjectInfoDict,type IdentityObjectInfoDict ../../slice/Ice/Identity.ice ../../slice/IceGrid/Admin.ice
 
-"IdentityObjectDescDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"IdentityObjectInfoDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"IdentityObjectDescDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"IdentityObjectInfoDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -319,12 +323,12 @@ USERDEP__DUMMY2="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"
 InputPath=.\dummy2.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --include-dir IceGrid --dict "IceGrid::StringObjectProxyDict,string,Object*" StringObjectProxyDict
+	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice --dict "IceGrid::StringObjectProxiesDict,string,IceGrid::StringObjectProxyDict" StringObjectProxiesDict ../IceGrid/Internal.ice
 
-"StringObjectProxyDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringObjectProxiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"StringObjectProxyDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringObjectProxiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -335,12 +339,12 @@ USERDEP__DUMMY2="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"
 InputPath=.\dummy2.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --include-dir IceGrid --dict "IceGrid::StringObjectProxyDict,string,Object*" StringObjectProxyDict
+	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice -I.. --dict "IceGrid::StringObjectProxiesDict,string,IceGrid::StringObjectProxyDict" StringObjectProxiesDict ../IceGrid/Internal.ice
 
-"StringObjectProxyDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringObjectProxiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"StringObjectProxyDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringObjectProxiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -358,12 +362,12 @@ USERDEP__DUMMY3="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"
 InputPath=.\dummy3.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice --dict IceGrid::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice -I.. --dict IceGrid::StringApplicationDescriptorDict,string,IceGrid::ApplicationDescriptor StringApplicationDescriptorDict ../../slice/IceGrid/Admin.ice
 
-"StringObjectProxySeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringApplicationDescriptorDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"StringObjectProxySeqDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringApplicationDescriptorDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -374,12 +378,12 @@ USERDEP__DUMMY3="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"
 InputPath=.\dummy3.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice --dict IceGrid::StringObjectProxySeqDict,string,Ice::ObjectProxySeq StringObjectProxySeqDict ../../slice/Ice/BuiltinSequences.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice --dict IceGrid::StringApplicationDescriptorDict,string,IceGrid::ApplicationDescriptor StringApplicationDescriptorDict ../../slice/IceGrid/Admin.ice
 
-"StringObjectProxySeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringApplicationDescriptorDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"StringObjectProxySeqDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"StringApplicationDescriptorDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
