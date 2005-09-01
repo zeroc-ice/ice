@@ -1,6 +1,10 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Fixed a bug in the slice2java code generator, which would cause
+  incorrect code to be generated when metadata was used to modify 
+  dictionary types used as class or struct members.
+
 - Fixed a bug in the slice2java code generator, which could cause
   incorrect code to be generated for certain custom sequence types.
 
