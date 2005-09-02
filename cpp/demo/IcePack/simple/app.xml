@@ -13,13 +13,30 @@
 
   <application name="Simple">
 
+     <variable name="icepatch.directory" value=""/>
+     <variable name="icepatch.proxy" value="IcePatch2/server:tcp -p 13000"/>
+
+     <patch id="patch1" proxy="${icepatch.proxy}" destination="${icepatch.directory}">
+       <directory>simple</directory>
+       <directory>hello/db</directory>
+     </patch>
+
+     <patch id="patch2" proxy="${icepatch.proxy}" destination="/home/benoit/icepatch_data/destination">
+       <directory>simple</directory>
+       <directory>hello</directory>
+     </patch>
+
+     <replicated-adapter id="ReplicatedHelloAdapter">
+       <object identity="hello" type="::Demo::Hello"/>
+     </replicated-adapter>
+
      <server-template id="ServerTemplate"> 
        <parameter name="name"/>
-       <server id="${name}" exe="./server">
-	 <adapter name="Hello" endpoints="tcp" register="true">
-	   <object identity="${server}-hello1" type="::Demo::Hello"/>
-  	 </adapter>
-         <property name="Identity" value="${server}-hello1"/>
+       <server id="${name}" exe="./simple/server" activation="on-demand">
+         <use-patch id="patch1"/>
+         <use-patch id="patch2"/>
+	 <adapter name="Hello" endpoints="tcp" register="true" id="ReplicatedHelloAdapter"/>
+         <property name="Identity" value="hello"/>
        </server>
      </server-template>
 
@@ -37,6 +54,10 @@
      <server-template id="IceBoxTemplate">
        <parameter name="name"/>
        <icebox id="${name}" exe="icebox" interpreter="icebox" endpoints="default">
+         <env>LD_LIBRARY_PATH=$${LD_LIBRARY_PATH}:./simple</env>
+         <env>PATH=./simple:$PATH:$TOTO</env>
+         <env>TEST=$LKLK:$USER</env>
+         <use-patch id="patch1"/>
          <service-instance template="HelloService" name="Hello"/>
          <service name="HelloService2" entry="HelloService:create">
 	   <adapter name="Hello" endpoints="tcp">
@@ -50,15 +71,12 @@
  
      <node name="node">
 
-       <server-instance template="IceBoxTemplate" name="IceBox"/>
-       <server-instance template="ServerTemplate" name="Server"/>
+       <server-instance template="ServerTemplate" name="Server1"/>
        <server-instance template="ServerTemplate" name="Server2"/>
+       <server-instance template="ServerTemplate" name="Server3"/>
+       <server-instance template="ServerTemplate" name="Server4"/>
 
-       <server id="node-1" exe="icegridnode">
-	 <adapter name="IceGrid.Node" endpoints="default"/>
-	 <property name="IceGrid.Node.Name" value="${server}"/>
-	 <property name="IceGrid.Node.Data" value="db/${server}"/>
-       </server>
+       <server-instance template="IceBoxTemplate" name="IceBox1"/>
 
      </node>
 

@@ -79,24 +79,23 @@ struct EnvironmentEval : std::unary_function<string, string>
 	string v = value.substr(assignment + 1);
 	assert(v.size());
 	string::size_type beg = 0;
-#ifdef _WIN32
-// 	char buf[32767];
-// 	while((beg = v.find("%", beg)) != string::npos && beg < v.size() - 1)
-// 	{
-// 	    end = v.find("%");
-// 	    if(end == string::npos)
-// 	    {
-// 		return v;
-// 	    }
-// 	    string variable = v.substr(beg + 2, end - beg - 2);
-// 	    int ret = GetEnvironmentVariable(variable.c_str(), buf, sizeof(buf));
-//          string valstr = ret > 0 ? string(buf) : "";
-// 	    v.replace(beg, end - beg + 1, valstr);
-// 	    beg += strlen(value);
-// 	}
-	return value;
-#else
 	string::size_type end;
+#ifdef _WIN32
+	char buf[32767];
+	while((beg = v.find("%", beg)) != string::npos && beg < v.size() - 1)
+	{
+	    end = v.find("%", beg + 1);
+	    if(end == string::npos)
+	    {
+		break;
+	    }
+	    string variable = v.substr(beg + 1, end - beg - 1);
+	    int ret = GetEnvironmentVariable(variable.c_str(), buf, sizeof(buf));
+	    string valstr = (ret > 0 && ret < sizeof(buf)) ? string(buf) : "";
+	    v.replace(beg, end - beg + 1, valstr);
+ 	    beg += valstr.size();
+	}
+#else
 	while((beg = v.find("$", beg)) != string::npos && beg < v.size() - 1)
 	{
 	    string variable;
@@ -105,7 +104,7 @@ struct EnvironmentEval : std::unary_function<string, string>
 		end = v.find("}");
 		if(end == string::npos)
 		{
-		    return v;
+		    break;
 		}
 		variable = v.substr(beg + 2, end - beg - 2);
 	    }
