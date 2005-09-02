@@ -8,8 +8,8 @@ module MetadataTest
     ["java:type:java.util.LinkedList"] sequence<Object> ObjectList;
     ["java:type:java.util.LinkedList"] sequence<ObjectSeq> ObjectSeqList;
 
-    dictionary<string, string> StringDict;
-    ["java:type:java.util.TreeMap"] dictionary<string, string> StringMap;
+    dictionary<string, Object> ObjectDict;
+    ["java:type:java.util.TreeMap"] dictionary<string, string> ObjectMap;
 
     class C
     {
@@ -23,10 +23,10 @@ module MetadataTest
         ["java:type:java.util.ArrayList"] ObjectSeq modifiedObjectSeqMember;
         ["java:type:Test.CustomList"] ObjectList modifiedObjectListMember;
 
-	StringDict stringDictMember;
-	StringMap stringMapMember;
-	["java:type:java.util.TreeMap"] StringDict modifiedStringDictMember;
-	["java:type:java.util.IdentityHashMap"] StringMap modifiedStringMapMember;
+	ObjectDict objectDictMember;
+	ObjectMap objectMapMember;
+	["java:type:java.util.TreeMap"] ObjectDict modifiedObjectDictMember;
+	["java:type:java.util.IdentityHashMap"] ObjectMap modifiedObjectMapMember;
 
         IntSeq opIntSeq(IntSeq inArg, out IntSeq outArg);
         IntList opIntList(IntList inArg, out IntList outArg);
@@ -34,8 +34,8 @@ module MetadataTest
         ObjectSeq opObjectSeq(ObjectSeq inArg, out ObjectSeq outArg);
         ObjectList opObjectList(ObjectList inArg, out ObjectList outArg);
 
-        StringDict opStringDict(StringDict inArg, out StringDict outArg);
-        StringMap opStringMap(StringMap inArg, out StringMap outArg);
+        ObjectDict opObjectDict(ObjectDict inArg, out ObjectDict outArg);
+        ObjectMap opObjectMap(ObjectMap inArg, out ObjectMap outArg);
 
         ["ami"] IntSeq opIntSeqAMI(IntSeq inArg, out IntSeq outArg);
         ["ami"] IntList opIntListAMI(IntList inArg, out IntList outArg);
@@ -43,8 +43,8 @@ module MetadataTest
         ["ami"] ObjectSeq opObjectSeqAMI(ObjectSeq inArg, out ObjectSeq outArg);
         ["ami"] ObjectList opObjectListAMI(ObjectList inArg, out ObjectList outArg);
 
-        ["ami"] StringDict opStringDictAMI(StringDict inArg, out StringDict outArg);
-        ["ami"] StringMap opStringMapAMI(StringMap inArg, out StringMap outArg);
+        ["ami"] ObjectDict opObjectDictAMI(ObjectDict inArg, out ObjectDict outArg);
+        ["ami"] ObjectMap opObjectMapAMI(ObjectMap inArg, out ObjectMap outArg);
 
         ["amd"] IntSeq opIntSeqAMD(IntSeq inArg, out IntSeq outArg);
         ["amd"] IntList opIntListAMD(IntList inArg, out IntList outArg);
@@ -52,8 +52,8 @@ module MetadataTest
         ["amd"] ObjectSeq opObjectSeqAMD(ObjectSeq inArg, out ObjectSeq outArg);
         ["amd"] ObjectList opObjectListAMD(ObjectList inArg, out ObjectList outArg);
 
-        ["amd"] StringDict opStringDictAMD(StringDict inArg, out StringDict outArg);
-        ["amd"] StringMap opStringMapAMD(StringMap inArg, out StringMap outArg);
+        ["amd"] ObjectDict opObjectDictAMD(ObjectDict inArg, out ObjectDict outArg);
+        ["amd"] ObjectMap opObjectMapAMD(ObjectMap inArg, out ObjectMap outArg);
 
         ["java:type:java.util.LinkedList"] IntSeq
         opIntSeq2(["java:type:java.util.ArrayList"] IntSeq inArg,
