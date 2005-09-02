@@ -155,10 +155,13 @@ interface Admin
      *
      * @param patch The patch identifier or an empty string.
      *
+     * @param shutdown If true, the servers depending on the data to
+     * patch will be shutdown if necessary.
+     *
      * @throws PatchException Raised if the patch failed.
      *
      **/
-    void patchApplication(string name, string patch)
+    void patchApplication(string name, string patch, bool shutdown)
 	throws ApplicationNotExistException, PatchException;
 
     /**
@@ -316,14 +319,19 @@ interface Admin
      *
      * @param id The id of the server.
      *
+     * @param shutdown If true, servers depending on the data to patch
+     * will be shutdown if necessary.
+     *
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
+     * @throws PatchException Raised if the patch failed.
+     *
      **/
-    void patchServer(string id)
+    void patchServer(string id, bool shutdown)
 	throws ServerNotExistException, NodeUnreachableException, PatchException;
 
     /**

@@ -135,7 +135,7 @@ interface Server
      * data to patch.
      * 
      **/
-    void patch()
+    void patch(bool shutdown)
 	throws  PatchException;
 
     /**
@@ -247,7 +247,7 @@ interface Node
      * raise a PatchException.
      * 
      **/
-    idempotent void patch(Ice::StringSeq directories, Ice::StringSeq serverDirs)
+    idempotent void patch(Ice::StringSeq directories, Ice::StringSeq serverDirs, bool shutdown)
 	throws  PatchException;
 
     /**

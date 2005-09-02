@@ -119,7 +119,7 @@ AdminI::removeApplication(const string& name, const Current&)
 }
 
 void
-AdminI::patchApplication(const string& name, const string& patch, const Current&)
+AdminI::patchApplication(const string& name, const string& patch, bool shutdown, const Current&)
 {
     ApplicationHelper helper(_database->getApplicationDescriptor(name));
     map<string, pair<Ice::StringSeq, Ice::StringSeq> > nodes = helper.getNodesPatchDirs(patch);
@@ -128,7 +128,7 @@ AdminI::patchApplication(const string& name, const string& patch, const Current&
 	try
 	{
 	    NodePrx n = NodePrx::uncheckedCast(_database->getNode(p->first)->ice_timeout(_nodeSessionTimeout * 1000));
-	    n->patch(p->second.first, p->second.second);
+	    n->patch(p->second.first, p->second.second, shutdown);
 	}
 	catch(const NodeNotExistException&)
 	{
@@ -229,12 +229,12 @@ AdminI::stopServer(const string& id, const Current&)
 }
 
 void
-AdminI::patchServer(const string& id, const Current&)
+AdminI::patchServer(const string& id, bool shutdown, const Current&)
 {
     ServerProxyWrapper proxy(_database, id);
     try
     {
-	proxy->patch();
+	proxy->patch(shutdown);
     }
     catch(const Ice::Exception& ex)
     {

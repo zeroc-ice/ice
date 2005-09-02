@@ -34,12 +34,12 @@ public:
 
     virtual ServerPrx loadServer(const ServerDescriptorPtr&, StringAdapterPrxDict&, int&, int&, const Ice::Current&);
     virtual void destroyServer(const std::string&, const Ice::Current&);
-    virtual void patch(const Ice::StringSeq&, const Ice::StringSeq&, const Ice::Current&);
+    virtual void patch(const Ice::StringSeq&, const Ice::StringSeq&, bool, const Ice::Current&);
     virtual std::string getName(const Ice::Current& = Ice::Current()) const;
     virtual std::string getHostname(const Ice::Current& = Ice::Current()) const;
     virtual void shutdown(const Ice::Current&) const;
     
-    void patch(const ServerIPtr&, const std::string&) const;
+    void patch(const ServerIPtr&, const std::string&, bool) const;
 
     WaitQueuePtr getWaitQueue() const;
     Ice::CommunicatorPtr getCommunicator() const;

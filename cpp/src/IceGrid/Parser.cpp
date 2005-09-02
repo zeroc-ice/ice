@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/OutputUtil.h>
+#include <IceUtil/Options.h>
 #include <Ice/Ice.h>
 #include <IceXML/Parser.h>
 #include <IceGrid/Parser.h>
@@ -65,8 +66,10 @@ Parser::usage()
         "                            described in DESC and the current deployment.\n"
 	"application update DESC [TARGET ... ] [NAME=VALUE ... ]\n"
 	"                            Update the application described in DESC.\n"
-	"application patch NAME [PATCHID]\n"
-	"                            Patch the given application data.\n"
+	"application patch [-f|--force] NAME [PATCHID]\n"
+	"                            Patch the given application data. If -f or --force is\n"
+	"                            specified, the servers depending on the data to patch\n"
+	"                            will be stopped if necessary.\n"
 	"application list            List all deployed applications.\n"
 	"                            to the application."
         "\n"
@@ -303,8 +306,24 @@ Parser::updateApplication(const list<string>& args)
 }
 
 void
-Parser::patchApplication(const list<string>& args)
+Parser::patchApplication(const list<string>& origArgs)
 {
+    list<string> copyArgs = origArgs;
+    copyArgs.push_front("icegridadmin");
+    
+    IceUtil::Options opts;
+    opts.addOpt("f", "force");
+    vector<string> args;
+    try
+    {
+	args = opts.parse(vector<string>(copyArgs.begin(), copyArgs.end()));
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+	error(e.reason);
+	return;
+    }
+
     if(args.size() < 1)
     {
 	error("`application patch' requires at least one argument\n(`help' for more info)");
@@ -313,16 +332,10 @@ Parser::patchApplication(const list<string>& args)
 
     try
     {
-	list<string>::const_iterator p = args.begin();
-
+	vector<string>::const_iterator p = args.begin();
 	string name = *p++;
-	string patch;
-	if(p != args.end())
-	{
-	    patch = *p++;
-	}
-
-	_admin->patchApplication(name, patch);
+	string patch = p != args.end() ? *p++ : string();
+	_admin->patchApplication(name, patch, opts.isSet("f") || opts.isSet("force"));
     }
     catch(const Ice::Exception& ex)
     {
@@ -639,8 +652,24 @@ Parser::stopServer(const list<string>& args)
 }
 
 void
-Parser::patchServer(const list<string>& args)
+Parser::patchServer(const list<string>& origArgs)
 {
+    list<string> copyArgs = origArgs;
+    copyArgs.push_front("icegridadmin");
+
+    IceUtil::Options opts;
+    opts.addOpt("f", "force");
+    vector<string> args;
+    try
+    {
+	args = opts.parse(vector<string>(copyArgs.begin(), copyArgs.end()));
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+	error(e.reason);
+	return;
+    }
+
     if(args.size() != 1)
     {
 	error("`server patch' requires exactly one argument\n(`help' for more info)");
@@ -649,7 +678,7 @@ Parser::patchServer(const list<string>& args)
 
     try
     {
-	_admin->patchServer(args.front());
+	_admin->patchServer(args.front(), opts.isSet("f") || opts.isSet("force"));
     }
     catch(const Ice::Exception& ex)
     {
@@ -1457,7 +1486,7 @@ Parser::exception(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << "couldn't reach the IceGrid registry:\n" << ex;
-	throw s.str();
+	error(s.str());
     }
     catch(const Ice::Exception& ex)
     {

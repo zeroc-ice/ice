@@ -305,16 +305,16 @@ NodeI::destroyServer(const string& name, const Ice::Current& current)
 }
 
 void
-NodeI::patch(const Ice::StringSeq& directories, const Ice::StringSeq& serverDirs, const Ice::Current&)
+NodeI::patch(const Ice::StringSeq& directories, const Ice::StringSeq& serverDirs, bool shutdown, const Ice::Current&)
 {
     Ice::StringSeq::const_iterator p;
     for(p = directories.begin(); p != directories.end(); ++p)
     {
-	patch(ServerIPtr(), *p);
+	patch(ServerIPtr(), *p, shutdown);
     }
     for(p = serverDirs.begin(); p != serverDirs.end(); ++p)
     {
-	patch(ServerIPtr(), _serversDir + "/" + *p + "/data");
+	patch(ServerIPtr(), _serversDir + "/" + *p + "/data", shutdown);
     }
 }
 
@@ -337,7 +337,7 @@ NodeI::shutdown(const Ice::Current&) const
 }
 
 void
-NodeI::patch(const ServerIPtr& server, const string& directory) const
+NodeI::patch(const ServerIPtr& server, const string& directory, bool shutdown) const
 {
     Lock sync(*this);
 
@@ -359,7 +359,7 @@ NodeI::patch(const ServerIPtr& server, const string& directory) const
 	{
 	    if(*p != server)
 	    {
-		if(!(*p)->startUpdating(false))
+		if(!(*p)->startUpdating(shutdown))
 		{
 		    running.push_back((*p)->getId());
 		}

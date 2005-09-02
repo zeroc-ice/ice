@@ -47,7 +47,7 @@ public:
     virtual void update(const ServerDescriptorPtr&, bool, StringAdapterPrxDict&, int&, int&, const Ice::Current&);
     virtual void start_async(const AMD_Server_startPtr&, const ::Ice::Current&);
     virtual void stop(const ::Ice::Current& = Ice::Current());
-    virtual void patch(const ::Ice::Current&);
+    virtual void patch(bool, const ::Ice::Current&);
     virtual void sendSignal(const std::string&, const ::Ice::Current&);
     virtual void writeMessage(const std::string&, Ice::Int, const ::Ice::Current&);
     virtual void destroy(const ::Ice::Current&);

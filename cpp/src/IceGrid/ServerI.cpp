@@ -223,7 +223,7 @@ ServerI::stop(const Ice::Current&)
 }
 
 void
-ServerI::patch(const ::Ice::Current& current)
+ServerI::patch(bool shutdown, const ::Ice::Current& current)
 {
     //
     // Patch the server data.
@@ -234,7 +234,7 @@ ServerI::patch(const ::Ice::Current& current)
 	ServerDescriptorPtr desc = getDescriptor(current);
 	for(PatchDescriptorSeq::const_iterator p = desc->patchs.begin(); p != desc->patchs.end(); ++p)
 	{
-	    _node->patch(this, p->destination);
+	    _node->patch(this, p->destination, shutdown);
 	}
     }
     catch(...)

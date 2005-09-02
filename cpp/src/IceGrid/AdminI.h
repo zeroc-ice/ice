@@ -29,7 +29,7 @@ public:
     virtual void syncApplication(const ApplicationDescriptor&, const Ice::Current&);
     virtual void updateApplication(const ApplicationUpdateDescriptor&, const Ice::Current&);
     virtual void removeApplication(const std::string&, const Ice::Current&);
-    virtual void patchApplication(const std::string&, const std::string&, const Ice::Current&);
+    virtual void patchApplication(const std::string&, const std::string&, bool, const Ice::Current&);
     virtual ApplicationDescriptor getApplicationDescriptor(const ::std::string&, const Ice::Current&) const;
     virtual Ice::StringSeq getAllApplicationNames(const Ice::Current&) const;
 
@@ -38,7 +38,7 @@ public:
     virtual Ice::Int getServerPid(const ::std::string&, const Ice::Current&) const;
     virtual bool startServer(const ::std::string&, const Ice::Current&);
     virtual void stopServer(const ::std::string&, const Ice::Current&);
-    virtual void patchServer(const ::std::string&, const Ice::Current&);
+    virtual void patchServer(const ::std::string&, bool, const Ice::Current&);
     virtual void sendSignal(const ::std::string&, const ::std::string&, const Ice::Current&);
     virtual void writeMessage(const ::std::string&, const ::std::string&, Ice::Int, const Ice::Current&);
     virtual Ice::StringSeq getAllServerIds(const Ice::Current&) const;
