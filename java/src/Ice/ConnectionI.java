@@ -2043,16 +2043,19 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    //
 		    synchronized(_sendMutex)
 		    {
-			try
+		        if(_transceiver != null)
 			{
-			    _transceiver.close();
-			}
-			catch(LocalException e)
-			{
-			    // Here we ignore any exceptions in close().
-			}
+			    try
+			    {
+			        _transceiver.close();
+			    }
+			    catch(LocalException e)
+			    {
+			        // Here we ignore any exceptions in close().
+			    }
 			
-			_transceiver = null;
+			    _transceiver = null;
+			}
 			notifyAll();
 		    }
 		}
