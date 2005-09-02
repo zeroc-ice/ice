@@ -2294,16 +2294,19 @@ Ice::ConnectionI::run()
 	    //
 	    IceUtil::Mutex::Lock sendSync(_sendMutex);
 	    
-	    try
+	    if(_transceiver)
 	    {
-		_transceiver->close();
-	    }
-	    catch(const LocalException&)
-	    {
-		// Here we ignore any exceptions in close().
-	    }
+	        try
+	        {
+		    _transceiver->close();
+	        }
+	        catch(const LocalException&)
+	        {
+		    // Here we ignore any exceptions in close().
+	        }
 	    
-	    _transceiver = 0;
+	        _transceiver = 0;
+	    }
 	    notifyAll();
 	    return;
 	}
