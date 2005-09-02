@@ -8,14 +8,14 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <CallbackI.h>
+#include <CallbackSenderI.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Demo;
 
 void
-CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Current& current)
+CallbackSenderI::initiateCallback(const CallbackReceiverPrx& proxy, const Current& current)
 {
     cout << "initiating callback" << endl;
     try
@@ -29,7 +29,7 @@ CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Current& cur
 }
 
 void
-CallbackI::shutdown(const Current& c)
+CallbackSenderI::shutdown(const Current& c)
 {
     cout << "shutting down..." << endl;
     try

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-#include <CallbackI.h>
+#include <CallbackSenderI.h>
 
 using namespace std;
 using namespace Ice;
@@ -32,7 +32,7 @@ int
 CallbackServer::run(int argc, char* argv[])
 {
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Server");
-    adapter->add(new CallbackI, Ice::stringToIdentity("callback"));
+    adapter->add(new CallbackSenderI, Ice::stringToIdentity("callback"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

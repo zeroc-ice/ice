@@ -12,7 +12,7 @@
 
 #include <Callback.h>
 
-class CallbackI : public Demo::Callback
+class CallbackSenderI : public Demo::CallbackSender
 {
 public:
 

@@ -19,7 +19,7 @@ OBJS		= Callback.o
 COBJS		= Client.o
 
 SOBJS		= Server.o \
-		  CallbackI.o
+		  CallbackSenderI.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
