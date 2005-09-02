@@ -38,14 +38,14 @@ public class Client
         }
 
         Ice.ObjectPrx base = communicator.stringToProxy(proxy);
-        CallbackPrx twoway = CallbackPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1));
+        CallbackSenderPrx twoway = CallbackSenderPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1));
         if(twoway == null)
         {
             System.err.println("invalid proxy");
             return 1;
         }
-        CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
-        CallbackPrx batchOneway = CallbackPrxHelper.uncheckedCast(twoway.ice_batchOneway());
+        CallbackSenderPrx oneway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_oneway());
+        CallbackSenderPrx batchOneway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_batchOneway());
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Callback.Client");
         adapter.add(new CallbackReceiverI(), Ice.Util.stringToIdentity("callbackReceiver"));

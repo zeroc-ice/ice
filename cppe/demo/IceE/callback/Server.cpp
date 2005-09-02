@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceE/IceE.h>
-#include <CallbackI.h>
+#include <CallbackSenderI.h>
 
 using namespace std;
 using namespace Demo;
@@ -17,7 +17,7 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Server");
-    adapter->add(new CallbackI, Ice::stringToIdentity("callback"));
+    adapter->add(new CallbackSenderI, Ice::stringToIdentity("callback"));
     adapter->activate();
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

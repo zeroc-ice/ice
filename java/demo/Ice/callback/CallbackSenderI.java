@@ -9,7 +9,7 @@
 
 import Demo.*;
 
-public final class CallbackI extends _CallbackDisp
+public final class CallbackSenderI extends _CallbackSenderDisp
 {
     public void
     initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)

@@ -83,7 +83,7 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "CallbackI.vb"
+                    RelPath = "CallbackSenderI.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

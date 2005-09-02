@@ -41,16 +41,17 @@ class CallbackClient extends Ice.Application
         }
 
         Ice.ObjectPrx base = communicator().stringToProxy(proxy);
-        CallbackPrx twoway = CallbackPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(false));
+        CallbackSenderPrx twoway = 
+	    CallbackSenderPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {
             System.err.println("invalid proxy");
             return 1;
         }
-        CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
-        CallbackPrx batchOneway = CallbackPrxHelper.uncheckedCast(twoway.ice_batchOneway());
-        CallbackPrx datagram = CallbackPrxHelper.uncheckedCast(twoway.ice_datagram());
-        CallbackPrx batchDatagram = CallbackPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
+        CallbackSenderPrx oneway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_oneway());
+        CallbackSenderPrx batchOneway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_batchOneway());
+        CallbackSenderPrx datagram = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_datagram());
+        CallbackSenderPrx batchDatagram = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Client");
         adapter.add(new CallbackReceiverI(), Ice.Util.stringToIdentity("callbackReceiver"));
@@ -120,11 +121,11 @@ class CallbackClient extends Ice.Application
 		    secure = !secure;
 		    secureStr = secure ? "s" : "";
 
-		    twoway = CallbackPrxHelper.uncheckedCast(twoway.ice_secure(secure));
-		    oneway = CallbackPrxHelper.uncheckedCast(oneway.ice_secure(secure));
-		    batchOneway = CallbackPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
-		    datagram = CallbackPrxHelper.uncheckedCast(datagram.ice_secure(secure));
-		    batchDatagram = CallbackPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
+		    twoway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_secure(secure));
+		    oneway = CallbackSenderPrxHelper.uncheckedCast(oneway.ice_secure(secure));
+		    batchOneway = CallbackSenderPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
+		    datagram = CallbackSenderPrxHelper.uncheckedCast(datagram.ice_secure(secure));
+		    batchDatagram = CallbackSenderPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
 
 		    twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_secure(secure));
 		    onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_secure(secure));

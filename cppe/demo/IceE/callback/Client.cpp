@@ -50,14 +50,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     Ice::ObjectPrx base = communicator->stringToProxy(proxy);
-    CallbackPrx twoway = CallbackPrx::checkedCast(base->ice_twoway()->ice_timeout(-1));
+    CallbackSenderPrx twoway = CallbackSenderPrx::checkedCast(base->ice_twoway()->ice_timeout(-1));
     if(!twoway)
     {
 	fprintf(stderr, "%s: invalid proxy\n", argv[0]);
 	return EXIT_FAILURE;
     }
-    CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
-    CallbackPrx batchOneway = CallbackPrx::uncheckedCast(twoway->ice_batchOneway());
+    CallbackSenderPrx oneway = CallbackSenderPrx::uncheckedCast(twoway->ice_oneway());
+    CallbackSenderPrx batchOneway = CallbackSenderPrx::uncheckedCast(twoway->ice_batchOneway());
     
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Client");
     adapter->add(new CallbackReceiverI, Ice::stringToIdentity("callbackReceiver"));

@@ -36,15 +36,15 @@ Class CallbackClient
 	End If
 
 	Dim base As Ice.ObjectPrx = communicator().stringToProxy(proxy)
-	Dim twoway As CallbackPrx = CallbackPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(False))
+	Dim twoway As CallbackSenderPrx = CallbackSenderPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(False))
 	If twoway Is Nothing Then
 	    Console.Error.WriteLine("invalid proxy")
 	    Return 1
 	End If
-	Dim oneway As CallbackPrx = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway())
-	Dim batchOneway As CallbackPrx = CallbackPrxHelper.uncheckedCast(twoway.ice_batchOneway())
-	Dim datagram As CallbackPrx = CallbackPrxHelper.uncheckedCast(twoway.ice_datagram())
-	Dim batchDatagram As CallbackPrx = CallbackPrxHelper.uncheckedCast(twoway.ice_batchDatagram())
+	Dim oneway As CallbackSenderPrx = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_oneway())
+	Dim batchOneway As CallbackSenderPrx = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_batchOneway())
+	Dim datagram As CallbackSenderPrx = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_datagram())
+	Dim batchDatagram As CallbackSenderPrx = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_batchDatagram())
 
 	Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Callback.Client")
 	adapter.add(New CallbackReceiverI, Ice.Util.stringToIdentity("callbackReceiver"))

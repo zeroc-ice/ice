@@ -13,7 +13,7 @@ import sys, traceback, Ice
 Ice.loadSlice('Callback.ice')
 import Demo
 
-class CallbackI(Demo.Callback):
+class CallbackSenderI(Demo.CallbackSender):
     def initiateCallback(self, proxy, current=None):
         print "initiating callback"
         try:
@@ -31,7 +31,7 @@ class CallbackI(Demo.Callback):
 class CallbackServer(Ice.Application):
     def run(self, args):
         adapter = self.communicator().createObjectAdapter("Callback.Server")
-        adapter.add(CallbackI(), Ice.stringToIdentity("callback"))
+        adapter.add(CallbackSenderI(), Ice.stringToIdentity("callback"))
         adapter.activate()
         self.communicator().waitForShutdown()
         return 0

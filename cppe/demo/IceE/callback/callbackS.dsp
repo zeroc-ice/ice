@@ -157,7 +157,7 @@ SOURCE=.\Callback.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\CallbackI.cpp
+SOURCE=.\CallbackSenderI.cpp
 # End Source File
 # Begin Source File
 
@@ -173,7 +173,7 @@ SOURCE=.\Callback.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\CallbackI.h
+SOURCE=.\CallbackSenderI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

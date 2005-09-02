@@ -14,7 +14,7 @@ Class CallbackServer
 
     Public Overloads Overrides Function run(ByVal args() As String) As Integer
 	Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Callback.Server")
-	adapter.add(New CallbackI, Ice.Util.stringToIdentity("callback"))
+	adapter.add(New CallbackSenderI, Ice.Util.stringToIdentity("callback"))
 	adapter.activate()
 	communicator().waitForShutdown()
 	Return 0

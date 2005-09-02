@@ -15,7 +15,7 @@ class CallbackServer extends Ice.Application
     run(String[] args)
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
-        adapter.add(new CallbackI(), Ice.Util.stringToIdentity("callback"));
+        adapter.add(new CallbackSenderI(), Ice.Util.stringToIdentity("callback"));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;

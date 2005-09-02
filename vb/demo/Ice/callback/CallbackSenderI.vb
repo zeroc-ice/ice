@@ -9,8 +9,8 @@
 
 Imports Demo
 
-Public NotInheritable Class CallbackI
-    Inherits _CallbackDisp
+Public NotInheritable Class CallbackSenderI
+    Inherits _CallbackSenderDisp
 
     Public Overloads Overrides Sub initiateCallback(ByVal proxy As CallbackReceiverPrx, ByVal current As Ice.Current)
 	System.Console.Out.WriteLine("initiating callback")

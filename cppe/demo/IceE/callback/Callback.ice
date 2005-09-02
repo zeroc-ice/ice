@@ -18,7 +18,7 @@ interface CallbackReceiver
     void callback();
 };
 
-interface Callback
+interface CallbackSender
 {
     void initiateCallback(CallbackReceiver* proxy);
     void shutdown();

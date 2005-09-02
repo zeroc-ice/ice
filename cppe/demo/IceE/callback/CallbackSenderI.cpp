@@ -8,13 +8,13 @@
 // **********************************************************************
 
 #include <IceE/IceE.h>
-#include <CallbackI.h>
+#include <CallbackSenderI.h>
 
 using namespace std;
 using namespace Demo;
 
 void
-CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Ice::Current& current)
+CallbackSenderI::initiateCallback(const CallbackReceiverPrx& proxy, const Ice::Current& current)
 {
     printf("initiating callback\n");
     try
@@ -28,7 +28,7 @@ CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Ice::Current
 }
 
 void
-CallbackI::shutdown(const Ice::Current& c)
+CallbackSenderI::shutdown(const Ice::Current& c)
 {
     printf("shutting down...\n");
     try

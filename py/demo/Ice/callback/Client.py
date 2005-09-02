@@ -42,15 +42,15 @@ class CallbackClient(Ice.Application):
             return 1
 
         base = self.communicator().stringToProxy(proxy)
-        twoway = Demo.CallbackPrx.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(False))
+        twoway = Demo.CallbackSenderPrx.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(False))
         if not twoway:
             print self.appName() + ": invalid proxy"
             return 1
 
-        oneway = Demo.CallbackPrx.uncheckedCast(twoway.ice_oneway())
-        batchOneway = Demo.CallbackPrx.uncheckedCast(twoway.ice_batchOneway())
-        datagram = Demo.CallbackPrx.uncheckedCast(twoway.ice_datagram())
-        batchDatagram = Demo.CallbackPrx.uncheckedCast(twoway.ice_batchDatagram())
+        oneway = Demo.CallbackSenderPrx.uncheckedCast(twoway.ice_oneway())
+        batchOneway = Demo.CallbackSenderPrx.uncheckedCast(twoway.ice_batchOneway())
+        datagram = Demo.CallbackSenderPrx.uncheckedCast(twoway.ice_datagram())
+        batchDatagram = Demo.CallbackSenderPrx.uncheckedCast(twoway.ice_batchDatagram())
 
         adapter = self.communicator().createObjectAdapter("Callback.Client")
         adapter.add(CallbackReceiverI(), Ice.stringToIdentity("callbackReceiver"))
@@ -91,11 +91,11 @@ class CallbackClient(Ice.Application):
                 elif c == 'S':
                     secure = not secure
 
-                    twoway = Demo.CallbackPrx.uncheckedCast(twoway.ice_secure(secure))
-                    oneway = Demo.CallbackPrx.uncheckedCast(oneway.ice_secure(secure))
-                    batchOneway = Demo.CallbackPrx.uncheckedCast(batchOneway.ice_secure(secure))
-                    datagram = Demo.CallbackPrx.uncheckedCast(datagram.ice_secure(secure))
-                    batchDatagram = Demo.CallbackPrx.uncheckedCast(batchDatagram.ice_secure(secure))
+                    twoway = Demo.CallbackSenderPrx.uncheckedCast(twoway.ice_secure(secure))
+                    oneway = Demo.CallbackSenderPrx.uncheckedCast(oneway.ice_secure(secure))
+                    batchOneway = Demo.CallbackSenderPrx.uncheckedCast(batchOneway.ice_secure(secure))
+                    datagram = Demo.CallbackSenderPrx.uncheckedCast(datagram.ice_secure(secure))
+                    batchDatagram = Demo.CallbackSenderPrx.uncheckedCast(batchDatagram.ice_secure(secure))
 
                     twowayR = Demo.CallbackReceiverPrx.uncheckedCast(twowayR.ice_secure(secure))
                     onewayR = Demo.CallbackReceiverPrx.uncheckedCast(onewayR.ice_secure(secure))
