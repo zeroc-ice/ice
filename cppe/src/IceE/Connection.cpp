@@ -1057,7 +1057,7 @@ Ice::Connection::setState(State state, const LocalException& ex)
 	//
 	assert(_state != StateClosed);
 
-	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+	_exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 
 	if(_warn)
 	{
@@ -1645,7 +1645,7 @@ Ice::Connection::run()
 		}
 		catch(const LocalException& ex)
 		{
-		    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+		    exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 		}
 		
 		_transceiver = 0;

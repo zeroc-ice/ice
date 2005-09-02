@@ -262,7 +262,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	}
 	catch(const LocalException& ex)
 	{
-	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+	    exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 
 	    //
 	    // If a connection object was constructed, then validate()

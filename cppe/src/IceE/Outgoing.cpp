@@ -19,12 +19,12 @@ using namespace IceInternal;
 
 IceInternal::NonRepeatable::NonRepeatable(const NonRepeatable& ex)
 {
-    _ex = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.get()->ice_clone()));
+    _ex.reset(dynamic_cast<LocalException*>(ex.get()->ice_clone()));
 }
 
 IceInternal::NonRepeatable::NonRepeatable(const ::Ice::LocalException& ex)
 {
-    _ex = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+    _ex.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 }
 
 const ::Ice::LocalException*
@@ -388,7 +388,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    ex->id = ident;
 	    ex->facet = facet;
 	    ex->operation = operation;
-	    _exception = auto_ptr<LocalException>(ex);
+	    _exception.reset(ex);
 
 	    _state = StateLocalException; // The state must be set last, in case there is an exception.
 	    break;
@@ -436,7 +436,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    }
 	    
 	    ex->unknown = unknown;
-	    _exception = auto_ptr<LocalException>(ex);
+	    _exception.reset(ex);
 
 	    _state = StateLocalException; // The state must be set last, in case there is an exception.
 	    break;
@@ -444,7 +444,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	
 	default:
 	{
-	    _exception = auto_ptr<LocalException>(new UnknownReplyStatusException(__FILE__, __LINE__));
+	    _exception.reset(new UnknownReplyStatusException(__FILE__, __LINE__));
 	    _state = StateLocalException;
 	    break;
 	}
@@ -463,6 +463,6 @@ IceInternal::Outgoing::finished(const LocalException& ex)
     assert(_state <= StateInProgress);
     
     _state = StateLocalException;
-    _exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+    _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
     notify();
 }
