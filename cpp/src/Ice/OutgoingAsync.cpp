@@ -95,19 +95,19 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 		{
 		    case DispatchObjectNotExist:
 		    {
-			ex = auto_ptr<RequestFailedException>(new ObjectNotExistException(__FILE__, __LINE__));
+			ex.reset(new ObjectNotExistException(__FILE__, __LINE__));
 			break;
 		    }
 		    
 		    case DispatchFacetNotExist:
 		    {
-			ex = auto_ptr<RequestFailedException>(new FacetNotExistException(__FILE__, __LINE__));
+			ex.reset(new FacetNotExistException(__FILE__, __LINE__));
 			break;
 		    }
 		    
 		    case DispatchOperationNotExist:
 		    {
-			ex = auto_ptr<RequestFailedException>(new OperationNotExistException(__FILE__, __LINE__));
+			ex.reset(new OperationNotExistException(__FILE__, __LINE__));
 			break;
 		    }
 		    
@@ -136,19 +136,19 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 		{
 		    case DispatchUnknownException:
 		    {
-			ex = auto_ptr<UnknownException>(new UnknownException(__FILE__, __LINE__));
+			ex.reset(new UnknownException(__FILE__, __LINE__));
 			break;
 		    }
 		    
 		    case DispatchUnknownLocalException:
 		    {
-			ex = auto_ptr<UnknownException>(new UnknownLocalException(__FILE__, __LINE__));
+			ex.reset(new UnknownLocalException(__FILE__, __LINE__));
 			break;
 		    }
 		    
 		    case DispatchUnknownUserException:
 		    {
-			ex = auto_ptr<UnknownException>(new UnknownUserException(__FILE__, __LINE__));
+			ex.reset(new UnknownUserException(__FILE__, __LINE__));
 			break;
 		    }
 		    

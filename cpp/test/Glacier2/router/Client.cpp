@@ -40,7 +40,7 @@ public:
     {
 	Lock sync(*this);
 	_haveResponse = true;
-	_ex = auto_ptr<Exception>(e.ice_clone());
+	_ex.reset(e.ice_clone());
 	notify();
     }
 

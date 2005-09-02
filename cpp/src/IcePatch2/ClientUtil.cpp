@@ -267,7 +267,7 @@ public:
     ice_exception(const Exception& ex)
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	_exception = auto_ptr<Exception>(ex.ice_clone());
+	_exception.reset(ex.ice_clone());
 	_done = true;
 	notify();
     }
@@ -744,7 +744,7 @@ public:
     ice_exception(const Exception& ex)
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	_exception = auto_ptr<Exception>(ex.ice_clone());
+	_exception.reset(ex.ice_clone());
 	_done = true;
 	notify();
     }
