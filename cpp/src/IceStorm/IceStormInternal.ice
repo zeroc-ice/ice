@@ -32,6 +32,26 @@ dictionary<string, string> ContextData;
 
 /**
  *
+ * The event data.
+ *
+ **/
+struct EventData
+{
+    /** The operation name. */
+    string op;
+    /** The operation mode. */
+    Ice::OperationMode mode;
+     /** The encoded data for the operation's input parameters. */
+    ByteSeq data;
+    /** The Ice::Current::Context data from the originating request. */
+    ContextData context;
+};
+
+/** A sequence of EventData. */
+sequence<EventData> EventDataSeq;
+
+/**
+ *
  * The TopicLink interface. This is used to forward events between
  * federated Topic instances.
  *
@@ -42,20 +62,12 @@ interface TopicLink
 {
     /**
      *
-     * Forward an event.
+     * Forward a sequence of events.
      *
-     * @param op The operation name.
-     *
-     * @param idempotent Flag indicating whether the operation is
-     * idempotent.
-     *
-     * @param data The encoded data for the operation's input parameters.
-     *
-     * @param context The Ice::Current::Context data from the
-     * originating request.
+     * @param events The events to forward.
      *
      **/
-    void forward(string op, Ice::OperationMode mode, ByteSeq data, ContextData context);
+    void forward(EventDataSeq events);
 };
 
 /**

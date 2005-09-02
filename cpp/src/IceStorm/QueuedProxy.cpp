@@ -56,10 +56,7 @@ IceStorm::QueuedProxy::publish(const EventPtr& event)
             //
             // Deliver the events without holding the lock.
             //
-            for(vector<EventPtr>::iterator p = v.begin(); p != v.end(); ++p)
-            {
-                deliver(*p);
-            }
+	    deliver(v);
 
             //
             // Reacquire the lock before we check the queue again.

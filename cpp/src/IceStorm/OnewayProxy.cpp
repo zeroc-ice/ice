@@ -23,8 +23,11 @@ IceStorm::OnewayProxy::proxy() const
 }
 
 void
-IceStorm::OnewayProxy::deliver(const EventPtr& event)
+IceStorm::OnewayProxy::deliver(const vector<EventPtr>& v)
 {
     vector<Ice::Byte> dummy;
-    _obj->ice_invoke(event->op, event->mode, event->data, dummy, event->context);
+    for(vector<EventPtr>::const_iterator p = v.begin(); p != v.end(); ++p)
+    {
+	_obj->ice_invoke((*p)->op, (*p)->mode, (*p)->data, dummy, (*p)->context);
+    }
 }

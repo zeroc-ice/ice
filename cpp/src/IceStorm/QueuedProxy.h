@@ -17,9 +17,9 @@ namespace IceStorm
 {
 
 //
-// QueuedProxy encapsulates a subscriber proxy in order to maintain
-// a queue of events to be delivered to the subscriber. QueuedProxy
-// manages the event queue, but delegates delivery to subsclasses.
+// QueuedProxy encapsulates a subscriber proxy in order to maintain a
+// queue of events to be delivered to the subscriber. QueuedProxy
+// manages the event queue, but delegates delivery to subclasses.
 //
 class QueuedProxy : public IceUtil::Shared
 {
@@ -33,7 +33,7 @@ public:
 
 protected:
 
-    virtual void deliver(const EventPtr&) = 0;
+    virtual void deliver(const std::vector<EventPtr>&) = 0;
 
     IceUtil::Mutex _mutex;
     std::auto_ptr<Ice::LocalException> _exception;

@@ -47,7 +47,7 @@ public:
     
 protected:
 
-    virtual void deliver(const EventPtr&);
+    virtual void deliver(const std::vector<EventPtr>&);
 
 };
 
@@ -67,7 +67,7 @@ public:
 
 protected:
 
-    virtual void deliver(const EventPtr&);
+    virtual void deliver(const std::vector<EventPtr>&);
 };
 
 typedef IceUtil::Handle<UnorderedTwowayProxy> UnorderedTwowayProxyPtr;

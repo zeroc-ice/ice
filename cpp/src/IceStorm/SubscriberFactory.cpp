@@ -36,26 +36,22 @@ SubscriberFactory::createLinkSubscriber(const TopicLinkPrx& obj, Ice::Int cost)
     IceUtil::RecMutex::Lock sync(_proxiesMutex);
 
     //
-    // Delivery to links is done in batch mode.
-    //
-    TopicLinkPrx newObj = TopicLinkPrx::uncheckedCast(obj->ice_batchOneway());
-
-    //
-    // Check if a queued proxy already exists, or create one if necessary.
+    // Check if a queued proxy already exists, or create one if
+    // necessary.
     //
     QueuedProxyPtr proxy;
-    map<Ice::ObjectPrx, ProxyInfo>::iterator p = _proxies.find(newObj);
+    map<Ice::ObjectPrx, ProxyInfo>::iterator p = _proxies.find(obj);
     if(p != _proxies.end())
     {
         proxy = p->second.proxy;
     }
     else
     {
-        proxy = new LinkProxy(newObj);
+        proxy = new LinkProxy(obj);
         ProxyInfo info;
         info.proxy = proxy;
         info.count = 0;
-        _proxies.insert(pair<Ice::ObjectPrx, ProxyInfo>(newObj, info));
+        _proxies.insert(pair<Ice::ObjectPrx, ProxyInfo>(obj, info));
     }
 
     return new LinkSubscriber(this, _communicator, _traceLevels, proxy, cost);

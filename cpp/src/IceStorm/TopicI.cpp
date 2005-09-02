@@ -65,7 +65,7 @@ public:
     {
     }
 
-    virtual void forward(const string&, ::Ice::OperationMode, const ByteSeq&, const ContextData&, const Ice::Current&);
+    virtual void forward(const vector<EventData>&, const Ice::Current&);
 
 private:
 
@@ -280,18 +280,20 @@ PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byt
 // Incoming events from linked topics.
 //
 void
-TopicLinkI::forward(const string& op, Ice::OperationMode mode, const ByteSeq& data, const ContextData& context,
-                    const Ice::Current& current)
+TopicLinkI::forward(const vector<EventData>& v, const Ice::Current& current)
 {
-    EventPtr event = new Event;
-    event->forwarded = true;
-    event->cost = 0;
-    event->op = op;
-    event->mode = mode;
-    event->data = data;
-    event->context = context;
-
-    _subscribers->publish(event);
+    for(vector<EventData>::const_iterator p = v.begin(); p != v.end(); ++p)
+    {
+	EventPtr event = new Event;
+	event->forwarded = true;
+	event->cost = 0;
+	event->op = p->op;
+	event->mode = p->mode;
+	event->data = p->data;
+	event->context = p->context;
+	
+	_subscribers->publish(event);
+    }
 }
 
 TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& traceLevels, const string& name,

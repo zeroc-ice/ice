@@ -28,7 +28,7 @@ public:
 
 protected:
 
-    virtual void deliver(const EventPtr&);
+    virtual void deliver(const std::vector<EventPtr>&);
 
 private:
 

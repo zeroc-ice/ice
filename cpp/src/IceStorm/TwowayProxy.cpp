@@ -71,12 +71,15 @@ IceStorm::UnorderedTwowayProxy::exception(const Ice::LocalException& ex)
 }
 
 void
-IceStorm::UnorderedTwowayProxy::deliver(const EventPtr& event)
+IceStorm::UnorderedTwowayProxy::deliver(const vector<EventPtr>& v)
 {
     //
     // TODO: Use a buffer of AMI callback objects to eliminate the dynamic memory allocation?
     //
-    _obj->ice_invoke_async(new UnorderedInvokeCB(this), event->op, event->mode, event->data, event->context);
+    for(vector<EventPtr>::const_iterator p = v.begin(); p != v.end(); ++p)
+    {
+	_obj->ice_invoke_async(new UnorderedInvokeCB(this), (*p)->op, (*p)->mode, (*p)->data, (*p)->context);
+    }
 }
 
 class OrderedInvokeCB : public Ice::AMI_Object_ice_invoke
@@ -147,7 +150,9 @@ IceStorm::OrderedTwowayProxy::publish(const EventPtr& event)
     try
     {
 	assert(e);
-	deliver(e);
+	vector<EventPtr> events;
+	events.push_back(e);
+	deliver(events);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -187,7 +192,9 @@ IceStorm::OrderedTwowayProxy::response()
     try
     {
 	assert(event);
-	deliver(event);
+	vector<EventPtr> events;
+	events.push_back(event);
+	deliver(events);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -196,12 +203,22 @@ IceStorm::OrderedTwowayProxy::response()
 }
 
 void
-IceStorm::OrderedTwowayProxy::deliver(const EventPtr& event)
+IceStorm::OrderedTwowayProxy::deliver(const vector<EventPtr>& v)
 {
     //
-    // TODO: Use a buffer of AMI callback objects to eliminate the dynamic memory allocation? (we could 
-    // actually use only 2 AMI callback objects there.)
+    // Should only ever be called with a queue of length 1 (should
+    // only be called by methods local to OrderedTwowayProxy).
     //
-    _obj->ice_invoke_async(new OrderedInvokeCB(this), event->op, event->mode, event->data, event->context);
+    assert(v.size() == 1);
+
+    //
+    // TODO: Use a buffer of AMI callback objects to eliminate the
+    // dynamic memory allocation? (we could actually use only 2 AMI
+    // callback objects there.)
+    //
+    for(vector<EventPtr>::const_iterator p = v.begin(); p != v.end(); ++p)
+    {
+	_obj->ice_invoke_async(new OrderedInvokeCB(this), (*p)->op, (*p)->mode, (*p)->data, (*p)->context);
+    }
 }
 
