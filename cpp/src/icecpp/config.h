@@ -26,8 +26,10 @@
 #elif defined(_WIN32)
 #   include <malloc.h>
 #   include <io.h>
-#   pragma warning( disable : 4018 )
-#   pragma warning( disable : 4244 )
+#   ifdef _MSC_VER
+#       pragma warning( disable : 4018 )
+#       pragma warning( disable : 4244 )
+#   endif
 #   define alloca _alloca
 #endif
 

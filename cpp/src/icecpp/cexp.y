@@ -109,7 +109,7 @@ struct arglist {
 #define HOST_BITS_PER_WIDE_INT (CHAR_BIT * sizeof (HOST_WIDE_INT))
 #endif
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 // I get these warnings from some bison versions:
 // warning C4102: 'yyoverflowlab' : unreferenced label
 #   pragma warning( disable : 4102 )

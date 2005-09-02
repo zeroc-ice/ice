@@ -65,7 +65,7 @@ public:
 	}
     }
 
-#ifdef _WIN32 // COMPILERBUG: Is VC++ or GNU C++ right here???
+#ifdef _MSC_VER // COMPILERBUG: Is VC++ or GNU C++ right here???
     template<>
     Handle(const Handle<T>& r)
 #else
@@ -150,7 +150,7 @@ public:
 	return *this;
     }
 
-#ifdef _WIN32 // COMPILERBUG: Is VC++ or GNU C++ right here???
+#ifdef _MSC_VER // COMPILERBUG: Is VC++ or GNU C++ right here???
     template<>
     Handle& operator=(const Handle<T>& r)
 #else

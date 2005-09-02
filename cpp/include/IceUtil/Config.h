@@ -103,20 +103,22 @@
 
 #   include <windows.h>
 
-// '...' : forcing value to bool 'true' or 'false' (performance warning)
-#   pragma warning( disable : 4800 )
-// ... identifier was truncated to '255' characters in the debug information
-#   pragma warning( disable : 4786 )
-// 'this' : used in base member initializer list
-#   pragma warning( disable : 4355 )
-// class ... needs to have dll-interface to be used by clients of class ...
-#   pragma warning( disable : 4251 )
-// ... : inherits ... via dominance
-#   pragma warning( disable : 4250 )
-// non dll-interface class ... used as base for dll-interface class ...
-#   pragma warning( disable : 4275 )
-//  ...: decorated name length exceeded, name was truncated
-#   pragma warning( disable : 4503 )  
+#   ifdef _MSC_VER
+//     '...' : forcing value to bool 'true' or 'false' (performance warning)
+#      pragma warning( disable : 4800 )
+//     ... identifier was truncated to '255' characters in the debug information
+#      pragma warning( disable : 4786 )
+//     'this' : used in base member initializer list
+#      pragma warning( disable : 4355 )
+//     class ... needs to have dll-interface to be used by clients of class ...
+#      pragma warning( disable : 4251 )
+//     ... : inherits ... via dominance
+#      pragma warning( disable : 4250 )
+//     non dll-interface class ... used as base for dll-interface class ...
+#      pragma warning( disable : 4275 )
+//      ...: decorated name length exceeded, name was truncated
+#      pragma warning( disable : 4503 )  
+#   endif
 #endif
 
 //

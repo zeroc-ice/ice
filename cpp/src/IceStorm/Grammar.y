@@ -12,7 +12,7 @@
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 // I get these warnings from some bison versions:
 // warning C4102: 'yyoverflowlab' : unreferenced label
 #   pragma warning( disable : 4102 )
