@@ -273,6 +273,35 @@ Slice::outputTypeToString(const TypePtr& type)
     return "???";
 }
 
+string
+Slice::operationModeToString(Operation::Mode mode)
+{
+    switch(mode)
+    {
+	case Operation::Normal:
+	{
+	    return "::Ice::Normal";
+	}
+	    
+	case Operation::Nonmutating:
+	{
+	    return "::Ice::Nonmutating";
+	}
+
+	case Operation::Idempotent:
+	{
+	    return "::Ice::Idempotent";
+	}
+
+	default:
+	{
+	    assert(false);
+	}
+    }
+    
+    return "???"; 
+}
+
 //
 // If the passed name is a keyword, return the name with a "_cxx_" prefix;
 // otherwise, return the name unchanged.

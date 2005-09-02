@@ -31,6 +31,7 @@ SLICE_API std::string typeToString(const TypePtr&);
 SLICE_API std::string returnTypeToString(const TypePtr&);
 SLICE_API std::string inputTypeToString(const TypePtr&);
 SLICE_API std::string outputTypeToString(const TypePtr&);
+SLICE_API std::string operationModeToString(Operation::Mode);
 
 SLICE_API std::string fixKwd(const std::string&);
 

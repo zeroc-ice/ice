@@ -1884,7 +1884,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << spar << paramsDecl << epar;
     C << sb;
     C << nl << "::IceInternal::Outgoing __og(__connection.get(), __reference.get(), " << flatName << ", "
-      << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __context, __compress);";
+      << operationModeToString(p->mode()) << ", __context, __compress);";
     if(!inParams.empty())
     {
 	C << nl << "try";
@@ -2131,7 +2131,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	C << nl << "::Ice::Current __current;";
 	C << nl << "__initCurrent(__current, \"" << p->name()
-	  << "\", static_cast< ::Ice::OperationMode>(" << p->mode() << "), __context);";
+	  << "\", " << operationModeToString(p->mode()) << ", __context);";
 	C << nl << "while(true)";
 	C << sb;
 	C << nl << "::IceInternal::Direct __direct(__current);";
@@ -4116,8 +4116,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "try";
 	C << sb;
 	C << nl << "static const ::std::string __operation(\"" << name << "\");";
-	C << nl << "__prepare(__prx, " << flatName << ", static_cast< ::Ice::OperationMode>(" << p->mode()
-	  << "), __ctx);";
+	C << nl << "__prepare(__prx, " << flatName << ", " << operationModeToString(p->mode()) << ", __ctx);";
 	writeMarshalCode(C, inParams, 0);
 	if(p->sendsClasses())
 	{
