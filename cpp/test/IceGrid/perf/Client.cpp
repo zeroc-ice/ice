@@ -71,7 +71,6 @@ main(int argc, char* argv[])
 
 	cout << keys[i] << ": " << typeId << " ";
 	
-	bool printed = 
 	printIf<BoxedString>(dataSeq[i], cout)
 	    || printIf<BoxedInt>(dataSeq[i], cout)
 	    || printIf<BoxedLong>(dataSeq[i], cout)

@@ -41,6 +41,7 @@ class Parser
 {
 public:
 
+    virtual ~Parser() {};
     virtual ParsedFileMap::const_iterator parse(const string&, ParsedFileMap&) = 0;
 };
 
