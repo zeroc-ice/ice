@@ -148,20 +148,6 @@ IceInternal::createSocket()
 	throw ex;
     }
 
-#if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0400) && !defined(_WIN32_WCE)
-    //
-    // Temporary work-around!
-    // Make this socket non-inheritable, so that IcePack-launched servers
-    // do not inherit it.
-    // 
-    if(!SetHandleInformation(reinterpret_cast<HANDLE>(fd), HANDLE_FLAG_INHERIT, 0))
-    {
-	SyscallException ex(__FILE__, __LINE__);
-	ex.error = getSystemErrno();
-	throw ex;
-    }
-#endif
-
     setTcpNoDelay(fd);
     setKeepAlive(fd);
 
