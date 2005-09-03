@@ -207,11 +207,6 @@ Ice::CommunicatorI::createObjectAdapter(const string& name)
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
 {
-    //
-    // The createObjectAdapter() call may throw, so we keep track of
-    // endpoint properties that already exist so we can revert the
-    // properties to their original value.
-    //
     const string propertyKey = name + ".Endpoints";
     const string originalValue = getProperties()->getProperty(propertyKey);
     try
