@@ -126,7 +126,7 @@ public final class ObjectAdapterFactory
         Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)_adapters.get(name);
         if(adapter != null)
         {
-            return adapter;
+	    throw new Ice.AlreadyRegisteredException("object adapter", name);
         }
 
         adapter = new Ice.ObjectAdapter(_instance, _communicator, name);
