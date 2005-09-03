@@ -110,8 +110,18 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     public ObjectAdapter
     createObjectAdapterWithEndpoints(String name, String endpoints)
     {
-	getProperties().setProperty(name + ".Endpoints", endpoints);
-	return createObjectAdapter(name);
+	final String propertyKey = new String(name + ".Endpoints");
+	final String originalValue = getProperties().getProperty(propertyKey);
+	try
+	{
+	    getProperties().setProperty(propertyKey, endpoints);
+	    return createObjectAdapter(name);
+	}
+	catch(AlreadyRegisteredException ex)
+	{
+	    getProperties().setProperty(propertyKey, originalValue);
+	    throw ex;
+	}
     }
 
     public synchronized void
