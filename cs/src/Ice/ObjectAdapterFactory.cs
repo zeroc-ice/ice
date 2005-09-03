@@ -113,7 +113,10 @@ namespace IceInternal
 		Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)_adapters[name];
 		if(adapter != null)
 		{
-		    return adapter;
+		    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
+		    ex.kindOfObject = "object adapter";
+		    ex.id = name;
+		    throw ex;
 		}
 		
 		adapter = new Ice.ObjectAdapterI(_instance, _communicator, name);

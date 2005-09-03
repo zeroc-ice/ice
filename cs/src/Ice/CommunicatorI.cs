@@ -112,8 +112,21 @@ namespace Ice
 	
 	public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints)
 	{
-	    getProperties().setProperty(name + ".Endpoints", endpoints);
-	    return createObjectAdapter(name);
+	    string propertyKey = name + ".Endpoints";
+	    string originalValue = getProperties().getProperty(propertyKey);
+	    try
+	    {
+		getProperties().setProperty(propertyKey, endpoints);
+		return createObjectAdapter(name);
+	    }
+	    catch(AlreadyRegisteredException ex)
+	    {
+		if(originalValue.Length != 0)
+		{
+		    getProperties().setProperty(propertyKey, originalValue);
+		}
+		throw ex;
+	    }
 	}
 	
 	public void addObjectFactory(ObjectFactory factory, string id)
