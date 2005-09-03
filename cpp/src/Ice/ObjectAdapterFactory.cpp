@@ -112,7 +112,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name)
     map<string, ObjectAdapterIPtr>::iterator p = _adapters.find(name);
     if(p != _adapters.end())
     {
-	return p->second;
+	throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter", name);
     }
 
     ObjectAdapterIPtr adapter = new ObjectAdapterI(_instance, _communicator, name);

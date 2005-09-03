@@ -207,8 +207,26 @@ Ice::CommunicatorI::createObjectAdapter(const string& name)
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
 {
-    getProperties()->setProperty(name + ".Endpoints", endpoints);
-    return createObjectAdapter(name);
+    //
+    // The createObjectAdapter() call may throw, so we keep track of
+    // endpoint properties that already exist so we can revert the
+    // properties to their original value.
+    //
+    const string propertyKey = name + ".Endpoints";
+    const string originalValue = getProperties()->getProperty(propertyKey);
+    try
+    {
+	getProperties()->setProperty(propertyKey, endpoints);
+	return createObjectAdapter(name);
+    }
+    catch(const AlreadyRegisteredException&)
+    {
+	if(originalValue.length() != 0)
+	{
+	    getProperties()->setProperty(propertyKey, originalValue);
+	}
+	throw;
+    }
 }
 
 void
