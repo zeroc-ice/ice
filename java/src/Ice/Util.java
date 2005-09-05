@@ -33,21 +33,27 @@ public final class Util
     public static Properties
     getDefaultProperties()
     {
-        if(_defaultProperties == null)
-        {
-            _defaultProperties = createProperties();
-        }
-        return _defaultProperties;
+	synchronized(_defaultPropertiesMutex)
+	{
+	    if(_defaultProperties == null)
+	    {
+		_defaultProperties = createProperties();
+	    }
+	    return _defaultProperties;
+	}
     }
 
     public static Properties
     getDefaultProperties(StringSeqHolder args)
     {
-        if(_defaultProperties == null)
-        {
-            _defaultProperties = createProperties(args);
-        }
-        return _defaultProperties;
+	synchronized(_defaultPropertiesMutex)
+	{
+	    if(_defaultProperties == null)
+	    {
+		_defaultProperties = createProperties(args);
+	    }
+	    return _defaultProperties;
+	}
     }
 
     public static Properties
@@ -299,5 +305,6 @@ public final class Util
     }
 
     private static Properties _defaultProperties = null;
+    private static java.lang.Object _defaultPropertiesMutex = new java.lang.Object();
     private static String _localAddress = null;
 }

@@ -30,20 +30,26 @@ namespace Ice
 	
 	public static Properties getDefaultProperties()
 	{
-	    if(_defaultProperties == null)
+	    lock(_defaultPropertiesMutex)
 	    {
-		_defaultProperties = createProperties();
+		if(_defaultProperties == null)
+		{
+		    _defaultProperties = createProperties();
+		}
+		return _defaultProperties;
 	    }
-	    return _defaultProperties;
 	}
 	
 	public static Properties getDefaultProperties(ref string[] args)
 	{
-	    if(_defaultProperties == null)
+	    lock(_defaultPropertiesMutex)
 	    {
-		_defaultProperties = createProperties(ref args);
+		if(_defaultProperties == null)
+		{
+		    _defaultProperties = createProperties(ref args);
+		}
+		return _defaultProperties;
 	    }
-	    return _defaultProperties;
 	}
 
 	public static Communicator initialize(ref string[] args)
@@ -373,6 +379,11 @@ namespace Ice
         }
 
 	private static Properties _defaultProperties = null;
+	internal static object _defaultPropertiesMutex;
+	static Util()
+	{
+	    _defaultPropertiesMutex = new object();
+	}
     }
 
 }

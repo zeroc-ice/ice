@@ -114,10 +114,12 @@ public:
     }
 };
 static DefaultPropertiesDestroyer defaultPropertiesDestroyer;
+static IceUtil::StaticMutex defaultPropMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 PropertiesPtr
 Ice::getDefaultProperties()
 {
+    IceUtil::StaticMutex::Lock sync(defaultPropMutex);
     if(!defaultProperties)
     {
 	defaultProperties = createProperties();
@@ -128,6 +130,7 @@ Ice::getDefaultProperties()
 PropertiesPtr
 Ice::getDefaultProperties(StringSeq& args)
 {
+    IceUtil::StaticMutex::Lock sync(defaultPropMutex);
     if(!defaultProperties)
     {
 	defaultProperties = createProperties(args);
