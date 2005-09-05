@@ -147,7 +147,7 @@
 
 #   include <windows.h>
 
-#ifdef _WIN32_WCE
+#if defined(_WIN32_WCE) && defined(_MSC_VER)
     //
     // return type for ... (ie; not a UDT or reference to a UDT.  Will
     // produce errors if applied using infix notation)

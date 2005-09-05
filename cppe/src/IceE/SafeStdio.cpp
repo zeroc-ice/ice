@@ -19,7 +19,7 @@ Ice::printfToString(const char* fmt, ...)
     va_list ap;
     va_start(ap, fmt);
     char buf[1024];
-#if defined(_WIN32) || defined(_WIN32_WCE)
+#if defined(_WIN32)
     _vsnprintf(buf, sizeof(buf)-1, fmt, ap);
 #else
     vsnprintf(buf, sizeof(buf)-1, fmt, ap);
