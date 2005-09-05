@@ -21,9 +21,9 @@
 
 #ifdef _WIN32
 #   include <direct.h> // For _getcwd
+#else
+#   include <sys/sysctl.h>
 #endif
-
-#include <sys/sysctl.h>
 
 using namespace std;
 using namespace IcePatch2;
