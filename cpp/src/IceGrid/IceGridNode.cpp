@@ -128,8 +128,8 @@ class CollocatedRegistry : public RegistryI
 {
 public:
 
-    CollocatedRegistry(const Ice::CommunicatorPtr&, const ActivatorPtr&);
-    virtual void shutdown();
+    CollocatedRegistry(const CommunicatorPtr&, const ActivatorPtr&);
+    virtual void shutdown(const Current&);
 
 private:
 
@@ -167,14 +167,14 @@ childHandler(int)
 }
 #endif
 
-CollocatedRegistry::CollocatedRegistry(const Ice::CommunicatorPtr& communicator, const ActivatorPtr& activator) :
+CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& communicator, const ActivatorPtr& activator) :
     RegistryI(communicator), 
     _activator(activator)
 {
 }
 
 void
-CollocatedRegistry::shutdown()
+CollocatedRegistry::shutdown(const Current&)
 {
     _activator->shutdown();
 }
@@ -471,10 +471,10 @@ NodeService::start(int argc, char* argv[])
 	    LocatorRegistryPrx locatorRegistry = communicator()->getDefaultLocator()->getRegistry();
 	    locatorRegistry->setServerProcessProxy(properties->getProperty("Ice.ServerId"), proxy);
 	}
-	catch(const Ice::ServerNotFoundException&)
+	catch(const ServerNotFoundException&)
 	{
 	}
-	catch(const Ice::LocalException&)
+	catch(const LocalException&)
 	{
 	}
     }
