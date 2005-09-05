@@ -21,7 +21,9 @@
 
 #ifdef _WIN32
 #   include <direct.h> // For _getcwd
-#else
+#endif
+
+#ifdef __APPLE__
 #   include <sys/sysctl.h>
 #endif
 
@@ -224,7 +226,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
 #elif defined(__APPLE__)
     static int ncpu[2] = { CTL_HW, HW_NCPU };
     size_t sz = sizeof(_nproc);
-    if(sysctl(ncpu, sizeof(ncpu), &_nproc, &sz, 0, 0) < 0)
+    if(sysctl(ncpu, 2, &_nproc, &sz, 0, 0) == -1)
     {
 	Ice::SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
