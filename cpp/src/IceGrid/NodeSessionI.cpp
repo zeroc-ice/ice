@@ -36,7 +36,7 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database, const string& name, cons
 }
 
 void
-NodeSessionI::keepAlive(const Ice::Current& current)
+NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current& current)
 {
     Lock sync(*this);
     if(_destroy)
@@ -45,6 +45,7 @@ NodeSessionI::keepAlive(const Ice::Current& current)
     }
 
     _timestamp = IceUtil::Time::now();
+    _load = load;
 }
 
 Ice::StringSeq
@@ -79,6 +80,12 @@ const NodePrx&
 NodeSessionI::getNode() const
 {
     return _node;
+}
+
+const LoadInfo&
+NodeSessionI::getLoadInfo() const
+{
+    return _load;
 }
 
 IceUtil::Time

@@ -282,6 +282,11 @@ exception NodeActiveException
 {
 };
 
+struct LoadInfo
+{
+    float load;
+};
+
 interface NodeSession extends Glacier2::Session
 {
     /**
@@ -289,7 +294,7 @@ interface NodeSession extends Glacier2::Session
      * The node call this method to keep the session alive.
      *
      **/
-    void keepAlive();
+    void keepAlive(LoadInfo load);
 
     /**
      *

@@ -142,10 +142,11 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
     _communicator(adapter->getCommunicator()),
     _internalAdapter(adapter),
     _envName(envName),
-    _nodeSessionTimeout(nodeSessionTimeout),
-    _traceLevels(traceLevels),
-    _objectCache(_communicator),
-    _serverCache(*this, _nodeCache, _adapterCache, _objectCache),
+    _traceLevels(traceLevels), 
+    _nodeCache(nodeSessionTimeout, _traceLevels),
+    _objectCache(_communicator, _traceLevels),
+    _adapterCache(_traceLevels),
+    _serverCache(_nodeCache, _adapterCache, _objectCache, _traceLevels),
     _connection(Freeze::createConnection(adapter->getCommunicator(), envName)),
     _descriptors(_connection, _descriptorDbName),
     _objects(_connection, _objectDbName),
@@ -870,12 +871,6 @@ const TraceLevelsPtr&
 Database::getTraceLevels() const
 {
     return _traceLevels;
-}
-
-int
-Database::getNodeSessionTimeout() const
-{
-    return _nodeSessionTimeout;
 }
 
 void

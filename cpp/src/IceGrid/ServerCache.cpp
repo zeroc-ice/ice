@@ -7,10 +7,12 @@
 //
 // **********************************************************************
 
+#include <Ice/LoggerUtil.h>
+
 #include <IceGrid/ServerCache.h>
-#include <IceGrid/Database.h>
-#include <IceGrid/TraceLevels.h>
-#include <IceGrid/Util.h>
+#include <IceGrid/NodeCache.h>
+#include <IceGrid/AdapterCache.h>
+#include <IceGrid/ObjectCache.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -53,8 +55,14 @@ namespace IceGrid
     };
 }
 
-ServerCache::ServerCache(Database& db, NodeCache& nodeCache, AdapterCache& adapterCache, ObjectCache& objectCache) :
-    _database(db), _nodeCache(nodeCache), _adapterCache(adapterCache), _objectCache(objectCache)
+ServerCache::ServerCache(NodeCache& nodeCache, 
+			 AdapterCache& adapterCache, 
+			 ObjectCache& objectCache,
+			 const TraceLevelsPtr& traceLevels) :
+    CacheByString<ServerEntry>(traceLevels),
+    _nodeCache(nodeCache), 
+    _adapterCache(adapterCache), 
+    _objectCache(objectCache)
 {
 }
 
@@ -111,10 +119,10 @@ ServerCache::clear(const string& id)
     CacheByString<ServerEntry>::removeImpl(id);
 }
 
-Database&
-ServerCache::getDatabase() const
+NodeCache&
+ServerCache::getNodeCache() const
 {
-    return _database;
+    return _nodeCache;
 }
 
 void
@@ -302,6 +310,17 @@ ServerEntry::getAdapter(const string& id)
     return adapter;
 }
 
+NodeEntryPtr
+ServerEntry::getNode() const
+{
+    Lock sync(*this);
+    if(!_loaded.get() && !_load.get())
+    {
+	throw ServerNotExistException();
+    }
+    return _proxy ? _cache.getNodeCache().get(_loaded->node) : _cache.getNodeCache().get(_load->node);
+}
+
 ServerPrx
 ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, int& deactivationTimeout, string& node)
 {
@@ -335,14 +354,14 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
     }
 
     ServerPrx proxy;
-    Database& db = _cache.getDatabase();
+    NodeCache& nodeCache = _cache.getNodeCache();
     try
     {
 	if(destroy)
 	{
 	    try
 	    {
-		db.getNode(destroyNode)->destroyServer(destroy->id);
+		nodeCache.get(destroyNode)->getProxy()->destroyServer(destroy->id);
 	    }
 	    catch(const NodeNotExistException&)
 	    {
@@ -364,7 +383,8 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
 	{
 	    try
 	    {
-		proxy = db.getNode(loadNode)->loadServer(load, adpts, activationTimeout, deactivationTimeout);
+		const NodePrx n = nodeCache.get(loadNode)->getProxy();
+		proxy = n->loadServer(load, adpts, activationTimeout, deactivationTimeout);
 		node = loadNode;
 		proxy = ServerPrx::uncheckedCast(proxy->ice_collocationOptimization(false));
 	    }
@@ -374,13 +394,13 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
 	    }
 	    catch(const DeploymentException& ex)
 	    {
-		Ice::Warning out(db.getTraceLevels()->logger);
+		Ice::Warning out(_cache.getTraceLevels()->logger);
 		out << "failed to load server on node `" << loadNode << "':\n" << ex;
 		throw NodeUnreachableException();
 	    }
 	    catch(const Ice::LocalException& ex)
 	    {
-		Ice::Warning out(db.getTraceLevels()->logger);
+		Ice::Warning out(_cache.getTraceLevels()->logger);
 		out << "unexpected exception while loading on node `" << loadNode << "':\n" << ex;
 		throw NodeUnreachableException();
 	    }
@@ -417,7 +437,7 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
 	//
 	if(proxy)
 	{
-	    int timeout = db.getNodeSessionTimeout() * 1000; // sec to ms
+	    int timeout = nodeCache.getSessionTimeout() * 1000; // sec to ms
 	    _proxy = ServerPrx::uncheckedCast(proxy->ice_timeout(timeout));
 	    _adapters.clear();
 	    for(StringAdapterPrxDict::const_iterator p = adpts.begin(); p != adpts.end(); ++p)

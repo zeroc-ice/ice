@@ -215,6 +215,11 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
 
     Ice::ObjectPrx registry = getCommunicator()->stringToProxy("IceGrid/Registry@IceGrid.Registry.Internal");
     _observer = RegistryPrx::uncheckedCast(registry)->getNodeObserver();
+
+#ifndef _WIN32
+    _nproc = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
+    assert(_nproc > 0);
+#endif
 }
 
 ServerPrx
@@ -507,7 +512,31 @@ NodeI::keepAlive()
     {
 	try
 	{
-	    session->keepAlive();
+	    LoadInfo info;
+
+#if defined(_WIN32)
+	    //
+	    // TODO: Use CPU utilization
+	    //
+	    info.load = 1.0f;
+#elif defined(__sun) || defined(__linux) || defined(__APPLE__)
+	    //
+	    // We use the load average divided by the number of
+	    // processors to figure out if the machine is busy or
+	    // not. The result is capped at 1.0f.
+	    //
+	    double loadAvg[1];
+	    getloadavg(loadAvg, 1);	    
+	    info.load = static_cast<float>(loadAvg[0]) / _nproc;
+	    if(info.load > 1.0f)
+	    {
+		info.load = 1.0f;
+	    }
+#else
+	    info.load = 1.0f;
+#endif
+
+	    session->keepAlive(info);
 	}
 	catch(const Ice::LocalException&)
 	{

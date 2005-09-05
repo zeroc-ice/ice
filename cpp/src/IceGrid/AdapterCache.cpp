@@ -10,9 +10,50 @@
 #include <IceGrid/AdapterCache.h>
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ServerCache.h>
+#include <IceGrid/NodeCache.h>
 
 using namespace std;
 using namespace IceGrid;
+
+namespace IceGrid
+{
+
+struct ServerLoadCI : binary_function<ServerEntryPtr&, ServerEntryPtr&, bool>
+{
+    bool operator()(const ServerEntryPtr& lhs, const ServerEntryPtr& rhs)
+    {
+	float lhsl = 1.0f;
+	try
+	{
+	    lhsl = lhs->getNode()->getLoadInfo().load;
+	}
+	catch(const ServerNotExistException&)
+	{
+	}
+	catch(const NodeUnreachableException&)
+	{
+	}
+
+	float rhsl = 1.0f;
+	try
+	{
+	    rhsl = rhs->getNode()->getLoadInfo().load;
+	}
+	catch(const ServerNotExistException&)
+	{
+	}
+	catch(const NodeUnreachableException&)
+	{
+	}
+	return lhsl < rhsl;
+    }
+};
+
+}
+
+AdapterCache::AdapterCache(const TraceLevelsPtr& traceLevels) : CacheByString<AdapterEntry>(traceLevels)
+{
+}
 
 AdapterEntryPtr
 AdapterCache::get(const string& id, bool create) const
@@ -96,6 +137,7 @@ vector<pair<string, AdapterPrx> >
 AdapterEntry::getProxies(int& endpointCount)
 {
     vector<ServerEntryPtr> servers;
+    bool adaptive = false;
     {
 	Lock sync(*this);	
 	if(_servers.empty())
@@ -120,12 +162,27 @@ AdapterEntry::getProxies(int& endpointCount)
 		}
 		_lastServer = (_lastServer + 1) % _servers.size();
 	    }
-	    else // if(RandomLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
+	    else if(AdaptiveLoadBalancingPtr::dynamicCast(_loadBalancing))
+	    {
+		servers = _servers;
+		adaptive = true;
+	    }
+	    else// if(RandomLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	    {
 		servers = _servers;
 		random_shuffle(servers.begin(), servers.end());
 	    }
 	}
+    }
+
+    if(adaptive)
+    {
+	//
+	// This must be done outside the synchronization block since
+	// the sort() will call and lock each server entry.
+	//
+	random_shuffle(servers.begin(), servers.end());
+	sort(servers.begin(), servers.end(), ServerLoadCI());
     }
 
     vector<pair<string, AdapterPrx> > adapters;
@@ -172,7 +229,7 @@ AdapterEntry::getProxy(const string& serverId) const
 	{
 	    for(ServerEntrySeq::const_iterator p = _servers.begin(); p != _servers.end(); ++p)
 	    {
-		if((*p)->getId() == serverId)
+		if((*p)->getId() == serverId) // getId() doesn't lock the server so it's safe.
 		{
 		    server = *p;
 		    break;

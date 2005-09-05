@@ -17,7 +17,8 @@
 using namespace std;
 using namespace IceGrid;
 
-ObjectCache::ObjectCache(const Ice::CommunicatorPtr& communicator) : 
+ObjectCache::ObjectCache(const Ice::CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels) : 
+    Cache<Ice::Identity, ObjectEntry>(traceLevels),
     _communicator(communicator)
 {
 }

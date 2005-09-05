@@ -88,7 +88,6 @@ public:
     ObjectInfoSeq getAllObjectInfos(const std::string& = std::string());
 
     const TraceLevelsPtr& getTraceLevels() const;
-    int getNodeSessionTimeout() const;
 
 private:
 
@@ -114,7 +113,6 @@ private:
     const Ice::CommunicatorPtr _communicator;
     const Ice::ObjectAdapterPtr _internalAdapter;
     const std::string _envName;
-    const int _nodeSessionTimeout;
     const TraceLevelsPtr _traceLevels;
 
     NodeCache _nodeCache;

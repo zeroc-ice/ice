@@ -422,6 +422,10 @@ class RoundRobinLoadBalancingPolicy extends LoadBalancingPolicy
 {
 };
 
+class AdaptiveLoadBalancing extends LoadBalancingPolicy
+{
+};
+
 /**
  *
  * A replicated object adapter descriptor.

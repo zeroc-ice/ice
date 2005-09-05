@@ -38,6 +38,7 @@ public:
 
     NodePrx getProxy() const;
     Ice::StringSeq getServers() const;
+    LoadInfo getLoadInfo() const;
 
     bool canRemove();
     
@@ -54,7 +55,15 @@ class NodeCache : public CacheByString<NodeEntry>
 {
 public:
 
+    NodeCache(int, const TraceLevelsPtr&);
+
     NodeEntryPtr get(const std::string&, bool = false) const;
+
+    int getSessionTimeout() { return _sessionTimeout; }
+
+private:
+    
+    const int _sessionTimeout;
 };
 
 };

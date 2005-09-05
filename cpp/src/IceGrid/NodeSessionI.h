@@ -25,11 +25,12 @@ public:
 
     NodeSessionI(const DatabasePtr&, const std::string&, const NodePrx&);
 
-    virtual void keepAlive(const Ice::Current&);
+    virtual void keepAlive(const LoadInfo&, const Ice::Current&);
     virtual Ice::StringSeq getServers(const Ice::Current&);
     virtual void destroy(const Ice::Current&);
     
     const NodePrx& getNode() const;
+    const LoadInfo& getLoadInfo() const;
     virtual IceUtil::Time timestamp() const;
 
 private:
@@ -39,6 +40,7 @@ private:
     const NodePrx _node;
     const IceUtil::Time _startTime;
     IceUtil::Time _timestamp;
+    LoadInfo _load;
     bool _destroy;
 };
 typedef IceUtil::Handle<NodeSessionI> NodeSessionIPtr;

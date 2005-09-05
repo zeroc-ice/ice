@@ -16,6 +16,11 @@
 using namespace std;
 using namespace IceGrid;
 
+NodeCache::NodeCache(int sessionTimeout, const TraceLevelsPtr& traceLevels) : 
+    CacheByString<NodeEntry>(traceLevels), _sessionTimeout(sessionTimeout)
+{
+}
+
 NodeEntryPtr
 NodeCache::get(const string& name, bool create) const
 {
@@ -112,6 +117,17 @@ NodeEntry::getServers() const
 	names.push_back(p->second->getId());
     }
     return names;
+}
+
+LoadInfo
+NodeEntry::getLoadInfo() const
+{
+    Lock sync(*this);
+    if(!_session)
+    {
+	throw NodeUnreachableException();
+    }
+    return _session->getLoadInfo();
 }
 
 bool

@@ -13,11 +13,11 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
 #include <IceGrid/Util.h>
+#include <IceGrid/TraceLevels.h>
 
 namespace IceGrid
 {
 
-class Database;
 
 template<typename Key, typename Value>
 class Cache : public IceUtil::Mutex
@@ -26,7 +26,7 @@ class Cache : public IceUtil::Mutex
 
 public:
 
-    Cache() : _entriesHint(_entries.end())
+    Cache(const TraceLevelsPtr& traceLevels) : _traceLevels(traceLevels), _entriesHint(_entries.end())
     {
     }
 
@@ -48,6 +48,8 @@ public:
 	Lock sync(*this);
 	return removeImpl(key);
     }
+
+    const TraceLevelsPtr& getTraceLevels() const { return _traceLevels; }
 
 protected:
 
@@ -126,6 +128,7 @@ protected:
 	return new Value(*this, key);
     }
 
+    const TraceLevelsPtr _traceLevels;
     std::map<Key, ValuePtr> _entries;
     typename std::map<Key, ValuePtr>::iterator _entriesHint;    
 };
@@ -136,6 +139,8 @@ class CacheByString : public Cache<std::string, T>
     typedef IceUtil::Handle<T> TPtr;
 
 public:
+
+    CacheByString(const TraceLevelsPtr& traceLevels) : Cache<std::string, T>(traceLevels) { }
 
     virtual std::vector<std::string>
     getAll(const std::string& expr)

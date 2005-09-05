@@ -15,16 +15,17 @@
 #include <IceGrid/Descriptor.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/Cache.h>
-#include <IceGrid/NodeCache.h>
 
 namespace IceGrid
 {
 
-class Database;
-
 class ServerCache;
 class AdapterCache;
 class ObjectCache;
+class NodeCache;
+
+class NodeEntry;
+typedef IceUtil::Handle<NodeEntry> NodeEntryPtr;
 
 class ServerEntry : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -41,6 +42,7 @@ public:
 
     ServerPrx getProxy(int&, int&, std::string&);
     AdapterPrx getAdapter(const std::string&);
+    NodeEntryPtr getNode() const;
 
     bool canRemove();
     bool isDestroyed();
@@ -69,7 +71,7 @@ class ServerCache : public CacheByString<ServerEntry>
 {
 public:
 
-    ServerCache(Database&, NodeCache&, AdapterCache&, ObjectCache&);
+    ServerCache(NodeCache&, AdapterCache&, ObjectCache&, const TraceLevelsPtr&);
 
     ServerEntryPtr add(const ServerInfo&);
     ServerEntryPtr get(const std::string&);
@@ -77,8 +79,8 @@ public:
 
     void clear(const std::string&);
     
-    Database& getDatabase() const;
-
+    NodeCache& getNodeCache() const;
+    
 private:
     
     void addCommunicator(const CommunicatorDescriptorPtr&, const ServerEntryPtr&);
@@ -87,7 +89,6 @@ private:
     friend struct AddCommunicator;
     friend struct RemoveCommunicator;
 
-    Database& _database;
     NodeCache& _nodeCache;
     AdapterCache& _adapterCache;
     ObjectCache& _objectCache;

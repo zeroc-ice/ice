@@ -73,6 +73,9 @@ private:
     NodeObserverPrx _observer;
     IceUtil::Mutex _sessionMutex;
     NodeSessionPrx _session;
+#ifndef _WIN32
+    int _nproc;
+#endif
 
     struct PatchDirectory
     {
