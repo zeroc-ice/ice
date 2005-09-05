@@ -170,7 +170,7 @@ basic_string<__wchar_t>
 IceUtil::stringToNativeWstring(const string& str)
 {
     assert(sizeof(__wchar_t) == SIZEOF_WCHAR_T);
-    return *reinterpret_cast<basic_string<__wchar_t>* >(&stringToWstring(str));
+    return reinterpret_cast<basic_string<__wchar_t>& >(stringToWstring(str));
 }
 
 #endif
