@@ -23,6 +23,8 @@
 #   include <direct.h> // For _getcwd
 #endif
 
+#include <sys/sysctl.h>
+
 using namespace std;
 using namespace IcePatch2;
 using namespace IceGrid;
@@ -217,7 +219,20 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _observer = RegistryPrx::uncheckedCast(registry)->getNodeObserver();
 
 #ifndef _WIN32
+#if defined(__linux)
     _nproc = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
+#elif defined(__APPLE__)
+    static int ncpu[2] = { CTL_HW, HW_NCPU };
+    size_t sz = sizeof(_nproc);
+    if(sysctl(ncpu, sizeof(ncpu), &_nproc, &sz, 0, 0) < 0)
+    {
+	Ice::SyscallException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
+    }
+#else
+    _nproc = 1;
+#endif
     assert(_nproc > 0);
 #endif
 }
