@@ -698,7 +698,7 @@ public class AllTests
 	    {
 		// Expected
 	    }
-
+	    first.deactivate();
 	    System.out.println("ok");
 	}
 	

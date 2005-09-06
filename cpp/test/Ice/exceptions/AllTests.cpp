@@ -573,6 +573,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	{
 	    // Expected
 	}
+	first->deactivate();
     }
     cout << "ok" << endl;
     

@@ -77,7 +77,7 @@ public class AllTests
 	    {
 		// Expected
 	    }
-
+	    first.deactivate();
 	    out.println("ok");
 	}
 	
