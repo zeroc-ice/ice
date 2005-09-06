@@ -412,8 +412,6 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
 	    }
 	    catch(const Ice::Exception& ex)
 	    {
-		Ice::Warning out(_cache.getTraceLevels()->logger);
-		out << "unexpected exception while loading on node `" << loadNode << "':\n" << ex;
 		ostringstream os;
 		os << ex;
 		throw NodeUnreachableException(loadNode, os.str());
