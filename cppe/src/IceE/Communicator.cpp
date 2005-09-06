@@ -38,23 +38,7 @@ IceInternal::decRef(::Ice::Communicator* p)
 void
 Ice::Communicator::destroy()
 {
-    InstancePtr instance;
-
-    {
-	RecMutex::Lock sync(*this);
-	
-	if(_destroyed) // Don't destroy twice.
-	{
-	    return;
-	}
-	_destroyed = true;
-	instance = _instance;
-    }
-
-    if(instance)
-    {
-	instance->destroy();
-    }
+    _instance->destroy();
 }
 
 #ifndef ICEE_PURE_CLIENT
@@ -62,67 +46,25 @@ Ice::Communicator::destroy()
 void
 Ice::Communicator::shutdown()
 { 
-    ObjectAdapterFactoryPtr objectAdapterFactory;
-
-    {
-	RecMutex::Lock sync(*this);
-	if(_destroyed)
-	{
-	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
-	}
-	objectAdapterFactory = _instance->objectAdapterFactory();
-    }
-
-    //
-    // We must call shutdown on the object adapter factory outside the
-    // synchronization, otherwise the communicator is blocked during
-    // shutdown.
-    //
-    objectAdapterFactory->shutdown();
+    _instance->objectAdapterFactory()->shutdown();
 }
 
 void
 Ice::Communicator::waitForShutdown()
 {
-    ObjectAdapterFactoryPtr objectAdapterFactory;
-
-    {
-	RecMutex::Lock sync(*this);
-	if(_destroyed)
-	{
-	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
-	}
-	objectAdapterFactory = _instance->objectAdapterFactory();
-    }
-
-    //
-    // We must call waitForShutdown on the object adapter factory 
-    // outside the synchronization, otherwise the communicator is
-    // blocked during shutdown.
-    //
-    objectAdapterFactory->waitForShutdown();
+    _instance->objectAdapterFactory()->waitForShutdown();
 }
 #endif
 
 ObjectPrx
 Ice::Communicator::stringToProxy(const string& s) const
 {
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
     return _instance->proxyFactory()->stringToProxy(s);
 }
 
 string
 Ice::Communicator::proxyToString(const ObjectPrx& proxy) const
 {
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
     return _instance->proxyFactory()->proxyToString(proxy);
 }
 
@@ -131,12 +73,6 @@ Ice::Communicator::proxyToString(const ObjectPrx& proxy) const
 ObjectAdapterPtr
 Ice::Communicator::createObjectAdapter(const string& name)
 {
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-    
     return _instance->objectAdapterFactory()->createObjectAdapter(name);
 }
 
@@ -165,53 +101,30 @@ Ice::Communicator::createObjectAdapterWithEndpoints(const string& name, const st
 void
 Ice::Communicator::setDefaultContext(const Context& ctx)
 {
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
     _instance->setDefaultContext(ctx);
 }
 
 Ice::Context
 Ice::Communicator::getDefaultContext() const
 {
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
     return _instance->getDefaultContext();
 }
 
 PropertiesPtr
 Ice::Communicator::getProperties() const
 {
-    //
-    // No check for destruction. It must be possible to access the
-    // properties after destruction.
-    //
     return _instance->properties();
 }
 
 LoggerPtr
 Ice::Communicator::getLogger() const
 {
-    //
-    // No check for destruction. It must be possible to access the
-    // logger after destruction.
-    //
     return _instance->logger();
 }
 
 void
 Ice::Communicator::setLogger(const LoggerPtr& logger)
 {
-    //
-    // No check for destruction. It must be possible to set the logger
-    // after destruction (needed by logger plugins for example to
-    // unset the logger).
-    //
     _instance->logger(logger);
 }
 
@@ -220,22 +133,12 @@ Ice::Communicator::setLogger(const LoggerPtr& logger)
 RouterPrx
 Ice::Communicator::getDefaultRouter() const
 {
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
     return _instance->referenceFactory()->getDefaultRouter();
 }
 
 void
 Ice::Communicator::setDefaultRouter(const RouterPrx& router)
 {
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
     _instance->referenceFactory()->setDefaultRouter(router);
 }
 
@@ -246,22 +149,12 @@ Ice::Communicator::setDefaultRouter(const RouterPrx& router)
 LocatorPrx
 Ice::Communicator::getDefaultLocator() const
 {
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
     return _instance->referenceFactory()->getDefaultLocator();
 }
 
 void
 Ice::Communicator::setDefaultLocator(const LocatorPrx& locator)
 {
-    RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
     _instance->referenceFactory()->setDefaultLocator(locator);
 }
 
@@ -277,13 +170,12 @@ Ice::Communicator::flushBatchRequests()
 
 #endif
 
-Ice::Communicator::Communicator(const PropertiesPtr& properties) :
-    _destroyed(false)
+Ice::Communicator::Communicator(const PropertiesPtr& properties) 
 {
     __setNoDelete(true);
     try
     {
-	_instance = new Instance(this, properties);
+	const_cast<InstancePtr&>(_instance) = new Instance(this, properties);
     }
     catch(...)
     {
@@ -295,8 +187,7 @@ Ice::Communicator::Communicator(const PropertiesPtr& properties) :
 
 Ice::Communicator::~Communicator()
 {
-    RecMutex::Lock sync(*this);
-    if(!_destroyed)
+    if(!_instance->destroyed())
     {
 	Warning out(_instance->logger());
 	out << "Ice::Communicator::destroy() has not been called";
@@ -325,7 +216,6 @@ Ice::Communicator::finishSetup(int& argc, char* argv[])
     }
     catch(...)
     {
-	_destroyed = true;
 	_instance->destroy();
 	throw;
     }

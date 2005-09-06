@@ -14,100 +14,32 @@ namespace Ice
     {
 	public void destroy()
 	{
-	    IceInternal.Instance instance = null;
-	    
-	    lock(this)
-	    {
-		if(!_destroyed) // Don't destroy twice.
-		{
-		    _destroyed = true;
-		    instance = _instance;
-		}
-	    }
-	    
-	    if(instance != null)
-	    {
-		instance.destroy();
-	    }
+	    _instance.destroy();
 	}
 
 	public void shutdown()
 	{
-	    IceInternal.ObjectAdapterFactory objectAdapterFactory;
-	    
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		objectAdapterFactory = _instance.objectAdapterFactory();
-	    }
-	    
-	    //
-	    // We must call shutdown on the object adapter factory
-	    // outside the synchronization, otherwise the communicator is
-	    // blocked while we wait for shutdown.
-	    //
-	    objectAdapterFactory.shutdown();
+	    _instance.objectAdapterFactory().shutdown();
 	}
 	
 	public void waitForShutdown()
 	{
-	    IceInternal.ObjectAdapterFactory objectAdapterFactory;
-	    
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		objectAdapterFactory = _instance.objectAdapterFactory();
-	    }
-	    
-	    //
-	    // We must call waitForShutdown on the object adapter factory
-	    // outside the synchronization, otherwise the communicator is
-	    // blocked while we wait for shutdown.
-	    //
-	    objectAdapterFactory.waitForShutdown();
+	    _instance.objectAdapterFactory().waitForShutdown();
 	}
 	
 	public Ice.ObjectPrx stringToProxy(string s)
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		return _instance.proxyFactory().stringToProxy(s);
-	    }
+	    return _instance.proxyFactory().stringToProxy(s);
 	}
 	
 	public string proxyToString(Ice.ObjectPrx proxy)
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		return _instance.proxyFactory().proxyToString(proxy);
-	    }
+	    return _instance.proxyFactory().proxyToString(proxy);
 	}
 
 	public ObjectAdapter createObjectAdapter(string name)
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		
-		return _instance.objectAdapterFactory().createObjectAdapter(name);
-	    }
+	    return _instance.objectAdapterFactory().createObjectAdapter(name);
 	}
 	
 	public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints)
@@ -131,162 +63,72 @@ namespace Ice
 	
 	public void addObjectFactory(ObjectFactory factory, string id)
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		_instance.servantFactoryManager().add(factory, id);
-	    }
+	    _instance.servantFactoryManager().add(factory, id);
 	}
 	
 	public void removeObjectFactory(string id)
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		_instance.servantFactoryManager().remove(id);
-	    }
+	    _instance.servantFactoryManager().remove(id);
 	}
 	
 	public ObjectFactory findObjectFactory(string id)
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		return _instance.servantFactoryManager().find(id);
-	    }
+	    return _instance.servantFactoryManager().find(id);
 	}
 	
 	public Properties getProperties()
 	{
-	    //
-	    // No check for destruction. It must be possible to access the
-	    // properties after destruction.
-	    //
 	    return _instance.properties();
 	}
 	
 	public Logger getLogger()
 	{
-	    //
-	    // No check for destruction. It must be possible to access the
-	    // logger after destruction.
-	    //
 	    return _instance.logger();
 	}
 
 	public void setLogger(Logger logger)
 	{
-	    //
-	    // No check for destruction. It must be possible to set the
-	    // logger after destruction (needed by logger plugins for
-	    // example to unset the logger).
-	    //
 	    _instance.logger(logger);
 	}
 	    
 	public Stats getStats()
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-			throw new CommunicatorDestroyedException();
-		}
-		return _instance.stats();
-	    }
+	    return _instance.stats();
 	}
 
 	public void setStats(Stats stats)
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		_instance.stats(stats);
-	    }
+	    _instance.stats(stats);
 	}
 
 	public RouterPrx getDefaultRouter()
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		return _instance.referenceFactory().getDefaultRouter();
-	    }
+	    return _instance.referenceFactory().getDefaultRouter();
 	}
 
 	public void setDefaultRouter(RouterPrx router)
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		_instance.referenceFactory().setDefaultRouter(router);
-	    }
+	    _instance.referenceFactory().setDefaultRouter(router);
 	}
 
 	public LocatorPrx getDefaultLocator()
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		return _instance.referenceFactory().getDefaultLocator();
-	    }
+	    return _instance.referenceFactory().getDefaultLocator();
 	}
 
 	public void setDefaultLocator(LocatorPrx locator)
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-		_instance.referenceFactory().setDefaultLocator(locator);
-	    }
+	    _instance.referenceFactory().setDefaultLocator(locator);
 	}
 	
 	public Ice.Context getDefaultContext()
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-	        return _instance.getDefaultContext();
-	    }
+	    return _instance.getDefaultContext();
 	}
 	
 	public void setDefaultContext(Ice.Context ctx)
 	{
-	    lock(this)
-	    {
-		if(_destroyed)
-		{
-		    throw new CommunicatorDestroyedException();
-		}
-	        _instance.setDefaultContext(ctx);
-	    }
+	    _instance.setDefaultContext(ctx);
 	}
 
 	public PluginManager getPluginManager()
@@ -301,7 +143,6 @@ namespace Ice
 	
 	internal CommunicatorI(Properties properties)
 	{
-	    _destroyed = false;
 	    _instance = new IceInternal.Instance(this, properties);
 	}
 	
@@ -310,7 +151,7 @@ namespace Ice
 	{
 	    lock(this)
 	    {
-		if(!_destroyed)
+		if(!_instance.destroyed())
 		{
 		    if(!System.Environment.HasShutdownStarted)
 		    {
@@ -337,7 +178,6 @@ namespace Ice
 	    }
 	    catch(System.Exception)
 	    {
-		_destroyed = true;
 		_instance.destroy();
 		throw;
 	    }
@@ -352,7 +192,6 @@ namespace Ice
 	}
 	
 	
-	private bool _destroyed;
 	private IceInternal.Instance _instance;
     }
 

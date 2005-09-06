@@ -21,7 +21,7 @@
 namespace Ice
 {
 
-class ICE_API Communicator : public ::IceUtil::RecMutex, public ::IceUtil::Shared
+class ICE_API Communicator : public ::IceUtil::Shared
 {
 public:
     
@@ -72,9 +72,8 @@ private:
     friend ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
-    bool _destroyed;
-    ::IceInternal::InstancePtr _instance;
-    ::Ice::Context _dfltContext;
+    const ::IceInternal::InstancePtr _instance;
+    const ::Ice::Context _dfltContext;
 };
 
 }
