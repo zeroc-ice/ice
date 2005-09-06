@@ -355,13 +355,6 @@ Ice::ForcedCloseConnectionException::ice_print(ostream& out) const
 }
 
 void
-Ice::AbortBatchRequestException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: batch request was aborted";
-}
-
-void
 Ice::IllegalMessageSizeException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

@@ -711,16 +711,6 @@ local exception IllegalMessageSizeException extends ProtocolException
 
 /**
  *
- * This exception is a specialization of [ProtocolException],
- * indicating that a batch request has been aborted.
- *
- **/
-local exception AbortBatchRequestException extends ProtocolException
-{
-};
-
-/**
- *
  * This exception is a specialization of [ProtocolException] that is
  * raised if there is a problem with compressing or uncompressing
  * data.
