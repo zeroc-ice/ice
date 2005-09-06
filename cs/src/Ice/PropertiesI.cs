@@ -215,8 +215,10 @@ namespace Ice
 	    {
 		try
 		{
-		    System.IO.StreamReader sr = new System.IO.StreamReader(file);
-		    parse(sr);
+		    using(System.IO.StreamReader sr = new System.IO.StreamReader(file))
+		    {
+			parse(sr);
+		    }
 		}
 		catch(System.IO.IOException ex)
 		{

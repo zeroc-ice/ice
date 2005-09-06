@@ -145,6 +145,13 @@ namespace IceInternal
 		}
 		catch(SocketException ex)
 		{
+		    try
+		    {
+			socket.Close();
+		    }
+		    catch(SocketException)
+		    {
+		    }
 		    throw new Ice.SocketException("Cannot set socket options", ex);
 		}
 	    }
@@ -175,6 +182,13 @@ namespace IceInternal
 	    }
 	    catch(SocketException ex)
 	    {
+	        try
+		{
+		    socket.Close();
+		}
+		catch(SocketException)
+		{
+		}
 		throw new Ice.SocketException(ex);
 	    }
 	}
