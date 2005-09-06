@@ -707,9 +707,9 @@ namespace IceInternal
 
 		doBind(listener, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 0));
 		doListen(listener, 1);
+		doConnect(sink, listener.LocalEndPoint, 1000);
 		try
 		{
-		    doConnect(sink, listener.LocalEndPoint, 1000);
 		    source = doAccept(listener, -1);
 		}
 		catch(Ice.SocketException ex)
