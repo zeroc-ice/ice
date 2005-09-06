@@ -32,8 +32,8 @@ public final class Instance
     logger()
     {
 	//
-	// Don't throw CommunicatorDestroyedException if destroyed. We
-	// need the logger also after destructions.
+	// No check for destruction. It must be possible to access the
+	// logger after destruction.
 	//
         return _logger;
     }
@@ -261,9 +261,14 @@ public final class Instance
 	return _serverACM;
     }
 
-    public void
+    public synchronized void
     setDefaultContext(java.util.Map ctx)
     {
+	if(_state == StateDestroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
 	if(ctx == null || ctx.isEmpty())
 	{
 	    _defaultContext = _emptyContext;
@@ -274,9 +279,14 @@ public final class Instance
 	}
     }
 
-    public java.util.Map
+    public synchronized java.util.Map
     getDefaultContext()
     {
+	if(_state == StateDestroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return new java.util.HashMap(_defaultContext);
     }
 

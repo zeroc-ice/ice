@@ -286,19 +286,35 @@ namespace IceInternal
 	
         public void setDefaultContext(Ice.Context ctx)
 	{
-	    if(ctx == null || ctx.Count == 0)
+	    lock(this)
 	    {
-	        _defaultContext = _emptyContext;
-	    }
-	    else
-	    {
-	        _defaultContext = (Ice.Context)ctx.Clone();
+		if(_state == StateDestroyed)
+		{
+		    throw new Ice.CommunicatorDestroyedException();
+		}
+	
+		if(ctx == null || ctx.Count == 0)
+		{
+		    _defaultContext = _emptyContext;
+		}
+		else
+		{
+		    _defaultContext = (Ice.Context)ctx.Clone();
+		}
 	    }
 	}
 
 	public Ice.Context getDefaultContext()
 	{
-	    return (Ice.Context)_defaultContext.Clone();
+	    lock(this)
+	    {
+		if(_state == StateDestroyed)
+		{
+		    throw new Ice.CommunicatorDestroyedException();
+		}
+		
+		return (Ice.Context)_defaultContext.Clone();
+	    }
 	}
 
 	public void flushBatchRequests()
