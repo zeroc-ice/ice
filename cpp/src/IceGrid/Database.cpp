@@ -459,9 +459,13 @@ Database::getNode(const string& name) const
 void 
 Database::removeNode(const string& name)
 {
-    _nodeCache.get(name)->setSession(0);
-
+    //
+    // We must notify the observer first (there's an assert in the
+    // observer to ensure that only nodes which are up are teared
+    // down).
+    //
     _nodeObserver->nodeDown(name);
+    _nodeCache.get(name)->setSession(0);
 }
 
 Ice::StringSeq 

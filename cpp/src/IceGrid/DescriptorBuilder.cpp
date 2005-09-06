@@ -99,6 +99,10 @@ ApplicationDescriptorBuilder::addReplicatedAdapter(const XmlAttributesHelper& at
     {
 	adapter.loadBalancing = new RoundRobinLoadBalancingPolicy();
     }
+    else if(policy == "adaptive")
+    {
+	adapter.loadBalancing = new AdaptiveLoadBalancingPolicy();
+    }
     else
     {
 	throw "invalid load balancing policy `" + policy + "'";

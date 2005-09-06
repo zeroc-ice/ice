@@ -2014,6 +2014,10 @@ ApplicationHelper::print(Output& out) const
 	    {
 		out << "round-robin";
 	    }
+	    else if(AdaptiveLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
+	    {
+		out << "adaptive";
+	    }
 	    else
 	    {
 		out << "<unknown load balancing policy>";

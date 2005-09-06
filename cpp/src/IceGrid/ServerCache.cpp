@@ -338,6 +338,10 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
 	if(!_load.get() && !_destroy.get())
 	{
 	    _load = _loaded; // Re-load the current server.
+	    _proxy = 0;
+	    _adapters.clear();
+	    _activationTimeout = 0;
+	    _deactivationTimeout = 0;
 	}
 
 	_synchronizing = true;
@@ -363,18 +367,22 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
 	    {
 		nodeCache.get(destroyNode)->getProxy()->destroyServer(destroy->id);
 	    }
-	    catch(const NodeNotExistException&)
+	    catch(const NodeNotExistException& ex)
 	    {
 		if(!load)
 		{
-		    throw NodeUnreachableException();
+		    ostringstream os;
+		    os << ex;
+		    throw NodeUnreachableException(destroyNode, os.str());
 		}
 	    }
-	    catch(const Ice::LocalException&)
+	    catch(const Ice::LocalException& ex)
 	    {
 		if(!load)
 		{
-		    throw NodeUnreachableException();
+		    ostringstream os;
+		    os << ex;
+		    throw NodeUnreachableException(destroyNode, os.str());
 		}
 	    }
 	}
@@ -388,21 +396,27 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
 		node = loadNode;
 		proxy = ServerPrx::uncheckedCast(proxy->ice_collocationOptimization(false));
 	    }
-	    catch(const NodeNotExistException&)
+	    catch(const NodeNotExistException& ex)
 	    {
-		throw NodeUnreachableException();
+		ostringstream os;
+		os << ex;
+		throw NodeUnreachableException(loadNode, os.str());
 	    }
 	    catch(const DeploymentException& ex)
 	    {
 		Ice::Warning out(_cache.getTraceLevels()->logger);
 		out << "failed to load server on node `" << loadNode << "':\n" << ex;
-		throw NodeUnreachableException();
+		ostringstream os;
+		os << ex;
+		throw NodeUnreachableException(loadNode, os.str());
 	    }
-	    catch(const Ice::LocalException& ex)
+	    catch(const Ice::Exception& ex)
 	    {
 		Ice::Warning out(_cache.getTraceLevels()->logger);
 		out << "unexpected exception while loading on node `" << loadNode << "':\n" << ex;
-		throw NodeUnreachableException();
+		ostringstream os;
+		os << ex;
+		throw NodeUnreachableException(loadNode, os.str());
 	    }
 	}
     }
@@ -424,8 +438,6 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
     {
 	Lock sync(*this);
 	_synchronizing = false;
-	_loaded = _load;
-	_load.reset(0);
 	_destroy.reset(0);
 
 	//
@@ -438,6 +450,8 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
 	if(proxy)
 	{
 	    int timeout = nodeCache.getSessionTimeout() * 1000; // sec to ms
+	    _loaded = _load;
+	    assert(_loaded.get());
 	    _proxy = ServerPrx::uncheckedCast(proxy->ice_timeout(timeout));
 	    _adapters.clear();
 	    for(StringAdapterPrxDict::const_iterator p = adpts.begin(); p != adpts.end(); ++p)

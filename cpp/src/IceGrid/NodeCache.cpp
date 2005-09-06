@@ -102,7 +102,7 @@ NodeEntry::getProxy() const
     Lock sync(*this);
     if(!_session)
     {
-	throw NodeUnreachableException();
+	throw NodeUnreachableException(_name, "node is not registered");
     }
     return _session->getNode();
 }
@@ -125,7 +125,7 @@ NodeEntry::getLoadInfo() const
     Lock sync(*this);
     if(!_session)
     {
-	throw NodeUnreachableException();
+	throw NodeUnreachableException(_name, "node is not registered");
     }
     return _session->getLoadInfo();
 }

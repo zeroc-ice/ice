@@ -422,7 +422,7 @@ class RoundRobinLoadBalancingPolicy extends LoadBalancingPolicy
 {
 };
 
-class AdaptiveLoadBalancing extends LoadBalancingPolicy
+class AdaptiveLoadBalancingPolicy extends LoadBalancingPolicy
 {
 };
 

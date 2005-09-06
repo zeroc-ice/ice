@@ -162,7 +162,7 @@ AdapterEntry::getProxies(int& endpointCount)
 		}
 		_lastServer = (_lastServer + 1) % _servers.size();
 	    }
-	    else if(AdaptiveLoadBalancingPtr::dynamicCast(_loadBalancing))
+	    else if(AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	    {
 		servers = _servers;
 		adaptive = true;
