@@ -96,12 +96,10 @@ IceInternal::Instance::properties() const
 LoggerPtr
 IceInternal::Instance::logger() const
 {
-
     //
     // No check for destruction. It must be possible to access the
     // logger after destruction.
     //
-
     IceUtil::RecMutex::Lock sync(*this);
     return _logger;
 }
@@ -114,7 +112,6 @@ IceInternal::Instance::logger(const LoggerPtr& logger)
     // after destruction (needed by logger plugins for example to
     // unset the logger).
     //
-
     IceUtil::RecMutex::Lock sync(*this);
     _logger = logger;
 }

@@ -20,7 +20,7 @@
 namespace Ice
 {
 
-class CommunicatorI : public Communicator, public ::IceUtil::RecMutex
+class CommunicatorI : public Communicator
 {
 public:
     
