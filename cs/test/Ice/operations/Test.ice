@@ -36,27 +36,27 @@ struct Structure
     AnotherStruct s;
 };
 
-["cs:collection"] sequence<byte> ByteS;
-["cs:collection"] sequence<bool> BoolS;
-["cs:collection"] sequence<short> ShortS;
-["cs:collection"] sequence<int> IntS;
-["cs:collection"] sequence<long> LongS;
-["cs:collection"] sequence<float> FloatS;
-["cs:collection"] sequence<double> DoubleS;
-["cs:collection"] sequence<string> StringS;
-["cs:collection"] sequence<MyEnum> MyEnumS;
-["cs:collection"] sequence<MyClass*> MyClassS;
+["clr:collection"] sequence<byte> ByteS;
+["clr:collection"] sequence<bool> BoolS;
+["clr:collection"] sequence<short> ShortS;
+["clr:collection"] sequence<int> IntS;
+["clr:collection"] sequence<long> LongS;
+["clr:collection"] sequence<float> FloatS;
+["clr:collection"] sequence<double> DoubleS;
+["clr:collection"] sequence<string> StringS;
+["clr:collection"] sequence<MyEnum> MyEnumS;
+["clr:collection"] sequence<MyClass*> MyClassS;
 
-["cs:collection"] sequence<ByteS> ByteSS;
-["cs:collection"] sequence<BoolS> BoolSS;
-["cs:collection"] sequence<ShortS> ShortSS;
-["cs:collection"] sequence<IntS> IntSS;
-["cs:collection"] sequence<LongS> LongSS;
-["cs:collection"] sequence<FloatS> FloatSS;
-["cs:collection"] sequence<DoubleS> DoubleSS;
-["cs:collection"] sequence<StringS> StringSS;
-["cs:collection"] sequence<MyEnumS> MyEnumSS;
-["cs:collection"] sequence<MyClassS> MyClassSS;
+["clr:collection"] sequence<ByteS> ByteSS;
+["clr:collection"] sequence<BoolS> BoolSS;
+["clr:collection"] sequence<ShortS> ShortSS;
+["clr:collection"] sequence<IntS> IntSS;
+["clr:collection"] sequence<LongS> LongSS;
+["clr:collection"] sequence<FloatS> FloatSS;
+["clr:collection"] sequence<DoubleS> DoubleSS;
+["clr:collection"] sequence<StringS> StringSS;
+["clr:collection"] sequence<MyEnumS> MyEnumSS;
+["clr:collection"] sequence<MyClassS> MyClassSS;
 
 sequence<StringSS> StringSSS;
 

@@ -1,6 +1,12 @@
 Changes since version 2.1.2
 ---------------------------
 
+- The "cs:" metadata prefix has been replaced by the "clr:" prefix,
+  so you now need to use "clr:collection" and "clr:class".
+  The "cs:" prefix is still recognized and acted upon; slice2cs
+  emits a warning for the old prefix. Two releases from now, the
+  warning will become a hard error and "cs:" will no longer work.
+
 - Fixed a bug in the slice2cs code generator: for sequences of Slice
   structs that used the class mapping, the generated code caused a
   run-time error.

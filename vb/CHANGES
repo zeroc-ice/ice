@@ -1,21 +1,27 @@
 Changes since version 2.1.2
 ---------------------------
 
-- Fixed a bug in the slice2vb code generator: for sequences of Slice
-  structs that used the class mapping, the generated code caused a
-  run-time error.
+- The "vb:" metadata prefix has been replaced by the "clr:" prefix,
+  so you now need to use "clr:collection" and "clr:class".
+  The "vb:" prefix is still recognized and acted upon; slice2vb
+  emits a warning for the old prefix. Two releases from now, the
+  warning will become a hard error and "vb:" will no longer work.
 
-- Fixed a bug in the slice2vb code generator: if an operation had a
-  parameter named ix or spx, incorrect code was generated in some
-  cases.
+- Fixed a bug in the slice2vb code generator: for sequences of
+  Slice structs that used the class mapping, the generated code
+  caused a run-time error.
 
-- Added ice_communicator() to proxies. This function returns the
-  communicator that was used to create the proxy.
+- Fixed a bug in the slice2vb code generator: if an operation
+  had a parameter named ix or spx, incorrect code was generated
+  in some cases.
 
-- Added ice_toString() to proxies. This function returns the
-  stringified proxy. This function can be more convenient to use than
-  communicator.stringToProxy() because you do not need the
-  communicator to stringify a proxy that way.
+- Added ice_communicator() to proxies. This function returns
+  the communicator that was used to create the proxy.
+
+- Added ice_toString() to proxies. This function returns
+  the stringified proxy. This function can be more convenient
+  to use than communicator.stringToProxy() because you do
+  not need the communicator to stringify a proxy that way.
 
 - Ice.ObjectImpl is now an abstract class that cannot be instantiated.
   This change should be transparent to application code.

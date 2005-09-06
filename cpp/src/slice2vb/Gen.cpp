@@ -375,7 +375,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
 		StructPtr st = StructPtr::dynamicCast(q->first);
-		bool patchStruct = st && !st->hasMetaData("vb:class") && st->classDataMembers().size() != 0;
+		bool patchStruct = st && !st->hasMetaData("clr:class") && st->classDataMembers().size() != 0;
 		if(patchStruct)
 		{
 		    _out << nl << fixId(q->second) << ".__patch()";
@@ -503,7 +503,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
 		StructPtr st = StructPtr::dynamicCast(q->first);
-		bool patchStruct = st && !st->hasMetaData("vb:class") && st->classDataMembers().size() != 0;
+		bool patchStruct = st && !st->hasMetaData("clr:class") && st->classDataMembers().size() != 0;
 		if(patchStruct)
 		{
 		    _out << nl << fixId(q->second) << ".__patch()";
@@ -1571,7 +1571,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     //
     // No need to generate anything if the sequence is mapped as an array.
     //
-    if(!p->hasMetaData("vb:collection"))
+    if(!p->hasMetaData("clr:collection"))
     {
         return;
     }
@@ -2314,7 +2314,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 	_out << nl << "End Class";
     }
 
-    if(p->hasMetaData("vb:class"))
+    if(p->hasMetaData("clr:class"))
     {
 	_out << sp << nl << "Public Class " << name << " Implements _System.ICloneable";
     }
@@ -2343,7 +2343,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out.zeroIndent();
     _out << sp << nl << "#End Region"; // Slice data members
 
-    bool isClass = p->hasMetaData("vb:class");
+    bool isClass = p->hasMetaData("clr:class");
 
     _out << sp << nl << "#Region \"Constructor";
     if(isClass)
@@ -2958,7 +2958,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out.dec();
     _out << nl << "Next";
     SequencePtr seq = SequencePtr::dynamicCast(p->valueType());
-    bool valueIsArray = seq && !seq->hasMetaData("vb:collection");
+    bool valueIsArray = seq && !seq->hasMetaData("clr:collection");
     if(valueIsArray)
     {
 	_out << nl << "Dim __vlhs As " << vs << "() = New " << toArrayAlloc(vs + "()", "Count - 1") << " {}";
@@ -3207,7 +3207,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     bool isClass = false;
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
     assert(cont);
-    if(StructPtr::dynamicCast(cont) && cont->hasMetaData("vb:class"))
+    if(StructPtr::dynamicCast(cont) && cont->hasMetaData("clr:class"))
     {
         baseTypes = DotNet::ICloneable;
     }
@@ -4317,7 +4317,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 		else
 		{
 		    StructPtr st = StructPtr::dynamicCast(q->first);
-		    bool patchStruct = st && !st->hasMetaData("vb:class") && st->classDataMembers().size() != 0;
+		    bool patchStruct = st && !st->hasMetaData("clr:class") && st->classDataMembers().size() != 0;
 		    if(patchStruct)
 		    {
 			_out << nl << param << ".__patch()";
@@ -4335,7 +4335,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    else
 	    {
 		StructPtr st = StructPtr::dynamicCast(ret);
-		bool patchStruct = st && !st->hasMetaData("vb:class") && st->classDataMembers().size() != 0;
+		bool patchStruct = st && !st->hasMetaData("clr:class") && st->classDataMembers().size() != 0;
 		if(patchStruct)
 		{
 		    _out << nl << "__ret.__patch()";
@@ -4800,7 +4800,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    else
 	    {
 		StructPtr st = StructPtr::dynamicCast(q->first);
-		bool patchStruct = st && !st->hasMetaData("vb:class") && st->classDataMembers().size() != 0;
+		bool patchStruct = st && !st->hasMetaData("clr:class") && st->classDataMembers().size() != 0;
 		if(patchStruct)
 		{
 		    _out << nl << param << ".__patch()";
@@ -4818,7 +4818,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    else
 	    {
 		StructPtr st = StructPtr::dynamicCast(ret);
-		bool patchStruct = st && !st->hasMetaData("vb:class") && st->classDataMembers().size() != 0;
+		bool patchStruct = st && !st->hasMetaData("clr:class") && st->classDataMembers().size() != 0;
 		if(patchStruct)
 		{
 		    _out << nl << "__ret.__patch()";
@@ -5423,7 +5423,7 @@ Slice::Gen::BaseImplVisitor::writeValue(const TypePtr& type)
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-        return st->hasMetaData("vb:class") ? "Nothing" : "New " + fixId(st->scoped()) + "()";
+        return st->hasMetaData("clr:class") ? "Nothing" : "New " + fixId(st->scoped()) + "()";
     }
 
     return "Nothing";

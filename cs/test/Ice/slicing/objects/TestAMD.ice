@@ -35,7 +35,7 @@ class D1 extends B
     B pd1;
 };
 
-["cs:collection"] sequence<B> BSeq;
+["clr:collection"] sequence<B> BSeq;
 
 class SS1
 {

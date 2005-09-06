@@ -173,7 +173,7 @@ Slice::VbGenerator::typeToString(const TypePtr& type)
     }
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq && !seq->hasMetaData("vb:collection"))
+    if(seq && !seq->hasMetaData("clr:collection"))
     {
 	return typeToString(seq->type()) + "()";
     }
@@ -213,7 +213,7 @@ Slice::VbGenerator::isValueType(const TypePtr& type)
    StructPtr s = StructPtr::dynamicCast(type);
    if(s)
    {
-       return !s->hasMetaData("vb:class");
+       return !s->hasMetaData("clr:class");
    }
    if(EnumPtr::dynamicCast(type))
    {
@@ -552,7 +552,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     TypePtr type = seq->type();
     string typeS = typeToString(type);
 
-    bool isArray = !seq->hasMetaData("vb:collection");
+    bool isArray = !seq->hasMetaData("clr:collection");
     string limitID = isArray ? "Length" : "Count";
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -815,7 +815,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out.inc();
 	    if(isArray)
 	    {
-		if(st->hasMetaData("vb:class"))
+		if(st->hasMetaData("clr:class"))
 		{
 		    out << nl << param << "(__ix) = New " << typeS;
 		}
@@ -1122,7 +1122,7 @@ Slice::VbGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
     StringList localMetaData = cont->getMetaData();
 
     StringList::const_iterator p;
-    static const string prefix = "vb:";
+    static const string prefix = "clr:";
 
     for(p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
     {
@@ -1140,6 +1140,31 @@ Slice::VbGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
     for(p = localMetaData.begin(); p != localMetaData.end(); ++p)
     {
 	string s = *p;
+	if(s.find("vb:") == 0) // TODO: remove this statement once "vb:" is a hard error.
+	{
+	    if(SequencePtr::dynamicCast(cont))
+	    {
+		if(s.substr(3) == "collection")
+		{
+		    cout << file << ":" << cont->line() << ": warning: `vb:' metadata prefix is deprecated; "
+			 << "use `clr:' instead" << endl;
+		    cont->addMetaData("clr:collection");
+		}
+	    }
+	    else if(StructPtr::dynamicCast(cont))
+	    {
+		if(s.substr(3) == "class")
+		{
+		    cout << file << ":" << cont->line() << ": warning: `vb:' metadata prefix is deprecated; "
+			 << "use `clr:' instead" << endl;
+		}
+		cont->addMetaData("clr:class");
+	    }
+	    else
+	    {
+		cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+	    }
+	} // End TODO
         if(_history.count(s) == 0)
         {
             if(s.find(prefix) == 0)

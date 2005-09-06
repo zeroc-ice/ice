@@ -386,6 +386,15 @@ Slice::Contained::setMetaData(const list<string>& metaData)
     _metaData = metaData;
 }
 
+//
+// TODO: remove this method once "cs:" and "vb:" prefix are hard errors.
+//
+void
+Slice::Contained::addMetaData(const string& s)
+{
+    _metaData.push_back(s);
+}
+
 bool
 Slice::Contained::operator<(const Contained& rhs) const
 {
