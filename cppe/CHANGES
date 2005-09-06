@@ -1,6 +1,10 @@
 Changes since version 1.0.0
 ---------------------------
 
+- Ice::Communicator::createObjectAdapter() throws
+  Ice::AlreadyRegisteredException if it is called with the name of an
+  object adapter that already exists.
+
 - GCC compiles now use -Os rather than -O3 for optimized builds.
 
 - EVC++ release builds now use "Optimize Size".

@@ -1,6 +1,10 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Ice.Communicator.createObjectAdapter() throws
+  Ice.AlreadyRegisteredException if it is called with the name of an
+  object adapter that already exists.
+
 - Fixed a bug in the slice2java code generator, which would cause
   incorrect code to be generated when metadata was used to modify
   dictionary types used as class or struct members.

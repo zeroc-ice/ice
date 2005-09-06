@@ -1,6 +1,10 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Ice.Communicator.createObjectAdapter() throws
+  Ice.AlreadyRegisteredException if it is called with the name of an
+  object adapter that already exists.
+
 - The "cs:" metadata prefix has been replaced by the "clr:" prefix,
   so you now need to use "clr:collection" and "clr:class".
   The "cs:" prefix is still recognized and acted upon; slice2cs
