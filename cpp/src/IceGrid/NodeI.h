@@ -13,6 +13,10 @@
 #include <IceGrid/Internal.h>
 #include <IceGrid/WaitQueue.h>
 
+#ifdef _WIN32
+#   include <pdh.h> // Performance data helper API
+#endif
+
 namespace IceGrid
 {
 
@@ -31,6 +35,7 @@ public:
 
     NodeI(const Ice::ObjectAdapterPtr&, const ActivatorPtr&, const WaitQueuePtr&, const TraceLevelsPtr&, 
 	  const NodePrx&, const std::string&);
+    virtual ~NodeI();
 
     virtual ServerPrx loadServer(const ServerDescriptorPtr&, StringAdapterPrxDict&, int&, int&, const Ice::Current&);
     virtual void destroyServer(const std::string&, const Ice::Current&);
@@ -73,7 +78,10 @@ private:
     NodeObserverPrx _observer;
     IceUtil::Mutex _sessionMutex;
     NodeSessionPrx _session;
-#ifndef _WIN32
+#ifdef _WIN32
+    HQUERY _query;
+    HCOUNTER _counter;
+#else
     int _nproc;
 #endif
 

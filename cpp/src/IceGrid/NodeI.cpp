@@ -220,7 +220,24 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     Ice::ObjectPrx registry = getCommunicator()->stringToProxy("IceGrid/Registry@IceGrid.Registry.Internal");
     _observer = RegistryPrx::uncheckedCast(registry)->getNodeObserver();
 
-#ifndef _WIN32
+#if defined(_WIN32)
+    PDH_STATUS err = PdhOpenQuery(0, 0, &_query);
+    if(err != ERROR_SUCCESS)
+    {
+        Ice::SyscallException ex(__FILE__, __LINE__);
+        ex.error = err;
+	Ice::Warning out(_traceLevels->logger);
+	out << "can't open performance data query:\n" << ex;
+    }
+    err = PdhAddCounter(_query, "\\Processor(_Total)\\% Processor Time", 0, &_counter);
+    if(err != ERROR_SUCCESS)
+    {
+        Ice::SyscallException ex(__FILE__, __LINE__);
+        ex.error = err;
+	Ice::Warning out(_traceLevels->logger);
+	out << "can't add performance counter:\n" << ex;
+    }
+#else
 #if defined(__linux)
     _nproc = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
 #elif defined(__APPLE__)
@@ -236,6 +253,13 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _nproc = 1;
 #endif
     assert(_nproc > 0);
+#endif
+}
+
+NodeI::~NodeI()
+{
+#ifdef _WIN32
+    PdhCloseQuery(_query);
 #endif
 }
 
@@ -535,7 +559,18 @@ NodeI::keepAlive()
 	    //
 	    // TODO: Use CPU utilization
 	    //
-	    info.load = 1.0f;
+	    if(PdhCollectQueryData(_query) != ERROR_SUCCESS)
+	    {
+		// TODO: WARNING
+		info.load = 1.0f;
+	    }
+	    else
+	    {
+		DWORD type;
+		PDH_FMT_COUNTERVALUE value;
+		PdhGetFormattedCounterValue(_counter, PDH_FMT_LONG, &type, &value);
+		info.load = static_cast<float>(value.longValue) / 100.0f;
+	    }
 #elif defined(__sun) || defined(__linux) || defined(__APPLE__)
 	    //
 	    // We use the load average divided by the number of

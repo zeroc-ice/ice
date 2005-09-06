@@ -14,6 +14,8 @@
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Util.h>
 
+#include <IcePatch2/Util.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
@@ -342,29 +344,36 @@ Activator::activate(const string& name,
 	return false;
     }
 
-    string path = exePath;
+    string path = IcePatch2::simplify(exePath);
     if(path.empty())
     {
 	return false;
     }
 
-    string pwd = pwdPath;
+    string pwd = IcePatch2::simplify(pwdPath);
 #ifdef _WIN32
-    if(path[0] != '.' && path[0] != '\\' && path[0] != '/' && !(path.size() > 1 && isalpha(path[0]) && path[1] == ':'))
+    if(!IcePatch2::isAbsolute(path))
     {
-	//
-	// Get the absolute pathname of the executable.
-	//
-	char absbuf[_MAX_PATH];
-	char* filePart;
-	string ext = path.size() <= 4 || path[path.size() - 4] != '.' ? ".exe" : "";
- 	if(SearchPath(NULL, path.c_str(), ext.c_str(), _MAX_PATH, absbuf, &filePart) == 0)
+	if(path.find('/') == string::npos)
 	{
-	    Error out(_traceLevels->logger);
-	    out << "cannot convert `" << path << "' into an absolute path";
-	    return false;
+	    //
+	    // Get the absolute pathname of the executable.
+	    //
+	    char absbuf[_MAX_PATH];
+	    char* filePart;
+	    string ext = path.size() <= 4 || path[path.size() - 4] != '.' ? ".exe" : "";
+	    if(SearchPath(NULL, path.c_str(), ext.c_str(), _MAX_PATH, absbuf, &filePart) == 0)
+	    {
+		Error out(_traceLevels->logger);
+		out << "cannot convert `" << path << "' into an absolute path";
+		return false;
+	    }
+	    path = absbuf;
 	}
-	path = absbuf;
+	else
+	{
+	    path = pwd + "/" + path;
+	}
     }
 
     //
@@ -380,37 +389,6 @@ Activator::activate(const string& name,
 	    return false;
 	}
 	pwd = absbuf;
-    }
-#else
-    //
-    // Normalize the pathname a bit.
-    //
-    {
-	string::size_type pos;
-	while((pos = path.find("//")) != string::npos)
-	{
-	    path.erase(pos, 1);
-	}
-	while((pos = path.find("/./")) != string::npos)
-	{
-	    path.erase(pos, 2);
-	}
-    }
-
-    //
-    // Normalize the path to the working directory.
-    //
-    if(!pwd.empty())
-    {
-	string::size_type pos;
-	while((pos = pwd.find("//")) != string::npos)
-	{
-	    pwd.erase(pos, 1);
-	}
-	while((pos = pwd.find("/./")) != string::npos)
-	{
-	    pwd.erase(pos, 2);
-	}
     }
 #endif
 
