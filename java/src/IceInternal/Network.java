@@ -651,9 +651,9 @@ public final class Network
         {
             java.nio.channels.SocketChannel sink = createTcpSocket();
             fds.sink = sink;
+            doConnect(sink, addr, -1);
             try
             {
-                doConnect(sink, addr, -1);
                 fds.source = doAccept(fd, -1);
             }
             catch(Ice.LocalException ex)
