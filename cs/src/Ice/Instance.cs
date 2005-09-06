@@ -14,6 +14,11 @@ namespace IceInternal
 
     public sealed class Instance
     {
+	public bool destroyed()
+	{
+	    return _state == StateDestroyed;
+	}
+
 	public Ice.Communicator communicator()
 	{
 	    return _communicator;
@@ -21,7 +26,12 @@ namespace IceInternal
 
 	public Ice.Properties properties()
 	{
+	    //
+	    // No check for destruction. It must be possible to access the
+	    // properties after destruction.
+	    //
 	    // No mutex lock, immutable.
+	    //
 	    return _properties;
 	}
 	
@@ -30,8 +40,8 @@ namespace IceInternal
 	    lock(this)
 	    {
 		//
-		// Don't throw CommunicatorDestroyedException if destroyed. We
-		// need the logger also after destructions.
+		// No check for destruction. It must be possible to access the
+		// logger after destruction.
 		//
 		return _logger;
 	    }
@@ -41,11 +51,11 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
-		{
-		    throw new Ice.CommunicatorDestroyedException();
-		}
-		
+		//
+		// No check for destruction. It must be possible to set the
+		// logger after destruction (needed by logger plugins for
+		// example to unset the logger).
+		//
 		_logger = logger;
 	    }
 	}
@@ -54,7 +64,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -67,7 +77,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 			throw new Ice.CommunicatorDestroyedException();
 		}
@@ -92,7 +102,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -105,7 +115,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -118,7 +128,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -131,7 +141,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -144,7 +154,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -157,7 +167,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -170,7 +180,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -183,7 +193,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -196,7 +206,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -214,7 +224,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -234,7 +244,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -247,7 +257,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -298,7 +308,7 @@ namespace IceInternal
 	    
 	    lock(this)
 	    {
-		if(_destroyed)
+		if(_state == StateDestroyed)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -317,7 +327,7 @@ namespace IceInternal
 	public Instance(Ice.Communicator communicator, Ice.Properties properties)
 	{
 	    _communicator = communicator;
-	    _destroyed = false;
+	    _state = StateActive;
 	    _properties = properties;
 	        
 	    try
@@ -462,7 +472,7 @@ namespace IceInternal
 	{
             lock(this)
 	    {
-		IceUtil.Assert.FinalizerAssert(_destroyed);
+		IceUtil.Assert.FinalizerAssert(_state == StateDestroyed);
 		IceUtil.Assert.FinalizerAssert(_referenceFactory == null);
 		IceUtil.Assert.FinalizerAssert(_proxyFactory == null);
 		IceUtil.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
@@ -554,9 +564,27 @@ namespace IceInternal
 	//
 	// Only for use by Ice.CommunicatorI
 	//
-	public void destroy()
+	public bool destroy()
 	{
-	    Debug.Assert(!_destroyed);
+	    lock(this)
+	    {
+		//
+		// If the _state is not StateActive then the instance is
+		// either being destroyed, or has already been destroyed.
+		//
+		if(_state != StateActive)
+		{
+		    return false;
+		}
+	    
+		//
+		// We cannot set state to StateDestroyed otherwise instance
+		// methods called during the destroy process (such as
+		// outgoingConnectionFactory() from
+		// ObjectAdapterI::deactivate() will cause an exception.
+		//
+		_state = StateDestroyInProgress;
+	    }
 	    
 	    if(_objectAdapterFactory != null)
 	    {
@@ -647,7 +675,7 @@ namespace IceInternal
 		    _pluginManager = null;
 		}
 		
-		_destroyed = true;
+		_state = StateDestroyed;
 	    }
 	    
 	    //
@@ -662,10 +690,15 @@ namespace IceInternal
 	    {
 		serverThreadPool.joinWithAllThreads();
 	    }
+
+	    return true;
 	}
 	
 	private Ice.Communicator _communicator;
-	private bool _destroyed;
+	private const int StateActive = 0;
+	private const int StateDestroyInProgress = 1;
+	private const int StateDestroyed = 2;
+	private int _state;
 	private Ice.Properties _properties; // Immutable, not reset by destroy().
 	private Ice.Logger _logger; // Not reset by destroy().
 	private Ice.Stats _stats; // Not reset by destroy().

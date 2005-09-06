@@ -74,15 +74,13 @@ private:
     friend ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
-    bool _destroyed;
-    ::IceInternal::InstancePtr _instance;
-    ::Ice::Context _dfltContext;
+    const ::IceInternal::InstancePtr _instance;
 
     //
     // We don't want the dynamic libraries to be unloaded until the
     // Communicator's destructor is invoked.
     //
-    ::IceInternal::DynamicLibraryListPtr _dynamicLibraryList;
+    const ::IceInternal::DynamicLibraryListPtr _dynamicLibraryList;
 };
 
 }

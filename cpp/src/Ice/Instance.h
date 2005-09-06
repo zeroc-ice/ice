@@ -48,6 +48,7 @@ class Instance : public IceUtil::Shared, public IceUtil::RecMutex
 {
 public:
 
+    bool destroyed() const;
     Ice::CommunicatorPtr communicator() const;
     Ice::PropertiesPtr properties() const;
     Ice::LoggerPtr logger() const;
@@ -83,11 +84,17 @@ private:
     Instance(const Ice::CommunicatorPtr&, const Ice::PropertiesPtr&);
     virtual ~Instance();
     void finishSetup(int&, char*[]);
-    void destroy();
+    bool destroy();
     friend class Ice::CommunicatorI;
 
     Ice::Communicator* _communicator; // Not a Ptr, to avoid having Instance and CommunicatorI point at each other.
-    bool _destroyed;
+    enum State
+    {
+	StateActive,
+	StateDestroyInProgress,
+	StateDestroyed
+    };
+    State _state;
     const Ice::PropertiesPtr _properties; // Immutable, not reset by destroy().
     Ice::LoggerPtr _logger; // Not reset by destroy().
     Ice::StatsPtr _stats; // Not reset by destroy().

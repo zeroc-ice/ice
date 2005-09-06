@@ -68,6 +68,13 @@ extern bool ICE_UTIL_API nullHandleAbort;
 void IceInternal::incRef(Instance* p) { p->__incRef(); }
 void IceInternal::decRef(Instance* p) { p->__decRef(); }
 
+bool
+IceInternal::Instance::destroyed() const
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    return _state == StateDestroyed;
+}
+
 CommunicatorPtr
 IceInternal::Instance::communicator() const
 {
@@ -77,32 +84,38 @@ IceInternal::Instance::communicator() const
 PropertiesPtr
 IceInternal::Instance::properties() const
 {
+    //
+    // No check for destruction. It must be possible to access the
+    // properties after destruction.
+    //
     // No mutex lock, immutable.
+    //
     return _properties;
 }
 
 LoggerPtr
 IceInternal::Instance::logger() const
 {
-    IceUtil::RecMutex::Lock sync(*this);
 
     //
-    // Don't throw CommunicatorDestroyedException if destroyed. We
-    // need the logger also after destructions.
+    // No check for destruction. It must be possible to access the
+    // logger after destruction.
     //
+
+    IceUtil::RecMutex::Lock sync(*this);
     return _logger;
 }
 
 void
 IceInternal::Instance::logger(const LoggerPtr& logger)
 {
+    //
+    // No check for destruction. It must be possible to set the logger
+    // after destruction (needed by logger plugins for example to
+    // unset the logger).
+    //
+
     IceUtil::RecMutex::Lock sync(*this);
-
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
     _logger = logger;
 }
 
@@ -111,7 +124,7 @@ IceInternal::Instance::stats() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -124,7 +137,7 @@ IceInternal::Instance::stats(const StatsPtr& stats)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -151,7 +164,7 @@ IceInternal::Instance::routerManager() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -164,7 +177,7 @@ IceInternal::Instance::locatorManager() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -177,7 +190,7 @@ IceInternal::Instance::referenceFactory() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -190,7 +203,7 @@ IceInternal::Instance::proxyFactory() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -203,7 +216,7 @@ IceInternal::Instance::outgoingConnectionFactory() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -216,7 +229,7 @@ IceInternal::Instance::connectionMonitor() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -229,7 +242,7 @@ IceInternal::Instance::servantFactoryManager() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -242,7 +255,7 @@ IceInternal::Instance::objectAdapterFactory() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -255,7 +268,7 @@ IceInternal::Instance::clientThreadPool()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -273,7 +286,7 @@ IceInternal::Instance::serverThreadPool()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -306,7 +319,7 @@ IceInternal::Instance::endpointFactoryManager() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -319,7 +332,7 @@ IceInternal::Instance::dynamicLibraryList() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -332,7 +345,7 @@ IceInternal::Instance::pluginManager() const
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    if(_destroyed)
+    if(_state == StateDestroyed)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
@@ -370,7 +383,7 @@ IceInternal::Instance::flushBatchRequests()
     {
 	IceUtil::RecMutex::Lock sync(*this);
 
-	if(_destroyed)
+	if(_state == StateDestroyed)
 	{
 	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
 	}
@@ -386,19 +399,33 @@ IceInternal::Instance::flushBatchRequests()
 void
 IceInternal::Instance::setDefaultContext(const Context& ctx)
 {
+    IceUtil::RecMutex::Lock sync(*this);
+    
+    if(_state == StateDestroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     _defaultContext = ctx;
 }
 
 const Context&
 IceInternal::Instance::getDefaultContext() const
 {
+    IceUtil::RecMutex::Lock sync(*this);
+    
+    if(_state == StateDestroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _defaultContext;
 }
 
 
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
     _communicator(communicator.get()),
-    _destroyed(false),
+    _state(StateActive),
     _properties(properties),
     _messageSizeMax(0),
     _clientACM(0),
@@ -406,7 +433,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     _threadPerConnection(false),
     _threadPerConnectionStackSize(0)
 {
-    
     try
     {
 	__setNoDelete(true);
@@ -641,7 +667,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 
 IceInternal::Instance::~Instance()
 {
-    assert(_destroyed);
+    assert(_state == StateDestroyed);
     assert(!_referenceFactory);
     assert(!_proxyFactory);
     assert(!_outgoingConnectionFactory);
@@ -761,10 +787,29 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     //
 }
 
-void
+bool
 IceInternal::Instance::destroy()
 {
-    assert(!_destroyed);
+    {
+	IceUtil::RecMutex::Lock sync(*this);
+	
+	//
+	// If the _state is not StateActive then the instance is
+	// either being destroyed, or has already been destroyed.
+	//
+	if(_state != StateActive)
+	{
+	    return false;
+	}
+
+	//
+	// We cannot set state to StateDestroyed otherwise instance
+	// methods called during the destroy process (such as
+	// outgoingConnectionFactory() from
+	// ObjectAdapterI::deactivate() will cause an exception.
+	//
+	_state = StateDestroyInProgress;
+    }
 
     if(_objectAdapterFactory)
     {
@@ -857,7 +902,7 @@ IceInternal::Instance::destroy()
 	// _dynamicLibraryList->destroy();
 	_dynamicLibraryList = 0;
 
-	_destroyed = true;
+	_state = StateDestroyed;
     }
 
     //
@@ -871,4 +916,5 @@ IceInternal::Instance::destroy()
     {
 	serverThreadPool->joinWithAllThreads();
     }
+    return true;
 }
