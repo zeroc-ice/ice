@@ -663,6 +663,23 @@ public class AllTests
     public static ThrowerPrx allTests(Ice.Communicator communicator, bool collocated)
     {
         {
+            Console.Write("testing object adapter registration exceptions... ");
+            Ice.ObjectAdapter first = communicator.createObjectAdapter("TestAdapter0");
+            try
+            {
+	        Ice.ObjectAdapter second = communicator.createObjectAdapter("TestAdapter0");
+		test(false);
+            }
+            catch(Ice.AlreadyRegisteredException)
+            {
+                // Expected.
+            }
+            first.deactivate();
+            
+            Console.WriteLine("ok");
+        }
+
+        {
             Console.Write("testing servant registration exceptions... ");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
             Ice.Object obj = new EmptyI();
