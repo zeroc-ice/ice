@@ -686,6 +686,22 @@ public class AllTests
     public static ThrowerPrx
     allTests(Ice.Communicator communicator, boolean collocated)
     {
+	{
+	    System.out.print("testing object adapter registration exceptions... ");
+	    Ice.ObjectAdapter first = communicator.createObjectAdapter("TestAdapter0");
+	    try
+	    {
+		Ice.ObjectAdapter second = communicator.createObjectAdapter("TestAdapter0");
+		test(false);
+	    }
+	    catch(Ice.AlreadyRegisteredException ex)
+	    {
+		// Expected
+	    }
+
+	    System.out.println("ok");
+	}
+	
         {
 	    System.out.print("testing servant registration exceptions... ");
 	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");

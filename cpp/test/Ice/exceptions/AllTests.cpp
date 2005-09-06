@@ -561,6 +561,21 @@ typedef IceUtil::Handle<AMI_WrongOperation_noSuchOperationI> AMI_WrongOperation_
 ThrowerPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
+    cout << "testing object adapter registration exceptions... " << flush;
+    {
+	Ice::ObjectAdapterPtr first = communicator->createObjectAdapter("TestAdapter0");
+	try
+	{
+	    Ice::ObjectAdapterPtr second = communicator->createObjectAdapter("TestAdapter0");
+	    test(false);
+	}
+	catch(const Ice::AlreadyRegisteredException&)
+	{
+	    // Expected
+	}
+    }
+    cout << "ok" << endl;
+    
     cout << "testing servant registration exceptions... " << flush;
     {
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");

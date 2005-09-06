@@ -63,6 +63,22 @@ private:
 ThrowerPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
+    tprintf("testing object adapter registration exceptions... ");
+    {
+	Ice::ObjectAdapterPtr first = communicator->createObjectAdapter("TestAdapter0");
+	try
+	{
+	    Ice::ObjectAdapterPtr second = communicator->createObjectAdapter("TestAdapter0");
+	    test(false);
+	}
+	catch(const Ice::AlreadyRegisteredException&)
+	{
+	    // Expected
+	}
+	first->deactivate();
+    }
+    tprintf("ok\n");
+
     tprintf("testing servant registration exceptions...");
     {
 	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
