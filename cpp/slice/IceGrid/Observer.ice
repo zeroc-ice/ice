@@ -63,26 +63,6 @@ interface RegistryObserver
     void applicationUpdated(int serial, ApplicationUpdateDescriptor desc);
 };
 
-/**
- *
- * This exception is raised if the cache is out of date.
- *
- **/
-exception CacheOutOfDate
-{
-};
-
-/**
- *
- * This exception is raised if an operation can't be performed because
- * the regitry lock wasn't acquired or is already acquired by a session.
- *
- **/
-exception AccessDenied
-{
-    string lockUserId;
-};
-
 interface Session extends Glacier2::Session
 {
     /**
@@ -126,80 +106,75 @@ interface Session extends Glacier2::Session
      * Acquires to registry exclusive lock to start updating the
      * registry applications.
      *
-     * @param cacheSerialSession The client cache serial number.
+     * @return The current serial.
      * 
-     * @throws CacheOutOfDate Raised if the cache serial number
-     * provided by the client is inferior to the current registry
-     * serial number. The client should refresh its cache and try
-     * again.
-     *
-     * @throws AccessDenied Raised if the exclusive lock can't be
+     * @throws AccessDeniedException Raised if the exclusive lock can't be
      * acquired. This might be because it's already acquired by
      * another session.
      *
      **/
-    void startUpdate(int cacheSerialSession)
-	throws CacheOutOfDate, AccessDenied;
+    int startUpdate()
+	throws AccessDeniedException;
     
     /**
      *
      * Add an application. This method must be called to update the
      * registry applications using the lock mechanism.
      *
-     * @throws AccessDenied Raised if the session doesn't hold the
+     * @throws AccessDeniedException Raised if the session doesn't hold the
      * exclusive lock.
      *
      **/
     void addApplication(ApplicationDescriptor application)
-	throws AccessDenied, DeploymentException;
+	throws AccessDeniedException, DeploymentException;
 
     /**
      *
      * Update an application. This method must be called to update the
      * registry applications using the lock mechanism.
      *
-     * @throws AccessDenied Raised if the session doesn't hold the
+     * @throws AccessDeniedException Raised if the session doesn't hold the
      * exclusive lock.
      *
      **/
     void syncApplication(ApplicationDescriptor app)
-	throws AccessDenied, DeploymentException, ApplicationNotExistException;
+	throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
      *
      * Update an application. This method must be called to update the
      * registry applications using the lock mechanism.
      *
-     * @throws AccessDenied Raised if the session doesn't hold the
+     * @throws AccessDeniedException Raised if the session doesn't hold the
      * exclusive lock.
      *
      **/
     void updateApplication(ApplicationUpdateDescriptor update)
-	throws AccessDenied, DeploymentException, ApplicationNotExistException;
+	throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
      *
      * Update an application. This method must be called to update the
      * registry applications using the lock mechanism.
      *
-     * @throws AccessDenied Raised if the session doesn't hold the
+     * @throws AccessDeniedException Raised if the session doesn't hold the
      * exclusive lock.
      *
      **/
     void removeApplication(string name)
-	throws AccessDenied, ApplicationNotExistException;
+	throws AccessDeniedException, ApplicationNotExistException;
 
     /**
      *
      * Finish to update the registry and release the exclusive
      * lock.
      *
-     * @throws AccessDenied Raised if the session doesn't hold the
+     * @throws AccessDeniedException Raised if the session doesn't hold the
      * exclusive lock.
      *
      **/
     void finishUpdate()
-	throws AccessDenied;
+	throws AccessDeniedException;
 };
 
 interface SessionManager extends Glacier2::SessionManager

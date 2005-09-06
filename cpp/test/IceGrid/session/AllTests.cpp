@@ -333,20 +333,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    session1->startUpdate(serial + 1);
-	    test(false);
+	    int s = session1->startUpdate();
+	    test(s != serial + 1);
 	}
-	catch(const CacheOutOfDate&)
-	{
-	}
-	catch(const AccessDenied&)
+	catch(const AccessDeniedException&)
 	{
 	    test(false);
 	}
 
 	try
 	{
-	    session1->startUpdate(serial);
+	    int s = session1->startUpdate();
+	    test(s == serial);
 	}
 	catch(const Ice::UserException&)
 	{
@@ -355,10 +353,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    session2->startUpdate(regObs2->serial);
+	    session2->startUpdate();
 	    test(false);
 	}
-	catch(const AccessDenied& ex)
+	catch(const AccessDeniedException& ex)
 	{
 	    test(ex.lockUserId == "Observer1");
 	}
@@ -374,7 +372,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    session2->startUpdate(regObs2->serial);
+	    int s = session2->startUpdate();
+	    test(s == regObs2->serial);
 	}
 	catch(const Ice::UserException&)
 	{
@@ -397,7 +396,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session1->addApplication(ApplicationDescriptor());
 	    test(false);
 	}
-	catch(const AccessDenied&)
+	catch(const AccessDeniedException&)
 	{
 	}
 
@@ -419,7 +418,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    session1->startUpdate(serial);
+	    int s = session1->startUpdate();
+	    test(s == serial);
 	    ApplicationUpdateDescriptor update;
 	    update.name = "Application";
 	    update.variables.insert(make_pair(string("test"), string("test")));
@@ -446,13 +446,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    session1->updateApplication(update);
 	    test(false);
 	}
-	catch(const AccessDenied&)
+	catch(const AccessDeniedException&)
 	{
 	}
 
 	try
 	{
-	    session2->startUpdate(serial);
+	    int s = session2->startUpdate();
+	    test(s == serial);
 	    session2->removeApplication("Application");
 	    session2->finishUpdate();
 	}
@@ -470,7 +471,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	
 	try
 	{
-	    session1->startUpdate(serial);
+	    int s = session1->startUpdate();
+	    test(s == serial);
 	}
 	catch(const Ice::UserException&)
 	{
@@ -480,7 +482,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	try
 	{
-	    session2->startUpdate(serial);
+	    int s = session2->startUpdate();
+	    test(s == serial);
 	    session2->finishUpdate();
 	}
 	catch(const Ice::UserException&)
@@ -527,7 +530,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    ApplicationDescriptor app;
 	    app.name = "Application";
-	    session1->startUpdate(serial);
+	    int s = session1->startUpdate();
+	    test(s == serial);
 	    session1->addApplication(app);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(regObs1->applications.find("Application") != regObs1->applications.end());
@@ -619,7 +623,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	
 	try
 	{
-	    session1->startUpdate(serial);
+	    int s = session1->startUpdate();
+	    test(s == serial);
 	    session1->addApplication(nodeApp);
 	    regObs1->waitForUpdate(__FILE__, __LINE__);
 	    test(regObs1->applications.find("NodeApp") != regObs1->applications.end());

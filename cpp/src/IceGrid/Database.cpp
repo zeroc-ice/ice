@@ -209,25 +209,22 @@ Database::checkSessionLock(ObserverSessionI* session)
 {
     if(_lock != 0 && session != _lock)
     {
-	AccessDenied ex;
+	AccessDeniedException ex;
 	ex.lockUserId = _lockUserId;
 	throw ex;
     }
 }
 
-void
-Database::lock(int serial, ObserverSessionI* session, const string& userId)
+int
+Database::lock(ObserverSessionI* session, const string& userId)
 {
     Lock sync(*this);
     checkSessionLock(session);
 
-    if(serial != _serial)
-    {
-	throw CacheOutOfDate();
-    }
-
     _lock = session;
     _lockUserId = userId;
+    
+    return _serial;
 }
 
 void

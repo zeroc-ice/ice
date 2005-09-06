@@ -49,7 +49,7 @@ public:
 
     void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&);
 
-    void lock(int serial, ObserverSessionI*, const std::string&);
+    int lock(ObserverSessionI*, const std::string&);
     void unlock(ObserverSessionI*);
 
     void addApplicationDescriptor(ObserverSessionI*, const ApplicationDescriptor&);

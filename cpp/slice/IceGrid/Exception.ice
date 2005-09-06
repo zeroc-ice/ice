@@ -124,6 +124,17 @@ exception PatchException
     string reason;
 };
 
+/**
+ *
+ * This exception is raised if an operation can't be performed because
+ * the regitry lock wasn't acquired or is already acquired by a session.
+ *
+ **/
+exception AccessDeniedException
+{
+    string lockUserId;
+};
+
 };
 
 #endif

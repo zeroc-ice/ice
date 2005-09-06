@@ -73,8 +73,8 @@ ObserverSessionI::setObserversByIdentity(const Ice::Identity& registryObserver,
     _nodeObserverTopic.subscribe(_nodeObserver);
 }
 
-void
-ObserverSessionI::startUpdate(int serial, const Ice::Current& current)
+int
+ObserverSessionI::startUpdate(const Ice::Current& current)
 {
     Lock sync(*this);
     if(_destroyed)
@@ -84,8 +84,9 @@ ObserverSessionI::startUpdate(int serial, const Ice::Current& current)
 	throw ex;
     }
 
-    _database->lock(serial, this, _userId);
+    int serial = _database->lock(this, _userId);
     _updating = true;
+    return serial;
 }
 
 void
@@ -101,7 +102,7 @@ ObserverSessionI::addApplication(const ApplicationDescriptor& app, const Ice::Cu
 
     if(!_updating)
     {
-	throw AccessDenied();
+	throw AccessDeniedException();
     }
     _database->addApplicationDescriptor(this, app);
 }
@@ -119,7 +120,7 @@ ObserverSessionI::updateApplication(const ApplicationUpdateDescriptor& update, c
 
     if(!_updating)
     {
-	throw AccessDenied();
+	throw AccessDeniedException();
     }
     _database->updateApplicationDescriptor(this, update);
 }
@@ -137,7 +138,7 @@ ObserverSessionI::syncApplication(const ApplicationDescriptor& app, const Ice::C
 
     if(!_updating)
     {
-	throw AccessDenied();
+	throw AccessDeniedException();
     }
     _database->syncApplicationDescriptor(this, app);
 }
@@ -155,7 +156,7 @@ ObserverSessionI::removeApplication(const string& name, const Ice::Current& curr
 
     if(!_updating)
     {
-	throw AccessDenied();
+	throw AccessDeniedException();
     }
     _database->removeApplicationDescriptor(this, name);
 }
@@ -173,7 +174,7 @@ ObserverSessionI::finishUpdate(const Ice::Current& current)
 
     if(!_updating)
     {
-	throw AccessDenied();
+	throw AccessDeniedException();
     }
     _database->unlock(this);
     _updating = false;

@@ -31,7 +31,7 @@ public:
     virtual void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&, const Ice::Current&);
     virtual void setObserversByIdentity(const Ice::Identity&, const Ice::Identity&, const Ice::Current&); 
 
-    virtual void startUpdate(int, const Ice::Current&);
+    virtual int startUpdate(const Ice::Current&);
     virtual void addApplication(const ApplicationDescriptor&, const Ice::Current&);
     virtual void syncApplication(const ApplicationDescriptor&, const Ice::Current&);
     virtual void updateApplication(const ApplicationUpdateDescriptor&, const Ice::Current&);
