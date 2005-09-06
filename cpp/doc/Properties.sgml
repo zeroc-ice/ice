@@ -319,6 +319,24 @@ C++ exceptions, and Java runtime exceptions. (default)</entry>
 </section>
 </section>
 
+<section><title>Ice.Warn.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Warn.Endpoints=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+a warning is printed if a stringified proxy contains an endpoint that
+cannot be parsed. (For example, on versions of Ice that do not support
+SSL, stringified proxies containing SSL endpoints cause this warning.)
+The default value is 1.
+</para>
+</section>
+</section>
+
 <section><title>Ice.Warn.AMICallback</title>
 <section><title>Synopsis</title>
 <synopsis>
