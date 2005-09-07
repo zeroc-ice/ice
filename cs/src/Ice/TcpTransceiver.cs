@@ -31,15 +31,21 @@ namespace IceInternal
 		_logger.trace(_traceLevels.networkCat, s);
 	    }
 	    
-	    Debug.Assert(_fd != null);
-	    try
+	    lock(this)
 	    {
-		_fd.Close();
-		_fd = null;
-	    }
-	    catch(System.IO.IOException ex)
-	    {
-	        throw new Ice.SocketException(ex);
+		Debug.Assert(_fd != null);
+		try
+		{
+		    _fd.Close();
+		}
+		catch(System.IO.IOException ex)
+		{
+		    throw new Ice.SocketException(ex);
+		}
+		finally
+		{
+		    _fd = null;
+		}
 	    }
 	}
 

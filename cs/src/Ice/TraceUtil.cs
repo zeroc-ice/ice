@@ -23,11 +23,13 @@ namespace IceInternal
 		int p = str.pos();
 		str.pos(0);
 		
-		System.IO.StringWriter s = new System.IO.StringWriter();
-		s.Write(heading);
-		printHeader(s, str);
-		
-		logger.trace(tl.protocolCat, s.ToString());
+		using(System.IO.StringWriter s = new System.IO.StringWriter())
+		{
+		    s.Write(heading);
+		    printHeader(s, str);
+		    
+		    logger.trace(tl.protocolCat, s.ToString());
+		}
 		str.pos(p);
 	    }
 	}
@@ -39,20 +41,22 @@ namespace IceInternal
 		int p = str.pos();
 		str.pos(0);
 		
-		System.IO.StringWriter s = new System.IO.StringWriter();
-		s.Write(heading);
-		printHeader(s, str);
-		
-		int requestId = str.readInt();
-		s.Write("\nrequest id = " + requestId);
-		if(requestId == 0)
+		using(System.IO.StringWriter s = new System.IO.StringWriter())
 		{
-		    s.Write(" (oneway)");
+		    s.Write(heading);
+		    printHeader(s, str);
+		    
+		    int requestId = str.readInt();
+		    s.Write("\nrequest id = " + requestId);
+		    if(requestId == 0)
+		    {
+			s.Write(" (oneway)");
+		    }
+		    
+		    printRequestHeader(s, str);
+		    
+		    logger.trace(tl.protocolCat, s.ToString());
 		}
-		
-		printRequestHeader(s, str);
-		
-		logger.trace(tl.protocolCat, s.ToString());
 		str.pos(p);
 	    }
 	}
@@ -64,21 +68,23 @@ namespace IceInternal
 		int p = str.pos();
 		str.pos(0);
 		
-		System.IO.StringWriter s = new System.IO.StringWriter();
-		s.Write(heading);
-		printHeader(s, str);
-		
-		int batchRequestNum = str.readInt();
-		s.Write("\nnumber of requests = " + batchRequestNum);
-		
-		for(int i = 0; i < batchRequestNum; ++i)
+		using(System.IO.StringWriter s = new System.IO.StringWriter())
 		{
-		    s.Write("\nrequest #" + i + ':');
-		    printRequestHeader(s, str);
-		    str.skipEncaps();
+		    s.Write(heading);
+		    printHeader(s, str);
+		    
+		    int batchRequestNum = str.readInt();
+		    s.Write("\nnumber of requests = " + batchRequestNum);
+		    
+		    for(int i = 0; i < batchRequestNum; ++i)
+		    {
+			s.Write("\nrequest #" + i + ':');
+			printRequestHeader(s, str);
+			str.skipEncaps();
+		    }
+		    
+		    logger.trace(tl.protocolCat, s.ToString());
 		}
-		
-		logger.trace(tl.protocolCat, s.ToString());
 		str.pos(p);
 	    }
 	}
@@ -90,110 +96,112 @@ namespace IceInternal
 		int p = str.pos();
 		str.pos(0);
 		
-		System.IO.StringWriter s = new System.IO.StringWriter();
-		s.Write(heading);
-		printHeader(s, str);
-		
-		int requestId = str.readInt();
-		s.Write("\nrequest id = " + requestId);
-		
-		byte status = str.readByte();
-		s.Write("\nreply status = " + (int)status + ' ');
-		
-		switch((DispatchStatus)status)
+		using(System.IO.StringWriter s = new System.IO.StringWriter())
 		{
-		    case DispatchStatus.DispatchOK: 
-		    {
-			s.Write("(ok)");
-			break;
-		    }
+		    s.Write(heading);
+		    printHeader(s, str);
 		    
-		    case DispatchStatus.DispatchUserException: 
-		    {
-			s.Write("(user exception)");
-			break;
-		    }
+		    int requestId = str.readInt();
+		    s.Write("\nrequest id = " + requestId);
 		    
-		    case DispatchStatus.DispatchObjectNotExist: 
-		    case DispatchStatus.DispatchFacetNotExist: 
-		    case DispatchStatus.DispatchOperationNotExist: 
+		    byte status = str.readByte();
+		    s.Write("\nreply status = " + (int)status + ' ');
+		    
+		    switch((DispatchStatus)status)
 		    {
-			switch((DispatchStatus)status)
+			case DispatchStatus.DispatchOK: 
 			{
-			    case DispatchStatus.DispatchObjectNotExist: 
-			    {
-				s.Write("(object not exist)");
-				break;
-			    }
-			    
-			    case DispatchStatus.DispatchFacetNotExist: 
-			    {
-				s.Write("(facet not exist)");
-				break;
-			    }
-			    
-			    case DispatchStatus.DispatchOperationNotExist: 
-			    {
-				s.Write("(operation not exist)");
-				break;
-			    }
-			    
-			    default: 
-			    {
-				Debug.Assert(false);
-				break;
-			    }
+			    s.Write("(ok)");
+			    break;
 			}
 			
-			printIdentityFacetOperation(s, str);
-			break;
-		    }
-		    
-		    case DispatchStatus.DispatchUnknownException: 
-		    case DispatchStatus.DispatchUnknownLocalException: 
-		    case DispatchStatus.DispatchUnknownUserException: 
-		    {
-			switch((DispatchStatus)status)
+			case DispatchStatus.DispatchUserException: 
 			{
-			    case DispatchStatus.DispatchUnknownException: 
-			    {
-				s.Write("(unknown exception)");
-				break;
-			    }
-			    
-			    case DispatchStatus.DispatchUnknownLocalException: 
-			    {
-				s.Write("(unknown local exception)");
-				break;
-			    }
-			    
-			    case DispatchStatus.DispatchUnknownUserException: 
-			    {
-				s.Write("(unknown user exception)");
-				break;
-			    }
-			    
-			    default: 
-			    {
-				Debug.Assert(false);
-				break;
-			    }
+			    s.Write("(user exception)");
+			    break;
 			}
 			
-			string unknown = str.readString();
-			s.Write("\nunknown = " + unknown);
-			break;
+			case DispatchStatus.DispatchObjectNotExist: 
+			case DispatchStatus.DispatchFacetNotExist: 
+			case DispatchStatus.DispatchOperationNotExist: 
+			{
+			    switch((DispatchStatus)status)
+			    {
+				case DispatchStatus.DispatchObjectNotExist: 
+				{
+				    s.Write("(object not exist)");
+				    break;
+				}
+				
+				case DispatchStatus.DispatchFacetNotExist: 
+				{
+				    s.Write("(facet not exist)");
+				    break;
+				}
+				
+				case DispatchStatus.DispatchOperationNotExist: 
+				{
+				    s.Write("(operation not exist)");
+				    break;
+				}
+				
+				default: 
+				{
+				    Debug.Assert(false);
+				    break;
+				}
+			    }
+			    
+			    printIdentityFacetOperation(s, str);
+			    break;
+			}
+			
+			case DispatchStatus.DispatchUnknownException: 
+			case DispatchStatus.DispatchUnknownLocalException: 
+			case DispatchStatus.DispatchUnknownUserException: 
+			{
+			    switch((DispatchStatus)status)
+			    {
+				case DispatchStatus.DispatchUnknownException: 
+				{
+				    s.Write("(unknown exception)");
+				    break;
+				}
+				
+				case DispatchStatus.DispatchUnknownLocalException: 
+				{
+				    s.Write("(unknown local exception)");
+				    break;
+				}
+				
+				case DispatchStatus.DispatchUnknownUserException: 
+				{
+				    s.Write("(unknown user exception)");
+				    break;
+				}
+				
+				default: 
+				{
+				    Debug.Assert(false);
+				    break;
+				}
+			    }
+			    
+			    string unknown = str.readString();
+			    s.Write("\nunknown = " + unknown);
+			    break;
+			}
+			
+			default: 
+			{
+			    s.Write("(unknown)");
+			    break;
+			}
+			
 		    }
 		    
-		    default: 
-		    {
-			s.Write("(unknown)");
-			break;
-		    }
-		    
+		    logger.trace(tl.protocolCat, s.ToString());
 		}
-		
-		logger.trace(tl.protocolCat, s.ToString());
 		str.pos(p);
 	    }
 	}
@@ -206,9 +214,11 @@ namespace IceInternal
 	    {
 		if(slicingIds.Add(typeId))
 		{
-		    System.IO.StringWriter s = new System.IO.StringWriter();
-		    s.Write("unknown " + kind + " type `" + typeId + "'");
-		    logger.trace(slicingCat, s.ToString());
+		    using(System.IO.StringWriter s = new System.IO.StringWriter())
+		    {
+			s.Write("unknown " + kind + " type `" + typeId + "'");
+			logger.trace(slicingCat, s.ToString());
+		    }
 		}
 	    }
 	}

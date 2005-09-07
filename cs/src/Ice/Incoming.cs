@@ -104,16 +104,18 @@ namespace IceInternal
 	{
 	    Debug.Assert(_os != null);
 	    
-	    StringWriter sw = new StringWriter();
-	    IceUtil.OutputBase output = new IceUtil.OutputBase(sw);
-	    output.setUseTab(false);
-	    output.print("dispatch exception:");
-	    output.print("\nidentity: " + Ice.Util.identityToString(_current.id));
-	    output.print("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
-	    output.print("\noperation: " + _current.operation);
-	    output.print("\n");
-	    output.print(ex.ToString());
-	    _os.instance().logger().warning(sw.ToString());
+	    using(StringWriter sw = new StringWriter())
+	    {
+		IceUtil.OutputBase output = new IceUtil.OutputBase(sw);
+		output.setUseTab(false);
+		output.print("dispatch exception:");
+		output.print("\nidentity: " + Ice.Util.identityToString(_current.id));
+		output.print("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
+		output.print("\noperation: " + _current.operation);
+		output.print("\n");
+		output.print(ex.ToString());
+		_os.instance().logger().warning(sw.ToString());
+	    }
 	}
 	
 	protected internal Ice.Current _current;

@@ -24,16 +24,20 @@ namespace IceInternal
 	
 	public virtual void close()
 	{
-	    if(_traceLevels.network >= 1)
+            Socket fd;
+	    lock(this)
 	    {
-		string s = "stopping to accept tcp connections at " + ToString();
-		_logger.trace(_traceLevels.networkCat, s);
+		fd = _fd;
+		_fd = null;
 	    }
-	    
-	    Socket fd = _fd;
 	    if(fd != null)
 	    {
-		_fd = null;
+		if(_traceLevels.network >= 1)
+		{
+		    string s = "stopping to accept tcp connections at " + ToString();
+		    _logger.trace(_traceLevels.networkCat, s);
+		}
+	    
 		try
 		{
 		    fd.Close();

@@ -364,6 +364,7 @@ namespace IceInternal
 				throw fe;	
 			    }
 			    outStream.AutoFlush = true;
+			    System.Console.Out.Close();
 			    System.Console.SetOut(outStream);
 			}
 			if(stdErr.Length > 0)
@@ -386,6 +387,7 @@ namespace IceInternal
 				    throw fe;	
 				}
 				errStream.AutoFlush = true;
+				System.Console.Error.Close();
 				System.Console.SetError(errStream);
 			    }
 			}
@@ -531,7 +533,10 @@ namespace IceInternal
 	    {
 		if(!_printProcessIdDone && _properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
 		{
-		    System.Console.WriteLine(Process.GetCurrentProcess().Id);
+		    using(Process p = Process.GetCurrentProcess())
+		    {
+			System.Console.WriteLine(p.Id);
+		    }
 		    _printProcessIdDone = true;
 		}
 	    }
