@@ -72,7 +72,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new DirectReference(_instance, ident, context, facet, mode, secure,
+    return new DirectReference(_instance, _communicator, ident, context, facet, mode, secure,
 			       endpoints, routerInfo, collocationOptimization);
 }
 
@@ -102,7 +102,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new IndirectReference(_instance, ident, context, facet, mode, secure,
+    return new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure,
 				 adapterId, routerInfo, locatorInfo, collocationOptimization);
 }
 
@@ -128,7 +128,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new FixedReference(_instance, ident, context, facet, mode, fixedConnections);
+    return new FixedReference(_instance, _communicator, ident, context, facet, mode, fixedConnections);
 }
 
 ReferencePtr
@@ -604,8 +604,9 @@ IceInternal::ReferenceFactory::getDefaultLocator() const
     return _defaultLocator;
 }
 
-IceInternal::ReferenceFactory::ReferenceFactory(const InstancePtr& instance) :
-    _instance(instance)
+IceInternal::ReferenceFactory::ReferenceFactory(const InstancePtr& instance, const CommunicatorPtr& communicator) :
+    _instance(instance),
+    _communicator(communicator)
 {
 }
 
