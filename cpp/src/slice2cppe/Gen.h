@@ -30,6 +30,7 @@ public:
 	const std::string&,
 	const std::string&,
 	const std::string&,
+	const std::vector<std::string>&,
 	const std::string&,
 	const std::vector<std::string>&,
 	const std::string&,
@@ -52,6 +53,7 @@ private:
     std::string _base;
     std::string _headerExtension;
     std::string _sourceExtension;
+    std::vector<std::string> _extraHeaders;
     std::string _include;
     std::vector<std::string> _includePaths;
     std::string _dllExport;

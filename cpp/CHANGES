@@ -1,6 +1,29 @@
 Changes since version 2.1.2
 ---------------------------
 
+- slice2cpp now provides the --add-header option. It adds a #include directive
+  for the specified header at the beginning of the generated source file. For
+  example:
+
+      slice2cpp --add-header=precompiled.h x.ice
+
+  adds "#include <precompiled.h> to the beginning of x.cpp (before any other
+  include directives).
+
+  You can specify an optional guard, for example:
+
+      slice2cpp --add-header=precompiled.h,__PRECOMPILED_H__ x.ice
+
+  With this, the beginning of x.cpp contains:
+
+      #ifndef __PRECOMPILED_H__
+      #define __PRECOMPILED_H__
+      #include <precompiled.h>
+      #endif
+
+  You can repeat the --add-header option to include several headers
+  in the generated source.
+
 - Ice::Communicator::createObjectAdapter() throws
   Ice::AlreadyRegisteredException if it is called with the name of an
   object adapter that already exists.
