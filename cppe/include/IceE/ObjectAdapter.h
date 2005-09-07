@@ -88,7 +88,7 @@ public:
 
 private:
 
-    ObjectAdapter(const IceInternal::InstancePtr&, const CommunicatorPtr&, const std::string&);
+    ObjectAdapter(const IceInternal::InstancePtr&, const CommunicatorPtr&, const std::string&, const std::string&);
     ~ObjectAdapter();
     friend class IceInternal::ObjectAdapterFactory;
     

@@ -44,24 +44,13 @@ public final class Communicator
     public ObjectAdapter
     createObjectAdapter(String name)
     {
-	return _instance.objectAdapterFactory().createObjectAdapter(name);
+	return createObjectAdapterWithEndpoints(name, getProperties().getProperty(name + ".Endpoints"));
     }
 
     public ObjectAdapter
     createObjectAdapterWithEndpoints(String name, String endpoints)
     {
-	final String propertyKey = new String(name + ".Endpoints");
-	final String originalValue = getProperties().getProperty(propertyKey);
-	try
-	{
-	    getProperties().setProperty(propertyKey, endpoints);
-	    return createObjectAdapter(name);
-	}
-	catch(AlreadyRegisteredException ex)
-	{
-	    getProperties().setProperty(propertyKey, originalValue);
-	    throw ex;
-	}
+	return _instance.objectAdapterFactory().createObjectAdapter(name, endpoints);
     }
 
     public Properties

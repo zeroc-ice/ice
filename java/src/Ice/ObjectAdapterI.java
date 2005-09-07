@@ -692,7 +692,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     // Only for use by IceInternal.ObjectAdapterFactory
     //
     public
-    ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, String name)
+    ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, String name, String endpointInfo)
     {
 	_deactivated = false;
         _instance = instance;
@@ -711,8 +711,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // The connection factory might change it, for example, to
 	    // fill in the real port number.
 	    //
-	    String endpts = _instance.properties().getProperty(name + ".Endpoints");
-	    java.util.ArrayList endpoints = parseEndpoints(endpts);
+	    java.util.ArrayList endpoints = parseEndpoints(endpointInfo);
 	    for(int i = 0; i < endpoints.size(); ++i)
 	    {
 		IceInternal.Endpoint endp = (IceInternal.Endpoint)endpoints.get(i);
@@ -723,7 +722,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // Parse published endpoints. These are used in proxies
 	    // instead of the connection factory endpoints.
 	    //
-	    endpts = _instance.properties().getProperty(name + ".PublishedEndpoints");
+	    String endpts = _instance.properties().getProperty(name + ".PublishedEndpoints");
 	    _publishedEndpoints = parseEndpoints(endpts);
 
 	    String router = _instance.properties().getProperty(name + ".Router");

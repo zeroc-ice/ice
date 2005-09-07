@@ -101,7 +101,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public Ice.ObjectAdapter createObjectAdapter(string name)
+	public Ice.ObjectAdapter createObjectAdapter(string name, string endpoints)
 	{
 	    lock(this)
 	    {
@@ -119,7 +119,7 @@ namespace IceInternal
 		    throw ex;
 		}
 		
-		adapter = new Ice.ObjectAdapterI(_instance, _communicator, name);
+		adapter = new Ice.ObjectAdapterI(_instance, _communicator, name, endpoints);
 		_adapters[name] = adapter;
 		return adapter;
 	    }

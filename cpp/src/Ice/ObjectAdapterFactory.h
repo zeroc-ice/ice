@@ -24,7 +24,7 @@ public:
     void shutdown();
     void waitForShutdown();
 
-    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&);
+    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::string&);
     ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrx&);
     void flushBatchRequests() const;
 

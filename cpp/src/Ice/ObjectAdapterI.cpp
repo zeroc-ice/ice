@@ -680,7 +680,7 @@ Ice::ObjectAdapterI::getServantManager() const
 }
 
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
-				    const string& name) :
+				    const string& name, const string& endpointInfo) :
     _deactivated(false),
     _instance(instance),
     _communicator(communicator),
@@ -699,8 +699,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	// The connection factory might change it, for example, to
 	// fill in the real port number.
 	//
-	string endpts = _instance->properties()->getProperty(name + ".Endpoints");
-	vector<EndpointPtr> endpoints = parseEndpoints(endpts);
+	vector<EndpointPtr> endpoints = parseEndpoints(endpointInfo);
 	for(vector<EndpointPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
 	{
 	    _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, *p, this));
@@ -710,7 +709,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	// Parse published endpoints. These are used in proxies
 	// instead of the connection factory endpoints.
 	//
-	endpts = _instance->properties()->getProperty(name + ".PublishedEndpoints");
+	string endpts = _instance->properties()->getProperty(name + ".PublishedEndpoints");
 	_publishedEndpoints = parseEndpoints(endpts);
 
 	string router = _instance->properties()->getProperty(_name + ".Router");

@@ -75,6 +75,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    // Expected
 	}
+
+	communicator->getProperties()->setProperty("TestAdapter0.Endpoints", "");
+	try
+	{
+	    Ice::ObjectAdapterPtr second = 
+		communicator->createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12346 -t 10000");
+	    test(false);
+	}
+	catch(const Ice::AlreadyRegisteredException&)
+	{
+	    // Expected.
+	}
+	//
+	// Properties must remain unaffected if an exception occurs.
+	//
+	test(communicator->getProperties()->getProperty("TestAdapter0.Endpoints") == "");
 	first->deactivate();
     }
     tprintf("ok\n");

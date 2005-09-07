@@ -134,24 +134,13 @@ Ice::CommunicatorI::proxyToString(const ObjectPrx& proxy) const
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {
-    return _instance->objectAdapterFactory()->createObjectAdapter(name);
+    return createObjectAdapterWithEndpoints(name, getProperties()->getProperty(name + ".Endpoints"));
 }
 
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
 {
-    const string propertyKey = name + ".Endpoints";
-    const string originalValue = getProperties()->getProperty(propertyKey);
-    try
-    {
-	getProperties()->setProperty(propertyKey, endpoints);
-	return createObjectAdapter(name);
-    }
-    catch(const AlreadyRegisteredException&)
-    {
-	getProperties()->setProperty(propertyKey, originalValue);
-	throw;
-    }
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, endpoints);
 }
 
 void

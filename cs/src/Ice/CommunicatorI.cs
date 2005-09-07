@@ -39,23 +39,12 @@ namespace Ice
 
 	public ObjectAdapter createObjectAdapter(string name)
 	{
-	    return _instance.objectAdapterFactory().createObjectAdapter(name);
+	    return createObjectAdapterWithEndpoints(name, getProperties().getProperty(name + ".Endpoints"));
 	}
 	
 	public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints)
 	{
-	    string propertyKey = name + ".Endpoints";
-	    string originalValue = getProperties().getProperty(propertyKey);
-	    try
-	    {
-		getProperties().setProperty(propertyKey, endpoints);
-		return createObjectAdapter(name);
-	    }
-	    catch(AlreadyRegisteredException ex)
-	    {
-		getProperties().setProperty(propertyKey, originalValue);
-		throw ex;
-	    }
+	    return _instance.objectAdapterFactory().createObjectAdapter(name, endpoints);
 	}
 	
 	public void addObjectFactory(ObjectFactory factory, string id)

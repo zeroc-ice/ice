@@ -626,7 +626,7 @@ public final class ObjectAdapter
     // Only for use by IceInternal.ObjectAdapterFactory
     //
     public
-    ObjectAdapter(IceInternal.Instance instance, Communicator communicator, String name)
+    ObjectAdapter(IceInternal.Instance instance, Communicator communicator, String name, String endpointInfo)
     {
 	_deactivated = false;
         _instance = instance;
@@ -645,8 +645,7 @@ public final class ObjectAdapter
 	    // The connection factory might change it, for example, to
 	    // fill in the real port number.
 	    //
-	    String endpts = _instance.properties().getProperty(name + ".Endpoints");
-	    java.util.Vector endpoints = parseEndpoints(endpts);
+	    java.util.Vector endpoints = parseEndpoints(endpointInfo);
 	    for(int i = 0; i < endpoints.size(); ++i)
 	    {
 		IceInternal.Endpoint endp = (IceInternal.Endpoint)endpoints.elementAt(i);
@@ -658,7 +657,7 @@ public final class ObjectAdapter
 	    // Parse published endpoints. These are used in proxies
 	    // instead of the connection factory endpoints.
 	    //
-	    endpts = _instance.properties().getProperty(name + ".PublishedEndpoints");
+	    String endpts = _instance.properties().getProperty(name + ".PublishedEndpoints");
 	    _publishedEndpoints = parseEndpoints(endpts);
 
 	    String router = _instance.properties().getProperty(name + ".Router");

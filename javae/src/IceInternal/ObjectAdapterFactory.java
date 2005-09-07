@@ -116,7 +116,7 @@ public final class ObjectAdapterFactory
     }
     
     public synchronized Ice.ObjectAdapter
-    createObjectAdapter(String name)
+    createObjectAdapter(String name, String endpoints)
     {
 	if(_instance == null)
 	{
@@ -129,7 +129,7 @@ public final class ObjectAdapterFactory
 	    throw new Ice.AlreadyRegisteredException("object adapter", name);
         }
 
-        adapter = new Ice.ObjectAdapter(_instance, _communicator, name);
+        adapter = new Ice.ObjectAdapter(_instance, _communicator, name, endpoints);
         _adapters.put(name, adapter);
         return adapter;
     }

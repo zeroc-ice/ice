@@ -717,7 +717,8 @@ namespace Ice
 	//
 	// Only for use by IceInternal.ObjectAdapterFactory
 	//
-	public ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, string name)
+	public ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, string name, 
+			      string endpointInfo)
 	{
 	    _deactivated = false;
 	    _instance = instance;
@@ -738,8 +739,7 @@ namespace Ice
 		// The connection factory might change it, for example, to
 		// fill in the real port number.
 		//
-		string endpts = _instance.properties().getProperty(name + ".Endpoints");
-		ArrayList endpoints = parseEndpoints(endpts);
+		ArrayList endpoints = parseEndpoints(endpointInfo);
 		for(int i = 0; i < endpoints.Count; ++i)
 		{
 		    IceInternal.Endpoint endp = (IceInternal.Endpoint)endpoints[i];
@@ -750,7 +750,7 @@ namespace Ice
 		// Parse published endpoints. These are used in proxies
 		// instead of the connection factory endpoints.
 		//
-		endpts = _instance.properties().getProperty(name + ".PublishedEndpoints");
+		string endpts = _instance.properties().getProperty(name + ".PublishedEndpoints");
 		_publishedEndpoints = parseEndpoints(endpts);
 
 		string router = _instance.properties().getProperty(name + ".Router");

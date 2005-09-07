@@ -698,6 +698,19 @@ public class AllTests
 	    {
 		// Expected
 	    }
+	    
+	    communicator.getProperties().setProperty("TestAdapter0.Endpoints", "");
+	    try
+	    {
+		Ice.ObjectAdapter second = 
+		    communicator.createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12346 -t 10000");
+		test(false);
+	    }
+	    catch(Ice.AlreadyRegisteredException ex)
+	    {
+		// Expected
+	    }
+	    test(communicator.getProperties().getProperty("TestAdapter0.Endpoints").equals(""));
 	    first.deactivate();
 	    System.out.println("ok");
 	}
