@@ -11,11 +11,6 @@ package IceInternal;
 
 public final class Instance
 {
-    public Ice.Communicator communicator()
-    {
-        return _communicator;
-    }
-
     public Ice.Properties
     properties()
     {
@@ -317,7 +312,6 @@ public final class Instance
     public
     Instance(Ice.Communicator communicator, Ice.Properties properties)
     {
-        _communicator = communicator;
         _state = StateActive;
         _properties = properties;
 
@@ -454,7 +448,7 @@ public final class Instance
 
             _locatorManager = new LocatorManager();
 
-            _referenceFactory = new ReferenceFactory(this);
+            _referenceFactory = new ReferenceFactory(this, communicator);
 
             _proxyFactory = new ProxyFactory(this);
 
@@ -722,8 +716,6 @@ public final class Instance
             }
         }
     }
-
-    private Ice.Communicator _communicator;
 
     private static final int StateActive = 0;
     private static final int StateDestroyInProgress = 1;

@@ -13,6 +13,7 @@ public class IndirectReference extends RoutableReference
 {
     public
     IndirectReference(Instance inst,
+		      Ice.Communicator com,
     		      Ice.Identity ident,
 		      java.util.Map ctx,
 		      String fs,
@@ -23,7 +24,7 @@ public class IndirectReference extends RoutableReference
 		      LocatorInfo locInfo,
 		      boolean collocationOpt)
     {
-    	super(inst, ident, ctx, fs, md, sec, rtrInfo, collocationOpt);
+    	super(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt);
         _adapterId = adptid;
 	_locatorInfo = locInfo;
     }

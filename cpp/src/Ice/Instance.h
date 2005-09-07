@@ -49,7 +49,6 @@ class Instance : public IceUtil::Shared, public IceUtil::RecMutex
 public:
 
     bool destroyed() const;
-    Ice::CommunicatorPtr communicator() const;
     Ice::PropertiesPtr properties() const;
     Ice::LoggerPtr logger() const;
     void logger(const Ice::LoggerPtr&);
@@ -87,7 +86,6 @@ private:
     bool destroy();
     friend class Ice::CommunicatorI;
 
-    Ice::Communicator* _communicator; // Not a Ptr, to avoid having Instance and CommunicatorI point at each other.
     enum State
     {
 	StateActive,

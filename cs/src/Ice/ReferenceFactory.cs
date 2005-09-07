@@ -41,7 +41,7 @@ namespace IceInternal
 		//
 		// Create new reference
 		//
-		DirectReference @ref = new DirectReference(_instance, ident, context, facet, mode, secure,
+		DirectReference @ref = new DirectReference(_instance, _communicator, ident, context, facet, mode, secure,
 							   endpoints, routerInfo, collocationOptimization);
 		return updateCache(@ref);
 	    }
@@ -72,7 +72,7 @@ namespace IceInternal
 		//
 		// Create new reference
 		//
-		IndirectReference @ref = new IndirectReference(_instance, ident, context, facet, mode, secure,
+		IndirectReference @ref = new IndirectReference(_instance,  _communicator, ident, context, facet, mode, secure,
 							       adapterId, routerInfo, locatorInfo,
 							       collocationOptimization);
 		return updateCache(@ref);
@@ -100,7 +100,7 @@ namespace IceInternal
 		//
 		// Create new reference
 		//
-		FixedReference @ref = new FixedReference(_instance, ident, context, facet, mode, fixedConnections);
+		FixedReference @ref = new FixedReference(_instance, _communicator, ident, context, facet, mode, fixedConnections);
 		return updateCache(@ref);
 	    }
 	}
@@ -594,9 +594,10 @@ namespace IceInternal
 	//
 	// Only for use by Instance
 	//
-	internal ReferenceFactory(Instance instance)
+	internal ReferenceFactory(Instance instance, Ice.Communicator communicator)
 	{
 	    _instance = instance;
+	    _communicator = communicator;
 	}
 
 	internal void destroy()
@@ -638,6 +639,7 @@ namespace IceInternal
 	}
 
 	private Instance _instance;
+	private Ice.Communicator _communicator;
 	private Ice.RouterPrx _defaultRouter;
 	private Ice.LocatorPrx _defaultLocator;
 	private Hashtable _references = new Hashtable();

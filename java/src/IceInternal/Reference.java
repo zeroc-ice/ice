@@ -64,7 +64,7 @@ public abstract class Reference implements Cloneable
 
     public final Ice.Communicator getCommunicator()
     {
-        return _instance.communicator();
+        return _communicator;
     }
 
     public abstract boolean getSecure();
@@ -387,6 +387,7 @@ public abstract class Reference implements Cloneable
     }
 
     private Instance _instance;
+    private Ice.Communicator _communicator;
 
     private int _mode;
     private Ice.Identity _identity;
@@ -400,6 +401,7 @@ public abstract class Reference implements Cloneable
 
     protected
     Reference(Instance inst,
+	      Ice.Communicator communicator,
               Ice.Identity ident,
 	      java.util.Map ctx,
               String fac,
@@ -413,6 +415,7 @@ public abstract class Reference implements Cloneable
         assert(fac != null);
 
         _instance = inst;
+        _communicator = communicator;
         _mode = md;
         _identity = ident;
 	_hasContext = ctx != null && !ctx.isEmpty();

@@ -104,12 +104,14 @@ public:
 
 protected:
 
-    Reference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode);
+    Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+	      const std::string&, Mode);
     Reference(const Reference&);
 
 private:
 
-    InstancePtr _instance;
+    const InstancePtr _instance;
+    const Ice::CommunicatorPtr _communicator;
 
     Mode _mode;
     Ice::Identity _identity;
@@ -126,7 +128,7 @@ class FixedReference : public Reference
 {
 public:
 
-    FixedReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode,
+    FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode,
 	           const std::vector<Ice::ConnectionIPtr>&);
 
     const std::vector<Ice::ConnectionIPtr>& getFixedConnections() const;
@@ -188,7 +190,7 @@ public:
 
 protected:
 
-    RoutableReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&,
+    RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&, const std::string&,
                       Mode, bool, const RouterInfoPtr&, bool);
     RoutableReference(const RoutableReference&);
 
@@ -204,7 +206,7 @@ class DirectReference : public RoutableReference
 {
 public:
 
-    DirectReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode, bool,
+    DirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode, bool,
 	            const std::vector<EndpointPtr>&, const RouterInfoPtr&, bool);
 
     virtual std::vector<EndpointPtr> getEndpoints() const;
@@ -240,7 +242,7 @@ class IndirectReference : public RoutableReference
 {
 public:
 
-    IndirectReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&,
+    IndirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&, const std::string&,
                       Mode, bool, const std::string&, const RouterInfoPtr&, const LocatorInfoPtr&, bool);
 
     const std::string& getAdapterId() const { return _adapterId; }

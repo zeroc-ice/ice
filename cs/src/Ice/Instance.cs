@@ -19,11 +19,6 @@ namespace IceInternal
 	    return _state == StateDestroyed;
 	}
 
-	public Ice.Communicator communicator()
-	{
-	    return _communicator;
-	}
-
 	public Ice.Properties properties()
 	{
 	    //
@@ -342,7 +337,6 @@ namespace IceInternal
 	//
 	public Instance(Ice.Communicator communicator, Ice.Properties properties)
 	{
-	    _communicator = communicator;
 	    _state = StateActive;
 	    _properties = properties;
 	        
@@ -456,7 +450,7 @@ namespace IceInternal
 		
 		_locatorManager = new LocatorManager();
 		
-		_referenceFactory = new ReferenceFactory(this);
+		_referenceFactory = new ReferenceFactory(this, communicator);
 		
 		_proxyFactory = new ProxyFactory(this);
 		
@@ -710,7 +704,6 @@ namespace IceInternal
 	    return true;
 	}
 	
-	private Ice.Communicator _communicator;
 	private const int StateActive = 0;
 	private const int StateDestroyInProgress = 1;
 	private const int StateDestroyed = 2;

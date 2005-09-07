@@ -34,7 +34,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        DirectReference ref = new DirectReference(_instance, ident, context, facet, mode, secure,
+        DirectReference ref = new DirectReference(_instance, _communicator, ident, context, facet, mode, secure,
 						  endpoints, routerInfo, collocationOptimization);
 	return updateCache(ref);
     }
@@ -63,7 +63,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        IndirectReference ref = new IndirectReference(_instance, ident, context, facet, mode, secure,
+        IndirectReference ref = new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure,
 						      adapterId, routerInfo, locatorInfo, collocationOptimization);
 	return updateCache(ref);
     }
@@ -88,7 +88,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        FixedReference ref = new FixedReference(_instance, ident, context, facet, mode, fixedConnections);
+        FixedReference ref = new FixedReference(_instance, _communicator, ident, context, facet, mode, fixedConnections);
 	return updateCache(ref);
     }
 
@@ -577,9 +577,10 @@ public final class ReferenceFactory
     //
     // Only for use by Instance
     //
-    ReferenceFactory(Instance instance)
+    ReferenceFactory(Instance instance, Ice.Communicator communicator)
     {
         _instance = instance;
+        _communicator = communicator;
     }
 
     synchronized void
@@ -591,6 +592,7 @@ public final class ReferenceFactory
         }
 
         _instance = null;
+        _communicator = null;
         _defaultRouter = null;
         _defaultLocator = null;
         _references.clear();
@@ -632,6 +634,7 @@ public final class ReferenceFactory
     }
 
     private Instance _instance;
+    private Ice.Communicator _communicator;
     private Ice.RouterPrx _defaultRouter;
     private Ice.LocatorPrx _defaultLocator;
     private java.util.WeakHashMap _references = new java.util.WeakHashMap();

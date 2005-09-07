@@ -64,7 +64,7 @@ namespace IceInternal
 
 	public Ice.Communicator getCommunicator()
 	{
-	    return _instance.communicator();
+	    return _communicator;
 	}
 	public abstract bool getSecure();
 	public abstract Endpoint[] getEndpoints();
@@ -361,7 +361,7 @@ namespace IceInternal
 	}
 
 	private Instance _instance;
-
+	private Ice.Communicator _communicator;
 	private Mode _mode;
 	private Ice.Identity _identity;
 	private bool _hasContext;
@@ -373,6 +373,7 @@ namespace IceInternal
 	protected bool _hashInitialized;
 
 	protected Reference(Instance inst,
+			    Ice.Communicator com,
 		  	    Ice.Identity ident,
 		  	    Ice.Context ctx,
 		  	    string fac,
@@ -386,6 +387,7 @@ namespace IceInternal
 	    Debug.Assert(fac != null);
 
 	    _instance = inst;
+	    _communicator = com;
 	    _mode = md;
 	    _identity = ident;
 	    _hasContext = ctx != null && ctx.Count > 0;
@@ -669,12 +671,13 @@ namespace IceInternal
     public class FixedReference : Reference
     {
 	public FixedReference(Instance inst,
+			      Ice.Communicator com,
 		       	      Ice.Identity ident,
 		       	      Ice.Context ctx,
 		       	      string fs,
 		       	      Reference.Mode md,
 		       	      Ice.ConnectionI[] fixedConns)
-	    : base(inst, ident, ctx, fs, md)
+	    : base(inst, com, ident, ctx, fs, md)
 	{
 	    _fixedConnections = fixedConns;
 	}
@@ -899,6 +902,7 @@ namespace IceInternal
         }
 
 	protected RoutableReference(Instance inst,
+				    Ice.Communicator com,
 			            Ice.Identity ident,
 			            Ice.Context ctx,
 			            string fac,
@@ -906,7 +910,7 @@ namespace IceInternal
 			            bool sec,
 			            RouterInfo rtrInfo,
 			            bool collocationOpt)
-	    : base(inst, ident, ctx, fac, md)
+	    : base(inst, com, ident, ctx, fac, md)
 	{
 	    _secure = sec;
 	    _routerInfo = rtrInfo;
@@ -921,6 +925,7 @@ namespace IceInternal
     public class DirectReference : RoutableReference
     {
 	public DirectReference(Instance inst,
+			       Ice.Communicator com,
 			       Ice.Identity ident,
 			       Ice.Context ctx,
 			       string fs,
@@ -929,7 +934,7 @@ namespace IceInternal
 			       Endpoint[] endpts,
 			       RouterInfo rtrInfo,
 			       bool collocationOpt)
-	    : base(inst, ident, ctx, fs, md, sec, rtrInfo, collocationOpt)
+	    : base(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt)
 	{
 	    _endpoints = endpts;
 	}
@@ -1106,6 +1111,7 @@ namespace IceInternal
     public class IndirectReference : RoutableReference
     {
 	public IndirectReference(Instance inst,
+				 Ice.Communicator com,
 			         Ice.Identity ident,
 			         Ice.Context ctx,
 			         string fs,
@@ -1115,7 +1121,7 @@ namespace IceInternal
 			         RouterInfo rtrInfo,
 			         LocatorInfo locInfo,
 			         bool collocationOpt)
-	    : base(inst, ident, ctx, fs, md, sec, rtrInfo, collocationOpt)
+	    : base(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt)
 	{
 	    _adapterId = adptid;
 	    _locatorInfo = locInfo;

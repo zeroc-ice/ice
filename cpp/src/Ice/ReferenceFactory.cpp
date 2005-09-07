@@ -621,6 +621,7 @@ IceInternal::ReferenceFactory::destroy()
     }
 
     _instance = 0;
+    _communicator = 0;
     _defaultRouter = 0;
     _defaultLocator = 0;
 }

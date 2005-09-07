@@ -75,12 +75,6 @@ IceInternal::Instance::destroyed() const
     return _state == StateDestroyed;
 }
 
-CommunicatorPtr
-IceInternal::Instance::communicator() const
-{
-    return _communicator;
-}
-
 PropertiesPtr
 IceInternal::Instance::properties() const
 {
@@ -421,7 +415,6 @@ IceInternal::Instance::getDefaultContext() const
 
 
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
-    _communicator(communicator.get()),
     _state(StateActive),
     _properties(properties),
     _messageSizeMax(0),
@@ -628,7 +621,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 
 	_locatorManager = new LocatorManager;
 
-	_referenceFactory = new ReferenceFactory(this);
+	_referenceFactory = new ReferenceFactory(this, communicator);
 
 	_proxyFactory = new ProxyFactory(this);
 

@@ -64,11 +64,12 @@ public:
 
 private:
 
-    ReferenceFactory(const InstancePtr&);
+    ReferenceFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
     void destroy();
     friend class Instance;
 
     InstancePtr _instance;
+    ::Ice::CommunicatorPtr _communicator;
     ::Ice::RouterPrx _defaultRouter;
     ::Ice::LocatorPrx _defaultLocator;
 };

@@ -13,6 +13,7 @@ public class DirectReference extends RoutableReference
 {
     public
     DirectReference(Instance inst,
+		    Ice.Communicator com,
     		    Ice.Identity ident,
 		    java.util.Map ctx,
 		    String fs,
@@ -22,7 +23,7 @@ public class DirectReference extends RoutableReference
 		    RouterInfo rtrInfo,
 		    boolean collocationOpt)
     {
-    	super(inst, ident, ctx, fs, md, sec, rtrInfo, collocationOpt);
+    	super(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt);
         _endpoints = endpts;
     }
 

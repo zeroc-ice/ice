@@ -117,6 +117,7 @@ public abstract class RoutableReference extends Reference
 
     protected
     RoutableReference(Instance inst,
+		      Ice.Communicator com,
 		      Ice.Identity ident,
 		      java.util.Map ctx,
 		      String fac,
@@ -125,7 +126,7 @@ public abstract class RoutableReference extends Reference
 		      RouterInfo rtrInfo,
 		      boolean collocationOpt)
     {
-        super(inst, ident, ctx, fac, md);
+        super(inst, com, ident, ctx, fac, md);
 	_secure = sec;
 	_routerInfo = rtrInfo;
 	_collocationOptimization = collocationOpt;

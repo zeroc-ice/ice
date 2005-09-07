@@ -54,7 +54,7 @@ IceInternal::Reference::defaultContext() const
 CommunicatorPtr
 IceInternal::Reference::getCommunicator() const
 {
-    return _instance->communicator();
+    return _communicator;
 }
 
 ReferencePtr
@@ -400,9 +400,10 @@ public:
     }
 };
 
-IceInternal::Reference::Reference(const InstancePtr& inst, const Identity& ident, const Context& ctx,
-                                  const string& fs, Mode md)
+IceInternal::Reference::Reference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
+				  const Context& ctx, const string& fs, Mode md)
     : _instance(inst),
+      _communicator(com),
       _mode(md),
       _identity(ident),
       _hasContext(!ctx.empty()),
@@ -414,6 +415,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const Identity& ident
 
 IceInternal::Reference::Reference(const Reference& r)
     : _instance(r._instance),
+      _communicator(r._communicator),
       _mode(r._mode),
       _identity(r._identity),
       _hasContext(r._hasContext),
@@ -426,10 +428,10 @@ IceInternal::Reference::Reference(const Reference& r)
 void IceInternal::incRef(IceInternal::FixedReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::FixedReference* p) { p->__decRef(); }
 
-IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const Identity& ident,
+IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
 					    const Context& ctx, const string& fs, Mode md,
 					    const vector<ConnectionIPtr>& fixedConns)
-    : Reference(inst, ident, ctx, fs, md),
+    : Reference(inst, com, ident, ctx, fs, md),
       _fixedConnections(fixedConns)
 {
 }
@@ -727,10 +729,10 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
     return false;
 }
 
-IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Identity& ident,
-						  const Context& ctx, const string& fs, Mode md,
+IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const CommunicatorPtr& com,
+						  const Identity& ident, const Context& ctx, const string& fs, Mode md,
 						  bool sec, const RouterInfoPtr& rtrInfo, bool collocationOpt)
-    : Reference(inst, ident, ctx, fs, md),
+    : Reference(inst, com, ident, ctx, fs, md),
       _secure(sec),
       _routerInfo(rtrInfo),
       _collocationOptimization(collocationOpt)
@@ -748,11 +750,11 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
 void IceInternal::incRef(IceInternal::DirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
 
-IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Identity& ident,
-					      const Context& ctx, const string& fs, Mode md,
+IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
+					      const Identity& ident, const Context& ctx, const string& fs, Mode md,
 					      bool sec, const vector<EndpointPtr>& endpts,
 					      const RouterInfoPtr& rtrInfo, bool collocationOpt)
-    : RoutableReference(inst, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
+    : RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
       _endpoints(endpts)
 {
 }
@@ -969,11 +971,11 @@ IceInternal::DirectReference::DirectReference(const DirectReference& r)
 void IceInternal::incRef(IceInternal::IndirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
 
-IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
-                                                  const Context& ctx, const string& fs, Mode md,
+IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
+						  const Identity& ident, const Context& ctx, const string& fs, Mode md,
 						  bool sec, const string& adptid, const RouterInfoPtr& rtrInfo,
 						  const LocatorInfoPtr& locInfo, bool collocationOpt)
-    : RoutableReference(inst, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
+    : RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
       _adapterId(adptid),
       _locatorInfo(locInfo)
 {
