@@ -667,7 +667,7 @@ public class AllTests
             Ice.ObjectAdapter first = communicator.createObjectAdapter("TestAdapter0");
             try
             {
-	        Ice.ObjectAdapter second = communicator.createObjectAdapter("TestAdapter0");
+	        communicator.createObjectAdapter("TestAdapter0");
 		test(false);
             }
             catch(Ice.AlreadyRegisteredException)
