@@ -59,10 +59,7 @@ public final class Communicator
 	}
 	catch(AlreadyRegisteredException ex)
 	{
-	    if(originalValue.length() != 0)
-	    {
-		getProperties().setProperty(propertyKey, originalValue);
-	    }
+	    getProperties().setProperty(propertyKey, originalValue);
 	    throw ex;
 	}
     }

@@ -59,11 +59,7 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
 	}
 	catch(AlreadyRegisteredException ex)
 	{
-	    // XXX: Why this?
-	    if(originalValue.length() != 0)
-	    {
-		getProperties().setProperty(propertyKey, originalValue);
-	    }
+	    getProperties().setProperty(propertyKey, originalValue);
 	    throw ex;
 	}
     }

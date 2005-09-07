@@ -53,10 +53,7 @@ namespace Ice
 	    }
 	    catch(AlreadyRegisteredException ex)
 	    {
-		if(originalValue.Length != 0)
-		{
-		    getProperties().setProperty(propertyKey, originalValue);
-		}
+		getProperties().setProperty(propertyKey, originalValue);
 		throw ex;
 	    }
 	}

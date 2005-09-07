@@ -149,10 +149,7 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
     }
     catch(const AlreadyRegisteredException&)
     {
-	if(originalValue.length() != 0)
-	{
-	    getProperties()->setProperty(propertyKey, originalValue);
-	}
+	getProperties()->setProperty(propertyKey, originalValue);
 	throw;
     }
 }
