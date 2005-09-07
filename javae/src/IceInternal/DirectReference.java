@@ -13,6 +13,7 @@ public class DirectReference extends RoutableReference
 {
     public
     DirectReference(Instance inst,
+		    Ice.Communicator com,
     		    Ice.Identity ident,
 		    java.util.Hashtable ctx,
 		    String fs,
@@ -21,7 +22,7 @@ public class DirectReference extends RoutableReference
 		    Endpoint[] endpts,
 		    RouterInfo rtrInfo)
     {
-    	super(inst, ident, ctx, fs, md, sec, rtrInfo);
+    	super(inst, com, ident, ctx, fs, md, sec, rtrInfo);
         _endpoints = endpts;
     }
 

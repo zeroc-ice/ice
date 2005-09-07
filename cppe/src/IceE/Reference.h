@@ -108,12 +108,14 @@ public:
 
 protected:
 
-    Reference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode, bool);
+    Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+	      const std::string&, Mode, bool);
     Reference(const Reference&);
 
 private:
 
-    InstancePtr _instance;
+    const InstancePtr _instance;
+    const Ice::CommunicatorPtr _communicator;
 
     Mode _mode;
     bool _secure;
@@ -131,8 +133,8 @@ class FixedReference : public Reference
 {
 public:
 
-    FixedReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode,
-	           const std::vector<Ice::ConnectionPtr>&);
+    FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+		   const std::string&, Mode, const std::vector<Ice::ConnectionPtr>&);
 
     const std::vector<Ice::ConnectionPtr>& getFixedConnections() const;
 
@@ -188,8 +190,8 @@ public:
 
 protected:
 
-    RoutableReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&,
-		      Mode, bool, const RouterInfoPtr&);
+    RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+		      const std::string&, Mode, bool, const RouterInfoPtr&);
     RoutableReference(const RoutableReference&);
 
 
@@ -208,8 +210,8 @@ class DirectReference :
 {
 public:
 
-    DirectReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode,
-		    bool, const std::vector<EndpointPtr>&
+    DirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+		    const std::string&, Mode, bool, const std::vector<EndpointPtr>&
 #ifdef ICEE_HAS_ROUTER
 		    , const RouterInfoPtr&
 #endif
@@ -262,8 +264,8 @@ class IndirectReference :
 {
 public:
 
-    IndirectReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&,
-                      Mode, bool, const std::string&
+    IndirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+		      const std::string&, Mode, bool, const std::string&
 #ifdef ICEE_HAS_ROUTER
 		      , const RouterInfoPtr&
 #endif

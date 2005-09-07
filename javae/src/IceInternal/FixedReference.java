@@ -13,13 +13,14 @@ public class FixedReference extends Reference
 {
     public
     FixedReference(Instance inst,
+		   Ice.Communicator com,
     		   Ice.Identity ident,
 		   java.util.Hashtable ctx,
 		   String fs,
 		   int md,
 		   Ice.Connection[] fixedConns)
     {
-    	super(inst, ident, ctx, fs, md, false);
+    	super(inst, com, ident, ctx, fs, md, false);
         _fixedConnections = fixedConns;
     }
 

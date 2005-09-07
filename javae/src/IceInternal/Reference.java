@@ -70,7 +70,7 @@ public abstract class Reference
 
     public final Ice.Communicator getCommunicator()
     {
-        return _instance.communicator();
+        return _communicator;
     }
 
     public abstract Endpoint[] getEndpoints();
@@ -411,6 +411,7 @@ public abstract class Reference
     }
 
     private Instance _instance;
+    private Ice.Communicator _communicator;
 
     private int _mode;
     private boolean _secure;
@@ -433,6 +434,7 @@ public abstract class Reference
     
     protected
     Reference(Instance inst,
+              Ice.Communicator com,
               Ice.Identity ident,
 	      java.util.Hashtable ctx,
               String fac,
@@ -450,6 +452,7 @@ public abstract class Reference
 	}
 
         _instance = inst;
+        _communicator = com;
         _mode = md;
         _secure = sec;
         _identity = ident;

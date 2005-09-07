@@ -61,7 +61,7 @@ IceInternal::Reference::defaultContext() const
 CommunicatorPtr
 IceInternal::Reference::getCommunicator() const
 {
-    return _instance->communicator();
+    return _communicator;
 }
 
 ReferencePtr
@@ -404,38 +404,40 @@ IceInternal::Reference::operator<(const Reference& r) const
     return false;
 }
 
-IceInternal::Reference::Reference(const InstancePtr& inst, const Identity& ident, const Context& ctx,
-                                  const string& fs, Mode md, bool sec)
-    : _instance(inst),
-      _mode(md),
-      _secure(sec),
-      _identity(ident),
-      _hasContext(!ctx.empty()),
-      _context(ctx),
-      _facet(fs),
-      _hashInitialized(false)
+IceInternal::Reference::Reference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
+				  const Context& ctx, const string& fs, Mode md, bool sec) :
+    _instance(inst),
+    _communicator(com),
+    _mode(md),
+    _secure(sec),
+    _identity(ident),
+    _hasContext(!ctx.empty()),
+    _context(ctx),
+    _facet(fs),
+    _hashInitialized(false)
 {
 }
 
-IceInternal::Reference::Reference(const Reference& r)
-    : _instance(r._instance),
-      _mode(r._mode),
-      _secure(r._secure),
-      _identity(r._identity),
-      _hasContext(r._hasContext),
-      _context(r._context),
-      _facet(r._facet),
-      _hashInitialized(false)
+IceInternal::Reference::Reference(const Reference& r) :
+    _instance(r._instance),
+    _communicator(r._communicator),
+    _mode(r._mode),
+    _secure(r._secure),
+    _identity(r._identity),
+    _hasContext(r._hasContext),
+    _context(r._context),
+    _facet(r._facet),
+    _hashInitialized(false)
 {
 }
 
 void IceInternal::incRef(IceInternal::FixedReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::FixedReference* p) { p->__decRef(); }
 
-IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const Identity& ident,
+IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
 					    const Context& ctx, const string& fs, Mode md,
 					    const vector<ConnectionPtr>& fixedConns)
-    : Reference(inst, ident, ctx, fs, md, false),
+    : Reference(inst, com, ident, ctx, fs, md, false),
       _fixedConnections(fixedConns)
 {
 }
@@ -683,10 +685,10 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
     return false;
 }
 
-IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Identity& ident,
-						  const Context& ctx, const string& fs, Mode md,
-						  bool sec, const RouterInfoPtr& rtrInfo)
-    : Reference(inst, ident, ctx, fs, md, sec), _routerInfo(rtrInfo)
+IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const CommunicatorPtr& com,
+						  const Identity& ident, const Context& ctx, const string& fs,
+						  Mode md, bool sec, const RouterInfoPtr& rtrInfo)
+    : Reference(inst, com, ident, ctx, fs, md, sec), _routerInfo(rtrInfo)
 {
 }
 
@@ -701,19 +703,20 @@ void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
 
 
 #ifdef ICEE_HAS_ROUTER
-IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Identity& ident,
-					      const Context& ctx, const string& fs, Mode md, bool sec,
-					      const vector<EndpointPtr>& endpts, const RouterInfoPtr& rtrInfo) :
+IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
+					      const Identity& ident, const Context& ctx, const string& fs, Mode md,
+					      bool sec, const vector<EndpointPtr>& endpts,
+					      const RouterInfoPtr& rtrInfo) :
 
-    RoutableReference(inst, ident, ctx, fs, md, sec, rtrInfo),
+    RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo),
     _endpoints(endpts)
 {
 }
 #else
-IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Identity& ident,
-					      const Context& ctx, const string& fs, Mode md, bool sec,
-					      const vector<EndpointPtr>& endpts) :
-    Reference(inst, ident, ctx, fs, md, sec),
+IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
+					      const Identity& ident, const Context& ctx, const string& fs, Mode md,
+					      bool sec, const vector<EndpointPtr>& endpts) :
+    Reference(inst, com, ident, ctx, fs, md, sec),
     _endpoints(endpts)
 {
 }
@@ -939,22 +942,23 @@ void IceInternal::incRef(IceInternal::IndirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
 
 #ifdef ICEE_HAS_ROUTER
-IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
-                                                  const Context& ctx, const string& fs, Mode md, bool sec,
-						  const string& adptid, const RouterInfoPtr& rtrInfo,
-						  const LocatorInfoPtr& locInfo)
-    : RoutableReference(inst, ident, ctx, fs, md, sec, rtrInfo),
-      _adapterId(adptid),
-      _locatorInfo(locInfo)
+IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
+						  const Identity& ident, const Context& ctx, const string& fs,
+						  Mode md, bool sec, const string& adptid,
+						  const RouterInfoPtr& rtrInfo, const LocatorInfoPtr& locInfo) :
+    RoutableReference(inst, com ident, ctx, fs, md, sec, rtrInfo),
+    _adapterId(adptid),
+    _locatorInfo(locInfo)
 {
 }
 #else
-IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
-                                                  const Context& ctx, const string& fs, Mode md, bool sec,
-						  const string& adptid, const LocatorInfoPtr& locInfo)
-    : Reference(inst, ident, ctx, fs, md, sec),
-      _adapterId(adptid),
-      _locatorInfo(locInfo)
+IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com, 
+						  const Identity& ident, const Context& ctx, const string& fs,
+						  Mode md, bool sec, const string& adptid,
+						  const LocatorInfoPtr& locInfo) :
+    Reference(inst, com, ident, ctx, fs, md, sec),
+    _adapterId(adptid),
+    _locatorInfo(locInfo)
 {
 }
 #endif

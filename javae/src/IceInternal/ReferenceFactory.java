@@ -33,7 +33,8 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        return new DirectReference(_instance, ident, context, facet, mode, secure, endpoints, routerInfo);
+        return new DirectReference(_instance, _communicator, ident, context, facet, mode, secure, endpoints,
+				   routerInfo);
     }
 
     public synchronized Reference
@@ -59,8 +60,8 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        return new IndirectReference(_instance, ident, context, facet, mode, secure, adapterId, routerInfo, 
-				     locatorInfo);
+        return new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure, adapterId,
+				     routerInfo, locatorInfo);
     }
 
     public synchronized Reference
@@ -83,7 +84,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        return new FixedReference(_instance, ident, context, facet, mode, fixedConnections);
+        return new FixedReference(_instance, _communicator, ident, context, facet, mode, fixedConnections);
     }
 
     public synchronized Reference
@@ -571,9 +572,10 @@ public final class ReferenceFactory
     //
     // Only for use by Instance
     //
-    ReferenceFactory(Instance instance)
+    ReferenceFactory(Instance instance, Ice.Communicator communicator)
     {
         _instance = instance;
+	_communicator = communicator;
     }
 
     synchronized void
@@ -585,11 +587,13 @@ public final class ReferenceFactory
         }
 
         _instance = null;
+	_communicator = null;
         _defaultRouter = null;
         _defaultLocator = null;
     }
 
     private Instance _instance;
+    private Ice.Communicator _communicator;
     private Ice.RouterPrx _defaultRouter;
     private Ice.LocatorPrx _defaultLocator;
     private int _hashUpdateCounter = 0;

@@ -76,11 +76,12 @@ public:
 
 private:
 
-    ReferenceFactory(const InstancePtr&);
+    ReferenceFactory(const InstancePtr&, const Ice::CommunicatorPtr&);
     void destroy();
     friend class Instance;
 
     InstancePtr _instance;
+    Ice::CommunicatorPtr _communicator;
 #ifdef ICEE_HAS_ROUTER
     ::Ice::RouterPrx _defaultRouter;
 #endif

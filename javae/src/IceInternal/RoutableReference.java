@@ -86,6 +86,7 @@ public abstract class RoutableReference extends Reference
 
     protected
     RoutableReference(Instance inst,
+		      Ice.Communicator com,
 		      Ice.Identity ident,
 		      java.util.Hashtable ctx,
 		      String fac,
@@ -93,7 +94,7 @@ public abstract class RoutableReference extends Reference
 		      boolean secure,
 		      RouterInfo rtrInfo)
     {
-        super(inst, ident, ctx, fac, md, secure);
+        super(inst, com, ident, ctx, fac, md, secure);
 	_routerInfo = rtrInfo;
     }
 

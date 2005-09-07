@@ -11,15 +11,15 @@ package IceInternal;
 
 public class Instance
 {
-    public Ice.Communicator communicator()
-    {
-        return _communicator;
-    }
-
     public Ice.Properties
     properties()
     {
+	//
+	// No check for destruction. It must be possible to access the
+	// properties after destruction.
+	//
 	// No mutex lock, immutable.
+	//
         return _properties;
     }
 
@@ -27,8 +27,8 @@ public class Instance
     logger()
     {
 	//
-	// Don't throw CommunicatorDestroyedException if destroyed. We
-	// need the logger also after destructions.
+	// No check for destruction. It must be possible to access the
+	// logger after destruction.
 	//
         return _logger;
     }
@@ -36,11 +36,11 @@ public class Instance
     public synchronized void
     logger(Ice.Logger logger)
     {
-	if(_destroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-
+	//
+	// No check for destruction. It must be possible to set the
+	// logger after destruction (needed by logger plugins for
+	// example to unset the logger).
+	//
         _logger = logger;
     }
 
@@ -61,7 +61,7 @@ public class Instance
     public synchronized RouterManager
     routerManager()
     {
-	if(_destroyed)
+	if(_state == StateDestroyed)
 	{
 	    throw new Ice.CommunicatorDestroyedException();
 	}
@@ -72,7 +72,7 @@ public class Instance
     public synchronized LocatorManager
     locatorManager()
     {
-	if(_destroyed)
+	if(_state == StateDestroyed)
 	{
 	    throw new Ice.CommunicatorDestroyedException();
 	}
@@ -83,7 +83,7 @@ public class Instance
     public synchronized ReferenceFactory
     referenceFactory()
     {
-	if(_destroyed)
+	if(_state == StateDestroyed)
 	{
 	    throw new Ice.CommunicatorDestroyedException();
 	}
@@ -94,7 +94,7 @@ public class Instance
     public synchronized ProxyFactory
     proxyFactory()
     {
-	if(_destroyed)
+	if(_state == StateDestroyed)
 	{
 	    throw new Ice.CommunicatorDestroyedException();
 	}
@@ -105,7 +105,7 @@ public class Instance
     public synchronized OutgoingConnectionFactory
     outgoingConnectionFactory()
     {
-	if(_destroyed)
+	if(_state == StateDestroyed)
 	{
 	    throw new Ice.CommunicatorDestroyedException();
 	}
@@ -116,7 +116,7 @@ public class Instance
     public synchronized ObjectAdapterFactory
     objectAdapterFactory()
     {
-	if(_destroyed)
+	if(_state == StateDestroyed)
 	{
 	    throw new Ice.CommunicatorDestroyedException();
 	}
@@ -133,7 +133,7 @@ public class Instance
     public synchronized EndpointFactory
     endpointFactory()
     {
-	if(_destroyed)
+	if(_state == StateDestroyed)
 	{
 	    throw new Ice.CommunicatorDestroyedException();
 	}
@@ -199,8 +199,7 @@ public class Instance
 
 	synchronized(this)
 	{
-	    
-	    if(_destroyed)
+	    if(_state == StateDestroyed)
 	    {
 		throw new Ice.CommunicatorDestroyedException();
 	    }
@@ -219,8 +218,7 @@ public class Instance
     public
     Instance(Ice.Communicator communicator, Ice.Properties properties)
     {
-	_communicator = communicator;
-        _destroyed = false;
+        _state = StateActive;
         _properties = properties;
 
         try
@@ -264,7 +262,7 @@ public class Instance
 
             _locatorManager = new LocatorManager();
 
-            _referenceFactory = new ReferenceFactory(this);
+            _referenceFactory = new ReferenceFactory(this, communicator);
 
             _proxyFactory = new ProxyFactory(this);
 
@@ -287,7 +285,7 @@ public class Instance
     finalize()
         throws Throwable
     {
-        IceUtil.Debug.FinalizerAssert(_destroyed);
+        IceUtil.Debug.FinalizerAssert(_state == StateDestroyed);
         IceUtil.Debug.FinalizerAssert(_referenceFactory == null);
         IceUtil.Debug.FinalizerAssert(_proxyFactory == null);
         IceUtil.Debug.FinalizerAssert(_outgoingConnectionFactory == null);
@@ -326,9 +324,24 @@ public class Instance
     public void
     destroy()
     {
-	if(IceUtil.Debug.ASSERT)
+	synchronized(this)
 	{
-	    IceUtil.Debug.Assert(!_destroyed);
+	    //
+	    // If the _state is not StateActive then the instance is
+	    // either being destroyed, or has already been destroyed.
+	    //
+	    if(_state != StateActive)
+	    {
+		return;
+	    }
+	    
+	    //
+	    // We cannot set state to StateDestroyed otherwise instance
+	    // methods called during the destroy process (such as
+	    // outgoingConnectionFactory() from
+	    // ObjectAdapterI::deactivate() will cause an exception.
+	    //
+	    _state = StateDestroyInProgress;
 	}
 
         if(_objectAdapterFactory != null)
@@ -385,7 +398,7 @@ public class Instance
                 _endpointFactory = null;
             }
 	    
-	    _destroyed = true;
+	    _state = StateDestroyed;
 	}
     }
 
@@ -416,8 +429,11 @@ public class Instance
         }
     }
 
-    private Ice.Communicator _communicator;
-    private boolean _destroyed;
+    private static final int StateActive = 0;
+    private static final int StateDestroyInProgress = 1;
+    private static final int StateDestroyed = 2;
+    private int _state;
+
     private final Ice.Properties _properties; // Immutable, not reset by destroy().
     private Ice.Logger _logger; // Not reset by destroy().
     private final TraceLevels _traceLevels; // Immutable, not reset by destroy().

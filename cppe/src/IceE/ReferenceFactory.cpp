@@ -77,9 +77,9 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     // Create new reference
     //
 #ifdef ICEE_HAS_ROUTER
-    return new DirectReference(_instance, ident, context, facet, mode, secure, endpoints, routerInfo);
+    return new DirectReference(_instance, _communicator, ident, context, facet, mode, secure, endpoints, routerInfo);
 #else
-    return new DirectReference(_instance, ident, context, facet, mode, secure, endpoints);
+    return new DirectReference(_instance, _communicator, ident, context, facet, mode, secure, endpoints);
 #endif
 }
 
@@ -113,9 +113,10 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     // Create new reference
     //
 #ifdef ICEE_HAS_ROUTER
-    return new IndirectReference(_instance, ident, context, facet, mode, secure, adapterId, routerInfo, locatorInfo);
+    return new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure, adapterId, routerInfo,
+				locatorInfo);
 #else
-    return new IndirectReference(_instance, ident, context, facet, mode, secure, adapterId, locatorInfo);
+    return new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure, adapterId, locatorInfo);
 #endif
 }
 
@@ -143,7 +144,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new FixedReference(_instance, ident, context, facet, mode, fixedConnections);
+    return new FixedReference(_instance, _communicator, ident, context, facet, mode, fixedConnections);
 }
 
 ReferencePtr
@@ -667,8 +668,10 @@ IceInternal::ReferenceFactory::getDefaultLocator() const
 
 #endif
 
-IceInternal::ReferenceFactory::ReferenceFactory(const InstancePtr& instance) :
-    _instance(instance)
+IceInternal::ReferenceFactory::ReferenceFactory(const InstancePtr& instance,
+						const CommunicatorPtr& communicator) :
+    _instance(instance),
+    _communicator(communicator)
 {
 }
 
@@ -683,6 +686,7 @@ IceInternal::ReferenceFactory::destroy()
     }
 
     _instance = 0;
+    _communicator = 0;
 #ifdef ICEE_HAS_ROUTER
     _defaultRouter = 0;
 #endif
