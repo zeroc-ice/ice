@@ -94,6 +94,8 @@ protected:
 
     Object() {} // This class is abstract.
     virtual ~Object() {}
+
+    void __checkMode(OperationMode, OperationMode) const;
 };
 
 class ICE_API Blobject : virtual public Object

@@ -242,6 +242,42 @@ Ice::__patch__ObjectPtr(void* __addr, ObjectPtr& v)
     *p = v;
 }
 
+static string
+operationModeToString(OperationMode mode)
+{
+    switch(mode)
+    {
+    case Normal:
+	return "::Ice::Normal";
+
+    case Nonmutating:
+	return "::Ice::Nonmutating";
+
+    case Idempotent:
+	return "::Ice::Idempotent";
+    }
+
+    ostringstream os;
+    os << "unknown value (" << mode << ")";
+    return os.str();
+}
+
+void
+Ice::Object::__checkMode(OperationMode expected, OperationMode received) const
+{
+    if(expected != received)
+    {
+	Ice::MarshalException ex(__FILE__, __LINE__);
+	std::ostringstream __reason;
+	__reason << "unexpected operation mode. expected = "
+		 << operationModeToString(expected)
+		 << " received = "
+		 << operationModeToString(received);
+	ex.reason = __reason.str();
+	throw ex;
+    }
+}
+
 DispatchStatus
 Ice::Blobject::__dispatch(Incoming& in, const Current& current)
 {

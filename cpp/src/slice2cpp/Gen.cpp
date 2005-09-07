@@ -3057,6 +3057,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    throws.sort(Slice::DerivedToBaseCompare());
 #endif
 
+	    C << nl << "__checkMode(" << operationModeToString(p->mode()) << ", __current.mode);";
+
 	    if(!inParams.empty())
 	    {
 		C << nl << "::IceInternal::BasicStream* __is = __inS.is();";
@@ -3105,6 +3107,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	}
 	else
 	{
+	    C << nl << "__checkMode(" << operationModeToString(p->mode()) << ", __current.mode);";
+
 	    if(!inParams.empty())
 	    {
 		C << nl << "::IceInternal::BasicStream* __is = __inS.is();";
