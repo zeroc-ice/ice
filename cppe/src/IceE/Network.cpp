@@ -154,6 +154,20 @@ IceInternal::createSocket()
     return fd;
 }
 
+static void
+closeSocketNoThrow(SOCKET fd)
+{
+#ifdef _WIN32
+    int error = WSAGetLastError();
+    closesocket(fd);
+    WSASetLastError(error);
+#else
+    int error = errno;
+    close(fd);
+    errno = error;
+#endif
+}
+
 void
 IceInternal::closeSocket(SOCKET fd)
 {
@@ -248,22 +262,46 @@ IceInternal::setBlock(SOCKET fd, bool block)
     {
 #ifdef _WIN32
 	unsigned long arg = 0;
-	ioctlsocket(fd, FIONBIO, &arg);
+	if(ioctlsocket(fd, FIONBIO, &arg) == SOCKET_ERROR)
+        {
+	    closeSocketNoThrow(fd);
+	    SocketException ex(__FILE__, __LINE__);
+	    ex.error = WSAGetLastError();
+	    throw ex;
+        }
 #else
 	int flags = fcntl(fd, F_GETFL);
 	flags &= ~O_NONBLOCK;
-	fcntl(fd, F_SETFL, flags);
+	if(fcntl(fd, F_SETFL, flags) == SOCKET_ERROR)
+        {
+	    closeSocketNoThrow(fd);
+	    SocketException ex(__FILE__, __LINE__);
+	    ex.error = errno;
+	    throw ex;
+        }
 #endif
     }
     else
     {
 #ifdef _WIN32
 	unsigned long arg = 1;
-	ioctlsocket(fd, FIONBIO, &arg);
+	if(ioctlsocket(fd, FIONBIO, &arg) == SOCKET_ERROR)
+        {
+	    closeSocketNoThrow(fd);
+	    SocketException ex(__FILE__, __LINE__);
+	    ex.error = WSAGetLastError();
+	    throw ex;
+        }
 #else
 	int flags = fcntl(fd, F_GETFL);
 	flags |= O_NONBLOCK;
-	fcntl(fd, F_SETFL, flags);
+	if(fcntl(fd, F_SETFL, flags) == SOCKET_ERROR)
+        {
+	    closeSocketNoThrow(fd);
+	    SocketException ex(__FILE__, __LINE__);
+	    ex.error = errno;
+	    throw ex;
+        }
 #endif
     }
 }
@@ -274,7 +312,7 @@ IceInternal::setTcpNoDelay(SOCKET fd)
     int flag = 1;
     if(setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
     {
-	closeSocket(fd);
+	closeSocketNoThrow(fd);
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
@@ -287,7 +325,7 @@ IceInternal::setKeepAlive(SOCKET fd)
     int flag = 1;
     if(setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
     {
-	closeSocket(fd);
+	closeSocketNoThrow(fd);
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
@@ -299,7 +337,7 @@ IceInternal::setSendBufferSize(SOCKET fd, int sz)
 {
     if(setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char*)&sz, int(sizeof(int))) == SOCKET_ERROR)
     {
-	closeSocket(fd);
+	closeSocketNoThrow(fd);
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
@@ -313,7 +351,7 @@ IceInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
     int flag = 1;
     if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
     {
-	closeSocket(fd);
+	closeSocketNoThrow(fd);
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
@@ -322,7 +360,7 @@ IceInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
 
     if(bind(fd, reinterpret_cast<struct sockaddr*>(&addr), int(sizeof(addr))) == SOCKET_ERROR)
     {
-	closeSocket(fd);
+	closeSocketNoThrow(fd);
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
@@ -356,7 +394,7 @@ IceInternal::doConnect(SOCKET fd, struct sockaddr_in& addr, int timeout)
     WSAEVENT event = WSACreateEvent();
     if(event == 0)
     {
-	closeSocket(fd);
+	closeSocketNoThrow(fd);
 
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = WSAGetLastError();
@@ -368,7 +406,7 @@ IceInternal::doConnect(SOCKET fd, struct sockaddr_in& addr, int timeout)
 	int error = WSAGetLastError();
 
     	WSACloseEvent(event);
-    	closeSocket(fd);
+    	closeSocketNoThrow(fd);
 
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = error;
@@ -397,7 +435,7 @@ repeatConnect:
     	    	int error = WSAGetLastError();
 
 		WSACloseEvent(event);
-    	    	closeSocket(fd);
+    	    	closeSocketNoThrow(fd);
 
 		SocketException ex(__FILE__, __LINE__);
 		ex.error = error;
@@ -407,7 +445,7 @@ repeatConnect:
 	    if(rc == WSA_WAIT_TIMEOUT)
 	    {
 		WSACloseEvent(event);
-    	    	closeSocket(fd);
+    	    	closeSocketNoThrow(fd);
 
 		assert(timeout >= 0);
 		throw ConnectTimeoutException(__FILE__, __LINE__);
@@ -419,7 +457,7 @@ repeatConnect:
 	    {
     	    	int error = WSAGetLastError();
 		WSACloseEvent(event);
-    	    	closeSocket(fd);
+    	    	closeSocketNoThrow(fd);
 
 		SocketException ex(__FILE__, __LINE__);
 		ex.error = error;
@@ -461,7 +499,7 @@ repeatConnect:
 	    
 	    if(ret == 0)
 	    {
-		closeSocket(fd);
+		closeSocketNoThrow(fd);
 		throw ConnectTimeoutException(__FILE__, __LINE__);
 	    }
 	    else if(ret == SOCKET_ERROR)
@@ -485,7 +523,7 @@ repeatConnect:
 	    socklen_t len = static_cast<socklen_t>(sizeof(int));
 	    if(getsockopt(fd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&val), &len) == SOCKET_ERROR)
 	    {
-		closeSocket(fd);
+		closeSocketNoThrow(fd);
 		SocketException ex(__FILE__, __LINE__);
 		ex.error = getSocketErrno();
 		throw ex;
@@ -494,7 +532,7 @@ repeatConnect:
 
 	    if(val > 0)
 	    {
-		closeSocket(fd);
+		closeSocketNoThrow(fd);
 #ifdef _WIN32
 		WSASetLastError(val);
 #else
@@ -523,7 +561,7 @@ repeatConnect:
 	    return;
 	}
     
-	closeSocket(fd);
+	closeSocketNoThrow(fd);
 	if(connectionRefused())
 	{
 	    ConnectionRefusedException ex(__FILE__, __LINE__);
@@ -786,7 +824,7 @@ IceInternal::fdToString(SOCKET fd)
     struct sockaddr_in localAddr;
     if(getsockname(fd, reinterpret_cast<struct sockaddr*>(&localAddr), &localLen) == SOCKET_ERROR)
     {
-	closeSocket(fd);
+	closeSocketNoThrow(fd);
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
@@ -803,7 +841,7 @@ IceInternal::fdToString(SOCKET fd)
 	}
 	else
 	{
-	    closeSocket(fd);
+	    closeSocketNoThrow(fd);
 	    SocketException ex(__FILE__, __LINE__);
 	    ex.error = getSocketErrno();
 	    throw ex;
@@ -948,7 +986,7 @@ repeatListen:
 	    goto repeatListen;
 	}
 	
-	closeSocket(fd);
+	closeSocketNoThrow(fd);
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
@@ -985,7 +1023,7 @@ IceInternal::getLocalAddresses()
 
             if(rs == SOCKET_ERROR)
             {
-                closeSocket(fd);
+                closeSocketNoThrow(fd);
                 SocketException ex(__FILE__, __LINE__);
                 ex.error = getSocketErrno();
                 throw ex;
@@ -1050,7 +1088,7 @@ IceInternal::isPeerLocal(SOCKET fd)
         }
         else
         {
-            closeSocket(fd);
+            closeSocketNoThrow(fd);
             SocketException ex(__FILE__, __LINE__);
             ex.error = getSocketErrno();
             throw ex;

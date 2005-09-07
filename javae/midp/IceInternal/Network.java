@@ -92,21 +92,6 @@ public final class Network
 	return false;
     }
 
-    public static void
-    closeSocket(javax.microedition.io.SocketConnection connection)
-    {
-	try
-	{
-	    connection.close();
-	}
-	catch(java.io.IOException ex)
-	{
-	    Ice.SocketException se = new Ice.SocketException();
-	    se.initCause(ex);
-	    throw se;
-	}
-    }
-
     public static String
     getLocalHost(boolean numeric)
     {

@@ -88,21 +88,6 @@ public final class Network
 	return false;
     }
 
-    public static void
-    closeSocket(java.net.Socket fd)
-    {
-	try
-	{
-	    fd.close();
-	}
-	catch(java.io.IOException ex)
-	{
-	    Ice.SocketException se = new Ice.SocketException();
-	    se.initCause(ex);
-	    throw se;
-	}
-    }
-
     public static InetSocketAddress
     getAddress(String host, int port)
     {

@@ -145,17 +145,27 @@ namespace IceInternal
 		}
 		catch(SocketException ex)
 		{
-		    try
-		    {
-			socket.Close();
-		    }
-		    catch(SocketException)
-		    {
-		    }
+		    closeSocketNoThrow(socket);
 		    throw new Ice.SocketException("Cannot set socket options", ex);
 		}
 	    }
 	    return socket;
+	}
+
+	private static void closeSocketNoThrow(Socket socket)
+	{
+	    if(socket == null)
+	    {
+		return;
+	    }
+	    try
+	    {
+		socket.Close();
+	    }
+	    catch(SocketException)
+	    {
+	        // Ignore
+	    }
 	}
 
 	public static void closeSocket(Socket socket)
@@ -182,13 +192,7 @@ namespace IceInternal
 	    }
 	    catch(SocketException ex)
 	    {
-	        try
-		{
-		    socket.Close();
-		}
-		catch(SocketException)
-		{
-		}
+	        closeSocketNoThrow(socket);
 		throw new Ice.SocketException(ex);
 	    }
 	}
@@ -201,13 +205,7 @@ namespace IceInternal
 	    }
 	    catch(System.Exception ex)
 	    {
-		try
-		{
-		    socket.Close();
-		}
-		catch(SocketException)
-		{
-		}
+	        closeSocketNoThrow(socket);
 		throw new Ice.SocketException("Cannot set NoDelay option", ex);
 	    }
 	}
@@ -220,13 +218,7 @@ namespace IceInternal
 	    }
 	    catch(System.Exception ex)
 	    {
-		try
-		{
-		    socket.Close();
-		}
-		catch(SocketException)
-		{
-		}
+	        closeSocketNoThrow(socket);
 		throw new Ice.SocketException("Cannot set KeepAlive option", ex);
 	    }
 	}
@@ -239,13 +231,7 @@ namespace IceInternal
 	    }
 	    catch(SocketException ex)
 	    {
-		try
-		{
-		    socket.Close();
-		}
-		catch(SocketException)
-		{
-		}
+	        closeSocketNoThrow(socket);
 		throw new Ice.SocketException("Cannot set send buffer size", ex);
 	    }
 	}
@@ -259,13 +245,7 @@ namespace IceInternal
 	    }
 	    catch(SocketException ex)
 	    {
-		try
-		{
-		    socket.Close();
-		}
-		catch(SocketException)
-		{
-		}
+	        closeSocketNoThrow(socket);
 		throw new Ice.SocketException("Cannot read send buffer size", ex);
 	    }
 	    return sz;
@@ -279,13 +259,7 @@ namespace IceInternal
 	    }
 	    catch(SocketException ex)
 	    {
-		try
-		{
-		    socket.Close();
-		}
-		catch(SocketException)
-		{
-		}
+	        closeSocketNoThrow(socket);
 		throw new Ice.SocketException("Cannot set receive buffer size", ex);
 	    }
 	}
@@ -299,13 +273,7 @@ namespace IceInternal
 	    }
 	    catch(SocketException ex)
 	    {
-		try
-		{
-		    socket.Close();
-		}
-		catch(SocketException)
-		{
-		}
+	        closeSocketNoThrow(socket);
 		throw new Ice.SocketException("Cannot read receive buffer size", ex);
 	    }
 	    return sz;
@@ -324,13 +292,7 @@ namespace IceInternal
 	    }
 	    catch(SocketException ex)
 	    {
-		try
-		{
-		    socket.Close();
-		}
-		catch(SocketException)
-		{
-		}
+	        closeSocketNoThrow(socket);
 		throw new Ice.SocketException("Cannot bind", ex);
 	    }
 	}
@@ -349,13 +311,8 @@ namespace IceInternal
 		{
 		    goto repeatListen;
 		}
-		try
-		{
-		    socket.Close();
-		}
-		catch(SocketException)
-		{
-		}
+
+		closeSocketNoThrow(socket);
 		throw new Ice.SocketException("Cannot listen", ex);
 	    }
 	}
@@ -433,13 +390,7 @@ namespace IceInternal
 		}
 		if(!ready)
 		{
-		    try
-		    {
-			socket.Close();
-		    }
-		    catch(SocketException)
-		    {
-		    }
+		    closeSocketNoThrow(socket);
 		    throw new Ice.ConnectTimeoutException("Connect timed out after " + timeout + " msec");
 		}
 	    }
