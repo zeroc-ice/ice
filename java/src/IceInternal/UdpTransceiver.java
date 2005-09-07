@@ -21,17 +21,17 @@ final class UdpTransceiver implements Transceiver
     public synchronized void
     close()
     {
-        if(_traceLevels.network >= 1)
-        {
-            String s = "closing udp connection\n" + toString();
-            _logger.trace(_traceLevels.networkCat, s);
-        }
-
 	//
 	// NOTE: close() may have already been invoked by shutdownReadWrite().
 	//
         if(_fd != null)
 	{
+	    if(_traceLevels.network >= 1)
+	    {
+		String s = "closing udp connection\n" + toString();
+		_logger.trace(_traceLevels.networkCat, s);
+	    }
+
 	    try
 	    {
 		_fd.close();
