@@ -342,6 +342,7 @@ namespace IceInternal
 		}
 		if(!connectInProgress(ex))
 		{
+		    closeSocketNoThrow(socket);
 		    throw new Ice.ConnectFailedException("Connect failed", ex);
 		}
 
@@ -382,16 +383,21 @@ namespace IceInternal
 		    {
 			goto repeatSelect;
 		    }
+
+		    closeSocketNoThrow(socket);
 		    throw new Ice.SocketException(e);
 		}
-		if(error)
-		{
-		    throw new Ice.ConnectFailedException("Connect failed: connection refused");
-		}
-		if(!ready)
+		if(error || !ready)
 		{
 		    closeSocketNoThrow(socket);
-		    throw new Ice.ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+		    if(error)
+		    {
+		        throw new Ice.ConnectFailedException("Connect failed: connection refused");
+		    }
+		    else
+		    {
+		        throw new Ice.ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+		    }
 		}
 	    }
 	}
