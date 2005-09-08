@@ -681,6 +681,11 @@ public class AllTests
 		Ice.ObjectAdapter second = 
 		    communicator.createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12346 -t 10000");
 		test(false);
+
+		//
+		// Quell mono error that variable second isn't used. 
+		// 
+		second.ToString(); 
 	    }
 	    catch(Ice.AlreadyRegisteredException)
 	    {
