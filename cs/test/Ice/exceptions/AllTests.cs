@@ -685,7 +685,7 @@ public class AllTests
 		//
 		// Quell mono error that variable second isn't used. 
 		// 
-		second.ToString(); 
+		second.deactivate(); 
 	    }
 	    catch(Ice.AlreadyRegisteredException)
 	    {
