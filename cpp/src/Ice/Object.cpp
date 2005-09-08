@@ -263,7 +263,7 @@ operationModeToString(OperationMode mode)
 }
 
 void
-Ice::Object::__checkMode(OperationMode expected, OperationMode received) const
+Ice::Object::__checkMode(OperationMode expected, OperationMode received)
 {
     if(expected != received)
     {

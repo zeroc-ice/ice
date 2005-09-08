@@ -478,6 +478,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 
 	int iter;
 	    
+	out << nl << "__checkMode(" << sliceModeToIceMode(op) << ", __current.mode);";
 	if(!inParams.empty())
 	{
 	    out << nl << "IceInternal.BasicStream __is = __in.is();";

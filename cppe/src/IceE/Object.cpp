@@ -10,6 +10,7 @@
 #include <IceE/Object.h>
 #include <IceE/Incoming.h>
 #include <IceE/LocalException.h>
+#include <IceE/SafeStdio.h>
 
 using namespace std;
 using namespace Ice;
@@ -161,6 +162,36 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
 
     assert(false);
     return DispatchOperationNotExist;
+}
+
+static const char*
+operationModeToString(OperationMode mode)
+{
+    switch(mode)
+    {
+    case Normal:
+	return "::Ice::Normal";
+
+    case Nonmutating:
+	return "::Ice::Nonmutating";
+
+    case Idempotent:
+	return "::Ice::Idempotent";
+    }
+
+    return "???";
+}
+
+void
+Ice::Object::__checkMode(OperationMode expected, OperationMode received)
+{
+    if(expected != received)
+    {
+	Ice::MarshalException ex(__FILE__, __LINE__);
+	ex.reason = Ice::printfToString("unexpected operation mode. expected = %s received = %s", 
+					operationModeToString(expected), operationModeToString(received));
+	throw ex;
+    }
 }
 
 DispatchStatus
