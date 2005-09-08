@@ -54,6 +54,8 @@ usage(const char* n)
         "-v, --version         Display the Ice version.\n"
         "--header-ext EXT      Use EXT instead of the default `h' extension.\n"
         "--source-ext EXT      Use EXT instead of the default `cpp' extension.\n"
+	"--add-header HDR[,GUARD]\n"
+	"                      Add #include for HDR (with guard GUARD) to generated source file.\n"
         "-DNAME                Define NAME as 1.\n"
         "-DNAME=DEF            Define NAME as DEF.\n"
         "-UNAME                Remove any definition for NAME.\n"
@@ -979,6 +981,7 @@ main(int argc, char* argv[])
     opts.addOpt("v", "version");
     opts.addOpt("", "header-ext", IceUtil::Options::NeedArg, "h");
     opts.addOpt("", "source-ext", IceUtil::Options::NeedArg, "cpp");
+    opts.addOpt("", "add-header", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
@@ -1018,6 +1021,8 @@ main(int argc, char* argv[])
 
     headerExtension = opts.optArg("header-ext");
     sourceExtension = opts.optArg("source-ext");
+
+    vector<string> extraHeaders = opts.argVec("add-header");
 
     if(opts.isSet("D"))
     {
@@ -1367,7 +1372,34 @@ main(int argc, char* argv[])
 	}
 	printHeader(C);
 	printFreezeTypes(C, dicts, indices);
-	
+
+	for(vector<string>::const_iterator i = extraHeaders.begin(); i != extraHeaders.end(); ++i)
+	{
+	    string hdr = *i;
+	    string guard;
+	    string::size_type pos = hdr.rfind(',');
+	    if(pos != string::npos)
+	    {
+		hdr = i->substr(0, pos);
+		guard = i->substr(pos + 1);
+	    }
+	    if(!guard.empty())
+	    {
+		C << "\n#ifndef " << guard;
+		C << "\n#define " << guard;
+	    }
+	    C << "\n#include <";
+	    if(!include.empty())
+	    {
+		C << include << '/';
+	    }
+	    C << hdr << '>';
+	    if(!guard.empty())
+	    {
+		C << "\n#endif";
+	    }
+	}
+
 	string s = fileH;
 	transform(s.begin(), s.end(), s.begin(), ToIfdef());
 	H << "\n#ifndef __" << s << "__";

@@ -44,6 +44,8 @@ public:
 
 private:
 
+    void writeExtraHeaders(::IceUtil::Output&);
+
     ::IceUtil::Output H;
     ::IceUtil::Output C;
 

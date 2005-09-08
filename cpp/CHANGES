@@ -1,9 +1,9 @@
 Changes since version 2.1.2
 ---------------------------
 
-- slice2cpp now provides the --add-header option. It adds a #include directive
-  for the specified header at the beginning of the generated source file. For
-  example:
+- slice2cpp and slice2freeze now provide the --add-header option. It adds a
+  #include directive for the specified header at the beginning of the generated
+  source file. For example:
 
       slice2cpp --add-header=precompiled.h x.ice
 

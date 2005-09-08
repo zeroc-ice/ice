@@ -198,7 +198,7 @@ typedef long long Int64;
 //
 // The Ice version.
 //
-#define ICE_STRING_VERSION "2.1.0" // "A.B.C", with A=major, B=minor, C=patch
-#define ICE_INT_VERSION 20100      // AABBCC, with AA=major, BB=minor, CC=patch
+#define ICE_STRING_VERSION "3.0.0" // "A.B.C", with A=major, B=minor, C=patch
+#define ICE_INT_VERSION 30000      // AABBCC, with AA=major, BB=minor, CC=patch
 
 #endif
