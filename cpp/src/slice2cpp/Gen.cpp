@@ -169,40 +169,8 @@ Slice::Gen::generate(const UnitPtr& p)
 {
     validateMetaData(p);
 
-    //
-    // Output additional header includes first.
-    //
-    vector<string>::const_iterator i;
-    for(i = _extraHeaders.begin(); i != _extraHeaders.end(); ++i)
-    {
-	string hdr = *i;
-	string guard;
-	string::size_type pos = hdr.rfind(',');
-	if(pos != string::npos)
-	{
-	    hdr = i->substr(0, pos);
-	    guard = i->substr(pos + 1);
-	}
-	if(!guard.empty())
-	{
-	    C << "\n#ifndef " << guard;
-	    C << "\n#define " << guard;
-	}
-	C << "\n#include <";
-	if(!_include.empty())
-	{
-	    C << _include << '/';
-	}
-	C << hdr << '>';
-	if(!guard.empty())
-	{
-	    C << "\n#endif";
-	}
-    }
+    writeExtraHeaders(C);
 
-    //
-    // Output remaining includes.
-    //
     C << "\n#include <";
     if(_include.size())
     {
@@ -338,7 +306,9 @@ Slice::Gen::generate(const UnitPtr& p)
         }
         implH << _base << ".h>";
 
-        implC << "#include <";
+	writeExtraHeaders(implC);
+
+        implC << "\n#include <";
         if(_include.size())
         {
             implC << _include << '/';
@@ -372,6 +342,37 @@ Slice::Gen::generate(const UnitPtr& p)
             C << eb << ';';
             C << nl << "static IceInternal::SliceChecksumInit __sliceChecksumInit(__sliceChecksums);";
         }
+    }
+}
+
+void
+Slice::Gen::writeExtraHeaders(IceUtil::Output& out)
+{
+    for(vector<string>::const_iterator i = _extraHeaders.begin(); i != _extraHeaders.end(); ++i)
+    {
+	string hdr = *i;
+	string guard;
+	string::size_type pos = hdr.rfind(',');
+	if(pos != string::npos)
+	{
+	    hdr = i->substr(0, pos);
+	    guard = i->substr(pos + 1);
+	}
+	if(!guard.empty())
+	{
+	    out << "\n#ifndef " << guard;
+	    out << "\n#define " << guard;
+	}
+	out << "\n#include <";
+	if(!_include.empty())
+	{
+	    out << _include << '/';
+	}
+	out << hdr << '>';
+	if(!guard.empty())
+	{
+	    out << "\n#endif";
+	}
     }
 }
 

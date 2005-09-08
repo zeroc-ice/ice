@@ -107,8 +107,7 @@ main(int argc, char* argv[])
     string headerExtension = opts.optArg("header-ext");
     string sourceExtension = opts.optArg("source-ext");
     
-    vector<string> extraHeaders;
-    extraHeaders = opts.argVec("add-header");
+    vector<string> extraHeaders = opts.argVec("add-header");
 
     if(opts.isSet("D"))
     {
