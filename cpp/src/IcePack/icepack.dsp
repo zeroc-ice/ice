@@ -54,12 +54,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 /nologo /dll /incremental:yes /machine:I386 /out:"Release/icepack21.dll" /implib:"Release/icepack.lib" /FIXED:no
+# ADD LINK32 /nologo /dll /incremental:yes /machine:I386 /out:"Release/icepack30.dll" /implib:"Release/icepack.lib" /FIXED:no
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icepack.lib ..\..\lib	copy $(OutDir)\icepack21.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\icepack.lib ..\..\lib	copy $(OutDir)\icepack30.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "icepack - Win32 Debug"
@@ -87,12 +87,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/icepack21d.dll" /implib:"Debug/icepackd.lib" /FIXED:no
+# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/icepack30d.dll" /implib:"Debug/icepackd.lib" /FIXED:no
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icepackd.lib ..\..\lib	copy $(OutDir)\icepack21d.pdb ..\..\bin	copy $(OutDir)\icepack21d.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\icepackd.lib ..\..\lib	copy $(OutDir)\icepack30d.pdb ..\..\bin	copy $(OutDir)\icepack30d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
