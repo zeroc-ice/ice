@@ -1352,7 +1352,8 @@ IcePy::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCal
 
     for(Ice::Int i = 0; i < sz; ++i)
     {
-        elementType->unmarshal(is, this, result.get(), (void*)i);
+	void* cl = reinterpret_cast<void*>(i);
+        elementType->unmarshal(is, this, result.get(), cl);
     }
 
     cb->unmarshaled(result.get(), target, closure);
@@ -1361,7 +1362,7 @@ IcePy::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCal
 void
 IcePy::SequenceInfo::unmarshaled(PyObject* val, PyObject* target, void* closure)
 {
-    int i = reinterpret_cast<int>(closure);
+    long i = reinterpret_cast<long>(closure);
     PyList_SET_ITEM(target, i, val);
     Py_INCREF(val); // PyList_SET_ITEM steals a reference.
 }
@@ -1510,7 +1511,8 @@ IcePy::DictionaryInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalC
         // The callback will reset the dictionary entry with the unmarshaled value,
         // so we pass it the key.
         //
-        valueType->unmarshal(is, this, p.get(), (void*)keyCB->key.get());
+	void* cl = reinterpret_cast<void*>(keyCB->key.get());
+        valueType->unmarshal(is, this, p.get(), cl);
     }
 
     cb->unmarshaled(p.get(), target, closure);

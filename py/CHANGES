@@ -1,6 +1,8 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Fixed compilation errors for 64-bit GCC builds.
+
 - Added ice_communicator() to proxies. This function returns the
   communicator that was used to create the proxy.
 

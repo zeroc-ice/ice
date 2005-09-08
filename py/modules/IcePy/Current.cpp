@@ -105,7 +105,8 @@ currentGetter(CurrentObject* self, void* closure)
 
     assert(self->current);
 
-    switch((int)closure)
+    long field = reinterpret_cast<long>(closure);
+    switch(field)
     {
     case CURRENT_ADAPTER:
     {

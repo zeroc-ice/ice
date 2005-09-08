@@ -325,7 +325,7 @@ void
 IcePy::ParamInfo::unmarshaled(PyObject* val, PyObject* target, void* closure)
 {
     assert(PyTuple_Check(target));
-    int i = reinterpret_cast<int>(closure);
+    long i = reinterpret_cast<long>(closure);
     PyTuple_SET_ITEM(target, i, val);
     Py_INCREF(val); // PyTuple_SET_ITEM steals a reference.
 }
@@ -641,7 +641,8 @@ IcePy::OperationI::dispatch(PyObject* servant, const Ice::AMD_Object_ice_invokeP
             int i = start;
             for(ParamInfoList::iterator p = _inParams.begin(); p != _inParams.end(); ++p, ++i)
             {
-                (*p)->type->unmarshal(is, *p, args.get(), (void*)i);
+		void* closure = reinterpret_cast<void*>(i);
+                (*p)->type->unmarshal(is, *p, args.get(), closure);
             }
             if(_sendsClasses)
             {
@@ -1045,7 +1046,8 @@ IcePy::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice::C
         Ice::InputStreamPtr is = Ice::createInputStream(communicator, bytes);
         for(ParamInfoList::iterator p = _outParams.begin(); p != _outParams.end(); ++p, ++i)
         {
-            (*p)->type->unmarshal(is, *p, results.get(), (void*)i);
+	    void* closure = reinterpret_cast<void*>(i);
+            (*p)->type->unmarshal(is, *p, results.get(), closure);
         }
 
         if(_returnType)
