@@ -344,6 +344,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 
 	    TypeStringList::const_iterator q;
 	    
+	    _out << nl << "__checkMode(" << sliceModeToIceMode(op) << ", __current.mode);";
 	    if(!inParams.empty())
 	    {
 		_out << nl << "IceInternal.BasicStream __is = __inS.istr();";
@@ -478,7 +479,8 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	    }
 	    
 	    TypeStringList::const_iterator q;
-	    
+	    _out << nl << "__checkMode(" << sliceModeToIceMode(op) << ", __current.mode);";
+    
 	    if(!inParams.empty())
 	    {
 		_out << nl << "IceInternal.BasicStream __is = __inS.istr();";
