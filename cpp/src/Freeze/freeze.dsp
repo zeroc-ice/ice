@@ -657,6 +657,19 @@ SOURCE=.\PingObject.ice
 
 !IF  "$(CFG)" == "freeze - Win32 Release"
 
+# Begin Custom Build
+InputPath=.\PingObject.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe PingObject.ice
+
+"PingObject.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"PingObject.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "freeze - Win32 Debug"
 
 # Begin Custom Build
