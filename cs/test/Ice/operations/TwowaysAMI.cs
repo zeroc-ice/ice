@@ -1208,7 +1208,7 @@ public class TwowaysAMI
 		dflt["a"] = "b";
 		communicator.setDefaultContext(dflt);
 		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(dflt);
+		    AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(dflt);
 		    p.opContext_async(cb);
 		    test(cb.check());
 		}
@@ -1229,12 +1229,7 @@ public class TwowaysAMI
 
 		communicator.setDefaultContext(new Ice.Context());
 		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new Ice.Context());
-		    p.opContext_async(cb);
-		    test(cb.check());
-		}
-		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new Ice.Context());
+		    AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(new Ice.Context());
 		    p2.opContext_async(cb);
 		    test(cb.check());
 		}

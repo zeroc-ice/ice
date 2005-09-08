@@ -42,19 +42,14 @@ void IceInternal::decRef(IceInternal::Reference* p) { p->__decRef(); }
 const Context&
 IceInternal::Reference::getContext() const
 {
-    return _hasContext ? _context : _instance->getDefaultContext();
+    return _context;
 }
 
 ReferencePtr
 IceInternal::Reference::defaultContext() const
 {
-    if(!_hasContext)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
     ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_hasContext = false;
-    r->_context.clear();
+    r->_context = _instance->getDefaultContext();
     return r;
 }
 
@@ -67,12 +62,7 @@ IceInternal::Reference::getCommunicator() const
 ReferencePtr
 IceInternal::Reference::changeContext(const Context& newContext) const
 {
-    if(_hasContext && newContext == _context)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
     ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_hasContext = true;
     r->_context = newContext;
     return r;
 }
@@ -119,8 +109,7 @@ IceInternal::Reference::changeDefault() const
     ReferencePtr r = _instance->referenceFactory()->copy(this);
     r->_mode = ModeTwoway;
     r->_secure = false;
-    r->_hasContext = false;
-    r->_context.clear();
+    r->_context = _instance->getDefaultContext();
     r->_facet = "";
     return r;
 }
@@ -150,18 +139,15 @@ Reference::hash() const
         h = 5 * h + *p;
     }
 
-    if(_hasContext)
+    for(q = _context.begin(); q != _context.end(); ++q)
     {
-	for(q = _context.begin(); q != _context.end(); ++q)
+	for(p = q->first.begin(); p != q->first.end(); ++p)
 	{
-	    for(p = q->first.begin(); p != q->first.end(); ++p)
-	    {
-		h = 5 * h + *p;
-	    }
-	    for(p = q->second.begin(); p != q->second.end(); ++p)
-	    {
-		h = 5 * h + *p;
-	    }
+	    h = 5 * h + *p;
+	}
+	for(p = q->second.begin(); p != q->second.end(); ++p)
+	{
+	    h = 5 * h + *p;
 	}
     }
 
@@ -316,11 +302,6 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
-    if(_hasContext != r._hasContext)
-    {
-        return false;
-    }
-
     if(_context != r._context)
     {
 	return false;
@@ -374,15 +355,6 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return false;
     }
     
-    if(_hasContext < r._hasContext)
-    {
-        return true;
-    }
-    else if(r._hasContext < _hasContext)
-    {
-        return false;
-    }
-
     if(_context < r._context)
     {
 	return true;
@@ -411,7 +383,6 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const CommunicatorPtr
     _mode(md),
     _secure(sec),
     _identity(ident),
-    _hasContext(!ctx.empty()),
     _context(ctx),
     _facet(fs),
     _hashInitialized(false)
@@ -424,7 +395,6 @@ IceInternal::Reference::Reference(const Reference& r) :
     _mode(r._mode),
     _secure(r._secure),
     _identity(r._identity),
-    _hasContext(r._hasContext),
     _context(r._context),
     _facet(r._facet),
     _hashInitialized(false)

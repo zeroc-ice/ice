@@ -1138,7 +1138,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    dflt["a"] = "b";
 	    communicator->setDefaultContext(dflt);
 	    {
-		AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(dflt);
+		AMI_MyClass_opContextNotEqualIPtr cb = new AMI_MyClass_opContextNotEqualI(dflt);
 		p->opContext_async(cb);
 		test(cb->check());
 	    }
@@ -1159,12 +1159,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
 	    communicator->setDefaultContext(Ice::Context());
 	    {
-		AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(Ice::Context());
-		p->opContext_async(cb);
-		test(cb->check());
-	    }
-	    {
-		AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(Ice::Context());
+		AMI_MyClass_opContextNotEqualIPtr cb = new AMI_MyClass_opContextNotEqualI(Ice::Context());
 		p2->opContext_async(cb);
 		test(cb->check());
 	    }

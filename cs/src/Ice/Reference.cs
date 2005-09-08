@@ -47,18 +47,13 @@ namespace IceInternal
 
 	public Ice.Context getContext()
 	{
-	    return _hasContext ? _context : _instance.getDefaultContext();
+	    return _context;
 	}
 
 	public Reference defaultContext()
 	{
-	    if(!_hasContext)
-	    {
-		return this;
-	    }
 	    Reference r = _instance.referenceFactory().copy(this);
-	    r._hasContext = false;
-	    r._context = _emptyContext;
+	    r._context = _instance.getDefaultContext();
 	    return r;
 	}
 
@@ -81,12 +76,7 @@ namespace IceInternal
 	    {
 		newContext = _emptyContext;
 	    }
-	    if(_hasContext && newContext.Equals(_context))
-	    {
-		return this;
-	    }
 	    Reference r = _instance.referenceFactory().copy(this);
-	    r._hasContext = true;
 	    if(newContext.Count == 0)
 	    {
 		r._context = _emptyContext;
@@ -120,11 +110,6 @@ namespace IceInternal
 	    return r;
 	}
 
-	public bool hasContext()
-	{
-	    return _hasContext;
-	}
-
 	public Reference changeFacet(string newFacet)
 	{
 	    if(newFacet.Equals(_facet))
@@ -140,8 +125,7 @@ namespace IceInternal
 	{
 	    Reference r = _instance.referenceFactory().copy(this);
 	    r._mode = Mode.ModeTwoway;
-	    r._hasContext = false;
-	    r._context = _emptyContext;
+	    r._context = _instance.getDefaultContext();
 	    r._facet = "";
 	    return r;
 	}
@@ -176,10 +160,7 @@ namespace IceInternal
 		    h = 5 * h + (int)_identity.category[i];
 		}
 
-		if(_hasContext)
-		{
-		    h = 5 * h + _context.GetHashCode();
-		}
+		h = 5 * h + _context.GetHashCode();
 
 		sz = _facet.Length;
 		for(int i = 0; i < sz; i++)
@@ -334,11 +315,6 @@ namespace IceInternal
 		return false;
 	    }
 
-	    if(_hasContext != r._hasContext)
-	    {
-	        return false;
-	    }
-
 	    if(!_context.Equals(r._context))
 	    {
 		return false;
@@ -364,7 +340,6 @@ namespace IceInternal
 	private Ice.Communicator _communicator;
 	private Mode _mode;
 	private Ice.Identity _identity;
-	private bool _hasContext;
 	private Ice.Context _context;
 	private static Ice.Context _emptyContext = new Ice.Context();
 	private string _facet;
@@ -390,7 +365,6 @@ namespace IceInternal
 	    _communicator = com;
 	    _mode = md;
 	    _identity = ident;
-	    _hasContext = ctx != null && ctx.Count > 0;
 	    _context = ctx == null ? _emptyContext : ctx;
 	    _facet = fac;
 	    _hashInitialized = false;

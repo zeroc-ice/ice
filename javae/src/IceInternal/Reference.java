@@ -51,19 +51,14 @@ public abstract class Reference
     public final java.util.Hashtable
     getContext()
     {
-	return _hasContext ? _context : _instance.getDefaultContext();
+	return _context;
     }
 
     public final Reference
     defaultContext()
     {
-        if(!_hasContext)
-	{
-	    return this;
-	}
 	Reference r = _instance.referenceFactory().copy(this);
-	r._hasContext = false;
-	r._context = _emptyContext;
+	r._context = _instance.getDefaultContext();
 	return r;
 
     }
@@ -87,12 +82,7 @@ public abstract class Reference
 	{
 	    newContext = _emptyContext;
 	}
-        if(_hasContext && newContext.equals(_context))
-	{
-	    return this;
-	}
 	Reference r = _instance.referenceFactory().copy(this);
-	r._hasContext = true;
 	if(newContext.isEmpty())
 	{
 	    r._context = _emptyContext;
@@ -145,12 +135,6 @@ public abstract class Reference
 	return r;
     }
 
-    public final boolean
-    hasContext()
-    {
-        return _hasContext;
-    }
-
     public final Reference
     changeFacet(String newFacet)
     {
@@ -172,8 +156,7 @@ public abstract class Reference
 	Reference r = _instance.referenceFactory().copy(this);
 	r._mode = ModeTwoway;
 	r._secure = false;
-	r._hasContext = false;
-	r._context = _emptyContext;
+	r._context = _instance.getDefaultContext();
 	r._facet = "";
 	return r;
     }
@@ -204,10 +187,7 @@ public abstract class Reference
             h = 5 * h + (int)_identity.category.charAt(i);
         }
 
-	if(_hasContext)
-	{
-	    h = 5 * h + _context.elements().hashCode();
-	}
+	h = 5 * h + _context.elements().hashCode();
 
         sz = _facet.length();
         for(int i = 0; i < sz; i++)
@@ -369,11 +349,6 @@ public abstract class Reference
             return false;
         }
 
-	if(_hasContext != r._hasContext)
-	{
-	    return false;
-	}
-
 	if(!IceUtil.Hashtable.equals(_context, r._context))
 	{
 	    return false;
@@ -393,7 +368,6 @@ public abstract class Reference
 	dest._instance = _instance;
 	dest._mode = _mode;
 	dest._identity = _identity;
-	dest._hasContext = _hasContext;
 	dest._context = _context;
 	dest._emptyContext = _emptyContext;
 	dest._facet = _facet;
@@ -416,7 +390,6 @@ public abstract class Reference
     private int _mode;
     private boolean _secure;
     private Ice.Identity _identity;
-    private boolean _hasContext;
     private java.util.Hashtable _context;
     private static java.util.Hashtable _emptyContext = new java.util.Hashtable();
     private String _facet;
@@ -456,7 +429,6 @@ public abstract class Reference
         _mode = md;
         _secure = sec;
         _identity = ident;
-	_hasContext = ctx != null && !ctx.isEmpty();
 	_context = ctx == null ? _emptyContext : ctx;
         _facet = fac;
 	_hashInitialized = false;

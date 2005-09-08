@@ -45,19 +45,14 @@ public abstract class Reference implements Cloneable
     public final java.util.Map
     getContext()
     {
-	return _hasContext ? _context : _instance.getDefaultContext();
+	return _context;
     }
 
     public final Reference
     defaultContext()
     {
-        if(!_hasContext)
-	{
-	    return this;
-	}
 	Reference r = _instance.referenceFactory().copy(this);
-	r._hasContext = false;
-	r._context = _emptyContext;
+	r._context = _instance.getDefaultContext();
 	return r;
 
     }
@@ -83,12 +78,7 @@ public abstract class Reference implements Cloneable
 	{
 	    newContext = _emptyContext;
 	}
-        if(_hasContext && newContext.equals(_context))
-	{
-	    return this;
-	}
 	Reference r = _instance.referenceFactory().copy(this);
-	r._hasContext = true;
 	if(newContext.isEmpty())
 	{
 	    r._context = _emptyContext;
@@ -131,12 +121,6 @@ public abstract class Reference implements Cloneable
 	return r;
     }
 
-    public final boolean
-    hasContext()
-    {
-        return _hasContext;
-    }
-
     public final Reference
     changeFacet(String newFacet)
     {
@@ -157,8 +141,7 @@ public abstract class Reference implements Cloneable
     {
 	Reference r = _instance.referenceFactory().copy(this);
 	r._mode = ModeTwoway;
-	r._hasContext = false;
-	r._context = _emptyContext;
+	r._context = _instance.getDefaultContext();
 	r._facet = "";
 	return r;
     }
@@ -192,10 +175,7 @@ public abstract class Reference implements Cloneable
             h = 5 * h + (int)_identity.category.charAt(i);
         }
 
-	if(_hasContext)
-	{
-	    h = 5 * h + _context.entrySet().hashCode();
-	}
+	h = 5 * h + _context.entrySet().hashCode();
 
         sz = _facet.length();
         for(int i = 0; i < sz; i++)
@@ -352,11 +332,6 @@ public abstract class Reference implements Cloneable
             return false;
         }
 
-	if(_hasContext != r._hasContext)
-	{
-	    return false;
-	}
-
 	if(!_context.equals(r._context))
 	{
 	    return false;
@@ -391,7 +366,6 @@ public abstract class Reference implements Cloneable
 
     private int _mode;
     private Ice.Identity _identity;
-    private boolean _hasContext;
     private java.util.Map _context;
     private static java.util.HashMap _emptyContext = new java.util.HashMap();
     private String _facet;
@@ -418,7 +392,6 @@ public abstract class Reference implements Cloneable
         _communicator = communicator;
         _mode = md;
         _identity = ident;
-	_hasContext = ctx != null && !ctx.isEmpty();
 	_context = ctx == null ? _emptyContext : ctx;
         _facet = fac;
 	_hashInitialized = false;

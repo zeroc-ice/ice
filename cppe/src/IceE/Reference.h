@@ -67,7 +67,6 @@ public:
     ReferencePtr changeContext(const Ice::Context&) const;
     ReferencePtr changeMode(Mode) const;
     ReferencePtr changeIdentity(const Ice::Identity&) const;
-    bool hasContext() const { return _hasContext; }
     ReferencePtr changeFacet(const std::string&) const;
 
     //
@@ -120,7 +119,6 @@ private:
     Mode _mode;
     bool _secure;
     Ice::Identity _identity;
-    bool _hasContext;
     Ice::Context _context;
     std::string _facet;
 

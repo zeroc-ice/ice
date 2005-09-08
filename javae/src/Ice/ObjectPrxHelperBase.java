@@ -221,31 +221,17 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_newContext(java.util.Hashtable newContext)
     {
-        if(_reference.hasContext() && newContext != null && newContext.equals(_reference.getContext()))
-        {
-            return this;
-        }
-        else
-        {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeContext(newContext));
-            return proxy;
-        }
+	ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+	proxy.setup(_reference.changeContext(newContext));
+	return proxy;
     }
 
     public final ObjectPrx
     ice_defaultContext()
     {
-        if(!_reference.hasContext())
-	{
-	    return this;
-	}
-	else
-	{
-	    ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-	    proxy.setup(_reference.defaultContext());
-	    return proxy;
-	}
+	ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+	proxy.setup(_reference.defaultContext());
+	return proxy;
     }
 
     public final String

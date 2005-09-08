@@ -57,7 +57,7 @@ public:
     void flushBatchRequests();
 #endif
     void setDefaultContext(const ::Ice::Context&);
-    const ::Ice::Context& getDefaultContext() const;
+    ::Ice::Context getDefaultContext() const;
     size_t threadPerConnectionStackSize() const;
 
 #ifndef ICEE_PURE_CLIENT

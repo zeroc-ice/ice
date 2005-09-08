@@ -274,7 +274,7 @@ IceInternal::Instance::setDefaultContext(const Context& ctx)
     _defaultContext = ctx;
 }
 
-const Context&
+Context
 IceInternal::Instance::getDefaultContext() const
 {
     IceUtil::RecMutex::Lock sync(*this);

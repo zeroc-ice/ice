@@ -603,7 +603,7 @@ class Twoways
 		Ice.Context dflt = new Ice.Context();
 		dflt["a"] = "b";
 		communicator.setDefaultContext(dflt);
-		test(p.opContext().Equals(dflt));
+		test(!p.opContext().Equals(dflt));
 
 		Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_newContext(new Ice.Context()));
 		test(p2.opContext().Count == 0);
@@ -612,8 +612,7 @@ class Twoways
 		test(p2.opContext().Equals(dflt));
 
 		communicator.setDefaultContext(new Ice.Context());
-		test(p.opContext().Count == 0);
-		test(p2.opContext().Count == 0);
+		test(p2.opContext().Count != 0);
 	    }
 	}
     }

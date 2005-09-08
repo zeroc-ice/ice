@@ -626,7 +626,7 @@ class Twoways
 		java.util.Hashtable dflt = new java.util.Hashtable();
 		dflt.put("a", "b");
 		communicator.setDefaultContext(dflt);
-		test(IceUtil.Hashtable.equals(p.opContext(), dflt));
+		test(!IceUtil.Hashtable.equals(p.opContext(), dflt));
 
 		Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_newContext(new java.util.Hashtable()));
 		test(p2.opContext().isEmpty());
@@ -635,8 +635,7 @@ class Twoways
 		test(IceUtil.Hashtable.equals(p2.opContext(), dflt));
 
 		communicator.setDefaultContext(new java.util.Hashtable());
-		test(p.opContext().isEmpty());
-		test(p2.opContext().isEmpty());
+		test(!p2.opContext().isEmpty());
 	    }
 	}
     }

@@ -1,6 +1,9 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Communicator::setDefaultContext no longer changes the context
+  information set on existing proxies.
+
 - slice2cpp and slice2freeze now provide the --add-header option. It adds a
   #include directive for the specified header at the beginning of the generated
   source file. For example:

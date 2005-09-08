@@ -627,7 +627,7 @@ class Twoways
 		java.util.HashMap dflt = new java.util.HashMap();
 		dflt.put("a", "b");
 		communicator.setDefaultContext(dflt);
-		test(p.opContext().equals(dflt));
+		test(!p.opContext().equals(dflt));
 
 		Test.MyClassPrx p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_newContext(new java.util.HashMap()));
 		test(p2.opContext().isEmpty());
@@ -636,8 +636,7 @@ class Twoways
 		test(p2.opContext().equals(dflt));
 
 		communicator.setDefaultContext(new java.util.HashMap());
-		test(p.opContext().isEmpty());
-		test(p2.opContext().isEmpty());
+		test(!p2.opContext().isEmpty());
 	    }
 	}
     }

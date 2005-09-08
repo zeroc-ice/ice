@@ -76,7 +76,7 @@ public:
     Ice::Int serverACM() const;
     void flushBatchRequests();
     void setDefaultContext(const ::Ice::Context&);
-    const ::Ice::Context& getDefaultContext() const;
+    ::Ice::Context getDefaultContext() const;
     
 private:
 

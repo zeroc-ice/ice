@@ -1341,7 +1341,7 @@ class TwowaysAMI
 		dflt.put("a", "b");
 		communicator.setDefaultContext(dflt);
 		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(dflt);
+		    AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(dflt);
 		    p.opContext_async(cb);
 		    test(cb.check());
 		}
@@ -1362,12 +1362,7 @@ class TwowaysAMI
 
 		communicator.setDefaultContext(new java.util.HashMap());
 		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new java.util.HashMap());
-		    p.opContext_async(cb);
-		    test(cb.check());
-		}
-		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new java.util.HashMap());
+		    AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(new java.util.HashMap());
 		    p2.opContext_async(cb);
 		    test(cb.check());
 		}

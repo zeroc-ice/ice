@@ -283,30 +283,16 @@ namespace Ice
 
         public ObjectPrx ice_newContext(Context newContext)
         {
-            if(_reference.hasContext() && newContext != null && newContext.Equals(_reference.getContext()))
-            {
-                return this;
-            }
-            else
-            {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changeContext(newContext));
-                return proxy;
-            }
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(_reference.changeContext(newContext));
+            return proxy;
         }
 
 	public ObjectPrx ice_defaultContext()
 	{
-            if(!_reference.hasContext())
-            {
-                return this;
-            }
-            else
-            {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.defaultContext());
-                return proxy;
-            }
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(_reference.defaultContext());
+            return proxy;
 	}
 
         public string ice_getFacet()
