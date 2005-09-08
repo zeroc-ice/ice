@@ -232,4 +232,37 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
 
         __inS.endSlice();
     }
+
+    private static String
+    operationModeToString(OperationMode mode)
+    {
+	if(mode == Ice.OperationMode.Normal)
+	{
+	    return "::Ice::Normal";
+	}
+	if(mode == Ice.OperationMode.Nonmutating)
+	{
+	    return "::Ice::Nonmutating";
+	}
+
+	if(mode == Ice.OperationMode.Idempotent)
+	{
+	    return "::Ice::Idempotent";
+	}
+
+	return "???";
+    }
+
+    protected static void
+    __checkMode(OperationMode expected, OperationMode received)
+    {
+	if(expected != received)
+	{
+	    Ice.MarshalException ex = new Ice.MarshalException();
+	    ex.reason = "unexpected operation mode. expected = "
+			+ operationModeToString(expected) + " received = "
+			+ operationModeToString(received);
+	    throw ex;
+	}
+    }
 }
