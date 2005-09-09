@@ -84,6 +84,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Arrays.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "AssemblyInfo.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -154,7 +159,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Endpoint.cs"
+                    RelPath = "EndpointI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -379,7 +384,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "TcpEndpoint.cs"
+                    RelPath = "TcpEndpointI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -414,7 +419,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "UdpEndpoint.cs"
+                    RelPath = "UdpEndpointI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -424,7 +429,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "UnknownEndpoint.cs"
+                    RelPath = "UnknownEndpointI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -475,6 +480,11 @@
                 />
                 <File
                     RelPath = "generated\Current.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "generated\Endpoint.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
