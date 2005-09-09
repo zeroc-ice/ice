@@ -12,7 +12,7 @@
 
 #include <Hello.h>
 
-class HelloI : public ::Demo::Hello
+class HelloI : public Demo::Hello
 {
 public:
 

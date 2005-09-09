@@ -7,34 +7,34 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
+#include <Ice/Application.h>
 #include <Hello.h>
 
 using namespace std;
 using namespace Demo;
 
-void
-menu()
+class HelloClient : public Ice::Application
 {
-    cout <<
-	"usage:\n"
-	"t: send greeting as twoway\n"
-	"o: send greeting as oneway\n"
-	"O: send greeting as batch oneway\n"
-	"d: send greeting as datagram\n"
-	"D: send greeting as batch datagram\n"
-	"f: flush all batch requests\n"
-	"T: set a timeout\n"
-	"S: switch secure mode on/off\n"
-	"s: shutdown server\n"
-	"x: exit\n"
-	"?: help\n";
+public:
+
+    virtual int run(int, char*[]);
+
+private:
+
+    void menu();
+};
+
+int
+main(int argc, char* argv[])
+{
+    HelloClient app;
+    return app.main(argc, argv, "config");
 }
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+HelloClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    Ice::PropertiesPtr properties = communicator()->getProperties();
     const char* proxyProperty = "Hello.Proxy";
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
@@ -43,7 +43,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
     HelloPrx twoway = HelloPrx::checkedCast(base->ice_twoway()->ice_timeout(-1)->ice_secure(false));
     if(!twoway)
     {
@@ -103,7 +103,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    }
 	    else if(c == 'f')
 	    {
-		communicator->flushBatchRequests();
+		communicator()->flushBatchRequests();
 	    }
 	    else if(c == 'T')
 	    {
@@ -176,37 +176,20 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
+void
+HelloClient::menu()
 {
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
-	status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
+    cout <<
+	"usage:\n"
+	"t: send greeting as twoway\n"
+	"o: send greeting as oneway\n"
+	"O: send greeting as batch oneway\n"
+	"d: send greeting as datagram\n"
+	"D: send greeting as batch datagram\n"
+	"f: flush all batch requests\n"
+	"T: set a timeout\n"
+	"S: switch secure mode on/off\n"
+	"s: shutdown server\n"
+	"x: exit\n"
+	"?: help\n";
 }

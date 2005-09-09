@@ -7,14 +7,13 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
 #include <NestedI.h>
+#include <Ice/Application.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
-class NestedServer : public Application
+class NestedServer : public Ice::Application
 {
 public:
 
@@ -31,7 +30,7 @@ main(int argc, char* argv[])
 int
 NestedServer::run(int argc, char* argv[])
 {
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Nested.Server");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Nested.Server");
     NestedPrx self = NestedPrx::uncheckedCast(adapter->createProxy(Ice::stringToIdentity("nestedServer")));
     adapter->add(new NestedI(self), Ice::stringToIdentity("nestedServer"));
     adapter->activate();

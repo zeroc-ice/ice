@@ -21,7 +21,7 @@ public:
 
 private:
 
-    Demo::NestedPrx _self;
+    const Demo::NestedPrx _self;
 };
 
 #endif

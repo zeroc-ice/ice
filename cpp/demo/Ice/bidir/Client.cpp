@@ -12,7 +12,6 @@
 #include <Callback.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 class CallbackReceiverI : public CallbackReceiver
@@ -20,13 +19,13 @@ class CallbackReceiverI : public CallbackReceiver
 public:
 
     virtual void
-    callback(Int num, const Current&)
+    callback(Ice::Int num, const Ice::Current&)
     {
 	cout << "received callback #" << num << endl;
     }
 };
 
-class CallbackClient : public Application
+class CallbackClient : public Ice::Application
 {
 public:
 
@@ -43,7 +42,7 @@ main(int argc, char* argv[])
 int
 CallbackClient::run(int argc, char* argv[])
 {
-    PropertiesPtr properties = communicator()->getProperties();
+    Ice::PropertiesPtr properties = communicator()->getProperties();
     const char* proxyProperty = "Callback.Client.CallbackServer";
     std::string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
@@ -59,8 +58,8 @@ CallbackClient::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Client");
-    Identity ident;
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Client");
+    Ice::Identity ident;
     ident.name = IceUtil::generateUUID();
     ident.category = "";
     adapter->add(new CallbackReceiverI, ident);

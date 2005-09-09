@@ -7,29 +7,28 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
+#include <Ice/Application.h>
 #include <Printer.h>
 
 using namespace std;
 using namespace Demo;
 
-void
-menu()
+class InvokeClient : public Ice::Application
 {
-    cout <<
-        "usage:\n"
-        "1: print string\n"
-        "2: print string sequence\n"
-        "3: print dictionary\n"
-        "4: print enum\n"
-        "5: print struct\n"
-        "6: print struct sequence\n"
-        "7: print class\n"
-        "8: get values\n"
-        "9: throw exception\n"
-        "s: shutdown server\n"
-        "x: exit\n"
-        "?: help\n";
+public:
+
+    virtual int run(int, char*[]);
+
+private:
+
+    void menu();
+};
+
+int
+main(int argc, char* argv[])
+{
+    InvokeClient app;
+    return app.main(argc, argv, "config");
 }
 
 static ostream&
@@ -51,9 +50,9 @@ operator<<(ostream& out, Demo::Color c)
 }
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+InvokeClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    Ice::PropertiesPtr properties = communicator()->getProperties();
     const char* proxyProperty = "Printer.Proxy";
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
@@ -62,7 +61,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx obj = communicator->stringToProxy(proxy);
+    Ice::ObjectPrx obj = communicator()->stringToProxy(proxy);
 
     menu();
 
@@ -79,7 +78,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                 // Marshal the in parameter.
                 //
                 Ice::ByteSeq inParams, outParams;
-                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator());
                 out->writeString("The streaming API works!");
                 out->finished(inParams);
 
@@ -97,7 +96,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                 // Marshal the in parameter.
                 //
                 Ice::ByteSeq inParams, outParams;
-                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator());
                 Demo::StringSeq arr;
                 arr.push_back("The");
                 arr.push_back("streaming");
@@ -120,7 +119,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                 // Marshal the in parameter.
                 //
                 Ice::ByteSeq inParams, outParams;
-                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator());
                 Demo::StringDict dict;
                 dict["The"] = "streaming";
                 dict["API"] = "works!";
@@ -141,7 +140,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                 // Marshal the in parameter.
                 //
                 Ice::ByteSeq inParams, outParams;
-                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator());
                 Demo::ice_writeColor(out, Demo::green);
                 out->finished(inParams);
 
@@ -159,7 +158,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                 // Marshal the in parameter.
                 //
                 Ice::ByteSeq inParams, outParams;
-                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator());
                 Demo::Structure s;
                 s.name = "red";
                 s.value = Demo::red;
@@ -180,7 +179,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                 // Marshal the in parameter.
                 //
                 Ice::ByteSeq inParams, outParams;
-                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator());
                 Demo::StructureSeq arr;
                 arr.push_back(Demo::Structure());
                 arr.back().name = "red";
@@ -208,7 +207,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                 // Marshal the in parameter.
                 //
                 Ice::ByteSeq inParams, outParams;
-                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+                Ice::OutputStreamPtr out = Ice::createOutputStream(communicator());
                 Demo::CPtr c = new Demo::C;
                 c->s.name = "blue";
                 c->s.value = Demo::blue;
@@ -239,7 +238,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                 //
                 // Unmarshal the results.
                 //
-                Ice::InputStreamPtr in = Ice::createInputStream(communicator, outParams);
+                Ice::InputStreamPtr in = Ice::createInputStream(communicator(), outParams);
                 Demo::CPtr c;
                 Demo::ice_readC(in, c);
                 string str = in->readString();
@@ -259,7 +258,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
                     continue;
                 }
 
-                Ice::InputStreamPtr in = Ice::createInputStream(communicator, outParams);
+                Ice::InputStreamPtr in = Ice::createInputStream(communicator(), outParams);
                 try
                 {
                     in->throwException();
@@ -302,37 +301,21 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
+void
+InvokeClient::menu()
 {
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-        Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-        communicator = Ice::initializeWithProperties(argc, argv, properties);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
-    }
-
-    return status;
+    cout <<
+        "usage:\n"
+        "1: print string\n"
+        "2: print string sequence\n"
+        "3: print dictionary\n"
+        "4: print enum\n"
+        "5: print struct\n"
+        "6: print struct sequence\n"
+        "7: print class\n"
+        "8: get values\n"
+        "9: throw exception\n"
+        "s: shutdown server\n"
+        "x: exit\n"
+        "?: help\n";
 }

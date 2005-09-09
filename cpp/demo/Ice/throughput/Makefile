@@ -18,7 +18,8 @@ OBJS		= Throughput.o
 
 COBJS		= Client.o
 
-SOBJS		= Server.o
+SOBJS		= ThroughputI.o \
+		  Server.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \

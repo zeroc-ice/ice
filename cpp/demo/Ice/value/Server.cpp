@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <ValueI.h>
+#include <Ice/Ice.h>
 
 using namespace std;
 
@@ -30,8 +30,7 @@ int
 ValueServer::run(int argc, char* argv[])
 {
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Value");
-    Ice::ObjectPtr object = new InitialI(adapter);
-    adapter->add(object, Ice::stringToIdentity("initial"));
+    adapter->add(new InitialI(adapter), Ice::stringToIdentity("initial"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

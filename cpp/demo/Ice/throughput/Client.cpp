@@ -13,34 +13,28 @@
 using namespace std;
 using namespace Demo;
 
-void
-menu()
+class ThroughputClient : public Ice::Application
 {
-    cout <<
-	"usage:\n"
-	"\n"
-	"toggle type of data to send:\n"
-	"1: sequence of bytes (default)\n"
-	"2: sequence of strings (\"hello\")\n"
-	"3: sequence of structs with a string (\"hello\") and a double\n"
-	"4: sequence of structs with two ints and a double\n"
-	"\n"
-	"select test to run:\n"
-	"t: Send sequence as twoway\n"
-	"o: Send sequence as oneway\n"
-	"r: Receive sequence\n"
-	"e: Echo (send and receive) sequence\n"
-	"\n"
-	"other commands:\n"
-	"s: shutdown server\n"
-	"x: exit\n"
-	"?: help\n";
+public:
+
+    virtual int run(int, char*[]);
+
+private:
+
+    void menu();
+};
+
+int
+main(int argc, char* argv[])
+{
+    ThroughputClient app;
+    return app.main(argc, argv, "config");
 }
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+ThroughputClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    Ice::PropertiesPtr properties = communicator()->getProperties();
     const char* proxyProperty = "Throughput.Throughput";
     std::string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
@@ -49,7 +43,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
     ThroughputPrx throughput = ThroughputPrx::checkedCast(base);
     if(!throughput)
     {
@@ -387,37 +381,26 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
+void
+ThroughputClient::menu()
 {
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
-	status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
+    cout <<
+	"usage:\n"
+	"\n"
+	"toggle type of data to send:\n"
+	"1: sequence of bytes (default)\n"
+	"2: sequence of strings (\"hello\")\n"
+	"3: sequence of structs with a string (\"hello\") and a double\n"
+	"4: sequence of structs with two ints and a double\n"
+	"\n"
+	"select test to run:\n"
+	"t: Send sequence as twoway\n"
+	"o: Send sequence as oneway\n"
+	"r: Receive sequence\n"
+	"e: Echo (send and receive) sequence\n"
+	"\n"
+	"other commands:\n"
+	"s: shutdown server\n"
+	"x: exit\n"
+	"?: help\n";
 }

@@ -8,51 +8,30 @@
 // **********************************************************************
 
 #include <ThroughputI.h>
+#include <Ice/Application.h>
 
 using namespace std;
 
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+class ThroughputServer : public Ice::Application
 {
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Throughput");
-    Ice::ObjectPtr object = new ThroughputI;
-    adapter->add(object, Ice::stringToIdentity("throughput"));
-    adapter->activate();
-    communicator->waitForShutdown();
-    return EXIT_SUCCESS;
-}
+public:
+
+    virtual int run(int, char*[]);
+};
 
 int
 main(int argc, char* argv[])
 {
-    int status;
-    Ice::CommunicatorPtr communicator;
+    ThroughputServer app;
+    return app.main(argc, argv, "config");
+}
 
-    try
-    {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
-	status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
+int
+ThroughputServer::run(int argc, char* argv[])
+{
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Throughput");
+    adapter->add(new ThroughputI, Ice::stringToIdentity("throughput"));
+    adapter->activate();
+    communicator()->waitForShutdown();
+    return EXIT_SUCCESS;
 }

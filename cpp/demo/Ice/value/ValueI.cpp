@@ -13,19 +13,16 @@
 using namespace std;
 using namespace Demo;
 
-InitialI::InitialI(::Ice::ObjectAdapterPtr adapter)
+InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
+    _simple(new Simple),
+    _printer(new PrinterI),
+    _printerProxy(PrinterPrx::uncheckedCast(adapter->addWithUUID(_printer))),
+    _derivedPrinter(new DerivedPrinterI)
 {
-    _simple = new Simple;
     _simple->message = "a message 4 u";
-
-    _printer = new PrinterI;
     _printer->message = "Ice rulez!";
-    _printerProxy = PrinterPrx::uncheckedCast(adapter->addWithUUID(_printer));
-
-    _derivedPrinter = new DerivedPrinterI;
     _derivedPrinter->message = _printer->message;
     _derivedPrinter->derivedMessage = "a derived message 4 u";
-    adapter->addWithUUID(_derivedPrinter);
 }
 
 SimplePtr

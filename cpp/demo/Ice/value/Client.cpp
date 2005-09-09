@@ -19,10 +19,6 @@ class ValueClient : public Ice::Application
 public:
 
     virtual int run(int, char*[]);
-
-private:
-
-    void menu();
 };
 
 int

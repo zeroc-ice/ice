@@ -7,14 +7,13 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
 #include <NestedI.h>
+#include <Ice/Application.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
-class NestedClient : public Application
+class NestedClient : public Ice::Application
 {
 public:
 
@@ -31,7 +30,7 @@ main(int argc, char* argv[])
 int
 NestedClient::run(int argc, char* argv[])
 {
-    PropertiesPtr properties = communicator()->getProperties();
+    Ice::PropertiesPtr properties = communicator()->getProperties();
     const char* proxyProperty = "Nested.Client.NestedServer";
     std::string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
@@ -40,7 +39,7 @@ NestedClient::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator()->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
     NestedPrx nested = NestedPrx::checkedCast(base);
     if(!nested)
     {
@@ -48,7 +47,7 @@ NestedClient::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Nested.Client");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Nested.Client");
     NestedPrx self = NestedPrx::uncheckedCast(adapter->createProxy(Ice::stringToIdentity("nestedClient")));
     adapter->add(new NestedI(self), Ice::stringToIdentity("nestedClient"));
     adapter->activate();
@@ -72,7 +71,7 @@ NestedClient::run(int argc, char* argv[])
 		nested->nestedCall(level, self);
 	    }
 	}
-	catch(const Exception& ex)
+	catch(const Ice::Exception& ex)
 	{
 	    cerr << ex << endl;
 	}

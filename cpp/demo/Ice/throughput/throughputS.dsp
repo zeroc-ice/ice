@@ -97,6 +97,10 @@ SOURCE=.\Server.cpp
 
 SOURCE=.\Throughput.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\ThroughputI.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 

@@ -1,0 +1,11 @@
+This demo illustrates how to invoke ordinary (twoway) operations, as
+well as how to invoke oneway operations, use datagrams, secure
+invocations, and how to used batched invocations.
+
+To run the demo, first start the server:
+
+$ server
+
+In a separate window, start the client:
+
+$ client

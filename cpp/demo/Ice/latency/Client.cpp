@@ -7,16 +7,30 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
+#include <Ice/Application.h>
 #include <Latency.h>
 
 using namespace std;
 using namespace Demo;
 
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+class LatencyClient : public Ice::Application
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
+public:
+
+    virtual int run(int, char*[]);
+};
+
+int
+main(int argc, char* argv[])
+{
+    LatencyClient app;
+    return app.main(argc, argv, "config");
+}
+
+int
+LatencyClient::run(int argc, char* argv[])
+{
+    Ice::PropertiesPtr properties = communicator()->getProperties();
     const char* proxyProperty = "Latency.Ping";
     std::string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
@@ -25,7 +39,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
     PingPrx ping = PingPrx::checkedCast(base);
     if(!ping)
     {
@@ -51,39 +65,4 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     cout << "time per ping: " << tm * 1000 / repetitions << "ms" << endl;
 
     return EXIT_SUCCESS;
-}
-
-int
-main(int argc, char* argv[])
-{
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
-	status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
 }

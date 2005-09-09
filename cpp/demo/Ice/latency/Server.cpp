@@ -7,54 +7,33 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
+#include <Ice/Application.h>
 #include <Latency.h>
 
 using namespace std;
 using namespace Demo;
 
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+class LatencyServer : public Ice::Application
 {
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Latency");
-    Ice::ObjectPtr object = new Ping;
-    adapter->add(object, Ice::stringToIdentity("ping"));
-    adapter->activate();
-    communicator->waitForShutdown();
-    return EXIT_SUCCESS;
-}
+public:
+
+    virtual int run(int, char*[]);
+};
 
 int
 main(int argc, char* argv[])
 {
-    int status;
-    Ice::CommunicatorPtr communicator;
+    LatencyServer app;
+    return app.main(argc, argv, "config");
+}
 
-    try
-    {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
-	status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
+int
+LatencyServer::run(int argc, char* argv[])
+{
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Latency");
+    Ice::ObjectPtr object = new Ping;
+    adapter->add(new Ping, Ice::stringToIdentity("ping"));
+    adapter->activate();
+    communicator()->waitForShutdown();
+    return EXIT_SUCCESS;
 }
