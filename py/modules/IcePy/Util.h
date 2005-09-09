@@ -44,6 +44,39 @@ private:
 };
 
 //
+// Manages the interpreter's exception.
+//
+class PyException
+{
+public:
+
+    //
+    // Retrieves the interpreter's current exception.
+    //
+    PyException();
+
+    //
+    // Uses the given exception.
+    //
+    PyException(PyObject*);
+
+    //
+    // Convert the Python exception to its C++ equivalent.
+    //
+    void raise();
+
+    PyObjectHandle ex;
+
+private:
+
+    void raiseLocalException();
+    std::string getTraceback();
+
+    PyObjectHandle _type;
+    PyObjectHandle _tb;
+};
+
+//
 // Release Python's Global Interpreter Lock during potentially time-consuming
 // (and non-Python related) work.
 //
@@ -95,7 +128,7 @@ PyObject* lookupType(const std::string&);
 //
 // Returns the current Python exception.
 //
-PyObject* getPythonException(bool = true);
+//void getPythonException(PyObjectHandle&, PyObjectHandle&, bool);
 
 //
 // Creates an exception instance of the given type.
@@ -114,8 +147,11 @@ void setPythonException(const Ice::Exception&);
 
 //
 // Converts a Python exception into an Ice exception and throws it.
+// If no exception is provided, the interpreter's current exception
+// is obtained. The second argument is an optional traceback object.
 //
-void throwPythonException(PyObject* = NULL);
+//void throwPythonException(PyObject* = NULL, PyObject* = NULL);
+void throwPythonException();
 
 //
 // Handle the SystemExit exception.

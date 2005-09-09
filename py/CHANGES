@@ -1,6 +1,9 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Exception stack trace information is now included when possible in
+  the 'unknown' member of Ice.UnknownException and its derived types.
+
 - Fixed compilation errors for 64-bit GCC builds.
 
 - Added ice_communicator() to proxies. This function returns the

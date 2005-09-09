@@ -59,7 +59,7 @@ public:
     void responseAsyncException(PyObject*, PyObject*);
 
     void sendResponse(const Ice::AMD_Object_ice_invokePtr&, PyObject*, const Ice::CommunicatorPtr&);
-    void sendException(const Ice::AMD_Object_ice_invokePtr&, PyObject*, const Ice::CommunicatorPtr&);
+    void sendException(const Ice::AMD_Object_ice_invokePtr&, PyException&, const Ice::CommunicatorPtr&);
 
 private:
 
@@ -293,7 +293,8 @@ amdCallbackIceException(AMDCallbackObject* self, PyObject* args)
     try
     {
         assert(self->op);
-        (*self->op)->sendException(*self->cb, ex, *self->communicator);
+	PyException pye(ex); // No traceback information available.
+	(*self->op)->sendException(*self->cb, pye, *self->communicator);
     }
     catch(const Ice::Exception& ex)
     {
@@ -708,8 +709,8 @@ IcePy::OperationI::dispatch(PyObject* servant, const Ice::AMD_Object_ice_invokeP
     //
     if(PyErr_Occurred())
     {
-        PyObjectHandle ex = getPythonException(); // Retrieve it before another Python API call clears it.
-        sendException(cb, ex.get(), communicator);
+	PyException ex; // Retrieve it before another Python API call clears it.
+	sendException(cb, ex, communicator);
         return;
     }
 
@@ -899,12 +900,12 @@ IcePy::OperationI::sendResponse(const Ice::AMD_Object_ice_invokePtr& cb, PyObjec
 }
 
 void
-IcePy::OperationI::sendException(const Ice::AMD_Object_ice_invokePtr& cb, PyObject* ex,
+IcePy::OperationI::sendException(const Ice::AMD_Object_ice_invokePtr& cb, PyException& ex,
                                  const Ice::CommunicatorPtr& communicator)
 {
     try
     {
-        PyObject* exType = (PyObject*)((PyInstanceObject*)ex)->in_class;
+        PyObject* exType = (PyObject*)((PyInstanceObject*)ex.ex.get())->in_class;
 
         //
         // A servant that calls sys.exit() will raise the SystemExit exception.
@@ -914,7 +915,7 @@ IcePy::OperationI::sendException(const Ice::AMD_Object_ice_invokePtr& cb, PyObje
         //
         if(PyErr_GivenExceptionMatches(exType, PyExc_SystemExit))
         {
-            handleSystemExit(ex); // Does not return.
+            handleSystemExit(ex.ex.get()); // Does not return.
         }
 
         PyObject* userExceptionType = lookupType("Ice.UserException");
@@ -924,19 +925,19 @@ IcePy::OperationI::sendException(const Ice::AMD_Object_ice_invokePtr& cb, PyObje
             //
             // Get the exception's type and verify that it is legal to be thrown from this operation.
             //
-            PyObjectHandle iceType = PyObject_GetAttrString(ex, STRCAST("ice_type"));
+            PyObjectHandle iceType = PyObject_GetAttrString(ex.ex.get(), STRCAST("ice_type"));
             assert(iceType.get() != NULL);
             ExceptionInfoPtr info = ExceptionInfoPtr::dynamicCast(getException(iceType.get()));
             assert(info);
-            if(!validateException(ex))
+            if(!validateException(ex.ex.get()))
             {
-                throwPythonException(ex); // Raises UnknownUserException.
+		ex.raise(); // Raises UnknownUserException.
             }
             else
             {
                 Ice::OutputStreamPtr os = Ice::createOutputStream(communicator);
                 ObjectMap objectMap;
-                info->marshal(ex, os, &objectMap);
+                info->marshal(ex.ex.get(), os, &objectMap);
 
                 if(info->usesClasses)
                 {
@@ -950,7 +951,7 @@ IcePy::OperationI::sendException(const Ice::AMD_Object_ice_invokePtr& cb, PyObje
         }
         else
         {
-            throwPythonException(ex);
+	    ex.raise();
         }
     }
     catch(const AbortMarshaling&)
@@ -1089,7 +1090,8 @@ IcePy::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ice:
             }
             else
             {
-                throwPythonException(ex.get());
+		PyException pye(ex.get()); // No traceback information available.
+		pye.raise();
             }
         }
         else
