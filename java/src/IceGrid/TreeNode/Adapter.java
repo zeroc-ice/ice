@@ -598,25 +598,18 @@ class Adapter extends Leaf
     {
 	assert !_brandNew;
 	
-	if(_model.canUpdate())
+	if(isEditable() && _model.canUpdate())
 	{
 	    _model.disableDisplay();
 
 	    Adapters adapters = (Adapters)getParent();
-	    
-	    //
-	    // Will keep current selection unless it points to me!
-	    //
-	    CommonBase toSelect = _model.getSelectedNode();
-	    if(toSelect == this)
+	     
+	    CommonBase toSelect = (CommonBase)adapters.getChildAt(adapters.getIndex(this) + 1);
+	    if(toSelect == null)
 	    {
-		toSelect = (CommonBase)adapters.getChildAt(adapters.getIndex(this) + 1);
-		if(toSelect == null)
-		{
-		    System.err.println("Can't find next child");
-		    toSelect = adapters;
-		}
+		toSelect = adapters;
 	    }
+	   
 	    adapters.removeDescriptor(_descriptor);
 	    getEditable().markModified();
 	    getApplication().applySafeUpdate();
