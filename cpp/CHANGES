@@ -1,6 +1,10 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Fixed a bug that would cause UDP server connections to be closed on
+  transient errors, thus preventing the reception of any more UDP messages
+  until a server restart.
+
 - Communicator::setDefaultContext no longer changes the context
   information set on existing proxies.
 
