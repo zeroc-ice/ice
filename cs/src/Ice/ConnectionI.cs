@@ -1124,10 +1124,13 @@ namespace Ice
 			{
 			    IceInternal.TraceUtil.traceHeader("received close connection", stream, _logger, 
 							      _traceLevels);
-			    if(_endpoint.datagram() && _warn)
+			    if(_endpoint.datagram())
 			    {
-				_logger.warning("ignoring close connection message for datagram connection:\n"
-						+ _desc);
+			        if(_warn)
+			        {
+				    _logger.warning("ignoring close connection message for datagram connection:\n"
+						    + _desc);
+			        }
 			    }
 			    else
 			    {
@@ -1221,9 +1224,24 @@ namespace Ice
 			}
 		    }
 		}
-		catch(LocalException ex)
+		catch(SocketException ex)
 		{
 		    setState(StateClosed, ex);
+		    return;
+		}
+		catch(LocalException ex)
+		{
+		    if(_endpoint.datagram())
+		    {
+		        if(_warn)
+			{
+			    _logger.warning("datagram connection exception:\n" + ex + _desc);
+			}
+		    }
+		    else
+		    {
+		        setState(StateClosed, ex);
+		    }
 		    return;
 		}
 	    }

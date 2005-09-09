@@ -678,7 +678,7 @@ public final class ThreadPool
 			    {
 			        continue;
 			    }
-			    catch(Ice.LocalException ex)
+			    catch(Ice.SocketException ex)
 			    {
 				if(TRACE_EXCEPTION)
 				{
@@ -688,6 +688,29 @@ public final class ThreadPool
 				}
 				    
 				handler.exception(ex);
+				continue;
+			    }
+			    catch(Ice.LocalException ex)
+			    {
+			        if(handler.datagram())
+				{
+				    if(_instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0)
+				    {
+				        _instance.logger().warning("datagram connection exception:\n" + ex + 
+								   handler.toString());
+				    }
+				}
+				else
+				{
+				    if(TRACE_EXCEPTION)
+				    {
+				        trace("informing handler (" + handler.getClass().getName() +
+					      ") about exception " + ex);
+				        ex.printStackTrace();
+				    }
+				    
+				    handler.exception(ex);
+				}
 				continue;
 			    }
 				

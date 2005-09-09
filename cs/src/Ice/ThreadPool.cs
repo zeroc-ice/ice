@@ -558,7 +558,7 @@ namespace IceInternal
 				{
 				    continue;
 				}
-				catch(Ice.LocalException ex)
+				catch(Ice.SocketException ex)
 				{
 				    #if TRACE_EXCEPTION
 					trace("informing handler (" + handler.GetType().FullName + ") about "
@@ -566,6 +566,27 @@ namespace IceInternal
 				    #endif
 				    
 				    handler.exception(ex);
+				    continue;
+				}
+				catch(Ice.LocalException ex)
+				{
+				    if(handler.datagram())
+				    {
+				        if(_instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0)
+					{
+					    _instance.logger().warning("datagram connection exception:\n" + ex + 
+					    			       handler.ToString());
+					}
+				    }
+				    else
+				    {
+				        #if TRACE_EXCEPTION
+					    trace("informing handler (" + handler.GetType().FullName + ") about "
+					          + ex.GetType().FullName + " exception " + ex);
+				        #endif
+				    
+				        handler.exception(ex);
+				    }
 				    continue;
 				}
 				

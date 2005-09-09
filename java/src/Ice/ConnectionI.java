@@ -1800,9 +1800,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		case IceInternal.Protocol.closeConnectionMsg:
 		{
 		    IceInternal.TraceUtil.traceHeader("received close connection", info.stream, _logger, _traceLevels);
-		    if(_endpoint.datagram() && _warn)
+		    if(_endpoint.datagram())
 		    {
-			_logger.warning("ignoring close connection message for datagram connection:\n" + _desc);
+		        if(_warn)
+		        {
+			    _logger.warning("ignoring close connection message for datagram connection:\n" + _desc);
+		        }
 		    }
 		    else
 		    {
@@ -1896,9 +1899,23 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		}
 	    }
 	}
-	catch(LocalException ex)
+	catch(SocketException ex)
 	{
 	    setState(StateClosed, ex);
+	}
+	catch(LocalException ex)
+	{
+	    if(_endpoint.datagram())
+	    {
+	        if(_warn)
+		{
+		    _logger.warning("udp connection exception:\n" + ex + _desc);
+		}
+	    }
+	    else
+	    {
+	        setState(StateClosed, ex);
+	    }
 	}
     }
 
@@ -2157,9 +2174,23 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		{
 		    continue;
 		}
-		catch(LocalException ex)
+		catch(SocketException ex)
 		{
 		    exception(ex);
+		}
+		catch(LocalException ex)
+		{
+	            if(_endpoint.datagram())
+	            {
+	                if(_warn)
+		        {
+		            _logger.warning("udp connection exception:\n" + ex + _desc);
+		        }
+	            }
+	            else
+	            {
+		        exception(ex);
+		    }
 		}
 
 		MessageInfo info = new MessageInfo(stream);
