@@ -130,10 +130,13 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const Server
 {
     for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
-	_adapterCache.get(q->id, true)->addServer(entry);
+	if(!q->id.empty())
+	{
+	    _adapterCache.get(q->id, true)->addServer(entry);
+	}
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
 	{
-	    _objectCache.add(q->id, *r);
+	    _objectCache.add(q->id, IceGrid::getProperty(comm->properties, q->name + ".Endpoints"), *r);
 	}
     }
 }
@@ -143,7 +146,10 @@ ServerCache::removeCommunicator(const CommunicatorDescriptorPtr& comm, const Ser
 {
     for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
-	_adapterCache.get(q->id)->removeServer(entry);
+	if(!q->id.empty())
+	{
+	    _adapterCache.get(q->id)->removeServer(entry);
+	}
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
 	{
 	    _objectCache.remove(r->id);

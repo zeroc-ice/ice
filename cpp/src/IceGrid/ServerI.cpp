@@ -745,7 +745,7 @@ ServerI::checkActivation()
     {
 	for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
 	{
-	    if(p->waitForActivation && _activeAdapters.find(p->id) == _activeAdapters.end())
+	    if(!p->id.empty() && p->waitForActivation && _activeAdapters.find(p->id) == _activeAdapters.end())
 	    {
 		return;
 	    }
@@ -1086,18 +1086,27 @@ ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, StringAdap
     oldAdapters.swap(_adapters);
     for(AdapterDescriptorSeq::const_iterator r = descriptor->adapters.begin(); r != descriptor->adapters.end(); ++r)
     {
-	adapters.insert(make_pair(r->id, addAdapter(*r, current)));
-	oldAdapters.erase(r->id);
+	if(!r->id.empty())
+	{
+	    adapters.insert(make_pair(r->id, addAdapter(*r, current)));
+	    oldAdapters.erase(r->id);
+	}
+	_processRegistered |= r->registerProcess;
     }
     if(iceBox)
     {
-	for(ServiceInstanceDescriptorSeq::const_iterator s = iceBox->services.begin(); s != iceBox->services.end(); ++s)
+	ServiceInstanceDescriptorSeq::const_iterator s;
+	for(s = iceBox->services.begin(); s != iceBox->services.end(); ++s)
 	{
 	    ServiceDescriptorPtr svc = ServiceDescriptorPtr::dynamicCast(s->descriptor);
 	    for(AdapterDescriptorSeq::const_iterator t = svc->adapters.begin(); t != svc->adapters.end(); ++t)
 	    {
-		adapters.insert(make_pair(t->id, addAdapter(*t, current)));
-		oldAdapters.erase(t->id);
+		if(!t->id.empty())
+		{
+		    adapters.insert(make_pair(t->id, addAdapter(*t, current)));
+		    oldAdapters.erase(t->id);
+		}
+		_processRegistered |= t->registerProcess;
 	    }
 	}
     }
@@ -1116,6 +1125,8 @@ ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, StringAdap
 AdapterPrx
 ServerI::addAdapter(const AdapterDescriptor& descriptor, const Ice::Current& current)
 {
+    assert(!descriptor.id.empty());
+
     Ice::Identity id;
     id.category = "IceGridServerAdapter";
     id.name = _desc->id + "-" + descriptor.id + "-" + descriptor.name;
@@ -1127,7 +1138,6 @@ ServerI::addAdapter(const AdapterDescriptor& descriptor, const Ice::Current& cur
 	current.adapter->add(servant, id);
     }
     _adapters.insert(make_pair(descriptor.id, servant));
-    _processRegistered |= descriptor.registerProcess;
     return proxy;
 }
 

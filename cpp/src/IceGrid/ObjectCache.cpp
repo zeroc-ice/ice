@@ -24,13 +24,24 @@ ObjectCache::ObjectCache(const Ice::CommunicatorPtr& communicator, const TraceLe
 }
 
 void
-ObjectCache::add(const string& adapterId, const ObjectDescriptor& desc)
+ObjectCache::add(const string& adapterId, const string& endpoints, const ObjectDescriptor& desc)
 {
     Lock sync(*this);
     assert(!getImpl(desc.id));
 
     ObjectEntryPtr entry = getImpl(desc.id, true);
-    entry->set(_communicator, adapterId, desc);
+
+    ObjectInfo info;
+    info.type = desc.type;
+    if(adapterId.empty())
+    {
+	info.proxy = _communicator->stringToProxy(Ice::identityToString(desc.id) + ":" + endpoints);
+    }
+    else
+    {
+	info.proxy = _communicator->stringToProxy(Ice::identityToString(desc.id) + "@" + adapterId);
+    }
+    entry->set(info);
 
     map<string, set<Ice::Identity> >::iterator p = _types.find(entry->getType());
     if(p == _types.end())
@@ -110,10 +121,9 @@ ObjectEntry::ObjectEntry(Cache<Ice::Identity, ObjectEntry>&, const Ice::Identity
 }
 
 void
-ObjectEntry::set(const Ice::CommunicatorPtr& communicator, const string& adapterId, const ObjectDescriptor& desc)
+ObjectEntry::set(const ObjectInfo& info)
 {
-    _info.proxy = communicator->stringToProxy(Ice::identityToString(desc.id) + "@" + adapterId);
-    _info.type = desc.type;
+    _info = info;
 }
 
 Ice::ObjectPrx

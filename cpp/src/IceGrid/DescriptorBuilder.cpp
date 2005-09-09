@@ -328,8 +328,11 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
 {
     AdapterDescriptor desc;
     desc.name = attrs("name");
-    desc.id = attrs("id", "");
-    if(desc.id.empty())
+    if(attrs.contains("id"))
+    {
+	desc.id = attrs("id", "");
+    }
+    else
     {
 	string fqn = "${server}";
 	if(ServiceDescriptorPtr::dynamicCast(_descriptor))
@@ -339,7 +342,14 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
 	desc.id = fqn + "." + desc.name;
     }
     desc.registerProcess = attrs("register", "false") == "true";
-    desc.waitForActivation = attrs("wait-for-activation", "true") == "true";
+    if(desc.id == "" && attrs.contains("wait-for-activation"))
+    {
+	throw "the attribute `wait-for-activation' can only be set if the adapter has an non empty id";
+    }
+    else
+    {
+	desc.waitForActivation = attrs("wait-for-activation", "true") == "true";
+    }
     _descriptor->adapters.push_back(desc);
 
     if(attrs.contains("endpoints"))

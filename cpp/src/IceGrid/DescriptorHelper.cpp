@@ -330,9 +330,7 @@ Resolver::setContext(const string& context)
 void
 Resolver::exception(const string& reason) const
 {
-    DeploymentException ex;
-    ex.reason = "invalid " + _context + ": " + reason;
-    throw ex;
+    throw DeploymentException("invalid " + _context + ": " + reason);
 }
 
 TemplateDescriptor
@@ -494,7 +492,10 @@ CommunicatorHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>
 {
     for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
     {	
-	adapterIds.insert(p->id);
+	if(!p->id.empty())
+	{
+	    adapterIds.insert(p->id);
+	}
 	for(ObjectDescriptorSeq::const_iterator q = p->objects.begin(); q != p->objects.end(); ++q)
 	{
 	    objectIds.insert(q->id);
@@ -638,14 +639,7 @@ CommunicatorHelper::printProperties(Output& out, const PropertyDescriptorSeq& pr
 string
 CommunicatorHelper::getProperty(const string& name) const
 {
-    for(PropertyDescriptorSeq::const_iterator p = _desc->properties.begin(); p != _desc->properties.end(); ++p)
-    {
-	if(p->name == name)
-	{
-	    return p->value;
-	}
-    }
-    return "";
+    return IceGrid::getProperty(_desc->properties, name);
 }
 
 ServiceHelper::ServiceHelper(const ServiceDescriptorPtr& descriptor) :
@@ -2211,11 +2205,13 @@ ApplicationHelper::validate(const Resolver& resolve) const
     ReplicatedAdapterDescriptorSeq::const_iterator r;
     for(r = _desc.replicatedAdapters.begin(); r != _desc.replicatedAdapters.end(); ++r)
     {
+	if(r->id.empty())
+	{
+	    throw DeploymentException("replicated adapter id is empty");
+	}
 	if(!replicatedAdapterIds.insert(r->id).second)
 	{
-	    DeploymentException ex;
-	    ex.reason = "duplicate replicated adapter `" +  r->id + "'";
-	    throw ex;
+	    throw DeploymentException("duplicate replicated adapter `" +  r->id + "'");
 	}
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
 	{

@@ -305,9 +305,7 @@ Database::updateApplicationDescriptor(ObserverSessionI* session, const Applicati
 	StringApplicationDescriptorDict::const_iterator p = _descriptors.find(update.name);
 	if(p == _descriptors.end())
 	{
-	    ApplicationNotExistException ex;
-	    ex.name = update.name;
-	    throw ex;
+	    throw ApplicationNotExistException(update.name);
 	}
 
 	ApplicationHelper previous(p->second);
@@ -350,9 +348,7 @@ Database::syncApplicationDescriptor(ObserverSessionI* session, const Application
 	StringApplicationDescriptorDict::const_iterator p = _descriptors.find(newDesc.name);
 	if(p == _descriptors.end())
 	{
-	    ApplicationNotExistException ex;
-	    ex.name = newDesc.name;
-	    throw ex;
+	    throw ApplicationNotExistException(newDesc.name);
 	}
 
 	ApplicationHelper previous(p->second);
@@ -394,7 +390,7 @@ Database::removeApplicationDescriptor(ObserverSessionI* session, const std::stri
 	StringApplicationDescriptorDict::iterator p = _descriptors.find(name);
 	if(p == _descriptors.end())
 	{
-	    throw ApplicationNotExistException();
+	    throw ApplicationNotExistException(name);
 	}
 	
 	ApplicationHelper helper(p->second);
@@ -428,9 +424,7 @@ Database::getApplicationDescriptor(const std::string& name)
     StringApplicationDescriptorDict::const_iterator p = descriptors.find(name);
     if(p == descriptors.end())
     {
-	ApplicationNotExistException ex;
-	ex.name = name;
-	throw ex;
+	throw ApplicationNotExistException(name);
     }
 
     return p->second;
@@ -947,10 +941,11 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
     const ReplicatedAdapterDescriptorSeq& adpts = app.getDescriptor().replicatedAdapters;
     for(ReplicatedAdapterDescriptorSeq::const_iterator r = adpts.begin(); r != adpts.end(); ++r)
     {
+	assert(!r->id.empty());
 	_adapterCache.get(r->id, true)->enableReplication(r->loadBalancing);
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
 	{
-	    _objectCache.add(r->id, *o);
+	    _objectCache.add(r->id, "", *o);
 	}
     }
 

@@ -34,3 +34,15 @@ IceGrid::toString(const vector<string>& v, const string& sep)
     return os.str();
 }
 
+string
+IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name)
+{
+    for(PropertyDescriptorSeq::const_iterator p = properties.begin(); p != properties.end(); ++p)
+    {
+	if(p->name == name)
+	{
+	    return p->value;
+	}
+    }
+    return "";
+}
