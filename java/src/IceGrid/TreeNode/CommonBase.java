@@ -47,7 +47,7 @@ public interface CommonBase extends TreeCellRenderer
     //
     // Destroys this node, no-op when destruction not allowed
     //
-    // void remove();
+    void destroy();
 
     //
     // Set this node as a parent, and recursively update

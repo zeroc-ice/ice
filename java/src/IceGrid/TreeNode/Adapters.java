@@ -45,7 +45,7 @@ class Adapters extends Parent
 
     public JPopupMenu getPopupMenu()
     {
-	if(_isEditable)
+	if(_isEditable && !_inIceBox)
 	{
 	    if(_popup == null)
 	    {
@@ -72,13 +72,14 @@ class Adapters extends Parent
 
 
     Adapters(java.util.List descriptors, boolean isEditable, 
-	     Utils.Resolver resolver, Application application, 
-	     Model model)
+	     boolean inIceBox, Utils.Resolver resolver, 
+	     Application application, Model model)
 	throws DuplicateIdException
     {
 	super("Adapters", model);
 	_descriptors = descriptors;
 	_isEditable = isEditable;
+	_inIceBox = inIceBox;
 	_resolver = resolver;
 	_popup = new PopupMenu();
 
@@ -100,6 +101,11 @@ class Adapters extends Parent
 	return _isEditable;
     }
 
+    boolean inIceBox()
+    {
+	return _inIceBox;
+    }
+
     void newAdapter()
     {
 	String name = "NewAdapter";
@@ -119,13 +125,25 @@ class Adapters extends Parent
 	_descriptors.add(descriptor);
     }
 
-    void popDescriptor()
+    void removeDescriptor(AdapterDescriptor descriptor)
     {
-	_descriptors.remove(_descriptors.size() - 1);
+	//
+	// A straight remove uses equals(), which is not the desired behavior
+	//
+	java.util.Iterator p = _descriptors.iterator();
+	while(p.hasNext())
+	{
+	    if(descriptor == p.next())
+	    {
+		p.remove();
+		break;
+	    }
+	}
     }
 
     private java.util.List _descriptors;
     private Utils.Resolver _resolver;
     private boolean _isEditable;
+    private boolean _inIceBox;
     static private PopupMenu _popup;
 }

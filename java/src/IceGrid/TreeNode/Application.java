@@ -203,6 +203,21 @@ public class Application extends EditableParent
 	return true;
     }
 
+    //
+    // Major update than can't fail
+    //
+    void applySafeUpdate()
+    {
+	try
+	{
+	    update();
+	}
+	catch(DuplicateIdException e)
+	{
+	    assert false;
+	}
+    }
+
     void update() throws DuplicateIdException
     {
 	_replicatedAdapters.update();

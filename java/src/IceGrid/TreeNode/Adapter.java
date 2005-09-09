@@ -121,7 +121,6 @@ class Adapter extends Leaf
 		    {
 			if(_adapter.getModel().canUpdate())
 			{
-			    _adapter.getModel().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			    _adapter.getModel().disableDisplay();
 
 			    try
@@ -145,7 +144,7 @@ class Adapter extends Leaf
 				    if(!_adapter.getApplication().applyUpdate())
 				    {
 					parent = (Adapters)_adapter.getModel().findNewNode(parent.getPath());
-					parent.popDescriptor();
+					parent.removeDescriptor(descriptor);
 					_adapter.getModel().setSelectionPath(parent.getPath());
 					_adapter.setParent(parent);
 					return;
@@ -231,7 +230,6 @@ class Adapter extends Leaf
 			    finally
 			    {
 				_adapter.getModel().enableDisplay();
-				_adapter.getModel().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			    }
 			}
 			//
@@ -372,24 +370,7 @@ class Adapter extends Leaf
 	void writeDescriptor()
 	{
 	    AdapterDescriptor descriptor = _adapter.getDescriptor();
-	    Object obj = _id.getSelectedItem();
-	    if(obj == null)
-	    {
-		descriptor.id = "";
-	    }
-	    else
-	    {
-		if(obj instanceof ReplicatedAdapter)
-		{
-		    ReplicatedAdapter ra = (ReplicatedAdapter)obj;
-		    descriptor.id = ra.getId();
-		}
-		else
-		{
-		    descriptor.id = (String)obj;
-		}
-	    }
-	    
+	    descriptor.id = getIdAsString();
 	    descriptor.registerProcess = _registerProcess.isSelected();
 	    descriptor.waitForActivation = _waitForActivation.isSelected();
 	    descriptor.objects = mapToObjectDescriptorSeq(_objectsMap);
@@ -419,31 +400,11 @@ class Adapter extends Leaf
 	    _objects.setToolTipText(toolTipHolder.value);
 	}
 
-	void show(Adapter adapter)
+	void setId(String adapterId)
 	{
-	    _detectUpdates = false;
-
-	    _adapter = adapter;
-	    AdapterDescriptor descriptor = _adapter.getDescriptor();
-
-	    Utils.Resolver resolver = adapter.getModel().substitute() ? adapter.getResolver() : null;
-	    boolean isEditable = adapter.isEditable() && resolver == null;
-
-	    _name.setText(
-		Utils.substitute(descriptor.name, resolver));
-	    _name.setEditable(isEditable);
-
-	    //
-	    // Need to make control editable & enabled before changing it
-	    //
-	    _id.setEnabled(true);
-	    _id.setEditable(true);
-
 	    ReplicatedAdapters replicatedAdapters =
-		adapter.getApplication().getReplicatedAdapters();
-	    _id.setModel(replicatedAdapters.createComboBoxModel());
+		_adapter.getApplication().getReplicatedAdapters();
 
-	    String adapterId = Utils.substitute(descriptor.id, resolver);
 	    ReplicatedAdapter replicatedAdapter = 
 		(ReplicatedAdapter)replicatedAdapters.findChild(adapterId);
 	    
@@ -455,6 +416,69 @@ class Adapter extends Leaf
 	    {
 		_id.setSelectedItem(adapterId);
 	    }
+	}
+
+	String getIdAsString()
+	{
+	    Object obj = _id.getSelectedItem();
+	    if(obj == null)
+	    {
+		return "";
+	    }
+	    else
+	    {
+		if(obj instanceof ReplicatedAdapter)
+		{
+		    ReplicatedAdapter ra = (ReplicatedAdapter)obj;
+		    return ra.getId();
+		}
+		else
+		{
+		    return (String)obj;
+		}
+	    }
+	}
+
+	void show(Adapter adapter)
+	{
+	    _detectUpdates = false;
+
+	    _adapter = adapter;
+	    AdapterDescriptor descriptor = _adapter.getDescriptor();
+
+	    Utils.Resolver resolver = null;
+	    if(_adapter.getModel().substitute() && !_adapter.isNew())
+	    {
+		resolver = _adapter.getResolver();
+	    }
+
+	    boolean isEditable = _adapter.isEditable() && resolver == null;
+	    boolean inIceBox = _adapter.inIceBox();
+
+	    _name.setText(
+		Utils.substitute(descriptor.name, resolver));
+	    _name.setEditable(isEditable && !inIceBox);
+
+	    //
+	    // Need to make control editable & enabled before changing it
+	    //
+	    _id.setEnabled(true);
+	    _id.setEditable(true);
+
+	    //
+	    // Fixup new descriptor
+	    //
+	    if(descriptor.id == null)
+	    {
+		descriptor.id = _adapter.defaultId(descriptor.name);
+	    }
+
+	    ReplicatedAdapters replicatedAdapters =
+		adapter.getApplication().getReplicatedAdapters();
+	    _id.setModel(replicatedAdapters.createComboBoxModel());
+	    
+	    String adapterId = Utils.substitute(descriptor.id, resolver);
+	    setId(adapterId);
 
 	    _id.setEnabled(isEditable);
 	    _id.setEditable(isEditable);
@@ -570,6 +594,40 @@ class Adapter extends Leaf
 	propertiesFrame.repaint();
     }
 
+    public void destroy()
+    {
+	assert !_brandNew;
+	
+	if(_model.canUpdate())
+	{
+	    _model.disableDisplay();
+
+	    Adapters adapters = (Adapters)getParent();
+	    
+	    //
+	    // Will keep current selection unless it points to me!
+	    //
+	    CommonBase toSelect = _model.getSelectedNode();
+	    if(toSelect == this)
+	    {
+		toSelect = (CommonBase)adapters.getChildAt(adapters.getIndex(this) + 1);
+		if(toSelect == null)
+		{
+		    System.err.println("Can't find next child");
+		    toSelect = adapters;
+		}
+	    }
+	    adapters.removeDescriptor(_descriptor);
+	    getEditable().markModified();
+	    getApplication().applySafeUpdate();
+
+	    _model.enableDisplay();
+	    toSelect = _model.findNewNode(toSelect.getPath());
+	    _model.getTree().setSelectionPath(toSelect.getPath());
+	}
+    }
+
+
 
     Adapter(String adapterName, AdapterDescriptor descriptor,
 	    Utils.Resolver resolver, Application application, Model model)
@@ -606,7 +664,7 @@ class Adapter extends Leaf
 	_brandNew = true;
 	_descriptor =  new AdapterDescriptor();
 	_descriptor.name = name;
-	_descriptor.id = "";
+	_descriptor.id = null; // parent not set, can't use defaultId
 	_descriptor.registerProcess = false;
 	_descriptor.waitForActivation = true;
 	_descriptor.objects = new java.util.LinkedList();
@@ -646,6 +704,11 @@ class Adapter extends Leaf
 	return ((Adapters)_parent).isEditable();
     }
 
+    boolean inIceBox()
+    {
+	return ((Adapters)_parent).inIceBox();
+    }
+
     String getEndpoints()
     {
 	PropertiesHolder ph = getParent().getParent().getPropertiesHolder();
@@ -683,10 +746,22 @@ class Adapter extends Leaf
 	}
     }
 
+    private String defaultId(String name)
+    {
+	CommonBase grandParent = getParent().getParent();
+	if(grandParent instanceof Service || grandParent instanceof ServiceTemplate)
+	{
+	    return "${server}.${service}." + name;
+	}
+	else
+	{
+	    return "${server}." + name;
+	}
+    }
+
     private boolean _brandNew;
     private AdapterDescriptor _descriptor;
     private Utils.Resolver _resolver;
-    private boolean _isEditable;
 
     private AdapterInstanceId _instanceId;
     private Ice.ObjectPrx _proxy;

@@ -275,6 +275,12 @@ public class Model
 	}
     }
     
+
+    public CommonBase getSelectedNode()
+    {
+	return (CommonBase)_tree.getLastSelectedPathComponent();
+    }
+
     public CommonBase findNewNode(TreePath path)
     {
 	CommonBase node = _root;
@@ -722,7 +728,7 @@ public class Model
 		    }
 		    else
 		    {
-			_sessionKeeper.createSession(false);
+			_sessionKeeper.reconnect(true);
 		    }
 		}
 	    };
@@ -790,7 +796,11 @@ public class Model
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    // TODO: implement
+		    CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
+		    if(currentNode != null)
+		    {
+			currentNode.destroy();
+		    }
 		}
 	    };
 	_delete.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));    

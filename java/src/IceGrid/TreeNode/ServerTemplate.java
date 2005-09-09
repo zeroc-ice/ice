@@ -103,7 +103,7 @@ class ServerTemplate extends EditableParent
 	}
 	
 	_adapters = new Adapters(_templateDescriptor.descriptor.adapters, true, 
-				 null, null, _model);
+				 _services != null, null, null, _model);
 	addChild(_adapters);
 	_adapters.setParent(this);
     }

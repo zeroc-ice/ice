@@ -85,6 +85,13 @@ abstract class CommonBaseI implements CommonBase
 	}
     }
 
+    public void destroy()
+    {
+	// 
+	// Destruction not allowed
+	//
+    }
+
     public JPopupMenu getPopupMenu()
     {
 	//

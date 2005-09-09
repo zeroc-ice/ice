@@ -38,7 +38,7 @@ class Service extends Parent
 	boolean areChildrenEditable = _instanceDescriptor.template.length() == 0 && editable != null;
 
 	_adapters = new Adapters(serviceDescriptor.adapters, 
-				 areChildrenEditable, resolver, application, _model);
+				 areChildrenEditable, false, resolver, application, _model);
 	addChild(_adapters);
 	
 	_dbEnvs = new DbEnvs(serviceDescriptor.dbEnvs, 

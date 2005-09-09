@@ -464,7 +464,8 @@ class Server extends EditableParent
 	}
 
 	_adapters = new Adapters(serverDescriptor.adapters, 
-				 isEditable, _resolver, application, _model);
+				 isEditable, _services != null, 
+				 _resolver, application, _model);
 	addChild(_adapters);
 	_adapters.setParent(this);
     }

@@ -273,13 +273,20 @@ class SessionKeeper
     //
     void reconnect(boolean showDialog)
     {
-	destroyObservers();
-	releaseSession();
-	_model.sessionLost();
-
-	if(showDialog || !doConnect(_model.getMainFrame()))
+	if(_connectInfo == null)
 	{
-	    _connectDialog.showDialog();
+	    createSession(!showDialog);
+	}
+	else
+	{
+	    destroyObservers();
+	    releaseSession();
+	    _model.sessionLost();
+
+	    if(showDialog || !doConnect(_model.getMainFrame()))
+	    {
+		_connectDialog.showDialog();
+	    }
 	}
     }
 
@@ -380,20 +387,13 @@ class SessionKeeper
     //
     void sessionLost(String message)
     {
-	destroyObservers();
-	releaseSession();
-	_model.sessionLost();
-
 	JOptionPane.showMessageDialog(
 	    _model.getMainFrame(),
 	    message,
 	    "Session lost",
 	    JOptionPane.ERROR_MESSAGE);
 	
-	//
-	// Offer new Connection dialog
-	//
-	createSession(false);
+	reconnect(true);
     }
 
     //

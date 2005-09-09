@@ -44,7 +44,7 @@ class ServiceTemplate extends EditableParent
 	java.util.Collections.sort(_templateDescriptor.parameters);
 	
 	_adapters = new Adapters(_templateDescriptor.descriptor.adapters, true, 
-				 null, null, _model);
+				 false, null, null, _model);
 	addChild(_adapters);
 	_adapters.setParent(this);
 
