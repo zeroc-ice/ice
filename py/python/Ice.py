@@ -18,6 +18,7 @@ import IcePy
 # Add some symbols to the Ice module.
 #
 ObjectPrx = IcePy.ObjectPrx
+Endpoint =  IcePy.Endpoint
 identityToString = IcePy.identityToString
 stringToIdentity = IcePy.stringToIdentity
 generateUUID = IcePy.generateUUID
