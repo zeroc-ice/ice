@@ -258,7 +258,6 @@ IcePHP::extractContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
             return false;
         }
 
-        zend_hash_get_current_data_ex(arr, (void**)&val, &pos);
         if(Z_TYPE_PP(val) != IS_STRING)
         {
             php_error_docref(NULL TSRMLS_CC, E_ERROR, "context value must be a string");
