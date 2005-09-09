@@ -62,7 +62,8 @@ namespace IceInternal
 	    return _communicator;
 	}
 	public abstract bool getSecure();
-	public abstract Endpoint[] getEndpoints();
+	public abstract string getAdapterId();
+	public abstract EndpointI[] getEndpoints();
 	public abstract bool getCollocationOptimization();
 
 	//
@@ -136,6 +137,8 @@ namespace IceInternal
 	public abstract Reference changeCompress(bool newCompress);
 	public abstract Reference changeTimeout(int newTimeout);
 	public abstract Reference changeCollocationOptimization(bool newCollocationOptimization);
+	public abstract Reference changeAdapterId(string newAdapterId);
+	public abstract Reference changeEndpoints(EndpointI[] newEndpoints);
 
 	public override int GetHashCode()
 	{
@@ -373,7 +376,7 @@ namespace IceInternal
 	//
 	// Filter endpoints based on criteria from this reference.
 	//
-	protected Endpoint[] filterEndpoints(Endpoint[] allEndpoints)
+	protected EndpointI[] filterEndpoints(EndpointI[] allEndpoints)
 	{
 	    ArrayList endpoints = new ArrayList();
 
@@ -398,7 +401,7 @@ namespace IceInternal
 		    // Filter out datagram endpoints.
 		    //
 		    ArrayList tmp = new ArrayList();
-		    foreach(Endpoint endpoint in endpoints)
+		    foreach(EndpointI endpoint in endpoints)
 		    {
 		    	if(!endpoint.datagram())
 			{
@@ -416,7 +419,7 @@ namespace IceInternal
 		    // Filter out non-datagram endpoints.
 		    //
 		    ArrayList tmp = new ArrayList();
-		    foreach(Endpoint endpoint in endpoints)
+		    foreach(EndpointI endpoint in endpoints)
 		    {
 		    	if(endpoint.datagram())
 			{
@@ -452,7 +455,7 @@ namespace IceInternal
 	    if(getSecure())
 	    {
 		ArrayList tmp = new ArrayList();
-		foreach(Endpoint endpoint in endpoints)
+		foreach(EndpointI endpoint in endpoints)
 		{
 		    if(endpoint.secure())
 		    {
@@ -466,7 +469,7 @@ namespace IceInternal
 		endpoints.Sort(_endpointComparator);
 	    }
 	    
-	    Endpoint[] arr = new Endpoint[endpoints.Count];
+	    EndpointI[] arr = new EndpointI[endpoints.Count];
 	    if(arr.Length != 0)
 	    {
 		endpoints.CopyTo(arr);
@@ -478,8 +481,8 @@ namespace IceInternal
 	{
 	    public int Compare(object l, object r)
 	    {
-		IceInternal.Endpoint le = (IceInternal.Endpoint)l;
-		IceInternal.Endpoint re = (IceInternal.Endpoint)r;
+		IceInternal.EndpointI le = (IceInternal.EndpointI)l;
+		IceInternal.EndpointI re = (IceInternal.EndpointI)r;
 		bool ls = le.secure();
 		bool rs = re.secure();
 		if((ls && rs) || (!ls && !rs))
@@ -591,29 +594,6 @@ namespace IceInternal
 	    return arr;
 	}
 
-	protected bool compare(object[] arr1, object[] arr2)
-	{
-	    if(object.ReferenceEquals(arr1, arr2))
-	    {
-		return true;
-	    }
-
-	    if(arr1.Length == arr2.Length)
-	    {
-		for(int i = 0; i < arr1.Length; i++)
-		{
-		    if(!arr1[i].Equals(arr2[i]))
-		    {
-			return false;
-		    }
-		}
-
-		return true;
-	    }
-
-	    return false;
-	}
-
 	private class ConnectionComparator : IComparer
 	{
 	    public int Compare(object l, object r)
@@ -666,9 +646,14 @@ namespace IceInternal
 	    return false;
 	}
 
-	public override Endpoint[] getEndpoints()
+	public override string getAdapterId()
+        {
+	    return "";
+	}
+
+	public override EndpointI[] getEndpoints()
 	{
-	    return new Endpoint[0];
+	    return new EndpointI[0];
 	}
 
 	public override bool getCollocationOptimization()
@@ -693,6 +678,16 @@ namespace IceInternal
 
 	public override Reference changeCollocationOptimization(bool newCollocationOptimization)
 	{
+	    return this;
+	}
+
+	public override Reference changeAdapterId(string newAdapterId)
+        {
+	    return this;
+	}
+
+	public override Reference changeEndpoints(EndpointI[] newEndpoints)
+        {
 	    return this;
 	}
 
@@ -756,7 +751,7 @@ namespace IceInternal
 	    {
 		return false;
 	    }
-	    return compare(_fixedConnections, rhs._fixedConnections);
+	    return IceUtil.Arrays.Equals(_fixedConnections, rhs._fixedConnections);
 	}
 
         //
@@ -777,7 +772,7 @@ namespace IceInternal
 	    return _routerInfo;
 	}
 
-	public Endpoint[] getRoutedEndpoints()
+	public EndpointI[] getRoutedEndpoints()
 	{
 	    if(_routerInfo != null)
 	    {
@@ -788,7 +783,7 @@ namespace IceInternal
 		Ice.ObjectPrx clientProxy = _routerInfo.getClientProxy();
 		return ((Ice.ObjectPrxHelperBase)clientProxy).__reference().getEndpoints();
 	    }
-	    return new Endpoint[0];
+	    return new EndpointI[0];
 	}
 
 	public override bool getSecure()
@@ -905,7 +900,7 @@ namespace IceInternal
 			       string fs,
 			       Reference.Mode md,
 			       bool sec,
-			       Endpoint[] endpts,
+			       EndpointI[] endpts,
 			       RouterInfo rtrInfo,
 			       bool collocationOpt)
 	    : base(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt)
@@ -913,20 +908,14 @@ namespace IceInternal
 	    _endpoints = endpts;
 	}
 
-	public override Endpoint[] getEndpoints()
-	{
-	    return _endpoints;
+	public override string getAdapterId()
+        {
+	    return "";
 	}
 
-	public Reference changeEndpoints(Endpoint[] newEndpoints)
+	public override EndpointI[] getEndpoints()
 	{
-	    if(compare(newEndpoints, _endpoints))
-	    {
-		return this;
-	    }
-	    DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-	    r._endpoints = newEndpoints;
-	    return r;
+	    return _endpoints;
 	}
 
 	public override Reference changeDefault()
@@ -965,7 +954,7 @@ namespace IceInternal
 	public override Reference changeCompress(bool newCompress)
 	{
 	    DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-	    Endpoint[] newEndpoints = new Endpoint[_endpoints.Length];
+	    EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
 	    for(int i = 0; i < _endpoints.Length; i++)
 	    {
 		newEndpoints[i] = _endpoints[i].compress(newCompress);
@@ -977,11 +966,35 @@ namespace IceInternal
 	public override Reference changeTimeout(int newTimeout)
 	{
 	    DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-	    Endpoint[] newEndpoints = new Endpoint[_endpoints.Length];
+	    EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
 	    for(int i = 0; i < _endpoints.Length; i++)
 	    {
 		newEndpoints[i] = _endpoints[i].timeout(newTimeout);
 	    }
+	    r._endpoints = newEndpoints;
+	    return r;
+	}
+
+	public override Reference changeAdapterId(string newAdapterId)
+        {
+	    if(newAdapterId == null || newAdapterId.Length == 0)
+	    {
+		return this;
+	    }
+	    LocatorInfo locatorInfo = 
+		getInstance().locatorManager().get(getInstance().referenceFactory().getDefaultLocator());
+	    return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
+							   getSecure(), newAdapterId, getRouterInfo(), locatorInfo,
+							   getCollocationOptimization());
+	}
+
+	public override Reference changeEndpoints(EndpointI[] newEndpoints)
+	{
+	    if(Array.Equals(newEndpoints, _endpoints))
+	    {
+		return this;
+	    }
+	    DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
 	    r._endpoints = newEndpoints;
 	    return r;
 	}
@@ -1023,12 +1036,12 @@ namespace IceInternal
 
 	public override Ice.ConnectionI getConnection(out bool comp)
 	{
-	    Endpoint[] endpts = base.getRoutedEndpoints();
+	    EndpointI[] endpts = base.getRoutedEndpoints();
 	    if(endpts.Length == 0)
 	    {
 		endpts =_endpoints;
 	    }
-	    Endpoint[] filteredEndpoints = filterEndpoints(endpts);
+	    EndpointI[] filteredEndpoints = filterEndpoints(endpts);
 	    if(filteredEndpoints.Length == 0)
 	    {
 		Ice.NoEndpointException ex = new Ice.NoEndpointException();
@@ -1068,7 +1081,7 @@ namespace IceInternal
 	    {
 		return false;
 	    }
-	    return compare(_endpoints, rhs._endpoints);
+	    return IceUtil.Arrays.Equals(_endpoints, rhs._endpoints);
 	}
 
         //
@@ -1079,7 +1092,7 @@ namespace IceInternal
             return base.GetHashCode();
         }
 
-	private Endpoint[] _endpoints;
+	private EndpointI[] _endpoints;
     }
 
     public class IndirectReference : RoutableReference
@@ -1101,19 +1114,19 @@ namespace IceInternal
 	    _locatorInfo = locInfo;
 	}
 
-	public string getAdapterId()
-	{
-	    return _adapterId;
-	}
-
 	public LocatorInfo getLocatorInfo()
 	{
 	    return _locatorInfo;
 	}
 
-	public override Endpoint[] getEndpoints()
+	public override string getAdapterId()
 	{
-	    return new Endpoint[0];
+	    return _adapterId;
+	}
+
+	public override EndpointI[] getEndpoints()
+	{
+	    return new EndpointI[0];
 	}
 
 	public override Reference changeDefault()
@@ -1125,7 +1138,7 @@ namespace IceInternal
 	    if(loc == null)
 	    {
 		return getInstance().referenceFactory().create(getIdentity(), null, "", Mode.ModeTwoway, false,
-							       new Endpoint[0], getRouterInfo(), false);
+							       new EndpointI[0], getRouterInfo(), false);
 	    }
 	    else
 	    {
@@ -1143,7 +1156,7 @@ namespace IceInternal
 	    if(newLocator == null)
 	    {
 		return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
-							       getSecure(), new Endpoint[0], getRouterInfo(),
+							       getSecure(), new EndpointI[0], getRouterInfo(),
 							       getCollocationOptimization());
 	    }
 	    else
@@ -1183,6 +1196,28 @@ namespace IceInternal
 		r._locatorInfo = getInstance().locatorManager().get(newLocator);
 	    }
 	    return r;
+	}
+
+	public override Reference changeAdapterId(string newAdapterId)
+        {
+	    if(_adapterId.Equals(newAdapterId))
+	    {
+		return this;
+	    }
+	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+	    r._adapterId = newAdapterId;
+	    return r;
+	}
+
+	public override Reference changeEndpoints(EndpointI[] newEndpoints)
+        {
+	    if(newEndpoints == null || newEndpoints.Length == 0)
+	    {
+		return this;
+	    }
+	    return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
+							   getSecure(), newEndpoints, getRouterInfo(),
+							   getCollocationOptimization());
 	}
 
 	public override void streamWrite(BasicStream s)
@@ -1231,13 +1266,13 @@ namespace IceInternal
 
 	    while(true)
 	    {
-		Endpoint[] endpts = base.getRoutedEndpoints();
+		EndpointI[] endpts = base.getRoutedEndpoints();
 		bool cached = false;
 		if(endpts.Length == 0 && _locatorInfo != null)
 		{
 		    endpts = _locatorInfo.getEndpoints(this, out cached);
 		}
-		Endpoint[] filteredEndpoints = filterEndpoints(endpts);
+		EndpointI[] filteredEndpoints = filterEndpoints(endpts);
 		if(filteredEndpoints.Length == 0)
 		{
 		    Ice.NoEndpointException ex = new Ice.NoEndpointException();

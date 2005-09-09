@@ -54,7 +54,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public Endpoint create(string str)
+	public EndpointI create(string str)
 	{
 	    lock(this)
 	    {
@@ -90,7 +90,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public Endpoint read(BasicStream s)
+	public EndpointI read(BasicStream s)
 	{
 	    lock(this)
 	    {
@@ -105,7 +105,7 @@ namespace IceInternal
 		    }
 		}
 		
-		return new UnknownEndpoint(type, s);
+		return new UnknownEndpointI(type, s);
 	    }
 	}
 	

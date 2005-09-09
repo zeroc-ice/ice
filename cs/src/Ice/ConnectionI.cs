@@ -943,7 +943,7 @@ namespace Ice
 	    }
 	}
 	
-	public IceInternal.Endpoint endpoint()
+	public IceInternal.EndpointI endpoint()
 	{
 	    // No mutex protection necessary, _endpoint is immutable.
 	    return _endpoint;
@@ -1431,7 +1431,7 @@ namespace Ice
 	}
 
 	internal ConnectionI(IceInternal.Instance instance, IceInternal.Transceiver transceiver,
-			    IceInternal.Endpoint endpoint, ObjectAdapter adapter)
+			     IceInternal.EndpointI endpoint, ObjectAdapter adapter)
 	    : base(instance)
 	{
 	    _transceiver = transceiver;
@@ -1882,7 +1882,7 @@ namespace Ice
 	private IceInternal.Transceiver _transceiver;
 	private string _desc;
 	private string _type;
-	private IceInternal.Endpoint _endpoint;
+	private IceInternal.EndpointI _endpoint;
 
 	private ObjectAdapter _adapter;
 	private IceInternal.ServantManager _servantManager;

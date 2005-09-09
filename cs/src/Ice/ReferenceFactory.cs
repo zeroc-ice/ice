@@ -21,7 +21,7 @@ namespace IceInternal
 	       string facet,
 	       Reference.Mode mode,
 	       bool secure,
-	       Endpoint[] endpoints,
+	       EndpointI[] endpoints,
 	       RouterInfo routerInfo,
 	       bool collocationOptimization)
 	{
@@ -421,7 +421,7 @@ namespace IceInternal
 		    }
 		    
 		    string es = s.Substring(beg, end - beg);
-		    Endpoint endp = _instance.endpointFactoryManager().create(es);
+		    EndpointI endp = _instance.endpointFactoryManager().create(es);
 		    if(endp != null)
 		    {
 		        endpoints.Add(endp);
@@ -449,7 +449,7 @@ namespace IceInternal
 		    _instance.logger().warning(msg);
 		}
 
-		Endpoint[] ep = (Endpoint[])endpoints.ToArray(typeof(Endpoint));
+		EndpointI[] ep = (EndpointI[])endpoints.ToArray(typeof(EndpointI));
 		return create(ident, new Ice.Context(), facet, mode, secure, ep, routerInfo, true);
 	    }
 	    else if(s[beg] == '@')
@@ -534,7 +534,7 @@ namespace IceInternal
 
 	    bool secure = s.readBool();
 
-	    Endpoint[] endpoints;
+	    EndpointI[] endpoints;
 	    string adapterId = "";
 
 	    RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
@@ -543,7 +543,7 @@ namespace IceInternal
 	    int sz = s.readSize();
 	    if(sz > 0)
 	    {
-		endpoints = new Endpoint[sz];
+		endpoints = new EndpointI[sz];
 		for(int i = 0; i < sz; i++)
 		{
 		    endpoints[i] = _instance.endpointFactoryManager().read(s);
@@ -552,7 +552,7 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		endpoints = new Endpoint[0];
+		endpoints = new EndpointI[0];
 		adapterId = s.readString();
 		return create(ident, new Ice.Context(), facet, (Reference.Mode)mode, secure,
 			      adapterId, routerInfo, locatorInfo, true);

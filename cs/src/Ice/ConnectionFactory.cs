@@ -80,7 +80,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public Ice.ConnectionI create(Endpoint[] endpoints, out bool compress)
+	public Ice.ConnectionI create(EndpointI[] endpoints, out bool compress)
 	{
 	    Debug.Assert(endpoints.Length > 0);
 	    
@@ -238,7 +238,7 @@ namespace IceInternal
 		// to create connections to the same endpoints, we add our
 		// endpoints to _pending.
 		//
-		foreach(Endpoint e in endpoints)
+		foreach(EndpointI e in endpoints)
 		{
 		    _pending.Add(e);
 		}
@@ -249,7 +249,7 @@ namespace IceInternal
 	    
 	    for(int i = 0; i < endpoints.Length; i++)
 	    {
-		Endpoint endpoint = endpoints[i];
+		EndpointI endpoint = endpoints[i];
 		
 		try
 		{
@@ -385,10 +385,10 @@ namespace IceInternal
 		    Ice.ObjectPrx proxy = routerInfo.getClientProxy();
 		    Ice.ObjectAdapter adapter = routerInfo.getAdapter();
 		    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-		    Endpoint[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints();
+		    EndpointI[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints();
 		    for(int i = 0; i < endpoints.Length; i++)
 		    {
-			Endpoint endpoint = endpoints[i];
+			EndpointI endpoint = endpoints[i];
 
 			//
 			// Modify endpoints with overrides.
@@ -610,13 +610,13 @@ namespace IceInternal
 	    }
 	}
 	
-	public Endpoint endpoint()
+	public EndpointI endpoint()
 	{
 	    // No mutex protection necessary, _endpoint is immutable.
 	    return _endpoint;
 	}
 	
-	public bool equivalent(Endpoint endp)
+	public bool equivalent(EndpointI endp)
 	{
 	    if(_transceiver != null)
 	    {
@@ -829,7 +829,7 @@ namespace IceInternal
 	    return _acceptor.ToString();
 	}
 	
-	public IncomingConnectionFactory(Instance instance, Endpoint endpoint, Ice.ObjectAdapter adapter)
+	public IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapter adapter)
 	    : base(instance)
 	{
 	    _endpoint = endpoint;
@@ -851,7 +851,7 @@ namespace IceInternal
 	        _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
 	    }
 	    
-	    Endpoint h = _endpoint;
+	    EndpointI h = _endpoint;
 	    _transceiver = _endpoint.serverTransceiver(ref h);
 	    if(_transceiver != null)
 	    {
@@ -1023,7 +1023,7 @@ namespace IceInternal
 	
 	private Acceptor _acceptor;
 	private readonly Transceiver _transceiver;
-	private Endpoint _endpoint;
+	private EndpointI _endpoint;
 	
 	private readonly Ice.ObjectAdapter _adapter;
 	

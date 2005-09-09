@@ -14,6 +14,7 @@ TARGETS		= $(bindir)/$(LIBNAME)
 
 SRCS		= Acceptor.cs \
 		  Application.cs \
+		  Arrays.cs \
 		  AssemblyInfo.cs \
 		  AssemblyUtil.cs \
 		  Assert.cs \
@@ -28,7 +29,7 @@ SRCS		= Acceptor.cs \
 		  Connector.cs \
 		  DefaultsAndOverrides.cs \
 		  Direct.cs \
-		  Endpoint.cs \
+		  EndpointI.cs \
 		  EndpointFactory.cs \
 		  EndpointFactoryManager.cs \
 		  EventHandler.cs \
@@ -73,16 +74,16 @@ SRCS		= Acceptor.cs \
 		  SysLoggerI.cs \
 		  TcpAcceptor.cs \
 		  TcpConnector.cs \
-		  TcpEndpoint.cs \
+		  TcpEndpointI.cs \
 		  TcpTransceiver.cs \
 		  ThreadPool.cs \
 		  TieBase.cs \
 		  TraceLevels.cs \
 		  TraceUtil.cs \
 		  Transceiver.cs \
-		  UdpEndpoint.cs \
+		  UdpEndpointI.cs \
 		  UdpTransceiver.cs \
-		  UnknownEndpoint.cs \
+		  UnknownEndpointI.cs \
 		  UserExceptionFactory.cs \
 		  Util.cs \
 		  ValueWriter.cs \
@@ -94,6 +95,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Connection.ice \
 		  $(SDIR)/ConnectionF.ice \
 		  $(SDIR)/Current.ice \
+		  $(SDIR)/Endpoint.ice \
 		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
 		  $(SDIR)/LocalException.ice \

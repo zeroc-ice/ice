@@ -514,7 +514,7 @@ namespace Ice
 		    // adapter.
 		    //
 		    ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
-		    IceInternal.Endpoint[] endpoints = proxy.__reference().getEndpoints();
+		    IceInternal.EndpointI[] endpoints = proxy.__reference().getEndpoints();
 		    for(int i = 0; i < endpoints.Length; ++i)
 		    {
 			_routerEndpoints.Add(endpoints[i]);
@@ -585,7 +585,7 @@ namespace Ice
 		checkForDeactivation();
 		
 		IceInternal.Reference r = ((ObjectPrxHelperBase)proxy).__reference();
-		IceInternal.Endpoint[] endpoints = r.getEndpoints();
+		IceInternal.EndpointI[] endpoints = r.getEndpoints();
 		
 		try
                 {
@@ -742,7 +742,7 @@ namespace Ice
 		ArrayList endpoints = parseEndpoints(endpointInfo);
 		for(int i = 0; i < endpoints.Count; ++i)
 		{
-		    IceInternal.Endpoint endp = (IceInternal.Endpoint)endpoints[i];
+		    IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints[i];
 		    _incomingConnectionFactories.Add(new IceInternal.IncomingConnectionFactory(instance, endp, this));
 		}
 		
@@ -847,7 +847,7 @@ namespace Ice
 	
 	private ObjectPrx newDirectProxy(Identity ident, string facet)
 	{
-	    IceInternal.Endpoint[] endpoints;
+	    IceInternal.EndpointI[] endpoints;
 
 	    // 
 	    // Use the published endpoints, otherwise use the endpoints from all
@@ -856,16 +856,16 @@ namespace Ice
 	    int sz = _publishedEndpoints.Count;
 	    if(sz > 0)
 	    {
-		endpoints = new IceInternal.Endpoint[sz + _routerEndpoints.Count];
+		endpoints = new IceInternal.EndpointI[sz + _routerEndpoints.Count];
 		for(int i = 0; i < sz; ++i)
 		{
-		    endpoints[i] = (IceInternal.Endpoint)_publishedEndpoints[i];
+		    endpoints[i] = (IceInternal.EndpointI)_publishedEndpoints[i];
 		}
 	    }
 	    else
 	    {
 		sz = _incomingConnectionFactories.Count;
-		endpoints = new IceInternal.Endpoint[sz + _routerEndpoints.Count];
+		endpoints = new IceInternal.EndpointI[sz + _routerEndpoints.Count];
 		for(int i = 0; i < sz; ++i)
 		{
 		    IceInternal.IncomingConnectionFactory factory =
@@ -881,7 +881,7 @@ namespace Ice
 	    //
 	    for(int i = 0; i < _routerEndpoints.Count; ++i)
 	    {
-		endpoints[sz + i] = (IceInternal.Endpoint)_routerEndpoints[i];
+		endpoints[sz + i] = (IceInternal.EndpointI)_routerEndpoints[i];
 	    }
 	    
 	    //
@@ -949,7 +949,7 @@ namespace Ice
 		}
 
 		string s = endpts.Substring(beg, (end) - (beg));
-		IceInternal.Endpoint endp = _instance.endpointFactoryManager().create(s);
+		IceInternal.EndpointI endp = _instance.endpointFactoryManager().create(s);
 		if(endp == null)
 		{
 		    Ice.EndpointParseException e2 = new Ice.EndpointParseException();

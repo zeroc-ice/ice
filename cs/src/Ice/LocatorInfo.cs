@@ -67,11 +67,11 @@ namespace IceInternal
 	    }
 	}
 
-	public Endpoint[] getEndpoints(IndirectReference @ref, out bool cached)
+	public EndpointI[] getEndpoints(IndirectReference @ref, out bool cached)
 	{
 	    Debug.Assert(@ref.getEndpoints().Length == 0);
 	    
-	    Endpoint[] endpoints = null;
+	    EndpointI[] endpoints = null;
 	    Ice.ObjectPrx obj = null;
 	    cached = true;
             string adapterId = @ref.getAdapterId();
@@ -190,7 +190,7 @@ namespace IceInternal
 		}
 	    }
 	    
-	    return endpoints == null ? new Endpoint[0] : endpoints;
+	    return endpoints == null ? new EndpointI[0] : endpoints;
 	}
 	
 	public void clearObjectCache(IndirectReference rf)
@@ -224,7 +224,7 @@ namespace IceInternal
 	{
 	    if(rf.getAdapterId().Length > 0)
 	    {
-		Endpoint[] endpoints = _table.removeAdapterEndpoints(rf.getAdapterId());
+		EndpointI[] endpoints = _table.removeAdapterEndpoints(rf.getAdapterId());
 		
 		if(endpoints != null && rf.getInstance().traceLevels().location >= 2)
 		{
@@ -256,7 +256,7 @@ namespace IceInternal
 	    }
 	}
 	
-	private void trace(string msg, IndirectReference r, Endpoint[] endpoints)
+	private void trace(string msg, IndirectReference r, EndpointI[] endpoints)
 	{
 	    System.Text.StringBuilder s = new System.Text.StringBuilder();
 	    s.Append(msg + "\n");
@@ -375,15 +375,15 @@ namespace IceInternal
             }
         }
 	
-        internal IceInternal.Endpoint[] getAdapterEndpoints(string adapter)
+        internal IceInternal.EndpointI[] getAdapterEndpoints(string adapter)
         {
             lock(this)
             {
-                return (IceInternal.Endpoint[])_adapterEndpointsTable[adapter];
+                return (IceInternal.EndpointI[])_adapterEndpointsTable[adapter];
             }
         }
 	
-        internal void addAdapterEndpoints(string adapter, IceInternal.Endpoint[] endpoints)
+        internal void addAdapterEndpoints(string adapter, IceInternal.EndpointI[] endpoints)
         {
             lock(this)
             {
@@ -391,11 +391,11 @@ namespace IceInternal
             }
         }
 	
-        internal IceInternal.Endpoint[] removeAdapterEndpoints(string adapter)
+        internal IceInternal.EndpointI[] removeAdapterEndpoints(string adapter)
         {
             lock(this)
             {
-                IceInternal.Endpoint[] endpoints = (IceInternal.Endpoint[])_adapterEndpointsTable[adapter];
+                IceInternal.EndpointI[] endpoints = (IceInternal.EndpointI[])_adapterEndpointsTable[adapter];
                 _adapterEndpointsTable.Remove(adapter);
                 return endpoints;
             }

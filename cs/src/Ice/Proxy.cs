@@ -53,6 +53,12 @@ namespace Ice
         string ice_getFacet();
         ObjectPrx ice_newFacet(string newFacet);
 
+        string ice_getAdapterId();
+        ObjectPrx ice_newAdapterId(string newAdapterId);
+
+	Endpoint[] ice_getEndpoints();
+        ObjectPrx ice_newEndpoints(Endpoint[] newEndpoints);
+
         ObjectPrx ice_twoway();
         bool ice_isTwoway();
         ObjectPrx ice_oneway();
@@ -315,6 +321,49 @@ namespace Ice
             {
                 ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
                 proxy.setup(_reference.changeFacet(newFacet));
+                return proxy;
+            }
+        }
+
+        public string ice_getAdapterId()
+        {
+            return _reference.getAdapterId();
+        }
+
+        public ObjectPrx ice_newAdapterId(string newAdapterId)
+        {
+            if(newAdapterId == null)
+            {
+                newAdapterId = "";
+            }
+
+            if(newAdapterId.Equals(_reference.getAdapterId()))
+            {
+                return this;
+            }
+            else
+            {
+                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+                proxy.setup(_reference.changeAdapterId(newAdapterId));
+                return proxy;
+            }
+        }
+
+        public Endpoint[] ice_getEndpoints()
+        {
+            return _reference.getEndpoints();
+        }
+
+        public ObjectPrx ice_newEndpoints(Endpoint[] newEndpoints)
+        {
+            if(Arrays.Equals(newEndpoints, _reference.getEndpoints()))
+            {
+                return this;
+            }
+            else
+            {
+                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+                proxy.setup(_reference.changeEndpoints((IceInternal.EndpointI[])newEndpoints));
                 return proxy;
             }
         }
