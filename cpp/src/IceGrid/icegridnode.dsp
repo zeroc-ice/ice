@@ -445,7 +445,7 @@ USERDEP__DUMMY3="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"
 InputPath=.\dummy3.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice --dict IceGrid::StringApplicationDescriptorDict,string,IceGrid::ApplicationDescriptor StringApplicationDescriptorDict ../../slice/IceGrid/Admin.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice -I.. --dict IceGrid::StringApplicationDescriptorDict,string,IceGrid::ApplicationDescriptor StringApplicationDescriptorDict ../../slice/IceGrid/Admin.ice
 
 "StringApplicationDescriptorDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
