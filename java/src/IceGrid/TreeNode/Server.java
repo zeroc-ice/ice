@@ -415,7 +415,7 @@ class Server extends EditableParent
 	_instanceDescriptor = o._instanceDescriptor;
 	_serverDescriptor = o._serverDescriptor;
 
-	Utils.Resolver _resolver = o._resolver;
+	_resolver = o._resolver;
 
 	_services = o._services;
 	_adapters = o._adapters;
@@ -437,8 +437,7 @@ class Server extends EditableParent
 	clearChildren();
 	
 	boolean isEditable = (instanceDescriptor == null);
-	_propertiesHolder = new PropertiesHolder(serverDescriptor, 
-						 isEditable ? this : null);	
+	_propertiesHolder = new PropertiesHolder(serverDescriptor);	
 
 	if(serverDescriptor instanceof IceBoxDescriptor)
 	{
@@ -494,7 +493,7 @@ class Server extends EditableParent
 	    _stateIconIndex = _state.value() + 1;
 	
 	    //
-	    // Change the node representation in all views
+	    // Change the node representation
 	    //
 	    fireNodeChangedEvent(this);
 	}
@@ -565,9 +564,14 @@ class Server extends EditableParent
 	return _state;
     }
 
-    ServerInstanceDescriptor getDescriptor()
+    ServerInstanceDescriptor getInstanceDescriptor()
     {
 	return _instanceDescriptor;
+    }
+
+    ServerDescriptor getDescriptor()
+    {
+	return _serverDescriptor;
     }
  
     public String toString()

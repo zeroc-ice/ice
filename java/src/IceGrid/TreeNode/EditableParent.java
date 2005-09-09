@@ -16,28 +16,9 @@ import IceGrid.Model;
 //
 class EditableParent extends Parent implements Editable
 {
-    EditableParent(boolean brandNew, String id, Model model, boolean root)
+    public boolean isNew()
     {
-	super(id, model, root);
-	_modified = brandNew;
-    }
-
-    EditableParent(boolean brandNew, String id, Model model)
-    {
-	this(brandNew, id, model, false);
-    }
-
-    EditableParent(EditableParent o, boolean copyChildren)
-    {
-	super(o, copyChildren);
-	_modified = o._modified;
-	_removedElements = (java.util.TreeSet)o._removedElements.clone();
-    }
-
-
-    EditableParent(EditableParent o)
-    {
-	this(o, false);
+	return _isNew;
     }
 
     public boolean isModified()
@@ -48,6 +29,29 @@ class EditableParent extends Parent implements Editable
     public void markModified()
     {
 	_modified = true;
+    }
+
+    public Editable getEditable()
+    {
+	return this;
+    }
+
+    public void commit()
+    {
+	_isNew = false;
+	_modified = false;
+	_removedElements.clear();
+
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Object child = p.next();
+	    if(child instanceof Editable)
+	    {
+		Editable editable = (Editable)child;
+		editable.commit();
+	    }
+	}
     }
 
     void removeElement(CommonBase child)
@@ -69,17 +73,37 @@ class EditableParent extends Parent implements Editable
 	}
     }
 
-    java.util.Set removedElements()
+    String[] removedElements()
     {
-	return _removedElements;
+	return (String[])_removedElements.toArray(new String[0]);
     }
 
-    public Editable getEditable()
+    protected EditableParent(boolean brandNew, String id, Model model, boolean root)
     {
-	return this;
+	super(id, model, root);
+	_isNew = brandNew;
     }
-    
-    private boolean _modified;
+
+    protected EditableParent(boolean brandNew, String id, Model model)
+    {
+	this(brandNew, id, model, false);
+    }
+
+    protected EditableParent(EditableParent o, boolean copyChildren)
+    {
+	super(o, copyChildren);
+	_modified = o._modified;
+	_isNew = o._isNew;
+	_removedElements = (java.util.TreeSet)o._removedElements.clone();
+    }
+
+    protected EditableParent(EditableParent o)
+    {
+	this(o, false);
+    }
+   
+    private boolean _isNew = false;
+    private boolean _modified = false;
     private java.util.TreeSet _removedElements = new java.util.TreeSet();
 }
 

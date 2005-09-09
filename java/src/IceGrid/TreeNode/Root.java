@@ -18,7 +18,7 @@ import IceGrid.ServerState;
 import IceGrid.TreeModelI;
 
 
-public class Root extends EditableParent
+public class Root extends Parent
 {
     static class DynamicInfo
     {
@@ -36,7 +36,7 @@ public class Root extends EditableParent
 
     public Root(Model model)
     {
-	super(false, "Applications", model, true);
+	super("Applications", model, true);
     }
 
     public void init(java.util.List descriptors)
@@ -49,7 +49,7 @@ public class Root extends EditableParent
 	    ApplicationDescriptor descriptor = (ApplicationDescriptor)p.next();
 	    try
 	    {
-		 Application child = new Application(descriptor, _model);
+		Application child = new Application(false, descriptor, _model);
 		addChild(child);
 		child.setParent(this);
 	    }
@@ -78,7 +78,7 @@ public class Root extends EditableParent
     {
 	try
 	{
-	    Application child = new Application(desc, _model); 
+	    Application child = new Application(false, desc, _model); 
 	    child.setParent(this);
 	    addChild(child, true);
 	}
@@ -217,13 +217,11 @@ public class Root extends EditableParent
 
     void restore(Application copy)
     {
-	//
-	// TODO: fire event or not?
-	//
 	removeChild(copy.getId(), true);
 	try
 	{
 	    addChild(copy, true);
+	    copy.setParent(this);
 	}
 	catch(DuplicateIdException e)
 	{

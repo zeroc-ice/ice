@@ -53,6 +53,19 @@ class ServiceTemplates extends EditableParent
 	}
     }
 
+    void getUpdates(java.util.Map updates)
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    ServiceTemplate t = (ServiceTemplate)p.next();
+	    if(t.isNew() || t.isModified())
+	    {
+		updates.put(t.getId(), t.getDescriptor());
+	    }
+	}
+    }
+
     void update() throws DuplicateIdException
     {
 	//
@@ -74,6 +87,7 @@ class ServiceTemplates extends EditableParent
 	    }
 	}
 	purgeChildren(_descriptors.keySet());
+	fireStructureChangedEvent(this);
     }
 
 

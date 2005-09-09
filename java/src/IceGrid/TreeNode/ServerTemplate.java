@@ -64,14 +64,14 @@ class ServerTemplate extends EditableParent
 	_dbEnvs = o._dbEnvs;
 	_adapters = o._adapters;
 	
-	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor, this);
+	_propertiesHolder = o._propertiesHolder;
     }
 
     void rebuild(TemplateDescriptor descriptor, Application application)
 	throws DuplicateIdException
     {
 	_templateDescriptor = descriptor;
-	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor, this);
+	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor);
 	clearChildren();
 
 	//
@@ -86,6 +86,7 @@ class ServerTemplate extends EditableParent
 	    _services = new Services(_iceBoxDescriptor.services, this, null, 
 				     application);
 	    addChild(_services);
+	    _services.setParent(this);
 
 	    assert _templateDescriptor.descriptor.dbEnvs.size() == 0;
 	    _dbEnvs = null;
@@ -98,11 +99,13 @@ class ServerTemplate extends EditableParent
 	    _dbEnvs = new DbEnvs(_templateDescriptor.descriptor.dbEnvs, true,
 			     null, _model);
 	    addChild(_dbEnvs);
+	    _dbEnvs.setParent(this);
 	}
 	
 	_adapters = new Adapters(_templateDescriptor.descriptor.adapters, true, 
 				 null, null, _model);
 	addChild(_adapters);
+	_adapters.setParent(this);
     }
 
     public PropertiesHolder getPropertiesHolder()

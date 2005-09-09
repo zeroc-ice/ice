@@ -43,8 +43,6 @@ class Parent extends CommonBaseI
 
 	public void setSelectedItem(Object obj)
 	{
-	    System.err.println("setSelectedItem");
-
 	    _selectedItem = obj;
 	    fireContentsChanged(this, -1, -1);
 	}
@@ -120,7 +118,7 @@ class Parent extends CommonBaseI
 	}
     }
 
-    CommonBase findChild(String id)
+    public CommonBase findChild(String id)
     {
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
@@ -484,10 +482,10 @@ class Parent extends CommonBaseI
 	super(o);
 	if(copyChildren)
 	{
-	    _children = o._children;
+	    _children = (java.util.LinkedList)o._children.clone();
 	}
     }
 
-    protected java.util.List _children = new java.util.LinkedList();
+    protected java.util.LinkedList _children = new java.util.LinkedList();
     private ChildComparator _childComparator = new ChildComparator();
 }

@@ -27,7 +27,7 @@ class ServiceTemplate extends EditableParent
 	_templateDescriptor = o._templateDescriptor;
 	_adapters = o._adapters;
 	_dbEnvs = o._dbEnvs;
-	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor, this);
+	_propertiesHolder = o._propertiesHolder;
     }
 
 
@@ -35,7 +35,7 @@ class ServiceTemplate extends EditableParent
 	throws DuplicateIdException
     {
 	_templateDescriptor = descriptor;
-	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor, this);
+	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor);
 	clearChildren();
 
 	//
@@ -46,10 +46,12 @@ class ServiceTemplate extends EditableParent
 	_adapters = new Adapters(_templateDescriptor.descriptor.adapters, true, 
 				 null, null, _model);
 	addChild(_adapters);
+	_adapters.setParent(this);
 
 	_dbEnvs = new DbEnvs(_templateDescriptor.descriptor.dbEnvs, true,
 			     null, _model);
 	addChild(_dbEnvs);
+	_dbEnvs.setParent(this);
     }
 
     public PropertiesHolder getPropertiesHolder()
@@ -60,6 +62,11 @@ class ServiceTemplate extends EditableParent
     public String toString()
     {
 	return templateLabel(_id, _templateDescriptor.parameters);
+    }
+
+    TemplateDescriptor getDescriptor()
+    {
+	return _templateDescriptor;
     }
 
     private TemplateDescriptor _templateDescriptor;

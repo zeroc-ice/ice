@@ -16,16 +16,118 @@ import IceGrid.ServerDynamicInfo;
 import IceGrid.ServerState;
 import IceGrid.TemplateDescriptor;
 
-class Application extends EditableParent
+import javax.swing.JOptionPane;
+
+public class Application extends EditableParent
 {
+    public ApplicationDescriptor getDescriptor()
+    {
+	return _descriptor;
+    }
+
+    public ApplicationUpdateDescriptor createUpdateDescriptor()
+    {
+	ApplicationUpdateDescriptor update = new ApplicationUpdateDescriptor();
+	update.name = _descriptor.name;
+	if(isModified())
+	{
+	    //
+	    // Diff description
+	    //
+	    if(!_descriptor.description.equals(_origDescription))
+	    {
+		update.description.value = _descriptor.description;
+	    }
+
+	    //
+	    // Diff variables
+	    //
+	    update.variables = (java.util.TreeMap)_descriptor.variables.clone();
+	    java.util.List removeVariables = new java.util.LinkedList();
+
+	    java.util.Iterator p = _origVariables.entrySet().iterator();
+	    while(p.hasNext())
+	    {
+		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+		Object key = entry.getKey();
+		Object newValue =  update.variables.get(key);
+		if(newValue == null)
+		{
+		    removeVariables.add(key);
+		}
+		else
+		{
+		    Object value = entry.getValue();
+		    if(newValue.equals(value))
+		    {
+			update.variables.remove(key);
+		    }
+		}
+	    }
+	    update.removeVariables = (String[])removeVariables.toArray(new String[0]);
+	}
+	else
+	{
+	    update.variables = new java.util.TreeMap();
+	    update.removeVariables = new String[0];
+	}
+
+	//
+	// Patch TODO: implement
+	//
+	update.patchs = new java.util.HashMap();
+	update.removePatchs = new String[0];
+
+	//
+	// Replicated Adapters
+	//
+	update.removeReplicatedAdapters = _replicatedAdapters.removedElements();
+	update.replicatedAdapters = new java.util.LinkedList();
+	_replicatedAdapters.getUpdates(update.replicatedAdapters);
+	
+	//
+	// Server Templates
+	//
+	update.removeServerTemplates = _serverTemplates.removedElements();
+	update.serverTemplates = new java.util.HashMap();
+	_serverTemplates.getUpdates(update.serverTemplates);
+
+	//
+	// Service Templates
+	//
+	update.removeServiceTemplates = _serviceTemplates.removedElements();
+	update.serviceTemplates = new java.util.HashMap();
+	_serviceTemplates.getUpdates(update.serviceTemplates);
+
+	//
+	// Nodes
+	//
+	update.removeNodes = _nodes.removedElements();
+	update.nodes = new java.util.LinkedList();
+	_nodes.getUpdates(update.nodes);
+
+	return update;
+    }
+    
+    public void commit()
+    {
+	super.commit();
+	_origVariables = (java.util.Map)_descriptor.variables.clone();
+	_origDescription = _descriptor.description;
+    }
+
+
     //
     // Builds the application and all its subtrees
     //
-    Application(ApplicationDescriptor descriptor, Model model)
+    Application(boolean brandNew, ApplicationDescriptor descriptor, Model model)
 	throws DuplicateIdException
     {
-	super(false, descriptor.name, model);
+	super(brandNew, descriptor.name, model);
 	_descriptor = descriptor;
+	_origVariables = (java.util.Map)_descriptor.variables.clone();
+	_origDescription = _descriptor.description;
+
 
 	_replicatedAdapters = new ReplicatedAdapters(_descriptor.replicatedAdapters,
 						     _model);
@@ -52,6 +154,8 @@ class Application extends EditableParent
 	// So we'll have to be carefull to properly recover the "old" descriptor.
 	//
 	_descriptor = o._descriptor;
+	_origVariables = o._origVariables;
+	_origDescription = o._origDescription;
 	
 	try
 	{
@@ -79,8 +183,6 @@ class Application extends EditableParent
     //
     boolean applyUpdate()
     {
-	// TODO: hourglass
-
 	Application copy = new Application(this);
 	
 	try
@@ -89,22 +191,23 @@ class Application extends EditableParent
 	}
 	catch(DuplicateIdException e)
 	{
-	    // TODO: error message to the user
-
+	    JOptionPane.showMessageDialog(
+		_model.getMainFrame(),
+		e.toString(),
+		"Duplicate id error",
+		JOptionPane.ERROR_MESSAGE);
 	    
 	    _model.getRoot().restore(copy);
 	    return false;
 	}
-	
-
 	return true;
     }
 
     void update() throws DuplicateIdException
     {
 	_replicatedAdapters.update();
-	_serverTemplates.update();
 	_serviceTemplates.update();
+	_serverTemplates.update();
 	_nodes.update();
     }
 
@@ -439,6 +542,14 @@ class Application extends EditableParent
     // Nodename to list of Server (used when a node goes down)
     //
     private java.util.Map _nodeServerMap = new java.util.HashMap();
+
+    //
+    // Keeps original version (as deep copies) to be able to build 
+    // ApplicationUpdateDescriptor
+    //
+    private java.util.Map _origVariables;
+    private String _origDescription;
+   
 
     //
     // Children

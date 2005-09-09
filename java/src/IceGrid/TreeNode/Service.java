@@ -30,7 +30,7 @@ class Service extends Parent
 	_displayString = displayString;
 	_instanceDescriptor = instanceDescriptor;
 	_serviceDescriptor = serviceDescriptor;
-	_propertiesHolder = new PropertiesHolder(serviceDescriptor, editable);
+	_propertiesHolder = new PropertiesHolder(serviceDescriptor);
 
 	_isEditable = editable != null;
 	_resolver = resolver;

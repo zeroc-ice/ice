@@ -86,7 +86,10 @@ public class MainPane extends JSplitPane
 	    if(path != null)
 	    {
 		CommonBase node = (CommonBase)path.getLastPathComponent();
-		node.displayProperties();
+		if(node.getModel().displayEnabled())
+		{
+		    node.displayProperties();
+		}
 	    }
 	}
     }

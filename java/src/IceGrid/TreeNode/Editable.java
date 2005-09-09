@@ -13,8 +13,10 @@ import IceGrid.Model;
 
 interface Editable
 {
+    boolean isNew();
     boolean isModified();
     void markModified();
+    void commit();
 }
 
 

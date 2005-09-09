@@ -54,6 +54,19 @@ class ServerTemplates extends EditableParent
 	}
     }
 
+    void getUpdates(java.util.Map updates)
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    ServerTemplate t = (ServerTemplate)p.next();
+	    if(t.isNew() || t.isModified())
+	    {
+		updates.put(t.getId(), t.getDescriptor());
+	    }
+	}
+    }
+
     void update() throws DuplicateIdException
     {
 	//
@@ -78,6 +91,7 @@ class ServerTemplates extends EditableParent
 	    }
 	}
 	purgeChildren(_descriptors.keySet());
+	fireStructureChangedEvent(this);
     }
     
     void update(java.util.Map updates, String[] removeTemplates)

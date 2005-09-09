@@ -36,6 +36,7 @@ class ReplicatedAdapters extends EditableParent
 	throws DuplicateIdException
     {
 	super(o);
+	_descriptors = o._descriptors;
 	java.util.Iterator p = o._children.iterator();
 	while(p.hasNext())
 	{
@@ -43,6 +44,20 @@ class ReplicatedAdapters extends EditableParent
 	    addChild(new ReplicatedAdapter(ra));
 	}
     }
+
+    void getUpdates(java.util.List updates)
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    ReplicatedAdapter ra = (ReplicatedAdapter)p.next();
+	    if(ra.isNew() || ra.isModified())
+	    {
+		updates.add(ra.getDescriptor());
+	    }
+	}
+    }
+
 
     void update() throws DuplicateIdException
     {
@@ -60,6 +75,7 @@ class ReplicatedAdapters extends EditableParent
 	    ra.rebuild(descriptor);
 	}
 	purgeChildren(keepSet);
+	fireStructureChangedEvent(this);
     }
 
 

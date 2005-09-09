@@ -37,7 +37,7 @@ class SessionKeeper
     {
 	ConnectDialog()
 	{
-	    super(_parent, "New Connection - IceGrid Admin", true);
+	    super(_model.getMainFrame(), "New Connection - IceGrid Admin", true);
 	    setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 	    
 	    _locatorProxy = new JTextField(30);
@@ -67,16 +67,16 @@ class SessionKeeper
 		{
 		    public void actionPerformed(ActionEvent e)
 		    {
-			_info.locatorProxy = _locatorProxy.getText();
-			_info.username = _username.getText();
-			_info.password = _password.getPassword();
-			_info.useGlacier = _useGlacier.isSelected();
-			_info.autoconnect = _autoconnect.isSelected();
-			_info.adminIdentity = _adminIdentity.getText();
-			_info.sessionManagerIdentity 
+			_connectInfo.locatorProxy = _locatorProxy.getText();
+			_connectInfo.username = _username.getText();
+			_connectInfo.password = _password.getPassword();
+			_connectInfo.useGlacier = _useGlacier.isSelected();
+			_connectInfo.autoconnect = _autoconnect.isSelected();
+			_connectInfo.adminIdentity = _adminIdentity.getText();
+			_connectInfo.sessionManagerIdentity 
 			    = _sessionManagerIdentity.getText();
 			
-			if(doConnect(ConnectDialog.this, _info))
+			if(doConnect(ConnectDialog.this))
 			{
 			    setVisible(false);
 			}
@@ -139,23 +139,22 @@ class SessionKeeper
 	    setResizable(false);
 	}
 
-	boolean showDialog(Model.ConnectInfo info)
+	boolean showDialog()
 	{
 	    if(isVisible() == false)
 	    {
-		_info = info;
-		_locatorProxy.setText(_info.locatorProxy);
-		_username.setText(_info.username);
-		_adminIdentity.setText(_info.adminIdentity);
-		_sessionManagerIdentity.setText(_info.sessionManagerIdentity);
+		_locatorProxy.setText(_connectInfo.locatorProxy);
+		_username.setText(_connectInfo.username);
+		_adminIdentity.setText(_connectInfo.adminIdentity);
+		_sessionManagerIdentity.setText(_connectInfo.sessionManagerIdentity);
 
-		_useGlacier.setSelected(_info.useGlacier);
-		_autoconnect.setSelected(_info.autoconnect);
-		_autoconnect.setEnabled(!info.useGlacier);
-		_passwordLabel.setEnabled(info.useGlacier);
-		_password.setEnabled(info.useGlacier);
+		_useGlacier.setSelected(_connectInfo.useGlacier);
+		_autoconnect.setSelected(_connectInfo.autoconnect);
+		_autoconnect.setEnabled(!_connectInfo.useGlacier);
+		_passwordLabel.setEnabled(_connectInfo.useGlacier);
+		_password.setEnabled(_connectInfo.useGlacier);
 
-		setLocationRelativeTo(_parent);
+		setLocationRelativeTo(_model.getMainFrame());
 		setVisible(true);
 		return true;
 	    }
@@ -168,8 +167,6 @@ class SessionKeeper
 	    }
 	}
 	
-	private Model.ConnectInfo _info;
-
 	private JTextField _locatorProxy;
 	private JTextField _username;
 	private JLabel _passwordLabel;
@@ -207,7 +204,8 @@ class SessionKeeper
 			{
 			    public void run() 
 			    {
-				sessionLost("Failed to contact the IceGrid registry: "  + e.toString());
+				sessionLost("Failed to contact the IceGrid registry: " 
+					    + e.toString());
 			    }
 			});
 		}
@@ -240,13 +238,11 @@ class SessionKeeper
     } 
 
 
-    SessionKeeper(Frame parent, Model model, 
-		  Preferences prefs)
+    SessionKeeper(Model model)
     {
-	_parent = parent;
-	_connectDialog = new ConnectDialog();
 	_model = model;
-	_connectionPrefs = prefs.node("Connection");
+	_connectDialog = new ConnectDialog();
+	_connectionPrefs = model.getPrefs().node("Connection");
     }
 
     //
@@ -254,13 +250,13 @@ class SessionKeeper
     //
     void createSession(boolean autoconnectEnabled)
     {
-	Model.ConnectInfo connectInfo = new Model.ConnectInfo(_connectionPrefs, 
-						  _model.getCommunicator());
+	_connectInfo = new Model.ConnectInfo(_connectionPrefs, 
+					     _model.getCommunicator());
 	boolean openDialog = true;
-	if(autoconnectEnabled && !connectInfo.useGlacier && 
-	   connectInfo.autoconnect)
+	if(autoconnectEnabled && !_connectInfo.useGlacier && 
+	   _connectInfo.autoconnect)
 	{
-	    openDialog = !doConnect(_parent, connectInfo);
+	    openDialog = !doConnect(_model.getMainFrame());
 	}
 	if(openDialog)
 	{
@@ -268,48 +264,33 @@ class SessionKeeper
 	    // When the user presses OK on the connect dialog, doConnect
 	    // is called
 	    //
-	    _connectDialog.showDialog(connectInfo);
+	    _connectDialog.showDialog();
 	}
     }
 
     //
     // Runs in UI thread
     //
-    private boolean doConnect(Component parent, Model.ConnectInfo info)
+    void reconnect(boolean showDialog)
     {
-	if(_session != null)
+	destroyObservers();
+	releaseSession();
+	_model.sessionLost();
+
+	if(showDialog || !doConnect(_model.getMainFrame()))
 	{
-	    //
-	    // First take care of previous session!
-	    //
-	    
-	    if(_model.updated())
-	    {
-		boolean saveFirst = true; // TODO: add real dialog!
-		
-		if(saveFirst)
-		{
-		    boolean saved = _model.save();
-		    if(!saved)
-		    {
-			//
-			// dismiss Connect dialog
-			//
-			return true;
-		    }
-		}
-	    }
-	    
-	    //
-	    // Discard session
-	    //
-	    destroyObservers();
-	    releaseSession();
-	    _model.sessionLost();
+	    _connectDialog.showDialog();
 	}
+    }
+
+    //
+    // Runs in UI thread
+    //
+    private boolean doConnect(Component parent)
+    {
+	assert _session == null;
 	
 	Cursor oldCursor = parent.getCursor();
-
 	try
 	{
 	    parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -320,7 +301,7 @@ class SessionKeeper
 	    // Establish session
 	    //
 	    
-	    if(info.useGlacier)
+	    if(_connectInfo.useGlacier)
 	    {
 		//
 		// Not yet implemented
@@ -329,14 +310,15 @@ class SessionKeeper
 	    }
 	    else
 	    {
-		if(!_model.setConnectInfo(info, parent, oldCursor))
+		if(!_model.setConnectInfo(_connectInfo, parent, oldCursor))
 		{
 		    return false;
 		}
 		
 		try
 		{
-		    _session = _model.getSessionManager().createLocalSession(info.username);
+		    _session = _model.getSessionManager().
+			createLocalSession(_connectInfo.username);
 		}
 		catch(Ice.LocalException e)
 		{
@@ -382,7 +364,7 @@ class SessionKeeper
 		return false;
 	    }
 
-	    info.save();
+	    _connectInfo.save();
 	}
 	finally
 	{
@@ -403,7 +385,7 @@ class SessionKeeper
 	_model.sessionLost();
 
 	JOptionPane.showMessageDialog(
-	    _parent,
+	    _model.getMainFrame(),
 	    message,
 	    "Session lost",
 	    JOptionPane.ERROR_MESSAGE);
@@ -428,13 +410,26 @@ class SessionKeeper
 		try
 		{
 		    _thread.join();
+		    break;
 		}
 		catch(InterruptedException e)
 		{
 		}
-		break;
 	    }
 	    _thread = null;
+	    
+	    try
+	    {
+		//
+		// TODO: add timeout
+		//
+		_session.destroy();
+	    }
+	    catch(Ice.LocalException e)
+	    {
+		// Ignored
+	    }
+
 	    _session = null;
 	    _model.getStatusBar().setText("Not connected");
 	}
@@ -463,8 +458,7 @@ class SessionKeeper
 	    _nodeObserverIdentity.name = uuid;
 	    _nodeObserverIdentity.category = "nodeObserver";
 
-	    RegistryObserverI registryObserverServant = new RegistryObserverI(
-		this, _model);
+	    RegistryObserverI registryObserverServant = new RegistryObserverI(_model);
 
 	    RegistryObserverPrx registryObserver = 
 		RegistryObserverPrxHelper.uncheckedCast(
@@ -521,9 +515,8 @@ class SessionKeeper
 	return _session;
     }
    
-    
-    private Frame _parent;
     private ConnectDialog _connectDialog;
+    private Model.ConnectInfo _connectInfo;
 
     private Model _model;
     private Preferences _connectionPrefs;

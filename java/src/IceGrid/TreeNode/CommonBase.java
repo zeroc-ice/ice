@@ -28,6 +28,8 @@ public interface CommonBase extends TreeCellRenderer
     int getIndex(Object child);
     boolean isLeaf();
 
+    CommonBase findChild(String id);
+
     //
     // Unique within the scope of each parent
     //
@@ -40,6 +42,12 @@ public interface CommonBase extends TreeCellRenderer
     // often no-op
     //
     void unregister();
+
+
+    //
+    // Destroys this node, no-op when destruction not allowed
+    //
+    // void remove();
 
     //
     // Set this node as a parent, and recursively update

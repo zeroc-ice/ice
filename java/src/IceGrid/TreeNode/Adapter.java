@@ -8,8 +8,11 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -17,13 +20,23 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
+
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
+import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
@@ -31,47 +44,271 @@ import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
 import IceGrid.AdapterDescriptor;
 import IceGrid.Model;
 import IceGrid.ObjectDescriptor;
+import IceGrid.TableDialog;
 import IceGrid.Utils;
 
 class Adapter extends Leaf
 {
     static class Editor
     {
-	JComponent getComponent()
+	Editor(JFrame parentFrame)
 	{
-	    if(_scrollPane == null)
-	    {
-		//
-		// gotoReplicatedAdapter action
-		//
-		AbstractAction gotoReplicatedAdapter = new AbstractAction("->")
+	    _objects.setEditable(false);
+
+	    //
+	    // Create buttons
+	    //
+	    
+	    //
+	    // _idButton
+	    //
+	    AbstractAction gotoReplicatedAdapter = new AbstractAction("->")
+		{
+		    public void actionPerformed(ActionEvent e) 
 		    {
-			public void actionPerformed(ActionEvent e) 
+			Object obj = _id.getSelectedItem();
+			if(obj != null && _adapter != null)
 			{
-			    Object obj = _id.getSelectedItem();
-			    if(obj != null && _adapter != null)
+			    ReplicatedAdapter ra = null;
+			    if(obj instanceof ReplicatedAdapter)
 			    {
-				ReplicatedAdapter ra = null;
-				if(obj instanceof ReplicatedAdapter)
+				ra = (ReplicatedAdapter)obj;
+			    }
+			    else
+			    {
+				ra = _adapter.getApplication().
+				    findReplicatedAdapter((String)obj);
+			    }
+			    if(ra != null)
+			    {
+				_adapter.getModel().getTree().setSelectionPath
+				    (ra.getPath());
+			    }
+			}
+		    }
+		};
+	    gotoReplicatedAdapter.putValue(Action.SHORT_DESCRIPTION, "Goto this replicated adapter");
+	    _idButton = new JButton(gotoReplicatedAdapter);
+
+	    //
+	    // _objectsButton
+	    //
+	    _objectsDialog = new TableDialog(parentFrame, "Registered Objects",
+					     "Object Identity", "Type");
+
+	    AbstractAction openObjectsDialog = new AbstractAction("...")
+		{
+		    public void actionPerformed(ActionEvent e) 
+		    {
+			java.util.Map result = _objectsDialog.show(_objectsMap, _panel);
+			if(result != null)
+			{
+			    updated();
+			    _objectsMap = result;
+			    setObjectsField();
+			}
+		    }
+		};
+	    _objectsButton = new JButton(openObjectsDialog);
+
+	    
+	    //
+	    // _applyButton
+	    //
+	    AbstractAction apply = new AbstractAction("Apply")
+		{
+		    public void actionPerformed(ActionEvent e) 
+		    {
+			if(_adapter.getModel().canUpdate())
+			{
+			    _adapter.getModel().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			    _adapter.getModel().disableDisplay();
+
+			    try
+			    {
+				AdapterDescriptor descriptor = _adapter.getDescriptor();
+				
+				//
+				// Did the name change?
+				//
+				String newName = _name.getText();
+				
+				if(_adapter.isNew())
 				{
-				    ra = (ReplicatedAdapter)obj;
+				    String newResolvedName = Utils.substitute(newName, _adapter.getResolver());
+				    Adapters parent = (Adapters)_adapter.getParent();
+
+				    descriptor.name = newName;
+				    writeDescriptor();
+				    parent.addDescriptor(descriptor);
+				    
+				    if(!_adapter.getApplication().applyUpdate())
+				    {
+					parent = (Adapters)_adapter.getModel().findNewNode(parent.getPath());
+					parent.popDescriptor();
+					_adapter.getModel().setSelectionPath(parent.getPath());
+					_adapter.setParent(parent);
+					return;
+				    }
+				    else
+				    {
+					parent = (Adapters)_adapter.getModel().findNewNode(parent.getPath());
+					_adapter = (Adapter)parent.findChild(newResolvedName);
+					_adapter.getModel().setSelectionPath(_adapter.getPath());
+				    }
+				}
+				else if(descriptor.name.equals(newName))
+				{
+				    writeDescriptor();
 				}
 				else
 				{
-				    ra = _adapter.getApplication().
-					findReplicatedAdapter((String)obj);
+				    String newResolvedName = Utils.substitute(newName, _adapter.getResolver());
+
+				    //
+				    // Save to be able to rollback
+				    //
+				    AdapterDescriptor oldDescriptor = null;
+				    try
+				    {
+					oldDescriptor = (AdapterDescriptor)descriptor.clone();
+				    }
+				    catch(CloneNotSupportedException ce)
+				    {
+					assert false; // impossible
+				    }
+
+				    TreePath oldPath = _adapter.getPath();
+				    Adapters parent = (Adapters)_adapter.getParent();
+				    
+				    descriptor.name = newName;
+				    writeDescriptor();
+
+				    if(!_adapter.getApplication().applyUpdate())
+				    {
+					//
+					// Restore descriptor
+					// IMPORTANT: keep the same object!
+					//
+					descriptor.name = oldDescriptor.name;
+					descriptor.id = oldDescriptor.id;
+					descriptor.registerProcess = oldDescriptor.registerProcess;
+					descriptor.waitForActivation = oldDescriptor.waitForActivation;
+					descriptor.objects = oldDescriptor.objects;
+					
+					//
+					// Need to find new Adapter node!
+					//
+					_adapter = (Adapter)_adapter.getModel().findNewNode(oldPath);
+					_adapter.getModel().setSelectionPath(_adapter.getPath());
+					//
+					//
+					// Everything was restored, user must deal with error
+					//
+					return;
+				    }
+				    else
+				    {
+					parent = (Adapters)_adapter.getModel().findNewNode(parent.getPath());
+					_adapter = (Adapter)parent.findChild(newResolvedName);
+					_adapter.getModel().setSelectionPath(_adapter.getPath());
+				    }
 				}
-				if(ra != null)
-				{
-				    _adapter.getModel().getTree().setSelectionPath
-					(ra.getPath());
-				}
+			    
+				//
+				// Change enclosing properties afterwards 
+				//
+				_adapter.setEndpoints(newName, _endpoints.getText());
+				
+				//
+				// Mark modified
+				//
+				_adapter.getEditable().markModified();
+			
+				_applyButton.setEnabled(false);
+				_discardButton.setEnabled(false);
+			    }
+			    finally
+			    {
+				_adapter.getModel().enableDisplay();
+				_adapter.getModel().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			    }
 			}
-		    };
-		gotoReplicatedAdapter.putValue(Action.SHORT_DESCRIPTION, "Goto this replicated adapter");
+			//
+			// Otherwise, may wait until other user is done!
+			//
+		    }
+		};
+	    _applyButton = new JButton(apply);
+	    
+	    
+	    //
+	    // _discardButton
+	    //
+	    AbstractAction discard = new AbstractAction("Discard")
+		{
+		    public void actionPerformed(ActionEvent e) 
+		    {
+			//
+			// Redisplay everything
+			//
+			_adapter.getModel().refreshDisplay();
+		    }
+		};
+	    _discardButton = new JButton(discard);
 
 
+	    //
+	    // Detect updates
+	    //
+	    DocumentListener updateListener = new DocumentListener() 
+		{
+		    public void changedUpdate(DocumentEvent e)
+		    {
+			updated();
+		    }
+		    
+		    public void insertUpdate(DocumentEvent e)
+		    {
+			updated();
+		    }
+		    
+		    public void removeUpdate(DocumentEvent e)
+		    {
+			updated();
+		    }
+		};
+	    _name.getDocument().addDocumentListener(updateListener);
+	    _endpoints.getDocument().addDocumentListener(updateListener);
+
+	    JTextField idTextField = (JTextField)_id.getEditor().getEditorComponent();
+	    idTextField.getDocument().addDocumentListener(updateListener);
+
+
+	    Action checkRegisterProcess = new AbstractAction("Register Process")
+		{
+		    public void actionPerformed(ActionEvent e)
+		    {
+			updated();
+		    }
+		};
+	    _registerProcess = new JCheckBox(checkRegisterProcess);
+
+	    Action checkWaitForActivation = new AbstractAction("Wait for Activation")
+		{
+		    public void actionPerformed(ActionEvent e)
+		    {
+			updated();
+		    }
+		};
+	    _waitForActivation = new JCheckBox(checkWaitForActivation);
+	}
+
+
+	JComponent getComponent()
+	{
+	    if(_panel == null)
+	    {
 		//
 		// Build everything using JGoodies's DefaultFormBuilder
 		//
@@ -87,7 +324,6 @@ class Adapter extends Leaf
 		builder.append(_name, 3);
 		builder.nextLine();
 		
-		_idButton = new JButton(gotoReplicatedAdapter);
 		builder.append("Id", _id );
 		builder.append(_idButton);
 		builder.nextLine();
@@ -105,25 +341,97 @@ class Adapter extends Leaf
 		builder.append("", _waitForActivation);
 		builder.nextLine();
 
-		_scrollPane = new JScrollPane(builder.getPanel(),
-					      JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-					      JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		_scrollPane.setBorder(Borders.DIALOG_BORDER);
+		JScrollPane scrollPane = new JScrollPane(builder.getPanel(),
+							 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+							 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setBorder(Borders.DIALOG_BORDER);
+		
+		_panel = new JPanel(new BorderLayout());
+		_panel.add(scrollPane, BorderLayout.CENTER);
+		
+		JComponent buttonBar = ButtonBarFactory.buildRightAlignedBar(_applyButton, 
+								       _discardButton);
+		buttonBar.setBorder(Borders.DIALOG_BORDER);
+		_panel.add(buttonBar, BorderLayout.SOUTH);
 	    }
-	    return _scrollPane;
+	    return _panel;
+	}
+
+	void updated()
+	{
+	    if(_detectUpdates)
+	    {
+		_applyButton.setEnabled(true);
+		_discardButton.setEnabled(true);
+	    }
+	}
+	
+	//
+	// Write all fields except name
+	//
+	void writeDescriptor()
+	{
+	    AdapterDescriptor descriptor = _adapter.getDescriptor();
+	    Object obj = _id.getSelectedItem();
+	    if(obj == null)
+	    {
+		descriptor.id = "";
+	    }
+	    else
+	    {
+		if(obj instanceof ReplicatedAdapter)
+		{
+		    ReplicatedAdapter ra = (ReplicatedAdapter)obj;
+		    descriptor.id = ra.getId();
+		}
+		else
+		{
+		    descriptor.id = (String)obj;
+		}
+	    }
+	    
+	    descriptor.registerProcess = _registerProcess.isSelected();
+	    descriptor.waitForActivation = _waitForActivation.isSelected();
+	    descriptor.objects = mapToObjectDescriptorSeq(_objectsMap);
+	}	    
+
+	void setObjectsField()
+	{
+	    final Utils.Resolver resolver = _adapter.getModel().substitute() ? _adapter.getResolver() : null;
+
+	    Ice.StringHolder toolTipHolder = new Ice.StringHolder();
+	    Utils.Stringifier stringifier = new Utils.Stringifier()
+	    {
+		public String toString(Object obj)
+		{
+		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
+		    
+		    return Utils.substitute((String)entry.getKey(), resolver) 
+			+ " as '"
+			+ Utils.substitute((String)entry.getValue(), resolver)
+			+ "'";
+		}
+	    };
+	    
+	    _objects.setText(
+		Utils.stringify(_objectsMap.entrySet(), stringifier,
+				", ", toolTipHolder));
+	    _objects.setToolTipText(toolTipHolder.value);
 	}
 
 	void show(Adapter adapter)
 	{
-	    _adapter = adapter;
-	    AdapterDescriptor descriptor = adapter.getDescriptor();
+	    _detectUpdates = false;
 
-	    final Utils.Resolver resolver = adapter.getModel().substitute() ? adapter.getResolver() : null;
-	    boolean editable = adapter.isEditable() && resolver == null;
+	    _adapter = adapter;
+	    AdapterDescriptor descriptor = _adapter.getDescriptor();
+
+	    Utils.Resolver resolver = adapter.getModel().substitute() ? adapter.getResolver() : null;
+	    boolean isEditable = adapter.isEditable() && resolver == null;
 
 	    _name.setText(
 		Utils.substitute(descriptor.name, resolver));
-	    _name.setEditable(editable);
+	    _name.setEditable(isEditable);
 
 	    //
 	    // Need to make control editable & enabled before changing it
@@ -147,56 +455,80 @@ class Adapter extends Leaf
 	    {
 		_id.setSelectedItem(adapterId);
 	    }
-	    _id.setEnabled(editable);
-	    _id.setEditable(editable);
+
+	    _id.setEnabled(isEditable);
+	    _id.setEditable(isEditable);
 
 	    _endpoints.setText(
 		Utils.substitute(adapter.getEndpoints(), resolver));
-	    _endpoints.setEditable(editable);
+	    _endpoints.setEditable(isEditable);
 
-	    Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-
-	    Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    ObjectDescriptor od = (ObjectDescriptor)obj;
-		    Ice.Identity sid =
-			sid = new Ice.Identity(
-			    Utils.substitute(od.id.name, resolver),
-			    Utils.substitute(od.id.category, resolver));
-		    return Ice.Util.identityToString(sid)
-			+ " as '"
-			+ Utils.substitute(od.type, resolver)
-			+ "'";
-		}
-	    };
-	    
-	    _objects.setText(
-		Utils.stringify(descriptor.objects, stringifier,
-				", ", toolTipHolder));
-	    _objects.setToolTipText(toolTipHolder.value);
-	    _objects.setEditable(false);
+	    //
+	    // Objects
+	    //
+	    _objectsMap = objectDescriptorSeqToMap(descriptor.objects);
+	    setObjectsField();
+	    _objectsButton.setEnabled(isEditable);
 
 	    _registerProcess.setSelected(descriptor.registerProcess);
-	    _registerProcess.setEnabled(editable);
+	    _registerProcess.setEnabled(isEditable);
 
 	    _waitForActivation.setSelected(descriptor.waitForActivation);
-	    _waitForActivation.setEnabled(editable);
-	  
+	    _waitForActivation.setEnabled(isEditable);
+
+	    _applyButton.setEnabled(_adapter.isNew());
+	    _discardButton.setEnabled(_adapter.isNew());	  
+	    _detectUpdates = true;
+
 	}
+
+	static java.util.Map objectDescriptorSeqToMap(java.util.List objects)
+	{
+	    java.util.Map result = new java.util.HashMap(objects.size());
+	    java.util.Iterator p = objects.iterator();
+	    while(p.hasNext())
+	    {
+		ObjectDescriptor od = (ObjectDescriptor)p.next();
+		result.put(Ice.Util.identityToString(od.id), od.type);
+	    }
+	    return result;
+	}
+
+	static java.util.LinkedList mapToObjectDescriptorSeq(java.util.Map map)
+	{
+	    java.util.LinkedList result = new java.util.LinkedList();
+	    java.util.Iterator p = map.entrySet().iterator();
+	    while(p.hasNext())
+	    {
+		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+		Ice.Identity id = Ice.Util.stringToIdentity((String)entry.getKey());
+		String type = (String)entry.getValue();
+		result.add(new ObjectDescriptor(id, type));
+	    }
+	    return result;
+	}
+	
+
+	private boolean _detectUpdates;
 
 	private JTextField _name = new JTextField(20);
 	private JComboBox _id = new JComboBox();
 	private JTextField _endpoints = new JTextField(20);
-	private JCheckBox _registerProcess = new JCheckBox("Register Process");
-	private JCheckBox _waitForActivation = new JCheckBox("Wait for Activation");
+	private JCheckBox _registerProcess;
+	private JCheckBox _waitForActivation;
 	private JTextField _objects = new JTextField(20);
+	private java.util.Map _objectsMap;
+
 	private JButton _objectsButton = new JButton("...");
 	private JButton _idButton;
+	
+	private JButton _applyButton;
+	private JButton _discardButton;
+
+	private TableDialog _objectsDialog;
+	private JPanel _panel;
 
 	private Adapter _adapter;
-	private JScrollPane _scrollPane;
     }
 
 
@@ -225,11 +557,11 @@ class Adapter extends Leaf
     public void displayProperties()
     {
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
-
+	
 	propertiesFrame.setTitle("Properties for " + _id);
 	if(_editor == null)
 	{
-	    _editor = new Editor();
+	    _editor = new Editor(_model.getMainFrame());
 	}
 	
 	_editor.show(this);
@@ -243,6 +575,7 @@ class Adapter extends Leaf
 	    Utils.Resolver resolver, Application application, Model model)
     {
 	super(adapterName, model);
+	_brandNew = false;
 	_descriptor = descriptor;
 	_resolver = resolver;
 	
@@ -262,6 +595,23 @@ class Adapter extends Leaf
 	    createToolTip();
 	}
     }
+
+    //
+    // Fresh new temporary Adapter
+    //
+    Adapter(String name, Utils.Resolver resolver, Model model)
+    {
+	super(name, model);
+	_resolver = resolver;
+	_brandNew = true;
+	_descriptor =  new AdapterDescriptor();
+	_descriptor.name = name;
+	_descriptor.id = "";
+	_descriptor.registerProcess = false;
+	_descriptor.waitForActivation = true;
+	_descriptor.objects = new java.util.LinkedList();
+    }
+
 
     public void unregister()
     {
@@ -303,16 +653,22 @@ class Adapter extends Leaf
 	return ph.get(_descriptor.name + ".Endpoints");
     }
 
-    void setEndpoints(String newEndpoints)
+    void setEndpoints(String newName, String newEndpoints)
     {
 	PropertiesHolder ph = getParent().getParent().getPropertiesHolder();
 	assert ph != null;
-	ph.put(_descriptor.name + ".Endpoints", newEndpoints);
+	ph.replace(_descriptor.name + ".Endpoints", newName + ".Endpoints",
+		   newEndpoints);
     }
 
     AdapterInstanceId getInstanceId()
     {
 	return _instanceId;
+    }
+
+    boolean isNew()
+    {
+	return _brandNew;
     }
 
     private void createToolTip()
@@ -327,6 +683,7 @@ class Adapter extends Leaf
 	}
     }
 
+    private boolean _brandNew;
     private AdapterDescriptor _descriptor;
     private Utils.Resolver _resolver;
     private boolean _isEditable;

@@ -35,6 +35,11 @@ class Leaf extends CommonBaseI
     {
 	return true;
     }
+
+    public CommonBase findChild(String id)
+    {
+	return null;
+    }
     
     protected Leaf(String id, Model model)
     {

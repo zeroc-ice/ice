@@ -122,6 +122,85 @@ class Node extends EditableParent
 	}
     }
     
+
+    NodeUpdateDescriptor getUpdate()
+    {
+	if(!isNew() && !isModified())
+	{
+	    return null;
+	}
+
+	NodeUpdateDescriptor update = new NodeUpdateDescriptor();
+	update.name = _id;
+	
+	if(isNew())
+	{
+	    update.variables = _descriptor.variables;
+	    update.removeVariables = new String[0];
+	}
+	else
+	{
+	    //
+	    // Diff variables (TODO: avoid duplication with same code in Application)
+	    //
+	    update.variables = (java.util.TreeMap)_descriptor.variables.clone();
+	    java.util.List removeVariables = new java.util.LinkedList();
+
+	    java.util.Iterator p = _origVariables.entrySet().iterator();
+	    while(p.hasNext())
+	    {
+		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+		Object key = entry.getKey();
+		Object newValue =  update.variables.get(key);
+		if(newValue == null)
+		{
+		    removeVariables.add(key);
+		}
+		else
+		{
+		    Object value = entry.getValue();
+		    if(newValue.equals(value))
+		    {
+			update.variables.remove(key);
+		    }
+		}
+	    }
+	    update.removeVariables = (String[])removeVariables.toArray(new String[0]);
+	}
+	       
+	if(isNew())
+	{
+	    update.removeServers = new String[0];
+	}
+	else
+	{
+	    update.removeServers = removedElements();
+	}
+
+	update.serverInstances = new java.util.LinkedList();
+	update.servers = new java.util.LinkedList();
+
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Server server = (Server)p.next();
+	    if(isNew() || server.isModified() || server.isNew())
+	    {
+		ServerInstanceDescriptor instanceDescriptor = server.getInstanceDescriptor();
+		if(instanceDescriptor != null)
+		{
+		    update.serverInstances.add(instanceDescriptor);
+		}
+		else
+		{
+		    update.servers.add(server.getDescriptor());
+		}
+	    }
+	}
+	return update;
+    }
+
+
     NodeDescriptor update(NodeUpdateDescriptor update, Application application)
 	throws DuplicateIdException
     {
@@ -264,6 +343,15 @@ class Node extends EditableParent
 	return null;
     }
    
+    public void commit()
+    {
+	super.commit();
+	if(_descriptor != null)
+	{
+	    _origVariables = (java.util.Map)_descriptor.variables.clone();
+	}
+    }
+
     Node(String nodeName, Model model)
     {
 	super(false, nodeName, model);  
@@ -282,6 +370,7 @@ class Node extends EditableParent
 	super(o);
 	_descriptor = o._descriptor;
 	_resolver = o._resolver;
+	_origVariables = o._origVariables;
 	_up = o._up;
 
 	//
@@ -307,6 +396,8 @@ class Node extends EditableParent
     {
 	assert _descriptor == null;
 	_descriptor = descriptor;
+	_origVariables = (java.util.Map)_descriptor.variables.clone();
+	
 
 	_resolver = new Utils.Resolver(new java.util.Map[]
 	    {_descriptor.variables, application.getVariables()});
@@ -380,7 +471,7 @@ class Node extends EditableParent
 
 	if(fireEvent)
 	{
-	    fireNodeChangedEvent(this);
+	    fireStructureChangedEvent(this);
 	}
     }
     
@@ -456,7 +547,7 @@ class Node extends EditableParent
 		    //
 		    server = new Server(true, serverId, instanceResolver, instanceDescriptor, 
 					serverDescriptor, application);
-		    addChild(server);
+		    addChild(server, true);
 		    server.setParent(this);   
 		}
 	    }
@@ -502,11 +593,12 @@ class Node extends EditableParent
 	}
 
 	purgeChildren(serverIdSet);
-	
     }
 
     private NodeDescriptor _descriptor;
     private Utils.Resolver _resolver;
+
+    private java.util.Map _origVariables;
 
     private boolean _up = false;
 

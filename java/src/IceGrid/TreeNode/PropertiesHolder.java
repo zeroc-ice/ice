@@ -14,13 +14,11 @@ import IceGrid.PropertyDescriptor;
 
 class PropertiesHolder
 {
-    PropertiesHolder(CommunicatorDescriptor descriptor,
-		     Editable editable)
+    PropertiesHolder(CommunicatorDescriptor descriptor)
     {
 	assert descriptor != null;
 
 	_descriptor = descriptor;
-	_editable = editable;
     }
 
     String get(String key)
@@ -37,24 +35,31 @@ class PropertiesHolder
 	return null;
     }
 
-    void put(String key, String value)
+    void replace(String oldKey, String newKey, String newValue)
     {
-	assert _editable != null;
-	
+	boolean needPut = true;
+	boolean needRemove = !oldKey.equals(newKey); // don't remove when oldKey == newKey
+
 	java.util.Iterator p = _descriptor.properties.iterator();
-	while(p.hasNext())
+	while(p.hasNext() && (needRemove || needPut))
 	{
 	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
-	    if(pd.name.equals(key))
+	    if(needRemove && pd.name.equals(oldKey))
 	    {
-		pd.value = value;
-		return;
+		p.remove();
+		needRemove = false;
+	    }
+	    if(needPut && pd.name.equals(newKey))
+	    {
+		pd.value = newValue;
+		needPut = false;
 	    }
 	}
-	_descriptor.properties.add(new PropertyDescriptor(key, value));
-	_editable.markModified();
-    }
 
+	if(needPut)
+	{
+	    _descriptor.properties.add(new PropertyDescriptor(newKey, newValue));
+	}
+    }
     private CommunicatorDescriptor _descriptor;
-    private Editable _editable;
 }

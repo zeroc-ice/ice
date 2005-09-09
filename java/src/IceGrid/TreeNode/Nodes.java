@@ -64,11 +64,24 @@ public class Nodes extends EditableParent
 	{
 	    try
 	    {
-		addChild(new Server((Server)p.next()));
+		addChild(new Node((Node)p.next()));
 	    }
 	    catch(DuplicateIdException e)
 	    {
 		assert false;
+	    }
+	}
+    }
+
+    void getUpdates(java.util.LinkedList updates)
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Node node = (Node)p.next();
+	    if(node.isNew() || node.isModified())
+	    {
+		updates.add(node.getUpdate());
 	    }
 	}
     }
@@ -89,6 +102,7 @@ public class Nodes extends EditableParent
 	    }
 	}
 	purgeChildren(_descriptors.keySet());
+	fireStructureChangedEvent(this);
     }
    
     void update(java.util.List updates, String[] removeNodes)

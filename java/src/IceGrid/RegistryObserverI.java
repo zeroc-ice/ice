@@ -13,9 +13,8 @@ import javax.swing.SwingUtilities;
 class RegistryObserverI extends _RegistryObserverDisp
 {
 
-    RegistryObserverI(SessionKeeper sessionKeeper, Model model)
+    RegistryObserverI(Model model)
     {
-	_sessionKeeper = sessionKeeper;
 	_model = model;
     }
 
@@ -75,17 +74,7 @@ class RegistryObserverI extends _RegistryObserverDisp
 	    {
 		public void run() 
 		{
-		    if(_model.updateSerial(serial))
-		    {
-			_model.applicationAdded(desc);
-			_model.getStatusBar().setText("Connected; application '" 
-					   + desc.name + "' added (" + serial + ")"); 
-		    }
-		    else
-		    {
-			_sessionKeeper.sessionLost(
-			    "Received application update (new application) out of sequence");
-		    }
+		    _model.applicationAdded(serial, desc);
 		}
 	    });
     }
@@ -97,17 +86,7 @@ class RegistryObserverI extends _RegistryObserverDisp
 	    {
 		public void run() 
 		{
-		    if(_model.updateSerial(serial))
-		    {
-			_model.applicationRemoved(name);
-			_model.getStatusBar().setText("Connected; application '" 
-					   + name + "' removed (" + serial + ")"); 
-		    }
-		    else
-		    {
-			_sessionKeeper.sessionLost(
-			    "Received application update (application removed) out of sequence");
-		    }
+		    _model.applicationRemoved(serial, name);
 		}
 	    });
     }
@@ -119,22 +98,12 @@ class RegistryObserverI extends _RegistryObserverDisp
 	    {
 		public void run() 
 		{
-		    if(_model.updateSerial(serial))
-		    {
-			_model.applicationUpdated(desc);
-			_model.getStatusBar().setText("Connected; application '" 
-					   + desc.name + "' updated (" + serial + ")"); 
-		    }
-		    else
-		    {
-			_sessionKeeper.sessionLost("Received application update out of sequence");
-		    }
+		    _model.applicationUpdated(serial, desc);
 		}
 	    });
     }
     
 
-    private SessionKeeper _sessionKeeper;
     private Model _model;
  
     private boolean _initialized = false;
