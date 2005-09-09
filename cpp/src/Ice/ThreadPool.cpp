@@ -600,9 +600,25 @@ IceInternal::ThreadPool::run()
 		    {
 			continue;
 		    }
-		    catch(const LocalException& ex)
+		    catch(const SocketException& ex)
 		    {
 			handler->exception(ex);
+			continue;
+		    }
+		    catch(const LocalException& ex)
+		    {
+		        if(handler->datagram())
+			{
+			    if(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0)
+			    {
+			        Warning out(_instance->logger());
+			        out << "datagram connection exception:\n" << ex << '\n' << handler->toString();
+			    }
+			}
+			else
+			{
+			    handler->exception(ex);
+			}
 			continue;
 		    }
 		    

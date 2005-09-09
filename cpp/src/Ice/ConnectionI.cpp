@@ -2022,10 +2022,13 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
 	    case closeConnectionMsg:
 	    {
 		traceHeader("received close connection", stream, _logger, _traceLevels);
-		if(_endpoint->datagram() && _warn)
+		if(_endpoint->datagram())
 		{
-		    Warning out(_logger);
-		    out << "ignoring close connection message for datagram connection:\n" << _desc;
+		    if(_warn)
+		    {
+		        Warning out(_logger);
+		        out << "ignoring close connection message for datagram connection:\n" << _desc;
+		    }
 		}
 		else
 		{
@@ -2176,9 +2179,24 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
 	    }
 	}
     }
+    catch(const SocketException& ex)
+    {
+	exception(ex);
+    }
     catch(const LocalException& ex)
     {
-	setState(StateClosed, ex);
+	if(_endpoint->datagram())
+	{
+	    if(_warn)
+	    {
+	        Warning out(_instance->logger());
+	        out << "datagram connection exception:\n" << ex << '\n' << _desc;
+	    }
+	}
+	else
+	{
+	    setState(StateClosed, ex);
+	}
     }
 }
 
@@ -2412,9 +2430,25 @@ Ice::ConnectionI::run()
 	{
 	    continue;
 	}
-	catch(const LocalException& ex)
+	catch(const SocketException& ex)
 	{
 	    exception(ex);
+	}
+	catch(const LocalException& ex)
+	{
+	    if(_endpoint->datagram())
+	    {
+	        if(_warn)
+	        {
+	            Warning out(_instance->logger());
+	            out << "datagram connection exception:\n" << ex << '\n' << _desc;
+	        }
+		continue;
+	    }
+	    else
+	    {
+	        exception(ex);
+	    }
 	}
 
 	Byte compress = 0;
