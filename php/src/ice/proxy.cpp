@@ -55,21 +55,26 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 namespace IcePHP
 {
 zend_class_entry* proxyClassEntry = 0;
+zend_class_entry* endpointClassEntry = 0;
 }
 
 //
-// Ice::ObjectPrx support.
+// Ice::ObjectPrx and Ice::Endpoint support.
 //
-static zend_object_handlers _handlers;
+static zend_object_handlers _proxyHandlers;
+static zend_object_handlers _endpointHandlers;
 
 extern "C"
 {
-static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
-static void handleFreeStorage(zend_object* TSRMLS_DC);
-static zend_object_value handleClone(zval* TSRMLS_DC);
-static union _zend_function* handleGetMethod(zval*, char*, int TSRMLS_DC);
-static int handleCompare(zval*, zval* TSRMLS_DC);
+static zend_object_value handleProxyAlloc(zend_class_entry* TSRMLS_DC);
+static void handleProxyFreeStorage(zend_object* TSRMLS_DC);
+static zend_object_value handleProxyClone(zval* TSRMLS_DC);
+static union _zend_function* handleProxyGetMethod(zval*, char*, int TSRMLS_DC);
+static int handleProxyCompare(zval*, zval* TSRMLS_DC);
 ZEND_FUNCTION(Ice_ObjectPrx_call);
+
+static zend_object_value handleEndpointAlloc(zend_class_entry* TSRMLS_DC);
+static void handleEndpointFreeStorage(zend_object* TSRMLS_DC);
 }
 
 namespace IcePHP
@@ -139,7 +144,7 @@ private:
 //
 // Predefined methods for Ice_ObjectPrx.
 //
-static function_entry _methods[] =
+static function_entry _proxyMethods[] =
 {
     {"__construct",         PHP_FN(Ice_ObjectPrx___construct),         NULL},
     {"__tostring",          PHP_FN(Ice_ObjectPrx___tostring),          NULL},
@@ -151,6 +156,10 @@ static function_entry _methods[] =
     {"ice_ids",             PHP_FN(Ice_ObjectPrx_ice_ids),             NULL},
     {"ice_getIdentity",     PHP_FN(Ice_ObjectPrx_ice_getIdentity),     NULL},
     {"ice_newIdentity",     PHP_FN(Ice_ObjectPrx_ice_newIdentity),     NULL},
+    {"ice_getAdapterId",    PHP_FN(Ice_ObjectPrx_ice_getAdapterId),    NULL},
+    {"ice_newAdapterId",    PHP_FN(Ice_ObjectPrx_ice_newAdapterId),    NULL},
+    {"ice_getEndpoints",    PHP_FN(Ice_ObjectPrx_ice_getEndpoints),    NULL},
+    {"ice_newEndpoints",    PHP_FN(Ice_ObjectPrx_ice_newEndpoints),    NULL},
     {"ice_getContext",      PHP_FN(Ice_ObjectPrx_ice_getContext),      NULL},
     {"ice_newContext",      PHP_FN(Ice_ObjectPrx_ice_newContext),      NULL},
     {"ice_getFacet",        PHP_FN(Ice_ObjectPrx_ice_getFacet),        NULL},
@@ -174,6 +183,17 @@ static function_entry _methods[] =
     {NULL, NULL, NULL}
 };
 
+//
+// Predefined methods for Ice_Endpoint.
+//
+static function_entry _endpointMethods[] =
+{
+    {"__construct",         PHP_FN(Ice_Endpoint___construct),         NULL},
+    {"__tostring",          PHP_FN(Ice_Endpoint___tostring),          NULL},
+    {"toString",            PHP_FN(Ice_Endpoint_toString),            NULL},
+    {NULL, NULL, NULL}
+};
+
 bool
 IcePHP::proxyInit(TSRMLS_D)
 {
@@ -181,13 +201,21 @@ IcePHP::proxyInit(TSRMLS_D)
     // Register the Ice_ObjectPrx class.
     //
     zend_class_entry ce;
-    INIT_CLASS_ENTRY(ce, "Ice_ObjectPrx", _methods);
-    ce.create_object = handleAlloc;
+    INIT_CLASS_ENTRY(ce, "Ice_ObjectPrx", _proxyMethods);
+    ce.create_object = handleProxyAlloc;
     proxyClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
-    memcpy(&_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    _handlers.clone_obj = handleClone;
-    _handlers.get_method = handleGetMethod;
-    _handlers.compare_objects = handleCompare;
+    memcpy(&_proxyHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    _proxyHandlers.clone_obj = handleProxyClone;
+    _proxyHandlers.get_method = handleProxyGetMethod;
+    _proxyHandlers.compare_objects = handleProxyCompare;
+
+    //
+    // Register the Ice_Endpoint class.
+    //
+    INIT_CLASS_ENTRY(ce, "Ice_Endpoint", _endpointMethods);
+    ce.create_object = handleEndpointAlloc;
+    endpointClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
+    memcpy(&_endpointHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 
     return true;
 }
@@ -235,6 +263,46 @@ IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, Slice::ClassDefPtr& def TSRMLS
         Proxy* proxy = static_cast<Proxy*>(obj->ptr);
         prx = proxy->getProxy();
         def = proxy->getClass();
+    }
+    return true;
+}
+
+static bool
+createEndpoint(zval* zv, const Ice::EndpointPtr& p TSRMLS_DC)
+{
+    if(object_init_ex(zv, endpointClassEntry) != SUCCESS)
+    {
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize endpoint");
+        return false;
+    }
+
+    ice_object* ze = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
+    assert(!ze->ptr);
+    ze->ptr = new Ice::EndpointPtr(p);
+
+    return true;
+}
+
+static bool
+fetchEndpoint(zval* zv, Ice::EndpointPtr& endpoint TSRMLS_DC)
+{
+    if(!ZVAL_IS_NULL(zv))
+    {
+        void* p = zend_object_store_get_object(zv TSRMLS_CC);
+        if(!p)
+        {
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to retrieve endpoint object from object store");
+            return false;
+        }
+        if(Z_OBJCE_P(zv) != endpointClassEntry)
+        {
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "value is not an endpoint");
+            return false;
+        }
+        ice_object* obj = static_cast<ice_object*>(p);
+        assert(obj->ptr);
+	Ice::EndpointPtr* pe = static_cast<Ice::EndpointPtr*>(obj->ptr);
+        endpoint = *pe;
     }
     return true;
 }
@@ -528,6 +596,158 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity)
             throwException(ex TSRMLS_CC);
             RETURN_NULL();
         }
+    }
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getAdapterId)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    try
+    {
+        string id = _this->getProxy()->ice_getAdapterId();
+        ZVAL_STRINGL(return_value, const_cast<char*>(id.c_str()), id.length(), 1);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_newAdapterId)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    char* id;
+    int len;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, &len) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    try
+    {
+	Ice::ObjectPrx prx = _this->getProxy()->ice_newAdapterId(id);
+	if(!createProxy(return_value, prx TSRMLS_CC))
+	{
+	    RETURN_NULL();
+	}
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	throwException(ex TSRMLS_CC);
+	RETURN_NULL();
+    }
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getEndpoints)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+	WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    try
+    {
+	Ice::EndpointSeq endpoints = _this->getProxy()->ice_getEndpoints();
+
+	array_init(return_value);
+	uint idx = 0;
+	for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++idx)
+	{
+	    zval* elem;
+	    MAKE_STD_ZVAL(elem);
+	    if(!createEndpoint(elem, *p TSRMLS_CC))
+	    {
+		zval_ptr_dtor(&elem);
+		RETURN_NULL();
+	    }
+	    add_index_zval(return_value, idx, elem);
+	}
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	throwException(ex TSRMLS_CC);
+	RETURN_NULL();
+    }
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_newEndpoints)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+	WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    zval* zv;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &zv) == FAILURE)
+    {
+	RETURN_NULL();
+    }
+
+    Ice::EndpointSeq seq;
+
+    HashTable* arr = Z_ARRVAL_P(zv);
+    HashPosition pos;
+    zval** val;
+
+    zend_hash_internal_pointer_reset_ex(arr, &pos);
+    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+    {
+	if(Z_TYPE_PP(val) != IS_OBJECT)
+	{
+	    php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected an element of type Ice_Endpoint");
+	    RETURN_NULL();
+	}
+
+	Ice::EndpointPtr endpoint;
+	if(!fetchEndpoint(*val, endpoint TSRMLS_CC))
+	{
+	    RETURN_NULL();
+	}
+
+	seq.push_back(endpoint);
+
+	zend_hash_move_forward_ex(arr, &pos);
+    }
+
+    try
+    {
+	Ice::ObjectPrx prx = _this->getProxy()->ice_newEndpoints(seq);
+	if(!createProxy(return_value, prx TSRMLS_CC))
+	{
+	    RETURN_NULL();
+	}
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	throwException(ex TSRMLS_CC);
+	RETURN_NULL();
     }
 }
 
@@ -1137,6 +1357,39 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast)
     do_cast(INTERNAL_FUNCTION_PARAM_PASSTHRU, true);
 }
 
+ZEND_FUNCTION(Ice_Endpoint___construct)
+{
+    php_error_docref(NULL TSRMLS_CC, E_ERROR, "Ice_Endpoint cannot be instantiated");
+}
+
+ZEND_FUNCTION(Ice_Endpoint___tostring)
+{
+    if(ZEND_NUM_ARGS() > 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Ice::EndpointPtr* _this = static_cast<Ice::EndpointPtr*>(obj->ptr);
+
+    try
+    {
+	string str = (*_this)->toString();
+	RETURN_STRINGL(const_cast<char*>(str.c_str()), str.length(), 1);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
+ZEND_FUNCTION(Ice_Endpoint_toString)
+{
+    ZEND_FN(Ice_Endpoint___tostring)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+
 IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, const Slice::OperationPtr& op,
                              const Ice::CommunicatorPtr& communicator TSRMLS_DC) :
     _proxy(proxy), _name(name), _op(op), _communicator(communicator), _zendFunction(0)
@@ -1512,15 +1765,15 @@ IcePHP::Proxy::toString() const
 extern "C"
 #endif
 static zend_object_value
-handleAlloc(zend_class_entry* ce TSRMLS_DC)
+handleProxyAlloc(zend_class_entry* ce TSRMLS_DC)
 {
     zend_object_value result;
 
     ice_object* obj = newObject(ce TSRMLS_CC);
     assert(obj);
 
-    result.handle = zend_objects_store_put(obj, NULL, handleFreeStorage, NULL TSRMLS_CC);
-    result.handlers = &_handlers;
+    result.handle = zend_objects_store_put(obj, NULL, handleProxyFreeStorage, NULL TSRMLS_CC);
+    result.handlers = &_proxyHandlers;
 
     return result;
 }
@@ -1529,7 +1782,7 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
 extern "C"
 #endif
 static void
-handleFreeStorage(zend_object* p TSRMLS_DC)
+handleProxyFreeStorage(zend_object* p TSRMLS_DC)
 {
     ice_object* obj = (ice_object*)p;
     Proxy* _this = static_cast<Proxy*>(obj->ptr);
@@ -1543,7 +1796,7 @@ handleFreeStorage(zend_object* p TSRMLS_DC)
 extern "C"
 #endif
 static zend_object_value
-handleClone(zval* zv TSRMLS_DC)
+handleProxyClone(zval* zv TSRMLS_DC)
 {
     //
     // Create a new object that shares a C++ proxy instance with this object.
@@ -1585,7 +1838,7 @@ handleClone(zval* zv TSRMLS_DC)
 extern "C"
 #endif
 static union _zend_function*
-handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
+handleProxyGetMethod(zval* zv, char* method, int len TSRMLS_DC)
 {
     zend_function* result;
 
@@ -1627,7 +1880,7 @@ handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
 extern "C"
 #endif
 static int
-handleCompare(zval* zobj1, zval* zobj2 TSRMLS_DC)
+handleProxyCompare(zval* zobj1, zval* zobj2 TSRMLS_DC)
 {
     //
     // PHP guarantees that the objects have the same class.
@@ -1667,4 +1920,35 @@ ZEND_FUNCTION(Ice_ObjectPrx_call)
     assert(op); // handleGetethod should have already verified the operation's existence.
 
     op->invoke(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static zend_object_value
+handleEndpointAlloc(zend_class_entry* ce TSRMLS_DC)
+{
+    zend_object_value result;
+
+    ice_object* obj = newObject(ce TSRMLS_CC);
+    assert(obj);
+
+    result.handle = zend_objects_store_put(obj, NULL, handleEndpointFreeStorage, NULL TSRMLS_CC);
+    result.handlers = &_endpointHandlers;
+
+    return result;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static void
+handleEndpointFreeStorage(zend_object* p TSRMLS_DC)
+{
+    ice_object* obj = (ice_object*)p;
+    Ice::EndpointPtr* _this = static_cast<Ice::EndpointPtr*>(obj->ptr);
+
+    delete _this;
+
+    zend_objects_free_object_storage(p TSRMLS_CC);
 }

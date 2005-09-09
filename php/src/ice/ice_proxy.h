@@ -27,6 +27,10 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_id);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_ids);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getIdentity);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getAdapterId);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_newAdapterId);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getEndpoints);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_newEndpoints);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getContext);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_newContext);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet);
@@ -47,6 +51,10 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_default);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast);
+
+ZEND_FUNCTION(Ice_Endpoint___construct);
+ZEND_FUNCTION(Ice_Endpoint___tostring);
+ZEND_FUNCTION(Ice_Endpoint_toString);
 }
 
 #define ICE_PHP_PROXY_FUNCTIONS \
@@ -60,6 +68,10 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast);
     ZEND_FE(Ice_ObjectPrx_ice_ids,               NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getIdentity,       NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_newIdentity,       NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getAdapterId,      NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_newAdapterId,      NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getEndpoints,      NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_newEndpoints,      NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getContext,        NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_newContext,        NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getFacet,          NULL) \
@@ -80,6 +92,11 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast);
     ZEND_FE(Ice_ObjectPrx_ice_default,           NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_uncheckedCast,     NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_checkedCast,       NULL)
+
+#define ICE_PHP_ENDPOINT_FUNCTIONS \
+    ZEND_FE(Ice_Endpoint___construct,           NULL) \
+    ZEND_FE(Ice_Endpoint___tostring,            NULL) \
+    ZEND_FE(Ice_Endpoint_toString,              NULL)
 
 namespace IcePHP
 {
