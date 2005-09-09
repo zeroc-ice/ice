@@ -35,7 +35,6 @@ public:
 
     void set(const Ice::CommunicatorPtr&, const std::string&, const ObjectDescriptor&);
     Ice::ObjectPrx getProxy() const;
-    std::string getAdapterId() const;
     const ObjectInfo& getObjectInfo() const;
     std::string getType() const;
 
@@ -44,7 +43,6 @@ public:
 private:
     
     ObjectInfo _info;
-    std::string _adapterId;
 };
 typedef IceUtil::Handle<ObjectEntry> ObjectEntryPtr;
 

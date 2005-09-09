@@ -777,13 +777,11 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
 }
 
 Ice::ObjectPrx
-Database::getObjectProxy(const Ice::Identity& id, string& adapterId)
+Database::getObjectProxy(const Ice::Identity& id)
 {
     try
     {
-	ObjectEntryPtr object = _objectCache.get(id);
-	adapterId = object->getAdapterId();
-	return object->getProxy();
+	return _objectCache.get(id)->getProxy();
     }
     catch(ObjectNotExistException&)
     {
@@ -798,7 +796,6 @@ Database::getObjectProxy(const Ice::Identity& id, string& adapterId)
 	ex.id = id;
 	throw ex;
     }
-    adapterId = "";
     return p->second.proxy;
 }
 

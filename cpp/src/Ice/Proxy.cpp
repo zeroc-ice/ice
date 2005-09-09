@@ -15,7 +15,7 @@
 #include <Ice/OutgoingAsync.h>
 #include <Ice/Direct.h>
 #include <Ice/Reference.h>
-#include <Ice/Endpoint.h>
+#include <Ice/EndpointI.h>
 #include <Ice/Instance.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocatorInfo.h>
@@ -363,6 +363,55 @@ IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
 	proxy->setup(_reference->changeIdentity(newIdentity));
+	return proxy;
+    }
+}
+
+string
+IceProxy::Ice::Object::ice_getAdapterId() const
+{
+    return _reference->getAdapterId();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_newAdapterId(const string& newAdapterId) const
+{
+    if(newAdapterId == _reference->getAdapterId())
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changeAdapterId(newAdapterId));
+	return proxy;
+    }
+}
+
+EndpointSeq
+IceProxy::Ice::Object::ice_getEndpoints() const
+{
+    vector<EndpointIPtr> endpoints = _reference->getEndpoints();
+    return EndpointSeq(endpoints.begin(), endpoints.end());
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_newEndpoints(const EndpointSeq& newEndpoints) const
+{
+    vector<EndpointIPtr> endpoints;
+    for(EndpointSeq::const_iterator p = newEndpoints.begin(); p != newEndpoints.end(); ++p)
+    {
+	endpoints.push_back(EndpointIPtr::dynamicCast(*p));
+    }
+
+    if(endpoints == _reference->getEndpoints())
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changeEndpoints(endpoints));
 	return proxy;
     }
 }

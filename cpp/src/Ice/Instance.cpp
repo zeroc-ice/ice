@@ -27,8 +27,8 @@
 #include <Ice/LoggerI.h>
 #include <Ice/Network.h>
 #include <Ice/EndpointFactoryManager.h>
-#include <Ice/TcpEndpoint.h>
-#include <Ice/UdpEndpoint.h>
+#include <Ice/TcpEndpointI.h>
+#include <Ice/UdpEndpointI.h>
 #include <Ice/DynamicLibrary.h>
 #include <Ice/PluginManagerI.h>
 #include <Ice/Initialize.h>

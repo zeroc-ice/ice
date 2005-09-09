@@ -43,7 +43,7 @@ private:
 
     SslAcceptor(const OpenSSLPluginIPtr&, const std::string&, int);
     virtual ~SslAcceptor();
-    friend class SslEndpoint;
+    friend class SslEndpointI;
 
     OpenSSLPluginIPtr _plugin;
     TraceLevelsPtr _traceLevels;

@@ -1346,6 +1346,13 @@ ServerInstanceHelper::getInstance() const
     return _instance->getDescriptor();
 }
 
+const ServerHelper&
+ServerInstanceHelper::getInstanceHelper() const
+{
+    assert(_instance);
+    return *_instance.get();
+}
+
 void
 ServerInstanceHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
 {
@@ -1425,7 +1432,7 @@ NodeHelper::diff(const NodeHelper& helper) const
     update.variables = getDictUpdatedElts(helper._desc.variables, _desc.variables);
     update.removeVariables = getDictRemovedElts(helper._desc.variables, _desc.variables);
     
-    ServerInstanceHelperDict updated = getDictUpdatedElts(helper._serverInstances,_serverInstances);
+    ServerInstanceHelperDict updated = getDictUpdatedElts(helper._serverInstances, _serverInstances);
     for(ServerInstanceHelperDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
     {
 	update.serverInstances.push_back(p->second.getDescriptor());
@@ -1664,9 +1671,9 @@ NodeHelper::print(Output& out) const
 void
 NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
 {
-    ServerInstanceHelperDict updated1 = getDictUpdatedElts(helper._serverInstances,_serverInstances);
+    ServerInstanceHelperDict updated1 = getDictUpdatedElts(helper._serverInstances, _serverInstances);
     Ice::StringSeq removed1 = getDictRemovedElts(helper._serverInstances, _serverInstances);
-    ServerInstanceHelperDict updated2 = getDictUpdatedElts(helper._servers,_servers);
+    ServerInstanceHelperDict updated2 = getDictUpdatedElts(helper._servers, _servers);
     Ice::StringSeq removed2 = getDictRemovedElts(helper._servers, _servers);
     
     ServerInstanceHelperDict updated;
@@ -1854,7 +1861,6 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
 	}
 	else
 	{
-	    q->second.update(*p, resolve);
 	    _nodes.insert(make_pair(p->name, q->second));
 	    nodes.erase(q);
 	}

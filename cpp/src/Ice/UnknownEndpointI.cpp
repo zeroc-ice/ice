@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/UnknownEndpoint.h>
+#include <Ice/UnknownEndpointI.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
 #include <Ice/Instance.h>
@@ -16,7 +16,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::UnknownEndpoint::UnknownEndpoint(Short type, BasicStream* s) :
+IceInternal::UnknownEndpointI::UnknownEndpointI(Short type, BasicStream* s) :
     _instance(s->instance()),
     _type(type)
 {
@@ -27,7 +27,7 @@ IceInternal::UnknownEndpoint::UnknownEndpoint(Short type, BasicStream* s) :
 }
 
 void
-IceInternal::UnknownEndpoint::streamWrite(BasicStream* s) const
+IceInternal::UnknownEndpointI::streamWrite(BasicStream* s) const
 {
     s->write(_type);
     s->startWriteEncaps();
@@ -36,101 +36,101 @@ IceInternal::UnknownEndpoint::streamWrite(BasicStream* s) const
 }
 
 string
-IceInternal::UnknownEndpoint::toString() const
+IceInternal::UnknownEndpointI::toString() const
 {
     return string();
 }
 
 Short
-IceInternal::UnknownEndpoint::type() const
+IceInternal::UnknownEndpointI::type() const
 {
     return _type;
 }
 
 Int
-IceInternal::UnknownEndpoint::timeout() const
+IceInternal::UnknownEndpointI::timeout() const
 {
     return -1;
 }
 
-EndpointPtr
-IceInternal::UnknownEndpoint::timeout(Int) const
+EndpointIPtr
+IceInternal::UnknownEndpointI::timeout(Int) const
 {
-    return const_cast<UnknownEndpoint*>(this);
+    return const_cast<UnknownEndpointI*>(this);
 }
 
 bool
-IceInternal::UnknownEndpoint::compress() const
+IceInternal::UnknownEndpointI::compress() const
 {
     return false;
 }
 
-EndpointPtr
-IceInternal::UnknownEndpoint::compress(bool) const
+EndpointIPtr
+IceInternal::UnknownEndpointI::compress(bool) const
 {
-    return const_cast<UnknownEndpoint*>(this);
+    return const_cast<UnknownEndpointI*>(this);
 }
 
 bool
-IceInternal::UnknownEndpoint::datagram() const
-{
-    return false;
-}
-
-bool
-IceInternal::UnknownEndpoint::secure() const
+IceInternal::UnknownEndpointI::datagram() const
 {
     return false;
 }
 
 bool
-IceInternal::UnknownEndpoint::unknown() const
+IceInternal::UnknownEndpointI::secure() const
+{
+    return false;
+}
+
+bool
+IceInternal::UnknownEndpointI::unknown() const
 {
     return true;
 }
 
 TransceiverPtr
-IceInternal::UnknownEndpoint::clientTransceiver() const
+IceInternal::UnknownEndpointI::clientTransceiver() const
 {
     return 0;
 }
 
 TransceiverPtr
-IceInternal::UnknownEndpoint::serverTransceiver(EndpointPtr& endp) const
+IceInternal::UnknownEndpointI::serverTransceiver(EndpointIPtr& endp) const
 {
-    endp = const_cast<UnknownEndpoint*>(this);
+    endp = const_cast<UnknownEndpointI*>(this);
     return 0;
 }
 
 ConnectorPtr
-IceInternal::UnknownEndpoint::connector() const
+IceInternal::UnknownEndpointI::connector() const
 {
     return 0;
 }
 
 AcceptorPtr
-IceInternal::UnknownEndpoint::acceptor(EndpointPtr& endp) const
+IceInternal::UnknownEndpointI::acceptor(EndpointIPtr& endp) const
 {
-    endp = const_cast<UnknownEndpoint*>(this);
+    endp = const_cast<UnknownEndpointI*>(this);
     return 0;
 }
 
 bool
-IceInternal::UnknownEndpoint::equivalent(const TransceiverPtr&) const
+IceInternal::UnknownEndpointI::equivalent(const TransceiverPtr&) const
 {
     return false;
 }
 
 bool
-IceInternal::UnknownEndpoint::equivalent(const AcceptorPtr&) const
+IceInternal::UnknownEndpointI::equivalent(const AcceptorPtr&) const
 {
     return false;
 }
 
 bool
-IceInternal::UnknownEndpoint::operator==(const Endpoint& r) const
+IceInternal::UnknownEndpointI::operator==(const EndpointI& r) const
 {
-    const UnknownEndpoint* p = dynamic_cast<const UnknownEndpoint*>(&r);
+    const UnknownEndpointI* p = dynamic_cast<const UnknownEndpointI*>(&r);
     if(!p)
     {
 	return false;
@@ -155,15 +155,15 @@ IceInternal::UnknownEndpoint::operator==(const Endpoint& r) const
 }
 
 bool
-IceInternal::UnknownEndpoint::operator!=(const Endpoint& r) const
+IceInternal::UnknownEndpointI::operator!=(const EndpointI& r) const
 {
     return !operator==(r);
 }
 
 bool
-IceInternal::UnknownEndpoint::operator<(const Endpoint& r) const
+IceInternal::UnknownEndpointI::operator<(const EndpointI& r) const
 {
-    const UnknownEndpoint* p = dynamic_cast<const UnknownEndpoint*>(&r);
+    const UnknownEndpointI* p = dynamic_cast<const UnknownEndpointI*>(&r);
     if(!p)
     {
         return type() < r.type();

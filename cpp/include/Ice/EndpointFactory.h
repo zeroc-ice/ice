@@ -11,7 +11,7 @@
 #define ICE_ENDPOINT_FACTORY_H
 
 #include <IceUtil/Shared.h>
-#include <Ice/EndpointF.h>
+#include <Ice/EndpointIF.h>
 #include <Ice/EndpointFactoryF.h>
 
 namespace IceInternal
@@ -27,8 +27,8 @@ public:
 
     virtual ::Ice::Short type() const = 0;
     virtual ::std::string protocol() const = 0;
-    virtual EndpointPtr create(const std::string&) const = 0;
-    virtual EndpointPtr read(BasicStream*) const = 0;
+    virtual EndpointIPtr create(const std::string&) const = 0;
+    virtual EndpointIPtr read(BasicStream*) const = 0;
     virtual void destroy() = 0;
 
 protected:

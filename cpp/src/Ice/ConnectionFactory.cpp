@@ -20,7 +20,7 @@
 #include <Ice/ThreadPool.h>
 #include <Ice/ObjectAdapterI.h> // For getThreadPool().
 #include <Ice/Reference.h>
-#include <Ice/Endpoint.h>
+#include <Ice/EndpointI.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
@@ -48,11 +48,11 @@ IceInternal::OutgoingConnectionFactory::destroy()
 #ifdef _STLP_BEGIN_NAMESPACE
     // voidbind2nd is an STLport extension for broken compilers in IceUtil/Functional.h
     for_each(_connections.begin(), _connections.end(),
-	     voidbind2nd(Ice::secondVoidMemFun1<EndpointPtr, ConnectionI, ConnectionI::DestructionReason>
+	     voidbind2nd(Ice::secondVoidMemFun1<EndpointIPtr, ConnectionI, ConnectionI::DestructionReason>
 			 (&ConnectionI::destroy), ConnectionI::CommunicatorDestroyed));
 #else
     for_each(_connections.begin(), _connections.end(),
-	     bind2nd(Ice::secondVoidMemFun1<const EndpointPtr, ConnectionI, ConnectionI::DestructionReason>
+	     bind2nd(Ice::secondVoidMemFun1<const EndpointIPtr, ConnectionI, ConnectionI::DestructionReason>
 		     (&ConnectionI::destroy), ConnectionI::CommunicatorDestroyed));
 #endif
 
@@ -63,7 +63,7 @@ IceInternal::OutgoingConnectionFactory::destroy()
 void
 IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 {
-    multimap<EndpointPtr, ConnectionIPtr> connections;
+    multimap<EndpointIPtr, ConnectionIPtr> connections;
 
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -86,14 +86,14 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
     }
 
     for_each(connections.begin(), connections.end(),
-	     Ice::secondVoidMemFun<const EndpointPtr, ConnectionI>(&ConnectionI::waitUntilFinished));
+	     Ice::secondVoidMemFun<const EndpointIPtr, ConnectionI>(&ConnectionI::waitUntilFinished));
 }
 
 ConnectionIPtr
-IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts, bool& compress)
+IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpts, bool& compress)
 {
     assert(!endpts.empty());
-    vector<EndpointPtr> endpoints = endpts;
+    vector<EndpointIPtr> endpoints = endpts;
 
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -106,7 +106,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	//
 	// Reap connections for which destruction has completed.
 	//
-	std::multimap<EndpointPtr, ConnectionIPtr>::iterator p = _connections.begin();
+	std::multimap<EndpointIPtr, ConnectionIPtr>::iterator p = _connections.begin();
 	while(p != _connections.end())
 	{
 	    if(p->second->isFinished())
@@ -122,7 +122,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	//
 	// Modify endpoints with overrides.
 	//
-	vector<EndpointPtr>::iterator q;
+	vector<EndpointIPtr>::iterator q;
 	for(q = endpoints.begin(); q != endpoints.end(); ++q)
 	{
 	    if(_instance->defaultsAndOverrides()->overrideTimeout)
@@ -145,11 +145,11 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	//
 	// Search for existing connections.
 	//
-	vector<EndpointPtr>::const_iterator r;
+	vector<EndpointIPtr>::const_iterator r;
 	for(q = endpoints.begin(), r = endpts.begin(); q != endpoints.end(); ++q, ++r)
 	{
-	    pair<multimap<EndpointPtr, ConnectionIPtr>::iterator,
-		 multimap<EndpointPtr, ConnectionIPtr>::iterator> pr = _connections.equal_range(*q);
+	    pair<multimap<EndpointIPtr, ConnectionIPtr>::iterator,
+		 multimap<EndpointIPtr, ConnectionIPtr>::iterator> pr = _connections.equal_range(*q);
 	    
 	    while(pr.first != pr.second)
 	    {
@@ -214,8 +214,8 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	{	
 	    for(q = endpoints.begin(), r = endpts.begin(); q != endpoints.end(); ++q, ++r)
 	    {
-		pair<multimap<EndpointPtr, ConnectionIPtr>::iterator,
- 		     multimap<EndpointPtr, ConnectionIPtr>::iterator> pr = _connections.equal_range(*q);
+		pair<multimap<EndpointIPtr, ConnectionIPtr>::iterator,
+ 		     multimap<EndpointIPtr, ConnectionIPtr>::iterator> pr = _connections.equal_range(*q);
 		
 		while(pr.first != pr.second)
 		{
@@ -254,11 +254,11 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
     ConnectionIPtr connection;
     auto_ptr<LocalException> exception;
     
-    vector<EndpointPtr>::const_iterator q;
-    vector<EndpointPtr>::const_iterator r;
+    vector<EndpointIPtr>::const_iterator q;
+    vector<EndpointIPtr>::const_iterator r;
     for(q = endpoints.begin(), r = endpts.begin(); q != endpoints.end(); ++q, ++r)
     {
-	EndpointPtr endpoint = *q;
+	EndpointIPtr endpoint = *q;
 	
 	try
 	{
@@ -351,7 +351,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	else
 	{
 	    _connections.insert(_connections.end(),
-				pair<const EndpointPtr, ConnectionIPtr>(connection->endpoint(), connection));
+				pair<const EndpointIPtr, ConnectionIPtr>(connection->endpoint(), connection));
 
 	    if(_destroyed)
 	    {
@@ -390,11 +390,11 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	//
 	ObjectPrx proxy = routerInfo->getClientProxy();
 	ObjectAdapterPtr adapter = routerInfo->getAdapter();
-	vector<EndpointPtr> endpoints = proxy->__reference()->getEndpoints();
-	vector<EndpointPtr>::const_iterator p;
+	vector<EndpointIPtr> endpoints = proxy->__reference()->getEndpoints();
+	vector<EndpointIPtr>::const_iterator p;
 	for(p = endpoints.begin(); p != endpoints.end(); ++p)
 	{
-	    EndpointPtr endpoint = *p;
+	    EndpointIPtr endpoint = *p;
 
 	    //
 	    // Modify endpoints with overrides.
@@ -415,8 +415,8 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	    //
 	    endpoint = endpoint->compress(false);
 
-	    pair<multimap<EndpointPtr, ConnectionIPtr>::iterator,
-		 multimap<EndpointPtr, ConnectionIPtr>::iterator> pr = _connections.equal_range(endpoint);
+	    pair<multimap<EndpointIPtr, ConnectionIPtr>::iterator,
+		 multimap<EndpointIPtr, ConnectionIPtr>::iterator> pr = _connections.equal_range(endpoint);
 	    
 	    while(pr.first != pr.second)
 	    {
@@ -446,7 +446,7 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     
-    for(multimap<EndpointPtr, ConnectionIPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
+    for(multimap<EndpointIPtr, ConnectionIPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
     {
 	if(p->second->getAdapter() == adapter)
 	{
@@ -472,7 +472,7 @@ IceInternal::OutgoingConnectionFactory::flushBatchRequests()
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-	for(std::multimap<EndpointPtr, ConnectionIPtr>::const_iterator p = _connections.begin();
+	for(std::multimap<EndpointIPtr, ConnectionIPtr>::const_iterator p = _connections.begin();
 	    p != _connections.end();
 	    ++p)
 	{
@@ -592,7 +592,7 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
     for_each(connections.begin(), connections.end(), Ice::voidMemFun(&ConnectionI::waitUntilFinished));
 }
 
-EndpointPtr
+EndpointIPtr
 IceInternal::IncomingConnectionFactory::endpoint() const
 {
     // No mutex protection necessary, _endpoint is immutable.
@@ -600,7 +600,7 @@ IceInternal::IncomingConnectionFactory::endpoint() const
 }
 
 bool
-IceInternal::IncomingConnectionFactory::equivalent(const EndpointPtr& endp) const
+IceInternal::IncomingConnectionFactory::equivalent(const EndpointIPtr& endp) const
 {
     if(_transceiver)
     {
@@ -824,7 +824,7 @@ IceInternal::IncomingConnectionFactory::toString() const
 }
 
 IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const InstancePtr& instance,
-								  const EndpointPtr& endpoint,
+								  const EndpointIPtr& endpoint,
 								  const ObjectAdapterPtr& adapter) :
     EventHandler(instance),
     _endpoint(endpoint),
@@ -835,17 +835,17 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 {
     if(_instance->defaultsAndOverrides()->overrideTimeout)
     {
-	const_cast<EndpointPtr&>(_endpoint) =
+	const_cast<EndpointIPtr&>(_endpoint) =
 	    _endpoint->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
     }
 
     if(_instance->defaultsAndOverrides()->overrideCompress)
     {
-	const_cast<EndpointPtr&>(_endpoint) =
+	const_cast<EndpointIPtr&>(_endpoint) =
 	    _endpoint->compress(_instance->defaultsAndOverrides()->overrideCompressValue);
     }
 
-    const_cast<TransceiverPtr&>(_transceiver) = _endpoint->serverTransceiver(const_cast<EndpointPtr&>(_endpoint));
+    const_cast<TransceiverPtr&>(_transceiver) = _endpoint->serverTransceiver(const_cast<EndpointIPtr&>(_endpoint));
     if(_transceiver)
     {
 	ConnectionIPtr connection;
@@ -873,7 +873,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     }
     else
     {
-	_acceptor = _endpoint->acceptor(const_cast<EndpointPtr&>(_endpoint));
+	_acceptor = _endpoint->acceptor(const_cast<EndpointIPtr&>(_endpoint));
 	assert(_acceptor);
 	_acceptor->listen();
 

@@ -22,7 +22,7 @@
 #include <IceSSL/SslTransceiver.h>
 #include <IceSSL/DefaultCertificateVerifier.h>
 #include <IceSSL/SingleCertificateVerifier.h>
-#include <IceSSL/SslEndpoint.h>
+#include <IceSSL/SslEndpointI.h>
 #include <IceSSL/RSAPrivateKey.h>
 #include <IceSSL/DHParams.h>
 

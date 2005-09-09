@@ -7,11 +7,12 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_H
-#define ICE_ENDPOINT_H
+#ifndef ICE_ENDPOINT_I_H
+#define ICE_ENDPOINT_I_H
 
 #include <IceUtil/Shared.h>
-#include <Ice/EndpointF.h>
+#include <Ice/Endpoint.h>
+#include <Ice/EndpointIF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/ConnectorF.h>
@@ -22,7 +23,7 @@ namespace IceInternal
 
 class BasicStream;
 
-class ICE_PROTOCOL_API Endpoint : public IceUtil::Shared
+class ICE_PROTOCOL_API EndpointI : public Ice::Endpoint
 {
 public:
 
@@ -30,11 +31,6 @@ public:
     // Marshal the endpoint.
     //
     virtual void streamWrite(BasicStream*) const = 0;
-
-    //
-    // Convert the endpoint to its string form.
-    //
-    virtual std::string toString() const = 0;
 
     //
     // Return the endpoint type.
@@ -52,7 +48,7 @@ public:
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    virtual EndpointPtr timeout(Ice::Int) const = 0;
+    virtual EndpointIPtr timeout(Ice::Int) const = 0;
 
     //
     // Return true if the endpoints support bzip2 compress, or false
@@ -65,7 +61,7 @@ public:
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    virtual EndpointPtr compress(bool) const = 0;
+    virtual EndpointIPtr compress(bool) const = 0;
 
     //
     // Return true if the endpoint is datagram-based.
@@ -95,7 +91,7 @@ public:
     // "effective" endpoint, which might differ from this endpoint,
     // for example, if a dynamic port number is assigned.
     //
-    virtual TransceiverPtr serverTransceiver(EndpointPtr&) const = 0;
+    virtual TransceiverPtr serverTransceiver(EndpointIPtr&) const = 0;
 
     //
     // Return a connector for this endpoint, or null if no connector
@@ -110,7 +106,7 @@ public:
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
-    virtual AcceptorPtr acceptor(EndpointPtr&) const = 0;
+    virtual AcceptorPtr acceptor(EndpointIPtr&) const = 0;
 
     //
     // Check whether the endpoint is equivalent to a specific
@@ -122,9 +118,9 @@ public:
     //
     // Compare endpoints for sorting purposes.
     //
-    virtual bool operator==(const Endpoint&) const = 0;
-    virtual bool operator!=(const Endpoint&) const = 0;
-    virtual bool operator<(const Endpoint&) const = 0;
+    virtual bool operator==(const EndpointI&) const = 0;
+    virtual bool operator!=(const EndpointI&) const = 0;
+    virtual bool operator<(const EndpointI&) const = 0;
 };
 
 }

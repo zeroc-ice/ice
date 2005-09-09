@@ -43,7 +43,7 @@ OBJS		= BaseCerts.o \
                   SslAcceptor.o \
 		  SslClientTransceiver.o \
                   SslConnector.o \
-                  SslEndpoint.o \
+                  SslEndpointI.o \
                   SslException.o \
 		  SslServerTransceiver.o \
 		  SslTransceiver.o \

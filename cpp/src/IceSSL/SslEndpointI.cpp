@@ -7,22 +7,22 @@
 //
 // **********************************************************************
 
-#include <Ice/TcpEndpoint.h>
 #include <Ice/Network.h>
-#include <Ice/TcpAcceptor.h>
-#include <Ice/TcpConnector.h>
-#include <Ice/TcpTransceiver.h>
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
-#include <Ice/Instance.h>
-#include <Ice/DefaultsAndOverrides.h>
+#include <Ice/ProtocolPluginFacade.h>
+#include <IceSSL/SslEndpointI.h>
+#include <IceSSL/SslAcceptor.h>
+#include <IceSSL/SslConnector.h>
+#include <IceSSL/SslTransceiver.h>
+#include <IceSSL/OpenSSLPluginI.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string& ho, Int po, Int ti, bool co) :
-    _instance(instance),
+IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string& ho, Int po, Int ti, bool co) :
+    _plugin(plugin),
     _host(ho),
     _port(po),
     _timeout(ti),
@@ -30,8 +30,8 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 {
 }
 
-IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string& str) :
-    _instance(instance),
+IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string& str) :
+    _plugin(plugin),
     _port(0),
     _timeout(-1),
     _compress(false)
@@ -59,7 +59,7 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 	if(option.length() != 2 || option[0] != '-')
 	{
 	    EndpointParseException ex(__FILE__, __LINE__);
-	    ex.str = "tcp " + str;
+	    ex.str = "ssl " + str;
 	    throw ex;
 	}
 
@@ -83,7 +83,7 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 		if(argument.empty())
 		{
 		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "tcp " + str;
+		    ex.str = "ssl " + str;
 		    throw ex;
 		}
 		const_cast<string&>(_host) = argument;
@@ -92,25 +92,25 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 
 	    case 'p':
 	    {
-		istringstream p(argument);
-		if(!(p >> const_cast<Int&>(_port)) || !p.eof())
+		if(argument.empty())
 		{
 		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "tcp " + str;
+		    ex.str = "ssl " + str;
 		    throw ex;
 		}
+		const_cast<Int&>(_port) = atoi(argument.c_str());
 		break;
 	    }
 
 	    case 't':
 	    {
-		istringstream t(argument);
-		if(!(t >> const_cast<Int&>(_timeout)) || !t.eof())
+		if(argument.empty())
 		{
 		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "tcp " + str;
+		    ex.str = "ssl " + str;
 		    throw ex;
 		}
+		const_cast<Int&>(_timeout) = atoi(argument.c_str());
 		break;
 	    }
 
@@ -119,7 +119,7 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 		if(!argument.empty())
 		{
 		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "tcp " + str;
+		    ex.str = "ssl " + str;
 		    throw ex;
 		}
 		const_cast<bool&>(_compress) = true;
@@ -129,7 +129,7 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 	    default:
 	    {
 		EndpointParseException ex(__FILE__, __LINE__);
-		ex.str = "tcp " + str;
+		ex.str = "ssl " + str;
 		throw ex;
 	    }
 	}
@@ -137,12 +137,12 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 
     if(_host.empty())
     {
-	const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
+	const_cast<string&>(_host) = _plugin->getProtocolPluginFacade()->getDefaultHost();
     }
 }
 
-IceInternal::TcpEndpoint::TcpEndpoint(BasicStream* s) :
-    _instance(s->instance()),
+IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, BasicStream* s) :
+    _plugin(plugin),
     _port(0),
     _timeout(-1),
     _compress(false)
@@ -156,9 +156,9 @@ IceInternal::TcpEndpoint::TcpEndpoint(BasicStream* s) :
 }
 
 void
-IceInternal::TcpEndpoint::streamWrite(BasicStream* s) const
+IceSSL::SslEndpointI::streamWrite(BasicStream* s) const
 {
-    s->write(TcpEndpointType);
+    s->write(SslEndpointType);
     s->startWriteEncaps();
     s->write(_host);
     s->write(_port);
@@ -168,10 +168,10 @@ IceInternal::TcpEndpoint::streamWrite(BasicStream* s) const
 }
 
 string
-IceInternal::TcpEndpoint::toString() const
+IceSSL::SslEndpointI::toString() const
 {
     ostringstream s;
-    s << "tcp -h " << _host << " -p " << _port;
+    s << "ssl -h " << _host << " -p " << _port;
     if(_timeout != -1)
     {
 	s << " -t " << _timeout;
@@ -184,115 +184,115 @@ IceInternal::TcpEndpoint::toString() const
 }
 
 Short
-IceInternal::TcpEndpoint::type() const
+IceSSL::SslEndpointI::type() const
 {
-    return TcpEndpointType;
+    return SslEndpointType;
 }
 
 Int
-IceInternal::TcpEndpoint::timeout() const
+IceSSL::SslEndpointI::timeout() const
 {
     return _timeout;
 }
 
-EndpointPtr
-IceInternal::TcpEndpoint::timeout(Int timeout) const
+EndpointIPtr
+IceSSL::SslEndpointI::timeout(Int timeout) const
 {
     if(timeout == _timeout)
     {
-	return const_cast<TcpEndpoint*>(this);
+	return const_cast<SslEndpointI*>(this);
     }
     else
     {
-	return new TcpEndpoint(_instance, _host, _port, timeout, _compress);
+	return new SslEndpointI(_plugin, _host, _port, timeout, _compress);
     }
 }
 
 bool
-IceInternal::TcpEndpoint::compress() const
+IceSSL::SslEndpointI::compress() const
 {
     return _compress;
 }
 
-EndpointPtr
-IceInternal::TcpEndpoint::compress(bool compress) const
+EndpointIPtr
+IceSSL::SslEndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
-	return const_cast<TcpEndpoint*>(this);
+	return const_cast<SslEndpointI*>(this);
     }
     else
     {
-	return new TcpEndpoint(_instance, _host, _port, _timeout, compress);
+	return new SslEndpointI(_plugin, _host, _port, _timeout, compress);
     }
 }
 
 bool
-IceInternal::TcpEndpoint::datagram() const
+IceSSL::SslEndpointI::datagram() const
 {
     return false;
 }
 
 bool
-IceInternal::TcpEndpoint::secure() const
+IceSSL::SslEndpointI::secure() const
 {
-    return false;
+    return true;
 }
 
 bool
-IceInternal::TcpEndpoint::unknown() const
+IceSSL::SslEndpointI::unknown() const
 {
     return false;
 }
 
 TransceiverPtr
-IceInternal::TcpEndpoint::clientTransceiver() const
+IceSSL::SslEndpointI::clientTransceiver() const
 {
     return 0;
 }
 
 TransceiverPtr
-IceInternal::TcpEndpoint::serverTransceiver(EndpointPtr& endp) const
+IceSSL::SslEndpointI::serverTransceiver(EndpointIPtr& endp) const
 {
-    endp = const_cast<TcpEndpoint*>(this);
+    endp = const_cast<SslEndpointI*>(this);
     return 0;
 }
 
 ConnectorPtr
-IceInternal::TcpEndpoint::connector() const
+IceSSL::SslEndpointI::connector() const
 {
-    return new TcpConnector(_instance, _host, _port);
+    return new SslConnector(_plugin, _host, _port);
 }
 
 AcceptorPtr
-IceInternal::TcpEndpoint::acceptor(EndpointPtr& endp) const
+IceSSL::SslEndpointI::acceptor(EndpointIPtr& endp) const
 {
-    TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port);
-    endp = new TcpEndpoint(_instance, _host, p->effectivePort(), _timeout, _compress);
+    SslAcceptor* p = new SslAcceptor(_plugin, _host, _port);
+    endp = new SslEndpointI(_plugin, _host, p->effectivePort(), _timeout, _compress);
     return p;
 }
 
 bool
-IceInternal::TcpEndpoint::equivalent(const TransceiverPtr&) const
+IceSSL::SslEndpointI::equivalent(const TransceiverPtr&) const
 {
     return false;
 }
 
 bool
-IceInternal::TcpEndpoint::equivalent(const AcceptorPtr& acceptor) const
+IceSSL::SslEndpointI::equivalent(const AcceptorPtr& acceptor) const
 {
-    const TcpAcceptor* tcpAcceptor = dynamic_cast<const TcpAcceptor*>(acceptor.get());
-    if(!tcpAcceptor)
+    const SslAcceptor* sslAcceptor = dynamic_cast<const SslAcceptor*>(acceptor.get());
+    if(!sslAcceptor)
     {
 	return false;
     }
-    return tcpAcceptor->equivalent(_host, _port);
+    return sslAcceptor->equivalent(_host, _port);
 }
 
 bool
-IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
+IceSSL::SslEndpointI::operator==(const EndpointI& r) const
 {
-    const TcpEndpoint* p = dynamic_cast<const TcpEndpoint*>(&r);
+    const SslEndpointI* p = dynamic_cast<const SslEndpointI*>(&r);
     if(!p)
     {
 	return false;
@@ -342,15 +342,15 @@ IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
 }
 
 bool
-IceInternal::TcpEndpoint::operator!=(const Endpoint& r) const
+IceSSL::SslEndpointI::operator!=(const EndpointI& r) const
 {
     return !operator==(r);
 }
 
 bool
-IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
+IceSSL::SslEndpointI::operator<(const EndpointI& r) const
 {
-    const TcpEndpoint* p = dynamic_cast<const TcpEndpoint*>(&r);
+    const SslEndpointI* p = dynamic_cast<const SslEndpointI*>(&r);
     if(!p)
     {
         return type() < r.type();
@@ -424,41 +424,41 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
     return false;
 }
 
-IceInternal::TcpEndpointFactory::TcpEndpointFactory(const InstancePtr& instance)
-    : _instance(instance)
+IceSSL::SslEndpointFactory::SslEndpointFactory(const OpenSSLPluginIPtr& plugin)
+    : _plugin(plugin)
 {
 }
 
-IceInternal::TcpEndpointFactory::~TcpEndpointFactory()
+IceSSL::SslEndpointFactory::~SslEndpointFactory()
 {
 }
 
 Short
-IceInternal::TcpEndpointFactory::type() const
+IceSSL::SslEndpointFactory::type() const
 {
-    return TcpEndpointType;
+    return SslEndpointType;
 }
 
 string
-IceInternal::TcpEndpointFactory::protocol() const
+IceSSL::SslEndpointFactory::protocol() const
 {
-    return "tcp";
+    return "ssl";
 }
 
-EndpointPtr
-IceInternal::TcpEndpointFactory::create(const std::string& str) const
+EndpointIPtr
+IceSSL::SslEndpointFactory::create(const std::string& str) const
 {
-    return new TcpEndpoint(_instance, str);
+    return new SslEndpointI(_plugin, str);
 }
 
-EndpointPtr
-IceInternal::TcpEndpointFactory::read(BasicStream* s) const
+EndpointIPtr
+IceSSL::SslEndpointFactory::read(BasicStream* s) const
 {
-    return new TcpEndpoint(s);
+    return new SslEndpointI(_plugin, s);
 }
 
 void
-IceInternal::TcpEndpointFactory::destroy()
+IceSSL::SslEndpointFactory::destroy()
 {
-    _instance = 0;
+    _plugin = 0;
 }

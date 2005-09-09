@@ -13,7 +13,7 @@
 #include <Ice/Proxy.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ReferenceFactory.h>
-#include <Ice/Endpoint.h>
+#include <Ice/EndpointI.h>
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/ConnectionFactory.h>
 #include <Ice/ServantManager.h>
@@ -498,7 +498,7 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 	// adapter.
 	//
 	ObjectPrx proxy = routerInfo->getServerProxy();
-	vector<EndpointPtr> endpoints = proxy->__reference()->getEndpoints();
+	vector<EndpointIPtr> endpoints = proxy->__reference()->getEndpoints();
 	copy(endpoints.begin(), endpoints.end(), back_inserter(_routerEndpoints));
 	sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
 	_routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()), _routerEndpoints.end());
@@ -556,7 +556,7 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     checkForDeactivation();
 
     ReferencePtr ref = proxy->__reference();
-    vector<EndpointPtr>::const_iterator p;
+    vector<EndpointIPtr>::const_iterator p;
 
     IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(ref);
     if(ir)
@@ -577,7 +577,7 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     // endpoints used by this object adapter's incoming connection
     // factories are considered local.
     //
-    vector<EndpointPtr> endpoints = ref->getEndpoints();
+    vector<EndpointIPtr> endpoints = ref->getEndpoints();
     for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {
 	vector<IncomingConnectionFactoryPtr>::const_iterator q;
@@ -699,8 +699,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	// The connection factory might change it, for example, to
 	// fill in the real port number.
 	//
-	vector<EndpointPtr> endpoints = parseEndpoints(endpointInfo);
-	for(vector<EndpointPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+	vector<EndpointIPtr> endpoints = parseEndpoints(endpointInfo);
+	for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
 	{
 	    _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, *p, this));
 	}
@@ -797,7 +797,7 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
 ObjectPrx
 Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) const
 {
-    vector<EndpointPtr> endpoints;
+    vector<EndpointIPtr> endpoints;
 
     // 
     // Use the published endpoints, otherwise use the endpoints from all
@@ -851,7 +851,7 @@ Ice::ObjectAdapterI::checkIdentity(const Identity& ident)
     }
 }
 
-vector<EndpointPtr>
+vector<EndpointIPtr>
 Ice::ObjectAdapterI::parseEndpoints(const string& str) const
 {
     string endpts = str;
@@ -860,7 +860,7 @@ Ice::ObjectAdapterI::parseEndpoints(const string& str) const
     string::size_type beg;
     string::size_type end = 0;
 
-    vector<EndpointPtr> endpoints;
+    vector<EndpointIPtr> endpoints;
     while(end < endpts.length())
     {
 	const string delim = " \t\n\r";
@@ -884,7 +884,7 @@ Ice::ObjectAdapterI::parseEndpoints(const string& str) const
 	}
 	
 	string s = endpts.substr(beg, end - beg);
-	EndpointPtr endp = _instance->endpointFactoryManager()->create(s);
+	EndpointIPtr endp = _instance->endpointFactoryManager()->create(s);
 	if(endp == 0)
 	{
 	    EndpointParseException ex(__FILE__, __LINE__);

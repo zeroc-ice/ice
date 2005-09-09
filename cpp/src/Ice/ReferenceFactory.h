@@ -32,7 +32,7 @@ public:
     // Create a direct reference.
     //
     ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
-			Reference::Mode, bool, const ::std::vector<EndpointPtr>&,
+			Reference::Mode, bool, const ::std::vector<EndpointIPtr>&,
 			const RouterInfoPtr&, bool);
     //
     // Create an indirect reference.

@@ -14,28 +14,22 @@
   <application name="Simple">
 
      <variable name="icepatch.directory" value=""/>
-     <variable name="icepatch.proxy" value="IcePatch2/server:tcp -p 13000"/>
+     <variable name="icepatch.proxy" value="IcePatch2/server:tcp -p 13000 -h 192.168.0.10"/>
+     <variable name="endpoint" value="tcp"/>
 
-     <patch id="patch1" proxy="${icepatch.proxy}" destination="${icepatch.directory}">
-       <directory>simple</directory>
-       <directory>hello/db</directory>
+     <patch id="patch1" proxy="${icepatch.proxy}">
+       <directory>${system}/simple</directory>
      </patch>
 
-     <patch id="patch2" proxy="${icepatch.proxy}" destination="/home/benoit/icepatch_data/destination">
-       <directory>simple</directory>
-       <directory>hello</directory>
-     </patch>
-
-     <replicated-adapter id="ReplicatedHelloAdapter">
+     <replicated-adapter id="ReplicatedHelloAdapter" load-balancing="adaptive">
        <object identity="hello" type="::Demo::Hello"/>
      </replicated-adapter>
 
      <server-template id="ServerTemplate"> 
        <parameter name="name"/>
-       <server id="${name}" exe="./simple/server" activation="on-demand">
+       <server id="${name}" exe="${system}/simple/server" activation="on-demand">
          <use-patch id="patch1"/>
-         <use-patch id="patch2"/>
-	 <adapter name="Hello" endpoints="tcp" register="true" id="ReplicatedHelloAdapter"/>
+	 <adapter name="Hello" endpoints="${endpoint}" register="true" id="ReplicatedHelloAdapter"/>
          <property name="Identity" value="hello"/>
        </server>
      </server-template>
@@ -70,14 +64,20 @@
      </server-template>
  
      <node name="node">
-
+       <variable name="system" value="linux"/>
        <server-instance template="ServerTemplate" name="Server1"/>
+     </node>
+
+     <node name="node-win">
+       <variable name="system" value="windows"/>
        <server-instance template="ServerTemplate" name="Server2"/>
+     </node>
+
+     <node name="node-macosx">
+       <variable name="system" value="macosx"/>
+       <variable name="endpoint" value="tcp -h 192.168.0.4"/>
+
        <server-instance template="ServerTemplate" name="Server3"/>
-       <server-instance template="ServerTemplate" name="Server4"/>
-
-       <server-instance template="IceBoxTemplate" name="IceBox1"/>
-
      </node>
 
   </application>

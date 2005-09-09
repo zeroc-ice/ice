@@ -53,7 +53,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const string& facet,
 				      Reference::Mode mode,
 				      bool secure,
-				      const vector<EndpointPtr>& endpoints,
+				      const vector<EndpointIPtr>& endpoints,
 				      const RouterInfoPtr& routerInfo,
 				      bool collocationOptimization)
 {
@@ -411,7 +411,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	return create(ident, Context(), facet, mode, secure, "", routerInfo, locatorInfo, true);
     }
 
-    vector<EndpointPtr> endpoints;
+    vector<EndpointIPtr> endpoints;
 
     switch(s[beg])
     {
@@ -431,7 +431,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 		}
 		
 		string es = s.substr(beg, end - beg);
-		EndpointPtr endp = _instance->endpointFactoryManager()->create(es);
+		EndpointIPtr endp = _instance->endpointFactoryManager()->create(es);
 		if(endp != 0)
 		{
 		    endpoints.push_back(endp);
@@ -550,7 +550,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     bool secure;
     s->read(secure);
 
-    vector<EndpointPtr> endpoints;
+    vector<EndpointIPtr> endpoints;
     string adapterId;
 
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
@@ -564,7 +564,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	endpoints.reserve(sz);
 	while(sz--)
 	{
-	    EndpointPtr endpoint = _instance->endpointFactoryManager()->read(s);
+	    EndpointIPtr endpoint = _instance->endpointFactoryManager()->read(s);
 	    endpoints.push_back(endpoint);
 	}
 	return create(ident, Context(), facet, mode, secure, endpoints, routerInfo, true);

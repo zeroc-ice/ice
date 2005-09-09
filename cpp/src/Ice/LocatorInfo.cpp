@@ -13,7 +13,7 @@
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/Endpoint.h>
+#include <Ice/EndpointI.h>
 #include <Ice/Reference.h>
 #include <Ice/Functional.h>
 #include <Ice/IdentityUtil.h>
@@ -119,11 +119,11 @@ IceInternal::LocatorTable::clear()
 }
 
 bool
-IceInternal::LocatorTable::getAdapterEndpoints(const string& adapter, vector<EndpointPtr>& endpoints) const
+IceInternal::LocatorTable::getAdapterEndpoints(const string& adapter, vector<EndpointIPtr>& endpoints) const
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    map<string, vector<EndpointPtr> >::const_iterator p = _adapterEndpointsMap.find(adapter);
+    map<string, vector<EndpointIPtr> >::const_iterator p = _adapterEndpointsMap.find(adapter);
     
     if(p != _adapterEndpointsMap.end())
     {
@@ -137,25 +137,25 @@ IceInternal::LocatorTable::getAdapterEndpoints(const string& adapter, vector<End
 }
 
 void
-IceInternal::LocatorTable::addAdapterEndpoints(const string& adapter, const vector<EndpointPtr>& endpoints)
+IceInternal::LocatorTable::addAdapterEndpoints(const string& adapter, const vector<EndpointIPtr>& endpoints)
 {
     IceUtil::Mutex::Lock sync(*this);
     
     _adapterEndpointsMap.insert(make_pair(adapter, endpoints));
 }
 
-vector<EndpointPtr>
+vector<EndpointIPtr>
 IceInternal::LocatorTable::removeAdapterEndpoints(const string& adapter)
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    map<string, vector<EndpointPtr> >::iterator p = _adapterEndpointsMap.find(adapter);
+    map<string, vector<EndpointIPtr> >::iterator p = _adapterEndpointsMap.find(adapter);
     if(p == _adapterEndpointsMap.end())
     {
-	return vector<EndpointPtr>();
+	return vector<EndpointIPtr>();
     }
 
-    vector<EndpointPtr> endpoints = p->second;
+    vector<EndpointIPtr> endpoints = p->second;
 
     _adapterEndpointsMap.erase(p);
     
@@ -265,10 +265,10 @@ IceInternal::LocatorInfo::getLocatorRegistry()
     return _locatorRegistry;
 }
 
-vector<EndpointPtr>
+vector<EndpointIPtr>
 IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, bool& cached)
 {
-    vector<EndpointPtr> endpoints;
+    vector<EndpointIPtr> endpoints;
     ObjectPrx object;
     cached = true;    
 
@@ -409,7 +409,7 @@ IceInternal::LocatorInfo::clearCache(const IndirectReferencePtr& ref)
 {
     if(!ref->getAdapterId().empty())
     {
-	vector<EndpointPtr> endpoints = _table->removeAdapterEndpoints(ref->getAdapterId());
+	vector<EndpointIPtr> endpoints = _table->removeAdapterEndpoints(ref->getAdapterId());
 
 	if(!endpoints.empty() && ref->getInstance()->traceLevels()->location >= 2)
 	{
@@ -443,7 +443,7 @@ IceInternal::LocatorInfo::clearCache(const IndirectReferencePtr& ref)
 void
 IceInternal::LocatorInfo::trace(const string& msg,
 	                        const IndirectReferencePtr& ref,
-				const vector<EndpointPtr>& endpoints)
+				const vector<EndpointIPtr>& endpoints)
 {
     Trace out(ref->getInstance()->logger(), ref->getInstance()->traceLevels()->locationCat);
     out << msg << '\n';
@@ -459,6 +459,6 @@ IceInternal::LocatorInfo::trace(const string& msg,
     const char* sep = endpoints.size() > 1 ? ":" : "";
     ostringstream o;
     transform(endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
-	      Ice::constMemFun(&Endpoint::toString));
+	      Ice::constMemFun(&EndpointI::toString));
     out << "endpoints = " << o.str();
 }

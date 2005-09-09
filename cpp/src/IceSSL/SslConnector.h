@@ -34,7 +34,7 @@ private:
     
     SslConnector(const OpenSSLPluginIPtr&, const std::string&, int);
     virtual ~SslConnector();
-    friend class SslEndpoint;
+    friend class SslEndpointI;
 
     OpenSSLPluginIPtr _plugin;
     struct sockaddr_in _addr;

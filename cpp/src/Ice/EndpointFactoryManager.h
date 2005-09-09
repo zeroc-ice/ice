@@ -13,7 +13,7 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/InstanceF.h>
-#include <Ice/EndpointF.h>
+#include <Ice/EndpointIF.h>
 #include <Ice/EndpointFactoryF.h>
 #include <Ice/EndpointFactoryManagerF.h>
 
@@ -28,8 +28,8 @@ public:
 
     void add(const EndpointFactoryPtr&);
     EndpointFactoryPtr get(::Ice::Short) const;
-    EndpointPtr create(const std::string&) const;
-    EndpointPtr read(BasicStream*) const;
+    EndpointIPtr create(const std::string&) const;
+    EndpointIPtr read(BasicStream*) const;
 
 private:
 

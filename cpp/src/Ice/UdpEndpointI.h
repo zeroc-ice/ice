@@ -7,45 +7,45 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TCP_ENDPOINT_H
-#define ICE_TCP_ENDPOINT_H
+#ifndef ICE_UDP_ENDPOINT_I_H
+#define ICE_UDP_ENDPOINT_I_H
 
-#include <Ice/Endpoint.h>
+#include <Ice/EndpointI.h>
 #include <Ice/EndpointFactory.h>
 
 namespace IceInternal
 {
 
-const Ice::Short TcpEndpointType = 1;
+const Ice::Short UdpEndpointType = 3;
 
-class TcpEndpoint : public Endpoint
+class UdpEndpointI : public EndpointI
 {
 public:
 
-    TcpEndpoint(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, bool);
-    TcpEndpoint(const InstancePtr&, const std::string&);
-    TcpEndpoint(BasicStream*);
+    UdpEndpointI(const InstancePtr&, const std::string&, Ice::Int, bool);
+    UdpEndpointI(const InstancePtr&, const std::string&);
+    UdpEndpointI(BasicStream*);
 
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
     virtual Ice::Short type() const;
     virtual Ice::Int timeout() const;
-    virtual EndpointPtr timeout(Ice::Int) const;
+    virtual EndpointIPtr timeout(Ice::Int) const;
     virtual bool compress() const;
-    virtual EndpointPtr compress(bool) const;
+    virtual EndpointIPtr compress(bool) const;
     virtual bool datagram() const;
     virtual bool secure() const;
     virtual bool unknown() const;
     virtual TransceiverPtr clientTransceiver() const;
-    virtual TransceiverPtr serverTransceiver(EndpointPtr&) const;
+    virtual TransceiverPtr serverTransceiver(EndpointIPtr&) const;
     virtual ConnectorPtr connector() const;
-    virtual AcceptorPtr acceptor(EndpointPtr&) const;
+    virtual AcceptorPtr acceptor(EndpointIPtr&) const;
     virtual bool equivalent(const TransceiverPtr&) const;
     virtual bool equivalent(const AcceptorPtr&) const;
 
-    virtual bool operator==(const Endpoint&) const;
-    virtual bool operator!=(const Endpoint&) const;
-    virtual bool operator<(const Endpoint&) const;
+    virtual bool operator==(const EndpointI&) const;
+    virtual bool operator!=(const EndpointI&) const;
+    virtual bool operator<(const EndpointI&) const;
 
 private:
 
@@ -55,25 +55,29 @@ private:
     const InstancePtr _instance;
     const std::string _host;
     const Ice::Int _port;
-    const Ice::Int _timeout;
+    const Ice::Byte _protocolMajor;
+    const Ice::Byte _protocolMinor;
+    const Ice::Byte _encodingMajor;
+    const Ice::Byte _encodingMinor;
+    const bool _connect;
     const bool _compress;
 };
 
-class TcpEndpointFactory : public EndpointFactory
+class UdpEndpointFactory : public EndpointFactory
 {
 public:
 
-    virtual ~TcpEndpointFactory();
+    virtual ~UdpEndpointFactory();
 
     virtual Ice::Short type() const;
     virtual std::string protocol() const;
-    virtual EndpointPtr create(const std::string&) const;
-    virtual EndpointPtr read(BasicStream*) const;
+    virtual EndpointIPtr create(const std::string&) const;
+    virtual EndpointIPtr read(BasicStream*) const;
     virtual void destroy();
 
 private:
 
-    TcpEndpointFactory(const InstancePtr&);
+    UdpEndpointFactory(const InstancePtr&);
     friend class Instance;
 
     InstancePtr _instance;

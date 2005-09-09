@@ -38,7 +38,7 @@ private:
     
     TcpConnector(const InstancePtr&, const std::string&, int);
     virtual ~TcpConnector();
-    friend class TcpEndpoint;
+    friend class TcpEndpointI;
 
     InstancePtr _instance;
     TraceLevelsPtr _traceLevels;

@@ -21,7 +21,7 @@
 #include <Ice/TransceiverF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ServantManagerF.h>
-#include <Ice/EndpointF.h>
+#include <Ice/EndpointIF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/OutgoingAsyncF.h>
@@ -74,7 +74,7 @@ public:
     void sendResponse(IceInternal::BasicStream*, Byte);
     void sendNoResponse();
 
-    IceInternal::EndpointPtr endpoint() const;
+    IceInternal::EndpointIPtr endpoint() const;
 
     virtual void setAdapter(const ObjectAdapterPtr&); // From Connection.
     virtual ObjectAdapterPtr getAdapter() const; // From Connection.
@@ -96,7 +96,7 @@ public:
 private:
 
     ConnectionI(const IceInternal::InstancePtr&, const IceInternal::TransceiverPtr&, 
-		const IceInternal::EndpointPtr&, const ObjectAdapterPtr&);
+		const IceInternal::EndpointIPtr&, const ObjectAdapterPtr&);
     virtual ~ConnectionI();
     friend class IceInternal::IncomingConnectionFactory;
     friend class IceInternal::OutgoingConnectionFactory;
@@ -146,7 +146,7 @@ private:
     IceInternal::TransceiverPtr _transceiver;
     const std::string _desc;
     const std::string _type;
-    const IceInternal::EndpointPtr _endpoint;
+    const IceInternal::EndpointIPtr _endpoint;
 
     ObjectAdapterPtr _adapter;
     IceInternal::ServantManagerPtr _servantManager;

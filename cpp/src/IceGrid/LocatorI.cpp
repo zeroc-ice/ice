@@ -261,30 +261,17 @@ LocatorI::Request::sendResponse()
     }
     else if(_proxies.size() > 1)
     {
-	//
-	// TODO: This is not correct, stringifying a proxy might discard some endpoints!
-	//
-	string proxy = "dummy";
+	Ice::EndpointSeq endpoints;
+	endpoints.reserve(_proxies.size());
 	for(vector<Ice::ObjectPrx>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
 	{
-	    try
-	    {
-		string proxyEndpoints = _locator->getCommunicator()->proxyToString(*p);
-		string::size_type idx = proxyEndpoints.find_first_of(':');
-		if(idx == string::npos)
-		{
-		    continue; // Not a direct proxy!
-		}
-		proxy += ":" + proxyEndpoints.substr(idx + 1);
-	    }
-	    catch(const Ice::LocalException&)
-	    {
-		//
-		// TODO: we really need a better API to extrat proxy endpoints!
-		//
-	    }
+	    Ice::EndpointSeq edpts = (*p)->ice_getEndpoints();
+	    endpoints.insert(endpoints.end(), edpts.begin(), edpts.end());
 	}
-	_amdCB->ice_response(_locator->getCommunicator()->stringToProxy(proxy));
+
+	Ice::ObjectPrx proxy = _locator->getCommunicator()->stringToProxy("dummy:default");
+	proxy->ice_newEndpoints(endpoints);
+	_amdCB->ice_response(proxy);
     }
 }
 
@@ -307,10 +294,9 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
 			       const Ice::Current& current) const
 {
     Ice::ObjectPrx proxy;
-    string adapterId;
     try
     {
-	proxy = _database->getObjectProxy(id, adapterId);
+	proxy = _database->getObjectProxy(id);
     }
     catch(const ObjectNotExistException&)
     {
@@ -323,6 +309,7 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
     // server activation). This will avoid the client to lookup for
     // the adapter id endpoints.
     //
+    const string adapterId = proxy->ice_getAdapterId();
     if(!adapterId.empty())
     {
 	Ice::AMD_Locator_findAdapterByIdPtr amiCB = new AMD_Locator_findAdapterByIdI(cb, proxy);

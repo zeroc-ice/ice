@@ -780,7 +780,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     try
     {
 	Ice::StringSeq::const_iterator p;
-	for(p = contents.begin(); p != contents.end()-1; ++p)
+	for(p = contents.begin(); p != (contents.end() - 1); ++p)
 	{
 	    rename(_tmpDir + "/" + *(p + 1), _tmpDir + "/" + *p);
 	}

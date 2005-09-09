@@ -43,7 +43,7 @@ private:
 
     TcpAcceptor(const InstancePtr&, const std::string&, int);
     virtual ~TcpAcceptor();
-    friend class TcpEndpoint;
+    friend class TcpEndpointI;
 
     InstancePtr _instance;
     TraceLevelsPtr _traceLevels;

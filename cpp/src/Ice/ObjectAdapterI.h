@@ -22,7 +22,7 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/Exception.h>
-#include <Ice/EndpointF.h>
+#include <Ice/EndpointIF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/Process.h>
@@ -92,7 +92,7 @@ private:
     ObjectPrx newDirectProxy(const Identity&, const std::string&) const;
     void checkForDeactivation() const;
     static void checkIdentity(const Identity&);
-    std::vector<IceInternal::EndpointPtr> parseEndpoints(const std::string&) const;
+    std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&) const;
 
     bool _deactivated;
     IceInternal::InstancePtr _instance;
@@ -103,8 +103,8 @@ private:
     const std::string _name;
     const std::string _id;
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
-    std::vector<IceInternal::EndpointPtr> _routerEndpoints;
-    std::vector<IceInternal::EndpointPtr> _publishedEndpoints;
+    std::vector<IceInternal::EndpointIPtr> _routerEndpoints;
+    std::vector<IceInternal::EndpointIPtr> _publishedEndpoints;
     IceInternal::LocatorInfoPtr _locatorInfo;
     int _directCount; // The number of direct proxies dispatching on this object adapter.
     bool _waitForDeactivate;

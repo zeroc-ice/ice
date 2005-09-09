@@ -112,7 +112,6 @@ ObjectEntry::ObjectEntry(Cache<Ice::Identity, ObjectEntry>&, const Ice::Identity
 void
 ObjectEntry::set(const Ice::CommunicatorPtr& communicator, const string& adapterId, const ObjectDescriptor& desc)
 {
-    _adapterId = adapterId;
     _info.proxy = communicator->stringToProxy(Ice::identityToString(desc.id) + "@" + adapterId);
     _info.type = desc.type;
 }
@@ -121,12 +120,6 @@ Ice::ObjectPrx
 ObjectEntry::getProxy() const
 {
     return _info.proxy;
-}
-
-string
-ObjectEntry::getAdapterId() const
-{
-    return _adapterId;
 }
 
 string

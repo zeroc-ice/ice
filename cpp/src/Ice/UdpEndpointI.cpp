@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/UdpEndpoint.h>
+#include <Ice/UdpEndpointI.h>
 #include <Ice/Network.h>
 #include <Ice/UdpTransceiver.h>
 #include <Ice/BasicStream.h>
@@ -20,7 +20,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string& ho, Int po, bool co) :
+IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& ho, Int po, bool co) :
     _instance(instance),
     _host(ho),
     _port(po),
@@ -33,7 +33,7 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 {
 }
 
-IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string& str) :
+IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& str) :
     _instance(instance),
     _port(0),
     _protocolMajor(protocolMajor),
@@ -261,7 +261,7 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
     }
 }
 
-IceInternal::UdpEndpoint::UdpEndpoint(BasicStream* s) :
+IceInternal::UdpEndpointI::UdpEndpointI(BasicStream* s) :
     _instance(s->instance()),
     _port(0),
     _protocolMajor(protocolMajor),
@@ -303,7 +303,7 @@ IceInternal::UdpEndpoint::UdpEndpoint(BasicStream* s) :
 }
 
 void
-IceInternal::UdpEndpoint::streamWrite(BasicStream* s) const
+IceInternal::UdpEndpointI::streamWrite(BasicStream* s) const
 {
     s->write(UdpEndpointType);
     s->startWriteEncaps();
@@ -320,7 +320,7 @@ IceInternal::UdpEndpoint::streamWrite(BasicStream* s) const
 }
 
 string
-IceInternal::UdpEndpoint::toString() const
+IceInternal::UdpEndpointI::toString() const
 {
     ostringstream s;
 
@@ -356,89 +356,89 @@ IceInternal::UdpEndpoint::toString() const
 }
 
 Short
-IceInternal::UdpEndpoint::type() const
+IceInternal::UdpEndpointI::type() const
 {
     return UdpEndpointType;
 }
 
 Int
-IceInternal::UdpEndpoint::timeout() const
+IceInternal::UdpEndpointI::timeout() const
 {
     return -1;
 }
 
-EndpointPtr
-IceInternal::UdpEndpoint::timeout(Int) const
+EndpointIPtr
+IceInternal::UdpEndpointI::timeout(Int) const
 {
-    return const_cast<UdpEndpoint*>(this);
+    return const_cast<UdpEndpointI*>(this);
 }
 
 bool
-IceInternal::UdpEndpoint::compress() const
+IceInternal::UdpEndpointI::compress() const
 {
     return _compress;
 }
 
-EndpointPtr
-IceInternal::UdpEndpoint::compress(bool compress) const
+EndpointIPtr
+IceInternal::UdpEndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
-	return const_cast<UdpEndpoint*>(this);
+	return const_cast<UdpEndpointI*>(this);
     }
     else
     {
-	return new UdpEndpoint(_instance, _host, _port, compress);
+	return new UdpEndpointI(_instance, _host, _port, compress);
     }
 }
 
 bool
-IceInternal::UdpEndpoint::datagram() const
+IceInternal::UdpEndpointI::datagram() const
 {
     return true;
 }
 
 bool
-IceInternal::UdpEndpoint::secure() const
+IceInternal::UdpEndpointI::secure() const
 {
     return false;
 }
 
 bool
-IceInternal::UdpEndpoint::unknown() const
+IceInternal::UdpEndpointI::unknown() const
 {
     return false;
 }
 
 TransceiverPtr
-IceInternal::UdpEndpoint::clientTransceiver() const
+IceInternal::UdpEndpointI::clientTransceiver() const
 {
     return new UdpTransceiver(_instance, _host, _port);
 }
 
 TransceiverPtr
-IceInternal::UdpEndpoint::serverTransceiver(EndpointPtr& endp) const
+IceInternal::UdpEndpointI::serverTransceiver(EndpointIPtr& endp) const
 {
     UdpTransceiver* p = new UdpTransceiver(_instance, _host, _port, _connect);
-    endp = new UdpEndpoint(_instance, _host, p->effectivePort(), _compress);
+    endp = new UdpEndpointI(_instance, _host, p->effectivePort(), _compress);
     return p;
 }
 
 ConnectorPtr
-IceInternal::UdpEndpoint::connector() const
+IceInternal::UdpEndpointI::connector() const
 {
     return 0;
 }
 
 AcceptorPtr
-IceInternal::UdpEndpoint::acceptor(EndpointPtr& endp) const
+IceInternal::UdpEndpointI::acceptor(EndpointIPtr& endp) const
 {
-    endp = const_cast<UdpEndpoint*>(this);
+    endp = const_cast<UdpEndpointI*>(this);
     return 0;
 }
 
 bool
-IceInternal::UdpEndpoint::equivalent(const TransceiverPtr& transceiver) const
+IceInternal::UdpEndpointI::equivalent(const TransceiverPtr& transceiver) const
 {
     const UdpTransceiver* udpTransceiver = dynamic_cast<const UdpTransceiver*>(transceiver.get());
     if(!udpTransceiver)
@@ -449,15 +449,15 @@ IceInternal::UdpEndpoint::equivalent(const TransceiverPtr& transceiver) const
 }
 
 bool
-IceInternal::UdpEndpoint::equivalent(const AcceptorPtr&) const
+IceInternal::UdpEndpointI::equivalent(const AcceptorPtr&) const
 {
     return false;
 }
 
 bool
-IceInternal::UdpEndpoint::operator==(const Endpoint& r) const
+IceInternal::UdpEndpointI::operator==(const EndpointI& r) const
 {
-    const UdpEndpoint* p = dynamic_cast<const UdpEndpoint*>(&r);
+    const UdpEndpointI* p = dynamic_cast<const UdpEndpointI*>(&r);
     if(!p)
     {
 	return false;
@@ -527,15 +527,15 @@ IceInternal::UdpEndpoint::operator==(const Endpoint& r) const
 }
 
 bool
-IceInternal::UdpEndpoint::operator!=(const Endpoint& r) const
+IceInternal::UdpEndpointI::operator!=(const EndpointI& r) const
 {
     return !operator==(r);
 }
 
 bool
-IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
+IceInternal::UdpEndpointI::operator<(const EndpointI& r) const
 {
-    const UdpEndpoint* p = dynamic_cast<const UdpEndpoint*>(&r);
+    const UdpEndpointI* p = dynamic_cast<const UdpEndpointI*>(&r);
     if(!p)
     {
         return type() < r.type();
@@ -666,16 +666,16 @@ IceInternal::UdpEndpointFactory::protocol() const
     return "udp";
 }
 
-EndpointPtr
+EndpointIPtr
 IceInternal::UdpEndpointFactory::create(const std::string& str) const
 {
-    return new UdpEndpoint(_instance, str);
+    return new UdpEndpointI(_instance, str);
 }
 
-EndpointPtr
+EndpointIPtr
 IceInternal::UdpEndpointFactory::read(BasicStream* s) const
 {
-    return new UdpEndpoint(s);
+    return new UdpEndpointI(s);
 }
 
 void

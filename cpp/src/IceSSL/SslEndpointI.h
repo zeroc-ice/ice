@@ -10,7 +10,7 @@
 #ifndef ICE_SSL_ENDPOINT_H
 #define ICE_SSL_ENDPOINT_H
 
-#include <Ice/Endpoint.h>
+#include <Ice/EndpointI.h>
 #include <Ice/EndpointFactory.h>
 #include <IceSSL/OpenSSLPluginIF.h>
 
@@ -19,34 +19,34 @@ namespace IceSSL
 
 const Ice::Short SslEndpointType = 2;
 
-class SslEndpoint : public IceInternal::Endpoint
+class SslEndpointI : public IceInternal::EndpointI
 {
 public:
 
-    SslEndpoint(const IceSSL::OpenSSLPluginIPtr&, const std::string&, Ice::Int, Ice::Int, bool);
-    SslEndpoint(const IceSSL::OpenSSLPluginIPtr&, const std::string&);
-    SslEndpoint(const IceSSL::OpenSSLPluginIPtr&, IceInternal::BasicStream*);
+    SslEndpointI(const IceSSL::OpenSSLPluginIPtr&, const std::string&, Ice::Int, Ice::Int, bool);
+    SslEndpointI(const IceSSL::OpenSSLPluginIPtr&, const std::string&);
+    SslEndpointI(const IceSSL::OpenSSLPluginIPtr&, IceInternal::BasicStream*);
 
     virtual void streamWrite(IceInternal::BasicStream*) const;
     virtual std::string toString() const;
     virtual Ice::Short type() const;
     virtual Ice::Int timeout() const;
-    virtual IceInternal::EndpointPtr timeout(Ice::Int) const;
+    virtual IceInternal::EndpointIPtr timeout(Ice::Int) const;
     virtual bool compress() const;
-    virtual IceInternal::EndpointPtr compress(bool) const;
+    virtual IceInternal::EndpointIPtr compress(bool) const;
     virtual bool datagram() const;
     virtual bool secure() const;
     virtual bool unknown() const;
     virtual IceInternal::TransceiverPtr clientTransceiver() const;
-    virtual IceInternal::TransceiverPtr serverTransceiver(IceInternal::EndpointPtr&) const;
+    virtual IceInternal::TransceiverPtr serverTransceiver(IceInternal::EndpointIPtr&) const;
     virtual IceInternal::ConnectorPtr connector() const;
-    virtual IceInternal::AcceptorPtr acceptor(IceInternal::EndpointPtr&) const;
+    virtual IceInternal::AcceptorPtr acceptor(IceInternal::EndpointIPtr&) const;
     virtual bool equivalent(const IceInternal::TransceiverPtr&) const;
     virtual bool equivalent(const IceInternal::AcceptorPtr&) const;
 
-    virtual bool operator==(const IceInternal::Endpoint&) const;
-    virtual bool operator!=(const IceInternal::Endpoint&) const;
-    virtual bool operator<(const IceInternal::Endpoint&) const;
+    virtual bool operator==(const IceInternal::EndpointI&) const;
+    virtual bool operator!=(const IceInternal::EndpointI&) const;
+    virtual bool operator<(const IceInternal::EndpointI&) const;
 
 private:
 
@@ -69,8 +69,8 @@ public:
 
     virtual Ice::Short type() const;
     virtual std::string protocol() const;
-    virtual IceInternal::EndpointPtr create(const std::string&) const;
-    virtual IceInternal::EndpointPtr read(IceInternal::BasicStream*) const;
+    virtual IceInternal::EndpointIPtr create(const std::string&) const;
+    virtual IceInternal::EndpointIPtr read(IceInternal::BasicStream*) const;
     virtual void destroy();
 
 private:

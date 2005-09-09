@@ -7,11 +7,11 @@
 //
 // **********************************************************************
 
-#include <Ice/Endpoint.h>
+#include <Ice/EndpointI.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(Endpoint* p) { p->__incRef(); }
-void IceInternal::decRef(Endpoint* p) { p->__decRef(); }
+void IceInternal::incRef(EndpointI* p) { p->__incRef(); }
+void IceInternal::decRef(EndpointI* p) { p->__decRef(); }

@@ -7,18 +7,18 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_F_H
-#define ICE_ENDPOINT_F_H
+#ifndef ICE_ENDPOINT_I_F_H
+#define ICE_ENDPOINT_I_F_H
 
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
-class Endpoint;
-ICE_PROTOCOL_API void incRef(Endpoint*);
-ICE_PROTOCOL_API void decRef(Endpoint*);
-typedef IceInternal::Handle<Endpoint> EndpointPtr;
+class EndpointI;
+ICE_API void incRef(IceInternal::EndpointI*);
+ICE_API void decRef(IceInternal::EndpointI*);
+typedef IceInternal::Handle<EndpointI> EndpointIPtr;
 
 }
 

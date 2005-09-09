@@ -209,6 +209,8 @@ public:
     ServerInstanceDescriptor getDescriptor() const;
     ServerDescriptorPtr getDefinition() const;
     ServerDescriptorPtr getInstance() const;
+    const ServerHelper& getInstanceHelper() const;
+
     void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
 
 private:

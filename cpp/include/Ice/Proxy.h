@@ -15,7 +15,8 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ConnectionIF.h>
-#include <Ice/EndpointF.h>
+#include <Ice/EndpointIF.h>
+#include <Ice/Endpoint.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
@@ -106,6 +107,12 @@ public:
 
     ::Ice::Identity ice_getIdentity() const;
     ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
+
+    ::std::string ice_getAdapterId() const;
+    ::Ice::ObjectPrx ice_newAdapterId(const ::std::string&) const;
+
+    ::Ice::EndpointSeq ice_getEndpoints() const;
+    ::Ice::ObjectPrx ice_newEndpoints(const ::Ice::EndpointSeq&) const;
 
     ::Ice::Context ice_getContext() const;
     ::Ice::ObjectPrx ice_newContext(const ::Ice::Context&) const;

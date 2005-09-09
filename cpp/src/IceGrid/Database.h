@@ -81,7 +81,7 @@ public:
     void addObject(const ObjectInfo&);
     void removeObject(const Ice::Identity&);
     void updateObject(const Ice::ObjectPrx&);
-    Ice::ObjectPrx getObjectProxy(const Ice::Identity&, std::string&);
+    Ice::ObjectPrx getObjectProxy(const Ice::Identity&);
     Ice::ObjectPrx getObjectByType(const std::string&);
     Ice::ObjectProxySeq getObjectsWithType(const std::string&);
     ObjectInfo getObjectInfo(const Ice::Identity&);

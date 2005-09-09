@@ -15,7 +15,7 @@
 #include <Ice/LocatorInfoF.h>
 #include <Ice/LocatorF.h>
 #include <Ice/ProxyF.h>
-#include <Ice/EndpointF.h>
+#include <Ice/EndpointIF.h>
 
 namespace IceInternal
 {
@@ -50,9 +50,9 @@ public:
 
     void clear();
     
-    bool getAdapterEndpoints(const std::string&, ::std::vector<EndpointPtr>&) const;
-    void addAdapterEndpoints(const std::string&, const ::std::vector<EndpointPtr>&);
-    ::std::vector<EndpointPtr> removeAdapterEndpoints(const std::string&);
+    bool getAdapterEndpoints(const std::string&, ::std::vector<EndpointIPtr>&) const;
+    void addAdapterEndpoints(const std::string&, const ::std::vector<EndpointIPtr>&);
+    ::std::vector<EndpointIPtr> removeAdapterEndpoints(const std::string&);
 
     bool getProxy(const Ice::Identity&, Ice::ObjectPrx&) const;
     void addProxy(const Ice::Identity&, const Ice::ObjectPrx&);
@@ -60,7 +60,7 @@ public:
     
 private:
 
-    std::map<std::string, std::vector<EndpointPtr> > _adapterEndpointsMap;
+    std::map<std::string, std::vector<EndpointIPtr> > _adapterEndpointsMap;
     std::map<Ice::Identity, Ice::ObjectPrx > _objectMap;
 };
 
@@ -79,13 +79,13 @@ public:
     Ice::LocatorPrx getLocator() const;
     Ice::LocatorRegistryPrx getLocatorRegistry();
 
-    std::vector<EndpointPtr> getEndpoints(const IndirectReferencePtr&, bool&);
+    std::vector<EndpointIPtr> getEndpoints(const IndirectReferencePtr&, bool&);
     void clearCache(const IndirectReferencePtr&);
     void clearObjectCache(const IndirectReferencePtr&);
 
 private:
 
-    void trace(const std::string&, const IndirectReferencePtr&, const std::vector<EndpointPtr>&);
+    void trace(const std::string&, const IndirectReferencePtr&, const std::vector<EndpointIPtr>&);
 
     const Ice::LocatorPrx _locator;
     Ice::LocatorRegistryPrx _locatorRegistry;

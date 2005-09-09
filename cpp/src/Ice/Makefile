@@ -36,6 +36,7 @@ OBJS		= Acceptor.o \
 		  EndpointFactoryManager.o \
 		  EndpointFactory.o \
 		  Endpoint.o \
+		  EndpointI.o \
 		  EventHandler.o \
 		  Exception.o \
 		  FacetMap.o \
@@ -101,15 +102,15 @@ OBJS		= Acceptor.o \
 		  SysLoggerI.o \
 		  TcpAcceptor.o \
 		  TcpConnector.o \
-		  TcpEndpoint.o \
+		  TcpEndpointI.o \
 		  TcpTransceiver.o \
 	          ThreadPool.o \
 		  TraceLevels.o \
 		  TraceUtil.o \
 		  Transceiver.o \
-		  UdpEndpoint.o \
+		  UdpEndpointI.o \
 		  UdpTransceiver.o \
-		  UnknownEndpoint.o
+		  UnknownEndpointI.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -119,6 +120,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/ConnectionF.ice \
 		  $(SDIR)/Connection.ice \
 		  $(SDIR)/Current.ice \
+		  $(SDIR)/Endpoint.ice \
 		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
 		  $(SDIR)/LocalException.ice \

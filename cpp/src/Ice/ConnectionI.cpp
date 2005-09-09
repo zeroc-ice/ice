@@ -17,7 +17,7 @@
 #include <Ice/ThreadPool.h>
 #include <Ice/ConnectionMonitor.h>
 #include <Ice/ObjectAdapterI.h> // For getThreadPool() and getServantManager().
-#include <Ice/Endpoint.h>
+#include <Ice/EndpointI.h>
 #include <Ice/Outgoing.h>
 #include <Ice/OutgoingAsync.h>
 #include <Ice/Incoming.h>
@@ -1122,7 +1122,7 @@ Ice::ConnectionI::sendNoResponse()
     }
 }
 
-EndpointPtr
+EndpointIPtr
 Ice::ConnectionI::endpoint() const
 {
     return _endpoint; // No mutex protection necessary, _endpoint is immutable.
@@ -1372,7 +1372,7 @@ Ice::ConnectionI::toString() const
 
 Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 			      const TransceiverPtr& transceiver,
-			      const EndpointPtr& endpoint,
+			      const EndpointIPtr& endpoint,
 			      const ObjectAdapterPtr& adapter) :
     EventHandler(instance),
     _transceiver(transceiver),

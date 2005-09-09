@@ -17,7 +17,7 @@
 #include <Ice/ConnectionIF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectAdapterF.h>
-#include <Ice/EndpointF.h>
+#include <Ice/EndpointIF.h>
 #include <Ice/AcceptorF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/RouterF.h>
@@ -44,7 +44,7 @@ public:
 
     void waitUntilFinished();
 
-    Ice::ConnectionIPtr create(const std::vector<EndpointPtr>&, bool&);
+    Ice::ConnectionIPtr create(const std::vector<EndpointIPtr>&, bool&);
     void setRouter(const ::Ice::RouterPrx&);
     void removeAdapter(const ::Ice::ObjectAdapterPtr&);
     void flushBatchRequests();
@@ -57,8 +57,8 @@ private:
 
     const InstancePtr _instance;
     bool _destroyed;
-    std::multimap<EndpointPtr, Ice::ConnectionIPtr> _connections;
-    std::set<EndpointPtr> _pending; // Endpoints for which connection establishment is pending.
+    std::multimap<EndpointIPtr, Ice::ConnectionIPtr> _connections;
+    std::set<EndpointIPtr> _pending; // Endpoints for which connection establishment is pending.
 };
 
 class IncomingConnectionFactory : public EventHandler, public IceUtil::Monitor<IceUtil::Mutex>
@@ -72,8 +72,8 @@ public:
     void waitUntilHolding() const;
     void waitUntilFinished();
 
-    EndpointPtr endpoint() const;
-    bool equivalent(const EndpointPtr&) const;
+    EndpointIPtr endpoint() const;
+    bool equivalent(const EndpointIPtr&) const;
     std::list<Ice::ConnectionIPtr> connections() const;
     void flushBatchRequests();
 
@@ -90,7 +90,7 @@ public:
     
 private:
 
-    IncomingConnectionFactory(const InstancePtr&, const EndpointPtr&, const ::Ice::ObjectAdapterPtr&);
+    IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const ::Ice::ObjectAdapterPtr&);
     virtual ~IncomingConnectionFactory();
     friend class ::Ice::ObjectAdapterI;
 
@@ -123,7 +123,7 @@ private:
 
     AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;
-    const EndpointPtr _endpoint;
+    const EndpointIPtr _endpoint;
 
     const ::Ice::ObjectAdapterPtr _adapter;
 
