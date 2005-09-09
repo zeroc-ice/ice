@@ -210,7 +210,7 @@ SOURCE=.\SslConnector.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SslEndpoint.cpp
+SOURCE=.\SslEndpointI.cpp
 # End Source File
 # Begin Source File
 
@@ -390,7 +390,7 @@ SOURCE=.\SslConnector.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\SslEndpoint.h
+SOURCE=.\SslEndpointI.h
 # End Source File
 # Begin Source File
 

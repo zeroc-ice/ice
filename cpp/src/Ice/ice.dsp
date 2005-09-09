@@ -186,6 +186,10 @@ SOURCE=.\EndpointFactoryManager.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\EndpointI.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\EventHandler.cpp
 # End Source File
 # Begin Source File
@@ -410,7 +414,7 @@ SOURCE=.\TcpConnector.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\TcpEndpoint.cpp
+SOURCE=.\TcpEndpointI.cpp
 # End Source File
 # Begin Source File
 
@@ -434,7 +438,7 @@ SOURCE=.\Transceiver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\UdpEndpoint.cpp
+SOURCE=.\UdpEndpointI.cpp
 # End Source File
 # Begin Source File
 
@@ -442,7 +446,7 @@ SOURCE=.\UdpTransceiver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\UnknownEndpoint.cpp
+SOURCE=.\UnknownEndpointI.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -930,7 +934,7 @@ SOURCE=.\TcpConnector.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\TcpEndpoint.h
+SOURCE=.\TcpEndpointI.h
 # End Source File
 # Begin Source File
 
@@ -966,7 +970,7 @@ SOURCE=.\TransceiverF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\UdpEndpoint.h
+SOURCE=.\UdpEndpointI.h
 # End Source File
 # Begin Source File
 
@@ -974,7 +978,7 @@ SOURCE=.\UdpTransceiver.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\UnknownEndpoint.h
+SOURCE=.\UnknownEndpointI.h
 # End Source File
 # Begin Source File
 
@@ -1220,6 +1224,49 @@ BuildCmds= \
    $(BuildCmds)
 
 "Current.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\Endpoint.ice
+
+!IF  "$(CFG)" == "ice - Win32 Release"
+
+USERDEP__ENDPO="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Endpoint.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Endpoint.ice \
+	move Endpoint.h ..\..\include\ice \
+	
+
+"..\..\include\ice\Endpoint.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Endpoint.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "ice - Win32 Debug"
+
+USERDEP__ENDPO="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Endpoint.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice -DICE_CPP --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Endpoint.ice \
+	move Endpoint.h ..\..\include\ice \
+	
+
+"..\..\include\ice\Endpoint.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Endpoint.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
