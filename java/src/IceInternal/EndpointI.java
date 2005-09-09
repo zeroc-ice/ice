@@ -9,69 +9,83 @@
 
 package IceInternal;
 
-public interface Endpoint extends java.lang.Comparable
+abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
 {
+    public java.lang.Object
+    clone()
+        throws java.lang.CloneNotSupportedException
+    {
+        return super.clone();
+    }
+
+    public int
+    ice_hash()
+    {
+        return hashCode();
+    }
+
+    public String
+    toString()
+    {
+	return _toString();
+    }
+
     //
     // Marshal the endpoint.
     //
-    void streamWrite(BasicStream s);
-
-    //
-    // Convert the endpoint to its string form.
-    //
-    String toString();
+    public abstract void streamWrite(BasicStream s);
 
     //
     // Return the endpoint type.
     //
-    short type();
-
+    public abstract short type();
+    
     //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
-    int timeout();
+    public abstract int timeout();
 
     //
     // Return a new endpoint with a different timeout value, provided
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    Endpoint timeout(int t);
+    public abstract EndpointI timeout(int t);
 
     //
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //
-    boolean compress();
+    public abstract boolean compress();
     
     //
     // Return a new endpoint with a different compression value,
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    Endpoint compress(boolean co);
+    public abstract EndpointI compress(boolean co);
 
     //
     // Return true if the endpoint is datagram-based.
     //
-    boolean datagram();
+    public abstract boolean datagram();
 
     //
     // Return true if the endpoint is secure.
     //
-    boolean secure();
+    public abstract boolean secure();
 
     //
     // Return true if the endpoint type is unknown.
     //
-    boolean unknown();
+    public abstract boolean unknown();
 
     //
     // Return a client side transceiver for this endpoint, or null if a
     // transceiver can only be created by a connector.
     //
-    Transceiver clientTransceiver();
+    public abstract Transceiver clientTransceiver();
 
     //
     // Return a server side transceiver for this endpoint, or null if a
@@ -80,13 +94,13 @@ public interface Endpoint extends java.lang.Comparable
     // "effective" endpoint, which might differ from this endpoint,
     // for example, if a dynamic port number is assigned.
     //
-    Transceiver serverTransceiver(EndpointHolder endpoint);
+    public abstract Transceiver serverTransceiver(EndpointIHolder endpoint);
 
     //
     // Return a connector for this endpoint, or null if no connector
     // is available.
     //
-    Connector connector();
+    public abstract Connector connector();
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors
@@ -95,18 +109,18 @@ public interface Endpoint extends java.lang.Comparable
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
-    Acceptor acceptor(EndpointHolder endpoint);
+    public abstract Acceptor acceptor(EndpointIHolder endpoint);
 
     //
     // Check whether the endpoint is equivalent to a specific
     // Transceiver or Acceptor.
     //
-    boolean equivalent(Transceiver transceiver);
-    boolean equivalent(Acceptor acceptor);
+    public abstract boolean equivalent(Transceiver transceiver);
+    public abstract boolean equivalent(Acceptor acceptor);
 
     //
     // Compare endpoints for sorting purposes.
     //
-    boolean equals(java.lang.Object obj);
-    int compareTo(java.lang.Object obj); // From java.lang.Comparable.
+    public abstract boolean equals(java.lang.Object obj);
+    public abstract int compareTo(java.lang.Object obj); // From java.lang.Comparable.
 }

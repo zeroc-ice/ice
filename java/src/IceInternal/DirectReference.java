@@ -19,7 +19,7 @@ public class DirectReference extends RoutableReference
 		    String fs,
 		    int md,
 		    boolean sec,
-		    Endpoint[] endpts,
+		    EndpointI[] endpts,
 		    RouterInfo rtrInfo,
 		    boolean collocationOpt)
     {
@@ -27,21 +27,16 @@ public class DirectReference extends RoutableReference
         _endpoints = endpts;
     }
 
-    public Endpoint[] getEndpoints()
+    public String
+    getAdapterId()
     {
-        return _endpoints;
+	return "";
     }
 
-    public final Reference
-    changeEndpoints(Endpoint[] newEndpoints)
+    public EndpointI[] 
+    getEndpoints()
     {
-	if(compare(newEndpoints, _endpoints))
-	{
-	    return this;
-	}
-        DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-	r._endpoints = newEndpoints;
-	return r;
+        return _endpoints;
     }
 
     public Reference
@@ -83,7 +78,7 @@ public class DirectReference extends RoutableReference
     changeCompress(boolean newCompress)
     {
         DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-        Endpoint[] newEndpoints = new Endpoint[_endpoints.length];
+        EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
         for(int i = 0; i < _endpoints.length; i++)
         {
             newEndpoints[i] = _endpoints[i].compress(newCompress);
@@ -96,11 +91,37 @@ public class DirectReference extends RoutableReference
     changeTimeout(int newTimeout)
     {
         DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-        Endpoint[] newEndpoints = new Endpoint[_endpoints.length];
+        EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
         for(int i = 0; i < _endpoints.length; i++)
         {
             newEndpoints[i] = _endpoints[i].timeout(newTimeout);
         }
+	r._endpoints = newEndpoints;
+	return r;
+    }
+
+    public Reference
+    changeAdapterId(String newAdapterId)
+    {
+	if(newAdapterId == null || newAdapterId.length() == 0)
+	{
+	    return this;
+	}
+	LocatorInfo locatorInfo = 
+	    getInstance().locatorManager().get(getInstance().referenceFactory().getDefaultLocator());
+	return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
+						       getSecure(), newAdapterId, getRouterInfo(), locatorInfo,
+						       getCollocationOptimization());
+    }
+
+    public Reference
+    changeEndpoints(EndpointI[] newEndpoints)
+    {
+	if(compare(newEndpoints, _endpoints))
+	{
+	    return this;
+	}
+        DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
 	r._endpoints = newEndpoints;
 	return r;
     }
@@ -146,12 +167,12 @@ public class DirectReference extends RoutableReference
     public Ice.ConnectionI
     getConnection(Ice.BooleanHolder comp)
     {
-        Endpoint[] endpts = super.getRoutedEndpoints();
+        EndpointI[] endpts = super.getRoutedEndpoints();
 	if(endpts.length == 0)
 	{
 	    endpts = _endpoints;
 	}
-	Endpoint[] filteredEndpoints = filterEndpoints(endpts);
+	EndpointI[] filteredEndpoints = filterEndpoints(endpts);
 	if(filteredEndpoints.length == 0)
 	{
 	    Ice.NoEndpointException ex = new Ice.NoEndpointException();
@@ -195,5 +216,5 @@ public class DirectReference extends RoutableReference
 	return compare(_endpoints, rhs._endpoints);
     }
 
-    private Endpoint[] _endpoints;
+    private EndpointI[] _endpoints;
 }

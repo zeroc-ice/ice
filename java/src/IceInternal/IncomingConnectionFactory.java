@@ -130,7 +130,7 @@ public final class IncomingConnectionFactory extends EventHandler
 	}
     }
 
-    public Endpoint
+    public EndpointI
     endpoint()
     {
         // No mutex protection necessary, _endpoint is immutable.
@@ -138,7 +138,7 @@ public final class IncomingConnectionFactory extends EventHandler
     }
 
     public boolean
-    equivalent(Endpoint endp)
+    equivalent(EndpointI endp)
     {
         if(_transceiver != null)
         {
@@ -352,7 +352,7 @@ public final class IncomingConnectionFactory extends EventHandler
     }
 
     public
-    IncomingConnectionFactory(Instance instance, Endpoint endpoint, Ice.ObjectAdapter adapter)
+    IncomingConnectionFactory(Instance instance, EndpointI endpoint, Ice.ObjectAdapter adapter)
     {
         super(instance);
         _endpoint = endpoint;
@@ -372,7 +372,7 @@ public final class IncomingConnectionFactory extends EventHandler
 	    _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
 	}
 
-	EndpointHolder h = new EndpointHolder();
+	EndpointIHolder h = new EndpointIHolder();
 	h.value = _endpoint;
 	_transceiver = _endpoint.serverTransceiver(h);
 
@@ -762,7 +762,7 @@ public final class IncomingConnectionFactory extends EventHandler
 
     private Acceptor _acceptor;
     private final Transceiver _transceiver;
-    private Endpoint _endpoint;
+    private EndpointI _endpoint;
 
     private final Ice.ObjectAdapter _adapter;
 

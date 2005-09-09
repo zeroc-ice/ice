@@ -17,7 +17,7 @@ public final class ReferenceFactory
            String facet,
            int mode,
            boolean secure,
-           Endpoint[] endpoints,
+           EndpointI[] endpoints,
            RouterInfo routerInfo,
 	   boolean collocationOptimization)
     {
@@ -409,7 +409,7 @@ public final class ReferenceFactory
 		}
 		
 		String es = s.substring(beg, end);
-		Endpoint endp = _instance.endpointFactoryManager().create(es);
+		EndpointI endp = _instance.endpointFactoryManager().create(es);
 		if(endp != null)
 		{
 		    endpoints.add(endp);
@@ -437,7 +437,7 @@ public final class ReferenceFactory
 		_instance.logger().warning(msg);
 	    }
 
-	    Endpoint[] endp = new Endpoint[endpoints.size()];
+	    EndpointI[] endp = new EndpointI[endpoints.size()];
 	    endpoints.toArray(endp);
 	    return create(ident, new java.util.HashMap(), facet, mode, secure, endp, routerInfo, true);
 	}
@@ -526,7 +526,7 @@ public final class ReferenceFactory
 
         boolean secure = s.readBool();
 
-        Endpoint[] endpoints;
+        EndpointI[] endpoints;
 	String adapterId = "";
 
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
@@ -535,7 +535,7 @@ public final class ReferenceFactory
         int sz = s.readSize();
 	if(sz > 0)
 	{
-	    endpoints = new Endpoint[sz];
+	    endpoints = new EndpointI[sz];
 	    for(int i = 0; i < sz; i++)
 	    {
 		endpoints[i] = _instance.endpointFactoryManager().read(s);
@@ -544,7 +544,7 @@ public final class ReferenceFactory
 	}
 	else
 	{
-	    endpoints = new Endpoint[0];
+	    endpoints = new EndpointI[0];
 	    adapterId = s.readString();
 	    return create(ident, new java.util.HashMap(), facet, mode, secure,
 	                  adapterId, routerInfo, locatorInfo, true);

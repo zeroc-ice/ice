@@ -22,22 +22,22 @@ final class LocatorTable
 	_objectTable.clear();
     }
 
-    synchronized IceInternal.Endpoint[]
+    synchronized IceInternal.EndpointI[]
     getAdapterEndpoints(String adapter)
     {
-	return (IceInternal.Endpoint[])_adapterEndpointsTable.get(adapter);
+	return (IceInternal.EndpointI[])_adapterEndpointsTable.get(adapter);
     }
 
     synchronized void
-    addAdapterEndpoints(String adapter, IceInternal.Endpoint[] endpoints)
+    addAdapterEndpoints(String adapter, IceInternal.EndpointI[] endpoints)
     {
 	_adapterEndpointsTable.put(adapter, endpoints);
     }
 
-    synchronized IceInternal.Endpoint[]
+    synchronized IceInternal.EndpointI[]
     removeAdapterEndpoints(String adapter)
     {
-	return (IceInternal.Endpoint[])_adapterEndpointsTable.remove(adapter);
+	return (IceInternal.EndpointI[])_adapterEndpointsTable.remove(adapter);
     }
 
     synchronized Ice.ObjectPrx

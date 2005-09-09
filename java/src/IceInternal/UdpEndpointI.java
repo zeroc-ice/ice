@@ -9,12 +9,12 @@
 
 package IceInternal;
 
-final class UdpEndpoint implements Endpoint
+final class UdpEndpointI extends EndpointI
 {
     final static short TYPE = 3;
 
     public
-    UdpEndpoint(Instance instance, String ho, int po, boolean co)
+    UdpEndpointI(Instance instance, String ho, int po, boolean co)
     {
         _instance = instance;
         _host = ho;
@@ -29,7 +29,7 @@ final class UdpEndpoint implements Endpoint
     }
 
     public
-    UdpEndpoint(Instance instance, String str)
+    UdpEndpointI(Instance instance, String str)
     {
         _instance = instance;
         _host = null;
@@ -260,7 +260,7 @@ final class UdpEndpoint implements Endpoint
     }
 
     public
-    UdpEndpoint(BasicStream s)
+    UdpEndpointI(BasicStream s)
     {
         _instance = s.instance();
         s.startReadEncaps();
@@ -320,7 +320,7 @@ final class UdpEndpoint implements Endpoint
     // Convert the endpoint to its string form
     //
     public String
-    toString()
+    _toString()
     {
         String s = "udp";
 
@@ -385,7 +385,7 @@ final class UdpEndpoint implements Endpoint
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    public Endpoint
+    public EndpointI
     compress(boolean compress)
     {
         if(compress == _compress)
@@ -394,7 +394,7 @@ final class UdpEndpoint implements Endpoint
         }
         else
         {
-            return new UdpEndpoint(_instance, _host, _port, compress);
+            return new UdpEndpointI(_instance, _host, _port, compress);
         }
     }
 
@@ -403,7 +403,7 @@ final class UdpEndpoint implements Endpoint
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    public Endpoint
+    public EndpointI
     timeout(int timeout)
     {
         return this;
@@ -454,10 +454,10 @@ final class UdpEndpoint implements Endpoint
     // for example, if a dynamic port number is assigned.
     //
     public Transceiver
-    serverTransceiver(EndpointHolder endpoint)
+    serverTransceiver(EndpointIHolder endpoint)
     {
         UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _connect);
-        endpoint.value = new UdpEndpoint(_instance, _host, p.effectivePort(), _compress);
+        endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _compress);
         return p;
     }
 
@@ -479,7 +479,7 @@ final class UdpEndpoint implements Endpoint
     // assigned.
     //
     public Acceptor
-    acceptor(EndpointHolder endpoint)
+    acceptor(EndpointIHolder endpoint)
     {
         endpoint.value = this;
         return null;
@@ -528,11 +528,11 @@ final class UdpEndpoint implements Endpoint
     public int
     compareTo(java.lang.Object obj) // From java.lang.Comparable
     {
-        UdpEndpoint p = null;
+        UdpEndpointI p = null;
 
         try
         {
-            p = (UdpEndpoint)obj;
+            p = (UdpEndpointI)obj;
         }
         catch(ClassCastException ex)
         {

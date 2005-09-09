@@ -19,7 +19,7 @@ final class TcpEndpointFactory implements EndpointFactory
     public short
     type()
     {
-        return TcpEndpoint.TYPE;
+        return TcpEndpointI.TYPE;
     }
 
     public String
@@ -28,16 +28,16 @@ final class TcpEndpointFactory implements EndpointFactory
         return "tcp";
     }
 
-    public Endpoint
+    public EndpointI
     create(String str)
     {
-        return new TcpEndpoint(_instance, str);
+        return new TcpEndpointI(_instance, str);
     }
 
-    public Endpoint
+    public EndpointI
     read(BasicStream s)
     {
-        return new TcpEndpoint(s);
+        return new TcpEndpointI(s);
     }
 
     public void

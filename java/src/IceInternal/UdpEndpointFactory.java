@@ -19,7 +19,7 @@ final class UdpEndpointFactory implements EndpointFactory
     public short
     type()
     {
-        return UdpEndpoint.TYPE;
+        return UdpEndpointI.TYPE;
     }
 
     public String
@@ -28,16 +28,16 @@ final class UdpEndpointFactory implements EndpointFactory
         return "udp";
     }
 
-    public Endpoint
+    public EndpointI
     create(String str)
     {
-        return new UdpEndpoint(_instance, str);
+        return new UdpEndpointI(_instance, str);
     }
 
-    public Endpoint
+    public EndpointI
     read(BasicStream s)
     {
-        return new UdpEndpoint(s);
+        return new UdpEndpointI(s);
     }
 
     public void

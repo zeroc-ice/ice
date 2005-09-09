@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public final class EndpointHolder
+public final class EndpointIHolder
 {
-    public Endpoint value;
+    public EndpointI value;
 }

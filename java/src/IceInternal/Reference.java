@@ -63,7 +63,8 @@ public abstract class Reference implements Cloneable
     }
 
     public abstract boolean getSecure();
-    public abstract Endpoint[] getEndpoints();
+    public abstract String getAdapterId();
+    public abstract EndpointI[] getEndpoints();
     public abstract boolean getCollocationOptimization();
 
     //
@@ -152,6 +153,8 @@ public abstract class Reference implements Cloneable
     public abstract Reference changeCompress(boolean newCompress);
     public abstract Reference changeTimeout(int newTimeout);
     public abstract Reference changeCollocationOptimization(boolean newCollocationOptimization);
+    public abstract Reference changeAdapterId(String newAdapterId);
+    public abstract Reference changeEndpoints(EndpointI[] newEndpoints);
 
     public final synchronized int
     hashCode()
@@ -400,8 +403,8 @@ public abstract class Reference implements Cloneable
     //
     // Filter endpoints based on criteria from this reference.
     //
-    protected Endpoint[]
-    filterEndpoints(Endpoint[] allEndpoints)
+    protected EndpointI[]
+    filterEndpoints(EndpointI[] allEndpoints)
     {
         java.util.ArrayList endpoints = new java.util.ArrayList();
 
@@ -428,7 +431,7 @@ public abstract class Reference implements Cloneable
                 java.util.Iterator i = endpoints.iterator();
                 while(i.hasNext())
                 {
-                    Endpoint endpoint = (Endpoint)i.next();
+                    EndpointI endpoint = (EndpointI)i.next();
                     if(endpoint.datagram())
                     {
                         i.remove();
@@ -446,7 +449,7 @@ public abstract class Reference implements Cloneable
                 java.util.Iterator i = endpoints.iterator();
                 while(i.hasNext())
                 {
-                    Endpoint endpoint = (Endpoint)i.next();
+                    EndpointI endpoint = (EndpointI)i.next();
                     if(!endpoint.datagram())
                     {
                         i.remove();
@@ -472,7 +475,7 @@ public abstract class Reference implements Cloneable
             java.util.Iterator i = endpoints.iterator();
             while(i.hasNext())
             {
-                Endpoint endpoint = (Endpoint)i.next();
+                EndpointI endpoint = (EndpointI)i.next();
                 if(!endpoint.secure())
                 {
                     i.remove();
@@ -484,7 +487,7 @@ public abstract class Reference implements Cloneable
             java.util.Collections.sort(endpoints, _endpointComparator);
         }
 
-        Endpoint[] arr = new Endpoint[endpoints.size()];
+        EndpointI[] arr = new EndpointI[endpoints.size()];
         endpoints.toArray(arr);
         return arr;
     }
@@ -494,8 +497,8 @@ public abstract class Reference implements Cloneable
 	public int
 	compare(java.lang.Object l, java.lang.Object r)
 	{
-	    IceInternal.Endpoint le = (IceInternal.Endpoint)l;
-	    IceInternal.Endpoint re = (IceInternal.Endpoint)r;
+	    IceInternal.EndpointI le = (IceInternal.EndpointI)l;
+	    IceInternal.EndpointI re = (IceInternal.EndpointI)r;
 	    boolean ls = le.secure();
 	    boolean rs = re.secure();
 	    if((ls && rs) || (!ls && !rs))
@@ -516,7 +519,7 @@ public abstract class Reference implements Cloneable
     private static EndpointComparator _endpointComparator = new EndpointComparator();
 
     protected boolean
-    compare(Endpoint[] arr1, Endpoint[] arr2)
+    compare(EndpointI[] arr1, EndpointI[] arr2)
     {
         if(arr1 == arr2)
         {

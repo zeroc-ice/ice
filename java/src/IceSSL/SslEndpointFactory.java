@@ -19,7 +19,7 @@ final class SslEndpointFactory implements IceInternal.EndpointFactory
     public short
     type()
     {
-	return SslEndpoint.TYPE;
+	return SslEndpointI.TYPE;
     }
 
     public String
@@ -28,16 +28,16 @@ final class SslEndpointFactory implements IceInternal.EndpointFactory
 	return "ssl";
     }
 
-    public IceInternal.Endpoint
+    public IceInternal.EndpointI
     create(String str)
     {
-	return new SslEndpoint(_instance, str);
+	return new SslEndpointI(_instance, str);
     }
 
-    public IceInternal.Endpoint
+    public IceInternal.EndpointI
     read(IceInternal.BasicStream s)
     {
-	return new SslEndpoint(_instance, s);
+	return new SslEndpointI(_instance, s);
     }
 
     public void

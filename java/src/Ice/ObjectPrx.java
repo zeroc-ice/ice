@@ -48,6 +48,12 @@ public interface ObjectPrx
     String ice_getFacet();
     ObjectPrx ice_newFacet(String newFacet);
 
+    String ice_getAdapterId();
+    ObjectPrx ice_newAdapterId(String newAdapterId);
+
+    Endpoint[] ice_getEndpoints();
+    ObjectPrx ice_newEndpoints(Endpoint[] newEndpoints);
+
     ObjectPrx ice_twoway();
     boolean ice_isTwoway();
     ObjectPrx ice_oneway();

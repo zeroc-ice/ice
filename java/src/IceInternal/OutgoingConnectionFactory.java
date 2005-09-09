@@ -91,10 +91,10 @@ public final class OutgoingConnectionFactory
     }
 
     public Ice.ConnectionI
-    create(Endpoint[] endpts, Ice.BooleanHolder compress)
+    create(EndpointI[] endpts, Ice.BooleanHolder compress)
     {
 	assert(endpts.length > 0);
-	Endpoint[] endpoints = new Endpoint[endpts.length];
+	EndpointI[] endpoints = new EndpointI[endpts.length];
 	System.arraycopy(endpts, 0, endpoints, 0, endpts.length);
 
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
@@ -282,7 +282,7 @@ public final class OutgoingConnectionFactory
 
 	for(int i = 0; i < endpoints.length; i++)
 	{
-	    Endpoint endpoint = endpoints[i];
+	    EndpointI endpoint = endpoints[i];
 	    
 	    try
 	    {
@@ -417,10 +417,10 @@ public final class OutgoingConnectionFactory
             Ice.ObjectPrx proxy = routerInfo.getClientProxy();
             Ice.ObjectAdapter adapter = routerInfo.getAdapter();
 	    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-            Endpoint[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints();
+            EndpointI[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints();
             for(int i = 0; i < endpoints.length; i++)
             {
-		Endpoint endpoint = endpoints[i];
+		EndpointI endpoint = endpoints[i];
 
 		//
 		// Modify endpoints with overrides.

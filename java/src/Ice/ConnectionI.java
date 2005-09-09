@@ -962,7 +962,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	}
     }
 
-    public IceInternal.Endpoint
+    public IceInternal.EndpointI
     endpoint()
     {
         // No mutex protection necessary, _endpoint is immutable.
@@ -1248,7 +1248,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     }
 
     public ConnectionI(IceInternal.Instance instance, IceInternal.Transceiver transceiver, 
-		       IceInternal.Endpoint endpoint, ObjectAdapter adapter)
+		       IceInternal.EndpointI endpoint, ObjectAdapter adapter)
     {
         super(instance);
         _transceiver = transceiver;
@@ -2401,7 +2401,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private IceInternal.Transceiver _transceiver;
     private final String _desc;
     private final String _type;
-    private final IceInternal.Endpoint _endpoint;
+    private final IceInternal.EndpointI _endpoint;
 
     private ObjectAdapter _adapter;
     private IceInternal.ServantManager _servantManager;

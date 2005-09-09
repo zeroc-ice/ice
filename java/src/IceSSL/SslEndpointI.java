@@ -9,12 +9,12 @@
 
 package IceSSL;
 
-final class SslEndpoint implements IceInternal.Endpoint
+final class SslEndpointI extends IceInternal.EndpointI
 {
     final static short TYPE = 2;
 
     public
-    SslEndpoint(Instance instance, String ho, int po, int ti, boolean co)
+    SslEndpointI(Instance instance, String ho, int po, int ti, boolean co)
     {
 	_instance = instance;
 	_host = ho;
@@ -25,7 +25,7 @@ final class SslEndpoint implements IceInternal.Endpoint
     }
 
     public
-    SslEndpoint(Instance instance, String str)
+    SslEndpointI(Instance instance, String str)
     {
 	_instance = instance;
 	_host = null;
@@ -150,7 +150,7 @@ final class SslEndpoint implements IceInternal.Endpoint
     }
 
     public
-    SslEndpoint(Instance instance, IceInternal.BasicStream s)
+    SslEndpointI(Instance instance, IceInternal.BasicStream s)
     {
 	_instance = instance;
 	s.startReadEncaps();
@@ -181,7 +181,7 @@ final class SslEndpoint implements IceInternal.Endpoint
     // Convert the endpoint to its string form
     //
     public String
-    toString()
+    _toString()
     {
 	String s = "ssl -h " + _host + " -p " + _port;
 	if(_timeout != -1)
@@ -219,7 +219,7 @@ final class SslEndpoint implements IceInternal.Endpoint
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    public IceInternal.Endpoint
+    public IceInternal.EndpointI
     timeout(int timeout)
     {
 	if(timeout == _timeout)
@@ -228,7 +228,7 @@ final class SslEndpoint implements IceInternal.Endpoint
 	}
 	else
 	{
-	    return new SslEndpoint(_instance, _host, _port, timeout, _compress);
+	    return new SslEndpointI(_instance, _host, _port, timeout, _compress);
 	}
     }
 
@@ -247,7 +247,7 @@ final class SslEndpoint implements IceInternal.Endpoint
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    public IceInternal.Endpoint
+    public IceInternal.EndpointI
     compress(boolean compress)
     {
 	if(compress == _compress)
@@ -256,7 +256,7 @@ final class SslEndpoint implements IceInternal.Endpoint
 	}
 	else
 	{
-	    return new SslEndpoint(_instance, _host, _port, _timeout, compress);
+	    return new SslEndpointI(_instance, _host, _port, _timeout, compress);
 	}
     }
 
@@ -305,7 +305,7 @@ final class SslEndpoint implements IceInternal.Endpoint
     // for example, if a dynamic port number is assigned.
     //
     public IceInternal.Transceiver
-    serverTransceiver(IceInternal.EndpointHolder endpoint)
+    serverTransceiver(IceInternal.EndpointIHolder endpoint)
     {
 	endpoint.value = this;
 	return null;
@@ -329,10 +329,10 @@ final class SslEndpoint implements IceInternal.Endpoint
     // assigned.
     //
     public IceInternal.Acceptor
-    acceptor(IceInternal.EndpointHolder endpoint)
+    acceptor(IceInternal.EndpointIHolder endpoint)
     {
 	SslAcceptor p = new SslAcceptor(_instance, _host, _port);
-	endpoint.value = new SslEndpoint(_instance, _host, p.effectivePort(), _timeout, _compress);
+	endpoint.value = new SslEndpointI(_instance, _host, p.effectivePort(), _timeout, _compress);
 	return p;
     }
 
@@ -379,11 +379,11 @@ final class SslEndpoint implements IceInternal.Endpoint
     public int
     compareTo(java.lang.Object obj) // From java.lang.Comparable
     {
-	SslEndpoint p = null;
+	SslEndpointI p = null;
 
 	try
 	{
-	    p = (SslEndpoint)obj;
+	    p = (SslEndpointI)obj;
 	}
 	catch(ClassCastException ex)
 	{

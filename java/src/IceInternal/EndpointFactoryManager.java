@@ -44,7 +44,7 @@ public final class EndpointFactoryManager
         return null;
     }
 
-    public synchronized Endpoint
+    public synchronized EndpointI
     create(String str)
     {
         String s = str.trim();
@@ -79,10 +79,10 @@ public final class EndpointFactoryManager
 	return null;
     }
 
-    public synchronized Endpoint
+    public synchronized EndpointI
     read(BasicStream s)
     {
-        Endpoint v;
+        EndpointI v;
         short type = s.readShort();
 
         for(int i = 0; i < _factories.size(); i++)
@@ -94,7 +94,7 @@ public final class EndpointFactoryManager
             }
         }
 
-        return new UnknownEndpoint(type, s);
+        return new UnknownEndpointI(type, s);
     }
 
     void

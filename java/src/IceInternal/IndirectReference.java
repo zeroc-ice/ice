@@ -29,22 +29,22 @@ public class IndirectReference extends RoutableReference
 	_locatorInfo = locInfo;
     }
 
-    public final String
-    getAdapterId()
-    {
-        return _adapterId;
-    }
-
     public final LocatorInfo
     getLocatorInfo()
     {
         return _locatorInfo;
     }
 
-    public Endpoint[]
+    public final String
+    getAdapterId()
+    {
+        return _adapterId;
+    }
+
+    public EndpointI[]
     getEndpoints()
     {
-        return new Endpoint[0];
+        return new EndpointI[0];
     }
 
     public Reference
@@ -57,7 +57,7 @@ public class IndirectReference extends RoutableReference
 	if(loc == null)
 	{
 	    return getInstance().referenceFactory().create(getIdentity(), null, "", ModeTwoway, false,
-							   new Endpoint[0], getRouterInfo(), false);
+							   new EndpointI[0], getRouterInfo(), false);
 	}
 	else
 	{
@@ -76,7 +76,7 @@ public class IndirectReference extends RoutableReference
 	if(newLocator == null)
 	{
 	    return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
-							   getSecure(), new Endpoint[0], getRouterInfo(),
+							   getSecure(), new EndpointI[0], getRouterInfo(),
 							   getCollocationOptimization());
 	}
 	else
@@ -117,6 +117,30 @@ public class IndirectReference extends RoutableReference
 	    r._locatorInfo = getInstance().locatorManager().get(newLocator);
 	}
 	return r;
+    }
+
+    public Reference
+    changeAdapterId(String newAdapterId)
+    {
+	if(_adapterId.equals(newAdapterId))
+	{
+	    return this;
+	}
+        IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+	r._adapterId = newAdapterId;
+	return r;	
+    }
+
+    public Reference
+    changeEndpoints(EndpointI[] newEndpoints)
+    {
+	if(newEndpoints == null || newEndpoints.length == 0)
+	{
+	    return this;
+	}
+	return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
+						       getSecure(), newEndpoints, getRouterInfo(),
+						       getCollocationOptimization());	
     }
 
     public void
@@ -169,13 +193,13 @@ public class IndirectReference extends RoutableReference
 
 	while(true)
 	{
-	    Endpoint[] endpts = super.getRoutedEndpoints();
+	    EndpointI[] endpts = super.getRoutedEndpoints();
 	    Ice.BooleanHolder cached = new Ice.BooleanHolder(false);
 	    if(endpts.length == 0 && _locatorInfo != null)
 	    {
 	        endpts = _locatorInfo.getEndpoints(this, cached);
 	    }
-	    Endpoint[] filteredEndpoints = filterEndpoints(endpts);
+	    EndpointI[] filteredEndpoints = filterEndpoints(endpts);
 	    if(filteredEndpoints.length == 0)
 	    {
 	        Ice.NoEndpointException ex = new Ice.NoEndpointException();

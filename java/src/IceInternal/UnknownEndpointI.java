@@ -9,10 +9,10 @@
 
 package IceInternal;
 
-final class UnknownEndpoint implements Endpoint
+final class UnknownEndpointI extends EndpointI
 {
     public
-    UnknownEndpoint(short type, BasicStream s)
+    UnknownEndpointI(short type, BasicStream s)
     {
         _instance = s.instance();
         _type = type;
@@ -39,7 +39,7 @@ final class UnknownEndpoint implements Endpoint
     // Convert the endpoint to its string form
     //
     public String
-    toString()
+    _toString()
     {
         return "";
     }
@@ -68,7 +68,7 @@ final class UnknownEndpoint implements Endpoint
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    public Endpoint
+    public EndpointI
     timeout(int t)
     {
         return this;
@@ -89,7 +89,7 @@ final class UnknownEndpoint implements Endpoint
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    public Endpoint
+    public EndpointI
     compress(boolean compress)
     {
 	return this;
@@ -140,7 +140,7 @@ final class UnknownEndpoint implements Endpoint
     // for example, if a dynamic port number is assigned.
     //
     public Transceiver
-    serverTransceiver(EndpointHolder endpoint)
+    serverTransceiver(EndpointIHolder endpoint)
     {
         endpoint.value = null;
         return null;
@@ -164,7 +164,7 @@ final class UnknownEndpoint implements Endpoint
     // assigned.
     //
     public Acceptor
-    acceptor(EndpointHolder endpoint)
+    acceptor(EndpointIHolder endpoint)
     {
         endpoint.value = null;
         return null;
@@ -204,11 +204,11 @@ final class UnknownEndpoint implements Endpoint
     public int
     compareTo(java.lang.Object obj) // From java.lang.Comparable
     {
-        UnknownEndpoint p = null;
+        UnknownEndpointI p = null;
 
         try
         {
-            p = (UnknownEndpoint)obj;
+            p = (UnknownEndpointI)obj;
         }
         catch(ClassCastException ex)
         {

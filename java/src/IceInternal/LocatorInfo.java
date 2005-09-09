@@ -75,10 +75,10 @@ public final class LocatorInfo
 	return _locatorRegistry;
     }
 
-    public Endpoint[]
+    public EndpointI[]
     getEndpoints(IndirectReference ref, Ice.BooleanHolder cached)
     {
-	Endpoint[] endpoints = null;
+	EndpointI[] endpoints = null;
 	Ice.ObjectPrx object = null;
 	cached.value = true;
 	String adapterId = ref.getAdapterId();
@@ -200,7 +200,7 @@ public final class LocatorInfo
 	    }
 	}
 
-	return endpoints == null ? new Endpoint[0] : endpoints;
+	return endpoints == null ? new EndpointI[0] : endpoints;
     }
 
     public void
@@ -236,7 +236,7 @@ public final class LocatorInfo
     {
 	if(ref.getAdapterId().length() > 0)
 	{
-	    Endpoint[] endpoints = _table.removeAdapterEndpoints(ref.getAdapterId());
+	    EndpointI[] endpoints = _table.removeAdapterEndpoints(ref.getAdapterId());
 
 	    if(endpoints != null && ref.getInstance().traceLevels().location >= 2)
 	    {
@@ -269,7 +269,7 @@ public final class LocatorInfo
     }
 
     private void
-    trace(String msg, IndirectReference ref, Endpoint[] endpoints)
+    trace(String msg, IndirectReference ref, EndpointI[] endpoints)
     {
 	StringBuffer s = new StringBuffer();
 	s.append(msg + "\n");

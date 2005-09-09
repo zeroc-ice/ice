@@ -274,6 +274,48 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    public final String
+    ice_getAdapterId()
+    {
+        return _reference.getAdapterId();
+    }
+
+    public final ObjectPrx
+    ice_newAdapterId(String newAdapterId)
+    {
+        if(newAdapterId.equals(_reference.getAdapterId()))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(_reference.changeAdapterId(newAdapterId));
+            return proxy;
+        }
+    }
+
+    public final Endpoint[]
+    ice_getEndpoints()
+    {
+        return _reference.getEndpoints();
+    }
+
+    public final ObjectPrx
+    ice_newEndpoints(Endpoint[] newEndpoints)
+    {
+        if(java.util.Arrays.equals(newEndpoints, _reference.getEndpoints()))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(_reference.changeEndpoints((IceInternal.EndpointI[])newEndpoints));
+            return proxy;
+        }
+    }
+
     public final ObjectPrx
     ice_twoway()
     {

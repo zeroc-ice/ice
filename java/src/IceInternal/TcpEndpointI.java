@@ -9,12 +9,12 @@
 
 package IceInternal;
 
-final class TcpEndpoint implements Endpoint
+final class TcpEndpointI extends EndpointI
 {
     final static short TYPE = 1;
 
     public
-    TcpEndpoint(Instance instance, String ho, int po, int ti, boolean co)
+    TcpEndpointI(Instance instance, String ho, int po, int ti, boolean co)
     {
         _instance = instance;
         _host = ho;
@@ -25,7 +25,7 @@ final class TcpEndpoint implements Endpoint
     }
 
     public
-    TcpEndpoint(Instance instance, String str)
+    TcpEndpointI(Instance instance, String str)
     {
         _instance = instance;
         _host = null;
@@ -150,7 +150,7 @@ final class TcpEndpoint implements Endpoint
     }
 
     public
-    TcpEndpoint(BasicStream s)
+    TcpEndpointI(BasicStream s)
     {
         _instance = s.instance();
         s.startReadEncaps();
@@ -181,7 +181,7 @@ final class TcpEndpoint implements Endpoint
     // Convert the endpoint to its string form
     //
     public String
-    toString()
+    _toString()
     {
         String s = "tcp -h " + _host + " -p " + _port;
         if(_timeout != -1)
@@ -219,7 +219,7 @@ final class TcpEndpoint implements Endpoint
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    public Endpoint
+    public EndpointI
     timeout(int timeout)
     {
         if(timeout == _timeout)
@@ -228,7 +228,7 @@ final class TcpEndpoint implements Endpoint
         }
         else
         {
-            return new TcpEndpoint(_instance, _host, _port, timeout, _compress);
+            return new TcpEndpointI(_instance, _host, _port, timeout, _compress);
         }
     }
 
@@ -247,7 +247,7 @@ final class TcpEndpoint implements Endpoint
     // provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
     //
-    public Endpoint
+    public EndpointI
     compress(boolean compress)
     {
         if(compress == _compress)
@@ -256,7 +256,7 @@ final class TcpEndpoint implements Endpoint
         }
         else
         {
-            return new TcpEndpoint(_instance, _host, _port, _timeout, compress);
+            return new TcpEndpointI(_instance, _host, _port, _timeout, compress);
         }
     }
 
@@ -305,7 +305,7 @@ final class TcpEndpoint implements Endpoint
     // for example, if a dynamic port number is assigned.
     //
     public Transceiver
-    serverTransceiver(EndpointHolder endpoint)
+    serverTransceiver(EndpointIHolder endpoint)
     {
         endpoint.value = this;
         return null;
@@ -329,10 +329,10 @@ final class TcpEndpoint implements Endpoint
     // assigned.
     //
     public Acceptor
-    acceptor(EndpointHolder endpoint)
+    acceptor(EndpointIHolder endpoint)
     {
         TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
-        endpoint.value = new TcpEndpoint(_instance, _host, p.effectivePort(), _timeout, _compress);
+        endpoint.value = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, _compress);
         return p;
     }
 
@@ -379,11 +379,11 @@ final class TcpEndpoint implements Endpoint
     public int
     compareTo(java.lang.Object obj) // From java.lang.Comparable
     {
-        TcpEndpoint p = null;
+        TcpEndpointI p = null;
 
         try
         {
-            p = (TcpEndpoint)obj;
+            p = (TcpEndpointI)obj;
         }
         catch(ClassCastException ex)
         {

@@ -44,6 +44,7 @@
                 <include name="BuiltinSequences.ice" />
                 <include name="Communicator.ice" />
                 <include name="Current.ice" />
+                <include name="Endpoint.ice" />
                 <include name="FacetMap.ice" />
                 <include name="Identity.ice" />
                 <include name="LocalException.ice" />

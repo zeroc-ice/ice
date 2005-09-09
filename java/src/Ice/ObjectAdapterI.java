@@ -480,7 +480,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         // Create a reference and return a reverse proxy for this
         // reference.
         //
-        IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
+        IceInternal.EndpointI[] endpoints = new IceInternal.EndpointI[0];
         ConnectionI[] arr = new ConnectionI[connections.size()];
         connections.toArray(arr);
         IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.HashMap(), "",
@@ -501,7 +501,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             // adapter.
             //
             ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
-            IceInternal.Endpoint[] endpoints = proxy.__reference().getEndpoints();
+            IceInternal.EndpointI[] endpoints = proxy.__reference().getEndpoints();
             for(int i = 0; i < endpoints.length; ++i)
             {
                 _routerEndpoints.add(endpoints[i]);
@@ -562,7 +562,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	checkForDeactivation();
 
         IceInternal.Reference ref = ((ObjectPrxHelperBase)proxy).__reference();
-        final IceInternal.Endpoint[] endpoints = ref.getEndpoints();
+        final IceInternal.EndpointI[] endpoints = ref.getEndpoints();
 
 	try
 	{
@@ -714,7 +714,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    java.util.ArrayList endpoints = parseEndpoints(endpointInfo);
 	    for(int i = 0; i < endpoints.size(); ++i)
 	    {
-		IceInternal.Endpoint endp = (IceInternal.Endpoint)endpoints.get(i);
+		IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints.get(i);
                 _incomingConnectionFactories.add(new IceInternal.IncomingConnectionFactory(instance, endp, this));
             }
 
@@ -805,7 +805,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // Create a reference with the adapter id and return a
 	    // proxy for the reference.
 	    //
-	    IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
+	    IceInternal.EndpointI[] endpoints = new IceInternal.EndpointI[0];
             ConnectionI[] connections = new ConnectionI[0];
 	    IceInternal.Reference reference =
 		_instance.referenceFactory().create(ident, new java.util.HashMap(), facet,
@@ -818,7 +818,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private ObjectPrx
     newDirectProxy(Identity ident, String facet)
     {
-        IceInternal.Endpoint[] endpoints;
+        IceInternal.EndpointI[] endpoints;
 
 	// 
 	// Use the published endpoints, otherwise use the endpoints from all
@@ -827,13 +827,13 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	int sz = _publishedEndpoints.size();
 	if(sz > 0)
 	{
-	    endpoints = new IceInternal.Endpoint[sz + _routerEndpoints.size()];
+	    endpoints = new IceInternal.EndpointI[sz + _routerEndpoints.size()];
 	    _publishedEndpoints.toArray(endpoints);
 	}
 	else
 	{
 	    sz = _incomingConnectionFactories.size();
-	    endpoints = new IceInternal.Endpoint[sz + _routerEndpoints.size()];
+	    endpoints = new IceInternal.EndpointI[sz + _routerEndpoints.size()];
 	    for(int i = 0; i < sz; ++i)
 	    {
 		IceInternal.IncomingConnectionFactory factory =
@@ -849,7 +849,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         //
         for(int i = 0; i < _routerEndpoints.size(); ++i)
         {
-	    endpoints[sz + i] = (IceInternal.Endpoint)_routerEndpoints.get(i);
+	    endpoints[sz + i] = (IceInternal.EndpointI)_routerEndpoints.get(i);
         }
 
         //
@@ -928,7 +928,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    }
 
 	    String s = endpts.substring(beg, end);
-	    IceInternal.Endpoint endp = _instance.endpointFactoryManager().create(s);
+	    IceInternal.EndpointI endp = _instance.endpointFactoryManager().create(s);
 	    if(endp == null)
 	    {
 	        Ice.EndpointParseException e = new Ice.EndpointParseException();

@@ -36,10 +36,16 @@ public class FixedReference extends Reference
 	return false;
     }
 
-    public Endpoint[]
+    public String
+    getAdapterId()
+    {
+	return "";
+    }
+
+    public EndpointI[]
     getEndpoints()
     {
-        return new Endpoint[0];
+        return new EndpointI[0];
     }
 
     public boolean
@@ -68,6 +74,18 @@ public class FixedReference extends Reference
 
     public Reference
     changeCollocationOptimization(boolean newCollocationOptimization)
+    {
+        return this;
+    }
+
+    public Reference
+    changeAdapterId(String newAdapterId)
+    {
+        return this;
+    }
+
+    public Reference
+    changeEndpoints(EndpointI[] newEndpoints)
     {
         return this;
     }

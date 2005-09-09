@@ -17,7 +17,7 @@ public abstract class RoutableReference extends Reference
         return _routerInfo;
     }
 
-    public final Endpoint[]
+    public final EndpointI[]
     getRoutedEndpoints()
     {
         if(_routerInfo != null)
@@ -29,7 +29,7 @@ public abstract class RoutableReference extends Reference
 	    Ice.ObjectPrx clientProxy = _routerInfo.getClientProxy();
 	    return ((Ice.ObjectPrxHelperBase)clientProxy).__reference().getEndpoints();
 	}
-	return new Endpoint[0];
+	return new EndpointI[0];
     }
 
     public final boolean
