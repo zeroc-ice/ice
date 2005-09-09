@@ -390,7 +390,7 @@ SOURCE=.\dummy2.ice
 InputPath=.\dummy2.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice --dict "IceGrid::StringObjectProxiesDict,string,IceGrid::StringObjectProxyDict" StringObjectProxiesDict ../IceGrid/Internal.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice -I.. --dict "IceGrid::StringObjectProxiesDict,string,IceGrid::StringObjectProxyDict" StringObjectProxiesDict ../IceGrid/Internal.ice
 
 "StringObjectProxiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
