@@ -1861,6 +1861,7 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
 	}
 	else
 	{
+	    q->second.update(*p, resolve);
 	    _nodes.insert(make_pair(p->name, q->second));
 	    nodes.erase(q);
 	}
