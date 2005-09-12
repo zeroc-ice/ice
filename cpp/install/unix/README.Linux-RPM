@@ -39,10 +39,28 @@ These RPMs are available for download at the ZeroC web site at
 
 http://www.zeroc.com/download.html
 
-Note that the Ice extension for PHP is not included in the Ice RPM
-distribution due to the lack of a standard RPM package for PHP5.
+
+======================================================================
+PHP Notes
+======================================================================
+
+The Ice extension for PHP is not included in the Ice RPM distribution
+because there is no standard RPM package for PHP5 in Fedora Core 3.
+
 A precompiled shared library for the Ice extension is included in
-the .tar.gz distribution for Linux.
+the .tar.gz distribution for Linux. If you prefer to compile the Ice
+extension for PHP from source, you will need to install the Ice core
+and Ice for C++ development packages:
+
+ice-@ver@-1.i386.rpm
+ice-c++-devel-@ver@-1.i386.rpm
+
+Once you have built the Ice extension for PHP, you can remove the
+C++ development RPM if you are not planning to develop applications
+using Ice for C++.
+
+Also note that if you are building PHP as an Apache module, you must
+install the Apache development RPM (httpd-devel-xxx.i386.rpm).
 
 
 ======================================================================
