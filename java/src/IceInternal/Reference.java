@@ -518,30 +518,6 @@ public abstract class Reference implements Cloneable
     
     private static EndpointComparator _endpointComparator = new EndpointComparator();
 
-    protected boolean
-    compare(EndpointI[] arr1, EndpointI[] arr2)
-    {
-        if(arr1 == arr2)
-        {
-            return true;
-        }
-
-        if(arr1.length == arr2.length)
-        {
-            for(int i = 0; i < arr1.length; i++)
-            {
-                if(!arr1[i].equals(arr2[i]))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
     //
     // Filter connections based on criteria from this reference.
     //

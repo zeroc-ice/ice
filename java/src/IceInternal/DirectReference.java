@@ -117,7 +117,7 @@ public class DirectReference extends RoutableReference
     public Reference
     changeEndpoints(EndpointI[] newEndpoints)
     {
-	if(compare(newEndpoints, _endpoints))
+	if(java.util.Arrays.equals(newEndpoints, _endpoints))
 	{
 	    return this;
 	}
@@ -213,7 +213,7 @@ public class DirectReference extends RoutableReference
         {
             return false;
         }
-	return compare(_endpoints, rhs._endpoints);
+	return java.util.Arrays.equals(_endpoints, rhs._endpoints);
     }
 
     private EndpointI[] _endpoints;
