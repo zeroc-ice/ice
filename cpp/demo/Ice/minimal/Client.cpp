@@ -18,7 +18,7 @@ menu()
 {
     cout <<
 	"usage:\n"
-	"h: send greeting as twoway\n"
+	"h: send greeting\n"
 	"x: exit\n"
 	"?: help\n";
 }
