@@ -11,7 +11,8 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= hello \
+SUBDIRS		= minimal \
+		  hello \
 		  latency \
 		  throughput \
 		  value \

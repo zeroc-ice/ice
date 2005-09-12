@@ -1,5 +1,9 @@
 Demos in this directory:
 
+- hello
+
+  This demo illustrates a minimal Ice application.
+
 - MFC
 
   Shows how to use Ice in conjunction with the Microsoft Foundation
