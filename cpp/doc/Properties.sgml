@@ -884,12 +884,13 @@ The setting of this property is ignored in the server role.
 </para>
 <para>
 Note that, if a client sets <literal>Ice.Override.Compress=1</literal>
-and the server does not support compression (as for Java), requests will fail due to
-marshaling errors.
+and sends a compressed request to a server that does not support compression,
+the server will close the connection and the client will receive
+ConnectionLostException.
 </para>
 <para>
-If a Java client sets <literal>Ice.Override.Compress=1</literal>, the setting
-is ignored with a warning message on <literal>stderr</literal>.
+If a client does not support compression and <literal>Ice.Override.Compress=1</literal>,
+the setting is ignored and a warning message is printed on <literal>stderr</literal>.
 </para>
 <para>Regardless of the setting of this property, requests smaller than 100
 bytes are never compressed.
@@ -1348,6 +1349,24 @@ dynamically load a generated class have failed. If global metadata is used to
 enclose generated Java classes in a user-defined package, the Ice run time must
 be configured in order to successfully unmarshal exceptions and concrete class
 types. Also see Ice.Package.<replaceable>module</replaceable>.
+</para>
+</section>
+</section>
+
+<section><title>Ice.Compression.Level</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Compression.Level=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the bzip2 compression level. Legal values for <replaceable>num</replaceable>
+are 1 to 9, where 1 represents the fastest compression and 9 represents the best
+compression. Note that higher levels cause the bzip2 algorithm to devote more
+resources to the compression effort, and may not result in a significant improvement
+over lower levels. If not specified, the default value is 1.
 </para>
 </section>
 </section>
