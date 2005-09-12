@@ -163,6 +163,7 @@ LocatorI::Request::Request(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB,
     _count(count),
     _lastAdapter(_adapters.begin())
 {
+    assert(_count > 0);
 }
 
 void

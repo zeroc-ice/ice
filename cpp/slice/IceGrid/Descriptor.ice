@@ -407,11 +407,25 @@ struct NodeDescriptor
      *
      **/
     ServerDescriptorSeq servers;
+
+    /**
+     *
+     * Load factor of the node.
+     *
+     **/
+    string loadFactor;
 };
 dictionary<string, NodeDescriptor> NodeDescriptorDict;
 
 class LoadBalancingPolicy
 {
+    /**
+     *
+     * The number of replicas that will be used to gather the
+     * endpoints of a replicated object adapter.
+     *
+     **/
+    string nReplicas;
 };
 
 class RandomLoadBalancingPolicy extends LoadBalancingPolicy

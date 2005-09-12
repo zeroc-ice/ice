@@ -85,6 +85,16 @@ AdapterEntry::enableReplication(const LoadBalancingPolicyPtr& policy)
 	Lock sync(*this);
 	_replicated = true;
 	_loadBalancing = policy;
+	istringstream is(policy->nReplicas);
+	is >> _loadBalancingNReplicas;
+	if(_loadBalancingNReplicas < 1)
+	{
+	    _loadBalancingNReplicas = 1;
+	}
+	else if(_loadBalancingNReplicas > static_cast<int>(_servers.size()))
+	{
+	    _loadBalancingNReplicas = _servers.size();
+	}
     }
 }
 
@@ -134,7 +144,7 @@ AdapterEntry::removeServer(const ServerEntryPtr& entry)
 }
 
 vector<pair<string, AdapterPrx> >
-AdapterEntry::getProxies(int& endpointCount)
+AdapterEntry::getProxies(int& nReplicas)
 {
     vector<ServerEntryPtr> servers;
     bool adaptive = false;
@@ -201,10 +211,7 @@ AdapterEntry::getProxies(int& endpointCount)
 	throw NodeUnreachableException();
     }
 
-    //
-    // TODO: Set to a configurable number of replicas.
-    //
-    endpointCount = 1; //servers.size();
+    nReplicas = _replicated ? _loadBalancingNReplicas : 1;
     return adapters;
 }
 

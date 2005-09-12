@@ -50,6 +50,7 @@ private:
     const std::string _id;
     bool _replicated;
     LoadBalancingPolicyPtr _loadBalancing;
+    int _loadBalancingNReplicas;
     ServerEntrySeq _servers;
     int _lastServer;
 };

@@ -107,6 +107,7 @@ ApplicationDescriptorBuilder::addReplicatedAdapter(const XmlAttributesHelper& at
     {
 	throw "invalid load balancing policy `" + policy + "'";
     }
+    adapter.loadBalancing->nReplicas = attrs("load-balancing-nreplicas", "0");
     _descriptor.replicatedAdapters.push_back(adapter);
 }
 
