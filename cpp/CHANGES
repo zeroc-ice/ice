@@ -1,6 +1,13 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Added proxy methods to retrieve the proxy adapter id and endpoints
+  (ice_getAdapterId() and ice_getEndpoints()) and to create a new
+  proxy with a new adapter id or new endpoints (ice_newAdapterId() and
+  ice_newEndpoints()).
+
+- Added Slice Ice::Endpoint local interface in slice/Ice/Endpoint.ice.
+
 - Fixed a bug that would cause UDP server connections to be closed on
   transient errors, thus preventing the reception of any more UDP messages
   until a server restart.
