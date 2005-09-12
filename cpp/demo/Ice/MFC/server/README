@@ -1,6 +1,6 @@
 The server-side portion of the MFC hello demo. Note that this demo
 will work against either the MFC client, or any of the other hello
-clikents (for example, the one in demo/Ice/hello).
+clients (for example, the one in demo/Ice/hello).
 
 To run the demo, first start the server:
 
