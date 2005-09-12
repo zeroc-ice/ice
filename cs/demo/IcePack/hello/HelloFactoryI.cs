@@ -22,27 +22,54 @@ public class HelloFactoryI : _HelloFactoryDisp
         // Create the servant and add it to the object adapter using the
         // given name as the identity.
         //
-        Ice.Object hello = new HelloI(name);
-        Ice.ObjectPrx @object = adapter.add(hello, Ice.Util.stringToIdentity(name));
+        Ice.ObjectPrx @object;
+	try
+	{
+	    @object = adapter.add(new HelloI(name), Ice.Util.stringToIdentity(name));
+	}
+	catch(Ice.AlreadyRegisteredException)
+	{
+	    //
+	    // The object is already registered.
+	    //
+	    throw new NameExistsException();
+	}
 
         //
         // Get the IcePack Admin interface and register the newly created
         // Hello object with the IcePack object registry.
         // 
-        try
+	IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"));
+	try
         {
-            IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"));
             admin.addObject(@object);
         }
         catch(IcePack.ObjectExistsException)
         {
-            //
-            // An object with the same identity is already registered with
-            // the registry. Remove the object from the object adapter and
-            // throw.
-            //
-            adapter.remove(@object.ice_getIdentity());
-            throw new NameExistsException();
+	    //
+	    // This should only occur if the server has been restarted and
+	    // the server objects haven't been removed from the object
+	    // registry.
+	    //
+	    // In this case remove the current object, and re-add.
+	    // 
+            try
+            {
+		admin.removeObject(@object.ice_getIdentity());
+		admin.addObject(@object);
+            }
+            catch(IcePack.ObjectNotExistException)
+            {
+                Debug.Assert(false);
+            }
+	    catch(IcePack.ObjectExistsException)
+	    {
+		Debug.Assert(false);
+	    }
+	    catch(IcePack.DeploymentException)
+	    {
+		Debug.Assert(false);
+	    }
         }
 	catch(IcePack.DeploymentException)
 	{
