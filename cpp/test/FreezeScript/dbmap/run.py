@@ -120,7 +120,6 @@ print "validating database...",
 sys.stdout.flush()
 
 command = transformdb + " --old " + testnew + " --new " + testnew + " -f " + checkxml + " " + check_dbdir + " default.db " + tmp_dbdir
-print command
 if os.system(command) != 0:
     sys.exit(1)
 
