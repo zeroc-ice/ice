@@ -11,9 +11,10 @@
 #define SERVER_LOCATOR_H
 
 #include <Ice/Locator.h>
+#include <Test.h>
 #include <Ice/ProxyF.h>
 
-class ServerLocatorRegistry : public Ice::LocatorRegistry
+class ServerLocatorRegistry : public Test::TestLocatorRegistry
 {
 public:
 
@@ -24,7 +25,8 @@ public:
 					     const ::Ice::Current&);
     virtual void setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr&,
 					     const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
-
+    void addObject(const ::Ice::ObjectPrx&, const ::Ice::Current&);
+    
     //
     // Internal method
     //

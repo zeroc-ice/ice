@@ -562,7 +562,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	checkForDeactivation();
 
         IceInternal.Reference ref = ((ObjectPrxHelperBase)proxy).__reference();
-        final IceInternal.EndpointI[] endpoints = ref.getEndpoints();
+        IceInternal.EndpointI[] endpoints;
 
 	try
 	{
@@ -575,10 +575,21 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		//
 		return ir.getAdapterId().equals(_id);
 	    }
+	    IceInternal.LocatorInfo info = ir.getLocatorInfo();
+	    if(info != null)
+	    {
+		endpoints = info.getEndpoints(ir, new Ice.BooleanHolder());
+	    }
+	    else
+	    {
+		return false;
+	    }
 	}
 	catch(ClassCastException e)
 	{
+	    endpoints = ref.getEndpoints();
 	}
+
 
         //
         // Proxies which have at least one endpoint in common with the

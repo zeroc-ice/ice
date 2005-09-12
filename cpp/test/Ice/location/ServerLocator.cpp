@@ -34,6 +34,12 @@ ServerLocatorRegistry::setServerProcessProxy_async(const Ice::AMD_LocatorRegistr
     cb->ice_response();
 }
 
+void
+ServerLocatorRegistry::addObject(const Ice::ObjectPrx& object, const ::Ice::Current&)
+{
+    addObject(object);
+}
+
 Ice::ObjectPrx
 ServerLocatorRegistry::getAdapter(const ::std::string& adapter) const
 {

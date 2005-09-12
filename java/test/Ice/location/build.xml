@@ -9,10 +9,17 @@
  **********************************************************************
 -->
 
+<!DOCTYPE project [
+<!ENTITY common SYSTEM "file:../../../config/common.xml">
+]>
+
 <project name="test_Ice_location" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
+
+    &common;
+
     <property name="lib.dir" value="${top.dir}/lib"/>
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
@@ -24,7 +31,7 @@
     <taskdef name="slice2java" classpath="${top.dir}/ant"
         classname="Slice2JavaTask" />
 
-    <target name="init">
+    <target name="init" depends="config-init">
         <!-- Create the time stamp -->
         <tstamp/>
     </target>
@@ -33,6 +40,9 @@
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
         <slice2java outputdir="${generated.dir}">
+	    <includepath>
+                <pathelement path="${slice.dir}"/>
+	    </includepath>
             <fileset dir="." includes="Test.ice"/>
         </slice2java>
     </target>

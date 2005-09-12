@@ -552,11 +552,11 @@ bool
 Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
     checkForDeactivation();
 
     ReferencePtr ref = proxy->__reference();
     vector<EndpointIPtr>::const_iterator p;
+    vector<EndpointIPtr> endpoints;
 
     IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(ref);
     if(ir)
@@ -569,7 +569,24 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 	    //
 	    return ir->getAdapterId() == _id;
 	}
-	return false;
+
+	//
+	// Get Locator endpoint information for indirect references.
+	//
+	LocatorInfoPtr info = ir->getLocatorInfo();
+	if(info)
+	{
+	    bool isCached;
+	    endpoints = info->getEndpoints(ir, isCached);
+	}
+	else
+	{
+	    return false;
+	}
+    }
+    else
+    {
+	endpoints = ref->getEndpoints();
     }
 
     //
@@ -577,7 +594,6 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     // endpoints used by this object adapter's incoming connection
     // factories are considered local.
     //
-    vector<EndpointIPtr> endpoints = ref->getEndpoints();
     for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {
 	vector<IncomingConnectionFactoryPtr>::const_iterator q;

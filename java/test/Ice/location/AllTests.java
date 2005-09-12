@@ -219,6 +219,37 @@ public class AllTests
             System.out.println("ok");
         }
 
+	System.out.print("testing indirect references to collocated objects... ");
+	Ice.Properties properties = communicator.getProperties();
+	properties.setProperty("Ice.PrintAdapterReady", "0");
+	properties.setProperty("Hello.Endpoints",
+			       properties.getPropertyWithDefault("Hello.Endpoints",
+								 "default -p 10001"));
+	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Hello");
+	Ice.LocatorPrx locator =
+	    Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy(
+						   properties.getProperty("Ice.Default.Locator")));
+	adapter.setLocator(locator);
+	TestLocatorRegistryPrx registry = TestLocatorRegistryPrxHelper.checkedCast(locator.getRegistry());
+	test(registry != null);
+
+	Ice.Identity id = new Ice.Identity();
+	id.name = Ice.Util.generateUUID().replace(':', '-');
+	registry.addObject(adapter.add(new HelloI(), id));
+	adapter.activate();
+
+	try
+	{
+	    HelloPrx helloPrx = HelloPrxHelper.checkedCast(communicator.stringToProxy(id.name));
+	    Ice.Connection connection = helloPrx.ice_connection();
+	    test(false);
+	}
+	catch(Ice.CollocationOptimizationException ex)
+	{
+	    System.out.println("ok");
+	}
+	adapter.deactivate();
+
 	System.out.print("shutdown server manager... ");
         System.out.flush();
 	manager.shutdown();

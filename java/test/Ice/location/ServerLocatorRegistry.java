@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public class ServerLocatorRegistry extends Ice._LocatorRegistryDisp
+public class ServerLocatorRegistry extends Test._TestLocatorRegistryDisp
 {
     public void
     setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb, String serverId, String adapter, 
@@ -21,6 +21,12 @@ public class ServerLocatorRegistry extends Ice._LocatorRegistryDisp
     setServerProcessProxy_async(Ice.AMD_LocatorRegistry_setServerProcessProxy cb, String id, Ice.ProcessPrx proxy,
 				Ice.Current current)
     {
+    }
+
+    public void
+    addObject(Ice.ObjectPrx object, Ice.Current current)
+    {
+	_objects.put(object.ice_getIdentity(), object);
     }
 
     public Ice.ObjectPrx
@@ -47,12 +53,6 @@ public class ServerLocatorRegistry extends Ice._LocatorRegistryDisp
 	return obj;
     }
 
-    public void
-    addObject(Ice.ObjectPrx object)
-    {
-	_objects.put(object.ice_getIdentity(), object);
-    }
-    
     private java.util.HashMap _adapters = new java.util.HashMap();
     private java.util.HashMap _objects = new java.util.HashMap();
 }

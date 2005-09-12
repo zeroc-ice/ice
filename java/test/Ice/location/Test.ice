@@ -10,9 +10,19 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+#include <Ice/Locator.ice>
+
 module Test
 {
 
+interface TestLocatorRegistry extends ::Ice::LocatorRegistry
+{
+    //
+    // Allow remote addition of objects to the locator registry.
+    //
+    void addObject(Object* obj);
+};
+    
 interface ServerManager
 {
     void startServer();
