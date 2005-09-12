@@ -2,7 +2,7 @@
 Requirements
 =========================================================================
 
-- PHP 5.0.4 (http://www.php.net/downloads.php)
+- PHP 5.0.5 (http://www.php.net/downloads.php)
 - Ice @ver@
 
 
@@ -27,6 +27,13 @@ configurations. The only supported way to compile the Ice extension is
 as part of the larger PHP build process. Unfortunately, PHP's build
 system does not completely accommodate extensions written in C++,
 therefore some manual intervention is required on certain platforms.
+
+If you are compiling PHP as a Web server module, please be aware that
+you will likely also need to install the Web server's development kit.
+For example, the apxs utility is required to build PHP for Apache, and
+this utility is not typically included in an Apache run time
+installation. You must either build Apache from source, or install an
+additional package that contains Apache's development tools.
 
 
 Adding the Ice extension
