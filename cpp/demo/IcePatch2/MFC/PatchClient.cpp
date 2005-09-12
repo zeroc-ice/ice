@@ -19,6 +19,8 @@ BEGIN_MESSAGE_MAP(CPatchClientApp, CWinApp)
     ON_COMMAND(ID_HELP, CWinApp::OnHelp)
 END_MESSAGE_MAP()
 
+using namespace std;
+
 CPatchClientApp::CPatchClientApp()
 {
     // Place all significant initialization in InitInstance
@@ -48,9 +50,9 @@ CPatchClientApp::InitInstance()
     }
     catch(const IceUtil::Exception& ex)
     {
-        std::ostringstream ostr;
+        ostringstream ostr;
         ostr << ex;
-        std::string s = ostr.str();
+        string s = ostr.str();
         AfxMessageBox(CString(s.c_str()), MB_OK|MB_ICONEXCLAMATION);
         return FALSE;
     }

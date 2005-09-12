@@ -10,7 +10,6 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include <IceUtil/Handle.h>
 #include <Ice/Ice.h>
 #include <PhoneBook.h>
 #include <list>
@@ -57,7 +56,7 @@ class Parser : public ::IceUtil::SimpleShared
 {
 public:
 
-    static ParserPtr createParser(const Ice::CommunicatorPtr&, const Demo::PhoneBookPrx&);
+    static ParserPtr createParser(const Demo::PhoneBookPrx&);
 
     void usage();
 
@@ -88,13 +87,13 @@ public:
 
 private:
 
-    Parser(const Ice::CommunicatorPtr&, const Demo::PhoneBookPrx&);
+    Parser(const Demo::PhoneBookPrx&);
 
     Demo::Contacts _foundContacts;
     Demo::Contacts::iterator _current;
 
     std::string _commands;
-    Demo::PhoneBookPrx _phoneBook;
+    const Demo::PhoneBookPrx _phoneBook;
     bool _continue;
     int _errors;
     int _currentLine;

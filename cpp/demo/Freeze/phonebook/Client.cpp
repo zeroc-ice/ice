@@ -7,13 +7,11 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
 #include <Parser.h>
 
 using namespace std;
-using namespace Ice;
 
-class PhoneBookClient : public Application
+class PhoneBookClient : public Ice::Application
 {
     virtual int run(int argc, char* argv[]);
 };
@@ -28,6 +26,6 @@ main(int argc, char* argv[])
 int
 PhoneBookClient::run(int argc, char* argv[])
 {
-    int runParser(int, char*[], const CommunicatorPtr&);
+    int runParser(int, char*[], const Ice::CommunicatorPtr&);
     return runParser(argc, argv, communicator());
 }

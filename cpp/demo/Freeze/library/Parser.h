@@ -10,7 +10,6 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include <IceUtil/Handle.h>
 #include <Ice/Ice.h>
 #include <Library.h>
 #include <list>
@@ -51,13 +50,13 @@ int yyparse();
 #define yyoverflow(a, b, c, d, e, f) yyerror(a)
 
 class Parser;
-typedef ::IceUtil::Handle<Parser> ParserPtr;
+typedef IceUtil::Handle<Parser> ParserPtr;
 
-class Parser : public ::IceUtil::SimpleShared
+class Parser : public IceUtil::SimpleShared
 {
 public:
 
-    static ParserPtr createParser(const Ice::CommunicatorPtr&, const Demo::LibraryPrx&);
+    static ParserPtr createParser(const Demo::LibraryPrx&);
 
     void usage();
 
@@ -88,13 +87,13 @@ public:
 
 private:
 
-    Parser(const Ice::CommunicatorPtr&, const Demo::LibraryPrx&);
+    Parser(const Demo::LibraryPrx&);
 
     Demo::BookPrxSeq _foundBooks;
     Demo::BookPrxSeq::iterator _current;
 
     std::string _commands;
-    Demo::LibraryPrx _library;
+    const Demo::LibraryPrx _library;
     bool _continue;
     int _errors;
     int _currentLine;

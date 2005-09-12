@@ -19,8 +19,8 @@ extern "C"
 //
 // Factory function
 //
-HELLO_API ::IceBox::Service*
-create(::Ice::CommunicatorPtr communicator)
+HELLO_API IceBox::Service*
+create(Ice::CommunicatorPtr communicator)
 {
     return new HelloServiceI;
 }
@@ -36,13 +36,10 @@ HelloServiceI::~HelloServiceI()
 }
 
 void
-HelloServiceI::start(const string& name,
-		     const ::Ice::CommunicatorPtr& communicator,
-		     const ::Ice::StringSeq& args)
+HelloServiceI::start(const string& name, const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args)
 {
     _adapter = communicator->createObjectAdapter(name);
-    ::Ice::ObjectPtr object = new HelloI;
-    _adapter->add(object, ::Ice::stringToIdentity("hello"));
+    _adapter->add(new HelloI, Ice::stringToIdentity("hello"));
     _adapter->activate();
 }
 

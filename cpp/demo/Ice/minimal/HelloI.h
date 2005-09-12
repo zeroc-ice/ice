@@ -7,26 +7,16 @@
 //
 // **********************************************************************
 
-#ifndef BOOK_FACTORY_H
-#define BOOK_FACTORY_H
+#ifndef HELLO_I_H
+#define HELLO_I_H
 
-#include <LibraryI.h>
+#include <Hello.h>
 
-class BookFactory : public Ice::ObjectFactory
+class HelloI : public Demo::Hello
 {
 public:
 
-    BookFactory(const LibraryIPtr&);
-
-    //
-    // Operations from ObjectFactory
-    //
-    virtual Ice::ObjectPtr create(const std::string&);
-    virtual void destroy();
-
-private:
-
-    LibraryIPtr _library;
+    virtual void sayHello(const Ice::Current&) const;
 };
 
 #endif

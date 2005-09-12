@@ -16,6 +16,7 @@
 #define new DEBUG_NEW
 #endif
 
+
 CHelloServerDlg::CHelloServerDlg(const Ice::CommunicatorPtr& communicator, const LogIPtr& log,
                                  CWnd* pParent /*=NULL*/) :
     CDialog(CHelloServerDlg::IDD, pParent), _communicator(communicator), _log(log)

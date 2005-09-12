@@ -7,15 +7,12 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
 #include <ContactFactory.h>
 #include <NameIndex.h>
 #include <PhoneBookI.h>
 #include <Parser.h>
 
 using namespace std;
-using namespace Ice;
-using namespace Freeze;
 
 class PhoneBookCollocated : public Ice::Application
 {
@@ -29,6 +26,7 @@ public:
     virtual int run(int argc, char* argv[]);
 
 private:
+
     const string _envName;
 };
 
@@ -42,7 +40,7 @@ main(int argc, char* argv[])
 int
 PhoneBookCollocated::run(int argc, char* argv[])
 {
-    PropertiesPtr properties = communicator()->getProperties();
+    Ice::PropertiesPtr properties = communicator()->getProperties();
 
     //
     // Create and install a factory for contacts.
@@ -60,20 +58,21 @@ PhoneBookCollocated::run(int argc, char* argv[])
     //
     // Create an object adapter, use the evictor as servant locator.
     //
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PhoneBook");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PhoneBook");
 
     //
     // Create an evictor for contacts.
-    // When Freeze.Evictor.db.contacts.PopulateEmptyIndices is not 0 and the
-    // Name index is empty, Freeze will traverse the database to recreate
-    // the index during createEvictor(). Therefore the factories for the objects
-    // stored in evictor (contacts here) must be registered before the call
-    // to createEvictor().
+    //
+    // When Freeze.Evictor.db.contacts.PopulateEmptyIndices is not 0
+    // and the Name index is empty, Freeze will traverse the database
+    // to recreate the index during createEvictor(). Therefore the
+    // factories for the objects stored in evictor (contacts here)
+    // must be registered before the call to createEvictor().
     //
     Freeze::EvictorPtr evictor = Freeze::createEvictor(adapter, _envName, "contacts", 0, indices);
     adapter->addServantLocator(evictor, "contact");
 
-    Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
+    Ice::Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
     if(evictorSize > 0)
     {
 	evictor->setSize(evictorSize);
@@ -90,12 +89,12 @@ PhoneBookCollocated::run(int argc, char* argv[])
     // Create the phonebook, and add it to the Object Adapter.
     //
     PhoneBookIPtr phoneBook = new PhoneBookI(evictor, contactFactory, index);
-    adapter->add(phoneBook, stringToIdentity("phonebook"));
+    adapter->add(phoneBook, Ice::stringToIdentity("phonebook"));
     
     //
     // Everything ok, let's go.
     //
-    int runParser(int, char*[], const CommunicatorPtr&);
+    int runParser(int, char*[], const Ice::CommunicatorPtr&);
     int status = runParser(argc, argv, communicator());
     adapter->deactivate();
     adapter->waitForDeactivate();

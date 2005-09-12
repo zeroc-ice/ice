@@ -7,15 +7,14 @@
 //
 // **********************************************************************
 
+#include <CallbackI.h>
 #include <Ice/Application.h>
 #include <Glacier2/Router.h>
-#include <CallbackI.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
-class CallbackClient : public Application
+class CallbackClient : public Ice::Application
 {
 public:
 
@@ -48,7 +47,7 @@ menu()
 int
 CallbackClient::run(int argc, char* argv[])
 {
-    RouterPrx defaultRouter = communicator()->getDefaultRouter();
+    Ice::RouterPrx defaultRouter = communicator()->getDefaultRouter();
     if(!defaultRouter)
     {
 	cerr << argv[0] << ": no default router set" << endl;
@@ -86,14 +85,14 @@ CallbackClient::run(int argc, char* argv[])
     }
 
     string category = router->getServerProxy()->ice_getIdentity().category;
-    Identity callbackReceiverIdent;
+    Ice::Identity callbackReceiverIdent;
     callbackReceiverIdent.name = "callbackReceiver";
     callbackReceiverIdent.category = category;
-    Identity callbackReceiverFakeIdent;
+    Ice::Identity callbackReceiverFakeIdent;
     callbackReceiverFakeIdent.name = "callbackReceiver";
     callbackReceiverFakeIdent.category = "fake";
 
-    PropertiesPtr properties = communicator()->getProperties();
+    Ice::PropertiesPtr properties = communicator()->getProperties();
     const char* proxyProperty = "Callback.Proxy";
     std::string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
@@ -102,12 +101,12 @@ CallbackClient::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator()->stringToProxy(proxy);
+    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
     CallbackPrx twoway = CallbackPrx::checkedCast(base);
     CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
     CallbackPrx batchOneway = CallbackPrx::uncheckedCast(twoway->ice_batchOneway());
     
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Client");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Client");
     adapter->add(new CallbackReceiverI, callbackReceiverIdent);
     adapter->add(new CallbackReceiverI, callbackReceiverFakeIdent); // Should never be called for the fake identity. 
     adapter->activate();
@@ -129,7 +128,7 @@ CallbackClient::run(int argc, char* argv[])
 	    cin >> c;
 	    if(c == 't')
 	    {
-		Context context;
+		Ice::Context context;
 		context["_fwd"] = "t";
 		if(!override.empty())
 		{
@@ -139,7 +138,7 @@ CallbackClient::run(int argc, char* argv[])
 	    }
 	    else if(c == 'o')
 	    {
-		Context context;
+		Ice::Context context;
 		context["_fwd"] = "o";
 		if(!override.empty())
 		{
@@ -149,7 +148,7 @@ CallbackClient::run(int argc, char* argv[])
 	    }
 	    else if(c == 'O')
 	    {
-		Context context;
+		Ice::Context context;
 		context["_fwd"] = "O";
 		if(!override.empty())
 		{
@@ -189,7 +188,7 @@ CallbackClient::run(int argc, char* argv[])
 		    onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_newIdentity(callbackReceiverIdent));
 		}
 		
-		cout << "callback receiver identity: " << identityToString(twowayR->ice_getIdentity()) << endl;
+		cout << "callback receiver identity: " << Ice::identityToString(twowayR->ice_getIdentity()) << endl;
 	    }
 	    else if(c == 's')
 	    {
@@ -209,7 +208,7 @@ CallbackClient::run(int argc, char* argv[])
 		menu();
 	    }
 	}
-	catch(const Exception& ex)
+	catch(const Ice::Exception& ex)
 	{
 	    cerr << ex << endl;
 	}

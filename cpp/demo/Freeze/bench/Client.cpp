@@ -12,8 +12,6 @@
 #include <BenchTypes.h>
 #include <cstdlib>
 
-using namespace Freeze;
-using namespace Ice;
 using namespace std;
 using namespace Demo;
 
@@ -98,7 +96,7 @@ public:
 
 private:
 
-    int _max;
+    const int _max;
 };
 
 class SequentialGenerator : public Generator
@@ -134,8 +132,8 @@ public:
 
 private:
 
-    int _min;
-    int _max;
+    const int _min;
+    const int _max;
     int _current;
 };
 
@@ -165,7 +163,7 @@ private:
 	int i;
 	_watch.start();
 	{
-	    TransactionHolder txHolder(_connection);
+	    Freeze::TransactionHolder txHolder(_connection);
 	    for(i = 0; i < _repetitions; ++i)
 	    {
 #if defined(_MSC_VER) && (_MSC_VER < 1310)
@@ -208,7 +206,7 @@ private:
 	//
 	_watch.start();
 	{
-	    TransactionHolder txHolder(_connection);
+	    Freeze::TransactionHolder txHolder(_connection);
 	    for(i = 0; i < _repetitions; ++i)
 	    {
 		m.erase(i);
@@ -262,7 +260,7 @@ private:
 	int i;
 	_watch.start();
 	{
-	    TransactionHolder txHolder(_connection);
+	    Freeze::TransactionHolder txHolder(_connection);
 	    for(i = 0; i < _repetitions; ++i)
 	    {
 		s1.l = i;
@@ -314,7 +312,7 @@ private:
 	//
 	_watch.start();
 	{
-	    TransactionHolder txHolder(_connection);
+	    Freeze::TransactionHolder txHolder(_connection);
 	    for(i = 0; i < _repetitions; ++i)
 	    {
 		s1.l = i;
@@ -345,7 +343,7 @@ private:
 	int i;
 	_watch.start();
 	{
-	    TransactionHolder txHolder(_connection);
+	    Freeze::TransactionHolder txHolder(_connection);
 	    for(i = 0; i < _repetitions; ++i)
 	    {
 		s1.l = i;
@@ -396,7 +394,7 @@ private:
 	//
 	_watch.start();
 	{
-	    TransactionHolder txHolder(_connection);
+	    Freeze::TransactionHolder txHolder(_connection);
 	    for(i = 0; i < _repetitions; ++i)
 	    {
 		s1.l = i;
@@ -424,7 +422,7 @@ private:
 	int i;
 	_watch.start();
 	{
-	    TransactionHolder txHolder(_connection);
+	    Freeze::TransactionHolder txHolder(_connection);
 	    for(i = 0; i < _repetitions; ++i)
 	    {
 #if defined(_MSC_VER) && (_MSC_VER < 1310)
@@ -604,7 +602,7 @@ TestApp::Struct1ObjectMapTest()
     int i;
     _watch.start();
     {
-	TransactionHolder txHolder(_connection);
+	Freeze::TransactionHolder txHolder(_connection);
 	for(i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
@@ -669,7 +667,7 @@ TestApp::Struct1ObjectMapTest()
     //
     _watch.start();
     {
-	TransactionHolder txHolder(_connection);
+	Freeze::TransactionHolder txHolder(_connection);
 	for(i = 0; i < _repetitions; ++i)
 	{
 	    s1.l = i;
@@ -719,7 +717,7 @@ typedef IceUtil::Handle<MyFactory> MyFactoryPtr;
 int
 TestApp::run(int argc, char* argv[])
 {
-    _connection = createConnection(communicator(), _envName);
+    _connection = Freeze::createConnection(communicator(), _envName);
 
     cout << "IntIntMap" << endl;
  

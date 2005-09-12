@@ -7,28 +7,13 @@
 //
 // **********************************************************************
 
-#include <BookFactory.h>
+#include <HelloI.h>
+#include <Ice/Ice.h>
 
 using namespace std;
 
-BookFactory::BookFactory(const LibraryIPtr& library) :
-    _library(library)
-{
-}
-
-Ice::ObjectPtr
-BookFactory::create(const string& type)
-{
-    assert(_library);
-    assert(type == "::Demo::Book");
-    return new BookI(_library);
-}
-
 void
-BookFactory::destroy()
+HelloI::sayHello(const Ice::Current&) const
 {
-    //
-    // Break cyclic object dependencies
-    //
-    _library = 0;
+    cout << "Hello World!" << endl;
 }

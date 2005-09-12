@@ -7,15 +7,14 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <SessionI.h>
+#include <Ice/Ice.h>
 
 using namespace std;
-using namespace Ice;
 
 bool
 DummyPermissionsVerifierI::checkPermissions(const string& userId, const string& password, string&,
-					    const Current&) const
+					    const Ice::Current&) const
 {
     cout << "verified user `" << userId << "' with password `" << password << "'" << endl;
     return true;

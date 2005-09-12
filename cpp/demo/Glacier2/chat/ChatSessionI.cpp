@@ -7,13 +7,11 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <ChatSessionI.h>
-
+#include <Ice/Ice.h>
 #include <list>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 class ChatRoom;
@@ -55,18 +53,18 @@ ChatRoom::instance()
 void
 ChatRoom::enter(const ChatCallbackPrx& callback)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    Lock sync(*this);
     _members.push_back(ChatCallbackPrx::uncheckedCast(callback->ice_oneway()));
 }
 
 void
 ChatRoom::leave(const ChatCallbackPrx& callback)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    Lock sync(*this);
     list<ChatCallbackPrx>::iterator p;
     for(p = _members.begin(); p != _members.end(); ++p)
     {
-	if(proxyIdentityEqual(callback, *p))
+	if(Ice::proxyIdentityEqual(callback, *p))
 	{
 	    break;
 	}
@@ -79,14 +77,14 @@ ChatRoom::leave(const ChatCallbackPrx& callback)
 void
 ChatRoom::message(const string& data) const
 {
-    IceUtil::Mutex::Lock sync(*this);
+    Lock sync(*this);
     for(list<ChatCallbackPrx>::const_iterator p = _members.begin(); p != _members.end(); ++p)
     {
 	try
 	{
 	    (*p)->message(data);
 	}
-	catch(const LocalException&)
+	catch(const Ice::LocalException&)
 	{
 	}
     }
@@ -98,9 +96,9 @@ ChatSessionI::ChatSessionI(const string& userId) :
 }
 
 void
-ChatSessionI::setCallback(const ChatCallbackPrx& callback, const Current& current)
+ChatSessionI::setCallback(const ChatCallbackPrx& callback, const Ice::Current& current)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    Lock sync(*this);
     if(!_callback)
     {
 	_callback = callback;
@@ -111,15 +109,15 @@ ChatSessionI::setCallback(const ChatCallbackPrx& callback, const Current& curren
 }
 
 void
-ChatSessionI::say(const string& data, const Current&)
+ChatSessionI::say(const string& data, const Ice::Current&)
 {
     ChatRoom::instance()->message(_userId + " says: " + data);
 }
 
 void
-ChatSessionI::destroy(const Current& current)
+ChatSessionI::destroy(const Ice::Current& current)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    Lock sync(*this);
     if(_callback)
     {
 	ChatRoomPtr chatRoom = ChatRoom::instance();

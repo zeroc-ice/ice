@@ -7,15 +7,33 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
+#include <Ice/Application.h>
 #include <IcePack/Query.h>
 #include <Hello.h>
 
 using namespace std;
 using namespace Demo;
 
+class HelloClient : public Ice::Application
+{
+public:
+
+    virtual int run(int, char*[]);
+
+private:
+
+    void menu();
+};
+
+int
+main(int argc, char* argv[])
+{
+    HelloClient app;
+    return app.main(argc, argv, "config");
+}
+
 void
-menu()
+HelloClient::menu()
 {
     cout <<
 	"usage:\n"
@@ -30,11 +48,11 @@ menu()
 }
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+HelloClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    Ice::PropertiesPtr properties = communicator()->getProperties();
 
-    IcePack::QueryPrx query = IcePack::QueryPrx::checkedCast(communicator->stringToProxy("IcePack/Query"));
+    IcePack::QueryPrx query = IcePack::QueryPrx::checkedCast(communicator()->stringToProxy("IcePack/Query"));
 
     //
     // Get an object implementing the HelloFactory interface.
@@ -154,39 +172,4 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     while(cin.good() && c != 'x');
 
     return EXIT_SUCCESS;
-}
-
-int
-main(int argc, char* argv[])
-{
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
-	status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
 }

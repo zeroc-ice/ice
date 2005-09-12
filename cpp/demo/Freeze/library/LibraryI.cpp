@@ -18,14 +18,10 @@ BookI::BookI(const LibraryIPtr& library) :
 {
 }
 
-BookI::~BookI()
-{
-}
-
 void
 BookI::destroy(const Ice::Current&)
 {
-    IceUtil::RWRecMutex::RLock sync(*this);
+    RLock sync(*this);
 
     if(_destroyed)
     {
@@ -55,7 +51,7 @@ BookI::destroy(const Ice::Current&)
 Demo::BookDescription
 BookI::getBookDescription(const Ice::Current&) const
 {
-    IceUtil::RWRecMutex::RLock sync(*this);
+    RLock sync(*this);
 
     if(_destroyed)
     {
@@ -66,10 +62,10 @@ BookI::getBookDescription(const Ice::Current&) const
     return description;
 }
 
-::std::string
+string
 BookI::getRenterName(const Ice::Current&) const
 {
-    IceUtil::RWRecMutex::RLock sync(*this);
+    RLock sync(*this);
 
     if(_destroyed)
     {
@@ -84,9 +80,9 @@ BookI::getRenterName(const Ice::Current&) const
 }
 
 void
-BookI::rentBook(const ::std::string& name, const Ice::Current&)
+BookI::rentBook(const string& name, const Ice::Current&)
 {
-    IceUtil::RWRecMutex::WLock sync(*this);
+    WLock sync(*this);
 
     if(_destroyed)
     {
@@ -103,7 +99,7 @@ BookI::rentBook(const ::std::string& name, const Ice::Current&)
 void
 BookI::returnBook(const Ice::Current&)
 {
-    IceUtil::RWRecMutex::WLock sync(*this);
+    WLock sync(*this);
 
     if(_destroyed)
     {
@@ -150,7 +146,7 @@ public:
 
 private:
 
-    Ice::ObjectAdapterPtr _adapter;
+    const Ice::ObjectAdapterPtr _adapter;
 };
 
 LibraryI::LibraryI(const Ice::CommunicatorPtr& communicator, 
@@ -162,14 +158,10 @@ LibraryI::LibraryI(const Ice::CommunicatorPtr& communicator,
 {
 }
 
-LibraryI::~LibraryI()
-{
-}
-
 Demo::BookPrx
 LibraryI::createBook(const Demo::BookDescription& description, const Ice::Current& c)
 {
-    IceUtil::RWRecMutex::WLock sync(*this);
+    WLock sync(*this);
 
 #if defined(__SUNPRO_CC)
     //
@@ -235,7 +227,7 @@ LibraryI::findByIsbn(const string& isbn, const Ice::Current& c) const
     // No locking is necessary since no internal mutable state is
     // accessed.
     //
-    //IceUtil::RWRecMutex::RLock sync(*this);
+    //RLock sync(*this);
 
     try
     {
@@ -255,7 +247,7 @@ LibraryI::findByIsbn(const string& isbn, const Ice::Current& c) const
 Demo::BookPrxSeq
 LibraryI::findByAuthors(const string& authors, const Ice::Current& c) const
 {
-    IceUtil::RWRecMutex::RLock sync(*this);
+    RLock sync(*this);
 
     //
     // Lookup all books that match the given authors, and return them
@@ -292,7 +284,7 @@ LibraryI::shutdown(const Ice::Current& current)
 void
 LibraryI::remove(const BookDescription& description)
 {
-    IceUtil::RWRecMutex::WLock sync(*this);
+    WLock sync(*this);
 
     try
     {
@@ -343,4 +335,3 @@ LibraryI::remove(const BookDescription& description)
 	throw e;
     }
 }
-

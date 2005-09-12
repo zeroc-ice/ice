@@ -13,7 +13,6 @@
 #include <PhoneBookI.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Freeze;
 
 class PhoneBookServer : public Ice::Application
@@ -41,7 +40,7 @@ main(int argc, char* argv[])
 int
 PhoneBookServer::run(int argc, char* argv[])
 {
-    PropertiesPtr properties = communicator()->getProperties();
+    Ice::PropertiesPtr properties = communicator()->getProperties();
     
     //
     // Create and install a factory for contacts.
@@ -59,7 +58,7 @@ PhoneBookServer::run(int argc, char* argv[])
     //
     // Create an object adapter, use the evictor as servant locator.
     //
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PhoneBook");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PhoneBook");
 
     //
     // Create an evictor for contacts.
@@ -72,7 +71,7 @@ PhoneBookServer::run(int argc, char* argv[])
     Freeze::EvictorPtr evictor = Freeze::createEvictor(adapter, _envName, "contacts", 0, indices);
     adapter->addServantLocator(evictor, "contact");
 
-    Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
+    Ice::Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
     if(evictorSize > 0)
     {
 	evictor->setSize(evictorSize);
@@ -89,7 +88,7 @@ PhoneBookServer::run(int argc, char* argv[])
     // Create the phonebook, and add it to the object adapter.
     //
     PhoneBookIPtr phoneBook = new PhoneBookI(evictor, contactFactory, index);
-    adapter->add(phoneBook, stringToIdentity("phonebook"));
+    adapter->add(phoneBook, Ice::stringToIdentity("phonebook"));
     
     //
     // Everything ok, let's go.

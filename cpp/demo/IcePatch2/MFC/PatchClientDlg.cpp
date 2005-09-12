@@ -18,6 +18,8 @@
 #define new DEBUG_NEW
 #endif
 
+using namespace std;
+
 class DialogPatcherFeedback : public IcePatch2::PatcherFeedback
 {
 public:
@@ -30,7 +32,7 @@ public:
     }
 
     virtual bool
-    noFileSummary(const std::string& reason)
+    noFileSummary(const string& reason)
     {
 	return IDYES == AfxMessageBox("Cannot load file summary. Perform a thorough patch?", MB_YESNO|MB_ICONSTOP);
     }
@@ -42,7 +44,7 @@ public:
     }
 
     virtual bool
-    checksumProgress(const std::string& path)
+    checksumProgress(const string& path)
     {
 	return _dialog->checksumProgress(path);
     }
@@ -72,7 +74,7 @@ public:
     }
 
     virtual bool
-    patchStart(const std::string& path, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
+    patchStart(const string& path, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
     {
 	return _dialog->patchStart(path, size, totalProgress, totalSize);
     }
@@ -123,7 +125,7 @@ CPatchDlg::checksumStart()
 }
 
 bool
-CPatchDlg::checksumProgress(const std::string& path)
+CPatchDlg::checksumProgress(const string& path)
 {
     // TODO: indicate busy progress
  
@@ -175,7 +177,7 @@ CPatchDlg::fileListEnd()
 }
 
 bool
-CPatchDlg::patchStart(const std::string& path, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
+CPatchDlg::patchStart(const string& path, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
 {
     if(!_isPatch)
     {
@@ -375,18 +377,18 @@ CPatchDlg::OnStartPatch()
 	    AfxMessageBox(CString("Please select a patch directory."), MB_OK|MB_ICONEXCLAMATION);
 	    return;
 	}
-	properties->setProperty("IcePatch2.Directory", std::string(path));
+	properties->setProperty("IcePatch2.Directory", string(path));
 
 	//
 	// Set the thorough patch flag.
 	//
-	std::string thorough = _thorough->GetCheck() == BST_CHECKED ? "1" : "0";
+	string thorough = _thorough->GetCheck() == BST_CHECKED ? "1" : "0";
 	properties->setProperty("IcePatch2.Thorough", thorough);
 
 	//
 	// Set the remove orphan flag.
 	//
-	std::string remove = _remove->GetCheck() == BST_CHECKED ? "1" : "0";
+	string remove = _remove->GetCheck() == BST_CHECKED ? "1" : "0";
 	properties->setProperty("IcePatch2.Remove", remove);
 
         DialogPatcherFeedbackPtr feedback = new DialogPatcherFeedback(this);
@@ -423,7 +425,7 @@ CPatchDlg::OnStartPatch()
     {
         handleException(ex);
     }
-    catch(const std::string& ex)
+    catch(const string& ex)
     {
         AfxMessageBox(CString(ex.c_str()), MB_OK|MB_ICONEXCLAMATION);
     }
@@ -477,9 +479,9 @@ CPatchDlg::handleException(const IceUtil::Exception& e)
     }
     catch(const IceUtil::Exception& ex)
     {
-        std::ostringstream ostr;
+        ostringstream ostr;
         ostr << ex;
-        std::string s = ostr.str();
+        string s = ostr.str();
         AfxMessageBox(CString(s.c_str()), MB_OK|MB_ICONEXCLAMATION);
     }
 

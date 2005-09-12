@@ -20,6 +20,9 @@ BEGIN_MESSAGE_MAP(CHelloClientApp, CWinApp)
     ON_COMMAND(ID_HELP, CWinApp::OnHelp)
 END_MESSAGE_MAP()
 
+using namespace std;
+
+
 CHelloClientApp::CHelloClientApp()
 {
     // Place all significant initialization in InitInstance
@@ -52,9 +55,9 @@ CHelloClientApp::InitInstance()
     }
     catch(const IceUtil::Exception& ex)
     {
-        std::ostringstream ostr;
+        ostringstream ostr;
         ostr << ex;
-        std::string s = ostr.str();
+        string s = ostr.str();
         AfxMessageBox(CString(s.c_str()), MB_OK|MB_ICONEXCLAMATION);
         return FALSE;
     }

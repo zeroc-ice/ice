@@ -7,13 +7,12 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
 #include <SessionI.h>
+#include <Ice/Application.h>
 
 using namespace std;
-using namespace Ice;
 
-class SessionServer : public Application
+class SessionServer : public Ice::Application
 {
 public:
 
@@ -30,7 +29,7 @@ main(int argc, char* argv[])
 int
 SessionServer::run(int argc, char* argv[])
 {
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionServer");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionServer");
     adapter->add(new DummyPermissionsVerifierI, Ice::stringToIdentity("verifier"));
     adapter->add(new SessionManagerI, Ice::stringToIdentity("sessionmanager"));
     adapter->activate();

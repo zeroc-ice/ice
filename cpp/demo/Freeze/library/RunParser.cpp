@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <Parser.h>
 
 using namespace std;
@@ -100,15 +99,14 @@ runParser(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator->stringToProxy(proxy);
-    LibraryPrx phoneBook = LibraryPrx::checkedCast(base);
+    LibraryPrx phoneBook = LibraryPrx::checkedCast(communicator->stringToProxy(proxy));
     if(!phoneBook)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
     }
 
-    ParserPtr p = Parser::createParser(communicator, phoneBook);
+    ParserPtr p = Parser::createParser(phoneBook);
     int status = EXIT_SUCCESS;
 
     if(argc < 2) // No files given

@@ -584,6 +584,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name icegridupdateS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name minimalC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name minimalS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2848,6 +2854,48 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icegridregistry
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "minimalC"=.\demo\Ice\minimal\minimalC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icessl
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "minimalS"=.\demo\Ice\minimal\minimalS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icessl
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
     End Project Dependency
 }}}
 

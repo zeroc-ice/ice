@@ -9,7 +9,6 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <Parser.h>
 
 #ifdef _MSC_VER
@@ -21,7 +20,6 @@
 #endif
 
 using namespace std;
-using namespace Ice;
 
 void
 yyerror(const char* s)

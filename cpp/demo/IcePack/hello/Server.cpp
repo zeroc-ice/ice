@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <HelloI.h>
+#include <Ice/Application.h>
 
 using namespace std;
 
@@ -27,8 +27,7 @@ Server::run(int argc, char* argv[])
 
     string id = communicator()->getProperties()->getProperty("Identity");
 
-    Ice::ObjectPtr object = new HelloFactoryI();
-    adapter->add(object, Ice::stringToIdentity(id));
+    adapter->add(new HelloFactoryI, Ice::stringToIdentity(id));
     adapter->activate();
 
     communicator()->waitForShutdown();
@@ -39,6 +38,5 @@ int
 main(int argc, char* argv[])
 {
     Server app;
-    int status = app.main(argc, argv);
-    return status;
+    return app.main(argc, argv);
 }

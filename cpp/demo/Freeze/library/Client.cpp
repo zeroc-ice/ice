@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
 #include <Parser.h>
+#include <Ice/Application.h>
 
 using namespace std;
 

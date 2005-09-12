@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <Parser.h>
 
 #ifdef HAVE_READLINE
@@ -16,7 +15,6 @@
 #endif
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 extern FILE* yyin;
@@ -43,9 +41,9 @@ Parser::usage()
 }
 
 ParserPtr
-Parser::createParser(const CommunicatorPtr& communicator, const PhoneBookPrx& phoneBook)
+Parser::createParser(const PhoneBookPrx& phoneBook)
 {
-    return new Parser(communicator, phoneBook);
+    return new Parser(phoneBook);
 }
 
 void
@@ -70,7 +68,7 @@ Parser::addContacts(const list<string>& args)
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -98,7 +96,7 @@ Parser::findContacts(const list<string>& args)
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -141,7 +139,7 @@ Parser::printCurrent()
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -178,7 +176,7 @@ Parser::setCurrentName(const list<string>& args)
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -215,7 +213,7 @@ Parser::setCurrentAddress(const list<string>& args)
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -252,7 +250,7 @@ Parser::setCurrentPhone(const list<string>& args)
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -283,7 +281,7 @@ Parser::removeCurrent()
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -308,7 +306,7 @@ Parser::setEvictorSize(const list<string>& args)
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -323,7 +321,7 @@ Parser::shutdown()
     {
 	_phoneBook->shutdown();
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -569,7 +567,7 @@ Parser::parse(const string& commands, bool debug)
     return status;
 }
 
-Parser::Parser(const CommunicatorPtr& communicator, const PhoneBookPrx& phoneBook) :
+Parser::Parser(const PhoneBookPrx& phoneBook) :
     _phoneBook(phoneBook)
 {
 }

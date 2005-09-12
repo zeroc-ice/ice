@@ -23,13 +23,11 @@ public:
     HelloFactoryI();
     
     virtual Demo::HelloPrx create(const std::string&, const Ice::Current&);
-
     virtual Demo::HelloPrx find(const std::string&, const Ice::Current&) const;
 
 private:
 
     std::string _id;
-
 };
 
 class HELLO_API HelloI : public Demo::Hello
@@ -37,12 +35,9 @@ class HELLO_API HelloI : public Demo::Hello
 public:
 
     HelloI(const std::string&);
+
     virtual void sayHello(const Ice::Current&) const;
-
     virtual void destroy(const Ice::Current&);
-
-private:
-    Ice::CommunicatorPtr _communicator;
 };
 
 #endif

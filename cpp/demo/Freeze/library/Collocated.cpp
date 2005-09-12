@@ -13,8 +13,6 @@
 #include <Freeze/Freeze.h>
 
 using namespace std;
-using namespace Ice;
-using namespace Freeze;
 
 class LibraryCollocated : public Ice::Application
 {
@@ -28,6 +26,7 @@ public:
     virtual int run(int argc, char* argv[]);
 
 private:
+
     const string _envName;
 };
 
@@ -41,18 +40,18 @@ main(int argc, char* argv[])
 int
 LibraryCollocated::run(int argc, char* argv[])
 {
-    PropertiesPtr properties = communicator()->getProperties();
+    Ice::PropertiesPtr properties = communicator()->getProperties();
     
     //
     // Create an object adapter
     //
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Library");
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Library");
 
     //
     // Create an evictor for books.
     //
     Freeze::EvictorPtr evictor = Freeze::createEvictor(adapter, _envName, "books");
-    Int evictorSize = properties->getPropertyAsInt("Library.EvictorSize");
+    Ice::Int evictorSize = properties->getPropertyAsInt("Library.EvictorSize");
     if(evictorSize > 0)
     {
 	evictor->setSize(evictorSize);
@@ -67,18 +66,18 @@ LibraryCollocated::run(int argc, char* argv[])
     // Create the library, and add it to the Object Adapter.
     //
     LibraryIPtr library = new LibraryI(communicator(), _envName, "authors", evictor);
-    adapter->add(library, stringToIdentity("library"));
+    adapter->add(library, Ice::stringToIdentity("library"));
     
     //
     // Create and install a factory for books.
     //
-    ObjectFactoryPtr bookFactory = new BookFactory(library);
+    Ice::ObjectFactoryPtr bookFactory = new BookFactory(library);
     communicator()->addObjectFactory(bookFactory, "::Demo::Book");
 
     //
     // Everything ok, let's go.
     //
-    int runParser(int, char*[], const CommunicatorPtr&);
+    int runParser(int, char*[], const Ice::CommunicatorPtr&);
     int status = runParser(argc, argv, communicator());
     adapter->deactivate();
     adapter->waitForDeactivate();

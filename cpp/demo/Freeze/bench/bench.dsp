@@ -91,7 +91,7 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\benchTypes.cpp
+SOURCE=.\BenchTypes.cpp
 # End Source File
 # Begin Source File
 
@@ -107,7 +107,7 @@ SOURCE=.\Test.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\benchTypes.h
+SOURCE=.\BenchTypes.h
 # End Source File
 # Begin Source File
 
@@ -129,7 +129,7 @@ InputPath=.\Test.ice
 
 BuildCmds= \
 	..\..\..\bin\slice2cpp.exe Test.ice \
-	..\..\..\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive benchTypes Test.ice \
+	..\..\..\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice \
 	
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -138,10 +138,10 @@ BuildCmds= \
 "Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"benchTypes.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"BenchTypes.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"benchTypes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"BenchTypes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -153,7 +153,7 @@ InputPath=.\Test.ice
 
 BuildCmds= \
 	..\..\..\bin\slice2cpp.exe Test.ice \
-	..\..\..\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive benchTypes Test.ice \
+	..\..\..\bin\slice2freeze.exe --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice \
 	
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -162,10 +162,10 @@ BuildCmds= \
 "Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"benchTypes.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"BenchTypes.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"benchTypes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"BenchTypes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

@@ -1,0 +1,12 @@
+The client-side portion of the MFC hello demo. Note that this demo
+will work against either the MFC server, or any of the other hello
+servers (for example, the one contained in demo/Ice/hello).
+
+To run the demo, first start the server:
+
+$ cd ../server
+$ server
+
+Then start the client:
+
+$ client

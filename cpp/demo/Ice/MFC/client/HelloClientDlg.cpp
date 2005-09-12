@@ -16,6 +16,9 @@
 #define new DEBUG_NEW
 #endif
 
+using namespace std;
+using namespace Demo;
+
 CHelloClientDlg::CHelloClientDlg(const Ice::CommunicatorPtr& communicator, CWnd* pParent /*=NULL*/) :
     CDialog(CHelloClientDlg::IDD, pParent), _communicator(communicator), _currentMode(0),
     _useSecure(false), _useTimeout(false)
@@ -66,9 +69,9 @@ CHelloClientDlg::OnInitDialog()
     //
     Ice::PropertiesPtr properties = _communicator->getProperties();
     const char* proxyProperty = "Hello.Proxy";
-    std::string proxy = properties->getProperty(proxyProperty);
+    string proxy = properties->getProperty(proxyProperty);
     Ice::ObjectPrx obj = _communicator->stringToProxy(proxy);
-    _proxy = Demo::HelloPrx::uncheckedCast(obj);
+    _proxy = HelloPrx::uncheckedCast(obj);
     _currentProxy = _proxy;
     _status->SetWindowText(CString(" Ready"));
 
@@ -216,11 +219,11 @@ CHelloClientDlg::updateProxy()
 
     if(proxy->ice_isTwoway())
     {
-        _currentProxy = Demo::HelloPrx::checkedCast(proxy);
+        _currentProxy = HelloPrx::checkedCast(proxy);
     }
     else
     {
-        _currentProxy = Demo::HelloPrx::uncheckedCast(proxy);
+        _currentProxy = HelloPrx::uncheckedCast(proxy);
     }
     _currentMode = mode;
     _useSecure = secure;
@@ -241,9 +244,9 @@ CHelloClientDlg::handleException(const IceUtil::Exception& e)
     }
     catch(const IceUtil::Exception& ex)
     {
-        std::ostringstream ostr;
+        ostringstream ostr;
         ostr << ex;
-        std::string s = ostr.str();
+        string s = ostr.str();
         AfxMessageBox(CString(s.c_str()), MB_OK|MB_ICONEXCLAMATION);
     }
     _status->SetWindowText(CString(" Ready"));

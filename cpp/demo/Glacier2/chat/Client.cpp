@@ -12,7 +12,6 @@
 #include <Chat.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 class SessionPingThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
@@ -69,20 +68,20 @@ class ChatCallbackI : public ChatCallback
 public:
 
     virtual void
-    message(const string& data, const Current&)
+    message(const string& data, const Ice::Current&)
     {
 	cout << data << endl;
     }
 };
 
-class ChatClient : public Application
+class ChatClient : public Ice::Application
 {
 public:
 
     virtual int
     run(int argc, char* argv[])
     {
-	RouterPrx defaultRouter = communicator()->getDefaultRouter();
+	Ice::RouterPrx defaultRouter = communicator()->getDefaultRouter();
 	if(!defaultRouter)
 	{
 	    cerr << argv[0] << ": no default router set" << endl;
@@ -128,11 +127,11 @@ public:
 	ping->start();
 
 	string category = router->getServerProxy()->ice_getIdentity().category;
-	Identity callbackReceiverIdent;
+	Ice::Identity callbackReceiverIdent;
 	callbackReceiverIdent.name = "callbackReceiver";
 	callbackReceiverIdent.category = category;
 
-	ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Chat.Client");
+	Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Chat.Client");
 	ChatCallbackPrx callback = ChatCallbackPrx::uncheckedCast(
 	    adapter->add(new ChatCallbackI, callbackReceiverIdent));
 	adapter->activate();
@@ -168,7 +167,7 @@ public:
 	    while(cin.good());
 	    router->destroySession();
 	}
-	catch(const Exception& ex)
+	catch(const Ice::Exception& ex)
 	{
 	    cerr << ex << endl;
 

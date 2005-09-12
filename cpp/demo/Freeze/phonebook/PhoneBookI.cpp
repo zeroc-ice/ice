@@ -11,7 +11,6 @@
 #include <IceUtil/UUID.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 ContactI::ContactI(const ContactFactoryPtr& contactFactory) :
@@ -22,49 +21,49 @@ ContactI::ContactI(const ContactFactoryPtr& contactFactory) :
 string
 ContactI::getName(const Ice::Current&) const
 {
-    IceUtil::RWRecMutex::RLock sync(*this);
+    RLock sync(*this);
     return name;
 }
 
 void
 ContactI::setName(const string& newName, const Ice::Current&)
 {
-    IceUtil::RWRecMutex::WLock sync(*this);
+    WLock sync(*this);
     name = newName;
 }
 
 string
 ContactI::getAddress(const Ice::Current&) const
 {
-    IceUtil::RWRecMutex::RLock sync(*this);
+    RLock sync(*this);
     return address;
 }
 
 void
 ContactI::setAddress(const string& newAddress, const Ice::Current&)
 {
-    IceUtil::RWRecMutex::WLock sync(*this);
+    WLock sync(*this);
     address = newAddress;
 }
 
 string
 ContactI::getPhone(const Ice::Current&) const
 {
-    IceUtil::RWRecMutex::RLock sync(*this);
+    RLock sync(*this);
     return phone;
 }
 
 void
 ContactI::setPhone(const string& newPhone, const Ice::Current&)
 {
-    IceUtil::RWRecMutex::WLock sync(*this);
+    WLock sync(*this);
     phone = newPhone;
 }
 
 void
 ContactI::destroy(const Ice::Current& c)
 {
-    IceUtil::RWRecMutex::RLock sync(*this);
+    RLock sync(*this);
     try
     {
 	_factory->getEvictor()->remove(c.id);
@@ -89,19 +88,19 @@ class IdentityToContact
 {
 public:
 
-    IdentityToContact(const ObjectAdapterPtr& adapter) :
+    IdentityToContact(const Ice::ObjectAdapterPtr& adapter) :
 	_adapter(adapter)
     {
     }
 
-    ContactPrx operator()(const Identity& ident)
+	ContactPrx operator()(const Ice::Identity& ident)
     {
 	return ContactPrx::uncheckedCast(_adapter->createProxy(ident));
     }
 
 private:
 
-    ObjectAdapterPtr _adapter;
+    const Ice::ObjectAdapterPtr _adapter;
 };
 
 ContactPrx
@@ -110,7 +109,7 @@ PhoneBookI::createContact(const Ice::Current& c)
     //
     // Get a new unique identity.
     //
-    Identity ident;
+    Ice::Identity ident;
     ident.name = IceUtil::generateUUID();
     ident.category = "contact";
 
@@ -138,7 +137,7 @@ PhoneBookI::findContacts(const string& name, const Ice::Current& c) const
 {
     try
     {
-	vector<Identity> identities = _index->find(name);
+	vector<Ice::Identity> identities = _index->find(name);
 	
 	Contacts contacts;
 	contacts.reserve(identities.size());
@@ -155,7 +154,7 @@ PhoneBookI::findContacts(const string& name, const Ice::Current& c) const
 }
 
 void
-PhoneBookI::setEvictorSize(Int size, const Ice::Current&)
+PhoneBookI::setEvictorSize(Ice::Int size, const Ice::Current&)
 {
     _evictor->setSize(size);
 }

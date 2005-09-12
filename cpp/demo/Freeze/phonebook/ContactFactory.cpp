@@ -11,16 +11,15 @@
 #include <PhoneBookI.h>
 
 using namespace std;
-using namespace Ice;
-using namespace Freeze;
 
 ContactFactory::ContactFactory()
 {
 }
 
-ObjectPtr
+Ice::ObjectPtr
 ContactFactory::create(const string& type)
 {
+    assert(_evictor);
     assert(type == "::Demo::Contact");
     return new ContactI(this);
 }
@@ -40,7 +39,7 @@ ContactFactory::setEvictor(const Freeze::EvictorPtr& evictor)
     _evictor = evictor;
 }
     
-const Freeze::EvictorPtr&
+Freeze::EvictorPtr
 ContactFactory::getEvictor() const
 {
     return _evictor;

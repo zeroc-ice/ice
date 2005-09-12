@@ -9,7 +9,6 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <Parser.h>
 #include <Grammar.h>
 
@@ -20,7 +19,6 @@
 #endif
 
 using namespace std;
-using namespace Ice;
 
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 

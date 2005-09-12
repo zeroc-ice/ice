@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
+#include <HelloI.h>
 #include <Ice/Ice.h>
 #include <IcePack/Admin.h>
-#include <HelloI.h>
 
 using namespace std;
 using namespace Demo;
@@ -28,27 +28,39 @@ HelloFactoryI::create(const string& name, const Ice::Current& current)
     // Create the servant and add it to the object adapter using the
     // given name as the identity.
     //
-    Ice::ObjectPtr hello = new HelloI(name);
-    Ice::ObjectPrx object = adapter->add(hello, Ice::stringToIdentity(name));
+    Ice::ObjectPrx object;
+    try
+    {
+	object = adapter->add(new HelloI(name), Ice::stringToIdentity(name));
+    }
+    catch(const Ice::AlreadyRegisteredException&)
+    {
+	//
+	// The object is already registered.
+	//
+	throw NameExistsException();
+    }
 
     //
     // Get the IcePack Admin interface and register the newly created
     // Hello object with the IcePack object registry.
     // 
+    IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin"));
     try
     {
-	IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin"));
 	admin->addObject(object);
     }
     catch(const IcePack::ObjectExistsException&)
     {
 	//
-	// An object with the same identity is already registered with
-	// the registry. Remove the object from the object adapter and
-	// throw.
+	// This should only occur if the server has been restarted and
+	// the server objects haven't been removed from the object
+	// registry.
 	//
-	adapter->remove(object->ice_getIdentity());
-	throw NameExistsException();
+	// In this case remove the current object, and re-add.
+	// 
+	admin->removeObject(object->ice_getIdentity());
+	admin->addObject(object);
     }
 
     string id = communicator->getProperties()->getProperty("Identity");
@@ -61,7 +73,7 @@ HelloFactoryI::create(const string& name, const Ice::Current& current)
 HelloPrx
 HelloFactoryI::find(const string& name, const Ice::Current& current) const
 {
-    Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
+    const Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
 
     //
     // The object is registered with the IcePack object registry so we
@@ -112,8 +124,8 @@ HelloI::sayHello(const Ice::Current&) const
 void
 HelloI::destroy(const Ice::Current& current)
 {
-    Ice::ObjectAdapterPtr adapter = current.adapter;
-    Ice::CommunicatorPtr communicator = adapter->getCommunicator();
+    const Ice::ObjectAdapterPtr adapter = current.adapter;
+    const Ice::CommunicatorPtr communicator = adapter->getCommunicator();
 
     //
     // Get the IcePack Admin interface and remove the Hello object

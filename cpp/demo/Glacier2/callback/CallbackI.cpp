@@ -7,42 +7,41 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <CallbackI.h>
+#include <Ice/Ice.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 void
-CallbackReceiverI::callback(const Current&)
+CallbackReceiverI::callback(const Ice::Current&)
 {
     cout << "received callback" << endl;
 }
 
 void
-CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Current& current)
+CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Ice::Current& current)
 {
     cout << "initiating callback to: " << current.adapter->getCommunicator()->proxyToString(proxy) << endl;
     try
     {
 	proxy->callback(current.ctx);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	cout << ex << endl;
     }
 }
 
 void
-CallbackI::shutdown(const Current& c)
+CallbackI::shutdown(const Ice::Current& c)
 {
     cout << "shutting down..." << endl;
     try
     {
 	c.adapter->getCommunicator()->shutdown();
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	cout << ex << endl;
     }

@@ -7,11 +7,9 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <Parser.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 void
@@ -28,7 +26,7 @@ usage(const char* appName)
 }
 
 int
-runParser(int argc, char* argv[], const CommunicatorPtr& communicator)
+runParser(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     string commands;
     bool debug = false;
@@ -92,7 +90,7 @@ runParser(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    PropertiesPtr properties = communicator->getProperties();
+    Ice::PropertiesPtr properties = communicator->getProperties();
     const char* proxyProperty = "PhoneBook.Proxy";
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
@@ -101,15 +99,14 @@ runParser(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator->stringToProxy(proxy);
-    PhoneBookPrx phoneBook = PhoneBookPrx::checkedCast(base);
+    PhoneBookPrx phoneBook = PhoneBookPrx::checkedCast(communicator->stringToProxy(proxy));
     if(!phoneBook)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
     }
 
-    ParserPtr p = Parser::createParser(communicator, phoneBook);
+    ParserPtr p = Parser::createParser(phoneBook);
     int status = EXIT_SUCCESS;
 
     if(argc < 2) // No files given

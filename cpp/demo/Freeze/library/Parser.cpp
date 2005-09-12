@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <Parser.h>
 
 #ifdef HAVE_READLINE
@@ -16,7 +15,6 @@
 #endif
 
 using namespace std;
-using namespace Ice;
 using namespace Demo;
 
 extern FILE* yyin;
@@ -42,9 +40,9 @@ Parser::usage()
 }
 
 ParserPtr
-Parser::createParser(const CommunicatorPtr& communicator, const LibraryPrx& library)
+Parser::createParser(const LibraryPrx& library)
 {
-    return new Parser(communicator, library);
+    return new Parser(library);
 }
 
 void
@@ -78,7 +76,7 @@ Parser::addBook(const list<string>& _args)
     {
 	error("the book already exists.");
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -116,7 +114,7 @@ Parser::findIsbn(const list<string>& args)
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -144,7 +142,7 @@ Parser::findAuthors(const list<string>& args)
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -197,7 +195,7 @@ Parser::printCurrent()
     {
         cout << "current book no longer exists" << endl;
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -238,7 +236,7 @@ Parser::rentCurrent(const list<string>& args)
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -273,7 +271,7 @@ Parser::returnCurrent()
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -304,7 +302,7 @@ Parser::removeCurrent()
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -329,7 +327,7 @@ Parser::setEvictorSize(const list<string>& args)
     {
 	error(ex.message);
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -344,7 +342,7 @@ Parser::shutdown()
     {
 	_library->shutdown();
     }
-    catch(const Exception& ex)
+    catch(const Ice::Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -590,7 +588,7 @@ Parser::parse(const string& commands, bool debug)
     return status;
 }
 
-Parser::Parser(const CommunicatorPtr& communicator, const LibraryPrx& library) :
+Parser::Parser(const LibraryPrx& library) :
     _library(library)
 {
 }

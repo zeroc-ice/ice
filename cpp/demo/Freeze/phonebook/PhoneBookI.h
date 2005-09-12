@@ -10,8 +10,8 @@
 #ifndef PHONE_BOOK_I_H
 #define PHONE_BOOK_I_H
 
-#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
+#include <IceUtil/IceUtil.h>
 #include <Freeze/Freeze.h>
 #include <PhoneBook.h>
 #include <NameIndex.h>
@@ -23,8 +23,7 @@ typedef IceUtil::Handle<PhoneBookI> PhoneBookIPtr;
 class ContactI;
 typedef IceUtil::Handle<ContactI> ContactIPtr;
 
-class ContactI : public Demo::Contact, 
-		 public IceUtil::AbstractMutexReadI<IceUtil::RWRecMutex>
+class ContactI : public Demo::Contact, public IceUtil::AbstractMutexReadI<IceUtil::RWRecMutex>
 {
 public:
 
@@ -43,7 +42,7 @@ public:
 
 private:
 
-    ContactFactoryPtr _factory;
+    const ContactFactoryPtr _factory;
 };
 
 class PhoneBookI : public Demo::PhoneBook
@@ -59,8 +58,8 @@ public:
 
 private:
 
-    Freeze::EvictorPtr _evictor;
-    ContactFactoryPtr _contactFactory;
+    const Freeze::EvictorPtr _evictor;
+    const ContactFactoryPtr _contactFactory;
     NameIndexPtr _index;
 };
 

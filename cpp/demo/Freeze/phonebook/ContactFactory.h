@@ -12,7 +12,7 @@
 
 #include <Freeze/Freeze.h>
 
-class ContactFactory : virtual public Ice::ObjectFactory
+class ContactFactory : public Ice::ObjectFactory
 {
 public:
 
@@ -27,9 +27,8 @@ public:
     void
     setEvictor(const Freeze::EvictorPtr&);
     
-    const Freeze::EvictorPtr&
+    Freeze::EvictorPtr
     getEvictor() const;
-    
 
 private:
 
