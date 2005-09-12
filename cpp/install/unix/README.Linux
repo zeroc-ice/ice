@@ -27,7 +27,7 @@ includes the following components:
 - The Ice runtime, including executables for the Ice services, HTML
   documentation, and Slice files.
 
-- Run time libraries for C++, Java, Python, and C# (Mono). These
+- Run time libraries for C++, Java, Python, PHP, and C# (Mono). These
   libraries enable you to execute Ice applications.
 
 - Tools and libraries for developing Ice applications.
@@ -119,7 +119,7 @@ PHP
 ---
 
 The Ice extension for PHP included in this distribution requires
-PHP 5.0.4. You can obtain a PHP source code distribution from
+PHP 5.0.5. You can obtain a PHP source code distribution from
 http://www.php.net.
 
 
