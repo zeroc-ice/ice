@@ -262,7 +262,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     
     Ice::Identity id;
     id.name = IceUtil::generateUUID();
-    cout << id.name << endl;
     registry->addObject(adapter->add(new HelloI, id));
     adapter->activate();
     
