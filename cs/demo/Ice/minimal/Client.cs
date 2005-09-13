@@ -12,72 +12,16 @@ using Demo;
 
 public class Client
 {
-    private static void menu()
-    {
-        Console.WriteLine(
-	    "usage:\n" +
-	    "h: send greeting\n" +
-	    "x: exit\n" +
-	    "?: help\n");
-    }
-    
     public static int run(string[] args, Ice.Communicator communicator)
     {
-        Ice.Properties properties = communicator.getProperties();
-        string proxyProperty = "Hello.Proxy";
-        string proxy = properties.getProperty(proxyProperty);
-        if(proxy.Length == 0)
-        {
-            Console.Error.WriteLine("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-        
-        HelloPrx hello = HelloPrxHelper.checkedCast(
-	    communicator.stringToProxy(proxy).ice_twoway().ice_timeout(-1).ice_secure(false));
+        HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"));
         if(hello == null)
         {
             Console.Error.WriteLine("invalid proxy");
             return 1;
         }
         
-        menu();
-        
-        string line = null;
-        do 
-        {
-            try
-            {
-                Console.Out.Write("==> ");
-                Console.Out.Flush();
-                line = Console.In.ReadLine();
-                if(line == null)
-                {
-                    break;
-                }
-                if(line.Equals("h"))
-                {
-                    hello.sayHello();
-                }
-                else if(line.Equals("x"))
-                {
-                    // Nothing to do
-                }
-                else if(line.Equals("?"))
-                {
-                    menu();
-                }
-                else
-                {
-                    Console.WriteLine("unknown command `" + line + "'");
-                    menu();
-                }
-            }
-            catch(System.Exception ex)
-            {
-		Console.Error.WriteLine(ex);
-            }
-        }
-        while (!line.Equals("x"));
+	hello.sayHello();
         
         return 0;
     }
@@ -89,9 +33,7 @@ public class Client
 
         try
         {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(ref args, properties);
+            communicator = Ice.Util.initialize(ref args);
             status = run(args, communicator);
         }
         catch(System.Exception ex)

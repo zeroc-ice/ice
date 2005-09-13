@@ -11,79 +11,17 @@ import Demo.*;
 
 public class Client
 {
-    private static void
-    menu()
-    {
-        System.out.println(
-            "usage:\n" +
-            "h: send greeting\n" +
-            "x: exit\n" +
-            "?: help\n");
-    }
-
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        Ice.Properties properties = communicator.getProperties();
-        final String proxyProperty = "Hello.Proxy";
-        String proxy = properties.getProperty(proxyProperty);
-        if(proxy.length() == 0)
-        {
-            System.err.println("property `" + proxyProperty + "' not set");
-            return 1;
-        }
-
-        HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy(proxy));
+        HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"));
         if(hello == null)
         {
             System.err.println("invalid proxy");
             return 1;
         }
 
-        menu();
-
-        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
-
-        String line = null;
-        do
-        {
-            try
-            {
-                System.out.print("==> ");
-                System.out.flush();
-                line = in.readLine();
-                if(line == null)
-                {
-                    break;
-                }
-                if(line.equals("h"))
-                {
-                    hello.sayHello();
-                }
-                else if(line.equals("x"))
-                {
-                    // Nothing to do
-                }
-                else if(line.equals("?"))
-                {
-                    menu();
-                }
-                else
-                {
-                    System.out.println("unknown command `" + line + "'");
-                    menu();
-                }
-            }
-            catch(java.io.IOException ex)
-            {
-                ex.printStackTrace();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-            }
-        }
-        while(!line.equals("x"));
+	hello.sayHello();
 
         return 0;
     }
@@ -96,9 +34,7 @@ public class Client
 
         try
         {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(args, properties);
+            communicator = Ice.Util.initialize(args);
             status = run(args, communicator);
         }
         catch(Ice.LocalException ex)
