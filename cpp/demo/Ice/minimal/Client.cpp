@@ -13,16 +13,6 @@
 using namespace std;
 using namespace Demo;
 
-void
-menu()
-{
-    cout <<
-	"usage:\n"
-	"h: send greeting\n"
-	"x: exit\n"
-	"?: help\n";
-}
-
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
