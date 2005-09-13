@@ -84,11 +84,6 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "CallbackClient.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "CallbackReceiverI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
