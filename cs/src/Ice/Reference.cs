@@ -927,8 +927,9 @@ namespace IceInternal
 	    if(loc != null)
 	    {
 		LocatorInfo newLocatorInfo = getInstance().locatorManager().get(loc);
-		return getInstance().referenceFactory().create(getIdentity(), null, "", Mode.ModeTwoway, false, "",
-                                                               null, newLocatorInfo, false);
+		return getInstance().referenceFactory().create(
+		    getIdentity(), getInstance().getDefaultContext(), "", Mode.ModeTwoway, false, "", null,
+		    newLocatorInfo, false);
 	    }
 	    else
 	    {
@@ -1137,8 +1138,9 @@ namespace IceInternal
 	    Ice.LocatorPrx loc = getInstance().referenceFactory().getDefaultLocator();
 	    if(loc == null)
 	    {
-		return getInstance().referenceFactory().create(getIdentity(), null, "", Mode.ModeTwoway, false,
-							       new EndpointI[0], getRouterInfo(), false);
+		return getInstance().referenceFactory().create(getIdentity(), getInstance().getDefaultContext(), "",
+							       Mode.ModeTwoway, false, new EndpointI[0],
+							       getRouterInfo(), false);
 	    }
 	    else
 	    {

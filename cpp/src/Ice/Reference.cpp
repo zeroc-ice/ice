@@ -769,8 +769,8 @@ IceInternal::DirectReference::changeDefault() const
     if(loc)
     {
 	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(loc);
-	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway,
-							 false, "", 0, newLocatorInfo, false);
+	return getInstance()->referenceFactory()->create(getIdentity(), getInstance()->getDefaultContext(), "",
+							 ModeTwoway, false, "", 0, newLocatorInfo, false);
     }
     else
     {
@@ -1013,8 +1013,9 @@ IceInternal::IndirectReference::changeDefault() const
     LocatorPrx loc = getInstance()->referenceFactory()->getDefaultLocator();
     if(!loc)
     {
-	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway, false,
-							 vector<EndpointIPtr>(), getRouterInfo(), false);
+	return getInstance()->referenceFactory()->create(getIdentity(), getInstance()->getDefaultContext(), "",
+							 ModeTwoway, false, vector<EndpointIPtr>(), getRouterInfo(),
+							 false);
     }
     else
     {

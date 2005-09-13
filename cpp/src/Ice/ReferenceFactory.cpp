@@ -408,7 +408,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 
     if(beg == string::npos)
     {
-	return create(ident, Context(), facet, mode, secure, "", routerInfo, locatorInfo, true);
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure, "", routerInfo, locatorInfo, true);
     }
 
     vector<EndpointIPtr> endpoints;
@@ -458,7 +458,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 		}
 	    }
 
-	    return create(ident, Context(), facet, mode, secure, endpoints, routerInfo, true);
+	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints, routerInfo, true);
 	    break;
 	}
 	case '@':
@@ -497,7 +497,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 		ex.str = str;
 		throw ex;
 	    }
-	    return create(ident, Context(), facet, mode, secure, adapter, routerInfo, locatorInfo, true);
+	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapter, routerInfo,
+			  locatorInfo, true);
 	    break;
 	}
 	default:
@@ -567,12 +568,13 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	    EndpointIPtr endpoint = _instance->endpointFactoryManager()->read(s);
 	    endpoints.push_back(endpoint);
 	}
-	return create(ident, Context(), facet, mode, secure, endpoints, routerInfo, true);
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints, routerInfo, true);
     }
     else
     {
 	s->read(adapterId);
-	return create(ident, Context(), facet, mode, secure, adapterId, routerInfo, locatorInfo, true);
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapterId, routerInfo,
+		      locatorInfo, true);
     }
 }
 

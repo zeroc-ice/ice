@@ -479,7 +479,8 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident) const
     // Create a reference and return a reverse proxy for this
     // reference.
     //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway, connections);
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), "",
+							     Reference::ModeTwoway, connections);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
@@ -799,7 +800,7 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
 	//
 	// Create a reference with the adapter id.
 	//
-	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet,
+	ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), facet,
 								 Reference::ModeTwoway, false, _id,
 								 0, _locatorInfo, true);
 
@@ -839,8 +840,8 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) 
     //
     // Create a reference and return a proxy for this reference.
     //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet, Reference::ModeTwoway,
-							     false, endpoints, 0, true);
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), facet,
+							     Reference::ModeTwoway, false, endpoints, 0, true);
     return _instance->proxyFactory()->referenceToProxy(ref);
 
 }

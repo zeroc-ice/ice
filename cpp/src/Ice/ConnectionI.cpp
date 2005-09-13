@@ -1193,7 +1193,8 @@ Ice::ConnectionI::createProxy(const Identity& ident) const
     //
     vector<ConnectionIPtr> connections;
     connections.push_back(const_cast<ConnectionI*>(this));
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway, connections);
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), "",
+							     Reference::ModeTwoway, connections);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
