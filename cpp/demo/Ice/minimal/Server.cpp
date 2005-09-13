@@ -15,7 +15,7 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Hello");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
     adapter->add(new HelloI, Ice::stringToIdentity("hello"));
     adapter->activate();
     communicator->waitForShutdown();
@@ -30,9 +30,7 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
+	communicator = Ice::initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

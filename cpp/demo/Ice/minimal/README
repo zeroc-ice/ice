@@ -1,4 +1,5 @@
-This demo is a minimal Ice "hello world" application.
+This demo is a minimal Ice "hello world" application. Each time the
+client is run a "sayHello" invocation is sent to the server.
 
 To run the demo, first start the server:
 

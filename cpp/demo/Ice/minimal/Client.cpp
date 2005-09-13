@@ -33,39 +33,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    menu();
-
-    char c;
-    do
-    {
-	try
-	{
-	    cout << "==> ";
-	    cin >> c;
-	    if(c == 'h')
-	    {
-		hello->sayHello();
-	    }
-	    else if(c == 'x')
-	    {
-		// Nothing to do
-	    }
-	    else if(c == '?')
-	    {
-		menu();
-	    }
-	    else
-	    {
-		cout << "unknown command `" << c << "'" << endl;
-		menu();
-	    }
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	}
-    }
-    while(cin.good() && c != 'x');
+    hello->sayHello();
 
     return EXIT_SUCCESS;
 }
