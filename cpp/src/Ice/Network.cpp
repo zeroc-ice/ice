@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/StaticMutex.h>
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
 
@@ -22,6 +23,19 @@ using namespace IceInternal;
 #ifdef __sun
 #    define INADDR_NONE (unsigned long)-1
 #endif
+
+static IceUtil::StaticMutex inetMutex = ICE_STATIC_MUTEX_INITIALIZER;
+
+static string
+inetAddrToString(struct in_addr in)
+{
+    //
+    // inet_ntoa uses static memory on some platforms so we protect
+    // access and make a copy.
+    //
+    IceUtil::StaticMutex::Lock lock(inetMutex);
+    return string(inet_ntoa(in));
+}
 
 int
 IceInternal::getSocketErrno()
@@ -868,7 +882,7 @@ IceInternal::getLocalHost(bool numeric)
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(struct sockaddr_in));
 	memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
-	return string(inet_ntoa(addr.sin_addr));
+	return inetAddrToString(addr.sin_addr);
     }
     else
     {
@@ -903,7 +917,7 @@ IceInternal::getLocalHost(bool numeric)
     {
 	assert(info->ai_family == PF_INET);
 	struct sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(info->ai_addr);
-	result = inet_ntoa(sin->sin_addr);
+	result = inetAddrToString(sin->sin_addr);
     }
     else
     {
@@ -1283,14 +1297,14 @@ IceInternal::fdToString(SOCKET fd)
     }
 
     ostringstream s;
-    s << "local address = " << inet_ntoa(localAddr.sin_addr) << ':' << ntohs(localAddr.sin_port);
+    s << "local address = " << addrToString(localAddr);
     if(peerNotConnected)
     {
 	s << "\nremote address = <not connected>";
     }
     else
     {
-	s << "\nremote address = " << inet_ntoa(remoteAddr.sin_addr) << ':' << ntohs(remoteAddr.sin_port);
+	s << "\nremote address = " << addrToString(remoteAddr);
     }
     return s.str();
 }
@@ -1298,13 +1312,8 @@ IceInternal::fdToString(SOCKET fd)
 std::string
 IceInternal::addrToString(const struct sockaddr_in& addr)
 {
-    //
-    // inet_ntoa uses thread-specific data on Windows, Linux, Solaris
-    // and HP-UX
-    //
-
     ostringstream s;
-    s << inet_ntoa(addr.sin_addr) << ':' << ntohs(addr.sin_port);
+    s << inetAddrToString(addr.sin_addr) << ':' << ntohs(addr.sin_port);
     return s.str();
 }
 

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceE/StaticMutex.h>
 #include <IceE/Network.h>
 #include <IceE/LocalException.h>
 #include <IceE/SafeStdio.h>
@@ -18,6 +19,19 @@ using namespace IceInternal;
 #ifdef __sun
 #    define INADDR_NONE (unsigned long)-1
 #endif
+
+static IceUtil::StaticMutex inetMutex = ICE_STATIC_MUTEX_INITIALIZER;
+
+static string
+inetAddrToString(struct in_addr in)
+{
+    //
+    // inet_ntoa uses static memory on some platforms so we protect
+    // access and make a copy.
+    //
+    IceUtil::StaticMutex::Lock lock(inetMutex);
+    return string(inet_ntoa(in));
+}
 
 int
 IceInternal::getSocketErrno()
@@ -694,7 +708,7 @@ IceInternal::getLocalHost(bool numeric)
 	struct sockaddr_in addr;
 	memset(&addr, 0, sizeof(struct sockaddr_in));
 	memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
-	return string(inet_ntoa(addr.sin_addr));
+	return inetAddrToString(addr.sin_addr);
     }
     else
     {
@@ -729,7 +743,7 @@ IceInternal::getLocalHost(bool numeric)
     {
 	assert(info->ai_family == PF_INET);
 	struct sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(info->ai_addr);
-	result = inet_ntoa(sin->sin_addr);
+	result = inetAddrToString(sin->sin_addr);
     }
     else
     {
@@ -850,10 +864,7 @@ IceInternal::fdToString(SOCKET fd)
 
     string s;
     s += "local address = ";
-    s += inet_ntoa(localAddr.sin_addr);
-    s += ":";
-
-    s += Ice::printfToString("%d", ntohs(localAddr.sin_port));
+    s += addrToString(localAddr);
     if(peerNotConnected)
     {
 	s += "\nremote address = <not connected>";
@@ -861,9 +872,7 @@ IceInternal::fdToString(SOCKET fd)
     else
     {
 	s += "\nremote address = ";
-	s += inet_ntoa(remoteAddr.sin_addr);
-	s += ":";
-	s += Ice::printfToString("%d", ntohs(remoteAddr.sin_port));
+	s += addrToString(remoteAddr);
     }
     return s;
 }
@@ -871,12 +880,8 @@ IceInternal::fdToString(SOCKET fd)
 std::string
 IceInternal::addrToString(const struct sockaddr_in& addr)
 {
-    //
-    // inet_ntoa uses thread-specific data on Windows, Linux, Solaris
-    // and HP-UX
-    //
     string s;
-    s += inet_ntoa(addr.sin_addr);
+    s += inetAddrToString(addr.sin_addr);
     s += ":";
     s += Ice::printfToString("%d", ntohs(addr.sin_port));
     return s;
