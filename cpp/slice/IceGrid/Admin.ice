@@ -549,16 +549,6 @@ interface Admin
 
     /**
      *
-     * Remove the given node and associated servers from the &IceGrid; registry.
-     *
-     * @param name The node name.
-     *
-     **/
-    idempotent void removeNode(string name)
-	throws NodeNotExistException;
-
-    /**
-     *
      * Get the hostname of this node.
      *
      * @param name The node name.

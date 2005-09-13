@@ -59,7 +59,6 @@ public:
 
     virtual bool pingNode(const std::string&, const Ice::Current&) const;
     virtual void shutdownNode(const std::string&, const Ice::Current&);
-    virtual void removeNode(const std::string&, const Ice::Current&);
     virtual std::string getNodeHostname(const std::string&, const Ice::Current&) const;
     virtual Ice::StringSeq getAllNodeNames(const ::Ice::Current&) const;
 

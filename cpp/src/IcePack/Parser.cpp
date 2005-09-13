@@ -822,9 +822,9 @@ IcePack::Parser::addServer(const list<string>& args)
 void
 IcePack::Parser::updateServer(const list<string>& args)
 {
-    if(args.size() < 3)
+    if(args.size() < 2)
     {
-	error("`server add' requires at least three arguments\n(`help' for more info)");
+	error("`server update' requires at least two arguments\n(`help' for more info)");
 	return;
     }
 

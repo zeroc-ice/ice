@@ -151,10 +151,6 @@ command
 {
     parser->shutdownNode($3);
 }
-| ICE_GRID_NODE ICE_GRID_REMOVE strings ';'
-{
-    parser->removeNode($3);
-}
 | ICE_GRID_NODE ICE_GRID_LIST ';'
 {
     parser->listAllNodes();

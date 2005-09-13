@@ -52,20 +52,20 @@ public:
 	_topic(topic),
 	_observer(observer),
 	_serial(serial)
-    {	
-    }
+	{	
+	}
 
     void
     ice_response()
-    {
-	_topic->subscribe(_observer, _serial);
-    }
+	{
+	    _topic->subscribe(_observer, _serial);
+	}
 
     void
     ice_exception(const Ice::Exception&)
-    {
-	// Ignore
-    }
+	{
+	    // Ignore
+	}
 
 private:
 
@@ -90,9 +90,7 @@ void
 NodeObserverTopic::nodeUp(const NodeDynamicInfo& info, const Ice::Current& current)
 {
     Lock sync(*this);
-
     _nodes.insert(make_pair(info.name, info));
-
     _publisher->nodeUp(info);
 }
 
@@ -100,11 +98,11 @@ void
 NodeObserverTopic::nodeDown(const string& name, const Ice::Current&)
 {
     Lock sync(*this);
-
-    assert(_nodes.find(name) != _nodes.end());
-    _nodes.erase(name);
-
-    _publisher->nodeDown(name);
+    if(_nodes.find(name) != _nodes.end())
+    {
+	_nodes.erase(name);
+	_publisher->nodeDown(name);
+    }
 }
 
 

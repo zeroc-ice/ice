@@ -83,8 +83,6 @@ Parser::usage()
 	"\n"
 	"node list                   List all registered nodes.\n"
 	"node ping NAME              Ping node NAME.\n"
-        "node remove NAME            Remove the servers deployed on node NAME and\n"
-        "                            the node NAME.\n"
 	"node shutdown NAME          Shutdown node NAME.\n"
 	"\n"
         "server list                 List all registered servers.\n"
@@ -544,25 +542,6 @@ Parser::shutdownNode(const list<string>& args)
     try
     {
 	_admin->shutdownNode(args.front());
-    }
-    catch(const Ice::Exception& ex)
-    {
-	exception(ex);
-    }
-}
-
-void
-Parser::removeNode(const list<string>& args)
-{
-    if(args.size() != 1)
-    {
-	error("`node remove' requires exactly one argument\n(`help' for more info)");
-	return;
-    }
-
-    try
-    {
-	_admin->removeNode(args.front());
     }
     catch(const Ice::Exception& ex)
     {

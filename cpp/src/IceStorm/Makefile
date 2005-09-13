@@ -70,7 +70,7 @@ CPPFLAGS	:= $(CPPFLAGS) -I.. -DICE_STORM_API_EXPORTS $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	:= --checksum --ice --dll-export ICE_STORM_API --include-dir IceStorm $(SLICE2CPPFLAGS)
 LINKWITH	:= -lIce -lIceUtil
-SVCLINKWITH	:= -lIceBox -lFreeze -lIce -lIceUtil
+SVCLINKWITH	:= -lFreeze -lIceBox -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@

@@ -440,15 +440,6 @@ AdminI::shutdownNode(const string& name, const Current&)
     }
 }
 
-void
-AdminI::removeNode(const string& name, const Current&)
-{
-    //
-    // Remove the node.
-    //
-    _database->removeNode(name);
-}
-
 string
 AdminI::getNodeHostname(const string& name, const Current&) const
 {
