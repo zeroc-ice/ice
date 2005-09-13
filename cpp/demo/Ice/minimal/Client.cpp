@@ -26,17 +26,7 @@ menu()
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
-    const char* proxyProperty = "Hello.Proxy";
-    string proxy = properties->getProperty(proxyProperty);
-    if(proxy.empty())
-    {
-	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    Ice::ObjectPrx base = communicator->stringToProxy(proxy);
-    HelloPrx hello = HelloPrx::checkedCast(base->ice_twoway()->ice_timeout(-1)->ice_secure(false));
+    HelloPrx hello = HelloPrx::checkedCast(communicator->stringToProxy("hello:tcp -p 10000"));
     if(!hello)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;
@@ -88,9 +78,7 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
+	communicator = Ice::initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
