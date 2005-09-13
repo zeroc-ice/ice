@@ -584,12 +584,10 @@ NodeI::keepAlive()
 	    _usages5.push_front(usage);
 	    _usages15.push_front(usage);
 
-	    info.load1 = static_cast<float>(_last1Total) / _usages1.size();
-	    info.load5 = static_cast<float>(_last5Total) / _usages5.size();
-	    info.load15 = static_cast<float>(_last15Total) / _usages15.size();
+	    info.load1 = static_cast<float>(_last1Total) / _usages1.size() / 100.0f;
+	    info.load5 = static_cast<float>(_last5Total) / _usages5.size() / 100.0f;
+	    info.load15 = static_cast<float>(_last15Total) / _usages15.size() / 100.0f;
 	    info.nProcessors = 1;
-
-	    cerr << info.load1 << " " << info.load5 << " " << info.load15 << endl;
 #elif defined(__sun) || defined(__linux) || defined(__APPLE__)
 	    //
 	    // We use the load average divided by the number of
