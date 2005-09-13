@@ -332,16 +332,8 @@ interface Registry
      * registered and currently active.
      *
      **/
-    NodeSession* registerNode(string name, Node* nd)
+    NodeSession* registerNode(string name, Node* nd, out NodeObserver* observer)
 	throws NodeActiveException;
-
-    /**
-     *
-     * Get the node observer object. This is used by nodes to publish
-     * updates about the state of the nodes (server up/down, etc).
-     *
-     **/
-    NodeObserver* getNodeObserver();
 
     /**
      *

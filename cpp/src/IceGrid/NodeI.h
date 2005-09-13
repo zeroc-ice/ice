@@ -15,6 +15,7 @@
 
 #ifdef _WIN32
 #   include <pdh.h> // Performance data helper API
+#   include <deque>
 #endif
 
 namespace IceGrid
@@ -53,7 +54,7 @@ public:
     NodeObserverPrx getObserver() const;
 
     NodeSessionPrx getSession() const;
-    void setSession(const NodeSessionPrx&);
+    void setSession(const NodeSessionPrx&, const NodeObserverPrx&);
     void keepAlive();
     void stop();
 
@@ -81,6 +82,12 @@ private:
 #ifdef _WIN32
     HQUERY _query;
     HCOUNTER _counter;
+    std::deque<int> _usages1;
+    std::deque<int> _usages5;
+    std::deque<int> _usages15;
+    int _last1Total;
+    int _last5Total;
+    int _last15Total;
 #else
     int _nproc;
 #endif

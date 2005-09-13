@@ -217,9 +217,6 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _serversDir = dataDir + (dataDir[dataDir.length() - 1] == '/' ? "" : "/") + "servers";
     _tmpDir = dataDir + (dataDir[dataDir.length() - 1] == '/' ? "" : "/") + "tmp";
 
-    Ice::ObjectPrx registry = getCommunicator()->stringToProxy("IceGrid/Registry@IceGrid.Registry.Internal");
-    _observer = RegistryPrx::uncheckedCast(registry)->getNodeObserver();
-
 #if defined(_WIN32)
     PDH_STATUS err = PdhOpenQuery(0, 0, &_query);
     if(err != ERROR_SUCCESS)
@@ -237,6 +234,12 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
 	Ice::Warning out(_traceLevels->logger);
 	out << "can't add performance counter:\n" << ex;
     }
+    _usages1.insert(_usages1.end(), 1 * 60 / 5, 0); // 1 sample every 5 seconds during 1 minutes.
+    _usages5.insert(_usages5.end(), 5 * 60 / 5, 0); // 1 sample every 5 seconds during 5 minutes.
+    _usages15.insert(_usages15.end(), 15 * 60 / 5, 0); // 1 sample every 5 seconds during 15 minutes.
+    _last1Total = 0;
+    _last5Total = 0;
+    _last15Total = 0;
 #else
 #if defined(__linux)
     _nproc = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
@@ -528,6 +531,7 @@ NodeI::getTraceLevels() const
 NodeObserverPrx
 NodeI::getObserver() const
 {
+    Lock sync(_sessionMutex);
     return _observer;
 }
 
@@ -539,10 +543,11 @@ NodeI::getSession() const
 }
 
 void
-NodeI::setSession(const NodeSessionPrx& session)
+NodeI::setSession(const NodeSessionPrx& session, const NodeObserverPrx& observer)
 {
     Lock sync(_sessionMutex);
     _session = session;
+    _observer = observer;
 }
 
 void
@@ -559,19 +564,32 @@ NodeI::keepAlive()
 	    //
 	    // TODO: Use CPU utilization
 	    //
-	    if(PdhCollectQueryData(_query) != ERROR_SUCCESS)
-	    {
-		// TODO: WARNING
-		info.load = 1.0f;
-	    }
-	    else
+	    int usage = 100;
+	    if(PdhCollectQueryData(_query) == ERROR_SUCCESS)
 	    {
 		DWORD type;
 		PDH_FMT_COUNTERVALUE value;
 		PdhGetFormattedCounterValue(_counter, PDH_FMT_LONG, &type, &value);
-		info.load = static_cast<float>(value.longValue) / 100.0f;
+		usage = static_cast<int>(value.longValue);
 	    }
-	    info.nProcessors = 1; // TODO
+
+	    _last1Total += usage - _usages1.back();
+	    _last5Total += usage - _usages5.back();
+	    _last15Total += usage - _usages15.back();
+
+	    _usages1.pop_back();
+	    _usages5.pop_back();
+	    _usages15.pop_back();
+	    _usages1.push_front(usage);
+	    _usages5.push_front(usage);
+	    _usages15.push_front(usage);
+
+	    info.load1 = static_cast<float>(_last1Total) / _usages1.size();
+	    info.load5 = static_cast<float>(_last5Total) / _usages5.size();
+	    info.load15 = static_cast<float>(_last15Total) / _usages15.size();
+	    info.nProcessors = 1;
+
+	    cerr << info.load1 << " " << info.load5 << " " << info.load15 << endl;
 #elif defined(__sun) || defined(__linux) || defined(__APPLE__)
 	    //
 	    // We use the load average divided by the number of
@@ -585,7 +603,9 @@ NodeI::keepAlive()
 	    info.load15 = static_cast<float>(loadAvg[2]);
 	    info.nProcessors =  _nproc;
 #else
-	    info.load = 1.0f;
+	    info.load1 = 1.0f;
+	    info.load5 = 1.0f;
+	    info.load15 = 1.0f;
 	    info.nProcessors = 1;
 #endif
 
@@ -593,7 +613,7 @@ NodeI::keepAlive()
 	}
 	catch(const Ice::LocalException&)
 	{
-	    setSession(0);
+	    setSession(0, 0);
 	}
     }
     else
@@ -601,7 +621,8 @@ NodeI::keepAlive()
 	try
 	{
 	    Ice::ObjectPrx registry = getCommunicator()->stringToProxy("IceGrid/Registry@IceGrid.Registry.Internal");
-	    setSession(RegistryPrx::uncheckedCast(registry)->registerNode(_name, _proxy));
+	    NodeObserverPrx observer;
+	    setSession(RegistryPrx::uncheckedCast(registry)->registerNode(_name, _proxy, observer), observer);
 	    checkConsistency();
 	}
 	catch(const NodeActiveException&)

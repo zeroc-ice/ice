@@ -353,6 +353,7 @@ ServerEntry::getLoad(LoadSample sample) const
 	return load.load15 * factor;
     default:
 	assert(false);
+	return 1.0f;
     }
 }
 
