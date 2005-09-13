@@ -938,6 +938,12 @@ Database::checkObjectForAddition(const Ice::Identity& objectId)
 void
 Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
 {
+    const NodeDescriptorDict& nodes = app.getDescriptor().nodes;
+    for(NodeDescriptorDict::const_iterator n = nodes.begin(); n != nodes.end(); ++n)
+    {
+	_nodeCache.get(n->first, true)->addDescriptor(app.getDescriptor().name, n->second);	
+    }
+
     const ReplicatedAdapterDescriptorSeq& adpts = app.getDescriptor().replicatedAdapters;
     for(ReplicatedAdapterDescriptorSeq::const_iterator r = adpts.begin(); r != adpts.end(); ++r)
     {
@@ -959,6 +965,12 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
 void
 Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 {
+    const NodeDescriptorDict& nodes = app.getDescriptor().nodes;
+    for(NodeDescriptorDict::const_iterator n = nodes.begin(); n != nodes.end(); ++n)
+    {
+	_nodeCache.get(n->first)->removeDescriptor(app.getDescriptor().name);
+    }
+
     const ReplicatedAdapterDescriptorSeq& adpts = app.getDescriptor().replicatedAdapters;
     for(ReplicatedAdapterDescriptorSeq::const_iterator r = adpts.begin(); r != adpts.end(); ++r)
     {
@@ -979,6 +991,18 @@ Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 void
 Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newApp, ServerEntrySeq& entries)
 {
+    const NodeDescriptorDict& oldNodes = oldApp.getDescriptor().nodes;
+    NodeDescriptorDict::const_iterator n;
+    for(n = oldNodes.begin(); n != oldNodes.end(); ++n)
+    {
+	_nodeCache.get(n->first)->removeDescriptor(oldApp.getDescriptor().name);
+    }
+    const NodeDescriptorDict& newNodes = newApp.getDescriptor().nodes;
+    for(n = newNodes.begin(); n != newNodes.end(); ++n)
+    {
+	_nodeCache.get(n->first, true)->addDescriptor(newApp.getDescriptor().name, n->second);
+    }
+
     //
     // Unload/load replicated adapters.
     //

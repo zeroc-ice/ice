@@ -20,12 +20,14 @@ namespace IceGrid
 
 struct ServerLoadCI : binary_function<ServerEntryPtr&, ServerEntryPtr&, bool>
 {
+    ServerLoadCI(LoadSample loadSample) : _loadSample(loadSample) { }
+
     bool operator()(const ServerEntryPtr& lhs, const ServerEntryPtr& rhs)
     {
 	float lhsl = 1.0f;
 	try
 	{
-	    lhsl = lhs->getNode()->getLoadInfo().load;
+	    lhsl = lhs->getLoad(_loadSample);
 	}
 	catch(const ServerNotExistException&)
 	{
@@ -37,7 +39,7 @@ struct ServerLoadCI : binary_function<ServerEntryPtr&, ServerEntryPtr&, bool>
 	float rhsl = 1.0f;
 	try
 	{
-	    rhsl = rhs->getNode()->getLoadInfo().load;
+	    rhsl = rhs->getLoad(_loadSample);
 	}
 	catch(const ServerNotExistException&)
 	{
@@ -47,6 +49,8 @@ struct ServerLoadCI : binary_function<ServerEntryPtr&, ServerEntryPtr&, bool>
 	}
 	return lhsl < rhsl;
     }
+
+    LoadSample _loadSample;
 };
 
 }
@@ -94,6 +98,26 @@ AdapterEntry::enableReplication(const LoadBalancingPolicyPtr& policy)
 	else if(_loadBalancingNReplicas > static_cast<int>(_servers.size()))
 	{
 	    _loadBalancingNReplicas = _servers.size();
+	}
+	AdaptiveLoadBalancingPolicyPtr alb = AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing);
+	if(alb)
+	{
+	    if(alb->loadSample == "1")
+	    {
+		_loadSample = LoadSample1;
+	    }
+	    else if(alb->loadSample == "5")
+	    {
+		_loadSample = LoadSample5;
+	    }
+	    else if(alb->loadSample == "15")
+	    {
+		_loadSample = LoadSample15;
+	    }
+	    else
+	    {
+		_loadSample = LoadSample1;
+	    }
 	}
     }
 }
@@ -192,7 +216,7 @@ AdapterEntry::getProxies(int& nReplicas)
 	// the sort() will call and lock each server entry.
 	//
 	random_shuffle(servers.begin(), servers.end());
-	sort(servers.begin(), servers.end(), ServerLoadCI());
+	sort(servers.begin(), servers.end(), ServerLoadCI(_loadSample));
     }
 
     vector<pair<string, AdapterPrx> > adapters;

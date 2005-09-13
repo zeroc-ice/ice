@@ -571,21 +571,22 @@ NodeI::keepAlive()
 		PdhGetFormattedCounterValue(_counter, PDH_FMT_LONG, &type, &value);
 		info.load = static_cast<float>(value.longValue) / 100.0f;
 	    }
+	    info.nProcessors = 1; // TODO
 #elif defined(__sun) || defined(__linux) || defined(__APPLE__)
 	    //
 	    // We use the load average divided by the number of
 	    // processors to figure out if the machine is busy or
 	    // not. The result is capped at 1.0f.
 	    //
-	    double loadAvg[1];
-	    getloadavg(loadAvg, 1);	    
-	    info.load = static_cast<float>(loadAvg[0]) / _nproc;
-	    if(info.load > 1.0f)
-	    {
-		info.load = 1.0f;
-	    }
+	    double loadAvg[3];
+	    getloadavg(loadAvg, 3);
+	    info.load1 = static_cast<float>(loadAvg[0]);
+	    info.load5 = static_cast<float>(loadAvg[1]);
+	    info.load15 = static_cast<float>(loadAvg[2]);
+	    info.nProcessors =  _nproc;
 #else
 	    info.load = 1.0f;
+	    info.nProcessors = 1;
 #endif
 
 	    session->keepAlive(info);

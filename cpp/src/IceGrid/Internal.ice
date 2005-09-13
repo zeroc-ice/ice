@@ -284,7 +284,17 @@ exception NodeActiveException
 
 struct LoadInfo
 {
-    float load;
+    /** The load average of the node over the last minute. */
+    float load1;
+
+    /** The load average of the node over the last 5 minutes. */
+    float load5;
+
+    /** The load average of the node over the last 15 minutes. */
+    float load15;
+
+    /** The number of processors of the node. */
+    int nProcessors;
 };
 
 interface NodeSession extends Glacier2::Session

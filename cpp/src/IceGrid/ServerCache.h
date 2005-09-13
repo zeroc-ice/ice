@@ -15,12 +15,12 @@
 #include <IceGrid/Descriptor.h>
 #include <IceGrid/Internal.h>
 #include <IceGrid/Cache.h>
+#include <IceGrid/AdapterCache.h>
 
 namespace IceGrid
 {
 
 class ServerCache;
-class AdapterCache;
 class ObjectCache;
 class NodeCache;
 
@@ -43,6 +43,7 @@ public:
     ServerPrx getProxy(int&, int&, std::string&);
     AdapterPrx getAdapter(const std::string&);
     NodeEntryPtr getNode() const;
+    float getLoad(LoadSample) const;
 
     bool canRemove();
     bool isDestroyed();

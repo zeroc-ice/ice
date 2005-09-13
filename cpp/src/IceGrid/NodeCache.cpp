@@ -43,6 +43,28 @@ NodeEntry::NodeEntry(Cache<string, NodeEntry>& cache, const std::string& name) :
 }
 
 void
+NodeEntry::addDescriptor(const string& application, const NodeDescriptor& descriptor)
+{
+    Lock sync(*this);
+    _descriptors.insert(make_pair(application, descriptor));
+}
+
+void
+NodeEntry::removeDescriptor(const string& application)
+{
+    bool remove = false;
+    {
+	Lock sync(*this);
+	_descriptors.erase(application);
+	remove = _servers.empty() && !_session && _descriptors.empty();
+    }
+    if(remove)
+    {
+	_cache.remove(_name);
+    }    
+}
+
+void
 NodeEntry::addServer(const ServerEntryPtr& entry)
 {
     Lock sync(*this);
@@ -56,7 +78,7 @@ NodeEntry::removeServer(const ServerEntryPtr& entry)
     {
 	Lock sync(*this);
 	_servers.erase(entry->getId());
-	remove = _servers.empty() && !_session;
+	remove = _servers.empty() && !_session && _descriptors.empty();
     }
     if(remove)
     {
@@ -75,12 +97,12 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
 	    throw NodeActiveException();
 	}
 	_session = session;
-	remove = _servers.empty() && !_session;
+	remove = _servers.empty() && !_session && _descriptors.empty();
     }
     if(remove)
     {
 	_cache.remove(_name);
-    }
+    }    
     
     if(session)
     {
@@ -120,12 +142,23 @@ NodeEntry::getServers() const
 }
 
 LoadInfo
-NodeEntry::getLoadInfo() const
+NodeEntry::getLoadInfoAndLoadFactor(const string& application, float& loadFactor) const
 {
     Lock sync(*this);
     if(!_session)
     {
 	throw NodeUnreachableException(_name, "node is not registered");
+    }
+    map<string, NodeDescriptor>::const_iterator p = _descriptors.find(application);
+    loadFactor = -1.0f;
+    if(p != _descriptors.end())
+    {
+	istringstream is(p->second.loadFactor);
+	is >> loadFactor;
+	if(loadFactor < 0.0f)
+	{
+	    loadFactor = 1.0f;
+	}
     }
     return _session->getLoadInfo();
 }

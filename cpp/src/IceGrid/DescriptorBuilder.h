@@ -10,6 +10,7 @@
 #ifndef ICE_GRID_DESCRIPTOR_BUILDER_H
 #define ICE_GRID_DESCRIPTOR_BUILDER_H
 
+#include <Ice/Logger.h>
 #include <IceXML/Parser.h>
 #include <IceGrid/Descriptor.h>
 
@@ -20,7 +21,8 @@ class XmlAttributesHelper
 {
 public:
 
-    XmlAttributesHelper(const IceXML::Attributes&);
+    XmlAttributesHelper(const IceXML::Attributes&, const Ice::LoggerPtr&, const std::string&, int);
+    ~XmlAttributesHelper();
 
     bool contains(const std::string&) const;
     std::map<std::string, std::string> asMap() const;
@@ -31,6 +33,11 @@ public:
 private:
     
     const IceXML::Attributes& _attributes;
+    const Ice::LoggerPtr _logger;
+    const std::string _filename;
+    const int _line;
+
+    mutable std::set<std::string> _used;
 };
 
 class DescriptorBuilder
@@ -55,6 +62,7 @@ public:
     void setVariableOverrides(const std::map<std::string, std::string>&);
     void setDescription(const std::string&);
     void addReplicatedAdapter(const XmlAttributesHelper&);
+    void setLoadBalancing(const XmlAttributesHelper&);
     void addObject(const XmlAttributesHelper&);
     virtual void addVariable(const XmlAttributesHelper&);
 

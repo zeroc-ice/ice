@@ -7,25 +7,54 @@
 //
 // **********************************************************************
 
+#include <Ice/LoggerUtil.h>
 #include <Ice/IdentityUtil.h>
 #include <IceGrid/DescriptorBuilder.h>
+#include <IceGrid/Util.h>
 
 using namespace std;
 using namespace IceGrid;
 
-XmlAttributesHelper::XmlAttributesHelper(const IceXML::Attributes& attrs) : _attributes(attrs)
+XmlAttributesHelper::XmlAttributesHelper(const IceXML::Attributes& attrs, 
+					 const Ice::LoggerPtr& logger,
+					 const string& filename,
+					 int line) :
+    _attributes(attrs),
+    _logger(logger),
+    _filename(filename),
+    _line(line)
 {
+}
+
+XmlAttributesHelper::~XmlAttributesHelper()
+{
+    if(_used.size() < _attributes.size())
+    {
+	vector<string> notUsed;
+	for(map<string, string>::const_iterator p = _attributes.begin(); p != _attributes.end(); ++p)
+	{
+	    if(_used.find(p->first) == _used.end())
+	    {
+		notUsed.push_back(p->first);
+	    }
+	}
+
+	Ice::Warning warn(_logger);
+	warn << "unknown attributes in <" << _filename << "> descriptor, line " << _line << ":\n" << toString(notUsed);
+    }
 }
 
 bool
 XmlAttributesHelper::contains(const string& name) const
 {
+    _used.insert(name);
     return _attributes.find(name) != _attributes.end();
 }
 
 string 
 XmlAttributesHelper::operator()(const string& name) const
 {
+    _used.insert(name);
     IceXML::Attributes::const_iterator p = _attributes.find(name);
     if(p == _attributes.end())
     {
@@ -42,6 +71,7 @@ XmlAttributesHelper::operator()(const string& name) const
 string
 XmlAttributesHelper::operator()(const string& name, const string& def) const
 {
+    _used.insert(name);
     IceXML::Attributes::const_iterator p = _attributes.find(name);
     if(p == _attributes.end())
     {
@@ -56,6 +86,10 @@ XmlAttributesHelper::operator()(const string& name, const string& def) const
 map<string, string>
 XmlAttributesHelper::asMap() const
 {
+    for(map<string, string>::const_iterator p = _attributes.begin(); p != _attributes.end(); ++p)
+    {
+	_used.insert(p->first);
+    }
     return _attributes;
 }
 
@@ -90,25 +124,35 @@ ApplicationDescriptorBuilder::addReplicatedAdapter(const XmlAttributesHelper& at
 {
     ReplicatedAdapterDescriptor adapter;
     adapter.id = attrs("id");
-    string policy = attrs("load-balancing", "random");
-    if(policy == "random")
+    adapter.loadBalancing = new RandomLoadBalancingPolicy(); // Default load balancing
+    _descriptor.replicatedAdapters.push_back(adapter);
+}
+
+void
+ApplicationDescriptorBuilder::setLoadBalancing(const XmlAttributesHelper& attrs)
+{
+    LoadBalancingPolicyPtr policy;
+    string type = attrs("type");
+    if(type == "random")
     {
-	adapter.loadBalancing = new RandomLoadBalancingPolicy();
+	policy = new RandomLoadBalancingPolicy();
     }
-    else if(policy == "round-robin")
+    else if(type == "round-robin")
     {
-	adapter.loadBalancing = new RoundRobinLoadBalancingPolicy();
+	policy = new RoundRobinLoadBalancingPolicy();
     }
-    else if(policy == "adaptive")
+    else if(type == "adaptive")
     {
-	adapter.loadBalancing = new AdaptiveLoadBalancingPolicy();
+	AdaptiveLoadBalancingPolicyPtr alb = new AdaptiveLoadBalancingPolicy();
+	alb->loadSample = attrs("load-sample", "1");
+	policy = alb;
     }
     else
     {
-	throw "invalid load balancing policy `" + policy + "'";
+	throw "invalid load balancing policy `" + type + "'";
     }
-    adapter.loadBalancing->nReplicas = attrs("load-balancing-nreplicas", "0");
-    _descriptor.replicatedAdapters.push_back(adapter);
+    policy->nReplicas = attrs("nreplicas", "0");
+    _descriptor.replicatedAdapters.back().loadBalancing = policy;
 }
 
 void
@@ -126,6 +170,10 @@ ApplicationDescriptorBuilder::addVariable(const XmlAttributesHelper& attrs)
     if(!isOverride(attrs("name")))
     {
 	_descriptor.variables[attrs("name")] = attrs("value", "");
+    }
+    else
+    {
+	attrs.contains("value"); // NOTE: prevents warning about "value" not being used.
     }
 }
 
@@ -154,6 +202,11 @@ ApplicationDescriptorBuilder::addNode(const string& name, const NodeDescriptor& 
     if(p != _descriptor.nodes.end())
     {
 	NodeDescriptor& n = p->second;
+
+	if(!desc.loadFactor.empty())
+	{
+	    n.loadFactor = desc.loadFactor;
+	}
 
 	map<string, string> variables(desc.variables.begin(), desc.variables.end());
 	n.variables.swap(variables);
@@ -213,6 +266,7 @@ NodeDescriptorBuilder::NodeDescriptorBuilder(ApplicationDescriptorBuilder& app, 
     _application(app)
 {
     _name = attrs("name");
+    _descriptor.loadFactor = attrs("loadFactor", "");
 }
 
 auto_ptr<ServerDescriptorBuilder>
@@ -233,6 +287,10 @@ NodeDescriptorBuilder::addVariable(const XmlAttributesHelper& attrs)
     if(!_application.isOverride(attrs("name")))
     {
 	_descriptor.variables[attrs("name")] = attrs("value", "");
+    }
+    else
+    {
+	attrs.contains("value"); // NOTE: prevents warning about "value" not being used.
     }
 }
 

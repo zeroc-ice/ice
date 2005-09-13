@@ -327,6 +327,35 @@ ServerEntry::getNode() const
     return _proxy ? _cache.getNodeCache().get(_loaded->node) : _cache.getNodeCache().get(_load->node);
 }
 
+float
+ServerEntry::getLoad(LoadSample sample) const
+{
+    Lock sync(*this);
+    if(!_loaded.get() && !_load.get())
+    {
+	throw ServerNotExistException();
+    }
+
+    ServerInfo& info = _proxy ? *_loaded.get() : *_load.get();
+    float factor;
+    LoadInfo load = _cache.getNodeCache().get(info.node)->getLoadInfoAndLoadFactor(info.application, factor);
+    if(factor < 0.0f)
+    {
+	factor = 1.0f / load.nProcessors;
+    }
+    switch(sample)
+    {
+    case LoadSample1:
+	return load.load1 * factor;
+    case LoadSample5:
+	return load.load5 * factor;
+    case LoadSample15:
+	return load.load15 * factor;
+    default:
+	assert(false);
+    }
+}
+
 ServerPrx
 ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, int& deactivationTimeout, string& node)
 {

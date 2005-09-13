@@ -40,7 +40,7 @@
       <env>MY_ENV_VARIABLE=12</env>
 
       <target name="moreproperties">
-         <property name="TargetProp" value="1"/>
+        <property name="TargetProp" value="1"/>
       </target>
 
     </server>

@@ -21,7 +21,8 @@
        <directory>${system}/simple</directory>
      </patch>
 
-     <replicated-adapter id="ReplicatedHelloAdapter" load-balancing="adaptive">
+     <replicated-adapter id="ReplicatedHelloAdapter">
+       <load-balancing type="adaptive" load-sample="1"/>
        <object identity="hello" type="::Demo::Hello"/>
      </replicated-adapter>
 

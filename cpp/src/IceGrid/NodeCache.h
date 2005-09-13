@@ -32,13 +32,16 @@ public:
     
     NodeEntry(Cache<std::string, NodeEntry>&, const std::string&);
 
+    void addDescriptor(const std::string&, const NodeDescriptor&);
+    void removeDescriptor(const std::string&);
+
     void addServer(const ServerEntryPtr&);
     void removeServer(const ServerEntryPtr&);
     void setSession(const NodeSessionIPtr&);
 
     NodePrx getProxy() const;
     Ice::StringSeq getServers() const;
-    LoadInfo getLoadInfo() const;
+    LoadInfo getLoadInfoAndLoadFactor(const std::string&, float&) const;
 
     bool canRemove();
     
@@ -48,6 +51,7 @@ private:
     const std::string _name;
     NodeSessionIPtr _session;
     std::map<std::string, ServerEntryPtr> _servers;
+    std::map<std::string, NodeDescriptor> _descriptors;
 };
 typedef IceUtil::Handle<NodeEntry> NodeEntryPtr;
 

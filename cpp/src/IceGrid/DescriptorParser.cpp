@@ -101,7 +101,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 {
     _line = line;
     _column = column;
-    XmlAttributesHelper attributes(attrs);
+    XmlAttributesHelper attributes(attrs, _communicator->getLogger(), _filename, line);
 
     try
     {
@@ -136,6 +136,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    // We don't bother to parse the elements if the elements are enclosed in a target element 
 	    // which won't be deployed.
 	    //
+	    attributes.asMap(); // NOTE: prevents warning about attributes not being used.
 	    return;
 	}
 	else if(name == "include")
@@ -267,8 +268,16 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    {
 		error("the <replicated-adapter> element can only be a child of a <application> element");
 	    }
-	    _currentApplication->addReplicatedAdapter(attrs);
+	    _currentApplication->addReplicatedAdapter(attributes);
 	    _inAdapter = true;
+	}
+	else if(name == "load-balancing")
+	{
+	    if(!_inAdapter || _currentServer.get())
+	    {
+		error("the <load-balancing> element can only be a child of a <replicated-adapter> element");
+	    }
+	    _currentApplication->setLoadBalancing(attributes);
 	}
 	else if(name == "variable")
 	{
@@ -333,11 +342,11 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    }
 	    if(!_currentServer.get())
 	    {
-		_currentApplication->addPatch(attrs);
+		_currentApplication->addPatch(attributes);
 	    }
 	    else
 	    {
-		_currentServer->addPatch(attrs);
+		_currentServer->addPatch(attributes);
 	    }
 	    _inPatch = true;
 	}
@@ -347,7 +356,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    {
 		error("the <use-patch> element can only be a child of a <server> or <icebox> element");
 	    }
-	    _currentServer->addUsePatch(attrs);
+	    _currentServer->addUsePatch(attributes);
 	}
 	else if(name == "dbenv")
 	{
@@ -355,7 +364,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    {
 		error("the <dbenv> element can only be a child of an <server> or <service> element");
 	    }
-	    _currentCommunicator->addDbEnv(attrs);
+	    _currentCommunicator->addDbEnv(attributes);
 	    _inDbEnv = true;
 	}
 	else if(name == "dbproperty")
@@ -364,7 +373,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    {
 		error("the <dbproperty> element can only be a child of a <dbenv> element");
 	    }
-	    _currentCommunicator->addDbEnvProperty(attrs);
+	    _currentCommunicator->addDbEnvProperty(attributes);
 	}
     }
     catch(const string& reason)

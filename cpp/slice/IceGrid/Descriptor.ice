@@ -438,6 +438,7 @@ class RoundRobinLoadBalancingPolicy extends LoadBalancingPolicy
 
 class AdaptiveLoadBalancingPolicy extends LoadBalancingPolicy
 {
+    string loadSample;
 };
 
 /**

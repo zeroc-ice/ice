@@ -27,6 +27,13 @@ typedef std::vector<ServerEntryPtr> ServerEntrySeq;
 class AdapterEntry;
 typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
 
+enum LoadSample
+{
+    LoadSample1,
+    LoadSample5,
+    LoadSample15
+};
+
 class AdapterEntry : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
@@ -51,6 +58,7 @@ private:
     bool _replicated;
     LoadBalancingPolicyPtr _loadBalancing;
     int _loadBalancingNReplicas;
+    LoadSample _loadSample;
     ServerEntrySeq _servers;
     int _lastServer;
 };
