@@ -9,7 +9,7 @@
 
 import Demo.*;
 
-public class Client
+public class Client extends Ice.Application
 {
     private static void
     menu()
@@ -30,10 +30,10 @@ public class Client
             "?: help\n");
     }
 
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int
+    run(String[] args)
     {
-        Ice.Properties properties = communicator.getProperties();
+        Ice.Properties properties = communicator().getProperties();
         final String proxyProperty = "Printer.Proxy";
         String proxy = properties.getProperty(proxyProperty);
         if(proxy.length() == 0)
@@ -42,7 +42,7 @@ public class Client
             return 1;
         }
 
-        Ice.ObjectPrx obj = communicator.stringToProxy(proxy);
+        Ice.ObjectPrx obj = communicator().stringToProxy(proxy);
 
         menu();
 
@@ -65,7 +65,7 @@ public class Client
                     //
                     // Marshal the in parameter.
                     //
-                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
+                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator());
                     out.writeString("The streaming API works!");
 
                     //
@@ -83,7 +83,7 @@ public class Client
                     //
                     // Marshal the in parameter.
                     //
-                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
+                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator());
                     final String[] arr = { "The", "streaming", "API", "works!" };
                     Demo.StringSeqHelper.write(out, arr);
 
@@ -102,7 +102,7 @@ public class Client
                     //
                     // Marshal the in parameter.
                     //
-                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
+                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator());
                     java.util.Map dict = new java.util.HashMap();
                     dict.put("The", "streaming");
                     dict.put("API", "works!");
@@ -123,7 +123,7 @@ public class Client
                     //
                     // Marshal the in parameter.
                     //
-                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
+                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator());
                     Demo.Color.green.__write(out);
 
                     //
@@ -141,7 +141,7 @@ public class Client
                     //
                     // Marshal the in parameter.
                     //
-                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
+                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator());
                     Demo.Structure s = new Demo.Structure();
                     s.name = "red";
                     s.value = Demo.Color.red;
@@ -162,7 +162,7 @@ public class Client
                     //
                     // Marshal the in parameter.
                     //
-                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
+                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator());
                     Demo.Structure[] arr = new Demo.Structure[3];
                     arr[0] = new Demo.Structure();
                     arr[0].name = "red";
@@ -190,7 +190,7 @@ public class Client
                     //
                     // Marshal the in parameter.
                     //
-                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
+                    Ice.OutputStream out = Ice.Util.createOutputStream(communicator());
                     Demo.C c = new Demo.C();
                     c.s = new Demo.Structure();
                     c.s.name = "blue";
@@ -223,7 +223,7 @@ public class Client
                     //
                     // Unmarshal the results.
                     //
-                    Ice.InputStream in = Ice.Util.createInputStream(communicator, outParams.value);
+                    Ice.InputStream in = Ice.Util.createInputStream(communicator(), outParams.value);
                     Demo.CHolder c = new Demo.CHolder();
                     Demo.CHelper.read(in, c);
                     String str = in.readString();
@@ -244,7 +244,7 @@ public class Client
                         continue;
                     }
 
-                    Ice.InputStream in = Ice.Util.createInputStream(communicator, outParams.value);
+                    Ice.InputStream in = Ice.Util.createInputStream(communicator(), outParams.value);
                     try
                     {
                         in.throwException();
@@ -294,35 +294,8 @@ public class Client
     public static void
     main(String[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(args, properties);
-            status = run(args, communicator);
-        }
-        catch(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+        Client app = new Client();
+        int status = app.main("Client", args, "config");
         System.exit(status);
     }
 }

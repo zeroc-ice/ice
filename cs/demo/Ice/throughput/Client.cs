@@ -10,7 +10,7 @@
 using System;
 using Demo;
 
-public class Client
+public class Client : Ice.Application
 {
     private static void menu()
     {
@@ -34,9 +34,10 @@ public class Client
 			   + "?: help\n");
     }
     
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int
+    run(string[] args)
     {
-        Ice.Properties properties = communicator.getProperties();
+        Ice.Properties properties = communicator().getProperties();
         string refProperty = "Throughput.Throughput";
         string r = properties.getProperty(refProperty);
         if(r.Length == 0)
@@ -45,7 +46,7 @@ public class Client
             return 1;
         }
         
-        Ice.ObjectPrx b = communicator.stringToProxy(r);
+        Ice.ObjectPrx b = communicator().stringToProxy(r);
         ThroughputPrx throughput = ThroughputPrxHelper.checkedCast(b);
         if(throughput == null)
         {
@@ -386,38 +387,11 @@ public class Client
         
         return 0;
     }
-    
+
     public static void Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-        
-        try
-        {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(ref args, properties);
-            status = run(args, communicator);
-        }
-        catch(System.Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-        
-	if(communicator != null)
-	{
-	    try
-	    {
-		communicator.destroy();
-	    }
-	    catch(System.Exception ex)
-	    {
-		Console.Error.WriteLine(ex);
-		status = 1;
-	    }
-	}
-        
+        Client app = new Client();
+        int status = app.main(args, "config");
         System.Environment.Exit(status);
     }
 }

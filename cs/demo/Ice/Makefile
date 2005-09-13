@@ -11,7 +11,16 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= bidir callback hello invoke latency nested session throughput value
+SUBDIRS		= bidir \
+		  callback \
+		  hello \
+		  invoke \
+		  latency \
+		  minimal \
+		  nested \
+		  session \
+		  throughput \
+		  value
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

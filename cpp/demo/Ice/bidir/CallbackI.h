@@ -59,11 +59,10 @@ private:
 
     private:
 
-	CallbackSenderIPtr _callbackSender;
+	const CallbackSenderIPtr _callbackSender;
     };
 
     IceUtil::ThreadPtr _callbackSenderThread;
-
 };
 
 #endif

@@ -11,8 +11,8 @@ top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe
 
-C_SRCS		= Client.cs SessionClient.cs
-S_SRCS		= HelloI.cs ReapThread.cs Server.cs SessionFactoryI.cs SessionI.cs SessionServer.cs
+C_SRCS		= Client.cs 
+S_SRCS		= HelloI.cs ReapThread.cs Server.cs SessionFactoryI.cs SessionI.cs
 
 SLICE_SRCS	= $(SDIR)/Session.ice
 

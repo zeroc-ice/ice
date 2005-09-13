@@ -13,14 +13,11 @@ class InitialI extends Initial
 {
     InitialI(Ice.ObjectAdapter adapter)
     {
-        _simple = new Simple();
         _simple.message = "a message 4 u";
 
-        _printer = new PrinterI();
         _printer.message = "Ice rulez!";
         _printerProxy = PrinterPrxHelper.uncheckedCast(adapter.addWithUUID(_printer));
 
-        _derivedPrinter = new DerivedPrinterI();
         _derivedPrinter.message = _printer.message;
         _derivedPrinter.derivedMessage = "a derived message 4 u";
         adapter.addWithUUID(_derivedPrinter);
@@ -54,8 +51,8 @@ class InitialI extends Initial
         throw ex;
     }
 
-    private Simple _simple;
-    private Printer _printer;
+    private Simple _simple = new Simple();
+    private Printer _printer = new PrinterI();
     private PrinterPrx _printerProxy;
-    private DerivedPrinter _derivedPrinter;
+    private DerivedPrinter _derivedPrinter = new DerivedPrinterI();
 }

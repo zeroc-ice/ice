@@ -7,12 +7,25 @@
 //
 // **********************************************************************
 
-public class Server
+import Demo.*;
+
+public class Server extends Ice.Application
 {
+    public int
+    run(String[] args)
+    {
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Nested.Server");
+        NestedPrx self = NestedPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("nestedServer")));
+        adapter.add(new NestedI(self), Ice.Util.stringToIdentity("nestedServer"));
+        adapter.activate();
+        communicator().waitForShutdown();
+        return 0;
+    }
+
     public static void
     main(String[] args)
     {
-        NestedServer app = new NestedServer();
+        Server app = new Server();
         int status = app.main("Server", args, "config");
         System.exit(status);
     }

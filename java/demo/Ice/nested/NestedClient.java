@@ -23,8 +23,7 @@ class NestedClient extends Ice.Application
             return 1;
         }
 
-        Ice.ObjectPrx base = communicator().stringToProxy(proxy);
-        NestedPrx nested = NestedPrxHelper.checkedCast(base);
+        NestedPrx nested = NestedPrxHelper.checkedCast(communicator().stringToProxy(proxy));
         if(nested == null)
         {
             System.err.println("invalid proxy");

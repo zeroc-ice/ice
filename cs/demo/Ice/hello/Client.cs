@@ -10,7 +10,7 @@
 using System;
 using Demo;
 
-public class Client
+public class Client : Ice.Application
 {
     private static void menu()
     {
@@ -28,9 +28,9 @@ public class Client
 	    "?: help\n");
     }
     
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        Ice.Properties properties = communicator.getProperties();
+        Ice.Properties properties = communicator().getProperties();
         string proxyProperty = "Hello.Proxy";
         string proxy = properties.getProperty(proxyProperty);
         if(proxy.Length == 0)
@@ -39,8 +39,8 @@ public class Client
             return 1;
         }
         
-        Ice.ObjectPrx basePrx = communicator.stringToProxy(proxy);
-        HelloPrx twoway = HelloPrxHelper.checkedCast(basePrx.ice_twoway().ice_timeout(-1).ice_secure(false));
+        HelloPrx twoway = HelloPrxHelper.checkedCast(
+	    communicator().stringToProxy(proxy).ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {
             Console.Error.WriteLine("invalid proxy");
@@ -89,7 +89,7 @@ public class Client
                 }
                 else if(line.Equals("f"))
                 {
-                    communicator.flushBatchRequests();
+                    communicator().flushBatchRequests();
                 }
                 else if(line.Equals("T"))
                 {
@@ -142,38 +142,11 @@ public class Client
         
         return 0;
     }
-    
+
     public static void Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-        
-        try
-        {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(ref args, properties);
-            status = run(args, communicator);
-        }
-        catch(System.Exception ex)
-        {
-	    Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-	if(communicator != null)
-	{
-	    try
-	    {
-		communicator.destroy();
-	    }
-	    catch(System.Exception ex)
-	    {
-		Console.Error.WriteLine(ex);
-		status = 1;
-	    }
-	}
-        
+        Client app = new Client();
+        int status = app.main(args, "config");
         System.Environment.Exit(status);
     }
 }

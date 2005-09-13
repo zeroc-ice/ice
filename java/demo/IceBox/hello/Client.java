@@ -9,9 +9,9 @@
 
 import Demo.*;
 
-public class Client
+public class Client extends Ice.Application
 {
-    private static void
+    private void
     menu()
     {
         System.out.println(
@@ -27,10 +27,10 @@ public class Client
             "?: help\n");
     }
 
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int
+    run(String[] args)
     {
-        Ice.Properties properties = communicator.getProperties();
+        Ice.Properties properties = communicator().getProperties();
         final String refProperty = "Hello.Hello";
         String ref = properties.getProperty(refProperty);
         if(ref.length() == 0)
@@ -39,8 +39,8 @@ public class Client
             return 1;
         }
 
-        Ice.ObjectPrx base = communicator.stringToProxy(ref);
-        HelloPrx twoway = HelloPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(false));
+        HelloPrx twoway = HelloPrxHelper.checkedCast(
+	    communicator().stringToProxy(ref).ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {
             System.err.println("invalid object reference");
@@ -91,7 +91,7 @@ public class Client
                 }
                 else if(line.equals("f"))
                 {
-		    communicator.flushBatchRequests();
+		    communicator().flushBatchRequests();
                 }
                 else if(line.equals("T"))
                 {
@@ -148,35 +148,8 @@ public class Client
     public static void
     main(String[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(args, properties);
-            status = run(args, communicator);
-        }
-        catch(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
-        System.exit(status);
+	Client app = new Client();
+	int status = app.main("Client", args, "config");
+	System.exit(status);
     }
 }

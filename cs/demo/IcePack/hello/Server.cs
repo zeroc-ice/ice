@@ -17,8 +17,7 @@ public class Server : Ice.Application
 
         String id = communicator().getProperties().getProperty("Identity");
 
-        Ice.Object @object = new HelloFactoryI();
-        adapter.add(@object, Ice.Util.stringToIdentity(id));
+        adapter.add(new HelloFactoryI(), Ice.Util.stringToIdentity(id));
         adapter.activate();
 
         communicator().waitForShutdown();

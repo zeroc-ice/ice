@@ -11,8 +11,8 @@ top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe
 
-C_SRCS		= CallbackClient.cs CallbackReceiverI.cs Client.cs
-S_SRCS		= CallbackSenderI.cs CallbackServer.cs Server.cs
+C_SRCS		= CallbackReceiverI.cs Client.cs
+S_SRCS		= CallbackSenderI.cs Server.cs
 
 SLICE_SRCS	= $(SDIR)/Callback.ice
 

@@ -9,15 +9,11 @@
 
 import Demo.*;
 
-class CallbackServer extends Ice.Application
+public class HelloI extends _HelloDisp
 {
-    public int
-    run(String[] args)
+    public void
+    sayHello(Ice.Current current)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
-        adapter.add(new CallbackI(), Ice.Util.stringToIdentity("callback"));
-        adapter.activate();
-	communicator().waitForShutdown();
-        return 0;
+        System.out.println("Hello World!");
     }
 }

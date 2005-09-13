@@ -7,11 +7,22 @@
 //
 // **********************************************************************
 
-public class Server
+using Demo;
+
+public class Server : Ice.Application
 {
+    public override int run(string[] args)
+    {
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
+        adapter.add(new CallbackI(), Ice.Util.stringToIdentity("callback"));
+        adapter.activate();
+	communicator().waitForShutdown();
+        return 0;
+    }
+
     public static void Main(string[] args)
     {
-        CallbackServer app = new CallbackServer();
+        Server app = new Server();
         int status = app.main(args, "config.server");
         System.Environment.Exit(status);
     }

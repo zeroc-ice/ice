@@ -21,22 +21,21 @@ public:
 };
 
 int
-Server::run(int argc, char* argv[])
-{
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Hello");
-    string id = communicator()->getProperties()->getProperty("Identity");
-
-    Ice::ObjectPtr object = new HelloI;
-    adapter->add(object, Ice::stringToIdentity(id));
-    adapter->activate();
-    communicator()->waitForShutdown();
-    return EXIT_SUCCESS;
-}
-
-int
 main(int argc, char* argv[])
 {
     Server app;
     int status = app.main(argc, argv);
     return status;
+}
+
+int
+Server::run(int argc, char* argv[])
+{
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Hello");
+    string id = communicator()->getProperties()->getProperty("Identity");
+
+    adapter->add(new HelloI(), Ice::stringToIdentity(id));
+    adapter->activate();
+    communicator()->waitForShutdown();
+    return EXIT_SUCCESS;
 }

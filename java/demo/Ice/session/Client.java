@@ -9,12 +9,238 @@
 
 import Demo.*;
 
-public class Client
+public class Client extends Ice.Application
 {
+    static private class SessionRefreshThread extends Thread
+    {
+	SessionRefreshThread(Ice.Logger logger, long timeout, SessionPrx session)
+	{
+	    _logger = logger;
+	    _session = session;
+	    _timeout = timeout;
+	}
+
+	synchronized public void
+	run()
+	{
+	    while(!_terminated)
+	    {
+		try
+		{
+		    wait(_timeout);
+		}
+		catch(InterruptedException e)
+		{
+		}
+		if(!_terminated)
+		{
+		    try
+		    {
+			_session.refresh();
+		    }
+		    catch(Ice.LocalException ex)
+		    {
+			_logger.warning("SessionRefreshThread: " + ex);
+    	    	    	_terminated = true;
+		    }
+		}
+	    }
+	}
+
+	synchronized private void
+	terminate()
+	{
+	    _terminated = true;
+	    notify();
+	}
+
+	final private Ice.Logger _logger;
+	final private SessionPrx _session;
+	final private long _timeout;
+	private boolean _terminated = false;
+    }
+
+    private static void
+    menu()
+    {
+        System.out.println(
+	    "usage:\n" +
+	    "c:     create a new per-client hello object\n" +
+	    "0-9:   send a greeting to a hello object\n" +
+	    "s:     shutdown the server and exit\n" +
+	    "x:     exit\n" +
+	    "t:     exit without destroying the session\n" +
+	    "?:     help\n");
+    }
+
+    public int
+    run(String[] args)
+    {
+        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
+	String name;
+	try
+	{
+	    do
+	    {
+		System.out.print("Please enter your name ==> ");
+		System.out.flush();
+		name = in.readLine().trim();
+	    }
+	    while(name.length() == 0);
+	}
+	catch(java.io.IOException ex)
+	{
+	    ex.printStackTrace();
+	    return 0;
+	}
+
+        Ice.Properties properties = communicator().getProperties();
+        final String proxyProperty = "SessionFactory.Proxy";
+        String proxy = properties.getProperty(proxyProperty);
+        if(proxy.length() == 0)
+        {
+            System.err.println("property `" + proxyProperty + "' not set");
+            return 1;
+        }
+
+        Ice.ObjectPrx base = communicator().stringToProxy(proxy);
+        SessionFactoryPrx factory = SessionFactoryPrxHelper.checkedCast(base);
+        if(factory == null)
+        {
+            System.err.println("invalid proxy");
+            return 1;
+        }
+
+    	SessionPrx session = factory.create(name);
+    	SessionRefreshThread refresh = new SessionRefreshThread(communicator().getLogger(), 5000, session);
+    	refresh.start();
+
+    	java.util.ArrayList hellos = new java.util.ArrayList();
+
+        menu();
+
+
+	try
+	{
+	    boolean destroy = true;
+	    boolean shutdown = false;
+	    while(true)
+	    {
+                System.out.print("==> ");
+                System.out.flush();
+		String line = in.readLine();
+                if(line == null)
+                {
+                    break;
+                }
+    	    	if(line.length() > 0 && Character.isDigit(line.charAt(0)))
+		{
+		    int index;
+		    try
+		    {
+			index = Integer.parseInt(line);
+		    }
+		    catch(NumberFormatException e)
+		    {
+			menu();
+			continue;
+		    }
+		    if(index < hellos.size())
+		    {
+			HelloPrx hello = (HelloPrx)hellos.get(index);
+			hello.sayHello();
+		    }
+		    else
+		    {
+			System.out.println("index is too high. " + hellos.size() + " exist so far. " +
+					   "Use 'c' to create a new hello object.");
+		    }
+		}
+                else if(line.equals("c"))
+                {
+                    hellos.add(session.createHello());
+    	    	    System.out.println("created hello object " + (hellos.size()-1));
+                }
+                else if(line.equals("s"))
+                {
+		    destroy = false;
+		    shutdown = true;
+		    break;
+                }
+                else if(line.equals("x"))
+                {
+    	    	    break;
+                }
+                else if(line.equals("t"))
+                {
+		    destroy = false;
+		    break;
+                }
+                else if(line.equals("?"))
+                {
+                    menu();
+                }
+                else
+                {
+                    System.out.println("unknown command `" + line + "'");
+                    menu();
+                }
+            }
+	    //
+	    // The refresher thread must be terminated before destroy is
+	    // called, otherwise it might get ObjectNotExistException. refresh
+	    // is set to 0 so that if session->destroy() raises an exception
+	    // the thread will not be re-terminated and re-joined.
+	    //
+	    refresh.terminate();
+	    try
+	    {
+		refresh.join();
+	    }
+	    catch(InterruptedException e)
+	    {
+	    }
+	    refresh = null;
+
+    	    if(destroy)
+	    {
+		session.destroy();
+	    }
+    	    if(shutdown)
+	    {
+		factory.shutdown();
+	    }
+	}
+	catch(java.io.IOException ex)
+	{
+	    ex.printStackTrace();
+	}
+	catch(Ice.LocalException ex)
+	{
+	    ex.printStackTrace();
+	}
+	finally
+	{
+	    if(refresh != null)
+	    {
+		refresh.terminate();
+		try
+		{
+		    refresh.join();
+		}
+		catch(InterruptedException e)
+		{
+		}
+	    }
+	}
+
+        return 0;
+    }
+
     public static void
     main(String[] args)
     {
-        SessionClient app = new SessionClient();
+        Client app = new Client();
         int status = app.main("Client", args, "config");
         System.exit(status);
     }

@@ -10,49 +10,22 @@
 using System;
 using Demo;
 
-public class Server
+public class Server : Ice.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int
+    run(string[] args)
     {
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Latency");
-        Ice.Object @object = new Ping();
-        adapter.add(@object, Ice.Util.stringToIdentity("ping"));
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Latency");
+        adapter.add(new Ping(), Ice.Util.stringToIdentity("ping"));
         adapter.activate();
-        communicator.waitForShutdown();
+        communicator().waitForShutdown();
         return 0;
     }
-    
+
     public static void Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-        
-        try
-        {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(ref args, properties);
-            status = run(args, communicator);
-        }
-        catch(System.Exception ex)
-        {
-	    Console.Error.WriteLine(ex);
-            status = 1;
-        }
-        
-	if(communicator != null)
-	{
-	    try
-	    {
-		communicator.destroy();
-	    }
-	    catch(System.Exception ex)
-	    {
-		Console.Error.WriteLine(ex);
-		status = 1;
-	    }
-	}
-        
+        Server app = new Server();
+        int status = app.main(args, "config");
         System.Environment.Exit(status);
     }
 }

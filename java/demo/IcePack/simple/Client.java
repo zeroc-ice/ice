@@ -9,9 +9,9 @@
 
 import Demo.*;
 
-public class Client
+public class Client extends Ice.Application
 {
-    private static void
+    private void
     menu()
     {
         System.out.println(
@@ -28,12 +28,12 @@ public class Client
             "?: help\n");
     }
 
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int
+    run(String[] args)
     {
-        Ice.Properties properties = communicator.getProperties();
+        Ice.Properties properties = communicator().getProperties();
 
-	IcePack.QueryPrx query = IcePack.QueryPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Query"));
+	IcePack.QueryPrx query = IcePack.QueryPrxHelper.checkedCast(communicator().stringToProxy("IcePack/Query"));
 
 	Ice.ObjectPrx base = null;
 	try
@@ -94,7 +94,7 @@ public class Client
                 }
                 else if(line.equals("f"))
                 {
-		    communicator.flushBatchRequests();
+		    communicator().flushBatchRequests();
                 }
                 else if(line.equals("T"))
                 {
@@ -155,35 +155,8 @@ public class Client
     public static void
     main(String[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(args, properties);
-            status = run(args, communicator);
-        }
-        catch(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
-        System.exit(status);
+	Client app = new Client();
+	int status = app.main("Client", args, "config");
+	System.exit(status);
     }
 }

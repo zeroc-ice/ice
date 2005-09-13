@@ -15,8 +15,7 @@ public class Server extends Ice.Application
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");
 	String id = communicator().getProperties().getProperty("Identity");
 
-        Ice.Object object = new HelloI();
-        adapter.add(object, Ice.Util.stringToIdentity(id));
+        adapter.add(new HelloI(), Ice.Util.stringToIdentity(id));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;
@@ -26,6 +25,7 @@ public class Server extends Ice.Application
     main(String[] args)
     {
 	Server app = new Server();
-	app.main("demo.IcePack.hello.Server", args);
+	int status = app.main("demo.IcePack.hello.Server", args);
+	System.exit(status);
     }
 }

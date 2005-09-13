@@ -17,6 +17,7 @@
         <ant dir="hello"/>
         <ant dir="invoke"/>
         <ant dir="latency"/>
+        <ant dir="minimal"/>
         <ant dir="nested"/>
         <ant dir="throughput"/>
         <ant dir="value"/>
@@ -29,6 +30,7 @@
         <ant dir="hello" target="clean"/>
         <ant dir="invoke" target="clean"/>
         <ant dir="latency" target="clean"/>
+        <ant dir="minimal" target="clean"/>
         <ant dir="nested" target="clean"/>
         <ant dir="throughput" target="clean"/>
         <ant dir="value" target="clean"/>

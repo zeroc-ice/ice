@@ -10,49 +10,22 @@
 using Demo;
 using System;
 
-public class Server
+public class Server : Ice.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int
+    run(string[] args)
     {
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Printer");
-        Ice.Object @object = new PrinterI();
-        adapter.add(@object, Ice.Util.stringToIdentity("printer"));
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Printer");
+        adapter.add(new PrinterI(), Ice.Util.stringToIdentity("printer"));
         adapter.activate();
-        communicator.waitForShutdown();
+        communicator().waitForShutdown();
         return 0;
     }
 
     public static void Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(ref args, properties);
-            status = run(args, communicator);
-        }
-        catch(Ice.LocalException ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        Environment.Exit(status);
+        Server app = new Server();
+        int status = app.main(args, "config");
+        System.Environment.Exit(status);
     }
 }

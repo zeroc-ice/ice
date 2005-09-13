@@ -53,8 +53,8 @@ CallbackClient::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
-    CallbackSenderPrx twoway = CallbackSenderPrx::checkedCast(base->ice_twoway()->ice_timeout(-1)->ice_secure(false));
+    CallbackSenderPrx twoway = CallbackSenderPrx::checkedCast(
+	communicator()->stringToProxy(proxy)->ice_twoway()->ice_timeout(-1)->ice_secure(false));
     if(!twoway)
     {
 	cerr << appName() << ": invalid proxy" << endl;

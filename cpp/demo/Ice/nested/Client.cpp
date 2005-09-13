@@ -39,8 +39,7 @@ NestedClient::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
-    NestedPrx nested = NestedPrx::checkedCast(base);
+    NestedPrx nested = NestedPrx::checkedCast(communicator()->stringToProxy(proxy));
     if(!nested)
     {
 	cerr << appName() << ": invalid proxy" << endl;

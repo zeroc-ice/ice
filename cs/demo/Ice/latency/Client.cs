@@ -10,11 +10,12 @@
 using System;
 using Demo;
 
-public class Client
+public class Client : Ice.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int
+    run(string[] args)
     {
-        Ice.Properties properties = communicator.getProperties();
+        Ice.Properties properties = communicator().getProperties();
         string refProperty = "Latency.Ping";
         string @ref = properties.getProperty(refProperty);
         if(@ref.Length == 0)
@@ -23,8 +24,7 @@ public class Client
             return 1;
         }
         
-        Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
-        PingPrx ping = PingPrxHelper.checkedCast(@base);
+        PingPrx ping = PingPrxHelper.checkedCast(communicator().stringToProxy(@ref));
         if(ping == null)
         {
             Console.Error.WriteLine("invalid proxy");
@@ -51,38 +51,11 @@ public class Client
         
         return 0;
     }
-    
+
     public static void Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-        
-        try
-        {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(ref args, properties);
-            status = run(args, communicator);
-        }
-        catch(System.Exception ex)
-        {
-	    Console.Error.WriteLine(ex);
-            status = 1;
-        }
-        
-	if(communicator != null)
-	{
-	    try
-	    {
-		communicator.destroy();
-	    }
-	    catch(System.Exception ex)
-	    {
-		Console.Error.WriteLine(ex);
-		status = 1;
-	    }
-	}
-        
+        Client app = new Client();
+        int status = app.main(args, "config");
         System.Environment.Exit(status);
     }
 }

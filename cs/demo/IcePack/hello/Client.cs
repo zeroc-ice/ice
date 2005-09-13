@@ -10,7 +10,7 @@
 using System;
 using Demo;
 
-public class Client
+public class Client : Ice.Application
 {
     private static void menu()
     {
@@ -26,9 +26,9 @@ public class Client
             "?: help\n");
     }
 
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        IcePack.QueryPrx query = IcePack.QueryPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Query"));
+        IcePack.QueryPrx query = IcePack.QueryPrxHelper.checkedCast(communicator().stringToProxy("IcePack/Query"));
 
         //
         // Get an object implementing the HelloFactory interface.
@@ -156,35 +156,8 @@ public class Client
 
     public static void Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(ref args, properties);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        Environment.Exit(status);
+        Client app = new Client();
+        int status = app.main(args, "config");
+        System.Environment.Exit(status);
     }
 }

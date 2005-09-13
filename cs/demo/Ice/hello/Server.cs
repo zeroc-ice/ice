@@ -7,49 +7,21 @@
 //
 // **********************************************************************
 
-public class Server
+public class Server : Ice.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Hello");
-        Ice.Object obj = new HelloI();
-        adapter.add(obj, Ice.Util.stringToIdentity("hello"));
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");
+        adapter.add(new HelloI(), Ice.Util.stringToIdentity("hello"));
         adapter.activate();
-        communicator.waitForShutdown();
+        communicator().waitForShutdown();
         return 0;
     }
-    
+
     public static void Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-        
-        try
-        {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(ref args, properties);
-            status = run(args, communicator);
-        }
-        catch(System.Exception ex)
-        {
-	    System.Console.Error.WriteLine(ex);
-            status = 1;
-        }
-        
-	if(communicator != null)
-	{
-	    try
-	    {
-		communicator.destroy();
-	    }
-	    catch(System.Exception ex)
-	    {
-		System.Console.Error.WriteLine(ex);
-		status = 1;
-	    }
-	}
-        
+        Server app = new Server();
+        int status = app.main(args, "config");
         System.Environment.Exit(status);
     }
 }

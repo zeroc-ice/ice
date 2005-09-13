@@ -11,13 +11,6 @@ import Demo.*;
 
 class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 {
-    CallbackSenderI()
-    {
-	_destroy = false;
-	_num = 0;
-	_clients = new java.util.Vector();
-    }
-
     synchronized public void
     destroy()
     {
@@ -73,7 +66,7 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 	}
     }
 
-    private boolean _destroy;
-    private int _num;
-    private java.util.Vector _clients;
+    private boolean _destroy = false;
+    private int _num = 0;
+    private java.util.Vector _clients = new java.util.Vector();
 }

@@ -9,7 +9,7 @@
 
 using System;
 
-public class SessionServer
+public class SessionServer : Ice.Application
 {
     sealed class DummyPermissionVerifierI : Glacier2._PermissionsVerifierDisp
     {
@@ -21,22 +21,19 @@ public class SessionServer
 	}
     };
 
-    class Application : Ice.Application
+    public override int run(string[] args)
     {
-	public override int run(string[] args)
-	{
-	    Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionServer");
-	    adapter.add(new DummyPermissionVerifierI(), Ice.Util.stringToIdentity("verifier"));
-	    adapter.add(new SessionManagerI(), Ice.Util.stringToIdentity("sessionmanager"));
-	    adapter.activate();
-	    communicator().waitForShutdown();
-	    return 0;
-	}
-    };
+	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionServer");
+	adapter.add(new DummyPermissionVerifierI(), Ice.Util.stringToIdentity("verifier"));
+	adapter.add(new SessionManagerI(), Ice.Util.stringToIdentity("sessionmanager"));
+	adapter.activate();
+	communicator().waitForShutdown();
+	return 0;
+    }
 
     public static void Main(string[] args)
     {
-	Application app = new Application();
+	SessionServer app = new SessionServer();
         int status = app.main(args, "config.sessionserver");
         Environment.Exit(status);
     }

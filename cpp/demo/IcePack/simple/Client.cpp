@@ -14,8 +14,26 @@
 using namespace std;
 using namespace Demo;
 
+class HelloClient : public Ice::Application
+{
+public:
+
+    virtual int run(int, char*[]);
+
+private:
+
+    void menu();
+};
+
+int
+main(int argc, char* argv[])
+{
+    HelloClient app;
+    return app.main(argc, argv, "config");
+}
+
 void
-menu()
+HelloClient::menu()
 {
     cout <<
 	"usage:\n"
@@ -33,11 +51,11 @@ menu()
 }
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+HelloClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
+    Ice::PropertiesPtr properties = communicator()->getProperties();
 
-    IcePack::QueryPrx query = IcePack::QueryPrx::checkedCast(communicator->stringToProxy("IcePack/Query"));
+    IcePack::QueryPrx query = IcePack::QueryPrx::checkedCast(communicator()->stringToProxy("IcePack/Query"));
 
     Ice::ObjectPrx base = query->findObjectByType("::Demo::Hello");
     HelloPrx twoway = HelloPrx::checkedCast(base->ice_twoway()->ice_timeout(-1)->ice_secure(false));
@@ -99,7 +117,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    }
 	    else if(c == 'f')
 	    {
-		communicator->flushBatchRequests();
+		communicator()->flushBatchRequests();
 	    }
 	    else if(c == 'T')
 	    {
@@ -172,37 +190,3 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-	Ice::PropertiesPtr properties = Ice::createProperties();
-        properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
-	status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
-}

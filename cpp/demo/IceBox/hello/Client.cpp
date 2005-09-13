@@ -60,8 +60,8 @@ HelloClient::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
-    HelloPrx twoway = HelloPrx::checkedCast(base->ice_twoway()->ice_timeout(-1)->ice_secure(false));
+    HelloPrx twoway = HelloPrx::checkedCast(
+	communicator()->stringToProxy(proxy)->ice_twoway()->ice_timeout(-1)->ice_secure(false));
     if(!twoway)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;

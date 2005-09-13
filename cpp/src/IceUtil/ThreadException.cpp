@@ -15,6 +15,7 @@ IceUtil::ThreadSyscallException::ThreadSyscallException(const char* file, int li
     Exception(file, line),
     _error(err)
 {
+	abort(); //XXX:
 }
     
 const char* IceUtil::ThreadSyscallException::_name = "IceUtil::ThreadSyscallException";

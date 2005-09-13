@@ -7,12 +7,24 @@
 //
 // **********************************************************************
 
-public class Server
+import Demo.*;
+
+public class Server extends Ice.Application
 {
+    public int
+    run(String[] args)
+    {
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
+        adapter.add(new CallbackI(), Ice.Util.stringToIdentity("callback"));
+        adapter.activate();
+	communicator().waitForShutdown();
+        return 0;
+    }
+
     public static void
     main(String[] args)
     {
-        CallbackServer app = new CallbackServer();
+        Server app = new Server();
         int status = app.main("Server", args, "config.server");
         System.exit(status);
     }

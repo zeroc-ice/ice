@@ -14,8 +14,7 @@ public class Server : Ice.Application
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");
 	string id = communicator().getProperties().getProperty("Identity");
 
-        Ice.Object @object = new HelloI();
-        adapter.add(@object, Ice.Util.stringToIdentity(id));
+        adapter.add(new HelloI(), Ice.Util.stringToIdentity(id));
         adapter.activate();
         communicator().waitForShutdown();
         return 0;
@@ -24,6 +23,7 @@ public class Server : Ice.Application
     static public void Main(string[] args)
     {
 	Server app = new Server();
-	app.main(args);
+	int status = app.main(args);
+        System.Environment.Exit(status);
     }
 }

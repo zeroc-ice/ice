@@ -7,11 +7,23 @@
 //
 // **********************************************************************
 
-public class Server
+using Demo;
+
+public class Server : Ice.Application
 {
+    public override int run(string[] args)
+    {
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Nested.Server");
+        NestedPrx self = NestedPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("nestedServer")));
+        adapter.add(new NestedI(self), Ice.Util.stringToIdentity("nestedServer"));
+        adapter.activate();
+        communicator().waitForShutdown();
+        return 0;
+    }
+
     public static void Main(string[] args)
     {
-        NestedServer app = new NestedServer();
+        Server app = new Server();
         int status = app.main(args, "config");
         System.Environment.Exit(status);
     }

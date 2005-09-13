@@ -7,51 +7,25 @@
 //
 // **********************************************************************
 
-public class Server
+import Demo.*;
+
+public class Server extends Ice.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int
+    run(String[] args)
     {
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Throughput");
-        Ice.Object object = new ThroughputI();
-        adapter.add(object, Ice.Util.stringToIdentity("throughput"));
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Throughput");
+        adapter.add(new ThroughputI(), Ice.Util.stringToIdentity("throughput"));
         adapter.activate();
-        communicator.waitForShutdown();
+        communicator().waitForShutdown();
         return 0;
     }
 
     public static void
     main(String[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(args, properties);
-            status = run(args, communicator);
-        }
-        catch(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
+        Server app = new Server();
+        int status = app.main("Server", args, "config");
         System.exit(status);
     }
 }

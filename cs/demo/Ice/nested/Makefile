@@ -11,8 +11,8 @@ top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe
 
-C_SRCS		= Client.cs NestedClient.cs NestedI.cs
-S_SRCS		= Server.cs NestedServer.cs NestedI.cs
+C_SRCS		= Client.cs NestedI.cs
+S_SRCS		= Server.cs NestedI.cs
 
 SLICE_SRCS	= $(SDIR)/Nested.ice
 

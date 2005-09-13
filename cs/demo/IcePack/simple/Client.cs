@@ -10,9 +10,9 @@
 using System;
 using Demo;
 
-public class Client
+public class Client : Ice.Application
 {
-    private static void menu()
+    private void menu()
     {
         Console.WriteLine(
             "usage:\n" +
@@ -28,9 +28,9 @@ public class Client
             "?: help\n");
     }
 
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-	IcePack.QueryPrx query = IcePack.QueryPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Query"));
+	IcePack.QueryPrx query = IcePack.QueryPrxHelper.checkedCast(communicator().stringToProxy("IcePack/Query"));
 
 	Ice.ObjectPrx @base = null;
 	try
@@ -89,7 +89,7 @@ public class Client
                 }
                 else if(line.Equals("f"))
                 {
-		    communicator.flushBatchRequests();
+		    communicator().flushBatchRequests();
                 }
                 else if(line.Equals("T"))
                 {
@@ -145,35 +145,8 @@ public class Client
 
     public static void Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.Properties properties = Ice.Util.createProperties();
-            properties.load("config");
-            communicator = Ice.Util.initializeWithProperties(ref args, properties);
-            status = run(args, communicator);
-        }
-        catch(Ice.LocalException ex)
-        {
-            Console.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        Environment.Exit(status);
+        Client app = new Client();
+        int status = app.main(args, "config");
+        System.Environment.Exit(status);
     }
 }

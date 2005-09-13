@@ -7,12 +7,44 @@
 //
 // **********************************************************************
 
-public class Server
+import Demo.*;
+
+public class Server extends Ice.Application
 {
+    public int
+    run(String[] args)
+    {
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
+        CallbackSenderI sender = new CallbackSenderI();
+        adapter.add(sender, Ice.Util.stringToIdentity("sender"));
+        adapter.activate();
+
+	Thread t = new Thread(sender);
+	t.start();
+
+	try
+	{
+	    communicator().waitForShutdown();
+	}
+	finally
+	{
+	    sender.destroy();
+	    try
+	    {
+		t.join();
+	    }
+	    catch(java.lang.InterruptedException ex)
+	    {
+	    }
+	}
+
+        return 0;
+    }
+
     public static void
     main(String[] args)
     {
-        CallbackServer app = new CallbackServer();
+        Server app = new Server();
         int status = app.main("Server", args, "config");
         System.exit(status);
     }

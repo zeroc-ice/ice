@@ -9,14 +9,10 @@
 
 using Demo;
 
-class CallbackServer : Ice.Application
+public class HelloI : _HelloDisp
 {
-    public override int run(string[] args)
+    public override void sayHello(Ice.Current current)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
-        adapter.add(new CallbackSenderI(), Ice.Util.stringToIdentity("callback"));
-        adapter.activate();
-        communicator().waitForShutdown();
-        return 0;
+        System.Console.Out.WriteLine("Hello World!");
     }
 }
