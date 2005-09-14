@@ -214,6 +214,30 @@ static const char* _coreTypes =
     "    var $type;\n"
     "}\n"
     "\n"
+    "class Ice_ProfileAlreadyLoadedException extends Ice_LocalException\n"
+    "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_LocalException::__construct($message);\n"
+    "    }\n"
+    "}\n"
+    "\n"
+    "class Ice_ProfileNotFoundException extends Ice_LocalException\n"
+    "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_LocalException::__construct($message);\n"
+    "    }\n"
+    "\n"
+    "    function __toString()\n"
+    "    {\n"
+    "        return get_class($this) . \"\\n\" .\n"
+    "               \"  name: \" . $this->name;\n"
+    "    }\n"
+    "\n"
+    "    var $name;\n"
+    "}\n"
+    "\n"
     "abstract class Ice_UserException extends Ice_Exception\n"
     "{\n"
     "    function __construct($message = '')\n"
@@ -649,9 +673,22 @@ do_load(const string& name, const Ice::StringSeq& args TSRMLS_DC)
 
     if(profile)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "an Ice profile (`%s') has already been loaded",
-			 profile->name.c_str());
-        return false;
+	//
+	// A profile has already been loaded; raise Ice_ProfileAlreadyLoadedException.
+	//
+	zend_class_entry* cls = findClass("Ice_ProfileAlreadyLoadedException" TSRMLS_CC);
+	assert(cls != NULL);
+
+	zval* zex;
+	MAKE_STD_ZVAL(zex);
+	if(object_init_ex(zex, cls) != SUCCESS)
+	{
+	    php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+	    return false;
+	}
+
+	zend_throw_exception_object(zex TSRMLS_CC);
+	return false;
     }
 
     string profileName = name;
@@ -660,22 +697,43 @@ do_load(const string& name, const Ice::StringSeq& args TSRMLS_DC)
         profileName = _defaultProfileName;
     }
 
+    //
+    // Compile the core types if necessary. We do this now so that the exceptions
+    // are available.
+    //
+    if(findClass("Ice_Exception" TSRMLS_CC) == NULL)
+    {
+	if(zend_eval_string(const_cast<char*>(_coreTypes), NULL, "__core" TSRMLS_CC) == FAILURE)
+	{
+	    php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create core types:\n%s\n", _coreTypes);
+	    return false;
+	}
+    }
+
     map<string, Profile*>::iterator p = _profiles.find(profileName);
     if(p == _profiles.end())
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "profile `%s' not found", profileName.c_str());
-        return false;
+	zend_class_entry* cls = findClass("Ice_ProfileNotFoundException" TSRMLS_CC);
+	assert(cls != NULL);
+
+	zval* zex;
+	MAKE_STD_ZVAL(zex);
+	if(object_init_ex(zex, cls) != SUCCESS)
+	{
+	    php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+	    return false;
+	}
+
+	//
+	// Set the name member.
+	//
+	zend_update_property_string(cls, zex, "name", sizeof("name") - 1,
+				    const_cast<char*>(profileName.c_str()) TSRMLS_CC);
+
+	zend_throw_exception_object(zex TSRMLS_CC);
+	return false;
     }
     profile = p->second;
-
-    //
-    // Compile the core types.
-    //
-    if(zend_eval_string(const_cast<char*>(_coreTypes), NULL, "__core" TSRMLS_CC) == FAILURE)
-    {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create core types:\n%s\n", _coreTypes);
-        return false;
-    }
 
     //
     // Compile the user-defined types.
