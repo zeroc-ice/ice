@@ -11,15 +11,6 @@ using System;
 
 public class Server
 {
-    public static int run(string[] args, Ice.Communicator communicator)
-    {
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
-        adapter.add(new HelloI(), Ice.Util.stringToIdentity("hello"));
-        adapter.activate();
-        communicator.waitForShutdown();
-        return 0;
-    }
-
     public static void Main(string[] args)
     {
 	int status = 0;
@@ -28,7 +19,10 @@ public class Server
         try
         {
             communicator = Ice.Util.initialize(ref args);
-            status = run(args, communicator);
+	    Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
+	    adapter.add(new HelloI(), Ice.Util.stringToIdentity("hello"));
+	    adapter.activate();
+	    communicator.waitForShutdown();
         }
         catch(System.Exception ex)
         {

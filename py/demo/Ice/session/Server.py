@@ -170,7 +170,7 @@ class SessionFactoryI(Demo.SessionFactory):
 	print "Shutting down..."
 	c.adapter.getCommunicator().shutdown()
 
-class SessionServer(Ice.Application):
+class Server(Ice.Application):
     def run(self, args):
         adapter = self.communicator().createObjectAdapter("SessionFactory")
         reaper = ReapThread()
@@ -184,5 +184,5 @@ class SessionServer(Ice.Application):
             reaper.join()
         return True
 
-app = SessionServer()
+app = Server()
 sys.exit(app.main(sys.argv, "config"))

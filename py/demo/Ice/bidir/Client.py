@@ -26,7 +26,7 @@ class CallbackReceiverI(Demo.CallbackReceiver):
     def callback(self, num, current=None):
         print "received callback #" + str(num)
 
-class CallbackClient(Ice.Application):
+class Client(Ice.Application):
     def run(self, args):
         properties = self.communicator().getProperties()
         proxyProperty = 'Callback.Client.CallbackServer'
@@ -52,5 +52,5 @@ class CallbackClient(Ice.Application):
 
         return 0
 
-app = CallbackClient()
+app = Client()
 sys.exit(app.main(sys.argv, "config"))

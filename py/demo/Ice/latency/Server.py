@@ -13,31 +13,13 @@ import sys, traceback, Ice
 Ice.loadSlice('Latency.ice')
 import Demo
 
-def run(argv, communicator):
-    adapter = communicator.createObjectAdapter("Latency")
-    object = Demo.Ping()
-    adapter.add(object, Ice.stringToIdentity("ping"))
-    adapter.activate()
-    communicator.waitForShutdown()
-    return True
+class Server(Ice.Application):
+    def run(self, args):
+	adapter = self.communicator().createObjectAdapter("Latency")
+	adapter.add(Demo.Ping(), Ice.stringToIdentity("ping"))
+	adapter.activate()
+	self.communicator().waitForShutdown()
+	return True
 
-try:
-    properties = Ice.createProperties()
-    properties.load("config")
-    communicator = Ice.initializeWithProperties(sys.argv, properties)
-    status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
-
-if status:
-    sys.exit(0)
-else:
-    sys.exit(1)
+app = Server()
+sys.exit(app.main(sys.argv, "config"))

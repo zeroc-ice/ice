@@ -28,7 +28,7 @@ class CallbackSenderI(Demo.CallbackSender):
         except:
             traceback.print_exc()
 
-class CallbackServer(Ice.Application):
+class Server(Ice.Application):
     def run(self, args):
         adapter = self.communicator().createObjectAdapter("Callback.Server")
         adapter.add(CallbackSenderI(), Ice.stringToIdentity("callback"))
@@ -36,5 +36,5 @@ class CallbackServer(Ice.Application):
         self.communicator().waitForShutdown()
         return 0
 
-app = CallbackServer()
+app = Server()
 sys.exit(app.main(sys.argv, "config"))

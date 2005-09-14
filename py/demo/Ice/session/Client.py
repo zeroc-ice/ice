@@ -44,7 +44,7 @@ class SessionRefreshThread(threading.Thread):
 	finally:
 	    self._cond.release()
 
-class SessionClient(Ice.Application):
+class Client(Ice.Application):
     def run(self, args):
         while True:
             name = raw_input("Please enter your name ==> ").strip()
@@ -142,5 +142,5 @@ t:     exit without destroying the session
 """
 
 
-app = SessionClient()
+app = Client()
 sys.exit(app.main(sys.argv, "config"))

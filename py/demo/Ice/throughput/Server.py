@@ -77,32 +77,13 @@ class ThroughputI(Demo.Throughput):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
-def run(argv, communicator):
-    adapter = communicator.createObjectAdapter("Throughput")
-    object = ThroughputI()
-    adapter.add(object, Ice.stringToIdentity("throughput"))
-    adapter.activate()
-    communicator.waitForShutdown()
-    return True
+class Server(Ice.Application):
+    def run(self, args):
+	adapter = self.communicator().createObjectAdapter("Throughput")
+	adapter.add(ThroughputI(), Ice.stringToIdentity("throughput"))
+	adapter.activate()
+	self.communicator().waitForShutdown()
+	return True
 
-try:
-    properties = Ice.createProperties()
-    properties.load("config")
-    communicator = Ice.initializeWithProperties(sys.argv, properties)
-    status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        print ex
-        status = False
-
-if status:
-    sys.exit(0)
-else:
-    sys.exit(1)
+app = Server()
+sys.exit(app.main(sys.argv, "config"))

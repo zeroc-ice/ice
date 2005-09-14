@@ -13,6 +13,7 @@ import sys, traceback, Ice
 Ice.loadSlice('Hello.ice')
 import Demo
 
+
 def menu():
     print """
 usage:
@@ -29,108 +30,93 @@ x: exit
 ?: help
 """
 
-def run(args, communicator):
-    properties = communicator.getProperties()
-    refProperty = 'Hello.Proxy'
-    proxy = properties.getProperty(refProperty)
-    if len(proxy) == 0:
-        print args[0] + ": property `" + refProperty + "' not set"
-        return False
+class Client(Ice.Application):
+    def run(self, args):
+	properties = self.communicator().getProperties()
+	refProperty = 'Hello.Proxy'
+	proxy = properties.getProperty(refProperty)
+	if len(proxy) == 0:
+	    print args[0] + ": property `" + refProperty + "' not set"
+	    return False
 
-    base = communicator.stringToProxy(proxy)
-    twoway = Demo.HelloPrx.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(False))
-    if not twoway:
-        print args[0] + ": invalid proxy"
-        return False
+	twoway = Demo.HelloPrx.checkedCast(\
+	    self.communicator().stringToProxy(proxy).ice_twoway().ice_timeout(-1).ice_secure(False))
+	if not twoway:
+	    print args[0] + ": invalid proxy"
+	    return False
 
-    oneway = Demo.HelloPrx.uncheckedCast(twoway.ice_oneway())
-    batchOneway = Demo.HelloPrx.uncheckedCast(twoway.ice_batchOneway())
-    datagram = Demo.HelloPrx.uncheckedCast(twoway.ice_datagram())
-    batchDatagram = Demo.HelloPrx.uncheckedCast(twoway.ice_batchDatagram())
+	oneway = Demo.HelloPrx.uncheckedCast(twoway.ice_oneway())
+	batchOneway = Demo.HelloPrx.uncheckedCast(twoway.ice_batchOneway())
+	datagram = Demo.HelloPrx.uncheckedCast(twoway.ice_datagram())
+	batchDatagram = Demo.HelloPrx.uncheckedCast(twoway.ice_batchDatagram())
 
-    secure = False
-    timeout = -1
+	secure = False
+	timeout = -1
 
-    menu()
+	menu()
 
-    c = None
-    while c != 'x':
-        try:
-            c = raw_input("==> ")
-            if c == 't':
-                twoway.sayHello()
-            elif c == 'o':
-                oneway.sayHello()
-            elif c == 'O':
-                batchOneway.sayHello()
-            elif c == 'd':
-                if secure:
-                    print "secure datagrams are not supported"
-                else:
-                    datagram.sayHello()
-            elif c == 'D':
-                if secure:
-                    print "secure datagrams are not supported"
-                else:
-                    batchDatagram.sayHello()
-            elif c == 'f':
-                communicator.flushBatchRequests()
-            elif c == 'T':
-                if timeout == -1:
-                    timeout = 2000
-                else:
-                    timeout = -1
+	c = None
+	while c != 'x':
+	    try:
+		c = raw_input("==> ")
+		if c == 't':
+		    twoway.sayHello()
+		elif c == 'o':
+		    oneway.sayHello()
+		elif c == 'O':
+		    batchOneway.sayHello()
+		elif c == 'd':
+		    if secure:
+			print "secure datagrams are not supported"
+		    else:
+			datagram.sayHello()
+		elif c == 'D':
+		    if secure:
+			print "secure datagrams are not supported"
+		    else:
+			batchDatagram.sayHello()
+		elif c == 'f':
+		    communicator.flushBatchRequests()
+		elif c == 'T':
+		    if timeout == -1:
+			timeout = 2000
+		    else:
+			timeout = -1
 
-                twoway = Demo.HelloPrx.uncheckedCast(twoway.ice_timeout(timeout))
-                oneway = Demo.HelloPrx.uncheckedCast(oneway.ice_timeout(timeout))
-                batchOneway = Demo.HelloPrx.uncheckedCast(batchOneway.ice_timeout(timeout))
+		    twoway = Demo.HelloPrx.uncheckedCast(twoway.ice_timeout(timeout))
+		    oneway = Demo.HelloPrx.uncheckedCast(oneway.ice_timeout(timeout))
+		    batchOneway = Demo.HelloPrx.uncheckedCast(batchOneway.ice_timeout(timeout))
 
-                if timeout == -1:
-                    print "timeout is now switched off"
-                else:
-                    print "timeout is now set to 2000ms"
-            elif c == 'S':
-                secure = not secure
+		    if timeout == -1:
+			print "timeout is now switched off"
+		    else:
+			print "timeout is now set to 2000ms"
+		elif c == 'S':
+		    secure = not secure
 
-                twoway = Demo.HelloPrx.uncheckedCast(twoway.ice_secure(secure))
-                oneway = Demo.HelloPrx.uncheckedCast(oneway.ice_secure(secure))
-                batchOneway = Demo.HelloPrx.uncheckedCast(batchOneway.ice_secure(secure))
-                datagram = Demo.HelloPrx.uncheckedCast(datagram.ice_secure(secure))
-                batchDatagram = Demo.HelloPrx.uncheckedCast(batchDatagram.ice_secure(secure))
+		    twoway = Demo.HelloPrx.uncheckedCast(twoway.ice_secure(secure))
+		    oneway = Demo.HelloPrx.uncheckedCast(oneway.ice_secure(secure))
+		    batchOneway = Demo.HelloPrx.uncheckedCast(batchOneway.ice_secure(secure))
+		    datagram = Demo.HelloPrx.uncheckedCast(datagram.ice_secure(secure))
+		    batchDatagram = Demo.HelloPrx.uncheckedCast(batchDatagram.ice_secure(secure))
 
-                if secure:
-                    print "secure mode is now on"
-                else:
-                    print "secure mode is now off"
-            elif c == 's':
-                twoway.shutdown()
-            elif c == 'x':
-                pass # Nothing to do
-            elif c == '?':
-                menu()
-            else:
-                print "unknown command `" + c + "'"
-                menu()
-        except EOFError:
-            break
+		    if secure:
+			print "secure mode is now on"
+		    else:
+			print "secure mode is now off"
+		elif c == 's':
+		    twoway.shutdown()
+		elif c == 'x':
+		    pass # Nothing to do
+		elif c == '?':
+		    menu()
+		else:
+		    print "unknown command `" + c + "'"
+		    menu()
+	    except EOFError:
+		break
 
-    return True
+	return True
 
-communicator = None
-try:
-    properties = Ice.createProperties()
-    properties.load("config")
-    communicator = Ice.initializeWithProperties(sys.argv, properties)
-    status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
-
-sys.exit(not status)
+app = Client()
+sys.exit(app.main(sys.argv, "config"))

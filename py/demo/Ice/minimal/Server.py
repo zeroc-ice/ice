@@ -17,16 +17,23 @@ class HelloI(Demo.Hello):
     def sayHello(self, current=None):
         print "Hello World!"
 
-    def shutdown(self, current=None):
-        current.adapter.getCommunicator().shutdown()
+status = 0
 
-class Server(Ice.Application):
-    def run(self, args):
-	adapter = self.communicator().createObjectAdapter("Hello")
-	adapter.add(HelloI(), Ice.stringToIdentity("hello"))
-	adapter.activate()
-	self.communicator().waitForShutdown()
-	return True
+try:
+    communicator = Ice.initialize(sys.argv)
+    adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000")
+    adapter.add(HelloI(), Ice.stringToIdentity("hello"))
+    adapter.activate()
+    communicator.waitForShutdown()
+except:
+    traceback.print_exc()
+    status = 1
 
-app = Server()
-sys.exit(app.main(sys.argv, "config"))
+if communicator:
+    try:
+        communicator.destroy()
+    except:
+        traceback.print_exc()
+        status = 1
+
+sys.exit(status)

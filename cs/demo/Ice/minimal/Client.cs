@@ -12,20 +12,6 @@ using Demo;
 
 public class Client
 {
-    public static int run(string[] args, Ice.Communicator communicator)
-    {
-        HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"));
-        if(hello == null)
-        {
-            Console.Error.WriteLine("invalid proxy");
-            return 1;
-        }
-        
-	hello.sayHello();
-        
-        return 0;
-    }
-
     public static void Main(string[] args)
     {
 	int status = 0;
@@ -34,7 +20,16 @@ public class Client
         try
         {
             communicator = Ice.Util.initialize(ref args);
-            status = run(args, communicator);
+	    HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"));
+	    if(hello == null)
+	    {
+		Console.Error.WriteLine("invalid proxy");
+		status = 1;
+	    }
+	    else
+	    {
+		hello.sayHello();
+	    }
         }
         catch(System.Exception ex)
         {

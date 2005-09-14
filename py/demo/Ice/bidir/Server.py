@@ -74,7 +74,7 @@ class CallbackSenderI(Demo.CallbackSender, threading.Thread):
 	finally:
 	    self._cond.release()
 
-class CallbackServer(Ice.Application):
+class Server(Ice.Application):
     def run(self, args):
         adapter = self.communicator().createObjectAdapter("Callback.Server")
 	sender = CallbackSenderI()
@@ -89,5 +89,5 @@ class CallbackServer(Ice.Application):
 
         return 0
 
-app = CallbackServer()
+app = Server()
 sys.exit(app.main(sys.argv, "config"))

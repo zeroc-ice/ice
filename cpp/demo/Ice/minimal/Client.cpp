@@ -14,30 +14,24 @@ using namespace std;
 using namespace Demo;
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
-{
-    HelloPrx hello = HelloPrx::checkedCast(communicator->stringToProxy("hello:tcp -p 10000"));
-    if(!hello)
-    {
-	cerr << argv[0] << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
-    }
-
-    hello->sayHello();
-
-    return EXIT_SUCCESS;
-}
-
-int
 main(int argc, char* argv[])
 {
-    int status;
+    int status = EXIT_SUCCESS;
     Ice::CommunicatorPtr communicator;
 
     try
     {
 	communicator = Ice::initialize(argc, argv);
-	status = run(argc, argv, communicator);
+	HelloPrx hello = HelloPrx::checkedCast(communicator->stringToProxy("hello:tcp -p 10000"));
+	if(!hello)
+	{
+	    cerr << argv[0] << ": invalid proxy" << endl;
+	    status = EXIT_FAILURE;
+	}
+	else
+	{
+	    hello->sayHello();
+	}
     }
     catch(const Ice::Exception& ex)
     {

@@ -13,25 +13,18 @@
 using namespace std;
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
-{
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
-    adapter->add(new HelloI, Ice::stringToIdentity("hello"));
-    adapter->activate();
-    communicator->waitForShutdown();
-    return EXIT_SUCCESS;
-}
-
-int
 main(int argc, char* argv[])
 {
-    int status;
+    int status = EXIT_SUCCESS;
     Ice::CommunicatorPtr communicator;
 
     try
     {
 	communicator = Ice::initialize(argc, argv);
-	status = run(argc, argv, communicator);
+	Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
+	adapter->add(new HelloI, Ice::stringToIdentity("hello"));
+	adapter->activate();
+	communicator->waitForShutdown();
     }
     catch(const Ice::Exception& ex)
     {
