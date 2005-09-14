@@ -1,6 +1,8 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Invocations on collocated servants are now supported.
+
 - Exception stack trace information is now included when possible in
   the 'unknown' member of Ice.UnknownException and its derived types.
 
