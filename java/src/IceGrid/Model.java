@@ -130,7 +130,6 @@ public class Model
 	    fileMenu.addSeparator();
 	    fileMenu.add(_exit);
 	    
-	    editMenu.add(_cut);
 	    editMenu.add(_copy);
 	    editMenu.add(_paste);
 	    editMenu.addSeparator();
@@ -154,7 +153,6 @@ public class Model
 	    add(_save);
 	    add(_discard);
 	    addSeparator();
-	    add(_cut);
 	    add(_copy);
 	    add(_paste);
 	    addSeparator();
@@ -762,22 +760,19 @@ public class Model
 	    };
 	_exit.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt F4"));
 
-
-	_cut = new AbstractAction("Cut", Utils.getIcon("/icons/cut_edit.gif"))
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    // TODO: implement
-		}
-	    };
-	_cut.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl X"));
-
-
 	_copy = new AbstractAction("Copy", Utils.getIcon("/icons/copy_edit.gif"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    // TODO: implement
+		    CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
+		    if(currentNode != null)
+		    {
+			_copiedDescriptor = currentNode.copy();
+			if(_copiedDescriptor != null)
+			{
+			    _paste.setEnabled(true);
+			}
+		    }
 		}
 	    };
 	_copy.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl C"));
@@ -786,7 +781,11 @@ public class Model
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    // TODO: implement
+		    CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
+		    if(currentNode != null)
+		    {
+			currentNode.paste(_copiedDescriptor);
+		    }
 		}
 	    };
 	_paste.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl V"));
@@ -799,7 +798,38 @@ public class Model
 		    CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
 		    if(currentNode != null)
 		    {
-			currentNode.destroy();
+			CommonBase parent = currentNode.getParent();
+			CommonBase toSelect = null;
+			if(parent != null)
+			{
+			    int index = parent.getIndex(this);
+			    toSelect = (CommonBase)parent.getChildAt(index + 1);
+			    if(toSelect == null)
+			    {
+				if(index > 0)
+				{
+				    toSelect = (CommonBase)parent.getChildAt(0);
+				}
+				else
+				{
+				    toSelect = parent;
+				}
+			    }
+			}
+			if(toSelect != null)
+			{
+			    disableDisplay();
+			}
+			boolean destroyed = currentNode.destroy();
+			if(toSelect != null)
+			{
+			    enableDisplay();
+			    if(destroyed)
+			    {
+				toSelect = findNewNode(toSelect.getPath());
+				_tree.setSelectionPath(toSelect.getPath()); 
+			    }
+			}
 		    }
 		}
 	    };
@@ -938,6 +968,8 @@ public class Model
     private JFrame _mainFrame;
     private SessionKeeper _sessionKeeper;
 
+    private Object _copiedDescriptor;
+
     //
     // Actions
     //
@@ -945,7 +977,6 @@ public class Model
     private Action _save;
     private Action _discard;
     private Action _exit;
-    private Action _cut;
     private Action _copy;
     private Action _paste;
     private Action _delete;

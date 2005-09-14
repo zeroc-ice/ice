@@ -126,31 +126,43 @@ class Adapter extends Leaf
 			    try
 			    {
 				AdapterDescriptor descriptor = _adapter.getDescriptor();
-				
-				//
-				// Did the name change?
-				//
 				String newName = _name.getText();
 				
-				if(_adapter.isNew())
+				if(_adapter.isEphemeral())
 				{
 				    String newResolvedName = Utils.substitute(newName, _adapter.getResolver());
 				    Adapters parent = (Adapters)_adapter.getParent();
-
+				    
 				    descriptor.name = newName;
 				    writeDescriptor();
 				    parent.addDescriptor(descriptor);
-				    
+				    parent.removeChild(_adapter.getId(), true);
+				
 				    if(!_adapter.getApplication().applyUpdate())
 				    {
+					//
+					// Restores old display
+					//
 					parent = (Adapters)_adapter.getModel().findNewNode(parent.getPath());
 					parent.removeDescriptor(descriptor);
-					_adapter.getModel().setSelectionPath(parent.getPath());
+					try
+					{
+					    parent.addChild(_adapter, true);
+					}
+					catch(DuplicateIdException die)
+					{
+					    assert false;
+					}
 					_adapter.setParent(parent);
+					_adapter.getModel().setSelectionPath(_adapter.getPath());
 					return;
 				    }
 				    else
 				    {
+					//
+					// No longer ephemeral
+					//
+					_adapter.setParent(null);
 					parent = (Adapters)_adapter.getModel().findNewNode(parent.getPath());
 					_adapter = (Adapter)parent.findChild(newResolvedName);
 					_adapter.getModel().setSelectionPath(_adapter.getPath());
@@ -447,7 +459,7 @@ class Adapter extends Leaf
 	    AdapterDescriptor descriptor = _adapter.getDescriptor();
 
 	    Utils.Resolver resolver = null;
-	    if(_adapter.getModel().substitute() && !_adapter.isNew())
+	    if(_adapter.getModel().substitute() && !_adapter.isEphemeral())
 	    {
 		resolver = _adapter.getResolver();
 	    }
@@ -464,14 +476,6 @@ class Adapter extends Leaf
 	    //
 	    _id.setEnabled(true);
 	    _id.setEditable(true);
-
-	    //
-	    // Fixup new descriptor
-	    //
-	    if(descriptor.id == null)
-	    {
-		descriptor.id = _adapter.defaultId(descriptor.name);
-	    }
 
 	    ReplicatedAdapters replicatedAdapters =
 		adapter.getApplication().getReplicatedAdapters();
@@ -500,8 +504,8 @@ class Adapter extends Leaf
 	    _waitForActivation.setSelected(descriptor.waitForActivation);
 	    _waitForActivation.setEnabled(isEditable);
 
-	    _applyButton.setEnabled(_adapter.isNew());
-	    _discardButton.setEnabled(_adapter.isNew());	  
+	    _applyButton.setEnabled(_adapter.isEphemeral());
+	    _discardButton.setEnabled(_adapter.isEphemeral());	  
 	    _detectUpdates = true;
 
 	}
@@ -594,41 +598,38 @@ class Adapter extends Leaf
 	propertiesFrame.repaint();
     }
 
-    public void destroy()
+    public boolean destroy()
     {
-	assert !_brandNew;
-	
-	if(isEditable() && _model.canUpdate())
+	if(_parent != null && (isEphemeral() || isEditable() && _model.canUpdate()))
 	{
-	    _model.disableDisplay();
-
 	    Adapters adapters = (Adapters)getParent();
-	     
-	    CommonBase toSelect = (CommonBase)adapters.getChildAt(adapters.getIndex(this) + 1);
-	    if(toSelect == null)
+	  
+	    if(isEphemeral())
 	    {
-		toSelect = adapters;
+		adapters.removeChild(_id, true);
 	    }
-	   
-	    adapters.removeDescriptor(_descriptor);
-	    getEditable().markModified();
-	    getApplication().applySafeUpdate();
-
-	    _model.enableDisplay();
-	    toSelect = _model.findNewNode(toSelect.getPath());
-	    _model.getTree().setSelectionPath(toSelect.getPath());
+	    else
+	    {
+		adapters.removeDescriptor(_descriptor);
+		getEditable().markModified();
+		getApplication().applySafeUpdate();
+	    }
+	    setParent(null);
+	    return true;
+	}
+	else
+	{
+	    return false;
 	}
     }
-
-
 
     Adapter(String adapterName, AdapterDescriptor descriptor,
 	    Utils.Resolver resolver, Application application, Model model)
     {
 	super(adapterName, model);
-	_brandNew = false;
 	_descriptor = descriptor;
 	_resolver = resolver;
+	_ephemeral = false;
 	
 	if(resolver != null)
 	{
@@ -649,18 +650,16 @@ class Adapter extends Leaf
 
     //
     // Fresh new temporary Adapter
+    // Never becomes permanent; instead a new non-ephemeral Adapter is
+    // created upon a successful "apply"
     //
-    Adapter(String name, Utils.Resolver resolver, Model model)
+    Adapter(String name, AdapterDescriptor descriptor, 
+	    Utils.Resolver resolver, Model model)
     {
-	super(name, model);
+	super("*" + name, model);
 	_resolver = resolver;
-	_brandNew = true;
-	_descriptor =  new AdapterDescriptor();
-	_descriptor.name = name;
-	_descriptor.id = null; // parent not set, can't use defaultId
-	_descriptor.registerProcess = false;
-	_descriptor.waitForActivation = true;
-	_descriptor.objects = new java.util.LinkedList();
+	_descriptor = descriptor;
+	_ephemeral = true;
     }
 
 
@@ -671,6 +670,19 @@ class Adapter extends Leaf
 	    getApplication().unregisterAdapter(_resolver.find("node"),
 					       _instanceId,
 					       this);
+	}
+    }
+
+    public Object copy()
+    {
+	try
+	{
+	    return _descriptor.clone();
+	}
+	catch(CloneNotSupportedException e)
+	{
+	    assert false;
+	    return null;
 	}
     }
 
@@ -722,9 +734,9 @@ class Adapter extends Leaf
 	return _instanceId;
     }
 
-    boolean isNew()
+    public boolean isEphemeral()
     {
-	return _brandNew;
+	return _ephemeral;
     }
 
     private void createToolTip()
@@ -739,20 +751,7 @@ class Adapter extends Leaf
 	}
     }
 
-    private String defaultId(String name)
-    {
-	CommonBase grandParent = getParent().getParent();
-	if(grandParent instanceof Service || grandParent instanceof ServiceTemplate)
-	{
-	    return "${server}.${service}." + name;
-	}
-	else
-	{
-	    return "${server}." + name;
-	}
-    }
-
-    private boolean _brandNew;
+    private boolean _ephemeral;
     private AdapterDescriptor _descriptor;
     private Utils.Resolver _resolver;
 

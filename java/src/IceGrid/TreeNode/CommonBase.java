@@ -43,11 +43,16 @@ public interface CommonBase extends TreeCellRenderer
     //
     void unregister();
 
+    //
+    // Ephemeral objects are destroyed when you switch selection
+    // without "apply"ing the changes.
+    //
+    boolean isEphemeral();
 
     //
-    // Destroys this node, no-op when destruction not allowed
+    // Destroys this node, returns true when destroyed
     //
-    void destroy();
+    boolean destroy();
 
     //
     // Set this node as a parent, and recursively update
@@ -86,4 +91,18 @@ public interface CommonBase extends TreeCellRenderer
     // The enclosing editable
     //
     Editable getEditable();
+
+
+    //
+    // Returns a copy of the descriptor underlying the object;
+    // null if the object can't be copied
+    //
+    Object copy();
+
+    //
+    // Create a new object using this descriptor in this container 
+    // or the parent's container; does nothing if the descriptor
+    // is not of the proper type
+    //
+    void paste(Object descriptor);
 }

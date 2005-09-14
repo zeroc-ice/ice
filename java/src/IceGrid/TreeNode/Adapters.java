@@ -17,6 +17,7 @@ import IceGrid.AdapterDescriptor;
 import IceGrid.Model;
 import IceGrid.Utils;
 
+
 class Adapters extends Parent
 {
     static class PopupMenu extends JPopupMenu
@@ -27,7 +28,7 @@ class Adapters extends Parent
 		{
 		    public void actionPerformed(ActionEvent e) 
 		    {
-			_adapters.newAdapter();
+			_adapters.newAdapter(null);
 		    }
 		};
 
@@ -106,18 +107,65 @@ class Adapters extends Parent
 	return _inIceBox;
     }
 
-    void newAdapter()
+    void newAdapter(AdapterDescriptor descriptor)
     {
-	String name = "NewAdapter";
+	//
+	// Generate a unique child name; ignore substitution for simplicity
+	//
+	String baseName = descriptor == null ? "NewInstance" : descriptor.name;
+	String name = baseName;
+
 	int i = 0;
-	while(findChild(name) != null)
+	while(findChild(name) != null || findChild("*" + name) != null)
 	{
-	    name = "NewAdapter-" + (++i);
+	    name = baseName + "-" + (++i);
 	}
-	Adapter adapter = new Adapter(name, _resolver, _model);
+
+	if(descriptor == null)
+	{
+	    CommonBase parent = getParent();
+	    String defaultId = (parent instanceof Service || parent instanceof ServiceTemplate) ? 
+		"${server}.${service}." + name : "${server}." + name;
+
+	    descriptor = new AdapterDescriptor(
+		"NewAdapter",
+		defaultId,
+		false,
+		true,
+		new java.util.LinkedList());   
+	}
+	else
+	{
+	    descriptor.name = name;
+	}
+
+	Adapter adapter = new Adapter(name, descriptor, _resolver, _model);
+	try
+	{
+	    addChild(adapter, true);
+	}
+	catch(DuplicateIdException e)
+	{
+	    assert false;
+	}
 	adapter.setParent(this);
-	_model.setSelectionPath(getPath());
-	adapter.displayProperties();
+	_model.setSelectionPath(adapter.getPath());
+    }
+
+    public void paste(Object descriptor)
+    {
+	if(_isEditable && !_inIceBox && descriptor instanceof AdapterDescriptor)
+	{
+	    AdapterDescriptor d = (AdapterDescriptor)descriptor;
+	    try
+	    {
+		newAdapter((AdapterDescriptor)d.clone());
+	    }
+	    catch(CloneNotSupportedException e)
+	    {
+		assert false;
+	    }
+	}
     }
 
     void addDescriptor(AdapterDescriptor descriptor)

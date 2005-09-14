@@ -85,11 +85,17 @@ abstract class CommonBaseI implements CommonBase
 	}
     }
 
-    public void destroy()
+    public boolean isEphemeral()
+    {
+	return false;
+    }
+
+    public boolean destroy()
     {
 	// 
 	// Destruction not allowed
 	//
+	return false;
     }
 
     public JPopupMenu getPopupMenu()
@@ -133,6 +139,20 @@ abstract class CommonBaseI implements CommonBase
     {
 	return null;
     }
+
+    public Object copy()
+    {
+	return null;
+    }
+
+    public void paste(Object descriptor)
+    {
+	if(_parent != null)
+	{
+	    _parent.paste(descriptor);
+	}
+    }
+
 
     //
     // Fires a nodesChanged event with this node

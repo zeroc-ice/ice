@@ -85,13 +85,23 @@ public class MainPane extends JSplitPane
 	    TreePath path = e.getPath();
 	    if(path != null)
 	    {
-		CommonBase node = (CommonBase)path.getLastPathComponent();
-		if(node.getModel().displayEnabled())
+		CommonBase newNode = (CommonBase)path.getLastPathComponent();
+
+		if(_previousNode != null && _previousNode.isEphemeral()
+		   && _previousNode != newNode)
 		{
-		    node.displayProperties();
+		    _previousNode.destroy();
 		}
-	    }
+		
+		_previousNode = newNode;
+		if(newNode.getModel().displayEnabled())
+		{
+		    newNode.displayProperties();
+		}
+	    }	    
 	}
+
+	private CommonBase _previousNode;
     }
 
     public void updateUI()
