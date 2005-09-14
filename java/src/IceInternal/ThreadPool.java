@@ -127,40 +127,6 @@ public final class ThreadPool
         throws Throwable
     {
         IceUtil.Assert.FinalizerAssert(_destroyed);
-
-	/**
-	  * For compatibility with C#, we do not invoke methods on other objects
-	  * in a finalizer.
-	  *
-	try
-	{
-	    if(_selector != null)
-	    {
-                _selector.close();
-            }
-
-	    if(_fdIntrWrite != null)
-            {
-                _fdIntrWrite.close();
-            }
-
-	    if(_fdIntrRead != null)
-            {
-                _fdIntrRead.close();
-            }
-	}
-	catch(java.io.IOException ex)
-	{
-	    java.io.StringWriter sw = new java.io.StringWriter();
-	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	    ex.printStackTrace(pw);
-	    pw.flush();
-	    String s = "exception in `" + _prefix + "' while calling close():\n" + sw.toString();
-	    _instance.logger().error(s);
-	}
-	  */
-
-        super.finalize();
     }
 
     public synchronized void
@@ -296,6 +262,39 @@ public final class ThreadPool
                 }
             }
         }
+
+	//
+	// Cleanup the selector, and the socket pair.
+	//
+	try
+	{
+	    if(_selector != null)
+	    {
+		_selector.close();
+		_selector = null;
+	    }
+
+	    if(_fdIntrWrite != null)
+	    {
+		_fdIntrWrite.close();
+		_fdIntrWrite = null;
+	    }
+
+	    if(_fdIntrRead != null)
+	    {
+		_fdIntrRead.close();
+		_fdIntrRead = null;
+	    }
+	}
+	catch(java.io.IOException ex)
+	{
+	    java.io.StringWriter sw = new java.io.StringWriter();
+	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	    ex.printStackTrace(pw);
+	    pw.flush();
+	    String s = "exception in `" + _prefix + "' while calling close():\n" + sw.toString();
+	    _instance.logger().error(s);
+	}
     }
 
     public String

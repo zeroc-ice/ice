@@ -116,18 +116,6 @@ namespace IceInternal
 		IceUtil.Assert.FinalizerAssert(_destroyed);
 	    }
 #endif
-
-	    if(!Environment.HasShutdownStarted)
-	    {
-		try
-		{
-		    Network.closeSocket(_fdIntrWrite);
-		    Network.closeSocket(_fdIntrRead);
-		}
-		catch(System.Exception)
-		{
-		}
-	    }
 	}
 	
 	public void destroy()
@@ -245,6 +233,17 @@ namespace IceInternal
 		    thread.Join();
 		    break;
 		}
+	    }
+	    //
+	    // Close the socket pair.
+	    //
+	    try
+	    {
+		Network.closeSocket(_fdIntrWrite);
+		Network.closeSocket(_fdIntrRead);
+	    }
+	    catch(System.Exception)
+	    {
 	    }
 	}
 	
