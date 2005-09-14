@@ -1,6 +1,11 @@
 Changes since version 2.1.2
 ---------------------------
 
+- slice2cs now supports a new metadata directive: ["cs:attribute"].
+  This directive allows you inject C# attribute definitions into the
+  generated code. See the C# mapping chapter in the Ice manual for
+  more information.
+
 - Ice.Communicator.createObjectAdapter() throws
   Ice.AlreadyRegisteredException if it is called with the name of an
   object adapter that already exists.

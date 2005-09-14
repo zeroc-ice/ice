@@ -1,6 +1,11 @@
 Changes since version 2.1.2
 ---------------------------
 
+- slice2vb now supports a new metadata directive: ["vb:attribute"].
+  This directive allows you inject VB attribute definitions into the
+  generated code. See the VB mapping chapter in the Ice manual for
+  more information.
+
 - The "vb:" metadata prefix has been replaced by the "clr:" prefix,
   so you now need to use "clr:collection" and "clr:class".
   The "vb:" prefix is still recognized and acted upon; slice2vb
