@@ -1510,10 +1510,10 @@ string_literal
 // ----------------------------------------------------------------------
 string_list
 // ----------------------------------------------------------------------
-: string_literal ',' string_list
+: string_list ',' string_literal
 {
-    StringTokPtr str = StringTokPtr::dynamicCast($1);
-    StringListTokPtr stringList = StringListTokPtr::dynamicCast($3);
+    StringTokPtr str = StringTokPtr::dynamicCast($3);
+    StringListTokPtr stringList = StringListTokPtr::dynamicCast($1);
     stringList->v.push_back(str->v);
     $$ = stringList;
 }

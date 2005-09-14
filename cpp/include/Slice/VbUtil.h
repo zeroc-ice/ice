@@ -28,7 +28,7 @@ public:
     static std::string toArrayAlloc(const std::string& decl, const std::string& sz);
 
     //
-    // Validate all metadata in the unit with a "cs:" prefix.
+    // Validate all metadata in the unit with a "vb:" prefix.
     //
     static void validateMetaData(const UnitPtr&);
 
@@ -48,6 +48,7 @@ private:
     class MetaDataVisitor : public ParserVisitor
     {
     public:
+        MetaDataVisitor();
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -71,6 +72,7 @@ private:
         void validate(const ContainedPtr&);
 
         StringSet _history;
+	bool _globalMetaDataDone;
     };
 };
 

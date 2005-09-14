@@ -699,6 +699,22 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
     }
 }
 
+string
+Slice::VbVisitor::getParamAttributes(const ParamDeclPtr& p)
+{
+    string result;
+    StringList metaData = p->getMetaData();
+    for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
+    {
+	static const string prefix = "vb:attribute:";
+        if(i->find(prefix) == 0)
+	{
+	    result += "<" + i->substr(prefix.size()) + "> ";
+	}
+    }
+    return result;
+}
+
 vector<string>
 Slice::VbVisitor::getParams(const OperationPtr& op)
 {
@@ -706,8 +722,9 @@ Slice::VbVisitor::getParams(const OperationPtr& op)
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-	string param = ((*q)->isOutParam() ? "<_System.Runtime.InteropServices.Out()> ByRef " : "ByVal ")
-	               + fixId((*q)->name()) + " As " + typeToString((*q)->type());
+        string param = getParamAttributes(*q);
+	param += ((*q)->isOutParam() ? "<_System.Runtime.InteropServices.Out()> ByRef " : "ByVal ")
+	         + fixId((*q)->name()) + " As " + typeToString((*q)->type());
 	params.push_back(param);
     }
     return params;
@@ -731,7 +748,8 @@ Slice::VbVisitor::getParamsAsync(const OperationPtr& op, bool amd)
     {
 	if(!(*q)->isOutParam())
 	{
-	    params.push_back("ByVal " + fixId((*q)->name()) + " As " + typeToString((*q)->type()));
+	    params.push_back(getParamAttributes(*q) + "ByVal " + fixId((*q)->name()) + " As "
+	                     + typeToString((*q)->type()));
 	}
     }
     return params;
@@ -753,7 +771,8 @@ Slice::VbVisitor::getParamsAsyncCB(const OperationPtr& op)
     {
 	if((*q)->isOutParam())
 	{
-	    params.push_back("ByVal " + fixId((*q)->name()) + " As " + typeToString((*q)->type()));
+	    params.push_back(getParamAttributes(*q) + "ByVal " + fixId((*q)->name()) + " As "
+	                     + typeToString((*q)->type()));
 	}
     }
 
@@ -812,6 +831,20 @@ Slice::VbVisitor::getArgsAsyncCB(const OperationPtr& op)
     }
 
     return args;
+}
+
+void
+Slice::VbVisitor::emitAttributes(const ContainedPtr& p)
+{
+    StringList metaData = p->getMetaData();
+    for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
+    {
+	static const string prefix = "vb:attribute:";
+        if(i->find(prefix) == 0)
+	{
+	    _out << '<' << i->substr(prefix.size()) << '>' << nl;
+	}
+    }
 }
 
 Slice::Gen::Gen(const string& name, const string& base, const vector<string>& includePaths, const string& dir,
@@ -916,6 +949,9 @@ Slice::Gen::generate(const UnitPtr& p)
 {
 
     VbGenerator::validateMetaData(p);
+
+    UnitVisitor unitVisitor(_out, _stream);
+    p->visit(&unitVisitor, false);
 
     TypesVisitor typesVisitor(_out, _stream);
     p->visit(&typesVisitor, false);
@@ -1032,9 +1068,37 @@ Slice::Gen::printHeader()
     _out << "\n' Ice version " << ICE_STRING_VERSION;
 }
 
-Slice::Gen::OpsVisitor::OpsVisitor(IceUtil::Output& out)
-    : VbVisitor(out)
+Slice::Gen::UnitVisitor::UnitVisitor(IceUtil::Output& out, bool stream)
+    : VbVisitor(out), _stream(stream), _globalMetaDataDone(false)
 {
+}
+
+bool
+Slice::Gen::UnitVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if(!_globalMetaDataDone)
+    {
+	DefinitionContextPtr dc = p->definitionContext();
+	StringList globalMetaData = dc->getMetaData();
+
+	static const string attributePrefix = "vb:attribute:";
+
+	if(!globalMetaData.empty())
+	{
+	    _out << sp;
+	}
+	for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+	{
+	    string::size_type pos = q->find(attributePrefix);
+	    if(pos == 0)
+	    {
+		string attrib = q->substr(pos + attributePrefix.size());
+		_out << nl << '<' << attrib << '>';
+	    }
+	}
+	_globalMetaDataDone = true; // Do this only once per source file.
+    }
+    return false;
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(IceUtil::Output& out, bool stream)
@@ -1047,7 +1111,9 @@ bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
     string name = fixId(p->name());
-    _out << sp << nl << "Namespace " << name;
+    _out << sp << nl;
+    emitAttributes(p);
+    _out << "Namespace " << name;
 
     _out.inc();
 
@@ -1110,9 +1176,12 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out.dec();
 	_out << nl << "End Class";
     }
+
+    _out << sp << nl;
+    emitAttributes(p);
     if(p->isInterface())
     {
-        _out << sp << nl << "Public Interface " << name;
+        _out << "Public Interface " << name;
 	_out.inc();
 	if(p->isLocal())
 	{
@@ -1140,7 +1209,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-	_out << sp << nl << "Public ";
+	_out << "Public ";
 	if(p->isAbstract())
 	{
 	    _out << "MustInherit ";
@@ -1529,7 +1598,9 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 
     string vbOp = ret ? "Function" : "Sub";
 
-    _out << sp << nl << "Public ";
+    _out << sp << nl;
+    emitAttributes(p);
+    _out << "Public ";
     if(isLocal)
     {
         _out << "MustOverride ";
@@ -1580,7 +1651,9 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     string s = typeToString(p->type());
     bool isValue = isValueType(p->type());
 
-    _out << sp << nl << "Public Class " << name;
+    _out << sp << nl;
+    emitAttributes(p);
+    _out << "Public Class " << name;
     _out.inc();
     _out << nl << "Inherits _System.Collections.CollectionBase";
     _out << nl << "Implements _System.ICloneable";
@@ -1880,7 +1953,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     string name = fixId(p->name());
     ExceptionPtr base = p->base();
 
-    _out << sp << nl << "Public Class " << name;
+    _out << sp << nl;
+    emitAttributes(p);
+    _out << "Public Class " << name;
     _out.inc();
     if(base)
     {
@@ -2314,13 +2389,15 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 	_out << nl << "End Class";
     }
 
+    _out << sp << nl;
+    emitAttributes(p);
     if(p->hasMetaData("clr:class"))
     {
-	_out << sp << nl << "Public Class " << name << " Implements _System.ICloneable";
+	_out << "Public Class " << name << " Implements _System.ICloneable";
     }
     else
     {
-	_out << sp << nl << "Public Structure " << name;
+	_out << "Public Structure " << name;
     }
     _out.inc();
 
@@ -2743,7 +2820,9 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     string vs = typeToString(p->valueType());
     bool valueIsValue = isValueType(p->valueType());
 
-    _out << sp << nl << "Public Class " << name;
+    _out << sp << nl;
+    emitAttributes(p);
+    _out << "Public Class " << name;
     _out.inc();
     _out << nl << "Inherits _System.Collections.DictionaryBase";
     _out << nl << "Implements _System.ICloneable";
@@ -3049,7 +3128,9 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     string name = fixId(p->name());
     string scoped = fixId(p->scoped());
-    _out << sp << nl << "Public Enum " << name;
+    _out << sp << nl;
+    emitAttributes(p);
+    _out << "Public Enum " << name;
     _out.inc();
     EnumeratorList enumerators = p->getEnumerators();
     for(EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
@@ -3087,7 +3168,9 @@ void
 Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     string name = fixId(p->name());
-    _out << sp << nl << "Public NotInheritable Class " << name;
+    _out << sp << nl;
+    emitAttributes(p);
+    _out << "Public NotInheritable Class " << name;
     _out.inc();
     _out << nl << "Public Const value As " << typeToString(p->type()) << " = ";
     BuiltinPtr bp = BuiltinPtr::dynamicCast(p->type());
@@ -3220,7 +3303,9 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 	baseTypes = DotNet::ICloneable;
 	isClass = true;
     }
-    _out << sp << nl << "Public " << fixId(p->name(), baseTypes, isClass) << " As " << typeToString(p->type());
+    _out << sp << nl;
+    emitAttributes(p);
+    _out << "Public " << fixId(p->name(), baseTypes, isClass) << " As " << typeToString(p->type());
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtil::Output& out)
@@ -3236,7 +3321,9 @@ Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 	return false;
     }
 
-    _out << sp << nl << "Namespace " << fixId(p->name());
+    _out << sp << nl;
+    emitAttributes(p);
+    _out << "Namespace " << fixId(p->name());
     _out.inc();
     return true;
 }
@@ -3324,6 +3411,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	_out << nl << "Sub " << p->name() << "_async" << spar << paramsAMI << epar;
 	_out << nl << "Sub " << p->name() << "_async" << spar << paramsAMI << "ByVal __ctx As Ice.Context" << epar;
     }
+}
+
+Slice::Gen::OpsVisitor::OpsVisitor(IceUtil::Output& out)
+    : VbVisitor(out)
+{
 }
 
 bool
@@ -3435,7 +3527,9 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 
 	string vbOp = ret ? "Function" : "Sub";
 
-	_out << sp << nl << vbOp << ' ' << name << spar << params;
+	_out << sp << nl;
+	emitAttributes(op);
+	_out << vbOp << ' ' << name << spar << params;
 	if(!noCurrent && !p->isLocal())
 	{
 	    _out << "ByVal __current As Ice.Current";

@@ -1015,10 +1015,43 @@ Slice::VbGenerator::validateMetaData(const UnitPtr& unit)
     unit->visit(&visitor, false);
 }
 
+Slice::VbGenerator::MetaDataVisitor::MetaDataVisitor()
+    : _globalMetaDataDone(false)
+{
+}
+
 bool
 Slice::VbGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    validate(p);
+    if(!_globalMetaDataDone)
+    {
+	//
+	// Validate global metadata.
+	//
+	DefinitionContextPtr dc = p->definitionContext();
+	assert(dc);
+	StringList globalMetaData = dc->getMetaData();
+	string file = dc->filename();
+	static const string prefix = "vb:";
+	for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+	{
+	    string s = *q;
+	    if(_history.count(s) == 0)
+	    {
+		if(s.find(prefix) == 0)
+		{
+		    static const string attributePrefix = "vb:attribute:";
+		    if(s.find(attributePrefix) != 0 || s.size() == attributePrefix.size())
+		    {
+			cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+		    }
+		}
+		_history.insert(s);
+	    }
+	}
+	_globalMetaDataDone = true;
+	validate(p);
+    }
     return true;
 }
 
@@ -1116,30 +1149,16 @@ Slice::VbGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 {
     DefinitionContextPtr dc = cont->definitionContext();
     assert(dc);
-    StringList globalMetaData = dc->getMetaData();
     string file = dc->filename();
 
     StringList localMetaData = cont->getMetaData();
 
     StringList::const_iterator p;
-    static const string prefix = "clr:";
-
-    for(p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
-    {
-        string s = *p;
-        if(_history.count(s) == 0)
-        {
-            if(s.find(prefix) == 0)
-            {
-		cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
-            }
-            _history.insert(s);
-        }
-    }
 
     for(p = localMetaData.begin(); p != localMetaData.end(); ++p)
     {
 	string s = *p;
+
 	if(s.find("vb:") == 0) // TODO: remove this statement once "vb:" is a hard error.
 	{
 	    if(SequencePtr::dynamicCast(cont))
@@ -1157,14 +1176,20 @@ Slice::VbGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 		{
 		    cout << file << ":" << cont->line() << ": warning: `vb:' metadata prefix is deprecated; "
 			 << "use `clr:' instead" << endl;
+		    cont->addMetaData("clr:class");
 		}
-		cont->addMetaData("clr:class");
+	    }
+	    else if(s.find("vb:attribute:") == 0)
+	    {
+	        ; // Do nothing, "vb:attribute:" is OK
 	    }
 	    else
 	    {
 		cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
 	    }
 	} // End TODO
+
+	string prefix = "clr";
         if(_history.count(s) == 0)
         {
             if(s.find(prefix) == 0)
@@ -1182,6 +1207,20 @@ Slice::VbGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 		    {
 		        continue;
 		    }
+		}
+		cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+            }
+            _history.insert(s);
+        }
+
+	prefix = "vb:";
+        if(_history.count(s) == 0)
+        {
+            if(s.find(prefix) == 0)
+            {
+		if(s.substr(prefix.size()) == "attribute:")
+		{
+		    continue;
 		}
 		cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }
