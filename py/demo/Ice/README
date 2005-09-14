@@ -1,5 +1,9 @@
 Demos in this directory:
 
+- minimal
+
+  This demo illustrates a minimal Ice application.
+
 - bidir
 
   This demo shows how to use bi-directional connections for
