@@ -208,7 +208,8 @@ class Node extends EditableParent
 	{
 	    NodeDescriptor descriptor = new NodeDescriptor(update.variables,
 							   update.serverInstances,
-							   update.servers);
+							   update.servers,
+							   update.loadFactor.value);
 
 	    init(descriptor, application, true);
 	    return _descriptor;

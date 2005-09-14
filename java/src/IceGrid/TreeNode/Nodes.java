@@ -134,7 +134,8 @@ public class Nodes extends EditableParent
 	    {
 		NodeDescriptor nodeDescriptor = new NodeDescriptor(update.variables,
 								   update.serverInstances,
-								   update.servers);
+								   update.servers,
+								   update.loadFactor.value);
 		_descriptors.put(update.name, nodeDescriptor);
 		node = new Node(false, update.name, nodeDescriptor, application);
 		newChildren.add(node);
