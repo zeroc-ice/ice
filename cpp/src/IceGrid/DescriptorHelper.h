@@ -239,6 +239,7 @@ public:
 
     void getIds(std::multiset<std::string>&, std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
     const NodeDescriptor& getDescriptor() const;
+    const NodeDescriptor& getInstance() const;
     void getServerInfos(const std::string&, std::map<std::string, ServerInfo>&) const;
     std::pair<Ice::StringSeq, Ice::StringSeq> getPatchDirs(const std::string&, const Resolver&) const;
 
@@ -248,8 +249,11 @@ public:
 
 private:
 
+    NodeDescriptor instantiate(const Resolver&) const;
+
     std::string _name;
-    NodeDescriptor _desc;
+    NodeDescriptor _definition;    
+    NodeDescriptor _instance;
 
     typedef std::map<std::string, ServerInstanceHelper> ServerInstanceHelperDict;
     ServerInstanceHelperDict _serverInstances;
@@ -267,6 +271,7 @@ public:
 
     void getIds(std::set<std::string>&, std::set<std::string>&, std::set<Ice::Identity>&) const;
     const ApplicationDescriptor& getDescriptor() const;
+    const ApplicationDescriptor& getInstance() const;
     TemplateDescriptor getServerTemplate(const std::string&) const;
     TemplateDescriptor getServiceTemplate(const std::string&) const;
     PatchDescriptor getPatchDescriptor(const std::string&) const;
@@ -279,8 +284,10 @@ public:
 private:
 
     void validate(const Resolver&) const;
+    ApplicationDescriptor instantiate(const Resolver&) const;
 
-    ApplicationDescriptor _desc;
+    ApplicationDescriptor _definition;
+    ApplicationDescriptor _instance;
 
     typedef std::map<std::string, NodeHelper> NodeHelperDict;
     NodeHelperDict _nodes;

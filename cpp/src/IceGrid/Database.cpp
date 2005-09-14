@@ -938,13 +938,13 @@ Database::checkObjectForAddition(const Ice::Identity& objectId)
 void
 Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
 {
-    const NodeDescriptorDict& nodes = app.getDescriptor().nodes;
+    const NodeDescriptorDict& nodes = app.getInstance().nodes;
     for(NodeDescriptorDict::const_iterator n = nodes.begin(); n != nodes.end(); ++n)
     {
-	_nodeCache.get(n->first, true)->addDescriptor(app.getDescriptor().name, n->second);	
+	_nodeCache.get(n->first, true)->addDescriptor(app.getInstance().name, n->second);	
     }
 
-    const ReplicatedAdapterDescriptorSeq& adpts = app.getDescriptor().replicatedAdapters;
+    const ReplicatedAdapterDescriptorSeq& adpts = app.getInstance().replicatedAdapters;
     for(ReplicatedAdapterDescriptorSeq::const_iterator r = adpts.begin(); r != adpts.end(); ++r)
     {
 	assert(!r->id.empty());
@@ -965,13 +965,13 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
 void
 Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 {
-    const NodeDescriptorDict& nodes = app.getDescriptor().nodes;
+    const NodeDescriptorDict& nodes = app.getInstance().nodes;
     for(NodeDescriptorDict::const_iterator n = nodes.begin(); n != nodes.end(); ++n)
     {
-	_nodeCache.get(n->first)->removeDescriptor(app.getDescriptor().name);
+	_nodeCache.get(n->first)->removeDescriptor(app.getInstance().name);
     }
 
-    const ReplicatedAdapterDescriptorSeq& adpts = app.getDescriptor().replicatedAdapters;
+    const ReplicatedAdapterDescriptorSeq& adpts = app.getInstance().replicatedAdapters;
     for(ReplicatedAdapterDescriptorSeq::const_iterator r = adpts.begin(); r != adpts.end(); ++r)
     {
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
@@ -991,28 +991,28 @@ Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 void
 Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newApp, ServerEntrySeq& entries)
 {
-    const NodeDescriptorDict& oldNodes = oldApp.getDescriptor().nodes;
+    const NodeDescriptorDict& oldNodes = oldApp.getInstance().nodes;
     NodeDescriptorDict::const_iterator n;
     for(n = oldNodes.begin(); n != oldNodes.end(); ++n)
     {
-	_nodeCache.get(n->first)->removeDescriptor(oldApp.getDescriptor().name);
+	_nodeCache.get(n->first)->removeDescriptor(oldApp.getInstance().name);
     }
-    const NodeDescriptorDict& newNodes = newApp.getDescriptor().nodes;
+    const NodeDescriptorDict& newNodes = newApp.getInstance().nodes;
     for(n = newNodes.begin(); n != newNodes.end(); ++n)
     {
-	_nodeCache.get(n->first, true)->addDescriptor(newApp.getDescriptor().name, n->second);
+	_nodeCache.get(n->first, true)->addDescriptor(newApp.getInstance().name, n->second);
     }
 
     //
     // Unload/load replicated adapters.
     //
-    const ReplicatedAdapterDescriptorSeq& oldAdpts = oldApp.getDescriptor().replicatedAdapters;
+    const ReplicatedAdapterDescriptorSeq& oldAdpts = oldApp.getInstance().replicatedAdapters;
     ReplicatedAdapterDescriptorSeq::const_iterator r;
     for(r = oldAdpts.begin(); r != oldAdpts.end(); ++r)
     {
 	_adapterCache.get(r->id, false)->disableReplication();
     }
-    const ReplicatedAdapterDescriptorSeq& newAdpts = newApp.getDescriptor().replicatedAdapters;
+    const ReplicatedAdapterDescriptorSeq& newAdpts = newApp.getInstance().replicatedAdapters;
     for(r = newAdpts.begin(); r != newAdpts.end(); ++r)
     {
 	_adapterCache.get(r->id, true)->enableReplication(r->loadBalancing);

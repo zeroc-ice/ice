@@ -133,6 +133,9 @@ AdminI::patchApplication(const string& name, const string& patch, bool shutdown,
 	catch(const NodeNotExistException&)
 	{
 	}
+	catch(const NodeUnreachableException&)
+	{
+	}
 	catch(const Ice::ObjectNotExistException&)
 	{
 	}

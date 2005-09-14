@@ -1356,18 +1356,21 @@ ServerInstanceHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identit
 
 NodeHelper::NodeHelper(const string& name, const NodeDescriptor& descriptor, const Resolver& appResolve) : 
     _name(name),
-    _desc(descriptor)
+    _definition(descriptor)
 {
     if(_name.empty())
     {
 	appResolve.exception("invalid node: empty name");
     }
 
-    Resolver resolve(appResolve, _desc.variables, false);
+    Resolver resolve(appResolve, _definition.variables, false);
     resolve.setReserved("node", _name);
     resolve.setContext("node `" + _name + "'");
-    for(ServerInstanceDescriptorSeq::const_iterator p = _desc.serverInstances.begin(); 
-	p != _desc.serverInstances.end(); ++p)
+
+    _instance = instantiate(resolve);
+
+    ServerInstanceDescriptorSeq::const_iterator p;
+    for(p = _definition.serverInstances.begin(); p != _definition.serverInstances.end(); ++p)
     {
 	ServerInstanceHelper helper(*p, resolve);
 	if(!_serverInstances.insert(make_pair(helper.getId(), helper)).second)
@@ -1375,7 +1378,9 @@ NodeHelper::NodeHelper(const string& name, const NodeDescriptor& descriptor, con
 	    resolve.exception("duplicate server `" + helper.getId() + "' in node `" + _name + "'");
 	}
     }
-    for(ServerDescriptorSeq::const_iterator q = _desc.servers.begin(); q != _desc.servers.end(); ++q)
+
+    ServerDescriptorSeq::const_iterator q;
+    for(q = _definition.servers.begin(); q != _definition.servers.end(); ++q)
     {
 	ServerInstanceHelper helper(*q, resolve);
 	if(!_servers.insert(make_pair(helper.getId(), helper)).second)
@@ -1390,7 +1395,7 @@ NodeHelper::NodeHelper(const string& name, const NodeDescriptor& descriptor, con
 bool
 NodeHelper::operator==(const NodeHelper& helper) const
 {
-    if(_desc.variables != helper._desc.variables)
+    if(_definition.variables != helper._definition.variables)
     {
 	return false;
     }
@@ -1414,6 +1419,14 @@ NodeHelper::operator!=(const NodeHelper& helper) const
     return !operator==(helper);
 }
 
+NodeDescriptor
+NodeHelper::instantiate(const Resolver& resolve) const
+{
+    NodeDescriptor desc = _definition;
+    desc.loadFactor = resolve(_definition.loadFactor, "load factor");
+    return desc;
+}
+
 NodeUpdateDescriptor
 NodeHelper::diff(const NodeHelper& helper) const
 {
@@ -1422,9 +1435,13 @@ NodeHelper::diff(const NodeHelper& helper) const
     NodeUpdateDescriptor update;
 
     update.name = _name;
+    if(_definition.loadFactor != helper._definition.loadFactor)
+    {
+	update.loadFactor = new BoxedLoadFactor(_definition.loadFactor);
+    }
 
-    update.variables = getDictUpdatedElts(helper._desc.variables, _desc.variables);
-    update.removeVariables = getDictRemovedElts(helper._desc.variables, _desc.variables);
+    update.variables = getDictUpdatedElts(helper._definition.variables, _definition.variables);
+    update.removeVariables = getDictRemovedElts(helper._definition.variables, _definition.variables);
     
     ServerInstanceHelperDict updated = getDictUpdatedElts(helper._serverInstances, _serverInstances);
     for(ServerInstanceHelperDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
@@ -1451,7 +1468,12 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     //
     // Update the variables.
     //
-    _desc.variables = updateDictElts(_desc.variables, update.variables, update.removeVariables);
+    _definition.variables = updateDictElts(_definition.variables, update.variables, update.removeVariables);
+
+    if(update.loadFactor)
+    {
+	_definition.loadFactor = update.loadFactor->value;
+    }
 
     //
     // Remove the servers and server instances.
@@ -1464,14 +1486,14 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
 
     for(map<string, string>::const_iterator p = update.variables.begin(); p != update.variables.end(); ++p)
     {
-	_desc.variables[p->first] = p->second;
+	_definition.variables[p->first] = p->second;
     }
 
     //
     // NOTE: It's important to create the resolver *after* updating
     // the node variables!
     //
-    Resolver resolve(appResolve, _desc.variables, false);
+    Resolver resolve(appResolve, _definition.variables, false);
     resolve.setReserved("node", _name);
     resolve.setContext("node `" + _name + "'");
 
@@ -1545,17 +1567,19 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     //
     // Update the node descriptor with the new server instances and servers.
     //
-    _desc.serverInstances.clear();
+    _definition.serverInstances.clear();
     for(r = _serverInstances.begin(); r != _serverInstances.end(); ++r)
     {
-	_desc.serverInstances.push_back(r->second.getDescriptor());
+	_definition.serverInstances.push_back(r->second.getDescriptor());
     }
 
-    _desc.servers.clear();
+    _definition.servers.clear();
     for(r = _servers.begin(); r != _servers.end(); ++r)
     {
-	_desc.servers.push_back(r->second.getDefinition());
+	_definition.servers.push_back(r->second.getDefinition());
     }
+
+    _instance = instantiate(resolve);
 }
 
 void
@@ -1577,7 +1601,13 @@ NodeHelper::getIds(multiset<string>& serverIds, multiset<string>& adapterIds, mu
 const NodeDescriptor&
 NodeHelper::getDescriptor() const
 {
-    return _desc;
+    return _definition;
+}
+
+const NodeDescriptor&
+NodeHelper::getInstance() const
+{
+    return _instance;
 }
 
 void
@@ -1607,7 +1637,7 @@ NodeHelper::getPatchDirs(const string& patch, const Resolver& appResolve) const
 {
     Ice::StringSeq servers;
     set<string> directories;
-    Resolver resolve(appResolve, _desc.variables, false);
+    Resolver resolve(appResolve, _definition.variables, false);
     ServerInstanceHelperDict::const_iterator p;
     for(p = _serverInstances.begin(); p != _serverInstances.end(); ++p)
     {
@@ -1631,11 +1661,11 @@ NodeHelper::print(Output& out) const
 {
     out << nl << "node '" << _name << "'";
     out << sb;
-    if(!_desc.variables.empty())
+    if(!_definition.variables.empty())
     {
 	out << nl << "variables";
 	out << sb;
-	for(StringStringDict::const_iterator q = _desc.variables.begin(); q != _desc.variables.end(); ++q)
+	for(StringStringDict::const_iterator q = _definition.variables.begin(); q != _definition.variables.end(); ++q)
 	{
 	    out << nl << q->first << " = '" << q->second << "'";
 	}
@@ -1720,11 +1750,11 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
 void
 NodeHelper::validate(const Resolver& appResolve) const
 {
-    Resolver resolve(appResolve, _desc.variables, false);
+    Resolver resolve(appResolve, _definition.variables, false);
     resolve.setReserved("node", _name);
     resolve.setContext("node `" + _name + "'");
 
-    for(StringStringDict::const_iterator p = _desc.variables.begin(); p != _desc.variables.end(); ++p)
+    for(StringStringDict::const_iterator p = _definition.variables.begin(); p != _definition.variables.end(); ++p)
     {
 	if(p->first == "")
 	{
@@ -1734,20 +1764,54 @@ NodeHelper::validate(const Resolver& appResolve) const
 }
 
 ApplicationHelper::ApplicationHelper(const ApplicationDescriptor& desc) :
-    _desc(desc)
+    _definition(desc)
 {
-    if(_desc.name.empty())
+    if(_definition.name.empty())
     {
 	throw DeploymentException("invalid application: empty name");
     }
 
-    Resolver resolve(*this, _desc.name, desc.variables);
-    for(NodeDescriptorDict::const_iterator p = _desc.nodes.begin(); p != _desc.nodes.end(); ++p)
+    Resolver resolve(*this, _definition.name, desc.variables);
+    for(NodeDescriptorDict::const_iterator p = _definition.nodes.begin(); p != _definition.nodes.end(); ++p)
     {
 	_nodes.insert(make_pair(p->first, NodeHelper(p->first, p->second, resolve)));
     }
     
+    _instance = instantiate(resolve); 
+    
     validate(resolve);
+}
+
+ApplicationDescriptor
+ApplicationHelper::instantiate(const Resolver& resolve) const
+{
+    ApplicationDescriptor desc = _definition;
+
+    ReplicatedAdapterDescriptorSeq::iterator r;
+    for(r = desc.replicatedAdapters.begin(); r != desc.replicatedAdapters.end(); ++r)
+    {
+	r->loadBalancing->nReplicas = resolve(r->loadBalancing->nReplicas, "number of replicas");
+	AdaptiveLoadBalancingPolicyPtr alb = AdaptiveLoadBalancingPolicyPtr::dynamicCast(r->loadBalancing);
+	if(alb)
+	{
+	    alb->loadSample = resolve(alb->loadSample, "load sample");
+	}
+
+	for(ObjectDescriptorSeq::iterator q = r->objects.begin(); q != r->objects.end(); ++q)
+	{
+	    q->type = resolve(q->type, "object type");
+	    q->id.name = resolve(q->id.name, "object identity name", false);
+	    q->id.category = resolve(q->id.category, "object identity category");
+	}
+    }
+
+    desc.nodes.clear();
+    for(NodeHelperDict::const_iterator n = _nodes.begin(); n != _nodes.end(); ++n)
+    {
+	desc.nodes.insert(make_pair(n->first, n->second.getInstance()));
+    }
+    
+    return desc;
 }
 
 ApplicationUpdateDescriptor
@@ -1755,27 +1819,35 @@ ApplicationHelper::diff(const ApplicationHelper& helper)
 {
     ApplicationUpdateDescriptor update;
 
-    update.name = _desc.name;
-    if(_desc.description != helper._desc.description)
+    update.name = _definition.name;
+    if(_definition.description != helper._definition.description)
     {
-	update.description = new BoxedDescription(_desc.description);
+	update.description = new BoxedDescription(_definition.description);
     }
 
-    update.variables = getDictUpdatedElts(helper._desc.variables, _desc.variables);
-    update.removeVariables = getDictRemovedElts(helper._desc.variables, _desc.variables);
+    update.variables = getDictUpdatedElts(helper._definition.variables, _definition.variables);
+    update.removeVariables = getDictRemovedElts(helper._definition.variables, _definition.variables);
 
-    update.patchs = getDictUpdatedElts(helper._desc.patchs, _desc.patchs);
-    update.removePatchs = getDictRemovedElts(helper._desc.patchs, _desc.patchs);
+    update.patchs = getDictUpdatedElts(helper._definition.patchs, _definition.patchs);
+    update.removePatchs = getDictRemovedElts(helper._definition.patchs, _definition.patchs);
 
+    //
+    // TODO: I don't think that's correct since the load balancing policy is a class.
+    //
     GetReplicatedAdapterId rk;
-    update.replicatedAdapters = getSeqUpdatedElts(helper._desc.replicatedAdapters, _desc.replicatedAdapters, rk);
-    update.removeReplicatedAdapters =getSeqRemovedElts(helper._desc.replicatedAdapters, _desc.replicatedAdapters, rk);
+    update.replicatedAdapters = 
+	getSeqUpdatedElts(helper._definition.replicatedAdapters, _definition.replicatedAdapters, rk);
+    update.removeReplicatedAdapters =
+	getSeqRemovedElts(helper._definition.replicatedAdapters, _definition.replicatedAdapters, rk);
 
     TemplateDescriptorEqual tmpleq;
-    update.serverTemplates = getDictUpdatedElts(helper._desc.serverTemplates, _desc.serverTemplates, tmpleq);
-    update.removeServerTemplates = getDictRemovedElts(helper._desc.serverTemplates, _desc.serverTemplates);
-    update.serviceTemplates = getDictUpdatedElts(helper._desc.serviceTemplates, _desc.serviceTemplates, tmpleq);
-    update.removeServiceTemplates = getDictRemovedElts(helper._desc.serviceTemplates, _desc.serviceTemplates);
+    update.serverTemplates = 
+	getDictUpdatedElts(helper._definition.serverTemplates, _definition.serverTemplates, tmpleq);
+    update.removeServerTemplates = getDictRemovedElts(helper._definition.serverTemplates, _definition.serverTemplates);
+    update.serviceTemplates = 
+	getDictUpdatedElts(helper._definition.serviceTemplates, _definition.serviceTemplates, tmpleq);
+    update.removeServiceTemplates = 
+	getDictRemovedElts(helper._definition.serviceTemplates, _definition.serviceTemplates);
 
     NodeHelperDict updated = getDictUpdatedElts(helper._nodes, _nodes);
     for(NodeHelperDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
@@ -1807,22 +1879,21 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
 {
     if(update.description)
     {
-	_desc.description = update.description->value;
+	_definition.description = update.description->value;
     }
 
-    _desc.replicatedAdapters = updateSeqElts(_desc.replicatedAdapters, update.replicatedAdapters,
-					     update.removeReplicatedAdapters, GetReplicatedAdapterId());
+    _definition.replicatedAdapters = updateSeqElts(_definition.replicatedAdapters, update.replicatedAdapters,
+						   update.removeReplicatedAdapters, GetReplicatedAdapterId());
     
-    _desc.variables = updateDictElts(_desc.variables, update.variables, update.removeVariables);
+    _definition.variables = updateDictElts(_definition.variables, update.variables, update.removeVariables);
 
-    _desc.patchs = updateDictElts(_desc.patchs, update.patchs, update.removePatchs);
+    _definition.patchs = updateDictElts(_definition.patchs, update.patchs, update.removePatchs);
+    
+    _definition.serverTemplates = updateDictElts(_definition.serverTemplates, update.serverTemplates, 
+						 update.removeServerTemplates);
 
-    _desc.serverTemplates = updateDictElts(_desc.serverTemplates, update.serverTemplates, 
-					   update.removeServerTemplates);
-
-    _desc.serviceTemplates = updateDictElts(_desc.serviceTemplates, update.serviceTemplates, 
-					    update.removeServiceTemplates);
-
+    _definition.serviceTemplates = updateDictElts(_definition.serviceTemplates, update.serviceTemplates, 
+						  update.removeServiceTemplates);
 
     for(Ice::StringSeq::const_iterator r = update.removeNodes.begin(); r != update.removeNodes.end(); ++r)
     {
@@ -1833,7 +1904,7 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
     // NOTE: It's important to create the resolver *after* updating
     // the application variables!
     //
-    Resolver resolve(*this, _desc.name, _desc.variables);
+    Resolver resolve(*this, _definition.name, _definition.variables);
 
     //
     // We first update or add the nodes from the update descriptor and
@@ -1869,11 +1940,16 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
     //
     // Update the application descriptor.
     //
-    _desc.nodes.clear();
+    _definition.nodes.clear();
     for(NodeHelperDict::const_iterator t = _nodes.begin(); t != _nodes.end(); ++t)
     {
-	_desc.nodes.insert(make_pair(t->first, t->second.getDescriptor()));
+	_definition.nodes.insert(make_pair(t->first, t->second.getDescriptor()));
     }
+
+    //
+    // Update the application descriptor instance.
+    //
+    _instance = instantiate(resolve);
 
     //
     // Validate the new application descriptor.
@@ -1893,7 +1969,7 @@ ApplicationHelper::getIds(set<string>& serverIds, set<string>& adapterIds, set<I
 	p->second.getIds(sIds, aIds, oIds);
     }
     ReplicatedAdapterDescriptorSeq::const_iterator r;
-    for(r = _desc.replicatedAdapters.begin(); r != _desc.replicatedAdapters.end(); ++r)
+    for(r = _definition.replicatedAdapters.begin(); r != _definition.replicatedAdapters.end(); ++r)
     {
 	aIds.insert(r->id);
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
@@ -1910,14 +1986,20 @@ ApplicationHelper::getIds(set<string>& serverIds, set<string>& adapterIds, set<I
 const ApplicationDescriptor&
 ApplicationHelper::getDescriptor() const
 {
-    return _desc;
+    return _definition;
+}
+
+const ApplicationDescriptor&
+ApplicationHelper::getInstance() const
+{
+    return _instance;
 }
 
 TemplateDescriptor 
 ApplicationHelper::getServerTemplate(const string& name) const
 {
-    TemplateDescriptorDict::const_iterator p = _desc.serverTemplates.find(name);
-    if(p == _desc.serverTemplates.end())
+    TemplateDescriptorDict::const_iterator p = _definition.serverTemplates.find(name);
+    if(p == _definition.serverTemplates.end())
     {
 	throw DeploymentException("unknown server template `" + name + "'");
     }
@@ -1927,8 +2009,8 @@ ApplicationHelper::getServerTemplate(const string& name) const
 TemplateDescriptor 
 ApplicationHelper::getServiceTemplate(const string& name) const
 {
-    TemplateDescriptorDict::const_iterator p = _desc.serviceTemplates.find(name);
-    if(p == _desc.serviceTemplates.end())
+    TemplateDescriptorDict::const_iterator p = _definition.serviceTemplates.find(name);
+    if(p == _definition.serviceTemplates.end())
     {
 	throw DeploymentException("unknown service template `" + name + "'");
     }
@@ -1938,8 +2020,8 @@ ApplicationHelper::getServiceTemplate(const string& name) const
 PatchDescriptor
 ApplicationHelper::getPatchDescriptor(const string& id) const
 {
-    PatchDescriptorDict::const_iterator p = _desc.patchs.find(id);
-    if(p == _desc.patchs.end())
+    PatchDescriptorDict::const_iterator p = _definition.patchs.find(id);
+    if(p == _definition.patchs.end())
     {
 	throw DeploymentException("unknown patch descriptor `" + id + "'");
     }
@@ -1952,7 +2034,7 @@ ApplicationHelper::getServerInfos() const
     map<string, ServerInfo> servers;
     for(NodeHelperDict::const_iterator n = _nodes.begin(); n != _nodes.end(); ++n)
     {
-	n->second.getServerInfos(_desc.name, servers);
+	n->second.getServerInfos(_definition.name, servers);
     }
     return servers;
 }
@@ -1961,7 +2043,7 @@ map<string, pair<Ice::StringSeq, Ice::StringSeq> >
 ApplicationHelper::getNodesPatchDirs(const string& patch) const
 {
     map<string, pair<Ice::StringSeq, Ice::StringSeq> > nodes;
-    Resolver resolve(*this, _desc.name, _desc.variables);
+    Resolver resolve(*this, _definition.name, _definition.variables);
     for(NodeHelperDict::const_iterator n = _nodes.begin(); n != _nodes.end(); ++n)
     {
 	nodes.insert(make_pair(n->first, n->second.getPatchDirs(patch, resolve)));
@@ -1972,39 +2054,39 @@ ApplicationHelper::getNodesPatchDirs(const string& patch) const
 void
 ApplicationHelper::print(Output& out) const
 {
-    out << "application '" << _desc.name << "'";
+    out << "application '" << _definition.name << "'";
     out << sb;
-    if(!_desc.description.empty())
+    if(!_definition.description.empty())
     {
-	out << nl << "description = " << _desc.description;
+	out << nl << "description = " << _definition.description;
     }
-    if(!_desc.variables.empty())
+    if(!_definition.variables.empty())
     {
 	out << nl << "variables";
 	out << sb;
-	for(StringStringDict::const_iterator p = _desc.variables.begin(); p != _desc.variables.end(); 
+	for(StringStringDict::const_iterator p = _definition.variables.begin(); p != _definition.variables.end(); 
 	    ++p)
 	{
 	    out << nl << p->first << " = '" << p->second << "'";
 	}
 	out << eb;
     }
-    if(!_desc.patchs.empty())
+    if(!_definition.patchs.empty())
     {
 	out << nl << "patchs";
 	out << sb;
-	for(PatchDescriptorDict::const_iterator p = _desc.patchs.begin(); p != _desc.patchs.end(); ++p)
+	for(PatchDescriptorDict::const_iterator p = _definition.patchs.begin(); p != _definition.patchs.end(); ++p)
 	{
 	    out << nl << p->first;
 	}
 	out << eb;
     }
-    if(!_desc.replicatedAdapters.empty())
+    if(!_definition.replicatedAdapters.empty())
     {
 	out << nl << "replicated adapters";
 	out << sb;
 	ReplicatedAdapterDescriptorSeq::const_iterator p;
-	for(p = _desc.replicatedAdapters.begin(); p != _desc.replicatedAdapters.end(); ++p)
+	for(p = _definition.replicatedAdapters.begin(); p != _definition.replicatedAdapters.end(); ++p)
 	{
 	    out << nl << "id = `" << p->id << "' load balancing = '";
 	    if(RandomLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
@@ -2027,23 +2109,23 @@ ApplicationHelper::print(Output& out) const
 	}
 	out << eb;
     }
-    if(!_desc.serverTemplates.empty())
+    if(!_definition.serverTemplates.empty())
     {
 	out << nl << "server templates";
 	out << sb;
 	TemplateDescriptorDict::const_iterator p;
-	for(p = _desc.serverTemplates.begin(); p != _desc.serverTemplates.end(); ++p)
+	for(p = _definition.serverTemplates.begin(); p != _definition.serverTemplates.end(); ++p)
 	{
 	    out << nl << p->first;
 	}
 	out << eb;
     }
-    if(!_desc.serviceTemplates.empty())
+    if(!_definition.serviceTemplates.empty())
     {
 	out << nl << "service templates";
 	out << sb;
 	TemplateDescriptorDict::const_iterator p;
-	for(p = _desc.serviceTemplates.begin(); p != _desc.serviceTemplates.end(); ++p)
+	for(p = _definition.serviceTemplates.begin(); p != _definition.serviceTemplates.end(); ++p)
 	{
 	    out << nl << p->first;
 	}
@@ -2062,7 +2144,7 @@ ApplicationHelper::print(Output& out) const
 void
 ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
 {
-    out << "application `" << _desc.name << "'";
+    out << "application `" << _definition.name << "'";
     out << sb;
 
     //
@@ -2071,22 +2153,23 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
 
     {
 	TemplateDescriptorEqual eq;
-	TemplateDescriptorDict updated = getDictUpdatedElts(helper._desc.serverTemplates, _desc.serverTemplates, eq);
-	Ice::StringSeq removed = getDictRemovedElts(helper._desc.serverTemplates, _desc.serverTemplates);
+	TemplateDescriptorDict updated;
+	updated = getDictUpdatedElts(helper._definition.serverTemplates, _definition.serverTemplates, eq);
+	Ice::StringSeq removed = getDictRemovedElts(helper._definition.serverTemplates, _definition.serverTemplates);
 	if(!updated.empty() || !removed.empty())
 	{
 	    out << nl << "server templates";
 	    out << sb;
 	    for(TemplateDescriptorDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
 	    {
-		if(helper._desc.serverTemplates.find(p->first) == helper._desc.serverTemplates.end())
+		if(helper._definition.serverTemplates.find(p->first) == helper._definition.serverTemplates.end())
 		{
 		    out << nl << "server template `" << p->first << "' added";
 		}
 	    }
 	    for(TemplateDescriptorDict::const_iterator q = updated.begin(); q != updated.end(); ++q)
 	    {
-		if(helper._desc.serverTemplates.find(q->first) != helper._desc.serverTemplates.end())
+		if(helper._definition.serverTemplates.find(q->first) != helper._definition.serverTemplates.end())
 		{
 		    out << nl << "server template `" << q->first << "' updated";
 		}
@@ -2100,22 +2183,23 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
     }
     {
 	TemplateDescriptorEqual eq;
-	TemplateDescriptorDict updted = getDictUpdatedElts(helper._desc.serviceTemplates, _desc.serviceTemplates, eq);
-	Ice::StringSeq removed = getDictRemovedElts(helper._desc.serviceTemplates, _desc.serviceTemplates);
-	if(!updted.empty() || !removed.empty())
+	TemplateDescriptorDict updated;
+	updated = getDictUpdatedElts(helper._definition.serviceTemplates, _definition.serviceTemplates, eq);
+	Ice::StringSeq removed = getDictRemovedElts(helper._definition.serviceTemplates, _definition.serviceTemplates);
+	if(!updated.empty() || !removed.empty())
 	{
 	    out << nl << "service templates";
 	    out << sb;
-	    for(TemplateDescriptorDict::const_iterator p = updted.begin(); p != updted.end(); ++p)
+	    for(TemplateDescriptorDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
 	    {
-		if(helper._desc.serviceTemplates.find(p->first) == helper._desc.serviceTemplates.end())
+		if(helper._definition.serviceTemplates.find(p->first) == helper._definition.serviceTemplates.end())
 		{
 		    out << nl << "service template `" << p->first << "' added";
 		}
 	    }
-	    for(TemplateDescriptorDict::const_iterator q = updted.begin(); q != updted.end(); ++q)
+	    for(TemplateDescriptorDict::const_iterator q = updated.begin(); q != updated.end(); ++q)
 	    {
-		if(helper._desc.serviceTemplates.find(q->first) != helper._desc.serviceTemplates.end())
+		if(helper._definition.serviceTemplates.find(q->first) != helper._definition.serviceTemplates.end())
 		{
 		    out << nl << "service template `" << q->first << "' updated";
 		}
@@ -2163,23 +2247,23 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
 void
 ApplicationHelper::validate(const Resolver& resolve) const
 {
-    for(StringStringDict::const_iterator p = _desc.variables.begin(); p != _desc.variables.end(); ++p)
+    for(StringStringDict::const_iterator p = _definition.variables.begin(); p != _definition.variables.end(); ++p)
     {
 	if(p->first == "")
 	{
-	    resolve.exception("invalid application `" + _desc.name + "': empty variable name");
+	    resolve.exception("invalid application `" + _definition.name + "': empty variable name");
 	}
     }
     
     TemplateDescriptorDict::const_iterator t;
-    for(t = _desc.serverTemplates.begin(); t != _desc.serverTemplates.end(); ++t)
+    for(t = _definition.serverTemplates.begin(); t != _definition.serverTemplates.end(); ++t)
     {
 	if(t->first == "")
 	{
 	    resolve.exception("empty server template id");
 	}
     }
-    for(t = _desc.serviceTemplates.begin(); t != _desc.serviceTemplates.end(); ++t)
+    for(t = _definition.serviceTemplates.begin(); t != _definition.serviceTemplates.end(); ++t)
     {
 	if(t->first == "")
 	{
@@ -2187,7 +2271,7 @@ ApplicationHelper::validate(const Resolver& resolve) const
 	}
     }
 
-    for(PatchDescriptorDict::const_iterator q = _desc.patchs.begin(); q != _desc.patchs.end(); ++q)
+    for(PatchDescriptorDict::const_iterator q = _definition.patchs.begin(); q != _definition.patchs.end(); ++q)
     {
 	if(q->first == "")
 	{
@@ -2203,7 +2287,7 @@ ApplicationHelper::validate(const Resolver& resolve) const
     multiset<Ice::Identity> objectIds;
     set<string> replicatedAdapterIds;
     ReplicatedAdapterDescriptorSeq::const_iterator r;
-    for(r = _desc.replicatedAdapters.begin(); r != _desc.replicatedAdapters.end(); ++r)
+    for(r = _definition.replicatedAdapters.begin(); r != _definition.replicatedAdapters.end(); ++r)
     {
 	if(r->id.empty())
 	{

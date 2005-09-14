@@ -541,6 +541,11 @@ class BoxedDescription
     string value;
 };
 
+class BoxedLoadFactor
+{
+    string value;
+};
+
 struct NodeUpdateDescriptor
 {
     /**
@@ -583,7 +588,14 @@ struct NodeUpdateDescriptor
      * The ids of the servers to remove.
      *
      **/
-    Ice::StringSeq removeServers;    
+    Ice::StringSeq removeServers;
+
+    /**
+     *
+     * The updated load factor of the node.
+     *
+     **/
+    BoxedLoadFactor loadFactor;
 };
 ["java:type:java.util.LinkedList"] sequence<NodeUpdateDescriptor> NodeUpdateDescriptorSeq;
 
