@@ -60,4 +60,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     }
 
     const_cast<string&>(defaultLocator) = properties->getProperty("Ice.Default.Locator");
+
+    const_cast<bool&>(defaultCollocationOptimization) =
+	properties->getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
 }

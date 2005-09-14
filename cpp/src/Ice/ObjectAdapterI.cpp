@@ -27,6 +27,7 @@
 #include <Ice/ThreadPool.h>
 #include <Ice/Communicator.h>
 #include <Ice/Router.h>
+#include <Ice/DefaultsAndOverrides.h>
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
@@ -802,7 +803,9 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
 	//
 	ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), facet,
 								 Reference::ModeTwoway, false, _id,
-								 0, _locatorInfo, true);
+								 0, _locatorInfo,
+								 _instance->defaultsAndOverrides()->
+								 defaultCollocationOptimization);
 
 	//
 	// Return a proxy for the reference. 
@@ -841,7 +844,9 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) 
     // Create a reference and return a proxy for this reference.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), facet,
-							     Reference::ModeTwoway, false, endpoints, 0, true);
+							     Reference::ModeTwoway, false, endpoints, 0,
+							     _instance->defaultsAndOverrides()->
+							     defaultCollocationOptimization);
     return _instance->proxyFactory()->referenceToProxy(ref);
 
 }

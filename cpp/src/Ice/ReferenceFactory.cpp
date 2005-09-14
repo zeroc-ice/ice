@@ -19,6 +19,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Properties.h>
+#include <Ice/DefaultsAndOverrides.h>
 #include <IceUtil/StringUtil.h>
 
 using namespace std;
@@ -408,7 +409,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 
     if(beg == string::npos)
     {
-	return create(ident, _instance->getDefaultContext(), facet, mode, secure, "", routerInfo, locatorInfo, true);
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure, "", routerInfo, locatorInfo,
+		      _instance->defaultsAndOverrides()->defaultCollocationOptimization);
     }
 
     vector<EndpointIPtr> endpoints;
@@ -458,7 +460,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 		}
 	    }
 
-	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints, routerInfo, true);
+	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints, routerInfo,
+			  _instance->defaultsAndOverrides()->defaultCollocationOptimization);
 	    break;
 	}
 	case '@':
@@ -498,7 +501,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 		throw ex;
 	    }
 	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapter, routerInfo,
-			  locatorInfo, true);
+			  locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization);
 	    break;
 	}
 	default:
@@ -568,13 +571,14 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	    EndpointIPtr endpoint = _instance->endpointFactoryManager()->read(s);
 	    endpoints.push_back(endpoint);
 	}
-	return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints, routerInfo, true);
+	return create(ident, _instance->getDefaultContext(), facet, mode, secure, endpoints, routerInfo,
+		      _instance->defaultsAndOverrides()->defaultCollocationOptimization);
     }
     else
     {
 	s->read(adapterId);
 	return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapterId, routerInfo,
-		      locatorInfo, true);
+		      locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization);
     }
 }
 

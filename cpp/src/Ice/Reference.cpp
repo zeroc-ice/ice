@@ -23,6 +23,7 @@
 #include <Ice/ConnectionFactory.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
+#include <Ice/DefaultsAndOverrides.h>
 #include <IceUtil/StringUtil.h>
 
 using namespace std;
@@ -609,7 +610,7 @@ IceInternal::RoutableReference::changeDefault() const
     RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(Reference::changeDefault());
     r->_secure = false;
     r->_routerInfo = getInstance()->routerManager()->get(getInstance()->referenceFactory()->getDefaultRouter());
-    r->_collocationOptimization = false;
+    r->_collocationOptimization = getInstance()->defaultsAndOverrides()->defaultCollocationOptimization;
     return r;
 }
 
@@ -770,7 +771,9 @@ IceInternal::DirectReference::changeDefault() const
     {
 	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(loc);
 	return getInstance()->referenceFactory()->create(getIdentity(), getInstance()->getDefaultContext(), "",
-							 ModeTwoway, false, "", 0, newLocatorInfo, false);
+							 ModeTwoway, false, "", 0, newLocatorInfo,
+							 getInstance()->defaultsAndOverrides()->
+							 defaultCollocationOptimization);
     }
     else
     {
@@ -1015,7 +1018,8 @@ IceInternal::IndirectReference::changeDefault() const
     {
 	return getInstance()->referenceFactory()->create(getIdentity(), getInstance()->getDefaultContext(), "",
 							 ModeTwoway, false, vector<EndpointIPtr>(), getRouterInfo(),
-							 false);
+							 getInstance()->defaultsAndOverrides()->
+							 defaultCollocationOptimization);
     }
     else
     {
