@@ -109,6 +109,7 @@ Ice:
     Compression.Level
     Config
     ConnectionIdleTime
+    Default.CollocationOptimization
     Default.Host
     Default.Locator
     Default.Package
