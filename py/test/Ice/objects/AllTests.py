@@ -8,16 +8,38 @@
 #
 # **********************************************************************
 
-import Ice
+import Ice, Test, TestI
 
-Ice.loadSlice('Test.ice')
-import Test
+#
+# Ice for Python behaves differently than Ice for C++, because
+# collocated invocations are still sent "over the wire". Therefore
+# we always need to install the factories, even for the collocated
+# case.
+#
+class MyObjectFactory(Ice.ObjectFactory):
+    def create(self, type):
+        if type == '::Test::B':
+            return TestI.BI()
+        elif type == '::Test::C':
+            return TestI.CI()
+        elif type == '::Test::D':
+            return TestI.DI()
+        assert(False) # Should never be reached
+
+    def destroy(self):
+        # Nothing to do
+        pass
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
 def allTests(communicator):
+    factory = MyObjectFactory()
+    communicator.addObjectFactory(factory, '::Test::B')
+    communicator.addObjectFactory(factory, '::Test::C')
+    communicator.addObjectFactory(factory, '::Test::D')
+
     print "testing stringToProxy... ",
     ref = "initial:default -p 12345 -t 10000"
     base = communicator.stringToProxy(ref)

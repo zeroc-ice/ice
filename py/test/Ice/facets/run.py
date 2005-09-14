@@ -23,4 +23,5 @@ import TestUtil
 name = os.path.join("Ice", "facets")
 
 TestUtil.clientServerTest(name)
+TestUtil.collocatedTest(name)
 sys.exit(0)

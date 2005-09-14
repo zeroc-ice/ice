@@ -20,7 +20,9 @@ else:
 sys.path.insert(0, os.path.join(toplevel, "python"))
 sys.path.insert(0, os.path.join(toplevel, "lib"))
 
-import Ice, AllTests
+import Ice
+Ice.loadSlice('Test.ice')
+import AllTests
 
 def run(args, communicator):
     thrower = AllTests.allTests(communicator)

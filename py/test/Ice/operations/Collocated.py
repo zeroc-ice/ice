@@ -20,13 +20,30 @@ else:
 sys.path.insert(0, os.path.join(toplevel, "python"))
 sys.path.insert(0, os.path.join(toplevel, "lib"))
 
+#
+# Find Slice directory.
+#
+slice_dir = os.getenv('ICEPY_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
+    slice_dir = os.getenv('ICE_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
+    print sys.argv[0] + ': Slice directory not found. Define ICEPY_HOME or ICE_HOME.'
+    sys.exit(1)
+
 import Ice
-Ice.loadSlice('Test.ice')
-import AllTests
+Ice.loadSlice('-I' + slice_dir + '/slice Test.ice')
+import Test, TestI, AllTests
 
 def run(args, communicator):
-    initial = AllTests.allTests(communicator)
-    initial.shutdown()
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000")
+    adapter = communicator.createObjectAdapter("TestAdapter")
+    id = Ice.stringToIdentity("test")
+    adapter.add(TestI.MyDerivedClassI(adapter, id), id)
+    adapter.add(TestI.TestCheckedCastI(), Ice.stringToIdentity("context"))
+    adapter.activate()
+
+    AllTests.allTests(communicator)
+
     return True
 
 try:

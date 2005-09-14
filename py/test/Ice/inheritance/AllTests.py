@@ -8,10 +8,7 @@
 #
 # **********************************************************************
 
-import Ice
-
-Ice.loadSlice('Test.ice')
-import Test
+import Ice, Test
 
 def test(b):
     if not b:

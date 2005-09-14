@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
+import os, sys, traceback, time
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -22,25 +22,21 @@ sys.path.insert(0, os.path.join(toplevel, "lib"))
 
 import Ice
 Ice.loadSlice('Test.ice')
-import AllTests
+import Test, TestI, AllTests
 
-def run(args, communicator):
-    initial = AllTests.allTests(communicator)
-    initial.shutdown()
-    return True
+class TestServer(Ice.Application):
+    def run(self, args):
+        self.communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000")
+        adapter = self.communicator().createObjectAdapter("TestAdapter")
+        locator = TestI.ServantLocatorI()
 
-try:
-    communicator = Ice.initialize(sys.argv)
-    status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
+        adapter.addServantLocator(locator, "")
+        adapter.activate()
 
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
+	AllTests.allTests(self.communicator())
 
-sys.exit(not status)
+        adapter.waitForDeactivate()
+        return 0
+
+app = TestServer()
+sys.exit(app.main(sys.argv))

@@ -23,4 +23,5 @@ import TestUtil
 name = os.path.join("Ice", "adapterDeactivation")
 
 TestUtil.clientServerTest(name)
+TestUtil.collocatedTest(name)
 sys.exit(0)

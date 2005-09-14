@@ -22,11 +22,17 @@ sys.path.insert(0, os.path.join(toplevel, "lib"))
 
 import Ice
 Ice.loadSlice('Test.ice')
-import AllTests
+import Test, TestI, AllTests
 
 def run(args, communicator):
-    initial = AllTests.allTests(communicator)
-    initial.shutdown()
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000")
+    adapter = communicator.createObjectAdapter("TestAdapter")
+    object = TestI.InitialI(adapter)
+    adapter.add(object, Ice.stringToIdentity("initial"))
+    adapter.activate()
+
+    AllTests.allTests(communicator)
+
     return True
 
 try:

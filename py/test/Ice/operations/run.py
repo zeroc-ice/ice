@@ -26,4 +26,6 @@ print "tests with regular server."
 TestUtil.clientServerTest(name)
 print "tests with AMD server."
 TestUtil.clientServerTestWithOptionsAndNames(name, "", "", "ServerAMD.py", "Client.py")
+print "tests with collocated server."
+TestUtil.collocatedTestWithOptions(name, " --Ice.ThreadPool.Client.SizeMax=2 --Ice.ThreadPool.Client.SizeWarn=0")
 sys.exit(0)

@@ -20,28 +20,11 @@ else:
 sys.path.insert(0, os.path.join(toplevel, "python"))
 sys.path.insert(0, os.path.join(toplevel, "lib"))
 
-import Ice, AllTests, TestI
-
-class MyObjectFactory(Ice.ObjectFactory):
-    def create(self, type):
-        if type == '::Test::B':
-            return TestI.BI()
-        elif type == '::Test::C':
-            return TestI.CI()
-        elif type == '::Test::D':
-            return TestI.DI()
-        assert(False) # Should never be reached
-
-    def destroy(self):
-        # Nothing to do
-        pass
+import Ice
+Ice.loadSlice('Test.ice')
+import AllTests
 
 def run(args, communicator):
-    factory = MyObjectFactory()
-    communicator.addObjectFactory(factory, '::Test::B')
-    communicator.addObjectFactory(factory, '::Test::C')
-    communicator.addObjectFactory(factory, '::Test::D')
-
     initial = AllTests.allTests(communicator)
     initial.shutdown()
     return True

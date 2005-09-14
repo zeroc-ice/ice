@@ -8,10 +8,7 @@
 #
 # **********************************************************************
 
-import Ice, threading, sys
-
-Ice.loadSlice('Test.ice')
-import Test
+import Ice, Test, threading, sys
 
 def test(b):
     if not b:

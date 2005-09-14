@@ -225,10 +225,13 @@ commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.NullH
                       " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
                       " --Ice.ThreadPool.Server.SizeWarn=0"
 
+commonCollocatedOptions = " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
+			  " --Ice.ThreadPool.Server.SizeWarn=0"
+
 clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions
 clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
-collocatedOptions = clientServerProtocol + defaultHost
+collocatedOptions = clientServerProtocol + defaultHost + commonCollocatedOptions
 
 def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions, \
                                         serverName, clientName):
@@ -307,6 +310,32 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
 def mixedClientServerTest(name):
 
     mixedClientServerTestWithOptions(name, "", "")
+
+def collocatedTestWithOptions(name, additionalOptions):
+
+    testdir = os.path.join(toplevel, "test", name)
+    collocated = "Collocated.py"
+
+    cwd = os.getcwd()
+    os.chdir(testdir)
+
+    print "starting collocated...",
+    collocatedPipe = os.popen("python " + collocated + collocatedOptions + additionalOptions + " 2>&1")
+    print "ok"
+
+    printOutputFromPipe(collocatedPipe)
+
+    collocatedStatus = collocatedPipe.close()
+
+    if collocatedStatus:
+	killServers()
+	sys.exit(1)
+
+    os.chdir(cwd)
+
+def collocatedTest(name):
+
+    collocatedTestWithOptions(name, "")
 
 def cleanDbDir(path):
 
