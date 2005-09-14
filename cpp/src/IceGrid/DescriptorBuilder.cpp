@@ -266,7 +266,7 @@ NodeDescriptorBuilder::NodeDescriptorBuilder(ApplicationDescriptorBuilder& app, 
     _application(app)
 {
     _name = attrs("name");
-    _descriptor.loadFactor = attrs("loadFactor", "");
+    _descriptor.loadFactor = attrs("load-factor", "");
 }
 
 auto_ptr<ServerDescriptorBuilder>

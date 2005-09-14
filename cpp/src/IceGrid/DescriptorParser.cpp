@@ -52,7 +52,7 @@ private:
     string _filename;
     std::map<std::string, std::string> _overrides; 
     std::vector<std::string> _targets;
-    std::stack<std::string> _elements;
+    std::string _data;
     int _targetCounter;
     bool _isCurrentTargetDeployable;
     int _line;
@@ -381,7 +381,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	error(reason);
     }
 	
-    _elements.push("");
+    _data = "";
 }
 
 void 
@@ -514,14 +514,15 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     {
 	_inPatch = false;
     }
-
-    _elements.pop();
 }
 
 void 
 DescriptorHandler::characters(const string& chars, int, int)
 {
-    _elements.top().assign(chars);
+    if(isCurrentTargetDeployable())
+    {
+	_data += chars;
+    }
 }
 
 void 
@@ -589,7 +590,7 @@ DescriptorHandler::error(const string& msg) const
 string
 DescriptorHandler::elementValue() const
 {
-    return _elements.top();
+    return _data;
 }
 
 bool
