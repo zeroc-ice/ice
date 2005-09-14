@@ -833,6 +833,34 @@ for the &IcePack; locator is <literal>IcePack/Locator:tcp -p
 </section>
 </section>
 
+<section><title>Ice.Default.CollocationOptmization</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Default.CollocationOptmization=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies whether proxy invocations use collocation optimization by
+default. When enabled, proxy invocations on a collocated servant
+(i.e., a servant whose object adapter was created by the same
+communicator as the proxy) are made as a direct method call
+if possible. Collocated invocations are more efficient because they
+avoid the overhead of marshaling parameters and sending requests
+over the network.
+</para>
+<para>
+Collocation optimization is not supported for asynchronous or
+Dynamice Ice invocations, nor is it supported in Ice for Python.
+</para>
+<para>
+If not specified, the default value is 1. Set the property to 0
+to disable collocation optimization by default.
+</para>
+</section>
+</section>
+
 <section><title>Ice.Override.Timeout</title>
 <section><title>Synopsis</title>
 <synopsis>
