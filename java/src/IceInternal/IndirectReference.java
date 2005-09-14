@@ -57,7 +57,9 @@ public class IndirectReference extends RoutableReference
 	if(loc == null)
 	{
 	    return getInstance().referenceFactory().create(getIdentity(), null, "", ModeTwoway, false,
-							   new EndpointI[0], getRouterInfo(), false);
+							   new EndpointI[0], getRouterInfo(),
+							   getInstance().defaultsAndOverrides().
+							   defaultCollocationOptimization);
 	}
 	else
 	{

@@ -50,7 +50,8 @@ public class DirectReference extends RoutableReference
 	{
 	    LocatorInfo newLocatorInfo = getInstance().locatorManager().get(loc);
 	    return getInstance().referenceFactory().create(getIdentity(), null, "", ModeTwoway, false, "", null,
-							   newLocatorInfo, false);
+							   newLocatorInfo, getInstance().defaultsAndOverrides().
+							   defaultCollocationOptimization);
 	}
 	else
 	{

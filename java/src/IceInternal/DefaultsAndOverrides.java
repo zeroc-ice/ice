@@ -72,12 +72,16 @@ public final class DefaultsAndOverrides
 	}
 
 	defaultLocator = properties.getProperty("Ice.Default.Locator");
+
+	defaultCollocationOptimization =
+	    properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
     }
 
     final public String defaultHost;
     final public String defaultProtocol;
     final public String defaultRouter;
     final public String defaultLocator;
+    final public boolean defaultCollocationOptimization;
 
     final public boolean overrideTimeout;
     final public int overrideTimeoutValue;

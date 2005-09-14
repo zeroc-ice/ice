@@ -50,7 +50,7 @@ public abstract class RoutableReference extends Reference
 	RoutableReference r = (RoutableReference)super.changeDefault();
 	r._secure = false;
 	r._routerInfo = getInstance().routerManager().get(getInstance().referenceFactory().getDefaultRouter());
-	r._collocationOptimization = false;
+	r._collocationOptimization = getInstance().defaultsAndOverrides().defaultCollocationOptimization;
 	return r;
     }
 
