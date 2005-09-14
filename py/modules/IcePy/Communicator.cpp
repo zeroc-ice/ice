@@ -103,6 +103,13 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         props = Ice::getDefaultProperties(seq);
     }
 
+    //
+    // Disable collocation optimization, otherwise a Python invocation on
+    // a collocated servant results in a CollocationOptimizationException
+    // (because Python uses the blobject API).
+    //
+    seq.push_back("--Ice.Default.CollocationOptimization=0");
+
     seq = props->parseIceCommandLineOptions(seq);
 
     Ice::CommunicatorPtr communicator;
