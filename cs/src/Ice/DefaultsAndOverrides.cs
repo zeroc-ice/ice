@@ -72,13 +72,18 @@ namespace IceInternal
 	        overrideCompress = !BasicStream.compressible();
 		overrideCompressValue = false;
 	    }
+
 	    defaultLocator = properties.getProperty("Ice.Default.Locator");
+
+	    defaultCollocationOptimization =
+		properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
 	}
 	
 	public string defaultHost;
 	public string defaultProtocol;
 	public string defaultRouter;
 	public string defaultLocator;
+	public bool defaultCollocationOptimization;
 	
 	public bool overrideTimeout;
 	public int overrideTimeoutValue;

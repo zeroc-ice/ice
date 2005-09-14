@@ -839,7 +839,9 @@ namespace Ice
 		IceInternal.Reference reference =
 		    _instance.referenceFactory().create(ident, _instance.getDefaultContext(), facet,
 							IceInternal.Reference.Mode.ModeTwoway,
-							false, _id, null, _locatorInfo, true);
+							false, _id, null, _locatorInfo,
+							_instance.defaultsAndOverrides().
+							defaultCollocationOptimization);
 		return _instance.proxyFactory().referenceToProxy(reference);
 	    }
 	}
@@ -889,7 +891,8 @@ namespace Ice
 	    IceInternal.Reference reference =
 		_instance.referenceFactory().create(ident, _instance.getDefaultContext(), facet,
 						    IceInternal.Reference.Mode.ModeTwoway, false, endpoints,
-						    null, true);
+						    null, _instance.defaultsAndOverrides().
+						    defaultCollocationOptimization);
 	    return _instance.proxyFactory().referenceToProxy(reference);
 	}
 	

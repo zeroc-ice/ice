@@ -41,8 +41,8 @@ namespace IceInternal
 		//
 		// Create new reference
 		//
-		DirectReference @ref = new DirectReference(_instance, _communicator, ident, context, facet, mode, secure,
-							   endpoints, routerInfo, collocationOptimization);
+		DirectReference @ref = new DirectReference(_instance, _communicator, ident, context, facet, mode,
+							   secure, endpoints, routerInfo, collocationOptimization);
 		return updateCache(@ref);
 	    }
 	}
@@ -72,8 +72,8 @@ namespace IceInternal
 		//
 		// Create new reference
 		//
-		IndirectReference @ref = new IndirectReference(_instance,  _communicator, ident, context, facet, mode, secure,
-							       adapterId, routerInfo, locatorInfo,
+		IndirectReference @ref = new IndirectReference(_instance,  _communicator, ident, context, facet, mode,
+							       secure, adapterId, routerInfo, locatorInfo,
 							       collocationOptimization);
 		return updateCache(@ref);
 	    }
@@ -400,7 +400,8 @@ namespace IceInternal
 
 	    if(beg == -1)
 	    {
-		return create(ident, new Ice.Context(), facet, mode, secure, "", routerInfo, locatorInfo, true);
+		return create(ident, new Ice.Context(), facet, mode, secure, "", routerInfo, locatorInfo,
+			      _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 
 	    ArrayList endpoints = new ArrayList();
@@ -450,7 +451,8 @@ namespace IceInternal
 		}
 
 		EndpointI[] ep = (EndpointI[])endpoints.ToArray(typeof(EndpointI));
-		return create(ident, new Ice.Context(), facet, mode, secure, ep, routerInfo, true);
+		return create(ident, new Ice.Context(), facet, mode, secure, ep, routerInfo,
+			      _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	    else if(s[beg] == '@')
 	    {
@@ -488,7 +490,8 @@ namespace IceInternal
 		    e.str = s;
 		    throw e;
 		}
-		return create(ident, new Ice.Context(), facet, mode, secure, adapter, routerInfo, locatorInfo, true);
+		return create(ident, new Ice.Context(), facet, mode, secure, adapter, routerInfo, locatorInfo,
+			      _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 
 	    Ice.ProxyParseException ex = new Ice.ProxyParseException();
@@ -548,14 +551,15 @@ namespace IceInternal
 		{
 		    endpoints[i] = _instance.endpointFactoryManager().read(s);
 		}
-		return create(ident, new Ice.Context(), facet, (Reference.Mode)mode, secure, endpoints, routerInfo, true);
+		return create(ident, new Ice.Context(), facet, (Reference.Mode)mode, secure, endpoints, routerInfo,
+			      _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	    else
 	    {
 		endpoints = new EndpointI[0];
 		adapterId = s.readString();
-		return create(ident, new Ice.Context(), facet, (Reference.Mode)mode, secure,
-			      adapterId, routerInfo, locatorInfo, true);
+		return create(ident, new Ice.Context(), facet, (Reference.Mode)mode, secure, adapterId, routerInfo,
+			      locatorInfo, _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	}
 

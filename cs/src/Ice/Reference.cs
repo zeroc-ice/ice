@@ -929,7 +929,7 @@ namespace IceInternal
 		LocatorInfo newLocatorInfo = getInstance().locatorManager().get(loc);
 		return getInstance().referenceFactory().create(
 		    getIdentity(), getInstance().getDefaultContext(), "", Mode.ModeTwoway, false, "", null,
-		    newLocatorInfo, false);
+		    newLocatorInfo, getInstance().defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	    else
 	    {
@@ -942,9 +942,9 @@ namespace IceInternal
 	    if(newLocator != null)
 	    {
 		LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
-		return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
-							       getSecure(), "", null, newLocatorInfo,
-							       getCollocationOptimization());
+		return getInstance().referenceFactory().create(
+		    getIdentity(), getContext(), getFacet(), getMode(), getSecure(), "", null, newLocatorInfo,
+		    getCollocationOptimization());
 	    }
 	    else
 	    {
@@ -984,9 +984,9 @@ namespace IceInternal
 	    }
 	    LocatorInfo locatorInfo = 
 		getInstance().locatorManager().get(getInstance().referenceFactory().getDefaultLocator());
-	    return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
-							   getSecure(), newAdapterId, getRouterInfo(), locatorInfo,
-							   getCollocationOptimization());
+	    return getInstance().referenceFactory().create(
+		getIdentity(), getContext(), getFacet(), getMode(), getSecure(), newAdapterId, getRouterInfo(),
+		locatorInfo, getCollocationOptimization());
 	}
 
 	public override Reference changeEndpoints(EndpointI[] newEndpoints)
@@ -1138,9 +1138,9 @@ namespace IceInternal
 	    Ice.LocatorPrx loc = getInstance().referenceFactory().getDefaultLocator();
 	    if(loc == null)
 	    {
-		return getInstance().referenceFactory().create(getIdentity(), getInstance().getDefaultContext(), "",
-							       Mode.ModeTwoway, false, new EndpointI[0],
-							       getRouterInfo(), false);
+		return getInstance().referenceFactory().create(
+		    getIdentity(), getInstance().getDefaultContext(), "", Mode.ModeTwoway, false, new EndpointI[0],
+		    getRouterInfo(), getInstance().defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	    else
 	    {
@@ -1157,9 +1157,9 @@ namespace IceInternal
 	    //
 	    if(newLocator == null)
 	    {
-		return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
-							       getSecure(), new EndpointI[0], getRouterInfo(),
-							       getCollocationOptimization());
+		return getInstance().referenceFactory().create(
+		    getIdentity(), getContext(), getFacet(), getMode(), getSecure(), new EndpointI[0], getRouterInfo(),
+		    getCollocationOptimization());
 	    }
 	    else
 	    {
@@ -1217,9 +1217,9 @@ namespace IceInternal
 	    {
 		return this;
 	    }
-	    return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
-							   getSecure(), newEndpoints, getRouterInfo(),
-							   getCollocationOptimization());
+	    return getInstance().referenceFactory().create(
+		getIdentity(), getContext(), getFacet(), getMode(), getSecure(), newEndpoints, getRouterInfo(),
+		getCollocationOptimization());
 	}
 
 	public override void streamWrite(BasicStream s)
