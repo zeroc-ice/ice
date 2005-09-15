@@ -34,8 +34,7 @@ public final class Direct
         try
         {
 	    _servant = servantManager.findServant(_current.id, _current.facet);
-	    
-	    if(_servant == null && _current.id.category.length() > 0)
+	    if(_servant == null)
 	    {
 		_locator = servantManager.findServantLocator(_current.id.category);
 		if(_locator != null)
@@ -44,17 +43,6 @@ public final class Direct
 		    _servant = _locator.locate(_current, _cookie);
 		}
 	    }
-	    
-	    if(_servant == null)
-	    {
-		_locator = servantManager.findServantLocator("");
-		if(_locator != null)
-		{
-		    _cookie = new Ice.LocalObjectHolder(); // Lazy creation.
-		    _servant = _locator.locate(_current, _cookie);
-		}
-	    }
-	    
 	    if(_servant == null)
 	    {
                 if(servantManager != null && servantManager.hasServant(_current.id))

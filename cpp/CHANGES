@@ -1,6 +1,13 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Changed the way servant locators work if a server has a servant
+  locator registered for a specific category, in addition to a default
+  servant locator. Previously, if the locator for the specific category
+  failed to locate the servant, the run time would then call the default
+  locator. With the new behavior, if the locator for the specific category
+  does not return a servant, the default locator is not called.
+
 - Added proxy methods to retrieve the proxy adapter id and endpoints
   (ice_getAdapterId() and ice_getEndpoints()) and to create a new
   proxy with a new adapter id or new endpoints (ice_newAdapterId() and

@@ -227,8 +227,7 @@ namespace IceInternal
 		    if(servantManager != null)
 		    {
 			_servant = servantManager.findServant(_current.id, _current.facet);
-			
-			if(_servant == null && _current.id.category.Length > 0)
+			if(_servant == null)
 			{
 			    _locator = servantManager.findServantLocator(_current.id.category);
 			    if(_locator != null)
@@ -236,17 +235,7 @@ namespace IceInternal
 				_servant = _locator.locate(_current, out _cookie);
 			    }
 			}
-			
-			if(_servant == null)
-			{
-			    _locator = servantManager.findServantLocator("");
-			    if(_locator != null)
-			    {
-				_servant = _locator.locate(_current, out _cookie);
-			    }
-			}
 		    }
-		    
 		    if(_servant == null)
 		    {
 			if(servantManager != null && servantManager.hasServant(_current.id))

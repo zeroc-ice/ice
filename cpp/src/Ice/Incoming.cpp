@@ -142,8 +142,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    if(servantManager)
 	    {
 		_servant = servantManager->findServant(_current.id, _current.facet);
-		
-		if(!_servant && !_current.id.category.empty())
+		if(!_servant)
 		{
 		    _locator = servantManager->findServantLocator(_current.id.category);
 		    if(_locator)
@@ -151,17 +150,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 			_servant = _locator->locate(_current, _cookie);
 		    }
 		}
-		
-		if(!_servant)
-		{
-		    _locator = servantManager->findServantLocator("");
-		    if(_locator)
-		    {
-			_servant = _locator->locate(_current, _cookie);
-		    }
-		}
 	    }
-	    
 	    if(!_servant)
 	    {
 		if(servantManager && servantManager->hasServant(_current.id))
