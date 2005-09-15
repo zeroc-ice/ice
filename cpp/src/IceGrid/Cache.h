@@ -79,15 +79,21 @@ protected:
 	{
 	    if(create)
 	    {
-		ValuePtr entry = createEntry(key);
-		_entriesHint = _entries.insert(_entriesHint, make_pair(key, entry));
-		return entry;
+		return addImpl(key);
 	    }
 	    else
 	    {
 		return 0;
 	    }
 	}
+    }
+
+    virtual ValuePtr
+    addImpl(const Key& key)
+    {
+	ValuePtr entry = createEntry(key);
+	_entriesHint = _entries.insert(_entriesHint, make_pair(key, entry));
+	return entry;
     }
 
     virtual ValuePtr

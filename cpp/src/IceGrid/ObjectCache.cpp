@@ -9,6 +9,7 @@
 
 #include <Ice/Communicator.h>
 #include <Ice/IdentityUtil.h>
+#include <Ice/LoggerUtil.h>
 
 #include <IceGrid/ObjectCache.h>
 #include <IceGrid/NodeSessionI.h>
@@ -49,6 +50,12 @@ ObjectCache::add(const string& adapterId, const string& endpoints, const ObjectD
 	p = _types.insert(p, make_pair(entry->getType(), set<Ice::Identity>()));
     }
     p->second.insert(desc.id);
+
+    if(_traceLevels->object > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
+	out << "added object `" << Ice::identityToString(desc.id) << "'";	
+    }    
 }
 
 ObjectEntryPtr
@@ -80,6 +87,12 @@ ObjectCache::remove(const Ice::Identity& id)
     {
 	_types.erase(p);
     }
+
+    if(_traceLevels->object > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
+	out << "removed object `" << Ice::identityToString(id) << "'";	
+    }    
 
     return entry;
 }

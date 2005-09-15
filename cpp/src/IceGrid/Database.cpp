@@ -518,6 +518,10 @@ Database::setAdapterDirectProxy(const string& serverId, const string& adapterId,
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 		out << "added adapter `" << adapterId << "'";
+		if(!serverId.empty())
+		{
+		    out << " from server `" << serverId << "'";
+		}
 	    }
 	}
 	else
@@ -530,6 +534,10 @@ Database::setAdapterDirectProxy(const string& serverId, const string& adapterId,
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 		out << "updated adapter `" << adapterId << "'";
+		if(!serverId.empty())
+		{
+		    out << " from server `" << serverId << "'";
+		}
 	    }
 	}
     }
@@ -549,10 +557,26 @@ Database::setAdapterDirectProxy(const string& serverId, const string& adapterId,
 	    if(proxies.empty())
 	    {
 		adapters.erase(p);
+
+		if(_traceLevels->adapter > 0)
+		{
+		    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+		    out << "removed adapter `" << adapterId << "'";
+		}
 	    }
 	    else
 	    {
 		p.set(proxies);
+
+		if(_traceLevels->adapter > 0)
+		{
+		    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+		    out << "removed adapter `" << adapterId << "'";
+		    if(!serverId.empty())
+		    {
+			out << " from server `" << serverId << "'";
+		    }		
+		}
 	    }
 	}
 	else
@@ -590,6 +614,12 @@ Database::removeAdapter(const string& adapterId)
     if(p != adapters.end())
     {
 	adapters.erase(p);
+
+	if(_traceLevels->adapter > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+	    out << "removed adapter `" << adapterId << "'";
+	}
     }
     else
     {
@@ -759,6 +789,7 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
 	ex.id = id;
 	throw ex;
     }
+
     ObjectInfo info = p->second;
     info.proxy = proxy;
     p.set(info);

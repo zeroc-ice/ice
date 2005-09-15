@@ -71,6 +71,12 @@ public:
     AdapterCache(const TraceLevelsPtr&);
 
     AdapterEntryPtr get(const std::string&, bool = false) const;
+    
+protected:
+    
+    AdapterEntryPtr addImpl(const std::string&);
+    AdapterEntryPtr removeImpl(const std::string&);
+
 };
 
 };

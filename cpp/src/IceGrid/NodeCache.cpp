@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Functional.h>
-
+#include <Ice/LoggerUtil.h>
 #include <IceGrid/NodeCache.h>
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ServerCache.h>
@@ -83,7 +83,7 @@ NodeEntry::removeServer(const ServerEntryPtr& entry)
     if(remove)
     {
 	_cache.remove(_name);
-    }    
+    }
 }
 
 void
@@ -115,6 +115,20 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
 	    }
 	}
 	for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+
+	if(_cache.getTraceLevels()->node > 0)
+	{
+	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->nodeCat);
+	    out << "node `" << _name << "' up";
+	}
+    }
+    else
+    {
+	if(_cache.getTraceLevels()->node > 0)
+	{
+	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->nodeCat);
+	    out << "node `" << _name << "' down";
+	}
     }
 }
 

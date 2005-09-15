@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#include <Ice/LoggerUtil.h>
+
 #include <IceGrid/AdapterCache.h>
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ServerCache.h>
@@ -74,6 +76,28 @@ AdapterCache::get(const string& id, bool create) const
     return entry;
 }
 
+AdapterEntryPtr
+AdapterCache::addImpl(const string& id)
+{
+    if(_traceLevels->adapter > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+	out << "added adapter `" << id << "'";	
+    }    
+    return Cache<string, AdapterEntry>::addImpl(id);
+}
+
+AdapterEntryPtr
+AdapterCache::removeImpl(const string& id)
+{
+    if(_traceLevels->adapter > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+	out << "removed adapter `" << id << "'";	
+    }    
+    return Cache<string, AdapterEntry>::removeImpl(id);
+}
+
 AdapterEntry::AdapterEntry(Cache<string, AdapterEntry>& cache, const std::string& id) : 
     _cache(cache),
     _id(id),
@@ -85,40 +109,44 @@ AdapterEntry::AdapterEntry(Cache<string, AdapterEntry>& cache, const std::string
 void
 AdapterEntry::enableReplication(const LoadBalancingPolicyPtr& policy)
 {
+    Lock sync(*this);
+    _replicated = true;
+    _loadBalancing = policy;
+    istringstream is(policy->nReplicas);
+    is >> _loadBalancingNReplicas;
+    if(_loadBalancingNReplicas < 1)
     {
-	Lock sync(*this);
-	_replicated = true;
-	_loadBalancing = policy;
-	istringstream is(policy->nReplicas);
-	is >> _loadBalancingNReplicas;
-	if(_loadBalancingNReplicas < 1)
+	_loadBalancingNReplicas = 1;
+    }
+    else if(_loadBalancingNReplicas > static_cast<int>(_servers.size()))
+    {
+	_loadBalancingNReplicas = _servers.size();
+    }
+    AdaptiveLoadBalancingPolicyPtr alb = AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing);
+    if(alb)
+    {
+	if(alb->loadSample == "1")
 	{
-	    _loadBalancingNReplicas = 1;
+	    _loadSample = LoadSample1;
 	}
-	else if(_loadBalancingNReplicas > static_cast<int>(_servers.size()))
+	else if(alb->loadSample == "5")
 	{
-	    _loadBalancingNReplicas = _servers.size();
+	    _loadSample = LoadSample5;
 	}
-	AdaptiveLoadBalancingPolicyPtr alb = AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing);
-	if(alb)
+	else if(alb->loadSample == "15")
 	{
-	    if(alb->loadSample == "1")
-	    {
-		_loadSample = LoadSample1;
-	    }
-	    else if(alb->loadSample == "5")
-	    {
-		_loadSample = LoadSample5;
-	    }
-	    else if(alb->loadSample == "15")
-	    {
-		_loadSample = LoadSample15;
-	    }
-	    else
-	    {
-		_loadSample = LoadSample1;
-	    }
+	    _loadSample = LoadSample15;
 	}
+	else
+	{
+	    _loadSample = LoadSample1;
+	}
+    }
+    
+    if(_cache.getTraceLevels()->adapter > 0)
+    {
+	Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->adapterCat);
+	out << "enabled replication on adapter `" << _id << "'";	
     }
 }
 
@@ -130,6 +158,11 @@ AdapterEntry::disableReplication()
 	Lock sync(*this);
 	_replicated = false;
 	remove = _servers.empty();
+    }
+    if(_cache.getTraceLevels()->adapter > 0)
+    {
+	Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->adapterCat);
+	out << "disabled replication on adapter `" << _id << "'";	
     }
     if(remove)
     {

@@ -76,6 +76,13 @@ ServerCache::add(const ServerInfo& info)
     _nodeCache.get(info.node, true)->addServer(entry);
 
     forEachCommunicator(AddCommunicator(*this, entry))(info.descriptor);
+
+    if(_traceLevels->server > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+	out << "added server `" << info.descriptor->id << "'";	
+    }
+
     return entry;
 }
 
@@ -108,6 +115,15 @@ ServerCache::remove(const string& id, bool destroy)
     _nodeCache.get(info.node)->removeServer(entry);
 
     forEachCommunicator(RemoveCommunicator(*this, entry))(info.descriptor);
+
+    if(destroy)
+    {
+	if(_traceLevels->server > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+	    out << "removed server `" << id << "'";	
+	}
+    }
 
     return entry;
 }
@@ -402,9 +418,21 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
 	    try
 	    {
 		nodeCache.get(destroyNode)->getProxy()->destroyServer(destroy->id);
+
+		if(_cache.getTraceLevels()->server > 1)
+		{
+		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+		    out << "unloaded server `" << destroy->id << "' on node `" << destroyNode << "'";	
+		}
 	    }
 	    catch(const NodeNotExistException& ex)
 	    {
+		if(_cache.getTraceLevels()->server > 1)
+		{
+		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+		    out << "couldn't unload server `" << destroy->id << "' on node `" << destroyNode << "':" << ex;
+		}
+
 		if(!load)
 		{
 		    ostringstream os;
@@ -414,6 +442,12 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
 	    }
 	    catch(const Ice::LocalException& ex)
 	    {
+		if(_cache.getTraceLevels()->server > 1)
+		{
+		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+		    out << "couldn't unload server `" << destroy->id << "' on node `" << destroyNode << "':" << ex;
+		}
+
 		if(!load)
 		{
 		    ostringstream os;
@@ -431,23 +465,47 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
 		proxy = n->loadServer(load, adpts, activationTimeout, deactivationTimeout);
 		node = loadNode;
 		proxy = ServerPrx::uncheckedCast(proxy->ice_collocationOptimization(false));
+
+		if(_cache.getTraceLevels()->server > 1)
+		{
+		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+		    out << "loaded server `" << load->id << "' on node `" << loadNode << "'";	
+		}
 	    }
 	    catch(const NodeNotExistException& ex)
 	    {
+		if(_cache.getTraceLevels()->server > 1)
+		{
+		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+		    out << "couldn't load server `" << load->id << "' on node `" << loadNode << "':" << ex;
+		}
+
 		ostringstream os;
 		os << ex;
 		throw NodeUnreachableException(loadNode, os.str());
 	    }
 	    catch(const DeploymentException& ex)
 	    {
+		if(_cache.getTraceLevels()->server > 1)
+		{
+		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+		    out << "couldn't load server `" << load->id << "' on node `" << loadNode << "':" << ex.reason;
+		}
+
 		Ice::Warning out(_cache.getTraceLevels()->logger);
 		out << "failed to load server on node `" << loadNode << "':\n" << ex;
 		ostringstream os;
-		os << ex;
+		os << ex << "\nreason: " << ex.reason;
 		throw NodeUnreachableException(loadNode, os.str());
 	    }
 	    catch(const Ice::Exception& ex)
 	    {
+		if(_cache.getTraceLevels()->server > 1)
+		{
+		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+		    out << "couldn't load server `" << load->id << "' on node `" << loadNode << "':" << ex;
+		}
+
 		ostringstream os;
 		os << ex;
 		throw NodeUnreachableException(loadNode, os.str());
