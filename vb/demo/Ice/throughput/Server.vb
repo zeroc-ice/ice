@@ -7,41 +7,24 @@
 '
 ' **********************************************************************
 
-Module throughputS
+Module ThroughputS
 
-    Private Function run(ByVal args() As String, ByVal communicator As Ice.Communicator) As Integer
-	Dim adapter As Ice.ObjectAdapter = communicator.createObjectAdapter("Throughput")
-	Dim obj As Ice.Object = New ThroughputI
-	adapter.add(obj, Ice.Util.stringToIdentity("throughput"))
-	adapter.activate()
-	communicator.waitForShutdown()
-	Return 0
-    End Function
+    Class Server
+        Inherits Ice.Application
 
-    Sub Main(ByVal args() As String)
-	Dim status As Integer = 0
-	Dim communicator As Ice.Communicator = Nothing
+        Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            Dim adapter As Ice.ObjectAdapter = communicator.createObjectAdapter("Throughput")
+            adapter.add(New ThroughputI, Ice.Util.stringToIdentity("throughput"))
+            adapter.activate()
+            communicator.waitForShutdown()
+            Return 0
+        End Function
+    End Class
 
-	Try
-	    Dim properties As Ice.Properties = Ice.Util.createProperties()
-	    properties.load("config")
-	    communicator = Ice.Util.initializeWithProperties(args, properties)
-	    status = run(args, communicator)
-	Catch ex As System.Exception
-	    System.Console.Error.WriteLine(ex)
-	    status = 1
-	End Try
-
-	If Not communicator Is Nothing Then
-	    Try
-		communicator.destroy()
-	    Catch ex As System.Exception
-		System.Console.Error.WriteLine(ex)
-		status = 1
-	    End Try
-	End If
-
-	System.Environment.Exit(status)
+    Public Sub Main(ByVal args() As String)
+        Dim app As Server = New Server
+        Dim status As Integer = app.Main(args, "config")
+        System.Environment.Exit(status)
     End Sub
 
 End Module

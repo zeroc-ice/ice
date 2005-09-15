@@ -6,11 +6,23 @@
 ' ICE_LICENSE file included in this distribution.
 '
 ' **********************************************************************
+Imports Demo
 
-Module callbackS
+Module CallbackS
+    Class Server
+        Inherits Ice.Application
 
+        Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Callback.Server")
+            adapter.add(New CallbackSenderI, Ice.Util.stringToIdentity("callback"))
+            adapter.activate()
+            communicator().waitForShutdown()
+            Return 0
+        End Function
+
+    End Class
     Sub Main(ByVal args() As String)
-        Dim app As CallbackServer = New CallbackServer
+        Dim app As Server = New Server
         Dim status As Integer = app.main(args, "config")
         System.Environment.Exit(status)
     End Sub

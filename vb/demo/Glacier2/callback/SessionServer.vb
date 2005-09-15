@@ -9,7 +9,7 @@
 
 Imports System
 
-Module glacier2callbackSS
+Module Glacier2callbackSS
 
     NotInheritable Class DummyPermissionVerifierI
         Inherits Glacier2._PermissionsVerifierDisp
@@ -22,7 +22,7 @@ Module glacier2callbackSS
 
     End Class
 
-    Class Application
+    Class Server
         Inherits Ice.Application
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
@@ -38,8 +38,8 @@ Module glacier2callbackSS
     End Class
 
     Sub Main(ByVal args() As String)
-        Dim app As Application = New Application
-        Dim status As Integer = app.Main(args, "config.sessionserver")
+        Dim app As Server = New Server
+        Dim status As Integer = app.main(args, "config.sessionserver")
         Environment.Exit(status)
     End Sub
 

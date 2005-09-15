@@ -7,12 +7,34 @@
 '
 ' **********************************************************************
 
-Module sessionS
+Imports System
+Imports System.Threading
+
+Module SessionS
+    Class Server
+        Inherits Ice.Application
+
+        Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("SessionFactory")
+
+            Dim reaper As ReapThread = New ReapThread
+            Dim reaperThread As Thread = New Thread(New ThreadStart(AddressOf reaper.run))
+            reaperThread.Start()
+
+            adapter.add(New SessionFactoryI(reaper), Ice.Util.stringToIdentity("SessionFactory"))
+            adapter.activate()
+            communicator().waitForShutdown()
+
+            reaper.terminate()
+            reaperThread.Join()
+
+            Return 0
+        End Function
+    End Class
 
     Public Sub Main(ByVal args() As String)
-        Dim app As SessionServer = New SessionServer
+        Dim app As Server = New Server
         Dim status As Integer = app.main(args, "config")
         System.Environment.Exit(status)
     End Sub
-
 End Module

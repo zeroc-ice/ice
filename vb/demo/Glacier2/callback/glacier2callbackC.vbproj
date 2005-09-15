@@ -93,11 +93,6 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "CallbackClient.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "CallbackReceiverI.vb"
                     SubType = "Code"
                     BuildAction = "Compile"

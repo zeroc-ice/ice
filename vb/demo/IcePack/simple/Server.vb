@@ -7,7 +7,7 @@
 '
 ' **********************************************************************
 
-Public Module SimpleIcePackServer
+Public Module SimpleIcePackS
 
     Public Class Server
         Inherits Ice.Application
@@ -16,8 +16,7 @@ Public Module SimpleIcePackServer
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Hello")
             Dim id As String = communicator().getProperties().getProperty("Identity")
 
-            Dim [object] As Ice.Object = New IcePackSimpleI
-            adapter.add([Object], Ice.Util.stringToIdentity(id))
+            adapter.add(New IcePackSimpleI, Ice.Util.stringToIdentity(id))
             adapter.activate()
             communicator().waitForShutdown()
             Return 0

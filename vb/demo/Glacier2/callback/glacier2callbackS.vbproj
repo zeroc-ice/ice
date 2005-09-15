@@ -93,11 +93,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "CallbackServer.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Server.vb"
                     SubType = "Code"
                     BuildAction = "Compile"

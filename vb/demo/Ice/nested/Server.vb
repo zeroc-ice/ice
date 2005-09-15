@@ -7,12 +7,27 @@
 '
 ' **********************************************************************
 
-Module nestedS
+Imports Demo
+
+Module NestedS
+    Class Server
+        Inherits Ice.Application
+
+        Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Nested.Server")
+            Dim self As NestedPrx = NestedPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("nestedServer")))
+            adapter.add(New NestedI(self), Ice.Util.stringToIdentity("nestedServer"))
+            adapter.activate()
+            communicator().waitForShutdown()
+            Return 0
+        End Function
+
+    End Class
 
     Sub Main(ByVal args() As String)
-	Dim app As NestedServer = New NestedServer
-	Dim status As Integer = app.main(args, "config")
-	System.Environment.Exit(status)
+        Dim app As Server = New Server
+        Dim status As Integer = app.main(args, "config")
+        System.Environment.Exit(status)
     End Sub
 
 End Module

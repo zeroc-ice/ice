@@ -9,7 +9,7 @@
 
 Imports System
 
-Public Module HelloIcePackServer
+Public Module HelloIcePackS
 
     Public Class Server
         Inherits Ice.Application
@@ -19,8 +19,7 @@ Public Module HelloIcePackServer
 
             Dim id As String = communicator().getProperties().getProperty("Identity")
 
-            Dim [object] As Ice.Object = New HelloFactoryI
-            adapter.add([object], Ice.Util.stringToIdentity(id))
+            adapter.add(New HelloFactoryI, Ice.Util.stringToIdentity(id))
             adapter.activate()
 
             communicator().waitForShutdown()

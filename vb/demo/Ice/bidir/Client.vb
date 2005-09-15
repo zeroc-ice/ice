@@ -7,10 +7,45 @@
 '
 ' **********************************************************************
 
-Module bidirC
+Imports BidirDemo
+
+Module BidirC
+    Class Client
+        Inherits Ice.Application
+
+        Public Overloads Overrides Function run(ByVal args() As String) As Integer
+
+            Dim properties As Ice.Properties = communicator().getProperties()
+            Dim proxyProperty As String = "Callback.Client.CallbackServer"
+            Dim proxy As String = properties.getProperty(proxyProperty)
+            If proxy.Length = 0 Then
+                System.Console.Error.WriteLine("property `" & proxyProperty & "' not set")
+                Return 1
+            End If
+
+            Dim server As CallbackSenderPrx = CallbackSenderPrxHelper.checkedCast(communicator().stringToProxy(proxy))
+            If server Is Nothing Then
+                System.Console.Error.WriteLine("invalid proxy")
+                Return 1
+            End If
+
+            Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Callback.Client")
+            Dim ident As Ice.Identity = New Ice.Identity
+            ident.name = Ice.Util.generateUUID()
+            ident.category = ""
+            adapter.add(New CallbackReceiverI, ident)
+            adapter.activate()
+            server.ice_connection().setAdapter(adapter)
+            server.addClient(ident)
+            communicator().waitForShutdown()
+
+            Return 0
+        End Function
+
+    End Class
 
     Public Sub Main(ByVal args() As String)
-        Dim app As CallbackClient = New CallbackClient
+        Dim app As Client = New Client
         Dim status As Integer = app.main(args, "config")
         System.Environment.Exit(status)
     End Sub

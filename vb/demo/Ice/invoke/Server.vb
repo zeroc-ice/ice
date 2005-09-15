@@ -10,41 +10,23 @@
 Imports InvokeDemo
 Imports System
 
-Module Server
+Module InvokeS
 
-    Function run(ByVal args As String(), ByVal communicator As Ice.Communicator) As Integer
-        Dim adapter As Ice.ObjectAdapter = communicator.createObjectAdapter("Printer")
-        Dim [object] As Ice.Object = New PrinterI
-        adapter.add([object], Ice.Util.stringToIdentity("printer"))
-        adapter.activate()
-        communicator.waitForShutdown()
-        Return 0
-    End Function
+    Class Server
+        Inherits Ice.Application
 
-    Sub Main(ByVal args As String())
-        Dim status As Integer = 0
-        Dim communicator As Ice.Communicator = Nothing
+        Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Printer")
+            adapter.add(New PrinterI, Ice.Util.stringToIdentity("printer"))
+            adapter.activate()
+            communicator.waitForShutdown()
+            Return 0
+        End Function
+    End Class
 
-        Try
-            Dim properties As Ice.Properties = Ice.Util.createProperties()
-            properties.load("config")
-            communicator = Ice.Util.initializeWithProperties(args, properties)
-            status = run(args, communicator)
-        Catch ex As Ice.LocalException
-            Console.Error.WriteLine(ex)
-            status = 1
-        End Try
-
-        If Not communicator Is Nothing Then
-            Try
-                communicator.destroy()
-            Catch ex As Ice.LocalException
-                Console.Error.WriteLine(ex)
-                status = 1
-            End Try
-        End If
-
-        Environment.Exit(status)
+    Public Sub Main(ByVal args() As String)
+        Dim app As Server = New Server
+        Dim status As Integer = app.main(args, "config")
+        System.Environment.Exit(status)
     End Sub
-
 End Module

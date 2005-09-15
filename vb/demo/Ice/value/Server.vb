@@ -7,26 +7,24 @@
 '
 ' **********************************************************************
 
-Class Server
-    Inherits Ice.Application
+Module ValueS
+    Class Server
+        Inherits Ice.Application
 
-    Public Overloads Overrides Function run(ByVal args() As String) As Integer
-	Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Value")
-	Dim [object] As Ice.Object = New InitialI(adapter)
-	adapter.add([object], Ice.Util.stringToIdentity("initial"))
-	adapter.activate()
-	communicator().waitForShutdown()
-	Return 0
-    End Function
+        Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Value")
+            adapter.add(New InitialI(adapter), Ice.Util.stringToIdentity("initial"))
+            adapter.activate()
+            communicator().waitForShutdown()
+            Return 0
+        End Function
 
-End Class
+    End Class
 
-Module valueS
-
-    Public Sub Main(ByVal args() as String)
-        Dim app as Server = new Server
-        Dim status as Integer = app.main(args, "config")
-	System.Environment.Exit(status)
+    Public Sub Main(ByVal args() As String)
+        Dim app As Server = New Server
+        Dim status As Integer = app.main(args, "config")
+        System.Environment.Exit(status)
     End Sub
 
 End Module

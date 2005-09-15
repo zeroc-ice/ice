@@ -22,33 +22,40 @@ Public Class HelloFactoryI
         ' Create the servant and add it to the object adapter using the
         ' given name as the identity.
         '
-        Dim hello As Ice.Object = New IcePackHelloI(name)
-        Dim [object] As Ice.ObjectPrx = adapter.add(hello, Ice.Util.stringToIdentity(name))
+        Dim [object] As Ice.ObjectPrx
+        Try
+            [object] = adapter.add(New IcePackHelloI(name), Ice.Util.stringToIdentity(name))
+        Catch ex As Ice.AlreadyRegisteredException
+            '
+            ' The Object Is Already Registered.
+            '
+            Throw New NameExistsException
+        End Try
 
         '
         ' Get the IcePack Admin interface and register the newly created
         ' Hello object with the IcePack object registry.
-        ' 
+        '
+        Dim admin As IcePack.AdminPrx = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"))
         Try
-            Dim admin As IcePack.AdminPrx = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"))
             admin.addObject([object])
         Catch ex As IcePack.ObjectExistsException
             '
-            ' An object with the same identity is already registered with
-            ' the registry. Remove the object from the object adapter and
-            ' throw.
+            ' This should only occur if the server has been restarted and
+            ' the server objects haven't been removed from the object
+            ' registry.
             '
-            adapter.remove([object].ice_getIdentity())
-            Throw New NameExistsException
-        Catch ex As IcePack.DeploymentException
-            Debug.Assert(False)
+            ' In this case remove the current object, and re-add.
+            ' 
+            admin.removeObject([object].ice_getIdentity())
+            admin.addObject([object])
         End Try
 
         Dim id As String = communicator.getProperties().getProperty("Identity")
 
         Console.WriteLine("HelloFactory-" & id & ": created Hello object named '" & name & "'")
 
-        Return HelloPrxHelper.uncheckedCast([object])
+        Return HelloPrxHelper.uncheckedCast([Object])
     End Function
 
     Public Overloads Overrides Function find(ByVal name As String, ByVal current As Ice.Current) As IcePackHelloDemo.HelloPrx

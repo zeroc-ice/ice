@@ -10,252 +10,235 @@
 Imports System
 Imports Demo
 
-Module throughputC
+Module ThroughputC
 
-    Private Sub menu()
-	Console.Out.WriteLine("usage:")
-	Console.Out.WriteLine()
-	Console.Out.WriteLine("toggle type of data to send:")
-	Console.Out.WriteLine("1: sequence of bytes (default)")
-        Console.Out.WriteLine("2: sequence of strings(""hello"")")
-        Console.Out.WriteLine("3: sequence of structs with a string (""hello"") and a double")
-        Console.Out.WriteLine("4: sequence of structs with two ints and a double")
-	Console.Out.WriteLine()
-        Console.Out.WriteLine("select test to run:")
-	Console.Out.WriteLine("t: Send sequence as twoway")
-	Console.Out.WriteLine("o: Send sequence as oneway")
-	Console.Out.WriteLine("r: Receive sequence")
-	Console.Out.WriteLine("e: Echo (send and receive) sequence")
-	Console.Out.WriteLine()
-	Console.Out.WriteLine("other commands")
-	Console.Out.WriteLine("s: shutdown server")
-	Console.Out.WriteLine("x: exit")
-	Console.Out.WriteLine("?: help")
-    End Sub
+    Class Client
+        Inherits Ice.Application
 
-    Private Function run(ByVal args() As String, ByVal communicator As Ice.Communicator) As Integer
-	Dim properties As Ice.Properties = communicator.getProperties()
-	Dim refProperty As String = "Throughput.Throughput"
-	Dim r As String = properties.getProperty(refProperty)
-	If r.Length = 0 Then
-	    Console.Error.WriteLine("property `" & r & "' not set")
-	    Return 1
-	End If
+        Private Sub menu()
+            Console.Out.WriteLine("usage:")
+            Console.Out.WriteLine()
+            Console.Out.WriteLine("toggle type of data to send:")
+            Console.Out.WriteLine("1: sequence of bytes (default)")
+            Console.Out.WriteLine("2: sequence of strings(""hello"")")
+            Console.Out.WriteLine("3: sequence of structs with a string (""hello"") and a double")
+            Console.Out.WriteLine("4: sequence of structs with two ints and a double")
+            Console.Out.WriteLine()
+            Console.Out.WriteLine("select test to run:")
+            Console.Out.WriteLine("t: Send sequence as twoway")
+            Console.Out.WriteLine("o: Send sequence as oneway")
+            Console.Out.WriteLine("r: Receive sequence")
+            Console.Out.WriteLine("e: Echo (send and receive) sequence")
+            Console.Out.WriteLine()
+            Console.Out.WriteLine("other commands")
+            Console.Out.WriteLine("s: shutdown server")
+            Console.Out.WriteLine("x: exit")
+            Console.Out.WriteLine("?: help")
+        End Sub
 
-	Dim b As Ice.ObjectPrx = communicator.stringToProxy(r)
-	Dim throughput As ThroughputPrx = ThroughputPrxHelper.checkedCast(b)
-	If throughput Is Nothing Then
-	    Console.Error.WriteLine("invalid proxy")
-	    Return 1
-	End If
-	Dim throughputOneway As ThroughputPrx = ThroughputPrxHelper.uncheckedCast(throughput.ice_oneway())
+        Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            Dim properties As Ice.Properties = communicator().getProperties()
+            Dim refProperty As String = "Throughput.Throughput"
+            Dim r As String = properties.getProperty(refProperty)
+            If r.Length = 0 Then
+                Console.Error.WriteLine("property `" & r & "' not set")
+                Return 1
+            End If
 
-        Dim byteSeq() As Byte = New Byte(ByteSeqSize.value - 1) {}
+            Dim throughput As ThroughputPrx = ThroughputPrxHelper.checkedCast(communicator.stringToProxy(r))
+            If throughput Is Nothing Then
+                Console.Error.WriteLine("invalid proxy")
+                Return 1
+            End If
+            Dim throughputOneway As ThroughputPrx = ThroughputPrxHelper.uncheckedCast(throughput.ice_oneway())
 
-	Dim stringSeq() As String = New String(StringSeqSize.value - 1) {}
-	For i As Integer = 0 To StringSeqSize.value - 1
-	    stringSeq(i) = "hello"
-        Next
+            Dim byteSeq() As Byte = New Byte(ByteSeqSize.value - 1) {}
 
-        Dim structSeq() As StringDouble = New StringDouble(StringDoubleSeqSize.value - 1) {}
-        For i As Integer = 0 To StringDoubleSeqSize.value - 1
-            structSeq(i).s = "hello"
-            structSeq(i).d = 3.14
-        Next
+            Dim stringSeq() As String = New String(StringSeqSize.value - 1) {}
+            For i As Integer = 0 To StringSeqSize.value - 1
+                stringSeq(i) = "hello"
+            Next
 
-        Dim fixedSeq() As Fixed = New Fixed(FixedSeqSize.value - 1) {}
-        For i As Integer = 0 To FixedSeqSize.value - 1
-            fixedSeq(i).i = 0
-            fixedSeq(i).j = 0
-            fixedSeq(i).d = 0
-        Next
+            Dim structSeq() As StringDouble = New StringDouble(StringDoubleSeqSize.value - 1) {}
+            For i As Integer = 0 To StringDoubleSeqSize.value - 1
+                structSeq(i).s = "hello"
+                structSeq(i).d = 3.14
+            Next
 
-        menu()
+            Dim fixedSeq() As Fixed = New Fixed(FixedSeqSize.value - 1) {}
+            For i As Integer = 0 To FixedSeqSize.value - 1
+                fixedSeq(i).i = 0
+                fixedSeq(i).j = 0
+                fixedSeq(i).d = 0
+            Next
 
-        throughput.ice_ping() ' Initial ping to setup the connection.
+            menu()
 
-        '
-        ' By default use bytes sequence.
-        '
-        Dim currentType As Char = "1"
-        Dim seqSize As Integer = ByteSeqSize.value
+            throughput.ice_ping() ' Initial ping to setup the connection.
 
-        Dim line As String = Nothing
-        Do
-            Try
-                Console.Out.Write("==> ")
-                Console.Out.Flush()
-                line = Console.In.ReadLine()
-                If line Is Nothing Then
-                    Exit Try
-                End If
+            '
+            ' By default use bytes sequence.
+            '
+            Dim currentType As Char = "1"
+            Dim seqSize As Integer = ByteSeqSize.value
 
-                Dim tmsec As Long = System.DateTime.Now.Ticks / 10000
-
-                Dim repetitions As Integer = 100
-
-                If line.Equals("1") Or line.Equals("2") Or line.Equals("3") Or line.Equals("4") Then
-                    currentType = line.Chars(0)
-                    Select Case currentType
-                        Case "1"
-                            Console.WriteLine("using byte sequences")
-                            seqSize = ByteSeqSize.value
-                        Case "2"
-                            Console.WriteLine("using string sequences")
-                            seqSize = StringSeqSize.value
-                        Case "3"
-                            Console.WriteLine("using variable-length struct sequences")
-                            seqSize = StringDoubleSeqSize.value
-                        Case "4"
-                            Console.WriteLine("using fixed-length struct sequences")
-                            seqSize = FixedSeqSize.value
-                    End Select
-                ElseIf line.Equals("t") Or line.Equals("o") Or line.Equals("r") Or line.Equals("e") Then
-                    Dim c As Char = line.Chars(0)
-
-                    Select Case c
-                        Case "t"
-                            Console.Out.Write("sending")
-                        Case "o"
-                            Console.Out.Write("sending")
-                        Case "r"
-                            Console.Out.Write("receiving")
-                        Case "e"
-                            Console.Out.Write("sending and receiving")
-                    End Select
-
-                    Console.Out.Write(" " & repetitions)
-                    Select Case currentType
-                        Case "1"
-                            Console.Write(" byte")
-                        Case "2"
-                            Console.Write(" string")
-                        Case "3"
-                            Console.Write(" variable-length struct")
-                        Case "4"
-                            Console.Write(" fixed-length struct")
-                    End Select
-                    Console.Write(" sequences of size " & seqSize)
-
-                    If c = "o" Then
-                        Console.Out.Write(" as oneway")
+            Dim line As String = Nothing
+            Do
+                Try
+                    Console.Out.Write("==> ")
+                    Console.Out.Flush()
+                    line = Console.In.ReadLine()
+                    If line Is Nothing Then
+                        Exit Try
                     End If
 
-                    Console.Out.WriteLine("...")
+                    Dim tmsec As Long = System.DateTime.Now.Ticks / 10000
 
-                    For i As Integer = 0 To repetitions - 1
+                    Dim repetitions As Integer = 100
+
+                    If line.Equals("1") Or line.Equals("2") Or line.Equals("3") Or line.Equals("4") Then
+                        currentType = line.Chars(0)
                         Select Case currentType
                             Case "1"
-                                Select Case c
-                                    Case "t"
-                                        throughput.sendByteSeq(byteSeq)
-                                    Case "o"
-                                        throughputOneway.sendByteSeq(byteSeq)
-                                    Case "r"
-                                        throughput.recvByteSeq()
-                                    Case "e"
-                                        throughput.echoByteSeq(byteSeq)
-                                End Select
-
+                                Console.WriteLine("using byte sequences")
+                                seqSize = ByteSeqSize.value
                             Case "2"
-                                Select Case c
-                                    Case "t"
-                                        throughput.sendStringSeq(stringSeq)
-                                    Case "o"
-                                        throughputOneway.sendStringSeq(stringSeq)
-                                    Case "r"
-                                        throughput.recvStringSeq()
-                                    Case "e"
-                                        throughput.echoStringSeq(stringSeq)
-                                End Select
-
+                                Console.WriteLine("using string sequences")
+                                seqSize = StringSeqSize.value
                             Case "3"
-                                Select Case c
-                                    Case "t"
-                                        throughput.sendStructSeq(structSeq)
-                                    Case "o"
-                                        throughputOneway.sendStructSeq(structSeq)
-                                    Case "r"
-                                        throughput.recvStructSeq()
-                                    Case "e"
-                                        throughput.echoStructSeq(structSeq)
-                                End Select
+                                Console.WriteLine("using variable-length struct sequences")
+                                seqSize = StringDoubleSeqSize.value
                             Case "4"
-                                Select Case c
-                                    Case "t"
-                                        throughput.sendFixedSeq(fixedSeq)
-                                    Case "o"
-                                        throughputOneway.sendFixedSeq(fixedSeq)
-                                    Case "r"
-                                        throughput.recvFixedSeq()
-                                    Case "e"
-                                        throughput.echoFixedSeq(fixedSeq)
-                                End Select
+                                Console.WriteLine("using fixed-length struct sequences")
+                                seqSize = FixedSeqSize.value
                         End Select
-                    Next
+                    ElseIf line.Equals("t") Or line.Equals("o") Or line.Equals("r") Or line.Equals("e") Then
+                        Dim c As Char = line.Chars(0)
 
-                    Dim dmsec As Double = System.DateTime.Now.Ticks / 10000 - tmsec
-                    Console.Out.WriteLine("time for " & repetitions & " sequences: " & dmsec.ToString("F") & "ms")
-                    Console.Out.WriteLine("time per sequence: " & CType(dmsec / repetitions, Double).ToString("F") & "ms")
-                    Dim wireSize As Integer = 0
-                    Select Case currentType
-                        Case "1"
-                            wireSize = 1
-                        Case "2"
-                            wireSize = stringSeq(0).Length
-                        Case "3"
-                            wireSize = structSeq(0).s.Length
-                            wireSize += 8 ' Size of double on the wire.
-                        Case "4"
-                            wireSize = 16 ' Size of two ints and a double on the wire.
-                    End Select
-                    Dim mbit As Double = repetitions * seqSize * wireSize * 8.0 / dmsec / 1000.0
-                    If c = "e" Then
-                        mbit *= 2
+                        Select Case c
+                            Case "t"
+                                Console.Out.Write("sending")
+                            Case "o"
+                                Console.Out.Write("sending")
+                            Case "r"
+                                Console.Out.Write("receiving")
+                            Case "e"
+                                Console.Out.Write("sending and receiving")
+                        End Select
+
+                        Console.Out.Write(" " & repetitions)
+                        Select Case currentType
+                            Case "1"
+                                Console.Write(" byte")
+                            Case "2"
+                                Console.Write(" string")
+                            Case "3"
+                                Console.Write(" variable-length struct")
+                            Case "4"
+                                Console.Write(" fixed-length struct")
+                        End Select
+                        Console.Write(" sequences of size " & seqSize)
+
+                        If c = "o" Then
+                            Console.Out.Write(" as oneway")
+                        End If
+
+                        Console.Out.WriteLine("...")
+
+                        For i As Integer = 0 To repetitions - 1
+                            Select Case currentType
+                                Case "1"
+                                    Select Case c
+                                        Case "t"
+                                            throughput.sendByteSeq(byteSeq)
+                                        Case "o"
+                                            throughputOneway.sendByteSeq(byteSeq)
+                                        Case "r"
+                                            throughput.recvByteSeq()
+                                        Case "e"
+                                            throughput.echoByteSeq(byteSeq)
+                                    End Select
+
+                                Case "2"
+                                    Select Case c
+                                        Case "t"
+                                            throughput.sendStringSeq(stringSeq)
+                                        Case "o"
+                                            throughputOneway.sendStringSeq(stringSeq)
+                                        Case "r"
+                                            throughput.recvStringSeq()
+                                        Case "e"
+                                            throughput.echoStringSeq(stringSeq)
+                                    End Select
+
+                                Case "3"
+                                    Select Case c
+                                        Case "t"
+                                            throughput.sendStructSeq(structSeq)
+                                        Case "o"
+                                            throughputOneway.sendStructSeq(structSeq)
+                                        Case "r"
+                                            throughput.recvStructSeq()
+                                        Case "e"
+                                            throughput.echoStructSeq(structSeq)
+                                    End Select
+                                Case "4"
+                                    Select Case c
+                                        Case "t"
+                                            throughput.sendFixedSeq(fixedSeq)
+                                        Case "o"
+                                            throughputOneway.sendFixedSeq(fixedSeq)
+                                        Case "r"
+                                            throughput.recvFixedSeq()
+                                        Case "e"
+                                            throughput.echoFixedSeq(fixedSeq)
+                                    End Select
+                            End Select
+                        Next
+
+                        Dim dmsec As Double = System.DateTime.Now.Ticks / 10000 - tmsec
+                        Console.Out.WriteLine("time for " & repetitions & " sequences: " & dmsec.ToString("F") & "ms")
+                        Console.Out.WriteLine("time per sequence: " & CType(dmsec / repetitions, Double).ToString("F") & "ms")
+                        Dim wireSize As Integer = 0
+                        Select Case currentType
+                            Case "1"
+                                wireSize = 1
+                            Case "2"
+                                wireSize = stringSeq(0).Length
+                            Case "3"
+                                wireSize = structSeq(0).s.Length
+                                wireSize += 8 ' Size of double on the wire.
+                            Case "4"
+                                wireSize = 16 ' Size of two ints and a double on the wire.
+                        End Select
+                        Dim mbit As Double = repetitions * seqSize * wireSize * 8.0 / dmsec / 1000.0
+                        If c = "e" Then
+                            mbit *= 2
+                        End If
+                        Console.Out.WriteLine("throughput: " & mbit.ToString("F") & "MBit/s")
+                    ElseIf line.Equals("s") Then
+                        throughput.shutdown()
+                    ElseIf line.Equals("x") Then
+                        '  Nothing to do
+                    ElseIf line.Equals("?") Then
+                        menu()
+                    Else
+                        Console.Out.WriteLine("unknown command `" & line & "'")
+                        menu()
                     End If
-                    Console.Out.WriteLine("throughput: " & mbit.ToString("F") & "MBit/s")
-                ElseIf line.Equals("s") Then
-                    throughput.shutdown()
-                ElseIf line.Equals("x") Then
-                    '  Nothing to do
-                ElseIf line.Equals("?") Then
-                    menu()
-                Else
-                    Console.Out.WriteLine("unknown command `" & line & "'")
-                    menu()
-                End If
-            Catch ex As System.Exception
-                Console.Error.WriteLine(ex)
-            End Try
-        Loop While Not line.Equals("x")
+                Catch ex As System.Exception
+                    Console.Error.WriteLine(ex)
+                End Try
+            Loop While Not line.Equals("x")
 
-        Return 0
-    End Function
+            Return 0
+        End Function
+    End Class
 
     Public Sub Main(ByVal args() As String)
-	Dim status As Integer = 0
-	Dim communicator As Ice.Communicator = Nothing
-
-	Try
-	    Dim properties As Ice.Properties = Ice.Util.createProperties()
-	    properties.load("config")
-	    communicator = Ice.Util.initializeWithProperties(args, properties)
-	    status = run(args, communicator)
-	Catch ex As System.Exception
-	    Console.Error.WriteLine(ex)
-	    status = 1
-	End Try
-
-	If Not communicator Is Nothing Then
-	    Try
-		communicator.destroy()
-	    Catch ex As System.Exception
-		Console.Error.WriteLine(ex)
-		status = 1
-	    End Try
-	End If
-
-	System.Environment.Exit(status)
+        Dim app As Client = New Client
+        Dim status As Integer = app.main(args, "config")
+        System.Environment.Exit(status)
     End Sub
 
 End Module
