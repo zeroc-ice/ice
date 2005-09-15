@@ -469,9 +469,9 @@ Database::getAllNodes(const string& expression)
 }
 
 ServerInfo
-Database::getServerInfo(const std::string& name)
+Database::getServerInfo(const std::string& id)
 {
-    return _serverCache.get(name)->getServerInfo();
+    return _serverCache.get(id)->getServerInfo();
 }
 
 ServerPrx

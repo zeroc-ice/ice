@@ -1476,7 +1476,7 @@ NodeHelper::diff(const NodeHelper& helper) const
     update.name = _name;
     if(_definition.loadFactor != helper._definition.loadFactor)
     {
-	update.loadFactor = new BoxedLoadFactor(_definition.loadFactor);
+	update.loadFactor = new BoxedString(_definition.loadFactor);
     }
 
     update.variables = getDictUpdatedElts(helper._definition.variables, _definition.variables);
@@ -1882,7 +1882,7 @@ ApplicationHelper::diff(const ApplicationHelper& helper)
     update.name = _definition.name;
     if(_definition.description != helper._definition.description)
     {
-	update.description = new BoxedDescription(_definition.description);
+	update.description = new BoxedString(_definition.description);
     }
 
     update.variables = getDictUpdatedElts(helper._definition.variables, _definition.variables);
@@ -1919,7 +1919,7 @@ ApplicationHelper::diff(const ApplicationHelper& helper)
 	    nodeUpdate.variables = node.variables;
 	    nodeUpdate.servers = node.servers;
 	    nodeUpdate.serverInstances = node.serverInstances;
-	    nodeUpdate.loadFactor = new BoxedLoadFactor(node.loadFactor);
+	    nodeUpdate.loadFactor = new BoxedString(node.loadFactor);
 	    update.nodes.push_back(nodeUpdate);
 	}
 	else

@@ -674,7 +674,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	testApp = admin->getApplicationDescriptor("TestApp");
 	test(testApp.description == "Description");
 
-	update.description = new BoxedDescription("updatedDescription");
+	update.description = new BoxedString("updatedDescription");
 	try
 	{
 	    admin->updateApplication(update);
@@ -687,7 +687,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	testApp = admin->getApplicationDescriptor("TestApp");
 	test(testApp.description == "updatedDescription");
 	    
-	update.description = new BoxedDescription("");
+	update.description = new BoxedString("");
 	try
 	{
 	    admin->updateApplication(update);

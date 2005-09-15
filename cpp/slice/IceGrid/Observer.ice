@@ -11,55 +11,278 @@
 #define ICE_GRID_OBSERVER_ICE
 
 #include <Glacier2/Session.ice>
-#include <IceGrid/Descriptor.ice>
 #include <IceGrid/Exception.ice>
+#include <IceGrid/Descriptor.ice>
 
 module IceGrid
 {
 
+/**
+ *
+ * An enumeration representing the state of the server.
+ *
+ **/
+enum ServerState
+{
+    /**
+     *
+     * The server is not running.
+     *
+     **/
+    Inactive,
+
+    /**
+     *
+     * The server is being activated and will change to the active
+     * state when the registered server object adapters are activated.
+     *
+     **/
+    Activating,
+
+    /**
+     *
+     * The server is running.
+     *
+     **/
+    Active,
+    
+    /**
+     *
+     * The server is being deactivated.
+     *
+     **/
+    Deactivating,
+
+    /**
+     *
+     * The server is being destroyed.
+     *
+     **/
+    Destroying,
+
+    /**
+     *
+     * The server is destroyed.
+     *
+     **/
+    Destroyed
+};
+
+/**
+ *
+ * Dynamic information about the state of a server.
+ *
+ **/
 struct ServerDynamicInfo
 {
+    /** 
+     *
+     * The id of the server.
+     *
+     **/
     string id;
+    
+    /** 
+     *
+     * The state of the server.
+     *
+     **/
     ServerState state;
+
+    /** 
+     *
+     * The process id of the server.
+     *
+     **/    
     int pid;
 };
+
+/**
+ *
+ * A sequence of server dynamic information structures.
+ * 
+ **/
 sequence<ServerDynamicInfo> ServerDynamicInfoSeq;
 
+/**
+ *
+ * Dynamic information about the state of an adapter.
+ * 
+ **/
 struct AdapterDynamicInfo
 {
+    /** 
+     *
+     * The id of the adapter.
+     *
+     **/
     string id;
+
+    /** 
+     *
+     * The id of the server this adapter belongs to.
+     *
+     **/
     string serverId;
+
+    /**
+     *
+     * The direct proxy containing the adapter endpoints.
+     *
+     **/
     Object* proxy;
 };
+
+/**
+ *
+ * A sequence of adapter dynamic information structures.
+ *
+ **/
 sequence<AdapterDynamicInfo> AdapterDynamicInfoSeq;
 
+/**
+ *
+ * Dynamic information about the state of a node.
+ *
+ **/
 struct NodeDynamicInfo
 {
     string name;
     ServerDynamicInfoSeq servers;
     AdapterDynamicInfoSeq adapters;
 };
+
+/**
+ *
+ * A sequence of node dynamic information structures.
+ *
+ **/
 sequence<NodeDynamicInfo> NodeDynamicInfoSeq;
 
+/**
+ *
+ * The node observer interface. Observers should implement this
+ * interface to receive information about the state of the IceGrid
+ * nodes.
+ * 
+ **/
 interface NodeObserver
 {
+    /**
+     *
+     * The init method is called after the registration of the
+     * observer to communicate the current state of the node to the
+     * observer implementation.
+     *
+     * @param nodes The current state of the nodes.
+     *
+     **/
     ["ami"] void init(NodeDynamicInfoSeq nodes);
 
+    /**
+     *
+     * The nodeUp method is called to notify the observer that a node
+     * came up.
+     * 
+     * @param node The node state.
+     *
+     **/
     void nodeUp(NodeDynamicInfo node);
 
+    /**
+     *
+     * The nodeDown method is called to notify the observer that a node
+     * went down.
+     * 
+     * @param name The node name.
+     *
+     **/
     void nodeDown(string name);
 
+    /**
+     *
+     * The updateServer method is called to notify the observer that
+     * the state of a server changed.
+     *
+     * @param node The node hosting the server.
+     * 
+     * @param updatedInfo The new server state.
+     * 
+     **/
     void updateServer(string node, ServerDynamicInfo updatedInfo);
 
+    /**
+     *
+     * The updateAdapter method is called to notify the observer that
+     * the state of an adapter changed.
+     * 
+     * @param node The node hosting the adapter.
+     * 
+     * @param updatedInfo The new adapter state.
+     * 
+     **/
     void updateAdapter(string node, AdapterDynamicInfo updatedInfo);
 };
 
+/**
+ *
+ * The registry observer interface. Observers should implement this
+ * interface to receive information about the state of the IceGrid
+ * registry.
+ * 
+ **/
 interface RegistryObserver
 {
+    /**
+     *
+     * The init method is called after the registration of the
+     * observer to communicate the current state of the registry to the
+     * observer implementation.
+     *
+     * @param serial The current serial of the registry database. This
+     * serial allows observers to make sure that their internal state
+     * is synchronized with the registry.
+     *
+     * @param applications The applications currently registered with
+     * the registry.
+     *
+     **/
     ["ami"] void init(int serial, ApplicationDescriptorSeq applications);
 
+    /**
+     * 
+     * The applicationAdded method is called to notify the observer
+     * that an application was added.
+     *
+     * @param serial The new serial number of the registry database.
+     *
+     * @param desc The descriptor of the new application.
+     * 
+     **/
     void applicationAdded(int serial, ApplicationDescriptor desc);
+
+    /**
+     *
+     * The applicationRemoved method is called to notify the observer
+     * that an application was removed.
+     *
+     * @param serial The new serial number of the registry database.
+     *
+     * @param name The name of the application that was removed.
+     * 
+     **/
     void applicationRemoved(int serial, string name);
+
+    /**
+     * 
+     * The applicationUpdated method is called to notify the observer
+     * that an application was updated.
+     *
+     * @param serial The new serial number of the registry database.
+     *
+     * @param desc The descriptor of the update.
+     * 
+     **/
     void applicationUpdated(int serial, ApplicationUpdateDescriptor desc);
 };
 
@@ -91,7 +314,7 @@ interface Session extends Glacier2::Session
      * Set the identities of the observer objects that will receive
      * notifications from the servers when the state of the registry
      * or nodes changes. This method should be used by clients which
-     * are using a bi-directional connection to communicator with the
+     * are using a bi-directional connection to communicate with the
      * session.
      *
      * @param registryObs The registry observer identity.

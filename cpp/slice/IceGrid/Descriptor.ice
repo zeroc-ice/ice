@@ -196,7 +196,19 @@ struct PatchDescriptor
     /** The source directories. */
     Ice::StringSeq sources;
 };
+
+/**
+ *
+ * A sequence of patch descriptors.
+ *
+ **/
 sequence<PatchDescriptor> PatchDescriptorSeq;
+
+/**
+ *
+ * A dictionary of patch descriptors.
+ *
+ **/
 dictionary<string, PatchDescriptor> PatchDescriptorDict;
 
 /**
@@ -274,14 +286,18 @@ class ServerDescriptor extends CommunicatorDescriptor
 
     /**
      *
-     * The application patch definition used by the server.
+     * The application patch definitions used by the server.
      *
      **/
     Ice::StringSeq usePatchs;
 };
-dictionary<string, ServerDescriptor> ServerDescriptorDict;
-["java:type:java.util.LinkedList"] sequence<ServerDescriptor> ServerDescriptorSeq;
 
+/**
+ *
+ * A sequence of server descriptors.
+ *
+ **/
+["java:type:java.util.LinkedList"] sequence<ServerDescriptor> ServerDescriptorSeq;
 
 /**
  *
@@ -304,9 +320,19 @@ class ServiceDescriptor extends CommunicatorDescriptor
      **/
     string entry;
 };
-dictionary<string, ServiceDescriptor> ServiceDescriptorDict;
+
+/**
+ *
+ * A sequence of service descriptors.
+ *
+ **/
 ["java:type:java.util.LinkedList"] sequence<ServiceDescriptor> ServiceDescriptorSeq;
 
+/** 
+ *
+ * A server template instance descriptor.
+ * 
+ **/
 struct ServerInstanceDescriptor
 {
     /**
@@ -323,8 +349,13 @@ struct ServerInstanceDescriptor
      **/
     StringStringDict parameterValues;
 };
+
+/**
+ *
+ * A sequence of server instance descriptors.
+ * 
+ **/
 ["java:type:java.util.LinkedList"] sequence<ServerInstanceDescriptor> ServerInstanceDescriptorSeq;
-dictionary<string, ServerInstanceDescriptor> ServerInstanceDescriptorDict;
 
 struct TemplateDescriptor
 {
@@ -438,6 +469,14 @@ class RoundRobinLoadBalancingPolicy extends LoadBalancingPolicy
 
 class AdaptiveLoadBalancingPolicy extends LoadBalancingPolicy
 {
+    /**
+     *
+     * The load sample to use for the load balancing. The allowed
+     * values for this attribute are "1", "5" and "15", representing
+     * respectively the load average over the past minute, the past 5
+     * minutes and the past 15 minutes.
+     *
+     **/
     string loadSample;
 };
 
@@ -469,6 +508,12 @@ struct ReplicatedAdapterDescriptor
      **/
     ObjectDescriptorSeq objects;
 };
+
+/**
+ *
+ * A sequence of the replicated object adapters.
+ * 
+ **/
 ["java:type:java.util.LinkedList"] sequence<ReplicatedAdapterDescriptor> ReplicatedAdapterDescriptorSeq; 
 
 /**
@@ -534,14 +579,20 @@ struct ApplicationDescriptor
      **/ 
     string description;
 };
+
+/**
+ *
+ * A sequence of application descriptors.
+ *
+ **/
 ["java:type:java.util.LinkedList"] sequence<ApplicationDescriptor> ApplicationDescriptorSeq;
 
-class BoxedDescription
-{
-    string value;
-};
-
-class BoxedLoadFactor
+/**
+ *
+ * A "boxed" string.
+ *
+ **/
+class BoxedString
 {
     string value;
 };
@@ -592,10 +643,11 @@ struct NodeUpdateDescriptor
 
     /**
      *
-     * The updated load factor of the node.
+     * The updated load factor of the node (or null if the load factor
+     * wasn't updated.)
      *
      **/
-    BoxedLoadFactor loadFactor;
+    BoxedString loadFactor;
 };
 ["java:type:java.util.LinkedList"] sequence<NodeUpdateDescriptor> NodeUpdateDescriptorSeq;
 
@@ -610,10 +662,11 @@ struct ApplicationUpdateDescriptor
     
     /**
      *
-     * The updated description (or null if the description wasn't updated).
+     * The updated description (or null if the description wasn't
+     * updated.)
      *
      **/
-    BoxedDescription description;
+    BoxedString description;
 
     /**
      *
@@ -698,57 +751,6 @@ struct ApplicationUpdateDescriptor
      *
      **/
     Ice::StringSeq removeNodes;
-};
-
-/**
- *
- * An enumeration representing the state of the server.
- *
- **/
-enum ServerState
-{
-    /**
-     *
-     * The server is not running.
-     *
-     **/
-    Inactive,
-
-    /**
-     *
-     * The server is being activated and will change to the active
-     * state when the registered server object adapters are activated.
-     *
-     **/
-    Activating,
-
-    /**
-     *
-     * The server is running.
-     *
-     **/
-    Active,
-    
-    /**
-     *
-     * The server is being deactivated.
-     *
-     **/
-    Deactivating,
-
-    /**
-     *
-     * The server is being destroyed.
-     *
-     **/
-    Destroying,
-
-    /**
-     *
-     * The server is destroyed.
-     *
-     **/
-    Destroyed
 };
 
 };

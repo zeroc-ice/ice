@@ -14,11 +14,17 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/SliceChecksumDict.ice>
 #include <IceGrid/Exception.ice>
+#include <IceGrid/Observer.ice>
 #include <IceGrid/Descriptor.ice>
 
 module IceGrid
 {
 
+/**
+ *
+ * A dictionary of proxies.
+ *
+ **/
 dictionary<string, Object*> StringObjectProxyDict;
 
 /**
@@ -46,25 +52,61 @@ enum ServerActivation
     Manual
 };
 
+/**
+ *
+ * Information on an Ice object.
+ *
+ **/
 struct ObjectInfo
 {
-    /** The proxy of the object. */
+    /**
+     *
+     * The proxy of the object. 
+     *
+     **/
     Object* proxy;
 
-    /** The type of the object. */
+    /** 
+     *
+     * The type of the object. 
+     *
+     **/
     string type;
 };
+
+/**
+ *
+ * A sequence of object information structures.
+ *
+ **/
 sequence<ObjectInfo> ObjectInfoSeq;
 
+/**
+ *
+ * Information on a server managed by an IceGrid node.
+ *
+ **/
 struct ServerInfo
 {
-    /** The server application. */
+    /**
+     *
+     * The server application. 
+     *
+     **/
     string application;
 
-    /** The server node. */
+    /** 
+     *
+     * The server node. 
+     *
+     **/
     string node;
        
-    /** The server descriptor. */
+    /**
+     *
+     * The server descriptor. 
+     *
+     **/
     ServerDescriptor descriptor;
 };
 
@@ -83,9 +125,8 @@ interface Admin
      *
      * @param descriptor The application descriptor.
      *
-     * @throws DeploymentException Raised if application deployment failed.
-     *
-     * @see removeApplication
+     * @throws DeploymentException Raised if application deployment
+     * failed.
      *
      **/
     void addApplication(ApplicationDescriptor descriptor)
@@ -94,14 +135,16 @@ interface Admin
     /**
      *
      * Synchronize a deployed application with the given application
-     * descriptor.
+     * descriptor. This operation will replace the current descriptor
+     * with this new descriptor.
      *
      * @param descriptor The application descriptor.
      *
      * @throws DeploymentException Raised if application deployment
      * failed.
      *
-     * @see removeApplication
+     * @throws ApplicationNotExistException Raised if the application
+     * doesn't exist.
      *
      **/
     void syncApplication(ApplicationDescriptor descriptor)
@@ -117,8 +160,8 @@ interface Admin
      * @throws DeploymentException Raised if application deployment
      * failed.
      *
-     * @see syncApplication
-     * @see removeApplication
+     * @throws ApplicationNotExistException Raised if the application
+     * doesn't exist.
      *
      **/
     void updateApplication(ApplicationUpdateDescriptor descriptor)
@@ -126,20 +169,12 @@ interface Admin
 
     /**
      *
-     * Get all the &IceGrid; applications currently registered.
-     *
-     * @return The application names.
-     *
-     **/
-    nonmutating Ice::StringSeq getAllApplicationNames();
-
-    /**
-     *
      * Remove an application from &IceGrid;.
      *
      * @param name The application name.
      *
-     * @see addApplication
+     * @throws ApplicationNotExistException Raised if the application
+     * doesn't exist.
      *
      **/
     void removeApplication(string name)
@@ -160,6 +195,9 @@ interface Admin
      *
      * @throws PatchException Raised if the patch failed.
      *
+     * @throws ApplicationNotExistException Raised if the application
+     * doesn't exist.
+     *
      **/
     void patchApplication(string name, string patch, bool shutdown)
 	throws ApplicationNotExistException, PatchException;
@@ -170,14 +208,23 @@ interface Admin
      *
      * @param name The application name.
      *
-     * @throws ApplicationNotExistException Raised if the application doesn't exist.
-     *
      * @returns The application descriptor.
+     *
+     * @throws ApplicationNotExistException Raised if the application
+     * doesn't exist.
      *
      **/
     nonmutating ApplicationDescriptor getApplicationDescriptor(string name)
 	throws ApplicationNotExistException;
 
+    /**
+     *
+     * Get all the &IceGrid; applications currently registered.
+     *
+     * @return The application names.
+     *
+     **/
+    nonmutating Ice::StringSeq getAllApplicationNames();
 
     /**
      *
@@ -201,14 +248,10 @@ interface Admin
      *
      * @return The server state.
      * 
-     * @throws ServerNotExistException Raised if the server is not
-     * found.
+     * @throws ServerNotExistException Raised if the server doesn't exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
-     *
-     * @see getServerPid
-     * @see getAllServerIds
      *
      **/
     nonmutating ServerState getServerState(string id)
@@ -223,14 +266,10 @@ interface Admin
      *
      * @return The server process id.
      * 
-     * @throws ServerNotExistException Raised if the server is not
-     * found.
+     * @throws ServerNotExistException Raised if the server doesn't exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
-     *
-     * @see getServerState
-     * @see getAllServerIds
      *
      **/
     nonmutating int getServerPid(string id)
@@ -244,14 +283,10 @@ interface Admin
      *
      * @return The server activation mode.
      * 
-     * @throws ServerNotExistException Raised if the server is not
-     * found.
+     * @throws ServerNotExistException Raised if the server doesn't exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
-     *
-     * @see getServerState
-     * @see getAllServerIds
      *
      **/
     nonmutating ServerActivation getServerActivation(string id)
@@ -259,20 +294,23 @@ interface Admin
 
     /**
      *
-     * Set the server's activation mode.
+     * Set the server's activation mode. 
+     *
+     * NOTE: this won't change the registry database. This will only
+     * set the transient activation mode of the server on the node. To
+     * update the initial activation mode of the server you need to
+     * update its template or descriptor by updating the application
+     * descriptor.
      *
      * @param id The id of the server.
      *
-     * @return The server activation mode.
+     * @param mode The server activation mode.
      * 
-     * @throws ServerNotExistException Raised if the server is not
-     * found.
+     * @throws ServerNotExistException Raised if the server doesn't
+     * exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
-     *
-     * @see getServerState
-     * @see getAllServerIds
      *
      **/
     void setServerActivation(string id, ServerActivation mode)
@@ -280,15 +318,15 @@ interface Admin
 
     /**
      *
-     * Start a server.
+     * Start a server and wait for its activation.
      *
      * @param id The id of the server.
      *
      * @return True if the server was successfully started, false
      * otherwise.
      *
-     * @throws ServerNotExistException Raised if the server is not
-     * found.
+     * @throws ServerNotExistException Raised if the server doesn't
+     * exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
@@ -303,8 +341,8 @@ interface Admin
      *
      * @param id The id of the server.
      *
-     * @throws ServerNotExistException Raised if the server is not
-     * found.
+     * @throws ServerNotExistException Raised if the server doesn't
+     * exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
@@ -322,8 +360,8 @@ interface Admin
      * @param shutdown If true, servers depending on the data to patch
      * will be shutdown if necessary.
      *
-     * @throws ServerNotExistException Raised if the server is not
-     * found.
+     * @throws ServerNotExistException Raised if the server doesn't
+     * exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
@@ -342,8 +380,8 @@ interface Admin
      *
      * @param signal The signal, for example SIGTERM or 15.
      *
-     * @throws ServerNotExistException Raised if the server is not
-     * found.
+     * @throws ServerNotExistException Raised if the server doesn't
+     * exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
@@ -365,8 +403,8 @@ interface Admin
      *
      * @param fd 1 for stdout, 2 for stderr.
      *
-     * @throws ServerNotExistException Raised if the server is not
-     * found.
+     * @throws ServerNotExistException Raised if the server doesn't
+     * exist.
      *
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
@@ -381,8 +419,6 @@ interface Admin
      *
      * @return The server ids.
      *
-     * @see getServerState
-     *
      **/
     nonmutating Ice::StringSeq getAllServerIds();
 
@@ -395,8 +431,11 @@ interface Admin
      * @return A dictionary of adapter direct proxy classified by
      * server id.
      *
-     * @throws AdapterNotExistException Raised if the adapter is not
-     * found.
+     * @throws AdapterNotExistException Raised if the adapter doesn't
+     * exist.
+     *
+     * @throws NodeUnreachableException Raised if the node could not be
+     * reached.
      *
      **/
     nonmutating StringObjectProxyDict getAdapterEndpoints(string adapterId)
@@ -406,11 +445,11 @@ interface Admin
      *
      * Remove the adapter with the given adapter id and server id.
      *
-     * @throws AdapterNotExistException Raised if the adapter is not
-     * found.
+     * @throws AdapterNotExistException Raised if the adapter doesn't
+     * exist.
      *
-     * @throws ServerNotExistException Raised if the server is not
-     * found.
+     * @throws ServerNotExistException Raised if the server doesn't
+     * exist.
      *
      **/
     idempotent void removeAdapterWithServerId(string adapterId, string serverId)
@@ -421,8 +460,8 @@ interface Admin
      * Remove the adapter with the given id. If the adapter is
      * replicated, all the replicas are removed.
      *
-     * @throws AdapterNotExistException Raised if the adapter is not
-     * found.
+     * @throws AdapterNotExistException Raised if the adapter doesn't
+     * exist.
      *
      **/
     idempotent void removeAdapter(string adapterId)
@@ -458,8 +497,8 @@ interface Admin
      *
      * @param obj The object to be updated to the registry.
      *
-     * @throws ObjectNotExistException Raised if the object cannot be
-     * found.
+     * @throws ObjectNotExistException Raised if the object doesn't
+     * exist.
      *
      **/
     void updateObject(Object* obj)
@@ -488,8 +527,8 @@ interface Admin
      * @param id The identity of the object to be removed from the
      * registry.
      *
-     * @throws ObjectNotExistException Raised if the object cannot be
-     * found.
+     * @throws ObjectNotExistException Raised if the object doesn't
+     * exist.
      *
      **/
     void removeObject(Ice::Identity id) 
@@ -503,8 +542,8 @@ interface Admin
      *
      * @return The object info.
      *
-     * @throws ObjectNotExistExcpetion Raised if the object cannot be
-     * found.
+     * @throws ObjectNotExistException Raised if the object doesn't
+     * exist.
      *
      **/
     nonmutating ObjectInfo getObjectInfo(Ice::Identity id)
@@ -519,7 +558,7 @@ interface Admin
      * identities of registered objects. The expression may contain
      * a trailing wildcard (<literal>*</literal>) character.
      *
-     * @return All the object info with a stringified identity
+     * @return All the object infos with a stringified identity
      * matching the given expression.
      *
      **/
@@ -533,6 +572,8 @@ interface Admin
      *
      * @return true if the node ping succeeded, false otherwise.
      * 
+     * @throws NodeNotExistException Raised if the node doesn't exist.
+     *
      **/
     nonmutating bool pingNode(string name)
 	throws NodeNotExistException;
@@ -543,6 +584,11 @@ interface Admin
      * 
      * @param name The node name.
      *
+     * @throws NodeNotExistException Raised if the node doesn't exist.
+     *
+     * @throws NodeUnreachableException Raised if the node could not be
+     * reached.
+     *
      **/
     idempotent void shutdownNode(string name)
 	throws NodeNotExistException, NodeUnreachableException;
@@ -552,6 +598,11 @@ interface Admin
      * Get the hostname of this node.
      *
      * @param name The node name.
+     *
+     * @throws NodeNotExistException Raised if the node doesn't exist.
+     *
+     * @throws NodeUnreachableException Raised if the node could not be
+     * reached.
      *
      **/
     nonmutating string getNodeHostname(string name)
