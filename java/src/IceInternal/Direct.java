@@ -37,6 +37,10 @@ public final class Direct
 	    if(_servant == null)
 	    {
 		_locator = servantManager.findServantLocator(_current.id.category);
+		if(_locator == null && _current.id.category.length() > 0)
+		{
+		    _locator = servantManager.findServantLocator("");
+		}
 		if(_locator != null)
 		{
 		    _cookie = new Ice.LocalObjectHolder(); // Lazy creation.
