@@ -111,11 +111,6 @@
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
-                <File
-                    RelPath = "SessionServer.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
             </Include>
         </Files>
     </VisualBasic>

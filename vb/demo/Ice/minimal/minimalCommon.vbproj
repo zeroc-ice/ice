@@ -3,25 +3,25 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{B0B292F5-B5E4-4537-9C74-8525A4B0C484}"
+        ProjectGuid = "{EF8C2EAE-B92B-42D5-987E-848D60F6A5FE}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "server"
+                AssemblyName = "minimalCommon"
                 AssemblyOriginatorKeyFile = ""
                 AssemblyOriginatorKeyMode = "None"
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
-                OutputType = "Exe"
+                OutputType = "Library"
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
-                RootNamespace = "bidir"
-                StartupObject = ""
+                RootNamespace = "minimal"
+                StartupObject = "minimal.(None)"
             >
                 <Config
                     Name = "Debug"
@@ -62,18 +62,9 @@
                     AssemblyName = "System"
                 />
                 <Reference
-                    Name = "System.Data"
-                    AssemblyName = "System.Data"
-                />
-                <Reference
-                    Name = "bidirCommonD"
-                    Project = "{8B858A7E-448F-4269-8D9A-2FC41A98D036}"
-                    Package = "{F184B08F-C81C-45F6-A57F-5ABD9991F28F}"
-                />
-                <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\bin\icecs.dll"
+                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
                 />
             </References>
             <Imports>
@@ -83,12 +74,7 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "CallbackSenderI.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Server.vb"
+                    RelPath = "generated\Hello.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

@@ -88,11 +88,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NestedClient.vb"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "NestedI.vb"
                     SubType = "Code"
                     BuildAction = "Compile"
