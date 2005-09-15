@@ -26,12 +26,6 @@ namespace Ice
 	    rc = SetConsoleCtrlHandler(_handler, true); 
 	    Debug.Assert(rc);
 #endif
-	    _callback = null;
-	    _callbackInProgress = false;
-	    _destroyed = false;
-	    _released = false;
-	    _interrupted = false;
-	    _nohup = false;
 	}
 	
 	//
@@ -386,11 +380,11 @@ namespace Ice
 
 	private const int SIGHUP = 5; // CTRL_LOGOFF_EVENT, from wincon.h
 
-	private static bool _callbackInProgress;
-	private static bool _destroyed;
-	private static bool _interrupted;
-	private static bool _released;
-	private static bool _nohup;
+	private static bool _callbackInProgress = false;
+	private static bool _destroyed = false;
+	private static bool _interrupted = false;
+	private static bool _released = false;
+	private static bool _nohup = false;
 
 	private delegate Boolean EventHandler(int sig);
 #if !__MonoCS__
@@ -403,7 +397,7 @@ namespace Ice
 	private static readonly Callback _shutdownCallback = new Callback(shutdownOnInterruptCallback);
 	private static readonly Callback _holdCallback = new Callback(holdInterruptCallback);
 
-	private static Callback _callback; // Current callback
+	private static Callback _callback = null; // Current callback
 	private static Callback _previousCallback; // Remembers prev. callback when signals are held
 
 	private static string _appName = AppDomain.CurrentDomain.FriendlyName;
