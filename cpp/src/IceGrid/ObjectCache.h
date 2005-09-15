@@ -50,7 +50,7 @@ class ObjectCache : public Cache<Ice::Identity, ObjectEntry>
 {
 public:
 
-    ObjectCache(const Ice::CommunicatorPtr&, const TraceLevelsPtr&);
+    ObjectCache(const Ice::CommunicatorPtr&);
 
     void add(const std::string&, const std::string&, const ObjectDescriptor&);
     ObjectEntryPtr get(const Ice::Identity&) const;

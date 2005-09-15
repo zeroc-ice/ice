@@ -18,8 +18,7 @@
 using namespace std;
 using namespace IceGrid;
 
-ObjectCache::ObjectCache(const Ice::CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels) : 
-    Cache<Ice::Identity, ObjectEntry>(traceLevels),
+ObjectCache::ObjectCache(const Ice::CommunicatorPtr& communicator) : 
     _communicator(communicator)
 {
 }
@@ -51,7 +50,7 @@ ObjectCache::add(const string& adapterId, const string& endpoints, const ObjectD
     }
     p->second.insert(desc.id);
 
-    if(_traceLevels->object > 0)
+    if(_traceLevels && _traceLevels->object > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
 	out << "added object `" << Ice::identityToString(desc.id) << "'";	
@@ -88,7 +87,7 @@ ObjectCache::remove(const Ice::Identity& id)
 	_types.erase(p);
     }
 
-    if(_traceLevels->object > 0)
+    if(_traceLevels && _traceLevels->object > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
 	out << "removed object `" << Ice::identityToString(id) << "'";	

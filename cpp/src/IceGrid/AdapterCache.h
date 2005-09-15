@@ -68,8 +68,6 @@ class AdapterCache : public CacheByString<AdapterEntry>
 {
 public:
 
-    AdapterCache(const TraceLevelsPtr&);
-
     AdapterEntryPtr get(const std::string&, bool = false) const;
     
 protected:

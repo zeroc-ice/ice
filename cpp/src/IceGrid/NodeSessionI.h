@@ -19,6 +19,9 @@ namespace IceGrid
 class Database;
 typedef IceUtil::Handle<Database> DatabasePtr;
 
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
 class NodeSessionI : public NodeSession, public SessionI,  public IceUtil::Mutex
 {
 public:
@@ -36,6 +39,7 @@ public:
 private:
     
     const DatabasePtr _database;
+    const TraceLevelsPtr _traceLevels;
     const std::string _name;
     const NodePrx _node;
     const IceUtil::Time _startTime;

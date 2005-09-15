@@ -72,7 +72,7 @@ class ServerCache : public CacheByString<ServerEntry>
 {
 public:
 
-    ServerCache(NodeCache&, AdapterCache&, ObjectCache&, const TraceLevelsPtr&);
+    ServerCache(NodeCache&, AdapterCache&, ObjectCache&);
 
     ServerEntryPtr add(const ServerInfo&);
     ServerEntryPtr get(const std::string&);

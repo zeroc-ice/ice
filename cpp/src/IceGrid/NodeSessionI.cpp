@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/Database.h>
 
@@ -16,6 +17,7 @@ using namespace IceGrid;
 
 NodeSessionI::NodeSessionI(const DatabasePtr& database, const string& name, const NodePrx& node) : 
     _database(database),
+    _traceLevels(database->getTraceLevels()),
     _name(name),
     _node(node),
     _startTime(IceUtil::Time::now()),
@@ -44,8 +46,16 @@ NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current& current)
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
+    if(_traceLevels->node > 2)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
+	out << "node `" << _name << "' keep alive ";
+	out << "(load = " << _load.load1 << ", " << _load.load5 << ", " << _load.load15 << ")";
+    }
+
     _timestamp = IceUtil::Time::now();
     _load = load;
+
 }
 
 Ice::StringSeq

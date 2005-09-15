@@ -57,10 +57,6 @@ struct ServerLoadCI : binary_function<ServerEntryPtr&, ServerEntryPtr&, bool>
 
 }
 
-AdapterCache::AdapterCache(const TraceLevelsPtr& traceLevels) : CacheByString<AdapterEntry>(traceLevels)
-{
-}
-
 AdapterEntryPtr
 AdapterCache::get(const string& id, bool create) const
 {
@@ -79,7 +75,7 @@ AdapterCache::get(const string& id, bool create) const
 AdapterEntryPtr
 AdapterCache::addImpl(const string& id)
 {
-    if(_traceLevels->adapter > 0)
+    if(_traceLevels && _traceLevels->adapter > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 	out << "added adapter `" << id << "'";	
@@ -90,7 +86,7 @@ AdapterCache::addImpl(const string& id)
 AdapterEntryPtr
 AdapterCache::removeImpl(const string& id)
 {
-    if(_traceLevels->adapter > 0)
+    if(_traceLevels && _traceLevels->adapter > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 	out << "removed adapter `" << id << "'";	
@@ -143,7 +139,7 @@ AdapterEntry::enableReplication(const LoadBalancingPolicyPtr& policy)
 	}
     }
     
-    if(_cache.getTraceLevels()->adapter > 0)
+    if(_cache.getTraceLevels() && _cache.getTraceLevels()->adapter > 0)
     {
 	Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->adapterCat);
 	out << "enabled replication on adapter `" << _id << "'";	
@@ -159,7 +155,7 @@ AdapterEntry::disableReplication()
 	_replicated = false;
 	remove = _servers.empty();
     }
-    if(_cache.getTraceLevels()->adapter > 0)
+    if(_cache.getTraceLevels() && _cache.getTraceLevels()->adapter > 0)
     {
 	Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->adapterCat);
 	out << "disabled replication on adapter `" << _id << "'";	
@@ -205,6 +201,7 @@ AdapterEntry::getProxies(int& nReplicas)
 {
     vector<ServerEntryPtr> servers;
     bool adaptive = false;
+    LoadSample loadSample;
     {
 	Lock sync(*this);	
 	if(_servers.empty())
@@ -233,6 +230,7 @@ AdapterEntry::getProxies(int& nReplicas)
 	    {
 		servers = _servers;
 		adaptive = true;
+		loadSample = _loadSample;
 	    }
 	    else// if(RandomLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	    {
@@ -249,7 +247,7 @@ AdapterEntry::getProxies(int& nReplicas)
 	// the sort() will call and lock each server entry.
 	//
 	random_shuffle(servers.begin(), servers.end());
-	sort(servers.begin(), servers.end(), ServerLoadCI(_loadSample));
+	sort(servers.begin(), servers.end(), ServerLoadCI(loadSample));
     }
 
     vector<pair<string, AdapterPrx> > adapters;

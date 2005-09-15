@@ -59,7 +59,7 @@ class NodeCache : public CacheByString<NodeEntry>
 {
 public:
 
-    NodeCache(int, const TraceLevelsPtr&);
+    NodeCache(int);
 
     NodeEntryPtr get(const std::string&, bool = false) const;
 

@@ -16,8 +16,7 @@
 using namespace std;
 using namespace IceGrid;
 
-NodeCache::NodeCache(int sessionTimeout, const TraceLevelsPtr& traceLevels) : 
-    CacheByString<NodeEntry>(traceLevels), _sessionTimeout(sessionTimeout)
+NodeCache::NodeCache(int sessionTimeout) : _sessionTimeout(sessionTimeout)
 {
 }
 
@@ -106,6 +105,12 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
     
     if(session)
     {
+	if(_cache.getTraceLevels() && _cache.getTraceLevels()->node > 0)
+	{
+	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->nodeCat);
+	    out << "node `" << _name << "' up";
+	}
+
 	ServerEntrySeq entries;
 	{
 	    Lock sync(*this);
@@ -115,16 +120,10 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
 	    }
 	}
 	for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
-
-	if(_cache.getTraceLevels()->node > 0)
-	{
-	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->nodeCat);
-	    out << "node `" << _name << "' up";
-	}
     }
     else
     {
-	if(_cache.getTraceLevels()->node > 0)
+	if(_cache.getTraceLevels() && _cache.getTraceLevels()->node > 0)
 	{
 	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->nodeCat);
 	    out << "node `" << _name << "' down";

@@ -143,10 +143,9 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
     _internalAdapter(adapter),
     _envName(envName),
     _traceLevels(traceLevels), 
-    _nodeCache(nodeSessionTimeout, _traceLevels),
-    _objectCache(_communicator, _traceLevels),
-    _adapterCache(_traceLevels),
-    _serverCache(_nodeCache, _adapterCache, _objectCache, _traceLevels),
+    _nodeCache(nodeSessionTimeout),
+    _objectCache(_communicator),
+    _serverCache(_nodeCache, _adapterCache, _objectCache),
     _connection(Freeze::createConnection(adapter->getCommunicator(), envName)),
     _descriptors(_connection, _descriptorDbName),
     _objects(_connection, _objectDbName),
@@ -175,6 +174,11 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
 	    warn << "invalid application `" << p->first << "':\n" << ex.reason;
 	}
     }
+
+    _serverCache.setTraceLevels(_traceLevels);
+    _nodeCache.setTraceLevels(_traceLevels);
+    _adapterCache.setTraceLevels(_traceLevels);
+    _objectCache.setTraceLevels(_traceLevels);
 }
 
 Database::~Database()
@@ -767,12 +771,13 @@ Database::removeObject(const Ice::Identity& id)
 	ex.id = id;
 	throw ex;
     }
-    objects.erase(id);
-
-    if(_traceLevels->object > 0)
+    if(objects.erase(id) > 0)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	out << "removed object `" << Ice::identityToString(id) << "'";
+	if(_traceLevels->object > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
+	    out << "removed object `" << Ice::identityToString(id) << "'";
+	}
     }
 }
 
