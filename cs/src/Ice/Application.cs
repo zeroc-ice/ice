@@ -27,6 +27,8 @@ namespace Ice
 	    Debug.Assert(rc);
 #endif
 	    _callback = null;
+	    _callbackInProgress = false;
+	    _destroyed = false;
 	    _released = false;
 	    _interrupted = false;
 	    _nohup = false;
@@ -88,7 +90,32 @@ namespace Ice
 		Console.Error.WriteLine(_appName + ": unknown exception: " + ex);
 		status = 1;
 	    }
-	    
+
+	    //
+	    // Don't want any new interrupt. And at this point (post-run), it would not make sense to release a
+	    // held signal to run shutdown or destroy.
+	    //
+	    ignoreInterrupt();
+
+	    Monitor.Enter(sync);
+	    while(_callbackInProgress)
+	    {
+	        Monitor.Wait(sync);
+	    }
+	    if(_destroyed)
+	    {
+	        _communicator = null;
+	    }
+	    else
+	    {
+	        _destroyed = true;
+		//
+		// And _communicator != 0, meaning will be destroyed next,
+		// _destroyed = true also ensures that any remaining callback won't do anything
+		//
+	    }
+	    Monitor.Exit(sync);
+
 	    if(_communicator != null)
 	    {
 		try
@@ -190,6 +217,7 @@ namespace Ice
 		_callback = _holdCallback;
 		_released = true;
 	    }
+	    // else, we were already holding signals
 	    Monitor.Exit(sync);
 	}
 	
@@ -202,6 +230,7 @@ namespace Ice
 		_released = true;
 		Monitor.Pulse(sync);
 	    }
+	    // Else nothing to release.
 	    Monitor.Exit(sync);
 	}
 
@@ -240,16 +269,56 @@ namespace Ice
 	//
 	// The callbacks to be invoked from the handler.
 	//
-	private static void destroyOnInterruptCallback(int sig)
+	private static void holdInterruptCallback(int sig)
 	{
-	    if(_nohup && sig == SIGHUP)
+	    bool destroyed;
+	    Callback callback;
+	    Monitor.Enter(sync);
+	    while(!_released)
 	    {
-		return;
+		Monitor.Wait(sync);
 	    }
 
-	    Monitor.Enter(sync);
-	    _interrupted = true;
+	    destroyed = _destroyed;
+	    callback = _callback;
 	    Monitor.Exit(sync);
+
+	    //
+	    // If not being destroyed by main thread call callback.
+	    //
+	    if(!destroyed && callback != null)
+	    {
+		callback(sig);
+	    }
+	}
+
+	private static void destroyOnInterruptCallback(int sig)
+	{
+	    bool ignore = false;
+	    Monitor.Enter(sync);
+	    if(_destroyed)
+	    {
+	        //
+		// Being destroyed by main thread
+		//
+	        ignore = true;
+	    }
+	    else if(_nohup && sig == SIGHUP)
+	    {
+	        ignore = true;
+	    }
+	    else
+	    {
+	    	_callbackInProgress = true;
+	        _interrupted = true;
+		_destroyed = true;
+	    }
+	    Monitor.Exit(sync);
+
+	    if(ignore)
+	    {
+	        return;
+	    }
 
 	    try
 	    {
@@ -259,18 +328,39 @@ namespace Ice
 	    {
 		Console.Error.WriteLine(_appName + ": while destroying in response to signal: " + ex);
 	    }
+
+	    Monitor.Enter(sync);
+	    _callbackInProgress = false;
+	    Monitor.Pulse(sync);
+	    Monitor.Exit(sync);
 	}
 
 	private static void shutdownOnInterruptCallback(int sig)
 	{
-	    if(_nohup && sig == SIGHUP)
-	    {
-		return;
-	    }
-
+	    bool ignore = false;
 	    Monitor.Enter(sync);
-	    _interrupted = true;
+	    if(_destroyed)
+	    {
+	        //
+		// Being destroyed by main thread
+		//
+	        ignore = true;
+	    }
+	    else if(_nohup && sig == SIGHUP)
+	    {
+	        ignore = true;
+	    }
+	    else
+	    {
+	    	_callbackInProgress = true;
+	        _interrupted = true;
+	    }
 	    Monitor.Exit(sync);
+
+	    if(ignore)
+	    {
+	        return;
+	    }
 
 	    try
 	    {
@@ -278,21 +368,12 @@ namespace Ice
 	    }
 	    catch(System.Exception ex)
 	    {
-		Console.Error.WriteLine(_appName + ": while destroying in response to signal: " + ex);
+		Console.Error.WriteLine(_appName + ": while shutting down in response to signal: " + ex);
 	    }
-	}
 
-	private static void holdInterruptCallback(int sig)
-	{
 	    Monitor.Enter(sync);
-	    while(!_released)
-	    {
-		Monitor.Wait(sync);
-	    }
-	    if(_callback != null)
-	    {
-		_callback(sig);
-	    }
+	    _callbackInProgress = false;
+	    Monitor.Pulse(sync);
 	    Monitor.Exit(sync);
 	}
 
@@ -305,6 +386,8 @@ namespace Ice
 
 	private const int SIGHUP = 5; // CTRL_LOGOFF_EVENT, from wincon.h
 
+	private static bool _callbackInProgress;
+	private static bool _destroyed;
 	private static bool _interrupted;
 	private static bool _released;
 	private static bool _nohup;

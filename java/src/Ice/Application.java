@@ -14,6 +14,8 @@ public abstract class Application
     public
     Application()
     {
+        _callbackInProgress = false;
+	_destroyed = false;
     	_interrupted = false;
     }
 
@@ -78,6 +80,34 @@ public abstract class Application
             status = 1;
         }
 
+	defaultInterrupt();
+
+	synchronized(_mutex)
+	{
+	    while(_callbackInProgress)
+	    {
+	        try
+		{
+	            _mutex.wait();
+		}
+		catch(java.lang.InterruptedException ex)
+		{
+		}
+	    }
+	    if(_destroyed)
+	    {
+	        _communicator = null;
+	    }
+	    else
+	    {
+	        _destroyed = true;
+		//
+		// And _communicator != null, meaning will be destroyed next,
+		// _destroyed = true also ensures that any remaining callback won't do anything
+		//
+	    }
+	}
+
         if(_communicator != null)
         {
             try
@@ -99,7 +129,7 @@ public abstract class Application
             _communicator = null;
         }
 
-        synchronized(this)
+        synchronized(_mutex)
         {
             if(_destroyHook != null)
             {
@@ -141,136 +171,171 @@ public abstract class Application
         return _communicator;
     }
 
-    synchronized public static void
+    public static void
     destroyOnInterrupt()
     {
-	//
-	// Remove the shutdown hook it's set.
-	//
-	if(_shutdownHook != null)
+        synchronized(_mutex)
 	{
-	    try
+	    //
+	    // Remove the shutdown hook it's set.
+	    //
+	    if(_shutdownHook != null)
 	    {
-		Runtime.getRuntime().removeShutdownHook(_shutdownHook);
-                _shutdownHook = null;
+	        try
+	        {
+		    Runtime.getRuntime().removeShutdownHook(_shutdownHook);
+                    _shutdownHook = null;
+	        }
+	        catch(java.lang.IllegalStateException ex)
+	        {
+		    //
+		    // Expected if we are in the process of shutting down.
+		    //
+	        }
 	    }
-	    catch(java.lang.IllegalStateException ex)
-	    {
-		//
-		// Expected if we are in the process of shutting down.
-		//
-	    }
-	}
 
-	if(_destroyHook == null)
-	{
-	    //
-	    // As soon as the destroy hook ends all the threads are
-	    // terminated. So the destroy hook will join the current
-	    // thread before to end.
-	    //
-	    _destroyHook = new DestroyHook();
-	    try
+	    if(_destroyHook == null)
 	    {
-		Runtime.getRuntime().addShutdownHook(_destroyHook);
-	    }
-	    catch(java.lang.IllegalStateException ex)
-	    {
-		if(_communicator != null)
-		{
-		    _communicator.destroy();
-		}
+	        //
+	        // As soon as the destroy hook ends all the threads are
+	        // terminated. So the destroy hook will join the current
+	        // thread before to end.
+	        //
+	        _destroyHook = new DestroyHook();
+	        try
+	        {
+		    Runtime.getRuntime().addShutdownHook(_destroyHook);
+	        }
+	        catch(java.lang.IllegalStateException ex)
+	        {
+		    if(_communicator != null)
+		    {
+		        _communicator.destroy();
+		    }
+	        }
 	    }
 	}
     }
     
-    synchronized public static void
+    public static void
     shutdownOnInterrupt()
     {
-	//
-	// Remove the destroy hook if it's set.
-	//
-	if(_destroyHook != null)
+        synchronized(_mutex)
 	{
-	    try
+	    //
+	    // Remove the destroy hook if it's set.
+	    //
+	    if(_destroyHook != null)
 	    {
-		Runtime.getRuntime().removeShutdownHook(_destroyHook);
-                _destroyHook = null;
+	        try
+	        {
+		    Runtime.getRuntime().removeShutdownHook(_destroyHook);
+                    _destroyHook = null;
+	        }
+	        catch(java.lang.IllegalStateException ex)
+	        {
+		    //
+		    // Expected if we are in the process of shutting down.
+		    //
+	        }
 	    }
-	    catch(java.lang.IllegalStateException ex)
-	    {
-		//
-		// Expected if we are in the process of shutting down.
-		//
-	    }
-	}
 
-	if(_shutdownHook == null)
-	{
-	    //
-	    // As soon as the shutdown hook ends all the threads are
-	    // terminated. So the shutdown hook will join the current
-	    // thread before to end.
-	    //
-	    _shutdownHook = new ShutdownHook();
-	    try
+	    if(_shutdownHook == null)
 	    {
-		Runtime.getRuntime().addShutdownHook(_shutdownHook);
-	    }
-	    catch(java.lang.IllegalStateException ex)
-	    {
-		if(_communicator != null)
-		{
-		    _communicator.shutdown();
-		}
+	        //
+	        // As soon as the shutdown hook ends all the threads are
+	        // terminated. So the shutdown hook will join the current
+	        // thread before to end.
+	        //
+	        _shutdownHook = new ShutdownHook();
+	        try
+	        {
+		    Runtime.getRuntime().addShutdownHook(_shutdownHook);
+	        }
+	        catch(java.lang.IllegalStateException ex)
+	        {
+		    if(_communicator != null)
+		    {
+		        _communicator.shutdown();
+		    }
+	        }
 	    }
 	}
     }
     
-    synchronized public static void
+    public static void
     defaultInterrupt()
     {
-	if(_shutdownHook != null)
+        synchronized(_mutex)
 	{
-	    try
+	    if(_shutdownHook != null)
 	    {
-		Runtime.getRuntime().removeShutdownHook(_shutdownHook);
-                _shutdownHook = null;
+	        try
+	        {
+		    Runtime.getRuntime().removeShutdownHook(_shutdownHook);
+                    _shutdownHook = null;
+	        }
+	        catch(java.lang.IllegalStateException ex)
+	        {
+		    //
+		    // Expected if we are in the process of shutting down.
+		    //
+	        }
 	    }
-	    catch(java.lang.IllegalStateException ex)
-	    {
-		//
-		// Expected if we are in the process of shutting down.
-		//
-	    }
-	}
 
-	if(_destroyHook != null)
-	{
-	    try
+	    if(_destroyHook != null)
 	    {
-		Runtime.getRuntime().removeShutdownHook(_destroyHook);
-                _destroyHook = null;
-	    }
-	    catch(java.lang.IllegalStateException ex)
-	    {
-		//
-		// Expected if we are in the process of shutting down.
-		//
+	        try
+	        {
+		    Runtime.getRuntime().removeShutdownHook(_destroyHook);
+                    _destroyHook = null;
+	        }
+	        catch(java.lang.IllegalStateException ex)
+	        {
+		    //
+		    // Expected if we are in the process of shutting down.
+		    //
+	        }
 	    }
 	}
     }
 
-    synchronized public static boolean
+    public static boolean
     interrupted()
     {
-    	return _interrupted;
+        synchronized(_mutex)
+	{
+    	    return _interrupted;
+	}
     }
 
-    synchronized private static void
-    setInterrupt()
+    private static boolean
+    setCallbackInProgress(boolean destroy)
     {
-    	_interrupted = true;
+        synchronized(_mutex)
+	{
+            if(_destroyed)
+	    {
+	        //
+	        // Being destroyed by main thread
+	        //
+	        return false;
+	    }
+	    _callbackInProgress = true;
+	    _destroyed = destroy;
+	    _interrupted = true;
+	    return true;
+	}
+    }
+
+    private static void
+    clearCallbackInProgress()
+    {
+        synchronized(_mutex)
+	{
+            _callbackInProgress = false;
+	    _mutex.notify();
+	}
     }
 
     static class DestroyHook extends Thread
@@ -285,13 +350,15 @@ public abstract class Application
         {
             synchronized(_doneMutex)
             {
-		setInterrupt();
+		setCallbackInProgress(true);
 
                 Communicator communicator = communicator();
                 if(communicator != null)
                 {
                     communicator.destroy();
                 }
+
+		clearCallbackInProgress();
 
                 while(!_done)
                 {
@@ -332,13 +399,15 @@ public abstract class Application
         {
             synchronized(_doneMutex)
             {
-		setInterrupt();
+		setCallbackInProgress(false);
 
                 Communicator communicator = communicator();
                 if(communicator != null)
                 {
                     communicator.shutdown();
                 }
+
+		clearCallbackInProgress();
 
                 while(!_done)
                 {
@@ -371,5 +440,8 @@ public abstract class Application
     private static Communicator _communicator;
     private static DestroyHook _destroyHook;
     private static ShutdownHook _shutdownHook;
+    private static java.lang.Object _mutex = new java.lang.Object();
+    private static boolean _callbackInProgress;
+    private static boolean _destroyed;
     private static boolean _interrupted;
 }
