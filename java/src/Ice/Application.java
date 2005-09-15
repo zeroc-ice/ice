@@ -350,7 +350,10 @@ public abstract class Application
         {
             synchronized(_doneMutex)
             {
-		setCallbackInProgress(true);
+		if(!setCallbackInProgress(true))
+		{
+		    return;
+		}
 
                 Communicator communicator = communicator();
                 if(communicator != null)
@@ -399,7 +402,10 @@ public abstract class Application
         {
             synchronized(_doneMutex)
             {
-		setCallbackInProgress(false);
+		if(!setCallbackInProgress(false))
+		{
+		    return;
+		}
 
                 Communicator communicator = communicator();
                 if(communicator != null)
