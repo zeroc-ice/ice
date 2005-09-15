@@ -39,6 +39,10 @@ namespace IceInternal
 		if(_servant == null)
 		{
 		    _locator = servantManager.findServantLocator(_current.id.category);
+		    if(_locator == null && _current.id.category.Length > 0)
+		    {
+			_locator = servantManager.findServantLocator("");
+		    }
 		    if(_locator != null)
 		    {
 			_servant = _locator.locate(_current, out _cookie);
