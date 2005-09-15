@@ -13,60 +13,10 @@
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
 #include <IceGrid/Descriptor.ice>
+#include <IceGrid/Admin.ice>
 
 module IceGrid
 {
-
-/**
- *
- * An enumeration representing the state of the server.
- *
- **/
-enum ServerState
-{
-    /**
-     *
-     * The server is not running.
-     *
-     **/
-    Inactive,
-
-    /**
-     *
-     * The server is being activated and will change to the active
-     * state when the registered server object adapters are activated.
-     *
-     **/
-    Activating,
-
-    /**
-     *
-     * The server is running.
-     *
-     **/
-    Active,
-    
-    /**
-     *
-     * The server is being deactivated.
-     *
-     **/
-    Deactivating,
-
-    /**
-     *
-     * The server is being destroyed.
-     *
-     **/
-    Destroying,
-
-    /**
-     *
-     * The server is destroyed.
-     *
-     **/
-    Destroyed
-};
 
 /**
  *
