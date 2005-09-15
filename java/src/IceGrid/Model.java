@@ -660,6 +660,9 @@ public class Model
     public void setTree(JTree tree)
     {
 	_tree = tree;
+
+	_tree.getActionMap().put("copy", _copy);
+	_tree.getActionMap().put("paste", _paste);
     }
 
     public JTree getTree()
@@ -768,10 +771,7 @@ public class Model
 		    if(currentNode != null)
 		    {
 			_copiedDescriptor = currentNode.copy();
-			if(_copiedDescriptor != null)
-			{
-			    _paste.setEnabled(true);
-			}
+			_paste.setEnabled(_copiedDescriptor != null);
 		    }
 		}
 	    };
