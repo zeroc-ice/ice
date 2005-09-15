@@ -12,7 +12,7 @@ Imports System
 Module MinimalS
 
     Public Sub Main(ByVal args() As String)
-	Dim status As Integer = 0
+        Dim status As Integer = 0
         Dim communicator As Ice.Communicator = Nothing
 
         Try

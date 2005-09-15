@@ -9,8 +9,6 @@
 Imports System
 Imports Demo
 
-
-
 Module CallbackC
     Class Client
         Inherits Ice.Application

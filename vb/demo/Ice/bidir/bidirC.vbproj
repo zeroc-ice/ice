@@ -20,7 +20,7 @@
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
-                RootNamespace = "bidirC"
+                RootNamespace = "bidir"
                 StartupObject = ""
             >
                 <Config

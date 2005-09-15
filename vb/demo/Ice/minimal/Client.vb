@@ -8,9 +8,9 @@
 ' **********************************************************************
 
 Imports System
-Imports minimal.Demo
+Imports Minimal.Demo
 
-Module minimalC
+Module MinimalC
 
     Public Sub Main(ByVal args() As String)
         Dim status As Integer = 0
