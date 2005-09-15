@@ -2236,9 +2236,9 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
 		    out << nl << "patch `" << q->first << "' updated";
 		}
 	    }
-	    for(Ice::StringSeq::const_iterator q = removed.begin(); q != removed.end(); ++q)
+	    for(Ice::StringSeq::const_iterator r = removed.begin(); r != removed.end(); ++r)
 	    {
-		out << nl << "patch `" << *q << "' removed";
+		out << nl << "patch `" << *r << "' removed";
 	    }
 	    out << eb;
 	}
