@@ -145,6 +145,10 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 		if(!_servant)
 		{
 		    _locator = servantManager->findServantLocator(_current.id.category);
+		    if(!_locator && !_current.id.category.empty())
+		    {
+			_locator = servantManager->findServantLocator("");
+		    }
 		    if(_locator)
 		    {
 			_servant = _locator->locate(_current, _cookie);
