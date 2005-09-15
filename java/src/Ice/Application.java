@@ -14,9 +14,6 @@ public abstract class Application
     public
     Application()
     {
-        _callbackInProgress = false;
-	_destroyed = false;
-    	_interrupted = false;
     }
 
     //
@@ -447,7 +444,7 @@ public abstract class Application
     private static DestroyHook _destroyHook;
     private static ShutdownHook _shutdownHook;
     private static java.lang.Object _mutex = new java.lang.Object();
-    private static boolean _callbackInProgress;
-    private static boolean _destroyed;
-    private static boolean _interrupted;
+    private static boolean _callbackInProgress = false;
+    private static boolean _destroyed = false;
+    private static boolean _interrupted = false;
 }
