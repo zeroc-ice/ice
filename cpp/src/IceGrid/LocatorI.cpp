@@ -271,8 +271,7 @@ LocatorI::Request::sendResponse()
 	}
 
 	Ice::ObjectPrx proxy = _locator->getCommunicator()->stringToProxy("dummy:default");
-	proxy->ice_newEndpoints(endpoints);
-	_amdCB->ice_response(proxy);
+	_amdCB->ice_response(proxy->ice_newEndpoints(endpoints));
     }
 }
 
