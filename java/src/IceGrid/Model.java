@@ -802,7 +802,7 @@ public class Model
 			CommonBase toSelect = null;
 			if(parent != null)
 			{
-			    int index = parent.getIndex(this);
+			    int index = parent.getIndex(currentNode);
 			    toSelect = (CommonBase)parent.getChildAt(index + 1);
 			    if(toSelect == null)
 			    {

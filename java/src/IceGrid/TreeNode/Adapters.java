@@ -112,7 +112,7 @@ class Adapters extends Parent
 	//
 	// Generate a unique child name; ignore substitution for simplicity
 	//
-	String baseName = descriptor == null ? "NewInstance" : descriptor.name;
+	String baseName = descriptor == null ? "NewAdapter" : descriptor.name;
 	String name = baseName;
 
 	int i = 0;
@@ -128,7 +128,7 @@ class Adapters extends Parent
 		"${server}.${service}." + name : "${server}." + name;
 
 	    descriptor = new AdapterDescriptor(
-		"NewAdapter",
+		name,
 		defaultId,
 		false,
 		true,

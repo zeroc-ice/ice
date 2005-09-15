@@ -600,6 +600,8 @@ class Adapter extends Leaf
 
     public boolean destroy()
     {
+	System.err.println("Destroying " + _id);
+
 	if(_parent != null && (isEphemeral() || isEditable() && _model.canUpdate()))
 	{
 	    Adapters adapters = (Adapters)getParent();
