@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{DD2D44C1-E67A-4142-8B52-4C15463BF13E}"
+        ProjectGuid = "{8ad1bbf9-2e4e-4801-82c5-bd5ae86d9e2a}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "client"
+                AssemblyName = "server"
                 AssemblyOriginatorKeyFile = ""
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
@@ -79,17 +79,17 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "CallbackReceiverI.cs"
+                    RelPath = "HelloI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Client.cs"
+                    RelPath = "Server.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "generated\Callback.cs"
+                    RelPath = "generated\Hello.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

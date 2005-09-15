@@ -115,6 +115,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionSD", "Ice\session\se
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "minimalCD", "Ice\minimal\minimalCD.csproj", "{42262F9A-0F9D-48BE-B6C7-E4D458B1A6B3}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "minimalSD", "Ice\minimal\minimalSD.csproj", "{8AD1BBF9-2E4E-4801-82C5-BD5AE86D9E2A}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -237,6 +245,14 @@ Global
 		{2CF08DDA-0F0A-4B88-8ECF-E5CA54EAA765}.Debug.Build.0 = Debug|.NET
 		{2CF08DDA-0F0A-4B88-8ECF-E5CA54EAA765}.Release.ActiveCfg = Release|.NET
 		{2CF08DDA-0F0A-4B88-8ECF-E5CA54EAA765}.Release.Build.0 = Release|.NET
+		{42262F9A-0F9D-48BE-B6C7-E4D458B1A6B3}.Debug.ActiveCfg = Debug|.NET
+		{42262F9A-0F9D-48BE-B6C7-E4D458B1A6B3}.Debug.Build.0 = Debug|.NET
+		{42262F9A-0F9D-48BE-B6C7-E4D458B1A6B3}.Release.ActiveCfg = Release|.NET
+		{42262F9A-0F9D-48BE-B6C7-E4D458B1A6B3}.Release.Build.0 = Release|.NET
+		{8AD1BBF9-2E4E-4801-82C5-BD5AE86D9E2A}.Debug.ActiveCfg = Debug|.NET
+		{8AD1BBF9-2E4E-4801-82C5-BD5AE86D9E2A}.Debug.Build.0 = Debug|.NET
+		{8AD1BBF9-2E4E-4801-82C5-BD5AE86D9E2A}.Release.ActiveCfg = Release|.NET
+		{8AD1BBF9-2E4E-4801-82C5-BD5AE86D9E2A}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

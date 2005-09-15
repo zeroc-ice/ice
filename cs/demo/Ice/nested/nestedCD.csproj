@@ -84,11 +84,6 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NestedClient.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "NestedI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

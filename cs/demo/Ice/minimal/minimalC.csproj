@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{DD2D44C1-E67A-4142-8B52-4C15463BF13E}"
+        ProjectGuid = "{3D1983F8-BB87-4B31-9BFE-AE23482B1D57}"
     >
         <Build>
             <Settings
@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Exe"
-                PreBuildEvent = "$(SolutionDir)\..\bin\generatecs.exe $(SolutionDir) $(ProjectDir) $(ProjectName)"
+                PreBuildEvent = "$(SolutionDir)\bin\generatecs.exe $(SolutionDir) $(ProjectDir) $(ProjectName)"
                 PostBuildEvent = ""
                 RootNamespace = ""
                 RunPostBuildEvent = "OnBuildSuccess"
@@ -32,7 +32,7 @@
                     DocumentationFile = ""
                     DebugSymbols = "true"
                     FileAlignment = "4096"
-                    IncrementalBuild = "false"
+                    IncrementalBuild = "true"
                     NoStdLib = "false"
                     NoWarn = ""
                     Optimize = "false"
@@ -52,7 +52,7 @@
                     DocumentationFile = ""
                     DebugSymbols = "false"
                     FileAlignment = "4096"
-                    IncrementalBuild = "false"
+                    IncrementalBuild = "true"
                     NoStdLib = "false"
                     NoWarn = ""
                     Optimize = "true"
@@ -67,29 +67,24 @@
                 <Reference
                     Name = "System"
                     AssemblyName = "System"
-                    HintPath = "..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
+                    HintPath = "..\..\..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
                 />
                 <Reference
-                    Name = "icecs"
-                    AssemblyName = "icecs"
-                    HintPath = "..\..\..\bin\icecs.dll"
+                    Name = "Ice"
+                    Project = "{C3630502-8F67-42BF-B4CA-A21D2EA8049E}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
             </References>
         </Build>
         <Files>
             <Include>
                 <File
-                    RelPath = "CallbackReceiverI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Client.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "generated\Callback.cs"
+                    RelPath = "generated\Hello.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
