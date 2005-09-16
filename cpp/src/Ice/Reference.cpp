@@ -492,13 +492,13 @@ IceInternal::FixedReference::changeEndpoints(const vector<EndpointIPtr>& newEndp
 void
 IceInternal::FixedReference::streamWrite(BasicStream* s) const
 {
-    throw MarshalException(__FILE__, __LINE__, "Cannot marshal a fixed reference");
+    throw MarshalException(__FILE__, __LINE__, "Cannot marshal a fixed proxy");
 }
 
 string
 IceInternal::FixedReference::toString() const
 {
-    throw MarshalException(__FILE__, __LINE__, "Cannot marshal a fixed reference");
+    throw MarshalException(__FILE__, __LINE__, "Cannot marshal a fixed proxy");
 }
 
 ConnectionIPtr
