@@ -136,7 +136,7 @@ class Adapter extends Leaf
 				    descriptor.name = newName;
 				    writeDescriptor();
 				    parent.addDescriptor(descriptor);
-				    parent.removeChild(_adapter.getId(), true);
+				    _adapter.destroy();
 				
 				    if(!_adapter.getApplication().applyUpdate())
 				    {
@@ -159,10 +159,6 @@ class Adapter extends Leaf
 				    }
 				    else
 				    {
-					//
-					// No longer ephemeral
-					//
-					_adapter.setParent(null);
 					parent = (Adapters)_adapter.getModel().findNewNode(parent.getPath());
 					_adapter = (Adapter)parent.findChild(newResolvedName);
 					_adapter.getModel().setSelectionPath(_adapter.getPath());
@@ -600,15 +596,13 @@ class Adapter extends Leaf
 
     public boolean destroy()
     {
-	System.err.println("Destroying " + _id);
-
-	if(_parent != null && (isEphemeral() || isEditable() && _model.canUpdate()))
+	if(isEphemeral() || isEditable() && _model.canUpdate())
 	{
-	    Adapters adapters = (Adapters)getParent();
+	    Adapters adapters = (Adapters)_parent;
 	  
 	    if(isEphemeral())
 	    {
-		adapters.removeChild(_id, true);
+		adapters.removeChild(this, true);
 	    }
 	    else
 	    {
@@ -616,7 +610,6 @@ class Adapter extends Leaf
 		getEditable().markModified();
 		getApplication().applySafeUpdate();
 	    }
-	    setParent(null);
 	    return true;
 	}
 	else

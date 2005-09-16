@@ -8,11 +8,6 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JPopupMenu;
-
 import IceGrid.AdapterDescriptor;
 import IceGrid.Model;
 import IceGrid.Utils;
@@ -20,47 +15,6 @@ import IceGrid.Utils;
 
 class Adapters extends Parent
 {
-    static class PopupMenu extends JPopupMenu
-    {
-	PopupMenu()
-	{
-	    _new = new AbstractAction("New")
-		{
-		    public void actionPerformed(ActionEvent e) 
-		    {
-			_adapters.newAdapter(null);
-		    }
-		};
-
-	    add(_new);
-	}
-
-	void setAdapters(Adapters adapters)
-	{
-	    _adapters = adapters;
-	}
-
-	private Adapters _adapters;
-	private Action _new;
-    }
-
-    public JPopupMenu getPopupMenu()
-    {
-	if(_isEditable && !_inIceBox)
-	{
-	    if(_popup == null)
-	    {
-		_popup = new PopupMenu();
-	    }
-	    _popup.setAdapters(this);
-	    return _popup;
-	}
-	else
-	{
-	    return null;
-	}
-    }
-
     public void unregister()
     {
 	java.util.Iterator p = _children.iterator();
@@ -82,7 +36,6 @@ class Adapters extends Parent
 	_isEditable = isEditable;
 	_inIceBox = inIceBox;
 	_resolver = resolver;
-	_popup = new PopupMenu();
 
 	java.util.Iterator p = _descriptors.iterator();
 	while(p.hasNext())
@@ -97,6 +50,11 @@ class Adapters extends Parent
 	}
     }
     
+    boolean canHaveNewChild()
+    {
+	return _isEditable && !_inIceBox;
+    }
+
     boolean isEditable()
     {
 	return _isEditable;
@@ -105,6 +63,11 @@ class Adapters extends Parent
     boolean inIceBox()
     {
 	return _inIceBox;
+    }
+
+    void newChild()
+    {
+	newAdapter(null);
     }
 
     void newAdapter(AdapterDescriptor descriptor)
@@ -154,7 +117,7 @@ class Adapters extends Parent
 
     public void paste(Object descriptor)
     {
-	if(_isEditable && !_inIceBox && descriptor instanceof AdapterDescriptor)
+	if(canHaveNewChild() && descriptor instanceof AdapterDescriptor)
 	{
 	    AdapterDescriptor d = (AdapterDescriptor)descriptor;
 	    try
@@ -193,5 +156,4 @@ class Adapters extends Parent
     private Utils.Resolver _resolver;
     private boolean _isEditable;
     private boolean _inIceBox;
-    static private PopupMenu _popup;
 }
