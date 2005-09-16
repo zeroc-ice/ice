@@ -58,14 +58,14 @@ public class FixedReference extends Reference
     streamWrite(BasicStream s)
 	throws Ice.MarshalException
     {
-	 throw new Ice.MarshalException("Cannot marshal a fixed reference");
+	 throw new Ice.MarshalException("Cannot marshal a fixed proxy");
     }
 
     public String
     toString()
 	throws Ice.MarshalException
     {
-	 throw new Ice.MarshalException("Cannot marshal a fixed reference");
+	 throw new Ice.MarshalException("Cannot marshal a fixed proxy");
     }
 
     public Ice.Connection

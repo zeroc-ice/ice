@@ -708,14 +708,14 @@ namespace IceInternal
 	public override void streamWrite(BasicStream s)
 	{
 	     Ice.MarshalException ex = new Ice.MarshalException();
-	     ex.reason = "Cannot marshal a fixed reference";
+	     ex.reason = "Cannot marshal a fixed proxy";
 	     throw ex;
 	}
 
 	public override string ToString()
 	{
 	     Ice.MarshalException ex = new Ice.MarshalException();
-	     ex.reason = "Cannot marshal a fixed reference";
+	     ex.reason = "Cannot marshal a fixed proxy";
 	     throw ex;
 	}
 
