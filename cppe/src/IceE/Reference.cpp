@@ -916,7 +916,7 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 						  const Identity& ident, const Context& ctx, const string& fs,
 						  Mode md, bool sec, const string& adptid,
 						  const RouterInfoPtr& rtrInfo, const LocatorInfoPtr& locInfo) :
-    RoutableReference(inst, com ident, ctx, fs, md, sec, rtrInfo),
+    RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo),
     _adapterId(adptid),
     _locatorInfo(locInfo)
 {
