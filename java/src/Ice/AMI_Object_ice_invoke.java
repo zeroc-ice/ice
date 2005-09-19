@@ -31,7 +31,7 @@ public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
 	__send();
     }
 
-    protected final boolean __response(boolean ok) // ok == true means no user exception.
+    protected final void __response(boolean ok) // ok == true means no user exception.
     {
 	byte[] outParams;
 	try
@@ -41,9 +41,9 @@ public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
 	}
 	catch(LocalException ex)
 	{
-	    return __finished(ex);
+	    __finished(ex);
+	    return;
 	}
 	ice_response(ok, outParams);
-	return false;
     }
 }

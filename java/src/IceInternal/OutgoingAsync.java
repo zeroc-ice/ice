@@ -153,14 +153,9 @@ public abstract class OutgoingAsync
 		
 	    assert(status == DispatchStatus._DispatchOK || status == DispatchStatus._DispatchUserException);
 	    
-	    //
-	    // It is possible for __response to trigger a retry.
-	    // If it does we must not perform a cleanup
-	    //
-	    boolean retry = false;
 	    try
 	    {
-		retry = __response(status == DispatchStatus._DispatchOK);
+		__response(status == DispatchStatus._DispatchOK);
 	    }
 	    catch(java.lang.Exception ex)
 	    {
@@ -168,15 +163,12 @@ public abstract class OutgoingAsync
 	    }
 	    finally
 	    {
-	        if(!retry)
-		{
-		    cleanup();
-		}
+	        cleanup();
 	    }
 	}
     }
 
-    public final boolean
+    public final void
     __finished(Ice.LocalException exc)
     {
 	synchronized(_monitor)
@@ -223,7 +215,7 @@ public abstract class OutgoingAsync
 		{
 		    _connection = null;
 		    __send();
-		    return true;
+		    return;
 		}
 	    }
 	    
@@ -239,7 +231,6 @@ public abstract class OutgoingAsync
 	    {
 		cleanup();
 	    }
-	    return false;
 	}
     }
 
@@ -421,7 +412,7 @@ public abstract class OutgoingAsync
 	}
     }
 
-    protected abstract boolean __response(boolean ok);
+    protected abstract void __response(boolean ok);
 
     private final void
     warning(java.lang.Exception ex)
