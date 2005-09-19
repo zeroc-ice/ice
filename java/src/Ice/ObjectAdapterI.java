@@ -509,15 +509,23 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                 _routerEndpoints.add(endpoints[i]);
             }
             java.util.Collections.sort(_routerEndpoints); // Must be sorted.
-            for(int i = 0; i < _routerEndpoints.size() - 1; ++i)
-            {
+	    //
+	    // Remove duplicate endpoints, so we have a list of unique
+	    // endpoints.
+	    //
+	    for(int i = 0; i < _routerEndpoints.size()-1;)
+	    {
                 java.lang.Object o1 = _routerEndpoints.get(i);
                 java.lang.Object o2 = _routerEndpoints.get(i + 1);
                 if(o1.equals(o2))
                 {
                     _routerEndpoints.remove(i);
                 }
-            }
+		else
+		{
+		    ++i;
+		}
+	    }
 
             //
             // Associate this object adapter with the router. This way,
@@ -546,9 +554,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    //
 	    // Rebuild the router endpoints from our set of router infos.
 	    //
-	    _routerEndpoints = new java.util.ArrayList();
-	    java.util.Iterator p = _routerInfos.iterator();
-	    while(p.hasNext())
+	    _routerEndpoints.clear();
+	    for(java.util.Iterator p = _routerInfos.iterator(); p.hasNext();)
 	    {
 		IceInternal.RouterInfo curr = (IceInternal.RouterInfo)p.next();
 		if(curr == routerInfo)
@@ -565,15 +572,23 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    }
 
             java.util.Collections.sort(_routerEndpoints); // Must be sorted.
-            for(int i = 0; i < _routerEndpoints.size() - 1; ++i)
-            {
+	    //
+	    // Remove duplicate endpoints, so we have a list of unique
+	    // endpoints.
+	    //
+	    for(int i = 0; i < _routerEndpoints.size()-1;)
+	    {
                 java.lang.Object o1 = _routerEndpoints.get(i);
                 java.lang.Object o2 = _routerEndpoints.get(i + 1);
                 if(o1.equals(o2))
                 {
                     _routerEndpoints.remove(i);
                 }
-            }
+		else
+		{
+		    ++i;
+		}
+	    }
 
 	    //
 	    // Clear this object adapter with the router.
