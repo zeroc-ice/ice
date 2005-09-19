@@ -196,6 +196,28 @@ namespace IceInternal
                 return info;
             }
         }
+
+        //
+        // Returns router info for a given router. Automatically creates
+        // the router info if it doesn't exist yet.
+        //
+        public RouterInfo erase(Ice.RouterPrx rtr)
+        {
+	    RouterInfo info = null;
+            if(rtr == null)
+            {
+		Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null)); // The router cannot be routed.
+		lock(this)
+		{
+		    info = (RouterInfo)_table[router];
+		    if(info != null)
+		    {
+			_table.Remove(router);
+		    }
+		}
+	    }
+	    return info;
+        }
 	
         private Hashtable _table;
     }

@@ -39,6 +39,7 @@ public:
     // the router info if it doesn't exist yet.
     //
     RouterInfoPtr get(const Ice::RouterPrx&);
+    RouterInfoPtr erase(const Ice::RouterPrx&);
 
 private:
 

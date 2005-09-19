@@ -331,7 +331,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 #ifdef ICEE_HAS_ROUTER
 
 void
-IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
+IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& routerInfo)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -340,53 +340,50 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    RouterInfoPtr routerInfo = _instance->routerManager()->get(router);
-    if(routerInfo)
+    assert(routerInfo);
+    //
+    // Search for connections to the router's client proxy
+    // endpoints, and update the object adapter for such
+    // connections, so that callbacks from the router can be
+    // received over such connections.
+    //
+    ObjectPrx proxy = routerInfo->getClientProxy();
+#ifndef ICEE_PURE_CLIENT
+    ObjectAdapterPtr adapter = routerInfo->getAdapter();
+#endif
+    vector<EndpointPtr> endpoints = proxy->__reference()->getEndpoints();
+    vector<EndpointPtr>::const_iterator p;
+    for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {
+	EndpointPtr endpoint = *p;
+
 	//
-	// Search for connections to the router's client proxy
-	// endpoints, and update the object adapter for such
-	// connections, so that callbacks from the router can be
-	// received over such connections.
+	// Modify endpoints with overrides.
 	//
-	ObjectPrx proxy = routerInfo->getClientProxy();
-#ifndef ICEE_PURE_CLIENT
-	ObjectAdapterPtr adapter = routerInfo->getAdapter();
-#endif
-	vector<EndpointPtr> endpoints = proxy->__reference()->getEndpoints();
-	vector<EndpointPtr>::const_iterator p;
-	for(p = endpoints.begin(); p != endpoints.end(); ++p)
+	if(_instance->defaultsAndOverrides()->overrideTimeout)
 	{
-	    EndpointPtr endpoint = *p;
-
-	    //
-	    // Modify endpoints with overrides.
-	    //
-	    if(_instance->defaultsAndOverrides()->overrideTimeout)
-	    {
-		endpoint = endpoint->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
-	    }
+	    endpoint = endpoint->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
+	}
 
 #ifndef ICEE_PURE_CLIENT
-	    pair<multimap<EndpointPtr, ConnectionPtr>::iterator,
-		 multimap<EndpointPtr, ConnectionPtr>::iterator> pr = _connections.equal_range(endpoint);
-	    
-	    while(pr.first != pr.second)
+	pair<multimap<EndpointPtr, ConnectionPtr>::iterator,
+	     multimap<EndpointPtr, ConnectionPtr>::iterator> pr = _connections.equal_range(endpoint);
+
+	while(pr.first != pr.second)
+	{
+	    try
 	    {
-		try
-		{
-		    pr.first->second->setAdapter(adapter);
-		}
-		catch(const Ice::LocalException&)
-		{
-		    //
-		    // Ignore, the connection is being closed or closed.
-		    //
-		}
-		++pr.first;
+		pr.first->second->setAdapter(adapter);
 	    }
-#endif
+	    catch(const Ice::LocalException&)
+	    {
+		//
+		// Ignore, the connection is being closed or closed.
+		//
+	    }
+	    ++pr.first;
 	}
+#endif
     }
 }
 

@@ -22,6 +22,7 @@
 
 #ifdef ICEE_HAS_ROUTER
 #   include <IceE/RouterF.h>
+#   include <IceE/RouterInfoF.h>
 #endif
 
 #ifdef ICEE_HAS_LOCATOR
@@ -72,6 +73,7 @@ public:
 
 #ifdef ICEE_HAS_ROUTER
     void addRouter(const RouterPrx&);
+    void removeRouter(const RouterPrx&);
 #endif
 #ifdef ICEE_HAS_LOCATOR
     void setLocator(const LocatorPrx&);
@@ -108,6 +110,7 @@ private:
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
 #ifdef ICEE_HAS_ROUTER
     std::vector<IceInternal::EndpointPtr> _routerEndpoints;
+    std::vector<IceInternal::RouterInfoPtr> _routerInfos;
 #endif
     std::vector<IceInternal::EndpointPtr> _publishedEndpoints;
 #ifdef ICEE_HAS_LOCATOR

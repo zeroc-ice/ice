@@ -364,7 +364,7 @@ namespace IceInternal
 	    return newConnection;
 	}
 	
-	public void setRouter(Ice.RouterPrx router)
+	public void setRouterInfo(IceInternal.RouterInfo routerInfo)
 	{
 	    lock(this)
 	    {
@@ -373,57 +373,54 @@ namespace IceInternal
 		    throw new Ice.CommunicatorDestroyedException();
 		}
 		
-		RouterInfo routerInfo = _instance.routerManager().get(router);
-		if(routerInfo != null)
+		Debug.Assert(routerInfo != null);
+		//
+		// Search for connections to the router's client proxy
+		// endpoints, and update the object adapter for such
+		// connections, so that callbacks from the router can be
+		// received over such connections.
+		//
+		Ice.ObjectPrx proxy = routerInfo.getClientProxy();
+		Ice.ObjectAdapter adapter = routerInfo.getAdapter();
+		DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+		EndpointI[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints();
+		for(int i = 0; i < endpoints.Length; i++)
 		{
+		    EndpointI endpoint = endpoints[i];
+
 		    //
-		    // Search for connections to the router's client proxy
-		    // endpoints, and update the object adapter for such
-		    // connections, so that callbacks from the router can be
-		    // received over such connections.
+		    // Modify endpoints with overrides.
 		    //
-		    Ice.ObjectPrx proxy = routerInfo.getClientProxy();
-		    Ice.ObjectAdapter adapter = routerInfo.getAdapter();
-		    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-		    EndpointI[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints();
-		    for(int i = 0; i < endpoints.Length; i++)
+		    if(defaultsAndOverrides.overrideTimeout)
 		    {
-			EndpointI endpoint = endpoints[i];
+			endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
+		    }
 
-			//
-			// Modify endpoints with overrides.
-			//
-			if(defaultsAndOverrides.overrideTimeout)
+		    //
+		    // The Ice.ConnectionI object does not take the compression flag of
+		    // endpoints into account, but instead gets the information
+		    // about whether messages should be compressed or not from
+		    // other sources. In order to allow connection sharing for
+		    // endpoints that differ in the value of the compression flag
+		    // only, we always set the compression flag to false here in
+		    // this connection factory.
+		    //
+		    endpoint = endpoint.compress(false);
+		    
+		    LinkedList connectionList = (LinkedList)_connections[endpoints[i]];
+		    if(connectionList != null)
+		    {
+			foreach(Ice.ConnectionI connection in connectionList)
 			{
-			    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
-			}
-
-			//
-                        // The Ice.ConnectionI object does not take the compression flag of
-                        // endpoints into account, but instead gets the information
-                        // about whether messages should be compressed or not from
-                        // other sources. In order to allow connection sharing for
-                        // endpoints that differ in the value of the compression flag
-                        // only, we always set the compression flag to false here in
-                        // this connection factory.
-                        //
-                        endpoint = endpoint.compress(false);
-			
-			LinkedList connectionList = (LinkedList)_connections[endpoints[i]];
-			if(connectionList != null)
-			{
-			    foreach(Ice.ConnectionI connection in connectionList)
+			    try
 			    {
-			        try
-				{
-				    connection.setAdapter(adapter);
-				}
-				catch(Ice.LocalException)
-				{
-				    //
-				    // Ignore, the connection is being closed or closed.
-				    //
-				}
+				connection.setAdapter(adapter);
+			    }
+			    catch(Ice.LocalException)
+			    {
+				//
+				// Ignore, the connection is being closed or closed.
+				//
 			    }
 			}
 		    }

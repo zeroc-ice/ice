@@ -341,29 +341,24 @@ CChatClientDlg::OnLogin()
 	    try
 	    {
 		string routerStr = Ice::printfToString("Glacier2/router:tcp -p %s -h %s", port.c_str(), host.c_str());
-		Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(_communicator->stringToProxy(routerStr));
-		assert(router);
+		_router = Glacier2::RouterPrx::checkedCast(_communicator->stringToProxy(routerStr));
+		assert(_router);
 
 		//
-		// Set the router on the Communicator.
+		// Now setup the new router.
 		//
-		_communicator->setDefaultRouter(router);
-
-		//Ice::PropertiesPtr properties = _communicator->getProperties();
-		//properties->setProperty("Chat.Client.Router", routerStr);
-
-		_chat = ChatSessionPrx::uncheckedCast(router->createSession(user, password));
+		_chat = ChatSessionPrx::uncheckedCast(_router->createSession(user, password)->ice_router(_router));
 
 		//
 		// Add the new router to the object adapter.
 		//
-		_adapter->addRouter(router);
+		_adapter->addRouter(_router);
 
 		//
 		// Create the callback object. This must have the
 		// category as defined by the Glacier2 session.
 		//
-		string category = router->getServerProxy()->ice_getIdentity().category;
+		string category = _router->getServerProxy()->ice_getIdentity().category;
 		Ice::Identity callbackReceiverIdent;
 		callbackReceiverIdent.name = "callbackReceiver";
 		callbackReceiverIdent.category = category;
@@ -408,14 +403,21 @@ CChatClientDlg::OnLogin()
 	_ping->getThreadControl().join();
 	_ping = 0;
 
+	//
+	// Clear the router.
+	//
+	assert(_router);
     	try
 	{
-	    Glacier2::RouterPrx::uncheckedCast(_communicator->getDefaultRouter())->destroySession();
+	    _router->destroySession();
 	}
 	catch(const Ice::Exception& ex)
 	{
 	    AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
 	}
+
+	_adapter->removeRouter(_router);
+	_router = 0;
     }
 
     //

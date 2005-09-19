@@ -496,6 +496,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         IceInternal.RouterInfo routerInfo = _instance.routerManager().get(router);
         if(routerInfo != null)
         {
+	    _routerInfos.add(routerInfo);
+
             //
             // Add the router's server proxy endpoints to this object
             // adapter.

@@ -16,7 +16,7 @@
 #include <IceE/ObjectAdapterF.h>
 #include <IceE/EndpointF.h>
 #ifdef ICEE_HAS_ROUTER
-#   include <IceE/RouterF.h>
+#   include <IceE/RouterInfoF.h>
 #endif
 #include <IceE/Shared.h>
 #include <IceE/Mutex.h>
@@ -36,7 +36,7 @@ public:
 
     Ice::ConnectionPtr create(const std::vector<EndpointPtr>&);
 #ifdef ICEE_HAS_ROUTER
-    void setRouter(const ::Ice::RouterPrx&);
+    void setRouterInfo(const RouterInfoPtr&);
 #endif
     void removeAdapter(const ::Ice::ObjectAdapterPtr&);
 #ifdef ICEE_HAS_BATCH

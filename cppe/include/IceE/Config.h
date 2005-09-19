@@ -26,7 +26,6 @@
 //
 #define ICEE_HAS_BATCH
 
-
 // ***********************************************************************
 //
 // User should not change anything below this line!

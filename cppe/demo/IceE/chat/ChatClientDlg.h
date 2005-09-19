@@ -39,6 +39,7 @@ protected:
     Ice::ObjectAdapterPtr _adapter;
     Demo::ChatCallbackPrx _callback;
     Demo::ChatSessionPrx _chat;
+    Glacier2::RouterPrx _router;
     const LogIPtr _log;
 
     SessionPingThreadPtr _ping;

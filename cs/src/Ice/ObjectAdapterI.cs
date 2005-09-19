@@ -508,13 +508,16 @@ namespace Ice
 		IceInternal.RouterInfo routerInfo = _instance.routerManager().get(router);
 		if(routerInfo != null)
 		{
+		    _routerInfos.Add(routerInfo);
+
 		    //
 		    // Add the router's server proxy endpoints to this object
 		    // adapter.
 		    //
 		    ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
 		    IceInternal.EndpointI[] endpoints = proxy.__reference().getEndpoints();
-		    for(int i = 0; i < endpoints.Length; ++i)
+		    int i;
+		    for(i = 0; i < endpoints.Length; ++i)
 		    {
 			_routerEndpoints.Add(endpoints[i]);
 		    }
@@ -523,7 +526,8 @@ namespace Ice
 		    //
 		    // Remove duplicate endpoints, so we have a list of unique endpoints.
 		    //
-		    for(int i = 0; i < _routerEndpoints.Count - 1; ++i)
+		    i = 0;
+		    while(i < _routerEndpoints.Count-1)
 		    {
 			System.Object o1 = _routerEndpoints[i];
 			System.Object o2 = _routerEndpoints[i + 1];
@@ -531,8 +535,12 @@ namespace Ice
 			{
 			    _routerEndpoints.Remove(i);
 			}
+			else
+			{
+				++i;
+			}
 		    }
-		    
+
 		    //
 		    // Associate this object adapter with the router. This way,
 		    // new outgoing connections to the router's client proxy will
@@ -545,7 +553,72 @@ namespace Ice
 		    // router's client proxy to use this object adapter for
 		    // callbacks.
 		    //      
-		    _instance.outgoingConnectionFactory().setRouter(routerInfo.getRouter());
+		    _instance.outgoingConnectionFactory().setRouterInfo(routerInfo);
+		}
+	    }
+	}
+
+	public void removeRouter(RouterPrx router)
+	{
+	    lock(this)
+	    {
+		checkForDeactivation();
+
+		IceInternal.RouterInfo routerInfo = _instance.routerManager().erase(router);
+		if(routerInfo != null)
+		{
+		    //
+		    // Rebuild the router endpoints from our set of router infos.
+		    //
+		    _routerEndpoints.Clear();
+		    int i;
+		    int p = 0;
+		    while(p < _routerInfos.Count)
+		    {
+			if(_routerInfos[p] == routerInfo)
+			{
+			    _routerInfos.Remove(p);
+			    continue;
+			}
+			ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
+			IceInternal.EndpointI[] endpoints = proxy.__reference().getEndpoints();
+			for(i = 0; i < endpoints.Length; ++i)
+			{
+			    _routerEndpoints.Add(endpoints[i]);
+			}
+			++p;
+		    }
+
+		    _routerEndpoints.Sort(); // Must be sorted.
+		    //
+		    // Remove duplicate endpoints, so we have a list of unique endpoints.
+		    //
+		    i = 0;
+		    while(i < _routerEndpoints.Count-1)
+		    {
+			System.Object o1 = _routerEndpoints[i];
+			System.Object o2 = _routerEndpoints[i + 1];
+			if(o1.Equals(o2))
+			{
+			    _routerEndpoints.Remove(i);
+			}
+			else
+			{
+				++i;
+			}
+		    }
+
+		    //
+		    // Clear this object adapter with the router.
+		    //
+		    routerInfo.setAdapter(null);
+
+		    //
+		    // Also modify all existing outgoing connections to the
+		    // router's client proxy to use this object adapter for
+		    // callbacks.
+		    //	
+		    _instance.outgoingConnectionFactory().setRouterInfo(routerInfo);
 		}
 	    }
 	}
@@ -728,6 +801,7 @@ namespace Ice
 	    _id = instance.properties().getProperty(name + ".AdapterId");
 	    _incomingConnectionFactories = new ArrayList();
 	    _routerEndpoints = new ArrayList();
+	    _routerInfos = new ArrayList();
 	    _directCount = 0;
 	    _waitForDeactivate = false;
 	    
@@ -1010,6 +1084,7 @@ namespace Ice
 	private readonly string _id;
 	private ArrayList _incomingConnectionFactories;
 	private ArrayList _routerEndpoints;
+	private ArrayList _routerInfos;
 	private ArrayList _publishedEndpoints;
 	private IceInternal.LocatorInfo _locatorInfo;
 	private int _directCount;
