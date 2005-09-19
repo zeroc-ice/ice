@@ -149,10 +149,9 @@ namespace IceInternal
 		    
                 Debug.Assert(status == DispatchStatus.DispatchOK || status == DispatchStatus.DispatchUserException);
 		
-		bool retry = false;
                 try
                 {
-                    retry = __response(status == DispatchStatus.DispatchOK);
+                    __response(status == DispatchStatus.DispatchOK);
                 }
                 catch(System.Exception ex)
                 {
@@ -160,15 +159,12 @@ namespace IceInternal
                 }
                 finally
                 {
-		    if(!retry)
-		    {
-                        cleanup();
-		    }
+                    cleanup();
                 }
             }
         }
 	
-        public bool __finished(Ice.LocalException exc)
+        public void __finished(Ice.LocalException exc)
         {
             lock(_monitor)
             {
@@ -215,7 +211,7 @@ namespace IceInternal
                     {
                         _connection = null;
                         __send();
-                        return true;
+                        return;
                     }
                 }
 		
@@ -231,7 +227,6 @@ namespace IceInternal
                 {
                     cleanup();
                 }
-		return false;
             }
         }
 	
@@ -406,7 +401,7 @@ namespace IceInternal
             }
         }
 
-        protected abstract bool __response(bool ok);
+        protected abstract void __response(bool ok);
 
         private void warning(System.Exception ex)
         {
@@ -471,7 +466,7 @@ namespace Ice
             __send();
         }
 
-        protected override bool __response(bool ok) // ok == true means no user exception.
+        protected override void __response(bool ok) // ok == true means no user exception.
         {
             byte[] outParams;
             try
@@ -481,10 +476,10 @@ namespace Ice
             }
             catch(LocalException ex)
             {
-	        return __finished(ex);
+	        __finished(ex);
+		return;
             }
             ice_response(ok, outParams);
-	    return false;
         }
     }
 

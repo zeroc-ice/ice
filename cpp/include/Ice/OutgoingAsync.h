@@ -36,14 +36,14 @@ public:
     virtual void ice_exception(const Ice::Exception&) = 0;
 
     void __finished(BasicStream&);
-    bool __finished(const Ice::LocalException&);
+    void __finished(const Ice::LocalException&);
 
 protected:
 
     void __prepare(const Ice::ObjectPrx&, const std::string&, Ice::OperationMode, const Ice::Context&);
     void __send();
 
-    virtual bool __response(bool) = 0;
+    virtual void __response(bool) = 0;
 
     BasicStream* __is;
     BasicStream* __os;
@@ -82,7 +82,7 @@ public:
 
 protected:
 
-    virtual bool __response(bool);
+    virtual void __response(bool);
 };
 
 }

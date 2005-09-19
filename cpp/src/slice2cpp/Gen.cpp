@@ -4143,7 +4143,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	H << nl << "protected:";
 	H.inc();
 	H << sp;
-	H << nl << "virtual bool __response(bool);";
+	H << nl << "virtual void __response(bool);";
 	H << eb << ';';
 	H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMI << '_' << name << "> " << classNameAMI
 	  << '_' << name  << "Ptr;";
@@ -4173,7 +4173,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "__send();";
 	C << eb;
 
-	C << sp << nl << "bool" << nl << classScopedAMI.substr(2) << '_' << name << "::__response(bool __ok)";
+	C << sp << nl << "void" << nl << classScopedAMI.substr(2) << '_' << name << "::__response(bool __ok)";
 	C << sb;
 	writeAllocateCode(C, outParams, ret);
 	C << nl << "try";
@@ -4202,7 +4202,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    C << nl << "catch(const " << fixKwd((*i)->scoped()) << "& __ex)";
 	    C << sb;
 	    C << nl << "ice_exception(__ex);";
-	    C << nl << "return false;";
+	    C << nl << "return;";
 	    C << eb;
 	}
 	C << nl << "catch(const ::Ice::UserException& __ex)";
@@ -4219,10 +4219,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << eb;
 	C << nl << "catch(const ::Ice::LocalException& __ex)";
 	C << sb;
-	C << nl << "return __finished(__ex);";
+	C << nl << "__finished(__ex);";
+	C << nl << "return;";
 	C << eb;
 	C << nl << "ice_response" << spar << args << epar << ';';
-	C << nl << "return false;";
 	C << eb;
     }
 
