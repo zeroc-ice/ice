@@ -1145,8 +1145,8 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
     // dispatch count with any old adapter is zero.
     //
     // A deadlock can occur if we wait while an operation is
-    // outstanding on this adapter that holds a lock while
-    // calling this function (e.g., __getDelegate).
+    // outstanding on this adapter that holds a lock while calling
+    // this function (e.g., __getDelegate).
     //
     // In order to avoid such a deadlock, we only wait if the new
     // adapter is different than the current one.
@@ -1161,10 +1161,10 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
 	}
 
 	//
-	// We never change the thread pool with which we were initially
-	// registered, even if we add or remove an object adapter.
+	// We never change the thread pool with which we were
+	// initially registered, even if we add or remove an object
+	// adapter.
 	//
-
 	_adapter = adapter;
 	if(_adapter)
 	{

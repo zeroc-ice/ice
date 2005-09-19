@@ -507,11 +507,28 @@ local interface ObjectAdapter
      *
      * @param rtr The router to add to this object adapter.
      *
+     * @see removeRouter
      * @see Router
      * @see Communicator::setDefaultRouter
      *
      **/
     void addRouter(Router* rtr);
+
+    /**
+     *
+     * Remove a router from this object adapter. By doing so, this
+     * object adapter can no longer receive callbacks from this router
+     * over connections that are established from this process to the
+     * router.
+     *
+     * @param rtr The router to remove from this object adapter.
+     *
+     * @see addRouter
+     * @see Router
+     * @see Communicator::setDefaultRouter
+     *
+     **/
+    void removeRouter(Router* rtr);
 
     /**
      * Set an &Ice; locator for this object adapter. By doing so, the

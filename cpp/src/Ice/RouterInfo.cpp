@@ -79,6 +79,37 @@ IceInternal::RouterManager::get(const RouterPrx& rtr)
     return _tableHint->second;
 }
 
+RouterInfoPtr
+IceInternal::RouterManager::erase(const RouterPrx& rtr)
+{
+    RouterInfoPtr info;
+    if(rtr)
+    {
+	RouterPrx router = RouterPrx::uncheckedCast(rtr->ice_router(0)); // The router cannot be routed.
+	IceUtil::Mutex::Lock sync(*this);
+
+	map<RouterPrx, RouterInfoPtr>::iterator p = _table.end();
+	if(_tableHint != _table.end() && _tableHint->first == router)
+	{
+	    p = _tableHint;
+	    _tableHint = _table.end();
+	}
+	
+	if(p == _table.end())
+	{
+	    p = _table.find(router);
+	}
+	
+	if(p != _table.end())
+	{
+	    info = p->second;
+	    _table.erase(p);
+	}
+    }
+
+    return info;
+}
+
 IceInternal::RouterInfo::RouterInfo(const RouterPrx& router) :
     _router(router),
     _routingTable(new RoutingTable)

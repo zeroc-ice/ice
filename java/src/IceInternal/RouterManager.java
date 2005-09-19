@@ -54,5 +54,22 @@ public final class RouterManager
         }
     }
 
+    public RouterInfo
+    erase(Ice.RouterPrx rtr)
+    {
+	RouterInfo info = null;
+	if(rtr != null)
+	{
+	    // The router cannot be routed.
+	    Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null));
+
+	    synchronized(this)
+	    {
+		info = (RouterInfo)_table.remove(router);
+	    }
+	}
+	return info;
+    }
+
     private java.util.HashMap _table = new java.util.HashMap();
 }

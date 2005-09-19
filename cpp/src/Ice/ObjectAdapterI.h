@@ -21,10 +21,11 @@
 #include <Ice/ServantManagerF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
-#include <Ice/Exception.h>
+#include <Ice/RouterInfoF.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ThreadPoolF.h>
+#include <Ice/Exception.h>
 #include <Ice/Process.h>
 #include <list>
 
@@ -68,6 +69,7 @@ public:
     virtual ObjectPrx createReverseProxy(const Identity&) const;
 
     virtual void addRouter(const RouterPrx&);
+    virtual void removeRouter(const RouterPrx&);
 
     virtual void setLocator(const LocatorPrx&);
 //    virtual LocatorPrx getLocator() const;
@@ -104,6 +106,7 @@ private:
     const std::string _id;
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
     std::vector<IceInternal::EndpointIPtr> _routerEndpoints;
+    std::vector<IceInternal::RouterInfoPtr> _routerInfos;
     std::vector<IceInternal::EndpointIPtr> _publishedEndpoints;
     IceInternal::LocatorInfoPtr _locatorInfo;
     int _directCount; // The number of direct proxies dispatching on this object adapter.
@@ -116,12 +119,11 @@ private:
         ProcessI(const CommunicatorPtr&);
 
         virtual void shutdown(const Current&);
-
 	virtual void writeMessage(const std::string&, Int, const Current&);
 
     private:
 
-        CommunicatorPtr _communicator;
+        const CommunicatorPtr _communicator;
     };
 };
 

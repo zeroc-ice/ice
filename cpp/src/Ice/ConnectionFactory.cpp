@@ -370,7 +370,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
 }
 
 void
-IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
+IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& routerInfo)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -379,61 +379,59 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    RouterInfoPtr routerInfo = _instance->routerManager()->get(router);
-    if(routerInfo)
+    assert(routerInfo);
+
+    //
+    // Search for connections to the router's client proxy endpoints,
+    // and update the object adapter for such connections, so that
+    // callbacks from the router can be received over such
+    // connections.
+    //
+    ObjectPrx proxy = routerInfo->getClientProxy();
+    ObjectAdapterPtr adapter = routerInfo->getAdapter();
+    vector<EndpointIPtr> endpoints = proxy->__reference()->getEndpoints();
+    vector<EndpointIPtr>::const_iterator p;
+    for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {
+	EndpointIPtr endpoint = *p;
+
 	//
-	// Search for connections to the router's client proxy
-	// endpoints, and update the object adapter for such
-	// connections, so that callbacks from the router can be
-	// received over such connections.
+	// Modify endpoints with overrides.
 	//
-	ObjectPrx proxy = routerInfo->getClientProxy();
-	ObjectAdapterPtr adapter = routerInfo->getAdapter();
-	vector<EndpointIPtr> endpoints = proxy->__reference()->getEndpoints();
-	vector<EndpointIPtr>::const_iterator p;
-	for(p = endpoints.begin(); p != endpoints.end(); ++p)
+	if(_instance->defaultsAndOverrides()->overrideTimeout)
 	{
-	    EndpointIPtr endpoint = *p;
-
-	    //
-	    // Modify endpoints with overrides.
-	    //
-	    if(_instance->defaultsAndOverrides()->overrideTimeout)
-	    {
-		endpoint = endpoint->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
-	    }
-
-	    //
-	    // The Connection object does not take the compression flag of
-	    // endpoints into account, but instead gets the information
-	    // about whether messages should be compressed or not from
-	    // other sources. In order to allow connection sharing for
-	    // endpoints that differ in the value of the compression flag
-	    // only, we always set the compression flag to false here in
-	    // this connection factory.
-	    //
-	    endpoint = endpoint->compress(false);
-
-	    pair<multimap<EndpointIPtr, ConnectionIPtr>::iterator,
-		 multimap<EndpointIPtr, ConnectionIPtr>::iterator> pr = _connections.equal_range(endpoint);
-	    
-	    while(pr.first != pr.second)
-	    {
-		try
-		{
-		    pr.first->second->setAdapter(adapter);
-		}
-		catch(const Ice::LocalException&)
-		{
-		    //
-		    // Ignore, the connection is being closed or closed.
-		    //
-		}
-		++pr.first;
-	    }
+	    endpoint = endpoint->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
 	}
-    }    
+
+	//
+	// The Connection object does not take the compression flag of
+	// endpoints into account, but instead gets the information
+	// about whether messages should be compressed or not from
+	// other sources. In order to allow connection sharing for
+	// endpoints that differ in the value of the compression flag
+	// only, we always set the compression flag to false here in
+	// this connection factory.
+	//
+	endpoint = endpoint->compress(false);
+
+	pair<multimap<EndpointIPtr, ConnectionIPtr>::iterator,
+	     multimap<EndpointIPtr, ConnectionIPtr>::iterator> pr = _connections.equal_range(endpoint);
+
+	while(pr.first != pr.second)
+	{
+	    try
+	    {
+		pr.first->second->setAdapter(adapter);
+	    }
+	    catch(const Ice::LocalException&)
+	    {
+		//
+		// Ignore, the connection is being closed or closed.
+		//
+	    }
+	    ++pr.first;
+	}
+    }
 }
 
 void

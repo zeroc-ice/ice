@@ -20,7 +20,7 @@
 #include <Ice/EndpointIF.h>
 #include <Ice/AcceptorF.h>
 #include <Ice/TransceiverF.h>
-#include <Ice/RouterF.h>
+#include <Ice/RouterInfoF.h>
 #include <Ice/EventHandler.h>
 #include <list>
 #include <set>
@@ -45,7 +45,7 @@ public:
     void waitUntilFinished();
 
     Ice::ConnectionIPtr create(const std::vector<EndpointIPtr>&, bool&);
-    void setRouter(const ::Ice::RouterPrx&);
+    void setRouterInfo(const RouterInfoPtr&);
     void removeAdapter(const ::Ice::ObjectAdapterPtr&);
     void flushBatchRequests();
 

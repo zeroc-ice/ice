@@ -529,8 +529,62 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             // router's client proxy to use this object adapter for
             // callbacks.
             //      
-            _instance.outgoingConnectionFactory().setRouter(routerInfo.getRouter());
+            _instance.outgoingConnectionFactory().setRouterInfo(routerInfo);
         }
+    }
+
+    public synchronized void
+    removeRouter(RouterPrx router)
+    {
+	checkForDeactivation();
+
+	IceInternal.RouterInfo routerInfo = _instance.routerManager().erase(router);
+	if(routerInfo != null)
+	{
+	    //
+	    // Rebuild the router endpoints from our set of router infos.
+	    //
+	    _routerEndpoints = new java.util.ArrayList();
+	    java.util.Iterator p = _routerInfos.iterator();
+	    while(p.hasNext())
+	    {
+		IceInternal.RouterInfo curr = (IceInternal.RouterInfo)p.next();
+		if(curr == routerInfo)
+		{
+		    p.remove();
+		    continue;
+		}
+		ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
+		IceInternal.EndpointI[] endpoints = proxy.__reference().getEndpoints();
+		for(int i = 0; i < endpoints.length; ++i)
+		{
+		    _routerEndpoints.add(endpoints[i]);
+		}
+	    }
+
+            java.util.Collections.sort(_routerEndpoints); // Must be sorted.
+            for(int i = 0; i < _routerEndpoints.size() - 1; ++i)
+            {
+                java.lang.Object o1 = _routerEndpoints.get(i);
+                java.lang.Object o2 = _routerEndpoints.get(i + 1);
+                if(o1.equals(o2))
+                {
+                    _routerEndpoints.remove(i);
+                }
+            }
+
+	    //
+	    // Clear this object adapter with the router.
+	    //
+	    routerInfo.setAdapter(null);
+
+	    //
+	    // Also modify all existing outgoing connections to the
+	    // router's client proxy to use this object adapter for
+	    // callbacks.
+	    //	
+	    _instance.outgoingConnectionFactory().setRouterInfo(routerInfo);
+	}
     }
 
     public synchronized void
@@ -1000,6 +1054,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     final private String _id;
     private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();
     private java.util.ArrayList _routerEndpoints = new java.util.ArrayList();
+    private java.util.ArrayList _routerInfos = new java.util.ArrayList();
     private java.util.ArrayList _publishedEndpoints;
     private IceInternal.LocatorInfo _locatorInfo;
     private int _directCount;

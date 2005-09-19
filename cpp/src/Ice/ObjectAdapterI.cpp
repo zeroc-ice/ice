@@ -495,6 +495,8 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
     RouterInfoPtr routerInfo = _instance->routerManager()->get(router);
     if(routerInfo)
     {
+	_routerInfos.push_back(routerInfo);
+
 	//
 	// Add the router's server proxy endpoints to this object
 	// adapter.
@@ -517,7 +519,52 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 	// router's client proxy to use this object adapter for
 	// callbacks.
 	//	
-	_instance->outgoingConnectionFactory()->setRouter(routerInfo->getRouter());
+	_instance->outgoingConnectionFactory()->setRouterInfo(routerInfo);
+    }
+}
+
+void
+Ice::ObjectAdapterI::removeRouter(const RouterPrx& router)
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+    
+    checkForDeactivation();
+
+    RouterInfoPtr routerInfo = _instance->routerManager()->erase(router);
+    if(routerInfo)
+    {
+	//
+	// Rebuild the router endpoints from our set of router infos.
+	//
+	_routerEndpoints.clear();
+	vector<RouterInfoPtr>::iterator p = _routerInfos.begin();
+	while(p != _routerInfos.end())
+	{
+	    if(*p == routerInfo)
+	    {
+		p = _routerInfos.erase(p);
+		continue;
+	    }
+	    ObjectPrx proxy = (*p)->getServerProxy();
+	    vector<EndpointIPtr> endpoints = proxy->__reference()->getEndpoints();
+	    copy(endpoints.begin(), endpoints.end(), back_inserter(_routerEndpoints));
+	    ++p;
+	}
+
+	sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
+	_routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()), _routerEndpoints.end());
+
+	//
+	// Clear this object adapter with the router.
+	//
+	routerInfo->setAdapter(0);
+
+	//
+	// Also modify all existing outgoing connections to the
+	// router's client proxy to use this object adapter for
+	// callbacks.
+	//	
+	_instance->outgoingConnectionFactory()->setRouterInfo(routerInfo);
     }
 }
 
@@ -801,11 +848,9 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
 	//
 	// Create a reference with the adapter id.
 	//
-	ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), facet,
-								 Reference::ModeTwoway, false, _id,
-								 0, _locatorInfo,
-								 _instance->defaultsAndOverrides()->
-								 defaultCollocationOptimization);
+	ReferencePtr ref = _instance->referenceFactory()->create(
+	    ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false, _id,
+	    0, _locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization);
 
 	//
 	// Return a proxy for the reference. 
@@ -843,10 +888,9 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) 
     //
     // Create a reference and return a proxy for this reference.
     //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), facet,
-							     Reference::ModeTwoway, false, endpoints, 0,
-							     _instance->defaultsAndOverrides()->
-							     defaultCollocationOptimization);
+    ReferencePtr ref = _instance->referenceFactory()->create(
+	ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false, endpoints, 0,
+	_instance->defaultsAndOverrides()-> defaultCollocationOptimization);
     return _instance->proxyFactory()->referenceToProxy(ref);
 
 }

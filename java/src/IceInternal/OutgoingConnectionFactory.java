@@ -398,71 +398,69 @@ public final class OutgoingConnectionFactory
     }
 
     public synchronized void
-    setRouter(Ice.RouterPrx router)
+    setRouterInfo(IceInternal.RouterInfo routerInfo)
     {
         if(_destroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
 
-        RouterInfo routerInfo = _instance.routerManager().get(router);
-        if(routerInfo != null)
-        {
-            //
-            // Search for connections to the router's client proxy
-            // endpoints, and update the object adapter for such
-            // connections, so that callbacks from the router can be
-            // received over such connections.
-            //
-            Ice.ObjectPrx proxy = routerInfo.getClientProxy();
-            Ice.ObjectAdapter adapter = routerInfo.getAdapter();
-	    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-            EndpointI[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints();
-            for(int i = 0; i < endpoints.length; i++)
-            {
-		EndpointI endpoint = endpoints[i];
+        assert(routerInfo != null);
 
-		//
-		// Modify endpoints with overrides.
-		//
-		if(defaultsAndOverrides.overrideTimeout)
+	//
+	// Search for connections to the router's client proxy
+	// endpoints, and update the object adapter for such
+	// connections, so that callbacks from the router can be
+	// received over such connections.
+	//
+	Ice.ObjectPrx proxy = routerInfo.getClientProxy();
+	Ice.ObjectAdapter adapter = routerInfo.getAdapter();
+	DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+	EndpointI[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints();
+	for(int i = 0; i < endpoints.length; i++)
+	{
+	    EndpointI endpoint = endpoints[i];
+
+	    //
+	    // Modify endpoints with overrides.
+	    //
+	    if(defaultsAndOverrides.overrideTimeout)
+	    {
+		endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
+	    }
+
+	    //
+	    // The Connection object does not take the compression flag of
+	    // endpoints into account, but instead gets the information
+	    // about whether messages should be compressed or not from
+	    // other sources. In order to allow connection sharing for
+	    // endpoints that differ in the value of the compression flag
+	    // only, we always set the compression flag to false here in
+	    // this connection factory.
+	    //
+	    endpoint = endpoint.compress(false);
+
+	    java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(endpoints[i]);
+	    if(connectionList != null)
+	    {
+		java.util.Iterator p = connectionList.iterator();
+
+		while(p.hasNext())
 		{
-		    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
-		}
-
-		//
-		// The Connection object does not take the compression flag of
-		// endpoints into account, but instead gets the information
-		// about whether messages should be compressed or not from
-		// other sources. In order to allow connection sharing for
-		// endpoints that differ in the value of the compression flag
-		// only, we always set the compression flag to false here in
-		// this connection factory.
-		//
-		endpoint = endpoint.compress(false);
-
-		java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(endpoints[i]);
-		if(connectionList != null)
-		{
-		    java.util.Iterator p = connectionList.iterator();
-		    
-		    while(p.hasNext())
+		    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
+		    try
 		    {
-			Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
-			try
-			{
-			    connection.setAdapter(adapter);
-			}
-			catch(Ice.LocalException ex)
-			{
-			    //
-			    // Ignore, the connection is being closed or closed.
-			    //
-			}
+			connection.setAdapter(adapter);
 		    }
-                }
-            }
-        }
+		    catch(Ice.LocalException ex)
+		    {
+			//
+			// Ignore, the connection is being closed or closed.
+			//
+		    }
+		}
+	    }
+	}
     }
 
     public synchronized void

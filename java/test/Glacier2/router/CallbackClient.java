@@ -354,6 +354,13 @@ class CallbackClient extends Ice.Application
             }
             System.out.println("ok");
         }
+
+        {
+            System.out.print("removing router from object adapter... ");
+            System.out.flush();
+            adapter.removeRouter(router);
+            System.out.println("ok");
+        }
         
         {
             System.out.print("trying to ping server after session destruction... ");

@@ -385,6 +385,12 @@ CallbackClient::run(int argc, char* argv[])
 	router->destroySession();
 	cout << "ok" << endl;
     }
+
+    {
+	cout << "removing router from object adapter... " << flush;
+	adapter->removeRouter(router);
+	cout << "ok" << endl;
+    }
     
     {
 	cout << "trying to ping server after session destruction... " << flush;
