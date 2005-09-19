@@ -430,6 +430,8 @@ public final class ObjectAdapter
         IceInternal.RouterInfo routerInfo = _instance.routerManager().get(router);
         if(routerInfo != null)
         {
+	    _routerInfos.addElement(routerInfo);
+
             //
             // Add the router's server proxy endpoints to this object
             // adapter.
@@ -442,18 +444,23 @@ public final class ObjectAdapter
             }
 	    
             IceUtil.Arrays.sort(_routerEndpoints); // Must be sorted.
-            for(int i = 0; i < _routerEndpoints.size() - 1; ++i)
-            {
-		//
-		// TODO: Will this not fail if there are three router endpoints in row for some reason?
-		//
+	    //
+	    // Remove duplicate endpoints, so we have a list of unique
+	    // endpoints.
+	    //
+	    for(int i = 0; i < _routerEndpoints.size()-1; )
+	    {
                 java.lang.Object o1 = _routerEndpoints.elementAt(i);
                 java.lang.Object o2 = _routerEndpoints.elementAt(i + 1);
                 if(o1.equals(o2))
                 {
                     _routerEndpoints.removeElementAt(i);
                 }
-            }
+		else
+		{
+		    ++i;
+		}
+	    }
 
             //
             // Associate this object adapter with the router. This way,
@@ -467,8 +474,66 @@ public final class ObjectAdapter
             // router's client proxy to use this object adapter for
             // callbacks.
             //      
-            _instance.outgoingConnectionFactory().setRouter(routerInfo.getRouter());
+            _instance.outgoingConnectionFactory().setRouterInfo(routerInfo);
         }
+    }
+
+    public synchronized void
+    removeRouter(RouterPrx router)
+    {
+	checkForDeactivation();
+
+	IceInternal.RouterInfo routerInfo = _instance.routerManager().erase(router);
+	if(routerInfo != null)
+	{
+	    //
+	    // Rebuild the router endpoints from our set of router infos.
+	    //
+	    _routerEndpoints.removeAllElements();
+	    for(int p = 0; p < _routerInfos.size();)
+	    {
+		IceInternal.RouterInfo curr = (IceInternal.RouterInfo)_routerInfos.elementAt(p);
+		if(curr == routerInfo)
+		{
+		    _routerEndpoints.removeElementAt(p);
+		    continue;
+		}
+		ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
+		IceInternal.Endpoint[] endpoints = proxy.__reference().getEndpoints();
+		for(int i = 0; i < endpoints.length; ++i)
+		{
+		    _routerEndpoints.addElement(endpoints[i]);
+		}
+		++p;
+	    }
+
+            IceUtil.Arrays.sort(_routerEndpoints); // Must be sorted.
+	    //
+	    // Remove duplicate endpoints, so we have a list of unique
+	    // endpoints.
+	    //
+            for(int i = 0; i < _routerEndpoints.size() - 1; ++i)
+            {
+                java.lang.Object o1 = _routerEndpoints.get(i);
+                java.lang.Object o2 = _routerEndpoints.get(i + 1);
+                if(o1.equals(o2))
+                {
+                    _routerEndpoints.remove(i);
+                }
+            }
+
+	    //
+	    // Clear this object adapter with the router.
+	    //
+	    routerInfo.setAdapter(null);
+
+	    //
+	    // Also modify all existing outgoing connections to the
+	    // router's client proxy to use this object adapter for
+	    // callbacks.
+	    //	
+	    _instance.outgoingConnectionFactory().setRouterInfo(routerInfo);
+	}
     }
 
     public synchronized void
@@ -869,6 +934,7 @@ public final class ObjectAdapter
     private /*final*/ String _id;
     private java.util.Vector _incomingConnectionFactories = new java.util.Vector();
     private java.util.Vector _routerEndpoints = new java.util.Vector();
+    private java.util.Vector _routerInfos = new java.util.Vector();
     private java.util.Vector _publishedEndpoints;
     private IceInternal.LocatorInfo _locatorInfo;
     private int _directCount;

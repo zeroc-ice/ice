@@ -372,60 +372,61 @@ public final class OutgoingConnectionFactory
     }
 
     public synchronized void
-    setRouter(Ice.RouterPrx router)
+    setRouterInfo(IceInternal.RouterInfo routerInfo)
     {
         if(_destroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
 
-        RouterInfo routerInfo = _instance.routerManager().get(router);
-        if(routerInfo != null)
-        {
-            //
-            // Search for connections to the router's client proxy
-            // endpoints, and update the object adapter for such
-            // connections, so that callbacks from the router can be
-            // received over such connections.
-            //
-            Ice.ObjectPrx proxy = routerInfo.getClientProxy();
-            Ice.ObjectAdapter adapter = routerInfo.getAdapter();
-	    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-            Endpoint[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints();
-            for(int i = 0; i < endpoints.length; i++)
-            {
-		Endpoint endpoint = endpoints[i];
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(routerInfo != null);
+	}
 
-		//
-		// Modify endpoints with overrides.
-		//
-		if(defaultsAndOverrides.overrideTimeout)
-		{
-		    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
-		}
+	//
+	// Search for connections to the router's client proxy
+	// endpoints, and update the object adapter for such
+	// connections, so that callbacks from the router can be
+	// received over such connections.
+	//
+	Ice.ObjectPrx proxy = routerInfo.getClientProxy();
+	Ice.ObjectAdapter adapter = routerInfo.getAdapter();
+	DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+	Endpoint[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints();
+	for(int i = 0; i < endpoints.length; i++)
+	{
+	    Endpoint endpoint = endpoints[i];
 
-		java.util.Vector connectionList = (java.util.Vector)_connections.get(endpoints[i]);
-		if(connectionList != null)
+	    //
+	    // Modify endpoints with overrides.
+	    //
+	    if(defaultsAndOverrides.overrideTimeout)
+	    {
+		endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
+	    }
+
+	    java.util.Vector connectionList = (java.util.Vector)_connections.get(endpoints[i]);
+	    if(connectionList != null)
+	    {
+		java.util.Enumeration p = connectionList.elements();
+
+		while(p.hasMoreElements())
 		{
-		    java.util.Enumeration p = connectionList.elements();
-		    
-		    while(p.hasMoreElements())
+		    Ice.Connection connection = (Ice.Connection)p.nextElement();
+		    try
 		    {
-			Ice.Connection connection = (Ice.Connection)p.nextElement();
-			try
-			{
-			    connection.setAdapter(adapter);
-			}
-			catch(Ice.LocalException ex)
-			{
-			    //
-			    // Ignore, the connection is being closed or closed.
-			    //
-			}
+			connection.setAdapter(adapter);
 		    }
-                }
-            }
-        }
+		    catch(Ice.LocalException ex)
+		    {
+			//
+			// Ignore, the connection is being closed or closed.
+			//
+		    }
+		}
+	    }
+	}
     }
 
     public synchronized void
