@@ -461,7 +461,7 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
 	newest = 0
 	for f in phpMatches:
 	    m = re.search('([0-9]+)\.([0-9]+)\.([0-9]?).*', f)
-
+            verString = ''
 	    for gr in m.groups():
 		verString = verString + gr
 		if len(phpVersion) == 0:
