@@ -4838,7 +4838,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out.dec();
 	_out << nl << "End Sub";
 
-	_out << sp << nl << "Protected Overrides Sub __response(__ok As Boolean)";
+	_out << sp << nl << "Protected Overrides Sub __response(__ok As Boolean) As Boolean";
 	_out.inc();
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
@@ -4922,19 +4922,19 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
    	_out.dec();
 	_out << nl << "Catch __ex As Ice.LocalException";
 	_out.inc();
-	_out << nl << "__finished(__ex)";
-	_out << nl << "Return";
+	_out << nl << "Return __finished(__ex)";
 	_out.dec();
 	if(!throws.empty())
 	{
 	    _out << nl << "Catch __ex As Ice.UserException";
 	    _out.inc();
 	    _out << nl << "ice_exception(__ex)";
-	    _out << nl << "Return";
+	    _out << nl << "Return False";
 	    _out.dec();
 	}
 	_out << nl << "End Try";
 	_out << nl << "ice_response" << spar << args << epar;
+	_out << nl << "Return False";
 	_out.dec();
 	_out << nl << "End Sub";
 	_out.dec();

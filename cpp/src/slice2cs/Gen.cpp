@@ -4304,7 +4304,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out << nl << "__send();";
 	_out << eb;
 
-	_out << sp << nl << "protected override void __response(bool __ok)";
+	_out << sp << nl << "protected override bool __response(bool __ok)";
 	_out << sb;
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
@@ -4386,18 +4386,18 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
    	_out << eb;
 	_out << nl << "catch(Ice.LocalException __ex)";
 	_out << sb;
-	_out << nl << "__finished(__ex);";
-	_out << nl << "return;";
+	_out << nl << "return __finished(__ex);";
 	_out << eb;
 	if(!throws.empty())
 	{
 	    _out << nl << "catch(Ice.UserException __ex)";
 	    _out << sb;
 	    _out << nl << "ice_exception(__ex);";
-	    _out << nl << "return;";
+	    _out << nl << "return false;";
 	    _out << eb;
 	}
 	_out << nl << "ice_response" << spar << args << epar << ';';
+	_out << nl << "return false;";
 	_out << eb;
 	_out << eb;
     }

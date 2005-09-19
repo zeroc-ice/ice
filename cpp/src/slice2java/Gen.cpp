@@ -4438,7 +4438,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	out << nl << "__send();";
 	out << eb;
 
-	out << sp << nl << "protected final void" << nl << "__response(boolean __ok)";
+	out << sp << nl << "protected final boolean" << nl << "__response(boolean __ok)";
 	out << sb;
         for(pli = outParams.begin(); pli != outParams.end(); ++pli)
         {
@@ -4481,7 +4481,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << nl << "catch(" << getAbsolute(*r, classPkg) << " __ex)";
 	    out << sb;
 	    out << nl << "ice_exception(__ex);";
-	    out << nl << "return;";
+	    out << nl << "return false;";
 	    out << eb;
 	}
 	out << nl << "catch(Ice.UserException __ex)";
@@ -4523,10 +4523,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
    	out << eb;
 	out << nl << "catch(Ice.LocalException __ex)";
 	out << sb;
-	out << nl << "__finished(__ex);";
-	out << nl << "return;";
+	out << nl << "return __finished(__ex);";
 	out << eb;
 	out << nl << "ice_response" << spar << args << epar << ';';
+	out << nl << "return false;";
 	out << eb;
 	out << eb;
 

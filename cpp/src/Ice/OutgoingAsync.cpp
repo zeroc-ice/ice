@@ -177,9 +177,14 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 
     assert(status == DispatchOK || status == DispatchUserException);
 
+    //
+    // It is possible for __response to trigger a retry.
+    // If it does we must not perform a cleanup.
+    //
+    bool retry = false;
     try
     {
-	__response(status == DispatchOK);
+	retry = __response(status == DispatchOK);
     }
     catch(const Exception& ex)
     {
@@ -194,10 +199,13 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 	warning();
     }
 
-    cleanup();
+    if(!retry)
+    {
+        cleanup();
+    }
 }
 
-void
+bool
 IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(_monitor);
@@ -244,7 +252,7 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 	{
 	    _connection = 0;
 	    __send();
-	    return;
+	    return true;
 	}
     }
     
@@ -266,6 +274,7 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
     }
 
     cleanup();
+    return false;
 }
 
 void
@@ -461,7 +470,7 @@ Ice::AMI_Object_ice_invoke::__invoke(const ObjectPrx& prx, const string& operati
     __send();
 }
 
-void
+bool
 Ice::AMI_Object_ice_invoke::__response(bool ok) // ok == true means no user exception.
 {
     vector<Byte> outParams;
@@ -472,8 +481,8 @@ Ice::AMI_Object_ice_invoke::__response(bool ok) // ok == true means no user exce
     }
     catch(const LocalException& ex)
     {
-	__finished(ex);
-	return;
+	return __finished(ex);
     }
     ice_response(ok, outParams);
+    return false;
 }
