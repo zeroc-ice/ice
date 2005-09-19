@@ -22,5 +22,5 @@ install::
 	do \
 	    echo "Installing $$i" ; \
 	    $(INSTALL_DATA) $$i $(install_includedir)/Slice/$$i ; \
-	    chmod a+r $(install_includedir)/Slice/$$i
+	    chmod a+r $(install_includedir)/Slice/$$i ; \
 	done
