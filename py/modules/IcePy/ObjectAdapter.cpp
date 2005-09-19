@@ -1264,6 +1264,37 @@ adapterAddRouter(ObjectAdapterObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+adapterRemoveRouter(ObjectAdapterObject* self, PyObject* args)
+{
+    PyObject* proxyType = lookupType("Ice.RouterPrx");
+    PyObject* proxy;
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), proxyType, &proxy))
+    {
+        return NULL;
+    }
+
+    Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(getProxy(proxy));
+
+    assert(self->adapter);
+    try
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+        (*self->adapter)->removeRouter(router);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* proxyType = lookupType("Ice.LocatorPrx");
@@ -1341,6 +1372,8 @@ static PyMethodDef AdapterMethods[] =
         PyDoc_STR(STRCAST("createReverseProxy(identity) -> Ice.ObjectPrx")) },
     { STRCAST("addRouter"), (PyCFunction)adapterAddRouter, METH_VARARGS,
         PyDoc_STR(STRCAST("addRouter(proxy) -> None")) },
+    { STRCAST("removeRouter"), (PyCFunction)adapterRemoveRouter, METH_VARARGS,
+        PyDoc_STR(STRCAST("removeaddRouter(proxy) -> None")) },
     { STRCAST("setLocator"), (PyCFunction)adapterSetLocator, METH_VARARGS,
         PyDoc_STR(STRCAST("setLocator(proxy) -> None")) },
     { NULL, NULL} /* sentinel */
