@@ -111,14 +111,15 @@ os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
 # Copy Slice directories.
 #
 print "Copying Slice directories..."
-slicedirs = [\
-    "Freeze",\
-    "Glacier2",\
-    "Ice",\
-    "IceBox",\
-    "IcePack",\
-    "IcePatch2",\
-    "IceStorm",\
+slicedirs = [
+    "Freeze",
+    "Glacier2",
+    "Ice",
+    "IceBox",
+    "IcePack",
+    "IcePatch2",
+    "IceStorm",
+    "IceGrid"
 ]
 os.mkdir(os.path.join("icej", "slice"))
 for x in slicedirs:
