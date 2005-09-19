@@ -116,7 +116,7 @@ os.system("zip -9r " + icephpver + ".zip " + icephpver)
 #
 # Copy files (README, etc.).
 #
-shutil.copyfile(os.path.join(icever, "CHANGES"), "IcePHP-" + version + "-CHANGES")
+shutil.copyfile(os.path.join(icephpver, "CHANGES"), "IcePHP-" + version + "-CHANGES")
 
 #
 # Done.
