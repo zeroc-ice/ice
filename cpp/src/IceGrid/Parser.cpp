@@ -442,6 +442,7 @@ Parser::instantiateServerTemplate(const list<string>& args)
 	nodeUpdate.name = node;
 	nodeUpdate.serverInstances.push_back(desc);
 	ApplicationUpdateDescriptor update;
+	update.name = application;
 	update.nodes.push_back(nodeUpdate);
 	_admin->updateApplication(update);
     }

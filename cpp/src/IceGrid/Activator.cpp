@@ -344,7 +344,7 @@ Activator::activate(const string& name,
 	return false;
     }
 
-    string path = IcePatch2::simplify(exePath);
+    string path = exePath;
     if(path.empty())
     {
 	return false;

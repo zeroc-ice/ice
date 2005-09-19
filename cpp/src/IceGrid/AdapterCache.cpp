@@ -114,10 +114,7 @@ AdapterEntry::enableReplication(const LoadBalancingPolicyPtr& policy)
     {
 	_loadBalancingNReplicas = 1;
     }
-    else if(_loadBalancingNReplicas > static_cast<int>(_servers.size()))
-    {
-	_loadBalancingNReplicas = _servers.size();
-    }
+
     AdaptiveLoadBalancingPolicyPtr alb = AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing);
     if(alb)
     {
@@ -251,19 +248,22 @@ AdapterEntry::getProxies(int& nReplicas)
     }
 
     vector<pair<string, AdapterPrx> > adapters;
+    auto_ptr<NodeUnreachableException> exception;
     for(vector<ServerEntryPtr>::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
 	try
 	{
 	    adapters.push_back(make_pair((*p)->getId(), (*p)->getAdapter(_id)));
 	}
-	catch(const NodeUnreachableException&)
+	catch(const NodeUnreachableException& ex)
 	{
+	    exception.reset(dynamic_cast<NodeUnreachableException*>(ex.ice_clone()));
 	}
     }
     if(adapters.empty())
     {
-	throw NodeUnreachableException();
+	assert(exception.get());
+	throw *exception.get();
     }
 
     nReplicas = _replicated ? _loadBalancingNReplicas : 1;

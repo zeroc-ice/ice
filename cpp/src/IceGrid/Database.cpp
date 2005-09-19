@@ -1046,12 +1046,20 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
     ReplicatedAdapterDescriptorSeq::const_iterator r;
     for(r = oldAdpts.begin(); r != oldAdpts.end(); ++r)
     {
+	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
+	{
+	    _objectCache.remove(o->id);
+	}
 	_adapterCache.get(r->id, false)->disableReplication();
     }
     const ReplicatedAdapterDescriptorSeq& newAdpts = newApp.getInstance().replicatedAdapters;
     for(r = newAdpts.begin(); r != newAdpts.end(); ++r)
     {
 	_adapterCache.get(r->id, true)->enableReplication(r->loadBalancing);
+	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
+	{
+	    _objectCache.add(r->id, "", *o);
+	}
     }
 
     map<string, ServerInfo> oldServers = oldApp.getServerInfos();

@@ -225,6 +225,12 @@ LocatorI::Request::exception()
 void
 LocatorI::Request::response(const Ice::ObjectPrx& proxy)
 {
+    if(!proxy)
+    {
+	exception();
+	return;
+    }
+
     Lock sync(*this);
     _proxies.push_back(proxy->ice_newIdentity(Ice::stringToIdentity("dummy")));
 
