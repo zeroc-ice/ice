@@ -653,7 +653,7 @@ void
 ServerI::setProcess(const ::Ice::ProcessPrx& proc, const ::Ice::Current&)
 {
     IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
-    _process = Ice::ProcessPrx::uncheckedCast(proc->ice_timeout(_waitTime));
+    _process = Ice::ProcessPrx::uncheckedCast(proc->ice_timeout(_waitTime * 1000));
     notifyAll();
 }
 

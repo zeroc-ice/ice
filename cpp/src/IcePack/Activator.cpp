@@ -60,15 +60,16 @@ public:
     }
 
     virtual void 
-    ice_exception(const Ice::Exception&)
+    ice_exception(const Ice::Exception& ex)
     {
+	cerr << ex << endl;
 	_activator->deactivate(_name, 0);
     }
 
 private:
 
     const ActivatorPtr _activator;
-    const string _name;
+    const string _name; 
 };
 
 }
@@ -818,7 +819,7 @@ Activator::deactivate(const string& name, const Ice::ProcessPrx& process)
         if(_traceLevels->activator > 1)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-            out << "sent Ctrl+Break to server `" << name << "' (pid = " << pid << ")";
+	    out << "sent Ctrl+Break to server `" << name << "' (pid = " << pid << ")";
         }
     }
     else
