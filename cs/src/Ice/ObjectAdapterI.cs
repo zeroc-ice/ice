@@ -516,8 +516,7 @@ namespace Ice
 		    //
 		    ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
 		    IceInternal.EndpointI[] endpoints = proxy.__reference().getEndpoints();
-		    int i;
-		    for(i = 0; i < endpoints.Length; ++i)
+		    for(int i = 0; i < endpoints.Length; ++i)
 		    {
 			_routerEndpoints.Add(endpoints[i]);
 		    }
@@ -526,8 +525,7 @@ namespace Ice
 		    //
 		    // Remove duplicate endpoints, so we have a list of unique endpoints.
 		    //
-		    i = 0;
-		    while(i < _routerEndpoints.Count-1)
+		    for(int i = 0; i < _routerEndpoints.Count-1;)
 		    {
 			System.Object o1 = _routerEndpoints[i];
 			System.Object o2 = _routerEndpoints[i + 1];
@@ -571,9 +569,7 @@ namespace Ice
 		    // Rebuild the router endpoints from our set of router infos.
 		    //
 		    _routerEndpoints.Clear();
-		    int i;
-		    int p = 0;
-		    while(p < _routerInfos.Count)
+		    for(int p = 0; p < _routerInfos.Count;)
 		    {
 			if(_routerInfos[p] == routerInfo)
 			{
@@ -582,7 +578,7 @@ namespace Ice
 			}
 			ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
 			IceInternal.EndpointI[] endpoints = proxy.__reference().getEndpoints();
-			for(i = 0; i < endpoints.Length; ++i)
+			for(int i = 0; i < endpoints.Length; ++i)
 			{
 			    _routerEndpoints.Add(endpoints[i]);
 			}
@@ -593,8 +589,7 @@ namespace Ice
 		    //
 		    // Remove duplicate endpoints, so we have a list of unique endpoints.
 		    //
-		    i = 0;
-		    while(i < _routerEndpoints.Count-1)
+		    for(int i = 0; i < _routerEndpoints.Count-1;)
 		    {
 			System.Object o1 = _routerEndpoints[i];
 			System.Object o2 = _routerEndpoints[i + 1];
