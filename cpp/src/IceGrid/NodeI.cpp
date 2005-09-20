@@ -608,13 +608,13 @@ NodeI::keepAlive()
 	    info.nProcessors =  _nproc;
 #elif defined(__hpux)
 	    struct pst_dynamic dynInfo;
-	    if(pstat_getdynamic(&dynInfo, sizeof(dynInfo), 0, 0) >= 0)
+	    if(pstat_getdynamic(&dynInfo, sizeof(dynInfo), 1, 0) >= 0)
 	    {
 		info.load1 = dynInfo.psd_avg_1_min;
 		info.load5 = dynInfo.psd_avg_5_min;
 		info.load15 = dynInfo.psd_avg_15_min;
+		info.nProcessors = dynInfo.psd_proc_cnt;
 	    }
-	    info.nProcessors = 1; // TODO
 #endif
 	    session->keepAlive(info);
 	}
