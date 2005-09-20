@@ -111,14 +111,7 @@ public abstract class Reference implements Cloneable
 	    return this;
 	}
 	Reference r = _instance.referenceFactory().copy(this);
-	try
-	{
-	    r._identity = (Ice.Identity)newIdentity.clone();
-	}
-	catch(CloneNotSupportedException ex)
-	{
-	    assert(false);
-	}
+	r._identity = (Ice.Identity)newIdentity.clone();
 	return r;
     }
 

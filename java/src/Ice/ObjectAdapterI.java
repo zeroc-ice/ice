@@ -963,14 +963,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         if(ident.name == null || ident.name.length() == 0)
         {
             IllegalIdentityException e = new IllegalIdentityException();
-            try
-            {
-                e.id = (Identity)ident.clone();
-            }
-            catch(CloneNotSupportedException ex)
-            {
-                assert(false);
-            }
+	    e.id = (Identity)ident.clone();
             throw e;
         }
 

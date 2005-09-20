@@ -97,15 +97,7 @@ class Adapter extends Leaf
 
     public Object copy()
     {
-	try
-	{
-	    return _descriptor.clone();
-	}
-	catch(CloneNotSupportedException e)
-	{
-	    assert false;
-	    return null;
-	}
+	return _descriptor.clone();
     }
 
 

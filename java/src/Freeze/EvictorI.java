@@ -425,14 +425,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	//
 	// Need to clone in case the given ident changes.
 	//
-	try
-	{
-	    ident = (Ice.Identity) ident.clone();
-	}
-	catch(CloneNotSupportedException ex)
-	{
-	    assert false;
-	}
+	ident = (Ice.Identity) ident.clone();
 
 	_deactivateController.lock();
 
@@ -605,14 +598,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	//
 	// Need to clone in case the given ident changes.
 	//
-	try
-	{
-	    ident = (Ice.Identity) ident.clone();
-	}
-	catch(CloneNotSupportedException ex)
-	{
-	    assert false;
-	}
+	ident = (Ice.Identity) ident.clone();
 
 	_deactivateController.lock();
 	
@@ -736,14 +722,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	//
 	// Need to clone in case the given ident changes.
 	//
-	try
-	{
-	    ident = (Ice.Identity) ident.clone();
-	}
-	catch(CloneNotSupportedException ex)
-	{
-	    assert false;
-	}
+	ident = (Ice.Identity) ident.clone();
 	
 	_deactivateController.lock();
 
@@ -1295,95 +1274,88 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     Ice.Object
     locateImpl(Ice.Current current, Ice.LocalObjectHolder cookie)
     {
-	 cookie.value = null;
-	 
-	 //
-	 // Need to clone as current.id gets reused
-	 //
-	 Ice.Identity ident = null;
-	 try
-	 {
-	      ident = (Ice.Identity) current.id.clone();
-	 }
-	 catch(CloneNotSupportedException ex)
-	 {
-	     assert false;
-	 }
+	cookie.value = null;
 
-	 ObjectStore store = findStore(current.facet);
-	 if(store == null)
-	 {
-	     if(_trace >= 2)
-	     {
-		 _communicator.getLogger().trace(
-		     "Freeze.Evictor",
-		     "locate could not find a database for facet \"" + current.facet + "\"");
-	     }
-	     return null;
-	 }
-	 
-	 for(;;)
-	 {
-	     EvictorElement element = (EvictorElement) store.cache().pin(ident);
-	     if(element == null)
-	     {
-		 if(_trace >= 2)
-		 {
-		     _communicator.getLogger().trace(
-			 "Freeze.Evictor",
-			 "locate could not find \"" + Ice.Util.identityToString(ident) 
-			 + "\" in database \"" + current.facet + "\"");
-		 }
-		 return null;
-	     }
-	     
-	     synchronized(this)
-	     {	     
-		 if(element.stale)
-		 {
-		     //
-		     // try again
-		     //
-		     continue;
-		 }
-	     
-		 synchronized(element)
-		 {
-		     if(element.status == EvictorElement.destroyed || 
-			element.status == EvictorElement.dead)
-		     {
-			 if(_trace >= 2)
-			 {
-			     _communicator.getLogger().trace(
-				 "Freeze.Evictor",
-				 "locate found \"" + Ice.Util.identityToString(ident) 
-				 + "\" in the cache for database \"" + current.facet 
-				 + "\" but it was dead or destroyed");
-			 }
-			 return null;
-		     }
-		 
-		     //
-		     // It's a good one!
-		     //
-		     
-		     
-		     if(_trace >= 2)
-		     {
-			 _communicator.getLogger().trace(
-			     "Freeze.Evictor",
-			     "locate found \"" + Ice.Util.identityToString(ident) 
-			     + "\" in database \"" + current.facet + "\"");
-		     }
-		     
-		     fixEvictPosition(element);
-		     element.usageCount++;
-		     cookie.value = element;
-		     assert element.rec.servant != null;
-		     return element.rec.servant;
-		 }
-	     }
-	 } 
+	//
+	// Need to clone as current.id gets reused
+	//
+	Ice.Identity ident = null;
+	ident = (Ice.Identity) current.id.clone();
+
+	ObjectStore store = findStore(current.facet);
+	if(store == null)
+	{
+	    if(_trace >= 2)
+	    {
+		_communicator.getLogger().trace(
+		    "Freeze.Evictor",
+		    "locate could not find a database for facet \"" + current.facet + "\"");
+	    }
+	    return null;
+	}
+
+	for(;;)
+	{
+	    EvictorElement element = (EvictorElement) store.cache().pin(ident);
+	    if(element == null)
+	    {
+		if(_trace >= 2)
+		{
+		    _communicator.getLogger().trace(
+			"Freeze.Evictor",
+			"locate could not find \"" + Ice.Util.identityToString(ident) 
+			+ "\" in database \"" + current.facet + "\"");
+		}
+		return null;
+	    }
+
+	    synchronized(this)
+	    {	     
+		if(element.stale)
+		{
+		    //
+		    // try again
+		    //
+		    continue;
+		}
+
+		synchronized(element)
+		{
+		    if(element.status == EvictorElement.destroyed || 
+		    element.status == EvictorElement.dead)
+		    {
+			if(_trace >= 2)
+			{
+			    _communicator.getLogger().trace(
+				"Freeze.Evictor",
+				"locate found \"" + Ice.Util.identityToString(ident) 
+				+ "\" in the cache for database \"" + current.facet 
+				+ "\" but it was dead or destroyed");
+			}
+			return null;
+		    }
+
+		    //
+		    // It's a good one!
+		    //
+
+
+		    if(_trace >= 2)
+		    {
+			_communicator.getLogger().trace(
+			    "Freeze.Evictor",
+			    "locate found \"" + Ice.Util.identityToString(ident) 
+			    + "\" in database \"" + current.facet + "\"");
+		    }
+
+		    fixEvictPosition(element);
+		    element.usageCount++;
+		    cookie.value = element;
+		    assert element.rec.servant != null;
+		    return element.rec.servant;
+		}
+	    }
+	} 
     }
 
     public void
@@ -2227,14 +2199,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
         {
             Ice.IllegalIdentityException e = 
 		new Ice.IllegalIdentityException();
-            try
-            {
-                e.id = (Ice.Identity)ident.clone();
-            }
-            catch(CloneNotSupportedException ex)
-            {
-                assert(false);
-            }
+	    e.id = (Ice.Identity)ident.clone();
             throw e;
         }
     }

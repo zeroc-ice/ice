@@ -120,14 +120,7 @@ class Adapters extends Parent
 	if(canHaveNewChild() && descriptor instanceof AdapterDescriptor)
 	{
 	    AdapterDescriptor d = (AdapterDescriptor)descriptor;
-	    try
-	    {
-		newAdapter((AdapterDescriptor)d.clone());
-	    }
-	    catch(CloneNotSupportedException e)
-	    {
-		assert false;
-	    }
+	    newAdapter((AdapterDescriptor)d.clone());
 	}
     }
 

@@ -2280,11 +2280,17 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << eb;
 
     out << sp << nl << "public java.lang.Object" << nl << "clone()";
-    out.inc();
-    out << nl << "throws java.lang.CloneNotSupportedException";
-    out.dec();
     out << sb;
-    out << nl << "return super.clone();";
+    out << nl << "java.lang.Object o = null;";
+    out << nl << "try";
+    out << sb;
+    out << nl << "o = super.clone();";
+    out << eb;
+    out << nl << "catch(CloneNotSupportedException ex)";
+    out << sb;
+    out << nl << "assert false; // impossible";
+    out << eb;
+    out << nl << "return o;";
     out << eb;
 
     if(!p->isLocal())

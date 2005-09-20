@@ -338,14 +338,7 @@ class AdapterEditor extends Editor
 		    // Save to be able to rollback
 		    //
 		    AdapterDescriptor oldDescriptor = null;
-		    try
-		    {
-			oldDescriptor = (AdapterDescriptor)descriptor.clone();
-		    }
-		    catch(CloneNotSupportedException ce)
-		    {
-			assert false; // impossible
-		    }
+		    oldDescriptor = (AdapterDescriptor)descriptor.clone();
 		    
 		    TreePath oldPath = _adapter.getPath();
 		    Adapters parent = (Adapters)_adapter.getParent();
