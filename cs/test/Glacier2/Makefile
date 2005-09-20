@@ -7,11 +7,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= Ice Glacier2
+SUBDIRS		= router
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
