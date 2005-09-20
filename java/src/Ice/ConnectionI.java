@@ -1146,7 +1146,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
 	threadPool.promoteFollower();
 
-	LocalException exception = null;
+	LocalException localEx = null;
 
 	IceInternal.IntMap requests = null;
 	IceInternal.IntMap asyncRequests = null;
@@ -1171,7 +1171,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    }
 		    catch(LocalException ex)
 		    {
-			exception = ex;
+			localEx = ex;
 		    }
 		    
 		    _transceiver = null;
@@ -1211,9 +1211,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    }
 	}
 
-	if(exception != null)
+	if(localEx != null)
 	{
-	    throw exception;
+	    throw localEx;
 	}
     }
 
@@ -2195,7 +2195,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
 		MessageInfo info = new MessageInfo(stream);
 
-		LocalException exception = null;
+		LocalException localEx = null;
 
 		IceInternal.IntMap requests = null;
 		IceInternal.IntMap asyncRequests = null;
@@ -2236,7 +2236,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 			    }
 			    catch(LocalException ex)
 			    {
-				exception = ex;
+				localEx = ex;
 			    }
 			    
 			    _transceiver = null;
@@ -2300,10 +2300,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    }
 		}
 
-		if(exception != null)
+		if(localEx != null)
 		{
 		    assert(closed);
-		    throw exception;
+		    throw localEx;
 		}    
 	    }
 	    finally
