@@ -42,6 +42,7 @@ namespace IceInternal
 	const int WSAESHUTDOWN = 10058;
 	const int WSAETIMEDOUT = 10060;
 	const int WSAECONNREFUSED = 100061;
+	const int WSAEHOSTUNREACH = 100065;
 	const int WSATRY_AGAIN = 11002;
 
 	public static bool interrupted(Win32Exception ex)
@@ -78,6 +79,7 @@ namespace IceInternal
 	    int error = ex.NativeErrorCode;
 	    return error == WSAETIMEDOUT ||
 		   error == WSAENETUNREACH ||
+		   error == WSAEHOSTUNREACH ||
 		   error == WSAECONNRESET ||
 		   error == WSAESHUTDOWN ||
 		   error == WSAECONNABORTED ||
