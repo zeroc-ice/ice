@@ -140,6 +140,22 @@ abstract class CommonBaseI implements CommonBase
 	return null;
     }
 
+    public Object getDescriptor()
+    {
+	return null;
+    }
+
+    public Object saveDescriptor()
+    {
+	assert false;
+	return null;
+    }
+
+    public void restoreDescriptor(Object d)
+    {
+	assert false;
+    }
+
     public Object copy()
     {
 	return null;
@@ -147,6 +163,9 @@ abstract class CommonBaseI implements CommonBase
 
     public void paste(Object descriptor)
     {
+	//
+	// Try my parent
+	//
 	if(_parent != null)
 	{
 	    _parent.paste(descriptor);
@@ -240,7 +259,7 @@ abstract class CommonBaseI implements CommonBase
 	_model = o._model;
     }
 
-    Application getApplication()
+    public Application getApplication()
     {
 	if(_path == null || _path.getPathCount() < 2)
 	{

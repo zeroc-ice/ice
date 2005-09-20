@@ -385,6 +385,61 @@ class Server extends EditableParent
 	return _propertiesHolder;
     }
 
+    static public ServerInstanceDescriptor
+    copyDescriptor(ServerInstanceDescriptor sid)
+    {
+	return (ServerInstanceDescriptor)sid.clone();
+    }
+
+    static public ServerDescriptor
+    copyDescriptor(ServerDescriptor sd)
+    {
+	ServerDescriptor copy = null;
+	try
+	{ 
+	    copy = (ServerDescriptor)sd.clone();
+	}
+	catch(CloneNotSupportedException e)
+	{
+	    assert false;
+	}
+	copy.adapters = Adapters.copyDescriptors(copy.adapters);
+	copy.dbEnvs = DbEnvs.copyDescriptors(copy.dbEnvs);
+	// TODO: copy.patchs = Patchs.copyDescriptor(copy.patchs);
+
+	if(copy instanceof IceBoxDescriptor)
+	{
+	    IceBoxDescriptor ib = (IceBoxDescriptor)copy;
+	    ib.services = Services.copyDescriptors(ib.services);
+	}
+	return copy;
+    }
+    
+
+    public Object getDescriptor()
+    {
+	if(_instanceDescriptor != null)
+	{
+	    return _instanceDescriptor;
+	}
+	else
+	{
+	    return _serverDescriptor;
+	}
+    }
+
+    public Object copy()
+    {
+	if(_instanceDescriptor != null)
+	{
+	    return copyDescriptor(_instanceDescriptor);
+	}
+	else
+	{
+	    return copyDescriptor(_serverDescriptor);
+	}
+    }
+
     //
     // Builds the server and all its sub-tree
     //
@@ -482,6 +537,14 @@ class Server extends EditableParent
 	}
     }
     
+    void cascadeDeleteServiceInstance(String templateId)
+    {
+	if(_services != null)
+	{
+	    _services.cascadeDeleteServiceInstance(templateId);
+	}
+    }
+
     
     void updateDynamicInfo(ServerState state, int pid)
     {
@@ -570,11 +633,6 @@ class Server extends EditableParent
 	return _instanceDescriptor;
     }
 
-    ServerDescriptor getDescriptor()
-    {
-	return _serverDescriptor;
-    }
- 
     public String toString()
     {
 	if(_instanceDescriptor == null)

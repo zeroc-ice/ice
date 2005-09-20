@@ -105,6 +105,26 @@ public class Nodes extends EditableParent
 	fireStructureChangedEvent(this);
     }
    
+    void cascadeDeleteServerInstance(String templateId)
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Node node = (Node)p.next();
+	    node.cascadeDeleteServerInstance(templateId);
+	}
+    }
+
+    void cascadeDeleteServiceInstance(String templateId)
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Node node = (Node)p.next();
+	    node.cascadeDeleteServiceInstance(templateId);
+	}
+    }
+
     void update(java.util.List updates, String[] removeNodes)
 	throws DuplicateIdException
     {

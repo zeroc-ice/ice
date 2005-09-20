@@ -14,6 +14,18 @@ import IceGrid.Utils;
 
 class DbEnvs extends Parent
 {
+    static public java.util.LinkedList copyDescriptors(java.util.LinkedList list)
+    {
+	java.util.LinkedList copy = new java.util.LinkedList();
+	java.util.Iterator p = list.iterator();
+	while(p.hasNext())
+	{
+	    copy.add(DbEnv.copyDescriptor((DbEnvDescriptor)p.next()));
+	}
+	return copy;
+    }
+    
+
     DbEnvs(java.util.List descriptors, 
 	   boolean isEditable,
 	   Utils.Resolver resolver,

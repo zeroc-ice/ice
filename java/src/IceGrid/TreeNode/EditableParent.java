@@ -12,7 +12,7 @@ import IceGrid.Model;
 
 //
 // Corresponds to "root" editable descriptors such as Server,
-// Service, ServerTemplate, ServiceTemplate, Node etc.
+// ServerTemplate, ServiceTemplate, Node etc.
 //
 class EditableParent extends Parent implements Editable
 {

@@ -108,6 +108,14 @@ class ServerTemplate extends EditableParent
 	_adapters.setParent(this);
     }
 
+    void cascadeDeleteServiceInstance(String templateId)
+    {
+	if(_services != null)
+	{
+	    _services.cascadeDeleteServiceInstance(templateId);
+	}
+    }
+
     public PropertiesHolder getPropertiesHolder()
     {
 	return _propertiesHolder;
@@ -118,7 +126,7 @@ class ServerTemplate extends EditableParent
 	return templateLabel(_id, _templateDescriptor.parameters);
     }
 
-    public TemplateDescriptor getDescriptor()
+    public Object getDescriptor()
     {
 	return _templateDescriptor;
     }

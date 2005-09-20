@@ -93,6 +93,16 @@ class ServerTemplates extends EditableParent
 	purgeChildren(_descriptors.keySet());
 	fireStructureChangedEvent(this);
     }
+
+    void cascadeDeleteServiceInstance(String templateId)
+    {
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    ServerTemplate t = (ServerTemplate)p.next();
+	    t.cascadeDeleteServiceInstance(templateId);
+	}
+    }
     
     void update(java.util.Map updates, String[] removeTemplates)
 	throws DuplicateIdException

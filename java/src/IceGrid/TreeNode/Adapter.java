@@ -95,11 +95,37 @@ class Adapter extends Leaf
 	}
     }
 
-    public Object copy()
+    
+    static public AdapterDescriptor copyDescriptor(AdapterDescriptor d)
     {
-	return _descriptor.clone();
+	return (AdapterDescriptor)d.clone();
     }
 
+    public Object getDescriptor()
+    {
+	return _descriptor;
+    }
+
+    public Object saveDescriptor()
+    {
+	return copyDescriptor(_descriptor);
+    }
+
+    public void restoreDescriptor(Object savedDescriptor)
+    {
+	AdapterDescriptor ad = (AdapterDescriptor)savedDescriptor;
+	
+	_descriptor.name = ad.name;
+	_descriptor.id = ad.id;
+	_descriptor.registerProcess = ad.registerProcess;
+	_descriptor.waitForActivation = ad.waitForActivation;
+	_descriptor.objects = ad.objects;
+    }
+    
+    public Object copy()
+    {
+	return copyDescriptor(_descriptor);
+    }
 
     Adapter(String adapterName, AdapterDescriptor descriptor,
 	    Utils.Resolver resolver, Application application, Model model)
@@ -131,11 +157,9 @@ class Adapter extends Leaf
     // Never becomes permanent; instead a new non-ephemeral Adapter is
     // created upon a successful "apply"
     //
-    Adapter(String name, AdapterDescriptor descriptor, 
-	    Utils.Resolver resolver, Model model)
+    Adapter(String name, AdapterDescriptor descriptor, Model model)
     {
 	super("*" + name, model);
-	_resolver = resolver;
 	_descriptor = descriptor;
 	_ephemeral = true;
     }
@@ -148,11 +172,7 @@ class Adapter extends Leaf
 	fireNodeChangedEvent(this);
     }
 
-    AdapterDescriptor getDescriptor()
-    {
-	return _descriptor;
-    }
-
+    
     Utils.Resolver getResolver()
     {
 	return _resolver;

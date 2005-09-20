@@ -59,7 +59,9 @@ class AdapterEditor extends Editor
 		public void actionPerformed(ActionEvent e) 
 		{
 		    Object obj = _id.getSelectedItem();
-		    if(obj != null && _adapter != null)
+		    Adapter adapter = getAdapter();
+
+		    if(obj != null && adapter != null)
 		    {
 			ReplicatedAdapter ra = null;
 			if(obj instanceof ReplicatedAdapter)
@@ -68,12 +70,12 @@ class AdapterEditor extends Editor
 			}
 			else
 			{
-			    ra = _adapter.getApplication().
+			    ra = adapter.getApplication().
 				findReplicatedAdapter((String)obj);
 			}
 			if(ra != null)
 			{
-			    _adapter.getModel().getTree().setSelectionPath
+			    adapter.getModel().getTree().setSelectionPath
 				(ra.getPath());
 			}
 		    }
@@ -175,40 +177,48 @@ class AdapterEditor extends Editor
 	    builder.append("", _waitForActivation);
 	    builder.nextLine();
 	    
-	    JScrollPane scrollPane = 
-		new JScrollPane(builder.getPanel(),
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-	    scrollPane.setBorder(Borders.DIALOG_BORDER);
-	    
-	    _panel = new JPanel(new BorderLayout());
-	    _panel.add(scrollPane, BorderLayout.CENTER);
-	    
-	    JComponent buttonBar = 
-		ButtonBarFactory.buildRightAlignedBar(_applyButton, 
-						      _discardButton);
-	    buttonBar.setBorder(Borders.DIALOG_BORDER);
-	    _panel.add(buttonBar, BorderLayout.SOUTH);
+	    _panel = buildPanel(builder.getPanel());
 	}
 	return _panel;
     }
     
     //
-    // Write all fields except name
+    // From Editor:
     //
+
     void writeDescriptor()
     {
-	AdapterDescriptor descriptor = _adapter.getDescriptor();
+	AdapterDescriptor descriptor = 
+	    (AdapterDescriptor)getAdapter().getDescriptor();
+	descriptor.name = _name.getText();
 	descriptor.id = getIdAsString();
 	descriptor.registerProcess = _registerProcess.isSelected();
 	descriptor.waitForActivation = _waitForActivation.isSelected();
 	descriptor.objects = mapToObjectDescriptorSeq(_objectsMap);
     }	    
     
+    boolean isSimpleUpdate()
+    {
+	AdapterDescriptor descriptor = 
+	    (AdapterDescriptor)getAdapter().getDescriptor();
+	return descriptor.name.equals(_name.getText()); 
+    }
+
+    void postUpdate()
+    {
+	//
+	// Change enclosing properties after successful update
+	//
+	getAdapter().setEndpoints(_name.getText(), _endpoints.getText());
+    }
+
+
     void setObjectsField()
     {
-	final Utils.Resolver resolver = _adapter.getModel().substitute() ? 
-	    _adapter.getResolver() : null;
+	Adapter adapter = getAdapter();
+
+	final Utils.Resolver resolver = adapter.getModel().substitute() ? 
+	    adapter.getResolver() : null;
 	
 	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
 	Utils.Stringifier stringifier = new Utils.Stringifier()
@@ -233,7 +243,7 @@ class AdapterEditor extends Editor
     void setId(String adapterId)
     {
 	ReplicatedAdapters replicatedAdapters =
-	    _adapter.getApplication().getReplicatedAdapters();
+	    getAdapter().getApplication().getReplicatedAdapters();
 	
 	ReplicatedAdapter replicatedAdapter = 
 	    (ReplicatedAdapter)replicatedAdapters.findChild(adapterId);
@@ -269,159 +279,21 @@ class AdapterEditor extends Editor
 	}
     }
 
-    protected CommonBase getTarget()
-    {
-	return _adapter;
-    }
-    protected void applyUpdate()
-    {
-	if(_adapter.getModel().canUpdate())
-	{
-	    _adapter.getModel().disableDisplay();
-	    
-	    try
-	    {
-		AdapterDescriptor descriptor = _adapter.getDescriptor();
-		String newName = _name.getText();
-		
-		if(_adapter.isEphemeral())
-		{
-		    String newResolvedName = 
-			Utils.substitute(newName, _adapter.getResolver());
-		    Adapters parent = (Adapters)_adapter.getParent();
-		    
-		    descriptor.name = newName;
-		    writeDescriptor();
-		    parent.addDescriptor(descriptor);
-		    _adapter.destroy();
-		    
-		    if(!_adapter.getApplication().applyUpdate())
-		    {
-			//
-			// Restores old display
-			//
-			parent = (Adapters)_adapter.getModel()
-			    .findNewNode(parent.getPath());
-			parent.removeDescriptor(descriptor);
-			try
-			{
-			    parent.addChild(_adapter, true);
-			}
-			catch(DuplicateIdException die)
-			{
-			    assert false;
-			}
-			_adapter.setParent(parent);
-			_adapter.getModel().setSelectionPath(
-			    _adapter.getPath());
-			return;
-		    }
-		    else
-		    {
-			parent = (Adapters)_adapter.getModel()
-			    .findNewNode(parent.getPath());
-			_adapter = (Adapter)parent.findChild(newResolvedName);
-			_adapter.getModel()
-			    .setSelectionPath(_adapter.getPath());
-		    }
-		}
-		else if(descriptor.name.equals(newName))
-		{
-		    writeDescriptor();
-		}
-		else
-		{
-		    String newResolvedName = 
-			Utils.substitute(newName,  _adapter.getResolver());
-		    
-		    //
-		    // Save to be able to rollback
-		    //
-		    AdapterDescriptor oldDescriptor = null;
-		    oldDescriptor = (AdapterDescriptor)descriptor.clone();
-		    
-		    TreePath oldPath = _adapter.getPath();
-		    Adapters parent = (Adapters)_adapter.getParent();
-		    
-		    descriptor.name = newName;
-		    writeDescriptor();
-		    
-		    if(!_adapter.getApplication().applyUpdate())
-		    {
-			//
-			// Restore descriptor
-			// IMPORTANT: keep the same object!
-			//
-			descriptor.name = oldDescriptor.name;
-			descriptor.id = oldDescriptor.id;
-			descriptor.registerProcess = 
-			    oldDescriptor.registerProcess;
-			descriptor.waitForActivation = 
-			    oldDescriptor.waitForActivation;
-			descriptor.objects = oldDescriptor.objects;
-			
-			//
-			// Need to find new Adapter node!
-			//
-			_adapter = (Adapter)_adapter.getModel()
-			    .findNewNode(oldPath);
-			_adapter.getModel()
-			    .setSelectionPath(_adapter.getPath());
-			//
-			//
-			// Everything was restored, user must deal with error
-			//
-			return;
-		    }
-		    else
-		    {
-			parent = (Adapters)_adapter.getModel()
-			    .findNewNode(parent.getPath());
-			_adapter = (Adapter)parent.findChild(newResolvedName);
-			_adapter.getModel()
-			    .setSelectionPath(_adapter.getPath());
-		    }
-		}
-		
-		//
-		// Change enclosing properties afterwards 
-		//
-		_adapter.setEndpoints(newName, _endpoints.getText());
-		
-		//
-		// Mark modified
-		//
-		_adapter.getEditable().markModified();
-		
-		_applyButton.setEnabled(false);
-		_discardButton.setEnabled(false);
-	    }
-	    finally
-	    {
-		_adapter.getModel().enableDisplay();
-	    }
-	}
-	//
-	// Otherwise, may wait until other user is done!
-	//
-    }
-    
-    
     void show(Adapter adapter)
     {
 	detectUpdates(false);
-	
-	_adapter = adapter;
-	AdapterDescriptor descriptor = _adapter.getDescriptor();
+	setTarget(adapter);
+
+	AdapterDescriptor descriptor = (AdapterDescriptor)adapter.getDescriptor();
 	
 	Utils.Resolver resolver = null;
-	if(_adapter.getModel().substitute() && !_adapter.isEphemeral())
+	if(adapter.getModel().substitute())
 	{
-	    resolver = _adapter.getResolver();
+	    resolver = adapter.getResolver();
 	}
 	
-	boolean isEditable = _adapter.isEditable() && resolver == null;
-	boolean inIceBox = _adapter.inIceBox();
+	boolean isEditable = adapter.isEditable() && resolver == null;
+	boolean inIceBox = adapter.inIceBox();
 	
 	_name.setText(
 	    Utils.substitute(descriptor.name, resolver));
@@ -460,9 +332,14 @@ class AdapterEditor extends Editor
 	_waitForActivation.setSelected(descriptor.waitForActivation);
 	_waitForActivation.setEnabled(isEditable);
 	
-	_applyButton.setEnabled(_adapter.isEphemeral());
-	_discardButton.setEnabled(_adapter.isEphemeral());	  
+	_applyButton.setEnabled(adapter.isEphemeral());
+	_discardButton.setEnabled(adapter.isEphemeral());	  
 	detectUpdates(true);
+    }
+
+    Adapter getAdapter()
+    {
+	return (Adapter)_target;
     }
 
     static java.util.Map objectDescriptorSeqToMap(java.util.List objects)
@@ -506,6 +383,4 @@ class AdapterEditor extends Editor
     private JButton _idButton;
     
     private JPanel _panel;
-
-    private Adapter _adapter;
 }

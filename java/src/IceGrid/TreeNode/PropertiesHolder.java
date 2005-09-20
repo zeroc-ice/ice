@@ -37,29 +37,21 @@ class PropertiesHolder
 
     void replace(String oldKey, String newKey, String newValue)
     {
-	boolean needPut = true;
-	boolean needRemove = !oldKey.equals(newKey); // don't remove when oldKey == newKey
-
+	//
+	// Each PropertyDescriptor is considered immutable: so always remove + put
+	//
 	java.util.Iterator p = _descriptor.properties.iterator();
-	while(p.hasNext() && (needRemove || needPut))
+	while(p.hasNext())
 	{
 	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
-	    if(needRemove && pd.name.equals(oldKey))
+	    if(pd.name.equals(oldKey))
 	    {
 		p.remove();
-		needRemove = false;
-	    }
-	    if(needPut && pd.name.equals(newKey))
-	    {
-		pd.value = newValue;
-		needPut = false;
+		break; // done
 	    }
 	}
-
-	if(needPut)
-	{
-	    _descriptor.properties.add(new PropertyDescriptor(newKey, newValue));
-	}
+	
+	_descriptor.properties.add(new PropertyDescriptor(newKey, newValue));
     }
     private CommunicatorDescriptor _descriptor;
 }

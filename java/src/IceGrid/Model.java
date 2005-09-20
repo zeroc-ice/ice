@@ -400,7 +400,8 @@ public class Model
 		{
 		    if(application.isNew())
 		    {
-			_sessionKeeper.getSession().addApplication(application.getDescriptor());
+			_sessionKeeper.getSession().addApplication(
+			    (ApplicationDescriptor)application.getDescriptor());
 			application.commit();
 		    }
 		    else

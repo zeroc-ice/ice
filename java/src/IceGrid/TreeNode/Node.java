@@ -552,9 +552,13 @@ class Node extends EditableParent
 		    server.setParent(this);   
 		}
 	    }
-	    //
-	    // Otherwise this template-instance will most likely be deleted
-	    //
+	    else
+	    {
+		//
+		// The child will be deleted through purgeChildren, and the descriptor
+		// will be deleted (later) through cascadeDeleteServerInstance
+		//
+	    }
 	}
 
 	//
@@ -594,6 +598,47 @@ class Node extends EditableParent
 	}
 
 	purgeChildren(serverIdSet);
+    }
+
+    void cascadeDeleteServerInstance(String templateId)
+    {
+	if(_descriptor == null)
+	{
+	    //
+	    // Nothing to do
+	    //
+	    return;
+	}
+	
+	java.util.Iterator p = _descriptor.serverInstances.iterator();
+	while(p.hasNext())
+	{
+	    ServerInstanceDescriptor instanceDescriptor = 
+		(ServerInstanceDescriptor)p.next();
+
+	    if(instanceDescriptor.template.equals(templateId))
+	    {
+		p.remove();
+	    }
+	}
+    }
+
+    void cascadeDeleteServiceInstance(String templateId)
+    {
+	if(_descriptor == null)
+	{
+	    //
+	    // Nothing to do
+	    //
+	    return;
+	}
+	
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Server server = (Server)p.next();
+	    server.cascadeDeleteServiceInstance(templateId);
+	}
     }
 
     private NodeDescriptor _descriptor;

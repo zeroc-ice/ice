@@ -41,7 +41,7 @@ class ReplicatedAdapter extends EditableLeaf
 	//
     }
 
-    ReplicatedAdapterDescriptor getDescriptor()
+    public Object getDescriptor()
     {
 	return _descriptor;
     }

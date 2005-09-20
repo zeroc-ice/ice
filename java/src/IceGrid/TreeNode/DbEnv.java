@@ -14,6 +14,21 @@ import IceGrid.Utils;
 
 class DbEnv extends Leaf
 {
+    static public DbEnvDescriptor copyDescriptor(DbEnvDescriptor d)
+    {
+	return (DbEnvDescriptor)d.clone();
+    }
+
+    public Object getDescriptor()
+    {
+	return _descriptor;
+    }
+
+    public Object copyDescriptor()
+    {
+	return copyDescriptor(_descriptor);
+    }
+    
     DbEnv(String dbEnvName, DbEnvDescriptor descriptor, 
 	  Utils.Resolver resolver, Model model)
     {

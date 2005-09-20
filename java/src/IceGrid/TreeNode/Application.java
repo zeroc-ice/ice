@@ -20,11 +20,6 @@ import javax.swing.JOptionPane;
 
 public class Application extends EditableParent
 {
-    public ApplicationDescriptor getDescriptor()
-    {
-	return _descriptor;
-    }
-
     public ApplicationUpdateDescriptor createUpdateDescriptor()
     {
 	ApplicationUpdateDescriptor update = new ApplicationUpdateDescriptor();
@@ -116,6 +111,10 @@ public class Application extends EditableParent
 	_origDescription = _descriptor.description;
     }
 
+    public Object getDescriptor()
+    {
+	return _descriptor;
+    }
 
     //
     // Builds the application and all its subtrees
@@ -226,6 +225,16 @@ public class Application extends EditableParent
 	_nodes.update();
     }
 
+    void cascadeDeleteServerInstance(String templateId)
+    {
+	_nodes.cascadeDeleteServerInstance(templateId);
+    }
+
+    void cascadeDeleteServiceInstance(String templateId)
+    {
+	_nodes.cascadeDeleteServiceInstance(templateId);
+	_serverTemplates.cascadeDeleteServiceInstance(templateId);
+    }
 
     void update(ApplicationUpdateDescriptor desc)
 	throws DuplicateIdException

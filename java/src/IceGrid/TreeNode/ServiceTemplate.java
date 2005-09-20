@@ -64,7 +64,7 @@ class ServiceTemplate extends EditableParent
 	return templateLabel(_id, _templateDescriptor.parameters);
     }
 
-    TemplateDescriptor getDescriptor()
+    public Object getDescriptor()
     {
 	return _templateDescriptor;
     }

@@ -92,10 +92,33 @@ public interface CommonBase extends TreeCellRenderer
     //
     Editable getEditable();
 
+    //
+    // The enclosing Application
+    //
+    Application getApplication();
 
     //
-    // Returns a copy of the descriptor underlying the object;
-    // null if the object can't be copied
+    // Gets the associated descriptor
+    //
+    Object getDescriptor();
+
+    //
+    // Find child whose descriptor == the given descriptor
+    //
+    CommonBase findChildWithDescriptor(Object descriptor);
+
+    //
+    // Save & restore the descriptor
+    // How much needs to be copied depends on how what the corresponding
+    // editor writes.
+    //
+    Object saveDescriptor();
+    void restoreDescriptor(Object savedDescriptor);
+    
+    //
+    // Copy the underlying data (typically descriptor);
+    // this is a _deep_ copy
+    // Objects that are not copyable return null
     //
     Object copy();
 

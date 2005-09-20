@@ -8,13 +8,59 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JPopupMenu;
+
 import IceGrid.AdapterDescriptor;
 import IceGrid.Model;
 import IceGrid.Utils;
 
-
-class Adapters extends Parent
+class Adapters extends SimpleContainer
 {
+    static class NewPopupMenu extends JPopupMenu
+    {
+	NewPopupMenu()
+	{
+	    _new = new AbstractAction("New adapter")
+		{
+		    public void actionPerformed(ActionEvent e) 
+		    {
+			_parent.newAdapter(null);
+		    }
+		};
+
+	    add(_new);
+	}
+
+	void setParent(Adapters parent)
+	{
+	    _parent = parent;
+	}
+
+	private Adapters _parent;
+	private Action _new;
+    }
+
+    public JPopupMenu getPopupMenu()
+    {
+	if(canHaveNewChild())
+	{
+	    if(_popup == null)
+	    {
+		_popup = new NewPopupMenu();
+	    }
+	    _popup.setParent(this);
+	    return _popup;
+	}
+	else
+	{
+	    return null;
+	}
+    }
+
     public void unregister()
     {
 	java.util.Iterator p = _children.iterator();
@@ -24,7 +70,18 @@ class Adapters extends Parent
 	    adapter.unregister();
 	}
     }
-
+    
+    static public java.util.LinkedList
+    copyDescriptors(java.util.LinkedList descriptors)
+    {
+	java.util.LinkedList copy = new java.util.LinkedList();
+	java.util.Iterator p = descriptors.iterator();
+	while(p.hasNext())
+	{
+	    copy.add(Adapter.copyDescriptor((AdapterDescriptor)p.next()));
+	}
+	return copy;
+    }
 
     Adapters(java.util.List descriptors, boolean isEditable, 
 	     boolean inIceBox, Utils.Resolver resolver, 
@@ -42,19 +99,13 @@ class Adapters extends Parent
 	{
 	    AdapterDescriptor descriptor = (AdapterDescriptor)p.next();
 	    
-	    String adapterName = Utils.substitute(descriptor.name,
-						  _resolver);
+	    String adapterName = Utils.substitute(descriptor.name, _resolver);
 	    
 	    addChild(new Adapter(adapterName, descriptor, 
 				 _resolver, application, _model));
 	}
     }
     
-    boolean canHaveNewChild()
-    {
-	return _isEditable && !_inIceBox;
-    }
-
     boolean isEditable()
     {
 	return _isEditable;
@@ -65,9 +116,9 @@ class Adapters extends Parent
 	return _inIceBox;
     }
 
-    void newChild()
+    boolean canHaveNewChild()
     {
-	newAdapter(null);
+	return _isEditable && !_inIceBox;
     }
 
     void newAdapter(AdapterDescriptor descriptor)
@@ -87,7 +138,8 @@ class Adapters extends Parent
 	if(descriptor == null)
 	{
 	    CommonBase parent = getParent();
-	    String defaultId = (parent instanceof Service || parent instanceof ServiceTemplate) ? 
+	    String defaultId = (parent instanceof Service || 
+				parent instanceof ServiceTemplate) ? 
 		"${server}.${service}." + name : "${server}." + name;
 
 	    descriptor = new AdapterDescriptor(
@@ -102,7 +154,7 @@ class Adapters extends Parent
 	    descriptor.name = name;
 	}
 
-	Adapter adapter = new Adapter(name, descriptor, _resolver, _model);
+	Adapter adapter = new Adapter(name, descriptor, _model);
 	try
 	{
 	    addChild(adapter, true);
@@ -120,33 +172,13 @@ class Adapters extends Parent
 	if(canHaveNewChild() && descriptor instanceof AdapterDescriptor)
 	{
 	    AdapterDescriptor d = (AdapterDescriptor)descriptor;
-	    newAdapter((AdapterDescriptor)d.clone());
+	    newAdapter(Adapter.copyDescriptor(d));
 	}
     }
 
-    void addDescriptor(AdapterDescriptor descriptor)
-    {
-	_descriptors.add(descriptor);
-    }
-
-    void removeDescriptor(AdapterDescriptor descriptor)
-    {
-	//
-	// A straight remove uses equals(), which is not the desired behavior
-	//
-	java.util.Iterator p = _descriptors.iterator();
-	while(p.hasNext())
-	{
-	    if(descriptor == p.next())
-	    {
-		p.remove();
-		break;
-	    }
-	}
-    }
-
-    private java.util.List _descriptors;
     private Utils.Resolver _resolver;
     private boolean _isEditable;
     private boolean _inIceBox;
+
+    static private NewPopupMenu _popup;
 }

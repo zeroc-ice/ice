@@ -8,10 +8,6 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JPopupMenu;
 import javax.swing.tree.TreePath;
 import javax.swing.event.TreeModelEvent;
 import IceGrid.Model;
@@ -23,31 +19,7 @@ import IceGrid.TreeModelI;
 
 class Parent extends CommonBaseI
 {
-    static class NewPopupMenu extends JPopupMenu
-    {
-	NewPopupMenu()
-	{
-	    _new = new AbstractAction("New")
-		{
-		    public void actionPerformed(ActionEvent e) 
-		    {
-			_parent.newChild();
-		    }
-		};
-
-	    add(_new);
-	}
-
-	void setParent(Parent parent)
-	{
-	    _parent = parent;
-	}
-
-	protected Parent _parent;
-	private Action _new;
-    }
-    
-    
+   
     //
     // Adapts parent to a ComboBoxModel
     //
@@ -160,23 +132,19 @@ class Parent extends CommonBaseI
 	return null;
     }
 
-    public JPopupMenu getPopupMenu()
+    public CommonBase findChildWithDescriptor(Object descriptor)
     {
-	if(canHaveNewChild())
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
 	{
-	    if(_popup == null)
+	    CommonBase child = (CommonBase)p.next();
+	    if(descriptor == child.getDescriptor())
 	    {
-		_popup = new NewPopupMenu();
+		return child;
 	    }
-	    _popup.setParent(this);
-	    return _popup;
 	}
-	else
-	{
-	    return null;
-	}
+	return null;
     }
-
 
     void addChild(CommonBase child) throws DuplicateIdException
     {
@@ -522,16 +490,6 @@ class Parent extends CommonBaseI
 	return new ComboBoxModel();
     }
 
-    boolean canHaveNewChild()
-    {
-	return false;
-    }
-
-    void newChild()
-    {
-	assert canHaveNewChild();
-    }
-
     Parent(String id, Model model, boolean root)
     {
 	super(id, model, root);
@@ -559,6 +517,4 @@ class Parent extends CommonBaseI
 
     protected java.util.LinkedList _children = new java.util.LinkedList();
     private ChildComparator _childComparator = new ChildComparator();
-
-    static private NewPopupMenu _popup;
 }

@@ -41,6 +41,11 @@ class Leaf extends CommonBaseI
 	return null;
     }
     
+    public CommonBase findChildWithDescriptor(Object d)
+    {
+	return null;
+    }
+    
     protected Leaf(String id, Model model)
     {
 	super(id, model, false);
