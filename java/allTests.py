@@ -72,6 +72,7 @@ tests = [ \
     "IcePack/simple", \
     "IcePack/deployer", \
     "Glacier2/router", \
+    "IceGrid/simple", \
     ]
 
 def usage():
