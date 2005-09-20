@@ -22,7 +22,15 @@ protocol = ""
 #
 
 compress = 0
-#compress = 1		// TODO: Not implemented yet
+#compress = 1
+
+#
+# Set threadPerConnection to 1 in case you want to run the tests in
+# thread per connection mode.
+#
+
+threadPerConnection = 0
+#threadPerConnection = 1
 
 #
 # If you don't set "host" below, then the Ice library will try to find
@@ -159,6 +167,11 @@ if compress:
     clientProtocol += " --Ice.Override.Compress"
     serverProtocol += " --Ice.Override.Compress"
     clientServerProtocol += " --Ice.Override.Compress"
+
+if threadPerConnection:
+    clientProtocol += " --Ice.ThreadPerConnection"
+    serverProtocol += " --Ice.ThreadPerConnection"
+    clientServerProtocol += " --Ice.ThreadPerConnection"
 
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host

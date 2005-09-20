@@ -234,7 +234,13 @@ namespace IceInternal
 		return _serverThreadPool;
 	    }
 	}
-	
+
+	public bool threadPerConnection()
+	{
+	    // No mutex lock, immutable.
+	    return _threadPerConnection;
+	}
+
 	public EndpointFactoryManager endpointFactoryManager()
 	{
 	    lock(this)
@@ -447,7 +453,9 @@ namespace IceInternal
 		    _clientACM = _properties.getPropertyAsIntWithDefault("Ice.ACM.Client", clientACMDefault);
 		    _serverACM = _properties.getPropertyAsIntWithDefault("Ice.ACM.Server", serverACMDefault);
 		}
-		
+
+		_threadPerConnection = _properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
+
 		_routerManager = new RouterManager();
 		
 		_locatorManager = new LocatorManager();
@@ -731,6 +739,7 @@ namespace IceInternal
 	private ObjectAdapterFactory _objectAdapterFactory;
 	private ThreadPool _clientThreadPool;
 	private ThreadPool _serverThreadPool;
+	private bool _threadPerConnection;
 	private EndpointFactoryManager _endpointFactoryManager;
 	private Ice.PluginManager _pluginManager;
 	private Ice.Context _defaultContext;

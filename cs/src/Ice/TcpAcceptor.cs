@@ -64,7 +64,7 @@ namespace IceInternal
 	{
 	    Socket fd = Network.doAccept(_fd, timeout);
 	    Network.setBlock(fd, false);
-	    
+
 	    if(_traceLevels.network >= 1)
 	    {
 		string s = "accepted tcp connection\n" + Network.fdToString(fd);
@@ -73,7 +73,15 @@ namespace IceInternal
 	    
 	    return new TcpTransceiver(_instance, fd);
 	}
-	
+
+	public virtual void connectToSelf()
+	{
+	    Socket fd = Network.createSocket(false);
+	    Network.setBlock(fd, false);
+	    Network.doConnect(fd, _addr, -1);
+	    Network.closeSocket(fd);
+	}
+
 	public override string ToString()
 	{
 	    return Network.addrToString(_addr);

@@ -1,6 +1,8 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Added support for the thread-per-connection concurrency model.
+
 - Changed the way servant locators work if a server has a servant
   locator registered for a specific category, in addition to a default
   servant locator. Previously, if the locator for the specific category
