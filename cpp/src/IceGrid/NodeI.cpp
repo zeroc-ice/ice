@@ -19,12 +19,12 @@
 #include <IceGrid/WaitQueue.h>
 #include <IceGrid/TraceLevels.h>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #   include <direct.h> // For _getcwd
-#endif
-
-#ifdef __APPLE__
+#elif defined(__APPLE__)
 #   include <sys/sysctl.h>
+#elif defined(__hpux)
+#   include <sys/pstat.h>
 #endif
 
 using namespace std;
@@ -559,6 +559,10 @@ NodeI::keepAlive()
 	try
 	{
 	    LoadInfo info;
+	    info.load1 = 1.0f;
+	    info.load5 = 1.0f;
+	    info.load15 = 1.0f;
+	    info.nProcessors = 1;
 
 #if defined(_WIN32)
 	    //
@@ -595,18 +599,23 @@ NodeI::keepAlive()
 	    // not. The result is capped at 1.0f.
 	    //
 	    double loadAvg[3];
-	    getloadavg(loadAvg, 3);
-	    info.load1 = static_cast<float>(loadAvg[0]);
-	    info.load5 = static_cast<float>(loadAvg[1]);
-	    info.load15 = static_cast<float>(loadAvg[2]);
+	    if(getloadavg(loadAvg, 3) != -1)
+	    {
+		info.load1 = static_cast<float>(loadAvg[0]);
+		info.load5 = static_cast<float>(loadAvg[1]);
+		info.load15 = static_cast<float>(loadAvg[2]);
+	    }
 	    info.nProcessors =  _nproc;
-#else
-	    info.load1 = 1.0f;
-	    info.load5 = 1.0f;
-	    info.load15 = 1.0f;
-	    info.nProcessors = 1;
+#elif defined(__hpux)
+	    struct pst_dynamic dynInfo;
+	    if(pstat_getdynamic(&dynInfo, sizeof(dynInfo), 0, 0) >= 0)
+	    {
+		info.load1 = dynInfo.psd_avg_1_min;
+		info.load5 = dynInfo.psd_avg_5_min;
+		info.load15 = dynInfo.psd_avg_15_min;
+	    }
+	    info.nProcessors = 1; // TODO
 #endif
-
 	    session->keepAlive(info);
 	}
 	catch(const Ice::LocalException&)
