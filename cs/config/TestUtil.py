@@ -158,20 +158,41 @@ if protocol == "ssl":
                            " --IceSSL.Client.Config=sslconfig.xml" + \
                            " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
                            " --IceSSL.Server.Config=sslconfig.xml"
+    cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:create"
+    cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
+                              " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
+                              " --IceSSL.Client.Config=client_sslconfig.xml"
+    cppServerProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
+                              " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
+                              " --IceSSL.Server.Config=server_sslconfig.xml"
+    cppClientServerProtocol = cppPlugin + " --Ice.Default.Protocol=ssl" + \
+                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Client.Config=sslconfig.xml" + \
+                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Server.Config=sslconfig.xml"
 else:
     clientProtocol = ""
     serverProtocol = ""
     clientServerProtocol = ""
+    cppClientProtocol = ""
+    cppServerProtocol = ""
+    cppClientServerProtocol = ""
 
 if compress:
     clientProtocol += " --Ice.Override.Compress"
     serverProtocol += " --Ice.Override.Compress"
     clientServerProtocol += " --Ice.Override.Compress"
+    cppClientProtocol += " --Ice.Override.Compress"
+    cppServerProtocol += " --Ice.Override.Compress"
+    cppClientServerProtocol += " --Ice.Override.Compress"
 
 if threadPerConnection:
     clientProtocol += " --Ice.ThreadPerConnection"
     serverProtocol += " --Ice.ThreadPerConnection"
     clientServerProtocol += " --Ice.ThreadPerConnection"
+    cppClientProtocol += " --Ice.ThreadPerConnection"
+    cppServerProtocol += " --Ice.ThreadPerConnection"
+    cppClientServerProtocol += " --Ice.ThreadPerConnection"
 
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host
@@ -184,6 +205,17 @@ commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.NullH
                       " --Ice.Warn.Connections --Ice.ServerIdleTime=10" + \
                       " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
                       " --Ice.ThreadPool.Server.SizeWarn=0"
+
+cppCommonClientOptions = " --Ice.Warn.Connections"
+
+cppCommonServerOptions = " --Ice.PrintAdapterReady" + \
+                         " --Ice.Warn.Connections --Ice.ServerIdleTime=30" + \
+                         " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
+                         " --Ice.ThreadPool.Server.SizeWarn=0"
+
+cppClientOptions = cppClientProtocol + defaultHost + cppCommonClientOptions
+cppServerOptions = cppServerProtocol + defaultHost + cppCommonServerOptions
+cppClientServerOptions = cppClientServerProtocol + defaultHost + cppCommonServerOptions
 
 clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions
