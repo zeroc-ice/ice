@@ -19,7 +19,7 @@ public class Server : Ice.Application
 	{
 	    adapter.activate();
 	}
-	catch(Ice.ObjectAdapterDeactivatedException ex)
+	catch(Ice.ObjectAdapterDeactivatedException)
 	{
 	}
         communicator().waitForShutdown();

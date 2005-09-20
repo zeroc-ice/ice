@@ -108,11 +108,11 @@ public class AllTests
 	    admin.setServerActivation("server", IceGrid.ServerActivation.Manual);
 	    admin.stopServer("server");
 	}
-	catch(IceGrid.ServerNotExistException ex)
+	catch(IceGrid.ServerNotExistException)
 	{
 	    test(false);
 	}
-	catch(IceGrid.NodeUnreachableException ex)
+	catch(IceGrid.NodeUnreachableException)
 	{
 	    test(false);
 	}
@@ -124,7 +124,7 @@ public class AllTests
 	    obj = TestIntfPrxHelper.checkedCast(@base);
 	    test(false);
 	}
-	catch(Ice.NoEndpointException ex)
+	catch(Ice.NoEndpointException)
 	{
 	}
 	try
@@ -132,7 +132,7 @@ public class AllTests
 	    obj2 = TestIntfPrxHelper.checkedCast(@base2);
 	    test(false);
 	}
-	catch(Ice.NoEndpointException ex)
+	catch(Ice.NoEndpointException)
 	{
 	}
 	
@@ -140,11 +140,11 @@ public class AllTests
 	{
 	    admin.setServerActivation("server", IceGrid.ServerActivation.OnDemand);
 	}
-	catch(IceGrid.ServerNotExistException ex)
+	catch(IceGrid.ServerNotExistException)
 	{
 	    test(false);
 	}
-	catch(IceGrid.NodeUnreachableException ex)
+	catch(IceGrid.NodeUnreachableException)
 	{
 	    test(false);
 	}
@@ -153,7 +153,7 @@ public class AllTests
 	{
 	    obj = TestIntfPrxHelper.checkedCast(@base);
 	}
-	catch(Ice.NoEndpointException ex)
+	catch(Ice.NoEndpointException)
 	{
 	    test(false);
 	}
@@ -161,7 +161,7 @@ public class AllTests
 	{
 	    obj2 = TestIntfPrxHelper.checkedCast(@base2);
 	}
-	catch(Ice.NoEndpointException ex)
+	catch(Ice.NoEndpointException)
 	{
 	    test(false);
 	}
