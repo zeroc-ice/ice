@@ -1991,7 +1991,7 @@ namespace Ice
 		{
 		    validate();
 		}
-		catch(LocalException ex)
+		catch(LocalException)
 		{
 		    lock(this)
 		    {
@@ -2007,7 +2007,7 @@ namespace Ice
 			    {
 				_transceiver.close();
 			    }
-			    catch(LocalException e)
+			    catch(LocalException)
 			    {
 				// Here we ignore any exceptions in close().
 			    }
@@ -2110,7 +2110,7 @@ namespace Ice
 			    }
 			}
 		    }
-		    catch(DatagramLimitException ex) // Expected.
+		    catch(DatagramLimitException) // Expected.
 		    {
 			continue;
 		    }
@@ -2141,7 +2141,7 @@ namespace Ice
 		    ObjectAdapter adapter = null;
 		    IceInternal.OutgoingAsync outAsync = null;
 
-		    LocalException exception = null;
+		    LocalException localEx = null;
 
 		    Hashtable requests = null;
 		    Hashtable asyncRequests = null;
@@ -2177,7 +2177,7 @@ namespace Ice
 				}
 				catch(LocalException ex)
 				{
-				    exception = ex;
+				    localEx = ex;
 				}
 
 				_transceiver = null;
@@ -2234,10 +2234,10 @@ namespace Ice
 			}
 		    }
 
-		    if(exception != null)
+		    if(localEx != null)
 		    {
 			Debug.Assert(closed);
-			throw exception;
+			throw localEx;
 		    }
 		}
 		finally

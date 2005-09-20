@@ -1094,7 +1094,7 @@ namespace IceInternal
 		{
 		    transceiver = _acceptor.accept(-1);
 		}
-		catch(Ice.TimeoutException ex)
+		catch(Ice.TimeoutException)
 		{
 		    // Ignore timeouts.
 		}
@@ -1124,7 +1124,7 @@ namespace IceInternal
 			    {
 				transceiver.close();
 			    }
-			    catch(Ice.LocalException ex)
+			    catch(Ice.LocalException)
 			    {
 				// Here we ignore any exceptions in close().
 			    }
@@ -1170,7 +1170,7 @@ namespace IceInternal
 			{
 			    connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
 			}
-			catch(Ice.LocalException ex)
+			catch(Ice.LocalException)
 			{
 			    return;
 			}
