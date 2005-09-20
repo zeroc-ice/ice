@@ -111,6 +111,7 @@ IceInternal::connectFailed()
     return error == WSAECONNREFUSED ||
            error == WSAETIMEDOUT ||
            error == WSAENETUNREACH ||
+           error == WSAEHOSTUNREACH ||
            error == WSAECONNRESET ||
            error == WSAESHUTDOWN ||
            error == WSAECONNABORTED;
@@ -118,6 +119,7 @@ IceInternal::connectFailed()
     return errno == ECONNREFUSED ||
            errno == ETIMEDOUT ||
            errno == ENETUNREACH ||
+           errno == EHOSTUNREACH ||
            errno == ECONNRESET ||
            errno == ESHUTDOWN ||
            errno == ECONNABORTED;
