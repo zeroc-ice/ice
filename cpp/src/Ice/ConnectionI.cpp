@@ -1287,7 +1287,7 @@ Ice::ConnectionI::finished(const ThreadPoolPtr& threadPool)
 
     threadPool->promoteFollower();
 
-    auto_ptr<LocalException> exception;
+    auto_ptr<LocalException> localEx;
     
     map<Int, Outgoing*> requests;
     map<Int, AsyncRequest> asyncRequests;
@@ -1313,7 +1313,7 @@ Ice::ConnectionI::finished(const ThreadPoolPtr& threadPool)
 	    }
 	    catch(const LocalException& ex)
 	    {
-		exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
+		localEx.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 	    }
 
 	    _transceiver = 0;
@@ -1340,9 +1340,9 @@ Ice::ConnectionI::finished(const ThreadPoolPtr& threadPool)
 	q->second.p->__finished(*_exception.get()); // The exception is immutable at this point.
     }
 
-    if(exception.get())
+    if(localEx.get())
     {
-	exception->ice_throw();
+	localEx->ice_throw();
     }    
 }
 
@@ -2459,7 +2459,7 @@ Ice::ConnectionI::run()
 	ObjectAdapterPtr adapter;
 	OutgoingAsyncPtr outAsync;
 	
-	auto_ptr<LocalException> exception;
+	auto_ptr<LocalException> localEx;
 	
 	map<Int, Outgoing*> requests;
 	map<Int, AsyncRequest> asyncRequests;
@@ -2495,7 +2495,7 @@ Ice::ConnectionI::run()
 		}
 		catch(const LocalException& ex)
 		{
-		    exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
+		    localEx.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 		}
 		
 		_transceiver = 0;
@@ -2545,10 +2545,10 @@ Ice::ConnectionI::run()
 	    q->second.p->__finished(*_exception.get()); // The exception is immutable at this point.
 	}
 
-	if(exception.get())
+	if(localEx.get())
 	{
 	    assert(closed);
-	    exception->ice_throw();
+	    localEx->ice_throw();
 	}    
     }
 }
