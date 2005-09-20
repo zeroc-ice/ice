@@ -932,6 +932,25 @@ bytes are never compressed.
 <section><title>&Ice; Miscellaneous Properties</title>
 <!-- ********************************************************************** -->
 
+<section><title>Ice.ThreadPerConnection</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.ThreadPerConnection=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the Ice run time uses a thread-per-connection concurrency model instead
+of the default thread pool. As its name implies, this concurrency model
+creates a new thread for each outgoing and incoming connection. Unlike
+the thread pool concurrency model, thread-per-connection supports at
+most one level of nested callbacks.
+</para>
+</section>
+</section>
+
 <section><title>Ice.GC.Interval</title>
 <section><title>Synopsis</title>
 <synopsis>
