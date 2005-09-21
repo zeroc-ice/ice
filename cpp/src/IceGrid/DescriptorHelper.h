@@ -192,7 +192,7 @@ private:
     ServiceHelper _instance;
 };
 
-class ServerInstanceHelper : InstanceHelper
+class ServerInstanceHelper : public InstanceHelper
 {
 public:
 
