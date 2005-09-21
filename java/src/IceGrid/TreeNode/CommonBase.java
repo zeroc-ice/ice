@@ -128,4 +128,10 @@ public interface CommonBase extends TreeCellRenderer
     // is not of the proper type
     //
     void paste(Object descriptor);
+
+    //
+    // Change the sorting order (using no-op)
+    //
+    void moveUp();
+    void moveDown();
 }

@@ -42,7 +42,7 @@ abstract class CommunicatorEditor extends Editor
 	_propertiesDialog = new TableDialog(parentFrame, 
 					    "Properties",
 					    "Name", 
-					    "Value");
+					    "Value", true);
 	
 	Action openPropertiesDialog = new AbstractAction("...")
 	    {
@@ -88,7 +88,7 @@ abstract class CommunicatorEditor extends Editor
     }
 
 
-    void add(DefaultFormBuilder builder)
+    void append(DefaultFormBuilder builder)
     {
 
 	builder.append("Description");
@@ -122,8 +122,6 @@ abstract class CommunicatorEditor extends Editor
 	_description.setText(descriptor.description);
 	_description.setEnabled(isEditable);
     }
-
-    protected JPanel _panel;
 
     private JTextField _properties = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);

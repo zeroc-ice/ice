@@ -104,9 +104,11 @@ public class TableDialog extends JDialog
 	private Action _deleteRow;
     }
     
-    public TableDialog(Frame parentFrame, String title, String heading0, String heading1)
+    public TableDialog(Frame parentFrame, String title, 
+		       String heading0, String heading1, boolean editKeys)
     {
 	super(parentFrame, title, true);
+	_editKeys = editKeys;
 	setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 
 	_columnNames = new java.util.Vector(2);
@@ -114,8 +116,6 @@ public class TableDialog extends JDialog
 	_columnNames.add(heading1);
 	
 	_table = new JTable();
-	PopupListener popupListener = new PopupListener();
-	_table.addMouseListener(popupListener);
 
 	Action ok = new AbstractAction("OK")
 	    {
@@ -137,7 +137,12 @@ public class TableDialog extends JDialog
 	JButton cancelButton = new JButton(cancel);
 	
 	JScrollPane scrollPane = new JScrollPane(_table);
-	scrollPane.addMouseListener(popupListener);
+	if(_editKeys)
+	{
+	    PopupListener popupListener = new PopupListener();
+	    _table.addMouseListener(popupListener);
+	    scrollPane.addMouseListener(popupListener);
+	}
 	scrollPane.setBorder(Borders.DIALOG_BORDER);
 
 	getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -168,12 +173,26 @@ public class TableDialog extends JDialog
 	    row.add(entry.getValue());
 	    vector.add(row);
 	}
-	if(vector.size() == 0)
+	if(_editKeys && vector.size() == 0)
 	{
 	    vector.add(new java.util.Vector(2));
 	}
 
-	_model = new DefaultTableModel(vector, _columnNames);
+	_model = new DefaultTableModel(vector, _columnNames)
+	    {
+		public boolean isCellEditable(int row, int column)
+		{
+		    if(_editKeys)
+		    {
+			return true;
+		    }
+		    else
+		    {
+			return column > 0;
+		    }
+		}
+	    };
+	
 	_table.setModel(_model);
 
 	setLocationRelativeTo(onComponent);
@@ -213,6 +232,7 @@ public class TableDialog extends JDialog
 	}
     }
 
+    private final boolean _editKeys;
     private boolean _cancelled;
     private JTable _table;
     private DefaultTableModel _model;

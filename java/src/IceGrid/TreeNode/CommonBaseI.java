@@ -276,6 +276,12 @@ abstract class CommonBaseI implements CommonBase
 	return _model;
     }
 
+    public void moveUp()
+    {}
+
+    public void moveDown()
+    {}
+
     
     protected TreePath _path;
     protected CommonBase _parent;

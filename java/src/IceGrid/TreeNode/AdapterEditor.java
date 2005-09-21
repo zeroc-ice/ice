@@ -32,8 +32,6 @@ import javax.swing.tree.TreePath;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.ButtonBarFactory;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.util.LayoutStyle;
 
 import IceGrid.AdapterDescriptor;
 import IceGrid.Model;
@@ -75,7 +73,7 @@ class AdapterEditor extends Editor
 			}
 			if(ra != null)
 			{
-			    adapter.getModel().getTree().setSelectionPath
+			    adapter.getModel().setSelectionPath
 				(ra.getPath());
 			}
 		    }
@@ -91,7 +89,7 @@ class AdapterEditor extends Editor
 	_objectsDialog = new TableDialog(parentFrame, 
 					 "Registered Objects",
 					 "Object Identity", 
-					 "Type");
+					 "Type", true);
 	
 	AbstractAction openObjectsDialog = new AbstractAction("...")
 	    {
@@ -140,48 +138,7 @@ class AdapterEditor extends Editor
 	idTextField.getDocument().addDocumentListener(_updateListener);	
     }
     
- 
-    JComponent getComponent()
-    {
-	if(_panel == null)
-	{
-	    //
-	    // Build everything using JGoodies's DefaultFormBuilder
-	    //
-	    FormLayout layout = new FormLayout(
-		"right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
-	    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-	    builder.setBorder(Borders.DLU2_BORDER);
-	    builder.setRowGroupingEnabled(true);
-	    
-	    builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-	    
-	    builder.append("Name" );
-	    builder.append(_name, 3);
-	    builder.nextLine();
-	    
-	    builder.append("Id", _id );
-	    builder.append(_idButton);
-	    builder.nextLine();
-	    
-	    builder.append("Endpoints" );
-	    builder.append(_endpoints, 3);
-	    builder.nextLine();
-	    
-	    builder.append("Registered Objects");
-	    builder.append(_objects, _objectsButton);
-	    builder.nextLine();
-	    
-	    builder.append("", _registerProcess);
-	    builder.nextLine();
-	    builder.append("", _waitForActivation);
-	    builder.nextLine();
-	    
-	    _panel = buildPanel(builder.getPanel());
-	}
-	return _panel;
-    }
-    
+   
     //
     // From Editor:
     //
@@ -204,6 +161,30 @@ class AdapterEditor extends Editor
 	return descriptor.name.equals(_name.getText()); 
     }
 
+    void append(DefaultFormBuilder builder)
+    {
+	builder.append("Name" );
+	builder.append(_name, 3);
+	builder.nextLine();
+	
+	builder.append("Id", _id );
+	builder.append(_idButton);
+	builder.nextLine();
+	
+	builder.append("Endpoints" );
+	builder.append(_endpoints, 3);
+	builder.nextLine();
+	
+	builder.append("Registered Objects");
+	builder.append(_objects, _objectsButton);
+	builder.nextLine();
+	
+	builder.append("", _registerProcess);
+	builder.nextLine();
+	builder.append("", _waitForActivation);
+	builder.nextLine();
+    }
+
     void postUpdate()
     {
 	//
@@ -211,6 +192,7 @@ class AdapterEditor extends Editor
 	//
 	getAdapter().setEndpoints(_name.getText(), _endpoints.getText());
     }
+
 
 
     void setObjectsField()
@@ -378,7 +360,7 @@ class AdapterEditor extends Editor
 
     private java.util.Map _objectsMap;
     private TableDialog _objectsDialog;
-    private JButton _objectsButton = new JButton("...");
+    private JButton _objectsButton;
     
     private JButton _idButton;
     

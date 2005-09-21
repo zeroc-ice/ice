@@ -107,19 +107,19 @@ class Service extends Parent
 
     public void displayProperties()
     {
-	//
-	// Temporary
-	//
-	if(_instanceDescriptor.descriptor == null)
-	{
-	    super.displayProperties();
-	    return;
-	}
-
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
 	propertiesFrame.setTitle("Properties for " + _id);
 	
-	if(_instanceDescriptor.descriptor != null)
+	if(_instanceDescriptor.template.length() > 0)
+	{
+	    if(_instanceEditor == null)
+	    {
+		_instanceEditor = new ServiceInstanceEditor(_model.getMainFrame());
+	    }
+	    _instanceEditor.show(this);
+	    propertiesFrame.setContent(_instanceEditor.getComponent());
+	}
+	else
 	{
 	    if(_editor == null)
 	    {
@@ -127,12 +127,6 @@ class Service extends Parent
 	    }
 	    _editor.show(this);
 	    propertiesFrame.setContent(_editor.getComponent());
-	}
-	else
-	{
-	    //
-	    // Use instance editor 
-	    //
 	}
 	propertiesFrame.validate();
 	propertiesFrame.repaint();
@@ -160,6 +154,24 @@ class Service extends Parent
 	if(_adapters != null)
 	{
 	    _adapters.unregister();
+	}
+    }
+
+    public void moveUp()
+    {
+	move(true);
+    }
+
+    public void moveDown()
+    {
+	move(false);
+    }
+
+    private void move(boolean up)
+    {
+	if(!_ephemeral)
+	{
+	    ((Services)_parent).move(this, up);
 	}
     }
 
@@ -220,6 +232,11 @@ class Service extends Parent
 	return _resolver;
     }
 
+    Utils.Resolver getParentResolver()
+    {
+	return ((Services)_parent).getResolver();
+    }
+
     boolean isEditable()
     {
 	return ((Services)_parent).isEditable();
@@ -232,6 +249,7 @@ class Service extends Parent
 
     private ServiceInstanceDescriptor _instanceDescriptor;
     private ServiceDescriptor _serviceDescriptor;
+
     private String _displayString;
     private boolean _ephemeral;
     private Utils.Resolver _resolver;
@@ -241,5 +259,5 @@ class Service extends Parent
     private PropertiesHolder _propertiesHolder;
 
     static private ServiceEditor _editor;
-    // static private ServiceInstanceEditor _instanceEditor;
+    static private ServiceInstanceEditor _instanceEditor;
 }

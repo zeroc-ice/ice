@@ -78,36 +78,20 @@ class ServiceEditor extends CommunicatorEditor
 	}
     }
     
-    JComponent getComponent()
-    {
-	if(_panel == null)
-	{
-	    //
-	    // Build everything using JGoodies's DefaultFormBuilder
-	    //
-	    FormLayout layout = new FormLayout(
-		"right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
-	    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-	    builder.setBorder(Borders.DLU2_BORDER);
-	    builder.setRowGroupingEnabled(true);
-	    builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-	    
-	    builder.append("Name");
-	    builder.append(_name, 3);
-	    builder.nextLine();
-	    
-	    //
-	    // Add Communicator fields
-	    //
-	    add(builder);
+    void append(DefaultFormBuilder builder)
+    {    
+	builder.append("Name");
+	builder.append(_name, 3);
+	builder.nextLine();
+	
+	//
+	// Add Communicator fields
+	//
+	super.append(builder);
 
-	    builder.append("Entry");
-	    builder.append(_entry, 3);
-	    builder.nextLine();
-	    
-	    _panel = buildPanel(builder.getPanel());
-	}
-	return _panel;
+	builder.append("Entry");
+	builder.append(_entry, 3);
+	builder.nextLine();
     }
     
   

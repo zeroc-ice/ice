@@ -311,6 +311,11 @@ public class Application extends EditableParent
 	return (ServerTemplate)_serverTemplates.findChild(id);
     }
 
+    ServiceTemplate findServiceTemplate(String id)
+    {
+	return (ServiceTemplate)_serviceTemplates.findChild(id);
+    }
+
     ReplicatedAdapter findReplicatedAdapter(String id)
     {
 	return (ReplicatedAdapter)_replicatedAdapters.findChild(id);
@@ -337,6 +342,11 @@ public class Application extends EditableParent
     ServerTemplates getServerTemplates()
     {
 	return _serverTemplates;
+    }
+    
+    ServiceTemplates getServiceTemplates()
+    {
+	return _serviceTemplates;
     }
 
     ReplicatedAdapters getReplicatedAdapters()

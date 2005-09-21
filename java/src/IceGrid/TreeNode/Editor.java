@@ -26,6 +26,8 @@ import javax.swing.event.DocumentListener;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.ButtonBarFactory;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.util.LayoutStyle;
 
 import IceGrid.Model;
 import IceGrid.PropertyDescriptor;
@@ -37,6 +39,8 @@ abstract class Editor
 {   
     abstract void writeDescriptor();
     abstract boolean isSimpleUpdate();
+    abstract void append(DefaultFormBuilder builder);
+
     void postUpdate() {}
 
     protected Editor()
@@ -89,24 +93,40 @@ abstract class Editor
 	_target = target;
     }
 
-    protected JPanel buildPanel(JPanel innerPanel)
+    JComponent getComponent()
     {
-	JScrollPane scrollPane = 
-	    new JScrollPane(innerPanel,
-			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-			    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-	
-	scrollPane.setBorder(Borders.DIALOG_BORDER);
+	if(_panel == null)
+	{
+	    //
+	    // Build everything using JGoodies's DefaultFormBuilder
+	    //
+	    FormLayout layout = new FormLayout(
+		"right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
+
+	    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+	    builder.setBorder(Borders.DLU2_BORDER);
+	    builder.setRowGroupingEnabled(true);
+	    builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+
+	    append(builder);
+
+	    JScrollPane scrollPane = 
+		new JScrollPane(builder.getPanel(),
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	    
-	JPanel outerPanel = new JPanel(new BorderLayout());
-	outerPanel.add(scrollPane, BorderLayout.CENTER);
+	    scrollPane.setBorder(Borders.DIALOG_BORDER);
 	    
-	JComponent buttonBar = 
-	    ButtonBarFactory.buildRightAlignedBar(_applyButton, 
-						  _discardButton);
-	buttonBar.setBorder(Borders.DIALOG_BORDER);
-	outerPanel.add(buttonBar, BorderLayout.SOUTH);
-	return outerPanel;
+	    _panel = new JPanel(new BorderLayout());
+	    _panel.add(scrollPane, BorderLayout.CENTER);
+	    
+	    JComponent buttonBar = 
+		ButtonBarFactory.buildRightAlignedBar(_applyButton, 
+						      _discardButton);
+	    buttonBar.setBorder(Borders.DIALOG_BORDER);
+	    _panel.add(buttonBar, BorderLayout.SOUTH);
+	}
+	return _panel;
     }
 
     protected void updated()
@@ -252,8 +272,9 @@ abstract class Editor
     protected JButton _applyButton;
     protected JButton _discardButton;
     protected DocumentListener _updateListener;
-
+   
     protected CommonBase _target;
+    protected JPanel _panel;
 
-    private boolean _detectUpdates = true;   
+    private boolean _detectUpdates = true; 
 }

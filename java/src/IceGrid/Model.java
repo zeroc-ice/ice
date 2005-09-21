@@ -48,8 +48,6 @@ import IceGrid.TreeNode.Application;
 import IceGrid.TreeNode.CommonBase;
 import IceGrid.TreeNode.Root;
 
-
-
 //
 // The class that holds all the data and more!
 //
@@ -159,6 +157,9 @@ public class Model
 	    add(_delete);
 	    addSeparator();
 	    add(new JToggleButton(_substituteVar));
+	    addSeparator();
+	    add(_moveUp);
+	    add(_moveDown);
 	}
     }
 
@@ -847,6 +848,31 @@ public class Model
 	_substituteVar.putValue(Action.SHORT_DESCRIPTION, 
 				     "Substitute variables and parameters in servers' properties");
     
+
+	_moveUp = new AbstractAction("Up")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
+		    if(currentNode != null)
+		    {
+			currentNode.moveUp();
+		    }
+		}
+	    };
+
+	_moveDown = new AbstractAction("Down")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
+		    if(currentNode != null)
+		    {
+			currentNode.moveDown();
+		    }
+		}
+	    };
+
 	_about = new AbstractAction("About...")
 	    {
 		public void actionPerformed(ActionEvent e) 
@@ -983,4 +1009,6 @@ public class Model
     private Action _delete;
     private Action _about;
     private Action _substituteVar;
+    private Action _moveUp;
+    private Action _moveDown;
 }

@@ -43,8 +43,11 @@ class Parent extends CommonBaseI
 
 	public void setSelectedItem(Object obj)
 	{
-	    _selectedItem = obj;
-	    fireContentsChanged(this, -1, -1);
+	    if(obj != _selectedItem)
+	    {
+		_selectedItem = obj;
+		fireContentsChanged(this, -1, -1);
+	    }
 	}
 
 	private Object _selectedItem;
@@ -154,43 +157,98 @@ class Parent extends CommonBaseI
     void addChild(CommonBase child, boolean fireEvent)
 	throws DuplicateIdException
     {
-	//
-	// Sorted insert
-	//
-
-	String id = child.getId();
-	int i = 0;
-	java.util.Iterator p = _children.iterator();
-
-	while(p.hasNext())
+	if(_sortChildren)
 	{
-	    CommonBase existingChild = (CommonBase)p.next();
-	    int cmp = id.compareTo(existingChild.getId());
-
-	    if(cmp == 0)
+	    //
+	    // Sorted insert
+	    //
+	    String id = child.getId();
+	    int i = 0;
+	    java.util.Iterator p = _children.iterator();
+	    
+	    while(p.hasNext())
 	    {
-		throw new DuplicateIdException(this, id);
+		CommonBase existingChild = (CommonBase)p.next();
+		int cmp = id.compareTo(existingChild.getId());
+		
+		if(cmp == 0)
+		{
+		    throw new DuplicateIdException(this, id);
+		}
+		if(cmp < 0)
+		{
+		    break; // while
+		}
+		i++;
 	    }
-	    if(cmp < 0)
+	    
+	    if(i < _children.size())
 	    {
-		break; // while
+		_children.add(i, child);
 	    }
-	    i++;
-	}
-
-	if(i < _children.size())
-	{
-	    _children.add(i, child);
+	    else
+	    {
+		_children.add(child);
+	    }	
+	    if(fireEvent)
+	    {
+		fireNodeInsertedEvent(this, child, i);
+	    }
 	}
 	else
 	{
+	    //
+	    // Unsorted insert
+	    //
+	    String id = child.getId();
+	    java.util.Iterator p = _children.iterator();
+	    while(p.hasNext())
+	    {
+		CommonBase existingChild = (CommonBase)p.next();
+		if(id.equals(existingChild.getId()))
+		{
+		    throw new DuplicateIdException(this, id);
+		}
+	    }
+	    
 	    _children.add(child);
-	}	
-	if(fireEvent)
-	{
-	    fireNodeInsertedEvent(this, child, i);
+	    if(fireEvent)
+	    {
+		fireNodeInsertedEvent(this, child, _children.size() - 1);
+	    }
 	}
     }
+
+    void moveChild(int index, boolean up, boolean fireEvent)
+    {
+	assert !_sortChildren;
+
+	Object child = _children.remove(index);
+	assert child != null;
+
+	if(fireEvent)
+	{
+	    fireNodeRemovedEvent(this, child, index);
+	}
+
+	if(up)
+	{
+	    _children.add(index - 1, child);
+	    if(fireEvent)
+	    {
+		fireNodeInsertedEvent(this, child, index - 1);
+	    }
+	}
+	else
+	{
+	    _children.add(index + 1, child);
+	    if(fireEvent)
+	    {
+		fireNodeInsertedEvent(this, child, index + 1);
+	    }
+	}
+    }
+
 
     void removeChild(CommonBase child)
     {
@@ -514,7 +572,13 @@ class Parent extends CommonBaseI
 	    _children = (java.util.LinkedList)o._children.clone();
 	}
     }
+    
+    protected void sortChildren(boolean val)
+    {
+	_sortChildren = val;
+    }
 
     protected java.util.LinkedList _children = new java.util.LinkedList();
     private ChildComparator _childComparator = new ChildComparator();
+    private boolean _sortChildren = true;
 }

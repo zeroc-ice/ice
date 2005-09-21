@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import IceGrid.Model;
@@ -111,6 +112,9 @@ class Services extends SimpleContainer
 	super("Services", application.getModel());    
 	_descriptors = descriptors;
 	_isEditable = (editable != null);
+	_resolver = resolver;
+
+	sortChildren(false);
 
 	java.util.Iterator p = _descriptors.iterator();
 	while(p.hasNext())
@@ -180,7 +184,7 @@ class Services extends SimpleContainer
 		}
 	    }
 	    
-	    addChild(new Service(serviceName, 
+	    addChild(new Service(serviceName,
 				 displayString,
 				 descriptor, 
 				 serviceDescriptor,
@@ -215,6 +219,31 @@ class Services extends SimpleContainer
 	if(descriptor.descriptor != null)
 	{
 	    descriptor.descriptor.name = name;
+	}
+	else
+	{
+	    //
+	    // Make sure descriptor.template points to a real template
+	    //
+	    if(getApplication().findServiceTemplate(descriptor.template) == null)
+	    {
+		CommonBase t = (CommonBase)
+		    getApplication().getServiceTemplates().getChildAt(0);
+
+		if(t == null)
+		{
+		    JOptionPane.showMessageDialog(
+			_model.getMainFrame(),
+			"You need to create a service template before you can create a service instance.",
+			"No Service Template",
+			JOptionPane.INFORMATION_MESSAGE);
+		    return;
+		}
+		else
+		{
+		    descriptor.template = t.getId();
+		}
+	    }
 	}
 
 	Service service = new Service(name, descriptor, _model);
@@ -260,6 +289,54 @@ class Services extends SimpleContainer
 	return _isEditable;
     }
 
+    Utils.Resolver getResolver()
+    {
+	return _resolver;
+    }
+    
+    void move(Service service, boolean up)
+    {
+	if(!_isEditable)
+	{
+	    return;
+	}
+	//
+	// Note: can't have any ephemeral in the list, since a non-ephemeral
+	// is selected
+	//
+	
+	Object descriptor = service.getDescriptor();
+	int index = _descriptors.indexOf(descriptor);
+	assert index != -1;
+	if(up && index == 0 || !up && (index == _descriptors.size() - 1))
+	{
+	    return;
+	} 
+	
+	if(_model.canUpdate())
+	{    
+	    _model.disableDisplay();
+	    
+	    getEditable().markModified();
+
+	    _descriptors.remove(index);
+	    if(up)
+	    {
+		_descriptors.add(index - 1, descriptor);
+	    }
+	    else
+	    {
+		_descriptors.add(index + 1, descriptor);
+	    }
+	    moveChild(index, up, true);
+	    
+	    _model.setSelectionPath(service.getPath());
+	    _model.enableDisplay();
+	}
+    }
+
+
     private final boolean _isEditable;
+    private final Utils.Resolver _resolver;
     static private NewPopupMenu _popup;
 }
