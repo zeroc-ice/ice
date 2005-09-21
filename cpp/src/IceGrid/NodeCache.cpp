@@ -166,11 +166,10 @@ NodeEntry::getLoadInfoAndLoadFactor(const string& application, float& loadFactor
     loadFactor = -1.0f;
     if(p != _descriptors.end())
     {
-	istringstream is(p->second.loadFactor);
-	is >> loadFactor;
-	if(loadFactor < 0.0f)
+	if(!p->second.loadFactor.empty())
 	{
-	    loadFactor = 1.0f;
+	    istringstream is(p->second.loadFactor);
+	    is >> loadFactor;
 	}
     }
     return _session->getLoadInfo();
