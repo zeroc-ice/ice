@@ -16,8 +16,9 @@
 // Most CPUs support only one endianness, with the notable exceptions
 // of Itanium (IA64) and MIPS.
 //
-#if defined(__i386) || defined(_M_IX86) || defined (__x86_64) || \
-    defined(__alpha__)
+#if defined(__i386)   || defined(_M_IX86)    || \
+    defined(__x86_64) || defined(_M_X64)     || \
+    defined(_M_IA64)  || defined(__alpha__)
 #   define ICE_LITTLE_ENDIAN
 #elif defined(__sparc) || defined(__sparc__) || defined(__hppa) || \
       defined(__ppc__) || defined(_ARCH_COM)
@@ -39,7 +40,8 @@
       defined(__linux) && defined(__x86_64)     || \
       defined(__hppa) && defined(__LP64__)      || \
       defined(_ARCH_COM) && defined(__64BIT__)  || \
-      defined(__alpha__)
+      defined(__alpha__)                        || \
+      defined(_WIN64)
 #   define ICE_64
 #else
 #   define ICE_32
@@ -169,14 +171,12 @@ private:
 //
 // Int64 typedef
 //
-#if defined(_MSC_VER)
+#if defined(ICE_64)
+typedef long Int64;
+#elif defined(_MSC_VER)
 typedef __int64 Int64;
 #else
-#   if defined(ICE_64)
-typedef long Int64;
-#   else
 typedef long long Int64;
-#   endif
 #endif
 
 }
@@ -184,16 +184,15 @@ typedef long long Int64;
 //
 // ICE_INT64: macro for Int64 litteral values
 //
-#if defined(_MSC_VER)
-#   define ICE_INT64(n) n##i64
-#elif defined(__HP_aCC)
+#if defined(__HP_aCC)
 #   define ICE_INT64(n) n
 #elif defined(ICE_64)
 #   define ICE_INT64(n) n##L
+#elif defined(_MSC_VER)
+#   define ICE_INT64(n) n##i64
 #else
 #   define ICE_INT64(n) n##LL
 #endif
-
 
 //
 // The Ice version.
