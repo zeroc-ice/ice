@@ -18,6 +18,7 @@ SUBDIRS		= IceUtil \
 		  IceBox \
 		  IcePack \
 		  Glacier2 \
+		  IceGrid \
 		  book
 
 $(EVERYTHING)::
