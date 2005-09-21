@@ -342,7 +342,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
 #endif
 
 	    TypeStringList::const_iterator q;
-	    
+   	    _out << nl << "__checkMode(" << sliceModeToIceMode(op) << ", __current.mode)";
 	    if(!inParams.empty())
 	    {
 		_out << nl << "Dim __is As IceInternal.BasicStream = __inS.istr()";
@@ -476,8 +476,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
 	    }
 	    
 	    TypeStringList::const_iterator q;
-	    
-	    if(!inParams.empty())
+	    _out << nl << "__checkMode(" << sliceModeToIceMode(op) << ", __current.mode)";	    if(!inParams.empty())
 	    {
 		_out << nl << "Dim __is As IceInternal.BasicStream = __inS.istr()";
 	    }
