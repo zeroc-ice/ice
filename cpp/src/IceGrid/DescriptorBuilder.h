@@ -96,7 +96,7 @@ public:
     NodeDescriptorBuilder(ApplicationDescriptorBuilder&, const XmlAttributesHelper&);
 
     std::auto_ptr<ServerDescriptorBuilder> createServer(const XmlAttributesHelper&);
-    std::auto_ptr<IceBoxDescriptorBuilder> createIceBox(const XmlAttributesHelper&);
+    std::auto_ptr<ServerDescriptorBuilder> createIceBox(const XmlAttributesHelper&);
 
     void addVariable(const XmlAttributesHelper&);
     void addServerInstance(const XmlAttributesHelper&);
@@ -124,7 +124,7 @@ public:
     void setDescriptor(const CommunicatorDescriptorPtr&);
 
     std::auto_ptr<ServerDescriptorBuilder> createServer(const XmlAttributesHelper&);
-    std::auto_ptr<IceBoxDescriptorBuilder> createIceBox(const XmlAttributesHelper&);    
+    std::auto_ptr<ServerDescriptorBuilder> createIceBox(const XmlAttributesHelper&);    
     std::auto_ptr<ServiceDescriptorBuilder> createService(const XmlAttributesHelper&);    
 
     const std::string& getId() const { return _id; }

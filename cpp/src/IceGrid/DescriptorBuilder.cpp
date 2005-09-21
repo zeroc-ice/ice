@@ -275,10 +275,10 @@ NodeDescriptorBuilder::createServer(const XmlAttributesHelper& attrs)
     return auto_ptr<ServerDescriptorBuilder>(new ServerDescriptorBuilder(attrs));
 }
 
-auto_ptr<IceBoxDescriptorBuilder>
+auto_ptr<ServerDescriptorBuilder>
 NodeDescriptorBuilder::createIceBox(const XmlAttributesHelper& attrs)
 {
-    return auto_ptr<IceBoxDescriptorBuilder>(new IceBoxDescriptorBuilder(attrs));
+    return auto_ptr<ServerDescriptorBuilder>(new IceBoxDescriptorBuilder(attrs));
 }
 
 void
@@ -341,14 +341,14 @@ TemplateDescriptorBuilder::createServer(const XmlAttributesHelper& attrs)
     return auto_ptr<ServerDescriptorBuilder>(new ServerDescriptorBuilder(attrs));
 }
 
-auto_ptr<IceBoxDescriptorBuilder>
+auto_ptr<ServerDescriptorBuilder>
 TemplateDescriptorBuilder::createIceBox(const XmlAttributesHelper& attrs)
 {
     if(_serviceTemplate)
     {
 	throw "<icebox> element can't be a child of <service-template>";
     }
-    return auto_ptr<IceBoxDescriptorBuilder>(new IceBoxDescriptorBuilder(attrs));
+    return auto_ptr<ServerDescriptorBuilder>(new IceBoxDescriptorBuilder(attrs));
 }
 
 auto_ptr<ServiceDescriptorBuilder>
