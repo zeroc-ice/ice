@@ -177,22 +177,22 @@ ApplicationDescriptorBuilder::addVariable(const XmlAttributesHelper& attrs)
     }
 }
 
-auto_ptr<NodeDescriptorBuilder>
+NodeDescriptorBuilder*
 ApplicationDescriptorBuilder::createNode(const XmlAttributesHelper& attrs)
 {
-    return auto_ptr<NodeDescriptorBuilder>(new NodeDescriptorBuilder(*this, attrs));
+    return new NodeDescriptorBuilder(*this, attrs);
 }
 
-auto_ptr<TemplateDescriptorBuilder>
+TemplateDescriptorBuilder*
 ApplicationDescriptorBuilder::createServerTemplate(const XmlAttributesHelper& attrs)
 {
-    return auto_ptr<TemplateDescriptorBuilder>(new TemplateDescriptorBuilder(*this, attrs, false));
+    return new TemplateDescriptorBuilder(*this, attrs, false);
 }
 
-auto_ptr<TemplateDescriptorBuilder>
+TemplateDescriptorBuilder*
 ApplicationDescriptorBuilder::createServiceTemplate(const XmlAttributesHelper& attrs)
 {
-    return auto_ptr<TemplateDescriptorBuilder>(new TemplateDescriptorBuilder(*this, attrs, true));
+    return new TemplateDescriptorBuilder(*this, attrs, true);
 }
 
 void
@@ -269,16 +269,16 @@ NodeDescriptorBuilder::NodeDescriptorBuilder(ApplicationDescriptorBuilder& app, 
     _descriptor.loadFactor = attrs("load-factor", "");
 }
 
-auto_ptr<ServerDescriptorBuilder>
+ServerDescriptorBuilder*
 NodeDescriptorBuilder::createServer(const XmlAttributesHelper& attrs)
 {
-    return auto_ptr<ServerDescriptorBuilder>(new ServerDescriptorBuilder(attrs));
+    return new ServerDescriptorBuilder(attrs);
 }
 
-auto_ptr<ServerDescriptorBuilder>
+ServerDescriptorBuilder*
 NodeDescriptorBuilder::createIceBox(const XmlAttributesHelper& attrs)
 {
-    return auto_ptr<ServerDescriptorBuilder>(new IceBoxDescriptorBuilder(attrs));
+    return new IceBoxDescriptorBuilder(attrs);
 }
 
 void
@@ -331,34 +331,34 @@ TemplateDescriptorBuilder::setDescriptor(const CommunicatorDescriptorPtr& desc)
     _descriptor.descriptor = desc;
 }
 
-auto_ptr<ServerDescriptorBuilder>
+ServerDescriptorBuilder*
 TemplateDescriptorBuilder::createServer(const XmlAttributesHelper& attrs)
 {
     if(_serviceTemplate)
     {
 	throw "<server> element can't be a child of <service-template>";
     }
-    return auto_ptr<ServerDescriptorBuilder>(new ServerDescriptorBuilder(attrs));
+    return new ServerDescriptorBuilder(attrs);
 }
 
-auto_ptr<ServerDescriptorBuilder>
+ServerDescriptorBuilder*
 TemplateDescriptorBuilder::createIceBox(const XmlAttributesHelper& attrs)
 {
     if(_serviceTemplate)
     {
 	throw "<icebox> element can't be a child of <service-template>";
     }
-    return auto_ptr<ServerDescriptorBuilder>(new IceBoxDescriptorBuilder(attrs));
+    return new IceBoxDescriptorBuilder(attrs);
 }
 
-auto_ptr<ServiceDescriptorBuilder>
+ServiceDescriptorBuilder*
 TemplateDescriptorBuilder::createService(const XmlAttributesHelper& attrs)
 {
     if(!_serviceTemplate)
     {
 	throw "<service> element can't be a child of <server-template>";
     }
-    return auto_ptr<ServiceDescriptorBuilder>(new ServiceDescriptorBuilder(attrs));
+    return new ServiceDescriptorBuilder(attrs);
 }
 
 void
@@ -497,7 +497,7 @@ ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttribut
     _descriptor->activation = attrs("activation", "manual");
 }
 
-auto_ptr<ServiceDescriptorBuilder>
+ServiceDescriptorBuilder*
 ServerDescriptorBuilder::createService(const XmlAttributesHelper& attrs)
 {
     throw "<service> element can only be a child of an <icebox> element";
@@ -576,10 +576,10 @@ IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttribut
     _descriptor->properties.push_back(prop);
 }
 
-auto_ptr<ServiceDescriptorBuilder>
+ServiceDescriptorBuilder*
 IceBoxDescriptorBuilder::createService(const XmlAttributesHelper& attrs)
 {
-    return auto_ptr<ServiceDescriptorBuilder>(new ServiceDescriptorBuilder(attrs));
+    return new ServiceDescriptorBuilder(attrs);
 }
 
 void

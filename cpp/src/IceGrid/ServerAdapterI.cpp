@@ -111,13 +111,13 @@ ServerAdapterI::getDirectProxy(const Ice::Current& current) const
 }
 
 void
-ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current& current)
+ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
 {
     Lock sync(*this);
 
     //
-    // If the adapter proxy is not null the given proxy can only be null. We don't allow to overide an 
-    // existing proxy by another non null proxy if the server is active.
+    // We don't allow to override an existing proxy by another non
+    // null proxy if the server is not inactive.
     //
     if(prx && _proxy)
     {
@@ -147,7 +147,7 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current& cu
 	    info.proxy = _proxy;
 	    try
 	    {
-		observer->updateAdapter(_node->getName(current), info);
+		observer->updateAdapter(_node->getName(), info);
 	    }
 	    catch(const Ice::LocalException&)
 	    {

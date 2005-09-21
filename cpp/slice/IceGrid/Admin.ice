@@ -503,7 +503,7 @@ interface Admin
      *
      **/
     idempotent void removeAdapterWithServerId(string adapterId, string serverId)
-	throws AdapterNotExistException, ServerNotExistException;
+	throws AdapterNotExistException, ServerNotExistException, DeploymentException;
 
     /**
      *
@@ -515,7 +515,7 @@ interface Admin
      *
      **/
     idempotent void removeAdapter(string adapterId)
-	throws AdapterNotExistException;
+	throws AdapterNotExistException, DeploymentException;
 
     /**
      *
@@ -552,7 +552,7 @@ interface Admin
      *
      **/
     void updateObject(Object* obj)
-	throws ObjectNotExistException;
+	throws ObjectNotExistException, DeploymentException;
 
     /**
      *
@@ -568,7 +568,7 @@ interface Admin
      *
      **/
     void addObjectWithType(Object* obj, string type)
-	throws ObjectExistsException;
+	throws ObjectExistsException, DeploymentException;
 
     /**
      *
@@ -582,7 +582,7 @@ interface Admin
      *
      **/
     void removeObject(Ice::Identity id) 
-	throws ObjectNotExistException;
+	throws ObjectNotExistException, DeploymentException;
 
     /**
      *

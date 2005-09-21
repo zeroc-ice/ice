@@ -44,47 +44,11 @@ public:
     virtual void
     activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Current& current)
     {
-	cb->ice_response(getAdapterDirectProxy(current));
+	assert(false);
     }
 
     virtual Ice::ObjectPrx 
     getDirectProxy(const Ice::Current& current) const
-    {
-	return getAdapterDirectProxy(current);
-    }
-
-    virtual void 
-    setDirectProxy(const ::Ice::ObjectPrx& proxy, const ::Ice::Current& current)
-    {
-	setAdapterDirectProxy(current, proxy);
-    }
-
-    virtual void 
-    destroy(const ::Ice::Current& current)
-    {
-	setAdapterDirectProxy(current, 0);
-    }
-
-private:
-
-    Ice::ObjectPrx
-    getAdapterDirectProxy(const Ice::Current& current) const
-    {
-	string adapterId, serverId;
-	getAdapterIdAndServerId(current, serverId, adapterId);
-	return _database->getAdapterDirectProxy(serverId, adapterId);
-    }
-
-    void
-    setAdapterDirectProxy(const Ice::Current& current, const Ice::ObjectPrx& proxy)
-    {
-	string adapterId, serverId;
-	getAdapterIdAndServerId(current, serverId, adapterId);
-	_database->setAdapterDirectProxy(serverId, adapterId, proxy);
-    }
-    
-    void
-    getAdapterIdAndServerId(const Ice::Current& current, string& serverId, string& adapterId) const
     {
 	istringstream is(current.id.name);
 	unsigned int size;
@@ -94,9 +58,24 @@ private:
 	assert(c == '-');
 	string id;
 	is >> id;
-	adapterId = id.substr(0, size);
-	serverId = (id.size() > size) ? id.substr(size + 1) : string();
+	string adapterId = id.substr(0, size);
+	string serverId = (id.size() > size) ? id.substr(size + 1) : string();
+	return _database->getAdapterDirectProxy(serverId, adapterId);
     }
+
+    virtual void 
+    setDirectProxy(const ::Ice::ObjectPrx& proxy, const ::Ice::Current& current)
+    {
+	assert(false);
+    }
+
+    virtual void 
+    destroy(const ::Ice::Current& current)
+    {
+	assert(false);	
+    }
+
+private:
 
     const DatabasePtr _database;
 };
@@ -504,13 +483,19 @@ Database::getAllNodeServers(const string& node)
     return _nodeCache.get(node)->getServers();
 }
 
-void
+bool
 Database::setAdapterDirectProxy(const string& serverId, const string& adapterId, const Ice::ObjectPrx& proxy)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringObjectProxiesDict adapters(connection, _adapterDbName); 
     if(proxy)
     {
+	Lock sync(*this);
+	if(_adapterCache.has(adapterId))
+	{
+	    return false;
+	}
+
 	StringObjectProxiesDict::iterator p = adapters.find(adapterId);
 	if(p != adapters.end())
 	{
@@ -521,7 +506,7 @@ Database::setAdapterDirectProxy(const string& serverId, const string& adapterId,
 	    if(_traceLevels->adapter > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-		out << "added adapter `" << adapterId << "'";
+		out << "updated adapter `" << adapterId << "'";
 		if(!serverId.empty())
 		{
 		    out << " from server `" << serverId << "'";
@@ -537,58 +522,62 @@ Database::setAdapterDirectProxy(const string& serverId, const string& adapterId,
 	    if(_traceLevels->adapter > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-		out << "updated adapter `" << adapterId << "'";
+		out << "added adapter `" << adapterId << "'";
 		if(!serverId.empty())
 		{
 		    out << " from server `" << serverId << "'";
 		}
 	    }
 	}
+	return true;
     }
     else
     {
-	StringObjectProxiesDict::iterator p = adapters.find(adapterId);
-	if(p != adapters.end())
+	Lock sync(*this);
+	if(_adapterCache.has(adapterId))
 	{
-	    StringObjectProxyDict proxies = p->second;
-	    if(proxies.erase(serverId) == 0)
-	    {
-		ServerNotExistException ex;
-		ex.id = serverId;
-		throw ex;
-	    }
+	    return false;
+	}	
 
-	    if(proxies.empty())
-	    {
-		adapters.erase(p);
+	StringObjectProxiesDict::iterator p = adapters.find(adapterId);
+	if(p == adapters.end())
+	{
+	    return true;
+	}
 
-		if(_traceLevels->adapter > 0)
-		{
-		    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-		    out << "removed adapter `" << adapterId << "'";
-		}
-	    }
-	    else
-	    {
-		p.set(proxies);
+	StringObjectProxyDict proxies = p->second;
+	if(proxies.erase(serverId) == 0)
+	{
+	    ServerNotExistException ex;
+	    ex.id = serverId;
+	    throw ex;
+	}
 
-		if(_traceLevels->adapter > 0)
-		{
-		    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-		    out << "removed adapter `" << adapterId << "'";
-		    if(!serverId.empty())
-		    {
-			out << " from server `" << serverId << "'";
-		    }		
-		}
+	if(proxies.empty())
+	{
+	    adapters.erase(p);
+
+	    if(_traceLevels->adapter > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+		out << "removed adapter `" << adapterId << "'";
 	    }
 	}
 	else
 	{
-	    AdapterNotExistException ex;
-	    ex.id = adapterId;
-	    throw ex;
+	    p.set(proxies);
+
+	    if(_traceLevels->adapter > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+		out << "removed adapter `" << adapterId << "'";
+		if(!serverId.empty())
+		{
+		    out << " from server `" << serverId << "'";
+		}		
+	    }
 	}
+	return true;
     }
 }
 
@@ -612,6 +601,18 @@ Database::getAdapterDirectProxy(const string& serverId, const string& adapterId)
 void
 Database::removeAdapter(const string& adapterId)
 {
+    try
+    {
+	AdapterEntryPtr adpt = _adapterCache.get(adapterId);
+	DeploymentException ex;
+	ex.reason = "removing adapter `" + adapterId + "' is not allowed:\n";
+	ex.reason += "the adapter was added with the application descriptor `" + adpt->getApplication() + "'";
+	throw ex;
+    }
+    catch(const AdapterNotExistException&)
+    {
+    }
+
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringObjectProxiesDict adapters(connection, _adapterDbName); 
     StringObjectProxiesDict::iterator p = adapters.find(adapterId);
@@ -636,49 +637,7 @@ Database::removeAdapter(const string& adapterId)
 AdapterPrx
 Database::getAdapter(const string& id, const string& serverId)
 {
-    //
-    // First we check if the given adapter id is associated to a
-    // server, if that's the case we get the adapter proxy from the
-    // server.
-    //
-    try
-    {
-	return _adapterCache.get(id)->getProxy(serverId);
-    }
-    catch(const AdapterNotExistException&)
-    {
-    }
-
-    //
-    // Otherwise, we check the adapter endpoint table -- if there's an
-    // entry the adapter is managed by the registry itself.
-    //
-    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    StringObjectProxiesDict adapters(connection, _adapterDbName); 
-    StringObjectProxiesDict::const_iterator p = adapters.find(id);
-    if(p != adapters.end())
-    {
-	StringObjectProxyDict::const_iterator q = p->second.find(serverId);
-	if(q != p->second.end())
-	{
-	    Ice::Identity identity;
-	    identity.category = "IceGridAdapter";
-	    ostringstream os;
-	    os << id.size() << "-" << id << "-" << serverId;
-	    identity.name = os.str();
-	    return AdapterPrx::uncheckedCast(_internalAdapter->createDirectProxy(identity));
-	}
-	else
-	{
-	    ServerNotExistException ex;
-	    ex.id = serverId;
-	    throw ex;
-	}
-    }
-
-    AdapterNotExistException ex;
-    ex.id = id;
-    throw ex;
+    return _adapterCache.get(id)->getProxy(serverId);
 }
 
 vector<pair<string, AdapterPrx> >
@@ -742,14 +701,19 @@ Database::getAllAdapters(const string& expression)
 void
 Database::addObject(const ObjectInfo& info)
 {
+    Lock sync(*this);
+
+    const Ice::Identity id = info.proxy->ice_getIdentity();
+    if(_objectCache.has(id))
+    {
+	throw ObjectExistsException(id);
+    }
+
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     IdentityObjectInfoDict objects(connection, _objectDbName); 
-    const Ice::Identity id = info.proxy->ice_getIdentity();
     if(objects.find(id) != objects.end())
     {
-	ObjectExistsException ex;
-	ex.id = id;
-	throw ex;
+	throw ObjectExistsException(id);
     }
     objects.put(make_pair(id, info));
 
@@ -763,6 +727,18 @@ Database::addObject(const ObjectInfo& info)
 void
 Database::removeObject(const Ice::Identity& id)
 {
+    try
+    {
+	ObjectEntryPtr obj = _objectCache.get(id);
+	DeploymentException ex;
+	ex.reason = "removing object `" + Ice::identityToString(id) + "' is not allowed:\n";
+	ex.reason += "the object was added with the application descriptor `" + obj->getApplication() + "'";
+	throw ex;
+    }
+    catch(const ObjectNotExistException&)
+    {
+    }
+
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     IdentityObjectInfoDict objects(connection, _objectDbName); 
     if(objects.find(id) == objects.end())
@@ -784,9 +760,21 @@ Database::removeObject(const Ice::Identity& id)
 void
 Database::updateObject(const Ice::ObjectPrx& proxy)
 {
+    const Ice::Identity id = proxy->ice_getIdentity();
+    try
+    {
+	ObjectEntryPtr obj = _objectCache.get(id);
+	DeploymentException ex;
+	ex.reason = "updating object `" + Ice::identityToString(id) + "' is not allowed:\n";
+	ex.reason += "the object was added with the application descriptor `" + obj->getApplication() + "'";
+	throw ex;
+    }
+    catch(const ObjectNotExistException&)
+    {
+    }
+
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     IdentityObjectInfoDict objects(connection, _objectDbName); 
-    const Ice::Identity id = proxy->ice_getIdentity();
     IdentityObjectInfoDict::iterator p = objects.find(id);
     if(p == objects.end())
     {
@@ -975,9 +963,10 @@ void
 Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
 {
     const NodeDescriptorDict& nodes = app.getInstance().nodes;
+    const string application = app.getInstance().name;
     for(NodeDescriptorDict::const_iterator n = nodes.begin(); n != nodes.end(); ++n)
     {
-	_nodeCache.get(n->first, true)->addDescriptor(app.getInstance().name, n->second);	
+	_nodeCache.get(n->first, true)->addDescriptor(application, n->second);	
     }
 
     const ReplicatedAdapterDescriptorSeq& adpts = app.getInstance().replicatedAdapters;
@@ -987,7 +976,7 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries)
 	_adapterCache.get(r->id, true)->enableReplication(r->loadBalancing);
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
 	{
-	    _objectCache.add(r->id, "", *o);
+	    _objectCache.add(application, r->id, "", *o);
 	}
     }
 
@@ -1002,9 +991,10 @@ void
 Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 {
     const NodeDescriptorDict& nodes = app.getInstance().nodes;
+    const string application = app.getInstance().name;
     for(NodeDescriptorDict::const_iterator n = nodes.begin(); n != nodes.end(); ++n)
     {
-	_nodeCache.get(n->first)->removeDescriptor(app.getInstance().name);
+	_nodeCache.get(n->first)->removeDescriptor(application);
     }
 
     const ReplicatedAdapterDescriptorSeq& adpts = app.getInstance().replicatedAdapters;
@@ -1028,15 +1018,16 @@ void
 Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newApp, ServerEntrySeq& entries)
 {
     const NodeDescriptorDict& oldNodes = oldApp.getInstance().nodes;
+    const string application = oldApp.getInstance().name;
     NodeDescriptorDict::const_iterator n;
     for(n = oldNodes.begin(); n != oldNodes.end(); ++n)
     {
-	_nodeCache.get(n->first)->removeDescriptor(oldApp.getInstance().name);
+	_nodeCache.get(n->first)->removeDescriptor(application);
     }
     const NodeDescriptorDict& newNodes = newApp.getInstance().nodes;
     for(n = newNodes.begin(); n != newNodes.end(); ++n)
     {
-	_nodeCache.get(n->first, true)->addDescriptor(newApp.getInstance().name, n->second);
+	_nodeCache.get(n->first, true)->addDescriptor(application, n->second);
     }
 
     //
@@ -1058,7 +1049,7 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
 	_adapterCache.get(r->id, true)->enableReplication(r->loadBalancing);
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
 	{
-	    _objectCache.add(r->id, "", *o);
+	    _objectCache.add(application, r->id, "", *o);
 	}
     }
 

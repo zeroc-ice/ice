@@ -270,6 +270,19 @@ AdapterEntry::getProxies(int& nReplicas)
     return adapters;
 }
 
+string
+AdapterEntry::getApplication() const
+{
+    Lock sync(*this);
+    if(_servers.empty())
+    {
+	AdapterNotExistException ex;
+	ex.id = _id;
+	throw ex;
+    }
+    return _servers[0]->getApplication();
+}
+
 AdapterPrx
 AdapterEntry::getProxy(const string& serverId) const
 {

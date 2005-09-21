@@ -178,7 +178,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    {
 		error("the <server> element can only be a child of a <application> element");
 	    }
-	    _currentNode = _currentApplication->createNode(attributes);
+	    _currentNode.reset(_currentApplication->createNode(attributes));
 	}
 	else if(name == "server-instance")
 	{
@@ -196,11 +196,11 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    }
 	    if(_currentNode.get())
 	    {
-		_currentServer = _currentNode->createServer(attributes);
+		_currentServer.reset(_currentNode->createServer(attributes));
 	    }
 	    else
 	    {
-		_currentServer = _currentTemplate->createServer(attributes);
+		_currentServer.reset(_currentTemplate->createServer(attributes));
 	    }
 	    _currentCommunicator = _currentServer.get();
 	}
@@ -212,11 +212,11 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    }
 	    if(_currentNode.get())
 	    {
-		_currentServer = _currentNode->createIceBox(attributes);
+		_currentServer.reset(_currentNode->createIceBox(attributes));
 	    }
 	    else
 	    {
-		_currentServer = _currentTemplate->createIceBox(attributes);
+		_currentServer.reset(_currentTemplate->createIceBox(attributes));
 	    }
 	    _currentCommunicator = _currentServer.get();
 	}
@@ -226,7 +226,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    {
 		error("element <server-template> can only be a child of an <application> element");
 	    }
-	    _currentTemplate = _currentApplication->createServerTemplate(attributes);
+	    _currentTemplate.reset(_currentApplication->createServerTemplate(attributes));
 	}
 	else if(name == "service-instance")
 	{
@@ -245,11 +245,11 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 
 	    if(_currentServer.get())
 	    {
-		_currentService = _currentServer->createService(attributes);
+		_currentService.reset(_currentServer->createService(attributes));
 	    }
 	    else
 	    {
-		_currentService = _currentTemplate->createService(attributes);
+		_currentService.reset(_currentTemplate->createService(attributes));
 	    }
 	    _currentCommunicator = _currentService.get();
 	}
@@ -260,7 +260,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		error("element <service-template> can only be a child of an <application> element");
 	    }
 
-	    _currentTemplate = _currentApplication->createServiceTemplate(attributes);
+	    _currentTemplate.reset(_currentApplication->createServiceTemplate(attributes));
 	}
 	else if(name == "replicated-adapter")
 	{

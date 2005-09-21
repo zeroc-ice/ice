@@ -142,6 +142,7 @@ ServerCache::getNodeCache() const
 void
 ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const ServerEntryPtr& entry)
 {
+    const string application = entry->getApplication();
     for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
 	if(!q->id.empty())
@@ -150,7 +151,8 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const Server
 	}
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
 	{
-	    _objectCache.add(q->id, IceGrid::getProperty(comm->properties, q->name + ".Endpoints"), *r);
+	    const string edpts = IceGrid::getProperty(comm->properties, q->name + ".Endpoints");
+	    _objectCache.add(application, q->id, edpts, *r);
 	}
     }
 }
@@ -339,6 +341,17 @@ ServerEntry::getNode() const
 	throw ServerNotExistException();
     }
     return _proxy ? _cache.getNodeCache().get(_loaded->node) : _cache.getNodeCache().get(_load->node);
+}
+
+string
+ServerEntry::getApplication() const
+{
+    Lock sync(*this);
+    if(!_loaded.get() && !_load.get())
+    {
+	throw ServerNotExistException();
+    }
+    return _proxy ? _loaded->application : _load->application;
 }
 
 float

@@ -71,7 +71,7 @@ public:
     Ice::StringSeq getAllServers(const std::string& = std::string());
     Ice::StringSeq getAllNodeServers(const std::string&);
 
-    void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&);
+    bool setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&);
     Ice::ObjectPrx getAdapterDirectProxy(const std::string&, const std::string&);
     void removeAdapter(const std::string&);
     AdapterPrx getAdapter(const std::string&, const std::string&);

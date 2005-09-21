@@ -108,49 +108,46 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 					      const Ice::ObjectPrx& proxy,
 					      const Ice::Current&)
 {
-    try
+    while(true)
     {
-	//
-	// Get the adapter from the registry and set its direct proxy.
-	//
-	AMI_Adapter_setDirectProxyPtr amiCB = new AMI_Adapter_setDirectProxyI(cb);
-	_database->getAdapter(adapterId, serverId)->setDirectProxy_async(amiCB, proxy);
-	return;
-    }
-    catch(const ServerNotExistException&)
-    {
-	if(!_dynamicRegistration)
+	try
+	{
+	    //
+	    // Get the adapter from the registry and set its direct proxy.
+	    //
+	    AMI_Adapter_setDirectProxyPtr amiCB = new AMI_Adapter_setDirectProxyI(cb);
+	    _database->getAdapter(adapterId, serverId)->setDirectProxy_async(amiCB, proxy);
+	    return;
+	}
+	catch(const ServerNotExistException&)
 	{
 	    throw Ice::ServerNotFoundException();
 	}
-    }
-    catch(const AdapterNotExistException&)
-    {
-	if(!_dynamicRegistration)
+	catch(const AdapterNotExistException&)
 	{
-	    throw Ice::AdapterNotFoundException();
+	    if(!_dynamicRegistration)
+	    {
+		throw Ice::AdapterNotFoundException();
+	    }
+	}
+	catch(const NodeUnreachableException&)
+	{
+	    cb->ice_response(); // TODO: print a warning?
+	    return;
+	}
+	catch(const Ice::LocalException&)
+	{
+	    cb->ice_response(); // TODO: print a warning?
+	    return;
+	}
+	
+	assert(_dynamicRegistration);
+	if(_database->setAdapterDirectProxy(serverId, adapterId, proxy))
+	{
+	    cb->ice_response();
+	    return;
 	}
     }
-    catch(const NodeUnreachableException&)
-    {
-	cb->ice_response(); // TODO: print a warning?
-	return;
-    }
-    catch(const Ice::LocalException&)
-    {
-	cb->ice_response(); // TODO: print a warning?
-	return;
-    }
-    
-    assert(_dynamicRegistration);
-    try
-    {
-	_database->setAdapterDirectProxy(serverId, adapterId, proxy);
-    }
-    catch(const Ice::Exception&)
-    {
-    }
-    cb->ice_response();
 }
 
 void

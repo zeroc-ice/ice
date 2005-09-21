@@ -1700,7 +1700,10 @@ NodeHelper::print(Output& out) const
 {
     out << nl << "node '" << _name << "'";
     out << sb;
-    out << nl << "load factor = '" << _instance.loadFactor << "'";
+    if(!_instance.loadFactor.empty())
+    {
+	out << nl << "load factor = '" << _instance.loadFactor << "'";
+    }
     if(!_instance.variables.empty())
     {
 	out << nl << "variables";

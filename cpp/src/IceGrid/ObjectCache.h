@@ -33,15 +33,17 @@ public:
     
     ObjectEntry(Cache<Ice::Identity, ObjectEntry>&, const Ice::Identity&);
 
-    void set(const ObjectInfo&);
+    void set(const std::string&, const ObjectInfo&);
     Ice::ObjectPrx getProxy() const;
-    const ObjectInfo& getObjectInfo() const;
     std::string getType() const;
+    std::string getApplication() const;
+    const ObjectInfo& getObjectInfo() const;
 
     bool canRemove();
     
 private:
-    
+
+    std::string _application;
     ObjectInfo _info;
 };
 typedef IceUtil::Handle<ObjectEntry> ObjectEntryPtr;
@@ -52,7 +54,7 @@ public:
 
     ObjectCache(const Ice::CommunicatorPtr&);
 
-    void add(const std::string&, const std::string&, const ObjectDescriptor&);
+    void add(const std::string&, const std::string&, const std::string&, const ObjectDescriptor&);
     ObjectEntryPtr get(const Ice::Identity&) const;
     ObjectEntryPtr remove(const Ice::Identity&);
 

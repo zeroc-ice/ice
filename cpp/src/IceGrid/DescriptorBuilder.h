@@ -66,9 +66,9 @@ public:
     void addObject(const XmlAttributesHelper&);
     virtual void addVariable(const XmlAttributesHelper&);
 
-    std::auto_ptr<NodeDescriptorBuilder> createNode(const XmlAttributesHelper&);
-    std::auto_ptr<TemplateDescriptorBuilder> createServerTemplate(const XmlAttributesHelper&);
-    std::auto_ptr<TemplateDescriptorBuilder> createServiceTemplate(const XmlAttributesHelper&);
+    virtual NodeDescriptorBuilder* createNode(const XmlAttributesHelper&);
+    virtual TemplateDescriptorBuilder* createServerTemplate(const XmlAttributesHelper&);
+    virtual TemplateDescriptorBuilder* createServiceTemplate(const XmlAttributesHelper&);
 
     void addNode(const std::string&, const NodeDescriptor&);
     void addServerTemplate(const std::string&, const TemplateDescriptor&);
@@ -95,8 +95,8 @@ public:
 
     NodeDescriptorBuilder(ApplicationDescriptorBuilder&, const XmlAttributesHelper&);
 
-    std::auto_ptr<ServerDescriptorBuilder> createServer(const XmlAttributesHelper&);
-    std::auto_ptr<ServerDescriptorBuilder> createIceBox(const XmlAttributesHelper&);
+    virtual ServerDescriptorBuilder* createServer(const XmlAttributesHelper&);
+    virtual ServerDescriptorBuilder* createIceBox(const XmlAttributesHelper&);
 
     void addVariable(const XmlAttributesHelper&);
     void addServerInstance(const XmlAttributesHelper&);
@@ -123,9 +123,9 @@ public:
     void addParameter(const XmlAttributesHelper&);
     void setDescriptor(const CommunicatorDescriptorPtr&);
 
-    std::auto_ptr<ServerDescriptorBuilder> createServer(const XmlAttributesHelper&);
-    std::auto_ptr<ServerDescriptorBuilder> createIceBox(const XmlAttributesHelper&);    
-    std::auto_ptr<ServiceDescriptorBuilder> createService(const XmlAttributesHelper&);    
+    virtual ServerDescriptorBuilder* createServer(const XmlAttributesHelper&);
+    virtual ServerDescriptorBuilder* createIceBox(const XmlAttributesHelper&);    
+    virtual ServiceDescriptorBuilder* createService(const XmlAttributesHelper&);    
 
     const std::string& getId() const { return _id; }
     const TemplateDescriptor& getDescriptor() const { return _descriptor; }
@@ -165,7 +165,7 @@ public:
 
     void init(const ServerDescriptorPtr&, const XmlAttributesHelper&);
 
-    virtual std::auto_ptr<ServiceDescriptorBuilder> createService(const XmlAttributesHelper&);
+    virtual ServiceDescriptorBuilder* createService(const XmlAttributesHelper&);
 
     virtual void addOption(const std::string&);
     virtual void addEnv(const std::string&);
@@ -190,7 +190,7 @@ public:
 
     void init(const IceBoxDescriptorPtr&, const XmlAttributesHelper&);
 
-    virtual std::auto_ptr<ServiceDescriptorBuilder> createService(const XmlAttributesHelper&);
+    virtual ServiceDescriptorBuilder* createService(const XmlAttributesHelper&);
 
     virtual void addAdapter(const XmlAttributesHelper&);
     virtual void addDbEnv(const XmlAttributesHelper&);

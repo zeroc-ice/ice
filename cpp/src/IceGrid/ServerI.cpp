@@ -417,7 +417,7 @@ ServerI::terminated(const Ice::Current& current)
 	{
 	    try
 	    {
-		p->second->setDirectProxy(0, current);
+		p->second->setDirectProxy(0);
 	    }
 	    catch(const Ice::ObjectNotExistException&)
 	    {
@@ -474,6 +474,7 @@ bool
 ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
 {
     ServerDescriptorPtr desc;
+    map<string, ServerAdapterIPtr> adpts;
     while(true)
     {
 	Lock sync(*this);
@@ -528,6 +529,7 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
 	assert(_state == ServerI::Activating);
 
 	desc = _desc;
+	adpts = _adapters;
 	if(amdCB)
 	{
 	    _startCB.push_back(amdCB);
@@ -549,6 +551,21 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
     if(pwd.empty())
     {
 	pwd = _serverDir + "/data";
+    }
+
+    //
+    // Clear the adapters direct proxy (this is usefull if the server
+    // was manually activated).
+    //
+    for(map<string, ServerAdapterIPtr>::iterator p = adpts.begin(); p != adpts.end(); ++p)
+    {
+	try
+	{
+	    p->second->setDirectProxy(0);
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
     }
 
     try

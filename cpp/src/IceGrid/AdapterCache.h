@@ -42,7 +42,8 @@ public:
 
     AdapterPrx getProxy(const std::string&) const;
     std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&);
-    
+    std::string getApplication() const;
+
     void enableReplication(const LoadBalancingPolicyPtr&);
     void disableReplication();
 
