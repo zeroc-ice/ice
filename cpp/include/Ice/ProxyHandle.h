@@ -155,12 +155,7 @@ public:
 	}
     }
 
-#ifdef _MSC_VER // COMPILERBUG: Is VC++ or GNU C++ right here???
-    template<>
-    ProxyHandle(const ProxyHandle<T>& r)
-#else
     ProxyHandle(const ProxyHandle& r)
-#endif
     {
 	this->_ptr = r._ptr;
 
@@ -237,12 +232,7 @@ public:
 	return *this;
     }
 
-#ifdef _MSC_VER // COMPILERBUG: Is VC++ or GNU C++ right here???
-    template<>
-    ProxyHandle& operator=(const ProxyHandle<T>& r)
-#else
     ProxyHandle& operator=(const ProxyHandle& r)
-#endif
     {
 	if(this->_ptr != r._ptr)
 	{
