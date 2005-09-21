@@ -18,9 +18,17 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
 
     public java.lang.Object
     clone()
-        throws java.lang.CloneNotSupportedException
     {
-        return super.clone();
+        java.lang.Object o = null;
+	try
+	{
+	    o = super.clone();
+	}
+	catch(java.lang.CloneNotSupportedException ex)
+	{
+	    assert false; // Impossible
+	}
+	return o;
     }
 
     public int
