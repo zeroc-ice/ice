@@ -395,14 +395,7 @@ class Server extends EditableParent
     copyDescriptor(ServerDescriptor sd)
     {
 	ServerDescriptor copy = null;
-	try
-	{ 
-	    copy = (ServerDescriptor)sd.clone();
-	}
-	catch(CloneNotSupportedException e)
-	{
-	    assert false;
-	}
+	copy = (ServerDescriptor)sd.clone();
 	copy.adapters = Adapters.copyDescriptors(copy.adapters);
 	copy.dbEnvs = DbEnvs.copyDescriptors(copy.dbEnvs);
 	// TODO: copy.patchs = Patchs.copyDescriptor(copy.patchs);

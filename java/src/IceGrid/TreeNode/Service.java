@@ -26,14 +26,7 @@ class Service extends Parent
 	
 	if(copy.descriptor != null)
 	{
-	    try
-	    {
-		copy.descriptor = (ServiceDescriptor)copy.descriptor.clone();
-	    }
-	    catch(CloneNotSupportedException e)
-	    {
-		assert false;
-	    }
+	    copy.descriptor = (ServiceDescriptor)copy.descriptor.clone();
 	    copy.descriptor.adapters = Adapters.copyDescriptors(copy.descriptor.adapters);
 	    copy.descriptor.dbEnvs = DbEnvs.copyDescriptors(copy.descriptor.dbEnvs);
 
@@ -61,14 +54,7 @@ class Service extends Parent
 	
 	if(saved.descriptor != null)
 	{
-	    try
-	    {
-		saved.descriptor = (ServiceDescriptor)saved.descriptor.clone();
-	    }
-	    catch(CloneNotSupportedException e)
-	    {
-		assert false;
-	    }
+	    saved.descriptor = (ServiceDescriptor)saved.descriptor.clone();
 	}
 	return saved;
     }
