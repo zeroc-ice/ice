@@ -37,7 +37,7 @@ namespace IceInternal
 	//
 	// Convert the endpoint to its string form
 	//
-	public override string _Ice_toString()
+	public override string ice_toString_()
 	{
 	    return "";
 	}

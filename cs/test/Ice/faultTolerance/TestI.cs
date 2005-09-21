@@ -13,7 +13,7 @@ using System.Threading;
 using IceInternal;
 using Test;
 
-public sealed class TestI : _TestIntfDisp
+public sealed class TestI : TestIntfDisp_
 {
     public TestI(Ice.ObjectAdapter adapter)
     {
@@ -32,8 +32,8 @@ public sealed class TestI : _TestIntfDisp
 	// process, which causes it to hang around for a bit cleaning
 	// up. We want the process to die immmediately.
 	//
-	if(AssemblyUtil._platform == AssemblyUtil.Platform.NonWindows
-	   && AssemblyUtil._runtime == AssemblyUtil.Runtime.Mono)
+	if(AssemblyUtil.platform_ == AssemblyUtil.Platform.NonWindows
+	   && AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono)
 	{
 #if __MonoCS__
 	    Mono.Unix.Syscall.kill(_pid, Mono.Unix.Signum.SIGKILL);

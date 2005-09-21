@@ -15,13 +15,13 @@ namespace Ice {
     {
 	public abstract void write(OutputStream outStream);
 
-	public override void __write(IceInternal.BasicStream os)
+	public override void write__(IceInternal.BasicStream os)
 	{
 	    IceInternal.BasicOutputStream bos = (IceInternal.BasicOutputStream)os;
-	    write(bos._out);
+	    write(bos.out_);
 	}
 
-	public override void __read(IceInternal.BasicStream istr, bool rid)
+	public override void read__(IceInternal.BasicStream istr, bool rid)
 	{
 	    Debug.Assert(false);
 	}

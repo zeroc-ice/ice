@@ -9,7 +9,7 @@
 
 using Test;
 
-public sealed class DI : _DDisp
+public sealed class DI : DDisp_
 {
     public DI()
     {

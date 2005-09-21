@@ -293,7 +293,7 @@ namespace IceInternal
 			}
     		    
 			ex.id = new Ice.Identity();
-			ex.id.__read(_is);
+			ex.id.read__(_is);
 
                         //
                         // For compatibility with the old FacetPath.
@@ -416,7 +416,7 @@ namespace IceInternal
 
 	    try
 	    {
-		_reference.getIdentity().__write(_os);
+		_reference.getIdentity().write__(_os);
 
 		//
 		// For compatibility with the old FacetPath.
@@ -483,7 +483,7 @@ namespace IceInternal
 
 	private bool _compress; // Immutable after construction
 	
-	public Outgoing next; // For use by Ice._ObjectDelM
+	public Outgoing next; // For use by Ice.ObjectDelM_
     }
 
 }

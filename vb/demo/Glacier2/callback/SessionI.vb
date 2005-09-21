@@ -10,7 +10,7 @@
 Imports System
 
 Public NotInheritable Class SessionI
-    Inherits Glacier2._SessionDisp
+    Inherits Glacier2.SessionDisp_
 
     Public Sub New(ByVal userId As String)
         _userId = userId

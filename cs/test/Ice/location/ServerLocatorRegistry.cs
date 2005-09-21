@@ -9,7 +9,7 @@
 
 using System.Collections;
 
-public class ServerLocatorRegistry : Ice._LocatorRegistryDisp
+public class ServerLocatorRegistry : Ice.LocatorRegistryDisp_
 {
     public ServerLocatorRegistry()
     {

@@ -10,7 +10,7 @@
 using Filesystem;
 using System.Diagnostics;
 
-public class FileI : _FileDisp
+public class FileI : FileDisp_
 {
     // FileI constructor
 

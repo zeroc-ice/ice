@@ -229,7 +229,7 @@ namespace Ice
 	    }
 	}
 	
-	public Properties _Ice_clone()
+	public Properties ice_clone_()
 	{
 	    lock(this)
 	    {

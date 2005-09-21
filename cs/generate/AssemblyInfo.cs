@@ -1,5 +1,8 @@
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+
+[assembly: CLSCompliant(true)]
 
 [assembly: AssemblyTitle("generatecs")]
 [assembly: AssemblyDescription("Make-like program to compile Slice files")]

@@ -48,7 +48,7 @@ Module Server
             "Through caverns measureless to man", _
             "Down to a sunless sea."}
             Try
-                CType(file, _FileOperationsNC).write(text)
+                CType(file, FileOperationsNC_).write(text)
                 file.write(text)
             Catch e As GenericError
                 Console.Error.WriteLine(e.reason)

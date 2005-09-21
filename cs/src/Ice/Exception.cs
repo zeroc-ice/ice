@@ -37,20 +37,20 @@ namespace Ice
         public UserException(System.Exception ex) : base(_dflt, ex) {}
         public UserException(string msg, System.Exception ex) : base(msg, ex) {}
         private static readonly string _dflt = "Ice.UserException";
-        public abstract void __write(IceInternal.BasicStream __os);
-        public abstract void __read(IceInternal.BasicStream __is, bool __rid);
+        public abstract void write__(IceInternal.BasicStream os__);
+        public abstract void read__(IceInternal.BasicStream is__, bool rid__);
 
-	public virtual void __write(Ice.OutputStream __outS)
+	public virtual void write__(Ice.OutputStream outS__)
 	{
 	    Debug.Assert(false);
 	}
 
-	public virtual void __read(Ice.InputStream __inS, bool __rid)
+	public virtual void read__(Ice.InputStream inS__, bool rid__)
 	{
 	    Debug.Assert(false);
 	}
 
-	public virtual bool __usesClasses()
+	public virtual bool usesClasses__()
 	{
 	    return false;
 	}

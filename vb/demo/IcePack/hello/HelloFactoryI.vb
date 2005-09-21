@@ -12,7 +12,7 @@ Imports System.Diagnostics
 Imports IcePackHelloDemo
 
 Public Class HelloFactoryI
-    Inherits _HelloFactoryDisp
+    Inherits HelloFactoryDisp_
 
     Public Overloads Overrides Function create(ByVal name As String, ByVal current As Ice.Current) As IcePackHelloDemo.HelloPrx
         Dim adapter As Ice.ObjectAdapter = current.adapter

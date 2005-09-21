@@ -235,11 +235,11 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
 
     if(marshal)
     {
-	stream = streamingAPI ? "__outS" : "__os";
+	stream = streamingAPI ? "outS__" : "os__";
     }
     else
     {
-        stream = streamingAPI ? "__inS" : "__is";
+        stream = streamingAPI ? "inS__" : "is__";
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -368,12 +368,12 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
 		    {
 		        if(streamingAPI)
 			{
-			    out << nl << stream << ".readObject(CType(New __Patcher(" << patchParams
+			    out << nl << stream << ".readObject(CType(New Patcher__(" << patchParams
 			        << ", Ice.ReadObjectCallback)))";
 			}
 			else
 			{
-			    out << nl << stream << ".readObject(New __Patcher(" << patchParams << "))";
+			    out << nl << stream << ".readObject(New Patcher__(" << patchParams << "))";
 			}
 		    }
                 }
@@ -407,21 +407,21 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
 	string helperName = fixId((contained ? contained->scoped() : typeToString(type)) + "Helper");
         if(marshal)
         {
-            out << nl << helperName << '.';
+            out << nl << helperName << ".write";
 	    if(!streamingAPI)
 	    {
 	        out << "__";
 	    }
-	    out << "write(" << stream << ", " << param << ')';
+	    out << '(' << stream << ", " << param << ')';
         }
         else
         {
-            out << nl << param << " = " << helperName << '.';
+            out << nl << param << " = " << helperName << ".read";
 	    if(!streamingAPI)
 	    {
 	        out << "__";
 	    }
-	    out << "read(" << stream << ')';
+	    out << "(" << stream << ')';
         }
         return;
     }
@@ -453,12 +453,12 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
 	    {
 	        if(streamingAPI)
 		{
-		    out << nl << stream << ".readObject(New __Patcher(CType(" << patchParams
+		    out << nl << stream << ".readObject(New Patcher__(CType(" << patchParams
 		        << ", Ice.ReadObjectCallback)))";
 		}
 		else
 		{
-		    out << nl << stream << ".readObject(New __Patcher(" << patchParams << "))";
+		    out << nl << stream << ".readObject(New Patcher__(" << patchParams << "))";
 		}
 	    }
         }
@@ -470,13 +470,13 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
     {
         if(marshal)
         {
-            out << nl << param << ".__write(" << stream << ')';
+            out << nl << param << ".write__(" << stream << ')';
         }
         else
         {
             string typeS = typeToString(type);
             out << nl << param << " = New " << typeS;
-            out << nl << param << ".__read(" << stream << ")";
+            out << nl << param << ".read__(" << stream << ")";
         }
         return;
     }
@@ -542,11 +542,11 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     string stream;
     if(marshal)
     {
-        stream = streamingAPI ? "__outS" : "__os";
+        stream = streamingAPI ? "outS__" : "os__";
     }
     else
     {
-        stream = streamingAPI ? "__inS" : "__is";
+        stream = streamingAPI ? "inS__" : "is__";
     }
 
     TypePtr type = seq->type();
@@ -572,10 +572,10 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    out << nl << "Else";
 		    out.inc();
 		    out << nl << stream << ".writeSize(" << param << '.' << limitID << ")";
-		    out << nl << "For __ix As Integer = 0 To " << param << '.' << limitID << " - 1";
+		    out << nl << "For ix__ As Integer = 0 To " << param << '.' << limitID << " - 1";
 		    out.inc();
 		    string func = builtin->kind() == Builtin::KindObject ? "writeObject" : "writeProxy";
-		    out << nl << stream << '.' << func << '(' << param << "(__ix))";
+		    out << nl << stream << '.' << func << '(' << param << "(ix__))";
 		    out.dec();
 		    out << nl << "Next";
 		    out.dec();
@@ -583,19 +583,19 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		}
 		else
 		{
-		    out << nl << "For __block As Integer = 0 To 0";
+		    out << nl << "For block__ As Integer = 0 To 0";
 		    out.inc();
-		    out << nl << "Dim __lenx As Integer = " << stream << ".readSize()";
+		    out << nl << "Dim lenx__ As Integer = " << stream << ".readSize()";
 		    if(!streamingAPI)
 		    {
                         if(builtin->isVariableLength())
                         {
-                            out << nl << stream << ".startSeq(__lenx, " << static_cast<unsigned>(builtin->minWireSize())
+                            out << nl << stream << ".startSeq(lenx__, " << static_cast<unsigned>(builtin->minWireSize())
                                 << ")";
                         }
                         else
                         {
-                            out << nl << stream << ".checkFixedSeq(__lenx, "
+                            out << nl << stream << ".checkFixedSeq(lenx__, "
                                 << static_cast<unsigned>(builtin->minWireSize()) << ")";
                         }
 		    }
@@ -604,23 +604,23 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    {
 			if(isArray)
 			{
-			    out << "Ice.Object(__lenx - 1) {}";
+			    out << "Ice.Object(lenx__ - 1) {}";
 			}
 			else
 			{
 			    out << typeToString(seq);
 			}
-			out << nl << "For __ix As Integer = 0 To __lenx - 1";
+			out << nl << "For ix__ As Integer = 0 To lenx__ - 1";
 			out.inc();
 			if(streamingAPI)
 			{
 			    out << nl << stream << ".readObject(CType(New IceInternal.SequencePatcher("
-				<< param << ", GetType(Ice.Object), __ix), Ice.ReadObjectCallback))";
+				<< param << ", GetType(Ice.Object), ix__), Ice.ReadObjectCallback))";
 			}
 			else
 			{
 			    out << nl << stream << ".readObject(New IceInternal.SequencePatcher("
-				<< param << ", GetType(Ice.Object), __ix))";
+				<< param << ", GetType(Ice.Object), ix__))";
 			}
 			out.dec();
 			out << nl << "Next";
@@ -629,23 +629,23 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    {
 		        if(isArray)
 			{
-			    out << "Ice.ObjectPrx(__lenx - 1) {}";
+			    out << "Ice.ObjectPrx(lenx__ - 1) {}";
 			}
 			else
 			{
 			    out << typeToString(seq);
 			}
-			out << nl << "For __ix As Integer = 0 To __lenx - 1";
+			out << nl << "For ix__ As Integer = 0 To lenx__ - 1";
 			out.inc();
 			if(isArray)
 			{
-			    out << nl << param << "(__ix) = " << stream << ".readProxy()";
+			    out << nl << param << "(ix__) = " << stream << ".readProxy()";
 			}
 			else
 			{
-			    out << nl << "Dim __val As Ice.ObjectPrx = New Ice.ObjectPrxHelperBase";
-			    out << nl << "__val = " << stream << ".readProxy()";
-			    out << nl << param << ".Add(__val)";
+			    out << nl << "Dim val__ As Ice.ObjectPrx = New Ice.ObjectPrxHelperBase";
+			    out << nl << "val__ = " << stream << ".readProxy()";
+			    out << nl << param << ".Add(val__)";
 			}
 			out.dec();
 			out << nl << "Next";
@@ -654,7 +654,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    {
 			out << nl << stream << ".checkSeq()";
 			out << nl << stream << ".endElement()";
-			out << nl << stream << ".endSeq(__lenx)";
+			out << nl << stream << ".endSeq(lenx__)";
 		    }
 		    out.dec();
 		    out << nl << "Next";
@@ -695,7 +695,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	out << nl << "For __block As Integer = 0 To 0";
+	out << nl << "For block__ As Integer = 0 To 0";
 	out.inc();
         if(marshal)
         {
@@ -706,9 +706,9 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << "Else";
 	    out.inc();
 	    out << nl << stream << ".writeSize(" << param << '.' << limitID << ")";
-	    out << nl << "For __ix As Integer = 0 To " << param << '.' << limitID << " - 1";
+	    out << nl << "For ix__ As Integer = 0 To " << param << '.' << limitID << " - 1";
 	    out.inc();
-            out << nl << stream << ".writeObject(" << param << "(__ix))";
+            out << nl << stream << ".writeObject(" << param << "(ix__))";
 	    out.dec();
 	    out << nl << "Next";
 	    out.dec();
@@ -716,38 +716,38 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         }
         else
         {
-	    out << nl << "Dim __szx As Integer = " << stream << ".readSize()";
+	    out << nl << "Dim szx__ As Integer = " << stream << ".readSize()";
 	    if(!streamingAPI)
 	    {
                 if(type->isVariableLength())
                 {
-                    out << nl << stream << ".startSeq(__szx, " << static_cast<unsigned>(type->minWireSize()) << ')';
+                    out << nl << stream << ".startSeq(szx__, " << static_cast<unsigned>(type->minWireSize()) << ')';
                 }
                 else
                 {
-                    out << nl << stream << ".checkFixedSeq(__szx, " << static_cast<unsigned>(type->minWireSize()) << ')';
+                    out << nl << stream << ".checkFixedSeq(szx__, " << static_cast<unsigned>(type->minWireSize()) << ')';
                 }
 	    }
 	    out << nl << param << " = New ";
 	    if(isArray)
 	    {
-		out << toArrayAlloc(typeS + "()", "__szx - 1") << " {}";
+		out << toArrayAlloc(typeS + "()", "szx__ - 1") << " {}";
 	    }
 	    else
 	    {
-	        out << fixId(seq->scoped()) << "(__szx)";
+	        out << fixId(seq->scoped()) << "(szx__)";
 	    }
-	    out << nl << "For __ix As Integer = 0 To __szx - 1";
+	    out << nl << "For ix__ As Integer = 0 To szx__ - 1";
 	    out.inc();
-	    out << nl << "Dim __spx As IceInternal.SequencePatcher = New IceInternal.SequencePatcher("
-		<< param << ", " << "GetType(" << typeS << "), __ix)";
+	    out << nl << "Dim spx__ As IceInternal.SequencePatcher = New IceInternal.SequencePatcher("
+		<< param << ", " << "GetType(" << typeS << "), ix__)";
 	    if(streamingAPI)
 	    {
-		out << nl << stream << ".readObject(CType(__spx, Ice.ReadObjectCallback))";
+		out << nl << stream << ".readObject(CType(spx__, Ice.ReadObjectCallback))";
 	    }
 	    else
 	    {
-		out << nl << stream << ".readObject(__spx)";
+		out << nl << stream << ".readObject(spx__)";
 	    }
 	    if(!streamingAPI && type->isVariableLength())
 	    {
@@ -758,7 +758,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << "Next";
 	    if(!streamingAPI && type->isVariableLength())
 	    {
-		out << nl << stream << ".endSeq(__szx)";
+		out << nl << stream << ".endSeq(szx__)";
 	    }
         }
 	out.dec();
@@ -769,7 +769,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-	out << nl << "For __block As Integer = 0 To 0";
+	out << nl << "For block__ As Integer = 0 To 0";
 	out.inc();
         if(marshal)
 	{
@@ -780,9 +780,9 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << "Else";
 	    out.inc();
 	    out << nl << stream << ".writeSize(" << param << '.' << limitID << ")";
-	    out << nl << "For __ix As Integer = 0 To " << param << '.' << limitID << " - 1";
+	    out << nl << "For ix__ As Integer = 0 To " << param << '.' << limitID << " - 1";
 	    out.inc();
-	    out << nl << param << "(__ix).__write(" << stream << ")";
+	    out << nl << param << "(ix__).write__(" << stream << ")";
 	    out.dec();
 	    out << nl << "Next";
 	    out.dec();
@@ -790,42 +790,42 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	}
 	else
 	{
-	    out << nl << "Dim __szx As Integer = " << stream << ".readSize()";
+	    out << nl << "Dim szx__ As Integer = " << stream << ".readSize()";
 	    if(!streamingAPI)
 	    {
                 if(type->isVariableLength())
                 {
-                    out << nl << stream << ".startSeq(__szx, " << static_cast<unsigned>(type->minWireSize()) << ')';
+                    out << nl << stream << ".startSeq(szx__, " << static_cast<unsigned>(type->minWireSize()) << ')';
                 }
                 else
                 {
-                    out << nl << stream << ".checkFixedSeq(__szx, " << static_cast<unsigned>(type->minWireSize()) << ')';
+                    out << nl << stream << ".checkFixedSeq(szx__, " << static_cast<unsigned>(type->minWireSize()) << ')';
                 }
 	    }
 	    out << nl << param << " = New ";
 	    if(isArray)
 	    {
-		out << toArrayAlloc(typeS + "()", "__szx - 1") << " {}";
+		out << toArrayAlloc(typeS + "()", "szx__ - 1") << " {}";
 	    }
 	    else
 	    {
-	        out << fixId(seq->scoped()) << "(__szx)";
+	        out << fixId(seq->scoped()) << "(szx__)";
 	    }
-	    out << nl << "For __ix As Integer = 0 To __szx - 1";
+	    out << nl << "For ix__ As Integer = 0 To szx__ - 1";
 	    out.inc();
 	    if(isArray)
 	    {
 		if(st->hasMetaData("clr:class"))
 		{
-		    out << nl << param << "(__ix) = New " << typeS;
+		    out << nl << param << "(ix__) = New " << typeS;
 		}
-  		out << nl << param << "(__ix).__read(" << stream << ")";
+  		out << nl << param << "(ix__).read__(" << stream << ")";
 	    }
 	    else
 	    {
-	        out << nl << "Dim __val As " << typeS << " = New " << typeS;
-		out << nl << "__val.__read(" << stream << ')';
-		out << nl << param << ".Add(__val)";
+	        out << nl << "Dim val__ As " << typeS << " = New " << typeS;
+		out << nl << "val__.read__(" << stream << ')';
+		out << nl << param << ".Add(val__)";
 	    }
 	    if(!streamingAPI && type->isVariableLength())
 	    {
@@ -836,7 +836,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << "Next";
 	    if(!streamingAPI && type->isVariableLength())
 	    {
-		out << nl << stream << ".endSeq(__szx)";
+		out << nl << stream << ".endSeq(szx__)";
 	    }
 	}
 	out.dec();
@@ -847,7 +847,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-	out << nl << "For __block As Integer = 0 To 0";
+	out << nl << "For block__ As Integer = 0 To 0";
 	out.inc();
 	if(marshal)
 	{
@@ -858,9 +858,9 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << nl << "Else";
 	    out.inc();
 	    out << nl << stream << ".writeSize(" << param << '.'<< limitID << ')';
-	    out << nl << "For __ix As Integer = 0 To " << param << '.' << limitID << " - 1";
+	    out << nl << "For ix__ As Integer = 0 To " << param << '.' << limitID << " - 1";
 	    out.inc();
-	    out << nl << stream << ".writeByte(CType(" << param << "(__ix), Byte))";
+	    out << nl << stream << ".writeByte(CType(" << param << "(ix__), Byte))";
 	    out.dec();
 	    out << nl << "Next";
 	    out.dec();
@@ -868,25 +868,25 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	}
 	else
 	{
-	    out << nl << "Dim __szx As Integer = " << stream << ".readSize()";
+	    out << nl << "Dim szx__ As Integer = " << stream << ".readSize()";
 	    if(!streamingAPI)
 	    {
-		out << nl << stream << ".checkFixedSeq(__szx, " << static_cast<unsigned>(type->minWireSize()) << ')';
+		out << nl << stream << ".checkFixedSeq(szx__, " << static_cast<unsigned>(type->minWireSize()) << ')';
 	    }
 	    out << nl << param << " = New ";
 	    if(isArray)
 	    {
-		out << toArrayAlloc(typeS + "()", "__szx - 1") << " {}";
+		out << toArrayAlloc(typeS + "()", "szx__ - 1") << " {}";
 	    }
 	    else
 	    {
-	        out << fixId(seq->scoped()) << "(__szx)";
+	        out << fixId(seq->scoped()) << "(szx__)";
 	    }
-	    out << nl << "For __ix As Integer = 0 To __szx - 1";
+	    out << nl << "For ix__ As Integer = 0 To szx__ - 1";
 	    out.inc();
 	    if(isArray)
 	    {
-		out << nl << param << "(__ix) = CType(" << stream << ".readByte(), " << typeS << ')';
+		out << nl << param << "(ix__) = CType(" << stream << ".readByte(), " << typeS << ')';
 	    }
 	    else
 	    {
@@ -911,13 +911,13 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     }
 
     string func;
-    if(!streamingAPI && ProxyPtr::dynamicCast(type))
-    {
-        func = "__";
-    }
     if(marshal)
     {
-	func += "write";
+	func = "write";
+	if(!streamingAPI && ProxyPtr::dynamicCast(type))
+	{
+	    func += "__";
+	}
 	out << nl << "If " << param << " Is Nothing";
 	out.inc();
 	out << nl << stream << ".writeSize(0)";
@@ -925,9 +925,9 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	out << nl << "Else";
 	out.inc();
 	out << nl << stream << ".writeSize(" << param << '.' << limitID << ")";
-	out << nl << "For __ix As Integer = 0 To " << param << '.' << limitID << " - 1";
+	out << nl << "For ix__ As Integer = 0 To " << param << '.' << limitID << " - 1";
 	out.inc();
-	out << nl << helperName << '.' << func << '(' << stream << ", " << param << "(__ix))";
+	out << nl << helperName << '.' << func << '(' << stream << ", " << param << "(ix__))";
 	out.dec();
 	out << nl << "Next";
 	out.dec();
@@ -935,36 +935,40 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     }
     else
     {
-        func += "read";
-	out << nl << "For __block As Integer = 0 To 0";
+        func = "read";
+	if(!streamingAPI && ProxyPtr::dynamicCast(type))
+	{
+	    func += "__";
+	}
+	out << nl << "For block__ As Integer = 0 To 0";
 	out.inc();
-        string func = ProxyPtr::dynamicCast(type) ? "__read" : "read";
-	out << nl << "Dim __szx As Integer = " << stream << ".readSize()";
+        string func = ProxyPtr::dynamicCast(type) ? "read__" : "read";
+	out << nl << "Dim szx__ As Integer = " << stream << ".readSize()";
 	if(!streamingAPI)
 	{
             if(type->isVariableLength())
             {
-                out << nl << stream << ".startSeq(__szx, " << static_cast<unsigned>(type->minWireSize()) << ")";
+                out << nl << stream << ".startSeq(szx__, " << static_cast<unsigned>(type->minWireSize()) << ")";
             }
             else
             {
-                out << nl << stream << ".checkFixedSeq(__szx, " << static_cast<unsigned>(type->minWireSize()) << ")";
+                out << nl << stream << ".checkFixedSeq(szx__, " << static_cast<unsigned>(type->minWireSize()) << ")";
             }
 	}
 	out << nl << param << " = New ";
 	if(isArray)
 	{
-	    out << toArrayAlloc(typeS + "()", "__szx - 1") << " {}";
+	    out << toArrayAlloc(typeS + "()", "szx__ - 1") << " {}";
 	}
 	else
 	{
-	    out << fixId(seq->scoped()) << "(__szx)";
+	    out << fixId(seq->scoped()) << "(szx__)";
 	}
-	out << nl << "For __ix As Integer = 0 To __szx - 1";
+	out << nl << "For ix__ As Integer = 0 To szx__ - 1";
 	out.inc();
 	if(isArray)
 	{
-	    out << nl << param << "(__ix) = " << helperName << '.' << func << '(' << stream << ")";
+	    out << nl << param << "(ix__) = " << helperName << '.' << func << '(' << stream << ")";
 	}
 	else
 	{
@@ -982,7 +986,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	out << nl << "Next";
 	if(!streamingAPI && type->isVariableLength())
 	{
-	    out << nl << stream << ".endSeq(__szx)";
+	    out << nl << stream << ".endSeq(szx__)";
 	}
 	out.dec();
 	out << nl << "Next";

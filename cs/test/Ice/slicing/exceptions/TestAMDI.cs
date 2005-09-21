@@ -10,7 +10,7 @@
 using System;
 using Test;
 
-public sealed class TestI : _TestIntfDisp
+public sealed class TestI : TestIntfDisp_
 {
     public TestI(Ice.ObjectAdapter adapter)
     {

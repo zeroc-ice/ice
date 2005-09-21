@@ -128,7 +128,7 @@ Module InvokeC
                         Dim s As [Structure] = New [Structure]
                         s.name = "red"
                         s.value = Color.red
-                        s.__write(outStream)
+                        s.write__(outStream)
 
                         '
                         ' Invoke operation.

@@ -9,7 +9,7 @@
 
 using Test;
 
-public sealed class HI : _HDisp
+public sealed class HI : HDisp_
 {
     public HI(Ice.Communicator communicator)
     {

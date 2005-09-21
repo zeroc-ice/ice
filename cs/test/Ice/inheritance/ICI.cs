@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public sealed class ICI : Test.MA._ICDisp
+public sealed class ICI : Test.MA.ICDisp_
 {
     public ICI()
     {

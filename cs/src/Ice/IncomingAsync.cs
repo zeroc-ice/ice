@@ -19,59 +19,59 @@ namespace IceInternal
         {
         }
 
-        protected void __response(bool ok)
+        protected void response__(bool ok)
         {
 	    try
 	    {
-		if(_locator != null && _servant != null)
+		if(locator_ != null && servant_ != null)
 		{
-		    _locator.finished(_current, _servant, _cookie);
+		    locator_.finished(current_, servant_, cookie_);
 		}
 
-		if(_response)
+		if(response_)
 		{
-		    _os.endWriteEncaps();
+		    os_.endWriteEncaps();
 		
-		    int save = _os.pos();
-		    _os.pos(Protocol.headerSize + 4); // Dispatch status position.
+		    int save = os_.pos();
+		    os_.pos(Protocol.headerSize + 4); // Dispatch status position.
 		
 		    if(ok)
 		    {
-			_os.writeByte((byte)DispatchStatus.DispatchOK);
+			os_.writeByte((byte)DispatchStatus.DispatchOK);
 		    }
 		    else
 		    {
-			_os.writeByte((byte)DispatchStatus.DispatchUserException);
+			os_.writeByte((byte)DispatchStatus.DispatchUserException);
 		    }
 		
-		    _os.pos(save);
+		    os_.pos(save);
 
-		    _connection.sendResponse(_os, _compress);
+		    connection_.sendResponse(os_, compress_);
 		}
 		else
 		{
-		    _connection.sendNoResponse();
+		    connection_.sendNoResponse();
 		}
 	    }
 	    catch(Ice.LocalException ex)
 	    {
-		_connection.exception(ex);
+		connection_.exception(ex);
 	    }
 	    catch(System.Exception ex)
 	    {
 		Ice.UnknownException uex = new Ice.UnknownException();
 		uex.unknown = ex.ToString();
-		_connection.exception(uex);
+		connection_.exception(uex);
 	    }
         }
 	
-        protected internal void __exception(System.Exception exc)
+        protected internal void exception__(System.Exception exc)
         {
 	    try
 	    {
-		if(_locator != null && _servant != null)
+		if(locator_ != null && servant_ != null)
 		{
-		    _locator.finished(_current, _servant, _cookie);
+		    locator_.finished(current_, servant_, cookie_);
 		}
 
 		try
@@ -82,204 +82,204 @@ namespace IceInternal
 		{
 		    if(ex.id.name == null)
 		    {
-			ex.id = _current.id;
+			ex.id = current_.id;
 		    }
 		
 		    if(ex.facet == null)
 		    {
-			ex.facet = _current.facet;
+			ex.facet = current_.facet;
 		    }
 		
 		    if(ex.operation == null || ex.operation.Length == 0)
 		    {
-			ex.operation = _current.operation;
+			ex.operation = current_.operation;
 		    }
 		
-		    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
 		    {
-			__warning(ex);
+			warning__(ex);
 		    }
 		
-		    if(_response)
+		    if(response_)
 		    {
-			_os.endWriteEncaps();
-			_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+			os_.endWriteEncaps();
+			os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
 			if(ex is Ice.ObjectNotExistException)
 			{
-			    _os.writeByte((byte)DispatchStatus.DispatchObjectNotExist);
+			    os_.writeByte((byte)DispatchStatus.DispatchObjectNotExist);
 			}
 			else if(ex is Ice.FacetNotExistException)
 			{
-			    _os.writeByte((byte)DispatchStatus.DispatchFacetNotExist);
+			    os_.writeByte((byte)DispatchStatus.DispatchFacetNotExist);
 			}
 			else if(ex is Ice.OperationNotExistException)
 			{
-			    _os.writeByte((byte)DispatchStatus.DispatchOperationNotExist);
+			    os_.writeByte((byte)DispatchStatus.DispatchOperationNotExist);
 			}
 			else
 			{
 			    Debug.Assert(false);
 			}
-			ex.id.__write(_os);
+			ex.id.write__(os_);
 
 			//
 			// For compatibility with the old FacetPath.
 			//
 			if(ex.facet == null || ex.facet.Length == 0)
 			{
-			    _os.writeStringSeq(null);
+			    os_.writeStringSeq(null);
 			}
 			else
 			{
 			    string[] facetPath = { ex.facet };
-			    _os.writeStringSeq(facetPath);
+			    os_.writeStringSeq(facetPath);
 			}
 
-			_os.writeString(ex.operation);
+			os_.writeString(ex.operation);
 
-			_connection.sendResponse(_os, _compress);
+			connection_.sendResponse(os_, compress_);
 		    }
 		    else
 		    {
-			_connection.sendNoResponse();
+			connection_.sendNoResponse();
 		    }
 		}
 		catch(Ice.UnknownLocalException ex)
 		{
-		    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		    {
-			__warning(ex);
+			warning__(ex);
 		    }
 		
-		    if(_response)
+		    if(response_)
 		    {
-			_os.endWriteEncaps();
-			_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-			_os.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
-			_os.writeString(ex.unknown);
-			_connection.sendResponse(_os, _compress);
+			os_.endWriteEncaps();
+			os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+			os_.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
+			os_.writeString(ex.unknown);
+			connection_.sendResponse(os_, compress_);
 		    }
 		    else
 		    {
-			_connection.sendNoResponse();
+			connection_.sendNoResponse();
 		    }
 		}
 		catch(Ice.UnknownUserException ex)
 		{
-		    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		    {
-			__warning(ex);
+			warning__(ex);
 		    }
 		
-		    if(_response)
+		    if(response_)
 		    {
-			_os.endWriteEncaps();
-			_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-			_os.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
-			_os.writeString(ex.unknown);
-			_connection.sendResponse(_os, _compress);
+			os_.endWriteEncaps();
+			os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+			os_.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
+			os_.writeString(ex.unknown);
+			connection_.sendResponse(os_, compress_);
 		    }
 		    else
 		    {
-			_connection.sendNoResponse();
+			connection_.sendNoResponse();
 		    }
 		}
 		catch(Ice.UnknownException ex)
 		{
-		    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		    {
-			__warning(ex);
+			warning__(ex);
 		    }
 		
-		    if(_response)
+		    if(response_)
 		    {
-			_os.endWriteEncaps();
-			_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-			_os.writeByte((byte)DispatchStatus.DispatchUnknownException);
-			_os.writeString(ex.unknown);
-			_connection.sendResponse(_os, _compress);
+			os_.endWriteEncaps();
+			os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+			os_.writeByte((byte)DispatchStatus.DispatchUnknownException);
+			os_.writeString(ex.unknown);
+			connection_.sendResponse(os_, compress_);
 		    }
 		    else
 		    {
-			_connection.sendNoResponse();
+			connection_.sendNoResponse();
 		    }
 		}
 		catch(Ice.LocalException ex)
 		{
-		    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		    {
-			__warning(ex);
+			warning__(ex);
 		    }
 		
-		    if(_response)
+		    if(response_)
 		    {
-			_os.endWriteEncaps();
-			_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-			_os.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
-			_os.writeString(ex.ToString());
-			_connection.sendResponse(_os, _compress);
+			os_.endWriteEncaps();
+			os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+			os_.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
+			os_.writeString(ex.ToString());
+			connection_.sendResponse(os_, compress_);
 		    }
 		    else
 		    {
-			_connection.sendNoResponse();
+			connection_.sendNoResponse();
 		    }
 		}
 		catch(Ice.UserException ex)
 		{
-		    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		    {
-			__warning(ex);
+			warning__(ex);
 		    }
 		
-		    if(_response)
+		    if(response_)
 		    {
-			_os.endWriteEncaps();
-			_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-			_os.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
-			_os.writeString(ex.ToString());
-			_connection.sendResponse(_os, _compress);
+			os_.endWriteEncaps();
+			os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+			os_.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
+			os_.writeString(ex.ToString());
+			connection_.sendResponse(os_, compress_);
 		    }
 		    else
 		    {
-			_connection.sendNoResponse();
+			connection_.sendNoResponse();
 		    }
 		}
 		catch(System.Exception ex)
 		{
-		    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		    if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		    {
-			__warning(ex);
+			warning__(ex);
 		    }
 		
-		    if(_response)
+		    if(response_)
 		    {
-			_os.endWriteEncaps();
-			_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-			_os.writeByte((byte)DispatchStatus.DispatchUnknownException);
-			_os.writeString(ex.ToString());
-			_connection.sendResponse(_os, _compress);
+			os_.endWriteEncaps();
+			os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+			os_.writeByte((byte)DispatchStatus.DispatchUnknownException);
+			os_.writeString(ex.ToString());
+			connection_.sendResponse(os_, compress_);
 		    }
 		    else
 		    {
-			_connection.sendNoResponse();
+			connection_.sendNoResponse();
 		    }
 		}
 	    }
 	    catch(Ice.LocalException ex)
 	    {
-		_connection.exception(ex);
+		connection_.exception(ex);
 	    }
 	    catch(System.Exception ex)
 	    {
 		Ice.UnknownException uex = new Ice.UnknownException();
 		uex.unknown = ex.ToString();
-		_connection.exception(uex);
+		connection_.exception(uex);
 	    }
         }
 	
-        protected internal BasicStream __os()
+        protected internal BasicStream os__()
         {
-            return _os;
+            return os_;
         }
     }
 }
@@ -289,7 +289,7 @@ namespace Ice
 
     public interface AMD_Object_ice_invoke
     {
-        void ice_response(bool ok, byte[] outParams);
+        void iceresponse_(bool ok, byte[] outParams);
         void ice_exception(System.Exception ex);
     }
 
@@ -300,23 +300,23 @@ namespace Ice
         {
         }
 	
-        public void ice_response(bool ok, byte[] outParams)
+        public void iceresponse_(bool ok, byte[] outParams)
         {
 	    try
 	    {
-		__os().writeBlob(outParams);
+		os__().writeBlob(outParams);
 	    }
 	    catch(Ice.LocalException ex)
 	    {
-		__exception(ex);
+		exception__(ex);
 		return;
 	    }
-	    __response(ok);
+	    response__(ok);
 	}
 	
         public void ice_exception(System.Exception ex)
         {
-	    __exception(ex);
+	    exception__(ex);
         }
     }
 }

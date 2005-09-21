@@ -24,10 +24,10 @@ namespace IceInternal
 
 	public override string ToString()
         {
-	    return _Ice_toString();
+	    return ice_toString_();
 	}
 
-	public abstract string _Ice_toString();
+	public abstract string ice_toString_();
 	public abstract int CompareTo(object obj);
 
 	//

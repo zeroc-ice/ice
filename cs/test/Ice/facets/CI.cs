@@ -9,7 +9,7 @@
 
 using Test;
 
-public sealed class CI : _CDisp
+public sealed class CI : CDisp_
 {
     public CI()
     {

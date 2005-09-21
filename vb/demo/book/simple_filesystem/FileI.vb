@@ -3,7 +3,7 @@ Imports System.Diagnostics
 Imports Filesystem
 
 Public Class FileI
-    Inherits _FileDisp
+    Inherits FileDisp_
 
     Public Sub New(ByVal name As String, ByVal parent As DirectoryI)
 	_name = name

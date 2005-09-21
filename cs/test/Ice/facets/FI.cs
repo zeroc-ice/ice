@@ -9,7 +9,7 @@
 
 using Test;
 
-public sealed class FI : _FDisp
+public sealed class FI : FDisp_
 {
     public FI()
     {

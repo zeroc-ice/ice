@@ -12,7 +12,7 @@ Imports System
 Module Glacier2callbackSS
 
     NotInheritable Class DummyPermissionVerifierI
-        Inherits Glacier2._PermissionsVerifierDisp
+        Inherits Glacier2.PermissionsVerifierDisp_
 
         Public Overloads Overrides Function checkPermissions(ByVal userId As String, ByVal password As String, ByRef reason As String, ByVal current As Ice.Current) As Boolean
             reason = Nothing

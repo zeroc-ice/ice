@@ -50,13 +50,13 @@ namespace Ice
 	void ice_preMarshal();
 	void ice_postUnmarshal();
 
-	IceInternal.DispatchStatus __dispatch(IceInternal.Incoming inc, Current current);
+	IceInternal.DispatchStatus dispatch__(IceInternal.Incoming inc, Current current);
 
-	void __write(IceInternal.BasicStream __os);
-	void __read(IceInternal.BasicStream __is, bool __rid);
+	void write__(IceInternal.BasicStream os__);
+	void read__(IceInternal.BasicStream is__, bool rid__);
 
-	void __write(OutputStream __outS);
-	void __read(InputStream __inS, bool __rid);
+	void write__(OutputStream outS__);
+	void read__(InputStream inS__, bool rid__);
     }
 
     public abstract class ObjectImpl : Object
@@ -75,26 +75,26 @@ namespace Ice
             return MemberwiseClone();
         }
 
-        public static readonly string[] __ids = new string[] { "::Ice::Object" };
+        public static readonly string[] ids__ = new string[] { "::Ice::Object" };
 	
         public virtual bool ice_isA(string s)
         {
-            return s.Equals(__ids[0]);
+            return s.Equals(ids__[0]);
         }
 
         public virtual bool ice_isA(string s, Current current)
         {
-            return s.Equals(__ids[0]);
+            return s.Equals(ids__[0]);
         }
 	
-        public static IceInternal.DispatchStatus ___ice_isA(Ice.Object __obj, IceInternal.Incoming __inS,
+        public static IceInternal.DispatchStatus ice_isA___(Ice.Object __obj, IceInternal.Incoming inS__,
             Current __current)
         {
-            IceInternal.BasicStream __is = __inS.istr();
-            IceInternal.BasicStream __os = __inS.ostr();
-            string __id = __is.readString();
+            IceInternal.BasicStream is__ = inS__.istr();
+            IceInternal.BasicStream os__ = inS__.ostr();
+            string __id = is__.readString();
             bool __ret = __obj.ice_isA(__id, __current);
-            __os.writeBool(__ret);
+            os__.writeBool(__ret);
             return IceInternal.DispatchStatus.DispatchOK;
         }
 	
@@ -108,7 +108,7 @@ namespace Ice
             // Nothing to do.
         }
 	
-        public static IceInternal.DispatchStatus ___ice_ping(Ice.Object __obj, IceInternal.Incoming __inS,
+        public static IceInternal.DispatchStatus ice_ping___(Ice.Object __obj, IceInternal.Incoming inS__,
             Current __current)
         {
             __obj.ice_ping(__current);
@@ -117,44 +117,44 @@ namespace Ice
 	
         public virtual string[] ice_ids()
         {
-            return __ids;
+            return ids__;
         }
 
         public virtual string[] ice_ids(Current current)
         {
-            return __ids;
+            return ids__;
         }
 	
-        public static IceInternal.DispatchStatus ___ice_ids(Ice.Object __obj, IceInternal.Incoming __inS,
+        public static IceInternal.DispatchStatus ice_ids___(Ice.Object __obj, IceInternal.Incoming inS__,
             Current __current)
         {
-            IceInternal.BasicStream __os = __inS.ostr();
-            __os.writeStringSeq(__obj.ice_ids(__current));
+            IceInternal.BasicStream os__ = inS__.ostr();
+            os__.writeStringSeq(__obj.ice_ids(__current));
             return IceInternal.DispatchStatus.DispatchOK;
         }
 	
         public virtual string ice_id()
         {
-            return __ids[0];
+            return ids__[0];
         }
 
         public virtual string ice_id(Current current)
         {
-            return __ids[0];
+            return ids__[0];
         }
 	
-        public static IceInternal.DispatchStatus ___ice_id(Ice.Object __obj, IceInternal.Incoming __inS,
+        public static IceInternal.DispatchStatus ice_id___(Ice.Object __obj, IceInternal.Incoming inS__,
             Current __current)
         {
-            IceInternal.BasicStream __os = __inS.ostr();
+            IceInternal.BasicStream os__ = inS__.ostr();
             string __ret = __obj.ice_id(__current);
-            __os.writeString(__ret);
+            os__.writeString(__ret);
             return IceInternal.DispatchStatus.DispatchOK;
         }
 	
         public static string ice_staticId()
         {
-            return __ids[0];
+            return ids__[0];
         }
 	
         public virtual void ice_preMarshal()
@@ -165,14 +165,14 @@ namespace Ice
         {
         }
 
-        private static readonly string[] __all = new string[]
+        private static readonly string[] all__ = new string[]
         {
             "ice_id", "ice_ids", "ice_isA", "ice_ping"
         };
 	
-        public virtual IceInternal.DispatchStatus __dispatch(IceInternal.Incoming inc, Current current)
+        public virtual IceInternal.DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
         {
-            int pos = System.Array.BinarySearch(__all, current.operation);
+            int pos = System.Array.BinarySearch(all__, current.operation);
             if(pos < 0)
             {
                 return IceInternal.DispatchStatus.DispatchOperationNotExist;
@@ -182,19 +182,19 @@ namespace Ice
             {
                 case 0: 
                 {
-                    return ___ice_id(this, inc, current);
+                    return ice_id___(this, inc, current);
                 }
                 case 1: 
                 {
-                    return ___ice_ids(this, inc, current);
+                    return ice_ids___(this, inc, current);
                 }
                 case 2: 
                 {
-                    return ___ice_isA(this, inc, current);
+                    return ice_isA___(this, inc, current);
                 }
                 case 3: 
                 {
-                    return ___ice_ping(this, inc, current);
+                    return ice_ping___(this, inc, current);
                 }
             }
 	    
@@ -202,59 +202,59 @@ namespace Ice
             return IceInternal.DispatchStatus.DispatchOperationNotExist;
         }
 	
-        public virtual void __write(IceInternal.BasicStream __os)
+        public virtual void write__(IceInternal.BasicStream os__)
         {
-            __os.writeTypeId(ice_staticId());
-            __os.startWriteSlice();
-            __os.writeSize(0); // For compatibility with the old AFM.  
-            __os.endWriteSlice();
+            os__.writeTypeId(ice_staticId());
+            os__.startWriteSlice();
+            os__.writeSize(0); // For compatibility with the old AFM.  
+            os__.endWriteSlice();
         }
 	
-        public virtual void __read(IceInternal.BasicStream __is, bool __rid)
+        public virtual void read__(IceInternal.BasicStream is__, bool rid__)
         {
 
-            if(__rid)
+            if(rid__)
             {
-                /* string myId = */ __is.readTypeId();
+                /* string myId = */ is__.readTypeId();
             }
 	    
-            __is.startReadSlice();
+            is__.startReadSlice();
 	    
             // For compatibility with the old AFM.
-            int sz = __is.readSize();
+            int sz = is__.readSize();
             if(sz != 0)
             {
                 throw new MarshalException();
             }
 	    
-            __is.endReadSlice();
+            is__.endReadSlice();
         }
 
-	public virtual void __write(OutputStream __outS)
+	public virtual void write__(OutputStream outS__)
 	{
-	    __outS.writeTypeId(ice_staticId());
-	    __outS.startSlice();
-	    __outS.writeSize(0); // For compatibility with the old AFM.
-	    __outS.endSlice();
+	    outS__.writeTypeId(ice_staticId());
+	    outS__.startSlice();
+	    outS__.writeSize(0); // For compatibility with the old AFM.
+	    outS__.endSlice();
 	}
 
-	public virtual void __read(InputStream __inS, bool __rid)
+	public virtual void read__(InputStream inS__, bool rid__)
 	{
-	    if(__rid)
+	    if(rid__)
 	    {
-		/* string myId = */ __inS.readTypeId();
+		/* string myId = */ inS__.readTypeId();
 	    }
 
-	    __inS.startSlice();
+	    inS__.startSlice();
 
 	    // For compatibility with the old AFM.
-	    int sz = __inS.readSize();
+	    int sz = inS__.readSize();
 	    if(sz != 0)
 	    {
 		throw new MarshalException();
 	    }
 
-	    __inS.endSlice();
+	    inS__.endSlice();
 	}
 
 	private static string
@@ -278,7 +278,7 @@ namespace Ice
 	}
 
 	protected static void
-	__checkMode(OperationMode expected, OperationMode received)
+	checkMode__(OperationMode expected, OperationMode received)
 	{
 	    if(expected != received)
 	    {
@@ -297,7 +297,7 @@ namespace Ice
         // Returns true if ok, false if user exception.
         public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
 	
-        public override IceInternal.DispatchStatus __dispatch(IceInternal.Incoming inc, Current current)
+        public override IceInternal.DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
         {
             byte[] inParams;
             byte[] outParams;
@@ -323,7 +323,7 @@ namespace Ice
     {
         public abstract void ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inParams, Current current);
 	
-        public override IceInternal.DispatchStatus __dispatch(IceInternal.Incoming inc, Current current)
+        public override IceInternal.DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
         {
             byte[] inParams;
             int sz = inc.istr().getReadEncapsSize();

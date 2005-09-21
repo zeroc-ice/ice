@@ -18,7 +18,7 @@ namespace IceInternal
 	
 	public TcpEndpointI(Instance instance, string ho, int po, int ti, bool co)
 	{
-	    _instance = instance;
+	    instance_ = instance;
 	    _host = ho;
 	    _port = po;
 	    _timeout = ti;
@@ -28,7 +28,7 @@ namespace IceInternal
 	
 	public TcpEndpointI(Instance instance, string str)
 	{
-	    _instance = instance;
+	    instance_ = instance;
 	    _host = null;
 	    _port = 0;
 	    _timeout = -1;
@@ -145,7 +145,7 @@ namespace IceInternal
 	    
 	    if(_host == null)
 	    {
-		_host = _instance.defaultsAndOverrides().defaultHost;
+		_host = instance_.defaultsAndOverrides().defaultHost;
 	    }
 	    
 	    calcHashValue();
@@ -153,7 +153,7 @@ namespace IceInternal
 	
 	public TcpEndpointI(BasicStream s)
 	{
-	    _instance = s.instance();
+	    instance_ = s.instance();
 	    s.startReadEncaps();
 	    _host = s.readString();
 	    _port = s.readInt();
@@ -180,7 +180,7 @@ namespace IceInternal
 	//
 	// Convert the endpoint to its string form
 	//
-	public override string _Ice_toString()
+	public override string ice_toString_()
 	{
 	    string s = "tcp -h " + _host + " -p " + _port;
 	    if(_timeout != -1)
@@ -224,7 +224,7 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		return new TcpEndpointI(_instance, _host, _port, timeout, _compress);
+		return new TcpEndpointI(instance_, _host, _port, timeout, _compress);
 	    }
 	}
 	
@@ -250,7 +250,7 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		return new TcpEndpointI(_instance, _host, _port, _timeout, compress);
+		return new TcpEndpointI(instance_, _host, _port, _timeout, compress);
 	    }
 	}
 	
@@ -306,7 +306,7 @@ namespace IceInternal
 	//
 	public override Connector connector()
 	{
-	    return new TcpConnector(_instance, _host, _port);
+	    return new TcpConnector(instance_, _host, _port);
 	}
 	
 	//
@@ -318,8 +318,8 @@ namespace IceInternal
 	//
 	public override Acceptor acceptor(ref EndpointI endpoint)
 	{
-	    TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
-	    endpoint = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, _compress);
+	    TcpAcceptor p = new TcpAcceptor(instance_, _host, _port);
+	    endpoint = new TcpEndpointI(instance_, _host, p.effectivePort(), _timeout, _compress);
 	    return p;
 	}
 	
@@ -465,7 +465,7 @@ namespace IceInternal
 	    _hashCode = 5 * _hashCode + (_compress? 1 : 0);
 	}
 	
-	private Instance _instance;
+	private Instance instance_;
 	private string _host;
 	private int _port;
 	private int _timeout;
@@ -477,7 +477,7 @@ namespace IceInternal
     {
         internal TcpEndpointFactory(Instance instance)
         {
-            _instance = instance;
+            instance_ = instance;
         }
 	
         public short type()
@@ -492,7 +492,7 @@ namespace IceInternal
 	
         public EndpointI create(string str)
         {
-            return new TcpEndpointI(_instance, str);
+            return new TcpEndpointI(instance_, str);
         }
 	
         public EndpointI read(BasicStream s)
@@ -502,10 +502,10 @@ namespace IceInternal
 	
         public void destroy()
         {
-            _instance = null;
+            instance_ = null;
         }
 	
-        private Instance _instance;
+        private Instance instance_;
     }
 
 }

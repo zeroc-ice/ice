@@ -11,7 +11,7 @@ using System;
 using System.Diagnostics;
 using Test;
 
-public sealed class ThrowerI : _ThrowerDisp
+public sealed class ThrowerI : ThrowerDisp_
 {
     public ThrowerI(Ice.ObjectAdapter adapter)
     {

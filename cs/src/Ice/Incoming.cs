@@ -19,43 +19,43 @@ namespace IceInternal
 	protected internal IncomingBase(Instance instance, Ice.ConnectionI connection,
 	                                Ice.ObjectAdapter adapter, bool response, byte compress)
 	{
-	    _response = response;
-	    _compress = compress;
-	    _os = new BasicStream(instance);
-	    _connection = connection;
+	    response_ = response;
+	    compress_ = compress;
+	    os_ = new BasicStream(instance);
+	    connection_ = connection;
 
-	    _current = new Ice.Current();
-	    _current.id = new Ice.Identity();
-	    _current.adapter = adapter;
-	    _current.con = connection;
+	    current_ = new Ice.Current();
+	    current_.id = new Ice.Identity();
+	    current_.adapter = adapter;
+	    current_.con = connection;
 	    
-	    _cookie = null;
+	    cookie_ = null;
 	}
 	
 	protected internal IncomingBase(IncomingBase inc) // Adopts the argument. It must not be used afterwards.
 	{
-	    _current = inc._current;
+	    current_ = inc.current_;
 	    
-	    _servant = inc._servant;
-	    inc._servant = null;
+	    servant_ = inc.servant_;
+	    inc.servant_ = null;
 	    
-	    _locator = inc._locator;
-	    inc._locator = null;
+	    locator_ = inc.locator_;
+	    inc.locator_ = null;
 	    
-	    _cookie = inc._cookie;
-	    inc._cookie = null;
+	    cookie_ = inc.cookie_;
+	    inc.cookie_ = null;
 	    
-	    _response = inc._response;
-	    inc._response = false;
+	    response_ = inc.response_;
+	    inc.response_ = false;
 	    
-	    _compress = inc._compress;
-	    inc._compress = 0;
+	    compress_ = inc.compress_;
+	    inc.compress_ = 0;
 	    
-	    _os = inc._os;
-	    inc._os = null;
+	    os_ = inc.os_;
+	    inc.os_ = null;
 	    
-	    _connection = inc._connection;
-	    inc._connection = null;
+	    connection_ = inc.connection_;
+	    inc.connection_ = null;
 	}
 
 	//
@@ -67,68 +67,68 @@ namespace IceInternal
             //
             // Don't recycle the Current object, because servants may keep a reference to it.
             //
-	    _current = new Ice.Current();
-	    _current.id = new Ice.Identity();
-	    _current.adapter = adapter;
-	    _current.con = connection;
+	    current_ = new Ice.Current();
+	    current_.id = new Ice.Identity();
+	    current_.adapter = adapter;
+	    current_.con = connection;
 	    
-	    Debug.Assert(_cookie == null);
+	    Debug.Assert(cookie_ == null);
 	    
-	    _response = response;
+	    response_ = response;
 	    
-	    _compress = compress;
+	    compress_ = compress;
 	    
-	    if(_os == null)
+	    if(os_ == null)
 	    {
-		_os = new BasicStream(instance);
+		os_ = new BasicStream(instance);
 	    }
 
-	    _connection = connection;
+	    connection_ = connection;
 	}
 	
 	public virtual void reclaim()
 	{
-	    _servant = null;
+	    servant_ = null;
 	    
-	    _locator = null;
+	    locator_ = null;
 
-	    _cookie = null;
+	    cookie_ = null;
 
-	    if(_os != null)
+	    if(os_ != null)
 	    {
-		_os.reset();
+		os_.reset();
 	    }
 	}
 
-	protected internal void __warning(System.Exception ex)
+	protected internal void warning__(System.Exception ex)
 	{
-	    Debug.Assert(_os != null);
+	    Debug.Assert(os_ != null);
 	    
 	    using(StringWriter sw = new StringWriter())
 	    {
 		IceUtil.OutputBase output = new IceUtil.OutputBase(sw);
 		output.setUseTab(false);
 		output.print("dispatch exception:");
-		output.print("\nidentity: " + Ice.Util.identityToString(_current.id));
-		output.print("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
-		output.print("\noperation: " + _current.operation);
+		output.print("\nidentity: " + Ice.Util.identityToString(current_.id));
+		output.print("\nfacet: " + IceUtil.StringUtil.escapeString(current_.facet, ""));
+		output.print("\noperation: " + current_.operation);
 		output.print("\n");
 		output.print(ex.ToString());
-		_os.instance().logger().warning(sw.ToString());
+		os_.instance().logger().warning(sw.ToString());
 	    }
 	}
 	
-	protected internal Ice.Current _current;
-	protected internal Ice.Object _servant;
-	protected internal Ice.ServantLocator _locator;
-	protected internal Ice.LocalObject _cookie;
+	protected internal Ice.Current current_;
+	protected internal Ice.Object servant_;
+	protected internal Ice.ServantLocator locator_;
+	protected internal Ice.LocalObject cookie_;
 	
-	protected internal bool _response;
-	protected internal byte _compress;
+	protected internal bool response_;
+	protected internal byte compress_;
 	
-	protected internal BasicStream _os;
+	protected internal BasicStream os_;
 	
-	protected Ice.ConnectionI _connection;
+	protected Ice.ConnectionI connection_;
     }
 	
     sealed public class Incoming : IncomingBase
@@ -169,7 +169,7 @@ namespace IceInternal
 	    //
 	    // Read the current.
 	    //
-	    _current.id.__read(_is);
+	    current_.id.read__(_is);
 
             //
             // For compatibility with the old FacetPath.
@@ -181,34 +181,34 @@ namespace IceInternal
                 {
                     throw new Ice.MarshalException();
                 }
-                _current.facet = facetPath[0];
+                current_.facet = facetPath[0];
             }
             else
             {
-                _current.facet = "";
+                current_.facet = "";
             }
 
-	    _current.operation = _is.readString();
-	    _current.mode = (Ice.OperationMode)(int)_is.readByte();
+	    current_.operation = _is.readString();
+	    current_.mode = (Ice.OperationMode)(int)_is.readByte();
 	    int sz = _is.readSize();
 	    while(sz-- > 0)
 	    {
 		string first = _is.readString();
 		string second = _is.readString();
-		if(_current.ctx == null)
+		if(current_.ctx == null)
 		{
-		    _current.ctx = new Ice.Context();
+		    current_.ctx = new Ice.Context();
 		}
-		_current.ctx[first] = second;
+		current_.ctx[first] = second;
 	    }
 	    
 	    _is.startReadEncaps();
 	    
-	    if(_response)
+	    if(response_)
 	    {
-		Debug.Assert(_os.size() == Protocol.headerSize + 4); // Dispatch status position.
-		_os.writeByte((byte)0);
-		_os.startWriteEncaps();
+		Debug.Assert(os_.size() == Protocol.headerSize + 4); // Dispatch status position.
+		os_.writeByte((byte)0);
+		os_.startWriteEncaps();
 	    }
 	    
 	    // Initialize status to some value, to keep the compiler happy.
@@ -226,23 +226,23 @@ namespace IceInternal
 		{
 		    if(servantManager != null)
 		    {
-			_servant = servantManager.findServant(_current.id, _current.facet);
-			if(_servant == null)
+			servant_ = servantManager.findServant(current_.id, current_.facet);
+			if(servant_ == null)
 			{
-			    _locator = servantManager.findServantLocator(_current.id.category);
-			    if(_locator == null && _current.id.category.Length > 0)
+			    locator_ = servantManager.findServantLocator(current_.id.category);
+			    if(locator_ == null && current_.id.category.Length > 0)
 			    {
-				_locator = servantManager.findServantLocator("");
+				locator_ = servantManager.findServantLocator("");
 			    }
-			    if(_locator != null)
+			    if(locator_ != null)
 			    {
-				_servant = _locator.locate(_current, out _cookie);
+				servant_ = locator_.locate(current_, out cookie_);
 			    }
 			}
 		    }
-		    if(_servant == null)
+		    if(servant_ == null)
 		    {
-			if(servantManager != null && servantManager.hasServant(_current.id))
+			if(servantManager != null && servantManager.hasServant(current_.id))
 			{
 			    status = DispatchStatus.DispatchFacetNotExist;
 			}
@@ -253,14 +253,14 @@ namespace IceInternal
 		    }
 		    else
 		    {
-			status = _servant.__dispatch(this, _current);
+			status = servant_.dispatch__(this, current_);
 		    }		
 		}
 		finally
 		{
-		    if(_locator != null && _servant != null && status != DispatchStatus.DispatchAsync)
+		    if(locator_ != null && servant_ != null && status != DispatchStatus.DispatchAsync)
 		    {
-			_locator.finished(_current, _servant, _cookie);
+			locator_.finished(current_, servant_, cookie_);
 		    }
 		}
 	    }
@@ -270,66 +270,66 @@ namespace IceInternal
 
 		if(ex.id.name == null)
 		{
-		    ex.id = _current.id;
+		    ex.id = current_.id;
 		}
 		
 		if(ex.facet == null)
 		{
-		    ex.facet = _current.facet;
+		    ex.facet = current_.facet;
 		}
 		
 		if(ex.operation == null || ex.operation.Length == 0)
 		{
-		    ex.operation = _current.operation;
+		    ex.operation = current_.operation;
 		}
 		
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
 		{
-		    __warning(ex);
+		    warning__(ex);
 		}
 		
-		if(_response)
+		if(response_)
 		{
-		    _os.endWriteEncaps();
-		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		    os_.endWriteEncaps();
+		    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
 		    if(ex is Ice.ObjectNotExistException)
 		    {
-			_os.writeByte((byte)DispatchStatus.DispatchObjectNotExist);
+			os_.writeByte((byte)DispatchStatus.DispatchObjectNotExist);
 		    }
 		    else if(ex is Ice.FacetNotExistException)
 		    {
-			_os.writeByte((byte)DispatchStatus.DispatchFacetNotExist);
+			os_.writeByte((byte)DispatchStatus.DispatchFacetNotExist);
 		    }
 		    else if(ex is Ice.OperationNotExistException)
 		    {
-			_os.writeByte((byte)DispatchStatus.DispatchOperationNotExist);
+			os_.writeByte((byte)DispatchStatus.DispatchOperationNotExist);
 		    }
 		    else
 		    {
 			Debug.Assert(false);
 		    }
-		    ex.id.__write(_os);
+		    ex.id.write__(os_);
  
                     //
                     // For compatibility with the old FacetPath.
                     //
                     if(ex.facet == null || ex.facet.Length == 0)
                     {
-                        _os.writeStringSeq(null);
+                        os_.writeStringSeq(null);
                     }
                     else
                     {
                         string[] facetPath2 = { ex.facet };
-                        _os.writeStringSeq(facetPath2);
+                        os_.writeStringSeq(facetPath2);
                     }
 
-		    _os.writeString(ex.operation);
+		    os_.writeString(ex.operation);
 
-		    _connection.sendResponse(_os, _compress);
+		    connection_.sendResponse(os_, compress_);
 		}
 		else
 		{
-		    _connection.sendNoResponse();
+		    connection_.sendNoResponse();
 		}
 
 		return;
@@ -338,22 +338,22 @@ namespace IceInternal
 	    {
 	        _is.endReadEncaps();
 		
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		{
-		    __warning(ex);
+		    warning__(ex);
 		}
 		
-		if(_response)
+		if(response_)
 		{
-		    _os.endWriteEncaps();
-		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		    _os.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
-		    _os.writeString(ex.unknown);
-		    _connection.sendResponse(_os, _compress);
+		    os_.endWriteEncaps();
+		    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		    os_.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
+		    os_.writeString(ex.unknown);
+		    connection_.sendResponse(os_, compress_);
 		}
 		else
 		{
-		    _connection.sendNoResponse();
+		    connection_.sendNoResponse();
 		}
 
 		return;
@@ -362,22 +362,22 @@ namespace IceInternal
 	    {
 	        _is.endReadEncaps();
 		
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		{
-		    __warning(ex);
+		    warning__(ex);
 		}
 		
-		if(_response)
+		if(response_)
 		{
-		    _os.endWriteEncaps();
-		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		    _os.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
-		    _os.writeString(ex.unknown);
-		    _connection.sendResponse(_os, _compress);
+		    os_.endWriteEncaps();
+		    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		    os_.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
+		    os_.writeString(ex.unknown);
+		    connection_.sendResponse(os_, compress_);
 		}
 		else
 		{
-		    _connection.sendNoResponse();
+		    connection_.sendNoResponse();
 		}
 
 		return;
@@ -386,22 +386,22 @@ namespace IceInternal
 	    {
 	        _is.endReadEncaps();
 		
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		{
-		    __warning(ex);
+		    warning__(ex);
 		}
 		
-		if(_response)
+		if(response_)
 		{
-		    _os.endWriteEncaps();
-		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		    _os.writeByte((byte)DispatchStatus.DispatchUnknownException);
-		    _os.writeString(ex.unknown);
-		    _connection.sendResponse(_os, _compress);
+		    os_.endWriteEncaps();
+		    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		    os_.writeByte((byte)DispatchStatus.DispatchUnknownException);
+		    os_.writeString(ex.unknown);
+		    connection_.sendResponse(os_, compress_);
 		}
 		else
 		{
-		    _connection.sendNoResponse();
+		    connection_.sendNoResponse();
 		}
 
 		return;
@@ -410,22 +410,22 @@ namespace IceInternal
 	    {
 	        _is.endReadEncaps();
 		
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		{
-		    __warning(ex);
+		    warning__(ex);
 		}
 		
-		if(_response)
+		if(response_)
 		{
-		    _os.endWriteEncaps();
-		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		    _os.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
-		    _os.writeString(ex.ToString());
-		    _connection.sendResponse(_os, _compress);
+		    os_.endWriteEncaps();
+		    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		    os_.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
+		    os_.writeString(ex.ToString());
+		    connection_.sendResponse(os_, compress_);
 		}
 		else
 		{
-		    _connection.sendNoResponse();
+		    connection_.sendNoResponse();
 		}
 
 		return;
@@ -435,22 +435,22 @@ namespace IceInternal
 	    {
 	        _is.endReadEncaps();
 		
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		{
-		    __warning(ex);
+		    warning__(ex);
 		}
 		
-		if(_response)
+		if(response_)
 		{
-		    _os.endWriteEncaps();
-		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		    _os.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
-		    _os.writeString(ex.ToString());
-		    _connection.sendResponse(_os, _compress);
+		    os_.endWriteEncaps();
+		    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		    os_.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
+		    os_.writeString(ex.ToString());
+		    connection_.sendResponse(os_, compress_);
 		}
 		else
 		{
-		    _connection.sendNoResponse();
+		    connection_.sendNoResponse();
 		}
 
 		return;
@@ -460,22 +460,22 @@ namespace IceInternal
 	    {
 		_is.endReadEncaps();
 
-		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+		if(os_.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		{
-		    __warning(ex);
+		    warning__(ex);
 		}
 		
-		if(_response)
+		if(response_)
 		{
-		    _os.endWriteEncaps();
-		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		    _os.writeByte((byte) DispatchStatus.DispatchUnknownException);
-		    _os.writeString(ex.ToString());
-		    _connection.sendResponse(_os, _compress);
+		    os_.endWriteEncaps();
+		    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		    os_.writeByte((byte) DispatchStatus.DispatchUnknownException);
+		    os_.writeString(ex.ToString());
+		    connection_.sendResponse(os_, compress_);
 		}
 		else
 		{
-		    _connection.sendNoResponse();
+		    connection_.sendNoResponse();
 		}
 
 		return;
@@ -502,9 +502,9 @@ namespace IceInternal
 		return;
 	    }
 	    
-	    if(_response)
+	    if(response_)
 	    {
-		_os.endWriteEncaps();
+		os_.endWriteEncaps();
 		
 		if(status != DispatchStatus.DispatchOK && status != DispatchStatus.DispatchUserException)
 		{
@@ -512,39 +512,39 @@ namespace IceInternal
 				 status == DispatchStatus.DispatchFacetNotExist ||
 				 status == DispatchStatus.DispatchOperationNotExist);
 		    
-		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		    _os.writeByte((byte)status);
+		    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		    os_.writeByte((byte)status);
 		    
-		    _current.id.__write(_os);
+		    current_.id.write__(os_);
 
                     //
                     // For compatibility with the old FacetPath.
                     //
-                    if(_current.facet == null || _current.facet.Length == 0)
+                    if(current_.facet == null || current_.facet.Length == 0)
                     {
-                        _os.writeStringSeq(null);
+                        os_.writeStringSeq(null);
                     }
                     else
                     {
-                        string[] facetPath2 = { _current.facet };
-                        _os.writeStringSeq(facetPath2);
+                        string[] facetPath2 = { current_.facet };
+                        os_.writeStringSeq(facetPath2);
                     }
 
-		    _os.writeString(_current.operation);
+		    os_.writeString(current_.operation);
 		}
 		else
 		{
-		    int save = _os.pos();
-		    _os.pos(Protocol.headerSize + 4); // Dispatch status position.
-		    _os.writeByte((byte)status);
-		    _os.pos(save);
+		    int save = os_.pos();
+		    os_.pos(Protocol.headerSize + 4); // Dispatch status position.
+		    os_.writeByte((byte)status);
+		    os_.pos(save);
 		}
 
-		_connection.sendResponse(_os, _compress);
+		connection_.sendResponse(os_, compress_);
 	    }
 	    else
 	    {
-		_connection.sendNoResponse();
+		connection_.sendNoResponse();
 	    }
 	}
 	
@@ -555,7 +555,7 @@ namespace IceInternal
 	
 	public BasicStream ostr()
 	{
-	    return _os;
+	    return os_;
 	}
 	
 	public Incoming next; // For use by Connection.

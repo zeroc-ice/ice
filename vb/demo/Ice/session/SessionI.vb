@@ -12,7 +12,7 @@ Imports System
 Imports System.Collections
 
 Public Class SessionI
-    Inherits _SessionDisp
+    Inherits SessionDisp_
 
     Public Sub New(ByVal name As String)
 

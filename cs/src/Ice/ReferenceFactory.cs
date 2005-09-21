@@ -28,7 +28,7 @@ namespace IceInternal
 	    lock(this)
 	    {
 
-		if(_instance == null)
+		if(instance_ == null)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -41,7 +41,7 @@ namespace IceInternal
 		//
 		// Create new reference
 		//
-		DirectReference @ref = new DirectReference(_instance, _communicator, ident, context, facet, mode,
+		DirectReference @ref = new DirectReference(instance_, _communicator, ident, context, facet, mode,
 							   secure, endpoints, routerInfo, collocationOptimization);
 		return updateCache(@ref);
 	    }
@@ -59,7 +59,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_instance == null)
+		if(instance_ == null)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -72,7 +72,7 @@ namespace IceInternal
 		//
 		// Create new reference
 		//
-		IndirectReference @ref = new IndirectReference(_instance,  _communicator, ident, context, facet, mode,
+		IndirectReference @ref = new IndirectReference(instance_,  _communicator, ident, context, facet, mode,
 							       secure, adapterId, routerInfo, locatorInfo,
 							       collocationOptimization);
 		return updateCache(@ref);
@@ -87,7 +87,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_instance == null)
+		if(instance_ == null)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -100,7 +100,7 @@ namespace IceInternal
 		//
 		// Create new reference
 		//
-		FixedReference @ref = new FixedReference(_instance, _communicator, ident, context, facet, mode, fixedConnections);
+		FixedReference @ref = new FixedReference(instance_, _communicator, ident, context, facet, mode, fixedConnections);
 		return updateCache(@ref);
 	    }
 	}
@@ -109,7 +109,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_instance == null)
+		if(instance_ == null)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
@@ -395,13 +395,13 @@ namespace IceInternal
 		}
 	    }
 
-	    RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
-	    LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
+	    RouterInfo routerInfo = instance_.routerManager().get(getDefaultRouter());
+	    LocatorInfo locatorInfo = instance_.locatorManager().get(getDefaultLocator());
 
 	    if(beg == -1)
 	    {
 		return create(ident, new Ice.Context(), facet, mode, secure, "", routerInfo, locatorInfo,
-			      _instance.defaultsAndOverrides().defaultCollocationOptimization);
+			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 
 	    ArrayList endpoints = new ArrayList();
@@ -422,7 +422,7 @@ namespace IceInternal
 		    }
 		    
 		    string es = s.Substring(beg, end - beg);
-		    EndpointI endp = _instance.endpointFactoryManager().create(es);
+		    EndpointI endp = instance_.endpointFactoryManager().create(es);
 		    if(endp != null)
 		    {
 		        endpoints.Add(endp);
@@ -439,7 +439,7 @@ namespace IceInternal
 		    throw e2;
 		}
 		else if(unknownEndpoints.Count != 0 &&
-		        _instance.properties().getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
+		        instance_.properties().getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0)
 		{
 		    string msg = "Proxy contains unknown endpoints:";
 		    int sz = unknownEndpoints.Count;
@@ -447,12 +447,12 @@ namespace IceInternal
 		    {
 		        msg += " `" + (string)unknownEndpoints[idx] + "'";
 		    }
-		    _instance.logger().warning(msg);
+		    instance_.logger().warning(msg);
 		}
 
 		EndpointI[] ep = (EndpointI[])endpoints.ToArray(typeof(EndpointI));
 		return create(ident, new Ice.Context(), facet, mode, secure, ep, routerInfo,
-			      _instance.defaultsAndOverrides().defaultCollocationOptimization);
+			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	    else if(s[beg] == '@')
 	    {
@@ -491,7 +491,7 @@ namespace IceInternal
 		    throw e;
 		}
 		return create(ident, new Ice.Context(), facet, mode, secure, adapter, routerInfo, locatorInfo,
-			      _instance.defaultsAndOverrides().defaultCollocationOptimization);
+			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 
 	    Ice.ProxyParseException ex = new Ice.ProxyParseException();
@@ -540,8 +540,8 @@ namespace IceInternal
 	    EndpointI[] endpoints;
 	    string adapterId = "";
 
-	    RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
-	    LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
+	    RouterInfo routerInfo = instance_.routerManager().get(getDefaultRouter());
+	    LocatorInfo locatorInfo = instance_.locatorManager().get(getDefaultLocator());
 
 	    int sz = s.readSize();
 	    if(sz > 0)
@@ -549,17 +549,17 @@ namespace IceInternal
 		endpoints = new EndpointI[sz];
 		for(int i = 0; i < sz; i++)
 		{
-		    endpoints[i] = _instance.endpointFactoryManager().read(s);
+		    endpoints[i] = instance_.endpointFactoryManager().read(s);
 		}
 		return create(ident, new Ice.Context(), facet, (Reference.Mode)mode, secure, endpoints, routerInfo,
-			      _instance.defaultsAndOverrides().defaultCollocationOptimization);
+			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	    else
 	    {
 		endpoints = new EndpointI[0];
 		adapterId = s.readString();
 		return create(ident, new Ice.Context(), facet, (Reference.Mode)mode, secure, adapterId, routerInfo,
-			      locatorInfo, _instance.defaultsAndOverrides().defaultCollocationOptimization);
+			      locatorInfo, instance_.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	}
 
@@ -600,7 +600,7 @@ namespace IceInternal
 	//
 	internal ReferenceFactory(Instance instance, Ice.Communicator communicator)
 	{
-	    _instance = instance;
+	    instance_ = instance;
 	    _communicator = communicator;
 	}
 
@@ -608,12 +608,12 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_instance == null)
+		if(instance_ == null)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
 		}
 
-		_instance = null;
+		instance_ = null;
 		_defaultRouter = null;
 		_defaultLocator = null;
 		_references.Clear();
@@ -642,7 +642,7 @@ namespace IceInternal
 	    return @ref;
 	}
 
-	private Instance _instance;
+	private Instance instance_;
 	private Ice.Communicator _communicator;
 	private Ice.RouterPrx _defaultRouter;
 	private Ice.LocatorPrx _defaultLocator;

@@ -11,7 +11,7 @@ Imports System
 Imports printerDemo.Demo
 
 Public Class PrinterI
-    Inherits _PrinterDisp
+    Inherits PrinterDisp_
 
     Public Overloads Overrides Sub printString(ByVal s As String, ByVal current As Ice.Current)
         Console.WriteLine(s)

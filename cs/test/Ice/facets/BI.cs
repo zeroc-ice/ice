@@ -9,7 +9,7 @@
 
 using Test;
 
-public sealed class BI : _BDisp
+public sealed class BI : BDisp_
 {
     public BI()
     {

@@ -20,9 +20,9 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		Debug.Assert(_instance != null);
+		Debug.Assert(instance_ != null);
 		
-		_instance = null;
+		instance_ = null;
 		_connections = null;
 		
 		System.Threading.Monitor.Pulse(this);
@@ -39,7 +39,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		Debug.Assert(_instance != null);
+		Debug.Assert(instance_ != null);
 		_connections.Add(connection);
 	    }
 	}
@@ -48,7 +48,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		Debug.Assert(_instance != null);
+		Debug.Assert(instance_ != null);
 		_connections.Remove(connection);
 	    }
 	}
@@ -58,11 +58,11 @@ namespace IceInternal
 	//
 	internal ConnectionMonitor(Instance instance, int interval)
 	{
-	    _instance = instance;
+	    instance_ = instance;
 	    _interval = interval;
 	    _connections = new Set();
 	    
-	    string threadName = _instance.properties().getProperty("Ice.ProgramName");
+	    string threadName = instance_.properties().getProperty("Ice.ProgramName");
 	    if(threadName.Length > 0)
 	    {
 		threadName += "-";
@@ -80,7 +80,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		IceUtil.Assert.FinalizerAssert(_instance == null);
+		IceUtil.Assert.FinalizerAssert(instance_ == null);
 		IceUtil.Assert.FinalizerAssert(_connections == null);
 	    }
 	}
@@ -94,14 +94,14 @@ namespace IceInternal
 	    {
 		lock(this)
 		{
-		    if(_instance == null)
+		    if(instance_ == null)
 		    {
 			return;
 		    }
 		    
 		    System.Threading.Monitor.Wait(this, System.TimeSpan.FromMilliseconds(_interval * 1000));
 		    
-		    if(_instance == null)
+		    if(instance_ == null)
 		    {
 			return;
 		    }
@@ -128,21 +128,21 @@ namespace IceInternal
 		    {
 			lock(this)
 			{
-			    _instance.logger().error("exception in connection monitor thread " + _thread.Name + "::\n" + ex);
+			    instance_.logger().error("exception in connection monitor thread " + _thread.Name + "::\n" + ex);
 			}
 		    }
 		    catch(System.Exception ex)
 		    {
 			lock(this)
 			{
-			    _instance.logger().error("unknown exception in connection monitor thread " + _thread.Name + ":\n" + ex);
+			    instance_.logger().error("unknown exception in connection monitor thread " + _thread.Name + ":\n" + ex);
 			}
 		    }
 		}
 	    }
 	}
 	
-	private Instance _instance;
+	private Instance instance_;
 	private readonly int _interval;
 	private Set _connections;
 	private Thread _thread;

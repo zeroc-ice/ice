@@ -10,7 +10,7 @@
 Imports Demo
 
 Public NotInheritable Class CallbackReceiverI
-    Inherits _CallbackReceiverDisp
+    Inherits CallbackReceiverDisp_
 
     Public Overloads Overrides Sub callback(ByVal current As Ice.Current)
 	System.Console.Out.WriteLine("received callback")

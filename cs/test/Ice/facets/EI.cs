@@ -9,7 +9,7 @@
 
 using Test;
 
-public sealed class EI : _EDisp
+public sealed class EI : EDisp_
 {
     public EI()
     {

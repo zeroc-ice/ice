@@ -11,7 +11,7 @@ Imports glacier2demo.Demo
 Imports System
 
 Public NotInheritable Class CallbackReceiverI
-    Inherits _CallbackReceiverDisp
+    Inherits CallbackReceiverDisp_
 
     Public Overloads Overrides Sub callback(ByVal current As Ice.Current)
         Console.WriteLine("received callback")

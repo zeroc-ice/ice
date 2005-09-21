@@ -19,50 +19,50 @@ public class XMLOutput : OutputBase
     public XMLOutput()
 	: base()
     {
-	_elementStack = new Stack();
-	_se = false;
-	_text = false;
-	_sgml = false;
-	_escape = false;
+	elementStack_ = new Stack();
+	se_ = false;
+	text_ = false;
+	sgml_ = false;
+	escape_ = false;
     }
     
     public XMLOutput(StreamWriter writer)
 	: base(writer)
     {
-	    _elementStack = new Stack();
-	    _se = false;
-	    _text = false;
-	    _sgml = false;
-	    _escape = false;
+	    elementStack_ = new Stack();
+	    se_ = false;
+	    text_ = false;
+	    sgml_ = false;
+	    escape_ = false;
     }
     
     public XMLOutput(string s)
 	: base(s)
     {
-	    _elementStack = new Stack();
-	    _se = false;
-	    _text = false;
-	    _sgml = false;
-	    _escape = false;
+	    elementStack_ = new Stack();
+	    se_ = false;
+	    text_ = false;
+	    sgml_ = false;
+	    escape_ = false;
     }
     
     virtual public void 
     setSGML(bool sgml)
     {
-	_sgml = true;
+	sgml_ = true;
     }
 
     public override void
     print(string s)
     {
-	if(_se)
+	if(se_)
 	{
-	    _out.Write(">");
-	    _se = false;
+	    out_.Write(">");
+	    se_ = false;
 	}
-	_text = true;
+	text_ = true;
 	
-	if(_escape)
+	if(escape_)
 	{
 	    string escaped = escape(s);
 	    base.print(escaped);
@@ -83,10 +83,10 @@ public class XMLOutput : OutputBase
     public override void
     nl()
     {
-	if(_se)
+	if(se_)
 	{
-	    _se = false;
-	    _out.Write(">");
+	    se_ = false;
+	    out_.Write(">");
 	}
 	base.nl();
     }
@@ -101,18 +101,18 @@ public class XMLOutput : OutputBase
 	// deferred until either the end-element (in which case a /> is
 	// emitted) or until something is displayed.
 	//
-	if(_escape)
+	if(escape_)
 	{
-	    _out.Write('<');
-	    _out.Write(escape(element));
+	    out_.Write('<');
+	    out_.Write(escape(element));
 	}
 	else
 	{
-	    _out.Write('<');
-	    _out.Write(element);
+	    out_.Write('<');
+	    out_.Write(element);
 	}
-	_se = true;
-	_text = false;
+	se_ = true;
+	text_ = false;
 	
 	int pos = element.IndexOf(' ');
 	if (pos == - 1)
@@ -121,55 +121,55 @@ public class XMLOutput : OutputBase
 	}
 	if (pos == - 1)
 	{
-	    _elementStack.Push(element);
+	    elementStack_.Push(element);
 	}
 	else
 	{
-	    _elementStack.Push(element.Substring(0, pos - 1));
+	    elementStack_.Push(element.Substring(0, pos - 1));
 	}
 	
-	++_pos; // TODO: ???
+	++pos_; // TODO: ???
 	inc();
-	_separator = false;
+	separator_ = false;
 	return this;
     }
     
     public virtual XMLOutput
     ee()
     {
-	string element = (string)_elementStack.Pop();
+	string element = (string)elementStack_.Pop();
         
 	dec();
-	if(_se)
+	if(se_)
 	{
 	    //
 	    // SGML (docbook) doesn't support <foo/>
 	    //
-	    if(_sgml)
+	    if(sgml_)
 	    {
-		_out.Write("></");
-		_out.Write(element);
-		_out.Write(">");
+		out_.Write("></");
+		out_.Write(element);
+		out_.Write(">");
 	    }
 	    else
 	    {
-		_out.Write("/>");
+		out_.Write("/>");
 	    }
 	}
 	else
 	{
-	    if(!_text)
+	    if(!text_)
 	    {
 		nl();
 	    }
-	    _out.Write("</");
-	    _out.Write(element);
-	    _out.Write(">");
+	    out_.Write("</");
+	    out_.Write(element);
+	    out_.Write(">");
 	}
-	--_pos; // TODO: ???
+	--pos_; // TODO: ???
         
-	_se = false;
-	_text = false;
+	se_ = false;
+	text_ = false;
 	return this;
     }
     
@@ -179,35 +179,35 @@ public class XMLOutput : OutputBase
 	//
 	// Precondition: Attributes can only be attached to elements.
 	//
-	Debug.Assert(_se);
-	_out.Write(" ");
-	_out.Write(name);
-	_out.Write("=\"");
-	_out.Write(escape(val));
-	_out.Write("\"");
+	Debug.Assert(se_);
+	out_.Write(" ");
+	out_.Write(name);
+	out_.Write("=\"");
+	out_.Write(escape(val));
+	out_.Write("\"");
 	return this;
     }
     
     public virtual XMLOutput
     startEscapes()
     {
-	_escape = true;
+	escape_ = true;
 	return this;
     }
     
     public virtual XMLOutput
     endEscapes()
     {
-	_escape = false;
+	escape_ = false;
 	return this;
     }
     
     public virtual string
     currentElement()
     {
-	if(_elementStack.Count > 0)
+	if(elementStack_.Count > 0)
 	{
-	    return (string)_elementStack.Peek();
+	    return (string)elementStack_.Peek();
 	}
 	else
 	{
@@ -286,13 +286,13 @@ public class XMLOutput : OutputBase
 	return v;
     }
     
-    private Stack _elementStack;
+    private Stack elementStack_;
     
-    internal bool _se;
-    internal bool _text;
+    internal bool se_;
+    internal bool text_;
     
-    private bool _sgml;
-    private bool _escape;
+    private bool sgml_;
+    private bool escape_;
 }
 
 }

@@ -47,7 +47,7 @@ namespace IceInternal
 
 	public BasicStream(IceInternal.Instance instance)
 	{
-	    _instance = instance;
+	    instance_ = instance;
 	    allocate(1500);
 	    _capacity = _buf.capacity();
 	    _limit = 0;
@@ -62,7 +62,7 @@ namespace IceInternal
 	    
 	    _sliceObjects = true;
 	    
-	    _messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
+	    _messageSizeMax = instance_.messageSizeMax(); // Cached for efficiency.
 
 	    _seqDataStack = null;
 	    _objectList = null;
@@ -95,12 +95,12 @@ namespace IceInternal
 
 	public virtual IceInternal.Instance instance()
 	{
-	    return _instance;
+	    return instance_;
 	}
 	
 	public virtual void swap(BasicStream other)
 	{
-	    Debug.Assert(_instance == other._instance);
+	    Debug.Assert(instance_ == other.instance_);
 	    
 	    ByteBuffer tmpBuf = other._buf;
 	    other._buf = _buf;
@@ -1078,12 +1078,12 @@ namespace IceInternal
 	
 	public virtual void writeProxy(Ice.ObjectPrx v)
 	{
-	    _instance.proxyFactory().proxyToStream(v, this);
+	    instance_.proxyFactory().proxyToStream(v, this);
 	}
 	
 	public virtual Ice.ObjectPrx readProxy()
 	{
-	    return _instance.proxyFactory().streamToProxy(this);
+	    return instance_.proxyFactory().streamToProxy(this);
 	}
 	
 	public virtual void writeObject(Ice.Object v)
@@ -1216,7 +1216,7 @@ namespace IceInternal
 		// Try to find a factory registered for the specific
 		// type.
 		//
-		Ice.ObjectFactory userFactory = _instance.servantFactoryManager().find(id);
+		Ice.ObjectFactory userFactory = instance_.servantFactoryManager().find(id);
 		if(userFactory != null)
 		{
 		    v = userFactory.create(id);
@@ -1228,7 +1228,7 @@ namespace IceInternal
 		//
 		if(v == null)
 		{
-		    userFactory = _instance.servantFactoryManager().find("");
+		    userFactory = instance_.servantFactoryManager().find("");
 		    if(userFactory != null)
 		    {
 			v = userFactory.create(id);
@@ -1259,12 +1259,12 @@ namespace IceInternal
 			//
 			if(_traceSlicing == -1)
 			{
-			    _traceSlicing = _instance.traceLevels().slicing;
-			    _slicingCat = _instance.traceLevels().slicingCat;
+			    _traceSlicing = instance_.traceLevels().slicing;
+			    _slicingCat = instance_.traceLevels().slicingCat;
 			}
 			if(_traceSlicing > 0)
 			{
-			    TraceUtil.traceSlicing("class", id, _slicingCat, _instance.logger());
+			    TraceUtil.traceSlicing("class", id, _slicingCat, instance_.logger());
 			}
 			skipSlice(); // Slice off this derived part -- we don't understand it.
 			id = readTypeId(); // Read next id for next iteration.
@@ -1292,7 +1292,7 @@ namespace IceInternal
 		}
 		_objectList.Add(v);
 
-		v.__read(this, false);
+		v.read__(this, false);
 		patchReferences(i, null);
 		return;
 	    }
@@ -1300,9 +1300,9 @@ namespace IceInternal
 	
 	public virtual void writeUserException(Ice.UserException v)
 	{
-	    writeBool(v.__usesClasses());
-	    v.__write(this);
-	    if(v.__usesClasses())
+	    writeBool(v.usesClasses__());
+	    v.write__(this);
+	    if(v.usesClasses__())
 	    {
 		writePendingObjects();
 	    }
@@ -1334,7 +1334,7 @@ namespace IceInternal
 		    }
 		    catch(Ice.UserException ex)
 		    {
-			ex.__read(this, false);
+			ex.read__(this, false);
 			if(usesClasses)
 			{
 			    readPendingObjects();
@@ -1350,12 +1350,12 @@ namespace IceInternal
 		    //
 		    if(_traceSlicing == -1)
 		    {
-			_traceSlicing = _instance.traceLevels().slicing;
-			_slicingCat = _instance.traceLevels().slicingCat;
+			_traceSlicing = instance_.traceLevels().slicing;
+			_slicingCat = instance_.traceLevels().slicingCat;
 		    }
 		    if(_traceSlicing > 0)
 		    {
-			TraceUtil.traceSlicing("exception", id, _slicingCat, _instance.logger());
+			TraceUtil.traceSlicing("exception", id, _slicingCat, instance_.logger());
 		    }
 		    skipSlice(); // Slice off what we don't understand.
 		    id = readString(); // Read type id for next slice.
@@ -1438,7 +1438,7 @@ namespace IceInternal
 		    }
 		    catch(System.Exception ex)
 		    {
-		        _instance.logger().warning("exception raised by ice_postUnmarshal::\n" + ex);
+		        instance_.logger().warning("exception raised by ice_postUnmarshal::\n" + ex);
 		    }
 		}
 	    }
@@ -1459,9 +1459,9 @@ namespace IceInternal
 	    }
 	    catch(System.Exception ex)
 	    {
-		_instance.logger().warning("exception raised by ice_preMarshal::\n" + ex);
+		instance_.logger().warning("exception raised by ice_preMarshal::\n" + ex);
 	    }
-	    v.__write(this);
+	    v.write__(this);
 	}
 	
 	internal virtual void patchReferences(object instanceIndex, object patchIndex)
@@ -1654,7 +1654,7 @@ namespace IceInternal
                 return false;
             }
 
-            cstream = new BasicStream(_instance);
+            cstream = new BasicStream(instance_);
             cstream.resize(headerSize + 4 + compressedLen, false);
             cstream.pos(0);
             
@@ -1711,7 +1711,7 @@ namespace IceInternal
                 ex.reason = getBZ2Error(rc);
                 throw ex;
             }
-            BasicStream ucStream = new BasicStream(_instance);
+            BasicStream ucStream = new BasicStream(instance_);
             ucStream.resize(uncompressedSize, false);
             ucStream.pos(0);
             ucStream._buf.put(_buf.rawBytes(0, headerSize));
@@ -1814,7 +1814,7 @@ namespace IceInternal
 		    {
 			try
 			{
-			    _instance.servantFactoryManager().add(dynamicFactory, id);
+			    instance_.servantFactoryManager().add(dynamicFactory, id);
 			    factory = dynamicFactory;
 			}
 			catch(Ice.AlreadyRegisteredException)
@@ -1828,7 +1828,7 @@ namespace IceInternal
 			    // null and the while loop will attempt to
 			    // install the dynamic factory again.
 			    //
-			    factory = _instance.servantFactoryManager().find(id);
+			    factory = instance_.servantFactoryManager().find(id);
 			}
 		    }
 		}
@@ -1943,7 +1943,7 @@ namespace IceInternal
 	    _buf.put(old);
 	}
 
-	private IceInternal.Instance _instance;
+	private IceInternal.Instance instance_;
 	private ByteBuffer _buf;
 	private int _capacity; // Cache capacity to avoid excessive method calls.
 	private int _limit; // Cache limit to avoid excessive method calls.

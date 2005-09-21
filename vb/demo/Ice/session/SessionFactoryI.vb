@@ -11,7 +11,7 @@ Imports sessionDemo.Demo
 Imports System
 
 Public Class SessionFactoryI
-    Inherits _SessionFactoryDisp
+    Inherits SessionFactoryDisp_
 
     Public Sub New(ByVal reapThread As ReapThread)
         _reaper = reapThread

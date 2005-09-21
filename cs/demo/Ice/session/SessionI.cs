@@ -11,7 +11,7 @@ using Demo;
 using System;
 using System.Collections;
 
-public class SessionI : _SessionDisp
+public class SessionI : SessionDisp_
 {
     public SessionI(string name)
     {

@@ -10,7 +10,7 @@
 using Demo;
 using System.Collections;
 
-class CallbackSenderI : _CallbackSenderDisp
+class CallbackSenderI : CallbackSenderDisp_
 {
     public CallbackSenderI()
     {

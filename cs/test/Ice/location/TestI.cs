@@ -9,7 +9,7 @@
 
 using Test;
 
-public class TestI : _TestIntfDisp
+public class TestI : TestIntfDisp_
 {
     internal TestI(Ice.ObjectAdapter adapter1, Ice.ObjectAdapter adapter2, ServerLocatorRegistry registry)
     {

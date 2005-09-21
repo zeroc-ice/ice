@@ -175,7 +175,7 @@ namespace Ice
 
 	public static string generateUUID()
 	{
-	    if(AssemblyUtil._platform == AssemblyUtil.Platform.Windows)
+	    if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
 	    {
 	        //
 		// Under Windows, with both .NET and Mono, there is no /dev/urandom.

@@ -121,7 +121,7 @@ namespace IceInternal
 		//
 		// Modify endpoints with overrides.
 		//
-		DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+		DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
 		for(int j = 0; j < endpoints.Length; j++)
 		{
 		    if(defaultsAndOverrides.overrideTimeout)
@@ -151,9 +151,9 @@ namespace IceInternal
                             //
 			    if(!connection.isDestroyed())
 			    {
-                                if(_instance.defaultsAndOverrides().overrideCompress)
+                                if(instance_.defaultsAndOverrides().overrideCompress)
                                 {
-                                    compress = _instance.defaultsAndOverrides().overrideCompressValue;
+                                    compress = instance_.defaultsAndOverrides().overrideCompressValue;
                                 }
                                 else
                                 {
@@ -217,9 +217,9 @@ namespace IceInternal
                                 //
                                 if(!connection.isDestroyed())
                                 {
-                                    if(_instance.defaultsAndOverrides().overrideCompress)
+                                    if(instance_.defaultsAndOverrides().overrideCompress)
                                     {
-                                        compress = _instance.defaultsAndOverrides().overrideCompressValue;
+                                        compress = instance_.defaultsAndOverrides().overrideCompressValue;
                                     }
                                     else
                                     {
@@ -260,7 +260,7 @@ namespace IceInternal
 			Debug.Assert(connector != null);
 
 			int timeout;
-			DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+			DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
 			if(defaultsAndOverrides.overrideConnectTimeout)
 			{
 			    timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
@@ -276,11 +276,11 @@ namespace IceInternal
 			transceiver = connector.connect(timeout);
 			Debug.Assert(transceiver != null);
 		    }
-		    newConnection = new Ice.ConnectionI(_instance, transceiver, endpoint, null);
+		    newConnection = new Ice.ConnectionI(instance_, transceiver, endpoint, null);
 		    newConnection.validate();
-                    if(_instance.defaultsAndOverrides().overrideCompress)
+                    if(instance_.defaultsAndOverrides().overrideCompress)
                     {
-                        compress = _instance.defaultsAndOverrides().overrideCompressValue;
+                        compress = instance_.defaultsAndOverrides().overrideCompressValue;
                     }
                     else
                     {
@@ -303,7 +303,7 @@ namespace IceInternal
 		    }
 		}
 		
-		TraceLevels traceLevels = _instance.traceLevels();
+		TraceLevels traceLevels = instance_.traceLevels();
 		if(traceLevels.retry >= 2)
 		{
 		    System.Text.StringBuilder s = new System.Text.StringBuilder();
@@ -317,7 +317,7 @@ namespace IceInternal
 			s.Append(" and no more endpoints to try\n");
 		    }
 		    s.Append(exception);
-		    _instance.logger().trace(traceLevels.retryCat, s.ToString());
+		    instance_.logger().trace(traceLevels.retryCat, s.ToString());
 		}
 	    }
 	    
@@ -382,8 +382,8 @@ namespace IceInternal
 		//
 		Ice.ObjectPrx proxy = routerInfo.getClientProxy();
 		Ice.ObjectAdapter adapter = routerInfo.getAdapter();
-		DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-		EndpointI[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints();
+		DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
+		EndpointI[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).reference__().getEndpoints();
 		for(int i = 0; i < endpoints.Length; i++)
 		{
 		    EndpointI endpoint = endpoints[i];
@@ -492,7 +492,7 @@ namespace IceInternal
 	//
 	internal OutgoingConnectionFactory(Instance instance)
 	{
-	    _instance = instance;
+	    instance_ = instance;
 	    _destroyed = false;
 	    _connections = new Hashtable();
 	    _pending = new Set();
@@ -509,7 +509,7 @@ namespace IceInternal
 	}
 #endif
 	
-	private readonly Instance _instance;
+	private readonly Instance instance_;
 	private bool _destroyed;
 	private Hashtable _connections;
 	private Set _pending;
@@ -673,25 +673,25 @@ namespace IceInternal
 	
 	public override bool datagram()
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 	    return _endpoint.datagram();
 	}
 	
 	public override bool readable()
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 	    return false;
 	}
 	
 	public override void read(BasicStream unused)
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 	    Debug.Assert(false); // Must not be called.
 	}
 	
 	public override void message(BasicStream unused, ThreadPool threadPool)
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 
 	    Ice.ConnectionI connection = null;
 	    
@@ -745,7 +745,7 @@ namespace IceInternal
 
 		    try
 		    {
-			connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
+			connection = new Ice.ConnectionI(instance_, transceiver, _endpoint, _adapter);
 		    }
 		    catch(Ice.LocalException)
 		    {
@@ -798,7 +798,7 @@ namespace IceInternal
 	
 	public override void finished(ThreadPool threadPool)
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 
 	    lock(this)
 	    {
@@ -839,11 +839,11 @@ namespace IceInternal
 	    _endpoint = endpoint;
 	    _adapter = adapter;
 	    _registeredWithPool = false;
-	    _warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
+	    _warn = instance_.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
 	    _connections = new LinkedList();
 	    _state = StateHolding;
 	    
-	    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+	    DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
 
 	    if(defaultsAndOverrides.overrideTimeout)
 	    {
@@ -865,7 +865,7 @@ namespace IceInternal
 		
 		try
 		{
-		    connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter);
+		    connection = new Ice.ConnectionI(instance_, _transceiver, _endpoint, _adapter);
 		    connection.validate();
 		}
 		catch(Ice.LocalException)
@@ -921,7 +921,7 @@ namespace IceInternal
 		    throw;
 		}
 
-		if(_instance.threadPerConnection())
+		if(instance_.threadPerConnection())
 		{
 		    try
 		    {
@@ -936,7 +936,7 @@ namespace IceInternal
 		    }
 		    catch(System.Exception ex)
 		    {
-			_instance.logger().error("cannot create thread for incoming connection factory:\n" + ex);
+			instance_.logger().error("cannot create thread for incoming connection factory:\n" + ex);
 
 			try
 			{
@@ -984,7 +984,7 @@ namespace IceInternal
 		    {
 			return;
 		    }
-		    if(!_instance.threadPerConnection())
+		    if(!instance_.threadPerConnection())
 		    {
 			registerWithPool();
 		    }
@@ -1002,7 +1002,7 @@ namespace IceInternal
 		    {
 			return;
 		    }
-		    if(!_instance.threadPerConnection())
+		    if(!instance_.threadPerConnection())
 		    {
 			unregisterWithPool();
 		    }
@@ -1016,7 +1016,7 @@ namespace IceInternal
 		
 		case StateClosed: 
 		{
-		    if(_instance.threadPerConnection())
+		    if(instance_.threadPerConnection())
 		    {
 			if(_acceptor != null)
 			{
@@ -1054,7 +1054,7 @@ namespace IceInternal
 
 	private void registerWithPool()
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 
 	    if(_acceptor != null && !_registeredWithPool)
 	    {
@@ -1065,7 +1065,7 @@ namespace IceInternal
 	
 	private void unregisterWithPool()
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 
 	    if(_acceptor != null && _registeredWithPool)
 	    {
@@ -1076,7 +1076,7 @@ namespace IceInternal
 	
 	private void warning(Ice.LocalException ex)
 	{
-	    _instance.logger().warning("connection exception:\n" + ex + '\n' + _acceptor.ToString());
+	    instance_.logger().warning("connection exception:\n" + ex + '\n' + _acceptor.ToString());
 	}
 
 	private void run()
@@ -1168,7 +1168,7 @@ namespace IceInternal
 		    {
 			try
 			{
-			    connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
+			    connection = new Ice.ConnectionI(instance_, transceiver, _endpoint, _adapter);
 			}
 			catch(Ice.LocalException)
 			{
@@ -1201,12 +1201,12 @@ namespace IceInternal
 	    }
 	    catch(Ice.Exception ex)
 	    {
-		_instance.logger().error("exception in thread per incoming connection factory:\n" + ToString() +
+		instance_.logger().error("exception in thread per incoming connection factory:\n" + ToString() +
 					 ex.ToString());
 	    }
 	    catch(System.Exception ex)
 	    {
-		_instance.logger().error("system exception in thread per incoming connection factory:\n" + ToString() +
+		instance_.logger().error("system exception in thread per incoming connection factory:\n" + ToString() +
 					 ex.ToString());
 	    }
 	}

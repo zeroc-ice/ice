@@ -11,7 +11,7 @@ Imports System
 Imports IcePackSimpleDemo
 
 Public Class IcePackSimpleI
-    Inherits _HelloDisp
+    Inherits HelloDisp_
 
     Public Overloads Overrides Sub sayHello(ByVal current As Ice.Current)
         Console.WriteLine("Hello World!")

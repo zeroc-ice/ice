@@ -33,27 +33,27 @@ namespace IceInternal
     {  
 	public ThreadPool(Instance instance, string prefix, int timeout)
 	{
-	    _instance = instance;
+	    instance_ = instance;
 	    _destroyed = false;
 	    _prefix = prefix;
 	    _timeout = timeout;
-	    _size = 0;
-	    _sizeMax = 0;
-	    _sizeWarn = 0;
-	    _threadIndex = 0;
-	    _running = 0;
-	    _inUse = 0;
-	    _load = 1.0;
-	    _promote = true;
-	    _warnUdp = _instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+	    size_ = 0;
+	    sizeMax_ = 0;
+	    sizeWarn_ = 0;
+	    threadIndex_ = 0;
+	    running_ = 0;
+	    inUse_ = 0;
+	    load_ = 1.0;
+	    promote_ = true;
+	    warnUdp_ = instance_.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
 	    //
 	    // If we are in thread per connection mode, no thread pool should
 	    // ever be created.
 	    //
-	    Debug.Assert(!_instance.threadPerConnection());
+	    Debug.Assert(!instance_.threadPerConnection());
 
-	    string programName = _instance.properties().getProperty("Ice.ProgramName");
+	    string programName = instance_.properties().getProperty("Ice.ProgramName");
 	    if(programName.Length > 0)
 	    {
 		_programNamePrefix = programName + "-";
@@ -73,40 +73,40 @@ namespace IceInternal
 	    // possible setting, still allows one level of nesting, and
 	    // doesn't require to make the servants thread safe.
 	    //
-	    int size = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".Size", 1);
+	    int size = instance_.properties().getPropertyAsIntWithDefault(_prefix + ".Size", 1);
 	    if(size < 1)
 	    {
 		size = 1;
 	    }
 	    
-	    int sizeMax = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
+	    int sizeMax = instance_.properties().getPropertyAsIntWithDefault(_prefix + ".SizeMax", size);
 	    if(sizeMax < size)
 	    {
 		sizeMax = size;
 	    }
 	    
-	    int sizeWarn = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeWarn",
+	    int sizeWarn = instance_.properties().getPropertyAsIntWithDefault(_prefix + ".SizeWarn",
 	                                                                      sizeMax * 80 / 100);
-	    _size = size;
-	    _sizeMax = sizeMax;
-	    _sizeWarn = sizeWarn;
+	    size_ = size;
+	    sizeMax_ = sizeMax;
+	    sizeWarn_ = sizeWarn;
 	    
 	    try
 	    {
-		_threads = new ArrayList();
-		for(int i = 0; i < _size; ++i)
+		threads_ = new ArrayList();
+		for(int i = 0; i < size_; ++i)
 		{
 		    EventHandlerThread thread = new EventHandlerThread(this, _programNamePrefix + _prefix + "-" +
-		                                                       _threadIndex++);
-		    _threads.Add(thread);
+		                                                       threadIndex_++);
+		    threads_.Add(thread);
 		    thread.Start();
-		    ++_running;
+		    ++running_;
 		}
 	    }
 	    catch(System.Exception ex)
 	    {
 		string s = "cannot create thread for `" + _prefix + "':\n" + ex;
-		_instance.logger().error(s);
+		instance_.logger().error(s);
 		
 		destroy();
 		joinWithAllThreads();
@@ -180,42 +180,42 @@ namespace IceInternal
 	
 	public void promoteFollower()
 	{
-	    if(_sizeMax > 1)
+	    if(sizeMax_ > 1)
 	    {
 		lock(this)
 		{
-		    Debug.Assert(!_promote);
-		    _promote = true;
+		    Debug.Assert(!promote_);
+		    promote_ = true;
 		    System.Threading.Monitor.Pulse(this);
 		    
 		    if(!_destroyed)
 		    {
-			Debug.Assert(_inUse >= 0);
-			++_inUse;
+			Debug.Assert(inUse_ >= 0);
+			++inUse_;
 			
-			if(_inUse == _sizeWarn)
+			if(inUse_ == sizeWarn_)
 			{
 			    string s = "thread pool `" + _prefix + "' is running low on threads\n"
-				       + "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", "
-				       + "SizeWarn=" + _sizeWarn;
-			    _instance.logger().warning(s);
+				       + "Size=" + size_ + ", " + "SizeMax=" + sizeMax_ + ", "
+				       + "SizeWarn=" + sizeWarn_;
+			    instance_.logger().warning(s);
 			}
 			
-			Debug.Assert(_inUse <= _running);
-			if(_inUse < _sizeMax && _inUse == _running)
+			Debug.Assert(inUse_ <= running_);
+			if(inUse_ < sizeMax_ && inUse_ == running_)
 			{
 			    try
 			    {
 				EventHandlerThread thread = new EventHandlerThread(this, _programNamePrefix +
-				                                                   _prefix + "-" + _threadIndex++);
-				_threads.Add(thread);
+				                                                   _prefix + "-" + threadIndex_++);
+				threads_.Add(thread);
 				thread.Start();
-				++_running;
+				++running_;
 			    }
 			    catch(System.Exception ex)
 			    {
 				string s = "cannot create thread for `" + _prefix + "':\n" + ex;
-				_instance.logger().error(s);
+				instance_.logger().error(s);
 			    }
 			}
 		    }
@@ -226,13 +226,13 @@ namespace IceInternal
 	public void joinWithAllThreads()
 	{
 	    //
-	    // _threads is immutable after destroy() has been called,
+	    // threads_ is immutable after destroy() has been called,
 	    // therefore no synchronization is needed. (Synchronization
 	    // wouldn't be possible here anyway, because otherwise the
 	    // other threads would never terminate.)
 	    //
 	    Debug.Assert(_destroyed);
-	    foreach(EventHandlerThread thread in _threads)
+	    foreach(EventHandlerThread thread in threads_)
 	    {
 		while(true)
 		{
@@ -334,16 +334,16 @@ namespace IceInternal
 	//
 	private bool run(BasicStream stream)
 	{
-	    if(_sizeMax > 1)
+	    if(sizeMax_ > 1)
 	    {
 		lock(this)
 		{
-		    while(!_promote)
+		    while(!promote_)
 		    {
 			System.Threading.Monitor.Wait(this);
 		    }
 
-		    _promote = false;
+		    promote_ = false;
 		}
 		
 		#if TRACE_THREAD
@@ -497,7 +497,7 @@ namespace IceInternal
 		    ObjectAdapterFactory factory;
 		    try
 		    {
-			factory = _instance.objectAdapterFactory();
+			factory = instance_.objectAdapterFactory();
 		    }
 		    catch(Ice.CommunicatorDestroyedException)
 		    {
@@ -531,7 +531,7 @@ namespace IceInternal
 			{
 			    string s = "exception in `" + _prefix + "' while calling finished():\n"
 			               + ex + "\n" + handler.ToString();
-			    _instance.logger().error(s);
+			    instance_.logger().error(s);
 			}
 
 			//
@@ -577,9 +577,9 @@ namespace IceInternal
 				{
 				    if(handler.datagram())
 				    {
-				        if(_instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0)
+				        if(instance_.properties().getPropertyAsInt("Ice.Warn.Connections") > 0)
 					{
-					    _instance.logger().warning("datagram connection exception:\n" + ex + 
+					    instance_.logger().warning("datagram connection exception:\n" + ex + 
 					    			       handler.ToString());
 					}
 				    }
@@ -595,7 +595,7 @@ namespace IceInternal
 				    continue;
 				}
 				
-				stream.swap(handler._stream);
+				stream.swap(handler.stream_);
 				Debug.Assert(stream.pos() == stream.size());
 			    }
 			    
@@ -609,7 +609,7 @@ namespace IceInternal
 			    catch(Ice.LocalException ex)
 			    {
 			        string s = "exception in `" + _prefix + "' while calling message():\n" + ex;
-			    	_instance.logger().error(s);
+			    	instance_.logger().error(s);
 			    }
 
 			    //
@@ -626,7 +626,7 @@ namespace IceInternal
 		    }
 		}
 		
-		if(_sizeMax > 1)
+		if(sizeMax_ > 1)
 		{
 		    lock(this)
 		    {
@@ -636,12 +636,12 @@ namespace IceInternal
 			    // First we reap threads that have been
 			    // destroyed before.
 			    //
-			    int sz = _threads.Count;
-			    Debug.Assert(_running <= sz);
-			    if(_running < sz)
+			    int sz = threads_.Count;
+			    Debug.Assert(running_ <= sz);
+			    if(running_ < sz)
 			    {
 				ArrayList liveThreads = new ArrayList();
-				foreach(EventHandlerThread thread in _threads)
+				foreach(EventHandlerThread thread in threads_)
 				{
 				    if(!thread.IsAlive())
 				    {
@@ -652,7 +652,7 @@ namespace IceInternal
 					liveThreads.Add(thread);
 				    }
 				}
-				_threads = liveThreads;
+				threads_ = liveThreads;
 			    }
 			    
 			    //
@@ -669,48 +669,48 @@ namespace IceInternal
 			    // but want the number of threads to slowly decline to
 			    // the configured minimum.
 			    //
-			    double inUse = (double)_inUse;
-			    if(_load < inUse)
+			    double inUse = (double)inUse_;
+			    if(load_ < inUse)
 			    {
-				_load = inUse;
+				load_ = inUse;
 			    }
 			    else
 			    {
 				double loadFactor = 0.05; // TODO: Configurable?
 				double oneMinusLoadFactor = 1 - loadFactor;
-				_load = _load * oneMinusLoadFactor + inUse * loadFactor;
+				load_ = load_ * oneMinusLoadFactor + inUse * loadFactor;
 			    }
 
-			    if(_running > _size)
+			    if(running_ > size_)
 			    {
-				int load = (int)(_load + 0.5);
+				int load = (int)(load_ + 0.5);
 
 				//
 				// We add one to the load factor because on
 				// additional thread is needed for select().
 				//
-				if(load  + 1 < _running)
+				if(load  + 1 < running_)
 				{
-				    Debug.Assert(_inUse > 0);
-				    --_inUse;
+				    Debug.Assert(inUse_ > 0);
+				    --inUse_;
 				    
-				    Debug.Assert(_running > 0);
-				    --_running;
+				    Debug.Assert(running_ > 0);
+				    --running_;
 				    
 				    return false;
 				}
 			    }
 			    
-			    Debug.Assert(_inUse > 0);
-			    --_inUse;
+			    Debug.Assert(inUse_ > 0);
+			    --inUse_;
 			}
 			
-			while(!_promote)
+			while(!promote_)
 			{
 			    System.Threading.Monitor.Wait(this);
 			}
 			
-			_promote = false;
+			promote_ = false;
 		    }
 		    
 		    #if TRACE_THREAD
@@ -722,7 +722,7 @@ namespace IceInternal
 	
 	private void read(EventHandler handler)
 	{
-	    BasicStream stream = handler._stream;
+	    BasicStream stream = handler.stream_;
 	    
 	    if(stream.size() == 0)
 	    {
@@ -783,7 +783,7 @@ namespace IceInternal
 	    {
 		throw new Ice.IllegalMessageSizeException();
 	    }
-	    if(size > _instance.messageSizeMax())
+	    if(size > instance_.messageSizeMax())
 	    {
 		throw new Ice.MemoryLimitException();
 	    }
@@ -797,9 +797,9 @@ namespace IceInternal
 	    {
 		if(handler.datagram())
 		{
-		    if(_warnUdp)
+		    if(warnUdp_)
 		    {
-			_instance.logger().warning("DatagramLimitException: maximum size of " + stream.pos() +
+			instance_.logger().warning("DatagramLimitException: maximum size of " + stream.pos() +
 						   " exceeded");
 		    }
 		    stream.pos(0);
@@ -868,7 +868,7 @@ namespace IceInternal
 	    }
 	}
 	
-	private Instance _instance;
+	private Instance instance_;
 	private bool _destroyed;
 	private readonly string _prefix;
 	private readonly string _programNamePrefix;
@@ -884,91 +884,91 @@ namespace IceInternal
 	
 	private sealed class EventHandlerThread
 	{
-	    private ThreadPool _threadPool;
+	    private ThreadPool thread_Pool;
 
 	    internal EventHandlerThread(ThreadPool threadPool, string name)
 		: base()
 	    {
-		_threadPool = threadPool;
-                _name = name;
+		thread_Pool = threadPool;
+                name_ = name;
 	    }
 
             public bool IsAlive()
             {
-                return _thread.IsAlive;
+                return thread_.IsAlive;
             }
 
             public void Join()
             {
-                _thread.Join();
+                thread_.Join();
             }
 
             public void Start()
             {
-                _thread = new Thread(new ThreadStart(Run));
-                _thread.Name = _name;
-                _thread.Start();
+                thread_ = new Thread(new ThreadStart(Run));
+                thread_.Name = name_;
+                thread_.Start();
             }
 
 	    public void Run()
 	    {
-		BasicStream stream = new BasicStream(_threadPool._instance);
+		BasicStream stream = new BasicStream(thread_Pool.instance_);
 		
 		bool promote;
 		
 		try
 		{
-		    promote = _threadPool.run(stream);
+		    promote = thread_Pool.run(stream);
 		}
 		catch(Ice.LocalException ex)
 		{
-		    string s = "exception in `" + _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
-		    _threadPool._instance.logger().error(s);
+		    string s = "exception in `" + thread_Pool._prefix + "' thread " + thread_.Name + ":\n" + ex;
+		    thread_Pool.instance_.logger().error(s);
 		    promote = true;
 		}
 		catch(System.Exception ex)
 		{
-		    string s = "unknown exception in `" + _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
-		    _threadPool._instance.logger().error(s);
+		    string s = "unknown exception in `" + thread_Pool._prefix + "' thread " + thread_.Name + ":\n" + ex;
+		    thread_Pool.instance_.logger().error(s);
 		    promote = true;
 		}
 		
-		if(promote && _threadPool._sizeMax > 1)
+		if(promote && thread_Pool.sizeMax_ > 1)
 		{
 		    //
-		    // Promote a follower, but w/o modifying _inUse or
+		    // Promote a follower, but w/o modifying inUse_ or
 		    // creating new threads.
 		    //
-		    lock(_threadPool)
+		    lock(thread_Pool)
 		    {
-			Debug.Assert(!_threadPool._promote);
-			_threadPool._promote = true;
-			System.Threading.Monitor.Pulse(_threadPool);
+			Debug.Assert(!thread_Pool.promote_);
+			thread_Pool.promote_ = true;
+			System.Threading.Monitor.Pulse(thread_Pool);
 		    }
 		}
 		
 		#if TRACE_THREAD
-		    _threadPool.trace("run() terminated");
+		    thread_Pool.trace("run() terminated");
 		#endif
 	    }
 
-            private string _name;
-            private Thread _thread;
+            private string name_;
+            private Thread thread_;
 	}
 	
-	private readonly int _size; // Number of threads that are pre-created.
-	private readonly int _sizeMax; // Maximum number of threads.
-	private readonly int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
+	private readonly int size_; // Number of threads that are pre-created.
+	private readonly int sizeMax_; // Maximum number of threads.
+	private readonly int sizeWarn_; // If inUse_ reaches sizeWarn_, a "low on threads" warning will be printed.
 	
-	private ArrayList _threads; // All threads, running or not.
-	private int _threadIndex; // For assigning thread names.
-	private int _running; // Number of running threads.
-	private int _inUse; // Number of threads that are currently in use.
-	private double _load; // Current load in number of threads.
+	private ArrayList threads_; // All threads, running or not.
+	private int threadIndex_; // For assigning thread names.
+	private int running_; // Number of running threads.
+	private int inUse_; // Number of threads that are currently in use.
+	private double load_; // Current load in number of threads.
 	
-	private bool _promote;
+	private bool promote_;
 	
-	private readonly bool _warnUdp;
+	private readonly bool warnUdp_;
     }
 
 }

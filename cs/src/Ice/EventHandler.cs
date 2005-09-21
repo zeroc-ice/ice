@@ -54,21 +54,21 @@ namespace IceInternal
 	
         public Instance instance()
         {
-            return _instance;
+            return instance_;
         }
 
 	protected internal EventHandler(Instance instance)
 	{
-	    _instance = instance;
-	    _stream = new BasicStream(instance);
+	    instance_ = instance;
+	    stream_ = new BasicStream(instance);
 	}
 
-	protected internal Instance _instance;
+	protected internal Instance instance_;
 	
 	//
-	// The _stream data member is for use by ThreadPool only.
+	// The stream_ data member is for use by ThreadPool only.
 	//
-	internal BasicStream _stream;
+	internal BasicStream stream_;
     }
 
 }

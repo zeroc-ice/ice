@@ -71,7 +71,7 @@ namespace IceInternal
 		_logger.trace(_traceLevels.networkCat, s);
 	    }
 	    
-	    return new TcpTransceiver(_instance, fd);
+	    return new TcpTransceiver(instance_, fd);
 	}
 
 	public virtual void connectToSelf()
@@ -101,7 +101,7 @@ namespace IceInternal
 	internal
 	TcpAcceptor(Instance instance, string host, int port)
 	{
-	    _instance = instance;
+	    instance_ = instance;
 	    _traceLevels = instance.traceLevels();
 	    _logger = instance.logger();
 	    _backlog = 0;
@@ -140,7 +140,7 @@ namespace IceInternal
 	}
 #endif
 	
-	private Instance _instance;
+	private Instance instance_;
 	private TraceLevels _traceLevels;
 	private Ice.Logger _logger;
 	private Socket _fd;

@@ -9,7 +9,7 @@
 
 using System;
 
-public sealed class SessionI : Glacier2._SessionDisp
+public sealed class SessionI : Glacier2.SessionDisp_
 {
     public SessionI(string userId)
     {

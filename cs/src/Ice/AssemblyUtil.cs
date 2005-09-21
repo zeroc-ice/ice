@@ -29,26 +29,26 @@ namespace IceInternal
                || id == PlatformID.Win32Windows
                || id == PlatformID.WinCE)
             {
-                _platform = Platform.Windows;
+                platform_ = Platform.Windows;
             }
             else
             {
-                _platform = Platform.NonWindows;
+                platform_ = Platform.NonWindows;
             }
 
 	    if(System.Type.GetType("Mono.Runtime") != null)
 	    {
-	        _runtime = Runtime.Mono;
+	        runtime_ = Runtime.Mono;
 	    }
 	    else
 	    {
-	        _runtime = Runtime.DotNET;
+	        runtime_ = Runtime.DotNET;
 	    }
 	    System.Version v = System.Environment.Version;
-	    _runtimeMajor = v.Major;
-	    _runtimeMinor = v.Minor;
-	    _runtimeBuild = v.Build;
-	    _runtimeRevision = v.Revision;
+	    runtimeMajor_ = v.Major;
+	    runtimeMinor_ = v.Minor;
+	    runtimeBuild_ = v.Build;
+	    runtimeRevision_ = v.Revision;
 	}
 
 	public static Type findType(string csharpId)
@@ -172,17 +172,17 @@ namespace IceInternal
 	private static Hashtable _typeTable = new Hashtable(); // <type name, Type> pairs.
 	private static Mutex _mutex = new Mutex();
 
-	public readonly static Runtime _runtime; // Either DotNET or Mono
+	public readonly static Runtime runtime_; // Either DotNET or Mono
 	//
 	// Versioning is: Major.Minor.Build.Revision. (Yes, really. It is not Major.Minor.Revision.Build, as
 	// one might expect.) If a part of a version number (such as revision) is not defined, it is -1.
 	//
-	public readonly static int _runtimeMajor;
-	public readonly static int _runtimeMinor;
-	public readonly static int _runtimeBuild;
-	public readonly static int _runtimeRevision;
+	public readonly static int runtimeMajor_;
+	public readonly static int runtimeMinor_;
+	public readonly static int runtimeBuild_;
+	public readonly static int runtimeRevision_;
 
-        public readonly static Platform _platform;
+        public readonly static Platform platform_;
     }
 
 }

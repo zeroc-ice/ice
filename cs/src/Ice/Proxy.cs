@@ -22,22 +22,22 @@ namespace Ice
 
 	string ice_toString();
 
-        bool ice_isA(string __id);
-        bool ice_isA(string __id, Context __context);
+        bool ice_isA(string id__);
+        bool ice_isA(string id__, Context context__);
 
         void ice_ping();
-        void ice_ping(Context __context);
+        void ice_ping(Context context__);
 
         string[] ice_ids();
-        string[] ice_ids(Context __context);
+        string[] ice_ids(Context context__);
 
         string ice_id();
-        string ice_id(Context __context);
+        string ice_id(Context context__);
 
         // Returns true if ok, false if user exception.
         bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams);
         bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
-            Context __context);
+            Context context__);
 
         void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams);
         void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
@@ -108,29 +108,29 @@ namespace Ice
 	    return ToString();
 	}
 
-        public bool ice_isA(string __id)
+        public bool ice_isA(string id__)
         {
-            return ice_isA(__id, _reference.getContext());
+            return ice_isA(id__, _reference.getContext());
         }
 
-        public bool ice_isA(string __id, Context __context)
+        public bool ice_isA(string id__, Context context__)
         {
-            int __cnt = 0;
+            int cnt__ = 0;
             while(true)
             {
                 try
                 {
-                    __checkTwowayOnly("ice_isA");
-                    _ObjectDel __del = __getDelegate();
-                    return __del.ice_isA(__id, __context);
+                    checkTwowayOnly__("ice_isA");
+                    ObjectDel_ del__ = getDelegate__();
+                    return del__.ice_isA(id__, context__);
                 }
-                catch(IceInternal.NonRepeatable __ex)
+                catch(IceInternal.NonRepeatable ex__)
                 {
-                    __cnt = __handleException(__ex.get(), __cnt);
+                    cnt__ = handleException__(ex__.get(), cnt__);
                 }
-                catch(LocalException __ex)
+                catch(LocalException ex__)
                 {
-                    __cnt = __handleException(__ex, __cnt);
+                    cnt__ = handleException__(ex__, cnt__);
                 }
             }
         }
@@ -140,25 +140,25 @@ namespace Ice
             ice_ping(_reference.getContext());
         }
 
-        public void ice_ping(Context __context)
+        public void ice_ping(Context context__)
         {
-            int __cnt = 0;
+            int cnt__ = 0;
             while(true)
             {
                 try
                 {
-                    __checkTwowayOnly("ice_ping");
-                    _ObjectDel __del = __getDelegate();
-                    __del.ice_ping(__context);
+                    checkTwowayOnly__("ice_ping");
+                    ObjectDel_ del__ = getDelegate__();
+                    del__.ice_ping(context__);
                     return;
                 }
-                catch(IceInternal.NonRepeatable __ex)
+                catch(IceInternal.NonRepeatable ex__)
                 {
-                    __cnt = __handleException(__ex.get(), __cnt);
+                    cnt__ = handleException__(ex__.get(), cnt__);
                 }
-                catch(LocalException __ex)
+                catch(LocalException ex__)
                 {
-                    __cnt = __handleException(__ex, __cnt);
+                    cnt__ = handleException__(ex__, cnt__);
                 }
             }
         }
@@ -168,24 +168,24 @@ namespace Ice
             return ice_ids(_reference.getContext());
         }
 
-        public string[] ice_ids(Context __context)
+        public string[] ice_ids(Context context__)
         {
-            int __cnt = 0;
+            int cnt__ = 0;
             while(true)
             {
                 try
                 {
-                    __checkTwowayOnly("ice_ids");
-                    _ObjectDel __del = __getDelegate();
-                    return __del.ice_ids(__context);
+                    checkTwowayOnly__("ice_ids");
+                    ObjectDel_ del__ = getDelegate__();
+                    return del__.ice_ids(context__);
                 }
-                catch(IceInternal.NonRepeatable __ex)
+                catch(IceInternal.NonRepeatable ex__)
                 {
-                    __cnt = __handleException(__ex.get(), __cnt);
+                    cnt__ = handleException__(ex__.get(), cnt__);
                 }
-                catch(LocalException __ex)
+                catch(LocalException ex__)
                 {
-                    __cnt = __handleException(__ex, __cnt);
+                    cnt__ = handleException__(ex__, cnt__);
                 }
             }
         }
@@ -195,24 +195,24 @@ namespace Ice
             return ice_id(_reference.getContext());
         }
 
-        public string ice_id(Context __context)
+        public string ice_id(Context context__)
         {
-            int __cnt = 0;
+            int cnt__ = 0;
             while(true)
             {
                 try
                 {
-                    __checkTwowayOnly("ice_id");
-                    _ObjectDel __del = __getDelegate();
-                    return __del.ice_id(__context);
+                    checkTwowayOnly__("ice_id");
+                    ObjectDel_ del__ = getDelegate__();
+                    return del__.ice_id(context__);
                 }
-                catch(IceInternal.NonRepeatable __ex)
+                catch(IceInternal.NonRepeatable ex__)
                 {
-                    __cnt = __handleException(__ex.get(), __cnt);
+                    cnt__ = handleException__(ex__.get(), cnt__);
                 }
-                catch(LocalException __ex)
+                catch(LocalException ex__)
                 {
-                    __cnt = __handleException(__ex, __cnt);
+                    cnt__ = handleException__(ex__, cnt__);
                 }
             }
         }
@@ -225,28 +225,28 @@ namespace Ice
         public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
             Context context)
         {
-            int __cnt = 0;
+            int cnt__ = 0;
             while(true)
             {
                 try
                 {
-                    _ObjectDel __del = __getDelegate();
-                    return __del.ice_invoke(operation, mode, inParams, out outParams, context);
+                    ObjectDel_ del__ = getDelegate__();
+                    return del__.ice_invoke(operation, mode, inParams, out outParams, context);
                 }
-                catch(IceInternal.NonRepeatable __ex)
+                catch(IceInternal.NonRepeatable ex__)
                 {
                     if(mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent)
                     {
-                        __cnt = __handleException(__ex.get(), __cnt);
+                        cnt__ = handleException__(ex__.get(), cnt__);
                     }
                     else
                     {
-                        __rethrowException(__ex.get());
+                        rethrowException__(ex__.get());
                     }
                 }
-                catch(LocalException __ex)
+                catch(LocalException ex__)
                 {
-                    __cnt = __handleException(__ex, __cnt);
+                    cnt__ = handleException__(ex__, cnt__);
                 }
             }
         }
@@ -259,8 +259,8 @@ namespace Ice
         public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
 				     Context context)
         {
-            __checkTwowayOnly("ice_invoke_async");
-            cb.__invoke(this, operation, mode, inParams, context);
+            checkTwowayOnly__("ice_invoke_async");
+            cb.invoke__(this, operation, mode, inParams, context);
         }
 
         public Identity ice_getIdentity()
@@ -575,17 +575,17 @@ namespace Ice
 
         public Connection ice_connection()
         {
-            int __cnt = 0;
+            int cnt__ = 0;
             while(true)
             {
                 try
                 {
-                    _ObjectDel __del = __getDelegate();
-                    return __del.ice_connection();
+                    ObjectDel_ del__ = getDelegate__();
+                    return del__.ice_connection();
                 }
-                catch(LocalException __ex)
+                catch(LocalException ex__)
                 {
-                    __cnt = __handleException(__ex, __cnt);
+                    cnt__ = handleException__(ex__, cnt__);
                 }
             }
         }
@@ -611,23 +611,23 @@ namespace Ice
             return !Equals(lhs, rhs);
         }
 
-        public IceInternal.Reference __reference()
+        public IceInternal.Reference reference__()
         {
             return _reference;
         }
 
-        public void __copyFrom(ObjectPrx from)
+        public void copyFrom__(ObjectPrx from)
         {
             ObjectPrxHelperBase h = (ObjectPrxHelperBase)from;
             IceInternal.Reference @ref = null;
-            _ObjectDelM delegateM = null;
-            _ObjectDelD delegateD = null;
+            ObjectDelM_ delegateM = null;
+            ObjectDelD_ delegateD = null;
 
             lock(from)
             {
                 @ref = h._reference;
-                delegateM = h._delegate as _ObjectDelM;
-                delegateD = h._delegate as _ObjectDelD;
+                delegateM = h._delegate as ObjectDelM_;
+                delegateD = h._delegate as ObjectDelD_;
             }
 
             //
@@ -642,19 +642,19 @@ namespace Ice
 
             if(delegateD != null)
             {
-                _ObjectDelD @delegate = __createDelegateD();
-                @delegate.__copyFrom(delegateD);
+                ObjectDelD_ @delegate = createDelegateD__();
+                @delegate.copyFrom__(delegateD);
                 _delegate = @delegate;
             }
             else if(delegateM != null)
             {
-                _ObjectDelM @delegate = __createDelegateM();
-                @delegate.__copyFrom(delegateM);
+                ObjectDelM_ @delegate = createDelegateM__();
+                @delegate.copyFrom__(delegateM);
                 _delegate = @delegate;
             }
         }
 
-        public int __handleException(LocalException ex, int cnt)
+        public int handleException__(LocalException ex, int cnt)
         {
             //
             // Only _delegate needs to be mutex protected here.
@@ -679,7 +679,7 @@ namespace Ice
             }
         }
 
-        public void __rethrowException(LocalException ex)
+        public void rethrowException__(LocalException ex)
         {
             lock(this)
             {
@@ -688,7 +688,7 @@ namespace Ice
             }
         }
 
-        public void __checkTwowayOnly(string name)
+        public void checkTwowayOnly__(string name)
         {
             //
             // No mutex lock necessary, there is nothing mutable in this
@@ -703,7 +703,7 @@ namespace Ice
             }
         }
 
-        public _ObjectDel __getDelegate()
+        public ObjectDel_ getDelegate__()
         {
             lock(this)
             {
@@ -714,7 +714,7 @@ namespace Ice
                         ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
                         if(adapter != null)
                         {
-                            _ObjectDelD @delegate = __createDelegateD();
+                            ObjectDelD_ @delegate = createDelegateD__();
                             @delegate.setup(_reference, adapter);
                             _delegate = @delegate;
                         }
@@ -722,7 +722,7 @@ namespace Ice
 
                     if(_delegate == null)
                     {
-                        _ObjectDelM @delegate = __createDelegateM();
+                        ObjectDelM_ @delegate = createDelegateM__();
                         @delegate.setup(_reference);
                         _delegate = @delegate;
 
@@ -749,17 +749,17 @@ namespace Ice
             }
         }
 
-        protected virtual _ObjectDelM __createDelegateM()
+        protected virtual ObjectDelM_ createDelegateM__()
         {
-            return new _ObjectDelM();
+            return new ObjectDelM_();
         }
 
-        protected virtual _ObjectDelD __createDelegateD()
+        protected virtual ObjectDelD_ createDelegateD__()
         {
-            return new _ObjectDelD();
+            return new ObjectDelD_();
         }
 
-        protected Context __defaultContext()
+        protected Context defaultContext__()
         {
             return _reference.getContext();
         }
@@ -781,7 +781,7 @@ namespace Ice
         }
 
         private IceInternal.Reference _reference;
-        private _ObjectDel _delegate;
+        private ObjectDel_ _delegate;
     }
 
     public class ObjectPrxHelper : ObjectPrxHelperBase
@@ -807,7 +807,7 @@ namespace Ice
                     bool ok = bb.ice_isA("::Object");
                     Debug.Assert(ok);
                     ObjectPrxHelper h = new ObjectPrxHelper();
-                    h.__copyFrom(bb);
+                    h.copyFrom__(bb);
                     d = h;
                 }
                 catch(Ice.FacetNotExistException)
@@ -828,7 +828,7 @@ namespace Ice
                     bool ok = bb.ice_isA("::Object", ctx);
                     Debug.Assert(ok);
                     ObjectPrxHelper h = new ObjectPrxHelper();
-                    h.__copyFrom(bb);
+                    h.copyFrom__(bb);
                     d = h;
                 }
                 catch(Ice.FacetNotExistException)
@@ -850,14 +850,14 @@ namespace Ice
             {
                 Ice.ObjectPrx bb = b.ice_newFacet(f);
                 ObjectPrxHelper h = new ObjectPrxHelper();
-                h.__copyFrom(bb);
+                h.copyFrom__(bb);
                 d = h;
             }
             return d;
         }
     }
 
-    public interface _ObjectDel
+    public interface ObjectDel_
     {
 	bool ice_isA(string id, Ice.Context context);
 	void ice_ping(Ice.Context context);
@@ -868,77 +868,77 @@ namespace Ice
         Connection ice_connection();
     }
 
-    public class _ObjectDelD : _ObjectDel
+    public class ObjectDelD_ : ObjectDel_
     {
-        public virtual bool ice_isA(string __id, Ice.Context __context)
+        public virtual bool ice_isA(string id__, Ice.Context context__)
         {
-            Current __current = new Current();
-            __initCurrent(ref __current, "ice_isA", OperationMode.Nonmutating, __context);
+            Current current__ = new Current();
+            initCurrent__(ref current__, "ice_isA", OperationMode.Nonmutating, context__);
             while(true)
             {
-                IceInternal.Direct __direct = new IceInternal.Direct(__current);
+                IceInternal.Direct direct__ = new IceInternal.Direct(current__);
                 try
                 {
-                    return __direct.servant().ice_isA(__id, __current);
+                    return direct__.servant().ice_isA(id__, current__);
                 }
                 finally
                 {
-                    __direct.destroy();
+                    direct__.destroy();
                 }
             }
         }
 	
-        public virtual void ice_ping(Ice.Context __context)
+        public virtual void ice_ping(Ice.Context context__)
         {
-            Current __current = new Current();
-            __initCurrent(ref __current, "ice_ping", OperationMode.Nonmutating, __context);
+            Current current__ = new Current();
+            initCurrent__(ref current__, "ice_ping", OperationMode.Nonmutating, context__);
             while(true)
             {
-                IceInternal.Direct __direct = new IceInternal.Direct(__current);
+                IceInternal.Direct direct__ = new IceInternal.Direct(current__);
                 try
                 {
-                    __direct.servant().ice_ping(__current);
+                    direct__.servant().ice_ping(current__);
                     return;
                 }
                 finally
                 {
-                    __direct.destroy();
+                    direct__.destroy();
                 }
             }
         }
 	
-        public virtual string[] ice_ids(Ice.Context __context)
+        public virtual string[] ice_ids(Ice.Context context__)
         {
-            Current __current = new Current();
-            __initCurrent(ref __current, "ice_ids", OperationMode.Nonmutating, __context);
+            Current current__ = new Current();
+            initCurrent__(ref current__, "ice_ids", OperationMode.Nonmutating, context__);
             while(true)
             {
-                IceInternal.Direct __direct = new IceInternal.Direct(__current);
+                IceInternal.Direct direct__ = new IceInternal.Direct(current__);
                 try
                 {
-                    return __direct.servant().ice_ids(__current);
+                    return direct__.servant().ice_ids(current__);
                 }
                 finally
                 {
-                    __direct.destroy();
+                    direct__.destroy();
                 }
             }
         }
 	
-        public virtual string ice_id(Ice.Context __context)
+        public virtual string ice_id(Ice.Context context__)
         {
-            Current __current = new Current();
-            __initCurrent(ref __current, "ice_id", OperationMode.Nonmutating, __context);
+            Current current__ = new Current();
+            initCurrent__(ref current__, "ice_id", OperationMode.Nonmutating, context__);
             while(true)
             {
-                IceInternal.Direct __direct = new IceInternal.Direct(__current);
+                IceInternal.Direct direct__ = new IceInternal.Direct(current__);
                 try
                 {
-                    return __direct.servant().ice_id(__current);
+                    return direct__.servant().ice_id(current__);
                 }
                 finally
                 {
-                    __direct.destroy();
+                    direct__.destroy();
                 }
             }
         }
@@ -957,7 +957,7 @@ namespace Ice
         //
         // Only for use by ObjectPrx.
         //
-        internal void __copyFrom(_ObjectDelD from)
+        internal void copyFrom__(ObjectDelD_ from)
         {
             //
             // No need to synchronize "from", as the delegate is immutable
@@ -969,22 +969,22 @@ namespace Ice
             // upon initialization.
             //
 	    
-            Debug.Assert(__reference == null);
-            Debug.Assert(__adapter == null);
+            Debug.Assert(reference__ == null);
+            Debug.Assert(adapter__ == null);
 	    
-            __reference = from.__reference;
-            __adapter = from.__adapter;
+            reference__ = from.reference__;
+            adapter__ = from.adapter__;
         }
 	
-        protected internal IceInternal.Reference __reference;
-        protected internal Ice.ObjectAdapter __adapter;
+        protected internal IceInternal.Reference reference__;
+        protected internal Ice.ObjectAdapter adapter__;
 	
-        protected internal void __initCurrent(ref Current current, string op, Ice.OperationMode mode,
+        protected internal void initCurrent__(ref Current current, string op, Ice.OperationMode mode,
 					      Ice.Context context)
         {
-            current.adapter = __adapter;
-            current.id = __reference.getIdentity();
-            current.facet = __reference.getFacet();
+            current.adapter = adapter__;
+            current.id = reference__.getIdentity();
+            current.facet = reference__.getFacet();
             current.operation = op;
             current.mode = mode;
             current.ctx = context;
@@ -997,72 +997,72 @@ namespace Ice
             // upon initialization.
             //
 	    
-            Debug.Assert(__reference == null);
-            Debug.Assert(__adapter == null);
+            Debug.Assert(reference__ == null);
+            Debug.Assert(adapter__ == null);
 	    
-            __reference = rf;
-            __adapter = adapter;
+            reference__ = rf;
+            adapter__ = adapter;
         }
     }
 	    
-    public class _ObjectDelM : _ObjectDel
+    public class ObjectDelM_ : ObjectDel_
     {
-        public virtual bool ice_isA(string __id, Ice.Context __context)
+        public virtual bool ice_isA(string id__, Ice.Context context__)
         {
-            IceInternal.Outgoing __og = getOutgoing("ice_isA", OperationMode.Nonmutating, __context);
+            IceInternal.Outgoing og__ = getOutgoing("ice_isA", OperationMode.Nonmutating, context__);
             try
             {
 		try
 		{
-		    IceInternal.BasicStream __os = __og.ostr();
-		    __os.writeString(__id);
+		    IceInternal.BasicStream os__ = og__.ostr();
+		    os__.writeString(id__);
 		}
-		catch(LocalException __ex)
+		catch(LocalException ex__)
 		{
-		    __og.abort(__ex);
+		    og__.abort(ex__);
 		}
-		bool __ok = __og.invoke();
+		bool ok__ = og__.invoke();
 		try
 		{
-		    IceInternal.BasicStream __is = __og.istr();
-		    if(!__ok)
+		    IceInternal.BasicStream is__ = og__.istr();
+		    if(!ok__)
 		    {
 			try
 			{
-			    __is.throwException();
+			    is__.throwException();
 			}
 			catch(UserException)
 			{
 			    throw new UnknownUserException();
 			}
 		    }
-		    return __is.readBool();
+		    return is__.readBool();
 		}
-		catch(LocalException __ex)
+		catch(LocalException ex__)
 		{
-		    throw new IceInternal.NonRepeatable(__ex);
+		    throw new IceInternal.NonRepeatable(ex__);
 		}
             }
             finally
             {
-                reclaimOutgoing(__og);
+                reclaimOutgoing(og__);
             }
         }
 	
-        public virtual void ice_ping(Ice.Context __context)
+        public virtual void ice_ping(Ice.Context context__)
         {
-            IceInternal.Outgoing __og = getOutgoing("ice_ping", OperationMode.Nonmutating, __context);
+            IceInternal.Outgoing og__ = getOutgoing("ice_ping", OperationMode.Nonmutating, context__);
             try
             {
-		bool __ok = __og.invoke();
+		bool ok__ = og__.invoke();
 		try
 		{
-		    IceInternal.BasicStream __is = __og.istr();
-		    if(!__ok)
+		    IceInternal.BasicStream is__ = og__.istr();
+		    if(!ok__)
 		    {
 			try
 			{
-			    __is.throwException();
+			    is__.throwException();
 			}
 			catch(UserException)
 			{
@@ -1070,130 +1070,130 @@ namespace Ice
 			}
 		    }
 		}
-		catch(LocalException __ex)
+		catch(LocalException ex__)
 		{
-		    throw new IceInternal.NonRepeatable(__ex);
+		    throw new IceInternal.NonRepeatable(ex__);
 		}
             }
             finally
             {
-                reclaimOutgoing(__og);
+                reclaimOutgoing(og__);
             }
         }
 	
-        public virtual string[] ice_ids(Ice.Context __context)
+        public virtual string[] ice_ids(Ice.Context context__)
         {
-            IceInternal.Outgoing __og = getOutgoing("ice_ids", OperationMode.Nonmutating, __context);
+            IceInternal.Outgoing og__ = getOutgoing("ice_ids", OperationMode.Nonmutating, context__);
             try
             {
-		bool __ok = __og.invoke();
+		bool ok__ = og__.invoke();
 		try
 		{
-		    IceInternal.BasicStream __is = __og.istr();
-		    if(!__ok)
+		    IceInternal.BasicStream is__ = og__.istr();
+		    if(!ok__)
 		    {
 			try
 			{
-			    __is.throwException();
+			    is__.throwException();
 			}
 			catch(UserException)
 			{
 			    throw new UnknownUserException();
 			}
 		    }
-		    return __is.readStringSeq();
+		    return is__.readStringSeq();
 		}
-		catch(LocalException __ex)
+		catch(LocalException ex__)
 		{
-		    throw new IceInternal.NonRepeatable(__ex);
+		    throw new IceInternal.NonRepeatable(ex__);
 		}
             }
             finally
             {
-                reclaimOutgoing(__og);
+                reclaimOutgoing(og__);
             }
         }
 	
-        public virtual string ice_id(Ice.Context __context)
+        public virtual string ice_id(Ice.Context context__)
         {
-            IceInternal.Outgoing __og = getOutgoing("ice_id", OperationMode.Nonmutating, __context);
+            IceInternal.Outgoing og__ = getOutgoing("ice_id", OperationMode.Nonmutating, context__);
             try
             {
-		bool __ok = __og.invoke();
+		bool ok__ = og__.invoke();
 		try
 		{
-		    IceInternal.BasicStream __is = __og.istr();
-		    if(!__ok)
+		    IceInternal.BasicStream is__ = og__.istr();
+		    if(!ok__)
 		    {
 			try
 			{
-			    __is.throwException();
+			    is__.throwException();
 			}
 			catch(UserException)
 			{
 			    throw new UnknownUserException();
 			}
 		    }
-		    return __is.readString();
+		    return is__.readString();
 		}
-		catch(LocalException __ex)
+		catch(LocalException ex__)
 		{
-		    throw new IceInternal.NonRepeatable(__ex);
+		    throw new IceInternal.NonRepeatable(ex__);
 		}
             }
             finally
             {
-                reclaimOutgoing(__og);
+                reclaimOutgoing(og__);
             }
         }
 	
         public virtual bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
-                                       Ice.Context __context)
+                                       Ice.Context context__)
         {
-            IceInternal.Outgoing __og = getOutgoing(operation, mode, __context);
+            IceInternal.Outgoing og__ = getOutgoing(operation, mode, context__);
             try
             {
 		try
 		{
-		    IceInternal.BasicStream __os = __og.ostr();
-		    __os.writeBlob(inParams);
+		    IceInternal.BasicStream os__ = og__.ostr();
+		    os__.writeBlob(inParams);
 		}
-		catch(LocalException __ex)
+		catch(LocalException ex__)
 		{
-		    __og.abort(__ex);
+		    og__.abort(ex__);
 		}
-                bool ok = __og.invoke();
+                bool ok = og__.invoke();
                 outParams = null;
-                if(__reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
+                if(reference__.getMode() == IceInternal.Reference.Mode.ModeTwoway)
                 {
                     try
                     {
-                        IceInternal.BasicStream __is = __og.istr();
-                        int sz = __is.getReadEncapsSize();
-                        outParams = __is.readBlob(sz);
+                        IceInternal.BasicStream is__ = og__.istr();
+                        int sz = is__.getReadEncapsSize();
+                        outParams = is__.readBlob(sz);
                     }
-                    catch(LocalException __ex)
+                    catch(LocalException ex__)
                     {
-                        throw new IceInternal.NonRepeatable(__ex);
+                        throw new IceInternal.NonRepeatable(ex__);
                     }
                 }
                 return ok;
             }
             finally
             {
-                reclaimOutgoing(__og);
+                reclaimOutgoing(og__);
             }
         }
 	
         public virtual Connection ice_connection()
         {
-            return __connection;
+            return connection__;
         }
 	
         //
         // Only for use by ObjectPrx
         //
-        internal void __copyFrom(_ObjectDelM from)
+        internal void copyFrom__(ObjectDelM_ from)
         {
             //
             // No need to synchronize "from", as the delegate is immutable
@@ -1205,17 +1205,17 @@ namespace Ice
             // upon initialization.
             //
 	    
-            Debug.Assert(__reference == null);
-            Debug.Assert(__connection == null);
+            Debug.Assert(reference__ == null);
+            Debug.Assert(connection__ == null);
 	    
-            __reference = from.__reference;
-            __connection = from.__connection;
-	    __compress = from.__compress;
+            reference__ = from.reference__;
+            connection__ = from.connection__;
+	    compress__ = from.compress__;
         }
 	
-        protected IceInternal.Reference __reference;
-        protected ConnectionI __connection;
-        protected bool __compress;
+        protected IceInternal.Reference reference__;
+        protected ConnectionI connection__;
+        protected bool compress__;
 
         public virtual void setup(IceInternal.Reference rf)
         {
@@ -1224,21 +1224,21 @@ namespace Ice
             // upon initialization.
             //
 	    
-            Debug.Assert(__reference == null);
-            Debug.Assert(__connection == null);
+            Debug.Assert(reference__ == null);
+            Debug.Assert(connection__ == null);
 	    
-            __reference = rf;
-            __connection = __reference.getConnection(out __compress);
+            reference__ = rf;
+            connection__ = reference__.getConnection(out compress__);
         }
 	
         protected IceInternal.Outgoing getOutgoing(string operation, OperationMode mode, Ice.Context context)
         {
-	    return __connection.getOutgoing(__reference, operation, mode, context, __compress);
+	    return connection__.getOutgoing(reference__, operation, mode, context, compress__);
         }
 
         protected void reclaimOutgoing(IceInternal.Outgoing outg)
         {
-	    __connection.reclaimOutgoing(outg);
+	    connection__.reclaimOutgoing(outg);
         }
     }
 }

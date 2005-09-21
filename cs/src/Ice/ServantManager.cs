@@ -19,7 +19,7 @@ public sealed class ServantManager
     {
 	lock(this)
 	{
-	    Debug.Assert(_instance != null); // Must not be called after destruction.
+	    Debug.Assert(instance_ != null); // Must not be called after destruction.
 	    
 	    if(facet == null)
 	    {
@@ -54,7 +54,7 @@ public sealed class ServantManager
     {
 	lock(this)
 	{
-	    Debug.Assert(_instance != null); // Must not be called after destruction.
+	    Debug.Assert(instance_ != null); // Must not be called after destruction.
 	    
 	    if(facet == null)
 	    {
@@ -89,7 +89,7 @@ public sealed class ServantManager
     {
         lock(this)
 	{
-	    Debug.Assert(_instance != null);
+	    Debug.Assert(instance_ != null);
 
 	    Ice.FacetMap m = (Ice.FacetMap)_servantMapMap[ident];
 	    if(m == null)
@@ -109,7 +109,7 @@ public sealed class ServantManager
     {
 	lock(this)
 	{
-	    Debug.Assert(_instance != null); // Must not be called after destruction.
+	    Debug.Assert(instance_ != null); // Must not be called after destruction.
 	    
 	    if(facet == null)
 	    {
@@ -131,7 +131,7 @@ public sealed class ServantManager
     {
         lock(this)
 	{
-	    Debug.Assert(_instance != null); // Must not be called after destruction.
+	    Debug.Assert(instance_ != null); // Must not be called after destruction.
 
 	    Ice.FacetMap m = (Ice.FacetMap)_servantMapMap[ident];
 	    if(m != null)
@@ -147,7 +147,7 @@ public sealed class ServantManager
     {
         lock(this)
 	{
-	    Debug.Assert(_instance != null); // Must not be called after destruction.
+	    Debug.Assert(instance_ != null); // Must not be called after destruction.
 
 	    Ice.FacetMap m = (Ice.FacetMap)_servantMapMap[ident];
 	    if(m == null)
@@ -166,7 +166,7 @@ public sealed class ServantManager
     {
 	lock(this)
 	{
-	    Debug.Assert(_instance != null); // Must not be called after destruction.
+	    Debug.Assert(instance_ != null); // Must not be called after destruction.
 	    
 	    Ice.ServantLocator l = (Ice.ServantLocator)_locatorMap[category];
 	    if(l != null)
@@ -185,7 +185,7 @@ public sealed class ServantManager
     {
 	lock(this)
 	{
-	    Debug.Assert(_instance != null); // Must not be called after destruction.
+	    Debug.Assert(instance_ != null); // Must not be called after destruction.
 	    
 	    return (Ice.ServantLocator)_locatorMap[category];
 	}
@@ -196,7 +196,7 @@ public sealed class ServantManager
     //
     public ServantManager(Instance instance, string adapterName)
     {
-	_instance = instance;
+	instance_ = instance;
 	_adapterName = adapterName;
     }
     
@@ -210,7 +210,7 @@ public sealed class ServantManager
 	//
 	//lock(this)
 	//{
-	    //IceUtil.Assert.FinalizerAssert(_instance == null);
+	    //IceUtil.Assert.FinalizerAssert(instance_ == null);
 	//}
     }
 #endif
@@ -222,7 +222,7 @@ public sealed class ServantManager
     {
 	lock(this)
 	{
-	    Debug.Assert(_instance != null); // Must not be called after destruction.
+	    Debug.Assert(instance_ != null); // Must not be called after destruction.
 	    
 	    _servantMapMap.Clear();
 	    
@@ -237,17 +237,17 @@ public sealed class ServantManager
 		{
 		    string s = "exception during locator deactivation:\n" + "object adapter: `"
 		               + _adapterName + "'\n" + "locator category: `" + p.Key + "'\n" + ex;
-		    _instance.logger().error(s);
+		    instance_.logger().error(s);
 		}
 	    }
 	    
 	    _locatorMap.Clear();
 
-	    _instance = null;
+	    instance_ = null;
 	}
     }
     
-    private Instance _instance;
+    private Instance instance_;
     private readonly string _adapterName;
     private Hashtable _servantMapMap = new Hashtable();
     private Hashtable _locatorMap = new Hashtable();

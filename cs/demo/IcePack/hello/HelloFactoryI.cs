@@ -11,7 +11,7 @@ using System;
 using System.Diagnostics;
 using Demo;
 
-public class HelloFactoryI : _HelloFactoryDisp
+public class HelloFactoryI : HelloFactoryDisp_
 {
     public override HelloPrx create(string name, Ice.Current current)
     {

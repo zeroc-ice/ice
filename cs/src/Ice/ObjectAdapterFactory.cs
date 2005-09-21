@@ -26,14 +26,14 @@ namespace IceInternal
 		// Ignore shutdown requests if the object adapter factory has
 		// already been shut down.
 		//
-		if(_instance == null)
+		if(instance_ == null)
 		{
 		    return;
 		}
 
 		adapters = _adapters;
 		
-		_instance = null;
+		instance_ = null;
 		_communicator = null;
 		
 		System.Threading.Monitor.PulseAll(this);
@@ -56,7 +56,7 @@ namespace IceInternal
 		//
 		// First we wait for the shutdown of the factory itself.
 		//
-		while(_instance != null)
+		while(instance_ != null)
 		{
 		    System.Threading.Monitor.Wait(this);
 		}
@@ -105,7 +105,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_instance == null)
+		if(instance_ == null)
 		{
 		    throw new Ice.ObjectAdapterDeactivatedException();
 		}
@@ -119,7 +119,7 @@ namespace IceInternal
 		    throw ex;
 		}
 		
-		adapter = new Ice.ObjectAdapterI(_instance, _communicator, name, endpoints);
+		adapter = new Ice.ObjectAdapterI(instance_, _communicator, name, endpoints);
 		_adapters[name] = adapter;
 		return adapter;
 	    }
@@ -129,7 +129,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_instance == null)
+		if(instance_ == null)
 		{
 		    return null;
 		}
@@ -176,7 +176,7 @@ namespace IceInternal
 	//
 	internal ObjectAdapterFactory(Instance instance, Ice.Communicator communicator)
 	{
-	    _instance = instance;
+	    instance_ = instance;
 	    _communicator = communicator;
 	    _adapters = new Hashtable();
 	    _waitForShutdown = false;
@@ -187,7 +187,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		IceUtil.Assert.FinalizerAssert(_instance == null);
+		IceUtil.Assert.FinalizerAssert(instance_ == null);
 		IceUtil.Assert.FinalizerAssert(_communicator == null);
 		IceUtil.Assert.FinalizerAssert(_adapters == null);
 		IceUtil.Assert.FinalizerAssert(!_waitForShutdown);
@@ -195,7 +195,7 @@ namespace IceInternal
 	}
 #endif
 	
-	private Instance _instance;
+	private Instance instance_;
 	private Ice.Communicator _communicator;
 	private Hashtable _adapters;
 	private bool _waitForShutdown;

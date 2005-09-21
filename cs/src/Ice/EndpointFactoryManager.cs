@@ -18,7 +18,7 @@ namespace IceInternal
     {
 	internal EndpointFactoryManager(Instance instance)
 	{
-	    _instance = instance;
+	    instance_ = instance;
 	    _factories = new ArrayList();
 	}
 	
@@ -74,7 +74,7 @@ namespace IceInternal
 		
 		if(protocol.Equals("default"))
 		{
-		    protocol = _instance.defaultsAndOverrides().defaultProtocol;
+		    protocol = instance_.defaultsAndOverrides().defaultProtocol;
 		}
 		
 		for(int i = 0; i < _factories.Count; i++)
@@ -119,7 +119,7 @@ namespace IceInternal
 	    _factories.Clear();
 	}
 	
-	private readonly Instance _instance;
+	private readonly Instance instance_;
 	private readonly ArrayList _factories;
     }
 

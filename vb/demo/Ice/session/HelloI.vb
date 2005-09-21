@@ -11,7 +11,7 @@ Imports sessionDemo.Demo
 Imports System
 
 Class HelloI
-    Inherits _HelloDisp
+    Inherits HelloDisp_
 
     Public Sub New(ByVal name As String, ByVal id As Integer)
         _name = name

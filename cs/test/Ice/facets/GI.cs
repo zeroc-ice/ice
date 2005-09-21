@@ -9,7 +9,7 @@
 
 using Test;
 
-public sealed class GI : _GDisp
+public sealed class GI : GDisp_
 {
     public GI(Ice.Communicator communicator)
     {

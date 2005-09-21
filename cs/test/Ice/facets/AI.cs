@@ -9,7 +9,7 @@
 
 using Test;
 
-public sealed class AI : _ADisp
+public sealed class AI : ADisp_
 {
     public AI()
     {

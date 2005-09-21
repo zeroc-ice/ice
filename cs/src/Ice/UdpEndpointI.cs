@@ -18,7 +18,7 @@ namespace IceInternal
 	
 	public UdpEndpointI(Instance instance, string ho, int po, bool co)
 	{
-	    _instance = instance;
+	    instance_ = instance;
 	    _host = ho;
 	    _port = po;
 	    _protocolMajor = Protocol.protocolMajor;
@@ -32,7 +32,7 @@ namespace IceInternal
 	
 	public UdpEndpointI(Instance instance, string str)
 	{
-	    _instance = instance;
+	    instance_ = instance;
 	    _host = null;
 	    _port = 0;
 	    _protocolMajor = Protocol.protocolMajor;
@@ -263,7 +263,7 @@ namespace IceInternal
 	
 	public UdpEndpointI(BasicStream s)
 	{
-	    _instance = s.instance();
+	    instance_ = s.instance();
 	    s.startReadEncaps();
 	    _host = s.readString();
 	    _port = s.readInt();
@@ -319,7 +319,7 @@ namespace IceInternal
 	//
 	// Convert the endpoint to its string form
 	//
-	public override string _Ice_toString()
+	public override string ice_toString_()
 	{
 	    string s = "udp";
 
@@ -389,7 +389,7 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		return new UdpEndpointI(_instance, _host, _port, compress);
+		return new UdpEndpointI(instance_, _host, _port, compress);
 	    }
 	}
 	
@@ -433,7 +433,7 @@ namespace IceInternal
 	//
 	public override Transceiver clientTransceiver()
 	{
-	    return new UdpTransceiver(_instance, _host, _port);
+	    return new UdpTransceiver(instance_, _host, _port);
 	}
 	
 	//
@@ -445,8 +445,8 @@ namespace IceInternal
 	//
 	public override Transceiver serverTransceiver(ref EndpointI endpoint)
 	{
-	    UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _connect);
-	    endpoint = new UdpEndpointI(_instance, _host, p.effectivePort(), _compress);
+	    UdpTransceiver p = new UdpTransceiver(instance_, _host, _port, _connect);
+	    endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _compress);
 	    return p;
 	}
 	
@@ -650,7 +650,7 @@ namespace IceInternal
 	    _hashCode = 5 * _hashCode + (_compress?1:0);
 	}
 	
-	private Instance _instance;
+	private Instance instance_;
 	private string _host;
 	private int _port;
 	private byte _protocolMajor;
@@ -666,7 +666,7 @@ namespace IceInternal
     {
         internal UdpEndpointFactory(Instance instance)
         {
-            _instance = instance;
+            instance_ = instance;
         }
 	
         public short type()
@@ -681,7 +681,7 @@ namespace IceInternal
 	
         public EndpointI create(string str)
         {
-            return new UdpEndpointI(_instance, str);
+            return new UdpEndpointI(instance_, str);
         }
 	
         public EndpointI read(BasicStream s)
@@ -691,10 +691,10 @@ namespace IceInternal
 	
         public void destroy()
         {
-            _instance = null;
+            instance_ = null;
         }
 	
-        private Instance _instance;
+        private Instance instance_;
     }
 
 }

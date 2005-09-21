@@ -21,15 +21,15 @@ namespace IceInternal
 
         public Patcher(System.Type type)
         {
-            _type = type;
+            type_ = type;
         }
 
 	public abstract void patch(Ice.Object v);
 
         public virtual string type()
         {
-            Debug.Assert(_type != null);
-            return _type.FullName;
+            Debug.Assert(type_ != null);
+            return type_.FullName;
         }
 
 	public virtual void invoke(Ice.Object v)
@@ -37,7 +37,7 @@ namespace IceInternal
 	    patch(v);
 	}
 
-        protected System.Type _type;
+        protected System.Type type_;
     }
 
     public sealed class ParamPatcher : Patcher
@@ -48,8 +48,8 @@ namespace IceInternal
 
 	public override void patch(Ice.Object v)
 	{
-            Debug.Assert(_type != null);
-	    if(!_type.IsInstanceOfType(v))
+            Debug.Assert(type_ != null);
+	    if(!type_.IsInstanceOfType(v))
 	    {
                 throw new System.InvalidCastException("expected element of type " + type()
                     + " but received " + v.GetType().FullName);

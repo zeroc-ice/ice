@@ -68,7 +68,7 @@ public class Client
 
         public override void write(Ice.OutputStream @out)
         {
-            obj.__write(@out);
+            obj.write__(@out);
             called = true;
         }
 
@@ -81,7 +81,7 @@ public class Client
         public override void read(Ice.InputStream @in, bool rid)
         {
             obj = new Test.MyClass();
-            obj.__read(@in, rid);
+            obj.read__(@in, rid);
             called = true;
         }
 
@@ -228,11 +228,11 @@ public class Client
             s.str = "7";
             s.e = Test.MyEnum.enum2;
             s.p = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
-            s.__write(@out);
+            s.write__(@out);
             byte[] data = @out.finished();
             @in = Ice.Util.createInputStream(communicator, data);
             Test.SmallStruct s2 = new Test.SmallStruct();
-            s2.__read(@in);
+            s2.read__(@in);
             test(s2.Equals(s));
             @out.destroy();
             @in.destroy();

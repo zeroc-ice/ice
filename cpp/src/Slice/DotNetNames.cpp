@@ -104,7 +104,8 @@ ciEquals(const string& s, const char* p)
     return true;
 }
 
-const char* manglePrefix = "_Ice_";
+const char* manglePrefix = "ice_";
+const char* mangleSuffix = "_";
 
 static bool
 mangle(const string& s, const Node* np, string& newName)
@@ -114,7 +115,7 @@ mangle(const string& s, const Node* np, string& newName)
     {
 	if(ciEquals(s, *namep))
 	{
-	    newName = manglePrefix + s;
+	    newName = manglePrefix + s + mangleSuffix;
 	    return true;
 	}
 	++namep;

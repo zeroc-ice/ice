@@ -19,49 +19,49 @@ public class OutputBase
     public
     OutputBase()
     {
-	_out = null;
-	_pos = 0;
-	_indent = 0;
-	_indentSize = 4;
-	_useTab = true;
-	_indentSave = new Stack();
-	_separator = true;
+	out_ = null;
+	pos_ = 0;
+	indent_ = 0;
+	indentSize_ = 4;
+	useTab_ = true;
+	indentSave_ = new Stack();
+	separator_ = true;
     }
     
     public
     OutputBase(TextWriter writer)
     {
-	_out = writer;
-	_pos = 0;
-	_indent = 0;
-	_indentSize = 4;
-	_useTab = true;
-	_indentSave = new Stack();
-	_separator = true;
+	out_ = writer;
+	pos_ = 0;
+	indent_ = 0;
+	indentSize_ = 4;
+	useTab_ = true;
+	indentSave_ = new Stack();
+	separator_ = true;
     }
     
     public
     OutputBase(string s)
     {
-	_out = new StreamWriter(s);
-	_pos = 0;
-	_indent = 0;
-	_indentSize = 4;
-	_useTab = true;
-	_indentSave = new Stack();
-	_separator = true;
+	out_ = new StreamWriter(s);
+	pos_ = 0;
+	indent_ = 0;
+	indentSize_ = 4;
+	useTab_ = true;
+	indentSave_ = new Stack();
+	separator_ = true;
     }
 
     virtual public void
     setIndent(int indentSize)
     {
-	_indentSize = indentSize;
+	indentSize_ = indentSize;
     }
     
     virtual public void
     setUseTab(bool useTab)
     {
-	_useTab = useTab;
+	useTab_ = useTab;
     }    
     
     public virtual void
@@ -69,7 +69,7 @@ public class OutputBase
     {
 	try
 	{
-	    _out = new StreamWriter(s);
+	    out_ = new StreamWriter(s);
 	}
 	catch(IOException)
 	{
@@ -84,110 +84,110 @@ public class OutputBase
 	{
 	    if(arr[i] == '\n')
 	    {
-		_pos = 0;
+		pos_ = 0;
 	    }
 	    else
 	    {
 	    }
 	}
 	
-	_out.Write(s);
+	out_.Write(s);
     }
     
     public virtual void
     inc()
     {
-	_indent += _indentSize;
+	indent_ += indentSize_;
     }
     
     public virtual void
     dec()
     {
-	Debug.Assert(_indent >= _indentSize);
-	_indent -= _indentSize;
+	Debug.Assert(indent_ >= indentSize_);
+	indent_ -= indentSize_;
     }
     
     public virtual void
     useCurrentPosAsIndent()
     {
-	_indentSave.Push(_indent);
-	_indent = _pos;
+	indentSave_.Push(indent_);
+	indent_ = pos_;
     }
     
     public virtual void
     zeroIndent()
     {
-	_indentSave.Push(_indent);
-	_indent = 0;
+	indentSave_.Push(indent_);
+	indent_ = 0;
     }
     
     public virtual void
     restoreIndent()
     {
-	Debug.Assert(_indentSave.Count != 0);
-	_indent = (int)_indentSave.Pop();
+	Debug.Assert(indentSave_.Count != 0);
+	indent_ = (int)indentSave_.Pop();
     }
     
     public virtual void
     nl()
     {
-	_out.WriteLine();
-	_pos = 0;
-	_separator = true;
+	out_.WriteLine();
+	pos_ = 0;
+	separator_ = true;
 	
-	int indent = _indent;
+	int indent = indent_;
 	
-	if(_useTab)
+	if(useTab_)
 	{
 	    while(indent >= 8)
 	    {
 		indent -= 8;
-		_out.Write('\t');
-		_pos += 8;
+		out_.Write('\t');
+		pos_ += 8;
 	    }
 	}
 	else
 	{
-	    while(indent >= _indentSize)
+	    while(indent >= indentSize_)
 	    {
-		indent -= _indentSize;
-		_out.Write("    ");
-		_pos += _indentSize;
+		indent -= indentSize_;
+		out_.Write("    ");
+		pos_ += indentSize_;
 	    }
 	}
 	
 	while(indent > 0)
 	{
 	    --indent;
-	    _out.Write(" ");
-	    ++_pos;
+	    out_.Write(" ");
+	    ++pos_;
 	}
 	
-	_out.Flush();
+	out_.Flush();
     }
     
     public virtual void
     sp()
     {
-	if(_separator)
+	if(separator_)
 	{
-	    _out.WriteLine();
+	    out_.WriteLine();
 	}
     }
     
     public virtual bool
     valid()
     {
-	return _out != null;
+	return out_ != null;
     }
     
-    protected internal TextWriter _out;
-    protected internal int _pos;
-    protected internal int _indent;
-    protected internal int _indentSize;
-    protected internal Stack _indentSave;
-    protected internal bool _useTab;
-    protected internal bool _separator;
+    protected internal TextWriter out_;
+    protected internal int pos_;
+    protected internal int indent_;
+    protected internal int indentSize_;
+    protected internal Stack indentSave_;
+    protected internal bool useTab_;
+    protected internal bool separator_;
 }
 
 }

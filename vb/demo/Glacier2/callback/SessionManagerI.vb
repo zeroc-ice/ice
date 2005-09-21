@@ -10,7 +10,7 @@
 Imports System
 
 Public NotInheritable Class SessionManagerI
-    Inherits Glacier2._SessionManagerDisp
+    Inherits Glacier2.SessionManagerDisp_
 
     Public Overloads Overrides Function create(ByVal userId As String, ByVal current As Ice.Current) As Glacier2.SessionPrx
         Console.WriteLine("creating session for user `" & userId & "'")

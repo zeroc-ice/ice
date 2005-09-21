@@ -9,7 +9,7 @@
 
 using Test;
 
-public sealed class TestI : _TestIntfDisp
+public sealed class TestI : TestIntfDisp_
 {
     public override void transient(Ice.Current current)
     {

@@ -1,6 +1,28 @@
 Changes since version 2.1.2
 ---------------------------
 
+- The Ice run-time libraries are now marked as CLS-compliant
+  assemblies. In addition, the generated code is now also
+  CLS-compliant.
+
+  This involves one change to the C# language mapping:
+
+  The skeleton class used be called _<interface-name>Disp but
+  is now called <interface-name>Disp_.
+
+  For example, if you previously had:
+
+      class MyIntfI : _MyIntfDisp { /* ... */ }
+
+  you now have to write:
+
+      class MyIntfI : MyIntfDisp_ { /* ... */ }
+
+  Similarly, for the Tie mapping, the location of the underscore
+  has changed:
+
+      _MyIntfTie -> MyIntfTie_
+
 - Added support for the thread-per-connection concurrency model.
 
 - Changed the way servant locators work if a server has a servant

@@ -9,7 +9,7 @@
 Imports minimal.Demo
 
 Public NotInheritable Class HelloI
-    Inherits _HelloDisp
+    Inherits HelloDisp_
 
     Public Overloads Overrides sub sayHello(ByVal current As Ice.Current)
         System.Console.Out.WriteLine("Hello World!")

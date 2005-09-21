@@ -10,7 +10,7 @@
 Imports Demo
 
 Public NotInheritable Class ThroughputI
-    Inherits _ThroughputDisp
+    Inherits ThroughputDisp_
 
     Public Sub New()
 	_byteSeq = New Byte(ByteSeqSize.value) {}

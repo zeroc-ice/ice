@@ -9,7 +9,7 @@
 
 using System;
 
-public sealed class SessionManagerI : Glacier2._SessionManagerDisp
+public sealed class SessionManagerI : Glacier2.SessionManagerDisp_
 {
     public override Glacier2.SessionPrx create(string userId, Ice.Current current)
     {

@@ -15,9 +15,9 @@ namespace IceInternal
 	public BasicOutputStream(Instance instance, Ice.OutputStream outStream)
             : base(instance)
 	{
-	    _out = outStream;
+	    out_ = outStream;
 	}
 
-	public Ice.OutputStream _out;
+	public Ice.OutputStream out_;
     }
 }

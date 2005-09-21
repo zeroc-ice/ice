@@ -10,7 +10,7 @@
 using Demo;
 using System;
 
-public class HelloI : _HelloDisp
+public class HelloI : HelloDisp_
 {
     public HelloI(string name, int id)
     {

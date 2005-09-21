@@ -10,7 +10,7 @@
 using System.Collections;
 using Test;
 
-public class ServerManagerI : _ServerManagerDisp
+public class ServerManagerI : ServerManagerDisp_
 {
     internal ServerManagerI(Ice.ObjectAdapter adapter, ServerLocatorRegistry registry)
     {

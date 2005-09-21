@@ -7,6 +7,6 @@
 //
 // **********************************************************************
 
-public sealed class EmptyI : Test._EmptyDisp
+public sealed class EmptyI : Test.EmptyDisp_
 {
 }

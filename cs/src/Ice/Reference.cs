@@ -27,39 +27,39 @@ namespace IceInternal
 
 	public Mode getMode()
 	{
-	    return _mode;
+	    return mode_;
 	}
 
 	public Ice.Identity getIdentity()
 	{
-	    return _identity;
+	    return identity_;
 	}
 
 	public string getFacet()
 	{
-	    return _facet;
+	    return facet_;
 	}
 
 	public Instance getInstance()
 	{
-	    return _instance;
+	    return instance_;
 	}
 
 	public Ice.Context getContext()
 	{
-	    return _context;
+	    return context_;
 	}
 
 	public Reference defaultContext()
 	{
-	    Reference r = _instance.referenceFactory().copy(this);
-	    r._context = _instance.getDefaultContext();
+	    Reference r = instance_.referenceFactory().copy(this);
+	    r.context_ = instance_.getDefaultContext();
 	    return r;
 	}
 
 	public Ice.Communicator getCommunicator()
 	{
-	    return _communicator;
+	    return communicator_;
 	}
 	public abstract bool getSecure();
 	public abstract string getAdapterId();
@@ -77,57 +77,57 @@ namespace IceInternal
 	    {
 		newContext = _emptyContext;
 	    }
-	    Reference r = _instance.referenceFactory().copy(this);
+	    Reference r = instance_.referenceFactory().copy(this);
 	    if(newContext.Count == 0)
 	    {
-		r._context = _emptyContext;
+		r.context_ = _emptyContext;
 	    }
 	    else
 	    {
-	        r._context = (Ice.Context)newContext.Clone();
+	        r.context_ = (Ice.Context)newContext.Clone();
 	    }
 	    return r;
 	}
 
 	public Reference changeMode(Mode newMode)
 	{
-	    if(newMode == _mode)
+	    if(newMode == mode_)
 	    {
 		return this;
 	    }
-	    Reference r = _instance.referenceFactory().copy(this);
-	    r._mode = newMode;
+	    Reference r = instance_.referenceFactory().copy(this);
+	    r.mode_ = newMode;
 	    return r;
 	}
 
 	public Reference changeIdentity(Ice.Identity newIdentity)
 	{
-	    if(newIdentity.Equals(_identity))
+	    if(newIdentity.Equals(identity_))
 	    {
 		return this;
 	    }
-	    Reference r = _instance.referenceFactory().copy(this);
-	    r._identity = newIdentity; // Identity is a value type, therefore a copy of newIdentity is made.
+	    Reference r = instance_.referenceFactory().copy(this);
+	    r.identity_ = newIdentity; // Identity is a value type, therefore a copy of newIdentity is made.
 	    return r;
 	}
 
 	public Reference changeFacet(string newFacet)
 	{
-	    if(newFacet.Equals(_facet))
+	    if(newFacet.Equals(facet_))
 	    {
 		return this;
 	    }
-	    Reference r = _instance.referenceFactory().copy(this);
-	    r._facet = newFacet;
+	    Reference r = instance_.referenceFactory().copy(this);
+	    r.facet_ = newFacet;
 	    return r;
 	}
 
 	public virtual Reference changeDefault()
 	{
-	    Reference r = _instance.referenceFactory().copy(this);
-	    r._mode = Mode.ModeTwoway;
-	    r._context = _instance.getDefaultContext();
-	    r._facet = "";
+	    Reference r = instance_.referenceFactory().copy(this);
+	    r.mode_ = Mode.ModeTwoway;
+	    r.context_ = instance_.getDefaultContext();
+	    r.facet_ = "";
 	    return r;
 	}
 
@@ -144,37 +144,37 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_hashInitialized)
+		if(hashInitialized_)
 		{
-		    return _hashValue;
+		    return hashValue_;
 		}
 
-		int h = (int)_mode;
+		int h = (int)mode_;
 
-		int sz = _identity.name.Length;
+		int sz = identity_.name.Length;
 		for(int i = 0; i < sz; i++)
 		{   
-		    h = 5 * h + (int)_identity.name[i];
+		    h = 5 * h + (int)identity_.name[i];
 		}
 
-		sz = _identity.category.Length;
+		sz = identity_.category.Length;
 		for(int i = 0; i < sz; i++)
 		{   
-		    h = 5 * h + (int)_identity.category[i];
+		    h = 5 * h + (int)identity_.category[i];
 		}
 
-		h = 5 * h + _context.GetHashCode();
+		h = 5 * h + context_.GetHashCode();
 
-		sz = _facet.Length;
+		sz = facet_.Length;
 		for(int i = 0; i < sz; i++)
 		{   
-		    h = 5 * h + (int)_facet[i];
+		    h = 5 * h + (int)facet_[i];
 		}
 
 		h = 5 * h + (getSecure() ? 1 : 0);
 
-		_hashValue = h;
-		_hashInitialized = true;
+		hashValue_ = h;
+		hashInitialized_ = true;
 
 		return h;
 	    }
@@ -193,17 +193,17 @@ namespace IceInternal
 	    //
 	    // For compatibility with the old FacetPath.
 	    //
-	    if(_facet.Length == 0)
+	    if(facet_.Length == 0)
 	    {
 		s.writeStringSeq(null);
 	    }
 	    else
 	    {
-		string[] facetPath = { _facet };
+		string[] facetPath = { facet_ };
 		s.writeStringSeq(facetPath);
 	    }
 
-	    s.writeByte((byte)_mode);
+	    s.writeByte((byte)mode_);
 
 	    s.writeBool(getSecure());
 
@@ -222,7 +222,7 @@ namespace IceInternal
 	    // the reference parser uses as separators, then we enclose
 	    // the identity string in quotes.
 	    //
-	    string id = Ice.Util.identityToString(_identity);
+	    string id = Ice.Util.identityToString(identity_);
 	    if(IceUtil.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
 	    {
 		s.Append('"');
@@ -234,7 +234,7 @@ namespace IceInternal
 		s.Append(id);
 	    }
 
-	    if(_facet.Length > 0)
+	    if(facet_.Length > 0)
 	    {
 		//
 		// If the encoded facet string contains characters which
@@ -242,7 +242,7 @@ namespace IceInternal
 		// the facet string in quotes.
 		//
 		s.Append(" -f ");
-		string fs = IceUtil.StringUtil.escapeString(_facet, "");
+		string fs = IceUtil.StringUtil.escapeString(facet_, "");
 		if(IceUtil.StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
 		{
 		    s.Append('"');
@@ -255,7 +255,7 @@ namespace IceInternal
 		}
 	    }
 
-	    switch(_mode)
+	    switch(mode_)
 	    {
 		case Mode.ModeTwoway:
 		{
@@ -308,22 +308,22 @@ namespace IceInternal
 
 	    Reference r = (Reference)obj; // Guaranteed to succeed.
 
-	    if(_mode != r._mode)
+	    if(mode_ != r.mode_)
 	    {
 		return false;
 	    }
 
-	    if(!_identity.Equals(r._identity))
+	    if(!identity_.Equals(r.identity_))
 	    {
 		return false;
 	    }
 
-	    if(!_context.Equals(r._context))
+	    if(!context_.Equals(r.context_))
 	    {
 		return false;
 	    }
 
-	    if(!_facet.Equals(r._facet))
+	    if(!facet_.Equals(r.facet_))
 	    {
 		return false;
 	    }
@@ -339,16 +339,16 @@ namespace IceInternal
 	    return MemberwiseClone();
 	}
 
-	private Instance _instance;
-	private Ice.Communicator _communicator;
-	private Mode _mode;
-	private Ice.Identity _identity;
-	private Ice.Context _context;
+	private Instance instance_;
+	private Ice.Communicator communicator_;
+	private Mode mode_;
+	private Ice.Identity identity_;
+	private Ice.Context context_;
 	private static Ice.Context _emptyContext = new Ice.Context();
-	private string _facet;
+	private string facet_;
 
-	protected int _hashValue;
-	protected bool _hashInitialized;
+	protected int hashValue_;
+	protected bool hashInitialized_;
 
 	protected Reference(Instance inst,
 			    Ice.Communicator com,
@@ -364,13 +364,13 @@ namespace IceInternal
 	    Debug.Assert(ident.category != null);
 	    Debug.Assert(fac != null);
 
-	    _instance = inst;
-	    _communicator = com;
-	    _mode = md;
-	    _identity = ident;
-	    _context = ctx == null ? _emptyContext : ctx;
-	    _facet = fac;
-	    _hashInitialized = false;
+	    instance_ = inst;
+	    communicator_ = com;
+	    mode_ = md;
+	    identity_ = ident;
+	    context_ = ctx == null ? _emptyContext : ctx;
+	    facet_ = fac;
+	    hashInitialized_ = false;
 	}
 
 	//
@@ -391,7 +391,7 @@ namespace IceInternal
 		}
 	    }
 
-	    switch(_mode)
+	    switch(mode_)
 	    {
 		case Reference.Mode.ModeTwoway:
 		case Reference.Mode.ModeOneway:
@@ -510,7 +510,7 @@ namespace IceInternal
 	{
 	    ArrayList connections = new ArrayList();
 
-	    switch(_mode)
+	    switch(mode_)
 	    {
 		case Reference.Mode.ModeTwoway:
 		case Reference.Mode.ModeOneway:
@@ -781,7 +781,7 @@ namespace IceInternal
 		// proxy endpoints.
 		//
 		Ice.ObjectPrx clientProxy = _routerInfo.getClientProxy();
-		return ((Ice.ObjectPrxHelperBase)clientProxy).__reference().getEndpoints();
+		return ((Ice.ObjectPrxHelperBase)clientProxy).reference__().getEndpoints();
 	    }
 	    return new EndpointI[0];
 	}
@@ -1111,18 +1111,18 @@ namespace IceInternal
 			         bool collocationOpt)
 	    : base(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt)
 	{
-	    _adapterId = adptid;
-	    _locatorInfo = locInfo;
+	    adapterId_ = adptid;
+	    locatorInfo_ = locInfo;
 	}
 
 	public LocatorInfo getLocatorInfo()
 	{
-	    return _locatorInfo;
+	    return locatorInfo_;
 	}
 
 	public override string getAdapterId()
 	{
-	    return _adapterId;
+	    return adapterId_;
 	}
 
 	public override EndpointI[] getEndpoints()
@@ -1145,7 +1145,7 @@ namespace IceInternal
 	    else
 	    {
 		IndirectReference r = (IndirectReference)base.changeDefault();
-		r._locatorInfo = getInstance().locatorManager().get(loc);
+		r.locatorInfo_ = getInstance().locatorManager().get(loc);
 		return r;
 	    }
 	}
@@ -1165,13 +1165,13 @@ namespace IceInternal
 	    {
 		LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
 
-		if(object.ReferenceEquals(newLocatorInfo, _locatorInfo) ||
-		    (_locatorInfo != null && newLocatorInfo != null && newLocatorInfo.Equals(_locatorInfo)))
+		if(object.ReferenceEquals(newLocatorInfo, locatorInfo_) ||
+		    (locatorInfo_ != null && newLocatorInfo != null && newLocatorInfo.Equals(locatorInfo_)))
 		{
 		    return this;
 		}
 		IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-		r._locatorInfo = newLocatorInfo;
+		r.locatorInfo_ = newLocatorInfo;
 		return this;
 	    }
 	}
@@ -1179,11 +1179,11 @@ namespace IceInternal
 	public override Reference changeCompress(bool newCompress)
 	{
 	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	    if(_locatorInfo != null)
+	    if(locatorInfo_ != null)
 	    {
 		Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(
-						    _locatorInfo.getLocator().ice_compress(newCompress));
-		r._locatorInfo = getInstance().locatorManager().get(newLocator);
+						    locatorInfo_.getLocator().ice_compress(newCompress));
+		r.locatorInfo_ = getInstance().locatorManager().get(newLocator);
 	    }
 	    return r;
 	}
@@ -1191,23 +1191,23 @@ namespace IceInternal
 	public override Reference changeTimeout(int newTimeout)
 	{
 	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	    if(_locatorInfo != null)
+	    if(locatorInfo_ != null)
 	    {
 		Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(
-						    _locatorInfo.getLocator().ice_timeout(newTimeout));
-		r._locatorInfo = getInstance().locatorManager().get(newLocator);
+						    locatorInfo_.getLocator().ice_timeout(newTimeout));
+		r.locatorInfo_ = getInstance().locatorManager().get(newLocator);
 	    }
 	    return r;
 	}
 
 	public override Reference changeAdapterId(string newAdapterId)
         {
-	    if(_adapterId.Equals(newAdapterId))
+	    if(adapterId_.Equals(newAdapterId))
 	    {
 		return this;
 	    }
 	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	    r._adapterId = newAdapterId;
+	    r.adapterId_ = newAdapterId;
 	    return r;
 	}
 
@@ -1227,14 +1227,14 @@ namespace IceInternal
 	    base.streamWrite(s);
 
 	    s.writeSize(0);
-	    s.writeString(_adapterId);
+	    s.writeString(adapterId_);
 	}
 
 	public override string ToString()
 	{
 	    string result = base.ToString();
 
-	    if(_adapterId.Length == 0)
+	    if(adapterId_.Length == 0)
 	    {
 		return result;
 	    }
@@ -1248,7 +1248,7 @@ namespace IceInternal
 	    // the reference parser uses as separators, then we enclose
 	    // the adapter id string in quotes.
 	    //
-	    string a = IceUtil.StringUtil.escapeString(_adapterId, null);
+	    string a = IceUtil.StringUtil.escapeString(adapterId_, null);
 	    if(IceUtil.StringUtil.findFirstOf(a, " \t\n\r") != -1)
 	    {
 		s.Append('"');
@@ -1270,9 +1270,9 @@ namespace IceInternal
 	    {
 		EndpointI[] endpts = base.getRoutedEndpoints();
 		bool cached = false;
-		if(endpts.Length == 0 && _locatorInfo != null)
+		if(endpts.Length == 0 && locatorInfo_ != null)
 		{
-		    endpts = _locatorInfo.getEndpoints(this, out cached);
+		    endpts = locatorInfo_.getEndpoints(this, out cached);
 		}
 		EndpointI[] filteredEndpoints = filterEndpoints(endpts);
 		if(filteredEndpoints.Length == 0)
@@ -1292,8 +1292,8 @@ namespace IceInternal
 		{
 		    if(getRouterInfo() == null)
 		    {
-			Debug.Assert(_locatorInfo != null);
-			_locatorInfo.clearCache(this);
+			Debug.Assert(locatorInfo_ != null);
+			locatorInfo_.clearCache(this);
 
 			if(cached)
 			{
@@ -1346,12 +1346,12 @@ namespace IceInternal
 	    {
 		return false;
 	    }
-	    if(!_adapterId.Equals(rhs._adapterId))
+	    if(!adapterId_.Equals(rhs.adapterId_))
 	    {
 		return false;
 	    }
-	    return object.ReferenceEquals(_locatorInfo, rhs._locatorInfo) ||
-		(_locatorInfo != null && rhs._locatorInfo != null && rhs._locatorInfo.Equals(_locatorInfo));
+	    return object.ReferenceEquals(locatorInfo_, rhs.locatorInfo_) ||
+		(locatorInfo_ != null && rhs.locatorInfo_ != null && rhs.locatorInfo_.Equals(locatorInfo_));
 	}
 
         //
@@ -1362,7 +1362,7 @@ namespace IceInternal
             return base.GetHashCode();
         }
 
-	private string _adapterId;
-	private LocatorInfo _locatorInfo;
+	private string adapterId_;
+	private LocatorInfo locatorInfo_;
     }
 }

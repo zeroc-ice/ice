@@ -14,27 +14,27 @@ namespace Ice
     {
 	public void destroy()
 	{
-	    _instance.destroy();
+	    instance_.destroy();
 	}
 
 	public void shutdown()
 	{
-	    _instance.objectAdapterFactory().shutdown();
+	    instance_.objectAdapterFactory().shutdown();
 	}
 	
 	public void waitForShutdown()
 	{
-	    _instance.objectAdapterFactory().waitForShutdown();
+	    instance_.objectAdapterFactory().waitForShutdown();
 	}
 	
 	public Ice.ObjectPrx stringToProxy(string s)
 	{
-	    return _instance.proxyFactory().stringToProxy(s);
+	    return instance_.proxyFactory().stringToProxy(s);
 	}
 	
 	public string proxyToString(Ice.ObjectPrx proxy)
 	{
-	    return _instance.proxyFactory().proxyToString(proxy);
+	    return instance_.proxyFactory().proxyToString(proxy);
 	}
 
 	public ObjectAdapter createObjectAdapter(string name)
@@ -44,77 +44,77 @@ namespace Ice
 	
 	public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints)
 	{
-	    return _instance.objectAdapterFactory().createObjectAdapter(name, endpoints);
+	    return instance_.objectAdapterFactory().createObjectAdapter(name, endpoints);
 	}
 	
 	public void addObjectFactory(ObjectFactory factory, string id)
 	{
-	    _instance.servantFactoryManager().add(factory, id);
+	    instance_.servantFactoryManager().add(factory, id);
 	}
 	
 	public void removeObjectFactory(string id)
 	{
-	    _instance.servantFactoryManager().remove(id);
+	    instance_.servantFactoryManager().remove(id);
 	}
 	
 	public ObjectFactory findObjectFactory(string id)
 	{
-	    return _instance.servantFactoryManager().find(id);
+	    return instance_.servantFactoryManager().find(id);
 	}
 	
 	public Properties getProperties()
 	{
-	    return _instance.properties();
+	    return instance_.properties();
 	}
 	
 	public Logger getLogger()
 	{
-	    return _instance.logger();
+	    return instance_.logger();
 	}
 
 	public void setLogger(Logger logger)
 	{
-	    _instance.logger(logger);
+	    instance_.logger(logger);
 	}
 	    
 	public Stats getStats()
 	{
-	    return _instance.stats();
+	    return instance_.stats();
 	}
 
 	public void setStats(Stats stats)
 	{
-	    _instance.stats(stats);
+	    instance_.stats(stats);
 	}
 
 	public RouterPrx getDefaultRouter()
 	{
-	    return _instance.referenceFactory().getDefaultRouter();
+	    return instance_.referenceFactory().getDefaultRouter();
 	}
 
 	public void setDefaultRouter(RouterPrx router)
 	{
-	    _instance.referenceFactory().setDefaultRouter(router);
+	    instance_.referenceFactory().setDefaultRouter(router);
 	}
 
 	public LocatorPrx getDefaultLocator()
 	{
-	    return _instance.referenceFactory().getDefaultLocator();
+	    return instance_.referenceFactory().getDefaultLocator();
 	}
 
 	public void setDefaultLocator(LocatorPrx locator)
 	{
-	    _instance.referenceFactory().setDefaultLocator(locator);
+	    instance_.referenceFactory().setDefaultLocator(locator);
 	}
 	
 	public Ice.Context getDefaultContext()
 	{
-	    return _instance.getDefaultContext();
+	    return instance_.getDefaultContext();
 	}
 	
 	public void setDefaultContext(Ice.Context ctx)
 	{
-	    _instance.setDefaultContext(ctx);
+	    instance_.setDefaultContext(ctx);
 	}
 
 	public PluginManager getPluginManager()
@@ -124,12 +124,12 @@ namespace Ice
 
 	public void flushBatchRequests()
 	{
-	    _instance.flushBatchRequests();
+	    instance_.flushBatchRequests();
 	}
 	
 	internal CommunicatorI(Properties properties)
 	{
-	    _instance = new IceInternal.Instance(this, properties);
+	    instance_ = new IceInternal.Instance(this, properties);
 	}
 	
 #if DEBUG
@@ -137,11 +137,11 @@ namespace Ice
 	{
 	    lock(this)
 	    {
-		if(!_instance.destroyed())
+		if(!instance_.destroyed())
 		{
 		    if(!System.Environment.HasShutdownStarted)
 		    {
-			_instance.logger().warning("Ice::Communicator::destroy() has not been called");
+			instance_.logger().warning("Ice::Communicator::destroy() has not been called");
 		    }
 		    else
 		    {
@@ -160,11 +160,11 @@ namespace Ice
 	{
 	    try
 	    {
-		_instance.finishSetup(ref args);
+		instance_.finishSetup(ref args);
 	    }
 	    catch(System.Exception)
 	    {
-		_instance.destroy();
+		instance_.destroy();
 		throw;
 	    }
 	}
@@ -174,11 +174,11 @@ namespace Ice
 	//
 	internal IceInternal.Instance getInstance()
 	{
-	    return _instance;
+	    return instance_;
 	}
 	
 	
-	private IceInternal.Instance _instance;
+	private IceInternal.Instance instance_;
     }
 
 }

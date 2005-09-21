@@ -10,7 +10,7 @@
 using Filesystem;
 using System.Collections;
 
-public class DirectoryI : _DirectoryDisp
+public class DirectoryI : DirectoryDisp_
 {
     // DirectoryI constructor
 

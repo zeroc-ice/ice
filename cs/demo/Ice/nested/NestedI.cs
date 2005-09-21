@@ -9,7 +9,7 @@
 
 using Demo;
 
-class NestedI : _NestedDisp
+class NestedI : NestedDisp_
 {
     internal NestedI(NestedPrx self)
     {

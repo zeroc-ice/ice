@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public sealed class TestCheckedCastI : Test._TestCheckedCastDisp
+public sealed class TestCheckedCastI : Test.TestCheckedCastDisp_
 {
     public override void
     getContext_async(Test.AMD_TestCheckedCast_getContext cb, Ice.Current current)

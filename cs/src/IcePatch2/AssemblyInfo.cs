@@ -7,8 +7,11 @@
 //
 // **********************************************************************
 
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+
+[assembly: CLSCompliant(true)]
 
 [assembly: AssemblyTitle("icepatch2cs")]
 [assembly: AssemblyDescription("IcePatch2 run-time support")]

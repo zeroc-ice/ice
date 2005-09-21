@@ -325,7 +325,7 @@ namespace IceInternal
             // Set larger send buffer size to avoid performance problems on
             // WIN32.
             //
-	    if(AssemblyUtil._platform == AssemblyUtil.Platform.Windows)
+	    if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
 	    {
 		setSendBufferSize(socket, 64 * 1024);
 	    }
@@ -373,7 +373,7 @@ namespace IceInternal
 		    // The only fix appears to be to restart the call to Connect() -- the second attempt
 		    // works and establishes the connection.
 		    //
-		    if(ready && AssemblyUtil._runtime == AssemblyUtil.Runtime.Mono && !socket.Connected)
+		    if(ready && AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono && !socket.Connected)
 		    {
 			goto repeatConnect;
 		    }
@@ -745,7 +745,7 @@ namespace IceInternal
 	    //
 	    IPEndPoint localEndpoint;
 	    IPEndPoint remoteEndpoint;
-    	    if(AssemblyUtil._platform == AssemblyUtil.Platform.Windows)
+    	    if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
 	    {
 		sockaddr addr = new sockaddr();
 		int addrLen = 16;

@@ -9,7 +9,7 @@
 
 using Demo;
 
-public sealed class ThroughputI : _ThroughputDisp
+public sealed class ThroughputI : ThroughputDisp_
 {
     public ThroughputI()
     {

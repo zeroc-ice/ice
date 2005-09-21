@@ -34,7 +34,7 @@ namespace Ice
 
 		lock(this)
 		{
-		    if(_instance.threadPerConnection() && _threadPerConnection != Thread.CurrentThread)
+		    if(instance_.threadPerConnection() && _threadPerConnection != Thread.CurrentThread)
 		    {
 			//
 			// In thread per connection mode, this connection's thread
@@ -71,7 +71,7 @@ namespace Ice
 		try
 		{
 		    int timeout;
-		    IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+		    IceInternal.DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
 		    if(defaultsAndOverrides.overrideConnectTimeout)
 		    {
 			timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
@@ -91,7 +91,7 @@ namespace Ice
 				throw _exception; // The exception is immutable at this point.
 			    }
 
-			    IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
+			    IceInternal.BasicStream os = new IceInternal.BasicStream(instance_);
 			    os.writeBlob(IceInternal.Protocol.magic);
 			    os.writeByte(IceInternal.Protocol.protocolMajor);
 			    os.writeByte(IceInternal.Protocol.protocolMinor);
@@ -113,7 +113,7 @@ namespace Ice
 		    }
 		    else
 		    {
-			IceInternal.BasicStream ins = new IceInternal.BasicStream(_instance);
+			IceInternal.BasicStream ins = new IceInternal.BasicStream(instance_);
 			ins.resize(IceInternal.Protocol.headerSize, true);
 			ins.pos(0);
 			try
@@ -402,7 +402,7 @@ namespace Ice
 		//
 		foreach(IceInternal.OutgoingAsync og in _asyncRequests.Values)
 		{
-		    if(og.__timedOut())
+		    if(og.timedOut__())
 		    {
 			setState(StateClosed, new TimeoutException());
 			return;
@@ -704,10 +704,10 @@ namespace Ice
 		    // async request map, we are out of luck. It would
 		    // mean that finished() has been called already, and
 		    // therefore the exception has been set using the
-		    // OutgoingAsync::__finished() callback. In this case,
+		    // OutgoingAsync::finished__() callback. In this case,
 		    // we cannot throw the exception here, because we must
 		    // not both raise an exception and have
-		    // OutgoingAsync::__finished() called with an
+		    // OutgoingAsync::finished__() called with an
 		    // exception. This means that in some rare cases, a
 		    // request will not be retried even though it
 		    // could. But I honestly don't know how I could avoid
@@ -819,7 +819,7 @@ namespace Ice
 		// stream, as they might be corrupted due to
 		// incomplete marshaling.
 		//
-		_batchStream = new IceInternal.BasicStream(_instance);
+		_batchStream = new IceInternal.BasicStream(instance_);
 		_batchRequestNum = 0;
 		_batchRequestCompress = false;
 		
@@ -920,7 +920,7 @@ namespace Ice
 		//
 		// Reset the batch stream, and notify that flushing is over.
 		//
-		_batchStream = new IceInternal.BasicStream(_instance);
+		_batchStream = new IceInternal.BasicStream(instance_);
 		_batchRequestNum = 0;
 		_batchRequestCompress = false;
 		_batchStreamInUse = false;
@@ -1083,9 +1083,9 @@ namespace Ice
 	    //
 	    ConnectionI[] connections = new ConnectionI[1];
 	    connections[0] = this;
-	    IceInternal.Reference @ref = _instance.referenceFactory().create(
-		ident, _instance.getDefaultContext(), "", IceInternal.Reference.Mode.ModeTwoway, connections);
-	    return _instance.proxyFactory().referenceToProxy(@ref);
+	    IceInternal.Reference @ref = instance_.referenceFactory().create(
+		ident, instance_.getDefaultContext(), "", IceInternal.Reference.Mode.ModeTwoway, connections);
+	    return instance_.proxyFactory().referenceToProxy(@ref);
 	}
 	
 	//
@@ -1094,19 +1094,19 @@ namespace Ice
 	
 	public override bool datagram()
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 	    return _endpoint.datagram(); // No mutex protection necessary, _endpoint is immutable.
 	}
 	
 	public override bool readable()
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 	    return true;
 	}
 	
 	public override void read(IceInternal.BasicStream stream)
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 
 	    _transceiver.read(stream, 0);
 
@@ -1131,7 +1131,7 @@ namespace Ice
 	
 	public override void message(IceInternal.BasicStream stream, IceInternal.ThreadPool threadPool)
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 
 	    byte compress = 0;
 	    int requestId = 0;
@@ -1171,7 +1171,7 @@ namespace Ice
 	    //
 	    if(outAsync != null)
 	    {
-		outAsync.__finished(stream);
+		outAsync.finished__(stream);
 	    }
 
 	    //
@@ -1184,7 +1184,7 @@ namespace Ice
 
 	public override void finished(IceInternal.ThreadPool threadPool)
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 
 	    threadPool.promoteFollower();
 	    
@@ -1243,7 +1243,7 @@ namespace Ice
 	    {
 		foreach(IceInternal.OutgoingAsync og in asyncRequests.Values)
 		{
-		    og.__finished(_exception); // The exception is immutable at this point.
+		    og.finished__(_exception); // The exception is immutable at this point.
 		}
 	    }
 
@@ -1271,7 +1271,7 @@ namespace Ice
 	    return _endpoint.timeout(); // No mutex protection necessary, _endpoint is immutable.
 	}
 	
-	public string _Ice_toString()
+	public string ice_toString_()
 	{
 	    return ToString();
 	}
@@ -1298,7 +1298,7 @@ namespace Ice
 	    _logger = instance.logger(); // Cached for better performance.
 	    _traceLevels = instance.traceLevels(); // Cached for better performance.
 	    _registeredWithPool = false;
-	    _warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0;
+	    _warn = instance_.properties().getPropertyAsInt("Ice.Warn.Connections") > 0;
 	    _acmAbsoluteTimeoutMillis = 0;
 	    _nextRequestId = 1;
 	    _batchStream = new IceInternal.BasicStream(instance);
@@ -1317,15 +1317,15 @@ namespace Ice
 	    {
 		if(_adapter != null)
 		{
-		    _acmTimeout = _instance.serverACM();
+		    _acmTimeout = instance_.serverACM();
 		}
 		else
 		{
-		    _acmTimeout = _instance.clientACM();
+		    _acmTimeout = instance_.clientACM();
 		}
 	    }
 
-	    _compressionLevel = _instance.properties().getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
+	    _compressionLevel = instance_.properties().getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
 	    if(_compressionLevel < 1)
 	    {
 		_compressionLevel = 1;
@@ -1343,7 +1343,7 @@ namespace Ice
 
 	    try
 	    {
-		if(!_instance.threadPerConnection())
+		if(!instance_.threadPerConnection())
 		{
 		    //
 		    // Only set _threadPool if we really need it, i.e., if we are
@@ -1372,13 +1372,13 @@ namespace Ice
 	    }
 	    catch(System.Exception ex)
 	    {
-		if(_instance.threadPerConnection())
+		if(instance_.threadPerConnection())
 		{
-		    _instance.logger().error("cannot create thread for connection:\n" + ex);
+		    instance_.logger().error("cannot create thread for connection:\n" + ex);
 		}
 		else
 		{
-		    _instance.logger().error("cannot create thread pool for connection:\n" + ex);
+		    instance_.logger().error("cannot create thread pool for connection:\n" + ex);
 		}
 
 		try
@@ -1393,8 +1393,8 @@ namespace Ice
 		throw new Ice.SyscallException(ex);
 	    }
 
-	    _overrideCompress = _instance.defaultsAndOverrides().overrideCompress;
-	    _overrideCompressValue = _instance.defaultsAndOverrides().overrideCompressValue;
+	    _overrideCompress = instance_.defaultsAndOverrides().overrideCompress;
+	    _overrideCompressValue = instance_.defaultsAndOverrides().overrideCompressValue;
 
 	}
 
@@ -1512,7 +1512,7 @@ namespace Ice
 		    {
 			return;
 		    }
-		    if(!_instance.threadPerConnection())
+		    if(!instance_.threadPerConnection())
 		    {
 			registerWithPool();
 		    }
@@ -1529,7 +1529,7 @@ namespace Ice
 		    {
 			return;
 		    }
-		    if(!_instance.threadPerConnection())
+		    if(!instance_.threadPerConnection())
 		    {
 			unregisterWithPool();
 		    }
@@ -1545,7 +1545,7 @@ namespace Ice
 		    {
 			return;
 		    }
-		    if(!_instance.threadPerConnection())
+		    if(!instance_.threadPerConnection())
 		    {
 			registerWithPool(); // We need to continue to read in closing state.
 		    }
@@ -1554,7 +1554,7 @@ namespace Ice
 		
 		case StateClosed: 
 		{
-		    if(_instance.threadPerConnection())
+		    if(instance_.threadPerConnection())
 		    {
 			//
 			// If we are in thread per connection mode, we
@@ -1620,7 +1620,7 @@ namespace Ice
 	    // monitor, but only if we were registered before, i.e., if our
 	    // old state was StateActive.
 	    //
-	    IceInternal.ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
+	    IceInternal.ConnectionMonitor connectionMonitor = instance_.connectionMonitor();
 	    if(connectionMonitor != null)
 	    {   
 		if(state == StateActive)
@@ -1664,7 +1664,7 @@ namespace Ice
 		    // Before we shut down, we send a close connection
 		    // message.
 		    //
-		    IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
+		    IceInternal.BasicStream os = new IceInternal.BasicStream(instance_);
 		    os.writeBlob(IceInternal.Protocol.magic);
 		    os.writeByte(IceInternal.Protocol.protocolMajor);
 		    os.writeByte(IceInternal.Protocol.protocolMinor);
@@ -1694,7 +1694,7 @@ namespace Ice
 	
 	private void registerWithPool()
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 
 	    if(!_registeredWithPool)
 	    {
@@ -1705,7 +1705,7 @@ namespace Ice
 	
 	private void unregisterWithPool()
 	{
-	    Debug.Assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
 
 	    if(_registeredWithPool)
 	    {
@@ -2022,11 +2022,11 @@ namespace Ice
 		activate();
 	    }
 
-	    bool warnUdp = _instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+	    bool warnUdp = instance_.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
 	    bool closed = false;
 
-	    IceInternal.BasicStream stream = new IceInternal.BasicStream(_instance);
+	    IceInternal.BasicStream stream = new IceInternal.BasicStream(instance_);
 
 	    while(!closed)
 	    {
@@ -2083,7 +2083,7 @@ namespace Ice
 			{
 			    throw new IllegalMessageSizeException();
 			}
-			if(size > _instance.messageSizeMax())
+			if(size > instance_.messageSizeMax())
 			{
 			    throw new MemoryLimitException();
 			}
@@ -2208,7 +2208,7 @@ namespace Ice
 		    //
 		    if(outAsync != null)
 		    {
-			outAsync.__finished(stream);
+			outAsync.finished__(stream);
 		    }
 
 		    //
@@ -2230,7 +2230,7 @@ namespace Ice
 		    {
 			foreach(IceInternal.OutgoingAsync og in asyncRequests.Values)
 			{
-			    og.__finished(_exception); // The exception is immutable at this point.
+			    og.finished__(_exception); // The exception is immutable at this point.
 			}
 		    }
 
@@ -2255,11 +2255,11 @@ namespace Ice
 	    }
 	    catch(Exception ex)
 	    {
-		_instance.logger().error("exception in thread per connection:\n" + ToString() + ex.ToString());
+		instance_.logger().error("exception in thread per connection:\n" + ToString() + ex.ToString());
 	    }
 	    catch(System.Exception ex)
 	    {
-		_instance.logger().error("system exception in thread per connection:\n" + ToString() + ex.ToString());
+		instance_.logger().error("system exception in thread per connection:\n" + ToString() + ex.ToString());
 	    }
 	}
 
@@ -2271,13 +2271,13 @@ namespace Ice
 	    {
 		if(_incomingCache == null)
 		{
-		    inc = new IceInternal.Incoming(_instance, this, adapter, response, compress);
+		    inc = new IceInternal.Incoming(instance_, this, adapter, response, compress);
 		}
 		else
 		{
 		    inc = _incomingCache;
 		    _incomingCache = _incomingCache.next;
-		    inc.reset(_instance, this, adapter, response, compress);
+		    inc.reset(instance_, this, adapter, response, compress);
 		    inc.next = null;
 		}
 	    }

@@ -10,7 +10,7 @@
 Imports Demo
 
 Public Class NestedI
-    Inherits _NestedDisp
+    Inherits NestedDisp_
 
     Public Sub New(ByVal self As NestedPrx)
 	_self = self

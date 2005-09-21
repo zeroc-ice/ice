@@ -14,9 +14,9 @@ namespace IceInternal
 	public BasicInputStream(Instance instance, Ice.InputStream inStream)
             : base(instance)
 	{
-	    _in = inStream;
+	    in_ = inStream;
 	}
 
-	public Ice.InputStream _in;
+	public Ice.InputStream in_;
     }
 }

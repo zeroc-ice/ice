@@ -10,7 +10,7 @@
 using Demo;
 using System;
 
-public class SessionFactoryI : _SessionFactoryDisp
+public class SessionFactoryI : SessionFactoryDisp_
 {
     public SessionFactoryI(ReapThread reapThread)
     {

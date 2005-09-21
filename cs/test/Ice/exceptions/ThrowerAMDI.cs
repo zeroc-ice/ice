@@ -10,7 +10,7 @@
 using System.Diagnostics;
 using Test;
 
-public class ThrowerI : _ThrowerDisp
+public class ThrowerI : ThrowerDisp_
 {
     public ThrowerI(Ice.ObjectAdapter adapter)
     {

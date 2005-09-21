@@ -11,7 +11,7 @@ Imports BidirDemo
 Imports System.Collections
 
 Class CallbackSenderI
-    Inherits _CallbackSenderDisp
+    Inherits CallbackSenderDisp_
 
     Public Sub New()
         _destroy = False

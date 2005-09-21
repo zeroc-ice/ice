@@ -14,7 +14,7 @@ namespace IceInternal
     {
 	public Ice.ObjectPrx stringToProxy(string str)
 	{
-	    Reference r = _instance.referenceFactory().create(str);
+	    Reference r = instance_.referenceFactory().create(str);
 	    return referenceToProxy(r);
 	}
 	
@@ -23,7 +23,7 @@ namespace IceInternal
 	    if(proxy != null)
 	    {
 		Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase) proxy;
-		return h.__reference().ToString();
+		return h.reference__().ToString();
 	    }
 	    else
 	    {
@@ -34,9 +34,9 @@ namespace IceInternal
 	public Ice.ObjectPrx streamToProxy(BasicStream s)
 	{
 	    Ice.Identity ident = new Ice.Identity();
-	    ident.__read(s);
+	    ident.read__(s);
 	    
-	    Reference r = _instance.referenceFactory().create(ident, s);
+	    Reference r = instance_.referenceFactory().create(ident, s);
 	    return referenceToProxy(r);
 	}
 	
@@ -59,8 +59,8 @@ namespace IceInternal
 	    if(proxy != null)
 	    {
 		Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
-		Reference r = h.__reference();
-		r.getIdentity().__write(s);
+		Reference r = h.reference__();
+		r.getIdentity().write__(s);
 		r.streamWrite(s);
 	    }
 	    else
@@ -68,7 +68,7 @@ namespace IceInternal
 		Ice.Identity ident = new Ice.Identity();
 		ident.name = "";
 		ident.category = "";
-		ident.__write(s);
+		ident.write__(s);
 	    }
 	}
 	
@@ -128,8 +128,8 @@ namespace IceInternal
 
 	    ++cnt;
 
-	    TraceLevels traceLevels = _instance.traceLevels();
-	    Ice.Logger logger = _instance.logger();
+	    TraceLevels traceLevels = instance_.traceLevels();
+	    Ice.Logger logger = instance_.logger();
 
 	    //
 	    // Instance components may be null if Communicator has been destroyed.
@@ -181,9 +181,9 @@ namespace IceInternal
 	//
 	internal ProxyFactory(Instance instance)
 	{
-	    _instance = instance;
+	    instance_ = instance;
 	    
-	    string str = _instance.properties().getPropertyWithDefault("Ice.RetryIntervals", "0");
+	    string str = instance_.properties().getPropertyWithDefault("Ice.RetryIntervals", "0");
 	    
 	    char[] separators = { ' ', '\t', '\n', '\r' };
 	    string[] arr = str.Trim().Split(separators);
@@ -224,7 +224,7 @@ namespace IceInternal
 	    }
 	}
 	
-	private Instance _instance;
+	private Instance instance_;
 	private int[] _retryIntervals;
     }
 

@@ -9,7 +9,7 @@
 
 namespace Test
 {
-    public sealed class ChecksumI : _ChecksumDisp
+    public sealed class ChecksumI : ChecksumDisp_
     {
         public ChecksumI(Ice.ObjectAdapter adapter)
         {

@@ -3,7 +3,7 @@ Imports System.Collections
 Imports Filesystem
 
 Public Class DirectoryI
-    Inherits _DirectoryDisp
+    Inherits DirectoryDisp_
 
     Public Sub New(ByVal name As String, ByVal parent As DirectoryI)
 	_name = name

@@ -19,7 +19,7 @@ namespace IceInternal
     {
         public abstract void ice_exception(Ice.Exception ex);
 	
-        public void __finished(BasicStream istr)
+        public void finished__(BasicStream istr)
         {
             lock(_monitor)
             {
@@ -27,16 +27,16 @@ namespace IceInternal
 		
                 try
                 {
-                    __is.swap(istr);
+                    is__.swap(istr);
 		    
-                    status = (DispatchStatus)__is.readByte();
+                    status = (DispatchStatus)is__.readByte();
 		    
                     switch(status)
                     {
                         case DispatchStatus.DispatchOK:
                         case DispatchStatus.DispatchUserException:
                         {
-                            __is.startReadEncaps();
+                            is__.startReadEncaps();
                             break;
                         }
 			
@@ -45,12 +45,12 @@ namespace IceInternal
                         case DispatchStatus.DispatchOperationNotExist:
                         {
                             Ice.Identity id = new Ice.Identity();
-                            id.__read(__is);
+                            id.read__(is__);
 
                             //
                             // For compatibility with the old FacetPath.
                             //
-                            string[] facetPath = __is.readStringSeq();
+                            string[] facetPath = is__.readStringSeq();
                             string facet;
                             if(facetPath.Length > 0)
                             {
@@ -65,7 +65,7 @@ namespace IceInternal
                                 facet = "";
                             }
 
-                            string operation = __is.readString();
+                            string operation = is__.readString();
 
                             Ice.RequestFailedException ex = null;
                             switch(status)
@@ -105,7 +105,7 @@ namespace IceInternal
                         case DispatchStatus.DispatchUnknownLocalException:
                         case DispatchStatus.DispatchUnknownUserException:
                         {
-                            string unknown = __is.readString();
+                            string unknown = is__.readString();
 
                             Ice.UnknownException ex = null;
                             switch(status)
@@ -143,7 +143,7 @@ namespace IceInternal
                 }
                 catch(Ice.LocalException ex)
                 {
-                    __finished(ex);
+                    finished__(ex);
                     return;
                 }
 		    
@@ -151,7 +151,7 @@ namespace IceInternal
 		
                 try
                 {
-                    __response(status == DispatchStatus.DispatchOK);
+                    response__(status == DispatchStatus.DispatchOK);
                 }
                 catch(System.Exception ex)
                 {
@@ -164,7 +164,7 @@ namespace IceInternal
             }
         }
 	
-        public void __finished(Ice.LocalException exc)
+        public void finished__(Ice.LocalException exc)
         {
             lock(_monitor)
             {
@@ -210,7 +210,7 @@ namespace IceInternal
                     if(doRetry)
                     {
                         _connection = null;
-                        __send();
+                        send__();
                         return;
                     }
                 }
@@ -230,7 +230,7 @@ namespace IceInternal
             }
         }
 	
-        public bool __timedOut()
+        public bool timedOut__()
         {
 	    long absoluteTimeoutMillis;
 
@@ -249,7 +249,7 @@ namespace IceInternal
             }
         }
 
-        protected void __prepare(Ice.ObjectPrx prx, string operation, Ice.OperationMode mode, Ice.Context context)
+        protected void prepare__(Ice.ObjectPrx prx, string operation, Ice.OperationMode mode, Ice.Context context)
         {
             lock(_monitor)
             {
@@ -264,15 +264,15 @@ namespace IceInternal
                         Monitor.Wait(_monitor);
                     }
 		    
-                    _reference = ((Ice.ObjectPrxHelperBase)prx).__reference();;
+                    _reference = ((Ice.ObjectPrxHelperBase)prx).reference__();;
                     Debug.Assert(_connection == null);
                     _connection = _reference.getConnection(out _compress);
                     _cnt = 0;
                     _mode = mode;
-                    Debug.Assert(__is == null);
-                    __is = new BasicStream(_reference.getInstance());
-                    Debug.Assert(__os == null);
-                    __os = new BasicStream(_reference.getInstance());
+                    Debug.Assert(is__ == null);
+                    is__ = new BasicStream(_reference.getInstance());
+                    Debug.Assert(os__ == null);
+                    os__ = new BasicStream(_reference.getInstance());
 		    
                     //
                     // If we are using a router, then add the proxy to the router info object.
@@ -290,9 +290,9 @@ namespace IceInternal
                     {
                     }
 
-                    _connection.prepareRequest(__os);
+                    _connection.prepareRequest(os__);
 		    
-                    _reference.getIdentity().__write(__os);
+                    _reference.getIdentity().write__(os__);
 
                     //
                     // For compatibility with the old FacetPath.
@@ -300,37 +300,37 @@ namespace IceInternal
                     string facet = _reference.getFacet();
                     if(facet == null || facet.Length == 0)
                     {
-                        __os.writeStringSeq(null);
+                        os__.writeStringSeq(null);
                     }
                     else
                     {
                         string[] facetPath = { facet };
-                        __os.writeStringSeq(facetPath);
+                        os__.writeStringSeq(facetPath);
                     }
 
-                    __os.writeString(operation);
+                    os__.writeString(operation);
 
-                    __os.writeByte((byte)mode);
+                    os__.writeByte((byte)mode);
 
                     if(context == null)
                     {
-                        __os.writeSize(0);
+                        os__.writeSize(0);
                     }
                     else
                     {
                         int sz = context.Count;
-                        __os.writeSize(sz);
+                        os__.writeSize(sz);
                         if(sz > 0)
                         {
                             foreach(DictionaryEntry e in context)
                             {
-                                __os.writeString((string)e.Key);
-                                __os.writeString((string)e.Value);
+                                os__.writeString((string)e.Key);
+                                os__.writeString((string)e.Value);
                             }
                         }
                     }
 		    
-                    __os.startWriteEncaps();
+                    os__.startWriteEncaps();
                 }
                 catch(Ice.LocalException ex)
                 {
@@ -340,7 +340,7 @@ namespace IceInternal
             }
         }
 	
-        protected void __send()
+        protected void send__()
         {
             lock(_monitor)
             {
@@ -367,12 +367,12 @@ namespace IceInternal
 			
                         try
                         {
-                            _connection.sendAsyncRequest(__os, this, _compress);
+                            _connection.sendAsyncRequest(os__, this, _compress);
 			    
                             //
                             // Don't do anything after sendAsyncRequest() returned
                             // without an exception.  I such case, there will be
-                            // callbacks, i.e., calls to the __finished()
+                            // callbacks, i.e., calls to the finished__()
                             // functions. Since there is no mutex protection, we
                             // cannot modify state here and in such callbacks.
                             //
@@ -396,12 +396,12 @@ namespace IceInternal
                 }
                 catch(Ice.LocalException ex)
                 {
-                    __finished(ex);
+                    finished__(ex);
                 }
             }
         }
 
-        protected abstract void __response(bool ok);
+        protected abstract void response__(bool ok);
 
         private void warning(System.Exception ex)
         {
@@ -418,14 +418,14 @@ namespace IceInternal
         {
 	    _reference = null;
 	    _connection = null;
-	    __is = null;
-	    __os = null;
+	    is__ = null;
+	    os__ = null;
 
             Monitor.Pulse(_monitor);
         }
 	
-        protected BasicStream __is;
-        protected BasicStream __os;
+        protected BasicStream is__;
+        protected BasicStream os__;
 
         private Reference _reference;
         private Ice.ConnectionI _connection;
@@ -449,34 +449,34 @@ namespace Ice
         public abstract void ice_response(bool ok, byte[] outParams);
         public abstract override void ice_exception(Ice.Exception ex);
 
-        public void __invoke(Ice.ObjectPrx prx, string operation, OperationMode mode,
+        public void invoke__(Ice.ObjectPrx prx, string operation, OperationMode mode,
             byte[] inParams, Ice.Context context)
         {
             try
             {
-                __prepare(prx, operation, mode, context);
-                __os.writeBlob(inParams);
-                __os.endWriteEncaps();
+                prepare__(prx, operation, mode, context);
+                os__.writeBlob(inParams);
+                os__.endWriteEncaps();
             }
             catch(LocalException ex)
             {
-                __finished(ex);
+                finished__(ex);
                 return;
             }
-            __send();
+            send__();
         }
 
-        protected override void __response(bool ok) // ok == true means no user exception.
+        protected override void response__(bool ok) // ok == true means no user exception.
         {
             byte[] outParams;
             try
             {
-                int sz = __is.getReadEncapsSize();
-                outParams = __is.readBlob(sz);
+                int sz = is__.getReadEncapsSize();
+                outParams = is__.readBlob(sz);
             }
             catch(LocalException ex)
             {
-	        __finished(ex);
+	        finished__(ex);
 		return;
             }
             ice_response(ok, outParams);

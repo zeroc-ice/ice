@@ -71,7 +71,7 @@ namespace IceInternal
 		    {
 			writeName(name, output);
 			Ice.ObjectPrxHelperBase proxy = (Ice.ObjectPrxHelperBase)val;
-			output.print(proxy.__reference().ToString());
+			output.print(proxy.reference__().ToString());
 		    }
 		    else if(val is Ice.Object)
 		    {

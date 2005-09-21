@@ -9,7 +9,7 @@
 
 using Test;
 
-public class HelloI : _HelloDisp
+public class HelloI : HelloDisp_
 {
     public override void sayHello(Ice.Current current)
     {

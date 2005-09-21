@@ -9,7 +9,7 @@
 
 using System;
 
-public class PrinterI : Demo._PrinterDisp
+public class PrinterI : Demo.PrinterDisp_
 {
     public override void printString(string s, Ice.Current current)
     {

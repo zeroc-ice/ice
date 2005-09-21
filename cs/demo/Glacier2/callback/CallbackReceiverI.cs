@@ -10,7 +10,7 @@
 using Demo;
 using System;
 
-public sealed class CallbackReceiverI : _CallbackReceiverDisp
+public sealed class CallbackReceiverI : CallbackReceiverDisp_
 {
     public override void callback(Ice.Current current)
     {

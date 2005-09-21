@@ -10,7 +10,7 @@
 Imports Demo
 
 Public Class HelloI
-    Inherits _HelloDisp
+    Inherits HelloDisp_
 
     Public Overloads Overrides Sub sayHello(ByVal current As Ice.Current)
 	System.Console.Out.WriteLine("Hello World!")

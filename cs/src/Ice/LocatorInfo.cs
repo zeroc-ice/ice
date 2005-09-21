@@ -93,7 +93,7 @@ namespace IceInternal
 			obj = _locator.findAdapterById(adapterId);
 			if(obj != null)
 			{
-			    endpoints = ((Ice.ObjectPrxHelperBase)obj).__reference().getEndpoints();
+			    endpoints = ((Ice.ObjectPrxHelperBase)obj).reference__().getEndpoints();
 			    
 			    if(endpoints != null && endpoints.Length > 0)
 			    {
@@ -116,7 +116,7 @@ namespace IceInternal
 		    bool endpointsCached = true;
 		    if(obj != null)
 		    {
-                        Reference r = ((Ice.ObjectPrxHelperBase)obj).__reference();
+                        Reference r = ((Ice.ObjectPrxHelperBase)obj).reference__();
                         if(r is DirectReference)
                         {
                             DirectReference odr = (DirectReference)r;
@@ -200,9 +200,9 @@ namespace IceInternal
 		Ice.ObjectPrx obj = _table.removeProxy(rf.getIdentity());
 		if(obj != null)
 		{
-		    if(((Ice.ObjectPrxHelperBase)obj).__reference() is IndirectReference)
+		    if(((Ice.ObjectPrxHelperBase)obj).reference__() is IndirectReference)
                     {
-                        IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)obj).__reference();
+                        IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)obj).reference__();
                         if(oir.getAdapterId().Length > 0)
                         {
                             clearCache(oir);
@@ -213,7 +213,7 @@ namespace IceInternal
                         if(rf.getInstance().traceLevels().location >= 2)
                         {
                             trace("removed endpoints from locator table",
-                                  rf, ((Ice.ObjectPrxHelperBase)obj).__reference().getEndpoints());
+                                  rf, ((Ice.ObjectPrxHelperBase)obj).reference__().getEndpoints());
                         }
                     }
 		}
@@ -236,9 +236,9 @@ namespace IceInternal
 		Ice.ObjectPrx obj = _table.removeProxy(rf.getIdentity());
 		if(obj != null)
 		{
-		    if(((Ice.ObjectPrxHelperBase)obj).__reference() is IndirectReference)
+		    if(((Ice.ObjectPrxHelperBase)obj).reference__() is IndirectReference)
                     {
-                        IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)obj).__reference();
+                        IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)obj).reference__();
                         if(oir.getAdapterId().Length > 0)
                         {
                             clearCache(oir);
@@ -249,7 +249,7 @@ namespace IceInternal
                         if(rf.getInstance().traceLevels().location >= 2)
                         {
                             trace("removed endpoints from locator table",
-                                  rf, ((Ice.ObjectPrxHelperBase)obj).__reference().getEndpoints());
+                                  rf, ((Ice.ObjectPrxHelperBase)obj).reference__().getEndpoints());
                         }
                     }
 		}

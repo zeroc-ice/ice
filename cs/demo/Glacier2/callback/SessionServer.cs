@@ -11,7 +11,7 @@ using System;
 
 public class SessionServer : Ice.Application
 {
-    sealed class DummyPermissionVerifierI : Glacier2._PermissionsVerifierDisp
+    sealed class DummyPermissionVerifierI : Glacier2.PermissionsVerifierDisp_
     {
 	public override bool checkPermissions(String userId, String password, out string reason, Ice.Current current)
 	{

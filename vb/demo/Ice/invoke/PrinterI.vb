@@ -63,7 +63,7 @@ Public Class PrinterI
             Return True
         ElseIf current.operation.Equals("printStruct") Then
             Dim s As [Structure] = New [Structure]
-            s.__read(inStream)
+            s.read__(inStream)
             inStream.destroy()
             Console.WriteLine("Printing struct: name=" & s.name & ", value=" & s.value)
             Return True
