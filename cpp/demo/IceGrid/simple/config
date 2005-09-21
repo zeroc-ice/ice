@@ -1,0 +1,39 @@
+#
+# The IceGrid locator proxy.
+#
+Ice.Default.Locator=IceGrid/Locator:default -p 12000
+
+#
+# IceSSL Configuration (NOTE: this is only necessary for the client
+# to establish secure connections to the servers.)
+#
+Ice.Plugin.IceSSL=IceSSL:create
+IceSSL.Client.CertPath=../../../certs
+IceSSL.Client.Config=sslconfig.xml
+
+#
+# IceGrid registry configuration.
+#
+IceGrid.Registry.Client.Endpoints=default -p 12000
+IceGrid.Registry.Server.Endpoints=default
+IceGrid.Registry.Internal.Endpoints=default
+IceGrid.Registry.Admin.Endpoints=default
+IceGrid.Registry.Data=db/registry
+
+#
+# IceGrid node configuration.
+#
+IceGrid.Node.Name=localhost
+IceGrid.Node.Endpoints=default
+IceGrid.Node.Data=db/node
+IceGrid.Node.CollocateRegistry=1
+#IceGrid.Node.Output=db
+#IceGrid.Node.RedirectErrToOut=1
+
+#
+# Trace properties.
+#
+IceGrid.Node.Trace.Activator=1
+IceGrid.Node.Trace.Patch=1
+#IceGrid.Node.Trace.Adapter=2
+#IceGrid.Node.Trace.Server=3
