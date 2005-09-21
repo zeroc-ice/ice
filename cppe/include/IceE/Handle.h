@@ -136,12 +136,7 @@ public:
 	}
     }
 
-#ifdef _MSC_VER // COMPILERBUG: Is VC++ or GNU C++ right here???
-    template<>
-    Handle(const Handle<T>& r)
-#else
     Handle(const Handle& r)
-#endif
     {
 	this->_ptr = r._ptr;
 
@@ -200,12 +195,7 @@ public:
 	return *this;
     }
 
-#ifdef _MSC_VER // COMPILERBUG: Is VC++ or GNU C++ right here???
-    template<>
-    Handle& operator=(const Handle<T>& r)
-#else
     Handle& operator=(const Handle& r)
-#endif
     {
 	if(this->_ptr != r._ptr)
 	{
@@ -292,12 +282,7 @@ public:
 	}
     }
 
-#ifdef _MSC_VER // COMPILERBUG: Is VC++ or GNU C++ right here???
-    template<>
-    Handle(const Handle<T>& r)
-#else
     Handle(const Handle& r)
-#endif
     {
 	this->_ptr = r._ptr;
 
@@ -377,12 +362,7 @@ public:
 	return *this;
     }
 
-#ifdef _MSC_VER // COMPILERBUG: Is VC++ or GNU C++ right here???
-    template<>
-    Handle& operator=(const Handle<T>& r)
-#else
     Handle& operator=(const Handle& r)
-#endif
     {
 	if(this->_ptr != r._ptr)
 	{
