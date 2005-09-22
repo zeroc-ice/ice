@@ -95,18 +95,21 @@ IceSSL::RSAPublicKey::RSAPublicKey(X509* x509) :
 void
 IceSSL::RSAPublicKey::byteSeqToCert(const ByteSeq& certSeq)
 {
-    unsigned char* publicKeyBuffer = byteSeqToUChar(certSeq);
+    const unsigned char* publicKeyBuffer = byteSeqToUChar(certSeq);
     assert(publicKeyBuffer != 0);
 
     // We have to do this because d2i_X509 changes the pointer.
-    unsigned char* pubKeyBuff = publicKeyBuffer;
-    unsigned char** pubKeyBuffpp = &pubKeyBuff;
+    const unsigned char* pubKeyBuff = publicKeyBuffer;
+    const unsigned char** pubKeyBuffpp = &pubKeyBuff;
 
     X509** x509pp = &_publicKey;
-
+#if OPENSSL_VERSION_NUMBER < 0x0090800fL 
+    _publicKey = d2i_X509(x509pp, const_cast<unsigned char**>(pubKeyBuffpp), (long)certSeq.size());
+#else
     _publicKey = d2i_X509(x509pp, pubKeyBuffpp, (long)certSeq.size());
-
-    delete []publicKeyBuffer;
+#endif
+			  
+    delete [] const_cast<unsigned char*>(publicKeyBuffer);
 
     if(_publicKey == 0)
     {
