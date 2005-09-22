@@ -1693,9 +1693,9 @@ NodeHelper::getPatchDirs(const string& patch, const Resolver& appResolve) const
 	}
     }
     Ice::StringSeq strSeq;
-    for(set<string>::const_iterator p = directories.begin(); p != directories.end(); ++p)
+    for(set<string>::const_iterator p2 = directories.begin(); p2 != directories.end(); ++p2)
     {
-	strSeq.push_back(*p);
+	strSeq.push_back(*p2);
     }
     return make_pair(strSeq, servers);
 }
