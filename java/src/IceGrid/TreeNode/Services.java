@@ -225,10 +225,11 @@ class Services extends SimpleContainer
 	    //
 	    // Make sure descriptor.template points to a real template
 	    //
-	    if(getApplication().findServiceTemplate(descriptor.template) == null)
+	    ServiceTemplate t = getApplication().findServiceTemplate(descriptor.template);
+
+	    if(t == null)
 	    {
-		CommonBase t = (CommonBase)
-		    getApplication().getServiceTemplates().getChildAt(0);
+		t = (ServiceTemplate)getApplication().getServiceTemplates().getChildAt(0);
 
 		if(t == null)
 		{
@@ -242,8 +243,17 @@ class Services extends SimpleContainer
 		else
 		{
 		    descriptor.template = t.getId();
+		    descriptor.parameterValues = new java.util.TreeMap();
 		}
 	    }
+
+	    //
+	    // Validate/update parameterValues
+	    //
+	    TemplateDescriptor td = (TemplateDescriptor)t.getDescriptor();
+	    descriptor.parameterValues = Editor.makeParameterValues(descriptor.parameterValues,
+								    td.parameters);
+
 	}
 
 	Service service = new Service(name, descriptor, _model);

@@ -8,11 +8,29 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
+
 import IceGrid.TemplateDescriptor;
 import IceGrid.Model;
 
 class ServiceTemplate extends EditableParent
 {
+    public void displayProperties()
+    {
+	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
+	propertiesFrame.setTitle("Properties for " + _id);
+       
+	if(_editor == null)
+	{
+	    _editor = new ServiceTemplateEditor(_model.getMainFrame());
+	}
+	_editor.show(this);
+	propertiesFrame.setContent(_editor.getComponent());
+	propertiesFrame.validate();
+	propertiesFrame.repaint();
+    }
+
+
     ServiceTemplate(boolean brandNew, String name, 
 		    TemplateDescriptor descriptor, Model model)
 	throws DuplicateIdException
@@ -74,4 +92,6 @@ class ServiceTemplate extends EditableParent
     private DbEnvs _dbEnvs;
 
     private PropertiesHolder _propertiesHolder;
+
+    static private ServiceTemplateEditor _editor;
 }

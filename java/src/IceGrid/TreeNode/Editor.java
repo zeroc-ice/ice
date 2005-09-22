@@ -31,6 +31,7 @@ import com.jgoodies.forms.util.LayoutStyle;
 
 import IceGrid.Model;
 import IceGrid.PropertyDescriptor;
+import IceGrid.Utils;
 
 //
 // Base class for all editors
@@ -42,6 +43,19 @@ abstract class Editor
     abstract void append(DefaultFormBuilder builder);
 
     void postUpdate() {}
+
+    //
+    // Used by the sub-editor (when there is one)
+    //
+    Object getSubDescriptor()
+    {
+	return null;
+    }
+
+    Utils.Resolver getDetailResolver()
+    {
+	return null;
+    }
 
     protected Editor()
     {
@@ -93,6 +107,13 @@ abstract class Editor
 	_target = target;
     }
 
+    CommonBase getTarget()
+    {
+	return _target;
+    }
+
+    
+
     JComponent getComponent()
     {
 	if(_panel == null)
@@ -129,7 +150,7 @@ abstract class Editor
 	return _panel;
     }
 
-    protected void updated()
+    void updated()
     {
 	if(_detectUpdates)
 	{
@@ -137,6 +158,17 @@ abstract class Editor
 	    _discardButton.setEnabled(true);
 	}
     }
+
+    DocumentListener getUpdateListener()
+    {
+	return _updateListener;
+    }
+    
+    JPanel getPanel()
+    {
+	return _panel;
+    }
+    
     
     protected void detectUpdates(boolean val)
     {
@@ -265,6 +297,26 @@ abstract class Editor
 	    String name = (String)entry.getKey();
 	    String value = (String)entry.getValue();
 	    result.add(new PropertyDescriptor(name, value));
+	}
+	return result;
+    }
+
+    static java.util.TreeMap makeParameterValues(
+	java.util.Map oldParameterValues,
+	java.util.List newParameters)
+    {
+	java.util.TreeMap result = new java.util.TreeMap();
+
+	java.util.Iterator p = newParameters.iterator();
+	while(p.hasNext())
+	{
+	    String name = (String)p.next();
+	    String value = (String)oldParameterValues.get(name);
+	    if(value == null)
+	    {
+		value = "";
+	    }
+	    result.put(name, value);
 	}
 	return result;
     }

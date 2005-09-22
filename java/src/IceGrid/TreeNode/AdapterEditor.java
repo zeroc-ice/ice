@@ -8,30 +8,17 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.JTree;
-
-import javax.swing.event.DocumentListener;
-
-import javax.swing.tree.TreePath;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.ButtonBarFactory;
 
 import IceGrid.AdapterDescriptor;
 import IceGrid.Model;
@@ -363,6 +350,4 @@ class AdapterEditor extends Editor
     private JButton _objectsButton;
     
     private JButton _idButton;
-    
-    private JPanel _panel;
 }

@@ -28,12 +28,11 @@ import IceGrid.Model;
 import IceGrid.TableDialog;
 import IceGrid.Utils;
 
-abstract class CommunicatorEditor extends Editor
+class CommunicatorSubEditor
 {
-    abstract protected Utils.Resolver getResolver();
-
-    CommunicatorEditor(JFrame parentFrame)
+    CommunicatorSubEditor(Editor mainEditor, JFrame parentFrame)
     {
+	_mainEditor = mainEditor;
 	_properties.setEditable(false);
 	
 	//
@@ -49,10 +48,11 @@ abstract class CommunicatorEditor extends Editor
 		public void actionPerformed(ActionEvent e) 
 		{
 		    java.util.Map result = 
-			_propertiesDialog.show(_propertiesMap, _panel);
+			_propertiesDialog.show(_propertiesMap, 
+					       _mainEditor.getPanel());
 		    if(result != null)
 		    {
-			updated();
+			_mainEditor.updated();
 			_propertiesMap = result;
 			setPropertiesField();
 		    }
@@ -60,13 +60,13 @@ abstract class CommunicatorEditor extends Editor
 	    };
 	_propertiesButton = new JButton(openPropertiesDialog);
 
-	_description.getDocument().addDocumentListener(_updateListener);
+	_description.getDocument().addDocumentListener(
+	    _mainEditor.getUpdateListener());
     }
 
     void setPropertiesField()
     {
-	final Utils.Resolver resolver = _target.getModel().substitute() ? 
-	    getResolver() : null;
+	final Utils.Resolver detailResolver = _mainEditor.getDetailResolver();
 	
 	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
 	Utils.Stringifier stringifier = new Utils.Stringifier()
@@ -75,9 +75,9 @@ abstract class CommunicatorEditor extends Editor
 		{
 		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
 		    
-		    return Utils.substitute((String)entry.getKey(), resolver) 
+		    return Utils.substitute((String)entry.getKey(), detailResolver) 
 			+ "="
-			+ Utils.substitute((String)entry.getValue(), resolver);
+			+ Utils.substitute((String)entry.getValue(), detailResolver);
 		}
 	    };
 	
@@ -90,7 +90,6 @@ abstract class CommunicatorEditor extends Editor
 
     void append(DefaultFormBuilder builder)
     {
-
 	builder.append("Description");
 	builder.nextLine();
 	builder.append("");
@@ -109,19 +108,26 @@ abstract class CommunicatorEditor extends Editor
 
     void writeDescriptor(CommunicatorDescriptor descriptor)
     {
-	descriptor.properties = mapToProperties(_propertiesMap);
+	descriptor.properties = Editor.mapToProperties(_propertiesMap);
 	descriptor.description = _description.getText();
     }
 
     void show(CommunicatorDescriptor descriptor, boolean isEditable)
     {
-	_propertiesMap = propertiesToMap(descriptor.properties);
+	Utils.Resolver detailResolver = _mainEditor.getDetailResolver();
+	isEditable = isEditable && (detailResolver == null);
+
+	_propertiesMap = Editor.propertiesToMap(descriptor.properties);
 	setPropertiesField();
 	_propertiesButton.setEnabled(isEditable);
 	
-	_description.setText(descriptor.description);
-	_description.setEnabled(isEditable);
+	_description.setText(
+	    Utils.substitute(descriptor.description, detailResolver));
+	_description.setEditable(isEditable);
+	_description.setOpaque(isEditable);
     }
+
+    protected Editor _mainEditor;
 
     private JTextField _properties = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);

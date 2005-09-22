@@ -8,38 +8,22 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.JTree;
 
-import javax.swing.event.DocumentListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-
-import javax.swing.tree.TreePath;
-
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.ButtonBarFactory;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.util.LayoutStyle;
 
-import IceGrid.ServiceInstanceDescriptor;
 import IceGrid.Model;
+import IceGrid.ServiceInstanceDescriptor;
 import IceGrid.TableDialog;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
@@ -48,6 +32,8 @@ class ServiceInstanceEditor extends Editor
 {
     ServiceInstanceEditor(JFrame parentFrame)
     {
+	_subEditor = new ServiceSubEditor(this, parentFrame);
+
 	_parameterValues.setEditable(false);
 	
 	//
@@ -67,42 +53,6 @@ class ServiceInstanceEditor extends Editor
 	gotoTemplate.putValue(Action.SHORT_DESCRIPTION, 
 				       "Goto this template");
 	_templateButton = new JButton(gotoTemplate);
-	
-	
-	ListDataListener templateListener = new ListDataListener()
-	    {
-		public void contentsChanged(ListDataEvent e)
-		{
-		    updated();
-		    
-		    ServiceTemplate t = 
-			(ServiceTemplate)_template.getModel().getSelectedItem();
-		    
-		    TemplateDescriptor td = (TemplateDescriptor)t.getDescriptor();
-		    
-		    //
-		    // Replace parameters but keep existing values
-		    //
-		    java.util.TreeMap newMap = new java.util.TreeMap();
-		    java.util.Iterator p = td.parameters.iterator();
-		    while(p.hasNext())
-		    {
-			String name = (String)p.next();
-			newMap.put(name, _parameterValuesMap.get(name));
-		    }
-		    _parameterValuesMap = newMap;
-		    setParameterValuesField();
-		}
-
-		public void intervalAdded(ListDataEvent e)
-		{}
-
-         
-		public void intervalRemoved(ListDataEvent e)
-		{}
-	    };
-
-	_template.getModel().addListDataListener(templateListener);
 
 	//
 	// Parameter values
@@ -124,6 +74,10 @@ class ServiceInstanceEditor extends Editor
 			updated();
 			_parameterValuesMap = new java.util.TreeMap(result);
 			setParameterValuesField();
+			//
+			// No need to redisplay details: since it's editable,
+			// we're not subsituting variables or parameters
+			//
 		    }
 		}
 	    };
@@ -138,6 +92,32 @@ class ServiceInstanceEditor extends Editor
     //
     // From Editor:
     //
+    Utils.Resolver getTopResolver()
+    {
+	Services services = (Services)_target.getParent();
+	if(services.getModel().substitute())
+	{
+	    return services.getResolver();
+	}
+	else
+	{
+	    return null;
+	}
+    }
+
+    Utils.Resolver getDetailResolver()
+    {
+	Service service = (Service)_target;
+	if(service.getModel().substitute())
+	{
+	    return service.getResolver();
+	}
+	else
+	{
+	    return null;
+	}
+    }
+
     void writeDescriptor()
     {
 	ServiceInstanceDescriptor descriptor = getDescriptor();
@@ -163,9 +143,15 @@ class ServiceInstanceEditor extends Editor
 	builder.appendSeparator();
 	builder.nextLine();
 	
-	//
-	// TODO: add service fields (read-only)
-	//
+	_subEditor.append(builder);
+    }
+
+    Object getSubDescriptor()
+    {
+	ServiceTemplate template = (ServiceTemplate)_template.getSelectedItem();
+	
+	TemplateDescriptor descriptor = (TemplateDescriptor)template.getDescriptor();
+	return descriptor.descriptor;
     }
 
     void show(Service service)
@@ -203,15 +189,45 @@ class ServiceInstanceEditor extends Editor
 	assert t != null;
 	_template.setSelectedItem(t);
 	
+	ListDataListener templateListener = new ListDataListener()
+	    {
+		public void contentsChanged(ListDataEvent e)
+		{
+		    updated();
+		    
+		    ServiceTemplate t = 
+			(ServiceTemplate)_template.getModel().getSelectedItem();
+		    
+		    TemplateDescriptor td = (TemplateDescriptor)t.getDescriptor();
+		    
+		    //
+		    // Replace parameters but keep existing values
+		    //
+		    _parameterValuesMap = makeParameterValues(_parameterValuesMap, td.parameters);
+		    setParameterValuesField();
+
+		    //
+		    // Redisplay details
+		    //
+		    _subEditor.show(false);
+		}
+
+		public void intervalAdded(ListDataEvent e)
+		{}
+         
+		public void intervalRemoved(ListDataEvent e)
+		{}
+	    };
+
+	_template.getModel().addListDataListener(templateListener);
 	_template.setEnabled(isEditable);
 	
 	_parameterValuesMap = descriptor.parameterValues;
 	setParameterValuesField();
-	_parameterValues.setEnabled(isEditable);
+	_parameterValuesButton.setEnabled(isEditable);
 	
-	//
-	// TODO: sub editor
-	//
+	_subEditor.show(false);
+
 	_applyButton.setEnabled(service.isEphemeral());
 	_discardButton.setEnabled(service.isEphemeral());	  
 	detectUpdates(true);
@@ -243,7 +259,8 @@ class ServiceInstanceEditor extends Editor
 	_parameterValues.setToolTipText(toolTipHolder.value);
     }
 
-    
+    private ServiceSubEditor _subEditor;
+
     private JComboBox _template = new JComboBox();
     private JButton _templateButton;
     private JTextField _parameterValues = new JTextField(20);
