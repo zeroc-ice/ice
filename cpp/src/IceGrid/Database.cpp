@@ -254,7 +254,7 @@ Database::addApplicationDescriptor(ObserverSessionI* session, const ApplicationD
 	//
 	// Save the application descriptor.
 	//
-	_descriptors.put(make_pair(desc.name, desc));
+	_descriptors.put(StringApplicationDescriptorDict::value_type(desc.name, desc));
 	
 	serial = ++_serial;
     }
@@ -299,7 +299,7 @@ Database::updateApplicationDescriptor(ObserverSessionI* session, const Applicati
 	
 	reload(previous, helper, entries);
 	
-	_descriptors.put(make_pair(update.name, helper.getDescriptor()));
+	_descriptors.put(StringApplicationDescriptorDict::value_type(update.name, helper.getDescriptor()));
 
 	serial = ++_serial;
     }    
@@ -342,7 +342,7 @@ Database::syncApplicationDescriptor(ObserverSessionI* session, const Application
 	
 	reload(previous, helper, entries);
 	
-	_descriptors.put(make_pair(newDesc.name, newDesc));
+	_descriptors.put(StringApplicationDescriptorDict::value_type(newDesc.name, newDesc));
 
 	serial = ++_serial;
     }
@@ -517,7 +517,7 @@ Database::setAdapterDirectProxy(const string& serverId, const string& adapterId,
 	{
 	    StringObjectProxyDict proxies;
 	    proxies[serverId] = proxy;
-	    adapters.put(make_pair(adapterId, proxies));
+	    adapters.put(StringObjectProxiesDict::value_type(adapterId, proxies));
 
 	    if(_traceLevels->adapter > 0)
 	    {
@@ -715,7 +715,7 @@ Database::addObject(const ObjectInfo& info)
     {
 	throw ObjectExistsException(id);
     }
-    objects.put(make_pair(id, info));
+    objects.put(IdentityObjectInfoDict::value_type(id, info));
 
     if(_traceLevels->object > 0)
     {

@@ -36,6 +36,7 @@ public:
     virtual void ice_throw() const = 0;
 };
 
+
 class ICE_API UserException : public IceUtil::Exception
 {
 public:    
@@ -51,6 +52,25 @@ public:
 };
 
 typedef ::IceInternal::Handle<UserException> UserExceptionPtr;
+
+#if defined(__SUNPRO_CC)
+//
+// COMPILERFIX: With Sun CC the presence of the overloaded operator
+// in ProxyHandle.h
+//
+//   template<class OStream, class Y>
+//   OStream& operator<<(OStream& os, ::IceInternal::ProxyHandle<Y> p)
+//
+// prevents the compiler from using the overloaded operator for
+// Exception in IceUtil/Exception.h
+//
+//   std::ostream& operator<<(std::ostream&, const Exception&);
+//
+// thus causing a compile error and making these overloads necessary.
+//
+ICE_API std::ostream& operator<<(std::ostream&, const LocalException&);
+ICE_API std::ostream& operator<<(std::ostream&, const UserException&);
+#endif
 
 }
 

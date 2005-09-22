@@ -314,7 +314,11 @@ Parser::patchApplication(const list<string>& origArgs)
     vector<string> args;
     try
     {
-	args = opts.parse(vector<string>(copyArgs.begin(), copyArgs.end()));
+	for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+	{
+	    args.push_back(*p);
+	}
+	args = opts.parse(args);
     }
     catch(const IceUtil::Options::BadOpt& e)
     {
@@ -642,7 +646,11 @@ Parser::patchServer(const list<string>& origArgs)
     vector<string> args;
     try
     {
-	args = opts.parse(vector<string>(copyArgs.begin(), copyArgs.end()));
+	for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+	{
+	    args.push_back(*p);
+	}
+	args = opts.parse(args);
     }
     catch(const IceUtil::Options::BadOpt& e)
     {

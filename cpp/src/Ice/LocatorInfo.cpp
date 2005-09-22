@@ -459,6 +459,6 @@ IceInternal::LocatorInfo::trace(const string& msg,
     const char* sep = endpoints.size() > 1 ? ":" : "";
     ostringstream o;
     transform(endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
-	      Ice::constMemFun(&EndpointI::toString));
+	      Ice::constMemFun(&Endpoint::toString));
     out << "endpoints = " << o.str();
 }

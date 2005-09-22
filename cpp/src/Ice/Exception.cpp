@@ -29,6 +29,22 @@ Ice::LocalException::LocalException(const char* file, int line) :
 {
 }
 
+#if defined(__SUNPRO_CC)
+ostream&
+Ice::operator<<(ostream& out, const Ice::UserException& ex)
+{
+    ex.ice_print(out);
+    return out;
+}
+
+ostream&
+Ice::operator<<(ostream& out, const Ice::LocalException& ex)
+{
+    ex.ice_print(out);
+    return out;
+}
+#endif
+
 void
 Ice::InitializationException::ice_print(ostream& out) const
 {

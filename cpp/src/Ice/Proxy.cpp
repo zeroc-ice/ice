@@ -392,7 +392,12 @@ EndpointSeq
 IceProxy::Ice::Object::ice_getEndpoints() const
 {
     vector<EndpointIPtr> endpoints = _reference->getEndpoints();
-    return EndpointSeq(endpoints.begin(), endpoints.end());
+    EndpointSeq retSeq;
+    for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+    {
+	retSeq.push_back(EndpointPtr::dynamicCast(*p));
+    }
+    return retSeq;
 }
 
 ObjectPrx

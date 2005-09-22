@@ -46,7 +46,7 @@ ObjectCache::add(const string& app, const string& adapterId, const string& endpo
     map<string, set<Ice::Identity> >::iterator p = _types.find(entry->getType());
     if(p == _types.end())
     {
-	p = _types.insert(p, make_pair(entry->getType(), set<Ice::Identity>()));
+	p = _types.insert(p, map<string, set<Ice::Identity> >::value_type(entry->getType(), set<Ice::Identity>()));
     }
     p->second.insert(desc.id);
 
