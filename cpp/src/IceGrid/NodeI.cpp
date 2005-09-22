@@ -273,7 +273,6 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     else
     {
 	_kmem = -1;
-	cerr << "no k " << endl;
     }
 #else
     _nproc = 1;
