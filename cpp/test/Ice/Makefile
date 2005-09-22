@@ -22,7 +22,8 @@ SUBDIRS		= operations \
 		  slicing \
 		  gc \
 		  checksum \
-		  stream
+		  stream \
+		  hold
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

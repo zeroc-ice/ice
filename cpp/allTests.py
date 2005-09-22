@@ -70,6 +70,7 @@ tests = [ \
     "Ice/gc", \
     "Ice/checksum", \
     "Ice/stream", \
+    "Ice/hold", \
     "IceSSL/configuration", \
     "IceSSL/loadPEM", \
     "IceSSL/certificateAndKeyParsing", \
