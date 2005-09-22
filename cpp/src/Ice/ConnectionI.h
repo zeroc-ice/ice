@@ -155,6 +155,7 @@ private:
     const IceInternal::TraceLevelsPtr _traceLevels;
 
     bool _registeredWithPool;
+    int _finishedCount;
     const IceInternal::ThreadPoolPtr _threadPool;
 
     const bool _warn;

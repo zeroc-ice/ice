@@ -13,12 +13,20 @@
 void
 HoldI::putOnHold(Ice::Int seconds, const Ice::Current& current)
 {
-    current.adapter->hold();
-    current.adapter->activate();
+    if(seconds <= 0)
+    {
+	current.adapter->hold();
+	current.adapter->activate();
+    }
+    else
+    {
+	assert(false); // TODO
+    }
 }
 
 void
 HoldI::shutdown(const Ice::Current& current)
 {
+    current.adapter->hold();
     current.adapter->getCommunicator()->shutdown();
 }

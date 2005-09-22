@@ -292,7 +292,7 @@ Ice::ConnectionI::isFinished() const
 	    return false;
 	}
 
-	if(_transceiver != 0 || _dispatchCount != 0 ||
+	if(_transceiver || _dispatchCount != 0 ||
 	   (_threadPerConnection && _threadPerConnection->getThreadControl().isAlive()))
 	{
 	    return false;
@@ -1295,11 +1295,9 @@ Ice::ConnectionI::finished(const ThreadPoolPtr& threadPool)
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
-	if(_state == StateActive || _state == StateClosing)
-	{
-	    registerWithPool();
-	}
-	else if(_state == StateClosed)
+	--_finishedCount;
+
+	if(_finishedCount == 0 && _state == StateClosed)
 	{
 	    //
 	    // We must make sure that nobody is sending when we close
@@ -1384,6 +1382,7 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _logger(_instance->logger()), // Cached for better performance.
     _traceLevels(_instance->traceLevels()), // Cached for better performance.
     _registeredWithPool(false),
+    _finishedCount(0),
     _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
     _acmTimeout(0),
     _requestHdr(headerSize + sizeof(Int), 0),
@@ -1838,6 +1837,7 @@ Ice::ConnectionI::unregisterWithPool()
     {
 	_threadPool->unregister(_transceiver->fd());
 	_registeredWithPool = false;
+	++_finishedCount; // For each unregistration, finished() is called once.
     }
 }
 

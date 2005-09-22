@@ -46,7 +46,7 @@ public:
 
     Ice::ConnectionIPtr create(const std::vector<EndpointIPtr>&, bool&);
     void setRouterInfo(const RouterInfoPtr&);
-    void removeAdapter(const ::Ice::ObjectAdapterPtr&);
+    void removeAdapter(const Ice::ObjectAdapterPtr&);
     void flushBatchRequests();
 
 private:
@@ -85,14 +85,14 @@ public:
     virtual void read(BasicStream&);
     virtual void message(BasicStream&, const ThreadPoolPtr&);
     virtual void finished(const ThreadPoolPtr&);
-    virtual void exception(const ::Ice::LocalException&);
+    virtual void exception(const Ice::LocalException&);
     virtual std::string toString() const;
     
 private:
 
-    IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const ::Ice::ObjectAdapterPtr&);
+    IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const Ice::ObjectAdapterPtr&);
     virtual ~IncomingConnectionFactory();
-    friend class ::Ice::ObjectAdapterI;
+    friend class Ice::ObjectAdapterI;
 
     enum State
     {
@@ -125,9 +125,10 @@ private:
     const TransceiverPtr _transceiver;
     const EndpointIPtr _endpoint;
 
-    const ::Ice::ObjectAdapterPtr _adapter;
+    const Ice::ObjectAdapterPtr _adapter;
 
     bool _registeredWithPool;
+    int _finishedCount;
 
     const bool _warn;
 

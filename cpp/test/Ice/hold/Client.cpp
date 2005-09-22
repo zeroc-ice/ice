@@ -17,9 +17,8 @@ using namespace Test;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    HoldPrx allTests(const Ice::CommunicatorPtr&);
-    HoldPrx hold = allTests(communicator);
-    hold->shutdown();
+    void allTests(const Ice::CommunicatorPtr&);
+    allTests(communicator);
     return EXIT_SUCCESS;
 }
 

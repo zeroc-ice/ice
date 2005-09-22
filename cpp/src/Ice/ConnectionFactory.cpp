@@ -789,11 +789,9 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
 
     threadPool->promoteFollower();
     
-    if(_state == StateActive)
-    {
-	registerWithPool();
-    }
-    else if(_state == StateClosed)
+    --_finishedCount;
+
+    if(_finishedCount == 0 && _state == StateClosed)
     {
 	_acceptor->close();
 	_acceptor = 0;
@@ -828,6 +826,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     _endpoint(endpoint),
     _adapter(adapter),
     _registeredWithPool(false),
+    _finishedCount(0),
     _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
     _state(StateHolding)
 {
@@ -938,7 +937,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 	    {
 		return;
 	    }
-	    if(!_instance->threadPerConnection())
+	    if(!_instance->threadPerConnection() && _acceptor)
 	    {
 		registerWithPool();
 	    }
@@ -952,7 +951,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 	    {
 		return;
 	    }
-	    if(!_instance->threadPerConnection())
+	    if(!_instance->threadPerConnection() && _acceptor)
 	    {
 		unregisterWithPool();
 	    }
@@ -962,27 +961,23 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 	
 	case StateClosed:
 	{
-	    if(_instance->threadPerConnection())
+	    if(_instance->threadPerConnection() && _acceptor)
 	    {
-		if(_acceptor)
-		{
-		    //
-		    // Connect to our own acceptor, which unblocks our
-		    // thread per incoming connection factory stuck in accept().
-		    //
-		    _acceptor->connectToSelf();
-		}
+		//
+		// If we are in thread per connection mode, we connect
+		// to our own acceptor, which unblocks our thread per
+		// incoming connection factory stuck in accept().
+		//
+		_acceptor->connectToSelf();
 	    }
 	    else
 	    {
 		//
-		// If we come from holding state, we first need to
-		// register again before we unregister.
+		// Otherwise we first must make sure that we are
+		// registered, then we unregister, and let finished()
+		// do the close.
 		//
-		if(_state == StateHolding)
-		{
-		    registerWithPool();
-		}
+		registerWithPool();
 		unregisterWithPool();
 	    }
 
@@ -1006,8 +1001,9 @@ void
 IceInternal::IncomingConnectionFactory::registerWithPool()
 {
     assert(!_instance->threadPerConnection()); // Only for use with a thread pool.
+    assert(_acceptor); // Not for datagram connections.
 
-    if(_acceptor && !_registeredWithPool)
+    if(!_registeredWithPool)
     {
 	dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->_register(_acceptor->fd(), this);
 	_registeredWithPool = true;
@@ -1018,11 +1014,13 @@ void
 IceInternal::IncomingConnectionFactory::unregisterWithPool()
 {
     assert(!_instance->threadPerConnection()); // Only for use with a thread pool.
+    assert(_acceptor); // Not for datagram connections.
 
-    if(_acceptor && _registeredWithPool)
+    if(_registeredWithPool)
     {
 	dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->unregister(_acceptor->fd());
 	_registeredWithPool = false;
+	++_finishedCount; // For each unregistration, finished() is called once.
     }
 }
 
