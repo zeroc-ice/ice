@@ -98,7 +98,7 @@ protected:
     addImpl(const Key& key)
     {
 	ValuePtr entry = createEntry(key);
-	_entriesHint = _entries.insert(_entriesHint, make_pair(key, entry));
+	_entriesHint = _entries.insert(_entriesHint, typename std::map<Key, ValuePtr>::value_type(key, entry));
 	return entry;
     }
 
