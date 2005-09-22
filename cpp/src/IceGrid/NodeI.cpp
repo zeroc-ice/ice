@@ -23,6 +23,8 @@
 #   include <direct.h> // For _getcwd
 #elif defined(__APPLE__)
 #   include <sys/sysctl.h>
+#elif defined(__sun)
+#   include <sys/loadavg.h>
 #elif defined(__hpux)
 #   include <sys/pstat.h>
 #elif defined(_AIX)
