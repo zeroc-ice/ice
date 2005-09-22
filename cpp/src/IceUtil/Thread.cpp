@@ -180,9 +180,6 @@ startHook(void* arg)
         //
         unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
         srand(seed);            
-#ifndef _WIN32
-	srand48(seed);
-#endif
 
 	//
 	// Ensure that the thread doesn't go away until run() has
