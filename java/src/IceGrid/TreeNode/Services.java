@@ -304,9 +304,7 @@ class Services extends SimpleContainer
 	// Note: can't have any ephemeral in the list, since a non-ephemeral
 	// is selected
 	//
-	
-	Object descriptor = service.getDescriptor();
-	int index = _descriptors.indexOf(descriptor);
+	int index = _descriptors.indexOf(service.getDescriptor());
 	assert index != -1;
 	if(up && index == 0 || !up && (index == _descriptors.size() - 1))
 	{
@@ -316,10 +314,9 @@ class Services extends SimpleContainer
 	if(_model.canUpdate())
 	{    
 	    _model.disableDisplay();
-	    
 	    getEditable().markModified();
-
-	    _descriptors.remove(index);
+	    
+	    Object descriptor = _descriptors.remove(index);
 	    if(up)
 	    {
 		_descriptors.add(index - 1, descriptor);
@@ -329,14 +326,34 @@ class Services extends SimpleContainer
 		_descriptors.add(index + 1, descriptor);
 	    }
 	    moveChild(index, up, true);
-	    
+
+	    //
+	    // Propagate to instances
+	    //
+	 
+	    if(_parent instanceof ServerTemplate)
+	    {
+		java.util.List instances = 
+		    getApplication().findServerInstances(_parent.getId());
+		java.util.Iterator p = instances.iterator();
+		while(p.hasNext())
+		{
+		    Server server = (Server)p.next();
+
+		    //
+		    // The descriptors are the same as `this` descriptors
+		    //
+		    server.getServices().moveChild(index, up, true);
+		}
+	    }
+	 
 	    _model.setSelectionPath(service.getPath());
 	    _model.enableDisplay();
 	}
     }
 
-
     private final boolean _isEditable;
     private final Utils.Resolver _resolver;
+
     static private NewPopupMenu _popup;
 }

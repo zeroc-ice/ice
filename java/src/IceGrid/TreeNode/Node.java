@@ -641,6 +641,26 @@ class Node extends EditableParent
 	}
     }
 
+    java.util.List findServerInstances(String template)
+    {
+	java.util.List result = new java.util.LinkedList();
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Server server = (Server)p.next();
+	    Object descriptor = server.getDescriptor();
+	    if(descriptor instanceof ServerInstanceDescriptor)
+	    {
+		ServerInstanceDescriptor sid = (ServerInstanceDescriptor)descriptor;
+		if(sid.template.equals(template))
+		{
+		    result.add(server);
+		}
+	    }
+	}
+	return result;
+    }
+
     private NodeDescriptor _descriptor;
     private Utils.Resolver _resolver;
 

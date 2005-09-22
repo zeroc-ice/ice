@@ -234,5 +234,17 @@ public class Nodes extends EditableParent
 	return (Node)findChild(nodeName);
     }
 
+    java.util.List findServerInstances(String template)
+    {
+	java.util.List result = new java.util.LinkedList();
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Node node = (Node)p.next();
+	    result.addAll(node.findServerInstances(template));
+	}
+	return result;
+    }
+
     private java.util.Map _descriptors;
 }

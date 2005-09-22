@@ -326,6 +326,10 @@ public class Application extends EditableParent
 	return (Node)_nodes.findChild(id);
     }
 
+    java.util.List findServerInstances(String template)
+    {
+	return _nodes.findServerInstances(template);
+    }
 
     TemplateDescriptor findServerTemplateDescriptor(String templateName)
     {

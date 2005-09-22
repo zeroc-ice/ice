@@ -626,6 +626,12 @@ class Server extends EditableParent
 	return _instanceDescriptor;
     }
 
+    Services getServices()
+    {
+	return _services;
+    }
+
+
     public String toString()
     {
 	if(_instanceDescriptor == null)
