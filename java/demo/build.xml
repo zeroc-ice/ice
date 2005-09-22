@@ -17,7 +17,7 @@
         <ant dir="IceBox"/>
         <ant dir="IcePack"/>
         <ant dir="Glacier2"/>
-        <and dir="IceGrid"/>
+        <ant dir="IceGrid"/>
         <ant dir="book"/>
     </target>
 
@@ -27,6 +27,7 @@
         <ant dir="IceBox" target="clean"/>
         <ant dir="IcePack" target="clean"/>
         <ant dir="Glacier2" target="clean"/>
+        <ant dir="IceGrid" target="clean"/>
         <ant dir="book" target="clean"/>
     </target>
 
