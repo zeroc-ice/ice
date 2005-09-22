@@ -645,7 +645,7 @@ NodeI::keepAlive()
 		nl.n_value = 0;
 		if(knlist(&nl, 1, sizeof(nl)) != 0)
 		{
-		    if(pread(kmem, avenrun, sizeof(avenrun), nl.n_value) >= sizeof(avenrun))
+		    if(pread(_kmem, avenrun, sizeof(avenrun), nl.n_value) >= sizeof(avenrun))
 		    {
 			info.load1 = avenrun[0] / 65535.0f;
 			info.load5 = avenrun[1] / 65535.0f;

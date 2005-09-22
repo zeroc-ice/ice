@@ -90,6 +90,9 @@ private:
     int _last15Total;
 #else
     int _nproc;
+#ifdef _AIX
+    int _kmem;
+#endif
 #endif
 
     struct PatchDirectory
