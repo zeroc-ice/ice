@@ -260,13 +260,20 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     struct nlist nl;
     nl.n_name = "avenrun";
     nl.n_value = 0;
-    if(knlist(&nl, 1, sizeof(nl)) != 0)
+    if(knlist(&nl, 1, sizeof(nl)) == 0)
     {
-	_kmem = open("/dev/kmem", 0, 0);
+	_kmem = open("/dev/kmem", O_RDONLY);
+
+	//
+	// Give up root permissions, it's only needed to access the file.
+	//
+        setuid(getuid());
+        setgid(getgid());
     }
     else
     {
 	_kmem = -1;
+	cerr << "no k " << endl;
     }
 #else
     _nproc = 1;
@@ -639,17 +646,17 @@ NodeI::keepAlive()
 #elif defined(_AIX)
 	    if(_kmem > 1)
 	    {
-		long avenrun[3];
+	        long long avenrun[3];
 		struct nlist nl;
 		nl.n_name = "avenrun";
 		nl.n_value = 0;
-		if(knlist(&nl, 1, sizeof(nl)) != 0)
+		if(knlist(&nl, 1, sizeof(nl)) == 0)
 		{
 		    if(pread(_kmem, avenrun, sizeof(avenrun), nl.n_value) >= sizeof(avenrun))
 		    {
-			info.load1 = avenrun[0] / 65535.0f;
-			info.load5 = avenrun[1] / 65535.0f;
-			info.load15 = avenrun[2] / 65535.0f;
+			info.load1 = avenrun[0] / 65536.0f;
+			info.load5 = avenrun[1] / 65536.0f;
+			info.load15 = avenrun[2] / 65536.0f;
 		    }
 		}
 	    }
