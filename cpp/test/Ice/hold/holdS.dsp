@@ -97,6 +97,10 @@ SOURCE=.\Server.cpp
 
 SOURCE=.\Test.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\TestI.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 

@@ -2,14 +2,14 @@
 # The client reads this property to create the reference to the
 # "hello" object in the server.
 #
-Hello.Proxy=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
+Hello.Proxy=hello:tcp -p 10000#:udp -p 10000:ssl -p 10001
 
 #
 # The server creates one single object adapter with the name
 # "Hello". The following line sets the endpoints for this
 # adapter.
 #
-Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
+Hello.Endpoints=tcp -p 10000#:udp -p 10000:ssl -p 10001
 
 #
 # Warn about connection exceptions
@@ -55,7 +55,7 @@ IceSSL.Trace.Security=0
 # An XML based file that specifies the certificates, keys, SSL version
 # and other pertinent information for creating an SSL connection.
 #
-Ice.Plugin.IceSSL=IceSSL:create
+#Ice.Plugin.IceSSL=IceSSL:create
 IceSSL.Client.CertPath=../../../certs
 IceSSL.Client.Config=sslconfig.xml
 IceSSL.Server.CertPath=../../../certs
