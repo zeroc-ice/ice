@@ -29,24 +29,25 @@ IceUtil::Time::now()
 #ifdef _WIN32
     struct _timeb tb;
     _ftime(&tb);
-    return Time(tb.time * static_cast<Int64>(1000000) + tb.millitm * static_cast<Int64>(1000));
+    return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + 
+		tb.millitm * 1000);
 #else
     struct timeval tv;
     gettimeofday(&tv, 0);
-    return Time(tv.tv_sec * static_cast<Int64>(1000000) + tv.tv_usec);
+    return Time(tv.tv_sec * ICE_INT64(1000000) + tv.tv_usec);
 #endif
 }
 
 Time
 IceUtil::Time::seconds(Int64 t)
 {
-    return Time(t * static_cast<Int64>(1000000));
+    return Time(t * ICE_INT64(1000000));
 }
 
 Time
 IceUtil::Time::milliSeconds(Int64 t)
 {
-    return Time(t * static_cast<Int64>(1000));
+    return Time(t * ICE_INT64(1000));
 }
 
 Time

@@ -175,14 +175,14 @@ strToInt64Impl(const char* s, char** endptr, int base)
 Int64
 strToInt64(const char* s, char** endptr, int base)
 {
-#if defined(_WIN32)
+#if defined(ICE_64)
+    return strtol(s, endptr, base);
+#elif defined(_WIN32)
 #   if defined(_MSC_VER) && (_MSC_VER < 1300) 
     return strToInt64Impl(s, endptr, base);
 #   else
     return _strtoi64(s, endptr, base);
 #   endif
-#elif defined(ICE_64)
-    return strtol(s, endptr, base);
 #elif defined(__hpux)
     return __strtoll(s, endptr, base);
 #else

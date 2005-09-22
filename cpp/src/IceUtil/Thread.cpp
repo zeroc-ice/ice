@@ -168,8 +168,8 @@ IceUtil::Thread::id() const
     return _id;
 }
 
-static void*
-startHook(void* arg)
+static unsigned int
+WINAPI startHook(void* arg)
 {
     try
     {
@@ -229,8 +229,11 @@ IceUtil::Thread::start(size_t stackSize)
     //
     __incRef();
     
-    _handle->handle = (HANDLE)_beginthreadex(
-	0, stackSize, (unsigned int (__stdcall*)(void*))startHook, (LPVOID)this, 0, &_id);
+    _handle->handle = 
+       reinterpret_cast<HANDLE>(
+          _beginthreadex(0, 
+			 static_cast<unsigned int>(stackSize), 
+			 startHook, this, 0, &_id));
 
     if(_handle->handle == 0)
     {

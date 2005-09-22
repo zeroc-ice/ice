@@ -45,6 +45,7 @@ IceUtil::wstringToString(const wstring& str)
 	    result += 0x80 | ((wc>>6) & 0x3f);
 	    result += 0x80 | (wc & 0x3f);
 	}
+#if SIZEOF_WCHAR_T >= 4
 	else if(wc < 0x10FFFF)
 	{
 	    result += 0xf0 | (wc>>18);
@@ -52,6 +53,7 @@ IceUtil::wstringToString(const wstring& str)
 	    result += 0x80 | ((wc>>6) & 0x3f);
 	    result += 0x80 | (wc & 0x3f);
 	}
+#endif
 	else
 	{
 	    return result; // Error, not encodable.
@@ -159,11 +161,13 @@ IceUtil::stringToWstring(const string& str)
 //
 // See comments in IceUtil/Unicode.h
 //
+
+#   if _MSC_VER < 1400
 string
 IceUtil::wstringToString(const basic_string<__wchar_t>& str)
 {
     assert(sizeof(__wchar_t) == SIZEOF_WCHAR_T);
-	return wstringToString(*reinterpret_cast<const wstring*>(&str));
+    return wstringToString(*reinterpret_cast<const wstring*>(&str));
 }
 
 basic_string<__wchar_t>
@@ -172,5 +176,20 @@ IceUtil::stringToNativeWstring(const string& str)
     assert(sizeof(__wchar_t) == SIZEOF_WCHAR_T);
     return reinterpret_cast<basic_string<__wchar_t>& >(stringToWstring(str));
 }
+#   else
+string
+IceUtil::wstringToString(const basic_string<unsigned short>& str)
+{
+    assert(sizeof(__wchar_t) == SIZEOF_WCHAR_T);
+    return wstringToString(*reinterpret_cast<const wstring*>(&str));
+}
 
+basic_string<unsigned short>
+IceUtil::stringToTypedefWstring(const string& str)
+{
+    assert(sizeof(__wchar_t) == SIZEOF_WCHAR_T);
+    return reinterpret_cast<basic_string<unsigned short>& >(stringToWstring(str));
+}
+
+#   endif
 #endif

@@ -137,7 +137,7 @@ concat VPROTO((char *first, ...))
 
   while (arg != 0)
     {
-      length += strlen (arg);
+      length += (int) strlen (arg);
       arg = va_arg (args, char *);
     }
 
@@ -272,7 +272,7 @@ translate_name (name)
 #endif
       )
     {
-      prefix = save_string (prefix, strlen (prefix));
+      prefix = save_string (prefix, (int)strlen (prefix));
       prefix[strlen (prefix) - 1] = 0;
     }
 

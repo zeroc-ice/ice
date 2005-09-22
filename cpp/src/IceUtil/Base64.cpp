@@ -23,9 +23,9 @@ IceUtil::Base64::encode(const vector<unsigned char>& plainSeq)
     }
  
     // Reserve enough space for the returned base64 string
-    unsigned long base64Bytes = (((plainSeq.size() * 4) / 3) + 1);
-    unsigned long newlineBytes = (((base64Bytes * 2) / 76) + 1);
-    unsigned long totalBytes = base64Bytes + newlineBytes;
+    size_t base64Bytes = (((plainSeq.size() * 4) / 3) + 1);
+    size_t newlineBytes = (((base64Bytes * 2) / 76) + 1);
+    size_t totalBytes = base64Bytes + newlineBytes;
  
     retval.reserve(totalBytes);
 
@@ -37,7 +37,7 @@ IceUtil::Base64::encode(const vector<unsigned char>& plainSeq)
     unsigned char by6 = 0;
     unsigned char by7 = 0;
 
-    for(unsigned long i = 0; i < plainSeq.size(); i += 3)
+    for(size_t i = 0; i < plainSeq.size(); i += 3)
     {
         by1 = plainSeq[i];
         by2 = 0;
@@ -103,7 +103,7 @@ IceUtil::Base64::decode(const string& str)
 
     newStr.reserve(str.length());
 
-    for(unsigned long j = 0; j < str.length(); j++)
+    for(size_t j = 0; j < str.length(); j++)
     {
         if(isBase64(str[j]))
         {
@@ -120,11 +120,11 @@ IceUtil::Base64::decode(const string& str)
 
     // Note: This is how we were previously computing the size of the return
     //       sequence.  The method below is more efficient (and correct).
-    // unsigned long lines = str.size() / 78;
-    // unsigned long totalBytes = (lines * 76) + (((str.size() - (lines * 78)) * 3) / 4);
+    // size_t lines = str.size() / 78;
+    // size_t totalBytes = (lines * 76) + (((str.size() - (lines * 78)) * 3) / 4);
 
     // Figure out how long the final sequence is going to be.
-    unsigned long totalBytes = (newStr.size() * 3 / 4) + 1;
+    size_t totalBytes = (newStr.size() * 3 / 4) + 1;
 
     retval.reserve(totalBytes);
 
@@ -135,7 +135,7 @@ IceUtil::Base64::decode(const string& str)
 
     char c1, c2, c3, c4;
 
-    for(unsigned long i = 0; i < newStr.length(); i += 4)
+    for(size_t i = 0; i < newStr.length(); i += 4)
     {
         c1 = 'A';
         c2 = 'A';

@@ -29,6 +29,13 @@
 #   ifdef _MSC_VER
 #       pragma warning( disable : 4018 )
 #       pragma warning( disable : 4244 )
+//
+//
+//     TEMPORARY: move deprecated warning on VC8 to level 4
+#      if _MSC_VER==1400
+#         pragma warning( 4 : 4996 )
+#         pragma warning( 4 : 4267 )   
+#      endif
 #   endif
 #   define alloca _alloca
 #endif
