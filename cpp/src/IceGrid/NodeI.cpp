@@ -244,7 +244,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _last5Total = 0;
     _last15Total = 0;
 #else
-#if defined(__linux) || defined(_AIX)
+#if defined(__linux)
     _nproc = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
 #elif defined(__APPLE__)
     static int ncpu[2] = { CTL_HW, HW_NCPU };
@@ -254,6 +254,19 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
 	Ice::SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
 	throw ex;
+    }
+#elif defined(_AIX)
+    _nproc = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
+    struct nlist nl;
+    nl.n_name = "avenrun";
+    nl.n_value = 0;
+    if(knlist(&nl, 1, sizeof(nl)) != 0)
+    {
+	_kmem = open("/dev/kmem", 0, 0);
+    }
+    else
+    {
+	_kmem = -1;
     }
 #else
     _nproc = 1;
@@ -266,6 +279,11 @@ NodeI::~NodeI()
 {
 #ifdef _WIN32
     PdhCloseQuery(_query);
+#elif defined(_AIX)
+    if(_kmem > 0)
+    {
+	close(_kmem);
+    }
 #endif
 }
 
@@ -619,21 +637,27 @@ NodeI::keepAlive()
 		info.nProcessors = dynInfo.psd_proc_cnt;
 	    }
 #elif defined(_AIX)
-	    struct nlist nl;
-	    nl.n_name = "avenrun";
-	    nl.n_value = 0;
-	    int kmem;
-	    if(knlist(&nl, 1, sizeof(nl)) != 0 && (kmem = open("/dev/kmem", 0, 0)) > 0)
+	    if(_kmem > 1)
 	    {
 		long avenrun[3];
-		if(pread(kmem, avenrun, sizeof(avenrun), nl.n_value) >= sizeof(avenrun))
+		struct nlist nl;
+		nl.n_name = "avenrun";
+		nl.n_value = 0;
+		if(knlist(&nl, 1, sizeof(nl)) != 0)
 		{
-		    info.load1 = avenrun[0] / 65535.0f;
-		    info.load5 = avenrun[1] / 65535.0f;
-		    info.load15 = avenrun[2] / 65535.0f;
-		    cerr << info.load1 << endl;
+		    if(pread(kmem, avenrun, sizeof(avenrun), nl.n_value) >= sizeof(avenrun))
+		    {
+			info.load1 = avenrun[0] / 65535.0f;
+			info.load5 = avenrun[1] / 65535.0f;
+			info.load15 = avenrun[2] / 65535.0f;
+		    }
 		}
-		close(kmem);
+	    }
+	    else
+	    {
+		info.load1 = -1.f;
+		info.load5 = -1.f;
+		info.load15 = -1.f;
 	    }
 	    info.nProcessors =  _nproc;
 #endif
