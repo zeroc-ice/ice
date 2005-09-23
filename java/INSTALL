@@ -115,7 +115,7 @@ JGoodies
 The graphical IceGrid client requires JGoodies Looks and JGoodies
 Forms, available from
 
-http://www.jgoodies.com
+http://www.jgoodies.com/downloads/libraries.html
 
 If you want to run the client, or recompile the Ice for Java source
 code, then these JAR files must be in your CLASSPATH.
