@@ -95,7 +95,7 @@ Building and running the Java demos
 The Java demos are in the demoj directory.
 
 To build the Java demos, you need the Java SDK 1.4.2 or later, and Ant
-1.6.1 or later. They can be downloaded from:
+1.6.3 or later. They can be downloaded from:
 
 http://java.sun.com/j2se/index.jsp
 http://ant.apache.org/bindownload.cgi
@@ -343,9 +343,9 @@ Apache1 and Apache2:
    The required files from C:\Ice\bin are listed below:
 
    php_ice.dll
-   ice21.dll
-   iceutil21.dll
-   slice21.dll
+   ice30.dll
+   iceutil30.dll
+   slice30.dll
    icecpp.exe
    msvcp71.dll
    msvcr71.dll
