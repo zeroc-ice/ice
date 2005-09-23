@@ -16,10 +16,9 @@
     <server-template id="SimpleServer">
       <parameter name="index"/>
       <server id="SimpleServer-${index}" exe="java" pwd="." activation="on-demand">
-        <env>CLASSPATH=classes:$CLASSPATH</env>
         <option>Server</option>
         <adapter name="Hello" endpoints="tcp" register="true">
-          <object identity="hello-${index}" type="::Hello"/>
+          <object identity="hello-${index}" type="::Demo::Hello"/>
         </adapter>
         <property name="Identity" value="hello-${index}"/>
       </server>

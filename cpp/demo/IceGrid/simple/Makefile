@@ -34,7 +34,7 @@ LINKWITH	:= -lIce -lIceUtil
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceGrid $(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@

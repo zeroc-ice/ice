@@ -29,11 +29,32 @@ public class Client extends Ice.Application
 
 	properties.parseCommandLineOptions("", args);
 
+	//
+	// First we try to connect to the object with the `hello'
+	// identity. If it's not registered with the registry, we
+	// search for an object with the ::Demo::Hello type.
+	//
 	Ice.ObjectPrx base = communicator().stringToProxy(properties.getPropertyWithDefault("Identity", "hello"));
-	HelloPrx twoway = HelloPrxHelper.checkedCast(base);
+	HelloPrx twoway = null;
+	try
+	{
+	    twoway = HelloPrxHelper.checkedCast(base);
+	}
+	catch(Ice.NotRegisteredException ex)
+	{
+	    IceGrid.QueryPrx query =
+		IceGrid.QueryPrxHelper.uncheckedCast(communicator().stringToProxy("IceGrid/Query"));
+	    try
+	    {
+		twoway = HelloPrxHelper.checkedCast(query.findObjectByType("::Demo::Hello"));
+	    }
+	    catch(IceGrid.ObjectNotExistException ex1)
+	    {
+	    }
+	}
 	if(twoway == null)
 	{
-            System.err.println("invalid proxy");
+            System.err.println(": couldn't find a `::Demo::Hello' object.");
 	    return 1;
 	}
 
