@@ -309,10 +309,8 @@ IcePatch2::getSuffix(const string& pa)
     {
 	return string();
     }
-    else
-    {
-	return path.substr(dotPos + 1);
-    }
+
+    return path.substr(dotPos + 1);
 }
 
 string
@@ -327,10 +325,8 @@ IcePatch2::getWithoutSuffix(const string& pa)
     {
 	return path;
     }
-    else
-    {
-	return path.substr(0, dotPos);
-    }
+
+    return path.substr(0, dotPos);
 }
 
 bool

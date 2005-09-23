@@ -499,6 +499,9 @@ string
 IceInternal::FixedReference::toString() const
 {
     throw MarshalException(__FILE__, __LINE__, "Cannot marshal a fixed proxy");
+
+    assert(false);   // Cannot be reached.
+    return string(); // To keep the compiler from complaining.
 }
 
 ConnectionIPtr
