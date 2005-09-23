@@ -1195,11 +1195,8 @@ namespace Ice
 
 	    lock(this)
 	    {
-		if(_state == StateActive || _state == StateClosing)
-		{
-		    registerWithPool();
-		}
-		else if(_state == StateClosed)
+		--_finishedCount;
+		if(_finishedCount == 0 && _state == StateClosed)
 		{
 		    //
 		    // We must make sure that nobody is sending when we
@@ -1298,6 +1295,7 @@ namespace Ice
 	    _logger = instance.logger(); // Cached for better performance.
 	    _traceLevels = instance.traceLevels(); // Cached for better performance.
 	    _registeredWithPool = false;
+	    _finishedCount = 0;
 	    _warn = instance_.properties().getPropertyAsInt("Ice.Warn.Connections") > 0;
 	    _acmAbsoluteTimeoutMillis = 0;
 	    _nextRequestId = 1;
@@ -1711,6 +1709,7 @@ namespace Ice
 	    {
 		_threadPool.unregister(_transceiver.fd());
 		_registeredWithPool = false;
+		++_finishedCount; // For each unregistration, finished() is called once.
 	    }
 	}
 	
@@ -2349,6 +2348,7 @@ namespace Ice
 	private IceInternal.TraceLevels _traceLevels;
 	
 	private bool _registeredWithPool;
+	private int _finishedCount;
 	private IceInternal.ThreadPool _threadPool;
 	
 	private bool _warn;

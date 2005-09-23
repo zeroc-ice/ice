@@ -1153,11 +1153,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
 	synchronized(this)
 	{
-	    if(_state == StateActive || _state == StateClosing)
-	    {
-		registerWithPool();
-	    }
-	    else if(_state == StateClosed)
+	    --_finishedCount;
+	    if(_finishedCount == 0 && _state == StateClosed)
 	    {
 		//
 		// We must make sure that nobody is sending when we
@@ -1259,6 +1256,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _logger = instance.logger(); // Cached for better performance.
         _traceLevels = instance.traceLevels(); // Cached for better performance.
 	_registeredWithPool = false;
+	_finishedCount = 0;
 	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
 	_acmAbsoluteTimeoutMillis = 0;
         _nextRequestId = 1;
@@ -1684,6 +1682,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	{
 	    _threadPool.unregister(_transceiver.fd());
 	    _registeredWithPool = false;	
+	    ++_finishedCount; // For each unregistration, finished() is called once.
 	}
     }
 
@@ -2441,6 +2440,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private final IceInternal.TraceLevels _traceLevels;
 
     private boolean _registeredWithPool;
+    private int _finishedCount;
     private final IceInternal.ThreadPool _threadPool;
 
     private final boolean _warn;

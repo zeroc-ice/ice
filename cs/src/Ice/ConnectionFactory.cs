@@ -804,11 +804,9 @@ namespace IceInternal
 	    {
 		threadPool.promoteFollower();
 		
-		if(_state == StateActive)
-		{
-		    registerWithPool();
-		}
-		else if(_state == StateClosed)
+		--_finishedCount;
+
+		if(_finishedCount == 0 && _state == StateClosed)
 		{
 		    _acceptor.close();
 		    _acceptor = null;
@@ -839,6 +837,7 @@ namespace IceInternal
 	    _endpoint = endpoint;
 	    _adapter = adapter;
 	    _registeredWithPool = false;
+	    _finishedCount = 0;
 	    _warn = instance_.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
 	    _connections = new LinkedList();
 	    _state = StateHolding;
@@ -984,7 +983,7 @@ namespace IceInternal
 		    {
 			return;
 		    }
-		    if(!instance_.threadPerConnection())
+		    if(!instance_.threadPerConnection() && _acceptor != null)
 		    {
 			registerWithPool();
 		    }
@@ -1002,7 +1001,7 @@ namespace IceInternal
 		    {
 			return;
 		    }
-		    if(!instance_.threadPerConnection())
+		    if(!instance_.threadPerConnection() && _acceptor != null)
 		    {
 			unregisterWithPool();
 		    }
@@ -1016,27 +1015,23 @@ namespace IceInternal
 		
 		case StateClosed: 
 		{
-		    if(instance_.threadPerConnection())
+		    if(instance_.threadPerConnection() && _acceptor != null)
 		    {
-			if(_acceptor != null)
-			{
-			    //
-			    // Connect to our own acceptor, which unblocks our
-			    // thread per incoming connection factory stuck in accept().
-			    //
-			    _acceptor.connectToSelf();
-			}
+			//
+			// If we are in thread per connection mode, we connect
+			// to our own acceptor, which unblocks our thread per
+			// incoming connection factory stuck in accept().
+			//
+			_acceptor.connectToSelf();
 		    }
 		    else
 		    {
 			//
-			// If we come from holding state, we first need to
-			// register again before we unregister.
+			// Otherwise we first must make sure that we are
+			// registered, then we unregister, and let finished()
+			// do the close.
 			//
-			if(_state == StateHolding)
-			{
-			    registerWithPool();
-			}
+			registerWithPool();
 			unregisterWithPool();
 		    }
 		    
@@ -1055,8 +1050,9 @@ namespace IceInternal
 	private void registerWithPool()
 	{
 	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(_acceptor != null);
 
-	    if(_acceptor != null && !_registeredWithPool)
+	    if(!_registeredWithPool)
 	    {
 		((Ice.ObjectAdapterI) _adapter).getThreadPool().register(_acceptor.fd(), this);
 		_registeredWithPool = true;
@@ -1066,11 +1062,13 @@ namespace IceInternal
 	private void unregisterWithPool()
 	{
 	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(_acceptor != null);
 
-	    if(_acceptor != null && _registeredWithPool)
+	    if(_registeredWithPool)
 	    {
 		((Ice.ObjectAdapterI) _adapter).getThreadPool().unregister(_acceptor.fd());
 		_registeredWithPool = false;
+		++_finishedCount; // For each unregistration, finished() is called once.
 	    }
 	}
 	
@@ -1220,6 +1218,7 @@ namespace IceInternal
 	private readonly Ice.ObjectAdapter _adapter;
 	
 	private bool _registeredWithPool;
+	private int _finishedCount;
 	
 	private readonly bool _warn;
 	

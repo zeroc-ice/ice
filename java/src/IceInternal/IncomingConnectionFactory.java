@@ -321,11 +321,8 @@ public final class IncomingConnectionFactory extends EventHandler
 
         threadPool.promoteFollower();
 
-	if(_state == StateActive)
-	{
-	    registerWithPool();
-	}
-	else if(_state == StateClosed)
+	--_finishedCount;
+	if(_finishedCount == 0 && _state == StateClosed)
 	{
 	    _acceptor.close();
 	    _acceptor = null;
@@ -358,6 +355,7 @@ public final class IncomingConnectionFactory extends EventHandler
         _endpoint = endpoint;
         _adapter = adapter;
 	_registeredWithPool = false;
+	_finishedCount = 0;
 	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
         _state = StateHolding;
 
@@ -497,7 +495,7 @@ public final class IncomingConnectionFactory extends EventHandler
                 {
                     return;
                 }
-		if(!_instance.threadPerConnection())
+		if(!_instance.threadPerConnection() && _acceptor != null)
 		{
 		    registerWithPool();
 		}
@@ -517,7 +515,7 @@ public final class IncomingConnectionFactory extends EventHandler
                 {
                     return;
                 }
-		if(!_instance.threadPerConnection())
+		if(!_instance.threadPerConnection() && _acceptor != null)
 		{
 		    unregisterWithPool();
 		}
@@ -533,27 +531,23 @@ public final class IncomingConnectionFactory extends EventHandler
 
             case StateClosed:
             {
-		if(_instance.threadPerConnection())
+		if(_instance.threadPerConnection() && _acceptor != null)
 		{
-		    if(_acceptor != null)
-		    {
-			//
-			// Connect to our own acceptor, which unblocks our
-			// thread per incoming connection factory stuck in accept().
-			//
-			_acceptor.connectToSelf();
-		    }
+		    //
+		    // If we are in thread per connection mode, we connect
+		    // to our own acceptor, which unblocks our thread per
+		    // incoming connection factory stuck in accept().
+		    //
+		    _acceptor.connectToSelf();
 		}
 		else
 		{
 		    //
-		    // If we come from holding state, we first need to
-		    // register again before we unregister.
+		    // Otherwise we first must make sure that we are
+		    // registered, then we unregister, and let finished()
+		    // do the close.
 		    //
-		    if(_state == StateHolding)
-		    {
-			registerWithPool();
-		    }
+		    registerWithPool();
 		    unregisterWithPool();
 		}
 
@@ -575,8 +569,9 @@ public final class IncomingConnectionFactory extends EventHandler
     registerWithPool()
     {
 	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(_acceptor != null);
 
-        if(_acceptor != null && !_registeredWithPool)
+        if(!_registeredWithPool)
 	{
 	    ((Ice.ObjectAdapterI)_adapter).getThreadPool()._register(_acceptor.fd(), this);
 	    _registeredWithPool = true;
@@ -587,11 +582,13 @@ public final class IncomingConnectionFactory extends EventHandler
     unregisterWithPool()
     {
 	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(_acceptor != null);
 
-        if(_acceptor != null && _registeredWithPool)
+        if(_registeredWithPool)
 	{
 	    ((Ice.ObjectAdapterI)_adapter).getThreadPool().unregister(_acceptor.fd());
 	    _registeredWithPool = false;
+	    ++_finishedCount; // For each unregistration, finished() is called once.
         }
     }
 
@@ -767,6 +764,7 @@ public final class IncomingConnectionFactory extends EventHandler
     private final Ice.ObjectAdapter _adapter;
 
     private boolean _registeredWithPool;
+    private int _finishedCount;
 
     private final boolean _warn;
 

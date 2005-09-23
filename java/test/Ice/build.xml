@@ -17,6 +17,7 @@
         <ant dir="exceptionsAMD"/>
         <ant dir="facets"/>
         <ant dir="faultTolerance"/>
+        <ant dir="hold"/>
         <ant dir="inheritance"/>
         <ant dir="location"/>
         <ant dir="objects"/>
@@ -36,6 +37,7 @@
         <ant dir="exceptionsAMD" target="clean"/>
         <ant dir="facets" target="clean"/>
         <ant dir="faultTolerance" target="clean"/>
+        <ant dir="hold" target="clean"/>
         <ant dir="inheritance" target="clean"/>
         <ant dir="location" target="clean"/>
         <ant dir="objects" target="clean"/>

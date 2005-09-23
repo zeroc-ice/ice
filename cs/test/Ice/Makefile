@@ -16,6 +16,7 @@ SUBDIRS		= adapterDeactivation \
 		  facets \
 		  faultTolerance \
 		  inheritance \
+		  hold \
 		  location \
 		  objects \
 		  operations \
