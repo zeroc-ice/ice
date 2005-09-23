@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceGrid/Query.h>
 #include <Hello.h>
 
 using namespace std;
@@ -51,11 +52,25 @@ HelloClient::run(int argc, char* argv[])
     args = properties->parseCommandLineOptions("", args);
     Ice::stringSeqToArgs(args, argc, argv);
 
+    //
+    // First we try to connect to the object with the `hello'
+    // identity. If it's not registered with the registry, we seach
+    // for an object with the ::Demo::Hello type.
+    //
     Ice::ObjectPrx base = communicator()->stringToProxy(properties->getPropertyWithDefault("Identity", "hello"));
-    HelloPrx twoway = HelloPrx::checkedCast(base);
+    HelloPrx twoway;
+    try
+    {
+	twoway = HelloPrx::checkedCast(base);
+    }
+    catch(const Ice::NotRegisteredException&)
+    {
+	IceGrid::QueryPrx query = IceGrid::QueryPrx::uncheckedCast(communicator()->stringToProxy("IceGrid/Query"));
+	twoway = HelloPrx::checkedCast(query->findObjectByType("::Demo::Hello"));
+    }
     if(!twoway)
     {
-	cerr << argv[0] << ": invalid proxy" << endl;
+	cerr << argv[0] << ": couldn't find a `::Demo::Hello' object" << endl;
 	return EXIT_FAILURE;
     }
     
