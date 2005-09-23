@@ -9,9 +9,7 @@
 
 #include <Ice/EndpointI.h>
 
-using namespace std;
 using namespace Ice;
-using namespace IceInternal;
 
 void IceInternal::incRef(EndpointI* p) { p->__incRef(); }
 void IceInternal::decRef(EndpointI* p) { p->__decRef(); }

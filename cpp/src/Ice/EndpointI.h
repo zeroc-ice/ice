@@ -121,6 +121,18 @@ public:
     virtual bool operator==(const EndpointI&) const = 0;
     virtual bool operator!=(const EndpointI&) const = 0;
     virtual bool operator<(const EndpointI&) const = 0;
+
+private:
+
+#if defined(__SUNPRO_CC)
+    //
+    // COMPILERFIX: prevent the compiler from emitting a warning about
+    // hidding these operators.
+    //
+    using LocalObject::operator==;
+    using LocalObject::operator!=;
+    using LocalObject::operator<;
+#endif
 };
 
 }
