@@ -65,7 +65,7 @@ Berkeley DB
 -----------
 
 Freeze for Java uses Berkeley DB as its underlying database. It
-requires Berkeley DB 4.2.52.
+requires Berkeley DB 4.3.
 
 Even though Berkeley DB is included with many Linux distributions, the
 Java files for Berkeley DB are usually not available, which requires
@@ -82,9 +82,6 @@ Win32 Release" project. For details, please see:
 
 http://www.sleepycat.com/docs/index.html
 
-On AIX with Java 1.4.2, you also need the non-public "java-globalrefs"
-patch for Berkeley DB 4.2.52.
-
 Make sure to add db.jar to your CLASSPATH, and verify that the
 Berkeley DB shared libraries are in your java.library.path. On Linux,
 this can be achieved by adding <Berkeley DB home>/lib to your
@@ -93,7 +90,7 @@ LD_LIBRARY_PATH, for example:
 $ export LD_LIBRARY_PATH=/opt/db4/lib:$LD_LIBRARY_PATH
 
 Note that the Ice for Java distribution is compiled against Berkeley
-DB 4.2.52.
+DB 4.3.28.
 
 
 bzip2
@@ -110,6 +107,18 @@ http://www.kohsuke.org/bzip2/
 
 Note that these classes are a pure Java implementation of the bzip2
 algorithm and therefore add significant latency to Ice requests.
+
+
+JGoodies
+--------
+
+The graphical IceGrid client requires JGoodies Looks and JGoodies
+Forms, available from
+
+http://www.jgoodies.com
+
+If you want to run the client, or recompile the Ice for Java source
+code, then these JAR files must be in your CLASSPATH.
 
 
 Python
@@ -164,9 +173,6 @@ http://ant.apache.org/
 
 Ice requires ant 1.6.2 or later, but we recommend using the most
 recent release.
-
-You must also install ant's "optional tasks" (optional.jar) in the
-same directory as ant.jar.
 
 After installing ant, run the following commands to completely rebuild
 the Ice for Java source code:
