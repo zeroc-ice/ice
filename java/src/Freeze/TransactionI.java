@@ -22,25 +22,24 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 
 	    if(_txTrace >= 1)
 	    {
-		txnId = Long.toHexString((_txn.id() & 0x7FFFFFFF) + 0x80000000L); 
+		txnId = Long.toHexString((_txn.getId() & 0x7FFFFFFF) + 0x80000000L); 
 	    }
 
-	    _txn.commit(0);
+	    _txn.commit();
 
 	    if(_txTrace >= 1)
 	    {
-		_connection.communicator().getLogger().trace
-		    ("Freeze.Map", _errorPrefix + "committed transaction " + txnId);
+		_connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix + "committed transaction " +
+							     txnId);
 	    }
-
 	}
-	catch(com.sleepycat.db.DbDeadlockException e)
+	catch(com.sleepycat.db.DeadlockException e)
 	{
 	    if(_txTrace >= 1)
 	    {
-		_connection.communicator().getLogger().trace
-		    ("Freeze.Map", _errorPrefix + "failed to commit transaction " + txnId
-			+ ": " + e.getMessage());
+		_connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix +
+							     "failed to commit transaction " + txnId + ": " +
+							     e.getMessage());
 	    }
 
 	    DeadlockException ex = new DeadlockException();
@@ -48,13 +47,13 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 	    ex.message = _errorPrefix + "DbTxn.commit: " + e.getMessage();
 	    throw ex;
 	}
-	catch(com.sleepycat.db.DbException e)
+	catch(com.sleepycat.db.DatabaseException e)
 	{
 	    if(_txTrace >= 1)
 	    {
-		_connection.communicator().getLogger().trace
-		    ("Freeze.Map", _errorPrefix + "failed to commit transaction " + txnId
-			+ ": " + e.getMessage());
+		_connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix +
+							     "failed to commit transaction " + txnId + ": " +
+							     e.getMessage());
 	    }
 
 	    DatabaseException ex = new DatabaseException();
@@ -81,25 +80,24 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 	 
 	    if(_txTrace >= 1)
 	    {
-		txnId = Long.toHexString((_txn.id() & 0x7FFFFFFF) + 0x80000000L); 
+		txnId = Long.toHexString((_txn.getId() & 0x7FFFFFFF) + 0x80000000L); 
 	    }
 
 	    _txn.abort();
 
 	    if(_txTrace >= 1)
 	    {
-		_connection.communicator().getLogger().trace
-		    ("Freeze.Map", _errorPrefix + "rolled back transaction " + txnId);
+		_connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix + "rolled back transaction " +
+							     txnId);
 	    }
-
 	}
-	catch(com.sleepycat.db.DbDeadlockException e)
+	catch(com.sleepycat.db.DeadlockException e)
 	{
 	    if(_txTrace >= 1)
 	    {
-		_connection.communicator().getLogger().trace
-		    ("Freeze.Map", _errorPrefix + "failed to rollback transaction " + txnId
-			+ ": " + e.getMessage());
+		_connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix +
+							     "failed to rollback transaction " + txnId + ": " +
+							     e.getMessage());
 	    }
 
 	    DeadlockException ex = new DeadlockException();
@@ -107,13 +105,13 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 	    ex.message = _errorPrefix + "DbTxn.abort: " + e.getMessage();
 	    throw ex;
 	}
-	catch(com.sleepycat.db.DbException e)
+	catch(com.sleepycat.db.DatabaseException e)
 	{
 	    if(_txTrace >= 1)
 	    {
-		_connection.communicator().getLogger().trace
-		    ("Freeze.Map", _errorPrefix + "failed to rollback transaction " + txnId
-			+ ": " + e.getMessage());
+		_connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix +
+							     "failed to rollback transaction " + txnId + ": " +
+							     e.getMessage());
 	    }
 
 	    DatabaseException ex = new DatabaseException();
@@ -137,23 +135,22 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 
 	try
 	{
-	    _txn = _connection.dbEnv().getEnv().txnBegin(null, 0);
+	    _txn = _connection.dbEnv().getEnv().beginTransaction(null, null);
 	    
 	    if(_txTrace >= 1)
 	    {
-		String txnId = Long.toHexString((_txn.id() & 0x7FFFFFFF) + 0x80000000L); 
+		String txnId = Long.toHexString((_txn.getId() & 0x7FFFFFFF) + 0x80000000L); 
 
-		_connection.communicator().getLogger().trace
-		    ("Freeze.Map", _errorPrefix + "started transaction " + txnId);
+		_connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix + "started transaction " +
+							     txnId);
 	    }
-
 	}
-	catch(com.sleepycat.db.DbException e)
+	catch(com.sleepycat.db.DatabaseException e)
 	{
 	    if(_txTrace >= 1)
 	    {
-		_connection.communicator().getLogger().trace
-		    ("Freeze.Map", _errorPrefix + "failed to start transaction: " + e.getMessage());
+		_connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix +
+							     "failed to start transaction: " + e.getMessage());
 	    }
 
 	    DatabaseException ex = new DatabaseException();
@@ -163,7 +160,7 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 	}
     }
 
-    com.sleepycat.db.DbTxn
+    com.sleepycat.db.Transaction
     dbTxn()
     {
 	return _txn;
@@ -171,7 +168,7 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 
     private ConnectionI _connection;
     private int _txTrace;
-    private com.sleepycat.db.DbTxn _txn;
+    private com.sleepycat.db.Transaction _txn;
 
     private String _errorPrefix;
 }

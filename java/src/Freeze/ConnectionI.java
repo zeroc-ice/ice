@@ -101,7 +101,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	}
     }
 
-    ConnectionI(Ice.Communicator communicator, String envName, com.sleepycat.db.DbEnv dbEnv)
+    ConnectionI(Ice.Communicator communicator, String envName, com.sleepycat.db.Environment dbEnv)
     {
 	_communicator = communicator;
 	_dbEnv =  SharedDbEnv.get(communicator, envName, dbEnv);
@@ -149,7 +149,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	_transaction = null;
     }
 
-    com.sleepycat.db.DbTxn
+    com.sleepycat.db.Transaction
     dbTxn()
     {
 	if(_transaction == null)

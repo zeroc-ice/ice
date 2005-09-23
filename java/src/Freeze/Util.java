@@ -11,17 +11,15 @@ package Freeze;
 
 public class Util
 {
-
     public static Evictor
-    createEvictor(Ice.ObjectAdapter adapter, String envName, String filename, 
-		  ServantInitializer initializer, Index[] indices, boolean createDb)
+    createEvictor(Ice.ObjectAdapter adapter, String envName, String filename, ServantInitializer initializer,
+		  Index[] indices, boolean createDb)
     {
 	return new EvictorI(adapter, envName, filename, initializer, indices, createDb);
     } 
 
     public static Evictor
-    createEvictor(Ice.ObjectAdapter adapter, String envName, 
-		  com.sleepycat.db.DbEnv dbEnv, String filename, 
+    createEvictor(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv, String filename, 
 		  ServantInitializer initializer, Index[] indices, boolean createDb)
     {
 	return new EvictorI(adapter, envName, dbEnv, filename, initializer, indices, createDb);
@@ -34,17 +32,17 @@ public class Util
     } 
 
     public static Connection
-    createConnection(Ice.Communicator communicator, String envName, com.sleepycat.db.DbEnv dbEnv)
+    createConnection(Ice.Communicator communicator, String envName, com.sleepycat.db.Environment dbEnv)
     {
 	return new ConnectionI(communicator, envName, dbEnv);
-    } 
+    }
 
     public static String catalogName()
     {
 	return _catalogName;
     }
-    
-    public static com.sleepycat.db.DbTxn
+
+    public static com.sleepycat.db.Transaction
     getTxn(Transaction tx)
     {
 	try
@@ -56,7 +54,6 @@ public class Util
 	    return null;
 	}
     }
-
 
     public static synchronized FatalErrorCallback
     registerFatalErrorCallback(FatalErrorCallback cb)
@@ -79,8 +76,6 @@ public class Util
 	}
     }
 
-
     private static String _catalogName = "__catalog";
     private static FatalErrorCallback _fatalErrorCallback = null;
 }
-

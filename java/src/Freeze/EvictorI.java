@@ -11,7 +11,6 @@ package Freeze;
 
 class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 {
-
     final static String defaultDb = "$default";
     final static String indexPrefix = "$index:";
 
@@ -66,8 +65,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    //
 		    if(System.currentTimeMillis() - startTime >= _timeout)
 		    {
-			_communicator.getLogger().error
-			    (_errorPrefix + "Fatal error: streaming watch dog thread timed out.");
+			_communicator.getLogger().error(_errorPrefix +
+							"Fatal error: streaming watch dog thread timed out.");
 
 			Util.handleFatalError(EvictorI.this, _communicator, null);
 		    }
@@ -98,7 +97,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	private boolean _active = false;
     }
 
-    
     class DeactivateController
     {
 	synchronized void lock()
@@ -158,29 +156,29 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		_deactivating = true;
 		while(_guardCount > 0)
 		{
-		     if(_trace >= 1)
-		     {
-			 _communicator.getLogger().trace(
-			     "Freeze.Evictor",  "*** Waiting for " + _guardCount 
-			     + " threads to complete before starting deactivation.");
-		     }
-		     
-		     try
-		     {
-			 wait();
-		     }
-		     catch(InterruptedException e)
-		     {
-			 // Ignored
-		     }
-		 }
+		    if(_trace >= 1)
+		    {
+			_communicator.getLogger().trace(
+			"Freeze.Evictor",  "*** Waiting for " + _guardCount +
+			" threads to complete before starting deactivation.");
+		    }
 
-		 if(_trace >= 1)
-		 {
-		     _communicator.getLogger().trace("Freeze.Evictor", "Starting deactivation.");
-		 }
-		 return true;
-	     }
+		    try
+		    {
+			wait();
+		    }
+		    catch(InterruptedException e)
+		    {
+			// Ignored
+		    }
+		}
+
+		if(_trace >= 1)
+		{
+		    _communicator.getLogger().trace("Freeze.Evictor", "Starting deactivation.");
+		}
+		return true;
+	    }
 	}
 
 	synchronized void deactivationComplete()
@@ -199,12 +197,9 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	private boolean _deactivated = false;
 	private int _guardCount = 0;
     }
-    
-    
 
     public
-    EvictorI(Ice.ObjectAdapter adapter, String envName, String filename,
-	     ServantInitializer initializer,
+    EvictorI(Ice.ObjectAdapter adapter, String envName, String filename, ServantInitializer initializer,
 	     Index[] indices, boolean createDb)
     {
 	_adapter = adapter;
@@ -216,10 +211,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     }
 
     public
-    EvictorI(Ice.ObjectAdapter adapter, String envName, 
-	     com.sleepycat.db.DbEnv dbEnv, String filename, 
-	     ServantInitializer initializer,
-	     Index[] indices, boolean createDb)
+    EvictorI(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv, String filename, 
+	     ServantInitializer initializer, Index[] indices, boolean createDb)
     {
 	_adapter = adapter;
 	_communicator = adapter.getCommunicator();
@@ -230,12 +223,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     }
 
     private void
-    init(String envName, com.sleepycat.db.DbEnv dbEnv, Index[] indices)
+    init(String envName, com.sleepycat.db.Environment dbEnv, Index[] indices)
     {
-	
 	_dbEnv = SharedDbEnv.get(_communicator, envName, dbEnv);
 
-	
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
 	_txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
 	_deadlockWarning = _communicator.getProperties().getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
@@ -249,25 +240,25 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	// queue reaches 10.
 	//
 
-	_saveSizeTrigger = _communicator.getProperties().getPropertyAsIntWithDefault
-	    (propertyPrefix + ".SaveSizeTrigger", 10);
+	_saveSizeTrigger =
+	    _communicator.getProperties().getPropertyAsIntWithDefault(propertyPrefix + ".SaveSizeTrigger", 10);
 
-	_savePeriod = _communicator.getProperties().getPropertyAsIntWithDefault
-	    (propertyPrefix + ".SavePeriod", 60 * 1000);
+	_savePeriod =
+	    _communicator.getProperties().getPropertyAsIntWithDefault(propertyPrefix + ".SavePeriod", 60 * 1000);
 
 	//
 	// By default, we save at most 10 * SaveSizeTrigger objects per transaction
 	//
-	_maxTxSize = _communicator.getProperties().getPropertyAsIntWithDefault
-	    (propertyPrefix + ".MaxTxSize", 10 * _saveSizeTrigger);
+	_maxTxSize = _communicator.getProperties().getPropertyAsIntWithDefault(
+	    propertyPrefix + ".MaxTxSize", 10 * _saveSizeTrigger);
 
 	if(_maxTxSize <= 0)
 	{
 	    _maxTxSize = 100;
 	}
 	
-	boolean populateEmptyIndices = (_communicator.getProperties().getPropertyAsIntWithDefault
-					(propertyPrefix + ".PopulateEmptyIndices", 0) != 0);
+	boolean populateEmptyIndices =
+	    _communicator.getProperties().getPropertyAsIntWithDefault(propertyPrefix + ".PopulateEmptyIndices", 0) != 0;
 	
 	//
 	// Instantiate all Dbs in 2 steps:
@@ -281,7 +272,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	//
 	dbs.add(defaultDb);
 
-	
 	if(indices != null)
 	{
 	    for(int i = 0; i < indices.length; ++i)
@@ -299,8 +289,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			}
 		    }
 		    
-		    ObjectStore store = new ObjectStore(facet, _createDb, this, storeIndices,
-							populateEmptyIndices);
+		    ObjectStore store = new ObjectStore(facet, _createDb, this, storeIndices, populateEmptyIndices);
 		    _storeMap.put(facet, store);
 		}
 	    }
@@ -344,8 +333,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	//
 	// By default, no stream timeout
 	//
-	long streamTimeout =  _communicator.getProperties()
-	    .getPropertyAsIntWithDefault(propertyPrefix + ".StreamTimeout", 0) * 1000;
+	long streamTimeout =
+	    _communicator.getProperties().getPropertyAsIntWithDefault(propertyPrefix + ".StreamTimeout", 0) * 1000;
 
 	if(streamTimeout > 0)
 	{
@@ -356,7 +345,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	_thread = new Thread(this, savingThreadName);
 	_thread.start();
     }
-
    
     protected void
     finalize()
@@ -411,7 +399,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	return addFacet(servant, ident, "");
     }
 
-    
     public Ice.ObjectPrx
     addFacet(Ice.Object servant, Ice.Identity ident, String facet)
     {
@@ -470,8 +457,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    
 	    assert store != null;
 	    boolean alreadyThere = false;
-	    
-	    
+
 	    for(;;)
 	    {
 		//
@@ -568,9 +554,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    objString += " with facet \"" + facet + "\"";
 		}
 		
-		_communicator.getLogger().trace(
-		    "Freeze.Evictor", 
-		    "added " + objString + " in the database");
+		_communicator.getLogger().trace("Freeze.Evictor", "added " + objString + " in the database");
 	    }
 	    
 	    Ice.ObjectPrx obj = _adapter.createProxy(ident);
@@ -585,7 +569,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    _deactivateController.unlock();
 	}
     }
-
 
     //
     // Deprecated
@@ -692,9 +675,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    if(_trace >= 1)
 	    {
 		String objString = "object \"" + Ice.Util.identityToString(ident) + "\"";
-		_communicator.getLogger().trace(
-		    "Freeze.Evictor", 
-		    "added or updated " + objString + " in the database");
+		_communicator.getLogger().trace("Freeze.Evictor", "added or updated " + objString + " in the database");
 	    }
 	}
 	finally
@@ -703,7 +684,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
     }
 
-    
     public Ice.Object
     remove(Ice.Identity ident)
     {
@@ -841,9 +821,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    objString += " with facet \"" + facet + "\"";
 		}
 		
-		_communicator.getLogger().trace(
-		    "Freeze.Evictor", 
-		    "removed " + objString);
+		_communicator.getLogger().trace("Freeze.Evictor", "removed " + objString);
 	    }
 	    return servant;
 	}
@@ -873,7 +851,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
     }
 
-    
     public void
     keep(Ice.Identity ident)
     {
@@ -1051,7 +1028,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    _deactivateController.unlock();
 	}
     }
-    
 
     public EvictorIterator
     getIterator(String facet, int batchSize)
@@ -1132,8 +1108,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		
 		synchronized(element)
 		{
-		    return element.status != EvictorElement.dead && 
-			element.status != EvictorElement.destroyed;
+		    return element.status != EvictorElement.dead && element.status != EvictorElement.destroyed;
 		}
 	    }
 	}
@@ -1180,8 +1155,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			
 			synchronized(element)
 			{
-			    if(element.status != EvictorElement.dead && 
-			       element.status != EvictorElement.destroyed)
+			    if(element.status != EvictorElement.dead && element.status != EvictorElement.destroyed)
 			    {
 				return true;
 			    }
@@ -1206,7 +1180,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	_deactivateController.lock();
 	try
 	{
-	    
 	    //
 	    // Special ice_ping() handling
 	    //
@@ -1219,9 +1192,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    if(_trace >= 3)
 		    {
 			_communicator.getLogger().trace(
-			    "Freeze.Evictor",
-			    "ice_ping found \"" + Ice.Util.identityToString(current.id)  
-			    + "\" with facet \"" + current.facet + "\"");
+			    "Freeze.Evictor", "ice_ping found \"" + Ice.Util.identityToString(current.id) +
+			    "\" with facet \"" + current.facet + "\"");
 		    }
 		    cookie.value = null;
 		    return _pingObject;
@@ -1231,9 +1203,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    if(_trace >= 3)
 		    {
 			_communicator.getLogger().trace(
-			    "Freeze.Evictor",
-			    "ice_ping raises FacetNotExistException for \"" + Ice.Util.identityToString(current.id)  
-			    + "\" with facet \"" + current.facet + "\"");
+			    "Freeze.Evictor", "ice_ping raises FacetNotExistException for \"" +
+			    Ice.Util.identityToString(current.id)  + "\" with facet \"" + current.facet + "\"");
 		    }
 		    
 		    throw new Ice.FacetNotExistException();
@@ -1243,16 +1214,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    if(_trace >= 3)
 		    {
 			_communicator.getLogger().trace(
-			    "Freeze.Evictor",
-			    "ice_ping will raise ObjectNotExistException for \"" + Ice.Util.identityToString(current.id)  
-			    + "\" with facet \"" + current.facet + "\"");
+			    "Freeze.Evictor", "ice_ping will raise ObjectNotExistException for \"" +
+			    Ice.Util.identityToString(current.id)  + "\" with facet \"" + current.facet + "\"");
 		    }
 		    
 		    return null;
 		}
 	    }
 	    
-
 	    Ice.Object result = locateImpl(current, cookie);
 	    
 	    if(result == null)
@@ -1287,9 +1256,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	{
 	    if(_trace >= 2)
 	    {
-		_communicator.getLogger().trace(
-		    "Freeze.Evictor",
-		    "locate could not find a database for facet \"" + current.facet + "\"");
+		_communicator.getLogger().trace("Freeze.Evictor", "locate could not find a database for facet \"" +
+						current.facet + "\"");
 	    }
 	    return null;
 	}
@@ -1301,10 +1269,9 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    {
 		if(_trace >= 2)
 		{
-		    _communicator.getLogger().trace(
-			"Freeze.Evictor",
-			"locate could not find \"" + Ice.Util.identityToString(ident) 
-			+ "\" in database \"" + current.facet + "\"");
+		    _communicator.getLogger().trace("Freeze.Evictor", "locate could not find \"" +
+						    Ice.Util.identityToString(ident) + "\" in database \"" +
+						    current.facet + "\"");
 		}
 		return null;
 	    }
@@ -1326,11 +1293,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    {
 			if(_trace >= 2)
 			{
-			    _communicator.getLogger().trace(
-				"Freeze.Evictor",
-				"locate found \"" + Ice.Util.identityToString(ident) 
-				+ "\" in the cache for database \"" + current.facet 
-				+ "\" but it was dead or destroyed");
+			    _communicator.getLogger().trace("Freeze.Evictor", "locate found \"" +
+							    Ice.Util.identityToString(ident) +
+							    "\" in the cache for database \"" + current.facet +
+							    "\" but it was dead or destroyed");
 			}
 			return null;
 		    }
@@ -1339,13 +1305,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    // It's a good one!
 		    //
 
-
 		    if(_trace >= 2)
 		    {
-			_communicator.getLogger().trace(
-			    "Freeze.Evictor",
-			    "locate found \"" + Ice.Util.identityToString(ident) 
-			    + "\" in database \"" + current.facet + "\"");
+			_communicator.getLogger().trace("Freeze.Evictor", "locate found \"" +
+							Ice.Util.identityToString(ident) + "\" in database \"" +
+							current.facet + "\"");
 		    }
 
 		    fixEvictPosition(element);
@@ -1696,9 +1660,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		if(_trace >= 1)
 		{
 		    long now = System.currentTimeMillis();
-		    _communicator.getLogger().trace(
-			"Freeze.Evictor",
-			"streamed " + streamedObjectQueue.size() + " objects in " + (now - streamStart) + " ms");
+		    _communicator.getLogger().trace("Freeze.Evictor", "streamed " + streamedObjectQueue.size() +
+						    " objects in " + (now - streamStart) + " ms");
 		}
 		
 		//
@@ -1733,15 +1696,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
 			try
 			{
-			    com.sleepycat.db.DbTxn tx = _dbEnv.getEnv().txnBegin(null, 0);
+			    com.sleepycat.db.Transaction tx = _dbEnv.getEnv().beginTransaction(null, null);
 
 			    if(_txTrace >= 1)
 			    {
-				txnId = Long.toHexString((tx.id() & 0x7FFFFFFF) + 0x80000000L); 
+				txnId = Long.toHexString((tx.getId() & 0x7FFFFFFF) + 0x80000000L); 
 
-				_communicator.getLogger().trace
-				    ("Freeze.Evictor", _errorPrefix + "started transaction " +
-				     txnId + " in saving thread");
+				_communicator.getLogger().trace("Freeze.Evictor", _errorPrefix +
+								"started transaction " + txnId + " in saving thread");
 			    }
 
 			    try
@@ -1752,15 +1714,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				    obj.store.save(obj.key, obj.value, obj.status, tx);
 				}
 				
-				com.sleepycat.db.DbTxn toCommit = tx;
+				com.sleepycat.db.Transaction toCommit = tx;
 				tx = null;
-				toCommit.commit(0);
+				toCommit.commit();
 
 				if(_txTrace >= 1)
 				{
-				    _communicator.getLogger().trace
-					("Freeze.Evictor", _errorPrefix + "committed transaction " +
-					 txnId);
+				    _communicator.getLogger().trace("Freeze.Evictor", _errorPrefix +
+								    "committed transaction " + txnId);
 				}
 			    }
 			    finally
@@ -1770,9 +1731,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				    tx.abort();
 				    if(_txTrace >= 1)
 				    {
-					_communicator.getLogger().trace
-					    ("Freeze.Evictor", _errorPrefix + "rolled back transaction " +
-					     txnId);
+					_communicator.getLogger().trace("Freeze.Evictor", _errorPrefix +
+									"rolled back transaction " + txnId);
 				    }
 				}
 			    }
@@ -1785,24 +1745,22 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			    if(_trace >= 1)
 			    {
 				long now = System.currentTimeMillis();
-				_communicator.getLogger().trace(
-				    "Freeze.Evictor",
-				    "saved " + txSize + " objects in " + (now - saveStart) + " ms");
+				_communicator.getLogger().trace("Freeze.Evictor", "saved " + txSize + " objects in " +
+								(now - saveStart) + " ms");
 			    }
 			}
-			catch(com.sleepycat.db.DbDeadlockException deadlock)
+			catch(com.sleepycat.db.DeadlockException dx)
 			{
 			    if(_deadlockWarning)
 			    {
-				_communicator.getLogger().warning
-				    ("Deadlock in Freeze.EvictorI.run while writing into Db \"" + _filename
-				     + "\"; retrying ...");
+				_communicator.getLogger().warning("Deadlock in Freeze.EvictorI.run while writing " +
+								  "into Db \"" + _filename + "\"; retrying...");
 			    }
 			    
 			    tryAgain = true;
 			    txSize = (txSize + 1)/2;
 			}
-			catch(com.sleepycat.db.DbException dx)
+			catch(com.sleepycat.db.DatabaseException dx)
 			{
 			    DatabaseException ex = new DatabaseException();
 			    ex.initCause(dx);
@@ -1868,13 +1826,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 	    ex.printStackTrace(pw);
 	    pw.flush();
-	    _communicator.getLogger().
-		error(_errorPrefix + "Fatal error in saving thread:\n" + sw.toString());
+	    _communicator.getLogger().error(_errorPrefix + "Fatal error in saving thread:\n" + sw.toString());
 
 	    Util.handleFatalError(this, _communicator, ex);
 	}
     }
-
 
     final DeactivateController
     deactivateController()
@@ -1974,10 +1930,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			objString += " with facet \"" + facet + "\"";
 		    }
 
-		    _communicator.getLogger().trace(
-			"Freeze.Evictor", 
-			"evicting " + objString + " from the queue; " + "number of elements in the queue: " +
-			_currentEvictorSize);
+		    _communicator.getLogger().trace("Freeze.Evictor", "evicting " + objString + " from the queue; " +
+						    "number of elements in the queue: " + _currentEvictorSize);
 		}	
 		
 		//
@@ -1992,7 +1946,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
     }
 
-    
     private void 
     fixEvictPosition(EvictorElement element)
     {
@@ -2039,7 +1992,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	element.stale = true;
 	element.store.cache().unpin(element.identity);
     }
-
 
     private void
     addToModifiedQueue(EvictorElement element)
@@ -2096,32 +2048,30 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	return (ObjectStore) _storeMap.get(facet);
     }
 
-
     private java.util.List
     allDbs()
     {
 	java.util.List result = new java.util.LinkedList();
 	
-	com.sleepycat.db.Db db = null;
-	com.sleepycat.db.Dbc dbc = null;
+	com.sleepycat.db.Database db = null;
+	com.sleepycat.db.Cursor dbc = null;
 
 	try
 	{
-	    db = new com.sleepycat.db.Db(_dbEnv.getEnv(), 0);
-	    db.open(null, _filename, null, com.sleepycat.db.Db.DB_UNKNOWN, com.sleepycat.db.Db.DB_RDONLY, 0);
-	 
-	    dbc = db.cursor(null, 0);
-	    
-	    com.sleepycat.db.Dbt key = new com.sleepycat.db.Dbt();
-	    key.setFlags(com.sleepycat.db.Db.DB_DBT_MALLOC);
-	    
-	    com.sleepycat.db.Dbt value = new com.sleepycat.db.Dbt();
-	    value.setFlags(com.sleepycat.db.Db.DB_DBT_MALLOC);
-	    
+	    com.sleepycat.db.DatabaseConfig config = new com.sleepycat.db.DatabaseConfig();
+	    config.setType(com.sleepycat.db.DatabaseType.UNKNOWN);
+	    config.setReadOnly(true);
+	    db = _dbEnv.getEnv().openDatabase(null, _filename, null, config);
+
+	    dbc = db.openCursor(null, null);
+
+	    com.sleepycat.db.DatabaseEntry key = new com.sleepycat.db.DatabaseEntry();
+	    com.sleepycat.db.DatabaseEntry value = new com.sleepycat.db.DatabaseEntry();
+
 	    boolean more = true;
 	    while(more)
 	    {
-		more = (dbc.get(key, value, com.sleepycat.db.Db.DB_NEXT) == 0);
+		more = (dbc.getNext(key, value, null) == com.sleepycat.db.OperationStatus.SUCCESS);
 		if(more)
 		{
 		    //
@@ -2138,7 +2088,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
 	    dbc.close();
 	    dbc = null;
-	    db.close(0);
+	    db.close();
 	    db = null;
 	}
 	catch(java.io.UnsupportedEncodingException ix)
@@ -2154,7 +2104,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    // New file
 	    //
 	}
-	catch(com.sleepycat.db.DbException dx)
+	catch(com.sleepycat.db.DatabaseException dx)
 	{
 	    DatabaseException ex = new DatabaseException();
 	    ex.initCause(dx);
@@ -2169,7 +2119,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		{
 		    dbc.close();
 		}
-		catch(com.sleepycat.db.DbException dx)
+		catch(com.sleepycat.db.DatabaseException dx)
 		{
 		    // Ignored
 		}
@@ -2179,9 +2129,9 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    {
 		try
 		{
-		    db.close(0);
+		    db.close();
 		}
-		catch(com.sleepycat.db.DbException dx)
+		catch(com.sleepycat.db.DatabaseException dx)
 		{
 		    // Ignored
 		}
@@ -2190,15 +2140,13 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
 	return result;
     }
-    
 
     private static void
     checkIdentity(Ice.Identity ident)
     {
         if(ident.name == null || ident.name.length() == 0)
         {
-            Ice.IllegalIdentityException e = 
-		new Ice.IllegalIdentityException();
+            Ice.IllegalIdentityException e = new Ice.IllegalIdentityException();
 	    e.id = (Ice.Identity)ident.clone();
             throw e;
         }
@@ -2266,5 +2214,4 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     private boolean _deadlockWarning;    
 
     private Ice.Object _pingObject = new PingObject();
-
 }

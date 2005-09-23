@@ -1,16 +1,20 @@
 Changes since version 2.1.2
 ---------------------------
 
+- The Freeze implementation now uses the new BerkeleyDB Java API
+  introduced in version 4.3. BerkeleyDB 4.2 is no longer supported.
+
 - The mapping for structures has changed: the clone() method now
   has an empty exception specification; previously, it could throw
   java.lang.CloneNotSupportedException.
 
 - Changed the way servant locators work if a server has a servant
   locator registered for a specific category, in addition to a default
-  servant locator. Previously, if the locator for the specific category
-  failed to locate the servant, the run time would then call the default
-  locator. With the new behavior, if the locator for the specific category
-  does not return a servant, the default locator is not called.
+  servant locator. Previously, if the locator for the specific
+  category failed to locate the servant, the run time would then call
+  the default locator. With the new behavior, if the locator for the
+  specific category does not return a servant, the default locator is
+  not called.
 
 - Ice.Communicator.createObjectAdapter() throws
   Ice.AlreadyRegisteredException if it is called with the name of an

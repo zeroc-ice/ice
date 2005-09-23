@@ -45,26 +45,21 @@ class ObjectStore implements IceUtil.Store
 		throw ex;
 	    }
 	    
-	    com.sleepycat.db.DbEnv dbEnv = evictor.dbEnv().getEnv();
+	    com.sleepycat.db.Environment dbEnv = evictor.dbEnv().getEnv();
 	    
 	    try
 	    {	    
-		_db = new com.sleepycat.db.Db(dbEnv, 0);
-		
 		Transaction tx = connection.beginTransaction();
-		com.sleepycat.db.DbTxn txn = Util.getTxn(tx);
+		com.sleepycat.db.Transaction txn = Util.getTxn(tx);
 
 		//
 		// TODO: FREEZE_DB_MODE
 		//
-		int flags = 0;
-		if(createDb)
-		{
-		    flags |= com.sleepycat.db.Db.DB_CREATE;
-		}
-		_db.open(txn, evictor.filename(), _dbName, com.sleepycat.db.Db.DB_BTREE, flags, 0);
-		
-		
+		com.sleepycat.db.DatabaseConfig config = new com.sleepycat.db.DatabaseConfig();
+		config.setType(com.sleepycat.db.DatabaseType.BTREE);
+		config.setAllowCreate(createDb);
+		_db = dbEnv.openDatabase(txn, evictor.filename(), _dbName, config);
+
 		java.util.Iterator p = _indices.iterator();
 		while(p.hasNext())
 		{
@@ -78,7 +73,7 @@ class ObjectStore implements IceUtil.Store
 		    catalogData.evictor = true;
 		    catalog.put(evictor.filename(), catalogData);
 		}
-		
+
 		tx.commit();
 	    }
 	    catch(java.io.FileNotFoundException dx)
@@ -88,7 +83,7 @@ class ObjectStore implements IceUtil.Store
 		ex.message = _evictor.errorPrefix() + "Db.open: " + dx.getMessage();
 		throw ex;
 	    }
-	    catch(com.sleepycat.db.DbException dx)
+	    catch(com.sleepycat.db.DatabaseException dx)
 	    {
 		DatabaseException ex = new DatabaseException();
 		ex.initCause(dx);
@@ -124,13 +119,13 @@ class ObjectStore implements IceUtil.Store
             close();
         }
     }
-    
+
     void
     close()
     {
 	try
 	{
-	    _db.close(0);
+	    _db.close();
 	   
 	    java.util.Iterator p = _indices.iterator();
 	    while(p.hasNext())
@@ -140,7 +135,7 @@ class ObjectStore implements IceUtil.Store
 	    }
 	    _indices.clear();
 	}
-	catch(com.sleepycat.db.DbException dx)
+	catch(com.sleepycat.db.DatabaseException dx)
 	{
 	    DatabaseException ex = new DatabaseException();
 	    ex.initCause(dx);
@@ -154,25 +149,25 @@ class ObjectStore implements IceUtil.Store
     dbHasObject(Ice.Identity ident)
     {
 	byte[] key = marshalKey(ident, _communicator);
-	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
+	com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(key);
 		
 	//
 	// Keep 0 length since we're not interested in the data
 	//
-	com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
-	dbValue.setFlags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+	com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
+	dbValue.setPartial(true);
 	
 	for(;;)
 	{
 	    try
 	    {	
-		int err = _db.get(null, dbKey, dbValue, 0);
+		com.sleepycat.db.OperationStatus err = _db.get(null, dbKey, dbValue, null);
 		
-		if(err == 0)
+		if(err == com.sleepycat.db.OperationStatus.SUCCESS)
 		{
 		    return true;
 		}
-		else if(err == com.sleepycat.db.Db.DB_NOTFOUND)
+		else if(err == com.sleepycat.db.OperationStatus.NOTFOUND)
 		{
 		    return false;
 		}
@@ -181,21 +176,20 @@ class ObjectStore implements IceUtil.Store
 		    throw new DatabaseException();
 		}
 	    }
-	    catch(com.sleepycat.db.DbDeadlockException deadlock)
+	    catch(com.sleepycat.db.DeadlockException dx)
 	    {
 		if(_evictor.deadlockWarning())
 		{
-		    _communicator.getLogger().warning
-			("Deadlock in Freeze.ObjectStore.dhHasObject while reading Db \"" 
-			 + _evictor.filename() + "/" + _dbName 
-			 + "\"; retrying ...");
+		    _communicator.getLogger().warning("Deadlock in Freeze.ObjectStore.dhHasObject while reading " +
+						      "Db \"" + _evictor.filename() + "/" + _dbName +
+						      "\"; retrying...");
 		}
 
 		//
 		// Ignored, try again
 		//
 	    }
-	    catch(com.sleepycat.db.DbException dx)
+	    catch(com.sleepycat.db.DatabaseException dx)
 	    {
 		DatabaseException ex = new DatabaseException();
 		ex.initCause(dx);
@@ -206,19 +200,26 @@ class ObjectStore implements IceUtil.Store
     }
 
     void
-    save(byte[] key, byte[] value, byte status, com.sleepycat.db.DbTxn tx)
-	throws com.sleepycat.db.DbException
+    save(byte[] key, byte[] value, byte status, com.sleepycat.db.Transaction tx)
+	throws com.sleepycat.db.DatabaseException
     {
 	switch(status)
 	{
 	    case EvictorElement.created:
 	    case EvictorElement.modified:
 	    {
-		com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
-		com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt(value);
-		int flags = (status == EvictorElement.created) ? com.sleepycat.db.Db.DB_NOOVERWRITE : 0;
-		int err = _db.put(tx, dbKey, dbValue, flags);
-		if(err != 0)
+		com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(key);
+		com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry(value);
+		com.sleepycat.db.OperationStatus err;
+		if(status == EvictorElement.created)
+		{
+		    err = _db.putNoOverwrite(tx, dbKey, dbValue);
+		}
+		else
+		{
+		    err = _db.put(tx, dbKey, dbValue);
+		}
+		if(err != com.sleepycat.db.OperationStatus.SUCCESS)
 		{
 		    throw new DatabaseException();
 		}
@@ -226,9 +227,9 @@ class ObjectStore implements IceUtil.Store
 	    }
 	    case EvictorElement.destroyed:
 	    {
-		com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
-		int err = _db.delete(tx, dbKey, 0);
-		if(err != 0)
+		com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(key);
+		com.sleepycat.db.OperationStatus err = _db.delete(tx, dbKey);
+		if(err != com.sleepycat.db.OperationStatus.SUCCESS)
 		{
 		    throw new DatabaseException();
 		}
@@ -305,7 +306,7 @@ class ObjectStore implements IceUtil.Store
 	return _cache;
     }
 
-    final com.sleepycat.db.Db 
+    final com.sleepycat.db.Database
     db()
     {
 	return _db;
@@ -342,41 +343,39 @@ class ObjectStore implements IceUtil.Store
 
 	byte[] key = marshalKey(ident, _communicator);
 
-	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
-	com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
+	com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(key);
+	com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
 
 	for(;;)
 	{
 	    try
 	    {	
-		int rs = _db.get(null, dbKey, dbValue, 0);
+		com.sleepycat.db.OperationStatus rs = _db.get(null, dbKey, dbValue, null);
 		
-		if(rs == com.sleepycat.db.Db.DB_NOTFOUND)
+		if(rs == com.sleepycat.db.OperationStatus.NOTFOUND)
 		{
 		    return null;
 		}
-		else if (rs != 0)
+		else if (rs != com.sleepycat.db.OperationStatus.SUCCESS)
 		{
 		    assert false;
 		    throw new DatabaseException();
 		}
 		break;
 	    }
-	    catch(com.sleepycat.db.DbDeadlockException deadlock)
+	    catch(com.sleepycat.db.DeadlockException dx)
 	    {
 		if(_evictor.deadlockWarning())
 		{
-		    _communicator.getLogger().warning
-			("Deadlock in Freeze.ObjectStore.load while reading Db \"" 
-			 + _evictor.filename() + "/" + _dbName 
-			 + "\"; retrying ...");
+		    _communicator.getLogger().warning("Deadlock in Freeze.ObjectStore.load while reading Db \"" +
+						      _evictor.filename() + "/" + _dbName + "\"; retrying...");
 		}
 
 		//
 		// Ignored, try again
 		//
 	    }
-	    catch(com.sleepycat.db.DbException dx)
+	    catch(com.sleepycat.db.DatabaseException dx)
 	    {
 		DatabaseException ex = new DatabaseException();
 		ex.initCause(dx);
@@ -394,18 +393,10 @@ class ObjectStore implements IceUtil.Store
 
     private final IceUtil.Cache _cache;
     
-    private com.sleepycat.db.Db _db;
+    private com.sleepycat.db.Database _db;
     private final String _facet;
     private final String _dbName;
     private final EvictorI _evictor;
     private final java.util.List _indices;
     private final Ice.Communicator _communicator;
-
 }
-
-
-
-
-
-
-

@@ -636,7 +636,6 @@ public class Client
 	Ice.Communicator communicator = null;
 	String envName = "db";
       
-
 	try
 	{
 	    Ice.StringSeqHolder holder = new Ice.StringSeqHolder();
@@ -652,22 +651,11 @@ public class Client
 	    
 	    status = run(args, communicator, envName, "binary");
 	}
-	catch(DatabaseException ex)
-	{
-	    System.err.println(args[0] + ": " + ex + ": " + ex.message);
-	    status = 1;
-	}
-	catch(Ice.LocalException ex)
-	{
-	    System.err.println(args[0] + ": " + ex);
-	    status = 1;
-	}
 	catch(Exception ex)
 	{
-	    System.err.println(args[0] + ": unknown exception: " + ex);
+	    ex.printStackTrace();
 	    status = 1;
 	}
-
 
 	if(communicator != null)
 	{

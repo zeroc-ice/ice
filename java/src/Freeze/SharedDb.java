@@ -9,11 +9,10 @@
 
 package Freeze;
 
-class SharedDb extends com.sleepycat.db.Db
+class SharedDb
 {
     public static SharedDb
-    get(ConnectionI connection, String dbName, String key, String value, 
-	Map.Index[] indices, boolean createDb)
+    get(ConnectionI connection, String dbName, String key, String value, Map.Index[] indices, boolean createDb)
     {
 	MapKey mapKey = new MapKey(connection.envName(), connection.communicator(), dbName);
 	
@@ -37,7 +36,7 @@ class SharedDb extends com.sleepycat.db.Db
 		{
 		    result = new SharedDb(mapKey, key, value, connection, indices, createDb);
 		}
-		catch(com.sleepycat.db.DbException dx)
+		catch(com.sleepycat.db.DatabaseException dx)
 		{
 		    DatabaseException ex = new DatabaseException();
 		    ex.initCause(dx);
@@ -77,7 +76,7 @@ class SharedDb extends com.sleepycat.db.Db
 	    {
 		result = new SharedDb(mapKey, dbEnv.getEnv());
 	    }
-	    catch(com.sleepycat.db.DbException dx)
+	    catch(com.sleepycat.db.DatabaseException dx)
 	    {
 		DatabaseException ex = new DatabaseException();
 		ex.initCause(dx);
@@ -88,6 +87,12 @@ class SharedDb extends com.sleepycat.db.Db
 	    assert(previousValue == null);
 	    return result;
 	}
+    }
+
+    public com.sleepycat.db.Database
+    db()
+    {
+	return _db;
     }
 
     public String 
@@ -122,9 +127,9 @@ class SharedDb extends com.sleepycat.db.Db
 		{
 		    cleanupIndices();
 		   
-		    super.close(0);
+		    _db.close();
 		}
-		catch(com.sleepycat.db.DbException dx)
+		catch(com.sleepycat.db.DatabaseException dx)
 		{
 		    DatabaseException ex = new DatabaseException();
 		    ex.initCause(dx);
@@ -141,11 +146,10 @@ class SharedDb extends com.sleepycat.db.Db
 	assert(_refCount == 0);
     }
 
-    private SharedDb(MapKey mapKey, String key, String value,
-		     ConnectionI connection, Map.Index[] indices,
-		     boolean createDb) throws com.sleepycat.db.DbException
+    private SharedDb(MapKey mapKey, String key, String value, ConnectionI connection, Map.Index[] indices,
+		     boolean createDb)
+	throws com.sleepycat.db.DatabaseException
     {	
-	super(connection.dbEnv().getEnv(), 0);
 	_mapKey = mapKey;
 	_indices = indices;
 	_trace = connection.trace();
@@ -161,7 +165,6 @@ class SharedDb extends com.sleepycat.db.Db
 		if(catalogData.evictor)
 		{
 		    DatabaseException ex = new DatabaseException();
-		    
 		    ex.message = errorPrefix(_mapKey) + "is not an evictor";
 		    throw ex;
 		}
@@ -178,27 +181,24 @@ class SharedDb extends com.sleepycat.db.Db
 	    try
 	    {
 		Transaction tx = catalogConnection.beginTransaction();
-		com.sleepycat.db.DbTxn txn = Util.getTxn(tx);
+		com.sleepycat.db.Transaction txn = Util.getTxn(tx);
 
-		int flags = 0;
-		
-		if(createDb)
-		{
-		    flags |= com.sleepycat.db.Db.DB_CREATE;
-		}
-		
+		com.sleepycat.db.DatabaseConfig config = new com.sleepycat.db.DatabaseConfig();
+		config.setAllowCreate(createDb);
+		config.setType(com.sleepycat.db.DatabaseType.BTREE);
+
 		if(_trace >= 1)
 		{
 		    _mapKey.communicator.getLogger().trace("Freeze.Map", "opening Db \"" + _mapKey.dbName + "\"");
 		}
-		
-		open(txn, mapKey.dbName, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
-		
+
+		_db = connection.dbEnv().getEnv().openDatabase(txn, mapKey.dbName, null, config);
+
 		if(_indices != null)
 		{
 		    for(int i = 0; i < _indices.length; ++i)
 		    {
-			_indices[i].associate(mapKey.dbName, this, txn, createDb);
+			_indices[i].associate(mapKey.dbName, _db, txn, createDb);
 		    }
 		}
 
@@ -225,7 +225,7 @@ class SharedDb extends com.sleepycat.db.Db
 		ex.message = errorPrefix(_mapKey) + "Db.open: " + dx.getMessage();
 		throw ex;
 	    }
-	    catch(com.sleepycat.db.DbException dx)
+	    catch(com.sleepycat.db.DatabaseException dx)
 	    {
 		cleanupIndices();
 		DatabaseException ex = new DatabaseException();
@@ -256,9 +256,9 @@ class SharedDb extends com.sleepycat.db.Db
 	_refCount = 1;
     }
 
-    private SharedDb(MapKey mapKey, com.sleepycat.db.DbEnv dbEnv) throws com.sleepycat.db.DbException
+    private SharedDb(MapKey mapKey, com.sleepycat.db.Environment dbEnv)
+	throws com.sleepycat.db.DatabaseException
     {	
-	super(dbEnv, 0);
 	_mapKey = mapKey;
 	_key = "string";
 	_value = "::Freeze::CatalogData";
@@ -267,12 +267,15 @@ class SharedDb extends com.sleepycat.db.Db
 	{
 	    _mapKey.communicator.getLogger().trace("Freeze.Map", "opening Db \"" + _mapKey.dbName + "\"");
 	}
-	
-	int flags = com.sleepycat.db.Db.DB_CREATE | com.sleepycat.db.Db.DB_AUTO_COMMIT;
+
+	com.sleepycat.db.DatabaseConfig config = new com.sleepycat.db.DatabaseConfig();
+	config.setAllowCreate(true);
+	config.setType(com.sleepycat.db.DatabaseType.BTREE);
+	config.setTransactional(true);
 
 	try
 	{
-	    open(null, mapKey.dbName, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
+	    _db = dbEnv.openDatabase(null, mapKey.dbName, null, config);
 	}
 	catch(java.io.FileNotFoundException dx)
 	{
@@ -313,7 +316,6 @@ class SharedDb extends com.sleepycat.db.Db
 	    _indices = null;
 	}
     }
-	
 
     private static void
     checkTypes(SharedDb sharedDb, String key, String value)
@@ -321,15 +323,15 @@ class SharedDb extends com.sleepycat.db.Db
 	if(!key.equals(sharedDb._key))
 	{
 	    DatabaseException ex = new DatabaseException();
-	    ex.message = errorPrefix(sharedDb._mapKey) + 
-		sharedDb.dbName() + "'s key type is " + sharedDb._key + ", not " + key;
+	    ex.message = errorPrefix(sharedDb._mapKey) + sharedDb.dbName() + "'s key type is " + sharedDb._key +
+		", not " + key;
 	    throw ex;
 	}
 	if(!value.equals(sharedDb._value))
 	{
 	    DatabaseException ex = new DatabaseException();
-	    ex.message = errorPrefix(sharedDb._mapKey) + 
-		sharedDb.dbName() + "'s value type is " + sharedDb._value + ", not " + value;
+	    ex.message = errorPrefix(sharedDb._mapKey) + sharedDb.dbName() + "'s value type is " + sharedDb._value +
+		", not " + value;
 	    throw ex;
 	}
     }
@@ -378,6 +380,7 @@ class SharedDb extends com.sleepycat.db.Db
 	}
     }
 
+    private com.sleepycat.db.Database _db;
     private MapKey _mapKey;
     private String _key;
     private String _value;
@@ -390,4 +393,3 @@ class SharedDb extends com.sleepycat.db.Db
     //
     private static java.util.Map _map = new java.util.HashMap();
 }
-

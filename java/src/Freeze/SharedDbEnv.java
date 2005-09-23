@@ -9,10 +9,10 @@
 
 package Freeze;
 
-class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
+class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
 {
     public static SharedDbEnv
-    get(Ice.Communicator communicator, String envName, com.sleepycat.db.DbEnv dbEnv)
+    get(Ice.Communicator communicator, String envName, com.sleepycat.db.Environment dbEnv)
     {
 	MapKey key = new MapKey(envName, communicator);
 
@@ -27,7 +27,7 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 		{
 		    result = new SharedDbEnv(key, dbEnv);
 		}
-		catch(com.sleepycat.db.DbException dx)
+		catch(com.sleepycat.db.DatabaseException dx)
 		{
 		    DatabaseException ex = new DatabaseException();
 		    ex.initCause(dx);
@@ -63,7 +63,7 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 	return _key.communicator;
     }
 
-    public com.sleepycat.db.DbEnv
+    public com.sleepycat.db.Environment
     getEnv()
     {
 	return _dbEnv;
@@ -124,8 +124,8 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 
 		if(_trace >= 1)
 		{
-		    _key.communicator.getLogger().trace
-			("Freeze.DbEnv", "closing database environment \"" + _key.envName + "\"");
+		    _key.communicator.getLogger().trace("Freeze.DbEnv", "closing database environment \"" +
+							_key.envName + "\"");
 		}
 
 		//
@@ -134,9 +134,9 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 		//
 		try
 		{
-		    _dbEnv.close(0);
+		    _dbEnv.close();
 		}
-		catch(com.sleepycat.db.DbException dx)
+		catch(com.sleepycat.db.DatabaseException dx)
 		{
 		    DatabaseException ex = new DatabaseException();
 		    ex.initCause(dx);
@@ -146,7 +146,6 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 	    }
 	}
     }
-
 
     public void
     run()
@@ -175,28 +174,28 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 	    
 	    if(_trace >= 2)
 	    {
-		_key.communicator.getLogger().trace
-		    ("Freeze.DbEnv", "checkpointing environment \"" + _key.envName + "\"");
+		_key.communicator.getLogger().trace("Freeze.DbEnv", "checkpointing environment \"" + _key.envName +
+						    "\"");
 	    }
 
 	    try
 	    {
-		_dbEnv.txnCheckpoint(_kbyte, 0, 0);
+		com.sleepycat.db.CheckpointConfig config = new com.sleepycat.db.CheckpointConfig();
+		config.setKBytes(_kbyte);
+		_dbEnv.checkpoint(config);
 	    }
-	    catch(com.sleepycat.db.DbException dx)
+	    catch(com.sleepycat.db.DatabaseException dx)
 	    {
-		_key.communicator.getLogger().warning(
-		    "checkpoint on DbEnv \"" + _key.envName + "\" raised DbException: " 
-		    + dx.getMessage());
+		_key.communicator.getLogger().warning("checkpoint on DbEnv \"" + _key.envName +
+						      "\" raised DbException: " + dx.getMessage());
 	    }
 	}
     }
     
     public void 
-    error(String errorPrefix, String message)
+    error(com.sleepycat.db.Environment env, String errorPrefix, String message)
     {
-	_key.communicator.getLogger().error
-	    ("Freeze database error in DbEnv \"" + _key.envName + "\": " + message);
+	_key.communicator.getLogger().error("Freeze database error in DbEnv \"" + _key.envName + "\": " + message);
     }
 
     protected void 
@@ -205,73 +204,68 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 	assert(_refCount == 0);
     }
 
-    private SharedDbEnv(MapKey key, com.sleepycat.db.DbEnv dbEnv) throws com.sleepycat.db.DbException
+    private
+    SharedDbEnv(MapKey key, com.sleepycat.db.Environment dbEnv)
+	throws com.sleepycat.db.DatabaseException
     {	
 	_key = key;
 	_dbEnv = dbEnv;
 	_ownDbEnv = (dbEnv == null);
-	
+
 	Ice.Properties properties = key.communicator.getProperties();
 	_trace = properties.getPropertyAsInt("Freeze.Trace.DbEnv");
-	
+
 	if(_ownDbEnv)
 	{
-	    _dbEnv = new com.sleepycat.db.DbEnv(0);
+	    com.sleepycat.db.EnvironmentConfig config = new com.sleepycat.db.EnvironmentConfig();
 
-	    if(_trace >= 1)
-	    {
-		_key.communicator.getLogger().trace
-		    ("Freeze.DbEnv", "opening database environment \"" + _key.envName + "\"");
-	    }
-	    
-	    String propertyPrefix = "Freeze.DbEnv." + _key.envName;
-	    
-	    _dbEnv.setErrorHandler(this);
-	    
+	    config.setErrorHandler(this);
+	    config.setInitializeLocking(true);
+	    config.setInitializeLogging(true);
+	    config.setInitializeCache(true);
+	    config.setAllowCreate(true);
+	    config.setTransactional(true);
+
 	    //
 	    // Deadlock detection
 	    //
-	    _dbEnv.setLockDetect(com.sleepycat.db.Db.DB_LOCK_YOUNGEST);
-	    
-	    int flags = com.sleepycat.db.Db.DB_INIT_LOCK |
-		com.sleepycat.db.Db.DB_INIT_LOG |
-		com.sleepycat.db.Db.DB_INIT_MPOOL |
-		com.sleepycat.db.Db.DB_INIT_TXN;
-	    
-	    if(properties.getPropertyAsInt(
-		   propertyPrefix + ".DbRecoverFatal") != 0)
+	    config.setLockDetectMode(com.sleepycat.db.LockDetectMode.YOUNGEST);
+
+	    String propertyPrefix = "Freeze.DbEnv." + _key.envName;
+	    if(properties.getPropertyAsInt(propertyPrefix + ".DbRecoverFatal") != 0)
 	    {
-		flags |= com.sleepycat.db.Db.DB_RECOVER_FATAL | 
-		    com.sleepycat.db.Db.DB_CREATE;
+		config.setRunFatalRecovery(true);
 	    }
 	    else
 	    {
-		flags |= com.sleepycat.db.Db. DB_RECOVER |
-		    com.sleepycat.db.Db.DB_CREATE;
+		config.setRunRecovery(true);
 	    }
-	    
-	    if(properties.getPropertyAsIntWithDefault(
-		   propertyPrefix + ".DbPrivate", 1) != 0)
+
+	    if(properties.getPropertyAsIntWithDefault(propertyPrefix + ".DbPrivate", 1) != 0)
 	    {
-		flags |= com.sleepycat.db.Db.DB_PRIVATE;
+		config.setPrivate(true);
 	    }
-	    
-	    if(properties.getPropertyAsIntWithDefault
-	       (propertyPrefix + ".OldLogsAutoDelete", 1) != 0)
+
+	    if(properties.getPropertyAsIntWithDefault(propertyPrefix + ".OldLogsAutoDelete", 1) != 0)
 	    {
-		flags |= com.sleepycat.db.Db.DB_LOG_AUTOREMOVE;
+		config.setLogAutoRemove(true);
 	    }
-	    
-	    String dbHome = properties.getPropertyWithDefault(
-		propertyPrefix + ".DbHome", _key.envName);
-	    
+
+	    if(_trace >= 1)
+	    {
+		_key.communicator.getLogger().trace("Freeze.DbEnv", "opening database environment \"" +
+						    _key.envName + "\"");
+	    }
+
 	    //
 	    // TODO: FREEZE_DB_MODE
 	    //
 	    
 	    try
 	    {
-		_dbEnv.open(dbHome, flags, 0);
+		String dbHome = properties.getPropertyWithDefault(propertyPrefix + ".DbHome", _key.envName);
+		java.io.File home = new java.io.File(dbHome);
+		_dbEnv = new com.sleepycat.db.Environment(home, config);
 	    }
 	    catch(java.io.FileNotFoundException dx)
 	    {
@@ -284,13 +278,11 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 	    //
 	    // Default checkpoint period is every 120 seconds
 	    //
-	    _checkpointPeriod = properties.getPropertyAsIntWithDefault
-		(propertyPrefix + ".CheckpointPeriod", 120) * 1000;
+	    _checkpointPeriod =
+		properties.getPropertyAsIntWithDefault(propertyPrefix + ".CheckpointPeriod", 120) * 1000;
 	    
-	    _kbyte = properties.getPropertyAsIntWithDefault
-		(propertyPrefix + ".PeriodicCheckpointMinSize", 0);
-	    
-	    
+	    _kbyte = properties.getPropertyAsIntWithDefault(propertyPrefix + ".PeriodicCheckpointMinSize", 0);
+
 	    String threadName;
 	    String programName = properties.getProperty("Ice.ProgramName");
 	    if(programName.length() > 0)
@@ -302,8 +294,7 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 		threadName = "";
 	    }
 	    threadName += "FreezeCheckpointThread(" + _key.envName + ")";
-	    
-	    
+
 	    if(_checkpointPeriod > 0)
 	    {
 		_thread = new Thread(this, threadName);
@@ -314,7 +305,8 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
 	_refCount = 1;
     }
 
-    private synchronized void init()
+    private synchronized void
+    init()
     {
 	if(_catalog == null)
 	{
@@ -325,7 +317,7 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
     private static String
     errorPrefix(String envName)
     {
-	return  "DbEnv(\"" + envName + "\"): ";
+	return "DbEnv(\"" + envName + "\"): ";
     }
 
     private static class MapKey
@@ -361,7 +353,7 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
     }
 
     private MapKey _key;
-    private com.sleepycat.db.DbEnv _dbEnv;
+    private com.sleepycat.db.Environment _dbEnv;
     private boolean _ownDbEnv;
     private SharedDb _catalog;
     private int _refCount = 0;
@@ -376,4 +368,3 @@ class SharedDbEnv implements com.sleepycat.db.DbErrorHandler, Runnable
     //
     private static java.util.Map _map = new java.util.HashMap();
 }
-
