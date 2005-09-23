@@ -1017,49 +1017,11 @@ Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 void
 Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newApp, ServerEntrySeq& entries)
 {
-    const NodeDescriptorDict& oldNodes = oldApp.getInstance().nodes;
-    const string application = oldApp.getInstance().name;
-    NodeDescriptorDict::const_iterator n;
-    for(n = oldNodes.begin(); n != oldNodes.end(); ++n)
-    {
-	_nodeCache.get(n->first)->removeDescriptor(application);
-    }
-    const NodeDescriptorDict& newNodes = newApp.getInstance().nodes;
-    for(n = newNodes.begin(); n != newNodes.end(); ++n)
-    {
-	_nodeCache.get(n->first, true)->addDescriptor(application, n->second);
-    }
-
     //
-    // Unload/load replicated adapters.
+    // Figure out which servers need to removed/updated and added.
     //
-    const ReplicatedAdapterDescriptorSeq& oldAdpts = oldApp.getInstance().replicatedAdapters;
-    ReplicatedAdapterDescriptorSeq::const_iterator r;
-    for(r = oldAdpts.begin(); r != oldAdpts.end(); ++r)
-    {
-	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
-	{
-	    _objectCache.remove(o->id);
-	}
-	_adapterCache.get(r->id, false)->disableReplication();
-    }
-    const ReplicatedAdapterDescriptorSeq& newAdpts = newApp.getInstance().replicatedAdapters;
-    for(r = newAdpts.begin(); r != newAdpts.end(); ++r)
-    {
-	_adapterCache.get(r->id, true)->enableReplication(r->loadBalancing);
-	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
-	{
-	    _objectCache.add(application, r->id, "", *o);
-	}
-    }
-
     map<string, ServerInfo> oldServers = oldApp.getServerInfos();
     map<string, ServerInfo> newServers = newApp.getServerInfos();
-
-    //
-    // Unload updated and removed servers and keep track of added and
-    // updated servers to reload them after.
-    //
     vector<ServerInfo> load;
     map<string, ServerInfo>::const_iterator p;
     for(p = newServers.begin(); p != newServers.end(); ++p)
@@ -1076,6 +1038,10 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
 	    load.push_back(p->second);
 	}
     }
+
+    //
+    // Remove destroyed servers.
+    //
     for(p = oldServers.begin(); p != oldServers.end(); ++p)
     {
 	map<string, ServerInfo>::const_iterator q = newServers.find(p->first);
@@ -1086,8 +1052,52 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
     }
 
     //
-    // Load added servers and reload updated ones.
+    // Remove all the node descriptors.
     //
+    const NodeDescriptorDict& oldNodes = oldApp.getInstance().nodes;
+    const string application = oldApp.getInstance().name;
+    NodeDescriptorDict::const_iterator n;
+    for(n = oldNodes.begin(); n != oldNodes.end(); ++n)
+    {
+	_nodeCache.get(n->first)->removeDescriptor(application);
+    }
+
+    //
+    // Remove all the replicated adapters.
+    //
+    const ReplicatedAdapterDescriptorSeq& oldAdpts = oldApp.getInstance().replicatedAdapters;
+    ReplicatedAdapterDescriptorSeq::const_iterator r;
+    for(r = oldAdpts.begin(); r != oldAdpts.end(); ++r)
+    {
+	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
+	{
+	    _objectCache.remove(o->id);
+	}
+	_adapterCache.get(r->id, false)->disableReplication();
+    }
+
+    //
+    // Add back replicated adapters.
+    //
+    const ReplicatedAdapterDescriptorSeq& newAdpts = newApp.getInstance().replicatedAdapters;
+    for(r = newAdpts.begin(); r != newAdpts.end(); ++r)
+    {
+	_adapterCache.get(r->id, true)->enableReplication(r->loadBalancing);
+	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
+	{
+	    _objectCache.add(application, r->id, "", *o);
+	}
+    }
+
+    //
+    // Add back node descriptors.
+    //
+    const NodeDescriptorDict& newNodes = newApp.getInstance().nodes;
+    for(n = newNodes.begin(); n != newNodes.end(); ++n)
+    {
+	_nodeCache.get(n->first, true)->addDescriptor(application, n->second);
+    }
+
     for(vector<ServerInfo>::const_iterator q = load.begin(); q != load.end(); ++q)
     {
 	entries.push_back(_serverCache.add(*q));

@@ -64,7 +64,6 @@ tests = [ \
     "Ice/slicing/objects", \
     "Ice/checksum", \
     "Ice/stream", \
-    "Glacier2/router", \
     "IceGrid/simple", \
     ]
 
