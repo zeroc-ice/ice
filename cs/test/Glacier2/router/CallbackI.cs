@@ -10,7 +10,7 @@
 using Test;
 using System.Diagnostics;
 
-public sealed class CallbackI : Test._CallbackDisp
+public sealed class CallbackI : Test.CallbackDisp_
 {
     public CallbackI()
     {
@@ -35,7 +35,7 @@ public sealed class CallbackI : Test._CallbackDisp
     }
 }
 
-public sealed class CallbackReceiverI : _CallbackReceiverDisp
+public sealed class CallbackReceiverI : CallbackReceiverDisp_
 {
     public CallbackReceiverI()
     {
