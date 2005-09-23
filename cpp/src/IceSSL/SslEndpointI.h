@@ -50,6 +50,16 @@ public:
 
 private:
 
+#if defined(__SUNPRO_CC)
+    //
+    // COMPILERFIX: prevent the compiler from emitting a warning about
+    // hidding these operators.
+    //
+    using LocalObject::operator==;
+    using LocalObject::operator!=;
+    using LocalObject::operator<;
+#endif
+
     //
     // All members are const, because endpoints are immutable.
     //
