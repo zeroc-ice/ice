@@ -33,7 +33,7 @@ public:
     virtual Ice::ObjectPrx getDirectProxy(const Ice::Current& = Ice::Current()) const;
     virtual void setDirectProxy(const ::Ice::ObjectPrx&, const ::Ice::Current& = Ice::Current());
     virtual void destroy(const ::Ice::Current&);
-
+    void clear();
     void activationFailed(bool);
 
 private:

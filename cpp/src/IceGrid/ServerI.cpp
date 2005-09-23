@@ -561,7 +561,7 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
     {
 	try
 	{
-	    p->second->setDirectProxy(0);
+	    p->second->clear();
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{

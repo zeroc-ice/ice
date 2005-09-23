@@ -178,6 +178,13 @@ ServerAdapterI::destroy(const Ice::Current& current)
     current.adapter->remove(_this->ice_getIdentity());
 }
 
+void
+ServerAdapterI::clear()
+{
+    Lock sync(*this);
+    _proxy = 0;
+}
+
 void 
 ServerAdapterI::activationFailed(bool timeout)
 {
