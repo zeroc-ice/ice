@@ -7,19 +7,18 @@
 //
 // **********************************************************************
 
-public sealed class TestI : Test.TestIntfDisp_
+#ifndef HELLO_ICE
+#define HELLO_ICE
+
+module Demo
 {
-    public
-    TestI(Ice.ObjectAdapter adapter)
-    {
-        _adapter = adapter;
-    }
 
-    public override void
-    shutdown(Ice.Current current)
-    {
-        _adapter.getCommunicator().shutdown();
-    }
+interface Hello
+{
+    nonmutating void sayHello();
+    idempotent void shutdown();
+};
 
-    private Ice.ObjectAdapter _adapter;
-}
+};
+
+#endif
