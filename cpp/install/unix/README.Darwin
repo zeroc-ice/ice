@@ -62,7 +62,7 @@ Berkeley DB and Expat
 ======================================================================
 
 This distribution includes the C++ and Java runtime for Berkeley DB
-4.2.52 and the Expat 1.95.8 library. The Berkeley DB C++ runtime was
+4.3.28 and the Expat 1.95.8 library. The Berkeley DB C++ runtime was
 built using GCC 3.3. The Berkeley DB and Expat licenses are provided
 in the file THIRD_PARTY_LICENSE.
 
@@ -108,12 +108,20 @@ CLASSPATH, as shown below:
 
 $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
 
-Note that the Freeze component of Ice for Java requires Berkeley DB.
-In order to use Freeze, you must add db.jar to your CLASSPATH. In
-addition, the JVM requires the directory containing the Berkeley DB
-libraries to be listed in java.library.path, therefore you must add
-this directory to your DYLD_LIBRARY_PATH (even if the libraries reside
-in /usr/lib).
+If you plan to use Freeze for persistence, you must also add the
+Berkeley DB JAR file (db.jar) to your CLASSPATH:
+
+$ export CLASSPATH=$ICE_HOME/lib/db.jar:$CLASSPATH
+
+In addition, the JVM requires that the directory containing the
+Berkeley DB libraries be listed in java.library.path, therefore you
+must add this directory to DYLD_LIBRARY_PATH.
+
+Finally, the IceGrid graphical client requires the JGoodies
+libraries:
+
+$ export CLASSPATH=$ICE_HOME/lib/looks-1.3.2.jar:$CLASSPATH
+$ export CLASSPATH=$ICE_HOME/lib/forms-1.0.5.jar:$CLASSPATH
 
 
 Python

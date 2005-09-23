@@ -76,7 +76,7 @@ Berkeley DB
 ======================================================================
 
 This distribution includes the C++ and Java runtime for Berkeley DB
-4.2.52. The C++ runtime was built using Sun CC version 5.4. The
+4.3.28. The C++ runtime was built using Sun CC version 5.4. The
 Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
 
 
@@ -126,10 +126,25 @@ such as IcePack or Glacier2.
 Java
 ----
 
-To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar and
-$ICE_HOME/lib/db.jar to your CLASSPATH, as shown below:
+To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
+CLASSPATH, as shown below:
 
-$ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$ICE_HOME/lib/db.jar:$CLASSPATH
+$ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
+
+If you plan to use Freeze for persistence, you must also add the
+Berkeley DB JAR file (db.jar) to your CLASSPATH:
+
+$ export CLASSPATH=$ICE_HOME/lib/db.jar:$CLASSPATH
+
+In addition, the JVM requires that the directory containing the
+Berkeley DB libraries be listed in java.library.path, therefore you
+must add this directory to LD_LIBRARY_PATH.
+
+Finally, the IceGrid graphical client requires the JGoodies
+libraries:
+
+$ export CLASSPATH=$ICE_HOME/lib/looks-1.3.2.jar:$CLASSPATH
+$ export CLASSPATH=$ICE_HOME/lib/forms-1.0.5.jar:$CLASSPATH
 
 
 Python

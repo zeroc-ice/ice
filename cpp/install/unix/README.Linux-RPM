@@ -27,40 +27,17 @@ documentation, Slice files, and the C++ runtime libraries.
 
 Additional Ice components are provided in separate RPM packages:
 
-- Run time libraries for Java, Python, and C# (Mono). These libraries
-  enable you to execute Ice applications.
+- Run time libraries for Java, Python, PHP, and C# (Mono). These
+  libraries enable you to execute Ice applications.
 
-- Development kits for C++, Java, Python, and C# (Mono). A development
-  kit is required for building Ice applications using a supported
-  language mapping. The development kits include examples that
-  demonstrate various Ice features.
+- Development kits for C++, Java, Python, PHP, and C# (Mono). A
+  development kit is required for building Ice applications using a
+  supported language mapping. The development kits include examples
+  that demonstrate various Ice features.
 
 These RPMs are available for download at the ZeroC web site at
 
 http://www.zeroc.com/download.html
-
-
-======================================================================
-PHP Notes
-======================================================================
-
-The Ice extension for PHP is not included in the Ice RPM distribution
-because there is no standard RPM package for PHP5 in Fedora Core 3.
-
-A precompiled shared library for the Ice extension is included in
-the .tar.gz distribution for Linux. If you prefer to compile the Ice
-extension for PHP from source, you will need to install the Ice core
-and Ice for C++ development packages:
-
-ice-@ver@-1.i386.rpm
-ice-c++-devel-@ver@-1.i386.rpm
-
-Once you have built the Ice extension for PHP, you can remove the
-C++ development RPM if you are not planning to develop applications
-using Ice for C++.
-
-Also note that if you are building PHP as an Apache module, you must
-install the Apache development RPM (httpd-devel-xxx.i386.rpm).
 
 
 ======================================================================
@@ -104,6 +81,33 @@ installation of Berkeley DB, the bash command is shown below:
 $ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 
 
+Java
+----
+
+To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
+CLASSPATH, as shown below:
+
+$ export CLASSPATH=/usr/lib/Ice-@ver@/Ice.jar:$CLASSPATH
+
+If you plan to use Freeze for persistence, you must also add the
+Berkeley DB JAR file (db.jar) to your CLASSPATH:
+
+$ export CLASSPATH=$DB_HOME/lib/db.jar:$CLASSPATH
+
+In addition, the JVM requires that the directory containing the
+Berkeley DB libraries be listed in java.library.path, therefore you
+must add this directory to LD_LIBRARY_PATH. Assuming you are using
+the RPM installation of Berkeley DB, the bash command is shown below:
+
+$ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
+
+Finally, the IceGrid graphical client requires the JGoodies
+libraries:
+
+$ export CLASSPATH=/usr/lib/Ice-@ver@/looks-1.3.2.jar:$CLASSPATH
+$ export CLASSPATH=/usr/lib/Ice-@ver@/forms-1.0.5.jar:$CLASSPATH
+
+
 Python
 ------
 
@@ -139,6 +143,23 @@ If you don't want to do this you need to run the executable with
 mono. For example,
 
 $ mono server.exe
+
+
+PHP
+---
+
+The Ice extension for PHP must be added to your PHP configuration
+by editing php.ini and adding the following lines:
+
+extension_dir = /usr/lib
+extension = icephp.so
+
+At run time, the PHP interpreter requires the Ice shared libraries
+as well as the Slice preprocessor (icecpp).
+
+You can verify that the Ice extension is installed properly by
+examining the output of the "php -m" command, or by calling the
+phpinfo() function from a script.
 
 
 ======================================================================
