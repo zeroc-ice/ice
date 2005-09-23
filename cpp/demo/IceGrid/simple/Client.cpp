@@ -54,8 +54,8 @@ HelloClient::run(int argc, char* argv[])
 
     //
     // First we try to connect to the object with the `hello'
-    // identity. If it's not registered with the registry, we seach
-    // for an object with the ::Demo::Hello type.
+    // identity. If it's not registered with the registry, we 
+    // search for an object with the ::Demo::Hello type.
     //
     Ice::ObjectPrx base = communicator()->stringToProxy(properties->getPropertyWithDefault("Identity", "hello"));
     HelloPrx twoway;
@@ -70,7 +70,7 @@ HelloClient::run(int argc, char* argv[])
     }
     if(!twoway)
     {
-	cerr << argv[0] << ": couldn't find a `::Demo::Hello' object" << endl;
+	cerr << argv[0] << ": couldn't find a `::Demo::Hello' object." << endl;
 	return EXIT_FAILURE;
     }
     
