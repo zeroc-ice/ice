@@ -22,14 +22,10 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx.
+- Berkeley DB 4.3.28 configured with --enable-cxx.
 
   You can download the Berkeley DB source distribution from
   http://www.sleepycat.com/download
-
-  Note that Ice for Java is not compatible with version 4.3, therefore
-  if you intend to use Ice for Java with Berkeley DB, you must use
-  version 4.2.52 and the option --enable-java.
 
   If you are using RedHat 9 and do not want to use NPTL (New Posix
   Thread Library), set LD_ASSUME_KERNEL=2.4.1 before running

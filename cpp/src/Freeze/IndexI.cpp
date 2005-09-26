@@ -100,9 +100,16 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
 			    }
 			    break; // for(;;)
 			}
-			catch(const DbMemoryException& dx)
+			catch(const DbException& dx)
 			{
-			    handleMemoryException(dx, pkey, pdbKey);
+			    if(dx.get_errno() == DB_BUFFER_SMALL)
+			    {
+			        handleMemoryException(dx, pkey, pdbKey);
+			    }
+			    else
+			    {
+			        throw dx;
+			    }
 			}
 		    }
 		}		    
