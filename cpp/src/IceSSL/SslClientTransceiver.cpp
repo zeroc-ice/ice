@@ -359,9 +359,12 @@ IceSSL::SslClientTransceiver::handshake(int timeout)
 void
 IceSSL::SslClientTransceiver::showConnectionInfo()
 {
-    // Only in extreme cases do we enable this, partially because it doesn't use the Logger.
-    if((_traceLevels->security >= SECURITY_PROTOCOL_DEBUG) && 0)
+    if(_traceLevels->security >= SECURITY_PROTOCOL_DEBUG)
     {
+#ifdef ICE_SSL_EXTRA_TRACING
+	//
+        // Only in extreme cases do we enable this, partially because it doesn't use the Logger.
+	//
         BIOJanitor bioJanitor(BIO_new_fp(stdout, BIO_NOCLOSE));
         BIO* bio = bioJanitor.get();
 
@@ -378,6 +381,7 @@ IceSSL::SslClientTransceiver::showConnectionInfo()
         showHandshakeStats(bio);
 
         showSessionInfo(bio);
+#endif
     }
 }
 
