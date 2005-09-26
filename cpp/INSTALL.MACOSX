@@ -20,7 +20,7 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.3.28 configured with --enable-cxx.
+- Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx.
 
   You can download the Berkeley DB source distribution from
   http://www.sleepycat.com/download
