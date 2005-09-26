@@ -241,7 +241,7 @@ namespace IceInternal
 
             if(absoluteTimeoutMillis > 0)
             {
-                return System.DateTime.Now.Ticks / 10 >= absoluteTimeoutMillis;
+                return System.DateTime.Now.Ticks / 10000 >= absoluteTimeoutMillis;
             }
             else
             {
@@ -357,7 +357,7 @@ namespace IceInternal
 			{
 			    if(_connection.timeout() >= 0)
 			    {
-				_absoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _connection.timeout();
+				_absoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _connection.timeout();
 			    }
 			    else
 			    {

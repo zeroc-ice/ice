@@ -29,6 +29,7 @@ namespace IceInternal
 	//
 	const int WSAEINTR = 10004;
 	const int WSAEFAULT = 10014;
+	const int WSAEINVAL = 10022;
 	const int WSAEWOULDBLOCK = 10035;
 	const int WSAEINPROGRESS = 10036; // Deprecated in winsock2, but still used by Mono Beta 1
 	const int WSAEMSGSIZE = 10040;
@@ -110,7 +111,8 @@ namespace IceInternal
 	
 	public static bool notConnected(Win32Exception ex)
 	{
-	    return ex.NativeErrorCode == WSAENOTCONN;
+	    // BUGFIX: WSAEINVAL because shutdown() under MacOS returns EINVAL if the server side is gone.
+	    return ex.NativeErrorCode == WSAENOTCONN || ex.NativeErrorCode == WSAEINVAL;
 	}
 
 	public static bool recvTruncated(Win32Exception ex)

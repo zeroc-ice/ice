@@ -185,7 +185,7 @@ namespace Ice
 	    {
 		if(_acmTimeout > 0)
 		{
-		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
+		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _acmTimeout * 1000;
 		}
 		
 		//
@@ -337,7 +337,7 @@ namespace Ice
 		    if(_state != StateClosed && _endpoint.timeout() >= 0)
 		    {
 			long absoluteWaitTime = _stateTime + _endpoint.timeout();
-			int waitTime = (int)(absoluteWaitTime - System.DateTime.Now.Ticks / 10);
+			int waitTime = (int)(absoluteWaitTime - System.DateTime.Now.Ticks / 10000);
 			
 			if(waitTime > 0)
 			{
@@ -346,7 +346,7 @@ namespace Ice
 			    // this connection.
 			    //
 			    Monitor.Wait(this, waitTime);
-			    if(System.DateTime.Now.Ticks / 10 >= absoluteWaitTime)
+			    if(System.DateTime.Now.Ticks / 10000 >= absoluteWaitTime)
 			    {
 				setState(StateClosed, new CloseTimeoutException());
 			    }
@@ -418,7 +418,7 @@ namespace Ice
 		    !_batchStreamInUse && _batchStream.isEmpty() &&
 		    _dispatchCount == 0)
 		{
-		    if(System.DateTime.Now.Ticks / 10 >= _acmAbsoluteTimeoutMillis)
+		    if(System.DateTime.Now.Ticks / 10000 >= _acmAbsoluteTimeoutMillis)
 		    {
 			setState(StateClosing, new ConnectionTimeoutException());
 			return;
@@ -567,7 +567,7 @@ namespace Ice
 		
 		if(_acmTimeout > 0)
 		{
-		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
+		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _acmTimeout * 1000;
 		}
 	    }
 	    
@@ -671,7 +671,7 @@ namespace Ice
 
 		if(_acmTimeout > 0)
 		{
-		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10	+ _acmTimeout * 1000;
+		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _acmTimeout * 1000;
 		}
 	    }
 
@@ -872,7 +872,7 @@ namespace Ice
 			
 		if(_acmTimeout > 0)
 		{
-		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
+		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _acmTimeout * 1000;
 		}
 
 		//
@@ -976,7 +976,7 @@ namespace Ice
 		
 		    if(_acmTimeout > 0)
 		    {
-			_acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
+			_acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _acmTimeout * 1000;
 		    }
 		}
 		catch(LocalException ex)
@@ -1305,7 +1305,7 @@ namespace Ice
 	    _batchRequestCompress = false;
 	    _dispatchCount = 0;
 	    _state = StateNotValidated;
-	    _stateTime = System.DateTime.Now.Ticks / 10;
+	    _stateTime = System.DateTime.Now.Ticks / 10000;
 	    
 	    if(_endpoint.datagram())
 	    {
@@ -1632,7 +1632,7 @@ namespace Ice
 	    }       
 
 	    _state = state;
-	    _stateTime = System.DateTime.Now.Ticks / 10;
+	    _stateTime = System.DateTime.Now.Ticks / 10000;
 
 	    Monitor.PulseAll(this);
 	    
@@ -1726,7 +1726,7 @@ namespace Ice
 
 	    if(_acmTimeout > 0)
 	    {
-		_acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
+		_acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _acmTimeout * 1000;
 	    }
 
 	    try
