@@ -1832,7 +1832,7 @@ IceInternal::BasicStream::patchPointers(Int index, IndexToPtrMap::const_iterator
     //
     // Called whenever we have unmarshaled a new instance. The index
     // is the index of the instance.  UnmarshaledPos denotes the
-    // instance just unmarshaled and patchPost denotes the patch map
+    // instance just unmarshaled and patchPos denotes the patch map
     // entry for the index just unmarshaled. (Exactly one of these two
     // iterators must be end().)  Patch any pointers in the patch map
     // with the new address.
