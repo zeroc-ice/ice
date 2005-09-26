@@ -326,11 +326,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "minimalC", "demo\Ice\minima
 		{6851468D-426E-4260-986C-244F278F3526} = {6851468D-426E-4260-986C-244F278F3526}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "minimalS", "demo\Ice\minimal\minimalS.csproj", "{42262F9A-0F9D-48BE-B6C7-E4D458B1A6B3}"
-	ProjectSection(ProjectDependencies) = postProject
-		{6851468D-426E-4260-986C-244F278F3526} = {6851468D-426E-4260-986C-244F278F3526}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IceGrid", "src\IceGrid\IceGrid.csproj", "{08BA06BB-1803-4EF5-81A1-467DF5464A9E}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -356,6 +351,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "holdS", "test\Ice\hold\hold
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "holdC", "test\Ice\hold\holdC.csproj", "{32B32B03-DAF1-4444-A3F1-474FDD8DB9E1}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "minimalS", "demo\Ice\minimal\minimalS.csproj", "{796CBD81-54DD-48D2-8512-223FFBFEEAA4}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -641,10 +640,6 @@ Global
 		{3D1983F8-BB87-4B31-9BFE-AE23482B1D57}.Debug.Build.0 = Debug|.NET
 		{3D1983F8-BB87-4B31-9BFE-AE23482B1D57}.Release.ActiveCfg = Release|.NET
 		{3D1983F8-BB87-4B31-9BFE-AE23482B1D57}.Release.Build.0 = Release|.NET
-		{42262F9A-0F9D-48BE-B6C7-E4D458B1A6B3}.Debug.ActiveCfg = Debug|.NET
-		{42262F9A-0F9D-48BE-B6C7-E4D458B1A6B3}.Debug.Build.0 = Debug|.NET
-		{42262F9A-0F9D-48BE-B6C7-E4D458B1A6B3}.Release.ActiveCfg = Release|.NET
-		{42262F9A-0F9D-48BE-B6C7-E4D458B1A6B3}.Release.Build.0 = Release|.NET
 		{08BA06BB-1803-4EF5-81A1-467DF5464A9E}.Debug.ActiveCfg = Debug|.NET
 		{08BA06BB-1803-4EF5-81A1-467DF5464A9E}.Debug.Build.0 = Debug|.NET
 		{08BA06BB-1803-4EF5-81A1-467DF5464A9E}.Release.ActiveCfg = Release|.NET
@@ -673,6 +668,10 @@ Global
 		{32B32B03-DAF1-4444-A3F1-474FDD8DB9E1}.Debug.Build.0 = Debug|.NET
 		{32B32B03-DAF1-4444-A3F1-474FDD8DB9E1}.Release.ActiveCfg = Release|.NET
 		{32B32B03-DAF1-4444-A3F1-474FDD8DB9E1}.Release.Build.0 = Release|.NET
+		{796CBD81-54DD-48D2-8512-223FFBFEEAA4}.Debug.ActiveCfg = Debug|.NET
+		{796CBD81-54DD-48D2-8512-223FFBFEEAA4}.Debug.Build.0 = Debug|.NET
+		{796CBD81-54DD-48D2-8512-223FFBFEEAA4}.Release.ActiveCfg = Release|.NET
+		{796CBD81-54DD-48D2-8512-223FFBFEEAA4}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
