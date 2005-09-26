@@ -49,10 +49,10 @@ initializeOutDbt(std::vector<Ice::Byte>& v, Dbt& dbt)
 }
 
 void
-handleMemoryException(const DbException&, Key&, Dbt&);
+handleMemoryException(const DbMemoryException&, Key&, Dbt&);
 
 void
-handleMemoryException(const DbException&, Key&, Dbt&, Value&, Dbt&);
+handleMemoryException(const DbMemoryException&, Key&, Dbt&, Value&, Dbt&);
 
 }
 

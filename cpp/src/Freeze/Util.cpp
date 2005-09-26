@@ -15,7 +15,7 @@ using namespace Ice;
 using namespace std;
 
 void
-Freeze::handleMemoryException(const DbException& dx, Key& key, Dbt& dbKey)
+Freeze::handleMemoryException(const DbMemoryException& dx, Key& key, Dbt& dbKey)
 {
     if(dbKey.get_size() > dbKey.get_ulen())
     {
@@ -40,7 +40,7 @@ Freeze::handleMemoryException(const DbException& dx, Key& key, Dbt& dbKey)
 }
 
 void
-Freeze::handleMemoryException(const DbException& dx, Key& key, Dbt& dbKey, 
+Freeze::handleMemoryException(const DbMemoryException& dx, Key& key, Dbt& dbKey, 
 			      Value& value, Dbt& dbValue)
 {
     bool resized = false;

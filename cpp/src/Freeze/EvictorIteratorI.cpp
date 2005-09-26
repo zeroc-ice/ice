@@ -150,16 +150,9 @@ Freeze::EvictorIteratorI::nextBatch()
 			    }
 			    break;
 			}
-			catch(const DbException& dx)
+			catch(const DbMemoryException& dx)
 			{
-			    if(dx.get_errno() == DB_BUFFER_SMALL)
-			    {
-			        handleMemoryException(dx, _key, dbKey);
-			    }
-			    else
-			    {
-			        throw dx;
-			    }
+			    handleMemoryException(dx, _key, dbKey);
 			}
 		    }
 		}
