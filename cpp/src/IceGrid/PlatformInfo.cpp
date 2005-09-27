@@ -7,7 +7,11 @@
 //
 // **********************************************************************
 
+#include <Ice/LocalException.h>
+#include <Ice/LoggerUtil.h>
+
 #include <IceGrid/PlatformInfo.h>
+#include <IceGrid/TraceLevels.h>
 
 #if !defined(_WIN32)
 #   include <sys/utsname.h>
@@ -26,7 +30,7 @@
 using namespace std;
 using namespace IceGrid;
 
-PlatformInfo::PlatformInfo()
+PlatformInfo::PlatformInfo(const TraceLevelsPtr& traceLevels) : _traceLevels(traceLevels)
 {
     //
     // Initialization of the necessary data structures to get the load average.
@@ -78,7 +82,9 @@ PlatformInfo::PlatformInfo()
     //
     // Get the number of processors.
     //
-#if defined(__APPLE__)
+#if defined(_WIN32)
+    _info.nProcessors = 1;
+#elif defined(__APPLE__)
     static int ncpu[2] = { CTL_HW, HW_NCPU };
     size_t sz = sizeof(_info.nProcessors);
     if(sysctl(ncpu, 2, &_info.nProcessors, &sz, 0, 0) == -1)

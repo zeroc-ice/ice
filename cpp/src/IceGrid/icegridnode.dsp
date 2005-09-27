@@ -170,6 +170,10 @@ SOURCE=.\ObserverSessionI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\PlatformInfo.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\QueryI.cpp
 # End Source File
 # Begin Source File

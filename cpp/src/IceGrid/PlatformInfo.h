@@ -20,11 +20,14 @@
 namespace IceGrid
 {
 
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
 class PlatformInfo
 {
 public:
 
-    PlatformInfo();
+    PlatformInfo(const TraceLevelsPtr&);
     ~PlatformInfo();
 
     NodeInfo getNodeInfo() const;
@@ -32,6 +35,7 @@ public:
 
 private:
 
+    const TraceLevelsPtr _traceLevels;
     NodeInfo _info;
 
 #if defined(_WIN32)

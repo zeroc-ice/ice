@@ -191,7 +191,8 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _hostname(IceInternal::getProtocolPluginFacade(adapter->getCommunicator())->getDefaultHost()),
     _proxy(proxy),
     _waitTime(adapter->getCommunicator()->getProperties()->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60)),
-    _serial(1)
+    _serial(1),
+    _platform(_traceLevels)
 {
     string dataDir = _adapter->getCommunicator()->getProperties()->getProperty("IceGrid.Node.Data");
     if(!isAbsolute(dataDir))
