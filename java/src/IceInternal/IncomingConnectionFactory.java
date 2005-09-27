@@ -531,24 +531,27 @@ public final class IncomingConnectionFactory extends EventHandler
 
             case StateClosed:
             {
-		if(_instance.threadPerConnection() && _acceptor != null)
+	        if(_acceptor != null)
 		{
-		    //
-		    // If we are in thread per connection mode, we connect
-		    // to our own acceptor, which unblocks our thread per
-		    // incoming connection factory stuck in accept().
-		    //
-		    _acceptor.connectToSelf();
-		}
-		else
-		{
-		    //
-		    // Otherwise we first must make sure that we are
-		    // registered, then we unregister, and let finished()
-		    // do the close.
-		    //
-		    registerWithPool();
-		    unregisterWithPool();
+		    if(_instance.threadPerConnection())
+		    {
+		        //
+		        // If we are in thread per connection mode, we connect
+		        // to our own acceptor, which unblocks our thread per
+		        // incoming connection factory stuck in accept().
+		        //
+		        _acceptor.connectToSelf();
+		    }
+		    else
+		    {
+		        //
+		        // Otherwise we first must make sure that we are
+		        // registered, then we unregister, and let finished()
+		        // do the close.
+		        //
+		        registerWithPool();
+		        unregisterWithPool();
+		    }
 		}
 
                 java.util.ListIterator p = _connections.listIterator();

@@ -961,24 +961,27 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 	
 	case StateClosed:
 	{
-	    if(_instance->threadPerConnection() && _acceptor)
+	    if(_acceptor)
 	    {
-		//
-		// If we are in thread per connection mode, we connect
-		// to our own acceptor, which unblocks our thread per
-		// incoming connection factory stuck in accept().
-		//
-		_acceptor->connectToSelf();
-	    }
-	    else
-	    {
-		//
-		// Otherwise we first must make sure that we are
-		// registered, then we unregister, and let finished()
-		// do the close.
-		//
-		registerWithPool();
-		unregisterWithPool();
+	        if(_instance->threadPerConnection())
+	        {
+		    //
+		    // If we are in thread per connection mode, we connect
+		    // to our own acceptor, which unblocks our thread per
+		    // incoming connection factory stuck in accept().
+		    //
+		    _acceptor->connectToSelf();
+	        }
+	        else
+	        {
+		    //
+		    // Otherwise we first must make sure that we are
+		    // registered, then we unregister, and let finished()
+		    // do the close.
+		    //
+		    registerWithPool();
+		    unregisterWithPool();
+	        }
 	    }
 
 #ifdef _STLP_BEGIN_NAMESPACE

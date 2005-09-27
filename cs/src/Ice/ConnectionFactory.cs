@@ -1015,24 +1015,27 @@ namespace IceInternal
 		
 		case StateClosed: 
 		{
-		    if(instance_.threadPerConnection() && _acceptor != null)
+		    if(_acceptor != null)
 		    {
-			//
-			// If we are in thread per connection mode, we connect
-			// to our own acceptor, which unblocks our thread per
-			// incoming connection factory stuck in accept().
-			//
-			_acceptor.connectToSelf();
-		    }
-		    else
-		    {
-			//
-			// Otherwise we first must make sure that we are
-			// registered, then we unregister, and let finished()
-			// do the close.
-			//
-			registerWithPool();
-			unregisterWithPool();
+		        if(instance_.threadPerConnection())
+		        {
+			    //
+			    // If we are in thread per connection mode, we connect
+			    // to our own acceptor, which unblocks our thread per
+			    // incoming connection factory stuck in accept().
+			    //
+			    _acceptor.connectToSelf();
+		        }
+		        else
+		        {
+			    //
+			    // Otherwise we first must make sure that we are
+			    // registered, then we unregister, and let finished()
+			    // do the close.
+			    //
+			    registerWithPool();
+			    unregisterWithPool();
+		        }
 		    }
 		    
 		    foreach(Ice.ConnectionI connection in _connections)
