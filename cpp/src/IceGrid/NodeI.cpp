@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <Ice/ProtocolPluginFacade.h> // Just to get the hostname
 #include <IcePatch2/Util.h>
 #include <IcePatch2/ClientUtil.h>
 #include <IceGrid/NodeI.h>
@@ -188,11 +187,10 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _waitQueue(waitQueue),
     _traceLevels(traceLevels),
     _name(name),
-    _hostname(IceInternal::getProtocolPluginFacade(adapter->getCommunicator())->getDefaultHost()),
     _proxy(proxy),
     _waitTime(adapter->getCommunicator()->getProperties()->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60)),
     _serial(1),
-    _platform(_traceLevels)
+    _platform(adapter->getCommunicator(), _traceLevels)
 {
     string dataDir = _adapter->getCommunicator()->getProperties()->getProperty("IceGrid.Node.Data");
     if(!isAbsolute(dataDir))
@@ -329,7 +327,7 @@ NodeI::getName(const Ice::Current&) const
 std::string
 NodeI::getHostname(const Ice::Current&) const
 {
-    return _hostname;
+    return _platform.getHostname();
 }
 
 void

@@ -9,6 +9,7 @@
 
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/ProtocolPluginFacade.h> // Just to get the hostname
 
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/TraceLevels.h>
@@ -30,7 +31,9 @@
 using namespace std;
 using namespace IceGrid;
 
-PlatformInfo::PlatformInfo(const TraceLevelsPtr& traceLevels) : _traceLevels(traceLevels)
+PlatformInfo::PlatformInfo(const Ice::CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels) : 
+    _traceLevels(traceLevels),
+    _hostname(IceInternal::getProtocolPluginFacade(communicator)->getDefaultHost())
 {
     //
     // Initialization of the necessary data structures to get the load average.
@@ -83,7 +86,9 @@ PlatformInfo::PlatformInfo(const TraceLevelsPtr& traceLevels) : _traceLevels(tra
     // Get the number of processors.
     //
 #if defined(_WIN32)
-    _info.nProcessors = 1;
+    SYSTEM_INFO sysInfo;
+    GetSystemInfo(&sysInfo);
+    _info.nProcessors = sysInfo.dwNumberOfProcessors;
 #elif defined(__APPLE__)
     static int ncpu[2] = { CTL_HW, HW_NCPU };
     size_t sz = sizeof(_info.nProcessors);
@@ -102,10 +107,20 @@ PlatformInfo::PlatformInfo(const TraceLevelsPtr& traceLevels) : _traceLevels(tra
     //
 #ifdef _WIN32
     _info.os = "Windows";
-    _info.hostname = ""; // TODO
-    _info.release = ""; // TODO
-    _info.version = ""; // TODO
-    _info.machine = ""; // TODO    
+    char hostname[MAX_COMPUTERNAME_LENGTH + 1];
+    unsigned long size = sizeof(hostname);
+    if(GetComputerName(hostname, &size))
+    {
+	_info.hostname = hostname;
+    }
+    OSVERSIONINFO osInfo;
+    osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    GetVersionEx(&osInfo);
+    ostringstream os;
+    os << osInfo.dwMajorVersion << "." << osInfo.dwMinorVersion;
+    _info.release = os.str();
+    _info.version = osInfo.szCSDVersion;
+    _info.machine = ""; // TODO?
 #else
     struct utsname utsinfo;
     uname(&utsinfo);
@@ -207,4 +222,10 @@ PlatformInfo::getLoadInfo()
     }
 #endif
     return info;
+}
+
+std::string
+PlatformInfo::getHostname() const
+{
+    return _hostname;
 }

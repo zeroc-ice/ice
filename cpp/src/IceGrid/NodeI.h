@@ -66,7 +66,6 @@ private:
     const WaitQueuePtr _waitQueue;
     const TraceLevelsPtr _traceLevels;
     const std::string _name;
-    const std::string _hostname;
     const NodePrx _proxy;
     const Ice::Int _waitTime;
     std::string _serversDir;

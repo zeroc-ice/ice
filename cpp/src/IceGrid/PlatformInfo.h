@@ -27,16 +27,18 @@ class PlatformInfo
 {
 public:
 
-    PlatformInfo(const TraceLevelsPtr&);
+    PlatformInfo(const Ice::CommunicatorPtr&, const TraceLevelsPtr&);
     ~PlatformInfo();
 
     NodeInfo getNodeInfo() const;
     LoadInfo getLoadInfo();
+    std::string getHostname() const;
 
 private:
 
     const TraceLevelsPtr _traceLevels;
     NodeInfo _info;
+    std::string _hostname;
 
 #if defined(_WIN32)
     HQUERY _query;
