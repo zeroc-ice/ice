@@ -82,6 +82,18 @@ namespace IceInternal
 		    throw new Ice.SocketException(ex);
 		}
 	    }
+
+#if !__MonoCS__
+	    //
+	    // This is required to unblock the select call when using thread per connection.
+	    //
+	    Socket fd = Network.createSocket(true);
+	    Network.setBlock(fd, false);
+	    Network.doConnect(fd, _addr, -1);
+	    byte[] buf = new byte[1];
+	    fd.Send(buf, 0, 1, SocketFlags.None);
+	    Network.closeSocket(fd);
+#endif
 	}
 	
 	public void write(BasicStream stream, int timeout)
