@@ -574,18 +574,23 @@ namespace IceInternal
 	
 	public void waitUntilFinished()
 	{
+	    Thread threadPerIncomingConnectionFactory = null;
 	    LinkedList connections;
 	    
 	    lock(this)
 	    {
 		//
-		// First we wait until the factory is destroyed.
+		// First we wait until the factory is destroyed. If we are using
+		// an acceptor, we also wait for it to be closed.
 		//
-		while(_acceptor != null)
+		while(_state != StateClosed || _acceptor != null)
 		{
 		    System.Threading.Monitor.Wait(this);
 		}
-		
+
+		threadPerIncomingConnectionFactory = _threadPerIncomingConnectionFactory;
+		_threadPerIncomingConnectionFactory = null;
+
 		//
 		// We want to wait until all connections are finished
 		// outside the thread synchronization.
@@ -596,10 +601,14 @@ namespace IceInternal
 		connections = _connections;
 		_connections = null;
 	    }
-	    
+
+	    if(threadPerIncomingConnectionFactory != null)
+	    {
+		threadPerIncomingConnectionFactory.Join();
+	    }
+
 	    //
-	    // Now we wait for until the destruction of each connection is
-	    // finished.
+	    // Now we wait until the destruction of each connection is finished.
 	    //
 	    foreach(Ice.ConnectionI connection in connections)
 	    {
@@ -856,99 +865,92 @@ namespace IceInternal
 	    
 	    EndpointI h = _endpoint;
 	    _transceiver = _endpoint.serverTransceiver(ref h);
-	    if(_transceiver != null)
+
+	    try
 	    {
-		_endpoint = h;
-		
-		Ice.ConnectionI connection = null;
-		
-		try
+		if(_transceiver != null)
 		{
-		    connection = new Ice.ConnectionI(instance_, _transceiver, _endpoint, _adapter);
-		    connection.validate();
-		}
-		catch(Ice.LocalException)
-		{
-		    //
-		    // If a connection object was constructed, then
-		    // validate() must have raised the exception.
-		    //
-		    if(connection != null)
+		    _endpoint = h;
+		    
+		    Ice.ConnectionI connection = null;
+		    
+		    try
 		    {
-			connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+			connection = new Ice.ConnectionI(instance_, _transceiver, _endpoint, _adapter);
+			connection.validate();
+		    }
+		    catch(Ice.LocalException)
+		    {
+			//
+			// If a connection object was constructed, then
+			// validate() must have raised the exception.
+			//
+			if(connection != null)
+			{
+			    connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+			}
+			
+			return;
 		    }
 		    
-		    return;
+		    _connections.Add(connection);
 		}
-		
-		_connections.Add(connection);
-	    }
-	    else
-	    {
-		try
+		else
 		{
 		    h = _endpoint;
 		    _acceptor = _endpoint.acceptor(ref h);
 		    _endpoint = h;
 		    Debug.Assert(_acceptor != null);
 		    _acceptor.listen();
-		}
-		catch(System.Exception)
-		{
-		    //
-		    // Clean up for finalizer.
-		    //
-		    
-		    if(_acceptor != null)
+
+		    if(instance_.threadPerConnection())
 		    {
 			try
 			{
-			    _acceptor.close();
+			    //
+			    // If we are in thread per connection mode, we also use
+			    // one thread per incoming connection factory, that
+			    // accepts new connections on this endpoint.
+			    //
+			    _threadPerIncomingConnectionFactory =
+				new Thread(new ThreadStart(ThreadPerIncomingConnectionFactory));
+			    _threadPerIncomingConnectionFactory.Start();
 			}
-			catch(System.Exception)
+			catch(System.Exception ex)
 			{
-			    // Here we ignore any exceptions in close().			
+			    instance_.logger().error("cannot create thread for incoming connection factory:\n" + ex);
+			    throw;
 			}
 		    }
-
-		    lock(this)
-		    {
-			_state = StateClosed;
-			_acceptor = null;
-			_connections = null;
-		    }
-		    throw;
 		}
-
-		if(instance_.threadPerConnection())
+	    }
+	    catch(System.Exception ex)
+	    {
+		//
+		// Clean up for finalizer.
+		//
+		
+		if(_acceptor != null)
 		{
 		    try
 		    {
-			//
-			// If we are in thread per connection mode, we also use
-			// one thread per incoming connection factory, that
-			// accepts new connections on this endpoint.
-			//
-			_threadPerIncomingConnectionFactory =
-			    new Thread(new ThreadStart(ThreadPerIncomingConnectionFactory));
-			_threadPerIncomingConnectionFactory.Start();
+			_acceptor.close();
 		    }
-		    catch(System.Exception ex)
+		    catch(Ice.LocalException)
 		    {
-			instance_.logger().error("cannot create thread for incoming connection factory:\n" + ex);
-
-			try
-			{
-			    _acceptor.close();
-			}
-			catch(Ice.LocalException)
-			{
-			    // Here we ignore any exceptions in close().
-			}
-
-			throw new Ice.SyscallException(ex);
+			// Here we ignore any exceptions in close().			
 		    }
 		}
+
+		lock(this)
+		{
+		    _state = StateClosed;
+		    _acceptor = null;
+		    _connections = null;
+		    _threadPerIncomingConnectionFactory = null;
+		}
+
+		throw new Ice.SyscallException(ex);
 	    }
 	}
 	
@@ -960,6 +962,7 @@ namespace IceInternal
 		IceUtil.Assert.FinalizerAssert(_state == StateClosed);
 		IceUtil.Assert.FinalizerAssert(_acceptor == null);
 		IceUtil.Assert.FinalizerAssert(_connections == null);
+		IceUtil.Assert.FinalizerAssert(_threadPerIncomingConnectionFactory == null);
 	    }
 	}
 #endif
