@@ -26,13 +26,14 @@ class NodeSessionI : public NodeSession, public SessionI,  public IceUtil::Mutex
 {
 public:
 
-    NodeSessionI(const DatabasePtr&, const std::string&, const NodePrx&);
+    NodeSessionI(const DatabasePtr&, const std::string&, const NodePrx&, const NodeInfo&);
 
     virtual void keepAlive(const LoadInfo&, const Ice::Current&);
     virtual Ice::StringSeq getServers(const Ice::Current&);
     virtual void destroy(const Ice::Current&);
     
     const NodePrx& getNode() const;
+    const NodeInfo& getInfo() const;
     const LoadInfo& getLoadInfo() const;
     virtual IceUtil::Time timestamp() const;
 
@@ -42,6 +43,7 @@ private:
     const TraceLevelsPtr _traceLevels;
     const std::string _name;
     const NodePrx _node;
+    const NodeInfo _info;
     const IceUtil::Time _startTime;
     IceUtil::Time _timestamp;
     LoadInfo _load;

@@ -56,7 +56,8 @@ NODE_OBJS	= NodeI.o \
 	          Activator.o \
 		  WaitQueue.o \
                   DescriptorParser.o \
-                  DescriptorBuilder.o
+                  DescriptorBuilder.o \
+		  PlatformInfo.o
 
 REGISTRY_OBJS   = RegistryI.o \
 		  StringObjectProxiesDict.o \

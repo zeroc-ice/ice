@@ -160,6 +160,52 @@ struct ServerInfo
     ServerDescriptor descriptor;
 };
 
+struct NodeInfo
+{
+    /**
+     *
+     * The operating system name.
+     *
+     **/
+    string os;
+
+    /**
+     *
+     * The network name of the host running this node (as defined in
+     * uname()).
+     *
+     **/
+    string hostname;
+
+    /**
+     *
+     * The operation system release level (as defined in uname()).
+     * 
+     **/
+    string release;
+
+    /**
+     *
+     * The operation system version (as defined in uname()).
+     *
+     **/
+    string version;
+
+    /**
+     *
+     * The machine harware type (as defined in uname()).
+     *
+     **/
+    string machine;    
+
+    /**
+     *
+     * The number of processors.
+     *
+     **/
+    int nProcessors;
+};
+
 /**
  *
  * The &IceGrid; administrative interface. <warning><para>Allowing
@@ -628,6 +674,20 @@ interface Admin
     nonmutating bool pingNode(string name)
 	throws NodeNotExistException;
 
+    /**
+     *
+     * Get the node information for the node with the given name.
+     *
+     * @param name The node name.
+     *
+     * @return The node information.
+     * 
+     * @throws NodeNotExistException Raised if the node doesn't exist.
+     *
+     **/
+    nonmutating NodeInfo getNodeInfo(string name)
+	throws NodeNotExistException;
+    
     /**
      *
      * Shutdown an &IceGrid; node.

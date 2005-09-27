@@ -137,9 +137,20 @@ NodeEntry::getProxy() const
     Lock sync(*this);
     if(!_session)
     {
-	throw NodeUnreachableException(_name, "node is not registered");
+	throw NodeUnreachableException(_name, "the node is not active");
     }
     return _session->getNode();
+}
+
+NodeInfo
+NodeEntry::getInfo() const
+{
+    Lock sync(*this);
+    if(!_session)
+    {
+	throw NodeUnreachableException(_name, "the node is not active");
+    }
+    return _session->getInfo();
 }
 
 Ice::StringSeq
@@ -160,7 +171,7 @@ NodeEntry::getLoadInfoAndLoadFactor(const string& application, float& loadFactor
     Lock sync(*this);
     if(!_session)
     {
-	throw NodeUnreachableException(_name, "node is not registered");
+	throw NodeUnreachableException(_name, "the node is not active");
     }
     map<string, NodeDescriptor>::const_iterator p = _descriptors.find(application);
     loadFactor = -1.0f;
@@ -170,6 +181,28 @@ NodeEntry::getLoadInfoAndLoadFactor(const string& application, float& loadFactor
 	{
 	    istringstream is(p->second.loadFactor);
 	    is >> loadFactor;
+	}
+    }
+    if(loadFactor < 0.0f)
+    {
+	if(_session->getInfo().os != "Windows")
+	{
+	    //
+	    // On Unix platforms, we divide the load averages by the
+	    // number of processors. A load of 2 on a dual processor
+	    // machine is the same as a load of 1 on a single process
+	    // machine.
+	    //
+	    loadFactor = 1.0f / _session->getInfo().nProcessors;
+	}
+	else
+	{
+	    //
+	    // On Windows, load1, load5 and load15 are the average of
+	    // the CPU utilization (all CPUs). We don't need to divide
+	    // by the number of CPU.
+	    //
+	    loadFactor = 1.0f;
 	}
     }
     return _session->getLoadInfo();

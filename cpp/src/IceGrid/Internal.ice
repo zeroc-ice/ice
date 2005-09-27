@@ -292,9 +292,6 @@ struct LoadInfo
 
     /** The load average of the node over the last 15 minutes. */
     float load15;
-
-    /** The number of processors of the node. */
-    int nProcessors;
 };
 
 interface NodeSession extends Glacier2::Session
@@ -326,13 +323,15 @@ interface Registry
      *
      * @param nd The proxy of the node.
      *
+     * @param info Some information on the node.
+     * 
      * @return The name of the servers currently deployed on the node.
      * 
      * @throws NodeActiveException Raised if the node is already
      * registered and currently active.
      *
      **/
-    NodeSession* registerNode(string name, Node* nd, out NodeObserver* observer)
+    NodeSession* registerNode(string name, Node* nd, NodeInfo info, out NodeObserver* observer)
 	throws NodeActiveException;
 
     /**

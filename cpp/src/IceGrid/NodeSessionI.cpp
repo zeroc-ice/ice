@@ -15,11 +15,13 @@
 using namespace std;
 using namespace IceGrid;
 
-NodeSessionI::NodeSessionI(const DatabasePtr& database, const string& name, const NodePrx& node) : 
+NodeSessionI::NodeSessionI(const DatabasePtr& database, const string& name, const NodePrx& node, 
+			   const NodeInfo& info) : 
     _database(database),
     _traceLevels(database->getTraceLevels()),
     _name(name),
     _node(node),
+    _info(info),
     _startTime(IceUtil::Time::now()),
     _timestamp(_startTime),
     _destroy(false)
@@ -90,6 +92,12 @@ const NodePrx&
 NodeSessionI::getNode() const
 {
     return _node;
+}
+
+const NodeInfo&
+NodeSessionI::getInfo() const
+{
+    return _info;
 }
 
 const LoadInfo&

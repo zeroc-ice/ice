@@ -52,21 +52,21 @@ public:
 	_topic(topic),
 	_observer(observer),
 	_serial(serial)
-	{	
-	}
+    {	
+    }
 
     void
     ice_response()
-	{
-	    _topic->subscribe(_observer, _serial);
-	}
-
+    {
+	_topic->subscribe(_observer, _serial);
+    }
+    
     void
     ice_exception(const Ice::Exception&)
-	{
-	    // Ignore
-	}
-
+    {
+	// Ignore
+    }
+    
 private:
 
     const NodeObserverTopicPtr _topic;

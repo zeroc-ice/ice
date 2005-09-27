@@ -62,6 +62,7 @@ public:
 
     void addNode(const std::string&, const NodeSessionIPtr&);
     NodePrx getNode(const std::string&) const;
+    NodeInfo getNodeInfo(const std::string&) const;
     void removeNode(const std::string&);
     Ice::StringSeq getAllNodes(const std::string& = std::string());
 

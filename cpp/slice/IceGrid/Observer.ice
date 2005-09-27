@@ -97,8 +97,32 @@ sequence<AdapterDynamicInfo> AdapterDynamicInfoSeq;
  **/
 struct NodeDynamicInfo
 {
+    /**
+     *
+     * The name of the node.
+     *
+     **/
     string name;
+
+    /**
+     *
+     * Some static information about the node.
+     *
+     **/
+    NodeInfo info;
+
+    /**
+     *
+     * The dynamic information of the servers deployed on this node.
+     *
+     **/
     ServerDynamicInfoSeq servers;
+
+    /**
+     *
+     * The dynamic information of the adapters deployed on this node.
+     *
+     **/
     AdapterDynamicInfoSeq adapters;
 };
 

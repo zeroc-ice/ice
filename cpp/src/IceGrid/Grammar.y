@@ -143,6 +143,10 @@ command
 {
     parser->listAllApplications();
 }
+| ICE_GRID_NODE ICE_GRID_DESCRIBE strings ';'
+{
+    parser->describeNode($3);
+}
 | ICE_GRID_NODE ICE_GRID_PING strings ';'
 {
     parser->pingNode($3);

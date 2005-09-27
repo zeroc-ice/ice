@@ -81,6 +81,7 @@ public:
     void describeServiceTemplate(const std::list<std::string>&);
     void instantiateServerTemplate(const std::list<std::string>&);
 
+    void describeNode(const std::list<std::string>&);
     void pingNode(const std::list<std::string>&);
     void shutdownNode(const std::list<std::string>&);
     void removeNode(const std::list<std::string>&);

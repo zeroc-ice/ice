@@ -32,7 +32,8 @@ public:
     bool start(bool);
     void stop();
 
-    virtual NodeSessionPrx registerNode(const std::string&, const NodePrx&, NodeObserverPrx&, const Ice::Current&);
+    virtual NodeSessionPrx registerNode(const std::string&, const NodePrx&, const NodeInfo&, NodeObserverPrx&, 
+					const Ice::Current&);
     virtual void shutdown(const Ice::Current& current);
 
     virtual IceStorm::TopicManagerPrx getTopicManager();

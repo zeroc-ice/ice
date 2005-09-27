@@ -40,6 +40,7 @@ public:
     void setSession(const NodeSessionIPtr&);
 
     NodePrx getProxy() const;
+    NodeInfo getInfo() const;
     Ice::StringSeq getServers() const;
     LoadInfo getLoadInfoAndLoadFactor(const std::string&, float&) const;
 

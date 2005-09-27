@@ -12,11 +12,7 @@
 
 #include <IceGrid/Internal.h>
 #include <IceGrid/WaitQueue.h>
-
-#ifdef _WIN32
-#   include <pdh.h> // Performance data helper API
-#   include <deque>
-#endif
+#include <IceGrid/PlatformInfo.h>
 
 namespace IceGrid
 {
@@ -79,21 +75,7 @@ private:
     NodeObserverPrx _observer;
     IceUtil::Mutex _sessionMutex;
     NodeSessionPrx _session;
-#ifdef _WIN32
-    HQUERY _query;
-    HCOUNTER _counter;
-    std::deque<int> _usages1;
-    std::deque<int> _usages5;
-    std::deque<int> _usages15;
-    int _last1Total;
-    int _last5Total;
-    int _last15Total;
-#else
-    int _nproc;
-#ifdef _AIX
-    int _kmem;
-#endif
-#endif
+    PlatformInfo _platform;
 
     struct PatchDirectory
     {

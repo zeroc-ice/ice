@@ -82,6 +82,7 @@ Parser::usage()
         "                            Describe application service template TEMPLATE.\n"
 	"\n"
 	"node list                   List all registered nodes.\n"
+        "node describe NAME          Show information about node NAME.\n"
 	"node ping NAME              Ping node NAME.\n"
 	"node shutdown NAME          Shutdown node NAME.\n"
 	"\n"
@@ -502,6 +503,35 @@ Parser::describeServiceTemplate(const list<string>& args)
 	{
 	    error("no service template with id `" + templ + "'");
 	}
+    }
+    catch(const Ice::Exception& ex)
+    {
+	exception(ex);
+    }
+}
+
+void
+Parser::describeNode(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`node describe' requires exactly one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	NodeInfo info = _admin->getNodeInfo(args.front());
+	Output out(cout);
+	out << "node `" << args.front() << "'";
+	out << sb;
+	out << nl << "operating system = `" << info.os << "'";
+	out << nl << "host name = `" << info.hostname << "'";
+	out << nl << "release = `" << info.release << "'";
+	out << nl << "version = `" << info.version << "'";
+	out << nl << "machine type = `" << info.machine << "'";
+	out << nl << "number of processors = `" << info.nProcessors << "'";
+	out << eb;
     }
     catch(const Ice::Exception& ex)
     {

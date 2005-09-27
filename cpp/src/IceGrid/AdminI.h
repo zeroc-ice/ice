@@ -57,6 +57,7 @@ public:
     virtual ObjectInfo getObjectInfo(const Ice::Identity&, const ::Ice::Current&) const;
     virtual ObjectInfoSeq getAllObjectInfos(const std::string&, const ::Ice::Current&) const;
 
+    virtual NodeInfo getNodeInfo(const std::string&, const Ice::Current&) const;
     virtual bool pingNode(const std::string&, const Ice::Current&) const;
     virtual void shutdownNode(const std::string&, const Ice::Current&);
     virtual std::string getNodeHostname(const std::string&, const Ice::Current&) const;

@@ -402,6 +402,12 @@ AdminI::getAllObjectInfos(const string& expression, const Ice::Current&) const
     return _database->getAllObjectInfos(expression);
 }
 
+NodeInfo
+AdminI::getNodeInfo(const string& name, const Ice::Current&) const
+{
+    return _database->getNodeInfo(name);
+}
+
 bool
 AdminI::pingNode(const string& name, const Current&) const
 {

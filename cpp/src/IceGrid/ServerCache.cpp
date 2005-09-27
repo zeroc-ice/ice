@@ -366,10 +366,6 @@ ServerEntry::getLoad(LoadSample sample) const
     ServerInfo& info = _proxy ? *_loaded.get() : *_load.get();
     float factor;
     LoadInfo load = _cache.getNodeCache().get(info.node)->getLoadInfoAndLoadFactor(info.application, factor);
-    if(factor < 0.0f)
-    {
-	factor = 1.0f / load.nProcessors;
-    }
     switch(sample)
     {
     case LoadSample1:

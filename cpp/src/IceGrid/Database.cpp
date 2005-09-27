@@ -433,6 +433,12 @@ Database::getNode(const string& name) const
     return _nodeCache.get(name)->getProxy();
 }
 
+NodeInfo
+Database::getNodeInfo(const string& name) const
+{
+    return _nodeCache.get(name)->getInfo();
+}
+
 void 
 Database::removeNode(const string& name)
 {
