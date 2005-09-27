@@ -46,29 +46,22 @@ HelloClient::menu()
 int
 HelloClient::run(int argc, char* argv[])
 {
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-
-    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-    args = properties->parseCommandLineOptions("", args);
-    Ice::stringSeqToArgs(args, argc, argv);
-
     //
     // First we try to connect to the object with the `hello'
     // identity. If it's not registered with the registry, we 
     // search for an object with the ::Demo::Hello type.
     //
-    Ice::ObjectPrx base = communicator()->stringToProxy(properties->getPropertyWithDefault("Identity", "hello"));
-    HelloPrx twoway;
+    HelloPrx hello;
     try
     {
-	twoway = HelloPrx::checkedCast(base);
+	hello = HelloPrx::checkedCast(communicator()->stringToProxy("hello"));
     }
     catch(const Ice::NotRegisteredException&)
     {
-	IceGrid::QueryPrx query = IceGrid::QueryPrx::uncheckedCast(communicator()->stringToProxy("IceGrid/Query"));
-	twoway = HelloPrx::checkedCast(query->findObjectByType("::Demo::Hello"));
+	IceGrid::QueryPrx query = IceGrid::QueryPrx::checkedCast(communicator()->stringToProxy("IceGrid/Query"));
+	hello = HelloPrx::checkedCast(query->findObjectByType("::Demo::Hello"));
     }
-    if(!twoway)
+    if(!hello)
     {
 	cerr << argv[0] << ": couldn't find a `::Demo::Hello' object." << endl;
 	return EXIT_FAILURE;
@@ -85,11 +78,11 @@ HelloClient::run(int argc, char* argv[])
 	    cin >> c;
 	    if(c == 't')
 	    {
-		twoway->sayHello();
+		hello->sayHello();
 	    }
 	    else if(c == 's')
 	    {
-		twoway->shutdown();
+		hello->shutdown();
 	    }
 	    else if(c == 'x')
 	    {
