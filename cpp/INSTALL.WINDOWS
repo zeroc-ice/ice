@@ -39,7 +39,7 @@ Third-party libraries
 Ice has dependencies on a number of third-party libraries:
 
 - STLport 4.5 or later (required for Visual C++ 6.0)
-- Berkeley DB 4.2.52
+- Berkeley DB 4.3.28
 - expat 1.9x
 - OpenSSL 0.96 or 0.97
 - bzip2 1.0
