@@ -30,7 +30,7 @@ class DbEnvs extends Parent
 	   boolean isEditable,
 	   Utils.Resolver resolver,
 	   Model model)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	super("DbEnvs", model);
 	_isEditable = isEditable;

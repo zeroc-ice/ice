@@ -49,7 +49,7 @@ class ServerTemplate extends EditableParent
     //
     ServerTemplate(boolean brandNew, String name, TemplateDescriptor descriptor, 
 		   Application application)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	super(brandNew, name, application.getModel());
 	rebuild(descriptor, application);
@@ -68,7 +68,7 @@ class ServerTemplate extends EditableParent
     }
 
     void rebuild(TemplateDescriptor descriptor, Application application)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	_templateDescriptor = descriptor;
 	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor);
@@ -83,10 +83,9 @@ class ServerTemplate extends EditableParent
 	{
 	    _iceBoxDescriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
 	    
-	    _services = new Services(_iceBoxDescriptor.services, this, null, 
+	    _services = new Services(_iceBoxDescriptor.services, true, null, 
 				     application);
 	    addChild(_services);
-	    _services.setParent(this);
 
 	    assert _templateDescriptor.descriptor.dbEnvs.size() == 0;
 	    _dbEnvs = null;
@@ -99,22 +98,50 @@ class ServerTemplate extends EditableParent
 	    _dbEnvs = new DbEnvs(_templateDescriptor.descriptor.dbEnvs, true,
 			     null, _model);
 	    addChild(_dbEnvs);
-	    _dbEnvs.setParent(this);
 	}
 	
 	_adapters = new Adapters(_templateDescriptor.descriptor.adapters, true, 
-				 _services != null, null, null, _model);
+				 _services != null, null, _model);
 	addChild(_adapters);
-	_adapters.setParent(this);
     }
 
-    void cascadeDeleteServiceInstance(String templateId)
+    void removeServiceInstances(String template)
     {
 	if(_services != null)
 	{
-	    _services.cascadeDeleteServiceInstance(templateId);
+	    _services.removeServiceInstances(template);
 	}
     }
+
+    public java.util.List findAllInstances(CommonBase child)
+    {
+	java.util.List result = super.findAllInstances(child);
+	
+	java.util.List serverInstances = 
+	    getApplication().findServerInstances(_id);
+
+	java.util.Iterator p = serverInstances.iterator();
+	while(p.hasNext())
+	{
+	    Server server = (Server)p.next();
+	    result.addAll(server.findChildrenWithType(child.getClass()));
+	}
+
+	return result;
+    }
+
+    java.util.List findServiceInstances(String template)
+    {
+	if(_services != null)
+	{
+	    return _services.findServiceInstances(template);
+	}
+	else
+	{
+	    return new java.util.LinkedList();
+	}
+    }
+    
 
     public PropertiesHolder getPropertiesHolder()
     {

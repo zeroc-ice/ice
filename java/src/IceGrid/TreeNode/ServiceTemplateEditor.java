@@ -25,6 +25,11 @@ class ServiceTemplateEditor extends TemplateEditor
 	_subEditor.writeDescriptor();
     }	    
 
+    boolean isSimpleUpdate()
+    {
+	return super.isSimpleUpdate() && _subEditor.isSimpleUpdate();
+    }
+
     void append(DefaultFormBuilder builder)
     { 
 	super.append(builder);

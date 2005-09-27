@@ -12,13 +12,14 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import IceGrid.AdapterDescriptor;
 import IceGrid.Model;
 import IceGrid.Utils;
 
-class Adapters extends SimpleContainer
+class Adapters extends ListParent
 {
     static class NewPopupMenu extends JPopupMenu
     {
@@ -60,16 +61,6 @@ class Adapters extends SimpleContainer
 	    return null;
 	}
     }
-
-    public void unregister()
-    {
-	java.util.Iterator p = _children.iterator();
-	while(p.hasNext())
-	{
-	    Adapter adapter = (Adapter)p.next();
-	    adapter.unregister();
-	}
-    }
     
     static public java.util.LinkedList
     copyDescriptors(java.util.LinkedList descriptors)
@@ -85,8 +76,8 @@ class Adapters extends SimpleContainer
 
     Adapters(java.util.List descriptors, boolean isEditable, 
 	     boolean inIceBox, Utils.Resolver resolver, 
-	     Application application, Model model)
-	throws DuplicateIdException
+	     Model model)
+	throws UpdateFailedException
     {
 	super("Adapters", model);
 	_descriptors = descriptors;
@@ -102,14 +93,61 @@ class Adapters extends SimpleContainer
 	    String adapterName = Utils.substitute(descriptor.name, _resolver);
 	    
 	    addChild(new Adapter(adapterName, descriptor, 
-				 _resolver, application, _model));
+				 _resolver, _model));
 	}
     }
-    
+
     boolean isEditable()
     {
 	return _isEditable;
     }
+
+    protected boolean validate(Object d)
+    {
+	AdapterDescriptor descriptor = (AdapterDescriptor)d;
+
+	String newName = Utils.substitute(descriptor.name, _resolver);
+
+	CommonBase child = findChild(newName);
+	if(child != null && child.getDescriptor() != descriptor)
+	{
+	    JOptionPane.showMessageDialog(
+		_model.getMainFrame(),
+		_model.getRoot().identify(_parent.getPath()) 
+		+ " has already an adapter named '" 
+		+ newName + "'",
+		"Duplicate adapter name error",
+		JOptionPane.ERROR_MESSAGE);
+	    return false;
+	}
+	return true;
+    }
+
+    protected void applyUpdate(Object d)
+    {
+	AdapterDescriptor descriptor = (AdapterDescriptor)d;
+
+	CommonBase oldChild = findChildWithDescriptor(descriptor);
+	if(oldChild != null)
+	{
+	    removeChild(oldChild, true);
+	}
+
+	String adapterName = Utils.substitute(descriptor.name, _resolver);
+	Adapter newChild = new Adapter(adapterName, descriptor, 
+				       _resolver, _model);
+
+	try
+	{
+	    addChild(newChild, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+    }
+
+  
 
     boolean inIceBox()
     {
@@ -127,13 +165,7 @@ class Adapters extends SimpleContainer
 	// Generate a unique child name; ignore substitution for simplicity
 	//
 	String baseName = descriptor == null ? "NewAdapter" : descriptor.name;
-	String name = baseName;
-
-	int i = 0;
-	while(findChild(name) != null || findChild("*" + name) != null)
-	{
-	    name = baseName + "-" + (++i);
-	}
+	String name = makeNewChildId(baseName);
 
 	if(descriptor == null)
 	{
@@ -159,11 +191,10 @@ class Adapters extends SimpleContainer
 	{
 	    addChild(adapter, true);
 	}
-	catch(DuplicateIdException e)
+	catch(UpdateFailedException e)
 	{
 	    assert false;
 	}
-	adapter.setParent(this);
 	_model.setSelectionPath(adapter.getPath());
     }
 

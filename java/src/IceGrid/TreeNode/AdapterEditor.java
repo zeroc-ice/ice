@@ -26,7 +26,7 @@ import IceGrid.ObjectDescriptor;
 import IceGrid.TableDialog;
 import IceGrid.Utils;
 
-class AdapterEditor extends Editor
+class AdapterEditor extends ListElementEditor
 {
     AdapterEditor(JFrame parentFrame)
     {
@@ -179,9 +179,7 @@ class AdapterEditor extends Editor
 	//
 	getAdapter().setEndpoints(_name.getText(), _endpoints.getText());
     }
-
-
-
+    
     void setObjectsField()
     {
 	Adapter adapter = getAdapter();

@@ -28,7 +28,7 @@ import IceGrid.TableDialog;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
-class ServiceInstanceEditor extends Editor
+class ServiceInstanceEditor extends ListElementEditor
 {
     ServiceInstanceEditor(JFrame parentFrame)
     {

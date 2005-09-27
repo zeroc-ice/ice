@@ -8,15 +8,58 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import IceGrid.TemplateDescriptor;
-import IceGrid.Model;
+import java.awt.event.ActionEvent;
 
-class ServiceTemplates extends EditableParent
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+
+
+import IceGrid.Model;
+import IceGrid.ServiceDescriptor;
+import IceGrid.TemplateDescriptor;
+
+class ServiceTemplates extends Templates
 {
-    ServiceTemplates(java.util.Map descriptors, Model model)
-	throws DuplicateIdException
+    static class NewPopupMenu extends JPopupMenu
     {
-	super(false, "Service templates", model);
+	NewPopupMenu()
+	{
+	    _new = new AbstractAction("New service template")
+		{
+		    public void actionPerformed(ActionEvent e) 
+		    {
+			_parent.newServiceTemplate();
+		    }
+		};
+
+	    add(_new);
+	}
+
+	void setParent(ServiceTemplates parent)
+	{
+	    _parent = parent;
+	}
+
+	private ServiceTemplates _parent;
+	private Action _new;
+    }
+    
+    public JPopupMenu getPopupMenu()
+    {
+	if(_popup == null)
+	{
+	    _popup = new NewPopupMenu();
+	}
+	_popup.setParent(this);
+	return _popup;
+    }
+
+    ServiceTemplates(java.util.Map descriptors, Model model)
+	throws UpdateFailedException
+    {
+	super("Service templates", model);
 
 	_descriptors = descriptors;
 
@@ -46,12 +89,84 @@ class ServiceTemplates extends EditableParent
 	    {
 		addChild(new ServiceTemplate((ServiceTemplate)p.next()));
 	    }
-	    catch(DuplicateIdException e)
+	    catch(UpdateFailedException e)
 	    {
 		assert false;
 	    }
 	}
     }
+
+    void newServiceTemplate()
+    {
+	ServiceDescriptor sd = new ServiceDescriptor(
+	    new java.util.LinkedList(),
+	    new java.util.LinkedList(),
+	    new java.util.LinkedList(),
+	    "",
+	    "",
+	    "");
+	    
+	newServiceTemplate(new TemplateDescriptor(
+			       sd, new java.util.LinkedList()));
+    }
+
+    void newServiceTemplate(TemplateDescriptor descriptor)
+    {
+	String id = makeNewChildId("NewServiceTemplate");
+	
+	ServiceTemplate t = new ServiceTemplate(id, descriptor, _model);
+	try
+	{
+	    addChild(t, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+	_model.setSelectionPath(t.getPath());
+    }
+
+    public void paste(Object descriptor)
+    {
+	if(descriptor instanceof TemplateDescriptor)
+	{
+	    TemplateDescriptor td = (TemplateDescriptor)descriptor;
+	    if(td.descriptor instanceof ServiceDescriptor)
+	    {
+		newServiceTemplate(td);
+	    }
+	}
+    }
+
+    boolean tryAdd(String newId, TemplateDescriptor descriptor)
+    {
+	if(findChild(newId) != null)
+	{
+	    JOptionPane.showMessageDialog(
+		_model.getMainFrame(),
+		"There is already a service template with the same id.",
+		"Duplicate id",
+		JOptionPane.INFORMATION_MESSAGE);
+	    return false;
+	}
+	_descriptors.put(newId, descriptor);
+	
+	try
+	{
+	    addChild(new ServiceTemplate(true, newId, descriptor, _model), true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false; // impossible
+	}
+	return true;
+    }
+
+    protected java.util.List findAllTemplateInstances(String templateId)
+    {
+	return getApplication().findServiceInstances(templateId);
+    }
+    
 
     void getUpdates(java.util.Map updates)
     {
@@ -66,7 +181,7 @@ class ServiceTemplates extends EditableParent
 	}
     }
 
-    void update() throws DuplicateIdException
+    void update() throws UpdateFailedException
     {
 	//
 	// The only template-descriptor update going through the
@@ -92,7 +207,7 @@ class ServiceTemplates extends EditableParent
 
 
     void update(java.util.Map descriptors, String[] removeTemplates)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	//
 	// Note: _descriptors is updated by Application
@@ -133,14 +248,15 @@ class ServiceTemplates extends EditableParent
 		       (new CommonBaseI[0]));
 	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
 
-	p = newChildren.iterator();
-	while(p.hasNext())
-	{
-	    ServiceTemplate serviceTemplate = (ServiceTemplate)p.next();
-	    serviceTemplate.setParent(this);
-	}
-
     }
 
+    void removeDescriptor(String id)
+    {
+	_descriptors.remove(id);
+    }
+
+
     private java.util.Map _descriptors;
+
+    static private NewPopupMenu _popup;
 }

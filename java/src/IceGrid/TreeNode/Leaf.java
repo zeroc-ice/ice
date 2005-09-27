@@ -8,6 +8,7 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import javax.swing.tree.TreePath;
 import IceGrid.Model;
 
 //
@@ -46,6 +47,21 @@ class Leaf extends CommonBaseI
 	return null;
     }
     
+    public void setParent(CommonBase parent)
+    {
+	assert parent != null;
+	_parent = (Parent)parent;
+	TreePath parentPath = _parent.getPath();
+	_path = parentPath.pathByAddingChild(this);
+    }
+
+    public void clearParent()
+    {
+	_parent = null;
+	_path = null;
+    }
+
+
     protected Leaf(String id, Model model)
     {
 	super(id, model, false);

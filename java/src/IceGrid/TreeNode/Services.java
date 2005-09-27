@@ -21,7 +21,7 @@ import IceGrid.ServiceInstanceDescriptor;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
-class Services extends SimpleContainer
+class Services extends ListParent implements InstanceParent
 {
     static class NewPopupMenu extends JPopupMenu
     {
@@ -103,15 +103,79 @@ class Services extends SimpleContainer
 	return copy;
     }
 
+    
+    private Service createService(ServiceInstanceDescriptor descriptor,
+			       Application application) throws UpdateFailedException
+    {
+	ServiceDescriptor serviceDescriptor = null;
+	String serviceName = null;
+	String displayString = null;
+	Utils.Resolver serviceResolver = null;
+	
+	if(descriptor.template.length() > 0)
+	{
+	    TemplateDescriptor templateDescriptor 
+		= application.findServiceTemplateDescriptor(descriptor.template);
+	    
+	    assert templateDescriptor != null;
+	    
+	    serviceDescriptor = (ServiceDescriptor)templateDescriptor.descriptor;
+	    assert serviceDescriptor != null;
+	    
+	    if(_resolver != null)
+	    {
+		serviceResolver = new Utils.Resolver(_resolver, descriptor.parameterValues);
+		serviceName = serviceResolver.substitute(serviceDescriptor.name);
+		serviceResolver.put("service", serviceName);
+		displayString = serviceName + ": " 
+		    + templateLabel(descriptor.template,
+				    serviceResolver.getParameters().values());
+	    }
+	    else
+	    {
+		//
+		// serviceName = TemplateName<unsubstituted param 1, ....>
+		//
+		serviceName = templateLabel(descriptor.template, 
+					    descriptor.parameterValues.values());
+		
+	    }
+	}
+	else
+	{
+	    serviceDescriptor = descriptor.descriptor;
+	    assert serviceDescriptor != null;
+	    
+	    if(_resolver != null)
+	    {
+		serviceResolver = new Utils.Resolver(_resolver);
+		serviceName = _resolver.substitute(serviceDescriptor.name);
+		serviceResolver.put("service", serviceName);
+	    }
+	    else
+	    {
+		serviceName = serviceDescriptor.name;
+	    }
+	}
+	   
+	return new Service(serviceName,
+			   displayString,
+			   descriptor, 
+			   serviceDescriptor,
+			   _isEditable, 
+			   serviceResolver,
+			   _model);
+    }
+
     Services(java.util.List descriptors,
-	     Editable editable,
+	     boolean isEditable,
 	     Utils.Resolver resolver, // Null within template
 	     Application application)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	super("Services", application.getModel());    
 	_descriptors = descriptors;
-	_isEditable = (editable != null);
+	_isEditable = isEditable;
 	_resolver = resolver;
 
 	sortChildren(false);
@@ -122,86 +186,15 @@ class Services extends SimpleContainer
 	    ServiceInstanceDescriptor descriptor = 
 		(ServiceInstanceDescriptor)p.next();
 
-	    ServiceDescriptor serviceDescriptor = null;
-	    String serviceName = null;
-	    String displayString = null;
-	    Utils.Resolver serviceResolver = null;
-	
-	    if(descriptor.template.length() > 0)
+	    try
 	    {
-		TemplateDescriptor templateDescriptor 
-		    = application.findServiceTemplateDescriptor(descriptor.template);
-		
-		if(templateDescriptor == null)
-		{
-		    //
-		    // We've just removed this template instance;
-		    // cascadeDeleteServiceInstance will later remove this descriptor
-		    //
-		    assert editable != null;
-		    editable.markModified();
-		    continue;
-		}
-		else
-		{
-		    serviceDescriptor = (ServiceDescriptor)templateDescriptor.descriptor;
-		    assert serviceDescriptor != null;
-		    
-		    if(resolver != null)
-		    {
-			serviceResolver = new Utils.Resolver(resolver, descriptor.parameterValues);
-			serviceName = serviceResolver.substitute(serviceDescriptor.name);
-			serviceResolver.put("service", serviceName);
-			displayString = serviceName + ": " 
-			    + templateLabel(descriptor.template,
-					    serviceResolver.getParameters().values());
-		    }
-		    else
-		    {
-			//
-			// serviceName = TemplateName<unsubstituted param 1, ....>
-			//
-			serviceName = templateLabel(descriptor.template, 
-						    descriptor.parameterValues.values());
-			
-		    }
-		}
+		addChild(createService(descriptor, application));
 	    }
-	    else
+	    catch(UpdateFailedException e)
 	    {
-		serviceDescriptor = descriptor.descriptor;
-		assert serviceDescriptor != null;
-		
-		if(resolver != null)
-		{
-		    serviceResolver = new Utils.Resolver(resolver);
-		    serviceName = resolver.substitute(serviceDescriptor.name);
-		    serviceResolver.put("service", serviceName);
-		}
-		else
-		{
-		    serviceName = serviceDescriptor.name;
-		}
+		e.addParent(this);
+		throw e;
 	    }
-	    
-	    addChild(new Service(serviceName,
-				 displayString,
-				 descriptor, 
-				 serviceDescriptor,
-				 editable != null, 
-				 serviceResolver,
-				 application,
-				 _model));
-	}
-    }
-
-    public void unregister()
-    {
-	java.util.Iterator p = _children.iterator();
-	while(p.hasNext())
-	{
-	    Service service = (Service)p.next();
-	    service.unregister();
 	}
     }
 
@@ -209,12 +202,7 @@ class Services extends SimpleContainer
     {
 	String baseName = descriptor.descriptor == null ? "NewService" :
 	    descriptor.descriptor.name;
-	String name = baseName;
-	int i = 0;
-	while(findChild(name) != null || findChild("*" + name) != null)
-	{
-	    name = baseName + "-" + (++i);
-	}
+	String name = makeNewChildId(baseName);
 	
 	if(descriptor.descriptor != null)
 	{
@@ -261,11 +249,10 @@ class Services extends SimpleContainer
 	{
 	    addChild(service, true);
 	}
-	catch(DuplicateIdException e)
+	catch(UpdateFailedException e)
 	{
 	    assert false;
 	}
-	service.setParent(this);
 	_model.setSelectionPath(service.getPath());
     }
     
@@ -278,25 +265,131 @@ class Services extends SimpleContainer
 	}
     }
 
-
-    void cascadeDeleteServiceInstance(String templateId)
-    {
-	java.util.Iterator p = _descriptors.iterator();
-	while(p.hasNext())
-	{
-	    ServiceInstanceDescriptor instanceDescriptor = 
-		(ServiceInstanceDescriptor)p.next();
-
-	    if(instanceDescriptor.template.equals(templateId))
-	    {
-		p.remove();
-	    }
-	}
-    }
-
     boolean isEditable()
     {
 	return _isEditable;
+    }
+
+    protected boolean validate(Object d)
+    {
+	ServiceInstanceDescriptor descriptor = (ServiceInstanceDescriptor)d;
+	
+	String newName;
+	if(descriptor.template.length() > 0)
+	{
+	    TemplateDescriptor templateDescriptor 
+		= getApplication().findServiceTemplateDescriptor(descriptor.template);
+		
+	    assert templateDescriptor != null;
+
+	    ServiceDescriptor serviceDescriptor = (ServiceDescriptor)templateDescriptor.descriptor;
+	    assert serviceDescriptor != null;
+	    Utils.Resolver serviceResolver = _resolver == null ? null :
+		new Utils.Resolver(_resolver, descriptor.parameterValues);
+	    
+	    newName = Utils.substitute(serviceDescriptor.name, serviceResolver);
+	}
+	else
+	{
+	    newName = Utils.substitute(descriptor.descriptor.name, _resolver);
+	}
+	
+	CommonBase child = findChild(newName);
+	if(child != null && child.getDescriptor() != descriptor)
+	{
+	    JOptionPane.showMessageDialog(
+		_model.getMainFrame(),
+		_model.getRoot().identify(_parent.getPath()) 
+		+ " has already a service named '" 
+		+ newName + "'",
+		"Duplicate service name error",
+		JOptionPane.ERROR_MESSAGE);
+	    return false;
+	}
+	return true;
+    }
+
+    protected void applyUpdate(Object d)
+    {
+	ServiceInstanceDescriptor descriptor = (ServiceInstanceDescriptor)d;
+
+	CommonBase oldChild = findChildWithDescriptor(descriptor);
+	int index = -1;
+	if(oldChild != null)
+	{
+	    index = getIndex(oldChild);
+	    removeChild(oldChild, true);
+	}
+	
+	Service service = null;
+
+	try
+	{
+	    service = createService(descriptor, getApplication());
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false; // impossible
+	}
+
+	try
+	{
+	    if(index != -1)
+	    {
+		addChild(index, service, true);
+	    }
+	    else
+	    {
+		addChild(service, true);
+	    }
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+    }
+
+    java.util.List findServiceInstances(String template)
+    {
+	java.util.List result = new java.util.LinkedList();
+
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Service service = (Service)p.next();
+	    ServiceInstanceDescriptor d = 
+		(ServiceInstanceDescriptor)service.getDescriptor();
+	    if(d.template.equals(template))
+	    {
+		result.add(service);
+	    }
+	}
+	return result;
+    }
+
+
+    void removeServiceInstances(String template)
+    {
+	java.util.List toRemove = new java.util.LinkedList();
+
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Service service = (Service)p.next();
+	    ServiceInstanceDescriptor d = 
+		(ServiceInstanceDescriptor)service.getDescriptor();
+	    if(d.template.equals(template))
+	    {
+		removeDescriptor(d);
+		toRemove.add(service.getId());
+	    }
+	}
+
+	if(toRemove.size() > 0)
+	{
+	    getEditable().markModified();
+	    removeChildren((String[])toRemove.toArray(new String[0]));
+	}
     }
 
     Utils.Resolver getResolver()
@@ -361,6 +454,78 @@ class Services extends SimpleContainer
 	    _model.enableDisplay();
 	}
     }
+
+
+    //
+    // InstanceParent interface
+    //
+
+    public Object rebuild(CommonBase child, java.util.List editables) 
+	throws UpdateFailedException
+    {
+	int index = getIndex(child);
+	assert index != -1;
+	removeChild(child, true);
+	ServiceInstanceDescriptor descriptor = (ServiceInstanceDescriptor)child.getDescriptor();
+	
+	java.util.TreeMap savedParameterValues = null;
+
+	if(descriptor.template.length() > 0)
+	{
+	    TemplateDescriptor templateDescriptor 
+		= getApplication().findServiceTemplateDescriptor(descriptor.template);
+
+	    java.util.Set parameters = new java.util.HashSet(templateDescriptor.parameters);
+	    if(!parameters.equals(descriptor.parameterValues.keySet()))
+	    {
+		savedParameterValues = descriptor.parameterValues;
+		descriptor.parameterValues = Editor.makeParameterValues(
+		    descriptor.parameterValues, templateDescriptor.parameters);
+		editables.add(getEditable());
+	    }
+	}
+	
+	try
+	{
+	    Service newChild = createService(descriptor, getApplication());
+	    addChild(index, newChild, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    restore(child, savedParameterValues);
+	    throw e;
+	}
+
+	return savedParameterValues;
+    }
+
+    public void restore(CommonBase child, Object backup)
+    {
+	java.util.TreeMap savedParameterValues = (java.util.TreeMap)backup;
+
+	ServiceInstanceDescriptor descriptor = 
+	    (ServiceInstanceDescriptor)child.getDescriptor();
+
+	if(savedParameterValues != null)
+	{
+	    descriptor.parameterValues = savedParameterValues;
+	}
+	
+	CommonBase badChild = findChildWithDescriptor(descriptor);
+	int index = getIndex(badChild);
+	assert index != -1;
+	removeChild(badChild, true);
+
+	try
+	{
+	    addChild(index, child, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false; // impossible
+	}
+    }
+
 
     private final boolean _isEditable;
     private final Utils.Resolver _resolver;

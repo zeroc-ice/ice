@@ -17,7 +17,7 @@ import IceGrid.Utils;
 class ReplicatedAdapters extends EditableParent
 {
     ReplicatedAdapters(java.util.List descriptors, Model model)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	super(false, "Replicated Adapters", model);
 	_descriptors = descriptors;
@@ -33,7 +33,7 @@ class ReplicatedAdapters extends EditableParent
     }
 
     ReplicatedAdapters(ReplicatedAdapters o)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	super(o);
 	_descriptors = o._descriptors;
@@ -59,7 +59,7 @@ class ReplicatedAdapters extends EditableParent
     }
 
 
-    void update() throws DuplicateIdException
+    void update() throws UpdateFailedException
     {
 	java.util.Set keepSet = new java.util.HashSet();
 
@@ -80,7 +80,7 @@ class ReplicatedAdapters extends EditableParent
 
 
     void update(java.util.List descriptors, String[] removeAdapters)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	_descriptors = descriptors;
 
@@ -118,13 +118,6 @@ class ReplicatedAdapters extends EditableParent
 	updateChildren((CommonBaseI[])updatedChildren.toArray
 		       (new CommonBaseI[0]));
 	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
-
-	p = newChildren.iterator();
-	while(p.hasNext())
-	{
-	    ReplicatedAdapter replicatedAdapter = (ReplicatedAdapter)p.next();
-	    replicatedAdapter.setParent(this);
-	}
     }
 
     private java.util.List _descriptors;

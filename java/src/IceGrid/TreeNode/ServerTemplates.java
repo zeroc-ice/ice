@@ -15,7 +15,7 @@ import IceGrid.TreeModelI;
 class ServerTemplates extends EditableParent
 {
     ServerTemplates(java.util.Map descriptors, Application application)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	super(false, "Server templates", application.getModel());
 
@@ -47,7 +47,7 @@ class ServerTemplates extends EditableParent
 	    {
 		addChild(new ServerTemplate((ServerTemplate)p.next()));
 	    }
-	    catch(DuplicateIdException e)
+	    catch(UpdateFailedException e)
 	    {
 		assert false;
 	    }
@@ -67,7 +67,7 @@ class ServerTemplates extends EditableParent
 	}
     }
 
-    void update() throws DuplicateIdException
+    void update() throws UpdateFailedException
     {
 	//
 	// The only template-descriptor update going through the
@@ -94,18 +94,30 @@ class ServerTemplates extends EditableParent
 	fireStructureChangedEvent(this);
     }
 
-    void cascadeDeleteServiceInstance(String templateId)
+    java.util.List findServiceInstances(String template)
+    {
+	java.util.List result = new java.util.LinkedList();
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    ServerTemplate t = (ServerTemplate)p.next();
+	    result.addAll(t.findServiceInstances(template));
+	}
+	return result;
+    }
+
+    void removeServiceInstances(String template)
     {
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
 	    ServerTemplate t = (ServerTemplate)p.next();
-	    t.cascadeDeleteServiceInstance(templateId);
+	    t.removeServiceInstances(template);
 	}
     }
     
     void update(java.util.Map updates, String[] removeTemplates)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	//
 	// Note: _descriptors is updated by Application
@@ -147,13 +159,6 @@ class ServerTemplates extends EditableParent
 	updateChildren((CommonBaseI[])updatedChildren.toArray
 		       (new CommonBaseI[0]));
 	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
-
-	p = newChildren.iterator();
-	while(p.hasNext())
-	{
-	    ServerTemplate serverTemplate = (ServerTemplate)p.next();
-	    serverTemplate.setParent(this);
-	}
     }
     
     private java.util.Map _descriptors;

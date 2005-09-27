@@ -16,7 +16,7 @@ import IceGrid.Model;
 import IceGrid.ServiceInstanceDescriptor;
 import IceGrid.Utils;
 
-class ServiceEditor extends Editor
+class ServiceEditor extends ListElementEditor
 {
     ServiceEditor(JFrame parentFrame)
     {

@@ -66,9 +66,7 @@ class Service extends Parent
 	_instanceDescriptor.parameterValues = sd.parameterValues;
 	if(_instanceDescriptor.descriptor != null)
 	{
-	    _instanceDescriptor.descriptor.adapters = sd.descriptor.adapters;
 	    _instanceDescriptor.descriptor.properties = sd.descriptor.properties;
-	    _instanceDescriptor.descriptor.dbEnvs = sd.descriptor.properties;
 	    _instanceDescriptor.descriptor.description = sd.descriptor.description;
 	    
 	    _instanceDescriptor.descriptor.name = sd.descriptor.name;
@@ -83,26 +81,8 @@ class Service extends Parent
 
     public boolean destroy()
     {
-	if(isEphemeral() || isEditable() && _model.canUpdate())
-	{
-	    Services services = (Services)_parent;
-	  
-	    if(isEphemeral())
-	    {
-		services.removeChild(this, true);
-	    }
-	    else
-	    {
-		services.removeDescriptor(_instanceDescriptor);
-		getEditable().markModified();
-		getApplication().applySafeUpdate();
-	    }
-	    return true;
-	}
-	else
-	{
-	    return false;
-	}
+	return _parent == null ? false : 
+	    ((ListParent)_parent).destroyChild(this);
     }
 
     public void displayProperties()
@@ -140,21 +120,13 @@ class Service extends Parent
 	}
 	else
 	{
-	    return _id;
+	    return super.toString();
 	}
     }
 
     public PropertiesHolder getPropertiesHolder()
     {
 	return _propertiesHolder;
-    }
-
-    public void unregister()
-    {
-	if(_adapters != null)
-	{
-	    _adapters.unregister();
-	}
     }
 
     public void moveUp()
@@ -166,6 +138,33 @@ class Service extends Parent
     {
 	move(false);
     }
+
+    //
+    // child == _adapters or _dbEnvs
+    //
+    public java.util.List findAllInstances(Object child)
+    {
+	assert getIndex(child) != -1;
+
+	java.util.List result = new java.util.LinkedList();
+
+	//
+	// First find all instances of the enclosing Services
+	//
+	java.util.List servicesList = _parent.getParent().findAllInstances(_parent);
+	
+	//
+	// And then their children with the appropriate type
+	//
+	java.util.Iterator p = servicesList.iterator();
+	while(p.hasNext())
+	{
+	    Services services = (Services)p.next();
+	    result.addAll(services.findChildrenWithType(child.getClass()));
+	}
+	return result;
+    }
+
 
     private void move(boolean up)
     {
@@ -181,9 +180,8 @@ class Service extends Parent
 	    ServiceDescriptor serviceDescriptor,
 	    boolean isEditable,
 	    Utils.Resolver resolver,
-	    Application application,
 	    Model model)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	super(name, model);
 	_displayString = displayString;
@@ -197,15 +195,22 @@ class Service extends Parent
 	boolean areChildrenEditable = _instanceDescriptor.template.length() == 0 
 	    && isEditable;
 
-	_adapters = new Adapters(serviceDescriptor.adapters, 
-				 areChildrenEditable, false, resolver, 
-				 application, 
-				 _model);
-	addChild(_adapters);
-	
-	_dbEnvs = new DbEnvs(serviceDescriptor.dbEnvs, 
-			     areChildrenEditable, resolver, _model);
-	addChild(_dbEnvs);
+	try
+	{
+	    _adapters = new Adapters(serviceDescriptor.adapters, 
+				     areChildrenEditable, false, resolver, 
+				     _model);
+	    addChild(_adapters);
+	    
+	    _dbEnvs = new DbEnvs(serviceDescriptor.dbEnvs, 
+				 areChildrenEditable, resolver, _model);
+	    addChild(_dbEnvs);
+	}
+	catch(UpdateFailedException e)
+	{
+	    e.addParent(this);
+	    throw e;
+	}
     }
 
     //
@@ -215,7 +220,7 @@ class Service extends Parent
 	    ServiceInstanceDescriptor instanceDescriptor,
 	    Model model)
     {
-	super("*" + name, model);
+	super(name, model);
 	_instanceDescriptor = instanceDescriptor;
 	_serviceDescriptor = instanceDescriptor.descriptor;
 	_ephemeral = true;
@@ -239,7 +244,14 @@ class Service extends Parent
 
     boolean isEditable()
     {
-	return ((Services)_parent).isEditable();
+	if(_parent == null)
+	{
+	    return false;
+	}
+	else
+	{
+	    return ((Services)_parent).isEditable();
+	}
     }
 
     public boolean isEphemeral()

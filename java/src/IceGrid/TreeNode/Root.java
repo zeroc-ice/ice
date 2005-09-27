@@ -8,6 +8,8 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import javax.swing.tree.TreePath;
+
 import IceGrid.AdapterDynamicInfo;
 import IceGrid.ApplicationDescriptor;
 import IceGrid.ApplicationUpdateDescriptor;
@@ -51,9 +53,8 @@ public class Root extends Parent
 	    {
 		Application child = new Application(false, descriptor, _model);
 		addChild(child);
-		child.setParent(this);
 	    }
-	    catch(DuplicateIdException e)
+	    catch(UpdateFailedException e)
 	    {
 		//
 		// Bug in the IceGrid registry
@@ -79,10 +80,9 @@ public class Root extends Parent
 	try
 	{
 	    Application child = new Application(false, desc, _model); 
-	    child.setParent(this);
 	    addChild(child, true);
 	}
-	catch(DuplicateIdException e)
+	catch(UpdateFailedException e)
 	{
 	    //
 	    // Bug in the IceGrid registry
@@ -108,7 +108,7 @@ public class Root extends Parent
 	    Application application = (Application)findChild(desc.name);
 	    application.update(desc);
 	}
-	catch(DuplicateIdException e)
+	catch(UpdateFailedException e)
 	{
 	    //
 	    // Bug in the IceGrid registry
@@ -143,17 +143,81 @@ public class Root extends Parent
 	    info.adapterInfoMap.put(instanceId, updatedInfo.adapters[i].proxy);
 	}
 
+	//
+	// Need to tell *every* server on this node
+	//
+	java.util.List serverList = (java.util.List)_nodeServerMap.get(nodeName);
+	if(serverList != null)
+	{
+	    java.util.Iterator p = serverList.iterator();
+	    while(p.hasNext())
+	    {
+		Server server = (Server)p.next();
+		ServerDynamicInfo serverInfo = (ServerDynamicInfo)
+		    info.serverInfoMap.get(server.getId());
+		if(serverInfo == null)
+		{
+		    server.updateDynamicInfo(ServerState.Inactive, 0);
+		}
+		else
+		{
+		    server.updateDynamicInfo(serverInfo.state, serverInfo.pid);
+		}
+	    }
+	}
+	
+	//
+	// Tell adapters 
+	//
+	java.util.List adapterList = (java.util.List)_nodeAdapterMap.get(nodeName);
+	if(adapterList != null)
+	{
+	    java.util.Iterator p = adapterList.iterator();
+	    while(p.hasNext())
+	    {
+		Adapter adapter = (Adapter)p.next();
+		Ice.ObjectPrx proxy = 
+		    (Ice.ObjectPrx)info.adapterInfoMap.get(adapter.getInstanceId());
+		if(proxy != null)
+		{
+		    adapter.updateProxy(proxy);
+		}
+	    }
+	}
+	
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
 	    Application application = (Application)p.next();
-	    application.nodeUp(nodeName, info);
+	    application.nodeUp(nodeName);
 	}
     }
 
     public void nodeDown(String nodeName)
     {
 	_dynamicInfoMap.remove(nodeName);
+
+	java.util.List serverList = (java.util.List)_nodeServerMap.get(nodeName);
+	if(serverList != null)
+	{
+	    java.util.Iterator p = serverList.iterator();
+	    while(p.hasNext())
+	    {
+		Server server = (Server)p.next();
+		server.updateDynamicInfo(null, 0);
+	    }
+	}
+
+	java.util.List adapterList = (java.util.List)_nodeAdapterMap.get(nodeName);
+	if(adapterList != null)
+	{
+	    java.util.Iterator p = adapterList.iterator();
+	    while(p.hasNext())
+	    {
+	        Adapter adapter = (Adapter)p.next();
+		adapter.updateProxy(null);
+	    }
+	}
 
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
@@ -167,7 +231,74 @@ public class Root extends Parent
     {
 	return _dynamicInfoMap.keySet();
     }
+    
+    void restore(Application copy)
+    {
+	removeChild(copy.getId(), true);
+	try
+	{
+	    addChild(copy, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false; // impossible
+	}
+    }
+    
+    
+    ServerState registerServer(String nodeName, String serverId, Server server, 
+			       Ice.IntHolder pid)
+    {
+	java.util.List serverList = (java.util.List)_serverMap.get(serverId);
+	
+	if(serverList == null)
+	{
+	    serverList = new java.util.LinkedList();
+	    _serverMap.put(serverId, serverList);
+	}
+	serverList.add(server);
+	
+	serverList = (java.util.List)_nodeServerMap.get(nodeName);
+	if(serverList == null)
+	{
+	    serverList = new java.util.LinkedList();
+	    _nodeServerMap.put(nodeName, serverList);
+	}
+	serverList.add(server);
 
+	DynamicInfo info = (DynamicInfo)_dynamicInfoMap.get(nodeName);
+	if(info == null)
+	{	
+	    // Node is down
+	    pid.value = 0;
+	    return null;
+	}
+	else
+	{
+	    ServerDynamicInfo serverInfo = 
+		(ServerDynamicInfo)info.serverInfoMap.get(serverId);
+	    if(serverInfo == null)
+	    {
+		pid.value = 0;
+		return ServerState.Inactive;
+	    }
+	    else
+	    {
+		pid.value = serverInfo.pid;
+		return serverInfo.state;
+	    }
+	}
+    }
+
+    void unregisterServer(String nodeName, String serverId, Server server)
+    {
+	java.util.List serverList = (java.util.List)_serverMap.get(serverId);
+	serverList.remove(server);
+	
+	serverList = (java.util.List)_nodeServerMap.get(nodeName);
+	serverList.remove(server);
+    }
+    
     public void updateServer(String nodeName, ServerDynamicInfo updatedInfo)
     {
 	//
@@ -177,18 +308,66 @@ public class Root extends Parent
 	assert info != null;
 	info.serverInfoMap.put(updatedInfo.id, updatedInfo);
 	
-	java.util.Iterator p = _children.iterator();
-	while(p.hasNext())
+	java.util.List serverList = (java.util.List)_serverMap.get(updatedInfo.id);
+	if(serverList != null)
 	{
-	    Application application = (Application)p.next();
-	    if(application.updateServer(updatedInfo))
+	    java.util.Iterator p = serverList.iterator();
+	    while(p.hasNext())
 	    {
-		break; // while
+		Server server = (Server)p.next();
+		server.updateDynamicInfo(updatedInfo.state, updatedInfo.pid);
 	    }
 	}
     }
 
-    public void updateAdapter(String nodeName, AdapterDynamicInfo updatedInfo)
+
+    
+    Ice.ObjectPrx registerAdapter(String nodeName, AdapterInstanceId instanceId,
+				  Adapter adapter)
+    {
+	java.util.List adapterList = (java.util.List)_adapterMap.get(instanceId);
+
+	if(adapterList == null)
+	{
+	    adapterList = new java.util.LinkedList();
+	    _adapterMap.put(instanceId, adapterList);
+	}
+	adapterList.add(adapter);
+
+	adapterList = (java.util.List)_nodeAdapterMap.get(nodeName);
+	if(adapterList == null)
+	{
+	    adapterList = new java.util.LinkedList();
+	    _nodeAdapterMap.put(nodeName, adapterList);
+	}
+	adapterList.add(adapter);
+	
+	DynamicInfo info = (DynamicInfo)_dynamicInfoMap.get(nodeName);
+	if(info == null)
+	{
+	    // Node is down
+	    return null;
+	}
+	else
+	{
+	    return (Ice.ObjectPrx)info.adapterInfoMap.get(instanceId);
+	}
+    }
+    
+    void unregisterAdapter(String nodeName, 
+			   AdapterInstanceId instanceId, 
+			   Adapter adapter)
+    {
+	java.util.List adapterList = (java.util.List)_adapterMap.
+	    get(instanceId);
+	adapterList.remove(adapter);
+
+	adapterList = (java.util.List)_nodeAdapterMap.get(nodeName);
+	adapterList.remove(adapter);
+    }
+
+    public void updateAdapter(String nodeName, 
+			      AdapterDynamicInfo updatedInfo)
     {
 	//
 	// This node must be up
@@ -196,42 +375,61 @@ public class Root extends Parent
 	DynamicInfo info = (DynamicInfo)_dynamicInfoMap.get(nodeName);
 	assert info != null;
 	AdapterInstanceId instanceId 
-	    = new AdapterInstanceId("" /* updatedInfo.serverId */, updatedInfo.id);
+	    = new AdapterInstanceId(updatedInfo.serverId, 
+				    updatedInfo.id);
 	info.adapterInfoMap.put(instanceId, updatedInfo.proxy);
 	
-	java.util.Iterator p = _children.iterator();
-	while(p.hasNext())
+	//
+	// Is this Adapter registered?
+	//
+	Adapter adapter = (Adapter)_adapterMap.get(instanceId);
+	if(adapter != null)
 	{
-	    Application application = (Application)p.next();
-	    if(application.updateAdapter(instanceId, updatedInfo.proxy))
-	    {
-		break; // while
-	    }
+	    adapter.updateProxy(updatedInfo.proxy);
 	}
-    }
-    
-    DynamicInfo getDynamicInfo(String nodeName)
-    {
-	return (DynamicInfo)_dynamicInfoMap.get(nodeName);
     }
 
-    void restore(Application copy)
+    String identify(TreePath path)
     {
-	removeChild(copy.getId(), true);
-	try
+	String result = "";
+	for(int i = 1; i < path.getPathCount(); ++i)
 	{
-	    addChild(copy, true);
-	    copy.setParent(this);
+	    if(!result.equals(""))
+	    {
+		result += "/";
+	    }
+	    result += ((CommonBase)path.getPathComponent(i)).getId();
 	}
-	catch(DuplicateIdException e)
-	{
-	    assert false; // impossible
-	}
+	return result;
     }
-    
+
     //
     // Nodename to DynamicInfo
     //
     private java.util.Map _dynamicInfoMap = new java.util.HashMap();
+
+    //
+    // AdapterInstanceId to list of Adapters
+    // The registry enforeces a single adapter per adapterInstanceId;
+    // however in order to support copy & paste, we can have temporarily
+    // an inconsistency: several adapters with the same instance id.
+    //
+    private java.util.Map _adapterMap = new java.util.HashMap();
+
+    //
+    // Nodename to list of Adapter (used when a node goes down)
+    //
+    private java.util.Map _nodeAdapterMap = new java.util.HashMap();
+
+    //
+    // ServerId to list of Servers
+    // See _adapterMap comment above
+    //
+    private java.util.Map _serverMap = new java.util.HashMap();
+
+    //
+    // Nodename to list of Server (used when a node goes down)
+    //
+    private java.util.Map _nodeServerMap = new java.util.HashMap();
 
 }

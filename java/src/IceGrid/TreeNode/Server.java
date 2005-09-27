@@ -439,15 +439,9 @@ class Server extends EditableParent
     Server(boolean brandNew, String serverId, 
 	   Utils.Resolver resolver, ServerInstanceDescriptor instanceDescriptor,
 	   ServerDescriptor serverDescriptor,
-	   Application application) throws DuplicateIdException
+	   Application application) throws UpdateFailedException
     {
 	super(brandNew, serverId, application.getModel());
-	Ice.IntHolder pid = new Ice.IntHolder();
-	_state = application.registerServer(resolver.find("node"),
-					    _id,
-					    this,
-					    pid);
-	_pid = pid.value;
 	rebuild(resolver, instanceDescriptor, serverDescriptor, application);
     }
 
@@ -476,7 +470,7 @@ class Server extends EditableParent
     void rebuild(Utils.Resolver resolver,  
 		 ServerInstanceDescriptor instanceDescriptor,
 		 ServerDescriptor serverDescriptor,
-		 Application application) throws DuplicateIdException
+		 Application application) throws UpdateFailedException
     {
 	assert serverDescriptor != null;
 	_resolver = resolver;
@@ -487,54 +481,81 @@ class Server extends EditableParent
 	boolean isEditable = (instanceDescriptor == null);
 	_propertiesHolder = new PropertiesHolder(serverDescriptor);	
 
-	if(serverDescriptor instanceof IceBoxDescriptor)
+	try
 	{
-	    IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)serverDescriptor;
-	   
-	    _services = new Services(iceBoxDescriptor.services,
-				     isEditable ? this : null, _resolver, application);
-	    addChild(_services);
-	    _services.setParent(this);
+	    if(serverDescriptor instanceof IceBoxDescriptor)
+	    {
+		IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)serverDescriptor;
+		
+		_services = new Services(iceBoxDescriptor.services,
+					 isEditable, _resolver, application);
+		addChild(_services);
+		//
+		// IceBox has not dbEnv
+		//
+		assert serverDescriptor.dbEnvs.size() == 0;
+		_dbEnvs = null;
+	    }
+	    else
+	    {
+		_services = null;   	
+		_dbEnvs = new DbEnvs(serverDescriptor.dbEnvs, 
+				     isEditable, _resolver, _model);
+		addChild(_dbEnvs);
+	    }
 	    
-	    //
-	    // IceBox has not dbEnv
-	    //
-	    assert serverDescriptor.dbEnvs.size() == 0;
-	    _dbEnvs = null;
+	    _adapters = new Adapters(serverDescriptor.adapters, 
+				     isEditable, _services != null, 
+				     _resolver, _model);
+	    addChild(_adapters);
+	}
+	catch(UpdateFailedException e)
+	{
+	    e.addParent(this);
+	    throw e;
+	}
+    }
+
+    
+    public void setParent(CommonBase parent)
+    {
+	Ice.IntHolder pid = new Ice.IntHolder();
+	_state = _model.getRoot().registerServer(_resolver.find("node"),
+						 _id,
+						 this,
+						 pid);
+	_pid = pid.value;
+	super.setParent(parent);
+    }
+
+    public void clearParent()
+    {
+	if(_parent != null)
+	{
+	    _model.getRoot().unregisterServer(_resolver.find("node"),
+					      _id, this);
+	    super.clearParent();
+	}
+
+    }
+    
+    java.util.List findServiceInstances(String template)
+    {
+	if(_services != null)
+	{
+	    return _services.findServiceInstances(template);
 	}
 	else
 	{
-	    _services = null;   	
-	    _dbEnvs = new DbEnvs(serverDescriptor.dbEnvs, 
-				 isEditable, _resolver, _model);
-	    addChild(_dbEnvs);
-	    _dbEnvs.setParent(this);
-	}
-
-	_adapters = new Adapters(serverDescriptor.adapters, 
-				 isEditable, _services != null, 
-				 _resolver, application, _model);
-	addChild(_adapters);
-	_adapters.setParent(this);
-    }
-
-    public void unregister()
-    {
-	getApplication().unregisterServer(_resolver.find("node"),
-					  _id,
-					  this);
-	_adapters.unregister();
-	if(_services != null)
-	{
-	    _services.unregister();
+	    return new java.util.LinkedList();
 	}
     }
-    
-    void cascadeDeleteServiceInstance(String templateId)
+
+    void removeServiceInstances(String template)
     {
 	if(_services != null)
 	{
-	    _services.cascadeDeleteServiceInstance(templateId);
+	    _services.removeServiceInstances(template);
 	}
     }
 
@@ -634,9 +655,9 @@ class Server extends EditableParent
 
     public String toString()
     {
-	if(_instanceDescriptor == null)
+	if(_instanceDescriptor == null || isEphemeral())
 	{
-	    return _id;
+	    return super.toString();
 	}
 	else
 	{

@@ -37,12 +37,9 @@ import IceGrid.Utils;
 // Base class for all editors
 //
 abstract class Editor
-{   
-    abstract void writeDescriptor();
-    abstract boolean isSimpleUpdate();
+{     
     abstract void append(DefaultFormBuilder builder);
-
-    void postUpdate() {}
+    abstract protected void applyUpdate();
 
     //
     // Used by the sub-editor (when there is one)
@@ -112,8 +109,6 @@ abstract class Editor
 	return _target;
     }
 
-    
-
     JComponent getComponent()
     {
 	if(_panel == null)
@@ -175,101 +170,6 @@ abstract class Editor
 	_detectUpdates = val;
     }
 
-    //
-    // Update when parent is a SimpleContainer
-    //
-    protected void applyUpdate()
-    {
-	Model model = _target.getModel();
-
-	if(model.canUpdate())
-	{    
-	    model.disableDisplay();
-
-	    try
-	    {
-		if(_target.isEphemeral())
-		{
-		    SimpleContainer parent = (SimpleContainer)_target.getParent();
-		    writeDescriptor();
-		    parent.addDescriptor(_target.getDescriptor());
-		    _target.destroy(); // just removes the child
-		    
-		    if(!_target.getApplication().applyUpdate())
-		    {
-			//
-			// Restores old display
-			//
-			parent = (SimpleContainer)model.findNewNode(parent.getPath());
-			parent.removeDescriptor(_target.getDescriptor());
-			try
-			{
-			    parent.addChild(_target, true);
-			}
-			catch(DuplicateIdException die)
-			{
-			    assert false;
-			}
-			_target.setParent(parent);
-			model.setSelectionPath(_target.getPath());
-			return;
-		    }
-		    else
-		    {
-			parent = (SimpleContainer)model.findNewNode(parent.getPath());
-			_target = parent.findChildWithDescriptor(_target.getDescriptor());
-			model.setSelectionPath(_target.getPath());
-		    }
-		}
-		else if(isSimpleUpdate())
-		{
-		    writeDescriptor();
-		}
-		else
-		{
-		    //
-		    // Save to be able to rollback
-		    //
-		    Object savedDescriptor = _target.saveDescriptor();
-		    SimpleContainer parent = (SimpleContainer)_target.getParent();
-		    writeDescriptor();
-		    
-		    if(!_target.getApplication().applyUpdate())
-		    {
-			_target.restoreDescriptor(savedDescriptor);
-			
-			//
-			// Need to find new node!
-			//
-			_target = model.findNewNode(_target.getPath());
-			model.setSelectionPath(_target.getPath());
-			//
-			//
-			// Everything was restored, user must deal with error
-			//
-			return;
-		    }
-		    else
-		    {
-			parent = (SimpleContainer)model.findNewNode(parent.getPath());
-			_target = parent.findChildWithDescriptor(_target.getDescriptor());
-			model.setSelectionPath(_target.getPath());
-		    }
-		}
-		
-		postUpdate();
-
-		_target.getEditable().markModified();
-		_applyButton.setEnabled(false);
-		_discardButton.setEnabled(false);
-	    }
-	    finally
-	    {
-		model.enableDisplay();
-	    }
-	}
-    }
-    
     protected void discardUpdate()
     {
 	_target.getModel().refreshDisplay();

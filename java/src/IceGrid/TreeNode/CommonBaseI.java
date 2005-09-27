@@ -27,42 +27,21 @@ abstract class CommonBaseI implements CommonBase
 { 
     public String toString()
     {
-	return _id;
+	if(isEphemeral())
+	{
+	    return "*" + _id;
+	}
+	else
+	{
+	    return _id;
+	}
     }
 
     public String getId()
     {
 	return _id;
     }
-
-    public void unregister()
-    {
-	//
-	// Nothing to do
-	//
-    }
-
-    public void setParent(CommonBase parent)
-    {
-	_parent = parent;
-	if(_parent == null)
-	{
-	    _path = null;
-	}
-	else
-	{
-	    TreePath parentPath = _parent.getPath();
-	    if(parentPath == null)
-	    {
-		_path = null;
-	    }
-	    else
-	    {
-		_path = parentPath.pathByAddingChild(this);
-	    }
-	}
-    }
-
+    
     public TreePath getPath()
     {
 	return _path;
@@ -172,6 +151,14 @@ abstract class CommonBaseI implements CommonBase
 	}
     }
 
+    public java.util.List findAllInstances(CommonBase child)
+    {
+	assert getIndex(child) != -1;
+
+	java.util.List result = new java.util.LinkedList();
+	result.add(child);
+	return result;
+    }
 
     //
     // Fires a nodesChanged event with this node
@@ -284,7 +271,7 @@ abstract class CommonBaseI implements CommonBase
 
     
     protected TreePath _path;
-    protected CommonBase _parent;
+    protected Parent _parent;
 
     //
     // Id (application name, server instance name etc)

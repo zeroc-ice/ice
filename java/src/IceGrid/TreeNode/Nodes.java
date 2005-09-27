@@ -22,7 +22,7 @@ import IceGrid.ServerState;
 public class Nodes extends EditableParent
 {
     public Nodes(java.util.Map nodeMap, Application application)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	super(false, "Nodes", application.getModel());
 	_descriptors = nodeMap;
@@ -66,7 +66,7 @@ public class Nodes extends EditableParent
 	    {
 		addChild(new Node((Node)p.next()));
 	    }
-	    catch(DuplicateIdException e)
+	    catch(UpdateFailedException e)
 	    {
 		assert false;
 	    }
@@ -86,7 +86,7 @@ public class Nodes extends EditableParent
 	}
     }
 
-    void update() throws DuplicateIdException
+    void update() throws UpdateFailedException
     {
 	java.util.Iterator p = _descriptors.entrySet().iterator();
 	while(p.hasNext())
@@ -105,28 +105,41 @@ public class Nodes extends EditableParent
 	fireStructureChangedEvent(this);
     }
    
-    void cascadeDeleteServerInstance(String templateId)
+    void removeServerInstances(String templateId)
     {
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
 	    Node node = (Node)p.next();
-	    node.cascadeDeleteServerInstance(templateId);
+	    node.removeServerInstances(templateId);
 	}
     }
 
-    void cascadeDeleteServiceInstance(String templateId)
+    java.util.List findServiceInstances(String template)
+    {
+	java.util.List result = new java.util.LinkedList();
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Node node = (Node)p.next();
+	    result.addAll(node.findServiceInstances(template));
+	}
+	return result;
+    }
+
+
+    void removeServiceInstances(String templateId)
     {
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
 	    Node node = (Node)p.next();
-	    node.cascadeDeleteServiceInstance(templateId);
+	    node.removeServiceInstances(templateId);
 	}
     }
 
     void update(java.util.List updates, String[] removeNodes)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	Application application = (Application)getParent();
 
@@ -171,12 +184,6 @@ public class Nodes extends EditableParent
 	}
 	
 	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
-	p = newChildren.iterator();
-	while(p.hasNext())
-	{
-	    Node node = (Node)p.next();
-	    node.setParent(this);
-	}
     }
 
     void nodeUp(String nodeName)
@@ -189,7 +196,7 @@ public class Nodes extends EditableParent
 	    {
 		addChild(node, true);
 	    }
-	    catch(DuplicateIdException e)
+	    catch(UpdateFailedException e)
 	    {
 		// Impossible
 		assert false;
@@ -217,16 +224,6 @@ public class Nodes extends EditableParent
 	//
 	// Else log a warning?
 	//
-    }
-    
-    public void unregister()
-    {
-	java.util.Iterator p = _children.iterator();
-	while(p.hasNext())
-	{
-	    Node node = (Node)p.next();
-	    node.unregister();
-	}
     }
 
     Node findNode(String nodeName)

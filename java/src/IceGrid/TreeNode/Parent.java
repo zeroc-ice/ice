@@ -90,36 +90,6 @@ class Parent extends CommonBaseI
 	return false;
     }
     
-    public void setParent(CommonBase parent)
-    {
-	_parent = parent;
-	if(parent == null)
-	{
-	    _path = null;
-	}
-	else
-	{
-	    TreePath parentPath = _parent.getPath();
-	    if(parentPath == null)
-	    {
-		_path = null;
-	    }
-	    else
-	    {
-		_path = parentPath.pathByAddingChild(this);
-	    }
-	}
-	
-    	//
-	// Propagate to children
-	//
-	java.util.Iterator p = _children.iterator();
-	while(p.hasNext())
-	{
-	    CommonBase child = (CommonBase)p.next();
-	    child.setParent(this);
-	}
-    }
 
     public CommonBase findChild(String id)
     {
@@ -149,13 +119,51 @@ class Parent extends CommonBaseI
 	return null;
     }
 
-    void addChild(CommonBase child) throws DuplicateIdException
+    public void setParent(CommonBase parent)
+    {
+	_parent = (Parent)parent;
+	
+	TreePath parentPath = _parent.getPath();
+	_path = parentPath.pathByAddingChild(this);
+	
+	//
+	// Propagate to children
+	//
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    CommonBaseI child = (CommonBaseI)p.next();
+	    child.setParent(this);
+	}
+    }
+
+    public void clearParent()
+    {
+	if(_parent != null)
+	{
+	    _parent = null;
+	    _path = null;
+	    
+	    //
+	    // Propagate to children
+	    //
+	    java.util.Iterator p = _children.iterator();
+	    while(p.hasNext())
+	    {
+		CommonBaseI child = (CommonBaseI)p.next();
+		child.clearParent();
+	    }
+	}
+    }
+
+
+    void addChild(CommonBase child) throws UpdateFailedException
     {
 	addChild(child, false);
     }
 
     void addChild(CommonBase child, boolean fireEvent)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	if(_sortChildren)
 	{
@@ -173,7 +181,7 @@ class Parent extends CommonBaseI
 		
 		if(cmp == 0)
 		{
-		    throw new DuplicateIdException(this, id);
+		    throw new UpdateFailedException(this, id);
 		}
 		if(cmp < 0)
 		{
@@ -190,6 +198,11 @@ class Parent extends CommonBaseI
 	    {
 		_children.add(child);
 	    }	
+	    if(_path != null)
+	    {
+		child.setParent(this);
+	    }
+
 	    if(fireEvent)
 	    {
 		fireNodeInsertedEvent(this, child, i);
@@ -198,7 +211,7 @@ class Parent extends CommonBaseI
 	else
 	{
 	    //
-	    // Unsorted insert
+	    // Unsorted insert (i.e. at the end)
 	    //
 	    String id = child.getId();
 	    java.util.Iterator p = _children.iterator();
@@ -207,15 +220,49 @@ class Parent extends CommonBaseI
 		CommonBase existingChild = (CommonBase)p.next();
 		if(id.equals(existingChild.getId()))
 		{
-		    throw new DuplicateIdException(this, id);
+		    throw new UpdateFailedException(this, id);
 		}
 	    }
 	    
 	    _children.add(child);
+	    if(_path != null)
+	    {
+		child.setParent(this);
+	    }
+
 	    if(fireEvent)
 	    {
 		fireNodeInsertedEvent(this, child, _children.size() - 1);
 	    }
+	}
+    }
+
+    void addChild(int index, CommonBase child, boolean fireEvent)
+	throws UpdateFailedException
+    {
+	assert !_sortChildren;
+
+	String id = child.getId();
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    CommonBase existingChild = (CommonBase)p.next();
+	    if(id.equals(existingChild.getId()))
+	    {
+		throw new UpdateFailedException(this, id);
+	    }
+	}
+	
+	_children.add(index, child);
+	
+	if(_path != null)
+	{
+	    child.setParent(this);
+	}
+	
+	if(fireEvent)
+	{
+	    fireNodeInsertedEvent(this, child, index);
 	}
     }
 
@@ -254,7 +301,7 @@ class Parent extends CommonBaseI
     {
 	if(_children.remove(child))
 	{
-	    child.unregister();
+	    child.clearParent();
 	}
     }
 
@@ -263,8 +310,8 @@ class Parent extends CommonBaseI
 	int index = _children.indexOf(child);
 	if(index > -1)
 	{
-	    child.unregister();
 	    _children.remove(child);
+	    child.clearParent();
 	    if(fireEvent)
 	    {
 		fireNodeRemovedEvent(this, child, index);
@@ -282,8 +329,8 @@ class Parent extends CommonBaseI
 	    i++;
 	    if(id.equals(child.getId()))
 	    {
-		child.unregister();
 		p.remove();
+		child.clearParent();
 		if(fireEvent)
 		{
 		    fireNodeRemovedEvent(this, child, i);
@@ -299,7 +346,7 @@ class Parent extends CommonBaseI
 	while(p.hasNext())
 	{
 	    CommonBase child = (CommonBase)p.next();
-	    child.unregister();
+	    child.clearParent();
 	}
 	_children.clear();
     }
@@ -327,7 +374,7 @@ class Parent extends CommonBaseI
     }
 
     void addChildren(CommonBaseI[] newChildren)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	if(newChildren.length == 0)
 	{
@@ -337,52 +384,69 @@ class Parent extends CommonBaseI
 	    return;
 	}
 
-	//
-	// Shallow copy
-	//
-	CommonBaseI[] children =  (CommonBaseI[])newChildren.clone();
-
-	java.util.Arrays.sort(children, _childComparator);
-	
-	int[] indices = new int[children.length];
-	
-	int i = 0;
-	java.util.Iterator p = _children.iterator();
-	for(int j = 0; j < children.length; ++j)
+	if(_sortChildren)
 	{
-	    String id = children[j].getId();
+	    //
+	    // Shallow copy
+	    //
+	    CommonBaseI[] children =  (CommonBaseI[])newChildren.clone();
 	    
-	    while(p.hasNext()) 
+	    java.util.Arrays.sort(children, _childComparator);
+	    
+	    int[] indices = new int[children.length];
+	    
+	    int i = 0;
+	    java.util.Iterator p = _children.iterator();
+	    for(int j = 0; j < children.length; ++j)
 	    {
-		CommonBase existingChild = (CommonBase)p.next();
-		int cmp = id.compareTo(existingChild.getId());
-		if(cmp == 0)
+		String id = children[j].getId();
+		
+		while(p.hasNext()) 
 		{
-		    throw new DuplicateIdException(this, id);
+		    CommonBase existingChild = (CommonBase)p.next();
+		    int cmp = id.compareTo(existingChild.getId());
+		    if(cmp == 0)
+		    {
+			throw new UpdateFailedException(this, id);
+		    }
+		    if(cmp < 0)
+		    {
+			break; // while
+		    }
+		    i++;
 		}
-		if(cmp < 0)
+		
+		if(i < _children.size())
+		{    
+		    // Insert here, and increment i (since children is sorted)
+		    _children.add(i, children[j]);
+		    indices[j] = i;
+		    i++;
+		}
+		else
 		{
-		    break; // while
+		    // Append
+		    _children.add(children[j]);
+		    indices[j] = i;
+		    i++;
 		}
-		i++;
+		if(_path != null)
+		{
+		    children[j].setParent(this);
+		}
 	    }
-
-	    if(i < _children.size())
-	    {    
-		// Insert here, and increment i (since children is sorted)
-		_children.add(i, children[j]);
-		indices[j] = i;
-		i++;
-	    }
-	    else
+	    fireNodesInsertedEvent(this, children, indices);
+	}
+	else
+	{
+	    //
+	    // Could optimize later!
+	    //
+	    for(int i = 0; i < newChildren.length; ++i)
 	    {
-		// Append
-		_children.add(children[j]);
-		indices[j] = i;
-		i++;
+		addChild(newChildren[i], true);
 	    }
 	}
-	fireNodesInsertedEvent(this, children, indices);
     }
     
     
@@ -396,116 +460,70 @@ class Parent extends CommonBaseI
 	    return;
 	}
 
-	//
-	// Shallow copy
-	//
-	String[] ids = (String[])childIds.clone();
-	
-	java.util.Arrays.sort(ids);
-
-	Object[] childrenToRemove = new Object[ids.length];
-	int[] indices = new int[ids.length];
-
-	int i = 0;
-	int j = 0;
-	int k = 0;
-	java.util.Iterator p = _children.iterator();
-
-	while(p.hasNext() && j < ids.length)
-	{
-	    CommonBase child = (CommonBase)p.next();	    
-	    if(ids[j].equals(child.getId()))
-	    {
-		child.unregister();
-		childrenToRemove[k] = child;
-		indices[k] = i;
-		p.remove();
-		++j;
-		++k;
-	    }
-	    ++i;
-	}
-
-	//
-	// Should be all removed
-	//
-	assert(k == ids.length);
-	fireNodesRemovedEvent(this, childrenToRemove, indices);
-    }
-
-    
-    //
-    // in childIds: the children to remove
-    // out childIds: the children not removed
-    //
-    void removeChildren(java.util.List childIds)
-    {
-	if(childIds.size() == 0)
+	if(_sortChildren)
 	{
 	    //
-	    // Nothing to do;
+	    // Shallow copy
 	    //
-	    return;
-	}
-	
-	java.util.Collections.sort(childIds);
+	    String[] ids = (String[])childIds.clone();
+	    
+	    java.util.Arrays.sort(ids);
+	    
+	    Object[] childrenToRemove = new Object[ids.length];
+	    int[] indices = new int[ids.length];
+	    
+	    int i = 0;
+	    int j = 0;
+	    int k = 0;
+	    java.util.Iterator p = _children.iterator();
 
-	java.util.Vector childrenToRemove = new java.util.Vector(childIds.size());
-	int[] indices = new int[childIds.size()];
-
-	java.util.Iterator q = childIds.iterator();
-	java.util.Iterator p = _children.iterator();
-
-	int i = -1;
-	int k = 0;
-	while(q.hasNext() && p.hasNext())
-	{
-	    String id = (String)q.next();
-
-	    while(p.hasNext())
+	    while(p.hasNext() && j < ids.length)
 	    {
-		CommonBase child = (CommonBase)p.next();
-		i++;
-
-		if(id.equals(child.getId()))
+		CommonBase child = (CommonBase)p.next();	    
+		if(ids[j].equals(child.getId()))
 		{
-		    child.unregister();
-		    childrenToRemove.add(child);
-		    indices[k++] = i;
+		    child.clearParent();
+		    childrenToRemove[k] = child;
+		    indices[k] = i;
 		    p.remove();
-		    q.remove();
-		    break; // while
+		    ++j;
+		    ++k;
 		}
-		else if(id.compareTo(child.getId()) < 0)
-		{
-		    //
-		    // Need to get next id
-		    //		    
-		    break; // while
-		}
+		++i;
 	    }
+	    
+	    //
+	    // Should be all removed
+	    //
+	    assert(k == ids.length);
+	    fireNodesRemovedEvent(this, childrenToRemove, indices);
 	}
-	
-	if(k > 0)
+	else
 	{
-	    childrenToRemove.trimToSize();
-	    int[] trimedIndices;
-	    if(childIds.size() > 0)
+	    //
+	    // Could optimize later!
+	    //
+	    for(int i = 0; i < childIds.length; ++i)
 	    {
-		trimedIndices = new int[k];
-		System.arraycopy(indices, 0, trimedIndices, 0, k); 
+		removeChild(childIds[i], true);
 	    }
-	    else
-	    {
-		trimedIndices = indices;
-	    }
-
-	    fireNodesRemovedEvent(this, 
-				  childrenToRemove.toArray(), 
-				  trimedIndices);
 	}
     }
     
+    java.util.List findChildrenWithType(Class type)
+    {
+	java.util.List result = new java.util.LinkedList();
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Object child = p.next();
+	    if(child.getClass() == type)
+	    {
+		result.add(child);
+	    }
+	}
+	return result;
+    }
 
     void fireNodeInsertedEvent(Object source, Object child, int index)
     {
@@ -577,8 +595,19 @@ class Parent extends CommonBaseI
     {
 	_sortChildren = val;
     }
+    
+    protected String makeNewChildId(String base)
+    {
+	String id = base;
+	int i = 0;
+	while(findChild(id) != null)
+	{
+	    id = base + "-" + (++i);
+	}
+	return id;
+    }
 
     protected java.util.LinkedList _children = new java.util.LinkedList();
     private ChildComparator _childComparator = new ChildComparator();
-    private boolean _sortChildren = true;
+    protected boolean _sortChildren = true;
 }

@@ -63,38 +63,45 @@ class Adapter extends Leaf
 
     public boolean destroy()
     {
-	if(isEphemeral() || isEditable() && _model.canUpdate())
-	{
-	    Adapters adapters = (Adapters)_parent;
-	  
-	    if(isEphemeral())
-	    {
-		adapters.removeChild(this, true);
-	    }
-	    else
-	    {
-		adapters.removeDescriptor(_descriptor);
-		getEditable().markModified();
-		getApplication().applySafeUpdate();
-	    }
-	    return true;
-	}
-	else
-	{
-	    return false;
-	}
+	return _parent == null ? false : 
+	    ((ListParent)_parent).destroyChild(this);
     }
 
-    public void unregister()
+   
+    public void setParent(CommonBase parent)
     {
-	if(_instanceId != null)
+	if(_resolver != null)
 	{
-	    getApplication().unregisterAdapter(_resolver.find("node"),
-					       _instanceId,
-					       this);
+	    //
+	    // In a server instance
+	    //
+	    _instanceId 
+		= new AdapterInstanceId(_resolver.find("server"),
+					_resolver.substitute(_descriptor.id));
+	    
+	    _proxy = _model.getRoot().registerAdapter(_resolver.find("node"),
+						      _instanceId,
+						      this);
+	    createToolTip();
+	}
+
+	super.setParent(parent);
+    }
+
+    public void clearParent()
+    {
+	if(_parent != null)
+	{
+	    if(_instanceId != null)
+	    {
+		_model.getRoot().unregisterAdapter(_resolver.find("node"),
+						   _instanceId, this);
+	    }
+	    super.clearParent();
 	}
     }
 
+    
     
     static public AdapterDescriptor copyDescriptor(AdapterDescriptor d)
     {
@@ -128,28 +135,12 @@ class Adapter extends Leaf
     }
 
     Adapter(String adapterName, AdapterDescriptor descriptor,
-	    Utils.Resolver resolver, Application application, Model model)
+	    Utils.Resolver resolver, Model model)
     {
 	super(adapterName, model);
 	_descriptor = descriptor;
 	_resolver = resolver;
 	_ephemeral = false;
-	
-	if(resolver != null)
-	{
-	    assert application != null;
-	    //
-	    // In a server instance
-	    //
-	    _instanceId 
-		= new AdapterInstanceId(_resolver.find("server"),
-					_resolver.substitute(_descriptor.id));
-	    
-	    _proxy = application.registerAdapter(_resolver.find("node"),
-						 _instanceId,
-						 this);
-	    createToolTip();
-	}
     }
 
     //
@@ -159,7 +150,7 @@ class Adapter extends Leaf
     //
     Adapter(String name, AdapterDescriptor descriptor, Model model)
     {
-	super("*" + name, model);
+	super(name, model);
 	_descriptor = descriptor;
 	_ephemeral = true;
     }
@@ -180,7 +171,15 @@ class Adapter extends Leaf
     
     boolean isEditable()
     {
-	return ((Adapters)_parent).isEditable();
+	if(_parent == null)
+	{
+	    return false;
+	}
+	else
+	{
+	    return ((Adapters)_parent).isEditable();
+	}
+	
     }
 
     boolean inIceBox()

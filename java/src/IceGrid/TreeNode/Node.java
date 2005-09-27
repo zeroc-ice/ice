@@ -112,17 +112,6 @@ class Node extends EditableParent
 	}
     }
 
-    public void unregister()
-    {
-	java.util.Iterator p = _children.iterator();
-	while(p.hasNext())
-	{
-	    Server server = (Server)p.next();
-	    server.unregister();
-	}
-    }
-    
-
     NodeUpdateDescriptor getUpdate()
     {
 	if(!isNew() && !isModified())
@@ -202,7 +191,7 @@ class Node extends EditableParent
 
 
     NodeDescriptor update(NodeUpdateDescriptor update, Application application)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	if(_descriptor == null)
 	{
@@ -334,13 +323,6 @@ class Node extends EditableParent
 	updateChildren((CommonBaseI[])updatedChildren.toArray(new CommonBaseI[0]));
 	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
 
-	p = newChildren.iterator();
-	while(p.hasNext())
-	{
-	    Server server = (Server)p.next();
-	    server.setParent(this);
-	}
-
 	return null;
     }
    
@@ -360,7 +342,7 @@ class Node extends EditableParent
     }
 
     Node(boolean brandNew, String nodeName, NodeDescriptor descriptor, Application application)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	super(brandNew, nodeName, application.getModel());
 	init(descriptor, application, false);
@@ -385,7 +367,7 @@ class Node extends EditableParent
 	    {
 		addChild(new Server(server));
 	    }
-	    catch(DuplicateIdException e)
+	    catch(UpdateFailedException e)
 	    {
 		assert false; // impossible
 	    }
@@ -393,7 +375,7 @@ class Node extends EditableParent
     }
 
     void init(NodeDescriptor descriptor, Application application, boolean fireEvent)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	assert _descriptor == null;
 	_descriptor = descriptor;
@@ -443,7 +425,6 @@ class Node extends EditableParent
 	    Server server = new Server(false, serverId, instanceResolver, instanceDescriptor, 
 				       serverDescriptor, application);
 	    addChild(server);
-	    server.setParent(this);
 	}
 
 	//
@@ -467,7 +448,6 @@ class Node extends EditableParent
 	    Server server = new Server(false, serverId, instanceResolver, null, serverDescriptor, 
 				       application);
 	    addChild(server);
-	    server.setParent(this);
 	}
 
 	if(fireEvent)
@@ -477,7 +457,7 @@ class Node extends EditableParent
     }
     
     
-    void update() throws DuplicateIdException
+    void update() throws UpdateFailedException
     {
 	if(_descriptor == null)
 	{
@@ -515,49 +495,40 @@ class Node extends EditableParent
 	    TemplateDescriptor templateDescriptor = 
 		application.findServerTemplateDescriptor(instanceDescriptor.template);
 
-	    if(templateDescriptor != null)
-	    {    
-		ServerDescriptor serverDescriptor = 
-		    (ServerDescriptor)templateDescriptor.descriptor;
-		
-		assert serverDescriptor != null;
-		
-		//
-		// Build resolver
-		//
-		Utils.Resolver instanceResolver = 
-		    new Utils.Resolver(_resolver, instanceDescriptor.parameterValues);
+	    assert templateDescriptor != null;
+
+	    ServerDescriptor serverDescriptor = 
+		(ServerDescriptor)templateDescriptor.descriptor;
 	    
-		String serverId = instanceResolver.substitute(serverDescriptor.id);
-		instanceResolver.put("server", serverId);
-		serverIdSet.add(serverId);
-		
-		//
-		// Lookup server
-		//
-		Server server = (Server)findChild(serverId);
-		if(server != null)
-		{
-		    server.rebuild(instanceResolver, instanceDescriptor, 
-				   serverDescriptor, application);
-		}
-		else
-		{
-		    //
-		    // Create server
-		    //
-		    server = new Server(true, serverId, instanceResolver, instanceDescriptor, 
-					serverDescriptor, application);
-		    addChild(server, true);
-		    server.setParent(this);   
-		}
+	    assert serverDescriptor != null;
+	    
+	    //
+	    // Build resolver
+	    //
+	    Utils.Resolver instanceResolver = 
+		new Utils.Resolver(_resolver, instanceDescriptor.parameterValues);
+	    
+	    String serverId = instanceResolver.substitute(serverDescriptor.id);
+	    instanceResolver.put("server", serverId);
+	    serverIdSet.add(serverId);
+	    
+	    //
+	    // Lookup server
+	    //
+	    Server server = (Server)findChild(serverId);
+	    if(server != null)
+	    {
+		server.rebuild(instanceResolver, instanceDescriptor, 
+			       serverDescriptor, application);
 	    }
 	    else
 	    {
 		//
-		// The child will be deleted through purgeChildren, and the descriptor
-		// will be deleted (later) through cascadeDeleteServerInstance
+		// Create server
 		//
+		server = new Server(true, serverId, instanceResolver, instanceDescriptor, 
+				    serverDescriptor, application);
+		addChild(server, true);
 	    }
 	}
 
@@ -593,51 +564,26 @@ class Node extends EditableParent
 		server = new Server(true, serverId, instanceResolver, null, serverDescriptor, 
 				    application);
 		addChild(server);
-		server.setParent(this);
 	    }
 	}
 
 	purgeChildren(serverIdSet);
     }
 
-    void cascadeDeleteServerInstance(String templateId)
+
+    void removeInstanceDescriptor(ServerInstanceDescriptor d)
     {
-	if(_descriptor == null)
-	{
-	    //
-	    // Nothing to do
-	    //
-	    return;
-	}
-	
+	//
+	// A straight remove uses equals(), which is not the desired behavior
+	//
 	java.util.Iterator p = _descriptor.serverInstances.iterator();
 	while(p.hasNext())
 	{
-	    ServerInstanceDescriptor instanceDescriptor = 
-		(ServerInstanceDescriptor)p.next();
-
-	    if(instanceDescriptor.template.equals(templateId))
+	    if(d == p.next())
 	    {
 		p.remove();
+		break;
 	    }
-	}
-    }
-
-    void cascadeDeleteServiceInstance(String templateId)
-    {
-	if(_descriptor == null)
-	{
-	    //
-	    // Nothing to do
-	    //
-	    return;
-	}
-	
-	java.util.Iterator p = _children.iterator();
-	while(p.hasNext())
-	{
-	    Server server = (Server)p.next();
-	    server.cascadeDeleteServiceInstance(templateId);
 	}
     }
 
@@ -648,17 +594,69 @@ class Node extends EditableParent
 	while(p.hasNext())
 	{
 	    Server server = (Server)p.next();
-	    Object descriptor = server.getDescriptor();
-	    if(descriptor instanceof ServerInstanceDescriptor)
+	    ServerInstanceDescriptor instanceDescriptor
+		= server.getInstanceDescriptor();
+
+	    if(instanceDescriptor != null && 
+	       instanceDescriptor.template.equals(template))
 	    {
-		ServerInstanceDescriptor sid = (ServerInstanceDescriptor)descriptor;
-		if(sid.template.equals(template))
-		{
-		    result.add(server);
-		}
+		result.add(server);
 	    }
 	}
 	return result;
+    }
+
+
+    void removeServerInstances(String template)
+    {
+	java.util.List toRemove = new java.util.LinkedList();
+
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Server server = (Server)p.next();
+	    ServerInstanceDescriptor instanceDescriptor
+		= server.getInstanceDescriptor();
+
+	    if(instanceDescriptor != null && 
+	       instanceDescriptor.template.equals(template))
+	    {
+		//
+		// Remove instance
+		//
+		removeInstanceDescriptor(instanceDescriptor);
+		_removedElements.add(server.getId());
+		toRemove.add(server.getId());
+	    }
+	}
+
+	if(toRemove.size() > 0)
+	{
+	    removeChildren((String[])toRemove.toArray(new String[0]));
+	}
+    }
+
+    java.util.List findServiceInstances(String template)
+    {
+	java.util.List result = new java.util.LinkedList();
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Server server = (Server)p.next();
+	    result.addAll(server.findServiceInstances(template));
+	}
+	return result;
+    }
+
+
+    void removeServiceInstances(String template)
+    {	
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Server server = (Server)p.next();
+	    server.removeServiceInstances(template);
+	}
     }
 
     private NodeDescriptor _descriptor;

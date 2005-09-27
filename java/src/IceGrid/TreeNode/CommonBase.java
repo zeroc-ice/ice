@@ -38,12 +38,6 @@ public interface CommonBase extends TreeCellRenderer
     Model getModel();
 
     //
-    // Unregister this element with the enclosing application;
-    // often no-op
-    //
-    void unregister();
-
-    //
     // Ephemeral objects are destroyed when you switch selection
     // without "apply"ing the changes.
     //
@@ -54,23 +48,16 @@ public interface CommonBase extends TreeCellRenderer
     //
     boolean destroy();
 
+    
     //
-    // Set this node as a parent, and recursively update
-    // the path of all children.
-    // This method has no effect on the parent->children relationship,
-    // only child->parent.
-    // 
-    void setParent(CommonBase newParent);
-
-    //
-    // Get this node's parent
-    // This is used by nodes to create events
-    // pointing to themselves
+    // Get this node's parent;
+    // null when the node is not attached to the root
     //
     CommonBase getParent();
 
     //
-    // The path to this node
+    // The path to this node;
+    // null when the node is not attached to the root
     // typically used by children to create TreeModelEvents
     //
     TreePath getPath();
@@ -134,4 +121,15 @@ public interface CommonBase extends TreeCellRenderer
     //
     void moveUp();
     void moveDown();
+
+    //
+    // Set this child's parent
+    //
+    void setParent(CommonBase parent);
+    void clearParent();
+
+    //
+    // Find all instances of this child (including this child)
+    //
+    java.util.List findAllInstances(CommonBase child);
 }

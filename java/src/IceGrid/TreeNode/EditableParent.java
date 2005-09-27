@@ -54,22 +54,30 @@ class EditableParent extends Parent implements Editable
 	}
     }
 
-    void removeElement(CommonBase child)
+    void removeElement(CommonBase child, boolean fireEvent)
     {
 	_removedElements.add(child.getId());
-	removeChild(child);
+	removeChild(child, fireEvent);
     }
     
     void purgeChildren(java.util.Set keepSet)
     {
+	java.util.List toRemove = new java.util.LinkedList();
+
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
 	    CommonBase child = (CommonBase)p.next();
 	    if(!keepSet.contains(child.getId()))
 	    {
-		removeElement(child);
+		_removedElements.add(child.getId());
+		toRemove.add(child.getId());
 	    }
+	}
+
+	if(toRemove.size() > 0)
+	{
+	    removeChildren((String[])toRemove.toArray(new String[0]));
 	}
     }
 
@@ -104,7 +112,7 @@ class EditableParent extends Parent implements Editable
    
     private boolean _isNew = false;
     private boolean _modified = false;
-    private java.util.TreeSet _removedElements = new java.util.TreeSet();
+    protected java.util.TreeSet _removedElements = new java.util.TreeSet();
 }
 
 

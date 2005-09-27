@@ -120,7 +120,7 @@ public class Application extends EditableParent
     // Builds the application and all its subtrees
     //
     Application(boolean brandNew, ApplicationDescriptor descriptor, Model model)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	super(brandNew, descriptor.name, model);
 	_descriptor = descriptor;
@@ -170,7 +170,7 @@ public class Application extends EditableParent
 	    _nodes = new Nodes(o._nodes);
 	    addChild(_nodes);
 	}
-	catch(DuplicateIdException e)
+	catch(UpdateFailedException e)
 	{
 	    assert false; // impossible
 	}
@@ -188,7 +188,7 @@ public class Application extends EditableParent
 	{
 	    update();
 	}
-	catch(DuplicateIdException e)
+	catch(UpdateFailedException e)
 	{
 	    JOptionPane.showMessageDialog(
 		_model.getMainFrame(),
@@ -211,13 +211,13 @@ public class Application extends EditableParent
 	{
 	    update();
 	}
-	catch(DuplicateIdException e)
+	catch(UpdateFailedException e)
 	{
 	    assert false;
 	}
     }
 
-    void update() throws DuplicateIdException
+    void update() throws UpdateFailedException
     {
 	_replicatedAdapters.update();
 	_serviceTemplates.update();
@@ -225,19 +225,28 @@ public class Application extends EditableParent
 	_nodes.update();
     }
 
-    void cascadeDeleteServerInstance(String templateId)
+    //
+    // Called when a server-template is deleted, to remove all
+    // corresponding instances
+    // children.
+    //
+    void removeServerInstances(String templateId)
     {
-	_nodes.cascadeDeleteServerInstance(templateId);
+	_nodes.removeServerInstances(templateId);
     }
 
-    void cascadeDeleteServiceInstance(String templateId)
+    //
+    // Called when a service-template is deleted, to remove all
+    // corresponding instances
+    //
+    void removeServiceInstances(String templateId)
     {
-	_nodes.cascadeDeleteServiceInstance(templateId);
-	_serverTemplates.cascadeDeleteServiceInstance(templateId);
+	_nodes.removeServiceInstances(templateId);
+	_serverTemplates.removeServiceInstances(templateId);
     }
 
     void update(ApplicationUpdateDescriptor desc)
-	throws DuplicateIdException
+	throws UpdateFailedException
     {
 	//
 	// Description
@@ -331,6 +340,14 @@ public class Application extends EditableParent
 	return _nodes.findServerInstances(template);
     }
 
+    java.util.List findServiceInstances(String template)
+    {
+	java.util.List result = _serverTemplates.findServiceInstances(template);
+	result.addAll(_nodes.findServiceInstances(template));
+	return result;
+    }
+
+
     TemplateDescriptor findServerTemplateDescriptor(String templateName)
     {
 	return (TemplateDescriptor)
@@ -366,220 +383,17 @@ public class Application extends EditableParent
 	return _descriptor.variables;
     }
 
-    void nodeUp(String nodeName, Root.DynamicInfo info)
+    void nodeUp(String nodeName)
     {
-	//
-	// Need to tell *every* server on this node
-	//
-	java.util.List serverList = (java.util.List)_nodeServerMap.get(nodeName);
-	if(serverList != null)
-	{
-	    java.util.Iterator p = serverList.iterator();
-	    while(p.hasNext())
-	    {
-		Server server = (Server)p.next();
-		ServerDynamicInfo serverInfo = (ServerDynamicInfo)
-		    info.serverInfoMap.get(server.getId());
-		if(serverInfo == null)
-		{
-		    server.updateDynamicInfo(ServerState.Inactive, 0);
-		}
-		else
-		{
-		    server.updateDynamicInfo(serverInfo.state, serverInfo.pid);
-		}
-	    }
-	}
-	
-	//
-	// Tell adapters 
-	//
-	java.util.List adapterList = (java.util.List)_nodeAdapterMap.get(nodeName);
-	if(adapterList != null)
-	{
-	    java.util.Iterator p = adapterList.iterator();
-	    while(p.hasNext())
-	    {
-		Adapter adapter = (Adapter)p.next();
-		Ice.ObjectPrx proxy = 
-		    (Ice.ObjectPrx)info.adapterInfoMap.get(adapter.getInstanceId());
-		if(proxy != null)
-		{
-		    adapter.updateProxy(proxy);
-		}
-	    }
-	}
-	
 	_nodes.nodeUp(nodeName);
     }
 
     void nodeDown(String nodeName)
     {
 	_nodes.nodeDown(nodeName);
-	
-	java.util.List serverList = (java.util.List)_nodeServerMap.get(nodeName);
-	if(serverList != null)
-	{
-	    java.util.Iterator p = serverList.iterator();
-	    while(p.hasNext())
-	    {
-		Server server = (Server)p.next();
-		server.updateDynamicInfo(null, 0);
-	    }
-	}
-
-	java.util.List adapterList = (java.util.List)_nodeAdapterMap.get(nodeName);
-	if(adapterList != null)
-	{
-	    java.util.Iterator p = adapterList.iterator();
-	    while(p.hasNext())
-	    {
-	        Adapter adapter = (Adapter)p.next();
-		adapter.updateProxy(null);
-	    }
-	}
     }
     
-    Ice.ObjectPrx registerAdapter(String nodeName, AdapterInstanceId instanceId,
-				  Adapter adapter)
-    {
-	_adapterMap.put(instanceId, adapter);
-	
-	java.util.List adapterList = (java.util.List)_nodeAdapterMap.get(nodeName);
-	if(adapterList == null)
-	{
-	    adapterList = new java.util.LinkedList();
-	    _nodeAdapterMap.put(nodeName, adapterList);
-	}
-	adapterList.add(adapter);
-	
-	Root.DynamicInfo info = (Root.DynamicInfo)_model.getRoot().getDynamicInfo(nodeName);
-	if(info == null)
-	{
-	    // Node is down
-	    return null;
-	}
-	else
-	{
-	    return (Ice.ObjectPrx)info.adapterInfoMap.get(instanceId);
-	}
-    }
-    
-    void unregisterAdapter(String nodeName, AdapterInstanceId instanceId, 
-			   Adapter adapter)
-    {
-	_adapterMap.remove(instanceId);
-
-	java.util.List adapterList = (java.util.List)_nodeAdapterMap.get(nodeName);
-	if(adapterList != null)
-	{
-	    adapterList.remove(adapter);
-	}
-    }
-
-    ServerState registerServer(String nodeName, String serverId, Server server,
-			       Ice.IntHolder pid)
-    {
-	_serverMap.put(serverId, server);
-	
-	java.util.List serverList = (java.util.List)_nodeServerMap.get(nodeName);
-	if(serverList == null)
-	{
-	    serverList = new java.util.LinkedList();
-	    _nodeServerMap.put(nodeName, serverList);
-	}
-	serverList.add(server);
-
-	Root.DynamicInfo info = (Root.DynamicInfo)_model.getRoot().getDynamicInfo(nodeName);
-	if(info == null)
-	{	
-	    // Node is down
-	    pid.value = 0;
-	    return null;
-	}
-	else
-	{
-	    ServerDynamicInfo serverInfo = 
-		(ServerDynamicInfo)info.serverInfoMap.get(serverId);
-	    if(serverInfo == null)
-	    {
-		pid.value = 0;
-		return ServerState.Inactive;
-	    }
-	    else
-	    {
-		pid.value = serverInfo.pid;
-		return serverInfo.state;
-	    }
-	}
-    }
-    
-    void unregisterServer(String nodeName, String serverId, Server server)
-    {
-	_serverMap.remove(serverId);
-	java.util.List serverList = (java.util.List)_nodeServerMap.get(nodeName);
-	if(serverList != null)
-	{
-	    serverList.remove(server);
-	}
-    }
-
-    public boolean updateServer(ServerDynamicInfo updatedInfo)
-    {
-	//
-	// Is this Server registered?
-	//
-	Server server = (Server)_serverMap.get(updatedInfo.id);
-	if(server != null)
-	{
-	    server.updateDynamicInfo(updatedInfo.state, updatedInfo.pid);
-	    return true;
-	}
-	else
-	{
-	    return false;
-	}
-    }
-
-    public boolean updateAdapter(AdapterInstanceId instanceId, Ice.ObjectPrx proxy)
-    {
-	//
-	// Is this Adapter registered?
-	//
-	Adapter adapter = (Adapter)_adapterMap.get(instanceId);
-	if(adapter != null)
-	{
-	    adapter.updateProxy(proxy);
-	    return true;
-	}
-	else
-	{
-	    return false;
-	}
-    }
-    
-
     private ApplicationDescriptor _descriptor;
-
-    //
-    // AdapterInstanceId to Adapter
-    //
-    private java.util.Map _adapterMap = new java.util.HashMap();
-
-    //
-    // Nodename to list of Adapter (used when a node goes down)
-    //
-    private java.util.Map _nodeAdapterMap = new java.util.HashMap();
-
-    //
-    // ServerId to Server
-    //
-    private java.util.Map _serverMap = new java.util.HashMap();
-
-    //
-    // Nodename to list of Server (used when a node goes down)
-    //
-    private java.util.Map _nodeServerMap = new java.util.HashMap();
 
     //
     // Keeps original version (as deep copies) to be able to build 
