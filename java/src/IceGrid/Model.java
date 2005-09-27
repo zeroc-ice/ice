@@ -42,8 +42,6 @@ import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.BorderStyle;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 
-import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
-
 import IceGrid.TreeNode.Application;
 import IceGrid.TreeNode.CommonBase;
 import IceGrid.TreeNode.Root;

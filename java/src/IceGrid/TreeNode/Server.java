@@ -36,7 +36,7 @@ import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.Sizes;
 import com.jgoodies.forms.util.LayoutStyle;
-import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
+import IceGrid.SimpleInternalFrame;
 
 import IceGrid.IceBoxDescriptor;
 import IceGrid.Model;

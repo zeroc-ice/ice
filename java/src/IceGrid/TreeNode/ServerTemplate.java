@@ -29,7 +29,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
+import IceGrid.SimpleInternalFrame;
 
 import IceGrid.IceBoxDescriptor;
 import IceGrid.Model;

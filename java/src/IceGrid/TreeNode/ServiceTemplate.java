@@ -8,7 +8,7 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
+import IceGrid.SimpleInternalFrame;
 
 import IceGrid.ServiceDescriptor;
 import IceGrid.TemplateDescriptor;

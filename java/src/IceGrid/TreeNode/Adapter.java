@@ -12,7 +12,7 @@ import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
+import IceGrid.SimpleInternalFrame;
 
 import IceGrid.AdapterDescriptor;
 import IceGrid.Model;

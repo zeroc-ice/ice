@@ -16,7 +16,7 @@ import javax.swing.JTree;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreePath;
 
-import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
+import IceGrid.SimpleInternalFrame;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.DefaultComponentFactory;
 

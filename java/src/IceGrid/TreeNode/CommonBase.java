@@ -13,7 +13,7 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.JPopupMenu;
 import javax.swing.JPanel;
 
-import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
+import IceGrid.SimpleInternalFrame;
 
 import IceGrid.Model;
 

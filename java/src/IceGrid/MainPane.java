@@ -32,8 +32,6 @@ import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.windows.WindowsLookAndFeel;
 import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.uif_lite.panel.SimpleInternalFrame;
-
 
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.SplitPaneUI;
