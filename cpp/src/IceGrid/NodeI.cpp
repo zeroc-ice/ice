@@ -246,7 +246,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _last5Total = 0;
     _last15Total = 0;
 #else
-#if defined(__linux)
+#if defined(__linux) || defined(__sun)
     _nproc = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
 #elif defined(__APPLE__)
     static int ncpu[2] = { CTL_HW, HW_NCPU };
