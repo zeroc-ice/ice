@@ -181,7 +181,8 @@ AdapterEntry::removeServer(const ServerEntryPtr& entry)
 	{
 	    if(entry.get() == p->get())
 	    {
-		_servers.erase(p);
+		_servers.erase(p);		
+		_lastServer = _lastServer % _servers.size(); // Make sure _lastServer is still within the bounds.
 		break;
 	    }
 	}
