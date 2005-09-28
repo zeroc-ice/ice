@@ -238,7 +238,6 @@ print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("ice", "makedist.py"), \
     os.path.join("ice", "makebindist.py"), \
-    os.path.join("ice", "newmakebindist.py"), \
     os.path.join("ice", "iceemakedist.py"), \
     os.path.join("ice", "RPMTools.py"), \
     os.path.join("ice", "fixCopyright.py"), \
@@ -252,7 +251,8 @@ filesToRemove = [ \
     ]
 filesToRemove.extend(find("ice", ".dummy"))
 for x in filesToRemove:
-    os.remove(x)
+    if os.path.exists(x):
+        os.remove(x)
 shutil.rmtree(os.path.join("ice", "certs", "openssl"))
 shutil.rmtree(os.path.join("ice", "install"))
 
