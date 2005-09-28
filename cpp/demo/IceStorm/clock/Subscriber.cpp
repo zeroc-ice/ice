@@ -57,15 +57,23 @@ Subscriber::run(int argc, char* argv[])
     // Gather the set of topics to which to subscribe. It is either
     // the set provided on the command line, or the topic "time".
     //
+    bool bidir = false;
     Ice::StringSeq topics;
     if(argc > 1)
     {
 	for(int i = 1; i < argc; ++i)
 	{
-	    topics.push_back(argv[i]);
+	    if(strcmp(argv[i], "--bidir") == 0)
+	    {
+	        bidir = true;
+	    }
+	    else
+	    {
+	        topics.push_back(argv[i]);
+	    }
 	}
     }
-    else
+    if(topics.size() == 0)
     {
 	topics.push_back("time");
     }
@@ -102,7 +110,15 @@ Subscriber::run(int argc, char* argv[])
 	try
 	{
             IceStorm::TopicPrx topic = manager->retrieve(*p);
-	    topic->subscribe(qos, object);
+	    if(bidir)
+	    {
+	        topic->ice_connection()->setAdapter(adapter);
+	        topic->subscribeBidir(qos, object->ice_getIdentity());
+	    }
+	    else
+	    {
+	        topic->subscribe(qos, object);
+	    }
 	}
 	catch(const IceStorm::NoSuchTopic& e)
 	{

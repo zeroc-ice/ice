@@ -446,6 +446,13 @@ TopicI::subscribe(const QoS& qos, const Ice::ObjectPrx& subscriber, const Ice::C
 }
 
 void
+TopicI::subscribeBidir(const QoS& qos, const Ice::Identity& ident, const Ice::Current& current)
+{
+    Ice::ObjectPrx subscriber = current.con->createProxy(ident);
+    subscribe(qos, subscriber, current);
+}
+
+void
 TopicI::unsubscribe(const Ice::ObjectPrx& subscriber, const Ice::Current&)
 {
     IceUtil::RecMutex::Lock sync(*this);

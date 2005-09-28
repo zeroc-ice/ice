@@ -12,6 +12,11 @@ In a separate window:
 $ icestormadmin --Ice.Config=config -e "create time"
 $ subscriber
 
+Alternately, if you would like your subscriber to use a bi-directional
+connection, use:
+
+$ subscriber --bidir
+
 In another window:
 
 $ publisher

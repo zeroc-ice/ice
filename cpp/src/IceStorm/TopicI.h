@@ -76,6 +76,7 @@ public:
     virtual std::string getName(const Ice::Current&) const;
     virtual Ice::ObjectPrx getPublisher(const Ice::Current&) const;
     virtual void subscribe(const QoS&, const Ice::ObjectPrx&, const Ice::Current&);
+    virtual void subscribeBidir(const QoS&, const Ice::Identity&, const Ice::Current&);
     virtual void unsubscribe(const Ice::ObjectPrx&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
     virtual void link(const TopicPrx&, Ice::Int, const Ice::Current&);

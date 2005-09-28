@@ -11,6 +11,7 @@
 #define ICE_STORM_ICE
 
 #include <Ice/SliceChecksumDict.ice>
+#include <Ice/Identity.ice>
 
 /**
  *
@@ -150,6 +151,23 @@ interface Topic
      *
      **/
     void subscribe(QoS theQoS, Object* subscriber);
+
+    /**
+     *
+     * Subscribe with the given [qos] to this topic, using a 
+     * bi-directional connection. If the given [subscriber]
+     * proxy has already been registered, it will be
+     * replaced.
+     *
+     * @param qos The quality of service parameters for this
+     * subscription.
+     *
+     * @param subscriber The subscriber's identity.
+     *
+     * @see unsubscribe
+     *
+     **/
+    void subscribeBidir(QoS theQoS, Ice::Identity ident);
 
     /**
      *

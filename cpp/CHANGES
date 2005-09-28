@@ -1,6 +1,9 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Added ability to subscribe to an IceStorm topic using a bi-directional
+  connection.
+
 - Fixed a race condition with the object adapter holding state.
 
 - Changed the way servant locators work if a server has a servant
