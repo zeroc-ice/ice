@@ -25,14 +25,21 @@ protocol = ""
 compress = 1
 
 #
-# Set the host to the host name the test servers are running on. If
-# not set, Ice will try to find out the IP address for the
-# hostname. If you DNS isn't set up propertly, you should therefore
-# use "localhost".
+# Set threadPerConnection to 1 in case you want to run the tests in
+# thread per connection mode.
 #
 
-#host = "someotherhost"
-host = "localhost"
+threadPerConnection = 0
+#threadPerConnection = 1
+
+#
+# If you don't set "host" below, then the Ice library will try to find
+# out the IP address of this host. For the Ice test suite, it's best
+# to set the IP address explicitly to 127.0.0.1. This avoid problems
+# with incorrect DNS or hostname setups.
+#
+
+host = "127.0.0.1"
 
 #
 # Don't change anything below this line!
@@ -212,6 +219,11 @@ if compress:
     clientProtocol += " --Ice.Override.Compress"
     serverProtocol += " --Ice.Override.Compress"
     clientServerProtocol += " --Ice.Override.Compress"
+
+if threadPerConnection:
+    clientProtocol += " --Ice.ThreadPerConnection"
+    serverProtocol += " --Ice.ThreadPerConnection"
+    clientServerProtocol += " --Ice.ThreadPerConnection"
 
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host
