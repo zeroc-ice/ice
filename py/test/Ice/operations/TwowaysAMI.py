@@ -131,13 +131,15 @@ class AMI_MyClass_opMyClassI(CallbackBase):
         test(c1.ice_getIdentity() == Ice.stringToIdentity("test"))
         test(c2.ice_getIdentity() == Ice.stringToIdentity("noSuchIdentity"))
         test(r.ice_getIdentity() == Ice.stringToIdentity("test"))
-        r.opVoid()
-        c1.opVoid()
-        try:
-            c2.opVoid()
-            test(False)
-        except Ice.ObjectNotExistException:
-            pass
+	# We can't do the callbacks below in thread per connection mode.
+	if Ice.getDefaultProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
+	    r.opVoid()
+	    c1.opVoid()
+	    try:
+		c2.opVoid()
+		test(False)
+	    except Ice.ObjectNotExistException:
+		pass
         self.called()
 
     def ice_exception(self, ex):
@@ -153,7 +155,9 @@ class AMI_MyClass_opStructI(CallbackBase):
         test(rso.s.s == "def")
         test(so.e == Test.MyEnum.enum3)
         test(so.s.s == "a new string")
-        so.p.opVoid()
+	# We can't do the callbacks below in thread per connection mode.
+	if Ice.getDefaultProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
+	    so.p.opVoid()
         self.called()
 
     def ice_exception(self, ex):

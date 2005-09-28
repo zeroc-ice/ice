@@ -14,7 +14,7 @@ public class Server
         public int
         run(String[] args)
         {
-            communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
+            communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000:udp");
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
             Ice.ServantLocator locator = new ServantLocatorI();
 

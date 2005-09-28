@@ -16,7 +16,8 @@ def test(b):
 
 def allTests(communicator):
     print "testing stringToProxy...",
-    ref = "test:default -p 12345 -t 10000"
+    #ref = "test:default -p 12345 -t 10000"
+    ref = "test:default -p 12345"
     base = communicator.stringToProxy(ref)
     test(base)
     print "ok"
@@ -51,7 +52,8 @@ def allTests(communicator):
     print "ok"
 
     print "testing checked cast with context... ",
-    cref = "context:default -p 12345 -t 10000";
+    #cref = "context:default -p 12345 -t 10000";
+    cref = "context:default -p 12345";
     cbase = communicator.stringToProxy(cref);
     test(cbase != None);
 

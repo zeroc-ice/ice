@@ -52,7 +52,7 @@ public class Server
             return 1;
         }
         
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p " + port);
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p " + port + ":udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object obj = new TestI(adapter);
         adapter.add(obj, Ice.Util.stringToIdentity("test"));

@@ -122,7 +122,7 @@ def run(args, communicator):
     #
     properties = communicator.getProperties()
     properties.setProperty("Ice.ThreadPool.Server.Size", "2")
-    properties.setProperty("ServerManager.Endpoints", "default -p 12345")
+    properties.setProperty("ServerManager.Endpoints", "default -p 12345:udp")
 
     adapter = communicator.createObjectAdapter("ServerManager")
 

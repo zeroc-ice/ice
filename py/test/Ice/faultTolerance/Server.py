@@ -66,7 +66,7 @@ def run(args, communicator):
         usage(args[0])
         return False
 
-    endpts = "default -p " + str(port)
+    endpts = "default -p " + str(port) + ":udp"
     communicator.getProperties().setProperty("TestAdapter.Endpoints", endpts)
     adapter = communicator.createObjectAdapter("TestAdapter")
     object = TestI(adapter)
