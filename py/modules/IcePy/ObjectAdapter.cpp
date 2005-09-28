@@ -1373,7 +1373,7 @@ static PyMethodDef AdapterMethods[] =
     { STRCAST("addRouter"), (PyCFunction)adapterAddRouter, METH_VARARGS,
         PyDoc_STR(STRCAST("addRouter(proxy) -> None")) },
     { STRCAST("removeRouter"), (PyCFunction)adapterRemoveRouter, METH_VARARGS,
-        PyDoc_STR(STRCAST("removeaddRouter(proxy) -> None")) },
+        PyDoc_STR(STRCAST("removeRouter(proxy) -> None")) },
     { STRCAST("setLocator"), (PyCFunction)adapterSetLocator, METH_VARARGS,
         PyDoc_STR(STRCAST("setLocator(proxy) -> None")) },
     { NULL, NULL} /* sentinel */
