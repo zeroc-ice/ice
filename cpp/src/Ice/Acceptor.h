@@ -24,7 +24,7 @@ typedef int ssize_t;
 namespace IceInternal
 {
 
-class ICE_PROTOCOL_API Acceptor : public ::IceUtil::Shared
+class ICE_API Acceptor : public ::IceUtil::Shared
 {
 public:
 

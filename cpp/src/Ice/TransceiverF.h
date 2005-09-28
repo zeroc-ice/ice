@@ -16,8 +16,8 @@ namespace IceInternal
 {
 
 class Transceiver;
-ICE_PROTOCOL_API void incRef(Transceiver*);
-ICE_PROTOCOL_API void decRef(Transceiver*);
+ICE_API void incRef(Transceiver*);
+ICE_API void decRef(Transceiver*);
 typedef Handle<Transceiver> TransceiverPtr;
 
 }

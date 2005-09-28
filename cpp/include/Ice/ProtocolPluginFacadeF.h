@@ -16,8 +16,8 @@ namespace IceInternal
 {
 
 class ProtocolPluginFacade;
-ICE_PROTOCOL_API void incRef(ProtocolPluginFacade*);
-ICE_PROTOCOL_API void decRef(ProtocolPluginFacade*);
+ICE_API void incRef(ProtocolPluginFacade*);
+ICE_API void decRef(ProtocolPluginFacade*);
 typedef Handle<ProtocolPluginFacade> ProtocolPluginFacadePtr;
 
 }

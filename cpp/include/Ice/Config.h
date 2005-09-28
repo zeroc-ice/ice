@@ -52,14 +52,6 @@ namespace IceInternal
 #    endif
 #endif
 
-#ifndef ICE_PROTOCOL_API 
-#   ifdef ICE_PROTOCOL_API_EXPORTS
-#       define ICE_PROTOCOL_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_PROTOCOL_API ICE_DECLSPEC_IMPORT
-#   endif
-#endif
-
 namespace Ice
 {
 

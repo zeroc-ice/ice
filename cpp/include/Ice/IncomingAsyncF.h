@@ -16,8 +16,8 @@ namespace IceInternal
 {
 
 class IncomingAsync;
-ICE_PROTOCOL_API void incRef(IncomingAsync*);
-ICE_PROTOCOL_API void decRef(IncomingAsync*);
+ICE_API void incRef(IncomingAsync*);
+ICE_API void decRef(IncomingAsync*);
 typedef IceInternal::Handle<IncomingAsync> IncomingAsyncPtr;
 
 }

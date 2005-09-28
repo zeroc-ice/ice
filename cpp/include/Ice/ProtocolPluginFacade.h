@@ -23,13 +23,13 @@ namespace IceInternal
 // Global function to obtain a ProtocolPluginFacade given a Communicator
 // instance.
 //
-ICE_PROTOCOL_API ProtocolPluginFacadePtr getProtocolPluginFacade(const Ice::CommunicatorPtr&);
+ICE_API ProtocolPluginFacadePtr getProtocolPluginFacade(const Ice::CommunicatorPtr&);
 
 //
 // ProtocolPluginFacade wraps the internal operations that protocol
 // plug-ins may need.
 //
-class ICE_PROTOCOL_API ProtocolPluginFacade : public ::IceUtil::Shared
+class ICE_API ProtocolPluginFacade : public ::IceUtil::Shared
 {
 public:
 
@@ -59,7 +59,7 @@ private:
 
     ProtocolPluginFacade(const Ice::CommunicatorPtr&);
 
-    friend ICE_PROTOCOL_API ProtocolPluginFacadePtr getProtocolPluginFacade(const Ice::CommunicatorPtr&);
+    friend ICE_API ProtocolPluginFacadePtr getProtocolPluginFacade(const Ice::CommunicatorPtr&);
 
     InstancePtr _instance;
     Ice::CommunicatorPtr _communicator;
