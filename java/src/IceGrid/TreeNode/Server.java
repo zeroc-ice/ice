@@ -58,195 +58,6 @@ import IceGrid.Utils;
 //
 class Server extends EditableParent
 {
-    static class Editor
-    {
-	JComponent getComponent()
-	{
-	    if(_scrollPane == null)
-	    {
-		//
-		// Build everything using JGoodies's DefaultFormBuilder
-		//
-		FormLayout layout = new FormLayout(
-		    "right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
-		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-		builder.setBorder(Borders.DLU2_BORDER);
-		builder.setRowGroupingEnabled(true);
-
-       
-		builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-
-		//
-		// Type combox box
-		//
-		builder.append("Type");
-		builder.append(_type, 3);
-		builder.nextLine();
-		
-		//
-		// Template combox box
-		//
-		builder.append(_templateLabel, _template, _templateButton);
-		builder.nextLine();
-
-		//
-		// Parameters
-		//
-		builder.append(_parameterValuesLabel, _parameterValues, _parameterValuesButton);
-		builder.nextLine();
-
-		builder.setLineGapSize(LayoutStyle.getCurrent().getParagraphPad());
-		
-		_serverDescriptorEditor.build(builder);
-
-		_scrollPane = new JScrollPane(builder.getPanel(),
-					      JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-					      JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		_scrollPane.setBorder(Borders.DIALOG_BORDER);
-	    }
-	    return _scrollPane;
-	}
-
-	void show(Server server)
-	{
-	    /*
-	    _server = server;
-	    ServerInstanceDescriptor descriptor = server.getDescriptor();
-
-	    ServerDescriptor serverDescriptor = null;
-	    Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	   
-	    java.util.Map[] variables = null;
-
-	    if(descriptor.template.length() == 0)
-	    {
-		serverDescriptor = null;
-		if(_server.getModel().substituteVariables())
-		{
-		    variables = new java.util.Map[] {
-			server.getNodeVariables(), 
-			server.getApplication().getVariables()};
-		}
-
-		if(serverDescriptor instanceof IceBoxDescriptor)
-		{
-		    _type.setSelectedIndex(ICEBOX);
-		}
-		else
-		{
-		    _type.setSelectedIndex(PLAIN_SERVER);
-		}
-
-		_templateLabel.setEnabled(false);
-		_template.setEnabled(false);
-		_template.setModel(new DefaultComboBoxModel());
-		_template.setSelectedItem(null);
-		_templateButton.setEnabled(false);
-
-		_parameterValuesLabel.setEnabled(false);
-		_parameterValues.setEnabled(false);
-		_parameterValues.setText("");
-		_parameterValues.setToolTipText(null);
-		_parameterValuesButton.setEnabled(false);
-	    }
-	    else
-	    {
-		_type.setSelectedIndex(TEMPLATE_INSTANCE);
-
-		_templateLabel.setEnabled(true);
-		_template.setEnabled(true);
-		_templateButton.setEnabled(true);
-		
-		Application application = _server.getApplication();
-
-		TemplateDescriptor templateDescriptor =
-		    application.findServerTemplateDescriptor(descriptor.template);
-
-		_template.setModel(application.getServerTemplates().getComboBoxModel());
-		_template.setSelectedItem(templateDescriptor);
-		serverDescriptor = (ServerDescriptor)templateDescriptor.descriptor;
-
-		_parameterValuesLabel.setEnabled(true);
-		_parameterValues.setEnabled(true);
-		_parameterValuesButton.setEnabled(true);
-		
-		String stringifiedParameterValues;
-		if(_server.getModel().substituteVariables())
-		{
-		    java.util.Map substitutedParameters = Utils.substituteVariables(
-			descriptor.parameterValues, _server.getNodeVariables(), 
-			application.getVariables());
-		    
-		    stringifiedParameterValues = Utils.stringify(substitutedParameters, "=",
-								 ", ", toolTipHolder);
-		    _parameterValues.setEditable(false);
-
-		    variables = new java.util.Map[]{
-			substitutedParameters, 
-			server.getNodeVariables(),
-			application.getVariables()};
-		}
-		else
-		{
-		    stringifiedParameterValues = Utils.stringify(descriptor.parameterValues, "=",
-								 ", ", toolTipHolder);
-		    _parameterValues.setEditable(true);
-		}
-		_parameterValues.setText(stringifiedParameterValues);
-		_parameterValues.setToolTipText(toolTipHolder.value);
-	    }
-
-	    _targets.setText(Utils.stringify(descriptor.targets, ", ", toolTipHolder));
-	    _targets.setToolTipText(toolTipHolder.value);
-
-	    _serverDescriptorEditor.show(serverDescriptor, variables);
-	    */
-	}
-	
-	Editor(boolean editDetails)
-	{
-	    _serverDescriptorEditor = new ServerDescriptorEditor(editDetails);
-	    //
-	    // gotoTemplate action
-	    //
-	    AbstractAction gotoTemplate = new AbstractAction("->")
-		{
-		    public void actionPerformed(ActionEvent e) 
-		    {
-			ServerTemplate template = (ServerTemplate)
-			    _template.getSelectedItem();
-			if(template != null && _server != null)
-			{
-			    _server.getModel().getTree().setSelectionPath
-				(template.getPath());
-			}
-		    }
-		};
-	    gotoTemplate.putValue(Action.SHORT_DESCRIPTION, "Goto this template");
-	    _templateButton = new JButton(gotoTemplate);
-	    _parameterValuesButton = new JButton("...");
-	}
-
-
-	private final int PLAIN_SERVER = 0;
-	private final int ICEBOX = 1;
-	private final int TEMPLATE_INSTANCE = 2;
-	private String[] _typeList = {"Plain Server", "IceBox Server", "Template Instance"};
-	private JComboBox _type = new JComboBox(_typeList);
-
-	private JLabel _templateLabel = new JLabel("Template");
-	private JComboBox _template = new JComboBox();
-	private JButton _templateButton;
-	private JLabel  _parameterValuesLabel = new JLabel("Parameters");
-	private JTextField _parameterValues = new JTextField(20);
-	private JButton _parameterValuesButton;
-
-	private ServerDescriptorEditor _serverDescriptorEditor;
-
-	private Server _server;
-	private JScrollPane _scrollPane;
-    }
-  
     static class PopupMenu extends JPopupMenu
     {
 	PopupMenu()
@@ -300,33 +111,31 @@ class Server extends EditableParent
     public void displayProperties()
     {
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
-
 	propertiesFrame.setTitle("Properties for " + _id);
 	
 	//
 	// Pick the appropriate editor
 	//
 	Editor editor = null;
-	if(_instanceDescriptor != null || _model.substitute())
+	if(_instanceDescriptor == null)
 	{
-	    if(_editor == null)
+	    if(_serverEditor == null)
 	    {
-		_editor = new Editor(false);
+		_serverEditor = new ServerEditor(_model.getMainFrame());
 	    }
-
-	    editor = _editor;
+	    _serverEditor.show(this);
+	    propertiesFrame.setContent(_serverEditor.getComponent());
 	}
 	else
 	{
-	    if(_fullEditor == null)
+	    if(_serverInstanceEditor == null)
 	    {
-		_fullEditor = new Editor(true);
+		_serverInstanceEditor = new ServerInstanceEditor(_model.getMainFrame());
 	    }
-	    editor = _fullEditor;
+	    _serverInstanceEditor.show(this);
+	    propertiesFrame.setContent(_serverInstanceEditor.getComponent());
 	}
 
-	editor.show(this);
-	propertiesFrame.setContent(editor.getComponent());
 	propertiesFrame.validate();
 	propertiesFrame.repaint();
     }
@@ -647,9 +456,31 @@ class Server extends EditableParent
 	return _instanceDescriptor;
     }
 
+    ServerDescriptor getServerDescriptor()
+    {
+	return _serverDescriptor;
+    }
+
     Services getServices()
     {
 	return _services;
+    }
+
+    Utils.Resolver getResolver()
+    {
+	return _resolver;
+    }
+
+    Utils.Resolver getParentResolver()
+    {
+	if(_parent != null)
+	{
+	    return ((Node)_parent).getResolver();
+	}
+	else
+	{
+	    return null;
+	}
     }
 
 
@@ -700,7 +531,6 @@ class Server extends EditableParent
     static private Icon[] _icons;
     static private PopupMenu _popup;
 
-    static private Editor _fullEditor; // writable server descriptor
-    static private Editor _editor; // read-only server descriptor
-  
+    static private ServerEditor _serverEditor;
+    static private ServerInstanceEditor _serverInstanceEditor;
 }

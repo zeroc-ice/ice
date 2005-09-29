@@ -43,6 +43,21 @@ import IceGrid.Utils;
 
 class ServerTemplate extends EditableParent
 {
+    public void displayProperties()
+    {
+	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
+	propertiesFrame.setTitle("Properties for " + _id);
+       
+	if(_editor == null)
+	{
+	    _editor = new ServerTemplateEditor(_model.getMainFrame());
+	}
+	_editor.show(this);
+	propertiesFrame.setContent(_editor.getComponent());
+	propertiesFrame.validate();
+	propertiesFrame.repaint();
+    }
+
     
     //
     // Application is needed to lookup service templates
@@ -166,4 +181,6 @@ class ServerTemplate extends EditableParent
     private DbEnvs _dbEnvs;
 
     private PropertiesHolder _propertiesHolder;
+
+    static private ServerTemplateEditor _editor;
 }

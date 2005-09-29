@@ -23,16 +23,20 @@ import javax.swing.event.ListDataListener;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 import IceGrid.Model;
-import IceGrid.ServiceInstanceDescriptor;
+import IceGrid.ServerInstanceDescriptor;
 import IceGrid.TableDialog;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
-class ServiceInstanceEditor extends ListElementEditor
+class ServerInstanceEditor extends Editor
 {
-    ServiceInstanceEditor(JFrame parentFrame)
+    protected void applyUpdate()
     {
-	_subEditor = new ServiceSubEditor(this, parentFrame);
+    }
+
+    ServerInstanceEditor(JFrame parentFrame)
+    {
+	_subEditor = new ServerSubEditor(this, parentFrame);
 
 	_parameterValues.setEditable(false);
 	
@@ -76,7 +80,7 @@ class ServiceInstanceEditor extends ListElementEditor
 			setParameterValuesField();
 			//
 			// No need to redisplay details: since it's editable,
-			// we're not subsituting variables or parameters
+			// we're not substituting variables or parameters
 			//
 		    }
 		}
@@ -84,20 +88,21 @@ class ServiceInstanceEditor extends ListElementEditor
 	_parameterValuesButton = new JButton(openParameterValuesDialog);
     }
 
-    ServiceInstanceDescriptor getDescriptor()
+    ServerInstanceDescriptor getDescriptor()
     {
-	return (ServiceInstanceDescriptor)_target.getDescriptor();
+	return ((Server)_target).getInstanceDescriptor();
     }
 
     //
     // From Editor:
     //
+
     Utils.Resolver getDetailResolver()
     {
-	Service service = (Service)_target;
-	if(service.getModel().substitute())
+	Server server = (Server)_target;
+	if(server.getModel().substitute())
 	{
-	    return service.getResolver();
+	    return server.getResolver();
 	}
 	else
 	{
@@ -107,8 +112,8 @@ class ServiceInstanceEditor extends ListElementEditor
 
     void writeDescriptor()
     {
-	ServiceInstanceDescriptor descriptor = getDescriptor();
-	descriptor.template = ((ServiceTemplate)_template.getSelectedItem()).getId();
+	ServerInstanceDescriptor descriptor = getDescriptor();
+	descriptor.template = ((ServerTemplate)_template.getSelectedItem()).getId();
 	descriptor.parameterValues = _parameterValuesMap;
     }	    
     
@@ -135,40 +140,32 @@ class ServiceInstanceEditor extends ListElementEditor
 
     Object getSubDescriptor()
     {
-	ServiceTemplate template = (ServiceTemplate)_template.getSelectedItem();
+	ServerTemplate template = (ServerTemplate)_template.getSelectedItem();
 	
 	TemplateDescriptor descriptor = (TemplateDescriptor)template.getDescriptor();
 	return descriptor.descriptor;
     }
 
-    void show(Service service)
+    void show(Server server)
     {
 	detectUpdates(false);
-	setTarget(service);
-	
-	//
-	// If it's not a template instance, it's shown using
-	// ServiceEditor.show()
-	//
-	assert getDescriptor().template.length() > 0;
+	setTarget(server);
 
-
-	ServiceInstanceDescriptor descriptor = 
-	    (ServiceInstanceDescriptor)service.getDescriptor();
-	Model model = service.getModel();
-	boolean isEditable = service.isEditable() && !model.substitute();
+	ServerInstanceDescriptor descriptor = getDescriptor();
+	Model model = server.getModel();
+	boolean isEditable = !model.substitute();
 	
 	//
 	// Need to make control enabled before changing it
 	//
 	_template.setEnabled(true);
 
-	ServiceTemplates serviceTemplates =
-	    service.getApplication().getServiceTemplates();
-	_template.setModel(serviceTemplates.createComboBoxModel());
+	ServerTemplates serverTemplates =
+	    server.getApplication().getServerTemplates();
+	_template.setModel(serverTemplates.createComboBoxModel());
 
-	ServiceTemplate t = (ServiceTemplate)
-	    serviceTemplates.findChild(descriptor.template);
+	ServerTemplate t = (ServerTemplate)
+	    serverTemplates.findChild(descriptor.template);
 	assert t != null;
 	_template.setSelectedItem(t);
 	
@@ -178,8 +175,8 @@ class ServiceInstanceEditor extends ListElementEditor
 		{
 		    updated();
 		    
-		    ServiceTemplate t = 
-			(ServiceTemplate)_template.getModel().getSelectedItem();
+		    ServerTemplate t = 
+			(ServerTemplate)_template.getModel().getSelectedItem();
 		    
 		    TemplateDescriptor td = (TemplateDescriptor)t.getDescriptor();
 		    
@@ -211,17 +208,17 @@ class ServiceInstanceEditor extends ListElementEditor
 	
 	_subEditor.show(false);
 
-	_applyButton.setEnabled(service.isEphemeral());
-	_discardButton.setEnabled(service.isEphemeral());	  
+	_applyButton.setEnabled(server.isEphemeral());
+	_discardButton.setEnabled(server.isEphemeral());	  
 	detectUpdates(true);
     }
 
     void setParameterValuesField()
     {
-	Service service = (Service)_target;
+	Server server = (Server)_target;
 
-	final Utils.Resolver resolver = service.getModel().substitute() ? 
-	    service.getParentResolver() : null;
+	final Utils.Resolver resolver = server.getModel().substitute() ? 
+	    server.getParentResolver() : null;
 	
 	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
 	Utils.Stringifier stringifier = new Utils.Stringifier()
@@ -242,7 +239,7 @@ class ServiceInstanceEditor extends ListElementEditor
 	_parameterValues.setToolTipText(toolTipHolder.value);
     }
 
-    private ServiceSubEditor _subEditor;
+    private ServerSubEditor _subEditor;
 
     private JComboBox _template = new JComboBox();
     private JButton _templateButton;

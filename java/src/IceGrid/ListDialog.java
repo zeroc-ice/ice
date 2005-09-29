@@ -31,11 +31,10 @@ import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.ButtonBarFactory;
 
 //
-// A simple two-column table dialog, to edit properties and properties-like
-// maps.
+// A simple list of strings
 //
 
-public class TableDialog extends JDialog
+public class ListDialog extends JDialog
 {
     class PopupListener extends MouseAdapter
     {
@@ -53,7 +52,7 @@ public class TableDialog extends JDialog
 	{
 	    if (e.isPopupTrigger()) 
 	    {	
-		_popup.show( e.getX(), e.getY());
+		_popup.show(e.getX(), e.getY());
 	    }
 	}
     }
@@ -62,7 +61,7 @@ public class TableDialog extends JDialog
     {
 	PopupMenu()
 	{
-	    _addRow = new AbstractAction("Add a new row")
+	    _addRow = new AbstractAction("Add a new element")
 		{
 		    public void actionPerformed(ActionEvent e) 
 		    {
@@ -71,13 +70,13 @@ public class TableDialog extends JDialog
 		    }
 		};
 	    
-	    _deleteRow = new AbstractAction("Delete selected row(s)")
+	    _deleteRow = new AbstractAction("Delete selected element(s)")
 		{
 		    public void actionPerformed(ActionEvent e) 
 		    {
 			for(;;)
 			{
-			    int selectedRow = _table.getSelectedRow();
+			    int selectedRow = _list.getSelectedRow();
 			    if(selectedRow == -1)
 			    {
 				break;
@@ -96,26 +95,24 @@ public class TableDialog extends JDialog
 	
 	void show(int x, int y)
 	{
-	    _deleteRow.setEnabled(_table.getSelectedRowCount() > 0);
-	    show(_table, x, y);
+	    _deleteRow.setEnabled(_list.getSelectedRowCount() > 0);
+	    show(_list, x, y);
 	}
 
 	private Action _addRow;
 	private Action _deleteRow;
     }
     
-    public TableDialog(Frame parentFrame, String title, 
-		       String heading0, String heading1, boolean editKeys)
+    public ListDialog(Frame parentFrame, String title, String columnName)
     {
 	super(parentFrame, title, true);
-	_editKeys = editKeys;
 	setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-
-	_columnNames = new java.util.Vector(2);
-	_columnNames.add(heading0);
-	_columnNames.add(heading1);
 	
-	_table = new JTable();
+	_columnNames = new java.util.Vector(1);
+	_columnNames.add(columnName);
+
+	_list = new JTable();
+	
 
 	Action ok = new AbstractAction("OK")
 	    {
@@ -136,13 +133,11 @@ public class TableDialog extends JDialog
 	    };
 	JButton cancelButton = new JButton(cancel);
 	
-	JScrollPane scrollPane = new JScrollPane(_table);
-	if(_editKeys)
-	{
-	    PopupListener popupListener = new PopupListener();
-	    _table.addMouseListener(popupListener);
-	    scrollPane.addMouseListener(popupListener);
-	}
+	JScrollPane scrollPane = new JScrollPane(_list);
+	
+	PopupListener popupListener = new PopupListener();
+	_list.addMouseListener(popupListener);
+	scrollPane.addMouseListener(popupListener);
 	scrollPane.setBorder(Borders.DIALOG_BORDER);
 
 	getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -156,44 +151,25 @@ public class TableDialog extends JDialog
     //
     // Returns null when cancel is pressed
     //
-    public java.util.Map show(java.util.Map map, JComponent onComponent)
+    public java.util.LinkedList show(java.util.List elts, JComponent onComponent)
     {
 	_cancelled = true;
-      
-	//
-	// Transform map into vector of vectors
-	//
-	java.util.Vector vector = new java.util.Vector(map.size());
-	java.util.Iterator p = map.entrySet().iterator();
+
+	java.util.Vector vector = new java.util.Vector();
+	java.util.Iterator p = elts.iterator();
 	while(p.hasNext())
 	{
-	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-	    java.util.Vector row = new java.util.Vector(2);
-	    row.add(entry.getKey());
-	    row.add(entry.getValue());
-	    vector.add(row);
+	    java.util.Vector elt = new java.util.Vector(1);
+	    elt.add(p.next());
+	    vector.add(elt);
 	}
-	if(_editKeys && vector.size() == 0)
+	if(vector.size() == 0)
 	{
-	    vector.add(new java.util.Vector(2));
+	    vector.addElement(new java.util.Vector(1));
 	}
-
-	_model = new DefaultTableModel(vector, _columnNames)
-	    {
-		public boolean isCellEditable(int row, int column)
-		{
-		    if(_editKeys)
-		    {
-			return true;
-		    }
-		    else
-		    {
-			return column > 0;
-		    }
-		}
-	    };
 	
-	_table.setModel(_model);
+	_model = new DefaultTableModel(vector, _columnNames);
+	_list.setModel(_model);
 
 	setLocationRelativeTo(onComponent);
 	setVisible(true);	
@@ -203,39 +179,30 @@ public class TableDialog extends JDialog
 	    return null;
 	}
 	else
-	{
-	    if(_table.isEditing()) 
+	{ 
+	    if(_list.isEditing()) 
 	    {
-		_table.getCellEditor().stopCellEditing();
+		_list.getCellEditor().stopCellEditing();
 	    }
-	    vector = _model.getDataVector();
 
 	    //
-	    // Transform vector into new Map
+	    // Create results without empty strings
 	    //
-	    java.util.Map result = new java.util.TreeMap();
-	    p = vector.iterator();
-	    while(p.hasNext())
+	    java.util.LinkedList result = new java.util.LinkedList();
+	    for(int i = 0; i < _model.getRowCount(); ++i)
 	    {
-		java.util.Vector row = (java.util.Vector)p.next();
-		
-		//
-		// Eliminate rows with null or empty keys
-		//
-		String key = (String)row.elementAt(0);
-		if(key != null && key.length() > 0)
+		if(!_model.getValueAt(i, 0).equals(""))
 		{
-		    result.put(key, row.elementAt(1));
+		    result.add(_model.getValueAt(i, 0));
 		}
 	    }
 	    return result;
 	}
     }
 
-    private final boolean _editKeys;
     private boolean _cancelled;
-    private JTable _table;
     private DefaultTableModel _model;
+    private JTable _list;
     private java.util.Vector _columnNames;
     private PopupMenu _popup = new PopupMenu();
 }

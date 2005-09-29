@@ -18,7 +18,6 @@ import javax.swing.JTextField;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 import IceGrid.ServiceDescriptor;
-import IceGrid.ServiceInstanceDescriptor;
 import IceGrid.Model;
 import IceGrid.Utils;
 
@@ -42,7 +41,7 @@ class ServiceSubEditor extends CommunicatorSubEditor
     
     void append(DefaultFormBuilder builder)
     {    
-	builder.append("Name");
+	builder.append("Service Name");
 	builder.append(_name, 3);
 	builder.nextLine();
 	

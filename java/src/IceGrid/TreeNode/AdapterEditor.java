@@ -39,7 +39,7 @@ class AdapterEditor extends ListElementEditor
 	//
 	// _idButton
 	//
-	AbstractAction gotoReplicatedAdapter = new AbstractAction("->")
+	Action gotoReplicatedAdapter = new AbstractAction("->")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -78,7 +78,7 @@ class AdapterEditor extends ListElementEditor
 					 "Object Identity", 
 					 "Type", true);
 	
-	AbstractAction openObjectsDialog = new AbstractAction("...")
+	Action openObjectsDialog = new AbstractAction("...")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{

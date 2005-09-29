@@ -659,6 +659,11 @@ class Node extends EditableParent
 	}
     }
 
+    Utils.Resolver getResolver()
+    {
+	return _resolver;
+    }
+
     private NodeDescriptor _descriptor;
     private Utils.Resolver _resolver;
 
