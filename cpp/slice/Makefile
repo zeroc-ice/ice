@@ -18,7 +18,8 @@ SUBDIRS		= Freeze \
 		  IcePack \
 		  IcePatch2 \
 		  IceSSL \
-		  IceStorm
+		  IceStorm \
+		  IceGrid
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
