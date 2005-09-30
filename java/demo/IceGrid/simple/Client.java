@@ -16,7 +16,7 @@ public class Client extends Ice.Application
     {
         System.out.println(
             "usage:\n" +
-            "t: send greeting as twoway\n" +
+            "t: send greeting\n" +
             "s: shutdown server\n" +
             "x: exit\n" +
             "?: help\n");
@@ -25,36 +25,30 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-        Ice.Properties properties = communicator().getProperties();
-
-	properties.parseCommandLineOptions("", args);
-
 	//
 	// First we try to connect to the object with the `hello'
 	// identity. If it's not registered with the registry, we
 	// search for an object with the ::Demo::Hello type.
 	//
-	Ice.ObjectPrx base = communicator().stringToProxy(properties.getPropertyWithDefault("Identity", "hello"));
-	HelloPrx twoway = null;
+	HelloPrx hello = null;
 	try
 	{
-	    twoway = HelloPrxHelper.checkedCast(base);
+	    hello = HelloPrxHelper.checkedCast(communicator().stringToProxy("hello"));
 	}
 	catch(Ice.NotRegisteredException ex)
 	{
-	    IceGrid.QueryPrx query =
-		IceGrid.QueryPrxHelper.uncheckedCast(communicator().stringToProxy("IceGrid/Query"));
+	    IceGrid.QueryPrx query = IceGrid.QueryPrxHelper.checkedCast(communicator().stringToProxy("IceGrid/Query"));
 	    try
 	    {
-		twoway = HelloPrxHelper.checkedCast(query.findObjectByType("::Demo::Hello"));
+		hello = HelloPrxHelper.checkedCast(query.findObjectByType("::Demo::Hello"));
 	    }
 	    catch(IceGrid.ObjectNotExistException ex1)
 	    {
 	    }
 	}
-	if(twoway == null)
+	if(hello == null)
 	{
-            System.err.println(": couldn't find a `::Demo::Hello' object.");
+            System.err.println(": couldn't find a `::Demo::Hello' object");
 	    return 1;
 	}
 
@@ -76,11 +70,11 @@ public class Client extends Ice.Application
                 }
                 if(line.equals("t"))
                 {
-                    twoway.sayHello();
+                    hello.sayHello();
                 }
                 else if(line.equals("s"))
                 {
-                    twoway.shutdown();
+                    hello.shutdown();
                 }
                 else if(line.equals("x"))
                 {

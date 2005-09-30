@@ -177,6 +177,7 @@ class Adapters extends ListParent
 	    descriptor = new AdapterDescriptor(
 		name,
 		defaultId,
+		"", // TODO: ReplicaId
 		false,
 		true,
 		new java.util.LinkedList());   

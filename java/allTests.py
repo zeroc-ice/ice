@@ -69,8 +69,6 @@ tests = [ \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "Freeze/evictor", \
-    "IcePack/simple", \
-    "IcePack/deployer", \
     "Glacier2/router", \
     "IceGrid/simple", \
     ]

@@ -34,6 +34,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	Ice.LocatorRegistryPrx locatorRegistry = null;
         boolean registerProcess = false;
         String serverId = "";
+        String replicaId = "";
         Communicator communicator = null;
 	boolean printAdapterReady = false;
 
@@ -50,6 +51,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 
                 registerProcess = _instance.properties().getPropertyAsInt(_name + ".RegisterProcess") > 0;
                 serverId = _instance.properties().getProperty("Ice.ServerId");
+                replicaId = _instance.properties().getPropertyWithDefault(_name + ".ReplicaId", serverId);
 		printAdapterReady = _instance.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 
                 if(registerProcess && locatorRegistry == null)
@@ -95,24 +97,17 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		Identity ident = new Identity();
 		ident.category = "";
 		ident.name = "dummy";
-		locatorRegistry.setAdapterDirectProxy(serverId, _id, createDirectProxy(ident));
+		locatorRegistry.setAdapterDirectProxy(_id, replicaId, createDirectProxy(ident));
 	    }
 	    catch(ObjectAdapterDeactivatedException ex)
 	    {
 		// IGNORE: The object adapter is already inactive.
 	    }
-	    catch(ServerNotFoundException ex)
-	    {
-		NotRegisteredException ex1 = new NotRegisteredException();
-		ex1.id = serverId;
-		ex1.kindOfObject = "server";
-		throw ex1;
-	    }
 	    catch(AdapterNotFoundException ex)
 	    {
 		NotRegisteredException ex1 = new NotRegisteredException();
-		ex1.id = _id;
 		ex1.kindOfObject = "object adapter";
+		ex1.id = ex.replica ? _id + " (replica = " + replicaId + ")" : _id;
 		throw ex1;
 	    }
 	    catch(AdapterAlreadyActiveException ex)

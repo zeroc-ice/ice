@@ -11,16 +11,23 @@ import Demo.*;
 
 public class HelloI extends _HelloDisp
 {
+    public HelloI(String name)
+    {
+	_name = name;
+    }
+
     public void
     sayHello(Ice.Current current)
     {
-        System.out.println("Hello World!");
+        System.out.println(_name + " says Hello World!");
     }
 
     public void
     shutdown(Ice.Current current)
     {
-        System.out.println("Shutting down...");
+        System.out.println(_name + " shutting down...");
         current.adapter.getCommunicator().shutdown();
     }
+
+    private final String _name;
 }
