@@ -16,7 +16,7 @@
     <node name="localhost">
       <server id="SimpleServer" exe="java" pwd="." activation="on-demand">
         <option>Server</option>
-	<adapter name="Hello" endpoints="tcp" register="true">
+	<adapter name="Hello" endpoints="tcp" register-process="true">
 	  <object identity="hello" type="::Demo::Hello"/>
 	</adapter>
 	<property name="Identity" value="hello"/>
