@@ -261,7 +261,7 @@ AdapterEntry::getProxies(int& nReplicas)
 	{
 	    adapters.push_back(make_pair(p->second->getId(), p->second->getAdapter(_id, p->first)));
 	}
-	catch(AdapterNotExistException& ex)
+	catch(AdapterNotExistException&)
 	{
 	}
 	catch(const NodeUnreachableException& ex)
@@ -332,7 +332,7 @@ AdapterEntry::getProxy(const string& replicaId) const
 	{
 	    return replica.second->getAdapter(_id, replica.first);
 	}
-	catch(AdapterNotExistException& ex)
+	catch(AdapterNotExistException&)
 	{
 	}
     }
