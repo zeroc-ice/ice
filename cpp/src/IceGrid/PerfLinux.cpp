@@ -16,6 +16,7 @@
 #include <fstream>
 #include <algorithm>
 #include <cctype>
+#include <limits>
 
 using namespace std;
 using namespace Ice;
