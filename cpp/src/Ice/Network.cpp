@@ -1492,7 +1492,7 @@ IceInternal::isLocalAddress(const struct sockaddr_in& addr)
 	    }
         }
     }
-    catch(const Ice.LocalException&)
+    catch(const Ice::LocalException&)
     {
 	//
 	// TODO: Warning?
