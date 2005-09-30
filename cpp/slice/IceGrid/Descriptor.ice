@@ -251,14 +251,14 @@ class ServerDescriptor extends CommunicatorDescriptor
      * The command line options to pass to the server executable.
      *
      **/
-    Ice::StringSeq options;
+    ["java:type:java.util.LinkedList"] Ice::StringSeq options;
 
     /**
      *
      * The server environment variables.
      *
      **/
-    Ice::StringSeq envs;
+    ["java:type:java.util.LinkedList"] Ice::StringSeq envs;
 
     /**
      *

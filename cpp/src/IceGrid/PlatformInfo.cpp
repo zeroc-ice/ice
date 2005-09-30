@@ -98,6 +98,16 @@ PlatformInfo::PlatformInfo(const Ice::CommunicatorPtr& communicator, const Trace
 	ex.error = getSystemErrno();
 	throw ex;
     }
+#elif defined(__hpux)
+    struct pst_dynamic dynInfo;
+    if(pstat_getdynamic(&dynInfo, sizeof(dynInfo), 1, 0) >= 0)
+    {
+        _info.nProcessors = dynInfo.psd_proc_cnt;
+    }
+    else
+    {
+        _info.nProcessors = 1;
+    }
 #else
     _info.nProcessors = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
 #endif
