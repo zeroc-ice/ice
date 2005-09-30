@@ -68,10 +68,9 @@ public class Application extends EditableParent
 	}
 
 	//
-	// Patch TODO: implement
+	// Distribution TODO: implement
 	//
-	update.patchs = new java.util.HashMap();
-	update.removePatchs = new String[0];
+	//update.distribution = XXX
 
 	//
 	// Replicated Adapters
