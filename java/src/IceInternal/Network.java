@@ -574,32 +574,19 @@ public final class Network
             // address (preferably not the loopback address).
             //
             java.net.InetAddress loopback = null;
-            try
+	    java.util.ArrayList addrs = getLocalAddresses();
+            java.util.Iterator iter = addrs.iterator();
+            while(addr == null && iter.hasNext())
             {
-                java.util.Enumeration ni = java.net.NetworkInterface.getNetworkInterfaces();
-                while(addr == null && ni.hasMoreElements())
+		java.net.InetAddress a = (java.net.InetAddress)iter.next();
+                if(!a.isLoopbackAddress())
                 {
-                    java.net.NetworkInterface i = (java.net.NetworkInterface)ni.nextElement();
-                    java.util.Enumeration addrs = i.getInetAddresses();
-                    while(addr == null && addrs.hasMoreElements())
-                    {
-                        java.net.InetAddress a = (java.net.InetAddress)addrs.nextElement();
-                        if(!a.isLoopbackAddress())
-                        {
-                            addr = a;
-                        }
-                        else
-                        {
-                            loopback = a;
-                        }
-                    }
+                    addr = a;
                 }
-            }
-            catch(java.net.SocketException e)
-            {
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(e);
-                throw se;
+                else
+                {
+                    loopback = a;
+                }
             }
 
             if(addr == null)
@@ -610,6 +597,38 @@ public final class Network
 
         assert(addr != null);
         return addr;
+    }
+
+    public static java.util.ArrayList
+    getLocalAddresses()
+    {
+        java.util.ArrayList result = new java.util.ArrayList();
+
+	try
+	{
+	    java.util.Enumeration ifaces = java.net.NetworkInterface.getNetworkInterfaces();
+	    while(ifaces.hasMoreElements())
+	    {
+                java.net.NetworkInterface iface = (java.net.NetworkInterface)ifaces.nextElement();
+                java.util.Enumeration addrs = iface.getInetAddresses();
+		while(addrs.hasMoreElements())
+		{
+		    java.net.InetAddress addr = (java.net.InetAddress)addrs.nextElement();
+		    if(!(addr instanceof java.net.Inet6Address))
+		    {
+	                result.add(addr);
+		    }
+		}
+	    }
+	}
+	catch(java.net.SocketException e)
+	{
+	    Ice.SocketException se = new Ice.SocketException();
+	    se.initCause(e);
+	    throw se;
+	}
+
+	return result;
     }
 
     public static final class SocketPair
