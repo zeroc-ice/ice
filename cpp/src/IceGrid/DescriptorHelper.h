@@ -11,7 +11,7 @@
 #define ICE_GRID_DESCRIPTOR_HELPER_H
 
 #include <IceUtil/OutputUtil.h>
-#include <IceGrid/Admin.h>
+#include <IceGrid/Internal.h>
 #include <IceXML/Parser.h>
 
 namespace IceGrid
@@ -34,7 +34,6 @@ public:
 
     TemplateDescriptor getServerTemplate(const std::string&) const;
     TemplateDescriptor getServiceTemplate(const std::string&) const;
-    PatchDescriptor getPatchDescriptor(const std::string&) const;
     
 private:
 
@@ -205,7 +204,6 @@ public:
     bool operator!=(const ServerInstanceHelper&) const;
 
     std::string getId() const;
-    bool getPatchDirs(const std::string&, const Resolver&, std::set<std::string>&) const;
     ServerInstanceDescriptor getDescriptor() const;
     ServerDescriptorPtr getDefinition() const;
     ServerDescriptorPtr getInstance() const;
@@ -241,8 +239,7 @@ public:
     const NodeDescriptor& getDescriptor() const;
     const NodeDescriptor& getInstance() const;
     void getServerInfos(const std::string&, std::map<std::string, ServerInfo>&) const;
-    std::pair<Ice::StringSeq, Ice::StringSeq> getPatchDirs(const std::string&, const Resolver&) const;
-
+    DistributionDescriptorDict getDistributions(const std::string&) const;
     void print(IceUtil::Output&) const;
     void printDiff(IceUtil::Output&, const NodeHelper&) const;
     void validate(const Resolver&) const;
@@ -274,12 +271,12 @@ public:
     const ApplicationDescriptor& getInstance() const;
     TemplateDescriptor getServerTemplate(const std::string&) const;
     TemplateDescriptor getServiceTemplate(const std::string&) const;
-    PatchDescriptor getPatchDescriptor(const std::string&) const;
+    void getDistributions(DistributionDescriptor&, std::map<std::string, DistributionDescriptorDict>&,
+			  const std::string& = std::string()) const;
 
     void print(IceUtil::Output&) const;
     void printDiff(IceUtil::Output&, const ApplicationHelper&) const;
     std::map<std::string, ServerInfo> getServerInfos() const;
-    std::map<std::string, std::pair<Ice::StringSeq, Ice::StringSeq> > getNodesPatchDirs(const std::string&) const;
 
 private:
 

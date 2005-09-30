@@ -276,7 +276,7 @@ RegistryI::start(bool nowarn)
     //
     // Create the admin interface and register it with the object registry.
     //
-    ObjectPtr admin = new AdminI(_communicator, _database, this, _nodeSessionTimeout);
+    ObjectPtr admin = new AdminI(_communicator, _database, this);
     const string adminIdProperty = "IceGrid.Registry.AdminIdentity";
     Identity adminId = stringToIdentity(properties->getPropertyWithDefault(adminIdProperty, "IceGrid/Admin"));
     adminAdapter->add(admin, adminId);

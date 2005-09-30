@@ -192,8 +192,8 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _serial(1),
     _platform(adapter->getCommunicator(), _traceLevels)
 {
-    string dataDir = _adapter->getCommunicator()->getProperties()->getProperty("IceGrid.Node.Data");
-    if(!isAbsolute(dataDir))
+    _dataDir = _adapter->getCommunicator()->getProperties()->getProperty("IceGrid.Node.Data");
+    if(!isAbsolute(_dataDir))
     {
 #ifdef _WIN32
 	char cwd[_MAX_PATH];
@@ -206,11 +206,16 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
 	    throw "cannot get the current directory:\n" + lastError();
 	}
 	
-	dataDir = string(cwd) + '/' + dataDir;
+	_dataDir = string(cwd) + '/' + _dataDir;
+    }
+    if(_dataDir[_dataDir.length() - 1] == '/')
+    {
+	_dataDir = _dataDir.substr(0, _dataDir.length() - 1);
     }
 
-    _serversDir = dataDir + (dataDir[dataDir.length() - 1] == '/' ? "" : "/") + "servers";
-    _tmpDir = dataDir + (dataDir[dataDir.length() - 1] == '/' ? "" : "/") + "tmp";
+    _sharedDir = _dataDir + "/shared";
+    _serversDir = _dataDir + "/servers";
+    _tmpDir = _dataDir + "/tmp";
 }
 
 NodeI::~NodeI()
@@ -218,7 +223,8 @@ NodeI::~NodeI()
 }
 
 ServerPrx
-NodeI::loadServer(const ServerDescriptorPtr& desc, 
+NodeI::loadServer(const string& application,
+		  const ServerDescriptorPtr& desc, 
 		  AdapterPrxDict& adapters, 
 		  int& activationTimeout, 
 		  int& deactivationTimeout, 
@@ -239,17 +245,14 @@ NodeI::loadServer(const ServerDescriptorPtr& desc,
 	servant = new ServerI(this, proxy, _serversDir, desc->id, _waitTime);
 	current.adapter->add(servant, id);
     }
-    proxy->update(desc, init, adapters, activationTimeout, deactivationTimeout);
+    proxy->update(application, desc, init, adapters, activationTimeout, deactivationTimeout);
     
-    for(PatchDescriptorSeq::const_iterator p = desc->patchs.begin(); p != desc->patchs.end(); ++p)
+    map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(application);
+    if(p == _serversByApplication.end())
     {
-	string dest = p->destination.empty() ? _serversDir + "/" + desc->id + "/data" : p->destination;
-	PatchDirectory& patch = _directories[dest];
-	patch.proxy = _adapter->getCommunicator()->stringToProxy(p->proxy);
-	patch.directories.insert(p->sources.begin(), p->sources.end());
-	patch.servers.insert(ServerIPtr::dynamicCast(servant));
+	p = _serversByApplication.insert(p, make_pair(application, set<ServerIPtr>()));
     }
-    
+    p->second.insert(ServerIPtr::dynamicCast(servant));
     return proxy;
 }
 
@@ -281,21 +284,16 @@ NodeI::destroyServer(const string& name, const Ice::Current& current)
 	ServerPrx proxy = ServerPrx::uncheckedCast(current.adapter->createProxy(id));
 	try
 	{
-	    ServerDescriptorPtr desc = proxy->getDescriptor();
+	    ServerIPtr server = ServerIPtr::dynamicCast(servant);
+	    ServerDescriptorPtr desc = server->getDescriptor();
 	    proxy->destroy();
-	    for(PatchDescriptorSeq::const_iterator p = desc->patchs.begin(); p != desc->patchs.end(); ++p)
+
+	    map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(server->getApplication());
+	    assert(p != _serversByApplication.end());
+	    p->second.erase(server);
+	    if(p->second.empty())
 	    {
-		string dest = p->destination.empty() ? _serversDir + "/" + desc->id + "/data" : p->destination;
-		PatchDirectory& patch = _directories[dest];
-		for(Ice::StringSeq::const_iterator q = p->sources.begin(); q != p->sources.end(); ++q)
-		{
-		    patch.directories.erase(*q);
-		}
-		patch.servers.erase(ServerIPtr::dynamicCast(servant));
-		if(patch.servers.empty())
-		{
-		    _directories.erase(dest);
-		}
+		_serversByApplication.erase(p);
 	    }
 	}
 	catch(const Ice::LocalException&)
@@ -305,16 +303,102 @@ NodeI::destroyServer(const string& name, const Ice::Current& current)
 }
 
 void
-NodeI::patch(const Ice::StringSeq& directories, const Ice::StringSeq& serverDirs, bool shutdown, const Ice::Current&)
+NodeI::patch(const string& application, 
+	     const DistributionDescriptor& appDistrib,
+	     const DistributionDescriptorDict& serverDistribs, 
+	     bool shutdown, 
+	     const Ice::Current&)
 {
-    Ice::StringSeq::const_iterator p;
-    for(p = directories.begin(); p != directories.end(); ++p)
+    Lock sync(*this);
+
+    set<ServerIPtr> servers;
     {
-	patch(ServerIPtr(), *p, shutdown);
+	map<string, set<ServerIPtr> >::const_iterator p = _serversByApplication.find(application);
+	if(p != _serversByApplication.end())
+	{
+	    servers = p->second;
+	}
     }
-    for(p = serverDirs.begin(); p != serverDirs.end(); ++p)
+
+    try
     {
-	patch(ServerIPtr(), _serversDir + "/" + *p + "/data", shutdown);
+	vector<string> running;
+	set<ServerIPtr>::const_iterator p;
+	for(p = servers.begin(); p != servers.end(); ++p)
+	{
+	    if(!(*p)->startUpdating(shutdown))
+	    {
+		running.push_back((*p)->getId());
+	    }
+	}
+
+	if(!running.empty())
+	{
+	    PatchException ex;
+	    ex.reason = "patch on node `" + _name + "' failed:\n";
+	    if(running.size() == 1)
+	    {
+		ex.reason += "server `" + toString(running) + "' is active";
+	    }
+	    else
+	    {
+		ex.reason += "servers `" + toString(running, ", ") + "' are active";
+	    }
+	    throw ex;
+	}
+
+	try
+	{
+	    // 
+	    // Patch the application.
+	    //
+	    FileServerPrx icepatch = FileServerPrx::checkedCast(getCommunicator()->stringToProxy(appDistrib.icepatch));
+	    if(!icepatch)
+	    {
+		throw "proxy `" + appDistrib.icepatch + "' is not a file server.";
+	    }
+	    patch(icepatch, "shared/" + application, appDistrib.directories);
+
+	    //
+	    // Patch the servers.
+	    //
+	    for(DistributionDescriptorDict::const_iterator p = serverDistribs.begin(); p != serverDistribs.end(); ++p)
+	    {
+		icepatch = FileServerPrx::checkedCast(getCommunicator()->stringToProxy(p->second.icepatch));
+		if(!icepatch)
+		{
+		    throw "proxy `" + p->second.icepatch + "' is not a file server.";
+		}
+		patch(icepatch, "servers/" + p->first + "/distribution", p->second.directories);
+	    }
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    ostringstream os;
+	    os << "patch on node `" + _name + "' failed:\n";
+	    os << ex;
+	    _traceLevels->logger->warning(os.str());
+	    throw PatchException(os.str());
+	}
+	catch(const string& ex)
+	{
+	    string msg = "patch on node `" + _name + "' failed:\n" + ex;
+	    _traceLevels->logger->error(msg);
+	    throw PatchException(msg);
+	}
+
+	for(p = servers.begin(); p != servers.end(); ++p)
+	{
+	    (*p)->finishUpdating();
+	}
+    }
+    catch(...)
+    {
+	for(set<ServerIPtr>::const_iterator p = servers.begin(); p != servers.end(); ++p)
+	{
+	    (*p)->finishUpdating();
+	}
+	throw;
     }
 }
 
@@ -334,125 +418,6 @@ void
 NodeI::shutdown(const Ice::Current&) const
 {
     _activator->shutdown();
-}
-
-void
-NodeI::patch(const ServerIPtr& server, const string& directory, bool shutdown) const
-{
-    Lock sync(*this);
-
-    assert(server || !directory.empty());
-    string dest = directory.empty() ? _serversDir + "/" + server->getId() + "/data" : directory;
-
-    map<string, PatchDirectory>::const_iterator p = _directories.find(dest);
-    if(p == _directories.end())
-    {
-	return;
-    }
-    
-    const PatchDirectory& patch = p->second;
-    try
-    {
-	vector<string> running;
-	set<ServerIPtr>::const_iterator p;
-	for(p = patch.servers.begin(); p != patch.servers.end(); ++p)
-	{
-	    if(*p != server)
-	    {
-		if(!(*p)->startUpdating(shutdown))
-		{
-		    running.push_back((*p)->getId());
-		}
-	    }
-	}
-	if(!running.empty())
-	{
-	    PatchException ex;
-	    ex.reason = "patch for `" + dest + "' on node `" + _name + "' failed:\n";
-	    if(running.size() == 1)
-	    {
-		ex.reason += "server `" + toString(running) + "' is active";
-	    }
-	    else
-	    {
-		ex.reason += "servers `" + toString(running, ", ") + "' are active";
-	    }
-	    throw ex;
-	}
-
-	try
-	{
-	    FileServerPrx icepatch = FileServerPrx::checkedCast(patch.proxy);
-	    if(!icepatch)
-	    {
-		throw "proxy `" + getCommunicator()->proxyToString(patch.proxy) + "' is not a file server.";
-	    }
-	    
-	    const string logdest = dest.find(_serversDir) == 0 ? dest.substr(_serversDir.size() + 1) : dest;
-	    PatcherFeedbackPtr feedback = new LogPatcherFeedback(_traceLevels, logdest);
-	    PatcherPtr patcher = new Patcher(icepatch, feedback, dest, false, 100, 1);
-	    bool aborted = !patcher->prepare();
-	    if(!aborted)
-	    {
-		if(patch.directories.empty())
-		{
-		    aborted = !patcher->patch("");
-		}
-		else
-		{
-		    vector<string> sources;
-		    copy(patch.directories.begin(), patch.directories.end(), back_inserter(sources)); 
-		    for(vector<string>::const_iterator p = sources.begin(); p != sources.end(); ++p)
- 		    {
-			dynamic_cast<LogPatcherFeedback*>(feedback.get())->setPatchingPath(*p);
-			if(!patcher->patch(*p))
-			{
-			    aborted = true;
-			    break;
-			}
-		    }
-		}
-	    }
-	    
-	    if(!aborted)
-	    {
-		patcher->finish();
-	    }
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    ostringstream os;
-	    os << "patch for `" + dest + "' on node `" + _name + "' failed:\n";
-	    os << ex;
-	    _traceLevels->logger->warning(os.str());
-	    throw PatchException(os.str());
-	}
-	catch(const string& ex)
-	{
-	    string msg = "patch for `" + dest + "' on node `" + _name + "' failed:\n" + ex;
-	    _traceLevels->logger->error(msg);
-	    throw PatchException(msg);
-	}
-
-	for(p = patch.servers.begin(); p != patch.servers.end(); ++p)
-	{
-	    if(*p != server)
-	    {
-		(*p)->finishUpdating();
-	    }
-	}
-    }
-    catch(...)
-    {
-	for(set<ServerIPtr>::const_iterator p = patch.servers.begin(); p != patch.servers.end(); ++p)
-	{
-	    if(*p != server)
-	    {
-		(*p)->finishUpdating();
-	    }
-	}
-	throw;
-    }
 }
 
 Ice::CommunicatorPtr
@@ -789,6 +754,7 @@ NodeI::initObserver(const Ice::StringSeq& servers)
 	NodeDynamicInfo info;
 	info.name = _name;
 	info.info = _platform.getNodeInfo();
+	info.info.dataDir = _dataDir;
 	info.servers = serverInfos;
 	info.adapters = adapterInfos;
 	_observer->nodeUp(info);
@@ -797,3 +763,37 @@ NodeI::initObserver(const Ice::StringSeq& servers)
     {
     }
 }
+
+void
+NodeI::patch(const FileServerPrx& icepatch, const string& destination, const vector<string>& directories)
+{
+    PatcherFeedbackPtr feedback = new LogPatcherFeedback(_traceLevels, destination);
+    IcePatch2::createDirectory(_dataDir + "/" + destination);
+    PatcherPtr patcher = new Patcher(icepatch, feedback, _dataDir + "/" + destination, false, 100, 1);
+    bool aborted = !patcher->prepare();
+    if(!aborted)
+    {
+	if(directories.empty())
+	{
+	    aborted = !patcher->patch("");
+	}
+	else
+	{
+	    for(vector<string>::const_iterator p = directories.begin(); p != directories.end(); ++p)
+	    {
+		dynamic_cast<LogPatcherFeedback*>(feedback.get())->setPatchingPath(*p);
+		if(!patcher->patch(*p))
+		{
+		    aborted = true;
+		    break;
+		}
+	    }
+	}
+    }
+	    
+    if(!aborted)
+    {
+	patcher->finish();
+    }
+}
+

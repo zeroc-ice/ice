@@ -18,6 +18,7 @@
 #include <IceGrid/NodeI.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/DescriptorParser.h>
+#include <IcePatch2/Util.h>
 
 #ifdef _WIN32
 #   include <direct.h>
@@ -381,26 +382,16 @@ NodeService::start(int argc, char* argv[])
 #endif
 
         //
-        // Creates subdirectories db and servers in the IceGrid.Node.Data directory if they don't already exist.
+        // Creates subdirectories.
         //
         if(dataPath[dataPath.length() - 1] != '/')
         {
             dataPath += "/"; 
         }
 
-        string serversPath = dataPath + "servers";
-
-#ifdef _WIN32
-        if(::_stat(serversPath.c_str(), &filestat) != 0)
-        {
-            _mkdir(serversPath.c_str());
-        }
-#else
-        if(::stat(serversPath.c_str(), &filestat) != 0)
-        {
-            mkdir(serversPath.c_str(), 0755);
-        }
-#endif
+	IcePatch2::createDirectory(dataPath + "servers");
+	IcePatch2::createDirectory(dataPath + "tmp");
+	IcePatch2::createDirectory(dataPath + "shared");
     }
 
     //

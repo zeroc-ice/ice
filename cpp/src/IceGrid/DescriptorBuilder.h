@@ -74,8 +74,8 @@ public:
     void addServerTemplate(const std::string&, const TemplateDescriptor&);
     void addServiceTemplate(const std::string&, const TemplateDescriptor&);
     
-    void addPatch(const XmlAttributesHelper&);
-    void addPatchDirectory(const std::string&);
+    void addDistribution(const XmlAttributesHelper&);
+    void addDistributionDirectory(const std::string&);
 
     bool isOverride(const std::string&);
 
@@ -83,7 +83,6 @@ private:
 
     ApplicationDescriptor _descriptor;
     std::map<std::string, std::string> _overrides;
-    std::string _lastPatch;
 };
 
 class ServerDescriptorBuilder;
@@ -171,9 +170,8 @@ public:
     virtual void addEnv(const std::string&);
     virtual void addService(const ServiceDescriptorPtr&);
     virtual void addServiceInstance(const XmlAttributesHelper&);
-    virtual void addPatch(const XmlAttributesHelper&);
-    virtual void addPatchDirectory(const std::string&);
-    virtual void addUsePatch(const XmlAttributesHelper&);
+    virtual void addDistribution(const XmlAttributesHelper&);
+    virtual void addDistributionDirectory(const std::string&);
 
     const ServerDescriptorPtr& getDescriptor() const { return _descriptor; } 
 

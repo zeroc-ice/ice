@@ -79,14 +79,10 @@ private:
     string _node;
 };
 
-AdminI::AdminI(const CommunicatorPtr& communicator, 
-	       const DatabasePtr& database,
-	       const RegistryPtr& registry,
-	       int nodeSessionTimeout) :
+AdminI::AdminI(const CommunicatorPtr& communicator, const DatabasePtr& database, const RegistryPtr& registry) :
     _communicator(communicator),
     _database(database),
-    _registry(registry),
-    _nodeSessionTimeout(nodeSessionTimeout)
+    _registry(registry)
 {
 }
 
@@ -119,16 +115,18 @@ AdminI::removeApplication(const string& name, const Current&)
 }
 
 void
-AdminI::patchApplication(const string& name, const string& patch, bool shutdown, const Current&)
+AdminI::patchApplication(const string& name, bool shutdown, const Current&)
 {
-    ApplicationHelper helper(_database->getApplicationDescriptor(name));
-    map<string, pair<Ice::StringSeq, Ice::StringSeq> > nodes = helper.getNodesPatchDirs(patch);
-    for(map<string, pair<Ice::StringSeq, Ice::StringSeq> >::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
+    ApplicationHelper helper(_database->getApplicationDescriptor(name));    
+    DistributionDescriptor appDistrib;
+    map<string, DistributionDescriptorDict> nodeDistribs;
+    helper.getDistributions(appDistrib, nodeDistribs);
+
+    for(map<string, DistributionDescriptorDict>::const_iterator p = nodeDistribs.begin(); p != nodeDistribs.end(); ++p)
     {
 	try
 	{
-	    NodePrx n = NodePrx::uncheckedCast(_database->getNode(p->first)->ice_timeout(_nodeSessionTimeout * 1000));
-	    n->patch(p->second.first, p->second.second, shutdown);
+	    _database->getNode(p->first)->patch(name, appDistrib, p->second, shutdown);
 	}
 	catch(const NodeNotExistException&)
 	{
@@ -234,14 +232,30 @@ AdminI::stopServer(const string& id, const Current&)
 void
 AdminI::patchServer(const string& id, bool shutdown, const Current&)
 {
-    ServerProxyWrapper proxy(_database, id);
-    try
+    ServerInfo info = _database->getServerInfo(id);
+    ApplicationHelper helper(_database->getApplicationDescriptor(info.application));
+    DistributionDescriptor appDistrib;
+    map<string, DistributionDescriptorDict> nodeDistribs;
+    helper.getDistributions(appDistrib, nodeDistribs, id);
+
+    for(map<string, DistributionDescriptorDict>::const_iterator p = nodeDistribs.begin(); p != nodeDistribs.end(); ++p)
     {
-	proxy->patch(shutdown);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	proxy.handleException(ex);
+	try
+	{
+	    _database->getNode(p->first)->patch(info.application, appDistrib, p->second, shutdown);
+	}
+	catch(const NodeNotExistException&)
+	{
+	}
+	catch(const NodeUnreachableException&)
+	{
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+	catch(const Ice::LocalException&)
+	{
+	}
     }
 }
 
@@ -413,8 +427,7 @@ AdminI::pingNode(const string& name, const Current&) const
 {
     try
     {
-	NodePrx node = NodePrx::uncheckedCast(_database->getNode(name)->ice_timeout(_nodeSessionTimeout * 1000));
-	node->ice_ping();
+	_database->getNode(name)->ice_ping();
 	return true;
     }
     catch(const NodeUnreachableException&)

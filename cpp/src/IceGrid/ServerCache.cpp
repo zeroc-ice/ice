@@ -388,10 +388,9 @@ ServerEntry::getLoad(LoadSample sample) const
 ServerPrx
 ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deactivationTimeout, string& node)
 {
-    ServerDescriptorPtr load;
-    string loadNode;
-    ServerDescriptorPtr destroy;
-    string destroyNode;
+    ServerInfo load;
+    ServerInfo destroy;
+
     {
 	Lock sync(*this);
 	while(_synchronizing)
@@ -411,13 +410,11 @@ ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deacti
 	_synchronizing = true;
 	if(_load.get())
 	{
-	    load = _load->descriptor;
-	    loadNode = _load->node;
+	    load = *_load;
 	}
 	if(_destroy.get())
 	{
-	    destroy = _destroy->descriptor;
-	    destroyNode = _destroy->node;
+	    destroy = *_destroy;
 	}
     }
 
@@ -425,16 +422,16 @@ ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deacti
     NodeCache& nodeCache = _cache.getNodeCache();
     try
     {
-	if(destroy)
+	if(destroy.descriptor)
 	{
 	    try
 	    {
-		nodeCache.get(destroyNode)->getProxy()->destroyServer(destroy->id);
+		nodeCache.get(destroy.node)->getProxy()->destroyServer(destroy.descriptor->id);
 
 		if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
 		{
 		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-		    out << "unloaded server `" << destroy->id << "' on node `" << destroyNode << "'";	
+		    out << "unloaded server `" << destroy.descriptor->id << "' on node `" << destroy.node << "'";
 		}
 	    }
 	    catch(const NodeNotExistException& ex)
@@ -442,14 +439,15 @@ ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deacti
 		if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
 		{
 		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-		    out << "couldn't unload server `" << destroy->id << "' on node `" << destroyNode << "':\n" << ex;
+		    out << "couldn't unload server `" << destroy.descriptor->id << "' on node `" << destroy.node
+			<< "':\n" << ex;
 		}
 
-		if(!load)
+		if(!load.descriptor)
 		{
 		    ostringstream os;
 		    os << ex;
-		    throw NodeUnreachableException(destroyNode, os.str());
+		    throw NodeUnreachableException(destroy.node, os.str());
 		}
 	    }
 	    catch(const Ice::LocalException& ex)
@@ -457,31 +455,32 @@ ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deacti
 		if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
 		{
 		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-		    out << "couldn't unload server `" << destroy->id << "' on node `" << destroyNode << "':\n" << ex;
+		    out << "couldn't unload server `" << destroy.descriptor->id << "' on node `" << destroy.node 
+			<< "':\n" << ex;
 		}
 
-		if(!load)
+		if(!load.descriptor)
 		{
 		    ostringstream os;
 		    os << ex;
-		    throw NodeUnreachableException(destroyNode, os.str());
+		    throw NodeUnreachableException(destroy.node, os.str());
 		}
 	    }
 	}
 
-	if(load)
+	if(load.descriptor)
 	{
 	    try
 	    {
-		const NodePrx n = nodeCache.get(loadNode)->getProxy();
-		proxy = n->loadServer(load, adpts, activationTimeout, deactivationTimeout);
-		node = loadNode;
+		const NodePrx n = nodeCache.get(load.node)->getProxy();
+		proxy = n->loadServer(load.application, load.descriptor,adpts, activationTimeout, deactivationTimeout);
+		node = load.node;
 		proxy = ServerPrx::uncheckedCast(proxy->ice_collocationOptimization(false));
 
 		if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
 		{
 		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-		    out << "loaded server `" << load->id << "' on node `" << loadNode << "'";	
+		    out << "loaded server `" << load.descriptor->id << "' on node `" << load.node << "'";	
 		}
 	    }
 	    catch(const NodeNotExistException& ex)
@@ -489,38 +488,41 @@ ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deacti
 		if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
 		{
 		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-		    out << "couldn't load server `" << load->id << "' on node `" << loadNode << "':\n" << ex;
+		    out << "couldn't load server `" << load.descriptor->id << "' on node `" << load.node 
+			<< "':\n" << ex;
 		}
 
 		ostringstream os;
 		os << ex;
-		throw NodeUnreachableException(loadNode, os.str());
+		throw NodeUnreachableException(load.node, os.str());
 	    }
 	    catch(const DeploymentException& ex)
 	    {
 		if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
 		{
 		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-		    out << "couldn't load server `" << load->id << "' on node `" << loadNode << "':\n" << ex.reason;
+		    out << "couldn't load server `" << load.descriptor->id << "' on node `" << load.node 
+			<< "':\n" << ex.reason;
 		}
 
 		Ice::Warning out(_cache.getTraceLevels()->logger);
-		out << "failed to load server on node `" << loadNode << "':\n" << ex;
+		out << "failed to load server on node `" << load.node << "':\n" << ex;
 		ostringstream os;
 		os << ex << "\nreason: " << ex.reason;
-		throw NodeUnreachableException(loadNode, os.str());
+		throw NodeUnreachableException(load.node, os.str());
 	    }
 	    catch(const Ice::Exception& ex)
 	    {
 		if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
 		{
 		    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-		    out << "couldn't load server `" << load->id << "' on node `" << loadNode << "':\n" << ex;
+		    out << "couldn't load server `" << load.descriptor->id << "' on node `" << load.node 
+			<< "':\n" << ex;
 		}
 
 		ostringstream os;
 		os << ex;
-		throw NodeUnreachableException(loadNode, os.str());
+		throw NodeUnreachableException(load.node, os.str());
 	    }
 	}
     }
@@ -532,9 +534,9 @@ ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deacti
 	    _destroy.reset(0);
 	    notifyAll();
 	}
-	if(!load && destroy)
+	if(!load.descriptor && destroy.descriptor)
 	{
-	    _cache.clear(destroy->id);
+	    _cache.clear(destroy.descriptor->id);
 	}
 	throw;
     }
@@ -577,9 +579,9 @@ ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deacti
 	}
 	notifyAll();
     }
-    if(!load && destroy)
+    if(!load.descriptor && destroy.descriptor)
     {
-	_cache.clear(destroy->id);
+	_cache.clear(destroy.descriptor->id);
     }
     return proxy;
 }

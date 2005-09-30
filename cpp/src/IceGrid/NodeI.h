@@ -14,6 +14,8 @@
 #include <IceGrid/WaitQueue.h>
 #include <IceGrid/PlatformInfo.h>
 
+#include <IcePatch2/FileServer.h>
+
 namespace IceGrid
 {
 
@@ -34,15 +36,15 @@ public:
 	  const NodePrx&, const std::string&);
     virtual ~NodeI();
 
-    virtual ServerPrx loadServer(const ServerDescriptorPtr&, AdapterPrxDict&, int&, int&, const Ice::Current&);
+    virtual ServerPrx loadServer(const std::string&, const ServerDescriptorPtr&, AdapterPrxDict&, int&, int&, 
+				 const Ice::Current&);
     virtual void destroyServer(const std::string&, const Ice::Current&);
-    virtual void patch(const Ice::StringSeq&, const Ice::StringSeq&, bool, const Ice::Current&);
+    virtual void patch(const std::string&, const DistributionDescriptor&, const DistributionDescriptorDict&, 
+		       bool, const Ice::Current&);
     virtual std::string getName(const Ice::Current& = Ice::Current()) const;
     virtual std::string getHostname(const Ice::Current& = Ice::Current()) const;
     virtual void shutdown(const Ice::Current&) const;
     
-    void patch(const ServerIPtr&, const std::string&, bool) const;
-
     WaitQueuePtr getWaitQueue() const;
     Ice::CommunicatorPtr getCommunicator() const;
     ActivatorPtr getActivator() const;
@@ -60,6 +62,7 @@ private:
     void checkConsistencyNoSync(const Ice::StringSeq&);
     bool canRemoveServerDirectory(const std::string&);
     void initObserver(const Ice::StringSeq&);
+    void patch(const IcePatch2::FileServerPrx&, const std::string&, const std::vector<std::string>&);
 
     const Ice::ObjectAdapterPtr _adapter;
     const ActivatorPtr _activator;
@@ -68,6 +71,8 @@ private:
     const std::string _name;
     const NodePrx _proxy;
     const Ice::Int _waitTime;
+    std::string _dataDir;
+    std::string _sharedDir;
     std::string _serversDir;
     std::string _tmpDir;
     unsigned long _serial;
@@ -75,14 +80,7 @@ private:
     IceUtil::Mutex _sessionMutex;
     NodeSessionPrx _session;
     PlatformInfo _platform;
-
-    struct PatchDirectory
-    {
-	Ice::ObjectPrx proxy;
-	std::multiset<std::string> directories;
-	std::set<ServerIPtr> servers;
-    };
-    std::map<std::string, PatchDirectory> _directories;
+    std::map<std::string, std::set<ServerIPtr> > _serversByApplication;
 };
 typedef IceUtil::Handle<NodeI> NodeIPtr;
 

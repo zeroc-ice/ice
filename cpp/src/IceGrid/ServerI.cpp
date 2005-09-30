@@ -147,8 +147,13 @@ ServerI::~ServerI()
 }
 
 void
-ServerI::update(const ServerDescriptorPtr& descriptor, bool load, AdapterPrxDict& adapters,
-		int& activationTimeout, int& deactivationTimeout, const Ice::Current& current)
+ServerI::update(const string& application,
+		const ServerDescriptorPtr& descriptor, 
+		bool load, 
+		AdapterPrxDict& adapters,
+		int& activationTimeout,
+		int& deactivationTimeout,
+		const Ice::Current& current)
 {
     startUpdating(true);
 
@@ -157,7 +162,7 @@ ServerI::update(const ServerDescriptorPtr& descriptor, bool load, AdapterPrxDict
     //
     try
     {
-	updateImpl(descriptor, load, adapters, activationTimeout, deactivationTimeout, current);
+	updateImpl(application, descriptor, load, adapters, activationTimeout, deactivationTimeout, current);
     }
     catch(const string& msg)
     {
@@ -221,29 +226,6 @@ ServerI::stop(const Ice::Current&)
     }
 
     stopInternal(false);
-}
-
-void
-ServerI::patch(bool shutdown, const ::Ice::Current& current)
-{
-    //
-    // Patch the server data.
-    //
-    startUpdating(true);
-    try
-    {
-	ServerDescriptorPtr desc = getDescriptor(current);
-	for(PatchDescriptorSeq::const_iterator p = desc->patchs.begin(); p != desc->patchs.end(); ++p)
-	{
-	    _node->patch(this, p->destination, shutdown);
-	}
-    }
-    catch(...)
-    {
-	finishUpdating();
-	throw;
-    }
-    finishUpdating();
 }
 
 void
@@ -458,19 +440,26 @@ ServerI::getActivationMode(const ::Ice::Current&) const
     return _activation;
 }
 
+void
+ServerI::setProcess(const ::Ice::ProcessPrx& proc, const ::Ice::Current&)
+{
+    Lock sync(*this);
+    _process = Ice::ProcessPrx::uncheckedCast(proc->ice_timeout(_deactivationTimeout * 1000));
+    notifyAll();
+}
+
 ServerDescriptorPtr
-ServerI::getDescriptor(const Ice::Current&) const
+ServerI::getDescriptor() const
 {
     Lock sync(*this);
     return _desc;
 }
 
-void
-ServerI::setProcess(const ::Ice::ProcessPrx& proc, const ::Ice::Current&)
+string
+ServerI::getApplication() const
 {
-    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
-    _process = Ice::ProcessPrx::uncheckedCast(proc->ice_timeout(_deactivationTimeout * 1000));
-    notifyAll();
+    Lock sync(*this);    
+    return _application;
 }
 
 bool
@@ -561,7 +550,7 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
     string pwd = desc->pwd;
     if(pwd.empty())
     {
-	pwd = _serverDir + "/data";
+	pwd = _serverDir + "/distribution";
     }
 
     //
@@ -986,10 +975,11 @@ ServerI::setStateNoSync(InternalServerState st)
 }
 
 void
-ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, AdapterPrxDict& adapters,
+ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bool load, AdapterPrxDict& adapters,
 		    int& activationTimeout, int& deactivationTimeout, const Ice::Current& current)
 {
     Lock sync(*this);
+    _application = app;
     _desc = descriptor;
     _serverDir = _serversDir + "/" + descriptor->id;
     _activation = descriptor->activation  == "on-demand" ? OnDemand : Manual;

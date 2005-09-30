@@ -379,12 +379,6 @@ Resolver::getServiceTemplate(const string& tmpl) const
     return _application.getServiceTemplate(tmpl);
 }
 
-PatchDescriptor
-Resolver::getPatchDescriptor(const string& id) const
-{
-    return _application.getPatchDescriptor(id);
-}
-
 string
 Resolver::substitute(const string& v, bool useParams) const
 {
@@ -802,14 +796,7 @@ ServerHelper::operator==(const ServerHelper& helper) const
 	return false;
     }
 
-    if(set<PatchDescriptor>(_desc->patchs.begin(), _desc->patchs.end()) !=
-       set<PatchDescriptor>(helper._desc->patchs.begin(), helper._desc->patchs.end()))
-    {
-	return false;
-    }
-
-    if(set<string>(_desc->usePatchs.begin(), _desc->usePatchs.end()) != 
-       set<string>(helper._desc->usePatchs.begin(), helper._desc->usePatchs.end()))
+    if(_desc->distribution != helper._desc->distribution)
     {
 	return false;
     }
@@ -838,35 +825,19 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance, const Resolve
     }
     instance->activationTimeout = resolve.asInt(_desc->activationTimeout, "activation timeout");
     instance->deactivationTimeout = resolve.asInt(_desc->deactivationTimeout, "deactivation timeout");
-    for(Ice::StringSeq::const_iterator p = _desc->options.begin(); p != _desc->options.end(); ++p)
+    Ice::StringSeq::const_iterator p;
+    for(p = _desc->options.begin(); p != _desc->options.end(); ++p)
     {
 	instance->options.push_back(resolve(*p, "option"));
     }
-    for(Ice::StringSeq::const_iterator r = _desc->envs.begin(); r != _desc->envs.end(); ++r)
+    for(p = _desc->envs.begin(); p != _desc->envs.end(); ++p)
     {
-	instance->envs.push_back(resolve(*r, "environment variable"));
+	instance->envs.push_back(resolve(*p, "environment variable"));
     }
-    for(PatchDescriptorSeq::const_iterator s = _desc->patchs.begin(); s != _desc->patchs.end(); ++s)
+    instance->distribution.icepatch = resolve(_desc->distribution.icepatch, "IcePatch2 server proxy");
+    for(p = _desc->distribution.directories.begin(); p != _desc->distribution.directories.end(); ++p)
     {
-	PatchDescriptor patch;
-	patch.destination = resolve(s->destination, "patch destination directory", true);
-	patch.proxy = resolve(s->proxy, "patch server proxy");
-	for(Ice::StringSeq::const_iterator q = s->sources.begin(); q != s->sources.end(); ++q)
-	{
-	    patch.sources.push_back(resolve(*q, "patch source directory"));
-	}
-	instance->patchs.push_back(patch);
-    }
-    for(Ice::StringSeq::const_iterator t = _desc->usePatchs.begin(); t != _desc->usePatchs.end(); ++t)
-    {
-	PatchDescriptor patch = resolve.getPatchDescriptor(*t);
-	patch.destination = resolve(patch.destination, "patch destination directory", true, false);
-	patch.proxy = resolve(patch.proxy, "patch server proxy", false, false);
-	for(Ice::StringSeq::iterator q = patch.sources.begin(); q != patch.sources.end(); ++q)
-	{
-	    *q = resolve(*q, "patch source directory", false, false);
-	}
-	instance->patchs.push_back(patch);
+	instance->distribution.directories.push_back(resolve(*p, "distribution source directory"));
     }
 }
 
@@ -926,20 +897,13 @@ ServerHelper::printImpl(Output& out, const string& application, const string& no
     {
 	out << nl << "envs = '" << toString(_desc->envs) << "'";
     }
-    if(!_desc->patchs.empty())
+    if(!_desc->distribution.directories.empty())
     {
-	for(PatchDescriptorSeq::const_iterator p = _desc->patchs.begin(); p != _desc->patchs.end(); ++p)
-	{
-	    out << nl << "patch `" << p->destination << "'";
-	    out << sb;
-	    out << nl << "proxy = '" << p->proxy << "'";
-	    out << nl << "sources = " << toString(p->sources);
-	    out << eb;
-	}
-    }
-    if(!_desc->usePatchs.empty())
-    {
-	out << nl << "use patch = `" << toString(_desc->usePatchs) << "'";
+	out << nl << "distribution";
+	out << sb;
+	out << nl << "proxy = '" << _desc->distribution.icepatch << "'";
+	out << nl << "directories = " << toString(_desc->distribution.directories);
+	out << eb;
     }
     CommunicatorHelper::print(out);
 }
@@ -1313,47 +1277,6 @@ ServerInstanceHelper::getId() const
     return _instance->getDescriptor()->id;
 }
 
-bool
-ServerInstanceHelper::getPatchDirs(const string& patch, const Resolver& resolve, set<string>& directories) const
-{
-    ServerDescriptorPtr desc = getDefinition();
-    bool patchServerDataDir = false;
-    if(patch.empty())
-    {
-	for(PatchDescriptorSeq::const_iterator p = desc->patchs.begin(); p != desc->patchs.end(); ++p)
-	{
-	    string dest = resolve(p->destination, "patch destination directory", true, false);
-	    if(dest.empty())
-	    {
-		patchServerDataDir = true;
-	    }
-	    else
-	    {
-		directories.insert(dest);
-	    }
-	}
-    }
-
-    for(Ice::StringSeq::const_iterator p = desc->usePatchs.begin(); p != desc->usePatchs.end(); ++p)
-    {
-	if(patch.empty() || *p == patch)
-	{
-	    PatchDescriptor patch = resolve.getPatchDescriptor(*p);
-	    string dest = resolve(patch.destination, "patch destination directory", true, false);
-	    if(dest.empty())
-	    {
-		patchServerDataDir = true;
-	    }
-	    else
-	    {
-		directories.insert(dest);
-	    }
-	}
-    }
-
-    return patchServerDataDir;
-}
-
 ServerInstanceDescriptor
 ServerInstanceHelper::getDescriptor() const
 {
@@ -1673,33 +1596,38 @@ NodeHelper::getServerInfos(const string& application, map<string, ServerInfo>& s
     }
 }
 
-pair<Ice::StringSeq, Ice::StringSeq>
-NodeHelper::getPatchDirs(const string& patch, const Resolver& appResolve) const
+DistributionDescriptorDict
+NodeHelper::getDistributions(const string& server) const
 {
-    Ice::StringSeq servers;
-    set<string> directories;
-    Resolver resolve(appResolve, _definition.variables, false);
-    ServerInstanceHelperDict::const_iterator p;
-    for(p = _serverInstances.begin(); p != _serverInstances.end(); ++p)
+    //
+    // Get the server distributions to patch.
+    //
+    DistributionDescriptorDict distribs;
+    if(server.empty())
     {
-	if(p->second.getPatchDirs(patch, resolve, directories))
+	ServerInstanceHelperDict::const_iterator p;
+	for(p = _serverInstances.begin(); p != _serverInstances.end(); ++p)
 	{
-	    servers.push_back(p->second.getId());
+	    distribs.insert(make_pair(p->first, p->second.getInstance()->distribution));
+	}
+	for(p = _servers.begin(); p != _servers.end(); ++p)
+	{
+	    distribs.insert(make_pair(p->first, p->second.getInstance()->distribution));
 	}
     }
-    for(p = _servers.begin(); p != _servers.end(); ++p)
+    else
     {
-	if(p->second.getPatchDirs(patch, resolve, directories))
+	ServerInstanceHelperDict::const_iterator p = _serverInstances.find(server);
+	if(p == _serverInstances.end())
 	{
-	    servers.push_back(p->second.getId());
+	    p = _servers.find(server);
+	}
+	if(p != _serverInstances.end())
+	{
+	    distribs.insert(make_pair(server, p->second.getInstance()->distribution));
 	}
     }
-    Ice::StringSeq strSeq;
-    for(set<string>::const_iterator p2 = directories.begin(); p2 != directories.end(); ++p2)
-    {
-	strSeq.push_back(*p2);
-    }
-    return make_pair(strSeq, servers);
+    return distribs;
 }
 
 void
@@ -1898,8 +1826,10 @@ ApplicationHelper::diff(const ApplicationHelper& helper)
     update.variables = getDictUpdatedElts(helper._definition.variables, _definition.variables);
     update.removeVariables = getDictRemovedElts(helper._definition.variables, _definition.variables);
 
-    update.patchs = getDictUpdatedElts(helper._definition.patchs, _definition.patchs);
-    update.removePatchs = getDictRemovedElts(helper._definition.patchs, _definition.patchs);
+    if(_definition.distribution != helper._definition.distribution)
+    {
+	update.distribution = new BoxedDistributionDescriptor(_definition.distribution);
+    }
 
     GetReplicatedAdapterId rk;
     ReplicatedAdapterEq req;
@@ -1956,8 +1886,11 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
     
     _definition.variables = updateDictElts(_definition.variables, update.variables, update.removeVariables);
 
-    _definition.patchs = updateDictElts(_definition.patchs, update.patchs, update.removePatchs);
-    
+    if(update.distribution)
+    {
+	_definition.distribution = update.distribution->value;
+    }
+
     _definition.serverTemplates = updateDictElts(_definition.serverTemplates, update.serverTemplates, 
 						 update.removeServerTemplates);
 
@@ -2087,17 +2020,6 @@ ApplicationHelper::getServiceTemplate(const string& name) const
     return p->second;
 }
 
-PatchDescriptor
-ApplicationHelper::getPatchDescriptor(const string& id) const
-{
-    PatchDescriptorDict::const_iterator p = _definition.patchs.find(id);
-    if(p == _definition.patchs.end())
-    {
-	throw DeploymentException("unknown patch descriptor `" + id + "'");
-    }
-    return p->second;
-}
-
 map<string, ServerInfo>
 ApplicationHelper::getServerInfos() const
 {
@@ -2109,16 +2031,24 @@ ApplicationHelper::getServerInfos() const
     return servers;
 }
 
-map<string, pair<Ice::StringSeq, Ice::StringSeq> >
-ApplicationHelper::getNodesPatchDirs(const string& patch) const
+void
+ApplicationHelper::getDistributions(DistributionDescriptor& distribution,
+				    map<string, DistributionDescriptorDict>& nodeDistributions,
+				    const string& server) const
 {
-    map<string, pair<Ice::StringSeq, Ice::StringSeq> > nodes;
-    Resolver resolve(*this, _definition.name, _definition.variables);
+    distribution = _definition.distribution;
     for(NodeHelperDict::const_iterator n = _nodes.begin(); n != _nodes.end(); ++n)
     {
-	nodes.insert(make_pair(n->first, n->second.getPatchDirs(patch, resolve)));
+	DistributionDescriptorDict distrib = n->second.getDistributions(server);
+	if(!distrib.empty())
+	{
+	    nodeDistributions.insert(make_pair(n->first, distrib));
+	    if(!server.empty())
+	    {
+		break;
+	    }
+	}
     }
-    return nodes;
 }
 
 void
@@ -2141,14 +2071,12 @@ ApplicationHelper::print(Output& out) const
 	}
 	out << eb;
     }
-    if(!_instance.patchs.empty())
+    if(!_instance.distribution.directories.empty())
     {
-	out << nl << "patchs";
+	out << nl << "distribution";
 	out << sb;
-	for(PatchDescriptorDict::const_iterator p = _instance.patchs.begin(); p != _instance.patchs.end(); ++p)
-	{
-	    out << nl << p->first;
-	}
+	out << nl << "proxy = '" << _instance.distribution.icepatch << "'";
+	out << nl << "directories = " << toString(_instance.distribution.directories);
 	out << eb;
     }
     if(!_instance.replicatedAdapters.empty())
@@ -2226,31 +2154,9 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
 	}    
     }
     {
-	PatchDescriptorDict updated = getDictUpdatedElts(helper._definition.patchs, _definition.patchs);
-	Ice::StringSeq removed = getDictRemovedElts(helper._definition.patchs, _definition.patchs);
-	if(!updated.empty() || !removed.empty())
+	if(_definition.distribution != helper._definition.distribution)
 	{
-	    out << nl << "patchs";
-	    out << sb;
-	    for(PatchDescriptorDict::const_iterator p = updated.begin(); p != updated.end(); ++p)
-	    {
-		if(helper._instance.patchs.find(p->first) == helper._instance.patchs.end())
-		{
-		    out << nl << "patch `" << p->first << "' added";
-		}
-	    }
-	    for(PatchDescriptorDict::const_iterator q = updated.begin(); q != updated.end(); ++q)
-	    {
-		if(helper._instance.patchs.find(q->first) != helper._instance.patchs.end())
-		{
-		    out << nl << "patch `" << q->first << "' updated";
-		}
-	    }
-	    for(Ice::StringSeq::const_iterator r = removed.begin(); r != removed.end(); ++r)
-	    {
-		out << nl << "patch `" << *r << "' removed";
-	    }
-	    out << eb;
+	    out << nl << "distribution updated";
 	}
     }
     {
@@ -2413,14 +2319,6 @@ ApplicationHelper::validate(const Resolver& resolve) const
 	if(t->first == "")
 	{
 	    resolve.exception("empty service template id");
-	}
-    }
-
-    for(PatchDescriptorDict::const_iterator q = _definition.patchs.begin(); q != _definition.patchs.end(); ++q)
-    {
-	if(q->first == "")
-	{
-	    resolve.exception("empty patch id");
 	}
     }
 

@@ -66,7 +66,7 @@ Parser::usage()
         "                            described in DESC and the current deployment.\n"
 	"application update DESC [TARGET ... ] [NAME=VALUE ... ]\n"
 	"                            Update the application described in DESC.\n"
-	"application patch [-f|--force] NAME [PATCHID]\n"
+	"application patch [-f|--force] NAME\n"
 	"                            Patch the given application data. If -f or --force is\n"
 	"                            specified, the servers depending on the data to patch\n"
 	"                            will be stopped if necessary.\n"
@@ -327,9 +327,9 @@ Parser::patchApplication(const list<string>& origArgs)
 	return;
     }
 
-    if(args.size() < 1)
+    if(args.size() != 1)
     {
-	error("`application patch' requires at least one argument\n(`help' for more info)");
+	error("`application patch' requires exactly one argument\n(`help' for more info)");
 	return;
     }
 
@@ -337,8 +337,7 @@ Parser::patchApplication(const list<string>& origArgs)
     {
 	vector<string>::const_iterator p = args.begin();
 	string name = *p++;
-	string patch = p != args.end() ? *p++ : string();
-	_admin->patchApplication(name, patch, opts.isSet("f") || opts.isSet("force"));
+	_admin->patchApplication(name, opts.isSet("f") || opts.isSet("force"));
     }
     catch(const Ice::Exception& ex)
     {

@@ -113,7 +113,7 @@ interface Server
      * Load the server.
      *
      **/
-    void update(ServerDescriptor desc, bool load, out AdapterPrxDict adpts, out int actT, out int deactT)
+    void update(string app, ServerDescriptor desc, bool load, out AdapterPrxDict adpts, out int actT, out int deactT)
 	throws DeploymentException;
 
     /**
@@ -134,15 +134,6 @@ interface Server
      *
      **/
     void stop();
-
-    /**
-     *
-     * Patch a server. This methods does nothing if the server has no
-     * data to patch.
-     * 
-     **/
-    void patch(bool shutdown)
-	throws  PatchException;
 
     /**
      *
@@ -198,13 +189,6 @@ interface Server
 
     /**
      *
-     * Get the descriptor used to deploy this server.
-     *
-     **/
-    nonmutating ServerDescriptor getDescriptor();
-
-    /**
-     *
      * Set the server activation mode.
      *
      **/
@@ -225,6 +209,8 @@ interface Server
     ["ami"] void setProcess(Ice::Process* proc);
 };
 
+dictionary<string, DistributionDescriptor> DistributionDescriptorDict;
+
 interface Node
 {
     /**
@@ -234,8 +220,8 @@ interface Node
      * they will be created.
      *
      **/
-    idempotent Server* loadServer(ServerDescriptor desc, out AdapterPrxDict adapters, out int activationTimeout,
-				  out int deactivationTimeout)
+    idempotent Server* loadServer(string application, ServerDescriptor desc, out AdapterPrxDict adapters, 
+				  out int activationTimeout, out int deactivationTimeout)
 	throws DeploymentException;
 
     /**
@@ -247,13 +233,14 @@ interface Node
 
     /**
      *
-     * Patch a list of directories. The node will patch the data from
-     * the given destination directories. If some servers using a
-     * destination directory to patch are active, this method will
-     * raise a PatchException.
+     * Patch application and server distributions. If some servers
+     * using a distribution directory to patch are active, this method
+     * will raise a PatchException unless shutdown is set to true. In
+     * which case the servers will be shutdown.
      * 
      **/
-    idempotent void patch(Ice::StringSeq directories, Ice::StringSeq serverDirs, bool shutdown)
+    idempotent void patch(string application, DistributionDescriptor appDistrib, 
+			  DistributionDescriptorDict serverDistribs, bool shutdown)
 	throws  PatchException;
 
     /**

@@ -68,7 +68,7 @@ private:
     bool _isTopLevel;
     bool _inAdapter;
     bool _inDbEnv;
-    bool _inPatch;
+    bool _inDistribution;
 };
 
 }
@@ -334,29 +334,22 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		_currentCommunicator->addObject(attributes);
 	    }
 	}
-	else if(name == "patch")
+	else if(name == "distribution")
 	{
 	    if(!_currentApplication.get() && (!_currentServer.get() || _currentServer.get() != _currentCommunicator))
 	    {
-		error("the <patch> element can only be a child of an <application>, <server> or <icebox> element");
+		error("the <distribution> element can only be a child of an <application>, <server> or <icebox> "
+		      "element");
 	    }
 	    if(!_currentServer.get())
 	    {
-		_currentApplication->addPatch(attributes);
+		_currentApplication->addDistribution(attributes);
 	    }
 	    else
 	    {
-		_currentServer->addPatch(attributes);
+		_currentServer->addDistribution(attributes);
 	    }
-	    _inPatch = true;
-	}
-	else if(name == "use-patch")
-	{
-	    if(!_currentServer.get() || _currentServer.get() != _currentCommunicator)
-	    {
-		error("the <use-patch> element can only be a child of a <server> or <icebox> element");
-	    }
-	    _currentServer->addUsePatch(attributes);
+	    _inDistribution = true;
 	}
 	else if(name == "dbenv")
 	{
@@ -485,17 +478,17 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     }
     else if(name == "directory")
     {
-	if(!_inPatch)
+	if(!_inDistribution)
 	{
-		error("the <directory> element can only be a child of a <patch> element");
+		error("the <directory> element can only be a child of a <distribution> element");
 	}
 	if(!_currentServer.get())
 	{
-	    _currentApplication->addPatchDirectory(elementValue());
+	    _currentApplication->addDistributionDirectory(elementValue());
 	}
 	else
 	{
-	    _currentServer->addPatchDirectory(elementValue());
+	    _currentServer->addDistributionDirectory(elementValue());
 	}
     }
     else if(name == "adapter")
@@ -510,9 +503,9 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     {
 	_inDbEnv = false;
     }
-    else if(name == "patch")
+    else if(name == "distribution")
     {
-	_inPatch = false;
+	_inDistribution = false;
     }
 }
 

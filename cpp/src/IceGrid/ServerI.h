@@ -45,10 +45,10 @@ public:
     ServerI(const NodeIPtr&, const ServerPrx&, const std::string&, const std::string&, int);
     virtual ~ServerI();
 
-    virtual void update(const ServerDescriptorPtr&, bool, AdapterPrxDict&, int&, int&, const Ice::Current&);
+    virtual void update(const std::string&, const ServerDescriptorPtr&, bool, AdapterPrxDict&, int&, int&, 
+			const Ice::Current&);
     virtual void start_async(const AMD_Server_startPtr&, const ::Ice::Current&);
     virtual void stop(const ::Ice::Current& = Ice::Current());
-    virtual void patch(bool, const ::Ice::Current&);
     virtual void sendSignal(const std::string&, const ::Ice::Current&);
     virtual void writeMessage(const std::string&, Ice::Int, const ::Ice::Current&);
     virtual void destroy(const ::Ice::Current&);
@@ -59,8 +59,10 @@ public:
 
     virtual void setActivationMode(ServerActivation, const ::Ice::Current&);
     virtual ServerActivation getActivationMode(const ::Ice::Current& = Ice::Current()) const;
-    virtual ServerDescriptorPtr getDescriptor(const ::Ice::Current&) const;
     virtual void setProcess(const ::Ice::ProcessPrx&, const ::Ice::Current&);
+
+    ServerDescriptorPtr getDescriptor() const;
+    std::string getApplication() const;
 
     bool startInternal(ServerActivation, const AMD_Server_startPtr& = AMD_Server_startPtr());
     void adapterActivated(const std::string&);
@@ -79,7 +81,8 @@ private:
     void setState(InternalServerState);
     void setStateNoSync(InternalServerState);
     
-    void updateImpl(const ServerDescriptorPtr&, bool, AdapterPrxDict&, int&, int&, const Ice::Current&);
+    void updateImpl(const std::string&, const ServerDescriptorPtr&, bool, AdapterPrxDict&, int&, int&, 
+		    const Ice::Current&);
     void addAdapter(AdapterPrxDict&, const AdapterDescriptor&, const CommunicatorDescriptorPtr&, const Ice::Current&);
     void updateConfigFile(const std::string&, const CommunicatorDescriptorPtr&, bool);
     void updateDbEnv(const std::string&, const DbEnvDescriptor&);
@@ -93,6 +96,7 @@ private:
     const std::string _serversDir;
 
     std::string _serverDir;
+    std::string _application;
     ServerDescriptorPtr _desc;
     InternalServerState _state;
     ServerActivation _activation;

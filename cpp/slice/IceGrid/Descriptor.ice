@@ -192,31 +192,14 @@ class CommunicatorDescriptor
     string description;
 };
 
-struct PatchDescriptor
+struct DistributionDescriptor
 {
     /** The proxy of the IcePatch2 server. */
-    string proxy;
-
-    /** The destination directory. */
-    string destination;
+    string icepatch;
 
     /** The source directories. */
-    Ice::StringSeq sources;
+    Ice::StringSeq directories;
 };
-
-/**
- *
- * A sequence of patch descriptors.
- *
- **/
-sequence<PatchDescriptor> PatchDescriptorSeq;
-
-/**
- *
- * A dictionary of patch descriptors.
- *
- **/
-dictionary<string, PatchDescriptor> PatchDescriptorDict;
 
 /**
  *
@@ -286,17 +269,10 @@ class ServerDescriptor extends CommunicatorDescriptor
 
     /**
      *
-     * The patch descriptors.
+     * The distribution descriptor.
      *
      **/
-    PatchDescriptorSeq patchs;
-
-    /**
-     *
-     * The application patch definitions used by the server.
-     *
-     **/
-    Ice::StringSeq usePatchs;
+    DistributionDescriptor distribution;
 };
 
 /**
@@ -574,10 +550,10 @@ struct ApplicationDescriptor
 
     /**
      *
-     * The application patch descriptors.
+     * The application distribution.
      *
      **/
-    PatchDescriptorDict patchs;
+    DistributionDescriptor distribution;
 
     /**
      *
@@ -658,6 +634,11 @@ struct NodeUpdateDescriptor
 };
 ["java:type:java.util.LinkedList"] sequence<NodeUpdateDescriptor> NodeUpdateDescriptorSeq;
 
+class BoxedDistributionDescriptor
+{
+    DistributionDescriptor value;
+};
+
 struct ApplicationUpdateDescriptor
 {
     /**
@@ -677,6 +658,13 @@ struct ApplicationUpdateDescriptor
 
     /**
      *
+     * The updated distribution application descriptor.
+     * 
+     **/
+    BoxedDistributionDescriptor distribution;
+    
+    /**
+     *
      * The variables to update.
      *
      **/
@@ -688,20 +676,6 @@ struct ApplicationUpdateDescriptor
      *
      **/
     Ice::StringSeq removeVariables;
-
-    /**
-     *
-     * The patch descriptors to update.
-     *
-     **/
-    PatchDescriptorDict patchs;
-    
-    /**
-     *
-     * The patch descriptors to remove.
-     *
-     **/
-    Ice::StringSeq removePatchs;
 
     /**
      *

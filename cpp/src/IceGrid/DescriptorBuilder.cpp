@@ -240,20 +240,15 @@ ApplicationDescriptorBuilder::addServiceTemplate(const string& id, const Templat
 }
 
 void 
-ApplicationDescriptorBuilder::addPatch(const XmlAttributesHelper& attrs)
+ApplicationDescriptorBuilder::addDistribution(const XmlAttributesHelper& attrs)
 {
-    _lastPatch = attrs("id");
-    PatchDescriptor desc;
-    desc.proxy = attrs("proxy", "");
-    desc.destination = attrs("destination", "");
-    _descriptor.patchs.insert(make_pair(_lastPatch, desc));
+    _descriptor.distribution.icepatch = attrs("icepatch", "");
 }
 
 void
-ApplicationDescriptorBuilder::addPatchDirectory(const string& directory)
+ApplicationDescriptorBuilder::addDistributionDirectory(const string& directory)
 {
-    assert(!_lastPatch.empty());
-    _descriptor.patchs[_lastPatch].sources.push_back(directory);
+    _descriptor.distribution.directories.push_back(directory);
 }
 
 bool
@@ -401,7 +396,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
 	desc.id = fqn + "." + desc.name;
     }
     desc.replicaId = attrs("replica-id", "");
-    desc.registerProcess = attrs("register", "false") == "true";
+    desc.registerProcess = attrs("register-process", "false") == "true";
     if(desc.id == "" && attrs.contains("wait-for-activation"))
     {
 	throw "the attribute `wait-for-activation' can only be set if the adapter has an non empty id";
@@ -529,24 +524,15 @@ ServerDescriptorBuilder::addServiceInstance(const XmlAttributesHelper& desc)
 }
 
 void
-ServerDescriptorBuilder::addPatch(const XmlAttributesHelper& attrs)
+ServerDescriptorBuilder::addDistribution(const XmlAttributesHelper& attrs)
 {
-    PatchDescriptor desc;
-    desc.proxy = attrs("proxy", "");
-    desc.destination = attrs("destination", "");
-    _descriptor->patchs.push_back(desc);
+    _descriptor->distribution.icepatch = attrs("icepatch", "");
 }
 
 void
-ServerDescriptorBuilder::addPatchDirectory(const string& directory)
+ServerDescriptorBuilder::addDistributionDirectory(const string& directory)
 {
-    _descriptor->patchs.back().sources.push_back(directory);
-}
-
-void
-ServerDescriptorBuilder::addUsePatch(const XmlAttributesHelper& attrs)
-{
-    _descriptor->usePatchs.push_back(attrs("id"));
+    _descriptor->distribution.directories.push_back(directory);
 }
 
 IceBoxDescriptorBuilder::IceBoxDescriptorBuilder(const XmlAttributesHelper& attrs)

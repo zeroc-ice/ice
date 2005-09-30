@@ -204,6 +204,13 @@ struct NodeInfo
      *
      **/
     int nProcessors;
+    
+    /**
+     *
+     * The path to the node data directory.
+     *
+     **/
+    string dataDir;
 };
 
 /**
@@ -284,8 +291,6 @@ interface Admin
      *
      * @param name The application name.
      *
-     * @param patch The patch identifier or an empty string.
-     *
      * @param shutdown If true, the servers depending on the data to
      * patch will be shutdown if necessary.
      *
@@ -295,7 +300,7 @@ interface Admin
      * doesn't exist.
      *
      **/
-    void patchApplication(string name, string patch, bool shutdown)
+    void patchApplication(string name, bool shutdown)
 	throws ApplicationNotExistException, PatchException;
 
     /**
