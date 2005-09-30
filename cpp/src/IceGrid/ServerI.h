@@ -34,6 +34,7 @@ public:
 	Inactive,
 	Activating,
 	WaitForActivation,
+	WaitForActivationTimeout,
 	Active,
 	Deactivating,
 	Destroying,
@@ -44,7 +45,7 @@ public:
     ServerI(const NodeIPtr&, const ServerPrx&, const std::string&, const std::string&, int);
     virtual ~ServerI();
 
-    virtual void update(const ServerDescriptorPtr&, bool, StringAdapterPrxDict&, int&, int&, const Ice::Current&);
+    virtual void update(const ServerDescriptorPtr&, bool, AdapterPrxDict&, int&, int&, const Ice::Current&);
     virtual void start_async(const AMD_Server_startPtr&, const ::Ice::Current&);
     virtual void stop(const ::Ice::Current& = Ice::Current());
     virtual void patch(bool, const ::Ice::Current&);
@@ -70,6 +71,7 @@ public:
     bool startUpdating(bool);
     void finishUpdating();
     const std::string& getId() const;
+
 private:
     
     void checkActivation();
@@ -77,8 +79,8 @@ private:
     void setState(InternalServerState);
     void setStateNoSync(InternalServerState);
     
-    void updateImpl(const ServerDescriptorPtr&, bool, StringAdapterPrxDict&, int&, int&, const Ice::Current&);
-    AdapterPrx addAdapter(const AdapterDescriptor&, const Ice::Current&);
+    void updateImpl(const ServerDescriptorPtr&, bool, AdapterPrxDict&, int&, int&, const Ice::Current&);
+    void addAdapter(AdapterPrxDict&, const AdapterDescriptor&, const CommunicatorDescriptorPtr&, const Ice::Current&);
     void updateConfigFile(const std::string&, const CommunicatorDescriptorPtr&, bool);
     void updateDbEnv(const std::string&, const DbEnvDescriptor&);
     PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());

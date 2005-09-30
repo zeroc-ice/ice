@@ -40,7 +40,7 @@ public:
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
-	    _cb->ice_exception(Ice::AdapterNotFoundException()); // Expected if the adapter was destroyed.
+	    _cb->ice_exception(Ice::AdapterNotFoundException());// Expected if the adapter was destroyed.
 	    return;
 	}
 	catch(const Ice::LocalException&)
@@ -103,8 +103,8 @@ LocatorRegistryI::LocatorRegistryI(const DatabasePtr& database, bool dynamicRegi
 
 void 
 LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr& cb,
-					      const string& serverId,
 					      const string& adapterId, 
+					      const string& replicaId,
 					      const Ice::ObjectPrx& proxy,
 					      const Ice::Current&)
 {
@@ -116,18 +116,14 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	    // Get the adapter from the registry and set its direct proxy.
 	    //
 	    AMI_Adapter_setDirectProxyPtr amiCB = new AMI_Adapter_setDirectProxyI(cb);
-	    _database->getAdapter(adapterId, serverId)->setDirectProxy_async(amiCB, proxy);
+	    _database->getAdapter(adapterId, replicaId)->setDirectProxy_async(amiCB, proxy);
 	    return;
 	}
-	catch(const ServerNotExistException&)
-	{
-	    throw Ice::ServerNotFoundException();
-	}
-	catch(const AdapterNotExistException&)
+	catch(const AdapterNotExistException& ex)
 	{
 	    if(!_dynamicRegistration)
 	    {
-		throw Ice::AdapterNotFoundException();
+		throw Ice::AdapterNotFoundException(!ex.replicaId.empty());
 	    }
 	}
 	catch(const NodeUnreachableException&)
@@ -142,7 +138,7 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	}
 	
 	assert(_dynamicRegistration);
-	if(_database->setAdapterDirectProxy(serverId, adapterId, proxy))
+	if(_database->setAdapterDirectProxy(adapterId, replicaId, proxy))
 	{
 	    cb->ice_response();
 	    return;

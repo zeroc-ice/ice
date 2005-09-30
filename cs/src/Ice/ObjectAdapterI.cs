@@ -38,6 +38,7 @@ namespace Ice
 	    Ice.LocatorRegistryPrx locatorRegistry = null;
 	    bool registerProcess = false;
 	    string serverId = "";
+	    string replicaId = "";
 	    Communicator communicator = null;
 	    bool printAdapterReady = false;
 
@@ -54,6 +55,7 @@ namespace Ice
 
 		    registerProcess = instance_.properties().getPropertyAsInt(_name + ".RegisterProcess") > 0;
 		    serverId = instance_.properties().getProperty("Ice.ServerId");
+		    replicaId = instance_.properties().getPropertyWithDefault(_name + ".ReplicaId", serverId);
 		    printAdapterReady = instance_.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 
 		    if(registerProcess && locatorRegistry == null)
@@ -96,24 +98,17 @@ namespace Ice
 		     Identity ident = new Identity();
 		     ident.category = "";
 		     ident.name = "dummy";
-		     locatorRegistry.setAdapterDirectProxy(serverId, _id, createDirectProxy(ident));
+		     locatorRegistry.setAdapterDirectProxy(_id, replicaId, createDirectProxy(ident));
 		}
 		catch(Ice.ObjectAdapterDeactivatedException)
                 {
 		    // IGNORE: The object adapter is already inactive.
 		}
-		catch(Ice.ServerNotFoundException)
+		catch(Ice.AdapterNotFoundException ex)
 		{
 		    NotRegisteredException ex1 = new NotRegisteredException();
-		    ex1.id = serverId;
-		    ex1.kindOfObject = "server";
-		    throw ex1;
-		}
-		catch(Ice.AdapterNotFoundException)
-		{
-		    NotRegisteredException ex1 = new NotRegisteredException();
-		    ex1.id = _id;
 		    ex1.kindOfObject = "object adapter";
+		    ex1.id = ex.replica ? _id + " (replica = " + replicaId + ")" : _id;
 		    throw ex1;
 		}
 		catch(Ice.AdapterAlreadyActiveException)

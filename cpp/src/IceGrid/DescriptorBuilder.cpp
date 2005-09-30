@@ -28,17 +28,17 @@ XmlAttributesHelper::XmlAttributesHelper(const IceXML::Attributes& attrs,
 
 XmlAttributesHelper::~XmlAttributesHelper()
 {
-    if(_used.size() < _attributes.size())
+    vector<string> notUsed;
+    for(map<string, string>::const_iterator p = _attributes.begin(); p != _attributes.end(); ++p)
     {
-	vector<string> notUsed;
-	for(map<string, string>::const_iterator p = _attributes.begin(); p != _attributes.end(); ++p)
+	if(_used.find(p->first) == _used.end())
 	{
-	    if(_used.find(p->first) == _used.end())
-	    {
-		notUsed.push_back(p->first);
-	    }
+	    notUsed.push_back(p->first);
 	}
+    }
 
+    if(!notUsed.empty())
+    {
 	Ice::Warning warn(_logger);
 	warn << "unknown attributes in <" << _filename << "> descriptor, line " << _line << ":\n" << toString(notUsed);
     }
@@ -151,7 +151,7 @@ ApplicationDescriptorBuilder::setLoadBalancing(const XmlAttributesHelper& attrs)
     {
 	throw "invalid load balancing policy `" + type + "'";
     }
-    policy->nReplicas = attrs("nreplicas", "0");
+    policy->nReplicas = attrs("n-replicas", "0");
     _descriptor.replicatedAdapters.back().loadBalancing = policy;
 }
 
@@ -400,6 +400,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
 	}
 	desc.id = fqn + "." + desc.name;
     }
+    desc.replicaId = attrs("replica-id", "");
     desc.registerProcess = attrs("register", "false") == "true";
     if(desc.id == "" && attrs.contains("wait-for-activation"))
     {

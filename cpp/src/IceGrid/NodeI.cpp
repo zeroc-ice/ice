@@ -219,7 +219,7 @@ NodeI::~NodeI()
 
 ServerPrx
 NodeI::loadServer(const ServerDescriptorPtr& desc, 
-		  StringAdapterPrxDict& adapters, 
+		  AdapterPrxDict& adapters, 
 		  int& activationTimeout, 
 		  int& deactivationTimeout, 
 		  const Ice::Current& current)

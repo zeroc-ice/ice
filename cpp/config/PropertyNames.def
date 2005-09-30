@@ -166,6 +166,7 @@ IceBox:
     PrintServicesReady
     Service.<any>
     ServiceManager.AdapterId
+    ServiceManager.ReplicaId
     ServiceManager.Endpoints
     ServiceManager.Identity
     ServiceManager.PublishedEndpoints
@@ -178,6 +179,7 @@ IceBox:
 
 IcePack:
     Node.AdapterId
+    Node.ReplicaId
     Node.CollocateRegistry
     Node.Data
     Node.Endpoints
@@ -197,6 +199,7 @@ IcePack:
     Node.WaitTime
     Node.BackgroundRegistration
     Registry.Admin.AdapterId
+    Registry.Admin.ReplicaId
     Registry.Admin.Endpoints
     Registry.Admin.PublishedEndpoints
     Registry.Admin.ThreadPool.Size
@@ -205,6 +208,7 @@ IcePack:
     Registry.Admin.ThreadPool.StackSize
     Registry.AdminIdentity
     Registry.Client.AdapterId
+    Registry.Client.ReplicaId
     Registry.Client.Endpoints
     Registry.Client.PublishedEndpoints
     Registry.Client.ThreadPool.Size
@@ -214,6 +218,7 @@ IcePack:
     Registry.Data
     Registry.DynamicRegistration
     Registry.Internal.AdapterId
+    Registry.Internal.ReplicaId
     Registry.Internal.Endpoints
     Registry.Internal.PublishedEndpoints
     Registry.Internal.ThreadPool.Size
@@ -223,6 +228,7 @@ IcePack:
     Registry.LocatorIdentity
     Registry.QueryIdentity
     Registry.Server.AdapterId
+    Registry.Server.ReplicaId
     Registry.Server.Endpoints
     Registry.Server.PublishedEndpoints
     Registry.Server.ThreadPool.Size
@@ -236,10 +242,12 @@ IcePack:
 
 IceGrid:
     Node.AdapterId
+    Node.ReplicaId
     Node.RegisterProcess
     Node.CollocateRegistry
     Node.Data
     Node.Endpoints
+    Node.KeepAliveTimeout
     Node.Name
     Node.Output
     Node.PrintServersReady
@@ -255,8 +263,8 @@ IceGrid:
     Node.Trace.Server
     Node.Trace.Patch
     Node.WaitTime
-    Node.BackgroundRegistration
     Registry.Admin.AdapterId
+    Registry.Admin.ReplicaId
     Registry.Admin.Endpoints
     Registry.Admin.PublishedEndpoints
     Registry.Admin.ThreadPool.Size
@@ -265,6 +273,7 @@ IceGrid:
     Registry.Admin.ThreadPool.StackSize
     Registry.AdminIdentity
     Registry.Client.AdapterId
+    Registry.Client.ReplicaId
     Registry.Client.Endpoints
     Registry.Client.PublishedEndpoints
     Registry.Client.ThreadPool.Size
@@ -274,6 +283,7 @@ IceGrid:
     Registry.Data
     Registry.DynamicRegistration
     Registry.Internal.AdapterId
+    Registry.Internal.ReplicaId
     Registry.Internal.Endpoints
     Registry.Internal.PublishedEndpoints
     Registry.Internal.ThreadPool.Size
@@ -281,8 +291,10 @@ IceGrid:
     Registry.Internal.ThreadPool.SizeWarn
     Registry.Internal.ThreadPool.StackSize
     Registry.LocatorIdentity
+    Registry.NodeSessionTimeout
     Registry.QueryIdentity
     Registry.Server.AdapterId
+    Registry.Server.ReplicaId
     Registry.Server.Endpoints
     Registry.Server.PublishedEndpoints
     Registry.Server.ThreadPool.Size
@@ -308,7 +320,9 @@ IcePatch:
 
 IcePatch2:
     AdapterId
+    ReplicaId
     Admin.AdapterId
+    Admin.ReplicaId
     Admin.Endpoints
     Admin.PublishedEndpoints
     Admin.ThreadPool.Size
@@ -363,6 +377,7 @@ IceSSL:
 IceStorm:
     Flush.Timeout
     Publish.AdapterId
+    Publish.ReplicaId
     Publish.Endpoints
     Publish.PublishedEndpoints
     Publish.RegisterProcess
@@ -370,7 +385,7 @@ IceStorm:
     Publish.ThreadPool.SizeMax
     Publish.ThreadPool.SizeWarn
     Publish.ThreadPool.StackSize
-    TopicManager.AdapterId
+    TopicManager.ReplicaId
     TopicManager.Endpoints
     TopicManager.Proxy
     TopicManager.PublishedEndpoints
@@ -387,8 +402,10 @@ IceStorm:
 Glacier:
     Router.AcceptCert
     Router.AdapterId
+    Router.ReplicaId
     Router.AllowCategories
     Router.Client.AdapterId
+    Router.Client.ReplicaId
     Router.Client.Endpoints
     Router.Client.ForwardContext
     Router.Client.PublishedEndpoints
@@ -403,6 +420,7 @@ Glacier:
     Router.PrintProxyOnFd
     Router.PublishedEndpoints
     Router.Server.AdapterId
+    Router.Server.ReplicaId
     Router.Server.Endpoints
     Router.Server.ForwardContext
     Router.Server.PublishedEndpoints
@@ -423,6 +441,7 @@ Glacier:
     Router.Trace.Throttle
     Router.UserId
     Starter.AdapterId
+    Starter.ReplicaId
     Starter.AddUserToAllowCategories
     Starter.Certificate.BitStrength
     Starter.Certificate.CommonName

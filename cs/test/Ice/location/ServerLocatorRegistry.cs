@@ -17,8 +17,8 @@ public class ServerLocatorRegistry : Ice.LocatorRegistryDisp_
         _objects = new Hashtable();
     }
 
-    public override void setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb, string serverId, string adapter, 
-						     Ice.ObjectPrx obj, Ice.Current current)
+    public override void setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb, string adapter,
+						     string replica, Ice.ObjectPrx obj, Ice.Current current)
     {
         _adapters[adapter] = obj;
 	cb.ice_response();

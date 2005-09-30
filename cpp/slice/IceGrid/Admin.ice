@@ -539,17 +539,14 @@ interface Admin
 
     /**
      *
-     * Remove the adapter with the given adapter id and server id.
+     * Remove the adapter with the given adapter id and replica id.
      *
      * @throws AdapterNotExistException Raised if the adapter doesn't
      * exist.
      *
-     * @throws ServerNotExistException Raised if the server doesn't
-     * exist.
-     *
      **/
-    idempotent void removeAdapterWithServerId(string adapterId, string serverId)
-	throws AdapterNotExistException, ServerNotExistException, DeploymentException;
+    idempotent void removeAdapterWithReplicaId(string adapterId, string replicaId)
+	throws AdapterNotExistException, DeploymentException;
 
     /**
      *

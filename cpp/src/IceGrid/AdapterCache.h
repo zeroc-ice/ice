@@ -47,8 +47,8 @@ public:
     void enableReplication(const LoadBalancingPolicyPtr&);
     void disableReplication();
 
-    void addServer(const ServerEntryPtr&);
-    void removeServer(const ServerEntryPtr&);
+    void addReplica(const std::string&, const ServerEntryPtr&);
+    void removeReplica(const std::string&);
 
     bool canRemove();
     
@@ -60,8 +60,9 @@ private:
     LoadBalancingPolicyPtr _loadBalancing;
     int _loadBalancingNReplicas;
     LoadSample _loadSample;
-    ServerEntrySeq _servers;
-    int _lastServer;
+    typedef std::vector<std::pair<std::string, ServerEntryPtr> > ReplicaSeq;
+    ReplicaSeq _replicas;
+    int _lastReplica;
 };
 typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
 

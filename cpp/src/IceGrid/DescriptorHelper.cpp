@@ -548,6 +548,7 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	adapter.id = resolve(p->id, "object adapter id");
 	adapter.registerProcess = p->registerProcess;
 	adapter.waitForActivation = p->waitForActivation;
+	adapter.replicaId = resolve(p->replicaId, "object adapter replica id");
 	for(ObjectDescriptorSeq::const_iterator q = p->objects.begin(); q != p->objects.end(); ++q)
 	{
 	    ObjectDescriptor obj;
@@ -641,6 +642,7 @@ CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& ada
     out << nl << "adapter '" << adapter.name << "'";
     out << sb;
     out << nl << "id = '" << adapter.id << "'";
+    out << nl << "replica id = '" << adapter.replicaId << "'";
     out << nl << "endpoints = '" << getProperty(adapter.name + ".Endpoints") << "'";
     out << nl << "register process = '" << (adapter.registerProcess ? "true" : "false") << "'";
     out << nl << "wait for activation = '" << (adapter.waitForActivation ? "true" : "false") << "'";

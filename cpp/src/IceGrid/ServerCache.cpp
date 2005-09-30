@@ -147,7 +147,7 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const Server
     {
 	if(!q->id.empty())
 	{
-	    _adapterCache.get(q->id, true)->addServer(entry);
+	    _adapterCache.get(q->id, true)->addReplica(getReplicaId(*q, comm, entry->getId()), entry);
 	}
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
 	{
@@ -164,7 +164,7 @@ ServerCache::removeCommunicator(const CommunicatorDescriptorPtr& comm, const Ser
     {
 	if(!q->id.empty())
 	{
-	    _adapterCache.get(q->id)->removeServer(entry);
+	    _adapterCache.get(q->id)->removeReplica(getReplicaId(*q, comm, entry->getId()));
 	}
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
 	{
@@ -183,7 +183,7 @@ ServerEntry::ServerEntry(Cache<string, ServerEntry>& cache, const string& id) :
 void
 ServerEntry::sync()
 {
-    map<string, AdapterPrx> adapters;
+    AdapterPrxDict adapters;
     int at, dt;
     string node;
     try
@@ -287,7 +287,7 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 	}
     }
 
-    StringAdapterPrxDict adapters;
+    AdapterPrxDict adapters;
     proxy = syncImpl(adapters, activationTimeout, deactivationTimeout, node);
     if(!proxy)
     {
@@ -297,14 +297,19 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 }
 
 AdapterPrx
-ServerEntry::getAdapter(const string& id)
+ServerEntry::getAdapter(const string& id, const string& replicaId)
 {
     AdapterPrx proxy;
+
+    ReplicatedAdapterIdentity adptId;
+    adptId.id = id;
+    adptId.replicaId = replicaId;
+    
     {
 	Lock sync(*this);
 	if(_proxy) // Synced
 	{
-	    proxy = _adapters[id];
+	    proxy = _adapters[adptId];
 	}
     }
 
@@ -320,11 +325,11 @@ ServerEntry::getAdapter(const string& id)
 	}
     }
 
-    StringAdapterPrxDict adapters;
+    AdapterPrxDict adapters;
     int activationTimeout, deactivationTimeout;
     string node;
     syncImpl(adapters, activationTimeout, deactivationTimeout, node);
-    AdapterPrx adapter = adapters[id];
+    AdapterPrx adapter = adapters[adptId];
     if(!adapter)
     {
 	throw AdapterNotExistException();
@@ -381,7 +386,7 @@ ServerEntry::getLoad(LoadSample sample) const
 }
 
 ServerPrx
-ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, int& deactivationTimeout, string& node)
+ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deactivationTimeout, string& node)
 {
     ServerDescriptorPtr load;
     string loadNode;
@@ -553,7 +558,7 @@ ServerEntry::syncImpl(map<string, AdapterPrx>& adpts, int& activationTimeout, in
 	    assert(_loaded.get());
 	    _proxy = ServerPrx::uncheckedCast(proxy->ice_timeout(timeout));
 	    _adapters.clear();
-	    for(StringAdapterPrxDict::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
+	    for(AdapterPrxDict::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
 	    {
 		AdapterPrx adapter = AdapterPrx::uncheckedCast(p->second->ice_timeout(timeout));
 		_adapters.insert(make_pair(p->first, adapter));

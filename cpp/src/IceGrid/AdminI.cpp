@@ -333,9 +333,9 @@ AdminI::getAdapterEndpoints(const string& adapterId, const Current&) const
 }
 
 void
-AdminI::removeAdapterWithServerId(const string& adapterId, const string& serverId, const Ice::Current&)
+AdminI::removeAdapterWithReplicaId(const string& adapterId, const string& replicaId, const Ice::Current&)
 {
-    _database->setAdapterDirectProxy(serverId, adapterId, 0);
+    _database->setAdapterDirectProxy(adapterId, replicaId, 0);
 }
 
 void

@@ -1,0 +1,48 @@
+<icegrid>
+
+  <application name="test">
+
+    <replicated-adapter id="ReplicatedAdapter">
+      <load-balancing type="round-robin" n-replicas="1"/>
+      <object identity="test" type="::Test::TestIntf"/>
+    </replicated-adapter>
+
+    <server-template id="Server">
+      <parameter name="id"/>
+      <parameter name="replicaId"/>
+      <server id="${id}" exe="${test.dir}/server" activation="on-demand" pwd=".">
+        <adapter name="ReplicatedAdapter" endpoints="default" id="ReplicatedAdapter" replica-id="${replicaId}"/>
+      </server>
+    </server-template>
+
+    <service-template id="Service">
+      <parameter name="name"/>
+      <parameter name="replicaId"/>
+      <service name="${name}" entry="TestService:create">
+        <adapter name="${service}" endpoints="default" id="ReplicatedAdapter" replica-id="${replicaId}"/>
+      </service>
+    </service-template>
+
+    <server-template id="IceBox1">
+      <parameter name="id"/>
+      <parameter name="replicaId"/>
+      <icebox id="${id}" endpoints="default" exe="${ice.dir}/bin/icebox" activation="on-demand" pwd=".">  
+        <service-instance template="Service" name="Service1" replicaId="${replicaId}"/>
+      </icebox>
+    </server-template>
+
+    <server-template id="IceBox3">
+      <parameter name="id"/>
+      <parameter name="replicaId1"/>
+      <parameter name="replicaId2"/>
+      <parameter name="replicaId3"/>
+      <icebox id="${id}" endpoints="default" exe="${ice.dir}/bin/icebox" activation="on-demand" pwd=".">  
+        <service-instance template="Service" name="Service1" replicaId="${replicaId1}"/>
+        <service-instance template="Service" name="Service2" replicaId="${replicaId2}"/>
+        <service-instance template="Service" name="Service3" replicaId="${replicaId3}"/>
+      </icebox>
+    </server-template>
+
+  </application>
+
+</icegrid>

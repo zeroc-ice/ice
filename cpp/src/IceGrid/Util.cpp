@@ -35,7 +35,7 @@ IceGrid::toString(const vector<string>& v, const string& sep)
 }
 
 string
-IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name)
+IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name, const string& def)
 {
     for(PropertyDescriptorSeq::const_iterator p = properties.begin(); p != properties.end(); ++p)
     {
@@ -44,5 +44,23 @@ IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name
 	    return p->value;
 	}
     }
-    return "";
+    return def;
+}
+
+string
+IceGrid::getReplicaId(const AdapterDescriptor& adapter, const CommunicatorDescriptorPtr& comm, const string& serverId)
+{
+    if(!adapter.replicaId.empty())
+    {
+	return adapter.replicaId;
+    }
+
+    //
+    // Compute the default replica id of an object adapter: if the
+    // adapter belongs to a service the replica id will be "<server
+    // id>.<service name>", if the adapter belongs to a server its
+    // replica id will be "<server id>".
+    //
+    ServiceDescriptorPtr service = ServiceDescriptorPtr::dynamicCast(comm);
+    return service ? serverId + "." + service->name : serverId;
 }

@@ -41,7 +41,7 @@ public:
     std::string getId() const;
 
     ServerPrx getProxy(int&, int&, std::string&);
-    AdapterPrx getAdapter(const std::string&);
+    AdapterPrx getAdapter(const std::string&, const std::string&);
     NodeEntryPtr getNode() const;
     std::string getApplication() const;
     float getLoad(LoadSample) const;
@@ -51,7 +51,7 @@ public:
     
 private:
     
-    ServerPrx syncImpl(StringAdapterPrxDict&, int&, int&, std::string&);
+    ServerPrx syncImpl(AdapterPrxDict&, int&, int&, std::string&);
 
     ServerCache& _cache;
     const std::string _id;
@@ -60,7 +60,7 @@ private:
     std::auto_ptr<ServerInfo> _destroy;
 
     ServerPrx _proxy;
-    std::map<std::string, AdapterPrx> _adapters;
+    AdapterPrxDict _adapters;
     int _activationTimeout;
     int _deactivationTimeout;
 

@@ -64,6 +64,7 @@ Ice::ObjectAdapterI::activate()
     LocatorRegistryPrx locatorRegistry;
     bool registerProcess = false;
     string serverId;
+    string replicaId;
     CommunicatorPtr communicator;
     bool printAdapterReady = false;
 
@@ -81,6 +82,7 @@ Ice::ObjectAdapterI::activate()
 
             registerProcess = _instance->properties()->getPropertyAsInt(_name + ".RegisterProcess") > 0;
             serverId = _instance->properties()->getProperty("Ice.ServerId");
+            replicaId = _instance->properties()->getPropertyWithDefault(_name + ".ReplicaId", serverId);
 	    printAdapterReady = _instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 
             if(registerProcess && !locatorRegistry)
@@ -120,24 +122,17 @@ Ice::ObjectAdapterI::activate()
 	{
 	    Identity ident;
 	    ident.name = "dummy";
-	    locatorRegistry->setAdapterDirectProxy(serverId, _id, createDirectProxy(ident));
+	    locatorRegistry->setAdapterDirectProxy(_id, replicaId, createDirectProxy(ident));
 	}
 	catch(const ObjectAdapterDeactivatedException&)
 	{
 	    // IGNORE: The object adapter is already inactive.
 	}
-	catch(const ServerNotFoundException&)
-	{
-	    NotRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = "server";
-	    ex.id = serverId;
-	    throw ex;
-	}
-	catch(const AdapterNotFoundException&)
+	catch(const AdapterNotFoundException& e)
 	{
 	    NotRegisteredException ex(__FILE__, __LINE__);
 	    ex.kindOfObject = "object adapter";
-	    ex.id = _id;
+	    ex.id = e.replica ? _id + " (replica = " + replicaId + ")" : _id;
 	    throw ex;
 	}
 	catch(const AdapterAlreadyActiveException&)

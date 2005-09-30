@@ -82,6 +82,13 @@ struct AdapterDescriptor
 
     /**
      *
+     * The replica id of this adapter.
+     *
+     **/
+    string replicaId;
+
+    /**
+     *
      * Flag to specify if the object adapter will register a process object.
      *
      **/

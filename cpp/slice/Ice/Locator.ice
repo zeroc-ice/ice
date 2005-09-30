@@ -23,6 +23,8 @@ module Ice
  **/
 exception AdapterNotFoundException
 {
+    /** Indicates if the object adapter is a replica. */
+    bool replica;
 };
 
 /**
@@ -127,9 +129,9 @@ interface LocatorRegistry
      *
      * Set the adapter endpoints with the locator registry.
      *
-     * @param serverId The server id.
-     *
      * @param adapterId The adapter id.
+     *
+     * @param replicaId The replica id.
      *
      * @param proxy The adapter proxy (a dummy direct proxy created
      * by the adapter). The direct proxy contains the adapter
@@ -140,15 +142,12 @@ interface LocatorRegistry
      * set their active proxy and the adapter is not registered with
      * the locator.
      *
-     * @throws ServerNotFoundException Raised if the server cannot be
-     * found and is required.
-     *
      * @throws AdapterAlreadyActive Raised if an adapter with the same
      * id is already active.
      *
      **/
-    ["amd"] idempotent void setAdapterDirectProxy(string serverId, string adapterId, Object* proxy)
-	throws ServerNotFoundException, AdapterNotFoundException, AdapterAlreadyActiveException;
+    ["amd"] idempotent void setAdapterDirectProxy(string adapterId, string replicaId, Object* proxy)
+	throws AdapterNotFoundException, AdapterAlreadyActiveException;
 
     /**
      *

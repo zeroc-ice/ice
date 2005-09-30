@@ -87,7 +87,6 @@ interface Adapter
      **/
     void destroy();
 };
-dictionary<string, Adapter*> StringAdapterPrxDict;
 
 /**
  *
@@ -100,6 +99,13 @@ exception AdapterExistsException
     string id;
 };
 
+struct ReplicatedAdapterIdentity
+{
+    string replicaId;
+    string id;
+};
+dictionary<ReplicatedAdapterIdentity, Adapter*> AdapterPrxDict;
+
 interface Server
 {
     /**
@@ -107,7 +113,7 @@ interface Server
      * Load the server.
      *
      **/
-    void update(ServerDescriptor desc, bool load, out StringAdapterPrxDict adpts, out int actT, out int deactT)
+    void update(ServerDescriptor desc, bool load, out AdapterPrxDict adpts, out int actT, out int deactT)
 	throws DeploymentException;
 
     /**
@@ -228,7 +234,7 @@ interface Node
      * they will be created.
      *
      **/
-    idempotent Server* loadServer(ServerDescriptor desc, out StringAdapterPrxDict adapters, out int activationTimeout,
+    idempotent Server* loadServer(ServerDescriptor desc, out AdapterPrxDict adapters, out int activationTimeout,
 				  out int deactivationTimeout)
 	throws DeploymentException;
 

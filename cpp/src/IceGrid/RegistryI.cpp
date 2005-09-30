@@ -298,7 +298,7 @@ RegistryI::start(bool nowarn)
     registryAdapter->add(this, stringToIdentity("IceGrid/Registry"));
     registryAdapter->activate();
     Ice::Identity dummy = Ice::stringToIdentity("dummy");
-    _database->setAdapterDirectProxy("", "IceGrid.Registry.Internal", registryAdapter->createDirectProxy(dummy));
+    _database->setAdapterDirectProxy("IceGrid.Registry.Internal", "", registryAdapter->createDirectProxy(dummy));
     
     //
     // Setup a internal locator to be used by the IceGrid registry itself. This locator is 

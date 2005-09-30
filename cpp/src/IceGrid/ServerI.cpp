@@ -147,7 +147,7 @@ ServerI::~ServerI()
 }
 
 void
-ServerI::update(const ServerDescriptorPtr& descriptor, bool load, StringAdapterPrxDict& adapters,
+ServerI::update(const ServerDescriptorPtr& descriptor, bool load, AdapterPrxDict& adapters,
 		int& activationTimeout, int& deactivationTimeout, const Ice::Current& current)
 {
     startUpdating(true);
@@ -201,7 +201,8 @@ ServerI::stop(const Ice::Current&)
 	    continue;
 	}
 	case ServerI::WaitForActivation:
- 	case ServerI::Active:
+	case ServerI::WaitForActivationTimeout: 
+	case ServerI::Active:
 	{	    
 	    setStateNoSync(ServerI::Deactivating);
 	    break;
@@ -283,6 +284,7 @@ ServerI::destroy(const Ice::Current& current)
 	    break;
 	}
 	case ServerI::WaitForActivation:
+	case ServerI::WaitForActivationTimeout: 
  	case ServerI::Active:
 	{
 	    stop = true;
@@ -368,6 +370,7 @@ ServerI::terminated(const Ice::Current& current)
 	    continue;
 	}
 	case ServerI::WaitForActivation:
+	case ServerI::WaitForActivationTimeout: 
 	case ServerI::Active:
 	{
 	    setStateNoSync(ServerI::Deactivating);
@@ -509,6 +512,14 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
 	    }
 	    return true;
 	}
+	case ServerI::WaitForActivationTimeout:
+	{
+	    if(amdCB)
+	    {
+		amdCB->ice_response(false);
+	    }
+	    return false;
+	}
  	case ServerI::Active:
 	{
 	    if(amdCB)
@@ -623,12 +634,8 @@ ServerI::activationFailed(bool timeout)
 	    return;
 	}
 
-	for(vector<AMD_Server_startPtr>::const_iterator p = _startCB.begin(); p != _startCB.end(); ++p)
-	{
-	    (*p)->ice_response(false);
-	}
-	_startCB.clear();
-	
+	setStateNoSync(ServerI::WaitForActivationTimeout);
+
 	if(_node->getTraceLevels()->server > 1)
 	{
 	    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
@@ -758,7 +765,7 @@ void
 ServerI::checkActivation()
 {
     //assert(locked());
-    if(_state == ServerI::WaitForActivation)
+    if(_state == ServerI::WaitForActivation || _state == ServerI::WaitForActivationTimeout)
     {
 	for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
 	{
@@ -954,6 +961,11 @@ ServerI::setStateNoSync(InternalServerState st)
 		Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
 		out << "changed server `" << _id << "' state to `WaitForActivation'";
 	    }
+	    else if(_state == ServerI::WaitForActivationTimeout)
+	    {
+		Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+		out << "changed server `" << _id << "' state to `WaitForActivationTimeout'";
+	    }
 	    else if(_state == ServerI::Activating)
 	    {
 		Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
@@ -974,7 +986,7 @@ ServerI::setStateNoSync(InternalServerState st)
 }
 
 void
-ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, StringAdapterPrxDict& adapters,
+ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, AdapterPrxDict& adapters,
 		    int& activationTimeout, int& deactivationTimeout, const Ice::Current& current)
 {
     Lock sync(*this);
@@ -1105,7 +1117,7 @@ ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, StringAdap
     {
 	if(!r->id.empty())
 	{
-	    adapters.insert(make_pair(r->id, addAdapter(*r, current)));
+	    addAdapter(adapters, *r, descriptor, current);
 	    oldAdapters.erase(r->id);
 	}
 	_processRegistered |= r->registerProcess;
@@ -1120,7 +1132,7 @@ ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, StringAdap
 	    {
 		if(!t->id.empty())
 		{
-		    adapters.insert(make_pair(t->id, addAdapter(*t, current)));
+		    addAdapter(adapters, *t, svc, current);
 		    oldAdapters.erase(t->id);
 		}
 		_processRegistered |= t->registerProcess;
@@ -1139,23 +1151,28 @@ ServerI::updateImpl(const ServerDescriptorPtr& descriptor, bool load, StringAdap
     }
 }
 
-AdapterPrx
-ServerI::addAdapter(const AdapterDescriptor& descriptor, const Ice::Current& current)
+void
+ServerI::addAdapter(AdapterPrxDict& adapters, const AdapterDescriptor& descriptor, 
+		    const CommunicatorDescriptorPtr& comm, const Ice::Current& current)
 {
     assert(!descriptor.id.empty());
 
+    ReplicatedAdapterIdentity adptId;
+    adptId.id = descriptor.id;
+    adptId.replicaId = getReplicaId(descriptor, comm, _id);
+
     Ice::Identity id;
     id.category = "IceGridServerAdapter";
-    id.name = _desc->id + "-" + descriptor.id + "-" + descriptor.name;
+    id.name = _desc->id + "-" + adptId.id + "-" + adptId.replicaId + "-" + descriptor.name; // Use UUID instead?
     AdapterPrx proxy = AdapterPrx::uncheckedCast(current.adapter->createProxy(id));
     ServerAdapterIPtr servant = ServerAdapterIPtr::dynamicCast(current.adapter->find(id));
     if(!servant)
     {
-	servant = new ServerAdapterI(_node, this, _desc->id, proxy, descriptor.id, _waitTime);
+	servant = new ServerAdapterI(_node, this, _desc->id, proxy, descriptor.id, adptId.replicaId, _waitTime);
 	current.adapter->add(servant, id);
     }
     _adapters.insert(make_pair(descriptor.id, servant));
-    return proxy;
+    adapters.insert(make_pair(adptId, proxy));
 }
 
 void
@@ -1225,6 +1242,7 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	{
 	    props.push_back(createProperty(q->name + ".RegisterProcess", "1"));
 	}
+	props.push_back(createProperty(q->name + ".ReplicaId", getReplicaId(*q, descriptor, _id)));
     }
 
     //
@@ -1342,6 +1360,8 @@ ServerI::toServerState(InternalServerState st) const
     case ServerI::Activating:
 	return IceGrid::Activating;
     case ServerI::WaitForActivation:
+	return IceGrid::Activating;
+    case ServerI::WaitForActivationTimeout:
 	return IceGrid::Activating;
     case ServerI::Active:
 	return IceGrid::Active;

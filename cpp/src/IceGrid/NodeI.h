@@ -34,7 +34,7 @@ public:
 	  const NodePrx&, const std::string&);
     virtual ~NodeI();
 
-    virtual ServerPrx loadServer(const ServerDescriptorPtr&, StringAdapterPrxDict&, int&, int&, const Ice::Current&);
+    virtual ServerPrx loadServer(const ServerDescriptorPtr&, AdapterPrxDict&, int&, int&, const Ice::Current&);
     virtual void destroyServer(const std::string&, const Ice::Current&);
     virtual void patch(const Ice::StringSeq&, const Ice::StringSeq&, bool, const Ice::Current&);
     virtual std::string getName(const Ice::Current& = Ice::Current()) const;

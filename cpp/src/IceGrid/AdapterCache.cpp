@@ -24,12 +24,12 @@ struct ServerLoadCI : binary_function<ServerEntryPtr&, ServerEntryPtr&, bool>
 {
     ServerLoadCI(LoadSample loadSample) : _loadSample(loadSample) { }
 
-    bool operator()(const ServerEntryPtr& lhs, const ServerEntryPtr& rhs)
+    bool operator()(const pair<string, ServerEntryPtr>& lhs, const pair<string, ServerEntryPtr>& rhs)
     {
 	float lhsl = 1.0f;
 	try
 	{
-	    lhsl = lhs->getLoad(_loadSample);
+	    lhsl = lhs.second->getLoad(_loadSample);
 	}
 	catch(const ServerNotExistException&)
 	{
@@ -41,7 +41,7 @@ struct ServerLoadCI : binary_function<ServerEntryPtr&, ServerEntryPtr&, bool>
 	float rhsl = 1.0f;
 	try
 	{
-	    rhsl = rhs->getLoad(_loadSample);
+	    rhsl = rhs.second->getLoad(_loadSample);
 	}
 	catch(const ServerNotExistException&)
 	{
@@ -65,9 +65,7 @@ AdapterCache::get(const string& id, bool create) const
     AdapterEntryPtr entry = self.getImpl(id, create);
     if(!entry)
     {
-	AdapterNotExistException ex;
-	ex.id = id;
-	throw ex;
+	throw AdapterNotExistException(id, "");
     }
     return entry;
 }
@@ -98,7 +96,7 @@ AdapterEntry::AdapterEntry(Cache<string, AdapterEntry>& cache, const std::string
     _cache(cache),
     _id(id),
     _replicated(false),
-    _lastServer(0)
+    _lastReplica(0)
 {
 }
 
@@ -150,7 +148,7 @@ AdapterEntry::disableReplication()
     {
 	Lock sync(*this);
 	_replicated = false;
-	remove = _servers.empty();
+	remove = _replicas.empty();
     }
     if(_cache.getTraceLevels() && _cache.getTraceLevels()->adapter > 0)
     {
@@ -164,29 +162,30 @@ AdapterEntry::disableReplication()
 }
 
 void
-AdapterEntry::addServer(const ServerEntryPtr& entry)
+AdapterEntry::addReplica(const string& replicaId, const ServerEntryPtr& entry)
 {
     Lock sync(*this);
-    assert(_replicated || _servers.empty());
-    _servers.push_back(entry);
+    assert(_replicated || _replicas.empty());
+    _replicas.push_back(make_pair(replicaId, entry));
 }
 
 void
-AdapterEntry::removeServer(const ServerEntryPtr& entry)
+AdapterEntry::removeReplica(const string& replicaId)
 {
     bool remove = false;
     {
 	Lock sync(*this);
-	for(ServerEntrySeq::iterator p = _servers.begin(); p != _servers.end(); ++p)
+	for(ReplicaSeq::iterator p = _replicas.begin(); p != _replicas.end(); ++p)
 	{
-	    if(entry.get() == p->get())
+	    if(replicaId == p->first)
 	    {
-		_servers.erase(p);		
-		_lastServer = _lastServer % _servers.size(); // Make sure _lastServer is still within the bounds.
+		_replicas.erase(p);		
+		 // Make sure _lastReplica is still within the bounds.
+		_lastReplica = _replicas.empty() ? 0 : _lastReplica % _replicas.size();
 		break;
 	    }
 	}
-	remove = _servers.empty() && !_replicated;
+	remove = _replicas.empty() && !_replicated;
     }
     if(remove)
     {
@@ -197,43 +196,44 @@ AdapterEntry::removeServer(const ServerEntryPtr& entry)
 vector<pair<string, AdapterPrx> >
 AdapterEntry::getProxies(int& nReplicas)
 {
-    vector<ServerEntryPtr> servers;
+    ReplicaSeq replicas;
     bool adaptive = false;
     LoadSample loadSample;
     {
 	Lock sync(*this);	
-	if(_servers.empty())
+	if(_replicas.empty())
 	{
-	    AdapterNotExistException ex;
-	    ex.id = _id;
-	    throw ex;
+	    throw AdapterNotExistException(_id, "");
 	}
 
 	if(!_replicated)
 	{
-	    servers.push_back(_servers[0]);
+	    nReplicas = 1;
+	    replicas.push_back(_replicas[0]);
 	}
 	else
 	{
-	    servers.reserve(_servers.size());
+	    nReplicas = _loadBalancingNReplicas;
+
+	    replicas.reserve(_replicas.size());
 	    if(RoundRobinLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	    {
-		for(unsigned int i = 0; i < _servers.size(); ++i)
+		for(unsigned int i = 0; i < _replicas.size(); ++i)
 		{
-		    servers.push_back(_servers[(_lastServer + i) % _servers.size()]);
+		    replicas.push_back(_replicas[(_lastReplica + i) % _replicas.size()]);
 		}
-		_lastServer = (_lastServer + 1) % _servers.size();
+		_lastReplica = (_lastReplica + 1) % _replicas.size();
 	    }
 	    else if(AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	    {
-		servers = _servers;
+		replicas = _replicas;
 		adaptive = true;
 		loadSample = _loadSample;
 	    }
 	    else// if(RandomLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	    {
-		servers = _servers;
-		random_shuffle(servers.begin(), servers.end());
+		replicas = _replicas;
+		random_shuffle(replicas.begin(), replicas.end());
 	    }
 	}
     }
@@ -244,30 +244,44 @@ AdapterEntry::getProxies(int& nReplicas)
 	// This must be done outside the synchronization block since
 	// the sort() will call and lock each server entry.
 	//
-	random_shuffle(servers.begin(), servers.end());
-	sort(servers.begin(), servers.end(), ServerLoadCI(loadSample));
+	random_shuffle(replicas.begin(), replicas.end());
+	sort(replicas.begin(), replicas.end(), ServerLoadCI(loadSample));
     }
 
+    //
+    // Retrieve the proxy of each adapter from the server. The adapter
+    // might not exist anymore at this time or the node might not be
+    // reachable.
+    //
     vector<pair<string, AdapterPrx> > adapters;
-    auto_ptr<NodeUnreachableException> exception;
-    for(vector<ServerEntryPtr>::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    auto_ptr<Ice::UserException> exception;
+    for(ReplicaSeq::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
     {
 	try
 	{
-	    adapters.push_back(make_pair((*p)->getId(), (*p)->getAdapter(_id)));
+	    adapters.push_back(make_pair(p->second->getId(), p->second->getAdapter(_id, p->first)));
+	}
+	catch(AdapterNotExistException& ex)
+	{
 	}
 	catch(const NodeUnreachableException& ex)
 	{
 	    exception.reset(dynamic_cast<NodeUnreachableException*>(ex.ice_clone()));
 	}
     }
+
     if(adapters.empty())
     {
-	assert(exception.get());
-	throw *exception.get();
+	if(!exception.get())
+	{
+	    throw AdapterNotExistException(_id, "");
+	}
+	else
+	{
+	    exception->ice_throw();
+	}
     }
 
-    nReplicas = _replicated ? _loadBalancingNReplicas : 1;
     return adapters;
 }
 
@@ -275,58 +289,60 @@ string
 AdapterEntry::getApplication() const
 {
     Lock sync(*this);
-    if(_servers.empty())
+    if(_replicas.empty())
     {
-	AdapterNotExistException ex;
-	ex.id = _id;
-	throw ex;
+	throw AdapterNotExistException(_id, "");
     }
-    return _servers[0]->getApplication();
+    return _replicas[0].second->getApplication();
 }
 
 AdapterPrx
-AdapterEntry::getProxy(const string& serverId) const
+AdapterEntry::getProxy(const string& replicaId) const
 {
-    ServerEntryPtr server;
+    pair<string, ServerEntryPtr> replica;
+    bool replicated;
     {
 	Lock sync(*this);
-	if(_servers.empty())
+	if(_replicas.empty())
 	{
-	    AdapterNotExistException ex;
-	    ex.id = _id;
-	    throw ex;
+	    throw AdapterNotExistException(_id, (_replicated ? replicaId : ""));
 	}
 
+	replicated = _replicated;
 	if(!_replicated)
 	{
-	    server = _servers[0];
+	    replica = _replicas[0];
 	}
 	else
 	{
-	    for(ServerEntrySeq::const_iterator p = _servers.begin(); p != _servers.end(); ++p)
+	    for(ReplicaSeq::const_iterator p = _replicas.begin(); p != _replicas.end(); ++p)
 	    {
-		if((*p)->getId() == serverId) // getId() doesn't lock the server so it's safe.
+		if(p->first == replicaId)
 		{
-		    server = *p;
+		    replica = *p;
 		    break;
 		}
 	    }
 	}
     }
 
-    if(!server)
+    if(replica.second)
     {
-	ServerNotExistException ex;
-	ex.id = serverId;
-	throw ex;
+	try
+	{
+	    return replica.second->getAdapter(_id, replica.first);
+	}
+	catch(AdapterNotExistException& ex)
+	{
+	}
     }
 
-    return server->getAdapter(_id);
+    throw AdapterNotExistException(_id, (replicated ? replicaId : ""));
 }
 
 bool
 AdapterEntry::canRemove()
 {
     Lock sync(*this);
-    return _servers.empty() && !_replicated;
+    return _replicas.empty() && !_replicated;
 }

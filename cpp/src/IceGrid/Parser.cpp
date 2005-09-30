@@ -102,13 +102,13 @@ Parser::usage()
 	"                            manual."
 	"\n"
         "adapter list                List all registered adapters.\n"
-	"adapter endpoints ID [SERVERID]\n"
-        "                            Get endpoints of adapter ID from server SERVERID.\n"
-	"                            If SERVERID is not specified, get the endpoints of all\n"
+	"adapter endpoints ID [REPLICAID]\n"
+        "                            Show the endpoints of adapter ID from replica REPLICAID.\n"
+	"                            If REPLICAID is not specified, show the endpoints of all\n"
         "                            the registered replicas.\n"
-	"adapter remove ID [SERVERID]\n"
-        "                            Remove the endpoints of adapter ID from server SERVERID.\n"
-	"                            If SERVERID is not specified, remove the endpoints of all\n"
+	"adapter remove ID [REPLICAID]\n"
+        "                            Remove the endpoints of adapter ID from replica REPLICAID.\n"
+	"                            If REPLICAID is not specified, remove the endpoints of all\n"
         "                            the registered replicas.\n"
 	"\n"
 	"object add PROXY [TYPE]     Add an object to the object registry,\n"
@@ -952,8 +952,7 @@ Parser::removeAdapter(const list<string>& args)
 	StringObjectProxyDict proxies = _admin->getAdapterEndpoints(adapterId);
 	if(args.size() > 1)
 	{
-	    string serverId = *p++;
-	    _admin->removeAdapterWithServerId(adapterId, serverId);
+	    _admin->removeAdapterWithReplicaId(adapterId, *p++);
 	}
 	else
 	{

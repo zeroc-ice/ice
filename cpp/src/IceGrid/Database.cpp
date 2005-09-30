@@ -59,8 +59,8 @@ public:
 	string id;
 	is >> id;
 	string adapterId = id.substr(0, size);
-	string serverId = (id.size() > size) ? id.substr(size + 1) : string();
-	return _database->getAdapterDirectProxy(serverId, adapterId);
+	string replicaId = (id.size() > size) ? id.substr(size + 1) : string();
+	return _database->getAdapterDirectProxy(adapterId, replicaId);
     }
 
     virtual void 
@@ -490,7 +490,7 @@ Database::getAllNodeServers(const string& node)
 }
 
 bool
-Database::setAdapterDirectProxy(const string& serverId, const string& adapterId, const Ice::ObjectPrx& proxy)
+Database::setAdapterDirectProxy(const string& adapterId, const string& replicaId, const Ice::ObjectPrx& proxy)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringObjectProxiesDict adapters(connection, _adapterDbName); 
@@ -506,32 +506,32 @@ Database::setAdapterDirectProxy(const string& serverId, const string& adapterId,
 	if(p != adapters.end())
 	{
 	    StringObjectProxyDict proxies = p->second;
-	    proxies[serverId] = proxy;
+	    proxies[replicaId] = proxy;
 	    p.set(proxies);
 
 	    if(_traceLevels->adapter > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 		out << "updated adapter `" << adapterId << "'";
-		if(!serverId.empty())
+		if(!replicaId.empty())
 		{
-		    out << " from server `" << serverId << "'";
+		    out << " from replica `" << replicaId << "'";
 		}
 	    }
 	}
 	else
 	{
 	    StringObjectProxyDict proxies;
-	    proxies[serverId] = proxy;
+	    proxies[replicaId] = proxy;
 	    adapters.put(StringObjectProxiesDict::value_type(adapterId, proxies));
 
 	    if(_traceLevels->adapter > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 		out << "added adapter `" << adapterId << "'";
-		if(!serverId.empty())
+		if(!replicaId.empty())
 		{
-		    out << " from server `" << serverId << "'";
+		    out << " from replica `" << replicaId << "'";
 		}
 	    }
 	}
@@ -552,11 +552,9 @@ Database::setAdapterDirectProxy(const string& serverId, const string& adapterId,
 	}
 
 	StringObjectProxyDict proxies = p->second;
-	if(proxies.erase(serverId) == 0)
+	if(proxies.erase(replicaId) == 0)
 	{
-	    ServerNotExistException ex;
-	    ex.id = serverId;
-	    throw ex;
+	    throw AdapterNotExistException(adapterId, replicaId);
 	}
 
 	if(proxies.empty())
@@ -577,9 +575,9 @@ Database::setAdapterDirectProxy(const string& serverId, const string& adapterId,
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 		out << "removed adapter `" << adapterId << "'";
-		if(!serverId.empty())
+		if(!replicaId.empty())
 		{
-		    out << " from server `" << serverId << "'";
+		    out << " from replica `" << replicaId << "'";
 		}		
 	    }
 	}
@@ -588,14 +586,14 @@ Database::setAdapterDirectProxy(const string& serverId, const string& adapterId,
 }
 
 Ice::ObjectPrx
-Database::getAdapterDirectProxy(const string& serverId, const string& adapterId)
+Database::getAdapterDirectProxy(const string& adapterId, const string& replicaId)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringObjectProxiesDict adapters(connection, _adapterDbName); 
     StringObjectProxiesDict::const_iterator p = adapters.find(adapterId);
     if(p != adapters.end())
     {
-	StringObjectProxyDict::const_iterator q = p->second.find(serverId);
+	StringObjectProxyDict::const_iterator q = p->second.find(replicaId);
 	if(q != p->second.end())
 	{
 	    return q->second;
@@ -634,16 +632,14 @@ Database::removeAdapter(const string& adapterId)
     }
     else
     {
-	AdapterNotExistException ex;
-	ex.id = adapterId;
-	throw ex;
+	throw AdapterNotExistException(adapterId, "");
     }
 }
 
 AdapterPrx
-Database::getAdapter(const string& id, const string& serverId)
+Database::getAdapter(const string& id, const string& replicaId)
 {
-    return _adapterCache.get(id)->getProxy(serverId);
+    return _adapterCache.get(id)->getProxy(replicaId);
 }
 
 vector<pair<string, AdapterPrx> >
@@ -654,12 +650,18 @@ Database::getAdapters(const string& id, int& endpointCount)
     // server, if that's the case we get the adapter proxy from the
     // server.
     //
+    auto_ptr<Ice::UserException> exception;
     try
     {
 	return _adapterCache.get(id)->getProxies(endpointCount);
     }
-    catch(const AdapterNotExistException&)
+    catch(AdapterNotExistException& ex)
     {
+	exception.reset(dynamic_cast<AdapterNotExistException*>(ex.ice_clone()));
+    }
+    catch(const NodeUnreachableException& ex)
+    {
+	exception.reset(dynamic_cast<NodeUnreachableException*>(ex.ice_clone()));
     }
 
     //
@@ -687,9 +689,9 @@ Database::getAdapters(const string& id, int& endpointCount)
 	return adapters;
     }
 
-    AdapterNotExistException ex;
-    ex.id = id;
-    throw ex;
+    assert(exception.get());
+    exception->ice_throw();
+    return vector<pair<string, AdapterPrx> >(); // Keeps the compiler happy.
 }
 
 Ice::StringSeq
