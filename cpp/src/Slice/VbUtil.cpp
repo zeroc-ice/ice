@@ -1193,7 +1193,7 @@ Slice::VbGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 	    }
 	} // End TODO
 
-	string prefix = "clr";
+	string prefix = "clr:";
         if(_history.count(s) == 0)
         {
             if(s.find(prefix) == 0)

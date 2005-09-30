@@ -1710,6 +1710,169 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out.zeroIndent();
     _out << sp << nl << "#End Region"; // Array copy and conversion
 
+    _out << sp << nl << "#Region \"ArrayList members\"";
+    _out.restoreIndent();
+
+    _out << sp << nl << "Property Capacity As Integer";
+    _out.inc();
+    _out << nl << "Get";
+    _out.inc();
+    _out << nl << "Return InnerList.Capacity";
+    _out.dec();
+    _out << nl << "End Get";
+    _out << nl << "Set";
+    _out.inc();
+    _out << nl << "InnerList.Capacity = value";
+    _out.dec();
+    _out << nl << "End Set";
+    _out.dec();
+    _out << nl << "End Property";
+
+    _out << sp << nl << "Public Overridable Sub TrimToSize()";
+    _out.inc();
+    _out << nl << "InnerList.TrimToSize()";
+    _out.dec();
+    _out << nl << "End Sub";
+
+    _out << sp << nl << "Public Overloads Overridable Sub Sort()";
+    _out.inc();
+    _out << nl << "InnerList.Sort()";
+    _out.dec();
+    _out << nl << "End Sub";
+
+    _out << sp << nl << "Public Overloads Overridable Sub Sort(ByVal comparer As _System.Collections.IComparer)";
+    _out.inc();
+    _out << nl << "InnerList.Sort(comparer)";
+    _out.dec();
+    _out << nl << "End Sub";
+
+    _out << sp << nl << "Public Overloads Overridable Sub Sort(";
+    _out.useCurrentPosAsIndent();
+    _out << "ByVal index As Integer, ByVal count As Integer, _";
+    _out << nl << "ByVal Comparer As _System.Collections.IComparer)";
+    _out.restoreIndent();
+    _out.inc();
+    _out << nl << "InnerList.Sort(index, count, comparer)";
+    _out.dec();
+    _out << nl << "End Sub";
+
+    _out << sp << nl << "Public Sub Reverse()";
+    _out.inc();
+    _out << nl << "InnerList.Reverse()";
+    _out.dec();
+    _out << nl << "End Sub";
+
+    _out << sp << nl << "Public Overridable Sub Reverse(ByVal index As Integer, ByVal count As Integer)";
+    _out.inc();
+    _out << nl << "InnerList.Reverse(index, count)";
+    _out.dec();
+    _out << nl << "End Sub";
+
+    _out << sp << nl << "Public Overridable Function BinarySearch(ByVal value As " << s << ") As Integer";
+    _out.inc();
+    _out << nl << "Return InnerList.BinarySearch(value)";
+    _out.dec();
+    _out << nl << "End Function";
+
+    _out << sp << nl << "Public Overridable Function BinarySearch(";
+    _out.useCurrentPosAsIndent();
+    _out << "ByVal value As " << s << ", _";
+    _out << nl << "ByVal comparer As _System.Collections.IComparer) As Integer";
+    _out.restoreIndent();
+    _out.inc();
+    _out << nl << "Return InnerList.BinarySearch(value, comparer)";
+    _out.dec();
+    _out << nl << "End Function";
+
+    _out << sp << nl << "Public Overridable Function BinarySearch(";
+    _out.useCurrentPosAsIndent();
+    _out << "ByVal index As Integer, _";
+    _out << nl << "ByVal count As Integer, _";
+    _out << nl << "ByVal value As " << s << ", _";
+    _out << nl << "ByVal comparer As _System.Collections.IComparer) As Integer";
+    _out.restoreIndent();
+    _out.inc();
+    _out << nl << "Return InnerList.BinarySearch(index, count, value, comparer)";
+    _out.dec();
+    _out << nl << "End Function";
+
+    _out << sp << nl << "Public Overridable Sub InsertRange(ByVal index As Integer, ByVal c As " << name << ')';
+    _out.inc();
+    _out << nl << "InnerList.InsertRange(index, c)";
+    _out.dec();
+    _out << nl << "End Sub";
+
+    _out << sp << nl << "Public Overridable Sub InsertRange(ByVal index As Integer, ByVal c As " << s << "())";
+    _out.inc();
+    _out << nl << "InnerList.InsertRange(index, c)";
+    _out.dec();
+    _out << nl << "End Sub";
+
+    _out << sp << nl << "Public Overridable Sub RemoveRange(ByVal index As Integer, ByVal count As Integer)";
+    _out.inc();
+    _out << nl << "InnerList.RemoveRange(index, count)";
+    _out.dec();
+    _out << nl << "End Sub";
+
+    _out << sp << nl << "Public Overridable Function GetRange(ByVal index As Integer, ByVal count As Integer) As " << name;
+    _out.inc();
+    _out << nl << "Dim al As _System.Collections.ArrayList = InnerList.GetRange(index, count)";
+    _out << nl << "Dim r As " << name << " = New " << name << "(al.Count)";
+    _out << nl << "r.InnerList.AddRange(al)";
+    _out << nl << "Return r";
+    _out.dec();
+    _out << nl << "End Function";
+
+    _out << sp << nl << "Public Overridable Sub SetRange(ByVal index As Integer, ByVal c As " << name << ')';
+    _out.inc();
+    _out << nl << "InnerList.SetRange(index, c)";
+    _out.dec();
+    _out << nl << "End Sub";
+
+    _out << sp << nl << "Public Overridable Sub SetRange(ByVal index As Integer, ByVal c As " << s << "())";
+    _out.inc();
+    _out << nl << "InnerList.SetRange(index, c)";
+    _out.dec();
+    _out << nl << "End Sub";
+
+    _out << sp << nl << "Public Overridable Function LastIndexOf(ByVal value As " << s << ") As Integer";
+    _out.inc();
+    _out << nl << "Return InnerList.LastIndexOf(value)";
+    _out.dec();
+    _out << nl << "End Function";
+
+    _out << sp << nl << "Public Overridable Function LastIndexOf(ByVal value As " << s << ", ByVal startIndex As Integer) As Integer";
+    _out.inc();
+    _out << nl << "Return InnerList.LastIndexOf(value, startIndex)";
+    _out.dec();
+    _out << nl << "End Function";
+
+    _out << sp << nl << "Public Overridable Function LastIndexOf(";
+    _out.useCurrentPosAsIndent();
+    _out << "ByVal value As " << s << ", _";
+    _out << nl << "ByVal startIndex As Integer, _";
+    _out << nl << "ByVal count As Integer) As Integer";
+    _out.restoreIndent();
+    _out.inc();
+    _out << nl << "Return InnerList.LastIndexOf(value, startIndex, count)";
+    _out.dec();
+    _out << nl << "End Function";
+
+    _out << sp << nl << "Public Shared Function Repeat(ByVal value As " << s << ", ByVal count As Integer) As " << name;
+    _out.inc();
+    _out << nl << "Dim r As " << name << " = New " << name << "()";
+    _out << nl << "For i As Integer = 0 To Count - 1";
+    _out.inc();
+    _out << nl << "r.Add(value)";
+    _out.dec();
+    _out << nl << "Next";
+    _out << nl << "Return r";
+    _out.dec();
+    _out << nl << "End Function";
+
+    _out.zeroIndent();
+    _out << sp << nl << "#End Region"; // ArrayList members
+
     _out << sp << nl << "#Region \"AddRange members\"";
     _out.restoreIndent();
 

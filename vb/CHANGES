@@ -1,6 +1,27 @@
 Changes since version 2.1.2
 ---------------------------
 
+- The Slice mapping for sequences has been improved. The
+  generated sequence class now contains the following additional
+  properties and methods:
+
+  - Capacity
+  - TrimToSize
+  - Sort
+  - Reverse
+  - BinarySearch
+  - InsertRange
+  - RemoveRange
+  - GetRange
+  - SetRange
+  - LastIndexOf
+  - Repeat
+
+  These have the same semantics as the corresponding methods
+  on System.Collections.ArrayList, with one exception: GetRange
+  returns a true copy of the requested range instead of returning
+  a view of a sub-section of the collection.
+
 - The Ice run-time libraries are now marked as CLS-compliant
   assemblies. In addition, the generated code is now also
   CLS-compliant.

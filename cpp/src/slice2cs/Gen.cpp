@@ -1668,6 +1668,126 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "#endregion"; // Array copy and conversion
 
+    _out << sp << nl << "#region ArrayList members";
+
+    _out << sp << nl << "public virtual int Capacity";
+    _out << sb;
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return InnerList.Capacity;";
+    _out << eb;
+    _out << nl << "set";
+    _out << sb;
+    _out << nl << "InnerList.Capacity = value;";
+    _out << eb;
+    _out << eb;
+
+    _out << sp << nl << "public virtual void TrimToSize()";
+    _out << sb;
+    _out << nl << "InnerList.TrimToSize();";
+    _out << eb;
+
+    _out << sp << nl << "public virtual void Sort()";
+    _out << sb;
+    _out << nl << "InnerList.Sort();";
+    _out << eb;
+
+    _out << sp << nl << "public virtual void Sort(_System.Collections.IComparer comparer)";
+    _out << sb;
+    _out << nl << "InnerList.Sort(comparer);";
+    _out << eb;
+
+    _out << sp << nl << "public virtual void Sort(int index, int count, _System.Collections.IComparer comparer)";
+    _out << sb;
+    _out << nl << "InnerList.Sort(index, count, comparer);";
+    _out << eb;
+
+    _out << sp << nl << "public virtual void Reverse()";
+    _out << sb;
+    _out << nl << "InnerList.Reverse();";
+    _out << eb;
+
+    _out << sp << nl << "public virtual void Reverse(int index, int count)";
+    _out << sb;
+    _out << nl << "InnerList.Reverse(index, count);";
+    _out << eb;
+
+    _out << sp << nl << "public virtual int BinarySearch(" << s << " value)";
+    _out << sb;
+    _out << nl << "return InnerList.BinarySearch(value);";
+    _out << eb;
+
+    _out << sp << nl << "public virtual int BinarySearch(" << s << " value, _System.Collections.IComparer comparer)";
+    _out << sb;
+    _out << nl << "return InnerList.BinarySearch(value, comparer);";
+    _out << eb;
+
+    _out << sp << nl << "public virtual int BinarySearch(int index, int count, " << s << " value, "
+         << "_System.Collections.IComparer comparer)";
+    _out << sb;
+    _out << nl << "return InnerList.BinarySearch(index, count, value, comparer);";
+    _out << eb;
+
+    _out << sp << nl << "public virtual void InsertRange(int index, " << name << " c)";
+    _out << sb;
+    _out << nl << "InnerList.InsertRange(index, c);";
+    _out << eb;
+
+    _out << sp << nl << "public virtual void InsertRange(int index, " << s << "[] c)";
+    _out << sb;
+    _out << nl << "InnerList.InsertRange(index, c);";
+    _out << eb;
+
+    _out << sp << nl << "public virtual void RemoveRange(int index, int count)";
+    _out << sb;
+    _out << nl << "InnerList.RemoveRange(index, count);";
+    _out << eb;
+
+    _out << sp << nl << "public virtual " << name << " GetRange(int index, int count)";
+    _out << sb;
+    _out << nl << "_System.Collections.ArrayList al = InnerList.GetRange(index, count);";
+    _out << nl << name << " r = new " << name << "(al.Count);";
+    _out << nl << "r.InnerList.AddRange(al);";
+    _out << nl << "return r;";
+    _out << eb;
+
+    _out << sp << nl << "public virtual void SetRange(int index, " << name << " c)";
+    _out << sb;
+    _out << nl << "InnerList.SetRange(index, c);";
+    _out << eb;
+
+    _out << sp << nl << "public virtual void SetRange(int index, " << s << "[] c)";
+    _out << sb;
+    _out << nl << "InnerList.SetRange(index, c);";
+    _out << eb;
+
+    _out << sp << nl << "public virtual int LastIndexOf(" << s << " value)";
+    _out << sb;
+    _out << nl << "return InnerList.LastIndexOf(value);";
+    _out << eb;
+
+    _out << sp << nl << "public virtual int LastIndexOf(" << s << " value, int startIndex)";
+    _out << sb;
+    _out << nl << "return InnerList.LastIndexOf(value, startIndex);";
+    _out << eb;
+
+    _out << sp << nl << "public virtual int LastIndexOf(" << s << " value, int startIndex, int count)";
+    _out << sb;
+    _out << nl << "return InnerList.LastIndexOf(value, startIndex, count);";
+    _out << eb;
+
+    _out << sp << nl << "public static " << name << " Repeat(" << s << " value, int count)";
+    _out << sb;
+    _out << nl << name << " r = new " << name << "();";
+    _out << nl << "for(int i = 0; i < count; ++i)";
+    _out << sb;
+    _out << nl << "r.Add(value);";
+    _out << eb;
+    _out << nl << "return r;";
+    _out << eb;
+
+    _out << sp << nl << "#endregion"; // ArrayList members
+
     _out << sp << nl << "#region AddRange members";
 
     _out << sp << nl << "public void AddRange(" << name << " s__)";
