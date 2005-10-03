@@ -209,8 +209,6 @@ interface Server
     ["ami"] void setProcess(Ice::Process* proc);
 };
 
-dictionary<string, DistributionDescriptor> DistributionDescriptorDict;
-
 interface Node
 {
     /**

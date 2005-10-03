@@ -11,8 +11,8 @@
 #define ICE_GRID_DESCRIPTOR_HELPER_H
 
 #include <IceUtil/OutputUtil.h>
-#include <IceGrid/Internal.h>
 #include <IceXML/Parser.h>
+#include <IceGrid/Admin.h>
 
 namespace IceGrid
 {

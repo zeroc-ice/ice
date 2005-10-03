@@ -200,6 +200,7 @@ struct DistributionDescriptor
     /** The source directories. */
     Ice::StringSeq directories;
 };
+dictionary<string, DistributionDescriptor> DistributionDescriptorDict;
 
 /**
  *
