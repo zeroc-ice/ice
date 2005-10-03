@@ -336,10 +336,6 @@ Freeze::ObjectStore::load(const Identity& ident)
 	    }
 	    break; // for(;;)
 	}
-	catch(const DbMemoryException& dx)
-	{
-	    handleMemoryException(dx, value, dbValue);
-	}
 	catch(const DbDeadlockException&)
 	{
 	    if(_evictor->deadlockWarning())
@@ -354,9 +350,7 @@ Freeze::ObjectStore::load(const Identity& ident)
 	}
 	catch(const DbException& dx)
 	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
+	    handleDbException(dx, value, dbValue, __FILE__, __LINE__);
 	}
     }
     

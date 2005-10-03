@@ -48,11 +48,24 @@ initializeOutDbt(std::vector<Ice::Byte>& v, Dbt& dbt)
     dbt.set_flags(DB_DBT_USERMEM);
 }
 
-void
-handleMemoryException(const DbMemoryException&, Key&, Dbt&);
+
+//
+// Handles a Berkeley DB DbException by resizing the 
+// given key/value/dbt (when the exception's errno is
+// DB_SMALL_BUFFER) or by throwing a 
+// Freeze::DatabaseException
+//
 
 void
-handleMemoryException(const DbMemoryException&, Key&, Dbt&, Value&, Dbt&);
+handleDbException(const DbException&, const char*, int);
+
+void
+handleDbException(const DbException&, Key&, Dbt&, 
+		  const char*, int);
+
+void
+handleDbException(const DbException&, Key&, Dbt&, Value&, Dbt&, 
+		  const char*, int);
 
 }
 

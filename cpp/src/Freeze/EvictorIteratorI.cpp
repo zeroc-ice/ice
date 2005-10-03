@@ -150,9 +150,13 @@ Freeze::EvictorIteratorI::nextBatch()
 			    }
 			    break;
 			}
-			catch(const DbMemoryException& dx)
+			catch(const DbDeadlockException&)
 			{
-			    handleMemoryException(dx, _key, dbKey);
+			    throw;
+			}
+			catch(const DbException& dx)
+			{
+			    handleDbException(dx, _key, dbKey, __FILE__, __LINE__);
 			}
 		    }
 		}
@@ -204,9 +208,7 @@ Freeze::EvictorIteratorI::nextBatch()
     }
     catch(const DbException& dx)
     {
-	DatabaseException ex(__FILE__, __LINE__);
-	ex.message = dx.what();
-	throw ex;
+	handleDbException(dx, __FILE__, __LINE__);
     }
     
     if(_batch.size() == 0)

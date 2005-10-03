@@ -100,9 +100,13 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
 			    }
 			    break; // for(;;)
 			}
-			catch(const DbMemoryException& dx)
+			catch(const DbDeadlockException&)
 			{
-			    handleMemoryException(dx, pkey, pdbKey);
+			    throw;
+			}
+			catch(const DbException& dx)
+			{
+			    handleDbException(dx, pkey, pdbKey, __FILE__, __LINE__);
 			}
 		    }
 		}		    
@@ -161,9 +165,7 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
     }
     catch(const DbException& dx)
     {
-	DatabaseException ex(__FILE__, __LINE__);
-	ex.message = dx.what();
-	throw ex;
+	handleDbException(dx, __FILE__, __LINE__);
     }
     
     return identities;

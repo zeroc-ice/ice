@@ -46,6 +46,18 @@
        </service>
      </service-template>
 
+    <service-template id="AnotherServiceT">
+       <parameter name="name"/>
+       <service name="${name}-foo" entry="HelloService:create">
+	 <adapter name="Hello" endpoints="tcp">
+	   <object identity="hello2" type="::Demo::Hello"/>
+	 </adapter>
+	 <property name="Identity" value="hello2"/>
+	 <property name="Name" value="${service}"/>
+       </service>
+    </service-template>
+
+
      <server-template id="IceBoxTemplate">
        <parameter name="name"/>
        <icebox id="${name}" exe="icebox" interpreter="icebox" endpoints="default">
@@ -67,6 +79,12 @@
      <node name="node">
        <variable name="system" value="linux"/>
        <server-instance template="ServerTemplate" name="Server1"/>
+       <server-instance template="IceBoxTemplate" name="MyBox"/>
+
+       <server id="PlainServer" exe="${system}/simple/server" activation="on-demand">
+	 <adapter name="Hello" endpoints="${endpoint}" register="true" id="ReplicatedHelloAdapter"/>
+         <property name="Identity" value="hello"/>
+       </server>
      </node>
 
      <node name="node-win">

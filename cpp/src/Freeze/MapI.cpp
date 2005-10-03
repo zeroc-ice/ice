@@ -299,39 +299,6 @@ Freeze::IteratorHelperI::get(const Key*& key, const Value*& value) const
 		throw DatabaseException(__FILE__, __LINE__);
 	    }
 	}
-	catch(const ::DbMemoryException dx)
-	{
-	    bool resizing = false;
-	    if(dbKey.get_size() > dbKey.get_ulen())
-	    {
-		//
-		// Let's resize key
-		//
-		_key.resize(dbKey.get_size());
-		initializeOutDbt(_key, dbKey);
-		resizing = true;
-	    }
-	    
-	    if(dbValue.get_size() > dbValue.get_ulen())
-	    {
-		//
-		// Let's resize value
-		//
-		_value.resize(dbValue.get_size());
-		initializeOutDbt(_value, dbValue);
-		resizing = true;
-	    }
-	    
-	    if(!resizing)
-	    {
-		//
-		// Real problem
-		//
-		DatabaseException ex(__FILE__, __LINE__);
-		ex.message = dx.what();
-		throw ex;
-	    }
-	}
 	catch(const ::DbDeadlockException& dx)
 	{
 	    if(_tx != 0)
@@ -345,9 +312,8 @@ Freeze::IteratorHelperI::get(const Key*& key, const Value*& value) const
 	}
 	catch(const ::DbException& dx)
 	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
+	    handleDbException(dx, _key, dbKey, _value, dbValue,
+			      __FILE__, __LINE__);
 	}
     }
 }
@@ -409,26 +375,6 @@ Freeze::IteratorHelperI::get() const
 		throw DatabaseException(__FILE__, __LINE__);
 	    }
 	}
-	catch(const ::DbMemoryException dx)
-	{
-	    if(dbKey.get_size() > dbKey.get_ulen())
-	    {
-		//
-		// Let's resize key
-		//
-		_key.resize(dbKey.get_size());
-		initializeOutDbt(_key, dbKey);
-	    }
-	    else
-	    {
-		//
-		// Real problem
-		//
-		DatabaseException ex(__FILE__, __LINE__);
-		ex.message = dx.what();
-		throw ex;
-	    }
-	}
 	catch(const ::DbDeadlockException& dx)
 	{
 	    if(_tx != 0)
@@ -442,9 +388,7 @@ Freeze::IteratorHelperI::get() const
 	}
 	catch(const ::DbException& dx)
 	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
+	    handleDbException(dx, _key, dbKey, __FILE__, __LINE__);
 	}
     }
 }
