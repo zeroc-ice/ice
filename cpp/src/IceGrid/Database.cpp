@@ -381,7 +381,7 @@ Database::removeApplicationDescriptor(ObserverSessionI* session, const std::stri
 	    ApplicationHelper helper(p->second);
 	    unload(helper, entries);
 	}
-	catch(const DeploymentException& ex)
+	catch(const DeploymentException&)
 	{
 	    //
 	    // For some reasons the application became invalid. If

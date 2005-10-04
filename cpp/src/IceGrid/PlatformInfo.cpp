@@ -18,7 +18,9 @@
 
 #include <IcePatch2/Util.h>
 
-#if !defined(_WIN32)
+#if defined(_WIN32)
+#   include <direct.h> // For _getcwd
+#else
 #   include <sys/utsname.h>
 #   if defined(__APPLE__)
 #      include <sys/sysctl.h>

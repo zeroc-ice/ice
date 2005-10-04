@@ -446,14 +446,14 @@ ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deacti
 	    {
 		nodeCache.get(destroy.node)->destroyServer(destroy.descriptor->id);
 	    }
-	    catch(NodeNotExistException& ex)
+	    catch(NodeNotExistException&)
 	    {
 		if(!load.descriptor)
 		{
 		    throw NodeUnreachableException(destroy.node, "node is not active");
 		}
 	    }
-	    catch(NodeUnreachableException& ex)
+	    catch(NodeUnreachableException&)
 	    {
 		if(!load.descriptor)
 		{
@@ -468,7 +468,7 @@ ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deacti
 	    {
 		proxy = nodeCache.get(load.node)->loadServer(load, adpts, activationTimeout, deactivationTimeout);
 	    }
-	    catch(NodeNotExistException& ex)
+	    catch(NodeNotExistException&)
 	    {
 		throw NodeUnreachableException(load.node, "node is not active");
 	    }

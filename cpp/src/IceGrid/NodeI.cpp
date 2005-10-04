@@ -18,10 +18,6 @@
 #include <IceGrid/WaitQueue.h>
 #include <IceGrid/TraceLevels.h>
 
-#if defined(_WIN32)
-#   include <direct.h> // For _getcwd
-#endif
-
 using namespace std;
 using namespace IcePatch2;
 using namespace IceGrid;
