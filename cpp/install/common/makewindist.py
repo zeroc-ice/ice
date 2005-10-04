@@ -79,7 +79,8 @@ def cleanIceDists(sourcesDir, sourcesVersion, installVersion):
     elif installVersion == "vc60":
 	os.chdir(iceHome)
 	print "Cleaning in " + os.getcwd() + "..."
-	os.system("msdev all.dsw /useenv /make ALL /clean")
+	os.system("msdev all.dsw /useenv /make all - Win32 Debug /clean")
+	os.system("msdev all.dsw /useenv /make all - Win32 Release /clean")
 
 def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     """Build all Ice distributions."""
@@ -193,7 +194,8 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	#
 	os.chdir(iceHome)
 	print "Building in " + os.getcwd() + "..."
-	os.system("msdev all.dsw /useenv /make ALL")
+	os.system('msdev all.dsw /useenv /make "all - Win32 Debug"')
+	os.system('msdev all.dsw /useenv /make "all - Win32 Release"')
 
 def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
     """Build third party merge modules."""
@@ -216,7 +218,7 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
     #
     os.chdir(startDir)
     for project, release in modules:
-	os.system("ISCmdBld -c COMP -a ZEROC -p " + project + ".ism -r " + release)
+	os.system(os.environ['INSTALLSHIELD_HOME'] + "\IsCmdBld -c COMP -a ZEROC -p " + project + ".ism -r " + release)
 
     #
     # Archive modules in the stage directory root.

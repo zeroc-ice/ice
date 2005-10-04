@@ -572,19 +572,19 @@
 
 	<mkdir dir="${stage.dir}/expat/dev/lib"/>
 	<copy todir="${stage.dir}/expat/dev/lib">
-	    <fileset dir="${env.EXPAT_HOME}/Source/lib/Release">
+	    <fileset dir="${env.EXPAT_HOME}/lib/Release">
 		<include name="*.lib"/>
 	    </fileset>
 	</copy>
 	<copy todir="${stage.dir}/expat/dev/lib">
-	    <fileset dir="${env.EXPAT_HOME}/Source/lib/Release-w">
+	    <fileset dir="${env.EXPAT_HOME}/lib/Release-w">
 		<include name="*.lib"/>
 	    </fileset>
 	</copy>
 
 	<mkdir dir="${stage.dir}/expat/dev/include"/>
 	<copy todir="${stage.dir}/expat/dev/include">
-	    <fileset dir="${env.EXPAT_HOME}/Source/lib">
+	    <fileset dir="${env.EXPAT_HOME}/lib">
 		<include name="expat.h"/>
 		<include name="expat_external.h"/>
 	    </fileset>
@@ -597,12 +597,12 @@
 
 	<mkdir dir="${stage.dir}/expat/runtime/bin"/>
 	<copy todir="${stage.dir}/expat/runtime/bin">
-	    <fileset dir="${env.EXPAT_HOME}/Source/lib/Release">
+	    <fileset dir="${env.EXPAT_HOME}/lib/Release">
 		<include name="*.dll"/>
 	    </fileset>
 	</copy>
 	<copy todir="${stage.dir}/expat/runtime/bin">
-	    <fileset dir="${env.EXPAT_HOME}/Source/lib/Release-w">
+	    <fileset dir="${env.EXPAT_HOME}/lib/Release-w">
 		<include name="*.dll"/>
 	    </fileset>
 	</copy>
