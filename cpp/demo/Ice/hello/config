@@ -65,12 +65,12 @@ IceSSL.Server.Config=sslconfig.xml
 # IcePack registry settings (assumes that a db directory exists in the 
 # current working directory).
 # 
-IcePack.Registry.Client.Endpoints=default -p 10006
-IcePack.Registry.Server.Endpoints=default
-IcePack.Registry.Internal.Endpoints=default
-IcePack.Registry.Admin.Endpoints=default
-IcePack.Registry.Data=db
-IcePack.Registry.DynamicRegistration=1
+IceGrid.Registry.Client.Endpoints=default -p 10006
+IceGrid.Registry.Server.Endpoints=default
+IceGrid.Registry.Internal.Endpoints=default
+IceGrid.Registry.Admin.Endpoints=default
+IceGrid.Registry.Data=db
+IceGrid.Registry.DynamicRegistration=1
 
 #
 # Uncomment the following lines if you want to run this demo with the 
@@ -81,4 +81,4 @@ IcePack.Registry.DynamicRegistration=1
 #Hello.Proxy=hello@HelloAdapter
 #Hello.Endpoints=tcp:udp:ssl
 #Hello.AdapterId=HelloAdapter
-#Ice.Default.Locator=IcePack/Locator:default -p 10006
+#Ice.Default.Locator=IceGrid/Locator:default -p 10006
