@@ -74,9 +74,9 @@ IceGrid.Registry.DynamicRegistration=1
 
 #
 # Uncomment the following lines if you want to run this demo with the 
-# IcePack registry. Note that we override properties previously set
+# IceGrid registry. Note that we override properties previously set
 # above, so make sure to comment out these properties to run the demo
-# without IcePack.
+# without IceGrid.
 #
 #Hello.Proxy=hello@HelloAdapter
 #Hello.Endpoints=tcp:udp:ssl
