@@ -391,7 +391,7 @@ NodeService::start(int argc, char* argv[])
 
 	IcePatch2::createDirectory(dataPath + "servers");
 	IcePatch2::createDirectory(dataPath + "tmp");
-	IcePatch2::createDirectory(dataPath + "shared");
+	IcePatch2::createDirectory(dataPath + "distrib");
     }
 
     //

@@ -7,12 +7,16 @@
 //
 // **********************************************************************
 
+#include <Ice/Communicator.h>
+#include <Ice/Properties.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/ProtocolPluginFacade.h> // Just to get the hostname
 
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/TraceLevels.h>
+
+#include <IcePatch2/Util.h>
 
 #if !defined(_WIN32)
 #   include <sys/utsname.h>
@@ -140,6 +144,27 @@ PlatformInfo::PlatformInfo(const Ice::CommunicatorPtr& communicator, const Trace
     _info.version = utsinfo.version;
     _info.machine = utsinfo.machine;
 #endif
+
+    _info.dataDir = communicator->getProperties()->getProperty("IceGrid.Node.Data");
+    if(!IcePatch2::isAbsolute(_info.dataDir))
+    {
+#ifdef _WIN32
+	char cwd[_MAX_PATH];
+	if(_getcwd(cwd, _MAX_PATH) == NULL)
+#else
+	char cwd[PATH_MAX];
+	if(getcwd(cwd, PATH_MAX) == NULL)
+#endif
+	{
+	    throw "cannot get the current directory:\n" + IcePatch2::lastError();
+	}
+	
+	_info.dataDir = string(cwd) + '/' + _info.dataDir;
+    }
+    if(_info.dataDir[_info.dataDir.length() - 1] == '/')
+    {
+	_info.dataDir = _info.dataDir.substr(0, _info.dataDir.length() - 1);
+    }
 }
 
 PlatformInfo::~PlatformInfo()
@@ -238,4 +263,10 @@ std::string
 PlatformInfo::getHostname() const
 {
     return _hostname;
+}
+
+std::string
+PlatformInfo::getDataDir() const
+{
+    return _info.dataDir;
 }

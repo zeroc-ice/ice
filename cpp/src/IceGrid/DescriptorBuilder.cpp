@@ -242,13 +242,13 @@ ApplicationDescriptorBuilder::addServiceTemplate(const string& id, const Templat
 void 
 ApplicationDescriptorBuilder::addDistribution(const XmlAttributesHelper& attrs)
 {
-    _descriptor.distribution.icepatch = attrs("icepatch", "");
+    _descriptor.distrib.icepatch = attrs("icepatch", "");
 }
 
 void
 ApplicationDescriptorBuilder::addDistributionDirectory(const string& directory)
 {
-    _descriptor.distribution.directories.push_back(directory);
+    _descriptor.distrib.directories.push_back(directory);
 }
 
 bool
@@ -526,13 +526,13 @@ ServerDescriptorBuilder::addServiceInstance(const XmlAttributesHelper& desc)
 void
 ServerDescriptorBuilder::addDistribution(const XmlAttributesHelper& attrs)
 {
-    _descriptor->distribution.icepatch = attrs("icepatch", "");
+    _descriptor->distrib.icepatch = attrs("icepatch", "");
 }
 
 void
 ServerDescriptorBuilder::addDistributionDirectory(const string& directory)
 {
-    _descriptor->distribution.directories.push_back(directory);
+    _descriptor->distrib.directories.push_back(directory);
 }
 
 IceBoxDescriptorBuilder::IceBoxDescriptorBuilder(const XmlAttributesHelper& attrs)

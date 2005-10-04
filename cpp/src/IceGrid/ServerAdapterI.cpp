@@ -213,3 +213,9 @@ ServerAdapterI::activationFailed(bool timeout)
     }
     _activateCB.clear();
 }
+
+AdapterPrx
+ServerAdapterI::getProxy() const
+{
+    return _this;
+}

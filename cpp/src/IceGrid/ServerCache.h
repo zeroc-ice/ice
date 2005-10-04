@@ -37,7 +37,7 @@ public:
     void update(const ServerInfo&);
     void destroy();
 
-    ServerInfo getServerInfo() const;
+    ServerInfo getServerInfo(bool = false) const;
     std::string getId() const;
 
     ServerPrx getProxy(int&, int&, std::string&);

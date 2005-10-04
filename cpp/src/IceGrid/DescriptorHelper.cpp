@@ -238,63 +238,58 @@ updateDictElts(const Dict& dict, const Dict& update, const Ice::StringSeq& remov
 }
 
 Resolver::Resolver(const ApplicationHelper& app, const string& name, const map<string, string>& variables) : 
-    _application(app),
+    _application(&app),
+    _escape(false),
     _context("application `" + name + "'"),
-    _variables(variables)
+    _variables(variables),
+    _reserved(getReserved())
 {
-    //
-    // Add allowed reserved variables (reserved variables can't be
-    // overrided, in this implementation an empty reserved variable is
-    // considered to be undefined (see getVariable))
-    //
-    _reserved["application"] = name;
-    _reserved["node"] = "";
-    _reserved["server"] = "";
-    _reserved["service"] = "";
-
     //
     // Make sure the variables don't override reserved variables.
     //
-    for(map<string, string>::const_iterator p = _variables.begin(); p != _variables.end(); ++p)
-    {
-	if(_reserved.find(p->first) != _reserved.end())
-	{
-	    exception("invalid variable `" + p->first + "': reserved variable name");
-	}
-    }
+    checkReserved("variable", _variables);
+    setReserved("application", name);
+
+    //
+    // Some reserved variables which are ignored for now and will be
+    // substituted later.
+    //
+    _ignore.insert("node.os");
+    _ignore.insert("node.hostname");
+    _ignore.insert("node.release");
+    _ignore.insert("node.version");
+    _ignore.insert("node.machine");
+    _ignore.insert("node.datadir");
 }
 
 Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, bool params) :
     _application(resolve._application),
+    _escape(resolve._escape),
     _context(resolve._context),
-    _variables(resolve._variables),
-    _reserved(resolve._reserved)
+    _variables(params ? resolve._variables : values),
+    _reserved(resolve._reserved),
+    _ignore(resolve._ignore)
 {
     if(params)
     {
+	checkReserved("parameter", values);
 	_parameters = values;
-	for(map<string, string>::const_iterator p = _parameters.begin(); p != _parameters.end(); ++p)
-	{
-	    if(_reserved.find(p->first) != _reserved.end())
-	    {
-		exception("invalid parameter `" + p->first + ": reserved variable name");
-	    }
-	}
     }
     else
     {
-	for(map<string, string>::const_iterator p = values.begin(); p != values.end(); ++p)
-	{
-	    //
-	    // Make sure the variables don't override reserved variables.
-	    //
-	    if(_reserved.find(p->first) != _reserved.end())
-	    {
-		exception("invalid variable `" + p->first + ": reserved variable name");
-	    }
-	    _variables[p->first] = p->second;
-	}
+	_variables.insert(resolve._variables.begin(), resolve._variables.end());
+	checkReserved("variable", values);
     }
+}
+
+Resolver::Resolver(const string& context, const map<string, string>& values) :
+    _application(0),
+    _escape(true),
+    _context(context),
+    _variables(values),
+    _reserved(getReserved())
+{
+    checkReserved("variable", values);
 }
 
 string 
@@ -311,11 +306,11 @@ Resolver::operator()(const string& value, const string& name, bool allowEmpty, b
     }
     catch(const string& reason)
     {
-	exception("invalid value `" + value + "' for " + name + ": " + reason);
+	exception("invalid value `" + value + "' for `" + name + "': " + reason);
     }
     catch(const char* reason)
     {
-	exception("invalid value `" + value + "' for " + name + ": " + reason);
+	exception("invalid value `" + value + "' for `" + name + "': " + reason);
     }
     return ""; // To prevent compiler warning.
 }
@@ -370,13 +365,15 @@ Resolver::exception(const string& reason) const
 TemplateDescriptor
 Resolver::getServerTemplate(const string& tmpl) const
 {
-    return _application.getServerTemplate(tmpl);
+    assert(_application);
+    return _application->getServerTemplate(tmpl);
 }
 
 TemplateDescriptor
 Resolver::getServiceTemplate(const string& tmpl) const
 {
-    return _application.getServiceTemplate(tmpl);
+    assert(_application);
+    return _application->getServiceTemplate(tmpl);
 }
 
 string
@@ -396,32 +393,42 @@ Resolver::substitute(const string& v, bool useParams) const
 		--escape;
 	    }
 	    
-	    value.replace(escape, beg - escape, (beg - escape) / 2, '$');
 	    if((beg - escape) % 2)
 	    {
+		if(_escape)
+		{
+		    value.replace(escape, beg - escape, (beg - escape) / 2, '$');		    
+		}
 		++beg;
 		continue;
 	    }
 	    else
 	    {
+		value.replace(escape, beg - escape, (beg - escape) / 2, '$');
 		beg -= (beg - escape) / 2;
 	    }
 	}
 
 	end = value.find("}", beg);
-	
 	if(end == string::npos)
 	{
 	    throw "malformed variable name";
 	}
 
 	//
-	// Get the name of the variable and get its value. If the name
-	// refered to a parameter we don't do any recursive
+	// Get the name of the variable and get its value if the
+	// variable is not current ignored (in which case we do
+	// nothing, the variable will be substituted later). If the
+	// name refered to a parameter we don't do any recursive
 	// substitution: the parameter value is computed at the point
 	// of definition.
 	//
 	string name = value.substr(beg + 2, end - beg - 2);
+	if(_ignore.find(name) != _ignore.end())
+	{
+	    ++beg;
+	    continue;
+	}
 	bool param;
 	string val = getVariable(name, useParams, param);
 	if(!param)
@@ -441,7 +448,6 @@ Resolver::getVariable(const string& name, bool checkParams, bool& param) const
     // We first check the reserved variables, then the parameters if
     // necessary and finally the variables.
     //
-
     param = false;
     map<string, string>::const_iterator p = _reserved.find(name);
     if(p != _reserved.end())
@@ -468,6 +474,42 @@ Resolver::getVariable(const string& name, bool checkParams, bool& param) const
     }    
 
     throw "undefined variable `" + name + "'";
+}
+
+map<string, string>
+Resolver::getReserved()
+{
+    //
+    // Allowed reserved variables (reserved variables can't be
+    // overrided, in this implementation an empty reserved variable is
+    // considered to be undefined (see getVariable))
+    //
+    map<string, string> reserved;
+    reserved["application"] = "";
+    reserved["node"] = "";
+    reserved["node.os"] = "";
+    reserved["node.hostname"] = "";
+    reserved["node.release"] = "";
+    reserved["node.version"] = "";
+    reserved["node.machine"] = "";
+    reserved["node.datadir"] = "";
+    reserved["application.distrib"] = "${node.datadir}/distrib/${application}";
+    reserved["server.distrib"] = "${node.datadir}/servers/${server}/distrib";
+    reserved["server"] = "";
+    reserved["service"] = "";
+    return reserved;
+}
+
+void
+Resolver::checkReserved(const string& type, const map<string, string>& values) const
+{
+    for(map<string, string>::const_iterator p = values.begin(); p != values.end(); ++p)
+    {
+	if(_reserved.find(p->first) != _reserved.end())
+	{
+	    exception("invalid " + type + " `" + p->first + "': reserved variable name");
+	}
+    }
 }
 
 CommunicatorHelper::CommunicatorHelper(const CommunicatorDescriptorPtr& desc) : 
@@ -796,7 +838,7 @@ ServerHelper::operator==(const ServerHelper& helper) const
 	return false;
     }
 
-    if(_desc->distribution != helper._desc->distribution)
+    if(_desc->distrib != helper._desc->distrib)
     {
 	return false;
     }
@@ -834,10 +876,10 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance, const Resolve
     {
 	instance->envs.push_back(resolve(*p, "environment variable"));
     }
-    instance->distribution.icepatch = resolve(_desc->distribution.icepatch, "IcePatch2 server proxy");
-    for(p = _desc->distribution.directories.begin(); p != _desc->distribution.directories.end(); ++p)
+    instance->distrib.icepatch = resolve(_desc->distrib.icepatch, "IcePatch2 server proxy");
+    for(p = _desc->distrib.directories.begin(); p != _desc->distrib.directories.end(); ++p)
     {
-	instance->distribution.directories.push_back(resolve(*p, "distribution source directory"));
+	instance->distrib.directories.push_back(resolve(*p, "distribution source directory"));
     }
 }
 
@@ -897,40 +939,15 @@ ServerHelper::printImpl(Output& out, const string& application, const string& no
     {
 	out << nl << "envs = '" << toString(_desc->envs) << "'";
     }
-    if(!_desc->distribution.directories.empty())
+    if(!_desc->distrib.directories.empty())
     {
 	out << nl << "distribution";
 	out << sb;
-	out << nl << "proxy = '" << _desc->distribution.icepatch << "'";
-	out << nl << "directories = " << toString(_desc->distribution.directories);
+	out << nl << "proxy = '" << _desc->distrib.icepatch << "'";
+	out << nl << "directories = " << toString(_desc->distrib.directories);
 	out << eb;
     }
     CommunicatorHelper::print(out);
-}
-
-IceBoxHelper::IceBoxHelper(const IceBoxDescriptorPtr& descriptor, const Resolver& resolve) :
-    ServerHelper(descriptor),
-    _desc(descriptor)
-{
-    //
-    // TODO: Add validation (e.g.: ensure that service names are unique.)
-    //
-
-    //
-    // This IceBoxHelper constructor is called for IceBox server
-    // instances. Here, we populate the server helper sequence and
-    // also update the IceBox descriptor service instances. The
-    // service instances of the descriptor contain instances of the
-    // services: the ServiceInstanceDescriptor::descriptor attribute
-    // is set with the instance descriptor of the service even for
-    // template instances.
-    //
-
-    for(ServiceInstanceDescriptorSeq::iterator p = _desc->services.begin(); p != _desc->services.end(); ++p)
-    {
-	_services.push_back(ServiceInstanceHelper(*p, resolve));
-	*p = _services.back().getInstance();
-    }
 }
 
 IceBoxHelper::IceBoxHelper(const IceBoxDescriptorPtr& descriptor) :
@@ -993,7 +1010,7 @@ IceBoxHelper::instantiateImpl(const IceBoxDescriptorPtr& instance, const Resolve
     ServerHelper::instantiateImpl(instance, resolver);
     for(vector<ServiceInstanceHelper>::const_iterator p = _services.begin(); p != _services.end(); ++p)
     {
-	instance->services.push_back(p->getDescriptor());
+	instance->services.push_back(p->instantiate(resolver));
     }
 }
 
@@ -1013,8 +1030,10 @@ IceBoxHelper::print(Output& out, const string& application, const string& node) 
 }
 
 map<string, string>
-InstanceHelper::instantiateParams(const Resolver& resolve, const string& tmpl, const map<string, string>& parameters,
-				  const vector<string>& requiredParameters)
+InstanceHelper::instantiateParams(const Resolver& resolve, 
+				  const string& tmpl, 
+				  const map<string, string>& parameters,
+				  const vector<string>& requiredParameters) const
 {
     map<string, string> params;
 
@@ -1054,63 +1073,22 @@ InstanceHelper::instantiateParams(const Resolver& resolve, const string& tmpl, c
     return params;
 }
 
-ServiceInstanceHelper::ServiceInstanceHelper(const ServiceInstanceDescriptor& desc, const Resolver& resolve) :
-    _template(desc._cpp_template), 
-    _parameters(desc.parameterValues)
-{
-    //
-    // TODO: Add validation
-    //
-
-    ServiceDescriptorPtr def = desc.descriptor;
-    map<string, string> params;
-    if(!def)
-    {
-	if(_template.empty())
-	{
-	    resolve.exception("invalid service instance: no template defined");
-	}
-	TemplateDescriptor tmpl = resolve.getServiceTemplate(_template);
-	def = ServiceDescriptorPtr::dynamicCast(tmpl.descriptor);
-	params = instantiateParams(resolve, _template, _parameters, tmpl.parameters);
-    }
-    assert(def);
-    _definition = ServiceHelper(def);
-
-    Resolver svcResolve(resolve, params, true);
-    svcResolve.setReserved("service", svcResolve(def->name, "service name", false));
-    svcResolve.setContext("service `${service}' from server `${server}'");
-    _instance = ServiceHelper(_definition.instantiate(svcResolve));
-}
-
 ServiceInstanceHelper::ServiceInstanceHelper(const ServiceInstanceDescriptor& desc) :
     _template(desc._cpp_template), 
     _parameters(desc.parameterValues)
 {
-    if(_template.empty())
+    //
+    // If the service instance is not a template instance, its
+    // descriptor must be set and contain the definition of the
+    // service.
+    //
+    if(_template.empty() && !desc.descriptor)
     {
-	//
-	// If the service instance is not a template instance, its
-	// descriptor must be set and contain the definition of the
-	// service.
-	//
-	if(!desc.descriptor)
-	{
-	    throw DeploymentException("invalid service instance: no template defined");
-	}
-	_definition = ServiceHelper(desc.descriptor);
+	throw DeploymentException("invalid service instance: no template defined");
     }
-    else
+    if(desc.descriptor)
     {
-	//
-	// If the service instance is a template instance and its
-	// descriptor is set, the descriptor contains the
-	// instantiation of the service definition.
-	//
-	if(desc.descriptor)
-	{
-	    _instance = ServiceHelper(desc.descriptor);
-	}
+	_service = ServiceHelper(desc.descriptor);
     }
 }
 
@@ -1119,7 +1097,7 @@ ServiceInstanceHelper::operator==(const ServiceInstanceHelper& helper) const
 {
     if(_template.empty())
     {
-	return _definition == helper._definition;
+	return _service == helper._service;
     }
     else
     {
@@ -1134,46 +1112,48 @@ ServiceInstanceHelper::operator!=(const ServiceInstanceHelper& helper) const
 }
 
 ServiceInstanceDescriptor
-ServiceInstanceHelper::getDescriptor() const
+ServiceInstanceHelper::instantiate(const Resolver& resolve) const
 {
-    ServiceInstanceDescriptor desc;
-    desc._cpp_template = _template;
-    desc.parameterValues = _parameters;
-    desc.descriptor = _definition.getDescriptor();
-    return desc;
-}
+    map<string, string> params;
+    if(!_service.getDescriptor())
+    {
+	if(_template.empty())
+	{
+	    resolve.exception("invalid service instance: no template defined");
+	}
+	TemplateDescriptor tmpl = resolve.getServiceTemplate(_template);
+	_service = ServiceHelper(ServiceDescriptorPtr::dynamicCast(tmpl.descriptor));
+	params = instantiateParams(resolve, _template, _parameters, tmpl.parameters);
+    }
 
-ServiceInstanceDescriptor
-ServiceInstanceHelper::getInstance() const
-{
-    assert(_instance.getDescriptor());
+    Resolver svcResolve(resolve, params, true);
+    svcResolve.setReserved("service", svcResolve(_service.getDescriptor()->name, "service name", false));
+    svcResolve.setContext("service `${service}' from server `${server}'");
+
     ServiceInstanceDescriptor desc;
+    desc.descriptor = _service.instantiate(svcResolve);
     desc._cpp_template = _template;
     desc.parameterValues = _parameters;
-    desc.descriptor = _instance.getDescriptor();
     return desc;
 }
 
 void
 ServiceInstanceHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
 {
-    assert(_instance.getDescriptor());
-    _instance.getIds(adapterIds, objectIds);
+    assert(_service.getDescriptor());
+    _service.getIds(adapterIds, objectIds);
 }
 
 void
 ServiceInstanceHelper::print(Output& out) const
 {
-    if(_instance.getDescriptor())
+    if(_service.getDescriptor())
     {
-	_instance.print(out);
-    }
-    else if(_template.empty())
-    {
-	_definition.print(out);
+	_service.print(out);
     }
     else
     {
+	assert(!_template.empty());
 	out << nl << "service instance";
 	out << sb;
 	out << nl << "template = " << _template;
@@ -1242,8 +1222,7 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
     svrResolve.setContext("server `${server}'");
     if(iceBox)
     {
-	_instance = new IceBoxHelper(IceBoxDescriptorPtr::dynamicCast(_definition->instantiate(svrResolve)),
-				     svrResolve);
+	_instance = new IceBoxHelper(IceBoxDescriptorPtr::dynamicCast(_definition->instantiate(svrResolve)));
     }
     else
     {
@@ -1608,11 +1587,17 @@ NodeHelper::getDistributions(const string& server) const
 	ServerInstanceHelperDict::const_iterator p;
 	for(p = _serverInstances.begin(); p != _serverInstances.end(); ++p)
 	{
-	    distribs.insert(make_pair(p->first, p->second.getInstance()->distribution));
+	    if(!p->second.getInstance()->distrib.icepatch.empty())
+	    {
+		distribs.insert(make_pair(p->first, p->second.getInstance()->distrib));
+	    }
 	}
 	for(p = _servers.begin(); p != _servers.end(); ++p)
 	{
-	    distribs.insert(make_pair(p->first, p->second.getInstance()->distribution));
+	    if(!p->second.getInstance()->distrib.icepatch.empty())
+	    {
+		distribs.insert(make_pair(p->first, p->second.getInstance()->distrib));
+	    }
 	}
     }
     else
@@ -1624,10 +1609,25 @@ NodeHelper::getDistributions(const string& server) const
 	}
 	if(p != _serverInstances.end())
 	{
-	    distribs.insert(make_pair(server, p->second.getInstance()->distribution));
+	    if(!p->second.getInstance()->distrib.icepatch.empty())
+	    {
+		distribs.insert(make_pair(server, p->second.getInstance()->distrib));
+	    }
 	}
     }
     return distribs;
+}
+
+bool
+NodeHelper::hasServers() const
+{
+    return !_serverInstances.empty() || !_servers.empty();
+}
+
+bool
+NodeHelper::hasServer(const string& name) const
+{
+    return _serverInstances.find(name) != _serverInstances.end() || _servers.find(name) != _servers.end();
 }
 
 void
@@ -1826,9 +1826,9 @@ ApplicationHelper::diff(const ApplicationHelper& helper)
     update.variables = getDictUpdatedElts(helper._definition.variables, _definition.variables);
     update.removeVariables = getDictRemovedElts(helper._definition.variables, _definition.variables);
 
-    if(_definition.distribution != helper._definition.distribution)
+    if(_definition.distrib != helper._definition.distrib)
     {
-	update.distribution = new BoxedDistributionDescriptor(_definition.distribution);
+	update.distrib = new BoxedDistributionDescriptor(_definition.distrib);
     }
 
     GetReplicatedAdapterId rk;
@@ -1886,9 +1886,9 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
     
     _definition.variables = updateDictElts(_definition.variables, update.variables, update.removeVariables);
 
-    if(update.distribution)
+    if(update.distrib)
     {
-	_definition.distribution = update.distribution->value;
+	_definition.distrib = update.distrib->value;
     }
 
     _definition.serverTemplates = updateDictElts(_definition.serverTemplates, update.serverTemplates, 
@@ -2036,7 +2036,7 @@ ApplicationHelper::getDistributions(DistributionDescriptor& distribution,
 				    map<string, DistributionDescriptorDict>& nodeDistributions,
 				    const string& server) const
 {
-    distribution = _definition.distribution;
+    distribution = _definition.distrib;
     for(NodeHelperDict::const_iterator n = _nodes.begin(); n != _nodes.end(); ++n)
     {
 	DistributionDescriptorDict distrib = n->second.getDistributions(server);
@@ -2047,6 +2047,10 @@ ApplicationHelper::getDistributions(DistributionDescriptor& distribution,
 	    {
 		break;
 	    }
+	}
+	else if(server.empty() && n->second.hasServers() || n->second.hasServer(server))
+	{
+	    nodeDistributions.insert(make_pair(n->first, distrib));
 	}
     }
 }
@@ -2071,12 +2075,12 @@ ApplicationHelper::print(Output& out) const
 	}
 	out << eb;
     }
-    if(!_instance.distribution.directories.empty())
+    if(!_instance.distrib.directories.empty())
     {
 	out << nl << "distribution";
 	out << sb;
-	out << nl << "proxy = '" << _instance.distribution.icepatch << "'";
-	out << nl << "directories = " << toString(_instance.distribution.directories);
+	out << nl << "proxy = '" << _instance.distrib.icepatch << "'";
+	out << nl << "directories = " << toString(_instance.distrib.directories);
 	out << eb;
     }
     if(!_instance.replicatedAdapters.empty())
@@ -2154,7 +2158,7 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
 	}    
     }
     {
-	if(_definition.distribution != helper._definition.distribution)
+	if(_definition.distrib != helper._definition.distrib)
 	{
 	    out << nl << "distribution updated";
 	}
@@ -2372,5 +2376,24 @@ ApplicationHelper::validate(const Resolver& resolve) const
 	{
 	    resolve.exception("duplicate object `" + Ice::identityToString(*o) + "'");
 	}
+    }
+}
+
+bool
+IceGrid::descriptorEqual(const ServerDescriptorPtr& lhs, const ServerDescriptorPtr& rhs)
+{
+    if(lhs->ice_id() != rhs->ice_id())
+    {
+	return false;
+    }
+
+    IceBoxDescriptorPtr lhsIceBox = IceBoxDescriptorPtr::dynamicCast(lhs);
+    if(lhsIceBox)
+    {
+	return IceBoxHelper(lhsIceBox) == IceBoxHelper(IceBoxDescriptorPtr::dynamicCast(rhs));
+    }
+    else
+    {
+	return ServerHelper(lhs) == ServerHelper(rhs);
     }
 }

@@ -19,6 +19,7 @@
 #include <IceGrid/Util.h>
 #include <IceGrid/ServerAdapterI.h>
 #include <IceGrid/WaitQueue.h>
+#include <IceGrid/DescriptorHelper.h>
 
 #include <IcePatch2/Util.h>
 
@@ -155,14 +156,29 @@ ServerI::update(const string& application,
 		int& deactivationTimeout,
 		const Ice::Current& current)
 {
-    startUpdating(true);
+    //
+    // First we make sure that we're not going to update for nothing
+    // by comparing the 2 descriptors.
+    //
+    {
+	Lock sync(*this);
+	if(_desc && descriptorEqual(_desc, descriptor))
+	{
+	    getAdaptersAndTimeouts(adapters, activationTimeout, deactivationTimeout);
+	    return;
+	}
+    }
 
+    startUpdating(true);
+    
     //
     // If the server is inactive we can update its descriptor and its directory.
     //
     try
     {
-	updateImpl(application, descriptor, load, adapters, activationTimeout, deactivationTimeout, current);
+	Lock sync(*this);
+	updateImpl(application, descriptor, load, current);
+	getAdaptersAndTimeouts(adapters, activationTimeout, deactivationTimeout);
     }
     catch(const string& msg)
     {
@@ -176,7 +192,7 @@ ServerI::update(const string& application,
 	finishUpdating();
 	throw;
     }
-
+    
     finishUpdating();
 }
 
@@ -301,7 +317,7 @@ ServerI::destroy(const Ice::Current& current)
     //
     // Destroy the object adapters.
     //
-    for(map<string,  ServerAdapterIPtr>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+    for(ServerAdapterDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
     {
 	try
 	{
@@ -310,19 +326,6 @@ ServerI::destroy(const Ice::Current& current)
 	catch(const Ice::LocalException&)
 	{
 	}
-    }
-
-    //
-    // Delete the server directory from the disk.
-    //
-    try
-    {
-	removeRecursive(_serverDir);
-    }
-    catch(const string& msg)
-    {
-	Ice::Warning out(_node->getTraceLevels()->logger);
-	out << "couldn't remove directory `" + _serverDir + "':\n" + msg;
     }
     
     //
@@ -335,7 +338,7 @@ void
 ServerI::terminated(const Ice::Current& current)
 {
     InternalServerState newState = ServerI::Inactive; // Initialize to keep the compiler happy.
-    map<string, ServerAdapterIPtr> adpts;
+    ServerAdapterDict adpts;
     while(true)
     {
 	Lock sync(*this);
@@ -398,7 +401,7 @@ ServerI::terminated(const Ice::Current& current)
 	// null to cause the server re-activation if one of its adapter
 	// direct proxy is requested.
 	//
-	for(map<string, ServerAdapterIPtr>::iterator p = adpts.begin(); p != adpts.end(); ++p)
+	for(ServerAdapterDict::iterator p = adpts.begin(); p != adpts.end(); ++p)
 	{
 	    try
 	    {
@@ -429,8 +432,26 @@ ServerI::getPid(const Ice::Current&) const
 void 
 ServerI::setActivationMode(ServerActivation mode, const ::Ice::Current&)
 {
-    Lock sync(*this);
-    _activation = mode;
+    {
+	Lock sync(*this);
+	if(mode == _activation)
+	{
+	    return;
+	}
+	_activation = mode;
+    }
+    
+    NodeObserverPrx observer = _node->getObserver();
+    if(observer)
+    {
+	try
+	{
+	    observer->updateServer(_node->getName(), getDynamicInfo());
+	}
+	catch(const Ice::LocalException&)
+	{
+	}
+    }
 }
 
 ServerActivation 
@@ -466,7 +487,7 @@ bool
 ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
 {
     ServerDescriptorPtr desc;
-    map<string, ServerAdapterIPtr> adpts;
+    ServerAdapterDict adpts;
     while(true)
     {
 	Lock sync(*this);
@@ -550,14 +571,14 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
     string pwd = desc->pwd;
     if(pwd.empty())
     {
-	pwd = _serverDir + "/distribution";
+	pwd = _serverDir;
     }
 
     //
     // Clear the adapters direct proxy (this is usefull if the server
     // was manually activated).
     //
-    for(map<string, ServerAdapterIPtr>::iterator p = adpts.begin(); p != adpts.end(); ++p)
+    for(ServerAdapterDict::iterator p = adpts.begin(); p != adpts.end(); ++p)
     {
 	try
 	{
@@ -615,7 +636,7 @@ ServerI::adapterDeactivated(const string& id)
 void
 ServerI::activationFailed(bool timeout)
 {
-    map<string, ServerAdapterIPtr> adapters;
+    ServerAdapterDict adapters;
     {
 	Lock sync(*this);
 	if(_state != ServerI::WaitForActivation)
@@ -640,7 +661,7 @@ ServerI::activationFailed(bool timeout)
 	adapters = _adapters;
     }
 
-    for(map<string, ServerAdapterIPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+    for(ServerAdapterDict::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
 	try
 	{
@@ -658,8 +679,7 @@ ServerI::addDynamicInfo(ServerDynamicInfoSeq& serverInfos, AdapterDynamicInfoSeq
     //
     // Add server info if it's not inactive.
     //
-    ServerDynamicInfo info;
-    map<string, ServerAdapterIPtr> adapters;
+    ServerAdapterDict adapters;
     {
 	Lock sync(*this);
 	if(_state == ServerI::Inactive)
@@ -667,21 +687,18 @@ ServerI::addDynamicInfo(ServerDynamicInfoSeq& serverInfos, AdapterDynamicInfoSeq
 	    return;
 	}
 	adapters = _adapters;
-	info.state = toServerState(_state);
+	serverInfos.push_back(getDynamicInfo());
     }
-    info.id = _id;
-    info.pid = info.state == IceGrid::Active ? getPid() : 0;
-    serverInfos.push_back(info);
 
     //
     // Add adapters info.
     //
-    for(map<string, ServerAdapterIPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+    for(ServerAdapterDict::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
 	try
 	{
 	    AdapterDynamicInfo adapter;
-	    adapter.id = p->first;
+	    adapter.id = p->first.id;
 	    adapter.proxy = p->second->getDirectProxy();
 	    adapterInfos.push_back(adapter);
 	}
@@ -905,20 +922,9 @@ ServerI::setStateNoSync(InternalServerState st)
 	NodeObserverPrx observer = _node->getObserver();
 	if(observer)
 	{
-	    ServerDynamicInfo info;
-	    info.id = _id;
-	    info.state = toServerState(st);
-	    
-	    //
-	    // NOTE: this must be done only for the active state. Otherwise, we could get a 
-	    // deadlock since getPid() will lock the activator and since this method might 
-	    // be called from the activator locked.
-	    //
-	    info.pid = st == ServerI::Active ? getPid() : 0;
-	    
 	    try
 	    {
-		observer->updateServer(_node->getName(), info);
+		observer->updateServer(_node->getName(), getDynamicInfo());
 	    }
 	    catch(const Ice::LocalException&)
 	    {
@@ -975,10 +981,8 @@ ServerI::setStateNoSync(InternalServerState st)
 }
 
 void
-ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bool load, AdapterPrxDict& adapters,
-		    int& activationTimeout, int& deactivationTimeout, const Ice::Current& current)
+ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bool load, const Ice::Current& current)
 {
-    Lock sync(*this);
     _application = app;
     _desc = descriptor;
     _serverDir = _serversDir + "/" + descriptor->id;
@@ -994,8 +998,6 @@ ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bo
     {
 	_deactivationTimeout = _waitTime;
     }
-    activationTimeout = _activationTimeout;
-    deactivationTimeout = _deactivationTimeout;
 
     //
     // Make sure the server directories exists.
@@ -1011,9 +1013,9 @@ ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bo
 	{
 	    throw "can't find `dbs' directory in `" + _serverDir + "'";
 	}
-	if(find(contents.begin(), contents.end(), "data") == contents.end())
+	if(find(contents.begin(), contents.end(), "ditrib") == contents.end())
 	{
-	    throw "can't find `data' directory in `" + _serverDir + "'";
+	    throw "can't find `distrib' directory in `" + _serverDir + "'";
 	}
     }
     catch(const string&)
@@ -1025,7 +1027,7 @@ ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bo
 	createDirectory(_serverDir);
 	createDirectory(_serverDir + "/config");
 	createDirectory(_serverDir + "/dbs");
-	createDirectory(_serverDir + "/data");
+	createDirectory(_serverDir + "/distrib");
     }
 
     //
@@ -1050,7 +1052,7 @@ ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bo
     //
     Ice::StringSeq configFiles = readDirectory(_serverDir + "/config");
     Ice::StringSeq toDel;
-    set_difference(configFiles.begin(), configFiles.end(), knownFiles.begin(), knownFiles.end(), back_inserter(toDel));
+    set_difference(configFiles.begin(),configFiles.end(), knownFiles.begin(), knownFiles.end(), back_inserter(toDel));
     Ice::StringSeq::const_iterator p;
     for(p = toDel.begin(); p != toDel.end(); ++p)
     {
@@ -1101,14 +1103,13 @@ ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bo
     // Create the object adapter objects if necessary.
     //
     _processRegistered = false;
-    map<string, ServerAdapterIPtr> oldAdapters;
+    ServerAdapterDict oldAdapters;
     oldAdapters.swap(_adapters);
     for(AdapterDescriptorSeq::const_iterator r = descriptor->adapters.begin(); r != descriptor->adapters.end(); ++r)
     {
 	if(!r->id.empty())
 	{
-	    addAdapter(adapters, *r, descriptor, current);
-	    oldAdapters.erase(r->id);
+	    oldAdapters.erase(addAdapter(*r, descriptor, current));
 	}
 	_processRegistered |= r->registerProcess;
     }
@@ -1122,14 +1123,13 @@ ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bo
 	    {
 		if(!t->id.empty())
 		{
-		    addAdapter(adapters, *t, svc, current);
-		    oldAdapters.erase(t->id);
+		    oldAdapters.erase(addAdapter(*t, svc, current));
 		}
 		_processRegistered |= t->registerProcess;
 	    }
 	}
     }
-    for(map<string, ServerAdapterIPtr>::const_iterator t = oldAdapters.begin(); t != oldAdapters.end(); ++t)
+    for(ServerAdapterDict::const_iterator t = oldAdapters.begin(); t != oldAdapters.end(); ++t)
     {
 	try
 	{
@@ -1141,28 +1141,27 @@ ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bo
     }
 }
 
-void
-ServerI::addAdapter(AdapterPrxDict& adapters, const AdapterDescriptor& descriptor, 
-		    const CommunicatorDescriptorPtr& comm, const Ice::Current& current)
+ReplicatedAdapterIdentity
+ServerI::addAdapter(const AdapterDescriptor& desc, const CommunicatorDescriptorPtr& comm, const Ice::Current& current)
 {
-    assert(!descriptor.id.empty());
+    assert(!desc.id.empty());
 
     ReplicatedAdapterIdentity adptId;
-    adptId.id = descriptor.id;
-    adptId.replicaId = getReplicaId(descriptor, comm, _id);
+    adptId.id = desc.id;
+    adptId.replicaId = getReplicaId(desc, comm, _id);
 
     Ice::Identity id;
     id.category = "IceGridServerAdapter";
-    id.name = _desc->id + "-" + adptId.id + "-" + adptId.replicaId + "-" + descriptor.name; // Use UUID instead?
+    id.name = _desc->id + "-" + adptId.id + "-" + adptId.replicaId + "-" + desc.name; // Use UUID instead?
     AdapterPrx proxy = AdapterPrx::uncheckedCast(current.adapter->createProxy(id));
     ServerAdapterIPtr servant = ServerAdapterIPtr::dynamicCast(current.adapter->find(id));
     if(!servant)
     {
-	servant = new ServerAdapterI(_node, this, _desc->id, proxy, descriptor.id, adptId.replicaId, _waitTime);
+	servant = new ServerAdapterI(_node, this, _desc->id, proxy, desc.id, adptId.replicaId, _waitTime);
 	current.adapter->add(servant, id);
     }
-    _adapters.insert(make_pair(descriptor.id, servant));
-    adapters.insert(make_pair(adptId, proxy));
+    _adapters.insert(make_pair(adptId, servant));
+    return adptId;
 }
 
 void
@@ -1331,6 +1330,17 @@ ServerI::updateDbEnv(const string& serverDir, const DbEnvDescriptor& dbEnv)
     configfile.close();
 }
 
+void
+ServerI::getAdaptersAndTimeouts(AdapterPrxDict& adapters, int& activationTimeout, int& deactivationTimeout) const
+{
+    for(ServerAdapterDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+    {
+	adapters.insert(make_pair(p->first, p->second->getProxy()));
+    }    
+    activationTimeout = _activationTimeout;
+    deactivationTimeout = _deactivationTimeout;
+}
+
 PropertyDescriptor
 ServerI::createProperty(const string& name, const string& value)
 {
@@ -1367,3 +1377,19 @@ ServerI::toServerState(InternalServerState st) const
     }
 }
 
+ServerDynamicInfo
+ServerI::getDynamicInfo() const
+{
+    ServerDynamicInfo info;
+    info.id = _id;
+    info.state = toServerState(_state);
+    
+    //
+    // NOTE: this must be done only for the active state. Otherwise, we could get a 
+    // deadlock since getPid() will lock the activator and since this method might 
+    // be called from the activator locked.
+    //
+    info.pid = _state == ServerI::Active ? getPid() : 0;
+    info.enabled = _activation == OnDemand;
+    return info;
+}

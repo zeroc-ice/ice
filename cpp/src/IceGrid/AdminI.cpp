@@ -63,10 +63,7 @@ public:
 	{
 	    ostringstream os;
 	    os << e;
-
-	    NodeUnreachableException ex;
-	    ex.name = _node;
-	    ex.reason = os.str();
+	    throw NodeUnreachableException(_node, os.str());
 	}
     }
 
@@ -119,10 +116,15 @@ AdminI::patchApplication(const string& name, bool shutdown, const Current&)
 {
     ApplicationHelper helper(_database->getApplicationDescriptor(name));    
     DistributionDescriptor appDistrib;
-    map<string, DistributionDescriptorDict> nodeDistribs;
-    helper.getDistributions(appDistrib, nodeDistribs);
+    map<string, DistributionDescriptorDict> nodeDistrib;
+    helper.getDistributions(appDistrib, nodeDistrib);
 
-    for(map<string, DistributionDescriptorDict>::const_iterator p = nodeDistribs.begin(); p != nodeDistribs.end(); ++p)
+    if(appDistrib.icepatch.empty() && nodeDistrib.empty())
+    {
+	return;
+    }
+
+    for(map<string, DistributionDescriptorDict>::const_iterator p = nodeDistrib.begin(); p != nodeDistrib.end(); ++p)
     {
 	try
 	{
@@ -158,7 +160,7 @@ AdminI::getAllApplicationNames(const Current&) const
 ServerInfo
 AdminI::getServerInfo(const string& id, const Current&) const
 {
-    return _database->getServerInfo(id);
+    return _database->getServerInfo(id, true);
 }
 
 ServerState
@@ -235,10 +237,15 @@ AdminI::patchServer(const string& id, bool shutdown, const Current&)
     ServerInfo info = _database->getServerInfo(id);
     ApplicationHelper helper(_database->getApplicationDescriptor(info.application));
     DistributionDescriptor appDistrib;
-    map<string, DistributionDescriptorDict> nodeDistribs;
-    helper.getDistributions(appDistrib, nodeDistribs, id);
+    map<string, DistributionDescriptorDict> nodeDistrib;
+    helper.getDistributions(appDistrib, nodeDistrib, id);
 
-    for(map<string, DistributionDescriptorDict>::const_iterator p = nodeDistribs.begin(); p != nodeDistribs.end(); ++p)
+    if(appDistrib.icepatch.empty() && nodeDistrib.empty())
+    {
+	return;
+    }
+
+    for(map<string, DistributionDescriptorDict>::const_iterator p = nodeDistrib.begin(); p != nodeDistrib.end(); ++p)
     {
 	try
 	{
@@ -454,11 +461,13 @@ AdminI::shutdownNode(const string& name, const Current&)
     }
     catch(const Ice::ObjectNotExistException&)
     {
-	throw NodeNotExistException();
+	throw NodeNotExistException(name);
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
-	throw NodeUnreachableException();
+	ostringstream os;
+	os << ex;
+	throw NodeUnreachableException(name, os.str());
     }
 }
 
@@ -472,11 +481,13 @@ AdminI::getNodeHostname(const string& name, const Current&) const
     }
     catch(const Ice::ObjectNotExistException&)
     {
-	throw NodeNotExistException();
+	throw NodeNotExistException(name);
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
-	throw NodeUnreachableException();
+	ostringstream os;
+	os << ex;
+	throw NodeUnreachableException(name, os.str());
     }
 }
 

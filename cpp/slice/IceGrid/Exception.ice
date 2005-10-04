@@ -61,10 +61,10 @@ exception ObjectExistsException
 
 /**
  *
- * This exception is raised if an object does not exist.
+ * This exception is raised if an object is not registered.
  *
  **/
-exception ObjectNotExistException
+exception ObjectNotRegisteredException
 {
     Ice::Identity id;
 };

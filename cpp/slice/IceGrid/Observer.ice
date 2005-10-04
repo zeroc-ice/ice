@@ -45,6 +45,13 @@ struct ServerDynamicInfo
      *
      **/    
     int pid;
+    
+    /**
+     *
+     * Whether or not the server is enabled or disabled.
+     *
+     **/
+    bool enabled;
 };
 
 /**

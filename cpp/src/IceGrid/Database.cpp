@@ -375,9 +375,20 @@ Database::removeApplicationDescriptor(ObserverSessionI* session, const std::stri
 	{
 	    throw ApplicationNotExistException(name);
 	}
-	
-	ApplicationHelper helper(p->second);
-	unload(helper, entries);
+
+	try
+	{
+	    ApplicationHelper helper(p->second);
+	    unload(helper, entries);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    //
+	    // For some reasons the application became invalid. If
+	    // it's invalid, it's most likely not loaded either. So we
+	    // ignore the error and erase the descriptor.
+	    //
+	}
 	
 	_descriptors.erase(p);
 
@@ -458,9 +469,9 @@ Database::getAllNodes(const string& expression)
 }
 
 ServerInfo
-Database::getServerInfo(const std::string& id)
+Database::getServerInfo(const std::string& id, bool resolve)
 {
-    return _serverCache.get(id)->getServerInfo();
+    return _serverCache.get(id)->getServerInfo(resolve);
 }
 
 ServerPrx
@@ -743,7 +754,7 @@ Database::removeObject(const Ice::Identity& id)
 	ex.reason += "the object was added with the application descriptor `" + obj->getApplication() + "'";
 	throw ex;
     }
-    catch(const ObjectNotExistException&)
+    catch(const ObjectNotRegisteredException&)
     {
     }
 
@@ -751,7 +762,7 @@ Database::removeObject(const Ice::Identity& id)
     IdentityObjectInfoDict objects(connection, _objectDbName); 
     if(objects.find(id) == objects.end())
     {
-	ObjectNotExistException ex;
+	ObjectNotRegisteredException ex;
 	ex.id = id;
 	throw ex;
     }
@@ -777,7 +788,7 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
 	ex.reason += "the object was added with the application descriptor `" + obj->getApplication() + "'";
 	throw ex;
     }
-    catch(const ObjectNotExistException&)
+    catch(const ObjectNotRegisteredException&)
     {
     }
 
@@ -786,7 +797,7 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
     IdentityObjectInfoDict::iterator p = objects.find(id);
     if(p == objects.end())
     {
-	ObjectNotExistException ex;
+	ObjectNotRegisteredException ex;
 	ex.id = id;
 	throw ex;
     }
@@ -809,7 +820,7 @@ Database::getObjectProxy(const Ice::Identity& id)
     {
 	return _objectCache.get(id)->getProxy();
     }
-    catch(ObjectNotExistException&)
+    catch(ObjectNotRegisteredException&)
     {
     }
 
@@ -818,7 +829,7 @@ Database::getObjectProxy(const Ice::Identity& id)
     IdentityObjectInfoDict::const_iterator p = objects.find(id);
     if(p == objects.end())
     {
-	ObjectNotExistException ex;
+	ObjectNotRegisteredException ex;
 	ex.id = id;
 	throw ex;
     }
@@ -845,7 +856,7 @@ Database::getObjectsWithType(const string& type)
     }
     if(proxies.empty())
     {
-	throw ObjectNotExistException();
+	throw ObjectNotRegisteredException();
     }
     return proxies;
 }
@@ -858,7 +869,7 @@ Database::getObjectInfo(const Ice::Identity& id)
 	ObjectEntryPtr object = _objectCache.get(id);
 	return object->getObjectInfo();
     }
-    catch(ObjectNotExistException&)
+    catch(ObjectNotRegisteredException&)
     {
     }
 
@@ -867,9 +878,7 @@ Database::getObjectInfo(const Ice::Identity& id)
     IdentityObjectInfoDict::const_iterator p = objects.find(id);
     if(p == objects.end())
     {
-	ObjectNotExistException ex;
-	ex.id = id;
-	throw ex;
+	throw ObjectNotRegisteredException(id);
     }
     return p->second;
 }
@@ -1039,8 +1048,7 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
 	{
 	    load.push_back(p->second);
 	} 
-	else if(p->second.node != q->second.node ||
-		ServerHelper(p->second.descriptor) != ServerHelper(q->second.descriptor))
+	else if(p->second.node != q->second.node || !descriptorEqual(p->second.descriptor, q->second.descriptor))
 	{
 	    entries.push_back(_serverCache.remove(p->first, false)); // Don't destroy the server if it was updated.
 	    load.push_back(p->second);

@@ -33,6 +33,7 @@ public:
     NodeInfo getNodeInfo() const;
     LoadInfo getLoadInfo();
     std::string getHostname() const;
+    std::string getDataDir() const;
 
 private:
 

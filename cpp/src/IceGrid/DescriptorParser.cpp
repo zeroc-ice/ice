@@ -68,7 +68,7 @@ private:
     bool _isTopLevel;
     bool _inAdapter;
     bool _inDbEnv;
-    bool _inDistribution;
+    bool _inDistrib;
 };
 
 }
@@ -334,12 +334,11 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		_currentCommunicator->addObject(attributes);
 	    }
 	}
-	else if(name == "distribution")
+	else if(name == "distrib")
 	{
 	    if(!_currentApplication.get() && (!_currentServer.get() || _currentServer.get() != _currentCommunicator))
 	    {
-		error("the <distribution> element can only be a child of an <application>, <server> or <icebox> "
-		      "element");
+		error("the <distrib> element can only be a child of an <application>, <server> or <icebox> element");
 	    }
 	    if(!_currentServer.get())
 	    {
@@ -349,7 +348,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    {
 		_currentServer->addDistribution(attributes);
 	    }
-	    _inDistribution = true;
+	    _inDistrib = true;
 	}
 	else if(name == "dbenv")
 	{
@@ -478,9 +477,9 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     }
     else if(name == "directory")
     {
-	if(!_inDistribution)
+	if(!_inDistrib)
 	{
-		error("the <directory> element can only be a child of a <distribution> element");
+		error("the <directory> element can only be a child of a <distrib> element");
 	}
 	if(!_currentServer.get())
 	{
@@ -503,9 +502,9 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     {
 	_inDbEnv = false;
     }
-    else if(name == "distribution")
+    else if(name == "distrib")
     {
-	_inDistribution = false;
+	_inDistrib = false;
     }
 }
 

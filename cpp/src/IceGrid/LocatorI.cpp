@@ -304,7 +304,7 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
     {
 	proxy = _database->getObjectProxy(id);
     }
-    catch(const ObjectNotExistException&)
+    catch(const ObjectNotRegisteredException&)
     {
 	throw Ice::ObjectNotFoundException();
     }

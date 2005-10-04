@@ -81,13 +81,17 @@ private:
     void setState(InternalServerState);
     void setStateNoSync(InternalServerState);
     
-    void updateImpl(const std::string&, const ServerDescriptorPtr&, bool, AdapterPrxDict&, int&, int&, 
-		    const Ice::Current&);
-    void addAdapter(AdapterPrxDict&, const AdapterDescriptor&, const CommunicatorDescriptorPtr&, const Ice::Current&);
+    void updateImpl(const std::string&, const ServerDescriptorPtr&, bool, const Ice::Current&);
+
+    ReplicatedAdapterIdentity
+    addAdapter(const AdapterDescriptor&, const CommunicatorDescriptorPtr&, const Ice::Current&);
+
     void updateConfigFile(const std::string&, const CommunicatorDescriptorPtr&, bool);
     void updateDbEnv(const std::string&, const DbEnvDescriptor&);
+    void getAdaptersAndTimeouts(AdapterPrxDict&, int&, int&) const;
     PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
     ServerState toServerState(InternalServerState) const;
+    ServerDynamicInfo getDynamicInfo() const;
 
     const NodeIPtr _node;
     const ServerPrx _this;
@@ -102,7 +106,8 @@ private:
     ServerActivation _activation;
     int _activationTimeout;
     int _deactivationTimeout;
-    std::map<std::string, ServerAdapterIPtr> _adapters;
+    typedef std::map<ReplicatedAdapterIdentity, ServerAdapterIPtr> ServerAdapterDict;
+    ServerAdapterDict _adapters;
     bool _processRegistered;
     Ice::ProcessPrx _process;
     std::set<std::string> _activeAdapters;

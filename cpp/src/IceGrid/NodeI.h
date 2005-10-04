@@ -64,6 +64,10 @@ private:
     void initObserver(const Ice::StringSeq&);
     void patch(const IcePatch2::FileServerPrx&, const std::string&, const std::vector<std::string>&);
 
+    void addServer(const ServerIPtr&);
+    void removeServer(const ServerIPtr&);
+    std::set<ServerIPtr> getApplicationServers(const std::string&);
+
     const Ice::ObjectAdapterPtr _adapter;
     const ActivatorPtr _activator;
     const WaitQueuePtr _waitQueue;
@@ -72,7 +76,6 @@ private:
     const NodePrx _proxy;
     const Ice::Int _waitTime;
     std::string _dataDir;
-    std::string _sharedDir;
     std::string _serversDir;
     std::string _tmpDir;
     unsigned long _serial;

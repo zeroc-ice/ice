@@ -12,6 +12,7 @@
 #include <IceGrid/NodeCache.h>
 #include <IceGrid/NodeSessionI.h>
 #include <IceGrid/ServerCache.h>
+#include <IceGrid/DescriptorHelper.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -213,4 +214,158 @@ NodeEntry::canRemove()
 {
     Lock sync(*this);
     return !_session && _servers.empty();
+}
+
+ServerPrx
+NodeEntry::loadServer(const ServerInfo& server, AdapterPrxDict& adapters, int& aTimeout, int& dTimeout)
+{
+    NodePrx node;
+    ServerDescriptorPtr desc;
+    {
+	Lock sync(*this);
+	if(!_session)
+	{
+	    throw NodeUnreachableException(_name, "the node is not active");
+	}	
+	node = _session->getNode();
+	desc = getServerDescriptor(server);
+    }
+    assert(desc);
+    try
+    {
+	ServerPrx proxy = node->loadServer(server.application, desc, adapters, aTimeout, dTimeout);
+	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
+	{
+	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+	    out << "loaded server `" << desc->id << "' on node `" << _name << "'";	
+	}
+	return ServerPrx::uncheckedCast(proxy->ice_collocationOptimization(false));
+    }
+    catch(const NodeNotExistException& ex)
+    {
+	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
+	{
+	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+	    out << "couldn't load `" << desc->id << "' on node `" << _name << "':\n" << ex;
+	}
+	
+	ostringstream os;
+	os << ex;
+	throw NodeUnreachableException(_name, os.str());
+    }
+    catch(const DeploymentException& ex)
+    {
+	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
+	{
+	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+	    out << "couldn't load `" << desc->id << "' on node `" << _name << "':\n" << ex.reason;
+	}
+	
+	Ice::Warning out(_cache.getTraceLevels()->logger);
+	out << "failed to load `" + desc->id + "' on node `" << _name << "':\n" << ex;
+	ostringstream os;
+	os << ex << "\nreason: " << ex.reason;
+	throw NodeUnreachableException(_name, os.str());
+    }
+    catch(const Ice::Exception& ex)
+    {
+	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
+	{
+	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+	    out << "couldn't load server `" << desc->id << "' on node `" << _name << "':\n" << ex;
+	}
+	
+	ostringstream os;
+	os << ex;
+	throw NodeUnreachableException(_name, os.str());
+    }
+}
+
+void
+NodeEntry::destroyServer(const string& id)
+{
+    try
+    {
+	getProxy()->destroyServer(id);	
+	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
+	{
+	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+	    out << "unloaded server `" << id << "' on node `" << _name << "'";
+	}
+    }
+    catch(const NodeNotExistException& ex)
+    {
+	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
+	{
+	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+	    out << "couldn't unload server `" << id << "' on node `" << _name << "':\n" << ex;
+	}
+
+	ostringstream os;
+	os << ex;
+	throw NodeUnreachableException(_name, os.str());
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
+	{
+	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+	    out << "couldn't unload server `" << id << "' on node `" << _name << "':\n" << ex;
+	}
+	
+	ostringstream os;
+	os << ex;
+	throw NodeUnreachableException(_name, os.str());
+    }
+}
+
+ServerInfo
+NodeEntry::getServerInfo(const ServerInfo& server)
+{
+    Lock sync(*this);
+    if(!_session)
+    {
+	throw NodeUnreachableException(_name, "the node is not active");
+    }
+    ServerInfo info = server;
+    info.descriptor = getServerDescriptor(server);
+    assert(info.descriptor);
+    return info;
+}
+
+ServerDescriptorPtr
+NodeEntry::getServerDescriptor(const ServerInfo& server)
+{
+    assert(_session);
+    try
+    {
+	NodeInfo info = _session->getInfo();
+
+	Resolver resolve("server `" + server.descriptor->id + "'", map<string, string>());
+	resolve.setReserved("application", server.application);
+	resolve.setReserved("node", server.node);
+	resolve.setReserved("server", server.descriptor->id);
+	resolve.setReserved("node.os", info.os);
+	resolve.setReserved("node.hostname", info.hostname);
+	resolve.setReserved("node.release", info.release);
+	resolve.setReserved("node.version", info.version);
+	resolve.setReserved("node.machine", info.machine);
+	resolve.setReserved("node.datadir", info.dataDir);
+	
+	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server.descriptor);
+	if(iceBox)
+	{
+	    return IceBoxHelper(iceBox).instantiate(resolve);
+	}
+	else
+	{
+	    return ServerHelper(server.descriptor).instantiate(resolve);
+	}
+    }
+    catch(const DeploymentException& ex)
+    {
+	Ice::Warning out(_cache.getTraceLevels()->logger);
+	out << "couldn't instantiate `" + server.descriptor->id + "':\n" << ex.reason;
+	return server.descriptor;
+    }
 }

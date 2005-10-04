@@ -64,3 +64,4 @@ IceGrid::getReplicaId(const AdapterDescriptor& adapter, const CommunicatorDescri
     ServiceDescriptorPtr service = ServiceDescriptorPtr::dynamicCast(comm);
     return service ? serverId + "." + service->name : serverId;
 }
+

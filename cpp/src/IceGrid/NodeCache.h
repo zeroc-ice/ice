@@ -46,8 +46,14 @@ public:
 
     bool canRemove();
     
+    ServerPrx loadServer(const ServerInfo&, AdapterPrxDict&, int&, int&);
+    void destroyServer(const std::string&);
+    ServerInfo getServerInfo(const ServerInfo&);
+
 private:
     
+    ServerDescriptorPtr getServerDescriptor(const ServerInfo&);
+
     Cache<std::string, NodeEntry>& _cache;
     const std::string _name;
     NodeSessionIPtr _session;

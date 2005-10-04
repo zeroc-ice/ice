@@ -65,9 +65,7 @@ ObjectCache::get(const Ice::Identity& id) const
     ObjectEntryPtr entry = self.getImpl(id);
     if(!entry)
     {
-	ObjectNotExistException ex;
-	ex.id = id;
-	throw ex;
+	throw ObjectNotRegisteredException(id);
     }
     return entry;
 }

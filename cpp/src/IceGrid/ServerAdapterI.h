@@ -36,6 +36,8 @@ public:
     void clear();
     void activationFailed(bool);
 
+    AdapterPrx getProxy() const;
+
 private:
 
     const NodeIPtr _node;

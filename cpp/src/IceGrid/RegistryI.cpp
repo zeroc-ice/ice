@@ -265,7 +265,7 @@ RegistryI::start(bool nowarn)
     {
 	_database->removeObject(queryPrx->ice_getIdentity());
     }
-    catch(const ObjectNotExistException&)
+    catch(const IceGrid::ObjectNotRegisteredException&)
     {
     }	
     ObjectInfo info;
@@ -285,7 +285,7 @@ RegistryI::start(bool nowarn)
     {
 	_database->removeObject(adminPrx->ice_getIdentity());
     }
-    catch(const ObjectNotExistException&)
+    catch(const IceGrid::ObjectNotRegisteredException&)
     {
     }
     info.proxy = adminPrx;
@@ -369,7 +369,7 @@ RegistryI::start(bool nowarn)
     {
 	_database->removeObject(sessionManagerPrx->ice_getIdentity());
     }
-    catch(const ObjectNotExistException&)
+    catch(const IceGrid::ObjectNotRegisteredException&)
     {
     }
     info.proxy = sessionManagerPrx;

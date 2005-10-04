@@ -41,12 +41,12 @@ interface Query
      *
      * @return The proxy.
      *
-     * @throws ObjectNotExistException Raised if no objects can be
+     * @throws ObjectNotFoundException Raised if no objects can be
      * found.
      *
      **/
     nonmutating Object* findObjectById(Ice::Identity id)
-	throws ObjectNotExistException;
+	throws ObjectNotRegisteredException;
 
     /**
      *
@@ -56,12 +56,12 @@ interface Query
      *
      * @return The proxy.
      *
-     * @throws ObjectNotExistException Raised if no objects can be
+     * @throws ObjectNotRegisteredException Raised if no objects can be
      * found.
      *
      **/
     nonmutating Object* findObjectByType(string type)
-	throws ObjectNotExistException;
+	throws ObjectNotRegisteredException;
 
     /**
      *
@@ -71,12 +71,12 @@ interface Query
      *
      * @return The proxies.
      *
-     * @throws ObjectNotExistException Raised if no objects can be
+     * @throws ObjectNotRegisteredException Raised if no objects can be
      * found.
      *
      **/
     nonmutating Ice::ObjectProxySeq findAllObjectsWithType(string type)
-	throws ObjectNotExistException;
+	throws ObjectNotRegisteredException;
 };
 
 };

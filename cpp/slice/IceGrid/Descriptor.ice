@@ -273,7 +273,7 @@ class ServerDescriptor extends CommunicatorDescriptor
      * The distribution descriptor.
      *
      **/
-    DistributionDescriptor distribution;
+    DistributionDescriptor distrib;
 };
 
 /**
@@ -554,7 +554,7 @@ struct ApplicationDescriptor
      * The application distribution.
      *
      **/
-    DistributionDescriptor distribution;
+    DistributionDescriptor distrib;
 
     /**
      *
@@ -662,7 +662,7 @@ struct ApplicationUpdateDescriptor
      * The updated distribution application descriptor.
      * 
      **/
-    BoxedDistributionDescriptor distribution;
+    BoxedDistributionDescriptor distrib;
     
     /**
      *

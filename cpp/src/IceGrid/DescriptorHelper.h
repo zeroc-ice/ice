@@ -24,6 +24,7 @@ public:
 
     Resolver(const ApplicationHelper&, const std::string&, const std::map<std::string, std::string>&);
     Resolver(const Resolver&, const std::map<std::string, std::string>&, bool);
+    Resolver(const std::string&, const std::map<std::string, std::string>&);
 
     std::string operator()(const std::string&, const std::string& = std::string(), bool = true, bool = true) const;
     std::string asInt(const std::string&, const std::string& = std::string()) const;
@@ -40,11 +41,16 @@ private:
     std::string substitute(const std::string&, bool = false) const;
     std::string getVariable(const std::string&, bool, bool&) const;
 
-    const ApplicationHelper& _application;
+    static std::map<std::string, std::string> getReserved();
+    void checkReserved(const std::string&, const std::map<std::string, std::string>&) const;
+
+    const ApplicationHelper* _application;
+    const bool _escape;
     std::string _context;
     std::map<std::string, std::string> _variables;
     std::map<std::string, std::string> _parameters;
     std::map<std::string, std::string> _reserved;
+    std::set<std::string> _ignore;
 };
 
 class CommunicatorHelper
@@ -132,7 +138,6 @@ class IceBoxHelper : public ServerHelper
 {
 public:
 
-    IceBoxHelper(const IceBoxDescriptorPtr&, const Resolver&);
     IceBoxHelper(const IceBoxDescriptorPtr&);
     IceBoxHelper() { }
 
@@ -153,32 +158,30 @@ private:
     
     IceBoxDescriptorPtr _desc;
 
-    typedef std::vector<ServiceInstanceHelper> ServiceInstanceHelperSeq;
-    ServiceInstanceHelperSeq _services;
+    std::vector<ServiceInstanceHelper> _services;
 };
 
 class InstanceHelper
 {
 protected:
 
-    std::map<std::string, std::string> instantiateParams(const Resolver&, const std::string&, 
+    std::map<std::string, std::string> instantiateParams(const Resolver&, 
+							 const std::string&, 
 							 const std::map<std::string, std::string>&,
-							 const std::vector<std::string>&);
+							 const std::vector<std::string>&) const;
 };
 
 class ServiceInstanceHelper : public InstanceHelper
 {
 public:
 
-    ServiceInstanceHelper(const ServiceInstanceDescriptor&, const Resolver&);
     ServiceInstanceHelper(const ServiceInstanceDescriptor&);
     ServiceInstanceHelper() { }
 
     bool operator==(const ServiceInstanceHelper&) const;
     bool operator!=(const ServiceInstanceHelper&) const;
 
-    ServiceInstanceDescriptor getDescriptor() const;
-    ServiceInstanceDescriptor getInstance() const;
+    ServiceInstanceDescriptor instantiate(const Resolver&) const;
     void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
 
     void print(IceUtil::Output&) const;
@@ -187,8 +190,7 @@ private:
     
     std::string _template;
     std::map<std::string, std::string> _parameters;
-    ServiceHelper _definition;
-    ServiceHelper _instance;
+    mutable ServiceHelper _service;
 };
 
 class ServerInstanceHelper : public InstanceHelper
@@ -240,6 +242,8 @@ public:
     const NodeDescriptor& getInstance() const;
     void getServerInfos(const std::string&, std::map<std::string, ServerInfo>&) const;
     DistributionDescriptorDict getDistributions(const std::string&) const;
+    bool hasServers() const;
+    bool hasServer(const std::string&) const;
     void print(IceUtil::Output&) const;
     void printDiff(IceUtil::Output&, const NodeHelper&) const;
     void validate(const Resolver&) const;
@@ -289,6 +293,8 @@ private:
     typedef std::map<std::string, NodeHelper> NodeHelperDict;
     NodeHelperDict _nodes;
 };
+
+bool descriptorEqual(const ServerDescriptorPtr&, const ServerDescriptorPtr&);
 
 }
 

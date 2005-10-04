@@ -595,12 +595,12 @@ interface Admin
      *
      * @param obj The object to be updated to the registry.
      *
-     * @throws ObjectNotExistException Raised if the object doesn't
+     * @throws ObjectNotRegisteredException Raised if the object doesn't
      * exist.
      *
      **/
     void updateObject(Object* obj)
-	throws ObjectNotExistException, DeploymentException;
+	throws ObjectNotRegisteredException, DeploymentException;
 
     /**
      *
@@ -625,12 +625,12 @@ interface Admin
      * @param id The identity of the object to be removed from the
      * registry.
      *
-     * @throws ObjectNotExistException Raised if the object doesn't
+     * @throws ObjectNotRegisteredException Raised if the object doesn't
      * exist.
      *
      **/
     void removeObject(Ice::Identity id) 
-	throws ObjectNotExistException, DeploymentException;
+	throws ObjectNotRegisteredException, DeploymentException;
 
     /**
      *
@@ -640,12 +640,12 @@ interface Admin
      *
      * @return The object info.
      *
-     * @throws ObjectNotExistException Raised if the object doesn't
+     * @throws ObjectNotRegisteredException Raised if the object doesn't
      * exist.
      *
      **/
     nonmutating ObjectInfo getObjectInfo(Ice::Identity id)
-	throws ObjectNotExistException;
+	throws ObjectNotRegisteredException;
 
     /**
      *
@@ -688,7 +688,7 @@ interface Admin
      *
      **/
     nonmutating NodeInfo getNodeInfo(string name)
-	throws NodeNotExistException;
+	throws NodeNotExistException, NodeUnreachableException;
     
     /**
      *

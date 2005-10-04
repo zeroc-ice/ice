@@ -88,7 +88,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     {
 	Ice::ObjectPrx obj = query->findObjectByType("::Foo");
     }
-    catch(const ObjectNotExistException&)
+    catch(const ObjectNotRegisteredException&)
     {
     }
 

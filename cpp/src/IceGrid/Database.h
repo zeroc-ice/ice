@@ -66,7 +66,7 @@ public:
     void removeNode(const std::string&);
     Ice::StringSeq getAllNodes(const std::string& = std::string());
 
-    ServerInfo getServerInfo(const std::string&);
+    ServerInfo getServerInfo(const std::string&, bool = false);
     ServerPrx getServer(const std::string&);
     ServerPrx getServerWithTimeouts(const std::string&, int&, int&, std::string&);
     Ice::StringSeq getAllServers(const std::string& = std::string());
