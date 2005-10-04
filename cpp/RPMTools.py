@@ -8,21 +8,46 @@
 # **********************************************************************
 import os, sys, shutil, string, logging
 
-iceDescription = """Ice is a modern alternative to object middleware such as CORBA or COM/DCOM/COM+.
-It is easy to learn, yet provides a powerful network infrastructure for
-demanding technical applications. It features an object-oriented specification
-language, easy to use C++, Java, Python, PHP, C#, and Visual Basic mappings, a
-highly efficient protocol, asynchronous method invocation and dispatch, dynamic
-transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more."""
+buildRequires = ('db4',
+                 'db4-devel',
+                 'byacc',
+                 'mono-core',
+                 'mono-devel',
+                 'python',
+                 'python-devel',
+                 'bzip2-devel',
+                 'bzip2-libs',
+                 'ant',
+                 'expat-devel',
+                 'expat',
+                 'libstdc++',
+                 'gcc',
+                 'gcc-c++',
+                 'jdk',
+                 'tar',
+                 'binutils',
+                 'openssl',
+                 'openssl-devel',
+                 'readline',
+                 'ncurses'
+                 )
+
+iceDescription = '''Ice is a modern alternative to object middleware
+such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
+powerful network infrastructure for demanding technical applications. It
+features an object-oriented specification language, easy to use C++,
+Java, Python, PHP, C#, and Visual Basic mappings, a highly efficient
+protocol, asynchronous method invocation and dispatch, dynamic transport
+plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
+solution, and much more.'''
 
 #
 # Represents the 'main' package of an RPM spec file.
 # TODO: The package should really write the RPM header has well.
 #
 class Package:
-    """Encapsulates RPM spec file information to be used to generate a spec file on Linux
-       and create RPMs for Ice"""
+    '''Encapsulates RPM spec file information to be used to generate a
+       spec file on Linux and create RPMs for Ice'''
     def __init__(self, name, requires, summary, group, description, other, filelist):
         self.name = name
         self.requires = requires
@@ -35,80 +60,88 @@ class Package:
 	self.buildTextGen = []
 	self.installTextGen = []
         
-    def writeHdr(self, ofile, version, release, installDir):
-	ofile.write("%define _unpackaged_files_terminate_build 0\n")
-	ofile.write("Summary: " + self.summary + "\n")
-	ofile.write("Name: " + self.name + "\n")
-	ofile.write("Version: " + version + "\n")
-	ofile.write("Release: " + release + "\n")
-	if self.requires <> "":
-            if self.requires.find("%version%"):
-                self.requires = self.requires.replace("%version%", version)
-	    ofile.write("Requires: " + self.requires + "\n")
-	ofile.write("License: GPL\n")
-	ofile.write("Group:" + self.group + "\n")
-	ofile.write("Vendor: ZeroC, Inc\n")
-	ofile.write("URL: http://www.zeroc.com/\n")
-	ofile.write("Source0: http://www.zeroc.com/download/Ice/2.1/Ice-%{version}.tar.gz\n")
-	ofile.write("Source1: http://www.zeroc.com/download/Ice/2.1/IceJ-%{version}.tar.gz\n")
-	ofile.write("Source2: http://www.zeroc.com/download/Ice/2.1/IcePy-%{version}.tar.gz\n")
-	ofile.write("Source3: http://www.zeroc.com/download/Ice/2.1/IceCS-%{version}.tar.gz\n")
-	ofile.write("Source4: http://www.zeroc.com/download/Ice/2.1/Ice-%{version}-demos.tar.gz\n")
-	ofile.write("Source5: http://www.zeroc.com/download/Ice/2.1/README.Linux-RPM\n")
-	ofile.write("\n")
-	if installDir <> "":
-	    ofile.write("BuildRoot: " + installDir + "\n")
+    def writeHdr(self, ofile, version, release, installDir, buildRequires):
+	ofile.write('%define _unpackaged_files_terminate_build 0\n')
+	ofile.write('Summary: ' + self.summary + '\n')
+	ofile.write('Name: ' + self.name + '\n')
+	ofile.write('Version: ' + version + '\n')
+	ofile.write('Release: ' + release + '\n')
+	if len(self.requires) != 0:
+            if self.requires.find('%version%'):
+                self.requires = self.requires.replace('%version%', version)
+	    ofile.write('Requires: ' + self.requires + '\n')
+	ofile.write('License: GPL\n')
+	ofile.write('Group:' + self.group + '\n')
+	ofile.write('Vendor: ZeroC, Inc\n')
+	ofile.write('URL: http://www.zeroc.com/\n')
+
+	#
+	# major.minor is part of the URL, this needs to be parameterized.
+	#
+        minorVer = version[0:3]
+	ofile.write('Source0: http://www.zeroc.com/download/Ice/' + minorVer + '/Ice-%{version}.tar.gz\n')
+	ofile.write('Source1: http://www.zeroc.com/download/Ice/' + minorVer + '/IceJ-%{version}.tar.gz\n')
+	ofile.write('Source2: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePy-%{version}.tar.gz\n')
+	ofile.write('Source3: http://www.zeroc.com/download/Ice/' + minorVer + '/IceCS-%{version}.tar.gz\n')
+	ofile.write('Source4: http://www.zeroc.com/download/Ice/' + minorVer + '/Ice-%{version}-demos.tar.gz\n')
+	ofile.write('Source5: http://www.zeroc.com/download/Ice/' + minorVer + '/README.Linux-RPM\n')
+	ofile.write('\n')
+	if len(installDir) != 0:
+	    ofile.write('BuildRoot: ' + installDir + '\n')
 	else:
 	    ofile.write('BuildRoot: /var/tmp/Ice-' + version + '-' + release + '-buildroot\n')
-	ofile.write("\n")
-	ofile.write("%description\n")
+        ofile.write('\n')
+        for f in buildRequires:
+            ofile.write('BuildRequires: ' + f  + '\n')
+	ofile.write('\n')
+	ofile.write('%description\n')
 	ofile.write(self.description)
-	ofile.write("\n")
-	ofile.write("%prep\n")
+	ofile.write('\n')
+	ofile.write('%prep\n')
 	for g in self.prepTextGen:
 	    g(ofile, version)
-	ofile.write("\n")
-	ofile.write("%build\n")
+	ofile.write('\n')
+	ofile.write('%build\n')
 	for g in self.buildTextGen:
 	    g(ofile, version)
-	ofile.write("\n")
-	ofile.write("%install\n")
+	ofile.write('\n')
+	ofile.write('%install\n')
 	for g in self.installTextGen:
 	    g(ofile, version)
-	ofile.write("\n")
-	ofile.write("%clean\n")
-	ofile.write("\n")
-	ofile.write("%changelog\n")
-	ofile.write("* Tue Mar 8 2005 ZeroC Staff\n")
-	ofile.write("- See source distributions or the ZeroC website for more information\n")
-	ofile.write("  about the changes in this release\n") 
-	ofile.write("\n")
+	ofile.write('\n')
+	ofile.write('%clean\n')
+	ofile.write('\n')
+	ofile.write('%changelog\n')
+	ofile.write('* Tue Mar 8 2005 ZeroC Staff\n')
+	ofile.write('- See source distributions or the ZeroC website for more information\n')
+	ofile.write('  about the changes in this release\n') 
+	ofile.write('\n')
 
     def writeFileList(self, ofile, version, intVersion, installDir):
-        ofile.write("%defattr(644, root, root, 755)\n\n")
+        ofile.write('%defattr(644, root, root, 755)\n\n')
         for perm, f in self.filelist:
-            prefix = ""
+            prefix = ''
 	    
 	    #
 	    # Select an RPM spec file attribute depending on the type of
 	    # file or directory we've specified.
 	    #
-            if perm == "exe" or perm == "lib":
-                prefix = "%attr(755, root, root) "
-	    elif perm == "xdir":
-		prefix = "%dir "
+            if perm == 'exe' or perm == 'lib':
+                prefix = '%attr(755, root, root) '
+	    elif perm == 'xdir':
+		prefix = '%dir '
 
-            if f.find("%version%"):
-                f = f.replace("%version%", version)
+            if f.find('%version%'):
+                f = f.replace('%version%', version)
 
-            if perm == "lib" and f.endswith(".VERSION"):
+            if perm == 'lib' and f.endswith('.VERSION'):
 		fname = os.path.splitext(f)[0]
-                ofile.write(prefix + "/usr/" + fname + "." + version + "\n")
-                ofile.write(prefix + "/usr/" + fname + "." + str(intVersion) + "\n")
+                ofile.write(prefix + '/usr/' + fname + '.' + version + '\n')
+                ofile.write(prefix + '/usr/' + fname + '.' + str(intVersion) + '\n')
 	    else:
-		ofile.write(prefix + "/usr/" + f + "\n")
+		ofile.write(prefix + '/usr/' + f + '\n')
 
-        ofile.write("\n")    
+        ofile.write('\n')    
 
     def writePostInstall(self, ofile, version, intVersion, installDir):
 	ofile.write('cd /usr\n')
@@ -122,7 +155,8 @@ class Package:
 	    if perm == 'dll':
 		if os.path.exists(installDir + '/usr/' + f):
 		    #
-		    # We need to trap the assembly name from the DLL. We can use the monodis command to do this.
+                    # We need to trap the assembly name from the
+		    # DLL. We can use the monodis command to do this.
 		    #
 		    pipe_stdin, pipe_stdout = os.popen2('monodis --assembly ' + installDir + '/usr/' + f);
 		    lines = pipe_stdout.readlines()
@@ -144,14 +178,14 @@ class Package:
 	ofile.write('\n')
 
     def writeFiles(self, ofile, version, intVersion, installDir):
-        ofile.write("%files\n")
+        ofile.write('%files\n')
         self.writeFileList(ofile, version, intVersion, installDir)
 	ofile.write('\n')
 
-	ofile.write("%post\n")
+	ofile.write('%post\n')
 	self.writePostInstall(ofile, version, intVersion, installDir)
 
-	ofile.write("%postun\n")
+	ofile.write('%postun\n')
 	self.writePostUninstall(ofile, version, intVersion, installDir)
 	ofile.write('\n')
 
@@ -168,40 +202,40 @@ class Package:
 # Represents subpackages in an RPM spec file.
 #
 class Subpackage(Package):
-    def writeHdr(self, ofile, version, release, installDir):
-        ofile.write("%package " + self.name + "\n")
-        ofile.write("Summary: " + self.summary + "\n")
-        ofile.write("Group: " + self.group + "\n")
-	if self.requires <> "":
-            if self.requires.find("%version%"):
-                self.requires = self.requires.replace("%version%", version)
-	    ofile.write("Requires: " + self.requires + "\n")
-	if not self.other == "":
-	    ofile.write(self.other + "\n")
-        ofile.write("%description " + self.name + "\n")
+    def writeHdr(self, ofile, version, release, installDir, buildRequires):
+        ofile.write('%package ' + self.name + '\n')
+        ofile.write('Summary: ' + self.summary + '\n')
+        ofile.write('Group: ' + self.group + '\n')
+	if len(self.requires) != 0:
+            if self.requires.find('%version%'):
+                self.requires = self.requires.replace('%version%', version)
+	    ofile.write('Requires: ' + self.requires + '\n')
+	if len(self.other) != 0:
+	    ofile.write(self.other + '\n')
+        ofile.write('%description ' + self.name + '\n')
         ofile.write(self.description)
 
     def writeFiles(self, ofile, version, intVersion, installDir):
-        ofile.write("%files " + self.name + "\n")
+        ofile.write('%files ' + self.name + '\n')
         self.writeFileList(ofile, version, intVersion, installDir)
 
-	ofile.write("%post " + self.name + "\n")
+	ofile.write('%post ' + self.name + '\n')
 	self.writePostInstall(ofile, version, intVersion, installDir)
 
-	ofile.write("%postun " + self.name + "\n")
+	ofile.write('%postun ' + self.name + '\n')
 	self.writePostUninstall(ofile, version, intVersion, installDir)
 
 #
 # NOTE: File transforms should be listed before directory transforms.
 #
-transforms = [ ("file", "lib/Ice.jar", "lib/Ice-%version%/Ice.jar" ),
-	       ("dir", "slice", "share/slice"),
-	       ("dir", "ant", "lib/Ice-%version%/ant"),
-	       ("dir", "python", "lib/Ice-%version%/python"),
-               ("dir", "doc", "share/doc/Ice-%version%/doc"),
-               ("file", "README", "share/doc/Ice-%version%/README"),
-               ("file", "ICE_LICENSE", "share/doc/Ice-%version%/ICE_LICENSE"),
-               ("file", "LICENSE", "share/doc/Ice-%version%/LICENSE")
+transforms = [ ('file', 'lib/Ice.jar', 'lib/Ice-%version%/Ice.jar' ),
+	       ('dir', 'slice', 'share/slice'),
+	       ('dir', 'ant', 'lib/Ice-%version%/ant'),
+	       ('dir', 'python', 'lib/Ice-%version%/python'),
+               ('dir', 'doc', 'share/doc/Ice-%version%/doc'),
+               ('file', 'README', 'share/doc/Ice-%version%/README'),
+               ('file', 'ICE_LICENSE', 'share/doc/Ice-%version%/ICE_LICENSE'),
+               ('file', 'LICENSE', 'share/doc/Ice-%version%/LICENSE')
                ]
 
 #
@@ -209,189 +243,168 @@ transforms = [ ("file", "lib/Ice.jar", "lib/Ice-%version%/Ice.jar" ),
 # the Ice spec file.
 # 
 fileLists = [
-    Package("ice",
-            "",
-	    "The Ice base runtime and services",
-            "System Environment/Libraries",
+    Package('ice',
+            '',
+	    'The Ice base runtime and services',
+            'System Environment/Libraries',
 	    iceDescription,
-	    "",
-            [("xdir", "share/doc/Ice-%version%"),
-             ("doc", "share/doc/Ice-%version%/ICE_LICENSE"),
-             ("doc", "share/doc/Ice-%version%/LICENSE"),
-             ("doc", "share/doc/Ice-%version%/README"),
-             ("exe", "bin/dumpdb"),
-             ("exe", "bin/transformdb"),
-             ("exe", "bin/glacier2router"),
-             ("exe", "bin/icebox"),
-             ("exe", "bin/iceboxadmin"),
-             ("exe", "bin/icepackadmin"),
-             ("exe", "bin/icecpp"),
-             ("exe", "bin/icepacknode"),
-             ("exe", "bin/icepackregistry"),
-             ("exe", "bin/icepatch2calc"),
-             ("exe", "bin/icepatch2client"),
-             ("exe", "bin/icepatch2server"),
-             ("exe", "bin/icestormadmin"),
-             ("exe", "bin/slice2docbook"), 
-             ("lib", "lib/libFreeze.so.VERSION"),
-             ("lib", "lib/libGlacier2.so.VERSION"),
-             ("lib", "lib/libIceBox.so.VERSION"),
-             ("lib", "lib/libIcePack.so.VERSION"),
-             ("lib", "lib/libIcePatch2.so.VERSION"),
-             ("lib", "lib/libIce.so.VERSION"),
-             ("lib", "lib/libIceSSL.so.VERSION"),
-             ("lib", "lib/libIceStormService.so.VERSION"),
-             ("lib", "lib/libIceStorm.so.VERSION"),
-             ("lib", "lib/libIceUtil.so.VERSION"),
-             ("lib", "lib/libIceXML.so.VERSION"),
-             ("lib", "lib/libSlice.so.VERSION"),
-             ("dir", "share/slice"),
-             ("dir", "share/doc/Ice-%version%/doc"),
-             ("xdir", "share/doc/Ice-%version%/certs"),
-	     ("file", "share/doc/Ice-%version%/certs/cacert.pem"),
-	     ("file", "share/doc/Ice-%version%/certs/c_dh1024.pem"),
-	     ("file", "share/doc/Ice-%version%/certs/client_sslconfig.xml"),
-	     ("file", "share/doc/Ice-%version%/certs/server_sslconfig.xml"),
-	     ("file", "share/doc/Ice-%version%/certs/c_rsa1024_priv.pem"),
-	     ("file", "share/doc/Ice-%version%/certs/c_rsa1024_pub.pem"),
-	     ("file", "share/doc/Ice-%version%/certs/s_dh1024.pem"),
-	     ("file", "share/doc/Ice-%version%/certs/s_rsa1024_priv.pem"),
-	     ("file", "share/doc/Ice-%version%/certs/s_rsa1024_pub.pem"),
-	     ("file", "share/doc/Ice-%version%/certs/sslconfig.dtd"),
-	     ("file", "share/doc/Ice-%version%/certs/sslconfig.xml"),
-	     ("file", "share/doc/Ice-%version%/README.DEMOS")]),
-    Subpackage("c++-devel",
-               "",
-               "Tools and demos for developing Ice applications in C++",
-               "Development/Tools",
+	    '',
+            [('xdir', 'share/doc/Ice-%version%'),
+             ('doc', 'share/doc/Ice-%version%/ICE_LICENSE'),
+             ('doc', 'share/doc/Ice-%version%/LICENSE'),
+             ('doc', 'share/doc/Ice-%version%/README'),
+             ('exe', 'bin/dumpdb'),
+             ('exe', 'bin/transformdb'),
+             ('exe', 'bin/glacier2router'),
+             ('exe', 'bin/icebox'),
+             ('exe', 'bin/iceboxadmin'),
+             ('exe', 'bin/icepackadmin'),
+             ('exe', 'bin/icecpp'),
+             ('exe', 'bin/icepacknode'),
+             ('exe', 'bin/icepackregistry'),
+             ('exe', 'bin/icepatch2calc'),
+             ('exe', 'bin/icepatch2client'),
+             ('exe', 'bin/icepatch2server'),
+             ('exe', 'bin/icestormadmin'),
+             ('exe', 'bin/slice2docbook'), 
+             ('exe', 'bin/icegridadmin'), 
+             ('exe', 'bin/icegridnode'), 
+             ('exe', 'bin/icegridregistry'), 
+             ('lib', 'lib/libFreeze.so.VERSION'),
+             ('lib', 'lib/libGlacier2.so.VERSION'),
+             ('lib', 'lib/libIceBox.so.VERSION'),
+             ('lib', 'lib/libIcePack.so.VERSION'),
+             ('lib', 'lib/libIcePatch2.so.VERSION'),
+             ('lib', 'lib/libIce.so.VERSION'),
+             ('lib', 'lib/libIceSSL.so.VERSION'),
+             ('lib', 'lib/libIceStormService.so.VERSION'),
+             ('lib', 'lib/libIceStorm.so.VERSION'),
+             ('lib', 'lib/libIceUtil.so.VERSION'),
+             ('lib', 'lib/libIceXML.so.VERSION'),
+             ('lib', 'lib/libSlice.so.VERSION'),
+             ('lib', 'lib/libGrid.so.VERSION'),
+             ('dir', 'share/slice'),
+             ('dir', 'share/doc/Ice-%version%/doc'),
+             ('xdir', 'share/doc/Ice-%version%/certs'),
+	     ('file', 'share/doc/Ice-%version%/certs/cacert.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/c_dh1024.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/client_sslconfig.xml'),
+	     ('file', 'share/doc/Ice-%version%/certs/server_sslconfig.xml'),
+	     ('file', 'share/doc/Ice-%version%/certs/c_rsa1024_priv.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/c_rsa1024_pub.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/s_dh1024.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/s_rsa1024_priv.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/s_rsa1024_pub.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.dtd'),
+	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.xml'),
+	     ('file', 'share/doc/Ice-%version%/README.DEMOS')]),
+    Subpackage('c++-devel',
+               '',
+               'Tools and demos for developing Ice applications in C++',
+               'Development/Tools',
 	       iceDescription,
-	       "",
-               [("exe", "bin/slice2cpp"),
-                ("exe", "bin/slice2freeze"),
-                ("dir", "include"),
-		("lib", "lib/libFreeze.so"),
-		("lib", "lib/libGlacier2.so"),
-		("lib", "lib/libIceBox.so"),
-		("lib", "lib/libIcePack.so"),
-		("lib", "lib/libIcePatch2.so"),
-		("lib", "lib/libIce.so"),
-		("lib", "lib/libIceSSL.so"),
-		("lib", "lib/libIceStormService.so"),
-		("lib", "lib/libIceStorm.so"),
-		("lib", "lib/libIceUtil.so"),
-		("lib", "lib/libIceXML.so"),
-		("lib", "lib/libSlice.so"),
-		("xdir", "share/doc/Ice-%version%"),
-		("dir", "share/doc/Ice-%version%/demo"),
-		("xdir", "share/doc/Ice-%version%/config"),
-		("file", "share/doc/Ice-%version%/config/Make.rules"),
-		("file", "share/doc/Ice-%version%/config/Make.rules.Linux"),
+	       '',
+               [('exe', 'bin/slice2cpp'),
+                ('exe', 'bin/slice2freeze'),
+                ('dir', 'include'),
+		('lib', 'lib/libFreeze.so'),
+		('lib', 'lib/libGlacier2.so'),
+		('lib', 'lib/libIceBox.so'),
+		('lib', 'lib/libIcePack.so'),
+		('lib', 'lib/libIcePatch2.so'),
+		('lib', 'lib/libIce.so'),
+		('lib', 'lib/libIceSSL.so'),
+		('lib', 'lib/libIceStormService.so'),
+		('lib', 'lib/libIceStorm.so'),
+		('lib', 'lib/libIceUtil.so'),
+		('lib', 'lib/libIceXML.so'),
+		('lib', 'lib/libSlice.so'),
+		('xdir', 'share/doc/Ice-%version%'),
+		('dir', 'share/doc/Ice-%version%/demo'),
+		('xdir', 'share/doc/Ice-%version%/config'),
+		('file', 'share/doc/Ice-%version%/config/Make.rules'),
+		('file', 'share/doc/Ice-%version%/config/Make.rules.Linux'),
 		]),
-    Subpackage("dotnet",
-               "ice = %version%, mono-core >= 1.1.7",
-               "The Ice runtime for C# applications",
-               "System Environment/Libraries",
+    Subpackage('dotnet',
+               'ice = %version%, mono-core >= 1.1.9',
+               'The Ice runtime for C# applications',
+               'System Environment/Libraries',
 	       iceDescription,
-	       "",
-               [("dll", "bin/glacier2cs.dll"), 
-	        ("dll", "bin/icecs.dll"), 
-		("dll", "bin/icepackcs.dll"),
-                ("dll", "bin/icepatch2cs.dll"), 
-		("dll", "bin/icestormcs.dll")]),
-    Subpackage("csharp-devel",
-               "ice-dotnet = %version%",
-               "Tools and demos for developing Ice applications in C#",
-               "Development/Tools",
+	       '',
+               [('dll', 'bin/glacier2cs.dll'), 
+	        ('dll', 'bin/icecs.dll'), 
+		('dll', 'bin/icepackcs.dll'),
+                ('dll', 'bin/icepatch2cs.dll'), 
+		('dll', 'bin/icestormcs.dll')]),
+    Subpackage('csharp-devel',
+               'ice-dotnet = %version%',
+               'Tools and demos for developing Ice applications in C#',
+               'Development/Tools',
 	       iceDescription,
-	       "",
-               [("exe", "bin/slice2cs"),
-		("xdir", "share/doc/Ice-%version%"),
-		("xdir", "share/doc/Ice-%version%/config"),
-		("file", "share/doc/Ice-%version%/config/Make.rules.cs"),
-	        ("dir", "share/doc/Ice-%version%/democs")]),
-    Subpackage("java-devel",
-               "ice-java = %version%",
-               "Tools and demos for developing Ice applications in Java",
-               "Development/Tools",
+	       '',
+               [('exe', 'bin/slice2cs'),
+		('xdir', 'share/doc/Ice-%version%'),
+		('xdir', 'share/doc/Ice-%version%/config'),
+		('file', 'share/doc/Ice-%version%/config/Make.rules.cs'),
+	        ('dir', 'share/doc/Ice-%version%/democs')]),
+    Subpackage('java-devel',
+               'ice-java = %version%',
+               'Tools and demos for developing Ice applications in Java',
+               'Development/Tools',
 	       iceDescription,
-	       "",
-               [("exe", "bin/slice2java"),
-                ("exe", "bin/slice2freezej"),
-		("xdir", "lib/Ice-%version%"),
-		("dir", "lib/Ice-%version%/ant"),
-		("xdir", "share/doc/Ice-%version%"),
-		("xdir", "share/doc/Ice-%version%/certs"),
-	        ("file", "share/doc/Ice-%version%/certs/certs.jks"),
-	        ("file", "share/doc/Ice-%version%/certs/client.jks"),
-	        ("file", "share/doc/Ice-%version%/certs/server.jks"),
-		("xdir", "share/doc/Ice-%version%/config"),
-	        ("file", "share/doc/Ice-%version%/config/build.properties"),
-	        ("file", "share/doc/Ice-%version%/config/common.xml"),
-		("dir", "share/doc/Ice-%version%/demoj")]),
-    Subpackage("python",
-               "ice = %version%, python >= 2.3.4",
-               "The Ice runtime for Python applications",
-               "System Environment/Libraries",
+	       '',
+               [('exe', 'bin/slice2java'),
+                ('exe', 'bin/slice2freezej'),
+		('xdir', 'lib/Ice-%version%'),
+		('dir', 'lib/Ice-%version%/ant'),
+		('xdir', 'share/doc/Ice-%version%'),
+		('xdir', 'share/doc/Ice-%version%/certs'),
+	        ('file', 'share/doc/Ice-%version%/certs/certs.jks'),
+	        ('file', 'share/doc/Ice-%version%/certs/client.jks'),
+	        ('file', 'share/doc/Ice-%version%/certs/server.jks'),
+		('xdir', 'share/doc/Ice-%version%/config'),
+	        ('file', 'share/doc/Ice-%version%/config/build.properties'),
+	        ('file', 'share/doc/Ice-%version%/config/common.xml'),
+		('dir', 'share/doc/Ice-%version%/demoj')]),
+    Subpackage('python',
+               'ice = %version%, python >= 2.4.1',
+               'The Ice runtime for Python applications',
+               'System Environment/Libraries',
 	       iceDescription,
-	       "",
-               [("lib", "lib/IcePy.so.VERSION"), ("lib", "lib/IcePy.so"), ("dir", "lib/Ice-%version%/python")]),
-    Subpackage("python-devel",
-               "ice-python = %version%",
-               "Tools and demos for developing Ice applications in Python",
-               "Development/Tools",
+	       '',
+               [('lib', 'lib/IcePy.so.VERSION'), ('lib', 'lib/IcePy.so'), ('dir', 'lib/Ice-%version%/python')]),
+    Subpackage('python-devel',
+               'ice-python = %version%',
+               'Tools and demos for developing Ice applications in Python',
+               'Development/Tools',
 	       iceDescription,
-	       "",
-               [("exe", "bin/slice2py"),
-		("xdir", "share/doc/Ice-%version%"),
-	        ("dir", "share/doc/Ice-%version%/demopy")])
+	       '',
+               [('exe', 'bin/slice2py'),
+		('xdir', 'share/doc/Ice-%version%'),
+	        ('dir', 'share/doc/Ice-%version%/demopy')])
     ]
 
 noarchFileList = [
-    Package("ice-java",
-	    "ice = %version%, db4-java = 4.2.52",
-	    "The Ice runtime for Java",
-	    "System Environment/Libraries",
+    Package('ice-java',
+	    #
+	    # FC-4 doesn't have a current db4-java. 
+	    # 'ice = %version%, db4-java >= 4.3.27',
+	    #
+	    'ice = %version%, db4 >= 4.3.27, ice-third-party >= %version%',
+	    'The Ice runtime for Java',
+	    'System Environment/Libraries',
 	    iceDescription,
-	    "BuildArch: noarch",
-	    [ ("xdir", "lib/Ice-%version%"),
-              ("dir", "lib/Ice-%version%/Ice.jar")
+	    'BuildArch: noarch',
+	    [ ('xdir', 'lib/Ice-%version%'),
+              ('dir', 'lib/Ice-%version%/Ice.jar')
 	    ])
     ]
 
-#
-# XXX - not used anywhere?
-#
-def _missingPathParts(source, dest):
-    print "Calculating :  " + source + " and " + dest
-        
-    startPath = dest.find(source)
-
-    result = dest[0:startPath]
-    #
-    # There is no common element, we'll need to create the whole destination tree.
-    #
-    if startPath == -1:
-        result = dest
-    #
-    # The common element is at the head, but we already know the path doesn't exists
-    # so we need to remaining path elements
-    #
-    elif startPath == 0:
-        result = dest
-    #
-    # If the common element is not at the tail of destination, then we probably
-    # need to create the whole path
-    #
-    elif startPath + len(source) + 1 < len(dest):
-        result = dest
-        
-    print "Making " + result
-    return result
-
 def _transformDirectories(transforms, version, installDir):
-    """Transforms a directory tree that was created with 'make installs' to an RPM friendly
-       directory tree.  NOTE, this will not work on all transforms, there are certain
-       types of transforms in certain orders that will break it."""
+    """Transforms a directory tree that was created with 'make installs'
+    to an RPM friendly directory tree.  NOTE, this will not work on all
+    transforms, there are certain types of transforms in certain orders
+    that will break it."""
     cwd = os.getcwd()
     os.chdir(installDir + "/Ice-" + version)
     for type, source, dest in transforms:
@@ -427,7 +440,7 @@ def _transformDirectories(transforms, version, installDir):
 
 def createArchSpecFile(ofile, installDir, version, soVersion):
     for v in fileLists:
-	v.writeHdr(ofile, version, "1", installDir)
+	v.writeHdr(ofile, version, "1", installDir, buildRequires)
 	ofile.write("\n\n\n")
     for v in fileLists:
 	v.writeFiles(ofile, version, soVersion, installDir)
@@ -435,7 +448,7 @@ def createArchSpecFile(ofile, installDir, version, soVersion):
 
 def createNoArchSpecFile(ofile, installDir, version, soVersion):
     for v in noarchFileList:
-	v.writeHdr(ofile, version, "1", installDir)
+	v.writeHdr(ofile, version, "1", installDir, buildRequires)
 	ofile.write("\n\n\n")
     for v in noarchFileList:
 	v.writeFiles(ofile, version, soVersion, installDir)
@@ -460,7 +473,7 @@ def createFullSpecFile(ofile, installDir, version, soVersion):
     fullFileList[0].addInstallGenerator(writeDemoPkgCommands)
 
     for v in fullFileList:
-	v.writeHdr(ofile, version, "1", installDir)
+	v.writeHdr(ofile, version, "1", installDir, buildRequires)
 	ofile.write("\n\n\n")
     for v in fullFileList:
 	v.writeFiles(ofile, version, soVersion, installDir)
