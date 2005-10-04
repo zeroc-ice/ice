@@ -107,18 +107,6 @@
             </fileset>
         </slice2java>
 
-        <slice2java ice="on" outputdir="${generated.dir}" checksum="IcePack.SliceChecksums"
-            dependencyfile="${generated.dir}/.depend.IcePack">
-            <includepath>
-                <pathelement path="${slice.dir}" />
-            </includepath>
-            <fileset dir="${slice.dir}/IcePack">
-                <include name="Admin.ice" />
-                <include name="Query.ice" />
-                <include name="Exception.ice" />
-            </fileset>
-        </slice2java>
-
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceGrid.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceGrid">
             <includepath>
@@ -133,7 +121,6 @@
                 <include name="Descriptor.ice" />
             </fileset>
         </slice2java>
-
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceStorm.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceStorm">

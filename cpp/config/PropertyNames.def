@@ -177,69 +177,6 @@ IceBox:
     ServiceManager.ThreadPool.StackSize
     UseSharedCommunicator.<any>
 
-IcePack:
-    Node.AdapterId
-    Node.ReplicaId
-    Node.CollocateRegistry
-    Node.Data
-    Node.Endpoints
-    Node.Name
-    Node.Output
-    Node.PrintServersReady
-    Node.PropertiesOverride
-    Node.PublishedEndpoints
-    Node.RedirectErrToOut
-    Node.ThreadPool.Size
-    Node.ThreadPool.SizeMax
-    Node.ThreadPool.SizeWarn
-    Node.ThreadPool.StackSize
-    Node.Trace.Activator
-    Node.Trace.Adapter
-    Node.Trace.Server
-    Node.WaitTime
-    Node.BackgroundRegistration
-    Registry.Admin.AdapterId
-    Registry.Admin.ReplicaId
-    Registry.Admin.Endpoints
-    Registry.Admin.PublishedEndpoints
-    Registry.Admin.ThreadPool.Size
-    Registry.Admin.ThreadPool.SizeMax
-    Registry.Admin.ThreadPool.SizeWarn
-    Registry.Admin.ThreadPool.StackSize
-    Registry.AdminIdentity
-    Registry.Client.AdapterId
-    Registry.Client.ReplicaId
-    Registry.Client.Endpoints
-    Registry.Client.PublishedEndpoints
-    Registry.Client.ThreadPool.Size
-    Registry.Client.ThreadPool.SizeMax
-    Registry.Client.ThreadPool.SizeWarn
-    Registry.Client.ThreadPool.StackSize
-    Registry.Data
-    Registry.DynamicRegistration
-    Registry.Internal.AdapterId
-    Registry.Internal.ReplicaId
-    Registry.Internal.Endpoints
-    Registry.Internal.PublishedEndpoints
-    Registry.Internal.ThreadPool.Size
-    Registry.Internal.ThreadPool.SizeMax
-    Registry.Internal.ThreadPool.SizeWarn
-    Registry.Internal.ThreadPool.StackSize
-    Registry.LocatorIdentity
-    Registry.QueryIdentity
-    Registry.Server.AdapterId
-    Registry.Server.ReplicaId
-    Registry.Server.Endpoints
-    Registry.Server.PublishedEndpoints
-    Registry.Server.ThreadPool.Size
-    Registry.Server.ThreadPool.SizeMax
-    Registry.Server.ThreadPool.SizeWarn
-    Registry.Server.ThreadPool.StackSize
-    Registry.Trace.AdapterRegistry
-    Registry.Trace.NodeRegistry
-    Registry.Trace.ObjectRegistry
-    Registry.Trace.ServerRegistry
-
 IceGrid:
     Node.AdapterId
     Node.ReplicaId

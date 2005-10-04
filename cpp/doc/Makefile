@@ -19,7 +19,7 @@ SGMLFILES	= reference.sgml \
 SLICEFILES	= $(wildcard ../slice/Ice/*.ice) \
 		  $(wildcard ../slice/Freeze/*.ice) \
 		  $(wildcard ../slice/IceBox/*.ice) \
-		  $(wildcard ../slice/IcePack/*.ice) \
+		  $(wildcard ../slice/IceGrid/*.ice) \
 		  $(wildcard ../slice/IceSSL/*.ice) \
 		  $(wildcard ../slice/Glacier2/*.ice) \
 		  $(wildcard ../slice/IceStorm/*.ice) \

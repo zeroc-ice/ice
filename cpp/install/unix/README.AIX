@@ -113,7 +113,7 @@ and libIceUtil, so a typical link command would look like this:
 $ xlC_r -o myprogram myprogram.o -L$ICE_HOME/lib -lIce -lIceUtil
 
 Additional libraries are necessary if you are using an Ice service
-such as IcePack or Glacier2.
+such as IceGrid or Glacier2.
 
 
 Java
