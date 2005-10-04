@@ -62,7 +62,7 @@ IceSSL.Server.CertPath=../../../certs
 IceSSL.Server.Config=sslconfig.xml
 
 #
-# IcePack registry settings (assumes that a db directory exists in the 
+# IceGrid registry settings (assumes that a db directory exists in the 
 # current working directory).
 # 
 IceGrid.Registry.Client.Endpoints=default -p 10006
