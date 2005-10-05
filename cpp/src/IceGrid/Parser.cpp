@@ -97,9 +97,9 @@ Parser::usage()
         "server signal ID SIGNAL     Send SIGNAL (e.g. SIGTERM or 15) to server ID.\n"
         "server stdout ID MESSAGE    Write MESSAGE on server ID's stdout.\n"
 	"server stderr ID MESSAGE    Write MESSAGE on server ID's stderr.\n"
-	"server activation ID [on-demand | manual] \n"
-	"                            Set the server activation mode to on-demand or\n"
-	"                            manual."
+	"server enable ID            Enable the server.\n"
+	"server disable ID           Disable the server (a disabled server can't be\n"
+        "                            started on demand or administratively).\n"
 	"\n"
         "adapter list                List all registered adapters.\n"
 	"adapter endpoints ID [REPLICAID]\n"
@@ -788,33 +788,33 @@ Parser::stateServer(const list<string>& args)
     try
     {
 	ServerState state = _admin->getServerState(args.front());
-
+	string enabled = _admin->isServerEnabled(args.front()) ? "enabled" : "disabled";
 	switch(state)
 	{
 	case Inactive:
 	{
-	    cout << "inactive" << endl;
+	    cout << "inactive (" << enabled << ")" << endl;
 	    break;
 	}
 	case Activating:
 	{
-	    cout << "activating" << endl;
+	    cout << "activating (" << enabled << ")" << endl;
 	    break;
 	}
 	case Active:
 	{
 	    int pid = _admin->getServerPid(args.front());
-	    cout << "active (pid = " << pid << ")" << endl;
+	    cout << "active (pid = " << pid << ", " << enabled << ")" << endl;
 	    break;
 	}
 	case Deactivating:
 	{
-	    cout << "deactivating" << endl;
+	    cout << "deactivating (" << enabled << ")" << endl;
 	    break;
 	}
 	case Destroyed:
 	{
-	    cout << "destroyed" << endl;
+	    cout << "destroyed (" << enabled << ")" << endl;
 	    break;
 	}
 	default:
@@ -847,32 +847,24 @@ Parser::pidServer(const list<string>& args)
 }
 
 void
-Parser::activationServer(const list<string>& args)
+Parser::enableServer(const list<string>& args, bool enable)
 {
-    if(args.size() != 2)
+    if(args.size() != 1)
     {
-	error("`server activation' requires exactly two arguments\n(`help' for more info)");
+	if(enable)
+	{
+	    error("`server enable' requires exactly one argument\n(`help' for more info)");
+	}
+	else
+	{
+	    error("`server disable' requires exactly one argument\n(`help' for more info)");
+	}
 	return;
     }
 
     try
     {
-	list<string>::const_iterator p = args.begin();
-	string name = *p++;
-	string mode = *p++;
-
-	if(mode == "on-demand")
-	{
-	    _admin->setServerActivation(name, OnDemand);
-	}
-	else if(mode == "manual")
-	{
-	    _admin->setServerActivation(name, Manual);
-	}
-	else
-	{
-	    error("Unknown mode: " + mode);
-	}
+	_admin->enableServer(args.front(), enable);
     }
     catch(const Ice::Exception& ex)
     {

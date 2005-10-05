@@ -67,6 +67,8 @@ yyerror(const char* s)
 %token ICE_GRID_INSTANTIATE
 %token ICE_GRID_TEMPLATE
 %token ICE_GRID_SERVICE
+%token ICE_GRID_ENABLE
+%token ICE_GRID_DISABLE
 
 %%
 
@@ -199,9 +201,13 @@ command
 {
     parser->pidServer($3);
 }
-| ICE_GRID_SERVER ICE_GRID_ACTIVATION strings ';'
+| ICE_GRID_SERVER ICE_GRID_ENABLE strings ';'
 {
-    parser->activationServer($3);
+    parser->enableServer($3, true);
+}
+| ICE_GRID_SERVER ICE_GRID_DISABLE strings ';'
+{
+    parser->enableServer($3, false);
 }
 | ICE_GRID_SERVER ICE_GRID_LIST ';'
 {

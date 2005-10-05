@@ -301,32 +301,32 @@ AdminI::getAllServerIds(const Current&) const
     return _database->getAllServers();
 }
 
-ServerActivation 
-AdminI::getServerActivation(const ::std::string& id, const Ice::Current&) const
+void 
+AdminI::enableServer(const string& id, bool enable, const Ice::Current&)
 {
     ServerProxyWrapper proxy(_database, id);
     try
     {
-	return proxy->getActivationMode();
+	proxy->setEnabled(enable);
     }
     catch(const Ice::Exception& ex)
     {
 	proxy.handleException(ex);
-	return Manual;
     }
 }
 
-void 
-AdminI::setServerActivation(const ::std::string& id, ServerActivation mode, const Ice::Current&)
+bool
+AdminI::isServerEnabled(const ::std::string& id, const Ice::Current&) const
 {
     ServerProxyWrapper proxy(_database, id);
     try
     {
-	proxy->setActivationMode(mode);
+	return proxy->isEnabled();
     }
     catch(const Ice::Exception& ex)
     {
 	proxy.handleException(ex);
+	return true; // Keeps the compiler happy.
     }
 }
 

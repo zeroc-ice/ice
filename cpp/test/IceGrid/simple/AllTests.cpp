@@ -89,7 +89,7 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     IceGrid::AdminPrx admin = IceGrid::AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
     test(admin);
 
-    admin->setServerActivation("server", IceGrid::Manual);
+    admin->enableServer("server", false);
     admin->stopServer("server");
 
     cout << "testing whether server is still reachable... " << flush;
@@ -110,7 +110,7 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     {
     }
     
-    admin->setServerActivation("server", IceGrid::OnDemand);
+    admin->enableServer("server", true);
 
     try
     {

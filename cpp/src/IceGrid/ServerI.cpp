@@ -7,10 +7,6 @@
 //
 // **********************************************************************
 
-#ifdef __sun
-#define _POSIX_PTHREAD_SEMANTICS
-#endif
-
 #include <Ice/Ice.h>
 #include <IceGrid/ServerI.h>
 #include <IceGrid/TraceLevels.h>
@@ -138,7 +134,8 @@ ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& ser
     _id(id),
     _waitTime(wt),
     _serversDir(serversDir),
-    _state(ServerI::Inactive)
+    _state(ServerI::Inactive),
+    _activation(ServerI::Manual)
 {
     assert(_node->getActivator());
 }
@@ -430,15 +427,15 @@ ServerI::getPid(const Ice::Current&) const
 }
 
 void 
-ServerI::setActivationMode(ServerActivation mode, const ::Ice::Current&)
+ServerI::setEnabled(bool enabled, const ::Ice::Current&)
 {
     {
 	Lock sync(*this);
-	if(mode == _activation)
+	if(enabled && _activation < Disabled || !enabled && _activation == Disabled)
 	{
 	    return;
 	}
-	_activation = mode;
+	_activation = enabled ? (_desc->activation  == "on-demand" ? OnDemand : Manual) : Disabled;
     }
     
     NodeObserverPrx observer = _node->getObserver();
@@ -454,11 +451,11 @@ ServerI::setActivationMode(ServerActivation mode, const ::Ice::Current&)
     }
 }
 
-ServerActivation 
-ServerI::getActivationMode(const ::Ice::Current&) const
+bool
+ServerI::isEnabled(const ::Ice::Current&) const
 {
     Lock sync(*this);
-    return _activation;
+    return _activation < Disabled;
 }
 
 void
@@ -481,6 +478,13 @@ ServerI::getApplication() const
 {
     Lock sync(*this);    
     return _application;
+}
+
+ServerI::ServerActivation
+ServerI::getActivationMode() const
+{
+    Lock sync(*this);
+    return _activation;
 }
 
 bool
@@ -986,7 +990,10 @@ ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bo
     _application = app;
     _desc = descriptor;
     _serverDir = _serversDir + "/" + descriptor->id;
-    _activation = descriptor->activation  == "on-demand" ? OnDemand : Manual;
+    if(_activation < Disabled)
+    {
+	_activation = descriptor->activation  == "on-demand" ? OnDemand : Manual;
+    }
 
     istringstream at(_desc->activationTimeout);
     if(!(at >> _activationTimeout) || !at.eof() || _activationTimeout == 0)
@@ -1390,6 +1397,6 @@ ServerI::getDynamicInfo() const
     // be called from the activator locked.
     //
     info.pid = _state == ServerI::Active ? getPid() : 0;
-    info.enabled = _activation == OnDemand;
+    info.enabled = _activation < Disabled;
     return info;
 }

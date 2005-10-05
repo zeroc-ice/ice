@@ -71,7 +71,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
     //
     try
     {
-	if(_server->startInternal(OnDemand))
+	if(_server->startInternal(ServerI::OnDemand))
 	{
 	    return;
 	}
@@ -106,7 +106,7 @@ ServerAdapterI::getDirectProxy(const Ice::Current& current) const
     {
 	AdapterNotActiveException ex;
 	ServerState state = _server->getState();
-	ex.activatable = _server->getActivationMode() == OnDemand || state == Activating || state == Active;
+	ex.activatable = _server->getActivationMode() == ServerI::OnDemand || state == Activating || state == Active;
 	ex.timeout = static_cast<int>(_waitTime.toMilliSeconds());
 	throw ex;
     }

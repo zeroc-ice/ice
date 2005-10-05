@@ -42,6 +42,13 @@ public:
 	Updating
     };
 
+    enum ServerActivation
+    {
+	OnDemand,
+	Manual,
+	Disabled
+    };
+
     ServerI(const NodeIPtr&, const ServerPrx&, const std::string&, const std::string&, int);
     virtual ~ServerI();
 
@@ -57,12 +64,13 @@ public:
     virtual ServerState getState(const ::Ice::Current& = Ice::Current()) const;
     virtual Ice::Int getPid(const ::Ice::Current& = Ice::Current()) const;
 
-    virtual void setActivationMode(ServerActivation, const ::Ice::Current&);
-    virtual ServerActivation getActivationMode(const ::Ice::Current& = Ice::Current()) const;
+    virtual void setEnabled(bool, const ::Ice::Current&);
+    virtual bool isEnabled(const ::Ice::Current& = Ice::Current()) const;
     virtual void setProcess(const ::Ice::ProcessPrx&, const ::Ice::Current&);
 
     ServerDescriptorPtr getDescriptor() const;
     std::string getApplication() const;
+    ServerActivation getActivationMode() const;
 
     bool startInternal(ServerActivation, const AMD_Server_startPtr& = AMD_Server_startPtr());
     void adapterActivated(const std::string&);

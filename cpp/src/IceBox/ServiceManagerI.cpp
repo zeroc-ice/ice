@@ -292,11 +292,11 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     try
     {
 	//
-	// If Ice.UseSharedCommunicator.<name> is defined, create a
-	// communicator for the service. The communicator inherits
-	// from the shared communicator properties. If it's not
-	// defined, add the service properties to the shared
-	// commnunicator property set.
+	// If Ice.UseSharedCommunicator.<name> is not defined, create
+	// a communicator for the service. The communicator inherits
+	// from the shared communicator properties. If it's defined
+	// add the service properties to the shared commnunicator
+	// property set.
 	//
 	PropertiesPtr properties = _server->communicator()->getProperties();
 	if(properties->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)

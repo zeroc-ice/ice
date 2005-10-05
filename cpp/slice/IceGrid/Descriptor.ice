@@ -246,8 +246,8 @@ class ServerDescriptor extends CommunicatorDescriptor
 
     /**
      *
-     * The server initial activation mode (possible values are
-     * "on-demand" or "manual").
+     * The server activation mode (possible values are "on-demand" or
+     * "manual").
      *
      **/
     string activation;

@@ -26,7 +26,8 @@ XmlAttributesHelper::XmlAttributesHelper(const IceXML::Attributes& attrs,
 {
 }
 
-XmlAttributesHelper::~XmlAttributesHelper()
+void
+XmlAttributesHelper::checkUnknownAttributes()
 {
     vector<string> notUsed;
     for(map<string, string>::const_iterator p = _attributes.begin(); p != _attributes.end(); ++p)
@@ -39,8 +40,9 @@ XmlAttributesHelper::~XmlAttributesHelper()
 
     if(!notUsed.empty())
     {
-	Ice::Warning warn(_logger);
-	warn << "unknown attributes in <" << _filename << "> descriptor, line " << _line << ":\n" << toString(notUsed);
+	ostringstream os;
+	os << "unknown attributes in <" << _filename << "> descriptor, line " << _line << ":\n" << toString(notUsed);
+	throw os.str();
     }
 }
 

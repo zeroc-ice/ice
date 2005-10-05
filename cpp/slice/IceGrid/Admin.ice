@@ -79,31 +79,6 @@ dictionary<string, Object*> StringObjectProxyDict;
 
 /**
  *
- * The server activation mode.
- *
- **/
-enum ServerActivation
-{
-    /**
-     *
-     * The server is activated on demand if a client requests one of
-     * the server's adapter endpoints and the server is not already
-     * running.
-     *
-     **/
-    OnDemand,
-
-    /**
-     *
-     * The server is activated manually through the administrative
-     * interface.
-     *
-     **/
-    Manual
-};
-
-/**
- *
  * Information on an Ice object.
  *
  **/
@@ -378,43 +353,38 @@ interface Admin
 
     /**
      *
-     * Get the server's activation mode.
+     * Enable or disable a server. A disabled server can't be started
+     * on demand or administratively. The enable state of the server
+     * is not persistent, if the node is shutdown and restarted, the
+     * server will be enabled by default.
      *
      * @param id The id of the server.
      *
-     * @return The server activation mode.
-     * 
+     * @param enabled True to enable the server, false to disable it.
+     *
      * @throws ServerNotExistException Raised if the server doesn't exist.
      *
-     * @throws NodeUnreachableException Raised if the node could not be
-     * reached.
+     * @throws NodeUnreachableException Raised if the node could not
+     * be reached.
      *
      **/
-    nonmutating ServerActivation getServerActivation(string id)
+    idempotent void enableServer(string id, bool enabled)
 	throws ServerNotExistException, NodeUnreachableException;
 
     /**
      *
-     * Set the server's activation mode. 
-     *
-     * NOTE: this won't change the registry database. This will only
-     * set the transient activation mode of the server on the node. To
-     * update the initial activation mode of the server you need to
-     * update its template or descriptor by updating the application
-     * descriptor.
+     * Check if the server is enabled or disabled.
      *
      * @param id The id of the server.
      *
-     * @param mode The server activation mode.
-     * 
      * @throws ServerNotExistException Raised if the server doesn't
      * exist.
      *
-     * @throws NodeUnreachableException Raised if the node could not be
-     * reached.
-     *
+     * @throws NodeUnreachableException Raised if the node could not
+     * be reached.
+     * 
      **/
-    void setServerActivation(string id, ServerActivation mode)
+    nonmutating bool isServerEnabled(string id)
 	throws ServerNotExistException, NodeUnreachableException;
 
     /**

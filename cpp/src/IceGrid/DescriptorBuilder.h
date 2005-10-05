@@ -22,8 +22,8 @@ class XmlAttributesHelper
 public:
 
     XmlAttributesHelper(const IceXML::Attributes&, const Ice::LoggerPtr&, const std::string&, int);
-    ~XmlAttributesHelper();
 
+    void checkUnknownAttributes();
     bool contains(const std::string&) const;
     std::map<std::string, std::string> asMap() const;
 

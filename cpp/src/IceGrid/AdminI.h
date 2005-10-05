@@ -42,8 +42,8 @@ public:
     virtual void sendSignal(const ::std::string&, const ::std::string&, const Ice::Current&);
     virtual void writeMessage(const ::std::string&, const ::std::string&, Ice::Int, const Ice::Current&);
     virtual Ice::StringSeq getAllServerIds(const Ice::Current&) const;
-    virtual ServerActivation getServerActivation(const ::std::string&, const Ice::Current&) const;
-    virtual void setServerActivation(const ::std::string&, ServerActivation, const Ice::Current&);
+    virtual void enableServer(const ::std::string&, bool, const Ice::Current&);
+    virtual bool isServerEnabled(const ::std::string&, const Ice::Current&) const;
 
     virtual StringObjectProxyDict getAdapterEndpoints(const ::std::string&, const ::Ice::Current&) const;
     virtual void removeAdapterWithReplicaId(const std::string&, const std::string&, const Ice::Current&);

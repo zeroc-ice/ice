@@ -95,7 +95,7 @@ public:
     void writeMessage(const std::list<std::string>&, int fd);
     void describeServer(const std::list<std::string>&);
     void stateServer(const std::list<std::string>&);
-    void activationServer(const std::list<std::string>&);
+    void enableServer(const std::list<std::string>&, bool);
     void pidServer(const std::list<std::string>&);
     void listAllServers();
 

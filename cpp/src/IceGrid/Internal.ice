@@ -134,6 +134,20 @@ interface Server
      *
      **/
     void stop();
+    
+    /**
+     *
+     * Enable or disable the server.
+     *
+     **/ 
+    void setEnabled(bool enable);
+
+    /**
+     *
+     * Check if the server is enabled.
+     *
+     **/
+    nonmutating bool isEnabled();
 
     /**
      *
@@ -186,20 +200,6 @@ interface Server
      *
      **/
     nonmutating int getPid();
-
-    /**
-     *
-     * Set the server activation mode.
-     *
-     **/
-    void setActivationMode(ServerActivation mode);
-
-    /**
-     *
-     * Get the server activation mode.
-     *
-     **/
-    nonmutating ServerActivation getActivationMode();
 
     /**
      *

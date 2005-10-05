@@ -785,8 +785,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(nodeObs1->nodes["localnode"].adapters.size() == 1);
 	test(nodeObs1->nodes["localnode"].adapters[0].proxy);
 	
+	test(nodeObs1->nodes["localnode"].servers[0].enabled);
+	admin->enableServer("Server", false);
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
 	test(!nodeObs1->nodes["localnode"].servers[0].enabled);
-	admin->setServerActivation("Server", OnDemand);
+	admin->enableServer("Server", true);
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
 	test(nodeObs1->nodes["localnode"].servers[0].enabled);
 

@@ -136,7 +136,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    // We don't bother to parse the elements if the elements are enclosed in a target element 
 	    // which won't be deployed.
 	    //
-	    attributes.asMap(); // NOTE: prevents warning about attributes not being used.
+	    attributes.asMap();
 	    return;
 	}
 	else if(name == "include")
@@ -367,12 +367,14 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    }
 	    _currentCommunicator->addDbEnvProperty(attributes);
 	}
+
+	attributes.checkUnknownAttributes();
     }
     catch(const string& reason)
     {
 	error(reason);
     }
-	
+    
     _data = "";
 }
 
