@@ -25,7 +25,7 @@ def usage():
     print "Options:"
     print "-h, --help            Show this message."
     print "    --skip-build      Do not build any sources."
-    print "    --skip-clean      Do not clean any sources or staged files."
+    print "    --clean           Clean compiled or staged files."
     print "    --skip-installer  Do not build any installers or merge modules."
 
 def cleanIceDists(sourcesDir, sourcesVersion, installVersion):
