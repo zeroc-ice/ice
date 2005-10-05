@@ -105,7 +105,7 @@ public class AllTests
 
 	try
 	{
-	    admin.setServerActivation("server", IceGrid.ServerActivation.Manual);
+	    admin.enableServer("server", false);
 	    admin.stopServer("server");
 	}
 	catch(IceGrid.ServerNotExistException)
@@ -138,7 +138,7 @@ public class AllTests
 	
 	try
 	{
-	    admin.setServerActivation("server", IceGrid.ServerActivation.OnDemand);
+	    admin.enableServer("server", true);
 	}
 	catch(IceGrid.ServerNotExistException)
 	{
