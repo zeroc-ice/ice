@@ -1117,6 +1117,14 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
 	assert(id.size() == 44);
     }
 
+    //
+    // A link name cannot start with a period.
+    //
+    if(id[0] == '.')
+    {
+	id.erase(0, 1);
+    }
+
     return '"' + id + '"';
 }
 
