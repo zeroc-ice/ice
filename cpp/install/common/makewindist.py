@@ -278,7 +278,7 @@ def main():
     #
     try:
         optionList, args = getopt.getopt(
-	    sys.argv[1:], "h:", [ "help", "skip-clean", "skip-build", "skip-installer" ])
+	    sys.argv[1:], "h:", [ "help", "clean", "skip-build", "skip-installer" ])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -286,7 +286,7 @@ def main():
     #
     # Set a few defaults.
     #
-    clean = True
+    clean = False
     build = True
     installer = True
 
@@ -294,8 +294,8 @@ def main():
         if o in ("-h", "--help"):
             usage()
             sys.exit()
-        elif o == "--skip-clean":
-            clean = False
+        elif o == "--clean":
+            clean = True
         elif o == "--skip-build":
             build = False
         elif o == "--skip-installer":
