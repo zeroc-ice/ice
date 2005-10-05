@@ -396,6 +396,20 @@ its endpoints with the locator registry upon activation.
 </section>
 </section>
 
+<section id="adapter.ReplicaId"><title><replaceable>name</replaceable>.ReplicaId</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.ReplicaId=<replaceable>id</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+TBD
+</para>
+</section>
+</section>
+
 <section><title><replaceable>name</replaceable>.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -472,7 +486,7 @@ for the server id. The servant implements the <literal>shutdown</literal>
 operation by invoking <literal>shutdown</literal> on the object adapter's
 communicator. </para>
 <para> It is important for a server to be registered with the locator 
-registry so that services such as &IcePack; can request a graceful shutdown
+registry so that services such as &IceGrid; can request a graceful shutdown
 when necessary. If a server is not registered, then platform-specific
 techniques are used to request a shutdown, and these techniques are not
 always effective (especially on Windows platforms). </para>
@@ -484,7 +498,7 @@ a UUID to make the proxy more difficult to guess, but the object adapter
 should be configured with secure endpoints if the server operates in a
 potentially hostile environment. Alternatively, a dedicated object
 adapter can be created specifically to provide a restricted access point
-for services such as &IcePack;.</para></note>
+for services such as &IceGrid;.</para></note>
 </section>
 </section>
 
@@ -818,17 +832,17 @@ Ice.Default.Locator=<replaceable>locator</replaceable>
 <title>Description</title>
 <para>
 Specifies a default locator for all proxies and object adapters.
-The value is a stringified proxy to the &IcePack; locator interface.
+The value is a stringified proxy to the &IceGrid; locator interface.
 The default locator can be overridden on a proxy using the
 <literal>ice_locator()</literal> operation. The default value is no
 locator.
 </para>
-<note><para>The &IcePack; locator's object identity is
-<literal>IcePack/Locator</literal>. It is listening on the &IcePack;
+<note><para>The &IceGrid; locator's object identity is
+<literal>IceGrid/Locator</literal>. It is listening on the &IceGrid;
 client endpoints. For example, if
-<literal>IcePack.Registry.Client.Endpoints</literal> is set to
+<literal>IceGrid.Registry.Client.Endpoints</literal> is set to
 <literal>tcp -p 12000 -h localhost</literal>, the stringified proxy
-for the &IcePack; locator is <literal>IcePack/Locator:tcp -p
+for the &IceGrid; locator is <literal>IceGrid/Locator:tcp -p
 12000 -h localhost</literal>.</para></note>
 </section>
 </section>
@@ -2080,36 +2094,37 @@ other services.
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&IcePack; Properties</title>
+<section><title>&IceGrid; Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>IcePack.Registry.Client.Endpoints</title>
+<section><title>IceGrid.Registry.Client.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Client.Endpoints=<replaceable>endpoints</replaceable>
+IceGrid.Registry.Client.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the &IcePack; client interface. The client
-endpoints must be accessible to &Ice; clients that are using &IcePack;
-to locate objects (see <literal>Ice.Default.Locator</literal>).
+Defines the endpoints of the &IceGrid; client interface. The client
+endpoints must be accessible to &Ice; clients that are using &IceGrid;
+to locate objects (see <literal>Ice.Default.Locator</literal>). This
+property must be defined.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Client.PublishedEndpoints</title>
+<section><title>IceGrid.Registry.Client.PublishedEndpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Client.PublishedEndpoints=<replaceable>endpoints</replaceable>
+IceGrid.Registry.Client.PublishedEndpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the published endpoints of the &IcePack; client interface. The client
-endpoints must be accessible to &Ice; clients that are using &IcePack;
+Defines the published endpoints of the &IceGrid; client interface. The client
+endpoints must be accessible to &Ice; clients that are using &IceGrid;
 to locate objects (see <literal>Ice.Default.Locator</literal>).
 Refer to the description of the object adapter property
 <link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
@@ -2118,10 +2133,10 @@ for more information.
 </section>
 </section>
 
-<section><title>IcePack.Registry.Client.ThreadPool.Size</title>
+<section><title>IceGrid.Registry.Client.ThreadPool.Size</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Client.ThreadPool.Size=<replaceable>num</replaceable>
+IceGrid.Registry.Client.ThreadPool.Size=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2129,15 +2144,15 @@ IcePack.Registry.Client.ThreadPool.Size=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
-for the object adapter named <literal>IcePack.Registry.Client</literal>.
+for the object adapter named <literal>IceGrid.Registry.Client</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Client.ThreadPool.SizeMax</title>
+<section><title>IceGrid.Registry.Client.ThreadPool.SizeMax</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Client.ThreadPool.SizeMax=<replaceable>num</replaceable>
+IceGrid.Registry.Client.ThreadPool.SizeMax=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2145,15 +2160,15 @@ IcePack.Registry.Client.ThreadPool.SizeMax=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
-for the object adapter named <literal>IcePack.Registry.Client</literal>.
+for the object adapter named <literal>IceGrid.Registry.Client</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Client.ThreadPool.SizeWarn</title>
+<section><title>IceGrid.Registry.Client.ThreadPool.SizeWarn</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Client.ThreadPool.SizeWarn=<replaceable>num</replaceable>
+IceGrid.Registry.Client.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2161,38 +2176,38 @@ IcePack.Registry.Client.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
-for the object adapter named <literal>IcePack.Registry.Client</literal>.
+for the object adapter named <literal>IceGrid.Registry.Client</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Server.Endpoints</title>
+<section><title>IceGrid.Registry.Server.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Server.Endpoints=<replaceable>endpoints</replaceable>
+IceGrid.Registry.Server.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the &IcePack; server interface. The server
-endpoints must be accessible to &Ice; servers that are using &IcePack;
-to register their object adapter endpoints.
+Defines the endpoints of the &IceGrid; server interface. The server
+endpoints must be accessible to &Ice; servers that are using &IceGrid;
+to register their object adapter endpoints. This property must be defined.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Server.PublishedEndpoints</title>
+<section><title>IceGrid.Registry.Server.PublishedEndpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Server.PublishedEndpoints=<replaceable>endpoints</replaceable>
+IceGrid.Registry.Server.PublishedEndpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the published endpoints of the &IcePack; server interface. The server
-endpoints must be accessible to &Ice; servers that are using &IcePack;
+Defines the published endpoints of the &IceGrid; server interface. The server
+endpoints must be accessible to &Ice; servers that are using &IceGrid;
 to register their object adapter endpoints.
 Refer to the description of the object adapter property
 <link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
@@ -2201,10 +2216,10 @@ for more information.
 </section>
 </section>
 
-<section><title>IcePack.Registry.Server.ThreadPool.Size</title>
+<section><title>IceGrid.Registry.Server.ThreadPool.Size</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Server.ThreadPool.Size=<replaceable>num</replaceable>
+IceGrid.Registry.Server.ThreadPool.Size=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2212,15 +2227,15 @@ IcePack.Registry.Server.ThreadPool.Size=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
-for the object adapter named <literal>IcePack.Registry.Server</literal>.
+for the object adapter named <literal>IceGrid.Registry.Server</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Server.ThreadPool.SizeMax</title>
+<section><title>IceGrid.Registry.Server.ThreadPool.SizeMax</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Server.ThreadPool.SizeMax=<replaceable>num</replaceable>
+IceGrid.Registry.Server.ThreadPool.SizeMax=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2228,15 +2243,15 @@ IcePack.Registry.Server.ThreadPool.SizeMax=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
-for the object adapter named <literal>IcePack.Registry.Server</literal>.
+for the object adapter named <literal>IceGrid.Registry.Server</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Server.ThreadPool.SizeWarn</title>
+<section><title>IceGrid.Registry.Server.ThreadPool.SizeWarn</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Server.ThreadPool.SizeWarn=<replaceable>num</replaceable>
+IceGrid.Registry.Server.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2244,57 +2259,57 @@ IcePack.Registry.Server.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
-for the object adapter named <literal>IcePack.Registry.Server</literal>.
+for the object adapter named <literal>IceGrid.Registry.Server</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Admin.Endpoints</title>
+<section><title>IceGrid.Registry.Admin.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Admin.Endpoints=<replaceable>endpoints</replaceable>
+IceGrid.Registry.Admin.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the optional administrative endpoints of the &IcePack; admin
+Defines the optional administrative endpoints of the &IceGrid; admin
 interface. The administrative endpoints must be accessible to clients
-which are using the &IcePack; administrative interface, such as the
-&IcePack; administrative tool.
+which are using the &IceGrid; administrative interface, such as the
+&IceGrid; administrative tools.
 </para>
-<note><para>Allowing access to the &IcePack; admin interface is a
+<note><para>Allowing access to the &IceGrid; admin interface is a
 security risk! If this property is not defined, the admin interface
 is disabled.</para></note>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Admin.PublishedEndpoints</title>
+<section><title>IceGrid.Registry.Admin.PublishedEndpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Admin.PublishedEndpoints=<replaceable>endpoints</replaceable>
+IceGrid.Registry.Admin.PublishedEndpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the optional administrative published endpoints of the &IcePack; admin
+Defines the optional administrative published endpoints of the &IceGrid; admin
 interface. The administrative endpoints must be accessible to clients
-which are using the &IcePack; administrative interface, such as the
-&IcePack; administrative tool.
+which are using the &IceGrid; administrative interface, such as the
+&IceGrid; administrative tool.
 Refer to the description of the object adapter property
 <link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
 for more information.
 </para>
-<note><para>Allowing access to the &IcePack; admin interface is a
+<note><para>Allowing access to the &IceGrid; admin interface is a
 security risk!</para></note>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Admin.ThreadPool.Size</title>
+<section><title>IceGrid.Registry.Admin.ThreadPool.Size</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Admin.ThreadPool.Size=<replaceable>num</replaceable>
+IceGrid.Registry.Admin.ThreadPool.Size=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2302,15 +2317,15 @@ IcePack.Registry.Admin.ThreadPool.Size=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
-for the object adapter named <literal>IcePack.Registry.Admin</literal>.
+for the object adapter named <literal>IceGrid.Registry.Admin</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Admin.ThreadPool.SizeMax</title>
+<section><title>IceGrid.Registry.Admin.ThreadPool.SizeMax</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Admin.ThreadPool.SizeMax=<replaceable>num</replaceable>
+IceGrid.Registry.Admin.ThreadPool.SizeMax=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2318,15 +2333,15 @@ IcePack.Registry.Admin.ThreadPool.SizeMax=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
-for the object adapter named <literal>IcePack.Registry.Admin</literal>.
+for the object adapter named <literal>IceGrid.Registry.Admin</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Admin.ThreadPool.SizeWarn</title>
+<section><title>IceGrid.Registry.Admin.ThreadPool.SizeWarn</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Admin.ThreadPool.SizeWarn=<replaceable>num</replaceable>
+IceGrid.Registry.Admin.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2334,38 +2349,39 @@ IcePack.Registry.Admin.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
-for the object adapter named <literal>IcePack.Registry.Admin</literal>.
+for the object adapter named <literal>IceGrid.Registry.Admin</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Internal.Endpoints</title>
+<section><title>IceGrid.Registry.Internal.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Internal.Endpoints=<replaceable>endpoints</replaceable>
+IceGrid.Registry.Internal.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the &IcePack; internal interface. The
-internal endpoints must be accessible to &IcePack; nodes. Nodes use
-this interface to communicate with the registry.
+Defines the endpoints of the &IceGrid; internal interface. The
+internal endpoints must be accessible to &IceGrid; nodes. Nodes use
+this interface to communicate with the registry. This property must
+be defined.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Internal.PublishedEndpoints</title>
+<section><title>IceGrid.Registry.Internal.PublishedEndpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Internal.PublishedEndpoints=<replaceable>endpoints</replaceable>
+IceGrid.Registry.Internal.PublishedEndpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the published endpoints of the &IcePack; internal interface. The
-internal endpoints must be accessible to &IcePack; nodes. Nodes use
+Defines the published endpoints of the &IceGrid; internal interface. The
+internal endpoints must be accessible to &IceGrid; nodes. Nodes use
 this interface to communicate with the registry.
 Refer to the description of the object adapter property
 <link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
@@ -2374,10 +2390,10 @@ for more information.
 </section>
 </section>
 
-<section><title>IcePack.Registry.Internal.ThreadPool.Size</title>
+<section><title>IceGrid.Registry.Internal.ThreadPool.Size</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Internal.ThreadPool.Size=<replaceable>num</replaceable>
+IceGrid.Registry.Internal.ThreadPool.Size=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2385,15 +2401,15 @@ IcePack.Registry.Internal.ThreadPool.Size=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
-for the object adapter named <literal>IcePack.Registry.Internal</literal>.
+for the object adapter named <literal>IceGrid.Registry.Internal</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Internal.ThreadPool.SizeMax</title>
+<section><title>IceGrid.Registry.Internal.ThreadPool.SizeMax</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Internal.ThreadPool.SizeMax=<replaceable>num</replaceable>
+IceGrid.Registry.Internal.ThreadPool.SizeMax=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2401,15 +2417,15 @@ IcePack.Registry.Internal.ThreadPool.SizeMax=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
-for the object adapter named <literal>IcePack.Registry.Internal</literal>.
+for the object adapter named <literal>IceGrid.Registry.Internal</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Internal.ThreadPool.SizeWarn</title>
+<section><title>IceGrid.Registry.Internal.ThreadPool.SizeWarn</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Internal.ThreadPool.SizeWarn=<replaceable>num</replaceable>
+IceGrid.Registry.Internal.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2417,74 +2433,75 @@ IcePack.Registry.Internal.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
-for the object adapter named <literal>IcePack.Registry.Internal</literal>.
+for the object adapter named <literal>IceGrid.Registry.Internal</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.LocatorIdentity</title>
+<section><title>IceGrid.Registry.LocatorIdentity</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.LocatorIdentity=<replaceable>identity</replaceable>
+IceGrid.Registry.LocatorIdentity=<replaceable>identity</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-The identity of the &IcePack; locator interface. If not specified the
-default value <literal>IcePack/Locator</literal> is used.
+The identity of the &IceGrid; locator interface. If not specified the
+default value <literal>IceGrid/Locator</literal> is used.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.QueryIdentity</title>
+<section><title>IceGrid.Registry.QueryIdentity</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.QueryIdentity=<replaceable>identity</replaceable>
+IceGrid.Registry.QueryIdentity=<replaceable>identity</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-The identity of the &IcePack; query interface. If not specified the
-default value <literal>IcePack/Query</literal> is used.
+The identity of the &IceGrid; query interface. If not specified the
+default value <literal>IceGrid/Query</literal> is used.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.AdminIdentity</title>
+<section><title>IceGrid.Registry.AdminIdentity</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.AdminIdentity=<replaceable>identity</replaceable>
+IceGrid.Registry.AdminIdentity=<replaceable>identity</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-The identity of the &IcePack; admin interface. If not specified the
-default value <literal>IcePack/Admin</literal> is used.
+The identity of the &IceGrid; admin interface. If not specified the
+default value <literal>IceGrid/Admin</literal> is used.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Data</title>
+<section><title>IceGrid.Registry.Data</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Data=<replaceable>path</replaceable>
+IceGrid.Registry.Data=<replaceable>path</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the path of the &IcePack; registry data directory.
+Defines the path of the &IceGrid; registry data directory. This property
+must be defined, and <replaceable>path</replaceable> must already exist.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.DynamicRegistration</title>
+<section><title>IceGrid.Registry.DynamicRegistration</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.DynamicRegistration=<replaceable>num</replaceable>
+IceGrid.Registry.DynamicRegistration=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2492,27 +2509,51 @@ IcePack.Registry.DynamicRegistration=<replaceable>num</replaceable>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 the locator registry allows &Ice; servers to set endpoints for
-object adapters that have not been previously registered.
+object adapters that have not been previously registered. An object
+adapter registers itself when the
+<link linkend="adapter.AdapterId"><replaceable>adapter</replaceable>.AdapterId</link>
+property is defined.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Registry.Trace.ServerRegistry</title>
+<section><title>IceGrid.Registry.NodeSessionTimeout</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Trace.ServerRegistry=<replaceable>num</replaceable>
+IceGrid.Registry.NodeSessionTimeout=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-The server registry trace level:
+Each &IceGrid; node establishes a session with the registry that
+must be refreshed periodically. If a node does not refresh its
+session within <replaceable>num</replaceable> seconds, the node's
+session is destroyed and the servers deployed on that node become
+unavailable to new clients. The node's refresh timeout is defined
+by the
+<link linkend="IceGrid.Node.KeepAliveTimeout">IceGrid.Node.KeepAliveTimeout</link>
+property. If not specified, the default value is 10 seconds.
+</para>
+</section>
+</section>
+
+<section><title>IceGrid.Registry.Trace.Server</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.Trace.Server=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The server trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No server registry trace. (default)</entry>
+<entry>No server trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -2525,26 +2566,26 @@ The server registry trace level:
 </section>
 </section>
 
-<section><title>IcePack.Registry.Trace.AdapterRegistry</title>
+<section><title>IceGrid.Registry.Trace.Adapter</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Trace.AdapterRegistry=<replaceable>num</replaceable>
+IceGrid.Registry.Trace.Adapter=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-The object adapter registry trace level:
+The object adapter trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No object adapter registry trace. (default)</entry>
+<entry>No object adapter trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
-<entry>Trace object adapter registration, removal.</entry>
+<entry>Trace object adapter registration, removal, and replication.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -2553,27 +2594,31 @@ The object adapter registry trace level:
 </section>
 </section>
 
-<section><title>IcePack.Registry.Trace.NodeRegistry</title>
+<section><title>IceGrid.Registry.Trace.Node</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Trace.NodeRegistry=<replaceable>num</replaceable>
+IceGrid.Registry.Trace.Node=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-The node registry trace level:
+The node trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No node registry trace. (default)</entry>
+<entry>No node trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
 <entry>Trace node registration, removal.</entry>
 </row>
+<row>
+<entry>2</entry>
+<entry>Like 1, but more verbose, including load statistics.</entry>
+</row>
 </tbody>
 </tgroup>
 </informaltable>
@@ -2581,22 +2626,22 @@ The node registry trace level:
 </section>
 </section>
 
-<section><title>IcePack.Registry.Trace.ObjectRegistry</title>
+<section><title>IceGrid.Registry.Trace.Object</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Registry.Trace.ObjectRegistry=<replaceable>num</replaceable>
+IceGrid.Registry.Trace.Object=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-The object registry trace level:
+The object trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No object registry trace. (default)</entry>
+<entry>No object trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -2609,33 +2654,33 @@ The object registry trace level:
 </section>
 </section>
 
-<section><title>IcePack.Node.Endpoints</title>
+<section><title>IceGrid.Node.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.Endpoints=<replaceable>endpoints</replaceable>
+IceGrid.Node.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints of the &IcePack; node interface. The node
-endpoints must be accessible to the &IcePack; registry. The registry
+Defines the endpoints of the &IceGrid; node interface. The node
+endpoints must be accessible to the &IceGrid; registry. The registry
 uses this interface to communicate with the node.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Node.PublishedEndpoints</title>
+<section><title>IceGrid.Node.PublishedEndpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.PublishedEndpoints=<replaceable>endpoints</replaceable>
+IceGrid.Node.PublishedEndpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the published endpoints of the &IcePack; node interface. The node
-endpoints must be accessible to the &IcePack; registry. The registry
+Defines the published endpoints of the &IceGrid; node interface. The node
+endpoints must be accessible to the &IceGrid; registry. The registry
 uses this interface to communicate with the node.
 Refer to the description of the object adapter property
 <link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
@@ -2644,16 +2689,16 @@ for more information.
 </section>
 </section>
 
-<section><title>IcePack.Node.Name</title>
+<section><title>IceGrid.Node.Name</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.Name=<replaceable>name</replaceable>
+IceGrid.Node.Name=<replaceable>name</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the name of the &IcePack; node. All nodes using the same
+Defines the name of the &IceGrid; node. All nodes using the same
 registry must have unique names; a node refuses to start if
 there is a node with the same name running already.
 </para>
@@ -2662,47 +2707,50 @@ there is a node with the same name running already.
 </section>
 </section>
 
-<section><title>IcePack.Node.Data</title>
+<section><title>IceGrid.Node.Data</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.Data=<replaceable>path</replaceable>
+IceGrid.Node.Data=<replaceable>path</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the path of the &IcePack; node data directory. The node
-creates <literal>db</literal> and <literal>servers</literal>
-subirectories in this directory if they do not already exist. The
-<literal>db</literal> directory contains the node database. The
-<literal>servers</literal> directory contains configuration data for
-each deployed server.
+Defines the path of the &IceGrid; node data directory. The node
+creates <literal>distrib</literal>, <literal>servers</literal> and
+<literal>tmp</literal> subirectories in this directory if they do
+not already exist. The <literal>distrib</literal> directory contains
+distribution files downloaded by the node from an IcePatch2 server.
+The <literal>servers</literal> directory contains configuration data
+for each deployed server. The <literal>tmp</literal> directory holds
+temporary files.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Node.Output</title>
+<section><title>IceGrid.Node.Output</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.Output=<replaceable>path</replaceable>
+IceGrid.Node.Output=<replaceable>path</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the path of the &IcePack; node output directory. If set, the 
-node redirects the <literal>stdout</literal> and <literal>stderr</literal> output of the started
-servers to files named <replaceable>server</replaceable>.out and 
-<replaceable>server</replaceable>.err in this directory. Otherwise, 
-the started servers share the <literal>stdout</literal> and <literal>stderr</literal> of the &IcePack; node.
+Defines the path of the &IceGrid; node output directory. If set, the 
+node redirects the <literal>stdout</literal> and <literal>stderr</literal>
+output of the started servers to files named <replaceable>server</replaceable>.out
+and <replaceable>server</replaceable>.err in this directory. Otherwise, 
+the started servers share the <literal>stdout</literal> and
+<literal>stderr</literal> of the node's process.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Node.PropertiesOverride</title>
+<section><title>IceGrid.Node.PropertiesOverride</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.PropertiesOverride=<replaceable>overrides</replaceable>
+IceGrid.Node.PropertiesOverride=<replaceable>overrides</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2717,81 +2765,86 @@ be separated by white space.
 </section>
 </section>
 
-<section><title>IcePack.Node.RedirectErrToOut</title>
+<section><title>IceGrid.Node.RedirectErrToOut</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.RedirectErrToOut=<replaceable>num</replaceable>
+IceGrid.Node.RedirectErrToOut=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-the <literal>stderr</literal> of each started server is redirected to the server's <literal>stdout</literal>.
+the <literal>stderr</literal> of each started server is redirected
+to the server's <literal>stdout</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Node.WaitTime</title>
+<section><title>IceGrid.Node.WaitTime</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.WaitTime=<replaceable>num</replaceable>
+IceGrid.Node.WaitTime=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the interval in seconds that &IcePack; waits for server
-activation and deactivation.</para>
-<para>If a server is automatically activated and does not register its object
+Defines the interval in seconds that &IceGrid; waits for server
+activation and deactivation.
+</para>
+<para>
+If a server is automatically activated and does not register its object
 adapter endpoints within this time interval, the node assumes there is a
 problem with the server and return an emtpy set of endpoints to the client.
 </para>
-<para>If a server is being gracefully deactivated and &IcePack; does not
-detect the server deactivation during this time interval, &IcePack;
-kills the server.</para>
+<para>
+If a server is being gracefully deactivated and &IceGrid; does not
+detect the server deactivation during this time interval, &IceGrid;
+kills the server.
+</para>
 <note><para>The default value is 60 seconds.</para></note>
 </section>
 </section>
 
-<section><title>IcePack.Node.CollocateRegistry</title>
+<section><title>IceGrid.Node.CollocateRegistry</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.CollocateRegistry=<replaceable>num</replaceable>
+IceGrid.Node.CollocateRegistry=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-the node collocates the &IcePack; registry.
+the node collocates the &IceGrid; registry.
 </para>
 <note><para>The collocated registry is configured with the same
-properties as the standalone &IcePack; registry.</para></note>
+properties as the standalone &IceGrid; registry.</para></note>
 </section>
 </section>
 
-<section><title>IcePack.Node.PrintServersReady</title>
+<section><title>IceGrid.Node.PrintServersReady</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.PrintServersReady=<replaceable>token</replaceable>
+IceGrid.Node.PrintServersReady=<replaceable>token</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-The &IcePack; node prints "<replaceable>token</replaceable> ready"
+The &IceGrid; node prints "<replaceable>token</replaceable> ready"
 on standard output after all the servers managed by the node are
 ready. This is useful for scripts that wish to wait until all servers
-are ready to be used.
+have been started and are ready for use.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Node.ThreadPool.Size</title>
+<section><title>IceGrid.Node.ThreadPool.Size</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.ThreadPool.Size=<replaceable>num</replaceable>
+IceGrid.Node.ThreadPool.Size=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2799,15 +2852,15 @@ IcePack.Node.ThreadPool.Size=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.Size"><replaceable>adapter</replaceable>.ThreadPool.Size</link>
-for the object adapter named <literal>IcePack.Node</literal>.
+for the object adapter named <literal>IceGrid.Node</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Node.ThreadPool.SizeMax</title>
+<section><title>IceGrid.Node.ThreadPool.SizeMax</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.ThreadPool.SizeMax=<replaceable>num</replaceable>
+IceGrid.Node.ThreadPool.SizeMax=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2815,15 +2868,15 @@ IcePack.Node.ThreadPool.SizeMax=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.SizeMax"><replaceable>adapter</replaceable>.ThreadPool.SizeMax</link>
-for the object adapter named <literal>IcePack.Node</literal>.
+for the object adapter named <literal>IceGrid.Node</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Node.ThreadPool.SizeWarn</title>
+<section><title>IceGrid.Node.ThreadPool.SizeWarn</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.ThreadPool.SizeWarn=<replaceable>num</replaceable>
+IceGrid.Node.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2831,15 +2884,15 @@ IcePack.Node.ThreadPool.SizeWarn=<replaceable>num</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapterThreadpool.SizeWarn"><replaceable>adapter</replaceable>.ThreadPool.SizeWarn</link>
-for the object adapter named <literal>IcePack.Node</literal>.
+for the object adapter named <literal>IceGrid.Node</literal>.
 </para>
 </section>
 </section>
 
-<section><title>IcePack.Node.Trace.Server</title>
+<section><title>IceGrid.Node.Trace.Server</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.Trace.Server=<replaceable>num</replaceable>
+IceGrid.Node.Trace.Server=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2874,10 +2927,10 @@ change (activating and deactivating).</entry>
 </section>
 </section>
 
-<section><title>IcePack.Node.Trace.Adapter</title>
+<section><title>IceGrid.Node.Trace.Adapter</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.Trace.Adapter=<replaceable>num</replaceable>
+IceGrid.Node.Trace.Adapter=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2912,10 +2965,10 @@ change (e.g., `waiting for activation').</entry>
 </section>
 </section>
 
-<section><title>IcePack.Node.Trace.Activator</title>
+<section><title>IceGrid.Node.Trace.Activator</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Node.Trace.Activator=<replaceable>num</replaceable>
+IceGrid.Node.Trace.Activator=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2947,6 +3000,61 @@ activated process).</entry>
 </tbody>
 </tgroup>
 </informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IceGrid.Node.Trace.Patch</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Node.Trace.Patch=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The patch trace level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No patching trace. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Show summary of patch progress.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Like 1, but more verbose, including download statistics.</entry>
+</row>
+<row>
+<entry>3</entry>
+<entry>Like 2, but more verbose, including checksum information.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section id="IceGrid.Node.KeepAliveTimeout"><title>IceGrid.Node.KeepAliveTimeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Node.KeepAliveTimeout=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+An &IceGrid; node establishes a session with the registry and
+periodically refreshes that session. This property specifies
+the number of seconds the node waits between each refresh. At
+each interval, the node provides the registry with updated
+system load statistics. If not specified, the default value is
+5 seconds.
 </para>
 </section>
 </section>
