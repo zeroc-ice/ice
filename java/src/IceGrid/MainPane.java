@@ -66,10 +66,26 @@ public class MainPane extends JSplitPane
 		if(path != null)
 		{
 		    CommonBase node = (CommonBase)path.getLastPathComponent();
-		    JPopupMenu popup = node.getPopupMenu();
+		    JPopupMenu popup = node.getActions().getPopupMenu();
 		    if(popup != null)
 		    {
 			popup.show(tree, e.getX(), e.getY());
+		    }
+		    else
+		    {
+			//
+			// Undo the getActions() above! 
+			//
+			Model model = node.getModel();
+			CommonBase currentNode = model.getSelectedNode();
+			if(currentNode != null)
+			{
+			    currentNode.getActions();
+			}
+			else
+			{
+			    model.setActions(model.getDefaultActions());
+			}
 		    }
 		}
 	    }
@@ -78,10 +94,29 @@ public class MainPane extends JSplitPane
 
     static class SelectionListener implements TreeSelectionListener
     {
+	SelectionListener(Model model)
+	{
+	    _model = model;
+	}
+
 	public void valueChanged(TreeSelectionEvent e)
 	{
-	    TreePath path = e.getPath();
-	    if(path != null)
+	    TreePath path = null;
+	    if(e.isAddedPath())
+	    {
+		path = e.getPath();
+	    }
+	    
+	    if(path == null)
+	    {
+		if(_model.displayEnabled())
+		{
+		    //
+		    // TODO: display splash?
+		    //
+		}
+	    }
+	    else
 	    {
 		CommonBase newNode = (CommonBase)path.getLastPathComponent();
 
@@ -91,8 +126,12 @@ public class MainPane extends JSplitPane
 		    _previousNode.destroy();
 		}
 		
+		//
+		// Must be a valid node
+		//
+		assert newNode.getParent() != null;
 		_previousNode = newNode;
-		if(newNode.getModel().displayEnabled())
+		if(_model.displayEnabled())
 		{
 		    newNode.displayProperties();
 		}
@@ -100,6 +139,7 @@ public class MainPane extends JSplitPane
 	}
 
 	private CommonBase _previousNode;
+	private Model _model;
     }
 
     public void updateUI()
@@ -137,7 +177,7 @@ public class MainPane extends JSplitPane
 
 	tree.getSelectionModel().setSelectionMode
 	    (TreeSelectionModel.SINGLE_TREE_SELECTION);
-	SelectionListener appSelectionListener = new SelectionListener();
+	SelectionListener appSelectionListener = new SelectionListener(_model);
 	tree.addTreeSelectionListener(appSelectionListener);
 	tree.setRootVisible(false);
 	_model.setTree(tree);

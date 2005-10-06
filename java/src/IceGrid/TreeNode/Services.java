@@ -15,6 +15,7 @@ import javax.swing.Action;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
+import IceGrid.Actions;
 import IceGrid.Model;
 import IceGrid.ServiceDescriptor;
 import IceGrid.ServiceInstanceDescriptor;
@@ -23,74 +24,6 @@ import IceGrid.Utils;
 
 class Services extends ListParent implements InstanceParent
 {
-    static class NewPopupMenu extends JPopupMenu
-    {
-	NewPopupMenu()
-	{
-	    _newService = new AbstractAction("New service")
-		{
-		    public void actionPerformed(ActionEvent e) 
-		    {
-			ServiceDescriptor sd = 
-			    new ServiceDescriptor(new java.util.LinkedList(),
-						  new java.util.LinkedList(),
-						  new java.util.LinkedList(),
-						  "",
-						  "NewService",
-						  "");
-
-			ServiceInstanceDescriptor descriptor = 
-			    new ServiceInstanceDescriptor("",
-							  new java.util.TreeMap(),
-							  sd);
-			_parent.newService(descriptor);
-		    }
-		};
-
-	    add(_newService);
-
-	    _newInstance = new AbstractAction("New template instance")
-		{
-		    public void actionPerformed(ActionEvent e) 
-		    {
-			ServiceInstanceDescriptor descriptor = 
-			    new ServiceInstanceDescriptor("",
-							  new java.util.TreeMap(),
-							  null);
-			_parent.newService(descriptor);
-		    }
-		};
-
-	    add(_newInstance);
-	}
-
-	void setParent(Services parent)
-	{
-	    _parent = parent;
-	}
-
-	private Services _parent;
-	private Action _newService;
-	private Action _newInstance;
-    }
-    
-    public JPopupMenu getPopupMenu()
-    {
-	if(_isEditable)
-	{
-	    if(_popup == null)
-	    {
-		_popup = new NewPopupMenu();
-	    }
-	    _popup.setParent(this);
-	    return _popup;
-	}
-	else
-	{
-	    return null;
-	}
-    }
-
     static public java.util.LinkedList
     copyDescriptors(java.util.LinkedList descriptors)
     {
@@ -105,7 +38,7 @@ class Services extends ListParent implements InstanceParent
 
     
     private Service createService(ServiceInstanceDescriptor descriptor,
-			       Application application) throws UpdateFailedException
+				  Application application) throws UpdateFailedException
     {
 	ServiceDescriptor serviceDescriptor = null;
 	String serviceName = null;
@@ -256,15 +189,13 @@ class Services extends ListParent implements InstanceParent
 	_model.setSelectionPath(service.getPath());
     }
     
-    public void paste(Object descriptor)
+    void paste()
     {
-	if(_isEditable && descriptor instanceof ServiceInstanceDescriptor)
-	{
-	    ServiceInstanceDescriptor d = (ServiceInstanceDescriptor)descriptor;
-	    newService(Service.copyDescriptor(d));
-	}
+	Object descriptor =  _model.getClipboard();
+	ServiceInstanceDescriptor d = (ServiceInstanceDescriptor)descriptor;
+	newService(Service.copyDescriptor(d));
     }
-
+    
     boolean isEditable()
     {
 	return _isEditable;
@@ -397,22 +328,27 @@ class Services extends ListParent implements InstanceParent
 	return _resolver;
     }
     
+    boolean canMove(Service service, boolean up)
+    {
+	if(_isEditable)
+	{
+	    int index = _descriptors.indexOf(service.getDescriptor());
+	    assert index != -1;
+	    if(up && index == 0 || !up && (index == _descriptors.size() - 1))
+	    {
+		return false;
+	    } 
+	    else
+	    {
+		return true;
+	    }
+	}
+	return false;
+    }
+
     void move(Service service, boolean up)
     {
-	if(!_isEditable)
-	{
-	    return;
-	}
-	//
-	// Note: can't have any ephemeral in the list, since a non-ephemeral
-	// is selected
-	//
 	int index = _descriptors.indexOf(service.getDescriptor());
-	assert index != -1;
-	if(up && index == 0 || !up && (index == _descriptors.size() - 1))
-	{
-	    return;
-	} 
 	
 	if(_model.canUpdate())
 	{    
@@ -433,7 +369,6 @@ class Services extends ListParent implements InstanceParent
 	    //
 	    // Propagate to instances
 	    //
-	 
 	    if(_parent instanceof ServerTemplate)
 	    {
 		java.util.List instances = 
@@ -452,6 +387,11 @@ class Services extends ListParent implements InstanceParent
 	 
 	    _model.setSelectionPath(service.getPath());
 	    _model.enableDisplay();
+	    
+	    //
+	    // Recompute actions
+	    //
+	    service.getActions();
 	}
     }
 
@@ -492,7 +432,16 @@ class Services extends ListParent implements InstanceParent
 	}
 	catch(UpdateFailedException e)
 	{
-	    restore(child, savedParameterValues);
+	    e.addParent(this);
+	    //
+	    // Restore
+	    //
+	    if(savedParameterValues != null)
+	    {
+		descriptor.parameterValues = savedParameterValues;
+	    }
+	    addChild(index, child, true);
+	
 	    throw e;
 	}
 
@@ -526,9 +475,19 @@ class Services extends ListParent implements InstanceParent
 	}
     }
 
+    public Actions getActions()
+    {
+	if(_actions == null)
+	{
+	    _actions = new ServicesActions(_model);
+	}
+	_actions.reset(this);
+	return _actions;
+    }
+
 
     private final boolean _isEditable;
     private final Utils.Resolver _resolver;
 
-    static private NewPopupMenu _popup;
+    static private ServicesActions _actions;
 }

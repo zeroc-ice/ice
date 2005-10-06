@@ -8,6 +8,8 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import javax.swing.JOptionPane;
+
 import IceGrid.Model;
 import IceGrid.TemplateDescriptor;
 
@@ -55,6 +57,13 @@ abstract class Templates extends EditableParent
 		    parent = (InstanceParent)parentList.get(i);
 		    parent.restore((CommonBase)instanceList.get(i), backupList.get(i));
 		}
+
+		JOptionPane.showMessageDialog(
+		    _model.getMainFrame(),
+		    e.toString(),
+		    "Apply failed",
+		    JOptionPane.ERROR_MESSAGE);
+		
 		return false;
 	    }
 	    

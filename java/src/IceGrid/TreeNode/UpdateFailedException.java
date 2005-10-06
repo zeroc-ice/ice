@@ -8,13 +8,15 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import javax.swing.tree.TreePath;
+
 class UpdateFailedException extends Exception
 {
     UpdateFailedException(Parent parent, String duplicateName)
     {
 	_duplicateName = duplicateName;
 	_parentList = new java.util.LinkedList();
-	addParent(parent);
+	_parentList.addFirst(parent);
     }
     
     UpdateFailedException(String message)
@@ -26,7 +28,8 @@ class UpdateFailedException extends Exception
     {
 	if(_message == null)
 	{
-	    if(_parentList.get(0) != parent)
+	    Parent firstParent = (Parent)_parentList.get(0);
+	    if(firstParent != parent && firstParent.getParent() == null)
 	    {
 		_parentList.addFirst(parent);
 	    }
@@ -40,15 +43,33 @@ class UpdateFailedException extends Exception
 	    _message = "";
 	    if(_parentList != null)
 	    {
+		TreePath path = null;
+
 		java.util.Iterator p = _parentList.iterator();
 		while(p.hasNext())
 		{
 		    Parent parent = (Parent)p.next();
+		    if(path == null)
+		    {
+			path = parent.getPath();
+			if(path == null)
+			{
+			    path = new TreePath(parent);
+			}
+		    }
+		    else
+		    {
+			path = path.pathByAddingChild(parent);
+		    }
+		}
+		
+		for(int i = 1; i < path.getPathCount(); ++i)
+		{
 		    if(!_message.equals(""))
 		    {
 			_message += "/";
 		    }
-		    _message += parent.getId();
+		    _message += ((CommonBase)path.getPathComponent(i)).getId();
 		}
 	    }
 	    else

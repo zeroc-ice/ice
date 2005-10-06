@@ -97,6 +97,7 @@ abstract class ListElementEditor extends Editor
 	    finally
 	    {
 		model.enableDisplay();
+		model.refreshDisplay();
 	    }
 	}
     }

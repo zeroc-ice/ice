@@ -15,45 +15,21 @@ import javax.swing.Action;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
-
+import IceGrid.Actions;
 import IceGrid.Model;
 import IceGrid.ServiceDescriptor;
 import IceGrid.TemplateDescriptor;
 
 class ServiceTemplates extends Templates
 {
-    static class NewPopupMenu extends JPopupMenu
+    public Actions getActions()
     {
-	NewPopupMenu()
+	if(_actions == null)
 	{
-	    _new = new AbstractAction("New service template")
-		{
-		    public void actionPerformed(ActionEvent e) 
-		    {
-			_parent.newServiceTemplate();
-		    }
-		};
-
-	    add(_new);
+	    _actions = new ServiceTemplatesActions(_model);
 	}
-
-	void setParent(ServiceTemplates parent)
-	{
-	    _parent = parent;
-	}
-
-	private ServiceTemplates _parent;
-	private Action _new;
-    }
-    
-    public JPopupMenu getPopupMenu()
-    {
-	if(_popup == null)
-	{
-	    _popup = new NewPopupMenu();
-	}
-	_popup.setParent(this);
-	return _popup;
+	_actions.reset(this);
+	return _actions;
     }
 
     ServiceTemplates(java.util.Map descriptors, Model model)
@@ -126,16 +102,11 @@ class ServiceTemplates extends Templates
 	_model.setSelectionPath(t.getPath());
     }
 
-    public void paste(Object descriptor)
+    void paste()
     {
-	if(descriptor instanceof TemplateDescriptor)
-	{
-	    TemplateDescriptor td = (TemplateDescriptor)descriptor;
-	    if(td.descriptor instanceof ServiceDescriptor)
-	    {
-		newServiceTemplate(td);
-	    }
-	}
+	Object descriptor =  _model.getClipboard();
+	TemplateDescriptor td = (TemplateDescriptor)descriptor;
+	newServiceTemplate(td);
     }
 
     boolean tryAdd(String newId, TemplateDescriptor descriptor)
@@ -254,9 +225,8 @@ class ServiceTemplates extends Templates
     {
 	_descriptors.remove(id);
     }
-
-
+  
     private java.util.Map _descriptors;
 
-    static private NewPopupMenu _popup;
+    static private ServiceTemplatesActions _actions;
 }

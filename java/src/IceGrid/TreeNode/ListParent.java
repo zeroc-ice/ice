@@ -88,13 +88,14 @@ abstract class ListParent extends Parent
 
     boolean destroyChild(CommonBase child)
     {
-	if(isEditable() && _model.canUpdate())
+	if(child.isEphemeral())
 	{
-	    if(child.isEphemeral())
-	    {
-		removeChild(child, true);
-	    }
-	    else
+	    removeChild(child, true);
+	    return true;
+	}
+	else
+	{
+	    if(isEditable() && _model.canUpdate())
 	    {
 		Object descriptor = child.getDescriptor();
 		removeDescriptor(descriptor);
@@ -112,12 +113,12 @@ abstract class ListParent extends Parent
 			parent.findChildWithDescriptor(descriptor), 
 			true);
 		}
+		return true;
 	    }
-	    return true;
-	}
-	else
-	{
-	    return false;
+	    else
+	    {
+		return false;
+	    }
 	}
     }
 

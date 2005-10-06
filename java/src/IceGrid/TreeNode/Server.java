@@ -38,6 +38,8 @@ import com.jgoodies.forms.layout.Sizes;
 import com.jgoodies.forms.util.LayoutStyle;
 import IceGrid.SimpleInternalFrame;
 
+import IceGrid.Actions;
+import IceGrid.AdapterDescriptor;
 import IceGrid.IceBoxDescriptor;
 import IceGrid.Model;
 import IceGrid.PropertyDescriptor;
@@ -57,59 +59,116 @@ import IceGrid.Utils;
 // - Icebox instance
 //
 class Server extends EditableParent
-{
-    static class PopupMenu extends JPopupMenu
+{ 
+    static public ServerDescriptor
+    copyDescriptor(ServerDescriptor sd)
     {
-	PopupMenu()
+	ServerDescriptor copy = (ServerDescriptor)sd.clone();
+	copy.adapters = Adapters.copyDescriptors(copy.adapters);
+	copy.dbEnvs = DbEnvs.copyDescriptors(copy.dbEnvs);
+
+	//
+	// Update to properties is not atomic because of Adapter endpoints
+	// (and possibly other properties set through a PropertiesHolder)
+	//
+	copy.properties = (java.util.LinkedList)copy.properties.clone();
+
+	if(copy instanceof IceBoxDescriptor)
 	{
-	    _startAction = new AbstractAction("Start")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    _server.start();
-		}
-	    };
-
-	    _stopAction = new AbstractAction("Stop")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    _server.stop();
-		}
-	    };
-
-	    add(_startAction);
-	    add(_stopAction);
+	    IceBoxDescriptor ib = (IceBoxDescriptor)copy;
+	    ib.services = Services.copyDescriptors(ib.services);
 	}
-	
-	void setServer(Server server)
-	{
-	    _server = server;
-	    ServerState state = _server.getState();
+	return copy;
+    }
 
-	    boolean canStart = (_server.getState() == ServerState.Inactive);
-	    _startAction.setEnabled(canStart);
-	    _stopAction.setEnabled(!canStart);
-	}
-
-	private Server _server;
-	private Action _startAction;
-	private Action _stopAction;
+    static public ServerInstanceDescriptor
+    copyDescriptor(ServerInstanceDescriptor sid)
+    {
+	return (ServerInstanceDescriptor)sid.clone();
     }
     
-
-    public JPopupMenu getPopupMenu()
+    static public void shallowRestore(ServerDescriptor from, ServerDescriptor into)
     {
-	if(_popup == null)
+	//
+	// When editing a server or server template, if we update properties, 
+	// we replace the entire field
+	into.properties = from.properties;
+
+	into.description = from.description;
+	into.id = from.id;
+	into.exe = from.exe;
+	into.options = from.options;
+	into.envs = from.envs;
+	into.activation = from.activation;
+	into.activationTimeout = from.activationTimeout;
+	into.deactivationTimeout = from.deactivationTimeout;
+	into.distrib = from.distrib;
+    }
+
+    static public ServerDescriptor newServerDescriptor()
+    {
+	return new ServerDescriptor(
+	    new java.util.LinkedList(),
+	    new java.util.LinkedList(),
+	    new java.util.LinkedList(),
+	    "",
+	    "",
+	    "",
+	    "",
+	    new java.util.LinkedList(),
+	    new java.util.LinkedList(),
+	    "on-demand",
+	    "",
+	    "",
+	    new IceGrid.DistributionDescriptor("", new java.util.LinkedList()));
+    }
+
+    static public IceBoxDescriptor newIceBoxDescriptor()
+    {
+	AdapterDescriptor serviceManager = new AdapterDescriptor(
+	    "IceBox.ServiceManager",
+	    "", // direct-adapter by default
+	    "",
+	    true,
+	    true,
+	    new java.util.LinkedList()
+	    );
+
+	java.util.LinkedList adapterList = new java.util.LinkedList();
+	adapterList.add(serviceManager);
+	
+	return new IceBoxDescriptor(
+	    adapterList,
+	    new java.util.LinkedList(),
+	    new java.util.LinkedList(),
+	    "",
+	    "",
+	    "",
+	    "",
+	    new java.util.LinkedList(),
+	    new java.util.LinkedList(),
+	    "on-demand",
+	    "",
+	    "",
+	    new IceGrid.DistributionDescriptor("", new java.util.LinkedList()),
+	    new java.util.LinkedList()
+	    );
+    }
+
+    public Actions getActions()
+    {
+	if(_actions == null)
 	{
-	    _popup = new PopupMenu();
+	    _actions = new ServerActions(_model);
 	}
-	_popup.setServer(this);
-	return _popup;
+	_actions.reset(this);
+	return _actions;
     }
 
     public void displayProperties()
     {
+	_model.setActions(getActions());
+
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
 	propertiesFrame.setTitle("Properties for " + _id);
 	
@@ -136,8 +195,8 @@ class Server extends EditableParent
 	    propertiesFrame.setContent(_serverInstanceEditor.getComponent());
 	}
 
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
+	_model.getMainFrame().validate();
+	_model.getMainFrame().repaint();
     }
 	
 
@@ -193,30 +252,6 @@ class Server extends EditableParent
     {
 	return _propertiesHolder;
     }
-
-    static public ServerInstanceDescriptor
-    copyDescriptor(ServerInstanceDescriptor sid)
-    {
-	return (ServerInstanceDescriptor)sid.clone();
-    }
-
-    static public ServerDescriptor
-    copyDescriptor(ServerDescriptor sd)
-    {
-	ServerDescriptor copy = null;
-	copy = (ServerDescriptor)sd.clone();
-	copy.adapters = Adapters.copyDescriptors(copy.adapters);
-	copy.dbEnvs = DbEnvs.copyDescriptors(copy.dbEnvs);
-	// TODO: copy.patchs = Patchs.copyDescriptor(copy.patchs);
-
-	if(copy instanceof IceBoxDescriptor)
-	{
-	    IceBoxDescriptor ib = (IceBoxDescriptor)copy;
-	    ib.services = Services.copyDescriptors(ib.services);
-	}
-	return copy;
-    }
-    
 
     public Object getDescriptor()
     {
@@ -446,6 +481,20 @@ class Server extends EditableParent
 	_model.getStatusBar().setText("Stopping server '" + _id + "'... done.");
     }
 
+    boolean isEnabled()
+    {
+	return true;
+    }
+
+    void enable()
+    {
+    }
+
+    void disable()
+    {
+    }
+
+
     ServerState getState()
     {
 	return _state;
@@ -529,7 +578,8 @@ class Server extends EditableParent
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon[] _icons;
-    static private PopupMenu _popup;
+  
+    static private ServerActions _actions;
 
     static private ServerEditor _serverEditor;
     static private ServerInstanceEditor _serverInstanceEditor;

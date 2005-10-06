@@ -15,53 +15,23 @@ import javax.swing.Action;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
+import IceGrid.Actions;
 import IceGrid.AdapterDescriptor;
 import IceGrid.Model;
 import IceGrid.Utils;
 
 class Adapters extends ListParent
 {
-    static class NewPopupMenu extends JPopupMenu
+    public Actions getActions()
     {
-	NewPopupMenu()
+	if(_actions == null)
 	{
-	    _new = new AbstractAction("New adapter")
-		{
-		    public void actionPerformed(ActionEvent e) 
-		    {
-			_parent.newAdapter(null);
-		    }
-		};
-
-	    add(_new);
+	    _actions = new AdaptersActions(_model);
 	}
-
-	void setParent(Adapters parent)
-	{
-	    _parent = parent;
-	}
-
-	private Adapters _parent;
-	private Action _new;
+	_actions.reset(this);
+	return _actions;
     }
 
-    public JPopupMenu getPopupMenu()
-    {
-	if(canHaveNewChild())
-	{
-	    if(_popup == null)
-	    {
-		_popup = new NewPopupMenu();
-	    }
-	    _popup.setParent(this);
-	    return _popup;
-	}
-	else
-	{
-	    return null;
-	}
-    }
-    
     static public java.util.LinkedList
     copyDescriptors(java.util.LinkedList descriptors)
     {
@@ -159,35 +129,9 @@ class Adapters extends ListParent
 	return _isEditable && !_inIceBox;
     }
 
-    void newAdapter(AdapterDescriptor descriptor)
+    private void newAdapter(AdapterDescriptor descriptor)
     {
-	//
-	// Generate a unique child name; ignore substitution for simplicity
-	//
-	String baseName = descriptor == null ? "NewAdapter" : descriptor.name;
-	String name = makeNewChildId(baseName);
-
-	if(descriptor == null)
-	{
-	    CommonBase parent = getParent();
-	    String defaultId = (parent instanceof Service || 
-				parent instanceof ServiceTemplate) ? 
-		"${server}.${service}." + name : "${server}." + name;
-
-	    descriptor = new AdapterDescriptor(
-		name,
-		defaultId,
-		"", // TODO: ReplicaId
-		false,
-		true,
-		new java.util.LinkedList());   
-	}
-	else
-	{
-	    descriptor.name = name;
-	}
-
-	Adapter adapter = new Adapter(name, descriptor, _model);
+	Adapter adapter = new Adapter(descriptor.name, descriptor, _model);
 	try
 	{
 	    addChild(adapter, true);
@@ -199,18 +143,38 @@ class Adapters extends ListParent
 	_model.setSelectionPath(adapter.getPath());
     }
 
-    public void paste(Object descriptor)
+    void newAdapter()
     {
-	if(canHaveNewChild() && descriptor instanceof AdapterDescriptor)
-	{
-	    AdapterDescriptor d = (AdapterDescriptor)descriptor;
-	    newAdapter(Adapter.copyDescriptor(d));
-	}
+	String name = makeNewChildId("NewAdapter");
+	CommonBase parent = getParent();
+	String defaultId = (parent instanceof Service || 
+			    parent instanceof ServiceTemplate) ? 
+	    "${server}.${service}." + name : "${server}." + name;
+
+	AdapterDescriptor descriptor = new AdapterDescriptor(
+	    name,
+	    defaultId,
+	    "${server}",
+	    false,
+	    true,
+	    new java.util.LinkedList());   
+	
+	newAdapter(descriptor);
+    }
+
+    void paste()
+    {
+	Object descriptor =  _model.getClipboard();
+	assert canHaveNewChild() && descriptor instanceof AdapterDescriptor;
+
+	AdapterDescriptor d = Adapter.copyDescriptor((AdapterDescriptor)descriptor);
+	d.name = makeNewChildId(d.name);
+	newAdapter(d);
     }
 
     private Utils.Resolver _resolver;
     private boolean _isEditable;
     private boolean _inIceBox;
-
-    static private NewPopupMenu _popup;
+    
+    static private AdaptersActions _actions;
 }

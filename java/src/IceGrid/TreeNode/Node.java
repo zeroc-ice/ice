@@ -9,6 +9,7 @@
 package IceGrid.TreeNode;
 
 import java.awt.Component;
+import javax.swing.JOptionPane;
 import javax.swing.JTree;
 import javax.swing.Icon;
 import javax.swing.tree.TreeCellRenderer;
@@ -26,17 +27,8 @@ import IceGrid.ServerState;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
-class Node extends EditableParent
-{
-    //
-    // Node creation/deletion/renaming is done by starting/restarting
-    // an IceGridNode process. Not through admin calls.
-    //
-    
-    //
-    // TODO: consider showing per-application node variables
-    //
-
+class Node extends EditableParent implements InstanceParent
+{  
      public Component getTreeCellRendererComponent(
 	    JTree tree,
 	    Object value,
@@ -91,6 +83,141 @@ class Node extends EditableParent
     }
     
     
+    static private class Backup
+    {
+	java.util.TreeSet removedElements;
+	java.util.TreeMap parameterValues;
+    }
+
+    public Object rebuild(CommonBase child, java.util.List editables) 
+	throws UpdateFailedException
+    {
+	Backup backup = new Backup();
+	backup.removedElements = (java.util.TreeSet)_removedElements.clone();
+
+	removeChild(child, true);
+	Server server = (Server)child;
+	ServerInstanceDescriptor instanceDescriptor = server.getInstanceDescriptor();
+	
+	if(instanceDescriptor != null)
+	{
+	    TemplateDescriptor templateDescriptor 
+		= getApplication().findServerTemplateDescriptor(instanceDescriptor.template);
+
+	    java.util.Set parameters = new java.util.HashSet(templateDescriptor.parameters);
+	    if(!parameters.equals(instanceDescriptor.parameterValues.keySet()))
+	    {
+		backup.parameterValues = instanceDescriptor.parameterValues;
+		instanceDescriptor.parameterValues = Editor.makeParameterValues(
+		    instanceDescriptor.parameterValues, templateDescriptor.parameters);
+	    }
+      
+	    try
+	    {
+		Server newServer = createServer(true, instanceDescriptor, getApplication());
+		addChild(newServer, true);
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		e.addParent(this);
+		restore(child, backup);
+		throw e;
+	    }
+	}
+	else
+	{
+	    try
+	    {
+		Server newServer = createServer(true, server.getServerDescriptor(), getApplication());
+		addChild(newServer, true);
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		restore(child, backup);
+		throw e;
+	    }
+	}
+	return backup;
+    }
+
+    public void restore(CommonBase child, Object backupObject)
+    {
+	Backup backup = (Backup)backupObject;
+	_removedElements = backup.removedElements;
+
+	Server goodServer = (Server)child;
+	ServerInstanceDescriptor instanceDescriptor = goodServer.getInstanceDescriptor();
+	if(instanceDescriptor != null &&  backup.parameterValues != null)
+	{
+	    instanceDescriptor.parameterValues = backup.parameterValues;
+	}
+
+	CommonBase badServer = findChildWithDescriptor(goodServer.getDescriptor());
+	if(badServer != null)
+	{
+	    removeChild(badServer, true);
+	}
+
+	try
+	{
+	    addChild(child, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false; // impossible
+	}
+    }
+
+    private Server createServer(boolean brandNew, ServerInstanceDescriptor instanceDescriptor,
+				Application application) throws UpdateFailedException
+    {
+	//
+	// Find template
+	//
+	TemplateDescriptor templateDescriptor = 
+	    application.findServerTemplateDescriptor(instanceDescriptor.template);
+
+	assert templateDescriptor != null;
+	    
+	ServerDescriptor serverDescriptor = 
+	    (ServerDescriptor)templateDescriptor.descriptor;
+	
+	assert serverDescriptor != null;
+	
+	//
+	// Build resolver
+	//
+	Utils.Resolver instanceResolver = 
+	    new Utils.Resolver(_resolver, instanceDescriptor.parameterValues);
+	
+	String serverId = instanceResolver.substitute(serverDescriptor.id);
+	instanceResolver.put("server", serverId);
+	
+	//
+	// Create server
+	//
+	return new Server(brandNew, serverId, instanceResolver, instanceDescriptor, 
+			  serverDescriptor, application);
+    }
+
+    private Server createServer(boolean brandNew, ServerDescriptor serverDescriptor,
+				Application application) throws UpdateFailedException
+    {
+	//
+	// Build resolver
+	//
+	Utils.Resolver instanceResolver = new Utils.Resolver(_resolver);
+	String serverId = instanceResolver.substitute(serverDescriptor.id);
+	instanceResolver.put("server", serverId);
+	
+	//
+	// Create server
+	//
+	return new Server(brandNew, serverId, instanceResolver, null, serverDescriptor, 
+			  application);
+
+    }
+
     void up()
     {
 	_up = true;
@@ -396,35 +523,8 @@ class Node extends EditableParent
 	{
 	    ServerInstanceDescriptor instanceDescriptor = 
 		(ServerInstanceDescriptor)p.next();
-	    
-	    //
-	    // Find template
-	    //
-	    TemplateDescriptor templateDescriptor = 
-		application.findServerTemplateDescriptor(instanceDescriptor.template);
-
-	    assert templateDescriptor != null;
-	    
-	    ServerDescriptor serverDescriptor = 
-		(ServerDescriptor)templateDescriptor.descriptor;
-	    
-	    assert serverDescriptor != null;
-	    
-	    //
-	    // Build resolver
-	    //
-	    Utils.Resolver instanceResolver = 
-		new Utils.Resolver(_resolver, instanceDescriptor.parameterValues);
-	    
-	    String serverId = instanceResolver.substitute(serverDescriptor.id);
-	    instanceResolver.put("server", serverId);
-	    
-	    //
-	    // Create server
-	    //
-	    Server server = new Server(false, serverId, instanceResolver, instanceDescriptor, 
-				       serverDescriptor, application);
-	    addChild(server);
+	   
+	    addChild(createServer(false, instanceDescriptor, application));
 	}
 
 	//
@@ -434,20 +534,7 @@ class Node extends EditableParent
 	while(p.hasNext())
 	{
 	    ServerDescriptor serverDescriptor = (ServerDescriptor)p.next();
-
-	    //
-	    // Build resolver
-	    //
-	    Utils.Resolver instanceResolver = new Utils.Resolver(_resolver);
-	    String serverId = instanceResolver.substitute(serverDescriptor.id);
-	    instanceResolver.put("server", serverId);
-	    
-	    //
-	    // Create server
-	    //
-	    Server server = new Server(false, serverId, instanceResolver, null, serverDescriptor, 
-				       application);
-	    addChild(server);
+	    addChild(createServer(false, serverDescriptor, application));
 	}
 
 	if(fireEvent)
@@ -657,6 +744,13 @@ class Node extends EditableParent
 	    Server server = (Server)p.next();
 	    server.removeServiceInstances(template);
 	}
+    }
+
+    void paste()
+    {
+	//
+	// TODO: implement
+	//
     }
 
     Utils.Resolver getResolver()

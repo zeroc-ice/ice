@@ -10,12 +10,11 @@ package IceGrid.TreeNode;
 
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeCellRenderer;
-import javax.swing.JPopupMenu;
 import javax.swing.JPanel;
 
-import IceGrid.SimpleInternalFrame;
-
+import IceGrid.Actions;
 import IceGrid.Model;
+import IceGrid.SimpleInternalFrame;
 
 //
 // CommonBase is similar to javax.swing.tree.TreeNode
@@ -48,7 +47,6 @@ public interface CommonBase extends TreeCellRenderer
     //
     boolean destroy();
 
-    
     //
     // Get this node's parent;
     // null when the node is not attached to the root
@@ -63,9 +61,9 @@ public interface CommonBase extends TreeCellRenderer
     TreePath getPath();
 
     //
-    // Get pop-up menu
+    // Actions associated with this object
     //
-    JPopupMenu getPopupMenu();
+    Actions getActions();
 
     void displayProperties();
 
@@ -102,26 +100,6 @@ public interface CommonBase extends TreeCellRenderer
     Object saveDescriptor();
     void restoreDescriptor(Object savedDescriptor);
     
-    //
-    // Copy the underlying data (typically descriptor);
-    // this is a _deep_ copy
-    // Objects that are not copyable return null
-    //
-    Object copy();
-
-    //
-    // Create a new object using this descriptor in this container 
-    // or the parent's container; does nothing if the descriptor
-    // is not of the proper type
-    //
-    void paste(Object descriptor);
-
-    //
-    // Change the sorting order (using no-op)
-    //
-    void moveUp();
-    void moveDown();
-
     //
     // Set this child's parent
     //

@@ -79,7 +79,7 @@ class TemplateEditor extends Editor
     boolean isSimpleUpdate()
     {
 	TemplateDescriptor descriptor = getDescriptor();
-	return _parameters.getText().equals(descriptor.parameters);
+	return _parameters.getText().equals(parametersToString(descriptor.parameters));
     }
 
     void append(DefaultFormBuilder builder)

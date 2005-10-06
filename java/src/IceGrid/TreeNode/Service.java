@@ -10,6 +10,7 @@ package IceGrid.TreeNode;
 
 import IceGrid.SimpleInternalFrame;
 
+import IceGrid.Actions;
 import IceGrid.Model;
 import IceGrid.ServiceDescriptor;
 import IceGrid.ServiceInstanceDescriptor;
@@ -26,16 +27,23 @@ class Service extends Parent
 	
 	if(copy.descriptor != null)
 	{
-	    copy.descriptor = (ServiceDescriptor)copy.descriptor.clone();
-	    copy.descriptor.adapters = Adapters.copyDescriptors(copy.descriptor.adapters);
-	    copy.descriptor.dbEnvs = DbEnvs.copyDescriptors(copy.descriptor.dbEnvs);
-
-	    //
-	    // Update to properties is not atomic because of Adapter endpoints
-	    // (and possibly other properties set through a PropertiesHolder)
-	    //
-	    copy.descriptor.properties = (java.util.LinkedList)copy.descriptor.properties.clone();
+	    copy.descriptor = copyDescriptor((ServiceDescriptor)copy.descriptor);
 	}
+	return copy;
+    }
+    
+    static public ServiceDescriptor
+    copyDescriptor(ServiceDescriptor sd)
+    {
+	ServiceDescriptor copy = (ServiceDescriptor)sd.clone();
+	copy.adapters = Adapters.copyDescriptors(copy.adapters);
+	copy.dbEnvs = DbEnvs.copyDescriptors(copy.dbEnvs);
+	
+	//
+	// Update to properties is not atomic because of Adapter endpoints
+	// (and possibly other properties set through a PropertiesHolder)
+	//
+	copy.properties = (java.util.LinkedList)copy.properties.clone();
 	return copy;
     }
 
@@ -74,7 +82,7 @@ class Service extends Parent
 	}
     }
 
-    public Object copy()
+    Object copy()
     {
 	return copyDescriptor(_instanceDescriptor);
     }
@@ -85,8 +93,20 @@ class Service extends Parent
 	    ((ListParent)_parent).destroyChild(this);
     }
 
+    public Actions getActions()
+    {
+	if(_actions == null)
+	{
+	    _actions = new ServiceActions(_model);
+	}
+	_actions.reset(this);
+	return _actions;
+    }
+
     public void displayProperties()
     {
+	_model.setActions(getActions());
+
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
 	propertiesFrame.setTitle("Properties for " + _id);
 	
@@ -108,8 +128,8 @@ class Service extends Parent
 	    _editor.show(this);
 	    propertiesFrame.setContent(_editor.getComponent());
 	}
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
+	_model.getMainFrame().validate();
+	_model.getMainFrame().repaint();
     }
 
     public String toString()
@@ -131,13 +151,40 @@ class Service extends Parent
 
     public void moveUp()
     {
-	move(true);
+	assert canMoveUp();
+	((Services)_parent).move(this, true);
     }
 
     public void moveDown()
     {
-	move(false);
+	assert canMoveDown();
+	((Services)_parent).move(this, false);
     }
+
+    boolean canMoveUp()
+    {
+	if(_ephemeral)
+	{
+	    return false;
+	}
+	else
+	{
+	    return ((Services)_parent).canMove(this, true);
+	}
+    }
+
+    boolean canMoveDown()
+    {
+	if(_ephemeral)
+	{
+	    return false;
+	}
+	else
+	{
+	    return ((Services)_parent).canMove(this, false);
+	}
+    }
+
 
     //
     // child == _adapters or _dbEnvs
@@ -166,13 +213,7 @@ class Service extends Parent
     }
 
 
-    private void move(boolean up)
-    {
-	if(!_ephemeral)
-	{
-	    ((Services)_parent).move(this, up);
-	}
-    }
+   
 
     Service(String name,
 	    String displayString,
@@ -263,7 +304,7 @@ class Service extends Parent
     private ServiceDescriptor _serviceDescriptor;
 
     private String _displayString;
-    private boolean _ephemeral;
+    private final boolean _ephemeral;
     private Utils.Resolver _resolver;
     private Adapters _adapters;
     private DbEnvs _dbEnvs;
@@ -272,4 +313,5 @@ class Service extends Parent
 
     static private ServiceEditor _editor;
     static private ServiceInstanceEditor _instanceEditor;
+    static private ServiceActions _actions;
 }

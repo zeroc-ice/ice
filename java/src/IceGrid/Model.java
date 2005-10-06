@@ -11,6 +11,7 @@ package IceGrid;
 import java.util.prefs.Preferences;
 import java.util.prefs.BackingStoreException;
 
+import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Frame;
 import java.awt.Rectangle;
@@ -100,68 +101,6 @@ public class Model
 	private Preferences _connectionPrefs;
     }
 
-    class MenuBar extends JMenuBar
-    {
-	MenuBar()
-	{
-	    putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
-	    putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
-
-	    JMenu fileMenu = new JMenu("File");
-	    fileMenu.setMnemonic(java.awt.event.KeyEvent.VK_F);
-	    add(fileMenu);
-	    
-	    JMenu editMenu = new JMenu("Edit");
-	    editMenu.setMnemonic(java.awt.event.KeyEvent.VK_E);
-	    add(editMenu);
-	    
-	    JMenu helpMenu = new JMenu("Help");
-	    helpMenu.setMnemonic(java.awt.event.KeyEvent.VK_H);
-	    add(helpMenu);
-	    
-	    fileMenu.add(_connect);
-	    fileMenu.addSeparator();
-	    fileMenu.add(_save);
-	    fileMenu.add(_discard);
-	    fileMenu.addSeparator();
-	    fileMenu.add(_exit);
-	    
-	    editMenu.add(_copy);
-	    editMenu.add(_paste);
-	    editMenu.addSeparator();
-	    editMenu.add(_delete);
-	    
-	    helpMenu.add(_about);
-	} 
-    }
-    
-    class ToolBar extends JToolBar
-    {
-	ToolBar()
-	{
-	    putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
-	    putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
-	    setFloatable(false);
-	    putClientProperty("JToolBar.isRollover", Boolean.TRUE);
-
-	    add(_connect);
-	    addSeparator();
-	    add(_save);
-	    add(_discard);
-	    addSeparator();
-	    add(_copy);
-	    add(_paste);
-	    addSeparator();
-	    add(_delete);
-	    addSeparator();
-	    add(new JToggleButton(_substituteVar));
-	    addSeparator();
-	    add(_moveUp);
-	    add(_moveDown);
-	}
-    }
-
-
     //
     // All Model's methods run in the UI thread
     //
@@ -169,7 +108,6 @@ public class Model
     {
 	return _communicator;
     }
-
  
     public Root getRoot()
     {
@@ -303,10 +241,13 @@ public class Model
 
     public void refreshDisplay()
     {
-	CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
-	if(currentNode != null)
+	if(_displayEnabled)
 	{
-	    currentNode.displayProperties();
+	    CommonBase currentNode = getSelectedNode();
+	    if(currentNode != null)
+	    {
+		currentNode.displayProperties();
+	    }
 	}
     }
 
@@ -660,9 +601,6 @@ public class Model
     public void setTree(JTree tree)
     {
 	_tree = tree;
-
-	_tree.getActionMap().put("copy", _copy);
-	_tree.getActionMap().put("paste", _paste);
     }
 
     public JTree getTree()
@@ -703,37 +641,10 @@ public class Model
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    if(_latestSerial != -1 && _latestSerial == _writeSerial)
-		    {
-			int saveFirst = JOptionPane.showConfirmDialog(
-			    _mainFrame,
-			    "Do you want to save your updates?", 
-			    "Save Confirmation",
-			    JOptionPane.YES_NO_CANCEL_OPTION);
-			switch(saveFirst)
-			{
-			    case JOptionPane.YES_OPTION:
-				if(saveUpdates())
-				{
-				    _sessionKeeper.createSession(false);
-				}
-				break;
-			    case JOptionPane.NO_OPTION:
-				discardUpdates(true);
-				break;
-			    case JOptionPane.CANCEL_OPTION:
-				break;
-			    default:
-				assert false;
-			}
-		    }
-		    else
-		    {
-			_sessionKeeper.reconnect(true);
-		    }
+		    connect();
 		}
 	    };
-	_connect.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl N"));    
+
 
 	_save = new AbstractAction("Save", Utils.getIcon("/icons/save_edit.gif"))
 	    {
@@ -743,9 +654,11 @@ public class Model
 		}
 	    };
 	_save.setEnabled(false);
-		
+	_save.putValue(Action.ACCELERATOR_KEY, 
+			     KeyStroke.getKeyStroke("ctrl S"));  
+	
 	_discard = new AbstractAction("Discard all updates...", 
-					    Utils.getIcon("/icons/undo_edit.gif"))
+				      Utils.getIcon("/icons/undo_edit.gif"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -763,114 +676,6 @@ public class Model
 	    };
 	_exit.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt F4"));
 
-	_copy = new AbstractAction("Copy", Utils.getIcon("/icons/copy_edit.gif"))
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
-		    if(currentNode != null)
-		    {
-			_copiedDescriptor = currentNode.copy();
-			_paste.setEnabled(_copiedDescriptor != null);
-		    }
-		}
-	    };
-	_copy.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl C"));
-	
-	_paste = new AbstractAction("Paste", Utils.getIcon("/icons/paste_edit.gif"))
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
-		    if(currentNode != null)
-		    {
-			currentNode.paste(_copiedDescriptor);
-		    }
-		}
-	    };
-	_paste.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl V"));
-	_paste.setEnabled(false);
-
-	_delete = new AbstractAction("Delete", Utils.getIcon("/icons/delete_edit.gif"))
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
-		    if(currentNode != null)
-		    {
-			CommonBase parent = currentNode.getParent();
-			CommonBase toSelect = null;
-			if(parent != null)
-			{
-			    int index = parent.getIndex(currentNode);
-			    toSelect = (CommonBase)parent.getChildAt(index + 1);
-			    if(toSelect == null)
-			    {
-				if(index > 0)
-				{
-				    toSelect = (CommonBase)parent.getChildAt(0);
-				}
-				else
-				{
-				    toSelect = parent;
-				}
-			    }
-			}
-			if(toSelect != null)
-			{
-			    disableDisplay();
-			}
-			boolean destroyed = currentNode.destroy();
-			if(toSelect != null)
-			{
-			    enableDisplay();
-			    if(destroyed)
-			    {
-				toSelect = findNewNode(toSelect.getPath());
-				_tree.setSelectionPath(toSelect.getPath()); 
-			    }
-			}
-		    }
-		}
-	    };
-	_delete.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));    
-
-	_substituteVar = new AbstractAction("${}")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    toggleSubstitute();
-		}
-	    };
-
-	_substituteVar.putValue(Action.SHORT_DESCRIPTION, 
-				     "Substitute variables and parameters in servers' properties");
-    
-
-	_moveUp = new AbstractAction("Up")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
-		    if(currentNode != null)
-		    {
-			currentNode.moveUp();
-		    }
-		}
-	    };
-
-	_moveDown = new AbstractAction("Down")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
-		    if(currentNode != null)
-		    {
-			currentNode.moveDown();
-		    }
-		}
-	    };
-
 	_about = new AbstractAction("About...")
 	    {
 		public void actionPerformed(ActionEvent e) 
@@ -878,7 +683,111 @@ public class Model
 		    // TODO: implement
 		}
 	    };
+   
+	_substituteVar = new AbstractAction("${}")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    toggleSubstitute();
+		}
+	    };
+	_substituteVar.putValue(Action.SHORT_DESCRIPTION, 
+				"Substitute variables and parameters in servers' properties");
+
+
+	_defaultActions = new Actions(this);
     }
+
+    //
+    // "Connect" action
+    //
+    private void connect()
+    {
+	if(_latestSerial != -1 && _latestSerial == _writeSerial)
+	{
+	    int saveFirst = JOptionPane.showConfirmDialog(
+		_mainFrame,
+		"Do you want to save your updates?", 
+		"Save Confirmation",
+		JOptionPane.YES_NO_CANCEL_OPTION);
+	    switch(saveFirst)
+	    {
+		case JOptionPane.YES_OPTION:
+		    if(saveUpdates())
+		    {
+			_sessionKeeper.createSession(false);
+		    }
+		    break;
+		case JOptionPane.NO_OPTION:
+		    discardUpdates(true);
+		    break;
+		case JOptionPane.CANCEL_OPTION:
+		    break;
+		default:
+		    assert false;
+	    }
+	}
+	else
+	{
+	    _sessionKeeper.reconnect(true);
+	}
+    }
+    
+   
+    /*
+    void deleteCurrentNode()
+    {
+	CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
+	if(currentNode != null)
+	{
+	    CommonBase parent = currentNode.getParent();
+	    CommonBase toSelect = null;
+	    if(parent != null)
+	    {
+		int index = parent.getIndex(currentNode);
+		toSelect = (CommonBase)parent.getChildAt(index + 1);
+		if(toSelect == null)
+		{
+		    if(index > 0)
+		    {
+			toSelect = (CommonBase)parent.getChildAt(0);
+		    }
+		    else
+		    {
+			toSelect = parent;
+		    }
+		}
+	    }
+	    if(toSelect != null)
+	    {
+		disableDisplay();
+	    }
+	    boolean destroyed = currentNode.destroy();
+	    if(toSelect != null)
+	    {
+		enableDisplay();
+		if(destroyed)
+		{
+		    toSelect = findNewNode(toSelect.getPath());
+		    _tree.setSelectionPath(toSelect.getPath()); 
+		}
+	    }
+	}
+    }
+    */
+    
+
+    public void setClipboard(Object copy)
+    {
+	_clipboard = copy;
+    }
+
+    public Object getClipboard()
+    {
+	return _clipboard; 
+    }
+
+
 
     void showMainFrame()
     {
@@ -955,19 +864,67 @@ public class Model
 	return _sessionKeeper;
     }
 
-    JToolBar createToolBar()
+    public Actions getDefaultActions()
     {
-	return new ToolBar();
+	return _defaultActions;
     }
 
-    JMenuBar createMenuBar()
+    public void setActions(Actions actions)
     {
-	return new MenuBar();
+	_mainFrame.setJMenuBar(actions.getMenuBar());
+	if(_currentActions != null)
+	{
+	    _mainFrame.getContentPane().remove(_currentActions.getToolBar());
+	}
+	_currentActions = actions;
+	_mainFrame.getContentPane().add(_currentActions.getToolBar(), 
+					BorderLayout.PAGE_START);
+	
+	_tree.getActionMap().put("copy", _currentActions.getCopyAction());
+	_tree.getActionMap().put("paste", _currentActions.getPasteAction());
+    }
+
+    void addFileMenu(JMenuBar menuBar)
+    {
+	JMenu fileMenu = new JMenu("File");
+	fileMenu.setMnemonic(java.awt.event.KeyEvent.VK_F);
+	menuBar.add(fileMenu);
+	
+	fileMenu.add(_connect);
+	fileMenu.addSeparator();
+	fileMenu.add(_save);
+	fileMenu.add(_discard);
+	fileMenu.addSeparator();
+	fileMenu.add(_exit);
+    }
+
+    void addHelpMenu(JMenuBar menuBar)
+    {
+	JMenu helpMenu = new JMenu("Help");
+	helpMenu.setMnemonic(java.awt.event.KeyEvent.VK_H);
+	menuBar.add(helpMenu);
+	helpMenu.add(_about);
+    }
+
+    void addTools(JToolBar toolBar)
+    {
+	toolBar.add(_connect);
+	toolBar.addSeparator();
+	toolBar.add(_save);
+	toolBar.add(_discard);
     }
 
     Preferences getPrefs()
     {
 	return _prefs;
+    }
+
+
+   
+
+    public Action getSubstituteVarAction()
+    {
+	return _substituteVar;
     }
 
     private Ice.Communicator _communicator;
@@ -993,20 +950,16 @@ public class Model
     private JFrame _mainFrame;
     private SessionKeeper _sessionKeeper;
 
-    private Object _copiedDescriptor;
+    private Object _clipboard;
 
-    //
-    // Actions
-    //
+    private Actions _defaultActions;
+    private Actions _currentActions;
+
     private Action _connect;
     private Action _save;
     private Action _discard;
     private Action _exit;
-    private Action _copy;
-    private Action _paste;
-    private Action _delete;
     private Action _about;
+
     private Action _substituteVar;
-    private Action _moveUp;
-    private Action _moveDown;
 }

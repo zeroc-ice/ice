@@ -8,16 +8,30 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import javax.swing.JOptionPane;
+
+import IceGrid.Actions;
+import IceGrid.IceBoxDescriptor;
 import IceGrid.Model;
 import IceGrid.TemplateDescriptor;
 import IceGrid.TreeModelI;
 
-class ServerTemplates extends EditableParent
+class ServerTemplates extends Templates
 {
+    public Actions getActions()
+    {
+	if(_actions == null)
+	{
+	    _actions = new ServerTemplatesActions(_model);
+	}
+	_actions.reset(this);
+	return _actions;
+    }
+
     ServerTemplates(java.util.Map descriptors, Application application)
 	throws UpdateFailedException
     {
-	super(false, "Server templates", application.getModel());
+	super("Server templates", application.getModel());
 
 	_descriptors = descriptors;
 
@@ -116,6 +130,84 @@ class ServerTemplates extends EditableParent
 	}
     }
     
+    void newServerTemplate()
+    {
+	newServerTemplate(new TemplateDescriptor(
+			      Server.newServerDescriptor(), 
+			      new java.util.LinkedList(),
+			      new java.util.TreeMap()));
+    }
+
+    void newIceBoxTemplate()
+    {
+	newServerTemplate(new TemplateDescriptor(
+			      Server.newIceBoxDescriptor(), 
+			      new java.util.LinkedList(),
+			      new java.util.TreeMap()));
+    }
+
+
+    void newServerTemplate(TemplateDescriptor descriptor)
+    {
+	String id;
+	if(descriptor.descriptor instanceof IceBoxDescriptor)
+	{
+	    id = makeNewChildId("NewIceBoxTemplate");
+	}
+	else
+	{
+	    id = makeNewChildId("NewServerTemplate");
+	}
+	
+	ServerTemplate t = new ServerTemplate(id, descriptor, getApplication());
+	try
+	{
+	    addChild(t, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+	_model.setSelectionPath(t.getPath());
+    }
+
+    void paste()
+    {
+	Object descriptor =  _model.getClipboard();
+	TemplateDescriptor td = (TemplateDescriptor)descriptor;
+	newServerTemplate(td);
+    }
+
+    boolean tryAdd(String newId, TemplateDescriptor descriptor)
+    {
+	if(findChild(newId) != null)
+	{
+	    JOptionPane.showMessageDialog(
+		_model.getMainFrame(),
+		"There is already a server template with the same id.",
+		"Duplicate id",
+		JOptionPane.INFORMATION_MESSAGE);
+	    return false;
+	}
+	_descriptors.put(newId, descriptor);
+	
+	try
+	{
+	    addChild(new ServerTemplate(true, newId, descriptor, 
+					getApplication()), true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false; // impossible
+	}
+	return true;
+    }
+
+    protected java.util.List findAllTemplateInstances(String templateId)
+    {
+	return getApplication().findServerInstances(templateId);
+    }
+
     void update(java.util.Map updates, String[] removeTemplates)
 	throws UpdateFailedException
     {
@@ -161,5 +253,11 @@ class ServerTemplates extends EditableParent
 	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
     }
     
+    void removeDescriptor(String id)
+    {
+	_descriptors.remove(id);
+    }
+
     private java.util.Map _descriptors;
+    static private ServerTemplatesActions _actions;
 }

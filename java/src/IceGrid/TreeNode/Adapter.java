@@ -14,6 +14,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import IceGrid.SimpleInternalFrame;
 
+import IceGrid.Actions;
 import IceGrid.AdapterDescriptor;
 import IceGrid.Model;
 import IceGrid.Utils;
@@ -45,8 +46,20 @@ class Adapter extends Leaf
 	    tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
+    public Actions getActions()
+    {
+	if(_actions == null)
+	{
+	    _actions = new AdapterActions(_model);
+	}
+	_actions.reset(this);
+	return _actions;
+    }
+
     public void displayProperties()
     {
+	_model.setActions(getActions());
+
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
 	
 	propertiesFrame.setTitle("Properties for " + _id);
@@ -57,8 +70,9 @@ class Adapter extends Leaf
 	
 	_editor.show(this);
 	propertiesFrame.setContent(_editor.getComponent());
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
+
+	_model.getMainFrame().validate();
+	_model.getMainFrame().repaint();
     }
 
     public boolean destroy()
@@ -129,7 +143,7 @@ class Adapter extends Leaf
 	_descriptor.objects = ad.objects;
     }
     
-    public Object copy()
+    Object copy()
     {
 	return copyDescriptor(_descriptor);
     }
@@ -224,7 +238,7 @@ class Adapter extends Leaf
 	}
     }
 
-    private boolean _ephemeral;
+    private final boolean _ephemeral;
     private AdapterDescriptor _descriptor;
     private Utils.Resolver _resolver;
 
@@ -234,4 +248,6 @@ class Adapter extends Leaf
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private AdapterEditor _editor;
+    static private AdapterActions _actions;
+
 }

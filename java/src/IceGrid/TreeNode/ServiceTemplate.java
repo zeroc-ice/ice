@@ -10,14 +10,39 @@ package IceGrid.TreeNode;
 
 import IceGrid.SimpleInternalFrame;
 
+import IceGrid.Actions;
 import IceGrid.ServiceDescriptor;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Model;
 
 class ServiceTemplate extends EditableParent
 {
+    static public TemplateDescriptor
+    copyDescriptor(TemplateDescriptor templateDescriptor)
+    {
+	TemplateDescriptor copy = (TemplateDescriptor)
+	    templateDescriptor.clone();
+
+	copy.descriptor = Service.copyDescriptor( 
+	    (ServiceDescriptor)copy.descriptor);
+	
+	return copy;
+    }
+
+    public Actions getActions()
+    {
+	if(_actions == null)
+	{
+	    _actions = new ServiceTemplateActions(_model);
+	}
+	_actions.reset(this);
+	return _actions;
+    }
+
     public void displayProperties()
     {
+	_model.setActions(getActions());
+
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
 	propertiesFrame.setTitle("Properties for " + _id);
        
@@ -27,8 +52,8 @@ class ServiceTemplate extends EditableParent
 	}
 	_editor.show(this);
 	propertiesFrame.setContent(_editor.getComponent());
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
+	_model.getMainFrame().validate();
+	_model.getMainFrame().repaint();
     }
 
 
@@ -59,6 +84,7 @@ class ServiceTemplate extends EditableParent
     {
 	super(o, true);
 	assert o._ephemeral == false;
+	_ephemeral = false;
 
 	_templateDescriptor = o._templateDescriptor;
 	_adapters = o._adapters;
@@ -125,20 +151,18 @@ class ServiceTemplate extends EditableParent
     
     public boolean destroy()
     {
-	if(_parent != null && _model.canUpdate())
+	ServiceTemplates serviceTemplates = (ServiceTemplates)_parent;
+
+	if(serviceTemplates != null && _ephemeral)
 	{
-	    ServiceTemplates serviceTemplates = (ServiceTemplates)_parent;
-	 
-	    if(_ephemeral)
-	    {
-		serviceTemplates.removeChild(this, true);
-	    }
-	    else
-	    {
-		serviceTemplates.removeDescriptor(_id);
-		getApplication().removeServiceInstances(_id);
-		serviceTemplates.removeElement(this, true);
-	    }
+	    serviceTemplates.removeChild(this, true);
+	    return true;
+	}
+	else if(serviceTemplates != null && _model.canUpdate())
+	{
+	    serviceTemplates.removeDescriptor(_id);
+	    getApplication().removeServiceInstances(_id);
+	    serviceTemplates.removeElement(this, true);
 	    return true;
 	}
 	else
@@ -164,7 +188,12 @@ class ServiceTemplate extends EditableParent
 	return result;
     }
 
-   
+    TemplateDescriptor copy()
+    {
+	return copyDescriptor(_templateDescriptor);
+    }
+
+
     public Object saveDescriptor()
     {
 	//
@@ -197,8 +226,9 @@ class ServiceTemplate extends EditableParent
     private DbEnvs _dbEnvs;
 
     private PropertiesHolder _propertiesHolder;
-    private boolean _ephemeral;
+    private final boolean _ephemeral;
     
 
     static private ServiceTemplateEditor _editor;
+    static private ServiceTemplateActions _actions;
 }

@@ -31,6 +31,7 @@ import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import IceGrid.SimpleInternalFrame;
 
+import IceGrid.Actions;
 import IceGrid.IceBoxDescriptor;
 import IceGrid.Model;
 import IceGrid.ServerDescriptor;
@@ -43,8 +44,31 @@ import IceGrid.Utils;
 
 class ServerTemplate extends EditableParent
 {
+    static public TemplateDescriptor
+    copyDescriptor(TemplateDescriptor templateDescriptor)
+    {
+	TemplateDescriptor copy = (TemplateDescriptor)
+	    templateDescriptor.clone();
+
+	copy.descriptor = Server.copyDescriptor(
+	    (ServerDescriptor)copy.descriptor);
+	return copy;
+    }
+
+    public Actions getActions()
+    {
+	if(_actions == null)
+	{
+	    _actions = new ServerTemplateActions(_model);
+	}
+	_actions.reset(this);
+	return _actions;
+    }
+
     public void displayProperties()
     {
+	_model.setActions(getActions());
+
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
 	propertiesFrame.setTitle("Properties for " + _id);
        
@@ -54,78 +78,36 @@ class ServerTemplate extends EditableParent
 	}
 	_editor.show(this);
 	propertiesFrame.setContent(_editor.getComponent());
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
-    }
-
-    
-    //
-    // Application is needed to lookup service templates
-    //
-    ServerTemplate(boolean brandNew, String name, TemplateDescriptor descriptor, 
-		   Application application)
-	throws UpdateFailedException
-    {
-	super(brandNew, name, application.getModel());
-	rebuild(descriptor, application);
-    }
-
-    ServerTemplate(ServerTemplate o)
-    {
-	super(o, true);
-	_templateDescriptor = o._templateDescriptor;
-	_iceBoxDescriptor = o._iceBoxDescriptor;
-	_services = o._services;
-	_dbEnvs = o._dbEnvs;
-	_adapters = o._adapters;
 	
-	_propertiesHolder = o._propertiesHolder;
+	_model.getMainFrame().validate();
+	_model.getMainFrame().repaint();
     }
 
-    void rebuild(TemplateDescriptor descriptor, Application application)
-	throws UpdateFailedException
+    public boolean destroy()
     {
-	_templateDescriptor = descriptor;
-	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor);
-	clearChildren();
+	ServerTemplates serverTemplates = (ServerTemplates)_parent;
 
-	//
-	// Fix-up parameters order
-	//
-	java.util.Collections.sort(_templateDescriptor.parameters);
-	
-	if(_templateDescriptor.descriptor instanceof IceBoxDescriptor)
+	if(serverTemplates != null && _ephemeral)
 	{
-	    _iceBoxDescriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
-	    
-	    _services = new Services(_iceBoxDescriptor.services, true, null, 
-				     application);
-	    addChild(_services);
-
-	    assert _templateDescriptor.descriptor.dbEnvs.size() == 0;
-	    _dbEnvs = null;
+	    serverTemplates.removeChild(this, true);
+	    return true;
+	}
+	else if(serverTemplates != null && _model.canUpdate())
+	{
+	    serverTemplates.removeDescriptor(_id);
+	    getApplication().removeServerInstances(_id);
+	    serverTemplates.removeElement(this, true);
+	    return true;
 	}
 	else
 	{
-	    _services = null;
-	    _iceBoxDescriptor = null;
-
-	    _dbEnvs = new DbEnvs(_templateDescriptor.descriptor.dbEnvs, true,
-			     null, _model);
-	    addChild(_dbEnvs);
+	    return false;
 	}
-	
-	_adapters = new Adapters(_templateDescriptor.descriptor.adapters, true, 
-				 _services != null, null, _model);
-	addChild(_adapters);
     }
 
-    void removeServiceInstances(String template)
+    public boolean isEphemeral()
     {
-	if(_services != null)
-	{
-	    _services.removeServiceInstances(template);
-	}
+	return _ephemeral;
     }
 
     public java.util.List findAllInstances(CommonBase child)
@@ -145,6 +127,93 @@ class ServerTemplate extends EditableParent
 	return result;
     }
 
+    public PropertiesHolder getPropertiesHolder()
+    {
+	return _propertiesHolder;
+    }
+
+    public String toString()
+    {
+	if(_ephemeral)
+	{
+	    return super.toString();
+	}
+	else
+	{
+	    return templateLabel(_id, _templateDescriptor.parameters);
+	}
+    }
+
+    public Object getDescriptor()
+    {
+	return _templateDescriptor;
+    }
+
+   
+    public Object saveDescriptor()
+    {
+	//
+	// Shallow copy
+	//
+	TemplateDescriptor clone = (TemplateDescriptor)_templateDescriptor.clone();
+	clone.descriptor = (ServerDescriptor)_templateDescriptor.descriptor.clone();
+	return clone;
+    }
+    
+    public void restoreDescriptor(Object savedDescriptor)
+    {
+	TemplateDescriptor clone = (TemplateDescriptor)savedDescriptor;
+	//
+	// Keep the same object
+	//
+	_templateDescriptor.parameters = clone.parameters;
+
+	Server.shallowRestore((ServerDescriptor)clone.descriptor,
+			      (ServerDescriptor)_templateDescriptor.descriptor);
+    }
+
+     //
+    // Application is needed to lookup service templates
+    //
+    ServerTemplate(boolean brandNew, String name, TemplateDescriptor descriptor, 
+		   Application application)
+	throws UpdateFailedException
+    {
+	super(brandNew, name, application.getModel());
+	_ephemeral = false;
+	rebuild(descriptor, application);
+    }
+
+    ServerTemplate(String name, TemplateDescriptor descriptor,
+		   Application application)
+    {
+	super(true, name, application.getModel());
+	_ephemeral = true;
+	try
+	{
+	    rebuild(descriptor, application);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+    }
+
+    ServerTemplate(ServerTemplate o)
+    {
+	super(o, true);
+	assert o._ephemeral == false;
+	_ephemeral = false;
+
+	_templateDescriptor = o._templateDescriptor;
+	_iceBoxDescriptor = o._iceBoxDescriptor;
+	_services = o._services;
+	_dbEnvs = o._dbEnvs;
+	_adapters = o._adapters;
+	
+	_propertiesHolder = o._propertiesHolder;
+    }
+
     java.util.List findServiceInstances(String template)
     {
 	if(_services != null)
@@ -157,21 +226,67 @@ class ServerTemplate extends EditableParent
 	}
     }
     
-
-    public PropertiesHolder getPropertiesHolder()
+    void rebuild(TemplateDescriptor descriptor, Application application)
+	throws UpdateFailedException
     {
-	return _propertiesHolder;
+	_templateDescriptor = descriptor;
+	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor);
+	clearChildren();
+
+	//
+	// Fix-up parameters order
+	//
+	java.util.Collections.sort(_templateDescriptor.parameters);
+
+	if(_ephemeral)
+	{
+	    _adapters = null;
+	    _dbEnvs = null;
+	    _services = null;
+	}
+	else
+	{ 
+	    if(_templateDescriptor.descriptor instanceof IceBoxDescriptor)
+	    {
+		_iceBoxDescriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
+		
+		_services = new Services(_iceBoxDescriptor.services, true, null, 
+					 application);
+		addChild(_services);
+		
+		assert _templateDescriptor.descriptor.dbEnvs.size() == 0;
+		_dbEnvs = null;
+	    }
+	    else
+	    {
+		_services = null;
+		_iceBoxDescriptor = null;
+		
+		_dbEnvs = new DbEnvs(_templateDescriptor.descriptor.dbEnvs, true,
+				     null, _model);
+		addChild(_dbEnvs);
+	    }
+	    
+	    _adapters = new Adapters(_templateDescriptor.descriptor.adapters, true, 
+				     _services != null, null, _model);
+	    addChild(_adapters);
+	}
     }
 
-    public String toString()
+    void removeServiceInstances(String template)
     {
-	return templateLabel(_id, _templateDescriptor.parameters);
+	if(_services != null)
+	{
+	    _services.removeServiceInstances(template);
+	}
     }
 
-    public Object getDescriptor()
+
+    TemplateDescriptor copy()
     {
-	return _templateDescriptor;
+	return copyDescriptor(_templateDescriptor);
     }
+
 
     private TemplateDescriptor _templateDescriptor;
     private IceBoxDescriptor _iceBoxDescriptor;
@@ -181,6 +296,8 @@ class ServerTemplate extends EditableParent
     private DbEnvs _dbEnvs;
 
     private PropertiesHolder _propertiesHolder;
+    private final boolean _ephemeral;
 
     static private ServerTemplateEditor _editor;
+    static private ServerTemplateActions _actions;
 }

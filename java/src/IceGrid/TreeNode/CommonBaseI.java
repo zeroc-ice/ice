@@ -16,6 +16,7 @@ import javax.swing.JTree;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreePath;
 
+import IceGrid.Actions;
 import IceGrid.SimpleInternalFrame;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.DefaultComponentFactory;
@@ -77,16 +78,15 @@ abstract class CommonBaseI implements CommonBase
 	return false;
     }
 
-    public JPopupMenu getPopupMenu()
+    public Actions getActions()
     {
-	//
-	// Default = no popup menu
-	//
-	return null;
+	return _model.getDefaultActions();
     }
 
     public void displayProperties()
     {
+	_model.setActions(getActions());
+
 	if(_panel == null)
 	{
 	    JLabel label = DefaultComponentFactory.getInstance().createTitle("This element has no property");
@@ -98,8 +98,9 @@ abstract class CommonBaseI implements CommonBase
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
 	propertiesFrame.setTitle("Properties");
 	propertiesFrame.setContent(_panel);
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
+	
+	_model.getMainFrame().validate();
+	_model.getMainFrame().repaint();
     }
 
     public Component getTreeCellRendererComponent(
@@ -133,22 +134,6 @@ abstract class CommonBaseI implements CommonBase
     public void restoreDescriptor(Object d)
     {
 	assert false;
-    }
-
-    public Object copy()
-    {
-	return null;
-    }
-
-    public void paste(Object descriptor)
-    {
-	//
-	// Try my parent
-	//
-	if(_parent != null)
-	{
-	    _parent.paste(descriptor);
-	}
     }
 
     public java.util.List findAllInstances(CommonBase child)

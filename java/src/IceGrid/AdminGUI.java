@@ -90,12 +90,11 @@ public class AdminGUI extends JFrame
 	// MainPane
 	//
 	getContentPane().add(new MainPane(_model), BorderLayout.CENTER);
-
+	
 	//
-	// Menu bar and Tool bar
-	//	
-	setJMenuBar(_model.createMenuBar());
-	getContentPane().add(_model.createToolBar(), BorderLayout.PAGE_START);
+	// Menu and tool bars
+	//
+	_model.setActions(_model.getDefaultActions());
 
 	//
 	// Status bar
