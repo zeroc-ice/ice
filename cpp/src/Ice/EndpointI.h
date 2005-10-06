@@ -109,6 +109,19 @@ public:
     virtual AcceptorPtr acceptor(EndpointIPtr&) const = 0;
 
     //
+    // Expand endpoint out in to separate endpoints for each local
+    // host if endpoint was configured with no host set. This
+    // only applies for ObjectAdapter endpoints.
+    //
+    virtual std::vector<EndpointIPtr> expand() const = 0;
+
+    //
+    // Return whether the endpoint should be published in proxies
+    // created by the Object Adapter.
+    //
+    virtual bool publish() const = 0;
+
+    //
     // Check whether the endpoint is equivalent to a specific
     // Transceiver or Acceptor.
     //
@@ -124,7 +137,7 @@ public:
 
 private:
 
-#if defined(__SUNPRO_CC)
+#if defined(__SUNPRO_CC) || defined(__HP_aCC)
     //
     // COMPILERFIX: prevent the compiler from emitting a warning about
     // hidding these operators.

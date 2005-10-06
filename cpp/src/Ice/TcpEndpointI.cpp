@@ -21,20 +21,23 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& ho, Int po, Int ti, bool co) :
+IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& ho, Int po, Int ti, bool co,
+				        bool pub) :
     _instance(instance),
     _host(ho),
     _port(po),
     _timeout(ti),
-    _compress(co)
+    _compress(co),
+    _publish(pub)
 {
 }
 
-IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& str) :
+IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& str, bool adapterEndp) :
     _instance(instance),
     _port(0),
     _timeout(-1),
-    _compress(false)
+    _compress(false),
+    _publish(true)
 {
     const string delim = " \t\n\r";
 
@@ -138,6 +141,17 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
     if(_host.empty())
     {
 	const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
+	if(_host.empty())
+	{
+	    if(adapterEndp)
+	    {
+	        const_cast<string&>(_host) = "0.0.0.0";
+	    }
+	    else
+	    {
+	        const_cast<string&>(_host) = getLocalHost(true);
+	    }
+	}
     }
 }
 
@@ -145,7 +159,8 @@ IceInternal::TcpEndpointI::TcpEndpointI(BasicStream* s) :
     _instance(s->instance()),
     _port(0),
     _timeout(-1),
-    _compress(false)
+    _compress(false),
+    _publish(true)
 {
     s->startReadEncaps();
     s->read(const_cast<string&>(_host));
@@ -204,7 +219,7 @@ IceInternal::TcpEndpointI::timeout(Int timeout) const
     }
     else
     {
-	return new TcpEndpointI(_instance, _host, _port, timeout, _compress);
+	return new TcpEndpointI(_instance, _host, _port, timeout, _compress, _publish);
     }
 }
 
@@ -223,7 +238,7 @@ IceInternal::TcpEndpointI::compress(bool compress) const
     }
     else
     {
-	return new TcpEndpointI(_instance, _host, _port, _timeout, compress);
+	return new TcpEndpointI(_instance, _host, _port, _timeout, compress, _publish);
     }
 }
 
@@ -268,8 +283,34 @@ AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(EndpointIPtr& endp) const
 {
     TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port);
-    endp = new TcpEndpointI(_instance, _host, p->effectivePort(), _timeout, _compress);
+    endp = new TcpEndpointI(_instance, _host, p->effectivePort(), _timeout, _compress, _publish);
     return p;
+}
+
+vector<EndpointIPtr>
+IceInternal::TcpEndpointI::expand() const
+{
+    vector<EndpointIPtr> endps;
+    if(_host == "0.0.0.0")
+    {
+        vector<string> hosts = getLocalHosts();
+	for(unsigned int i = 0; i < hosts.size(); ++i)
+	{
+	    endps.push_back(new TcpEndpointI(_instance, hosts[i], _port, _timeout, _compress,
+	    				     hosts.size() == 1 || hosts[i] != "127.0.0.1"));
+	}
+    }
+    else
+    {
+        endps.push_back(const_cast<TcpEndpointI*>(this));
+    }
+    return endps;
+}
+
+bool
+IceInternal::TcpEndpointI::publish() const
+{
+    return _publish;
 }
 
 bool
@@ -446,9 +487,9 @@ IceInternal::TcpEndpointFactory::protocol() const
 }
 
 EndpointIPtr
-IceInternal::TcpEndpointFactory::create(const std::string& str) const
+IceInternal::TcpEndpointFactory::create(const std::string& str, bool adapterEndp) const
 {
-    return new TcpEndpointI(_instance, str);
+    return new TcpEndpointI(_instance, str, adapterEndp);
 }
 
 EndpointIPtr

@@ -14,7 +14,7 @@ final class UdpEndpointI extends EndpointI
     final static short TYPE = 3;
 
     public
-    UdpEndpointI(Instance instance, String ho, int po, boolean co)
+    UdpEndpointI(Instance instance, String ho, int po, boolean co, boolean pub)
     {
         _instance = instance;
         _host = ho;
@@ -25,11 +25,12 @@ final class UdpEndpointI extends EndpointI
 	_encodingMinor = Protocol.encodingMinor;
         _connect = false;
 	_compress = co;
+	_publish = pub;
         calcHashValue();
     }
 
     public
-    UdpEndpointI(Instance instance, String str)
+    UdpEndpointI(Instance instance, String str, boolean adapterEndp)
     {
         _instance = instance;
         _host = null;
@@ -40,6 +41,7 @@ final class UdpEndpointI extends EndpointI
 	_encodingMinor = Protocol.encodingMinor;
         _connect = false;
 	_compress = false;
+	_publish = true;
 
         String[] arr = str.split("[ \t\n\r]+");
 
@@ -254,6 +256,17 @@ final class UdpEndpointI extends EndpointI
         if(_host == null)
         {
             _host = instance.defaultsAndOverrides().defaultHost;
+            if(_host == null)
+            {
+	        if(adapterEndp)
+		{
+		    _host = "0.0.0.0";
+		}
+		else
+		{
+                    _host = Network.getLocalHost(true);
+		}
+            }
         }
 
         calcHashValue();
@@ -293,6 +306,7 @@ final class UdpEndpointI extends EndpointI
         _connect = false;
 	_compress = s.readBool();
         s.endReadEncaps();
+	_publish = true;
         calcHashValue();
     }
 
@@ -394,7 +408,7 @@ final class UdpEndpointI extends EndpointI
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, _port, compress);
+            return new UdpEndpointI(_instance, _host, _port, compress, _publish);
         }
     }
 
@@ -457,7 +471,7 @@ final class UdpEndpointI extends EndpointI
     serverTransceiver(EndpointIHolder endpoint)
     {
         UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _connect);
-        endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _compress);
+        endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _compress, _publish);
         return p;
     }
 
@@ -483,6 +497,43 @@ final class UdpEndpointI extends EndpointI
     {
         endpoint.value = this;
         return null;
+    }
+
+    //
+    // Expand endpoint out in to separate endpoints for each local
+    // host if endpoint was configured with no host set. This
+    // only applies for ObjectAdapter endpoints.
+    //
+    public java.util.ArrayList
+    expand()
+    {
+        java.util.ArrayList endps = new java.util.ArrayList();
+        if(_host.equals("0.0.0.0"))
+        {
+            java.util.ArrayList hosts = Network.getLocalHosts();
+            java.util.Iterator iter = hosts.iterator();
+            while(iter.hasNext())
+            {
+                String host = (String)iter.next();
+                endps.add(new UdpEndpointI(_instance, host, _port, _compress,
+					   hosts.size() == 1 || !host.equals("127.0.0.1")));
+            }
+        }
+        else
+        {
+            endps.add(this);
+        }
+        return endps;
+    }
+
+    //
+    // Return whether endpoint should be published in proxies
+    // created by Object Adapter.
+    //
+    public boolean
+    publish()
+    {
+        return _publish;
     }
 
     //
@@ -678,5 +729,6 @@ final class UdpEndpointI extends EndpointI
     private byte _encodingMinor;
     private boolean _connect;
     private boolean _compress;
+    private boolean _publish;
     private int _hashCode;
 }

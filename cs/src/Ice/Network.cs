@@ -654,7 +654,44 @@ namespace IceInternal
 
 	    return hostname;
 	}
-	 
+
+	public static string[] getLocalHosts()
+	{
+	    string[] hosts;
+
+	    int retry = 5;
+
+	repeatGetHostByName:
+	    try
+	    {
+	        IPHostEntry e = Dns.GetHostByName(Dns.GetHostName());
+		hosts = new string[e.AddressList.Length + 1];
+		for(int i = 0; i < e.AddressList.Length; ++i)
+		{
+		    hosts[i] = e.AddressList[i].ToString();
+		}
+		hosts[hosts.Length - 1] = IPAddress.Loopback.ToString();
+	    }
+	    catch(Win32Exception ex)
+	    {
+	        if(ex.NativeErrorCode == WSATRY_AGAIN && --retry >= 0)
+	        {
+	    	goto repeatGetHostByName;
+	        }
+	        Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
+	        e.host = "0.0.0.0";
+	        throw e;
+	    }
+	    catch(System.Exception ex)
+	    {
+	        Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
+	        e.host = "0.0.0.0";
+	        throw e;
+	    }
+
+	    return hosts;
+	}
+
 	public sealed class SocketPair
 	{
 	    public Socket source;

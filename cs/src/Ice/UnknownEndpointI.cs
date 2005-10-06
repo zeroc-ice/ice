@@ -10,6 +10,8 @@
 namespace IceInternal
 {
 
+    using System.Collections;
+
     sealed class UnknownEndpointI : EndpointI
     {
 	public UnknownEndpointI(short type, BasicStream s)
@@ -155,6 +157,27 @@ namespace IceInternal
 	    endpoint = null;
 	    return null;
 	}
+
+        //
+        // Expand endpoint out in to separate endpoints for each local
+        // host if endpoint was configured with no host set. This
+        // only applies for ObjectAdapter endpoints.
+        //
+        public override ArrayList
+        expand()
+        {
+            return null;
+        }
+
+        //
+        // Return whether endpoint should be published in proxies
+        // created by Object Adapter.
+        //
+        public override bool
+        publish()
+        {
+            return false;
+        }
 	
 	//
 	// Check whether the endpoint is equivalent to a specific

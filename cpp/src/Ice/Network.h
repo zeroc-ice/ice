@@ -111,8 +111,9 @@ ICE_API std::string lastErrorToString();
 ICE_API std::string fdToString(SOCKET);
 ICE_API std::string addrToString(const struct sockaddr_in&);
 
-ICE_API std::vector<struct sockaddr_in> getLocalAddresses();
+ICE_API std::vector<std::string> getLocalHosts();
 #ifdef _WIN32
+ICE_API std::vector<struct sockaddr_in> getLocalAddresses();
 ICE_API bool isLocalAddress(const struct sockaddr_in&);
 ICE_API bool isPeerLocal(SOCKET);
 #endif

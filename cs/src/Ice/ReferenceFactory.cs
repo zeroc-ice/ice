@@ -422,7 +422,7 @@ namespace IceInternal
 		    }
 		    
 		    string es = s.Substring(beg, end - beg);
-		    EndpointI endp = instance_.endpointFactoryManager().create(es);
+		    EndpointI endp = instance_.endpointFactoryManager().create(es, false);
 		    if(endp != null)
 		    {
 		        endpoints.Add(endp);

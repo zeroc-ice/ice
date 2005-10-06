@@ -21,20 +21,23 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string& ho, Int po, Int ti, bool co) :
+IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string& ho, Int po, Int ti, bool co,
+				   bool pub) :
     _plugin(plugin),
     _host(ho),
     _port(po),
     _timeout(ti),
-    _compress(co)
+    _compress(co),
+    _publish(pub)
 {
 }
 
-IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string& str) :
+IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string& str, bool adapterEndp) :
     _plugin(plugin),
     _port(0),
     _timeout(-1),
-    _compress(false)
+    _compress(false),
+    _publish(true)
 {
     const string delim = " \t\n\r";
 
@@ -137,7 +140,18 @@ IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string
 
     if(_host.empty())
     {
-	const_cast<string&>(_host) = _plugin->getProtocolPluginFacade()->getDefaultHost();
+        const_cast<string&>(_host) = _plugin->getProtocolPluginFacade()->getDefaultHost();
+        if(_host.empty())
+        {
+	    if(adapterEndp)
+	    {
+	        const_cast<string&>(_host) = "0.0.0.0";
+	    }
+	    else
+	    {
+                 const_cast<string&>(_host) = getLocalHost(true);
+	    }
+        }
     }
 }
 
@@ -145,7 +159,8 @@ IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, BasicStream*
     _plugin(plugin),
     _port(0),
     _timeout(-1),
-    _compress(false)
+    _compress(false),
+    _publish(true)
 {
     s->startReadEncaps();
     s->read(const_cast<string&>(_host));
@@ -204,7 +219,7 @@ IceSSL::SslEndpointI::timeout(Int timeout) const
     }
     else
     {
-	return new SslEndpointI(_plugin, _host, _port, timeout, _compress);
+	return new SslEndpointI(_plugin, _host, _port, timeout, _compress, _publish);
     }
 }
 
@@ -223,7 +238,7 @@ IceSSL::SslEndpointI::compress(bool compress) const
     }
     else
     {
-	return new SslEndpointI(_plugin, _host, _port, _timeout, compress);
+	return new SslEndpointI(_plugin, _host, _port, _timeout, compress, _publish);
     }
 }
 
@@ -268,8 +283,35 @@ AcceptorPtr
 IceSSL::SslEndpointI::acceptor(EndpointIPtr& endp) const
 {
     SslAcceptor* p = new SslAcceptor(_plugin, _host, _port);
-    endp = new SslEndpointI(_plugin, _host, p->effectivePort(), _timeout, _compress);
+    endp = new SslEndpointI(_plugin, _host, p->effectivePort(), _timeout, _compress, _publish);
     return p;
+}
+
+vector<EndpointIPtr>
+IceSSL::SslEndpointI::expand() const
+{
+    vector<EndpointIPtr> endps;
+    if(_host == "0.0.0.0")
+    {
+        vector<string> hosts = getLocalHosts();
+        for(unsigned int i = 0; i < hosts.size(); ++i)
+        {
+            endps.push_back(new SslEndpointI(_plugin, hosts[i], _port, _timeout, _compress,
+					     hosts.size() == 1 || hosts[i] != "127.0.0.1"));
+        }
+    }
+    else
+    {
+        endps.push_back(const_cast<SslEndpointI*>(this));
+    }
+    return endps;
+
+}
+
+bool
+IceSSL::SslEndpointI::publish() const
+{
+    return _publish;
 }
 
 bool
@@ -446,9 +488,9 @@ IceSSL::SslEndpointFactory::protocol() const
 }
 
 EndpointIPtr
-IceSSL::SslEndpointFactory::create(const std::string& str) const
+IceSSL::SslEndpointFactory::create(const std::string& str, bool adapterEndp) const
 {
-    return new SslEndpointI(_plugin, str);
+    return new SslEndpointI(_plugin, str, adapterEndp);
 }
 
 EndpointIPtr

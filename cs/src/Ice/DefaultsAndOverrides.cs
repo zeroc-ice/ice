@@ -25,10 +25,6 @@ namespace IceInternal
 	    {
 		defaultHost = val;
 	    }
-	    else
-	    {
-		defaultHost = Network.getLocalHost(true);
-	    }
 	    
 	    defaultRouter = properties.getProperty("Ice.Default.Router");
 	    

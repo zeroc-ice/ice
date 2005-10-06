@@ -115,6 +115,18 @@ IceInternal::UnknownEndpointI::acceptor(EndpointIPtr& endp) const
     return 0;
 }
 
+vector<EndpointIPtr>
+IceInternal::UnknownEndpointI::expand() const
+{
+    assert(false);
+}
+
+bool
+IceInternal::UnknownEndpointI::publish() const
+{
+    return false;
+}
+
 bool
 IceInternal::UnknownEndpointI::equivalent(const TransceiverPtr&) const
 {

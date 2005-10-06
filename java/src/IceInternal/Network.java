@@ -600,6 +600,19 @@ public final class Network
     }
 
     public static java.util.ArrayList
+    getLocalHosts()
+    {
+        java.util.ArrayList hosts = new java.util.ArrayList();
+        java.util.ArrayList addrs = getLocalAddresses();
+	java.util.Iterator iter = addrs.iterator();
+	while(iter.hasNext())
+	{
+	    hosts.add(((java.net.InetAddress)iter.next()).getHostAddress());
+	}
+	return hosts;
+    }
+
+    public static java.util.ArrayList
     getLocalAddresses()
     {
         java.util.ArrayList result = new java.util.ArrayList();

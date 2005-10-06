@@ -796,11 +796,33 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             }
 
 	    //
-	    // Parse published endpoints. These are used in proxies
-	    // instead of the connection factory endpoints.
+	    // Parse published endpoints. If set, these are used in proxies
+	    // instead of the connection factory Endpoints.
 	    //
 	    String endpts = _instance.properties().getProperty(name + ".PublishedEndpoints");
 	    _publishedEndpoints = parseEndpoints(endpts);
+	    if(_publishedEndpoints.size() == 0)
+	    {
+	        for(int i = 0; i < _incomingConnectionFactories.size(); ++i)
+		{
+		    IceInternal.IncomingConnectionFactory factory =
+		        (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+		    _publishedEndpoints.add(factory.endpoint());
+		}
+	    }
+
+	    //
+	    // Filter out any endpoints that are not meant to be published.
+	    //
+	    java.util.Iterator p = _publishedEndpoints.iterator();
+	    while(p.hasNext())
+	    {
+	        IceInternal.EndpointI endpoint = (IceInternal.EndpointI)p.next();
+		if(!endpoint.publish())
+		{
+		    p.remove();
+		}
+	    }
 
 	    String router = _instance.properties().getProperty(name + ".Router");
 	    if(router.length() > 0)
@@ -898,27 +920,9 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     {
         IceInternal.EndpointI[] endpoints;
 
-	// 
-	// Use the published endpoints, otherwise use the endpoints from all
-	// incoming connection factories.
-	//
 	int sz = _publishedEndpoints.size();
-	if(sz > 0)
-	{
-	    endpoints = new IceInternal.EndpointI[sz + _routerEndpoints.size()];
-	    _publishedEndpoints.toArray(endpoints);
-	}
-	else
-	{
-	    sz = _incomingConnectionFactories.size();
-	    endpoints = new IceInternal.EndpointI[sz + _routerEndpoints.size()];
-	    for(int i = 0; i < sz; ++i)
-	    {
-		IceInternal.IncomingConnectionFactory factory =
-		    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-		endpoints[i] = factory.endpoint();
-	    }
-	}
+	endpoints = new IceInternal.EndpointI[sz + _routerEndpoints.size()];
+	_publishedEndpoints.toArray(endpoints);
 
         //
         // Now we also add the endpoints of the router's server proxy, if
@@ -1000,14 +1004,15 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    }
 
 	    String s = endpts.substring(beg, end);
-	    IceInternal.EndpointI endp = _instance.endpointFactoryManager().create(s);
+	    IceInternal.EndpointI endp = _instance.endpointFactoryManager().create(s, true);
 	    if(endp == null)
 	    {
 	        Ice.EndpointParseException e = new Ice.EndpointParseException();
 		e.str = s;
 		throw e;
 	    }
-	    endpoints.add(endp);
+	    java.util.ArrayList endps = endp.expand();
+	    endpoints.addAll(endps);
 
 	    ++end;
 	}

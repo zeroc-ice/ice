@@ -11,12 +11,13 @@ namespace IceInternal
 {
 
     using System.Diagnostics;
+    using System.Collections;
 
     sealed class UdpEndpointI : EndpointI
     {
 	internal const short TYPE = 3;
 	
-	public UdpEndpointI(Instance instance, string ho, int po, bool co)
+	public UdpEndpointI(Instance instance, string ho, int po, bool co, bool pub)
 	{
 	    instance_ = instance;
 	    _host = ho;
@@ -27,10 +28,11 @@ namespace IceInternal
 	    _encodingMinor = Protocol.encodingMinor;
 	    _connect = false;
 	    _compress = co;
+	    _publish = pub;
 	    calcHashValue();
 	}
 	
-	public UdpEndpointI(Instance instance, string str)
+	public UdpEndpointI(Instance instance, string str, bool adapterEndp)
 	{
 	    instance_ = instance;
 	    _host = null;
@@ -41,6 +43,7 @@ namespace IceInternal
 	    _encodingMinor = Protocol.encodingMinor;
 	    _connect = false;
 	    _compress = false;
+	    _publish = true;
 	    
 	    char[] splitChars = { ' ', '\t', '\n', '\r' };
 	    string[] arr = str.Split(splitChars);
@@ -256,6 +259,17 @@ namespace IceInternal
 	    if(_host == null)
 	    {
 		_host = instance.defaultsAndOverrides().defaultHost;
+		if(_host == null)
+		{
+                    if(adapterEndp)
+                    {
+                        _host = "0.0.0.0";
+                    }
+                    else
+                    {
+                        _host = Network.getLocalHost(true);
+                    }
+		}
 	    }
 	    
 	    calcHashValue();
@@ -294,6 +308,7 @@ namespace IceInternal
 	    _connect = false;
 	    _compress = s.readBool();
 	    s.endReadEncaps();
+	    _publish = true;
 	    calcHashValue();
 	}
 	
@@ -389,7 +404,7 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		return new UdpEndpointI(instance_, _host, _port, compress);
+		return new UdpEndpointI(instance_, _host, _port, compress, _publish);
 	    }
 	}
 	
@@ -446,7 +461,7 @@ namespace IceInternal
 	public override Transceiver serverTransceiver(ref EndpointI endpoint)
 	{
 	    UdpTransceiver p = new UdpTransceiver(instance_, _host, _port, _connect);
-	    endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _compress);
+	    endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _compress, _publish);
 	    return p;
 	}
 	
@@ -471,6 +486,41 @@ namespace IceInternal
 	    endpoint = this;
 	    return null;
 	}
+
+        //
+        // Expand endpoint out in to separate endpoints for each local
+        // host if endpoint was configured with no host set. This
+        // only applies for ObjectAdapter endpoints.
+        //
+        public override ArrayList
+        expand()
+        {
+            ArrayList endps = new ArrayList();
+            if(_host.Equals("0.0.0.0"))
+            {
+                string[] hosts = Network.getLocalHosts();
+                for(int i = 0; i < hosts.Length; ++i)
+                {
+                    endps.Add(new UdpEndpointI(instance_, hosts[i], _port, _compress,
+                                               hosts.Length == 1 || !hosts[i].Equals("127.0.0.1")));
+                }
+            }
+            else
+            {
+                endps.Add(this);
+            }
+            return endps;
+        }
+
+        //
+        // Return whether endpoint should be published in proxies
+        // created by Object Adapter.
+        //
+        public override bool
+        publish()
+        {
+            return _publish;
+        }
 	
 	//
 	// Check whether the endpoint is equivalent to a specific
@@ -659,6 +709,7 @@ namespace IceInternal
 	private byte _encodingMinor;
 	private bool _connect;
 	private bool _compress;
+	private bool _publish;
 	private int _hashCode;
     }
 
@@ -679,9 +730,9 @@ namespace IceInternal
             return "udp";
         }
 	
-        public EndpointI create(string str)
+        public EndpointI create(string str, bool adapterEndp)
         {
-            return new UdpEndpointI(instance_, str);
+            return new UdpEndpointI(instance_, str, adapterEndp);
         }
 	
         public EndpointI read(BasicStream s)

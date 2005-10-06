@@ -20,7 +20,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& ho, Int po, bool co) :
+IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& ho, Int po, bool co, bool pub) :
     _instance(instance),
     _host(ho),
     _port(po),
@@ -29,11 +29,12 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
     _encodingMajor(encodingMajor),
     _encodingMinor(encodingMinor),
     _connect(false),
-    _compress(co)
+    _compress(co),
+    _publish(pub)
 {
 }
 
-IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& str) :
+IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& str, bool adapterEndp) :
     _instance(instance),
     _port(0),
     _protocolMajor(protocolMajor),
@@ -41,7 +42,8 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
     _encodingMajor(encodingMajor),
     _encodingMinor(encodingMinor),
     _connect(false),
-    _compress(false)
+    _compress(false),
+    _publish(true)
 {
     const string delim = " \t\n\r";
 
@@ -257,7 +259,18 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
 
     if(_host.empty())
     {
-	const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
+        const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
+        if(_host.empty())
+        {
+	    if(adapterEndp)
+	    {
+	        const_cast<string&>(_host) = "0.0.0.0";
+	    }
+	    else
+	    {
+                const_cast<string&>(_host) = getLocalHost(true);
+	    }
+        }
     }
 }
 
@@ -269,7 +282,8 @@ IceInternal::UdpEndpointI::UdpEndpointI(BasicStream* s) :
     _encodingMajor(encodingMajor),
     _encodingMinor(encodingMinor),
     _connect(false),
-    _compress(false)    
+    _compress(false),
+    _publish(true)
 {
     s->startReadEncaps();
     s->read(const_cast<string&>(_host));
@@ -388,7 +402,7 @@ IceInternal::UdpEndpointI::compress(bool compress) const
     }
     else
     {
-	return new UdpEndpointI(_instance, _host, _port, compress);
+	return new UdpEndpointI(_instance, _host, _port, compress, _publish);
     }
 }
 
@@ -420,7 +434,7 @@ TransceiverPtr
 IceInternal::UdpEndpointI::serverTransceiver(EndpointIPtr& endp) const
 {
     UdpTransceiver* p = new UdpTransceiver(_instance, _host, _port, _connect);
-    endp = new UdpEndpointI(_instance, _host, p->effectivePort(), _compress);
+    endp = new UdpEndpointI(_instance, _host, p->effectivePort(), _compress, _publish);
     return p;
 }
 
@@ -435,6 +449,32 @@ IceInternal::UdpEndpointI::acceptor(EndpointIPtr& endp) const
 {
     endp = const_cast<UdpEndpointI*>(this);
     return 0;
+}
+
+vector<EndpointIPtr>
+IceInternal::UdpEndpointI::expand() const
+{
+    vector<EndpointIPtr> endps;
+    if(_host == "0.0.0.0")
+    {
+        vector<string> hosts = getLocalHosts();
+        for(unsigned int i = 0; i < hosts.size(); ++i)
+        {
+            endps.push_back(new UdpEndpointI(_instance, hosts[i], _port, _compress, 
+	    				     hosts.size() == 1 || hosts[i] != "127.0.0.1"));
+        }
+    }
+    else
+    {
+        endps.push_back(const_cast<UdpEndpointI*>(this));
+    }
+    return endps;
+}
+
+bool
+IceInternal::UdpEndpointI::publish() const
+{
+    return _publish;
 }
 
 bool
@@ -667,9 +707,9 @@ IceInternal::UdpEndpointFactory::protocol() const
 }
 
 EndpointIPtr
-IceInternal::UdpEndpointFactory::create(const std::string& str) const
+IceInternal::UdpEndpointFactory::create(const std::string& str, bool adapterEndp) const
 {
-    return new UdpEndpointI(_instance, str);
+    return new UdpEndpointI(_instance, str, adapterEndp);
 }
 
 EndpointIPtr

@@ -14,7 +14,7 @@ namespace IceInternal
     {
 	short type();
 	string protocol();
-	EndpointI create(string str);
+	EndpointI create(string str, bool adapterEndp);
 	EndpointI read(BasicStream s);
 	void destroy();
     }

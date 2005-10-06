@@ -29,9 +29,9 @@ final class TcpEndpointFactory implements EndpointFactory
     }
 
     public EndpointI
-    create(String str)
+    create(String str, boolean adapterEndp)
     {
-        return new TcpEndpointI(_instance, str);
+        return new TcpEndpointI(_instance, str, adapterEndp);
     }
 
     public EndpointI

@@ -1,6 +1,13 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Ice will now listen on all local interfaces if no -h parameter 
+  is present in the endpoint configuration and no default host has
+  been set. It will also listen to all interfaces if the -h parameter
+  is set to 0.0.0.0. In such configurations the endpoints published
+  in proxies will not contain the loopback interface (127.0.0.1) 
+  unless it is the only local interface present.
+
 - The Slice mapping for sequences has been improved. The
   generated sequence class now contains the following additional
   properties and methods:

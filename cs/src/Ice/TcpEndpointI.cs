@@ -11,28 +11,31 @@ namespace IceInternal
 {
 
     using System.Diagnostics;
+    using System.Collections;
 
     sealed class TcpEndpointI : EndpointI
     {
 	internal const short TYPE = 1;
 	
-	public TcpEndpointI(Instance instance, string ho, int po, int ti, bool co)
+	public TcpEndpointI(Instance instance, string ho, int po, int ti, bool co, bool pub)
 	{
 	    instance_ = instance;
 	    _host = ho;
 	    _port = po;
 	    _timeout = ti;
 	    _compress = co;
+	    _publish = pub;
 	    calcHashValue();
 	}
 	
-	public TcpEndpointI(Instance instance, string str)
+	public TcpEndpointI(Instance instance, string str, bool adapterEndp)
 	{
 	    instance_ = instance;
 	    _host = null;
 	    _port = 0;
 	    _timeout = -1;
 	    _compress = false;
+	    _publish = true;
 	    
 	    char[] separators = { ' ', '\t', '\n', '\r' };
 	    string[] arr = str.Split(separators);
@@ -146,6 +149,17 @@ namespace IceInternal
 	    if(_host == null)
 	    {
 		_host = instance_.defaultsAndOverrides().defaultHost;
+		if(_host == null)
+		{
+		    if(adapterEndp)
+		    {
+		        _host = "0.0.0.0";
+		    }
+		    else
+		    {
+		        _host = Network.getLocalHost(true);
+		    }
+		}
 	    }
 	    
 	    calcHashValue();
@@ -160,6 +174,7 @@ namespace IceInternal
 	    _timeout = s.readInt();
 	    _compress = s.readBool();
 	    s.endReadEncaps();
+	    _publish = true;
 	    calcHashValue();
 	}
 	
@@ -224,7 +239,7 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		return new TcpEndpointI(instance_, _host, _port, timeout, _compress);
+		return new TcpEndpointI(instance_, _host, _port, timeout, _compress, _publish);
 	    }
 	}
 	
@@ -250,7 +265,7 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		return new TcpEndpointI(instance_, _host, _port, _timeout, compress);
+		return new TcpEndpointI(instance_, _host, _port, _timeout, compress, _publish);
 	    }
 	}
 	
@@ -319,8 +334,43 @@ namespace IceInternal
 	public override Acceptor acceptor(ref EndpointI endpoint)
 	{
 	    TcpAcceptor p = new TcpAcceptor(instance_, _host, _port);
-	    endpoint = new TcpEndpointI(instance_, _host, p.effectivePort(), _timeout, _compress);
+	    endpoint = new TcpEndpointI(instance_, _host, p.effectivePort(), _timeout, _compress, _publish);
 	    return p;
+	}
+
+	//
+	// Expand endpoint out in to separate endpoints for each local
+	// host if endpoint was configured with no host set. This
+	// only applies for ObjectAdapter endpoints.
+	//
+	public override ArrayList
+	expand()
+	{
+	    ArrayList endps = new ArrayList();
+	    if(_host.Equals("0.0.0.0"))
+	    {
+	        string[] hosts = Network.getLocalHosts();
+	        for(int i = 0; i < hosts.Length; ++i)
+	        {
+	            endps.Add(new TcpEndpointI(instance_, hosts[i], _port, _timeout, _compress,
+	                                       hosts.Length == 1 || !hosts[i].Equals("127.0.0.1")));
+	        }
+	    }
+	    else
+	    {
+	        endps.Add(this);
+	    }
+	    return endps;
+	}
+	
+	//
+	// Return whether endpoint should be published in proxies
+	// created by Object Adapter.
+	//
+	public override bool
+	publish()
+	{
+	    return _publish;
 	}
 	
 	//
@@ -470,6 +520,7 @@ namespace IceInternal
 	private int _port;
 	private int _timeout;
 	private bool _compress;
+	private bool _publish;
 	private int _hashCode;
     }
 
@@ -490,9 +541,9 @@ namespace IceInternal
             return "tcp";
         }
 	
-        public EndpointI create(string str)
+        public EndpointI create(string str, bool adapterEndp)
         {
-            return new TcpEndpointI(instance_, str);
+            return new TcpEndpointI(instance_, str, adapterEndp);
         }
 	
         public EndpointI read(BasicStream s)

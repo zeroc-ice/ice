@@ -10,6 +10,8 @@
 namespace IceInternal
 {
 
+    using System.Collections;
+
     public abstract class EndpointI : Ice.Endpoint, System.IComparable
     {
         public int ice_hash() // From LocalObject.
@@ -110,6 +112,19 @@ namespace IceInternal
 	// assigned.
 	//
 	public abstract Acceptor acceptor(ref EndpointI endpoint);
+
+	//
+	// Expand endpoint out in to separate endpoints for each local
+        // host if endpoint was configured with no host set. This
+        // only applies for ObjectAdapter endpoints.
+        //
+        public abstract ArrayList expand();
+ 
+        //
+        // Return whether the endpoint should be published in proxies
+        // created by the Object Adapter.
+        //
+	public abstract bool publish();
 
 	//
 	// Check whether the endpoint is equivalent to a specific

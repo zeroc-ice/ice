@@ -171,6 +171,28 @@ final class UnknownEndpointI extends EndpointI
     }
 
     //
+    // Expand endpoint out in to separate endpoints for each local
+    // host if endpoint was configured with no host set. This
+    // only applies for ObjectAdapter endpoints.
+    //
+    public java.util.ArrayList
+    expand()
+    {
+        assert(false);
+	return null;
+    }
+
+    //
+    // Return whether endpoint should be published in proxies
+    // created by Object Adapter.
+    //
+    public boolean
+    publish()
+    {
+        return false;
+    }
+
+    //
     // Check whether the endpoint is equivalent to a specific
     // Transceiver or Acceptor
     //

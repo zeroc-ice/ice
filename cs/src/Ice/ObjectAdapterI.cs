@@ -810,11 +810,31 @@ namespace Ice
 		}
 		
 		//
-		// Parse published endpoints. These are used in proxies
+		// Parse published endpoints. If set, these are used in proxies
 		// instead of the connection factory endpoints.
 		//
 		string endpts = instance_.properties().getProperty(name + ".PublishedEndpoints");
 		_publishedEndpoints = parseEndpoints(endpts);
+		if(_publishedEndpoints.Count == 0)
+		{
+		    foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+		    {
+		        _publishedEndpoints.Add(factory.endpoint());
+		    }
+		}
+
+		//
+		// Filter out any endpoints that are not meant to be published.
+		//
+		ArrayList tmp = new ArrayList();
+		foreach(IceInternal.EndpointI endpoint in _publishedEndpoints)
+		{
+		    if(endpoint.publish())
+		    {
+		        tmp.Add(endpoint);
+		    }
+		}
+		_publishedEndpoints = tmp;
 
 		string router = instance_.properties().getProperty(name + ".Router");
 		if(router.Length > 0)
@@ -922,24 +942,10 @@ namespace Ice
 	    // incoming connection factories.
 	    //
 	    int sz = _publishedEndpoints.Count;
-	    if(sz > 0)
+	    endpoints = new IceInternal.EndpointI[sz + _routerEndpoints.Count];
+	    for(int i = 0; i < sz; ++i)
 	    {
-		endpoints = new IceInternal.EndpointI[sz + _routerEndpoints.Count];
-		for(int i = 0; i < sz; ++i)
-		{
-		    endpoints[i] = (IceInternal.EndpointI)_publishedEndpoints[i];
-		}
-	    }
-	    else
-	    {
-		sz = _incomingConnectionFactories.Count;
-		endpoints = new IceInternal.EndpointI[sz + _routerEndpoints.Count];
-		for(int i = 0; i < sz; ++i)
-		{
-		    IceInternal.IncomingConnectionFactory factory =
-			(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories[i];
-		    endpoints[i] = factory.endpoint();
-		}
+	        endpoints[i] = (IceInternal.EndpointI)_publishedEndpoints[i];
 	    }
 
 	    //
@@ -1019,14 +1025,15 @@ namespace Ice
 		}
 
 		string s = endpts.Substring(beg, (end) - (beg));
-		IceInternal.EndpointI endp = instance_.endpointFactoryManager().create(s);
+		IceInternal.EndpointI endp = instance_.endpointFactoryManager().create(s, true);
 		if(endp == null)
 		{
 		    Ice.EndpointParseException e2 = new Ice.EndpointParseException();
 		    e2.str = s;
 		    throw e2;
 		}
-		endpoints.Add(endp);
+		ArrayList endps = endp.expand();
+		endpoints.AddRange(endps);
 
 		++end;
 	    }

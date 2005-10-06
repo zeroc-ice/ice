@@ -64,7 +64,7 @@ IceInternal::EndpointFactoryManager::get(Short type) const
 }
 
 EndpointIPtr
-IceInternal::EndpointFactoryManager::create(const string& str) const
+IceInternal::EndpointFactoryManager::create(const string& str, bool adapterEndp) const
 {
     IceUtil::Mutex::Lock sync(*this); // TODO: Necessary?
 
@@ -98,7 +98,7 @@ IceInternal::EndpointFactoryManager::create(const string& str) const
     {
         if(_factories[i]->protocol() == protocol)
         {
-            return _factories[i]->create(str.substr(end));
+            return _factories[i]->create(str.substr(end), adapterEndp);
         }
     }
 

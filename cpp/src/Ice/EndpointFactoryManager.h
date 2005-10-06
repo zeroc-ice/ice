@@ -28,7 +28,7 @@ public:
 
     void add(const EndpointFactoryPtr&);
     EndpointFactoryPtr get(::Ice::Short) const;
-    EndpointIPtr create(const std::string&) const;
+    EndpointIPtr create(const std::string&, bool) const;
     EndpointIPtr read(BasicStream*) const;
 
 private:

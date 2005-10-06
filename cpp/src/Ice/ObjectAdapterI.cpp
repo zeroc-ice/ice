@@ -766,11 +766,22 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	}
 
 	//
-	// Parse published endpoints. These are used in proxies
-	// instead of the connection factory endpoints.
+	// Parse published endpoints. If set, these are used in proxies
+	// instead of the connection factory endpoints. 
 	//
 	string endpts = _instance->properties()->getProperty(name + ".PublishedEndpoints");
 	_publishedEndpoints = parseEndpoints(endpts);
+	if(_publishedEndpoints.empty())
+	{
+	    transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), 
+	    	      back_inserter(_publishedEndpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
+	}
+
+	//
+	// Filter out any endpoints that are not meant to be published.
+	//
+	_publishedEndpoints.erase(remove_if(_publishedEndpoints.begin(), _publishedEndpoints.end(),
+				  not1(Ice::constMemFun(&EndpointI::publish))), _publishedEndpoints.end());
 
 	string router = _instance->properties()->getProperty(_name + ".Router");
 	if(!router.empty())
@@ -857,22 +868,8 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
 ObjectPrx
 Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) const
 {
-    vector<EndpointIPtr> endpoints;
+    vector<EndpointIPtr> endpoints = _publishedEndpoints;
 
-    // 
-    // Use the published endpoints, otherwise use the endpoints from all
-    // incoming connection factories.
-    //
-    if(!_publishedEndpoints.empty())
-    {
-	endpoints = _publishedEndpoints;
-    }
-    else
-    {
-	transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), back_inserter(endpoints),
-		  Ice::constMemFun(&IncomingConnectionFactory::endpoint));
-    }
-    
     //
     // Now we also add the endpoints of the router's server proxy, if
     // any. This way, object references created by this object adapter
@@ -945,14 +942,15 @@ Ice::ObjectAdapterI::parseEndpoints(const string& str) const
 	}
 	
 	string s = endpts.substr(beg, end - beg);
-	EndpointIPtr endp = _instance->endpointFactoryManager()->create(s);
+	EndpointIPtr endp = _instance->endpointFactoryManager()->create(s, true);
 	if(endp == 0)
 	{
 	    EndpointParseException ex(__FILE__, __LINE__);
 	    ex.str = s;
 	    throw ex;
 	}
-	endpoints.push_back(endp);
+	vector<EndpointIPtr> endps = endp->expand();
+	endpoints.insert(endpoints.end(), endps.begin(), endps.end());
 
 	++end;
     }
