@@ -1438,7 +1438,7 @@ IceInternal::getLocalAddresses()
     vector<struct sockaddr_in> result;
     try
     {
-        SOCKET fd = createSocket();
+        SOCKET fd = createSocket(false);
 
         vector<unsigned char> buffer;
         buffer.resize(1024);

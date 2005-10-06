@@ -119,6 +119,8 @@ vector<EndpointIPtr>
 IceInternal::UnknownEndpointI::expand() const
 {
     assert(false);
+    vector<EndpointIPtr> ret;
+    return ret;
 }
 
 bool
