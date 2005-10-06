@@ -115,7 +115,15 @@ SOURCE=.\Database.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\DescriptorBuilder.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DescriptorHelper.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DescriptorParser.cpp
 # End Source File
 # Begin Source File
 
