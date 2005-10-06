@@ -153,6 +153,10 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
 	    }
 	}
     }
+    else if(_host == "*" && adapterEndp)
+    {
+        const_cast<string&>(_host) = "0.0.0.0";
+    }
 }
 
 IceInternal::TcpEndpointI::TcpEndpointI(BasicStream* s) :

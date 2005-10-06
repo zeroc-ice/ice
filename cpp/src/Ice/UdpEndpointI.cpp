@@ -272,6 +272,10 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
 	    }
         }
     }
+    else if(_host == "*" && adapterEndp)
+    {
+        const_cast<string&>(_host) = "0.0.0.0";
+    }
 }
 
 IceInternal::UdpEndpointI::UdpEndpointI(BasicStream* s) :

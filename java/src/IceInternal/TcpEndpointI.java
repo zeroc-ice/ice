@@ -158,6 +158,10 @@ final class TcpEndpointI extends EndpointI
 		}
 	    }
         }
+	else if(_host.equals("*") && adapterEndp)
+	{
+	    _host = "0.0.0.0";
+	}
 
         calcHashValue();
     }

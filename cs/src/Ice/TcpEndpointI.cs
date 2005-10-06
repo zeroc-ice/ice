@@ -161,6 +161,10 @@ namespace IceInternal
 		    }
 		}
 	    }
+	    else if(_host.Equals("*") && adapterEndp)
+	    {
+	        _host = "0.0.0.0";
+	    }
 	    
 	    calcHashValue();
 	}

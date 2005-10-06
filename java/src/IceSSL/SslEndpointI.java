@@ -158,6 +158,10 @@ final class SslEndpointI extends IceInternal.EndpointI
 		}
             }
 	}
+	else if(_host.equals("*") && adapterEndp)
+	{
+	    _host = "0.0.0.0";
+	}
 
 	calcHashValue();
     }

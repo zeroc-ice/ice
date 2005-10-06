@@ -153,6 +153,10 @@ IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string
 	    }
         }
     }
+    else if(_host == "*" && adapterEndp)
+    {
+        const_cast<string&>(_host) = "0.0.0.0";
+    }
 }
 
 IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, BasicStream* s) :
