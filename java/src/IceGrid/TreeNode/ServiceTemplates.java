@@ -107,7 +107,7 @@ class ServiceTemplates extends Templates
 	    "");
 	    
 	newServiceTemplate(new TemplateDescriptor(
-			       sd, new java.util.LinkedList()));
+			       sd, new java.util.LinkedList(), new java.util.TreeMap()));
     }
 
     void newServiceTemplate(TemplateDescriptor descriptor)
