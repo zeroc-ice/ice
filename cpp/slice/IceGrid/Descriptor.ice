@@ -198,7 +198,7 @@ struct DistributionDescriptor
     string icepatch;
 
     /** The source directories. */
-    Ice::StringSeq directories;
+    ["java:type:java.util.LinkedList"] Ice::StringSeq directories;
 };
 dictionary<string, DistributionDescriptor> DistributionDescriptorDict;
 
