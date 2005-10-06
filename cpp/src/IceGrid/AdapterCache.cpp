@@ -285,6 +285,27 @@ AdapterEntry::getProxies(int& nReplicas)
     return adapters;
 }
 
+float
+AdapterEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
+{
+    ReplicaSeq replicas;
+    {
+	Lock sync(*this);	
+	if(_replicas.empty())
+	{
+	    throw AdapterNotExistException(_id, "");
+	}
+	replicas = _replicas;
+    }
+
+    //
+    // This must be done outside the synchronization block since
+    // min_element() will call and lock each server entry.
+    //
+    random_shuffle(replicas.begin(), replicas.end());
+    return min_element(replicas.begin(), replicas.end(), ServerLoadCI(loadSample))->second->getLoad(loadSample);
+}
+
 string
 AdapterEntry::getApplication() const
 {

@@ -12,6 +12,7 @@
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/Database.h>
 #include <IceGrid/Util.h>
+#include <IceGrid/DescriptorParser.h>
 #include <IceGrid/DescriptorHelper.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceUtil.h>
@@ -76,10 +77,10 @@ private:
     string _node;
 };
 
-AdminI::AdminI(const CommunicatorPtr& communicator, const DatabasePtr& database, const RegistryPtr& registry) :
-    _communicator(communicator),
+AdminI::AdminI(const DatabasePtr& database, const RegistryPtr& registry, const TraceLevelsPtr& traceLevels) :
     _database(database),
-    _registry(registry)
+    _registry(registry),
+    _traceLevels(traceLevels)
 {
 }
 
@@ -149,6 +150,39 @@ ApplicationDescriptor
 AdminI::getApplicationDescriptor(const string& name, const Current&) const
 {
     return _database->getApplicationDescriptor(name);
+}
+
+ApplicationDescriptor
+AdminI::getDefaultApplicationDescriptor(const Current& current) const
+{
+    Ice::PropertiesPtr properties = current.adapter->getCommunicator()->getProperties();
+    string path = properties->getProperty("IceGrid.Registry.DefaultTemplates");
+    if(path.empty())
+    {
+	return ApplicationDescriptor();
+    }
+    try
+    {
+	ApplicationDescriptor desc = DescriptorParser::parseDescriptor(path, current.adapter->getCommunicator());
+	desc.name = "";
+	if(!desc.nodes.empty())
+	{
+	    throw IceXML::ParserException(__FILE__, __LINE__,
+					  "invalid default application descriptor:\nnode definitions are not allowed");
+	}
+	if(!desc.distrib.icepatch.empty() || !desc.distrib.directories.empty())
+	{
+	    throw IceXML::ParserException(__FILE__, __LINE__,
+					  "invalid default application descriptor:\ndistribution is not allowed");
+	}
+	return desc;
+    }
+    catch(const IceXML::ParserException& ex)
+    {
+	Ice::Warning warn(_traceLevels->logger);
+	warn << ex;
+	return ApplicationDescriptor();
+    }
 }
 
 Ice::StringSeq
@@ -381,12 +415,10 @@ AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
     catch(const Ice::LocalException& e)
     {
 	ostringstream os;
-	os << "failed to invoke ice_id() on proxy `" + _communicator->proxyToString(proxy) + "':\n";
-	os << e;
 
-	DeploymentException ex;
-	ex.reason =  os.str();
-	throw ex;
+	os << "failed to invoke ice_id() on proxy `" + current.adapter->getCommunicator()->proxyToString(proxy);
+	os << "':\n" << e;
+	throw DeploymentException(os.str());
     }
 }
 

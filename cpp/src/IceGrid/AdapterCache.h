@@ -13,6 +13,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
 #include <IceGrid/Cache.h>
+#include <IceGrid/Query.h>
 #include <IceGrid/Internal.h>
 
 namespace IceGrid
@@ -27,13 +28,6 @@ typedef std::vector<ServerEntryPtr> ServerEntrySeq;
 class AdapterEntry;
 typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
 
-enum LoadSample
-{
-    LoadSample1,
-    LoadSample5,
-    LoadSample15
-};
-
 class AdapterEntry : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
@@ -42,6 +36,7 @@ public:
 
     AdapterPrx getProxy(const std::string&) const;
     std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&);
+    float getLeastLoadedNodeLoad(LoadSample) const;
     std::string getApplication() const;
 
     void enableReplication(const LoadBalancingPolicyPtr&);

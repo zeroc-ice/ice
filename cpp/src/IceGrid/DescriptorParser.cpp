@@ -28,10 +28,10 @@ class DescriptorHandler : public IceXML::Handler
 {
 public:
     
-    DescriptorHandler(const string&);
+    DescriptorHandler(const string&, const Ice::CommunicatorPtr&);
 
-    void setCommunicator(const Ice::CommunicatorPtr&);
-    void setVariables(const std::map<std::string, std::string>&, const std::vector<std::string>&);
+    void setAdmin(const IceGrid::AdminPrx&);
+    void setVariables(const map<string, string>&, const vector<string>&);
 
     virtual void startElement(const string&, const IceXML::Attributes&, int, int);
     virtual void endElement(const string&, int, int);
@@ -43,16 +43,17 @@ public:
 private:
     
     bool isCurrentTargetDeployable() const;
-    std::string elementValue() const;
-    std::vector<std::string> getTargets(const std::string&) const;
+    string elementValue() const;
+    vector<string> getTargets(const string&) const;
     void error(const string&) const;
-    bool isTargetDeployable(const std::string&) const;
+    bool isTargetDeployable(const string&) const;
 
-    Ice::CommunicatorPtr _communicator;
+    const Ice::CommunicatorPtr _communicator;
+    IceGrid::AdminPrx _admin;
     string _filename;
-    std::map<std::string, std::string> _overrides; 
-    std::vector<std::string> _targets;
-    std::string _data;
+    map<string, string> _overrides; 
+    vector<string> _targets;
+    string _data;
     int _targetCounter;
     bool _isCurrentTargetDeployable;
     int _line;
@@ -73,7 +74,8 @@ private:
 
 }
 
-DescriptorHandler::DescriptorHandler(const string& filename) : 
+DescriptorHandler::DescriptorHandler(const string& filename, const Ice::CommunicatorPtr& communicator) : 
+    _communicator(communicator),
     _filename(filename),
     _isCurrentTargetDeployable(true),
     _currentCommunicator(0),
@@ -84,13 +86,13 @@ DescriptorHandler::DescriptorHandler(const string& filename) :
 }
 
 void
-DescriptorHandler::setCommunicator(const Ice::CommunicatorPtr& communicator)
+DescriptorHandler::setAdmin(const AdminPrx& admin)
 {
-    _communicator = communicator;
+    _admin = admin;
 }
 
 void
-DescriptorHandler::setVariables(const std::map<std::string, std::string>& variables, const vector<string>& targets)
+DescriptorHandler::setVariables(const map<string, string>& variables, const vector<string>& targets)
 {
     _overrides = variables;
     _targets = targets;
@@ -170,7 +172,15 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		error("only one <application> element is allowed");
 	    }
 
-	    _currentApplication.reset(new ApplicationDescriptorBuilder(attributes, _overrides));
+	    if(_admin && attributes("import-default-templates", "false") == "true")
+	    {
+		ApplicationDescriptor application = _admin->getDefaultApplicationDescriptor();
+		_currentApplication.reset(new ApplicationDescriptorBuilder(application, attributes, _overrides));
+	    }
+	    else
+	    {
+		_currentApplication.reset(new ApplicationDescriptorBuilder(attributes, _overrides));
+	    }
 	}
 	else if(name == "node")
 	{
@@ -664,11 +674,20 @@ ApplicationDescriptor
 DescriptorParser::parseDescriptor(const string& descriptor, 
 				  const Ice::StringSeq& targets, 
 				  const map<string, string>& variables,
-				  const Ice::CommunicatorPtr& communicator)
+				  const Ice::CommunicatorPtr& communicator,
+				  const IceGrid::AdminPrx& admin)
 {
-    DescriptorHandler handler(descriptor);
-    handler.setCommunicator(communicator);
+    DescriptorHandler handler(descriptor, communicator);
+    handler.setAdmin(admin);
     handler.setVariables(variables, targets);
+    IceXML::Parser::parse(descriptor, handler);
+    return handler.getApplicationDescriptor();
+}
+
+ApplicationDescriptor
+DescriptorParser::parseDescriptor(const string& descriptor, const Ice::CommunicatorPtr& communicator)
+{
+    DescriptorHandler handler(descriptor, communicator);
     IceXML::Parser::parse(descriptor, handler);
     return handler.getApplicationDescriptor();
 }

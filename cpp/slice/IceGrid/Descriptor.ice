@@ -352,10 +352,17 @@ struct TemplateDescriptor
 
     /**
      *
-     * The name of the parameters required to instantiate the template.
+     * The parameters required to instantiate the template.
      *
      **/
     ["java:type:java.util.LinkedList"] Ice::StringSeq parameters;
+
+    /**
+     *
+     * The parameters default values.
+     *
+     **/
+    StringStringDict parameterDefaults;
 };
 dictionary<string, TemplateDescriptor> TemplateDescriptorDict;
 

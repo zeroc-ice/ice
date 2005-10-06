@@ -62,6 +62,7 @@ def startIceGridRegistry(port, testdir):
               r' --IceGrid.Registry.Internal.Endpoints=default' + \
               r' --IceGrid.Registry.Admin.Endpoints=default' + \
               r' --IceGrid.Registry.Data=' + dataDir + \
+              r' --IceGrid.Registry.DefaultTemplates=' + os.path.join(toplevel, "config", "templates.xml") + \
               r' --IceGrid.Registry.DynamicRegistration' + \
 	      r' --IceGrid.Registry.Trace.Server=0' + \
               r' --IceGrid.Registry.Trace.Adapter=0' + \

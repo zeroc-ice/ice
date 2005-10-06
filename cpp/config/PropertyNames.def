@@ -218,6 +218,7 @@ IceGrid:
     Registry.Client.ThreadPool.SizeWarn
     Registry.Client.ThreadPool.StackSize
     Registry.Data
+    Registry.DefaultTemplates
     Registry.DynamicRegistration
     Registry.Internal.AdapterId
     Registry.Internal.ReplicaId
@@ -266,9 +267,11 @@ IcePatch2:
     Admin.ThreadPool.SizeMax
     Admin.ThreadPool.SizeWarn
     Admin.ThreadPool.StackSize
+    AdminIdentity
     ChunkSize
     Directory
     Endpoints
+    Identity
     PublishedEndpoints
     Remove
     Thorough

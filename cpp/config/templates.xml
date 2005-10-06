@@ -1,0 +1,42 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<icegrid>
+  <application name="Templates">
+
+    <server-template id="IcePatch2">
+
+       <parameter name="id" default="${application}.IcePatch2"/>
+       <parameter name="endpoints" default="default"/>
+       <parameter name="admin-endpoints" default="default"/>
+       <parameter name="directory"/>
+
+       <server id="${id}" exe="icepatch2server">
+
+         <adapter name="IcePatch2" endpoints="${endpoints}">
+           <object identity="${id}/server" type="::IcePatch2::FileServer"/>
+         </adapter>
+
+         <adapter name="IcePatch2.Admin" endpoints="${admin-endpoints}">
+           <object identity="${id}/admin" type="::IcePatch2::Admin"/>
+         </adapter>
+
+         <property name="IcePatch2.Identity" value="${id}/server"/>
+         <property name="IcePatch2.AdminIdentity" value="${id}/admin"/>
+         <property name="IcePatch2.Directory" value="${directory}"/>
+
+       </server>
+
+    </server-template>
+
+  </application>
+</icegrid>
+

@@ -295,6 +295,13 @@ interface Admin
 
     /**
      *
+     * Get the default application descriptor.
+     *
+     **/
+    nonmutating ApplicationDescriptor getDefaultApplicationDescriptor();
+
+    /**
+     *
      * Get all the &IceGrid; applications currently registered.
      *
      * @return The application names.

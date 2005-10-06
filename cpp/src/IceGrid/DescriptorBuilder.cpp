@@ -109,6 +109,16 @@ ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const XmlAttributesHe
     _descriptor.variables = overrides;
 }
 
+ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const ApplicationDescriptor& app,
+							   const XmlAttributesHelper& attrs, 
+							   const map<string, string>& overrides) :
+    _descriptor(app),
+    _overrides(overrides)
+{
+    _descriptor.name = attrs("name");
+    _descriptor.variables = overrides;
+}
+
 const ApplicationDescriptor&
 ApplicationDescriptorBuilder::getDescriptor() const
 {
@@ -320,6 +330,10 @@ void
 TemplateDescriptorBuilder::addParameter(const XmlAttributesHelper& attrs)
 {
     _descriptor.parameters.push_back(attrs("name"));
+    if(attrs.contains("default"))
+    {
+	_descriptor.parameterDefaults.insert(make_pair(attrs("name"), attrs("default", "")));
+    }
 }
 
 void
@@ -528,7 +542,7 @@ ServerDescriptorBuilder::addServiceInstance(const XmlAttributesHelper& desc)
 void
 ServerDescriptorBuilder::addDistribution(const XmlAttributesHelper& attrs)
 {
-    _descriptor->distrib.icepatch = attrs("icepatch", "");
+    _descriptor->distrib.icepatch = attrs("icepatch", "${application}.IcePatch2");
 }
 
 void

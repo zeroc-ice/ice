@@ -37,6 +37,12 @@ QueryI::findObjectByType(const string& type, const Ice::Current&) const
     return _database->getObjectByType(type);
 }
 
+Ice::ObjectPrx 
+QueryI::findObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample, const Ice::Current&) const
+{
+    return _database->getObjectByTypeOnLeastLoadedNode(type, sample);
+}
+
 Ice::ObjectProxySeq 
 QueryI::findAllObjectsWithType(const string& type, const Ice::Current&) const
 {

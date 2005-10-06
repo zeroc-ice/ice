@@ -163,7 +163,7 @@ Parser::addApplication(const list<string>& args)
 	    }
 	}
 
-	_admin->addApplication(DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator));
+	_admin->addApplication(DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator, _admin));
     }
     catch(const Ice::Exception& ex)
     {
@@ -235,7 +235,7 @@ Parser::diffApplication(const list<string>& args)
 	map<string, string> vars;
 
 	list<string>::const_iterator p = args.begin();
-	string descriptor = *p++;
+	string desc = *p++;
 
 	for(; p != args.end(); ++p)
 	{
@@ -250,7 +250,7 @@ Parser::diffApplication(const list<string>& args)
 	    }
 	}
 
-	ApplicationDescriptor newApp = DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator);
+	ApplicationDescriptor newApp = DescriptorParser::parseDescriptor(desc, targets, vars, _communicator, _admin);
 	ApplicationDescriptor origApp = _admin->getApplicationDescriptor(newApp.name);
 
 	ApplicationHelper newAppHelper(newApp);
@@ -281,7 +281,7 @@ Parser::updateApplication(const list<string>& args)
 	map<string, string> vars;
 
 	list<string>::const_iterator p = args.begin();
-	string descriptor = *p++;
+	string desc = *p++;
 
 	for(; p != args.end(); ++p)
 	{
@@ -296,7 +296,7 @@ Parser::updateApplication(const list<string>& args)
 	    }
 	}
 
-	_admin->syncApplication(DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator));
+	_admin->syncApplication(DescriptorParser::parseDescriptor(desc, targets, vars, _communicator, _admin));
     }
     catch(const Ice::Exception& ex)
     {
@@ -383,11 +383,8 @@ Parser::describeServerTemplate(const list<string>& args)
 	{
 	    out << "server template '" << templ << "'";
 	    out << sb;
-	    if(!q->second.parameters.empty())
-	    {
-		out << nl << "parameters = '" << toString(q->second.parameters) << "'";
-	    }
-	    out << nl;
+
+	    out << nl << "parameters = '" << toString(q->second.parameters) << "'";
 	    ServerDescriptorPtr server = ServerDescriptorPtr::dynamicCast(q->second.descriptor);
 	    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server);
 	    if(iceBox)

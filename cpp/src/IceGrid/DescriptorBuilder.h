@@ -56,6 +56,8 @@ class ApplicationDescriptorBuilder : public DescriptorBuilder
 public:
 
     ApplicationDescriptorBuilder(const XmlAttributesHelper&, const std::map<std::string, std::string>&);
+    ApplicationDescriptorBuilder(const ApplicationDescriptor&, const XmlAttributesHelper&,
+				 const std::map<std::string, std::string>&);
 
     const ApplicationDescriptor& getDescriptor() const;
 

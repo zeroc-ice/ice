@@ -168,7 +168,8 @@ protected:
     std::map<std::string, std::string> instantiateParams(const Resolver&, 
 							 const std::string&, 
 							 const std::map<std::string, std::string>&,
-							 const std::vector<std::string>&) const;
+							 const std::vector<std::string>&,
+							 const std::map<std::string, std::string>&) const;
 };
 
 class ServiceInstanceHelper : public InstanceHelper

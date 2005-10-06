@@ -112,6 +112,14 @@ private:
     const AdapterPtr _adapter;
 };
 
+struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::ObjectPrx, float>&, bool>
+{
+    bool operator()(const pair<Ice::ObjectPrx, float>& lhs, const pair<Ice::ObjectPrx, float>& rhs)
+    {
+	return lhs.second < rhs.second;
+    }
+};
+
 }
 
 Database::Database(const Ice::ObjectAdapterPtr& adapter,
@@ -842,6 +850,32 @@ Database::getObjectByType(const string& type)
     Ice::ObjectProxySeq objs = getObjectsWithType(type);
     return objs[rand() % objs.size()];
 }
+
+Ice::ObjectPrx
+Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample)
+{
+    Ice::ObjectProxySeq objs = getObjectsWithType(type);
+    random_shuffle(objs.begin(), objs.end());
+    vector<pair<Ice::ObjectPrx, float> > objectsWithLoad;
+    objectsWithLoad.reserve(objs.size());
+    for(Ice::ObjectProxySeq::const_iterator p = objs.begin(); p != objs.end(); ++p)
+    {
+	float load = 1.0f;
+	if(!(*p)->ice_getAdapterId().empty())
+	{
+	    try
+	    {
+		load = _adapterCache.get((*p)->ice_getAdapterId())->getLeastLoadedNodeLoad(sample);
+	    }
+	    catch(const AdapterNotExistException&)
+	    {
+	    }
+	}
+	objectsWithLoad.push_back(make_pair(*p, load));
+    }
+    return min_element(objectsWithLoad.begin(), objectsWithLoad.end(), ObjectLoadCI())->first;
+}
+
 
 Ice::ObjectProxySeq
 Database::getObjectsWithType(const string& type)

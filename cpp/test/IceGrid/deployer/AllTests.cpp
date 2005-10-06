@@ -84,9 +84,26 @@ allTests(const Ice::CommunicatorPtr& comm)
 	     id == "SimpleIceBox-SimpleService" || "ReplicatedObject");
     }
 
+    {
+	Ice::ObjectPrx obj = query->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample5);
+	string id = Ice::identityToString(obj->ice_getIdentity());
+	test(id == "Server1" || id == "Server2" || id == "SimpleServer" ||
+	     id == "IceBox1-Service1" || id == "IceBox1-Service2" ||
+	     id == "IceBox2-Service1" || id == "IceBox2-Service2" ||
+	     id == "SimpleIceBox-SimpleService" || "ReplicatedObject");
+    }
+
     try
     {
 	Ice::ObjectPrx obj = query->findObjectByType("::Foo");
+    }
+    catch(const ObjectNotRegisteredException&)
+    {
+    }
+
+    try
+    {
+	Ice::ObjectPrx obj = query->findObjectByTypeOnLeastLoadedNode("::Foo", LoadSample15);
     }
     catch(const ObjectNotRegisteredException&)
     {
@@ -179,6 +196,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("ParamDoubleEscapedProp") == "$escapedvalue");
     test(obj->getProperty("AppVarOverridedByParamProp") == "Overrided");
     test(obj->getProperty("NodeVarOverridedByParamProp") == "Test");
+    test(obj->getProperty("DefaultParamProp") == "VALUE");
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("Server2@Server2.Server"));
     test(obj->getProperty("Param1Prop") == "Param12");
     test(obj->getProperty("Param2Prop") == "OverridedInNode");
@@ -186,6 +204,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("ParamDoubleEscapedProp") == "$escapedvalue");
     test(obj->getProperty("AppVarOverridedByParamProp") == "Overrided");
     test(obj->getProperty("NodeVarOverridedByParamProp") == "Test");
+    test(obj->getProperty("DefaultParamProp") == "OTHERVALUE");
 
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
     test(obj->getProperty("AppVarOverridedByParamProp") == "Test");

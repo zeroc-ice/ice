@@ -18,11 +18,14 @@ namespace IceGrid
 class Database;
 typedef IceUtil::Handle<Database> DatabasePtr;
 
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
 class AdminI : public Admin, public IceUtil::Mutex
 {
 public:
 
-    AdminI(const Ice::CommunicatorPtr&, const DatabasePtr&, const RegistryPtr&);
+    AdminI(const DatabasePtr&, const RegistryPtr&, const TraceLevelsPtr&);
     virtual ~AdminI();
 
     virtual void addApplication(const ApplicationDescriptor&, const Ice::Current&);
@@ -31,6 +34,7 @@ public:
     virtual void removeApplication(const std::string&, const Ice::Current&);
     virtual void patchApplication(const std::string&, bool, const Ice::Current&);
     virtual ApplicationDescriptor getApplicationDescriptor(const ::std::string&, const Ice::Current&) const;
+    virtual ApplicationDescriptor getDefaultApplicationDescriptor(const Ice::Current&) const;
     virtual Ice::StringSeq getAllApplicationNames(const Ice::Current&) const;
 
     virtual ServerInfo getServerInfo(const ::std::string&, const Ice::Current&) const;
@@ -69,9 +73,9 @@ public:
 
 private:
 
-    Ice::CommunicatorPtr _communicator;
-    DatabasePtr _database;
-    RegistryPtr _registry;
+    const DatabasePtr _database;
+    const RegistryPtr _registry;
+    const TraceLevelsPtr _traceLevels;
 };
 
 }

@@ -39,6 +39,11 @@ struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, Templ
 	    return false;
 	}
 
+	if(lhs.parameterDefaults != rhs.parameterDefaults)
+	{
+	    return false;
+	}
+
 	{
 	    IceBoxDescriptorPtr slhs = IceBoxDescriptorPtr::dynamicCast(lhs.descriptor);
 	    IceBoxDescriptorPtr srhs = IceBoxDescriptorPtr::dynamicCast(rhs.descriptor);
@@ -1033,14 +1038,16 @@ map<string, string>
 InstanceHelper::instantiateParams(const Resolver& resolve, 
 				  const string& tmpl, 
 				  const map<string, string>& parameters,
-				  const vector<string>& requiredParameters) const
+				  const vector<string>& requiredParameters,
+				  const map<string, string>& defaults) const
 {
     map<string, string> params;
 
+    set<string> required(requiredParameters.begin(), requiredParameters.end());
     set<string> unknown;
     for(map<string, string>::const_iterator p = parameters.begin(); p != parameters.end(); ++p)
     {
-	if(find(requiredParameters.begin(), requiredParameters.end(), p->first) == requiredParameters.end())
+	if(required.find(p->first) == required.end())
 	{
 	    unknown.insert(p->first);
 	}
@@ -1055,11 +1062,19 @@ InstanceHelper::instantiateParams(const Resolver& resolve,
     }
     
     set<string> missingParams;
-    for(vector<string>::const_iterator q = requiredParameters.begin(); q != requiredParameters.end(); ++q)
+    for(set<string>::const_iterator q = required.begin(); q != required.end(); ++q)
     {
 	if(params.find(*q) == params.end())
 	{
-	    missingParams.insert(*q);
+	    map<string, string>::const_iterator r = defaults.find(*q);
+	    if(r == defaults.end())
+	    {
+		missingParams.insert(*q);
+	    }
+	    else
+	    {
+		params.insert(make_pair(r->first, resolve(r->second, "default parameter `" + r->first + "'")));
+	    }
 	}
     }
     if(!missingParams.empty())
@@ -1123,7 +1138,7 @@ ServiceInstanceHelper::instantiate(const Resolver& resolve) const
 	}
 	TemplateDescriptor tmpl = resolve.getServiceTemplate(_template);
 	_service = ServiceHelper(ServiceDescriptorPtr::dynamicCast(tmpl.descriptor));
-	params = instantiateParams(resolve, _template, _parameters, tmpl.parameters);
+	params = instantiateParams(resolve, _template, _parameters, tmpl.parameters, tmpl.parameterDefaults);
     }
 
     Resolver svcResolve(resolve, params, true);
@@ -1204,7 +1219,7 @@ ServerInstanceHelper::init(const ServerDescriptorPtr& definition, const Resolver
 	
 	TemplateDescriptor tmpl = resolve.getServerTemplate(_template);
 	def = ServerDescriptorPtr::dynamicCast(tmpl.descriptor);
-	params = instantiateParams(resolve, _template, _parameters, tmpl.parameters);
+	params = instantiateParams(resolve, _template, _parameters, tmpl.parameters, tmpl.parameterDefaults);
     }
     assert(def);
     IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(def);

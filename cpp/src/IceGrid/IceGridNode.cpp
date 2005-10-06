@@ -237,7 +237,7 @@ NodeService::start(int argc, char* argv[])
 
     bool nowarn = false;
     bool checkdb = false;
-    string descriptor;
+    string desc;
     vector<string> targets;
     for(int i = 1; i < argc; ++i)
     {
@@ -264,7 +264,7 @@ NodeService::start(int argc, char* argv[])
                 return false;
             }
 
-            descriptor = argv[++i];
+            desc = argv[++i];
 
             while(i + 1 < argc && argv[++i][0] != '-')
             {
@@ -483,18 +483,19 @@ NodeService::start(int argc, char* argv[])
     //
     // Deploy application if a descriptor is passed as a command-line option.
     //
-    if(!descriptor.empty())
+    if(!desc.empty())
     {
         AdminPrx admin;
         try
         {
-            admin = AdminPrx::checkedCast(communicator()->stringToProxy("IceGrid/Admin"));
+	    const string adminIdProperty = "IceGrid.Registry.AdminIdentity";
+	    string adminId = properties->getPropertyWithDefault(adminIdProperty, "IceGrid/Admin");
+            admin = AdminPrx::checkedCast(communicator()->stringToProxy(adminId));
         }
         catch(const LocalException& ex)
         {
             ostringstream ostr;
-            ostr << "couldn't contact IceGrid admin interface to deploy application `" << descriptor << "':" << endl
-                 << ex;
+            ostr << "couldn't contact IceGrid admin interface to deploy application `" << desc << "':\n" << ex;
             warning(ostr.str());
         }
 
@@ -503,18 +504,18 @@ NodeService::start(int argc, char* argv[])
             try
             {
 		map<string, string> vars;
-		admin->addApplication(DescriptorParser::parseDescriptor(descriptor, targets, vars, communicator()));
+		admin->addApplication(DescriptorParser::parseDescriptor(desc, targets, vars, communicator(), admin));
             }
             catch(const DeploymentException& ex)
             {
                 ostringstream ostr;
-                ostr << "failed to deploy application `" << descriptor << "':" << endl << ex << ": " << ex.reason;
+                ostr << "failed to deploy application `" << desc << "':\n" << ex << ": " << ex.reason;
                 warning(ostr.str());
             }
             catch(const LocalException& ex)
             {
                 ostringstream ostr;
-                ostr << "failed to deploy application `" << descriptor << "':" << endl << ex;
+                ostr << "failed to deploy application `" << desc << "':\n" << ex;
                 warning(ostr.str());
             }
         }

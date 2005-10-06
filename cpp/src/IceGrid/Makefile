@@ -18,13 +18,12 @@ PERFSONAME      = $(call mksoname,IcePerf,$(SOVERSION))
 PERFLIBNAME	= $(call mklibname,IcePerf)
 
 ADMIN		= $(top_srcdir)/bin/icegridadmin
-OBSERVER	= $(top_srcdir)/bin/icegridobserver
 NODE_SERVER	= $(top_srcdir)/bin/icegridnode
 REGISTRY_SERVER	= $(top_srcdir)/bin/icegridregistry
 
 LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 PERFLIBTARGETS	= $(call mklibtargets,$(libdir)/$(PERFLIBFILENAME),$(libdir)/$(PERFSONAME),$(libdir)/$(PERFLIBNAME))
-TARGETS         = $(PERFLIBTARGETS) $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN) $(OBSERVER)
+TARGETS         = $(PERFLIBTARGETS) $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
 LIB_OBJS	= Admin.o \
 		  Query.o \
@@ -45,9 +44,9 @@ ADMIN_OBJS	= Grammar.o \
 		  Internal.o \
 		  Client.o
 
-OBSERVER_OBJS	= IceGridObserver.o
-
 COMMON_OBJS	= Internal.o \
+                  DescriptorParser.o \
+                  DescriptorBuilder.o \
 		  TraceLevels.o
 
 NODE_OBJS	= NodeI.o \
@@ -55,8 +54,6 @@ NODE_OBJS	= NodeI.o \
 		  ServerAdapterI.o \
 	          Activator.o \
 		  WaitQueue.o \
-                  DescriptorParser.o \
-                  DescriptorBuilder.o \
 		  PlatformInfo.o
 
 REGISTRY_OBJS   = RegistryI.o \
@@ -96,7 +93,6 @@ SRCS		= $(LIB_OBJS:.o=.cpp) \
 		  $(COMMON_OBJS:.o=.cpp) \
 		  $(NODE_OBJS:.o=.cpp) \
 		  $(REGISTRY_OBJS:.o=.cpp) \
-	 	  $(OBSERVER_OBJS:.o=.cpp) \
 		  IceGridNode.cpp \
 		  IceGridRegistry.cpp
 
@@ -149,11 +145,6 @@ $(libdir)/$(PERFLIBNAME): $(libdir)/$(SONAME)
 $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIcePatch2 -lGlacier2 -lIceXML -lIceGrid $(LIBS) $(READLINE_LIBS) \
-	$(EXPAT_LIBS)
-
-$(OBSERVER): $(OBSERVER_OBJS) $(LIBTARGETS)
-	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBSERVER_OBJS) -lGlacier2 -lIceGrid $(LIBS) $(READLINE_LIBS) \
 	$(EXPAT_LIBS)
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
