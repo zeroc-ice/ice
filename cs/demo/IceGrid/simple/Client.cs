@@ -36,7 +36,7 @@ public class Client : Ice.Application
 	    {
 		hello = HelloPrxHelper.checkedCast(query.findObjectByType("::Demo::Hello"));
 	    }
-	    catch(IceGrid.ObjectNotExistException)
+	    catch(IceGrid.ObjectNotRegisteredException)
 	    {
 	    }	    
 	}
