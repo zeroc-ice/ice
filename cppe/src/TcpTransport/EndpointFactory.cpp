@@ -30,7 +30,7 @@ IceInternal::EndpointFactory::~EndpointFactory()
 }
 
 EndpointPtr
-IceInternal::EndpointFactory::create(const std::string& str) const
+IceInternal::EndpointFactory::create(const std::string& str, bool adapterEndp) const
 {
     const string delim = " \t\n\r";
 
@@ -52,7 +52,7 @@ IceInternal::EndpointFactory::create(const std::string& str) const
 
     if(protocol == "default" || protocol == "tcp")
     {
-	return new TcpEndpoint(_instance, str.substr(end));
+	return new TcpEndpoint(_instance, str.substr(end), adapterEndp);
     }
 
     return 0;

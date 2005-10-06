@@ -24,18 +24,20 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string& ho, Int po, Int ti) :
+IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string& ho, Int po, Int ti, bool pub) :
     _instance(instance),
     _host(ho),
     _port(po),
-    _timeout(ti)
+    _timeout(ti),
+    _publish(pub)
 {
 }
 
-IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string& str) :
+IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string& str, bool adapterEndp) :
     _instance(instance),
     _port(0),
-    _timeout(-1)
+    _timeout(-1),
+    _publish(true)
 {
     const string delim = " \t\n\r";
 
@@ -132,14 +134,30 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 
     if(_host.empty())
     {
-	const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
+        const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
+        if(_host.empty())
+        {
+            if(adapterEndp)
+            {
+                const_cast<string&>(_host) = "0.0.0.0";
+            }
+            else
+            {
+                const_cast<string&>(_host) = getLocalHost(true);
+            }
+        }
+    }
+    else if(_host == "*" && adapterEndp)
+    {
+        const_cast<string&>(_host) = "0.0.0.0";
     }
 }
 
 IceInternal::TcpEndpoint::TcpEndpoint(BasicStream* s) :
     _instance(s->instance()),
     _port(0),
-    _timeout(-1)
+    _timeout(-1),
+    _publish(true)
 {
     bool dummy;
 
@@ -200,7 +218,7 @@ IceInternal::TcpEndpoint::timeout(Int timeout) const
     }
     else
     {
-	return new TcpEndpoint(_instance, _host, _port, timeout);
+	return new TcpEndpoint(_instance, _host, _port, timeout, _publish);
     }
 }
 
@@ -343,8 +361,34 @@ AcceptorPtr
 IceInternal::TcpEndpoint::acceptor(EndpointPtr& endp) const
 {
     Acceptor* p = new Acceptor(_instance, _host, _port);
-    endp = new TcpEndpoint(_instance, _host, p->effectivePort(), _timeout);
+    endp = new TcpEndpoint(_instance, _host, p->effectivePort(), _timeout, _publish);
     return p;
+}
+
+vector<EndpointPtr>
+IceInternal::TcpEndpoint::expand() const
+{
+    vector<EndpointPtr> endps;
+    if(_host == "0.0.0.0")
+    {
+        vector<string> hosts = getLocalHosts();
+        for(unsigned int i = 0; i < hosts.size(); ++i)
+        {
+            endps.push_back(new TcpEndpoint(_instance, hosts[i], _port, _timeout, 
+                                            hosts.size() == 1 || hosts[i] != "127.0.0.1"));
+        }
+    }
+    else
+    {
+        endps.push_back(const_cast<TcpEndpoint*>(this));
+    }
+    return endps;
+}
+
+bool
+IceInternal::TcpEndpoint::publish() const
+{
+    return _publish;
 }
 
 bool

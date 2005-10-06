@@ -25,10 +25,6 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     overrideConnectTimeoutValue(-1)
 {
     const_cast<string&>(defaultHost) = properties->getProperty("Ice.Default.Host");
-    if(defaultHost.empty())
-    {
-	const_cast<string&>(defaultHost) = getLocalHost(true);
-    }
 
 #ifdef ICEE_HAS_ROUTER
     const_cast<string&>(defaultRouter) = properties->getProperty("Ice.Default.Router");

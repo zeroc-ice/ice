@@ -26,7 +26,7 @@ public:
 
     ~EndpointFactory();
 
-    EndpointPtr create(const std::string&) const;
+    EndpointPtr create(const std::string&, bool) const;
     EndpointPtr read(BasicStream*) const;
     void destroy();
 

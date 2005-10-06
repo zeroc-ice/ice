@@ -78,6 +78,19 @@ IceInternal::UnknownEndpoint::acceptor(EndpointPtr& endp) const
     endp = const_cast<UnknownEndpoint*>(this);
     return 0;
 }
+
+std::vector<EndpointPtr>
+IceInternal::UnknownEndpoint::expand() const
+{
+    assert(false);
+}
+
+bool
+IceInternal::UnknownEndpoint::publish() const
+{
+    return false;
+}
+
 #endif
 
 bool

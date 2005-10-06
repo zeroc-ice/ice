@@ -682,6 +682,17 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
 	//
 	string endpts = _instance->properties()->getProperty(name + ".PublishedEndpoints");
 	_publishedEndpoints = parseEndpoints(endpts);
+        if(_publishedEndpoints.empty())
+        {
+            transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+                      back_inserter(_publishedEndpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
+        }
+
+        //
+        // Filter out any endpoints that are not meant to be published.
+        //
+        _publishedEndpoints.erase(remove_if(_publishedEndpoints.begin(), _publishedEndpoints.end(),
+                                  not1(Ice::constMemFun(&Endpoint::publish))), _publishedEndpoints.end());
 
 #ifdef ICEE_HAS_ROUTER
 	string router = _instance->properties()->getProperty(_name + ".Router");
@@ -770,21 +781,7 @@ Ice::ObjectAdapter::newProxy(const Identity& ident, const string& facet) const
 ObjectPrx
 Ice::ObjectAdapter::newDirectProxy(const Identity& ident, const string& facet) const
 {
-    vector<EndpointPtr> endpoints;
-
-    // 
-    // Use the published endpoints, otherwise use the endpoints from all
-    // incoming connection factories.
-    //
-    if(!_publishedEndpoints.empty())
-    {
-	endpoints = _publishedEndpoints;
-    }
-    else
-    {
-	transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), back_inserter(endpoints),
-		  Ice::constMemFun(&IncomingConnectionFactory::endpoint));
-    }
+    vector<EndpointPtr> endpoints = _publishedEndpoints;
     
     //
     // Now we also add the endpoints of the router's server proxy, if
@@ -864,14 +861,15 @@ Ice::ObjectAdapter::parseEndpoints(const string& str) const
 	}
 	
 	string s = endpts.substr(beg, end - beg);
-	EndpointPtr endp = _instance->endpointFactory()->create(s);
+	EndpointPtr endp = _instance->endpointFactory()->create(s, true);
 	if(endp == 0)
 	{
 	    EndpointParseException ex(__FILE__, __LINE__);
 	    ex.str = s;
 	    throw ex;
 	}
-	endpoints.push_back(endp);
+        vector<EndpointPtr> endps = endp->expand();
+        endpoints.insert(endpoints.end(), endps.begin(), endps.end());
 
 	++end;
     }

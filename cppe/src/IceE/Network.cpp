@@ -12,6 +12,18 @@
 #include <IceE/LocalException.h>
 #include <IceE/SafeStdio.h>
 
+#if defined(_WIN32)
+#  include <winsock2.h>
+#elif defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
+#  include <ifaddrs.h>
+#else
+#  include <sys/ioctl.h>
+#  include <net/if.h>
+#  ifdef __sun
+#    include <sys/sockio.h>
+#  endif
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -1001,6 +1013,111 @@ repeatListen:
 }
 
 #endif
+
+vector<string>
+IceInternal::getLocalHosts()
+{
+    vector<string> result;
+
+#if defined(_WIN32)
+    vector<struct sockaddr_in> addrs = getLocalAddresses();
+    for(unsigned int i = 0; i < addrs.size(); ++i)
+    {
+        result.push_back(inetAddrToString(addrs[i].sin_addr));
+    }
+#elif defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
+    struct ifaddrs* ifap;
+    if(::getifaddrs(&ifap) == SOCKET_ERROR)
+    {
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }
+
+    struct ifaddrs* curr = ifap;
+    while(curr != 0)
+    {
+        if(curr->ifa_addr && curr->ifa_addr->sa_family == AF_INET)
+        {
+            struct sockaddr_in* addr = reinterpret_cast<struct sockaddr_in*>(curr->ifa_addr);
+            if(addr->sin_addr.s_addr != 0)
+            {
+                result.push_back(inetAddrToString((*addr).sin_addr));
+            }
+        }
+
+        curr = curr->ifa_next;
+    }
+
+    ::freeifaddrs(ifap);
+#else
+    SOCKET fd = createSocket(false);
+
+#ifdef _AIX
+    int cmd = CSIOCGIFCONF;
+#else
+    int cmd = SIOCGIFCONF;
+#endif
+    struct ifconf ifc;
+    int numaddrs = 10;
+    int old_ifc_len = 0;
+
+    //
+    // Need to call ioctl multiple times since we do not know up front
+    // how many addresses there will be, and thus how large a buffer we need.
+    // We keep increasing the buffer size until subsequent calls return
+    // the same length, meaning we have all the addresses.
+    //
+    while(true)
+    {
+        int bufsize = numaddrs * sizeof(struct ifreq);
+        ifc.ifc_len = bufsize;
+        ifc.ifc_buf = (char*)malloc(bufsize);
+
+        int rs = ioctl(fd, cmd, &ifc);
+        if(rs == SOCKET_ERROR)
+        {
+            closeSocketNoThrow(fd);
+            SocketException ex(__FILE__, __LINE__);
+            ex.error = getSocketErrno();
+            throw ex;
+        }
+        else if(ifc.ifc_len == old_ifc_len)
+        {
+            //
+            // Returned same length twice in a row, finished.
+            //
+            break;
+        }
+        else
+        {
+            old_ifc_len = ifc.ifc_len;
+        }
+
+        numaddrs += 10;
+        free(ifc.ifc_buf);
+    }
+
+    numaddrs = ifc.ifc_len / sizeof(struct ifreq);
+    struct ifreq* ifr = ifc.ifc_req;
+    for(int i = 0; i < numaddrs; ++i)
+    {
+        if(ifr[i].ifr_addr.sa_family == AF_INET)
+        {
+            struct sockaddr_in* addr = reinterpret_cast<struct sockaddr_in*>(&ifr[i].ifr_addr);
+            if(addr->sin_addr.s_addr != 0)
+            {
+                result.push_back(inetAddrToString((*addr).sin_addr));
+            }
+        }
+    }
+
+    free(ifc.ifc_buf);
+    closeSocket(fd);
+#endif
+
+    return result;
+}
 
 #ifdef _WIN32
 

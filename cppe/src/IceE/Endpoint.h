@@ -82,6 +82,23 @@ public:
 #endif
 
     //
+    // Expand endpoint out in to separate endpoints for each local
+    // host if endpoint was configured with no host set. This
+    // only applies for ObjectAdapter endpoints.
+    //
+#ifndef ICEE_PURE_CLIENT
+    virtual std::vector<EndpointPtr> expand() const = 0;
+#endif
+
+    //
+    // Return whether the endpoint should be published in proxies
+    // created by the Object Adapter.
+    //
+#ifndef ICEE_PURE_CLIENT
+    virtual bool publish() const = 0;
+#endif
+
+    //
     // Check whether the endpoint is equivalent to a specific
     // Transceiver or Acceptor.
     //

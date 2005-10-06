@@ -30,6 +30,8 @@ public:
     virtual ConnectorPtr connector() const;
 #ifndef ICEE_PURE_CLIENT
     virtual AcceptorPtr acceptor(EndpointPtr&) const;
+    virtual std::vector<EndpointPtr> expand() const;
+    virtual bool publish() const;
 #endif
     virtual bool equivalent(const TransceiverPtr&) const;
 #ifndef ICEE_PURE_CLIENT

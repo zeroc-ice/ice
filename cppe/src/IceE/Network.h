@@ -105,6 +105,7 @@ std::string lastErrorToString();
 std::string fdToString(SOCKET);
 std::string addrToString(const struct sockaddr_in&);
 
+std::vector<std::string> getLocalHosts();
 #ifdef _WIN32
 std::vector<struct sockaddr_in> getLocalAddresses();
 bool isLocalAddress(const struct sockaddr_in&);
