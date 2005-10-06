@@ -79,10 +79,13 @@ IceInternal::UnknownEndpoint::acceptor(EndpointPtr& endp) const
     return 0;
 }
 
-std::vector<EndpointPtr>
+vector<EndpointPtr>
 IceInternal::UnknownEndpoint::expand() const
 {
     assert(false);
+    vector<EndpointPtr> ret;
+    return ret;
+
 }
 
 bool
