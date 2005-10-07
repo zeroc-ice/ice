@@ -33,25 +33,44 @@ public class Utils
 				   Ice.StringHolder toolTipHolder)
     {
 	String result = "";
-	toolTipHolder.value = null;
+	if(toolTipHolder != null)
+	{
+	    toolTipHolder.value = null;
+	}
+     
 	java.util.Iterator p = col.iterator();
 	
+	boolean firstElement = true;
 	while(p.hasNext())
 	{
-	    if(result.length() > 0)
-	    {
-		result += separator;
-		toolTipHolder.value += "<br>";
-	    }
-	    else
-	    {
-		toolTipHolder.value = "<html>";
-	    }
 	    String elt = stringifier.toString(p.next());
-	    result += elt;
-	    toolTipHolder.value += elt;
+	    if(elt != null)
+	    {
+		if(firstElement)
+		{
+		    firstElement = false;
+		    if(toolTipHolder != null)
+		    {
+			toolTipHolder.value = "<html>";
+		    }
+		}
+		else
+		{
+		    result += separator;
+		    if(toolTipHolder != null)
+		    {
+			toolTipHolder.value += "<br>";
+		    }
+		}
+
+		result += elt;
+		if(toolTipHolder != null)
+		{
+		    toolTipHolder.value += elt;
+		}
+	    }
 	}
-	if(toolTipHolder.value != null)
+	if(toolTipHolder != null && toolTipHolder.value != null)
 	{
 	    toolTipHolder.value += "</html>";
 	}
@@ -240,20 +259,26 @@ public class Utils
 	//
 	public Resolver(java.util.Map[] variables)
 	{
-	    this(variables, null, null);
+	    _variables = variables;
+	    _resolvedVariableCache = new java.util.HashMap();
+	    _parameters = null;
+	    _subResolver = this;
 	}
 
 	//
 	// Resolver for instance; parameters is not yet substituted
 	//
-	public Resolver(Resolver parent, java.util.TreeMap parameters)
+	public Resolver(Resolver parent, java.util.Map parameters,
+			java.util.Map defaults)
 	{
-	    java.util.TreeMap substitutedParameters = 
-		parent.substituteParameterValues(parameters);
+	    java.util.Map substitutedParameters = 
+		parent.substituteParameterValues(parameters, defaults);
 
 	    _variables = parent._variables;
-	    _resolvedVariableCache = (java.util.HashMap)parent._resolvedVariableCache.clone();
+	    _resolvedVariableCache = 
+		new java.util.HashMap(parent._resolvedVariableCache);
 	    _parameters = substitutedParameters;
+	    _subResolver = new Resolver(_variables, _resolvedVariableCache);
 	}
 	
 	//
@@ -262,39 +287,26 @@ public class Utils
 	public Resolver(Resolver parent)
 	{
 	    _variables = parent._variables;
-	    _resolvedVariableCache = (java.util.HashMap)parent._resolvedVariableCache.clone();
-	    if(parent._parameters == null)
-	    {
-		_parameters = null;
-	    }
-	    else
-	    {
-		_parameters = (java.util.TreeMap)parent._parameters.clone();
-	    }
-	}
-
-	private Resolver(java.util.Map[] variables, // ordered read-only variable maps
-			 java.util.HashMap resolvedVariableCache, // null or read-write
-			 java.util.TreeMap parameters) // null or read-only
-	{
-	    _variables = variables;
-	    _resolvedVariableCache = resolvedVariableCache;
-	    _parameters = parameters;
-
-	    assert _variables != null;
-	  
-	    if(_resolvedVariableCache == null)
-	    {
-		_resolvedVariableCache = new java.util.HashMap();
-	    }
+	    _resolvedVariableCache = 
+		new java.util.HashMap(parent._resolvedVariableCache);
+	    _parameters = parent._parameters;
 	    if(_parameters == null)
 	    {
 		_subResolver = this;
 	    }
 	    else
 	    {
-		_subResolver = new Resolver(_variables, _resolvedVariableCache, null);
+		_subResolver = new Resolver(_variables, _resolvedVariableCache);
 	    }
+	}
+
+	private Resolver(java.util.Map[] variables,
+			 java.util.Map resolvedVariableCache)
+	{
+	    _variables = variables;
+	    _resolvedVariableCache = resolvedVariableCache;
+	    _parameters = null;
+	    _subResolver = this;
 	}
 
 	public String find(String name)
@@ -326,10 +338,10 @@ public class Utils
 		if(obj != null)
 		{
 		    //
-		    // If I lookup up myself, I am in trouble!
+		    // If I lookup myself, replace xxx${myself}xxx by xxx<error msg>xxx
 		    //
 		    _resolvedVariableCache.put(name, _recursiveDefError);
-		    String result = Utils.substitute((String)obj, _subResolver);
+		    String result = _subResolver.substitute((String)obj);
 		    _resolvedVariableCache.put(name, result);
 		    return result;
 		}
@@ -417,21 +429,31 @@ public class Utils
 	//
 	// Substitute all the values from the input map
 	//
-	public java.util.TreeMap substituteParameterValues(java.util.TreeMap input)
+	public java.util.Map substituteParameterValues(java.util.Map input,
+						       java.util.Map defaults)
 	{
-	    java.util.TreeMap result = (java.util.TreeMap)input.clone();
-	    java.util.Iterator p = result.entrySet().iterator();
+	    java.util.Map result = new java.util.HashMap();
+	    java.util.Iterator p = input.entrySet().iterator();
 	    while(p.hasNext())
 	    {
 		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-		entry.setValue(substitute((String)entry.getValue()));
+		result.put(entry.getKey(), substitute((String)entry.getValue()));
+	    }
+	    p = defaults.entrySet().iterator();
+	    while(p.hasNext())
+	    {
+		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+		if(result.get(entry.getKey()) == null)
+		{
+		    result.put(entry.getKey(), substitute((String)entry.getValue()));
+		}
 	    }
 	    return result;
 	}
 
 	private java.util.Map[] _variables;
-	private java.util.HashMap _resolvedVariableCache;
-	private java.util.TreeMap _parameters;
+	private java.util.Map _resolvedVariableCache;
+	private java.util.Map _parameters;
 	private Resolver _subResolver;
 	static private String _recursiveDefError = "<recursive def error>";
     }

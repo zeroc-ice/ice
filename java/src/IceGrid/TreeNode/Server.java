@@ -242,6 +242,12 @@ class Server extends EditableParent
 	{
 	    _model.getStatusBar().setText("Starting server '" + _id + "'... failed!");
 	}
+
+	//
+	// Recompute actions in case this comes from popup menu
+	// 
+	_model.showActions(_model.getSelectedNode());
+
     }
     public void stop()
     {
@@ -265,12 +271,25 @@ class Server extends EditableParent
 					  + e.toString());
 	}
 	_model.getStatusBar().setText("Stopping server '" + _id + "'... done.");
+
+	//
+	// Recompute actions in case this comes from popup menu
+	// 
+	_model.showActions(_model.getSelectedNode());
     }
     public void enable()
     {
+	//
+	// Recompute actions in case this comes from popup menu
+	// 
+	_model.showActions(_model.getSelectedNode());
     }
     public void disable()
     {
+	//
+	// Recompute actions in case this comes from popup menu
+	// 
+	_model.showActions(_model.getSelectedNode());
     }
     
     public void displayProperties()
@@ -563,8 +582,7 @@ class Server extends EditableParent
 	}
 	else
 	{
-	    return _id + ": " + templateLabel(_instanceDescriptor.template,
-					      _resolver.getParameters().values());
+	    return _id + ": " + _instanceDescriptor.template + "<>";
 	}
     }
 

@@ -24,7 +24,7 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 import IceGrid.Model;
 import IceGrid.ServiceInstanceDescriptor;
-import IceGrid.TableDialog;
+import IceGrid.ParametersDialog;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
@@ -57,31 +57,27 @@ class ServiceInstanceEditor extends ListElementEditor
 	//
 	// Parameter values
 	//
-	_parameterValuesDialog = new TableDialog(parentFrame, 
-						 "Parameter values",
-						 "Name", 
-						 "Value", false);
+	_parametersDialog = new ParametersDialog(parentFrame, 
+					    "Parameter values",
+					    "Value", false, "Use default");
 	
-	Action openParameterValuesDialog = new AbstractAction("...")
+	Action openParametersDialog = new AbstractAction("...")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    java.util.Map result = 
-			_parameterValuesDialog.show(_parameterValuesMap, 
-						     _panel);
-		    if(result != null)
+		    if(_parametersDialog.show(_parameterList, _parameterValuesMap, 
+					      _panel))
 		    {
 			updated();
-			_parameterValuesMap = new java.util.TreeMap(result);
 			setParameterValuesField();
 			//
 			// No need to redisplay details: since it's editable,
-			// we're not subsituting variables or parameters
+			// we're not substituting variables or parameters
 			//
 		    }
 		}
 	    };
-	_parameterValuesButton = new JButton(openParameterValuesDialog);
+	_parametersButton = new JButton(openParametersDialog);
     }
 
     ServiceInstanceDescriptor getDescriptor()
@@ -124,7 +120,7 @@ class ServiceInstanceEditor extends ListElementEditor
 	builder.nextLine();
 	
 	builder.append("Parameter values", _parameterValues);
-	builder.append(_parameterValuesButton);
+	builder.append(_parametersButton);
 	builder.nextLine();
 	
 	builder.appendSeparator();
@@ -186,7 +182,9 @@ class ServiceInstanceEditor extends ListElementEditor
 		    //
 		    // Replace parameters but keep existing values
 		    //
-		    _parameterValuesMap = makeParameterValues(_parameterValuesMap, td.parameters);
+		    _parameterList = td.parameters;
+		    _parameterValuesMap = makeParameterValues(_parameterValuesMap, 
+							      _parameterList);
 		    setParameterValuesField();
 
 		    //
@@ -205,9 +203,13 @@ class ServiceInstanceEditor extends ListElementEditor
 	_template.getModel().addListDataListener(templateListener);
 	_template.setEnabled(isEditable);
 	
-	_parameterValuesMap = descriptor.parameterValues;
+	//
+	// The _parameterList is read-only
+	// 
+	_parameterList = ((TemplateDescriptor)t.getDescriptor()).parameters;
+	_parameterValuesMap = new java.util.HashMap(descriptor.parameterValues);
 	setParameterValuesField();
-	_parameterValuesButton.setEnabled(isEditable);
+	_parametersButton.setEnabled(isEditable);
 	
 	_subEditor.show(false);
 
@@ -216,7 +218,7 @@ class ServiceInstanceEditor extends ListElementEditor
 	detectUpdates(true);
     }
 
-    void setParameterValuesField()
+    private void setParameterValuesField()
     {
 	Service service = (Service)_target;
 
@@ -228,17 +230,21 @@ class ServiceInstanceEditor extends ListElementEditor
 	    {
 		public String toString(Object obj)
 		{
-		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
-		    
-		    return Utils.substitute((String)entry.getKey(), resolver) 
-			+ "="
-			+ Utils.substitute((String)entry.getValue(), resolver);
+		    String name = (String)obj;
+		    String val = (String)_parameterValuesMap.get(name);
+		    if(val != null)
+		    {
+			return name + "=" + Utils.substitute(val, resolver);
+		    }
+		    else
+		    {
+			return null;
+		    }
 		}
 	    };
 	
 	_parameterValues.setText(
-	    Utils.stringify(_parameterValuesMap.entrySet(), stringifier,
-			    ", ", toolTipHolder));
+	    Utils.stringify(_parameterList, stringifier, ", ", toolTipHolder));
 	_parameterValues.setToolTipText(toolTipHolder.value);
     }
 
@@ -248,7 +254,9 @@ class ServiceInstanceEditor extends ListElementEditor
     private JButton _templateButton;
     private JTextField _parameterValues = new JTextField(20);
 
-    private java.util.TreeMap _parameterValuesMap;
-    private TableDialog _parameterValuesDialog;
-    private JButton _parameterValuesButton;   
+    private java.util.List _parameterList;
+    private java.util.Map _parameterValuesMap;
+
+    private ParametersDialog _parametersDialog;
+    private JButton _parametersButton;   
 }

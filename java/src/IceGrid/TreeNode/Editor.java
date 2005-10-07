@@ -201,22 +201,21 @@ abstract class Editor
 	return result;
     }
 
-    static java.util.TreeMap makeParameterValues(
+    static java.util.Map makeParameterValues(
 	java.util.Map oldParameterValues,
 	java.util.List newParameters)
     {
-	java.util.TreeMap result = new java.util.TreeMap();
+	java.util.Map result = new java.util.HashMap();
 
 	java.util.Iterator p = newParameters.iterator();
 	while(p.hasNext())
 	{
-	    String name = (String)p.next();
-	    String value = (String)oldParameterValues.get(name);
-	    if(value == null)
+	    Object name =  p.next();
+	    Object value = oldParameterValues.get(name);
+	    if(value != null)
 	    {
-		value = "";
-	    }
-	    result.put(name, value);
+		result.put(name, value);
+	    } 
 	}
 	return result;
     }

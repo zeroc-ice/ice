@@ -86,7 +86,7 @@ class Node extends EditableParent implements InstanceParent
     static private class Backup
     {
 	java.util.TreeSet removedElements;
-	java.util.TreeMap parameterValues;
+	java.util.Map parameterValues;
     }
 
     public Object rebuild(CommonBase child, java.util.List editables) 
@@ -188,7 +188,9 @@ class Node extends EditableParent implements InstanceParent
 	// Build resolver
 	//
 	Utils.Resolver instanceResolver = 
-	    new Utils.Resolver(_resolver, instanceDescriptor.parameterValues);
+	    new Utils.Resolver(_resolver, 
+			       instanceDescriptor.parameterValues,
+			       templateDescriptor.parameterDefaults);
 	
 	String serverId = instanceResolver.substitute(serverDescriptor.id);
 	instanceResolver.put("server", serverId);
@@ -387,7 +389,9 @@ class Node extends EditableParent implements InstanceParent
 	    // Build resolver
 	    //
 	    Utils.Resolver instanceResolver = 
-		new Utils.Resolver(_resolver, instanceDescriptor.parameterValues);
+		new Utils.Resolver(_resolver, 
+				   instanceDescriptor.parameterValues,
+				   templateDescriptor.parameterDefaults);
 	    
 	    String serverId = instanceResolver.substitute(serverDescriptor.id);
 	    instanceResolver.put("server", serverId);
@@ -593,7 +597,9 @@ class Node extends EditableParent implements InstanceParent
 	    // Build resolver
 	    //
 	    Utils.Resolver instanceResolver = 
-		new Utils.Resolver(_resolver, instanceDescriptor.parameterValues);
+		new Utils.Resolver(_resolver, 
+				   instanceDescriptor.parameterValues,
+				   templateDescriptor.parameterDefaults);
 	    
 	    String serverId = instanceResolver.substitute(serverDescriptor.id);
 	    instanceResolver.put("server", serverId);

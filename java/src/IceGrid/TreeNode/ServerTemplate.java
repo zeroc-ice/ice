@@ -143,24 +143,11 @@ class ServerTemplate extends EditableParent
 	return _propertiesHolder;
     }
 
-    public String toString()
-    {
-	if(_ephemeral)
-	{
-	    return super.toString();
-	}
-	else
-	{
-	    return templateLabel(_id, _templateDescriptor.parameters);
-	}
-    }
-
     public Object getDescriptor()
     {
 	return _templateDescriptor;
     }
 
-   
     public Object saveDescriptor()
     {
 	//
@@ -243,11 +230,6 @@ class ServerTemplate extends EditableParent
 	_templateDescriptor = descriptor;
 	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor);
 	clearChildren();
-
-	//
-	// Fix-up parameters order
-	//
-	java.util.Collections.sort(_templateDescriptor.parameters);
 
 	if(_ephemeral)
 	{

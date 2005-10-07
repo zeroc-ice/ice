@@ -22,8 +22,8 @@ import IceGrid.SimpleInternalFrame;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.DefaultComponentFactory;
 
-import IceGrid.TreeModelI;
 import IceGrid.Model;
+import IceGrid.Utils;
 
 abstract class CommonBaseI implements CommonBase
 { 
@@ -309,24 +309,35 @@ abstract class CommonBaseI implements CommonBase
 	_model.getTreeModel().fireStructureChangedEvent(event);
     } 
 
-    static String templateLabel(String templateName, java.util.Collection col)
+    static String templateLabel(String templateName,
+				java.util.List parameters,
+				final java.util.Map parameterValues,
+				final java.util.Map parameterDefaults)
     {
 	String result = templateName + "<";
 	
-	java.util.Iterator p = col.iterator();
-	boolean firstElement = true;
-	while(p.hasNext())
-	{
-	    if(firstElement)
+	Utils.Stringifier stringifier = new Utils.Stringifier()
 	    {
-		firstElement = false;
-	    }
-	    else
-	    {
-		result += ", ";
-	    }
-	    result += (String)p.next();
-	}
+		public String toString(Object obj)
+		{
+		    String name = (String)obj;
+		    String val = (String)parameterValues.get(name);
+		    if(val == null)
+		    {
+			val = (String)parameterDefaults.get(name);
+		    }
+		    if(val != null)
+		    {
+			return val;
+		    }
+		    else
+		    {
+			return "";
+		    }
+		}
+	    };
+
+	result += Utils.stringify(parameters, stringifier, ", ", null);
 	result += ">";
 	return result;
     }

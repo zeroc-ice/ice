@@ -94,7 +94,6 @@ class Services extends ListParent implements InstanceParent
 	newService(descriptor);
     }
 
-
     
     private Service createService(ServiceInstanceDescriptor descriptor,
 				  Application application) throws UpdateFailedException
@@ -116,12 +115,12 @@ class Services extends ListParent implements InstanceParent
 	    
 	    if(_resolver != null)
 	    {
-		serviceResolver = new Utils.Resolver(_resolver, descriptor.parameterValues);
+		serviceResolver = new Utils.Resolver(_resolver, 
+						     descriptor.parameterValues,
+						     templateDescriptor.parameterDefaults);
 		serviceName = serviceResolver.substitute(serviceDescriptor.name);
 		serviceResolver.put("service", serviceName);
-		displayString = serviceName + ": " 
-		    + templateLabel(descriptor.template,
-				    serviceResolver.getParameters().values());
+		displayString = serviceName + ": " + descriptor.template + "<>";
 	    }
 	    else
 	    {
@@ -129,8 +128,10 @@ class Services extends ListParent implements InstanceParent
 		// serviceName = TemplateName<unsubstituted param 1, ....>
 		//
 		serviceName = templateLabel(descriptor.template, 
-					    descriptor.parameterValues.values());
-		
+					    templateDescriptor.parameters,
+					    descriptor.parameterValues,
+					    templateDescriptor.parameterDefaults);
+					    
 	    }
 	}
 	else
@@ -267,10 +268,26 @@ class Services extends ListParent implements InstanceParent
 
 	    ServiceDescriptor serviceDescriptor = (ServiceDescriptor)templateDescriptor.descriptor;
 	    assert serviceDescriptor != null;
-	    Utils.Resolver serviceResolver = _resolver == null ? null :
-		new Utils.Resolver(_resolver, descriptor.parameterValues);
-	    
-	    newName = Utils.substitute(serviceDescriptor.name, serviceResolver);
+
+	    if(_resolver != null)
+	    {
+		Utils.Resolver serviceResolver = 
+		    new Utils.Resolver(_resolver, 
+				       descriptor.parameterValues,
+				       templateDescriptor.parameterDefaults);
+		newName = serviceResolver.substitute(serviceDescriptor.name);
+	    }
+	    else
+	    {
+		//
+		// newName = TemplateName<unsubstituted param 1, ....>
+		//
+		newName = templateLabel(descriptor.template, 
+					templateDescriptor.parameters,
+					descriptor.parameterValues,
+					templateDescriptor.parameterDefaults);
+
+	    }
 	}
 	else
 	{
@@ -403,8 +420,7 @@ class Services extends ListParent implements InstanceParent
 	int index = _descriptors.indexOf(service.getDescriptor());
 	
 	if(_model.canUpdate())
-	{    
-	    _model.disableDisplay();
+	{   
 	    getEditable().markModified();
 	    
 	    Object descriptor = _descriptors.remove(index);
@@ -435,16 +451,12 @@ class Services extends ListParent implements InstanceParent
 		    //
 		    server.getServices().moveChild(index, up, true);
 		}
-	    }
-	 
-	    _model.setSelectionPath(service.getPath());
-	    _model.enableDisplay();
-	    
-	    //
-	    // Recompute actions
-	    // 
-	    _model.showActions();
-	}
+	    }	
+	}    
+	//
+	// Recompute actions
+	// 
+	_model.showActions(_model.getSelectedNode());
     }
 
 
@@ -460,7 +472,7 @@ class Services extends ListParent implements InstanceParent
 	removeChild(child, true);
 	ServiceInstanceDescriptor descriptor = (ServiceInstanceDescriptor)child.getDescriptor();
 	
-	java.util.TreeMap savedParameterValues = null;
+	java.util.Map savedParameterValues = null;
 
 	if(descriptor.template.length() > 0)
 	{
@@ -502,7 +514,7 @@ class Services extends ListParent implements InstanceParent
 
     public void restore(CommonBase child, Object backup)
     {
-	java.util.TreeMap savedParameterValues = (java.util.TreeMap)backup;
+	java.util.Map savedParameterValues = (java.util.Map)backup;
 
 	ServiceInstanceDescriptor descriptor = 
 	    (ServiceInstanceDescriptor)child.getDescriptor();

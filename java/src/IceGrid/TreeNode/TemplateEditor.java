@@ -8,56 +8,55 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JTextField;
-import javax.swing.text.*;
+
 
 import java.util.regex.Pattern;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 import IceGrid.Model;
+import IceGrid.ParametersDialog;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
 class TemplateEditor extends Editor
 {
-    static class ParametersFilter extends DocumentFilter
-    {	
-	public void insertString(DocumentFilter.FilterBypass fb,
-				 int offset,
-				 String string,
-				 AttributeSet attr)
-	    throws BadLocationException
-	{
-	    if(_pattern.matcher(string).matches())
-	    {
-		super.insertString(fb, offset, string, attr);
-	    }
-	}
-	
-	public void replace(DocumentFilter.FilterBypass fb,
-                    int offset,
-                    int length,
-                    String text,
-                    AttributeSet attrs)
-             throws BadLocationException
-	{
-	    if(_pattern.matcher(text).matches())
-	    {
-		super.replace(fb, offset, length, text, attrs);
-	    }
-	}
-       
-	private Pattern _pattern = Pattern.compile("[\\w\\s]*");
-    }
-
-    TemplateEditor()
+    TemplateEditor(JFrame parentFrame)
     {
 	_template.getDocument().addDocumentListener(_updateListener);
-	_parameters.getDocument().addDocumentListener(_updateListener);
+	_parameters.setEditable(false);
+
+	//
+	// Parameters
+	//
+	_parametersDialog = new ParametersDialog(parentFrame, 
+						 "Parameters",
+						 "Default value", true, "No default");
 	
-	AbstractDocument doc = (AbstractDocument)_parameters.getDocument();
-	doc.setDocumentFilter(_parametersFilter);
+	Action openParametersDialog = new AbstractAction("...")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    if(_parametersDialog.show(_parameterList, _parameterValuesMap, 
+					      _panel))
+		    {
+			updated();
+			setParametersField();
+			//
+			// No need to redisplay details: since it's editable,
+			// we're not substituting variables or parameters
+			//
+		    }
+		}
+	    };
+	_parametersButton = new JButton(openParametersDialog);
     }
 
     TemplateDescriptor getDescriptor()
@@ -73,13 +72,15 @@ class TemplateEditor extends Editor
     void writeDescriptor()
     {
 	TemplateDescriptor descriptor = getDescriptor();
-	descriptor.parameters = stringToParameters(_parameters.getText());
+	descriptor.parameters = _parameterList;
+	descriptor.parameterDefaults = _parameterValuesMap;
     }	    
     
     boolean isSimpleUpdate()
     {
 	TemplateDescriptor descriptor = getDescriptor();
-	return _parameters.getText().equals(parametersToString(descriptor.parameters));
+	return descriptor.parameters.equals(_parameterList)
+	    && descriptor.parameterDefaults.equals(_parameterValuesMap);
     }
 
     void append(DefaultFormBuilder builder)
@@ -88,8 +89,8 @@ class TemplateEditor extends Editor
 	builder.append(_template, 3);
 	builder.nextLine();
 	
-	builder.append("Parameters");
-	builder.append(_parameters, 3);
+	builder.append("Parameters", _parameters);
+	builder.append(_parametersButton);
 	builder.nextLine();
 	
 	builder.appendSeparator();
@@ -101,7 +102,10 @@ class TemplateEditor extends Editor
 	TemplateDescriptor descriptor = getDescriptor();
 	_template.setText(_target.getId());
 	_template.setEditable(_target.isEphemeral());
-	_parameters.setText(parametersToString(descriptor.parameters));
+
+	_parameterList = new java.util.LinkedList(descriptor.parameters);
+	_parameterValuesMap = new java.util.HashMap(descriptor.parameterDefaults);
+	setParametersField();
     }
 
     protected void applyUpdate()
@@ -182,33 +186,37 @@ class TemplateEditor extends Editor
 	}
     }
 
-    static private java.util.LinkedList stringToParameters(String s)
-    {
-	java.util.List params = java.util.Arrays.asList(s.split("\\s+"));
-	java.util.Collections.sort(params);
-	return new java.util.LinkedList(params);
-    }
-
-    static private String parametersToString(java.util.List list)
-    {
-	String result = "";
-	java.util.Iterator p = list.iterator();
-	while(p.hasNext())
-	{
-	    if(result.equals(""))
+    private void setParametersField()
+    {	
+	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
+	Utils.Stringifier stringifier = new Utils.Stringifier()
 	    {
-		result = (String)p.next();
-	    }
-	    else
-	    {
-		result = result + " " + (String)p.next();
-	    }
-	}
-	return result;
-
+		public String toString(Object obj)
+		{
+		    String name = (String)obj;
+		    String val = (String)_parameterValuesMap.get(name);
+		    if(val != null)
+		    {
+			return name + "=" + val;
+		    }
+		    else
+		    {
+			return name;
+		    }
+		}
+	    };
+	
+	_parameters.setText(
+	    Utils.stringify(_parameterList, stringifier, ", ", toolTipHolder));
+	_parameters.setToolTipText(toolTipHolder.value);
     }
 
     private JTextField _template = new JTextField(20);
     private JTextField _parameters = new JTextField(20);
-    private DocumentFilter _parametersFilter = new ParametersFilter();
+    
+    private java.util.LinkedList _parameterList;
+    private java.util.Map _parameterValuesMap;
+
+    private ParametersDialog _parametersDialog;
+    private JButton _parametersButton;   
 }

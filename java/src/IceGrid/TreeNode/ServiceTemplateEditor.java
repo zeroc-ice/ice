@@ -16,6 +16,7 @@ class ServiceTemplateEditor extends TemplateEditor
 {
     ServiceTemplateEditor(JFrame parentFrame)
     {
+	super(parentFrame);
 	_subEditor = new ServiceSubEditor(this, parentFrame);
     }
     

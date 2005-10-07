@@ -109,11 +109,6 @@ class ServiceTemplate extends EditableParent
     {
 	_templateDescriptor = descriptor;
 	_propertiesHolder = new PropertiesHolder(_templateDescriptor.descriptor);
-
-	//
-	// Fix-up parameters order
-	//
-	java.util.Collections.sort(_templateDescriptor.parameters);
 	
 	clearChildren();
 	if(_ephemeral)
@@ -136,18 +131,6 @@ class ServiceTemplate extends EditableParent
     public PropertiesHolder getPropertiesHolder()
     {
 	return _propertiesHolder;
-    }
-
-    public String toString()
-    {
-	if(_ephemeral)
-	{
-	    return "*" + _id;
-	}
-	else
-	{
-	    return templateLabel(_id, _templateDescriptor.parameters);
-	}
     }
 
     public Object getDescriptor()

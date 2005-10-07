@@ -16,6 +16,7 @@ class ServerTemplateEditor extends TemplateEditor
 {
     ServerTemplateEditor(JFrame parentFrame)
     {
+	super(parentFrame);
 	_subEditor = new ServerSubEditor(this, parentFrame);
     }
     
