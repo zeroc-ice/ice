@@ -16,7 +16,7 @@
 module IceGrid
 {
 
-["java:type:java.util.TreeMap"] dictionary<string, string> StringStringDict;
+dictionary<string, string> StringStringDict;
 
 /**
  *
@@ -414,7 +414,7 @@ struct NodeDescriptor
      * The variables defined for the node.
      *
      **/
-    StringStringDict variables;
+    ["java:type:java.util.TreeMap"] StringStringDict variables;
 
     /**
      *
@@ -526,7 +526,7 @@ struct ApplicationDescriptor
      * The variables defined in the application descriptor.
      *
      **/
-    StringStringDict variables;
+    ["java:type:java.util.TreeMap"] StringStringDict variables;
 
     /**
      *
@@ -602,7 +602,7 @@ struct NodeUpdateDescriptor
      * The variables to update.
      *
      **/
-    StringStringDict variables;
+    ["java:type:java.util.TreeMap"] StringStringDict variables;
 
     /**
      *
@@ -676,7 +676,7 @@ struct ApplicationUpdateDescriptor
      * The variables to update.
      *
      **/
-    StringStringDict variables;
+    ["java:type:java.util.TreeMap"] StringStringDict variables;
 
     /**
      *
