@@ -45,15 +45,6 @@ Package=<4>
     Project_Dep_Name helloiceboxS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name helloicepackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloicepackS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name helloicepacksvc
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name helloS
     End Project Dependency
     Begin Project Dependency
@@ -109,15 +100,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name simplefsS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleicepackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleicepackS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleicepacksvc
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name throughputC
@@ -340,42 +322,6 @@ Package=<4>
 ###############################################################################
 
 Project: "helloiceboxS"=.\icebox\hello\helloiceboxS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "helloicepackC"=.\icepack\hello\helloicepackC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "helloicepackS"=.\icepack\hello\helloicepackS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "helloicepacksvc"=.\icepack\hello\helloicepacksvc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -628,42 +574,6 @@ Package=<4>
 ###############################################################################
 
 Project: "simplefsS"=.\book\simple_filesystem\simplefsS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "simpleicepackC"=.\icepack\simple\simpleicepackC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "simpleicepackS"=.\icepack\simple\simpleicepackS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "simpleicepacksvc"=.\icepack\simple\simpleicepacksvc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
