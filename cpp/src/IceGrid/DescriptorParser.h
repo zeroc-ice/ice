@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICEPACK_DESCRIPTOR_PARSER_H
-#define ICEPACK_DESCRIPTOR_PARSER_H
+#ifndef ICEGRID_DESCRIPTOR_PARSER_H
+#define ICEGRID_DESCRIPTOR_PARSER_H
 
 namespace IceGrid
 {
