@@ -66,26 +66,11 @@ public class MainPane extends JSplitPane
 		if(path != null)
 		{
 		    CommonBase node = (CommonBase)path.getLastPathComponent();
-		    JPopupMenu popup = node.getActions().getPopupMenu();
+		    JPopupMenu popup = node.getPopupMenu();
 		    if(popup != null)
 		    {
+			node.getModel().showActions(node);
 			popup.show(tree, e.getX(), e.getY());
-		    }
-		    else
-		    {
-			//
-			// Undo the getActions() above! 
-			//
-			Model model = node.getModel();
-			CommonBase currentNode = model.getSelectedNode();
-			if(currentNode != null)
-			{
-			    currentNode.getActions();
-			}
-			else
-			{
-			    model.setActions(model.getDefaultActions());
-			}
 		    }
 		}
 	    }
@@ -133,6 +118,7 @@ public class MainPane extends JSplitPane
 		_previousNode = newNode;
 		if(_model.displayEnabled())
 		{
+		    _model.showActions(newNode);
 		    newNode.displayProperties();
 		}
 	    }	    

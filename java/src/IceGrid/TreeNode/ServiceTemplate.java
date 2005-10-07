@@ -10,7 +10,6 @@ package IceGrid.TreeNode;
 
 import IceGrid.SimpleInternalFrame;
 
-import IceGrid.Actions;
 import IceGrid.ServiceDescriptor;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Model;
@@ -28,21 +27,33 @@ class ServiceTemplate extends EditableParent
 	
 	return copy;
     }
-
-    public Actions getActions()
+    
+    //
+    // Actions
+    //
+    public boolean[] getAvailableActions()
     {
-	if(_actions == null)
+	boolean[] actions = new boolean[ACTION_COUNT];
+	actions[COPY] = true;
+	if(_parent.getAvailableActions()[PASTE])
 	{
-	    _actions = new ServiceTemplateActions(_model);
+	    actions[PASTE] = true;
 	}
-	_actions.reset(this);
-	return _actions;
+	actions[DELETE] = true;
+	return actions;
+    }
+    public void copy()
+    {
+	_model.setClipboard(copyDescriptor(_templateDescriptor));
+	_model.getActions()[PASTE].setEnabled(true);
+    }
+    public void paste()
+    {
+	_parent.paste();
     }
 
     public void displayProperties()
     {
-	_model.setActions(getActions());
-
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
 	propertiesFrame.setTitle("Properties for " + _id);
        
@@ -52,8 +63,8 @@ class ServiceTemplate extends EditableParent
 	}
 	_editor.show(this);
 	propertiesFrame.setContent(_editor.getComponent());
-	_model.getMainFrame().validate();
-	_model.getMainFrame().repaint();
+	propertiesFrame.validate();
+	propertiesFrame.repaint();
     }
 
 
@@ -188,12 +199,6 @@ class ServiceTemplate extends EditableParent
 	return result;
     }
 
-    TemplateDescriptor copy()
-    {
-	return copyDescriptor(_templateDescriptor);
-    }
-
-
     public Object saveDescriptor()
     {
 	//
@@ -228,7 +233,5 @@ class ServiceTemplate extends EditableParent
     private PropertiesHolder _propertiesHolder;
     private final boolean _ephemeral;
     
-
     static private ServiceTemplateEditor _editor;
-    static private ServiceTemplateActions _actions;
 }

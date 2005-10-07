@@ -12,10 +12,10 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
-import IceGrid.Actions;
 import IceGrid.Model;
 import IceGrid.ServiceDescriptor;
 import IceGrid.ServiceInstanceDescriptor;
@@ -35,6 +35,65 @@ class Services extends ListParent implements InstanceParent
 	}
 	return copy;
     }
+
+    public boolean[] getAvailableActions()
+    {
+	boolean[] actions = new boolean[ACTION_COUNT];
+	actions[PASTE] = isEditable();
+	actions[NEW_SERVICE] = isEditable();
+	actions[NEW_SERVICE_FROM_TEMPLATE] = isEditable();
+	return actions;
+    }
+
+    public JPopupMenu getPopupMenu()
+    {
+	if(_popup == null)
+	{
+	    _popup = new PopupMenu(_model);
+	    JMenuItem newServiceItem = new JMenuItem(_model.getActions()[NEW_SERVICE]);
+	    newServiceItem.setText("New service");
+	    _popup.add(newServiceItem);
+	    JMenuItem newServiceFromTemplateItem = 
+		new JMenuItem(_model.getActions()[NEW_SERVICE_FROM_TEMPLATE]);
+	    newServiceFromTemplateItem.setText("New service from template");
+	    _popup.add(newServiceFromTemplateItem); 
+	}
+	return _popup;
+    }
+    
+    public void paste()
+    {
+	Object descriptor =  _model.getClipboard();
+	ServiceInstanceDescriptor d = (ServiceInstanceDescriptor)descriptor;
+	newService(Service.copyDescriptor(d));
+    }
+
+    public void newService()
+    {
+	ServiceDescriptor sd = 
+	    new ServiceDescriptor(new java.util.LinkedList(),
+				  new java.util.LinkedList(),
+				  new java.util.LinkedList(),
+				  "",
+				  "NewService",
+				  "");
+	
+	ServiceInstanceDescriptor descriptor = 
+	    new ServiceInstanceDescriptor("",
+					  new java.util.TreeMap(),
+					  sd);
+	newService(descriptor);
+    }
+
+    public void newServiceFromTemplate()
+    {
+	ServiceInstanceDescriptor descriptor = 
+	    new ServiceInstanceDescriptor("",
+					  new java.util.TreeMap(),
+					  null);
+	newService(descriptor);
+    }
+
 
     
     private Service createService(ServiceInstanceDescriptor descriptor,
@@ -187,13 +246,6 @@ class Services extends ListParent implements InstanceParent
 	    assert false;
 	}
 	_model.setSelectionPath(service.getPath());
-    }
-    
-    void paste()
-    {
-	Object descriptor =  _model.getClipboard();
-	ServiceInstanceDescriptor d = (ServiceInstanceDescriptor)descriptor;
-	newService(Service.copyDescriptor(d));
     }
     
     boolean isEditable()
@@ -390,8 +442,8 @@ class Services extends ListParent implements InstanceParent
 	    
 	    //
 	    // Recompute actions
-	    //
-	    service.getActions();
+	    // 
+	    _model.showActions();
 	}
     }
 
@@ -475,19 +527,8 @@ class Services extends ListParent implements InstanceParent
 	}
     }
 
-    public Actions getActions()
-    {
-	if(_actions == null)
-	{
-	    _actions = new ServicesActions(_model);
-	}
-	_actions.reset(this);
-	return _actions;
-    }
-
-
     private final boolean _isEditable;
     private final Utils.Resolver _resolver;
 
-    static private ServicesActions _actions;
+    static private JPopupMenu _popup;
 }

@@ -12,25 +12,64 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
-import IceGrid.Actions;
 import IceGrid.Model;
 import IceGrid.ServiceDescriptor;
 import IceGrid.TemplateDescriptor;
 
 class ServiceTemplates extends Templates
 {
-    public Actions getActions()
+    //
+    // Actions
+    //
+    public boolean[] getAvailableActions()
     {
-	if(_actions == null)
+	boolean[] actions = new boolean[ACTION_COUNT];
+	actions[NEW_TEMPLATE_SERVICE] = true;
+	
+	Object clipboard = _model.getClipboard();
+	if(clipboard != null && clipboard instanceof TemplateDescriptor)
 	{
-	    _actions = new ServiceTemplatesActions(_model);
+	    TemplateDescriptor d = (TemplateDescriptor)clipboard;
+	    actions[PASTE] = d.descriptor instanceof ServiceDescriptor;
 	}
-	_actions.reset(this);
-	return _actions;
+	return actions;
     }
+    public JPopupMenu getPopupMenu()
+    {
+	if(_popup == null)
+	{
+	    _popup = new PopupMenu(_model);
+	    JMenuItem item = new JMenuItem(_model.getActions()[NEW_TEMPLATE_SERVICE]);
+	    item.setText("New service template");
+	    _popup.add(item);
+	}
+	return _popup;
+    }
+    public void newTemplateService()
+    {
+	ServiceDescriptor sd = new ServiceDescriptor(
+	    new java.util.LinkedList(),
+	    new java.util.LinkedList(),
+	    new java.util.LinkedList(),
+	    "",
+	    "",
+	    "");
+	    
+	newServiceTemplate(new TemplateDescriptor(
+			       sd, new java.util.LinkedList(), new java.util.TreeMap()));
+
+    }
+    public void paste()
+    {
+	Object descriptor =  _model.getClipboard();
+	TemplateDescriptor td = (TemplateDescriptor)descriptor;
+	newServiceTemplate(td);
+    }
+
 
     ServiceTemplates(java.util.Map descriptors, Model model)
 	throws UpdateFailedException
@@ -72,20 +111,6 @@ class ServiceTemplates extends Templates
 	}
     }
 
-    void newServiceTemplate()
-    {
-	ServiceDescriptor sd = new ServiceDescriptor(
-	    new java.util.LinkedList(),
-	    new java.util.LinkedList(),
-	    new java.util.LinkedList(),
-	    "",
-	    "",
-	    "");
-	    
-	newServiceTemplate(new TemplateDescriptor(
-			       sd, new java.util.LinkedList(), new java.util.TreeMap()));
-    }
-
     void newServiceTemplate(TemplateDescriptor descriptor)
     {
 	String id = makeNewChildId("NewServiceTemplate");
@@ -100,13 +125,6 @@ class ServiceTemplates extends Templates
 	    assert false;
 	}
 	_model.setSelectionPath(t.getPath());
-    }
-
-    void paste()
-    {
-	Object descriptor =  _model.getClipboard();
-	TemplateDescriptor td = (TemplateDescriptor)descriptor;
-	newServiceTemplate(td);
     }
 
     boolean tryAdd(String newId, TemplateDescriptor descriptor)
@@ -228,5 +246,5 @@ class ServiceTemplates extends Templates
   
     private java.util.Map _descriptors;
 
-    static private ServiceTemplatesActions _actions;
+    static private JPopupMenu _popup;
 }

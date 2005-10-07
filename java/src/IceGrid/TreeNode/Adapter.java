@@ -14,13 +14,54 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import IceGrid.SimpleInternalFrame;
 
-import IceGrid.Actions;
 import IceGrid.AdapterDescriptor;
 import IceGrid.Model;
 import IceGrid.Utils;
 
 class Adapter extends Leaf
 {
+    static public AdapterDescriptor copyDescriptor(AdapterDescriptor d)
+    {
+	return (AdapterDescriptor)d.clone();
+    }
+
+    //
+    // Actions
+    //
+    public boolean[] getAvailableActions()
+    {
+	boolean[] actions = new boolean[ACTION_COUNT];
+	actions[COPY] = true;
+	
+	if(_parent.getAvailableActions()[PASTE])
+	{
+	    actions[PASTE] = true;
+	}
+	if(isEditable())
+	{
+	    actions[DELETE] = true;
+	}
+	
+	if(_resolver != null && !_ephemeral)
+	{
+	    actions[SUBSTITUTE_VARS] = true;
+	}
+	return actions;
+    }
+
+    public void copy()
+    {
+	_model.setClipboard(copyDescriptor(_descriptor));
+	if(_parent.getAvailableActions()[PASTE])
+	{
+	    _model.getActions()[PASTE].setEnabled(true);
+	}
+    }
+    public void paste()
+    {
+	_parent.paste();
+    }
+
     //
     // Overridden to show tooltip
     //
@@ -46,20 +87,8 @@ class Adapter extends Leaf
 	    tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-    public Actions getActions()
-    {
-	if(_actions == null)
-	{
-	    _actions = new AdapterActions(_model);
-	}
-	_actions.reset(this);
-	return _actions;
-    }
-
     public void displayProperties()
     {
-	_model.setActions(getActions());
-
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
 	
 	propertiesFrame.setTitle("Properties for " + _id);
@@ -71,8 +100,8 @@ class Adapter extends Leaf
 	_editor.show(this);
 	propertiesFrame.setContent(_editor.getComponent());
 
-	_model.getMainFrame().validate();
-	_model.getMainFrame().repaint();
+	propertiesFrame.validate();
+	propertiesFrame.repaint();
     }
 
     public boolean destroy()
@@ -81,7 +110,6 @@ class Adapter extends Leaf
 	    ((ListParent)_parent).destroyChild(this);
     }
 
-   
     public void setParent(CommonBase parent)
     {
 	if(_resolver != null)
@@ -115,13 +143,6 @@ class Adapter extends Leaf
 	}
     }
 
-    
-    
-    static public AdapterDescriptor copyDescriptor(AdapterDescriptor d)
-    {
-	return (AdapterDescriptor)d.clone();
-    }
-
     public Object getDescriptor()
     {
 	return _descriptor;
@@ -143,11 +164,7 @@ class Adapter extends Leaf
 	_descriptor.objects = ad.objects;
     }
     
-    Object copy()
-    {
-	return copyDescriptor(_descriptor);
-    }
-
+   
     Adapter(String adapterName, AdapterDescriptor descriptor,
 	    Utils.Resolver resolver, Model model)
     {
@@ -248,6 +265,4 @@ class Adapter extends Leaf
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private AdapterEditor _editor;
-    static private AdapterActions _actions;
-
 }

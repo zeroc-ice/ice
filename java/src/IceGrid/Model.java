@@ -25,6 +25,7 @@ import java.awt.event.ItemListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -53,7 +54,7 @@ import IceGrid.TreeNode.Root;
 
 public class Model
 {
-    public static class ConnectInfo
+    static public class ConnectInfo
     {
 	ConnectInfo(Preferences connectionPrefs, 
 		    Ice.Communicator communicator)
@@ -100,6 +101,151 @@ public class Model
 	
 	private Preferences _connectionPrefs;
     }
+
+    private class MenuBar extends JMenuBar
+    {
+	private MenuBar()
+	{
+	    putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
+	    putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
+
+	    //
+	    // File menu
+	    // 
+	    JMenu fileMenu = new JMenu("File");
+	    fileMenu.setMnemonic(java.awt.event.KeyEvent.VK_F);
+	    add(fileMenu);
+
+	    //
+	    // New sub-menu
+	    //
+	    JMenu newMenu = new JMenu("New");
+	    fileMenu.add(newMenu);
+	    newMenu.add(_newApplication);
+	    newMenu.addSeparator();
+	    newMenu.add(_actions[CommonBase.NEW_ADAPTER]);
+	    newMenu.add(_actions[CommonBase.NEW_DBENV]);
+	    newMenu.add(_actions[CommonBase.NEW_NODE]);
+	    newMenu.add(_actions[CommonBase.NEW_REPLICA_GROUP]);
+	    
+	    //
+	    // New server sub-sub-menu
+	    //
+	    JMenu newServer = new JMenu("Server");
+	    newMenu.add(newServer);
+	    newServer.add(_actions[CommonBase.NEW_SERVER]);
+	    newServer.add(_actions[CommonBase.NEW_SERVER_ICEBOX]);
+	    newServer.add(_actions[CommonBase.NEW_SERVER_FROM_TEMPLATE]);
+	    
+	    //
+	    // New service sub-sub-menu
+	    //
+	    JMenu newService = new JMenu("Service");
+	    newMenu.add(newService);
+	    newService.add(_actions[CommonBase.NEW_SERVICE]);
+	    newService.add(_actions[CommonBase.NEW_SERVICE_FROM_TEMPLATE]);
+
+	    //
+	    // New template sub-sub-menu
+	    //
+	    JMenu newTemplate = new JMenu("Template");
+	    newMenu.add(newTemplate);
+	    newTemplate.add(_actions[CommonBase.NEW_TEMPLATE_SERVER]);
+	    newTemplate.add(_actions[CommonBase.NEW_TEMPLATE_SERVER_ICEBOX]);
+	    newTemplate.add(_actions[CommonBase.NEW_TEMPLATE_SERVICE]);
+	    
+	    fileMenu.addSeparator();
+	    fileMenu.add(_connect);
+	    fileMenu.addSeparator();
+	    fileMenu.add(_save);
+	    fileMenu.add(_discard);
+	    fileMenu.addSeparator();
+	    fileMenu.add(_exit);
+	   
+	    //
+	    // Edit menu
+	    //
+	    JMenu editMenu = new JMenu("Edit");
+	    editMenu.setMnemonic(java.awt.event.KeyEvent.VK_E);
+	    add(editMenu);
+	    editMenu.add(_actions[CommonBase.COPY]);
+	    editMenu.add(_actions[CommonBase.PASTE]);
+	    editMenu.addSeparator();
+	    editMenu.add(_actions[CommonBase.DELETE]);
+
+	    //
+	    // View menu
+	    //
+	    JMenu viewMenu = new JMenu("View");
+	    viewMenu.setMnemonic(java.awt.event.KeyEvent.VK_V);
+	    add(viewMenu);
+	    viewMenu.add(_substituteMenuItem);
+	    
+	    //
+	    // Tools menu
+	    //
+	    JMenu toolsMenu = new JMenu("Tools");
+	    toolsMenu.setMnemonic(java.awt.event.KeyEvent.VK_T);
+	    add(toolsMenu);
+	    
+	    //
+	    // Server sub-menu
+	    //
+	    JMenu serverMenu = new JMenu("Server");
+	    toolsMenu.add(serverMenu);
+	    serverMenu.add(_actions[CommonBase.START]);
+	    serverMenu.add(_actions[CommonBase.STOP]);
+	    serverMenu.addSeparator();
+	    serverMenu.add(_actions[CommonBase.ENABLE]);
+	    serverMenu.add(_actions[CommonBase.DISABLE]);
+
+	    //
+	    // Service sub-menu
+	    //
+	    JMenu serviceMenu = new JMenu("Service");
+	    toolsMenu.add(serviceMenu);
+	    serviceMenu.add(_actions[CommonBase.MOVE_UP]);
+	    serviceMenu.add(_actions[CommonBase.MOVE_DOWN]);
+
+	    //
+	    // Help menu
+	    //
+	    JMenu helpMenu = new JMenu("Help");
+	    helpMenu.setMnemonic(java.awt.event.KeyEvent.VK_H);
+	    add(helpMenu);
+	    helpMenu.add(_about);
+	}
+    }
+
+
+    private class ToolBar extends JToolBar
+    {
+	private ToolBar()
+	{
+	    putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
+	    putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
+	    setFloatable(false);
+	    putClientProperty("JToolBar.isRollover", Boolean.TRUE);
+
+	    add(_connect);
+	    addSeparator();
+	    add(_save);
+	    add(_discard);
+	    addSeparator();
+	    add(_actions[CommonBase.COPY]);
+	    add(_actions[CommonBase.PASTE]);
+	    addSeparator();
+	    add(_actions[CommonBase.DELETE]);
+	    addSeparator();
+	    add(_substituteTool );
+	}
+    }
+    
+
+
+
+
+
 
     //
     // All Model's methods run in the UI thread
@@ -565,9 +711,21 @@ public class Model
 	return true;
     }  
 
-    void toggleSubstitute()
+    public void toggleSubstitute()
     {
 	_substitute = !_substitute;
+
+	//
+	// Synchronize the other button
+	//
+	if(_substituteMenuItem.isSelected() != _substitute)
+	{
+	    _substituteMenuItem.setSelected(_substitute);
+	}
+	if(_substituteTool.isSelected() != _substitute)
+	{
+	    _substituteTool.setSelected(_substitute);
+	}
 	
 	CommonBase node = (CommonBase)_tree.getLastSelectedPathComponent();
 	if(node != null)
@@ -601,6 +759,8 @@ public class Model
     public void setTree(JTree tree)
     {
 	_tree = tree;
+	_tree.getActionMap().put("copy", _actions[CommonBase.COPY]);
+	_tree.getActionMap().put("paste",  _actions[CommonBase.PASTE]);
     }
 
     public JTree getTree()
@@ -634,9 +794,19 @@ public class Model
 	_root = new Root(this);
 	_treeModel = new TreeModelI(_root);
 
+	
 	//
-	// Actions
+	// Common actions (nodes not involved)
 	//
+
+	_newApplication = new AbstractAction("Application")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    newApplication();
+		}
+	    };
+
 	_connect = new AbstractAction("Connect...", Utils.getIcon("/icons/connect.gif"))
 	    {
 		public void actionPerformed(ActionEvent e) 
@@ -644,6 +814,7 @@ public class Model
 		    connect();
 		}
 	    };
+	_connect.putValue(Action.SHORT_DESCRIPTION, "Connect");
 
 
 	_save = new AbstractAction("Save", Utils.getIcon("/icons/save_edit.gif"))
@@ -655,7 +826,8 @@ public class Model
 	    };
 	_save.setEnabled(false);
 	_save.putValue(Action.ACCELERATOR_KEY, 
-			     KeyStroke.getKeyStroke("ctrl S"));  
+			     KeyStroke.getKeyStroke("ctrl S"));
+	_save.putValue(Action.SHORT_DESCRIPTION, "Save to IceGrid registry");
 	
 	_discard = new AbstractAction("Discard all updates...", 
 				      Utils.getIcon("/icons/undo_edit.gif"))
@@ -666,6 +838,7 @@ public class Model
 		}
 	    };
 	_discard.setEnabled(false);
+	_save.putValue(Action.SHORT_DESCRIPTION, "Discard all updates");
 
 	_exit = new AbstractAction("Exit")
 	    {
@@ -683,19 +856,213 @@ public class Model
 		    // TODO: implement
 		}
 	    };
-   
-	_substituteVar = new AbstractAction("${}")
+
+
+	//
+	// Actions implemented by the nodes
+	//
+	_actions = new Action[CommonBase.ACTION_COUNT];
+
+	_actions[CommonBase.NEW_ADAPTER] = new AbstractAction("Adapter")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    toggleSubstitute();
+		    _actionsTarget.newAdapter();
 		}
 	    };
-	_substituteVar.putValue(Action.SHORT_DESCRIPTION, 
-				"Substitute variables and parameters in servers' properties");
+
+	_actions[CommonBase.NEW_DBENV] = new AbstractAction("Database environment")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.newDbEnv();
+		}
+	    };
+	
+	_actions[CommonBase.NEW_NODE] = new AbstractAction("Node")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.newNode();
+		}
+	    };
+
+	_actions[CommonBase.NEW_REPLICA_GROUP] = new AbstractAction("Replica group")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.newReplicaGroup();
+		}
+	    };
+
+	_actions[CommonBase.NEW_SERVER] = new AbstractAction("Server")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.newServer();
+		}
+	    };
+
+	_actions[CommonBase.NEW_SERVER_ICEBOX] = new AbstractAction("IceBox server")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.newServerIceBox();
+		}
+	    };
+
+	_actions[CommonBase.NEW_SERVER_FROM_TEMPLATE] = new AbstractAction("Server from template")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.newServerFromTemplate();
+		}
+	    };
 
 
-	_defaultActions = new Actions(this);
+	_actions[CommonBase.NEW_SERVICE] = new AbstractAction("Service")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.newService();
+		}
+	    };
+
+	_actions[CommonBase.NEW_SERVICE_FROM_TEMPLATE] = new AbstractAction("Service from template")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.newServiceFromTemplate();
+		}
+	    };
+
+	_actions[CommonBase.NEW_TEMPLATE_SERVER] = new AbstractAction("Server template")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.newTemplateServer();
+		}
+	    };
+	
+	_actions[CommonBase.NEW_TEMPLATE_SERVER_ICEBOX] = new AbstractAction("IceBox server template")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.newTemplateServerIceBox();
+		}
+	    };
+
+
+	_actions[CommonBase.NEW_TEMPLATE_SERVICE] = new AbstractAction("Service template")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.newTemplateService();
+		}
+	    };
+	
+	
+	_actions[CommonBase.COPY] = new AbstractAction("Copy", Utils.getIcon("/icons/copy_edit.gif"))
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.copy();
+		}
+	    };
+	_actions[CommonBase.COPY].putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl C"));
+	_actions[CommonBase.COPY].putValue(Action.SHORT_DESCRIPTION, "Copy");
+
+	_actions[CommonBase.PASTE] = new AbstractAction("Paste", Utils.getIcon("/icons/paste_edit.gif"))
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.paste();
+		}
+	    };
+	_actions[CommonBase.PASTE].putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl V"));
+	_actions[CommonBase.PASTE].putValue(Action.SHORT_DESCRIPTION, "Paste");
+
+	_actions[CommonBase.DELETE] = new AbstractAction("Delete", Utils.getIcon("/icons/delete_edit.gif"))
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.delete();
+		}
+	    };
+	_actions[CommonBase.DELETE].putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));
+	_actions[CommonBase.DELETE].putValue(Action.SHORT_DESCRIPTION, "Delete");
+   
+	_actions[CommonBase.SUBSTITUTE_VARS] = new 
+	    AbstractAction("Substitute variables")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.substituteVars();
+		}
+	    };
+	_actions[CommonBase.SUBSTITUTE_VARS].putValue(
+	    Action.SHORT_DESCRIPTION, 
+	    "Substitute variables and parameters in servers' properties");
+	_substituteMenuItem = new
+	    JCheckBoxMenuItem(_actions[CommonBase.SUBSTITUTE_VARS]);
+	_substituteTool = new 
+	    JToggleButton(_actions[CommonBase.SUBSTITUTE_VARS]);
+
+	_actions[CommonBase.MOVE_UP] = new AbstractAction("Move up")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.moveUp();
+		}
+	    };
+
+	_actions[CommonBase.MOVE_DOWN] = new AbstractAction("Move down")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.moveDown();
+		}
+	    };
+
+	_actions[CommonBase.START] = new AbstractAction("Start")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.start();
+		}
+	    };
+
+	_actions[CommonBase.STOP] = new AbstractAction("Stop")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.stop();
+		}
+	    };
+
+	_actions[CommonBase.ENABLE] = new AbstractAction("Enable")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.enable();
+		}
+	    };
+	
+	_actions[CommonBase.DISABLE] = new AbstractAction("Disable")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.disable();
+		}
+	    };
+	
+    }
+
+    //
+    // New application action
+    //
+    private void newApplication()
+    {
     }
 
     //
@@ -787,8 +1154,6 @@ public class Model
 	return _clipboard; 
     }
 
-
-
     void showMainFrame()
     {
 	if(!loadWindowPrefs())
@@ -864,68 +1229,56 @@ public class Model
 	return _sessionKeeper;
     }
 
-    public Actions getDefaultActions()
-    {
-	return _defaultActions;
-    }
-
-    public void setActions(Actions actions)
-    {
-	_mainFrame.setJMenuBar(actions.getMenuBar());
-	if(_currentActions != null)
-	{
-	    _mainFrame.getContentPane().remove(_currentActions.getToolBar());
-	}
-	_currentActions = actions;
-	_mainFrame.getContentPane().add(_currentActions.getToolBar(), 
-					BorderLayout.PAGE_START);
-	
-	_tree.getActionMap().put("copy", _currentActions.getCopyAction());
-	_tree.getActionMap().put("paste", _currentActions.getPasteAction());
-    }
-
-    void addFileMenu(JMenuBar menuBar)
-    {
-	JMenu fileMenu = new JMenu("File");
-	fileMenu.setMnemonic(java.awt.event.KeyEvent.VK_F);
-	menuBar.add(fileMenu);
-	
-	fileMenu.add(_connect);
-	fileMenu.addSeparator();
-	fileMenu.add(_save);
-	fileMenu.add(_discard);
-	fileMenu.addSeparator();
-	fileMenu.add(_exit);
-    }
-
-    void addHelpMenu(JMenuBar menuBar)
-    {
-	JMenu helpMenu = new JMenu("Help");
-	helpMenu.setMnemonic(java.awt.event.KeyEvent.VK_H);
-	menuBar.add(helpMenu);
-	helpMenu.add(_about);
-    }
-
-    void addTools(JToolBar toolBar)
-    {
-	toolBar.add(_connect);
-	toolBar.addSeparator();
-	toolBar.add(_save);
-	toolBar.add(_discard);
-    }
-
     Preferences getPrefs()
     {
 	return _prefs;
     }
 
-
-   
-
-    public Action getSubstituteVarAction()
+    
+    public Action[] getActions()
     {
-	return _substituteVar;
+	return _actions;
     }
+
+    public void showActions()
+    {
+	showActions(_actionsTarget);
+    }
+    public void showActions(CommonBase node)
+    {
+	_actionsTarget = node;
+
+	boolean[] availableActions;
+	if(node == null)
+	{
+	    availableActions = new boolean[CommonBase.ACTION_COUNT];
+	}
+	else
+	{   
+	    availableActions = node.getAvailableActions();
+	}
+
+	for(int i = 0; i < _actions.length; ++i)
+	{
+	    _actions[i].setEnabled(availableActions[i]);
+	}
+	
+	//
+	// TODO: enable/disable some menus
+	//
+    }
+    
+    void createMenuBar()
+    {
+	_mainFrame.setJMenuBar(new MenuBar());
+    }
+
+    void createToolBar()
+    {
+	_mainFrame.getContentPane().add(new ToolBar(),
+					BorderLayout.PAGE_START);
+    }
+
 
     private Ice.Communicator _communicator;
     private Preferences _prefs;
@@ -952,14 +1305,20 @@ public class Model
 
     private Object _clipboard;
 
-    private Actions _defaultActions;
-    private Actions _currentActions;
-
+    //
+    // Actions
+    //
+    private Action _newApplication;
     private Action _connect;
     private Action _save;
     private Action _discard;
     private Action _exit;
     private Action _about;
 
-    private Action _substituteVar;
+    private Action[] _actions;
+    private JToggleButton _substituteTool;
+    private JCheckBoxMenuItem _substituteMenuItem;
+    
+    private CommonBase _actionsTarget;
+
 }

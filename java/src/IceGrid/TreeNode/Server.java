@@ -38,7 +38,6 @@ import com.jgoodies.forms.layout.Sizes;
 import com.jgoodies.forms.util.LayoutStyle;
 import IceGrid.SimpleInternalFrame;
 
-import IceGrid.Actions;
 import IceGrid.AdapterDescriptor;
 import IceGrid.IceBoxDescriptor;
 import IceGrid.Model;
@@ -154,21 +153,128 @@ class Server extends EditableParent
 	    new java.util.LinkedList()
 	    );
     }
-
-    public Actions getActions()
+    
+    //
+    // Actions
+    //
+    public boolean[] getAvailableActions()
     {
-	if(_actions == null)
+	boolean[] actions = new boolean[ACTION_COUNT];
+	actions[COPY] = true;
+	
+	Object clipboard = _model.getClipboard();
+	if(clipboard != null && (clipboard instanceof ServerDescriptor
+				 || clipboard instanceof ServerInstanceDescriptor))
 	{
-	    _actions = new ServerActions(_model);
+	    actions[PASTE] = true;
 	}
-	_actions.reset(this);
-	return _actions;
-    }
 
+	actions[DELETE] = true;
+	actions[SUBSTITUTE_VARS] = true;
+	actions[START] = getState() == ServerState.Inactive 
+	    && _enabled;
+	actions[STOP] = getState() != ServerState.Inactive;
+	actions[ENABLE] = !_enabled;
+	actions[DISABLE] = _enabled;
+
+	return actions;
+    }
+    public JPopupMenu getPopupMenu()
+    {
+	if(_popup == null)
+	{
+	    _popup = new PopupMenu(_model);
+	    _popup.add(_model.getActions()[START]);
+	    _popup.add(_model.getActions()[STOP]);
+	    _popup.addSeparator();
+	    _popup.add(_model.getActions()[ENABLE]);
+	    _popup.add(_model.getActions()[DISABLE]);
+	}
+	return _popup;
+    }
+    public void copy()
+    {
+	if(_instanceDescriptor != null)
+	{
+	    _model.setClipboard(copyDescriptor(_instanceDescriptor));
+	}
+	else
+	{
+	    _model.setClipboard(copyDescriptor(_serverDescriptor));
+	}
+	_model.getActions()[PASTE].setEnabled(true);
+    }
+    public void paste()
+    {
+	_parent.paste();
+    }
+    public void start()
+    {
+	//
+	// TODO: if this can take a long time, make the invocation in a separate thread
+	//
+
+	boolean started = false;
+	try
+	{
+	    _model.getStatusBar().setText("Starting server '" + _id + "'...");
+	    started = _model.getAdmin().startServer(_id);
+	}
+	catch(IceGrid.ServerNotExistException e)
+	{
+	    _model.getStatusBar().setText("Server '" + _id + "' no longer exists.");
+	}
+	catch(IceGrid.NodeUnreachableException e)
+	{
+	    _model.getStatusBar().setText("Could not reach the node for server '" + _id 
+					  + "'.");
+	}
+	catch(Ice.LocalException e)
+	{
+	    _model.getStatusBar().setText("Starting server '" + _id + "'... failed: " 
+					  + e.toString());
+	}
+	if(started)
+	{
+	    _model.getStatusBar().setText("Starting server '" + _id + "'... success!");
+	}
+	else
+	{
+	    _model.getStatusBar().setText("Starting server '" + _id + "'... failed!");
+	}
+    }
+    public void stop()
+    {
+	try
+	{
+	    _model.getStatusBar().setText("Stopping server '" + _id + "'...");
+	    _model.getAdmin().stopServer(_id);
+	}
+	catch(IceGrid.ServerNotExistException e)
+	{
+	    _model.getStatusBar().setText("Server '" + _id + "' no longer exists.");
+	}
+	catch(IceGrid.NodeUnreachableException e)
+	{
+	    _model.getStatusBar().setText("Could not reach the node for server '" 
+					  + _id + "'.");
+	}
+	catch(Ice.LocalException e)
+	{
+	    _model.getStatusBar().setText("Stopping server '" + _id + "'... failed: " 
+					  + e.toString());
+	}
+	_model.getStatusBar().setText("Stopping server '" + _id + "'... done.");
+    }
+    public void enable()
+    {
+    }
+    public void disable()
+    {
+    }
+    
     public void displayProperties()
     {
-	_model.setActions(getActions());
-
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
 	propertiesFrame.setTitle("Properties for " + _id);
 	
@@ -195,8 +301,8 @@ class Server extends EditableParent
 	    propertiesFrame.setContent(_serverInstanceEditor.getComponent());
 	}
 
-	_model.getMainFrame().validate();
-	_model.getMainFrame().repaint();
+	propertiesFrame.validate();
+	propertiesFrame.repaint();
     }
 	
 
@@ -265,17 +371,7 @@ class Server extends EditableParent
 	}
     }
 
-    public Object copy()
-    {
-	if(_instanceDescriptor != null)
-	{
-	    return copyDescriptor(_instanceDescriptor);
-	}
-	else
-	{
-	    return copyDescriptor(_serverDescriptor);
-	}
-    }
+   
 
     //
     // Builds the server and all its sub-tree
@@ -421,80 +517,6 @@ class Server extends EditableParent
 	}
     }
 
-    void start()
-    {
-	//
-	// TODO: if this can take a long time, make the invocation in a separate thread
-	//
-
-	boolean started = false;
-	try
-	{
-	    _model.getStatusBar().setText("Starting server '" + _id + "'...");
-	    started = _model.getAdmin().startServer(_id);
-	}
-	catch(IceGrid.ServerNotExistException e)
-	{
-	    _model.getStatusBar().setText("Server '" + _id + "' no longer exists.");
-	}
-	catch(IceGrid.NodeUnreachableException e)
-	{
-	    _model.getStatusBar().setText("Could not reach the node for server '" + _id 
-					  + "'.");
-	}
-	catch(Ice.LocalException e)
-	{
-	    _model.getStatusBar().setText("Starting server '" + _id + "'... failed: " 
-					  + e.toString());
-	}
-	if(started)
-	{
-	    _model.getStatusBar().setText("Starting server '" + _id + "'... success!");
-	}
-	else
-	{
-	    _model.getStatusBar().setText("Starting server '" + _id + "'... failed!");
-	}
-    }
-
-    void stop()
-    {
-	try
-	{
-	    _model.getStatusBar().setText("Stopping server '" + _id + "'...");
-	    _model.getAdmin().stopServer(_id);
-	}
-	catch(IceGrid.ServerNotExistException e)
-	{
-	    _model.getStatusBar().setText("Server '" + _id + "' no longer exists.");
-	}
-	catch(IceGrid.NodeUnreachableException e)
-	{
-	    _model.getStatusBar().setText("Could not reach the node for server '" 
-					  + _id + "'.");
-	}
-	catch(Ice.LocalException e)
-	{
-	    _model.getStatusBar().setText("Stopping server '" + _id + "'... failed: " 
-					  + e.toString());
-	}
-	_model.getStatusBar().setText("Stopping server '" + _id + "'... done.");
-    }
-
-    boolean isEnabled()
-    {
-	return true;
-    }
-
-    void enable()
-    {
-    }
-
-    void disable()
-    {
-    }
-
-
     ServerState getState()
     {
 	return _state;
@@ -558,6 +580,7 @@ class Server extends EditableParent
     }
 
     private ServerState _state = null;
+    private boolean _enabled = true;
     private int _stateIconIndex = 0;
     private int _pid = 0;
     private String _toolTip = toolTip(_state, _pid);
@@ -578,9 +601,8 @@ class Server extends EditableParent
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon[] _icons;
-  
-    static private ServerActions _actions;
-
+ 
     static private ServerEditor _serverEditor;
     static private ServerInstanceEditor _serverInstanceEditor;
+    static private JPopupMenu _popup;
 }

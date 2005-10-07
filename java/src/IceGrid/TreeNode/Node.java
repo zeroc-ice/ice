@@ -746,13 +746,6 @@ class Node extends EditableParent implements InstanceParent
 	}
     }
 
-    void paste()
-    {
-	//
-	// TODO: implement
-	//
-    }
-
     Utils.Resolver getResolver()
     {
 	return _resolver;

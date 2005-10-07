@@ -8,25 +8,71 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 
-import IceGrid.Actions;
 import IceGrid.IceBoxDescriptor;
 import IceGrid.Model;
+import IceGrid.ServerDescriptor;
 import IceGrid.TemplateDescriptor;
-import IceGrid.TreeModelI;
 
 class ServerTemplates extends Templates
 {
-    public Actions getActions()
+    //
+    // Actions
+    //
+    public boolean[] getAvailableActions()
     {
-	if(_actions == null)
+	boolean[] actions = new boolean[ACTION_COUNT];
+	actions[NEW_TEMPLATE_SERVER] = true;
+	actions[NEW_TEMPLATE_SERVER_ICEBOX] = true;
+	
+	Object clipboard = _model.getClipboard();
+	if(clipboard != null && clipboard instanceof TemplateDescriptor)
 	{
-	    _actions = new ServerTemplatesActions(_model);
+	    TemplateDescriptor d = (TemplateDescriptor)clipboard;
+	    actions[PASTE] = d.descriptor instanceof ServerDescriptor;
 	}
-	_actions.reset(this);
-	return _actions;
+	return actions;
     }
+    public JPopupMenu getPopupMenu()
+    {
+	if(_popup == null)
+	{
+	    _popup = new PopupMenu(_model);
+	    JMenuItem newServerItem = new JMenuItem(_model.getActions()[NEW_TEMPLATE_SERVER]);
+	    newServerItem.setText("New server template");
+	    _popup.add(newServerItem);
+	    JMenuItem newIceBoxItem = 
+		new JMenuItem(_model.getActions()[NEW_TEMPLATE_SERVER_ICEBOX]);
+	    newIceBoxItem.setText("New IceBox server template");
+	    _popup.add(newIceBoxItem); 
+	}
+	return _popup;
+    }
+    public void newTemplateServer()
+    {
+	newServerTemplate(new TemplateDescriptor(
+			      Server.newServerDescriptor(), 
+			      new java.util.LinkedList(),
+			      new java.util.TreeMap()));
+    }
+    public void newTemplateServerIceBox()
+    {
+	newServerTemplate(new TemplateDescriptor(
+			      Server.newIceBoxDescriptor(), 
+			      new java.util.LinkedList(),
+			      new java.util.TreeMap()));
+    }
+    public void paste()
+    {
+	Object descriptor =  _model.getClipboard();
+	TemplateDescriptor td = (TemplateDescriptor)descriptor;
+	newServerTemplate(td);
+    }
+
+
 
     ServerTemplates(java.util.Map descriptors, Application application)
 	throws UpdateFailedException
@@ -130,23 +176,6 @@ class ServerTemplates extends Templates
 	}
     }
     
-    void newServerTemplate()
-    {
-	newServerTemplate(new TemplateDescriptor(
-			      Server.newServerDescriptor(), 
-			      new java.util.LinkedList(),
-			      new java.util.TreeMap()));
-    }
-
-    void newIceBoxTemplate()
-    {
-	newServerTemplate(new TemplateDescriptor(
-			      Server.newIceBoxDescriptor(), 
-			      new java.util.LinkedList(),
-			      new java.util.TreeMap()));
-    }
-
-
     void newServerTemplate(TemplateDescriptor descriptor)
     {
 	String id;
@@ -169,13 +198,6 @@ class ServerTemplates extends Templates
 	    assert false;
 	}
 	_model.setSelectionPath(t.getPath());
-    }
-
-    void paste()
-    {
-	Object descriptor =  _model.getClipboard();
-	TemplateDescriptor td = (TemplateDescriptor)descriptor;
-	newServerTemplate(td);
     }
 
     boolean tryAdd(String newId, TemplateDescriptor descriptor)
@@ -259,5 +281,5 @@ class ServerTemplates extends Templates
     }
 
     private java.util.Map _descriptors;
-    static private ServerTemplatesActions _actions;
+    static private JPopupMenu _popup;
 }

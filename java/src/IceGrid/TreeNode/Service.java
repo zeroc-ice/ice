@@ -8,9 +8,10 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import javax.swing.JPopupMenu;
+
 import IceGrid.SimpleInternalFrame;
 
-import IceGrid.Actions;
 import IceGrid.Model;
 import IceGrid.ServiceDescriptor;
 import IceGrid.ServiceInstanceDescriptor;
@@ -45,6 +46,62 @@ class Service extends Parent
 	//
 	copy.properties = (java.util.LinkedList)copy.properties.clone();
 	return copy;
+    }
+
+    //
+    // Actions
+    //
+    public boolean[] getAvailableActions()
+    {
+	boolean[] actions = new boolean[ACTION_COUNT];
+	actions[COPY] = true;
+	
+	if(_parent.getAvailableActions()[PASTE])
+	{
+	    actions[PASTE] = true;
+	}
+	if(isEditable())
+	{
+	    actions[DELETE] = true;
+	}
+	
+	if(_resolver != null && !_ephemeral)
+	{
+	    actions[SUBSTITUTE_VARS] = true;
+	}
+	
+	actions[MOVE_UP] = canMoveUp();
+	actions[MOVE_DOWN] = canMoveDown();
+	return actions;
+    }
+    public JPopupMenu getPopupMenu()
+    {
+	if(_popup == null)
+	{
+	    _popup = new PopupMenu(_model);
+	    _popup.add(_model.getActions()[MOVE_UP]);
+	    _popup.add(_model.getActions()[MOVE_DOWN]);
+	}
+	return _popup;
+    }
+    public void copy()
+    {
+	_model.setClipboard(copyDescriptor(_instanceDescriptor));
+	_model.getActions()[PASTE].setEnabled(true);
+    }
+    public void paste()
+    {
+	_parent.paste();
+    }
+    public void moveUp()
+    {
+	assert canMoveUp();
+	((Services)_parent).move(this, true);
+    }
+    public void moveDown()
+    {
+	assert canMoveDown();
+	((Services)_parent).move(this, false);
     }
 
     public Object getDescriptor()
@@ -82,31 +139,14 @@ class Service extends Parent
 	}
     }
 
-    Object copy()
-    {
-	return copyDescriptor(_instanceDescriptor);
-    }
-
     public boolean destroy()
     {
 	return _parent == null ? false : 
 	    ((ListParent)_parent).destroyChild(this);
     }
 
-    public Actions getActions()
-    {
-	if(_actions == null)
-	{
-	    _actions = new ServiceActions(_model);
-	}
-	_actions.reset(this);
-	return _actions;
-    }
-
     public void displayProperties()
     {
-	_model.setActions(getActions());
-
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
 	propertiesFrame.setTitle("Properties for " + _id);
 	
@@ -128,8 +168,8 @@ class Service extends Parent
 	    _editor.show(this);
 	    propertiesFrame.setContent(_editor.getComponent());
 	}
-	_model.getMainFrame().validate();
-	_model.getMainFrame().repaint();
+	propertiesFrame.validate();
+	propertiesFrame.repaint();
     }
 
     public String toString()
@@ -149,18 +189,7 @@ class Service extends Parent
 	return _propertiesHolder;
     }
 
-    public void moveUp()
-    {
-	assert canMoveUp();
-	((Services)_parent).move(this, true);
-    }
-
-    public void moveDown()
-    {
-	assert canMoveDown();
-	((Services)_parent).move(this, false);
-    }
-
+  
     boolean canMoveUp()
     {
 	if(_ephemeral)
@@ -313,5 +342,5 @@ class Service extends Parent
 
     static private ServiceEditor _editor;
     static private ServiceInstanceEditor _instanceEditor;
-    static private ServiceActions _actions;
+    static private JPopupMenu _popup;
 }

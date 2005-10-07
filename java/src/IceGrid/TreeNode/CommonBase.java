@@ -11,8 +11,8 @@ package IceGrid.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
-import IceGrid.Actions;
 import IceGrid.Model;
 import IceGrid.SimpleInternalFrame;
 
@@ -60,11 +60,6 @@ public interface CommonBase extends TreeCellRenderer
     //
     TreePath getPath();
 
-    //
-    // Actions associated with this object
-    //
-    Actions getActions();
-
     void displayProperties();
 
     //
@@ -110,4 +105,67 @@ public interface CommonBase extends TreeCellRenderer
     // Find all instances of this child (including this child)
     //
     java.util.List findAllInstances(CommonBase child);
+
+
+
+    //
+    // Actions
+    //
+    static final int NEW_ADAPTER = 0;
+    static final int NEW_DBENV = 1;
+    static final int NEW_NODE = 2;
+    static final int NEW_REPLICA_GROUP = 3;
+    static final int NEW_SERVER = 4;
+    static final int NEW_SERVER_ICEBOX = 5;
+    static final int NEW_SERVER_FROM_TEMPLATE = 6;
+    static final int NEW_SERVICE = 7;
+    static final int NEW_SERVICE_FROM_TEMPLATE = 8;
+    static final int NEW_TEMPLATE_SERVER = 9;
+    static final int NEW_TEMPLATE_SERVER_ICEBOX = 10;
+    static final int NEW_TEMPLATE_SERVICE = 11;
+  
+    static final int COPY = 12;
+    static final int PASTE = 13;
+    static final int DELETE = 14;
+
+    static final int SUBSTITUTE_VARS = 15;
+
+    static final int MOVE_UP = 16;
+    static final int MOVE_DOWN =17;
+    static final int START = 18;
+    static final int STOP = 19;
+    static final int ENABLE = 20;
+    static final int DISABLE = 21;
+
+    static public final int ACTION_COUNT = 22;
+
+    boolean[] getAvailableActions();
+    
+    void newAdapter();
+    void newDbEnv();
+    void newNode();
+    void newReplicaGroup();
+    void newServer();
+    void newServerIceBox();
+    void newServerFromTemplate();
+    void newService();
+    void newServiceFromTemplate();
+    void newTemplateServer();
+    void newTemplateServerIceBox();
+    void newTemplateService();
+    
+    void copy();
+    void paste();
+    void delete();
+    
+    void substituteVars();
+    
+    void moveUp();
+    void moveDown();
+    void start();
+    void stop();
+    void enable();
+    void disable();
+
+    JPopupMenu getPopupMenu();
 }

@@ -137,6 +137,7 @@ class TemplateEditor extends Editor
 		    {
 			_target = parent.findChildWithDescriptor(descriptor);
 			model.setSelectionPath(_target.getPath());
+			model.showActions(_target);
 			_template.setEditable(false);
 		    }
 		}
@@ -166,6 +167,7 @@ class TemplateEditor extends Editor
 		    {
 			_target = parent.findChildWithDescriptor(getDescriptor());
 			model.setSelectionPath(_target.getPath());
+			model.showActions(_target);
 		    }
 		}
 

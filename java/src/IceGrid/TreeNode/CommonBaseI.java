@@ -13,10 +13,11 @@ import javax.swing.JPopupMenu;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreePath;
 
-import IceGrid.Actions;
 import IceGrid.SimpleInternalFrame;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.DefaultComponentFactory;
@@ -26,6 +27,29 @@ import IceGrid.Model;
 
 abstract class CommonBaseI implements CommonBase
 { 
+    static protected class PopupMenu extends JPopupMenu
+    {
+	PopupMenu(final Model model)
+	{
+	    PopupMenuListener popupListener = new PopupMenuListener()
+	    {
+		public void popupMenuCanceled(PopupMenuEvent e)
+		{
+		    model.showActions(model.getSelectedNode());
+		}
+		  
+		public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+		{}
+          
+		public void popupMenuWillBecomeVisible(PopupMenuEvent e)
+		{}
+	    };
+	    
+	    addPopupMenuListener(popupListener);
+	}
+    }
+
+
     public String toString()
     {
 	if(isEphemeral())
@@ -78,15 +102,8 @@ abstract class CommonBaseI implements CommonBase
 	return false;
     }
 
-    public Actions getActions()
-    {
-	return _model.getDefaultActions();
-    }
-
     public void displayProperties()
     {
-	_model.setActions(getActions());
-
 	if(_panel == null)
 	{
 	    JLabel label = DefaultComponentFactory.getInstance().createTitle("This element has no property");
@@ -99,8 +116,8 @@ abstract class CommonBaseI implements CommonBase
 	propertiesFrame.setTitle("Properties");
 	propertiesFrame.setContent(_panel);
 	
-	_model.getMainFrame().validate();
-	_model.getMainFrame().repaint();
+	propertiesFrame.validate();
+	propertiesFrame.repaint();
     }
 
     public Component getTreeCellRendererComponent(
@@ -144,6 +161,112 @@ abstract class CommonBaseI implements CommonBase
 	result.add(child);
 	return result;
     }
+
+    //
+    // Actions
+    //
+    public boolean[] getAvailableActions()
+    {
+	return new boolean[ACTION_COUNT];
+    }
+    public void newAdapter()
+    {
+	assert false;
+    }
+    public void newDbEnv()
+    {
+	assert false;
+    }
+    public void newNode()
+    {
+	assert false;
+    }
+    public void newReplicaGroup()
+    {
+	assert false;
+    }
+    public void newServer()
+    {
+	assert false;
+    }
+    public void newServerIceBox()
+    {
+	assert false;
+    } 
+    public void newServerFromTemplate()
+    {
+	assert false;
+    }
+    public void newService()
+    {
+	assert false;
+    }
+    public void newServiceFromTemplate()
+    {
+	assert false;
+    }
+    public void newTemplateServer()
+    {
+	assert false;
+    }
+    public void newTemplateServerIceBox()
+    {
+	assert false;
+    }
+    public void newTemplateService()
+    {
+	assert false;
+    }
+    public void copy()
+    {
+	assert false;
+    }
+    public void paste()
+    {
+	assert false;
+    }
+    public void delete()
+    {
+	TreePath parentPath = getParent().getPath();
+	if(destroy())
+	{
+	    _model.setSelectionPath(parentPath);
+	}
+    }
+    public void substituteVars()
+    {
+	_model.toggleSubstitute();
+    }
+    public void moveUp()
+    {
+	assert false;
+    }
+    public void moveDown()
+    {
+	assert false;
+    }
+    public void start()
+    {
+	assert false;
+    }
+    public void stop()
+    {
+	assert false;
+    }
+    public void enable()
+    {
+	assert false;
+    }
+    public void disable()
+    {
+	assert false;
+    }
+    
+    public JPopupMenu getPopupMenu()
+    {
+	return null;
+    }
+
 
     //
     // Fires a nodesChanged event with this node
@@ -247,14 +370,7 @@ abstract class CommonBaseI implements CommonBase
     {
 	return _model;
     }
-
-    public void moveUp()
-    {}
-
-    public void moveDown()
-    {}
-
-    
+   
     protected TreePath _path;
     protected Parent _parent;
 

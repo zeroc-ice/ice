@@ -94,7 +94,9 @@ public class AdminGUI extends JFrame
 	//
 	// Menu and tool bars
 	//
-	_model.setActions(_model.getDefaultActions());
+	_model.createMenuBar();
+	_model.createToolBar();
+	_model.showActions(null);
 
 	//
 	// Status bar

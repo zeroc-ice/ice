@@ -57,6 +57,7 @@ abstract class ListElementEditor extends Editor
 		    {
 			_target = parent.findChildWithDescriptor(descriptor);
 			model.setSelectionPath(_target.getPath());
+			model.showActions(_target);
 		    }
 		}
 		else if(isSimpleUpdate())
@@ -85,6 +86,7 @@ abstract class ListElementEditor extends Editor
 		    {
 			_target = parent.findChildWithDescriptor(_target.getDescriptor());
 			model.setSelectionPath(_target.getPath());
+			model.showActions(_target);
 		    }
 		}
 		

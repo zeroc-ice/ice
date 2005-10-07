@@ -31,7 +31,6 @@ import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.layout.FormLayout;
 import IceGrid.SimpleInternalFrame;
 
-import IceGrid.Actions;
 import IceGrid.IceBoxDescriptor;
 import IceGrid.Model;
 import IceGrid.ServerDescriptor;
@@ -55,20 +54,32 @@ class ServerTemplate extends EditableParent
 	return copy;
     }
 
-    public Actions getActions()
+    //
+    // Actions
+    //
+    public boolean[] getAvailableActions()
     {
-	if(_actions == null)
+	boolean[] actions = new boolean[ACTION_COUNT];
+	actions[COPY] = true;
+	if(_parent.getAvailableActions()[PASTE])
 	{
-	    _actions = new ServerTemplateActions(_model);
+	    actions[PASTE] = true;
 	}
-	_actions.reset(this);
-	return _actions;
+	actions[DELETE] = true;
+	return actions;
+    }
+    public void copy()
+    {
+	_model.setClipboard(copyDescriptor(_templateDescriptor));
+	_model.getActions()[PASTE].setEnabled(true);
+    }
+    public void paste()
+    {
+	_parent.paste();
     }
 
     public void displayProperties()
     {
-	_model.setActions(getActions());
-
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
 	propertiesFrame.setTitle("Properties for " + _id);
        
@@ -79,8 +90,8 @@ class ServerTemplate extends EditableParent
 	_editor.show(this);
 	propertiesFrame.setContent(_editor.getComponent());
 	
-	_model.getMainFrame().validate();
-	_model.getMainFrame().repaint();
+	propertiesFrame.validate();
+	propertiesFrame.repaint();
     }
 
     public boolean destroy()
@@ -281,13 +292,6 @@ class ServerTemplate extends EditableParent
 	}
     }
 
-
-    TemplateDescriptor copy()
-    {
-	return copyDescriptor(_templateDescriptor);
-    }
-
-
     private TemplateDescriptor _templateDescriptor;
     private IceBoxDescriptor _iceBoxDescriptor;
 
@@ -299,5 +303,4 @@ class ServerTemplate extends EditableParent
     private final boolean _ephemeral;
 
     static private ServerTemplateEditor _editor;
-    static private ServerTemplateActions _actions;
 }
