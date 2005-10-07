@@ -1032,7 +1032,8 @@
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE_2.1.0_THIRD_PARTY_PACKAGES</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0-ThirdParty</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_2.1.0_THIRD_PARTY_PACKAGES</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.0.0_THIRDPARTY</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.0.0-ThirdParty</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.0.0_THIRDPARTY</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
@@ -1485,6 +1486,7 @@
 		<row><td>packages</td><td>BerkeleyDBRuntime.VC71.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatDevKit.VC71.1B17ED1C_CE0F_436F_B74A_83CE49EE05B2</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatRuntime.VC71.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td></row>
+		<row><td>packages</td><td>JGoodies.VC71.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLDevKit.VC71.1EDEFD63_5320_4657_82FE_73F602750180</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLRuntime.VC71.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>0</td></row>
 	</table>
@@ -1575,6 +1577,7 @@
 		<row><td>BerkeleyDBRuntime.VC71.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatDevKit.VC71.1B17ED1C_CE0F_436F_B74A_83CE49EE05B2</td><td>0</td><td>Expat Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatRuntime.VC71.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td><td>Expat Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>JGoodies.VC71.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>0</td><td>JGoodies Runtime for Visual Studio .NET 2003</td><td/><td/></row>
 		<row><td>OpenSSLDevKit.VC71.1EDEFD63_5320_4657_82FE_73F602750180</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLRuntime.VC71.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>0</td><td>OpenSSL Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 	</table>
@@ -1681,7 +1684,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-2.1.0-VC71</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.0.0-VC71</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
 	</table>
 
@@ -2317,10 +2320,10 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
-		<row><td>ID_STRING1</td><td>1033</td><td>Ice 2.1.0 Third Party Packages</td><td>0</td><td/><td>-1860590000</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.0.0 Third Party Packages</td><td>0</td><td/><td>890854351</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-1860585904</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>http://www.zeroc.com</td><td>0</td><td/><td>-1860628848</td></row>
-		<row><td>ID_STRING4</td><td>1033</td><td>Ice 2.1.0 Third Party Packages for Visual Studio .NET 2003</td><td>0</td><td/><td>161042261</td></row>
+		<row><td>ID_STRING4</td><td>1033</td><td>Ice 3.0.0 Third Party Packages for Visual Studio .NET 2003</td><td>0</td><td/><td>890864591</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>Third Party tools, files and libraries for compiling the Internet Communications Engine (Ice).</td><td>0</td><td/><td>1234769780</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>479664453</td></row>
 	</table>
@@ -2719,11 +2722,11 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>InstallChoice</td><td>AR</td><td/></row>
 		<row><td>Manufacturer</td><td>##COMPANY_NAME##</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{454F1EF1-C95A-4469-BB5A-53E446610101}</td><td/></row>
+		<row><td>ProductCode</td><td>{0106D699-7D86-4CB5-B185-6DF557502853}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 2.1.0 Third Party Packages for Visual Studio .NET 2003</td><td/></row>
-		<row><td>ProductVersion</td><td>2.1.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.0.0 Third Party Packages for Visual Studio .NET 2003</td><td/></row>
+		<row><td>ProductVersion</td><td>3.0.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2732,7 +2735,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{8C830C1F-1C1E-42CE-AC0D-464737A59DE9}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{2A2B281D-B122-4B3C-A338-FB7D6645068E}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

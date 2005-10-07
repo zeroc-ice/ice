@@ -1,23 +1,25 @@
 @echo off
 
-set ICE_HOME=D:\Src\vc60\stage\Ice-2.1.0
+set WORKING_DIR=c:\src\vc60
 
-set BERKELEY_HOME=D:\Src\vc60\db-4.2.52.NC
-set BZIP2_HOME=D:\Src\vc60\bzip2-1.0.2
-set EXPAT_HOME=D:\Src\vc60\Expat-1.95.8
-set OPENSSL_HOME=D:\Src\vc60\openssl-0.9.7e
-set PHP_BIN_HOME=D:\Src\vc60\php-5.0.3-win32
-set PHP_SRC_HOME=D:\Src\vc60\php-5.0.3
-set STLPORT_HOME=D:\Src\vc60\STLport-4.6.2
+set ICE_HOME=%WORKING_DIR%\stage\Ice-2.1.0
 
-set ANT_HOME=C:\Opt\apache-ant-1.6.1
+set BERKELEY_HOME=%WORKING_DIR%\db-4.3.28.NC
+set BZIP2_HOME=%WORKING_DIR%\bzip2-1.0.3
+set EXPAT_HOME=%WORKING_DIR%\Expat-1.95.8
+set OPENSSL_HOME=%WORKING_DIR%\openssl-0.9.8
+set PHP_BIN_HOME=%WORKING_DIR%\php-5.0.3-win32
+set PHP_SRC_HOME=%WORKING_DIR%\php-5.0.3
+set STLPORT_HOME=%WORKING_DIR%\STLport-4.6.2
+
+set ANT_HOME=C:\apache-ant-1.6.5
 set INSTALLSHIELD_HOME=C:\Program Files\InstallShield\DevStudio 9\System
 set PYTHON_HOME=C:\Python24
 
-REM XXX You shouldn't need to edit below this line. XXX
+:: XXX You shouldn't need to edit below this line. XXX
 
 set PATH=%ANT_HOME%\bin;%INSTALLSHIELD_HOME%;%PYTHON_HOME%
 set LIB=
 set INCLUDE=
 call "%SystemDrive%\Program Files\Microsoft Visual Studio\VC98\Bin\vcvars32.bat"
-python ..\common\makewindist.py %1 %2 %3 %4 %5 %6 %7 %8 %9
+python ..\common\makewindist.py %*

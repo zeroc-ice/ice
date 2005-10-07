@@ -58,7 +58,7 @@
 		<comments>##ID_STRING18##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{A10323D6-03EB-4C7B-8897-6E4EE77E4D65}</revnumber>
+		<revnumber>{B9EAB077-5788-4C02-A39A-81B90A001669}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -1034,7 +1034,8 @@
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0-VC60</td><td/><td>0</td><td/></row>
 		<row><td>ICE_2.1.0_THIRD_PARTY_PACKAGES</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0-ThirdParty</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.0.0_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.0.0-VC60</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.0.0_VC60</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0</td><td/><td>0</td><td/></row>
@@ -1502,6 +1503,7 @@
 		<col key="yes" def="i2">Language_</col>
 		<row><td>packages</td><td>BerkeleyDBRuntime.VC60.D5C9196F_ABFE_4664_807F_F216926DAE24</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatRuntime.VC60.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>0</td></row>
+		<row><td>packages</td><td>JGoodies.VC60.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLRuntime.VC60.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>0</td></row>
 		<row><td>packages</td><td>STLPortRuntime.VC60.A9A58AC6_551C_4FFF_B9B5_3D503E8CC4C0</td><td>0</td></row>
 		<row><td>packages_dev_cpp</td><td>BerkeleyDBDevKit.VC60.9D7EE251_9423_4C69_B4B4_73580837DA18</td><td>0</td></row>
@@ -1592,6 +1594,7 @@
 		<row><td>BerkeleyDBDevKit.VC60.9D7EE251_9423_4C69_B4B4_73580837DA18</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBRuntime.VC60.D5C9196F_ABFE_4664_807F_F216926DAE24</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatRuntime.VC60.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>0</td><td>Expat Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>JGoodies.VC60.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>0</td><td>JGoodies Runtime for Visual Studio 6.0</td><td/><td/></row>
 		<row><td>OpenSSLDevKit.VC60.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLRuntime.VC60.80A6164B_103B_4318_9AB0_4C6DE95AC097</td><td>0</td><td>OpenSSL Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>STLPortDevKit.VC60.3FCE994D_E327_4276_A95A_3C928E7A52D4</td><td>0</td><td>STLPort Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
@@ -1700,7 +1703,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-2.1.0-VC60</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.0.0-VC60</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
 	</table>
 
@@ -2345,7 +2348,7 @@
 		<row><td>ID_STRING16</td><td>1033</td><td>HTML Documentation</td><td>0</td><td/><td>161047826</td></row>
 		<row><td>ID_STRING17</td><td>1033</td><td>Third Party Packages for C++ Development</td><td>0</td><td/><td>966353073</td></row>
 		<row><td>ID_STRING18</td><td>1033</td><td>The Internet Communications Engine (Ice) runtimes, tools, files and libraries for developing Ice applications.</td><td>0</td><td/><td>1234788180</td></row>
-		<row><td>ID_STRING19</td><td>1033</td><td>Ice 2.1.0 for Visual Studio 6.0</td><td>0</td><td/><td>1234810225</td></row>
+		<row><td>ID_STRING19</td><td>1033</td><td>Ice 3.0.0 for Visual Studio 6.0</td><td>0</td><td/><td>622401801</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>Ice Runtime</td><td>0</td><td/><td>1100550255</td></row>
 		<row><td>ID_STRING20</td><td>1033</td><td>Ice for C++</td><td>0</td><td/><td>1234775635</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>C++ Development</td><td>0</td><td/><td>-1457951318</td></row>
@@ -2749,11 +2752,11 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>InstallChoice</td><td>AR</td><td/></row>
 		<row><td>Manufacturer</td><td>##COMPANY_NAME##</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{6290F9C4-E6F2-4D06-8230-B38DB7EBF449}</td><td/></row>
+		<row><td>ProductCode</td><td>{8852D681-A52C-4F96-931A-0B5F37416420}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 2.1.0 for Visual Studio 6.0</td><td/></row>
-		<row><td>ProductVersion</td><td>2.1.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.0.0 for Visual Studio 6.0</td><td/></row>
+		<row><td>ProductVersion</td><td>3.0.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2762,7 +2765,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{09E3557D-C1C7-4A28-A91B-B57D4EC55696}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{6DC37C5D-DC2C-4441-9B7D-99C058F584DA}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

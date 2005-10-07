@@ -84,6 +84,7 @@ def cleanIceDists(sourcesDir, sourcesVersion, installVersion):
 
 def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     """Build all Ice distributions."""
+
     #
     # Update PATH, LIB and INCLUDE environment variables required for
     # building Ice for C++.
@@ -207,7 +208,8 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
 	("ExpatDevKit", "EXPAT_DEV_KIT"),
 	("ExpatRuntime", "EXPAT_RUNTIME"),
 	("OpenSSLDevKit", "OPENSSL_DEV_KIT"),
-	("OpenSSLRuntime", "OPENSSL_RUNTIME")
+	("OpenSSLRuntime", "OPENSSL_RUNTIME"),
+	("JGoodies", "JGOODIES_RUNTIME")
     ]
     if installVersion == "vc60":
 	extras = [ ("STLPortDevKit", "STLPORT_DEV_KIT"), ("STLPortRuntime", "STLPORT_RUNTIME") ]
@@ -301,11 +303,23 @@ def main():
         elif o == "--skip-installer":
             installer = False
 
+    if clean:
+	print('You have indicated you want to ''clean'' files, starting from scratch.')
+	confirm = ''
+	while not confirm in ['y', 'n']:
+	    confirm = input('Are you sure? [y/N]') 
+	    if confirm == '':
+		confirm = 'n'
+	if confirm == 'n':
+	    sys.exit()
+	else:
+	    'Deleting intermediate files and rebuilding from scratch!'
+
     #
     # Check the environment for the required vars.
     #
     ok = True
-    required = ['ICE_HOME', 'BERKELEY_HOME', 'BZIP2_HOME', 'EXPAT_HOME', 'OPENSSL_HOME']
+    required = ['ICE_HOME', 'BERKELEY_HOME', 'BZIP2_HOME', 'EXPAT_HOME', 'OPENSSL_HOME', 'JGOODIES_HOME']
     if installVersion == "vc71":
 	required.extend(['PHP_BIN_HOME', 'PHP_SRC_HOME', 'PYTHON_HOME'])
     elif installVersion == "vc60":
@@ -328,6 +342,7 @@ def main():
     bzip2Home = os.environ['BZIP2_HOME']
     expatHome = os.environ['EXPAT_HOME']
     opensslHome = os.environ['OPENSSL_HOME']
+    jgoodiesHome = os.environ['JGOODIES_HOME']
 
     if installVersion == "vc71":
 	phpBinHome = os.environ['PHP_BIN_HOME']
@@ -363,8 +378,14 @@ def main():
                  " -Dsources.version=" + sourcesVersion + \
                  " -Dstage.dir=" + stageDir 
 
+    #
+    # This should be performed every time. The third party libraries are
+    # rebuilt 'out-of-band' so there is no way for the script to pickup
+    # changes in them.
+    #
+    os.system("ant" + antOptions + " clean")
+
     if clean:
-	os.system("ant" + antOptions + " clean")
 	cleanIceDists(sourcesDir, sourcesVersion, installVersion)
 
     #

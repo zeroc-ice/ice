@@ -104,18 +104,19 @@
 	<mkdir dir="${stage.dir}/ice-cpp/runtime/bin"/>
 	<copy todir="${stage.dir}/ice-cpp/runtime/bin" flatten="true">
 	    <fileset dir="${ice.dir}/bin">
-		<include name="freeze21.dll"/>
-		<include name="glacier221.dll"/>
-		<include name="ice21.dll"/>
-		<include name="icebox21.dll"/>
-		<include name="icepack21.dll"/>
-		<include name="icepatch221.dll"/>
-		<include name="icessl21.dll"/>
-		<include name="icestorm21.dll"/>
-		<include name="icestormService21.dll"/>
-		<include name="iceutil21.dll"/>
-		<include name="icexml21.dll"/>
-		<include name="slice21.dll"/>
+		<include name="freeze30.dll"/>
+		<include name="glacier300.dll"/>
+		<include name="ice30.dll"/>
+		<include name="icebox30.dll"/>
+		<include name="icepack30.dll"/>
+		<include name="icepatch300.dll"/>
+		<include name="icessl30.dll"/>
+		<include name="icestorm30.dll"/>
+		<include name="icestormService30.dll"/>
+		<include name="iceutil30.dll"/>
+		<include name="icexml30.dll"/>
+		<include name="slice30.dll"/>
+		<include name="icegrid30.dll"/>
 	    </fileset>
 	    <fileset dir="${ice.dir}/src">
 		<include name="FreezeScript/Release/dumpdb.exe"/>
@@ -132,6 +133,9 @@
 		<include name="IcePatch2/Release/icepatch2server.exe"/>
 		<include name="IceStorm/Release/icestormadmin.exe"/>
 		<include name="slice2docbook/Release/slice2docbook.exe"/>
+		<include name="IceGrid/Release/icegridadmin.exe"/>
+		<include name="IceGrid/Release/icegridnode.exe"/>
+		<include name="IceGrid/Release/icegridregistry.exe"/>
 	    </fileset>
 	</copy>
 
@@ -161,18 +165,19 @@
 	<mkdir dir="${stage.dir}/ice-cpp/dev/bin"/>
 	<copy todir="${stage.dir}/ice-cpp/dev/bin" flatten="true">
 	    <fileset dir="${ice.dir}/bin">
-		<include name="freeze21d.*"/>
-		<include name="glacier221d.*"/>
-		<include name="ice21d.*"/>
-		<include name="icebox21d.*"/>
-		<include name="icepack21d.*"/>
-		<include name="icepatch221d.*"/>
-		<include name="icessl21d.*"/>
-		<include name="icestorm21d.*"/>
-		<include name="icestormService21d.*"/>
-		<include name="iceutil21d.*"/>
-		<include name="icexml21d.*"/>
-		<include name="slice21d.*"/>
+		<include name="freeze30d.*"/>
+		<include name="glacier300d.*"/>
+		<include name="ice30d.*"/>
+		<include name="icebox30d.*"/>
+		<include name="icepack30d.*"/>
+		<include name="icepatch300d.*"/>
+		<include name="icessl30d.*"/>
+		<include name="icestorm30d.*"/>
+		<include name="icestormService30d.*"/>
+		<include name="iceutil30d.*"/>
+		<include name="icexml30d.*"/>
+		<include name="slice30d.*"/>
+		<include name="icegrid30d.dll"/>
 	    </fileset>
 	</copy>
 
@@ -192,6 +197,9 @@
 	<copy todir="${stage.dir}/ice-cpp/dev/bin/debug" flatten="true">
 	    <fileset dir="${ice.dir}/src/IceBox/Debug">
 		<include name="icebox.exe"/>
+	    </fileset>
+	    <fileset dir="${ice.dir}/src/IceGrid/Debug">
+		<include name="icegridnode.exe"/>
 	    </fileset>
 	</copy>
 
@@ -223,6 +231,8 @@
 	        <include name="icexmld.lib"/>
 	        <include name="slice.lib"/>
 	        <include name="sliced.lib"/>
+	        <include name="icegrid.lib"/>
+	        <include name="icegridd.lib"/>
 	    </fileset>
 	</copy>
 
@@ -682,6 +692,18 @@
 
     </target>
 
+    <!-- JGoodies jar files -->
+    <target name="jgoodies-runtime" depends="setup">
+
+	<mkdir dir="${stage.dir}/jgoodies/runtime/lib"/>
+	<copy todir="${stage.dir}/jgoodies/runtime/lib">
+	    <fileset dir="${env.JGOODIES_HOME}">
+		<include name="forms*.jar"/>
+		<include name="looks*.jar"/>
+	    </fileset>
+	</copy>
+    </target>
+
     <target name="packages-stage-vc60" 
             depends="packages-common,
 		     berkeley-dev,
@@ -693,7 +715,8 @@
 		     openssl-dev,
 		     openssl-runtime,
 		     stlport-dev,
-		     stlport-runtime">
+		     stlport-runtime,
+		     jgoodies-runtime">
 	<mkdir dir="${stage.dir}/microsoft/runtime/bin"/>
 	<copy file="${env.SystemRoot}/System32/msvcrt.dll" todir="${stage.dir}/microsoft/runtime/bin"/>
 	<copy file="${env.SystemRoot}/System32/msvcp60.dll" todir="${stage.dir}/microsoft/runtime/bin"/>
@@ -708,7 +731,8 @@
 		     expat-dev,
 		     expat-runtime,
 		     openssl-dev,
-		     openssl-runtime">
+		     openssl-runtime,
+		     jgoodies-runtime">
 	<mkdir dir="${stage.dir}/microsoft/runtime/bin"/>
 	<copy file="${env.SystemRoot}/System32/msvcr71.dll" todir="${stage.dir}/microsoft/runtime/bin"/>
 	<copy file="${env.SystemRoot}/System32/msvcp71.dll" todir="${stage.dir}/microsoft/runtime/bin"/>
