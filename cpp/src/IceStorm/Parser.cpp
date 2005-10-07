@@ -13,7 +13,7 @@
 #include <algorithm>
 
 #ifdef GPL_BUILD
-#   include <IcePack/GPL.h>
+#   include <IceGrid/GPL.h>
 #endif
 
 #ifdef HAVE_READLINE
