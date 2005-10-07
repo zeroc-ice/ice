@@ -196,7 +196,7 @@ else
     ICE_DIR = $(ICE_HOME)
 endif
 
-ifneq ($(shell test -f $(ICE_DIR)/bin/icepackadmin && echo 0),0)
+ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
     $(error Ice distribution not found, please set ICE_HOME!)
 endif
 """
