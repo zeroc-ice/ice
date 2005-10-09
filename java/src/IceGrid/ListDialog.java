@@ -103,16 +103,16 @@ public class ListDialog extends JDialog
 	private Action _deleteRow;
     }
     
-    public ListDialog(Frame parentFrame, String title, String columnName)
+    public ListDialog(Frame parentFrame, String title)
     {
 	super(parentFrame, title, true);
 	setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 	
 	_columnNames = new java.util.Vector(1);
-	_columnNames.add(columnName);
+	_columnNames.add("item");
 
 	_list = new JTable();
-	
+	_list.setTableHeader(null);
 
 	Action ok = new AbstractAction("OK")
 	    {

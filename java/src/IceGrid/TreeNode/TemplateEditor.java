@@ -92,9 +92,6 @@ class TemplateEditor extends Editor
 	builder.append("Parameters", _parameters);
 	builder.append(_parametersButton);
 	builder.nextLine();
-	
-	builder.appendSeparator();
-	builder.nextLine();
     }
 
     void show()

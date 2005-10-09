@@ -8,15 +8,17 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import javax.swing.JOptionPane;
+
 import IceGrid.AdapterDynamicInfo;
 import IceGrid.ApplicationDescriptor;
 import IceGrid.ApplicationUpdateDescriptor;
 import IceGrid.Model;
 import IceGrid.ServerDynamicInfo;
 import IceGrid.ServerState;
+import IceGrid.SimpleInternalFrame;
 import IceGrid.TemplateDescriptor;
 
-import javax.swing.JOptionPane;
 
 public class Application extends EditableParent
 {
@@ -114,6 +116,25 @@ public class Application extends EditableParent
     {
 	return _descriptor;
     }
+
+    public void displayProperties()
+    {
+	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
+	
+	propertiesFrame.setTitle("Properties for " + _id);
+	if(_editor == null)
+	{
+	    _editor = new ApplicationEditor(_model.getMainFrame());
+	}
+	
+	_editor.show(this);
+	propertiesFrame.setContent(_editor.getComponent());
+
+	propertiesFrame.validate();
+	propertiesFrame.repaint();
+
+    }
+
 
     //
     // Builds the application and all its subtrees
@@ -409,4 +430,6 @@ public class Application extends EditableParent
     private ServerTemplates _serverTemplates;
     private ServiceTemplates _serviceTemplates;
     private Nodes _nodes;
+
+    static private ApplicationEditor _editor;
 }

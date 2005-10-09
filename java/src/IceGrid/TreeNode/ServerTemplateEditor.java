@@ -34,6 +34,8 @@ class ServerTemplateEditor extends TemplateEditor
     void append(DefaultFormBuilder builder)
     { 
 	super.append(builder);
+	builder.appendSeparator();
+	builder.nextLine();
 	_subEditor.append(builder);
     }
 

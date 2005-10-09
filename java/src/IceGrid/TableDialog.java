@@ -156,7 +156,7 @@ public class TableDialog extends JDialog
     //
     // Returns null when cancel is pressed
     //
-    public java.util.Map show(java.util.Map map, JComponent onComponent)
+    public java.util.TreeMap show(java.util.Map map, JComponent onComponent)
     {
 	_cancelled = true;
       
@@ -213,7 +213,7 @@ public class TableDialog extends JDialog
 	    //
 	    // Transform vector into new Map
 	    //
-	    java.util.Map result = new java.util.TreeMap();
+	    java.util.TreeMap result = new java.util.TreeMap();
 	    p = vector.iterator();
 	    while(p.hasNext())
 	    {

@@ -24,6 +24,7 @@ import IceGrid.AdapterDynamicInfo;
 import IceGrid.ServerDescriptor;
 import IceGrid.ServerInstanceDescriptor;
 import IceGrid.ServerState;
+import IceGrid.SimpleInternalFrame;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
@@ -82,6 +83,27 @@ class Node extends EditableParent implements InstanceParent
 	    tree, value, sel, expanded, leaf, row, hasFocus);
     }
     
+    public void displayProperties()
+    {
+	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
+	
+	propertiesFrame.setTitle("Properties for " + _id);
+	if(_editor == null)
+	{
+	    _editor = new NodeEditor(_model.getMainFrame());
+	}
+	
+	_editor.show(this);
+	propertiesFrame.setContent(_editor.getComponent());
+
+	propertiesFrame.validate();
+	propertiesFrame.repaint();
+    }
+
+    public Object getDescriptor()
+    {
+	return _descriptor;
+    }
     
     static private class Backup
     {
@@ -769,4 +791,6 @@ class Node extends EditableParent implements InstanceParent
     static private Icon _nodeUpClosed;
     static private Icon _nodeDownOpen;
     static private Icon _nodeDownClosed;
+
+    static private NodeEditor _editor;
 }
