@@ -16,10 +16,16 @@ import IceGrid.Model;
 import IceGrid.ServerDescriptor;
 import IceGrid.Utils;
 
-class ServerEditor extends Editor
+class ServerEditor extends AbstractServerEditor
 {
-    protected void applyUpdate()
+    protected void writeDescriptor()
     {
+	_subEditor.writeDescriptor();
+    }	    
+    
+    protected boolean isSimpleUpdate()
+    {
+	return _subEditor.isSimpleUpdate(); 
     }
 
     ServerEditor(JFrame parentFrame)
@@ -48,15 +54,6 @@ class ServerEditor extends Editor
 	_subEditor.append(builder);
     }
     
-    void writeDescriptor()
-    {
-	_subEditor.writeDescriptor();
-    }	    
-    
-    boolean isSimpleUpdate()
-    {
-	return _subEditor.isSimpleUpdate(); 
-    }
     
     Object getSubDescriptor()
     {

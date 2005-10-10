@@ -78,29 +78,25 @@ public class Application extends EditableParent
 	// Replicated Adapters
 	//
 	update.removeReplicatedAdapters = _replicatedAdapters.removedElements();
-	update.replicatedAdapters = new java.util.LinkedList();
-	_replicatedAdapters.getUpdates(update.replicatedAdapters);
+	update.replicatedAdapters = _replicatedAdapters.getUpdates();
 	
 	//
 	// Server Templates
 	//
 	update.removeServerTemplates = _serverTemplates.removedElements();
-	update.serverTemplates = new java.util.HashMap();
-	_serverTemplates.getUpdates(update.serverTemplates);
+	update.serverTemplates = _serverTemplates.getUpdates();
 
 	//
 	// Service Templates
 	//
 	update.removeServiceTemplates = _serviceTemplates.removedElements();
-	update.serviceTemplates = new java.util.HashMap();
-	_serviceTemplates.getUpdates(update.serviceTemplates);
+	update.serviceTemplates =_serviceTemplates.getUpdates();
 
 	//
 	// Nodes
 	//
 	update.removeNodes = _nodes.removedElements();
-	update.nodes = new java.util.LinkedList();
-	_nodes.getUpdates(update.nodes);
+	update.nodes = _nodes.getUpdates();
 
 	return update;
     }

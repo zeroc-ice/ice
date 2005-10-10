@@ -24,14 +24,27 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 import IceGrid.Model;
 import IceGrid.ParametersDialog;
+import IceGrid.ServerDescriptor;
 import IceGrid.ServerInstanceDescriptor;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
-class ServerInstanceEditor extends Editor
+class ServerInstanceEditor extends AbstractServerEditor
 {
-    protected void applyUpdate()
+    protected void writeDescriptor()
     {
+	ServerInstanceDescriptor descriptor = getDescriptor();
+	ServerTemplate t = (ServerTemplate)_template.getSelectedItem();
+	
+	descriptor.template = t.getId();
+	descriptor.parameterValues = _parameterValuesMap;
+	((Server)_target).setServerDescriptor(
+	    (ServerDescriptor)((TemplateDescriptor)t.getDescriptor()).descriptor);
+    }
+    
+    protected boolean isSimpleUpdate()
+    {
+	return false;
     }
 
     ServerInstanceEditor(JFrame parentFrame)
@@ -104,18 +117,6 @@ class ServerInstanceEditor extends Editor
 	{
 	    return null;
 	}
-    }
-
-    void writeDescriptor()
-    {
-	ServerInstanceDescriptor descriptor = getDescriptor();
-	descriptor.template = ((ServerTemplate)_template.getSelectedItem()).getId();
-	descriptor.parameterValues = _parameterValuesMap;
-    }	    
-    
-    boolean isSimpleUpdate()
-    {
-	return false;
     }
 
     void append(DefaultFormBuilder builder)

@@ -39,7 +39,13 @@ class Services extends ListParent implements InstanceParent
     public boolean[] getAvailableActions()
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
-	actions[PASTE] = isEditable();
+	
+	Object descriptor =  _model.getClipboard();
+	if(descriptor != null)
+	{
+	    actions[PASTE] = isEditable() &&  
+		descriptor instanceof ServiceInstanceDescriptor;
+	}
 	actions[NEW_SERVICE] = isEditable();
 	actions[NEW_SERVICE_FROM_TEMPLATE] = isEditable();
 	return actions;
@@ -89,7 +95,7 @@ class Services extends ListParent implements InstanceParent
     {
 	ServiceInstanceDescriptor descriptor = 
 	    new ServiceInstanceDescriptor("",
-					  new java.util.TreeMap(),
+					  new java.util.HashMap(),
 					  null);
 	newService(descriptor);
     }
@@ -191,7 +197,7 @@ class Services extends ListParent implements InstanceParent
 	}
     }
 
-    void newService(ServiceInstanceDescriptor descriptor)
+    private void newService(ServiceInstanceDescriptor descriptor)
     {
 	String baseName = descriptor.descriptor == null ? "NewService" :
 	    descriptor.descriptor.name;
@@ -216,7 +222,7 @@ class Services extends ListParent implements InstanceParent
 		{
 		    JOptionPane.showMessageDialog(
 			_model.getMainFrame(),
-			"You need to create a service template before you can create a service instance.",
+			"You need to create a service template before you can create a service from a template.",
 			"No Service Template",
 			JOptionPane.INFORMATION_MESSAGE);
 		    return;
@@ -224,7 +230,7 @@ class Services extends ListParent implements InstanceParent
 		else
 		{
 		    descriptor.template = t.getId();
-		    descriptor.parameterValues = new java.util.TreeMap();
+		    descriptor.parameterValues = new java.util.HashMap();
 		}
 	    }
 
@@ -256,6 +262,11 @@ class Services extends ListParent implements InstanceParent
 
     protected boolean validate(Object d)
     {
+	//
+	// TODO: insufficient: a child adapter could use ${service}
+	// as its name and collide with another adapter.
+	//
+	
 	ServiceInstanceDescriptor descriptor = (ServiceInstanceDescriptor)d;
 	
 	String newName;

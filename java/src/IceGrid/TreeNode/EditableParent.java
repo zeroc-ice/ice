@@ -59,6 +59,11 @@ class EditableParent extends Parent implements Editable
 	_removedElements.add(child.getId());
 	removeChild(child, fireEvent);
     }
+
+    void removeElement(String id)
+    {
+	_removedElements.add(id);
+    }
     
     void purgeChildren(java.util.Set keepSet)
     {

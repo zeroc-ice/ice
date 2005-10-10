@@ -73,17 +73,20 @@ public class Nodes extends EditableParent
 	}
     }
 
-    void getUpdates(java.util.LinkedList updates)
+    java.util.LinkedList getUpdates()
     {
+	java.util.LinkedList updates = new java.util.LinkedList();
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
 	    Node node = (Node)p.next();
-	    if(node.isNew() || node.isModified())
+	    NodeUpdateDescriptor d = node.getUpdate();
+	    if(d != null)
 	    {
-		updates.add(node.getUpdate());
+		updates.add(d);
 	    }
 	}
+	return updates;
     }
 
     void update() throws UpdateFailedException

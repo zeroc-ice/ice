@@ -45,8 +45,9 @@ class ReplicatedAdapters extends EditableParent
 	}
     }
 
-    void getUpdates(java.util.List updates)
+    java.util.LinkedList getUpdates()
     {
+	java.util.LinkedList updates = new java.util.LinkedList();
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
@@ -56,6 +57,7 @@ class ReplicatedAdapters extends EditableParent
 		updates.add(ra.getDescriptor());
 	    }
 	}
+	return updates;
     }
 
 

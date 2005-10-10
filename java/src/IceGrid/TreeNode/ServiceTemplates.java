@@ -142,11 +142,21 @@ class ServiceTemplates extends Templates
 	
 	try
 	{
-	    addChild(new ServiceTemplate(true, newId, descriptor, _model), true);
+	    addChild(new ServiceTemplate(true, newId, descriptor, _model),
+		     true);
 	}
 	catch(UpdateFailedException e)
 	{
-	    assert false; // impossible
+	    e.addParent(this);
+
+	    JOptionPane.showMessageDialog(
+		_model.getMainFrame(),
+		e.toString(),
+		"Apply failed",
+		JOptionPane.ERROR_MESSAGE);
+
+	    removeDescriptor(newId);
+	    return false;
 	}
 	return true;
     }
@@ -157,8 +167,9 @@ class ServiceTemplates extends Templates
     }
     
 
-    void getUpdates(java.util.Map updates)
+    java.util.Map getUpdates()
     {
+	java.util.Map updates = new java.util.HashMap();
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
@@ -168,6 +179,7 @@ class ServiceTemplates extends Templates
 		updates.put(t.getId(), t.getDescriptor());
 	    }
 	}
+	return updates;
     }
 
     void update() throws UpdateFailedException

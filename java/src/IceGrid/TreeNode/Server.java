@@ -39,6 +39,7 @@ import com.jgoodies.forms.util.LayoutStyle;
 import IceGrid.SimpleInternalFrame;
 
 import IceGrid.AdapterDescriptor;
+import IceGrid.DistributionDescriptor;
 import IceGrid.IceBoxDescriptor;
 import IceGrid.Model;
 import IceGrid.PropertyDescriptor;
@@ -71,6 +72,7 @@ class Server extends EditableParent
 	// (and possibly other properties set through a PropertiesHolder)
 	//
 	copy.properties = (java.util.LinkedList)copy.properties.clone();
+	copy.distrib = (DistributionDescriptor)copy.distrib.clone();
 
 	if(copy instanceof IceBoxDescriptor)
 	{
@@ -101,7 +103,8 @@ class Server extends EditableParent
 	into.activation = from.activation;
 	into.activationTimeout = from.activationTimeout;
 	into.deactivationTimeout = from.deactivationTimeout;
-	into.distrib = from.distrib;
+	into.distrib.icepatch = from.distrib.icepatch;
+	into.distrib.directories = from.distrib.directories;
     }
 
     static public ServerDescriptor newServerDescriptor()
@@ -111,7 +114,7 @@ class Server extends EditableParent
 	    new java.util.LinkedList(),
 	    new java.util.LinkedList(),
 	    "",
-	    "",
+	    "NewServer",
 	    "",
 	    "",
 	    new java.util.LinkedList(),
@@ -141,7 +144,7 @@ class Server extends EditableParent
 	    new java.util.LinkedList(),
 	    new java.util.LinkedList(),
 	    "",
-	    "",
+	    "NewIceBox",
 	    "",
 	    "",
 	    new java.util.LinkedList(),
@@ -163,8 +166,9 @@ class Server extends EditableParent
 	actions[COPY] = true;
 	
 	Object clipboard = _model.getClipboard();
-	if(clipboard != null && (clipboard instanceof ServerDescriptor
-				 || clipboard instanceof ServerInstanceDescriptor))
+	if(clipboard != null && 
+	   (clipboard instanceof ServerDescriptor
+	    || clipboard instanceof ServerInstanceDescriptor))
 	{
 	    actions[PASTE] = true;
 	}
@@ -378,6 +382,37 @@ class Server extends EditableParent
 	return _propertiesHolder;
     }
 
+    public boolean destroy()
+    {
+	if(_parent == null)
+	{
+	    return false;
+	}
+	Node node = (Node)_parent;
+	
+	if(_ephemeral)
+	{
+	    node.removeChild(this, true);
+	    return true;
+	}
+	else if(_model.canUpdate())
+	{
+	    if(_instanceDescriptor != null)
+	    {
+		node.removeDescriptor(_instanceDescriptor);
+	    }
+	    else
+	    {
+		node.removeDescriptor(_serverDescriptor);
+	    }
+	    node.removeElement(this, true);
+	    return true;
+	}
+	return false;
+
+    }
+
+
     public Object getDescriptor()
     {
 	if(_instanceDescriptor != null)
@@ -390,7 +425,36 @@ class Server extends EditableParent
 	}
     }
 
-   
+    public Object saveDescriptor()
+    {
+	if(_instanceDescriptor != null)
+	{
+	    return _instanceDescriptor.clone();
+	}
+	else
+	{
+	    return _serverDescriptor.clone();
+	}
+    }
+
+    public void restoreDescriptor(Object savedDescriptor)
+    {
+	if(_instanceDescriptor != null)
+	{   
+	    ServerInstanceDescriptor copy = (ServerInstanceDescriptor)savedDescriptor;
+
+	    _instanceDescriptor.template = copy.template;
+	    _instanceDescriptor.parameterValues = copy.parameterValues;
+	    
+	    ServerTemplate t = getApplication().findServerTemplate(_instanceDescriptor.template);
+	    _serverDescriptor = (ServerDescriptor)
+		((TemplateDescriptor)t.getDescriptor()).descriptor;
+	}
+	else
+	{
+	    shallowRestore((ServerDescriptor)savedDescriptor, _serverDescriptor);
+	}
+    }
 
     //
     // Builds the server and all its sub-tree
@@ -401,12 +465,22 @@ class Server extends EditableParent
 	   Application application) throws UpdateFailedException
     {
 	super(brandNew, serverId, application.getModel());
+	_ephemeral = false;
 	rebuild(resolver, instanceDescriptor, serverDescriptor, application);
+
+	if(brandNew)
+	{
+	    _state = ServerState.Inactive;
+	    _toolTip = toolTip(_state, _pid);
+	    _stateIconIndex = _state.value() + 1;
+	}
     }
 
     Server(Server o)
     {
 	super(o, true);
+	_ephemeral = false;
+	assert o._ephemeral == false;
 
 	_state = o._state;
 	_stateIconIndex = o._stateIconIndex;
@@ -423,9 +497,35 @@ class Server extends EditableParent
 	_dbEnvs = o._dbEnvs;
     }
 
+    Server(String serverId, ServerInstanceDescriptor instanceDescriptor, 
+	   ServerDescriptor serverDescriptor, Model model)
+    {
+	super(true, serverId, model);
+	_ephemeral = true;
+	try
+	{
+	    rebuild(null, instanceDescriptor, serverDescriptor, null);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+
+	_state = ServerState.Inactive;
+	_toolTip = toolTip(_state, _pid);
+	_stateIconIndex = _state.value() + 1;
+    }
+
     //
     // Update the server and all its subtree
     //
+
+    void rebuild() throws UpdateFailedException
+    {
+	rebuild(_resolver, _instanceDescriptor, 
+		_serverDescriptor, getApplication());
+    }
+
     void rebuild(Utils.Resolver resolver,  
 		 ServerInstanceDescriptor instanceDescriptor,
 		 ServerDescriptor serverDescriptor,
@@ -440,50 +540,62 @@ class Server extends EditableParent
 	boolean isEditable = (instanceDescriptor == null);
 	_propertiesHolder = new PropertiesHolder(serverDescriptor);	
 
-	try
+	if(_ephemeral)
 	{
-	    if(serverDescriptor instanceof IceBoxDescriptor)
-	    {
-		IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)serverDescriptor;
-		
-		_services = new Services(iceBoxDescriptor.services,
-					 isEditable, _resolver, application);
-		addChild(_services);
-		//
-		// IceBox has not dbEnv
-		//
-		assert serverDescriptor.dbEnvs.size() == 0;
-		_dbEnvs = null;
-	    }
-	    else
-	    {
-		_services = null;   	
-		_dbEnvs = new DbEnvs(serverDescriptor.dbEnvs, 
-				     isEditable, _resolver, _model);
-		addChild(_dbEnvs);
-	    }
-	    
-	    _adapters = new Adapters(serverDescriptor.adapters, 
-				     isEditable, _services != null, 
-				     _resolver, _model);
-	    addChild(_adapters);
+	    _services = null;
+	    _dbEnvs = null;
+	    _adapters = null;
 	}
-	catch(UpdateFailedException e)
+	else
 	{
-	    e.addParent(this);
-	    throw e;
+	    try
+	    {
+		if(serverDescriptor instanceof IceBoxDescriptor)
+		{
+		    IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)serverDescriptor;
+		    
+		    _services = new Services(iceBoxDescriptor.services,
+					     isEditable, _resolver, application);
+		    addChild(_services);
+		    //
+		    // IceBox has not dbEnv
+		    //
+		    assert serverDescriptor.dbEnvs.size() == 0;
+		    _dbEnvs = null;
+		}
+		else
+		{
+		    _services = null;   	
+		    _dbEnvs = new DbEnvs(serverDescriptor.dbEnvs, 
+					 isEditable, _resolver, _model);
+		    addChild(_dbEnvs);
+		}
+		
+		_adapters = new Adapters(serverDescriptor.adapters, 
+					 isEditable, _services != null, 
+					 _resolver, _model);
+		addChild(_adapters);
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		e.addParent(this);
+		throw e;
+	    }
 	}
     }
 
     
     public void setParent(CommonBase parent)
     {
-	Ice.IntHolder pid = new Ice.IntHolder();
-	_state = _model.getRoot().registerServer(_resolver.find("node"),
-						 _id,
-						 this,
-						 pid);
-	_pid = pid.value;
+	if(!_ephemeral)
+	{
+	    Ice.IntHolder pid = new Ice.IntHolder();
+	    _state = _model.getRoot().registerServer(_resolver.find("node"),
+						     _id,
+						     this,
+						     pid);
+	    _pid = pid.value;
+	}
 	super.setParent(parent);
     }
 
@@ -491,11 +603,13 @@ class Server extends EditableParent
     {
 	if(_parent != null)
 	{
-	    _model.getRoot().unregisterServer(_resolver.find("node"),
-					      _id, this);
+	    if(!_ephemeral)
+	    {
+		_model.getRoot().unregisterServer(_resolver.find("node"),
+						  _id, this);
+	    }
 	    super.clearParent();
 	}
-
     }
     
     java.util.List findServiceInstances(String template)
@@ -551,6 +665,11 @@ class Server extends EditableParent
 	return _serverDescriptor;
     }
 
+    void setServerDescriptor(ServerDescriptor sd)
+    {
+	_serverDescriptor = sd;
+    }
+
     Services getServices()
     {
 	return _services;
@@ -573,10 +692,14 @@ class Server extends EditableParent
 	}
     }
 
+    public boolean isEphemeral()
+    {
+	return _ephemeral;
+    }
 
     public String toString()
     {
-	if(_instanceDescriptor == null || isEphemeral())
+	if(_instanceDescriptor == null || _ephemeral)
 	{
 	    return super.toString();
 	}
@@ -605,6 +728,7 @@ class Server extends EditableParent
 
     private ServerInstanceDescriptor _instanceDescriptor;
     private ServerDescriptor _serverDescriptor;
+    private final boolean _ephemeral;
 
     private Utils.Resolver _resolver;
 

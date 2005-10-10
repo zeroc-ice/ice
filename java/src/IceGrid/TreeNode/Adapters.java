@@ -41,7 +41,14 @@ class Adapters extends ListParent
     public boolean[] getAvailableActions()
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
-	actions[PASTE] = canHaveNewChild();
+
+	Object descriptor =  _model.getClipboard();
+	if(descriptor != null)
+	{
+	    actions[PASTE] = canHaveNewChild() && 
+		descriptor instanceof AdapterDescriptor;
+	}
+
 	actions[NEW_ADAPTER] = canHaveNewChild();
 	return actions;
     }

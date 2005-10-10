@@ -9,9 +9,12 @@
 package IceGrid.TreeNode;
 
 import java.awt.Component;
-import javax.swing.JOptionPane;
-import javax.swing.JTree;
 import javax.swing.Icon;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JTree;
+
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
@@ -30,6 +33,109 @@ import IceGrid.Utils;
 
 class Node extends EditableParent implements InstanceParent
 {  
+    static public NodeDescriptor
+    copyDescriptor(NodeDescriptor nd)
+    {
+	NodeDescriptor copy = (NodeDescriptor)nd.clone();
+	
+	copy.serverInstances = new java.util.LinkedList();
+	java.util.Iterator p = nd.serverInstances.iterator();
+	while(p.hasNext())
+	{
+	    copy.serverInstances.add(Server.copyDescriptor(
+					 (ServerInstanceDescriptor)p.next()));
+	}
+       
+	copy.servers = new java.util.LinkedList();
+	p = nd.servers.iterator();
+	while(p.hasNext())
+	{
+	    copy.serverInstances.add(Server.copyDescriptor(
+					 (ServerDescriptor)p.next()));
+	}
+	
+	return copy;
+    }
+
+    public boolean[] getAvailableActions()
+    {
+	boolean[] actions = new boolean[ACTION_COUNT];
+
+	actions[COPY] = true;
+	actions[DELETE] = true;
+
+	Object descriptor =  _model.getClipboard();
+	if(descriptor != null)
+	{
+	    actions[PASTE] = descriptor instanceof NodeDescriptor ||
+		descriptor instanceof ServerInstanceDescriptor ||
+		descriptor instanceof ServerDescriptor;
+	}
+	actions[NEW_SERVER] = true;
+	actions[NEW_SERVER_ICEBOX] = true;
+	actions[NEW_SERVER_FROM_TEMPLATE] = true;
+	return actions;
+    }
+
+    public JPopupMenu getPopupMenu()
+    {
+	if(_popup == null)
+	{
+	    _popup = new PopupMenu(_model);
+
+	    JMenuItem newServerItem = new JMenuItem(_model.getActions()[NEW_SERVER]);
+	    newServerItem.setText("New server");
+	    _popup.add(newServerItem);
+
+	    JMenuItem newIceBoxItem = new JMenuItem(_model.getActions()[NEW_SERVER_ICEBOX]);
+	    newIceBoxItem.setText("New IceBox server");
+	    _popup.add(newIceBoxItem);
+
+	    JMenuItem newServerFromTemplateItem = 
+		new JMenuItem(_model.getActions()[NEW_SERVER_FROM_TEMPLATE]);
+	    newServerFromTemplateItem.setText("New server from template");
+	    _popup.add(newServerFromTemplateItem); 
+	}
+	return _popup;
+    }
+    public void copy()
+    {
+	_model.setClipboard(copyDescriptor(_descriptor));
+	_model.getActions()[PASTE].setEnabled(true);
+    }
+    public void paste()
+    {
+	Object descriptor =  _model.getClipboard();
+	if(descriptor instanceof NodeDescriptor)
+	{
+	    _parent.paste();
+	}
+	else if(descriptor instanceof ServerInstanceDescriptor)
+	{
+	    newServer(Server.copyDescriptor((ServerInstanceDescriptor)descriptor));
+	}
+	else
+	{
+	    newServer(Server.copyDescriptor(((ServerDescriptor)descriptor)));
+	}
+    }
+    public void newServer()
+    {
+	newServer(Server.newServerDescriptor());
+    }
+    public void newServerIceBox()
+    {
+	newServer(Server.newIceBoxDescriptor());
+    }
+    public void newServerFromTemplate()
+    {
+	ServerInstanceDescriptor descriptor = 
+	    new ServerInstanceDescriptor("",
+					 new java.util.HashMap());
+
+	newServer(descriptor);
+    }
+    
      public Component getTreeCellRendererComponent(
 	    JTree tree,
 	    Object value,
@@ -265,49 +371,12 @@ class Node extends EditableParent implements InstanceParent
 
     NodeUpdateDescriptor getUpdate()
     {
-	if(!isNew() && !isModified())
-	{
-	    return null;
-	}
-
 	NodeUpdateDescriptor update = new NodeUpdateDescriptor();
 	update.name = _id;
-	
-	if(isNew())
-	{
-	    update.variables = _descriptor.variables;
-	    update.removeVariables = new String[0];
-	}
-	else
-	{
-	    //
-	    // Diff variables (TODO: avoid duplication with same code in Application)
-	    //
-	    update.variables = (java.util.TreeMap)_descriptor.variables.clone();
-	    java.util.List removeVariables = new java.util.LinkedList();
 
-	    java.util.Iterator p = _origVariables.entrySet().iterator();
-	    while(p.hasNext())
-	    {
-		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-		Object key = entry.getKey();
-		Object newValue =  update.variables.get(key);
-		if(newValue == null)
-		{
-		    removeVariables.add(key);
-		}
-		else
-		{
-		    Object value = entry.getValue();
-		    if(newValue.equals(value))
-		    {
-			update.variables.remove(key);
-		    }
-		}
-	    }
-	    update.removeVariables = (String[])removeVariables.toArray(new String[0]);
-	}
-	       
+	//
+	// First: servers
+	//
 	if(isNew())
 	{
 	    update.removeServers = new String[0];
@@ -315,6 +384,10 @@ class Node extends EditableParent implements InstanceParent
 	else
 	{
 	    update.removeServers = removedElements();
+	    for(int i = 0; i < update.removeServers.length; ++i)
+	    {
+		System.err.println(update.removeServers[i]);
+	    }
 	}
 
 	update.serverInstances = new java.util.LinkedList();
@@ -337,6 +410,53 @@ class Node extends EditableParent implements InstanceParent
 		}
 	    }
 	}
+	
+	//
+	// Anything in this update?
+	//
+	if(!isNew() && !isModified() && update.removeServers.length == 0
+	   && update.servers.size() == 0
+	   && update.serverInstances.size() == 0)
+	{
+	    return null;
+	}
+
+	if(isNew())
+	{
+	    update.variables = _descriptor.variables;
+	    update.removeVariables = new String[0];
+	}
+	else
+	{
+	    //
+	    // Diff variables (TODO: avoid duplication with same code in Application)
+	    //
+	    update.variables = (java.util.TreeMap)_descriptor.variables.clone();
+	    java.util.List removeVariables = new java.util.LinkedList();
+
+	    p = _origVariables.entrySet().iterator();
+	    while(p.hasNext())
+	    {
+		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+		Object key = entry.getKey();
+		Object newValue =  update.variables.get(key);
+		if(newValue == null)
+		{
+		    removeVariables.add(key);
+		}
+		else
+		{
+		    Object value = entry.getValue();
+		    if(newValue.equals(value))
+		    {
+			update.variables.remove(key);
+		    }
+		}
+	    }
+	    update.removeVariables = (String[])removeVariables.toArray(new String[0]);
+	}
+	       
+
 	return update;
     }
 
@@ -779,6 +899,141 @@ class Node extends EditableParent implements InstanceParent
 	return _resolver;
     }
 
+
+    void tryAdd(ServerInstanceDescriptor instanceDescriptor,
+		ServerDescriptor serverDescriptor) throws UpdateFailedException
+    {
+	try
+	{
+	    if(instanceDescriptor != null)
+	    {
+		_descriptor.serverInstances.add(instanceDescriptor);
+		addChild(createServer(true, instanceDescriptor, getApplication()),
+			 true);
+	    }
+	    else
+	    {
+		_descriptor.servers.add(serverDescriptor);
+		addChild(createServer(true, serverDescriptor, getApplication()),
+			 true);
+	    }
+	}
+	catch(UpdateFailedException e)
+	{
+	    e.addParent(this);
+	    if(instanceDescriptor != null)
+	    {
+		removeDescriptor(instanceDescriptor);
+	    }
+	    else
+	    {
+		removeDescriptor(serverDescriptor);
+	    }
+	    throw e;
+	}
+    }
+
+
+    void addDescriptor(ServerDescriptor sd)
+    {
+	_descriptor.servers.add(sd);
+    }
+
+    void removeDescriptor(ServerDescriptor sd)
+    {
+	//
+	// A straight remove uses equals(), which is not the desired behavior
+	//
+	java.util.Iterator p = _descriptor.servers.iterator();
+	while(p.hasNext())
+	{
+	    if(sd == p.next())
+	    {
+		p.remove();
+		break;
+	    }
+	}
+    }
+    void addDescriptor(ServerInstanceDescriptor sd)
+    {
+	_descriptor.serverInstances.add(sd);
+    }
+    void removeDescriptor(ServerInstanceDescriptor sd)
+    {
+	//
+	// A straight remove uses equals(), which is not the desired behavior
+	//
+	java.util.Iterator p = _descriptor.serverInstances.iterator();
+	while(p.hasNext())
+	{
+	    if(sd == p.next())
+	    {
+		p.remove();
+		break;
+	    }
+	}
+    }
+
+    private void newServer(ServerDescriptor descriptor)
+    {
+	descriptor.id = makeNewChildId(descriptor.id);
+	
+	Server server = new Server(descriptor.id, null, descriptor, _model);
+	try
+	{
+	    addChild(server, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+	_model.setSelectionPath(server.getPath());
+    }
+
+    private void newServer(ServerInstanceDescriptor descriptor)
+    {
+	String id = makeNewChildId("NewServer");
+	
+	//
+	// Make sure descriptor.template points to a real template
+	//
+	ServerTemplate t = getApplication().findServerTemplate(descriptor.template);
+	
+	if(t == null)
+	{
+	    t = (ServerTemplate)getApplication().getServerTemplates().getChildAt(0);
+	    
+	    if(t == null)
+	    {
+		JOptionPane.showMessageDialog(
+		    _model.getMainFrame(),
+		    "You need to create a server template before you can create a server from a template.",
+		    "No Server Template",
+		    JOptionPane.INFORMATION_MESSAGE);
+		return;
+	    }
+	    else
+	    {
+		descriptor.template = t.getId();
+		descriptor.parameterValues = new java.util.HashMap();
+	    }
+	}
+	
+	ServerDescriptor sd = (ServerDescriptor)
+	    ((TemplateDescriptor)t.getDescriptor()).descriptor;
+
+	Server server = new Server(id, descriptor, sd, _model);
+	try
+	{
+	    addChild(server, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+	_model.setSelectionPath(server.getPath());
+    }
+
     private NodeDescriptor _descriptor;
     private Utils.Resolver _resolver;
 
@@ -793,4 +1048,5 @@ class Node extends EditableParent implements InstanceParent
     static private Icon _nodeDownClosed;
 
     static private NodeEditor _editor;
+    static private JPopupMenu _popup;
 }

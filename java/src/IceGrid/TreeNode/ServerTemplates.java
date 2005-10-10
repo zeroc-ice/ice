@@ -114,8 +114,9 @@ class ServerTemplates extends Templates
 	}
     }
 
-    void getUpdates(java.util.Map updates)
+    java.util.Map getUpdates()
     {
+	java.util.Map updates = new java.util.HashMap();
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
@@ -125,6 +126,7 @@ class ServerTemplates extends Templates
 		updates.put(t.getId(), t.getDescriptor());
 	    }
 	}
+	return updates;
     }
 
     void update() throws UpdateFailedException
@@ -220,7 +222,16 @@ class ServerTemplates extends Templates
 	}
 	catch(UpdateFailedException e)
 	{
-	    assert false; // impossible
+	    e.addParent(this);
+
+	    JOptionPane.showMessageDialog(
+		_model.getMainFrame(),
+		e.toString(),
+		"Apply failed",
+		JOptionPane.ERROR_MESSAGE);
+
+	    removeDescriptor(newId);
+	    return false;
 	}
 	return true;
     }
