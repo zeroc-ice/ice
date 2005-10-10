@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="test_IcePack" default="all" basedir=".">
+<project name="test_IceGrid" default="all" basedir=".">
 
     <target name="all">
         <ant dir="simple"/>

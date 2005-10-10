@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="test_IcePack_simple" default="all" basedir=".">
+<project name="test_IceGrid_simple" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
