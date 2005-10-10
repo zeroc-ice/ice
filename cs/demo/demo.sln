@@ -71,22 +71,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "invokeSD", "Ice\invoke\invo
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "helloIcePackCD", "IcePack\hello\helloIcePackCD.csproj", "{3D4C9F3A-8E6F-4281-88D0-AD8AD3A1C7D9}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "helloIcePackSD", "IcePack\hello\helloIcePackSD.csproj", "{DEA7890A-203D-4028-B319-AA23803543FB}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleIcePackCD", "IcePack\simple\simpleIcePackCD.csproj", "{CCC279C5-FA79-4862-898D-621E2358DE57}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleIcePackSD", "IcePack\simple\simpleIcePackSD.csproj", "{69794D83-A555-4A71-A2F8-D8EF0DA5A718}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bidirCD", "Ice\bidir\bidirCD.csproj", "{8707D8A6-5B7F-4DAB-9619-E18ABB2D9966}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -201,22 +185,6 @@ Global
 		{CB1ADC6B-02F0-4470-A97B-A8F3AFF39581}.Debug.Build.0 = Debug|.NET
 		{CB1ADC6B-02F0-4470-A97B-A8F3AFF39581}.Release.ActiveCfg = Release|.NET
 		{CB1ADC6B-02F0-4470-A97B-A8F3AFF39581}.Release.Build.0 = Release|.NET
-		{3D4C9F3A-8E6F-4281-88D0-AD8AD3A1C7D9}.Debug.ActiveCfg = Debug|.NET
-		{3D4C9F3A-8E6F-4281-88D0-AD8AD3A1C7D9}.Debug.Build.0 = Debug|.NET
-		{3D4C9F3A-8E6F-4281-88D0-AD8AD3A1C7D9}.Release.ActiveCfg = Release|.NET
-		{3D4C9F3A-8E6F-4281-88D0-AD8AD3A1C7D9}.Release.Build.0 = Release|.NET
-		{DEA7890A-203D-4028-B319-AA23803543FB}.Debug.ActiveCfg = Debug|.NET
-		{DEA7890A-203D-4028-B319-AA23803543FB}.Debug.Build.0 = Debug|.NET
-		{DEA7890A-203D-4028-B319-AA23803543FB}.Release.ActiveCfg = Release|.NET
-		{DEA7890A-203D-4028-B319-AA23803543FB}.Release.Build.0 = Release|.NET
-		{CCC279C5-FA79-4862-898D-621E2358DE57}.Debug.ActiveCfg = Debug|.NET
-		{CCC279C5-FA79-4862-898D-621E2358DE57}.Debug.Build.0 = Debug|.NET
-		{CCC279C5-FA79-4862-898D-621E2358DE57}.Release.ActiveCfg = Release|.NET
-		{CCC279C5-FA79-4862-898D-621E2358DE57}.Release.Build.0 = Release|.NET
-		{69794D83-A555-4A71-A2F8-D8EF0DA5A718}.Debug.ActiveCfg = Debug|.NET
-		{69794D83-A555-4A71-A2F8-D8EF0DA5A718}.Debug.Build.0 = Debug|.NET
-		{69794D83-A555-4A71-A2F8-D8EF0DA5A718}.Release.ActiveCfg = Release|.NET
-		{69794D83-A555-4A71-A2F8-D8EF0DA5A718}.Release.Build.0 = Release|.NET
 		{8707D8A6-5B7F-4DAB-9619-E18ABB2D9966}.Debug.ActiveCfg = Debug|.NET
 		{8707D8A6-5B7F-4DAB-9619-E18ABB2D9966}.Debug.Build.0 = Debug|.NET
 		{8707D8A6-5B7F-4DAB-9619-E18ABB2D9966}.Release.ActiveCfg = Release|.NET

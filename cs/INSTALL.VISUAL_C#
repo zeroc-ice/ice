@@ -27,7 +27,7 @@ errors for the following projects:
 
  * adapterDeactivationCOL
  * adapterDeactivationS
- * helloIcePackS
+ * icegridsimpleC
 
 The work-around is to rebuild (not build) these projects individually
 once you have seen the errors. Thereafter, building the projects seems

@@ -75,9 +75,9 @@
                     HintPath = "..\..\..\bin\icecs.dll"
                 />
                 <Reference
-                    Name = "icepackcs"
-                    AssemblyName = "icepackcs"
-                    HintPath = "..\..\..\bin\icepackcs.dll"
+                    Name = "icegridcs"
+                    AssemblyName = "icegridcs"
+                    HintPath = "..\..\..\bin\icegridcs.dll"
                 />
             </References>
         </Build>

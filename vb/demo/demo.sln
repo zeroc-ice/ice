@@ -108,36 +108,6 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "valueSD", "Ice\value\valueS
 		{801CAF98-F8CF-42E2-98AD-1373A8ABA749} = {801CAF98-F8CF-42E2-98AD-1373A8ABA749}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIcePackCD", "IcePack\hello\helloIcePackCD.vbproj", "{C33A09FC-F01D-4685-B17A-EA7BB8842A09}"
-	ProjectSection(ProjectDependencies) = postProject
-		{0AD253C4-238A-47F1-B2F2-BEFBCDB42337} = {0AD253C4-238A-47F1-B2F2-BEFBCDB42337}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIcePackCommonD", "IcePack\hello\helloIcePackCommonD.vbproj", "{0AD253C4-238A-47F1-B2F2-BEFBCDB42337}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIcePackSD", "IcePack\hello\helloIcePackSD.vbproj", "{102BBD19-FBB4-4BA8-83AE-7F1A0D51B201}"
-	ProjectSection(ProjectDependencies) = postProject
-		{0AD253C4-238A-47F1-B2F2-BEFBCDB42337} = {0AD253C4-238A-47F1-B2F2-BEFBCDB42337}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIcePackCD", "IcePack\simple\simpleIcePackCD.vbproj", "{7FB58889-D708-408F-A74A-86FD7A4CFE76}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A535829D-6CF9-4371-AD86-91D82B704BFC} = {A535829D-6CF9-4371-AD86-91D82B704BFC}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIcePackSD", "IcePack\simple\simpleIcePackSD.vbproj", "{65A4B12D-C788-4EF5-A476-0CD675FCF6D7}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A535829D-6CF9-4371-AD86-91D82B704BFC} = {A535829D-6CF9-4371-AD86-91D82B704BFC}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleIcePackCommonD", "IcePack\simple\simpleIcePackCommonD.vbproj", "{A535829D-6CF9-4371-AD86-91D82B704BFC}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
-	EndProjectSection
-EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "printerCD", "book\printer\printerCD.vbproj", "{A9808C9D-94C3-43FC-9100-BB55328865BD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE} = {5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}
