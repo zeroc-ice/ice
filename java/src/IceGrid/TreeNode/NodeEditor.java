@@ -67,6 +67,9 @@ class NodeEditor extends Editor
 	builder.append("Variables", _variables);
 	builder.append(_variablesButton);
 	builder.nextLine();
+	builder.append("Load Factor");
+	builder.append(_loadFactor, 3);
+	builder.nextLine();
     }
     
     boolean isSimpleUpdate()
@@ -93,13 +96,22 @@ class NodeEditor extends Editor
 	
 	NodeDescriptor descriptor = (NodeDescriptor)_target.getDescriptor();
 
-	_variablesMap = descriptor.variables;
-	setVariablesField();
-	
-	_loadFactor.setText(descriptor.loadFactor);
-
+	if(descriptor == null)
+	{
+	    _variablesMap = new java.util.TreeMap();
+	    setVariablesField();
+	    _loadFactor.setText("");
+	}
+	else
+	{
+	    _variablesMap = descriptor.variables;
+	    setVariablesField();
+	    
+	    _loadFactor.setText(descriptor.loadFactor);
+	}
+ 
 	_applyButton.setEnabled(node.isEphemeral());
-	_discardButton.setEnabled(node.isEphemeral());	  
+	_discardButton.setEnabled(node.isEphemeral());
 	detectUpdates(true);
     }
 

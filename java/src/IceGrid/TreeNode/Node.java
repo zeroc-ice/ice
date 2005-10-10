@@ -50,8 +50,8 @@ class Node extends EditableParent implements InstanceParent
 	p = nd.servers.iterator();
 	while(p.hasNext())
 	{
-	    copy.serverInstances.add(Server.copyDescriptor(
-					 (ServerDescriptor)p.next()));
+	    copy.servers.add(Server.copyDescriptor(
+				 (ServerDescriptor)p.next()));
 	}
 	
 	return copy;
@@ -74,6 +74,7 @@ class Node extends EditableParent implements InstanceParent
 	actions[NEW_SERVER] = true;
 	actions[NEW_SERVER_ICEBOX] = true;
 	actions[NEW_SERVER_FROM_TEMPLATE] = true;
+	actions[SHUTDOWN_NODE] = _up;
 	return actions;
     }
 
@@ -95,6 +96,9 @@ class Node extends EditableParent implements InstanceParent
 		new JMenuItem(_model.getActions()[NEW_SERVER_FROM_TEMPLATE]);
 	    newServerFromTemplateItem.setText("New server from template");
 	    _popup.add(newServerFromTemplateItem); 
+	    
+	    _popup.addSeparator();
+	    _popup.add(_model.getActions()[SHUTDOWN_NODE]);
 	}
 	return _popup;
     }
@@ -135,8 +139,60 @@ class Node extends EditableParent implements InstanceParent
 
 	newServer(descriptor);
     }
+    public void shutdownNode()
+    {
+	// TODO: implement!
+    }
     
-     public Component getTreeCellRendererComponent(
+    public boolean destroy()
+    {
+	if(_parent == null)
+	{
+	    return false;
+	}
+	Nodes nodes = (Nodes)_parent;
+	
+	if(_ephemeral)
+	{
+	    nodes.removeChild(this, true);
+	    return true;
+	}
+	else if(!_inRegistry)
+	{
+	    JOptionPane.showMessageDialog(
+		_model.getMainFrame(),
+		"There is no definition for this node in application '" 
+		+ getApplication().getId()
+		+ "'; this node only appears here because it's up and running.",
+		"Nothing to destroy",
+		JOptionPane.INFORMATION_MESSAGE);
+	    return false;
+	}
+	else if(_model.canUpdate())
+	{
+	    Application application = getApplication();
+
+	    nodes.removeDescriptor(_id);
+	    nodes.removeElement(this, true);
+	    if(_up)
+	    {
+		try
+		{
+		    Node cleanNode = new Node(false, _id, null, application, true);
+		    nodes.addChild(cleanNode, true);
+		}
+		catch(UpdateFailedException e)
+		{
+		    assert false;
+		}
+	    }
+	    return true;
+	}
+	return false;
+    }
+
+
+    public Component getTreeCellRendererComponent(
 	    JTree tree,
 	    Object value,
 	    boolean sel,
@@ -211,6 +267,11 @@ class Node extends EditableParent implements InstanceParent
 	return _descriptor;
     }
     
+    public boolean isEphemeral()
+    {
+	return _ephemeral;
+    }
+
     static private class Backup
     {
 	java.util.TreeSet removedElements;
@@ -358,14 +419,14 @@ class Node extends EditableParent implements InstanceParent
     {
 	_up = false;
 
-	if(_descriptor == null)
-	{
-	    return true;
-	}
-	else
+	if(_inRegistry)
 	{
 	    fireNodeChangedEvent(this);
 	    return false;
+	}
+	else
+	{
+	    return true;
 	}
     }
 
@@ -461,23 +522,16 @@ class Node extends EditableParent implements InstanceParent
     }
 
 
-    NodeDescriptor update(NodeUpdateDescriptor update, Application application)
+    void update(NodeUpdateDescriptor update, Application application)
 	throws UpdateFailedException
     {
-	if(_descriptor == null)
+	//
+	// Load factor
+	//
+	if(update.loadFactor != null)
 	{
-	    NodeDescriptor descriptor = new NodeDescriptor(update.variables,
-							   update.serverInstances,
-							   update.servers,
-							   update.loadFactor.value);
-
-	    init(descriptor, application, true);
-	    return _descriptor;
+	    _descriptor.loadFactor = update.loadFactor.value;
 	}
-
-	//
-	// Otherwise it's a real update
-	//
 
 	//
 	// Variables
@@ -596,7 +650,11 @@ class Node extends EditableParent implements InstanceParent
 	updateChildren((CommonBaseI[])updatedChildren.toArray(new CommonBaseI[0]));
 	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
 
-	return null;
+	if(!_inRegistry)
+	{
+	    ((Nodes)_parent).addDescriptor(update.name, _descriptor);
+	    _inRegistry = true;
+	}
     }
    
     public void commit()
@@ -608,49 +666,24 @@ class Node extends EditableParent implements InstanceParent
 	}
     }
 
-    Node(String nodeName, Model model)
-    {
-	super(false, nodeName, model);  
-	_up = true;
-    }
-
-    Node(boolean brandNew, String nodeName, NodeDescriptor descriptor, Application application)
+    Node(boolean brandNew, String nodeName, NodeDescriptor descriptor, 
+	 Application application, boolean up)
 	throws UpdateFailedException
     {
 	super(brandNew, nodeName, application.getModel());
-	init(descriptor, application, false);
-    } 
-    
-    Node(Node o)
-    {
-	super(o);
-	_descriptor = o._descriptor;
-	_resolver = o._resolver;
-	_origVariables = o._origVariables;
-	_up = o._up;
+	_ephemeral = false;
+	_inRegistry = (descriptor != null); 
+	_up = up;
 
-	//
-	// Deep-copy children
-	//
-	java.util.Iterator p = o._children.iterator();
-	while(p.hasNext())
+	if(!_inRegistry)
 	{
-	    Server server = (Server)p.next();
-	    try
-	    {
-		addChild(new Server(server));
-	    }
-	    catch(UpdateFailedException e)
-	    {
-		assert false; // impossible
-	    }
+	    assert !brandNew;
+	    descriptor = new NodeDescriptor(new java.util.TreeMap(), 
+					    new java.util.LinkedList(),
+					    new java.util.LinkedList(),
+					    "");
 	}
-    }
-
-    void init(NodeDescriptor descriptor, Application application, boolean fireEvent)
-	throws UpdateFailedException
-    {
-	assert _descriptor == null;
+	
 	_descriptor = descriptor;
 	_origVariables = (java.util.Map)_descriptor.variables.clone();
 	
@@ -682,24 +715,47 @@ class Node extends EditableParent implements InstanceParent
 	    ServerDescriptor serverDescriptor = (ServerDescriptor)p.next();
 	    addChild(createServer(false, serverDescriptor, application));
 	}
+    } 
+    
+    Node(String nodeName, NodeDescriptor descriptor, Model model)
+    {
+	super(true, nodeName, model);
+	_ephemeral = true;
+	_inRegistry = false;
+    }
 
-	if(fireEvent)
+    Node(Node o)
+    {
+	super(o);
+	_inRegistry = o._inRegistry;
+	_ephemeral = false;
+	assert o._ephemeral == false;
+
+	_descriptor = o._descriptor;
+	_resolver = o._resolver;
+	_origVariables = o._origVariables;
+	_up = o._up;
+
+	//
+	// Deep-copy children
+	//
+	java.util.Iterator p = o._children.iterator();
+	while(p.hasNext())
 	{
-	    fireStructureChangedEvent(this);
+	    Server server = (Server)p.next();
+	    try
+	    {
+		addChild(new Server(server));
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		assert false; // impossible
+	    }
 	}
     }
     
-    
     void update() throws UpdateFailedException
     {
-	if(_descriptor == null)
-	{
-	    //
-	    // Nothing to do
-	    //
-	    return;
-	}
-
 	Application application = getApplication();
 
 	_resolver = new Utils.Resolver(new java.util.Map[]
@@ -1040,6 +1096,9 @@ class Node extends EditableParent implements InstanceParent
     private java.util.Map _origVariables;
 
     private boolean _up = false;
+    private final boolean _ephemeral;
+
+    private boolean _inRegistry;
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon _nodeUpOpen;

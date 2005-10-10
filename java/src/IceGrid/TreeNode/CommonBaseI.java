@@ -261,6 +261,18 @@ abstract class CommonBaseI implements CommonBase
     {
 	assert false;
     }
+    public void shutdownNode()
+    {
+	assert false;
+    }
+    public void applicationRefreshInstallation(boolean shutdown)
+    {
+	assert false;
+    }
+    public void serverRefreshInstallation(boolean shutdown)
+    {
+	assert false;
+    }
     
     public JPopupMenu getPopupMenu()
     {

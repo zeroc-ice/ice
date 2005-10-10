@@ -193,6 +193,9 @@ class Server extends EditableParent
 	    _popup.addSeparator();
 	    _popup.add(_model.getActions()[ENABLE]);
 	    _popup.add(_model.getActions()[DISABLE]);
+	    _popup.addSeparator();
+	    _popup.add(_model.getActions()[SERVER_REFRESH_INSTALLATION]);
+	    _popup.add(_model.getActions()[SERVER_REFRESH_INSTALLATION_NO_SHUTDOWN]);
 	}
 	return _popup;
     }
@@ -409,7 +412,6 @@ class Server extends EditableParent
 	    return true;
 	}
 	return false;
-
     }
 
 
@@ -590,13 +592,17 @@ class Server extends EditableParent
 	if(!_ephemeral)
 	{
 	    Ice.IntHolder pid = new Ice.IntHolder();
-	    _state = _model.getRoot().registerServer(_resolver.find("node"),
-						     _id,
-						     this,
-						     pid);
-	    _pid = pid.value;
+	    ServerState state = _model.getRoot().registerServer(_resolver.find("node"),
+								_id,
+								this,
+								pid);
+	    super.setParent(parent);
+	    updateDynamicInfo(state, pid.value);
 	}
-	super.setParent(parent);
+	else
+	{
+	    super.setParent(parent);
+	}
     }
 
     public void clearParent()

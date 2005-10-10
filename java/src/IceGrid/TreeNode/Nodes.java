@@ -8,6 +8,9 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+
 import IceGrid.ApplicationDescriptor;
 import IceGrid.NodeDescriptor;
 import IceGrid.TreeModelI;
@@ -21,11 +24,54 @@ import IceGrid.ServerState;
 
 public class Nodes extends EditableParent
 {
+    public boolean[] getAvailableActions()
+    {
+	boolean[] actions = new boolean[ACTION_COUNT];
+
+	Object descriptor =  _model.getClipboard();
+	if(descriptor != null)
+	{
+	    actions[PASTE] = descriptor instanceof NodeDescriptor;
+	}
+	actions[NEW_NODE] = true;
+	return actions;
+    }
+
+    public JPopupMenu getPopupMenu()
+    {
+	if(_popup == null)
+	{
+	    _popup = new PopupMenu(_model);
+
+	    JMenuItem newNodeItem = new JMenuItem(_model.getActions()[NEW_NODE]);
+	    newNodeItem.setText("New node");
+	    _popup.add(newNodeItem);
+	}
+	return _popup;
+    }
+
+    public void paste()
+    {
+	Object descriptor = _model.getClipboard();
+	newNode(Node.copyDescriptor((NodeDescriptor)descriptor));
+    }
+    public void newNode()
+    {
+	newNode(new NodeDescriptor(
+		    new java.util.TreeMap(),
+		    new java.util.LinkedList(),
+		    new java.util.LinkedList(),
+		    "1.0"
+		    ));
+    }
+    
     public Nodes(java.util.Map nodeMap, Application application)
 	throws UpdateFailedException
     {
 	super(false, "Nodes", application.getModel());
 	_descriptors = nodeMap;
+
+	java.util.Set nodesUp = _model.getRoot().getNodesUp();
 
 	java.util.Iterator p = nodeMap.entrySet().iterator();
 	while(p.hasNext())
@@ -33,20 +79,20 @@ public class Nodes extends EditableParent
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
 	    String nodeName = (String)entry.getKey();
 	    NodeDescriptor nodeDescriptor = (NodeDescriptor)entry.getValue();
-	    addChild(new Node(false, nodeName, nodeDescriptor, application));
+	    addChild(new Node(false, nodeName, nodeDescriptor, 
+			      application, nodesUp.contains(nodeName)));
 	}
 	
 	//
 	// Also create a Node for each node that is up
 	//
-	Root root = _model.getRoot();
-	p = root.getNodesUp().iterator();
+	p = nodesUp.iterator();
 	while(p.hasNext())
 	{
 	    String nodeName = (String)p.next();
 	    if(findChild(nodeName) == null)
 	    {
-		addChild(new Node(nodeName, application.getModel()));
+		addChild(new Node(false, nodeName, null, application, true));
 	    }
 	}
     }
@@ -166,6 +212,7 @@ public class Nodes extends EditableParent
 	{
 	    NodeUpdateDescriptor update = (NodeUpdateDescriptor)p.next();
 	    Node node = findNode(update.name);
+
 	    if(node == null)
 	    {
 		NodeDescriptor nodeDescriptor = new NodeDescriptor(update.variables,
@@ -173,16 +220,12 @@ public class Nodes extends EditableParent
 								   update.servers,
 								   update.loadFactor.value);
 		_descriptors.put(update.name, nodeDescriptor);
-		node = new Node(false, update.name, nodeDescriptor, application);
+		node = new Node(false, update.name, nodeDescriptor, application, false);
 		newChildren.add(node);
 	    }
 	    else
 	    {
-		NodeDescriptor nodeDescriptor = node.update(update, application);
-		if(nodeDescriptor != null)
-		{
-		    _descriptors.put(update.name, nodeDescriptor);
-		}
+		node.update(update, application);
 	    }
 	}
 	
@@ -194,9 +237,9 @@ public class Nodes extends EditableParent
 	Node node = findNode(nodeName);
 	if(node == null)
 	{
-	    node = new Node(nodeName, _model);
 	    try
 	    {
+		node = new Node(false, nodeName, null, getApplication(), true);
 		addChild(node, true);
 	    }
 	    catch(UpdateFailedException e)
@@ -246,5 +289,33 @@ public class Nodes extends EditableParent
 	return result;
     }
 
+    void addDescriptor(String nodeName, NodeDescriptor descriptor)
+    {
+	_descriptors.put(nodeName, descriptor);
+    }
+    void removeDescriptor(String nodeName)
+    {
+	_descriptors.remove(nodeName);
+    }
+
+
+    private void newNode(NodeDescriptor descriptor)
+    {
+	String name = makeNewChildId("NewNode");
+	
+	Node node = new Node(name, descriptor, _model);
+	try
+	{
+	    addChild(node, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+	_model.setSelectionPath(node.getPath());
+    }
+
+
     private java.util.Map _descriptors;
+    static private JPopupMenu _popup;
 }

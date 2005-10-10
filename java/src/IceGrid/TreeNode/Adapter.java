@@ -125,9 +125,14 @@ class Adapter extends Leaf
 						      _instanceId,
 						      this);
 	    createToolTip();
+	    
+	    super.setParent(parent);
+	    fireNodeChangedEvent(this);
 	}
-
-	super.setParent(parent);
+	else
+	{
+	    super.setParent(parent);
+	}
     }
 
     public void clearParent()

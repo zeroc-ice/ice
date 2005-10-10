@@ -189,6 +189,21 @@ public class Model
 	    add(toolsMenu);
 	    
 	    //
+	    // Application sub-menu
+	    //
+	    JMenu appMenu = new JMenu("Application");
+	    toolsMenu.add(appMenu);
+	    appMenu.add(_actions[CommonBase.APPLICATION_REFRESH_INSTALLATION]);
+	    appMenu.add(_actions[CommonBase.APPLICATION_REFRESH_INSTALLATION_NO_SHUTDOWN]);
+
+	    //
+	    // Node sub-menu
+	    //
+	    JMenu nodeMenu = new JMenu("Node");
+	    toolsMenu.add(nodeMenu);
+	    nodeMenu.add(_actions[CommonBase.SHUTDOWN_NODE]);
+
+	    //
 	    // Server sub-menu
 	    //
 	    JMenu serverMenu = new JMenu("Server");
@@ -198,7 +213,9 @@ public class Model
 	    serverMenu.addSeparator();
 	    serverMenu.add(_actions[CommonBase.ENABLE]);
 	    serverMenu.add(_actions[CommonBase.DISABLE]);
-
+	    serverMenu.addSeparator();
+	    serverMenu.add(_actions[CommonBase.SERVER_REFRESH_INSTALLATION]);
+	    serverMenu.add(_actions[CommonBase.SERVER_REFRESH_INSTALLATION_NO_SHUTDOWN]);
 	    //
 	    // Service sub-menu
 	    //
@@ -1055,7 +1072,45 @@ public class Model
 		    _actionsTarget.disable();
 		}
 	    };
-	
+	_actions[CommonBase.SHUTDOWN_NODE] = new AbstractAction("Shutdown")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.shutdownNode();
+		}
+	    };
+	_actions[CommonBase.APPLICATION_REFRESH_INSTALLATION] = 
+	    new AbstractAction("Refresh installation")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.applicationRefreshInstallation(true);
+		}
+	    };
+	_actions[CommonBase.APPLICATION_REFRESH_INSTALLATION_NO_SHUTDOWN] = 
+	    new AbstractAction("Refresh installation (no shutdown)")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.applicationRefreshInstallation(false);
+		}
+	    };
+	_actions[CommonBase.SERVER_REFRESH_INSTALLATION] = 
+	    new AbstractAction("Refresh installation")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.serverRefreshInstallation(true);
+		}
+	    };
+	_actions[CommonBase.SERVER_REFRESH_INSTALLATION_NO_SHUTDOWN] = 
+	    new AbstractAction("Refresh installation (no shutdown)")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    _actionsTarget.serverRefreshInstallation(false);
+		}
+	    };
     }
 
     //
