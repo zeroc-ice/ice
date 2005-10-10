@@ -113,7 +113,7 @@ slicedirs = [\
     "Glacier2",\
     "Ice",\
     "IceBox",\
-    "IcePack",\
+    "IceGrid",\
     "IcePatch2",\
     "IceStorm",\
 ]
