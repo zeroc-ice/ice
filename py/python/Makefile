@@ -40,7 +40,8 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_FacetMap_ice.py \
 		  Ice_Connection_ice.py \
 		  Ice_ConnectionF_ice.py \
-		  Ice_SliceChecksumDict_ice.py
+		  Ice_SliceChecksumDict_ice.py \
+		  Ice_Endpoint_ice.py
 
 GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
 		  Glacier2_Router_ice.py \
@@ -51,9 +52,12 @@ GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
 
 ICEBOX_SRCS	= IceBox_IceBox_ice.py
 
-ICEPACK_SRCS	= IcePack_Admin_ice.py \
-		  IcePack_Exception_ice.py \
-		  IcePack_Query_ice.py
+ICEGRID_SRCS	= IceGrid_Admin_ice.py \
+		  IceGrid_Descriptor_ice.py \
+		  IceGrid_Exception_ice.py \
+		  IceGrid_Observer_ice.py \
+		  IceGrid_PerfTypes_ice.py \
+		  IceGrid_Query_ice.py
 
 ICEPATCH2_SRCS	= IcePatch2_FileInfo_ice.py \
 		  IcePatch2_FileServer_ice.py
@@ -63,11 +67,11 @@ ICESTORM_SRCS	= IceStorm_IceStorm_ice.py
 ALL_SRCS	= $(ICE_SRCS) \
 		  $(GLACIER2_SRCS) \
 		  $(ICEBOX_SRCS) \
-		  $(ICEPACK_SRCS) \
+		  $(ICEGRID_SRCS) \
 		  $(ICEPATCH2_SRCS) \
 		  $(ICESTORM_SRCS)
 
-PACKAGES	= Glacier2 IceBox IcePack IcePatch2 IceStorm
+PACKAGES	= Glacier2 IceBox IceGrid IcePatch2 IceStorm
 
 all:: $(ALL_SRCS)
 
@@ -80,8 +84,8 @@ Glacier2_%_ice.py: $(slicedir)/Glacier2/%.ice
 IceBox_%_ice.py: $(slicedir)/IceBox/%.ice
 	$(SLICE2PY) --prefix IceBox_ --ice --checksum $(SLICE2PYFLAGS) $<
 
-IcePack_%_ice.py: $(slicedir)/IcePack/%.ice
-	$(SLICE2PY) --prefix IcePack_ --ice --checksum $(SLICE2PYFLAGS) $<
+IceGrid_%_ice.py: $(slicedir)/IceGrid/%.ice
+	$(SLICE2PY) --prefix IceGrid_ --ice --checksum $(SLICE2PYFLAGS) $<
 
 IcePatch2_%_ice.py: $(slicedir)/IcePatch2/%.ice
 	$(SLICE2PY) --prefix IcePatch2_ --ice --checksum $(SLICE2PYFLAGS) $<

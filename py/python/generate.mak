@@ -63,9 +63,12 @@ GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
 
 ICEBOX_SRCS	= IceBox_IceBox_ice.py
 
-ICEPACK_SRCS	= IcePack_Admin_ice.py \
-		  IcePack_Exception_ice.py \
-		  IcePack_Query_ice.py
+ICEGRID_SRCS	= IceGrid_Admin_ice.py \
+		  IceGrid_Descriptor_ice.py \
+		  IceGrid_Exception_ice.py \
+		  IceGrid_Observer_ice.py \
+		  IceGrid_PerfTypes_ice.py \
+		  IceGrid_Query_ice.py
 
 ICEPATCH2_SRCS	= IcePatch2_FileInfo_ice.py \
 		  IcePatch2_FileServer_ice.py
@@ -75,11 +78,11 @@ ICESTORM_SRCS	= IceStorm_IceStorm_ice.py
 ALL_SRCS	= $(ICE_SRCS) \
 		  $(GLACIER2_SRCS) \
 		  $(ICEBOX_SRCS) \
-		  $(ICEPACK_SRCS) \
+		  $(ICEGRID_SRCS) \
 		  $(ICEPATCH2_SRCS) \
 		  $(ICESTORM_SRCS)
 
-PACKAGES	= Glacier2 IceBox IcePack IcePatch2 IceStorm
+PACKAGES	= Glacier2 IceBox IceGrid IcePatch2 IceStorm
 
 SLICE2PYFLAGS	= -I$(slicedir) --ice
 
@@ -218,14 +221,23 @@ IceBox_IceBox_ice.py: $(slicedir)/IceBox/IceBox.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceBox_ $(slicedir)/IceBox/IceBox.ice
 
 
-IcePack_Admin_ice.py: $(slicedir)/IcePack/Admin.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IcePack_ $(slicedir)/IcePack/Admin.ice
+IceGrid_Admin_ice.py: $(slicedir)/IceGrid/Admin.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Admin.ice
 
-IcePack_Exception_ice.py: $(slicedir)/IcePack/Exception.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IcePack_ $(slicedir)/IcePack/Exception.ice
+IceGrid_Descriptor_ice.py: $(slicedir)/IceGrid/Descriptor.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Descriptor.ice
 
-IcePack_Query_ice.py: $(slicedir)/IcePack/Query.ice
-	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IcePack_ $(slicedir)/IcePack/Query.ice
+IceGrid_Exception_ice.py: $(slicedir)/IceGrid/Exception.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Exception.ice
+
+IceGrid_Observer_ice.py: $(slicedir)/IceGrid/Observer.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Observer.ice
+
+IceGrid_PerfTypes_ice.py: $(slicedir)/IceGrid/PerfTypes.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/PerfTypes.ice
+
+IceGrid_Query_ice.py: $(slicedir)/IceGrid/Query.ice
+	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceGrid_ $(slicedir)/IceGrid/Query.ice
 
 
 IcePatch2_FileInfo_ice.py: $(slicedir)/IcePatch2/FileInfo.ice
