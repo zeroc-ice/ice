@@ -15,6 +15,7 @@ SUBDIRS		= Freeze \
 		  Glacier2 \
 		  Ice \
 		  IceBox \
+		  IceGrid \
 		  IcePatch2 \
 		  IceSSL \
 		  IceStorm \
