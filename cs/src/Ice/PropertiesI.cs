@@ -196,15 +196,11 @@ namespace Ice
 	{
 	    lock(this)
 	    {
-		string[] args = parseCommandLineOptions("Ice", options);
-		args = parseCommandLineOptions("Freeze", args);
-		args = parseCommandLineOptions("Glacier", args);
-		args = parseCommandLineOptions("Glacier2", args);
-		args = parseCommandLineOptions("IceBox", args);
-		args = parseCommandLineOptions("IcePack", args);
-		args = parseCommandLineOptions("IcePatch", args);
-		args = parseCommandLineOptions("IceSSL", args);
-		args = parseCommandLineOptions("IceStorm", args);
+		string[] args = options;
+		for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
+		{
+		    args = parseCommandLineOptions(IceInternal.PropertyNames.clPropNames[i], args);
+		}
 		return args;
 	    }
 	}

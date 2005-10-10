@@ -23,7 +23,10 @@
 #
 # The file is organized into labelled sections. The label for a
 # section must be an identifier followed by a colon, such as
-# "ice:". Section labels must appear on a line by themselves (possibly
+# "ice:". The section label is optionally followed by a boolean
+# which is used to determine whether command line processing is
+# done on this section by default. The default is true.
+# Section labels must appear on a line by themselves (possibly
 # followed by a comment).  Leading and trailing whitespace is
 # ignored. Each section must occur only once in a file. "validProps"
 # is reserved and cannot be used as a section name.
@@ -280,7 +283,7 @@ IcePatch2:
     ThreadPool.SizeWarn
     ThreadPool.StackSize
 
-IceSSL:
+IceSSL: false
     Client.CertPath
     Client.Config
     Client.IgnoreValidPeriod

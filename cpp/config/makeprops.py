@@ -112,30 +112,48 @@ def writePreamble(lang):
 	file.write("\n");
 	file.write("#include <Ice/" + classname + ".h>\n")
 
-def writePostamble(lang, labels):
+def writePostamble(lang, labels, commandLineLabels):
     file = outputFiles[0][1]
     if lang == "cpp":
         header = outputFiles[1][1]
 	header.write("\n")
-	header.write("    ICE_API static const char* const* validProps[];\n")
-	header.write("};\n")
-	header.write("\n")
-	header.write("}\n")
-	header.write("\n")
-	header.write("#endif\n");
+
+	header.write("    static const char* const* validProps[];\n")
 	file.write("\n");
-        file.write("ICE_API const char* const* IceInternal::" + classname + "::validProps[] =\n")
+        file.write("const char* const* IceInternal::" + classname + "::validProps[] =\n")
 	file.write("{\n")
 	for label, line in labels.iteritems():
 	    file.write("    " + label + "Props,\n")
 	file.write("    0\n");
 	file.write("};\n")
+
+	header.write("    static const char* clPropNames[];\n")
+	file.write("\n");
+        file.write("const char* IceInternal::" + classname + "::clPropNames[] =\n")
+	file.write("{\n")
+	for label in commandLineLabels:
+	    file.write("    \"" + label + "\",\n")
+	file.write("    0\n");
+	file.write("};\n")
+
+	header.write("};\n")
+	header.write("\n")
+	header.write("}\n")
+	header.write("\n")
+	header.write("#endif\n");
 	return
     if lang == "java":
         file.write("    public static final String[] validProps[] =\n")
 	file.write("    {\n")
 	for label, line in labels.iteritems():
 	    file.write("        " + label + "Props,\n")
+	file.write("        null\n")
+	file.write("    };\n\n");
+
+        file.write("    public static final String clPropNames[] =\n")
+	file.write("    {\n")
+	for label in commandLineLabels:
+	    file.write("        \"" + label + "\",\n")
 	file.write("        null\n")
 	file.write("    };\n");
         file.write("}\n");
@@ -145,6 +163,13 @@ def writePostamble(lang, labels):
 	file.write("        {\n")
 	for label, line in labels.iteritems():
 	    file.write("            " + label + "Props,\n")
+	file.write("            null\n")
+	file.write("        };\n\n");
+
+        file.write("        public static string[] clPropNames =\n")
+	file.write("        {\n")
+	for label in commandLineLabels:
+	    file.write("            \"" + label + "\",\n")
 	file.write("            null\n")
 	file.write("        };\n");
         file.write("    }\n");
@@ -218,9 +243,9 @@ def processFile(lang):
     #
     # Set up regular expressions for empty and comment lines, section headings, and entry lines.
     #
-    ignore = re.compile("^\s*(?:#.*)?$") 			# Empty line or comment line
-    section = re.compile("^\s*([a-zA-z_]\w*)\s*:\s*$")		# Section heading
-    entry = re.compile("^\s*([^ \t\n\r\f\v#]+)(?:\s*#.*)?$")	# Any non-whitespace character sequence, except for #
+    ignore = re.compile("^\s*(?:#.*)?$") 			                # Empty line or comment line
+    section = re.compile("^\s*([a-zA-Z_]\w*)\s*:\s*([a-zA-Z]\w*)?\s*$")        # Section heading
+    entry = re.compile("^\s*([^ \t\n\r\f\v#]+)(?:\s*#.*)?$")	                # Any non-whitespace character sequence, except for #
 
     #
     # Install signal handler so we can remove the output files if we are interrupted.
@@ -238,11 +263,12 @@ def processFile(lang):
     if(lang == "cpp"):
 	openOutputFile(classname + ".h")
 
-    labels = {}		# Records the line number on which each label is defined
-    atSectionStart = 0	# True for the line on which a label is defined
-    seenSection = 0	# Set to true (and the remains as true) once the first label is defined
-    numEntries = 0	# Number of entries within a section
-    errors = 0		# Number of syntax errors in the input file
+    labels = {}		   # Records the line number on which each label is defined
+    commandLineLabels = [] # The set of labels which are command line processing is enabled
+    atSectionStart = 0	   # True for the line on which a label is defined
+    seenSection = 0	   # Set to true (and the remains as true) once the first label is defined
+    numEntries = 0	   # Number of entries within a section
+    errors = 0		   # Number of syntax errors in the input file
 
     #
     # Write preamble.
@@ -278,6 +304,8 @@ def processFile(lang):
 		pass
 	    if label == "validProps":
 	       fileError("`validProps' is reserved and cannot be used as a section heading")
+            if labelMatch.group(2) != "false":
+                commandLineLabels.append(label)
 	    labels[label] = lineNum
 	    if seenSection:
 		endSection(lang)
@@ -309,7 +337,7 @@ def processFile(lang):
     #
     # End the source files.
     #
-    writePostamble(lang, labels)
+    writePostamble(lang, labels, commandLineLabels)
 
     global outputFiles
     for entry in outputFiles:

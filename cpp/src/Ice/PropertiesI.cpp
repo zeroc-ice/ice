@@ -197,22 +197,13 @@ Ice::PropertiesI::parseCommandLineOptions(const string& prefix, const StringSeq&
 StringSeq
 Ice::PropertiesI::parseIceCommandLineOptions(const StringSeq& options)
 {
-    StringSeq args;
-    args = parseCommandLineOptions("Ice", options);
-    args = parseCommandLineOptions("Freeze", args);
-    args = parseCommandLineOptions("Glacier", args);
-    args = parseCommandLineOptions("Glacier2", args);
-    args = parseCommandLineOptions("IceBox", args);
-    args = parseCommandLineOptions("IcePatch", args);
-    args = parseCommandLineOptions("IcePatch2", args);
-    args = parseCommandLineOptions("IceStorm", args);
-    args = parseCommandLineOptions("IceGrid", args);
+    StringSeq args = options;
+    for(const char** i = IceInternal::PropertyNames::clPropNames; *i != 0; ++i)
+    {
+        args = parseCommandLineOptions(*i, args);
+    }
     return args;
 
-    //
-    // IceSSL is *not* in the above list because IceSSL is a plug-in. The properties for plug-ins are
-    // initialized by PluginManager, so there is no need to initialize them here.
-    //
 }
 
 void
