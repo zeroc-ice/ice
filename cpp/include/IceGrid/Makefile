@@ -12,7 +12,7 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 install::
-	@if test ! -d $(install_includedir)/Ice ; \
+	@if test ! -d $(install_includedir)/IceGrid ; \
 	then \
 	    echo "Creating $(install_includedir)/IceGrid..." ; \
 	    $(call mkdir,$(install_includedir)/IceGrid) ; \
