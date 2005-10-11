@@ -576,21 +576,6 @@ class Parent extends CommonBaseI
 	this(id, model, false);
     }
     
-    protected Parent(Parent o)
-    {
-	this(o, false);
-	// Derived class is responsible to populate the children
-    }
-
-    protected Parent(Parent o, boolean copyChildren)
-    {
-	super(o);
-	if(copyChildren)
-	{
-	    _children = (java.util.LinkedList)o._children.clone();
-	}
-    }
-    
     protected void sortChildren(boolean val)
     {
 	_sortChildren = val;

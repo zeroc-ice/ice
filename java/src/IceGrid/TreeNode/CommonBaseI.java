@@ -230,7 +230,14 @@ abstract class CommonBaseI implements CommonBase
 	TreePath parentPath = getParent().getPath();
 	if(destroy())
 	{
-	    _model.setSelectionPath(parentPath);
+	    if(parentPath.getPathCount() > 1)
+	    {
+		_model.setSelectionPath(parentPath);
+	    }
+	    else
+	    {
+		// TODO: show splash
+	    }
 	}
     }
     public void substituteVars()
@@ -363,18 +370,6 @@ abstract class CommonBaseI implements CommonBase
 	{
 	    _path = new TreePath(this);
 	}
-    }
-
-    protected CommonBaseI(CommonBaseI o)
-    {
-	//
-	// Not attached to any tree yet
-	//
-	_path = null;
-	_parent = null;
-
-	_id = o._id;
-	_model = o._model;
     }
 
     public Application getApplication()

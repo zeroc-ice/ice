@@ -79,7 +79,7 @@ class ServiceTemplate extends EditableParent
     
     ServiceTemplate(String name, TemplateDescriptor descriptor, Model model)
     {
-	super(true, name, model);
+	super(false, name, model);
 	_ephemeral = true;
 	try
 	{
@@ -90,19 +90,6 @@ class ServiceTemplate extends EditableParent
 	    assert false;
 	}
     }
-
-    ServiceTemplate(ServiceTemplate o)
-    {
-	super(o, true);
-	assert o._ephemeral == false;
-	_ephemeral = false;
-
-	_templateDescriptor = o._templateDescriptor;
-	_adapters = o._adapters;
-	_dbEnvs = o._dbEnvs;
-	_propertiesHolder = o._propertiesHolder;
-    }
-
 
     void rebuild(TemplateDescriptor descriptor)
 	throws UpdateFailedException

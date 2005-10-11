@@ -33,12 +33,6 @@ class ReplicatedAdapter extends EditableLeaf
 	rebuild(descriptor);
     }
 
-    ReplicatedAdapter(ReplicatedAdapter o)
-    {
-	super(o);
-	_descriptor = o._descriptor;
-    }
-
     void rebuild(ReplicatedAdapterDescriptor descriptor)
     {
 	_descriptor = descriptor;

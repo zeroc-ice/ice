@@ -185,7 +185,7 @@ class ServerTemplate extends EditableParent
     ServerTemplate(String name, TemplateDescriptor descriptor,
 		   Application application)
     {
-	super(true, name, application.getModel());
+	super(false, name, application.getModel());
 	_ephemeral = true;
 	try
 	{
@@ -195,21 +195,6 @@ class ServerTemplate extends EditableParent
 	{
 	    assert false;
 	}
-    }
-
-    ServerTemplate(ServerTemplate o)
-    {
-	super(o, true);
-	assert o._ephemeral == false;
-	_ephemeral = false;
-
-	_templateDescriptor = o._templateDescriptor;
-	_iceBoxDescriptor = o._iceBoxDescriptor;
-	_services = o._services;
-	_dbEnvs = o._dbEnvs;
-	_adapters = o._adapters;
-	
-	_propertiesHolder = o._propertiesHolder;
     }
 
     java.util.List findServiceInstances(String template)

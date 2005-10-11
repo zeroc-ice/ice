@@ -113,28 +113,6 @@ public class Nodes extends EditableParent
 	}
     }
 
-    Nodes(Nodes o)
-    {
-	super(o);
-	_descriptors = o._descriptors;
-
-	//
-	// Deep-copy children
-	//
-	java.util.Iterator p = o._children.iterator();
-	while(p.hasNext())
-	{
-	    try
-	    {
-		addChild(new Node((Node)p.next()));
-	    }
-	    catch(UpdateFailedException e)
-	    {
-		assert false;
-	    }
-	}
-    }
-
     //
     // Try to rebuild all my children
     // No-op if it fails
@@ -189,25 +167,6 @@ public class Nodes extends EditableParent
 	return updates;
     }
 
-    void update() throws UpdateFailedException
-    {
-	java.util.Iterator p = _descriptors.entrySet().iterator();
-	while(p.hasNext())
-	{
-	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-	    String nodeName = (String)entry.getKey();
-	    NodeDescriptor nodeDescriptor = (NodeDescriptor)entry.getValue();
-
-	    Node node = findNode(nodeName);
-	    if(node != null)
-	    {
-		node.update();
-	    }
-	}
-	purgeChildren(_descriptors.keySet());
-	fireStructureChangedEvent(this);
-    }
-   
     void removeServerInstances(String templateId)
     {
 	java.util.Iterator p = _children.iterator();

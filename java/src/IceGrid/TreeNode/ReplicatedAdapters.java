@@ -45,19 +45,6 @@ class ReplicatedAdapters extends EditableParent
 	}
     }
 
-    ReplicatedAdapters(ReplicatedAdapters o)
-	throws UpdateFailedException
-    {
-	super(o);
-	_descriptors = o._descriptors;
-	java.util.Iterator p = o._children.iterator();
-	while(p.hasNext())
-	{
-	    ReplicatedAdapter ra = (ReplicatedAdapter)p.next();
-	    addChild(new ReplicatedAdapter(ra));
-	}
-    }
-
     java.util.LinkedList getUpdates()
     {
 	java.util.LinkedList updates = new java.util.LinkedList();
@@ -72,27 +59,6 @@ class ReplicatedAdapters extends EditableParent
 	}
 	return updates;
     }
-
-
-    void update() throws UpdateFailedException
-    {
-	java.util.Set keepSet = new java.util.HashSet();
-
-	java.util.Iterator p = _descriptors.iterator();
-	while(p.hasNext())
-	{
-	    ReplicatedAdapterDescriptor descriptor 
-		= (ReplicatedAdapterDescriptor)p.next();
-	    keepSet.add(descriptor.id);
-
-	    ReplicatedAdapter ra = (ReplicatedAdapter)findChild(descriptor.id);
-	    assert ra != null;
-	    ra.rebuild(descriptor);
-	}
-	purgeChildren(keepSet);
-	fireStructureChangedEvent(this);
-    }
-
 
     void update(java.util.List descriptors, String[] removeAdapters)
 	throws UpdateFailedException

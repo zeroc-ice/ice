@@ -9,34 +9,14 @@
 package IceGrid.TreeNode;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.JToggleButton;
 import javax.swing.JTree;
-import javax.swing.UIManager;
-import javax.swing.tree.DefaultTreeCellRenderer;
 
-import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.layout.FormLayout;
-import com.jgoodies.forms.layout.Sizes;
-import com.jgoodies.forms.util.LayoutStyle;
-import IceGrid.SimpleInternalFrame;
+import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
 import IceGrid.AdapterDescriptor;
 import IceGrid.DistributionDescriptor;
@@ -49,6 +29,7 @@ import IceGrid.ServerDescriptor;
 import IceGrid.ServerDynamicInfo;
 import IceGrid.ServerInstanceDescriptor;
 import IceGrid.ServerState;
+import IceGrid.SimpleInternalFrame;
 import IceGrid.Utils;
 
 //
@@ -479,31 +460,10 @@ class Server extends EditableParent
 	}
     }
 
-    Server(Server o)
-    {
-	super(o, true);
-	_ephemeral = false;
-	assert o._ephemeral == false;
-
-	_state = o._state;
-	_stateIconIndex = o._stateIconIndex;
-	_pid = o._pid;
-	_toolTip = o._toolTip;
-
-	_instanceDescriptor = o._instanceDescriptor;
-	_serverDescriptor = o._serverDescriptor;
-
-	_resolver = o._resolver;
-
-	_services = o._services;
-	_adapters = o._adapters;
-	_dbEnvs = o._dbEnvs;
-    }
-
     Server(String serverId, ServerInstanceDescriptor instanceDescriptor, 
 	   ServerDescriptor serverDescriptor, Model model)
     {
-	super(true, serverId, model);
+	super(false, serverId, model);
 	_ephemeral = true;
 	try
 	{
@@ -522,13 +482,6 @@ class Server extends EditableParent
     //
     // Update the server and all its subtree
     //
-
-    void rebuild() throws UpdateFailedException
-    {
-	rebuild(_resolver, _instanceDescriptor, 
-		_serverDescriptor, getApplication());
-    }
-
     void rebuild(Utils.Resolver resolver,  
 		 ServerInstanceDescriptor instanceDescriptor,
 		 ServerDescriptor serverDescriptor,

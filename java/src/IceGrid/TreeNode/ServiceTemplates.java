@@ -106,28 +106,6 @@ class ServiceTemplates extends Templates
 	}
     }
 
-    ServiceTemplates(ServiceTemplates o)
-    {
-	super(o);
-	_descriptors = o._descriptors;
-
-	//
-	// Deep-copy children
-	//
-	java.util.Iterator p = o._children.iterator();
-	while(p.hasNext())
-	{
-	    try
-	    {
-		addChild(new ServiceTemplate((ServiceTemplate)p.next()));
-	    }
-	    catch(UpdateFailedException e)
-	    {
-		assert false;
-	    }
-	}
-    }
-
     void newServiceTemplate(TemplateDescriptor descriptor)
     {
 	String id = makeNewChildId("NewServiceTemplate");
@@ -198,31 +176,6 @@ class ServiceTemplates extends Templates
 	}
 	return updates;
     }
-
-    void update() throws UpdateFailedException
-    {
-	//
-	// The only template-descriptor update going through the
-	// update() calls is the update or removal of one template;
-	// template addition does not require a complex validation.
-	//
-	java.util.Iterator p = _descriptors.entrySet().iterator();
-	while(p.hasNext())
-	{
-	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-	    String templateId = (String)entry.getKey();
-	    TemplateDescriptor d = (TemplateDescriptor)entry.getValue();
-
-	    ServiceTemplate t = (ServiceTemplate)findChild(templateId);
-	    if(t != null)
-	    {
-		t.rebuild(d);
-	    }
-	}
-	purgeChildren(_descriptors.keySet());
-	fireStructureChangedEvent(this);
-    }
-
 
     void update(java.util.Map descriptors, String[] removeTemplates)
 	throws UpdateFailedException

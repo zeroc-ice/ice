@@ -43,14 +43,6 @@ class EditableLeaf extends Leaf implements Editable
 	_isNew = brandNew;
     }
 
-    protected EditableLeaf(EditableLeaf o)
-    {
-	super(o);
-	_modified = o._modified;
-	_isNew = o._isNew;
-    }
-
-
     private boolean _isNew;
     private boolean _modified;
 }

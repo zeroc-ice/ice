@@ -108,28 +108,6 @@ class ServerTemplates extends Templates
 	}
     }
 
-    ServerTemplates(ServerTemplates o)
-    {
-	super(o);
-	_descriptors = o._descriptors;
-
-	//
-	// Deep-copy children
-	//
-	java.util.Iterator p = o._children.iterator();
-	while(p.hasNext())
-	{
-	    try
-	    {
-		addChild(new ServerTemplate((ServerTemplate)p.next()));
-	    }
-	    catch(UpdateFailedException e)
-	    {
-		assert false;
-	    }
-	}
-    }
-
     java.util.Map getUpdates()
     {
 	java.util.Map updates = new java.util.HashMap();
@@ -143,33 +121,6 @@ class ServerTemplates extends Templates
 	    }
 	}
 	return updates;
-    }
-
-    void update() throws UpdateFailedException
-    {
-	//
-	// The only template-descriptor update going through the
-	// update() calls is the update or removal of one template;
-	// template addition does not require a complex validation.
-	//
-
-	Application application = getApplication();
-
-	java.util.Iterator p = _descriptors.entrySet().iterator();
-	while(p.hasNext())
-	{
-	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-	    String templateId = (String)entry.getKey();
-	    TemplateDescriptor d = (TemplateDescriptor)entry.getValue();
-
-	    ServerTemplate t = (ServerTemplate)findChild(templateId);
-	    if(t != null)
-	    {
-		t.rebuild(d, application);
-	    }
-	}
-	purgeChildren(_descriptors.keySet());
-	fireStructureChangedEvent(this);
     }
 
     java.util.List findServiceInstances(String template)

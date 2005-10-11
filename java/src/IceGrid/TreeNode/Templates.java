@@ -25,11 +25,6 @@ abstract class Templates extends EditableParent
 	super(false, id, model, false);
     }
 
-    protected Templates(Templates o)
-    {
-	super(o);
-    }
-
     boolean tryUpdate(CommonBase child)
     {
 	java.util.List instanceList = findAllTemplateInstances(child.getId());

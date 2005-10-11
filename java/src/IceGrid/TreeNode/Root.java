@@ -253,34 +253,6 @@ public class Root extends Parent
 	return _dynamicInfoMap.keySet();
     }
     
-    void tryAdd(ApplicationDescriptor ad) throws UpdateFailedException
-    {
-	try
-	{
-	    Application app = new Application(true, ad, _model);
-	    addChild(app, true);
-	}
-	catch(UpdateFailedException e)
-	{
-	    e.addParent(this);
-	    throw e;
-	}
-    }
-
-    void restore(Application copy)
-    {
-	removeChild(copy.getId(), true);
-	try
-	{
-	    addChild(copy, true);
-	}
-	catch(UpdateFailedException e)
-	{
-	    assert false; // impossible
-	}
-    }
-    
-    
     ServerState registerServer(String nodeName, String serverId, Server server, 
 			       Ice.IntHolder pid)
     {
@@ -423,6 +395,21 @@ public class Root extends Parent
 	    adapter.updateProxy(updatedInfo.proxy);
 	}
     }
+
+    void tryAdd(ApplicationDescriptor ad) throws UpdateFailedException
+    {
+	try
+	{
+	    Application app = new Application(true, ad, _model);
+	    addChild(app, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    e.addParent(this);
+	    throw e;
+	}
+    }
+  
 
     private void newApplication(ApplicationDescriptor descriptor)
     {

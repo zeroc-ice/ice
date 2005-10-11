@@ -310,11 +310,27 @@ class Node extends EditableParent implements InstanceParent
 		instanceDescriptor.parameterValues = Editor.makeParameterValues(
 		    instanceDescriptor.parameterValues, templateDescriptor.parameters);
 	    }
-	    newServer = createServer(true, instanceDescriptor, getApplication());
+	    try
+	    {
+		newServer = createServer(false, instanceDescriptor, getApplication());
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		e.addParent(this);
+		throw e;
+	    }
 	}
 	else
 	{
-	    newServer = createServer(true, server.getServerDescriptor(), getApplication()); 
+	    try
+	    {
+		newServer = createServer(false, server.getServerDescriptor(), getApplication());
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		e.addParent(this);
+		throw e;
+	    }
 	}
 
 	if(server.getId().equals(newServer.getId()))
@@ -323,7 +339,6 @@ class Node extends EditableParent implements InstanceParent
 	    // A simple update. We can't simply rebuild server because 
 	    // we need to keep a backup
 	    //
-	    newServer.clearNew();
 	    if(server.isModified())
 	    {
 		newServer.markModified();
@@ -347,6 +362,7 @@ class Node extends EditableParent implements InstanceParent
 	}
 	else
 	{
+	    newServer.markNew();
 	    backup.removedElements = (java.util.TreeSet)_removedElements.clone();
 	    removeElement(server, true);
 	    try
@@ -355,6 +371,7 @@ class Node extends EditableParent implements InstanceParent
 	    }
 	    catch(UpdateFailedException e)
 	    {
+		e.addParent(this);
 		restoreChild(server, backup);
 		throw e;
 	    }
@@ -818,144 +835,6 @@ class Node extends EditableParent implements InstanceParent
 	_inRegistry = false;
 	_descriptor = descriptor;
     }
-
-    Node(Node o)
-    {
-	super(o);
-	_inRegistry = o._inRegistry;
-	_ephemeral = false;
-	assert o._ephemeral == false;
-
-	_descriptor = o._descriptor;
-	_resolver = o._resolver;
-	_origVariables = o._origVariables;
-	_up = o._up;
-
-	//
-	// Deep-copy children
-	//
-	java.util.Iterator p = o._children.iterator();
-	while(p.hasNext())
-	{
-	    Server server = (Server)p.next();
-	    try
-	    {
-		addChild(new Server(server));
-	    }
-	    catch(UpdateFailedException e)
-	    {
-		assert false; // impossible
-	    }
-	}
-    }
-    
-    void update() throws UpdateFailedException
-    {
-	Application application = getApplication();
-
-	_resolver = new Utils.Resolver(new java.util.Map[]
-	    {_descriptor.variables, application.getVariables()});
-				       
-	_resolver.put("application", application.getId());
-	_resolver.put("node", getId());
-	
-	//
-	// Existing servers not in this list will be removed
-	//
-	java.util.Set serverIdSet = new java.util.HashSet();
-
-	//
-	// Template instances
-	//
-	java.util.Iterator p = _descriptor.serverInstances.iterator();
-	while(p.hasNext())
-	{
-	    ServerInstanceDescriptor instanceDescriptor = 
-		(ServerInstanceDescriptor)p.next();
-	    
-	    //
-	    // Find template
-	    //
-	    TemplateDescriptor templateDescriptor = 
-		application.findServerTemplateDescriptor(instanceDescriptor.template);
-
-	    assert templateDescriptor != null;
-
-	    ServerDescriptor serverDescriptor = 
-		(ServerDescriptor)templateDescriptor.descriptor;
-	    
-	    assert serverDescriptor != null;
-	    
-	    //
-	    // Build resolver
-	    //
-	    Utils.Resolver instanceResolver = 
-		new Utils.Resolver(_resolver, 
-				   instanceDescriptor.parameterValues,
-				   templateDescriptor.parameterDefaults);
-	    
-	    String serverId = instanceResolver.substitute(serverDescriptor.id);
-	    instanceResolver.put("server", serverId);
-	    serverIdSet.add(serverId);
-	    
-	    //
-	    // Lookup server
-	    //
-	    Server server = (Server)findChild(serverId);
-	    if(server != null)
-	    {
-		server.rebuild(instanceResolver, instanceDescriptor, 
-			       serverDescriptor, application);
-	    }
-	    else
-	    {
-		//
-		// Create server
-		//
-		server = new Server(true, serverId, instanceResolver, instanceDescriptor, 
-				    serverDescriptor, application);
-		addChild(server, true);
-	    }
-	}
-
-	//
-	// Plain servers
-	//
-	p = _descriptor.servers.iterator();
-	while(p.hasNext())
-	{
-	    ServerDescriptor serverDescriptor = (ServerDescriptor)p.next();
-
-	    //
-	    // Build resolver
-	    //
-	    Utils.Resolver instanceResolver = new Utils.Resolver(_resolver);
-	    String serverId = instanceResolver.substitute(serverDescriptor.id);
-	    instanceResolver.put("server", serverId);
-	    serverIdSet.add(serverId);
-
-	    //
-	    // Lookup server
-	    //
-	    Server server = (Server)findChild(serverId);
-	    if(server != null)
-	    {
-		server.rebuild(instanceResolver, null, serverDescriptor, application);
-	    }
-	    else
-	    {
-		//
-		// Create server
-		//
-		server = new Server(true, serverId, instanceResolver, null, serverDescriptor, 
-				    application);
-		addChild(server);
-	    }
-	}
-
-	purgeChildren(serverIdSet);
-    }
-
 
     void removeInstanceDescriptor(ServerInstanceDescriptor d)
     {

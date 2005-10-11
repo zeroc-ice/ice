@@ -66,9 +66,4 @@ class Leaf extends CommonBaseI
     {
 	super(id, model, false);
     }
-
-    protected Leaf(Leaf o)
-    {
-	super(o);
-    }
 }

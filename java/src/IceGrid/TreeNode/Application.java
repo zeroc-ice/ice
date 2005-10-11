@@ -218,16 +218,31 @@ public class Application extends EditableParent
 	}
 	Root root = (Root)_parent;
 	
-	if(_ephemeral)
+	if(_ephemeral || isNew())
 	{
 	    root.removeChild(this, true);
 	    return true;
 	}
 	else if(_model.canUpdate())
 	{
+	    int confirm = JOptionPane.showConfirmDialog(
+		_model.getMainFrame(),
+		"This will immediately remove this application from "
+		+ "the IceGrid Registry. Do you want to proceed?", 
+		"Remove Confirmation",
+		JOptionPane.YES_NO_OPTION);
+
 	    //
-	    // TODO: must save immediately!
+	    // Asks for confirmation
 	    //
+	    if(confirm == JOptionPane.YES_OPTION)
+	    {
+		if(_model.removeApplication(_id))
+		{
+		    root.removeChild(this, true);
+		    return true;
+		}
+	    }
 	}
 	return false;
     }
@@ -267,90 +282,6 @@ public class Application extends EditableParent
 	super(false, descriptor.name, model);
 	_ephemeral = true;
 	_descriptor = descriptor;
-    }
-
-
-
-    Application(Application o)
-    {
-	super(o);
-	
-	_ephemeral = false;
-	//
-	// We don't deep-copy _descriptor because it's difficult :)
-	// So we'll have to be carefull to properly recover the "old" descriptor.
-	//
-	_descriptor = o._descriptor;
-	_origVariables = o._origVariables;
-	_origDescription = o._origDescription;
-	
-	try
-	{
-	    _replicatedAdapters = new ReplicatedAdapters(o._replicatedAdapters);
-	    addChild(_replicatedAdapters);
-	    
-	    _serviceTemplates = new ServiceTemplates(o._serviceTemplates);
-	    addChild(_serviceTemplates);
-	    
-	    _serverTemplates = new ServerTemplates(o._serverTemplates);
-	    addChild(_serverTemplates);
-	    
-	    _nodes = new Nodes(o._nodes);
-	    addChild(_nodes);
-	}
-	catch(UpdateFailedException e)
-	{
-	    assert false; // impossible
-	}
-    }
-
-    //
-    // Try to apply a major update (the caller must change the descriptor,
-    // and restore it if the applyUpdate is unsuccessful
-    //
-    boolean applyUpdate()
-    {
-	Application copy = new Application(this);
-	
-	try
-	{
-	    update();
-	}
-	catch(UpdateFailedException e)
-	{
-	    JOptionPane.showMessageDialog(
-		_model.getMainFrame(),
-		e.toString(),
-		"Duplicate id error",
-		JOptionPane.ERROR_MESSAGE);
-	    
-	    _model.getRoot().restore(copy);
-	    return false;
-	}
-	return true;
-    }
-
-    //
-    // Major update than can't fail
-    //
-    void applySafeUpdate()
-    {
-	try
-	{
-	    update();
-	}
-	catch(UpdateFailedException e)
-	{
-	    assert false;
-	}
-    }
-
-    void update() throws UpdateFailedException
-    {
-	_replicatedAdapters.update();
-	_serviceTemplates.update();
-	_serverTemplates.update();
-	_nodes.update();
     }
 
     //

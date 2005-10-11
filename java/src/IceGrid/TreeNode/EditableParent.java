@@ -53,6 +53,11 @@ class EditableParent extends Parent implements Editable
 	    }
 	}
     }
+ 
+    public void markNew()
+    {
+	_isNew = true;
+    }
 
     void removeElement(CommonBase child, boolean fireEvent)
     {
@@ -65,27 +70,6 @@ class EditableParent extends Parent implements Editable
 	_removedElements.add(id);
     }
     
-    void purgeChildren(java.util.Set keepSet)
-    {
-	java.util.List toRemove = new java.util.LinkedList();
-
-	java.util.Iterator p = _children.iterator();
-	while(p.hasNext())
-	{
-	    CommonBase child = (CommonBase)p.next();
-	    if(!keepSet.contains(child.getId()))
-	    {
-		_removedElements.add(child.getId());
-		toRemove.add(child.getId());
-	    }
-	}
-
-	if(toRemove.size() > 0)
-	{
-	    removeChildren((String[])toRemove.toArray(new String[0]));
-	}
-    }
-
     String[] removedElements()
     {
 	return (String[])_removedElements.toArray(new String[0]);
@@ -102,28 +86,7 @@ class EditableParent extends Parent implements Editable
 	this(brandNew, id, model, false);
     }
 
-    protected EditableParent(EditableParent o, boolean copyChildren)
-    {
-	super(o, copyChildren);
-	_modified = o._modified;
-	_isNew = o._isNew;
-	_removedElements = (java.util.TreeSet)o._removedElements.clone();
-    }
-
-    protected EditableParent(EditableParent o)
-    {
-	this(o, false);
-    }
-
-    void clearNew()
-    {
-	_isNew = false;
-    }
-    
-    void markNew()
-    {
-	_isNew = true;
-    }
+  
 
     private boolean _isNew = false;
     private boolean _modified = false;

@@ -488,6 +488,40 @@ public class Model
 
     }
 
+    
+    public boolean removeApplication(String applicationName)
+    {
+	assert _writeSerial == _latestSerial;
+	_mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+	try
+	{
+	    _sessionKeeper.getSession().removeApplication(applicationName);
+	    return true;
+	}
+	catch(AccessDeniedException e)
+	{
+	    // Very unlikely
+	    accessDenied(e);
+	    return false;
+	}
+	catch(ApplicationNotExistException e)
+	{
+	    // Most likely an IceGrid bug, so no need to optimize!
+	    //
+	    JOptionPane.showMessageDialog(
+		_mainFrame,
+		"Can't remove Application '" + e.name + "': it does not exist!",
+		"Application does not exist",
+		JOptionPane.ERROR_MESSAGE);
+	    return true;
+	}
+	finally
+	{
+	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+    }
+
     private boolean saveUpdates()
     {
 	assert _writeSerial == _latestSerial;
@@ -536,7 +570,7 @@ public class Model
 		    //
 		    JOptionPane.showMessageDialog(
 			_mainFrame,
-			"Can't update Application " + e.name + ": it does not exist!",
+			"Can't update Application '" + e.name + "': it does not exist!",
 			"Application does not exist",
 			JOptionPane.ERROR_MESSAGE);
 		    return false;
@@ -545,7 +579,7 @@ public class Model
 		{
 		    JOptionPane.showMessageDialog(
 			_mainFrame,
-			"Application " + application.getId() + ": "+ e.reason,
+			"Application '" + application.getId() + "': "+ e.reason,
 			"Deployment Exception",
 			JOptionPane.ERROR_MESSAGE);
 		    return false;
