@@ -14,6 +14,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
@@ -27,6 +28,102 @@ class NodeEditor extends Editor
 {
     protected void applyUpdate()
     {
+	Node node = (Node)_target;
+	Model model = node.getModel();
+
+	if(model.canUpdate())
+	{    
+	    model.disableDisplay();
+
+	    try
+	    {
+		if(node.isEphemeral())
+		{
+		    Nodes nodes = (Nodes)node.getParent();
+		    writeDescriptor();
+		    NodeDescriptor descriptor = (NodeDescriptor)node.getDescriptor();
+		    node.destroy(); // just removes the child
+		    try
+		    {
+			nodes.tryAdd(_name.getText(), descriptor);
+		    }
+		    catch(UpdateFailedException e)
+		    {
+			//
+			// Add back ephemeral child
+			//
+			try
+			{
+			    node.addChild(node, true);
+			}
+			catch(UpdateFailedException die)
+			{
+			    assert false;
+			}
+			model.setSelectionPath(node.getPath());
+
+			JOptionPane.showMessageDialog(
+			    model.getMainFrame(),
+			    e.toString(),
+			    "Apply failed",
+			    JOptionPane.ERROR_MESSAGE);
+			return;
+		    }
+
+		    //
+		    // Success
+		    //
+		    _target = nodes.findChildWithDescriptor(descriptor);
+		    model.setSelectionPath(_target.getPath());
+		    model.showActions(_target);
+		}
+		else if(isSimpleUpdate())
+		{
+		    writeDescriptor();
+		    node.markModified();
+		}
+		else
+		{
+		    //
+		    // Save to be able to rollback
+		    //
+		    Object savedDescriptor = node.saveDescriptor();
+		    writeDescriptor();
+		    try
+		    {
+			if(node.inRegistry())
+			{
+			    node.rebuild();
+			    node.markModified();
+			}
+			else
+			{
+			    node.moveToRegistry();
+			}
+		    }
+		    catch(UpdateFailedException e)
+		    {
+			node.restoreDescriptor(savedDescriptor);
+			JOptionPane.showMessageDialog(
+			    model.getMainFrame(),
+			    e.toString(),
+			    "Apply failed",
+			    JOptionPane.ERROR_MESSAGE);
+			return;
+		    }
+		    //
+		    // Success
+		    //
+		    model.showActions(_target);
+		}
+		_applyButton.setEnabled(false);
+		_discardButton.setEnabled(false);
+	    }
+	    finally
+	    {
+		model.enableDisplay();
+	    }
+	}
     }
 
     NodeEditor(JFrame parentFrame)
@@ -85,7 +182,6 @@ class NodeEditor extends Editor
 	descriptor.loadFactor = _loadFactor.getText();
     }	    
     
-
     void show(Node node)
     {
 	detectUpdates(false);

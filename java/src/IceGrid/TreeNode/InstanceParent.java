@@ -10,8 +10,8 @@ package IceGrid.TreeNode;
 
 interface InstanceParent
 {
-    Object rebuild(CommonBase child, java.util.List editables) 
+    Object rebuildChild(CommonBase child, java.util.List editables) 
 	throws UpdateFailedException;
 
-    void restore(CommonBase child, Object backup);
+    void restoreChild(CommonBase child, Object backup);
 }

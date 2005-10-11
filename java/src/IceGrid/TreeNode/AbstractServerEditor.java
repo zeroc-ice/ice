@@ -155,7 +155,7 @@ abstract class AbstractServerEditor extends Editor
 		    //
 		    // Success
 		    //
-		    node.removeElement(server.getId());
+		    node.removeElement(server.getId()); // replaced by brand new Server
 		    
 		    if(instanceDescriptor != null)
 		    {

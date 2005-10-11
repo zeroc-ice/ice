@@ -475,7 +475,7 @@ class Services extends ListParent implements InstanceParent
     // InstanceParent interface
     //
 
-    public Object rebuild(CommonBase child, java.util.List editables) 
+    public Object rebuildChild(CommonBase child, java.util.List editables) 
 	throws UpdateFailedException
     {
 	int index = getIndex(child);
@@ -523,7 +523,7 @@ class Services extends ListParent implements InstanceParent
 	return savedParameterValues;
     }
 
-    public void restore(CommonBase child, Object backup)
+    public void restoreChild(CommonBase child, Object backup)
     {
 	java.util.Map savedParameterValues = (java.util.Map)backup;
 

@@ -36,7 +36,6 @@ abstract class Templates extends EditableParent
 	
 	java.util.List parentList = new java.util.Vector();
 	java.util.List backupList = new java.util.Vector();
-	java.util.List oldInstanceList = new java.util.Vector();
 
 	java.util.List editables = new java.util.LinkedList();
 
@@ -48,14 +47,14 @@ abstract class Templates extends EditableParent
 	    
 	    try
 	    {
-		backupList.add(parent.rebuild(instance, editables));
+		backupList.add(parent.rebuildChild(instance, editables));
 	    }
 	    catch(UpdateFailedException e)
 	    {
 		for(int i = backupList.size() - 1; i >= 0; --i)
 		{
 		    parent = (InstanceParent)parentList.get(i);
-		    parent.restore((CommonBase)instanceList.get(i), backupList.get(i));
+		    parent.restoreChild((CommonBase)instanceList.get(i), backupList.get(i));
 		}
 
 		JOptionPane.showMessageDialog(
@@ -67,7 +66,6 @@ abstract class Templates extends EditableParent
 		return false;
 	    }
 	    
-	    oldInstanceList.add(instance);
 	    parentList.add(parent);
 	}
 	

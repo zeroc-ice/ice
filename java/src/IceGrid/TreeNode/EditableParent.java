@@ -114,7 +114,17 @@ class EditableParent extends Parent implements Editable
     {
 	this(o, false);
     }
-   
+
+    void clearNew()
+    {
+	_isNew = false;
+    }
+    
+    void markNew()
+    {
+	_isNew = true;
+    }
+
     private boolean _isNew = false;
     private boolean _modified = false;
     protected java.util.TreeSet _removedElements = new java.util.TreeSet();

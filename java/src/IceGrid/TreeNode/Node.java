@@ -266,10 +266,21 @@ class Node extends EditableParent implements InstanceParent
     {
 	return _descriptor;
     }
-    
     public boolean isEphemeral()
     {
 	return _ephemeral;
+    }
+
+    public Object saveDescriptor()
+    {
+	return _descriptor.clone();
+    }
+
+    public void restoreDescriptor(Object savedCopy)
+    {
+	NodeDescriptor copy = (NodeDescriptor)savedCopy;
+	_descriptor.loadFactor = copy.loadFactor;
+	_descriptor.variables = copy.variables;
     }
 
     static private class Backup
@@ -278,13 +289,12 @@ class Node extends EditableParent implements InstanceParent
 	java.util.Map parameterValues;
     }
 
-    public Object rebuild(CommonBase child, java.util.List editables) 
+    public Object rebuildChild(CommonBase child, java.util.List editables) 
 	throws UpdateFailedException
     {
 	Backup backup = new Backup();
-	backup.removedElements = (java.util.TreeSet)_removedElements.clone();
 
-	removeChild(child, true);
+	Server newServer = null;
 	Server server = (Server)child;
 	ServerInstanceDescriptor instanceDescriptor = server.getInstanceDescriptor();
 	
@@ -300,39 +310,66 @@ class Node extends EditableParent implements InstanceParent
 		instanceDescriptor.parameterValues = Editor.makeParameterValues(
 		    instanceDescriptor.parameterValues, templateDescriptor.parameters);
 	    }
-      
+	    newServer = createServer(true, instanceDescriptor, getApplication());
+	}
+	else
+	{
+	    newServer = createServer(true, server.getServerDescriptor(), getApplication()); 
+	}
+
+	if(server.getId().equals(newServer.getId()))
+	{
+	    //
+	    // A simple update. We can't simply rebuild server because 
+	    // we need to keep a backup
+	    //
+	    newServer.clearNew();
+	    if(server.isModified())
+	    {
+		newServer.markModified();
+	    }
+
+	    removeChild(server, true);	    
 	    try
 	    {
-		Server newServer = createServer(true, instanceDescriptor, getApplication());
 		addChild(newServer, true);
 	    }
 	    catch(UpdateFailedException e)
 	    {
-		e.addParent(this);
-		restore(child, backup);
-		throw e;
+		assert false; // impossible, we just removed a child with
+		              // this id
+	    }
+
+	    if(backup.parameterValues != null)
+	    {
+		editables.add(newServer);
 	    }
 	}
 	else
 	{
+	    backup.removedElements = (java.util.TreeSet)_removedElements.clone();
+	    removeElement(server, true);
 	    try
 	    {
-		Server newServer = createServer(true, server.getServerDescriptor(), getApplication());
 		addChild(newServer, true);
 	    }
 	    catch(UpdateFailedException e)
 	    {
-		restore(child, backup);
+		restoreChild(server, backup);
 		throw e;
 	    }
 	}
+	
 	return backup;
     }
 
-    public void restore(CommonBase child, Object backupObject)
+    public void restoreChild(CommonBase child, Object backupObject)
     {
 	Backup backup = (Backup)backupObject;
-	_removedElements = backup.removedElements;
+	if(backup.removedElements != null)
+	{
+	    _removedElements = backup.removedElements;
+	}
 
 	Server goodServer = (Server)child;
 	ServerInstanceDescriptor instanceDescriptor = goodServer.getInstanceDescriptor();
@@ -354,6 +391,51 @@ class Node extends EditableParent implements InstanceParent
 	catch(UpdateFailedException e)
 	{
 	    assert false; // impossible
+	}
+    }
+
+    void rebuild()
+	throws UpdateFailedException
+    {
+	Application application = getApplication();
+	Utils.Resolver oldResolver = _resolver;
+	_resolver = new Utils.Resolver(new java.util.Map[]
+	    {_descriptor.variables, application.getVariables()});
+				       
+	_resolver.put("application", application.getId());
+	_resolver.put("node", getId());
+
+	java.util.List backupList = new java.util.Vector();
+	java.util.List editables = new java.util.LinkedList();
+	java.util.List children = (java.util.LinkedList)_children.clone();
+
+	java.util.Iterator p = children.iterator();
+	while(p.hasNext())
+	{
+	    Server server = (Server)p.next();
+	    try
+	    {
+		backupList.add(rebuildChild(server, editables));
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		for(int i = backupList.size() - 1; i >= 0; --i)
+		{
+		    restoreChild((Server)children.get(i), backupList.get(i));
+		}
+		_resolver = oldResolver;
+		throw e;
+	    }
+	}
+	
+	//
+	// Success, mark modifies servers modified
+	//
+	p = editables.iterator();
+	while(p.hasNext())
+	{
+	    Editable editable = (Editable)p.next();
+	    editable.markModified();
 	}
     }
 
@@ -445,10 +527,6 @@ class Node extends EditableParent implements InstanceParent
 	else
 	{
 	    update.removeServers = removedElements();
-	    for(int i = 0; i < update.removeServers.length; ++i)
-	    {
-		System.err.println(update.removeServers[i]);
-	    }
 	}
 
 	update.serverInstances = new java.util.LinkedList();
@@ -480,6 +558,11 @@ class Node extends EditableParent implements InstanceParent
 	   && update.serverInstances.size() == 0)
 	{
 	    return null;
+	}
+
+	if(!_descriptor.loadFactor.equals(_origLoadFactor))
+	{
+	    update.loadFactor = new IceGrid.BoxedString(_descriptor.loadFactor);
 	}
 
 	if(isNew())
@@ -663,6 +746,7 @@ class Node extends EditableParent implements InstanceParent
 	if(_descriptor != null)
 	{
 	    _origVariables = (java.util.Map)_descriptor.variables.clone();
+	    _origLoadFactor = _descriptor.loadFactor;
 	}
     }
 
@@ -686,7 +770,8 @@ class Node extends EditableParent implements InstanceParent
 	
 	_descriptor = descriptor;
 	_origVariables = (java.util.Map)_descriptor.variables.clone();
-	
+	_origLoadFactor = _descriptor.loadFactor;
+
 
 	_resolver = new Utils.Resolver(new java.util.Map[]
 	    {_descriptor.variables, application.getVariables()});
@@ -719,9 +804,10 @@ class Node extends EditableParent implements InstanceParent
     
     Node(String nodeName, NodeDescriptor descriptor, Model model)
     {
-	super(true, nodeName, model);
+	super(false, nodeName, model);
 	_ephemeral = true;
 	_inRegistry = false;
+	_descriptor = descriptor;
     }
 
     Node(Node o)
@@ -1030,6 +1116,21 @@ class Node extends EditableParent implements InstanceParent
 	}
     }
 
+    boolean inRegistry()
+    {
+	return _inRegistry;
+    }
+
+    void moveToRegistry()
+    {
+	assert !_inRegistry;
+	assert !_ephemeral;
+
+	((Nodes)_parent).addDescriptor(_id, _descriptor);
+	_inRegistry = true;
+	markNew();
+    }
+
     private void newServer(ServerDescriptor descriptor)
     {
 	descriptor.id = makeNewChildId(descriptor.id);
@@ -1094,6 +1195,7 @@ class Node extends EditableParent implements InstanceParent
     private Utils.Resolver _resolver;
 
     private java.util.Map _origVariables;
+    private String _origLoadFactor;
 
     private boolean _up = false;
     private final boolean _ephemeral;

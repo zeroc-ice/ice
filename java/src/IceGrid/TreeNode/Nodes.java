@@ -298,7 +298,21 @@ public class Nodes extends EditableParent
 	_descriptors.remove(nodeName);
     }
 
-
+    void tryAdd(String nodeName, NodeDescriptor descriptor)
+	throws UpdateFailedException
+    {
+	try
+	{
+	    Node node = new Node(true, nodeName, descriptor, getApplication(), false);
+	    addChild(node, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    e.addParent(this);
+	    throw e;
+	}
+    }
+ 
     private void newNode(NodeDescriptor descriptor)
     {
 	String name = makeNewChildId("NewNode");

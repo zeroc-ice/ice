@@ -592,17 +592,19 @@ class Server extends EditableParent
 	if(!_ephemeral)
 	{
 	    Ice.IntHolder pid = new Ice.IntHolder();
-	    ServerState state = _model.getRoot().registerServer(_resolver.find("node"),
-								_id,
-								this,
-								pid);
-	    super.setParent(parent);
-	    updateDynamicInfo(state, pid.value);
+	    _state = _model.getRoot().registerServer(_resolver.find("node"),
+						     _id,
+						     this,
+						     pid);
+	    
+	    _pid = pid.value;
+	    _toolTip = toolTip(_state, _pid);
+	    if(_state != null)
+	    {
+		_stateIconIndex = _state.value() + 1;
+	    }
 	}
-	else
-	{
-	    super.setParent(parent);
-	}
+	super.setParent(parent);
     }
 
     public void clearParent()
@@ -715,7 +717,7 @@ class Server extends EditableParent
 	}
     }
 
-    private static String toolTip(ServerState state, int pid)
+    static private String toolTip(ServerState state, int pid)
     {
 	String result = (state == null ? "Unknown" : state.toString());
 
@@ -730,7 +732,7 @@ class Server extends EditableParent
     private boolean _enabled = true;
     private int _stateIconIndex = 0;
     private int _pid = 0;
-    private String _toolTip = toolTip(_state, _pid);
+    private String _toolTip;
 
     private ServerInstanceDescriptor _instanceDescriptor;
     private ServerDescriptor _serverDescriptor;

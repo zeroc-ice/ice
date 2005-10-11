@@ -125,14 +125,11 @@ class Adapter extends Leaf
 						      _instanceId,
 						      this);
 	    createToolTip();
-	    
-	    super.setParent(parent);
-	    fireNodeChangedEvent(this);
+	    //
+	    // No need to fire an event since this node is not yet in the tree
+	    //  
 	}
-	else
-	{
-	    super.setParent(parent);
-	}
+	super.setParent(parent);
     }
 
     public void clearParent()
