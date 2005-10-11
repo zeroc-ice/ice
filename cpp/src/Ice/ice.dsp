@@ -55,11 +55,11 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
 # ADD LINK32 ws2_32.lib libbz2.lib advapi32.lib /nologo /entry:"ice_DLL_Main" /dll /incremental:yes /debug /machine:I386 /out:"Release/ice30.dll" /implib:"Release/ice.lib" /FIXED:no
-# SUBTRACT LINK32 /pdb:none  /nodefaultlib
+# SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\ice.lib ..\..\lib	copy $(OutDir)\ice30.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\ice.lib ..\..\lib	copy $(OutDir)\ice30.dll ..\..\bin	copy $(OutDir)\ice30.pdb ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ice - Win32 Debug"

@@ -205,6 +205,7 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
 	("BerkeleyDBRuntime", "BERKELEYDB_RUNTIME"),
 	("BerkeleyDBJava", "BERKELEYDB_JAVA"),
 	("BZip2DevKit", "BZIP2_DEV_KIT"),
+	("BZip2Runtime", "BZIP2_RUNTIME"),
 	("ExpatDevKit", "EXPAT_DEV_KIT"),
 	("ExpatRuntime", "EXPAT_RUNTIME"),
 	("OpenSSLDevKit", "OPENSSL_DEV_KIT"),
@@ -307,7 +308,7 @@ def main():
 	print('You have indicated you want to ''clean'' files, starting from scratch.')
 	confirm = ''
 	while not confirm in ['y', 'n']:
-	    confirm = input('Are you sure? [y/N]') 
+	    confirm = raw_input('Are you sure? [y/N]') 
 	    if confirm == '':
 		confirm = 'n'
 	if confirm == 'n':
