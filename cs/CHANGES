@@ -8,6 +8,18 @@ Changes since version 2.1.2
   in proxies will not contain the loopback interface (127.0.0.1) 
   unless it is the only local interface present.
 
+- The Equals method for Slice structures that are mapped
+  to classes now returns false if the two structures being
+  compared are not of the same type.
+
+  Previously, a comparison such as
+
+      derived.Equals(base)
+
+  returned true if the base of part of derived was
+  the same as base; with the new slice2cs compiler, this
+  comparison returns false.
+
 - The Slice mapping for sequences has been improved. The
   generated sequence class now contains the following additional
   properties and methods:
@@ -61,7 +73,7 @@ Changes since version 2.1.2
   does not return a servant, the default locator is not called.
 
 - slice2cs now supports a new metadata directive: ["cs:attribute"].
-  This directive allows you inject C# attribute definitions into the
+  This directive allows you to inject C# attribute definitions into the
   generated code. See the C# mapping chapter in the Ice manual for
   more information.
 

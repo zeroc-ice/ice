@@ -1953,13 +1953,6 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "#region Comparison members";
 
-    _out << sp << nl << "public static bool Equals(" << name << " lhs__, " << name << " rhs__)";
-    _out << sb;
-    _out << nl << "return object.ReferenceEquals(lhs__, null)";
-    _out << nl << "           ? object.ReferenceEquals(rhs__, null)";
-    _out << nl << "           : lhs__.Equals(rhs__);";
-    _out << eb;
-
     _out << sp << nl << "public static bool operator==(" << name << " lhs__, " << name << " rhs__)";
     _out << sb;
     _out << nl << "return Equals(lhs__, rhs__);";
@@ -2089,13 +2082,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sp << nl << "#endregion"; // Object members
 
     _out << sp << nl << "#region Comparison members";
-
-    _out << sp << nl << "public static bool Equals(" << name << " lhs__, " << name << " rhs__)";
-    _out << sb;
-    _out << nl << "return object.ReferenceEquals(lhs__, null)";
-    _out << nl << "           ? object.ReferenceEquals(rhs__, null)";
-    _out << nl << "           : lhs__.Equals(rhs__);";
-    _out << eb;
 
     _out << sp << nl << "public static bool operator==(" << name << " lhs__, " << name << " rhs__)";
     _out << sb;
@@ -2441,29 +2427,47 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp << nl << "public override bool Equals(object other__)";
     _out << sb;
-    _out << nl << "if(object.ReferenceEquals(this, other__))";
-    _out << sb;
-    _out << nl << "return true;";
-    _out << eb;
-    _out << nl << "if(!(other__ is " << name << "))";
+    if(isClass)
+    {
+	_out << nl << "if(object.ReferenceEquals(this, other__))";
+	_out << sb;
+	_out << nl << "return true;";
+	_out << eb;
+    }
+    if(isClass)
+    {
+	_out << nl << "if(other__ == null)";
+	_out << sb;
+	_out << nl << "return false;";
+	_out << eb;
+        _out << nl << "if(GetType() != other__.GetType())";
+    }
+    else
+    {
+	_out << nl << "if(!(other__ is " << name << "))";
+    }
     _out << sb;
     _out << nl << "return false;";
     _out << eb;
+    if(!dataMembers.empty())
+    {
+        _out << nl << name << " o__ = (" << name << ")other__;";
+    }
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
+	string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
 	if(!isValueType((*q)->type()))
 	{
 	    _out << nl << "if(" << memberName << " == null)";
 	    _out << sb;
-	    _out << nl << "if(((" << name << ")other__)." << memberName << " != null)";
+	    _out << nl << "if(o__." << memberName << " != null)";
 	    _out << sb;
 	    _out << nl << "return false;";
 	    _out << eb;
 	    _out << eb;
 	    _out << nl << "else";
 	    _out << sb;
-	    _out << nl << "if(!(" << memberName << ".Equals(((" << name << ")other__)." << memberName << ")))";
+	    _out << nl << "if(!" << memberName << ".Equals(o__." << memberName << "))";
 	    _out << sb;
 	    _out << nl << "return false;";
 	    _out << eb;
@@ -2471,7 +2475,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	}
 	else
 	{
-	    _out << nl << "if(!(" << memberName << ".Equals(((" << name << ")other__)." << memberName << ")))";
+	    _out << nl << "if(!" << memberName << ".Equals(o__." << memberName << "))";
 	    _out << sb;
 	    _out << nl << "return false;";
 	    _out << eb;
@@ -2483,13 +2487,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sp << nl << "#endregion"; // Object members
 
     _out << sp << nl << "#region Comparison members";
-
-    _out << sp << nl << "public static bool Equals(" << name << " lhs__, " << name << " rhs__)";
-    _out << sb;
-    _out << nl << "return object.ReferenceEquals(lhs__, null)";
-    _out << nl << "           ? object.ReferenceEquals(rhs__, null)";
-    _out << nl << "           : lhs__.Equals(rhs__);";
-    _out << eb;
 
     _out << sp << nl << "public static bool operator==(" << name << " lhs__, " << name << " rhs__)";
     _out << sb;
@@ -2907,13 +2904,6 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp << nl << "#endregion"; // Object members
 
     _out << sp << nl << "#region Comparison members";
-
-    _out << sp << nl << "public static bool Equals(" << name << " lhs__, " << name << " rhs__)";
-    _out << sb;
-    _out << nl << "return object.ReferenceEquals(lhs__, null)";
-    _out << nl << "           ? object.ReferenceEquals(rhs__, null)";
-    _out << nl << "           : lhs__.Equals(rhs__);";
-    _out << eb;
 
     _out << sp << nl << "public static bool operator==(" << name << " lhs__, " << name << " rhs__)";
     _out << sb;

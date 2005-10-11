@@ -2080,27 +2080,6 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out.zeroIndent();
     _out << sp << nl << "#End Region"; // Object members
-
-    _out << sp << nl << "#Region \"Shared Equals\"";
-    _out.restoreIndent();
-
-    _out << sp << nl << "Public Overloads Shared Function Equals(ByVal lhs__ As " << name
-         << ", ByVal rhs__ As " << name << ") As Boolean";
-    _out.inc();
-    _out << nl << "If Object.ReferenceEquals(rhs__, Nothing) Then";
-    _out.inc();
-    _out << nl << "Return Object.ReferenceEquals(rhs__, Nothing)";
-    _out.dec();
-    _out << nl << "Else";
-    _out.inc();
-    _out << nl << "Return lhs__.Equals(rhs__)";
-    _out.dec();
-    _out << nl << "End If";
-    _out.dec();
-    _out << nl << "End Function";
-
-    _out.zeroIndent();
-    _out << sp << nl << "#End Region"; // Shared Equals
     _out.restoreIndent();
 
     _out.dec();
@@ -2276,28 +2255,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out.zeroIndent();
     _out << sp << nl << "#End Region"; // Object members
-
-    _out << sp << nl << "#Region \"Shared Equals\"";
-    _out.restoreIndent();
-
-    _out << sp << nl << "Public Overloads Shared Function Equals(ByVal lhs__ As " << name
-         << ", ByVal rhs__ As " << name << ") As Boolean";
-
-    _out.inc();
-    _out << nl << "If Object.ReferenceEquals(rhs__, Nothing) Then";
-    _out.inc();
-    _out << nl << "Return Object.ReferenceEquals(rhs__, Nothing)";
-    _out.dec();
-    _out << nl << "Else";
-    _out.inc();
-    _out << nl << "Return lhs__.Equals(rhs__)";
-    _out.dec();
-    _out << nl << "End If";
-    _out.dec();
-    _out << nl << "End Function";
-
-    _out.zeroIndent();
-    _out << sp << nl << "#End Region"; // Comparison members
     _out.restoreIndent();
 
     if(!p->isLocal())
@@ -2685,16 +2642,34 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp << nl << "Public Overloads Overrides Function Equals(ByVal other__ As Object) As Boolean";
     _out.inc();
-    _out << nl << "If Object.ReferenceEquals(Me, other__) Then";
-    _out.inc();
-    _out << nl << "Return True";
-    _out.dec();
-    _out << nl << "End If";
-    _out << nl << "If Not TypeOf other__ Is " << name << " Then";
-    _out.inc();
-    _out << nl << "Return False";
-    _out.dec();
-    _out << nl << "End If";
+    if(isClass)
+    {
+	_out << nl << "If Object.ReferenceEquals(Me, other__) Then";
+	_out.inc();
+	_out << nl << "Return True";
+	_out.dec();
+	_out << nl << "End If";
+    }
+    if(isClass)
+    {
+        _out << nl << "If other__ Is Nothing Then";
+	_out.inc();
+	_out << nl << "Return False";
+	_out.dec();
+	_out << nl << "End If";
+    }
+    else
+    {
+	_out << nl << "If Not TypeOf other__ Is " << name << " Then";
+	_out.inc();
+	_out << nl << "Return False";
+	_out.dec();
+	_out << nl << "End If";
+    }
+    if(!dataMembers.empty())
+    {
+        _out << nl << "Dim o__ As " << name << " = CType(other__, " << name << ")";
+    }
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
@@ -2702,7 +2677,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	{
 	    _out << nl << "If " << memberName << " Is Nothing Then";
 	    _out.inc();
-	    _out << nl << "If Not CType(other__, " << name << ")." << memberName << " Is Nothing Then";
+	    _out << nl << "If Not o__." << memberName << " Is Nothing Then";
 	    _out.inc();
 	    _out << nl << "Return False";
 	    _out.dec();
@@ -2714,19 +2689,17 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    if(cl && cl->isInterface()) // Bug in VB 7.1: cast should not be necessary.
 	    {
 		_out << nl << "' Bug in VB 7.1: cast to Object should not be necessary.";
-		_out << nl << "If Not CType(" << memberName << ", Object).Equals(CType(other__, "
-		     << name << ")." << memberName << ") Then";
+		_out << nl << "If Not CType(" << memberName << ", Object).Equals(o__." << memberName << ") Then";
 	    }
 	    else if(ProxyPtr::dynamicCast((*q)->type()))
 	    {
 		_out << nl << "' Bug in VB 7.1: cast should not be necessary.";
 		_out << nl << "If Not CType(" << memberName << ", " << typeToString((*q)->type())
-		     << "Helper).Equals(CType(other__, " << name << ")." << memberName << ") Then";
+		     << "Helper).Equals(o__." << memberName << ") Then";
 	    }
 	    else
 	    {
-		_out << nl << "If Not " << memberName << ".Equals(CType(other__, " << name << ")."
-		     << memberName << ") Then";
+		_out << nl << "If Not " << memberName << ".Equals(o__." << memberName << ") Then";
 	    }
 	    _out.inc();
 	    _out << nl << "Return False";
@@ -2737,8 +2710,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	}
 	else
 	{
-	    _out << nl << "If Not " << memberName << ".Equals(CType(other__, " << name << ")."
-	         << memberName << ") Then";
+	    _out << nl << "If Not " << memberName << ".Equals(o__." << memberName << ") Then";
 	    _out.inc();
 	    _out << nl << "Return False";
 	    _out.dec();
@@ -2751,28 +2723,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out.zeroIndent();
     _out << sp << nl << "#End Region"; // Object members
-
-    _out << sp << nl << "#Region \"Shared Equals\"";
-    _out.restoreIndent();
-
-    _out << sp << nl << "Public Overloads Shared Function Equals(ByVal lhs__ As " << name
-         << ", ByVal rhs__ As " << name << ") As Boolean";
-
-    _out.inc();
-    _out << nl << "If Object.ReferenceEquals(rhs__, Nothing) Then";
-    _out.inc();
-    _out << nl << "Return Object.ReferenceEquals(rhs__, Nothing)";
-    _out.dec();
-    _out << nl << "Else";
-    _out.inc();
-    _out << nl << "Return lhs__.Equals(rhs__)";
-    _out.dec();
-    _out << nl << "End If";
-    _out.dec();
-    _out << nl << "End Function";
-
-    _out.zeroIndent();
-    _out << sp << nl << "#End Region"; // Shared Equals
     _out.restoreIndent();
 
     if(!p->isLocal())
@@ -3256,27 +3206,6 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out.zeroIndent();
     _out << sp << nl << "#End Region"; // Object members
-
-    _out << sp << nl << "#Region \"Shared Equals\"";
-    _out.restoreIndent();
-
-    _out << sp << nl << "Public Overloads Shared Function Equals(ByVal lhs__ As " << name
-         << ", ByVal rhs__ As " << name << ") As Boolean";
-    _out.inc();
-    _out << nl << "If Object.ReferenceEquals(rhs__, Nothing) Then";
-    _out.inc();
-    _out << nl << "Return Object.ReferenceEquals(rhs__, Nothing)";
-    _out.dec();
-    _out << nl << "Else";
-    _out.inc();
-    _out << nl << "Return lhs__.Equals(rhs__)";
-    _out.dec();
-    _out << nl << "End If";
-    _out.dec();
-    _out << nl << "End Function";
-
-    _out.zeroIndent();
-    _out << sp << nl << "#End Region"; // Shared Equals
     _out.restoreIndent();
 
     _out.dec();
