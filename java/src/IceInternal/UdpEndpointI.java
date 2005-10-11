@@ -14,7 +14,7 @@ final class UdpEndpointI extends EndpointI
     final static short TYPE = 3;
 
     public
-    UdpEndpointI(Instance instance, String ho, int po, boolean co, boolean pub)
+    UdpEndpointI(Instance instance, String ho, int po, String conId, boolean co, boolean pub)
     {
         _instance = instance;
         _host = ho;
@@ -24,6 +24,7 @@ final class UdpEndpointI extends EndpointI
 	_encodingMajor = Protocol.encodingMajor;
 	_encodingMinor = Protocol.encodingMinor;
         _connect = false;
+	_connectionId = conId;
 	_compress = co;
 	_publish = pub;
         calcHashValue();
@@ -412,7 +413,23 @@ final class UdpEndpointI extends EndpointI
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, _port, compress, _publish);
+            return new UdpEndpointI(_instance, _host, _port, _connectionId, compress, _publish);
+        }
+    }
+
+    //
+    // Return a new endpoint with a different connection id.
+    //
+    public EndpointI
+    connectionId(String connectionId)
+    {
+        if(connectionId == _connectionId)
+        {
+            return this;
+        }
+        else
+        {
+            return new UdpEndpointI(_instance, _host, _port, connectionId, _compress, _publish);
         }
     }
 
@@ -475,7 +492,7 @@ final class UdpEndpointI extends EndpointI
     serverTransceiver(EndpointIHolder endpoint)
     {
         UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _connect);
-        endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _compress, _publish);
+        endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _connectionId, _compress, _publish);
         return p;
     }
 
@@ -519,7 +536,7 @@ final class UdpEndpointI extends EndpointI
             while(iter.hasNext())
             {
                 String host = (String)iter.next();
-                endps.add(new UdpEndpointI(_instance, host, _port, _compress,
+                endps.add(new UdpEndpointI(_instance, host, _port, _connectionId, _compress,
 					   hosts.size() == 1 || !host.equals("127.0.0.1")));
             }
         }
@@ -616,6 +633,11 @@ final class UdpEndpointI extends EndpointI
         {
             return 1;
         }
+
+    	if(!_connectionId.equals(p._connectionId))
+	{
+	    return _connectionId.compareTo(p._connectionId);
+	}
 
         if(!_compress && p._compress)
         {
@@ -721,6 +743,7 @@ final class UdpEndpointI extends EndpointI
         _hashCode = _host.hashCode();
         _hashCode = 5 * _hashCode + _port;
         _hashCode = 5 * _hashCode + (_connect ? 1 : 0);
+        _hashCode = 5 * _hashCode + _connectionId.hashCode();
         _hashCode = 5 * _hashCode + (_compress ? 1 : 0);
     }
 
@@ -732,6 +755,7 @@ final class UdpEndpointI extends EndpointI
     private byte _encodingMajor;
     private byte _encodingMinor;
     private boolean _connect;
+    private String _connectionId = "";
     private boolean _compress;
     private boolean _publish;
     private int _hashCode;

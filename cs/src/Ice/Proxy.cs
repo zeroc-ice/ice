@@ -73,6 +73,7 @@ namespace Ice
         ObjectPrx ice_secure(bool b);
         ObjectPrx ice_compress(bool co);
         ObjectPrx ice_timeout(int t);
+        ObjectPrx ice_connectionId(string connectionId);
         ObjectPrx ice_router(Ice.RouterPrx router);
         ObjectPrx ice_locator(Ice.LocatorPrx locator);
         ObjectPrx ice_collocationOptimization(bool b);
@@ -501,6 +502,21 @@ namespace Ice
         public ObjectPrx ice_timeout(int t)
         {
             IceInternal.Reference @ref = _reference.changeTimeout(t);
+            if(@ref.Equals(_reference))
+            {
+                return this;
+            }
+            else
+            {
+                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+                proxy.setup(@ref);
+                return proxy;
+            }
+        }
+
+	public ObjectPrx ice_connectionId(string connectionId)
+        {
+            IceInternal.Reference @ref = _reference.changeConnectionId(connectionId);
             if(@ref.Equals(_reference))
             {
                 return this;

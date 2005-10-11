@@ -17,7 +17,7 @@ namespace IceInternal
     {
 	internal const short TYPE = 3;
 	
-	public UdpEndpointI(Instance instance, string ho, int po, bool co, bool pub)
+	public UdpEndpointI(Instance instance, string ho, int po, string conId, bool co, bool pub)
 	{
 	    instance_ = instance;
 	    _host = ho;
@@ -27,6 +27,7 @@ namespace IceInternal
 	    _encodingMajor = Protocol.encodingMajor;
 	    _encodingMinor = Protocol.encodingMinor;
 	    _connect = false;
+	    _connectionId = conId;
 	    _compress = co;
 	    _publish = pub;
 	    calcHashValue();
@@ -408,7 +409,22 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		return new UdpEndpointI(instance_, _host, _port, compress, _publish);
+		return new UdpEndpointI(instance_, _host, _port, _connectionId, compress, _publish);
+	    }
+	}
+
+	//
+	// Return a new endpoint with a different connection id.
+	//
+	public override EndpointI connectionId(string connectionId)
+	{
+	    if(connectionId == _connectionId)
+	    {
+		return this;
+	    }
+	    else
+	    {
+		return new UdpEndpointI(instance_, _host, _port, connectionId, _compress, _publish);
 	    }
 	}
 	
@@ -465,7 +481,7 @@ namespace IceInternal
 	public override Transceiver serverTransceiver(ref EndpointI endpoint)
 	{
 	    UdpTransceiver p = new UdpTransceiver(instance_, _host, _port, _connect);
-	    endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _compress, _publish);
+	    endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _connectionId, _compress, _publish);
 	    return p;
 	}
 	
@@ -505,7 +521,7 @@ namespace IceInternal
                 string[] hosts = Network.getLocalHosts();
                 for(int i = 0; i < hosts.Length; ++i)
                 {
-                    endps.Add(new UdpEndpointI(instance_, hosts[i], _port, _compress,
+                    endps.Add(new UdpEndpointI(instance_, hosts[i], _port, _connectionId, _compress,
                                                hosts.Length == 1 || !hosts[i].Equals("127.0.0.1")));
                 }
             }
@@ -598,6 +614,11 @@ namespace IceInternal
 		return 1;
 	    }
 	    
+	    if(!_connectionId.Equals(p._connectionId))
+	    {
+		return _connectionId.CompareTo(p._connectionId);
+	    }
+
 	    if(!_compress && p._compress)
 	    {
 		return -1;
@@ -701,6 +722,7 @@ namespace IceInternal
 	    _hashCode = _host.GetHashCode();
 	    _hashCode = 5 * _hashCode + _port;
 	    _hashCode = 5 * _hashCode + (_connect?1:0);
+	    _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
 	    _hashCode = 5 * _hashCode + (_compress?1:0);
 	}
 	
@@ -712,6 +734,7 @@ namespace IceInternal
 	private byte _encodingMajor;
 	private byte _encodingMinor;
 	private bool _connect;
+	private string _connectionId = "";
 	private bool _compress;
 	private bool _publish;
 	private int _hashCode;

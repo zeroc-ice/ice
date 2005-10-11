@@ -51,6 +51,11 @@ public:
     virtual EndpointIPtr timeout(Ice::Int) const = 0;
 
     //
+    // Return a new endpoint with a different connection id.
+    //
+    virtual EndpointIPtr connectionId(const ::std::string&) const = 0;
+
+    //
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //

@@ -145,6 +145,7 @@ public abstract class Reference implements Cloneable
     public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
     public abstract Reference changeCompress(boolean newCompress);
     public abstract Reference changeTimeout(int newTimeout);
+    public abstract Reference changeConnectionId(String connectionId);
     public abstract Reference changeCollocationOptimization(boolean newCollocationOptimization);
     public abstract Reference changeAdapterId(String newAdapterId);
     public abstract Reference changeEndpoints(EndpointI[] newEndpoints);

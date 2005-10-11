@@ -54,6 +54,11 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     public abstract EndpointI timeout(int t);
 
     //
+    // Return a new endpoint with a different connection id.
+    //
+    public abstract EndpointI connectionId(String connectionId);
+
+    //
     // Return true if the endpoints support bzip2 compress, or false
     // otherwise.
     //

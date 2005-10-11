@@ -62,11 +62,12 @@ tests = [ \
     "Ice/location", \
     "Ice/adapterDeactivation", \
     "Ice/slicing/exceptions", \
-    "Ice/slicing/objects", \
     "Ice/checksum", \
     "Ice/stream", \
     "IceGrid/simple", \
     ]
+
+    #"Ice/slicing/objects", \
 
 def usage():
     print "usage: " + sys.argv[0] + " [-l]"

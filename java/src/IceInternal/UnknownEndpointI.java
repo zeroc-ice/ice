@@ -73,6 +73,15 @@ final class UnknownEndpointI extends EndpointI
     {
         return this;
     }
+
+    //
+    // Return a new endpoint with a different connection id.
+    //
+    public EndpointI
+    connectionId(String connectionId)
+    {
+        return this;
+    }
     
     //
     // Return true if the endpoints support bzip2 compress, or false

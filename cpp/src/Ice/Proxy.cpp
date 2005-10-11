@@ -649,6 +649,22 @@ IceProxy::Ice::Object::ice_collocationOptimization(bool b) const
 }
 
 ObjectPrx
+IceProxy::Ice::Object::ice_connectionId(const string& id) const
+{
+    ReferencePtr ref = _reference->changeConnectionId(id);
+    if(ref == _reference)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(ref);
+	return proxy;
+    }
+}
+
+ObjectPrx
 IceProxy::Ice::Object::ice_default() const
 {
     ReferencePtr ref = _reference->changeDefault();

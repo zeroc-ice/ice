@@ -102,6 +102,19 @@ public class DirectReference extends RoutableReference
     }
 
     public Reference
+    changeConnectionId(String connectionId)
+    {
+        DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
+        EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
+        for(int i = 0; i < _endpoints.length; i++)
+        {
+            newEndpoints[i] = _endpoints[i].connectionId(connectionId);
+        }
+	r._endpoints = newEndpoints;
+	return r;
+    }
+
+    public Reference
     changeAdapterId(String newAdapterId)
     {
 	if(newAdapterId == null || newAdapterId.length() == 0)

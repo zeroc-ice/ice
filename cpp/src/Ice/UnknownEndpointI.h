@@ -27,6 +27,7 @@ public:
     virtual Ice::Short type() const;
     virtual Ice::Int timeout() const;
     virtual EndpointIPtr timeout(Ice::Int) const;
+    virtual EndpointIPtr connectionId(const ::std::string&) const;
     virtual bool compress() const;
     virtual EndpointIPtr compress(bool) const;
     virtual bool datagram() const;

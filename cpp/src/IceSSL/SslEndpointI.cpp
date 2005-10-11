@@ -21,12 +21,13 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string& ho, Int po, Int ti, bool co,
-				   bool pub) :
+IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string& ho, Int po, Int ti,
+				   const string& conId, bool co, bool pub) :
     _plugin(plugin),
     _host(ho),
     _port(po),
     _timeout(ti),
+    _connectionId(conId),
     _compress(co),
     _publish(pub)
 {
@@ -223,7 +224,20 @@ IceSSL::SslEndpointI::timeout(Int timeout) const
     }
     else
     {
-	return new SslEndpointI(_plugin, _host, _port, timeout, _compress, _publish);
+	return new SslEndpointI(_plugin, _host, _port, timeout, _connectionId, _compress, _publish);
+    }
+}
+
+EndpointIPtr
+IceSSL::SslEndpointI::connectionId(const string& connectionId) const
+{
+    if(connectionId == _connectionId)
+    {
+	return const_cast<SslEndpointI*>(this);
+    }
+    else
+    {
+	return new SslEndpointI(_plugin, _host, _port, _timeout, connectionId, _compress, _publish);
     }
 }
 
@@ -242,7 +256,7 @@ IceSSL::SslEndpointI::compress(bool compress) const
     }
     else
     {
-	return new SslEndpointI(_plugin, _host, _port, _timeout, compress, _publish);
+	return new SslEndpointI(_plugin, _host, _port, _timeout, _connectionId, compress, _publish);
     }
 }
 
@@ -287,7 +301,7 @@ AcceptorPtr
 IceSSL::SslEndpointI::acceptor(EndpointIPtr& endp) const
 {
     SslAcceptor* p = new SslAcceptor(_plugin, _host, _port);
-    endp = new SslEndpointI(_plugin, _host, p->effectivePort(), _timeout, _compress, _publish);
+    endp = new SslEndpointI(_plugin, _host, p->effectivePort(), _timeout, _connectionId, _compress, _publish);
     return p;
 }
 
@@ -300,7 +314,7 @@ IceSSL::SslEndpointI::expand() const
         vector<string> hosts = getLocalHosts();
         for(unsigned int i = 0; i < hosts.size(); ++i)
         {
-            endps.push_back(new SslEndpointI(_plugin, hosts[i], _port, _timeout, _compress,
+            endps.push_back(new SslEndpointI(_plugin, hosts[i], _port, _timeout, _connectionId, _compress,
 					     hosts.size() == 1 || hosts[i] != "127.0.0.1"));
         }
     }
@@ -355,6 +369,11 @@ IceSSL::SslEndpointI::operator==(const EndpointI& r) const
     }
 
     if(_timeout != p->_timeout)
+    {
+	return false;
+    }
+
+    if(_connectionId != p->_connectionId)
     {
 	return false;
     }
@@ -421,6 +440,15 @@ IceSSL::SslEndpointI::operator<(const EndpointI& r) const
 	return true;
     }
     else if(p->_timeout < _timeout)
+    {
+	return false;
+    }
+
+    if(_connectionId < p->_connectionId)
+    {
+	return true;
+    }
+    else if(p->_connectionId < _connectionId)
     {
 	return false;
     }

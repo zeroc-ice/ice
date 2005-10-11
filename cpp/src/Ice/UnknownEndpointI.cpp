@@ -59,6 +59,12 @@ IceInternal::UnknownEndpointI::timeout(Int) const
     return const_cast<UnknownEndpointI*>(this);
 }
 
+EndpointIPtr
+IceInternal::UnknownEndpointI::connectionId(const string&) const
+{
+    return const_cast<UnknownEndpointI*>(this);
+}
+
 bool
 IceInternal::UnknownEndpointI::compress() const
 {

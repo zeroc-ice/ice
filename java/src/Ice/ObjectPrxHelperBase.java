@@ -475,6 +475,22 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final ObjectPrx
+    ice_connectionId(String id)
+    {
+        IceInternal.Reference ref = _reference.changeConnectionId(id);
+        if(ref.equals(_reference))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(ref);
+            return proxy;
+        }
+    }
+
+    public final ObjectPrx
     ice_router(Ice.RouterPrx router)
     {
         IceInternal.Reference ref = _reference.changeRouter(router);

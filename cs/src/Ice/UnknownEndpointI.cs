@@ -70,6 +70,14 @@ namespace IceInternal
 	{
 	    return this;
 	}
+
+	//
+	// Return a new endpoint with a different connection id.
+	//
+	public override EndpointI connectionId(string id)
+	{
+	    return this;
+	}
 	
 	//
 	// Return true if the endpoints support bzip2 compress, or false

@@ -22,7 +22,7 @@ class UdpEndpointI : public EndpointI
 {
 public:
 
-    UdpEndpointI(const InstancePtr&, const std::string&, Ice::Int, bool, bool);
+    UdpEndpointI(const InstancePtr&, const std::string&, Ice::Int, const std::string&, bool, bool);
     UdpEndpointI(const InstancePtr&, const std::string&, bool);
     UdpEndpointI(BasicStream*);
 
@@ -31,6 +31,7 @@ public:
     virtual Ice::Short type() const;
     virtual Ice::Int timeout() const;
     virtual EndpointIPtr timeout(Ice::Int) const;
+    virtual EndpointIPtr connectionId(const ::std::string&) const;
     virtual bool compress() const;
     virtual EndpointIPtr compress(bool) const;
     virtual bool datagram() const;
@@ -72,6 +73,7 @@ private:
     const Ice::Byte _encodingMajor;
     const Ice::Byte _encodingMinor;
     const bool _connect;
+    const std::string _connectionId;
     const bool _compress;
     const bool _publish;
 };

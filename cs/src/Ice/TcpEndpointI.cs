@@ -17,12 +17,13 @@ namespace IceInternal
     {
 	internal const short TYPE = 1;
 	
-	public TcpEndpointI(Instance instance, string ho, int po, int ti, bool co, bool pub)
+	public TcpEndpointI(Instance instance, string ho, int po, int ti, string conId, bool co, bool pub)
 	{
 	    instance_ = instance;
 	    _host = ho;
 	    _port = po;
 	    _timeout = ti;
+	    _connectionId = conId;
 	    _compress = co;
 	    _publish = pub;
 	    calcHashValue();
@@ -243,7 +244,22 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		return new TcpEndpointI(instance_, _host, _port, timeout, _compress, _publish);
+		return new TcpEndpointI(instance_, _host, _port, timeout, _connectionId, _compress, _publish);
+	    }
+	}
+
+	//
+	// Return a new endpoint with a different connection id.
+	//
+	public override EndpointI connectionId(string connectionId)
+	{
+	    if(connectionId == _connectionId)
+	    {
+		return this;
+	    }
+	    else
+	    {
+		return new TcpEndpointI(instance_, _host, _port, _timeout, connectionId, _compress, _publish);
 	    }
 	}
 	
@@ -269,7 +285,7 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		return new TcpEndpointI(instance_, _host, _port, _timeout, compress, _publish);
+		return new TcpEndpointI(instance_, _host, _port, _timeout, _connectionId, compress, _publish);
 	    }
 	}
 	
@@ -338,7 +354,8 @@ namespace IceInternal
 	public override Acceptor acceptor(ref EndpointI endpoint)
 	{
 	    TcpAcceptor p = new TcpAcceptor(instance_, _host, _port);
-	    endpoint = new TcpEndpointI(instance_, _host, p.effectivePort(), _timeout, _compress, _publish);
+	    endpoint = new TcpEndpointI(instance_, _host, p.effectivePort(), _timeout, _connectionId,
+					_compress, _publish);
 	    return p;
 	}
 
@@ -356,7 +373,7 @@ namespace IceInternal
 	        string[] hosts = Network.getLocalHosts();
 	        for(int i = 0; i < hosts.Length; ++i)
 	        {
-	            endps.Add(new TcpEndpointI(instance_, hosts[i], _port, _timeout, _compress,
+	            endps.Add(new TcpEndpointI(instance_, hosts[i], _port, _timeout, _connectionId, _compress,
 	                                       hosts.Length == 1 || !hosts[i].Equals("127.0.0.1")));
 	        }
 	    }
@@ -448,6 +465,11 @@ namespace IceInternal
 	    {
 		return 1;
 	    }
+
+	    if(!_connectionId.Equals(p._connectionId))
+	    {
+		return _connectionId.CompareTo(p._connectionId);
+	    }
 	    
 	    if(!_compress && p._compress)
 	    {
@@ -516,6 +538,7 @@ namespace IceInternal
 	    _hashCode = _host.GetHashCode();
 	    _hashCode = 5 * _hashCode + _port;
 	    _hashCode = 5 * _hashCode + _timeout;
+	    _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
 	    _hashCode = 5 * _hashCode + (_compress? 1 : 0);
 	}
 	
@@ -523,6 +546,7 @@ namespace IceInternal
 	private string _host;
 	private int _port;
 	private int _timeout;
+	private string _connectionId = "";
 	private bool _compress;
 	private bool _publish;
 	private int _hashCode;

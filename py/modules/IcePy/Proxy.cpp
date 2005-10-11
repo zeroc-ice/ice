@@ -985,6 +985,34 @@ proxyIceTimeout(ProxyObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+proxyIceConnectionId(ProxyObject* self, PyObject* args)
+{
+    char* connectionId;
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &connectionId))
+    {
+        return NULL;
+    }
+
+    assert(self->proxy);
+
+    Ice::ObjectPrx newProxy;
+    try
+    {
+        newProxy = (*self->proxy)->ice_connectionId(connectionId);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return createProxy(newProxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 proxyIceRouter(ProxyObject* self, PyObject* args)
 {
     PyObject* p;
@@ -1493,6 +1521,8 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_compress(bool) -> Ice.ObjectPrx")) },
     { STRCAST("ice_timeout"), (PyCFunction)proxyIceTimeout, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_timeout(int) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_connectionId"), (PyCFunction)proxyIceConnectionId, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_connectionId(string) -> Ice.ObjectPrx")) },
     { STRCAST("ice_router"), (PyCFunction)proxyIceRouter, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_router(Ice.RouterPrx) -> Ice.ObjectPrx")) },
     { STRCAST("ice_locator"), (PyCFunction)proxyIceLocator, METH_VARARGS,

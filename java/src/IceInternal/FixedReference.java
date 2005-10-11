@@ -106,6 +106,12 @@ public class FixedReference extends Reference
 	return this;
     }
 
+    public Reference
+    changeConnectionId(String connectionId)
+    {
+	return this;
+    }
+
     public void
     streamWrite(BasicStream s)
 	throws Ice.MarshalException

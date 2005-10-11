@@ -478,6 +478,12 @@ IceInternal::FixedReference::changeTimeout(int) const
 }
 
 ReferencePtr
+IceInternal::FixedReference::changeConnectionId(const string&) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
+}
+
+ReferencePtr
 IceInternal::FixedReference::changeAdapterId(const string& newAdapterId) const
 {
     return FixedReferencePtr(const_cast<FixedReference*>(this));    
@@ -829,6 +835,20 @@ IceInternal::DirectReference::changeTimeout(int newTimeout) const
 }
 
 ReferencePtr
+IceInternal::DirectReference::changeConnectionId(const string& id) const
+{
+    DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    vector<EndpointIPtr> newEndpoints;
+    vector<EndpointIPtr>::const_iterator p;
+    for(p = _endpoints.begin(); p != _endpoints.end(); ++p)
+    {
+	newEndpoints.push_back((*p)->connectionId(id));
+    }
+    r->_endpoints = newEndpoints;
+    return r;
+}
+
+ReferencePtr
 IceInternal::DirectReference::changeAdapterId(const string& newAdapterId) const
 {
     if(!newAdapterId.empty())
@@ -1076,6 +1096,18 @@ IceInternal::IndirectReference::changeTimeout(int newTimeout) const
     if(_locatorInfo)
     {
 	LocatorPrx newLocator = LocatorPrx::uncheckedCast(_locatorInfo->getLocator()->ice_timeout(newTimeout));
+	r->_locatorInfo = getInstance()->locatorManager()->get(newLocator);
+    }
+    return r;
+}
+
+ReferencePtr
+IceInternal::IndirectReference::changeConnectionId(const string& id) const
+{
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    if(_locatorInfo)
+    {
+	LocatorPrx newLocator = LocatorPrx::uncheckedCast(_locatorInfo->getLocator()->ice_connectionId(id));
 	r->_locatorInfo = getInstance()->locatorManager()->get(newLocator);
     }
     return r;

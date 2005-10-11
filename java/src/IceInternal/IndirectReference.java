@@ -122,6 +122,19 @@ public class IndirectReference extends RoutableReference
     }
 
     public Reference
+    changeConnectionId(String connectionId)
+    {
+        IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+	if(_locatorInfo != null)
+	{
+	    Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(
+	    					_locatorInfo.getLocator().ice_connectionId(connectionId));
+	    r._locatorInfo = getInstance().locatorManager().get(newLocator);
+	}
+	return r;
+    }
+
+    public Reference
     changeAdapterId(String newAdapterId)
     {
 	if(_adapterId.equals(newAdapterId))

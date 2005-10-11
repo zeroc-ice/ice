@@ -77,6 +77,7 @@ public:
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const = 0;
     virtual ReferencePtr changeCompress(bool) const = 0;
     virtual ReferencePtr changeTimeout(int) const = 0;
+    virtual ReferencePtr changeConnectionId(const std::string&) const = 0;
     virtual ReferencePtr changeCollocationOptimization(bool) const = 0;
     virtual ReferencePtr changeAdapterId(const std::string&) const = 0;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const = 0;
@@ -146,6 +147,7 @@ public:
     virtual ReferencePtr changeCollocationOptimization(bool) const;
     virtual ReferencePtr changeCompress(bool) const;
     virtual ReferencePtr changeTimeout(int) const;
+    virtual ReferencePtr changeConnectionId(const std::string&) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
 
@@ -222,6 +224,7 @@ public:
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
     virtual ReferencePtr changeCompress(bool) const;
     virtual ReferencePtr changeTimeout(int) const;
+    virtual ReferencePtr changeConnectionId(const std::string&) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
 
@@ -262,6 +265,7 @@ public:
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
     virtual ReferencePtr changeCompress(bool) const;
     virtual ReferencePtr changeTimeout(int) const;
+    virtual ReferencePtr changeConnectionId(const std::string&) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
 

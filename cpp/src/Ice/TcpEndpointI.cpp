@@ -21,12 +21,13 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& ho, Int po, Int ti, bool co,
-				        bool pub) :
+IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& ho, Int po, Int ti,
+					const string& conId, bool co, bool pub) :
     _instance(instance),
     _host(ho),
     _port(po),
     _timeout(ti),
+    _connectionId(conId),
     _compress(co),
     _publish(pub)
 {
@@ -223,7 +224,20 @@ IceInternal::TcpEndpointI::timeout(Int timeout) const
     }
     else
     {
-	return new TcpEndpointI(_instance, _host, _port, timeout, _compress, _publish);
+	return new TcpEndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _publish);
+    }
+}
+
+EndpointIPtr
+IceInternal::TcpEndpointI::connectionId(const string& connectionId) const
+{
+    if(connectionId == _connectionId)
+    {
+	return const_cast<TcpEndpointI*>(this);
+    }
+    else
+    {
+	return new TcpEndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _publish);
     }
 }
 
@@ -242,7 +256,7 @@ IceInternal::TcpEndpointI::compress(bool compress) const
     }
     else
     {
-	return new TcpEndpointI(_instance, _host, _port, _timeout, compress, _publish);
+	return new TcpEndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _publish);
     }
 }
 
@@ -287,7 +301,7 @@ AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(EndpointIPtr& endp) const
 {
     TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port);
-    endp = new TcpEndpointI(_instance, _host, p->effectivePort(), _timeout, _compress, _publish);
+    endp = new TcpEndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress, _publish);
     return p;
 }
 
@@ -300,7 +314,7 @@ IceInternal::TcpEndpointI::expand() const
         vector<string> hosts = getLocalHosts();
 	for(unsigned int i = 0; i < hosts.size(); ++i)
 	{
-	    endps.push_back(new TcpEndpointI(_instance, hosts[i], _port, _timeout, _compress,
+	    endps.push_back(new TcpEndpointI(_instance, hosts[i], _port, _timeout, _connectionId, _compress,
 	    				     hosts.size() == 1 || hosts[i] != "127.0.0.1"));
 	}
     }
@@ -354,6 +368,11 @@ IceInternal::TcpEndpointI::operator==(const EndpointI& r) const
     }
 
     if(_timeout != p->_timeout)
+    {
+	return false;
+    }
+
+    if(_connectionId != p->_connectionId)
     {
 	return false;
     }
@@ -420,6 +439,15 @@ IceInternal::TcpEndpointI::operator<(const EndpointI& r) const
 	return true;
     }
     else if(p->_timeout < _timeout)
+    {
+	return false;
+    }
+
+    if(_connectionId < p->_connectionId)
+    {
+	return true;
+    }
+    else if(p->_connectionId < _connectionId)
     {
 	return false;
     }

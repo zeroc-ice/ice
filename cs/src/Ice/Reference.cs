@@ -136,6 +136,7 @@ namespace IceInternal
 	public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
 	public abstract Reference changeCompress(bool newCompress);
 	public abstract Reference changeTimeout(int newTimeout);
+	public abstract Reference changeConnectionId(string connectionId);
 	public abstract Reference changeCollocationOptimization(bool newCollocationOptimization);
 	public abstract Reference changeAdapterId(string newAdapterId);
 	public abstract Reference changeEndpoints(EndpointI[] newEndpoints);
@@ -705,6 +706,11 @@ namespace IceInternal
 	    return this;
 	}
 
+	public override Reference changeConnectionId(string connectionId)
+	{
+	    return this;
+	}
+
 	public override void streamWrite(BasicStream s)
 	{
 	     Ice.MarshalException ex = new Ice.MarshalException();
@@ -976,6 +982,18 @@ namespace IceInternal
 	    return r;
 	}
 
+	public override Reference changeConnectionId(string connectionId)
+	{
+	    DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
+	    EndpointI[] newEndpoints = new EndpointI[_endpoints.Length];
+	    for(int i = 0; i < _endpoints.Length; i++)
+	    {
+		newEndpoints[i] = _endpoints[i].connectionId(connectionId);
+	    }
+	    r._endpoints = newEndpoints;
+	    return r;
+	}
+
 	public override Reference changeAdapterId(string newAdapterId)
         {
 	    if(newAdapterId == null || newAdapterId.Length == 0)
@@ -1195,6 +1213,18 @@ namespace IceInternal
 	    {
 		Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(
 						    locatorInfo_.getLocator().ice_timeout(newTimeout));
+		r.locatorInfo_ = getInstance().locatorManager().get(newLocator);
+	    }
+	    return r;
+	}
+
+	public override Reference changeConnectionId(string connectionId)
+	{
+	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+	    if(locatorInfo_ != null)
+	    {
+		Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(
+						    locatorInfo_.getLocator().ice_connectionId(connectionId));
 		r.locatorInfo_ = getInstance().locatorManager().get(newLocator);
 	    }
 	    return r;

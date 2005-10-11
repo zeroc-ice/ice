@@ -23,7 +23,8 @@ class SslEndpointI : public IceInternal::EndpointI
 {
 public:
 
-    SslEndpointI(const IceSSL::OpenSSLPluginIPtr&, const std::string&, Ice::Int, Ice::Int, bool, bool);
+    SslEndpointI(const IceSSL::OpenSSLPluginIPtr&, const std::string&, Ice::Int, Ice::Int,
+		 const std::string&, bool, bool);
     SslEndpointI(const IceSSL::OpenSSLPluginIPtr&, const std::string&, bool);
     SslEndpointI(const IceSSL::OpenSSLPluginIPtr&, IceInternal::BasicStream*);
 
@@ -32,6 +33,7 @@ public:
     virtual Ice::Short type() const;
     virtual Ice::Int timeout() const;
     virtual IceInternal::EndpointIPtr timeout(Ice::Int) const;
+    virtual IceInternal::EndpointIPtr connectionId(const std::string&) const;
     virtual bool compress() const;
     virtual IceInternal::EndpointIPtr compress(bool) const;
     virtual bool datagram() const;
@@ -69,6 +71,7 @@ private:
     const std::string _host;
     const Ice::Int _port;
     const Ice::Int _timeout;
+    const std::string _connectionId;
     const bool _compress;
     const bool _publish;
 };

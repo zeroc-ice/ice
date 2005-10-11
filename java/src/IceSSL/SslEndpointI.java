@@ -14,12 +14,13 @@ final class SslEndpointI extends IceInternal.EndpointI
     final static short TYPE = 2;
 
     public
-    SslEndpointI(Instance instance, String ho, int po, int ti, boolean co, boolean pub)
+    SslEndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co, boolean pub)
     {
 	_instance = instance;
 	_host = ho;
 	_port = po;
 	_timeout = ti;
+	_connectionId = conId;
 	_compress = co;
 	_publish = pub;
 	calcHashValue();
@@ -246,7 +247,23 @@ final class SslEndpointI extends IceInternal.EndpointI
 	}
 	else
 	{
-	    return new SslEndpointI(_instance, _host, _port, timeout, _compress, _publish);
+	    return new SslEndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _publish);
+	}
+    }
+
+    //
+    // Return a new endpoint with a different connection id.
+    //
+    public IceInternal.EndpointI
+    connectionId(String connectionId)
+    {
+	if(connectionId == _connectionId)
+	{
+	    return this;
+	}
+	else
+	{
+	    return new SslEndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _publish);
 	}
     }
 
@@ -274,7 +291,7 @@ final class SslEndpointI extends IceInternal.EndpointI
 	}
 	else
 	{
-	    return new SslEndpointI(_instance, _host, _port, _timeout, compress, _publish);
+	    return new SslEndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _publish);
 	}
     }
 
@@ -350,7 +367,8 @@ final class SslEndpointI extends IceInternal.EndpointI
     acceptor(IceInternal.EndpointIHolder endpoint)
     {
 	SslAcceptor p = new SslAcceptor(_instance, _host, _port);
-	endpoint.value = new SslEndpointI(_instance, _host, p.effectivePort(), _timeout, _compress, _publish);
+	endpoint.value = new SslEndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId,
+					  _compress, _publish);
 	return p;
     }
 
@@ -370,7 +388,7 @@ final class SslEndpointI extends IceInternal.EndpointI
             while(iter.hasNext())
             {
                 String host = (String)iter.next();
-                endps.add(new SslEndpointI(_instance, host, _port, _timeout, _compress,
+                endps.add(new SslEndpointI(_instance, host, _port, _timeout, _connectionId, _compress,
 					   hosts.size() == 1 || !host.equals("127.0.0.1")));
             }
         }
@@ -459,6 +477,11 @@ final class SslEndpointI extends IceInternal.EndpointI
 	    return 1;
 	}
 
+    	if(!_connectionId.equals(p._connectionId))
+	{
+	    return _connectionId.compareTo(p._connectionId);
+	}
+
 	if(_timeout < p._timeout)
 	{
 	    return -1;
@@ -536,6 +559,7 @@ final class SslEndpointI extends IceInternal.EndpointI
 	_hashCode = _host.hashCode();
 	_hashCode = 5 * _hashCode + _port;
 	_hashCode = 5 * _hashCode + _timeout;
+        _hashCode = 5 * _hashCode + _connectionId.hashCode();
 	_hashCode = 5 * _hashCode + (_compress ? 1 : 0);
     }
 
@@ -543,6 +567,7 @@ final class SslEndpointI extends IceInternal.EndpointI
     private String _host;
     private int _port;
     private int _timeout;
+    private String _connectionId = "";
     private boolean _compress;
     private boolean _publish;
     private int _hashCode;
