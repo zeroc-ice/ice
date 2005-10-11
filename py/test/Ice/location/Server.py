@@ -29,8 +29,8 @@ class ServerLocatorRegistry(Ice.LocatorRegistry):
         self._adapters = {}
         self._objects = {}
 
-    def setAdapterDirectProxy_async(self, cb, server, adapter, obj, current=None):
-        self._adapters[adapter] = obj
+    def setAdapterDirectProxy_async(self, cb, adapterId, replicaId, obj, current=None):
+        self._adapters[adapterId] = obj
 	cb.ice_response()
 
     def setServerProcessProxy_async(self, id, proxy, current=None):
