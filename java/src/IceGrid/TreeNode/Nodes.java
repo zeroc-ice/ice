@@ -24,6 +24,22 @@ import IceGrid.ServerState;
 
 public class Nodes extends EditableParent
 {
+    static public java.util.HashMap
+    copyDescriptors(java.util.Map descriptors)
+    {
+	java.util.HashMap copy = new java.util.HashMap();
+	java.util.Iterator p = descriptors.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    
+	    copy.put(entry.getKey(), 
+		     Node.copyDescriptor(
+			 (NodeDescriptor)entry.getValue()));
+	}
+	return copy;
+    }
+
     public boolean[] getAvailableActions()
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
@@ -61,7 +77,7 @@ public class Nodes extends EditableParent
 		    new java.util.TreeMap(),
 		    new java.util.LinkedList(),
 		    new java.util.LinkedList(),
-		    "1.0"
+		    ""
 		    ));
     }
     
@@ -116,6 +132,44 @@ public class Nodes extends EditableParent
 	    {
 		assert false;
 	    }
+	}
+    }
+
+    //
+    // Try to rebuild all my children
+    // No-op if it fails
+    //
+    void rebuild() throws UpdateFailedException
+    {
+	java.util.List backupList = new java.util.Vector();
+	java.util.List editables = new java.util.LinkedList();
+
+	java.util.Iterator p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Node node = (Node)p.next();
+	    try
+	    {
+		backupList.add(node.rebuild(editables));
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		for(int i = backupList.size() - 1; i >= 0; --i)
+		{
+		    ((Node)_children.get(i)).restore((Node.Backup)backupList.get(i));
+		}
+		throw e;
+	    }
+	}
+
+	//
+	// Success
+	//
+	p = editables.iterator();
+	while(p.hasNext())
+	{
+	    Editable editable = (Editable)p.next();
+	    editable.markModified();
 	}
     }
 

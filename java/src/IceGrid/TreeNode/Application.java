@@ -9,10 +9,12 @@
 package IceGrid.TreeNode;
 
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 
 import IceGrid.AdapterDynamicInfo;
 import IceGrid.ApplicationDescriptor;
 import IceGrid.ApplicationUpdateDescriptor;
+import IceGrid.DistributionDescriptor;
 import IceGrid.Model;
 import IceGrid.ServerDynamicInfo;
 import IceGrid.ServerState;
@@ -22,6 +24,60 @@ import IceGrid.TemplateDescriptor;
 
 public class Application extends EditableParent
 {
+    static public ApplicationDescriptor
+    copyDescriptor(ApplicationDescriptor ad)
+    {
+	ApplicationDescriptor copy = (ApplicationDescriptor)ad.clone();
+	
+	copy.replicatedAdapters = 
+	    ReplicatedAdapters.copyDescriptors(copy.replicatedAdapters);
+	
+	copy.serverTemplates = 
+	    ServerTemplates.copyDescriptors(copy.serverTemplates);
+	
+	copy.serviceTemplates = 
+	    ServiceTemplates.copyDescriptors(copy.serviceTemplates);
+	
+	copy.nodes = Nodes.copyDescriptors(copy.nodes);
+
+	copy.distrib = (DistributionDescriptor)copy.distrib.clone();
+	return copy;
+    }
+    
+    public boolean[] getAvailableActions()
+    {
+	boolean[] actions = new boolean[ACTION_COUNT];
+
+	actions[COPY] = true;
+	actions[DELETE] = true;
+
+	Object descriptor =  _model.getClipboard();
+	if(descriptor != null)
+	{
+	    actions[PASTE] = descriptor instanceof ApplicationDescriptor;
+	}
+	actions[APPLICATION_REFRESH_INSTALLATION] = true;
+	return actions;
+    }
+    public JPopupMenu getPopupMenu()
+    {
+	if(_popup == null)
+	{
+	    _popup = new PopupMenu(_model);
+	    _popup.add(_model.getActions()[APPLICATION_REFRESH_INSTALLATION]);
+	}
+	return _popup;
+    }
+    public void copy()
+    {
+	_model.setClipboard(copyDescriptor(_descriptor));
+	_model.getActions()[PASTE].setEnabled(true);
+    }
+    public void paste()
+    {
+	_parent.paste();
+    }
+
     public ApplicationUpdateDescriptor createUpdateDescriptor()
     {
 	ApplicationUpdateDescriptor update = new ApplicationUpdateDescriptor();
@@ -33,7 +89,8 @@ public class Application extends EditableParent
 	    //
 	    if(!_descriptor.description.equals(_origDescription))
 	    {
-		update.description.value = _descriptor.description;
+		update.description = 
+		    new IceGrid.BoxedString(_descriptor.description);
 	    }
 
 	    //
@@ -131,6 +188,50 @@ public class Application extends EditableParent
 
     }
 
+    public boolean isEphemeral()
+    {
+	return _ephemeral;
+    }
+
+    public Object saveDescriptor()
+    {
+	ApplicationDescriptor clone = (ApplicationDescriptor)_descriptor.clone();
+	clone.distrib = (IceGrid.DistributionDescriptor)clone.distrib.clone();
+	return clone;
+    }
+
+    public void restoreDescriptor(Object savedDescriptor)
+    {
+	ApplicationDescriptor clone = (ApplicationDescriptor)savedDescriptor;
+
+	_descriptor.variables = clone.variables;
+	_descriptor.distrib.icepatch = clone.distrib.icepatch;
+	_descriptor.distrib.directories = clone.distrib.directories;
+	_descriptor.description = clone.description;
+    }
+    
+    public boolean destroy()
+    {
+	if(_parent == null)
+	{
+	    return false;
+	}
+	Root root = (Root)_parent;
+	
+	if(_ephemeral)
+	{
+	    root.removeChild(this, true);
+	    return true;
+	}
+	else if(_model.canUpdate())
+	{
+	    //
+	    // TODO: must save immediately!
+	    //
+	}
+	return false;
+    }
+
 
     //
     // Builds the application and all its subtrees
@@ -139,6 +240,7 @@ public class Application extends EditableParent
 	throws UpdateFailedException
     {
 	super(brandNew, descriptor.name, model);
+	_ephemeral = false;
 	_descriptor = descriptor;
 	_origVariables = (java.util.Map)_descriptor.variables.clone();
 	_origDescription = _descriptor.description;
@@ -160,10 +262,20 @@ public class Application extends EditableParent
 	addChild(_nodes);
     }
 
+    Application(ApplicationDescriptor descriptor, Model model)
+    {
+	super(false, descriptor.name, model);
+	_ephemeral = true;
+	_descriptor = descriptor;
+    }
+
+
+
     Application(Application o)
     {
 	super(o);
 	
+	_ephemeral = false;
 	//
 	// We don't deep-copy _descriptor because it's difficult :)
 	// So we'll have to be carefull to properly recover the "old" descriptor.
@@ -239,6 +351,15 @@ public class Application extends EditableParent
 	_serviceTemplates.update();
 	_serverTemplates.update();
 	_nodes.update();
+    }
+
+    //
+    // Try to rebuild this application;
+    // no-op if it fails!
+    //
+    void rebuild() throws UpdateFailedException
+    {
+	_nodes.rebuild();
     }
 
     //
@@ -410,6 +531,8 @@ public class Application extends EditableParent
     }
     
     private ApplicationDescriptor _descriptor;
+    
+    private final boolean _ephemeral;
 
     //
     // Keeps original version (as deep copies) to be able to build 
@@ -428,4 +551,5 @@ public class Application extends EditableParent
     private Nodes _nodes;
 
     static private ApplicationEditor _editor;
+    static private JPopupMenu _popup;
 }

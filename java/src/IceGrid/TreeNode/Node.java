@@ -283,7 +283,7 @@ class Node extends EditableParent implements InstanceParent
 	_descriptor.variables = copy.variables;
     }
 
-    static private class Backup
+    static private class ServerBackup
     {
 	java.util.TreeSet removedElements;
 	java.util.Map parameterValues;
@@ -292,7 +292,7 @@ class Node extends EditableParent implements InstanceParent
     public Object rebuildChild(CommonBase child, java.util.List editables) 
 	throws UpdateFailedException
     {
-	Backup backup = new Backup();
+	ServerBackup backup = new ServerBackup();
 
 	Server newServer = null;
 	Server server = (Server)child;
@@ -365,7 +365,7 @@ class Node extends EditableParent implements InstanceParent
 
     public void restoreChild(CommonBase child, Object backupObject)
     {
-	Backup backup = (Backup)backupObject;
+	ServerBackup backup = (ServerBackup)backupObject;
 	if(backup.removedElements != null)
 	{
 	    _removedElements = backup.removedElements;
@@ -394,51 +394,59 @@ class Node extends EditableParent implements InstanceParent
 	}
     }
 
-    void rebuild()
+    static class Backup
+    {
+	Utils.Resolver resolver;
+	java.util.List backupList;
+	java.util.List servers;
+    }
+
+    //
+    // Try to rebuild this node;
+    // returns a backup object if rollback is later necessary
+    //
+    Backup rebuild(java.util.List editables)
 	throws UpdateFailedException
     {
 	Application application = getApplication();
-	Utils.Resolver oldResolver = _resolver;
+	Backup backup = new Backup();
+	backup.resolver = _resolver;
+
 	_resolver = new Utils.Resolver(new java.util.Map[]
 	    {_descriptor.variables, application.getVariables()});
 				       
 	_resolver.put("application", application.getId());
 	_resolver.put("node", getId());
 
-	java.util.List backupList = new java.util.Vector();
-	java.util.List editables = new java.util.LinkedList();
-	java.util.List children = (java.util.LinkedList)_children.clone();
+	backup.backupList = new java.util.Vector();
+	backup.servers = (java.util.LinkedList)_children.clone();
 
-	java.util.Iterator p = children.iterator();
+	java.util.Iterator p = backup.servers.iterator();
 	while(p.hasNext())
 	{
 	    Server server = (Server)p.next();
 	    try
 	    {
-		backupList.add(rebuildChild(server, editables));
+		backup.backupList.add(rebuildChild(server, editables));
 	    }
 	    catch(UpdateFailedException e)
 	    {
-		for(int i = backupList.size() - 1; i >= 0; --i)
-		{
-		    restoreChild((Server)children.get(i), backupList.get(i));
-		}
-		_resolver = oldResolver;
+		restore(backup);
 		throw e;
 	    }
 	}
-	
-	//
-	// Success, mark modifies servers modified
-	//
-	p = editables.iterator();
-	while(p.hasNext())
-	{
-	    Editable editable = (Editable)p.next();
-	    editable.markModified();
-	}
+	return backup;
     }
-
+    
+    void restore(Backup backup)
+    {	
+	for(int i = backup.backupList.size() - 1; i >= 0; --i)
+	{
+	    restoreChild((Server)backup.servers.get(i), backup.backupList.get(i));
+	}
+	_resolver = backup.resolver;
+    }
+    
     private Server createServer(boolean brandNew, ServerInstanceDescriptor instanceDescriptor,
 				Application application) throws UpdateFailedException
     {
@@ -560,18 +568,19 @@ class Node extends EditableParent implements InstanceParent
 	    return null;
 	}
 
-	if(!_descriptor.loadFactor.equals(_origLoadFactor))
-	{
-	    update.loadFactor = new IceGrid.BoxedString(_descriptor.loadFactor);
-	}
-
 	if(isNew())
 	{
 	    update.variables = _descriptor.variables;
 	    update.removeVariables = new String[0];
+	    update.loadFactor = new IceGrid.BoxedString(_descriptor.loadFactor);
 	}
 	else
 	{
+	    if(!_descriptor.loadFactor.equals(_origLoadFactor))
+	    {
+		update.loadFactor = new IceGrid.BoxedString(_descriptor.loadFactor);
+	    }
+
 	    //
 	    // Diff variables (TODO: avoid duplication with same code in Application)
 	    //

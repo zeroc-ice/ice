@@ -31,7 +31,8 @@ class Services extends ListParent implements InstanceParent
 	java.util.Iterator p = descriptors.iterator();
 	while(p.hasNext())
 	{
-	    copy.add(Service.copyDescriptor((ServiceInstanceDescriptor)p.next()));
+	    copy.add(Service.copyDescriptor(
+			 (ServiceInstanceDescriptor)p.next()));
 	}
 	return copy;
     }

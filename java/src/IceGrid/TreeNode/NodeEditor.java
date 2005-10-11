@@ -93,7 +93,20 @@ class NodeEditor extends Editor
 		    {
 			if(node.inRegistry())
 			{
-			    node.rebuild();
+			    //
+			    // Rebuild node; don't need the backup
+			    // since it's just one node
+			    //
+			    java.util.List editables = 
+				new java.util.LinkedList();
+
+			    node.rebuild(editables);
+			    java.util.Iterator p = editables.iterator();
+			    while(p.hasNext())
+			    {
+				Editable editable = (Editable)p.next();
+				editable.markModified();
+			    }
 			    node.markModified();
 			}
 			else

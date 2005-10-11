@@ -22,6 +22,23 @@ import IceGrid.TemplateDescriptor;
 
 class ServiceTemplates extends Templates
 {
+    static public java.util.HashMap
+    copyDescriptors(java.util.Map descriptors)
+    {
+	java.util.HashMap copy = new java.util.HashMap();
+	java.util.Iterator p = descriptors.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+	    
+	    copy.put(entry.getKey(), 
+		     ServiceTemplate.copyDescriptor(
+			 (TemplateDescriptor)entry.getValue()));
+	}
+	return copy;
+    }
+    
+
     //
     // Actions
     //

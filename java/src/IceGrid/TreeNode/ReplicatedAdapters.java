@@ -16,6 +16,19 @@ import IceGrid.Utils;
 
 class ReplicatedAdapters extends EditableParent
 {
+    static public java.util.LinkedList
+    copyDescriptors(java.util.List descriptors)
+    {
+	java.util.LinkedList copy = new java.util.LinkedList();
+	java.util.Iterator p = descriptors.iterator();
+	while(p.hasNext())
+	{
+	    copy.add(ReplicatedAdapter.copyDescriptor(
+			 (ReplicatedAdapterDescriptor)p.next()));
+	}
+	return copy;
+    }
+
     ReplicatedAdapters(java.util.List descriptors, Model model)
 	throws UpdateFailedException
     {

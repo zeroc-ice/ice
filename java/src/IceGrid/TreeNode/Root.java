@@ -36,6 +36,27 @@ public class Root extends Parent
     };
 
 
+    public void paste()
+    {
+	ApplicationDescriptor ad = 
+	    (ApplicationDescriptor)_model.getClipboard();
+	newApplication(Application.copyDescriptor(ad));
+    }
+    public void newApplication()
+    {
+	newApplication(
+	    new ApplicationDescriptor("NewApplication",
+				      new java.util.TreeMap(),
+				      new java.util.LinkedList(),
+				      new java.util.HashMap(),
+				      new java.util.HashMap(),
+				      new java.util.HashMap(),
+				      new IceGrid.DistributionDescriptor(
+					  "", new java.util.LinkedList()),
+				      ""));
+    }
+
+
     public Root(Model model)
     {
 	super("Applications", model, true);
@@ -232,6 +253,20 @@ public class Root extends Parent
 	return _dynamicInfoMap.keySet();
     }
     
+    void tryAdd(ApplicationDescriptor ad) throws UpdateFailedException
+    {
+	try
+	{
+	    Application app = new Application(true, ad, _model);
+	    addChild(app, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    e.addParent(this);
+	    throw e;
+	}
+    }
+
     void restore(Application copy)
     {
 	removeChild(copy.getId(), true);
@@ -387,6 +422,22 @@ public class Root extends Parent
 	{
 	    adapter.updateProxy(updatedInfo.proxy);
 	}
+    }
+
+    private void newApplication(ApplicationDescriptor descriptor)
+    {
+	descriptor.name = makeNewChildId(descriptor.name);
+	
+	Application application = new Application(descriptor, _model);
+	try
+	{
+	    addChild(application, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+	_model.setSelectionPath(application.getPath());
     }
 
     String identify(TreePath path)

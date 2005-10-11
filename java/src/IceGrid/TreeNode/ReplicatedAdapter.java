@@ -14,6 +14,12 @@ import IceGrid.Utils;
 
 class ReplicatedAdapter extends EditableLeaf
 {
+    static public ReplicatedAdapterDescriptor 
+    copyDescriptor(ReplicatedAdapterDescriptor d)
+    {
+	return (ReplicatedAdapterDescriptor)d.clone();
+    }
+
     ReplicatedAdapter(boolean brandNew, 
 		      ReplicatedAdapterDescriptor descriptor,
 		      Model model)

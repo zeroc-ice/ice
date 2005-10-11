@@ -195,7 +195,6 @@ class Server extends EditableParent
 	    _popup.add(_model.getActions()[DISABLE]);
 	    _popup.addSeparator();
 	    _popup.add(_model.getActions()[SERVER_REFRESH_INSTALLATION]);
-	    _popup.add(_model.getActions()[SERVER_REFRESH_INSTALLATION_NO_SHUTDOWN]);
 	}
 	return _popup;
     }
@@ -435,7 +434,9 @@ class Server extends EditableParent
 	}
 	else
 	{
-	    return _serverDescriptor.clone();
+	    ServerDescriptor clone = (ServerDescriptor)_serverDescriptor.clone();
+	    clone.distrib = (IceGrid.DistributionDescriptor)clone.distrib.clone();
+	    return clone;
 	}
     }
 

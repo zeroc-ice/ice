@@ -1118,6 +1118,7 @@ public class Model
     //
     private void newApplication()
     {
+	_root.newApplication();
     }
 
     //

@@ -15,6 +15,7 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -32,6 +33,96 @@ class ApplicationEditor extends Editor
 {
     protected void applyUpdate()
     {
+	Application application = (Application)_target;
+	Model model = application.getModel();
+
+	if(model.canUpdate())
+	{    
+	    model.disableDisplay();
+
+	    try
+	    {
+		if(application.isEphemeral())
+		{
+		    Root root = (Root)application.getParent();
+		    writeDescriptor();
+		    ApplicationDescriptor descriptor = 
+			(ApplicationDescriptor)application.getDescriptor();
+		    application.destroy(); // just removes the child
+		    try
+		    {
+			root.tryAdd(descriptor);
+		    }
+		    catch(UpdateFailedException e)
+		    {
+			//
+			// Add back ephemeral child
+			//
+			try
+			{
+			   root.addChild(application, true);
+			}
+			catch(UpdateFailedException die)
+			{
+			    assert false;
+			}
+			model.setSelectionPath(application.getPath());
+
+			JOptionPane.showMessageDialog(
+			    model.getMainFrame(),
+			    e.toString(),
+			    "Apply failed",
+			    JOptionPane.ERROR_MESSAGE);
+			return;
+		    }
+
+		    //
+		    // Success
+		    //
+		    _target = root.findChildWithDescriptor(descriptor);
+		    model.setSelectionPath(_target.getPath());
+		    model.showActions(_target);
+		}
+		else if(isSimpleUpdate())
+		{
+		    writeDescriptor();
+		    application.markModified();
+		}
+		else
+		{
+		    //
+		    // Save to be able to rollback
+		    //
+		    Object savedDescriptor = application.saveDescriptor();
+		    writeDescriptor();
+		    try
+		    {
+			application.rebuild();
+		    }
+		    catch(UpdateFailedException e)
+		    {
+			application.restoreDescriptor(savedDescriptor);
+			JOptionPane.showMessageDialog(
+			    model.getMainFrame(),
+			    e.toString(),
+			    "Apply failed",
+			    JOptionPane.ERROR_MESSAGE);
+			return;
+		    }
+		    //
+		    // Success
+		    //
+		    application.markModified();
+		    model.showActions(_target);
+		}
+		_applyButton.setEnabled(false);
+		_discardButton.setEnabled(false);
+	    }
+	    finally
+	    {
+		model.enableDisplay();
+	    }
+	}
     }
 
     ApplicationEditor(JFrame parentFrame)
@@ -133,6 +224,7 @@ class ApplicationEditor extends Editor
     void writeDescriptor()
     {
 	ApplicationDescriptor descriptor = (ApplicationDescriptor)_target.getDescriptor();
+	descriptor.name = _name.getText();
 	descriptor.variables = _variablesMap;
 	descriptor.description = _description.getText();
 	
