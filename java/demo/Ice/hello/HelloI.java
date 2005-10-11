@@ -21,8 +21,6 @@ public class HelloI extends _HelloDisp
     shutdown(Ice.Current current)
     {
         System.out.println("Shutting down...");
-	Ice.Communicator c = current.adapter.getCommunicator();
-        c.shutdown();
-        c.destroy();
+	current.adapter.getCommunicator().shutdown();
     }
 }
