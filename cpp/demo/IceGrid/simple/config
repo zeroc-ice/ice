@@ -1,7 +1,9 @@
+IceGrid.InstanceName=DemoIceGrid
+
 #
 # The IceGrid locator proxy.
 #
-Ice.Default.Locator=IceGrid/Locator:default -p 12000
+Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000
 
 #
 # IceGrid registry configuration.

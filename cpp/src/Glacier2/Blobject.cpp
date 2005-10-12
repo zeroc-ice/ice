@@ -219,7 +219,14 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
 	{
 	    out << " (not buffered)";
 	}
-	out << "\nproxy = " << _communicator->proxyToString(proxy);
+	if(_reverse)
+	{
+	    out << "\nidentity = " << identityToString(proxy->ice_getIdentity());
+	}
+	else
+	{
+	    out << "\nproxy = " << _communicator->proxyToString(proxy);
+	}
 	out << "\noperation = " << current.operation;
 	out << "\ncontext = ";
 	Context::const_iterator q = current.ctx.begin();
@@ -251,7 +258,14 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
 		out << "reverse ";
 	    }
 	    out << "routing override";
-	    out << "\nproxy = " << _communicator->proxyToString(proxy);
+	    if(_reverse)
+	    {
+	        out << "\nidentity = " << identityToString(proxy->ice_getIdentity());
+	    }
+	    else
+	    {
+	        out << "\nproxy = " << _communicator->proxyToString(proxy);
+	    }
 	    out << "\noperation = " << current.operation;
 	    out << "\ncontext = ";
 	    Context::const_iterator q = current.ctx.begin();

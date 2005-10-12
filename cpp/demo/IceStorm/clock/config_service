@@ -15,6 +15,11 @@ IceBox.Service.IceStorm=IceStormService,30:create --Ice.Config=config
 Freeze.DbEnv.IceStorm.DbHome=db
 
 #
+# The IceStorm service instance name.
+#
+IceStorm.InstanceName=DemoIceStorm
+
+#
 # Warn about connection exceptions
 #
 #Ice.Warn.Connections=1

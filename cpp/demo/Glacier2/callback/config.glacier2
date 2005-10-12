@@ -1,4 +1,9 @@
 #
+# Set the instance name
+#
+Glacier2.InstanceName=DemoGlacier2
+
+#
 # We must set the stack size of new threads created by Glacier2. The
 # default on Linux is typically in the 10MB range, which is way too
 # high.
@@ -13,7 +18,7 @@ Ice.ThreadPerConnection.StackSize=262144
 # The client-visible endpoint of Glacier2. This should be an endpoint
 # visible from the public Internet, and it should be secure.
 # 
-Glacier2.Client.Endpoints=ssl -p 10005
+Glacier2.Client.Endpoints=ssl -p 10005 -h 127.0.0.1
 
 #
 # The server-visible endpoint of Glacier2. This endpoint is only

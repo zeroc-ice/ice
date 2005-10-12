@@ -165,14 +165,27 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 	adminAdapter = communicator()->createObjectAdapter("IcePatch2.Admin");
     }
 
+    const string instanceNameProperty = "IcePatch2.InstanceName";
+    string instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IcePatch2");
+
     const string idProperty = "IcePatch2.Identity";
-    Identity id = stringToIdentity(properties->getPropertyWithDefault(idProperty, "IcePatch2/server"));
+    string idStr= properties->getProperty(idProperty);
+    if(idStr.empty())
+    {
+	idStr = instanceName + "/server";
+    }
+    Identity id = stringToIdentity(idStr);
     adapter->add(new FileServerI(dataDir, infoSeq), id);
 
     if(adminAdapter)
     {
 	const string adminIdProperty = "IcePatch2.AdminIdentity";
-	Identity adminId = stringToIdentity(properties->getPropertyWithDefault(adminIdProperty, "IcePatch2/admin"));
+	string adminIdStr = properties->getProperty(adminIdProperty);
+	if(adminIdStr.empty())
+	{
+	    adminIdStr = instanceName + "/admin";
+	}
+	Identity adminId = stringToIdentity(adminIdStr);
 	adminAdapter->add(new AdminI(communicator()), adminId);
     }
 

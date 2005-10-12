@@ -7,7 +7,7 @@ Clock.Subscriber.Endpoints=tcp
 #
 # This property is used by the clients to connect to IceStorm.
 #
-IceStorm.TopicManager.Proxy=IceStorm/TopicManager:default -p 10000
+IceStorm.TopicManager.Proxy=DemoIceStorm/TopicManager:default -p 10000
 
 #
 # This property defines the endpoints on which the IceStorm

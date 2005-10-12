@@ -181,6 +181,7 @@ IceBox:
     UseSharedCommunicator.<any>
 
 IceGrid:
+    InstanceName
     Node.AdapterId
     Node.ReplicaId
     Node.RegisterProcess
@@ -242,6 +243,8 @@ IceGrid:
     Registry.Server.ThreadPool.SizeMax
     Registry.Server.ThreadPool.SizeWarn
     Registry.Server.ThreadPool.StackSize
+    Registry.SessionManagerIdentity
+    Registry.TopicManagerIdentity
     Registry.Trace.Application
     Registry.Trace.Adapter
     Registry.Trace.Node
@@ -275,6 +278,7 @@ IcePatch2:
     Directory
     Endpoints
     Identity
+    InstanceName
     PublishedEndpoints
     Remove
     Thorough
@@ -319,6 +323,7 @@ IceSSL: false
 
 IceStorm:
     Flush.Timeout
+    InstanceName
     Publish.AdapterId
     Publish.ReplicaId
     Publish.Endpoints
@@ -328,6 +333,7 @@ IceStorm:
     Publish.ThreadPool.SizeMax
     Publish.ThreadPool.SizeWarn
     Publish.ThreadPool.StackSize
+    TopicManagerIdentity
     TopicManager.ReplicaId
     TopicManager.Endpoints
     TopicManager.Proxy
@@ -424,6 +430,7 @@ Glacier2:
     Client.Trace.Reject
     Client.Trace.Request
     CryptPasswords
+    InstanceName
     PermissionsVerifier
     RouterIdentity
     Server.AlwaysBatch

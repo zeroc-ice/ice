@@ -130,8 +130,15 @@ Client::run(int argc, char* argv[])
     
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
+    const string instanceNameProperty = "IceGrid.InstanceName";
+    string instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
+
     const string adminIdProperty = "IceGrid.Registry.AdminIdentity";
-    string adminId = properties->getPropertyWithDefault(adminIdProperty, "IceGrid/Admin");
+    string adminId = properties->getProperty(adminIdProperty);
+    if(adminId.empty())
+    {
+        adminId = instanceName + "/Admin";
+    }
     AdminPrx admin = AdminPrx::checkedCast(communicator()->stringToProxy(adminId));
     if(!admin)
     {
@@ -140,7 +147,11 @@ Client::run(int argc, char* argv[])
     }
 
     const string queryIdProperty = "IceGrid.Registry.QueryIdentity";
-    string queryId = properties->getPropertyWithDefault(queryIdProperty, "IceGrid/Query");
+    string queryId = properties->getProperty(queryIdProperty);
+    if(queryId.empty())
+    {
+        queryId = instanceName + "/Query";
+    }
     QueryPrx query = QueryPrx::checkedCast(communicator()->stringToProxy(queryId));
     if(!query)
     {

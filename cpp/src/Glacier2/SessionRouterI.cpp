@@ -98,8 +98,14 @@ Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
     // Glacier2 router Ice object.
     //
     const char* routerIdProperty = "Glacier2.RouterIdentity";
-    Identity routerId = stringToIdentity(_properties->getPropertyWithDefault(routerIdProperty, "Glacier2/router"));
-    _clientAdapter->add(this, routerId);
+    string routerId = _properties->getProperty(routerIdProperty);
+    if(routerId.empty())
+    {
+        const char* instanceNameProperty = "Glacier2.InstanceName";
+        routerId = _properties->getPropertyWithDefault(instanceNameProperty, "Glacier2") + "/router";
+    }
+    Identity id = stringToIdentity(routerId);
+    _clientAdapter->add(this, id);
 
     //
     // All other calls on the client object adapter are dispatched to

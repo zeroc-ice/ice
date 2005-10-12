@@ -242,6 +242,12 @@ RegistryI::start(bool nowarn)
     _database = new Database(registryAdapter, envName, _nodeSessionTimeout, traceLevels);
 
     //
+    // Get the instance name
+    //
+    const string instanceNameProperty = "IceGrid.InstanceName";
+    string instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
+
+    //
     // Create the locator registry and locator interfaces.
     //
     bool dynamicReg = properties->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
@@ -250,7 +256,12 @@ RegistryI::start(bool nowarn)
     LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(obj->ice_collocationOptimization(false));
     ObjectPtr locator = new LocatorI(_communicator, _database, locatorRegistryPrx); 
     const string locatorIdProperty = "IceGrid.Registry.LocatorIdentity";
-    Identity locatorId = stringToIdentity(properties->getPropertyWithDefault(locatorIdProperty, "IceGrid/Locator"));
+    string locatorIdStr = properties->getProperty(locatorIdProperty);
+    if(locatorIdStr.empty())
+    {
+        locatorIdStr = instanceName + "/Locator";
+    }
+    Identity locatorId = stringToIdentity(locatorIdStr);
     clientAdapter->add(locator, locatorId);
 
     //
@@ -258,7 +269,12 @@ RegistryI::start(bool nowarn)
     //
     QueryPtr query = new QueryI(_communicator, _database);
     const string queryIdProperty = "IceGrid.Registry.QueryIdentity";
-    Identity queryId = stringToIdentity(properties->getPropertyWithDefault(queryIdProperty, "IceGrid/Query"));
+    string queryIdStr = properties->getProperty(queryIdProperty);
+    if(queryIdStr.empty())
+    {
+        queryIdStr = instanceName + "/Query";
+    }
+    Identity queryId = stringToIdentity(queryIdStr);
     clientAdapter->add(query, queryId);
     ObjectPrx queryPrx = clientAdapter->createDirectProxy(queryId);
     try
@@ -278,7 +294,12 @@ RegistryI::start(bool nowarn)
     //
     ObjectPtr admin = new AdminI(_database, this, traceLevels);
     const string adminIdProperty = "IceGrid.Registry.AdminIdentity";
-    Identity adminId = stringToIdentity(properties->getPropertyWithDefault(adminIdProperty, "IceGrid/Admin"));
+    string adminIdStr = properties->getProperty(adminIdProperty);
+    if(adminIdStr.empty())
+    {
+        adminIdStr = instanceName + "/Admin";
+    }
+    Identity adminId = stringToIdentity(adminIdStr);
     adminAdapter->add(admin, adminId);
     ObjectPrx adminPrx = adminAdapter->createDirectProxy(adminId);
     try
@@ -313,8 +334,12 @@ RegistryI::start(bool nowarn)
     // Create the internal IceStorm service.
     //
     const string topicMgrIdProperty = "IceGrid.Registry.TopicManagerIdentity";
-    Identity topicMgrId = stringToIdentity(properties->getPropertyWithDefault(topicMgrIdProperty, 
-									      "IceGrid/TopicManager"));
+    string topicMgrIdStr = properties->getProperty(topicMgrIdProperty);
+    if(topicMgrIdStr.empty())
+    {
+        topicMgrIdStr = instanceName + "/TopicManager";
+    }
+    Identity topicMgrId = stringToIdentity(topicMgrIdStr);
     _iceStorm = IceStorm::Service::create(_communicator, registryAdapter, registryAdapter, "IceGrid.Registry", 
  					  topicMgrId, "Registry");
 
@@ -361,8 +386,12 @@ RegistryI::start(bool nowarn)
     //
     ObjectPtr sessionManager = new SessionManagerI(*regTopic, *nodeTopic, _database, _reaper);
     const string sessionManagerIdProperty = "IceGrid.Registry.SessionManagerIdentity";
-    Identity sessionManagerId = stringToIdentity(properties->getPropertyWithDefault(sessionManagerIdProperty, 
-										    "IceGrid/SessionManager"));
+    string sessionManagerIdStr = properties->getProperty(sessionManagerIdProperty);
+    if(sessionManagerIdStr.empty())
+    {
+        sessionManagerIdStr = instanceName + "/SessionManager";
+    }
+    Identity sessionManagerId = stringToIdentity(sessionManagerIdStr);
     adminAdapter->add(sessionManager, sessionManagerId);
     ObjectPrx sessionManagerPrx = adminAdapter->createDirectProxy(sessionManagerId);
     try

@@ -89,14 +89,20 @@ IceStorm::ServiceI::start(const string& name,
 			  const CommunicatorPtr& communicator,
 			  const StringSeq& args)
 {
-    TraceLevelsPtr traceLevels = new TraceLevels(name, communicator->getProperties(), communicator->getLogger());
+    PropertiesPtr properties = communicator->getProperties();
+    TraceLevelsPtr traceLevels = new TraceLevels(name, properties, communicator->getLogger());
     _topicAdapter = communicator->createObjectAdapter(name + ".TopicManager");
     _publishAdapter = communicator->createObjectAdapter(name + ".Publish");
 
     //
     // We use the name of the service for the name of the database environment.
     //
-    Ice::Identity id = stringToIdentity(name + "/TopicManager");
+    string topicManagerId = properties->getProperty(name + ".TopicManagerIdentity");
+    if(topicManagerId.empty())
+    {
+         topicManagerId = properties->getPropertyWithDefault(name + ".InstanceName", "IceStorm") + "/TopicManager";
+    }
+    Ice::Identity id = stringToIdentity(topicManagerId);
     _manager = new TopicManagerI(communicator, _topicAdapter, _publishAdapter, traceLevels, name, "topics");
     _managerProxy = TopicManagerPrx::uncheckedCast(_topicAdapter->add(_manager, id));
 

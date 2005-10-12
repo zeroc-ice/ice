@@ -1,8 +1,10 @@
+Glacier2.InstanceName=DemoGlacier2
+
 #
 # The client-visible endpoint of Glacier2. This should be an endpoint
 # visible from the public Internet, and it should be secure.
 # 
-Glacier2.Client.Endpoints=ssl -p 10005
+Glacier2.Client.Endpoints=ssl -p 10005 -h 127.0.0.1
 
 #
 # The server-visible endpoint of Glacier2. This endpoint is only
