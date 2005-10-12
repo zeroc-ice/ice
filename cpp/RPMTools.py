@@ -238,7 +238,7 @@ transforms = [ ('file', 'lib/Ice.jar', 'lib/Ice-%version%/Ice.jar' ),
                ('file', 'LICENSE', 'share/doc/Ice-%version%/LICENSE')
                ]
 
-x64_transforms = [ ('file', 'lib/Ice.jar', 'lib/Ice-%version%/Ice.jar' ),
+x64_transforms = [ 
 	       ('dir', 'slice', 'share/slice'),
                ('dir', 'doc', 'share/doc/Ice-%version%/doc'),
                ('file', 'README', 'share/doc/Ice-%version%/README'),
@@ -286,7 +286,7 @@ fileLists = [
              ('lib', 'lib/libIceUtil.so.VERSION'),
              ('lib', 'lib/libIceXML.so.VERSION'),
              ('lib', 'lib/libSlice.so.VERSION'),
-             ('lib', 'lib/libGrid.so.VERSION'),
+             ('lib', 'lib/libIceGrid.so.VERSION'),
              ('dir', 'share/slice'),
              ('dir', 'share/doc/Ice-%version%/doc'),
              ('xdir', 'share/doc/Ice-%version%/certs'),
