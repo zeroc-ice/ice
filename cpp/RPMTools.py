@@ -526,11 +526,11 @@ def createRPMSFromBinaries64(buildDir, installDir, version, soVersion):
     shutil.move(installDir + "/Ice-" + version, installDir + "/usr")
 
     ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
-    fileLists[0].writeHeader(ofile, version, '1', installDir, buildRequires)
-    fileLists[1].writeHeader(ofile, version, '1', installDir, buildRequires)
+    fileLists[0].writeHdr(ofile, version, '1', installDir, [])
+    fileLists[1].writeHdr(ofile, version, '1', installDir, [])
     ofile.write('\n\n\n')
-    fileLists[0].writeFiles(ofile, version, '1', installDir, buildRequires)
-    fileLists[1].writeFiles(ofile, version, '1', installDir, buildRequires)
+    fileLists[0].writeFiles(ofile, version, soVersion, installDir)
+    fileLists[1].writeFiles(ofile, version, soVersion, installDir)
     ofile.write('\n')
 
     ofile.flush()

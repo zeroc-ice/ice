@@ -903,7 +903,7 @@ def main():
 			   ('icephp','IcePHP-' + version, 'php'),
                            ('icej','IceJ-' + version, 'j') ]
 
-	if getPlatform() <> 'aix':
+	if not getPlatform() in ['aix', 'linux64']:
 	    sourceTarBalls.append(('icepy','IcePy-' + version, 'py'))
 
 	if getPlatform() == 'linux':
