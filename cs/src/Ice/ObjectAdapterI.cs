@@ -38,7 +38,6 @@ namespace Ice
 	    Ice.LocatorRegistryPrx locatorRegistry = null;
 	    bool registerProcess = false;
 	    string serverId = "";
-	    string replicaId = "";
 	    Communicator communicator = null;
 	    bool printAdapterReady = false;
 
@@ -55,7 +54,6 @@ namespace Ice
 
 		    registerProcess = instance_.properties().getPropertyAsInt(_name + ".RegisterProcess") > 0;
 		    serverId = instance_.properties().getProperty("Ice.ServerId");
-		    replicaId = instance_.properties().getPropertyWithDefault(_name + ".ReplicaId", serverId);
 		    printAdapterReady = instance_.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 
 		    if(registerProcess && locatorRegistry == null)
@@ -98,7 +96,7 @@ namespace Ice
 		     Identity ident = new Identity();
 		     ident.category = "";
 		     ident.name = "dummy";
-		     locatorRegistry.setAdapterDirectProxy(_id, replicaId, createDirectProxy(ident));
+		     locatorRegistry.setAdapterDirectProxy(_id, _replicaGroupId, createDirectProxy(ident));
 		}
 		catch(Ice.ObjectAdapterDeactivatedException)
                 {
@@ -108,8 +106,15 @@ namespace Ice
 		{
 		    NotRegisteredException ex1 = new NotRegisteredException();
 		    ex1.kindOfObject = "object adapter";
-		    ex1.id = ex.replica ? _id + " (replica = " + replicaId + ")" : _id;
+		    ex1.id = _id;
 		    throw ex1;
+		}
+		catch(Ice.InvalidReplicaGroupIdException ex)
+		{
+		    NotRegisteredException ex1 = new NotRegisteredException();
+		    ex1.kindOfObject = "replica group";
+		    ex1.id = _replicaGroupId;
+		    throw ex1;		    
 		}
 		catch(Ice.AdapterAlreadyActiveException)
 		{
@@ -456,6 +461,17 @@ namespace Ice
 	    }
 	}
 	
+	public ObjectPrx createIndirectProxy(Identity ident)
+	{
+	    lock(this)
+	    {
+		checkForDeactivation();
+		checkIdentity(ident);
+		
+		return newIndirectProxy(ident, "", _id);
+	    }
+	}
+	
 	public ObjectPrx createReverseProxy(Identity ident)
 	{
 	    lock(this)
@@ -789,6 +805,7 @@ namespace Ice
 	    _printAdapterReadyDone = false;
 	    _name = name;
 	    _id = instance.properties().getProperty(name + ".AdapterId");
+	    _replicaGroupId = instance.properties().getProperty(name + ".ReplicaGroupId");
 	    _incomingConnectionFactories = new ArrayList();
 	    _routerEndpoints = new ArrayList();
 	    _routerInfos = new ArrayList();
@@ -917,19 +934,13 @@ namespace Ice
 	    {
 		return newDirectProxy(ident, facet);
 	    }
+	    else if(_replicaGroupId.Length == 0)
+	    {
+		return newIndirectProxy(ident, facet, _id);
+	    }
 	    else
 	    {
-		//
-		// Create a reference with the adapter id and return a
-		// proxy for the reference.
-		//
-		IceInternal.Reference reference =
-		    instance_.referenceFactory().create(ident, instance_.getDefaultContext(), facet,
-							IceInternal.Reference.Mode.ModeTwoway,
-							false, _id, null, _locatorInfo,
-							instance_.defaultsAndOverrides().
-							defaultCollocationOptimization);
-		return instance_.proxyFactory().referenceToProxy(reference);
+		return newIndirectProxy(ident, facet, _replicaGroupId);
 	    }
 	}
 	
@@ -969,6 +980,20 @@ namespace Ice
 	    return instance_.proxyFactory().referenceToProxy(reference);
 	}
 	
+	private ObjectPrx newIndirectProxy(Identity ident, string facet, string id)
+	{
+	    //
+	    // Create a reference with the adapter id and return a
+	    // proxy for the reference.
+	    //
+	    IceInternal.Reference reference =
+		instance_.referenceFactory().create(ident, instance_.getDefaultContext(), facet,
+						    IceInternal.Reference.Mode.ModeTwoway, 
+						    false, id, null, _locatorInfo, 
+						    instance_.defaultsAndOverrides().defaultCollocationOptimization);
+	    return instance_.proxyFactory().referenceToProxy(reference);
+	}
+
 	private void checkForDeactivation()
 	{
 	    if(_deactivated)
@@ -1082,6 +1107,7 @@ namespace Ice
 	private bool _printAdapterReadyDone;
 	private readonly string _name;
 	private readonly string _id;
+	private readonly string _replicaGroupId;
 	private ArrayList _incomingConnectionFactories;
 	private ArrayList _routerEndpoints;
 	private ArrayList _routerInfos;

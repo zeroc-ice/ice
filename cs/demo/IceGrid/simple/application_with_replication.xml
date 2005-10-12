@@ -16,15 +16,15 @@
     <server-template id="SimpleServer">
       <parameter name="index"/>
       <server id="SimpleServer-${index}" exe="./server" pwd="." activation="on-demand">
-        <adapter name="Hello" endpoints="tcp" register-process="true" id="ReplicatedHelloAdapter"/>
+        <adapter name="Hello" endpoints="tcp" register-process="true" replica-group="ReplicatedHelloAdapter"/>
         <property name="Identity" value="hello"/>
       </server>
     </server-template>
 
-    <replicated-adapter id="ReplicatedHelloAdapter">
+    <replica-group id="ReplicatedHelloAdapter">
       <load-balancing type="round-robin"/>
       <object identity="hello" type="::Demo::Hello"/>
-    </replicated-adapter>
+    </replica-group>
 
     <node name="localhost">
       <server-instance template="SimpleServer" index="1"/>
