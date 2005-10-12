@@ -34,7 +34,10 @@ def getPlatform():
     if sys.platform.startswith('win') or sys.platform.startswith('cygwin'):
         return 'win32'
     elif sys.platform.startswith('linux'):
-        return 'linux'
+	if readcommand('uname -p') == 'x86_64':
+	    return 'linux64'
+	else:
+	    return 'linux'
     elif sys.platform.startswith('sunos'):
         return 'solaris'
     elif sys.platform.startswith('hp'):
@@ -111,6 +114,7 @@ def getInstallFiles(cvsTag, buildDir, version):
     os.system('rm -rf ' + buildDir + '/ice/install')
     os.system('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/unix')
     os.system('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/rpm')
+    os.system('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/thirdparty')
     snapshot = os.walk('./ice/install/unix')
     for dirInfo in snapshot:
 	for f in dirInfo[2]:
@@ -119,8 +123,8 @@ def getInstallFiles(cvsTag, buildDir, version):
     os.chdir(cwd)
     return buildDir + '/ice/install'
 
-def getuname():
-    pipe_stdin, pipe_stdout = os.popen2('uname')
+def readcommand(cmd):
+    pipe_stdin, pipe_stdout = os.popen2(cmd)
     lines = pipe_stdout.readlines()
     pipe_stdin.close()
     pipe_stdout.close()
@@ -345,7 +349,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
         os.system("perl -pi -e 's/^PYTHON.HOME.*$/PYTHON\_HOME \?= "+ pyHome.replace("/", "\/") + \
 		"/' config/Make.rules")
         
-    if getPlatform() <> 'linux':
+    if not getPlatform().startswith('linux'):
 	if distro.startswith('IcePy'):
 	    os.system("perl -pi -e 's/^PYTHON.INCLUDE.DIR.*$/PYTHON_INCLUDE_DIR = " +
 	              "\$\(PYTHON_HOME\)\/include\/\$\(PYTHON_VERSION\)/' config/Make.rules")
@@ -355,7 +359,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     # 
     # XXX- Optimizations need to be turned on for the release.
     #
-    os.system('gmake NOGAC=yes OPTIMIZE=no INSTALL_ROOT=' + installDir + ' install')
+    os.system('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=' + installDir + ' install')
 
     #
     # Edit config directory contents and copy into installation target
@@ -567,8 +571,10 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
 	os.environ['CC'] = 'cc'
 	os.environ['CXX'] = 'CC'
 
-    if platform =='hpux':
+    if platform == 'hpux':
 	os.system('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure-hpux.gz > configure')
+    elif platform == 'linux':
+	os.system('gzip -dc ' + buildDir + '/ice/install/thirdparty/php/configure*.gz > configure')
     else:
 	os.system('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure.gz > configure')
 
@@ -592,7 +598,7 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
     #
     # This is almost universally an LD => CXX conversion. 
     #
-    if platform <> 'linux':
+    if not platform.startswith('linux'):
 	if platform in ['solaris', 'macosx']:
 	    libtool = fileinput.input('libtool', True)
 	    for line in libtool :
@@ -610,7 +616,7 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
     # Makefile changes
     #
     xtraCXXFlags = True
-    if platform == 'linux':
+    if platform.startswith('linux'):
         makefile = fileinput.input('Makefile', True)
         for line in makefile:
             if line.startswith('EXTRA_CXXFLAGS ='):
@@ -865,7 +871,7 @@ def main():
         print 'Building binary distributions for Ice-' + version + ' on ' + getPlatform()
         print 'Using build directory: ' + buildDir
         print 'Using install directory: ' + installDir
-        if getPlatform() == 'linux':
+        if getPlatform().startswith('linux'):
             print '(RPMs will be built)'
         print
 
@@ -971,9 +977,9 @@ def main():
     binaries.extend(glob.glob(installDir + '/Ice-' + version + '/lib/*' + shlibExtensions(version, soVersion)[0]))
     cwd = os.getcwd()
     os.chdir(installDir)
-    if not getPlatform() == 'linux':
+    if not getPlatform().startswith('linux'):
 	#
-	# I need to get third party libraries.
+	# Get third party libraries.
 	#
 	dbLocation = os.environ['DB_HOME']
 	dbFiles = getDBfiles(dbLocation)
@@ -991,7 +997,7 @@ def main():
 	os.system('cp -R ' + ssl + '/lib/* Ice-' + version + '/lib')
 	os.system('rm -rf Ice-' + version + '/lib/libfips*')
 
-    uname = getuname()
+    uname = readcommand('uname')
     platformSpecificFiles = [ 'README', 'SOURCES', 'THIRD_PARTY_LICENSE' ]
     for psf in platformSpecificFiles:
 	cf = installFiles + '/unix/' + psf + '.' + uname
