@@ -383,6 +383,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
         filesToCopy.append(os.path.join('config', 'Make.rules'))
         filesToCopy.append(os.path.join('config', 'Make.rules.' + getMakeRulesSuffix()))
         for f in filesToCopy:
+	    print('Copying ' + f + ' to ' + destDir)
             shutil.copy(f, destDir)
 	editMakeRules(os.path.join(destDir, 'Make.rules'), version)
  
@@ -1016,13 +1017,21 @@ def main():
     # massaged the permissions on /usr/src/redhat/.
     #
     if getPlatform().startswith('linux') and not cvsMode:
-	os.system('cp ' + installDir + '/Ice-' + version + '-demos.tar.gz /usr/src/redhat/SOURCES')
-	os.system('cp ' + sources + '/Ice*.tar.gz /usr/src/redhat/SOURCES')
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', '/usr/src/redhat/SOURCES/README.Linux-RPM')
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', installDir + '/Ice-' + version + '/README')
 	if getPlatform() == 'linux64':
+	    #
+	    # The demo archive isn't constructed on 64 bit linux so we
+	    # need to rely on the archive being in the sources
+	    # directory.
+	    #
+	    os.system('cp ' + sources + '/Ice-' + version + '-demos.tar.gz /usr/src/redhat/SOURCES')
+	    os.system('cp ' + sources + '/Ice-' + version + '-demos.tar.gz ' + installDir)
+	    os.system('cp ' + sources + '/Ice*.tar.gz /usr/src/redhat/SOURCES')
 	    RPMTools.createRPMSFromBinaries64(buildDir, installDir, version, soVersion)
 	else:
+	    os.system('cp ' + installDir + '/Ice-' + version + '-demos.tar.gz /usr/src/redhat/SOURCES')
+	    os.system('cp ' + sources + '/Ice*.tar.gz /usr/src/redhat/SOURCES')
 	    RPMTools.createRPMSFromBinaries(buildDir, installDir, version, soVersion)
 
     #

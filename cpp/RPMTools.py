@@ -229,6 +229,7 @@ class Subpackage(Package):
 # NOTE: File transforms should be listed before directory transforms.
 #
 transforms = [ ('file', 'lib/Ice.jar', 'lib/Ice-%version%/Ice.jar' ),
+	       ('dir', 'config', 'share/doc/Ice-%version%/config'),
 	       ('dir', 'slice', 'share/slice'),
 	       ('dir', 'ant', 'lib/Ice-%version%/ant'),
 	       ('dir', 'python', 'lib/Ice-%version%/python'),
@@ -239,6 +240,7 @@ transforms = [ ('file', 'lib/Ice.jar', 'lib/Ice-%version%/Ice.jar' ),
                ]
 
 x64_transforms = [ 
+	       ('dir', 'config', 'share/doc/Ice-%version%/config'),
 	       ('dir', 'slice', 'share/slice'),
                ('dir', 'doc', 'share/doc/Ice-%version%/doc'),
                ('file', 'README', 'share/doc/Ice-%version%/README'),
