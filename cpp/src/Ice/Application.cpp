@@ -211,7 +211,7 @@ Ice::Application::~Application()
 }
 
 int
-Ice::Application::main(int argc, char* argv[], const char* configFile)
+Ice::Application::main(int argc, char* argv[], const char* configFile, const LoggerPtr& logger)
 {
     if(_communicator != 0)
     {
@@ -245,7 +245,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	    {
 		PropertiesPtr properties = createProperties();
 		properties->load(configFile);
-		_communicator = initializeWithProperties(argc, argv, properties);
+		_communicator = initializeWithPropertiesAndLogger(argc, argv, properties, logger);
 	    }
 	    else
 	    {

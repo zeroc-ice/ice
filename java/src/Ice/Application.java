@@ -33,6 +33,12 @@ public abstract class Application
     public final int
     main(String appName, String[] args, String configFile)
     {
+    	return main(appName, args, configFile, null);
+    }
+
+    public final int
+    main(String appName, String[] args, String configFile, Logger logger)
+    {
         if(_communicator != null)
         {
             System.err.println(appName + ": only one instance of the Application class can be used");
@@ -50,7 +56,7 @@ public abstract class Application
             {
                 Properties properties = Util.createProperties();
                 properties.load(configFile);
-                _communicator = Util.initializeWithProperties(argHolder, properties);
+                _communicator = Util.initializeWithPropertiesAndLogger(argHolder, properties, logger);
             }
             else
             {

@@ -40,8 +40,13 @@ namespace Ice
 	{
 	    return main(args, null);
 	}
-	
+
 	public int main(string[] args, string configFile)
+	{
+	    return main(args, configFile, null);
+	}
+	
+	public int main(string[] args, string configFile, Logger logger)
 	{
 	    if(_communicator != null)
 	    {
@@ -56,7 +61,7 @@ namespace Ice
 		{
 		    Properties properties = Util.createProperties();
 		    properties.load(configFile);
-		    _communicator = Util.initializeWithProperties(ref args, properties);
+		    _communicator = Util.initializeWithPropertiesAndLogger(ref args, properties, logger);
 		}
 		else
 		{
