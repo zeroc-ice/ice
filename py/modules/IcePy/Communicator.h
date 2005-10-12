@@ -29,5 +29,7 @@ PyObject* getCommunicatorWrapper(const Ice::CommunicatorPtr&);
 
 extern "C" PyObject* IcePy_initialize(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_initializeWithProperties(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_initializeWithLogger(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_initializeWithPropertiesAndLogger(PyObject*, PyObject*);
 
 #endif

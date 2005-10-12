@@ -1,6 +1,11 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Added the new methods Ice.initializeWithLogger() and
+  Ice.initializeWithPropertiesAndLogger(), which ensure that a
+  custom logger is used to record any errors during communicator
+  initialization.
+
 - Invocations on collocated servants are now supported.
 
 - Added proxy methods to retrieve the proxy adapter id and endpoints

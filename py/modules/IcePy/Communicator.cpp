@@ -81,8 +81,9 @@ static int
 communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 {
     PyObject* arglist = NULL;
-    PyObject* properties = NULL;
-    if(!PyArg_ParseTuple(args, STRCAST("|O!O!"), &PyList_Type, &arglist, &PropertiesType, &properties))
+    PyObject* arg2 = NULL;
+    PyObject* arg3 = NULL;
+    if(!PyArg_ParseTuple(args, STRCAST("|O!OO"), &PyList_Type, &arglist, &arg2, &arg3))
     {
         return -1;
     }
@@ -93,6 +94,34 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         return -1;
     }
 
+    PyObject* properties = NULL;
+    PyObject* logger = NULL;
+
+    PyObject* loggerType = lookupType("Ice.Logger");
+    assert(loggerType != NULL);
+
+    if(arg2 && arg2 != Py_None)
+    {
+	if(PyObject_IsInstance(arg2, (PyObject*)&PropertiesType))
+	{
+	    properties = arg2;
+	}
+	else if(PyObject_IsInstance(arg2, loggerType))
+	{
+	    logger = arg2;
+	}
+    }
+
+    if(arg3 && arg3 != Py_None)
+    {
+	if(logger || !PyObject_IsInstance(arg3, loggerType))
+	{
+	    PyErr_Format(PyExc_RuntimeError, STRCAST("Expected Ice.Logger as the third argument"));
+	    return -1;
+	}
+	logger = arg3;
+    }
+
     Ice::PropertiesPtr props;
     if(properties)
     {
@@ -101,6 +130,12 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     else
     {
         props = Ice::getDefaultProperties(seq);
+    }
+
+    Ice::LoggerPtr log;
+    if(logger)
+    {
+	log = new LoggerWrapper(logger);
     }
 
     //
@@ -115,14 +150,14 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     Ice::CommunicatorPtr communicator;
     try
     {
-        int argc = 0;
-        static char** argv = { 0 };
-        communicator = Ice::initializeWithProperties(argc, argv, props);
+	int argc = 0;
+	static char** argv = { 0 };
+	communicator = Ice::initializeWithPropertiesAndLogger(argc, argv, props, log);
     }
     catch(const Ice::Exception& ex)
     {
-        setPythonException(ex);
-        return -1;
+	setPythonException(ex);
+	return -1;
     }
 
     //
@@ -130,14 +165,14 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     //
     if(arglist)
     {
-        if(PyList_SetSlice(arglist, 0, PyList_Size(arglist), NULL) < 0)
-        {
-            return -1;
-        }
-        if(!stringSeqToList(seq, arglist))
-        {
-            return -1;
-        }
+	if(PyList_SetSlice(arglist, 0, PyList_Size(arglist), NULL) < 0)
+	{
+	    return -1;
+	}
+	if(!stringSeqToList(seq, arglist))
+	{
+	    return -1;
+	}
     }
 
     self->communicator = new Ice::CommunicatorPtr(communicator);
@@ -449,6 +484,21 @@ communicatorGetLogger(CommunicatorObject* self)
         return NULL;
     }
 
+    //
+    // The communicator's logger can either be a C++ object (such as
+    // the default logger supplied by the Ice run time), or a C++
+    // wrapper around a Python implementation. If the latter, we
+    // return it directly. Otherwise, we create a Python object
+    // that delegates to the C++ object.
+    //
+    LoggerWrapperPtr wrapper = LoggerWrapperPtr::dynamicCast(logger);
+    if(wrapper)
+    {
+	PyObject* obj = wrapper->getObject();
+	Py_INCREF(obj);
+	return obj;
+    }
+
     return createLogger(logger);
 }
 
@@ -467,7 +517,7 @@ communicatorSetLogger(CommunicatorObject* self, PyObject* args)
         return NULL;
     }
 
-    Ice::LoggerPtr wrapper = wrapLogger(logger);
+    Ice::LoggerPtr wrapper = new LoggerWrapper(logger);
     try
     {
         (*self->communicator)->setLogger(wrapper);
@@ -988,24 +1038,4 @@ IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
     CommunicatorObject* obj = (CommunicatorObject*)p->second;
     Py_INCREF(obj->wrapper);
     return obj->wrapper;
-}
-
-extern "C"
-PyObject*
-IcePy_initialize(PyObject* /*self*/, PyObject* args)
-{
-    //
-    // Currently the same as "c = Ice.Communicator(args)".
-    //
-    return PyObject_Call((PyObject*)&CommunicatorType, args, NULL);
-}
-
-extern "C"
-PyObject*
-IcePy_initializeWithProperties(PyObject* /*self*/, PyObject* args)
-{
-    //
-    // Currently the same as "c = Ice.Communicator(args, properties)".
-    //
-    return PyObject_Call((PyObject*)&CommunicatorType, args, NULL);
 }

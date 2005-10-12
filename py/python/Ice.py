@@ -188,7 +188,10 @@ class CommunicatorI(Communicator):
 
     def getLogger(self):
         logger = self._impl.getLogger()
-        return LoggerI(logger)
+	if isinstance(logger, Logger):
+	    return logger
+	else:
+	    return LoggerI(logger)
 
     def setLogger(self, log):
         self._impl.setLogger(log)
@@ -221,14 +224,34 @@ class CommunicatorI(Communicator):
 # Ice.initialize()
 #
 def initialize(args=[]):
-    communicator = IcePy.initialize(args)
+    communicator = IcePy.Communicator(args)
     return CommunicatorI(communicator)
 
 #
 # Ice.initializeWithProperties()
 #
 def initializeWithProperties(args, properties):
-    communicator = IcePy.initializeWithProperties(args, properties._impl)
+    propImpl = None
+    if properties:
+	propImpl = properties._impl
+    communicator = IcePy.Communicator(args, propImpl)
+    return CommunicatorI(communicator)
+
+#
+# Ice.initializeWithLogger()
+#
+def initializeWithLogger(args, logger):
+    communicator = IcePy.Communicator(args, logger)
+    return CommunicatorI(communicator)
+
+#
+# Ice.initializeWithPropertiesAndLogger()
+#
+def initializeWithPropertiesAndLogger(args, properties, logger):
+    propImpl = None
+    if properties:
+	propImpl = properties._impl
+    communicator = IcePy.Communicator(args, propImpl, logger)
     return CommunicatorI(communicator)
 
 #
@@ -424,7 +447,7 @@ class Application(object):
         if type(self) == Application:
             raise RuntimeError("Ice.Application is an abstract class")
 
-    def main(self, args, configFile=None):
+    def main(self, args, configFile=None, logger=None):
         if Application._communicator:
             print args[0] + ": only one instance of the Application class can be used"
             return False
@@ -447,9 +470,9 @@ class Application(object):
             if configFile:
                 properties = createProperties()
                 properties.load(configFile)
-                Application._communicator = initializeWithProperties(args, properties)
+                Application._communicator = initializeWithPropertiesAndLogger(args, properties, logger)
             else:
-                Application._communicator = initialize(args)
+                Application._communicator = initializeWithLogger(args, logger)
 
             #
             # Used by destroyOnInterruptCallback and shutdownOnInterruptCallback.

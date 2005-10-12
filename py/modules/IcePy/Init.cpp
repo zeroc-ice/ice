@@ -28,10 +28,6 @@ extern "C" PyObject* Ice_registerTypes(PyObject*, PyObject*);
 
 static PyMethodDef methods[] =
 {
-    { STRCAST("initialize"), (PyCFunction)IcePy_initialize, METH_VARARGS,
-        PyDoc_STR(STRCAST("initialize([args]) -> Ice.Communicator")) },
-    { STRCAST("initializeWithProperties"), (PyCFunction)IcePy_initializeWithProperties, METH_VARARGS,
-        PyDoc_STR(STRCAST("initializeWithProperties(args, properties) -> Ice.Communicator")) },
     { STRCAST("identityToString"), (PyCFunction)IcePy_identityToString, METH_VARARGS,
         PyDoc_STR(STRCAST("identityToString(id) -> string")) },
     { STRCAST("stringToIdentity"), (PyCFunction)IcePy_stringToIdentity, METH_VARARGS,
