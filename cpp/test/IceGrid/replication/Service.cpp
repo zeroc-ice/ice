@@ -62,7 +62,7 @@ ServiceI::start(const string& name,
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name);
     Ice::ObjectPtr object = new TestI(adapter, communicator->getProperties());
-    adapter->add(object, Ice::stringToIdentity("test"));
+    adapter->add(object, Ice::stringToIdentity(communicator->getProperties()->getProperty("Identity")));
     adapter->activate();
 }
 

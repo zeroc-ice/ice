@@ -44,9 +44,6 @@ exception AdapterNotExistException
 {
     /** The id of the object adapter. */
     string id;
-
-    /** The replica id. */
-    string replicaId;
 };
 
 /**

@@ -18,7 +18,7 @@
       <adapter name="Server" endpoints="default">
 	<object identity="${server}" type="::Test"/>
       </adapter>
-      <adapter name="ReplicatedAdapter" endpoints="default" id="ReplicatedAdapter"/>
+      <adapter name="ReplicatedAdapter" endpoints="default" replica-group="ReplicatedAdapter"/>
 
       <property name="Type" value="Server"/>
       <property name="Name" value="${name}"/>

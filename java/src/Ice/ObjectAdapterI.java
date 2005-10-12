@@ -34,7 +34,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	Ice.LocatorRegistryPrx locatorRegistry = null;
         boolean registerProcess = false;
         String serverId = "";
-        String replicaId = "";
         Communicator communicator = null;
 	boolean printAdapterReady = false;
 
@@ -51,7 +50,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 
                 registerProcess = _instance.properties().getPropertyAsInt(_name + ".RegisterProcess") > 0;
                 serverId = _instance.properties().getProperty("Ice.ServerId");
-                replicaId = _instance.properties().getPropertyWithDefault(_name + ".ReplicaId", serverId);
 		printAdapterReady = _instance.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 
                 if(registerProcess && locatorRegistry == null)
@@ -97,7 +95,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		Identity ident = new Identity();
 		ident.category = "";
 		ident.name = "dummy";
-		locatorRegistry.setAdapterDirectProxy(_id, replicaId, createDirectProxy(ident));
+		locatorRegistry.setAdapterDirectProxy(_id, _replicaGroupId, createDirectProxy(ident));
 	    }
 	    catch(ObjectAdapterDeactivatedException ex)
 	    {
@@ -107,7 +105,14 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    {
 		NotRegisteredException ex1 = new NotRegisteredException();
 		ex1.kindOfObject = "object adapter";
-		ex1.id = ex.replica ? _id + " (replica = " + replicaId + ")" : _id;
+		ex1.id = _id;
+		throw ex1;
+	    }
+	    catch(InvalidReplicaGroupIdException ex)
+	    {
+		NotRegisteredException ex1 = new NotRegisteredException();
+		ex1.kindOfObject = "replica group";
+		ex1.id = _replicaGroupId;
 		throw ex1;
 	    }
 	    catch(AdapterAlreadyActiveException ex)
@@ -450,6 +455,15 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     }
 
     public synchronized ObjectPrx
+    createIndirectProxy(Identity ident)
+    {
+	checkForDeactivation();
+        checkIdentity(ident);
+
+        return newIndirectProxy(ident, "", _id);
+    }
+
+    public synchronized ObjectPrx
     createReverseProxy(Identity ident)
     {
 	checkForDeactivation();
@@ -778,6 +792,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	_printAdapterReadyDone = false;
         _name = name;
 	_id = instance.properties().getProperty(name + ".AdapterId");
+	_replicaGroupId = instance.properties().getProperty(name + ".ReplicaGroupId");
 	_directCount = 0;
 	_waitForDeactivate = false;
 	
@@ -898,20 +913,13 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	{
 	    return newDirectProxy(ident, facet);
 	}
-	else
+	else if(_replicaGroupId.length() == 0)
 	{	    
-	    //
-	    // Create a reference with the adapter id and return a
-	    // proxy for the reference.
-	    //
-	    IceInternal.EndpointI[] endpoints = new IceInternal.EndpointI[0];
-            ConnectionI[] connections = new ConnectionI[0];
-	    IceInternal.Reference reference =
-		_instance.referenceFactory().create(ident, new java.util.HashMap(), facet,
-		                                    IceInternal.Reference.ModeTwoway, false, _id, null,
-                                                    _locatorInfo,
-						    _instance.defaultsAndOverrides().defaultCollocationOptimization);
-	    return _instance.proxyFactory().referenceToProxy(reference);
+	    return newIndirectProxy(ident, facet, _id);
+	}
+	else
+	{
+	    return newIndirectProxy(ident, facet, _replicaGroupId);
 	}
     }
 
@@ -939,10 +947,26 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         //
         ConnectionI[] connections = new ConnectionI[0];
         IceInternal.Reference reference =
-	    _instance.referenceFactory().create(ident, new java.util.HashMap(), facet, IceInternal.Reference.ModeTwoway,
-                                                false, endpoints, null,
+	    _instance.referenceFactory().create(ident, new java.util.HashMap(), facet, 
+						IceInternal.Reference.ModeTwoway, false, endpoints, null,
 						_instance.defaultsAndOverrides().defaultCollocationOptimization);
         return _instance.proxyFactory().referenceToProxy(reference);
+    }
+
+    private ObjectPrx
+    newIndirectProxy(Identity ident, String facet, String id)
+    {
+	//
+	// Create a reference with the adapter id and return a proxy
+	// for the reference.
+	//
+	IceInternal.EndpointI[] endpoints = new IceInternal.EndpointI[0];
+	ConnectionI[] connections = new ConnectionI[0];
+	IceInternal.Reference reference =
+	    _instance.referenceFactory().create(ident, new java.util.HashMap(), facet, 
+						IceInternal.Reference.ModeTwoway, false, _id, null, _locatorInfo,
+						_instance.defaultsAndOverrides().defaultCollocationOptimization);
+	return _instance.proxyFactory().referenceToProxy(reference);
     }
 
     private void
@@ -1062,6 +1086,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private boolean _printAdapterReadyDone;
     final private String _name;
     final private String _id;
+    final private String _replicaGroupId;
     private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();
     private java.util.ArrayList _routerEndpoints = new java.util.ArrayList();
     private java.util.ArrayList _routerInfos = new java.util.ArrayList();

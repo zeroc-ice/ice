@@ -75,6 +75,13 @@ struct AdapterDescriptor
 
     /**
      *
+     * The description of this object adapter.
+     *
+     **/
+    string description;
+
+    /**
+     *
      * The object adapter id.
      *
      **/
@@ -85,7 +92,7 @@ struct AdapterDescriptor
      * The replica id of this adapter.
      *
      **/
-    string replicaId;
+    string replicaGroupId;
 
     /**
      *
@@ -130,6 +137,13 @@ struct DbEnvDescriptor
      *
      **/
     string name;
+
+    /**
+     *
+     * The description of this object adapter.
+     *
+     **/
+    string description;
 
     /**
      *
@@ -444,7 +458,7 @@ class LoadBalancingPolicy
     /**
      *
      * The number of replicas that will be used to gather the
-     * endpoints of a replicated object adapter.
+     * endpoints of a replica group.
      *
      **/
     string nReplicas;
@@ -473,14 +487,14 @@ class AdaptiveLoadBalancingPolicy extends LoadBalancingPolicy
 
 /**
  *
- * A replicated object adapter descriptor.
+ * A replica group descriptor.
  * 
  **/
-struct ReplicatedAdapterDescriptor
+struct ReplicaGroupDescriptor
 {
     /**
      *
-     * The id of the replicated object adapter.
+     * The id of the replica group.
      *
      **/
     string id;
@@ -502,10 +516,10 @@ struct ReplicatedAdapterDescriptor
 
 /**
  *
- * A sequence of the replicated object adapters.
+ * A sequence of replica groups.
  * 
  **/
-["java:type:java.util.LinkedList"] sequence<ReplicatedAdapterDescriptor> ReplicatedAdapterDescriptorSeq; 
+["java:type:java.util.LinkedList"] sequence<ReplicaGroupDescriptor> ReplicaGroupDescriptorSeq; 
 
 /**
  *
@@ -530,10 +544,10 @@ struct ApplicationDescriptor
 
     /**
      *
-     * The replicated adapters.
+     * The replica groups.
      *
      **/
-    ReplicatedAdapterDescriptorSeq replicatedAdapters;
+    ReplicaGroupDescriptorSeq replicaGroups;
 
     /**
      *
@@ -687,17 +701,17 @@ struct ApplicationUpdateDescriptor
 
     /**
      *
-     * The replicated adapters to update.
+     * The replica groups to update.
      *
      **/
-    ReplicatedAdapterDescriptorSeq replicatedAdapters;
+    ReplicaGroupDescriptorSeq replicaGroups;
 
     /**
      *
-     * The replicated adapters to remove.
+     * The replica groups to remove.
      *
      **/
-    Ice::StringSeq removeReplicatedAdapters;
+    Ice::StringSeq removeReplicaGroups;
 
     /**
      *

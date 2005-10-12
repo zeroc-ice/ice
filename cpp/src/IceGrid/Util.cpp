@@ -47,21 +47,3 @@ IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name
     return def;
 }
 
-string
-IceGrid::getReplicaId(const AdapterDescriptor& adapter, const CommunicatorDescriptorPtr& comm, const string& serverId)
-{
-    if(!adapter.replicaId.empty())
-    {
-	return adapter.replicaId;
-    }
-
-    //
-    // Compute the default replica id of an object adapter: if the
-    // adapter belongs to a service the replica id will be "<server
-    // id>.<service name>", if the adapter belongs to a server its
-    // replica id will be "<server id>".
-    //
-    ServiceDescriptorPtr service = ServiceDescriptorPtr::dynamicCast(comm);
-    return service ? serverId + "." + service->name : serverId;
-}
-

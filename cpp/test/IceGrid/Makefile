@@ -12,7 +12,7 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 
-SUBDIRS		= perf simple deployer session update
+SUBDIRS		= perf simple deployer session update replication
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -25,7 +25,7 @@ Server::run(int argc, char* argv[])
 {
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ReplicatedAdapter");
     Ice::ObjectPtr object = new TestI(adapter, communicator()->getProperties());
-    adapter->add(object, Ice::stringToIdentity("test"));
+    adapter->add(object, Ice::stringToIdentity(communicator()->getProperties()->getProperty("Identity")));
     shutdownOnInterrupt();
     try
     {

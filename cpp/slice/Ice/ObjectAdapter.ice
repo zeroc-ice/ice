@@ -16,7 +16,7 @@
 #include <Ice/LocatorF.ice>
 #include <Ice/Identity.ice>
 #include <Ice/FacetMap.ice>
-
+#include <Ice/Locator.ice>
 module Ice
 {
 
@@ -469,6 +469,22 @@ local interface ObjectAdapter
      *
      **/
     nonmutating Object* createDirectProxy(Identity id);
+
+    /**
+     *
+     * Create an "indirect proxy" that matches this object adapter and
+     * the given identity. The proxy adapter id is set to this object
+     * adapter identifier.
+     *
+     * @param id The identity for which a proxy is to be created.
+     *
+     * @return A proxy that matches the given identity and this object
+     * adapter.
+     *
+     * @see Identity
+     *
+     **/
+    nonmutating Object* createIndirectProxy(Identity id);
 
     /**
      *

@@ -35,7 +35,8 @@ public:
 
     TemplateDescriptor getServerTemplate(const std::string&) const;
     TemplateDescriptor getServiceTemplate(const std::string&) const;
-    
+    bool hasReplicaGroup(const std::string&) const;
+
 private:
 
     std::string substitute(const std::string&, bool = false) const;

@@ -97,7 +97,12 @@ protected:
     virtual ValuePtr
     addImpl(const Key& key)
     {
-	ValuePtr entry = createEntry(key);
+	return addImpl(key, createEntry(key));
+    }
+
+    virtual ValuePtr
+    addImpl(const Key& key, const ValuePtr& entry)
+    {
 	typename std::map<Key, ValuePtr>::value_type v(key, entry);
 	_entriesHint = _entries.insert(_entriesHint, v);
 	return entry;

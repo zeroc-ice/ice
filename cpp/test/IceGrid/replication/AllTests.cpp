@@ -68,104 +68,145 @@ allTests(const Ice::CommunicatorPtr& comm)
     AdminPrx admin = AdminPrx::checkedCast(comm->stringToProxy("IceGrid/Admin"));
     test(admin);
 
-    TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("test"));
+    set<string> serverReplicaIds;
+    serverReplicaIds.insert("Server1.ReplicatedAdapter");
+    serverReplicaIds.insert("Server2.ReplicatedAdapter");
+    serverReplicaIds.insert("Server3.ReplicatedAdapter");
+    set<string> svcReplicaIds;
+    svcReplicaIds.insert("IceBox1.Service1.Service1");
+    svcReplicaIds.insert("IceBox1.Service2.Service2");
+    svcReplicaIds.insert("IceBox1.Service3.Service3");
 
-    //
-    // Test default replica id for a server and service
-    //
-    cout << "testing default replica id... " << flush;
+    cout << "testing replication without load balancing... " << flush;
     {
 	map<string, string> params;
-	params["id"] = "Server1";
-	params["replicaId"] = "";
-	instantiateServer(admin, "Server", params);
-	test(obj->getReplicaIdAndShutdown() == "Server1");
-	removeServer(admin, "Server1");
-
-	params["id"] = "IceBox1";
-	params["replicaId"] = "";
-	instantiateServer(admin, "IceBox1", params);
-	test(obj->getReplicaIdAndShutdown() == "IceBox1.Service1");
-	removeServer(admin, "IceBox1");
-    }
-    cout << "ok" << endl;
-
-    //
-    // Test replica id for a server and service
-    //
-    cout << "testing replica id... " << flush;
-    {
-	map<string, string> params;
-	params["id"] = "Server1";
-	params["replicaId"] = "Replica1";
-	instantiateServer(admin, "Server", params);
-	test(obj->getReplicaIdAndShutdown() == "Replica1");
-	removeServer(admin, "Server1");
-
-	params["id"] = "IceBox1";
-	params["replicaId"] = "Replica1";
-	instantiateServer(admin, "IceBox1", params);
-	test(obj->getReplicaIdAndShutdown() == "Replica1");
-	removeServer(admin, "IceBox1");
-    }
-    cout << "ok" << endl;
-
-    cout << "testing replication... " << flush;
-    {
-	map<string, string> params;
-	params["replicaId"] = "";
-
+	params["replicaGroup"] = "Default";
 	params["id"] = "Server1";
 	instantiateServer(admin, "Server", params);
 	params["id"] = "Server2";
 	instantiateServer(admin, "Server", params);
 	params["id"] = "Server3";
 	instantiateServer(admin, "Server", params);
-	params["id"] = "Server4";
-	instantiateServer(admin, "Server", params);
-	params["id"] = "Server5";
-	instantiateServer(admin, "Server", params);
-
-	test(obj->getReplicaIdAndShutdown() == "Server1");
-	test(obj->getReplicaIdAndShutdown() == "Server2");
-	test(obj->getReplicaIdAndShutdown() == "Server3");
-	test(obj->getReplicaIdAndShutdown() == "Server4");
-	test(obj->getReplicaIdAndShutdown() == "Server5");
-	
+	set<string> replicaIds = serverReplicaIds;
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Default"));
+	test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
+	test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
+	test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
 	removeServer(admin, "Server1");
 	removeServer(admin, "Server2");
 	removeServer(admin, "Server3");
-	removeServer(admin, "Server4");
-	removeServer(admin, "Server5");
     }
-    cout << "ok" << endl;
-
-    cout << "testing default replica id with multiple replicas... " << flush;
     {
 	map<string, string> params;
+	params["replicaGroup"] = "Default";
 	params["id"] = "IceBox1";
-	params["replicaId1"] = "";
-	params["replicaId2"] = "";
-	params["replicaId3"] = "";
-	instantiateServer(admin, "IceBox3", params);
-	test(obj->getReplicaIdAndShutdown() == "IceBox1.Service1");
-	test(obj->getReplicaIdAndShutdown() == "IceBox1.Service2");
-	test(obj->getReplicaIdAndShutdown() == "IceBox1.Service3");
+	instantiateServer(admin, "IceBox", params);
+	set<string> replicaIds = svcReplicaIds;
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Default"));
+	test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
+	test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
+	test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
 	removeServer(admin, "IceBox1");
     }
     cout << "ok" << endl;
 
-    cout << "testing replica id with multiple replicas... " << flush;
+    cout << "testing replication with round-robin load balancing... " << flush;
     {
 	map<string, string> params;
+	params["replicaGroup"] = "RoundRobin";
+	params["id"] = "Server1";
+	instantiateServer(admin, "Server", params);
+	params["id"] = "Server2";
+	instantiateServer(admin, "Server", params);
+	params["id"] = "Server3";
+	instantiateServer(admin, "Server", params);
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin"));
+	test(obj->getReplicaIdAndShutdown() == "Server1.ReplicatedAdapter");
+	test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
+	test(obj->getReplicaIdAndShutdown() == "Server3.ReplicatedAdapter");	
+	removeServer(admin, "Server1");
+	removeServer(admin, "Server2");
+	removeServer(admin, "Server3");
+    }
+    {
+	map<string, string> params;
+	params["replicaGroup"] = "RoundRobin";
 	params["id"] = "IceBox1";
-	params["replicaId1"] = "Replica1";
-	params["replicaId2"] = "Replica2";
-	params["replicaId3"] = "Replica3";
-	instantiateServer(admin, "IceBox3", params);
-	test(obj->getReplicaIdAndShutdown() == "Replica1");
-	test(obj->getReplicaIdAndShutdown() == "Replica2");
-	test(obj->getReplicaIdAndShutdown() == "Replica3");
+	instantiateServer(admin, "IceBox", params);
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin"));
+ 	test(obj->getReplicaIdAndShutdown() == "IceBox1.Service1.Service1");
+ 	test(obj->getReplicaIdAndShutdown() == "IceBox1.Service2.Service2");
+ 	test(obj->getReplicaIdAndShutdown() == "IceBox1.Service3.Service3");
+	removeServer(admin, "IceBox1");
+    }
+    cout << "ok" << endl;
+
+    cout << "testing replication with random load balancing... " << flush;
+    {
+	map<string, string> params;
+	params["replicaGroup"] = "Random";
+	params["id"] = "Server1";
+	instantiateServer(admin, "Server", params);
+	params["id"] = "Server2";
+	instantiateServer(admin, "Server", params);
+	params["id"] = "Server3";
+	instantiateServer(admin, "Server", params);
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Random"));
+	set<string> replicaIds = serverReplicaIds;
+	while(!replicaIds.empty())
+	{
+	    replicaIds.erase(obj->getReplicaIdAndShutdown());
+	}
+	removeServer(admin, "Server1");
+	removeServer(admin, "Server2");
+	removeServer(admin, "Server3");
+    }
+    {
+	map<string, string> params;
+	params["replicaGroup"] = "Random";
+	params["id"] = "IceBox1";
+	instantiateServer(admin, "IceBox", params);
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Random"));
+	set<string> replicaIds = svcReplicaIds;
+	while(!replicaIds.empty())
+	{
+	    replicaIds.erase(obj->getReplicaIdAndShutdown());
+	}
+	removeServer(admin, "IceBox1");
+    }
+    cout << "ok" << endl;
+
+    cout << "testing replication with adaptive load balancing... " << flush;
+    {
+	map<string, string> params;
+	params["replicaGroup"] = "Adaptive";
+	params["id"] = "Server1";
+	instantiateServer(admin, "Server", params);
+	params["id"] = "Server2";
+	instantiateServer(admin, "Server", params);
+	params["id"] = "Server3";
+	instantiateServer(admin, "Server", params);
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Adaptive"));
+	set<string> replicaIds = serverReplicaIds;
+	while(!replicaIds.empty())
+	{
+	    replicaIds.erase(obj->getReplicaIdAndShutdown());
+	}
+	removeServer(admin, "Server1");
+	removeServer(admin, "Server2");
+	removeServer(admin, "Server3");
+    }
+    {
+	map<string, string> params;
+	params["replicaGroup"] = "Adaptive";
+	params["id"] = "IceBox1";
+	instantiateServer(admin, "IceBox", params);
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Adaptive"));
+	set<string> replicaIds = svcReplicaIds;
+	while(!replicaIds.empty())
+	{
+	    replicaIds.erase(obj->getReplicaIdAndShutdown());
+	}
 	removeServer(admin, "IceBox1");
     }
     cout << "ok" << endl;

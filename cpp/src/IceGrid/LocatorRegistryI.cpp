@@ -104,7 +104,7 @@ LocatorRegistryI::LocatorRegistryI(const DatabasePtr& database, bool dynamicRegi
 void 
 LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr& cb,
 					      const string& adapterId, 
-					      const string& replicaId,
+					      const string& replicaGroupId,
 					      const Ice::ObjectPrx& proxy,
 					      const Ice::Current&)
 {
@@ -116,14 +116,14 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	    // Get the adapter from the registry and set its direct proxy.
 	    //
 	    AMI_Adapter_setDirectProxyPtr amiCB = new AMI_Adapter_setDirectProxyI(cb);
-	    _database->getAdapter(adapterId, replicaId)->setDirectProxy_async(amiCB, proxy);
+	    _database->getAdapter(adapterId, replicaGroupId)->setDirectProxy_async(amiCB, proxy);
 	    return;
 	}
-	catch(const AdapterNotExistException& ex)
+	catch(const AdapterNotExistException&)
 	{
 	    if(!_dynamicRegistration)
 	    {
-		throw Ice::AdapterNotFoundException(!ex.replicaId.empty());
+		throw Ice::AdapterNotFoundException();
 	    }
 	}
 	catch(const NodeUnreachableException&)
@@ -138,7 +138,7 @@ LocatorRegistryI::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_set
 	}
 	
 	assert(_dynamicRegistration);
-	if(_database->setAdapterDirectProxy(adapterId, replicaId, proxy))
+	if(_database->setAdapterDirectProxy(adapterId, replicaGroupId, proxy))
 	{
 	    cb->ice_response();
 	    return;

@@ -21,13 +21,11 @@ ServerAdapterI::ServerAdapterI(const NodeIPtr& node,
 			       const string& serverName,
 			       const AdapterPrx& proxy,
 			       const string& id,
-			       const string& replicaId,
 			       Ice::Int waitTime) :
     _node(node),
     _this(proxy),
     _serverId(serverName),
     _id(id),
-    _replicaId(id),
     _server(server),
     _waitTime(IceUtil::Time::seconds(waitTime))
 {

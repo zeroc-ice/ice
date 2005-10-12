@@ -90,10 +90,7 @@ private:
     void setStateNoSync(InternalServerState);
     
     void updateImpl(const std::string&, const ServerDescriptorPtr&, bool, const Ice::Current&);
-
-    ReplicatedAdapterIdentity
-    addAdapter(const AdapterDescriptor&, const CommunicatorDescriptorPtr&, const Ice::Current&);
-
+    std::string addAdapter(const AdapterDescriptor&, const CommunicatorDescriptorPtr&, const Ice::Current&);
     void updateConfigFile(const std::string&, const CommunicatorDescriptorPtr&, bool);
     void updateDbEnv(const std::string&, const DbEnvDescriptor&);
     void getAdaptersAndTimeouts(AdapterPrxDict&, int&, int&) const;
@@ -114,7 +111,7 @@ private:
     ServerActivation _activation;
     int _activationTimeout;
     int _deactivationTimeout;
-    typedef std::map<ReplicatedAdapterIdentity, ServerAdapterIPtr> ServerAdapterDict;
+    typedef std::map<std::string, ServerAdapterIPtr> ServerAdapterDict;
     ServerAdapterDict _adapters;
     bool _processRegistered;
     Ice::ProcessPrx _process;

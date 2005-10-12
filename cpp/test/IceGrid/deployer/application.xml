@@ -6,9 +6,9 @@
     <include descriptor="icebox.xml"/>
     <include descriptor="server.xml"/>    
 
-    <replicated-adapter id="ReplicatedAdapter">
+    <replica-group id="ReplicatedAdapter">
       <object identity="ReplicatedObject" type="::Test"/>
-    </replicated-adapter>
+    </replica-group>
 
     <!-- Variables for variable test -->
     <variable name="AppVar" value="AppVar"/>

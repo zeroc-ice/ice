@@ -99,12 +99,7 @@ exception AdapterExistsException
     string id;
 };
 
-struct ReplicatedAdapterIdentity
-{
-    string replicaId;
-    string id;
-};
-dictionary<ReplicatedAdapterIdentity, Adapter*> AdapterPrxDict;
+dictionary<string, Adapter*> AdapterPrxDict;
 
 interface Server
 {

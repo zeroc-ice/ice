@@ -272,20 +272,20 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 
 	    _currentTemplate.reset(_currentApplication->createServiceTemplate(attributes));
 	}
-	else if(name == "replicated-adapter")
+	else if(name == "replica-group")
 	{
 	    if(!_currentApplication.get())
 	    {
-		error("the <replicated-adapter> element can only be a child of a <application> element");
+		error("the <replica-group> element can only be a child of a <application> element");
 	    }
-	    _currentApplication->addReplicatedAdapter(attributes);
+	    _currentApplication->addReplicaGroup(attributes);
 	    _inAdapter = true;
 	}
 	else if(name == "load-balancing")
 	{
 	    if(!_inAdapter || _currentServer.get())
 	    {
-		error("the <load-balancing> element can only be a child of a <replicated-adapter> element");
+		error("the <load-balancing> element can only be a child of a <replica-group> element");
 	    }
 	    _currentApplication->setLoadBalancing(attributes);
 	}
@@ -333,7 +333,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	{
 	    if(!_inAdapter)
 	    {
-		error("the <object> element can only be a child of an <adapter> or <replicated-adapter> element");
+		error("the <object> element can only be a child of an <adapter> or <replica-group> element");
 	    }
 	    if(!_currentCommunicator)
 	    {
@@ -456,8 +456,18 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	_currentApplication->addServiceTemplate(_currentTemplate->getId(), _currentTemplate->getDescriptor());
 	_currentTemplate.reset(0);
     }
-    else if(name == "comment")
+    else if(name == "description")
     {
+	if(_inAdapter)
+	{
+	    assert(_currentCommunicator);
+	    _currentCommunicator->setAdapterDescription(elementValue());
+	}
+	else if(_inDbEnv)
+	{
+	    assert(_currentCommunicator);
+	    _currentCommunicator->setDbEnvDescription(elementValue());
+	}
 	if(_currentCommunicator)
 	{
 	    _currentCommunicator->setDescription(elementValue());
@@ -506,7 +516,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     {
 	_inAdapter = false;
     } 
-    else if(name == "replicated-adapter")
+    else if(name == "replica-group")
     {
 	_inAdapter = false;
     } 

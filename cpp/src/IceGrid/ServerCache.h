@@ -41,7 +41,7 @@ public:
     std::string getId() const;
 
     ServerPrx getProxy(int&, int&, std::string&);
-    AdapterPrx getAdapter(const std::string&, const std::string&);
+    AdapterPrx getAdapter(const std::string&);
     NodeEntryPtr getNode() const;
     std::string getApplication() const;
     float getLoad(LoadSample) const;

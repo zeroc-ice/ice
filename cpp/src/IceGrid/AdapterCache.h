@@ -34,42 +34,80 @@ public:
     
     AdapterEntry(Cache<std::string, AdapterEntry>&, const std::string&);
 
-    AdapterPrx getProxy(const std::string&) const;
-    std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&);
-    float getLeastLoadedNodeLoad(LoadSample) const;
-    std::string getApplication() const;
-
-    void enableReplication(const LoadBalancingPolicyPtr&);
-    void disableReplication();
-
-    void addReplica(const std::string&, const ServerEntryPtr&);
-    void removeReplica(const std::string&);
-
-    bool canRemove();
+    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&) { 
+	return std::vector<std::pair<std::string, AdapterPrx> >(); }
+    virtual float getLeastLoadedNodeLoad(LoadSample) const { return 0.0f; }
+    virtual std::string getApplication() const { return ""; }
+    virtual bool canRemove();
     
+protected:
+    
+    AdapterCache& _cache;
+    const std::string _id;
+};
+typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
+
+class ServerAdapterEntry : public AdapterEntry
+{
+public:
+
+    ServerAdapterEntry(Cache<std::string, AdapterEntry>&, const std::string&);
+
+    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&);
+    virtual float getLeastLoadedNodeLoad(LoadSample) const;
+    virtual std::string getApplication() const;
+
+    void set(const ServerEntryPtr&, const std::string&);
+    void destroy();
+
+    AdapterPrx getProxy(const std::string& = std::string()) const;
+
 private:
     
-    Cache<std::string, AdapterEntry>& _cache;
-    const std::string _id;
-    bool _replicated;
+    ServerEntryPtr getServer() const;
+
+    ServerEntryPtr _server;
+    std::string _replicaGroupId;
+};
+typedef IceUtil::Handle<ServerAdapterEntry> ServerAdapterEntryPtr;
+
+class ReplicaGroupEntry : public AdapterEntry
+{
+public:
+
+    ReplicaGroupEntry(Cache<std::string, AdapterEntry>&, const std::string&);
+
+    virtual std::vector<std::pair<std::string, AdapterPrx> > getProxies(int&);
+    virtual float getLeastLoadedNodeLoad(LoadSample) const;
+    virtual std::string getApplication() const;
+
+    void set(const std::string&, const LoadBalancingPolicyPtr&);
+    void addReplica(const std::string&, const ServerAdapterEntryPtr&);
+    void removeReplica(const std::string&);
+
+private:
+
     LoadBalancingPolicyPtr _loadBalancing;
     int _loadBalancingNReplicas;
     LoadSample _loadSample;
-    typedef std::vector<std::pair<std::string, ServerEntryPtr> > ReplicaSeq;
+    std::string _application;
+    typedef std::vector<std::pair<std::string, ServerAdapterEntryPtr> > ReplicaSeq;
     ReplicaSeq _replicas;
     int _lastReplica;
 };
-typedef IceUtil::Handle<AdapterEntry> AdapterEntryPtr;
+typedef IceUtil::Handle<ReplicaGroupEntry> ReplicaGroupEntryPtr;
 
 class AdapterCache : public CacheByString<AdapterEntry>
 {
 public:
 
-    AdapterEntryPtr get(const std::string&, bool = false) const;
+    AdapterEntryPtr get(const std::string&) const;
+    ServerAdapterEntryPtr getServerAdapter(const std::string&, bool = false) const;
+    ReplicaGroupEntryPtr getReplicaGroup(const std::string&, bool = false) const;
     
 protected:
     
-    AdapterEntryPtr addImpl(const std::string&);
+    AdapterEntryPtr addImpl(const std::string&, const AdapterEntryPtr&);
     AdapterEntryPtr removeImpl(const std::string&);
 
 };

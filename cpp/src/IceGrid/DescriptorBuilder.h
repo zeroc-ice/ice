@@ -63,7 +63,7 @@ public:
 
     void setVariableOverrides(const std::map<std::string, std::string>&);
     void setDescription(const std::string&);
-    void addReplicatedAdapter(const XmlAttributesHelper&);
+    void addReplicaGroup(const XmlAttributesHelper&);
     void setLoadBalancing(const XmlAttributesHelper&);
     void addObject(const XmlAttributesHelper&);
     virtual void addVariable(const XmlAttributesHelper&);
@@ -148,9 +148,11 @@ public:
     virtual void setDescription(const std::string&);
     virtual void addProperty(const XmlAttributesHelper&);
     virtual void addAdapter(const XmlAttributesHelper&);
+    virtual void setAdapterDescription(const std::string&);
     virtual void addObject(const XmlAttributesHelper&);
     virtual void addDbEnv(const XmlAttributesHelper&);
     virtual void addDbEnvProperty(const XmlAttributesHelper&);
+    virtual void setDbEnvDescription(const std::string&);
 
 private:
 

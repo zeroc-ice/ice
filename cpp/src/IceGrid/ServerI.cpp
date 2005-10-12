@@ -702,7 +702,7 @@ ServerI::addDynamicInfo(ServerDynamicInfoSeq& serverInfos, AdapterDynamicInfoSeq
 	try
 	{
 	    AdapterDynamicInfo adapter;
-	    adapter.id = p->first.id;
+	    adapter.id = p->first;
 	    adapter.proxy = p->second->getDirectProxy();
 	    adapterInfos.push_back(adapter);
 	}
@@ -1148,27 +1148,23 @@ ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bo
     }
 }
 
-ReplicatedAdapterIdentity
+string
 ServerI::addAdapter(const AdapterDescriptor& desc, const CommunicatorDescriptorPtr& comm, const Ice::Current& current)
 {
     assert(!desc.id.empty());
 
-    ReplicatedAdapterIdentity adptId;
-    adptId.id = desc.id;
-    adptId.replicaId = getReplicaId(desc, comm, _id);
-
     Ice::Identity id;
     id.category = "IceGridServerAdapter";
-    id.name = _desc->id + "-" + adptId.id + "-" + adptId.replicaId + "-" + desc.name; // Use UUID instead?
+    id.name = _desc->id + "-" + desc.id;
     AdapterPrx proxy = AdapterPrx::uncheckedCast(current.adapter->createProxy(id));
     ServerAdapterIPtr servant = ServerAdapterIPtr::dynamicCast(current.adapter->find(id));
     if(!servant)
     {
-	servant = new ServerAdapterI(_node, this, _desc->id, proxy, desc.id, adptId.replicaId, _waitTime);
+	servant = new ServerAdapterI(_node, this, _desc->id, proxy, desc.id, _waitTime);
 	current.adapter->add(servant, id);
     }
-    _adapters.insert(make_pair(adptId, servant));
-    return adptId;
+    _adapters.insert(make_pair(desc.id, servant));
+    return desc.id;
 }
 
 void
@@ -1238,7 +1234,10 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	{
 	    props.push_back(createProperty(q->name + ".RegisterProcess", "1"));
 	}
-	props.push_back(createProperty(q->name + ".ReplicaId", getReplicaId(*q, descriptor, _id)));
+	if(!q->replicaGroupId.empty())
+	{
+	    props.push_back(createProperty(q->name + ".ReplicaGroupId", q->replicaGroupId));
+	}
     }
 
     //

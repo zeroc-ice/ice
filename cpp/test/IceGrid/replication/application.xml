@@ -2,44 +2,50 @@
 
   <application name="test">
 
-    <replicated-adapter id="ReplicatedAdapter">
+    <replica-group id="Default">
+      <object identity="Default" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="RoundRobin">
       <load-balancing type="round-robin" n-replicas="1"/>
-      <object identity="test" type="::Test::TestIntf"/>
-    </replicated-adapter>
+      <object identity="RoundRobin" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="Adaptive">
+      <load-balancing type="adaptive" n-replicas="1"/>
+      <object identity="Adaptive" type="::Test::TestIntf"/>
+    </replica-group>
+
+    <replica-group id="Random">
+      <load-balancing type="random" n-replicas="1"/>
+      <object identity="Random" type="::Test::TestIntf"/>
+    </replica-group>
 
     <server-template id="Server">
       <parameter name="id"/>
-      <parameter name="replicaId"/>
+      <parameter name="replicaGroup"/>
       <server id="${id}" exe="${test.dir}/server" activation="on-demand" pwd=".">
-        <adapter name="ReplicatedAdapter" endpoints="default" id="ReplicatedAdapter" replica-id="${replicaId}"/>
+        <adapter name="ReplicatedAdapter" endpoints="default" replica-group="${replicaGroup}"/>
+        <property name="Identity" value="${replicaGroup}"/>
       </server>
     </server-template>
 
     <service-template id="Service">
       <parameter name="name"/>
-      <parameter name="replicaId"/>
+      <parameter name="replicaGroup"/>
       <service name="${name}" entry="TestService:create">
-        <adapter name="${service}" endpoints="default" id="ReplicatedAdapter" replica-id="${replicaId}"/>
+        <adapter name="${service}" endpoints="default" replica-group="${replicaGroup}"/>
+        <property name="Identity" value="${replicaGroup}"/>
       </service>
     </service-template>
 
-    <server-template id="IceBox1">
+    <server-template id="IceBox">
       <parameter name="id"/>
-      <parameter name="replicaId"/>
+      <parameter name="replicaGroup"/>
       <icebox id="${id}" endpoints="default" exe="${ice.dir}/bin/icebox" activation="on-demand" pwd=".">  
-        <service-instance template="Service" name="Service1" replicaId="${replicaId}"/>
-      </icebox>
-    </server-template>
-
-    <server-template id="IceBox3">
-      <parameter name="id"/>
-      <parameter name="replicaId1"/>
-      <parameter name="replicaId2"/>
-      <parameter name="replicaId3"/>
-      <icebox id="${id}" endpoints="default" exe="${ice.dir}/bin/icebox" activation="on-demand" pwd=".">  
-        <service-instance template="Service" name="Service1" replicaId="${replicaId1}"/>
-        <service-instance template="Service" name="Service2" replicaId="${replicaId2}"/>
-        <service-instance template="Service" name="Service3" replicaId="${replicaId3}"/>
+        <service-instance template="Service" name="Service1" replicaGroup="${replicaGroup}"/>
+        <service-instance template="Service" name="Service2" replicaGroup="${replicaGroup}"/>
+        <service-instance template="Service" name="Service3" replicaGroup="${replicaGroup}"/>
       </icebox>
     </server-template>
 

@@ -147,8 +147,9 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm, const Server
     {
 	if(!q->id.empty())
 	{
-	    _adapterCache.get(q->id, true)->addReplica(getReplicaId(*q, comm, entry->getId()), entry);
+	    _adapterCache.getServerAdapter(q->id, true)->set(entry, q->replicaGroupId);
 	}
+
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
 	{
 	    const string edpts = IceGrid::getProperty(comm->properties, q->name + ".Endpoints");
@@ -164,7 +165,7 @@ ServerCache::removeCommunicator(const CommunicatorDescriptorPtr& comm, const Ser
     {
 	if(!q->id.empty())
 	{
-	    _adapterCache.get(q->id)->removeReplica(getReplicaId(*q, comm, entry->getId()));
+	    _adapterCache.getServerAdapter(q->id)->destroy();
 	}
 	for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
 	{
@@ -315,19 +316,15 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 }
 
 AdapterPrx
-ServerEntry::getAdapter(const string& id, const string& replicaId)
+ServerEntry::getAdapter(const string& id)
 {
     AdapterPrx proxy;
 
-    ReplicatedAdapterIdentity adptId;
-    adptId.id = id;
-    adptId.replicaId = replicaId;
-    
     {
 	Lock sync(*this);
 	if(_proxy) // Synced
 	{
-	    proxy = _adapters[adptId];
+	    proxy = _adapters[id];
 	}
     }
 
@@ -347,7 +344,7 @@ ServerEntry::getAdapter(const string& id, const string& replicaId)
     int activationTimeout, deactivationTimeout;
     string node;
     syncImpl(adapters, activationTimeout, deactivationTimeout, node);
-    AdapterPrx adapter = adapters[adptId];
+    AdapterPrx adapter = adapters[id];
     if(!adapter)
     {
 	throw AdapterNotExistException();

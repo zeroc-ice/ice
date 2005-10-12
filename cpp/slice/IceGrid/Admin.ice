@@ -521,19 +521,7 @@ interface Admin
 
     /**
      *
-     * Remove the adapter with the given adapter id and replica id.
-     *
-     * @throws AdapterNotExistException Raised if the adapter doesn't
-     * exist.
-     *
-     **/
-    idempotent void removeAdapterWithReplicaId(string adapterId, string replicaId)
-	throws AdapterNotExistException, DeploymentException;
-
-    /**
-     *
-     * Remove the adapter with the given id. If the adapter is
-     * replicated, all the replicas are removed.
+     * Remove the adapter with the given id.
      *
      * @throws AdapterNotExistException Raised if the adapter doesn't
      * exist.

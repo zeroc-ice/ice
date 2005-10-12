@@ -132,12 +132,11 @@ ApplicationDescriptorBuilder::setDescription(const string& desc)
 }
 
 void
-ApplicationDescriptorBuilder::addReplicatedAdapter(const XmlAttributesHelper& attrs)
+ApplicationDescriptorBuilder::addReplicaGroup(const XmlAttributesHelper& attrs)
 {
-    ReplicatedAdapterDescriptor adapter;
+    ReplicaGroupDescriptor adapter;
     adapter.id = attrs("id");
-    adapter.loadBalancing = new RandomLoadBalancingPolicy(); // Default load balancing
-    _descriptor.replicatedAdapters.push_back(adapter);
+    _descriptor.replicaGroups.push_back(adapter);
 }
 
 void
@@ -164,7 +163,7 @@ ApplicationDescriptorBuilder::setLoadBalancing(const XmlAttributesHelper& attrs)
 	throw "invalid load balancing policy `" + type + "'";
     }
     policy->nReplicas = attrs("n-replicas", "0");
-    _descriptor.replicatedAdapters.back().loadBalancing = policy;
+    _descriptor.replicaGroups.back().loadBalancing = policy;
 }
 
 void
@@ -173,7 +172,7 @@ ApplicationDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
     ObjectDescriptor object;
     object.type = attrs("type", "");
     object.id = Ice::stringToIdentity(attrs("identity"));
-    _descriptor.replicatedAdapters.back().objects.push_back(object);
+    _descriptor.replicaGroups.back().objects.push_back(object);
 }
 
 void
@@ -411,7 +410,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
 	}
 	desc.id = fqn + "." + desc.name;
     }
-    desc.replicaId = attrs("replica-id", "");
+    desc.replicaGroupId = attrs("replica-group", "");
     desc.registerProcess = attrs("register-process", "false") == "true";
     if(desc.id == "" && attrs.contains("wait-for-activation"))
     {
@@ -430,6 +429,12 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
 	prop.value = attrs("endpoints");
 	_descriptor->properties.push_back(prop);
     }
+}
+
+void
+CommunicatorDescriptorBuilder::setAdapterDescription(const string& value)
+{
+    _descriptor->adapters.back().description = value;
 }
 
 void
@@ -485,6 +490,12 @@ CommunicatorDescriptorBuilder::addDbEnvProperty(const XmlAttributesHelper& attrs
     prop.name = attrs("name");
     prop.value = attrs("value", "");
     _descriptor->dbEnvs.back().properties.push_back(prop);
+}
+
+void
+CommunicatorDescriptorBuilder::setDbEnvDescription(const string& value)
+{
+    _descriptor->dbEnvs.back().description = value;
 }
 
 ServerDescriptorBuilder::ServerDescriptorBuilder(const XmlAttributesHelper& attrs)

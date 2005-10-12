@@ -66,6 +66,7 @@ public:
 
     virtual ObjectPrx createProxy(const Identity&) const;
     virtual ObjectPrx createDirectProxy(const Identity&) const;
+    virtual ObjectPrx createIndirectProxy(const Identity&) const;
     virtual ObjectPrx createReverseProxy(const Identity&) const;
 
     virtual void addRouter(const RouterPrx&);
@@ -92,6 +93,7 @@ private:
     
     ObjectPrx newProxy(const Identity&, const std::string&) const;
     ObjectPrx newDirectProxy(const Identity&, const std::string&) const;
+    ObjectPrx newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
     void checkForDeactivation() const;
     static void checkIdentity(const Identity&);
     std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&) const;
@@ -104,6 +106,7 @@ private:
     bool _printAdapterReadyDone;
     const std::string _name;
     const std::string _id;
+    const std::string _replicaGroupId;
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
     std::vector<IceInternal::EndpointIPtr> _routerEndpoints;
     std::vector<IceInternal::RouterInfoPtr> _routerInfos;

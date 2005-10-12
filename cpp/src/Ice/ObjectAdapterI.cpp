@@ -64,7 +64,6 @@ Ice::ObjectAdapterI::activate()
     LocatorRegistryPrx locatorRegistry;
     bool registerProcess = false;
     string serverId;
-    string replicaId;
     CommunicatorPtr communicator;
     bool printAdapterReady = false;
 
@@ -82,7 +81,6 @@ Ice::ObjectAdapterI::activate()
 
             registerProcess = _instance->properties()->getPropertyAsInt(_name + ".RegisterProcess") > 0;
             serverId = _instance->properties()->getProperty("Ice.ServerId");
-            replicaId = _instance->properties()->getPropertyWithDefault(_name + ".ReplicaId", serverId);
 	    printAdapterReady = _instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 
             if(registerProcess && !locatorRegistry)
@@ -122,17 +120,24 @@ Ice::ObjectAdapterI::activate()
 	{
 	    Identity ident;
 	    ident.name = "dummy";
-	    locatorRegistry->setAdapterDirectProxy(_id, replicaId, createDirectProxy(ident));
+	    locatorRegistry->setAdapterDirectProxy(_id, _replicaGroupId, createDirectProxy(ident));
 	}
 	catch(const ObjectAdapterDeactivatedException&)
 	{
 	    // IGNORE: The object adapter is already inactive.
 	}
-	catch(const AdapterNotFoundException& e)
+	catch(const AdapterNotFoundException&)
 	{
 	    NotRegisteredException ex(__FILE__, __LINE__);
 	    ex.kindOfObject = "object adapter";
-	    ex.id = e.replica ? _id + " (replica = " + replicaId + ")" : _id;
+	    ex.id = _id;
+	    throw ex;
+	}
+	catch(const InvalidReplicaGroupIdException&)
+	{
+	    NotRegisteredException ex(__FILE__, __LINE__);
+	    ex.kindOfObject = "replica group";
+	    ex.id = _replicaGroupId;
 	    throw ex;
 	}
 	catch(const AdapterAlreadyActiveException&)
@@ -453,6 +458,17 @@ Ice::ObjectAdapterI::createDirectProxy(const Identity& ident) const
 }
 
 ObjectPrx
+Ice::ObjectAdapterI::createIndirectProxy(const Identity& ident) const
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+    
+    checkForDeactivation();
+    checkIdentity(ident);
+
+    return newIndirectProxy(ident, "", _id);
+}
+
+ObjectPrx
 Ice::ObjectAdapterI::createReverseProxy(const Identity& ident) const
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -748,6 +764,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _printAdapterReadyDone(false),
     _name(name),
     _id(instance->properties()->getProperty(name + ".AdapterId")),
+    _replicaGroupId(instance->properties()->getProperty(name + ".ReplicaGroupId")),
     _directCount(0),
     _waitForDeactivate(false)
 {
@@ -849,19 +866,13 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
     {
 	return newDirectProxy(ident, facet);
     }
+    else if(_replicaGroupId.empty())
+    {
+	return newIndirectProxy(ident, facet, _id);
+    }
     else
     {
-	//
-	// Create a reference with the adapter id.
-	//
-	ReferencePtr ref = _instance->referenceFactory()->create(
-	    ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false, _id,
-	    0, _locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization);
-
-	//
-	// Return a proxy for the reference. 
-	//
-	return _instance->proxyFactory()->referenceToProxy(ref);
+	return newIndirectProxy(ident, facet, _replicaGroupId);
     }
 }
 
@@ -885,6 +896,22 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) 
 	_instance->defaultsAndOverrides()-> defaultCollocationOptimization);
     return _instance->proxyFactory()->referenceToProxy(ref);
 
+}
+
+ObjectPrx
+Ice::ObjectAdapterI::newIndirectProxy(const Identity& ident, const string& facet, const string& id) const
+{
+    //
+    // Create an indirect reference with the given adapter id.
+    //
+    ReferencePtr ref = _instance->referenceFactory()->create(
+	ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false, id, 0, _locatorInfo, 
+	_instance->defaultsAndOverrides()->defaultCollocationOptimization);
+    
+    //
+    // Return a proxy for the reference. 
+    //
+    return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
 void

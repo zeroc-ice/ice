@@ -927,25 +927,15 @@ Parser::endpointsAdapter(const list<string>& args)
 void
 Parser::removeAdapter(const list<string>& args)
 {
-    if(args.size() < 1)
+    if(args.size() != 1)
     {
-	error("`adapter remove' requires at least one argument\n(`help' for more info)");
+	error("`adapter remove' requires exactly one argument\n(`help' for more info)");
 	return;
     }
 
     try
     {
-	list<string>::const_iterator p = args.begin();
-	string adapterId = *p++;
-	StringObjectProxyDict proxies = _admin->getAdapterEndpoints(adapterId);
-	if(args.size() > 1)
-	{
-	    _admin->removeAdapterWithReplicaId(adapterId, *p++);
-	}
-	else
-	{
-	    _admin->removeAdapter(adapterId);
-	}
+	_admin->removeAdapter(*args.begin());
     }
     catch(const Ice::Exception& ex)
     {

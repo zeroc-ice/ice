@@ -37,8 +37,14 @@ else:
 # Add locator options for the client and server. Since the server
 # invokes on the locator it's also considered to be a client.
 #
-additionalOptions = " --Ice.Default.Locator=\"IceGrid/Locator:default -p 12345\" " + \
-    "--Ice.PrintAdapterReady=0 --Ice.PrintProcessId=0 --IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\""
+# NOTE: We also set the retry intervals to retry several times. This
+# is necessary for the test to work. The tests invoke successively on
+# the same proxy and shutdown the server on each invocation. It takes
+# a bit of time for the IceGrid node to detect that the server is down
+# and to return a direct proxy from an active server.
+#
+additionalOptions = " --Ice.Default.Locator=\"IceGrid/Locator:default -p 12345\"" + \
+                    " --Ice.PrintAdapterReady=0 --Ice.PrintProcessId=0 --Ice.RetryIntervals=\"0 10 20 30 40 50\""
 
 IceGridAdmin.cleanDbDir(os.path.join(testdir, "db"))
 iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir)
@@ -61,7 +67,7 @@ except:
 clientStatus = clientPipe.close()
 
 print "unregister application with icegrid...",
-#IceGridAdmin.removeApplication("test");
+IceGridAdmin.removeApplication("test");
 print "ok"
 
 IceGridAdmin.shutdownIceGridNode()

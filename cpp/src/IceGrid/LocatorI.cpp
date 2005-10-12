@@ -340,15 +340,16 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
     {
 	int count;
 	vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(id, count);
+	if(adapters.empty())
+	{
+	    cb->ice_response(0);
+	    return;
+	}
 	(new Request(cb, const_cast<LocatorI*>(this), id, adapters, count))->execute();
     }
     catch(const AdapterNotExistException&)
     {
-	throw Ice::AdapterNotFoundException();
-    }
-    catch(const NodeUnreachableException&)
-    {
-	cb->ice_response(0);
+	cb->ice_exception(Ice::AdapterNotFoundException());
 	return;
     }
 }

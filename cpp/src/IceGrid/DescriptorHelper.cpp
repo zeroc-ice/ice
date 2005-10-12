@@ -20,10 +20,10 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-struct GetReplicatedAdapterId : unary_function<ReplicatedAdapterDescriptor&, const string&>
+struct GetReplicaGroupId : unary_function<ReplicaGroupDescriptor&, const string&>
 {
     const string&
-    operator()(const ReplicatedAdapterDescriptor& desc)
+    operator()(const ReplicaGroupDescriptor& desc)
     {
 	return desc.id;
     }
@@ -73,10 +73,10 @@ struct TemplateDescriptorEqual : std::binary_function<TemplateDescriptor&, Templ
     }
 };
 
-struct ReplicatedAdapterEq : std::binary_function<ReplicatedAdapterDescriptor&, ReplicatedAdapterDescriptor&, bool>
+struct ReplicaGroupEq : std::binary_function<ReplicaGroupDescriptor&, ReplicaGroupDescriptor&, bool>
 {
     bool
-    operator()(const ReplicatedAdapterDescriptor& lhs, const ReplicatedAdapterDescriptor& rhs)
+    operator()(const ReplicaGroupDescriptor& lhs, const ReplicaGroupDescriptor& rhs)
     {
 	if(lhs.id != rhs.id)
 	{
@@ -87,17 +87,24 @@ struct ReplicatedAdapterEq : std::binary_function<ReplicatedAdapterDescriptor&, 
 	{
 	    return false;
 	}
-	if(lhs.loadBalancing->ice_id() != rhs.loadBalancing->ice_id())
+	if(lhs.loadBalancing && rhs.loadBalancing)
 	{
-	    return false;
+	    if(lhs.loadBalancing->ice_id() != rhs.loadBalancing->ice_id())
+	    {
+		return false;
+	    }
+	    if(lhs.loadBalancing->nReplicas != rhs.loadBalancing->nReplicas)
+	    {
+		return false;
+	    }
+	    AdaptiveLoadBalancingPolicyPtr alhs = AdaptiveLoadBalancingPolicyPtr::dynamicCast(lhs.loadBalancing);
+	    AdaptiveLoadBalancingPolicyPtr arhs = AdaptiveLoadBalancingPolicyPtr::dynamicCast(rhs.loadBalancing);
+	    if(alhs && arhs && alhs->loadSample != arhs->loadSample)
+	    {
+		return false;
+	    }
 	}
-	if(lhs.loadBalancing->nReplicas != rhs.loadBalancing->nReplicas)
-	{
-	    return false;
-	}
-	AdaptiveLoadBalancingPolicyPtr alhs = AdaptiveLoadBalancingPolicyPtr::dynamicCast(lhs.loadBalancing);
-	AdaptiveLoadBalancingPolicyPtr arhs = AdaptiveLoadBalancingPolicyPtr::dynamicCast(rhs.loadBalancing);
-	if(alhs && arhs && alhs->loadSample != arhs->loadSample)
+	else if(lhs.loadBalancing || rhs.loadBalancing)
 	{
 	    return false;
 	}
@@ -381,6 +388,26 @@ Resolver::getServiceTemplate(const string& tmpl) const
     return _application->getServiceTemplate(tmpl);
 }
 
+bool
+Resolver::hasReplicaGroup(const string& id) const
+{
+    if(!_application)
+    {
+	return true; // If we don't know the application descrpitor we
+		     // assume that the replica group exists.
+    }
+    ReplicaGroupDescriptorSeq::const_iterator p;
+    const ApplicationDescriptor& app = _application->getDescriptor();
+    for(p = app.replicaGroups.begin(); p != app.replicaGroups.end(); ++p)
+    {
+	if(p->id == id)
+	{
+	    return true;
+	}
+    } 
+    return false;
+}
+
 string
 Resolver::substitute(const string& v, bool useParams) const
 {
@@ -589,7 +616,11 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	adapter.id = resolve(p->id, "object adapter id");
 	adapter.registerProcess = p->registerProcess;
 	adapter.waitForActivation = p->waitForActivation;
-	adapter.replicaId = resolve(p->replicaId, "object adapter replica id");
+	adapter.replicaGroupId = resolve(p->replicaGroupId, "object adapter replica group id");
+	if(!adapter.replicaGroupId.empty() && !resolve.hasReplicaGroup(adapter.replicaGroupId))
+	{
+	    resolve.exception("unknown replica group `" + adapter.replicaGroupId + "'");
+	}
 	for(ObjectDescriptorSeq::const_iterator q = p->objects.begin(); q != p->objects.end(); ++q)
 	{
 	    ObjectDescriptor obj;
@@ -683,7 +714,7 @@ CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& ada
     out << nl << "adapter '" << adapter.name << "'";
     out << sb;
     out << nl << "id = '" << adapter.id << "'";
-    out << nl << "replica id = '" << adapter.replicaId << "'";
+    out << nl << "replica group id = '" << adapter.replicaGroupId << "'";
     out << nl << "endpoints = '" << getProperty(adapter.name + ".Endpoints") << "'";
     out << nl << "register process = '" << (adapter.registerProcess ? "true" : "false") << "'";
     out << nl << "wait for activation = '" << (adapter.waitForActivation ? "true" : "false") << "'";
@@ -1768,7 +1799,7 @@ NodeHelper::validate(const Resolver& appResolve) const
 	{
 	    resolve.exception("empty variable name");
 	}
-    }    
+    }
 }
 
 ApplicationHelper::ApplicationHelper(const ApplicationDescriptor& desc) :
@@ -1795,18 +1826,21 @@ ApplicationHelper::instantiate(const Resolver& resolve) const
 {
     ApplicationDescriptor desc = _definition;
 
-    ReplicatedAdapterDescriptorSeq::iterator r;
-    for(r = desc.replicatedAdapters.begin(); r != desc.replicatedAdapters.end(); ++r)
+    ReplicaGroupDescriptorSeq::iterator r;
+    for(r = desc.replicaGroups.begin(); r != desc.replicaGroups.end(); ++r)
     {
-	r->loadBalancing = LoadBalancingPolicyPtr::dynamicCast(r->loadBalancing->ice_clone());
-	r->loadBalancing->nReplicas = resolve(r->loadBalancing->nReplicas, "number of replicas");
-	AdaptiveLoadBalancingPolicyPtr alb = AdaptiveLoadBalancingPolicyPtr::dynamicCast(r->loadBalancing);
-	if(alb)
+	if(r->loadBalancing)
 	{
-	    alb->loadSample = resolve(alb->loadSample, "load sample");
-	    if(alb->loadSample != "" && alb->loadSample != "1" && alb->loadSample != "5" && alb->loadSample != "15")
+	    r->loadBalancing = LoadBalancingPolicyPtr::dynamicCast(r->loadBalancing->ice_clone());
+	    r->loadBalancing->nReplicas = resolve(r->loadBalancing->nReplicas, "number of replicas");
+	    AdaptiveLoadBalancingPolicyPtr al = AdaptiveLoadBalancingPolicyPtr::dynamicCast(r->loadBalancing);
+	    if(al)
 	    {
-		resolve.exception("invalid load sample value (allowed values are 1, 5 or 15)");
+		al->loadSample = resolve(al->loadSample, "load sample");
+		if(al->loadSample != "" && al->loadSample != "1" && al->loadSample != "5" && al->loadSample != "15")
+		{
+		    resolve.exception("invalid load sample value (allowed values are 1, 5 or 15)");
+		}
 	    }
 	}
 
@@ -1846,17 +1880,17 @@ ApplicationHelper::diff(const ApplicationHelper& helper)
 	update.distrib = new BoxedDistributionDescriptor(_definition.distrib);
     }
 
-    GetReplicatedAdapterId rk;
-    ReplicatedAdapterEq req;
-    update.replicatedAdapters = 
-	getSeqUpdatedEltsWithEq(helper._definition.replicatedAdapters, _definition.replicatedAdapters, rk, req);
-    update.removeReplicatedAdapters =
-	getSeqRemovedElts(helper._definition.replicatedAdapters, _definition.replicatedAdapters, rk);
+    GetReplicaGroupId rk;
+    ReplicaGroupEq req;
+    update.replicaGroups = 
+	getSeqUpdatedEltsWithEq(helper._definition.replicaGroups, _definition.replicaGroups, rk, req);
+    update.removeReplicaGroups = getSeqRemovedElts(helper._definition.replicaGroups, _definition.replicaGroups, rk);
 
     TemplateDescriptorEqual tmpleq;
     update.serverTemplates = 
 	getDictUpdatedEltsWithEq(helper._definition.serverTemplates, _definition.serverTemplates, tmpleq);
-    update.removeServerTemplates = getDictRemovedElts(helper._definition.serverTemplates, _definition.serverTemplates);
+    update.removeServerTemplates =
+	getDictRemovedElts(helper._definition.serverTemplates, _definition.serverTemplates);
     update.serviceTemplates = 
 	getDictUpdatedEltsWithEq(helper._definition.serviceTemplates, _definition.serviceTemplates, tmpleq);
     update.removeServiceTemplates = 
@@ -1896,8 +1930,8 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
 	_definition.description = update.description->value;
     }
 
-    _definition.replicatedAdapters = updateSeqElts(_definition.replicatedAdapters, update.replicatedAdapters,
-						   update.removeReplicatedAdapters, GetReplicatedAdapterId());
+    _definition.replicaGroups = updateSeqElts(_definition.replicaGroups, update.replicaGroups, 
+					      update.removeReplicaGroups, GetReplicaGroupId());
     
     _definition.variables = updateDictElts(_definition.variables, update.variables, update.removeVariables);
 
@@ -1986,8 +2020,8 @@ ApplicationHelper::getIds(set<string>& serverIds, set<string>& adapterIds, set<I
     {
 	p->second.getIds(sIds, aIds, oIds);
     }
-    ReplicatedAdapterDescriptorSeq::const_iterator r;
-    for(r = _definition.replicatedAdapters.begin(); r != _definition.replicatedAdapters.end(); ++r)
+    ReplicaGroupDescriptorSeq::const_iterator r;
+    for(r = _definition.replicaGroups.begin(); r != _definition.replicaGroups.end(); ++r)
     {
 	aIds.insert(r->id);
 	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
@@ -2098,15 +2132,19 @@ ApplicationHelper::print(Output& out) const
 	out << nl << "directories = " << toString(_instance.distrib.directories);
 	out << eb;
     }
-    if(!_instance.replicatedAdapters.empty())
+    if(!_instance.replicaGroups.empty())
     {
-	out << nl << "replicated adapters";
+	out << nl << "replica groups";
 	out << sb;
-	ReplicatedAdapterDescriptorSeq::const_iterator p;
-	for(p = _instance.replicatedAdapters.begin(); p != _instance.replicatedAdapters.end(); ++p)
+	ReplicaGroupDescriptorSeq::const_iterator p;
+	for(p = _instance.replicaGroups.begin(); p != _instance.replicaGroups.end(); ++p)
 	{
 	    out << nl << "id = `" << p->id << "' load balancing = `";
-	    if(RandomLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
+	    if(!p->loadBalancing)
+	    {
+		out << "default (return all endpoints)";
+	    }
+	    else if(RandomLoadBalancingPolicyPtr::dynamicCast(p->loadBalancing))
 	    {
 		out << "random";
 	    }
@@ -2179,43 +2217,41 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
 	}
     }
     {
-	GetReplicatedAdapterId rk;
-	ReplicatedAdapterEq req;
-	ReplicatedAdapterDescriptorSeq updated = 
-	    getSeqUpdatedEltsWithEq(helper._definition.replicatedAdapters, _definition.replicatedAdapters, rk, req);
-	Ice::StringSeq removed = 
-	    getSeqRemovedElts(helper._definition.replicatedAdapters, _definition.replicatedAdapters, rk);
+	GetReplicaGroupId rk;
+	ReplicaGroupEq req;
+	ReplicaGroupDescriptorSeq updated = 
+	    getSeqUpdatedEltsWithEq(helper._definition.replicaGroups, _definition.replicaGroups, rk, req);
+	Ice::StringSeq removed = getSeqRemovedElts(helper._definition.replicaGroups, _definition.replicaGroups, rk);
 	if(!updated.empty() || !removed.empty())
 	{
-	    out << nl << "replicated adapters";
+	    out << nl << "replica groups";
 	    out << sb;
-	    ReplicatedAdapterDescriptorSeq::iterator p = updated.begin();
+	    ReplicaGroupDescriptorSeq::iterator p = updated.begin();
 	    while(p != updated.end())
 	    {
-		ReplicatedAdapterDescriptorSeq::const_iterator r;
-		for(r = helper._instance.replicatedAdapters.begin(); r != helper._instance.replicatedAdapters.end(); 
+		ReplicaGroupDescriptorSeq::const_iterator r;
+		for(r = helper._instance.replicaGroups.begin(); r != helper._instance.replicaGroups.end(); 
 		    ++r)
 		{
 		    if(p->id == r->id)
 		    {
-			out << nl << "replicated adapter `" << r->id << "' updated";
+			out << nl << "replica group `" << r->id << "' updated";
 			p = updated.erase(p);
 			break;
 		    }
 		}
-		if(r == helper._instance.replicatedAdapters.end())
+		if(r == helper._instance.replicaGroups.end())
 		{
 		    ++p;
 		}
 	    }
-	    p = updated.begin();
-	    while(p != updated.end())
+	    for(p = updated.begin(); p != updated.end(); ++p)
 	    {
-		out << nl << "replicated adapter `" << p->id << "' added";
+		out << nl << "replica group `" << p->id << "' added";
 	    }
 	    for(Ice::StringSeq::const_iterator q = removed.begin(); q != removed.end(); ++q)
 	    {
-		out << nl << "replicated adapter `" << *q << "' removed";
+		out << nl << "replica group `" << *q << "' removed";
 	    }
 	    out << eb;
 	}
@@ -2347,28 +2383,28 @@ ApplicationHelper::validate(const Resolver& resolve) const
     multiset<string> serverIds;
     multiset<string> adapterIds;
     multiset<Ice::Identity> objectIds;
-    set<string> replicatedAdapterIds;
-    ReplicatedAdapterDescriptorSeq::const_iterator r;
-    for(r = _definition.replicatedAdapters.begin(); r != _definition.replicatedAdapters.end(); ++r)
-    {
-	if(r->id.empty())
-	{
-	    throw DeploymentException("replicated adapter id is empty");
-	}
-	if(!replicatedAdapterIds.insert(r->id).second)
-	{
-	    throw DeploymentException("duplicate replicated adapter `" +  r->id + "'");
-	}
-	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
-	{
-	    objectIds.insert(o->id);
-	}
-    }
-
     for(NodeHelperDict::const_iterator n = _nodes.begin(); n != _nodes.end(); ++n)
     {
 	n->second.validate(resolve);
 	n->second.getIds(serverIds, adapterIds, objectIds);
+    }
+
+    ReplicaGroupDescriptorSeq::const_iterator r;
+    for(r = _definition.replicaGroups.begin(); r != _definition.replicaGroups.end(); ++r)
+    {
+	if(r->id.empty())
+	{
+	    throw DeploymentException("replica group id is empty");
+	}
+	if(adapterIds.find(r->id) != adapterIds.end())
+	{
+	    throw DeploymentException("duplicate replica group `" +  r->id + "'");
+	}
+	adapterIds.insert(r->id);
+	for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
+	{
+	    objectIds.insert(o->id);
+	}
     }
 
     for(multiset<string>::const_iterator s = serverIds.begin(); s != serverIds.end(); ++s)
@@ -2380,7 +2416,7 @@ ApplicationHelper::validate(const Resolver& resolve) const
     }
     for(multiset<string>::const_iterator a = adapterIds.begin(); a != adapterIds.end(); ++a)
     {
-	if(adapterIds.count(*a) > 1 && replicatedAdapterIds.find(*a) == replicatedAdapterIds.end())
+	if(adapterIds.count(*a) > 1)
 	{
 	    resolve.exception("duplicate adapter `" + *a + "'");
 	}

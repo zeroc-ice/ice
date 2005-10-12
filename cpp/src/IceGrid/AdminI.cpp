@@ -175,6 +175,24 @@ AdminI::getDefaultApplicationDescriptor(const Current& current) const
 	    throw IceXML::ParserException(__FILE__, __LINE__,
 					  "invalid default application descriptor:\ndistribution is not allowed");
 	}
+	if(!desc.replicaGroups.empty())
+	{
+	    throw IceXML::ParserException(__FILE__, __LINE__,
+					  "invalid default application descriptor:\n" 
+					  "replica group definitions are not allowed");
+	}
+	if(!desc.description.empty())
+	{
+	    throw IceXML::ParserException(__FILE__, __LINE__,
+					  "invalid default application descriptor:\ndescription is not allowed");
+	}
+	if(!desc.variables.empty())
+	{
+	    throw IceXML::ParserException(__FILE__, __LINE__,
+					  "invalid default application descriptor:\n"
+					  "variable definitions are not allowed");
+	}
+
 	return desc;
     }
     catch(const IceXML::ParserException& ex)
@@ -385,12 +403,6 @@ AdminI::getAdapterEndpoints(const string& adapterId, const Current&) const
 	}
     }
     return adpts;
-}
-
-void
-AdminI::removeAdapterWithReplicaId(const string& adapterId, const string& replicaId, const Ice::Current&)
-{
-    _database->setAdapterDirectProxy(adapterId, replicaId, 0);
 }
 
 void
