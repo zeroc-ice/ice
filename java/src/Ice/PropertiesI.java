@@ -88,7 +88,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 	return result;
     }
 
-    public synchronized void
+    public void
     setProperty(String key, String value)
     {
 	//
@@ -131,16 +131,19 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 	    }
 	}
 
-	//
-	// Set or clear the property.
-	//
-	if(value != null && value.length() > 0)
+	synchronized(this)
 	{
-	    _properties.put(key, value);
-	}
-	else
-	{
-	    _properties.remove(key);
+	    //
+	    // Set or clear the property.
+	    //
+	    if(value != null && value.length() > 0)
+	    {
+		_properties.put(key, value);
+	    }
+	    else
+	    {
+		_properties.remove(key);
+	    }
 	}
     }
 
@@ -159,7 +162,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
         return result;
     }
 
-    public synchronized String[]
+    public String[]
     parseCommandLineOptions(String pfx, String[] options)
     {
 	if(pfx.length() > 0 && pfx.charAt(pfx.length() - 1) != '.')
@@ -191,7 +194,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
         return arr;
     }
 
-    public synchronized String[]
+    public String[]
     parseIceCommandLineOptions(String[] options)
     {
         String[] args = options;
@@ -202,7 +205,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
         return args;
     }
 
-    public synchronized void
+    public void
     load(String file)
     {
         try

@@ -13,7 +13,6 @@ using System.Text.RegularExpressions;
 
 namespace Ice
 {
-
     sealed class PropertiesI : LocalObjectImpl, Properties
     {
 	public string getProperty(string key)
@@ -157,71 +156,62 @@ namespace Ice
 
 	public string[] parseCommandLineOptions(string pfx, string[] options)
 	{
-	    lock(this)
+	    if(pfx.Length > 0 && pfx[pfx.Length - 1] != '.')
 	    {
-		if(pfx.Length > 0 && pfx[pfx.Length - 1] != '.')
-		{
-		    pfx += '.';
-		}
-		pfx = "--" + pfx;
-		
-		ArrayList result = new ArrayList();
-		for(int i = 0; i < options.Length; i++)
-		{
-		    string opt = options[i];
-		    if(opt.StartsWith(pfx))
-		    {
-			if(opt.IndexOf('=') == -1)
-			{
-			    opt += "=1";
-			}
-			
-			parseLine(opt.Substring(2));
-		    }
-		    else
-		    {
-			result.Add(opt);
-		    }
-		}
-                string[] arr = new string[result.Count];
-		if(arr.Length != 0)
-		{
-		    result.CopyTo(arr);
-		}
-		return arr;
+		pfx += '.';
 	    }
+	    pfx = "--" + pfx;
+
+	    ArrayList result = new ArrayList();
+	    for(int i = 0; i < options.Length; i++)
+	    {
+		string opt = options[i];
+		if(opt.StartsWith(pfx))
+		{
+		    if(opt.IndexOf('=') == -1)
+		    {
+			opt += "=1";
+		    }
+
+		    parseLine(opt.Substring(2));
+		}
+		else
+		{
+		    result.Add(opt);
+		}
+	    }
+	    string[] arr = new string[result.Count];
+	    if(arr.Length != 0)
+	    {
+		result.CopyTo(arr);
+	    }
+	    return arr;
 	}
 	
 	public string[] parseIceCommandLineOptions(string[] options)
 	{
-	    lock(this)
+	    string[] args = options;
+	    for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
 	    {
-		string[] args = options;
-		for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
-		{
-		    args = parseCommandLineOptions(IceInternal.PropertyNames.clPropNames[i], args);
-		}
-		return args;
+		args = parseCommandLineOptions(IceInternal.PropertyNames.clPropNames[i], args);
 	    }
+	    return args;
 	}
 	
 	public void load(string file)
 	{
-	    lock(this)
+	    try
 	    {
-		try
+		using(System.IO.StreamReader sr = new System.IO.StreamReader(file))
 		{
-		    using(System.IO.StreamReader sr = new System.IO.StreamReader(file))
-		    {
-			parse(sr);
-		    }
+		    parse(sr);
 		}
-		catch(System.IO.IOException ex)
-		{
-		    Ice.FileException fe = new Ice.FileException(ex);
-		    fe.path = file;
-		    throw fe;
-		}
+	    }
+	    catch(System.IO.IOException ex)
+	    {
+		Ice.FileException fe = new Ice.FileException(ex);
+		fe.path = file;
+		throw fe;
 	    }
 	}
 	
@@ -367,5 +357,4 @@ namespace Ice
 	
 	private Ice.PropertyDict _properties;
     }
-
 }
