@@ -1939,7 +1939,7 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
 	    desc.variables = p->variables;
 	    desc.servers = p->servers;
 	    desc.serverInstances = p->serverInstances;
-	    desc.loadFactor = p->loadFactor;
+	    desc.loadFactor = p->loadFactor ? p->loadFactor->value : "";
 	    _nodes.insert(make_pair(p->name, NodeHelper(p->name, desc, resolve)));
 	}
 	else
