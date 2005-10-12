@@ -238,6 +238,14 @@ transforms = [ ('file', 'lib/Ice.jar', 'lib/Ice-%version%/Ice.jar' ),
                ('file', 'LICENSE', 'share/doc/Ice-%version%/LICENSE')
                ]
 
+x64_transforms = [ ('file', 'lib/Ice.jar', 'lib/Ice-%version%/Ice.jar' ),
+	       ('dir', 'slice', 'share/slice'),
+               ('dir', 'doc', 'share/doc/Ice-%version%/doc'),
+               ('file', 'README', 'share/doc/Ice-%version%/README'),
+               ('file', 'ICE_LICENSE', 'share/doc/Ice-%version%/ICE_LICENSE'),
+               ('file', 'LICENSE', 'share/doc/Ice-%version%/LICENSE')
+               ]
+
 #
 # fileLists is an in-memory representation of the package contents of
 # the Ice spec file.
@@ -509,6 +517,33 @@ def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
     ofile.close()
     os.system('rpmbuild -bs ' + installDir + '/ice-' + version + '.spec')
 
+#
+# TODO - refactor so this doesn't have to be special cased.
+# 
+def createRPMSFromBinaries64(buildDir, installDir, version, soVersion):
+    _transformDirectories(x64_transforms, version, installDir)
+    os.system("tar xfz " + installDir + "/Ice-" + version + "-demos.tar.gz -C " + installDir)
+    shutil.move(installDir + "/Ice-" + version, installDir + "/usr")
+
+    ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
+    fileLists[0].writeHeader(ofile, version, '1', installDir, buildRequires)
+    fileLists[1].writeHeader(ofile, version, '1', installDir, buildRequires)
+    ofile.write('\n\n\n')
+    fileLists[0].writeFiles(ofile, version, '1', installDir, buildRequires)
+    fileLists[1].writeFiles(ofile, version, '1', installDir, buildRequires)
+    ofile.write('\n')
+
+    ofile.flush()
+    ofile.close()
+    #
+    # Copy demo files so the RPM spec file can pick them up.
+    #
+    os.system("cp -pR " + installDir + "/Ice-" + version + "-demos/* " + installDir + "/usr/share/doc/Ice-" + version)
+    if os.path.exists(installDir + "/Ice-" + version + "-demos"):
+	shutil.rmtree(installDir + "/Ice-" + version + "-demos")
+    cwd = os.getcwd()
+    os.chdir(buildDir)
+    os.system("rpmbuild -bb Ice-" + version + ".spec")
 
 def writeUnpackingCommands(ofile, version):
     ofile.write('%setup -n Ice-%{version} -q -T -D -b 0\n')

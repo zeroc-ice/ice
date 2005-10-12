@@ -1015,12 +1015,15 @@ def main():
     # probably blow up unless the user that is running the script has
     # massaged the permissions on /usr/src/redhat/.
     #
-    if getPlatform() == 'linux' and not cvsMode:
+    if getPlatform().startswith('linux') and not cvsMode:
 	os.system('cp ' + installDir + '/Ice-' + version + '-demos.tar.gz /usr/src/redhat/SOURCES')
 	os.system('cp ' + sources + '/Ice*.tar.gz /usr/src/redhat/SOURCES')
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', '/usr/src/redhat/SOURCES/README.Linux-RPM')
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', installDir + '/Ice-' + version + '/README')
-	RPMTools.createRPMSFromBinaries(buildDir, installDir, version, soVersion)
+	if getPlatform() == 'linux64':
+	    RPMTools.createRPMSFromBinaries64(buildDir, installDir, version, soVersion)
+	else:
+	    RPMTools.createRPMSFromBinaries(buildDir, installDir, version, soVersion)
 
     #
     # TODO: Cleanups?  I've left everything in place so that the process
