@@ -11,16 +11,40 @@
 #define ICEPY_LOGGER_H
 
 #include <Config.h>
-#include <Ice/LoggerF.h>
+#include <Util.h>
+#include <Ice/Logger.h>
 
 namespace IcePy
 {
 
+//
+// LoggerWrapper delegates to a Python implementation.
+//
+class LoggerWrapper : public Ice::Logger
+{
+public:
+
+    LoggerWrapper(PyObject*);
+
+    virtual void print(const std::string&);
+    virtual void trace(const std::string&, const std::string&);
+    virtual void warning(const std::string&);
+    virtual void error(const std::string&);
+
+    PyObject* getObject();
+
+private:
+
+    PyObjectHandle _logger;
+};
+typedef IceUtil::Handle<LoggerWrapper> LoggerWrapperPtr;
+
 bool initLogger(PyObject*);
 
+//
+// Create a Python object that delegates to a C++ implementation.
+//
 PyObject* createLogger(const Ice::LoggerPtr&);
-
-Ice::LoggerPtr wrapLogger(PyObject*);
 
 }
 

@@ -11,8 +11,6 @@
 #   include <IceUtil/Config.h>
 #endif
 #include <Logger.h>
-#include <Util.h>
-#include <Ice/Logger.h>
 
 using namespace std;
 using namespace IcePy;
@@ -26,25 +24,6 @@ struct LoggerObject
 {
     PyObject_HEAD
     Ice::LoggerPtr* logger;
-};
-
-//
-// LoggerWrapper delegates Logger operations to a Python implementation.
-//
-class LoggerWrapper : public Ice::Logger
-{
-public:
-
-    LoggerWrapper(PyObject*);
-
-    virtual void print(const string&);
-    virtual void trace(const string&, const string&);
-    virtual void warning(const string&);
-    virtual void error(const string&);
-
-private:
-
-    PyObjectHandle _logger;
 };
 
 }
@@ -102,6 +81,12 @@ IcePy::LoggerWrapper::error(const string& message)
     {
         throwPythonException();
     }
+}
+
+PyObject*
+IcePy::LoggerWrapper::getObject()
+{
+    return _logger.get();
 }
 
 #ifdef WIN32
@@ -328,10 +313,4 @@ IcePy::createLogger(const Ice::LoggerPtr& logger)
         obj->logger = new Ice::LoggerPtr(logger);
     }
     return (PyObject*)obj;
-}
-
-Ice::LoggerPtr
-IcePy::wrapLogger(PyObject* p)
-{
-    return new LoggerWrapper(p);
 }

@@ -1,7 +1,7 @@
-Communicator.o: Communicator.cpp Communicator.h Config.h Logger.h ObjectAdapter.h ObjectFactory.h Properties.h Proxy.h Util.h
+Communicator.o: Communicator.cpp Communicator.h Config.h Logger.h Util.h ObjectAdapter.h ObjectFactory.h Properties.h Proxy.h
 Connection.o: Connection.cpp Connection.h Config.h ObjectAdapter.h Proxy.h Util.h
 Current.o: Current.cpp Current.h Config.h Connection.h ObjectAdapter.h Util.h
-Init.o: Init.cpp Communicator.h Config.h Connection.h Current.h Logger.h ObjectAdapter.h Operation.h Properties.h Proxy.h Slice.h Types.h Util.h
+Init.o: Init.cpp Communicator.h Config.h Connection.h Current.h Logger.h Util.h ObjectAdapter.h Operation.h Properties.h Proxy.h Slice.h Types.h
 Logger.o: Logger.cpp Logger.h Config.h Util.h
 ObjectAdapter.o: ObjectAdapter.cpp ObjectAdapter.h Config.h Communicator.h Current.h Operation.h Proxy.h Util.h
 ObjectFactory.o: ObjectFactory.cpp ObjectFactory.h Config.h Types.h Util.h
