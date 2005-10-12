@@ -13,11 +13,9 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
-
-
-import java.util.regex.Pattern;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 
@@ -122,8 +120,15 @@ class TemplateEditor extends Editor
 		    Templates parent = (Templates)_target.getParent();
 		    _target.destroy(); // just removes the child
 
-		    if(!parent.tryAdd(_template.getText(), descriptor))
+		    try
 		    {
+			parent.tryAdd(_template.getText(), descriptor);
+		    }
+		    catch(UpdateFailedException e)
+		    {
+			//
+			// Re-add ephemeral child
+			//
 			try
 			{
 			    parent.addChild(_target, true);
@@ -132,15 +137,21 @@ class TemplateEditor extends Editor
 			{
 			    assert false;
 			}
+			JOptionPane.showMessageDialog(
+			    model.getMainFrame(),
+			    e.toString(),
+			    "Apply failed",
+			    JOptionPane.ERROR_MESSAGE);
 			return;
 		    }
-		    else
-		    {
-			_target = parent.findChildWithDescriptor(descriptor);
-			model.setSelectionPath(_target.getPath());
-			model.showActions(_target);
-			_template.setEditable(false);
-		    }
+
+		    //
+		    // Success
+		    //
+		    _target = parent.findChildWithDescriptor(descriptor);
+		    model.setSelectionPath(_target.getPath());
+		    model.showActions(_target);
+		    _template.setEditable(false);
 		}
 		else if(isSimpleUpdate())
 		{
@@ -155,21 +166,32 @@ class TemplateEditor extends Editor
 		    Templates parent = (Templates)_target.getParent();
 		    writeDescriptor();
 		    
-		    if(!parent.tryUpdate(_target))
+		    try
+		    {
+
+			parent.tryUpdate(_target);
+		    }
+		    catch(UpdateFailedException e)
 		    {
 			_target.restoreDescriptor(savedDescriptor);
 			
+			JOptionPane.showMessageDialog(
+			    model.getMainFrame(),
+			    e.toString(),
+			    "Apply failed",
+			    JOptionPane.ERROR_MESSAGE);
 			//
 			// Everything was restored, user must deal with error
 			//
 			return;
 		    }
-		    else
-		    {
-			_target = parent.findChildWithDescriptor(getDescriptor());
-			model.setSelectionPath(_target.getPath());
-			model.showActions(_target);
-		    }
+		    
+		    //
+		    // Success
+		    //
+		    _target = parent.findChildWithDescriptor(getDescriptor());
+		    model.setSelectionPath(_target.getPath());
+		    model.showActions(_target);
 		}
 
 		_target.getEditable().markModified();

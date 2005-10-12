@@ -576,6 +576,46 @@ class Parent extends CommonBaseI
 	this(id, model, false);
     }
     
+
+    CommonBase addNewChild(Object descriptor)
+	throws UpdateFailedException
+    {
+	assert false;
+	return null;
+    }
+
+    Object rebuildChild(CommonBase child, java.util.List editables) 
+	throws UpdateFailedException
+    {
+	Object descriptor = child.getDescriptor();
+	removeChild(child, true);
+	try
+	{
+	    addNewChild(descriptor);
+	}
+	catch(UpdateFailedException e)
+	{
+	    addChild(child, true);
+	    throw e;
+	}
+	return null;
+    }
+
+    void restoreChild(CommonBase child, Object backup)
+    {
+	CommonBase badChild = findChildWithDescriptor(child.getDescriptor());
+	removeChild(badChild, true);
+
+	try
+	{
+	    addChild(child, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false; // impossible
+	}
+    }
+
     protected void sortChildren(boolean val)
     {
 	_sortChildren = val;

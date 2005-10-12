@@ -15,11 +15,6 @@ import IceGrid.Model;
 //
 abstract class ListParent extends Parent
 {
-    abstract boolean isEditable();
-    
-    abstract protected boolean validate(Object descriptor);
-    abstract protected void applyUpdate(Object descriptor);
-
     protected ListParent(String id, Model model, boolean root)
     {
 	super(id, model, root);
@@ -30,12 +25,12 @@ abstract class ListParent extends Parent
 	this(id, model, false);
     }
     
-    void addDescriptor(Object descriptor)
+    protected void addDescriptor(Object descriptor)
     {
 	_descriptors.add(descriptor);
     }
 
-    void removeDescriptor(Object descriptor)
+    protected void removeDescriptor(Object descriptor)
     {
 	//
 	// A straight remove uses equals(), which is not the desired behavior
@@ -52,37 +47,88 @@ abstract class ListParent extends Parent
     }
 
     //
-    // Try to update, returns true upon success
-    // Only the child corresponding to the given descriptor needs to
-    // be created or recreated
+    // Try to add this new element
     //
-    boolean tryUpdate(Object descriptor)
+    void tryAdd(Object descriptor)
+	throws UpdateFailedException
     {
+	_descriptors.add(descriptor);
+
+	java.util.List newChildren = new java.util.LinkedList();
 	java.util.List list = _parent.findAllInstances(this);
-	
-	//
-	// First validate
-	//
+	System.err.println("Parent == " + _parent.getId());
+	System.err.println("Found " + list.size() + " instances");
 	java.util.Iterator p = list.iterator();
 	while(p.hasNext())
 	{
 	    ListParent container = (ListParent)p.next();
-	    if(!container.validate(descriptor))
+	    
+	    try
 	    {
-		return false;
+		newChildren.add(container.addNewChild(descriptor));
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		//
+		// Rollback
+		//
+		java.util.Iterator q = newChildren.iterator();
+		p = list.iterator();
+		while(q.hasNext())
+		{
+		    container = (ListParent)p.next();
+		    container.removeChild((CommonBase)q.next());
+		}
+		removeDescriptor(descriptor);
+		throw e;
+	    }
+	}
+    }
+        
+    //
+    // Try to update this child
+    //
+    void tryUpdate(CommonBase child)
+	throws UpdateFailedException
+    {
+	java.util.List list = _parent.findAllInstances(this);
+	Object descriptor = child.getDescriptor();
+	
+	java.util.List backupList = new java.util.Vector();
+	java.util.List children = new java.util.Vector();
+	java.util.List editables = new java.util.LinkedList();
+
+	java.util.Iterator p = list.iterator();
+	while(p.hasNext())
+	{
+	    ListParent parent = (ListParent)p.next();
+	    try
+	    {
+		child = parent.findChildWithDescriptor(descriptor);
+		backupList.add(parent.rebuildChild(child, editables));
+		children.add(child);
+	    }
+	    catch(UpdateFailedException e)
+	    {
+		for(int i = backupList.size() - 1; i >= 0; --i)
+		{
+		    parent = (ListParent)list.get(i);
+		    child = (CommonBase)children.get(i);
+		    parent.restoreChild(child, backupList.get(i));
+		}
+		throw e;
 	    }
 	}
 
 	//
-	// Then applyUpdate
+	// Success
 	//
-	p = list.iterator();
+	p = editables.iterator();
 	while(p.hasNext())
 	{
-	    ListParent container = (ListParent)p.next();
-	    container.applyUpdate(descriptor);
+	    Editable editable = (Editable)p.next();
+	    editable.markModified();
 	}
-	return true;
     }
 
 
@@ -95,7 +141,7 @@ abstract class ListParent extends Parent
 	}
 	else
 	{
-	    if(isEditable() && _model.canUpdate())
+	    if(_model.canUpdate())
 	    {
 		Object descriptor = child.getDescriptor();
 		removeDescriptor(descriptor);
@@ -121,6 +167,7 @@ abstract class ListParent extends Parent
 	    }
 	}
     }
+
 
     protected java.util.List _descriptors;
 }

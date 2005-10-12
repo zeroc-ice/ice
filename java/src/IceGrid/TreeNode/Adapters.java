@@ -8,12 +8,7 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import IceGrid.AdapterDescriptor;
@@ -119,11 +114,7 @@ class Adapters extends ListParent
 	while(p.hasNext())
 	{
 	    AdapterDescriptor descriptor = (AdapterDescriptor)p.next();
-	    
-	    String adapterName = Utils.substitute(descriptor.name, _resolver);
-	    
-	    addChild(new Adapter(adapterName, descriptor, 
-				 _resolver, _model));
+	    addChild(createAdapter(descriptor));
 	}
     }
 
@@ -131,49 +122,21 @@ class Adapters extends ListParent
     {
 	return _isEditable;
     }
-
-    protected boolean validate(Object d)
+    
+    CommonBase addNewChild(Object d) throws UpdateFailedException
     {
 	AdapterDescriptor descriptor = (AdapterDescriptor)d;
-
-	String newName = Utils.substitute(descriptor.name, _resolver);
-
-	CommonBase child = findChild(newName);
-	if(child != null && child.getDescriptor() != descriptor)
-	{
-	    JOptionPane.showMessageDialog(
-		_model.getMainFrame(),
-		_model.getRoot().identify(_parent.getPath()) 
-		+ " has already an adapter named '" 
-		+ newName + "'",
-		"Duplicate adapter name error",
-		JOptionPane.ERROR_MESSAGE);
-	    return false;
-	}
-	return true;
-    }
-
-    protected void applyUpdate(Object d)
-    {
-	AdapterDescriptor descriptor = (AdapterDescriptor)d;
-
-	CommonBase oldChild = findChildWithDescriptor(descriptor);
-	if(oldChild != null)
-	{
-	    removeChild(oldChild, true);
-	}
-
-	String adapterName = Utils.substitute(descriptor.name, _resolver);
-	Adapter newChild = new Adapter(adapterName, descriptor, 
-				       _resolver, _model);
-
+       
 	try
 	{
-	    addChild(newChild, true);
+	    Adapter adapter = createAdapter(descriptor);
+	    addChild(adapter, true);
+	    return adapter;
 	}
 	catch(UpdateFailedException e)
 	{
-	    assert false;
+	    e.addParent(this);
+	    throw e;
 	}
     }
 
@@ -199,6 +162,12 @@ class Adapters extends ListParent
 	    assert false;
 	}
 	_model.setSelectionPath(adapter.getPath());
+    }
+
+    private Adapter createAdapter(AdapterDescriptor descriptor)
+    {
+	String adapterName = Utils.substitute(descriptor.name, _resolver);
+	return new Adapter(adapterName, descriptor, _resolver, _model);
     }
 
     private Utils.Resolver _resolver;

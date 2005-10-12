@@ -15,7 +15,6 @@ import javax.swing.Action;
 import javax.swing.JButton;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -64,30 +63,7 @@ class CommunicatorSubEditor
 	    _mainEditor.getUpdateListener());
     }
 
-    void setPropertiesField()
-    {
-	final Utils.Resolver detailResolver = _mainEditor.getDetailResolver();
-	
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	Utils.Stringifier stringifier = new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
-		    
-		    return Utils.substitute((String)entry.getKey(), detailResolver) 
-			+ "="
-			+ Utils.substitute((String)entry.getValue(), detailResolver);
-		}
-	    };
-	
-	_properties.setText(
-	    Utils.stringify(_propertiesMap.entrySet(), stringifier,
-			    ", ", toolTipHolder));
-	_properties.setToolTipText(toolTipHolder.value);
-    }
-
-
+  
     void append(DefaultFormBuilder builder)
     {
 	builder.append("Description");
@@ -127,11 +103,35 @@ class CommunicatorSubEditor
 	_description.setOpaque(isEditable);
     }
 
+    private void setPropertiesField()
+    {
+	final Utils.Resolver detailResolver = _mainEditor.getDetailResolver();
+	
+	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
+	Utils.Stringifier stringifier = new Utils.Stringifier()
+	    {
+		public String toString(Object obj)
+		{
+		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
+		    
+		    return Utils.substitute((String)entry.getKey(), detailResolver) 
+			+ "="
+			+ Utils.substitute((String)entry.getValue(), detailResolver);
+		}
+	    };
+	
+	_properties.setText(
+	    Utils.stringify(_propertiesMap.entrySet(), stringifier,
+			    ", ", toolTipHolder));
+	_properties.setToolTipText(toolTipHolder.value);
+    }
+
+
     protected Editor _mainEditor;
+ 
+    private JTextArea _description = new JTextArea(3, 20);
 
     private JTextField _properties = new JTextField(20);
-    private JTextArea _description = new JTextArea(3, 20);
- 
     private java.util.Map _propertiesMap;
     private TableDialog _propertiesDialog;
     private JButton _propertiesButton = new JButton("...");

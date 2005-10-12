@@ -218,8 +218,12 @@ class Service extends Parent
     //
     // child == _adapters or _dbEnvs
     //
-    public java.util.List findAllInstances(Object child)
+    public java.util.List findAllInstances(CommonBase child)
     {
+	//
+	// Find all instances of this service (in server instances)
+	// and return the list of their adapters or dbEnvs
+	//
 	assert getIndex(child) != -1;
 
 	java.util.List result = new java.util.LinkedList();
@@ -229,20 +233,17 @@ class Service extends Parent
 	//
 	java.util.List servicesList = _parent.getParent().findAllInstances(_parent);
 	
-	//
-	// And then their children with the appropriate type
-	//
 	java.util.Iterator p = servicesList.iterator();
 	while(p.hasNext())
 	{
 	    Services services = (Services)p.next();
-	    result.addAll(services.findChildrenWithType(child.getClass()));
+	    Service service = (Service)services.findChildWithDescriptor(_instanceDescriptor);
+	    assert service != null;
+	    result.addAll(service.findChildrenWithType(child.getClass()));
 	}
 	return result;
     }
 
-
-   
 
     Service(String name,
 	    String displayString,

@@ -8,6 +8,8 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import javax.swing.JOptionPane;
+
 import IceGrid.Model;
 
 abstract class ListElementEditor extends Editor
@@ -34,15 +36,17 @@ abstract class ListElementEditor extends Editor
 		    ListParent parent = (ListParent)_target.getParent();
 		    writeDescriptor();
 		    Object descriptor = _target.getDescriptor();
-		    parent.addDescriptor(descriptor);
 		    _target.destroy(); // just removes the child
 		    
-		    if(!parent.tryUpdate(descriptor))
+		    try
+		    {
+			parent.tryAdd(descriptor);
+		    }
+		    catch(UpdateFailedException e)
 		    {
 			//
-			// Restores old display
+			// Restore ephemeral
 			//
-			parent.removeDescriptor(descriptor);
 			try
 			{
 			    parent.addChild(_target, true);
@@ -51,14 +55,23 @@ abstract class ListElementEditor extends Editor
 			{
 			    assert false;
 			}
+
+			JOptionPane.showMessageDialog(
+			    model.getMainFrame(),
+			    e.toString(),
+			    "Apply failed",
+			    JOptionPane.ERROR_MESSAGE);
+
+			model.setSelectionPath(_target.getPath());
 			return;
 		    }
-		    else
-		    {
-			_target = parent.findChildWithDescriptor(descriptor);
-			model.setSelectionPath(_target.getPath());
-			model.showActions(_target);
-		    }
+
+		    //
+		    // Success
+		    //
+		    _target = parent.findChildWithDescriptor(descriptor);
+		    model.setSelectionPath(_target.getPath());
+		    model.showActions(_target);
 		}
 		else if(isSimpleUpdate())
 		{
@@ -73,23 +86,29 @@ abstract class ListElementEditor extends Editor
 		    ListParent parent = (ListParent)_target.getParent();
 		    writeDescriptor();
 		    
-		    if(!parent.tryUpdate(_target.getDescriptor()))
+		    try
+		    {
+			parent.tryUpdate(_target);
+		    }
+		    catch(UpdateFailedException e)
 		    {
 			_target.restoreDescriptor(savedDescriptor);
-			
-			//
-			// Everything was restored, user must deal with error
-			//
+			JOptionPane.showMessageDialog(
+			    model.getMainFrame(),
+			    e.toString(),
+			    "Apply failed",
+			    JOptionPane.ERROR_MESSAGE);
 			return;
 		    }
-		    else
-		    {
-			_target = parent.findChildWithDescriptor(_target.getDescriptor());
-			model.setSelectionPath(_target.getPath());
-			model.showActions(_target);
-		    }
+		   
+		    //
+		    // Success
+		    //
+		    _target = parent.findChildWithDescriptor(_target.getDescriptor());
+		    model.setSelectionPath(_target.getPath());
+		    model.showActions(_target);
 		}
-		
+	    
 		postUpdate();
 
 		_target.getEditable().markModified();

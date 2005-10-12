@@ -31,7 +31,7 @@ import IceGrid.SimpleInternalFrame;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
-class Node extends EditableParent implements InstanceParent
+class Node extends EditableParent
 {  
     static public NodeDescriptor
     copyDescriptor(NodeDescriptor nd)
@@ -289,7 +289,7 @@ class Node extends EditableParent implements InstanceParent
 	java.util.Map parameterValues;
     }
 
-    public Object rebuildChild(CommonBase child, java.util.List editables) 
+    Object rebuildChild(CommonBase child, java.util.List editables) 
 	throws UpdateFailedException
     {
 	ServerBackup backup = new ServerBackup();
@@ -380,7 +380,7 @@ class Node extends EditableParent implements InstanceParent
 	return backup;
     }
 
-    public void restoreChild(CommonBase child, Object backupObject)
+    void restoreChild(CommonBase child, Object backupObject)
     {
 	ServerBackup backup = (ServerBackup)backupObject;
 	if(backup.removedElements != null)

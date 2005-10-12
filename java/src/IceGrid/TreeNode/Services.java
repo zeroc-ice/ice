@@ -22,7 +22,7 @@ import IceGrid.ServiceInstanceDescriptor;
 import IceGrid.TemplateDescriptor;
 import IceGrid.Utils;
 
-class Services extends ListParent implements InstanceParent
+class Services extends ListParent
 {
     static public java.util.LinkedList
     copyDescriptors(java.util.LinkedList descriptors)
@@ -261,106 +261,6 @@ class Services extends ListParent implements InstanceParent
 	return _isEditable;
     }
 
-    protected boolean validate(Object d)
-    {
-	//
-	// TODO: insufficient: a child adapter could use ${service}
-	// as its name and collide with another adapter.
-	//
-	
-	ServiceInstanceDescriptor descriptor = (ServiceInstanceDescriptor)d;
-	
-	String newName;
-	if(descriptor.template.length() > 0)
-	{
-	    TemplateDescriptor templateDescriptor 
-		= getApplication().findServiceTemplateDescriptor(descriptor.template);
-		
-	    assert templateDescriptor != null;
-
-	    ServiceDescriptor serviceDescriptor = (ServiceDescriptor)templateDescriptor.descriptor;
-	    assert serviceDescriptor != null;
-
-	    if(_resolver != null)
-	    {
-		Utils.Resolver serviceResolver = 
-		    new Utils.Resolver(_resolver, 
-				       descriptor.parameterValues,
-				       templateDescriptor.parameterDefaults);
-		newName = serviceResolver.substitute(serviceDescriptor.name);
-	    }
-	    else
-	    {
-		//
-		// newName = TemplateName<unsubstituted param 1, ....>
-		//
-		newName = templateLabel(descriptor.template, 
-					templateDescriptor.parameters,
-					descriptor.parameterValues,
-					templateDescriptor.parameterDefaults);
-
-	    }
-	}
-	else
-	{
-	    newName = Utils.substitute(descriptor.descriptor.name, _resolver);
-	}
-	
-	CommonBase child = findChild(newName);
-	if(child != null && child.getDescriptor() != descriptor)
-	{
-	    JOptionPane.showMessageDialog(
-		_model.getMainFrame(),
-		_model.getRoot().identify(_parent.getPath()) 
-		+ " has already a service named '" 
-		+ newName + "'",
-		"Duplicate service name error",
-		JOptionPane.ERROR_MESSAGE);
-	    return false;
-	}
-	return true;
-    }
-
-    protected void applyUpdate(Object d)
-    {
-	ServiceInstanceDescriptor descriptor = (ServiceInstanceDescriptor)d;
-
-	CommonBase oldChild = findChildWithDescriptor(descriptor);
-	int index = -1;
-	if(oldChild != null)
-	{
-	    index = getIndex(oldChild);
-	    removeChild(oldChild, true);
-	}
-	
-	Service service = null;
-
-	try
-	{
-	    service = createService(descriptor, getApplication());
-	}
-	catch(UpdateFailedException e)
-	{
-	    assert false; // impossible
-	}
-
-	try
-	{
-	    if(index != -1)
-	    {
-		addChild(index, service, true);
-	    }
-	    else
-	    {
-		addChild(service, true);
-	    }
-	}
-	catch(UpdateFailedException e)
-	{
-	    assert false;
-	}
-    }
-
     java.util.List findServiceInstances(String template)
     {
 	java.util.List result = new java.util.LinkedList();
@@ -471,12 +371,26 @@ class Services extends ListParent implements InstanceParent
 	_model.showActions(_model.getSelectedNode());
     }
 
+    
+    CommonBase addNewChild(Object d) throws UpdateFailedException
+    {
+	ServiceInstanceDescriptor descriptor = (ServiceInstanceDescriptor)d;
+       
+	try
+	{
+	    Service service = createService(descriptor, getApplication());
+	    addChild(service, true);
+	    return service;
+	}
+	catch(UpdateFailedException e)
+	{
+	    e.addParent(this);
+	    throw e;
+	}
+    }
 
-    //
-    // InstanceParent interface
-    //
 
-    public Object rebuildChild(CommonBase child, java.util.List editables) 
+    Object rebuildChild(CommonBase child, java.util.List editables) 
 	throws UpdateFailedException
     {
 	int index = getIndex(child);
@@ -524,7 +438,7 @@ class Services extends ListParent implements InstanceParent
 	return savedParameterValues;
     }
 
-    public void restoreChild(CommonBase child, Object backup)
+    void restoreChild(CommonBase child, Object backup)
     {
 	java.util.Map savedParameterValues = (java.util.Map)backup;
 

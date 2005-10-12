@@ -9,7 +9,6 @@
 package IceGrid.TreeNode;
 
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import IceGrid.IceBoxDescriptor;
@@ -169,19 +168,9 @@ class ServerTemplates extends Templates
 	_model.setSelectionPath(t.getPath());
     }
 
-    boolean tryAdd(String newId, TemplateDescriptor descriptor)
+    void tryAdd(String newId, TemplateDescriptor descriptor)
+	throws UpdateFailedException
     {
-	if(findChild(newId) != null)
-	{
-	    JOptionPane.showMessageDialog(
-		_model.getMainFrame(),
-		"There is already a server template with the same id.",
-		"Duplicate id",
-		JOptionPane.INFORMATION_MESSAGE);
-	    return false;
-	}
-	_descriptors.put(newId, descriptor);
-	
 	try
 	{
 	    addChild(new ServerTemplate(true, newId, descriptor, 
@@ -190,17 +179,9 @@ class ServerTemplates extends Templates
 	catch(UpdateFailedException e)
 	{
 	    e.addParent(this);
-
-	    JOptionPane.showMessageDialog(
-		_model.getMainFrame(),
-		e.toString(),
-		"Apply failed",
-		JOptionPane.ERROR_MESSAGE);
-
-	    removeDescriptor(newId);
-	    return false;
+	    throw e;   
 	}
-	return true;
+	_descriptors.put(newId, descriptor);
     }
 
     protected java.util.List findAllTemplateInstances(String templateId)

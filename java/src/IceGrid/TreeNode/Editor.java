@@ -172,7 +172,14 @@ abstract class Editor
 
     protected void discardUpdate()
     {
-	_target.getModel().refreshDisplay();
+	if(_target.isEphemeral())
+	{
+	    _target.delete();
+	}
+	else
+	{
+	    _target.getModel().refreshDisplay();
+	}
     }
     
     static java.util.Map propertiesToMap(java.util.List props)

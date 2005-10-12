@@ -16,7 +16,8 @@ import IceGrid.TemplateDescriptor;
 
 abstract class Templates extends EditableParent
 {
-    abstract boolean tryAdd(String newId, TemplateDescriptor descriptor);
+    abstract void tryAdd(String newId, TemplateDescriptor descriptor)
+	throws UpdateFailedException;
  
     abstract protected java.util.List findAllTemplateInstances(String templateId);
    
@@ -25,7 +26,8 @@ abstract class Templates extends EditableParent
 	super(false, id, model, false);
     }
 
-    boolean tryUpdate(CommonBase child)
+    void tryUpdate(CommonBase child)
+	throws UpdateFailedException
     {
 	java.util.List instanceList = findAllTemplateInstances(child.getId());
 	
@@ -38,7 +40,7 @@ abstract class Templates extends EditableParent
 	while(p.hasNext())
 	{
 	    CommonBase instance = (CommonBase)p.next();
-	    InstanceParent parent = (InstanceParent)instance.getParent();
+	    Parent parent = (Parent)instance.getParent();
 	    
 	    try
 	    {
@@ -48,17 +50,10 @@ abstract class Templates extends EditableParent
 	    {
 		for(int i = backupList.size() - 1; i >= 0; --i)
 		{
-		    parent = (InstanceParent)parentList.get(i);
+		    parent = (Parent)parentList.get(i);
 		    parent.restoreChild((CommonBase)instanceList.get(i), backupList.get(i));
 		}
-
-		JOptionPane.showMessageDialog(
-		    _model.getMainFrame(),
-		    e.toString(),
-		    "Apply failed",
-		    JOptionPane.ERROR_MESSAGE);
-		
-		return false;
+		throw e;
 	    }
 	    
 	    parentList.add(parent);
@@ -70,9 +65,5 @@ abstract class Templates extends EditableParent
 	    Editable editable = (Editable)p.next();
 	    editable.markModified();
 	}
-	
-	((CommonBaseI)child).fireNodeChangedEvent(this);
-
-	return true;
     }
 }
