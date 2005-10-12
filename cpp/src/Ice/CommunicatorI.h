@@ -61,7 +61,7 @@ public:
 
 private:
 
-    CommunicatorI(const PropertiesPtr&);
+    CommunicatorI(const PropertiesPtr&, const LoggerPtr&);
     virtual ~CommunicatorI();
 
     //
@@ -70,8 +70,8 @@ private:
     //
     void finishSetup(int&, char*[]);
 
-    friend ICE_API CommunicatorPtr initialize(int&, char*[], Int);
-    friend ICE_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&, Int);
+    friend ICE_API CommunicatorPtr initializeWithPropertiesAndLogger(int&, char*[], const PropertiesPtr&,
+								     const LoggerPtr&, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
     const ::IceInternal::InstancePtr _instance;

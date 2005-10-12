@@ -341,10 +341,11 @@ namespace IceInternal
 	//
 	// Only for use by Ice.CommunicatorI
 	//
-	public Instance(Ice.Communicator communicator, Ice.Properties properties)
+	public Instance(Ice.Communicator communicator, Ice.Properties properties, Ice.Logger logger)
 	{
 	    _state = StateActive;
 	    _properties = properties;
+	    _logger = logger;
 	        
 	    try
 	    {
@@ -402,14 +403,17 @@ namespace IceInternal
 		    }
 		}
 		
-		if(_properties.getPropertyAsInt("Ice.UseSyslog") > 0)
+    	    	if(_logger == null)
 		{
-		    _logger = new Ice.SysLoggerI(_properties.getProperty("Ice.ProgramName"));
-		}
-		else
-		{
-		    _logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"),
-		                              _properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+		    if(_properties.getPropertyAsInt("Ice.UseSyslog") > 0)
+		    {
+			_logger = new Ice.SysLoggerI(_properties.getProperty("Ice.ProgramName"));
+		    }
+		    else
+		    {
+			_logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"),
+						  _properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+		    }
 		}
 		
 		_stats = null; // There is no default statistics callback object.

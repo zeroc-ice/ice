@@ -60,7 +60,7 @@ public abstract class Application
             }
             else
             {
-                _communicator = Util.initialize(argHolder);
+                _communicator = Util.initializeWithLogger(argHolder, logger);
             }
 
             //

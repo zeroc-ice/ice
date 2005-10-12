@@ -65,7 +65,7 @@ namespace Ice
 		}
 		else
 		{
-		    _communicator = Util.initialize(ref args);
+		    _communicator = Util.initializeWithLogger(ref args, logger);
 		}
 		
 		Properties props = _communicator.getProperties();

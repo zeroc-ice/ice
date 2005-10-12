@@ -67,7 +67,7 @@ public final class Util
     initialize(StringSeqHolder args)
     {
         Properties properties = getDefaultProperties(args);
-	return initializeWithProperties(args, properties);
+	return initializeWithPropertiesAndLogger(args, properties, null);
     }
 
     public static Communicator
@@ -78,13 +78,23 @@ public final class Util
     }
 
     public static Communicator
+    initializeWithLogger(StringSeqHolder args, Logger logger)
+    {
+        Properties properties = getDefaultProperties(args);
+	return initializeWithPropertiesAndLogger(args, properties, logger);
+    }
+
+    public static Communicator
+    initializeWithLogger(String[] args, Logger logger)
+    {
+        StringSeqHolder argsH = new StringSeqHolder(args);
+	return initializeWithLogger(argsH, logger);
+    }
+
+    public static Communicator
     initializeWithProperties(StringSeqHolder args, Properties properties)
     {
-	args.value = properties.parseIceCommandLineOptions(args.value);
-
-        CommunicatorI result = new CommunicatorI(properties);
-        result.finishSetup(args);
-        return result;
+    	return initializeWithPropertiesAndLogger(args, properties, null);
     }
 
     public static Communicator
@@ -92,6 +102,23 @@ public final class Util
     {
         StringSeqHolder argsH = new StringSeqHolder(args);
 	return initializeWithProperties(argsH, properties);
+    }
+
+    public static Communicator
+    initializeWithPropertiesAndLogger(StringSeqHolder args, Properties properties, Logger logger)
+    {
+	args.value = properties.parseIceCommandLineOptions(args.value);
+
+        CommunicatorI result = new CommunicatorI(properties, logger);
+        result.finishSetup(args);
+        return result;
+    }
+
+    public static Communicator
+    initializeWithPropertiesAndLogger(String[] args, Properties properties, Logger logger)
+    {
+        StringSeqHolder argsH = new StringSeqHolder(args);
+	return initializeWithPropertiesAndLogger(argsH, properties, logger);
     }
 
     public static IceInternal.Instance

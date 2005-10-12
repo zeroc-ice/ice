@@ -80,7 +80,7 @@ public:
     
 private:
 
-    Instance(const Ice::CommunicatorPtr&, const Ice::PropertiesPtr&);
+    Instance(const Ice::CommunicatorPtr&, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
     virtual ~Instance();
     void finishSetup(int&, char*[]);
     bool destroy();

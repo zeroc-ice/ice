@@ -55,14 +55,26 @@ namespace Ice
 	public static Communicator initialize(ref string[] args)
 	{
 	    Properties defaultProperties = getDefaultProperties(ref args);
-	    return initializeWithProperties(ref args, defaultProperties);
+	    return initializeWithPropertiesAndLogger(ref args, defaultProperties, null);
+	}
+
+	public static Communicator initializeWithLogger(ref string[] args, Logger logger)
+	{
+	    Properties defaultProperties = getDefaultProperties(ref args);
+	    return initializeWithPropertiesAndLogger(ref args, defaultProperties, logger);
 	}
 	
 	public static Communicator initializeWithProperties(ref string[] args, Properties properties)
 	{
+    	    return initializeWithPropertiesAndLogger(ref args, properties, null);
+	}
+
+	public static Communicator initializeWithPropertiesAndLogger(ref string[] args, Properties properties,
+								     Ice.Logger logger)
+	{
 	    args = properties.parseIceCommandLineOptions(args);
 
-	    CommunicatorI result = new CommunicatorI(properties);
+	    CommunicatorI result = new CommunicatorI(properties, logger);
 	    result.finishSetup(ref args);
 	    return result;
 	}

@@ -414,9 +414,11 @@ IceInternal::Instance::getDefaultContext() const
 }
 
 
-IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
+IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties,
+				const LoggerPtr& logger) :
     _state(StateActive),
     _properties(properties),
+    _logger(logger),
     _messageSizeMax(0),
     _clientACM(0),
     _serverACM(0),
@@ -539,27 +541,30 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	sync.release();
 	
 
+	if(!_logger)
+	{
 #ifdef _WIN32
-	if(_properties->getPropertyAsInt("Ice.UseEventLog") > 0)
-	{
-	    _logger = new EventLoggerI(_properties->getProperty("Ice.ProgramName"));
-	}
-	else
-	{
-	    _logger = new LoggerI(_properties->getProperty("Ice.ProgramName"), 
-				  _properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
-	}
+	    if(_properties->getPropertyAsInt("Ice.UseEventLog") > 0)
+	    {
+		_logger = new EventLoggerI(_properties->getProperty("Ice.ProgramName"));
+	    }
+	    else
+	    {
+		_logger = new LoggerI(_properties->getProperty("Ice.ProgramName"), 
+				      _properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+	    }
 #else
-	if(_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
-	{
-	    _logger = new SysLoggerI;
-	}
-	else
-	{
-	    _logger = new LoggerI(_properties->getProperty("Ice.ProgramName"), 
-				  _properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
-	}
+	    if(_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
+	    {
+		_logger = new SysLoggerI;
+	    }
+	    else
+	    {
+		_logger = new LoggerI(_properties->getProperty("Ice.ProgramName"), 
+				      _properties->getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+	    }
 #endif
+	}
 
 	_stats = 0; // There is no default statistics callback object.
 

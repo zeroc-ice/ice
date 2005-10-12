@@ -249,7 +249,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile, const Log
 	    }
 	    else
 	    {
-		_communicator = initialize(argc, argv);
+		_communicator = initializeWithLogger(argc, argv, logger);
 	    }
 	    _destroyed = false;
 

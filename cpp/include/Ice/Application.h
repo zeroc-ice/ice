@@ -30,7 +30,7 @@ public:
     // are printed if exceptions propagate to main(), and the
     // Communicator is always destroyed, regardless of exceptions.
     //
-    int main(int, char*[], const char* = 0);
+    int main(int, char*[], const char* = 0, const Ice::LoggerPtr& = 0);
     virtual int run(int, char*[]) = 0;
 
     //

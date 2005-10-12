@@ -127,9 +127,9 @@ namespace Ice
 	    instance_.flushBatchRequests();
 	}
 	
-	internal CommunicatorI(Properties properties)
+	internal CommunicatorI(Properties properties, Logger logger)
 	{
-	    instance_ = new IceInternal.Instance(this, properties);
+	    instance_ = new IceInternal.Instance(this, properties, logger);
 	}
 	
 #if DEBUG

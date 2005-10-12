@@ -151,11 +151,25 @@ CommunicatorPtr
 Ice::initialize(int& argc, char* argv[], Int version)
 {
     PropertiesPtr properties = getDefaultProperties(argc, argv);
-    return initializeWithProperties(argc, argv, properties, version);
+    return initializeWithPropertiesAndLogger(argc, argv, properties, 0, version);
 }
 
 CommunicatorPtr
 Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
+{
+    return initializeWithPropertiesAndLogger(argc, argv, properties, 0, version);
+}
+
+CommunicatorPtr
+Ice::initializeWithLogger(int& argc, char* argv[], const LoggerPtr& logger, Int version)
+{
+    PropertiesPtr properties = getDefaultProperties(argc, argv);
+    return initializeWithPropertiesAndLogger(argc, argv, properties, logger, version);
+}
+
+CommunicatorPtr
+Ice::initializeWithPropertiesAndLogger(int& argc, char* argv[], const PropertiesPtr& properties,
+				       const LoggerPtr& logger, Int version)
 {
 #ifndef ICE_IGNORE_VERSION
     //
@@ -179,7 +193,7 @@ Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& prop
     args = properties->parseIceCommandLineOptions(args);
     stringSeqToArgs(args, argc, argv);
 
-    CommunicatorI* communicatorI = new CommunicatorI(properties);
+    CommunicatorI* communicatorI = new CommunicatorI(properties, logger);
     CommunicatorPtr result = communicatorI; // For exception safety.
     communicatorI->finishSetup(argc, argv);
     return result;

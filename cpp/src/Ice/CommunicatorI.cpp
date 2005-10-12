@@ -239,12 +239,12 @@ Ice::CommunicatorI::flushBatchRequests()
     _instance->flushBatchRequests();
 }
 
-Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties)
+Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties, const LoggerPtr& logger)
 {
     __setNoDelete(true);
     try
     {
-	const_cast<InstancePtr&>(_instance) = new Instance(this, properties);
+	const_cast<InstancePtr&>(_instance) = new Instance(this, properties, logger);
 
         //
         // Keep a reference to the dynamic library list to ensure

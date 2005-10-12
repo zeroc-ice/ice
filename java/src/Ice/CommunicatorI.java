@@ -149,9 +149,9 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         _instance.flushBatchRequests();
     }
 
-    CommunicatorI(Properties properties)
+    CommunicatorI(Properties properties, Logger logger)
     {
-        _instance = new IceInternal.Instance(this, properties);
+        _instance = new IceInternal.Instance(this, properties, logger);
     }
 
     /**
