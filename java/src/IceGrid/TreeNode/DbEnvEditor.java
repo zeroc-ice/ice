@@ -15,9 +15,12 @@ import javax.swing.Action;
 import javax.swing.JButton;
 
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
 
 import IceGrid.DbEnvDescriptor;
 import IceGrid.Model;
@@ -30,6 +33,7 @@ class DbEnvEditor extends ListElementEditor
     DbEnvEditor(JFrame parentFrame)
     {
 	_name.getDocument().addDocumentListener(_updateListener);
+	_description.getDocument().addDocumentListener(_updateListener);
 	_dbHome.getDocument().addDocumentListener(_updateListener);
 
 	_properties.setEditable(false);
@@ -70,6 +74,7 @@ class DbEnvEditor extends ListElementEditor
 	DbEnvDescriptor descriptor = 
 	    (DbEnvDescriptor)getDbEnv().getDescriptor();
 	descriptor.name = _name.getText();
+	descriptor.description = _description.getText();
 	descriptor.dbHome = _dbHome.getText();
 	descriptor.properties = Editor.mapToProperties(_propertiesMap);
     }	    
@@ -85,6 +90,17 @@ class DbEnvEditor extends ListElementEditor
     {
 	builder.append("Name" );
 	builder.append(_name, 3);
+	builder.nextLine();
+
+	builder.append("Description");
+	builder.nextLine();
+	builder.append("");
+	builder.nextRow(-2);
+	CellConstraints cc = new CellConstraints();
+	JScrollPane scrollPane = new JScrollPane(_description);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
+	builder.nextRow(2);
 	builder.nextLine();
 	
 	builder.append("DB Home" );
@@ -113,6 +129,10 @@ class DbEnvEditor extends ListElementEditor
 	_name.setText(
 	    Utils.substitute(descriptor.name, resolver));
 	_name.setEditable(isEditable);
+
+	_description.setText(
+	    Utils.substitute(descriptor.description, resolver));
+	_description.setEditable(isEditable);
 
 	_dbHome.setText(
 	    Utils.substitute(descriptor.dbHome, resolver));
@@ -156,6 +176,9 @@ class DbEnvEditor extends ListElementEditor
     }
 
     private JTextField _name = new JTextField(20);
+    private JTextArea _description = new JTextArea(3, 20);
+
+
     private JTextField _dbHome = new JTextField(20);
 
     private JTextField _properties = new JTextField(20);

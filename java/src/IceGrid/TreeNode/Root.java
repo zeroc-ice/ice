@@ -30,7 +30,7 @@ public class Root extends Parent
 	java.util.Map serverInfoMap = new java.util.HashMap();
 
 	//
-	// AdapterInstanceId to Ice.ObjectPrx
+	// AdapterId to Ice.ObjectPrx
 	//
 	java.util.Map adapterInfoMap = new java.util.HashMap();
     };
@@ -159,9 +159,7 @@ public class Root extends Parent
 	for(int i = 0; i < updatedInfo.adapters.length; ++i)
 	{
 	    assert(updatedInfo.adapters[i].proxy != null);
-	    AdapterInstanceId instanceId = new AdapterInstanceId(
-		updatedInfo.adapters[i].serverId, updatedInfo.adapters[i].id);
-	    info.adapterInfoMap.put(instanceId, updatedInfo.adapters[i].proxy);
+	    info.adapterInfoMap.put(updatedInfo.adapters[i].id, updatedInfo.adapters[i].proxy);
 	}
 
 	//
@@ -198,7 +196,7 @@ public class Root extends Parent
 	    {
 		Adapter adapter = (Adapter)p.next();
 		Ice.ObjectPrx proxy = 
-		    (Ice.ObjectPrx)info.adapterInfoMap.get(adapter.getInstanceId());
+		    (Ice.ObjectPrx)info.adapterInfoMap.get(adapter.getAdapterId());
 		if(proxy != null)
 		{
 		    adapter.updateProxy(proxy);
@@ -329,15 +327,15 @@ public class Root extends Parent
 
 
     
-    Ice.ObjectPrx registerAdapter(String nodeName, AdapterInstanceId instanceId,
+    Ice.ObjectPrx registerAdapter(String nodeName, String adapterId,
 				  Adapter adapter)
     {
-	java.util.List adapterList = (java.util.List)_adapterMap.get(instanceId);
+	java.util.List adapterList = (java.util.List)_adapterMap.get(adapterId);
 
 	if(adapterList == null)
 	{
 	    adapterList = new java.util.LinkedList();
-	    _adapterMap.put(instanceId, adapterList);
+	    _adapterMap.put(adapterId, adapterList);
 	}
 	adapterList.add(adapter);
 
@@ -357,16 +355,16 @@ public class Root extends Parent
 	}
 	else
 	{
-	    return (Ice.ObjectPrx)info.adapterInfoMap.get(instanceId);
+	    return (Ice.ObjectPrx)info.adapterInfoMap.get(adapterId);
 	}
     }
     
     void unregisterAdapter(String nodeName, 
-			   AdapterInstanceId instanceId, 
+			   String adapterId, 
 			   Adapter adapter)
     {
 	java.util.List adapterList = (java.util.List)_adapterMap.
-	    get(instanceId);
+	    get(adapterId);
 	adapterList.remove(adapter);
 
 	adapterList = (java.util.List)_nodeAdapterMap.get(nodeName);
@@ -381,15 +379,12 @@ public class Root extends Parent
 	//
 	DynamicInfo info = (DynamicInfo)_dynamicInfoMap.get(nodeName);
 	assert info != null;
-	AdapterInstanceId instanceId 
-	    = new AdapterInstanceId(updatedInfo.serverId, 
-				    updatedInfo.id);
-	info.adapterInfoMap.put(instanceId, updatedInfo.proxy);
+	info.adapterInfoMap.put(updatedInfo.id, updatedInfo.proxy);
 	
 	//
 	// Is this Adapter registered?
 	//
-	Adapter adapter = (Adapter)_adapterMap.get(instanceId);
+	Adapter adapter = (Adapter)_adapterMap.get(updatedInfo.id);
 	if(adapter != null)
 	{
 	    adapter.updateProxy(updatedInfo.proxy);
@@ -447,10 +442,10 @@ public class Root extends Parent
     private java.util.Map _dynamicInfoMap = new java.util.HashMap();
 
     //
-    // AdapterInstanceId to list of Adapters
-    // The registry enforeces a single adapter per adapterInstanceId;
+    // AdapterId to list of Adapters
+    // The registry enforces a single adapter per adapterId;
     // however in order to support copy & paste, we can have temporarily
-    // an inconsistency: several adapters with the same instance id.
+    // an inconsistency: several adapters with the same xid.
     //
     private java.util.Map _adapterMap = new java.util.HashMap();
 

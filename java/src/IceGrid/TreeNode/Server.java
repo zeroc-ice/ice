@@ -110,6 +110,7 @@ class Server extends EditableParent
     {
 	AdapterDescriptor serviceManager = new AdapterDescriptor(
 	    "IceBox.ServiceManager",
+	    "", 
 	    "", // direct-adapter by default
 	    "",
 	    true,

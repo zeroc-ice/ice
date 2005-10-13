@@ -139,21 +139,6 @@
         <depend srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
         <javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
             source="1.4" debug="${debug}" optimize="${optimize}" deprecation="on">
-	  <exclude name="IceGrid/AdminGUI.java"/>
-	  <exclude name="IceGrid/RegistryObserverI.java"/>
-	  <exclude name="IceGrid/CellRenderer.java"/>
-	  <exclude name="IceGrid/SessionKeeper.java"/>
-	  <exclude name="IceGrid/ListDialog.java"/>
-	  <exclude name="IceGrid/SimpleInternalFrame.java"/>
-	  <exclude name="IceGrid/MainPane.java"/>
-	  <exclude name="IceGrid/StatusBar.java"/>
-	  <exclude name="IceGrid/Model.java"/>
-	  <exclude name="IceGrid/TableDialog.java"/>
-	  <exclude name="IceGrid/NodeObserverI.java"/>
-	  <exclude name="IceGrid/TreeModelI.java"/>
-	  <exclude name="IceGrid/ParametersDialog.java"/>
-	  <exclude name="IceGrid/Utils.java"/>
-          <exclude name="IceGrid/TreeNode/**"/>
         </javac>
     </target>
 

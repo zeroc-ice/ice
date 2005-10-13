@@ -9,16 +9,22 @@
 package IceGrid.TreeNode;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
 
 import IceGrid.AdapterDescriptor;
 import IceGrid.Model;
@@ -37,38 +43,41 @@ class AdapterEditor extends ListElementEditor
 	//
 	
 	//
-	// _idButton
+	// _replicaGroupButton
 	//
-	Action gotoReplicatedAdapter = new AbstractAction("->")
+	Action gotoReplicaGroup = new AbstractAction("->")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    Object obj = _id.getSelectedItem();
+		    Object obj = _replicaGroupId.getSelectedItem();
 		    Adapter adapter = getAdapter();
 
-		    if(obj != null && adapter != null)
+		    ReplicaGroup rg = null;
+		    if(obj instanceof ReplicaGroup)
 		    {
-			ReplicatedAdapter ra = null;
-			if(obj instanceof ReplicatedAdapter)
-			{
-			    ra = (ReplicatedAdapter)obj;
-			}
-			else
-			{
-			    ra = adapter.getApplication().
-				findReplicatedAdapter((String)obj);
-			}
-			if(ra != null)
-			{
-			    adapter.getModel().setSelectionPath
-				(ra.getPath());
-			}
+			rg = (ReplicaGroup)obj;
+		    }
+		    else
+		    {
+			String replicaGroupId = 
+			    Utils.substitute(obj.toString(), adapter.getResolver());
+		  
+			rg = adapter.getApplication().
+			    findReplicaGroup(replicaGroupId);
+		    }
+
+		    //
+		    // The button is enabled therefore rg should be != null
+		    //
+		    if(rg != null)
+		    {
+			adapter.getModel().setSelectionPath(rg.getPath());
 		    }
 		}
 	    };
-	gotoReplicatedAdapter.putValue(Action.SHORT_DESCRIPTION, 
-				       "Goto this replicated adapter");
-	_idButton = new JButton(gotoReplicatedAdapter);
+	gotoReplicaGroup.putValue(Action.SHORT_DESCRIPTION, 
+				       "Goto the definition of this replica group");
+	_replicaGroupButton = new JButton(gotoReplicaGroup);
 	
 	//
 	// _objectsButton
@@ -123,6 +132,10 @@ class AdapterEditor extends ListElementEditor
 	JTextField idTextField = (JTextField)
 	    _id.getEditor().getEditorComponent();
 	idTextField.getDocument().addDocumentListener(_updateListener);	
+
+	JTextField replicaGroupIdTextField = (JTextField)
+	    _replicaGroupId.getEditor().getEditorComponent();
+	replicaGroupIdTextField.getDocument().addDocumentListener(_updateListener);	
     }
     
    
@@ -135,7 +148,9 @@ class AdapterEditor extends ListElementEditor
 	AdapterDescriptor descriptor = 
 	    (AdapterDescriptor)getAdapter().getDescriptor();
 	descriptor.name = _name.getText();
+	descriptor.description = _description.getText();
 	descriptor.id = getIdAsString();
+	descriptor.replicaGroupId = getReplicaGroupIdAsString();
 	descriptor.registerProcess = _registerProcess.isSelected();
 	descriptor.waitForActivation = _waitForActivation.isSelected();
 	descriptor.objects = mapToObjectDescriptorSeq(_objectsMap);
@@ -145,19 +160,39 @@ class AdapterEditor extends ListElementEditor
     {
 	AdapterDescriptor descriptor = 
 	    (AdapterDescriptor)getAdapter().getDescriptor();
-	return descriptor.name.equals(_name.getText()); 
+
+	//
+	// When id change, we need to re-register for updates
+	//
+	return descriptor.name.equals(_name.getText()) 
+	    && descriptor.id.equals(getIdAsString());
     }
 
     void append(DefaultFormBuilder builder)
     {
-	builder.append("Name" );
+	builder.append("Adapter Name" );
 	builder.append(_name, 3);
 	builder.nextLine();
 	
-	builder.append("Id", _id );
-	builder.append(_idButton);
+	builder.append("Description");
+	builder.nextLine();
+	builder.append("");
+	builder.nextRow(-2);
+	CellConstraints cc = new CellConstraints();
+	JScrollPane scrollPane = new JScrollPane(_description);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
+	builder.nextRow(2);
+	builder.nextLine();
+
+	builder.append("Adapter ID");
+	builder.append(_id, 3);
 	builder.nextLine();
 	
+	builder.append("Replica Group", _replicaGroupId);
+	builder.append(_replicaGroupButton);
+	builder.nextLine();
+
 	builder.append("Endpoints" );
 	builder.append(_endpoints, 3);
 	builder.nextLine();
@@ -207,42 +242,66 @@ class AdapterEditor extends ListElementEditor
 	_objects.setToolTipText(toolTipHolder.value);
     }
     
-    void setId(String adapterId)
+    void setId(String id)
     {
-	ReplicatedAdapters replicatedAdapters =
-	    getAdapter().getApplication().getReplicatedAdapters();
-	
-	ReplicatedAdapter replicatedAdapter = 
-	    (ReplicatedAdapter)replicatedAdapters.findChild(adapterId);
-	
-	if(replicatedAdapter != null)
+	if(id.equals(""))
 	{
-	    _id.setSelectedItem(replicatedAdapter);
+	    _id.setSelectedItem(DIRECT_ADAPTER);
+	}
+	else 
+	{
+	    _id.setSelectedItem(id);
+	}
+    }
+
+    void setReplicaGroupId(String replicaGroupId)
+    {
+	if(replicaGroupId.equals(""))
+	{
+	    _replicaGroupId.setSelectedItem(NOT_REPLICATED);
 	}
 	else
 	{
-	    _id.setSelectedItem(adapterId);
+	    ReplicaGroups replicaGroups =
+		getAdapter().getApplication().getReplicaGroups();
+	    
+	    ReplicaGroup replicaGroup = 
+		(ReplicaGroup)replicaGroups.findChild(replicaGroupId);
+	    
+	    if(replicaGroup != null)
+	    {
+		_replicaGroupId.setSelectedItem(replicaGroup);
+	    }
+	    else
+	    {
+		_replicaGroupId.setSelectedItem(replicaGroupId);
+	    }
 	}
     }
     
     String getIdAsString()
     {
 	Object obj = _id.getSelectedItem();
-	if(obj == null)
+	if(obj == DIRECT_ADAPTER)
 	{
 	    return "";
 	}
 	else
 	{
-	    if(obj instanceof ReplicatedAdapter)
-	    {
-		ReplicatedAdapter ra = (ReplicatedAdapter)obj;
-		return ra.getId();
-	    }
-	    else
-	    {
-		return (String)obj;
-	    }
+	    return obj.toString();
+	}
+    }
+
+    String getReplicaGroupIdAsString()
+    {
+	Object obj = _replicaGroupId.getSelectedItem();
+	if(obj == NOT_REPLICATED)
+	{
+	    return "";
+	}
+	else
+	{
+	    return obj.toString();
 	}
     }
 
@@ -253,35 +312,70 @@ class AdapterEditor extends ListElementEditor
 
 	AdapterDescriptor descriptor = (AdapterDescriptor)adapter.getDescriptor();
 	
-	Utils.Resolver resolver = null;
-	if(adapter.getModel().substitute())
-	{
-	    resolver = adapter.getResolver();
-	}
-	
+	final Utils.Resolver resolver = adapter.getModel().substitute() ?  
+	    adapter.getResolver() : null;
+
 	boolean isEditable = adapter.isEditable() && resolver == null;
 	boolean inIceBox = adapter.inIceBox();
 	
 	_name.setText(
 	    Utils.substitute(descriptor.name, resolver));
 	_name.setEditable(isEditable && !inIceBox);
+
+	_description.setText(
+	    Utils.substitute(descriptor.description, resolver));
+	_description.setEditable(isEditable);
 	
 	//
 	// Need to make control editable & enabled before changing it
 	//
 	_id.setEnabled(true);
-	_id.setEditable(true);
-	
-	ReplicatedAdapters replicatedAdapters =
-	    adapter.getApplication().getReplicatedAdapters();
-	_id.setModel(replicatedAdapters.createComboBoxModel());
-	
-	String adapterId = Utils.substitute(descriptor.id, resolver);
-	setId(adapterId);
-	
+	_id.setEditable(true);	
+	String defaultAdapterId = adapter.getDefaultAdapterId();
+	if(descriptor.id == null)
+	{
+	    descriptor.id = defaultAdapterId;
+	}
+	_id.setModel(new DefaultComboBoxModel(new Object[]
+	    {DIRECT_ADAPTER, defaultAdapterId}));
+
+	setId(Utils.substitute(descriptor.id, resolver));
 	_id.setEnabled(isEditable);
 	_id.setEditable(isEditable);
+
+	_replicaGroupId.setEnabled(true);
+	_replicaGroupId.setEditable(true);	
 	
+	final ReplicaGroups replicaGroups =
+	    adapter.getApplication().getReplicaGroups();
+	_replicaGroupId.setModel(replicaGroups.createComboBoxModel(NOT_REPLICATED));
+
+	_replicaGroupId.addItemListener(new ItemListener()
+	    {
+		public void itemStateChanged(ItemEvent e)
+		{
+		    if(e.getStateChange() == ItemEvent.SELECTED)
+		    {
+			Object item = e.getItem();
+			boolean enabled = (item instanceof ReplicaGroup);
+			if(!enabled && item != NOT_REPLICATED)
+			{
+			    if(resolver != null)
+			    {
+				String replicaGroupId = 
+				    resolver.substitute(item.toString());
+				enabled = (replicaGroups.findChild(replicaGroupId) != null);
+			    }
+			}
+			_replicaGroupButton.setEnabled(enabled);
+		    }
+		}
+	    });
+
+	setReplicaGroupId(Utils.substitute(descriptor.replicaGroupId, resolver));
+	_replicaGroupId.setEnabled(isEditable);
+	_replicaGroupId.setEditable(isEditable);
+
 	_endpoints.setText(
 	    Utils.substitute(adapter.getEndpoints(), resolver));
 	_endpoints.setEditable(isEditable);
@@ -337,7 +431,12 @@ class AdapterEditor extends ListElementEditor
     }
     
     private JTextField _name = new JTextField(20);
+    private JTextArea _description = new JTextArea(3, 20);
+
     private JComboBox _id = new JComboBox();
+    private JComboBox _replicaGroupId = new JComboBox();
+    private JButton _replicaGroupButton;
+
     private JTextField _endpoints = new JTextField(20);
     private JCheckBox _registerProcess;
     private JCheckBox _waitForActivation;
@@ -346,6 +445,20 @@ class AdapterEditor extends ListElementEditor
     private java.util.Map _objectsMap;
     private TableDialog _objectsDialog;
     private JButton _objectsButton;
-    
-    private JButton _idButton;
+
+    static private final Object DIRECT_ADAPTER = new Object()
+	{
+	    public String toString()
+	    {
+		return "No ID (a direct adapter)";
+	    }
+	};
+
+    static private final Object NOT_REPLICATED = new Object()
+	{
+	    public String toString()
+	    {
+		return "Does not belong to a replica group";
+	    }
+	};
 }

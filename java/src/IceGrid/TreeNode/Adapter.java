@@ -117,12 +117,9 @@ class Adapter extends Leaf
 	    //
 	    // In a server instance
 	    //
-	    _instanceId 
-		= new AdapterInstanceId(_resolver.find("server"),
-					_resolver.substitute(_descriptor.id));
-	    
+	    _adapterId = _resolver.substitute(_descriptor.id);
 	    _proxy = _model.getRoot().registerAdapter(_resolver.find("node"),
-						      _instanceId,
+						      _adapterId,
 						      this);
 	    createToolTip();
 	    //
@@ -130,16 +127,22 @@ class Adapter extends Leaf
 	    //  
 	}
 	super.setParent(parent);
+	
+	CommonBase grandParent = parent.getParent();
+	
+	_defaultAdapterId = (grandParent instanceof Service || 
+			     grandParent instanceof ServiceTemplate) ? 
+	    "${server}.${service}." + _id: "${server}." + _id;
     }
 
     public void clearParent()
     {
 	if(_parent != null)
 	{
-	    if(_instanceId != null)
+	    if(_adapterId != null)
 	    {
 		_model.getRoot().unregisterAdapter(_resolver.find("node"),
-						   _instanceId, this);
+						   _adapterId, this);
 	    }
 	    super.clearParent();
 	}
@@ -235,15 +238,22 @@ class Adapter extends Leaf
 		   newEndpoints);
     }
 
-    AdapterInstanceId getInstanceId()
+    String getAdapterId()
     {
-	return _instanceId;
+	return _adapterId;
     }
+    
+    String getDefaultAdapterId()
+    {
+	return _defaultAdapterId;
+    }
+
 
     public boolean isEphemeral()
     {
 	return _ephemeral;
     }
+
 
     private void createToolTip()
     {
@@ -261,9 +271,11 @@ class Adapter extends Leaf
     private AdapterDescriptor _descriptor;
     private Utils.Resolver _resolver;
 
-    private AdapterInstanceId _instanceId;
     private Ice.ObjectPrx _proxy;
     private String _toolTip;
+
+    private String _adapterId; // resolved adapter id, null when _resolver == null
+    private String _defaultAdapterId;
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private AdapterEditor _editor;

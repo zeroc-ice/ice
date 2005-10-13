@@ -10,11 +10,11 @@ package IceGrid.TreeNode;
 
 import javax.swing.AbstractListModel;
 
-import IceGrid.ReplicatedAdapterDescriptor;
+import IceGrid.ReplicaGroupDescriptor;
 import IceGrid.Model;
 import IceGrid.Utils;
 
-class ReplicatedAdapters extends EditableParent
+class ReplicaGroups extends EditableParent
 {
     static public java.util.LinkedList
     copyDescriptors(java.util.List descriptors)
@@ -23,25 +23,25 @@ class ReplicatedAdapters extends EditableParent
 	java.util.Iterator p = descriptors.iterator();
 	while(p.hasNext())
 	{
-	    copy.add(ReplicatedAdapter.copyDescriptor(
-			 (ReplicatedAdapterDescriptor)p.next()));
+	    copy.add(ReplicaGroup.copyDescriptor(
+			 (ReplicaGroupDescriptor)p.next()));
 	}
 	return copy;
     }
 
-    ReplicatedAdapters(java.util.List descriptors, Model model)
+    ReplicaGroups(java.util.List descriptors, Model model)
 	throws UpdateFailedException
     {
-	super(false, "Replicated Adapters", model);
+	super(false, "Replica Groups", model);
 	_descriptors = descriptors;
 
 	java.util.Iterator p = _descriptors.iterator();
 	while(p.hasNext())
 	{
-	    ReplicatedAdapterDescriptor descriptor 
-		= (ReplicatedAdapterDescriptor)p.next();
+	    ReplicaGroupDescriptor descriptor 
+		= (ReplicaGroupDescriptor)p.next();
 	    
-	    addChild(new ReplicatedAdapter(false, descriptor, _model));
+	    addChild(new ReplicaGroup(false, descriptor, _model));
 	}
     }
 
@@ -51,7 +51,7 @@ class ReplicatedAdapters extends EditableParent
 	java.util.Iterator p = _children.iterator();
 	while(p.hasNext())
 	{
-	    ReplicatedAdapter ra = (ReplicatedAdapter)p.next();
+	    ReplicaGroup ra = (ReplicaGroup)p.next();
 	    if(ra.isNew() || ra.isModified())
 	    {
 		updates.add(ra.getDescriptor());
@@ -79,14 +79,14 @@ class ReplicatedAdapters extends EditableParent
 	java.util.Iterator p = descriptors.iterator();
 	while(p.hasNext())
 	{
-	    ReplicatedAdapterDescriptor descriptor =
-		(ReplicatedAdapterDescriptor)p.next();
+	    ReplicaGroupDescriptor descriptor =
+		(ReplicaGroupDescriptor)p.next();
 	    
-	    ReplicatedAdapter child 
-		= (ReplicatedAdapter)findChild(descriptor.id);
+	    ReplicaGroup child 
+		= (ReplicaGroup)findChild(descriptor.id);
 	    if(child == null)
 	    {
-		newChildren.add(new ReplicatedAdapter(false, descriptor,
+		newChildren.add(new ReplicaGroup(false, descriptor,
 						      _model));
 	    }
 	    else

@@ -29,8 +29,8 @@ public class Application extends EditableParent
     {
 	ApplicationDescriptor copy = (ApplicationDescriptor)ad.clone();
 	
-	copy.replicatedAdapters = 
-	    ReplicatedAdapters.copyDescriptors(copy.replicatedAdapters);
+	copy.replicaGroups = 
+	    ReplicaGroups.copyDescriptors(copy.replicaGroups);
 	
 	copy.serverTemplates = 
 	    ServerTemplates.copyDescriptors(copy.serverTemplates);
@@ -134,8 +134,8 @@ public class Application extends EditableParent
 	//
 	// Replicated Adapters
 	//
-	update.removeReplicatedAdapters = _replicatedAdapters.removedElements();
-	update.replicatedAdapters = _replicatedAdapters.getUpdates();
+	update.removeReplicaGroups = _replicaGroups.removedElements();
+	update.replicaGroups = _replicaGroups.getUpdates();
 	
 	//
 	// Server Templates
@@ -261,9 +261,9 @@ public class Application extends EditableParent
 	_origDescription = _descriptor.description;
 
 
-	_replicatedAdapters = new ReplicatedAdapters(_descriptor.replicatedAdapters,
+	_replicaGroups = new ReplicaGroups(_descriptor.replicaGroups,
 						     _model);
-	addChild(_replicatedAdapters);
+	addChild(_replicaGroups);
 
 	_serviceTemplates = new ServiceTemplates(_descriptor.serviceTemplates,
 						 _model);	
@@ -337,14 +337,14 @@ public class Application extends EditableParent
 	//
 	// Replicated adapters
 	//
-	for(int i = 0; i < desc.removeReplicatedAdapters.length; ++i)
+	for(int i = 0; i < desc.removeReplicaGroups.length; ++i)
 	{
-	    _descriptor.replicatedAdapters.remove(desc.
-						  removeReplicatedAdapters[i]);
+	    _descriptor.replicaGroups.remove(desc.
+						  removeReplicaGroups[i]);
 	}
-	_descriptor.replicatedAdapters.addAll(desc.replicatedAdapters);
-	_replicatedAdapters.update(desc.replicatedAdapters, 
-				   desc.removeReplicatedAdapters);
+	_descriptor.replicaGroups.addAll(desc.replicaGroups);
+	_replicaGroups.update(desc.replicaGroups, 
+				   desc.removeReplicaGroups);
 
 
 	//
@@ -393,9 +393,9 @@ public class Application extends EditableParent
 	return (ServiceTemplate)_serviceTemplates.findChild(id);
     }
 
-    ReplicatedAdapter findReplicatedAdapter(String id)
+    ReplicaGroup findReplicaGroup(String id)
     {
-	return (ReplicatedAdapter)_replicatedAdapters.findChild(id);
+	return (ReplicaGroup)_replicaGroups.findChild(id);
     }
 
     Node findNode(String id)
@@ -438,9 +438,9 @@ public class Application extends EditableParent
 	return _serviceTemplates;
     }
 
-    ReplicatedAdapters getReplicatedAdapters()
+    ReplicaGroups getReplicaGroups()
     {
-	return _replicatedAdapters;
+	return _replicaGroups;
     }
 
     //
@@ -476,7 +476,7 @@ public class Application extends EditableParent
     //
     // Children
     //
-    private ReplicatedAdapters _replicatedAdapters;
+    private ReplicaGroups _replicaGroups;
     private ServerTemplates _serverTemplates;
     private ServiceTemplates _serviceTemplates;
     private Nodes _nodes;

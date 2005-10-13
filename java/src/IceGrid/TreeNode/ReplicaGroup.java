@@ -8,20 +8,20 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import IceGrid.ReplicatedAdapterDescriptor;
+import IceGrid.ReplicaGroupDescriptor;
 import IceGrid.Model;
 import IceGrid.Utils;
 
-class ReplicatedAdapter extends EditableLeaf
+class ReplicaGroup extends EditableLeaf
 {
-    static public ReplicatedAdapterDescriptor 
-    copyDescriptor(ReplicatedAdapterDescriptor d)
+    static public ReplicaGroupDescriptor 
+    copyDescriptor(ReplicaGroupDescriptor d)
     {
-	return (ReplicatedAdapterDescriptor)d.clone();
+	return (ReplicaGroupDescriptor)d.clone();
     }
 
-    ReplicatedAdapter(boolean brandNew, 
-		      ReplicatedAdapterDescriptor descriptor,
+    ReplicaGroup(boolean brandNew, 
+		      ReplicaGroupDescriptor descriptor,
 		      Model model)
     {
 	//
@@ -33,7 +33,7 @@ class ReplicatedAdapter extends EditableLeaf
 	rebuild(descriptor);
     }
 
-    void rebuild(ReplicatedAdapterDescriptor descriptor)
+    void rebuild(ReplicaGroupDescriptor descriptor)
     {
 	_descriptor = descriptor;
 	//
@@ -46,5 +46,5 @@ class ReplicatedAdapter extends EditableLeaf
 	return _descriptor;
     }
 
-    private ReplicatedAdapterDescriptor _descriptor;
+    private ReplicaGroupDescriptor _descriptor;
 }

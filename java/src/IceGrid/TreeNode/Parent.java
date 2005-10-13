@@ -28,12 +28,33 @@ class Parent extends CommonBaseI
     {
 	public Object getElementAt(int index)
 	{
-	    return getChildAt(index);
+	    if(_firstItem != null)
+	    {
+		if(index == 0)
+		{
+		    return _firstItem;
+		}
+		else
+		{
+		    return getChildAt(index - 1);
+		}
+	    }
+	    else
+	    {
+		return getChildAt(index);
+	    }
 	}
 
 	public int getSize()
 	{
-	    return getChildCount();
+	    if(_firstItem != null)
+	    {
+		return getChildCount() + 1;
+	    }
+	    else
+	    {
+		return getChildCount();
+	    }
 	}
 	
 	public Object getSelectedItem()
@@ -50,6 +71,17 @@ class Parent extends CommonBaseI
 	    }
 	}
 
+	ComboBoxModel(Object firstItem)
+	{
+	    _firstItem = firstItem;
+	}
+
+	ComboBoxModel()
+	{
+	    _firstItem = null;
+	}
+
+	private final Object _firstItem;
 	private Object _selectedItem;
     }
 
@@ -564,6 +596,11 @@ class Parent extends CommonBaseI
     javax.swing.ComboBoxModel createComboBoxModel()
     {
 	return new ComboBoxModel();
+    }
+    
+    javax.swing.ComboBoxModel createComboBoxModel(Object item)
+    {
+	return new ComboBoxModel(item);
     }
 
     Parent(String id, Model model, boolean root)

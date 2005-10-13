@@ -70,15 +70,11 @@ class Adapters extends ListParent
     public void newAdapter()
     {
 	String name = makeNewChildId("NewAdapter");
-	CommonBase parent = getParent();
-	String defaultId = (parent instanceof Service || 
-			    parent instanceof ServiceTemplate) ? 
-	    "${server}.${service}." + name : "${server}." + name;
-
 	AdapterDescriptor descriptor = new AdapterDescriptor(
 	    name,
-	    defaultId,
-	    "${server}",
+	    "",
+	    null,
+	    "",
 	    false,
 	    true,
 	    new java.util.LinkedList());   

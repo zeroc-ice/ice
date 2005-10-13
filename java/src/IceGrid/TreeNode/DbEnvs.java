@@ -70,6 +70,7 @@ class DbEnvs extends ListParent
 	DbEnvDescriptor descriptor = new DbEnvDescriptor(
 	    "NewDbEnv",
 	    "",
+	    "",
 	    new java.util.LinkedList());   
 	
 	newDbEnv(descriptor);
