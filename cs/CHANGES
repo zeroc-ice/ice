@@ -1,6 +1,11 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Added the new methods Ice.Util.initializeWithLogger() and
+  Ice.Util.initializeWithPropertiesAndLogger(), which ensure that a
+  custom logger is used to record any errors during communicator
+  initialization.
+
 - Ice will now listen on all local interfaces if no -h parameter 
   is present in the endpoint configuration and no default host has
   been set. It will also listen to all interfaces if the -h parameter
