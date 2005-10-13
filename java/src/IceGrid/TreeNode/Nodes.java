@@ -320,10 +320,11 @@ public class Nodes extends EditableParent
 	    addChild(node, true);
 	}
 	catch(UpdateFailedException e)
-	{
+	{	
 	    e.addParent(this);
 	    throw e;
 	}
+	_descriptors.put(nodeName, descriptor);
     }
  
     private void newNode(NodeDescriptor descriptor)

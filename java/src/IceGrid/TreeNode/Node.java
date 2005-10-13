@@ -931,19 +931,18 @@ class Node extends EditableParent
 
 
     void tryAdd(ServerInstanceDescriptor instanceDescriptor,
-		ServerDescriptor serverDescriptor) throws UpdateFailedException
+		ServerDescriptor serverDescriptor,
+		boolean addDescriptor) throws UpdateFailedException
     {
 	try
 	{
 	    if(instanceDescriptor != null)
 	    {
-		_descriptor.serverInstances.add(instanceDescriptor);
 		addChild(createServer(true, instanceDescriptor, getApplication()),
 			 true);
 	    }
 	    else
 	    {
-		_descriptor.servers.add(serverDescriptor);
 		addChild(createServer(true, serverDescriptor, getApplication()),
 			 true);
 	    }
@@ -951,22 +950,20 @@ class Node extends EditableParent
 	catch(UpdateFailedException e)
 	{
 	    e.addParent(this);
+	    throw e;
+	}
+
+	if(addDescriptor)
+	{
 	    if(instanceDescriptor != null)
 	    {
-		removeDescriptor(instanceDescriptor);
+		_descriptor.serverInstances.add(instanceDescriptor);
 	    }
 	    else
 	    {
-		removeDescriptor(serverDescriptor);
+		_descriptor.servers.add(serverDescriptor);
 	    }
-	    throw e;
 	}
-    }
-
-
-    void addDescriptor(ServerDescriptor sd)
-    {
-	_descriptor.servers.add(sd);
     }
 
     void removeDescriptor(ServerDescriptor sd)
@@ -983,10 +980,6 @@ class Node extends EditableParent
 		break;
 	    }
 	}
-    }
-    void addDescriptor(ServerInstanceDescriptor sd)
-    {
-	_descriptor.serverInstances.add(sd);
     }
     void removeDescriptor(ServerInstanceDescriptor sd)
     {

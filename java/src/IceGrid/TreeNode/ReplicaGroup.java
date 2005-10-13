@@ -8,8 +8,9 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import IceGrid.ReplicaGroupDescriptor;
 import IceGrid.Model;
+import IceGrid.ReplicaGroupDescriptor;
+import IceGrid.SimpleInternalFrame;
 import IceGrid.Utils;
 
 class ReplicaGroup extends EditableLeaf
@@ -20,19 +21,110 @@ class ReplicaGroup extends EditableLeaf
 	return (ReplicaGroupDescriptor)d.clone();
     }
 
-    ReplicaGroup(boolean brandNew, 
-		      ReplicaGroupDescriptor descriptor,
-		      Model model)
+    //
+    // Actions
+    //
+    public boolean[] getAvailableActions()
     {
-	//
-	// Make the assumption that app variables can't be used in
-	// the descriptor.id
-	//
-
-	super(brandNew, descriptor.id, model);
-	rebuild(descriptor);
+	boolean[] actions = new boolean[ACTION_COUNT];
+	actions[COPY] = true;
+	
+	if(_parent.getAvailableActions()[PASTE])
+	{
+	    actions[PASTE] = true;
+	}
+	actions[DELETE] = true;
+	return actions;
     }
 
+    public void copy()
+    {
+	_model.setClipboard(copyDescriptor(_descriptor));
+	_model.getActions()[PASTE].setEnabled(true);
+
+    }
+    public void paste()
+    {
+	_parent.paste();
+    }
+
+    public boolean destroy()
+    {
+	if(_parent == null)
+	{
+	    return false;
+	}
+	ReplicaGroups replicaGroups = (ReplicaGroups)_parent;
+	
+	if(_ephemeral)
+	{
+	    replicaGroups.removeChild(this, true);
+	    return true;
+	}
+	else if(_model.canUpdate())
+	{
+	    replicaGroups.removeDescriptor(_descriptor);
+	    replicaGroups.removeElement(this, true);
+	    return true;
+	}
+	return false;
+    }
+
+    public void displayProperties()
+    {
+	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
+	
+	propertiesFrame.setTitle("Properties for " + _id);
+	if(_editor == null)
+	{
+	    _editor = new ReplicaGroupEditor(_model.getMainFrame());
+	}
+	propertiesFrame.setContent(_editor.getComponent());
+	_editor.show(this);
+
+	propertiesFrame.validate();
+	propertiesFrame.repaint();
+    }
+
+    public Object getDescriptor()
+    {
+	return _descriptor;
+    }
+    
+    public Object saveDescriptor()
+    {
+	return _descriptor.clone();
+    }
+    public void restoreDescriptor(Object savedDescriptor)
+    {
+	ReplicaGroupDescriptor clone = (ReplicaGroupDescriptor)savedDescriptor;
+	_descriptor.id = clone.id;
+	_descriptor.objects = clone.objects;
+	_descriptor.loadBalancing = clone.loadBalancing;
+    }
+
+    public boolean isEphemeral()
+    {
+	return _ephemeral;
+    }
+
+    ReplicaGroup(boolean brandNew, 
+		 ReplicaGroupDescriptor descriptor,
+		 Model model)
+    {
+	super(brandNew, descriptor.id, model);
+	_ephemeral = false;
+	rebuild(descriptor);
+    }
+    
+    ReplicaGroup(ReplicaGroupDescriptor descriptor,
+		 Model model)
+    {
+	super(false, descriptor.id, model);
+	_ephemeral = true;
+	rebuild(descriptor);
+    }
+    
     void rebuild(ReplicaGroupDescriptor descriptor)
     {
 	_descriptor = descriptor;
@@ -41,10 +133,7 @@ class ReplicaGroup extends EditableLeaf
 	//
     }
 
-    public Object getDescriptor()
-    {
-	return _descriptor;
-    }
-
     private ReplicaGroupDescriptor _descriptor;
+    private final boolean _ephemeral;
+    static private ReplicaGroupEditor _editor;
 }

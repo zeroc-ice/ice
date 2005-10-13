@@ -9,6 +9,8 @@
 package IceGrid.TreeNode;
 
 import javax.swing.AbstractListModel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import IceGrid.ReplicaGroupDescriptor;
 import IceGrid.Model;
@@ -27,6 +29,56 @@ class ReplicaGroups extends EditableParent
 			 (ReplicaGroupDescriptor)p.next()));
 	}
 	return copy;
+    }
+
+    //
+    // Actions
+    //
+    public boolean[] getAvailableActions()
+    {
+	boolean[] actions = new boolean[ACTION_COUNT];
+
+	Object descriptor =  _model.getClipboard();
+	if(descriptor != null)
+	{
+	    actions[PASTE] = descriptor instanceof ReplicaGroupDescriptor;
+	}
+
+	actions[NEW_REPLICA_GROUP] = true;
+	return actions;
+    }
+
+    public JPopupMenu getPopupMenu()
+    {
+	if(_popup == null)
+	{
+	    _popup = new PopupMenu(_model);
+	    JMenuItem item = new JMenuItem(_model.getActions()[NEW_REPLICA_GROUP]);
+	    item.setText("New replica group");
+	    _popup.add(item);
+	}
+	return _popup;
+    }
+    
+    public void newReplicaGroup()
+    {
+	ReplicaGroupDescriptor descriptor = new
+	    ReplicaGroupDescriptor(
+		makeNewChildId("NewReplicaGroup"),
+		null,
+		new java.util.LinkedList());
+
+	newReplicaGroup(descriptor);
+    }
+
+    public void paste()
+    {
+	Object descriptor =  _model.getClipboard();
+	
+	ReplicaGroupDescriptor d = ReplicaGroup.copyDescriptor(
+	    (ReplicaGroupDescriptor)descriptor);
+	d.id = makeNewChildId(d.id);
+	newReplicaGroup(d);
     }
 
     ReplicaGroups(java.util.List descriptors, Model model)
@@ -101,5 +153,64 @@ class ReplicaGroups extends EditableParent
 	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
     }
 
+  
+
+    void removeDescriptor(Object descriptor)
+    {
+	//
+	// A straight remove uses equals(), which is not the desired behavior
+	//
+	java.util.Iterator p = _descriptors.iterator();
+	while(p.hasNext())
+	{
+	    if(descriptor == p.next())
+	    {
+		p.remove();
+		break;
+	    }
+	}
+    }
+
+    void tryAdd(ReplicaGroupDescriptor descriptor, boolean addDescriptor)
+	throws UpdateFailedException
+    {
+	try
+	{
+	    addChild(createReplicaGroup(true, descriptor), true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    e.addParent(this);
+	    throw e;
+	}
+
+	if(addDescriptor)
+	{
+	    _descriptors.add(descriptor);
+	}
+    }
+
+
+    private ReplicaGroup createReplicaGroup(boolean brandNew, 
+					    ReplicaGroupDescriptor descriptor)
+    {
+	return new ReplicaGroup(brandNew, descriptor, _model);
+    }
+
+    private void newReplicaGroup(ReplicaGroupDescriptor descriptor)
+    {
+	ReplicaGroup replicaGroup = new ReplicaGroup(descriptor, _model);
+	try
+	{
+	    addChild(replicaGroup, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+	_model.setSelectionPath(replicaGroup.getPath());
+    }
+
     private java.util.List _descriptors;
+    static private JPopupMenu _popup;
 }

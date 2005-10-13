@@ -47,7 +47,7 @@ abstract class AbstractServerEditor extends Editor
 		    
 		    try
 		    {
-			node.tryAdd(instanceDescriptor, serverDescriptor);
+			node.tryAdd(instanceDescriptor, serverDescriptor, true);
 		    }
 		    catch(UpdateFailedException e)
 		    {
@@ -106,18 +106,10 @@ abstract class AbstractServerEditor extends Editor
 			server.getServerDescriptor();
 
 		    node.removeChild(server, true);
-		    if(instanceDescriptor != null)
-		    {
-			node.removeDescriptor(instanceDescriptor);
-		    }
-		    else
-		    {
-			node.removeDescriptor(serverDescriptor);
-		    }
 		    
 		    try
 		    {
-			node.tryAdd(instanceDescriptor, serverDescriptor);
+			node.tryAdd(instanceDescriptor, serverDescriptor, false);
 		    }
 		    catch(UpdateFailedException e)
 		    {
@@ -125,15 +117,7 @@ abstract class AbstractServerEditor extends Editor
 			// Restore all
 			//
 			server.restoreDescriptor(savedDescriptor);
-			if(instanceDescriptor != null)
-			{
-			    node.addDescriptor(instanceDescriptor);
-			}
-			else
-			{
-			    node.addDescriptor(serverDescriptor);
-			}
-
+			
 			try
 			{
 			    node.addChild(server, true);

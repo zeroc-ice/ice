@@ -63,11 +63,6 @@ class DbEnvEditor extends ListElementEditor
 	    };
 	_propertiesButton = new JButton(openPropertiesDialog);
     }
-    
-   
-    //
-    // From Editor:
-    //
 
     void writeDescriptor()
     {
@@ -133,6 +128,7 @@ class DbEnvEditor extends ListElementEditor
 	_description.setText(
 	    Utils.substitute(descriptor.description, resolver));
 	_description.setEditable(isEditable);
+	_description.setOpaque(isEditable);
 
 	_dbHome.setText(
 	    Utils.substitute(descriptor.dbHome, resolver));

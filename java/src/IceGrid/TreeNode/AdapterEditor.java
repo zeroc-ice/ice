@@ -128,7 +128,8 @@ class AdapterEditor extends ListElementEditor
 	//
 	_name.getDocument().addDocumentListener(_updateListener);
 	_endpoints.getDocument().addDocumentListener(_updateListener);
-	
+	_description.getDocument().addDocumentListener(_updateListener);
+
 	JTextField idTextField = (JTextField)
 	    _id.getEditor().getEditorComponent();
 	idTextField.getDocument().addDocumentListener(_updateListener);	
@@ -325,7 +326,8 @@ class AdapterEditor extends ListElementEditor
 	_description.setText(
 	    Utils.substitute(descriptor.description, resolver));
 	_description.setEditable(isEditable);
-	
+	_description.setOpaque(isEditable);
+
 	//
 	// Need to make control editable & enabled before changing it
 	//
@@ -440,8 +442,8 @@ class AdapterEditor extends ListElementEditor
     private JTextField _endpoints = new JTextField(20);
     private JCheckBox _registerProcess;
     private JCheckBox _waitForActivation;
-    private JTextField _objects = new JTextField(20);
 
+    private JTextField _objects = new JTextField(20);
     private java.util.Map _objectsMap;
     private TableDialog _objectsDialog;
     private JButton _objectsButton;
