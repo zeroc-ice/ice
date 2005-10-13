@@ -66,7 +66,8 @@ class ReplicaGroups extends EditableParent
 	    ReplicaGroupDescriptor(
 		makeNewChildId("NewReplicaGroup"),
 		null,
-		new java.util.LinkedList());
+		new java.util.LinkedList(),
+		"");
 
 	newReplicaGroup(descriptor);
     }

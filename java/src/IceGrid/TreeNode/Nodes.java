@@ -77,6 +77,7 @@ public class Nodes extends EditableParent
 		    new java.util.TreeMap(),
 		    new java.util.LinkedList(),
 		    new java.util.LinkedList(),
+		    "",
 		    ""
 		    ));
     }
@@ -231,7 +232,8 @@ public class Nodes extends EditableParent
 		NodeDescriptor nodeDescriptor = new NodeDescriptor(update.variables,
 								   update.serverInstances,
 								   update.servers,
-								   update.loadFactor.value);
+								   update.loadFactor.value,
+								   update.description.value);
 		_descriptors.put(update.name, nodeDescriptor);
 		node = new Node(false, update.name, nodeDescriptor, application, false);
 		newChildren.add(node);

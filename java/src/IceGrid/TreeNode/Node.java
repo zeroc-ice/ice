@@ -791,6 +791,7 @@ class Node extends EditableParent
 	    descriptor = new NodeDescriptor(new java.util.TreeMap(), 
 					    new java.util.LinkedList(),
 					    new java.util.LinkedList(),
+					    "",
 					    "");
 	}
 	
