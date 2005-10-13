@@ -75,13 +75,6 @@ struct AdapterDynamicInfo
      **/
     string id;
 
-    /** 
-     *
-     * The id of the server this adapter belongs to.
-     *
-     **/
-    string serverId;
-
     /**
      *
      * The direct proxy containing the adapter endpoints.
