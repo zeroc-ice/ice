@@ -32,10 +32,10 @@ CPPFLAGS	:= -I. -I../../include $(OPENSSL_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceSSL $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIceSSL -lIceXML $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lIceSSL $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lIceSSL -lIceXML $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
 
 include .depend

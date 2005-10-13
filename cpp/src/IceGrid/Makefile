@@ -13,26 +13,18 @@ LIBFILENAME     = $(call mklibfilename,IceGrid,$(VERSION))
 SONAME          = $(call mksoname,IceGrid,$(SOVERSION))  
 LIBNAME		= $(call mklibname,IceGrid)
 
-PERFLIBFILENAME = $(call mklibfilename,IcePerf,$(VERSION))
-PERFSONAME      = $(call mksoname,IcePerf,$(SOVERSION))  
-PERFLIBNAME	= $(call mklibname,IcePerf)
-
 ADMIN		= $(top_srcdir)/bin/icegridadmin
 NODE_SERVER	= $(top_srcdir)/bin/icegridnode
 REGISTRY_SERVER	= $(top_srcdir)/bin/icegridregistry
 
 LIBTARGETS	= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
-PERFLIBTARGETS	= $(call mklibtargets,$(libdir)/$(PERFLIBFILENAME),$(libdir)/$(PERFSONAME),$(libdir)/$(PERFLIBNAME))
-TARGETS         = $(PERFLIBTARGETS) $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
+TARGETS         = $(LIBTARGETS) $(NODE_SERVER) $(REGISTRY_SERVER) $(ADMIN)
 
 LIB_OBJS	= Admin.o \
 		  Query.o \
 	 	  Exception.o \
 		  Descriptor.o \
 		  Observer.o
-
-PERFLIB_OBJS	= PerfTypes.o \
-                  PerfLinux.o
 
 ADMIN_OBJS	= Grammar.o \
 		  Scanner.o \
@@ -89,7 +81,6 @@ REGISTRY_SVR_OBJS = \
 		  IceGridRegistry.o
 
 SRCS		= $(LIB_OBJS:.o=.cpp) \
-		  $(PERFLIB_OBJS:.o=.cpp) \
 		  $(ADMIN_OBJS:.o=.cpp) \
 		  $(COMMON_OBJS:.o=.cpp) \
 		  $(NODE_OBJS:.o=.cpp) \
@@ -97,8 +88,7 @@ SRCS		= $(LIB_OBJS:.o=.cpp) \
 		  IceGridNode.cpp \
 		  IceGridRegistry.cpp
 
-SLICE_SRCS	= $(SDIR)/PerfTypes.ice \
-		  $(SDIR)/Admin.ice \
+SLICE_SRCS	= $(SDIR)/Admin.ice \
                   $(SDIR)/Exception.ice \
                   $(SDIR)/Query.ice \
 		  $(SDIR)/Observer.ice \
@@ -130,18 +120,6 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
-
-$(libdir)/$(PERFLIBFILENAME): $(PERFLIB_OBJS)
-	rm -f $@
-	$(call mkshlib,$@,$(PERFSONAME),$(PERFLIB_OBJS),$(LINKWITH))
-
-$(libdir)/$(PERFSONAME): $(libdir)/$(PERFLIBFILENAME)
-	rm -f $@
-	ln -s $(PERFLIBFILENAME) $@
-
-$(libdir)/$(PERFLIBNAME): $(libdir)/$(SONAME)
-	rm -f $@
-	ln -s $(PERFSONAME) $@
 
 $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 	rm -f $@

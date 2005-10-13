@@ -34,8 +34,8 @@ mklibfilename       	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
 mksoname           	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
 
 mklibname           	= lib$(1).dylib
-
-mkshlib                 = $(CXX) -single_module -dynamiclib $(shlibldflags) -o $(1) -install_name @executable_path/../lib/$(2) $(3) $(4)
+curdir			= $(shell pwd)
+mkshlib                 = $(CXX) -single_module -dynamiclib $(shlibldflags) -o $(1) -install_name $(install_libdir)/$(2) $(3) $(4)
 
 BASELIBS		= -lIceUtil -lpthread 
 LIBS			= -lIce $(BASELIBS)

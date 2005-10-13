@@ -23,6 +23,6 @@ CPPFLAGS	:= -I. -I../../include $(OPENSSL_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lIceSSL $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lIceSSL -lIceXML $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
 
 include .depend
