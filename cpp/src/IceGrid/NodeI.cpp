@@ -786,7 +786,8 @@ NodeI::addServer(const ServerIPtr& server)
     map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(server->getApplication());
     if(p == _serversByApplication.end())
     {
-	p = _serversByApplication.insert(p, make_pair(server->getApplication(), set<ServerIPtr>()));
+        map<string, set<ServerIPtr> >::value_type v(server->getApplication(), set<ServerIPtr>());
+        p = _serversByApplication.insert(p, v);
     }
     p->second.insert(server);
 }

@@ -122,10 +122,6 @@ SOURCE=.\Observer.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\PerfTypes.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Query.cpp
 # End Source File
 # End Group
@@ -314,49 +310,6 @@ BuildCmds= \
    $(BuildCmds)
 
 "Observer.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\icegrid\PerfTypes.ice
-
-!IF  "$(CFG)" == "icegrid - Win32 Release"
-
-USERDEP__PERFT="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
-# Begin Custom Build
-InputPath=..\..\slice\icegrid\PerfTypes.ice
-
-BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_GRID_API --include-dir icegrid -I../../slice ../../slice/IceGrid/PerfTypes.ice \
-	move PerfTypes.h ..\..\include\icegrid \
-	
-
-"..\..\include\icegrid\PerfTypes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"PerfTypes.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "icegrid - Win32 Debug"
-
-USERDEP__PERFT="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
-# Begin Custom Build
-InputPath=..\..\slice\icegrid\PerfTypes.ice
-
-BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_GRID_API --include-dir icegrid -I../../slice ../../slice/IceGrid/PerfTypes.ice \
-	move PerfTypes.h ..\..\include\icegrid \
-	
-
-"..\..\include\icegrid\PerfTypes.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"PerfTypes.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
