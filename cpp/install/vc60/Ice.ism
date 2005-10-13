@@ -1501,7 +1501,7 @@
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s255">ISMergeModule_</col>
 		<col key="yes" def="i2">Language_</col>
-		<row><td>ice_runtime</td><td>Bzip2Runtime.90D4120C_EE76_471B_B2BD_F0F8288EA104</td><td>0</td></row>
+		<row><td>ice_runtime</td><td>Bzip2Runtime.VC60.90D4120C_EE76_471B_B2BD_F0F8288EA104</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBRuntime.VC60.D5C9196F_ABFE_4664_807F_F216926DAE24</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatRuntime.VC60.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>0</td></row>
 		<row><td>packages</td><td>JGoodies.VC60.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>0</td></row>
@@ -1594,7 +1594,7 @@
 		<col def="I4">ISAttributes</col>
 		<row><td>BerkeleyDBDevKit.VC60.9D7EE251_9423_4C69_B4B4_73580837DA18</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBRuntime.VC60.D5C9196F_ABFE_4664_807F_F216926DAE24</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>Bzip2Runtime.90D4120C_EE76_471B_B2BD_F0F8288EA104</td><td>0</td><td>Bzip2 Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>Bzip2Runtime.VC60.90D4120C_EE76_471B_B2BD_F0F8288EA104</td><td>0</td><td>Bzip2 Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatRuntime.VC60.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>0</td><td>Expat Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>JGoodies.VC60.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>0</td><td>JGoodies Runtime for Visual Studio 6.0</td><td/><td/></row>
 		<row><td>OpenSSLDevKit.VC60.50663C31_D47C_49EE_B7EF_303D541A08DE</td><td>0</td><td>OpenSSL Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>

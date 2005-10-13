@@ -202,9 +202,7 @@
 	<copy todir="${stage.dir}/ice-cpp/dev/bin/debug" flatten="true">
 	    <fileset dir="${ice.dir}/src/IceBox/Debug">
 		<include name="icebox.exe"/>
-	    </fileset>
-	    <fileset dir="${ice.dir}/src/IceGrid/Debug">
-		<include name="icegridnode.exe"/>
+		<include name="icebox.pdb"/>
 	    </fileset>
 	</copy>
 

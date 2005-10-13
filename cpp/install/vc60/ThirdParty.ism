@@ -1485,7 +1485,7 @@
 		<row><td>packages</td><td>BerkeleyDBDevKit.VC60.9D7EE251_9423_4C69_B4B4_73580837DA18</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBJava.VC60.C536F590_7F08_4987_B4BA_F7A5361D5E95</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBRuntime.VC60.D5C9196F_ABFE_4664_807F_F216926DAE24</td><td>0</td></row>
-		<row><td>packages</td><td>Bzip2Runtime.90D4120C_EE76_471B_B2BD_F0F8288EA104</td><td>0</td></row>
+		<row><td>packages</td><td>Bzip2Runtime.VC60.90D4120C_EE76_471B_B2BD_F0F8288EA104</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatDevKit.VC60.B8AA5B6F_EB6F_4721_9E56_433C572CB9F8</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatRuntime.VC60.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>0</td></row>
 		<row><td>packages</td><td>JGoodies.VC60.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>0</td></row>
@@ -1579,7 +1579,7 @@
 		<row><td>BerkeleyDBDevKit.VC60.9D7EE251_9423_4C69_B4B4_73580837DA18</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBJava.VC60.C536F590_7F08_4987_B4BA_F7A5361D5E95</td><td>0</td><td>BerkeleyDB Java Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBRuntime.VC60.D5C9196F_ABFE_4664_807F_F216926DAE24</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
-		<row><td>Bzip2Runtime.90D4120C_EE76_471B_B2BD_F0F8288EA104</td><td>0</td><td>Bzip2 Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>Bzip2Runtime.VC60.90D4120C_EE76_471B_B2BD_F0F8288EA104</td><td>0</td><td>Bzip2 Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatDevKit.VC60.B8AA5B6F_EB6F_4721_9E56_433C572CB9F8</td><td>0</td><td>Expat Dev Kit for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatRuntime.VC60.5A6DE968_90DB_43FD_8F25_8ECA6C43F554</td><td>0</td><td>Expat Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>JGoodies.VC60.4E2D2725_3AFF_413E_8BF4_D0B39DDAB4EE</td><td>0</td><td>JGoodies Runtime for Visual Studio 6.0</td><td>[INSTALLDIR]</td><td/></row>
