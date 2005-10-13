@@ -450,6 +450,13 @@ struct NodeDescriptor
      *
      **/
     string loadFactor;
+
+    /**
+     *
+     * The description of this node.
+     *
+     **/
+    string description;
 };
 dictionary<string, NodeDescriptor> NodeDescriptorDict;
 
@@ -512,6 +519,13 @@ struct ReplicaGroupDescriptor
      *
      **/
     ObjectDescriptorSeq objects;
+
+    /**
+     *
+     * The description of this replica group.
+     *
+     **/
+    string description;
 };
 
 /**
@@ -610,6 +624,14 @@ struct NodeUpdateDescriptor
      *
      **/
     string name;
+
+    /**
+     *
+     * The updated description (or null if the description wasn't
+     * updated.)
+     *
+     **/
+    BoxedString description;
 
     /**
      *

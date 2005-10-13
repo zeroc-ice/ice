@@ -133,26 +133,14 @@ Client::run(int argc, char* argv[])
     const string instanceNameProperty = "IceGrid.InstanceName";
     string instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
 
-    const string adminIdProperty = "IceGrid.Registry.AdminIdentity";
-    string adminId = properties->getProperty(adminIdProperty);
-    if(adminId.empty())
-    {
-        adminId = instanceName + "/Admin";
-    }
-    AdminPrx admin = AdminPrx::checkedCast(communicator()->stringToProxy(adminId));
+    AdminPrx admin = AdminPrx::checkedCast(communicator()->stringToProxy(instanceName + "/Admin"));
     if(!admin)
     {
 	cerr << appName() << ": no valid administrative interface" << endl;
 	return EXIT_FAILURE;
     }
 
-    const string queryIdProperty = "IceGrid.Registry.QueryIdentity";
-    string queryId = properties->getProperty(queryIdProperty);
-    if(queryId.empty())
-    {
-        queryId = instanceName + "/Query";
-    }
-    QueryPrx query = QueryPrx::checkedCast(communicator()->stringToProxy(queryId));
+    QueryPrx query = QueryPrx::checkedCast(communicator()->stringToProxy(instanceName + "/Query"));
     if(!query)
     {
 	cerr << appName() << ": no valid query interface" << endl;

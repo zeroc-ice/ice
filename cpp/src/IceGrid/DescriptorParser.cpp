@@ -460,8 +460,14 @@ DescriptorHandler::endElement(const string& name, int line, int column)
     {
 	if(_inAdapter)
 	{
-	    assert(_currentCommunicator);
-	    _currentCommunicator->setAdapterDescription(elementValue());
+	    if(_currentCommunicator)
+	    {
+		_currentCommunicator->setAdapterDescription(elementValue());
+	    }
+	    else
+	    {
+		_currentApplication->setReplicaGroupDescription(elementValue());
+	    }
 	}
 	else if(_inDbEnv)
 	{
@@ -471,6 +477,10 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	if(_currentCommunicator)
 	{
 	    _currentCommunicator->setDescription(elementValue());
+	}
+	else if(_currentNode.get())
+	{
+	    _currentNode->setDescription(elementValue());
 	}
 	else if(_currentApplication.get())
 	{

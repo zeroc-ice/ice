@@ -167,6 +167,12 @@ ApplicationDescriptorBuilder::setLoadBalancing(const XmlAttributesHelper& attrs)
 }
 
 void
+ApplicationDescriptorBuilder::setReplicaGroupDescription(const string& description)
+{
+    _descriptor.replicaGroups.back().description = description;
+}
+
+void
 ApplicationDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
 {
     ObjectDescriptor object;
@@ -314,6 +320,12 @@ void
 NodeDescriptorBuilder::addServer(const ServerDescriptorPtr& server)
 {
     _descriptor.servers.push_back(server);
+}
+
+void
+NodeDescriptorBuilder::setDescription(const string& description)
+{
+    _descriptor.description = description;
 }
 
 TemplateDescriptorBuilder::TemplateDescriptorBuilder(ApplicationDescriptorBuilder& application, 

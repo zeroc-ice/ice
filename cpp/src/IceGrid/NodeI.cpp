@@ -469,8 +469,11 @@ NodeI::keepAlive()
     {
 	try
 	{
-	    Ice::ObjectPrx object = getCommunicator()->stringToProxy("IceGrid/Registry@IceGrid.Registry.Internal");
-	    RegistryPrx registry = RegistryPrx::uncheckedCast(object);
+	    Ice::PropertiesPtr properties = getCommunicator()->getProperties();
+	    const string instanceNameProperty = "IceGrid.InstanceName";
+	    string instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
+	    Ice::ObjectPrx obj = getCommunicator()->stringToProxy(instanceName + "/Registry@IceGrid.Registry.Internal");
+	    RegistryPrx registry = RegistryPrx::uncheckedCast(obj);
 	    NodeObserverPrx observer;
 	    setSession(registry->registerNode(_name, _proxy, _platform.getNodeInfo(), observer), observer);
 	    checkConsistency();

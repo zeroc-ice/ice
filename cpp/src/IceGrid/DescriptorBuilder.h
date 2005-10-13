@@ -65,6 +65,7 @@ public:
     void setDescription(const std::string&);
     void addReplicaGroup(const XmlAttributesHelper&);
     void setLoadBalancing(const XmlAttributesHelper&);
+    void setReplicaGroupDescription(const std::string&);
     void addObject(const XmlAttributesHelper&);
     virtual void addVariable(const XmlAttributesHelper&);
 
@@ -102,6 +103,7 @@ public:
     void addVariable(const XmlAttributesHelper&);
     void addServerInstance(const XmlAttributesHelper&);
     void addServer(const ServerDescriptorPtr&);
+    void setDescription(const std::string&);
 
     const std::string& getName() const { return _name; }
     const NodeDescriptor& getDescriptor() const { return _descriptor; }

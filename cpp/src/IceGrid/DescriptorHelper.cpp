@@ -371,7 +371,7 @@ Resolver::setContext(const string& context)
 void
 Resolver::exception(const string& reason) const
 {
-    throw DeploymentException("invalid " + _context + ": " + reason);
+    throw DeploymentException(_context + ": " + reason);
 }
 
 TemplateDescriptor
@@ -1087,7 +1087,7 @@ InstanceHelper::instantiateParams(const Resolver& resolve,
     if(!unknown.empty())
     {
 	ostringstream os;
-	os << "template `" + tmpl + "' instance unknown parameters: ";
+	os << "unknown parameters when instantiating `" + tmpl + "' template: ";
 	copy(unknown.begin(), unknown.end(), ostream_iterator<string>(os, " "));
 	resolve.exception(os.str());
     }
@@ -1111,7 +1111,7 @@ InstanceHelper::instantiateParams(const Resolver& resolve,
     if(!missingParams.empty())
     {
 	ostringstream os;
-	os << "template `" + tmpl + "' instance undefined parameters: ";
+	os << "undefined parameters when instantiating `" + tmpl + "' template: ";
 	copy(missingParams.begin(), missingParams.end(), ostream_iterator<string>(os, " "));
 	resolve.exception(os.str());
     }
@@ -1399,6 +1399,11 @@ NodeHelper::operator==(const NodeHelper& helper) const
 	return false;
     }
 
+    if(_instance.description != helper._instance.description)
+    {
+	return false;
+    }
+
     return true;
 }
 
@@ -1413,6 +1418,7 @@ NodeHelper::instantiate(const Resolver& resolve) const
 {
     NodeDescriptor desc = _definition;
     desc.loadFactor = resolve(_definition.loadFactor, "load factor");
+    desc.description = resolve(_definition.description, "description");
     return desc;
 }
 
@@ -1427,6 +1433,11 @@ NodeHelper::diff(const NodeHelper& helper) const
     if(_definition.loadFactor != helper._definition.loadFactor)
     {
 	update.loadFactor = new BoxedString(_definition.loadFactor);
+    }
+
+    if(_definition.description != helper._definition.description)
+    {
+	update.description = new BoxedString(_definition.description);
     }
 
     update.variables = getDictUpdatedElts(helper._definition.variables, _definition.variables);
@@ -1462,6 +1473,11 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     if(update.loadFactor)
     {
 	_definition.loadFactor = update.loadFactor->value;
+    }
+    
+    if(update.description)
+    {
+	_definition.description = update.description->value;
     }
 
     //
@@ -1685,6 +1701,10 @@ NodeHelper::print(Output& out) const
     {
 	out << nl << "load factor = '" << _instance.loadFactor << "'";
     }
+    if(!_instance.description.empty())
+    {
+	out << nl << "description = '" << _instance.description << "'";
+    }
     if(!_instance.variables.empty())
     {
 	out << nl << "variables";
@@ -1736,7 +1756,8 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
 
     if(updated.empty() && removed.empty() &&
        variables.empty() && removeVariables.empty() &&
-       _instance.loadFactor == helper._instance.loadFactor)
+       _instance.loadFactor == helper._instance.loadFactor &&
+       _instance.description == helper._instance.description)
     {
 	return;
     }
@@ -1751,6 +1772,10 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
     if(_instance.loadFactor != helper._instance.loadFactor)
     {
 	out << nl << "load factor udpated";
+    }
+    if(_instance.description != helper._instance.description)
+    {
+	out << nl << "description udpated";
     }
     if(!variables.empty() || !removeVariables.empty())
     {
@@ -1829,6 +1854,7 @@ ApplicationHelper::instantiate(const Resolver& resolve) const
     ReplicaGroupDescriptorSeq::iterator r;
     for(r = desc.replicaGroups.begin(); r != desc.replicaGroups.end(); ++r)
     {
+	r->description = resolve(r->description, "description");
 	if(r->loadBalancing)
 	{
 	    r->loadBalancing = LoadBalancingPolicyPtr::dynamicCast(r->loadBalancing->ice_clone());
@@ -1909,6 +1935,7 @@ ApplicationHelper::diff(const ApplicationHelper& helper)
 	    nodeUpdate.servers = node.servers;
 	    nodeUpdate.serverInstances = node.serverInstances;
 	    nodeUpdate.loadFactor = new BoxedString(node.loadFactor);
+	    nodeUpdate.description = new BoxedString(node.description);
 	    update.nodes.push_back(nodeUpdate);
 	}
 	else
@@ -1974,6 +2001,7 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
 	    desc.servers = p->servers;
 	    desc.serverInstances = p->serverInstances;
 	    desc.loadFactor = p->loadFactor ? p->loadFactor->value : "";
+	    desc.description = p->description ? p->description->value : "";
 	    _nodes.insert(make_pair(p->name, NodeHelper(p->name, desc, resolve)));
 	}
 	else

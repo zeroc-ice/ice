@@ -212,7 +212,6 @@ IceGrid:
     Registry.Admin.ThreadPool.SizeMax
     Registry.Admin.ThreadPool.SizeWarn
     Registry.Admin.ThreadPool.StackSize
-    Registry.AdminIdentity
     Registry.Client.AdapterId
     Registry.Client.ReplicaGroupId
     Registry.Client.Endpoints
@@ -232,9 +231,7 @@ IceGrid:
     Registry.Internal.ThreadPool.SizeMax
     Registry.Internal.ThreadPool.SizeWarn
     Registry.Internal.ThreadPool.StackSize
-    Registry.LocatorIdentity
     Registry.NodeSessionTimeout
-    Registry.QueryIdentity
     Registry.Server.AdapterId
     Registry.Server.ReplicaGroupId
     Registry.Server.Endpoints
@@ -243,8 +240,6 @@ IceGrid:
     Registry.Server.ThreadPool.SizeMax
     Registry.Server.ThreadPool.SizeWarn
     Registry.Server.ThreadPool.StackSize
-    Registry.SessionManagerIdentity
-    Registry.TopicManagerIdentity
     Registry.Trace.Application
     Registry.Trace.Adapter
     Registry.Trace.Node

@@ -2438,51 +2438,6 @@ for the object adapter named <literal>IceGrid.Registry.Internal</literal>.
 </section>
 </section>
 
-<section><title>IceGrid.Registry.LocatorIdentity</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceGrid.Registry.LocatorIdentity=<replaceable>identity</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-The identity of the &IceGrid; locator interface. If not specified the
-default value <literal>IceGrid/Locator</literal> is used.
-</para>
-</section>
-</section>
-
-<section><title>IceGrid.Registry.QueryIdentity</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceGrid.Registry.QueryIdentity=<replaceable>identity</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-The identity of the &IceGrid; query interface. If not specified the
-default value <literal>IceGrid/Query</literal> is used.
-</para>
-</section>
-</section>
-
-<section><title>IceGrid.Registry.AdminIdentity</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceGrid.Registry.AdminIdentity=<replaceable>identity</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-The identity of the &IceGrid; admin interface. If not specified the
-default value <literal>IceGrid/Admin</literal> is used.
-</para>
-</section>
-</section>
-
 <section><title>IceGrid.Registry.Data</title>
 <section><title>Synopsis</title>
 <synopsis>

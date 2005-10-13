@@ -252,29 +252,17 @@ RegistryI::start(bool nowarn)
     //
     bool dynamicReg = properties->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
     ObjectPtr locatorRegistry = new LocatorRegistryI(_database, dynamicReg);
-    ObjectPrx obj = serverAdapter->add(locatorRegistry, stringToIdentity("IceGrid/" + IceUtil::generateUUID()));
+    ObjectPrx obj = serverAdapter->add(locatorRegistry, stringToIdentity(instanceName + "/" + IceUtil::generateUUID()));
     LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(obj->ice_collocationOptimization(false));
     ObjectPtr locator = new LocatorI(_communicator, _database, locatorRegistryPrx); 
-    const string locatorIdProperty = "IceGrid.Registry.LocatorIdentity";
-    string locatorIdStr = properties->getProperty(locatorIdProperty);
-    if(locatorIdStr.empty())
-    {
-        locatorIdStr = instanceName + "/Locator";
-    }
-    Identity locatorId = stringToIdentity(locatorIdStr);
+    Identity locatorId = stringToIdentity(instanceName + "/Locator");
     clientAdapter->add(locator, locatorId);
 
     //
     // Create the query interface and register it with the object registry.
     //
     QueryPtr query = new QueryI(_communicator, _database);
-    const string queryIdProperty = "IceGrid.Registry.QueryIdentity";
-    string queryIdStr = properties->getProperty(queryIdProperty);
-    if(queryIdStr.empty())
-    {
-        queryIdStr = instanceName + "/Query";
-    }
-    Identity queryId = stringToIdentity(queryIdStr);
+    Identity queryId = stringToIdentity(instanceName + "/Query");
     clientAdapter->add(query, queryId);
     ObjectPrx queryPrx = clientAdapter->createDirectProxy(queryId);
     try
@@ -293,13 +281,7 @@ RegistryI::start(bool nowarn)
     // Create the admin interface and register it with the object registry.
     //
     ObjectPtr admin = new AdminI(_database, this, traceLevels);
-    const string adminIdProperty = "IceGrid.Registry.AdminIdentity";
-    string adminIdStr = properties->getProperty(adminIdProperty);
-    if(adminIdStr.empty())
-    {
-        adminIdStr = instanceName + "/Admin";
-    }
-    Identity adminId = stringToIdentity(adminIdStr);
+    Identity adminId = stringToIdentity(instanceName + "/Admin");
     adminAdapter->add(admin, adminId);
     ObjectPrx adminPrx = adminAdapter->createDirectProxy(adminId);
     try
@@ -316,7 +298,7 @@ RegistryI::start(bool nowarn)
     //
     // Set the IceGrid.Registry.Internal adapter direct proxy directly in the database.
     //
-    registryAdapter->add(this, stringToIdentity("IceGrid/Registry"));
+    registryAdapter->add(this, stringToIdentity(instanceName + "/Registry"));
     registryAdapter->activate();
     Ice::Identity dummy = Ice::stringToIdentity("dummy");
     _database->setAdapterDirectProxy("IceGrid.Registry.Internal", "", registryAdapter->createDirectProxy(dummy));
@@ -333,13 +315,7 @@ RegistryI::start(bool nowarn)
     //
     // Create the internal IceStorm service.
     //
-    const string topicMgrIdProperty = "IceGrid.Registry.TopicManagerIdentity";
-    string topicMgrIdStr = properties->getProperty(topicMgrIdProperty);
-    if(topicMgrIdStr.empty())
-    {
-        topicMgrIdStr = instanceName + "/TopicManager";
-    }
-    Identity topicMgrId = stringToIdentity(topicMgrIdStr);
+    Identity topicMgrId = stringToIdentity(instanceName + "/TopicManager");
     _iceStorm = IceStorm::Service::create(_communicator, registryAdapter, registryAdapter, "IceGrid.Registry", 
  					  topicMgrId, "Registry");
 
@@ -385,13 +361,7 @@ RegistryI::start(bool nowarn)
     // Create the session manager.
     //
     ObjectPtr sessionManager = new SessionManagerI(*regTopic, *nodeTopic, _database, _reaper);
-    const string sessionManagerIdProperty = "IceGrid.Registry.SessionManagerIdentity";
-    string sessionManagerIdStr = properties->getProperty(sessionManagerIdProperty);
-    if(sessionManagerIdStr.empty())
-    {
-        sessionManagerIdStr = instanceName + "/SessionManager";
-    }
-    Identity sessionManagerId = stringToIdentity(sessionManagerIdStr);
+    Identity sessionManagerId = stringToIdentity(instanceName + "/SessionManager");
     adminAdapter->add(sessionManager, sessionManagerId);
     ObjectPrx sessionManagerPrx = adminAdapter->createDirectProxy(sessionManagerId);
     try
