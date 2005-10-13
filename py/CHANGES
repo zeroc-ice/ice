@@ -1,6 +1,9 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Added the proxy method ice_connectionId, which allows an application
+  to control connection reuse.
+
 - Added the new methods Ice.initializeWithLogger() and
   Ice.initializeWithPropertiesAndLogger(), which ensure that a
   custom logger is used to record any errors during communicator

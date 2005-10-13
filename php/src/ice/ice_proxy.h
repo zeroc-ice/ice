@@ -48,6 +48,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isBatchDatagram);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_secure);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_compress);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionId);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_default);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast);
@@ -89,6 +90,7 @@ ZEND_FUNCTION(Ice_Endpoint_toString);
     ZEND_FE(Ice_ObjectPrx_ice_secure,            NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_compress,          NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_timeout,           NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_connectionId,      NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_default,           NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_uncheckedCast,     NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_checkedCast,       NULL)

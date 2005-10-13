@@ -177,6 +177,7 @@ static function_entry _proxyMethods[] =
     {"ice_secure",          PHP_FN(Ice_ObjectPrx_ice_secure),          NULL},
     {"ice_compress",        PHP_FN(Ice_ObjectPrx_ice_compress),        NULL},
     {"ice_timeout",         PHP_FN(Ice_ObjectPrx_ice_timeout),         NULL},
+    {"ice_connectionId",    PHP_FN(Ice_ObjectPrx_ice_connectionId),    NULL},
     {"ice_default",         PHP_FN(Ice_ObjectPrx_ice_default),         NULL},
     {"ice_uncheckedCast",   PHP_FN(Ice_ObjectPrx_ice_uncheckedCast),   NULL},
     {"ice_checkedCast",     PHP_FN(Ice_ObjectPrx_ice_checkedCast),     NULL},
@@ -1192,6 +1193,38 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout)
         }
         // TODO: range check?
         Ice::ObjectPrx prx = _this->getProxy()->ice_timeout(l);
+        if(!createProxy(return_value, prx TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionId)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    try
+    {
+        char* id;
+	int idLen;
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, &idLen) != SUCCESS)
+        {
+            RETURN_NULL();
+        }
+        Ice::ObjectPrx prx = _this->getProxy()->ice_connectionId(id);
         if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();

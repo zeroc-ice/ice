@@ -1,6 +1,9 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Added the proxy method ice_connectionId, which allows an application
+  to control connection reuse.
+
 - Ice_loadProfile now raises Ice_ProfileNotFoundException if a
   given profile is not found and Ice_ProfileAlreadyLoadedException
   if a profile has already been loaded.
