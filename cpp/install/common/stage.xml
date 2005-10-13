@@ -130,6 +130,7 @@
 		<include name="Glacier2/Release/glacier2router.exe"/>
 		<include name="Glacier2/Release/glacier300.pdb"/>
 		<include name="IceBox/Release/icebox.exe"/>
+		<include name="IceBox/Release/icebox.pdb"/>
 		<include name="IceBox/Release/iceboxadmin.exe"/>
 		<include name="icecpp/Release/icecpp.exe"/>
 		<include name="IcePatch2/Release/icepatch2calc.exe"/>
