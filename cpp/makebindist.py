@@ -324,6 +324,12 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
 	#
 	os.system('cp -pR ' + buildDir + '/' + distro + '/ant ' + installDir)
 	os.system('find ' + installDir + '/ant  -name "*.java" | xargs rm')
+	destDir = os.path.join(installDir, 'config')
+	if not os.path.exists(destDir):
+	    os.mkdir(destDir)
+        shutil.copy(os.path.join('config', 'common.xml'), destDir)
+        shutil.copy(os.path.join('config', 'build.properties'), destDir)
+	updateIceVersion(os.path.join(destDir, 'common.xml'), version)
         os.chdir(cwd)
         return
 
@@ -359,7 +365,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     # 
     # XXX- Optimizations need to be turned on for the release.
     #
-    os.system('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=' + installDir + ' install')
+    os.system('gmake NOGAC=yes OPTIMIZE=no INSTALL_ROOT=' + installDir + ' install')
 
     #
     # Edit config directory contents and copy into installation target
@@ -390,10 +396,6 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     elif distro.startswith('IceCS-'):
         shutil.copy(os.path.join('config', 'Make.rules.cs'), destDir)
         editMakeRules(os.path.join(destDir, 'Make.rules.cs'), version)
-
-    elif distro.startswith('IceJ-'):
-        shutil.copy(os.path.join('config', 'common'), destDir)
-	updateIceVersion(os.path.join(destDir, 'common.xml'), version)
         
     os.chdir(cwd)
     
@@ -1019,6 +1021,7 @@ def main():
     if getPlatform().startswith('linux') and not cvsMode:
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', '/usr/src/redhat/SOURCES/README.Linux-RPM')
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', installDir + '/Ice-' + version + '/README')
+	shutil.copy(installFiles + '/thirdparty/php/ice.ini', installDir + '/Ice-' + version + '/ice.ini')
 	if getPlatform() == 'linux64':
 	    #
 	    # The demo archive isn't constructed on 64 bit linux so we

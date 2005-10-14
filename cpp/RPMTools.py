@@ -128,6 +128,8 @@ class Package:
 	    #
             if perm == 'exe' or perm == 'lib':
                 prefix = '%attr(755, root, root) '
+	    elif perm == 'cfg':
+		prefix = '%config'
 	    elif perm == 'xdir':
 		prefix = '%dir '
 
@@ -138,6 +140,8 @@ class Package:
 		fname = os.path.splitext(f)[0]
                 ofile.write(prefix + '/usr/' + fname + '.' + version + '\n')
                 ofile.write(prefix + '/usr/' + fname + '.' + str(intVersion) + '\n')
+	    elif perm == 'cfg':
+		ofile.write(f + '\n')
 	    else:
 		ofile.write(prefix + '/usr/' + f + '\n')
 
@@ -228,24 +232,32 @@ class Subpackage(Package):
 #
 # NOTE: File transforms should be listed before directory transforms.
 #
-transforms = [ ('file', 'lib/Ice.jar', 'lib/Ice-%version%/Ice.jar' ),
-	       ('dir', 'config', 'share/doc/Ice-%version%/config'),
-	       ('dir', 'slice', 'share/slice'),
-	       ('dir', 'ant', 'lib/Ice-%version%/ant'),
-	       ('dir', 'python', 'lib/Ice-%version%/python'),
-               ('dir', 'doc', 'share/doc/Ice-%version%/doc'),
-               ('file', 'README', 'share/doc/Ice-%version%/README'),
-               ('file', 'ICE_LICENSE', 'share/doc/Ice-%version%/ICE_LICENSE'),
-               ('file', 'LICENSE', 'share/doc/Ice-%version%/LICENSE')
+transforms = [ ('file', 'ice.ini', 'etc/php.d/ice.ini'),
+	       ('dir', 'lib', 'usr/lib'),
+	       ('file', 'usr/lib/icephp.so', 'usr/lib/php/modules/icephp.so'),
+	       ('file', 'usr/lib/Ice.jar', 'usr/lib/Ice-%version%/Ice.jar' ),
+	       ('dir', 'ant', 'usr/lib/Ice-%version%/ant'),
+	       ('dir', 'config', 'usr/share/doc/Ice-%version%/config'),
+	       ('dir', 'slice', 'usr/share/slice'),
+	       ('dir', 'bin', 'usr/bin'),
+	       ('dir', 'include', 'usr/include'),
+	       ('dir', 'python', 'usr/lib/Ice-%version%/python'),
+               ('dir', 'doc', 'usr/share/doc/Ice-%version%/doc'),
+               ('file', 'README', 'usr/share/doc/Ice-%version%/README'),
+               ('file', 'ICE_LICENSE', 'usr/share/doc/Ice-%version%/ICE_LICENSE'),
+               ('file', 'LICENSE', 'usr/share/doc/Ice-%version%/LICENSE')
                ]
 
 x64_transforms = [ 
-	       ('dir', 'config', 'share/doc/Ice-%version%/config'),
-	       ('dir', 'slice', 'share/slice'),
-               ('dir', 'doc', 'share/doc/Ice-%version%/doc'),
-               ('file', 'README', 'share/doc/Ice-%version%/README'),
-               ('file', 'ICE_LICENSE', 'share/doc/Ice-%version%/ICE_LICENSE'),
-               ('file', 'LICENSE', 'share/doc/Ice-%version%/LICENSE')
+	       ('dir', 'config', 'usr/share/doc/Ice-%version%/config'),
+	       ('dir', 'slice', 'usr/share/slice'),
+               ('dir', 'doc', 'usr/share/doc/Ice-%version%/doc'),
+	       ('dir', 'bin', 'usr/bin'),
+	       ('dir', 'include', 'usr/include'),
+	       ('dir', 'lib', 'usr/lib'),
+               ('file', 'README', 'usr/share/doc/Ice-%version%/README'),
+               ('file', 'ICE_LICENSE', 'usr/share/doc/Ice-%version%/ICE_LICENSE'),
+               ('file', 'LICENSE', 'usr/share/doc/Ice-%version%/LICENSE')
                ]
 
 #
@@ -387,7 +399,21 @@ fileLists = [
 	       '',
                [('exe', 'bin/slice2py'),
 		('xdir', 'share/doc/Ice-%version%'),
-	        ('dir', 'share/doc/Ice-%version%/demopy')])
+	        ('dir', 'share/doc/Ice-%version%/demopy')]),
+    Subpackage('php',
+	       'ice = %version%, php = 5.0.4',
+	       'The Ice runtime for PHP applications',
+	       'System Environment/Libraries',
+	       iceDescription,
+	       '',
+	       [('lib', 'lib/php/modules'), ('cfg', '/etc/php.d/ice.ini')]),
+    Subpackage('php-devel',
+	       'ice = %version%, php = 5.0.4, icephp = 3.0.0',
+	       'Demos for developing Ice applications in PHP',
+	       'Development/Tools',
+	       iceDescription,
+	       '',
+	       [('dir', 'share/doc/Ice-%version%/demophp')])
     ]
 
 noarchFileList = [
@@ -412,16 +438,16 @@ def _transformDirectories(transforms, version, installDir):
     transforms, there are certain types of transforms in certain orders
     that will break it."""
     cwd = os.getcwd()
-    os.chdir(installDir + "/Ice-" + version)
+    os.chdir(installDir)
     for type, source, dest in transforms:
-        if dest.find("%version%"):
-            dest = dest.replace("%version%", version)
+        if dest.find('%version%'):
+            dest = dest.replace('%version%', version)
 
         sourcedir = source
         destdir = dest
 
-	if os.path.exists("./tmp"):
-	    shutil.rmtree("./tmp")
+	if os.path.exists('./tmp'):
+	    shutil.rmtree('./tmp')
 	try:
 	    if not os.path.isdir(sourcedir):
 		os.renames(source, dest)
@@ -436,6 +462,7 @@ def _transformDirectories(transforms, version, installDir):
 		    os.renames(sourcedir, "./tmp/" + sourcedir)
 		    os.renames("./tmp/" + sourcedir, destdir)	
 		else:
+		    print 'Renaming ' + source + ' to ' + dest
 		    os.renames(source, dest)
 
 	except OSError:
@@ -486,9 +513,14 @@ def createFullSpecFile(ofile, installDir, version, soVersion):
 	ofile.write("\n")
 
 def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
+    if os.path.exists(installDir + "/rpmbase"):
+	shutil.rmtree(installDir + "/rpmbase")
+    shutil.copytree(installDir + "/Ice-" + version, installDir + "/rpmbase")
+    installDir = installDir + '/rpmbase'
+
     _transformDirectories(transforms, version, installDir)
-    os.system("tar xfz " + installDir + "/Ice-" + version + "-demos.tar.gz -C " + installDir)
-    shutil.move(installDir + "/Ice-" + version, installDir + "/usr")
+    os.system("tar xfz " + installDir + "/../Ice-" + version + "-demos.tar.gz -C " + installDir)
+
 
     ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
     createArchSpecFile(ofile, installDir, version, soVersion)
@@ -523,9 +555,13 @@ def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
 # TODO - refactor so this doesn't have to be special cased.
 # 
 def createRPMSFromBinaries64(buildDir, installDir, version, soVersion):
+    if os.path.exists(installDir + "/rpmbase"):
+	shutil.rmtree(installDir + "/rpmbase")
+    shutil.copytree(installDir + "/Ice-" + version, installDir + "/rpmbase")
+    installDir = installDir + "/rpmbase"
+
     _transformDirectories(x64_transforms, version, installDir)
-    os.system("tar xfz " + installDir + "/Ice-" + version + "-demos.tar.gz -C " + installDir)
-    shutil.move(installDir + "/Ice-" + version, installDir + "/usr")
+    os.system("tar xfz " + installDir + "/../Ice-" + version + "-demos.tar.gz -C " + installDir)
 
     ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
     fileLists[0].writeHdr(ofile, version, '1', installDir, [])
