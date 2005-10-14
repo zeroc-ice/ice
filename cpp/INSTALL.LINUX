@@ -136,11 +136,12 @@ Simply run "make install". This will install Ice in the directory
 specified by the "prefix" variable in config/Make.rules.
 
 After installation, make sure that the <prefix>/bin directory is in
-your PATH, and the <prefix>/lib directory is in your
-LD_LIBRARY_PATH. When compiling Ice programs, you must also make sure
-to pass the location of the <prefix>/include directory to the compiler
-with the -I option, and the location of the <prefix>/lib directory
-with the -L option.
+your PATH, and the <prefix>/lib directory is in your LD_LIBRARY_PATH.
+Also if you built Berkeley DB yourself, please insure that it's 
+installation lib directory is in your LD_LIBRARY_PATH as well. When 
+compiling Ice programs, you must also make sure to pass the location 
+of the <prefix>/include directory to the compiler with the -I option, 
+and the location of the <prefix>/lib directory with the -L option.  
 
 If LP64 is set to yes, the libraries are installed in <prefix>/lib64
 and the programs are installed in <prefix>/bin64. No other changes are
