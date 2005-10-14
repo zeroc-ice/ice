@@ -390,22 +390,49 @@ Specifies an identifier for the object adapter with the name
 all object adapters using the same locator instance. If a locator
 proxy is defined using
 <literal><replaceable>name</replaceable>.Locator</literal> or
-<literal>Ice.Default.Locator</literal>, this object adapter sets
-its endpoints with the locator registry upon activation.
+<link linkend="Ice.Default.Locator">Ice.Default.Locator</link>,
+this object adapter sets its endpoints with the locator registry upon
+activation.
 </para>
 </section>
 </section>
 
-<section id="adapter.ReplicaId"><title><replaceable>name</replaceable>.ReplicaId</title>
+<section id="adapter.ReplicaGroupId"><title><replaceable>name</replaceable>.ReplicaGroupId</title>
 <section><title>Synopsis</title>
 <synopsis>
-<replaceable>name</replaceable>.ReplicaId=<replaceable>id</replaceable>
+<replaceable>name</replaceable>.ReplicaGroupId=<replaceable>id</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-TBD
+Identifies the group of replicated object adapters to which this
+adapter belongs. The replica group is treated as a virtual object
+adapter, so that an indirect proxy of the form
+<literal>identity@</literal><replaceable>id</replaceable> refers
+to the object adapters in the group. During binding, a client
+will attempt to establish a connection to an endpoint of one of the
+participating object adapters, and automatically try others until
+a connection is successfully established or all attempts have failed.
+Similarly, an outstanding request will, when permitted, automatically
+fail over to another object adapter of the replica group upon
+connection failure. The set of endpoints actually used by the client
+during binding is determined by the locator's configuration policies.
+</para>
+<para>
+Defining a value for this property has no effect unless
+<link linkend="adapter.AdapterId">
+<replaceable>name</replaceable>.AdapterId</link> is also
+defined. Furthermore, the locator registry may require replica groups
+to be defined in advance (see 
+<link linkend="IceGrid.Registry.DynamicRegistration">
+IceGrid.Registry.DynamicRegistration</link>),
+otherwise <literal>Ice.NotRegisteredException</literal> is
+raised upon adapter activation. Regardless of whether an
+object adapter is replicated, it can always be addressed
+individually in an indirect proxy if it defines a value for
+<link linkend="adapter.AdapterId">
+<replaceable>name</replaceable>.AdapterId</link>.
 </para>
 </section>
 </section>
@@ -822,7 +849,7 @@ is no router.
 </section>
 </section>
 
-<section><title>Ice.Default.Locator</title>
+<section id="Ice.Default.Locator"><title>Ice.Default.Locator</title>
 <section><title>Synopsis</title>
 <synopsis>
 Ice.Default.Locator=<replaceable>locator</replaceable>
@@ -837,8 +864,10 @@ The default locator can be overridden on a proxy using the
 <literal>ice_locator()</literal> operation. The default value is no
 locator.
 </para>
-<note><para>The &IceGrid; locator's object identity is
-<literal>IceGrid/Locator</literal>. It is listening on the &IceGrid;
+<note><para>The default identity of the &IceGrid; locator object is
+<literal>IceGrid/Locator</literal> (see
+<link linkend="IceGrid.InstanceName">IceGrid.InstanceName</link>).
+It is listening on the &IceGrid;
 client endpoints. For example, if
 <literal>IceGrid.Registry.Client.Endpoints</literal> is set to
 <literal>tcp -p 12000 -h localhost</literal>, the stringified proxy
@@ -1898,6 +1927,22 @@ for the object adapter named <literal>IceBox.ServiceManager</literal>.
 </section>
 </section>
 
+<section><title>IceBox.ServiceManager.ReplicaGroupId</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceBox.ServiceManager.ReplicaGroupId=<replaceable>id</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the value of the property
+<link linkend="adapter.ReplicaGroupId"><replaceable>adapter</replaceable>.ReplicaGroupId</link>
+for the object adapter named <literal>IceBox.ServiceManager</literal>.
+</para>
+</section>
+</section>
+
 <section><title>IceBox.ServiceManager.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -2097,6 +2142,27 @@ other services.
 <section><title>&IceGrid; Properties</title>
 <!-- ********************************************************************** -->
 
+<section id="IceGrid.InstanceName"><title>IceGrid.InstanceName</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.InstanceName=<replaceable>name</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies an alternate identity category for the &IceGrid; objects.
+If defined, the identities of the &IceGrid; objects become
+<itemizedlist>
+<listitem><para><replaceable>name</replaceable><literal>/Admin</literal></para></listitem>
+<listitem><para><replaceable>name</replaceable><literal>/Locator</literal></para></listitem>
+<listitem><para><replaceable>name</replaceable><literal>/Query</literal></para></listitem>
+</itemizedlist>
+If not specified, the default identity category is <literal>IceGrid</literal>.
+</para>
+</section>
+</section>
+
 <section><title>IceGrid.Registry.Client.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -2108,8 +2174,9 @@ IceGrid.Registry.Client.Endpoints=<replaceable>endpoints</replaceable>
 <para>
 Defines the endpoints of the &IceGrid; client interface. The client
 endpoints must be accessible to &Ice; clients that are using &IceGrid;
-to locate objects (see <literal>Ice.Default.Locator</literal>). This
-property must be defined.
+to locate objects (see 
+<link linkend="Ice.Default.Locator">Ice.Default.Locator</link>).
+This property must be defined.
 </para>
 </section>
 </section>
@@ -2125,7 +2192,8 @@ IceGrid.Registry.Client.PublishedEndpoints=<replaceable>endpoints</replaceable>
 <para>
 Defines the published endpoints of the &IceGrid; client interface. The client
 endpoints must be accessible to &Ice; clients that are using &IceGrid;
-to locate objects (see <literal>Ice.Default.Locator</literal>).
+to locate objects (see
+<link linkend="Ice.Default.Locator">Ice.Default.Locator</link>).
 Refer to the description of the object adapter property
 <link linkend="adapter.PublishedEndpoints"><replaceable>adapter</replaceable>.PublishedEndpoints</link>
 for more information.
@@ -2453,7 +2521,7 @@ must be defined, and <replaceable>path</replaceable> must already exist.
 </section>
 </section>
 
-<section><title>IceGrid.Registry.DynamicRegistration</title>
+<section id="IceGrid.Registry.DynamicRegistration"><title>IceGrid.Registry.DynamicRegistration</title>
 <section><title>Synopsis</title>
 <synopsis>
 IceGrid.Registry.DynamicRegistration=<replaceable>num</replaceable>
@@ -2463,11 +2531,17 @@ IceGrid.Registry.DynamicRegistration=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-the locator registry allows &Ice; servers to set endpoints for
-object adapters that have not been previously registered. An object
-adapter registers itself when the
+the locator registry does not require &Ice; servers to preregister
+object adapters and replica groups, but rather creates them automatically
+if they do not exist. If this property is not defined, or
+<replaceable>num</replaceable> is set to zero, an attempt to register an
+unknown object adapter or replica group causes adapter activation to fail
+with <literal>Ice.NotRegisteredException</literal>. An object adapter
+registers itself when the
 <link linkend="adapter.AdapterId"><replaceable>adapter</replaceable>.AdapterId</link>
-property is defined.
+property is defined. The
+<link linkend="adapter.ReplicaGroupId"><replaceable>adapter</replaceable>.ReplicaGroupId</link>
+property identifies the replica group.
 </para>
 </section>
 </section>
@@ -3020,6 +3094,23 @@ system load statistics. If not specified, the default value is
 <section><title>&IceStorm; Properties</title>
 <!-- ********************************************************************** -->
 
+<section id="IceStorm.InstanceName"><title>IceStorm.InstanceName</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceStorm.InstanceName=<replaceable>name</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies an alternate identity category for the &IceStorm; topic manager object.
+If defined, the identity of the object becomes
+<replaceable>name</replaceable><literal>/TopicManager</literal>.
+If not specified, the default identity category is <literal>IceStorm</literal>.
+</para>
+</section>
+</section>
+
 <section><title>IceStorm.TopicManager.AdapterId</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -3031,6 +3122,22 @@ IceStorm.TopicManager.AdapterId=<replaceable>id</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapter.AdapterId"><replaceable>adapter</replaceable>.AdapterId</link>
+for the object adapter named <literal>IceStorm.TopicManager</literal>.
+</para>
+</section>
+</section>
+
+<section><title>IceStorm.TopicManager.ReplicaGroupId</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceStorm.TopicManager.ReplicaGroupId=<replaceable>id</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the value of the property
+<link linkend="adapter.ReplicaGroupId"><replaceable>adapter</replaceable>.ReplicaGroupId</link>
 for the object adapter named <literal>IceStorm.TopicManager</literal>.
 </para>
 </section>
@@ -3142,6 +3249,22 @@ IceStorm.Publish.AdapterId=<replaceable>id</replaceable>
 <para>
 Defines the value of the property
 <link linkend="adapter.AdapterId"><replaceable>adapter</replaceable>.AdapterId</link>
+for the object adapter named <literal>IceStorm.Publish</literal>.
+</para>
+</section>
+</section>
+
+<section><title>IceStorm.Publish.ReplicaGroupId</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceStorm.Publish.ReplicaGroupId=<replaceable>id</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the value of the property
+<link linkend="adapter.ReplicaGroupId"><replaceable>adapter</replaceable>.ReplicaGroupId</link>
 for the object adapter named <literal>IceStorm.Publish</literal>.
 </para>
 </section>
@@ -3473,6 +3596,31 @@ security risk!</para></note>
 </section>
 </section>
 
+<section id="Glacier2.InstanceName"><title>Glacier2.InstanceName</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.InstanceName=<replaceable>name</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a default identity category for the &Glacier2; objects.
+If defined, the identity of the &Glacier2; admin interface becomes
+<replaceable>name</replaceable><literal>/admin</literal> and the
+identity of the &Glacier2; router interface becomes
+<replaceable>name</replaceable><literal>/router</literal>. The
+deprecated properties <literal>Glacier2.AdminIdentity</literal>
+and <literal>Glacier2.RouterIdentity</literal> take precedence.
+</para>
+<para>
+If not otherwise defined, the default identities of the &Glacier2;
+objects are <literal>Glacier2/admin</literal> and
+<literal>Glacier2/router</literal>.
+</para>
+</section>
+</section>
+
 <section><title>Glacier2.AdminIdentity</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -3482,9 +3630,13 @@ Glacier2.AdminIdentity=<replaceable>identity</replaceable>
 <section>
 <title>Description</title>
 <para>
-The identity of the &Glacier2; admin interface. If not specified the
+The identity of the &Glacier2; admin interface. If not specified, the
 default value <literal>Glacier2/admin</literal> is used.
 </para>
+<note><para>This property is deprecated and supported only for
+backward-compatibility. New applications should use
+<link linkend="Glacier2.InstanceName">Glacier2.InstanceName</link>.
+</para></note>
 </section>
 </section>
 
@@ -3712,9 +3864,13 @@ Glacier2.RouterIdentity=<replaceable>identity</replaceable>
 <section>
 <title>Description</title>
 <para>
-The identity of the &Glacier2; router interface. If not specified the
+The identity of the &Glacier2; router interface. If not specified, the
 default value <literal>Glacier2/router</literal> is used.
 </para>
+<note><para>This property is deprecated and supported only for
+backward-compatibility. New applications should use
+<link linkend="Glacier2.InstanceName">Glacier2.InstanceName</link>.
+</para></note>
 </section>
 </section>
 
@@ -4268,21 +4424,6 @@ close a map iterator. The default value is 1. (Java only)
 <section><title>&IcePatch2; Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>IcePatch2.Endpoints</title>
-<section><title>Synopsis</title>
-<synopsis>
-IcePatch2.Endpoints=<replaceable>endpoints</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Specifies the endpoints of the &IcePatch2; server. This property is required
-by both the IcePatch2 server and client.
-</para>
-</section>
-</section>
-
 <section><title>IcePatch2.Admin.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -4302,22 +4443,6 @@ hostile clients.
 </section>
 </section>
 
-<section><title>IcePatch2.Identity</title>
-<section><title>Synopsis</title>
-<synopsis>
-IcePatch2.Identity=<replaceable>identity</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-This property determines the object ID of the <literal>IcePatch2::FileServer</literal>
-singleton object offered by the &IcePatch2; server. The default
-value is <literal>IcePatch2/server</literal>.
-</para>
-</section>
-</section>
-
 <section><title>IcePatch2.AdminIdentity</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -4327,9 +4452,32 @@ IcePatch2.AdminIdentity=<replaceable>identity</replaceable>
 <section>
 <title>Description</title>
 <para>
-This property determines the object ID of the <literal>IcePatch2::Admin</literal>
+This property determines the identity of the <literal>IcePatch2::Admin</literal>
 singleton object offered by the &IcePatch2; server. The default
 value is <literal>IcePatch2/admin</literal>.
+</para>
+<note><para>This property is deprecated and supported only for
+backward-compatibility. New applications should use
+<link linkend="IcePatch2.InstanceName">IcePatch2.InstanceName</link>.
+</para></note>
+</section>
+</section>
+
+<section><title>IcePatch2.ChunkSize</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch2.ChunkSize=<replaceable>kilobytes</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The &IcePatch2; client uses this property to determine
+how many kilobytes are retrieved with each call to
+<literal>getFileCompressed</literal>.
+</para>
+<para>
+The default value is <literal>100</literal>.
 </para>
 </section>
 </section>
@@ -4354,21 +4502,62 @@ must be set before the class is instantiated.
 </section>
 </section>
 
-<section><title>IcePatch2.ChunkSize</title>
+<section><title>IcePatch2.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePatch2.ChunkSize=<replaceable>kilobytes</replaceable>
+IcePatch2.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-The &IcePatch2; client uses this property to determine
-how many kilobytes are retrieved with each call to
-<literal>getFileCompressed</literal>.
+Specifies the endpoints of the &IcePatch2; server. This property is required
+by both the IcePatch2 server and client.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch2.Identity</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch2.Identity=<replaceable>identity</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+This property determines the identity of the <literal>IcePatch2::FileServer</literal>
+singleton object offered by the &IcePatch2; server. The default
+value is <literal>IcePatch2/server</literal>.
+</para>
+<note><para>This property is deprecated and supported only for
+backward-compatibility. New applications should use
+<link linkend="IcePatch2.InstanceName">IcePatch2.InstanceName</link>.
+</para></note>
+</section>
+</section>
+
+<section id="IcePatch2.InstanceName"><title>IcePatch2.InstanceName</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch2.InstanceName=<replaceable>name</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a default identity category for the &IcePatch2; objects.
+If defined, the identity of the &IcePatch2; admin interface becomes
+<replaceable>name</replaceable><literal>/admin</literal> and the
+identity of the &IcePatch2; file server interface becomes
+<replaceable>name</replaceable><literal>/server</literal>. The
+deprecated properties <literal>IcePatch2.AdminIdentity</literal>
+and <literal>IcePatch2.Identity</literal> take precedence.
 </para>
 <para>
-The default value is <literal>100</literal>.
+If not otherwise defined, the default identities of the &IcePatch2;
+objects are <literal>IcePatch2/admin</literal> and
+<literal>IcePatch2/server</literal>.
 </para>
 </section>
 </section>
