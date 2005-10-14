@@ -328,7 +328,6 @@ IceStorm:
     Publish.ThreadPool.SizeMax
     Publish.ThreadPool.SizeWarn
     Publish.ThreadPool.StackSize
-    TopicManagerIdentity
     TopicManager.ReplicaGroupId
     TopicManager.Endpoints
     TopicManager.Proxy
