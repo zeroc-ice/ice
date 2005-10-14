@@ -279,6 +279,7 @@ class Node extends EditableParent
     public void restoreDescriptor(Object savedCopy)
     {
 	NodeDescriptor copy = (NodeDescriptor)savedCopy;
+	_descriptor.description = copy.description;
 	_descriptor.loadFactor = copy.loadFactor;
 	_descriptor.variables = copy.variables;
     }

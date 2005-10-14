@@ -119,40 +119,45 @@ public class Model
 	    //
 	    // New sub-menu
 	    //
-	    JMenu newMenu = new JMenu("New");
-	    fileMenu.add(newMenu);
-	    newMenu.add(_newApplication);
-	    newMenu.addSeparator();
-	    newMenu.add(_actions[CommonBase.NEW_ADAPTER]);
-	    newMenu.add(_actions[CommonBase.NEW_DBENV]);
-	    newMenu.add(_actions[CommonBase.NEW_NODE]);
-	    newMenu.add(_actions[CommonBase.NEW_REPLICA_GROUP]);
+	    _newMenu = new JMenu("New");
+	    _newMenu.setEnabled(false);
+	    fileMenu.add(_newMenu);
+	    _newMenu.add(_newApplicationWithDefaultTemplates);
+	    _newMenu.add(_newApplication);
+	    _newMenu.addSeparator();
+	    _newMenu.add(_actions[CommonBase.NEW_ADAPTER]);
+	    _newMenu.add(_actions[CommonBase.NEW_DBENV]);
+	    _newMenu.add(_actions[CommonBase.NEW_NODE]);
+	    _newMenu.add(_actions[CommonBase.NEW_REPLICA_GROUP]);
 	    
 	    //
 	    // New server sub-sub-menu
 	    //
-	    JMenu newServer = new JMenu("Server");
-	    newMenu.add(newServer);
-	    newServer.add(_actions[CommonBase.NEW_SERVER]);
-	    newServer.add(_actions[CommonBase.NEW_SERVER_ICEBOX]);
-	    newServer.add(_actions[CommonBase.NEW_SERVER_FROM_TEMPLATE]);
+	    _newServerMenu = new JMenu("Server");
+	    _newServerMenu.setEnabled(false);
+	    _newMenu.add(_newServerMenu);
+	    _newServerMenu.add(_actions[CommonBase.NEW_SERVER]);
+	    _newServerMenu.add(_actions[CommonBase.NEW_SERVER_ICEBOX]);
+	    _newServerMenu.add(_actions[CommonBase.NEW_SERVER_FROM_TEMPLATE]);
 	    
 	    //
 	    // New service sub-sub-menu
 	    //
-	    JMenu newService = new JMenu("Service");
-	    newMenu.add(newService);
-	    newService.add(_actions[CommonBase.NEW_SERVICE]);
-	    newService.add(_actions[CommonBase.NEW_SERVICE_FROM_TEMPLATE]);
+	    _newServiceMenu = new JMenu("Service");
+	    _newServiceMenu.setEnabled(false);
+	    _newMenu.add(_newServiceMenu);
+	    _newServiceMenu.add(_actions[CommonBase.NEW_SERVICE]);
+	    _newServiceMenu.add(_actions[CommonBase.NEW_SERVICE_FROM_TEMPLATE]);
 
 	    //
 	    // New template sub-sub-menu
 	    //
-	    JMenu newTemplate = new JMenu("Template");
-	    newMenu.add(newTemplate);
-	    newTemplate.add(_actions[CommonBase.NEW_TEMPLATE_SERVER]);
-	    newTemplate.add(_actions[CommonBase.NEW_TEMPLATE_SERVER_ICEBOX]);
-	    newTemplate.add(_actions[CommonBase.NEW_TEMPLATE_SERVICE]);
+	    _newTemplateMenu = new JMenu("Template");
+	    _newTemplateMenu.setEnabled(false);
+	    _newMenu.add(_newTemplateMenu);
+	    _newTemplateMenu.add(_actions[CommonBase.NEW_TEMPLATE_SERVER]);
+	    _newTemplateMenu.add(_actions[CommonBase.NEW_TEMPLATE_SERVER_ICEBOX]);
+	    _newTemplateMenu.add(_actions[CommonBase.NEW_TEMPLATE_SERVICE]);
 	    
 	    fileMenu.addSeparator();
 	    fileMenu.add(_connect);
@@ -191,38 +196,41 @@ public class Model
 	    //
 	    // Application sub-menu
 	    //
-	    JMenu appMenu = new JMenu("Application");
-	    toolsMenu.add(appMenu);
-	    appMenu.add(_actions[CommonBase.APPLICATION_REFRESH_INSTALLATION]);
-	    appMenu.add(_actions[CommonBase.APPLICATION_REFRESH_INSTALLATION_NO_SHUTDOWN]);
-
+	    _appMenu = new JMenu("Application");
+	    _appMenu.setEnabled(false);
+	    toolsMenu.add(_appMenu);
+	    _appMenu.add(_actions[CommonBase.APPLICATION_REFRESH_INSTALLATION]);
+	 
 	    //
 	    // Node sub-menu
 	    //
-	    JMenu nodeMenu = new JMenu("Node");
-	    toolsMenu.add(nodeMenu);
-	    nodeMenu.add(_actions[CommonBase.SHUTDOWN_NODE]);
+	    _nodeMenu = new JMenu("Node");
+	    _nodeMenu.setEnabled(false);
+	    toolsMenu.add(_nodeMenu);
+	    _nodeMenu.add(_actions[CommonBase.SHUTDOWN_NODE]);
 
 	    //
 	    // Server sub-menu
 	    //
-	    JMenu serverMenu = new JMenu("Server");
-	    toolsMenu.add(serverMenu);
-	    serverMenu.add(_actions[CommonBase.START]);
-	    serverMenu.add(_actions[CommonBase.STOP]);
-	    serverMenu.addSeparator();
-	    serverMenu.add(_actions[CommonBase.ENABLE]);
-	    serverMenu.add(_actions[CommonBase.DISABLE]);
-	    serverMenu.addSeparator();
-	    serverMenu.add(_actions[CommonBase.SERVER_REFRESH_INSTALLATION]);
-	    serverMenu.add(_actions[CommonBase.SERVER_REFRESH_INSTALLATION_NO_SHUTDOWN]);
+	    _serverMenu = new JMenu("Server");
+	    _serverMenu.setEnabled(false);
+	    toolsMenu.add(_serverMenu);
+	    _serverMenu.add(_actions[CommonBase.START]);
+	    _serverMenu.add(_actions[CommonBase.STOP]);
+	    _serverMenu.addSeparator();
+	    _serverMenu.add(_actions[CommonBase.ENABLE]);
+	    _serverMenu.add(_actions[CommonBase.DISABLE]);
+	    _serverMenu.addSeparator();
+	    _serverMenu.add(_actions[CommonBase.SERVER_REFRESH_INSTALLATION]);
+
 	    //
 	    // Service sub-menu
 	    //
-	    JMenu serviceMenu = new JMenu("Service");
-	    toolsMenu.add(serviceMenu);
-	    serviceMenu.add(_actions[CommonBase.MOVE_UP]);
-	    serviceMenu.add(_actions[CommonBase.MOVE_DOWN]);
+	    _serviceMenu = new JMenu("Service");
+	    _serviceMenu.setEnabled(false);
+	    toolsMenu.add(_serviceMenu);
+	    _serviceMenu.add(_actions[CommonBase.MOVE_UP]);
+	    _serviceMenu.add(_actions[CommonBase.MOVE_DOWN]);
 
 	    //
 	    // Help menu
@@ -680,12 +688,15 @@ public class Model
 	_root.clear();
 	_sessionManager = null;
 	_admin = null;
+	
+	_newApplication.setEnabled(false);
+	_newApplicationWithDefaultTemplates.setEnabled(false);
+	_newMenu.setEnabled(false);
     }
     
     boolean setConnectInfo(ConnectInfo info, Component parent, 
 			   Cursor oldCursor)
     {	
-
 	//
 	// Default locator
 	//
@@ -748,6 +759,10 @@ public class Model
 		JOptionPane.ERROR_MESSAGE);
 	    return false;
 	}
+
+	_newApplication.setEnabled(true);
+	_newApplicationWithDefaultTemplates.setEnabled(true);
+	_newMenu.setEnabled(true);
 
 	return true;
     }
@@ -850,13 +865,24 @@ public class Model
 	// Common actions (nodes not involved)
 	//
 
-	_newApplication = new AbstractAction("Application")
+	_newApplication = new AbstractAction("Application without default templates")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
 		    newApplication();
 		}
 	    };
+	_newApplication.setEnabled(false);
+
+	_newApplicationWithDefaultTemplates = 
+	    new AbstractAction("Application")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    newApplicationWithDefaultTemplates();
+		}
+	    };
+	_newApplicationWithDefaultTemplates.setEnabled(false);
 
 	_connect = new AbstractAction("Connect...", Utils.getIcon("/icons/connect.gif"))
 	    {
@@ -1118,15 +1144,7 @@ public class Model
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _actionsTarget.applicationRefreshInstallation(true);
-		}
-	    };
-	_actions[CommonBase.APPLICATION_REFRESH_INSTALLATION_NO_SHUTDOWN] = 
-	    new AbstractAction("Refresh installation (no shutdown)")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    _actionsTarget.applicationRefreshInstallation(false);
+		    _actionsTarget.applicationRefreshInstallation();
 		}
 	    };
 	_actions[CommonBase.SERVER_REFRESH_INSTALLATION] = 
@@ -1134,15 +1152,7 @@ public class Model
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _actionsTarget.serverRefreshInstallation(true);
-		}
-	    };
-	_actions[CommonBase.SERVER_REFRESH_INSTALLATION_NO_SHUTDOWN] = 
-	    new AbstractAction("Refresh installation (no shutdown)")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    _actionsTarget.serverRefreshInstallation(false);
+		    _actionsTarget.serverRefreshInstallation();
 		}
 	    };
     }
@@ -1153,6 +1163,29 @@ public class Model
     private void newApplication()
     {
 	_root.newApplication();
+    }
+    private void newApplicationWithDefaultTemplates()
+    {
+	_mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+	try
+	{
+	    ApplicationDescriptor descriptor = _admin.getDefaultApplicationDescriptor();
+	    descriptor.name = "NewApplication";
+	    _root.newApplication(descriptor);
+	}
+	catch(Ice.LocalException e)
+	{
+	    JOptionPane.showMessageDialog(
+		_mainFrame,
+		"Could not retrieve the default application descriptor from the IceGrid Registry: \n"
+		+ e.toString(),
+		"Trouble with IceGrid Registry",
+		JOptionPane.ERROR_MESSAGE);
+	}
+	finally
+	{
+	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
     }
 
     //
@@ -1353,9 +1386,37 @@ public class Model
 	    _actions[i].setEnabled(availableActions[i]);
 	}
 	
-	//
-	// TODO: enable/disable some menus
-	//
+	
+	_newServerMenu.setEnabled(
+	    availableActions[CommonBase.NEW_SERVER] ||
+	    availableActions[CommonBase.NEW_SERVER_ICEBOX] ||
+	    availableActions[CommonBase.NEW_SERVER_FROM_TEMPLATE]);
+
+	_newServiceMenu.setEnabled(
+	    availableActions[CommonBase.NEW_SERVICE] ||
+	    availableActions[CommonBase.NEW_SERVICE_FROM_TEMPLATE]);
+				  
+	_newTemplateMenu.setEnabled(
+	    availableActions[CommonBase.NEW_TEMPLATE_SERVER] ||
+	    availableActions[CommonBase.NEW_TEMPLATE_SERVER_ICEBOX] ||
+	    availableActions[CommonBase.NEW_TEMPLATE_SERVICE]);
+
+	_appMenu.setEnabled(
+	    availableActions[CommonBase.APPLICATION_REFRESH_INSTALLATION]);
+	
+	_nodeMenu.setEnabled(
+	    availableActions[CommonBase.SHUTDOWN_NODE]);
+
+	_serverMenu.setEnabled(
+	    availableActions[CommonBase.START] ||
+	    availableActions[CommonBase.STOP] ||
+	    availableActions[CommonBase.ENABLE] ||
+	    availableActions[CommonBase.DISABLE] ||
+	    availableActions[CommonBase.SERVER_REFRESH_INSTALLATION]);
+
+	_serviceMenu.setEnabled(
+	    availableActions[CommonBase.MOVE_UP] ||
+	    availableActions[CommonBase.MOVE_DOWN]);
     }
     
     void createMenuBar()
@@ -1399,6 +1460,7 @@ public class Model
     // Actions
     //
     private Action _newApplication;
+    private Action _newApplicationWithDefaultTemplates;
     private Action _connect;
     private Action _save;
     private Action _discard;
@@ -1411,4 +1473,12 @@ public class Model
     
     private CommonBase _actionsTarget;
 
+    private JMenu _newMenu;
+    private JMenu _newServerMenu;
+    private JMenu _newServiceMenu;
+    private JMenu _newTemplateMenu;
+    private JMenu _appMenu;
+    private JMenu _nodeMenu;
+    private JMenu _serverMenu;
+    private JMenu _serviceMenu;
 }

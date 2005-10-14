@@ -43,6 +43,51 @@ import IceGrid.TreeNode.CommonBase;
 
 public class MainPane extends JSplitPane
 {
+    private class WelcomePanel extends JPanel
+    {
+	WelcomePanel()
+	{
+	    MediaTracker mt = new MediaTracker(this);
+	    _image = Toolkit.getDefaultToolkit().getImage("resources/RedIceCrystal.jpg");
+	    mt.addImage(_image, 0);
+
+	    try
+	    {
+		mt.waitForAll();
+	    }
+	    catch(InterruptedException e)
+	    {
+	    }
+
+	    _aspectRatio = _image.getWidth(null)/_image.getHeight(null);
+	}
+	
+	protected void paintComponent(Graphics g)
+	{
+	    super.paintComponent(g);    
+	    Dimension d = _rightPane.getSize(null);
+	    
+	    //
+	    // Keep the aspect ratio and make the image fill all the space
+	    //
+	    if(d.height * _aspectRatio < d.width)
+	    {
+		d.height = (int)((float)d.width / _aspectRatio);
+	    }
+	    else
+	    {
+		d.width = (int)((float)d.height * _aspectRatio);
+	    }
+
+	    g.drawImage(_image, 0, 0, d.width + 100, d.height, null); 
+	}
+
+	private Image _image;
+	private float _aspectRatio;
+    }
+
+
+
     static class PopupListener extends MouseAdapter
     {
 	public void mousePressed(MouseEvent e) 
@@ -77,13 +122,8 @@ public class MainPane extends JSplitPane
 	}
     }
 
-    static class SelectionListener implements TreeSelectionListener
+    class SelectionListener implements TreeSelectionListener
     {
-	SelectionListener(Model model)
-	{
-	    _model = model;
-	}
-
 	public void valueChanged(TreeSelectionEvent e)
 	{
 	    TreePath path = null;
@@ -96,9 +136,7 @@ public class MainPane extends JSplitPane
 	    {
 		if(_model.displayEnabled())
 		{
-		    //
-		    // TODO: display splash?
-		    //
+		    displayWelcomePanel();
 		}
 	    }
 	    else
@@ -123,9 +161,7 @@ public class MainPane extends JSplitPane
 		}
 	    }	    
 	}
-
 	private CommonBase _previousNode;
-	private Model _model;
     }
 
     public void updateUI()
@@ -163,7 +199,7 @@ public class MainPane extends JSplitPane
 
 	tree.getSelectionModel().setSelectionMode
 	    (TreeSelectionModel.SINGLE_TREE_SELECTION);
-	SelectionListener appSelectionListener = new SelectionListener(_model);
+	SelectionListener appSelectionListener = new SelectionListener();
 	tree.addTreeSelectionListener(appSelectionListener);
 	tree.setRootVisible(false);
 	_model.setTree(tree);
@@ -181,10 +217,15 @@ public class MainPane extends JSplitPane
 	//
 	// Right pane
 	//
-	_rightPane = new SimpleInternalFrame("Properties");
-	_emptyPanel = new JPanel();
-	_emptyPanel.setBackground(Color.RED);
-	_rightPane.setContent(_emptyPanel);
+	_rightPane = new SimpleInternalFrame("");
+
+	//
+	// Welcome panel
+	//
+	_welcomePanel = new WelcomePanel();
+	_welcomePanel.setBackground(Color.RED);
+	displayWelcomePanel();
+
 	_model.setPropertiesFrame(_rightPane);
 	
 	setLeftComponent(leftPane);
@@ -242,8 +283,17 @@ public class MainPane extends JSplitPane
         }
     }
 
+    private void displayWelcomePanel()
+    {
+	_rightPane.setTitle("             ");
+	_rightPane.setContent(_welcomePanel);
+	_rightPane.validate();
+	_rightPane.repaint();
+    }
+
+
     private Model _model;
     private SimpleInternalFrame _rightPane;
 
-    static private JPanel _emptyPanel;
+    private JPanel _welcomePanel;
 }

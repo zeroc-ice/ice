@@ -56,6 +56,21 @@ public class Root extends Parent
 				      ""));
     }
 
+    public void newApplication(ApplicationDescriptor descriptor)
+    {
+	descriptor.name = makeNewChildId(descriptor.name);
+	
+	Application application = new Application(descriptor, _model);
+	try
+	{
+	    addChild(application, true);
+	}
+	catch(UpdateFailedException e)
+	{
+	    assert false;
+	}
+	_model.setSelectionPath(application.getPath());
+    }
 
     public Root(Model model)
     {
@@ -406,22 +421,7 @@ public class Root extends Parent
     }
   
 
-    private void newApplication(ApplicationDescriptor descriptor)
-    {
-	descriptor.name = makeNewChildId(descriptor.name);
-	
-	Application application = new Application(descriptor, _model);
-	try
-	{
-	    addChild(application, true);
-	}
-	catch(UpdateFailedException e)
-	{
-	    assert false;
-	}
-	_model.setSelectionPath(application.getPath());
-    }
-
+   
     String identify(TreePath path)
     {
 	String result = "";

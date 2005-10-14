@@ -95,6 +95,7 @@ class DbEnv extends Leaf
 	DbEnvDescriptor clone = (DbEnvDescriptor)savedDescriptor;
 	_descriptor.name = clone.name;
 	_descriptor.dbHome = clone.dbHome;
+	_descriptor.description = clone.description;
 	_descriptor.properties = clone.properties;
     }
 

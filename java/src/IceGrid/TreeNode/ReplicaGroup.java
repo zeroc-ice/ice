@@ -99,6 +99,7 @@ class ReplicaGroup extends EditableLeaf
     {
 	ReplicaGroupDescriptor clone = (ReplicaGroupDescriptor)savedDescriptor;
 	_descriptor.id = clone.id;
+	_descriptor.description = clone.description;
 	_descriptor.objects = clone.objects;
 	_descriptor.loadBalancing = clone.loadBalancing;
     }

@@ -225,7 +225,7 @@ class ReplicaGroupEditor extends Editor
 	    (ReplicaGroupDescriptor)getReplicaGroup().getDescriptor();
 
 	descriptor.id = _id.getText();
-	// descriptor.description = _description.getText();
+	descriptor.description = _description.getText();
 	descriptor.objects = AdapterEditor.mapToObjectDescriptorSeq(_objectsMap);
 	
 	Object loadBalancing = _loadBalancing.getSelectedItem();
@@ -313,7 +313,7 @@ class ReplicaGroupEditor extends Editor
 	    (ReplicaGroupDescriptor)replicaGroup.getDescriptor();
 	
 	_id.setText(descriptor.id);
-	//_description.setText(descriptor.description);
+	_description.setText(descriptor.description);
 	
 	_objectsMap = AdapterEditor.objectDescriptorSeqToMap(descriptor.objects);
 	setObjectsField();

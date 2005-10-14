@@ -15,9 +15,12 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
 
 import IceGrid.Model;
 import IceGrid.NodeDescriptor;
@@ -142,6 +145,7 @@ class NodeEditor extends Editor
     NodeEditor(JFrame parentFrame)
     {
 	_name.getDocument().addDocumentListener(_updateListener);
+	_description.getDocument().addDocumentListener(_updateListener);
 	_variables.setEditable(false);
 
 	//
@@ -174,6 +178,18 @@ class NodeEditor extends Editor
 	builder.append("Name");
 	builder.append(_name, 3);
 	builder.nextLine();
+
+	builder.append("Description");
+	builder.nextLine();
+	builder.append("");
+	builder.nextRow(-2);
+	CellConstraints cc = new CellConstraints();
+	JScrollPane scrollPane = new JScrollPane(_description);
+	builder.add(scrollPane, 
+		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
+	builder.nextRow(2);
+	builder.nextLine();
+
 	builder.append("Variables", _variables);
 	builder.append(_variablesButton);
 	builder.nextLine();
@@ -191,6 +207,7 @@ class NodeEditor extends Editor
     void writeDescriptor()
     {
 	NodeDescriptor descriptor = (NodeDescriptor)_target.getDescriptor();
+	descriptor.description = _description.getText();
 	descriptor.variables = _variablesMap;
 	descriptor.loadFactor = _loadFactor.getText();
     }	    
@@ -205,20 +222,11 @@ class NodeEditor extends Editor
 	
 	NodeDescriptor descriptor = (NodeDescriptor)_target.getDescriptor();
 
-	if(descriptor == null)
-	{
-	    _variablesMap = new java.util.TreeMap();
-	    setVariablesField();
-	    _loadFactor.setText("");
-	}
-	else
-	{
-	    _variablesMap = descriptor.variables;
-	    setVariablesField();
-	    
-	    _loadFactor.setText(descriptor.loadFactor);
-	}
- 
+	_description.setText(descriptor.description);
+	_variablesMap = descriptor.variables;
+	setVariablesField();
+	_loadFactor.setText(descriptor.loadFactor);
+	
 	_applyButton.setEnabled(node.isEphemeral());
 	_discardButton.setEnabled(node.isEphemeral());
 	detectUpdates(true);
@@ -234,10 +242,10 @@ class NodeEditor extends Editor
 
     
     private JTextField _name = new JTextField(20);
+    private JTextArea _description = new JTextArea(3, 20);
     private JTextField _variables = new JTextField(20);
     private JButton _variablesButton;
     private TableDialog _variablesDialog;
     private java.util.TreeMap _variablesMap;
     private JTextField _loadFactor = new JTextField(20);
-
 }

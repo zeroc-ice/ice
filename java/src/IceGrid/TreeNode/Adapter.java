@@ -164,12 +164,13 @@ class Adapter extends Leaf
 	
 	_descriptor.name = ad.name;
 	_descriptor.id = ad.id;
+	_descriptor.replicaGroupId = ad.replicaGroupId;
+	_descriptor.description = ad.description;
 	_descriptor.registerProcess = ad.registerProcess;
 	_descriptor.waitForActivation = ad.waitForActivation;
 	_descriptor.objects = ad.objects;
     }
     
-   
     Adapter(String adapterName, AdapterDescriptor descriptor,
 	    Utils.Resolver resolver, Model model)
     {
