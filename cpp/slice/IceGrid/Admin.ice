@@ -375,7 +375,7 @@ interface Admin
      * be reached.
      *
      **/
-    idempotent void enableServer(string id, bool enabled)
+    ["ami"] idempotent void enableServer(string id, bool enabled)
 	throws ServerNotExistException, NodeUnreachableException;
 
     /**
@@ -410,7 +410,7 @@ interface Admin
      * reached.
      *
      **/
-    bool startServer(string id)
+    ["ami"] bool startServer(string id)
 	throws ServerNotExistException, NodeUnreachableException;
 
     /**
@@ -426,7 +426,7 @@ interface Admin
      * reached.
      *
      **/
-    void stopServer(string id)
+    ["ami"] void stopServer(string id)
 	throws ServerNotExistException, NodeUnreachableException;
 
     /**
@@ -447,8 +447,9 @@ interface Admin
      * @throws PatchException Raised if the patch failed.
      *
      **/
-    void patchServer(string id, bool shutdown)
-	throws ServerNotExistException, NodeUnreachableException, PatchException;
+    ["ami"] void patchServer(string id, bool shutdown)
+	throws ServerNotExistException, NodeUnreachableException, 
+	       PatchException;
 
     /**
      *
