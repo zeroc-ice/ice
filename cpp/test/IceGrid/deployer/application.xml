@@ -2,11 +2,14 @@
 
   <application name="test" import-default-templates="true">
 
+    <description>APP ${AppVar}</description>
+
     <!-- Include server templates -->
     <include descriptor="icebox.xml"/>
     <include descriptor="server.xml"/>    
 
     <replica-group id="ReplicatedAdapter">
+      <description>REPLICA GROUP ${AppVar}</description>
       <object identity="ReplicatedObject" type="::Test"/>
     </replica-group>
 
@@ -25,6 +28,7 @@
     <variable name="AppVarOverridedByParam" value="Test"/>
 
     <node name="localnode">
+      <description>NODE ${NodeVar}</description>
  
       <!-- Variables for variable test -->
       <variable name="NodeVar" value="NodeVar"/>
@@ -49,15 +53,21 @@
         ParamDoubleEscaped="${varpde}" DefaultParam="OTHERVALUE"/>
 
       <server id="SimpleServer" exe="${test.dir}/server" activation="on-demand" pwd=".">
+        <description>SERVER ${NodeVar}</description>
         <adapter name="Server" endpoints="default">
+          <description>ADAPTER ${NodeVar}</description>
   	  <object identity="${server}" type="::Test"/>
         </adapter>
+        <dbenv name="DbEnv">
+          <description>DBENV ${NodeVar}</description>
+        </dbenv>
         <option>--Test.Test=2</option>
         <include descriptor="varproperties.xml"/>
         <env>MY_ENV_VARIABLE=12</env>
       </server>
 
       <icebox id="SimpleIceBox" exe="${ice.dir}/bin/icebox" activation="on-demand" endpoints="default" pwd=".">
+        <description>SERVER ${NodeVar}</description>
 	<service name="SimpleService" entry="TestService:create">
 	  <adapter name="${service}" endpoints="default">
 	    <object identity="${server}-${service}" type="::Test"/>

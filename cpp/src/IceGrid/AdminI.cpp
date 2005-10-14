@@ -149,7 +149,7 @@ AdminI::patchApplication(const string& name, bool shutdown, const Current&)
 ApplicationDescriptor
 AdminI::getApplicationDescriptor(const string& name, const Current&) const
 {
-    return _database->getApplicationDescriptor(name);
+    return ApplicationHelper(_database->getApplicationDescriptor(name)).getInstance();
 }
 
 ApplicationDescriptor

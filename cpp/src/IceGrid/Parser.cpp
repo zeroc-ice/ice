@@ -528,6 +528,7 @@ Parser::describeNode(const list<string>& args)
 	out << nl << "machine type = `" << info.machine << "'";
 	out << nl << "number of processors = `" << info.nProcessors << "'";
 	out << eb;
+	out << nl;
     }
     catch(const Ice::Exception& ex)
     {

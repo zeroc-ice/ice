@@ -208,10 +208,11 @@ public:
     bool operator!=(const ServerInstanceHelper&) const;
 
     std::string getId() const;
-    ServerInstanceDescriptor getDescriptor() const;
-    ServerDescriptorPtr getDefinition() const;
-    ServerDescriptorPtr getInstance() const;
-    const ServerHelper& getInstanceHelper() const;
+    ServerInstanceDescriptor getDefinition() const;
+    ServerInstanceDescriptor getInstance() const;
+
+    ServerDescriptorPtr getServerDefinition() const;
+    ServerDescriptorPtr getServerInstance() const;
 
     void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
 
@@ -221,6 +222,7 @@ private:
 
     const std::string _template;
     const std::map<std::string, std::string> _parameters;
+    std::map<std::string, std::string> _instanceParams;
     ServerHelperPtr _definition;
     ServerHelperPtr _instance;
 };

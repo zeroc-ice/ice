@@ -474,7 +474,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	    assert(_currentCommunicator);
 	    _currentCommunicator->setDbEnvDescription(elementValue());
 	}
-	if(_currentCommunicator)
+	else if(_currentCommunicator)
 	{
 	    _currentCommunicator->setDescription(elementValue());
 	}
@@ -488,7 +488,7 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	}
 	else
 	{
-	    error("element <comment> can only be the child of an  <application>, <server> or <service> element");
+	    error("element <description> is not allowed here");
 	}
     }
     else if(name == "option")

@@ -220,6 +220,20 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("NodeVarOverridedByParamProp") == "Test");
     
     cout << "ok" << endl;
+
+    cout << "testing descriptions... " << flush;
+    ApplicationDescriptor desc = admin->getApplicationDescriptor("test");
+    test(desc.description == "APP AppVar");
+    test(desc.nodes["localnode"].description == "NODE NodeVar");
+    test(desc.replicaGroups[0].description == "REPLICA GROUP AppVar");
+    test(desc.nodes["localnode"].servers.size() == 2);
+    const int idx = desc.nodes["localnode"].servers[0]->id == "SimpleServer" ? 0 : 1;
+    test(desc.nodes["localnode"].servers[idx]);
+    test(desc.nodes["localnode"].servers[idx]->id == "SimpleServer");
+    test(desc.nodes["localnode"].servers[idx]->description == "SERVER NodeVar");
+    test(desc.nodes["localnode"].servers[idx]->adapters[0].description == "ADAPTER NodeVar");
+    test(desc.nodes["localnode"].servers[idx]->dbEnvs[0].description == "DBENV NodeVar");
+    cout << "ok" << endl;
 }
 
 void
