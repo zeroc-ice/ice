@@ -76,7 +76,7 @@ class Client(Ice.Application):
 		    else:
 			batchDatagram.sayHello()
 		elif c == 'f':
-		    communicator.flushBatchRequests()
+		    self.communicator().flushBatchRequests()
 		elif c == 'T':
 		    if timeout == -1:
 			timeout = 2000
