@@ -274,7 +274,7 @@ local interface ObjectAdapter
      *
      * Remove all facets with the given identity from the Active
      * Servant Map (that is, completely remove the &Ice; object,
-     * including it's default facet). Removing an identity that
+     * including its default facet). Removing an identity that
      * is not in the map throws [NotRegisteredException].
      *
      * @param id The identity of the &Ice; object to be removed.
