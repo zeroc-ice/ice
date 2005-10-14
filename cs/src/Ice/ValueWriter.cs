@@ -32,8 +32,9 @@ namespace IceInternal
 	    else
 	    {
 		System.Type c = val.GetType();
-		if(c.Equals(typeof(byte)) || c.Equals(typeof(short)) || c.Equals(typeof(int)) || c.Equals(typeof(long)) ||
-		    c.Equals(typeof(double)) || c.Equals(typeof(float)) || c.Equals(typeof(bool)))
+		if(c.Equals(typeof(byte)) || c.Equals(typeof(short)) || c.Equals(typeof(int)) ||
+		   c.Equals(typeof(long)) || c.Equals(typeof(double)) || c.Equals(typeof(float)) ||
+		   c.Equals(typeof(bool)))
 		{
 		    writeName(name, output);
 		    output.print(val.ToString());
@@ -56,55 +57,52 @@ namespace IceInternal
 			writeValue(elem, i.Current, objectTable, output);
 		    }
 		}
-		else
+		else if(val is DictionaryBase)
 		{
-		    if(val is DictionaryBase)
+		    foreach(DictionaryEntry entry in (Hashtable)val)
 		    {
-			foreach(DictionaryEntry entry in (Hashtable)val)
-			{
-			    string elem = name != null ? name + "." : "";
-			    writeValue(elem + "key", entry.Key, objectTable, output);
-			    writeValue(elem + "value", entry.Value, objectTable, output);
-			}
+			string elem = name != null ? name + "." : "";
+			writeValue(elem + "key", entry.Key, objectTable, output);
+			writeValue(elem + "value", entry.Value, objectTable, output);
 		    }
-		    else if(val is Ice.ObjectPrxHelperBase)
+		}
+		else if(val is Ice.ObjectPrxHelperBase)
+		{
+		    writeName(name, output);
+		    Ice.ObjectPrxHelperBase proxy = (Ice.ObjectPrxHelperBase)val;
+		    output.print(proxy.reference__().ToString());
+		}
+		else if(val is Ice.Object)
+		{
+		    //
+		    // Check for recursion.
+		    //
+		    if(objectTable != null && objectTable.Contains(val))
 		    {
 			writeName(name, output);
-			Ice.ObjectPrxHelperBase proxy = (Ice.ObjectPrxHelperBase)val;
-			output.print(proxy.reference__().ToString());
-		    }
-		    else if(val is Ice.Object)
-		    {
-			//
-			// Check for recursion.
-			//
-			if(objectTable != null && objectTable.Contains(val))
-			{
-			    writeName(name, output);
-			    output.print("(recursive)");
-			}
-			else
-			{
-			    if(objectTable == null)
-			    {
-				objectTable = new Hashtable();
-			    }
-			    objectTable[val] = null;
-			    writeFields(name, val, c, objectTable, output);
-			}
-		    }
-		    else if(c.IsEnum)
-		    {
-			writeName(name, output);
-			output.print(val.ToString());		 
+			output.print("(recursive)");
 		    }
 		    else
-		    {	    
-			//
-			// Must be struct.
-			//
+		    {
+			if(objectTable == null)
+			{
+			    objectTable = new Hashtable();
+			}
+			objectTable[val] = null;
 			writeFields(name, val, c, objectTable, output);
 		    }
+		}
+		else if(c.IsEnum)
+		{
+		    writeName(name, output);
+		    output.print(val.ToString());		 
+		}
+		else
+		{	    
+		    //
+		    // Must be struct.
+		    //
+		    writeFields(name, val, c, objectTable, output);
 		}
 	    }
 	}
