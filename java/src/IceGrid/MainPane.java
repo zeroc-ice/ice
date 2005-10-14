@@ -48,7 +48,9 @@ public class MainPane extends JSplitPane
 	WelcomePanel()
 	{
 	    MediaTracker mt = new MediaTracker(this);
-	    _image = Toolkit.getDefaultToolkit().getImage("resources/RedIceCrystal.jpg");
+	    java.net.URL imgURL = Utils.class.getResource("/RedIceCrystal.jpg");
+	    assert imgURL != null;
+	    _image = Toolkit.getDefaultToolkit().getImage(imgURL);
 	    mt.addImage(_image, 0);
 
 	    try
@@ -223,7 +225,7 @@ public class MainPane extends JSplitPane
 	// Welcome panel
 	//
 	_welcomePanel = new WelcomePanel();
-	_welcomePanel.setBackground(Color.RED);
+	// _welcomePanel.setBackground(Color.RED);
 	displayWelcomePanel();
 
 	_model.setPropertiesFrame(_rightPane);
