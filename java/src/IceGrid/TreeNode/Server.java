@@ -163,6 +163,12 @@ class Server extends EditableParent
 	actions[ENABLE] = !_enabled;
 	actions[DISABLE] = _enabled;
 
+	if(!_model.isUpdateInProgress())
+	{
+	    actions[SERVER_INSTALL_DISTRIBUTION] = 
+		!_serverDescriptor.distrib.icepatch.equals("");
+	}
+
 	return actions;
     }
     public JPopupMenu getPopupMenu()
@@ -176,7 +182,7 @@ class Server extends EditableParent
 	    _popup.add(_model.getActions()[ENABLE]);
 	    _popup.add(_model.getActions()[DISABLE]);
 	    _popup.addSeparator();
-	    _popup.add(_model.getActions()[SERVER_REFRESH_INSTALLATION]);
+	    _popup.add(_model.getActions()[SERVER_INSTALL_DISTRIBUTION]);
 	}
 	return _popup;
     }

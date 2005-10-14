@@ -199,7 +199,7 @@ public class Model
 	    _appMenu = new JMenu("Application");
 	    _appMenu.setEnabled(false);
 	    toolsMenu.add(_appMenu);
-	    _appMenu.add(_actions[CommonBase.APPLICATION_REFRESH_INSTALLATION]);
+	    _appMenu.add(_actions[CommonBase.APPLICATION_INSTALL_DISTRIBUTION]);
 	 
 	    //
 	    // Node sub-menu
@@ -221,7 +221,7 @@ public class Model
 	    _serverMenu.add(_actions[CommonBase.ENABLE]);
 	    _serverMenu.add(_actions[CommonBase.DISABLE]);
 	    _serverMenu.addSeparator();
-	    _serverMenu.add(_actions[CommonBase.SERVER_REFRESH_INSTALLATION]);
+	    _serverMenu.add(_actions[CommonBase.SERVER_INSTALL_DISTRIBUTION]);
 
 	    //
 	    // Service sub-menu
@@ -308,9 +308,8 @@ public class Model
 	if(proceedWithUpdate(serial))
 	{
 	    _root.applicationAdded(desc);
-	    _statusBar.setText("Connected; application '" 
-			       + desc.name + "' added (" + serial + ")");
-
+	    _statusBar.setText(
+		"Last update: new application '" + desc.name + "'");
 	    checkWriteSerial();
 	}
     }
@@ -320,8 +319,8 @@ public class Model
 	if(proceedWithUpdate(serial))
 	{
 	    _root.applicationRemoved(name);
-	    _statusBar.setText("Connected; application '" 
-			       + name + "' removed (" + serial + ")"); 
+	    _statusBar.setText(
+		"Last update: application '" + name + "' was removed");
 	    checkWriteSerial();
 	}
     }
@@ -337,8 +336,7 @@ public class Model
 		path = currentNode.getPath();
 	    }
 	    _root.applicationUpdated(desc);
-	    _statusBar.setText("Connected; application '" 
-			       + desc.name + "' updated (" + serial + ")");
+	    _statusBar.setText("Last update: application  '" + desc.name + "' was updated");
 	    checkWriteSerial();
 	    restore(path);
 	}
@@ -368,19 +366,10 @@ public class Model
 	else
 	{
 	    _sessionKeeper.sessionLost(
-		"Received message from registry out of order");
+		"Received message from IceGrid Registry out of order");
 	    return false;
 	}
     }
-
-    private void checkWriteSerial()
-    {
-	if(_writeSerial != -1 && _writeSerial == _latestSerial)
-	{
-	    updateInProgress();
-	}
-    }
-    
 
     public CommonBase getSelectedNode()
     {
@@ -447,15 +436,18 @@ public class Model
 	}
     }
 
+    
+
     public boolean canUpdate()
     {
-	if(_writeSerial == _latestSerial)
+	if(isUpdateInProgress())
 	{
 	    return true;
 	}
 	
 	try
 	{
+	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	    _writeSerial = _sessionKeeper.getSession().startUpdate();
 	}
 	catch(AccessDeniedException e)
@@ -464,7 +456,12 @@ public class Model
 	    accessDenied(e);
 	    return false;
 	}
-	
+	finally
+	{
+	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+	showActions();
+
 	if(_writeSerial > _latestSerial)
 	{
 	    //
@@ -473,17 +470,40 @@ public class Model
 	    JOptionPane.showMessageDialog(
 		_mainFrame,
 		"Your view was not up-to-date;"
-		+ " you now have exclusive write-access to the registry, however your previous changes were lost.",
+		+ " you now have exclusive write-access to the IceGrid Registry, however your previous changes were lost.",
 		"Concurrent update",
 		JOptionPane.WARNING_MESSAGE);
-	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+	    //
+	    // TODO: wait for my view to be up to date
+	    //
 	    return false;
 	}
 	else
 	{
-	    updateInProgress();
+	    setUpdateInProgress();
 	    return true;
 	}
+    }
+
+    public boolean isUpdateInProgress()
+    {
+	return _writeSerial >= _latestSerial;
+    }
+
+
+    private void checkWriteSerial()
+    {
+	if(_writeSerial != -1 && _writeSerial == _latestSerial)
+	{
+	    setUpdateInProgress();
+	}
+    }
+    private void setUpdateInProgress()
+    {
+	_statusBar.setText("Update in progress");
+	_save.setEnabled(true);
+	_discard.setEnabled(true);
     }
 
     private void accessDenied(AccessDeniedException e)
@@ -612,9 +632,10 @@ public class Model
 	    _writeSerial = -1;
 	    _save.setEnabled(false);
 	    _discard.setEnabled(false);
+	    showActions();
+
 	    _statusBar.setText("Saving complete");
 	    return true;
-
 	}
 	finally
 	{
@@ -640,15 +661,6 @@ public class Model
 	{
 	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
-    }
-
-
-    private void updateInProgress()
-    {
-	_statusBar.setText("Update in progress");
-	_mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-	_save.setEnabled(true);
-	_discard.setEnabled(true);
     }
 
 
@@ -904,7 +916,7 @@ public class Model
 	_save.setEnabled(false);
 	_save.putValue(Action.ACCELERATOR_KEY, 
 			     KeyStroke.getKeyStroke("ctrl S"));
-	_save.putValue(Action.SHORT_DESCRIPTION, "Save to IceGrid registry");
+	_save.putValue(Action.SHORT_DESCRIPTION, "Save to IceGrid Registry");
 	
 	_discard = new AbstractAction("Discard all updates...", 
 				      Utils.getIcon("/icons/undo_edit.gif"))
@@ -915,7 +927,7 @@ public class Model
 		}
 	    };
 	_discard.setEnabled(false);
-	_save.putValue(Action.SHORT_DESCRIPTION, "Discard all updates");
+	_discard.putValue(Action.SHORT_DESCRIPTION, "Discard all updates");
 
 	_exit = new AbstractAction("Exit")
 	    {
@@ -1139,20 +1151,20 @@ public class Model
 		    _actionsTarget.shutdownNode();
 		}
 	    };
-	_actions[CommonBase.APPLICATION_REFRESH_INSTALLATION] = 
-	    new AbstractAction("Refresh installation")
+	_actions[CommonBase.APPLICATION_INSTALL_DISTRIBUTION] = 
+	    new AbstractAction("Install or refresh distribution")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _actionsTarget.applicationRefreshInstallation();
+		    _actionsTarget.applicationInstallDistribution();
 		}
 	    };
-	_actions[CommonBase.SERVER_REFRESH_INSTALLATION] = 
-	    new AbstractAction("Refresh installation")
+	_actions[CommonBase.SERVER_INSTALL_DISTRIBUTION] = 
+	    new AbstractAction("Install or refresh distribution")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _actionsTarget.serverRefreshInstallation();
+		    _actionsTarget.serverInstallDistribution();
 		}
 	    };
     }
@@ -1223,50 +1235,6 @@ public class Model
 	}
     }
     
-   
-    /*
-    void deleteCurrentNode()
-    {
-	CommonBase currentNode = (CommonBase)_tree.getLastSelectedPathComponent();
-	if(currentNode != null)
-	{
-	    CommonBase parent = currentNode.getParent();
-	    CommonBase toSelect = null;
-	    if(parent != null)
-	    {
-		int index = parent.getIndex(currentNode);
-		toSelect = (CommonBase)parent.getChildAt(index + 1);
-		if(toSelect == null)
-		{
-		    if(index > 0)
-		    {
-			toSelect = (CommonBase)parent.getChildAt(0);
-		    }
-		    else
-		    {
-			toSelect = parent;
-		    }
-		}
-	    }
-	    if(toSelect != null)
-	    {
-		disableDisplay();
-	    }
-	    boolean destroyed = currentNode.destroy();
-	    if(toSelect != null)
-	    {
-		enableDisplay();
-		if(destroyed)
-		{
-		    toSelect = findNewNode(toSelect.getPath());
-		    _tree.setSelectionPath(toSelect.getPath()); 
-		}
-	    }
-	}
-    }
-    */
-    
-
     public void setClipboard(Object copy)
     {
 	_clipboard = copy;
@@ -1402,7 +1370,7 @@ public class Model
 	    availableActions[CommonBase.NEW_TEMPLATE_SERVICE]);
 
 	_appMenu.setEnabled(
-	    availableActions[CommonBase.APPLICATION_REFRESH_INSTALLATION]);
+	    availableActions[CommonBase.APPLICATION_INSTALL_DISTRIBUTION]);
 	
 	_nodeMenu.setEnabled(
 	    availableActions[CommonBase.SHUTDOWN_NODE]);
@@ -1412,7 +1380,7 @@ public class Model
 	    availableActions[CommonBase.STOP] ||
 	    availableActions[CommonBase.ENABLE] ||
 	    availableActions[CommonBase.DISABLE] ||
-	    availableActions[CommonBase.SERVER_REFRESH_INSTALLATION]);
+	    availableActions[CommonBase.SERVER_INSTALL_DISTRIBUTION]);
 
 	_serviceMenu.setEnabled(
 	    availableActions[CommonBase.MOVE_UP] ||

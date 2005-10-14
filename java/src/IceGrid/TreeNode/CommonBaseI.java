@@ -272,11 +272,11 @@ abstract class CommonBaseI implements CommonBase
     {
 	assert false;
     }
-    public void applicationRefreshInstallation()
+    public void applicationInstallDistribution()
     {
 	assert false;
     }
-    public void serverRefreshInstallation()
+    public void serverInstallDistribution()
     {
 	assert false;
     }

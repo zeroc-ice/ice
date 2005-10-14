@@ -8,9 +8,12 @@
 // **********************************************************************
 package IceGrid;
 
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -32,10 +35,20 @@ public class AdminGUI extends JFrame
 	StatusBarI()
 	{
 	    super(new BorderLayout());
-	    setBorder(new EmptyBorder(0, 10, 10, 10));
+	    setBorder(new EmptyBorder(0, 10, 5, 10));
+
+	    _connected = Utils.getIcon("/icons/active.png");
+	    _disconnected = Utils.getIcon("/icons/destroyed.png");
+
+	    _connectedLabel = new JLabel(_disconnected);
 	    _text = new JLabel("Starting up");
 	    _text.setHorizontalAlignment(SwingConstants.LEFT);
-	    add(_text, BorderLayout.LINE_START);
+	    
+	    JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+	    leftPanel.add(_connectedLabel);
+	    leftPanel.add(_text);
+	    
+	    add(leftPanel, BorderLayout.LINE_START);
 	    
 	    JLabel copyright = new JLabel("Copyright \u00A9 2005 ZeroC, Inc.");
 	    copyright.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -47,6 +60,14 @@ public class AdminGUI extends JFrame
 	    _text.setText(text);
 	}
 
+	public void setConnected(boolean connected)
+	{
+	    _connectedLabel.setIcon(connected ? _connected : _disconnected);
+	}
+
+	JLabel _connectedLabel;
+	Icon _connected;
+	Icon _disconnected;
 	JLabel _text;
     }
 

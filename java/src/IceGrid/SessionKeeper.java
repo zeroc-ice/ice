@@ -340,7 +340,7 @@ class SessionKeeper
 		}
 	    }
 	    
-	    _model.getStatusBar().setText("Connected");
+	    _model.getStatusBar().setConnected(true);
 
 	    //
 	    // Start thread
@@ -431,7 +431,7 @@ class SessionKeeper
 	    }
 
 	    _session = null;
-	    _model.getStatusBar().setText("Not connected");
+	    _model.getStatusBar().setConnected(false);
 	}
     }
 

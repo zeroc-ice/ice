@@ -412,6 +412,7 @@ public class Root extends Parent
 	{
 	    Application app = new Application(true, ad, _model);
 	    addChild(app, true);
+	    expandChildren();
 	}
 	catch(UpdateFailedException e)
 	{

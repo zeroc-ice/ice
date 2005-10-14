@@ -139,8 +139,8 @@ public interface CommonBase extends TreeCellRenderer
 
     static final int SHUTDOWN_NODE = 22;
 
-    static final int APPLICATION_REFRESH_INSTALLATION = 23;
-    static final int SERVER_REFRESH_INSTALLATION = 24;
+    static final int APPLICATION_INSTALL_DISTRIBUTION = 23;
+    static final int SERVER_INSTALL_DISTRIBUTION = 24;
 
     static public final int ACTION_COUNT = 25;
 
@@ -174,8 +174,8 @@ public interface CommonBase extends TreeCellRenderer
 
     void shutdownNode();
 
-    void applicationRefreshInstallation();
-    void serverRefreshInstallation();
+    void applicationInstallDistribution();
+    void serverInstallDistribution();
 
     JPopupMenu getPopupMenu();
 }

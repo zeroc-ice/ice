@@ -56,7 +56,11 @@ public class Application extends EditableParent
 	{
 	    actions[PASTE] = descriptor instanceof ApplicationDescriptor;
 	}
-	actions[APPLICATION_REFRESH_INSTALLATION] = true;
+	if(!_model.isUpdateInProgress())
+	{
+	    actions[APPLICATION_INSTALL_DISTRIBUTION] = 
+		!_descriptor.distrib.icepatch.equals("");
+	}
 	return actions;
     }
     public JPopupMenu getPopupMenu()
@@ -64,7 +68,7 @@ public class Application extends EditableParent
 	if(_popup == null)
 	{
 	    _popup = new PopupMenu(_model);
-	    _popup.add(_model.getActions()[APPLICATION_REFRESH_INSTALLATION]);
+	    _popup.add(_model.getActions()[APPLICATION_INSTALL_DISTRIBUTION]);
 	}
 	return _popup;
     }

@@ -206,7 +206,7 @@ class ApplicationEditor extends Editor
 	builder.append(_variablesButton);
 	builder.nextLine();
 
-	builder.appendSeparator("Installation");
+	builder.appendSeparator("Distribution");
 	builder.append("IcePatch2 Proxy");
 	builder.append(_distrib, 3);
 	builder.nextLine();
@@ -294,7 +294,7 @@ class ApplicationEditor extends Editor
 		return "None selected";
 	    }
 	};
-    static private final String DEFAULT_DISTRIB = "${application}.Icepatch2";
+    static private final String DEFAULT_DISTRIB = "${application}.IcePatch2";
 
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
