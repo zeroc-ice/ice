@@ -441,13 +441,17 @@ local interface ObjectAdapter
 
     /**
      *
-     * Create a proxy that matches this object adapter and the given
-     * identity.
+     * Create a proxy for the object with the given identity. If this
+     * object adapter is configured with an adapter id, the return
+     * value is an indirect proxy that refers to the adapter id. If
+     * a replica group id is also defined, the return value is an
+     * indirect proxy that refers to the replica group id. Otherwise,
+     * if no adapter id is defined, the return value is a direct
+     * proxy containing this object adapter's published endpoints.
      *
-     * @param id The identity for which a proxy is to be created.
+     * @param id The object's identity.
      *
-     * @return A proxy that matches the given identity and this object
-     * adapter.
+     * @return A proxy for the object with the given identity.
      *
      * @see Identity
      *
@@ -456,14 +460,13 @@ local interface ObjectAdapter
 
     /**
      *
-     * Create a "direct proxy" that matches this object adapter and
-     * the given identity. A direct proxy always contains the current
-     * adapter endpoints.
+     * Create a direct proxy for the object with the given identity.
+     * The returned proxy contains this object adapter's published
+     * endpoints.
      *
-     * @param id The identity for which a proxy is to be created.
+     * @param id The object's identity.
      *
-     * @return A proxy that matches the given identity and this object
-     * adapter.
+     * @return A proxy for the object with the given identity.
      *
      * @see Identity
      *
@@ -472,14 +475,14 @@ local interface ObjectAdapter
 
     /**
      *
-     * Create an "indirect proxy" that matches this object adapter and
-     * the given identity. The proxy adapter id is set to this object
-     * adapter identifier.
+     * Create an indirect proxy for the object with the given identity.
+     * If this object adapter is configured with an adapter id, the
+     * return value refers to the adapter id. Otherwise, the return
+     * value contains only the object identity.
      *
-     * @param id The identity for which a proxy is to be created.
+     * @param id The object's identity.
      *
-     * @return A proxy that matches the given identity and this object
-     * adapter.
+     * @return A proxy for the object with the given identity.
      *
      * @see Identity
      *
@@ -488,10 +491,9 @@ local interface ObjectAdapter
 
     /**
      *
-     * Create a "reverse proxy" that matches this object adapter and
-     * the given identity. A reverse proxy uses the incoming
-     * connections that have been established from a client to this
-     * object adapter.
+     * Create a "reverse proxy" for the object with the given identity.
+     * A reverse proxy uses the incoming connections that have been
+     * established from a client to this object adapter.
      *
      * <note><para> This operation is intended to be used by special
      * services, such as [Router] implementations. Regular user code
