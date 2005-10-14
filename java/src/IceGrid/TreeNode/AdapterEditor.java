@@ -37,7 +37,8 @@ class AdapterEditor extends ListElementEditor
     AdapterEditor(JFrame parentFrame)
     {
 	_objects.setEditable(false);
-	
+	_currentEndpoints.setEditable(false);
+
 	//
 	// Create buttons
 	//
@@ -136,7 +137,11 @@ class AdapterEditor extends ListElementEditor
 
 	JTextField replicaGroupIdTextField = (JTextField)
 	    _replicaGroupId.getEditor().getEditorComponent();
-	replicaGroupIdTextField.getDocument().addDocumentListener(_updateListener);	
+	replicaGroupIdTextField.getDocument().addDocumentListener(_updateListener);
+	
+	JTextField publishedEndpointsTextField = (JTextField)
+	    _publishedEndpoints.getEditor().getEditorComponent();
+	publishedEndpointsTextField.getDocument().addDocumentListener(_updateListener);	
     }
     
    
@@ -194,10 +199,6 @@ class AdapterEditor extends ListElementEditor
 	builder.append(_replicaGroupButton);
 	builder.nextLine();
 
-	builder.append("Endpoints" );
-	builder.append(_endpoints, 3);
-	builder.nextLine();
-	
 	builder.append("Registered Objects");
 	builder.append(_objects, _objectsButton);
 	builder.nextLine();
@@ -206,6 +207,19 @@ class AdapterEditor extends ListElementEditor
 	builder.nextLine();
 	builder.append("", _waitForActivation);
 	builder.nextLine();
+
+	builder.appendSeparator("Endpoints");
+	builder.append("Definition" );
+	builder.append(_endpoints, 3);
+	builder.nextLine();
+
+	builder.append("Published" );
+	builder.append(_publishedEndpoints, 3);
+	builder.nextLine();
+	
+	builder.append("Current Value" );
+	builder.append(_currentEndpoints, 3);
+	builder.nextLine();
     }
 
     void postUpdate()
@@ -213,7 +227,21 @@ class AdapterEditor extends ListElementEditor
 	//
 	// Change enclosing properties after successful update
 	//
-	getAdapter().setEndpoints(_name.getText(), _endpoints.getText());
+	getAdapter().setProperty("Endpoints", _name.getText(), 
+				 _endpoints.getText());
+	
+	Object published = _publishedEndpoints.getSelectedItem();
+	if(published == PUBLISH_ACTUAL)
+	{
+	    getAdapter().setProperty("PublishedEndpoints", _name.getText(), 
+				     "");
+	}
+	else
+	{
+	    getAdapter().setProperty("PublishedEndpoints", _name.getText(), 
+				     published.toString());
+
+	}
     }
     
     void setObjectsField()
@@ -379,9 +407,26 @@ class AdapterEditor extends ListElementEditor
 	_replicaGroupId.setEditable(isEditable);
 
 	_endpoints.setText(
-	    Utils.substitute(adapter.getEndpoints(), resolver));
+	    Utils.substitute(adapter.getProperty("Endpoints"), resolver));
 	_endpoints.setEditable(isEditable);
 	
+	_publishedEndpoints.setEnabled(true);
+	_publishedEndpoints.setEditable(true);
+	String published = 
+	    Utils.substitute(adapter.getProperty("PublishedEndpoints"), resolver);
+	if(published == null || published.equals(""))
+	{
+	    _publishedEndpoints.setSelectedItem(PUBLISH_ACTUAL);
+	}
+	else
+	{
+	    _publishedEndpoints.setSelectedItem(published);
+	}
+	_publishedEndpoints.setEnabled(isEditable);
+	_publishedEndpoints.setEditable(isEditable);
+	
+	_currentEndpoints.setText(adapter.getCurrentEndpoints());
+
 	//
 	// Objects
 	//
@@ -440,6 +485,12 @@ class AdapterEditor extends ListElementEditor
     private JButton _replicaGroupButton;
 
     private JTextField _endpoints = new JTextField(20);
+    private JComboBox _publishedEndpoints = new JComboBox(
+	new Object[]{PUBLISH_ACTUAL});
+    private JTextField _currentEndpoints = new JTextField(20);
+
+
+
     private JCheckBox _registerProcess;
     private JCheckBox _waitForActivation;
 
@@ -447,6 +498,14 @@ class AdapterEditor extends ListElementEditor
     private java.util.Map _objectsMap;
     private TableDialog _objectsDialog;
     private JButton _objectsButton;
+
+    static private final Object PUBLISH_ACTUAL = new Object()
+	{
+	    public String toString()
+	    {
+		return "Actual endpoints";
+	    }
+	};
 
     static private final Object DIRECT_ADAPTER = new Object()
 	{

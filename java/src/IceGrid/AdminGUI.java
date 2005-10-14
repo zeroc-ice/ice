@@ -35,13 +35,13 @@ public class AdminGUI extends JFrame
 	StatusBarI()
 	{
 	    super(new BorderLayout());
-	    setBorder(new EmptyBorder(0, 10, 5, 10));
+	    setBorder(new EmptyBorder(0, 5, 5, 10));
 
-	    _connected = Utils.getIcon("/icons/active.png");
-	    _disconnected = Utils.getIcon("/icons/destroyed.png");
+	    _connected = Utils.getIcon("/icons/connect.gif");
+	    _disconnected = Utils.getIcon("/icons/error_st_obj.gif");
 
 	    _connectedLabel = new JLabel(_disconnected);
-	    _text = new JLabel("Starting up");
+	    _text = new JLabel();
 	    _text.setHorizontalAlignment(SwingConstants.LEFT);
 	    
 	    JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -62,7 +62,16 @@ public class AdminGUI extends JFrame
 
 	public void setConnected(boolean connected)
 	{
-	    _connectedLabel.setIcon(connected ? _connected : _disconnected);
+	    if(connected)
+	    {
+		_connectedLabel.setIcon(_connected);
+		_text.setText("Connected");
+	    }
+	    else
+	    {
+		_connectedLabel.setIcon(_disconnected);
+		_text.setText("Not connected");
+	    }
 	}
 
 	JLabel _connectedLabel;

@@ -118,10 +118,11 @@ class Adapter extends Leaf
 	    // In a server instance
 	    //
 	    _adapterId = _resolver.substitute(_descriptor.id);
-	    _proxy = _model.getRoot().registerAdapter(_resolver.find("node"),
-						      _adapterId,
-						      this);
-	    createToolTip();
+	    Ice.ObjectPrx proxy = 
+		_model.getRoot().registerAdapter(_resolver.find("node"),
+						 this);
+	    setCurrentEndpoints(proxy);
+
 	    //
 	    // No need to fire an event since this node is not yet in the tree
 	    //  
@@ -142,7 +143,7 @@ class Adapter extends Leaf
 	    if(_adapterId != null)
 	    {
 		_model.getRoot().unregisterAdapter(_resolver.find("node"),
-						   _adapterId, this);
+						   this);
 	    }
 	    super.clearParent();
 	}
@@ -194,9 +195,7 @@ class Adapter extends Leaf
 
     void updateProxy(Ice.ObjectPrx proxy)
     {
-	assert _resolver != null;
-	_proxy = proxy;
-	createToolTip();
+	setCurrentEndpoints(proxy);
 	fireNodeChangedEvent(this);
     }
 
@@ -224,19 +223,19 @@ class Adapter extends Leaf
 	return ((Adapters)_parent).inIceBox();
     }
 
-    String getEndpoints()
+    String getProperty(String property)
     {
 	PropertiesHolder ph = getParent().getParent().getPropertiesHolder();
 	assert ph != null;
-	return ph.get(_descriptor.name + ".Endpoints");
+	return ph.get(_descriptor.name + "." + property);
     }
 
-    void setEndpoints(String newName, String newEndpoints)
+    void setProperty(String property, String newName, String newValue)
     {
 	PropertiesHolder ph = getParent().getParent().getPropertiesHolder();
 	assert ph != null;
-	ph.replace(_descriptor.name + ".Endpoints", newName + ".Endpoints",
-		   newEndpoints);
+	ph.replace(_descriptor.name + "." + property, 
+		   newName + "." + property, newValue);
     }
 
     String getAdapterId()
@@ -249,22 +248,37 @@ class Adapter extends Leaf
 	return _defaultAdapterId;
     }
 
+    String getCurrentEndpoints()
+    {
+	return _currentEndpoints;
+    }
+
 
     public boolean isEphemeral()
     {
 	return _ephemeral;
     }
 
-
-    private void createToolTip()
+    private void setCurrentEndpoints(Ice.ObjectPrx proxy)
     {
-	if(_proxy == null)
+	if(proxy == null)
 	{
-	    _toolTip = null;
+	    _currentEndpoints = "";
+	    _toolTip = "Inactive";
 	}
 	else
 	{
-	    _toolTip = "Proxy: " + _model.getCommunicator().proxyToString(_proxy);
+	    String str = _model.getCommunicator().proxyToString(proxy);
+	    int index = str.indexOf(':');
+	    if(index == -1 || index == str.length() - 1)
+	    {
+		_currentEndpoints = "";
+	    }
+	    else
+	    {
+		_currentEndpoints = str.substring(index + 1);
+	    }
+	    _toolTip = "Current endpoints: " + _currentEndpoints;
 	}
     }
 
@@ -272,7 +286,7 @@ class Adapter extends Leaf
     private AdapterDescriptor _descriptor;
     private Utils.Resolver _resolver;
 
-    private Ice.ObjectPrx _proxy;
+    private String _currentEndpoints;
     private String _toolTip;
 
     private String _adapterId; // resolved adapter id, null when _resolver == null

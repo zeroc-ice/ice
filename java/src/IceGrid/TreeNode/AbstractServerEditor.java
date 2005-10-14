@@ -85,6 +85,11 @@ abstract class AbstractServerEditor extends Editor
 		    }
 		    model.setSelectionPath(_target.getPath());
 		    model.showActions(_target);
+		    //
+		    // If this new server has a known state, display it
+		    //
+		    ((Server)_target).fireNodeChangedEvent(this);
+
 		}
 		else if(isSimpleUpdate())
 		{
@@ -151,6 +156,12 @@ abstract class AbstractServerEditor extends Editor
 		    }
 		    model.setSelectionPath(_target.getPath());
 		    model.showActions(_target);
+
+		    //
+		    // If this server has a known state, display it
+		    //
+		    ((Server)_target).fireNodeChangedEvent(this);
+
 		}
 
 		_applyButton.setEnabled(false);

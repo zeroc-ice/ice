@@ -14,9 +14,15 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultTreeCellRenderer;
+
+import IceGrid.AMI_Admin_startServer;
+import IceGrid.AMI_Admin_stopServer;
+import IceGrid.AMI_Admin_enableServer;
+import IceGrid.AMI_Admin_patchServer;
 
 import IceGrid.AdapterDescriptor;
 import IceGrid.DistributionDescriptor;
@@ -157,16 +163,21 @@ class Server extends EditableParent
 
 	actions[DELETE] = true;
 	actions[SUBSTITUTE_VARS] = true;
-	actions[START] = getState() == ServerState.Inactive 
-	    && _enabled;
-	actions[STOP] = getState() != ServerState.Inactive;
-	actions[ENABLE] = !_enabled;
-	actions[DISABLE] = _enabled;
 
-	if(!_model.isUpdateInProgress())
+	ServerState state = getState();
+	if(state != null)
 	{
-	    actions[SERVER_INSTALL_DISTRIBUTION] = 
-		!_serverDescriptor.distrib.icepatch.equals("");
+	    actions[START] = state == ServerState.Inactive 
+	    && _enabled;
+	    actions[STOP] = state != ServerState.Inactive;
+	    actions[ENABLE] = true || !_enabled;
+	    actions[DISABLE] = true || _enabled;
+
+	    if(!_model.isUpdateInProgress())
+	    {
+		actions[SERVER_INSTALL_DISTRIBUTION] = 
+		    !_serverDescriptor.distrib.icepatch.equals("");
+	    }
 	}
 
 	return actions;
@@ -202,90 +213,205 @@ class Server extends EditableParent
     {
 	_parent.paste();
     }
+
     public void start()
     {
-	//
-	// TODO: if this can take a long time, make the invocation in a separate thread
-	//
+	final String prefix = "Starting server '" + _id + "'...";
+	_model.getStatusBar().setText(prefix);
 
-	boolean started = false;
+	AMI_Admin_startServer cb = new AMI_Admin_startServer()
+	    {
+		//
+		// Called by another thread!
+		//
+		public void ice_response(boolean result)
+		{
+		    if(result)
+		    {
+			amiSuccess(prefix);
+		    }
+		    else
+		    {
+			amiFailure(prefix, null, (String)null);
+		    }
+		}
+		
+		public void ice_exception(Ice.UserException e)
+		{
+		    amiFailure(prefix, "Failed to start " + _id, e);
+		}
+
+		public void ice_exception(Ice.LocalException e)
+		{
+		    amiFailure(prefix, "Failed to start " + _id, e.toString());
+		}
+	    };
+	
 	try
-	{
-	    _model.getStatusBar().setText("Starting server '" + _id + "'...");
-	    started = _model.getAdmin().startServer(_id);
-	}
-	catch(IceGrid.ServerNotExistException e)
-	{
-	    _model.getStatusBar().setText("Server '" + _id + "' no longer exists.");
-	}
-	catch(IceGrid.NodeUnreachableException e)
-	{
-	    _model.getStatusBar().setText("Could not reach the node for server '" + _id 
-					  + "'.");
+	{   
+	   _model.getAdmin().startServer_async(cb, _id);
 	}
 	catch(Ice.LocalException e)
 	{
-	    _model.getStatusBar().setText("Starting server '" + _id + "'... failed: " 
-					  + e.toString());
+	    failure(prefix, "Failed to start " + _id, e.toString());
 	}
-	if(started)
-	{
-	    _model.getStatusBar().setText("Starting server '" + _id + "'... success!");
-	}
-	else
-	{
-	    _model.getStatusBar().setText("Starting server '" + _id + "'... failed!");
-	}
-
-	//
-	// Recompute actions in case this comes from popup menu
-	// 
-	_model.showActions(_model.getSelectedNode());
-
-    }
-    public void stop()
-    {
-	try
-	{
-	    _model.getStatusBar().setText("Stopping server '" + _id + "'...");
-	    _model.getAdmin().stopServer(_id);
-	}
-	catch(IceGrid.ServerNotExistException e)
-	{
-	    _model.getStatusBar().setText("Server '" + _id + "' no longer exists.");
-	}
-	catch(IceGrid.NodeUnreachableException e)
-	{
-	    _model.getStatusBar().setText("Could not reach the node for server '" 
-					  + _id + "'.");
-	}
-	catch(Ice.LocalException e)
-	{
-	    _model.getStatusBar().setText("Stopping server '" + _id + "'... failed: " 
-					  + e.toString());
-	}
-	_model.getStatusBar().setText("Stopping server '" + _id + "'... done.");
-
-	//
-	// Recompute actions in case this comes from popup menu
-	// 
-	_model.showActions(_model.getSelectedNode());
-    }
-    public void enable()
-    {
-	//
-	// Recompute actions in case this comes from popup menu
-	// 
-	_model.showActions(_model.getSelectedNode());
-    }
-    public void disable()
-    {
+	
 	//
 	// Recompute actions in case this comes from popup menu
 	// 
 	_model.showActions(_model.getSelectedNode());
     }
     
+    public void stop()
+    {
+	final String prefix = "Stopping server '" + _id + "'...";
+	_model.getStatusBar().setText(prefix);
+
+	AMI_Admin_stopServer cb = new AMI_Admin_stopServer()
+	    {
+		//
+		// Called by another thread!
+		//
+		public void ice_response()
+		{
+		    amiSuccess(prefix);
+		}
+		
+		public void ice_exception(Ice.UserException e)
+		{
+		    amiFailure(prefix, "Failed to stop " + _id, e);
+		}
+
+		public void ice_exception(Ice.LocalException e)
+		{
+		    amiFailure(prefix, "Failed to stop " + _id, e.toString());
+		}
+	    };
+	
+	try
+	{   
+	   _model.getAdmin().stopServer_async(cb, _id);
+	}
+	catch(Ice.LocalException e)
+	{
+	    failure(prefix, "Failed to stop " + _id, e.toString());
+	}
+	
+	//
+	// Recompute actions in case this comes from popup menu
+	// 
+	_model.showActions(_model.getSelectedNode());
+    }
+
+    public void enable()
+    {
+	enableServer(true);
+    }
+
+    public void disable()
+    {
+	enableServer(false);
+    }
+    
+    private void amiSuccess(final String prefix)
+    {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _model.getStatusBar().setText(prefix + "done.");
+		}
+	    });
+    }
+
+    private void amiFailure(String prefix, String title, Ice.UserException e)
+    {
+	if(e instanceof IceGrid.ServerNotExistException)
+	{
+	    amiFailure(prefix, title, "This server was not registered with the IceGrid Registry");
+	}
+	else if(e instanceof IceGrid.NodeUnreachableException)
+	{
+	    IceGrid.NodeUnreachableException nue = (IceGrid.NodeUnreachableException)e;
+	    amiFailure(prefix, title, "Node '" + nue.name + "' is unreachable: " + nue.reason);
+	}
+	else
+	{
+	    amiFailure(prefix, title, e.toString());
+	}
+    }
+    
+    private void amiFailure(final String prefix, final String title, final String message)
+    {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {	
+		public void run() 
+		{
+		    failure(prefix, title, message);
+		}
+	    });
+    }
+
+    private void failure(String prefix, String title, String message)
+    {
+	_model.getStatusBar().setText(prefix + "failed!");
+	if(message != null)
+	{
+	    JOptionPane.showMessageDialog(
+		_model.getMainFrame(),
+		message,
+		title,
+		JOptionPane.ERROR_MESSAGE);
+	}
+    }
+
+
+    private void enableServer(boolean enable)
+    {
+	final String prefix = (enable ?
+	    "Enabling" : "Disabling") + " server '" + _id + "'...";
+	
+	final String action = enable ? "enable" : "disable";
+	
+	_model.getStatusBar().setText(prefix);
+
+	AMI_Admin_enableServer cb = new AMI_Admin_enableServer()
+	    {
+		//
+		// Called by another thread!
+		//
+		public void ice_response()
+		{
+		    amiSuccess(prefix);
+		}
+		
+		public void ice_exception(Ice.UserException e)
+		{
+		    amiFailure(prefix, "Failed to " + action + " " + _id, e);
+		}
+
+		public void ice_exception(Ice.LocalException e)
+		{
+		    amiFailure(prefix, "Failed to " + action + " " + _id, e.toString());
+		}
+	    };
+	
+	try
+	{   
+	   _model.getAdmin().enableServer_async(cb, _id, enable);
+	}
+	catch(Ice.LocalException e)
+	{
+	    failure(prefix, "Failed to " + action + " " + _id, e.toString());
+	}
+       	
+	//
+	// Recompute actions in case this comes from popup menu
+	// 
+	_model.showActions(_model.getSelectedNode());
+
+    }
+
     public void displayProperties()
     {
 	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
@@ -458,13 +584,6 @@ class Server extends EditableParent
 	super(brandNew, serverId, application.getModel());
 	_ephemeral = false;
 	rebuild(resolver, instanceDescriptor, serverDescriptor, application);
-
-	if(brandNew)
-	{
-	    _state = ServerState.Inactive;
-	    _toolTip = toolTip(_state, _pid);
-	    _stateIconIndex = _state.value() + 1;
-	}
     }
 
     Server(String serverId, ServerInstanceDescriptor instanceDescriptor, 
@@ -480,10 +599,6 @@ class Server extends EditableParent
 	{
 	    assert false;
 	}
-
-	_state = ServerState.Inactive;
-	_toolTip = toolTip(_state, _pid);
-	_stateIconIndex = _state.value() + 1;
     }
 
     //
@@ -553,13 +668,14 @@ class Server extends EditableParent
 	if(!_ephemeral)
 	{
 	    Ice.IntHolder pid = new Ice.IntHolder();
+	    Ice.BooleanHolder enabled = new Ice.BooleanHolder();
 	    _state = _model.getRoot().registerServer(_resolver.find("node"),
-						     _id,
 						     this,
-						     pid);
+						     pid, enabled);
 	    
 	    _pid = pid.value;
-	    _toolTip = toolTip(_state, _pid);
+	    _enabled = enabled.value;
+	    _toolTip = toolTip(_state, _pid, _enabled);
 	    if(_state != null)
 	    {
 		_stateIconIndex = _state.value() + 1;
@@ -575,7 +691,7 @@ class Server extends EditableParent
 	    if(!_ephemeral)
 	    {
 		_model.getRoot().unregisterServer(_resolver.find("node"),
-						  _id, this);
+						  this);
 	    }
 	    super.clearParent();
 	}
@@ -602,14 +718,15 @@ class Server extends EditableParent
     }
 
     
-    void updateDynamicInfo(ServerState state, int pid)
+    void updateDynamicInfo(ServerState state, int pid, boolean enabled)
     {
-	if(state != _state || pid != _pid)
+	if(state != _state || pid != _pid || enabled != _enabled)
 	{
 	    _state = state;
 	    _pid = pid;
+	    _enabled = enabled;
 	    
-	    _toolTip = toolTip(_state, _pid);
+	    _toolTip = toolTip(_state, _pid, _enabled);
 	    _stateIconIndex = _state.value() + 1;
 	
 	    //
@@ -678,9 +795,14 @@ class Server extends EditableParent
 	}
     }
 
-    static private String toolTip(ServerState state, int pid)
+    static private String toolTip(ServerState state, int pid, boolean enabled)
     {
 	String result = (state == null ? "Unknown" : state.toString());
+	
+	if(!enabled)
+	{
+	    result += ", disabled";
+	}
 
 	if(pid != 0)
 	{

@@ -49,7 +49,6 @@ class RegistryObserverI extends _RegistryObserverDisp
 	if(_initialized)
 	{
 	    _model.registryInit(_serial, _applications);
-	    _model.getStatusBar().setText("Connected; initialized (" + _serial + ")"); 
 	}
 	else
 	{
