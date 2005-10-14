@@ -156,9 +156,15 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
     {
 	throw string("property `") + endpointsProperty + "' is not set";
     }
-    
+
     const char* idProperty = "IcePatch2.Identity";
-    const Identity id = stringToIdentity(properties->getPropertyWithDefault(idProperty, "IcePatch2/server"));
+    string idStr = properties->getProperty(idProperty);
+    if(idStr.empty())
+    {
+	const char* instanceProperty = "IcePatch2.InstanceName";
+	idStr = properties->getPropertyWithDefault(instanceProperty, "IcePatch2") + "/server";
+    }
+    const Identity id = stringToIdentity(idStr);
     
     ObjectPrx serverBase = communicator->stringToProxy(identityToString(id) + ':' + endpoints);
     FileServerPrx server = FileServerPrx::checkedCast(serverBase);
