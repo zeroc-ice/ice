@@ -34,6 +34,7 @@ class ReplicaGroup extends EditableLeaf
 	    actions[PASTE] = true;
 	}
 	actions[DELETE] = true;
+	actions[SUBSTITUTE_VARS] = true;
 	return actions;
     }
 

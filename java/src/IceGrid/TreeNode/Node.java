@@ -63,6 +63,7 @@ class Node extends EditableParent
 
 	actions[COPY] = true;
 	actions[DELETE] = true;
+	actions[SUBSTITUTE_VARS] = true;
 
 	Object descriptor =  _model.getClipboard();
 	if(descriptor != null)

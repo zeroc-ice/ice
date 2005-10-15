@@ -257,6 +257,11 @@ public class Utils
 	//
 	// Simple resolver
 	//
+	public Resolver(java.util.Map variables)
+	{
+	    this(new java.util.Map[]{variables});
+	}
+
 	public Resolver(java.util.Map[] variables)
 	{
 	    _variables = variables;
@@ -378,7 +383,7 @@ public class Utils
 		if(beg > 0 && input.charAt(beg - 1) == '$')
 		{
 		    int escape = beg - 1;
-		    while(escape > 0 && input.charAt(escape = 1) == '$')
+		    while(escape > 0 && input.charAt(escape - 1) == '$')
 		    {
 			--escape;
 		    }

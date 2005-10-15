@@ -125,6 +125,20 @@ class ApplicationEditor extends Editor
 	}
     }
 
+    Utils.Resolver getDetailResolver()
+    {
+	Application application = (Application)_target;
+	if(application.getModel().substitute())
+	{
+	    return application.getResolver();
+	}
+	else
+	{
+	    return null;
+	}
+    }
+
+
     ApplicationEditor(JFrame parentFrame)
     {
 	_name.getDocument().addDocumentListener(_updateListener);
@@ -245,45 +259,85 @@ class ApplicationEditor extends Editor
 	detectUpdates(false);
 	setTarget(application);
 	
-	_name.setText(_target.getId());
-	_name.setEditable(_target.isEphemeral());
+	Utils.Resolver resolver = getDetailResolver();
+	boolean isEditable = (resolver == null);
 	
-	ApplicationDescriptor descriptor = (ApplicationDescriptor)_target.getDescriptor();
-		
-	_description.setText(descriptor.description);
+	_name.setText(application.getId());
+	_name.setEditable(application.isEphemeral());
+	
+	ApplicationDescriptor descriptor = 
+	    (ApplicationDescriptor)application.getDescriptor();
+
+	_description.setText(
+	    Utils.substitute(descriptor.description, resolver));
+	_description.setEditable(isEditable);
+	_description.setOpaque(isEditable);
 	
 	_variablesMap = descriptor.variables;
 	setVariablesField();
+	_variablesButton.setEnabled(isEditable);
 
-	if(descriptor.distrib.icepatch.equals(""))
+	_distrib.setEnabled(true);
+	_distrib.setEditable(true);
+	String icepatch = 
+	    Utils.substitute(descriptor.distrib.icepatch, resolver);
+	if(icepatch.equals(""))
 	{
 	    _distrib.setSelectedItem(NO_DISTRIB);
 	}
 	else
 	{
-	    _distrib.setSelectedItem(descriptor.distrib.icepatch);
+	    _distrib.setSelectedItem(icepatch);
 	}
+	_distrib.setEnabled(isEditable);
+	_distrib.setEditable(isEditable);
+
 	_distribDirsList = new java.util.LinkedList(descriptor.distrib.directories);
 	setDistribDirsField();
+	_distribDirsButton.setEnabled(isEditable);
 
 	_applyButton.setEnabled(application.isEphemeral());
 	_discardButton.setEnabled(application.isEphemeral());	  
 	detectUpdates(true);
     }
-
+    
     private void setDistribDirsField()
     {
+	final Utils.Resolver resolver = getDetailResolver();
+
 	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
+	Utils.Stringifier stringifier = new Utils.Stringifier()
+	    {
+		public String toString(Object obj)
+		{
+		    return Utils.substitute((String)obj, resolver);
+		}
+	    };
+	
 	_distribDirs.setText(
-	    Utils.stringify(_distribDirsList, ", ", toolTipHolder));
+	    Utils.stringify(_distribDirsList, stringifier, ", ", toolTipHolder));
 	_distribDirs.setToolTipText(toolTipHolder.value);
     }
 
     private void setVariablesField()
     {
+	final Utils.Resolver resolver = getDetailResolver();
+
+	Utils.Stringifier stringifier = new Utils.Stringifier()
+	    {
+		public String toString(Object obj)
+		{
+		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
+		    
+		    return (String)entry.getKey() + "="
+			+ Utils.substitute((String)entry.getValue(), resolver);
+		}
+	    };
+
 	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
 	_variables.setText(
-	    Utils.stringify(_variablesMap, "=", ", ", toolTipHolder));
+	    Utils.stringify(_variablesMap.entrySet(), stringifier, 
+			    ", ", toolTipHolder));
 	_variables.setToolTipText(toolTipHolder.value);
     }
     

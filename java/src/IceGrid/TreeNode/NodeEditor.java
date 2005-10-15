@@ -142,6 +142,19 @@ class NodeEditor extends Editor
 	}
     }
 
+    Utils.Resolver getDetailResolver()
+    {
+	Node node = (Node)_target;
+	if(node.getModel().substitute())
+	{
+	    return node.getResolver();
+	}
+	else
+	{
+	    return null;
+	}
+    }
+
     NodeEditor(JFrame parentFrame)
     {
 	_name.getDocument().addDocumentListener(_updateListener);
@@ -217,30 +230,54 @@ class NodeEditor extends Editor
 	detectUpdates(false);
 	setTarget(node);
 	
+	Utils.Resolver resolver = getDetailResolver();
+	boolean isEditable = (resolver == null);
+
 	_name.setText(_target.getId());
 	_name.setEditable(_target.isEphemeral());
 	
 	NodeDescriptor descriptor = (NodeDescriptor)_target.getDescriptor();
 
-	_description.setText(descriptor.description);
+	_description.setText(
+	    Utils.substitute(descriptor.description, resolver));
+	_description.setEditable(isEditable);
+	_description.setOpaque(isEditable);
+
 	_variablesMap = descriptor.variables;
 	setVariablesField();
-	_loadFactor.setText(descriptor.loadFactor);
-	
+	_variablesButton.setEnabled(isEditable);
+
+	_loadFactor.setText(
+	    Utils.substitute(descriptor.loadFactor, resolver));
+	_loadFactor.setEditable(isEditable);
+
 	_applyButton.setEnabled(node.isEphemeral());
 	_discardButton.setEnabled(node.isEphemeral());
 	detectUpdates(true);
     }
-
+    
     private void setVariablesField()
     {
+	Utils.Stringifier stringifier = new Utils.Stringifier()
+	    {
+		final Utils.Resolver resolver = getDetailResolver();
+
+		public String toString(Object obj)
+		{
+		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
+		    
+		    return (String)entry.getKey() + "="
+			+ Utils.substitute((String)entry.getValue(), resolver);
+		}
+	    };
+
 	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
 	_variables.setText(
-	    Utils.stringify(_variablesMap, "=", ", ", toolTipHolder));
+	    Utils.stringify(_variablesMap.entrySet(), stringifier, 
+			    ", ", toolTipHolder));
 	_variables.setToolTipText(toolTipHolder.value);
     }
 
-    
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
     private JTextField _variables = new JTextField(20);

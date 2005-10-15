@@ -156,6 +156,19 @@ class ReplicaGroupEditor extends Editor
 	}
     }
 
+    Utils.Resolver getDetailResolver()
+    {
+	Application application = _target.getApplication();
+	if(application.getModel().substitute())
+	{
+	    return application.getResolver();
+	}
+	else
+	{
+	    return null;
+	}
+    }
+
     ReplicaGroupEditor(JFrame parentFrame)
     {
 	_objects.setEditable(false);
@@ -294,30 +307,56 @@ class ReplicaGroupEditor extends Editor
 	builder.nextLine();
     }
 
-    
     void setObjectsField()
     {
+	final Utils.Resolver resolver = getDetailResolver();
+	
 	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-
+	Utils.Stringifier stringifier = new Utils.Stringifier()
+	    {
+		public String toString(Object obj)
+		{
+		    java.util.Map.Entry entry = (java.util.Map.Entry)obj;
+		    
+		    return Utils.substitute((String)entry.getKey(), resolver) 
+			+ " as '"
+			+ Utils.substitute((String)entry.getValue(), resolver)
+			+ "'";
+		}
+	    };
+	
 	_objects.setText(
-	    Utils.stringify(_objectsMap, "=", ", ", toolTipHolder));
+	    Utils.stringify(_objectsMap.entrySet(), stringifier,
+			    ", ", toolTipHolder));
 	_objects.setToolTipText(toolTipHolder.value);
     }
+    
     
     void show(ReplicaGroup replicaGroup)
     {
 	detectUpdates(false);
 	setTarget(replicaGroup);
 
+	Utils.Resolver resolver = getDetailResolver();
+	boolean isEditable = (resolver == null);
+	
 	ReplicaGroupDescriptor descriptor = 
 	    (ReplicaGroupDescriptor)replicaGroup.getDescriptor();
 	
 	_id.setText(descriptor.id);
-	_description.setText(descriptor.description);
+	_id.setEditable(isEditable);
 	
+	_description.setText(
+	    Utils.substitute(descriptor.description, resolver));
+	_description.setEditable(isEditable);
+	_description.setOpaque(isEditable);
+
 	_objectsMap = AdapterEditor.objectDescriptorSeqToMap(descriptor.objects);
 	setObjectsField();
+	_objectsButton.setEnabled(isEditable);
 
+	_loadBalancing.setEnabled(true);
+	_loadBalancing.setEditable(true);
 	if(descriptor.loadBalancing == null)
 	{
 	    _loadBalancing.setSelectedItem(RETURN_ALL);
@@ -327,26 +366,36 @@ class ReplicaGroupEditor extends Editor
 	else if(descriptor.loadBalancing instanceof RandomLoadBalancingPolicy)
 	{
 	    _loadBalancing.setSelectedItem(RANDOM);
-	    _nReplicas.setText(descriptor.loadBalancing.nReplicas);
+	    _nReplicas.setText(
+		Utils.substitute(descriptor.loadBalancing.nReplicas, resolver));
 	    _loadSample.setSelectedItem("1");
 	}
 	else if(descriptor.loadBalancing instanceof RoundRobinLoadBalancingPolicy)
 	{
 	    _loadBalancing.setSelectedItem(ROUND_ROBIN);
-	    _nReplicas.setText(descriptor.loadBalancing.nReplicas);
+	    _nReplicas.setText(
+		Utils.substitute(descriptor.loadBalancing.nReplicas, resolver));
 	    _loadSample.setSelectedItem("1");
 	}
 	else if(descriptor.loadBalancing instanceof AdaptiveLoadBalancingPolicy)
 	{
 	    _loadBalancing.setSelectedItem(ADAPTIVE);
-	    _nReplicas.setText(descriptor.loadBalancing.nReplicas);
+	    _nReplicas.setText(
+		Utils.substitute(descriptor.loadBalancing.nReplicas, resolver));
+
 	    _loadSample.setSelectedItem(
-		((AdaptiveLoadBalancingPolicy)descriptor.loadBalancing).loadSample);
+		Utils.substitute(
+		    ((AdaptiveLoadBalancingPolicy)descriptor.loadBalancing).loadSample,
+		    resolver));
 	}
 	else
 	{
 	    assert false;
 	}
+	_nReplicas.setEditable(isEditable);
+	_loadSample.setEditable(isEditable);
+	_loadBalancing.setEnabled(isEditable);
+	_loadBalancing.setEditable(isEditable);
 
 	_applyButton.setEnabled(replicaGroup.isEphemeral());
 	_discardButton.setEnabled(replicaGroup.isEphemeral());	  

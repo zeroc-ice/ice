@@ -20,6 +20,7 @@ import IceGrid.ServerDynamicInfo;
 import IceGrid.ServerState;
 import IceGrid.SimpleInternalFrame;
 import IceGrid.TemplateDescriptor;
+import IceGrid.Utils;
 
 
 public class Application extends EditableParent
@@ -50,6 +51,7 @@ public class Application extends EditableParent
 
 	actions[COPY] = true;
 	actions[DELETE] = true;
+	actions[SUBSTITUTE_VARS] = true;
 
 	Object descriptor =  _model.getClipboard();
 	if(descriptor != null)
@@ -123,17 +125,21 @@ public class Application extends EditableParent
 		}
 	    }
 	    update.removeVariables = (String[])removeVariables.toArray(new String[0]);
+
+	    //
+	    // Diff distribution
+	    //
+	    if(!_descriptor.distrib.equals(_origDistrib))
+	    {
+		update.distrib = new IceGrid.BoxedDistributionDescriptor(
+		    _descriptor.distrib);
+	    }
 	}
 	else
 	{
 	    update.variables = new java.util.TreeMap();
 	    update.removeVariables = new String[0];
 	}
-
-	//
-	// Distribution TODO: implement
-	//
-	//update.distribution = XXX
 
 	//
 	// Replicated Adapters
@@ -165,8 +171,9 @@ public class Application extends EditableParent
     public void commit()
     {
 	super.commit();
-	_origVariables = (java.util.Map)_descriptor.variables.clone();
+	_origVariables = _descriptor.variables;
 	_origDescription = _descriptor.description;
+	_origDistrib = _descriptor.distrib;
     }
 
     public Object getDescriptor()
@@ -261,12 +268,15 @@ public class Application extends EditableParent
 	super(brandNew, descriptor.name, model);
 	_ephemeral = false;
 	_descriptor = descriptor;
-	_origVariables = (java.util.Map)_descriptor.variables.clone();
+	_origVariables = _descriptor.variables;
 	_origDescription = _descriptor.description;
+	_origDistrib = _descriptor.distrib;
 
+	_resolver = new Utils.Resolver(_descriptor.variables);
+	_resolver.put("application", descriptor.name);
 
 	_replicaGroups = new ReplicaGroups(_descriptor.replicaGroups,
-						     _model);
+					   _model);
 	addChild(_replicaGroups);
 
 	_serviceTemplates = new ServiceTemplates(_descriptor.serviceTemplates,
@@ -294,7 +304,19 @@ public class Application extends EditableParent
     //
     void rebuild() throws UpdateFailedException
     {
-	_nodes.rebuild();
+	Utils.Resolver oldResolver = _resolver;
+	_resolver = new Utils.Resolver(_descriptor.variables);
+	_resolver.put("application", _id);
+
+	try
+	{
+	    _nodes.rebuild();
+	}
+	catch(UpdateFailedException e)
+	{
+	    _resolver = oldResolver;
+	    throw e;
+	}
     }
 
     //
@@ -337,6 +359,13 @@ public class Application extends EditableParent
 	}
 	_descriptor.variables.putAll(desc.variables);
 
+	//
+	// Distrib
+	//
+	if(desc.distrib != null)
+	{
+	    _descriptor.distrib = desc.distrib.value;
+	}
 
 	//
 	// Replicated adapters
@@ -465,18 +494,23 @@ public class Application extends EditableParent
 	_nodes.nodeDown(nodeName);
     }
     
-    private ApplicationDescriptor _descriptor;
+    Utils.Resolver getResolver()
+    {
+	return _resolver;
+    }
     
+    private ApplicationDescriptor _descriptor;
     private final boolean _ephemeral;
+    private Utils.Resolver _resolver;
 
     //
-    // Keeps original version (as deep copies) to be able to build 
+    // Keeps original version (as shallow copies) to be able to build 
     // ApplicationUpdateDescriptor
     //
-    private java.util.Map _origVariables;
+    private java.util.TreeMap _origVariables;
     private String _origDescription;
+    private DistributionDescriptor _origDistrib;
    
-
     //
     // Children
     //

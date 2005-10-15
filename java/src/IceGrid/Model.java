@@ -1082,16 +1082,17 @@ public class Model
 	_actions[CommonBase.DELETE].putValue(Action.SHORT_DESCRIPTION, "Delete");
    
 	_actions[CommonBase.SUBSTITUTE_VARS] = new 
-	    AbstractAction("Substitute variables")
+	    AbstractAction("${}")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
 		    _actionsTarget.substituteVars();
+		    putValue(Action.NAME, _substitute ? "abc" : "${}");
 		}
 	    };
 	_actions[CommonBase.SUBSTITUTE_VARS].putValue(
 	    Action.SHORT_DESCRIPTION, 
-	    "Substitute variables and parameters in servers' properties");
+	    "Substitute variables and parameters with their values in the Properties pane");
 	_substituteMenuItem = new
 	    JCheckBoxMenuItem(_actions[CommonBase.SUBSTITUTE_VARS]);
 	_substituteTool = new 
