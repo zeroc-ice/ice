@@ -180,7 +180,7 @@ class ApplicationEditor extends Editor
 
 	_distribDirs.setEditable(false);
 	_distribDirsDialog = new ListDialog(parentFrame, 
-					    "Directories");
+					    "Directories", true);
 
 	Action openDistribDirsDialog = new AbstractAction("...")
 	    {

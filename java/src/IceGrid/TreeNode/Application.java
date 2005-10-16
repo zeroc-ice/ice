@@ -8,6 +8,7 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
@@ -63,6 +64,13 @@ public class Application extends EditableParent
 	    actions[APPLICATION_INSTALL_DISTRIBUTION] = 
 		!_descriptor.distrib.icepatch.equals("");
 	}
+	
+	actions[NEW_NODE] = (_nodes != null);
+	actions[NEW_REPLICA_GROUP] = (_replicaGroups != null);
+	actions[NEW_TEMPLATE_SERVER] = (_serverTemplates != null);
+	actions[NEW_TEMPLATE_SERVER_ICEBOX] = (_serverTemplates != null);
+	actions[NEW_TEMPLATE_SERVICE] = (_serviceTemplates != null);
+
 	return actions;
     }
     public JPopupMenu getPopupMenu()
@@ -70,6 +78,30 @@ public class Application extends EditableParent
 	if(_popup == null)
 	{
 	    _popup = new PopupMenu(_model);
+	
+	    JMenuItem newNodeItem = new JMenuItem(_model.getActions()[NEW_NODE]);
+	    newNodeItem.setText("New node");
+	    _popup.add(newNodeItem);
+	    
+	    JMenuItem newReplicaGroupItem = new JMenuItem(_model.getActions()[NEW_REPLICA_GROUP]);
+	    newReplicaGroupItem.setText("New replica group");
+	    _popup.add(newReplicaGroupItem);
+	     _popup.addSeparator();
+
+	    JMenuItem newServerItem = new JMenuItem(_model.getActions()[NEW_TEMPLATE_SERVER]);
+	    newServerItem.setText("New server template");
+	    _popup.add(newServerItem);
+	    JMenuItem newIceBoxItem = 
+		new JMenuItem(_model.getActions()[NEW_TEMPLATE_SERVER_ICEBOX]);
+	    newIceBoxItem.setText("New IceBox server template");
+	    _popup.add(newIceBoxItem); 
+	    _popup.addSeparator();
+
+	    JMenuItem newServiceItem = new JMenuItem(_model.getActions()[NEW_TEMPLATE_SERVICE]);
+	    newServiceItem.setText("New service template");
+	    _popup.add(newServiceItem);
+	    _popup.addSeparator();
+
 	    _popup.add(_model.getActions()[APPLICATION_INSTALL_DISTRIBUTION]);
 	}
 	return _popup;
@@ -82,6 +114,26 @@ public class Application extends EditableParent
     public void paste()
     {
 	_parent.paste();
+    }
+    public void newNode()
+    {
+	_nodes.newNode();
+    }
+    public void newReplicaGroup()
+    {
+	_replicaGroups.newReplicaGroup();
+    }
+    public void newTemplateServer()
+    {
+	_serverTemplates.newTemplateServer();
+    }
+    public void newTemplateServerIceBox()
+    {
+	_serverTemplates.newTemplateServerIceBox();
+    }
+    public void newTemplateService()
+    {
+	_serviceTemplates.newTemplateService();
     }
 
     public ApplicationUpdateDescriptor createUpdateDescriptor()

@@ -229,13 +229,17 @@ class Adapter extends Leaf
 	assert ph != null;
 	return ph.get(_descriptor.name + "." + property);
     }
-
-    void setProperty(String property, String newName, String newValue)
+    void setProperty(String name, String property, String newValue)
     {
 	PropertiesHolder ph = getParent().getParent().getPropertiesHolder();
 	assert ph != null;
-	ph.replace(_descriptor.name + "." + property, 
-		   newName + "." + property, newValue);
+	ph.set(name + "." + property, newValue);
+    }
+    void removeProperty(String name, String property)
+    {
+	PropertiesHolder ph = getParent().getParent().getPropertiesHolder();
+	assert ph != null;
+	ph.remove(name + "." + property);
     }
 
     String getAdapterId()

@@ -8,11 +8,14 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
-import IceGrid.SimpleInternalFrame;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
-import IceGrid.ServiceDescriptor;
-import IceGrid.TemplateDescriptor;
 import IceGrid.Model;
+import IceGrid.ServiceDescriptor;
+import IceGrid.SimpleInternalFrame;
+import IceGrid.TemplateDescriptor;
+
 
 class ServiceTemplate extends EditableParent
 {
@@ -40,6 +43,10 @@ class ServiceTemplate extends EditableParent
 	    actions[PASTE] = true;
 	}
 	actions[DELETE] = true;
+
+	actions[NEW_ADAPTER] = (_adapters != null);
+	actions[NEW_DBENV] = (_dbEnvs != null);
+
 	return actions;
     }
     public void copy()
@@ -51,6 +58,31 @@ class ServiceTemplate extends EditableParent
     {
 	_parent.paste();
     }
+    public void newAdapter()
+    {
+	_adapters.newAdapter();
+    }
+    public void newDbEnv()
+    {
+	_dbEnvs.newDbEnv();
+    }
+
+    public JPopupMenu getPopupMenu()
+    {
+	if(_popup == null)
+	{
+	    _popup = new PopupMenu(_model);
+	    JMenuItem item = new JMenuItem(_model.getActions()[NEW_ADAPTER]);
+	    item.setText("New adapter");
+	    _popup.add(item);
+
+	    item = new JMenuItem(_model.getActions()[NEW_DBENV]);
+	    item.setText("New DbEnv");
+	    _popup.add(item);
+	}
+	return _popup;
+    }
+
 
     public void displayProperties()
     {
@@ -204,4 +236,5 @@ class ServiceTemplate extends EditableParent
     private final boolean _ephemeral;
     
     static private ServiceTemplateEditor _editor;
+    static private JPopupMenu _popup;
 }

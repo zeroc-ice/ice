@@ -35,40 +35,24 @@ class PropertiesHolder
 	return null;
     }
 
-    void replace(String oldKey, String newKey, String newValue)
+    void set(String key, String newValue)
     {
-	//
-	// Each PropertyDescriptor is considered immutable: so always remove + put
-	//
-	boolean oldKeyRemoved = false;
-	boolean newKeyRemoved = false;
-	if(oldKey.equals(newKey))
-	{
-	    oldKeyRemoved = true;
-	}
+	remove(key);
+	_descriptor.properties.add(new PropertyDescriptor(key, newValue));
+    }
 
+    void remove(String key)
+    {
 	java.util.Iterator p = _descriptor.properties.iterator();
-	while(p.hasNext() && (!oldKeyRemoved || !newKeyRemoved))
+	while(p.hasNext())
 	{
 	    PropertyDescriptor pd = (PropertyDescriptor)p.next();
-
-	    if(!oldKeyRemoved && pd.name.equals(oldKey))
+	    if(pd.name.equals(key))
 	    {
 		p.remove();
-		oldKeyRemoved = true;
 	    }
-	    else if(!newKeyRemoved && pd.name.equals(newKey))
-	    {
-		p.remove();
-		newKeyRemoved = true;
-	    }
-	}
-
-	
-	if(!newValue.equals(""))
-	{
-	    _descriptor.properties.add(new PropertyDescriptor(newKey, newValue));
 	}
     }
+
     private CommunicatorDescriptor _descriptor;
 }

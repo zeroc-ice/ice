@@ -8,6 +8,7 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import IceGrid.SimpleInternalFrame;
@@ -63,6 +64,12 @@ class Service extends Parent
 	if(isEditable())
 	{
 	    actions[DELETE] = true;
+
+	    if(_instanceDescriptor.template.equals(""))
+	    {
+		actions[NEW_ADAPTER] = (_adapters != null);
+		actions[NEW_DBENV] = (_dbEnvs != null);
+	    }
 	}
 	
 	if(_resolver != null && !_ephemeral)
@@ -79,6 +86,15 @@ class Service extends Parent
 	if(_popup == null)
 	{
 	    _popup = new PopupMenu(_model);
+	    JMenuItem item = new JMenuItem(_model.getActions()[NEW_ADAPTER]);
+	    item.setText("New adapter");
+	    _popup.add(item);
+
+	    item = new JMenuItem(_model.getActions()[NEW_DBENV]);
+	    item.setText("New DbEnv");
+	    _popup.add(item);
+	    
+	    _popup.addSeparator();
 	    _popup.add(_model.getActions()[MOVE_UP]);
 	    _popup.add(_model.getActions()[MOVE_DOWN]);
 	}
@@ -102,6 +118,14 @@ class Service extends Parent
     {
 	assert canMoveDown();
 	((Services)_parent).move(this, false);
+    }
+    public void newAdapter()
+    {
+	_adapters.newAdapter();
+    }
+    public void newDbEnv()
+    {
+	_dbEnvs.newDbEnv();
     }
 
     public Object getDescriptor()

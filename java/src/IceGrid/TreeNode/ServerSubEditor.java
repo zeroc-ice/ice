@@ -73,7 +73,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 	_envButton = new JButton(openEnvDialog);
 	
 	_optionDialog = new ListDialog(parentFrame, 
-				       "Command Arguments");
+				       "Command Arguments", false);
 	Action openOptionDialog = new AbstractAction("...")
 	    {
 		public void actionPerformed(ActionEvent e) 
@@ -99,7 +99,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 
 	_distribDirs.setEditable(false);
 	_distribDirsDialog = new ListDialog(parentFrame, 
-					    "Directories");
+					    "Directories", true);
 
 	Action openDistribDirsDialog = new AbstractAction("...")
 	    {

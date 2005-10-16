@@ -227,19 +227,25 @@ class AdapterEditor extends ListElementEditor
 	//
 	// Change enclosing properties after successful update
 	//
-	getAdapter().setProperty("Endpoints", _name.getText(), 
-				 _endpoints.getText());
+	String name = _name.getText();
+	Adapter adapter = getAdapter();
+	if(!name.equals(_oldName))
+	{
+	    adapter.removeProperty(_oldName, "Endpoints");
+	    adapter.removeProperty(_oldName, "PublishedEndpoints");
+	}
+	
+	adapter.setProperty(name, "Endpoints", _endpoints.getText());
 	
 	Object published = _publishedEndpoints.getSelectedItem();
 	if(published == PUBLISH_ACTUAL)
 	{
-	    getAdapter().setProperty("PublishedEndpoints", _name.getText(), 
-				     "");
+	    adapter.removeProperty(name, "PublishedEndpoints");
 	}
 	else
 	{
-	    getAdapter().setProperty("PublishedEndpoints", _name.getText(), 
-				     published.toString());
+	    adapter.setProperty(name, "PublishedEndpoints",
+				published.toString());
 
 	}
     }
@@ -347,8 +353,9 @@ class AdapterEditor extends ListElementEditor
 	boolean isEditable = adapter.isEditable() && resolver == null;
 	boolean inIceBox = adapter.inIceBox();
 	
-	_name.setText(
-	    Utils.substitute(descriptor.name, resolver));
+	_oldName = descriptor.name;
+
+	_name.setText(Utils.substitute(descriptor.name, resolver));
 	_name.setEditable(isEditable && !inIceBox);
 
 	_description.setText(
@@ -476,6 +483,9 @@ class AdapterEditor extends ListElementEditor
 	}
 	return result;
     }
+
+    
+    private String _oldName;
     
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
@@ -488,8 +498,6 @@ class AdapterEditor extends ListElementEditor
     private JComboBox _publishedEndpoints = new JComboBox(
 	new Object[]{PUBLISH_ACTUAL});
     private JTextField _currentEndpoints = new JTextField(20);
-
-
 
     private JCheckBox _registerProcess;
     private JCheckBox _waitForActivation;

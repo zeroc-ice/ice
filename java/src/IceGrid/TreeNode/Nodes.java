@@ -59,7 +59,8 @@ public class Nodes extends EditableParent
 	{
 	    _popup = new PopupMenu(_model);
 
-	    JMenuItem newNodeItem = new JMenuItem(_model.getActions()[NEW_NODE]);
+	    JMenuItem newNodeItem = 
+		new JMenuItem(_model.getActions()[NEW_NODE]);
 	    newNodeItem.setText("New node");
 	    _popup.add(newNodeItem);
 	}

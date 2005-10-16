@@ -13,8 +13,6 @@ import java.awt.Dimension;
 import java.awt.Frame;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -22,9 +20,11 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import com.jgoodies.forms.factories.Borders;
@@ -37,73 +37,6 @@ import com.jgoodies.forms.factories.ButtonBarFactory;
 
 public class TableDialog extends JDialog
 {
-    class PopupListener extends MouseAdapter
-    {
-	public void mousePressed(MouseEvent e) 
-	{
-	    maybeShowPopup(e);
-	}
-
-	public void mouseReleased(MouseEvent e) 
-	{
-	    maybeShowPopup(e);
-	}
-
-	private void maybeShowPopup(MouseEvent e) 
-	{
-	    if (e.isPopupTrigger()) 
-	    {	
-		_popup.show( e.getX(), e.getY());
-	    }
-	}
-    }
-    
-    class PopupMenu extends JPopupMenu
-    {
-	PopupMenu()
-	{
-	    _addRow = new AbstractAction("Add a new row")
-		{
-		    public void actionPerformed(ActionEvent e) 
-		    {
-			java.util.Vector newRow = null;
-			_model.addRow(newRow);
-		    }
-		};
-	    
-	    _deleteRow = new AbstractAction("Delete selected row(s)")
-		{
-		    public void actionPerformed(ActionEvent e) 
-		    {
-			for(;;)
-			{
-			    int selectedRow = _table.getSelectedRow();
-			    if(selectedRow == -1)
-			    {
-				break;
-			    }
-			    else
-			    {
-				_model.removeRow(selectedRow);
-			    }
-			}
-		    }
-		};
-
-	    add(_addRow);
-	    add(_deleteRow);
-	}
-	
-	void show(int x, int y)
-	{
-	    _deleteRow.setEnabled(_table.getSelectedRowCount() > 0);
-	    show(_table, x, y);
-	}
-
-	private Action _addRow;
-	private Action _deleteRow;
-    }
-    
     public TableDialog(Frame parentFrame, String title, 
 		       String heading0, String heading1, boolean editKeys)
     {
@@ -136,17 +69,42 @@ public class TableDialog extends JDialog
 	    };
 	JButton cancelButton = new JButton(cancel);
 	
-	JScrollPane scrollPane = new JScrollPane(_table);
 	if(_editKeys)
 	{
-	    PopupListener popupListener = new PopupListener();
-	    _table.addMouseListener(popupListener);
-	    scrollPane.addMouseListener(popupListener);
+	     Action deleteRow = new AbstractAction("Delete selected row(s)")
+		 {
+		     public void actionPerformed(ActionEvent e) 
+		     {
+			 if(_table.isEditing()) 
+			 {
+			     _table.getCellEditor().stopCellEditing();
+			 }
+			 
+			 for(;;)
+			 {
+			     int selectedRow = _table.getSelectedRow();
+			     if(selectedRow == -1)
+			     {
+				 break;
+			     }
+			     else
+			     {
+				 _model.removeRow(selectedRow);
+			     }
+			 }
+		     }
+		 };
+	     _table.getActionMap().put("delete", deleteRow);
+	     _table.getInputMap().put(
+		 KeyStroke.getKeyStroke("DELETE"), "delete");
 	}
+	   
+	JScrollPane scrollPane = new JScrollPane(_table);
 	scrollPane.setBorder(Borders.DIALOG_BORDER);
 
 	getContentPane().add(scrollPane, BorderLayout.CENTER);
-	JPanel buttonBar = ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
+	JPanel buttonBar = 
+	    ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
 	buttonBar.setBorder(Borders.DIALOG_BORDER);
 
 	getContentPane().add(buttonBar, BorderLayout.SOUTH);
@@ -173,9 +131,12 @@ public class TableDialog extends JDialog
 	    row.add(entry.getValue());
 	    vector.add(row);
 	}
-	if(_editKeys && vector.size() == 0)
+	if(_editKeys)
 	{
-	    vector.add(new java.util.Vector(2));
+	    java.util.Vector newRow = new java.util.Vector(2);
+	    newRow.add("");
+	    newRow.add("");
+	    vector.add(newRow);
 	}
 
 	_model = new DefaultTableModel(vector, _columnNames)
@@ -193,6 +154,23 @@ public class TableDialog extends JDialog
 		}
 	    };
 	
+	_model.addTableModelListener(new TableModelListener()
+	    {
+		public void tableChanged(TableModelEvent e)
+		{
+		    if(_editKeys)
+		    {
+			Object lastKey = _model.getValueAt(
+			    _model.getRowCount() - 1 , 0);
+			if(lastKey != null && !lastKey.equals(""))
+			{
+			    _model.addRow(new Object[]{"", ""});
+			}
+		    }
+		}
+	    });
+
+
 	_table.setModel(_model);
 
 	setLocationRelativeTo(onComponent);
@@ -223,9 +201,22 @@ public class TableDialog extends JDialog
 		// Eliminate rows with null or empty keys
 		//
 		String key = (String)row.elementAt(0);
-		if(key != null && key.length() > 0)
+		if(key != null)
 		{
-		    result.put(key, row.elementAt(1));
+		    if(_editKeys)
+		    {
+			key = key.trim();
+		    }
+		    
+		    if(!key.equals(""))
+		    {
+			String val = (String) row.elementAt(1);
+			if(val == null)
+			{
+			    val = "";
+			}
+			result.put(key, val);
+		    }
 		}
 	    }
 	    return result;
@@ -237,7 +228,6 @@ public class TableDialog extends JDialog
     private JTable _table;
     private DefaultTableModel _model;
     private java.util.Vector _columnNames;
-    private PopupMenu _popup = new PopupMenu();
 }
 
 

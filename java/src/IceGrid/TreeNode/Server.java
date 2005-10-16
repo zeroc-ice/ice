@@ -163,6 +163,13 @@ class Server extends EditableParent
 
 	actions[DELETE] = true;
 	actions[SUBSTITUTE_VARS] = true;
+	
+	if(_instanceDescriptor == null)
+	{
+	    actions[NEW_ADAPTER] = (_adapters != null && _services == null);
+	    actions[NEW_SERVICE] = (_services != null);
+	    actions[NEW_DBENV] = (_dbEnvs != null);
+	}
 
 	ServerState state = getState();
 	if(state != null)
@@ -187,6 +194,20 @@ class Server extends EditableParent
 	if(_popup == null)
 	{
 	    _popup = new PopupMenu(_model);
+
+	    JMenuItem item = new JMenuItem(_model.getActions()[NEW_ADAPTER]);
+	    item.setText("New adapter");
+	    _popup.add(item);
+
+	    item = new JMenuItem(_model.getActions()[NEW_DBENV]);
+	    item.setText("New DbEnv");
+	    _popup.add(item);
+
+	    item = new JMenuItem(_model.getActions()[NEW_SERVICE]);
+	    item.setText("New service");
+	    _popup.add(item);
+
+	    _popup.addSeparator();
 	    _popup.add(_model.getActions()[START]);
 	    _popup.add(_model.getActions()[STOP]);
 	    _popup.addSeparator();
@@ -212,6 +233,18 @@ class Server extends EditableParent
     public void paste()
     {
 	_parent.paste();
+    }
+    public void newAdapter()
+    {
+	_adapters.newAdapter();
+    }
+    public void newDbEnv()
+    {
+	_dbEnvs.newDbEnv();
+    }
+    public void newService()
+    {
+	_services.newService();
     }
 
     public void start()

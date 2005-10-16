@@ -13,8 +13,6 @@ import java.awt.Dimension;
 import java.awt.Frame;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -22,9 +20,11 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import com.jgoodies.forms.factories.Borders;
@@ -35,79 +35,14 @@ import com.jgoodies.forms.factories.ButtonBarFactory;
 //
 
 public class ListDialog extends JDialog
-{
-    class PopupListener extends MouseAdapter
-    {
-	public void mousePressed(MouseEvent e) 
-	{
-	    maybeShowPopup(e);
-	}
-
-	public void mouseReleased(MouseEvent e) 
-	{
-	    maybeShowPopup(e);
-	}
-
-	private void maybeShowPopup(MouseEvent e) 
-	{
-	    if (e.isPopupTrigger()) 
-	    {	
-		_popup.show(e.getX(), e.getY());
-	    }
-	}
-    }
-    
-    class PopupMenu extends JPopupMenu
-    {
-	PopupMenu()
-	{
-	    _addRow = new AbstractAction("Add a new element")
-		{
-		    public void actionPerformed(ActionEvent e) 
-		    {
-			java.util.Vector newRow = null;
-			_model.addRow(newRow);
-		    }
-		};
-	    
-	    _deleteRow = new AbstractAction("Delete selected element(s)")
-		{
-		    public void actionPerformed(ActionEvent e) 
-		    {
-			for(;;)
-			{
-			    int selectedRow = _list.getSelectedRow();
-			    if(selectedRow == -1)
-			    {
-				break;
-			    }
-			    else
-			    {
-				_model.removeRow(selectedRow);
-			    }
-			}
-		    }
-		};
-
-	    add(_addRow);
-	    add(_deleteRow);
-	}
-	
-	void show(int x, int y)
-	{
-	    _deleteRow.setEnabled(_list.getSelectedRowCount() > 0);
-	    show(_list, x, y);
-	}
-
-	private Action _addRow;
-	private Action _deleteRow;
-    }
-    
-    public ListDialog(Frame parentFrame, String title)
+{ 
+    public ListDialog(Frame parentFrame, String title, boolean trim)
     {
 	super(parentFrame, title, true);
 	setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-	
+
+	_trim = trim;
+
 	_columnNames = new java.util.Vector(1);
 	_columnNames.add("item");
 
@@ -132,12 +67,35 @@ public class ListDialog extends JDialog
 		}
 	    };
 	JButton cancelButton = new JButton(cancel);
+
+	Action deleteRow = new AbstractAction("Delete selected element(s)")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    if(_list.isEditing()) 
+		    {
+			_list.getCellEditor().stopCellEditing();
+		    }
+		    
+		    for(;;)
+		    {
+			int selectedRow = _list.getSelectedRow();
+			if(selectedRow == -1)
+			{
+			    break;
+			}
+			else
+			{
+			    _model.removeRow(selectedRow);
+			}
+		    }
+		}
+	    };
+	_list.getActionMap().put("delete", deleteRow);
+	_list.getInputMap().put(KeyStroke.getKeyStroke("DELETE"), "delete");
+	    
 	
 	JScrollPane scrollPane = new JScrollPane(_list);
-	
-	PopupListener popupListener = new PopupListener();
-	_list.addMouseListener(popupListener);
-	scrollPane.addMouseListener(popupListener);
 	scrollPane.setBorder(Borders.DIALOG_BORDER);
 
 	getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -163,12 +121,26 @@ public class ListDialog extends JDialog
 	    elt.add(p.next());
 	    vector.add(elt);
 	}
-	if(vector.size() == 0)
-	{
-	    vector.addElement(new java.util.Vector(1));
-	}
-	
+
+	java.util.Vector newRow = new java.util.Vector(1);
+	newRow.add("");
+	vector.addElement(newRow);
+
 	_model = new DefaultTableModel(vector, _columnNames);
+
+	_model.addTableModelListener(new TableModelListener()
+	    {
+		public void tableChanged(TableModelEvent e)
+		{
+		    Object lastKey = _model.getValueAt(
+			_model.getRowCount() - 1 , 0);
+		    if(lastKey != null && !lastKey.equals(""))
+		    {
+			_model.addRow(new Object[]{""});
+		    }
+		}
+	    });
+
 	_list.setModel(_model);
 
 	setLocationRelativeTo(onComponent);
@@ -191,9 +163,17 @@ public class ListDialog extends JDialog
 	    java.util.LinkedList result = new java.util.LinkedList();
 	    for(int i = 0; i < _model.getRowCount(); ++i)
 	    {
-		if(!_model.getValueAt(i, 0).equals(""))
+		String value = (String)_model.getValueAt(i, 0);
+		if(value != null)
 		{
-		    result.add(_model.getValueAt(i, 0));
+		    if(_trim)
+		    {
+			value = value.trim();
+		    }
+		    if(!value.equals(""))
+		    {
+			result.add(value);
+		    }
 		}
 	    }
 	    return result;
@@ -204,7 +184,7 @@ public class ListDialog extends JDialog
     private DefaultTableModel _model;
     private JTable _list;
     private java.util.Vector _columnNames;
-    private PopupMenu _popup = new PopupMenu();
+    private boolean _trim;
 }
 
 

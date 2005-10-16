@@ -66,6 +66,11 @@ class ServerTemplate extends EditableParent
 	    actions[PASTE] = true;
 	}
 	actions[DELETE] = true;
+
+	actions[NEW_ADAPTER] = (_adapters != null && _services == null);
+	actions[NEW_SERVICE] = (_services != null);
+	actions[NEW_DBENV] = (_dbEnvs != null);
+
 	return actions;
     }
     public void copy()
@@ -77,6 +82,40 @@ class ServerTemplate extends EditableParent
     {
 	_parent.paste();
     }
+    public void newAdapter()
+    {
+	_adapters.newAdapter();
+    }
+    public void newDbEnv()
+    {
+	_dbEnvs.newDbEnv();
+    }
+    public void newService()
+    {
+	_services.newService();
+    }
+
+    public JPopupMenu getPopupMenu()
+    {
+	if(_popup == null)
+	{
+	    _popup = new PopupMenu(_model);
+
+	    JMenuItem item = new JMenuItem(_model.getActions()[NEW_ADAPTER]);
+	    item.setText("New adapter");
+	    _popup.add(item);
+
+	    item = new JMenuItem(_model.getActions()[NEW_DBENV]);
+	    item.setText("New DbEnv");
+	    _popup.add(item);
+
+	    item = new JMenuItem(_model.getActions()[NEW_SERVICE]);
+	    item.setText("New service");
+	    _popup.add(item);
+	}
+	return _popup;
+    }
+
 
     public void displayProperties()
     {
@@ -226,9 +265,9 @@ class ServerTemplate extends EditableParent
 	{ 
 	    if(_templateDescriptor.descriptor instanceof IceBoxDescriptor)
 	    {
-		_iceBoxDescriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
+		IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
 		
-		_services = new Services(_iceBoxDescriptor.services, true, null, 
+		_services = new Services(iceBoxDescriptor.services, true, null, 
 					 application);
 		addChild(_services);
 		
@@ -238,7 +277,6 @@ class ServerTemplate extends EditableParent
 	    else
 	    {
 		_services = null;
-		_iceBoxDescriptor = null;
 		
 		_dbEnvs = new DbEnvs(_templateDescriptor.descriptor.dbEnvs, true,
 				     null, _model);
@@ -260,8 +298,7 @@ class ServerTemplate extends EditableParent
     }
 
     private TemplateDescriptor _templateDescriptor;
-    private IceBoxDescriptor _iceBoxDescriptor;
-
+ 
     private Services _services;
     private Adapters _adapters;
     private DbEnvs _dbEnvs;
@@ -270,4 +307,5 @@ class ServerTemplate extends EditableParent
     private final boolean _ephemeral;
 
     static private ServerTemplateEditor _editor;
+    static private JPopupMenu _popup;
 }
