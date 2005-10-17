@@ -252,7 +252,7 @@ AdminI::startServer(const string& id, const Current&)
     proxy.useActivationTimeout();
     try
     {
-	return proxy->start();
+	proxy->start();
     }
     catch(const ServerStartException&)
     {
