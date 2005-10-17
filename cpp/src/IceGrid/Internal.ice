@@ -119,7 +119,8 @@ interface Server
      * otherwise.
      *
      **/
-    ["amd"] bool start();
+    ["amd"] void start()
+	throws ServerStartException;
 
     /**
      *

@@ -86,8 +86,8 @@ private:
     
     void checkActivation();
     void stopInternal(bool);
-    void setState(InternalServerState);
-    void setStateNoSync(InternalServerState);
+    void setState(InternalServerState, const std::string& = std::string());
+    void setStateNoSync(InternalServerState, const std::string& = std::string());
     
     void updateImpl(const std::string&, const ServerDescriptorPtr&, bool, const Ice::Current&);
     std::string addAdapter(const AdapterDescriptor&, const CommunicatorDescriptorPtr&, const Ice::Current&);

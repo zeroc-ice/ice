@@ -40,7 +40,7 @@ public:
     virtual ServerInfo getServerInfo(const ::std::string&, const Ice::Current&) const;
     virtual ServerState getServerState(const ::std::string&, const Ice::Current&) const;
     virtual Ice::Int getServerPid(const ::std::string&, const Ice::Current&) const;
-    virtual bool startServer(const ::std::string&, const Ice::Current&);
+    virtual void startServer(const ::std::string&, const Ice::Current&);
     virtual void stopServer(const ::std::string&, const Ice::Current&);
     virtual void patchServer(const ::std::string&, bool, const Ice::Current&);
     virtual void sendSignal(const ::std::string&, const ::std::string&, const Ice::Current&);

@@ -32,7 +32,22 @@ exception ApplicationNotExistException
  **/
 exception ServerNotExistException
 {
+    /** The identifier of the server. */
     string id;
+};
+
+/**
+ *
+ * This exception is raised if a server failed to start.
+ *
+ **/
+exception ServerStartException
+{
+    /** The identifier of the server. */
+    string id;
+    
+    /** The reason of the failure. */
+    string reason;
 };
 
 /**

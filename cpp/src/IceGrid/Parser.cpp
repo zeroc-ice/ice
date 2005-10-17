@@ -632,10 +632,11 @@ Parser::startServer(const list<string>& args)
 
     try
     {
-	if(!_admin->startServer(args.front()))
-	{
-	    error("the server didn't start successfully");
-	}
+	_admin->startServer(args.front());
+    }
+    catch(const ServerStartException& ex)
+    {
+	error("the server didn't start successfully:\n" + ex.reason);
     }
     catch(const Ice::Exception& ex)
     {

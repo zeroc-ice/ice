@@ -222,7 +222,7 @@ ServerI::stop(const Ice::Current&)
 	case ServerI::WaitForActivationTimeout: 
 	case ServerI::Active:
 	{	    
-	    setStateNoSync(ServerI::Deactivating);
+	    setStateNoSync(ServerI::Deactivating, "The server is being stopped.");
 	    break;
 	}
 	case ServerI::Destroying:
@@ -283,7 +283,7 @@ ServerI::destroy(const Ice::Current& current)
  	case ServerI::Active:
 	{
 	    stop = true;
-	    setStateNoSync(ServerI::Destroying);
+	    setStateNoSync(ServerI::Destroying, "The server is being destroyed.");
 	    break;
 	}
 	case ServerI::Activating:
@@ -355,7 +355,7 @@ ServerI::terminated(const Ice::Current& current)
 	case ServerI::WaitForActivationTimeout: 
 	case ServerI::Active:
 	{
-	    setStateNoSync(ServerI::Deactivating);
+	    setStateNoSync(ServerI::Deactivating, "The server terminated.");
 	    newState = ServerI::Inactive;
 	    break;
 	}
@@ -503,7 +503,15 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
 	    {
 		if(amdCB)
 		{
-		    amdCB->ice_response(false);
+		    if(_activation == Disabled)
+		    {
+			amdCB->ice_exception(ServerStartException(_id, "The server is disabled."));
+		    }
+		    else
+		    {
+			ServerStartException ex(_id, "The server activation doesn't allow this activation mode.");
+			amdCB->ice_exception(ex);
+		    }
 		}
 		return false;
 	    }
@@ -530,7 +538,7 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
 	{
 	    if(amdCB)
 	    {
-		amdCB->ice_response(false);
+		amdCB->ice_exception(ServerStartException(_id, "The server activation timed out."));
 	    }
 	    return false;
 	}
@@ -538,7 +546,7 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
 	{
 	    if(amdCB)
 	    {
-		amdCB->ice_response(true);
+		amdCB->ice_response();
 	    }
 	    return true;
 	}
@@ -595,21 +603,19 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
 
     try
     {
-	bool started  = _node->getActivator()->activate(desc->id, desc->exe, pwd, options, envs, _this);
-	if(!started)
-	{
-	    setState(ServerI::Inactive);
-	    return false;
-	}
-	else
-	{
-	    Lock sync(*this);
-	    _node->getWaitQueue()->add(new WaitForActivationItem(this), IceUtil::Time::seconds(_activationTimeout));
-	    setStateNoSync(ServerI::WaitForActivation);
-	    checkActivation();
-	    notifyAll();
-	    return true;
-	}
+	_node->getActivator()->activate(desc->id, desc->exe, pwd, options, envs, _this);
+
+	Lock sync(*this);
+	_node->getWaitQueue()->add(new WaitForActivationItem(this), IceUtil::Time::seconds(_activationTimeout));
+	setStateNoSync(ServerI::WaitForActivation);
+	checkActivation();
+	notifyAll();
+	return true;
+    }
+    catch(const std::string& ex)
+    {	
+	setState(ServerI::Inactive, ex);
+	return false;
     }
     catch(const Ice::SyscallException& ex)
     {
@@ -617,7 +623,9 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
 	out << "activation failed for server `" << _id << "':\n";
 	out << ex;
 
-	setState(ServerI::Inactive);
+	ostringstream os;
+	os << ex;
+	setState(ServerI::Inactive, os.str());
 	return false;
     }
 }
@@ -648,7 +656,7 @@ ServerI::activationFailed(bool timeout)
 	    return;
 	}
 
-	setStateNoSync(ServerI::WaitForActivationTimeout);
+	setStateNoSync(ServerI::WaitForActivationTimeout, "The server activation timed out.");
 
 	if(_node->getTraceLevels()->server > 1)
 	{
@@ -813,7 +821,11 @@ ServerI::stopInternal(bool kill)
 		//
 		// Wait for the process to be set.
 		//
-		timedWait(IceUtil::Time::seconds(_deactivationTimeout));
+		bool notify = timedWait(IceUtil::Time::seconds(_deactivationTimeout));
+		if(!notify)
+		{
+		    break;
+		}
 	    }
 	}
 	process = _process;
@@ -897,15 +909,15 @@ ServerI::stopInternal(bool kill)
 }
 
 void
-ServerI::setState(InternalServerState st)
+ServerI::setState(InternalServerState st, const std::string& reason)
 {
     Lock sync(*this);
-    setStateNoSync(st);
+    setStateNoSync(st, reason);
     notifyAll();
 }
 
 void
-ServerI::setStateNoSync(InternalServerState st)
+ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 {
     InternalServerState previous = _state;
     _state = st;
@@ -914,7 +926,21 @@ ServerI::setStateNoSync(InternalServerState st)
     {
 	for(vector<AMD_Server_startPtr>::const_iterator p = _startCB.begin(); p != _startCB.end(); ++p)
 	{
-	    (*p)->ice_response(_state == ServerI::Active);
+	    if(_state == ServerI::Active)
+	    {
+		(*p)->ice_response();
+	    }
+	    else
+	    {	
+		if(!reason.empty())
+		{
+		    (*p)->ice_exception(ServerStartException(_id, reason));
+		}
+		else
+		{
+		    (*p)->ice_exception(ServerStartException(_id, "The server didn't successfully start."));
+		}
+	    }
 	}
 	_startCB.clear();
 

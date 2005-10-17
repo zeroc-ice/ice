@@ -245,7 +245,7 @@ AdminI::getServerPid(const string& id, const Current&) const
     }
 }
 
-bool
+void
 AdminI::startServer(const string& id, const Current&)
 {
     ServerProxyWrapper proxy(_database, id);
@@ -254,15 +254,14 @@ AdminI::startServer(const string& id, const Current&)
     {
 	return proxy->start();
     }
-    catch(const Ice::TimeoutException&)
+    catch(const ServerStartException&)
     {
-	return false; // TODO: better exception?
+	throw;
     }
     catch(const Ice::Exception& ex)
     {
 	proxy.handleException(ex);
     }
-    return true;
 }
 
 void

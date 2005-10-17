@@ -410,8 +410,8 @@ interface Admin
      * reached.
      *
      **/
-    ["ami"] bool startServer(string id)
-	throws ServerNotExistException, NodeUnreachableException;
+    ["ami"] void startServer(string id)
+	throws ServerNotExistException, ServerStartException, NodeUnreachableException;
 
     /**
      *

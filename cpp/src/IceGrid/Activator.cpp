@@ -329,7 +329,7 @@ Activator::~Activator()
 #endif
 }
 
-bool
+void
 Activator::activate(const string& name,
 		    const string& exePath,
 		    const string& pwdPath,
@@ -341,13 +341,13 @@ Activator::activate(const string& name,
 
     if(_deactivating)
     {
-	return false;
+	throw string("The node is being shutdown.");
     }
 
     string path = exePath;
     if(path.empty())
     {
-	return false;
+	throw string("The server executable path is empty.");
     }
 
     string pwd = IcePatch2::simplify(pwdPath);
@@ -366,7 +366,7 @@ Activator::activate(const string& name,
 	    {
 		Error out(_traceLevels->logger);
 		out << "cannot convert `" << path << "' into an absolute path";
-		return false;
+		throw string("The server executable path `" + path + "' can't be converted into an absolute path.");
 	    }
 	    path = absbuf;
 	}
@@ -386,7 +386,7 @@ Activator::activate(const string& name,
 	{
 	    Error out(_traceLevels->logger);
 	    out << "cannot convert `" << pwd << "' into an absolute path";
-	    return false;
+	    throw string("The server working directory path `" + pwd + "' can't be converted into an absolute path.");
 	}
 	pwd = absbuf;
     }
@@ -716,8 +716,6 @@ Activator::activate(const string& name,
 	}
     }
 #endif
-
-    return true;
 }
 
 void
