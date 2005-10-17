@@ -375,6 +375,11 @@ public class Utils
 
 	public String substitute(String input)
 	{
+	    if(input == null)
+	    {
+		return input;
+	    }
+
 	    int beg = 0;
 	    int end = 0;
 	    

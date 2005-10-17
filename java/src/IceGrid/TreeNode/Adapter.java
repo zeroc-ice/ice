@@ -128,12 +128,6 @@ class Adapter extends Leaf
 	    //  
 	}
 	super.setParent(parent);
-	
-	CommonBase grandParent = parent.getParent();
-	
-	_defaultAdapterId = (grandParent instanceof Service || 
-			     grandParent instanceof ServiceTemplate) ? 
-	    "${server}.${service}." + _id: "${server}." + _id;
     }
 
     public void clearParent()
@@ -249,7 +243,16 @@ class Adapter extends Leaf
     
     String getDefaultAdapterId()
     {
-	return _defaultAdapterId;
+	return getDefaultAdapterId(_id);
+    }
+
+    String getDefaultAdapterId(String name)
+    {
+	CommonBase grandParent = _parent.getParent();
+	
+	return (grandParent instanceof Service || 
+		grandParent instanceof ServiceTemplate) ? 
+	    "${server}.${service}." + name: "${server}." + name;
     }
 
     String getCurrentEndpoints()
@@ -294,7 +297,6 @@ class Adapter extends Leaf
     private String _toolTip;
 
     private String _adapterId; // resolved adapter id, null when _resolver == null
-    private String _defaultAdapterId;
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private AdapterEditor _editor;

@@ -22,6 +22,8 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -127,7 +129,40 @@ class AdapterEditor extends ListElementEditor
 	//
 	// Associate updateListener with various fields
 	//
-	_name.getDocument().addDocumentListener(_updateListener);
+	_name.getDocument().addDocumentListener(
+	    new DocumentListener() 
+	    {
+		public void changedUpdate(DocumentEvent e)
+		{
+		    update();
+		}
+		
+		public void insertUpdate(DocumentEvent e)
+		{
+		    update();
+		}
+		
+		public void removeUpdate(DocumentEvent e)
+		{
+		    update();
+		}
+
+		private void update()
+		{
+		    updated();
+		    //
+		    // Recompute default id
+		    //
+		    String defaultAdapterId = getAdapter().getDefaultAdapterId(_name.getText());
+		    
+		    Object id = _id.getSelectedItem();
+		    _id.setModel(new DefaultComboBoxModel(new Object[]
+			{DIRECT_ADAPTER, defaultAdapterId}));
+		    _id.setSelectedItem(id);
+		}
+	    });
+
+
 	_endpoints.getDocument().addDocumentListener(_updateListener);
 	_description.getDocument().addDocumentListener(_updateListener);
 
