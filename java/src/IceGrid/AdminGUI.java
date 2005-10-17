@@ -139,7 +139,7 @@ public class AdminGUI extends JFrame
 	    if(UIManager.getSystemLookAndFeelClassName().equals("apple.laf.AquaLookAndFeel"))
 	    {
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
-		UIManager.setLookAndFeel("apple.laf.AquaLokkAndFeel");
+		UIManager.setLookAndFeel("apple.laf.AquaLookAndFeel");
 	    }
 	    else  // JGoodies L&F
 	    {
