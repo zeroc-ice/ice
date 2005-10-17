@@ -170,12 +170,11 @@ class Server extends EditableParent
 	    actions[NEW_SERVICE] = (_services != null);
 	    actions[NEW_DBENV] = (_dbEnvs != null);
 	}
-
+	
 	ServerState state = getState();
 	if(state != null)
 	{
-	    actions[START] = state == ServerState.Inactive 
-	    && _enabled;
+	    actions[START] = state == ServerState.Inactive && _enabled;
 	    actions[STOP] = state != ServerState.Inactive;
 	    actions[ENABLE] = !_enabled;
 	    actions[DISABLE] = _enabled;
@@ -361,6 +360,11 @@ class Server extends EditableParent
 	    IceGrid.NodeUnreachableException nue = (IceGrid.NodeUnreachableException)e;
 	    amiFailure(prefix, title, "Node '" + nue.name + "' is unreachable: " + nue.reason);
 	}
+	else if(e instanceof IceGrid.ServerStartException)
+	{
+	    IceGrid.ServerStartException ste = (IceGrid.ServerStartException)e;
+	    amiFailure(prefix, title, ste.reason);
+	}
 	else
 	{
 	    amiFailure(prefix, title, e.toString());
@@ -381,14 +385,12 @@ class Server extends EditableParent
     private void failure(String prefix, String title, String message)
     {
 	_model.getStatusBar().setText(prefix + "failed!");
-	if(message != null)
-	{
-	    JOptionPane.showMessageDialog(
-		_model.getMainFrame(),
-		message,
-		title,
-		JOptionPane.ERROR_MESSAGE);
-	}
+
+	JOptionPane.showMessageDialog(
+	    _model.getMainFrame(),
+	    message,
+	    title,
+	    JOptionPane.ERROR_MESSAGE);
     }
 
 

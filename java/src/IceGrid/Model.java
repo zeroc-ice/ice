@@ -17,11 +17,13 @@ import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.Container;
 import java.awt.Component;
+import java.awt.Toolkit;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -872,11 +874,11 @@ public class Model
 	_root = new Root(this);
 	_treeModel = new TreeModelI(_root);
 
-	
+	final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+
 	//
 	// Common actions (nodes not involved)
 	//
-
 	_newApplication = new AbstractAction("Application without default templates")
 	    {
 		public void actionPerformed(ActionEvent e) 
@@ -915,7 +917,7 @@ public class Model
 	    };
 	_save.setEnabled(false);
 	_save.putValue(Action.ACCELERATOR_KEY, 
-			     KeyStroke.getKeyStroke("ctrl S"));
+		       KeyStroke.getKeyStroke(KeyEvent.VK_S, MENU_MASK));
 	_save.putValue(Action.SHORT_DESCRIPTION, "Save to IceGrid Registry");
 	
 	_discard = new AbstractAction("Discard all updates...", 
@@ -1058,7 +1060,8 @@ public class Model
 		    _actionsTarget.copy();
 		}
 	    };
-	_actions[CommonBase.COPY].putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl C"));
+	_actions[CommonBase.COPY].putValue(Action.ACCELERATOR_KEY, 
+					   KeyStroke.getKeyStroke(KeyEvent.VK_C, MENU_MASK));
 	_actions[CommonBase.COPY].putValue(Action.SHORT_DESCRIPTION, "Copy");
 
 	_actions[CommonBase.PASTE] = new AbstractAction("Paste", Utils.getIcon("/icons/paste_edit.gif"))
@@ -1068,7 +1071,8 @@ public class Model
 		    _actionsTarget.paste();
 		}
 	    };
-	_actions[CommonBase.PASTE].putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("ctrl V"));
+	_actions[CommonBase.PASTE].putValue(Action.ACCELERATOR_KEY, 
+					    KeyStroke.getKeyStroke(KeyEvent.VK_V, MENU_MASK));
 	_actions[CommonBase.PASTE].putValue(Action.SHORT_DESCRIPTION, "Paste");
 
 	_actions[CommonBase.DELETE] = new AbstractAction("Delete", Utils.getIcon("/icons/delete_edit.gif"))
