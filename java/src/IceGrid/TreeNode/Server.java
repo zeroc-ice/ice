@@ -257,16 +257,9 @@ class Server extends EditableParent
 		//
 		// Called by another thread!
 		//
-		public void ice_response(boolean result)
+		public void ice_response()
 		{
-		    if(result)
-		    {
-			amiSuccess(prefix);
-		    }
-		    else
-		    {
-			amiFailure(prefix, null, (String)null);
-		    }
+		    amiSuccess(prefix);
 		}
 		
 		public void ice_exception(Ice.UserException e)
