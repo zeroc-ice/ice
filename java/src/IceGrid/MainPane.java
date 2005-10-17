@@ -197,7 +197,7 @@ public class MainPane extends JSplitPane
 	//
 	// Work-around for Java bug #4833524
 	//
-	tree.setUI(new PlasticTreeUI());
+	// tree.setUI(new PlasticTreeUI());
 
 	tree.setBorder(new EmptyBorder(5, 5, 5, 5));
 	tree.setCellRenderer(renderer);

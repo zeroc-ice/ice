@@ -24,8 +24,6 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import java.awt.BorderLayout;
 
-import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-
 import java.util.prefs.Preferences;
 
 public class AdminGUI extends JFrame
@@ -134,16 +132,25 @@ public class AdminGUI extends JFrame
 	getContentPane().add((StatusBarI)_model.getStatusBar(), BorderLayout.PAGE_END);
     }
 
-    private static void createAndShowGUI(String[] args) {
-     
-	// JGoodies L&F
+    private static void createAndShowGUI(String[] args) 
+    {
 	try 
 	{
-	    UIManager.setLookAndFeel(new com.jgoodies.looks.plastic.PlasticXPLookAndFeel());
+	    if(UIManager.getSystemLookAndFeelClassName().equals("apple.laf.AquaLookAndFeel"))
+	    {
+		System.setProperty("apple.laf.useScreenMenuBar", "true");
+		UIManager.setLookAndFeel("apple.laf.AquaLokkAndFeel");
+	    }
+	    else  // JGoodies L&F
+	    {
+		UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticXPLookAndFeel");
+	    }
 	} 
 	catch(Exception e) 
-	{}
-
+	{
+	    System.err.println(e.toString());
+	}
+	
 	//
         // Create and set up the window.
 	//
