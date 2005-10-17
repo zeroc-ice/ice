@@ -177,8 +177,8 @@ class Server extends EditableParent
 	    actions[START] = state == ServerState.Inactive 
 	    && _enabled;
 	    actions[STOP] = state != ServerState.Inactive;
-	    actions[ENABLE] = true || !_enabled;
-	    actions[DISABLE] = true || _enabled;
+	    actions[ENABLE] = !_enabled;
+	    actions[DISABLE] = _enabled;
 
 	    if(!_model.isUpdateInProgress())
 	    {
@@ -760,7 +760,14 @@ class Server extends EditableParent
 	    _enabled = enabled;
 	    
 	    _toolTip = toolTip(_state, _pid, _enabled);
-	    _stateIconIndex = _state.value() + 1;
+	    if(_state == null)
+	    {
+		_stateIconIndex = 0;
+	    }
+	    else
+	    {
+		_stateIconIndex = _state.value() + 1;
+	    }
 	
 	    //
 	    // Change the node representation

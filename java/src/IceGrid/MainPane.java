@@ -128,14 +128,28 @@ public class MainPane extends JSplitPane
     {
 	public void valueChanged(TreeSelectionEvent e)
 	{
+	    System.err.println("SectionListener.valueChanged");
+
 	    TreePath path = null;
 	    if(e.isAddedPath())
 	    {
+		System.err.println("added path");
 		path = e.getPath();
+	    }
+	    
+	    if(_model.getSelectedNode() == null)
+	    {
+		System.err.println("No selected node");
+	    }
+	    else
+	    {
+		System.err.println("There is a selected node");
 	    }
 	    
 	    if(path == null)
 	    {
+		System.err.println("Display welcome screen");
+
 		if(_model.displayEnabled())
 		{
 		    displayWelcomePanel();
