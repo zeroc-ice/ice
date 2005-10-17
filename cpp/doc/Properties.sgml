@@ -1121,25 +1121,6 @@ silently discarded. See the Ice manual for more information.
 </section>
 </section>
 
-<section><title>Ice.ConnectionIdleTime</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.ConnectionIdleTime=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-This property is deprecated, and available for backwards-compatibility
-only. If the property is defined (i.e., set to a non-empty string), it
-sets both client- and server-side ACM timeouts. The properties
-<link linkend="acm.client">Ice.ACM.Client</link> and
-<link linkend="acm.server">Ice.ACM.Server</link> override this value
-for the client- and server-side ACM timeouts, respectively.
-</para>
-</section>
-</section>
-
 <section><title>Ice.MonitorConnections</title>
 <section><title>Synopsis</title>
 <synopsis>
