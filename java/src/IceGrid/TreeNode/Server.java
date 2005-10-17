@@ -162,7 +162,7 @@ class Server extends EditableParent
 	}
 
 	actions[DELETE] = true;
-	actions[SUBSTITUTE_VARS] = true;
+	actions[SUBSTITUTE_VARS] = !_ephemeral;
 	
 	if(_instanceDescriptor == null)
 	{

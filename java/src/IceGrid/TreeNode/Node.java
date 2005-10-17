@@ -63,7 +63,6 @@ class Node extends EditableParent
 
 	actions[COPY] = true;
 	actions[DELETE] = true;
-	actions[SUBSTITUTE_VARS] = true;
 
 	Object descriptor =  _model.getClipboard();
 	if(descriptor != null)
@@ -72,10 +71,15 @@ class Node extends EditableParent
 		descriptor instanceof ServerInstanceDescriptor ||
 		descriptor instanceof ServerDescriptor;
 	}
-	actions[NEW_SERVER] = true;
-	actions[NEW_SERVER_ICEBOX] = true;
-	actions[NEW_SERVER_FROM_TEMPLATE] = true;
-	actions[SHUTDOWN_NODE] = _up;
+
+	if(!_ephemeral)
+	{
+	    actions[SUBSTITUTE_VARS] = true;
+	    actions[NEW_SERVER] = true;
+	    actions[NEW_SERVER_ICEBOX] = true;
+	    actions[NEW_SERVER_FROM_TEMPLATE] = true;
+	    actions[SHUTDOWN_NODE] = _up;
+	}
 	return actions;
     }
 

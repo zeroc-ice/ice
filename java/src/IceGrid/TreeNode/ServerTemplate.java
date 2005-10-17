@@ -65,6 +65,7 @@ class ServerTemplate extends EditableParent
 	{
 	    actions[PASTE] = true;
 	}
+
 	actions[DELETE] = true;
 
 	actions[NEW_ADAPTER] = (_adapters != null && _services == null);

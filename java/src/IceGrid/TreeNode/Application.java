@@ -52,7 +52,6 @@ public class Application extends EditableParent
 
 	actions[COPY] = true;
 	actions[DELETE] = true;
-	actions[SUBSTITUTE_VARS] = true;
 
 	Object descriptor =  _model.getClipboard();
 	if(descriptor != null)
@@ -63,6 +62,11 @@ public class Application extends EditableParent
 	{
 	    actions[APPLICATION_INSTALL_DISTRIBUTION] = 
 		!_descriptor.distrib.icepatch.equals("");
+	}
+
+	if(!_ephemeral)
+	{
+	    actions[SUBSTITUTE_VARS] = true;
 	}
 	
 	actions[NEW_NODE] = (_nodes != null);
