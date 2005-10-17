@@ -687,6 +687,7 @@ Database::getAdapters(const string& id, int& endpointCount)
 	identity.name = id;
 	AdapterPrx adpt = AdapterPrx::uncheckedCast(_internalAdapter->createDirectProxy(identity));
 	adapters.push_back(make_pair(id, adpt));
+	endpointCount = 1;
 	return adapters;
     }
 

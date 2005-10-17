@@ -151,6 +151,7 @@ vector<pair<string, AdapterPrx> >
 ServerAdapterEntry::getProxies(int& nReplicas)
 {
     vector<pair<string, AdapterPrx> > adapters;
+    nReplicas = 1;
     adapters.push_back(make_pair(_id, getProxy()));
     return adapters;
 }
