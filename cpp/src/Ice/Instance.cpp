@@ -590,26 +590,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    }
 	}
 
-	{
-	    Int clientACMDefault = 60; // Client ACM enabled by default.
-	    Int serverACMDefault = 0; // Server ACM disabled by default.
-	    
-	    //
-	    // Legacy: If Ice.ConnectionIdleTime is set, we use it as
-	    // default value for both the client- and server-side ACM.
-	    //
-	    if(!_properties->getProperty("Ice.ConnectionIdleTime").empty())
-	    {
-		Int num = _properties->getPropertyAsInt("Ice.ConnectionIdleTime");
-		clientACMDefault = num;
-		serverACMDefault = num;
-	    }
-	    
-	    const_cast<Int&>(_clientACM) = _properties->getPropertyAsIntWithDefault("Ice.ACM.Client",
-										    clientACMDefault);
-	    const_cast<Int&>(_serverACM) = _properties->getPropertyAsIntWithDefault("Ice.ACM.Server",
-										    serverACMDefault);
-	}
+	//
+	// Client ACM enabled by default. Server ACM disabled by default.
+	//
+	const_cast<Int&>(_clientACM) = _properties->getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
+	const_cast<Int&>(_serverACM) = _properties->getPropertyAsInt("Ice.ACM.Server");
 
 	const_cast<bool&>(_threadPerConnection) = _properties->getPropertyAsInt("Ice.ThreadPerConnection") > 0;
 

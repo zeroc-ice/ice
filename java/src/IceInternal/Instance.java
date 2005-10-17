@@ -418,24 +418,11 @@ public final class Instance
 		}
 	    }
 
-	    {
-		int clientACMDefault = 60; // Client ACM enabled by default.
-		int serverACMDefault = 0; // Server ACM disabled by default.
-		
-		//
-		// Legacy: If Ice.ConnectionIdleTime is set, we use it as
-		// default value for both the client- and server-side ACM.
-		//
-		if(_properties.getProperty("Ice.ConnectionIdleTime").length() > 0)
-		{
-		    int num = _properties.getPropertyAsInt("Ice.ConnectionIdleTime");
-		    clientACMDefault = num;
-		    serverACMDefault = num;
-		}
-		
-		_clientACM = _properties.getPropertyAsIntWithDefault("Ice.ACM.Client", clientACMDefault);
-		_serverACM = _properties.getPropertyAsIntWithDefault("Ice.ACM.Server",serverACMDefault);
-	    }
+	    //
+	    // Client ACM enabled by default. Server ACM disabled by default.
+	    //
+	    _clientACM = _properties.getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
+	    _serverACM = _properties.getPropertyAsInt("Ice.ACM.Server");
 
 	    _threadPerConnection = _properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
 
