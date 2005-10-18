@@ -31,12 +31,12 @@ class ServiceTemplateEditor extends TemplateEditor
 	return super.isSimpleUpdate() && _subEditor.isSimpleUpdate();
     }
 
-    void append(DefaultFormBuilder builder)
+    void appendProperties(DefaultFormBuilder builder)
     { 
-	super.append(builder);
+	super.appendProperties(builder);
 	builder.appendSeparator();
 	builder.nextLine();
-	_subEditor.append(builder);
+	_subEditor.appendProperties(builder);
     }
 
     void show(ServiceTemplate t)

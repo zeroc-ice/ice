@@ -17,6 +17,7 @@ import IceGrid.TreeModelI;
 import IceGrid.Model;
 import IceGrid.NodeDescriptor;
 import IceGrid.NodeDynamicInfo;
+import IceGrid.NodeInfo;
 import IceGrid.NodeUpdateDescriptor;
 import IceGrid.ServerDynamicInfo;
 import IceGrid.AdapterDynamicInfo;
@@ -89,8 +90,6 @@ public class Nodes extends EditableParent
 	super(false, "Nodes", application.getModel());
 	_descriptors = nodeMap;
 
-	java.util.Set nodesUp = _model.getRoot().getNodesUp();
-
 	java.util.Iterator p = nodeMap.entrySet().iterator();
 	while(p.hasNext())
 	{
@@ -98,19 +97,21 @@ public class Nodes extends EditableParent
 	    String nodeName = (String)entry.getKey();
 	    NodeDescriptor nodeDescriptor = (NodeDescriptor)entry.getValue();
 	    addChild(new Node(false, nodeName, nodeDescriptor, 
-			      application, nodesUp.contains(nodeName)));
+			      application, 
+			      _model.getRoot().getStaticNodeInfo(nodeName)));
 	}
 	
 	//
 	// Also create a Node for each node that is up
-	//
-	p = nodesUp.iterator();
+	//		
+	p = _model.getRoot().getNodesUp().iterator();
 	while(p.hasNext())
 	{
 	    String nodeName = (String)p.next();
 	    if(findChild(nodeName) == null)
 	    {
-		addChild(new Node(false, nodeName, null, application, true));
+		addChild(new Node(false, nodeName, null, application,
+				  _model.getRoot().getStaticNodeInfo(nodeName)));
 	    }
 	}
     }
@@ -236,7 +237,7 @@ public class Nodes extends EditableParent
 								   update.loadFactor.value,
 								   update.description.value);
 		_descriptors.put(update.name, nodeDescriptor);
-		node = new Node(false, update.name, nodeDescriptor, application, false);
+		node = new Node(false, update.name, nodeDescriptor, application, null);
 		newChildren.add(node);
 	    }
 	    else
@@ -248,14 +249,15 @@ public class Nodes extends EditableParent
 	addChildren((CommonBaseI[])newChildren.toArray(new CommonBaseI[0]));
     }
 
-    void nodeUp(String nodeName)
+    void nodeUp(String nodeName, NodeInfo staticInfo)
     {
 	Node node = findNode(nodeName);
 	if(node == null)
 	{
 	    try
 	    {
-		node = new Node(false, nodeName, null, getApplication(), true);
+		node = new Node(false, nodeName, null, getApplication(), 
+				staticInfo);
 		addChild(node, true);
 	    }
 	    catch(UpdateFailedException e)
@@ -266,7 +268,7 @@ public class Nodes extends EditableParent
 	}
 	else
 	{
-	    node.up();
+	    node.up(staticInfo);
 	}
     }
 
@@ -319,7 +321,7 @@ public class Nodes extends EditableParent
     {
 	try
 	{
-	    Node node = new Node(true, nodeName, descriptor, getApplication(), false);
+	    Node node = new Node(true, nodeName, descriptor, getApplication(), null);
 	    addChild(node, true);
 	}
 	catch(UpdateFailedException e)

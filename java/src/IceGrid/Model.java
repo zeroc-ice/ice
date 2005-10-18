@@ -13,6 +13,7 @@ import java.util.prefs.BackingStoreException;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Rectangle;
 import java.awt.Container;
@@ -27,6 +28,7 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -48,6 +50,7 @@ import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 
 import IceGrid.TreeNode.Application;
 import IceGrid.TreeNode.CommonBase;
+import IceGrid.TreeNode.Editor;
 import IceGrid.TreeNode.Root;
 
 //
@@ -186,6 +189,7 @@ public class Model
 	    JMenu viewMenu = new JMenu("View");
 	    viewMenu.setMnemonic(java.awt.event.KeyEvent.VK_V);
 	    add(viewMenu);
+	    viewMenu.add(_showVarsMenuItem);
 	    viewMenu.add(_substituteMenuItem);
 	    
 	    //
@@ -264,16 +268,11 @@ public class Model
 	    addSeparator();
 	    add(_actions[CommonBase.DELETE]);
 	    addSeparator();
-	    add(_substituteTool );
+	    add(_showVarsTool);
+	    add(_substituteTool);
 	}
     }
-    
-
-
-
-
-
-
+ 
     //
     // All Model's methods run in the UI thread
     //
@@ -403,13 +402,10 @@ public class Model
 
     public void refreshDisplay()
     {
-	if(_displayEnabled)
+	CommonBase currentNode = getSelectedNode();
+	if(currentNode != null)
 	{
-	    CommonBase currentNode = getSelectedNode();
-	    if(currentNode != null)
-	    {
-		currentNode.displayProperties();
-	    }
+	    show(currentNode);
 	}
     }
 
@@ -434,11 +430,8 @@ public class Model
 	{
 	    CommonBase newNode = findNewNode(path);
 	    _tree.setSelectionPath(newNode.getPath());
-	    newNode.displayProperties();
 	}
     }
-
-    
 
     public boolean canUpdate()
     {
@@ -673,21 +666,29 @@ public class Model
     void nodeUp(NodeDynamicInfo updatedInfo)
     {
 	_root.nodeUp(updatedInfo);
+	showActions();
+	refreshCurrentStatus();
     }
 
     void nodeDown(String node)
     {
 	_root.nodeDown(node);
+	showActions();
+	refreshCurrentStatus();
     }
 
     void updateServer(String node, ServerDynamicInfo updatedInfo)
     {
 	_root.updateServer(node, updatedInfo);
+	showActions();
+	refreshCurrentStatus();
     }
 
     void updateAdapter(String node, AdapterDynamicInfo updatedInfo)
     {
 	_root.updateAdapter(node, updatedInfo);
+	showActions();
+	refreshCurrentStatus();
     }
 
 
@@ -791,30 +792,35 @@ public class Model
 	return true;
     }  
 
-    public void toggleSubstitute()
+    private void showVars()
     {
-	_substitute = !_substitute;
-
-	//
-	// Synchronize the other button
-	//
-	if(_substituteMenuItem.isSelected() != _substitute)
-	{
-	    _substituteMenuItem.setSelected(_substitute);
-	}
-	if(_substituteTool.isSelected() != _substitute)
-	{
-	    _substituteTool.setSelected(_substitute);
-	}
-	
-	CommonBase node = (CommonBase)_tree.getLastSelectedPathComponent();
-	if(node != null)
-	{
-	    node.displayProperties();
-	}
+	substitute(false);
     }
 
-    
+    private void substituteVars()
+    {
+	substitute(true);
+    }
+
+    private void substitute(boolean newValue)
+    {
+	if(_substitute != newValue)
+	{
+	    _substitute = newValue;
+
+	    if(_substitute)
+	    {
+		_substituteMenuItem.setSelected(true);
+		_substituteTool.setSelected(true);
+	    }
+	    else
+	    {
+		_showVarsMenuItem.setSelected(true);
+		_showVarsTool.setSelected(true);
+	    }
+	    refreshDisplay();
+	}
+    }
 
     public boolean substitute()
     {
@@ -848,14 +854,14 @@ public class Model
 	return _tree;
     }
 
-    public void setPropertiesFrame(SimpleInternalFrame frame)
-    {
-	_propertiesFrame = frame;
-    }
-
     public SimpleInternalFrame getPropertiesFrame()
     {
 	return _propertiesFrame;
+    }
+
+    public SimpleInternalFrame getCurrentStatusFrame()
+    {
+	return _currentStatusFrame;
     }
 
     public JFrame getMainFrame()
@@ -873,6 +879,17 @@ public class Model
 	
 	_root = new Root(this);
 	_treeModel = new TreeModelI(_root);
+
+	//
+	// Fixed height for current status frame
+	//
+	Dimension prefSize = new Dimension(0, 160);
+	Dimension maxSize = new Dimension(Short.MAX_VALUE, 160);
+	_currentStatusFrame.setMinimumSize(prefSize);
+	_currentStatusFrame.setPreferredSize(prefSize);
+	_currentStatusFrame.setMaximumSize(maxSize);
+	_currentStatusFrame.getTitleLabel().setEnabled(false);
+	_propertiesFrame.getTitleLabel().setEnabled(false);
 
 	final int MENU_MASK = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
 
@@ -1085,23 +1102,53 @@ public class Model
 	_actions[CommonBase.DELETE].putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("DELETE"));
 	_actions[CommonBase.DELETE].putValue(Action.SHORT_DESCRIPTION, "Delete");
    
-	_actions[CommonBase.SUBSTITUTE_VARS] = new 
+	_actions[CommonBase.SHOW_VARS] = new 
 	    AbstractAction("${}")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    _actionsTarget.substituteVars();
-		    putValue(Action.NAME, _substitute ? "abc" : "${}");
+		    showVars();
 		}
 	    };
+	_actions[CommonBase.SHOW_VARS].putValue(
+	    Action.SHORT_DESCRIPTION, 
+	    "Show variables and parameters in the Properties pane");
+
+
+	_actions[CommonBase.SUBSTITUTE_VARS] = new 
+	    AbstractAction("abc")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    substituteVars();
+		}
+	    };
+	
 	_actions[CommonBase.SUBSTITUTE_VARS].putValue(
 	    Action.SHORT_DESCRIPTION, 
 	    "Substitute variables and parameters with their values in the Properties pane");
+
+
+	_showVarsMenuItem = new
+	    JCheckBoxMenuItem(_actions[CommonBase.SHOW_VARS]);
+	_showVarsTool = new 
+	    JToggleButton(_actions[CommonBase.SHOW_VARS]);
+
 	_substituteMenuItem = new
 	    JCheckBoxMenuItem(_actions[CommonBase.SUBSTITUTE_VARS]);
 	_substituteTool = new 
 	    JToggleButton(_actions[CommonBase.SUBSTITUTE_VARS]);
+	
+	ButtonGroup group = new ButtonGroup();
+	group.add(_showVarsMenuItem);
+	group.add(_substituteMenuItem);
+	group = new ButtonGroup();
+	group.add(_showVarsTool);
+	group.add(_substituteTool);
 
+	_showVarsMenuItem.setSelected(true);
+	_showVarsTool.setSelected(true);
+	
 	_actions[CommonBase.MOVE_UP] = new AbstractAction("Move up")
 	    {
 		public void actionPerformed(ActionEvent e) 
@@ -1157,7 +1204,7 @@ public class Model
 		}
 	    };
 	_actions[CommonBase.APPLICATION_INSTALL_DISTRIBUTION] = 
-	    new AbstractAction("Install or refresh distribution")
+	    new AbstractAction("Patch")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1165,13 +1212,78 @@ public class Model
 		}
 	    };
 	_actions[CommonBase.SERVER_INSTALL_DISTRIBUTION] = 
-	    new AbstractAction("Install or refresh distribution")
+	    new AbstractAction("Patch")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
 		    _actionsTarget.serverInstallDistribution();
 		}
 	    };
+    }
+
+    void show(CommonBase node)
+    {
+	if(_displayEnabled)
+	{
+	    showActions(node);
+
+	    _currentEditor = node.getEditor();
+
+	    Ice.StringHolder title = new Ice.StringHolder();	  
+	    Component currentStatus = _currentEditor.getCurrentStatus(title);
+	    if(title.value == null)
+	    {
+		title.value = "Current status";
+	    }
+	    _currentStatusFrame.setTitle(title.value);
+
+	    if(currentStatus == null)
+	    {
+		_currentStatusFrame.setToolBar(null);
+		Component oldContent = _currentStatusFrame.getContent();
+		if(oldContent != null)
+		{
+		    _currentStatusFrame.remove(oldContent);
+		}
+		_currentStatusFrame.getTitleLabel().setEnabled(false);
+	    }
+	    else
+	    {
+		_currentStatusFrame.setToolBar(
+		    _currentEditor.getCurrentStatusToolBar());
+		_currentStatusFrame.setContent(currentStatus);
+		_currentStatusFrame.getTitleLabel().setEnabled(true);
+	    }
+	    _currentStatusFrame.validate();
+	    _currentStatusFrame.repaint();
+
+	    Component currentProperties = _currentEditor.getProperties();
+
+	    if(currentProperties == null)
+	    {
+		Component oldContent = _propertiesFrame.getContent();
+		if(oldContent != null)
+		{
+		    _propertiesFrame.remove(oldContent);
+		}
+		_propertiesFrame.getTitleLabel().setEnabled(false);
+	    }
+	    else
+	    {
+		_propertiesFrame.setContent(currentProperties);
+		_propertiesFrame.getTitleLabel().setEnabled(true);
+	    }
+	    _propertiesFrame.validate();
+	    _propertiesFrame.repaint();
+	}
+    }
+
+    void refreshCurrentStatus()
+    {
+	if(_currentEditor != null)
+	{
+	    _currentEditor.refreshCurrentStatus();
+	}
     }
 
     //
@@ -1422,10 +1534,15 @@ public class Model
     
     private boolean _displayEnabled = true;
 
-    private SimpleInternalFrame _propertiesFrame;
-
+    private SimpleInternalFrame _currentStatusFrame 
+          = new SimpleInternalFrame("Current status");
+    private SimpleInternalFrame _propertiesFrame 
+          = new SimpleInternalFrame("Properties");
+  
     private JFrame _mainFrame;
     private SessionKeeper _sessionKeeper;
+
+    private Editor _currentEditor;
 
     private Object _clipboard;
 
@@ -1441,8 +1558,11 @@ public class Model
     private Action _about;
 
     private Action[] _actions;
+    
+    private JToggleButton _showVarsTool;
     private JToggleButton _substituteTool;
     private JCheckBoxMenuItem _substituteMenuItem;
+    private JCheckBoxMenuItem _showVarsMenuItem;
     
     private CommonBase _actionsTarget;
 

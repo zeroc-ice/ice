@@ -15,6 +15,7 @@ import IceGrid.ApplicationDescriptor;
 import IceGrid.ApplicationUpdateDescriptor;
 import IceGrid.Model;
 import IceGrid.NodeDynamicInfo;
+import IceGrid.NodeInfo;
 import IceGrid.ServerDynamicInfo;
 import IceGrid.ServerState;
 import IceGrid.TreeModelI;
@@ -24,6 +25,8 @@ public class Root extends Parent
 {
     static class DynamicInfo
     {
+	NodeInfo staticInfo;
+
 	//
 	// ServerId to ServerDynamicInfo
 	//
@@ -163,6 +166,8 @@ public class Root extends Parent
 	DynamicInfo info = new DynamicInfo();
 	_dynamicInfoMap.put(nodeName, info);
 
+	info.staticInfo = updatedInfo.info;
+
 	for(int i = 0; i < updatedInfo.servers.length; ++i)
 	{
 	    info.serverInfoMap.put(updatedInfo.servers[i].id, updatedInfo.servers[i]);
@@ -221,7 +226,7 @@ public class Root extends Parent
 	while(p.hasNext())
 	{
 	    Application application = (Application)p.next();
-	    application.nodeUp(nodeName);
+	    application.nodeUp(nodeName, info.staticInfo);
 	}
     }
 
@@ -259,9 +264,22 @@ public class Root extends Parent
 	}
     }
 
-    public java.util.Set getNodesUp()
+    java.util.Set getNodesUp()
     {
 	return _dynamicInfoMap.keySet();
+    }
+    
+    NodeInfo getStaticNodeInfo(String nodeName)
+    {
+	DynamicInfo info = (DynamicInfo)_dynamicInfoMap.get(nodeName);
+	if(info == null)
+	{
+	    return null;
+	}
+	else
+	{
+	    return info.staticInfo;
+	}
     }
     
     ServerState registerServer(String nodeName, Server server, 

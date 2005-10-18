@@ -39,7 +39,7 @@ class ServiceSubEditor extends CommunicatorSubEditor
 	    _mainEditor.getSubDescriptor();
     }
     
-    void append(DefaultFormBuilder builder)
+    void appendProperties(DefaultFormBuilder builder)
     {    
 	builder.append("Service Name");
 	builder.append(_name, 3);
@@ -48,7 +48,7 @@ class ServiceSubEditor extends CommunicatorSubEditor
 	//
 	// Add Communicator fields
 	//
-	super.append(builder);
+	super.appendProperties(builder);
 
 	builder.append("Entry");
 	builder.append(_entry, 3);

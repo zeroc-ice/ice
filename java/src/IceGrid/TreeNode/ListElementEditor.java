@@ -18,6 +18,11 @@ abstract class ListElementEditor extends Editor
     abstract boolean isSimpleUpdate();
     void postUpdate() {}
 
+    protected ListElementEditor(boolean hasCurrentStatus)
+    {
+	super(hasCurrentStatus, true);
+    }
+    
     //
     // Update when parent is a ListParent
     //

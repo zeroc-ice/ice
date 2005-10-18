@@ -11,12 +11,16 @@ package IceGrid.TreeNode;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+
+import IceGrid.AMI_Admin_patchApplication;
 
 import IceGrid.AdapterDynamicInfo;
 import IceGrid.ApplicationDescriptor;
 import IceGrid.ApplicationUpdateDescriptor;
 import IceGrid.DistributionDescriptor;
 import IceGrid.Model;
+import IceGrid.NodeInfo;
 import IceGrid.ServerDynamicInfo;
 import IceGrid.ServerState;
 import IceGrid.SimpleInternalFrame;
@@ -66,6 +70,7 @@ public class Application extends EditableParent
 
 	if(!_ephemeral)
 	{
+	    actions[SHOW_VARS] = true;
 	    actions[SUBSTITUTE_VARS] = true;
 	}
 	
@@ -139,6 +144,118 @@ public class Application extends EditableParent
     {
 	_serviceTemplates.newTemplateService();
     }
+    
+    public void applicationInstallDistribution()
+    {
+	int shutdown = JOptionPane.showConfirmDialog(
+	    _model.getMainFrame(),
+	    "You are about to install or refresh" 
+	    + " the distribution of your application onto this node.\n"
+	    + " Do you want shut down all servers affected by this update?", 
+	    "Patch Confirmation",
+	    JOptionPane.YES_NO_CANCEL_OPTION);
+       
+	if(shutdown == JOptionPane.CANCEL_OPTION)
+	{
+	    //
+	    // Recompute actions in case this comes from popup menu
+	    // 
+	    _model.showActions(_model.getSelectedNode());
+
+	    return;
+	}
+
+	final String prefix = "Patching application '" + _id + "'...";
+	_model.getStatusBar().setText(prefix);
+
+	AMI_Admin_patchApplication cb = new AMI_Admin_patchApplication()
+	    {
+		//
+		// Called by another thread!
+		//
+		public void ice_response()
+		{
+		    amiSuccess(prefix);
+		}
+		
+		public void ice_exception(Ice.UserException e)
+		{
+		    amiFailure(prefix, "Failed to patch " + _id, e);
+		}
+
+		public void ice_exception(Ice.LocalException e)
+		{
+		    amiFailure(prefix, "Failed to patch " + _id, e.toString());
+		}
+	    };
+	
+	try
+	{   
+	   _model.getAdmin().patchApplication_async(cb, _id, 
+						    shutdown == JOptionPane.YES_OPTION);
+	}
+	catch(Ice.LocalException e)
+	{
+	    failure(prefix, "Failed to patch " + _id, e.toString());
+	}
+	
+	//
+	// Recompute actions in case this comes from popup menu
+	// 
+	_model.showActions(_model.getSelectedNode());
+    }
+
+    
+    private void amiSuccess(final String prefix)
+    {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _model.getStatusBar().setText(prefix + "done.");
+		}
+	    });
+    }
+
+    private void amiFailure(String prefix, String title, Ice.UserException e)
+    {
+	if(e instanceof IceGrid.ApplicationNotExistException)
+	{
+	    amiFailure(prefix, title, "This application was not registered with the IceGrid Registry");
+	}
+	else if(e instanceof IceGrid.PatchException)
+	{
+	    IceGrid.PatchException pe = (IceGrid.PatchException)e;
+	    amiFailure(prefix, title, pe.reason);
+	}
+	else
+	{
+	    amiFailure(prefix, title, e.toString());
+	}
+    }
+    
+    private void amiFailure(final String prefix, final String title, final String message)
+    {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {	
+		public void run() 
+		{
+		    failure(prefix, title, message);
+		}
+	    });
+    }
+
+    private void failure(String prefix, String title, String message)
+    {
+	_model.getStatusBar().setText(prefix + "failed!");
+
+	JOptionPane.showMessageDialog(
+	    _model.getMainFrame(),
+	    message,
+	    title,
+	    JOptionPane.ERROR_MESSAGE);
+    }
+
 
     public ApplicationUpdateDescriptor createUpdateDescriptor()
     {
@@ -237,22 +354,14 @@ public class Application extends EditableParent
 	return _descriptor;
     }
 
-    public void displayProperties()
+    public Editor getEditor()
     {
-	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
-	
-	propertiesFrame.setTitle("Properties for " + _id);
 	if(_editor == null)
 	{
 	    _editor = new ApplicationEditor(_model.getMainFrame());
 	}
-	
 	_editor.show(this);
-	propertiesFrame.setContent(_editor.getComponent());
-
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
-
+	return _editor;
     }
 
     public boolean isEphemeral()
@@ -540,9 +649,9 @@ public class Application extends EditableParent
 	return _descriptor.variables;
     }
 
-    void nodeUp(String nodeName)
+    void nodeUp(String nodeName, NodeInfo staticInfo)
     {
-	_nodes.nodeUp(nodeName);
+	_nodes.nodeUp(nodeName, staticInfo);
     }
 
     void nodeDown(String nodeName)

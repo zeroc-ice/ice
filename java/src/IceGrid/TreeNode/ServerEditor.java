@@ -28,8 +28,9 @@ class ServerEditor extends AbstractServerEditor
 	return _subEditor.isSimpleUpdate(); 
     }
 
-    ServerEditor(JFrame parentFrame)
+    ServerEditor(Model model, JFrame parentFrame)
     {
+	super(model);
 	_subEditor = new ServerSubEditor(this, parentFrame);
     }
  
@@ -49,9 +50,9 @@ class ServerEditor extends AbstractServerEditor
 	}
     }
 
-    void append(DefaultFormBuilder builder)
+    void appendProperties(DefaultFormBuilder builder)
     {    
-	_subEditor.append(builder);
+	_subEditor.appendProperties(builder);
     }
     
     
@@ -70,6 +71,8 @@ class ServerEditor extends AbstractServerEditor
 	_applyButton.setEnabled(server.isEphemeral());
 	_discardButton.setEnabled(server.isEphemeral());	  
 	detectUpdates(true);
+
+	refreshCurrentStatus();
     }
 
     private ServerSubEditor _subEditor;

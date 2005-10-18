@@ -13,7 +13,9 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -24,6 +26,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 
 import IceGrid.Model;
 import IceGrid.NodeDescriptor;
+import IceGrid.NodeInfo;
 import IceGrid.TableDialog;
 import IceGrid.Utils;
 
@@ -157,9 +160,16 @@ class NodeEditor extends Editor
 
     NodeEditor(JFrame parentFrame)
     {
+	super(true, true);
+
 	_name.getDocument().addDocumentListener(_updateListener);
 	_description.getDocument().addDocumentListener(_updateListener);
 	_variables.setEditable(false);
+
+	_hostname.setEditable(false);
+	_os.setEditable(false);
+	_machineType.setEditable(false);
+	_loadAverage.setEditable(false);
 
 	//
 	// Variables
@@ -172,7 +182,7 @@ class NodeEditor extends Editor
 		public void actionPerformed(ActionEvent e) 
 		{
 		    java.util.TreeMap result = _variablesDialog.show(_variablesMap, 
-								     getPanel());
+								     getProperties());
 		    if(result != null)
 		    {
 			updated();
@@ -186,7 +196,64 @@ class NodeEditor extends Editor
 	_loadFactor.getDocument().addDocumentListener(_updateListener);
     }
  
-    void append(DefaultFormBuilder builder)
+    public JComponent getCurrentStatus(Ice.StringHolder title)
+    {
+	title.value = "System information";
+	return super.getCurrentStatus(title);
+    }
+
+    public void refreshCurrentStatus()
+    {
+	Node node = (Node)_target;
+	NodeInfo info = node.getStaticInfo();
+	
+	if(info == null)
+	{
+	    _hostname.setText("Unknown");
+	    _os.setText("Unknown");
+	    _machineType.setText("Unknown");
+	    _loadAverageLabel.setText("Load Average");
+	    _loadAverage.setText("Unknown");
+	}
+	else
+	{
+	    _hostname.setText(info.hostname);
+	    _os.setText(info.os + " " + info.release + " " + info.version);
+	    _machineType.setText(info.machine + " with " + 
+				 info.nProcessors 
+				 + " CPU" 
+				 + (info.nProcessors >= 2 ? "s" : ""));
+	    
+	    if(info.os.toLowerCase().startsWith("windows"))
+	    {
+		_loadAverageLabel.setText("CPU Usage");
+		_loadAverage.setText("92% 48% 18%");
+	    }
+	    else
+	    {
+		_loadAverageLabel.setText("Load Average");
+		_loadAverage.setText("0.92 0.48 0.18");
+	    }
+	}
+    }
+
+
+    void appendCurrentStatus(DefaultFormBuilder builder)
+    {
+	builder.append("Hostname");
+	builder.append(_hostname, 3);
+	builder.nextLine();
+	builder.append("Operating System");
+	builder.append(_os, 3);
+	builder.nextLine();
+	builder.append("Machine Type");
+	builder.append(_machineType, 3);
+	builder.append(_loadAverageLabel);
+	builder.append(_loadAverage, 3);
+	builder.nextLine();
+    }
+
+    void appendProperties(DefaultFormBuilder builder)
     {    
 	builder.append("Name");
 	builder.append(_name, 3);
@@ -254,6 +321,8 @@ class NodeEditor extends Editor
 	_applyButton.setEnabled(node.isEphemeral());
 	_discardButton.setEnabled(node.isEphemeral());
 	detectUpdates(true);
+
+	refreshCurrentStatus();
     }
     
     private void setVariablesField()
@@ -285,4 +354,10 @@ class NodeEditor extends Editor
     private TableDialog _variablesDialog;
     private java.util.TreeMap _variablesMap;
     private JTextField _loadFactor = new JTextField(20);
+
+    private JTextField _hostname = new JTextField(20);
+    private JTextField _os = new JTextField(20);
+    private JTextField _machineType = new JTextField(20);
+    private JLabel _loadAverageLabel = new JLabel();
+    private JTextField _loadAverage = new JTextField(20);
 }

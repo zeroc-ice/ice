@@ -74,6 +74,7 @@ class Service extends Parent
 	
 	if(_resolver != null && !_ephemeral)
 	{
+	    actions[SHOW_VARS] = true;
 	    actions[SUBSTITUTE_VARS] = true;
 	}
 	
@@ -169,11 +170,8 @@ class Service extends Parent
 	    ((ListParent)_parent).destroyChild(this);
     }
 
-    public void displayProperties()
+    public Editor getEditor()
     {
-	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
-	propertiesFrame.setTitle("Properties for " + _id);
-	
 	if(_instanceDescriptor.template.length() > 0)
 	{
 	    if(_instanceEditor == null)
@@ -181,7 +179,7 @@ class Service extends Parent
 		_instanceEditor = new ServiceInstanceEditor(_model.getMainFrame());
 	    }
 	    _instanceEditor.show(this);
-	    propertiesFrame.setContent(_instanceEditor.getComponent());
+	    return _instanceEditor;
 	}
 	else
 	{
@@ -190,10 +188,8 @@ class Service extends Parent
 		_editor = new ServiceEditor(_model.getMainFrame());
 	    }
 	    _editor.show(this);
-	    propertiesFrame.setContent(_editor.getComponent());
+	    return _editor;
 	}
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
     }
 
     public String toString()

@@ -15,8 +15,10 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
 
 import javax.swing.tree.TreePath;
 
@@ -26,6 +28,7 @@ import javax.swing.event.DocumentListener;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.ButtonBarFactory;
+import com.jgoodies.forms.factories.DefaultComponentFactory;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 
@@ -36,11 +39,102 @@ import IceGrid.Utils;
 //
 // Base class for all editors
 //
-abstract class Editor
+public class Editor
 {     
-    abstract void append(DefaultFormBuilder builder);
-    abstract protected void applyUpdate();
+    public JComponent getProperties()
+    {
+	if(_propertiesPanel == null)
+	{
+	    buildPanels();
+	}
+	return _propertiesPanel;
+    }
 
+    public JComponent getCurrentStatus(Ice.StringHolder title)
+    {
+	if(_currentStatusPanel == null)
+	{
+	    buildPanels();
+	}
+	return _currentStatusPanel;
+    }
+
+    public JToolBar getCurrentStatusToolBar()
+    {
+	return null;
+    }
+
+    void appendProperties(DefaultFormBuilder builder)
+    {}
+
+    void appendCurrentStatus(DefaultFormBuilder builder)
+    {}
+
+    public void refreshCurrentStatus()
+    {}
+    
+    protected void applyUpdate()
+    {
+	assert false;
+    }
+
+    private void buildPanels()
+    {
+	if(_hasCurrentStatus)
+	{
+	    FormLayout layout = new FormLayout(
+		"right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
+
+	    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+	    builder.setBorder(Borders.DLU2_BORDER);
+	    builder.setRowGroupingEnabled(true);
+	    builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+	    appendCurrentStatus(builder);
+
+	    JScrollPane scrollPane = 
+		new JScrollPane(builder.getPanel(),
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	    
+	    scrollPane.setBorder(Borders.DIALOG_BORDER);
+	
+	    _currentStatusPanel = new JPanel(new BorderLayout());
+	    _currentStatusPanel.add(scrollPane, BorderLayout.CENTER);
+	    _currentStatusPanel.setBorder(Borders.EMPTY_BORDER);
+	}
+	
+	if(_hasProperties)
+	{
+	    FormLayout layout = new FormLayout(
+		"right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
+
+	    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+	    builder.setBorder(Borders.DLU2_BORDER);
+	    builder.setRowGroupingEnabled(true);
+	    builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+	    
+	    appendProperties(builder);
+	    
+	    JScrollPane scrollPane = 
+		new JScrollPane(builder.getPanel(),
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	    
+	    scrollPane.setBorder(Borders.DIALOG_BORDER);
+	
+	    _propertiesPanel = new JPanel(new BorderLayout());
+	    _propertiesPanel.add(scrollPane, BorderLayout.CENTER);
+	    _propertiesPanel.setBorder(Borders.EMPTY_BORDER);
+	
+	    JComponent buttonBar = 
+		ButtonBarFactory.buildRightAlignedBar(_applyButton, 
+						      _discardButton);
+	    buttonBar.setBorder(Borders.DIALOG_BORDER);
+	    _propertiesPanel.add(buttonBar, BorderLayout.SOUTH);
+	
+	}
+    }
+    
     //
     // Used by the sub-editor (when there is one)
     //
@@ -54,49 +148,55 @@ abstract class Editor
 	return null;
     }
 
-    protected Editor()
+    protected Editor(boolean hasCurrentStatus, boolean hasProperties)
     {
-	//
-	// _applyButton
-	//
-	AbstractAction apply = new AbstractAction("Apply")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    applyUpdate();
-		}
-	    };
-	_applyButton = new JButton(apply);
+	_hasCurrentStatus = hasCurrentStatus;
+	_hasProperties = hasProperties;
 
-	//
-	// _discardButton
-	//
-	AbstractAction discard = new AbstractAction("Discard")
-	    {
-		public void actionPerformed(ActionEvent e) 
+	if(_hasProperties)
+	{
+	    //
+	    // _applyButton
+	    //
+	    AbstractAction apply = new AbstractAction("Apply")
 		{
-		    discardUpdate();
-		}
-	    };
-	_discardButton = new JButton(discard);
-
-	_updateListener = new DocumentListener() 
-	    {
-		public void changedUpdate(DocumentEvent e)
+		    public void actionPerformed(ActionEvent e) 
+		    {
+			applyUpdate();
+		    }
+		};
+	    _applyButton = new JButton(apply);
+	    
+	    //
+	    // _discardButton
+	    //
+	    AbstractAction discard = new AbstractAction("Discard")
 		{
-		    updated();
-		}
-		
-		public void insertUpdate(DocumentEvent e)
+		    public void actionPerformed(ActionEvent e) 
+		    {
+			discardUpdate();
+		    }
+		};
+	    _discardButton = new JButton(discard);
+	    
+	    _updateListener = new DocumentListener() 
 		{
-		    updated();
-		}
-		
-		public void removeUpdate(DocumentEvent e)
-		{
-		    updated();
-		}
-	    };
+		    public void changedUpdate(DocumentEvent e)
+		    {
+			updated();
+		    }
+		    
+		    public void insertUpdate(DocumentEvent e)
+		    {
+			updated();
+		    }
+		    
+		    public void removeUpdate(DocumentEvent e)
+		    {
+			updated();
+		    }
+		};
+	}
     }
     
     protected void setTarget(CommonBase target)
@@ -108,43 +208,7 @@ abstract class Editor
     {
 	return _target;
     }
-
-    JComponent getComponent()
-    {
-	if(_panel == null)
-	{
-	    //
-	    // Build everything using JGoodies's DefaultFormBuilder
-	    //
-	    FormLayout layout = new FormLayout(
-		"right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
-
-	    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-	    builder.setBorder(Borders.DLU2_BORDER);
-	    builder.setRowGroupingEnabled(true);
-	    builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-
-	    append(builder);
-
-	    JScrollPane scrollPane = 
-		new JScrollPane(builder.getPanel(),
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-	    
-	    scrollPane.setBorder(Borders.DIALOG_BORDER);
-	    
-	    _panel = new JPanel(new BorderLayout());
-	    _panel.add(scrollPane, BorderLayout.CENTER);
-	    
-	    JComponent buttonBar = 
-		ButtonBarFactory.buildRightAlignedBar(_applyButton, 
-						      _discardButton);
-	    buttonBar.setBorder(Borders.DIALOG_BORDER);
-	    _panel.add(buttonBar, BorderLayout.SOUTH);
-	}
-	return _panel;
-    }
-
+    
     void updated()
     {
 	if(_detectUpdates)
@@ -158,12 +222,6 @@ abstract class Editor
     {
 	return _updateListener;
     }
-    
-    JPanel getPanel()
-    {
-	return _panel;
-    }
-    
     
     protected void detectUpdates(boolean val)
     {
@@ -227,12 +285,17 @@ abstract class Editor
 	return result;
     }
 
+    private final boolean _hasCurrentStatus;
+    private final boolean _hasProperties;
+
     protected JButton _applyButton;
     protected JButton _discardButton;
     protected DocumentListener _updateListener;
    
     protected CommonBase _target;
-    protected JPanel _panel;
-
     private boolean _detectUpdates = true; 
+
+    protected JPanel _currentStatusPanel;
+    protected JPanel _propertiesPanel;
+  
 }

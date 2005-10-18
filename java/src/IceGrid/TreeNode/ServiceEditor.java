@@ -20,6 +20,7 @@ class ServiceEditor extends ListElementEditor
 {
     ServiceEditor(JFrame parentFrame)
     {
+	super(false);
 	_subEditor = new ServiceSubEditor(this, parentFrame);
     }
  
@@ -39,9 +40,9 @@ class ServiceEditor extends ListElementEditor
 	}
     }
 
-    void append(DefaultFormBuilder builder)
+    void appendProperties(DefaultFormBuilder builder)
     {    
-	_subEditor.append(builder);
+	_subEditor.appendProperties(builder);
     }
     
     void writeDescriptor()

@@ -48,7 +48,7 @@ class CommunicatorSubEditor
 		{
 		    java.util.Map result = 
 			_propertiesDialog.show(_propertiesMap, 
-					       _mainEditor.getPanel());
+					       _mainEditor.getProperties());
 		    if(result != null)
 		    {
 			_mainEditor.updated();
@@ -64,7 +64,7 @@ class CommunicatorSubEditor
     }
 
   
-    void append(DefaultFormBuilder builder)
+    void appendProperties(DefaultFormBuilder builder)
     {
 	builder.append("Description");
 	builder.nextLine();

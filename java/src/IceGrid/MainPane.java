@@ -67,7 +67,7 @@ public class MainPane extends JSplitPane
 	protected void paintComponent(Graphics g)
 	{
 	    super.paintComponent(g);    
-	    Dimension d = _rightPane.getSize(null);
+	    Dimension d = _model.getPropertiesFrame().getSize(null);
 	    
 	    //
 	    // Keep the aspect ratio and make the image fill all the space
@@ -138,7 +138,8 @@ public class MainPane extends JSplitPane
 	    {
 		if(_model.displayEnabled())
 		{
-		    displayWelcomePanel();
+		    _model.show(_model.getRoot());
+		    // displayWelcomePanel();
 		}
 	    }
 	    else
@@ -156,11 +157,7 @@ public class MainPane extends JSplitPane
 		//
 		assert newNode.getParent() != null;
 		_previousNode = newNode;
-		if(_model.displayEnabled())
-		{
-		    _model.showActions(newNode);
-		    newNode.displayProperties();
-		}
+		_model.show(newNode);
 	    }	    
 	}
 	private CommonBase _previousNode;
@@ -225,83 +222,34 @@ public class MainPane extends JSplitPane
 	//
 	// Right pane
 	//
-	_rightPane = new SimpleInternalFrame("");
+	JPanel rightPane = new JPanel();
+	rightPane.setLayout(new BoxLayout(rightPane, BoxLayout.Y_AXIS));
+	rightPane.setBorder(Borders.EMPTY_BORDER);
+	rightPane.add(_model.getCurrentStatusFrame());
+	rightPane.add(Box.createRigidArea(new Dimension(0, 5)));
+	rightPane.add(_model.getPropertiesFrame());
 
+	//_model.show(_model.getRoot());
+	
 	//
 	// Welcome panel
 	//
-	_welcomePanel = new WelcomePanel();
-	// _welcomePanel.setBackground(Color.RED);
-	displayWelcomePanel();
-
-	_model.setPropertiesFrame(_rightPane);
+	//_welcomePanel = new WelcomePanel();
+	//displayWelcomePanel();
 	
 	setLeftComponent(leftPane);
-	setRightComponent(_rightPane);
-    }
-
-    //
-    // Adapted from JGoodies SimpleInternalFrame
-    //
-    private static class ShadowBorder extends AbstractBorder 
-    {
-        private static final Insets INSETS = new Insets(1, 1, 3, 3);
-        public Insets getBorderInsets(Component c) { return INSETS; }
-
-        public void paintBorder(Component c, Graphics g,
-            int x, int y, int w, int h) 
-	{
-            Color shadow        = UIManager.getColor("controlShadow");
-            if (shadow == null) 
-	    {
-                shadow = Color.GRAY;
-            }
-            Color lightShadow   = new Color(shadow.getRed(),
-                                            shadow.getGreen(),
-                                            shadow.getBlue(),
-                                            170);
-            Color lighterShadow = new Color(shadow.getRed(),
-                                            shadow.getGreen(),
-                                            shadow.getBlue(),
-                                            70);
-            g.translate(x, y);
-         
-            g.setColor(shadow);
-
-	    int tabAdjustment = 24;
-
-            // g.fillRect(0, 0, w - 3, 1);
-            g.fillRect(0, 0 + tabAdjustment, 1, h - 3 - tabAdjustment);
-	    g.fillRect(w - 3, 1 + tabAdjustment , 1, h - 3 - tabAdjustment);
-            g.fillRect(1, h - 3, w - 3, 1);
-            // Shadow line 1
-            g.setColor(lightShadow);
-            g.fillRect(w - 3, 0 + tabAdjustment, 1, 1);
-            g.fillRect(0, h - 3, 1, 1);
-            g.fillRect(w - 2, 1 + tabAdjustment, 1, h - 3 - tabAdjustment);
-            g.fillRect(1, h - 2, w - 3, 1);
-            // Shadow line2
-            g.setColor(lighterShadow);
-            g.fillRect(w - 2, 0 + tabAdjustment, 1, 1);
-            g.fillRect(0, h - 2, 1, 1);
-            g.fillRect(w-2, h - 2, 1, 1);
-            g.fillRect(w - 1, 1 + tabAdjustment, 1, h - 2 - tabAdjustment);
-            g.fillRect(1, h - 1, w - 2, 1);
-            g.translate(-x, -y);
-        }
+	setRightComponent(rightPane);
     }
 
     private void displayWelcomePanel()
     {
-	_rightPane.setTitle("             ");
-	_rightPane.setContent(_welcomePanel);
-	_rightPane.validate();
-	_rightPane.repaint();
+	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
+	propertiesFrame.setContent(_welcomePanel);
+	propertiesFrame.validate();
+	propertiesFrame.repaint();
     }
 
 
     private Model _model;
-    private SimpleInternalFrame _rightPane;
-
     private JPanel _welcomePanel;
 }

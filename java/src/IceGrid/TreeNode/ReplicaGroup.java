@@ -34,7 +34,12 @@ class ReplicaGroup extends EditableLeaf
 	    actions[PASTE] = true;
 	}
 	actions[DELETE] = true;
-	actions[SUBSTITUTE_VARS] = true;
+
+	if(!_ephemeral)
+	{
+	    actions[SHOW_VARS] = true;
+	    actions[SUBSTITUTE_VARS] = true;
+	}
 	return actions;
     }
 
@@ -71,20 +76,14 @@ class ReplicaGroup extends EditableLeaf
 	return false;
     }
 
-    public void displayProperties()
+    public Editor getEditor()
     {
-	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
-	
-	propertiesFrame.setTitle("Properties for " + _id);
 	if(_editor == null)
 	{
 	    _editor = new ReplicaGroupEditor(_model.getMainFrame());
 	}
-	propertiesFrame.setContent(_editor.getComponent());
 	_editor.show(this);
-
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
+	return _editor;
     }
 
     public Object getDescriptor()

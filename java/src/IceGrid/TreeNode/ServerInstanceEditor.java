@@ -47,8 +47,9 @@ class ServerInstanceEditor extends AbstractServerEditor
 	return false;
     }
 
-    ServerInstanceEditor(JFrame parentFrame)
+    ServerInstanceEditor(Model model, JFrame parentFrame)
     {
+	super(model);
 	_subEditor = new ServerSubEditor(this, parentFrame);
 
 	_parameterValues.setEditable(false);
@@ -83,7 +84,7 @@ class ServerInstanceEditor extends AbstractServerEditor
 		public void actionPerformed(ActionEvent e) 
 		{
 		    if(_parametersDialog.show(_parameterList, _parameterValuesMap, 
-					      _panel))
+					      getProperties()))
 		    {
 			updated();
 			setParameterValuesField();
@@ -119,7 +120,7 @@ class ServerInstanceEditor extends AbstractServerEditor
 	}
     }
 
-    void append(DefaultFormBuilder builder)
+    void appendProperties(DefaultFormBuilder builder)
     { 
 	builder.append("Template", _template);
 	builder.append(_templateButton);
@@ -132,7 +133,7 @@ class ServerInstanceEditor extends AbstractServerEditor
 	builder.appendSeparator();
 	builder.nextLine();
 	
-	_subEditor.append(builder);
+	_subEditor.appendProperties(builder);
     }
 
     Object getSubDescriptor()
@@ -211,6 +212,8 @@ class ServerInstanceEditor extends AbstractServerEditor
 	_applyButton.setEnabled(server.isEphemeral());
 	_discardButton.setEnabled(server.isEphemeral());	  
 	detectUpdates(true);
+
+	refreshCurrentStatus();
     }
 
     void setParameterValuesField()

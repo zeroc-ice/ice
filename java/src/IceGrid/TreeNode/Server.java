@@ -162,7 +162,11 @@ class Server extends EditableParent
 	}
 
 	actions[DELETE] = true;
-	actions[SUBSTITUTE_VARS] = !_ephemeral;
+	if(!_ephemeral)
+	{
+	    actions[SHOW_VARS] = true;
+	    actions[SUBSTITUTE_VARS] = true;
+	}
 	
 	if(_instanceDescriptor == null)
 	{
@@ -337,6 +341,67 @@ class Server extends EditableParent
     {
 	enableServer(false);
     }
+
+    public void serverInstallDistribution()
+    {
+	int shutdown = JOptionPane.showConfirmDialog(
+	    _model.getMainFrame(),
+	    "You are about to install or refresh your" 
+	    + " server distribution and your application distribution onto this node.\n"
+	    + " Do you want shut down all servers affected by this update?", 
+	    "Patch Confirmation",
+	    JOptionPane.YES_NO_CANCEL_OPTION);
+       
+	if(shutdown == JOptionPane.CANCEL_OPTION)
+	{
+	    //
+	    // Recompute actions in case this comes from popup menu
+	    // 
+	    _model.showActions(_model.getSelectedNode());
+
+	    return;
+	}
+
+	final String prefix = "Patching server '" + _id + "'...";
+	_model.getStatusBar().setText(prefix);
+
+	AMI_Admin_patchServer cb = new AMI_Admin_patchServer()
+	    {
+		//
+		// Called by another thread!
+		//
+		public void ice_response()
+		{
+		    amiSuccess(prefix);
+		}
+		
+		public void ice_exception(Ice.UserException e)
+		{
+		    amiFailure(prefix, "Failed to patch " + _id, e);
+		}
+
+		public void ice_exception(Ice.LocalException e)
+		{
+		    amiFailure(prefix, "Failed to patch " + _id, e.toString());
+		}
+	    };
+	
+	try
+	{   
+	   _model.getAdmin().patchServer_async(cb, _id, 
+					       shutdown == JOptionPane.YES_OPTION);
+	}
+	catch(Ice.LocalException e)
+	{
+	    failure(prefix, "Failed to patch " + _id, e.toString());
+	}
+	
+	//
+	// Recompute actions in case this comes from popup menu
+	// 
+	_model.showActions(_model.getSelectedNode());
+    }
+
     
     private void amiSuccess(final String prefix)
     {
@@ -364,6 +429,11 @@ class Server extends EditableParent
 	{
 	    IceGrid.ServerStartException ste = (IceGrid.ServerStartException)e;
 	    amiFailure(prefix, title, ste.reason);
+	}
+	else if(e instanceof IceGrid.PatchException)
+	{
+	    IceGrid.PatchException pe = (IceGrid.PatchException)e;
+	    amiFailure(prefix, title, pe.reason);
 	}
 	else
 	{
@@ -440,11 +510,8 @@ class Server extends EditableParent
 
     }
 
-    public void displayProperties()
+    public Editor getEditor()
     {
-	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
-	propertiesFrame.setTitle("Properties for " + _id);
-	
 	//
 	// Pick the appropriate editor
 	//
@@ -453,23 +520,21 @@ class Server extends EditableParent
 	{
 	    if(_serverEditor == null)
 	    {
-		_serverEditor = new ServerEditor(_model.getMainFrame());
+		_serverEditor = new ServerEditor(_model, _model.getMainFrame());
 	    }
 	    _serverEditor.show(this);
-	    propertiesFrame.setContent(_serverEditor.getComponent());
+	    return _serverEditor;
 	}
 	else
 	{
 	    if(_serverInstanceEditor == null)
 	    {
-		_serverInstanceEditor = new ServerInstanceEditor(_model.getMainFrame());
+		_serverInstanceEditor = new ServerInstanceEditor(
+		    _model, _model.getMainFrame());
 	    }
 	    _serverInstanceEditor.show(this);
-	    propertiesFrame.setContent(_serverInstanceEditor.getComponent());
+	    return _serverInstanceEditor;
 	}
-
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
     }
 	
 
@@ -774,6 +839,11 @@ class Server extends EditableParent
     ServerState getState()
     {
 	return _state;
+    }
+    
+    int getPid()
+    {
+	return _pid;
     }
 
     ServerInstanceDescriptor getInstanceDescriptor()

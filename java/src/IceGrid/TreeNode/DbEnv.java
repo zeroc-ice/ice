@@ -39,6 +39,7 @@ class DbEnv extends Leaf
 	
 	if(_resolver != null && !_ephemeral)
 	{
+	    actions[SHOW_VARS] = true;
 	    actions[SUBSTITUTE_VARS] = true;
 	}
 	return actions;
@@ -57,23 +58,15 @@ class DbEnv extends Leaf
 	_parent.paste();
     }
 
-    public void displayProperties()
+    public Editor getEditor()
     {
-	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
-	
-	propertiesFrame.setTitle("Properties for " + _id);
 	if(_editor == null)
 	{
 	    _editor = new DbEnvEditor(_model.getMainFrame());
 	}
-	
 	_editor.show(this);
-	propertiesFrame.setContent(_editor.getComponent());
-
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
+	return _editor;
     }
-
 
     public Object getDescriptor()
     {

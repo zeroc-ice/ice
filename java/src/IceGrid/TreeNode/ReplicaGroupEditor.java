@@ -171,6 +171,8 @@ class ReplicaGroupEditor extends Editor
 
     ReplicaGroupEditor(JFrame parentFrame)
     {
+	super(false, true);
+
 	_objects.setEditable(false);
 	
 	//
@@ -186,7 +188,7 @@ class ReplicaGroupEditor extends Editor
 		public void actionPerformed(ActionEvent e) 
 		{
 		    java.util.Map result = _objectsDialog.show(_objectsMap, 
-							       _panel);
+							       getProperties());
 		    if(result != null)
 		    {
 			updated();
@@ -275,7 +277,7 @@ class ReplicaGroupEditor extends Editor
 	return descriptor.id.equals(_id.getText());
     }
 
-    void append(DefaultFormBuilder builder)
+    void appendProperties(DefaultFormBuilder builder)
     {
 	builder.append("Replica Group ID" );
 	builder.append(_id, 3);

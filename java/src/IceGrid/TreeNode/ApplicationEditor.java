@@ -141,6 +141,7 @@ class ApplicationEditor extends Editor
 
     ApplicationEditor(JFrame parentFrame)
     {
+	super(false, true);
 	_name.getDocument().addDocumentListener(_updateListener);
 	_description.getDocument().addDocumentListener(_updateListener);
 	_variables.setEditable(false);
@@ -156,7 +157,7 @@ class ApplicationEditor extends Editor
 		public void actionPerformed(ActionEvent e) 
 		{
 		    java.util.TreeMap result = _variablesDialog.show(_variablesMap, 
-								     getPanel());
+								     getProperties());
 		    if(result != null)
 		    {
 			updated();
@@ -187,7 +188,7 @@ class ApplicationEditor extends Editor
 		public void actionPerformed(ActionEvent e) 
 		{
 		    java.util.LinkedList result = _distribDirsDialog.show(
-			_distribDirsList, getPanel());
+			_distribDirsList, getProperties());
 		    if(result != null)
 		    {
 			updated();
@@ -200,7 +201,7 @@ class ApplicationEditor extends Editor
 
     }
  
-    void append(DefaultFormBuilder builder)
+    void appendProperties(DefaultFormBuilder builder)
     {    
 	builder.append("Name");
 	builder.append(_name, 3);

@@ -18,10 +18,6 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.TreePath;
 
-import IceGrid.SimpleInternalFrame;
-import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.DefaultComponentFactory;
-
 import IceGrid.Model;
 import IceGrid.Utils;
 
@@ -102,22 +98,13 @@ abstract class CommonBaseI implements CommonBase
 	return false;
     }
 
-    public void displayProperties()
+    public Editor getEditor()
     {
-	if(_panel == null)
+	if(_editor == null)
 	{
-	    JLabel label = DefaultComponentFactory.getInstance().createTitle("This element has no property");
-	    _panel = new JPanel();
-	    _panel.add(label);
-	    _panel.setBorder(Borders.DIALOG_BORDER);
+	    _editor = new Editor(false, false);
 	}
-
-	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
-	propertiesFrame.setTitle("Properties");
-	propertiesFrame.setContent(_panel);
-	
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
+	return _editor;
     }
 
     public Component getTreeCellRendererComponent(
@@ -239,10 +226,6 @@ abstract class CommonBaseI implements CommonBase
 		// TODO: show splash
 	    }
 	}
-    }
-    public void substituteVars()
-    {
-	_model.toggleSubstitute();
     }
     public void moveUp()
     {
@@ -403,7 +386,7 @@ abstract class CommonBaseI implements CommonBase
     protected Model _model; 
 
     //
-    // The default panel
+    // The default Editor
     //
-    static protected JPanel _panel;
+    static private Editor _editor;
 }

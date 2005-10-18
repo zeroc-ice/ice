@@ -61,7 +61,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 		public void actionPerformed(ActionEvent e) 
 		{
 		    java.util.Map result = _envDialog.show(
-			_envMap, _mainEditor.getPanel());
+			_envMap, _mainEditor.getProperties());
 		    if(result != null)
 		    {
 			_mainEditor.updated();
@@ -79,7 +79,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 		public void actionPerformed(ActionEvent e) 
 		{
 		    java.util.LinkedList result = _optionDialog.show(
-			_optionList, _mainEditor.getPanel());
+			_optionList, _mainEditor.getProperties());
 		    if(result != null)
 		    {
 			_mainEditor.updated();
@@ -106,7 +106,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 		public void actionPerformed(ActionEvent e) 
 		{
 		    java.util.LinkedList result = _distribDirsDialog.show(
-			_distribDirsList, _mainEditor.getPanel());
+			_distribDirsList, _mainEditor.getProperties());
 		    if(result != null)
 		    {
 			_mainEditor.updated();
@@ -124,7 +124,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 	    _mainEditor.getSubDescriptor();
     }
     
-    void append(DefaultFormBuilder builder)
+    void appendProperties(DefaultFormBuilder builder)
     {    
 	builder.append("Server ID");
 	builder.append(_id, 3);
@@ -133,7 +133,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 	//
 	// Add Communicator fields
 	//
-	super.append(builder);
+	super.appendProperties(builder);
 
 	
 	builder.appendSeparator("Activation");

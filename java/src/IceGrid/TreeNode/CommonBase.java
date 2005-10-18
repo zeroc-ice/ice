@@ -60,7 +60,7 @@ public interface CommonBase extends TreeCellRenderer
     //
     TreePath getPath();
 
-    void displayProperties();
+    Editor getEditor();
 
     //
     // Get properties
@@ -128,21 +128,22 @@ public interface CommonBase extends TreeCellRenderer
     static final int PASTE = 13;
     static final int DELETE = 14;
 
-    static final int SUBSTITUTE_VARS = 15;
+    static final int SHOW_VARS = 15;
+    static final int SUBSTITUTE_VARS = 16;
 
-    static final int MOVE_UP = 16;
-    static final int MOVE_DOWN =17;
-    static final int START = 18;
-    static final int STOP = 19;
-    static final int ENABLE = 20;
-    static final int DISABLE = 21;
+    static final int MOVE_UP = 17;
+    static final int MOVE_DOWN =18;
+    static final int START = 19;
+    static final int STOP = 20;
+    static final int ENABLE = 21;
+    static final int DISABLE = 22;
 
-    static final int SHUTDOWN_NODE = 22;
+    static final int SHUTDOWN_NODE = 23;
 
-    static final int APPLICATION_INSTALL_DISTRIBUTION = 23;
-    static final int SERVER_INSTALL_DISTRIBUTION = 24;
+    static final int APPLICATION_INSTALL_DISTRIBUTION = 24;
+    static final int SERVER_INSTALL_DISTRIBUTION = 25;
 
-    static public final int ACTION_COUNT = 25;
+    static public final int ACTION_COUNT = 26;
 
     boolean[] getAvailableActions();
     
@@ -162,9 +163,7 @@ public interface CommonBase extends TreeCellRenderer
     void copy();
     void paste();
     void delete();
-    
-    void substituteVars();
-    
+   
     void moveUp();
     void moveDown();
     void start();

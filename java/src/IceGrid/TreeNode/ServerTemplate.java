@@ -117,23 +117,16 @@ class ServerTemplate extends EditableParent
 	return _popup;
     }
 
-
-    public void displayProperties()
+    public Editor getEditor()
     {
-	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
-	propertiesFrame.setTitle("Properties for " + _id);
-       
 	if(_editor == null)
 	{
 	    _editor = new ServerTemplateEditor(_model.getMainFrame());
 	}
 	_editor.show(this);
-	propertiesFrame.setContent(_editor.getComponent());
-	
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
+	return _editor;
     }
-
+    
     public boolean destroy()
     {
 	ServerTemplates serverTemplates = (ServerTemplates)_parent;

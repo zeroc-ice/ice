@@ -32,6 +32,7 @@ class ServiceInstanceEditor extends ListElementEditor
 {
     ServiceInstanceEditor(JFrame parentFrame)
     {
+	super(false);
 	_subEditor = new ServiceSubEditor(this, parentFrame);
 
 	_parameterValues.setEditable(false);
@@ -66,7 +67,7 @@ class ServiceInstanceEditor extends ListElementEditor
 		public void actionPerformed(ActionEvent e) 
 		{
 		    if(_parametersDialog.show(_parameterList, _parameterValuesMap, 
-					      _panel))
+					      getProperties()))
 		    {
 			updated();
 			setParameterValuesField();
@@ -113,7 +114,7 @@ class ServiceInstanceEditor extends ListElementEditor
 	return false;
     }
 
-    void append(DefaultFormBuilder builder)
+    void appendProperties(DefaultFormBuilder builder)
     { 
 	builder.append("Template", _template);
 	builder.append(_templateButton);
@@ -126,7 +127,7 @@ class ServiceInstanceEditor extends ListElementEditor
 	builder.appendSeparator();
 	builder.nextLine();
 	
-	_subEditor.append(builder);
+	_subEditor.appendProperties(builder);
     }
 
     Object getSubDescriptor()

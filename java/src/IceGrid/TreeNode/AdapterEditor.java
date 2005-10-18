@@ -38,8 +38,13 @@ class AdapterEditor extends ListElementEditor
 {
     AdapterEditor(JFrame parentFrame)
     {
+	super(true);
+
 	_objects.setEditable(false);
+	
+	_currentStatus.setEditable(false);
 	_currentEndpoints.setEditable(false);
+	
 
 	//
 	// Create buttons
@@ -95,7 +100,7 @@ class AdapterEditor extends ListElementEditor
 		public void actionPerformed(ActionEvent e) 
 		{
 		    java.util.Map result = _objectsDialog.show(_objectsMap, 
-							       _panel);
+							       getProperties());
 		    if(result != null)
 		    {
 			updated();
@@ -209,7 +214,18 @@ class AdapterEditor extends ListElementEditor
 	    && descriptor.id.equals(getIdAsString());
     }
 
-    void append(DefaultFormBuilder builder)
+    void appendCurrentStatus(DefaultFormBuilder builder)
+    {
+	builder.append("Status" );
+	builder.append(_currentStatus, 3);
+	builder.nextLine();
+
+	builder.append("Published Endpoints" );
+	builder.append(_currentEndpoints, 3);
+	builder.nextLine();
+    }
+
+    void appendProperties(DefaultFormBuilder builder)
     {
 	builder.append("Adapter Name" );
 	builder.append(_name, 3);
@@ -243,17 +259,12 @@ class AdapterEditor extends ListElementEditor
 	builder.append("", _waitForActivation);
 	builder.nextLine();
 
-	builder.appendSeparator("Endpoints");
-	builder.append("Definition" );
+	builder.append("Endpoints" );
 	builder.append(_endpoints, 3);
 	builder.nextLine();
 
-	builder.append("Published" );
+	builder.append("Published Endpoints" );
 	builder.append(_publishedEndpoints, 3);
-	builder.nextLine();
-	
-	builder.append("Current Value" );
-	builder.append(_currentEndpoints, 3);
 	builder.nextLine();
     }
 
@@ -466,8 +477,6 @@ class AdapterEditor extends ListElementEditor
 	}
 	_publishedEndpoints.setEnabled(isEditable);
 	_publishedEndpoints.setEditable(isEditable);
-	
-	_currentEndpoints.setText(adapter.getCurrentEndpoints());
 
 	//
 	// Objects
@@ -481,10 +490,31 @@ class AdapterEditor extends ListElementEditor
 	
 	_waitForActivation.setSelected(descriptor.waitForActivation);
 	_waitForActivation.setEnabled(isEditable);
-	
+
+	refreshCurrentStatus();
+
 	_applyButton.setEnabled(adapter.isEphemeral());
 	_discardButton.setEnabled(adapter.isEphemeral());	  
 	detectUpdates(true);
+    }
+
+    public void refreshCurrentStatus()
+    {
+	Adapter adapter = getAdapter();
+
+	String currentEndpoints = adapter.getCurrentEndpoints();
+	boolean active = (currentEndpoints != null);
+
+	if(currentEndpoints == null)
+	{
+	    _currentStatus.setText("Inactive");
+	    _currentEndpoints.setText("");
+	}
+	else
+	{
+	    _currentStatus.setText("Active");
+	    _currentEndpoints.setText(currentEndpoints);
+	}
     }
 
     Adapter getAdapter()
@@ -532,6 +562,8 @@ class AdapterEditor extends ListElementEditor
     private JTextField _endpoints = new JTextField(20);
     private JComboBox _publishedEndpoints = new JComboBox(
 	new Object[]{PUBLISH_ACTUAL});
+
+    private JTextField _currentStatus = new JTextField(20);
     private JTextField _currentEndpoints = new JTextField(20);
 
     private JCheckBox _registerProcess;

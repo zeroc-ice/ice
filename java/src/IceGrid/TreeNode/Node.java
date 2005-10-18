@@ -19,7 +19,9 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import IceGrid.NodeDescriptor;
+import IceGrid.NodeInfo;
 import IceGrid.Model;
+import IceGrid.NodeInfo;
 import IceGrid.NodeDynamicInfo;
 import IceGrid.NodeUpdateDescriptor;
 import IceGrid.ServerDynamicInfo;
@@ -74,6 +76,7 @@ class Node extends EditableParent
 
 	if(!_ephemeral)
 	{
+	    actions[SHOW_VARS] = true;
 	    actions[SUBSTITUTE_VARS] = true;
 	    actions[NEW_SERVER] = true;
 	    actions[NEW_SERVER_ICEBOX] = true;
@@ -183,7 +186,7 @@ class Node extends EditableParent
 	    {
 		try
 		{
-		    Node cleanNode = new Node(false, _id, null, application, true);
+		    Node cleanNode = new Node(false, _id, null, application, _staticInfo);
 		    nodes.addChild(cleanNode, true);
 		}
 		catch(UpdateFailedException e)
@@ -249,22 +252,15 @@ class Node extends EditableParent
 	return _cellRenderer.getTreeCellRendererComponent(
 	    tree, value, sel, expanded, leaf, row, hasFocus);
     }
-    
-    public void displayProperties()
+
+    public Editor getEditor()
     {
-	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
-	
-	propertiesFrame.setTitle("Properties for " + _id);
 	if(_editor == null)
 	{
 	    _editor = new NodeEditor(_model.getMainFrame());
 	}
-	
 	_editor.show(this);
-	propertiesFrame.setContent(_editor.getComponent());
-
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
+	return _editor;
     }
 
     public Object getDescriptor()
@@ -522,9 +518,10 @@ class Node extends EditableParent
 
     }
 
-    void up()
+    void up(NodeInfo staticInfo)
     {
 	_up = true;
+	_staticInfo = staticInfo;
 	fireNodeChangedEvent(this);
     }
 
@@ -783,13 +780,14 @@ class Node extends EditableParent
     }
 
     Node(boolean brandNew, String nodeName, NodeDescriptor descriptor, 
-	 Application application, boolean up)
+	 Application application, NodeInfo staticInfo)
 	throws UpdateFailedException
     {
 	super(brandNew, nodeName, application.getModel());
 	_ephemeral = false;
-	_inRegistry = (descriptor != null); 
-	_up = up;
+	_inRegistry = (descriptor != null);
+	_staticInfo = staticInfo;
+	_up = staticInfo != null;
 
 	if(!_inRegistry)
 	{
@@ -936,6 +934,10 @@ class Node extends EditableParent
 	return _resolver;
     }
 
+    NodeInfo getStaticInfo()
+    {
+	return _staticInfo;
+    }
 
     void tryAdd(ServerInstanceDescriptor instanceDescriptor,
 		ServerDescriptor serverDescriptor,
@@ -1089,6 +1091,8 @@ class Node extends EditableParent
     private final boolean _ephemeral;
 
     private boolean _inRegistry;
+
+    private NodeInfo _staticInfo;
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon _nodeUpOpen;

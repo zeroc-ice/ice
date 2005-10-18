@@ -44,6 +44,7 @@ class Adapter extends Leaf
 	
 	if(_resolver != null && !_ephemeral)
 	{
+	    actions[SHOW_VARS] = true;
 	    actions[SUBSTITUTE_VARS] = true;
 	}
 	return actions;
@@ -87,21 +88,14 @@ class Adapter extends Leaf
 	    tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-    public void displayProperties()
+    public Editor getEditor()
     {
-	SimpleInternalFrame propertiesFrame = _model.getPropertiesFrame();
-	
-	propertiesFrame.setTitle("Properties for " + _id);
 	if(_editor == null)
 	{
 	    _editor = new AdapterEditor(_model.getMainFrame());
 	}
-	
 	_editor.show(this);
-	propertiesFrame.setContent(_editor.getComponent());
-
-	propertiesFrame.validate();
-	propertiesFrame.repaint();
+	return _editor;
     }
 
     public boolean destroy()
@@ -270,7 +264,7 @@ class Adapter extends Leaf
     {
 	if(proxy == null)
 	{
-	    _currentEndpoints = "";
+	    _currentEndpoints = null;
 	    _toolTip = "Inactive";
 	}
 	else
@@ -285,7 +279,7 @@ class Adapter extends Leaf
 	    {
 		_currentEndpoints = str.substring(index + 1);
 	    }
-	    _toolTip = "Current endpoints: " + _currentEndpoints;
+	    _toolTip = "Published endpoints: " + _currentEndpoints;
 	}
     }
 

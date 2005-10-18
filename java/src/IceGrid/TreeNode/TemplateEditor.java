@@ -28,6 +28,7 @@ class TemplateEditor extends Editor
 {
     TemplateEditor(JFrame parentFrame)
     {
+	super(false, true);
 	_template.getDocument().addDocumentListener(_updateListener);
 	_parameters.setEditable(false);
 
@@ -43,7 +44,7 @@ class TemplateEditor extends Editor
 		public void actionPerformed(ActionEvent e) 
 		{
 		    if(_parametersDialog.show(_parameterList, _parameterValuesMap, 
-					      _panel))
+					      getProperties()))
 		    {
 			updated();
 			setParametersField();
@@ -81,7 +82,7 @@ class TemplateEditor extends Editor
 	    && descriptor.parameterDefaults.equals(_parameterValuesMap);
     }
 
-    void append(DefaultFormBuilder builder)
+    void appendProperties(DefaultFormBuilder builder)
     { 
 	builder.append("Template ID");
 	builder.append(_template, 3);

@@ -32,6 +32,7 @@ class DbEnvEditor extends ListElementEditor
 {
     DbEnvEditor(JFrame parentFrame)
     {
+	super(false);
 	_name.getDocument().addDocumentListener(_updateListener);
 	_description.getDocument().addDocumentListener(_updateListener);
 	_dbHome.getDocument().addDocumentListener(_updateListener);
@@ -52,7 +53,7 @@ class DbEnvEditor extends ListElementEditor
 		{
 		    java.util.Map result = 
 			_propertiesDialog.show(_propertiesMap, 
-					       getPanel());
+					       getProperties());
 		    if(result != null)
 		    {
 			updated();
@@ -81,7 +82,7 @@ class DbEnvEditor extends ListElementEditor
 	return descriptor.name.equals(_name.getText()); 
     }
 
-    void append(DefaultFormBuilder builder)
+    void appendProperties(DefaultFormBuilder builder)
     {
 	builder.append("Name" );
 	builder.append(_name, 3);
