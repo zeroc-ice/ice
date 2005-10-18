@@ -120,9 +120,7 @@ abstract class AbstractServerEditor extends Editor
 		    {
 			//
 			// Restore all
-			//
-			server.restoreDescriptor(savedDescriptor);
-			
+			//	
 			try
 			{
 			    node.addChild(server, true);
@@ -131,6 +129,7 @@ abstract class AbstractServerEditor extends Editor
 			{
 			    assert false;
 			}
+			server.restoreDescriptor(savedDescriptor);
 			model.setSelectionPath(server.getPath());
 
 			JOptionPane.showMessageDialog(

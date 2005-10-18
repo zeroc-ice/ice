@@ -117,7 +117,6 @@ class ReplicaGroupEditor extends Editor
 			//
 			// Restore all
 			//
-			replicaGroup.restoreDescriptor(savedDescriptor);
 			try
 			{
 			    replicaGroups.addChild(replicaGroup, true);
@@ -126,6 +125,7 @@ class ReplicaGroupEditor extends Editor
 			{
 			    assert false;
 			}
+			replicaGroup.restoreDescriptor(savedDescriptor);
 			model.setSelectionPath(replicaGroup.getPath());
 
 			JOptionPane.showMessageDialog(
