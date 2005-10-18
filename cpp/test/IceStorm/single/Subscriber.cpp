@@ -177,6 +177,35 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	topic->subscribe(qos, adapter->addWithUUID(subscribers.back()));
     }
 
+    //
+    // Setup bi-directional subscribers.
+    //
+    topic->ice_connection()->setAdapter(adapter);
+    {
+	subscribers.push_back(new SingleI(communicator, "bi-directional oneway"));
+	IceStorm::QoS qos;
+	qos["reliability"] = "oneway";
+	topic->subscribeBidir(qos, adapter->addWithUUID(subscribers.back())->ice_getIdentity());
+    }
+    {
+	subscribers.push_back(new SingleI(communicator, "bi-directional twoway"));
+	IceStorm::QoS qos;
+	qos["reliability"] = "twoway";
+	topic->subscribeBidir(qos, adapter->addWithUUID(subscribers.back())->ice_getIdentity());
+    }
+    {
+	subscribers.push_back(new SingleI(communicator, "bi-directional batch"));
+	IceStorm::QoS qos;
+	qos["reliability"] = "batch";
+	topic->subscribeBidir(qos, adapter->addWithUUID(subscribers.back())->ice_getIdentity());
+    }
+    {
+	subscribers.push_back(new SingleI(communicator, "bi-directional twoway ordered", true)); // Ordered
+	IceStorm::QoS qos;
+	qos["reliability"] = "twoway ordered";
+	topic->subscribeBidir(qos, adapter->addWithUUID(subscribers.back())->ice_getIdentity());
+    }
+
     adapter->activate();
 
     for(vector<SingleIPtr>::const_iterator p = subscribers.begin(); p != subscribers.end(); ++p)
