@@ -1062,6 +1062,10 @@ IceInternal::errorToString(int error)
 	    LPCTSTR msg = (LPCTSTR)lpMsgBuf;
 	    assert(msg && strlen((const char*)msg) > 0);
 	    string result = (const char*)msg;
+	    if(result[result.length() - 1] == '\n')
+	    {
+	        result = result.substr(0, result.length() - 2);
+	    }
 	    LocalFree(lpMsgBuf);
 	    return result;
 	}
