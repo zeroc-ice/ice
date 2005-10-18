@@ -136,7 +136,7 @@ PlatformInfo::PlatformInfo(const Ice::CommunicatorPtr& communicator, const Trace
     os << osInfo.dwMajorVersion << "." << osInfo.dwMinorVersion;
     _info.release = os.str();
     _info.version = osInfo.szCSDVersion;
-    _info.machine = ""; // TODO?
+    _info.machine = "x86"; // TODO?
 #else
     struct utsname utsinfo;
     uname(&utsinfo);
