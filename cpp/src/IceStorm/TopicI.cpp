@@ -491,6 +491,13 @@ TopicI::unsubscribe(const Ice::ObjectPrx& subscriber, const Ice::Current&)
 }
 
 void
+TopicI::unsubscribeBidir(const Ice::Identity& ident, const Ice::Current& current)
+{
+    Ice::ObjectPrx subscriber = current.con->createProxy(ident);
+    unsubscribe(subscriber, current);
+}
+
+void
 TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
 {
     IceUtil::RecMutex::Lock sync(*this);

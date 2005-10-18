@@ -154,7 +154,14 @@ Subscriber::run(int argc, char* argv[])
 	try
 	{
             IceStorm::TopicPrx topic = manager->retrieve(q->first);
-	    topic->unsubscribe(q->second);
+	    if(bidir)
+	    {
+	        topic->unsubscribeBidir(q->second->ice_getIdentity());
+	    }
+	    else
+	    {
+	        topic->unsubscribe(q->second);
+	    }
 	}
 	catch(const IceStorm::NoSuchTopic& e)
 	{

@@ -78,6 +78,7 @@ public:
     virtual void subscribe(const QoS&, const Ice::ObjectPrx&, const Ice::Current&);
     virtual void subscribeBidir(const QoS&, const Ice::Identity&, const Ice::Current&);
     virtual void unsubscribe(const Ice::ObjectPrx&, const Ice::Current&);
+    virtual void unsubscribeBidir(const Ice::Identity&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
     virtual void link(const TopicPrx&, Ice::Int, const Ice::Current&);
     virtual void unlink(const TopicPrx&, const Ice::Current&);

@@ -182,6 +182,17 @@ interface Topic
 
     /**
      *
+     * Unsubscribe the given bi-birectional [subscriber].
+     *
+     * @param subscriber The proxy of an existing subscriber.
+     *
+     * @see subscribe
+     *
+     **/
+    idempotent void unsubscribeBidir(Ice::Identity ident);
+
+    /**
+     *
      * Create a link to the given topic. All events originating
      * on this topic will also be sent to [linkTo].
      *
