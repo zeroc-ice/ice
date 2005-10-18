@@ -1,6 +1,27 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Added a new object adapter property, <adapter>.ReplicaGroupId, which
+  allows adapters to be replicated. See the IceGrid chapter in the
+  manual for more information.
+
+- Added the following properties:
+
+  IcePatch2.InstanceName
+  IceStorm.InstanceName
+  Glacier2.InstanceName
+
+  These properties make it more convenient to configure multiple
+  instances of these services by modifying the identity category of
+  their well-known objects. The properties listed below are now
+  deprecated and will be removed in a future release:
+
+  IcePatch2.Identity
+  IcePatch2.AdminIdentity
+  IceStorm.TopicManagerIdentity
+  Glacier2.AdminIdentity
+  Glacier2.RouterIdentity
+
 - Added the proxy method ice_connectionId, which allows an application
   to control connection reuse.
 
