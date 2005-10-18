@@ -102,14 +102,14 @@ namespace Ice
                 {
 		    // IGNORE: The object adapter is already inactive.
 		}
-		catch(Ice.AdapterNotFoundException ex)
+		catch(Ice.AdapterNotFoundException)
 		{
 		    NotRegisteredException ex1 = new NotRegisteredException();
 		    ex1.kindOfObject = "object adapter";
 		    ex1.id = _id;
 		    throw ex1;
 		}
-		catch(Ice.InvalidReplicaGroupIdException ex)
+		catch(Ice.InvalidReplicaGroupIdException)
 		{
 		    NotRegisteredException ex1 = new NotRegisteredException();
 		    ex1.kindOfObject = "replica group";
