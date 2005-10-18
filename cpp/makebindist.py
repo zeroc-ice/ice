@@ -365,7 +365,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     # 
     # XXX- Optimizations need to be turned on for the release.
     #
-    os.system('gmake NOGAC=yes OPTIMIZE=no INSTALL_ROOT=' + installDir + ' install')
+    os.system('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=' + installDir + ' install')
 
     #
     # Edit config directory contents and copy into installation target

@@ -6,7 +6,12 @@
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
-import os, sys, shutil, string, logging
+import os, sys, shutil, string, logging, compileall
+
+#
+# TODO: Setup a table for the dependencies so you don't have to 'flit'
+# through the package descriptions to set the dependencies.
+#
 
 buildRequires = ('db4',
                  'db4-devel',
@@ -242,6 +247,10 @@ transforms = [ ('file', 'ice.ini', 'etc/php.d/ice.ini'),
 	       ('dir', 'bin', 'usr/bin'),
 	       ('dir', 'include', 'usr/include'),
 	       ('dir', 'python', 'usr/lib/Ice-%version%/python'),
+	       ('file', 'usr/lib/IcePy.so.%version%', 'usr/lib/Ice-%version%/python/IcePy.so.%version%'),
+	       ('file', 'usr/lib/IcePy.so', 'usr/lib/Ice-%version%/python/IcePy.so'),
+	       # XXX The IcePy.so.n needs to be made variable. 
+	       ('file', 'usr/lib/IcePy.so.30', 'usr/lib/Ice-%version%/python/IcePy.so.30'),
                ('dir', 'doc', 'usr/share/doc/Ice-%version%/doc'),
                ('file', 'README', 'usr/share/doc/Ice-%version%/README'),
                ('file', 'ICE_LICENSE', 'usr/share/doc/Ice-%version%/ICE_LICENSE'),
@@ -390,7 +399,7 @@ fileLists = [
                'System Environment/Libraries',
 	       iceDescription,
 	       '',
-               [('lib', 'lib/IcePy.so.VERSION'), ('lib', 'lib/IcePy.so'), ('dir', 'lib/Ice-%version%/python')]),
+               [('dir', 'lib/Ice-%version%/python')]),
     Subpackage('python-devel',
                'ice-python = %version%',
                'Tools and demos for developing Ice applications in Python',
@@ -408,7 +417,7 @@ fileLists = [
 	       '',
 	       [('lib', 'lib/php/modules'), ('cfg', '/etc/php.d/ice.ini')]),
     Subpackage('php-devel',
-	       'ice = %version%, php = 5.0.4, icephp = 3.0.0',
+	       'ice = %version%, php = 5.0.4, ice-php = %version%',
 	       'Demos for developing Ice applications in PHP',
 	       'Development/Tools',
 	       iceDescription,
@@ -422,7 +431,8 @@ noarchFileList = [
 	    # FC-4 doesn't have a current db4-java. 
 	    # 'ice = %version%, db4-java >= 4.3.27',
 	    #
-	    'ice = %version%, db4 >= 4.3.27, ice-third-party >= %version%',
+	    # 'ice = %version%, db4 >= 4.3.27, ice-third-party >= %version%',
+	    'ice = %version%, db4 >= 4.3.27',
 	    'The Ice runtime for Java',
 	    'System Environment/Libraries',
 	    iceDescription,
@@ -442,6 +452,8 @@ def _transformDirectories(transforms, version, installDir):
     for type, source, dest in transforms:
         if dest.find('%version%'):
             dest = dest.replace('%version%', version)
+	if source.find('%version%'):
+	    source = source.replace('%version%', version)
 
         sourcedir = source
         destdir = dest
@@ -517,10 +529,10 @@ def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
 	shutil.rmtree(installDir + "/rpmbase")
     shutil.copytree(installDir + "/Ice-" + version, installDir + "/rpmbase")
     installDir = installDir + '/rpmbase'
+    compileall.compile_dir(installDir + '/python')
 
     _transformDirectories(transforms, version, installDir)
     os.system("tar xfz " + installDir + "/../Ice-" + version + "-demos.tar.gz -C " + installDir)
-
 
     ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
     createArchSpecFile(ofile, installDir, version, soVersion)
@@ -639,6 +651,7 @@ def writeTransformCommands(ofile, version):
     ofile.write('#\n\n')
     for type, source, dest in transforms:
 	dest = dest.replace('%version%', version)
+	source = source.replace('%version%', version)
 	if type == 'file':
 	    ofile.write('mkdir -p $RPM_BUILD_ROOT/usr/' + os.path.dirname(dest) + '\n')
 	    ofile.write('mv $RPM_BUILD_ROOT/usr/' + source + ' $RPM_BUILD_ROOT/usr/' + dest + '\n')
