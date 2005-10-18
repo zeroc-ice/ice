@@ -426,7 +426,6 @@ Parser::instantiateServerTemplate(const list<string>& args)
 	string application = *p++;
 	string node = *p++;
 	string templ = *p++;
-
 	for(; p != args.end(); ++p)
 	{
 	    string::size_type pos = p->find('=');
@@ -439,13 +438,7 @@ Parser::instantiateServerTemplate(const list<string>& args)
 	ServerInstanceDescriptor desc;
 	desc._cpp_template = templ;
 	desc.parameterValues = vars;
-	NodeUpdateDescriptor nodeUpdate;
-	nodeUpdate.name = node;
-	nodeUpdate.serverInstances.push_back(desc);
-	ApplicationUpdateDescriptor update;
-	update.name = application;
-	update.nodes.push_back(nodeUpdate);
-	_admin->updateApplication(update);
+	_admin->instantiateServer(application, node, desc);
     }
     catch(const Ice::Exception& ex)
     {

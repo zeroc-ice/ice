@@ -260,6 +260,14 @@ interface Admin
 
     /**
      *
+     * Instantiate a server template from an application.
+     *
+     **/
+    void instantiateServer(string application, string node, ServerInstanceDescriptor desc)
+	throws ApplicationNotExistException, DeploymentException;
+
+    /**
+     *
      * Patch the given application data. If the patch argument is an
      * empty string, all the application servers depending on patch
      * data will be patched.
@@ -448,8 +456,7 @@ interface Admin
      *
      **/
     ["ami"] void patchServer(string id, bool shutdown)
-	throws ServerNotExistException, NodeUnreachableException, 
-	       PatchException;
+	throws ServerNotExistException, NodeUnreachableException, PatchException;
 
     /**
      *

@@ -57,6 +57,7 @@ public:
     void updateApplicationDescriptor(ObserverSessionI*, const ApplicationUpdateDescriptor&);
     void syncApplicationDescriptor(ObserverSessionI*, const ApplicationDescriptor&);
     void removeApplicationDescriptor(ObserverSessionI*, const std::string&);
+    void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&);
 
     ApplicationDescriptor getApplicationDescriptor(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());

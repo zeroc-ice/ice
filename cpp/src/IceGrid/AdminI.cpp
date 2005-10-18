@@ -113,6 +113,12 @@ AdminI::removeApplication(const string& name, const Current&)
 }
 
 void
+AdminI::instantiateServer(const string& app, const string& node, const ServerInstanceDescriptor& desc, const Current&)
+{
+    _database->instantiateServer(app, node, desc);
+}
+
+void
 AdminI::patchApplication(const string& name, bool shutdown, const Current&)
 {
     ApplicationHelper helper(_database->getApplicationDescriptor(name));    

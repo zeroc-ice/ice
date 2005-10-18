@@ -1609,6 +1609,31 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
 }
 
 void
+NodeHelper::instantiateServer(const ServerInstanceDescriptor& instance, const Resolver& appResolve)
+{
+    Resolver resolve(appResolve, _definition.variables, false);
+    resolve.setReserved("node", _name);
+    resolve.setContext("node `" + _name + "'");
+
+    ServerInstanceHelper helper(instance, resolve);
+    if(!_serverInstances.insert(make_pair(helper.getId(), helper)).second)
+    {
+	resolve.exception("duplicate server `" + helper.getId() + "' in node `" + _name + "'");
+    }
+
+    //
+    // Update the node descriptor with the new server instances and servers.
+    //
+    _definition.serverInstances.clear();
+    for(ServerInstanceHelperDict::const_iterator r = _serverInstances.begin(); r != _serverInstances.end(); ++r)
+    {
+	_definition.serverInstances.push_back(r->second.getDefinition());
+    }
+
+    _instance = instantiate(resolve);
+}
+
+void
 NodeHelper::getIds(multiset<string>& serverIds, multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
 {
     ServerInstanceHelperDict::const_iterator p;
@@ -2057,6 +2082,37 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& update)
     // Validate the new application descriptor.
     //
     validate(resolve);
+}
+
+void
+ApplicationHelper::instantiateServer(const string& node, const ServerInstanceDescriptor& instance)
+{
+    Resolver resolve(*this, _definition.name, _definition.variables);
+
+    //
+    // Get the node helper (add it if it doesn't exist.)
+    //
+    NodeHelperDict::iterator q = _nodes.find(node);
+    if(q == _nodes.end())
+    {
+	q = _nodes.insert(q, NodeHelperDict::value_type(node, NodeHelper(node, NodeDescriptor(), resolve)));
+    }
+    q->second.instantiateServer(instance, resolve);
+
+    //
+    // Update the application definition.
+    //
+    _definition.nodes[node] = q->second.getDescriptor();
+
+    //
+    // Update the application descriptor instance.
+    //
+    _instance = instantiate(resolve);
+
+    //
+    // Validate the new application descriptor.
+    //
+    validate(resolve);    
 }
 
 void

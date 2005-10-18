@@ -240,6 +240,7 @@ public:
 
     NodeUpdateDescriptor diff(const NodeHelper&) const;
     void update(const NodeUpdateDescriptor&, const Resolver&);
+    void instantiateServer(const ServerInstanceDescriptor&, const Resolver&);
 
     void getIds(std::multiset<std::string>&, std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
     const NodeDescriptor& getDescriptor() const;
@@ -272,7 +273,8 @@ public:
     ApplicationHelper(const ApplicationDescriptor&);
 
     ApplicationUpdateDescriptor diff(const ApplicationHelper&);
-    void update(const ApplicationUpdateDescriptor&);    
+    void update(const ApplicationUpdateDescriptor&);
+    void instantiateServer(const std::string&, const ServerInstanceDescriptor&);
 
     void getIds(std::set<std::string>&, std::set<std::string>&, std::set<Ice::Identity>&) const;
     const ApplicationDescriptor& getDescriptor() const;

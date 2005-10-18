@@ -409,6 +409,50 @@ Database::removeApplicationDescriptor(ObserverSessionI* session, const std::stri
     for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
 }
 
+void
+Database::instantiateServer(const string& application, const string& node, const ServerInstanceDescriptor& instance)
+{
+    ServerEntrySeq entries;
+    int serial;
+    ApplicationUpdateDescriptor update;
+    {
+	Lock sync(*this);	
+	checkSessionLock(0);
+
+	StringApplicationDescriptorDict::const_iterator p = _descriptors.find(application);
+	if(p == _descriptors.end())
+	{
+	    throw ApplicationNotExistException(application);
+	}
+
+	ApplicationHelper previous(p->second);
+	ApplicationHelper helper(p->second);
+	helper.instantiateServer(node, instance);
+	update = helper.diff(previous);
+
+	checkForUpdate(previous, helper);
+	
+	reload(previous, helper, entries);
+	
+	_descriptors.put(StringApplicationDescriptorDict::value_type(application, helper.getDescriptor()));
+
+	serial = ++_serial;
+    }    
+
+    //
+    // Notify the observers.
+    //
+    _registryObserver->applicationUpdated(serial, update);
+
+    if(_traceLevels->application > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
+	out << "updated application `" << update.name << "'";
+    }
+
+    for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+}
+
 ApplicationDescriptor
 Database::getApplicationDescriptor(const std::string& name)
 {
