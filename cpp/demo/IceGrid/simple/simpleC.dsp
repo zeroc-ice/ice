@@ -122,14 +122,27 @@ InputPath=.\Hello.ice
 BuildCmds= \
 	..\..\..\bin\slice2cpp.exe Hello.ice
 
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "simpleC - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\Hello.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe Hello.ice
+
+"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
 
 !ENDIF 
 
