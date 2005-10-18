@@ -283,7 +283,7 @@ interface Admin
      * doesn't exist.
      *
      **/
-    void patchApplication(string name, bool shutdown)
+    ["ami"] void patchApplication(string name, bool shutdown)
 	throws ApplicationNotExistException, PatchException;
 
     /**
