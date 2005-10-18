@@ -1,6 +1,10 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Added a new object adapter property, <adapter>.ReplicaGroupId, which
+  allows adapters to be replicated. See the IceGrid chapter in the
+  manual for more information.
+
 - Added the proxy method ice_connectionId, which allows an application
   to control connection reuse.
 
