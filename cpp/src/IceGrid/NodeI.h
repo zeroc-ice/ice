@@ -43,6 +43,7 @@ public:
 		       bool, const Ice::Current&);
     virtual std::string getName(const Ice::Current& = Ice::Current()) const;
     virtual std::string getHostname(const Ice::Current& = Ice::Current()) const;
+    virtual LoadInfo getLoad(const Ice::Current& = Ice::Current()) const;
     virtual void shutdown(const Ice::Current&) const;
     
     WaitQueuePtr getWaitQueue() const;
@@ -82,7 +83,7 @@ private:
     NodeObserverPrx _observer;
     IceUtil::Mutex _sessionMutex;
     NodeSessionPrx _session;
-    PlatformInfo _platform;
+    mutable PlatformInfo _platform;
     std::map<std::string, std::set<ServerIPtr> > _serversByApplication;
 };
 typedef IceUtil::Handle<NodeI> NodeIPtr;

@@ -398,6 +398,12 @@ NodeI::getHostname(const Ice::Current&) const
     return _platform.getHostname();
 }
 
+LoadInfo
+NodeI::getLoad(const Ice::Current&) const
+{
+    return _platform.getLoadInfo();
+}
+
 void
 NodeI::shutdown(const Ice::Current&) const
 {

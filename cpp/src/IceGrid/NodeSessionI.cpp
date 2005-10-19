@@ -52,7 +52,7 @@ NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current& current)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
 	out << "node `" << _name << "' keep alive ";
-	out << "(load = " << _load.load1 << ", " << _load.load5 << ", " << _load.load15 << ")";
+	out << "(load = " << _load.avg1 << ", " << _load.avg5 << ", " << _load.avg15 << ")";
     }
 
     _timestamp = IceUtil::Time::now();

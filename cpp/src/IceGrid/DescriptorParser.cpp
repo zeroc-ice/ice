@@ -384,6 +384,10 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
     {
 	error(reason);
     }
+    catch(const char* reason)
+    {
+	error(reason);
+    }
     
     _data = "";
 }

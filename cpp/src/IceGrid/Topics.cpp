@@ -62,7 +62,7 @@ public:
     }
     
     void
-    ice_exception(const Ice::Exception&)
+    ice_exception(const Ice::Exception& ex)
     {
 	// Ignore
     }

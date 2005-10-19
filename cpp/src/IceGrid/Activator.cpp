@@ -329,7 +329,7 @@ Activator::~Activator()
 #endif
 }
 
-void
+int
 Activator::activate(const string& name,
 		    const string& exePath,
 		    const string& pwdPath,
@@ -616,7 +616,6 @@ Activator::activate(const string& name,
     //
     const char* pwdCStr = pwd.c_str();
 
-
     pid_t pid = fork();
     if(pid == -1)
     {
@@ -716,6 +715,8 @@ Activator::activate(const string& name,
 	}
     }
 #endif
+
+    return pid;
 }
 
 void

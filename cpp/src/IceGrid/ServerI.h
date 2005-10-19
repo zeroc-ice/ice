@@ -117,6 +117,7 @@ private:
     Ice::ProcessPrx _process;
     std::set<std::string> _activeAdapters;
     std::vector<AMD_Server_startPtr> _startCB;
+    int _pid;
 };
 typedef IceUtil::Handle<ServerI> ServerIPtr;
 

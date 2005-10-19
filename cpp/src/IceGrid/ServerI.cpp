@@ -135,7 +135,8 @@ ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& ser
     _waitTime(wt),
     _serversDir(serversDir),
     _state(ServerI::Inactive),
-    _activation(ServerI::Manual)
+    _activation(ServerI::Manual),
+    _pid(0)
 {
     assert(_node->getActivator());
 }
@@ -385,9 +386,10 @@ ServerI::terminated(const Ice::Current& current)
 	adpts = _adapters;
 
 	//
-	// Clear the process proxy.
+	// Clear the process proxy and the pid.
 	//
 	_process = 0;
+	_pid = 0;
 	break;
     }
 
@@ -603,9 +605,10 @@ ServerI::startInternal(ServerActivation act, const AMD_Server_startPtr& amdCB)
 
     try
     {
-	_node->getActivator()->activate(desc->id, desc->exe, pwd, options, envs, _this);
-
+	int pid = _node->getActivator()->activate(desc->id, desc->exe, pwd, options, envs, _this);
+	
 	Lock sync(*this);
+	_pid = pid;
 	_node->getWaitQueue()->add(new WaitForActivationItem(this), IceUtil::Time::seconds(_activationTimeout));
 	setStateNoSync(ServerI::WaitForActivation);
 	checkActivation();
@@ -694,7 +697,7 @@ ServerI::addDynamicInfo(ServerDynamicInfoSeq& serverInfos, AdapterDynamicInfoSeq
     ServerAdapterDict adapters;
     {
 	Lock sync(*this);
-	if(_state == ServerI::Inactive)
+	if(_state == ServerI::Inactive && _activation != Disabled)
 	{
 	    return;
 	}
@@ -851,7 +854,6 @@ ServerI::stopInternal(bool kill)
 	// process termination by calling the terminated() method).
 	//
 	Lock sync(*this);
-
 #ifndef NDEBUG
 	InternalServerState oldState = _state;
 #endif
@@ -1390,7 +1392,7 @@ ServerI::toServerState(InternalServerState st) const
     case ServerI::Inactive:
 	return IceGrid::Inactive;
     case ServerI::Activating:
-	return IceGrid::Activating;
+	return IceGrid::Inactive;
     case ServerI::WaitForActivation:
 	return IceGrid::Activating;
     case ServerI::WaitForActivationTimeout:
@@ -1421,7 +1423,7 @@ ServerI::getDynamicInfo() const
     // deadlock since getPid() will lock the activator and since this method might 
     // be called from the activator locked.
     //
-    info.pid = _state == ServerI::Active ? getPid() : 0;
+    info.pid = _pid;
     info.enabled = _activation < Disabled;
     return info;
 }

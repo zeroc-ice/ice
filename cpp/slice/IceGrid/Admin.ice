@@ -188,6 +188,18 @@ struct NodeInfo
     string dataDir;
 };
 
+struct LoadInfo
+{
+    /** The load average over the past minute. */
+    float avg1;
+
+    /** The load average over the past 5 minutes. */
+    float avg5;
+
+    /** The load average over the past 15 minutes. */
+    float avg15;
+};
+
 /**
  *
  * The &IceGrid; administrative interface. <warning><para>Allowing
@@ -651,6 +663,23 @@ interface Admin
 
     /**
      *
+     * Get the load averages of the node.
+     *
+     * @param name The node name.
+     *
+     * @return The node load information.
+     * 
+     * @throws NodeNotExistException Raised if the node doesn't exist.
+     *
+     * @throws NodeUnreachableException Raised if the node could not be
+     * reached.
+     *
+     **/
+    nonmutating LoadInfo getNodeLoad(string name)
+	throws NodeNotExistException, NodeUnreachableException;
+
+    /**
+     *
      * Get the node information for the node with the given name.
      *
      * @param name The node name.
@@ -658,6 +687,9 @@ interface Admin
      * @return The node information.
      * 
      * @throws NodeNotExistException Raised if the node doesn't exist.
+     *
+     * @throws NodeUnreachableException Raised if the node could not be
+     * reached.
      *
      **/
     nonmutating NodeInfo getNodeInfo(string name)

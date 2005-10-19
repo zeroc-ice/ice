@@ -389,11 +389,11 @@ ServerEntry::getLoad(LoadSample sample) const
     switch(sample)
     {
     case LoadSample1:
-	return load.load1 < 0.f ? 1.0f : load.load1 * factor;
+	return load.avg1 < 0.f ? 1.0f : load.avg1 * factor;
     case LoadSample5:
-	return load.load5 < 0.f ? 1.0f : load.load5 * factor;
+	return load.avg5 < 0.f ? 1.0f : load.avg5 * factor;
     case LoadSample15:
-	return load.load15 < 0.f ? 1.0f : load.load15 * factor;
+	return load.avg15 < 0.f ? 1.0f : load.avg15 * factor;
     default:
 	assert(false);
 	return 1.0f;

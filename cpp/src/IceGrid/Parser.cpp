@@ -84,6 +84,7 @@ Parser::usage()
 	"node list                   List all registered nodes.\n"
         "node describe NAME          Show information about node NAME.\n"
 	"node ping NAME              Ping node NAME.\n"
+	"node load NAME              Print the load of the node NAME.\n"
 	"node shutdown NAME          Shutdown node NAME.\n"
 	"\n"
         "server list                 List all registered servers.\n"
@@ -548,6 +549,26 @@ Parser::pingNode(const list<string>& args)
 	{
 	    cout << "node is down" << endl;
 	}
+    }
+    catch(const Ice::Exception& ex)
+    {
+	exception(ex);
+    }
+}
+
+void
+Parser::printLoadNode(const list<string>& args)
+{
+    if(args.size() != 1)
+    {
+	error("`node load' requires exactly one argument\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	LoadInfo load = _admin->getNodeLoad(args.front());
+	cout << "load average (1/5/15): " << load.avg1 << " / " << load.avg5 << " / " << load.avg15 << endl;
     }
     catch(const Ice::Exception& ex)
     {

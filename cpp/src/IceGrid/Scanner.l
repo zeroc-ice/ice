@@ -177,6 +177,10 @@ NL	[\n]
     return ICE_GRID_PING;
 }
 
+"load" {
+    return ICE_GRID_LOAD;
+}
+
 "activation" {
     return ICE_GRID_ACTIVATION;
 }

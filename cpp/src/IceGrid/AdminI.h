@@ -64,6 +64,7 @@ public:
 
     virtual NodeInfo getNodeInfo(const std::string&, const Ice::Current&) const;
     virtual bool pingNode(const std::string&, const Ice::Current&) const;
+    virtual LoadInfo getNodeLoad(const std::string&, const Ice::Current&) const;
     virtual void shutdownNode(const std::string&, const Ice::Current&);
     virtual std::string getNodeHostname(const std::string&, const Ice::Current&) const;
     virtual Ice::StringSeq getAllNodeNames(const ::Ice::Current&) const;

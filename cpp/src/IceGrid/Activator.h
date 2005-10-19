@@ -26,8 +26,8 @@ public:
     Activator(const TraceLevelsPtr&, const Ice::PropertiesPtr&);
     virtual ~Activator();
 
-    virtual void activate(const std::string&, const std::string&, const std::string&, const Ice::StringSeq&, 
-			  const Ice::StringSeq&, const ServerPrx&);
+    virtual int activate(const std::string&, const std::string&, const std::string&, const Ice::StringSeq&, 
+			 const Ice::StringSeq&, const ServerPrx&);
     virtual void deactivate(const std::string&, const Ice::ProcessPrx&);
     virtual void kill(const std::string&);
     virtual void sendSignal(const std::string&, const std::string&);

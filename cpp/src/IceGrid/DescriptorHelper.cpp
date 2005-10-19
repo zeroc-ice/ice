@@ -279,13 +279,13 @@ Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, b
     _escape(resolve._escape),
     _context(resolve._context),
     _variables(params ? resolve._variables : values),
+    _parameters(!params ? resolve._parameters : values),
     _reserved(resolve._reserved),
     _ignore(resolve._ignore)
 {
     if(params)
     {
 	checkReserved("parameter", values);
-	_parameters = values;
     }
     else
     {
@@ -1169,25 +1169,23 @@ ServiceInstanceHelper::operator!=(const ServiceInstanceHelper& helper) const
 
 ServiceInstanceDescriptor
 ServiceInstanceHelper::instantiate(const Resolver& resolve) const
-{
+{ 
+    ServiceHelper def = _service;
     map<string, string> params;
-    if(!_service.getDescriptor())
+    if(!def.getDescriptor())
     {
-	if(_template.empty())
-	{
-	    resolve.exception("invalid service instance: no template defined");
-	}
+	assert(!_template.empty());
 	TemplateDescriptor tmpl = resolve.getServiceTemplate(_template);
-	_service = ServiceHelper(ServiceDescriptorPtr::dynamicCast(tmpl.descriptor));
+	def = ServiceHelper(ServiceDescriptorPtr::dynamicCast(tmpl.descriptor));
 	params = instantiateParams(resolve, _template, _parameters, tmpl.parameters, tmpl.parameterDefaults);
     }
 
-    Resolver svcResolve(resolve, params, true);
-    svcResolve.setReserved("service", svcResolve(_service.getDescriptor()->name, "service name", false));
+    Resolver svcResolve(resolve, params, !_service.getDescriptor());
+    svcResolve.setReserved("service", svcResolve(def.getDescriptor()->name, "service name", false));
     svcResolve.setContext("service `${service}' from server `${server}'");
-
+    
     ServiceInstanceDescriptor desc;
-    desc.descriptor = _service.instantiate(svcResolve);
+    desc.descriptor = def.instantiate(svcResolve);
     desc._cpp_template = _template;
     desc.parameterValues = _parameters;
     return desc;

@@ -191,9 +191,9 @@ LoadInfo
 PlatformInfo::getLoadInfo()
 {
     LoadInfo info;
-    info.load1 = -1.0f;
-    info.load5 = -1.0f;
-    info.load15 = -1.0f;
+    info.avg1 = -1.0f;
+    info.avg5 = -1.0f;
+    info.avg15 = -1.0f;
 
 #if defined(_WIN32)
     int usage = 100;
@@ -216,9 +216,9 @@ PlatformInfo::getLoadInfo()
     _usages5.push_front(usage);
     _usages15.push_front(usage);
 
-    info.load1 = static_cast<float>(_last1Total) / _usages1.size() / 100.0f;
-    info.load5 = static_cast<float>(_last5Total) / _usages5.size() / 100.0f;
-    info.load15 = static_cast<float>(_last15Total) / _usages15.size() / 100.0f;
+    info.avg1 = static_cast<float>(_last1Total) / _usages1.size() / 100.0f;
+    info.avg5 = static_cast<float>(_last5Total) / _usages5.size() / 100.0f;
+    info.avg15 = static_cast<float>(_last15Total) / _usages15.size() / 100.0f;
 #elif defined(__sun) || defined(__linux) || defined(__APPLE__)
     //
     // We use the load average divided by the number of
@@ -228,17 +228,17 @@ PlatformInfo::getLoadInfo()
     double loadAvg[3];
     if(getloadavg(loadAvg, 3) != -1)
     {
-	info.load1 = static_cast<float>(loadAvg[0]);
-	info.load5 = static_cast<float>(loadAvg[1]);
-	info.load15 = static_cast<float>(loadAvg[2]);
+	info.avg1 = static_cast<float>(loadAvg[0]);
+	info.avg5 = static_cast<float>(loadAvg[1]);
+	info.avg15 = static_cast<float>(loadAvg[2]);
     }
 #elif defined(__hpux)
     struct pst_dynamic dynInfo;
     if(pstat_getdynamic(&dynInfo, sizeof(dynInfo), 1, 0) >= 0)
     {
-	info.load1 = dynInfo.psd_avg_1_min;
-	info.load5 = dynInfo.psd_avg_5_min;
-	info.load15 = dynInfo.psd_avg_15_min;
+	info.avg1 = dynInfo.psd_avg_1_min;
+	info.avg5 = dynInfo.psd_avg_5_min;
+	info.avg15 = dynInfo.psd_avg_15_min;
     }
 #elif defined(_AIX)
     if(_kmem > 1)
@@ -251,9 +251,9 @@ PlatformInfo::getLoadInfo()
 	{
 	    if(pread(_kmem, avenrun, sizeof(avenrun), nl.n_value) >= sizeof(avenrun))
 	    {
-		info.load1 = avenrun[0] / 65536.0f;
-		info.load5 = avenrun[1] / 65536.0f;
-		info.load15 = avenrun[2] / 65536.0f;
+		info.avg1 = avenrun[0] / 65536.0f;
+		info.avg5 = avenrun[1] / 65536.0f;
+		info.avg15 = avenrun[2] / 65536.0f;
 	    }
 	}
     }

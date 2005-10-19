@@ -253,6 +253,13 @@ interface Node
 
     /**
      *
+     * Get the node load.
+     *
+     **/
+    nonmutating LoadInfo getLoad();
+
+    /**
+     *
      * Shutdown the node.
      *
      **/
@@ -267,18 +274,6 @@ interface Node
  **/
 exception NodeActiveException
 {
-};
-
-struct LoadInfo
-{
-    /** The load average of the node over the last minute. */
-    float load1;
-
-    /** The load average of the node over the last 5 minutes. */
-    float load5;
-
-    /** The load average of the node over the last 15 minutes. */
-    float load15;
 };
 
 interface NodeSession extends Glacier2::Session

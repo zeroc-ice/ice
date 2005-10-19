@@ -41,6 +41,7 @@ yyerror(const char* s)
 %token ICE_GRID_SERVER
 %token ICE_GRID_ADAPTER
 %token ICE_GRID_PING
+%token ICE_GRID_LOAD
 %token ICE_GRID_ADD
 %token ICE_GRID_REMOVE
 %token ICE_GRID_LIST
@@ -152,6 +153,10 @@ command
 | ICE_GRID_NODE ICE_GRID_PING strings ';'
 {
     parser->pingNode($3);
+}
+| ICE_GRID_NODE ICE_GRID_LOAD strings ';'
+{
+    parser->printLoadNode($3);
 }
 | ICE_GRID_NODE ICE_GRID_SHUTDOWN strings ';'
 {

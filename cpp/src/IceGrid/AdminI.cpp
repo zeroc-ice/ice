@@ -500,6 +500,25 @@ AdminI::pingNode(const string& name, const Current&) const
     }
 }
 
+LoadInfo
+AdminI::getNodeLoad(const string& name, const Current&) const
+{
+    try
+    {
+	return _database->getNode(name)->getLoad();
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+	throw NodeNotExistException();
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	ostringstream os;
+	os << ex;
+	throw NodeUnreachableException(name, os.str());
+    }    
+}
+
 void
 AdminI::shutdownNode(const string& name, const Current&)
 {
