@@ -415,7 +415,7 @@ USERDEP__DUMMY4="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"
 InputPath=.\dummy4.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice -I.. --dict "IceGrid::StringStringSeqDict,string,Ice::StringSeq" StringStringSeqDict ../../Ice/BuiltinSequences.ice
+	..\..\bin\slice2freeze.exe --ice --include-dir IceGrid -I../../slice -I.. --dict "IceGrid::StringStringSeqDict,string,Ice::StringSeq" StringStringSeqDict ../../slice/Ice/BuiltinSequences.ice
 
 "StringStringSeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
