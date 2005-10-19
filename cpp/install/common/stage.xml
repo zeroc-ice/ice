@@ -705,7 +705,7 @@
 
 	<mkdir dir="${stage.dir}/jgoodies/runtime/lib"/>
 	<copy todir="${stage.dir}/jgoodies/runtime/lib">
-	    <fileset dir="${env.JGOODIES_HOME}">
+	    <fileset dir="${env.JGOODIES_HOME}/">
 		<include name="forms*.jar"/>
 		<include name="looks*.jar"/>
 	    </fileset>

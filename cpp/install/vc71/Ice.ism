@@ -344,7 +344,7 @@
 		<row><td>DummyComponent</td><td>{0A8A414C-E74D-471F-AC64-DEEA8E5E4747}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_glacier2cs</td><td>{FEC3532C-7323-4158-9E7E-5DF09630AFAE}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>glacier2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_icecs</td><td>{C3F958D8-5F24-4437-B912-4CCAF3309A55}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icecs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icegridcs</td><td>{863B7B37-145C-4BCA-AFD1-0636A71F6B46}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td/><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icegridcs</td><td>{863B7B37-145C-4BCA-AFD1-0636A71F6B46}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icegridcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_icepatch2cs</td><td>{8F2DE27A-B0F5-4FE0-A27C-A6DD3C9FCA2B}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icepatch2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_icestormcs</td><td>{1E8D7135-C067-4CE8-943C-D21F1760E6C5}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icestormcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_registry</td><td>{A1BE4221-A631-4347-A8CA-3ED0AE81448A}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -366,7 +366,6 @@
 		<row><td>IcePythonRuntime</td><td>{3AD51C61-A673-45A1-89AD-AA473FB32078}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceVBasicDemo</td><td>{AC62A141-A625-471F-8E97-9B3D3608E463}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceVBasicDev</td><td>{BCB14EA4-57EE-4A46-B6D2-86B3754A7AAB}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>NewComponent1</td><td>{D5F8047B-210D-4FD1-9E63-3310F71F5947}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>VisualStudioRuntime</td><td>{00E5A9B9-3E93-4C0A-8188-9BD486B642E3}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
@@ -987,7 +986,6 @@
 		<col key="yes" def="s72">Component_</col>
 		<row><td>GlobalAssemblyCache</td><td>GAC_registry</td></row>
 		<row><td>INSTALLDIR</td><td>DummyComponent</td></row>
-		<row><td>INSTALLDIR</td><td>NewComponent1</td></row>
 	</table>
 
 	<table name="CustomAction">
@@ -1362,6 +1360,7 @@
 		<row><td>ice_runtime_cpp</td><td>DummyComponent</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_glacier2cs</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_icecs</td></row>
+		<row><td>ice_runtime_dotnet</td><td>GAC_icegridcs</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_icestormcs</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_registry</td></row>
 		<row><td>ice_runtime_dotnet</td><td>IceCSharpRuntime</td></row>
@@ -1565,7 +1564,6 @@
 		<row><td>IcePythonRuntime</td><td/><td/><td>_EC956E1E_E548_4E9D_A837_18AB200F9E4D_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceVBasicDemo</td><td/><td/><td>_955C0399_0F87_4B8F_84C1_607A66776625_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceVBasicDev</td><td/><td/><td>_042B5FA2_6F7D_44F8_BC5A_C14BBF2AE7EE_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>NewComponent1</td><td/><td/><td>_ED114FEB_096D_4047_80B8_96CA7478D0D4_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>VisualStudioRuntime</td><td/><td/><td>_30BA3320_69CB_4682_87F9_962EE1BF4FF1_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
