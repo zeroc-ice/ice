@@ -1131,13 +1131,26 @@ Ice.MonitorConnections=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-&Ice; starts a thread that monitors connections. This thread is
-responsible for shutting down idle connections and enforcing
-AMI timeouts. The default value is the smaller of
-<literal>Ice.ACM.Client</literal> or <literal>Ice.ACM.Server</literal>.
-If neither property is specified or has a non-zero value, the monitoring
+&Ice; starts a thread that monitors connections. Approximately each
+<replaceable>num</replaceable> seconds, this thread shuts down idle
+connections and enforces AMI timeouts. The default value is the smaller of
+<link linkend="acm.client">Ice.ACM.Client</link> or
+<link linkend="acm.server">Ice.ACM.Server</link>.
+If neither property is defined with a non-zero value, the monitoring
 thread is disabled.
 </para>
+<note>
+<para>
+It is important to understand the relationship between this thread and
+the timeouts it is responsible for enforcing. It is legal to define
+<link linkend="acm.client">Ice.ACM.Client</link> or
+<link linkend="acm.server">Ice.ACM.Server</link> with a value smaller
+than <replaceable>num</replaceable>, but idle connections will only
+be closed every <replaceable>num</replaceable> seconds. Similarly,
+AMI timeouts cannot happen faster than <replaceable>num</replaceable>
+seconds.
+</para>
+</note>
 </section>
 </section>
 
