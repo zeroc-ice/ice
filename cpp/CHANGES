@@ -1,6 +1,9 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Connection::close(false) (i.e., graceful connection shutdown) now
+  waits until all outstanding requests have completed.
+
 - Added a new object adapter property, <adapter>.ReplicaGroupId, which
   allows adapters to be replicated. See the IceGrid chapter in the
   manual for more information.
@@ -26,25 +29,26 @@ Changes since version 2.1.2
   to control connection reuse.
 
 - Added the new methods Ice::initializeWithLogger() and
-  Ice::initializeWithPropertiesAndLogger(), which ensure that a
-  custom logger is used to record any errors during communicator
+  Ice::initializeWithPropertiesAndLogger(), which ensure that a custom
+  logger is used to record any errors during communicator
   initialization.
 
-- Ice will now listen on all local interfaces if no -h parameter
-  is present in the endpoint configuration and no default host has
-  been set. It will also listen to all interfaces if the -h parameter
-  is set to 0.0.0.0. In such configurations the endpoints published
-  in proxies will not contain the loopback interface (127.0.0.1)
-  unless it is the only local interface present.
+- Ice will now listen on all local interfaces if no -h parameter is
+  present in the endpoint configuration and no default host has been
+  set. It will also listen to all interfaces if the -h parameter is
+  set to 0.0.0.0. In such configurations the endpoints published in
+  proxies will not contain the loopback interface (127.0.0.1) unless
+  it is the only local interface present.
 
 - Fixed a race condition with the object adapter holding state.
 
 - Changed the way servant locators work if a server has a servant
   locator registered for a specific category, in addition to a default
-  servant locator. Previously, if the locator for the specific category
-  failed to locate the servant, the run time would then call the default
-  locator. With the new behavior, if the locator for the specific category
-  does not return a servant, the default locator is not called.
+  servant locator. Previously, if the locator for the specific
+  category failed to locate the servant, the run time would then call
+  the default locator. With the new behavior, if the locator for the
+  specific category does not return a servant, the default locator is
+  not called.
 
 - Added proxy methods to retrieve the proxy adapter id and endpoints
   (ice_getAdapterId() and ice_getEndpoints()) and to create a new
@@ -54,20 +58,20 @@ Changes since version 2.1.2
 - Added Slice Ice::Endpoint local interface in slice/Ice/Endpoint.ice.
 
 - Fixed a bug that would cause UDP server connections to be closed on
-  transient errors, thus preventing the reception of any more UDP messages
-  until a server restart.
+  transient errors, thus preventing the reception of any more UDP
+  messages until a server restart.
 
-- Communicator::setDefaultContext no longer changes the context
+- Communicator::setDefaultContext() no longer changes the context
   information set on existing proxies.
 
-- slice2cpp and slice2freeze now provide the --add-header option. It adds a
-  #include directive for the specified header at the beginning of the generated
-  source file. For example:
+- slice2cpp and slice2freeze now provide the --add-header option. It
+  adds a #include directive for the specified header at the beginning
+  of the generated source file. For example:
 
       slice2cpp --add-header=precompiled.h x.ice
 
-  adds "#include <precompiled.h> to the beginning of x.cpp (before any other
-  include directives).
+  adds "#include <precompiled.h> to the beginning of x.cpp (before any
+  other include directives).
 
   You can specify an optional guard, for example:
 
@@ -80,15 +84,15 @@ Changes since version 2.1.2
       #include <precompiled.h>
       #endif
 
-  You can repeat the --add-header option to include several headers
-  in the generated source.
+  You can repeat the --add-header option to include several headers in
+  the generated source.
 
 - Ice::Communicator::createObjectAdapter() throws
   Ice::AlreadyRegisteredException if it is called with the name of an
   object adapter that already exists.
 
 - Fixed a bug in the slice2java code generator, which would cause
-  incorrect code to be generated when metadata was used to modify 
+  incorrect code to be generated when metadata was used to modify
   dictionary types used as class or struct members.
 
 - Fixed a bug in the slice2java code generator, which could cause
@@ -131,18 +135,18 @@ Changes since version 2.1.2
 - Removed operator timeval() from IceUtil::Time for WIN32.
 
 - Parsing a stringified proxy no longer completely fails if the proxy
-  contains an endpoint type that is unknown to the Ice runtime as
-  long as the proxy contains other endpoints that are known. A warning
-  is printed for the unknown types that are encountered.
+  contains an endpoint type that is unknown to the Ice runtime as long
+  as the proxy contains other endpoints that are known. A warning is
+  printed for the unknown types that are encountered.
 
 - Ice::Object is now an abstract class that cannot be instantiated.
   This change should be transparent to application code.
 
 - For abstract classes, ice_clone() now throws a
   CloneNotImplementedException if the concrete implementation class
-  does not override ice_clone().  (Previously, ice_clone()
-  incorrectly sliced the cloned abstract class to the most derived-
-  concrete class or Ice::Object.)
+  does not override ice_clone().  (Previously, ice_clone() incorrectly
+  sliced the cloned abstract class to the most derived- concrete class
+  or Ice::Object.)
 
 - Added new features to the C++ mapping:
 
