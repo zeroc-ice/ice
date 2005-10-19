@@ -580,6 +580,8 @@ Activator::activate(const string& name,
         Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
         out << "activated server `" << name << "' (pid = " << pi.dwProcessId << ")";
     }
+
+    return static_cast<Ice::Int>(process.pid);
 #else
     int fds[2];
     if(pipe(fds) != 0)
@@ -714,9 +716,9 @@ Activator::activate(const string& name,
 	    out << "activated server `" << name << "' (pid = " << pid << ")";
 	}
     }
-#endif
 
     return pid;
+#endif
 }
 
 void
