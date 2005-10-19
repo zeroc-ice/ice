@@ -1,6 +1,9 @@
 Changes since version 1.0.0
 ---------------------------
 
+- Connection::close(false) (i.e., graceful connection shutdown) now
+  waits until all outstanding requests have completed.
+
 - Ice will now listen on all local interfaces if no -h parameter
   is present in the endpoint configuration and no default host has
   been set. It will also listen to all interfaces if the -h parameter
@@ -8,14 +11,14 @@ Changes since version 1.0.0
   in proxies will not contain the loopback interface (127.0.0.1)
   unless it is the only local interface present.
 
-- slice2cppe now provides the --add-header option. It adds a #include directive
-  for the specified header at the beginning of the generated source file. For
-  example:
+- slice2cppe now provides the --add-header option. It adds a #include
+  directive for the specified header at the beginning of the generated
+  source file. For example:
 
       slice2cppe --add-header=precompiled.h x.ice
 
-  adds "#include <precompiled.h> to the beginning of x.cpp (before any other
-  include directives).
+  adds "#include <precompiled.h> to the beginning of x.cpp (before any
+  other include directives).
 
   You can specify an optional guard, for example:
 
@@ -28,8 +31,8 @@ Changes since version 1.0.0
       #include <precompiled.h>
       #endif
 
-  You can repeat the --add-header option to include several headers
-  in the generated source.
+  You can repeat the --add-header option to include several headers in
+  the generated source.
 
 - Ice::Communicator::createObjectAdapter() throws
   Ice::AlreadyRegisteredException if it is called with the name of an

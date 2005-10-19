@@ -1,6 +1,9 @@
 Changes since version 1.0.0
 ---------------------------
 
+- Connection::close(false) (i.e., graceful connection shutdown) now
+  waits until all outstanding requests have completed.
+
 - Ice.Communicator.createObjectAdapter() throws
   Ice.AlreadyRegisteredException if it is called with the name of an
   object adapter that already exists.

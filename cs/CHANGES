@@ -13,28 +13,27 @@ Changes since version 2.1.2
   custom logger is used to record any errors during communicator
   initialization.
 
-- Ice will now listen on all local interfaces if no -h parameter 
-  is present in the endpoint configuration and no default host has
-  been set. It will also listen to all interfaces if the -h parameter
-  is set to 0.0.0.0. In such configurations the endpoints published
-  in proxies will not contain the loopback interface (127.0.0.1) 
-  unless it is the only local interface present.
+- Ice will now listen on all local interfaces if no -h parameter is
+  present in the endpoint configuration and no default host has been
+  set. It will also listen to all interfaces if the -h parameter is
+  set to 0.0.0.0. In such configurations the endpoints published in
+  proxies will not contain the loopback interface (127.0.0.1) unless
+  it is the only local interface present.
 
-- The Equals method for Slice structures that are mapped
-  to classes now returns false if the two structures being
-  compared are not of the same type.
+- The Equals method for Slice structures that are mapped to classes
+  now returns false if the two structures being compared are not of
+  the same type.
 
   Previously, a comparison such as
 
       derived.Equals(base)
 
-  returned true if the base of part of derived was
-  the same as base; with the new slice2cs compiler, this
-  comparison returns false.
+  returned true if the base of part of derived was the same as base;
+  with the new slice2cs compiler, this comparison returns false.
 
-- The Slice mapping for sequences has been improved. The
-  generated sequence class now contains the following additional
-  properties and methods:
+- The Slice mapping for sequences has been improved. The generated
+  sequence class now contains the following additional properties and
+  methods:
 
   - Capacity
   - TrimToSize
@@ -48,10 +47,10 @@ Changes since version 2.1.2
   - LastIndexOf
   - Repeat
 
-  These have the same semantics as the corresponding methods
-  on System.Collections.ArrayList, with one exception: GetRange
-  returns a true copy of the requested range instead of returning
-  a view of a sub-section of the collection.
+  These have the same semantics as the corresponding methods on
+  System.Collections.ArrayList, with one exception: GetRange returns a
+  true copy of the requested range instead of returning a view of a
+  sub-section of the collection.
 
 - The Ice run-time libraries are now marked as CLS-compliant
   assemblies. In addition, the generated code is now also
@@ -59,8 +58,8 @@ Changes since version 2.1.2
 
   This involves one change to the C# language mapping:
 
-  The skeleton class used be called _<interface-name>Disp but
-  is now called <interface-name>Disp_.
+  The skeleton class used be called _<interface-name>Disp but is now
+  called <interface-name>Disp_.
 
   For example, if you previously had:
 
@@ -70,8 +69,8 @@ Changes since version 2.1.2
 
       class MyIntfI : MyIntfDisp_ { /* ... */ }
 
-  Similarly, for the Tie mapping, the location of the underscore
-  has changed:
+  Similarly, for the Tie mapping, the location of the underscore has
+  changed:
 
       _MyIntfTie -> MyIntfTie_
 
@@ -79,25 +78,26 @@ Changes since version 2.1.2
 
 - Changed the way servant locators work if a server has a servant
   locator registered for a specific category, in addition to a default
-  servant locator. Previously, if the locator for the specific category
-  failed to locate the servant, the run time would then call the default
-  locator. With the new behavior, if the locator for the specific category
-  does not return a servant, the default locator is not called.
+  servant locator. Previously, if the locator for the specific
+  category failed to locate the servant, the run time would then call
+  the default locator. With the new behavior, if the locator for the
+  specific category does not return a servant, the default locator is
+  not called.
 
 - slice2cs now supports a new metadata directive: ["cs:attribute"].
-  This directive allows you to inject C# attribute definitions into the
-  generated code. See the C# mapping chapter in the Ice manual for
+  This directive allows you to inject C# attribute definitions into
+  the generated code. See the C# mapping chapter in the Ice manual for
   more information.
 
 - Ice.Communicator.createObjectAdapter() throws
   Ice.AlreadyRegisteredException if it is called with the name of an
   object adapter that already exists.
 
-- The "cs:" metadata prefix has been replaced by the "clr:" prefix,
-  so you now need to use "clr:collection" and "clr:class".
-  The "cs:" prefix is still recognized and acted upon; slice2cs
-  emits a warning for the old prefix. Two releases from now, the
-  warning will become a hard error and "cs:" will no longer work.
+- The "cs:" metadata prefix has been replaced by the "clr:" prefix, so
+  you now need to use "clr:collection" and "clr:class".  The "cs:"
+  prefix is still recognized and acted upon; slice2cs emits a warning
+  for the old prefix. Two releases from now, the warning will become a
+  hard error and "cs:" will no longer work.
 
 - Fixed a bug in the slice2cs code generator: for sequences of Slice
   structs that used the class mapping, the generated code caused a
