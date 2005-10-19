@@ -59,54 +59,6 @@ import IceGrid.TreeNode.Root;
 
 public class Model
 {
-    static public class ConnectInfo
-    {
-	ConnectInfo(Preferences connectionPrefs, 
-		    Ice.Communicator communicator)
-	{
-	    String defaultLocator = communicator.getProperties().
-		getProperty("Ice.Default.Locator");
-	    if(defaultLocator.equals(""))
-	    {
-		defaultLocator = "IceGrid/Locator:ssl -h hostname -p port -t timeout";
-	    }
-
-	    _connectionPrefs = connectionPrefs;
-	    locatorProxy = _connectionPrefs.
-		get("locatorProxy", defaultLocator);
-	    username = _connectionPrefs.get("username", username);
-	    useGlacier = _connectionPrefs.
-		getBoolean("useGlacier", useGlacier);
-	    autoconnect = _connectionPrefs.
-		getBoolean("autoconnect", autoconnect);
-	    adminIdentity = _connectionPrefs.
-		get("adminIdentity", adminIdentity);
-	    sessionManagerIdentity = _connectionPrefs.
-		get("sessionManagerIdentity", sessionManagerIdentity);
-	}
-
-	void save()
-	{
-	    _connectionPrefs.put("locatorProxy", locatorProxy);
-	    _connectionPrefs.put("username", username);
-	    _connectionPrefs.putBoolean("useGlacier", useGlacier);
-	    _connectionPrefs.putBoolean("autoconnect", autoconnect);
-	    _connectionPrefs.put("adminIdentity", adminIdentity);
-	    _connectionPrefs.put("sessionManagerIdentity", 
-				 sessionManagerIdentity);
-	}
-
-	String locatorProxy;
-	String username = System.getProperty("user.name");
-	char[] password;
-	boolean useGlacier = false;
-	boolean autoconnect = false;
-	String adminIdentity = "IceGrid/Admin";
-	String sessionManagerIdentity = "IceGrid/SessionManager";
-	
-	private Preferences _connectionPrefs;
-    }
-
     private class MenuBar extends JMenuBar
     {
 	private MenuBar()
@@ -165,7 +117,7 @@ public class Model
 	    _newTemplateMenu.add(_actions[CommonBase.NEW_TEMPLATE_SERVICE]);
 	    
 	    fileMenu.addSeparator();
-	    fileMenu.add(_connect);
+	    fileMenu.add(_login);
 	    fileMenu.addSeparator();
 	    fileMenu.add(_save);
 	    fileMenu.add(_discard);
@@ -258,7 +210,7 @@ public class Model
 	    setFloatable(false);
 	    putClientProperty("JToolBar.isRollover", Boolean.TRUE);
 
-	    add(_connect);
+	    add(_login);
 	    addSeparator();
 	    add(_save);
 	    add(_discard);
@@ -435,6 +387,16 @@ public class Model
 
     public boolean canUpdate()
     {
+	if(_latestSerial == -1)
+	{
+	    JOptionPane.showMessageDialog(
+		_mainFrame,
+		"Updates are not allowed while working offline",
+		"Working Offline",
+		JOptionPane.ERROR_MESSAGE);
+	    return false;
+	}
+
 	if(isUpdateInProgress())
 	{
 	    return true;
@@ -465,7 +427,8 @@ public class Model
 	    JOptionPane.showMessageDialog(
 		_mainFrame,
 		"Your view was not up-to-date;"
-		+ " you now have exclusive write-access to the IceGrid Registry, however your previous changes were lost.",
+		+ " you now have exclusive write-access to the" +
+		" IceGrid Registry, however your previous changes were lost.",
 		"Concurrent update",
 		JOptionPane.WARNING_MESSAGE);
 
@@ -483,7 +446,8 @@ public class Model
 
     public boolean isUpdateInProgress()
     {
-	return _writeSerial >= _latestSerial;
+	return _writeSerial != -1 && 
+	    _writeSerial >= _latestSerial;
     }
 
 
@@ -641,21 +605,10 @@ public class Model
     private void discardUpdates(boolean showDialog)
     {
 	assert _writeSerial == _latestSerial;
-	//
-	// Reestablish session, since we don't keep the old data around
-	//
-	_mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-	
-	try
-	{
-	    _sessionKeeper.reconnect(showDialog);
-	    _save.setEnabled(false);
-	    _discard.setEnabled(false);
-	}
-	finally
-	{
-	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-	}
+
+	_sessionKeeper.relog(showDialog);
+	_save.setEnabled(false);
+	_discard.setEnabled(false);
     }
 
 
@@ -691,90 +644,104 @@ public class Model
 	refreshCurrentStatus();
     }
 
-
     //
     // Other methods
     //
-
     void sessionLost()
     {
+	System.err.println("Session lost");
 	_latestSerial = -1;
 	_writeSerial = -1;
-	_root.clear();
-	_sessionManager = null;
-	_admin = null;
-	
-	_newApplication.setEnabled(false);
-	_newApplicationWithDefaultTemplates.setEnabled(false);
-	_newMenu.setEnabled(false);
     }
     
-    boolean setConnectInfo(ConnectInfo info, Component parent, 
-			   Cursor oldCursor)
+    boolean login(SessionKeeper.LoginInfo info, Component parent)
     {	
+	_root.clear();
+	_newApplication.setEnabled(false);
+	_newMenu.setEnabled(false);
+	_newApplicationWithDefaultTemplates.setEnabled(false);
+
+	//
+	// Need a new communicator?
+	//
+	Ice.Properties properties = _communicator.getProperties();
+	boolean recreateCommunicator = false;
+
+	if(properties.getPropertyAsInt("Ice.Override.Timeout") != info.timeout)
+	{
+	    properties.setProperty("Ice.Override.Timeout", 
+				   Integer.toString(info.timeout));
+	    recreateCommunicator = true;
+	}
+
+	if(properties.getPropertyAsInt("Ice.Override.ConnectTimeout") != info.connectTimeout)
+	{
+	    properties.setProperty("Ice.Override.ConnectTimeout", 
+				   Integer.toString(info.connectTimeout));
+	    recreateCommunicator = true;
+	}
+
+	if(recreateCommunicator)
+	{
+	    try
+	    {
+		_communicator.destroy();
+		_communicator = Ice.Util.initializeWithProperties(new String[0], properties);
+	    }
+	    catch(Ice.LocalException e)
+	    {
+		JOptionPane.showMessageDialog(
+		    parent,
+		    "Failed to recreate the communicator: " + e.toString(),
+		    "Login failed",
+		    JOptionPane.ERROR_MESSAGE);
+		return false;
+	    }
+	}
+
 	//
 	// Default locator
 	//
 	Ice.LocatorPrx defaultLocator = null;
+	
+	String str = info.registryInstanceName + "/Locator";
+	if(!info.registryEndpoints.equals(""))
+	{
+	    str += ":" + info.registryEndpoints;
+	}
+
 	try
 	{
 	    defaultLocator = Ice.LocatorPrxHelper.
-		uncheckedCast(_communicator.stringToProxy(info.locatorProxy));
+		checkedCast(_communicator.stringToProxy(str));
 	    _communicator.setDefaultLocator(defaultLocator);
-	}
-	catch(Ice.LocalException e)
-	{
-	    sessionLost();
-	    parent.setCursor(oldCursor);
-	    JOptionPane.showMessageDialog(
-		parent,
-		"The locator proxy is invalid: " + e.toString(),
-		"Invalid locator proxy",
-		JOptionPane.ERROR_MESSAGE);
-	    return false;
-	}
-
-	
-	//
-	// Session manager
-	//
-	try
-	{
+		
+	    //
+	    // Session manager
+	    //
+	    str = info.registryInstanceName + "/SessionManager";
+	    
 	    _sessionManager = SessionManagerPrxHelper.
-		uncheckedCast(_communicator.stringToProxy(info.sessionManagerIdentity));
-	}
-	catch(Ice.LocalException e)
-	{
-	    sessionLost();
-	    parent.setCursor(oldCursor);
-		JOptionPane.showMessageDialog(
-		    parent,
-		    "The session manager identity is invalid: " + e.toString(),
-		    "Invalid session manager",
-		    JOptionPane.ERROR_MESSAGE);
-		return false;
-	}
-
-	//
-	// Admin
-	//
-	try
-	{
+		checkedCast(_communicator.stringToProxy(str));
+	    
+	    //
+	    // Admin
+	    //
+	    str = info.registryInstanceName + "/Admin";
+	    
 	    _admin = AdminPrxHelper.
-		uncheckedCast(_communicator.stringToProxy(info.adminIdentity));
+		checkedCast(_communicator.stringToProxy(str));
 	}
 	catch(Ice.LocalException e)
 	{
-	    sessionLost();
-	    parent.setCursor(oldCursor);
 	    JOptionPane.showMessageDialog(
-		parent,
-		"The admin identity is invalid: " + e.toString(),
-		"Invalid admin identity",
-		JOptionPane.ERROR_MESSAGE);
+		    parent,
+		    "Could not contact '" + str + "': " + e.toString(),
+		    "Login failed",
+		    JOptionPane.ERROR_MESSAGE);
 	    return false;
 	}
-
+	
 	_newApplication.setEnabled(true);
 	_newApplicationWithDefaultTemplates.setEnabled(true);
 	_newMenu.setEnabled(true);
@@ -915,14 +882,14 @@ public class Model
 	    };
 	_newApplicationWithDefaultTemplates.setEnabled(false);
 
-	_connect = new AbstractAction("Connect...", Utils.getIcon("/icons/connect.gif"))
+	_login = new AbstractAction("Login...", Utils.getIcon("/icons/connect.gif"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    connect();
+		    login();
 		}
 	    };
-	_connect.putValue(Action.SHORT_DESCRIPTION, "Connect");
+	_login.putValue(Action.SHORT_DESCRIPTION, "Log into an IceGrid Registry");
 
 
 	_save = new AbstractAction("Save", Utils.getIcon("/icons/save_edit.gif"))
@@ -1318,9 +1285,9 @@ public class Model
     }
 
     //
-    // "Connect" action
+    // "Login" action
     //
-    private void connect()
+    private void login()
     {
 	if(_latestSerial != -1 && _latestSerial == _writeSerial)
 	{
@@ -1348,7 +1315,7 @@ public class Model
 	}
 	else
 	{
-	    _sessionKeeper.reconnect(true);
+	    _sessionKeeper.relog(true);
 	}
     }
     
@@ -1551,7 +1518,7 @@ public class Model
     //
     private Action _newApplication;
     private Action _newApplicationWithDefaultTemplates;
-    private Action _connect;
+    private Action _login;
     private Action _save;
     private Action _discard;
     private Action _exit;

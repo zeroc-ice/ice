@@ -10,6 +10,7 @@ package IceGrid;
 
 import javax.swing.*;
 
+import java.awt.Container;
 import java.awt.Frame;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -19,10 +20,12 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 
-
 import com.jgoodies.forms.builder.DefaultFormBuilder;
-import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.ButtonBarFactory;
+import com.jgoodies.forms.factories.DefaultComponentFactory;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.forms.util.LayoutStyle;
 
 import java.util.prefs.Preferences;
 
@@ -33,50 +36,212 @@ import java.util.prefs.Preferences;
 
 class SessionKeeper
 {
-    class ConnectDialog extends JDialog
+    static public class LoginInfo
     {
-	ConnectDialog()
+	LoginInfo(Preferences connectionPrefs, Ice.Communicator communicator)
 	{
-	    super(_model.getMainFrame(), "New Connection - IceGrid Admin", true);
+	    _connectionPrefs = connectionPrefs;
+	    Ice.Properties properties = communicator.getProperties();
+
+	    //
+	    // Registry properties
+	    //
+	    String defaultLocator = properties.getProperty("Ice.Default.Locator");
+	    Ice.ObjectPrx defaultLocatorProxy = null;
+	    if(!defaultLocator.equals(""))
+	    {
+		try
+		{
+		    defaultLocatorProxy = communicator.stringToProxy(defaultLocator);
+		}
+		catch(Ice.LocalException e)
+		{
+		    // Ignored, keep null defaultLocatorProxy
+		}
+	    }
+	    if(defaultLocatorProxy != null)
+	    {
+		//
+		// Set new defaults
+		//
+		registryInstanceName = defaultLocatorProxy.ice_getIdentity().category;
+		registryEndpoints = "";
+		Ice.Endpoint[] endpoints = defaultLocatorProxy.ice_getEndpoints();
+		for(int i = 0; i < endpoints.length; ++i)
+		{
+		    if(i > 0)
+		    {
+			registryEndpoints += ":";
+		    }
+		    registryEndpoints += endpoints[i].toString();
+		}
+	    }
+	    else
+	    {
+		registryInstanceName = 
+		    _connectionPrefs.get("registryInstanceName", registryInstanceName);
+		registryEndpoints = 
+		    _connectionPrefs.get("registryEndpoints", registryEndpoints);
+	    }
+
+	    
+	    //
+	    // Glacier2 properties
+	    //
+	    String defaultRouter = properties.getProperty("Ice.Default.Router");
+	    Ice.ObjectPrx defaultRouterProxy = null;
+	    if(!defaultRouter.equals(""))
+	    {
+		try
+		{
+		    defaultRouterProxy = communicator.stringToProxy(defaultRouter);
+		}
+		catch(Ice.LocalException e)
+		{
+		    // Ignored, keep null defaultRouterProxy
+		}
+	    }
+	    if(defaultRouterProxy != null)
+	    {
+		//
+		// Set new defaults
+		//
+		routerInstanceName = defaultRouterProxy.ice_getIdentity().category;
+		routerEndpoints = "";
+		Ice.Endpoint[] endpoints = defaultRouterProxy.ice_getEndpoints();
+		for(int i = 0; i < endpoints.length; ++i)
+		{
+		    if(i > 0)
+		    {
+			routerEndpoints += ":";
+		    }
+		    routerEndpoints += endpoints[i].toString();
+		}
+	    }
+	    else
+	    {
+		routerInstanceName = 
+		    _connectionPrefs.get("routerInstanceName", routerInstanceName);
+		routerEndpoints = 
+		    _connectionPrefs.get("routerEndpoints", routerEndpoints);
+	    }
+
+
+	    timeout = properties.getPropertyAsInt("Ice.Override.Timeout");
+	    if(timeout == 0)
+	    {
+		timeout = _connectionPrefs.getInt("timeout", 0);
+		System.err.println("timeout == " + timeout);
+	    }
+
+	    connectTimeout = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
+	    if(connectTimeout == 0)
+	    {
+		connectTimeout = _connectionPrefs.getInt("connectTimeout", 0);
+		System.err.println("connectTimeout == " + connectTimeout);
+	    }
+	  
+	    username = _connectionPrefs.get("username", username);
+	    useGlacier = _connectionPrefs.
+		getBoolean("useGlacier", useGlacier);
+	    autoconnect = _connectionPrefs.
+		getBoolean("autoconnect", autoconnect);
+	}
+
+	void save()
+	{
+	    _connectionPrefs.put("username", username);
+	    _connectionPrefs.putBoolean("autoconnect", autoconnect);
+	    
+	    _connectionPrefs.put("registryInstanceName", registryInstanceName);
+	    _connectionPrefs.put("registryEndpoints", registryEndpoints);
+	    
+	    _connectionPrefs.putBoolean("useGlacier", useGlacier);
+	    _connectionPrefs.put("routerInstanceName", routerInstanceName);
+	    _connectionPrefs.put("routerEndpoints", routerEndpoints);
+
+	    _connectionPrefs.putInt("timeout", timeout);
+	    _connectionPrefs.putInt("connectTimeout", connectTimeout);
+	}
+
+	String username = System.getProperty("user.name");
+	char[] password;
+	boolean autoconnect = false;
+
+	String registryInstanceName = "IceGrid";
+	String registryEndpoints = "";
+
+	boolean useGlacier = false;
+	String routerInstanceName = "Glacier2";
+	String routerEndpoints = "";
+
+	int timeout = 0;
+	int connectTimeout = 0;
+
+	private Preferences _connectionPrefs;
+    }
+
+
+
+
+    private class LoginDialog extends JDialog
+    {
+	LoginDialog()
+	{
+	    super(_model.getMainFrame(), "Login - IceGrid Admin", true);
+
 	    setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 	    
-	    _locatorProxy = new JTextField(30);
-	    _username = new JTextField(30);
-	    _passwordLabel = new JLabel("Password");
-	    _password = new JPasswordField(30);
-	    _adminIdentity = new JTextField(30);
-	    _sessionManagerIdentity = new JTextField(30);
-	    _useGlacier = new JCheckBox("Connect using Glacier");
-	    _autoconnect = new JCheckBox("Autoconnect");
-	
 	    _useGlacier.addItemListener(new ItemListener() 
 		{
 		    public void itemStateChanged(ItemEvent e)
 		    {
-			boolean selected = _useGlacier.isSelected();
-			_autoconnect.setEnabled(!selected);
-			_autoconnect.setSelected(false);
-			_passwordLabel.setEnabled(selected);
-			_password.setEnabled(selected);
+			enableDisableGlacier();
 		    }
 		});
-
 	    
 	    JButton okButton = new JButton("OK");
 	    ActionListener okListener = new ActionListener()
 		{
 		    public void actionPerformed(ActionEvent e)
 		    {
-			_connectInfo.locatorProxy = _locatorProxy.getText();
-			_connectInfo.username = _username.getText();
-			_connectInfo.password = _password.getPassword();
-			_connectInfo.useGlacier = _useGlacier.isSelected();
-			_connectInfo.autoconnect = _autoconnect.isSelected();
-			_connectInfo.adminIdentity = _adminIdentity.getText();
-			_connectInfo.sessionManagerIdentity 
-			    = _sessionManagerIdentity.getText();
-			
-			if(doConnect(ConnectDialog.this))
+			_loginInfo.username = _username.getText();
+			_loginInfo.password = _password.getPassword();
+			_loginInfo.autoconnect = _autoconnect.isSelected();
+			_loginInfo.registryInstanceName = 
+			    _registryInstanceName.getText();
+			_loginInfo.registryEndpoints = 
+			    _registryEndpoints.getText();
+			_loginInfo.useGlacier = _useGlacier.isSelected();
+			_loginInfo.routerInstanceName = 
+			    _routerInstanceName.getText();
+			_loginInfo.routerEndpoints = 
+			    _routerEndpoints.getText();
+	
+			Object timeout = _timeout.getSelectedItem();
+			if(timeout == TIMEOUT_NOT_SET)
+			{
+			    _loginInfo.timeout = 0;
+			}
+			else
+			{
+			    _loginInfo.timeout = 
+				Integer.valueOf(timeout.toString()).intValue();
+			}
+
+			Object connectTimeout = _connectTimeout.getSelectedItem();
+			if(connectTimeout == CONNECT_TIMEOUT_NOT_SET)
+			{
+			    _loginInfo.connectTimeout = 0;
+			}
+			else
+			{
+			    _loginInfo.connectTimeout = 
+				Integer.valueOf(connectTimeout.toString()).intValue();
+			}
+
+		
+			if(login(LoginDialog.this))
 			{
 			    setVisible(false);
 			}
@@ -97,63 +262,93 @@ class SessionKeeper
 		    }
 		};
 	    cancelButton.addActionListener(cancelListener);
-	    //
-	    // TODO: bind ESC to the cancel button, could be easier with an 
-	    // Action.
-	    //
-	    
-	    
-	    //
-	    // Build new content Panel with JGoodies's DefaultFormBuilder
-	    //
+
+	    _timeout.setEditable(true);
+	    _connectTimeout.setEditable(true);
+
 	    FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
 	    
 	    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
 	    builder.setDefaultDialogBorder();
-	    
-	    builder.append("IceGrid Locator proxy", _locatorProxy);
-	    builder.nextLine();
-	    builder.append("");
-	    builder.nextLine();
+	    builder.setRowGroupingEnabled(true);
+	    builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+
 	    builder.append("Username", _username);
 	    builder.nextLine();
 	    builder.append(_passwordLabel, _password);
-	    builder.appendSeparator("Options");
-	    builder.append("", _useGlacier);
 	    builder.nextLine();
 	    builder.append("", _autoconnect);
-	    builder.appendSeparator("Advanced");
-	    builder.append("Admin identity", _adminIdentity);
 	    builder.nextLine();
-	    builder.append("SessionManager identity", 
-			   _sessionManagerIdentity);
-	    builder.appendSeparator();
-	    builder.append("");
-	    builder.nextLine();
-	    builder.append(ButtonBarFactory.buildOKCancelBar(okButton, 
-							     cancelButton),
-			   builder.getColumnCount());
 	    
-	    setContentPane(builder.getPanel());
+	    builder.appendSeparator("IceGrid Registry");
+	    builder.append("Instance Name", _registryInstanceName);
+	    builder.nextLine();
+	    builder.append("Endpoint(s)", _registryEndpoints);
+	    builder.nextLine();
+	    
+	    builder.appendSeparator("Glacier2 Router");
+	    builder.append("", _useGlacier);
+	    builder.append(_routerInstanceNameLabel, _routerInstanceName);
+	    builder.nextLine();
+	    builder.append(_routerEndpointsLabel, _routerEndpoints);
+
+	    builder.appendSeparator("Timeouts (in milliseconds)");
+	    builder.append("Connection", _timeout);
+	    builder.nextLine();
+	    builder.append("Connection Establishment", _connectTimeout);
+	    builder.nextLine();
+
+	    JComponent buttonBar = 
+		ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
+	    buttonBar.setBorder(Borders.DIALOG_BORDER);
+
+	    Container contentPane = getContentPane();
+	    contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+	    contentPane.add(builder.getPanel());
+	    contentPane.add(buttonBar);
+
 	    pack();
 	    setResizable(false);
 	}
 
+	//
+	// Returns a copy; the new info is "installed" only after
+	// a successful login.
+	//
 	boolean showDialog()
 	{
 	    if(isVisible() == false)
 	    {
-		_locatorProxy.setText(_connectInfo.locatorProxy);
-		_username.setText(_connectInfo.username);
-		_adminIdentity.setText(_connectInfo.adminIdentity);
-		_sessionManagerIdentity.setText(_connectInfo.sessionManagerIdentity);
+		_username.setText(_loginInfo.username);
+		_autoconnect.setSelected(_loginInfo.autoconnect);
 
-		_useGlacier.setSelected(_connectInfo.useGlacier);
-		_autoconnect.setSelected(_connectInfo.autoconnect);
-		_autoconnect.setEnabled(!_connectInfo.useGlacier);
-		_passwordLabel.setEnabled(_connectInfo.useGlacier);
-		_password.setEnabled(_connectInfo.useGlacier);
+		_registryInstanceName.setText(_loginInfo.registryInstanceName);
+		_registryEndpoints.setText(_loginInfo.registryEndpoints);
 
+		_useGlacier.setSelected(_loginInfo.useGlacier);
+		enableDisableGlacier();
+		_routerInstanceName.setText(_loginInfo.routerInstanceName);
+		_routerEndpoints.setText(_loginInfo.routerEndpoints);
+
+		if(_loginInfo.timeout == 0)
+		{
+		    _timeout.setSelectedItem(TIMEOUT_NOT_SET);
+		}
+		else
+		{
+		    _timeout.setSelectedItem(Integer.toString(_loginInfo.timeout));
+		}
+
+		if(_loginInfo.connectTimeout == 0)
+		{
+		    _connectTimeout.setSelectedItem(CONNECT_TIMEOUT_NOT_SET);
+		}
+		else
+		{
+		    _connectTimeout.setSelectedItem(
+			Integer.toString(_loginInfo.connectTimeout));
+		}
+		
 		setLocationRelativeTo(_model.getMainFrame());
 		setVisible(true);
 		return true;
@@ -166,15 +361,45 @@ class SessionKeeper
 		return false;
 	    }
 	}
+       
+	private void enableDisableGlacier()
+	{
+	    boolean selected = _useGlacier.isSelected();
+
+	    _autoconnect.setEnabled(!selected);
+	    _autoconnect.setSelected(false);
+	    
+	    _passwordLabel.setEnabled(selected);
+	    _password.setEnabled(selected);
+	    _routerInstanceNameLabel.setEnabled(selected);
+	    _routerInstanceName.setEnabled(selected); 
+	    _routerEndpointsLabel.setEnabled(selected); 
+	    _routerEndpoints.setEnabled(selected);
+	}
+
+
+	private JTextField _username = new JTextField(30);
+	private JLabel _passwordLabel = new JLabel("Password");
+	private JPasswordField _password = new JPasswordField(30);
+	private JCheckBox _autoconnect 
+	    = new JCheckBox("Automatically log in at startup");
+	    
+	private JTextField _registryInstanceName = new JTextField(30);
+	private JTextField _registryEndpoints = new JTextField(30);
 	
-	private JTextField _locatorProxy;
-	private JTextField _username;
-	private JLabel _passwordLabel;
-	private JPasswordField _password;
-	private JCheckBox _useGlacier;
-	private JCheckBox _autoconnect;
-	private JTextField _adminIdentity;
-	private JTextField _sessionManagerIdentity;
+	private JCheckBox _useGlacier 
+	    = new JCheckBox("Login through a Glacier2 Router");
+
+	private JLabel _routerInstanceNameLabel = new JLabel("Instance Name");
+	private JTextField _routerInstanceName = new JTextField(30);
+	private JLabel _routerEndpointsLabel = new JLabel("Endpoint(s)");
+	private  JTextField _routerEndpoints = new JTextField(30);
+
+	private JComboBox _timeout = new JComboBox(new Object[]
+	    {TIMEOUT_NOT_SET, "10000", "60000", "600000"});
+
+	private JComboBox _connectTimeout = new JComboBox(new Object[]
+	    {CONNECT_TIMEOUT_NOT_SET, "3000", "10000"});
     }
 
    
@@ -241,8 +466,8 @@ class SessionKeeper
     SessionKeeper(Model model)
     {
 	_model = model;
-	_connectDialog = new ConnectDialog();
-	_connectionPrefs = model.getPrefs().node("Connection");
+	_loginDialog = new LoginDialog();
+	_loginPrefs = model.getPrefs().node("Connection");
     }
 
     //
@@ -250,42 +475,35 @@ class SessionKeeper
     //
     void createSession(boolean autoconnectEnabled)
     {
-	_connectInfo = new Model.ConnectInfo(_connectionPrefs, 
-					     _model.getCommunicator());
+	_loginInfo = new LoginInfo(_loginPrefs, 
+				   _model.getCommunicator());
 	boolean openDialog = true;
-	if(autoconnectEnabled && !_connectInfo.useGlacier && 
-	   _connectInfo.autoconnect)
+	if(autoconnectEnabled && !_loginInfo.useGlacier && 
+	   _loginInfo.autoconnect)
 	{
-	    openDialog = !doConnect(_model.getMainFrame());
+	    openDialog = !login(_model.getMainFrame());
 	}
+
 	if(openDialog)
 	{
-	    //
-	    // When the user presses OK on the connect dialog, doConnect
-	    // is called
-	    //
-	    _connectDialog.showDialog();
+	    _loginDialog.showDialog();
 	}
     }
 
     //
     // Runs in UI thread
     //
-    void reconnect(boolean showDialog)
+    void relog(boolean showDialog)
     {
-	if(_connectInfo == null)
+	if(_loginInfo == null)
 	{
 	    createSession(!showDialog);
 	}
 	else
 	{
-	    destroyObservers();
-	    releaseSession();
-	    _model.sessionLost();
-
-	    if(showDialog || !doConnect(_model.getMainFrame()))
+	    if(showDialog || !login(_model.getMainFrame()))
 	    {
-		_connectDialog.showDialog();
+		_loginDialog.showDialog();
 	    }
 	}
     }
@@ -293,22 +511,24 @@ class SessionKeeper
     //
     // Runs in UI thread
     //
-    private boolean doConnect(Component parent)
+    private boolean login(Component parent)
     {
+	if(_session != null)
+	{
+	    logout(true);
+	}
 	assert _session == null;
 	
 	Cursor oldCursor = parent.getCursor();
 	try
 	{
 	    parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
-	    assert(_session == null);
-	    
+   
 	    //
 	    // Establish session
 	    //
 	    
-	    if(_connectInfo.useGlacier)
+	    if(_loginInfo.useGlacier)
 	    {
 		//
 		// Not yet implemented
@@ -317,7 +537,7 @@ class SessionKeeper
 	    }
 	    else
 	    {
-		if(!_model.setConnectInfo(_connectInfo, parent, oldCursor))
+		if(!_model.login(_loginInfo, parent))
 		{
 		    return false;
 		}
@@ -325,16 +545,15 @@ class SessionKeeper
 		try
 		{
 		    _session = _model.getSessionManager().
-			createLocalSession(_connectInfo.username);
+			createLocalSession(_loginInfo.username);
 		}
 		catch(Ice.LocalException e)
 		{
-		    _model.sessionLost();
-		    parent.setCursor(oldCursor);
+		    logout(false);
 		    JOptionPane.showMessageDialog(parent,
 						  "Could not create session: "
 						  + e.toString(),
-						  "Connection failed",
+						  "Login failed",
 						  JOptionPane.ERROR_MESSAGE);
 		    return false;
 		}
@@ -361,24 +580,29 @@ class SessionKeeper
 	    }
 	    catch(Ice.LocalException e)
 	    {
-		releaseSession();
-		parent.setCursor(oldCursor);
+		logout(true);
 		JOptionPane.showMessageDialog(parent,
 					      "Could not register observers: "
 					      + e.toString(),
-					      "Connection failed",
+					      "Login failed",
 					      JOptionPane.ERROR_MESSAGE);
 		return false;
 	    }
 
-	    _connectInfo.save();
+	    _loginInfo.save();
 	}
 	finally
 	{
 	    parent.setCursor(oldCursor);
 	}
-	    
 	return true;
+    }
+
+    private void logout(boolean destroySession)
+    {
+	destroyObservers();
+	releaseSession(destroySession);
+	_model.sessionLost();
     }
 
 
@@ -393,13 +617,14 @@ class SessionKeeper
 	    "Session lost",
 	    JOptionPane.ERROR_MESSAGE);
 	
-	reconnect(true);
+	logout(false);
+	relog(true);
     }
 
     //
     // Runs in UI thread
     //
-    private void releaseSession()
+    private void releaseSession(boolean destroySession)
     {
 	if(_session != null)
 	{
@@ -418,16 +643,16 @@ class SessionKeeper
 	    }
 	    _thread = null;
 	    
-	    try
+	    if(destroySession)
 	    {
-		//
-		// TODO: add timeout
-		//
-		_session.destroy();
-	    }
-	    catch(Ice.LocalException e)
-	    {
-		// Ignored
+		try
+		{
+		    _session.destroy();
+		}
+		catch(Ice.LocalException e)
+		{
+		    // Ignored
+		}
 	    }
 
 	    _session = null;
@@ -440,47 +665,39 @@ class SessionKeeper
     //
     private void registerObservers()
     {
-	try
-	{
-	    //
-	    // Create the object adapter for the observers
-	    //
-	    String uuid = Ice.Util.generateUUID();
-	    _observerAdapter = _model.getCommunicator().createObjectAdapterWithEndpoints(
-		"Observers-" + uuid, "tcp");
-
-	    //
-	    // Create servants and proxies
-	    //
-	    _registryObserverIdentity.name = uuid;
-	    _registryObserverIdentity.category = "registryObserver";
-
-	    _nodeObserverIdentity.name = uuid;
-	    _nodeObserverIdentity.category = "nodeObserver";
-
-	    RegistryObserverI registryObserverServant = new RegistryObserverI(_model);
-
-	    RegistryObserverPrx registryObserver = 
-		RegistryObserverPrxHelper.uncheckedCast(
-		    _observerAdapter.add(
-			registryObserverServant, _registryObserverIdentity));
-
-	    NodeObserverPrx nodeObserver =
-		NodeObserverPrxHelper.uncheckedCast(
-		    _observerAdapter.add(
-			new NodeObserverI(_model), _nodeObserverIdentity));
-	    
-	    _observerAdapter.activate();
-
-	    _session.setObservers(registryObserver, nodeObserver); 
-	    
-	    registryObserverServant.waitForInit();
-	}
-	catch(Ice.LocalException e)
-	{
-	    destroyObservers();
-	    throw e;
-	}
+	//
+	// Create the object adapter for the observers
+	//
+	String uuid = Ice.Util.generateUUID();
+	_observerAdapter = _model.getCommunicator().createObjectAdapterWithEndpoints(
+	    "Observers-" + uuid, "tcp");
+	
+	//
+	// Create servants and proxies
+	//
+	_registryObserverIdentity.name = uuid;
+	_registryObserverIdentity.category = "registryObserver";
+	
+	_nodeObserverIdentity.name = uuid;
+	_nodeObserverIdentity.category = "nodeObserver";
+	
+	RegistryObserverI registryObserverServant = new RegistryObserverI(_model);
+	
+	RegistryObserverPrx registryObserver = 
+	    RegistryObserverPrxHelper.uncheckedCast(
+		_observerAdapter.add(
+		    registryObserverServant, _registryObserverIdentity));
+	
+	NodeObserverPrx nodeObserver =
+	    NodeObserverPrxHelper.uncheckedCast(
+		_observerAdapter.add(
+		    new NodeObserverI(_model), _nodeObserverIdentity));
+	
+	_observerAdapter.activate();
+	
+	_session.setObservers(registryObserver, nodeObserver); 
+	
+	registryObserverServant.waitForInit();
     }
 
     //
@@ -515,11 +732,11 @@ class SessionKeeper
 	return _session;
     }
    
-    private ConnectDialog _connectDialog;
-    private Model.ConnectInfo _connectInfo;
+    private LoginDialog _loginDialog;
+    private LoginInfo _loginInfo;
 
     private Model _model;
-    private Preferences _connectionPrefs;
+    private Preferences _loginPrefs;
   
     private Pinger _thread;
     private SessionPrx _session;
@@ -527,4 +744,20 @@ class SessionKeeper
     private Ice.ObjectAdapter _observerAdapter;
     private Ice.Identity _registryObserverIdentity = new Ice.Identity();
     private Ice.Identity _nodeObserverIdentity = new Ice.Identity();
+
+    static private Object TIMEOUT_NOT_SET = new Object()
+	{
+	    public String toString()
+	    {
+		return "Use the timeout specified in each proxy's endpoint";
+	    }
+	};
+    
+    static private Object CONNECT_TIMEOUT_NOT_SET = new Object()
+	{
+	    public String toString()
+	    {
+		return "Use the connection timeout";
+	    }
+	};
 }
