@@ -37,9 +37,6 @@ Changes since version 2.1.2
   in proxies will not contain the loopback interface (127.0.0.1)
   unless it is the only local interface present.
 
-- Added ability to subscribe to an IceStorm topic using a bi-directional
-  connection.
-
 - Fixed a race condition with the object adapter holding state.
 
 - Changed the way servant locators work if a server has a servant

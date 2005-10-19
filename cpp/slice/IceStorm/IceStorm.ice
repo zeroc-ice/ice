@@ -154,23 +154,6 @@ interface Topic
 
     /**
      *
-     * Subscribe with the given [qos] to this topic, using a 
-     * bi-directional connection. If the given [subscriber]
-     * proxy has already been registered, it will be
-     * replaced.
-     *
-     * @param qos The quality of service parameters for this
-     * subscription.
-     *
-     * @param subscriber The subscriber's identity.
-     *
-     * @see unsubscribe
-     *
-     **/
-    void subscribeBidir(QoS theQoS, Ice::Identity ident);
-
-    /**
-     *
      * Unsubscribe the given [subscriber].
      *
      * @param subscriber The proxy of an existing subscriber.
@@ -179,17 +162,6 @@ interface Topic
      *
      **/
     idempotent void unsubscribe(Object* subscriber);
-
-    /**
-     *
-     * Unsubscribe the given bi-birectional [subscriber].
-     *
-     * @param subscriber The proxy of an existing subscriber.
-     *
-     * @see subscribe
-     *
-     **/
-    idempotent void unsubscribeBidir(Ice::Identity ident);
 
     /**
      *
