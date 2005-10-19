@@ -676,17 +676,26 @@ In C++, <replaceable>entry_point</replaceable> has the form
 and optional <literal>version</literal> components are used to construct
 the name of a DLL or shared library. If no version is supplied, the &Ice; version
 is used. The <literal>function</literal> component is the name of a function with
-C linkage.
-</para>
-<para>
-For example, the entry point <literal>MyPlugin,2.3:create</literal> would
-imply a shared library name of <literal>libMyPlugin.so.2.3</literal>
+C linkage. For example, the entry point <literal>MyPlugin,2.3:create</literal>
+would imply a shared library name of <literal>libMyPlugin.so.2.3</literal>
 on Unix and <literal>MyPlugin23.dll</literal> on Windows. Furthermore,
 if &Ice; is built on Windows with debugging, a <literal>d</literal> is
 automatically appended to the version (e.g., <literal>MyPlugin23d.dll</literal>).
 </para>
 <para>
-In Java, <replaceable>entry_point</replaceable> is the name of a class.
+In Java, <replaceable>entry_point</replaceable> is the name of a class that
+must implement the <literal>Ice.PluginFactory</literal> interface. Any
+arguments that follow the class name are passed to the <literal>create</literal>
+method.
+</para>
+<para>
+In C# and Visual Basic, <replaceable>entry_point</replaceable> has the form
+<literal>assembly:class</literal>. The assembly can be the full assembly
+name, such as <literal>myplugin, Version=0.0.0.0, Culture=neutral</literal>,
+or an assembly DLL name such as <literal>myplugin.dll</literal>. The specified
+class must implement the <literal>Ice.PluginFactory</literal> interface. Any
+arguments that follow the class name are passed to the <literal>create</literal>
+method.
 </para>
 </section>
 </section>
