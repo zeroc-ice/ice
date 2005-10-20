@@ -323,26 +323,61 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	
 	    Ice.Communicator communicator = info.communicator != null ? info.communicator : _server.communicator();
 
-	    info.service.start(service, communicator, serviceArgs);
+	    try
+	    {
+		info.service.start(service, communicator, serviceArgs);
+	    }
+	    catch(Exception ex)
+	    {
+		if(info.communicator != null)
+		{
+		    try
+		    {
+			info.communicator.shutdown();
+			info.communicator.waitForShutdown();
+		    }
+		    catch(Ice.CommunicatorDestroyedException e)
+		    {
+			//
+			// Ignore, the service might have already destroyed
+			// the communicator for its own reasons.
+			//
+		    }
+		    catch(java.lang.Exception e)
+		    {
+			java.io.StringWriter sw = new java.io.StringWriter();
+			java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+			e.printStackTrace(pw);
+			pw.flush();
+			_logger.warning("ServiceManager: exception in shutting down communicator for service "
+					+ service + "\n" + sw.toString());
+		    }
+		    
+		    try
+		    {
+			info.communicator.destroy();
+		    }
+		    catch(java.lang.Exception e)
+		    {
+			java.io.StringWriter sw = new java.io.StringWriter();
+			java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+			e.printStackTrace(pw);
+			pw.flush();
+			_logger.warning("ServiceManager: exception in destroying communciator for service"
+					+ service + "\n" + sw.toString());
+		    }
+		}
+		throw ex;
+	    }
 
 	    _services.put(service, info);
 	}
 	catch(FailureException ex)
 	{
-	    if(info.communicator != null)
-	    {
-		destroyCommunicator(service, info.communicator);
-	    }
-
 	    throw ex;
 	}
 	catch(java.lang.Exception ex)
 	{
-	    if(info.communicator != null)
-	    {
-		destroyCommunicator(service, info.communicator);
-	    }
-
 	    FailureException e = new FailureException();
 	    e.reason = "ServiceManager: exception while starting service " + service + ": " + ex;
 	    e.initCause(ex);
@@ -378,7 +413,39 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
 	    if(info.communicator != null)
 	    {
-		destroyCommunicator(name, info.communicator);
+		try
+		{
+		    info.communicator.shutdown();
+		    info.communicator.waitForShutdown();
+		}
+		catch(Ice.CommunicatorDestroyedException e)
+		{
+		    //
+		    // Ignore, the service might have already destroyed
+		    // the communicator for its own reasons.
+		    //
+		}
+		catch(java.lang.Exception e)
+		{
+		    java.io.StringWriter sw = new java.io.StringWriter();
+		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		    e.printStackTrace(pw);
+		    pw.flush();
+		    _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
+		}
+	    
+		try
+		{
+		    info.communicator.destroy();
+		}
+		catch(java.lang.Exception e)
+		{
+		    java.io.StringWriter sw = new java.io.StringWriter();
+		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		    e.printStackTrace(pw);
+		    pw.flush();
+		    _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
+		}
 	    }
 	}
 

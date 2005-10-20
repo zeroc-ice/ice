@@ -338,7 +338,47 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	//
 	// Start the service.
 	//
-	info.service->start(service, communicator, serviceArgs);
+	try
+	{
+	    info.service->start(service, communicator, serviceArgs);
+	}
+	catch(...)
+	{
+	    if(info.communicator)
+	    {
+		try
+		{
+		    info.communicator->shutdown();
+		    info.communicator->waitForShutdown();
+		}
+		catch(const Ice::CommunicatorDestroyedException&)
+		{
+		    //
+		    // Ignore, the service might have already destroyed
+		    // the communicator for its own reasons.
+		    //
+		}
+		catch(const Ice::Exception& ex)
+		{
+		    Warning out(_logger);
+		    out << "ServiceManager: exception in shutting down communicator for service " << service << ":\n";
+		    out << ex;
+		}
+
+		try
+		{
+		    info.communicator->destroy();
+		    info.communicator = 0;
+		}
+		catch(const Exception& ex)
+		{
+		    Warning out(_logger);
+		    out << "ServiceManager: exception in shutting down communicator for service " << service << ":\n";
+		    out << ex;
+		}
+	    }
+	    throw;
+	}
 
         info.library = library;
         _services[service] = info;
@@ -470,3 +510,4 @@ IceBox::ServiceManagerI::stopAll()
 
     _services.clear();
 }
+
