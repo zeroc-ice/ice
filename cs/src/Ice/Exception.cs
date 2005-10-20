@@ -20,13 +20,14 @@ namespace Ice
         public Exception(string msg, System.Exception ex) : base(msg, ex) {}
 	public override string ToString()
 	{
+	    string baseMsg = base.ToString();
 	    System.IO.StringWriter sw = new System.IO.StringWriter();
 	    IceUtil.OutputBase op = new IceUtil.OutputBase(sw);
 	    op.setUseTab(false);
 	    op.print(GetType().FullName);
 	    op.inc();
 	    IceInternal.ValueWriter.write(this, op);
-	    return sw.ToString();
+	    return baseMsg + sw.ToString();
 	}
         private static readonly string _dflt = "Ice.Exception";
     }

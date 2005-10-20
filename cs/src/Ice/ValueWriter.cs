@@ -120,7 +120,8 @@ namespace IceInternal
 		//
 		// Write the declared fields of the given class.
 		//
-		FieldInfo[] fields = c.GetFields(BindingFlags.Instance | BindingFlags.Public);
+		FieldInfo[] fields = 
+		    c.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public);
 
 		for(int i = 0; i < fields.Length; i++)
 		{
