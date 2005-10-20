@@ -13,28 +13,26 @@ import os, sys, shutil, string, logging, compileall
 # through the package descriptions to set the dependencies.
 #
 
-buildRequires = ('db4',
-                 'db4-devel',
-                 'byacc',
-                 'mono-core',
-                 'mono-devel',
-                 'python',
-                 'python-devel',
-                 'bzip2-devel',
-                 'bzip2-libs',
-                 'ant',
-                 'expat-devel',
-                 'expat',
-                 'libstdc++',
-                 'gcc',
-                 'gcc-c++',
-                 'jdk',
+buildRequires = ('byacc >= 1.9',
+                 'mono-core >= 1.1.9',
+                 'mono-devel >= 1.1.9',
+                 'python >= 2.4.1',
+                 'python-devel >= 2.4.1',
+                 'bzip2-devel >= 1.0.2',
+                 'bzip2-libs >= 1.0.2',
+                 'ant >= 1.6.2',
+                 'expat-devel >= 1.9',
+                 'expat >= 1.9',
+                 'libstdc++ >= 3.2',
+                 'gcc >= 3.2',
+                 'gcc-c++ >= 3.2',
+                 'jdk >= 1.4.2',
                  'tar',
-                 'binutils',
-                 'openssl',
-                 'openssl-devel',
-                 'readline',
-                 'ncurses'
+                 'binutils >= 2.10',
+                 'openssl >= 0.9.7f',
+                 'openssl-devel >= 0.9.7f',
+                 'readline >= 5.0',
+                 'ncurses >= 5.4'
                  )
 
 iceDescription = '''Ice is a modern alternative to object middleware
@@ -483,23 +481,38 @@ def _transformDirectories(transforms, version, installDir):
 
     os.chdir(cwd)
 
-def createArchSpecFile(ofile, installDir, version, soVersion):
+def createArchSpecFile(ofile, installDir, version, soVersion, buildReq = True):
+    if not buildReq:
+	reqs = []
+    else:
+	reqs = buildRequires
+	
     for v in fileLists:
-	v.writeHdr(ofile, version, "1", installDir, buildRequires)
+	v.writeHdr(ofile, version, "1", installDir, reqs)
 	ofile.write("\n\n\n")
     for v in fileLists:
 	v.writeFiles(ofile, version, soVersion, installDir)
 	ofile.write("\n")
 
-def createNoArchSpecFile(ofile, installDir, version, soVersion):
+def createNoArchSpecFile(ofile, installDir, version, soVersion, buildReq = True):
+    if not buildReq:
+	reqs = []
+    else:
+	reqs = buildRequires
+
     for v in noarchFileList:
-	v.writeHdr(ofile, version, "1", installDir, buildRequires)
+	v.writeHdr(ofile, version, "1", installDir, reqs)
 	ofile.write("\n\n\n")
     for v in noarchFileList:
 	v.writeFiles(ofile, version, soVersion, installDir)
 	ofile.write("\n")
 
-def createFullSpecFile(ofile, installDir, version, soVersion):
+def createFullSpecFile(ofile, installDir, version, soVersion, buildReq = True):
+    if not buildReq:
+	reqs = []
+    else:
+	reqs = buildRequires
+
     fullFileList = []
     fullFileList.extend(fileLists)
     fullFileList.append(
@@ -518,7 +531,7 @@ def createFullSpecFile(ofile, installDir, version, soVersion):
     fullFileList[0].addInstallGenerator(writeDemoPkgCommands)
 
     for v in fullFileList:
-	v.writeHdr(ofile, version, "1", installDir, buildRequires)
+	v.writeHdr(ofile, version, "1", installDir, reqs)
 	ofile.write("\n\n\n")
     for v in fullFileList:
 	v.writeFiles(ofile, version, soVersion, installDir)
@@ -535,7 +548,7 @@ def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
     os.system("tar xfz " + installDir + "/../Ice-" + version + "-demos.tar.gz -C " + installDir)
 
     ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
-    createArchSpecFile(ofile, installDir, version, soVersion)
+    createArchSpecFile(ofile, installDir, version, soVersion, False)
     ofile.flush()
     ofile.close()
     #
@@ -552,7 +565,7 @@ def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
     # Build noarch RPMs
     #
     ofile = open(buildDir + "/IceJ-" + version + ".spec", "w")
-    createNoArchSpecFile(ofile, installDir, version, soVersion)
+    createNoArchSpecFile(ofile, installDir, version, soVersion, False)
     ofile.flush()
     ofile.close()
     os.system("rpmbuild --target noarch -bb IceJ-" + version + ".spec")
