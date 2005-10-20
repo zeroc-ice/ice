@@ -83,7 +83,11 @@ Client::run(int argc, char* argv[])
     }
 
     PropertiesPtr properties = communicator()->getProperties();
-    string managerIdentity = properties->getPropertyWithDefault("IceBox.ServiceManager.Identity", "ServiceManager");
+    string managerIdentity = properties->getProperty("IceBox.ServiceManager.Identity");
+    if(managerIdentity.empty())
+    {
+        managerIdentity = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox") + "/ServiceManager";
+    }
 
     string managerProxy;
 

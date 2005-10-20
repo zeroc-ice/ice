@@ -65,8 +65,11 @@ IceBox::ServiceManagerI::run()
         ObjectAdapterPtr adapter = _server->communicator()->createObjectAdapter("IceBox.ServiceManager");
 
 	PropertiesPtr properties = _server->communicator()->getProperties();
-
-	string identity = properties->getPropertyWithDefault("IceBox.ServiceManager.Identity", "ServiceManager");
+        string identity = properties->getProperty("IceBox.ServiceManager.Identity");
+        if(identity.empty())
+        {
+            identity = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox") + "/ServiceManager";
+        }
         adapter->add(obj, stringToIdentity(identity));
 
         //

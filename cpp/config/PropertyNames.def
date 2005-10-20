@@ -164,6 +164,7 @@ Ice:
     Warn.Leaks
 
 IceBox:
+    InstanceName
     LoadOrder
     PrintServicesReady
     Service.<any>
