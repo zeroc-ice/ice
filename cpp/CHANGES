@@ -10,6 +10,7 @@ Changes since version 2.1.2
 
 - Added the following properties:
 
+  IceBox.InstanceName
   IcePatch2.InstanceName
   IceStorm.InstanceName
   Glacier2.InstanceName
@@ -19,6 +20,7 @@ Changes since version 2.1.2
   their well-known objects. The properties listed below are now
   deprecated and will be removed in a future release:
 
+  IceBox.ServiceManager.Identity
   IcePatch2.Identity
   IcePatch2.AdminIdentity
   IceStorm.TopicManagerIdentity
