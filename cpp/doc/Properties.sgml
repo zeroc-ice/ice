@@ -1926,7 +1926,7 @@ IceBox.InstanceName=<replaceable>name</replaceable>
 Specifies an alternate identity category for the &IceBox; service manager object.
 If defined, the identity of the object becomes
 <replaceable>name</replaceable><literal>/ServiceManager</literal>.
-If not specified, the default identity category is empty.
+If not specified, the default identity category is <literal>IceBox</literal>.
 </para>
 </section>
 </section>
