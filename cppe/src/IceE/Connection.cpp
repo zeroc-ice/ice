@@ -126,15 +126,7 @@ Ice::Connection::close(bool force)
 	// requests to be retried, regardless of whether the server
 	// has processed them or not.
 	//
-	// For consistency, we also wait until batch requests have
-	// completed, and, if this is a server connection, all
-	// requests have been dispatched. These are the same criteria
-	// that we use to determine whether ACM may close this
-	// connection.
-	//
-	while(!_requests.empty() ||
-	      _batchStreamInUse || !_batchStream.b.empty() ||
-	      _dispatchCount != 0)
+	while(!_requests.empty())
 	{
 	    wait();
 	}

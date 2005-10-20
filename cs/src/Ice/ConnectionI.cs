@@ -253,15 +253,7 @@ namespace Ice
 		    // requests to be retried, regardless of whether the
 		    // server has processed them or not.
 		    //
-		    // For consistency, we also wait until batch requests have
-		    // completed, and, if this is a server connection, all
-		    // requests have been dispatched. These are the same
-		    // criteria that we use to determine whether ACM may close
-		    // this connection.
-		    //
-		    while(_requests.Count != 0 || _asyncRequests.Count != 0 ||
-			  _batchStreamInUse || !_batchStream.isEmpty() ||
-			  _dispatchCount != 0)
+		    while(_requests.Count != 0 || _asyncRequests.Count != 0)
 		    {
 			Monitor.Wait(this);
 		    }
