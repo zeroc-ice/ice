@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceBox/IceBox.h>
+#include <Freeze/Freeze.h>
 #include <TestI.h>
 
 #ifndef TEST_SERVICE_API
@@ -61,8 +62,14 @@ ServiceI::start(const string& name,
 		const StringSeq& args)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
-
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name);
+    if(properties->getPropertyAsInt(name + ".Freeze") > 0)
+    {
+	//
+	// We do this to ensure the dbenv directory exists.
+	//
+	Freeze::createConnection(communicator, name);
+    }
     Ice::ObjectPtr object = new TestI(adapter, properties);
     adapter->add(object, Ice::stringToIdentity(properties->getProperty(name + ".Identity")));
     adapter->activate();

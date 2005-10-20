@@ -11,6 +11,7 @@
       <property name="${name}.Identity" value="${server}-${name}"/>
       <property name="${name}.Type" value="freeze"/>
       <property name="${name}.ServiceName" value="${name}"/>
+      <property name="${name}.Freeze" value="1"/>
 
       <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
       <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>

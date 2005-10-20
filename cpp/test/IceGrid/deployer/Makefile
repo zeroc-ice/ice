@@ -50,7 +50,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 
 $(SVCFILENAME): $(OBJS) $(SERVICE_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SVCSONAME),$(OBJS) $(SERVICE_OBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(SVCSONAME),$(OBJS) $(SERVICE_OBJS), -lFreeze $(LINKWITH))
 
 clean::
 	rm -f db/node/db/servers db/node/db/serveradapters db/node/db/log.*

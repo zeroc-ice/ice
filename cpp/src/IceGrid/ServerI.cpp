@@ -1114,6 +1114,19 @@ ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bo
 	updateDbEnv(_serverDir, *q);
 	knownDbEnvs.push_back(q->name);
     }
+    if(iceBox)
+    {
+	ServiceInstanceDescriptorSeq::const_iterator s;
+	for(s = iceBox->services.begin(); s != iceBox->services.end(); ++s)
+	{
+	    CommunicatorDescriptorPtr svc = s->descriptor;
+	    for(DbEnvDescriptorSeq::const_iterator q = svc->dbEnvs.begin(); q != svc->dbEnvs.end(); ++q)
+	    {
+		updateDbEnv(_serverDir, *q);
+		knownDbEnvs.push_back(q->name);
+	    }
+	}
+    }
 
     //
     // Remove old database environments.
@@ -1153,7 +1166,7 @@ ServerI::updateImpl(const string& app, const ServerDescriptorPtr& descriptor, bo
 	ServiceInstanceDescriptorSeq::const_iterator s;
 	for(s = iceBox->services.begin(); s != iceBox->services.end(); ++s)
 	{
-	    ServiceDescriptorPtr svc = ServiceDescriptorPtr::dynamicCast(s->descriptor);
+	    CommunicatorDescriptorPtr svc = s->descriptor;
 	    for(AdapterDescriptorSeq::const_iterator t = svc->adapters.begin(); t != svc->adapters.end(); ++t)
 	    {
 		if(!t->id.empty())
