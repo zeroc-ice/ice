@@ -27,18 +27,6 @@ public sealed class TestI : TestIntfDisp_
     
     private void commitSuicide()
     {
-	//
-	// Process.Kill() under UNIX MONO sends SIGHUP to the
-	// process, which causes it to hang around for a bit cleaning
-	// up. We want the process to die immmediately.
-	//
-	if(AssemblyUtil.platform_ == AssemblyUtil.Platform.NonWindows
-	   && AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono)
-	{
-#if __MonoCS__
-	    Mono.Unix.Native.Syscall.kill(_pid, Mono.Unix.Native.Signum.SIGKILL);
-#endif
-	}
 	_p.Kill();
 	Thread.Sleep(5000); // Give other threads time to die.
     }
