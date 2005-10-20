@@ -188,7 +188,6 @@ IceGrid:
     Node.CollocateRegistry
     Node.Data
     Node.Endpoints
-    Node.KeepAliveTimeout
     Node.Name
     Node.Output
     Node.PrintServersReady
