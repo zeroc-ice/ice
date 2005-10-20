@@ -119,7 +119,7 @@ namespace Ice
 
 	public PluginManager getPluginManager()
 	{
-	    return null;
+      	    return instance_.pluginManager();
 	}
 
 	public void flushBatchRequests()
