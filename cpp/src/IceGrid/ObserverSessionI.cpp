@@ -17,14 +17,32 @@ using namespace IceGrid;
 ObserverSessionI::ObserverSessionI(const string& userId, 
 				   const DatabasePtr& database,
 				   RegistryObserverTopic& registryObserverTopic,
-				   NodeObserverTopic& nodeObserverTopic) :
+				   NodeObserverTopic& nodeObserverTopic,
+				   int timeout) :
     _userId(userId), 
+    _timeout(timeout),
+    _traceLevels(database->getTraceLevels()),
     _updating(false),
     _destroyed(false),
     _database(database),
-    _registryObserverTopic(registryObserverTopic), 
+    _registryObserverTopic(registryObserverTopic),
     _nodeObserverTopic(nodeObserverTopic)
 {
+    if(_traceLevels && _traceLevels->observer > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->observerCat);
+	out << "observer session `" << _userId << "' created";
+    }
+}
+
+ObserverSessionI::~ObserverSessionI()
+{
+}
+
+int
+ObserverSessionI::getTimeout(const Ice::Current&) const
+{
+    return _timeout;
 }
 
 void
@@ -40,8 +58,8 @@ ObserverSessionI::setObservers(const RegistryObserverPrx& registryObserver,
 	throw ex;
     }
 
-    _registryObserver = registryObserver;
-    _nodeObserver = nodeObserver;
+    _registryObserver = RegistryObserverPrx::uncheckedCast(registryObserver->ice_timeout(_timeout * 1000));
+    _nodeObserver = NodeObserverPrx::uncheckedCast(nodeObserver->ice_timeout(_timeout * 1000));
 
     //
     // Subscribe to the topics.
@@ -196,18 +214,29 @@ ObserverSessionI::destroy(const Ice::Current& current)
 	_updating = false;
     }
 
+    _destroyed = true;
+
     //
     // Unsubscribe from the topics.
     //
     _registryObserverTopic.unsubscribe(_registryObserver);
     _nodeObserverTopic.unsubscribe(_nodeObserver);
+
+    if(_traceLevels && _traceLevels->observer > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->observerCat);
+	out << "observer session `" << _userId << "' destroyed";
+    }
+
+    current.adapter->remove(current.id);
 }
 
 LocalObserverSessionI::LocalObserverSessionI(const string& userId,
 					     const DatabasePtr& database,
 					     RegistryObserverTopic& registryObserverTopic,
-					     NodeObserverTopic& nodeObserverTopic) :
-    ObserverSessionI(userId, database, registryObserverTopic, nodeObserverTopic),
+					     NodeObserverTopic& nodeObserverTopic,
+					     int timeout) :
+    ObserverSessionI(userId, database, registryObserverTopic, nodeObserverTopic, timeout),
     _timestamp(IceUtil::Time::now())
 {
 }
@@ -224,6 +253,12 @@ LocalObserverSessionI::keepAlive(const Ice::Current& current)
     }
 
     _timestamp = IceUtil::Time::now();
+
+    if(_traceLevels->observer > 1)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->observerCat);
+	out << "session `" << _userId << "' keep alive";
+    }
 }
 
 IceUtil::Time
@@ -236,8 +271,9 @@ LocalObserverSessionI::timestamp() const
 Glacier2ObserverSessionI::Glacier2ObserverSessionI(const string& userId,
 						   const DatabasePtr& database,
 						   RegistryObserverTopic& registryObserverTopic,
-						   NodeObserverTopic& nodeObserverTopic) :
-    ObserverSessionI(userId, database, registryObserverTopic, nodeObserverTopic)
+						   NodeObserverTopic& nodeObserverTopic, 
+						   int timeout) :
+    ObserverSessionI(userId, database, registryObserverTopic, nodeObserverTopic, timeout)
 {
 }
 

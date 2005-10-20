@@ -2558,14 +2558,30 @@ IceGrid.Registry.NodeSessionTimeout=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-Each &IceGrid; node establishes a session with the registry that
-must be refreshed periodically. If a node does not refresh its
-session within <replaceable>num</replaceable> seconds, the node's
-session is destroyed and the servers deployed on that node become
-unavailable to new clients. The node's refresh timeout is defined
-by the
-<link linkend="IceGrid.Node.KeepAliveTimeout">IceGrid.Node.KeepAliveTimeout</link>
-property. If not specified, the default value is 10 seconds.
+Each &IceGrid; node establishes a session with the registry that must
+be refreshed periodically. If a node does not refresh its session
+within <replaceable>num</replaceable> seconds, the node's session is
+destroyed and the servers deployed on that node become unavailable to
+new clients. If not specified, the default value is 10 seconds.
+</para>
+</section>
+</section>
+
+<section><title>IceGrid.Registry.NodeSessionTimeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Registry.AdminSessionTimeout=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+&IceGrid; admin clients might establish a session with the registry to
+receive updates on the state of the &IceGrid; registry and nodes. This
+session must be refreshed periodically. If an admin client does not
+refresh its session within <replaceable>num</replaceable> seconds, the
+session is destroyed. If not specified, the default value is 10
+seconds.
 </para>
 </section>
 </section>
@@ -3068,25 +3084,6 @@ The patch trace level:
 </tbody>
 </tgroup>
 </informaltable>
-</para>
-</section>
-</section>
-
-<section id="IceGrid.Node.KeepAliveTimeout"><title>IceGrid.Node.KeepAliveTimeout</title>
-<section><title>Synopsis</title>
-<synopsis>
-IceGrid.Node.KeepAliveTimeout=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-An &IceGrid; node establishes a session with the registry and
-periodically refreshes that session. This property specifies
-the number of seconds the node waits between each refresh. At
-each interval, the node provides the registry with updated
-system load statistics. If not specified, the default value is
-5 seconds.
 </para>
 </section>
 </section>

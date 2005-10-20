@@ -181,14 +181,22 @@ NodeObserverTopic::subscribe(const NodeObserverPrx& observer, int serial)
     {
 	if(serial == -1)
 	{
-	    Lock sync(*this);
 	    NodeDynamicInfoSeq nodes;
-	    nodes.reserve(_nodes.size());
-	    for(map<string, NodeDynamicInfo>::const_iterator p = _nodes.begin(); p != _nodes.end(); ++p)
+	    int serial;
 	    {
-		nodes.push_back(p->second);
+		Lock sync(*this);
+		nodes.reserve(_nodes.size());
+		for(map<string, NodeDynamicInfo>::const_iterator p = _nodes.begin(); p != _nodes.end(); ++p)
+		{
+		    nodes.push_back(p->second);
+		}
+		serial = _serial;
 	    }
-	    observer->init_async(new NodeInitCB(this, observer, _serial), nodes);
+	    //
+	    // TODO: Race conditions are possible here, we should
+	    // check the serial and eventually retry if it changed.
+	    //
+	    observer->init_async(new NodeInitCB(this, observer, serial), nodes);
 	    return;
 	}
 
@@ -309,9 +317,15 @@ RegistryObserverTopic::subscribe(const RegistryObserverPrx& observer, int serial
     {
 	if(serial == -1)
 	{
-	    Lock sync(*this);
-	    assert(_serial != -1);
-	    observer->init_async(new RegistryInitCB(this, observer, _serial), _serial, _applications);
+	    ApplicationDescriptorSeq applications;
+	    int serial;
+	    {
+		Lock sync(*this);
+		assert(_serial != -1);
+		serial = _serial;
+		applications = _applications;
+	    }
+	    observer->init_async(new RegistryInitCB(this, observer, serial), serial, applications);
 	    return;
 	}
 

@@ -234,6 +234,13 @@ RegistryI::start(bool nowarn)
     _reaper = new ReapThread(_nodeSessionTimeout);
     _reaper->start();
 
+    int adminSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionTimeout", 10);
+    if(adminSessionTimeout != _nodeSessionTimeout)
+    {
+	_adminReaper = new ReapThread(adminSessionTimeout);
+	_adminReaper->start();
+    }
+
     //
     // Create the internal registries (node, server, adapter, object).
     //
@@ -252,7 +259,7 @@ RegistryI::start(bool nowarn)
     //
     bool dynamicReg = properties->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
     ObjectPtr locatorRegistry = new LocatorRegistryI(_database, dynamicReg);
-    ObjectPrx obj = serverAdapter->add(locatorRegistry, stringToIdentity(instanceName + "/" + IceUtil::generateUUID()));
+    ObjectPrx obj = serverAdapter->add(locatorRegistry, stringToIdentity(instanceName + "/"+ IceUtil::generateUUID()));
     LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(obj->ice_collocationOptimization(false));
     ObjectPtr locator = new LocatorI(_communicator, _database, locatorRegistryPrx); 
     Identity locatorId = stringToIdentity(instanceName + "/Locator");
@@ -360,7 +367,8 @@ RegistryI::start(bool nowarn)
     //
     // Create the session manager.
     //
-    ObjectPtr sessionManager = new SessionManagerI(*regTopic, *nodeTopic, _database, _reaper);
+    ReapThreadPtr reaper = _adminReaper ? _adminReaper : _reaper;
+    ObjectPtr sessionManager = new SessionManagerI(*regTopic, *nodeTopic, _database, reaper, adminSessionTimeout);
     Identity sessionManagerId = stringToIdentity(instanceName + "/SessionManager");
     adminAdapter->add(sessionManager, sessionManagerId);
     ObjectPrx sessionManagerPrx = adminAdapter->createDirectProxy(sessionManagerId);
@@ -394,6 +402,12 @@ RegistryI::stop()
     _reaper->terminate();
     _reaper->getThreadControl().join();
 
+    if(_adminReaper)
+    {
+	_adminReaper->terminate();
+	_adminReaper->getThreadControl().join();
+    }
+
     _iceStorm->stop();
 }
 
@@ -407,6 +421,12 @@ RegistryI::registerNode(const std::string& name, const NodePrx& node, const Node
     _reaper->add(proxy, session);
     obs = _nodeObserver;
     return proxy;
+}
+
+int
+RegistryI::getTimeout(const Ice::Current& current) const
+{
+    return _nodeSessionTimeout;
 }
 
 void

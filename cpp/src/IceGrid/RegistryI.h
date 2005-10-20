@@ -34,6 +34,7 @@ public:
 
     virtual NodeSessionPrx registerNode(const std::string&, const NodePrx&, const NodeInfo&, NodeObserverPrx&, 
 					const Ice::Current&);
+    virtual int getTimeout(const Ice::Current&) const;
     virtual void shutdown(const Ice::Current& current);
 
     virtual IceStorm::TopicManagerPrx getTopicManager();
@@ -43,6 +44,7 @@ private:
     Ice::CommunicatorPtr _communicator;
     DatabasePtr _database;
     ReapThreadPtr _reaper;
+    ReapThreadPtr _adminReaper;
     int _nodeSessionTimeout;
 
     IceStorm::ServicePtr _iceStorm;

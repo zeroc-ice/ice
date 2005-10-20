@@ -272,6 +272,13 @@ interface Session extends Glacier2::Session
 
     /**
      *
+     * Get the session timeout configure for the node.
+     *
+     **/
+    nonmutating int getTimeout();
+
+    /**
+     *
      * Set the proxies of the observer objects that will receive
      * notifications from the servers when the state of the registry
      * or nodes changes.

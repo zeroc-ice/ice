@@ -22,11 +22,17 @@ namespace IceGrid
 class Database;
 typedef IceUtil::Handle<Database> DatabasePtr;
 
+class TraceLevels;
+typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
+
 class ObserverSessionI : public Session, public SessionI, public IceUtil::Mutex
 {
 public:
 
-    ObserverSessionI(const std::string&, const DatabasePtr&, RegistryObserverTopic&, NodeObserverTopic&);
+    ObserverSessionI(const std::string&, const DatabasePtr&, RegistryObserverTopic&, NodeObserverTopic&, int);
+    virtual ~ObserverSessionI();
+
+    virtual int getTimeout(const Ice::Current&) const;
 
     virtual void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&, const Ice::Current&);
     virtual void setObserversByIdentity(const Ice::Identity&, const Ice::Identity&, const Ice::Current&); 
@@ -43,6 +49,8 @@ public:
 protected:
 
     const std::string _userId;
+    const int _timeout;
+    const TraceLevelsPtr _traceLevels;
     bool _updating;
     bool _destroyed;
 
@@ -60,10 +68,10 @@ class LocalObserverSessionI : public ObserverSessionI
 {
 public:
 
-    LocalObserverSessionI(const std::string&, const DatabasePtr&, RegistryObserverTopic&, NodeObserverTopic&);
+    LocalObserverSessionI(const std::string&, const DatabasePtr&, RegistryObserverTopic&, NodeObserverTopic&, int);
 
     virtual void keepAlive(const Ice::Current&);
-
+    
     virtual IceUtil::Time timestamp() const;
 
 private:
@@ -75,7 +83,7 @@ class Glacier2ObserverSessionI : public ObserverSessionI
 {
 public:
 
-    Glacier2ObserverSessionI(const std::string&, const DatabasePtr&, RegistryObserverTopic&, NodeObserverTopic&);
+    Glacier2ObserverSessionI(const std::string&, const DatabasePtr&, RegistryObserverTopic&, NodeObserverTopic&, int);
 
     virtual void keepAlive(const Ice::Current&);
 

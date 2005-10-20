@@ -54,7 +54,7 @@ public:
 
     NodeSessionPrx getSession() const;
     void setSession(const NodeSessionPrx&, const NodeObserverPrx&);
-    void keepAlive();
+    int keepAlive();
     void stop();
 
 private:

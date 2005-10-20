@@ -59,8 +59,11 @@ public:
 	Lock sync(*this);
 	while(!_shutdown)
 	{
-	    _node->keepAlive();
-
+	    int timeout = _node->keepAlive();
+	    if(timeout > 0)
+	    {
+		_timeout = IceUtil::Time::seconds(timeout);
+	    }
 	    if(!_shutdown)
 	    {
 		timedWait(_timeout);
@@ -79,7 +82,7 @@ public:
 private:
 
     const NodeIPtr _node;
-    const IceUtil::Time _timeout;
+    IceUtil::Time _timeout;
     bool _shutdown;
 };
 typedef IceUtil::Handle<KeepAliveThread> KeepAliveThreadPtr;
@@ -444,10 +447,11 @@ NodeService::start(int argc, char* argv[])
     adapter->add(_node, nodeProxy->ice_getIdentity());
 
     //
-    // Register this node with the node registry.
+    // Start the keep alive thread. By default we start the thread
+    // with a 5s timeout, then we'll use the registry node session
+    // timeout / 2.
     //
-    int timeout = properties->getPropertyAsIntWithDefault("IceGrid.Node.KeepAliveTimeout", 5); // 5 seconds
-    _keepAliveThread = new KeepAliveThread(_node, timeout);
+    _keepAliveThread = new KeepAliveThread(_node, 5);
     _keepAliveThread->start();
 
     //

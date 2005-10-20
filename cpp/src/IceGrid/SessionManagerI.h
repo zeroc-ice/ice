@@ -31,7 +31,7 @@ class SessionManagerI : virtual public SessionManager
 {
 public:
 
-    SessionManagerI(RegistryObserverTopic&, NodeObserverTopic&, const  DatabasePtr&, const ReapThreadPtr&);
+    SessionManagerI(RegistryObserverTopic&, NodeObserverTopic&, const  DatabasePtr&, const ReapThreadPtr&, int);
     
     virtual Glacier2::SessionPrx create(const std::string&, const Ice::Current&);
     virtual SessionPrx createLocalSession(const std::string&, const Ice::Current&);
@@ -42,7 +42,7 @@ private:
     NodeObserverTopic& _nodeObserverTopic;
     const DatabasePtr _database;
     const ReapThreadPtr _reaper;
-
+    int _sessionTimeout;
 };
 
 }

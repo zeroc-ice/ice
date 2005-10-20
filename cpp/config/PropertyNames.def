@@ -245,7 +245,8 @@ IceGrid:
     Registry.Trace.Node
     Registry.Trace.Object
     Registry.Trace.Server
-
+    Registry.Trace.Session
+    
 IcePatch:
     BusyTimeout
     Directory

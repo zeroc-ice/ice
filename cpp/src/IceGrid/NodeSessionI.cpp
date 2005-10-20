@@ -48,16 +48,15 @@ NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current& current)
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
+    _timestamp = IceUtil::Time::now();
+    _load = load;
+
     if(_traceLevels->node > 2)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
 	out << "node `" << _name << "' keep alive ";
 	out << "(load = " << _load.avg1 << ", " << _load.avg5 << ", " << _load.avg15 << ")";
     }
-
-    _timestamp = IceUtil::Time::now();
-    _load = load;
-
 }
 
 Ice::StringSeq

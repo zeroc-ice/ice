@@ -456,7 +456,7 @@ NodeI::setSession(const NodeSessionPrx& session, const NodeObserverPrx& observer
     _observer = observer;
 }
 
-void
+int
 NodeI::keepAlive()
 {
     NodeSessionPrx session = getSession();
@@ -477,12 +477,13 @@ NodeI::keepAlive()
 	{
 	    Ice::PropertiesPtr properties = getCommunicator()->getProperties();
 	    const string instanceNameProperty = "IceGrid.InstanceName";
-	    string instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
-	    Ice::ObjectPrx obj = getCommunicator()->stringToProxy(instanceName + "/Registry@IceGrid.Registry.Internal");
+	    string instName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
+	    Ice::ObjectPrx obj = getCommunicator()->stringToProxy(instName + "/Registry@IceGrid.Registry.Internal");
 	    RegistryPrx registry = RegistryPrx::uncheckedCast(obj);
 	    NodeObserverPrx observer;
 	    setSession(registry->registerNode(_name, _proxy, _platform.getNodeInfo(), observer), observer);
 	    checkConsistency();
+	    return registry->getTimeout() / 2;
 	}
 	catch(const NodeActiveException&)
 	{
@@ -495,6 +496,7 @@ NodeI::keepAlive()
 	    _traceLevels->logger->warning(os.str());
 	}
     }
+    return 0;
 }
 
 void

@@ -318,6 +318,13 @@ interface Registry
 
     /**
      *
+     * Return the node session timeout.
+     *
+     **/ 
+    nonmutating int getTimeout();
+
+    /**
+     *
      * Shutdown the registry.
      *
      **/
