@@ -36,7 +36,7 @@ public sealed class TestI : TestIntfDisp_
 	   && AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono)
 	{
 #if __MonoCS__
-	    Mono.Unix.Syscall.kill(_pid, Mono.Unix.Signum.SIGKILL);
+	    Mono.Unix.Native.Syscall.kill(_pid, Mono.Unix.Native.Signum.SIGKILL);
 #endif
 	}
 	_p.Kill();
