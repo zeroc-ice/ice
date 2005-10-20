@@ -140,7 +140,7 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     public PluginManager
     getPluginManager()
     {
-        return null;
+        return _instance.pluginManager();
     }
 
     public void
