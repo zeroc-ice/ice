@@ -551,12 +551,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name holdS
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleS
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1732,6 +1726,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icebox
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name freeze
     End Project Dependency
 }}}
 
