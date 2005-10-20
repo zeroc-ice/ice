@@ -1914,6 +1914,23 @@ Defines how a Java server authenticates a client:
 <section><title>&IceBox; Properties</title>
 <!-- ********************************************************************** -->
 
+<section id="IceBox.InstanceName"><title>IceBox.InstanceName</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceBox.InstanceName=<replaceable>name</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies an alternate identity category for the &IceBox; service manager object.
+If defined, the identity of the object becomes
+<replaceable>name</replaceable><literal>/ServiceManager</literal>.
+If not specified, the default identity category is empty.
+</para>
+</section>
+</section>
+
 <section><title>IceBox.ServiceManager.AdapterId</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -1993,6 +2010,10 @@ IceBox.ServiceManager.Identity=<replaceable>identity</replaceable>
 The identity of the service manager interface. If not specified the
 default value <literal>ServiceManager</literal> is used.
 </para>
+<note><para>This property is deprecated and supported only for
+backward-compatibility. New applications should use
+<link linkend="IceBox.InstanceName">IceBox.InstanceName</link>.
+</para></note>
 </section>
 </section>
 
