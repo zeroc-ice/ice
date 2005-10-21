@@ -70,6 +70,12 @@ interface Router extends Ice::Router
      * and only an internal session (i.e., not visible to the client)
      * is created.
      *
+     * If a session proxy is returned, it must be configured to route
+     * through the router that created it. This will happen automatically
+     * if the router is configured as the client's default router at the
+     * time the session proxy is created in the client process, otherwise
+     * the client must configure the session proxy explicitly.
+     *
      * @see Session
      * @see SessionManager
      * @see PermissionsVerifier
