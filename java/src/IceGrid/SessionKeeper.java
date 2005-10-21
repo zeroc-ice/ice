@@ -523,40 +523,11 @@ class SessionKeeper
 	try
 	{
 	    parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-   
-	    //
-	    // Establish session
-	    //
-	    
-	    if(_loginInfo.useGlacier)
+       
+	    _session = _model.login(_loginInfo, parent);
+	    if(_session == null)
 	    {
-		//
-		// Not yet implemented
-		//
-		assert false;
-	    }
-	    else
-	    {
-		if(!_model.login(_loginInfo, parent))
-		{
-		    return false;
-		}
-		
-		try
-		{
-		    _session = _model.getSessionManager().
-			createLocalSession(_loginInfo.username);
-		}
-		catch(Ice.LocalException e)
-		{
-		    logout(false);
-		    JOptionPane.showMessageDialog(parent,
-						  "Could not create session: "
-						  + e.toString(),
-						  "Login failed",
-						  JOptionPane.ERROR_MESSAGE);
-		    return false;
-		}
+		return false;
 	    }
 	    
 	    _model.getStatusBar().setConnected(true);
@@ -565,11 +536,10 @@ class SessionKeeper
 	    // Start thread
 	    //
 	    assert(_thread == null);
+	    long period = _session.getTimeout() * 1000/ 2;
+	    period = 500;
+	    System.err.println("period == " + period + " ms");
 	    
-	    //
-	    // TODO: get period from session
-	    //
-	    long period = 10000;
 	    
 	    _thread = new Pinger(period);
 	    _thread.start();
@@ -669,17 +639,30 @@ class SessionKeeper
 	// Create the object adapter for the observers
 	//
 	String uuid = Ice.Util.generateUUID();
-	_observerAdapter = _model.getCommunicator().createObjectAdapterWithEndpoints(
-	    "Observers-" + uuid, "tcp");
+	String category;
+
+	Ice.RouterPrx router = _model.getCommunicator().getDefaultRouter();
+	if(router == null)
+	{
+	    _observerAdapter = _model.getCommunicator().createObjectAdapterWithEndpoints(
+		"Observers-" + uuid, "default -t 15000");
+	    category = "observer";
+	}
+	else
+	{
+	    _observerAdapter = _model.getCommunicator().createObjectAdapter("Observers-" + uuid);
+	    _observerAdapter.addRouter(router);
+	    category = router.getServerProxy().ice_getIdentity().category;
+	}
 	
 	//
 	// Create servants and proxies
 	//
-	_registryObserverIdentity.name = uuid;
-	_registryObserverIdentity.category = "registryObserver";
+	_registryObserverIdentity.name = "registry-" + uuid;
+	_registryObserverIdentity.category = category;
 	
-	_nodeObserverIdentity.name = uuid;
-	_nodeObserverIdentity.category = "nodeObserver";
+	_nodeObserverIdentity.name = "node-" + uuid;
+	_nodeObserverIdentity.category = category;
 	
 	RegistryObserverI registryObserverServant = new RegistryObserverI(_model);
 	
@@ -722,6 +705,7 @@ class SessionKeeper
 	    {
 	    }
 	    _observerAdapter.deactivate();
+	    _observerAdapter.waitForDeactivate();
 	    _observerAdapter = null;
 	}
     }

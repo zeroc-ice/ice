@@ -110,6 +110,10 @@ public class Root extends Parent
     public void clear()
     {
 	clearChildren();
+	_dynamicInfoMap.clear();
+	_nodeAdapterMap.clear();
+	_nodeServerMap.clear();
+
 	fireStructureChangedEvent(this);
     }
 

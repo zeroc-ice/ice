@@ -654,7 +654,7 @@ public class Model
 	_writeSerial = -1;
     }
     
-    boolean login(SessionKeeper.LoginInfo info, Component parent)
+    SessionPrx login(SessionKeeper.LoginInfo info, Component parent)
     {	
 	_root.clear();
 	_newApplication.setEnabled(false);
@@ -695,38 +695,116 @@ public class Model
 		    "Failed to recreate the communicator: " + e.toString(),
 		    "Login failed",
 		    JOptionPane.ERROR_MESSAGE);
-		return false;
+		return null;
 	    }
 	}
 
-	//
-	// Default locator
-	//
-	Ice.LocatorPrx defaultLocator = null;
+	SessionPrx session = null;
+	String str = "";
 	
-	String str = info.registryInstanceName + "/Locator";
-	if(!info.registryEndpoints.equals(""))
-	{
-	    str += ":" + info.registryEndpoints;
-	}
+	_communicator.setDefaultRouter(null);
+	_communicator.setDefaultLocator(null);
 
 	try
 	{
-	    defaultLocator = Ice.LocatorPrxHelper.
-		checkedCast(_communicator.stringToProxy(str));
-	    _communicator.setDefaultLocator(defaultLocator);
+	    //
+	    // Default router
+	    //
+	    if(info.useGlacier)
+	    {
+		str = info.routerInstanceName  + "/router";
+		if(!info.routerEndpoints.equals(""))
+		{
+		    str += ":" + info.routerEndpoints;
+		}
+		Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.
+		    uncheckedCast(_communicator.stringToProxy(str));
+
+		//
+		// The session must be routed through this router
+		//
+		_communicator.setDefaultRouter(router);
+		try
+		{
+		    Glacier2.SessionPrx s =
+			router.createSession(
+			    info.username, new String(info.password));
+		    
+		    System.err.println(s.toString());
+		    session = SessionPrxHelper.checkedCast(s);
+		}
+		catch(Glacier2.PermissionDeniedException e)
+		{
+		    JOptionPane.showMessageDialog(parent,
+						  "Permission denied: "
+						  + e.reason,
+						  "Login failed",
+						  JOptionPane.ERROR_MESSAGE);
+		    return null;
+		}
+		catch(Glacier2.CannotCreateSessionException e)
+		{
+		    JOptionPane.showMessageDialog(parent,
+						  "Could not create session: "
+						  + e.reason,
+						  "Login failed",
+						  JOptionPane.ERROR_MESSAGE);
+		    return null;
+		}
+		catch(Ice.LocalException e)
+		{
+		    JOptionPane.showMessageDialog(parent,
+						  "Could not create session: "
+						  + e.toString(),
+						  "Login failed",
+						  JOptionPane.ERROR_MESSAGE);
+		    return null;
+		}
+	    }
+	    else
+	    {
+		//
+		// The client uses the locator only without routing
+		//
+
+		str = info.registryInstanceName + "/Locator";
+		if(!info.registryEndpoints.equals(""))
+		{
+		    str += ":" + info.registryEndpoints;
+		}
 		
-	    //
-	    // Session manager
-	    //
-	    str = info.registryInstanceName + "/SessionManager";
-	    
-	    _sessionManager = SessionManagerPrxHelper.
-		checkedCast(_communicator.stringToProxy(str));
+		Ice.LocatorPrx defaultLocator = Ice.LocatorPrxHelper.
+		    checkedCast(_communicator.stringToProxy(str));
+		_communicator.setDefaultLocator(defaultLocator);
+
+		//
+		// Local session
+		//
+		str = info.registryInstanceName + "/SessionManager";
+		
+		SessionManagerPrx sessionManager = SessionManagerPrxHelper.
+		    uncheckedCast(_communicator.stringToProxy(str));
+
+		try
+		{
+		    session = sessionManager.createLocalSession(info.username);
+		}
+		catch(Ice.LocalException e)
+		{
+		    JOptionPane.showMessageDialog(parent,
+						  "Could not create session: "
+						  + e.toString(),
+						  "Login failed",
+						  JOptionPane.ERROR_MESSAGE);
+		    return null;
+		}
+	    }
 	    
 	    //
 	    // Admin
 	    //
+
+	    // TODO: getAdmin from Session instead
 	    str = info.registryInstanceName + "/Admin";
 	    
 	    _admin = AdminPrxHelper.
@@ -734,19 +812,31 @@ public class Model
 	}
 	catch(Ice.LocalException e)
 	{
+	    if(session != null)
+	    {
+		try
+		{
+		    System.err.println("Destroying session");
+		    session.destroy();
+		}
+		catch(Ice.LocalException le)
+		{
+		    System.err.println(le.toString());
+		}
+	    }
 	    JOptionPane.showMessageDialog(
 		    parent,
 		    "Could not contact '" + str + "': " + e.toString(),
 		    "Login failed",
 		    JOptionPane.ERROR_MESSAGE);
-	    return false;
+	    return null;
 	}
 	
 	_newApplication.setEnabled(true);
 	_newApplicationWithDefaultTemplates.setEnabled(true);
 	_newMenu.setEnabled(true);
 
-	return true;
+	return session;
     }
     
     boolean save()
@@ -797,11 +887,6 @@ public class Model
     public AdminPrx getAdmin()
     {
 	return _admin;
-    }
-
-    public SessionManagerPrx getSessionManager()
-    {
-	return _sessionManager;
     }
 
     public StatusBar getStatusBar()
@@ -1486,7 +1571,6 @@ public class Model
     private Ice.Communicator _communicator;
     private Preferences _prefs;
     private StatusBar _statusBar;
-    private SessionManagerPrx _sessionManager;
     private AdminPrx _admin;
 
     private Root _root;
