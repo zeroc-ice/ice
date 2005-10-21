@@ -7,10 +7,6 @@
 //
 // **********************************************************************
 
-//
-// Work-around for bug in .NET Socket class implementation.
-//
-
 namespace IceInternal
 {
 
@@ -27,24 +23,24 @@ namespace IceInternal
 	//
 	// Magic numbers taken from winsock2.h
 	//
-	const int WSAEINTR = 10004;
-	const int WSAEFAULT = 10014;
-	const int WSAEINVAL = 10022;
-	const int WSAEWOULDBLOCK = 10035;
-	const int WSAEINPROGRESS = 10036; // Deprecated in winsock2, but still used by Mono Beta 1
-	const int WSAEMSGSIZE = 10040;
-	const int WSAENETDOWN = 10050;
-	const int WSAENETUNREACH = 10051;
-	const int WSAENETRESET = 10052;
+	const int WSAEINTR        = 10004;
+	const int WSAEFAULT       = 10014;
+	const int WSAEINVAL       = 10022;
+	const int WSAEWOULDBLOCK  = 10035;
+	const int WSAEINPROGRESS  = 10036; // Deprecated in winsock2, but still used by Mono Beta 1
+	const int WSAEMSGSIZE     = 10040;
+	const int WSAENETDOWN     = 10050;
+	const int WSAENETUNREACH  = 10051;
+	const int WSAENETRESET    = 10052;
 	const int WSAECONNABORTED = 10053;
-	const int WSAECONNRESET = 10054;
-	const int WSAENOBUFS = 10055;
-	const int WSAENOTCONN = 10057;
-	const int WSAESHUTDOWN = 10058;
-	const int WSAETIMEDOUT = 10060;
-	const int WSAECONNREFUSED = 100061;
-	const int WSAEHOSTUNREACH = 100065;
-	const int WSATRY_AGAIN = 11002;
+	const int WSAECONNRESET   = 10054;
+	const int WSAENOBUFS      = 10055;
+	const int WSAENOTCONN     = 10057;
+	const int WSAESHUTDOWN    = 10058;
+	const int WSAETIMEDOUT    = 10060;
+	const int WSAECONNREFUSED = 10061;
+	const int WSAEHOSTUNREACH = 10065;
+	const int WSATRY_AGAIN    = 11002;
 
 	public static bool interrupted(Win32Exception ex)
 	{
@@ -78,7 +74,8 @@ namespace IceInternal
 	public static bool connectFailed(Win32Exception ex)
 	{
 	    int error = ex.NativeErrorCode;
-	    return error == WSAETIMEDOUT ||
+	    return error == WSAECONNREFUSED ||
+	           error == WSAETIMEDOUT ||
 		   error == WSAENETUNREACH ||
 		   error == WSAEHOSTUNREACH ||
 		   error == WSAECONNRESET ||
@@ -335,7 +332,6 @@ namespace IceInternal
 	repeatConnect:
 	    try
 	    {
-
 		socket.Connect(addr);
 	    }
 	    catch(SocketException ex)
@@ -344,10 +340,26 @@ namespace IceInternal
 		{
 		    goto repeatConnect;
 		}
+
 		if(!connectInProgress(ex))
 		{
 		    closeSocketNoThrow(socket);
-		    throw new Ice.ConnectFailedException("Connect failed", ex);
+		    //
+		    // Check for connectionRefused, and connectFailed
+		    // here.
+		    //
+		    if(connectionRefused(ex))
+		    {
+			throw new Ice.ConnectionRefusedException("Connect refused", ex);
+		    }
+		    else if(connectFailed(ex))
+		    {
+			throw new Ice.ConnectFailedException("Connection failed", ex);
+		    }
+		    else
+		    {
+			throw;
+		    }
 		}
 
 	    repeatSelect:
@@ -364,7 +376,48 @@ namespace IceInternal
 		    error = errorList.Count != 0;
 
 		    //
-		    // TODO: Mono 1.0 bug: Under Linux/Mono, dual-CPU machine, we see Select() return
+		    // Under Mac OS Tiger doSelect will report ready: true, error: false. As with
+		    // C++ we need to get the SO_ERROR error to determine whether the connect has
+		    // actually failed.
+		    //
+		    int val = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Error);
+		    if(val > 0)
+		    {
+			closeSocketNoThrow(socket);
+
+			//
+			// BUGFIX: Mono 1.9.1 appears to be returning native error numbers, not the WSA
+			// variety. http://bugzilla.ximian.com/show_bug.cgi?id=76496
+			//
+			// Under an OS where 61 is not ECONNREFUSED (for example) the val will not match
+			// to the correct WSA number.
+			//
+			if(val < 10000)
+			{
+			    val += 10000;
+			}
+
+			//
+			// Create a Win32Exception out of this error value. Check the for refused, and
+			// failed. Otherwise its a plain old socket exception.
+			//
+			Win32Exception sockEx = new Win32Exception(val);
+			if(connectionRefused(sockEx))
+			{
+			    throw new Ice.ConnectionRefusedException("Connect refused", sockEx);
+			}
+			else if(connectFailed(sockEx))
+			{
+			    throw new Ice.ConnectFailedException("Connect failed", sockEx);
+			}
+			else
+			{
+			    throw new Ice.SocketException(sockEx);
+			}
+		    }
+		    
+		    //
+		    // BUGFIX: Mono 1.0 bug: Under Linux/Mono, dual-CPU machine, we see Select() return
 		    // a writable socket after a non-blocking connect has thrown a SocketException with
 		    // NativeErrorCode 10036 (WSAEWOULDBLOCK). The call to Select() that follows returns
 		    // the socket as writable, indicating that the socket is now connected. In addition,
@@ -391,12 +444,18 @@ namespace IceInternal
 		    closeSocketNoThrow(socket);
 		    throw new Ice.SocketException(e);
 		}
+
 		if(error || !ready)
 		{
 		    closeSocketNoThrow(socket);
+
+		    //
+		    // If GetSocketOption didn't return an error and we've failed then we cannot
+		    // distinguish between connect failed and connection refused.
+		    //
 		    if(error)
 		    {
-		        throw new Ice.ConnectFailedException("Connect failed: connection refused");
+		        throw new Ice.ConnectFailedException("Connect failed");
 		    }
 		    else
 		    {
