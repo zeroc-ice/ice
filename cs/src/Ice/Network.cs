@@ -389,31 +389,29 @@ namespace IceInternal
 			// BUGFIX: Mono 1.9.1 appears to be returning native error numbers, not the WSA
 			// variety. http://bugzilla.ximian.com/show_bug.cgi?id=76496
 			//
-			// Under an OS where 61 is not ECONNREFUSED (for example) the val will not match
-			// to the correct WSA number.
+			// Unfortunately the native code for ECONNREFUSED under MacOS is 61. Under Linux
+			// its 111 -- they don't match. Therefore we assume ConnectFailedException.
 			//
-			if(val < 10000)
-			{
-			    val += 10000;
-			}
+			throw new Ice.ConnectFailedException("Connect failed");
 
 			//
 			// Create a Win32Exception out of this error value. Check the for refused, and
 			// failed. Otherwise its a plain old socket exception.
 			//
-			Win32Exception sockEx = new Win32Exception(val);
-			if(connectionRefused(sockEx))
-			{
-			    throw new Ice.ConnectionRefusedException("Connect refused", sockEx);
-			}
-			else if(connectFailed(sockEx))
-			{
-			    throw new Ice.ConnectFailedException("Connect failed", sockEx);
-			}
-			else
-			{
-			    throw new Ice.SocketException(sockEx);
-			}
+			//Win32Exception sockEx = new Win32Exception(val);
+			//if(connectionRefused(sockEx))
+			//{
+			    //throw new Ice.ConnectionRefusedException("Connect refused", sockEx);
+			//}
+			//else if(connectFailed(sockEx))
+			//{
+			    //throw new Ice.ConnectFailedException("Connect failed", sockEx);
+			//}
+			//else
+			//{
+			    //throw new Ice.SocketException(sockEx);
+			//}
+			
 		    }
 		    
 		    //
