@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Thread.h>
+#include <IceUtil/StaticMutex.h>
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
@@ -17,17 +18,39 @@ using namespace std;
 using namespace Test;
 
 static int num = 0;
+static ::IceUtil::StaticMutex numMutex = ICE_STATIC_MUTEX_INITIALIZER;
+
+static void
+incNum()
+{
+    ::IceUtil::StaticMutex::Lock lock(numMutex);
+    ++num;
+}
+
+static void
+decNum()
+{
+    ::IceUtil::StaticMutex::Lock lock(numMutex);
+    --num;
+}
+
+static int
+getNum()
+{
+    ::IceUtil::StaticMutex::Lock lock(numMutex);
+    return num;
+}
 
 struct N : public C
 {
     N()
     {
-	++num;
+	incNum();
     }
 
     ~N()
     {
-	--num;
+	decNum();
     }
 };
 
@@ -37,12 +60,12 @@ struct N2 : public C2
 {
     N2()
     {
-	++num;
+	incNum();
     }
 
     ~N2()
     {
-	--num;
+	decNum();
     }
 };
 
@@ -52,12 +75,12 @@ struct NN : public Node
 {
     NN()
     {
-	++num;
+	incNum();
     }
 
     ~NN()
     {
-	--num;
+	decNum();
     }
 };
 
@@ -67,12 +90,12 @@ struct NL : public Leaf
 {
     NL()
     {
-	++num;
+	incNum();
     }
 
     ~NL()
     {
-	--num;
+	decNum();
     }
 };
 
@@ -236,26 +259,26 @@ MyApplication::run(int argc, char* argv[])
     cout << "testing single instance... " << flush;
     {
 	NPtr n = new N;
-	test(num == 1);
+	test(getNum() == 1);
 	Ice::collectGarbage();
-	test(num == 1);
+	test(getNum() == 1);
     }
-    test(num == 0);
+    test(getNum() == 0);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing single instance cycle... " << flush;
     {
 	NPtr n = new N;
 	n->left = n;
-	test(num == 1);
+	test(getNum() == 1);
 	Ice::collectGarbage();
-	test(num == 1);
+	test(getNum() == 1);
     }
-    test(num == 1);
+    test(getNum() == 1);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing single instance cycle with double pointers... " << flush;
@@ -263,13 +286,13 @@ MyApplication::run(int argc, char* argv[])
 	NPtr n = new N;
 	n->left = n;
 	n->right = n;
-	test(num == 1);
+	test(getNum() == 1);
 	Ice::collectGarbage();
-	test(num == 1);
+	test(getNum() == 1);
     }
-    test(num == 1);
+    test(getNum() == 1);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing double instance cycle... " << flush;
@@ -278,13 +301,13 @@ MyApplication::run(int argc, char* argv[])
 	NPtr n2 = new N;
 	n1->left = n2;
 	n2->left = n1;
-	test(num == 2);
+	test(getNum() == 2);
 	Ice::collectGarbage();
-	test(num == 2);
+	test(getNum() == 2);
     }
-    test(num == 2);
+    test(getNum() == 2);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing double instance cycle with double pointers... " << flush;
@@ -295,13 +318,13 @@ MyApplication::run(int argc, char* argv[])
 	n2->left = n1;
 	n1->right = n2;
 	n2->right = n1;
-	test(num == 2);
+	test(getNum() == 2);
 	Ice::collectGarbage();
-	test(num == 2);
+	test(getNum() == 2);
     }
-    test(num == 2);
+    test(getNum() == 2);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing double instance cycle with looped pointers... " << flush;
@@ -312,13 +335,13 @@ MyApplication::run(int argc, char* argv[])
 	n2->left = n1;
 	n1->right = n1;
 	n2->right = n2;
-	test(num == 2);
+	test(getNum() == 2);
 	Ice::collectGarbage();
-	test(num == 2);
+	test(getNum() == 2);
     }
-    test(num == 2);
+    test(getNum() == 2);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing triple instance cycle... " << flush;
@@ -329,13 +352,13 @@ MyApplication::run(int argc, char* argv[])
 	n1->left = n2;
 	n2->left = n3;
 	n3->left = n1;
-	test(num == 3);
+	test(getNum() == 3);
 	Ice::collectGarbage();
-	test(num == 3);
+	test(getNum() == 3);
     }
-    test(num == 3);
+    test(getNum() == 3);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing triple instance cycle with double pointers... " << flush;
@@ -349,13 +372,13 @@ MyApplication::run(int argc, char* argv[])
 	n1->right = n2;
 	n2->right = n3;
 	n3->right = n1;
-	test(num == 3);
+	test(getNum() == 3);
 	Ice::collectGarbage();
-	test(num == 3);
+	test(getNum() == 3);
     }
-    test(num == 3);
+    test(getNum() == 3);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing triple instance cycle with opposing pointers... " << flush;
@@ -369,13 +392,13 @@ MyApplication::run(int argc, char* argv[])
 	n1->right = n3;
 	n2->right = n1;
 	n3->right = n2;
-	test(num == 3);
+	test(getNum() == 3);
 	Ice::collectGarbage();
-	test(num == 3);
+	test(getNum() == 3);
     }
-    test(num == 3);
+    test(getNum() == 3);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing cycle with trailing instances... " << flush;
@@ -390,17 +413,17 @@ MyApplication::run(int argc, char* argv[])
 	n2->right = n3;
 	n3->left = n4;
 	n = n3;
-	test(num == 4);
+	test(getNum() == 4);
 	Ice::collectGarbage();
-	test(num == 4);
+	test(getNum() == 4);
     }
-    test(num == 4);
+    test(getNum() == 4);
     Ice::collectGarbage();
-    test(num == 2);
+    test(getNum() == 2);
     n = 0;
-    test(num == 0);
+    test(getNum() == 0);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing cycle with trailing instances and trailing cycle... " << flush;
@@ -419,17 +442,17 @@ MyApplication::run(int argc, char* argv[])
 	n5->right = n6;
 	n6->right = n5;
 	n = n4;
-	test(num == 6);
+	test(getNum() == 6);
 	Ice::collectGarbage();
-	test(num == 6);
+	test(getNum() == 6);
     }
-    test(num == 6);
+    test(getNum() == 6);
     Ice::collectGarbage();
-    test(num == 3);
+    test(getNum() == 3);
     n = 0;
-    test(num == 2);
+    test(getNum() == 2);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing sequence element cycle... " << flush;
@@ -439,12 +462,12 @@ MyApplication::run(int argc, char* argv[])
 	cs.push_back(new N);
 	cs[0]->left = cs[1];
 	cs[1]->left = cs[0];
-	test(num == 2);
+	test(getNum() == 2);
 	Ice::collectGarbage();
-	test(num == 2);
+	test(getNum() == 2);
     }
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing dictionary element cycle... " << flush;
@@ -456,12 +479,12 @@ MyApplication::run(int argc, char* argv[])
 	n2->left = n1;
 	cd[0] = n1;
 	cd[1] = n2;
-	test(num == 2);
+	test(getNum() == 2);
 	Ice::collectGarbage();
-	test(num == 2);
+	test(getNum() == 2);
     }
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing sequence of struct cycle... " << flush;
@@ -475,12 +498,12 @@ MyApplication::run(int argc, char* argv[])
 	ss[1].theC = new N;
 	ss[0].theC->left = ss[1].theC;
 	ss[1].theC->left = ss[0].theC;
-	test(num == 2);
+	test(getNum() == 2);
 	Ice::collectGarbage();
-	test(num == 2);
+	test(getNum() == 2);
     }
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing sequence of struct of dictionary cycle... " << flush;
@@ -494,12 +517,12 @@ MyApplication::run(int argc, char* argv[])
 	n2->theS2Seq[0].theC2Dict[1] = n2;
 	n2->theS2Seq[1].theC2Dict[0] = n2;
 	n2->theS2Seq[1].theC2Dict[1] = n2;
-	test(num == 1);
+	test(getNum() == 1);
 	Ice::collectGarbage();
-	test(num == 1);
+	test(getNum() == 1);
     }
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
     cout << "ok" << endl;
 
     cout << "testing leaf nodes... " << flush;
@@ -509,13 +532,13 @@ MyApplication::run(int argc, char* argv[])
 	NLPtr nl = new NL;
 	nn->l = nl;
 	nn->n = nn;
-	test(num == 2);
+	test(getNum() == 2);
 	Ice::collectGarbage();
-	test(num == 2);
+	test(getNum() == 2);
     }
-    test(num == 2);
+    test(getNum() == 2);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
 
     {
 	NNPtr nn1 = new NN;
@@ -525,21 +548,21 @@ MyApplication::run(int argc, char* argv[])
 	nn1->n = nn2;
 	nn2->l = nl;
 	nn2->n = nn1;
-	test(num == 3);
+	test(getNum() == 3);
 	Ice::collectGarbage();
-	test(num == 3);
+	test(getNum() == 3);
     }
-    test(num == 3);
+    test(getNum() == 3);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
 
     {
 	NLPtr nl = new NL;
-	test(num == 1);
+	test(getNum() == 1);
     }
-    test(num == 0);
+    test(getNum() == 0);
     Ice::collectGarbage();
-    test(num == 0);
+    test(getNum() == 0);
 
     cout << "ok" << endl;
     
@@ -573,7 +596,7 @@ MyApplication::run(int argc, char* argv[])
     Ice::collectGarbage();
     if(!interrupted())
     {
-	test(num == 0);
+	test(getNum() == 0);
 	cout << "ok" << endl;
 	return EXIT_SUCCESS;
     }
