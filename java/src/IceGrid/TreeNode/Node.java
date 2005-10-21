@@ -973,6 +973,11 @@ class Node extends EditableParent
 		_descriptor.servers.add(serverDescriptor);
 	    }
 	}
+
+	if(!_inRegistry)
+	{
+	    moveToRegistry();
+	}
     }
 
     void removeDescriptor(ServerDescriptor sd)
