@@ -53,7 +53,10 @@
                   endpoints="${client-endpoints}"/>
 
          <adapter name="Glacier2.Server" id="${server-adapter-id}"
-                  endpoints="${server-endpoints}"/>                  
+                  endpoints="${server-endpoints}"/>
+
+         <adapter name="Glacier2.Admin" id=""
+                  endpoints="tcp -h 127.0.0.1" register-process="true"/>                 
 
          <property name="Glacier2.InstanceName" value="${instance-name}"/>
          <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
