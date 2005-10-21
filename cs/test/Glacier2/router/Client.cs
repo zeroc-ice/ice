@@ -72,11 +72,11 @@ public class Client : Ice.Application
                 @base.ice_ping();
                 test(false);
             }
-            catch(Ice.ConnectionLostException ex)
+            catch(Ice.ConnectionLostException)
             {
                 Console.Out.WriteLine("ok");
             }
-            catch(Ice.SocketException ex)
+            catch(Ice.SocketException)
             {
 		test(false);
             }
@@ -91,11 +91,11 @@ public class Client : Ice.Application
                 router.createSession("userid", "xxx");
                 test(false);
             }
-            catch(Glacier2.PermissionDeniedException ex)
+            catch(Glacier2.PermissionDeniedException)
             {
                 Console.Out.WriteLine("ok");
             }
-            catch(Glacier2.CannotCreateSessionException ex)
+            catch(Glacier2.CannotCreateSessionException)
             {
                 test(false);
             }
@@ -109,7 +109,7 @@ public class Client : Ice.Application
                 router.destroySession();
                 test(false);
             }
-            catch(Glacier2.SessionNotExistException ex)
+            catch(Glacier2.SessionNotExistException)
             {
                 Console.Out.WriteLine("ok");
             }
@@ -122,11 +122,11 @@ public class Client : Ice.Application
             {
                 router.createSession("userid", "abc123");
             }
-            catch(Glacier2.PermissionDeniedException ex)
+            catch(Glacier2.PermissionDeniedException)
             {
                 test(false);
             }
-            catch(Glacier2.CannotCreateSessionException ex)
+            catch(Glacier2.CannotCreateSessionException)
             {
                 test(false);
             }
@@ -141,11 +141,11 @@ public class Client : Ice.Application
                 router.createSession("userid", "abc123");
                 test(false);
             }
-            catch(Glacier2.PermissionDeniedException ex)
+            catch(Glacier2.PermissionDeniedException)
             {
                 test(false);
             }
-            catch(Glacier2.CannotCreateSessionException ex)
+            catch(Glacier2.CannotCreateSessionException)
             {
                 Console.Out.WriteLine("ok");
             }
@@ -257,7 +257,7 @@ public class Client : Ice.Application
                 twoway.initiateCallback(fakeTwowayR, context);
                 test(false);
             }
-            catch(Ice.ObjectNotExistException ex)
+            catch(Ice.ObjectNotExistException)
             {
                 Console.Out.WriteLine("ok");
             }
@@ -287,7 +287,7 @@ public class Client : Ice.Application
 		otherCategoryTwoway.initiateCallback(twowayR, context);
 		test(false);
 	    }
-	    catch(Ice.ObjectNotExistException ex)
+	    catch(Ice.ObjectNotExistException)
 	    {
 		Console.Out.WriteLine("ok");
 	    }
@@ -334,7 +334,7 @@ public class Client : Ice.Application
             {
                 router.destroySession();
             }
-            catch(Glacier2.SessionNotExistException ex)
+            catch(Glacier2.SessionNotExistException)
             {
                 test(false);
             }
@@ -356,11 +356,11 @@ public class Client : Ice.Application
                 @base.ice_ping();
                 test(false);
             }
-            catch(Ice.ConnectionLostException ex)
+            catch(Ice.ConnectionLostException)
             {
                 Console.Out.WriteLine("ok");
             }
-            catch(Ice.SocketException ex)
+            catch(Ice.SocketException)
             {
 		test(false);
             }
@@ -407,7 +407,7 @@ public class Client : Ice.Application
 		admin.ice_ping();
 		test(false);
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(Ice.LocalException)
 	    {
 		Console.Out.WriteLine("ok");
 	    }

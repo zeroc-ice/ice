@@ -338,6 +338,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "minimalS", "demo\Ice\minima
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "routerS", "test\Glacier2\router\routerS.csproj", "{D49F78B1-4B80-4C47-9D84-BA6B9A6DA667}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6851468D-426E-4260-986C-244F278F3526} = {6851468D-426E-4260-986C-244F278F3526}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "routerC", "test\Glacier2\router\routerC.csproj", "{587F6F0A-EDCC-43D8-B428-38C5E901B378}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -632,6 +641,14 @@ Global
 		{796CBD81-54DD-48D2-8512-223FFBFEEAA4}.Debug.Build.0 = Debug|.NET
 		{796CBD81-54DD-48D2-8512-223FFBFEEAA4}.Release.ActiveCfg = Release|.NET
 		{796CBD81-54DD-48D2-8512-223FFBFEEAA4}.Release.Build.0 = Release|.NET
+		{D49F78B1-4B80-4C47-9D84-BA6B9A6DA667}.Debug.ActiveCfg = Debug|.NET
+		{D49F78B1-4B80-4C47-9D84-BA6B9A6DA667}.Debug.Build.0 = Debug|.NET
+		{D49F78B1-4B80-4C47-9D84-BA6B9A6DA667}.Release.ActiveCfg = Release|.NET
+		{D49F78B1-4B80-4C47-9D84-BA6B9A6DA667}.Release.Build.0 = Release|.NET
+		{587F6F0A-EDCC-43D8-B428-38C5E901B378}.Debug.ActiveCfg = Debug|.NET
+		{587F6F0A-EDCC-43D8-B428-38C5E901B378}.Debug.Build.0 = Debug|.NET
+		{587F6F0A-EDCC-43D8-B428-38C5E901B378}.Release.ActiveCfg = Release|.NET
+		{587F6F0A-EDCC-43D8-B428-38C5E901B378}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
