@@ -45,6 +45,20 @@ ObserverSessionI::getTimeout(const Ice::Current&) const
     return _timeout;
 }
 
+QueryPrx
+ObserverSessionI::getQuery(const Ice::Current& current) const
+{
+    return QueryPrx::uncheckedCast(
+	current.adapter->getCommunicator()->stringToProxy(_database->getInstanceName() + "/Query")); 
+}
+
+AdminPrx
+ObserverSessionI::getAdmin(const Ice::Current& current) const
+{
+    return AdminPrx::uncheckedCast(
+	current.adapter->getCommunicator()->stringToProxy(_database->getInstanceName() + "/Admin"));
+}
+
 void
 ObserverSessionI::setObservers(const RegistryObserverPrx& registryObserver, 
 			       const NodeObserverPrx& nodeObserver, 

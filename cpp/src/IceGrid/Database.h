@@ -45,8 +45,10 @@ class Database : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
     
-    Database(const Ice::ObjectAdapterPtr&, const std::string&, int, const TraceLevelsPtr&);
+    Database(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&, int, const TraceLevelsPtr&);
     virtual ~Database();
+
+    std::string getInstanceName() const;
 
     void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&);
 
@@ -118,6 +120,7 @@ private:
     const Ice::CommunicatorPtr _communicator;
     const Ice::ObjectAdapterPtr _internalAdapter;
     const std::string _envName;
+    const std::string _instanceName;
     const TraceLevelsPtr _traceLevels;
 
     NodeCache _nodeCache;

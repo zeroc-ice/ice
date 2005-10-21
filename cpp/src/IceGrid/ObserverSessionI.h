@@ -33,6 +33,8 @@ public:
     virtual ~ObserverSessionI();
 
     virtual int getTimeout(const Ice::Current&) const;
+    virtual QueryPrx getQuery(const Ice::Current&) const;
+    virtual AdminPrx getAdmin(const Ice::Current&) const;
 
     virtual void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&, const Ice::Current&);
     virtual void setObserversByIdentity(const Ice::Identity&, const Ice::Identity&, const Ice::Current&); 

@@ -260,6 +260,9 @@ interface RegistryObserver
     void applicationUpdated(int serial, ApplicationUpdateDescriptor desc);
 };
 
+interface Query;
+interface Admin;
+
 interface Session extends Glacier2::Session
 {
     /**
@@ -276,6 +279,20 @@ interface Session extends Glacier2::Session
      *
      **/
     nonmutating int getTimeout();
+
+    /**
+     *
+     * Get the query interface.
+     *
+     **/
+    nonmutating Query* getQuery();
+
+    /**
+     *
+     * Get the admin interface.
+     *
+     **/
+    nonmutating Admin* getAdmin();
 
     /**
      *

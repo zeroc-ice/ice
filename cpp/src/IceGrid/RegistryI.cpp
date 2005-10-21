@@ -242,17 +242,17 @@ RegistryI::start(bool nowarn)
     }
 
     //
-    // Create the internal registries (node, server, adapter, object).
-    //
-    const string envName = "Registry";
-    properties->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
-    _database = new Database(registryAdapter, envName, _nodeSessionTimeout, traceLevels);
-
-    //
     // Get the instance name
     //
     const string instanceNameProperty = "IceGrid.InstanceName";
     string instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
+
+    //
+    // Create the internal registries (node, server, adapter, object).
+    //
+    const string envName = "Registry";
+    properties->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
+    _database = new Database(registryAdapter, envName, instanceName, _nodeSessionTimeout, traceLevels);
 
     //
     // Create the locator registry and locator interfaces.

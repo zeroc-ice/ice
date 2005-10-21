@@ -10,6 +10,7 @@
 #include <IceUtil/Thread.h>
 #include <Ice/Ice.h>
 #include <IceGrid/Observer.h>
+#include <IceGrid/Query.h>
 #include <IceGrid/Admin.h>
 #include <TestCommon.h>
 
@@ -330,6 +331,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	int serial = regObs1->serial;
 	test(serial == regObs2->serial);
+
+	try
+	{
+	    session1->getQuery()->ice_ping();
+	    session1->getAdmin()->ice_ping();
+	}
+	catch(const Ice::LocalException&)
+	{
+	    test(false);
+	}
 
 	try
 	{

@@ -115,11 +115,13 @@ struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::Ob
 
 Database::Database(const Ice::ObjectAdapterPtr& adapter,
 		   const string& envName,
+		   const string& instanceName,
 		   int nodeSessionTimeout,
 		   const TraceLevelsPtr& traceLevels) :
     _communicator(adapter->getCommunicator()),
     _internalAdapter(adapter),
     _envName(envName),
+    _instanceName(instanceName),
     _traceLevels(traceLevels), 
     _nodeCache(nodeSessionTimeout),
     _objectCache(_communicator),
@@ -162,6 +164,12 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
 
 Database::~Database()
 {
+}
+
+std::string
+Database::getInstanceName() const
+{
+    return _instanceName;
 }
 
 void
