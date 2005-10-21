@@ -7,11 +7,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= Ice Glacier2 IceGrid IceStorm book
+SUBDIRS		= clock
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
