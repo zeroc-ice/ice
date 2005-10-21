@@ -1269,15 +1269,21 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
     //
     for(AdapterDescriptorSeq::const_iterator q = descriptor->adapters.begin(); q != descriptor->adapters.end(); ++q)
     {
-	props.push_back(createProperty("# Object adapter " + q->name));
-	props.push_back(createProperty(q->name + ".AdapterId", q->id));
-	if(q->registerProcess)
+	if(!q->id.empty() || q->registerProcess)
 	{
-	    props.push_back(createProperty(q->name + ".RegisterProcess", "1"));
-	}
-	if(!q->replicaGroupId.empty())
-	{
-	    props.push_back(createProperty(q->name + ".ReplicaGroupId", q->replicaGroupId));
+	    props.push_back(createProperty("# Object adapter " + q->name));
+	    if(!q->id.empty())
+	    {
+		props.push_back(createProperty(q->name + ".AdapterId", q->id));
+		if(!q->replicaGroupId.empty())
+		{
+		    props.push_back(createProperty(q->name + ".ReplicaGroupId", q->replicaGroupId));
+		}
+	    }
+	    if(q->registerProcess)
+	    {
+		props.push_back(createProperty(q->name + ".RegisterProcess", "1"));
+	    }
 	}
     }
 
