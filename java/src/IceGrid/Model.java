@@ -667,18 +667,37 @@ public class Model
 	Ice.Properties properties = _communicator.getProperties();
 	boolean recreateCommunicator = false;
 
-	if(properties.getPropertyAsInt("Ice.Override.Timeout") != info.timeout)
+	if(info.routed)
 	{
-	    properties.setProperty("Ice.Override.Timeout", 
-				   Integer.toString(info.timeout));
-	    recreateCommunicator = true;
+	    if(properties.getPropertyAsInt("Ice.Override.Timeout") != info.routerTimeout)
+	    {
+		properties.setProperty("Ice.Override.Timeout", 
+				       Integer.toString(info.routerTimeout));
+		recreateCommunicator = true;
+	    }
+	    
+	    if(properties.getPropertyAsInt("Ice.Override.ConnectTimeout") != info.routerConnectTimeout)
+	    {
+		properties.setProperty("Ice.Override.ConnectTimeout", 
+				       Integer.toString(info.routerConnectTimeout));
+		recreateCommunicator = true;
+	    }
 	}
-
-	if(properties.getPropertyAsInt("Ice.Override.ConnectTimeout") != info.connectTimeout)
+	else
 	{
-	    properties.setProperty("Ice.Override.ConnectTimeout", 
-				   Integer.toString(info.connectTimeout));
-	    recreateCommunicator = true;
+	    if(properties.getPropertyAsInt("Ice.Override.Timeout") != info.registryTimeout)
+	    {
+		properties.setProperty("Ice.Override.Timeout", 
+				       Integer.toString(info.registryTimeout));
+		recreateCommunicator = true;
+	    }
+	    
+	    if(properties.getPropertyAsInt("Ice.Override.ConnectTimeout") != info.registryConnectTimeout)
+	    {
+		properties.setProperty("Ice.Override.ConnectTimeout", 
+				       Integer.toString(info.registryConnectTimeout));
+		recreateCommunicator = true;
+	    }
 	}
 
 	if(recreateCommunicator)
@@ -700,144 +719,166 @@ public class Model
 	}
 
 	SessionPrx session = null;
-	String str = "";
 	
 	_communicator.setDefaultRouter(null);
 	_communicator.setDefaultLocator(null);
 
-	try
+	if(info.routed)
 	{
 	    //
-	    // Default router
+	    // Router
 	    //
-	    if(info.useGlacier)
+	    
+	    String str = info.routerInstanceName  + "/router";
+	    if(!info.routerEndpoints.equals(""))
 	    {
-		str = info.routerInstanceName  + "/router";
-		if(!info.routerEndpoints.equals(""))
-		{
-		    str += ":" + info.routerEndpoints;
-		}
-		Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.
-		    uncheckedCast(_communicator.stringToProxy(str));
-
-		//
-		// The session must be routed through this router
-		//
-		_communicator.setDefaultRouter(router);
-		try
-		{
-		    Glacier2.SessionPrx s =
-			router.createSession(
-			    info.username, new String(info.password));
-		    
-		    System.err.println(s.toString());
-		    session = SessionPrxHelper.checkedCast(s);
-		}
-		catch(Glacier2.PermissionDeniedException e)
-		{
-		    JOptionPane.showMessageDialog(parent,
-						  "Permission denied: "
-						  + e.reason,
-						  "Login failed",
-						  JOptionPane.ERROR_MESSAGE);
-		    return null;
-		}
-		catch(Glacier2.CannotCreateSessionException e)
-		{
-		    JOptionPane.showMessageDialog(parent,
-						  "Could not create session: "
-						  + e.reason,
-						  "Login failed",
-						  JOptionPane.ERROR_MESSAGE);
-		    return null;
-		}
-		catch(Ice.LocalException e)
-		{
-		    JOptionPane.showMessageDialog(parent,
-						  "Could not create session: "
-						  + e.toString(),
-						  "Login failed",
-						  JOptionPane.ERROR_MESSAGE);
-		    return null;
-		}
+		str += ":" + info.routerEndpoints;
 	    }
-	    else
+	    Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.
+		uncheckedCast(_communicator.stringToProxy(str));
+	    
+	    //
+	    // The session must be routed through this router
+	    //
+	    _communicator.setDefaultRouter(router);
+	    try
 	    {
-		//
-		// The client uses the locator only without routing
-		//
-
-		str = info.registryInstanceName + "/Locator";
-		if(!info.registryEndpoints.equals(""))
-		{
-		    str += ":" + info.registryEndpoints;
-		}
+		Glacier2.SessionPrx s =
+		    router.createSession(
+			info.routerUsername, new String(info.routerPassword));
 		
+		session = SessionPrxHelper.uncheckedCast(s);
+	    }
+	    catch(Glacier2.PermissionDeniedException e)
+	    {
+		JOptionPane.showMessageDialog(parent,
+					      "Permission denied: "
+					      + e.reason,
+					      "Login failed",
+					      JOptionPane.ERROR_MESSAGE);
+		return null;
+	    }
+	    catch(Glacier2.CannotCreateSessionException e)
+	    {
+		JOptionPane.showMessageDialog(parent,
+					      "Could not create session: "
+					      + e.reason,
+					      "Login failed",
+					      JOptionPane.ERROR_MESSAGE);
+		return null;
+	    }
+	    catch(Ice.LocalException e)
+	    {
+		JOptionPane.showMessageDialog(parent,
+					      "Could not create session: "
+					      + e.toString(),
+					      "Login failed",
+					      JOptionPane.ERROR_MESSAGE);
+		return null;
+	    }
+	}
+	else
+	{
+	    //
+	    // The client uses the locator only without routing
+	    //
+	    String str = info.registryInstanceName + "/Locator";
+	    if(!info.registryEndpoints.equals(""))
+	    {
+		str += ":" + info.registryEndpoints;
+	    }
+	   
+	    try
+	    {
 		Ice.LocatorPrx defaultLocator = Ice.LocatorPrxHelper.
 		    checkedCast(_communicator.stringToProxy(str));
 		_communicator.setDefaultLocator(defaultLocator);
-
-		//
-		// Local session
-		//
-		str = info.registryInstanceName + "/SessionManager";
-		
-		SessionManagerPrx sessionManager = SessionManagerPrxHelper.
-		    uncheckedCast(_communicator.stringToProxy(str));
-
-		try
-		{
-		    session = sessionManager.createLocalSession(info.username);
-		}
-		catch(Ice.LocalException e)
-		{
-		    JOptionPane.showMessageDialog(parent,
-						  "Could not create session: "
-						  + e.toString(),
-						  "Login failed",
-						  JOptionPane.ERROR_MESSAGE);
-		    return null;
-		}
 	    }
-	    
-	    //
-	    // Admin
-	    //
-
-	    // TODO: getAdmin from Session instead
-	    str = info.registryInstanceName + "/Admin";
-	    
-	    _admin = AdminPrxHelper.
-		checkedCast(_communicator.stringToProxy(str));
-	}
-	catch(Ice.LocalException e)
-	{
-	    if(session != null)
+	    catch(Ice.LocalException e)
 	    {
-		try
-		{
-		    System.err.println("Destroying session");
-		    session.destroy();
-		}
-		catch(Ice.LocalException le)
-		{
-		    System.err.println(le.toString());
-		}
-	    }
-	    JOptionPane.showMessageDialog(
+		JOptionPane.showMessageDialog(
 		    parent,
 		    "Could not contact '" + str + "': " + e.toString(),
 		    "Login failed",
 		    JOptionPane.ERROR_MESSAGE);
+		return null;
+	    }
+
+	    //
+	    // Local session
+	    //
+	    str = info.registryInstanceName + "/SessionManager";
+		
+	    SessionManagerPrx sessionManager = SessionManagerPrxHelper.
+		uncheckedCast(_communicator.stringToProxy(str));
+	    
+	    try
+	    {
+		session = sessionManager.createLocalSession(info.registryUsername);
+	    }
+	    catch(Ice.LocalException e)
+	    {
+		JOptionPane.showMessageDialog(parent,
+					      "Could not create session: "
+					      + e.toString(),
+					      "Login failed",
+					      JOptionPane.ERROR_MESSAGE);
+		return null;
+	    }
+	}
+	    
+	//
+	// Admin
+	//
+	try
+	{
+	    _admin = session.getAdmin();
+	}
+	catch(Ice.LocalException e)
+	{
+	    JOptionPane.showMessageDialog(
+		parent,
+		"Could not retrieve Admin proxy: " + e.toString(),
+		"Login failed",
+		JOptionPane.ERROR_MESSAGE);
+	    destroySession(session);
 	    return null;
 	}
-	
+  
 	_newApplication.setEnabled(true);
 	_newApplicationWithDefaultTemplates.setEnabled(true);
 	_newMenu.setEnabled(true);
 
 	return session;
     }
+
+    void destroySession(SessionPrx session)
+    {
+	Ice.RouterPrx router = _communicator.getDefaultRouter();
+
+	try
+	{
+	    if(router == null)
+	    {
+		session.destroy();
+	    }
+	    else
+	    {
+		Glacier2.RouterPrx gr 
+		    = Glacier2.RouterPrxHelper.uncheckedCast(router);
+		gr.destroySession();
+	    }
+	}
+	catch(Glacier2.SessionNotExistException e)
+	{
+	    // Ignored
+	}
+	catch(Ice.LocalException e)
+	{
+	    // Ignored
+	}
+    }
+
     
     boolean save()
     {

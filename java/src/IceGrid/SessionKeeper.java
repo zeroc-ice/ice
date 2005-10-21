@@ -79,9 +79,9 @@ class SessionKeeper
 	    else
 	    {
 		registryInstanceName = 
-		    _connectionPrefs.get("registryInstanceName", registryInstanceName);
+		    _connectionPrefs.get("registry.instanceName", registryInstanceName);
 		registryEndpoints = 
-		    _connectionPrefs.get("registryEndpoints", registryEndpoints);
+		    _connectionPrefs.get("registry.endpoints", registryEndpoints);
 	    }
 
 	    
@@ -121,63 +121,75 @@ class SessionKeeper
 	    else
 	    {
 		routerInstanceName = 
-		    _connectionPrefs.get("routerInstanceName", routerInstanceName);
+		    _connectionPrefs.get("router.instanceName", routerInstanceName);
 		routerEndpoints = 
-		    _connectionPrefs.get("routerEndpoints", routerEndpoints);
+		    _connectionPrefs.get("router.endpoints", routerEndpoints);
 	    }
 
-
-	    timeout = properties.getPropertyAsInt("Ice.Override.Timeout");
-	    if(timeout == 0)
+	    registryTimeout = properties.getPropertyAsInt("Ice.Override.Timeout");
+	    routerTimeout = registryTimeout;
+	    if(registryTimeout == 0)
 	    {
-		timeout = _connectionPrefs.getInt("timeout", 0);
-		System.err.println("timeout == " + timeout);
+		registryTimeout = _connectionPrefs.getInt("registry.timeout", 0);
+		routerTimeout =  _connectionPrefs.getInt("router.timeout", 0);
 	    }
-
-	    connectTimeout = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
-	    if(connectTimeout == 0)
+	    
+	    registryConnectTimeout = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
+	    routerConnectTimeout = registryConnectTimeout;
+	    if(registryConnectTimeout == 0)
 	    {
-		connectTimeout = _connectionPrefs.getInt("connectTimeout", 0);
-		System.err.println("connectTimeout == " + connectTimeout);
+		registryConnectTimeout = _connectionPrefs.getInt("registry.connectTimeout", 0);
+		routerConnectTimeout = _connectionPrefs.getInt("router.connectTimeout", 0);
 	    }
 	  
-	    username = _connectionPrefs.get("username", username);
-	    useGlacier = _connectionPrefs.
-		getBoolean("useGlacier", useGlacier);
-	    autoconnect = _connectionPrefs.
-		getBoolean("autoconnect", autoconnect);
+	    registryUsername = _connectionPrefs.get("registry.username", registryUsername);
+	    routerUsername = _connectionPrefs.get("router.username", routerUsername);
+
+	    registryAutoconnect = _connectionPrefs.
+		getBoolean("registry.autoconnect", registryAutoconnect);
+
+	    routed = _connectionPrefs.getBoolean("routed", routed);
 	}
 
 	void save()
 	{
-	    _connectionPrefs.put("username", username);
-	    _connectionPrefs.putBoolean("autoconnect", autoconnect);
-	    
-	    _connectionPrefs.put("registryInstanceName", registryInstanceName);
-	    _connectionPrefs.put("registryEndpoints", registryEndpoints);
-	    
-	    _connectionPrefs.putBoolean("useGlacier", useGlacier);
-	    _connectionPrefs.put("routerInstanceName", routerInstanceName);
-	    _connectionPrefs.put("routerEndpoints", routerEndpoints);
+	    _connectionPrefs.putBoolean("routed", routed);
 
-	    _connectionPrefs.putInt("timeout", timeout);
-	    _connectionPrefs.putInt("connectTimeout", connectTimeout);
+	    if(routed)
+	    {
+		_connectionPrefs.put("router.username", routerUsername);
+		_connectionPrefs.put("router.instanceName", routerInstanceName);
+		_connectionPrefs.put("router.endpoints", routerEndpoints);
+		_connectionPrefs.putInt("router.timeout", routerTimeout);
+		_connectionPrefs.putInt("router.connectTimeout", routerConnectTimeout);
+	    }
+	    else
+	    {
+		_connectionPrefs.put("registry.username", registryUsername);
+		_connectionPrefs.putBoolean("registry.autoconnect", registryAutoconnect);
+		_connectionPrefs.put("registry.instanceName", registryInstanceName);
+		_connectionPrefs.put("registry.endpoints", registryEndpoints);
+		_connectionPrefs.putInt("registry.timeout", registryTimeout);
+		_connectionPrefs.putInt("registry.connectTimeout", registryConnectTimeout);
+	    }
 	}
 
-	String username = System.getProperty("user.name");
-	char[] password;
-	boolean autoconnect = false;
+	boolean routed = false;
 
+	String registryUsername = System.getProperty("user.name");
+	boolean registryAutoconnect = false;
 	String registryInstanceName = "IceGrid";
 	String registryEndpoints = "";
+	int registryTimeout = 0;
+	int registryConnectTimeout = 0;
 
-	boolean useGlacier = false;
+	String routerUsername = System.getProperty("user.name");
+	char[] routerPassword;
 	String routerInstanceName = "Glacier2";
 	String routerEndpoints = "";
-
-	int timeout = 0;
-	int connectTimeout = 0;
-
+	int routerTimeout = 0;
+	int routerConnectTimeout = 0;
+	
 	private Preferences _connectionPrefs;
     }
 
@@ -191,56 +203,14 @@ class SessionKeeper
 	    super(_model.getMainFrame(), "Login - IceGrid Admin", true);
 
 	    setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-	    
-	    _useGlacier.addItemListener(new ItemListener() 
-		{
-		    public void itemStateChanged(ItemEvent e)
-		    {
-			enableDisableGlacier();
-		    }
-		});
-	    
+	      
 	    JButton okButton = new JButton("OK");
 	    ActionListener okListener = new ActionListener()
 		{
 		    public void actionPerformed(ActionEvent e)
 		    {
-			_loginInfo.username = _username.getText();
-			_loginInfo.password = _password.getPassword();
-			_loginInfo.autoconnect = _autoconnect.isSelected();
-			_loginInfo.registryInstanceName = 
-			    _registryInstanceName.getText();
-			_loginInfo.registryEndpoints = 
-			    _registryEndpoints.getText();
-			_loginInfo.useGlacier = _useGlacier.isSelected();
-			_loginInfo.routerInstanceName = 
-			    _routerInstanceName.getText();
-			_loginInfo.routerEndpoints = 
-			    _routerEndpoints.getText();
-	
-			Object timeout = _timeout.getSelectedItem();
-			if(timeout == TIMEOUT_NOT_SET)
-			{
-			    _loginInfo.timeout = 0;
-			}
-			else
-			{
-			    _loginInfo.timeout = 
-				Integer.valueOf(timeout.toString()).intValue();
-			}
+			writeInfo();
 
-			Object connectTimeout = _connectTimeout.getSelectedItem();
-			if(connectTimeout == CONNECT_TIMEOUT_NOT_SET)
-			{
-			    _loginInfo.connectTimeout = 0;
-			}
-			else
-			{
-			    _loginInfo.connectTimeout = 
-				Integer.valueOf(connectTimeout.toString()).intValue();
-			}
-
-		
 			if(login(LoginDialog.this))
 			{
 			    setVisible(false);
@@ -263,48 +233,75 @@ class SessionKeeper
 		};
 	    cancelButton.addActionListener(cancelListener);
 
-	    _timeout.setEditable(true);
-	    _connectTimeout.setEditable(true);
+	    _registryTimeout.setEditable(true);
+	    _registryConnectTimeout.setEditable(true);
 
-	    FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
-	    
-	    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-	    builder.setDefaultDialogBorder();
-	    builder.setRowGroupingEnabled(true);
-	    builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+	    _routerTimeout.setEditable(true);
+	    _routerConnectTimeout.setEditable(true);
 
-	    builder.append("Username", _username);
-	    builder.nextLine();
-	    builder.append(_passwordLabel, _password);
-	    builder.nextLine();
-	    builder.append("", _autoconnect);
-	    builder.nextLine();
-	    
-	    builder.appendSeparator("IceGrid Registry");
-	    builder.append("Instance Name", _registryInstanceName);
-	    builder.nextLine();
-	    builder.append("Endpoint(s)", _registryEndpoints);
-	    builder.nextLine();
-	    
-	    builder.appendSeparator("Glacier2 Router");
-	    builder.append("", _useGlacier);
-	    builder.append(_routerInstanceNameLabel, _routerInstanceName);
-	    builder.nextLine();
-	    builder.append(_routerEndpointsLabel, _routerEndpoints);
+	    JPanel directPanel = null;
+	    {
+		FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
+		
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		builder.setDefaultDialogBorder();
+		builder.setRowGroupingEnabled(true);
+		builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+		
+		builder.append("Username", _registryUsername);
+		builder.nextLine();
+		builder.append("", _registryAutoconnect);
+		builder.nextLine();
+		builder.append("IceGrid Instance Name", _registryInstanceName);
+		builder.nextLine();
+		builder.append("IceGrid Registry Endpoint(s)", _registryEndpoints);
+		builder.nextLine();
+		
+		builder.appendSeparator("Timeouts (in milliseconds)");
+		builder.append("Connection", _registryTimeout);
+		builder.nextLine();
+		builder.append("Connection Establishment", _registryConnectTimeout);
+		builder.nextLine();
+		directPanel = builder.getPanel();
+	    }
 
-	    builder.appendSeparator("Timeouts (in milliseconds)");
-	    builder.append("Connection", _timeout);
-	    builder.nextLine();
-	    builder.append("Connection Establishment", _connectTimeout);
-	    builder.nextLine();
+	    
+	    JPanel routedPanel = null;
+	    {
+		FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
+		
+		DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+		builder.setDefaultDialogBorder();
+		builder.setRowGroupingEnabled(true);
+		builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+		
+		builder.append("Username", _routerUsername);
+		builder.nextLine();
+		builder.append("Password", _routerPassword);
+		builder.nextLine();
+		builder.append("Glacier2 Instance Name", _routerInstanceName);
+		builder.nextLine();
+		builder.append("Glacier2 Router Endpoint(s)", _routerEndpoints);
+		
+		builder.appendSeparator("Timeouts (in milliseconds)");
+		builder.append("Connection", _routerTimeout);
+		builder.nextLine();
+		builder.append("Connection Establishment", _routerConnectTimeout);
+		builder.nextLine();
+		routedPanel = builder.getPanel();
+	    }
+	    
+	    _tabbedPane.addTab("Direct", directPanel);
+	    _tabbedPane.addTab("Routed", routedPanel);
+	    _tabbedPane.setBorder(Borders.DIALOG_BORDER);
 
 	    JComponent buttonBar = 
-		ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
+		    ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
 	    buttonBar.setBorder(Borders.DIALOG_BORDER);
-
+		
 	    Container contentPane = getContentPane();
 	    contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-	    contentPane.add(builder.getPanel());
+	    contentPane.add(_tabbedPane);
 	    contentPane.add(buttonBar);
 
 	    pack();
@@ -319,36 +316,58 @@ class SessionKeeper
 	{
 	    if(isVisible() == false)
 	    {
-		_username.setText(_loginInfo.username);
-		_autoconnect.setSelected(_loginInfo.autoconnect);
+		_tabbedPane.setSelectedIndex(_loginInfo.routed ? 1 : 0);
 
+		_registryUsername.setText(_loginInfo.registryUsername);
+		_registryAutoconnect.setSelected(_loginInfo.registryAutoconnect);
 		_registryInstanceName.setText(_loginInfo.registryInstanceName);
 		_registryEndpoints.setText(_loginInfo.registryEndpoints);
 
-		_useGlacier.setSelected(_loginInfo.useGlacier);
-		enableDisableGlacier();
+		if(_loginInfo.registryTimeout == 0)
+		{
+		    _registryTimeout.setSelectedItem(TIMEOUT_NOT_SET);
+		}
+		else
+		{
+		    _registryTimeout.setSelectedItem(
+			Integer.toString(_loginInfo.registryTimeout));
+		}
+
+		if(_loginInfo.registryConnectTimeout == 0)
+		{
+		    _registryConnectTimeout.setSelectedItem(CONNECT_TIMEOUT_NOT_SET);
+		}
+		else
+		{
+		    _registryConnectTimeout.setSelectedItem(
+			Integer.toString(_loginInfo.registryConnectTimeout));
+		}
+		
+		_routerUsername.setText(_loginInfo.routerUsername);
 		_routerInstanceName.setText(_loginInfo.routerInstanceName);
 		_routerEndpoints.setText(_loginInfo.routerEndpoints);
 
-		if(_loginInfo.timeout == 0)
+		if(_loginInfo.routerTimeout == 0)
 		{
-		    _timeout.setSelectedItem(TIMEOUT_NOT_SET);
+		    _routerTimeout.setSelectedItem(TIMEOUT_NOT_SET);
 		}
 		else
 		{
-		    _timeout.setSelectedItem(Integer.toString(_loginInfo.timeout));
+		    _routerTimeout.setSelectedItem(
+			Integer.toString(_loginInfo.routerTimeout));
 		}
 
-		if(_loginInfo.connectTimeout == 0)
+		if(_loginInfo.routerConnectTimeout == 0)
 		{
-		    _connectTimeout.setSelectedItem(CONNECT_TIMEOUT_NOT_SET);
+		    _routerConnectTimeout.setSelectedItem(CONNECT_TIMEOUT_NOT_SET);
 		}
 		else
 		{
-		    _connectTimeout.setSelectedItem(
-			Integer.toString(_loginInfo.connectTimeout));
+		    _routerConnectTimeout.setSelectedItem(
+			Integer.toString(_loginInfo.routerConnectTimeout));
 		}
-		
+
+
 		setLocationRelativeTo(_model.getMainFrame());
 		setVisible(true);
 		return true;
@@ -362,43 +381,91 @@ class SessionKeeper
 	    }
 	}
        
-	private void enableDisableGlacier()
+	private void writeInfo()
 	{
-	    boolean selected = _useGlacier.isSelected();
+	    _loginInfo.routed = (_tabbedPane.getSelectedIndex() == 1);
 
-	    _autoconnect.setEnabled(!selected);
-	    _autoconnect.setSelected(false);
+	    _loginInfo.registryUsername = _registryUsername.getText();
+	    _loginInfo.registryAutoconnect = _registryAutoconnect.isSelected();
+	    _loginInfo.registryInstanceName = _registryInstanceName.getText();
+	    _loginInfo.registryEndpoints = _registryEndpoints.getText();
+	 
+	    Object registryTimeout = _registryTimeout.getSelectedItem();
+	    if(registryTimeout == TIMEOUT_NOT_SET)
+	    {
+		_loginInfo.registryTimeout = 0;
+	    }
+	    else
+	    {
+		_loginInfo.registryTimeout = 
+		    Integer.valueOf(registryTimeout.toString()).intValue();
+	    }
 	    
-	    _passwordLabel.setEnabled(selected);
-	    _password.setEnabled(selected);
-	    _routerInstanceNameLabel.setEnabled(selected);
-	    _routerInstanceName.setEnabled(selected); 
-	    _routerEndpointsLabel.setEnabled(selected); 
-	    _routerEndpoints.setEnabled(selected);
+	    Object registryConnectTimeout = _registryConnectTimeout.getSelectedItem();
+	    if(registryConnectTimeout == CONNECT_TIMEOUT_NOT_SET)
+	    {
+		_loginInfo.registryConnectTimeout = 0;
+	    }
+	    else
+	    {
+		_loginInfo.registryConnectTimeout = 
+		    Integer.valueOf(registryConnectTimeout.toString()).intValue();
+	    }
+
+	    
+	    _loginInfo.routerUsername = _routerUsername.getText();
+	    _loginInfo.routerPassword = _routerPassword.getPassword();
+	    _loginInfo.routerInstanceName = _routerInstanceName.getText();
+	    _loginInfo.routerEndpoints = _routerEndpoints.getText();
+
+	    
+	    Object routerTimeout = _routerTimeout.getSelectedItem();
+	    if(routerTimeout == TIMEOUT_NOT_SET)
+	    {
+		_loginInfo.routerTimeout = 0;
+	    }
+	    else
+	    {
+		_loginInfo.routerTimeout = 
+		    Integer.valueOf(routerTimeout.toString()).intValue();
+	    }
+	    
+	    Object routerConnectTimeout = _routerConnectTimeout.getSelectedItem();
+	    if(routerConnectTimeout == CONNECT_TIMEOUT_NOT_SET)
+	    {
+		_loginInfo.routerConnectTimeout = 0;
+	    }
+	    else
+	    {
+		_loginInfo.routerConnectTimeout = 
+		    Integer.valueOf(routerConnectTimeout.toString()).intValue();
+	    }
 	}
 
-
-	private JTextField _username = new JTextField(30);
-	private JLabel _passwordLabel = new JLabel("Password");
-	private JPasswordField _password = new JPasswordField(30);
-	private JCheckBox _autoconnect 
+	private JTabbedPane _tabbedPane = new JTabbedPane();
+	private JTextField _registryUsername = new JTextField(30);
+	private JCheckBox _registryAutoconnect 
 	    = new JCheckBox("Automatically log in at startup");
-	    
+
 	private JTextField _registryInstanceName = new JTextField(30);
 	private JTextField _registryEndpoints = new JTextField(30);
-	
-	private JCheckBox _useGlacier 
-	    = new JCheckBox("Login through a Glacier2 Router");
 
-	private JLabel _routerInstanceNameLabel = new JLabel("Instance Name");
-	private JTextField _routerInstanceName = new JTextField(30);
-	private JLabel _routerEndpointsLabel = new JLabel("Endpoint(s)");
-	private  JTextField _routerEndpoints = new JTextField(30);
-
-	private JComboBox _timeout = new JComboBox(new Object[]
+	private JComboBox _registryTimeout = new JComboBox(new Object[]
 	    {TIMEOUT_NOT_SET, "10000", "60000", "600000"});
 
-	private JComboBox _connectTimeout = new JComboBox(new Object[]
+	private JComboBox _registryConnectTimeout = new JComboBox(new Object[]
+	    {CONNECT_TIMEOUT_NOT_SET, "3000", "10000"});
+	
+	
+	private JTextField _routerUsername = new JTextField(30);
+	private JPasswordField _routerPassword = new JPasswordField(30);
+	private JTextField _routerInstanceName = new JTextField(30);
+	private JTextField _routerEndpoints = new JTextField(30);
+
+	private JComboBox _routerTimeout = new JComboBox(new Object[]
+	    {TIMEOUT_NOT_SET, "10000", "60000", "600000"});
+	
+	private JComboBox _routerConnectTimeout = new JComboBox(new Object[]
 	    {CONNECT_TIMEOUT_NOT_SET, "3000", "10000"});
     }
 
@@ -478,8 +545,8 @@ class SessionKeeper
 	_loginInfo = new LoginInfo(_loginPrefs, 
 				   _model.getCommunicator());
 	boolean openDialog = true;
-	if(autoconnectEnabled && !_loginInfo.useGlacier && 
-	   _loginInfo.autoconnect)
+	if(autoconnectEnabled && !_loginInfo.routed && 
+	   _loginInfo.registryAutoconnect)
 	{
 	    openDialog = !login(_model.getMainFrame());
 	}
@@ -536,10 +603,12 @@ class SessionKeeper
 	    // Start thread
 	    //
 	    assert(_thread == null);
-	    long period = _session.getTimeout() * 1000/ 2;
-	    period = 500;
-	    System.err.println("period == " + period + " ms");
-	    
+
+	    //
+	    // When using Glacier2, we assume the session returns the
+	    // the Glacier2 SessionTimeout.x
+	    //
+	    long period = _session.getTimeout() * 1000 / 2;
 	    
 	    _thread = new Pinger(period);
 	    _thread.start();
@@ -615,14 +684,7 @@ class SessionKeeper
 	    
 	    if(destroySession)
 	    {
-		try
-		{
-		    _session.destroy();
-		}
-		catch(Ice.LocalException e)
-		{
-		    // Ignored
-		}
+		_model.destroySession(_session);
 	    }
 
 	    _session = null;
@@ -705,7 +767,10 @@ class SessionKeeper
 	    {
 	    }
 	    _observerAdapter.deactivate();
-	    _observerAdapter.waitForDeactivate();
+	   
+	    // TODO: waitForDeactivate once bug #535 is fixed
+	    //
+	    //  _observerAdapter.waitForDeactivate();
 	    _observerAdapter = null;
 	}
     }
