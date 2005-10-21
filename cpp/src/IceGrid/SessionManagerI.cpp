@@ -35,9 +35,7 @@ SessionManagerI::create(const string& userId, const Ice::Current& current)
 {
     SessionIPtr session =
 	new Glacier2ObserverSessionI(userId, _database, _registryObserverTopic, _nodeObserverTopic, _sessionTimeout);
-    Glacier2::SessionPrx proxy = Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
-    _reaper->add(proxy, session);
-    return proxy;
+    return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
 }
 
 SessionPrx
