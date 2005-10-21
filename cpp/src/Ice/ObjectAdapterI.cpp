@@ -74,7 +74,7 @@ Ice::ObjectAdapterI::activate()
 
 	if(!_printAdapterReadyDone)
 	{
-	    if(_locatorInfo && !_id.empty())
+	    if(_locatorInfo)
 	    {
 		locatorRegistry = _locatorInfo->getLocatorRegistry();
 	    }
@@ -116,35 +116,39 @@ Ice::ObjectAdapterI::activate()
 	// activate operation instead of a non obvious network
 	// exception?
 	//
-	try
+
+	if(!_id.empty())
 	{
-	    Identity ident;
-	    ident.name = "dummy";
-	    locatorRegistry->setAdapterDirectProxy(_id, _replicaGroupId, createDirectProxy(ident));
-	}
-	catch(const ObjectAdapterDeactivatedException&)
-	{
-	    // IGNORE: The object adapter is already inactive.
-	}
-	catch(const AdapterNotFoundException&)
-	{
-	    NotRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = "object adapter";
-	    ex.id = _id;
-	    throw ex;
-	}
-	catch(const InvalidReplicaGroupIdException&)
-	{
-	    NotRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = "replica group";
-	    ex.id = _replicaGroupId;
-	    throw ex;
-	}
-	catch(const AdapterAlreadyActiveException&)
-	{
-	    ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
-	    ex.id = _id;
-	    throw ex;
+	    try
+	    {
+		Identity ident;
+		ident.name = "dummy";
+		locatorRegistry->setAdapterDirectProxy(_id, _replicaGroupId, createDirectProxy(ident));
+	    }
+	    catch(const ObjectAdapterDeactivatedException&)
+	    {
+		// IGNORE: The object adapter is already inactive.
+	    }
+	    catch(const AdapterNotFoundException&)
+	    {
+		NotRegisteredException ex(__FILE__, __LINE__);
+		ex.kindOfObject = "object adapter";
+		ex.id = _id;
+		throw ex;
+	    }
+	    catch(const InvalidReplicaGroupIdException&)
+	    {
+		NotRegisteredException ex(__FILE__, __LINE__);
+		ex.kindOfObject = "replica group";
+		ex.id = _replicaGroupId;
+		throw ex;
+	    }
+	    catch(const AdapterAlreadyActiveException&)
+	    {
+		ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
+		ex.id = _id;
+		throw ex;
+	    }
 	}
 
         if(registerProcess)

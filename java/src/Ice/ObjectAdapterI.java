@@ -43,7 +43,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    
 	    if(!_printAdapterReadyDone)
 	    {
-		if(_locatorInfo != null && _id.length() > 0)
+		if(_locatorInfo != null)
 		{
 		    locatorRegistry = _locatorInfo.getLocatorRegistry();
 		}
@@ -90,36 +90,40 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // activate operation instead of a non obvious network
 	    // exception?
 	    //
-	    try
+	    
+	    if(_id.length() > 0)
 	    {
-		Identity ident = new Identity();
-		ident.category = "";
-		ident.name = "dummy";
-		locatorRegistry.setAdapterDirectProxy(_id, _replicaGroupId, createDirectProxy(ident));
-	    }
-	    catch(ObjectAdapterDeactivatedException ex)
-	    {
-		// IGNORE: The object adapter is already inactive.
-	    }
-	    catch(AdapterNotFoundException ex)
-	    {
-		NotRegisteredException ex1 = new NotRegisteredException();
-		ex1.kindOfObject = "object adapter";
-		ex1.id = _id;
-		throw ex1;
-	    }
-	    catch(InvalidReplicaGroupIdException ex)
-	    {
-		NotRegisteredException ex1 = new NotRegisteredException();
-		ex1.kindOfObject = "replica group";
-		ex1.id = _replicaGroupId;
-		throw ex1;
-	    }
-	    catch(AdapterAlreadyActiveException ex)
-	    {
-		ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
-		ex1.id = _id;
-		throw ex1;
+		try
+		{
+		    Identity ident = new Identity();
+		    ident.category = "";
+		    ident.name = "dummy";
+		    locatorRegistry.setAdapterDirectProxy(_id, _replicaGroupId, createDirectProxy(ident));
+		}
+		catch(ObjectAdapterDeactivatedException ex)
+		{
+		    // IGNORE: The object adapter is already inactive.
+		}
+		catch(AdapterNotFoundException ex)
+		{
+		    NotRegisteredException ex1 = new NotRegisteredException();
+		    ex1.kindOfObject = "object adapter";
+		    ex1.id = _id;
+		    throw ex1;
+		}
+		catch(InvalidReplicaGroupIdException ex)
+		{
+		    NotRegisteredException ex1 = new NotRegisteredException();
+		    ex1.kindOfObject = "replica group";
+		    ex1.id = _replicaGroupId;
+		    throw ex1;
+		}
+		catch(AdapterAlreadyActiveException ex)
+		{
+		    ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
+		    ex1.id = _id;
+		    throw ex1;
+		}
 	    }
 
             if(registerProcess)
