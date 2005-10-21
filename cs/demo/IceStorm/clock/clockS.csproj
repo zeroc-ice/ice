@@ -74,6 +74,11 @@
                     Project = "{C3630502-8F67-42BF-B4CA-A21D2EA8049E}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
+                <Reference
+                    Name = "IceStorm"
+                    Project = "{BD632920-4770-4777-8A79-92863C48E8D7}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
+                />
             </References>
         </Build>
         <Files>
