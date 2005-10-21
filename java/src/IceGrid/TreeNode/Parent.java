@@ -428,40 +428,50 @@ class Parent extends CommonBaseI
 	    int[] indices = new int[children.length];
 	    
 	    int i = 0;
-	    java.util.Iterator p = _children.iterator();
+	    boolean checkInsert = true;
 	    for(int j = 0; j < children.length; ++j)
 	    {
 		String id = children[j].getId();
-		
-		while(p.hasNext()) 
+  
+		if(checkInsert)
 		{
-		    CommonBase existingChild = (CommonBase)p.next();
-		    int cmp = id.compareTo(existingChild.getId());
-		    if(cmp == 0)
+		    while(i < _children.size()) 
 		    {
-			throw new UpdateFailedException(this, id);
+			CommonBase existingChild = (CommonBase)_children.get(i);
+			int cmp = id.compareTo(existingChild.getId());
+			if(cmp == 0)
+			{
+			    throw new UpdateFailedException(this, id);
+			}
+			if(cmp < 0)
+			{
+			    break; // while
+			}
+			i++;
 		    }
-		    if(cmp < 0)
-		    {
-			break; // while
+		    
+		    if(i < _children.size())
+		    {    
+			// Insert here, and increment i (since children is sorted)
+			_children.add(i, children[j]);
+			indices[j] = i;
+			i++;
+			if(_path != null)
+			{
+			    children[j].setParent(this);
+			}
+			continue; // for
 		    }
-		    i++;
 		}
 		
-		if(i < _children.size())
-		{    
-		    // Insert here, and increment i (since children is sorted)
-		    _children.add(i, children[j]);
-		    indices[j] = i;
-		    i++;
-		}
-		else
-		{
-		    // Append
-		    _children.add(children[j]);
-		    indices[j] = i;
-		    i++;
-		}
+		//
+		// Append
+		//
+		checkInsert = false;
+		_children.add(children[j]);
+		indices[j] = i;
+		i++;
+		
 		if(_path != null)
 		{
 		    children[j].setParent(this);
