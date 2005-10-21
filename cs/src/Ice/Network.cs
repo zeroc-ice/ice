@@ -487,12 +487,16 @@ namespace IceInternal
 		    {
 			doSelect(readList, null, null, timeout);
 		    }
-		    catch(System.Exception se)
+		    catch(Win32Exception we)
 		    {
-			if(interrupted(ex))
+			if(interrupted(we))
 			{
 			    goto repeatSelect;
 			}
+			throw new Ice.SocketException("select failed", we);
+		    }
+		    catch(System.Exception se)
+		    {
 			throw new Ice.SocketException("select failed", se);
 		    }
 
