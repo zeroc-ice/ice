@@ -45,7 +45,7 @@
       <parameter name="server-endpoints"/>
       <parameter name="session-manager"/>
       <parameter name="server-adapter-id" default=""/>
-      <parameter name="passwords-file" default=""/>      
+      <parameter name="passwords-file" default="passwords"/>      
       <parameter name="permission-verifier" default=""/>
 
       <server id="${instance-name}" exe="glacier2router">
