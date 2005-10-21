@@ -110,7 +110,7 @@ namespace IceInternal
 		
 		destroy();
 		joinWithAllThreads();
-		throw ex;
+		throw;
 	    }
 	}
 	

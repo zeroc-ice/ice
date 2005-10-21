@@ -1,6 +1,11 @@
 Changes since version 2.1.2
 ---------------------------
 
+- The run time was obscuring the true origin (source file and
+  line number) of some exceptions when rethrowing them. It
+  now correctly shows the source of such exceptions
+  in the stack trace.
+
 - Added a new object adapter property, <adapter>.ReplicaGroupId, which
   allows adapters to be replicated. See the IceGrid chapter in the
   manual for more information.

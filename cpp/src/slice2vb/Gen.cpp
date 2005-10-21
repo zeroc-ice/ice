@@ -4458,7 +4458,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	_out << nl << "Catch ex__ As Ice.UserException";
 	_out.inc();
-	_out << nl << "Throw New Ice.UnknownUserException()";
+	_out << nl << "Throw New Ice.UnknownUserException(ex__)";
 	_out.dec();
 	_out << nl << "End Try";
 	_out.dec();
@@ -4946,12 +4946,12 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	{
 	    _out << nl << "Catch ex__ As " << fixId((*r)->scoped());
 	    _out.inc();
-	    _out << nl << "Throw ex__";
+	    _out << nl << "Throw";
 	    _out.dec();
 	}
 	_out << nl << "Catch ex__ As Ice.UserException";
 	_out.inc();
-        _out << nl << "Throw New Ice.UnknownUserException()";
+        _out << nl << "Throw New Ice.UnknownUserException(ex__)";
 	_out.dec();
 	_out << nl << "End Try";
 	_out.dec();

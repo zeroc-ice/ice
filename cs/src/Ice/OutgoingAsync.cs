@@ -332,10 +332,10 @@ namespace IceInternal
 		    
                     os__.startWriteEncaps();
                 }
-                catch(Ice.LocalException ex)
+                catch(Ice.LocalException)
                 {
                     cleanup();
-                    throw ex;
+                    throw;
                 }
             }
         }
@@ -387,7 +387,7 @@ namespace IceInternal
                             }
                             else
                             {
-                                throw ex; // The communicator is already destroyed, so we cannot retry.
+                                throw; // The communicator is already destroyed, so we cannot retry.
                             }
                         }
 			

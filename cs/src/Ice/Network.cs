@@ -710,7 +710,7 @@ namespace IceInternal
 		{
 		    source = doAccept(listener, -1);
 		}
-		catch(Ice.SocketException ex)
+		catch(Ice.SocketException)
 		{
 		    try
 		    {
@@ -720,7 +720,7 @@ namespace IceInternal
 		    {
 			// ignore
 		    }
-		    throw ex;
+		    throw;
 		}
 		finally
 		{

@@ -1341,7 +1341,7 @@ namespace IceInternal
 			}
 		    }
 
-		    throw ex;
+		    throw;
 		}
 
 		break;

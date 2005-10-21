@@ -123,10 +123,10 @@ namespace IceInternal
 		}
 		_addr = Network.doBind(_fd, _addr);
 	    }
-	    catch(System.Exception ex)
+	    catch(System.Exception)
 	    {
 		_fd = null;
-		throw ex;
+		throw;
 	    }
 	}
 	

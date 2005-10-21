@@ -68,7 +68,7 @@ namespace IceInternal
 		    }
 		}
 	    }
-	    catch(System.Exception ex)
+	    catch(System.Exception)
 	    {
 		try
 		{
@@ -76,7 +76,7 @@ namespace IceInternal
 		    {
 			_locator.finished(_current, _servant, _cookie);
 		    }
-		    throw ex;
+		    throw;
 		}
 		finally
 		{

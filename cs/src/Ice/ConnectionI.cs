@@ -778,7 +778,7 @@ namespace Ice
 		    catch(LocalException ex)
 		    {
 			setState(StateClosed, ex);
-			throw ex;
+			throw;
 		    }
 		}
 		

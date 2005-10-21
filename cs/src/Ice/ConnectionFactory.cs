@@ -1138,11 +1138,11 @@ namespace IceInternal
 			{
 			    _acceptor.close();
 			}
-			catch(Ice.LocalException ex)
+			catch(Ice.LocalException)
 			{
 			    _acceptor = null;
 			    Monitor.PulseAll(this);
-			    throw ex;
+			    throw;
 			}
 
 			_acceptor = null;

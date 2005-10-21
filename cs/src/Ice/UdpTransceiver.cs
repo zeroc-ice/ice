@@ -330,10 +330,10 @@ namespace IceInternal
 		    _logger.trace(_traceLevels.networkCat, s);
 		}
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(Ice.LocalException)
 	    {
 		_fd = null;
-		throw ex;
+		throw;
 	    }
 	}
 	
@@ -368,10 +368,10 @@ namespace IceInternal
 		    _logger.trace(_traceLevels.networkCat, s);
 		}
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(Ice.LocalException)
 	    {
 		_fd = null;
-		throw ex;
+		throw;
 	    }
 	}
 	

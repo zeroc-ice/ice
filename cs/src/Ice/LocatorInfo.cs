@@ -155,9 +155,9 @@ namespace IceInternal
 		e.id = Ice.Util.identityToString(identity);
 		throw e;
 	    }
-	    catch(Ice.NotRegisteredException ex)
+	    catch(Ice.NotRegisteredException)
 	    {
-		throw ex;
+		throw;
 	    }
 	    catch(Ice.LocalException ex)
 	    {

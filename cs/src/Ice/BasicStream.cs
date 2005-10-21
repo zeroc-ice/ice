@@ -1856,9 +1856,9 @@ namespace IceInternal
 		{
 		    throw (Ice.UserException)AssemblyUtil.createInstance(_class);
 		}
-		catch(Ice.UserException ex)
+		catch(Ice.UserException)
 		{
-		    throw ex;
+		    throw;
 		}
 		catch(Exception ex)
 		{

@@ -3981,9 +3981,9 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    _out << nl << "throw;";
 	    _out << eb;
 	}
-	_out << nl << "catch(Ice.UserException)";
+	_out << nl << "catch(Ice.UserException ex)";
 	_out << sb;
-	_out << nl << "throw new Ice.UnknownUserException();";
+	_out << nl << "throw new Ice.UnknownUserException(ex);";
 	_out << eb;
 	_out << eb;
 	for(q = outParams.begin(); q != outParams.end(); ++q)
@@ -4425,14 +4425,14 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out << eb;
 	for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
 	{
-	    _out << nl << "catch(" << fixId((*r)->scoped()) << " ex__)";
+	    _out << nl << "catch(" << fixId((*r)->scoped()) << ')';
 	    _out << sb;
-	    _out << nl << "throw ex__;";
+	    _out << nl << "throw;";
 	    _out << eb;
 	}
-	_out << nl << "catch(Ice.UserException)";
+	_out << nl << "catch(Ice.UserException ex)";
 	_out << sb;
-        _out << nl << "throw new Ice.UnknownUserException();";
+        _out << nl << "throw new Ice.UnknownUserException(ex);";
 	_out << eb;
         _out << eb;
         for(q = outParams.begin(); q != outParams.end(); ++q)

@@ -879,11 +879,11 @@ namespace Ice
 		    }
 		}
 	    }
-	    catch(LocalException ex)
+	    catch(LocalException)
 	    {
 		deactivate();
 		waitForDeactivate();
-		throw ex;
+		throw;
 	    }
 	}
 	

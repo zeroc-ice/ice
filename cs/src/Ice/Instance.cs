@@ -471,10 +471,10 @@ namespace IceInternal
 		
 		_objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(Ice.LocalException)
 	    {
 		destroy();
-		throw ex;
+		throw;
 	    }
 	}
 	
