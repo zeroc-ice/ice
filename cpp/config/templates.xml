@@ -37,6 +37,36 @@
 
     </server-template>
 
+    <server-template id="Glacier2">
+        
+      <parameter name="instance-name" default="${application}.Glacier2"/>
+      <parameter name="client-endpoints"/>
+      <parameter name="session-timeout"/>
+      <parameter name="server-endpoints"/>
+      <parameter name="session-manager"/>
+      <parameter name="server-adapter-id" default=""/>
+      <parameter name="passwords-file" default=""/>      
+      <parameter name="permission-verifier" default=""/>
+
+      <server id="${instance-name}" exe="glacier2router">
+         <adapter name="Glacier2.Client" id=""
+                  endpoints="${client-endpoints}"/>
+
+         <adapter name="Glacier2.Server" id="${server-adapter-id}"
+                  endpoints="${server-endpoints}"/>                  
+
+         <property name="Glacier2.InstanceName" value="${instance-name}"/>
+         <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
+         <property name="Glacier2.CryptPasswords" value="${passwords-file}"/>
+         <property name="Glacier2.PermissionVerifier" value="${permission-verifier}"/>
+         <property name="Glacier2.SessionManager"  value="${session-manager}"/>
+
+         <!-- TODO: SSL configuration -->
+     </server>
+
+    </server-template>
+   
+
   </application>
 </icegrid>
 
