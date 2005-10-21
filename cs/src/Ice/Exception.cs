@@ -20,14 +20,37 @@ namespace Ice
         public Exception(string msg, System.Exception ex) : base(msg, ex) {}
 	public override string ToString()
 	{
-	    string baseMsg = base.ToString();
+	    //
+	    // This prints the exception Java style. That is outmost
+	    // exception, Caused by: to the innermost exception. The
+	    // stack trace is not nicely indented as with Java, but
+	    // without string parsing (perhaps tokenize on "\n") it
+	    // doesn't appear to be possible to reformat it.
+	    //
 	    System.IO.StringWriter sw = new System.IO.StringWriter();
 	    IceUtil.OutputBase op = new IceUtil.OutputBase(sw);
 	    op.setUseTab(false);
 	    op.print(GetType().FullName);
+	    op.print(": ");
+	    op.print(Message);
 	    op.inc();
 	    IceInternal.ValueWriter.write(this, op);
-	    return baseMsg + sw.ToString();
+	    sw.Write("\n");
+	    sw.Write(StackTrace);
+
+    	    System.Exception curr = InnerException;
+	    while(curr != null)
+	    {
+    	    	sw.Write("\nCaused by: ");
+		sw.Write(curr.GetType().FullName);
+		sw.Write(": ");
+		sw.Write(curr.Message);
+		sw.Write("\n");
+		sw.Write(curr.StackTrace);
+		curr = curr.InnerException;
+	    }
+
+	    return sw.ToString();
 	}
         private static readonly string _dflt = "Ice.Exception";
     }
