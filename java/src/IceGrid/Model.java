@@ -649,7 +649,6 @@ public class Model
     //
     void sessionLost()
     {
-	System.err.println("Session lost");
 	_latestSerial = -1;
 	_writeSerial = -1;
     }
@@ -661,65 +660,19 @@ public class Model
 	_newMenu.setEnabled(false);
 	_newApplicationWithDefaultTemplates.setEnabled(false);
 
-	//
-	// Need a new communicator?
-	//
-	Ice.Properties properties = _communicator.getProperties();
-	boolean recreateCommunicator = false;
-
-	if(info.routed)
-	{
-	    if(properties.getPropertyAsInt("Ice.Override.Timeout") != info.routerTimeout)
-	    {
-		properties.setProperty("Ice.Override.Timeout", 
-				       Integer.toString(info.routerTimeout));
-		recreateCommunicator = true;
-	    }
-	    
-	    if(properties.getPropertyAsInt("Ice.Override.ConnectTimeout") != info.routerConnectTimeout)
-	    {
-		properties.setProperty("Ice.Override.ConnectTimeout", 
-				       Integer.toString(info.routerConnectTimeout));
-		recreateCommunicator = true;
-	    }
-	}
-	else
-	{
-	    if(properties.getPropertyAsInt("Ice.Override.Timeout") != info.registryTimeout)
-	    {
-		properties.setProperty("Ice.Override.Timeout", 
-				       Integer.toString(info.registryTimeout));
-		recreateCommunicator = true;
-	    }
-	    
-	    if(properties.getPropertyAsInt("Ice.Override.ConnectTimeout") != info.registryConnectTimeout)
-	    {
-		properties.setProperty("Ice.Override.ConnectTimeout", 
-				       Integer.toString(info.registryConnectTimeout));
-		recreateCommunicator = true;
-	    }
-	}
-
-	if(recreateCommunicator)
-	{
-	    try
-	    {
-		_communicator.destroy();
-		_communicator = Ice.Util.initializeWithProperties(new String[0], properties);
-	    }
-	    catch(Ice.LocalException e)
-	    {
-		JOptionPane.showMessageDialog(
-		    parent,
-		    "Failed to recreate the communicator: " + e.toString(),
-		    "Login failed",
-		    JOptionPane.ERROR_MESSAGE);
-		return null;
-	    }
-	}
-
 	SessionPrx session = null;
 	
+	if(_routedAdapter != null)
+	{
+	    //
+	    // Clean it up!
+	    //
+	    _routedAdapter.removeRouter(_communicator.getDefaultRouter());
+	    _routedAdapter.deactivate();
+	    _routedAdapter.waitForDeactivate();
+	    _routedAdapter = null;
+	}
+
 	_communicator.setDefaultRouter(null);
 	_communicator.setDefaultLocator(null);
 
@@ -852,6 +805,40 @@ public class Model
 	return session;
     }
 
+    Ice.ObjectAdapter getObjectAdapter()
+    {
+	Ice.RouterPrx router = _communicator.getDefaultRouter();
+	
+	if(router == null)
+	{
+	    if(_localAdapter == null)
+	    {
+		_localAdapter = 
+		    _communicator.createObjectAdapter("IceGrid.AdminGUI");
+		_localAdapter.activate();
+	    }
+	    return _localAdapter;
+	}
+	else
+	{
+	    if(_routedAdapter == null)
+	    {
+		//
+		// Needs a unique name since we destroy this adapter at
+		// each new login
+		//
+		String name = "RoutedAdapter-" + Ice.Util.generateUUID();
+
+		_routedAdapter =
+		    _communicator.createObjectAdapter(name);
+		_routedAdapter.addRouter(router);
+		_routedAdapter.activate();
+	    }
+	    return _routedAdapter;
+	}
+    }
+
+
     void destroySession(SessionPrx session)
     {
 	Ice.RouterPrx router = _communicator.getDefaultRouter();
@@ -966,10 +953,18 @@ public class Model
     Model(JFrame mainFrame, String[] args, Preferences prefs, StatusBar statusBar)
     {	
 	_mainFrame = mainFrame;
-	_communicator = Ice.Util.initialize(args);
 	_prefs = prefs;
 	_statusBar = statusBar;
-	
+
+	//
+	// TODO: work-around bug #542 
+	//
+	Ice.Properties properties = Ice.Util.createProperties();
+	properties.setProperty("Ice.Override.ConnectTimeout", "5000");
+	properties.setProperty("IceGrid.AdminGUI.Endpoints", "tcp -t 10000");
+
+	_communicator = Ice.Util.initializeWithProperties(args, properties);
+
 	_root = new Root(this);
 	_treeModel = new TreeModelI(_root);
 
@@ -1613,6 +1608,9 @@ public class Model
     private Preferences _prefs;
     private StatusBar _statusBar;
     private AdminPrx _admin;
+    
+    private Ice.ObjectAdapter _localAdapter;
+    private Ice.ObjectAdapter _routedAdapter;
 
     private Root _root;
     private TreeModelI _treeModel;
