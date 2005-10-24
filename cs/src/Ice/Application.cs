@@ -70,7 +70,7 @@ namespace Ice
 		
 		Properties props = _communicator.getProperties();
 		_nohup = props.getPropertyAsInt("Ice.Nohup") != 0;
-		_appName = props.getProperty("Ice.ProgramName");
+		_appName = props.getPropertyWithDefault("Ice.ProgramName", _appName);
 
 		//
 		// The default is to destroy when a signal is received.

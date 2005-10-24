@@ -1,6 +1,9 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Fixed bug in Ice.Application that could cause appName() to return
+  the empty string in some cases.
+
 - The run time was obscuring the true origin (source file and
   line number) of some exceptions when rethrowing them. It
   now correctly shows the source of such exceptions
