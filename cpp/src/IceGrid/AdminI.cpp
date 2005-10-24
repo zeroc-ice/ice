@@ -165,7 +165,9 @@ AdminI::getDefaultApplicationDescriptor(const Current& current) const
     string path = properties->getProperty("IceGrid.Registry.DefaultTemplates");
     if(path.empty())
     {
-	return ApplicationDescriptor();
+	throw IceXML::ParserException(__FILE__, __LINE__,
+				      "no default templates configured, you need to set "
+				      "IceGrid.Registry.DefaultTemplates in the registry configuration.");
     }
     try
     {
@@ -174,23 +176,23 @@ AdminI::getDefaultApplicationDescriptor(const Current& current) const
 	if(!desc.nodes.empty())
 	{
 	    throw IceXML::ParserException(__FILE__, __LINE__,
-					  "invalid default application descriptor:\nnode definitions are not allowed");
+					  "invalid default application descriptor:\nnode definitions are not allowed.");
 	}
 	if(!desc.distrib.icepatch.empty() || !desc.distrib.directories.empty())
 	{
 	    throw IceXML::ParserException(__FILE__, __LINE__,
-					  "invalid default application descriptor:\ndistribution is not allowed");
+					  "invalid default application descriptor:\ndistribution is not allowed.");
 	}
 	if(!desc.replicaGroups.empty())
 	{
 	    throw IceXML::ParserException(__FILE__, __LINE__,
 					  "invalid default application descriptor:\n" 
-					  "replica group definitions are not allowed");
+					  "replica group definitions are not allowed.");
 	}
 	if(!desc.description.empty())
 	{
 	    throw IceXML::ParserException(__FILE__, __LINE__,
-					  "invalid default application descriptor:\ndescription is not allowed");
+					  "invalid default application descriptor:\ndescription is not allowed.");
 	}
 	if(!desc.variables.empty())
 	{

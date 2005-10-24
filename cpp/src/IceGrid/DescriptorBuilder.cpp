@@ -259,7 +259,7 @@ ApplicationDescriptorBuilder::addServiceTemplate(const string& id, const Templat
 void 
 ApplicationDescriptorBuilder::addDistribution(const XmlAttributesHelper& attrs)
 {
-    _descriptor.distrib.icepatch = attrs("icepatch", "");
+    _descriptor.distrib.icepatch = attrs("icepatch", "${application}.IcePatch2/server");
 }
 
 void
@@ -526,8 +526,8 @@ ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttribut
     _descriptor = desc;
     _descriptor->id = attrs("id");
     _descriptor->exe = attrs("exe");
-    _descriptor->activationTimeout = attrs("activation-timeout", "0");
-    _descriptor->deactivationTimeout = attrs("deactivation-timeout", "0");
+    _descriptor->activationTimeout = attrs("activation-timeout", "");
+    _descriptor->deactivationTimeout = attrs("deactivation-timeout", "");
     _descriptor->pwd = attrs("pwd", "");
     _descriptor->activation = attrs("activation", "manual");
 }
@@ -565,7 +565,7 @@ ServerDescriptorBuilder::addServiceInstance(const XmlAttributesHelper& desc)
 void
 ServerDescriptorBuilder::addDistribution(const XmlAttributesHelper& attrs)
 {
-    _descriptor->distrib.icepatch = attrs("icepatch", "${application}.IcePatch2");
+    _descriptor->distrib.icepatch = attrs("icepatch", "${application}.IcePatch2/server");
 }
 
 void
