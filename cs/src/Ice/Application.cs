@@ -405,6 +405,10 @@ namespace Ice
 	private static Callback _callback = null; // Current callback
 	private static Callback _previousCallback; // Remembers prev. callback when signals are held
 
+	//
+	// We use FriendlyName instead of Process.GetCurrentProcess().ProcessName because the latter
+	// is terribly slow. (It takes around 1 second!)
+	//
 	private static string _appName = AppDomain.CurrentDomain.FriendlyName;
 	private static Communicator _communicator;
     }
