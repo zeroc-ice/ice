@@ -8,6 +8,8 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import java.awt.Cursor;
+
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -191,6 +193,9 @@ public class Application extends EditableParent
 	
 	try
 	{   
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
 	   _model.getAdmin().patchApplication_async(cb, _id, 
 						    shutdown == JOptionPane.YES_OPTION);
 	}
@@ -198,7 +203,13 @@ public class Application extends EditableParent
 	{
 	    failure(prefix, "Failed to patch " + _id, e.toString());
 	}
-	
+	finally
+	{
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+
+
 	//
 	// Recompute actions in case this comes from popup menu
 	// 

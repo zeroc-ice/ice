@@ -949,21 +949,32 @@ public class Model
 	return _mainFrame;
     }
 
+    static private Ice.Communicator createCommunicator(String[] args)
+    {
+	//
+	// TODO: work-around bug #542 
+	//
+
+	Ice.Properties properties = Ice.Util.createProperties();
+	properties.setProperty("Ice.Override.ConnectTimeout", "5000");
+	properties.setProperty("IceGrid.AdminGUI.Endpoints", "tcp -t 10000");
+	
+	//
+	// For Glacier
+	//
+	properties.setProperty("Ice.ACM.Client", "0");
+	properties.setProperty("Ice.MonitorConnections", "5");
+	properties.setProperty("Ice.RetryIntervals", "-1");
+
+	return Ice.Util.initializeWithProperties(args, properties);
+    }
 
     Model(JFrame mainFrame, String[] args, Preferences prefs, StatusBar statusBar)
     {	
 	_mainFrame = mainFrame;
 	_prefs = prefs;
 	_statusBar = statusBar;
-
-	//
-	// TODO: work-around bug #542 
-	//
-	Ice.Properties properties = Ice.Util.createProperties();
-	properties.setProperty("Ice.Override.ConnectTimeout", "5000");
-	properties.setProperty("IceGrid.AdminGUI.Endpoints", "tcp -t 10000");
-
-	_communicator = Ice.Util.initializeWithProperties(args, properties);
+	_communicator = createCommunicator(args);
 
 	_root = new Root(this);
 	_treeModel = new TreeModelI(_root);
@@ -1462,16 +1473,26 @@ public class Model
 
     void exit(int status)
     {
+	System.err.println("Exiting from thread " + Thread.currentThread().getName());
+
 	storeWindowPrefs();
+	System.err.println("Destroying communicator");
 	try
 	{
-	    _communicator.destroy();
+	    if(_communicator != null)
+	    {
+		_communicator.destroy();
+	    }
 	}
 	catch(Ice.LocalException e)
 	{
 	    // TODO: log error
 	}
+	
+	System.err.println("Dispose of main frame");
 	_mainFrame.dispose();
+
+	System.err.println("Calling Runtime.exit");
 	Runtime.getRuntime().exit(status);
     }
 
@@ -1604,7 +1625,7 @@ public class Model
     }
 
 
-    private Ice.Communicator _communicator;
+    private final Ice.Communicator _communicator;
     private Preferences _prefs;
     private StatusBar _statusBar;
     private AdminPrx _admin;

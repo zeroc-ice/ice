@@ -94,17 +94,48 @@ public class AdminGUI extends JFrame
 	super("IceGrid Admin");	
 	setIconImage(Utils.getIcon("/icons/grid.png").getImage());
 
-	_model = new Model(this, args, Preferences.userNodeForPackage(getClass()),
-			   new StatusBarI());
-
 	setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 	addWindowListener(new WindowAdapter() 
 	    { 
 		public void windowClosing(WindowEvent e) 
 		{
-		    _model.exit(0);
+		    if(_model != null)
+		    {
+			_model.exit(0);
+		    }
 		}
 	    });
+
+	Thread shutdownHook = new Thread("Shutdown hook")
+	    {
+		public void run()
+		{
+		    SwingUtilities.invokeLater(new Runnable() 
+			{
+			    public void run() 
+			    {
+				if(_model != null)
+				{
+				    _model.exit(0);
+				}
+			    }
+			});
+		    //
+		    // Give 3 seconds to the GUI thread
+		    //
+		    try
+		    {
+			Thread.sleep(3000);
+		    }
+		    catch(java.lang.InterruptedException e)
+		    {}
+		    System.err.println("End of shutdown hook");
+		}
+	    };
+	Runtime.getRuntime().addShutdownHook(shutdownHook);
+
+	_model = new Model(this, args, Preferences.userNodeForPackage(getClass()),
+			   new StatusBarI());
 	
 	initComponents();
 	_model.showMainFrame();

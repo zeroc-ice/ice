@@ -9,6 +9,8 @@
 package IceGrid.TreeNode;
 
 import java.awt.Component;
+import java.awt.Cursor;
+
 import javax.swing.Icon;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -278,11 +280,18 @@ class Server extends EditableParent
 	
 	try
 	{   
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	   _model.getAdmin().startServer_async(cb, _id);
 	}
 	catch(Ice.LocalException e)
 	{
 	    failure(prefix, "Failed to start " + _id, e.toString());
+	}
+	finally
+	{
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 	
 	//
@@ -319,13 +328,19 @@ class Server extends EditableParent
 	
 	try
 	{   
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	   _model.getAdmin().stopServer_async(cb, _id);
 	}
 	catch(Ice.LocalException e)
 	{
 	    failure(prefix, "Failed to stop " + _id, e.toString());
 	}
-	
+	finally
+	{
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
 	//
 	// Recompute actions in case this comes from popup menu
 	// 
@@ -388,6 +403,8 @@ class Server extends EditableParent
 	
 	try
 	{   
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	   _model.getAdmin().patchServer_async(cb, _id, 
 					       shutdown == JOptionPane.YES_OPTION);
 	}
@@ -395,7 +412,12 @@ class Server extends EditableParent
 	{
 	    failure(prefix, "Failed to patch " + _id, e.toString());
 	}
-	
+	finally
+	{
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+
 	//
 	// Recompute actions in case this comes from popup menu
 	// 
@@ -496,13 +518,19 @@ class Server extends EditableParent
 	
 	try
 	{   
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	   _model.getAdmin().enableServer_async(cb, _id, enable);
 	}
 	catch(Ice.LocalException e)
 	{
 	    failure(prefix, "Failed to " + action + " " + _id, e.toString());
 	}
-       	
+	finally
+	{
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
 	//
 	// Recompute actions in case this comes from popup menu
 	// 
