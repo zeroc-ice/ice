@@ -88,6 +88,10 @@ class Package:
 	ofile.write('Source3: http://www.zeroc.com/download/Ice/' + minorVer + '/IceCS-%{version}.tar.gz\n')
 	ofile.write('Source4: http://www.zeroc.com/download/Ice/' + minorVer + '/Ice-%{version}-demos.tar.gz\n')
 	ofile.write('Source5: http://www.zeroc.com/download/Ice/' + minorVer + '/README.Linux-RPM\n')
+	ofile.write('Source6: http://www.zeroc.com/download/Ice/' + minorVer + '/ice.ini\n')
+	ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/configure.5.0.4.gz\n')
+	ofile.write('Source8: http://www.zeroc.com/download/Ice/' + minorVer + '/php-5.0.4.tar.bz2\n')
+	ofile.write('Source9: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePHP-%{version}.tar.gz\n')
 	ofile.write('\n')
 	if len(installDir) != 0:
 	    ofile.write('BuildRoot: ' + installDir + '\n')
@@ -531,10 +535,10 @@ def createFullSpecFile(ofile, installDir, version, soVersion, buildReq = True):
     fullFileList[0].addInstallGenerator(writeDemoPkgCommands)
 
     for v in fullFileList:
-	v.writeHdr(ofile, version, "1", installDir, reqs)
+	v.writeHdr(ofile, version, "1", '', reqs)
 	ofile.write("\n\n\n")
     for v in fullFileList:
-	v.writeFiles(ofile, version, soVersion, installDir)
+	v.writeFiles(ofile, version, soVersion, '')
 	ofile.write("\n")
 
 def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
@@ -621,6 +625,13 @@ sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/Ice-%{vers
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePy-%{version}/config/Make.rules
 %setup -q -n IceCS-%{version} -T -D -b 3 
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
+cd $RPM_BUILD_DIR
+tar xfz $RPM_SOURCE_DIR/IcePHP-%{version}
+tar xfj $RPM_SOURCE_DIR/php-5.0.4.tar.bz2
+rm -f $RPM_BUILD_DIR/php-5.0.4/ext/ice
+ln -s $RPM_BUILD_DIR/IcePHP-%{version}/src/ice $RPM_BUILD_DIR/php-5.0.4/ext
+cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_DIR/IcePHP-%{version}
+gzip -dc $RPM_SOURCE_DIR/configure.5.0.4.gz > $RPM_BUILD_DIR/php-5.0.4/configure
 """)
 
 def writeBuildCommands(ofile, version):
@@ -633,6 +644,10 @@ cd $RPM_BUILD_DIR/IceCS-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
 gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr
+cd $RPM_BUILD_DIR/php-5.0.4
+./configure --with-ice=shared,$RPM_BUILD_DIR/Ice-%{version}
+sed -i -e 's/^EXTRA_CXXFLAGS.*$/EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE/' $RPM_BUILD_DIR/php-5.0.4/Makefile
+gmake
 """)
 
 def writeInstallCommands(ofile, version):
@@ -643,6 +658,8 @@ mkdir -p $RPM_BUILD_ROOT/usr/bin
 mkdir -p $RPM_BUILD_ROOT/usr/lib
 mkdir -p $RPM_BUILD_ROOT/usr/include
 mkdir -p $RPM_BUILD_ROOT/usr/doc
+mkdir -p $RPM_BUILD_ROOT/etc
+mkdir -p $RPM_BUILD_ROOT/etc/php.d
 cd $RPM_BUILD_DIR/Ice-%{version}
 gmake RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr install
 cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/Ice.jar $RPM_BUILD_ROOT/usr/lib/Ice.jar
@@ -654,6 +671,7 @@ export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
 gmake NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr install
 cp $RPM_SOURCE_DIR/README.Linux-RPM $RPM_BUILD_ROOT/usr/README
+cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_ROOT/etc/php.d
 """)
 
 def writeTransformCommands(ofile, version):

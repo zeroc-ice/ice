@@ -1028,13 +1028,21 @@ def main():
 	    # need to rely on the archive being in the sources
 	    # directory.
 	    #
-	    os.system('cp ' + sources + '/Ice-' + version + '-demos.tar.gz /usr/src/redhat/SOURCES')
-	    os.system('cp ' + sources + '/Ice-' + version + '-demos.tar.gz ' + installDir)
-	    os.system('cp ' + sources + '/Ice*.tar.gz /usr/src/redhat/SOURCES')
+	    shutil.copy(sources + '/Ice-' + version + '-demos.tar.gz', '/usr/src/redhat/SOURCES')
+	    shutil.copy(sources + '/Ice-' + version + '-demos.tar.gz ', installDir)
+            iceArchives = glob.glob(sources + '/Ice*' + version + '.gz')
+	    for f in iceArchives:
+		shutil.copy(f, 'usr/src/redhat/SOURCES')
 	    RPMTools.createRPMSFromBinaries64(buildDir, installDir, version, soVersion)
 	else:
-	    os.system('cp ' + installDir + '/Ice-' + version + '-demos.tar.gz /usr/src/redhat/SOURCES')
-	    os.system('cp ' + sources + '/Ice*.tar.gz /usr/src/redhat/SOURCES')
+	    shutil.copy(installDir + '/Ice-' + version + '-demos.tar.gz', '/usr/src/redhat/SOURCES')
+	    shutil.copy(sources + '/php-5.0.4.tar.bz2', '/usr/src/redhat/SOURCES')
+	    shutil.copy(installFiles + '/thirdparty/php/ice.ini', '/usr/src/redhat/SOURCES')
+	    shutil.copy(installFiles + '/thirdparty/php/configure.5.0.4.gz', 
+		    '/usr/src/redhat/SOURCES')
+            iceArchives = glob.glob(sources + '/Ice*' + version + '.gz')
+	    for f in iceArchives:
+		shutil.copy(f, 'usr/src/redhat/SOURCES')
 	    RPMTools.createRPMSFromBinaries(buildDir, installDir, version, soVersion)
 
     #
