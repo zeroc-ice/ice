@@ -265,6 +265,167 @@ RWRecMutexTest::RWRecMutexTest() :
 {
 }
 
+class UpgradeThread : public RWRecMutexTestThread
+{
+public:
+
+    UpgradeThread(RWRecMutex& m, int initialDelay, int upgradeDelay, int writeHoldTime, int readHoldTime)
+        : RWRecMutexTestThread(m),
+	  _initialDelay(upgradeDelay),
+	  _upgradeDelay(upgradeDelay),
+	  _writeHoldTime(writeHoldTime),
+	  _readHoldTime(readHoldTime),
+	  _deadlock(false),
+	  _hasUpgrade(false)
+    {
+    }
+
+    virtual void
+    run()
+    {
+	ThreadControl::sleep(Time::seconds(_initialDelay));
+        _mutex.readLock();
+
+	try
+	{
+	    ThreadControl::sleep(Time::seconds(_upgradeDelay));
+	    _mutex.upgrade();
+	    _hasUpgrade = true;
+	}
+	catch(const DeadlockException&)
+	{
+	    _deadlock = true;
+	}
+
+	if(!_deadlock)
+	{
+	    ThreadControl::sleep(Time::seconds(_writeHoldTime));
+	    _mutex.downgrade();
+	    _hasUpgrade = false;
+	}
+
+	ThreadControl::sleep(Time::seconds(_readHoldTime));
+	_mutex.unlock();
+    }
+
+    bool
+    deadlock()
+    {
+        return _deadlock;
+    }
+
+    bool
+    hasUpgrade()
+    {
+        return _hasUpgrade;
+    }
+
+private:
+
+    int _initialDelay;
+    int _upgradeDelay;
+    int _writeHoldTime;
+    int _readHoldTime;
+    bool _deadlock;
+    bool _hasUpgrade;
+};
+typedef Handle<UpgradeThread> UpgradeThreadPtr;
+
+class TimedUpgradeThread : public RWRecMutexTestThread
+{
+public:
+
+    TimedUpgradeThread(RWRecMutex& m, int waitTime,
+                       int initialDelay, int upgradeDelay, int writeHoldTime, int readHoldTime)
+        : RWRecMutexTestThread(m),
+	  _waitTime(waitTime),
+	  _initialDelay(upgradeDelay),
+	  _upgradeDelay(upgradeDelay),
+	  _writeHoldTime(writeHoldTime),
+	  _readHoldTime(readHoldTime),
+	  _upgradeSucceeded(false)
+    {
+    }
+
+    virtual void
+    run()
+    {
+	ThreadControl::sleep(Time::seconds(_initialDelay));
+        _mutex.readLock();
+
+	ThreadControl::sleep(Time::seconds(_upgradeDelay));
+	_upgradeSucceeded = _mutex.timedUpgrade(Time::seconds(_waitTime));
+
+	if(_upgradeSucceeded)
+	{
+	    ThreadControl::sleep(Time::seconds(_writeHoldTime));
+	    _mutex.downgrade();
+	}
+
+	ThreadControl::sleep(Time::seconds(_readHoldTime));
+	_mutex.unlock();
+    }
+
+    bool
+    upgradeSucceeded()
+    {
+        return _upgradeSucceeded;
+    }
+
+private:
+
+    int _waitTime;
+    int _initialDelay;
+    int _upgradeDelay;
+    int _writeHoldTime;
+    int _readHoldTime;
+    bool _upgradeSucceeded;
+};
+typedef Handle<TimedUpgradeThread> TimedUpgradeThreadPtr;
+
+class WriteThread : public RWRecMutexTestThread
+{
+public:
+
+    WriteThread(RWRecMutex& m, int initialDelay, int writeHoldTime, int readHoldTime)
+        : RWRecMutexTestThread(m),
+	  _initialDelay(initialDelay),
+	  _writeHoldTime(writeHoldTime),
+	  _readHoldTime(readHoldTime),
+	  _hasLock(false)
+    {
+    }
+
+    virtual void
+    run()
+    {
+	ThreadControl::sleep(Time::seconds(_initialDelay));
+        _mutex.writeLock();
+	_hasLock = true;
+
+	ThreadControl::sleep(Time::seconds(_writeHoldTime));
+	_mutex.downgrade();
+	_hasLock = false;
+
+	ThreadControl::sleep(Time::seconds(_readHoldTime));
+	_mutex.unlock();
+    }
+
+    bool
+    hasLock()
+    {
+        return _hasLock;
+    }
+
+private:
+
+    int _initialDelay;
+    int _writeHoldTime;
+    int _readHoldTime;
+    bool _hasLock;
+};
+typedef Handle<WriteThread> WriteThreadPtr;
+
 void
 RWRecMutexTest::run()
 {
@@ -508,14 +669,12 @@ RWRecMutexTest::run()
 	//
 	// A read lock at this point should fail.
 	//
-
 	RWRecMutex::TryRLock trlock(mutex);
 	test(!trlock.acquired());
 	
 	//
 	// As should a write lock.
 	//
-	
 	RWRecMutex::TryWLock twlock(mutex);
 	test(!twlock.acquired());
 	
@@ -539,4 +698,84 @@ RWRecMutexTest::run()
 	}
     }
 #endif
+
+    // TEST: Ensure that only one reader can upgrade to a writer.
+    // Other readers get a DeadlockException.
+    {
+	mutex.readLock();
+
+	UpgradeThreadPtr t1 = new UpgradeThread(mutex, 0, 1, 0, 0);
+	UpgradeThreadPtr t2 = new UpgradeThread(mutex, 0, 2, 0, 0);
+
+	ThreadControl control1 = t1->start();
+	ThreadControl control2 = t2->start();
+
+	mutex.unlock();
+	ThreadControl::sleep(Time::seconds(5));
+        
+	test(!t1->deadlock());
+	test(t2->deadlock());
+	control1.join();
+	control2.join();
+    }
+
+    // TEST: Same as previous test, but for a timedUpgrade.
+    {
+	mutex.readLock();
+
+	UpgradeThreadPtr t1 = new UpgradeThread(mutex, 0, 0, 3, 0);
+	TimedUpgradeThreadPtr t2 = new TimedUpgradeThread(mutex, 1, 0, 2, 0, 0);
+
+	ThreadControl control1 = t1->start();
+	ThreadControl control2 = t2->start();
+
+	mutex.unlock();
+	ThreadControl::sleep(Time::seconds(5));
+
+	test(!t1->deadlock());
+	test(!t2->upgradeSucceeded());
+        
+	control1.join();
+	control2.join();
+    }
+
+    // TEST: Check that timedUpgrade() acquires the write lock.
+    {
+	mutex.readLock();
+
+	TimedUpgradeThreadPtr t = new TimedUpgradeThread(mutex, 2, 0, 0, 0, 0);
+
+	ThreadControl control = t->start();
+	ThreadControl::sleep(Time::seconds(1));
+
+	mutex.unlock();
+	ThreadControl::sleep(Time::seconds(1));
+
+	test(t->upgradeSucceeded());
+        
+	control.join();
+    }
+
+    // TEST: Check that an upgrader is given preference over a writer.
+    {
+	mutex.readLock();
+
+	UpgradeThreadPtr t1 = new UpgradeThread(mutex, 0, 0, 2, 0);
+	WriteThreadPtr t2 = new WriteThread(mutex, 0, 3, 0);
+
+	ThreadControl control1 = t1->start();
+	ThreadControl control2 = t2->start();
+
+	mutex.unlock();
+	ThreadControl::sleep(Time::seconds(1));
+
+	test(t1->hasUpgrade());
+	test(!t2->hasLock());
+
+	ThreadControl::sleep(Time::seconds(2));
+	test(t2->hasLock());
+        
+	control1.join();
+	control2.join();
+    }
 }

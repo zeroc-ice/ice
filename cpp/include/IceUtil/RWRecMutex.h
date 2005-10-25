@@ -17,6 +17,20 @@
 namespace IceUtil
 {
 
+class ICE_UTIL_API DeadlockException : public Exception
+{
+public:
+
+    DeadlockException(const char*, int);
+    virtual const std::string ice_name() const;
+    virtual Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+private:
+
+    static const char* _name;
+};
+
 template <typename T>
 class RLockT
 {
@@ -94,6 +108,12 @@ public:
     timedUpgrade(const Time& timeout) const
     {
 	return _mutex.timedUpgrade(timeout);
+    }
+
+    void
+    downgrade() const
+    {
+	_mutex.downgrade();
     }
 
 protected:
@@ -327,6 +347,11 @@ public:
     //
     bool timedUpgrade(const Time&) const;
 
+    //
+    // Downgrade a write lock to a read lock.
+    //
+    void downgrade() const;
+
 private:
 
     // noncopyable
@@ -336,7 +361,7 @@ private:
     //
     // Number of readers holding the lock. A positive number indicates
     // readers are active. A negative number means that a writer is
-    // active.
+    // active and indicates the number of times writeLock() was called.
     //
     mutable int _count;
 
@@ -346,9 +371,14 @@ private:
     mutable ThreadId _writerId;
 
     //
-    // Number of waiting writers.
+    // Number of waiting writers (including any upgrader).
     //
     mutable unsigned int _waitingWriters;
+
+    //
+    // True if an upgrader wants the lock.
+    //
+    mutable bool _upgrading;
 
     //
     // Internal mutex.
@@ -356,10 +386,11 @@ private:
     Mutex _mutex;
 
     //
-    // Two condition variables for waiting readers & writers.
+    // Condition variables for waiting readers, writers, and upgrader.
     //
     mutable Cond _readers;
     mutable Cond _writers;
+    mutable Cond _upgrader;
 };
 
 } // End namespace IceUtil
