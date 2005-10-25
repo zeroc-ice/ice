@@ -92,7 +92,7 @@ IceUtil::CountDownLatch::countDown()
 #if defined(__APPLE__)
     //
     // On MacOS X we do the broadcast with the mutex held. This seems to be necessary to prevent the 
-    // broadcast call to hang (spining in an infinite loop).
+    // broadcast call to hang (spinning in an infinite loop).
     //
     if(broadcast)
     {
