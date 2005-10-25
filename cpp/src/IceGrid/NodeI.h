@@ -28,7 +28,7 @@ typedef IceUtil::Handle<Activator> ActivatorPtr;
 class ServerI;
 typedef IceUtil::Handle<ServerI> ServerIPtr;
 
-class NodeI : public Node, public IceUtil::Mutex
+class NodeI : public Node, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -64,10 +64,11 @@ private:
     bool canRemoveServerDirectory(const std::string&);
     void initObserver(const Ice::StringSeq&);
     void patch(const IcePatch2::FileServerPrx&, const std::string&, const std::vector<std::string>&);
-
+    
     void addServer(const ServerIPtr&);
     void removeServer(const ServerIPtr&);
     std::set<ServerIPtr> getApplicationServers(const std::string&);
+    Ice::Identity createServerIdentity(const std::string&);
 
     const Ice::ObjectAdapterPtr _adapter;
     const ActivatorPtr _activator;
@@ -85,6 +86,7 @@ private:
     NodeSessionPrx _session;
     mutable PlatformInfo _platform;
     std::map<std::string, std::set<ServerIPtr> > _serversByApplication;
+    std::set<std::string> _patchInProgress;
 };
 typedef IceUtil::Handle<NodeI> NodeIPtr;
 

@@ -318,7 +318,8 @@ interface Admin
      * Get the default application descriptor.
      *
      **/
-    nonmutating ApplicationDescriptor getDefaultApplicationDescriptor();
+    nonmutating ApplicationDescriptor getDefaultApplicationDescriptor()
+	throws DeploymentException;
 
     /**
      *

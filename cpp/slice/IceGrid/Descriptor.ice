@@ -284,6 +284,14 @@ class ServerDescriptor extends CommunicatorDescriptor
 
     /**
      *
+     * Specifies if the server does not depend on the application
+     * distribution.
+     * 
+     **/
+    bool noApplicationDistrib;
+
+    /**
+     *
      * The distribution descriptor.
      *
      **/

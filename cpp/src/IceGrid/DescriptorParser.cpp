@@ -174,8 +174,15 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 
 	    if(_admin && attributes("import-default-templates", "false") == "true")
 	    {
-		ApplicationDescriptor application = _admin->getDefaultApplicationDescriptor();
-		_currentApplication.reset(new ApplicationDescriptorBuilder(application, attributes, _overrides));
+		try
+		{
+		    ApplicationDescriptor application = _admin->getDefaultApplicationDescriptor();
+		    _currentApplication.reset(new ApplicationDescriptorBuilder(application, attributes, _overrides));
+		}
+		catch(const DeploymentException& ex)
+		{
+		    throw ex.reason;
+		}
 	    }
 	    else
 	    {

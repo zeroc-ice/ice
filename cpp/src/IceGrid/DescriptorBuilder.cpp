@@ -530,6 +530,7 @@ ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttribut
     _descriptor->deactivationTimeout = attrs("deactivation-timeout", "");
     _descriptor->pwd = attrs("pwd", "");
     _descriptor->activation = attrs("activation", "manual");
+    _descriptor->noApplicationDistrib = attrs("no-application-distrib", "false") == "true";
 }
 
 ServiceDescriptorBuilder*

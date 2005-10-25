@@ -807,7 +807,7 @@ ServerI::stopInternal(bool kill)
     Ice::ProcessPrx process;
     if(!kill)
     {
-	IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+	Lock sync(*this);
 	if(!_process && _processRegistered)
 	{
 	    while(!_process)
@@ -1324,15 +1324,9 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	    ex.reason = "couldn't create configuration file: " + configFilePath;
 	    throw ex;
 	}
-	
 	for(PropertyDescriptorSeq::const_iterator p = props.begin(); p != props.end(); ++p)
 	{
-	    configfile << p->name;
-	    if(!p->value.empty())
-	    {
-		configfile << "=" << p->value;
-	    }
-	    configfile << endl;
+	    configfile << p->name << "=" << p->value << endl;
 	}
 	configfile.close();
     }
@@ -1409,11 +1403,10 @@ ServerI::toServerState(InternalServerState st) const
     switch(st)
     {
     case ServerI::Inactive:
-	return IceGrid::Inactive;
     case ServerI::Activating:
+    case ServerI::Updating:
 	return IceGrid::Inactive;
     case ServerI::WaitForActivation:
-	return IceGrid::Activating;
     case ServerI::WaitForActivationTimeout:
 	return IceGrid::Activating;
     case ServerI::Active:

@@ -907,6 +907,7 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance, const Resolve
     instance->exe = resolve(_desc->exe, "executable", false);
     instance->pwd = resolve(_desc->pwd, "working directory path");
     instance->activation = resolve(_desc->activation, "activation");
+    instance->noApplicationDistrib = _desc->noApplicationDistrib;
     if(!instance->activation.empty() && instance->activation != "manual" && instance->activation != "on-demand")
     {
 	resolve.exception("unknown activation `" + instance->activation + "'");
@@ -976,6 +977,10 @@ ServerHelper::printImpl(Output& out, const string& application, const string& no
     if(!_desc->deactivationTimeout.empty() && _desc->deactivationTimeout != "0")
     {
 	out << nl << "deactivationTimeout = " << _desc->deactivationTimeout;
+    }
+    if(_desc->noApplicationDistrib)
+    {
+	out << nl << "no application distribution = true";
     }
     if(!_desc->options.empty())
     {
@@ -1896,6 +1901,14 @@ ApplicationHelper::instantiate(const Resolver& resolve) const
     ApplicationDescriptor desc = _definition;
 
     desc.description = resolve(_definition.description, "description");
+    desc.distrib.icepatch = resolve(desc.distrib.icepatch, "IcePatch2 server proxy");
+    Ice::StringSeq::const_iterator p;
+    desc.distrib.directories.clear();
+    for(p = _definition.distrib.directories.begin(); p != _definition.distrib.directories.end(); ++p)
+    {
+	desc.distrib.directories.push_back(resolve(*p, "distribution source directory"));
+    }
+
     ReplicaGroupDescriptorSeq::iterator r;
     for(r = desc.replicaGroups.begin(); r != desc.replicaGroups.end(); ++r)
     {
@@ -2189,7 +2202,7 @@ ApplicationHelper::getDistributions(DistributionDescriptor& distribution,
 				    map<string, DistributionDescriptorDict>& nodeDistributions,
 				    const string& server) const
 {
-    distribution = _definition.distrib;
+    distribution = _instance.distrib;
     for(NodeHelperDict::const_iterator n = _nodes.begin(); n != _nodes.end(); ++n)
     {
 	DistributionDescriptorDict distrib = n->second.getDistributions(server);

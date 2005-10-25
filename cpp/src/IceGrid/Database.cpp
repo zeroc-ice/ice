@@ -111,6 +111,47 @@ struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::Ob
     }
 };
 
+class PatchCB : public AMI_Node_patch
+{
+public:
+
+    PatchCB(const DatabasePtr& database, const string& name, const string& node) : 
+	_database(database), _application(name), _node(node)
+    {
+    }
+
+    void
+    ice_response()
+    {
+	_database->finishedPatchApplication(_application, _node);
+    }
+
+    void
+    ice_exception(const Ice::Exception& ex)
+    {
+	try
+	{
+	    ex.ice_throw();
+	}
+	catch(const PatchException& ex)
+	{
+	    _database->finishedPatchApplication(_application, _node, ex.reason);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    ostringstream os;
+	    os << ex;
+	    _database->finishedPatchApplication(_application, _node, os.str());
+	}
+    }
+
+private:
+
+    const DatabasePtr _database;
+    const string _application;
+    const string _node;
+};
+
 }
 
 Database::Database(const Ice::ObjectAdapterPtr& adapter,
@@ -232,6 +273,9 @@ Database::addApplicationDescriptor(ObserverSessionI* session, const ApplicationD
 {
     ServerEntrySeq entries;
     int serial;
+    DistributionDescriptor appDistrib;
+    map<string, DistributionDescriptorDict> nodeDistrib;
+
     {
 	Lock sync(*this);
 	
@@ -459,6 +503,42 @@ Database::instantiateServer(const string& application, const string& node, const
     }
 
     for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+}
+
+void
+Database::patchApplication(const string& name,
+			   const DistributionDescriptor& appDistrib,
+			   const map<string, DistributionDescriptorDict>& nodeDistrib,
+			   bool shutdown)
+{
+    for(map<string, DistributionDescriptorDict>::const_iterator p = nodeDistrib.begin(); p != nodeDistrib.end(); ++p)
+    {
+	if(_traceLevels->patch > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
+	    out << "started patching of application `" << name << "' on node `" << p->first << "'";
+	}
+	AMI_Node_patchPtr cb = new PatchCB(this, name, p->first);
+	_nodeCache.get(p->first)->getProxy()->patch_async(cb, name, appDistrib, p->second, shutdown);
+    }
+}
+
+void
+Database::finishedPatchApplication(const string& name, const string& node, const string& failure)
+{
+    if(_traceLevels->patch > 0)
+    {
+	if(failure.empty())
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
+	    out << "finished patching of application `" << name << "' on node `" << node << "'";
+	}
+	else
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
+	    out << "patching of application `" << name << "' on node `" << node << "' failed:\n" << failure;
+	}
+    }
 }
 
 ApplicationDescriptor

@@ -292,9 +292,13 @@ NodeService::start(int argc, char* argv[])
     // termination listener instead?
     //
     properties->setProperty("Ice.ServerIdleTime", "0");
-    if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 5) <= 5)
+    if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10) <= 10)
     {
-	properties->setProperty("Ice.ThreadPool.Server.Size", "5");
+	properties->setProperty("Ice.ThreadPool.Server.Size", "10");
+    }
+    if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.SizeMax", 100) <= 100)
+    {
+	properties->setProperty("Ice.ThreadPool.Server.SizeMax", "100");
     }
 
     //

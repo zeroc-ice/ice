@@ -125,31 +125,7 @@ AdminI::patchApplication(const string& name, bool shutdown, const Current&)
     DistributionDescriptor appDistrib;
     map<string, DistributionDescriptorDict> nodeDistrib;
     helper.getDistributions(appDistrib, nodeDistrib);
-
-    if(appDistrib.icepatch.empty() && nodeDistrib.empty())
-    {
-	return;
-    }
-
-    for(map<string, DistributionDescriptorDict>::const_iterator p = nodeDistrib.begin(); p != nodeDistrib.end(); ++p)
-    {
-	try
-	{
-	    _database->getNode(p->first)->patch(name, appDistrib, p->second, shutdown);
-	}
-	catch(const NodeNotExistException&)
-	{
-	}
-	catch(const NodeUnreachableException&)
-	{
-	}
-	catch(const Ice::ObjectNotExistException&)
-	{
-	}
-	catch(const Ice::LocalException&)
-	{
-	}
-    }
+    _database->patchApplication(name, appDistrib, nodeDistrib, shutdown);
 }
 
 ApplicationDescriptor
@@ -165,50 +141,43 @@ AdminI::getDefaultApplicationDescriptor(const Current& current) const
     string path = properties->getProperty("IceGrid.Registry.DefaultTemplates");
     if(path.empty())
     {
-	throw IceXML::ParserException(__FILE__, __LINE__,
-				      "no default templates configured, you need to set "
-				      "IceGrid.Registry.DefaultTemplates in the registry configuration.");
+	throw DeploymentException("no default templates configured, you need to set "
+				  "IceGrid.Registry.DefaultTemplates in the IceGrid registry configuration.");
     }
-    try
-    {
-	ApplicationDescriptor desc = DescriptorParser::parseDescriptor(path, current.adapter->getCommunicator());
-	desc.name = "";
-	if(!desc.nodes.empty())
-	{
-	    throw IceXML::ParserException(__FILE__, __LINE__,
-					  "invalid default application descriptor:\nnode definitions are not allowed.");
-	}
-	if(!desc.distrib.icepatch.empty() || !desc.distrib.directories.empty())
-	{
-	    throw IceXML::ParserException(__FILE__, __LINE__,
-					  "invalid default application descriptor:\ndistribution is not allowed.");
-	}
-	if(!desc.replicaGroups.empty())
-	{
-	    throw IceXML::ParserException(__FILE__, __LINE__,
-					  "invalid default application descriptor:\n" 
-					  "replica group definitions are not allowed.");
-	}
-	if(!desc.description.empty())
-	{
-	    throw IceXML::ParserException(__FILE__, __LINE__,
-					  "invalid default application descriptor:\ndescription is not allowed.");
-	}
-	if(!desc.variables.empty())
-	{
-	    throw IceXML::ParserException(__FILE__, __LINE__,
-					  "invalid default application descriptor:\n"
-					  "variable definitions are not allowed");
-	}
 
-	return desc;
-    }
-    catch(const IceXML::ParserException& ex)
+    ApplicationDescriptor desc = DescriptorParser::parseDescriptor(path, current.adapter->getCommunicator());
+    desc.name = "";
+    if(!desc.nodes.empty())
     {
 	Ice::Warning warn(_traceLevels->logger);
-	warn << ex;
-	return ApplicationDescriptor();
+	warn << "default application descriptor:\nnode definitions are not allowed.";
+	desc.nodes.clear();
     }
+    if(!desc.distrib.icepatch.empty() || !desc.distrib.directories.empty())
+    {
+	Ice::Warning warn(_traceLevels->logger);
+	warn << "default application descriptor:\ndistribution is not allowed.";
+	desc.distrib = DistributionDescriptor();
+    }
+    if(!desc.replicaGroups.empty())
+    {
+	Ice::Warning warn(_traceLevels->logger);
+	warn << "default application descriptor:\nreplica group definitions are not allowed.";
+	desc.replicaGroups.clear();
+    }
+    if(!desc.description.empty())
+    {
+	Ice::Warning warn(_traceLevels->logger);
+	warn << "default application descriptor:\ndescription is not allowed.";
+	desc.description = "";
+    }
+    if(!desc.variables.empty())
+    {
+	Ice::Warning warn(_traceLevels->logger);
+	warn << "default application descriptor:\nvariable definitions are not allowed.";
+	desc.variables.clear();
+    }
+    return desc;
 }
 
 Ice::StringSeq

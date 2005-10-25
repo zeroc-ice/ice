@@ -208,9 +208,7 @@ NodeI::loadServer(const string& application,
     Lock sync(*this);
     ++_serial;
 
-    Ice::Identity id;
-    id.category = "IceGridServer";
-    id.name = desc->id;
+    Ice::Identity id = createServerIdentity(desc->id);
 
     //
     // Check if we already have a servant for this server. If that's
@@ -255,9 +253,7 @@ NodeI::destroyServer(const string& name, const Ice::Current& current)
     Lock sync(*this);
     ++_serial;
 
-    Ice::Identity id;
-    id.category = "IceGridServer";
-    id.name = name;
+    Ice::Identity id = createServerIdentity(name);
     Ice::ObjectPtr servant = current.adapter->find(id);
     if(servant)
     {
@@ -265,15 +261,9 @@ NodeI::destroyServer(const string& name, const Ice::Current& current)
 	// Destroy the server object if it's loaded.
 	//
 	ServerPrx proxy = ServerPrx::uncheckedCast(current.adapter->createProxy(id));
-	try
-	{
-	    ServerIPtr server = ServerIPtr::dynamicCast(servant);
-	    removeServer(server);
-	    proxy->destroy();
-	}
-	catch(const Ice::LocalException&)
-	{
-	}
+	ServerIPtr server = ServerIPtr::dynamicCast(servant);
+	removeServer(server);
+	proxy->destroy();
     }
 
     //
@@ -297,9 +287,33 @@ NodeI::patch(const string& application,
 	     bool shutdown, 
 	     const Ice::Current&)
 {
-    Lock sync(*this);
+    set<ServerIPtr> servers;
+    {
+	Lock sync(*this);
+	while(_patchInProgress.find(application) != _patchInProgress.end())
+	{
+	    wait();
+	}
 
-    set<ServerIPtr> servers = getApplicationServers(application);
+	_patchInProgress.insert(application);
+	if(!appDistrib.icepatch.empty())
+	{
+	    servers = getApplicationServers(application);
+	}
+	else
+	{
+	    for(DistributionDescriptorDict::const_iterator p = serverDistribs.begin(); p != serverDistribs.end(); ++p)
+	    {
+		Ice::Identity id = createServerIdentity(p->first);
+		ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
+		if(server)
+		{
+		    servers.insert(server);
+		}
+	    }
+	}
+    }
+
     try
     {
 	vector<string> running;
@@ -361,13 +375,11 @@ NodeI::patch(const string& application,
 	    ostringstream os;
 	    os << "patch on node `" + _name + "' failed:\n";
 	    os << ex;
-	    _traceLevels->logger->warning(os.str());
 	    throw PatchException(os.str());
 	}
 	catch(const string& ex)
 	{
 	    string msg = "patch on node `" + _name + "' failed:\n" + ex;
-	    _traceLevels->logger->error(msg);
 	    throw PatchException(msg);
 	}
 
@@ -375,12 +387,22 @@ NodeI::patch(const string& application,
 	{
 	    (*s)->finishUpdating();
 	}
+	{
+	    Lock sync(*this);
+	    _patchInProgress.erase(application);
+	    notifyAll();
+	}    
     }
     catch(...)
     {
 	for(set<ServerIPtr>::const_iterator s = servers.begin(); s != servers.end(); ++s)
 	{
 	    (*s)->finishUpdating();
+	}
+	{
+	    Lock sync(*this);
+	    _patchInProgress.erase(application);
+	    notifyAll();
 	}
 	throw;
     }
@@ -437,21 +459,21 @@ NodeI::getTraceLevels() const
 NodeObserverPrx
 NodeI::getObserver() const
 {
-    Lock sync(_sessionMutex);
+    IceUtil::Mutex::Lock sync(_sessionMutex);
     return _observer;
 }
 
 NodeSessionPrx
 NodeI::getSession() const
 {
-    Lock sync(_sessionMutex);
+    IceUtil::Mutex::Lock sync(_sessionMutex);
     return _session;
 }
 
 void
 NodeI::setSession(const NodeSessionPrx& session, const NodeObserverPrx& observer)
 {
-    Lock sync(_sessionMutex);
+    IceUtil::Mutex::Lock sync(_sessionMutex);
     _session = session;
     _observer = observer;
 }
@@ -508,6 +530,7 @@ NodeI::stop()
 	try
 	{
 	    _session->destroy();
+	    _session = 0;
 	}
 	catch(const Ice::LocalException&)
 	{
@@ -568,14 +591,12 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 	vector<string>::iterator p = remove.begin();
 	while(p != remove.end())
 	{
-	    //
-	    // If the server is loaded, we invoke on it to destroy it.
-	    //
-	    Ice::Identity id;
-	    id.category = "IceGridServer";
-	    id.name = *p;
+	    Ice::Identity id = createServerIdentity(*p);
 	    if(_adapter->find(id))
 	    {
+		//
+		// If the server is loaded, we invoke on it to destroy it.
+		//
 		ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
 		try
 		{
@@ -583,12 +604,9 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 		    p = remove.erase(p);
 		    continue;
 		}
-		catch(const Ice::ObjectNotExistException&)
-		{
-		}
 		catch(const Ice::LocalException& ex)
 		{
-		    Ice::Warning out(_traceLevels->logger);
+		    Ice::Error out(_traceLevels->logger);
 		    out << "server `" << *p << "' destroy failed:" << ex;
 		}
 		catch(const string&)
@@ -728,9 +746,7 @@ NodeI::initObserver(const Ice::StringSeq& servers)
 
     for(Ice::StringSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
-	Ice::Identity id;
-	id.category = "IceGridServer";
-	id.name = *p;
+	Ice::Identity id = createServerIdentity(*p);
 	ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
 	if(server)
 	{
@@ -784,7 +800,6 @@ NodeI::patch(const FileServerPrx& icepatch, const string& destination, const vec
 	    }
 	}
     }
-	    
     if(!aborted)
     {
 	patcher->finish();
@@ -794,24 +809,35 @@ NodeI::patch(const FileServerPrx& icepatch, const string& destination, const vec
 void
 NodeI::addServer(const ServerIPtr& server)
 {
-    map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(server->getApplication());
-    if(p == _serversByApplication.end())
+    if(!server->getDescriptor()->noApplicationDistrib)
     {
-        map<string, set<ServerIPtr> >::value_type v(server->getApplication(), set<ServerIPtr>());
-        p = _serversByApplication.insert(p, v);
+	map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(server->getApplication());
+	if(p == _serversByApplication.end())
+	{
+	    map<string, set<ServerIPtr> >::value_type v(server->getApplication(), set<ServerIPtr>());
+	    p = _serversByApplication.insert(p, v);
+	}
+	p->second.insert(server);
     }
-    p->second.insert(server);
 }
 
 void
 NodeI::removeServer(const ServerIPtr& server)
 {
-    map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(server->getApplication());
-    assert(p != _serversByApplication.end());
-    p->second.erase(server);
-    if(p->second.empty())
+    if(!server->getDescriptor()->noApplicationDistrib)
     {
-	_serversByApplication.erase(p);
+	while(_patchInProgress.find(server->getApplication()) != _patchInProgress.end())
+	{
+	    wait();
+	}
+	
+	map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(server->getApplication());
+	assert(p != _serversByApplication.end());
+	p->second.erase(server);
+	if(p->second.empty())
+	{
+	    _serversByApplication.erase(p);
+	}
     }
 }
 
@@ -825,4 +851,13 @@ NodeI::getApplicationServers(const string& application)
 	servers = p->second;
     }
     return servers;
+}
+
+Ice::Identity
+NodeI::createServerIdentity(const string& name)
+{
+    Ice::Identity id;
+    id.category = "IceGridServer";
+    id.name = name;
+    return id;
 }

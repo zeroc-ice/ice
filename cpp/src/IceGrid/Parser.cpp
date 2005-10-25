@@ -56,7 +56,7 @@ Parser::usage()
         "help                        Print this message.\n"
         "exit, quit                  Exit this program.\n"
 	"\n"
-	"application add DESC [TARGET ... ] [NAME=VALUE ... ]\n"
+	"application add [-n | --no-patch] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
 	"                            Add application described in DESC. If specified\n"
         "                            the optional targets TARGET will be deployed.\n"
 	"application remove NAME     Remove application NAME.\n"
@@ -66,7 +66,7 @@ Parser::usage()
         "                            described in DESC and the current deployment.\n"
 	"application update DESC [TARGET ... ] [NAME=VALUE ... ]\n"
 	"                            Update the application described in DESC.\n"
-	"application patch [-f|--force] NAME\n"
+	"application patch [-f | --force] NAME\n"
 	"                            Patch the given application data. If -f or --force is\n"
 	"                            specified, the servers depending on the data to patch\n"
 	"                            will be stopped if necessary.\n"
@@ -135,8 +135,28 @@ Parser::usage()
 }
 
 void
-Parser::addApplication(const list<string>& args)
+Parser::addApplication(const list<string>& origArgs)
 {
+    list<string> copyArgs = origArgs;
+    copyArgs.push_front("icegridadmin");
+    
+    IceUtil::Options opts;
+    opts.addOpt("n", "no-patch");
+    vector<string> args;
+    try
+    {
+	for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+	{
+	    args.push_back(*p);
+	}
+	args = opts.parse(args);
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+	error(e.reason);
+	return;
+    }
+
     if(args.size() < 1)
     {
 	error("`application add' requires at least one argument\n(`help' for more info)");
@@ -148,8 +168,8 @@ Parser::addApplication(const list<string>& args)
 	StringSeq targets;
 	map<string, string> vars;
 
-	list<string>::const_iterator p = args.begin();
-	string descriptor = *p++;
+	vector<string>::const_iterator p = args.begin();
+	string desc = *p++;
 
 	for(; p != args.end(); ++p)
 	{
@@ -164,7 +184,28 @@ Parser::addApplication(const list<string>& args)
 	    }
 	}
 
-	_admin->addApplication(DescriptorParser::parseDescriptor(descriptor, targets, vars, _communicator, _admin));
+	//
+	// Add the application.
+	//
+	ApplicationDescriptor app = DescriptorParser::parseDescriptor(desc, targets, vars, _communicator, _admin);
+	_admin->addApplication(app);
+	
+	if(!opts.isSet("n") && !opts.isSet("no-patch"))
+	{
+	    //
+	    // Patch the application.
+	    //
+	    try
+	    {
+		_admin->patchApplication(app.name, true);
+	    }
+	    catch(const PatchException& ex)
+	    {
+		ostringstream s;
+		s << ex << ":\n" << ex.reason;
+		warning("the application was successfully added but the patch failed:\n" + s.str());
+	    }
+	}
     }
     catch(const Ice::Exception& ex)
     {

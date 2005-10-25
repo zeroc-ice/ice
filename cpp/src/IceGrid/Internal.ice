@@ -233,8 +233,8 @@ interface Node
      * which case the servers will be shutdown.
      * 
      **/
-    idempotent void patch(string application, DistributionDescriptor appDistrib, 
-			  DistributionDescriptorDict serverDistribs, bool shutdown)
+    ["ami"] idempotent void patch(string application, DistributionDescriptor appDistrib, 
+				  DistributionDescriptorDict serverDistribs, bool shutdown)
 	throws  PatchException;
 
     /**

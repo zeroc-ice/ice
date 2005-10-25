@@ -61,6 +61,10 @@ public:
     void removeApplicationDescriptor(ObserverSessionI*, const std::string&);
     void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&);
 
+    void patchApplication(const std::string&, const DistributionDescriptor&,
+			  const std::map<std::string, DistributionDescriptorDict>&, bool = false);
+    void finishedPatchApplication(const std::string&, const std::string&, const std::string& = std::string());
+
     ApplicationDescriptor getApplicationDescriptor(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());
 

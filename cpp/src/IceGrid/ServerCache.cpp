@@ -504,12 +504,12 @@ ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deacti
 	    int timeout = nodeCache.getSessionTimeout() * 1000; // sec to ms
 	    _loaded = _load;
 	    assert(_loaded.get());
-	    _proxy = ServerPrx::uncheckedCast(proxy->ice_timeout(timeout));
+	    _proxy = ServerPrx::uncheckedCast(proxy->ice_timeout(timeout)->ice_collocationOptimization(false));
 	    _adapters.clear();
 	    for(AdapterPrxDict::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
 	    {
-		AdapterPrx adapter = AdapterPrx::uncheckedCast(p->second->ice_timeout(timeout));
-		_adapters.insert(make_pair(p->first, adapter));
+		Ice::ObjectPrx adapter = p->second->ice_timeout(timeout)->ice_collocationOptimization(false);
+		_adapters.insert(make_pair(p->first, AdapterPrx::uncheckedCast(adapter)));
 	    }
 	    activationTimeout += timeout;
 	    deactivationTimeout += timeout;
