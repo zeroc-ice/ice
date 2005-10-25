@@ -1401,6 +1401,15 @@ public class Model
 	    descriptor.name = "NewApplication";
 	    _root.newApplication(descriptor);
 	}
+	catch(DeploymentException e)
+	{
+	    JOptionPane.showMessageDialog(
+		_mainFrame,
+		"The default application descriptor from the IceGrid Registry is invalid:\n"
+		+ e.reason,
+		"Deployment Exception",
+		JOptionPane.ERROR_MESSAGE);
+	}
 	catch(Ice.LocalException e)
 	{
 	    JOptionPane.showMessageDialog(
