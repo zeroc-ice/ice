@@ -708,7 +708,7 @@ interface Admin
      * reached.
      *
      **/
-    idempotent void shutdownNode(string name)
+    ["ami"] idempotent void shutdownNode(string name)
 	throws NodeNotExistException, NodeUnreachableException;
 
     /**
