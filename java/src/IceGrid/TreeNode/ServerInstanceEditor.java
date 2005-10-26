@@ -57,7 +57,8 @@ class ServerInstanceEditor extends AbstractServerEditor
 	//
 	// Template
 	//
-	Action gotoTemplate = new AbstractAction("->")
+	Action gotoTemplate = new AbstractAction(
+	    "", Utils.getIcon("/icons/16x16/goto.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -69,7 +70,7 @@ class ServerInstanceEditor extends AbstractServerEditor
 		}
 	    };
 	gotoTemplate.putValue(Action.SHORT_DESCRIPTION, 
-				       "Goto this template");
+			      "Goto this template");
 	_templateButton = new JButton(gotoTemplate);
 
 	//

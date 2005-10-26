@@ -336,6 +336,12 @@ class ReplicaGroupEditor extends Editor
     
     void show(ReplicaGroup replicaGroup)
     {
+	//
+	// Make sure everything is built
+	//
+	getProperties();
+
+
 	detectUpdates(false);
 	setTarget(replicaGroup);
 

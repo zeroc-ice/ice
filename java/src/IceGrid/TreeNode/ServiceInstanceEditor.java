@@ -40,7 +40,8 @@ class ServiceInstanceEditor extends ListElementEditor
 	//
 	// Template
 	//
-	Action gotoTemplate = new AbstractAction("->")
+	Action gotoTemplate = new AbstractAction(
+	    "", Utils.getIcon("/icons/16x16/goto.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{

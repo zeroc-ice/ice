@@ -9,14 +9,17 @@
 package IceGrid.TreeNode;
 
 import java.awt.Cursor;
+import java.awt.Component;
 
+import javax.swing.Icon;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
 import IceGrid.AMI_Admin_patchApplication;
-
 import IceGrid.AdapterDynamicInfo;
 import IceGrid.ApplicationDescriptor;
 import IceGrid.ApplicationUpdateDescriptor;
@@ -52,6 +55,30 @@ public class Application extends EditableParent
 	return copy;
     }
     
+
+    public Component getTreeCellRendererComponent(
+	    JTree tree,
+	    Object value,
+	    boolean sel,
+	    boolean expanded,
+	    boolean leaf,
+	    int row,
+	    boolean hasFocus) 
+    {
+	if(_cellRenderer == null)
+	{
+	    _cellRenderer = new DefaultTreeCellRenderer();
+	    _cellRenderer.setOpenIcon(
+		Utils.getIcon("/icons/16x16/application.png"));
+	    _cellRenderer.setClosedIcon(
+		Utils.getIcon("/icons/16x16/application.png"));
+	}
+
+	return _cellRenderer.getTreeCellRendererComponent(
+	    tree, value, sel, expanded, leaf, row, hasFocus);
+    }
+
+
     public boolean[] getAvailableActions()
     {
 	boolean[] actions = new boolean[ACTION_COUNT];
@@ -695,6 +722,7 @@ public class Application extends EditableParent
     private ServiceTemplates _serviceTemplates;
     private Nodes _nodes;
 
+    static private DefaultTreeCellRenderer _cellRenderer;    
     static private ApplicationEditor _editor;
     static private JPopupMenu _popup;
 }

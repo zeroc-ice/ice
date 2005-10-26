@@ -9,6 +9,7 @@
 package IceGrid.TreeNode;
 
 import java.awt.Component;
+import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
@@ -63,9 +64,7 @@ class Adapter extends Leaf
 	_parent.paste();
     }
 
-    //
-    // Overridden to show tooltip
-    //
+    
     public Component getTreeCellRendererComponent(
 	    JTree tree,
 	    Object value,
@@ -77,12 +76,21 @@ class Adapter extends Leaf
     {
 	if(_cellRenderer == null)
 	{
-	    //
-	    // Initialization
-	    //
 	    _cellRenderer = new DefaultTreeCellRenderer();
+	    _activeIcon = Utils.getIcon("/icons/16x16/adapter_active.png");
+	    _inactiveIcon = Utils.getIcon("/icons/16x16/adapter_inactive.png");
+	}
+
+	if(_currentEndpoints == null || _currentEndpoints.equals(""))
+	{
+	    _cellRenderer.setLeafIcon(_inactiveIcon);
+	}
+	else
+	{
+	    _cellRenderer.setLeafIcon(_activeIcon);
 	}
 	
+
 	_cellRenderer.setToolTipText(_toolTip);
 	return _cellRenderer.getTreeCellRendererComponent(
 	    tree, value, sel, expanded, leaf, row, hasFocus);
@@ -293,5 +301,8 @@ class Adapter extends Leaf
     private String _adapterId; // resolved adapter id, null when _resolver == null
 
     static private DefaultTreeCellRenderer _cellRenderer;
+    static private Icon _activeIcon;
+    static private Icon _inactiveIcon;
+
     static private AdapterEditor _editor;
 }

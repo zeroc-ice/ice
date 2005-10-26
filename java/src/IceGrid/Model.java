@@ -1014,7 +1014,7 @@ public class Model
 	    };
 	_newApplicationWithDefaultTemplates.setEnabled(false);
 
-	_login = new AbstractAction("Login...", Utils.getIcon("/icons/connect.gif"))
+	_login = new AbstractAction("Login...", Utils.getIcon("/icons/24x24/login.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1024,7 +1024,7 @@ public class Model
 	_login.putValue(Action.SHORT_DESCRIPTION, "Log into an IceGrid Registry");
 
 
-	_save = new AbstractAction("Save", Utils.getIcon("/icons/save_edit.gif"))
+	_save = new AbstractAction("Save", Utils.getIcon("/icons/24x24/save.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1037,7 +1037,7 @@ public class Model
 	_save.putValue(Action.SHORT_DESCRIPTION, "Save to IceGrid Registry");
 	
 	_discard = new AbstractAction("Discard all updates...", 
-				      Utils.getIcon("/icons/undo_edit.gif"))
+				      Utils.getIcon("/icons/24x24/discard.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1169,7 +1169,7 @@ public class Model
 	    };
 	
 	
-	_actions[CommonBase.COPY] = new AbstractAction("Copy", Utils.getIcon("/icons/copy_edit.gif"))
+	_actions[CommonBase.COPY] = new AbstractAction("Copy", Utils.getIcon("/icons/24x24/copy.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1180,7 +1180,7 @@ public class Model
 					   KeyStroke.getKeyStroke(KeyEvent.VK_C, MENU_MASK));
 	_actions[CommonBase.COPY].putValue(Action.SHORT_DESCRIPTION, "Copy");
 
-	_actions[CommonBase.PASTE] = new AbstractAction("Paste", Utils.getIcon("/icons/paste_edit.gif"))
+	_actions[CommonBase.PASTE] = new AbstractAction("Paste", Utils.getIcon("/icons/24x24/paste.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1191,7 +1191,7 @@ public class Model
 					    KeyStroke.getKeyStroke(KeyEvent.VK_V, MENU_MASK));
 	_actions[CommonBase.PASTE].putValue(Action.SHORT_DESCRIPTION, "Paste");
 
-	_actions[CommonBase.DELETE] = new AbstractAction("Delete", Utils.getIcon("/icons/delete_edit.gif"))
+	_actions[CommonBase.DELETE] = new AbstractAction("Delete", Utils.getIcon("/icons/24x24/delete.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1202,7 +1202,7 @@ public class Model
 	_actions[CommonBase.DELETE].putValue(Action.SHORT_DESCRIPTION, "Delete");
    
 	_actions[CommonBase.SHOW_VARS] = new 
-	    AbstractAction("${}")
+	    AbstractAction("", Utils.getIcon("/icons/24x24/show_vars.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1215,7 +1215,7 @@ public class Model
 
 
 	_actions[CommonBase.SUBSTITUTE_VARS] = new 
-	    AbstractAction("abc")
+	    AbstractAction("", Utils.getIcon("/icons/24x24/substitute.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1248,15 +1248,19 @@ public class Model
 	_showVarsMenuItem.setSelected(true);
 	_showVarsTool.setSelected(true);
 	
-	_actions[CommonBase.MOVE_UP] = new AbstractAction("Move up")
+	_actions[CommonBase.MOVE_UP] = new AbstractAction(
+	    "Move up", 
+	    Utils.getIcon("/icons/24x24/move_up.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
 		    _actionsTarget.moveUp();
 		}
 	    };
-
-	_actions[CommonBase.MOVE_DOWN] = new AbstractAction("Move down")
+			   
+	_actions[CommonBase.MOVE_DOWN] = new AbstractAction(
+	    "Move down",
+	    Utils.getIcon("/icons/24x24/move_down.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1264,7 +1268,8 @@ public class Model
 		}
 	    };
 
-	_actions[CommonBase.START] = new AbstractAction("Start")
+	_actions[CommonBase.START] = new AbstractAction(
+	    "Start", Utils.getIcon("/icons/24x24/start.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1272,7 +1277,8 @@ public class Model
 		}
 	    };
 
-	_actions[CommonBase.STOP] = new AbstractAction("Stop")
+	_actions[CommonBase.STOP] = new AbstractAction(
+	    "Stop", Utils.getIcon("/icons/24x24/stop.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1280,7 +1286,8 @@ public class Model
 		}
 	    };
 
-	_actions[CommonBase.ENABLE] = new AbstractAction("Enable")
+	_actions[CommonBase.ENABLE] = new AbstractAction(
+	    "Enable", Utils.getIcon("/icons/24x24/enable.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1288,7 +1295,8 @@ public class Model
 		}
 	    };
 	
-	_actions[CommonBase.DISABLE] = new AbstractAction("Disable")
+	_actions[CommonBase.DISABLE] = new AbstractAction(
+	    "Disable", Utils.getIcon("/icons/24x24/disable.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{

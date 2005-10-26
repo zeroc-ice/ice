@@ -8,6 +8,10 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import java.awt.Component;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeCellRenderer;
+
 import IceGrid.Model;
 import IceGrid.ReplicaGroupDescriptor;
 import IceGrid.SimpleInternalFrame;
@@ -20,6 +24,27 @@ class ReplicaGroup extends EditableLeaf
     {
 	return (ReplicaGroupDescriptor)d.clone();
     }
+
+    public Component getTreeCellRendererComponent(
+	    JTree tree,
+	    Object value,
+	    boolean sel,
+	    boolean expanded,
+	    boolean leaf,
+	    int row,
+	    boolean hasFocus) 
+    {
+	if(_cellRenderer == null)
+	{
+	    _cellRenderer = new DefaultTreeCellRenderer();
+	    _cellRenderer.setLeafIcon(
+		Utils.getIcon("/icons/16x16/replica_group.png"));
+	}
+
+	return _cellRenderer.getTreeCellRendererComponent(
+	    tree, value, sel, expanded, leaf, row, hasFocus);
+    }
+    
 
     //
     // Actions
@@ -136,5 +161,7 @@ class ReplicaGroup extends EditableLeaf
 
     private ReplicaGroupDescriptor _descriptor;
     private final boolean _ephemeral;
+
+    static private DefaultTreeCellRenderer _cellRenderer;    
     static private ReplicaGroupEditor _editor;
 }

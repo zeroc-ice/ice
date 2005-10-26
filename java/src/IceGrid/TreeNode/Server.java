@@ -583,32 +583,54 @@ class Server extends EditableParent
 	    // Initialization
 	    //
 	    _cellRenderer = new DefaultTreeCellRenderer();
-	    _icons = new Icon[7];
-	    _icons[0] = Utils.getIcon("/icons/unknown.png");
-	    _icons[ServerState.Inactive.value() + 1] = Utils.getIcon("/icons/inactive.png");
-	    _icons[ServerState.Activating.value() + 1] = 
-		Utils.getIcon("/icons/activating.png");
-	    _icons[ServerState.Active.value() + 1] = 
-		Utils.getIcon("/icons/active.png");
-	    _icons[ServerState.Deactivating.value() + 1] = 
-		Utils.getIcon("/icons/deactivating.png");
-	    _icons[ServerState.Destroying.value() + 1] = 
-		Utils.getIcon("/icons/destroying.png");
-	    _icons[ServerState.Destroyed.value() + 1] = 
-		Utils.getIcon("/icons/destroyed.png");
+
+	    //
+	    // Regular servers
+	    //
+	    _icons = new Icon[7][2][2];
+	    _icons[0][0][0] = Utils.getIcon("/icons/16x16/server_unknown.png");
+	    _icons[ServerState.Inactive.value() + 1][0][0]
+		= Utils.getIcon("/icons/16x16/server_inactive.png");
+	    _icons[ServerState.Activating.value() + 1][0][0] = 
+		Utils.getIcon("/icons/16x16/server_activating.png");
+	    _icons[ServerState.Active.value() + 1][0][0] = 
+		Utils.getIcon("/icons/16x16/server_active.png");
+	    _icons[ServerState.Deactivating.value() + 1][0][0] = 
+		Utils.getIcon("/icons/16x16/server_deactivating.png");
+	    _icons[ServerState.Destroying.value() + 1][0][0] = 
+		Utils.getIcon("/icons/16x16/server_destroying.png");
+	    _icons[ServerState.Destroyed.value() + 1][0][0] = 
+		Utils.getIcon("/icons/16x16/server_destroyed.png");
+
+	    //
+	    // IceBox servers
+	    //
+	    _icons[0][1][0] = Utils.getIcon("/icons/16x16/icebox_server_unknown.png");
+	    _icons[ServerState.Inactive.value() + 1][1][0]
+		= Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
+	    _icons[ServerState.Activating.value() + 1][1][0] = 
+		Utils.getIcon("/icons/16x16/icebox_server_activating.png");
+	    _icons[ServerState.Active.value() + 1][1][0] = 
+		Utils.getIcon("/icons/16x16/icebox_server_active.png");
+	    _icons[ServerState.Deactivating.value() + 1][1][0] = 
+		Utils.getIcon("/icons/16x16/icebox_server_deactivating.png");
+	    _icons[ServerState.Destroying.value() + 1][1][0] = 
+		Utils.getIcon("/icons/16x16/icebox_server_destroying.png");
+	    _icons[ServerState.Destroyed.value() + 1][1][0] = 
+		Utils.getIcon("/icons/16x16/icebox_server_destroyed.png");
 	}
 
-	//
-	// TODO: separate icons for open and close
-	//
+	int icebox = _serverDescriptor instanceof IceBoxDescriptor ? 1 : 0;
+	int disabled = 0;
+
 	if(expanded)
 	{
-	    _cellRenderer.setOpenIcon(_icons[_stateIconIndex]);
+	    _cellRenderer.setOpenIcon(_icons[_stateIconIndex][icebox][disabled]);
 	}
 	else
 	{
-	    _cellRenderer.setClosedIcon(_icons[_stateIconIndex]);
-	}
+	    _cellRenderer.setClosedIcon(_icons[_stateIconIndex][icebox][disabled]);
+	}   
 
 	_cellRenderer.setToolTipText(_toolTip);
 	return _cellRenderer.getTreeCellRendererComponent(
@@ -968,7 +990,7 @@ class Server extends EditableParent
     private DbEnvs _dbEnvs;
 
     static private DefaultTreeCellRenderer _cellRenderer;
-    static private Icon[] _icons;
+    static private Icon[][][] _icons;
  
     static private ServerEditor _serverEditor;
     static private ServerInstanceEditor _serverInstanceEditor;

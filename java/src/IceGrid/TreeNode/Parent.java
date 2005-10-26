@@ -8,10 +8,17 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import java.awt.Component;
+import javax.swing.JTree;
+
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
+
 import javax.swing.event.TreeModelEvent;
 import IceGrid.Model;
 import IceGrid.TreeModelI;
+import IceGrid.Utils;
 
 //
 // Common implementation for non-leaf nodes
@@ -93,6 +100,35 @@ class Parent extends CommonBaseI
 	    CommonBase child2 = (CommonBase)o1;
 	    return child1.getId().compareTo(child2.getId());
 	}
+    }
+
+    //
+    // TreeCellRenderer
+    //
+
+    public Component getTreeCellRendererComponent(
+	JTree tree,
+	Object value,
+	boolean sel,
+	boolean expanded,
+	boolean leaf,
+	int row,
+	boolean hasFocus) 
+    {
+	if(_cellRenderer == null)
+	{
+	    //
+	    // Initialization
+	    //
+	    _cellRenderer = new DefaultTreeCellRenderer();
+	    _cellRenderer.setOpenIcon(
+		Utils.getIcon("/icons/16x16/folder_open.png"));
+	    _cellRenderer.setClosedIcon(
+		Utils.getIcon("/icons/16x16/folder_closed.png"));
+	}
+
+	return _cellRenderer.getTreeCellRendererComponent(
+	    tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     public Object getChildAt(int childIndex)
@@ -682,4 +718,6 @@ class Parent extends CommonBaseI
     protected java.util.LinkedList _children = new java.util.LinkedList();
     private ChildComparator _childComparator = new ChildComparator();
     protected boolean _sortChildren = true;
+
+    static private DefaultTreeCellRenderer _cellRenderer;
 }

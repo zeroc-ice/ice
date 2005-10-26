@@ -215,25 +215,20 @@ class Node extends EditableParent
 	    // Initialization
 	    //
 	    _cellRenderer = new DefaultTreeCellRenderer();
-	    _nodeUpOpen = Utils.getIcon("/icons/node_up_open.png");
-	    _nodeDownOpen = Utils.getIcon("/icons/node_down_open.png");
-	    _nodeUpClosed = Utils.getIcon("/icons/node_up_closed.png");
-	    _nodeDownClosed = Utils.getIcon("/icons/node_down_closed.png");
+	    _nodeUp = Utils.getIcon("/icons/16x16/node_up.png");
+	    _nodeDown = Utils.getIcon("/icons/16x16/node_down.png");
 	}
 
-	//
-	// TODO: separate icons for open and close
-	//
 	if(_up)
 	{
 	    _cellRenderer.setToolTipText("Up and running");
 	    if(expanded)
 	    {
-		_cellRenderer.setOpenIcon(_nodeUpOpen);
+		_cellRenderer.setOpenIcon(_nodeUp);
 	    }
 	    else
 	    {
-		_cellRenderer.setClosedIcon(_nodeUpClosed);
+		_cellRenderer.setClosedIcon(_nodeUp);
 	    }
 	}
 	else
@@ -241,11 +236,11 @@ class Node extends EditableParent
 	    _cellRenderer.setToolTipText("Not running");
 	    if(expanded)
 	    {
-		_cellRenderer.setOpenIcon(_nodeDownOpen);
+		_cellRenderer.setOpenIcon(_nodeDown);
 	    }
 	    else
 	    {
-		_cellRenderer.setClosedIcon(_nodeDownClosed);
+		_cellRenderer.setClosedIcon(_nodeDown);
 	    }
 	}
 
@@ -1100,10 +1095,8 @@ class Node extends EditableParent
     private NodeInfo _staticInfo;
 
     static private DefaultTreeCellRenderer _cellRenderer;
-    static private Icon _nodeUpOpen;
-    static private Icon _nodeUpClosed;
-    static private Icon _nodeDownOpen;
-    static private Icon _nodeDownClosed;
+    static private Icon _nodeUp;
+    static private Icon _nodeDown;
 
     static private NodeEditor _editor;
     static private JPopupMenu _popup;

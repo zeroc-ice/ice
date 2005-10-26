@@ -8,6 +8,11 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import java.awt.Component;
+import javax.swing.Icon;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeCellRenderer;
+
 import IceGrid.DbEnvDescriptor;
 import IceGrid.Model;
 import IceGrid.SimpleInternalFrame;
@@ -19,6 +24,26 @@ class DbEnv extends Leaf
     {
 	return (DbEnvDescriptor)d.clone();
     }
+
+
+    public Component getTreeCellRendererComponent(
+	    JTree tree,
+	    Object value,
+	    boolean sel,
+	    boolean expanded,
+	    boolean leaf,
+	    int row,
+	    boolean hasFocus) 
+    {
+	if(_cellRenderer == null)
+	{
+	    _cellRenderer = new DefaultTreeCellRenderer();
+	    _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/database.png"));
+	}
+	return _cellRenderer.getTreeCellRendererComponent(
+	    tree, value, sel, expanded, leaf, row, hasFocus);
+    }
+
 
     //
     // Actions
@@ -141,5 +166,6 @@ class DbEnv extends Leaf
     private Utils.Resolver _resolver;
     private final boolean _ephemeral; 
 
+    static private DefaultTreeCellRenderer _cellRenderer;    
     static private DbEnvEditor _editor;
 }

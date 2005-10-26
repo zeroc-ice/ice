@@ -8,8 +8,11 @@
 // **********************************************************************
 package IceGrid.TreeNode;
 
+import java.awt.Component;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
 import IceGrid.SimpleInternalFrame;
 
@@ -48,6 +51,32 @@ class Service extends Parent
 	copy.properties = (java.util.LinkedList)copy.properties.clone();
 	return copy;
     }
+
+    
+    public Component getTreeCellRendererComponent(
+	    JTree tree,
+	    Object value,
+	    boolean sel,
+	    boolean expanded,
+	    boolean leaf,
+	    int row,
+	    boolean hasFocus) 
+    {
+	if(_cellRenderer == null)
+	{
+	    _cellRenderer = new DefaultTreeCellRenderer();
+	    _cellRenderer.setOpenIcon(
+		Utils.getIcon("/icons/16x16/service.png"));
+
+	    _cellRenderer.setClosedIcon(
+		Utils.getIcon("/icons/16x16/service.png"));
+	}
+
+	return _cellRenderer.getTreeCellRendererComponent(
+	    tree, value, sel, expanded, leaf, row, hasFocus);
+    }
+
+
 
     //
     // Actions
@@ -361,6 +390,7 @@ class Service extends Parent
 
     private PropertiesHolder _propertiesHolder;
 
+    static private DefaultTreeCellRenderer _cellRenderer;   
     static private ServiceEditor _editor;
     static private ServiceInstanceEditor _instanceEditor;
     static private JPopupMenu _popup;

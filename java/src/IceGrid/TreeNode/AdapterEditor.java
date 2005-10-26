@@ -53,7 +53,8 @@ class AdapterEditor extends ListElementEditor
 	//
 	// _replicaGroupButton
 	//
-	Action gotoReplicaGroup = new AbstractAction("->")
+	Action gotoReplicaGroup = new AbstractAction(
+	    "", Utils.getIcon("/icons/16x16/goto.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
