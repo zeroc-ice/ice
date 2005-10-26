@@ -138,7 +138,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 	    {
 		adapter.activate();
 	    }
-	    catch(Ice.ObjectAdapterDeactivatedException ex)
+	    catch(Ice.ObjectAdapterDeactivatedException)
 	    {
 		//
 		// Expected if the communicator has been shutdown.
@@ -359,7 +359,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 	    {
 		info.service.start(service, communicator, serviceArgs);
 	    }
-	    catch(Exception ex)
+	    catch(Exception)
 	    {
 		if(info.communicator != null)
 		{
@@ -368,7 +368,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 			info.communicator.shutdown();
 			info.communicator.waitForShutdown();
 		    }
-		    catch(Ice.CommunicatorDestroyedException e)
+		    catch(Ice.CommunicatorDestroyedException)
 		    {
 			//
 			// Ignore, the service might have already destroyed
@@ -396,7 +396,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 
 	    _services[service] = info;
 	}
-	catch(IceBox.FailureException ex)
+	catch(IceBox.FailureException)
 	{
 	    throw;
 	}
@@ -435,7 +435,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 		    info.communicator.shutdown();
 		    info.communicator.waitForShutdown();
 		}
-		catch(Ice.CommunicatorDestroyedException e)
+		catch(Ice.CommunicatorDestroyedException)
 		{
 		    //
 		    // Ignore, the service might have already destroyed

@@ -3,13 +3,13 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{298D6EED-3E48-4C56-B61A-E3D9EA7B2E12}"
+        ProjectGuid = "{3455BCCD-C084-4EDB-A120-B805EDE414FB}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "publisher"
+                AssemblyName = "client"
                 AssemblyOriginatorKeyFile = ""
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
@@ -75,8 +75,8 @@
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
                 <Reference
-                    Name = "IceStorm"
-                    Project = "{BD632920-4770-4777-8A79-92863C48E8D7}"
+                    Name = "IceBox"
+                    Project = "{EDE89B8B-D826-4A1D-BC88-E877A4D4E35E}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
             </References>
@@ -84,12 +84,12 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "Publisher.cs"
+                    RelPath = "Client.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "generated\Clock.cs"
+                    RelPath = "generated\Hello.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

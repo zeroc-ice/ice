@@ -3,19 +3,19 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{298D6EED-3E48-4C56-B61A-E3D9EA7B2E12}"
+        ProjectGuid = "{8D371651-BFA4-43C9-B143-77F06F02B310}"
     >
         <Build>
             <Settings
                 ApplicationIcon = ""
                 AssemblyKeyContainerName = ""
-                AssemblyName = "publisher"
+                AssemblyName = "helloservice"
                 AssemblyOriginatorKeyFile = ""
                 DefaultClientScript = "JScript"
                 DefaultHTMLPageLayout = "Grid"
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
-                OutputType = "Exe"
+                OutputType = "Library"
                 PreBuildEvent = "$(SolutionDir)\bin\generatecs.exe $(SolutionDir) $(ProjectDir) $(ProjectName)"
                 PostBuildEvent = ""
                 RootNamespace = ""
@@ -52,7 +52,7 @@
                     DocumentationFile = ""
                     DebugSymbols = "false"
                     FileAlignment = "4096"
-                    IncrementalBuild = "true"
+                    IncrementalBuild = "false"
                     NoStdLib = "false"
                     NoWarn = ""
                     Optimize = "true"
@@ -67,7 +67,7 @@
                 <Reference
                     Name = "System"
                     AssemblyName = "System"
-                    HintPath = "..\..\..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
+                    HintPath = "..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
                 />
                 <Reference
                     Name = "Ice"
@@ -75,8 +75,8 @@
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
                 <Reference
-                    Name = "IceStorm"
-                    Project = "{BD632920-4770-4777-8A79-92863C48E8D7}"
+                    Name = "IceBox"
+                    Project = "{EDE89B8B-D826-4A1D-BC88-E877A4D4E35E}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
             </References>
@@ -84,12 +84,17 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "Publisher.cs"
+                    RelPath = "HelloI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "generated\Clock.cs"
+                    RelPath = "HelloServiceI.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "generated\Hello.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
