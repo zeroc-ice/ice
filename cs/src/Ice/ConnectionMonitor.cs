@@ -58,8 +58,10 @@ namespace IceInternal
 	//
 	internal ConnectionMonitor(Instance instance, int interval)
 	{
+	    Debug.Assert(interval > 0);
+
 	    instance_ = instance;
-	    _interval = interval;
+	    _interval = System.TimeSpan.FromMilliseconds(interval * 1000);
 	    _connections = new Set();
 	    
 	    string threadName = instance_.properties().getProperty("Ice.ProgramName");
@@ -67,8 +69,6 @@ namespace IceInternal
 	    {
 		threadName += "-";
 	    }
-	    
-	    Debug.Assert(_interval > 0);
 
 	    _thread = new Thread(new ThreadStart(Run));
 	    _thread.Name = threadName + "Ice.ConnectionMonitor";
@@ -94,12 +94,10 @@ namespace IceInternal
 	    {
 		lock(this)
 		{
-		    if(instance_ == null)
+		    if(instance_ != null)
 		    {
-			return;
+			System.Threading.Monitor.Wait(this, _interval);
 		    }
-		    
-		    System.Threading.Monitor.Wait(this, System.TimeSpan.FromMilliseconds(_interval * 1000));
 		    
 		    if(instance_ == null)
 		    {
@@ -128,14 +126,24 @@ namespace IceInternal
 		    {
 			lock(this)
 			{
-			    instance_.logger().error("exception in connection monitor thread " + _thread.Name + "::\n" + ex);
+			    if(instance_ == null)
+			    {
+				return;
+			    }
+			    instance_.logger().error("exception in connection monitor thread " + _thread.Name +
+						     "::\n" + ex);
 			}
 		    }
 		    catch(System.Exception ex)
 		    {
 			lock(this)
 			{
-			    instance_.logger().error("unknown exception in connection monitor thread " + _thread.Name + ":\n" + ex);
+			    if(instance_ == null)
+			    {
+				return;
+			    }
+			    instance_.logger().error("unknown exception in connection monitor thread " +
+						     _thread.Name + ":\n" + ex);
 			}
 		    }
 		}
@@ -143,7 +151,7 @@ namespace IceInternal
 	}
 	
 	private Instance instance_;
-	private readonly int _interval;
+	private readonly System.TimeSpan _interval;
 	private Set _connections;
 	private Thread _thread;
     }

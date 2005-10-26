@@ -94,18 +94,16 @@ public final class ConnectionMonitor extends Thread
 	{
 	    synchronized(this)
 	    {
-		if(_instance == null)
+		if(_instance != null)
 		{
-		    return;
-		}
-		
-		try
-		{
-		    wait(_interval * 1000);
-		}
-		catch(InterruptedException ex)
-		{
-		    continue;
+		    try
+		    {
+			wait(_interval * 1000);
+		    }
+		    catch(InterruptedException ex)
+		    {
+			continue;
+		    }
 		}
 
 		if(_instance == null)
@@ -135,6 +133,11 @@ public final class ConnectionMonitor extends Thread
 		{
 		    synchronized(this)
 		    {
+			if(_instance == null)
+			{
+			    return;
+			}
+
 			java.io.StringWriter sw = new java.io.StringWriter();
 			java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 			ex.printStackTrace(pw);
@@ -148,6 +151,10 @@ public final class ConnectionMonitor extends Thread
 		{
 		    synchronized(this)
 		    {
+			if(_instance == null)
+			{
+			    return;
+			}
 			java.io.StringWriter sw = new java.io.StringWriter();
 			java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 			ex.printStackTrace(pw);
