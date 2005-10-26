@@ -71,5 +71,6 @@ clean::
 clean::
 	rm -f Grammar.cpp Grammar.h
 	rm -f Scanner.cpp
+	rm -f db/contacts db/log*
 
 include .depend
