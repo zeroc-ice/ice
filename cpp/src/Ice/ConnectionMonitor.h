@@ -39,7 +39,7 @@ private:
     virtual void run();
 
     InstancePtr _instance;
-    const Ice::Int _interval;
+    const IceUtil::Time _interval;
     std::set<Ice::ConnectionIPtr> _connections;
 };
 

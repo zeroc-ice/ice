@@ -27,7 +27,6 @@ IceInternal::ConnectionMonitor::destroy()
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
 	assert(_instance);
-	
 	_instance = 0;
 	_connections.clear();
 	
@@ -55,9 +54,9 @@ IceInternal::ConnectionMonitor::remove(const ConnectionIPtr& connection)
 
 IceInternal::ConnectionMonitor::ConnectionMonitor(const InstancePtr& instance, int interval) :
     _instance(instance),
-    _interval(interval)
+    _interval(IceUtil::Time::seconds(interval))
 {
-    assert(_interval > 0);
+    assert(interval > 0);
     start();
 }
 
@@ -70,25 +69,17 @@ IceInternal::ConnectionMonitor::~ConnectionMonitor()
 void
 IceInternal::ConnectionMonitor::run()
 {
-    IceUtil::Time waitTime = IceUtil::Time::seconds(_interval);
-
     while(true)
     {
 	set<ConnectionIPtr> connections;
 	
 	{
 	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	    
-	    if(!_instance)
-	    {
-		return;
-	    }
-	    
-	    if(!timedWait(waitTime))
+	    if(_instance && !timedWait(_interval))
 	    {
 		connections = _connections;
 	    }
-	    
+
 	    if(!_instance)
 	    {
 		return;
@@ -108,7 +99,6 @@ IceInternal::ConnectionMonitor::run()
 	    catch(const Exception& ex)
 	    {	
 		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-		
 		if(!_instance)
 		{
 		    return;
@@ -120,7 +110,6 @@ IceInternal::ConnectionMonitor::run()
 	    catch(...)
 	    {
 		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-		
 		if(!_instance)
 		{
 		    return;
