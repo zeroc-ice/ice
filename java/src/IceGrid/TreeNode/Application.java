@@ -243,58 +243,6 @@ public class Application extends EditableParent
 	_model.showActions(_model.getSelectedNode());
     }
 
-    
-    private void amiSuccess(final String prefix)
-    {
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    _model.getStatusBar().setText(prefix + "done.");
-		}
-	    });
-    }
-
-    private void amiFailure(String prefix, String title, Ice.UserException e)
-    {
-	if(e instanceof IceGrid.ApplicationNotExistException)
-	{
-	    amiFailure(prefix, title, "This application was not registered with the IceGrid Registry");
-	}
-	else if(e instanceof IceGrid.PatchException)
-	{
-	    IceGrid.PatchException pe = (IceGrid.PatchException)e;
-	    amiFailure(prefix, title, pe.reason);
-	}
-	else
-	{
-	    amiFailure(prefix, title, e.toString());
-	}
-    }
-    
-    private void amiFailure(final String prefix, final String title, final String message)
-    {
-	SwingUtilities.invokeLater(new Runnable() 
-	    {	
-		public void run() 
-		{
-		    failure(prefix, title, message);
-		}
-	    });
-    }
-
-    private void failure(String prefix, String title, String message)
-    {
-	_model.getStatusBar().setText(prefix + "failed!");
-
-	JOptionPane.showMessageDialog(
-	    _model.getMainFrame(),
-	    message,
-	    title,
-	    JOptionPane.ERROR_MESSAGE);
-    }
-
-
     public ApplicationUpdateDescriptor createUpdateDescriptor()
     {
 	ApplicationUpdateDescriptor update = new ApplicationUpdateDescriptor();

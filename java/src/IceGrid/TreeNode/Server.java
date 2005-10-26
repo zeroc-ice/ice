@@ -426,68 +426,6 @@ class Server extends EditableParent
 	_model.showActions(_model.getSelectedNode());
     }
 
-    
-    private void amiSuccess(final String prefix)
-    {
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    _model.getStatusBar().setText(prefix + "done.");
-		}
-	    });
-    }
-
-    private void amiFailure(String prefix, String title, Ice.UserException e)
-    {
-	if(e instanceof IceGrid.ServerNotExistException)
-	{
-	    amiFailure(prefix, title, "This server was not registered with the IceGrid Registry");
-	}
-	else if(e instanceof IceGrid.NodeUnreachableException)
-	{
-	    IceGrid.NodeUnreachableException nue = (IceGrid.NodeUnreachableException)e;
-	    amiFailure(prefix, title, "Node '" + nue.name + "' is unreachable: " + nue.reason);
-	}
-	else if(e instanceof IceGrid.ServerStartException)
-	{
-	    IceGrid.ServerStartException ste = (IceGrid.ServerStartException)e;
-	    amiFailure(prefix, title, ste.reason);
-	}
-	else if(e instanceof IceGrid.PatchException)
-	{
-	    IceGrid.PatchException pe = (IceGrid.PatchException)e;
-	    amiFailure(prefix, title, pe.reason);
-	}
-	else
-	{
-	    amiFailure(prefix, title, e.toString());
-	}
-    }
-    
-    private void amiFailure(final String prefix, final String title, final String message)
-    {
-	SwingUtilities.invokeLater(new Runnable() 
-	    {	
-		public void run() 
-		{
-		    failure(prefix, title, message);
-		}
-	    });
-    }
-
-    private void failure(String prefix, String title, String message)
-    {
-	_model.getStatusBar().setText(prefix + "failed!");
-
-	JOptionPane.showMessageDialog(
-	    _model.getMainFrame(),
-	    message,
-	    title,
-	    JOptionPane.ERROR_MESSAGE);
-    }
-
-
     private void enableServer(boolean enable)
     {
 	final String prefix = (enable ?

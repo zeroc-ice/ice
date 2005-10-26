@@ -9,10 +9,12 @@
 package IceGrid.TreeNode;
 
 import java.awt.Component;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.event.TreeModelEvent;
@@ -370,6 +372,89 @@ abstract class CommonBaseI implements CommonBase
     public Model getModel()
     {
 	return _model;
+    }
+
+    protected void amiSuccess(final String prefix)
+    {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {
+		public void run() 
+		{
+		    _model.getStatusBar().setText(prefix + "done.");
+		}
+	    });
+    }
+
+    protected void amiFailure(String prefix, String title, Ice.UserException e)
+    {
+	if(e instanceof IceGrid.ServerNotExistException)
+	{
+	    IceGrid.ServerNotExistException sne =
+		(IceGrid.ServerNotExistException)e;
+
+	    amiFailure(prefix, title, 
+		       "Server '" + sne.id + 
+		       "' was not registered with the IceGrid Registry");
+	}
+	else if(e instanceof IceGrid.ServerStartException)
+	{
+	    IceGrid.ServerStartException ste = (IceGrid.ServerStartException)e;
+	    amiFailure(prefix, title, "Server '" +
+		       ste.id + "' did not start: " + ste.reason);
+	}
+	else if(e instanceof IceGrid.ApplicationNotExistException)
+	{
+	    amiFailure(prefix, title, 
+		       "This application was not registered with the IceGrid Registry");
+	}
+	else if(e instanceof IceGrid.PatchException)
+	{
+	    IceGrid.PatchException pe = (IceGrid.PatchException)e;
+	    amiFailure(prefix, title, pe.reason);
+	}
+	else if(e instanceof IceGrid.NodeNotExistException)
+	{
+	    IceGrid.NodeNotExistException nnee = 
+		(IceGrid.NodeNotExistException)e;
+
+	    amiFailure(prefix, title, 
+		       "Node '" + nnee.name + 
+		       " 'was not registered with the IceGrid Registry.");
+	}
+	else if(e instanceof IceGrid.NodeUnreachableException)
+	{
+	    IceGrid.NodeUnreachableException nue =
+		(IceGrid.NodeUnreachableException)e;
+	    amiFailure(prefix, title, "Node '" +
+		       nue.name + "' is unreachable: " + nue.reason);
+	}
+	else
+	{
+	    amiFailure(prefix, title, e.toString());
+	}
+    }
+    
+    protected void amiFailure(final String prefix, 
+			      final String title, final String message)
+    {
+	SwingUtilities.invokeLater(new Runnable() 
+	    {	
+		public void run() 
+		{
+		    failure(prefix, title, message);
+		}
+	    });
+    }
+
+    protected void failure(String prefix, String title, String message)
+    {
+	_model.getStatusBar().setText(prefix + "failed!");
+
+	JOptionPane.showMessageDialog(
+	    _model.getMainFrame(),
+	    message,
+	    title,
+	    JOptionPane.ERROR_MESSAGE);
     }
    
     protected TreePath _path;

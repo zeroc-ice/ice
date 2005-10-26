@@ -9,6 +9,8 @@
 package IceGrid.TreeNode;
 
 import java.awt.Component;
+import java.awt.Cursor;
+
 import javax.swing.Icon;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -17,6 +19,8 @@ import javax.swing.JTree;
 
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultTreeCellRenderer;
+
+import IceGrid.AMI_Admin_shutdownNode;
 
 import IceGrid.NodeDescriptor;
 import IceGrid.NodeInfo;
@@ -149,8 +153,55 @@ class Node extends EditableParent
     }
     public void shutdownNode()
     {
-	// TODO: implement!
+	final String prefix = "Shutting down node '" + _id + "'...";
+	_model.getStatusBar().setText(prefix);
+
+	AMI_Admin_shutdownNode cb = new AMI_Admin_shutdownNode()
+	    {
+		//
+		// Called by another thread!
+		//
+		public void ice_response()
+		{
+		    amiSuccess(prefix);
+		}
+		
+		public void ice_exception(Ice.UserException e)
+		{
+		    amiFailure(prefix, "Failed to shutdown " + _id, e);
+		}
+
+		public void ice_exception(Ice.LocalException e)
+		{
+		    amiFailure(prefix, "Failed to shutdown " + _id, 
+			       e.toString());
+		}
+	    };
+
+	try
+	{   
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+	    
+	    _model.getAdmin().shutdownNode_async(cb, _id);
+	}
+	catch(Ice.LocalException e)
+	{
+	    failure(prefix, "Failed to shutdown " + _id, e.toString());
+	}
+	finally
+	{
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+
+
+	//
+	// Recompute actions in case this comes from popup menu
+	// 
+	_model.showActions(_model.getSelectedNode());
     }
+
     
     public boolean destroy()
     {
