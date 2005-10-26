@@ -21,7 +21,6 @@ class HELLO_API HelloI : public Demo::Hello
 public:
 
     virtual void sayHello(const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
 };
 
 #endif
