@@ -36,6 +36,10 @@ Slice::normalizePath(const string& path)
     {
         result.replace(pos, 2, "/");
     }
+    if(result.size() > 1 && isalpha(result[0]) && result[1] == ':')
+    {
+        result = result.substr(2);
+    }
     return result;
 }
 
