@@ -327,7 +327,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	    {
 		info.service.start(service, communicator, serviceArgs);
 	    }
-	    catch(Exception ex)
+	    //catch(Exception ex)
+	    catch(Throwable ex)
 	    {
 		if(info.communicator != null)
 		{
@@ -376,7 +377,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	{
 	    throw ex;
 	}
-	catch(java.lang.Exception ex)
+	catch(Throwable ex)//java.lang.Exception ex)
 	{
 	    FailureException e = new FailureException();
 	    e.reason = "ServiceManager: exception while starting service " + service + ": " + ex;
@@ -448,22 +449,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
 		}
 	    }
 	}
-
-/*
-//
-// Finally, for each service, we shutdown and wait for the
-// service communicator to be shutdown, and destroy the
-// service communicator.
-//
-p = _services.entrySet().iterator();
-while(p.hasNext())
-{
-java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-String name = (String)entry.getKey();
-ServiceInfo info = (ServiceInfo)entry.getValue();
-
-}
-*/
 
 	_services.clear();
     }

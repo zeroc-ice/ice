@@ -190,7 +190,7 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
         {
             throw ex;
         }
-        catch(java.lang.Exception ex)
+        catch(Throwable ex)
         {
             PluginInitializationException e = new PluginInitializationException();
             e.reason = "exception in factory " + className;
