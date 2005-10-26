@@ -105,14 +105,14 @@
 	<copy todir="${stage.dir}/ice-cpp/runtime/bin" flatten="true">
 	    <fileset dir="${ice.dir}/bin">
 		<include name="freeze30.dll"/>
-		<include name="glacier300.dll"/>
+		<include name="glacier230.dll"/>
 		<include name="ice30.dll"/>
 		<include name="icebox30.dll"/>
 		<include name="icepack30.dll"/>
-		<include name="icepatch300.dll"/>
+		<include name="icepatch230.dll"/>
 		<include name="icessl30.dll"/>
 		<include name="icestorm30.dll"/>
-		<include name="icestormService30.dll"/>
+		<include name="icestormservice30.dll"/>
 		<include name="iceutil30.dll"/>
 		<include name="icexml30.dll"/>
 		<include name="slice30.dll"/>
@@ -126,9 +126,9 @@
 		<include name="IceUtil/Release/iceutil30.pdb"/>
 
 		<include name="FreezeScript/Release/dumpdb.exe"/>
-		<include name="FreezeScript/Release/TransformDB.exe"/>
+		<include name="FreezeScript/Release/transformdb.exe"/>
 		<include name="Glacier2/Release/glacier2router.exe"/>
-		<include name="Glacier2/Release/glacier300.pdb"/>
+		<include name="Glacier2/Release/glacier230.pdb"/>
 		<include name="IceBox/Release/icebox.exe"/>
 		<include name="IceBox/Release/icebox.pdb"/>
 		<include name="IceBox/Release/iceboxadmin.exe"/>
@@ -172,14 +172,14 @@
 	<copy todir="${stage.dir}/ice-cpp/dev/bin" flatten="true">
 	    <fileset dir="${ice.dir}/bin">
 		<include name="freeze30d.*"/>
-		<include name="glacier300d.*"/>
+		<include name="glacier230d.*"/>
 		<include name="ice30d.*"/>
 		<include name="icebox30d.*"/>
 		<include name="icepack30d.*"/>
-		<include name="icepatch300d.*"/>
+		<include name="icepatch230d.*"/>
 		<include name="icessl30d.*"/>
 		<include name="icestorm30d.*"/>
-		<include name="icestormService30d.*"/>
+		<include name="icestormservice30d.*"/>
 		<include name="iceutil30d.*"/>
 		<include name="icexml30d.*"/>
 		<include name="slice30d.*"/>
@@ -298,7 +298,7 @@
 		<include name="*.pdb"/>
 		<exclude name="generatecs.pdb"/>
 	    </fileset>
-	    <fileset dir="${ice.dir}/bin">
+	    <fileset dir="${ice.dir}/src">
 		<include name="slice2cs/Release/slice2cs.exe"/>
 	    </fileset>
 	</copy>
@@ -352,7 +352,7 @@
 	<!-- Binaries -->
 	<mkdir dir="${stage.dir}/ice-java/dev/bin"/>
 	<copy todir="${stage.dir}/ice-java/dev/bin" flatten="true">
-	    <fileset dir="${ice.dir}/bin">
+	    <fileset dir="${ice.dir}/src">
 		<include name="slice2java/Release/slice2java.exe"/>
 		<include name="slice2freezej/Release/slice2freezej.exe"/>
 	    </fileset>
@@ -413,8 +413,9 @@
 
 	<!-- Binaries -->
 	<mkdir dir="${stage.dir}/ice-python/dev/bin"/>
+
 	<copy todir="${stage.dir}/ice-python/dev/bin" flatten="true">
-	    <fileset dir="${ice.dir}/bin">
+	    <fileset dir="${ice.dir}/src">
 		<include name="slice2py/Release/slice2py.exe"/>
 	    </fileset>
 	</copy>
@@ -462,7 +463,7 @@
 	    <fileset dir="${icevb.dir}/bin">
 		<include name="generatevb.exe"/>
 	    </fileset>
-	    <fileset dir="${ice.dir}/bin">
+	    <fileset dir="${ice.dir}/src">
 		<include name="slice2vb/Release/slice2vb.exe"/>
 	    </fileset>
 	</copy>
