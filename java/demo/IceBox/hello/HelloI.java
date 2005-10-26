@@ -16,11 +16,4 @@ public class HelloI extends _HelloDisp
     {
         System.out.println("Hello World!");
     }
-
-    public void
-    shutdown(Ice.Current current)
-    {
-        System.out.println("Shutting down...");
-        current.adapter.getCommunicator().shutdown();
-    }
 }

@@ -31,7 +31,7 @@ public class Client extends Ice.Application
     run(String[] args)
     {
         Ice.Properties properties = communicator().getProperties();
-        final String refProperty = "Hello.Hello";
+        final String refProperty = "Hello.Proxy";
         String ref = properties.getProperty(refProperty);
         if(ref.length() == 0)
         {

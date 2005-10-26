@@ -50,6 +50,10 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	    Ice.Properties properties = _server.communicator().getProperties();
 
 	    String identity = properties.getPropertyWithDefault("IceBox.ServiceManager.Identity", "ServiceManager");
+	    if(identity.length() == 0)
+	    {
+		identity = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox") + "/ServiceManager";
+	    }
 	    adapter.add(this, Ice.Util.stringToIdentity(identity));
 
 	    //
