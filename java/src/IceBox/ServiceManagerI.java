@@ -452,50 +452,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	_services.clear();
     }
 
-    private void
-    destroyCommunicator(String name, Ice.Communicator communicator)
-    {
-	if(communicator != null)
-	{
-	    try
-	    {
-		communicator.shutdown();
-		communicator.waitForShutdown();
-	    }
-	    catch(Ice.CommunicatorDestroyedException e)
-	    {
-		//
-		// Ignore, the service might have already destroyed
-		// the communicator for its own reasons.
-		//
-	    }
-	    catch(java.lang.Exception e)
-	    {
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		e.printStackTrace(pw);
-		pw.flush();
-		_logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
-	    }
-	}
-	    
-	if(communicator != null)
-	{
-	    try
-	    {
-		communicator.destroy();
-	    }
-	    catch(java.lang.Exception e)
-	    {
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		e.printStackTrace(pw);
-		pw.flush();
-		_logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
-	    }
-	}
-    }
-
     class ServiceInfo
     {
         public Service service;
