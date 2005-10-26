@@ -7,11 +7,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= Ice IceStorm Glacier2 IcePatch2 IceGrid IceBox
+SUBDIRS		= hello
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
@@ -19,3 +19,6 @@ $(EVERYTHING)::
 	    echo "making $@ in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
+
+test::
+	@python $(top_srcdir)/allTests.py

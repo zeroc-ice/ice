@@ -1,0 +1,147 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+using System;
+using Demo;
+
+public class Client : Ice.Application
+{
+    private static void menu()
+    {
+        Console.WriteLine(
+	    "usage:\n" +
+	    "t: send greeting as twoway\n" +
+	    "o: send greeting as oneway\n" +
+	    "O: send greeting as batch oneway\n" +
+	    "d: send greeting as datagram\n" +
+	    "D: send greeting as batch datagram\n" +
+	    "f: flush all batch requests\n" +
+	    "T: set a timeout\n" +
+	    "x: exit\n" +
+	    "?: help\n");
+    }
+    
+    public override int run(string[] args)
+    {
+        Ice.Properties properties = communicator().getProperties();
+        string proxyProperty = "Hello.Proxy";
+        string proxy = properties.getProperty(proxyProperty);
+        if(proxy.Length == 0)
+        {
+            Console.Error.WriteLine("property `" + proxyProperty + "' not set");
+            return 1;
+        }
+        
+        HelloPrx twoway = HelloPrxHelper.checkedCast(
+	    communicator().stringToProxy(proxy).ice_twoway().ice_timeout(-1).ice_secure(false));
+        if(twoway == null)
+        {
+            Console.Error.WriteLine("invalid proxy");
+            return 1;
+        }
+        HelloPrx oneway = HelloPrxHelper.uncheckedCast(twoway.ice_oneway());
+        HelloPrx batchOneway = HelloPrxHelper.uncheckedCast(twoway.ice_batchOneway());
+        HelloPrx datagram = HelloPrxHelper.uncheckedCast(twoway.ice_datagram());
+        HelloPrx batchDatagram = HelloPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
+        
+        int timeout = -1;
+        
+        menu();
+        
+        string line = null;
+        do 
+        {
+            try
+            {
+                Console.Out.Write("==> ");
+                Console.Out.Flush();
+                line = Console.In.ReadLine();
+                if(line == null)
+                {
+                    break;
+                }
+                if(line.Equals("t"))
+                {
+                    twoway.sayHello();
+                }
+                else if(line.Equals("o"))
+                {
+                    oneway.sayHello();
+                }
+                else if(line.Equals("O"))
+                {
+                    batchOneway.sayHello();
+                }
+                else if(line.Equals("d"))
+                {
+                    datagram.sayHello();
+                }
+                else if(line.Equals("D"))
+                {
+                    batchDatagram.sayHello();
+                }
+                else if(line.Equals("f"))
+                {
+                    communicator().flushBatchRequests();
+                }
+                else if(line.Equals("T"))
+                {
+                    if(timeout == -1)
+                    {
+                        timeout = 2000;
+                    }
+                    else
+                    {
+                        timeout = -1;
+                    }
+                    
+                    twoway = HelloPrxHelper.uncheckedCast(twoway.ice_timeout(timeout));
+                    oneway = HelloPrxHelper.uncheckedCast(oneway.ice_timeout(timeout));
+                    batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_timeout(timeout));
+                    
+                    if(timeout == -1)
+                    {
+                        Console.WriteLine("timeout is now switched off");
+                    }
+                    else
+                    {
+                        Console.WriteLine("timeout is now set to 2000ms");
+                    }
+                }
+                else if(line.Equals("x"))
+                {
+                    // Nothing to do
+                }
+                else if(line.Equals("?"))
+                {
+                    menu();
+                }
+                else
+                {
+                    Console.WriteLine("unknown command `" + line + "'");
+                    menu();
+                }
+            }
+            catch(System.Exception ex)
+            {
+		Console.Error.WriteLine(ex);
+            }
+        }
+        while (!line.Equals("x"));
+        
+        return 0;
+    }
+
+    public static void Main(string[] args)
+    {
+        Client app = new Client();
+        int status = app.main(args, "config");
+        System.Environment.Exit(status);
+    }
+}
