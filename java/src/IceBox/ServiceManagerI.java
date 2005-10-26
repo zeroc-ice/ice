@@ -327,7 +327,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	    {
 		info.service.start(service, communicator, serviceArgs);
 	    }
-	    //catch(Exception ex)
 	    catch(Throwable ex)
 	    {
 		if(info.communicator != null)
@@ -377,7 +376,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	{
 	    throw ex;
 	}
-	catch(Throwable ex)//java.lang.Exception ex)
+	catch(Throwable ex)
 	{
 	    FailureException e = new FailureException();
 	    e.reason = "ServiceManager: exception while starting service " + service + ": " + ex;
