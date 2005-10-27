@@ -176,11 +176,6 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
     _serial(0)
 {
     //
-    // Register a default servant to manage manually registered object adapters.
-    //
-    _internalAdapter->addServantLocator(new AdapterServantLocator(this), "IceGridAdapter");
-
-    //
     // Cache the servers & adapters.
     //
     ServerEntrySeq entries;
@@ -196,11 +191,21 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
 	    warn << "invalid application `" << p->first << "':\n" << ex.reason;
 	}
     }
-
+	
     _serverCache.setTraceLevels(_traceLevels);
     _nodeCache.setTraceLevels(_traceLevels);
     _adapterCache.setTraceLevels(_traceLevels);
     _objectCache.setTraceLevels(_traceLevels);
+
+    //
+    // Register a default servant to manage manually registered object adapters.
+    //
+    // NOTE: This must be done only once we're sure this constructor
+    // won't throw. The servant locator is holding a handle on this
+    // object and if an exception was thrown a bogus database object
+    // won't be referenced from the servant locator.
+    //
+    _internalAdapter->addServantLocator(new AdapterServantLocator(this), "IceGridAdapter");
 }
 
 Database::~Database()
