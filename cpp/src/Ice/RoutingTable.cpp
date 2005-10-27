@@ -39,7 +39,10 @@ IceInternal::RoutingTable::add(const ObjectPrx& prx)
 	return false;
     }
 
-    ObjectPrx proxy = prx->ice_default(); // We insert the proxy in its default form into the routing table.
+    //
+    // We insert the proxy in its default form into the routing table.
+    //
+    ObjectPrx proxy = prx->ice_twoway()->ice_secure(false);
 
     IceUtil::Mutex::Lock sync(*this);
 

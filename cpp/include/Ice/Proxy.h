@@ -139,7 +139,6 @@ public:
     ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
     ::Ice::ObjectPrx ice_collocationOptimization(bool) const;
     ::Ice::ObjectPrx ice_connectionId(const ::std::string&) const;
-    ::Ice::ObjectPrx ice_default() const;
 
     ::Ice::ConnectionPtr ice_connection();
 

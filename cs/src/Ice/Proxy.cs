@@ -77,7 +77,6 @@ namespace Ice
         ObjectPrx ice_router(Ice.RouterPrx router);
         ObjectPrx ice_locator(Ice.LocatorPrx locator);
         ObjectPrx ice_collocationOptimization(bool b);
-        ObjectPrx ice_default();
 
         Connection ice_connection();
     }
@@ -562,21 +561,6 @@ namespace Ice
         public ObjectPrx ice_collocationOptimization(bool b)
         {
             IceInternal.Reference @ref = _reference.changeCollocationOptimization(b);
-            if(@ref.Equals(_reference))
-            {
-                return this;
-            }
-            else
-            {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
-                return proxy;
-            }
-        }
-
-        public ObjectPrx ice_default()
-        {
-            IceInternal.Reference @ref = _reference.changeDefault();
             if(@ref.Equals(_reference))
             {
                 return this;

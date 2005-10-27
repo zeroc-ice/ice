@@ -1,6 +1,8 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Removed ice_default() method from proxies.
+
 - Added downgrade() to IceUtil::RWRecMutex and fixed a bug in upgrade():
   previously, upgrade() was equivalent to calling unlock() followed
   by writeLock(), which could allow a thread to acquire a write lock while 

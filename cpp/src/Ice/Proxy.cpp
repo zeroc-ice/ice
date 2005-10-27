@@ -664,24 +664,6 @@ IceProxy::Ice::Object::ice_connectionId(const string& id) const
     }
 }
 
-ObjectPrx
-IceProxy::Ice::Object::ice_default() const
-{
-    ReferencePtr ref = _reference->changeDefault();
-    ref = ref->changeDefault();
-
-    if(ref == _reference)
-    {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
-    }
-    else
-    {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref);
-	return proxy;
-    }
-}
-
 ConnectionPtr
 IceProxy::Ice::Object::ice_connection()
 {

@@ -40,7 +40,10 @@ namespace Ice
 		return false;
 	    }
 	    
-	    ObjectPrx proxy = prx.ice_default(); // We insert the proxy in its default form into the routing table.
+	    //
+	    // We insert the proxy in its default form into the routing table.
+	    //
+	    ObjectPrx proxy = prx.ice_twoway().ice_secure(false);
 	    
 	    lock(this)
 	    {
