@@ -853,6 +853,7 @@ RWRecMutexTest::run()
 	// until the thread is destroyed. t2 should not have the write
 	// lock.
 	//
+	test(!t1->failed());
 	test(t1->waitHasWriteLock());
 	test(!t2->hasWriteLock());
 	t1->destroy();
