@@ -302,7 +302,7 @@ public:
 		_m.upgrade();
 	    }
 	}
-	catch(DeadlockException& ex)
+	catch(DeadlockException&)
 	{
 	    _failed = true;
 	}
