@@ -280,7 +280,7 @@ public:
 	//
 	// Acquire a read lock.
 	//
-	RWRecMutex::TryRLock tlock(_m);
+	RWRecMutex::RLock tlock(_m);
 
 	{
 	    Lock sync(*this);
@@ -828,10 +828,8 @@ RWRecMutexTest::run()
 	mutex.readLock();
 
 	RWRecMutexUpgradeThreadPtr t1 = new RWRecMutexUpgradeThread(mutex);
-	RWRecMutexWriteThreadPtr t2 = new RWRecMutexWriteThread(mutex);
-
+	
 	ThreadControl control1 = t1->start();
-	ThreadControl control2 = t2->start();
 
 	//
 	// Its not necessary to sleep here, since the upgrade thread
@@ -839,7 +837,15 @@ RWRecMutexTest::run()
 	// write thread cannot get the write lock.
 	//
 	t1->waitUpgrade();
+
+	RWRecMutexWriteThreadPtr t2 = new RWRecMutexWriteThread(mutex);
+	ThreadControl control2 = t2->start();
 	t2->waitWrite();
+	//
+	// Its necessary to sleep for 1 second to ensure that the
+	// thread is actually IN the write lock and waiting.
+	//
+	ThreadControl::sleep(Time::seconds(1));
 
 	//
 	// Unlocking the read mutex lets the upgrade continue. At this

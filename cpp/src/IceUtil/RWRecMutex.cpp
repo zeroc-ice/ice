@@ -395,7 +395,7 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
 	    {
 		bool result = _upgrader.timedWait(lock, remainder);
 		--_waitingWriters;
-		if(result == false)
+		if(!result)
 		{
 		    _upgrading = false;
 		    ++_count;
@@ -416,6 +416,7 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
 	    // The lock isn't acquired if a timeout occurred.
 	    //
 	    ++_count;
+	    _upgrading = false;
 	    return false;
 	}
     }
