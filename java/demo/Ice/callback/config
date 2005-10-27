@@ -2,9 +2,9 @@ Callback.Client.CallbackServer=callback:tcp -p 12000
 Callback.Client.Endpoints=tcp:udp:ssl
 Callback.Server.Endpoints=tcp -p 12000
 
-Ice.Trace.Network=3
-Ice.Trace.Protocol=3
-Ice.Warn.Connections=3
+#Ice.Trace.Network=3
+#Ice.Trace.Protocol=3
+Ice.Warn.Connections=1
 
 #
 # SSL Configuration
