@@ -269,7 +269,7 @@ public:
 	  _timed(timed),
 	  _destroyed(false),
 	  _upgrading(false),
-	  _hasLock(false),
+	  _hasWriteLock(false),
 	  _failed(false)
     {
     }
@@ -309,7 +309,7 @@ public:
 
 	{
 	    Lock sync(*this);
-	    _hasLock = true;
+	    _hasWriteLock = true;
 	    notify();
 
 	    while(!_destroyed)
@@ -331,12 +331,6 @@ public:
 	{
 	    wait();
 	}
-	
-	//
-	// Its necessary to sleep for 1 second to ensure that the
-	// thread is actually IN the upgrade and waiting.
-	//
-	ThreadControl::sleep(Time::seconds(1));
     }
 
     void
@@ -347,15 +341,20 @@ public:
 	notify();
     }
 
+    //
+    // This waits a maximum of N seconds if the lock is not already
+    // acquired. It could while forever, but that would cause the test
+    // to hang in the event of a failure.
+    //
     bool
-    waitHasLock()
+    waitHasWriteLock()
     {
 	Lock sync(*this);
-	if(!_hasLock)
+	if(!_hasWriteLock)
 	{
-	    timedWait(Time::seconds(1));
+	    timedWait(Time::seconds(10));
 	}
-	return _hasLock;
+	return _hasWriteLock;
     }
 
     bool
@@ -370,7 +369,7 @@ private:
     bool _timed;
     bool _destroyed;
     bool _upgrading;
-    bool _hasLock;
+    bool _hasWriteLock;
     bool _failed;
 };
 typedef Handle<RWRecMutexUpgradeThread> RWRecMutexUpgradeThreadPtr;
@@ -383,7 +382,7 @@ public:
         : _m(m),
 	  _destroyed(false),
 	  _waitWrite(false),
-	  _hasLock(false)
+	  _hasWriteLock(false)
     {
     }
 
@@ -402,7 +401,7 @@ public:
 
 	{
 	    Lock sync(*this);
-	    _hasLock = true;
+	    _hasWriteLock = true;
 	    notify();
 
 	    while(!_destroyed)
@@ -441,21 +440,26 @@ public:
     }
 
     bool
-    hasLock()
+    hasWriteLock()
     {
 	Lock sync(*this);
-	return _hasLock;
+	return _hasWriteLock;
     }
 
+    //
+    // This waits a maximum of N seconds if the lock is not already
+    // acquired. It could while forever, but that would cause the test
+    // to hang in the event of a failure.
+    //
     bool
-    waitHasLock()
+    waitHasWriteLock()
     {
 	Lock sync(*this);
-	if(!_hasLock)
+	if(!_hasWriteLock)
 	{
-	    timedWait(Time::seconds(1));
+	    timedWait(Time::seconds(10));
 	}
-	return _hasLock;
+	return _hasWriteLock;
     }
 
 private:
@@ -463,7 +467,7 @@ private:
     RWRecMutex& _m;
     bool _destroyed;
     bool _waitWrite;
-    bool _hasLock;
+    bool _hasWriteLock;
 };
 typedef Handle<RWRecMutexWriteThread> RWRecMutexWriteThreadPtr;
 
@@ -761,6 +765,12 @@ RWRecMutexTest::run()
 	//
 	t1->waitUpgrade();
 
+	//
+	// Its necessary to sleep for 1 second to ensure that the
+	// thread is actually IN the upgrade and waiting.
+	//
+	ThreadControl::sleep(Time::seconds(1));
+
 	try
 	{
 	    mutex.upgrade();
@@ -788,6 +798,11 @@ RWRecMutexTest::run()
 	ThreadControl control1 = t1->start();
 
 	t1->waitUpgrade();
+	//
+	// Its necessary to sleep for 1 second to ensure that the
+	// thread is actually IN the upgrade and waiting.
+	//
+	ThreadControl::sleep(Time::seconds(1));
 
 	try
 	{
@@ -818,22 +833,36 @@ RWRecMutexTest::run()
 	ThreadControl control1 = t1->start();
 	ThreadControl control2 = t2->start();
 
+	//
+	// Its not necessary to sleep here, since the upgrade thread
+	// acquires the read lock before signalling. Therefore the
+	// write thread cannot get the write lock.
+	//
 	t1->waitUpgrade();
 	t2->waitWrite();
 
 	//
-	// This lets the upgrade continue. At this point t1 should
-	// have the write-lock, and t2 should not.
+	// Unlocking the read mutex lets the upgrade continue. At this
+	// point t1 should have the write-lock, and t2 should not.
 	//
-	test(!t2->hasLock());
+	test(!t2->hasWriteLock());
 	mutex.unlock();
 
-	test(t1->waitHasLock());
-	test(!t2->hasLock());
+	//
+	// Wait for t1 to get the write lock. It will not release it
+	// until the thread is destroyed. t2 should not have the write
+	// lock.
+	//
+	test(t1->waitHasWriteLock());
+	test(!t2->hasWriteLock());
 	t1->destroy();
 	t2->destroy();
 
-	test(t2->waitHasLock());
+	//
+	// After the thread has terminated the thread must have
+	// acquired the write lock.
+	//
+	test(t2->waitHasWriteLock());
 
 	control1.join();
 	control2.join();
