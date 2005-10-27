@@ -1,6 +1,8 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Removed ice_default() method from proxies.
+
 - Added the proxy method ice_connectionId, which allows an application
   to control connection reuse.
 

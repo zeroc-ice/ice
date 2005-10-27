@@ -67,11 +67,6 @@ public:
     ReferencePtr changeIdentity(const Ice::Identity&) const;
     ReferencePtr changeFacet(const std::string&) const;
 
-    //
-    // Return a reference in the default configuration.
-    //
-    virtual ReferencePtr changeDefault() const;
-
     virtual ReferencePtr changeSecure(bool) const = 0;
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const = 0;
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const = 0;
@@ -181,8 +176,6 @@ public:
     virtual bool getSecure() const;
     virtual bool getCollocationOptimization() const;
 
-    virtual ReferencePtr changeDefault() const;
-
     virtual ReferencePtr changeSecure(bool) const;
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
     virtual ReferencePtr changeCollocationOptimization(bool) const;
@@ -218,8 +211,6 @@ public:
 
     virtual std::string getAdapterId() const;
     virtual std::vector<EndpointIPtr> getEndpoints() const;
-
-    virtual ReferencePtr changeDefault() const;
 
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
     virtual ReferencePtr changeCompress(bool) const;
@@ -259,8 +250,6 @@ public:
 
     virtual std::string getAdapterId() const;
     virtual std::vector<EndpointIPtr> getEndpoints() const;
-
-    virtual ReferencePtr changeDefault() const;
 
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
     virtual ReferencePtr changeCompress(bool) const;

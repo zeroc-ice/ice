@@ -48,28 +48,6 @@ public class IndirectReference extends RoutableReference
     }
 
     public Reference
-    changeDefault()
-    {
-	//
-	// Return a direct reference if no default locator is defined.
-	//
-	Ice.LocatorPrx loc = getInstance().referenceFactory().getDefaultLocator();
-	if(loc == null)
-	{
-	    return getInstance().referenceFactory().create(getIdentity(), null, "", ModeTwoway, false,
-							   new EndpointI[0], getRouterInfo(),
-							   getInstance().defaultsAndOverrides().
-							   defaultCollocationOptimization);
-	}
-	else
-	{
-	    IndirectReference r = (IndirectReference)super.changeDefault();
-	    r._locatorInfo = getInstance().locatorManager().get(loc);
-	    return r;
-	}
-    }
-
-    public Reference
     changeLocator(Ice.LocatorPrx newLocator)
     {
 	//

@@ -103,17 +103,6 @@ IceInternal::Reference::changeFacet(const string& newFacet) const
     return r;
 }
 
-ReferencePtr
-IceInternal::Reference::changeDefault() const
-{
-    ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_mode = ModeTwoway;
-    r->_secure = false;
-    r->_context = _instance->getDefaultContext();
-    r->_facet = "";
-    return r;
-}
-
 Int
 Reference::hash() const
 {
@@ -591,14 +580,6 @@ IceInternal::RoutableReference::getRoutedEndpoints() const
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeDefault() const
-{
-    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(Reference::changeDefault());
-    r->_routerInfo = getInstance()->routerManager()->get(getInstance()->referenceFactory()->getDefaultRouter());
-    return r;
-}
-
-ReferencePtr
 IceInternal::RoutableReference::changeRouter(const RouterPrx& newRouter) const
 {
     RouterInfoPtr newRouterInfo = getInstance()->routerManager()->get(newRouter);
@@ -708,32 +689,6 @@ IceInternal::DirectReference::changeEndpoints(const vector<EndpointPtr>& newEndp
     DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
     r->_endpoints = newEndpoints;
     return r;
-}
-
-ReferencePtr
-IceInternal::DirectReference::changeDefault() const
-{
-    //
-    // Return an indirect reference if a default locator is set.
-    //
-#ifdef ICEE_HAS_LOCATOR
-    LocatorPrx loc = getInstance()->referenceFactory()->getDefaultLocator();
-    if(loc)
-    {
-	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(loc);
-#ifdef ICEE_HAS_ROUTER
-	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway, false,
-							 "", 0, newLocatorInfo);
-#else
-	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway, false,
-							 "", newLocatorInfo);
-#endif
-    }
-    else
-#endif // ICEE_HAS_LOCATOR
-    {
-	return Parent::changeDefault();
-    }
 }
 
 #ifdef ICEE_HAS_LOCATOR
@@ -937,31 +892,6 @@ vector<EndpointPtr>
 IceInternal::IndirectReference::getEndpoints() const
 {
     return vector<EndpointPtr>();
-}
-
-ReferencePtr
-IceInternal::IndirectReference::changeDefault() const
-{
-    //
-    // Return a direct reference if no default locator is defined.
-    //
-    LocatorPrx loc = getInstance()->referenceFactory()->getDefaultLocator();
-    if(!loc)
-    {
-#ifdef ICEE_HAS_ROUTER
-	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway, false,
-							 vector<EndpointPtr>(), getRouterInfo());
-#else
-	return getInstance()->referenceFactory()->create(getIdentity(), Context(), "", ModeTwoway, false,
-							 vector<EndpointPtr>());
-#endif
-    }
-    else
-    {
-	IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(Parent::changeDefault());
-	r->_locatorInfo = getInstance()->locatorManager()->get(loc);
-	return r;
-    }
 }
 
 ReferencePtr

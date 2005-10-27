@@ -374,22 +374,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
-    public final ObjectPrx
-    ice_default()
-    {
-        IceInternal.Reference ref = _reference.changeDefault();
-        if(ref.equals(_reference))
-        {
-            return this;
-        }
-        else
-        {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(ref);
-            return proxy;
-        }
-    }
-
     public final Connection
     ice_connection()
     {

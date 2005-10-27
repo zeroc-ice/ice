@@ -97,16 +97,6 @@ IceInternal::Reference::changeFacet(const string& newFacet) const
     return r;
 }
 
-ReferencePtr
-IceInternal::Reference::changeDefault() const
-{
-    ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_mode = ModeTwoway;
-    r->_context = _instance->getDefaultContext();
-    r->_facet = "";
-    return r;
-}
-
 Int
 Reference::hash() const
 {
@@ -466,8 +456,7 @@ IceInternal::FixedReference::changeCompress(bool) const
 {
     // TODO: FixedReferences should probably have a _compress flag,
     // that gets its default from the fixed connection this reference
-    // refers to. This should be changable with changeCompress(), and
-    // reset in changeDefault().
+    // refers to. This should be changable with changeCompress().
     return FixedReferencePtr(const_cast<FixedReference*>(this));
 }
 
@@ -614,16 +603,6 @@ IceInternal::RoutableReference::getCollocationOptimization() const
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeDefault() const
-{
-    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(Reference::changeDefault());
-    r->_secure = false;
-    r->_routerInfo = getInstance()->routerManager()->get(getInstance()->referenceFactory()->getDefaultRouter());
-    r->_collocationOptimization = getInstance()->defaultsAndOverrides()->defaultCollocationOptimization;
-    return r;
-}
-
-ReferencePtr
 IceInternal::RoutableReference::changeSecure(bool newSecure) const
 {
     if(newSecure == _secure)
@@ -767,27 +746,6 @@ vector<EndpointIPtr>
 IceInternal::DirectReference::getEndpoints() const
 {
     return _endpoints;
-}
-
-ReferencePtr
-IceInternal::DirectReference::changeDefault() const
-{
-    //
-    // Return an indirect reference if a default locator is set.
-    //
-    LocatorPrx loc = getInstance()->referenceFactory()->getDefaultLocator();
-    if(loc)
-    {
-	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(loc);
-	return getInstance()->referenceFactory()->create(getIdentity(), getInstance()->getDefaultContext(), "",
-							 ModeTwoway, false, "", 0, newLocatorInfo,
-							 getInstance()->defaultsAndOverrides()->
-							 defaultCollocationOptimization);
-    }
-    else
-    {
-	return RoutableReference::changeDefault();
-    }
 }
 
 ReferencePtr
@@ -1028,28 +986,6 @@ vector<EndpointIPtr>
 IceInternal::IndirectReference::getEndpoints() const
 {
     return vector<EndpointIPtr>();
-}
-
-ReferencePtr
-IceInternal::IndirectReference::changeDefault() const
-{
-    //
-    // Return a direct reference if no default locator is defined.
-    //
-    LocatorPrx loc = getInstance()->referenceFactory()->getDefaultLocator();
-    if(!loc)
-    {
-	return getInstance()->referenceFactory()->create(getIdentity(), getInstance()->getDefaultContext(), "",
-							 ModeTwoway, false, vector<EndpointIPtr>(), getRouterInfo(),
-							 getInstance()->defaultsAndOverrides()->
-							 defaultCollocationOptimization);
-    }
-    else
-    {
-	IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(RoutableReference::changeDefault());
-	r->_locatorInfo = getInstance()->locatorManager()->get(loc);
-	return r;
-    }
 }
 
 ReferencePtr

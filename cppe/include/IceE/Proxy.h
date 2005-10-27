@@ -151,8 +151,6 @@ public:
 #ifdef ICEE_HAS_LOCATOR
     ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
 #endif
-    ::Ice::ObjectPrx ice_default() const;
-
     ::Ice::ConnectionPtr ice_connection();
 
     ::IceInternal::ReferencePtr __reference() const;

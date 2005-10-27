@@ -1097,28 +1097,6 @@ proxyIceLocator(ProxyObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-proxyIceDefault(ProxyObject* self)
-{
-    assert(self->proxy);
-
-    Ice::ObjectPrx newProxy;
-    try
-    {
-        newProxy = (*self->proxy)->ice_default();
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return NULL;
-    }
-
-    return createProxy(newProxy, *self->communicator);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 proxyIceConnection(ProxyObject* self)
 {
     assert(self->proxy);
@@ -1527,8 +1505,6 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_router(Ice.RouterPrx) -> Ice.ObjectPrx")) },
     { STRCAST("ice_locator"), (PyCFunction)proxyIceLocator, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_locator(Ice.LocatorPrx) -> Ice.ObjectPrx")) },
-    { STRCAST("ice_default"), (PyCFunction)proxyIceDefault, METH_NOARGS,
-        PyDoc_STR(STRCAST("ice_default() -> Ice.ObjectPrx")) },
     { STRCAST("ice_connection"), (PyCFunction)proxyIceConnection, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_connection() -> Ice.Connection")) },
     { STRCAST("ice_checkedCast"), (PyCFunction)proxyIceCheckedCast, METH_VARARGS | METH_CLASS,

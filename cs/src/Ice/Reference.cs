@@ -122,15 +122,6 @@ namespace IceInternal
 	    return r;
 	}
 
-	public virtual Reference changeDefault()
-	{
-	    Reference r = instance_.referenceFactory().copy(this);
-	    r.mode_ = Mode.ModeTwoway;
-	    r.context_ = instance_.getDefaultContext();
-	    r.facet_ = "";
-	    return r;
-	}
-
 	public abstract Reference changeSecure(bool newSecure);
 	public abstract Reference changeRouter(Ice.RouterPrx newRouter);
 	public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
@@ -696,8 +687,7 @@ namespace IceInternal
 	{
 	    // TODO: FixedReferences should probably have a _compress flag,
 	    // that gets its default from the fixed connection this reference
-	    // refers to. This should be changable with changeCompress(), and
-	    // reset in changeDefault().
+	    // refers to. This should be changable with changeCompress().
 	    return this;
 	}
 
@@ -800,15 +790,6 @@ namespace IceInternal
 	public override bool getCollocationOptimization()
 	{
 	    return _collocationOptimization;
-	}
-
-	public override Reference changeDefault()
-	{
-	    RoutableReference r = (RoutableReference)base.changeDefault();
-	    r._secure = false;
-	    r._routerInfo = getInstance().routerManager().get(getInstance().referenceFactory().getDefaultRouter());
-	    r._collocationOptimization = false;
-	    return r;
 	}
 
 	public override Reference changeSecure(bool newSecure)
@@ -922,25 +903,6 @@ namespace IceInternal
 	public override EndpointI[] getEndpoints()
 	{
 	    return _endpoints;
-	}
-
-	public override Reference changeDefault()
-	{
-	    //
-	    // Return an indirect reference if a default locator is set.
-	    //
-	    Ice.LocatorPrx loc = getInstance().referenceFactory().getDefaultLocator();
-	    if(loc != null)
-	    {
-		LocatorInfo newLocatorInfo = getInstance().locatorManager().get(loc);
-		return getInstance().referenceFactory().create(
-		    getIdentity(), getInstance().getDefaultContext(), "", Mode.ModeTwoway, false, "", null,
-		    newLocatorInfo, getInstance().defaultsAndOverrides().defaultCollocationOptimization);
-	    }
-	    else
-	    {
-		return base.changeDefault();
-	    }
 	}
 
 	public override Reference changeLocator(Ice.LocatorPrx newLocator)
@@ -1146,26 +1108,6 @@ namespace IceInternal
 	public override EndpointI[] getEndpoints()
 	{
 	    return new EndpointI[0];
-	}
-
-	public override Reference changeDefault()
-	{
-	    //
-	    // Return a direct reference if no default locator is defined.
-	    //
-	    Ice.LocatorPrx loc = getInstance().referenceFactory().getDefaultLocator();
-	    if(loc == null)
-	    {
-		return getInstance().referenceFactory().create(
-		    getIdentity(), getInstance().getDefaultContext(), "", Mode.ModeTwoway, false, new EndpointI[0],
-		    getRouterInfo(), getInstance().defaultsAndOverrides().defaultCollocationOptimization);
-	    }
-	    else
-	    {
-		IndirectReference r = (IndirectReference)base.changeDefault();
-		r.locatorInfo_ = getInstance().locatorManager().get(loc);
-		return r;
-	    }
 	}
 
 	public override Reference changeLocator(Ice.LocatorPrx newLocator)

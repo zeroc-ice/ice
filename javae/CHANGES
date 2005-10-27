@@ -1,6 +1,8 @@
 Changes since version 1.0.0
 ---------------------------
 
+- Removed ice_default() method from proxies.
+
 - Connection::close(false) (i.e., graceful connection shutdown) now
   waits until all outstanding requests have completed.
 

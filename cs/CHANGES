@@ -1,6 +1,8 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Removed ice_default() method from proxies.
+
 - Added an implementation of IceBox for C#.
 
 - Fixed bug in Ice.Application that could cause appName() to return

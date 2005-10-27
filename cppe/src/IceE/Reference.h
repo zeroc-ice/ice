@@ -69,11 +69,6 @@ public:
     ReferencePtr changeIdentity(const Ice::Identity&) const;
     ReferencePtr changeFacet(const std::string&) const;
 
-    //
-    // Return a reference in the default configuration.
-    //
-    virtual ReferencePtr changeDefault() const;
-
 #ifdef ICEE_HAS_ROUTER
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const = 0;
 #endif
@@ -174,8 +169,6 @@ public:
     const RouterInfoPtr& getRouterInfo() const { return _routerInfo; }
     std::vector<EndpointPtr> getRoutedEndpoints() const;
 
-    virtual ReferencePtr changeDefault() const;
-
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
 
     virtual Ice::ConnectionPtr getConnection() const = 0;
@@ -218,8 +211,6 @@ public:
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
     DirectReferencePtr changeEndpoints(const std::vector<EndpointPtr>&) const;
-
-    virtual ReferencePtr changeDefault() const;
 
 #ifdef ICEE_HAS_LOCATOR
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
@@ -273,8 +264,6 @@ public:
     const LocatorInfoPtr& getLocatorInfo() const { return _locatorInfo; }
 
     virtual std::vector<EndpointPtr> getEndpoints() const;
-
-    virtual ReferencePtr changeDefault() const;
 
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
     virtual ReferencePtr changeTimeout(int) const;

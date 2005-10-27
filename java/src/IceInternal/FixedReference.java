@@ -95,8 +95,7 @@ public class FixedReference extends Reference
     {
 	// TODO: FixedReferences should probably have a _compress flag,
 	// that gets its default from the fixed connection this reference
-	// refers to. This should be changable with changeCompress(), and
-	// reset in changeDefault().
+	// refers to. This should be changable with changeCompress().
         return this;
     }
 

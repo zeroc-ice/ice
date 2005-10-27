@@ -178,7 +178,6 @@ static function_entry _proxyMethods[] =
     {"ice_compress",        PHP_FN(Ice_ObjectPrx_ice_compress),        NULL},
     {"ice_timeout",         PHP_FN(Ice_ObjectPrx_ice_timeout),         NULL},
     {"ice_connectionId",    PHP_FN(Ice_ObjectPrx_ice_connectionId),    NULL},
-    {"ice_default",         PHP_FN(Ice_ObjectPrx_ice_default),         NULL},
     {"ice_uncheckedCast",   PHP_FN(Ice_ObjectPrx_ice_uncheckedCast),   NULL},
     {"ice_checkedCast",     PHP_FN(Ice_ObjectPrx_ice_checkedCast),     NULL},
     {NULL, NULL, NULL}
@@ -1225,32 +1224,6 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionId)
             RETURN_NULL();
         }
         Ice::ObjectPrx prx = _this->getProxy()->ice_connectionId(id);
-        if(!createProxy(return_value, prx TSRMLS_CC))
-        {
-            RETURN_NULL();
-        }
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
-    }
-}
-
-ZEND_FUNCTION(Ice_ObjectPrx_ice_default)
-{
-    if(ZEND_NUM_ARGS() != 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
-    assert(obj->ptr);
-    Proxy* _this = static_cast<Proxy*>(obj->ptr);
-
-    try
-    {
-        Ice::ObjectPrx prx = _this->getProxy()->ice_default();
         if(!createProxy(return_value, prx TSRMLS_CC))
         {
             RETURN_NULL();

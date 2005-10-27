@@ -45,16 +45,6 @@ public abstract class RoutableReference extends Reference
     }
 
     public Reference
-    changeDefault()
-    {
-	RoutableReference r = (RoutableReference)super.changeDefault();
-	r._secure = false;
-	r._routerInfo = getInstance().routerManager().get(getInstance().referenceFactory().getDefaultRouter());
-	r._collocationOptimization = getInstance().defaultsAndOverrides().defaultCollocationOptimization;
-	return r;
-    }
-
-    public Reference
     changeSecure(boolean newSecure)
     {
 	if(newSecure == _secure)
