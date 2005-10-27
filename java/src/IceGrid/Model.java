@@ -1202,7 +1202,7 @@ public class Model
 	_actions[CommonBase.DELETE].putValue(Action.SHORT_DESCRIPTION, "Delete");
    
 	_actions[CommonBase.SHOW_VARS] = new 
-	    AbstractAction("", Utils.getIcon("/icons/24x24/show_vars.png"))
+	    AbstractAction("Show variables")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1215,7 +1215,7 @@ public class Model
 
 
 	_actions[CommonBase.SUBSTITUTE_VARS] = new 
-	    AbstractAction("", Utils.getIcon("/icons/24x24/substitute.png"))
+	    AbstractAction("Substitute variables")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1232,12 +1232,17 @@ public class Model
 	    JCheckBoxMenuItem(_actions[CommonBase.SHOW_VARS]);
 	_showVarsTool = new 
 	    JToggleButton(_actions[CommonBase.SHOW_VARS]);
+	_showVarsTool.setIcon(Utils.getIcon("/icons/24x24/show_vars.png"));
+	_showVarsTool.setText("");
 
 	_substituteMenuItem = new
 	    JCheckBoxMenuItem(_actions[CommonBase.SUBSTITUTE_VARS]);
 	_substituteTool = new 
 	    JToggleButton(_actions[CommonBase.SUBSTITUTE_VARS]);
-	
+	_substituteTool.setIcon(Utils.getIcon("/icons/24x24/substitute.png"));
+	_substituteTool.setText("");
+
+
 	ButtonGroup group = new ButtonGroup();
 	group.add(_showVarsMenuItem);
 	group.add(_substituteMenuItem);
@@ -1293,6 +1298,7 @@ public class Model
 		{
 		    _actionsTarget.enable();
 		}
+
 	    };
 	
 	_actions[CommonBase.DISABLE] = new AbstractAction(
