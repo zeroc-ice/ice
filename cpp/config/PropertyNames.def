@@ -181,6 +181,7 @@ IceBox:
     UseSharedCommunicator.<any>
 
 IceGrid:
+    AdminGUI.Endpoints
     InstanceName
     Node.AdapterId
     Node.ReplicaGroupId
