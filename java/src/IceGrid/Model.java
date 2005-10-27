@@ -29,6 +29,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -40,6 +41,8 @@ import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
@@ -59,6 +62,53 @@ import IceGrid.TreeNode.Root;
 
 public class Model
 {
+    private class SelectionListener implements TreeSelectionListener
+    {
+	public void valueChanged(TreeSelectionEvent e)
+	{
+	    if(_selectionListenerEnabled)
+	    {
+		TreePath path = null;
+		if(e.isAddedPath())
+		{
+		    path = e.getPath();
+		}
+		
+		if(path == null)
+		{
+		    show(_root);
+		}
+		else
+		{
+		    CommonBase newNode = (CommonBase)path.getLastPathComponent();
+		    assert newNode.getParent() != null;
+		    
+		    if(_currentNode != null)
+		    {
+			if(_currentNode.isEphemeral())
+			{
+			    _currentNode.destroy();
+			}
+			else if(_currentNode.getParent() != null)
+			{
+			    _previousNodes.add(_currentNode);
+			    while(_previousNodes.size() >= HISTORY_MAX_SIZE)
+			    {
+				_previousNodes.removeFirst();
+			    }
+			    _back.setEnabled(true);
+			}
+		    }
+		    _nextNodes.clear();
+		    _forward.setEnabled(false);
+
+		    _currentNode = newNode;
+		    show(_currentNode);
+		}
+	    }
+	}
+    }
+
     private class MenuBar extends JMenuBar
     {
 	private MenuBar()
@@ -118,6 +168,7 @@ public class Model
 	    
 	    fileMenu.addSeparator();
 	    fileMenu.add(_login);
+	    fileMenu.add(_logout);
 	    fileMenu.addSeparator();
 	    fileMenu.add(_save);
 	    fileMenu.add(_discard);
@@ -143,7 +194,10 @@ public class Model
 	    add(viewMenu);
 	    viewMenu.add(_showVarsMenuItem);
 	    viewMenu.add(_substituteMenuItem);
-	    
+	    viewMenu.addSeparator();
+	    viewMenu.add(_back);
+	    viewMenu.add(_forward);
+
 	    //
 	    // Tools menu
 	    //
@@ -210,16 +264,53 @@ public class Model
 	    setFloatable(false);
 	    putClientProperty("JToolBar.isRollover", Boolean.TRUE);
 
-	    add(_login);
+	    JButton button = new JButton(_login);
+	    button.setText(null);
+	    button.setIcon(Utils.getIcon("/icons/24x24/login.png"));
+	    add(button);
+
 	    addSeparator();
-	    add(_save);
-	    add(_discard);
+	   	    
+	    button = new JButton(_back);
+	    button.setText(null);
+	    button.setIcon(Utils.getIcon("/icons/24x24/back.png"));
+	    add(button);
+	    button = new JButton(_forward);
+	    button.setText(null);
+	    button.setIcon(Utils.getIcon("/icons/24x24/forward.png"));
+	    add(button);
+
 	    addSeparator();
-	    add(_actions[CommonBase.COPY]);
-	    add(_actions[CommonBase.PASTE]);
+	    
+	    button = new JButton(_save);
+	    button.setText(null);
+	    button.setIcon(Utils.getIcon("/icons/24x24/save.png"));
+	    add(button);
+	    button = new JButton(_discard);
+	    button.setText(null);
+	    button.setIcon(Utils.getIcon("/icons/24x24/discard.png"));
+	    add(button);
+
 	    addSeparator();
-	    add(_actions[CommonBase.DELETE]);
+
+	    button = new JButton(_actions[CommonBase.COPY]);
+	    button.setText(null);
+	    button.setIcon(Utils.getIcon("/icons/24x24/copy.png"));
+	    add(button);
+	    button = new JButton(_actions[CommonBase.PASTE]);
+	    button.setText(null);
+	    button.setIcon(Utils.getIcon("/icons/24x24/paste.png"));
+	    add(button);
+
 	    addSeparator();
+
+	    button = new JButton(_actions[CommonBase.DELETE]);
+	    button.setText(null);
+	    button.setIcon(Utils.getIcon("/icons/24x24/delete.png"));
+	    add(button);
+
+	    addSeparator();
+
 	    add(_showVarsTool);
 	    add(_substituteTool);
 	}
@@ -602,13 +693,21 @@ public class Model
 	}
     }
     
-    private void discardUpdates(boolean showDialog)
+    
+    private void discardUpdates()
     {
 	assert _writeSerial == _latestSerial;
 
-	_sessionKeeper.relog(showDialog);
-	_save.setEnabled(false);
-	_discard.setEnabled(false);
+	int reallyDiscard = JOptionPane.showConfirmDialog(
+	    _mainFrame,
+	    "Do you want to discard all your updates?", 
+	    "Discard Confirmation",
+	    JOptionPane.YES_NO_OPTION);
+	
+	if(reallyDiscard == JOptionPane.YES_OPTION)
+	{
+	    _sessionKeeper.relog(false);
+	}
     }
 
 
@@ -651,6 +750,7 @@ public class Model
     {
 	_latestSerial = -1;
 	_writeSerial = -1;
+	_logout.setEnabled(false);
     }
     
     SessionPrx login(SessionKeeper.LoginInfo info, Component parent)
@@ -659,6 +759,12 @@ public class Model
 	_newApplication.setEnabled(false);
 	_newMenu.setEnabled(false);
 	_newApplicationWithDefaultTemplates.setEnabled(false);
+
+	_previousNodes.clear();
+	_nextNodes.clear();
+	_currentNode = null;
+	_back.setEnabled(false);
+	_forward.setEnabled(false);
 
 	SessionPrx session = null;
 	
@@ -801,6 +907,7 @@ public class Model
 	_newApplication.setEnabled(true);
 	_newApplicationWithDefaultTemplates.setEnabled(true);
 	_newMenu.setEnabled(true);
+	_logout.setEnabled(true);
 
 	return session;
     }
@@ -866,17 +973,6 @@ public class Model
 	}
     }
 
-    
-    boolean save()
-    {
-	return true;
-    }
-
-    boolean updated()
-    {
-	return true;
-    }  
-
     private void showVars()
     {
 	substitute(false);
@@ -927,6 +1023,11 @@ public class Model
 	_tree = tree;
 	_tree.getActionMap().put("copy", _actions[CommonBase.COPY]);
 	_tree.getActionMap().put("paste",  _actions[CommonBase.PASTE]);
+
+	SelectionListener appSelectionListener = new SelectionListener();
+	tree.addTreeSelectionListener(
+	    new SelectionListener());
+
     }
 
     public JTree getTree()
@@ -979,6 +1080,15 @@ public class Model
 	_root = new Root(this);
 	_treeModel = new TreeModelI(_root);
 
+	_shutdownHook = new Thread("Shutdown hook")
+	    {
+		public void run()
+		{
+		    destroyCommunicator();
+		}
+	    };
+	Runtime.getRuntime().addShutdownHook(_shutdownHook);
+	
 	//
 	// Fixed height for current status frame
 	//
@@ -1014,17 +1124,27 @@ public class Model
 	    };
 	_newApplicationWithDefaultTemplates.setEnabled(false);
 
-	_login = new AbstractAction("Login...", Utils.getIcon("/icons/24x24/login.png"))
+	_login = new AbstractAction("Login...")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
 		    login();
 		}
 	    };
-	_login.putValue(Action.SHORT_DESCRIPTION, "Log into an IceGrid Registry");
+	_login.putValue(Action.SHORT_DESCRIPTION, 
+			"Log into an IceGrid Registry");
 
+	_logout = new AbstractAction("Logout")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    logout();
+		}
+	    };
+	_logout.putValue(Action.SHORT_DESCRIPTION, "Logout");
+	_logout.setEnabled(false);
 
-	_save = new AbstractAction("Save", Utils.getIcon("/icons/24x24/save.png"))
+	_save = new AbstractAction("Save")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1036,12 +1156,11 @@ public class Model
 		       KeyStroke.getKeyStroke(KeyEvent.VK_S, MENU_MASK));
 	_save.putValue(Action.SHORT_DESCRIPTION, "Save to IceGrid Registry");
 	
-	_discard = new AbstractAction("Discard all updates...", 
-				      Utils.getIcon("/icons/24x24/discard.png"))
+	_discard = new AbstractAction("Discard all updates...")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    discardUpdates(false);
+		    discardUpdates();
 		}
 	    };
 	_discard.setEnabled(false);
@@ -1055,6 +1174,26 @@ public class Model
 		}
 	    };
 	_exit.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt F4"));
+
+
+	_back = new AbstractAction("Go back to previous node")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    back();
+		}
+	    };
+	_back.setEnabled(false);
+
+	_forward =  new AbstractAction("Go to next node")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    forward();
+		}
+	    };
+	_forward.setEnabled(false);
+
 
 	_about = new AbstractAction("About...")
 	    {
@@ -1169,7 +1308,7 @@ public class Model
 	    };
 	
 	
-	_actions[CommonBase.COPY] = new AbstractAction("Copy", Utils.getIcon("/icons/24x24/copy.png"))
+	_actions[CommonBase.COPY] = new AbstractAction("Copy")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1180,7 +1319,7 @@ public class Model
 					   KeyStroke.getKeyStroke(KeyEvent.VK_C, MENU_MASK));
 	_actions[CommonBase.COPY].putValue(Action.SHORT_DESCRIPTION, "Copy");
 
-	_actions[CommonBase.PASTE] = new AbstractAction("Paste", Utils.getIcon("/icons/24x24/paste.png"))
+	_actions[CommonBase.PASTE] = new AbstractAction("Paste")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1191,7 +1330,7 @@ public class Model
 					    KeyStroke.getKeyStroke(KeyEvent.VK_V, MENU_MASK));
 	_actions[CommonBase.PASTE].putValue(Action.SHORT_DESCRIPTION, "Paste");
 
-	_actions[CommonBase.DELETE] = new AbstractAction("Delete", Utils.getIcon("/icons/24x24/delete.png"))
+	_actions[CommonBase.DELETE] = new AbstractAction("Delete")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1253,9 +1392,7 @@ public class Model
 	_showVarsMenuItem.setSelected(true);
 	_showVarsTool.setSelected(true);
 	
-	_actions[CommonBase.MOVE_UP] = new AbstractAction(
-	    "Move up", 
-	    Utils.getIcon("/icons/24x24/move_up.png"))
+	_actions[CommonBase.MOVE_UP] = new AbstractAction("Move up")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1263,9 +1400,7 @@ public class Model
 		}
 	    };
 			   
-	_actions[CommonBase.MOVE_DOWN] = new AbstractAction(
-	    "Move down",
-	    Utils.getIcon("/icons/24x24/move_down.png"))
+	_actions[CommonBase.MOVE_DOWN] = new AbstractAction("Move down")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1440,7 +1575,7 @@ public class Model
     }
 
     //
-    // "Login" action
+    // Login and logout action
     //
     private void login()
     {
@@ -1451,16 +1586,17 @@ public class Model
 		"Do you want to save your updates?", 
 		"Save Confirmation",
 		JOptionPane.YES_NO_CANCEL_OPTION);
+
 	    switch(saveFirst)
 	    {
 		case JOptionPane.YES_OPTION:
 		    if(saveUpdates())
 		    {
-			_sessionKeeper.createSession(false);
+			_sessionKeeper.relog(true);
 		    }
 		    break;
 		case JOptionPane.NO_OPTION:
-		    discardUpdates(true);
+		    _sessionKeeper.relog(true);
 		    break;
 		case JOptionPane.CANCEL_OPTION:
 		    break;
@@ -1473,7 +1609,135 @@ public class Model
 	    _sessionKeeper.relog(true);
 	}
     }
+
+    private void logout()
+    {
+	if(_latestSerial != -1 && _latestSerial == _writeSerial)
+	{
+	    int saveFirst = JOptionPane.showConfirmDialog(
+		_mainFrame,
+		"Do you want to save your updates?", 
+		"Save Confirmation",
+		JOptionPane.YES_NO_CANCEL_OPTION);
+
+	    switch(saveFirst)
+	    {
+		case JOptionPane.YES_OPTION:
+		    if(saveUpdates())
+		    {
+			_sessionKeeper.logout(true);
+		    }
+		    break;
+		case JOptionPane.NO_OPTION:
+		    _sessionKeeper.logout(true);
+		    break;
+		case JOptionPane.CANCEL_OPTION:
+		    break;
+		default:
+		    assert false;
+	    }
+	}
+	else
+	{
+	    _sessionKeeper.logout(true);
+	}
+    }
     
+    //
+    // Navigation
+    //
+
+    private void cleanList(java.util.LinkedList list)
+    {
+        CommonBase previous = null;
+	java.util.Iterator p = list.iterator();
+	while(p.hasNext())
+	{
+	    CommonBase current = (CommonBase)p.next();
+	    if(current == previous || current.getParent() == null)
+	    {
+		p.remove();
+	    }
+	    else
+	    {
+		previous = current;
+	    }
+	}
+    }
+
+    private void back()
+    {
+	cleanList(_previousNodes);
+
+	if(_previousNodes.size() == 0)
+	{
+	    _back.setEnabled(false);
+	}
+	else
+	{
+	    CommonBase previousNode = (CommonBase)_previousNodes.removeLast();
+	    if(_previousNodes.size() == 0)
+	    {
+		_back.setEnabled(false);
+	    }
+	    
+	    if(previousNode != _currentNode)
+	    {
+		assert _currentNode != null;
+		if(_currentNode.isEphemeral())
+		{
+		    _currentNode.destroy();
+		}
+		else
+		{
+		    assert _currentNode.getParent() != null;
+		    _nextNodes.addFirst(_currentNode);
+		    _forward.setEnabled(true);
+		}
+		
+		_currentNode = previousNode;
+		_selectionListenerEnabled = false;
+		_tree.setSelectionPath(_currentNode.getPath());
+		_selectionListenerEnabled = true;
+		show(_currentNode);
+	    }
+	}
+    }
+
+    private void forward()
+    {
+	cleanList(_nextNodes);
+
+	if(_nextNodes.size() == 0)
+	{
+	    _forward.setEnabled(false);
+	}
+	else
+	{
+	    CommonBase nextNode = (CommonBase)_nextNodes.removeFirst();	
+	    if(_nextNodes.size() == 0)
+	    {
+		_forward.setEnabled(false);
+	    }
+	    
+	    if(nextNode != _currentNode)
+	    {
+		assert _currentNode != null;
+		assert !_currentNode.isEphemeral();
+		assert _currentNode.getParent() != null;
+		
+		_previousNodes.add(_currentNode);
+		_back.setEnabled(true);
+		
+		_currentNode = nextNode;
+		_selectionListenerEnabled = false;
+		_tree.setSelectionPath(_currentNode.getPath());
+		_selectionListenerEnabled = true;
+		show(_currentNode);
+	    }
+	}
+    }
+
     public void setClipboard(Object copy)
     {
 	_clipboard = copy;
@@ -1496,29 +1760,30 @@ public class Model
 
     void exit(int status)
     {
-	System.err.println("Exiting from thread " + Thread.currentThread().getName());
-
 	storeWindowPrefs();
+	destroyCommunicator();
+	_mainFrame.dispose();
+	Runtime.getRuntime().removeShutdownHook(_shutdownHook);
+	Runtime.getRuntime().exit(status);
+    }
+    
+    //
+    // Can be called by the shutdown hook thread
+    //
+    private void destroyCommunicator()
+    {
 	System.err.println("Destroying communicator");
-	try
+
+	try	   
 	{
-	    if(_communicator != null)
-	    {
-		_communicator.destroy();
-	    }
+	    _communicator.destroy();
 	}
 	catch(Ice.LocalException e)
 	{
-	    // TODO: log error
+	    System.err.println("_communicator.destroy() raised "
+			       + e.toString());
 	}
-	
-	System.err.println("Dispose of main frame");
-	_mainFrame.dispose();
-
-	System.err.println("Calling Runtime.exit");
-	Runtime.getRuntime().exit(status);
     }
-
 
     private boolean loadWindowPrefs()
     {
@@ -1681,15 +1946,27 @@ public class Model
     private Object _clipboard;
 
     //
+    // back/forward navigation
+    //
+    private java.util.LinkedList _previousNodes = new java.util.LinkedList();
+    private CommonBase _currentNode;
+    private java.util.LinkedList _nextNodes = new java.util.LinkedList();
+    private boolean _selectionListenerEnabled = true;
+
+    //
     // Actions
     //
     private Action _newApplication;
     private Action _newApplicationWithDefaultTemplates;
     private Action _login;
+    private Action _logout;
     private Action _save;
     private Action _discard;
     private Action _exit;
+    private Action _back;
+    private Action _forward;
     private Action _about;
+
 
     private Action[] _actions;
     
@@ -1708,4 +1985,8 @@ public class Model
     private JMenu _nodeMenu;
     private JMenu _serverMenu;
     private JMenu _serviceMenu;
+
+    private final Thread _shutdownHook;
+
+    static private final int HISTORY_MAX_SIZE = 20;
 }

@@ -269,11 +269,8 @@ class SessionKeeper
 	    setResizable(false);
 	}
 
-	//
-	// Returns a copy; the new info is "installed" only after
-	// a successful login.
-	//
-	boolean showDialog()
+	
+	void showDialog()
 	{
 	    if(isVisible() == false)
 	    {
@@ -290,15 +287,11 @@ class SessionKeeper
 
 		setLocationRelativeTo(_model.getMainFrame());
 		setVisible(true);
-		return true;
 	    }
-	    else
-	    {
-		//
-		// Otherwise it was already on the screen!
-		//
-		return false;
-	    }
+	  
+	    //
+	    // Otherwise it was already on the screen!
+	    //
 	}
        
 	private void writeInfo()
@@ -417,10 +410,7 @@ class SessionKeeper
 	    _loginDialog.showDialog();
 	}
     }
-
-    //
-    // Runs in UI thread
-    //
+  
     void relog(boolean showDialog)
     {
 	if(_loginInfo == null)
@@ -435,10 +425,14 @@ class SessionKeeper
 	    }
 	}
     }
+    
+    void logout(boolean destroySession)
+    {
+	destroyObservers();
+	releaseSession(destroySession);
+	_model.sessionLost();
+    }
 
-    //
-    // Runs in UI thread
-    //
     private boolean login(Component parent)
     {
 	if(_session != null)
@@ -498,17 +492,6 @@ class SessionKeeper
 	return true;
     }
 
-    private void logout(boolean destroySession)
-    {
-	destroyObservers();
-	releaseSession(destroySession);
-	_model.sessionLost();
-    }
-
-
-    //
-    // Runs in UI thread
-    //
     void sessionLost(String message)
     {
 	JOptionPane.showMessageDialog(
@@ -521,9 +504,6 @@ class SessionKeeper
 	relog(true);
     }
 
-    //
-    // Runs in UI thread
-    //
     private void releaseSession(boolean destroySession)
     {
 	if(_session != null)
@@ -553,9 +533,6 @@ class SessionKeeper
 	}
     }
 
-    //
-    // Runs in UI thread
-    //
     private void registerObservers()
     {
 	//

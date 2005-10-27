@@ -14,8 +14,6 @@ import javax.swing.*;
 
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeSelectionModel;
@@ -88,8 +86,6 @@ public class MainPane extends JSplitPane
 	private float _aspectRatio;
     }
 
-
-
     static class PopupListener extends MouseAdapter
     {
 	public void mousePressed(MouseEvent e) 
@@ -124,45 +120,7 @@ public class MainPane extends JSplitPane
 	}
     }
 
-    class SelectionListener implements TreeSelectionListener
-    {
-	public void valueChanged(TreeSelectionEvent e)
-	{
-	    TreePath path = null;
-	    if(e.isAddedPath())
-	    {
-		path = e.getPath();
-	    }
-	    
-	    if(path == null)
-	    {
-		if(_model.displayEnabled())
-		{
-		    _model.show(_model.getRoot());
-		    // displayWelcomePanel();
-		}
-	    }
-	    else
-	    {
-		CommonBase newNode = (CommonBase)path.getLastPathComponent();
-
-		if(_previousNode != null && _previousNode.isEphemeral()
-		   && _previousNode != newNode)
-		{
-		    _previousNode.destroy();
-		}
-		
-		//
-		// Must be a valid node
-		//
-		assert newNode.getParent() != null;
-		_previousNode = newNode;
-		_model.show(newNode);
-	    }	    
-	}
-	private CommonBase _previousNode;
-    }
-
+   
     public void updateUI()
     {
 	super.updateUI();
@@ -178,7 +136,6 @@ public class MainPane extends JSplitPane
 	    basicUI.getDivider().setBorder(BorderFactory.createEmptyBorder());
 	}
     }
-  
 
     MainPane(Model model)
     {
@@ -191,10 +148,6 @@ public class MainPane extends JSplitPane
 	PopupListener popupListener = new PopupListener();
 
 	JTree tree = new JTree(_model.getTreeModel());
-	//
-	// Work-around for Java bug #4833524
-	//
-	// tree.setUI(new PlasticTreeUI());
 
 	tree.setBorder(new EmptyBorder(5, 5, 5, 5));
 	tree.setCellRenderer(renderer);
@@ -204,8 +157,6 @@ public class MainPane extends JSplitPane
 	tree.getSelectionModel().setSelectionMode
 	    (TreeSelectionModel.SINGLE_TREE_SELECTION);
 	
-	SelectionListener appSelectionListener = new SelectionListener();
-	tree.addTreeSelectionListener(appSelectionListener);
 	tree.setRootVisible(false);
 	_model.setTree(tree);
 		

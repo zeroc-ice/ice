@@ -33,24 +33,15 @@ public class AdminGUI extends JFrame
 	StatusBarI()
 	{
 	    super(new BorderLayout());
-	    setBorder(new EmptyBorder(0, 5, 5, 10));
+	    setBorder(new EmptyBorder(0, 13, 10, 13));
 
-	    _connected = Utils.getIcon("/icons/connect.gif");
-	    _disconnected = Utils.getIcon("/icons/error_st_obj.gif");
-
-	    _connectedLabel = new JLabel(_disconnected);
 	    _text = new JLabel();
 	    _text.setHorizontalAlignment(SwingConstants.LEFT);
-	    
-	    JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-	    leftPanel.add(_connectedLabel);
-	    leftPanel.add(_text);
-	    
-	    add(leftPanel, BorderLayout.LINE_START);
-	    
-	    JLabel copyright = new JLabel("Copyright \u00A9 2005 ZeroC, Inc.");
-	    copyright.setHorizontalAlignment(SwingConstants.RIGHT);
-	    add(copyright, BorderLayout.LINE_END);
+	    add(_text, BorderLayout.LINE_START);
+
+	    _connectedLabel = new JLabel("Working Offline");
+	    _connectedLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+	    add(_connectedLabel, BorderLayout.LINE_END);
 	}
 
 	public void setText(String text)
@@ -62,19 +53,15 @@ public class AdminGUI extends JFrame
 	{
 	    if(connected)
 	    {
-		_connectedLabel.setIcon(_connected);
-		_text.setText("Connected");
+		_connectedLabel.setText("Working Online");
 	    }
 	    else
 	    {
-		_connectedLabel.setIcon(_disconnected);
-		_text.setText("Not connected");
+		_connectedLabel.setText("Working Offline");
 	    }
 	}
 
 	JLabel _connectedLabel;
-	Icon _connected;
-	Icon _disconnected;
 	JLabel _text;
     }
 
@@ -105,34 +92,6 @@ public class AdminGUI extends JFrame
 		    }
 		}
 	    });
-
-	Thread shutdownHook = new Thread("Shutdown hook")
-	    {
-		public void run()
-		{
-		    SwingUtilities.invokeLater(new Runnable() 
-			{
-			    public void run() 
-			    {
-				if(_model != null)
-				{
-				    _model.exit(0);
-				}
-			    }
-			});
-		    //
-		    // Give 3 seconds to the GUI thread
-		    //
-		    try
-		    {
-			Thread.sleep(3000);
-		    }
-		    catch(java.lang.InterruptedException e)
-		    {}
-		    System.err.println("End of shutdown hook");
-		}
-	    };
-	Runtime.getRuntime().addShutdownHook(shutdownHook);
 
 	_model = new Model(this, args, Preferences.userNodeForPackage(getClass()),
 			   new StatusBarI());
