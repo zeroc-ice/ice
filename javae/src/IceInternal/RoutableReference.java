@@ -33,14 +33,6 @@ public abstract class RoutableReference extends Reference
     }
 
     public Reference
-    changeDefault()
-    {
-	RoutableReference r = (RoutableReference)super.changeDefault();
-	r._routerInfo = getInstance().routerManager().get(getInstance().referenceFactory().getDefaultRouter());
-	return r;
-    }
-
-    public Reference
     changeRouter(Ice.RouterPrx newRouter)
     {
         RouterInfo newRouterInfo = getInstance().routerManager().get(newRouter);

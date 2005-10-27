@@ -147,20 +147,6 @@ public abstract class Reference
 	return r;
     }
 
-    //
-    // Return a reference in the default configuration.
-    //
-    public Reference
-    changeDefault()
-    {
-	Reference r = _instance.referenceFactory().copy(this);
-	r._mode = ModeTwoway;
-	r._secure = false;
-	r._context = _instance.getDefaultContext();
-	r._facet = "";
-	return r;
-    }
-
     public abstract Reference changeRouter(Ice.RouterPrx newRouter);
     public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
     public abstract Reference changeTimeout(int newTimeout);
