@@ -676,7 +676,7 @@ interface Admin
      * reached.
      *
      **/
-    nonmutating LoadInfo getNodeLoad(string name)
+    ["ami"] nonmutating LoadInfo getNodeLoad(string name)
 	throws NodeNotExistException, NodeUnreachableException;
 
     /**
