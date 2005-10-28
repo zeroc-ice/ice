@@ -180,7 +180,7 @@ class Server extends EditableParent
 	}
 	
 	ServerState state = getState();
-	if(state != null)
+	if(state != null && _model.getAdmin() != null)
 	{
 	    actions[START] = state == ServerState.Inactive && _enabled;
 	    actions[STOP] = state != ServerState.Inactive;

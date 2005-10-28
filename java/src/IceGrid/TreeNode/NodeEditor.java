@@ -9,6 +9,7 @@
 package IceGrid.TreeNode;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -20,6 +21,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -171,6 +173,17 @@ class NodeEditor extends Editor
 	_machineType.setEditable(false);
 	_loadAverage.setEditable(false);
 
+	Action refresh = new AbstractAction("Refresh")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    Node node = (Node)_target;
+		    node.getLoad();
+		}
+	    };
+	_refreshButton = new JButton(refresh);
+
+
 	//
 	// Variables
 	//
@@ -224,17 +237,28 @@ class NodeEditor extends Editor
 				 + " CPU" 
 				 + (info.nProcessors >= 2 ? "s" : ""));
 	    
-	    if(info.os.toLowerCase().startsWith("windows"))
+	    if(node.isRunningWindows())
 	    {
 		_loadAverageLabel.setText("CPU Usage");
-		_loadAverage.setText("92% 48% 18%");
 	    }
 	    else
 	    {
 		_loadAverageLabel.setText("Load Average");
-		_loadAverage.setText("0.92 0.48 0.18");
 	    }
+	    _loadAverage.setText("Refreshing...");
+	    node.getLoad();
 	}
+    }
+
+    void setLoad(String load, Node node)
+    {
+	if(node == _target)
+	{
+	    _loadAverage.setText(load);
+	}
+	//
+	// Otherwise, we've already moved to another node
+	// 
     }
 
 
@@ -248,8 +272,8 @@ class NodeEditor extends Editor
 	builder.nextLine();
 	builder.append("Machine Type");
 	builder.append(_machineType, 3);
-	builder.append(_loadAverageLabel);
-	builder.append(_loadAverage, 3);
+	builder.append(_loadAverageLabel, _loadAverage);
+	builder.append(_refreshButton);
 	builder.nextLine();
     }
 
@@ -360,4 +384,5 @@ class NodeEditor extends Editor
     private JTextField _machineType = new JTextField(20);
     private JLabel _loadAverageLabel = new JLabel();
     private JTextField _loadAverage = new JTextField(20);
+    private JButton _refreshButton;
 }

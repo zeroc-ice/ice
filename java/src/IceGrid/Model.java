@@ -343,6 +343,7 @@ public class Model
     {	
 	assert(_latestSerial == -1);
 	_latestSerial = serial;
+	System.err.println("Registry init: serial == " + _latestSerial);
 
 	_root.init(applications);
     }
@@ -388,10 +389,12 @@ public class Model
     
     boolean proceedWithUpdate(int serial)
     {
-	if(serial <= _latestSerial)
+	System.err.println("Proceed with update serial == " + serial);
+
+	if(_latestSerial == -1 || serial <= _latestSerial)
 	{
 	    //
-	    // Ignore old messages
+	    // Ignore old messages and messages when we're logged out
 	    //
 	    return false;
 	}
@@ -472,7 +475,14 @@ public class Model
 	if(path != null)
 	{
 	    CommonBase newNode = findNewNode(path);
-	    _tree.setSelectionPath(newNode.getPath());
+	    if(newNode == getSelectedNode())
+	    {
+		refreshDisplay();
+	    }
+	    else
+	    {
+		_tree.setSelectionPath(newNode.getPath());
+	    }
 	}
     }
 
@@ -497,6 +507,7 @@ public class Model
 	{
 	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	    _writeSerial = _sessionKeeper.getSession().startUpdate();
+	    System.err.println("New write serial == " + _writeSerial);
 	}
 	catch(AccessDeniedException e)
 	{
@@ -602,6 +613,9 @@ public class Model
 
     private boolean saveUpdates()
     {
+	System.err.println("write serial == " + _writeSerial);
+	System.err.println("latest serial == " + _latestSerial);
+
 	assert _writeSerial == _latestSerial;
 	_mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	
@@ -618,6 +632,11 @@ public class Model
 			_sessionKeeper.getSession().addApplication(
 			    (ApplicationDescriptor)application.getDescriptor());
 			application.commit();
+			//
+			// Will ignore this update
+			//
+			_latestSerial++;
+			_writeSerial = _latestSerial;
 		    }
 		    else
 		    {
@@ -627,14 +646,13 @@ public class Model
 			{
 			    _sessionKeeper.getSession().updateApplication(updateDescriptor);
 			    application.commit();
+			    //
+			    // Will ignore this update
+			    //
+			    _latestSerial++;
+			    _writeSerial = _latestSerial;
 			}
 		    }
-		    
-		    //
-		    // Will ignore these updates
-		    //
-		    _latestSerial++;
-		    _writeSerial = _latestSerial;
 		}
 		catch(AccessDeniedException e)
 		{
@@ -750,6 +768,8 @@ public class Model
     {
 	_latestSerial = -1;
 	_writeSerial = -1;
+	_admin = null;
+	showActions();
 	_logout.setEnabled(false);
     }
     

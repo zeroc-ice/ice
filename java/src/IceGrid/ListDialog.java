@@ -38,7 +38,7 @@ public class ListDialog extends JDialog
 { 
     public ListDialog(Frame parentFrame, String title, boolean trim)
     {
-	super(parentFrame, title, true);
+	super(parentFrame, title + " - IceGrid Admin", true);
 	setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 
 	_trim = trim;

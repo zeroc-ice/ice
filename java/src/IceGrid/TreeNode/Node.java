@@ -15,13 +15,19 @@ import javax.swing.Icon;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import java.text.NumberFormat;
+
+import IceGrid.AMI_Admin_getNodeLoad;
 import IceGrid.AMI_Admin_shutdownNode;
 
+import IceGrid.LoadInfo;
 import IceGrid.NodeDescriptor;
 import IceGrid.NodeInfo;
 import IceGrid.Model;
@@ -85,7 +91,7 @@ class Node extends EditableParent
 	    actions[NEW_SERVER] = true;
 	    actions[NEW_SERVER_ICEBOX] = true;
 	    actions[NEW_SERVER_FROM_TEMPLATE] = true;
-	    actions[SHUTDOWN_NODE] = _up;
+	    actions[SHUTDOWN_NODE] = _up && _model.getAdmin() != null;
 	}
 	return actions;
     }
@@ -568,6 +574,7 @@ class Node extends EditableParent
     {
 	_up = true;
 	_staticInfo = staticInfo;
+	_windows = _staticInfo.os.toLowerCase().startsWith("windows");
 	fireNodeChangedEvent(this);
     }
 
@@ -585,6 +592,103 @@ class Node extends EditableParent
 	    return true;
 	}
     }
+
+    void getLoad()
+    {
+	AMI_Admin_getNodeLoad cb = new AMI_Admin_getNodeLoad()
+	    {
+		public void ice_response(LoadInfo loadInfo)
+		{
+		    NumberFormat format;
+		    if(_windows)
+		    {
+			format = NumberFormat.getPercentInstance();
+			format.setMaximumFractionDigits(1);
+			format.setMinimumFractionDigits(1);
+		    }
+		    else
+		    {
+			format = NumberFormat.getNumberInstance();
+			format.setMaximumFractionDigits(2);
+			format.setMinimumFractionDigits(2);
+		    }
+		    
+		    final String load = 
+			format.format(loadInfo.avg1) + " " +
+			format.format(loadInfo.avg5) + " " +
+			format.format(loadInfo.avg15); 
+
+		    SwingUtilities.invokeLater(new Runnable() 
+			{
+			    public void run() 
+			    {
+				_editor.setLoad(load, Node.this);
+			    }
+			});
+		}
+
+		public void ice_exception(final Ice.UserException e)
+		{
+		    SwingUtilities.invokeLater(new Runnable() 
+			{
+			    public void run() 
+			    {
+				if(e instanceof IceGrid.NodeNotExistException)
+				{
+				    _editor.setLoad(
+					"Error: this node is not known to the IceGrid Registry",
+					Node.this);
+				}
+				else if(e instanceof IceGrid.NodeUnreachableException)
+				{
+				    _editor.setLoad("Error: cannot reach this node", Node.this);
+				}
+				else
+				{
+				    _editor.setLoad("Error: " + e.toString(), Node.this);
+				}
+			    }
+			});
+		}	      
+		
+		public void ice_exception(final Ice.LocalException e)
+		{
+		    SwingUtilities.invokeLater(new Runnable() 
+			{
+			    public void run() 
+			    {
+				_editor.setLoad("Error: " + e.toString(), Node.this);
+			    }
+			});
+		}
+	    };
+
+	try
+	{   
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+	    
+	    IceGrid.AdminPrx admin = _model.getAdmin();
+	    if(admin == null)
+	    {
+		_editor.setLoad("Unknown", this);
+	    }
+	    else
+	    {
+		admin.getNodeLoad_async(cb, _id);
+	    }
+	}
+	catch(Ice.LocalException e)
+	{
+	    _editor.setLoad("Error: " + e.toString(), this);
+	}
+	finally
+	{
+	    _model.getMainFrame().setCursor(
+		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+    }
+
 
     NodeUpdateDescriptor getUpdate()
     {
@@ -642,6 +746,11 @@ class Node extends EditableParent
 	}
 	else
 	{
+	    if(!_descriptor.description.equals(_origDescription))
+	    {
+		update.description = new IceGrid.BoxedString(_descriptor.description);
+	    }
+	    
 	    if(!_descriptor.loadFactor.equals(_origLoadFactor))
 	    {
 		update.loadFactor = new IceGrid.BoxedString(_descriptor.loadFactor);
@@ -684,11 +793,21 @@ class Node extends EditableParent
 	throws UpdateFailedException
     {
 	//
+	// Description
+	//
+	if(update.description != null)
+	{
+	    _descriptor.description = update.description.value;
+	    _origDescription = _descriptor.description;
+	}
+
+	//
 	// Load factor
 	//
 	if(update.loadFactor != null)
 	{
 	    _descriptor.loadFactor = update.loadFactor.value;
+	    _origLoadFactor = _descriptor.loadFactor;
 	}
 
 	//
@@ -818,11 +937,10 @@ class Node extends EditableParent
     public void commit()
     {
 	super.commit();
-	if(_descriptor != null)
-	{
-	    _origVariables = (java.util.Map)_descriptor.variables.clone();
-	    _origLoadFactor = _descriptor.loadFactor;
-	}
+
+	_origVariables = _descriptor.variables;
+	_origDescription = _descriptor.description;
+	_origLoadFactor = _descriptor.loadFactor;
     }
 
     Node(boolean brandNew, String nodeName, NodeDescriptor descriptor, 
@@ -834,6 +952,10 @@ class Node extends EditableParent
 	_inRegistry = (descriptor != null);
 	_staticInfo = staticInfo;
 	_up = staticInfo != null;
+	if(_up)
+	{
+	    _windows = _staticInfo.os.toLowerCase().startsWith("windows");
+	}
 
 	if(!_inRegistry)
 	{
@@ -846,9 +968,9 @@ class Node extends EditableParent
 	}
 	
 	_descriptor = descriptor;
-	_origVariables = (java.util.Map)_descriptor.variables.clone();
+	_origVariables = _descriptor.variables;
+	_origDescription = _descriptor.description;
 	_origLoadFactor = _descriptor.loadFactor;
-
 
 	_resolver = new Utils.Resolver(new java.util.Map[]
 	    {_descriptor.variables, application.getVariables()});
@@ -983,6 +1105,11 @@ class Node extends EditableParent
     NodeInfo getStaticInfo()
     {
 	return _staticInfo;
+    }
+
+    boolean isRunningWindows()
+    {
+	return _windows;
     }
 
     void tryAdd(ServerInstanceDescriptor instanceDescriptor,
@@ -1136,6 +1263,7 @@ class Node extends EditableParent
     private Utils.Resolver _resolver;
 
     private java.util.Map _origVariables;
+    private String _origDescription;
     private String _origLoadFactor;
 
     private boolean _up = false;
@@ -1144,6 +1272,7 @@ class Node extends EditableParent
     private boolean _inRegistry;
 
     private NodeInfo _staticInfo;
+    private boolean _windows;
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon _nodeUp;

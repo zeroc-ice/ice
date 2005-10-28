@@ -91,7 +91,7 @@ public class Application extends EditableParent
 	{
 	    actions[PASTE] = descriptor instanceof ApplicationDescriptor;
 	}
-	if(!_model.isUpdateInProgress())
+	if(!_model.isUpdateInProgress() && _model.getAdmin() != null)
 	{
 	    actions[APPLICATION_INSTALL_DISTRIBUTION] = 
 		!_descriptor.distrib.icepatch.equals("");
@@ -324,7 +324,26 @@ public class Application extends EditableParent
 	update.removeNodes = _nodes.removedElements();
 	update.nodes = _nodes.getUpdates();
 
-	return update;
+
+	//
+	// Return null if nothing changed
+	//
+	if(!isModified() &&
+	   update.removeReplicaGroups.length == 0 &&
+	   update.replicaGroups.size() == 0 &&
+	   update.removeServerTemplates.length == 0 &&
+	   update.serverTemplates.size() == 0 &&
+	   update.removeServiceTemplates.length == 0 &&
+	   update.serviceTemplates.size() == 0 &&
+	   update.removeNodes.length == 0 &&
+	   update.nodes.size() == 0)
+	{
+	    return null;
+	}
+	else
+	{
+	    return update;
+	}
     }
     
     public void commit()
@@ -499,6 +518,7 @@ public class Application extends EditableParent
 	if(desc.description != null)
 	{
 	    _descriptor.description = desc.description.value;
+	    _origDescription = _descriptor.description;
 	}
 
 	//
@@ -516,6 +536,7 @@ public class Application extends EditableParent
 	if(desc.distrib != null)
 	{
 	    _descriptor.distrib = desc.distrib.value;
+	    _origDistrib = _descriptor.distrib;
 	}
 
 	//

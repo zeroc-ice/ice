@@ -47,7 +47,7 @@ public class ParametersDialog extends JDialog
 			    String valHeading, boolean editNames,
 			    final String nullLabel)
     {
-	super(parentFrame, title, true);
+	super(parentFrame, title + " - IceGrid Admin", true);
 	_editNames = editNames;
 	_nullObject = new Object()
 	    {

@@ -40,7 +40,7 @@ public class TableDialog extends JDialog
     public TableDialog(Frame parentFrame, String title, 
 		       String heading0, String heading1, boolean editKeys)
     {
-	super(parentFrame, title, true);
+	super(parentFrame, title + " - IceGrid Admin", true);
 	_editKeys = editKeys;
 	setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 
