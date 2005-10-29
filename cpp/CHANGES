@@ -198,6 +198,8 @@ Changes since version 2.1.2
 - Removed IceSSL's internal handshake retry loop, along with the
   related property IceSSL.Client.Handshake.Retries.
 
+- Added support for OpenSSL 0.98.
+
 Changes since version 2.1.1
 ---------------------------
 

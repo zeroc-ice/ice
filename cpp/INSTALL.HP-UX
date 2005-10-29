@@ -53,7 +53,7 @@ Ice has dependencies on a number of third-party libraries:
   (plus --prefix=<dir> and/or --enable-java if you like)
   $ gmake
  
-- OpenSSL 0.9.7, which can be downloaded from http://www.openssl.org
+- OpenSSL 0.9.8, which can be downloaded from http://www.openssl.org
 
   We do not recommend to use the binary distribution available from
   the "Software Porting And Archive Centre for HP-UX" as it depends on

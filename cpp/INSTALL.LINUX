@@ -36,7 +36,7 @@ Ice has dependencies on a number of third-party libraries:
 
 - expat 1.9x
 
-- OpenSSL 0.96 or 0.97
+- OpenSSL 0.97 or 0.98
 
 - bzip2 1.0
 
