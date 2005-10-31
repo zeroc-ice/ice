@@ -31,10 +31,12 @@ import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
@@ -250,6 +252,16 @@ public class Model
 	    JMenu helpMenu = new JMenu("Help");
 	    helpMenu.setMnemonic(java.awt.event.KeyEvent.VK_H);
 	    add(helpMenu);
+
+	    helpMenu.add(_helpContents);
+	    if(GPL_BUILD)
+	    {
+		helpMenu.addSeparator();
+		helpMenu.add(_copying);
+		helpMenu.add(_warranty);
+	    }
+
+	    helpMenu.addSeparator();
 	    helpMenu.add(_about);
 	}
     }
@@ -301,9 +313,6 @@ public class Model
 	    button.setText(null);
 	    button.setIcon(Utils.getIcon("/icons/24x24/paste.png"));
 	    add(button);
-
-	    addSeparator();
-
 	    button = new JButton(_actions[CommonBase.DELETE]);
 	    button.setText(null);
 	    button.setIcon(Utils.getIcon("/icons/24x24/delete.png"));
@@ -1215,11 +1224,35 @@ public class Model
 	_forward.setEnabled(false);
 
 
-	_about = new AbstractAction("About...")
+	_helpContents = new AbstractAction("Contents")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    // TODO: implement
+		    helpContents();
+		}	
+	    };
+
+	_copying = new AbstractAction("Copying conditions")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    copying();
+		}
+	    };
+
+	_warranty = new AbstractAction("(Non)Warranty")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    warranty();
+		}
+	    };
+		
+	_about = new AbstractAction("About")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    about();
 		}
 	    };
 
@@ -1758,6 +1791,78 @@ public class Model
 	}
     }
 
+    private void helpContents()
+    {
+	/*
+	if(_helpWindow == null)
+	{
+	    _helpWindow = new HelpWindow();
+	}
+	_helpWindow.showWindow(_mainFrame);
+	*/
+    }
+
+    private void copying()
+    {
+	try
+	{
+	    JEditorPane pane = new JEditorPane(
+		Utils.class.getResource("/license.txt"));
+	    pane.setEditable(false);
+
+	    Dimension prefSize = new Dimension(500, 450);
+	    pane.setPreferredSize(prefSize);
+
+	    JOptionPane.showMessageDialog(
+		_mainFrame,
+		new JScrollPane(pane),
+		"Copying Conditions - IceGrid Admin",
+		JOptionPane.INFORMATION_MESSAGE);
+	}
+	catch(java.io.IOException e)
+	{
+	    System.err.println("Cannot find license.txt");
+	}
+    }
+
+    private void warranty()
+    {
+	try
+	{
+	    JEditorPane pane = new JEditorPane(
+		Utils.class.getResource("/warranty.txt"));
+	    pane.setEditable(false);
+
+	    Dimension prefSize = new Dimension(500, 350);
+	    pane.setPreferredSize(prefSize);
+
+	    JOptionPane.showMessageDialog(
+		_mainFrame,
+		new JScrollPane(pane),
+		"Warranty - IceGrid Admin",
+		JOptionPane.INFORMATION_MESSAGE);
+	}
+	catch(java.io.IOException e)
+	{
+	    System.err.println("Cannot find warranty.txt");
+	}
+    }
+
+    private void about()
+    {
+	String text = "IceGrid Admin version " 
+	    + IceUtil.Version.ICE_STRING_VERSION + "\n"
+	    + "Copyright \u00A9 2005 ZeroC, Inc. All rights reserved.\n";
+	    
+	JOptionPane.showMessageDialog(
+	    _mainFrame,
+	    text,
+	    "About - IceGrid Admin",
+	    JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    
+
     public void setClipboard(Object copy)
     {
 	_clipboard = copy;
@@ -1985,6 +2090,9 @@ public class Model
     private Action _exit;
     private Action _back;
     private Action _forward;
+    private Action _helpContents;
+    private Action _copying;
+    private Action _warranty;
     private Action _about;
 
 
@@ -2009,4 +2117,9 @@ public class Model
     private final Thread _shutdownHook;
 
     static private final int HISTORY_MAX_SIZE = 20;
+
+    //
+    // TODO: should come from build system
+    //
+    static private final boolean GPL_BUILD = true;
 }
