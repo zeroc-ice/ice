@@ -64,6 +64,9 @@ public:
             cerr << appName()
 	         << ": received signal, shutting down" << endl;
 	}
+
+	NodeI::_adapter = 0;
+
 	return 0;
     };
 };
