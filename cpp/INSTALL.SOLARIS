@@ -36,7 +36,7 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.3.28 configured with --enable-cxx, and built with a
+- Berkeley DB 4.3.29 configured with --enable-cxx, and built with a
   C++ compiler compatible with the one you are using.
 
   If you intend to use Ice for Java with Berkeley DB, you must also

@@ -26,7 +26,7 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.3.28 with C++ support enabled, and built with a C++
+- Berkeley DB 4.3.29 with C++ support enabled, and built with a C++
   compiler compatible with the one you are using.
 
   You can download the Berkeley DB source distribution from
