@@ -1462,7 +1462,7 @@ public class Model
 	    };
 
 	_actions[CommonBase.START] = new AbstractAction(
-	    "Start", Utils.getIcon("/icons/24x24/start.png"))
+	    "Start", Utils.getIcon("/icons/16x16/start.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1471,7 +1471,7 @@ public class Model
 	    };
 
 	_actions[CommonBase.STOP] = new AbstractAction(
-	    "Stop", Utils.getIcon("/icons/24x24/stop.png"))
+	    "Stop", Utils.getIcon("/icons/16x16/stop.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1480,7 +1480,7 @@ public class Model
 	    };
 
 	_actions[CommonBase.ENABLE] = new AbstractAction(
-	    "Enable", Utils.getIcon("/icons/24x24/enable.png"))
+	    "Enable", Utils.getIcon("/icons/16x16/enable.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1490,7 +1490,7 @@ public class Model
 	    };
 	
 	_actions[CommonBase.DISABLE] = new AbstractAction(
-	    "Disable", Utils.getIcon("/icons/24x24/disable.png"))
+	    "Disable", Utils.getIcon("/icons/16x16/disable.png"))
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{

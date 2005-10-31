@@ -69,9 +69,9 @@ public class Application extends EditableParent
 	{
 	    _cellRenderer = new DefaultTreeCellRenderer();
 	    _cellRenderer.setOpenIcon(
-		Utils.getIcon("/icons/16x16/application.png"));
+		Utils.getIcon("/icons/16x16/application_open.png"));
 	    _cellRenderer.setClosedIcon(
-		Utils.getIcon("/icons/16x16/application.png"));
+		Utils.getIcon("/icons/16x16/application_closed.png"));
 	}
 
 	return _cellRenderer.getTreeCellRendererComponent(

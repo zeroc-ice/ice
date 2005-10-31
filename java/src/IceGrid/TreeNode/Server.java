@@ -556,10 +556,45 @@ class Server extends EditableParent
 		Utils.getIcon("/icons/16x16/icebox_server_destroying.png");
 	    _icons[ServerState.Destroyed.value() + 1][1][0] = 
 		Utils.getIcon("/icons/16x16/icebox_server_destroyed.png");
+
+	    //
+	    // Regular servers (disabled)
+	    //
+	    _icons[0][0][1] = Utils.getIcon("/icons/16x16/server_unknown.png");
+	    _icons[ServerState.Inactive.value() + 1][0][1]
+		= Utils.getIcon("/icons/16x16/server_disabled_inactive.png");
+	    _icons[ServerState.Activating.value() + 1][0][1] = 
+		Utils.getIcon("/icons/16x16/server_disabled_activating.png");
+	    _icons[ServerState.Active.value() + 1][0][1] = 
+		Utils.getIcon("/icons/16x16/server_disabled_active.png");
+	    _icons[ServerState.Deactivating.value() + 1][0][1] = 
+		Utils.getIcon("/icons/16x16/server_disabled_deactivating.png");
+	    _icons[ServerState.Destroying.value() + 1][0][1] = 
+		Utils.getIcon("/icons/16x16/server_disabled_destroying.png");
+	    _icons[ServerState.Destroyed.value() + 1][0][1] = 
+		Utils.getIcon("/icons/16x16/server_disabled_destroyed.png");
+
+	    //
+	    // IceBox servers (disabled)
+	    //
+	    _icons[0][1][1] = Utils.getIcon("/icons/16x16/icebox_server_unknown.png");
+	    _icons[ServerState.Inactive.value() + 1][1][1]
+		= Utils.getIcon("/icons/16x16/icebox_server_disabled_inactive.png");
+	    _icons[ServerState.Activating.value() + 1][1][1] = 
+		Utils.getIcon("/icons/16x16/icebox_server_disabled_activating.png");
+	    _icons[ServerState.Active.value() + 1][1][1] = 
+		Utils.getIcon("/icons/16x16/icebox_server_disabled_active.png");
+	    _icons[ServerState.Deactivating.value() + 1][1][1] = 
+		Utils.getIcon("/icons/16x16/icebox_server_disabled_deactivating.png");
+	    _icons[ServerState.Destroying.value() + 1][1][1] = 
+		Utils.getIcon("/icons/16x16/icebox_server_disabled_destroying.png");
+	    _icons[ServerState.Destroyed.value() + 1][1][1] = 
+		Utils.getIcon("/icons/16x16/icebox_server_disabled_destroyed.png");
+
 	}
 
 	int icebox = _serverDescriptor instanceof IceBoxDescriptor ? 1 : 0;
-	int disabled = 0;
+	int disabled = _enabled ? 0 : 1;
 
 	if(expanded)
 	{

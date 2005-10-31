@@ -15,8 +15,15 @@ public class Utils
     static public ImageIcon getIcon(String path)
     {
 	java.net.URL imgURL = Utils.class.getResource(path);
-	assert(imgURL != null);
-	return new ImageIcon(imgURL);
+	if(imgURL == null)
+	{
+	    System.err.println("Could not find icon " + path);
+	    return null;
+	}
+	else
+	{
+	    return new ImageIcon(imgURL);
+	}
     }
 
     static public interface Stringifier
