@@ -65,7 +65,7 @@
 	<copy file="${ice.dir}/ICE_LICENSE" todir="${stage.dir}/ice-common/doc"/>
 	<copy todir="${stage.dir}/ice-common/doc">
 	    <fileset dir="${doc.dir}">
-		<exclude name="THIRD_PARTY_LICENSE.rtf"/>
+		<exclude name="**.rtf"/>
 		<exclude name="THIRD_PARTY_SOURCES"/>
 	    </fileset>
 	</copy>
@@ -88,7 +88,11 @@
 	<mkdir dir="${stage.dir}/packages-common"/>
 	<copy file="${common.dir}/installer-main.bmp" todir="${stage.dir}/packages-common"/>
 	<copy file="${common.dir}/installer-header.bmp" todir="${stage.dir}/packages-common"/>
-	<copy file="${doc.dir}/THIRD_PARTY_LICENSE.rtf" tofile="${stage.dir}/packages-common/LICENSE.rtf"/>
+	<copy todir="${stage.dir}/packages-common">
+	    <fileset dir="${doc.dir}">
+		<include name="**.rtf"/>
+	    </fileset>
+	</copy>
 
 	<!-- README, licenses, etc. -->
 	<mkdir dir="${stage.dir}/packages-common/doc"/>
@@ -199,12 +203,10 @@
 	    </fileset>
 	</copy>
 
-	<mkdir dir="${stage.dir}/ice-cpp/dev/bin/debug"/>
-	<copy todir="${stage.dir}/ice-cpp/dev/bin/debug" flatten="true">
-	    <fileset dir="${ice.dir}/src/IceBox/Debug">
-		<include name="icebox.exe"/>
-		<include name="icebox.pdb"/>
-	    </fileset>
+	<copy file="${ice.dir}/src/IceBox/Debug/icebox.exe" tofile="${stage.dir}/ice-cpp/dev/bin/iceboxd.exe">
+	</copy>
+
+	<copy file="${ice.dir}/src/IceBox/Debug/icebox.pdb" tofile="${stage.dir}/ice-cpp/dev/bin/iceboxd.pdb">
 	</copy>
 
 	<!-- Libraries -->
@@ -251,7 +253,30 @@
     </target>
 
     <!-- Ice for C++ Demo -->
-    <target name="ice-cpp-demo" depends="setup">
+        <!-- Ice for C++ Demo -->
+    <target name="ice-cpp-demo-vc60" depends="setup">
+
+	<mkdir dir="${stage.dir}/ice-cpp/demo/demo"/>
+	<copy todir="${stage.dir}/ice-cpp/demo/demo">
+	    <fileset dir="${ice.dir}/demo">
+		<exclude name="**/*.ncb"/>
+		<exclude name="**/*.suo"/>
+		<exclude name="**/*.exe"/>
+		<exclude name="**/*.ilk"/>
+		<exclude name="**/*.pdb"/>
+		<exclude name="**/*.plg"/>
+		<exclude name="**/.depend"/>
+		<exclude name="**/.dummy"/>
+		<exclude name="**/Makefile"/>
+		<exclude name="**/Debug/**"/>
+		<exclude name="**/Release/**"/>
+		<exclude name="Freeze/backup/**"/>
+	    </fileset>
+	</copy>
+
+    </target>
+
+    <target name="ice-cpp-demo-vc71" depends="setup">
 
 	<mkdir dir="${stage.dir}/ice-cpp/demo/demo"/>
 	<copy todir="${stage.dir}/ice-cpp/demo/demo">
@@ -263,6 +288,7 @@
 		<exclude name="**/*.exe"/>
 		<exclude name="**/*.ilk"/>
 		<exclude name="**/*.pdb"/>
+		<exclude name="**/*.plg"/>
 		<exclude name="**/.depend"/>
 		<exclude name="**/.dummy"/>
 		<exclude name="**/Makefile"/>
@@ -753,13 +779,13 @@
             depends="ice-common,
 		     ice-cpp-runtime,
 		     ice-cpp-dev,
-		     ice-cpp-demo"/>
+		     ice-cpp-demo-vc60"/>
 
     <target name="ice-stage-vc71" 
             depends="ice-common,
 		     ice-cpp-runtime,
 		     ice-cpp-dev,
-		     ice-cpp-demo,
+		     ice-cpp-demo-vc71,
 		     ice-csharp-runtime,
 		     ice-csharp-dev,
 		     ice-csharp-demo,
