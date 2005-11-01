@@ -99,30 +99,9 @@ public:
 	return _usec != rhs._usec;
     }
 
-    Time& operator*=(const Time& rhs)
+    double operator/(const Time& rhs) const
     {
-	_usec *= rhs._usec;
-	return *this;
-    }
-
-    Time operator*(const Time& rhs) const
-    {
-	Time t;
-	t._usec = _usec * rhs._usec;
-	return t;
-    }
-
-    Time& operator/=(const Time& rhs)
-    {
-	_usec /= rhs._usec;
-	return *this;
-    }
-
-    Time operator/(const Time& rhs) const
-    {
-	Time t;
-	t._usec = _usec / rhs._usec;
-	return t;
+	return (double)_usec / (double)rhs._usec;
     }
 
     Time& operator*=(int rhs)
