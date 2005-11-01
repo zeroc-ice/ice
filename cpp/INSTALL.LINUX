@@ -34,6 +34,13 @@ Ice has dependencies on a number of third-party libraries:
   Thread Library), set LD_ASSUME_KERNEL=2.4.1 before running
   configure.
 
+  If you are using Fedora Core 4 and are enabling java support it is 
+  necessary to change the optimization level due to optimization
+  issues with the GCC compiler that comes with Fedora Core 4. We 
+  recommend that you use the following syntax when you run configure:
+
+  $ CFLAGS="-O1" ../dist/configure <your configure options>
+
 - expat 1.9x
 
 - OpenSSL 0.97 or 0.98
