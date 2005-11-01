@@ -1,6 +1,16 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Changed the mapping for Slice structures: if a Slice
+  structure (recursively) contains a member that is of
+  reference type, the Slice structure automatically maps
+  to a VB class.
+
+  A Slice structure now maps to a VB structure only if
+  the Slice structure (recursively) consists only of
+  value type (and if the "clr:class" metadata directive
+  does not apply to the structure).
+
 - The run time was obscuring the true origin (source file and
   line number) of some exceptions when rethrowing them. It
   now correctly shows the source of such exceptions

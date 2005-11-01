@@ -372,15 +372,6 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
 	    {
 		_out << nl << "is__.readPendingObjects()";
 	    }
-	    for(q = inParams.begin(); q != inParams.end(); ++q)
-	    {
-		StructPtr st = StructPtr::dynamicCast(q->first);
-		bool patchStruct = st && !st->hasMetaData("clr:class") && st->classDataMembers().size() != 0;
-		if(patchStruct)
-		{
-		    _out << nl << fixId(q->second) << ".patch__()";
-		}
-	    }
 	    
 	    for(q = outParams.begin(); q != outParams.end(); ++q)
 	    {
@@ -499,15 +490,6 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
 	    if(op->sendsClasses())
 	    {
 		_out << nl << "is__.readPendingObjects()";
-	    }
-	    for(q = inParams.begin(); q != inParams.end(); ++q)
-	    {
-		StructPtr st = StructPtr::dynamicCast(q->first);
-		bool patchStruct = st && !st->hasMetaData("clr:class") && st->classDataMembers().size() != 0;
-		if(patchStruct)
-		{
-		    _out << nl << fixId(q->second) << ".patch__()";
-		}
 	    }
 	    
 	    //
@@ -2508,13 +2490,16 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     _out << sp << nl;
     emitAttributes(p);
-    if(p->hasMetaData("clr:class"))
+    if(isValueType(p))
     {
-	_out << "Public Class " << name << " Implements _System.ICloneable";
+	_out << "Public Structure " << name;
     }
     else
     {
-	_out << "Public Structure " << name;
+	_out << "Public Class " << name;
+	_out.inc();
+	_out << nl << " Implements _System.ICloneable";
+	_out.dec();
     }
     _out.inc();
 
@@ -2537,7 +2522,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out.zeroIndent();
     _out << sp << nl << "#End Region"; // Slice data members
 
-    bool isClass = p->hasMetaData("clr:class");
+    bool isClass = !isValueType(p);
 
     _out << sp << nl << "#Region \"Constructor";
     if(isClass)
@@ -2568,11 +2553,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
     {
         _out << nl << "Me." << *i << " = " << *i;
-    }
-    bool patchStruct = !isClass && classMembers.size() != 0;
-    if(!p->isLocal() && patchStruct)
-    {
-        _out << nl << "pm_ = Nothing";
     }
     _out.dec();
     _out << nl << "End Sub";
@@ -2743,16 +2723,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	_out << nl << "End Sub";
 
 
-	if(classMembers.size() != 0)
+	if(isClass && classMembers.size() != 0)
 	{
 	    _out << sp << nl << "Public NotInheritable Class Patcher__";
 	    _out.inc();
 	    _out << nl << "Inherits IceInternal.Patcher";
 	    _out << sp << nl << "Friend Sub New(ByVal instance As " << name;
-	    if(patchStruct)
-	    {
-	        _out << ".PatchMembers__";
-	    }
 	    if(classMembers.size() > 1)
 	    {
 	    	_out << ", ByVal member As Integer";
@@ -2801,59 +2777,21 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    _out << nl << "End Sub";
 
 	    _out << sp << nl << "Private _instance As " << name;
-	    if(patchStruct)
-	    {
-	        _out << ".PatchMembers__";
-	    }
 	    if(classMembers.size() > 1)
 	    {
 		_out << nl << "Private _member As Integer";
 	    }
 	    _out.dec();
 	    _out << nl << "End Class";
-
-	    if(patchStruct)
-	    {
-		_out << sp << nl << "Friend Class PatchMembers__";
-		_out.inc();
-		for(q = classMembers.begin(); q != classMembers.end(); ++q)
-		{
-		    string memberType = typeToString((*q)->type());
-		    string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
-		    _out << nl << "Friend " << memberName << " As " << memberType;
-		}
-		_out.dec();
-		_out << nl << "End Class";
-
-		_out << sp << nl << "Private pm_ As PatchMembers__";
-
-		_out << sp << nl << "Public Sub patch__()";
-		_out.inc();
-		for(q = classMembers.begin(); q != classMembers.end(); ++q)
-		{
-		    string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
-		    _out << nl << memberName << " = pm_." << memberName;
-		}
-		_out.dec();
-		_out << nl << "End Sub";
-	    }
 	}
 
         _out << sp << nl << "Public Sub read__(ByVal is__ As IceInternal.BasicStream)";
         _out.inc();
-	if(patchStruct)
-	{
-	    _out << nl << "If pm_ Is Nothing Then";
-	    _out.inc();
-	    _out << nl << "pm_ = new PatchMembers__()";
-	    _out.dec();
-	    _out << nl << "End If";
-	}
 	int classMemberCount = 0;
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
 	    ostringstream patchParams;
-	    patchParams << (patchStruct ? "pm_" : "Me");
+	    patchParams << "Me";
 	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*q)->type());
 	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*q)->type()))
 	    {
@@ -2884,19 +2822,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
 	    _out << sp << nl << "Public Sub read__(ByVal inS__ As Ice.InputStream)";
 	    _out.inc();
-	    if(patchStruct)
-	    {
-		_out << nl << "If pm_ Is Nothing";
-		_out.inc();
-		_out << nl << "pm_ = New PatchMembers__";
-		_out.dec();
-		_out << nl << "End If";
-	    }
 	    classMemberCount = 0;
 	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	    {
 		ostringstream patchParams;
-		patchParams << (patchStruct ? "pm_" : "Me");
+		patchParams << "Me";
 		BuiltinPtr builtin = BuiltinPtr::dynamicCast((*q)->type());
 		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*q)->type()))
 		{
@@ -2919,7 +2849,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     }
 
     _out.dec();
-    _out << sp << nl << "End Structure";
+    _out << sp << nl << "End " << (isClass ? "Class" : "Structure");
 }
 
 void
@@ -4495,15 +4425,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 		    string type = typeToString(q->first);
 		    _out << nl << param << " = CType(" << param << "_PP.value, " << type << ')';
 		}
-		else
-		{
-		    StructPtr st = StructPtr::dynamicCast(q->first);
-		    bool patchStruct = st && !st->hasMetaData("clr:class") && st->classDataMembers().size() != 0;
-		    if(patchStruct)
-		    {
-			_out << nl << param << ".patch__()";
-		    }
-		}
 	    }
 	}
 	if(ret)
@@ -4512,15 +4433,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
 	    {
 		_out << nl << "ret__ = CType(ret___PP.value, " << retS << ')';
-	    }
-	    else
-	    {
-		StructPtr st = StructPtr::dynamicCast(ret);
-		bool patchStruct = st && !st->hasMetaData("clr:class") && st->classDataMembers().size() != 0;
-		if(patchStruct)
-		{
-		    _out << nl << "ret__.patch__()";
-		}
 	    }
 	    _out << nl << "Return ret__";
 	}
@@ -4977,15 +4889,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 		string type = typeToString(q->first);
 		_out << nl << param << " = CType(" << param << "_PP.value, " << type << ')';
 	    }
-	    else
-	    {
-		StructPtr st = StructPtr::dynamicCast(q->first);
-		bool patchStruct = st && !st->hasMetaData("clr:class") && st->classDataMembers().size() != 0;
-		if(patchStruct)
-		{
-		    _out << nl << param << ".patch__()";
-		}
-	    }
 	}
 	if(ret)
 	{
@@ -4994,15 +4897,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    {
 		string type = typeToString(ret);
 		_out << nl << "ret__ = CType(ret___PP.value, " << retS << ')';
-	    }
-	    else
-	    {
-		StructPtr st = StructPtr::dynamicCast(ret);
-		bool patchStruct = st && !st->hasMetaData("clr:class") && st->classDataMembers().size() != 0;
-		if(patchStruct)
-		{
-		    _out << nl << "ret__.patch__()";
-		}
 	    }
 	}
    	_out.dec();

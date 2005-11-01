@@ -209,17 +209,29 @@ Slice::VbGenerator::isValueType(const TypePtr& type)
 	        break;
 	    }
 	}
-   }
-   StructPtr s = StructPtr::dynamicCast(type);
-   if(s)
-   {
-       return !s->hasMetaData("clr:class");
-   }
-   if(EnumPtr::dynamicCast(type))
-   {
-       return true;
-   }
-   return false;
+    }
+    StructPtr s = StructPtr::dynamicCast(type);
+    if(s)
+    {
+	if(s->hasMetaData("clr:class"))
+	{
+	    return false;
+	}
+	DataMemberList dm = s->dataMembers();
+	for(DataMemberList::const_iterator i = dm.begin(); i != dm.end(); ++i)
+	{
+	    if(!isValueType((*i)->type()))
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
+    if(EnumPtr::dynamicCast(type))
+    {
+	return true;
+    }
+    return false;
 }
 
 void
