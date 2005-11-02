@@ -152,6 +152,7 @@ def editMakeRules(filename, version):
     these files to make them appropriate to accompany binary
     distributions.
     '''
+    print 'Editing file -> ' + filename
 
     state = 'header'
     reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
@@ -234,7 +235,8 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
        Ice"""
     cwd = os.getcwd()
     os.chdir(buildDir + "/demotree")
-    os.system("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/certs")
+    print "gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/config " + distro + "/certs"
+    os.system("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/config " + distro + "/certs")
 	
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo" + demoDir)
 
@@ -246,6 +248,13 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
 	os.mkdir(buildDir + "/Ice-" + version + "-demos/certs")
 
     os.system("cp -pR " + distro + "/certs/* " + buildDir + "/Ice-" + version + "-demos/certs")
+
+    #
+    # 'System' copying of files here because its just easier!  We don't
+    # need any configuration out of the Python tree.
+    # 
+    if not demoDir == "py":
+	os.system("cp " + distro + "/config/* " + buildDir + "/Ice-" + version + "-demos/config")
 
     #
     # Collect files to remove from the demo distribution.
@@ -264,6 +273,14 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
 	    fullpath = os.path.join(basepath, f)
             if os.path.exists(fullpath):
 		remove.append(fullpath)
+
+    basepath = os.path.join(buildDir, 'Ice-' + version + '-demos', 'config')
+
+    if distro.startswith('Ice-'):
+	editMakeRules(os.path.join(basepath, 'Make.rules'), version)
+ 
+    elif distro.startswith('IceCS-'):
+        editMakeRules(os.path.join(basepath, 'Make.rules.cs'), version)
 
     #
     # Remove collected files.
@@ -366,37 +383,6 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     # XXX- Optimizations need to be turned on for the release.
     #
     os.system('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=' + installDir + ' install')
-
-    #
-    # Edit config directory contents and copy into installation target
-    # directory.
-    #
-    destDir = os.path.join(installDir, 'config')
-    if not os.path.exists(destDir):
-        os.mkdir(destDir)
-
-    # 
-    # Its important to copy the files before editing them. If they are
-    # edited in place and then copied, the build will be broken and
-    # subsequent attempts to rebuild without cleaning will fail.
-    #
-    if distro.startswith('Ice-'):
-        #
-        # For C++ we copy the base build rules plus the platform
-        # specific rules for this specific platform.
-        #
-        filesToCopy = []
-        filesToCopy.append(os.path.join('config', 'Make.rules'))
-        filesToCopy.append(os.path.join('config', 'Make.rules.' + getMakeRulesSuffix()))
-        for f in filesToCopy:
-	    print('Copying ' + f + ' to ' + destDir)
-            shutil.copy(f, destDir)
-	editMakeRules(os.path.join(destDir, 'Make.rules'), version)
- 
-    elif distro.startswith('IceCS-'):
-        shutil.copy(os.path.join('config', 'Make.rules.cs'), destDir)
-        editMakeRules(os.path.join(destDir, 'Make.rules.cs'), version)
-        
     os.chdir(cwd)
     
 def shlibExtensions(versionString, versionInt):
