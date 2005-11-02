@@ -276,7 +276,19 @@ public final class ThreadPool
 
 	    if(_fdIntrWrite != null)
 	    {
-		_fdIntrWrite.close();
+	        try
+		{
+		    _fdIntrWrite.close();
+		}
+		catch(java.io.IOException ex)
+		{
+		    //
+		    // Ignore this execption. It can occur due to an apparent
+		    // bug in the JVM on some platforms such as Linux. Calling
+		    // close throws an IOException eventhough _fdIntrWrite is
+		    // valid.
+		    //
+		}
 		_fdIntrWrite = null;
 	    }
 
