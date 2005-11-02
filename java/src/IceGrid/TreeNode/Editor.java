@@ -43,18 +43,18 @@ public class Editor
 {     
     public JComponent getProperties()
     {
-	if(_propertiesPanel == null)
+	if(_propertiesPanel == null && _hasProperties)
 	{
-	    buildPanels();
+	    buildPropertiesPanel();
 	}
 	return _propertiesPanel;
     }
 
     public JComponent getCurrentStatus(Ice.StringHolder title)
     {
-	if(_currentStatusPanel == null)
+	if(_currentStatusPanel == null && _hasCurrentStatus)
 	{
-	    buildPanels();
+	    buildCurrentStatusPanel();
 	}
 	return _currentStatusPanel;
     }
@@ -78,61 +78,61 @@ public class Editor
 	assert false;
     }
 
-    private void buildPanels()
+    private void buildCurrentStatusPanel()
     {
-	if(_hasCurrentStatus)
-	{
-	    FormLayout layout = new FormLayout(
-		"right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
+	assert _hasCurrentStatus;
 
-	    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-	    builder.setBorder(Borders.DLU2_BORDER);
-	    builder.setRowGroupingEnabled(true);
-	    builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-	    appendCurrentStatus(builder);
+	FormLayout layout = new FormLayout(
+	    "right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
+	
+	DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+	builder.setBorder(Borders.DLU2_BORDER);
+	builder.setRowGroupingEnabled(true);
+	builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+	appendCurrentStatus(builder);
+	
+	JScrollPane scrollPane = 
+	    new JScrollPane(builder.getPanel(),
+			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+			    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	
+	scrollPane.setBorder(Borders.DIALOG_BORDER);
+	
+	_currentStatusPanel = new JPanel(new BorderLayout());
+	_currentStatusPanel.add(scrollPane, BorderLayout.CENTER);
+	_currentStatusPanel.setBorder(Borders.EMPTY_BORDER);
+    }
+    
+    private void buildPropertiesPanel()
+    {
+	assert _hasProperties;
 
-	    JScrollPane scrollPane = 
-		new JScrollPane(builder.getPanel(),
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-	    
-	    scrollPane.setBorder(Borders.DIALOG_BORDER);
+	FormLayout layout = new FormLayout(
+	    "right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
 	
-	    _currentStatusPanel = new JPanel(new BorderLayout());
-	    _currentStatusPanel.add(scrollPane, BorderLayout.CENTER);
-	    _currentStatusPanel.setBorder(Borders.EMPTY_BORDER);
-	}
+	DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+	builder.setBorder(Borders.DLU2_BORDER);
+	builder.setRowGroupingEnabled(true);
+	builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
 	
-	if(_hasProperties)
-	{
-	    FormLayout layout = new FormLayout(
-		"right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
-
-	    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-	    builder.setBorder(Borders.DLU2_BORDER);
-	    builder.setRowGroupingEnabled(true);
-	    builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-	    
-	    appendProperties(builder);
-	    
-	    JScrollPane scrollPane = 
-		new JScrollPane(builder.getPanel(),
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-	    
-	    scrollPane.setBorder(Borders.DIALOG_BORDER);
+	appendProperties(builder);
 	
-	    _propertiesPanel = new JPanel(new BorderLayout());
-	    _propertiesPanel.add(scrollPane, BorderLayout.CENTER);
-	    _propertiesPanel.setBorder(Borders.EMPTY_BORDER);
+	JScrollPane scrollPane = 
+	    new JScrollPane(builder.getPanel(),
+			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+			    JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	
-	    JComponent buttonBar = 
-		ButtonBarFactory.buildRightAlignedBar(_applyButton, 
-						      _discardButton);
-	    buttonBar.setBorder(Borders.DIALOG_BORDER);
-	    _propertiesPanel.add(buttonBar, BorderLayout.SOUTH);
+	scrollPane.setBorder(Borders.DIALOG_BORDER);
 	
-	}
+	_propertiesPanel = new JPanel(new BorderLayout());
+	_propertiesPanel.add(scrollPane, BorderLayout.CENTER);
+	_propertiesPanel.setBorder(Borders.EMPTY_BORDER);
+	
+	JComponent buttonBar = 
+	    ButtonBarFactory.buildRightAlignedBar(_applyButton, 
+						  _discardButton);
+	buttonBar.setBorder(Borders.DIALOG_BORDER);
+	_propertiesPanel.add(buttonBar, BorderLayout.SOUTH);
     }
     
     //

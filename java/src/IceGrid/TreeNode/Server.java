@@ -130,9 +130,15 @@ class Server extends EditableParent
 	java.util.LinkedList adapterList = new java.util.LinkedList();
 	adapterList.add(serviceManager);
 	
+	PropertyDescriptor pd = 
+	    new PropertyDescriptor("IceBox.ServiceManager.Endpoints",
+				   "tcp -h 127.0.0.1");
+	java.util.LinkedList properties = new java.util.LinkedList();
+	properties.add(pd);
+
 	return new IceBoxDescriptor(
 	    adapterList,
-	    new java.util.LinkedList(),
+	    properties,
 	    new java.util.LinkedList(),
 	    "",
 	    "NewIceBox",

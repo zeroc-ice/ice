@@ -365,6 +365,7 @@ class ReplicaGroupEditor extends Editor
 
 	_loadBalancing.setEnabled(true);
 	_loadBalancing.setEditable(true);
+
 	if(descriptor.loadBalancing == null)
 	{
 	    _loadBalancing.setSelectedItem(RETURN_ALL);

@@ -174,7 +174,7 @@ class AdapterEditor extends ListElementEditor
 
 	JTextField idTextField = (JTextField)
 	    _id.getEditor().getEditorComponent();
-	idTextField.getDocument().addDocumentListener(_updateListener);	
+	idTextField.getDocument().addDocumentListener(_updateListener);
 
 	JTextField replicaGroupIdTextField = (JTextField)
 	    _replicaGroupId.getEditor().getEditorComponent();

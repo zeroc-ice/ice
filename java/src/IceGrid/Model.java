@@ -324,7 +324,7 @@ public class Model
 	    add(_substituteTool);
 	}
     }
- 
+
     //
     // All Model's methods run in the UI thread
     //
@@ -1109,6 +1109,8 @@ public class Model
 	_root = new Root(this);
 	_treeModel = new TreeModelI(_root);
 
+	_licenseDialog = new LicenseDialog(_mainFrame);
+
 	_shutdownHook = new Thread("Shutdown hook")
 	    {
 		public void run()
@@ -1228,6 +1230,8 @@ public class Model
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
+		    System.err.println("Action fired");
+
 		    helpContents();
 		}	
 	    };
@@ -1236,7 +1240,7 @@ public class Model
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    copying();
+		    _licenseDialog.show("TOP");
 		}
 	    };
 
@@ -1244,7 +1248,7 @@ public class Model
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    warranty();
+		    _licenseDialog.show("WARRANTY");
 		}
 	    };
 		
@@ -1793,59 +1797,8 @@ public class Model
 
     private void helpContents()
     {
-	/*
-	if(_helpWindow == null)
-	{
-	    _helpWindow = new HelpWindow();
-	}
-	_helpWindow.showWindow(_mainFrame);
-	*/
-    }
-
-    private void copying()
-    {
-	try
-	{
-	    JEditorPane pane = new JEditorPane(
-		Utils.class.getResource("/license.txt"));
-	    pane.setEditable(false);
-
-	    Dimension prefSize = new Dimension(500, 450);
-	    pane.setPreferredSize(prefSize);
-
-	    JOptionPane.showMessageDialog(
-		_mainFrame,
-		new JScrollPane(pane),
-		"Copying Conditions - IceGrid Admin",
-		JOptionPane.INFORMATION_MESSAGE);
-	}
-	catch(java.io.IOException e)
-	{
-	    System.err.println("Cannot find license.txt");
-	}
-    }
-
-    private void warranty()
-    {
-	try
-	{
-	    JEditorPane pane = new JEditorPane(
-		Utils.class.getResource("/warranty.txt"));
-	    pane.setEditable(false);
-
-	    Dimension prefSize = new Dimension(500, 350);
-	    pane.setPreferredSize(prefSize);
-
-	    JOptionPane.showMessageDialog(
-		_mainFrame,
-		new JScrollPane(pane),
-		"Warranty - IceGrid Admin",
-		JOptionPane.INFORMATION_MESSAGE);
-	}
-	catch(java.io.IOException e)
-	{
-	    System.err.println("Cannot find warranty.txt");
-	}
+	BareBonesBrowserLaunch.openURL(
+	    "http://www.zeroc.com/help/IceGridAdmin/");
     }
 
     private void about()
@@ -1860,8 +1813,6 @@ public class Model
 	    "About - IceGrid Admin",
 	    JOptionPane.INFORMATION_MESSAGE);
     }
-
-    
 
     public void setClipboard(Object copy)
     {
@@ -2069,6 +2020,8 @@ public class Model
     private Editor _currentEditor;
 
     private Object _clipboard;
+
+    private LicenseDialog _licenseDialog;
 
     //
     // back/forward navigation
