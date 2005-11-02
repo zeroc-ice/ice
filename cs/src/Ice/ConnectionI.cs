@@ -1163,8 +1163,8 @@ namespace Ice
 		
 		if(_state != StateClosed)
 		{
-		    parseMessage(stream, ref invokeNum, ref requestId, ref compress, ref servantManager, ref adapter,
-				 ref outAsync);
+		    parseMessage(ref stream, ref invokeNum, ref requestId, ref compress, ref servantManager,
+			         ref adapter, ref outAsync);
 		}
 
 		//
@@ -1730,7 +1730,7 @@ namespace Ice
 	    _logger.warning(msg + ":\n" + ex + "\n" + _transceiver.ToString());
 	}
 
-	private void parseMessage(IceInternal.BasicStream stream, ref int invokeNum, ref int requestId,
+	private void parseMessage(ref IceInternal.BasicStream stream, ref int invokeNum, ref int requestId,
 				  ref byte compress, ref IceInternal.ServantManager servantManager,
 				  ref ObjectAdapter adapter, ref IceInternal.OutgoingAsync outAsync)
 	{
@@ -2166,7 +2166,7 @@ namespace Ice
 
 			if(_state != StateClosed)
 			{
-			    parseMessage(stream, ref invokeNum, ref requestId, ref compress, ref servantManager,
+			    parseMessage(ref stream, ref invokeNum, ref requestId, ref compress, ref servantManager,
 					 ref adapter, ref outAsync);
 			}
 
