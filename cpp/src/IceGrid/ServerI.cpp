@@ -1615,7 +1615,13 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 
     if(_state == Destroyed && !_load)
     {
-	_node->getAdapter()->remove(_this->ice_getIdentity());
+	try
+	{
+	    _node->getAdapter()->remove(_this->ice_getIdentity());
+	}
+	catch(const Ice::ObjectAdapterDeactivatedException&)
+	{
+	}
     }
 
     if(toServerState(previous) != toServerState(_state))
