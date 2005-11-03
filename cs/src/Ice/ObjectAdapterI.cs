@@ -35,7 +35,7 @@ namespace Ice
 
 	public void activate()
 	{
-	    Ice.LocatorRegistryPrx locatorRegistry = null;
+	    IceInternal.LocatorInfo locatorInfo = null;
 	    bool registerProcess = false;
 	    string serverId = "";
 	    Communicator communicator = null;
@@ -47,28 +47,10 @@ namespace Ice
 		
 		if(!_printAdapterReadyDone)
 		{
-		    if(_locatorInfo != null)
-		    {
-		    	locatorRegistry = _locatorInfo.getLocatorRegistry();
-		    }
-
+		    locatorInfo = _locatorInfo;
 		    registerProcess = instance_.properties().getPropertyAsInt(_name + ".RegisterProcess") > 0;
 		    serverId = instance_.properties().getProperty("Ice.ServerId");
 		    printAdapterReady = instance_.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0;
-
-		    if(registerProcess && locatorRegistry == null)
-		    {
-		        instance_.logger().warning("object adapter `" + _name + "' cannot register the process " +
-						   "without alocator registry");
-			registerProcess = false;
-		    }
-		    else if(registerProcess && serverId.Length == 0)
-		    {
-		        instance_.logger().warning("object adapter `" + _name + "' cannot register the process " +
-			                           "without a value for Ice.ServerId");
-			registerProcess = false;
-		    }
-
 		    communicator = _communicator;
 		    _printAdapterReadyDone = true;
 		}
@@ -80,9 +62,34 @@ namespace Ice
 	    }
 
 	    //
-	    // We must call on the locator registry oustide the thread
-	    // synchronization, to avoid deadlocks.
+	    // We must get and call on the locator registry outside the thread
+	    // synchronization to avoid deadlocks. (we can't make remote calls
+	    // within the OA synchronization because the remote call will
+	    // indirectly call isLocal() on this OA with the OA factory
+	    // locked).
 	    //
+	    LocatorRegistryPrx locatorRegistry = null;
+	    if(locatorInfo != null)
+	    {
+		locatorRegistry = locatorInfo.getLocatorRegistry();
+	    }
+	    
+	    if(registerProcess)
+	    {
+		if(locatorRegistry == null)
+		{
+		    communicator.getLogger().warning("object adapter `" + _name + "' cannot register the process " +
+						     "without alocator registry");
+		    registerProcess = false;
+		}
+		else if(serverId.Length == 0)
+		{
+		    communicator.getLogger().warning("object adapter `" + _name + "' cannot register the process " +
+						     "without a value for Ice.ServerId");
+		    registerProcess = false;
+		}
+	    }
+
 	    if(locatorRegistry != null)
 	    {
 	    	//
@@ -99,7 +106,15 @@ namespace Ice
 			Identity ident = new Identity();
 			ident.category = "";
 			ident.name = "dummy";
-			locatorRegistry.setAdapterDirectProxy(_id, _replicaGroupId, createDirectProxy(ident));
+			if(_replicaGroupId.Length == 0)
+			{
+			    locatorRegistry.setAdapterDirectProxy(_id, createDirectProxy(ident));
+			}
+			else
+			{
+			    locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId, 
+									    createDirectProxy(ident));
+			}
 		    }
 		    catch(Ice.ObjectAdapterDeactivatedException)
 		    {
@@ -662,29 +677,40 @@ namespace Ice
 
 	public bool isLocal(ObjectPrx proxy)
 	{
+	    IceInternal.Reference r = ((ObjectPrxHelperBase)proxy).reference__();
+	    IceInternal.EndpointI[] endpoints;
+	    
+	    try
+	    {
+		IceInternal.IndirectReference ir = (IceInternal.IndirectReference)r;
+		if(ir.getAdapterId().Length != 0)
+		{
+		    //
+		    // Proxy is local if the reference adapter id matches this
+		    // adapter name.
+		    //
+		    return ir.getAdapterId().Equals(_id);
+		}
+		IceInternal.LocatorInfo info = ir.getLocatorInfo();
+		if(info != null)
+		{
+		    bool isCached;
+		    endpoints = info.getEndpoints(ir, out isCached);
+		}
+		else
+		{
+		    return false;
+		}
+	    }
+	    catch(InvalidCastException)
+	    {
+		endpoints = r.getEndpoints();
+	    }
+	    
 	    lock(this)
 	    {
 		checkForDeactivation();
-		
-		IceInternal.Reference r = ((ObjectPrxHelperBase)proxy).reference__();
-		IceInternal.EndpointI[] endpoints = r.getEndpoints();
-		
-		try
-                {
-                    IceInternal.IndirectReference ir = (IceInternal.IndirectReference)r;
-                    if(ir.getAdapterId().Length != 0)
-                    {
-                        //
-                        // Proxy is local if the reference adapter id matches this
-                        // adapter name.
-                        //
-                        return ir.getAdapterId().Equals(_id);
-                    }
-                }
-                catch(InvalidCastException)
-                {
-                }
-		
+
 		//
 		// Proxies which have at least one endpoint in common with the
 		// endpoints used by this object adapter's incoming connection
