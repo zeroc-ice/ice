@@ -557,6 +557,15 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name simpleS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icegridreplicationC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icegridreplicationS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icegridreplicationSvc
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1816,6 +1825,72 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name icexml
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "icegridreplicationC"=.\test\IceGrid\replication\icegridreplicationC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icegrid
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "icegridreplicationS"=.\test\IceGrid\replication\icegridreplicationS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icegrid
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "icegridreplicationSvc"=.\test\IceGrid\replication\icegridreplicationSvc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icegrid
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name icebox
     End Project Dependency
 }}}
 

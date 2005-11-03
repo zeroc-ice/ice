@@ -214,7 +214,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	    {
 		replicaIds.erase(obj->getReplicaIdAndShutdown());
 	    }
-	    catch(const Ice::ConnectionRefusedException& ex)
+	    catch(const Ice::ConnectionRefusedException&)
 	    {
 	    }
 	    catch(const Ice::LocalException& ex)
@@ -268,7 +268,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 	    {
 		replicaIds.erase(obj->getReplicaIdAndShutdown());
 	    }
-	    catch(const Ice::ConnectionRefusedException& ex)
+	    catch(const Ice::ConnectionRefusedException&)
 	    {
 	    }
 	    catch(const Ice::LocalException& ex)
