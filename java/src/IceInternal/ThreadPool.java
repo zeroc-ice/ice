@@ -270,7 +270,19 @@ public final class ThreadPool
 	{
 	    if(_selector != null)
 	    {
-		_selector.close();
+		try
+		{
+		    _selector.close();
+		}
+		catch(java.io.IOException ex)
+		{
+		    //
+		    // Ignore this exception. This shouldn't happen
+		    // but for some reasons the close() call raises
+		    // "java.io.IOException: Bad file descriptor" on
+		    // Mac OS X 10.3.x (it works fine on OS X 10.4.x)
+		    //
+		}
 		_selector = null;
 	    }
 
