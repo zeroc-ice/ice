@@ -21,20 +21,16 @@ class WaitItem : public ::IceUtil::SimpleShared
 {
 public:
     
-    WaitItem(const Ice::ObjectPtr&);
+    WaitItem();
     virtual ~WaitItem();
 
-    virtual void execute() = 0;
     virtual void expired(bool) = 0;
     
-    bool isWaitingOn(const Ice::ObjectPtr& obj) { return obj == _object; }
-
     const IceUtil::Time& getExpirationTime();
     void setExpirationTime(const IceUtil::Time&);
 
 private:
 
-    Ice::ObjectPtr _object;
     IceUtil::Time _expiration;
 };
 
@@ -50,13 +46,11 @@ public:
     void destroy();
 
     void add(const WaitItemPtr&, const IceUtil::Time&);
-
-    void notifyAllWaitingOn(const Ice::ObjectPtr&);
+    bool remove(const WaitItemPtr&);
 
 private:
     
     std::list<WaitItemPtr> _waitQueue;
-    std::list<WaitItemPtr> _workQueue;
     bool _destroyed;
 };
 

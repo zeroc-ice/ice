@@ -69,10 +69,11 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
     //
     try
     {
-	if(_server->startInternal(ServerI::OnDemand))
-	{
-	    return;
-	}
+	_server->start_async(0);
+	return;
+    }
+    catch(const ServerStartException&)
+    {
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -81,10 +82,10 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
 	// inconsistent if this happens. The best thing to do is to destroy the adapter and throw
 	// an ObjectNotExist exception.
 	//
-	destroy(current);
+	destroy();
     }
     
-    activationFailed(_server->getState() == IceGrid::Activating);
+    activationFailed(_server->getState() != IceGrid::Activating);
 }
 
 Ice::ObjectPrx
@@ -167,14 +168,17 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
     {
 	Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
 	out << "server `" + _serverId + "' adapter `" << _id << "' " << (_proxy ? "activated" : "deactivated");
+	if(_proxy)
+	{
+	    out << ": " << _node->getCommunicator()->proxyToString(_proxy);
+	}
     }
 }
 
 void
-ServerAdapterI::destroy(const Ice::Current& current)
+ServerAdapterI::destroy()
 {
-    assert(current.adapter);
-    current.adapter->remove(_this->ice_getIdentity());
+    _node->getAdapter()->remove(_this->ice_getIdentity());
 }
 
 void
@@ -185,7 +189,7 @@ ServerAdapterI::clear()
 }
 
 void 
-ServerAdapterI::activationFailed(bool timeout)
+ServerAdapterI::activationFailed(bool destroyed)
 {
 
     //
@@ -194,7 +198,7 @@ ServerAdapterI::activationFailed(bool timeout)
     if(_node->getTraceLevels()->adapter > 1)
     {
 	Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
-	if(timeout)
+	if(!destroyed)
 	{
 	    out << "server `" + _serverId + "' adapter `" << _id << "' activation timed out";
 	}

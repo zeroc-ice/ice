@@ -82,8 +82,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 	obj3 = TestIntfPrx::checkedCast(base3);
 	obj3->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	cerr << ex << endl;
 	test(false);
     }
     try

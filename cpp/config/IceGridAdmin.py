@@ -42,7 +42,7 @@ class ReaderThread(Thread):
         except IOError:
             pass
 
-def startIceGridRegistry(port, testdir):
+def startIceGridRegistry(port, testdir, dynamicRegistration):
 
     global iceGridPort
 
@@ -63,13 +63,15 @@ def startIceGridRegistry(port, testdir):
               r' --IceGrid.Registry.Admin.Endpoints=default' + \
               r' --IceGrid.Registry.Data=' + dataDir + \
               r' --IceGrid.Registry.DefaultTemplates=' + os.path.join(toplevel, "config", "templates.xml") + \
-              r' --IceGrid.Registry.DynamicRegistration' + \
 	      r' --IceGrid.Registry.Trace.Server=0' + \
               r' --IceGrid.Registry.Trace.Adapter=0' + \
               r' --IceGrid.Registry.Trace.Object=0' + \
               r' --IceGrid.Registry.Trace.Node=0' + \
               r' --Ice.ProgramName=icegridregistry' + \
 	      r' --Ice.NullHandleAbort'
+
+    if dynamicRegistration:
+        command += ' --IceGrid.Registry.DynamicRegistration'        
 
     (stdin, iceGridPipe) = os.popen4(command)
     TestUtil.getServerPid(iceGridPipe)

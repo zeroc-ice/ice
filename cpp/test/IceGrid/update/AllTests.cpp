@@ -777,7 +777,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	server->properties.push_back(prop);
 	testApp.nodes["node-1"].servers.push_back(server);
 
-	admin->addApplication(testApp);
+	try
+	{
+	    admin->addApplication(testApp);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    cerr << ex.reason << endl;
+	    test(false);
+	}
+	
 	try
 	{
 	    admin->startServer("Server");
@@ -800,7 +809,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	nodeUpdate.servers.push_back(server);
 	update.nodes.push_back(nodeUpdate);
 
-	admin->updateApplication(update);	
+	try
+	{
+	    admin->updateApplication(update);	
+	}
+	catch(const DeploymentException& ex)
+	{
+	    cerr << ex.reason << endl;
+	    test(false);
+	}
 	test(admin->getServerInfo("Server").node == "node-2" && admin->getServerState("Server") == Inactive);
 
 	admin->startServer("Server");
@@ -837,7 +854,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	}
 
-	admin->removeApplication("TestApp");
+	try
+	{
+	    admin->removeApplication("TestApp");
+	}
+	catch(const DeploymentException& ex)
+	{
+	    cerr << ex.reason << endl;
+	    test(false);
+	}
 
 	admin->stopServer("node-1");
 	admin->stopServer("node-2");

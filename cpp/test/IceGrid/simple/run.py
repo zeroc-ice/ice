@@ -35,7 +35,7 @@ IceGridAdmin.cleanDbDir(os.path.join(testdir, "db"))
 #
 # Start IceGrid registry.
 # 
-iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir)
+iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir, 1)
 
 #
 # Test client/server without on demand activation.
@@ -54,7 +54,7 @@ IceGridAdmin.cleanDbDir(os.path.join(testdir, "db"))
 #
 # Start IceGrid registry and a node.
 #
-iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir)
+iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir, 0)
 iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 
 #
@@ -74,9 +74,6 @@ print "ok"
 TestUtil.printOutputFromPipe(clientPipe)
     
 clientStatus = clientPipe.close()
-if clientStatus:
-    TestUtil.killServers()
-    sys.exit(1)
     
 print "unregister server with icegrid...",
 IceGridAdmin.removeApplication("Test");
@@ -87,4 +84,7 @@ iceGridNodeThread.join()
 IceGridAdmin.shutdownIceGridRegistry()
 iceGridRegistryThread.join()
 
-sys.exit(0)
+if clientStatus:
+    sys.exit(1)
+else:
+    sys.exit(0)

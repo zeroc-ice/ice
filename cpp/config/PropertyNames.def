@@ -244,6 +244,7 @@ IceGrid:
     Registry.Trace.Adapter
     Registry.Trace.Node
     Registry.Trace.Object
+    Registry.Trace.Patch
     Registry.Trace.Server
     Registry.Trace.Session
     

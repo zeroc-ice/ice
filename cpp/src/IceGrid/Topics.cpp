@@ -110,8 +110,14 @@ void
 NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& server, const Ice::Current&)
 {
     Lock sync(*this);
-    assert(_nodes.find(node) != _nodes.end());
-
+    if(_nodes.find(node) == _nodes.end())
+    {
+	//
+	// If the node isn't known anymore, we ignore the update.
+	//
+	return;
+    }
+    
     ++_serial;
 
     ServerDynamicInfoSeq& servers = _nodes[node].servers;
@@ -144,7 +150,13 @@ void
 NodeObserverTopic::updateAdapter(const string& node, const AdapterDynamicInfo& adapter, const Ice::Current&)
 {
     Lock sync(*this);
-    assert(_nodes.find(node) != _nodes.end());
+    if(_nodes.find(node) == _nodes.end())
+    {
+	//
+	// If the node isn't known anymore, we ignore the update.
+	//
+	return;
+    }
 
     ++_serial;
 
@@ -290,17 +302,17 @@ RegistryObserverTopic::applicationUpdated(int serial, const ApplicationUpdateDes
     catch(const DeploymentException& ex)
     {
 	cerr << ex.reason << endl;
-	//assert(false);
+	assert(false);
     }
     catch(const std::string& msg)
     {
 	cerr << msg << endl;
-	//assert(false);
+	assert(false);
     }
     catch(const char* msg)
     {
 	cerr << msg << endl;
-	//assert(false);
+	assert(false);
     }
     catch(...)
     {

@@ -98,6 +98,14 @@ ServerCache::get(const string& id)
     return entry;
 }
 
+bool
+ServerCache::has(const string& id)
+{
+    Lock sync(*this);
+    ServerEntryPtr entry = getImpl(id);
+    return entry && !entry->isDestroyed();
+}
+
 ServerEntryPtr
 ServerCache::remove(const string& id, bool destroy)
 {
@@ -114,13 +122,10 @@ ServerCache::remove(const string& id, bool destroy)
 
     forEachCommunicator(RemoveCommunicator(*this, entry))(info.descriptor);
 
-    if(destroy)
+    if(_traceLevels && _traceLevels->server > 0)
     {
-	if(_traceLevels && _traceLevels->server > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "removed server `" << id << "'";	
-	}
+	Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+	out << "removed server `" << id << "'";	
     }
 
     return entry;
@@ -177,23 +182,15 @@ ServerCache::removeCommunicator(const CommunicatorDescriptorPtr& comm, const Ser
 ServerEntry::ServerEntry(Cache<string, ServerEntry>& cache, const string& id) :
     _cache(*dynamic_cast<ServerCache*>(&cache)), 
     _id(id),
-    _synchronizing(false)
+    _synchronizing(false),
+    _updated(false)
 {
 }
 
 void
 ServerEntry::sync()
 {
-    AdapterPrxDict adapters;
-    int at, dt;
-    string node;
-    try
-    {
-	syncImpl(adapters, at, dt, node);
-    }
-    catch(const NodeUnreachableException&)
-    {
-    }
+    syncImpl(false);
 }
 
 void
@@ -204,15 +201,18 @@ ServerEntry::update(const ServerInfo& info)
     auto_ptr<ServerInfo> descriptor(new ServerInfo());
     *descriptor = info;
 
-    if(_loaded.get() && descriptor->node != _loaded->node)
+    _updated = true;
+
+    if(!_destroy.get())
     {
-	assert(!_destroy.get());
-	_destroy = _loaded;
-    }
-    else if(_load.get() && descriptor->node != _load->node)
-    {
-	assert(!_destroy.get());
-	_destroy = _load;
+	if(_loaded.get() && descriptor->node != _loaded->node)
+	{
+	    _destroy = _loaded;
+	}
+	else if(_load.get() && descriptor->node != _load->node)
+	{
+	    _destroy = _load;
+	}
     }
 
     _load = descriptor;
@@ -226,18 +226,23 @@ ServerEntry::destroy()
 {
     Lock sync(*this);
 
-    assert(_loaded.get() || _load.get());
-    if(_loaded.get())
-    {
-	assert(!_destroy.get());
-	_destroy = _loaded;
-    }
-    else if(_load.get())
-    {
-	assert(!_destroy.get());
-	_destroy = _load;
-    }
+    _updated = true;
 
+    assert(_loaded.get() || _load.get());
+    if(!_destroy.get())
+    {
+	if(_loaded.get())
+	{
+	    assert(!_destroy.get());
+	    _destroy = _loaded;
+	}
+	else if(_load.get())
+	{
+	    assert(!_destroy.get());
+	    _destroy = _load;
+	}
+    }
+    
     _load.reset(0);
     _loaded.reset(0);
     _proxy = 0;
@@ -306,13 +311,16 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 	}
     }
 
-    AdapterPrxDict adapters;
-    proxy = syncImpl(adapters, activationTimeout, deactivationTimeout, node);
-    if(!proxy)
+    syncImpl(true);
+
     {
-	throw ServerNotExistException();
+	Lock sync(*this);
+	if(!_proxy)
+	{
+	    throw ServerNotExistException(_id);
+	}
+	return _proxy;
     }
-    return proxy;
 }
 
 AdapterPrx
@@ -340,16 +348,17 @@ ServerEntry::getAdapter(const string& id)
 	}
     }
 
-    AdapterPrxDict adapters;
-    int activationTimeout, deactivationTimeout;
-    string node;
-    syncImpl(adapters, activationTimeout, deactivationTimeout, node);
-    AdapterPrx adapter = adapters[id];
-    if(!adapter)
-    {
-	throw AdapterNotExistException();
+    syncImpl(true);
+
+    {    
+	Lock sync(*this);
+	proxy = _adapters[id];
+	if(!proxy)
+	{
+	    throw AdapterNotExistException(id);
+	}
+	return proxy;
     }
-    return adapter;
 }
 
 NodeEntryPtr
@@ -400,17 +409,27 @@ ServerEntry::getLoad(LoadSample sample) const
     }
 }
 
-ServerPrx
-ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deactivationTimeout, string& node)
+void
+ServerEntry::syncImpl(bool waitForUpdate)
 {
     ServerInfo load;
     ServerInfo destroy;
 
     {
 	Lock sync(*this);
-	while(_synchronizing)
+	if(_synchronizing)
 	{
-	    wait();
+	    if(waitForUpdate)
+	    {
+		while(_synchronizing)
+		{
+		    wait();
+		}
+	    }
+	    else
+	    {
+		return;
+	    }
 	}
 
 	if(!_load.get() && !_destroy.get())
@@ -418,92 +437,78 @@ ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deacti
 	    _load = _loaded; // Re-load the current server.
 	    _proxy = 0;
 	    _adapters.clear();
-	    _activationTimeout = 0;
-	    _deactivationTimeout = 0;
 	}
 
+	_updated = false;
 	_synchronizing = true;
-	if(_load.get())
-	{
-	    load = *_load;
-	}
+	_exception.reset(0);
+
 	if(_destroy.get())
 	{
 	    destroy = *_destroy;
 	}
+	else if(_load.get())
+	{
+	    load = *_load;
+	}
     }
-
-    ServerPrx proxy;
-    NodeCache& nodeCache = _cache.getNodeCache();
-    try
+    
+    if(destroy.descriptor)
     {
-	if(destroy.descriptor)
+	try
 	{
-	    try
-	    {
-		nodeCache.get(destroy.node)->destroyServer(destroy.descriptor->id);
-	    }
-	    catch(NodeNotExistException&)
-	    {
-		if(!load.descriptor)
-		{
-		    throw NodeUnreachableException(destroy.node, "node is not active");
-		}
-	    }
-	    catch(NodeUnreachableException&)
-	    {
-		if(!load.descriptor)
-		{
-		    throw;
-		}
-	    }
+	    _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy.descriptor->id);
 	}
-
-	if(load.descriptor)
+	catch(NodeNotExistException&)
 	{
-	    try
-	    {
-		proxy = nodeCache.get(load.node)->loadServer(load, adpts, activationTimeout, deactivationTimeout);
-	    }
-	    catch(NodeNotExistException&)
-	    {
-		throw NodeUnreachableException(load.node, "node is not active");
-	    }
-	    node = load.node;
-	}
+	    exception(NodeUnreachableException(destroy.node, "node is not active"));
+	}    
     }
-    catch(const NodeUnreachableException&)
+    else if(load.descriptor)
     {
+	try
 	{
-	    Lock sync(*this);
-	    _synchronizing = false;
-	    _destroy.reset(0);
-	    notifyAll();
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load);
 	}
-	if(!load.descriptor && destroy.descriptor)
+	catch(NodeNotExistException&)
 	{
-	    _cache.clear(destroy.descriptor->id);
+	    exception(NodeUnreachableException(load.node, "node is not active"));
 	}
-	throw;
     }
-
+    
+    if(waitForUpdate)
     {
 	Lock sync(*this);
-	_synchronizing = false;
-	_destroy.reset(0);
-
-	//
-	// Set timeout on server and adapter proxies. Most of the
-	// calls on the proxies shouldn't block for longer than the
-	// node session timeout. Calls that might block for a longer
-	// time should set the correct timeout before invoking on the
-	// proxy (e.g.: server start/stop, adapter activate).
-	//
-	if(proxy)
+	while(_synchronizing)
 	{
-	    int timeout = nodeCache.getSessionTimeout() * 1000; // sec to ms
+	    wait();
+	}
+	if(_exception.get())
+	{
+	    _exception->ice_throw();
+	}
+    }
+}
+
+void
+ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, int at, int dt)
+{
+    ServerInfo load;
+    ServerInfo destroy;
+    {
+	Lock sync(*this);
+	if(!_updated && !_destroy.get())
+	{
+	    //
+	    // Set timeout on server and adapter proxies. Most of the
+	    // calls on the proxies shouldn't block for longer than the
+	    // node session timeout. Calls that might block for a longer
+	    // time should set the correct timeout before invoking on the
+	    // proxy (e.g.: server start/stop, adapter activate).
+	    //
 	    _loaded = _load;
 	    assert(_loaded.get());
+	    int timeout = _cache.getNodeCache().getSessionTimeout() * 1000; // sec to ms
 	    _proxy = ServerPrx::uncheckedCast(proxy->ice_timeout(timeout)->ice_collocationOptimization(false));
 	    _adapters.clear();
 	    for(AdapterPrxDict::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
@@ -511,26 +516,132 @@ ServerEntry::syncImpl(AdapterPrxDict& adpts, int& activationTimeout, int& deacti
 		Ice::ObjectPrx adapter = p->second->ice_timeout(timeout)->ice_collocationOptimization(false);
 		_adapters.insert(make_pair(p->first, AdapterPrx::uncheckedCast(adapter)));
 	    }
-	    activationTimeout += timeout;
-	    deactivationTimeout += timeout;
-	    _activationTimeout = activationTimeout;
-	    _deactivationTimeout = deactivationTimeout;
+	    _activationTimeout = at + timeout;
+	    _deactivationTimeout = dt + timeout;
+
+	    assert(!_destroy.get() && !_load.get());
+	    _synchronizing = false;
+	    notifyAll();
+	    return;
 	}
 	else
 	{
-	    _proxy = 0;
-	    _adapters.clear();
-	    _activationTimeout = 0;
-	    _deactivationTimeout = 0;
+	    _updated = false;
+	    if(_destroy.get())
+	    {
+		destroy = *_destroy;
+	    }
+	    else if(_load.get())
+	    {
+		load = *_load;
+	    }
 	}
+    }
 
-	notifyAll();
-    }
-    if(!load.descriptor && destroy.descriptor)
+    if(destroy.descriptor)
     {
-	_cache.clear(destroy.descriptor->id);
+	try
+	{
+	    _cache.getNodeCache().get(destroy.node)->destroyServer(this, destroy.descriptor->id);
+	}
+	catch(NodeNotExistException&)
+	{
+	    exception(NodeUnreachableException(destroy.node, "node is not active"));
+	}    
     }
-    return proxy;
+    else if(load.descriptor)
+    {
+	try
+	{
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load);
+	}
+	catch(NodeNotExistException&)
+	{
+	    exception(NodeUnreachableException(load.node, "node is not active"));
+	}
+    }
+}
+
+void
+ServerEntry::destroyCallback()
+{
+    ServerInfo load;
+    {
+	Lock sync(*this);
+	_destroy.reset(0);
+
+	if(!_updated && !_load.get())
+	{
+	    assert(!_destroy.get() && !_load.get() && !_loaded.get());
+	    _synchronizing = false;
+	    notifyAll();
+	}
+	else
+	{
+	    _updated = false;
+	    if(_load.get())
+	    {
+		load = *_load;
+	    }
+	}
+    }
+
+    if(load.descriptor)
+    {
+	try
+	{
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load);
+	}
+	catch(NodeNotExistException&)
+	{
+	    exception(NodeUnreachableException(load.node, "node is not active"));
+	}
+    }
+    else
+    {
+	_cache.clear(_id);
+    }
+}
+
+void
+ServerEntry::exception(const Ice::Exception& ex)
+{
+    ServerInfo load;
+    bool remove = false;
+    {
+	Lock sync(*this);
+	if((_destroy.get() && !_updated && !_load.get()) || (!_destroy.get() && !_updated))
+	{
+	    remove = _destroy.get();
+	    _destroy.reset(0);
+	    _exception.reset(ex.ice_clone());
+	    _synchronizing = false;
+	    notifyAll();
+	}
+	else
+	{
+	    _destroy.reset(0);
+	    assert(_load.get());
+	    _updated = false;
+	    load = *_load.get();
+	}
+    }
+
+    if(load.descriptor)
+    {
+	try
+	{
+	    _cache.getNodeCache().get(load.node)->loadServer(this, load);
+	}
+	catch(NodeNotExistException&)
+	{
+	    exception(NodeUnreachableException(load.node, "node is not active"));
+	}
+    }
+    else if(remove)
+    {
+	_cache.clear(_id);
+    }
 }
 
 bool

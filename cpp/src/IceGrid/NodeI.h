@@ -36,11 +36,12 @@ public:
 	  const NodePrx&, const std::string&);
     virtual ~NodeI();
 
-    virtual ServerPrx loadServer(const std::string&, const ServerDescriptorPtr&, AdapterPrxDict&, int&, int&, 
-				 const Ice::Current&);
-    virtual void destroyServer(const std::string&, const Ice::Current&);
+    virtual void loadServer_async(const AMD_Node_loadServerPtr&, const std::string&, const ServerDescriptorPtr&, 
+				  const Ice::Current&);
+    virtual void destroyServer_async(const AMD_Node_destroyServerPtr&, const std::string&, const Ice::Current&);
     virtual void patch(const std::string&, const DistributionDescriptor&, const DistributionDescriptorDict&, 
 		       bool, const Ice::Current&);
+
     virtual std::string getName(const Ice::Current& = Ice::Current()) const;
     virtual std::string getHostname(const Ice::Current& = Ice::Current()) const;
     virtual LoadInfo getLoad(const Ice::Current& = Ice::Current()) const;
@@ -48,6 +49,7 @@ public:
     
     WaitQueuePtr getWaitQueue() const;
     Ice::CommunicatorPtr getCommunicator() const;
+    Ice::ObjectAdapterPtr getAdapter() const;
     ActivatorPtr getActivator() const;
     TraceLevelsPtr getTraceLevels() const;
     NodeObserverPrx getObserver() const;
@@ -65,7 +67,7 @@ private:
     void initObserver(const Ice::StringSeq&);
     void patch(const IcePatch2::FileServerPrx&, const std::string&, const std::vector<std::string>&);
     
-    void addServer(const ServerIPtr&);
+    void addServer(const std::string&, const ServerIPtr&);
     void removeServer(const ServerIPtr&);
     std::set<ServerIPtr> getApplicationServers(const std::string&);
     Ice::Identity createServerIdentity(const std::string&);

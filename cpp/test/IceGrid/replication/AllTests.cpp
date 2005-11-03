@@ -89,9 +89,17 @@ allTests(const Ice::CommunicatorPtr& comm)
 	instantiateServer(admin, "Server", params);
 	set<string> replicaIds = serverReplicaIds;
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Default"));
-	test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
-	test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
-	test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
+	try
+	{
+	    test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
+	    test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
+	    test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 	removeServer(admin, "Server1");
 	removeServer(admin, "Server2");
 	removeServer(admin, "Server3");
@@ -103,9 +111,17 @@ allTests(const Ice::CommunicatorPtr& comm)
 	instantiateServer(admin, "IceBox", params);
 	set<string> replicaIds = svcReplicaIds;
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Default"));
-	test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
-	test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
-	test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
+	try
+	{
+	    test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
+	    test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
+	    test(replicaIds.erase(obj->getReplicaIdAndShutdown()) == 1);
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 	removeServer(admin, "IceBox1");
     }
     cout << "ok" << endl;
@@ -121,9 +137,17 @@ allTests(const Ice::CommunicatorPtr& comm)
 	params["id"] = "Server3";
 	instantiateServer(admin, "Server", params);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin"));
-	test(obj->getReplicaIdAndShutdown() == "Server1.ReplicatedAdapter");
-	test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
-	test(obj->getReplicaIdAndShutdown() == "Server3.ReplicatedAdapter");	
+	try
+	{
+	    test(obj->getReplicaIdAndShutdown() == "Server1.ReplicatedAdapter");
+	    test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
+	    test(obj->getReplicaIdAndShutdown() == "Server3.ReplicatedAdapter");	
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 	removeServer(admin, "Server1");
 	removeServer(admin, "Server2");
 	removeServer(admin, "Server3");
@@ -134,9 +158,17 @@ allTests(const Ice::CommunicatorPtr& comm)
 	params["id"] = "IceBox1";
 	instantiateServer(admin, "IceBox", params);
 	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin"));
- 	test(obj->getReplicaIdAndShutdown() == "IceBox1.Service1.Service1");
- 	test(obj->getReplicaIdAndShutdown() == "IceBox1.Service2.Service2");
- 	test(obj->getReplicaIdAndShutdown() == "IceBox1.Service3.Service3");
+	try
+	{
+	    test(obj->getReplicaIdAndShutdown() == "IceBox1.Service1.Service1");
+	    test(obj->getReplicaIdAndShutdown() == "IceBox1.Service2.Service2");
+	    test(obj->getReplicaIdAndShutdown() == "IceBox1.Service3.Service3");
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
 	removeServer(admin, "IceBox1");
     }
     cout << "ok" << endl;
@@ -155,7 +187,15 @@ allTests(const Ice::CommunicatorPtr& comm)
 	set<string> replicaIds = serverReplicaIds;
 	while(!replicaIds.empty())
 	{
-	    replicaIds.erase(obj->getReplicaIdAndShutdown());
+	    try
+	    {
+		replicaIds.erase(obj->getReplicaIdAndShutdown());
+	    }
+	    catch(const Ice::LocalException& ex)
+	    {
+		cerr << ex << endl;
+		test(false);
+	    }
 	}
 	removeServer(admin, "Server1");
 	removeServer(admin, "Server2");
@@ -170,7 +210,18 @@ allTests(const Ice::CommunicatorPtr& comm)
 	set<string> replicaIds = svcReplicaIds;
 	while(!replicaIds.empty())
 	{
-	    replicaIds.erase(obj->getReplicaIdAndShutdown());
+	    try
+	    {
+		replicaIds.erase(obj->getReplicaIdAndShutdown());
+	    }
+	    catch(const Ice::ConnectionRefusedException& ex)
+	    {
+	    }
+	    catch(const Ice::LocalException& ex)
+	    {
+		cerr << ex << endl;
+		test(false);
+	    }
 	}
 	removeServer(admin, "IceBox1");
     }
@@ -190,7 +241,15 @@ allTests(const Ice::CommunicatorPtr& comm)
 	set<string> replicaIds = serverReplicaIds;
 	while(!replicaIds.empty())
 	{
-	    replicaIds.erase(obj->getReplicaIdAndShutdown());
+	    try
+	    {
+		replicaIds.erase(obj->getReplicaIdAndShutdown());
+	    }
+	    catch(const Ice::LocalException& ex)
+	    {
+		cerr << ex << endl;
+		test(false);
+	    }
 	}
 	removeServer(admin, "Server1");
 	removeServer(admin, "Server2");
@@ -205,7 +264,18 @@ allTests(const Ice::CommunicatorPtr& comm)
 	set<string> replicaIds = svcReplicaIds;
 	while(!replicaIds.empty())
 	{
-	    replicaIds.erase(obj->getReplicaIdAndShutdown());
+	    try
+	    {
+		replicaIds.erase(obj->getReplicaIdAndShutdown());
+	    }
+	    catch(const Ice::ConnectionRefusedException& ex)
+	    {
+	    }
+	    catch(const Ice::LocalException& ex)
+	    {
+		cerr << ex << endl;
+		test(false);
+	    }
 	}
 	removeServer(admin, "IceBox1");
     }

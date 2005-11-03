@@ -61,7 +61,7 @@ Ice::ObjectAdapterI::getCommunicator() const
 void
 Ice::ObjectAdapterI::activate()
 {
-    LocatorRegistryPrx locatorRegistry;
+    LocatorInfoPtr locatorInfo;
     bool registerProcess = false;
     string serverId;
     CommunicatorPtr communicator;
@@ -74,28 +74,10 @@ Ice::ObjectAdapterI::activate()
 
 	if(!_printAdapterReadyDone)
 	{
-	    if(_locatorInfo)
-	    {
-		locatorRegistry = _locatorInfo->getLocatorRegistry();
-	    }
-
+	    locatorInfo = _locatorInfo;
             registerProcess = _instance->properties()->getPropertyAsInt(_name + ".RegisterProcess") > 0;
             serverId = _instance->properties()->getProperty("Ice.ServerId");
 	    printAdapterReady = _instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
-
-            if(registerProcess && !locatorRegistry)
-            {
-                Warning out(_instance->logger());
-                out << "object adapter `" << _name << "' cannot register the process without a locator registry";
-                registerProcess = false;
-            }
-            else if(registerProcess && serverId.empty())
-            {
-                Warning out(_instance->logger());
-                out << "object adapter `" << _name << "' cannot register the process without a value for Ice.ServerId";
-                registerProcess = false;
-            }
-
             communicator = _communicator;
 	    _printAdapterReadyDone = true;
 	}
@@ -105,9 +87,34 @@ Ice::ObjectAdapterI::activate()
     }
 
     //
-    // We must call on the locator registry outside the thread
-    // synchronization, to avoid deadlocks.
+    // We must get and call on the locator registry outside the thread
+    // synchronization to avoid deadlocks. (we can't make remote calls
+    // within the OA synchronization because the remote call will
+    // indirectly call isLocal() on this OA with the OA factory
+    // locked).
     //
+    LocatorRegistryPrx locatorRegistry;
+    if(locatorInfo)
+    {
+	locatorRegistry = locatorInfo->getLocatorRegistry();
+    }
+
+    if(registerProcess)
+    {
+	if(!locatorRegistry)
+	{
+	    Warning out(communicator->getLogger());
+	    out << "object adapter `" << _name << "' cannot register the process without a locator registry";
+	    registerProcess = false;
+	}
+	else if(serverId.empty())
+	{
+	    Warning out(communicator->getLogger());
+	    out << "object adapter `" << _name << "' cannot register the process without a value for Ice.ServerId";
+	    registerProcess = false;
+	}
+    }
+
     if(locatorRegistry)
     {
 	//
@@ -123,7 +130,14 @@ Ice::ObjectAdapterI::activate()
 	    {
 		Identity ident;
 		ident.name = "dummy";
-		locatorRegistry->setAdapterDirectProxy(_id, _replicaGroupId, createDirectProxy(ident));
+		if(_replicaGroupId.empty())
+		{
+		    locatorRegistry->setAdapterDirectProxy(_id, createDirectProxy(ident));
+		}
+		else
+		{
+		    locatorRegistry->setReplicatedAdapterDirectProxy(_id, _replicaGroupId, createDirectProxy(ident));
+		}
 	    }
 	    catch(const ObjectAdapterDeactivatedException&)
 	    {
@@ -615,9 +629,6 @@ Ice::ObjectAdapterI::getLocator() const
 bool
 Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 {
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-    checkForDeactivation();
-
     ReferencePtr ref = proxy->__reference();
     vector<EndpointIPtr>::const_iterator p;
     vector<EndpointIPtr> endpoints;
@@ -652,6 +663,9 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     {
 	endpoints = ref->getEndpoints();
     }
+
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+    checkForDeactivation();
 
     //
     // Proxies which have at least one endpoint in common with the

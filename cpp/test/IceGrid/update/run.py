@@ -33,7 +33,7 @@ additionalOptions = " --Ice.Default.Locator=\"IceGrid/Locator:default -p 12345\"
     "--Ice.PrintAdapterReady=0 --Ice.PrintProcessId=0 --IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\""
 
 IceGridAdmin.cleanDbDir(os.path.join(testdir, "db"))
-iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir)
+iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir, 0)
 iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 
 node1Dir = os.path.join(testdir, "db", "node-1")
@@ -59,13 +59,13 @@ except:
     pass
     
 clientStatus = clientPipe.close()
-if clientStatus:
-    TestUtil.killServers()
-    sys.exit(1)
 
 IceGridAdmin.shutdownIceGridNode()
 iceGridNodeThread.join()
 IceGridAdmin.shutdownIceGridRegistry()
 iceGridRegistryThread.join()
 
-sys.exit(0)
+if clientStatus:
+    sys.exit(1)
+else:
+    sys.exit(0)

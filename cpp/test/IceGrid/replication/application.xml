@@ -34,7 +34,9 @@
       <parameter name="name"/>
       <parameter name="replicaGroup"/>
       <service name="${name}" entry="TestService:create">
-        <adapter name="${service}" endpoints="default" replica-group="${replicaGroup}"/>
+        <adapter name="${service}" endpoints="default" replica-group="${replicaGroup}">
+          <object identity="${service}"/>
+        </adapter>
         <property name="Identity" value="${replicaGroup}"/>
       </service>
     </service-template>
@@ -42,7 +44,7 @@
     <server-template id="IceBox">
       <parameter name="id"/>
       <parameter name="replicaGroup"/>
-      <icebox id="${id}" endpoints="default" exe="${ice.dir}/bin/icebox" activation="on-demand" pwd=".">  
+      <icebox id="${id}" exe="${ice.dir}/bin/icebox" activation="on-demand" pwd=".">  
         <service-instance template="Service" name="Service1" replicaGroup="${replicaGroup}"/>
         <service-instance template="Service" name="Service2" replicaGroup="${replicaGroup}"/>
         <service-instance template="Service" name="Service3" replicaGroup="${replicaGroup}"/>

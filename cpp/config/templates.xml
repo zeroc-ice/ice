@@ -19,7 +19,7 @@
        <parameter name="admin-endpoints" default="default"/>
        <parameter name="directory"/>
 
-       <server id="${id}" exe="icepatch2server">
+       <server id="${id}" exe="icepatch2server" application-distrib="false" activation="on-demand">
 
          <adapter name="IcePatch2" endpoints="${endpoints}">
            <object identity="${id}/server" type="::IcePatch2::FileServer"/>

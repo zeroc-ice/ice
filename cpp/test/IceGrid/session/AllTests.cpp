@@ -201,7 +201,7 @@ public:
     updateServer(const string& node, const ServerDynamicInfo& info, const Ice::Current& current)
     {
 	Lock sync(*this);
-//	cerr << node << " " << info.id << " " << info.state << " " << info.pid << endl;
+	//cerr << node << " " << info.id << " " << info.state << " " << info.pid << endl;
 	ServerDynamicInfoSeq& servers = this->nodes[node].servers;
 	ServerDynamicInfoSeq::iterator p;
 	for(p = servers.begin(); p != servers.end(); ++p)
@@ -230,7 +230,7 @@ public:
     updateAdapter(const string& node, const AdapterDynamicInfo& info, const Ice::Current& current)
     {
 	Lock sync(*this);
-//  	cerr << "update adapter: " << info.id << " " << (info.proxy ? "active" : "inactive") << endl;
+  	//cerr << "update adapter: " << info.id << " " << (info.proxy ? "active" : "inactive") << endl;
 	AdapterDynamicInfoSeq& adapters = this->nodes[node].adapters;
 	AdapterDynamicInfoSeq::iterator p;
 	for(p = adapters.begin(); p != adapters.end(); ++p)
@@ -279,7 +279,7 @@ private:
     updated(const Ice::Current& current)
     {
 	++_updated;
-//	cerr << "updated: " << current.operation << " " << _updated << endl;
+	//cerr << "updated: " << current.operation << " " << _updated << endl;
 	notifyAll();
     }
 
@@ -534,8 +534,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	regObs1->waitForUpdate(__FILE__, __LINE__);
 
 	int serial = regObs1->serial;
-	test(nodeObs1->nodes.find("localnode") != nodeObs1->nodes.end());
-	test(regObs1->applications.empty());	    
+	test(regObs1->applications.empty());
+
+	do
+	{
+	    nodeObs1->waitForUpdate(__FILE__, __LINE__);
+	}
+	while(nodeObs1->nodes.find("localnode") == nodeObs1->nodes.end());
 
 	try
 	{
@@ -652,13 +657,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // init
-
 	admin->startServer("node-1");
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeUp
-	test(nodeObs1->nodes.find("node-1") != nodeObs1->nodes.end());
+	do
+	{
+	    nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeUp
+	}
+	while(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
 
 	admin->stopServer("node-1");
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
@@ -745,8 +751,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeUp
-	test(nodeObs1->nodes.find("node-1") != nodeObs1->nodes.end());
+	do
+	{
+	    nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeUp
+	}
+	while(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
+
 	test(nodeObs1->nodes["localnode"].servers.size() == 1);
 	test(nodeObs1->nodes["localnode"].servers[0].state == Active);
 	admin->stopServer("node-1");
@@ -757,6 +767,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(nodeObs1->nodes["localnode"].servers[0].state == Inactive);
 
 	admin->removeApplication("NodeApp");
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroying)
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroyed)
 
 	regObs1->waitForUpdate(__FILE__, __LINE__);
@@ -817,7 +828,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	admin->removeApplication("TestApp");	
 
-	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroying)
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroyed)
 	test(nodeObs1->nodes["localnode"].servers.empty());
 
 	regObs1->waitForUpdate(__FILE__, __LINE__);

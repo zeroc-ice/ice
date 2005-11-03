@@ -79,13 +79,6 @@ interface Adapter
      **/
     ["ami"] void setDirectProxy(Object* proxy)
 	throws AdapterActiveException;
-
-    /**
-     *
-     * Destroy the adapter.
-     *
-     **/
-    void destroy();
 };
 
 /**
@@ -105,14 +98,6 @@ interface Server
 {
     /**
      *
-     * Load the server.
-     *
-     **/
-    void update(string app, ServerDescriptor desc, bool load, out AdapterPrxDict adpts, out int actT, out int deactT)
-	throws DeploymentException;
-
-    /**
-     *
      * Start the server.
      *
      * @return True if the server was successfully started, false
@@ -129,7 +114,7 @@ interface Server
      * amount of time, it will be killed.
      *
      **/
-    void stop();
+    ["amd"] void stop();
     
     /**
      *
@@ -159,22 +144,6 @@ interface Server
      *
      **/
     void writeMessage(string message, int fd);
-
-    /**
-     *
-     * Destroy the server. This method destroys the server and
-     * eventually deactivates if it's still active.
-     *
-     **/
-    void destroy();
-    
-    /**
-     *
-     * This method is called by the activator when it detects that the
-     * server has terminated.
-     *
-     **/
-    void terminated();
 
     /**
      *
@@ -214,8 +183,8 @@ interface Node
      * they will be created.
      *
      **/
-    idempotent Server* loadServer(string application, ServerDescriptor desc, out AdapterPrxDict adapters, 
-				  out int activationTimeout, out int deactivationTimeout)
+    ["amd", "ami"] idempotent Server* loadServer(string application, ServerDescriptor desc, 
+						 out AdapterPrxDict adapters, out int actTimeout, out int deactTimeout)
 	throws DeploymentException;
 
     /**
@@ -223,7 +192,7 @@ interface Node
      * Destroy the given server.
      *
      **/
-    idempotent void destroyServer(string name);
+    ["amd", "ami"] idempotent void destroyServer(string name);
 
     /**
      *

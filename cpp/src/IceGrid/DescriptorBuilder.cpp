@@ -530,7 +530,7 @@ ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttribut
     _descriptor->deactivationTimeout = attrs("deactivation-timeout", "");
     _descriptor->pwd = attrs("pwd", "");
     _descriptor->activation = attrs("activation", "manual");
-    _descriptor->noApplicationDistrib = attrs("no-application-distrib", "false") == "true";
+    _descriptor->applicationDistrib = attrs("application-distrib", "true") != "false";
 }
 
 ServiceDescriptorBuilder*
@@ -593,13 +593,13 @@ IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttribut
     
     AdapterDescriptor adapter;
     adapter.name = "IceBox.ServiceManager";
-    adapter.id = _descriptor->id + "." + adapter.name;
+    adapter.id = "";
     adapter.registerProcess = true;
     adapter.waitForActivation = true;
     _descriptor->adapters.push_back(adapter);
 
     prop.name = "IceBox.ServiceManager.Endpoints";
-    prop.value = attrs("endpoints");
+    prop.value = "tcp -h 127.0.0.1";
     _descriptor->properties.push_back(prop);
 }
 
@@ -612,7 +612,37 @@ IceBoxDescriptorBuilder::createService(const XmlAttributesHelper& attrs)
 void
 IceBoxDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
 {
-    throw "<adapter> element can't be a child of an <icebox> element";
+    if(attrs("name") != "IceBox.ServiceManager")
+    {
+	throw "<adapter> element can't be a child of an <icebox> element";
+    }
+    
+    AdapterDescriptor& desc = _descriptor->adapters.back();
+    assert(desc.name == "IceBox.ServiceManager");
+    desc.id = attrs("id", desc.id);
+    desc.replicaGroupId = attrs("replica-group", desc.replicaGroupId);
+    desc.registerProcess = attrs("register-process", desc.registerProcess ? "true" : "false") == "true";
+    if(desc.id == "" && attrs.contains("wait-for-activation"))
+    {
+	throw "the attribute `wait-for-activation' can only be set if the adapter has an non empty id";
+    }
+    else
+    {
+	desc.waitForActivation = attrs("wait-for-activation", desc.waitForActivation ? "true" : "false") == "true";
+    }
+
+    if(attrs.contains("endpoints"))
+    {
+	PropertyDescriptorSeq::iterator p;
+	for(p = _descriptor->properties.begin(); p != _descriptor->properties.end(); ++p)
+	{
+	    if(p->name == "IceBox.ServiceManager.Endpoints")
+	    {
+		p->value = attrs("endpoints");
+		break;
+	    }
+	}
+    }
 }
 
 void

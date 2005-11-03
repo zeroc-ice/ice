@@ -427,6 +427,7 @@ Parser::describeServerTemplate(const list<string>& args)
 	    out << sb;
 
 	    out << nl << "parameters = '" << toString(q->second.parameters) << "'";
+	    out << nl;
 	    ServerDescriptorPtr server = ServerDescriptorPtr::dynamicCast(q->second.descriptor);
 	    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server);
 	    if(iceBox)

@@ -19,6 +19,9 @@ namespace IceGrid
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
+class ServerI;
+typedef IceUtil::Handle<ServerI> ServerIPtr;
+
 class Activator : public IceUtil::Monitor< IceUtil::Mutex>, public IceUtil::Shared
 {
 public:
@@ -27,7 +30,7 @@ public:
     virtual ~Activator();
 
     virtual int activate(const std::string&, const std::string&, const std::string&, const Ice::StringSeq&, 
-			 const Ice::StringSeq&, const ServerPrx&);
+			 const Ice::StringSeq&, const ServerIPtr&);
     virtual void deactivate(const std::string&, const Ice::ProcessPrx&);
     virtual void kill(const std::string&);
     virtual void sendSignal(const std::string&, const std::string&);
@@ -60,7 +63,7 @@ private:
 	pid_t pid;
 	int pipeFd;
 #endif
-	ServerPrx server;
+	ServerIPtr server;
     };
 
     TraceLevelsPtr _traceLevels;

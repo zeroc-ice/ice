@@ -46,8 +46,8 @@ public:
 
     bool canRemove();
     
-    ServerPrx loadServer(const ServerInfo&, AdapterPrxDict&, int&, int&);
-    void destroyServer(const std::string&);
+    void loadServer(const ServerEntryPtr&, const ServerInfo&);
+    void destroyServer(const ServerEntryPtr&, const std::string&);
     ServerInfo getServerInfo(const ServerInfo&);
 
 private:

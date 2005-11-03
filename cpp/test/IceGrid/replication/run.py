@@ -44,10 +44,10 @@ else:
 # and to return a direct proxy from an active server.
 #
 additionalOptions = " --Ice.Default.Locator=\"IceGrid/Locator:default -p 12345\"" + \
-                    " --Ice.PrintAdapterReady=0 --Ice.PrintProcessId=0 --Ice.RetryIntervals=\"0 10 20 30 40 50\""
+                    " --Ice.PrintAdapterReady=0 --Ice.PrintProcessId=0 --Ice.RetryIntervals=\"0 50 100 250\""
 
 IceGridAdmin.cleanDbDir(os.path.join(testdir, "db"))
-iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir)
+iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir, 0)
 iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 
 print "registering application with icegrid...",
@@ -75,4 +75,7 @@ iceGridNodeThread.join()
 IceGridAdmin.shutdownIceGridRegistry()
 iceGridRegistryThread.join()
 
-sys.exit(0)
+if clientStatus:
+    sys.exit(1)
+else:
+    sys.exit(0)

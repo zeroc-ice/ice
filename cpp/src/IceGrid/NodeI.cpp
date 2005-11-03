@@ -197,13 +197,11 @@ NodeI::~NodeI()
 {
 }
 
-ServerPrx
-NodeI::loadServer(const string& application,
-		  const ServerDescriptorPtr& desc, 
-		  AdapterPrxDict& adapters, 
-		  int& activationTimeout, 
-		  int& deactivationTimeout, 
-		  const Ice::Current& current)
+void
+NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
+			const string& application,
+			const ServerDescriptorPtr& desc,
+			const Ice::Current& current)
 {
     Lock sync(*this);
     ++_serial;
@@ -215,68 +213,61 @@ NodeI::loadServer(const string& application,
     // the case, the server is already loaded and we just need to
     // update it.
     //
-    Ice::ObjectPtr servant = current.adapter->find(id);
-    ServerPrx proxy = ServerPrx::uncheckedCast(current.adapter->createProxy(id));
-    bool init = !servant;
-    if(!servant)
+    ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
+    ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
+    if(!server)
     {
-	servant = new ServerI(this, proxy, _serversDir, desc->id, _waitTime);
-	current.adapter->add(servant, id);
+	server = new ServerI(this, proxy, _serversDir, desc->id, _waitTime);
+	_adapter->add(server, id);
+    }
+    else
+    {
+	if(server->getDescriptor()->applicationDistrib)
+	{
+	    removeServer(server);
+	}
     }
 
-    //
-    // Remove the server from the "server by application" index if it
-    // doesn't belong to the same application.
-    //
-    ServerIPtr server = ServerIPtr::dynamicCast(servant);
-    if(!init && application != server->getApplication())
+    if(desc->applicationDistrib)
     {
-	removeServer(server);
+	addServer(application, server);
     }
 
     //
     // Update the server with the new descriptor information.
     //
-    proxy->update(application, desc, init, adapters, activationTimeout, deactivationTimeout);
-
-    //
-    // Add the server to the "server by application" index.
-    //
-    addServer(server);
-
-    return proxy;
+    server->load(amdCB, application, desc);
 }
 
 void
-NodeI::destroyServer(const string& name, const Ice::Current& current)
+NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB, const string& name, const Ice::Current& current)
 {
     Lock sync(*this);
     ++_serial;
 
     Ice::Identity id = createServerIdentity(name);
-    Ice::ObjectPtr servant = current.adapter->find(id);
-    if(servant)
+    ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
+    if(server)
     {
 	//
 	// Destroy the server object if it's loaded.
 	//
-	ServerPrx proxy = ServerPrx::uncheckedCast(current.adapter->createProxy(id));
-	ServerIPtr server = ServerIPtr::dynamicCast(servant);
 	removeServer(server);
-	proxy->destroy();
+	server->destroy(amdCB);
     }
-
-    //
-    // Delete the server directory from the disk.
-    //
-    try
+    else
     {
-	removeRecursive(_serversDir + "/" + name);
-    }
-    catch(const string& msg)
-    {
-	Ice::Warning out(_traceLevels->logger);
-	out << "removing server directory `" << _serversDir << "/" << name << "' failed:" << msg;
+	//
+	// Delete the server directory from the disk.
+	//
+	try
+	{
+	    removeRecursive(_serversDir + "/" + name);
+	}
+	catch(const string& msg)
+	{
+	}
+	amdCB->ice_response();
     }
 }
 
@@ -290,12 +281,13 @@ NodeI::patch(const string& application,
     set<ServerIPtr> servers;
     {
 	Lock sync(*this);
+
 	while(_patchInProgress.find(application) != _patchInProgress.end())
 	{
 	    wait();
 	}
-
 	_patchInProgress.insert(application);
+
 	if(!appDistrib.icepatch.empty())
 	{
 	    servers = getApplicationServers(application);
@@ -320,10 +312,14 @@ NodeI::patch(const string& application,
 	set<ServerIPtr>::const_iterator s;
 	for(s = servers.begin(); s != servers.end(); ++s)
 	{
-	    if(!(*s)->startUpdating(shutdown))
+	    if(!(*s)->startPatch(shutdown))
 	    {
 		running.push_back((*s)->getId());
 	    }
+	}
+	for(s = servers.begin(); s != servers.end(); ++s)
+	{
+	    (*s)->waitForPatch();
 	}
 
 	if(!running.empty())
@@ -385,19 +381,19 @@ NodeI::patch(const string& application,
 
 	for(s = servers.begin(); s != servers.end(); ++s)
 	{
-	    (*s)->finishUpdating();
+	    (*s)->finishPatch();
 	}
 	{
 	    Lock sync(*this);
 	    _patchInProgress.erase(application);
 	    notifyAll();
-	}    
+	}
     }
     catch(...)
     {
 	for(set<ServerIPtr>::const_iterator s = servers.begin(); s != servers.end(); ++s)
 	{
-	    (*s)->finishUpdating();
+	    (*s)->finishPatch();
 	}
 	{
 	    Lock sync(*this);
@@ -436,6 +432,12 @@ Ice::CommunicatorPtr
 NodeI::getCommunicator() const
 {
     return _adapter->getCommunicator();
+}
+
+Ice::ObjectAdapterPtr
+NodeI::getAdapter() const
+{
+    return _adapter;
 }
 
 ActivatorPtr
@@ -591,16 +593,15 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 	vector<string>::iterator p = remove.begin();
 	while(p != remove.end())
 	{
-	    Ice::Identity id = createServerIdentity(*p);
-	    if(_adapter->find(id))
+	    ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(*p)));
+	    if(server)
 	    {
 		//
 		// If the server is loaded, we invoke on it to destroy it.
 		//
-		ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
 		try
 		{
-		    proxy->destroy();
+		    server->destroy(0);
 		    p = remove.erase(p);
 		    continue;
 		}
@@ -708,6 +709,7 @@ NodeI::canRemoveServerDirectory(const string& name)
     Ice::StringSeq contents = readDirectory(_serversDir + "/" + name);
     remove(contents.begin(), contents.end(), "dbs");
     remove(contents.begin(), contents.end(), "config");
+    remove(contents.begin(), contents.end(), "distrib");
     if(!contents.empty())
     {
 	return false;
@@ -769,8 +771,10 @@ NodeI::initObserver(const Ice::StringSeq& servers)
 	info.adapters = adapterInfos;
 	_observer->nodeUp(info);
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	Ice::Warning out(_traceLevels->logger);
+	out << "unexpected observer exception:\n" << ex;
     }
 }
 
@@ -807,32 +811,23 @@ NodeI::patch(const FileServerPrx& icepatch, const string& destination, const vec
 }
 
 void
-NodeI::addServer(const ServerIPtr& server)
+NodeI::addServer(const string& application, const ServerIPtr& server)
 {
-    if(!server->getDescriptor()->noApplicationDistrib)
+    map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(application);
+    if(p == _serversByApplication.end())
     {
-	map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(server->getApplication());
-	if(p == _serversByApplication.end())
-	{
-	    map<string, set<ServerIPtr> >::value_type v(server->getApplication(), set<ServerIPtr>());
-	    p = _serversByApplication.insert(p, v);
-	}
-	p->second.insert(server);
+	map<string, set<ServerIPtr> >::value_type v(application, set<ServerIPtr>());
+	p = _serversByApplication.insert(p, v);
     }
+    p->second.insert(server);
 }
 
 void
 NodeI::removeServer(const ServerIPtr& server)
 {
-    if(!server->getDescriptor()->noApplicationDistrib)
+    map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(server->getApplication());
+    if(p != _serversByApplication.end())
     {
-	while(_patchInProgress.find(server->getApplication()) != _patchInProgress.end())
-	{
-	    wait();
-	}
-	
-	map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(server->getApplication());
-	assert(p != _serversByApplication.end());
 	p->second.erase(server);
 	if(p->second.empty())
 	{

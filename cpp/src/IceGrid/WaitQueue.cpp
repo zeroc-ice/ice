@@ -13,8 +13,7 @@
 using namespace std;
 using namespace IceGrid;
 
-WaitItem::WaitItem(const Ice::ObjectPtr& object) :
-    _object(object)
+WaitItem::WaitItem()
 {
 }
 
@@ -41,64 +40,35 @@ WaitQueue::WaitQueue() : _destroyed(false)
 void
 WaitQueue::run()
 {
-    Lock sync(*this);
-
     while(true)
     {
-	if(_waitQueue.empty() && _workQueue.empty() && !_destroyed)
+	list<WaitItemPtr> expired;
 	{
-	    wait();
-	}
-	
-	if(!_workQueue.empty())
-	{
-	    //
-	    // Execute all the work queue items.
-	    //
-	    for(list<WaitItemPtr>::iterator p = _workQueue.begin(); p != _workQueue.end(); ++p)
+	    Lock sync(*this);
+	    if(_waitQueue.empty() && !_destroyed)
 	    {
-		try
-		{
-		    if(_destroyed)
-		    {
-			(*p)->expired(true);
-		    }
-		    else
-		    {
-			(*p)->execute();
-		    }
-		}
-		catch(...)
-		{
-		}
+		wait();
 	    }
-	    _workQueue.clear();
-	}
-
-	if(_destroyed)
-	{
-	    break;
-	}
-
-	if(!_waitQueue.empty())
-	{
+	    
+	    if(_destroyed)
+	    {
+		break;
+	    }
+	    
 	    //
 	    // Notify expired items.
 	    //
 	    while(!_waitQueue.empty())
 	    {
-		WaitItemPtr item = _waitQueue.front();
-
+		WaitItemPtr item = _waitQueue.front();		    
 		if(item->getExpirationTime() <= IceUtil::Time::now())
 		{
-		    try
-		    {
-			item->expired(false);
-		    }
-		    catch(...)
-		    {
-		    }
-		    _waitQueue.pop_front();		
+		    expired.push_back(item);
+		    _waitQueue.pop_front();	
+		}
+		else if(!expired.empty())
+		{
+		    break;
 		}
 		else
 		{
@@ -107,14 +77,28 @@ WaitQueue::run()
 		    // get out of this loop to get a chance to execute the work queue.
 		    //
 		    timedWait(item->getExpirationTime() - IceUtil::Time::now());
-		    break;
+		}
+	    }
+	}
+
+	if(!expired.empty())
+	{
+	    for(list<WaitItemPtr>::iterator p = expired.begin(); p != expired.end(); ++p)
+	    {
+		try
+		{
+		    (*p)->expired(false);
+		}
+		catch(const Ice::LocalException& ex)
+		{
+		    //
+		    // TODO: Add some tracing.
+		    //
 		}
 	    }
 	}
     }
-
-    assert(_workQueue.empty());
-
+    
     if(!_waitQueue.empty())
     {
 	for(list<WaitItemPtr>::iterator p = _waitQueue.begin(); p != _waitQueue.end(); ++p)
@@ -140,16 +124,19 @@ void
 WaitQueue::add(const WaitItemPtr& item, const IceUtil::Time& wait)
 {
     Lock sync(*this);
+    if(_destroyed)
+    {
+	return;
+    }
 
     //
     // We'll have to notify the thread if it's sleeping for good.
     //
-    bool notifyThread = _workQueue.empty() && _waitQueue.empty();
+    bool notifyThread = _waitQueue.empty();
 
     if(wait == IceUtil::Time::seconds(0))
     {
 	item->setExpirationTime(IceUtil::Time::now());
-	_workQueue.push_back(item);
     }
     else
     {
@@ -174,31 +161,20 @@ WaitQueue::add(const WaitItemPtr& item, const IceUtil::Time& wait)
     }
 }
 
-void
-WaitQueue::notifyAllWaitingOn(const Ice::ObjectPtr& object)
+bool
+WaitQueue::remove(const WaitItemPtr& item)
 {
     Lock sync(*this);
-
-    //
-    // TODO: OPTIMIZATION: Use a map with the object as a key.
-    //
-
     list<WaitItemPtr>::iterator p = _waitQueue.begin();
     while(p != _waitQueue.end())
     {
-	if((*p)->isWaitingOn(object))
+	if((*p).get() == item.get())
 	{
-	    _workQueue.push_back(*p);
-	    p = _waitQueue.erase(p);
+	    _waitQueue.erase(p);
+	    return true;
 	}
-	else
-	{
-	    ++p;
-	}
+	++p;
     }
-
-    if(!_workQueue.empty())
-    {
-	notify();
-    }
+    return false;
 }
+

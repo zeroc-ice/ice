@@ -907,7 +907,7 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance, const Resolve
     instance->exe = resolve(_desc->exe, "executable", false);
     instance->pwd = resolve(_desc->pwd, "working directory path");
     instance->activation = resolve(_desc->activation, "activation");
-    instance->noApplicationDistrib = _desc->noApplicationDistrib;
+    instance->applicationDistrib = _desc->applicationDistrib;
     if(!instance->activation.empty() && instance->activation != "manual" && instance->activation != "on-demand")
     {
 	resolve.exception("unknown activation `" + instance->activation + "'");
@@ -978,9 +978,9 @@ ServerHelper::printImpl(Output& out, const string& application, const string& no
     {
 	out << nl << "deactivationTimeout = " << _desc->deactivationTimeout;
     }
-    if(_desc->noApplicationDistrib)
+    if(!_desc->applicationDistrib)
     {
-	out << nl << "no application distribution = true";
+	out << nl << "application distribution = false";
     }
     if(!_desc->options.empty())
     {
@@ -990,7 +990,7 @@ ServerHelper::printImpl(Output& out, const string& application, const string& no
     {
 	out << nl << "envs = `" << toString(_desc->envs) << "'";
     }
-    if(!_desc->distrib.directories.empty())
+    if(!_desc->distrib.icepatch.empty())
     {
 	out << nl << "distribution";
 	out << sb;
@@ -2214,7 +2214,8 @@ ApplicationHelper::getDistributions(DistributionDescriptor& distribution,
 		break;
 	    }
 	}
-	else if(server.empty() && n->second.hasServers() || n->second.hasServer(server))
+	else if(!_instance.distrib.icepatch.empty() && 
+		(server.empty() && n->second.hasServers() || n->second.hasServer(server)))
 	{
 	    nodeDistributions.insert(make_pair(n->first, distrib));
 	}
@@ -2241,7 +2242,7 @@ ApplicationHelper::print(Output& out) const
 	}
 	out << eb;
     }
-    if(!_instance.distrib.directories.empty())
+    if(!_instance.distrib.icepatch.empty())
     {
 	out << nl << "distribution";
 	out << sb;

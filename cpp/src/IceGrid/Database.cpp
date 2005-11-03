@@ -60,12 +60,6 @@ public:
 	assert(false);
     }
 
-    virtual void 
-    destroy(const ::Ice::Current& current)
-    {
-	assert(false);	
-    }
-
 private:
 
     const DatabasePtr _database;
@@ -524,7 +518,14 @@ Database::patchApplication(const string& name,
 	    out << "started patching of application `" << name << "' on node `" << p->first << "'";
 	}
 	AMI_Node_patchPtr cb = new PatchCB(this, name, p->first);
-	_nodeCache.get(p->first)->getProxy()->patch_async(cb, name, appDistrib, p->second, shutdown);
+	try
+	{
+	    _nodeCache.get(p->first)->getProxy()->patch_async(cb, name, appDistrib, p->second, shutdown);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cb->ice_exception(ex);
+	}
     }
 }
 

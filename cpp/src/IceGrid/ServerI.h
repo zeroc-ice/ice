@@ -13,17 +13,28 @@
 #include <IceUtil/Mutex.h>
 #include <Freeze/EvictorF.h>
 #include <IceGrid/Activator.h>
-
+#include <IceGrid/WaitQueue.h>
 #include <IceGrid/Internal.h>
 
 namespace IceGrid
 {
 
 class NodeI;
-typedef IceUtil::Handle<NodeI> NodeIPtr;    
-
+typedef IceUtil::Handle<NodeI> NodeIPtr;
 class ServerAdapterI;
-typedef IceUtil::Handle<ServerAdapterI> ServerAdapterIPtr;    
+typedef IceUtil::Handle<ServerAdapterI> ServerAdapterIPtr;
+class ServerCommand;
+typedef IceUtil::Handle<ServerCommand> ServerCommandPtr;
+class DestroyCommand;
+typedef IceUtil::Handle<DestroyCommand> DestroyCommandPtr;
+class StopCommand;
+typedef IceUtil::Handle<StopCommand> StopCommandPtr;
+class StartCommand;
+typedef IceUtil::Handle<StartCommand> StartCommandPtr;
+class PatchCommand;
+typedef IceUtil::Handle<PatchCommand> PatchCommandPtr;
+class LoadCommand;
+typedef IceUtil::Handle<LoadCommand> LoadCommandPtr;
 
 class ServerI : public Server, public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -34,12 +45,14 @@ public:
 	Inactive,
 	Activating,
 	WaitForActivation,
-	WaitForActivationTimeout,
+	ActivationTimeout,
 	Active,
 	Deactivating,
+	DeactivatingWaitForProcess,
 	Destroying,
 	Destroyed,
-	Updating
+	Loading,
+	Patching
     };
 
     enum ServerActivation
@@ -52,14 +65,10 @@ public:
     ServerI(const NodeIPtr&, const ServerPrx&, const std::string&, const std::string&, int);
     virtual ~ServerI();
 
-    virtual void update(const std::string&, const ServerDescriptorPtr&, bool, AdapterPrxDict&, int&, int&, 
-			const Ice::Current&);
-    virtual void start_async(const AMD_Server_startPtr&, const ::Ice::Current&);
-    virtual void stop(const ::Ice::Current& = Ice::Current());
+    virtual void start_async(const AMD_Server_startPtr&, const ::Ice::Current& = Ice::Current());
+    virtual void stop_async(const AMD_Server_stopPtr&, const ::Ice::Current& = Ice::Current());
     virtual void sendSignal(const std::string&, const ::Ice::Current&);
     virtual void writeMessage(const std::string&, Ice::Int, const ::Ice::Current&);
-    virtual void destroy(const ::Ice::Current&);
-    virtual void terminated(const ::Ice::Current&);
 
     virtual ServerState getState(const ::Ice::Current& = Ice::Current()) const;
     virtual Ice::Int getPid(const ::Ice::Current& = Ice::Current()) const;
@@ -71,29 +80,40 @@ public:
     ServerDescriptorPtr getDescriptor() const;
     std::string getApplication() const;
     ServerActivation getActivationMode() const;
+    const std::string& getId() const;
 
-    bool startInternal(ServerActivation, const AMD_Server_startPtr& = AMD_Server_startPtr());
+    void load(const AMD_Node_loadServerPtr&, const std::string&, const ServerDescriptorPtr&);
+    bool startPatch(bool);
+    bool waitForPatch();
+    void finishPatch();
+    void destroy(const AMD_Node_destroyServerPtr&);
+
     void adapterActivated(const std::string&);
     void adapterDeactivated(const std::string&);
     void activationFailed(bool);
+    void deactivationFailed();
     void addDynamicInfo(ServerDynamicInfoSeq&, AdapterDynamicInfoSeq&) const;
 
-    bool startUpdating(bool);
-    void finishUpdating();
-    const std::string& getId() const;
+    void activate();
+    void kill();
+    void deactivate();
+    void update();
+    void destroy();
+    void terminated();
 
 private:
     
+    void updateImpl();
     void checkActivation();
-    void stopInternal(bool);
+    void checkDestroyed();
+
     void setState(InternalServerState, const std::string& = std::string());
+    ServerCommandPtr nextCommand();
     void setStateNoSync(InternalServerState, const std::string& = std::string());
     
-    void updateImpl(const std::string&, const ServerDescriptorPtr&, bool, const Ice::Current&);
-    std::string addAdapter(const AdapterDescriptor&, const CommunicatorDescriptorPtr&, const Ice::Current&);
-    void updateConfigFile(const std::string&, const CommunicatorDescriptorPtr&, bool);
+    std::string addAdapter(const AdapterDescriptor&, const CommunicatorDescriptorPtr&);
+    void updateConfigFile(const std::string&, const CommunicatorDescriptorPtr&);
     void updateDbEnv(const std::string&, const DbEnvDescriptor&);
-    void getAdaptersAndTimeouts(AdapterPrxDict&, int&, int&) const;
     PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
     ServerState toServerState(InternalServerState) const;
     ServerDynamicInfo getDynamicInfo() const;
@@ -116,10 +136,48 @@ private:
     bool _processRegistered;
     Ice::ProcessPrx _process;
     std::set<std::string> _activeAdapters;
-    std::vector<AMD_Server_startPtr> _startCB;
+
+    DestroyCommandPtr _destroy;
+    StopCommandPtr _stop;
+    LoadCommandPtr _load;
+    PatchCommandPtr _patch;
+    StartCommandPtr _start;
+    
     int _pid;
 };
 typedef IceUtil::Handle<ServerI> ServerIPtr;
+
+class ServerCommand : public IceUtil::SimpleShared
+{
+public:
+
+    ServerCommand(const ServerIPtr&);
+    virtual void execute() = 0;
+    virtual ServerI::InternalServerState nextState() = 0;
+
+protected:
+
+    const ServerIPtr _server;
+};
+typedef IceUtil::Handle<ServerCommand> ServerCommandPtr;
+
+class TimedServerCommand : public ServerCommand
+{
+public:
+
+    TimedServerCommand(const ServerIPtr&, const WaitQueuePtr&, int);
+    virtual void timeout(bool) = 0;
+
+    void startTimer();
+    void stopTimer();
+
+private:
+
+    WaitQueuePtr _waitQueue;
+    WaitItemPtr _timer;
+    int _timeout;
+};
+typedef IceUtil::Handle<TimedServerCommand> TimedServerCommandPtr;
 
 }
 

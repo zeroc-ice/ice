@@ -50,14 +50,13 @@ def startClient(options):
     TestUtil.printOutputFromPipe(clientPipe)
     
     clientStatus = clientPipe.close()
-    if clientStatus:
-        print "failed"
+    return clientStatus
 
 #
 # Start IceGrid.
 #
 IceGridAdmin.cleanDbDir(os.path.join(testdir, "db"))
-iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir)
+iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir, 0)
 iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 
 #
@@ -68,11 +67,19 @@ IceGridAdmin.addApplication(os.path.join(testdir, "application.xml"), \
                             "ice.dir=" + toplevel + " " + "test.dir=" + testdir);
 print "ok"
 
-startClient("")
+status = startClient("")
 
 print "removing application...",
 IceGridAdmin.removeApplication("test");
 print "ok"    
+
+if status:
+    IceGridAdmin.shutdownIceGridNode()
+    iceGridNodeThread.join()
+    IceGridAdmin.shutdownIceGridRegistry()
+    iceGridRegistryThread.join()
+    sys.exit(1)
+    
 
 #
 # Deploy the application with some targets to test targets, run the
@@ -83,7 +90,7 @@ IceGridAdmin.addApplication(os.path.join(testdir, "application.xml"), \
                             "moreservers moreservices moreproperties ice.dir=" + toplevel + " test.dir=" + testdir)
 print "ok"
 
-startClient("-t")
+status = startClient("-t")
 
 print "removing application...",
 IceGridAdmin.removeApplication("test");
@@ -97,4 +104,7 @@ iceGridNodeThread.join()
 IceGridAdmin.shutdownIceGridRegistry()
 iceGridRegistryThread.join()
 
-sys.exit(0)
+if status:
+    sys.exit(1)
+else:
+    sys.exit(0)

@@ -415,7 +415,8 @@ NodeSessionPrx
 RegistryI::registerNode(const std::string& name, const NodePrx& node, const NodeInfo& info, NodeObserverPrx& obs, 
 			const Ice::Current& c)
 {
-    NodePrx n = NodePrx::uncheckedCast(node->ice_timeout(_nodeSessionTimeout * 1000));
+    NodePrx n = 
+	NodePrx::uncheckedCast(node->ice_timeout(_nodeSessionTimeout * 1000)->ice_collocationOptimization(false));
     NodeSessionIPtr session = new NodeSessionI(_database, name, n, info);
     NodeSessionPrx proxy = NodeSessionPrx::uncheckedCast(c.adapter->addWithUUID(session));
     _reaper->add(proxy, session);

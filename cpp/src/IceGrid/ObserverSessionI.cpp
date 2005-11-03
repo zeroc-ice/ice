@@ -28,9 +28,9 @@ ObserverSessionI::ObserverSessionI(const string& userId,
     _registryObserverTopic(registryObserverTopic),
     _nodeObserverTopic(nodeObserverTopic)
 {
-    if(_traceLevels && _traceLevels->observer > 0)
+    if(_traceLevels && _traceLevels->session > 0)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->observerCat);
+	Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
 	out << "observer session `" << _userId << "' created";
     }
 }
@@ -236,9 +236,9 @@ ObserverSessionI::destroy(const Ice::Current& current)
     _registryObserverTopic.unsubscribe(_registryObserver);
     _nodeObserverTopic.unsubscribe(_nodeObserver);
 
-    if(_traceLevels && _traceLevels->observer > 0)
+    if(_traceLevels && _traceLevels->session > 0)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->observerCat);
+	Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
 	out << "observer session `" << _userId << "' destroyed";
     }
 
@@ -268,9 +268,9 @@ LocalObserverSessionI::keepAlive(const Ice::Current& current)
 
     _timestamp = IceUtil::Time::now();
 
-    if(_traceLevels->observer > 1)
+    if(_traceLevels->session > 1)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->observerCat);
+	Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
 	out << "session `" << _userId << "' keep alive";
     }
 }

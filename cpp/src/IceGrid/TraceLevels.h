@@ -45,8 +45,8 @@ public:
     const int patch;
     const char* patchCat;
 
-    const int observer;
-    const char* observerCat;
+    const int session;
+    const char* sessionCat;
 
     const Ice::LoggerPtr logger;
 };

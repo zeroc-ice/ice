@@ -49,9 +49,13 @@ public:
     bool canRemove();
     bool isDestroyed();
     
+    void loadCallback(const ServerPrx&, const AdapterPrxDict&, int, int);
+    void destroyCallback();
+    void exception(const Ice::Exception&);
+
 private:
     
-    ServerPrx syncImpl(AdapterPrxDict&, int&, int&, std::string&);
+    void syncImpl(bool);
 
     ServerCache& _cache;
     const std::string _id;
@@ -65,6 +69,8 @@ private:
     int _deactivationTimeout;
 
     bool _synchronizing;
+    bool _updated;
+    std::auto_ptr<Ice::Exception> _exception;
 };
 typedef IceUtil::Handle<ServerEntry> ServerEntryPtr;
 typedef std::vector<ServerEntryPtr> ServerEntrySeq;
@@ -77,6 +83,7 @@ public:
 
     ServerEntryPtr add(const ServerInfo&);
     ServerEntryPtr get(const std::string&);
+    virtual bool has(const std::string&);
     ServerEntryPtr remove(const std::string&, bool = true);
 
     void clear(const std::string&);

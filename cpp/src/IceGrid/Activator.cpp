@@ -13,6 +13,7 @@
 #include <IceGrid/Internal.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Util.h>
+#include <IceGrid/ServerI.h>
 
 #include <IcePatch2/Util.h>
 
@@ -335,7 +336,7 @@ Activator::activate(const string& name,
 		    const string& pwdPath,
 		    const Ice::StringSeq& options,
 		    const Ice::StringSeq& envs,
-		    const ServerPrx& server)
+		    const ServerIPtr& server)
 {
     IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
 
@@ -990,13 +991,18 @@ Activator::deactivateAll()
 	//
 	try
 	{
-	    p->second.server->stop();
+	    p->second.server->stop_async(0);
 	}
 	catch(const ObjectNotExistException&)
 	{
 	    //
 	    // Expected if the server was in the process of being destroyed.
 	    //
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    Ice::Warning out(_traceLevels->logger);
+	    out << "unexpected exception raised by server `" << p->first << "' stop:\n" << ex;
 	}
     }
 }
@@ -1038,42 +1044,53 @@ Activator::terminationListener()
         assert(pos < handles.size());
         HANDLE hnd = handles[pos];
 
-        IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
-
-        if(hnd == _hIntr)
-        {
-            clearInterrupt();
-        }
-        else
-        {
-            for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
-            {
-                if(p->second.hnd == hnd)
-                {
-                    if(_traceLevels->activator > 0)
-                    {
-                        Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-                        out << "detected termination of server `" << p->first << "'";
-                    }
-
-                    try
-                    {
-                        p->second.server->terminated();
-                    }
-                    catch(const Ice::LocalException& ex)
-                    {
-                        Ice::Warning out(_traceLevels->logger);
-                        out << "unexpected exception raised by server `" << p->first << "' termination:\n" << ex;
-                    }
-                            
-		    CloseHandle(hnd);
-                    _processes.erase(p);
-                    break;
-                }
+	vector<ServerIPtr> terminated;
+	bool deactivated = false;
+	{
+	    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+	    
+	    if(hnd == _hIntr)
+	    {
+		clearInterrupt();
+	    }
+	    else
+	    {
+		for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+		{
+		    if(p->second.hnd == hnd)
+		    {
+			if(_traceLevels->activator > 0)
+			{
+			    Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+			    out << "detected termination of server `" << p->first << "'";
+			}
+			
+			terminated.push_back(p->second.server);
+			
+			CloseHandle(hnd);
+			_processes.erase(p);
+			break;
+		    }
+		}
             }
-        }
 
-        if(_deactivating && _processes.empty())
+	    deactivated = _deactivating && _processes.empty();
+	}
+	
+	for(vector<ServerIPtr>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
+	{
+	    try
+	    {
+		(*p)->terminated();
+	    }
+	    catch(const Ice::LocalException& ex)
+	    {
+		Ice::Warning out(_traceLevels->logger);
+		out << "unexpected exception raised by server `" << (*p)->getId() << "' termination:\n" << ex;
+	    }
+	}
+
+	if(deactivated)
         {
             return;
         }
@@ -1123,6 +1140,8 @@ Activator::terminationListener()
 	    throw ex;
 	}
 	
+	vector<ServerIPtr> terminated;
+	bool deactivated = false;
 	{
 	    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
 	    
@@ -1181,27 +1200,10 @@ Activator::terminationListener()
                         out << "detected termination of server `" << p->first << "'";
 		    }
 
-		    try
-		    {
-			p->second.server->terminated();
-		    }
-		    catch(const Ice::LocalException& ex)
-		    {
-			Ice::Warning out(_traceLevels->logger);
-			out << "unexpected exception raised by server `" << p->first << "' termination:\n" << ex;
-		    }
-			    
+		    terminated.push_back(p->second.server);
+    
 		    close(p->second.pipeFd);
 		    _processes.erase(p++);
-
-		    //
-		    // We are deactivating and there's no more active processes. We can now 
-		    // end this loop
-		    //
-		    if(_deactivating && _processes.empty())
-		    {
-			return;
-		    }
 		}
 
 		//
@@ -1213,6 +1215,29 @@ Activator::terminationListener()
 		    out << message;
 		}
 	    }
+
+	    //
+	    // We are deactivating and there's no more active processes.
+	    //
+	    deactivated = _deactivating && _processes.empty();
+	}
+	
+	for(vector<ServerIPtr>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
+	{
+	    try
+	    {
+		(*p)->terminated();
+	    }
+	    catch(const Ice::LocalException& ex)
+	    {
+		Ice::Warning out(_traceLevels->logger);
+		out << "unexpected exception raised by server `" << (*p)->getId() << "' termination:\n" << ex;
+	    }
+	}
+
+	if(deactivated)
+	{
+	    return;
 	}
     }
 #endif

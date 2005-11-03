@@ -296,10 +296,15 @@ NodeService::start(int argc, char* argv[])
     {
 	properties->setProperty("Ice.ThreadPool.Server.Size", "10");
     }
+    if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.SizeWarn", 80) <= 80)
+    {
+	properties->setProperty("Ice.ThreadPool.Server.SizeWarn", "80");
+    }
     if(properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.SizeMax", 100) <= 100)
     {
 	properties->setProperty("Ice.ThreadPool.Server.SizeMax", "100");
     }
+
 
     //
     // Create the activator.
@@ -315,18 +320,18 @@ NodeService::start(int argc, char* argv[])
         //
         // The node needs a different thread pool.
         //
-        if(properties->getPropertyAsInt("IceGrid.Node.ThreadPool.Size") == 0)
+        if(properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.Size", 5) <= 0)
         {
-            int size = properties->getPropertyAsInt("Ice.ThreadPool.Server.Size");
-
-            ostringstream os1;
-            os1 << static_cast<int>(size / 3);
-            properties->setProperty("IceGrid.Node.ThreadPool.Size", os1.str());
-
-            ostringstream os2;
-            os2 << size - static_cast<int>(size / 3);
-            properties->setProperty("Ice.ThreadPool.Server.Size", os2.str());
-        }
+            properties->setProperty("IceGrid.Node.ThreadPool.Size", "5");
+	}
+	if(properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.SizeWarn", 80) <= 80)
+	{
+	    properties->setProperty("IceGrid.Node.ThreadPool.SizeWarn", "80");
+	}
+	if(properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.SizeMax", 100) <= 100)
+	{
+	    properties->setProperty("IceGrid.Node.ThreadPool.SizeMax", "100");
+	}
 
         _registry = new CollocatedRegistry(communicator(), _activator);
         if(!_registry->start(nowarn))

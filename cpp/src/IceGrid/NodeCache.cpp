@@ -17,6 +17,144 @@
 using namespace std;
 using namespace IceGrid;
 
+namespace IceGrid
+{
+
+class LoadCB : public AMI_Node_loadServer
+{
+public:
+
+    LoadCB(const TraceLevelsPtr& traceLevels, const ServerEntryPtr& server, const string& id, const string& node) : 
+	_traceLevels(traceLevels), _server(server), _id(id), _node(node)
+    {
+    }
+
+    void
+    ice_response(const ServerPrx& proxy, const AdapterPrxDict& adapters, int at, int dt)
+    {
+	if(_traceLevels && _traceLevels->server > 1)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+	    out << "loaded `" << _id << "' on node `" << _node << "'";	
+	}
+	_server->loadCallback(ServerPrx::uncheckedCast(proxy->ice_collocationOptimization(false)), adapters, at, dt);
+    }
+
+    void
+    ice_exception(const Ice::Exception& ex)
+    {
+	try
+	{
+	    ex.ice_throw();
+	}
+	catch(const NodeNotExistException& ex)
+	{
+	    if(_traceLevels && _traceLevels->server > 1)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+		out << "couldn't load `" << _id << "' on node `" << _node << "':\n" << ex;
+	    }
+	    ostringstream os;
+	    os << ex;
+	    _server->exception(NodeUnreachableException(_node, os.str()));
+	}
+	catch(const DeploymentException& ex)
+	{
+	    if(_traceLevels && _traceLevels->server > 1)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+		out << "couldn't load `" << _id << "' on node `" << _node << "':\n" << ex.reason;
+	    }
+	    
+	    Ice::Warning out(_traceLevels->logger);
+	    out << "failed to load `" + _id + "' on node `" << _node << "':\n" << ex;
+	    ostringstream os;
+	    os << ex << "\nreason: " << ex.reason;
+	    _server->exception(NodeUnreachableException(_node, os.str()));
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    if(_traceLevels && _traceLevels->server > 1)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+		out << "couldn't load `" << _id << "' on node `" << _node << "':\n" << ex;
+	    }
+	    
+	    ostringstream os;
+	    os << ex;
+	    _server->exception(NodeUnreachableException(_node, os.str()));
+	}
+    }
+
+private:
+    
+    const TraceLevelsPtr _traceLevels;
+    const ServerEntryPtr _server;
+    const string _id;
+    const string _node;
+};
+
+class DestroyCB : public AMI_Node_destroyServer
+{
+public:
+
+    DestroyCB(const TraceLevelsPtr& traceLevels, const ServerEntryPtr& server, const string& id, const string& node) : 
+	_traceLevels(traceLevels), _server(server), _id(id), _node(node)
+    {
+    }
+
+    void
+    ice_response()
+    {
+	if(_traceLevels && _traceLevels->server > 1)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+	    out << "unloaded `" << _id << "' on node `" << _node << "'";	
+	}
+	_server->destroyCallback();
+    }
+
+    void
+    ice_exception(const Ice::Exception& ex)
+    {
+	try
+	{
+	    ex.ice_throw();
+	}
+	catch(const NodeNotExistException& ex)
+	{
+	    if(_traceLevels && _traceLevels->server > 1)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+		out << "couldn't unload `" << _id << "' on node `" << _node << "':\n" << ex;
+	    }
+	    ostringstream os;
+	    os << ex;
+ 	    _server->exception(NodeUnreachableException(_node, os.str()));
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    if(_traceLevels && _traceLevels->server > 1)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+		out << "couldn't unload `" << _id << "' on node `" << _node << "':\n" << ex;
+	    }
+	    ostringstream os;
+	    os << ex;
+	    _server->exception(NodeUnreachableException(_node, os.str()));
+	}
+    }
+
+private:
+    
+    const TraceLevelsPtr _traceLevels;
+    const ServerEntryPtr _server;
+    const string _id;
+    const string _node;
+};
+
+};
+
 NodeCache::NodeCache(int sessionTimeout) : _sessionTimeout(sessionTimeout)
 {
 }
@@ -216,8 +354,8 @@ NodeEntry::canRemove()
     return !_session && _servers.empty();
 }
 
-ServerPrx
-NodeEntry::loadServer(const ServerInfo& server, AdapterPrxDict& adapters, int& aTimeout, int& dTimeout)
+void
+NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server)
 {
     NodePrx node;
     ServerDescriptorPtr desc;
@@ -225,97 +363,41 @@ NodeEntry::loadServer(const ServerInfo& server, AdapterPrxDict& adapters, int& a
 	Lock sync(*this);
 	if(!_session)
 	{
-	    throw NodeUnreachableException(_name, "the node is not active");
-	}	
+	    entry->exception(NodeUnreachableException(_name, "the node is not active"));
+	    return;
+	}
 	node = _session->getNode();
 	desc = getServerDescriptor(server);
     }
     assert(desc);
-    try
+
+    if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 2)
     {
-	ServerPrx proxy = node->loadServer(server.application, desc, adapters, aTimeout, dTimeout);
-	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
-	{
-	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-	    out << "loaded server `" << desc->id << "' on node `" << _name << "'";	
-	}
-	return ServerPrx::uncheckedCast(proxy->ice_collocationOptimization(false));
+	Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
+	out << "loading `" << desc->id << "' on node `" << _name << "'";	
     }
-    catch(const NodeNotExistException& ex)
-    {
-	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
-	{
-	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-	    out << "couldn't load `" << desc->id << "' on node `" << _name << "':\n" << ex;
-	}
-	
-	ostringstream os;
-	os << ex;
-	throw NodeUnreachableException(_name, os.str());
-    }
-    catch(const DeploymentException& ex)
-    {
-	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
-	{
-	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-	    out << "couldn't load `" << desc->id << "' on node `" << _name << "':\n" << ex.reason;
-	}
-	
-	Ice::Warning out(_cache.getTraceLevels()->logger);
-	out << "failed to load `" + desc->id + "' on node `" << _name << "':\n" << ex;
-	ostringstream os;
-	os << ex << "\nreason: " << ex.reason;
-	throw NodeUnreachableException(_name, os.str());
-    }
-    catch(const Ice::Exception& ex)
-    {
-	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
-	{
-	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-	    out << "couldn't load server `" << desc->id << "' on node `" << _name << "':\n" << ex;
-	}
-	
-	ostringstream os;
-	os << ex;
-	throw NodeUnreachableException(_name, os.str());
-    }
+
+    AMI_Node_loadServerPtr amiCB = new LoadCB(_cache.getTraceLevels(), entry, desc->id, _name);
+    node->loadServer_async(amiCB, server.application, desc);
 }
 
 void
-NodeEntry::destroyServer(const string& id)
+NodeEntry::destroyServer(const ServerEntryPtr& entry, const string& id)
 {
     try
     {
-	getProxy()->destroyServer(id);	
-	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
+	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 2)
 	{
 	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-	    out << "unloaded server `" << id << "' on node `" << _name << "'";
+	    out << "unloading `" << id << "' on node `" << _name << "'";	
 	}
+	AMI_Node_destroyServerPtr amiCB = new DestroyCB(_cache.getTraceLevels(), entry, id, _name);
+	getProxy()->destroyServer_async(amiCB, id);
     }
-    catch(const NodeNotExistException& ex)
+    catch(const NodeUnreachableException& ex)
     {
-	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
-	{
-	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-	    out << "couldn't unload server `" << id << "' on node `" << _name << "':\n" << ex;
-	}
-
-	ostringstream os;
-	os << ex;
-	throw NodeUnreachableException(_name, os.str());
-    }
-    catch(const Ice::LocalException& ex)
-    {
-	if(_cache.getTraceLevels() && _cache.getTraceLevels()->server > 1)
-	{
-	    Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-	    out << "couldn't unload server `" << id << "' on node `" << _name << "':\n" << ex;
-	}
-	
-	ostringstream os;
-	os << ex;
-	throw NodeUnreachableException(_name, os.str());
+	entry->exception(ex);
+	return;
     }
 }
 
