@@ -1228,7 +1228,7 @@ ServerI::updateImpl()
 	{
 	    removeRecursive(_serverDir);
 	}
-	catch(const string& msg)
+	catch(const string&)
 	{
 	}
     }
@@ -1803,9 +1803,9 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	ex.reason = "couldn't create configuration file: " + configFilePath;
 	throw ex;
     }
-    for(PropertyDescriptorSeq::const_iterator p = props.begin(); p != props.end(); ++p)
+    for(PropertyDescriptorSeq::const_iterator r = props.begin(); r != props.end(); ++r)
     {
-	configfile << p->name << "=" << p->value << endl;
+	configfile << r->name << "=" << r->value << endl;
     }
     configfile.close();
 }
