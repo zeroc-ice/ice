@@ -587,8 +587,8 @@ IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttribut
     _descriptor = desc;
 
     PropertyDescriptor prop;
-    prop.name = "IceBox.ServiceManager.Identity";
-    prop.value = _descriptor->id + "/ServiceManager";
+    prop.name = "IceBox.InstanceName";
+    prop.value = _descriptor->id;
     _descriptor->properties.push_back(prop);
     
     AdapterDescriptor adapter;

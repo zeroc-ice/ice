@@ -89,7 +89,7 @@ WaitQueue::run()
 		{
 		    (*p)->expired(false);
 		}
-		catch(const Ice::LocalException& ex)
+		catch(const Ice::LocalException&)
 		{
 		    //
 		    // TODO: Add some tracing.

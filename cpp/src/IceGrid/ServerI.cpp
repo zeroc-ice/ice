@@ -655,7 +655,7 @@ ServerI::isEnabled(const ::Ice::Current&) const
 }
 
 void
-ServerI::setProcess(const Ice::ProcessPrx& process, const Ice::Current&)
+ServerI::setProcess_async(const AMD_Server_setProcessPtr& amdCB, const Ice::ProcessPrx& process, const Ice::Current&)
 {
     bool deact = false;
     {
@@ -663,6 +663,7 @@ ServerI::setProcess(const Ice::ProcessPrx& process, const Ice::Current&)
 	_process = process;
 	deact = _state == DeactivatingWaitForProcess;
     }
+    amdCB->ice_response();
     if(deact)
     {
 	deactivate();

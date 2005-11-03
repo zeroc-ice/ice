@@ -75,7 +75,7 @@ public:
 
     virtual void setEnabled(bool, const ::Ice::Current&);
     virtual bool isEnabled(const ::Ice::Current& = Ice::Current()) const;
-    virtual void setProcess(const ::Ice::ProcessPrx&, const ::Ice::Current&);
+    virtual void setProcess_async(const AMD_Server_setProcessPtr&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
 
     ServerDescriptorPtr getDescriptor() const;
     std::string getApplication() const;

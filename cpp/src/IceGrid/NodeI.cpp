@@ -264,7 +264,7 @@ NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB, const string&
 	{
 	    removeRecursive(_serversDir + "/" + name);
 	}
-	catch(const string& msg)
+	catch(const string&)
 	{
 	}
 	amdCB->ice_response();

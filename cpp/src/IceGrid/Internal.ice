@@ -171,7 +171,7 @@ interface Server
      * Set the process proxy.
      *
      **/
-    ["ami"] void setProcess(Ice::Process* proc);
+    ["ami", "amd"] void setProcess(Ice::Process* proc);
 };
 
 interface Node
