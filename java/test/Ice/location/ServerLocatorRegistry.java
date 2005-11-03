@@ -10,8 +10,16 @@
 public class ServerLocatorRegistry extends Test._TestLocatorRegistryDisp
 {
     public void
-    setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb, String adapter, String replica, 
+    setAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setAdapterDirectProxy cb, String adapter,
 				Ice.ObjectPrx object, Ice.Current current)
+    {
+	_adapters.put(adapter, object);
+	cb.ice_response();
+    }
+
+    public void
+    setReplicatedAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setReplicatedAdapterDirectProxy cb, String adapter, 
+					  String replica, Ice.ObjectPrx object, Ice.Current current)
     {
 	_adapters.put(adapter, object);
 	cb.ice_response();
