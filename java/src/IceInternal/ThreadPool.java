@@ -277,6 +277,8 @@ public final class ThreadPool
 		catch(java.io.IOException ex)
 		{
 		    //
+		    // BUGFIX:
+		    //
 		    // Ignore this exception. This shouldn't happen
 		    // but for some reasons the close() call raises
 		    // "java.io.IOException: Bad file descriptor" on
@@ -288,7 +290,21 @@ public final class ThreadPool
 
 	    if(_fdIntrWrite != null)
 	    {
-		_fdIntrWrite.close();
+		try
+		{
+		    _fdIntrWrite.close();
+		}
+		catch(java.io.IOException ex)
+		{
+		    //
+		    // BUGFIX:
+		    //
+		    // Ignore this exception. This shouldn't happen
+		    // but for some reasons the close() call raises
+		    // "java.io.IOException: No such file or
+		    // directory" under Linux with JDK 1.4.2.
+		    //
+		}
 		_fdIntrWrite = null;
 	    }
 

@@ -655,22 +655,60 @@ public final class Network
     {
         SocketPair fds = new SocketPair();
 
-	try
+	//
+	// BUGFIX: This method should really be very simple.
+	// Unfortunately, using a pipe causes a kernel crash under
+	// MacOS 10.3.9.
+	//
+	//try
+	//{
+	//   java.nio.channels.Pipe pipe = java.nio.channels.Pipe.open();
+	//   fds.sink = pipe.sink();
+	//   fds.source = pipe.source();
+	//}
+        //catch(java.io.IOException ex)
+	//{
+	//   Ice.SocketException se = new Ice.SocketException();
+	//   se.initCause(ex);
+	//   throw se;
+	//}
+	//
+	
+        java.nio.channels.ServerSocketChannel fd = createTcpServerSocket();
+	
+	java.net.InetSocketAddress addr = new java.net.InetSocketAddress("127.0.0.1", 0);
+	
+	addr = doBind(fd, addr);
+	
+        try
 	{
-	    java.nio.channels.Pipe pipe = java.nio.channels.Pipe.open();
-	    fds.sink = pipe.sink();
-	    fds.source = pipe.source();
-	}
-        catch(java.io.IOException ex)
+            java.nio.channels.SocketChannel sink = createTcpSocket();
+	    fds.sink = sink;
+	    doConnect(sink, addr, -1);
+            try
+	    {
+		fds.source = doAccept(fd, -1);
+	    }
+	    catch(Ice.LocalException ex)
+            {
+		try
+		{
+                    fds.sink.close();
+		}
+		catch(java.io.IOException e)
+		{
+                }
+		throw ex;
+	    }
+        }
+	finally
 	{
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+ 	    closeSocketNoThrow(fd);
 	}
-
-        return fds;
+	
+	return fds;
     }
-
+    
     public static String
     fdToString(java.nio.channels.SelectableChannel fd)
     {
