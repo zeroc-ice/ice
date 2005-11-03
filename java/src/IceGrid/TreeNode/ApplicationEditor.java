@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -166,6 +167,8 @@ class ApplicationEditor extends Editor
 		    }
 		}
 	    };
+	openVariablesDialog.putValue(Action.SHORT_DESCRIPTION, 
+				     "Edit variables");
 	_variablesButton = new JButton(openVariablesDialog);
 
 	//
@@ -173,6 +176,7 @@ class ApplicationEditor extends Editor
 	//
 	_distrib = new JComboBox(new Object[]{NO_DISTRIB, DEFAULT_DISTRIB});
 	_distrib.setEditable(true);
+	_distrib.setToolTipText("The proxy to the IcePatch2 server holding your files");
 
 	JTextField distribTextField = (JTextField)
 	    _distrib.getEditor().getEditorComponent();
@@ -197,6 +201,8 @@ class ApplicationEditor extends Editor
 		    }
 		}
 	    };
+	openDistribDirsDialog.putValue(Action.SHORT_DESCRIPTION, 
+				       "Edit directory list");
 	_distribDirsButton = new JButton(openDistribDirsDialog);
 
     }
@@ -221,7 +227,8 @@ class ApplicationEditor extends Editor
 	builder.append(_variablesButton);
 	builder.nextLine();
 
-	builder.appendSeparator("Distribution");
+	JComponent c = builder.appendSeparator("Distribution");
+	c.setToolTipText("Files shared by all servers in your application");
 	builder.append("IcePatch2 Proxy");
 	builder.append(_distrib, 3);
 	builder.nextLine();
@@ -265,7 +272,7 @@ class ApplicationEditor extends Editor
 	
 	_name.setText(application.getId());
 	_name.setEditable(application.isEphemeral());
-	
+
 	ApplicationDescriptor descriptor = 
 	    (ApplicationDescriptor)application.getDescriptor();
 
@@ -273,6 +280,7 @@ class ApplicationEditor extends Editor
 	    Utils.substitute(descriptor.description, resolver));
 	_description.setEditable(isEditable);
 	_description.setOpaque(isEditable);
+	_description.setToolTipText("An optional description for this application");
 	
 	_variablesMap = descriptor.variables;
 	setVariablesField();
@@ -316,8 +324,17 @@ class ApplicationEditor extends Editor
 	    };
 	
 	_distribDirs.setText(
-	    Utils.stringify(_distribDirsList, stringifier, ", ", toolTipHolder));
-	_distribDirs.setToolTipText(toolTipHolder.value);
+	    Utils.stringify(_distribDirsList, stringifier, ", ", 
+			    toolTipHolder));
+
+	String toolTip = "<html>Include only these directories";
+
+	if(toolTipHolder.value != null)
+	{
+	    toolTip += ":<br>" + toolTipHolder.value;
+	}
+	toolTip += "</html>";
+	_distribDirs.setToolTipText(toolTip);
     }
 
     private void setVariablesField()

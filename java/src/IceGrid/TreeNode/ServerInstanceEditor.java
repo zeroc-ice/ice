@@ -51,7 +51,8 @@ class ServerInstanceEditor extends AbstractServerEditor
     {
 	super(model);
 	_subEditor = new ServerSubEditor(this, parentFrame);
-
+	
+	_template.setToolTipText("Server template");
 	_parameterValues.setEditable(false);
 	
 	//
@@ -70,7 +71,7 @@ class ServerInstanceEditor extends AbstractServerEditor
 		}
 	    };
 	gotoTemplate.putValue(Action.SHORT_DESCRIPTION, 
-			      "Goto this template");
+			      "Goto this server template");
 	_templateButton = new JButton(gotoTemplate);
 
 	//
@@ -96,6 +97,9 @@ class ServerInstanceEditor extends AbstractServerEditor
 		    }
 		}
 	    };
+	openParametersDialog.putValue(Action.SHORT_DESCRIPTION, 
+				      "Edit parameters");
+
 	_parametersButton = new JButton(openParametersDialog);
     }
 

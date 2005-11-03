@@ -30,6 +30,7 @@ class TemplateEditor extends Editor
     {
 	super(false, true);
 	_template.getDocument().addDocumentListener(_updateListener);
+	_template.setToolTipText("Must be unique within the enclosing application");
 	_parameters.setEditable(false);
 
 	//
@@ -55,6 +56,8 @@ class TemplateEditor extends Editor
 		    }
 		}
 	    };
+	openParametersDialog.putValue(Action.SHORT_DESCRIPTION,
+				      "Editor parameters");
 	_parametersButton = new JButton(openParametersDialog);
     }
 

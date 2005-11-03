@@ -109,8 +109,8 @@ class Server extends EditableParent
 	    new java.util.LinkedList(),
 	    new java.util.LinkedList(),
 	    "manual",
-	    "0",
-	    "0",
+	    "",
+	    "",
 	    false,
 	    new IceGrid.DistributionDescriptor("", new java.util.LinkedList()));
     }
@@ -147,8 +147,8 @@ class Server extends EditableParent
 	    new java.util.LinkedList(),
 	    new java.util.LinkedList(),
 	    "manual",
-	    "0",
-	    "0",
+	    "",
+	    "",
 	    false,
 	    new IceGrid.DistributionDescriptor("", new java.util.LinkedList()),
 	    new java.util.LinkedList()

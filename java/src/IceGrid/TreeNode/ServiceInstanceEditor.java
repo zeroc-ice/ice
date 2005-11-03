@@ -53,7 +53,7 @@ class ServiceInstanceEditor extends ListElementEditor
 		}
 	    };
 	gotoTemplate.putValue(Action.SHORT_DESCRIPTION, 
-				       "Goto this template");
+			      "Goto this service template");
 	_templateButton = new JButton(gotoTemplate);
 
 	//
@@ -67,7 +67,7 @@ class ServiceInstanceEditor extends ListElementEditor
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    if(_parametersDialog.show(_parameterList, _parameterValuesMap, 
+		    if(_parametersDialog.show(_parameterList, _parameterValuesMap,
 					      getProperties()))
 		    {
 			updated();
@@ -79,6 +79,8 @@ class ServiceInstanceEditor extends ListElementEditor
 		    }
 		}
 	    };
+	openParametersDialog.putValue(Action.SHORT_DESCRIPTION,
+				      "Edit parameter values");
 	_parametersButton = new JButton(openParametersDialog);
     }
 

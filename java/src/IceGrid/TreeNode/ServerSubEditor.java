@@ -14,6 +14,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
@@ -34,15 +35,30 @@ class ServerSubEditor extends CommunicatorSubEditor
 
 	_id.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());
+	_id.setToolTipText("Must be unique within this IceGrid deployment");
+
 	_exe.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());
+	_exe.setToolTipText("<html>Path to this server's executable, e.g.:<br>"
+			    + "icebox<br>"
+			    + "java<br>"
+			    + "myHelloServer<br>"
+			    + "C:\\testbed\\hello\\server</html>");
+
 	_pwd.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());
+	_pwd.setToolTipText(
+	    "<html>If not set, the server will start in "
+	    + "<i>node data dir</i>/servers/<i>server-id</i>;<br>"
+	    + "relative directories are relative to the current directory"
+	    + " of the icegridnode process.</html>");
 
 	_options.setEditable(false);
 	_envs.setEditable(false);
 
 	_activation = new JComboBox(new Object[]{ON_DEMAND, MANUAL});
+	_activation.setToolTipText("Select 'on-demand' to have IceGrid start your server on-demand");
+
 	JTextField activationTextField = (JTextField)
 	    _activation.getEditor().getEditorComponent();
 	activationTextField.getDocument().addDocumentListener(
@@ -50,8 +66,14 @@ class ServerSubEditor extends CommunicatorSubEditor
 
 	_activationTimeout.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());
+	_activationTimeout.setToolTipText("<html>Number of seconds; if not set or set to 0, " 
+					  + "the IceGrid Node<br> uses the value of its "
+					  + "IceGrid.Node.WaitTime property</html>");
 	_deactivationTimeout.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());
+	_deactivationTimeout.setToolTipText("<html>Number of seconds; if not set or set to 0, " 
+					     + "the IceGrid Node<br> uses the value of its "
+					     + "IceGrid.Node.WaitTime property</html>");
 
 	
 	_envDialog = new TableDialog(parentFrame, "Environment Variables",
@@ -70,6 +92,8 @@ class ServerSubEditor extends CommunicatorSubEditor
 		    }
 		}
 	    };
+	openEnvDialog.putValue(Action.SHORT_DESCRIPTION,
+			       "Edit environment variables");
 	_envButton = new JButton(openEnvDialog);
 	
 	_optionDialog = new ListDialog(parentFrame, 
@@ -88,10 +112,15 @@ class ServerSubEditor extends CommunicatorSubEditor
 		    }
 		}
 	    };
+	openOptionDialog.putValue(Action.SHORT_DESCRIPTION,
+				  "Edit command-line arguments");
 	_optionButton = new JButton(openOptionDialog);
 
 
 	_distrib = new JComboBox(new Object[]{NO_DISTRIB, DEFAULT_DISTRIB});
+	_distrib.setToolTipText(
+	    "The proxy to the IcePatch2 server holding your files");
+
 	JTextField distribTextField = (JTextField)
 	    _distrib.getEditor().getEditorComponent();
 	distribTextField.getDocument().addDocumentListener(
@@ -115,6 +144,8 @@ class ServerSubEditor extends CommunicatorSubEditor
 		    }
 		}
 	    };
+	openDistribDirsDialog.putValue(Action.SHORT_DESCRIPTION,
+				       "Edit directory list");
 	_distribDirsButton = new JButton(openDistribDirsDialog);
     }
  
@@ -158,7 +189,10 @@ class ServerSubEditor extends CommunicatorSubEditor
 	builder.append("Deactivation Timeout");
 	builder.append(_deactivationTimeout, 3);
 	builder.nextLine();
-	builder.appendSeparator("Distribution");
+	
+	JComponent c = builder.appendSeparator("Distribution");
+	c.setToolTipText("Files specific to this server");
+
 	builder.append("IcePatch2 Proxy");
 	builder.append(_distrib, 3);
 	builder.nextLine();
@@ -359,8 +393,17 @@ class ServerSubEditor extends CommunicatorSubEditor
 	    };
 	
 	_distribDirs.setText(
-	    Utils.stringify(_distribDirsList, stringifier, ", ", toolTipHolder));
-	_distribDirs.setToolTipText(toolTipHolder.value);
+	    Utils.stringify(_distribDirsList, stringifier, ", ", 
+			    toolTipHolder));
+
+	String toolTip = "<html>Include only these directories";
+
+	if(toolTipHolder.value != null)
+	{
+	    toolTip += ":<br>" + toolTipHolder.value;
+	}
+	toolTip += "</html>";
+	_distribDirs.setToolTipText(toolTip);
     }
    
     static private final String ON_DEMAND = "on-demand";

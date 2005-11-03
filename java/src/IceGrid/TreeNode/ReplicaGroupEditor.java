@@ -197,6 +197,8 @@ class ReplicaGroupEditor extends Editor
 		    }
 		}
 	    };
+	openObjectsDialog.putValue(Action.SHORT_DESCRIPTION,
+				   "Edit registered objects");
 	_objectsButton = new JButton(openObjectsDialog);
 	
 	//
@@ -219,18 +221,30 @@ class ReplicaGroupEditor extends Editor
 		    }
 		}
 	    });
+	_loadBalancing.setToolTipText(
+	    "Specifies how IceGrid selects adapters when resolving a replica group ID");
 
 	//
 	// Associate updateListener with various fields
 	//
 	_id.getDocument().addDocumentListener(_updateListener);
+	_id.setToolTipText("Must be unique within this IceGrid deployment");
+
 	_description.getDocument().addDocumentListener(_updateListener);
+	_description.setToolTipText(
+	    "An optional description for this replica group");
+
 	_nReplicas.getDocument().addDocumentListener(_updateListener);
+	_nReplicas.setToolTipText("<html>IceGrid returns the endpoints of "
+				  + "up to <i>number</i> adapters<br>"
+				  + "when resolving a replica group ID</html>");
 
 	_loadSample.setEditable(true);
 	JTextField loadSampleTextField = (JTextField)
 	    _loadSample.getEditor().getEditorComponent();
 	loadSampleTextField.getDocument().addDocumentListener(_updateListener);
+	_loadSample.setToolTipText(
+	    "Use the load average or CPU usage over the last 1, 5 or 15 minutes?");
 
     }
     
@@ -364,7 +378,6 @@ class ReplicaGroupEditor extends Editor
 	_objectsButton.setEnabled(isEditable);
 
 	_loadBalancing.setEnabled(true);
-	_loadBalancing.setEditable(true);
 
 	if(descriptor.loadBalancing == null)
 	{
@@ -404,7 +417,6 @@ class ReplicaGroupEditor extends Editor
 	_nReplicas.setEditable(isEditable);
 	_loadSample.setEditable(isEditable);
 	_loadBalancing.setEnabled(isEditable);
-	_loadBalancing.setEditable(isEditable);
 
 	_applyButton.setEnabled(replicaGroup.isEphemeral());
 	_discardButton.setEnabled(replicaGroup.isEphemeral());	  

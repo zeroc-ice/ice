@@ -13,7 +13,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
-
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -34,8 +34,20 @@ class DbEnvEditor extends ListElementEditor
     {
 	super(false);
 	_name.getDocument().addDocumentListener(_updateListener);
+	_name.setToolTipText(
+	    "Identifies this Freeze database environment within an Ice communicator");
 	_description.getDocument().addDocumentListener(_updateListener);
-	_dbHome.getDocument().addDocumentListener(_updateListener);
+	_description.setToolTipText(
+	    "An optional description for this database environment");
+
+	JTextField dbHomeTextField = (JTextField)
+	    _dbHome.getEditor().getEditorComponent();
+	dbHomeTextField.getDocument().addDocumentListener(_updateListener);
+	_dbHome.setToolTipText("<html><i>node data dir</i>/servers/<i>server id</i>"
+			       + "/dbs/<i>db env name</i> if created by the IceGrid Node;<br>"
+			       + "otherwise, IceGrid does not create this directory"
+			       + "</html>");
+
 
 	_properties.setEditable(false);
 		
@@ -62,6 +74,8 @@ class DbEnvEditor extends ListElementEditor
 		    }
 		}
 	    };
+	openPropertiesDialog.putValue(Action.SHORT_DESCRIPTION,
+				      "Edit properties");
 	_propertiesButton = new JButton(openPropertiesDialog);
     }
 
@@ -71,7 +85,7 @@ class DbEnvEditor extends ListElementEditor
 	    (DbEnvDescriptor)getDbEnv().getDescriptor();
 	descriptor.name = _name.getText();
 	descriptor.description = _description.getText();
-	descriptor.dbHome = _dbHome.getText();
+	descriptor.dbHome = getDbHomeAsString();
 	descriptor.properties = Editor.mapToProperties(_propertiesMap);
     }	    
     
@@ -130,9 +144,11 @@ class DbEnvEditor extends ListElementEditor
 	    Utils.substitute(descriptor.description, resolver));
 	_description.setEditable(isEditable);
 	_description.setOpaque(isEditable);
-
-	_dbHome.setText(
-	    Utils.substitute(descriptor.dbHome, resolver));
+	
+	_dbHome.setEnabled(true);
+	_dbHome.setEditable(true);
+	setDbHome(Utils.substitute(descriptor.dbHome, resolver));
+	_dbHome.setEnabled(isEditable);
 	_dbHome.setEditable(isEditable);
 	
 	_propertiesMap = Editor.propertiesToMap(descriptor.properties);
@@ -148,6 +164,32 @@ class DbEnvEditor extends ListElementEditor
     {
 	return (DbEnv)_target;
     }
+
+    private void setDbHome(String dbHome)
+    {
+	if(dbHome.equals(""))
+	{
+	    _dbHome.setSelectedItem(NO_DB_HOME);
+	}
+	else 
+	{
+	    _dbHome.setSelectedItem(dbHome);
+	}
+    }
+    
+    private String getDbHomeAsString()
+    {
+	Object obj = _dbHome.getSelectedItem();
+	if(obj == NO_DB_HOME)
+	{
+	    return "";
+	}
+	else
+	{
+	    return obj.toString();
+	}
+    }
+    
 
     private void setPropertiesField()
     {
@@ -169,17 +211,33 @@ class DbEnvEditor extends ListElementEditor
 	_properties.setText(
 	    Utils.stringify(_propertiesMap.entrySet(), stringifier,
 			    ", ", toolTipHolder));
-	_properties.setToolTipText(toolTipHolder.value);
+	
+	String toolTip = "<html>Properties used to generate a"
+	    + " DB_CONFIG file in the DB home directory";
+	if(toolTipHolder.value != null)
+	{
+	    toolTip += ":<br>" + toolTipHolder.value;
+	}
+	toolTip += "</html>";
+
+	_properties.setToolTipText(toolTip);
     }
 
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
 
-
-    private JTextField _dbHome = new JTextField(20);
+    private JComboBox _dbHome = new JComboBox(new Object[]{NO_DB_HOME});
 
     private JTextField _properties = new JTextField(20);
     private java.util.Map _propertiesMap;
     private TableDialog _propertiesDialog;
     private JButton _propertiesButton = new JButton("...");
+    
+    static private final Object NO_DB_HOME = new Object()
+	{
+	    public String toString()
+	    {
+		return "Created by the IceGrid Node";
+	    }
+	};
 }

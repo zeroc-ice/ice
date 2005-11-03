@@ -165,7 +165,9 @@ class NodeEditor extends Editor
 	super(true, true);
 
 	_name.getDocument().addDocumentListener(_updateListener);
+	_name.setToolTipText("Must match the IceGrid.Node.Name property of the desired icegridnode process");
 	_description.getDocument().addDocumentListener(_updateListener);
+	_description.setToolTipText("An optional description for this node");
 	_variables.setEditable(false);
 
 	_hostname.setEditable(false);
@@ -181,6 +183,8 @@ class NodeEditor extends Editor
 		    node.getLoad();
 		}
 	    };
+	refresh.putValue(Action.SHORT_DESCRIPTION, 
+			"Fetch the latest values from this IceGrid Node");
 	_refreshButton = new JButton(refresh);
 
 
@@ -204,9 +208,14 @@ class NodeEditor extends Editor
 		    }
 		}
 	    };
+	openVariablesDialog.putValue(Action.SHORT_DESCRIPTION, 
+				     "Edit variables"); 
 	_variablesButton = new JButton(openVariablesDialog);
 
 	_loadFactor.getDocument().addDocumentListener(_updateListener);
+	_loadFactor.setToolTipText("<html>A floating point value.<br>"
+				   + "When not specified, IceGrid uses 1.0 on all platforms<br>"
+				   + "except Windows where it uses 1.0 divided by <i>number of processors</i>.<html>");
     }
  
     public JComponent getCurrentStatus(Ice.StringHolder title)
@@ -240,10 +249,14 @@ class NodeEditor extends Editor
 	    if(node.isRunningWindows())
 	    {
 		_loadAverageLabel.setText("CPU Usage");
+		_loadAverage.setToolTipText(
+		    "CPU usage in the past 1 min, 5 min and 15 min period");
 	    }
 	    else
 	    {
 		_loadAverageLabel.setText("Load Average");
+		_loadAverage.setToolTipText(
+		    "Load average in the past 1 min, 5 min and 15 min period");
 	    }
 	    _loadAverage.setText("Refreshing...");
 	    node.getLoad();

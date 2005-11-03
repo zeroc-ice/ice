@@ -44,7 +44,8 @@ class AdapterEditor extends ListElementEditor
 	
 	_currentStatus.setEditable(false);
 	_currentEndpoints.setEditable(false);
-	
+	_currentEndpoints.setToolTipText(
+	    "Endpoints registered with the IceGrid Registry during the activation of this adapter"); 
 
 	//
 	// Create buttons
@@ -85,7 +86,7 @@ class AdapterEditor extends ListElementEditor
 		}
 	    };
 	gotoReplicaGroup.putValue(Action.SHORT_DESCRIPTION, 
-				       "Goto the definition of this replica group");
+				  "Goto the definition of this replica group");
 	_replicaGroupButton = new JButton(gotoReplicaGroup);
 	
 	//
@@ -110,6 +111,8 @@ class AdapterEditor extends ListElementEditor
 		    }
 		}
 	    };
+	openObjectsDialog.putValue(Action.SHORT_DESCRIPTION, 
+				   "Edit registered objects");
 	_objectsButton = new JButton(openObjectsDialog);
 	
 	
@@ -121,7 +124,12 @@ class AdapterEditor extends ListElementEditor
 		}
 	    };
 	_registerProcess = new JCheckBox(checkRegisterProcess);
-	
+	_registerProcess.setToolTipText(
+	    "<html>During activation, create a Process object<br>"
+	    + "in this adapter and register it with IceGrid<br>"
+	    + "to enable clean shutdown; you should register<br>"
+	    + "exactly one Process object per server.</html>");
+
 	Action checkWaitForActivation = 
 	    new AbstractAction("Wait for Activation")
 	    {
@@ -131,7 +139,10 @@ class AdapterEditor extends ListElementEditor
 		}
 	    };
 	_waitForActivation = new JCheckBox(checkWaitForActivation);
-
+	_waitForActivation.setToolTipText(
+	    "<html>When starting the enclosing server, "
+	    + "does IceGrid<br>wait for this adapter to become active?</html>");
+	
 	//
 	// Associate updateListener with various fields
 	//
@@ -168,21 +179,40 @@ class AdapterEditor extends ListElementEditor
 		}
 	    });
 
+	_name.setToolTipText(
+	    "Identifies this object adapter within an Ice communicator");
 
 	_endpoints.getDocument().addDocumentListener(_updateListener);
+	_endpoints.setToolTipText(
+	    "<html>The network interfaces on which this adapter receives requests;<br>"
+	    + "for example:<br>" 
+	    + " tcp (listen on all local interfaces using a random port)<br>"
+	    + " tcp -h venus.foo.com (listen on just one interface)<br>"
+	    + " tcp -t 10000 (sets a timeout of 10,000 milliseconds)<br>"
+	    + " ssl -h venus.foo.com (accepts SSL connections instead of plain TCP)"
+	    + "</html>");
+
 	_description.getDocument().addDocumentListener(_updateListener);
+	_description.setToolTipText(
+	    "An optional description for this object adapter");
 
 	JTextField idTextField = (JTextField)
 	    _id.getEditor().getEditorComponent();
 	idTextField.getDocument().addDocumentListener(_updateListener);
+	_id.setToolTipText("If set, must be unique within this IceGrid deployment");
 
 	JTextField replicaGroupIdTextField = (JTextField)
 	    _replicaGroupId.getEditor().getEditorComponent();
 	replicaGroupIdTextField.getDocument().addDocumentListener(_updateListener);
-	
+	_replicaGroupId.setToolTipText("Select a replica group");
+
 	JTextField publishedEndpointsTextField = (JTextField)
 	    _publishedEndpoints.getEditor().getEditorComponent();
-	publishedEndpointsTextField.getDocument().addDocumentListener(_updateListener);	
+	publishedEndpointsTextField.getDocument().addDocumentListener(_updateListener);
+	_publishedEndpoints.setToolTipText(
+	    "<html>Direct adapter: endpoints included in proxies created using this adapter.<br>"
+	    + "Indirect adapter: endpoints registered with the IceGrid Registry during the activation of this adapter." 
+	    + "</html>");
     }
     
    
@@ -297,7 +327,7 @@ class AdapterEditor extends ListElementEditor
 	}
     }
     
-    void setObjectsField()
+    private void setObjectsField()
     {
 	Adapter adapter = getAdapter();
 
@@ -321,10 +351,11 @@ class AdapterEditor extends ListElementEditor
 	_objects.setText(
 	    Utils.stringify(_objectsMap.entrySet(), stringifier,
 			    ", ", toolTipHolder));
+
 	_objects.setToolTipText(toolTipHolder.value);
     }
     
-    void setId(String id)
+    private void setId(String id)
     {
 	if(id.equals(""))
 	{
@@ -336,7 +367,20 @@ class AdapterEditor extends ListElementEditor
 	}
     }
 
-    void setReplicaGroupId(String replicaGroupId)
+    private String getIdAsString()
+    {
+	Object obj = _id.getSelectedItem();
+	if(obj == DIRECT_ADAPTER)
+	{
+	    return "";
+	}
+	else
+	{
+	    return obj.toString();
+	}
+    }
+
+    private void setReplicaGroupId(String replicaGroupId)
     {
 	if(replicaGroupId.equals(""))
 	{
@@ -361,20 +405,8 @@ class AdapterEditor extends ListElementEditor
 	}
     }
     
-    String getIdAsString()
-    {
-	Object obj = _id.getSelectedItem();
-	if(obj == DIRECT_ADAPTER)
-	{
-	    return "";
-	}
-	else
-	{
-	    return obj.toString();
-	}
-    }
-
-    String getReplicaGroupIdAsString()
+   
+    private String getReplicaGroupIdAsString()
     {
 	Object obj = _replicaGroupId.getSelectedItem();
 	if(obj == NOT_REPLICATED)

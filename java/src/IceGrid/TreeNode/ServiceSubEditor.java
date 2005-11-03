@@ -29,8 +29,16 @@ class ServiceSubEditor extends CommunicatorSubEditor
 
 	_name.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());
+	_name.setToolTipText("Identifies this service within an IceBox server");
+
 	_entry.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());
+	_entry.setToolTipText(
+	    "<html>The service entry point and optional arguments.<br>"
+	    + "C++: <i>shared object:function-name arg1 arg2 ...</i><br>"
+	    + "Java: <i>class-name arg1 arg2 ...</i><br>"
+	    + "C#, Visual Basic: <i>assembly:class-name arg1 arg2 ...</i>"
+	    + "</html>");
     }
  
     ServiceDescriptor getServiceDescriptor()
@@ -50,7 +58,7 @@ class ServiceSubEditor extends CommunicatorSubEditor
 	//
 	super.appendProperties(builder);
 
-	builder.append("Entry");
+	builder.append("Entry Point");
 	builder.append(_entry, 3);
 	builder.nextLine();
     }

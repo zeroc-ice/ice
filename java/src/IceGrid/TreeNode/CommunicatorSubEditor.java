@@ -57,10 +57,13 @@ class CommunicatorSubEditor
 		    }
 		}
 	    };
+	openPropertiesDialog.putValue(Action.SHORT_DESCRIPTION,
+				      "Edit properties");
 	_propertiesButton = new JButton(openPropertiesDialog);
 
 	_description.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());
+	_description.setToolTipText("An optional description");
     }
 
   

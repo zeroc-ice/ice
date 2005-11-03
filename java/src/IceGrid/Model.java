@@ -1207,7 +1207,7 @@ public class Model
 	_exit.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke("alt F4"));
 
 
-	_back = new AbstractAction("Go back to previous node")
+	_back = new AbstractAction("Go back to the previous node")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1215,8 +1215,9 @@ public class Model
 		}
 	    };
 	_back.setEnabled(false);
+	_back.putValue(Action.SHORT_DESCRIPTION, "Go back to the previous node");
 
-	_forward =  new AbstractAction("Go to next node")
+	_forward =  new AbstractAction("Go to the next node")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -1224,7 +1225,7 @@ public class Model
 		}
 	    };
 	_forward.setEnabled(false);
-
+	_forward.putValue(Action.SHORT_DESCRIPTION, "Go to the next node");
 
 	_helpContents = new AbstractAction("Contents")
 	    {
@@ -1473,6 +1474,9 @@ public class Model
 		    _actionsTarget.start();
 		}
 	    };
+	_actions[CommonBase.START].putValue(Action.SHORT_DESCRIPTION, 
+					    "Start this server");
+
 
 	_actions[CommonBase.STOP] = new AbstractAction(
 	    "Stop", Utils.getIcon("/icons/16x16/stop.png"))
@@ -1482,6 +1486,9 @@ public class Model
 		    _actionsTarget.stop();
 		}
 	    };
+	_actions[CommonBase.STOP].putValue(Action.SHORT_DESCRIPTION, 
+					    "Stop this server");
+	
 
 	_actions[CommonBase.ENABLE] = new AbstractAction(
 	    "Enable", Utils.getIcon("/icons/16x16/enable.png"))
@@ -1490,8 +1497,9 @@ public class Model
 		{
 		    _actionsTarget.enable();
 		}
-
 	    };
+	_actions[CommonBase.ENABLE].putValue(Action.SHORT_DESCRIPTION, 
+					     "Enable this server");
 	
 	_actions[CommonBase.DISABLE] = new AbstractAction(
 	    "Disable", Utils.getIcon("/icons/16x16/disable.png"))
@@ -1501,6 +1509,9 @@ public class Model
 		    _actionsTarget.disable();
 		}
 	    };
+	_actions[CommonBase.DISABLE].putValue(Action.SHORT_DESCRIPTION, 
+					      "Disable this server");
+
 	_actions[CommonBase.SHUTDOWN_NODE] = new AbstractAction("Shutdown")
 	    {
 		public void actionPerformed(ActionEvent e) 
