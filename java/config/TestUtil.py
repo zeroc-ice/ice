@@ -21,8 +21,8 @@ protocol = "ssl"
 # protocol compression.
 #
 
-compress = 0
-#compress = 1
+#compress = 0
+compress = 1
 
 #
 # Set threadPerConnection to 1 in case you want to run the tests in
