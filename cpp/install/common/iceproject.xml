@@ -1,0 +1,38 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+    <property environment="env"/>
+
+    <!-- Check presence of Ice installtion in ICE_HOME -->
+
+    <condition property="checkinstall" value="true">
+	<and>
+	     <available file="${env.ICE_HOME}/slice" />
+	</and>
+    </condition>
+    
+    <fail message="Unable to detect a valid Ice installation. Please set ICE_HOME!" unless="installtype" />
+
+    <target name="config-init">
+	 <property name="lib.dir" value="${env.ICE_HOME}/lib" />
+	 <property name="slice.dir" value="${env.ICE_HOME}/slice"/>
+	 <taskdef name="slice2java" classpath="${env.ICE_HOME}/ant" classname="Slice2JavaTask"/>
+	 <taskdef name="slice2freezej" classpath="${env.ICE_HOME}/ant" classname="Slice2FreezeJTask" />
+		  
+	<!-- Ice classpath -->
+	<path id="ice.classpath">
+	    <fileset dir="${lib.dir}">
+		<include name="*.jar"/>
+	    </fileset>
+	</path>
+    </target>
+
+    <property file="${top.dir}/config/build.properties"/>
