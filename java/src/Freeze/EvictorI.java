@@ -99,8 +99,16 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
     class DeactivateController
     {
+	synchronized void activate()
+	{
+	    assert !_activated;
+	    _activated = true;
+	}
+
 	synchronized void lock()
 	{
+	    assert _activated;
+
 	    if(_deactivated || _deactivating)
 	    {
 		throw new EvictorDeactivatedException();
@@ -110,6 +118,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
 	synchronized void unlock()
 	{
+	    assert _activated;
+
 	    _guardCount--;
 	    if(_deactivating && _guardCount == 0)
 	    {
@@ -123,11 +133,13 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	
 	synchronized boolean deactivated()
 	{
-	    return _deactivated || _deactivating;
+	    return !_activated || _deactivated || _deactivating;
 	}
 	
 	synchronized boolean deactivate()
-	{   
+	{
+	    assert _activated;
+
 	    if(_deactivated)
 	    {
 		return false;
@@ -193,6 +205,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    notifyAll();
 	}
 
+	private boolean _activated = false;
 	private boolean _deactivating = false;
 	private boolean _deactivated = false;
 	private int _guardCount = 0;
@@ -344,6 +357,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
 	_thread = new Thread(this, savingThreadName);
 	_thread.start();
+	_deactivateController.activate();
     }
    
     protected void
@@ -1896,7 +1910,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    catch(InterruptedException ex)
 	    {
 	    }
-	} while(_saveNowThreads.contains(myself));
+	}
+	while(_saveNowThreads.contains(myself));
     }
     
     private void
