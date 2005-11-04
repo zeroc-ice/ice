@@ -25,7 +25,6 @@ class KeyManager
 
 class Pinger
 {
-    void ping();
 };
 
 };

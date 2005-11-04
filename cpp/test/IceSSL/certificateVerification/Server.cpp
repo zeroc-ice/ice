@@ -20,9 +20,9 @@ class KeyManagerI : public KeyManager
 {
 
 public:
+
     KeyManagerI(const IceSSL::RSAKeyPairPtr&, const IceSSL::RSAKeyPairPtr&,
-                const IceSSL::RSAKeyPairPtr&, const IceSSL::RSAKeyPairPtr&,
-                const Ice::CommunicatorPtr&);
+                const IceSSL::RSAKeyPairPtr&, const IceSSL::RSAKeyPairPtr&);
 
     virtual void getServerCerts(Ice::ByteSeq&, Ice::ByteSeq&, const ::Ice::Current&);
     virtual void getTrustedClientKeys(Ice::ByteSeq&, Ice::ByteSeq&, const ::Ice::Current&);
@@ -30,21 +30,19 @@ public:
     virtual void shutdown(const ::Ice::Current&);
 
 protected:
-    IceSSL::RSAKeyPairPtr _serverTrusted;
-    IceSSL::RSAKeyPairPtr _serverUntrusted;
-    IceSSL::RSAKeyPairPtr _clientTrusted;
-    IceSSL::RSAKeyPairPtr _clientUntrusted;
-    Ice::CommunicatorPtr _communicator;
+
+    const IceSSL::RSAKeyPairPtr _serverTrusted;
+    const IceSSL::RSAKeyPairPtr _serverUntrusted;
+    const IceSSL::RSAKeyPairPtr _clientTrusted;
+    const IceSSL::RSAKeyPairPtr _clientUntrusted;
 };
 
 KeyManagerI::KeyManagerI(const IceSSL::RSAKeyPairPtr& serverTrusted,
                          const IceSSL::RSAKeyPairPtr& serverUntrusted,
                          const IceSSL::RSAKeyPairPtr& clientTrusted,
-                         const IceSSL::RSAKeyPairPtr& clientUntrusted,
-                         const Ice::CommunicatorPtr& communicator) :
+                         const IceSSL::RSAKeyPairPtr& clientUntrusted) :
             _serverTrusted(serverTrusted), _serverUntrusted(serverUntrusted),
-            _clientTrusted(clientTrusted), _clientUntrusted(clientUntrusted),
-            _communicator(communicator)
+            _clientTrusted(clientTrusted), _clientUntrusted(clientUntrusted)
 {
 }
 
@@ -70,27 +68,17 @@ KeyManagerI::getUntrustedClientKeys(Ice::ByteSeq& key, Ice::ByteSeq& cert, const
 }
 
 void
-KeyManagerI::shutdown(const ::Ice::Current&)
+KeyManagerI::shutdown(const ::Ice::Current& c)
 {
-    _communicator->shutdown();
+    c.adapter->getCommunicator()->shutdown();
 }
 
 class PingerI : public Pinger
 {
 public:
 
-    PingerI();
-    virtual void ping(const ::Ice::Current&);
+    PingerI() { }
 };
-
-PingerI::PingerI()
-{
-}
-
-void
-PingerI::ping(const ::Ice::Current&)
-{
-}
 
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
@@ -137,9 +125,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     certGenContext.setCommonName("Client Untrusted");
     clientUntrusted = certGen.generate(certGenContext);
 
-    Ice::ObjectPtr object = new KeyManagerI(serverTrusted, serverUntrusted,
-                                            clientTrusted, clientUntrusted,
-                                            communicator);
+    Ice::ObjectPtr object = new KeyManagerI(serverTrusted, serverUntrusted, clientTrusted, clientUntrusted);
 
     Ice::ByteSeq trustedCertificate;
     Ice::ByteSeq serverCertificate;

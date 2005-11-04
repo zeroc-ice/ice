@@ -64,8 +64,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         sslPlugin->addTrustedCertificate(IceSSL::Client, serverTrustedCert);
         try
         {
-            PingerPrx pinger1 = PingerPrx::checkedCast(communicator->stringToProxy(ref1));
-            pinger1->ping();
+	    Ice::ObjectPrx pinger1 = communicator->stringToProxy(ref1);
+            pinger1->ice_ping();
             cout << "ok" << endl;
         }
         catch(const Ice::LocalException& ex)
@@ -91,8 +91,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     sslPlugin->setRSAKeys(IceSSL::Client, clientUntrustedKey, clientUntrustedCert);
     try
     {
-        PingerPrx pinger2 = PingerPrx::checkedCast(communicator->stringToProxy(ref2));
-        pinger2->ping();
+	Ice::ObjectPrx pinger2 = communicator->stringToProxy(ref2);
+        pinger2->ice_ping();
         km->shutdown();
         test(false);
     }
@@ -113,8 +113,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     sslPlugin->setRSAKeys(IceSSL::Client, clientTrustedKey, clientTrustedCert);
     try
     {
-        PingerPrx pinger3 = PingerPrx::checkedCast(communicator->stringToProxy(ref3));
-        pinger3->ping();
+	Ice::ObjectPrx pinger3 = communicator->stringToProxy(ref3);
+        pinger3->ice_ping();
         km->shutdown();
         test(false);
     }
@@ -142,8 +142,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     sslPlugin->setRSAKeys(IceSSL::Client, clientUntrustedKey, clientUntrustedCert);
     try
     {
-        PingerPrx pinger4 = PingerPrx::checkedCast(communicator->stringToProxy(ref4));
-        pinger4->ping();
+	Ice::ObjectPrx pinger4 = communicator->stringToProxy(ref4);
+        pinger4->ice_ping();
         km->shutdown();
         test(false);
     }
@@ -167,8 +167,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     try
     {
-        PingerPrx pinger5 = PingerPrx::checkedCast(communicator->stringToProxy(ref5));
-	pinger5->ping();
+	Ice::ObjectPrx pinger5 = communicator->stringToProxy(ref5);
+	pinger5->ice_ping();
 	cout << "ok" << endl;
     }
     catch(const Ice::LocalException& ex)
