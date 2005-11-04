@@ -126,7 +126,6 @@
 #      if _MSC_VER==1400
 #         pragma warning( 4 : 4996 )   
 #      endif
-#
 
 #   endif
 #endif
@@ -190,11 +189,9 @@ typedef long long Int64;
 }
 
 //
-// ICE_INT64: macro for Int64 litteral values
+// ICE_INT64: macro for Int64 literal values
 //
-#if defined(__HP_aCC)
-#   define ICE_INT64(n) n
-#elif defined(ICE_64)
+#if defined(ICE_64)
 #   define ICE_INT64(n) n##L
 #elif defined(_MSC_VER)
 #   define ICE_INT64(n) n##i64
