@@ -319,6 +319,9 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 	{
 	    throw ServerNotExistException(_id);
 	}
+	activationTimeout = _activationTimeout;
+	deactivationTimeout = _deactivationTimeout;
+	node = _loaded->node;
 	return _proxy;
     }
 }
