@@ -80,9 +80,15 @@ namespace IceInternal
 	    }
 	}
 	
-	public Ice.ConnectionI create(EndpointI[] endpoints, out bool compress)
+	public Ice.ConnectionI create(EndpointI[] endpts, out bool compress)
 	{
-	    Debug.Assert(endpoints.Length > 0);
+	    Debug.Assert(endpts.Length > 0);
+	    EndpointI[] endpoints = new EndpointI[endpts.Length];
+	    for(int i = 0; i < endpoints.Length; ++i)
+	    {
+		endpoints[i] = endpts[i];
+	    }
+	    DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
 	    
             compress = false;
 
@@ -121,45 +127,53 @@ namespace IceInternal
 		//
 		// Modify endpoints with overrides.
 		//
-		DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
-		for(int j = 0; j < endpoints.Length; j++)
+		for(int i = 0; i < endpoints.Length; i++)
 		{
 		    if(defaultsAndOverrides.overrideTimeout)
 		    {
-			endpoints[j] = endpoints[j].timeout(defaultsAndOverrides.overrideTimeoutValue);
+			endpoints[i] = endpoints[i].timeout(defaultsAndOverrides.overrideTimeoutValue);
 		    }
 
-                    //
-		    // Do not clear the compression flag here -- we need it to set the `compress' out
-		    // parameter below.
+
 		    //
+		    // The Connection object does not take the
+		    // compression flag of endpoints into account, but
+		    // instead gets the information about whether
+		    // messages should be compressed or not from other
+		    // sources. In order to allow connection sharing
+		    // for endpoints that differ in the value of the
+		    // compression flag only, we always set the
+		    // compression flag to false here in this
+		    // connection factory.
+		    //
+		    endpoints[i] = endpoints[i].compress(false);
 		}
 		
 		//
 		// Search for existing connections.
 		//
-		for(int j = 0; j < endpoints.Length; j++)
+		for(int i = 0; i < endpoints.Length; i++)
 		{
-		    LinkedList connectionList = (LinkedList)_connections[endpoints[j]];
+		    LinkedList connectionList = (LinkedList)_connections[endpoints[i]];
 		    if(connectionList != null)
 		    {
-			foreach(Ice.ConnectionI connection in connectionList)
+			foreach(Ice.ConnectionI conn in connectionList)
 			{
                             //
                             // Don't return connections for which destruction has
                             // been initiated.
                             //
-			    if(!connection.isDestroyed())
+			    if(!conn.isDestroyed())
 			    {
-                                if(instance_.defaultsAndOverrides().overrideCompress)
+                                if(defaultsAndOverrides.overrideCompress)
                                 {
-                                    compress = instance_.defaultsAndOverrides().overrideCompressValue;
+                                    compress = defaultsAndOverrides.overrideCompressValue;
                                 }
                                 else
                                 {
-                                    compress = endpoints[j].compress();
+                                    compress = endpts[i].compress();
                                 }
-				return connection;
+				return conn;
 			    }
 			}
 		    }
@@ -173,16 +187,16 @@ namespace IceInternal
 		bool searchAgain = false;
 		while(!_destroyed)
 		{
-		    int j;
-		    for(j = 0; j < endpoints.Length; j++)
+		    int i;
+		    for(i = 0; i < endpoints.Length; i++)
 		    {
-			if(_pending.Contains(endpoints[j]))
+			if(_pending.Contains(endpoints[i]))
 			{
 			    break;
 			}
 		    }
 		    
-		    if(j == endpoints.Length)
+		    if(i == endpoints.Length)
 		    {
 			break;
 		    }
@@ -204,28 +218,29 @@ namespace IceInternal
 		//
 		if(searchAgain)
 		{
-		    for(int j = 0; j < endpoints.Length; j++)
+		    for(int i = 0; i < endpoints.Length; i++)
 		    {
-			LinkedList connectionList = (LinkedList)_connections[endpoints[j]];
+			LinkedList connectionList = (LinkedList)_connections[endpoints[i]];
 			if(connectionList != null)
 			{
-                            foreach(Ice.ConnectionI connection in connectionList)
+                            foreach(Ice.ConnectionI conn in connectionList)
                             {
                                 //
                                 // Don't return connections for which destruction has
                                 // been initiated.
                                 //
-                                if(!connection.isDestroyed())
+                                if(!conn.isDestroyed())
                                 {
-                                    if(instance_.defaultsAndOverrides().overrideCompress)
+                                    if(defaultsAndOverrides.overrideCompress)
                                     {
-                                        compress = instance_.defaultsAndOverrides().overrideCompressValue;
+                                        compress = defaultsAndOverrides.overrideCompressValue;
                                     }
                                     else
                                     {
-                                        compress = endpoints[j].compress();
+                                        compress = endpts[i].compress();
                                     }
-                                    return connection;
+
+                                    return conn;
                                 }
                             }
 			}
@@ -233,10 +248,10 @@ namespace IceInternal
 		}
 		
 		//
-		// No connection to any of our endpoints exists yet, so we
-		// will try to create one. To avoid that other threads try
-		// to create connections to the same endpoints, we add our
-		// endpoints to _pending.
+		// No connection to any of our endpoints exists yet,
+		// so we will try to create one. To avoid that other
+		// threads try to create connections to the same
+		// endpoints, we add our endpoints to _pending.
 		//
 		foreach(EndpointI e in endpoints)
 		{
@@ -244,7 +259,7 @@ namespace IceInternal
 		}
 	    }
 	    
-	    Ice.ConnectionI newConnection = null;
+	    Ice.ConnectionI connection = null;
 	    Ice.LocalException exception = null;
 	    
 	    for(int i = 0; i < endpoints.Length; i++)
@@ -260,7 +275,6 @@ namespace IceInternal
 			Debug.Assert(connector != null);
 
 			int timeout;
-			DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
 			if(defaultsAndOverrides.overrideConnectTimeout)
 			{
 			    timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
@@ -276,11 +290,12 @@ namespace IceInternal
 			transceiver = connector.connect(timeout);
 			Debug.Assert(transceiver != null);
 		    }
-		    newConnection = new Ice.ConnectionI(instance_, transceiver, endpoint, null);
-		    newConnection.validate();
-                    if(instance_.defaultsAndOverrides().overrideCompress)
+		    connection = new Ice.ConnectionI(instance_, transceiver, endpoint, null);
+		    connection.validate();
+
+                    if(defaultsAndOverrides.overrideCompress)
                     {
-                        compress = instance_.defaultsAndOverrides().overrideCompressValue;
+                        compress = defaultsAndOverrides.overrideCompressValue;
                     }
                     else
                     {
@@ -296,10 +311,10 @@ namespace IceInternal
 		    // If a connection object was constructed, then validate()
 		    // must have raised the exception.
 		    //
-		    if(newConnection != null)
+		    if(connection != null)
 		    {
-			newConnection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
-			newConnection = null;
+			connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+			connection = null;
 		    }
 		}
 		
@@ -333,35 +348,35 @@ namespace IceInternal
 		}
 		System.Threading.Monitor.PulseAll(this);
 		
-		if(newConnection == null)
+		if(connection == null)
 		{
 		    Debug.Assert(exception != null);
 		    throw exception;
 		}
 		else
 		{
-		    LinkedList connectionList = (LinkedList)_connections[newConnection.endpoint()];
+		    LinkedList connectionList = (LinkedList)_connections[connection.endpoint()];
 		    if(connectionList == null)
 		    {
 			connectionList = new LinkedList();
-			_connections[newConnection.endpoint()] = connectionList;
+			_connections[connection.endpoint()] = connectionList;
 		    }
-		    connectionList.Add(newConnection);
+		    connectionList.Add(connection);
 		    
 		    if(_destroyed)
 		    {
-			newConnection.destroy(Ice.ConnectionI.CommunicatorDestroyed);
+			connection.destroy(Ice.ConnectionI.CommunicatorDestroyed);
 			throw new Ice.CommunicatorDestroyedException();
 		    }
 		    else
 		    {
-			newConnection.activate();
+			connection.activate();
 		    }
 		}
 	    }
 	    
-	    Debug.Assert(newConnection != null);
-	    return newConnection;
+	    Debug.Assert(connection != null);
+	    return connection;
 	}
 	
 	public void setRouterInfo(IceInternal.RouterInfo routerInfo)

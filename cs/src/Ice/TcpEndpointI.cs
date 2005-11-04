@@ -205,11 +205,11 @@ namespace IceInternal
 	    string s = "tcp -h " + _host + " -p " + _port;
 	    if(_timeout != -1)
 	    {
-		    s += " -t " + _timeout;
+		s += " -t " + _timeout;
 	    }
 	    if(_compress)
 	    {
-		    s += " -z";
+		s += " -z";
 	    }
 	    return s;
 	}
