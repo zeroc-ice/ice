@@ -657,7 +657,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
-	admin->startServer("node-1");
+	try
+	{
+	    admin->startServer("node-1");
+	}
+	catch(const NodeUnreachableException& ex)
+	{
+	    cerr << ex << ":\n";
+	    cerr << "node = " << ex.name << endl;
+	    cerr << "reason = " << ex.reason << endl;
+	}
+
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
 	do
@@ -666,7 +676,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	while(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
 
-	admin->stopServer("node-1");
+	try
+	{
+	    admin->stopServer("node-1");
+	}
+	catch(const NodeUnreachableException& ex)
+	{
+	    cerr << ex << ":\n";
+	    cerr << "node = " << ex.name << endl;
+	    cerr << "reason = " << ex.reason << endl;
+	}
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // updateServer
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeDown
