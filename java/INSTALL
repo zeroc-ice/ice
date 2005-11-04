@@ -28,7 +28,7 @@ files to your target platform.
 Java version
 ------------
 
-Ice for Java requires Java version 1.4.1 or later. Older versions are
+Ice for Java requires Java version 1.4.2 or later. Older versions are
 not supported, because Ice makes use of the new java.nio packages.
 (java.nio was introduced in version 1.4.0, but was broken on Windows.)
 
