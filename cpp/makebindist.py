@@ -66,8 +66,8 @@ def getMakeRulesSuffix():
         return None
     
 def initDirectory(d):
-    """Check for the existance of the directory. If it isn't there make it."""
-    
+    '''Check for the existance of the directory. If it isn't there make
+    it.'''
     if os.path.exists(d):
         #
         # Make sure its a directory and has correct permissions.
@@ -131,9 +131,11 @@ def readcommand(cmd):
     return lines[0].strip()
 
 def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
-    """The location for the source distributions is not supplied so
-       we are going to assume we are being called from a CVS tree and we
-       are going to go get them ourselves"""
+    '''
+    The location for the source distributions is not supplied so we are
+    going to assume we are being called from a CVS tree and we are going
+    to go get them ourselves
+    '''
     cwd = os.getcwd()
     os.chdir(cwd + "/../" + cvsdir)
     if len(tag) > 0:
@@ -152,8 +154,6 @@ def editMakeRules(filename, version):
     these files to make them appropriate to accompany binary
     distributions.
     '''
-    print 'Editing file -> ' + filename
-
     state = 'header'
     reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
 
@@ -379,10 +379,18 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
 	    os.system("perl -pi -e 's/^PYTHON.LIB.DIR.*$/PYTHON_LIB_DIR = " + 
 	              "\$\(PYTHON_HOME\)\/lib\/\$\(PYTHON_VERSION\)\/config/' config/Make.rules")
 
+    #
+    # We call make twice. The first time is a straight make and ensures
+    # that we embed the correct default library search location in the
+    # binaries. The second is a 'make install' that places the files in
+    # the working install directory so the archive can be packaged up.
+    #
+
     # 
     # XXX- Optimizations need to be turned on for the release.
     #
-    os.system('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=' + installDir + ' install')
+    os.system('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=/opt/Ice-%s' % version)
+    os.system('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=%s install' + installDir)
     os.chdir(cwd)
     
 def shlibExtensions(versionString, versionInt):
@@ -989,9 +997,11 @@ def main():
     uname = readcommand('uname')
     platformSpecificFiles = [ 'README', 'SOURCES', 'THIRD_PARTY_LICENSE' ]
     for psf in platformSpecificFiles:
-	cf = installFiles + '/unix/' + psf + '.' + uname
+	cf = os.path.join(installFiles, 'unix', psf + '.' + uname)
 	if os.path.exists(cf):
-	    shutil.copy(cf, 'Ice-' + version + '/' + psf) 
+	    shutil.copy(cf, os.path.join('Ice-' + version, psf))
+
+    shutil.copy(installFiles + os.path.join(installFiles, 'common', 'iceproject.xml'))
 
     makePHPbinary(sources, buildDir, installDir, version, clean)
 

@@ -81,6 +81,8 @@ ifeq ($(CXX),CC)
 
     mklib		    = $(CXX) -xar -o $(1) $(2)
 
+    LDPLATFORMFLAGS	    = -R $(prefix)/lib
+
 endif
 
 ifeq ($(CXX),gcc)
@@ -108,6 +110,8 @@ ifeq ($(CXX),g++)
     mkshlib		    = $(CXX) -shared $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
 
     mklib		    = ar cr $(1) $(2)
+
+    LDPLATFORMFLAGS	    = -rpath $(prefix)/lib
 
 endif
 
