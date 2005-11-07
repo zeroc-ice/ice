@@ -111,6 +111,7 @@ ifeq ($(CXX),g++)
 
     mklib		    = ar cr $(1) $(2)
 
+   LDPLATFORMFLAGS 	= -Xlinker -rpath -Xlinker $(prefix)/lib
 
 endif
 
