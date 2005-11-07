@@ -443,7 +443,6 @@ ServerEntry::syncImpl(bool waitForUpdate)
 	}
 
 	_updated = false;
-	_synchronizing = true;
 	_exception.reset(0);
 
 	if(_destroy.get())
@@ -454,6 +453,12 @@ ServerEntry::syncImpl(bool waitForUpdate)
 	{
 	    load = *_load;
 	}
+	else
+	{
+	    return;
+	}
+
+	_synchronizing = true;
     }
     
     if(destroy.descriptor)
@@ -500,7 +505,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
     ServerInfo destroy;
     {
 	Lock sync(*this);
-	if(!_updated && !_destroy.get())
+	if(!_updated)
 	{
 	    //
 	    // Set timeout on server and adapter proxies. Most of the
@@ -541,6 +546,7 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
 	}
     }
 
+    assert(destroy.descriptor || load.descriptor);
     if(destroy.descriptor)
     {
 	try
@@ -573,19 +579,16 @@ ServerEntry::destroyCallback()
 	Lock sync(*this);
 	_destroy.reset(0);
 
-	if(!_updated && !_load.get())
+	if(!_load.get())
 	{
-	    assert(!_destroy.get() && !_load.get() && !_loaded.get());
+	    assert(!_load.get() && !_loaded.get());
 	    _synchronizing = false;
 	    notifyAll();
 	}
 	else
 	{
 	    _updated = false;
-	    if(_load.get())
-	    {
-		load = *_load;
-	    }
+	    load = *_load;
 	}
     }
 
@@ -613,7 +616,7 @@ ServerEntry::exception(const Ice::Exception& ex)
     bool remove = false;
     {
 	Lock sync(*this);
-	if((_destroy.get() && !_updated && !_load.get()) || (!_destroy.get() && !_updated))
+	if((_destroy.get() && !_load.get()) || (!_destroy.get() && !_updated))
 	{
 	    remove = _destroy.get();
 	    _destroy.reset(0);
@@ -624,7 +627,6 @@ ServerEntry::exception(const Ice::Exception& ex)
 	else
 	{
 	    _destroy.reset(0);
-	    assert(_load.get());
 	    _updated = false;
 	    load = *_load.get();
 	}
