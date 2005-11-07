@@ -56,7 +56,7 @@ def startIceGridRegistry(port, testdir, dynamicRegistration):
 
     print "starting icegrid registry...",
     command = iceGrid + TestUtil.clientServerOptions + ' --nowarn ' + \
-              r' --IceGrid.Registry.Client.Endpoints="default -p ' + iceGridPort + ' -t 5000" ' + \
+              r' --IceGrid.Registry.Client.Endpoints="default -p ' + iceGridPort + ' -t 30000" ' + \
               r' --Ice.Warn.Connections=0' + \
               r' --IceGrid.Registry.Server.Endpoints=default' + \
               r' --IceGrid.Registry.Internal.Endpoints=default' + \
