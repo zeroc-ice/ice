@@ -390,7 +390,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     # XXX- Optimizations need to be turned on for the release.
     #
     os.system('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=/opt/Ice-%s' % version)
-    os.system('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=%s install' + installDir)
+    os.system('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=%s install' % installDir)
     os.chdir(cwd)
     
 def shlibExtensions(versionString, versionInt):
