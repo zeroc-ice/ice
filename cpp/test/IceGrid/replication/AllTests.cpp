@@ -45,6 +45,16 @@ instantiateServer(const AdminPrx& admin, const string& templ, const map<string, 
 void
 removeServer(const AdminPrx& admin, const string& id)
 {
+    try
+    {
+	admin->stopServer(id);
+    }
+    catch(Ice::UserException& ex)
+    {
+	cerr << ex << endl;
+	test(false);
+    }
+
     NodeUpdateDescriptor nodeUpdate;
     nodeUpdate.name = "localnode";
     nodeUpdate.removeServers.push_back(id);
