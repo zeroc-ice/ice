@@ -139,8 +139,8 @@ Freeze::IteratorHelperI::IteratorHelperI(const MapHelperI& m, bool readOnly,
     _map(m),
     _dbc(0),
     _indexed(index != 0),
-    _tx(0),
-    _onlyDups(onlyDups)
+    _onlyDups(onlyDups),
+    _tx(0)
 {
     if(_map._trace >= 2)
     {
@@ -189,8 +189,8 @@ Freeze::IteratorHelperI::IteratorHelperI(const IteratorHelperI& it) :
     _map(it._map),
     _dbc(0),
     _indexed(it._indexed),
-    _tx(0),
-    _onlyDups(it._onlyDups)
+    _onlyDups(it._onlyDups),
+    _tx(0)
 {
     if(_map._trace >= 2)
     {

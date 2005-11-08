@@ -242,9 +242,9 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
 			   bool createDb) :
     Db(connection->dbEnv()->getEnv(), 0),
     _mapKey(mapKey),
-    _keyCompare(keyCompare),
     _refCount(0),
-    _trace(connection->trace())
+    _trace(connection->trace()),
+    _keyCompare(keyCompare)
 {
     if(_trace >= 1)
     {

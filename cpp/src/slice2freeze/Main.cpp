@@ -157,7 +157,7 @@ getCompare(const T& t, const string& keyType)
     {
 	if(t.userCompare == "")
 	{
-	    return "std::less<" + keyType + ">";
+	    return "std::less< " + keyType + ">";
 	}
 	else
 	{
@@ -271,7 +271,7 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
 {
     string compare = getCompare(dict, typeToString(keyType));
     
-    string templateParams = string("<") + typeToString(keyType) + ", "
+    string templateParams = string("< ") + typeToString(keyType) + ", "
 	+ typeToString(valueType) + ", " + name + "KeyCodec, " 
 	+ name + "ValueCodec, " + compare + " >";
 
@@ -449,7 +449,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
 { 
     string compare = getCompare(dict, typeToString(keyType));
     
-    string templateParams = string("<") + typeToString(keyType) + ", "
+    string templateParams = string("< ") + typeToString(keyType) + ", "
 	+ typeToString(valueType) + ", " + name + "KeyCodec, " 
 	+ name + "ValueCodec, " + compare + " >";
 
