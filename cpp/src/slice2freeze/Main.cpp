@@ -381,7 +381,7 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
     H.dec();
     H << sb;
     H << nl << "Freeze::KeyCompareBasePtr __keyCompare = "
-      << "new Freeze::KeyCompare" << keyCompareParams << "(__compare, _communicator);";
+      << "new Freeze::KeyCompare" << keyCompareParams << "(__compare, this->_communicator);";
     H << nl << "std::vector<Freeze::MapIndexBasePtr> __indices;";
     for(i = 0; i < capitalizedMembers.size(); ++i)
     {
