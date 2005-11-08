@@ -140,7 +140,7 @@ struct DbEnvDescriptor
 
     /**
      *
-     * The description of this object adapter.
+     * The description of this database environment.
      *
      **/
     string description;
@@ -601,7 +601,7 @@ struct ApplicationDescriptor
 
     /**
      *
-     * A description of the application;
+     * The description of this application.
      *
      **/ 
     string description;
