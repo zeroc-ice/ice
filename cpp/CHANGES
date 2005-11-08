@@ -1,14 +1,18 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Fixed a deadlock during shutdown that could happen with
+  bi-directional connections.
+
 - Removed ice_default() method from proxies.
 
-- Added downgrade() to IceUtil::RWRecMutex and fixed a bug in upgrade():
-  previously, upgrade() was equivalent to calling unlock() followed
-  by writeLock(), which could allow a thread to acquire a write lock while 
-  another thread was in the middle an upgrade. upgrade() is now atomic, so
-  whatever state is protected by a read lock is guaranteed to be still unchanged
-  when upgrade() completes.
+- Added downgrade() to IceUtil::RWRecMutex and fixed a bug in
+  upgrade(): previously, upgrade() was equivalent to calling unlock()
+  followed by writeLock(), which could allow a thread to acquire a
+  write lock while another thread was in the middle an
+  upgrade. upgrade() is now atomic, so whatever state is protected by
+  a read lock is guaranteed to be still unchanged when upgrade()
+  completes.
 
 - Connection::close(false) (i.e., graceful connection shutdown) now
   waits until all outstanding requests have completed.

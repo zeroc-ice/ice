@@ -1,6 +1,9 @@
 Changes since version 1.0.0
 ---------------------------
 
+- Fixed a deadlock during shutdown that could happen with
+  bi-directional connections.
+
 - Removed ice_default() method from proxies.
 
 - Connection::close(false) (i.e., graceful connection shutdown) now

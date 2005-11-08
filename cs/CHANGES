@@ -1,15 +1,16 @@
 Changes since version 2.1.2
 ---------------------------
 
-- Changed the mapping for Slice structures: if a Slice
-  structure (recursively) contains a member that is of
-  reference type, the Slice structure automatically maps
-  to a C# class.
+- Fixed a deadlock during shutdown that could happen with
+  bi-directional connections.
 
-  A Slice structure now maps to a C# structure only if
-  the Slice structure (recursively) consists only of
-  value type (and if the "clr:class" metadata directive
-  does not apply to the structure).
+- Changed the mapping for Slice structures: if a Slice structure
+  (recursively) contains a member that is of reference type, the Slice
+  structure automatically maps to a C# class.
+
+  A Slice structure now maps to a C# structure only if the Slice
+  structure (recursively) consists only of value type (and if the
+  "clr:class" metadata directive does not apply to the structure).
 
 - Removed ice_default() method from proxies.
 
