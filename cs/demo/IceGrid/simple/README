@@ -30,29 +30,27 @@ and start the client.
 
 Messages will be displayed in the IceGrid service window.
 
-To remove the application:
-
-$ icegridadmin --Ice.Config=config -e "application remove Simple"
-
-To update the application with a new descriptor:
-
-$ icegridadmin --Ice.Config=config -e "application update 'application.xml'"
-
 You can also use the following descriptors to deploy the application:
 
-- application_with_template.xml: 
+- application_with_template.xml: This descriptor demonstrates the use
+  of templates for the server definition. Templates make it easy to
+  deploy multiple instances of the same server.
 
-  This descriptor demonstrates the use of templates for the server
-  definition. Templates make it easy to deploy multiple instances of the
-  same server. To deploy a new server based on the template, use for
-  example the following command:
-  
-  $ icegridadmin --Ice.Config=config -e "server template instantiate \
-    Simple localhost SimpleServer index=2"
+- application_with_replication.xml: This descriptor demonstrates the
+  use of replication to balance the load of the application over
+  several servers.
 
-  This will deploy a new server based on the `SimpleServer' template.
+If you have already deployed the application, you can update it to try
+a new descriptor, for example:
 
-- application_with_replication.xml: 
+$ icegridadmin --Ice.Config=config -e "application update \ 
+	'application_with_template.xml'"
 
-  This descriptor demonstrates the use of replication to balance the
-  load of the application over several servers.
+When using the 'application_with_template.xml' or
+'application_with_replication.xml' descriptors, you can easily deploy
+more servers based on the `SimpleServer' template. For example, you
+can use the following command to deploy a new server:
+
+$ icegridadmin --Ice.Config=config -e "server template instantiate \
+	Simple localhost SimpleServer index=4"
+
