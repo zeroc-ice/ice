@@ -24,7 +24,6 @@ using namespace IceGrid;
 
 const string Database::_descriptorDbName = "applications";
 const string Database::_adapterDbName = "adapters";
-const string Database::_replicaGroupDbName = "replica-groups";
 const string Database::_objectDbName = "objects";
 
 namespace IceGrid
@@ -105,47 +104,6 @@ struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::Ob
     }
 };
 
-class PatchCB : public AMI_Node_patch
-{
-public:
-
-    PatchCB(const DatabasePtr& database, const string& name, const string& node) : 
-	_database(database), _application(name), _node(node)
-    {
-    }
-
-    void
-    ice_response()
-    {
-	_database->finishedPatchApplication(_application, _node);
-    }
-
-    void
-    ice_exception(const Ice::Exception& ex)
-    {
-	try
-	{
-	    ex.ice_throw();
-	}
-	catch(const PatchException& ex)
-	{
-	    _database->finishedPatchApplication(_application, _node, ex.reason);
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    ostringstream os;
-	    os << ex;
-	    _database->finishedPatchApplication(_application, _node, os.str());
-	}
-    }
-
-private:
-
-    const DatabasePtr _database;
-    const string _application;
-    const string _node;
-};
-
 }
 
 Database::Database(const Ice::ObjectAdapterPtr& adapter,
@@ -165,7 +123,6 @@ Database::Database(const Ice::ObjectAdapterPtr& adapter,
     _descriptors(_connection, _descriptorDbName),
     _objects(_connection, _objectDbName),
     _adapters(_connection, _adapterDbName),
-    _replicaGroups(_connection, _replicaGroupDbName),
     _lock(0), 
     _serial(0)
 {
@@ -504,49 +461,6 @@ Database::instantiateServer(const string& application, const string& node, const
     for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
 }
 
-void
-Database::patchApplication(const string& name,
-			   const DistributionDescriptor& appDistrib,
-			   const map<string, DistributionDescriptorDict>& nodeDistrib,
-			   bool shutdown)
-{
-    for(map<string, DistributionDescriptorDict>::const_iterator p = nodeDistrib.begin(); p != nodeDistrib.end(); ++p)
-    {
-	if(_traceLevels->patch > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
-	    out << "started patching of application `" << name << "' on node `" << p->first << "'";
-	}
-	AMI_Node_patchPtr cb = new PatchCB(this, name, p->first);
-	try
-	{
-	    _nodeCache.get(p->first)->getProxy()->patch_async(cb, name, appDistrib, p->second, shutdown);
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cb->ice_exception(ex);
-	}
-    }
-}
-
-void
-Database::finishedPatchApplication(const string& name, const string& node, const string& failure)
-{
-    if(_traceLevels->patch > 0)
-    {
-	if(failure.empty())
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
-	    out << "finished patching of application `" << name << "' on node `" << node << "'";
-	}
-	else
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->applicationCat);
-	    out << "patching of application `" << name << "' on node `" << node << "' failed:\n" << failure;
-	}
-    }
-}
-
 ApplicationDescriptor
 Database::getApplicationDescriptor(const std::string& name)
 {
@@ -642,8 +556,7 @@ bool
 Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGroupId, const Ice::ObjectPrx& proxy)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    StringProxyDict adapters(connection, _adapterDbName); 
-    StringStringSeqDict replicaGroups(connection, _replicaGroupDbName); 
+    StringAdapterInfoDict adapters(connection, _adapterDbName); 
     if(proxy)
     {
 	Lock sync(*this);
@@ -652,46 +565,39 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
 	    return false;
 	}
 
-	StringProxyDict::iterator p = adapters.find(adapterId);
+	StringAdapterInfoDict::iterator p = adapters.find(adapterId);
 	if(p != adapters.end())
 	{
-	    p.set(proxy);
+	    AdapterInfo info = p->second;
+	    info.proxy = proxy;
+	    info.replicaGroupId = replicaGroupId;
+	    p.set(info);
 	    if(_traceLevels->adapter > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 		out << "updated adapter `" << adapterId << "'";
+		if(!replicaGroupId.empty())
+		{
+		    out << " with replica group `" << replicaGroupId << "'";
+		}
 	    }
 	}
 	else
 	{
-	    adapters.put(StringProxyDict::value_type(adapterId, proxy));
+	    AdapterInfo info;
+	    info.proxy = proxy;
+	    info.replicaGroupId = replicaGroupId;
+	    adapters.put(StringAdapterInfoDict::value_type(adapterId, info));
 	    if(_traceLevels->adapter > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 		out << "added adapter `" << adapterId << "'";
-	    }
-	}
-
-	if(!replicaGroupId.empty())
-	{
-	    StringStringSeqDict::iterator q = replicaGroups.find(replicaGroupId);
-	    if(q != replicaGroups.end())
-	    {
-		if(find(q->second.begin(), q->second.end(), adapterId) == q->second.end())
+		if(!replicaGroupId.empty())
 		{
-		    Ice::StringSeq adapters = q->second;
-		    adapters.push_back(adapterId);
-		    q.set(adapters);
+		    out << " with replica group `" << replicaGroupId << "'";
 		}
 	    }
-	    else
-	    {
-		Ice::StringSeq adapters;
-		adapters.push_back(adapterId);
-		replicaGroups.put(StringStringSeqDict::value_type(replicaGroupId, adapters));
-	    }
-	}
-	    
+	}	    
 	return true;
     }
     else
@@ -702,28 +608,18 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
 	    return false;
 	}	
 
-	if(adapters.erase(adapterId) == 0)
+	StringAdapterInfoDict::iterator p = adapters.find(adapterId);
+	if(p == adapters.end())
 	{
 	    return true;
 	}
+	AdapterInfo info = p->second;
+	adapters.erase(p);
 
 	if(_traceLevels->adapter > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 	    out << "removed adapter `" << adapterId << "'";
-	}
-
-	if(!replicaGroupId.empty())
-	{
-	    StringStringSeqDict::iterator q = replicaGroups.find(replicaGroupId);
-	    if(q == replicaGroups.end())
-	    {
-		return true;
-	    }
-	    
-	    Ice::StringSeq adapters = q->second;
-	    adapters.erase(remove(adapters.begin(), adapters.end(), adapterId), adapters.end());
-	    q.set(adapters);
 	}
 
 	return true;
@@ -734,11 +630,11 @@ Ice::ObjectPrx
 Database::getAdapterDirectProxy(const string& adapterId)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    StringProxyDict adapters(connection, _adapterDbName); 
-    StringProxyDict::const_iterator p = adapters.find(adapterId);
+    StringAdapterInfoDict adapters(connection, _adapterDbName); 
+    StringAdapterInfoDict::const_iterator p = adapters.find(adapterId);
     if(p != adapters.end())
     {
-	return p->second;
+	return p->second.proxy;
     }
     return 0;
 }
@@ -759,33 +655,50 @@ Database::removeAdapter(const string& adapterId)
     }
 
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    StringProxyDict adapters(connection, _adapterDbName); 
-    StringProxyDict::iterator p = adapters.find(adapterId);
-    if(p != adapters.end())
+
     {
-	adapters.erase(p);
-	if(_traceLevels->adapter > 0)
+	StringAdapterInfoDict adapters(connection, _adapterDbName);
+	StringAdapterInfoDict::iterator p = adapters.find(adapterId);
+	if(p != adapters.end())
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-	    out << "removed adapter `" << adapterId << "'";
+	    AdapterInfo info = p->second;
+	    adapters.erase(p);
+
+	    if(_traceLevels->adapter > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+		out << "removed adapter `" << adapterId << "'";
+	    }
+	    return;
 	}
-	return;
     }
 
-    StringStringSeqDict replicaGroups(connection, _replicaGroupDbName);
-    StringStringSeqDict::iterator q = replicaGroups.find(adapterId);
-    if(q != replicaGroups.end())
     {
-	replicaGroups.erase(q);
-	if(_traceLevels->adapter > 0)
+	Freeze::TransactionHolder txHolder(connection);
+	StringAdapterInfoDict adapters(connection, _adapterDbName);
+
+	StringAdapterInfoDict::iterator p = adapters.findByReplicaGroupId(adapterId, true);
+	if(p == adapters.end())
 	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-	    out << "removed adapter `" << adapterId << "'";
+	    throw AdapterNotExistException(adapterId);
 	}
-	return;
+	
+	while(p != adapters.end())
+	{
+	    AdapterInfo info = p->second;
+	    info.replicaGroupId = "";
+	    adapters.put(StringAdapterInfoDict::value_type(p->first, info));
+	    ++p;
+	}
+
+	txHolder.commit();
     }
 
-    throw AdapterNotExistException(adapterId);
+    if(_traceLevels->adapter > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+	out << "removed replica group `" << adapterId << "'";
+    }
 }
 
 AdapterPrx
@@ -795,7 +708,7 @@ Database::getAdapter(const string& id, const string& replicaGroupId)
 }
 
 vector<pair<string, AdapterPrx> >
-Database::getAdapters(const string& id, int& endpointCount)
+Database::getAdapters(const string& id, bool allRegistered, int& endpointCount)
 {
     //
     // First we check if the given adapter id is associated to a
@@ -804,7 +717,7 @@ Database::getAdapters(const string& id, int& endpointCount)
     //
     try
     {
-	return _adapterCache.get(id)->getProxies(endpointCount);
+	return _adapterCache.get(id)->getProxies(allRegistered, endpointCount);
     }
     catch(AdapterNotExistException&)
     {
@@ -815,8 +728,8 @@ Database::getAdapters(const string& id, int& endpointCount)
     // entry the adapter is managed by the registry itself.
     //
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
-    StringProxyDict adapters(connection, _adapterDbName); 
-    StringProxyDict::const_iterator p = adapters.find(id);
+    StringAdapterInfoDict adapters(connection, _adapterDbName); 
+    StringAdapterInfoDict::const_iterator p = adapters.find(id);
     if(p != adapters.end())
     {
 	vector<pair<string, AdapterPrx> > adapters;
@@ -833,22 +746,22 @@ Database::getAdapters(const string& id, int& endpointCount)
     // If it's not a regular object adapter, perhaps it's a replica
     // group...
     //
-    StringStringSeqDict replicaGroups(connection, _replicaGroupDbName);
-    StringStringSeqDict::const_iterator q = replicaGroups.find(id);
-    if(q != replicaGroups.end())
+    p = adapters.findByReplicaGroupId(id, true);
+    if(p != adapters.end())
     {
-	vector<pair<string, AdapterPrx> > adapters;
-	for(Ice::StringSeq::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
+	vector<pair<string, AdapterPrx> > adpts;
+	while(p != adapters.end())
 	{
 	    Ice::Identity identity;
 	    identity.category = "IceGridAdapter";
-	    identity.name = *r;
+	    identity.name = p->first;
 	    AdapterPrx adpt = AdapterPrx::uncheckedCast(_internalAdapter->createDirectProxy(identity));
-	    adapters.push_back(make_pair(*r, adpt));
+	    adpts.push_back(make_pair(p->first, adpt));
+	    ++p;
 	}
-	random_shuffle(adapters.begin(), adapters.end());
-	endpointCount = adapters.size();
-	return adapters;
+	random_shuffle(adpts.begin(), adpts.end());
+	endpointCount = adpts.size();
+	return adpts;
     }
 
     throw AdapterNotExistException(id);
@@ -861,10 +774,20 @@ Database::getAllAdapters(const string& expression)
     vector<string> result;
     vector<string> ids = _adapterCache.getAll(expression);
     result.swap(ids);
-    ids = getMatchingKeys<StringProxyDict>(_adapters, expression);
-    result.insert(result.end(), ids.begin(), ids.end());
-    ids = getMatchingKeys<StringStringSeqDict>(_replicaGroups, expression);
-    result.insert(result.end(), ids.begin(), ids.end());
+    set<string> groups;
+    for(StringAdapterInfoDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+    {
+	if(expression.empty() || IceUtil::match(p->first, expression, true))
+	{
+	    result.push_back(p->first);
+	}
+	string replicaGroupId = p->second.replicaGroupId;
+	if(!replicaGroupId.empty() && (expression.empty() || IceUtil::match(replicaGroupId, expression, true)))
+	{
+	    groups.insert(replicaGroupId);
+	}
+    }
+    result.insert(result.end(), groups.begin(), groups.end());
     return result;
 }
 
@@ -1136,7 +1059,7 @@ Database::checkAdapterForAddition(const string& id)
 {
     if(_adapterCache.has(id) ||
        _adapters.find(id) != _adapters.end() || 
-       _replicaGroups.find(id) != _replicaGroups.end())
+       _adapters.findByReplicaGroupId(id) != _adapters.end())
     {
 	DeploymentException ex;
 	ex.reason = "adapter `" + id + "' is already registered"; 

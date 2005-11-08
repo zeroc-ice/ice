@@ -148,7 +148,7 @@ ServerAdapterEntry::ServerAdapterEntry(Cache<string, AdapterEntry>& cache, const
 }
 
 vector<pair<string, AdapterPrx> >
-ServerAdapterEntry::getProxies(int& nReplicas)
+ServerAdapterEntry::getProxies(bool, int& nReplicas)
 {
     vector<pair<string, AdapterPrx> > adapters;
     try
@@ -302,7 +302,7 @@ ReplicaGroupEntry::removeReplica(const string& replicaId)
 }
 
 vector<pair<string, AdapterPrx> >
-ReplicaGroupEntry::getProxies(int& nReplicas)
+ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas)
 {
     ReplicaSeq replicas;
     bool adaptive = false;
@@ -368,6 +368,10 @@ ReplicaGroupEntry::getProxies(int& nReplicas)
 	}
 	catch(const NodeUnreachableException&)
 	{
+	    if(allRegistered)
+	    {
+		adapters.push_back(make_pair(p->first, AdapterPrx()));
+	    }
 	}
     }
     return adapters;

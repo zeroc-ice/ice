@@ -1761,7 +1761,7 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	}
     }
     else
-    {	
+    {
 	ServiceDescriptorPtr serviceDesc = ServiceDescriptorPtr::dynamicCast(descriptor);
 	assert(serviceDesc);
 	configFilePath = serverDir + "/config/config_" + serviceDesc->name;

@@ -108,6 +108,30 @@ sequence<ObjectInfo> ObjectInfoSeq;
 
 /**
  *
+ * Information on an adapter registered with the &IceGrid; registry.
+ *
+ **/
+struct AdapterInfo
+{
+    /**
+     *
+     * A dummy direct proxy that contains the adapter endpoints. 
+     *
+     **/
+    Object* proxy;
+
+    /** 
+     *
+     * The replica group id of the object adapter or empty if the
+     * adapter doesn't belong to a replica group.
+     *
+     **/
+    string replicaGroupId;
+};
+dictionary<string, AdapterInfo> AdapterInfoDict;
+
+/**
+ *
  * Information on a server managed by an IceGrid node.
  *
  **/
@@ -295,7 +319,7 @@ interface Admin
      * doesn't exist.
      *
      **/
-    ["ami"] void patchApplication(string name, bool shutdown)
+    ["ami", "amd"] void patchApplication(string name, bool shutdown)
 	throws ApplicationNotExistException, PatchException;
 
     /**
@@ -468,7 +492,7 @@ interface Admin
      * @throws PatchException Raised if the patch failed.
      *
      **/
-    ["ami"] void patchServer(string id, bool shutdown)
+    ["ami", "amd"] void patchServer(string id, bool shutdown)
 	throws ServerNotExistException, NodeUnreachableException, PatchException;
 
     /**

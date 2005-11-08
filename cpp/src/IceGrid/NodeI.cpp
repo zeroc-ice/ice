@@ -308,18 +308,19 @@ NodeI::patch(const string& application,
 
     try
     {
+	set<ServerIPtr>::iterator s = servers.begin(); 
 	vector<string> running;
-	set<ServerIPtr>::const_iterator s;
-	for(s = servers.begin(); s != servers.end(); ++s)
+	while(s != servers.end())
 	{
 	    if(!(*s)->startPatch(shutdown))
 	    {
 		running.push_back((*s)->getId());
+		servers.erase(s++);
 	    }
-	}
-	for(s = servers.begin(); s != servers.end(); ++s)
-	{
-	    (*s)->waitForPatch();
+	    else
+	    {
+		++s;
+	    }
 	}
 
 	if(!running.empty())
@@ -335,6 +336,11 @@ NodeI::patch(const string& application,
 		ex.reason += "servers `" + toString(running, ", ") + "' are active";
 	    }
 	    throw ex;
+	}
+
+	for(s = servers.begin(); s != servers.end(); ++s)
+	{
+	    (*s)->waitForPatch();
 	}
 
 	try

@@ -29,8 +29,7 @@
            <object identity="${id}/admin" type="::IcePatch2::Admin"/>
          </adapter>
 
-         <property name="IcePatch2.Identity" value="${id}/server"/>
-         <property name="IcePatch2.AdminIdentity" value="${id}/admin"/>
+         <property name="IcePatch2.InstanceName" value="${id}"/>
          <property name="IcePatch2.Directory" value="${directory}"/>
 
        </server>

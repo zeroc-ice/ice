@@ -22,6 +22,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
+namespace IceGrid
+{
+
 class ServerProxyWrapper
 {
 public:
@@ -77,6 +80,189 @@ private:
     string _node;
 };
 
+class PatchAggregator : public IceUtil::Mutex, public IceUtil::Shared
+{
+public:
+
+    PatchAggregator(const AMD_Admin_patchApplicationPtr& cb, 
+		    const TraceLevelsPtr& traceLevels, 
+		    const string& application,
+		    int nodeCount) : 
+	_cb(cb), _traceLevels(traceLevels), _application(application), _count(nodeCount), _nSuccess(0), _nFailure(0)
+    {
+    }
+
+    void
+    finished(const string& node, const string& failure)
+    {
+	Lock sync(*this);
+	if(failure.empty())
+	{
+	    if(_traceLevels->patch > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+		out << "finished patching of application `" << _application << "' on node `" << node << "'";
+	    }
+
+	    ++_nSuccess;
+	}
+	else
+	{
+	    if(_traceLevels->patch > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+		out << "patching of application `" << _application << "' on node `" << node <<"' failed:\n" << failure;
+	    }
+
+	    ++_nFailure;
+	    _lastFailure = failure;
+	}
+
+	if((_nSuccess + _nFailure) == _count)
+	{
+	    if(_nSuccess > 0)
+	    {
+		_cb->ice_response();
+	    }
+	    else
+	    {
+		_cb->ice_exception(PatchException(_lastFailure));
+	    }
+	}
+    }
+
+private:
+
+    const AMD_Admin_patchApplicationPtr _cb;
+    const TraceLevelsPtr _traceLevels;
+    const string _application;
+    const int _count;
+    int _nSuccess;
+    int _nFailure;
+    string _lastFailure;
+};
+typedef IceUtil::Handle<PatchAggregator> PatchAggregatorPtr;
+
+class PatchCB : public AMI_Node_patch
+{
+public:
+
+    PatchCB(const PatchAggregatorPtr& cb, const string& node) : 
+	_cb(cb), _node(node)
+    {
+    }
+
+    void
+    ice_response()
+    {
+	_cb->finished(_node, "");
+    }
+
+    void
+    ice_exception(const Ice::Exception& ex)
+    {
+	string reason;
+	try
+	{
+	    ex.ice_throw();
+	}
+	catch(const PatchException& ex)
+	{
+	    reason = ex.reason;
+	}
+	catch(const NodeNotExistException&)
+	{
+	    reason = "node doesn't exist";
+	}
+	catch(const NodeUnreachableException&)
+	{
+	    reason = "node is not active";
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    ostringstream os;
+	    os << ex;
+	    reason = os.str();
+	}	
+	_cb->finished(_node, reason);
+    }
+
+private:
+
+    const PatchAggregatorPtr _cb;
+    const string _node;
+};
+
+class ServerPatchCB : public AMI_Node_patch
+{
+public:
+
+    ServerPatchCB(const AMD_Admin_patchServerPtr& cb, 
+		  const TraceLevelsPtr& traceLevels,
+		  const string& server, 
+		  const string& node) : 
+	_cb(cb), _traceLevels(traceLevels), _server(server), _node(node)
+    {
+    }
+
+    void
+    ice_response()
+    {
+	if(_traceLevels->patch > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+	    out << "finished patching of server `" << _server << "' on node `" << _node << "'";
+	}
+
+	_cb->ice_response();
+    }
+
+    void
+    ice_exception(const Ice::Exception& ex)
+    {
+	string reason;
+	try
+	{
+	    ex.ice_throw();
+	}
+	catch(const PatchException& ex)
+	{
+	    reason = ex.reason;
+	}
+	catch(const NodeNotExistException&)
+	{
+	    reason = "node `" + _node + "' doesn't exist";
+	}
+	catch(const NodeUnreachableException&)
+	{
+	    reason = "node `" + _node + "' is not active";
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    ostringstream os;
+	    os << ex;
+	    reason = os.str();
+	}
+
+	if(_traceLevels->patch > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+	    out << "patching of server `" << _server << "' on node `" << _node << "' failed:\n" << reason;
+	}
+
+	_cb->ice_exception(PatchException(reason));
+    }
+
+private:
+
+    const AMD_Admin_patchServerPtr _cb;
+    const TraceLevelsPtr _traceLevels;
+    const string _server;
+    const string _node;
+};
+
+}
+
 AdminI::AdminI(const DatabasePtr& database, const RegistryPtr& registry, const TraceLevelsPtr& traceLevels) :
     _database(database),
     _registry(registry),
@@ -119,13 +305,41 @@ AdminI::instantiateServer(const string& app, const string& node, const ServerIns
 }
 
 void
-AdminI::patchApplication(const string& name, bool shutdown, const Current&)
+AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB, 
+			       const string& name, 
+			       bool shutdown, 
+			       const Current&)
 {
     ApplicationHelper helper(_database->getApplicationDescriptor(name));    
     DistributionDescriptor appDistrib;
     map<string, DistributionDescriptorDict> nodeDistrib;
     helper.getDistributions(appDistrib, nodeDistrib);
-    _database->patchApplication(name, appDistrib, nodeDistrib, shutdown);
+
+    if(nodeDistrib.empty())
+    {
+	amdCB->ice_response();
+	return;
+    }
+
+    PatchAggregatorPtr aggregator = new PatchAggregator(amdCB, _traceLevels, name, nodeDistrib.size());
+    for(map<string, DistributionDescriptorDict>::const_iterator p = nodeDistrib.begin(); p != nodeDistrib.end(); ++p)
+    {
+	if(_traceLevels->patch > 0)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+	    out << "started patching of application `" << name << "' on node `" << p->first << "'";
+	}
+
+	AMI_Node_patchPtr cb = new PatchCB(aggregator, p->first);
+	try
+	{
+	    _database->getNode(p->first)->patch_async(cb, name, appDistrib, p->second, shutdown);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cb->ice_exception(ex);
+	}
+    }
 }
 
 ApplicationDescriptor
@@ -260,7 +474,7 @@ AdminI::stopServer(const string& id, const Current&)
 }
 
 void
-AdminI::patchServer(const string& id, bool shutdown, const Current&)
+AdminI::patchServer_async(const AMD_Admin_patchServerPtr& amdCB, const string& id, bool shutdown, const Current&)
 {
     ServerInfo info = _database->getServerInfo(id);
     ApplicationHelper helper(_database->getApplicationDescriptor(info.application));
@@ -270,27 +484,21 @@ AdminI::patchServer(const string& id, bool shutdown, const Current&)
 
     if(appDistrib.icepatch.empty() && nodeDistrib.empty())
     {
+	amdCB->ice_response();
 	return;
     }
 
-    for(map<string, DistributionDescriptorDict>::const_iterator p = nodeDistrib.begin(); p != nodeDistrib.end(); ++p)
+    assert(nodeDistrib.size() == 1);
+
+    map<string, DistributionDescriptorDict>::const_iterator p = nodeDistrib.begin();
+    AMI_Node_patchPtr amiCB = new ServerPatchCB(amdCB, _traceLevels, id, p->first);
+    try
     {
-	try
-	{
-	    _database->getNode(p->first)->patch(info.application, appDistrib, p->second, shutdown);
-	}
-	catch(const NodeNotExistException&)
-	{
-	}
-	catch(const NodeUnreachableException&)
-	{
-	}
-	catch(const Ice::ObjectNotExistException&)
-	{
-	}
-	catch(const Ice::LocalException&)
-	{
-	}
+	_database->getNode(p->first)->patch_async(amiCB, info.application, appDistrib, p->second, shutdown);
+    }
+    catch(const Ice::Exception& ex)
+    {
+	amiCB->ice_exception(ex);
     }
 }
 
@@ -362,18 +570,25 @@ StringObjectProxyDict
 AdminI::getAdapterEndpoints(const string& adapterId, const Current&) const
 {
     int count;
-    vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(adapterId, count);
+    vector<pair<string, AdapterPrx> > adapters = _database->getAdapters(adapterId, true, count);
     StringObjectProxyDict adpts;
     for(vector<pair<string, AdapterPrx> >::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
-	try
+	if(p->second)
 	{
-	    adpts[p->first] = p->second->getDirectProxy();
+	    try
+	    {
+		adpts[p->first] = p->second->getDirectProxy();
+	    }
+	    catch(const Ice::ObjectNotExistException&)
+	    {
+	    }
+	    catch(const Ice::Exception&)
+	    {
+		adpts[p->first] = 0;
+	    }
 	}
-	catch(const Ice::ObjectNotExistException&)
-	{
-	}
-	catch(const Ice::Exception&)
+	else
 	{
 	    adpts[p->first] = 0;
 	}

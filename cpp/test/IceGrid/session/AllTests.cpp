@@ -772,7 +772,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate
 	do
 	{
-	    nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeUp
+ 	    nodeObs1->waitForUpdate(__FILE__, __LINE__); // nodeUp
 	}
 	while(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
 

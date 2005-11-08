@@ -49,10 +49,9 @@ NODE_OBJS	= NodeI.o \
 		  PlatformInfo.o
 
 REGISTRY_OBJS   = RegistryI.o \
-		  StringProxyDict.o \
-		  StringStringSeqDict.o \
 		  StringApplicationDescriptorDict.o \
 		  IdentityObjectInfoDict.o \
+		  StringAdapterInfoDict.o \
 		  Database.o \
 		  AdapterCache.o \
 		  ObjectCache.o \
@@ -140,22 +139,6 @@ $(LOCAL_HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)/$(*F).ice
 
-$(LOCAL_HDIR)/StringProxyDict.h StringProxyDict.cpp: $(SLICE2FREEZE)
-	rm -f StringProxyDict.h StringProxyDict.cpp
-	$(SLICE2FREEZECMD) --dict IceGrid::StringProxyDict,string,Object* \
-	StringProxyDict $(LOCAL_SDIR)/Internal.ice
-
-clean::
-	rm -f StringProxyDict.h StringProxyDict.cpp
-
-$(LOCAL_HDIR)/StringStringSeqDict.h StringStringSeqDict.cpp: $(SLICE2FREEZE)
-	rm -f StringStringSeqDict.h StringStringSeqDict.cpp
-	$(SLICE2FREEZECMD) --dict IceGrid::StringStringSeqDict,string,Ice::StringSeq \
-	StringStringSeqDict $(SDIR)/../Ice/BuiltinSequences.ice
-
-clean::
-	rm -f StringStringSeqDict.h StringStringSeqDict.cpp
-
 $(LOCAL_HDIR)/StringApplicationDescriptorDict.h StringApplicationDescriptorDict.cpp: $(SLICE2FREEZE)
 	rm -f StringApplicationDescriptorDict.h StringApplicationDescriptorDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::StringApplicationDescriptorDict,string,IceGrid::ApplicationDescriptor \
@@ -172,6 +155,14 @@ $(LOCAL_HDIR)/IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(SLICE2FREEZ
 
 clean::
 	rm -f IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
+
+$(LOCAL_HDIR)/StringAdapterInfoDict.h StringAdapterInfoDict.cpp: $(SLICE2FREEZE)
+	rm -f StringAdapterInfoDict.h StringAdapterInfoDict.cpp
+	$(SLICE2FREEZECMD) --dict IceGrid::StringAdapterInfoDict,string,IceGrid::AdapterInfo \
+	--dict-index IceGrid::StringAdapterInfoDict,replicaGroupId StringAdapterInfoDict $(SDIR)/Admin.ice
+
+clean::
+	rm -f StringAdapterInfoDict.h StringAdapterInfoDict.cpp
 
 # Needed for make -jn to work.
 #../IceGrid/Grammar.y: Grammar.h

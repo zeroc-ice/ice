@@ -103,14 +103,8 @@ Parser::usage()
         "                            started on demand or administratively).\n"
 	"\n"
         "adapter list                List all registered adapters.\n"
-	"adapter endpoints ID [REPLICAID]\n"
-        "                            Show the endpoints of adapter ID from replica REPLICAID.\n"
-	"                            If REPLICAID is not specified, show the endpoints of all\n"
-        "                            the registered replicas.\n"
-	"adapter remove ID [REPLICAID]\n"
-        "                            Remove the endpoints of adapter ID from replica REPLICAID.\n"
-	"                            If REPLICAID is not specified, remove the endpoints of all\n"
-        "                            the registered replicas.\n"
+	"adapter endpoints ID        Show the endpoints of adapter or replica group ID.\n"
+	"adapter remove ID           Remove adapter or replica group ID.\n"
 	"\n"
 	"object add PROXY [TYPE]     Add an object to the object registry,\n"
 	"                            optionally specifying its type.\n"
@@ -944,9 +938,9 @@ Parser::listAllServers()
 void
 Parser::endpointsAdapter(const list<string>& args)
 {
-    if(args.size() < 1)
+    if(args.size() != 1)
     {
-	error("`adapter endpoints' requires at least one argument\n(`help' for more info)");
+	error("`adapter endpoints' requires exactly one argument\n(`help' for more info)");
 	return;
     }
 
@@ -955,15 +949,9 @@ Parser::endpointsAdapter(const list<string>& args)
 	list<string>::const_iterator p = args.begin();
 	string adapterId = *p++;
 	StringObjectProxyDict proxies = _admin->getAdapterEndpoints(adapterId);
-	if(args.size() > 1)
+	if(proxies.size() == 1 && proxies.begin()->first == adapterId)
 	{
-	    string serverId = *p++;
-	    if(proxies.find(serverId) == proxies.end())
-	    {
-		throw ServerNotExistException();
-	    }
-
-	    string endpoints = _communicator->proxyToString(proxies[serverId]);
+	    string endpoints = _communicator->proxyToString(proxies.begin()->second);
 	    cout << (endpoints.empty() ? "<inactive>" : endpoints) << endl;
 	}
 	else

@@ -18,8 +18,7 @@
 #include <IceGrid/Internal.h>
 #include <IceGrid/StringApplicationDescriptorDict.h>
 #include <IceGrid/IdentityObjectInfoDict.h>
-#include <IceGrid/StringProxyDict.h>
-#include <IceGrid/StringStringSeqDict.h>
+#include <IceGrid/StringAdapterInfoDict.h>
 #include <IceGrid/ServerCache.h>
 #include <IceGrid/NodeCache.h>
 #include <IceGrid/ObjectCache.h>
@@ -61,10 +60,6 @@ public:
     void removeApplicationDescriptor(ObserverSessionI*, const std::string&);
     void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&);
 
-    void patchApplication(const std::string&, const DistributionDescriptor&,
-			  const std::map<std::string, DistributionDescriptorDict>&, bool = false);
-    void finishedPatchApplication(const std::string&, const std::string&, const std::string& = std::string());
-
     ApplicationDescriptor getApplicationDescriptor(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());
 
@@ -84,7 +79,7 @@ public:
     Ice::ObjectPrx getAdapterDirectProxy(const std::string&);
     void removeAdapter(const std::string&);
     AdapterPrx getAdapter(const std::string&, const std::string&);
-    std::vector<std::pair<std::string, AdapterPrx> > getAdapters(const std::string&, int&);
+    std::vector<std::pair<std::string, AdapterPrx> > getAdapters(const std::string&, bool, int&);
     Ice::StringSeq getAllAdapters(const std::string& = std::string());
 
     void addObject(const ObjectInfo&);
@@ -140,8 +135,7 @@ private:
     Freeze::ConnectionPtr _connection;
     StringApplicationDescriptorDict _descriptors;
     IdentityObjectInfoDict _objects;
-    StringProxyDict _adapters;
-    StringStringSeqDict _replicaGroups;
+    StringAdapterInfoDict _adapters;
     
     ObserverSessionI* _lock;
     std::string _lockUserId;
