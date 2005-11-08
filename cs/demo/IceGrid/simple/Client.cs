@@ -31,7 +31,7 @@ public class Client : Ice.Application
 	}
 	catch(Ice.NotRegisteredException)
 	{
-	    IceGrid.QueryPrx query = IceGrid.QueryPrxHelper.checkedCast(communicator().stringToProxy("IceGrid/Query"));
+	    IceGrid.QueryPrx query = IceGrid.QueryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Query"));
 	    try
 	    {
 		hello = HelloPrxHelper.checkedCast(query.findObjectByType("::Demo::Hello"));
