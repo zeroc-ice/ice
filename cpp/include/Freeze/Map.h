@@ -32,7 +32,21 @@ class MapHelperI;
 class IteratorHelperI;
 class SharedDb;
 
-class FREEZE_API MapIndexBase : public IceUtil::Shared
+class FREEZE_API KeyCompareBase : public IceUtil::Shared
+{
+public:
+    KeyCompareBase(bool);
+
+    bool compareEnabled() const;
+
+    virtual int compare(const Key&, const Key&) = 0;
+
+private:
+    const bool _enabled;
+};
+typedef IceUtil::Handle<KeyCompareBase> KeyCompareBasePtr;
+
+class FREEZE_API MapIndexBase : public KeyCompareBase
 {
 public:
     
@@ -40,7 +54,10 @@ public:
 
     const std::string& name() const;
 
-    IteratorHelper* untypedFind(const Key&, bool) const;
+    IteratorHelper* untypedFind(const Key&, bool, bool) const;
+    IteratorHelper* untypedLowerBound(const Key&, bool) const;
+    IteratorHelper* untypedUpperBound(const Key&, bool) const;
+
     int untypedCount(const Key&) const;
 
     //
@@ -50,7 +67,7 @@ public:
 
 protected:
 
-    MapIndexBase(const std::string&);
+    MapIndexBase(const std::string&, bool);
 
     Ice::CommunicatorPtr _communicator;
 
@@ -63,10 +80,9 @@ private:
     std::string _name;
     MapIndexI* _impl;
     const MapHelperI* _map;
+    const KeyCompareBasePtr _keyCompare;
 };
-
 typedef IceUtil::Handle<MapIndexBase> MapIndexBasePtr;
-
 
 class FREEZE_API MapHelper
 {
@@ -77,6 +93,7 @@ public:
 	   const std::string& dbName,
 	   const std::string& key,
 	   const std::string& value,
+	   const KeyCompareBasePtr&,
 	   const std::vector<MapIndexBasePtr>&,
 	   bool createDb);
 
@@ -84,6 +101,12 @@ public:
 
     virtual IteratorHelper*
     find(const Key&, bool) const = 0;
+
+    virtual IteratorHelper*
+    lowerBound(const Key&, bool) const = 0;
+
+    virtual IteratorHelper*
+    upperBound(const Key&, bool) const = 0;
 
     virtual void
     put(const Key&, const Value&) = 0;
@@ -144,9 +167,11 @@ public:
 //
 // Forward declaration
 //
-template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
+template <typename key_type, typename mapped_type, 
+	  typename KeyCodec, typename ValueCodec, typename Compare>
 class Map;
-template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
+template <typename key_type, typename mapped_type, 
+	  typename KeyCodec, typename ValueCodec, typename Compare>
 class ConstIterator;
 
 //
@@ -168,7 +193,8 @@ struct IteratorBase
 // TODO: It's possible to implement bidirectional iterators, if
 // necessary.
 //
-template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
+template<typename key_type, typename mapped_type, 
+	 typename KeyCodec, typename ValueCodec, typename Compare>
 class Iterator : public IteratorBase
 {
 public:
@@ -344,8 +370,10 @@ private:
 	ValueCodec::read(value, *v, _communicator);
     }
 
-    friend class ConstIterator<key_type, mapped_type, KeyCodec, ValueCodec>;
-    friend class Map<key_type, mapped_type, KeyCodec, ValueCodec>;
+    friend class ConstIterator<key_type, mapped_type, 
+			       KeyCodec, ValueCodec, Compare>;
+    friend class Map<key_type, mapped_type, 
+		     KeyCodec, ValueCodec, Compare>;
 
     std::auto_ptr<IteratorHelper> _helper;
     Ice::CommunicatorPtr _communicator;
@@ -367,7 +395,8 @@ private:
 //
 // See Iterator comments for design notes
 //
-template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
+template <typename key_type, typename mapped_type, 
+	  typename KeyCodec, typename ValueCodec, typename Compare>
 class ConstIterator : public IteratorBase
 {
 public:
@@ -413,7 +442,8 @@ public:
     // A Iterator can be converted to a ConstIterator (but not
     // vice versa) - same for operator=.
     //
-    ConstIterator(const Iterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs) :
+    ConstIterator(const Iterator<key_type, mapped_type, 
+		  KeyCodec, ValueCodec, Compare>& rhs) :
         _refValid(false)
     {
 	if(rhs._helper.get() != 0)
@@ -445,7 +475,8 @@ public:
     //
     // Create const_iterator from iterator.
     //
-    ConstIterator& operator=(const Iterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs)
+    ConstIterator& operator=(const Iterator<key_type, mapped_type, 
+			     KeyCodec, ValueCodec, Compare>& rhs)
     {
 	if(rhs._helper.get() != 0)
 	{
@@ -563,7 +594,8 @@ private:
 	ValueCodec::read(value, *v, _communicator);
     }
 
-    friend class Map<key_type, mapped_type, KeyCodec, ValueCodec>;
+    friend class Map<key_type, mapped_type, 
+		     KeyCodec, ValueCodec, Compare>;
 
     std::auto_ptr<IteratorHelper> _helper;
     Ice::CommunicatorPtr _communicator;
@@ -583,6 +615,161 @@ private:
     mutable bool _refValid;
 };
 
+#if defined(_MSC_VER) && (_MSC_VER <= 1300)
+//
+// Without partial template specialization
+//
+struct IceEncodingCompare
+{
+    bool operator()(...)
+    {
+	return false;
+    }
+};
+
+template<typename Compare>
+inline bool 
+enableKeyCompare(const Compare&)
+{
+    return true;
+}
+
+template<> 
+inline bool 
+enableKeyCompare<IceEncodingCompare>(const IceEncodingCompare&)
+{
+    return false;
+}
+# else
+struct IceEncodingCompare {};
+#endif
+
+template<typename key_type, typename KeyCodec, typename Compare>
+class KeyCompare : public KeyCompareBase
+{
+public:
+    KeyCompare(const Compare& compare, 
+	       const Ice::CommunicatorPtr& communicator) :
+#if defined(_MSC_VER) && (_MSC_VER <= 1300)
+	KeyCompareBase(enableKeyCompare(compare)),
+#else
+	KeyCompareBase(true),
+#endif
+	_compare(compare),
+	_communicator(communicator)
+    {}
+
+    virtual int compare(const Key& dbKey1, const Key& dbKey2)
+    {
+	key_type key1;
+	KeyCodec::read(key1, dbKey1, _communicator);
+	key_type key2;
+	KeyCodec::read(key2, dbKey2, _communicator);
+
+	if(_compare(key1, key2))
+	{
+	    return -1;
+	}
+	else if(_compare(key2, key1))
+	{
+	    return 1;
+	}
+	else
+	{
+	    return 0;
+	}
+    }
+private:
+    Compare _compare;
+    Ice::CommunicatorPtr _communicator;
+};
+
+#if !defined(_MSC_VER) || (_MSC_VER >= 1300)
+//
+// Partial template specialization: 
+// do nothing for the IceEncodingCompare comparator
+//
+template<typename key_type, typename KeyCodec>
+class KeyCompare<key_type, KeyCodec, IceEncodingCompare> : public KeyCompareBase
+{
+public:
+    KeyCompare(const IceEncodingCompare&, const Ice::CommunicatorPtr&):
+	KeyCompareBase(false)
+    {}
+
+    virtual int compare(const Key& dbKey1, const Key& dbKey2)
+    {
+	assert(0);
+	return 0;
+    }
+};
+#endif
+
+//
+// Need to separate MapIndex template class because _communicator is
+// set later
+//
+template<typename key_type, typename KeyCodec, typename Compare>
+class MapIndex : public MapIndexBase
+{
+public:
+    virtual int compare(const Key& dbKey1, const Key& dbKey2)
+    {
+	key_type key1;
+	KeyCodec::read(key1, dbKey1, _communicator);
+	key_type key2;
+	KeyCodec::read(key2, dbKey2, _communicator);
+
+	if(_compare(key1, key2))
+	{
+	    return -1;
+	}
+	else if(_compare(key2, key1))
+	{
+	    return 1;
+	}
+	else
+	{
+	    return 0;
+	}
+    }
+
+protected:
+    MapIndex(const std::string& name, const Compare& compare) :
+#if defined(_MSC_VER) && (_MSC_VER <= 1300)
+	MapIndexBase(name, enableKeyCompare(compare)),
+#else
+	MapIndexBase(name, true),
+#endif
+	_compare(compare)
+    {}
+
+private:
+    Compare _compare;
+};
+
+#if !defined(_MSC_VER) || (_MSC_VER >= 1300)
+//
+// Partial template specialization: 
+// do nothing for the IceEncodingCompare comparator
+//
+template<typename key_type, typename KeyCodec>
+class MapIndex<key_type, KeyCodec, IceEncodingCompare> : public MapIndexBase
+{
+public:
+    virtual int compare(const Key& dbKey1, const Key& dbKey2)
+    {
+	assert(0);
+	return 0;
+    }
+
+protected:
+    MapIndex(const std::string& name, const IceEncodingCompare&):
+	MapIndexBase(name, false)
+    {}
+};
+#endif
+
 //
 // This is an STL container that matches the requirements of a
 // Associated Container - with the restriction that operator[] isn't
@@ -593,7 +780,9 @@ private:
 // TODO: If necessary it would be possible to implement reverse and
 // bidirectional iterators.
 //
-template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
+template<typename key_type, typename mapped_type, 
+	 typename KeyCodec, typename ValueCodec,
+	 typename Compare = IceEncodingCompare>
 class Map
 {
 public:
@@ -606,14 +795,15 @@ public:
     // hasher, key_equal, key_compare, value_compare
     //
 
-    typedef Iterator<key_type, mapped_type, KeyCodec, ValueCodec > iterator;
-    typedef ConstIterator<key_type, mapped_type, KeyCodec, ValueCodec > const_iterator;
+    typedef Iterator<key_type, mapped_type, 
+		     KeyCodec, ValueCodec, Compare> iterator;
+    typedef ConstIterator<key_type, mapped_type, 
+			  KeyCodec, ValueCodec, Compare> const_iterator;
 
     //
     // No definition for reference, const_reference, pointer or
     // const_pointer.
     //
-
     typedef size_t size_type;
     typedef ptrdiff_t difference_type;
 
@@ -627,27 +817,36 @@ public:
     // Constructors
     //
     Map(const Freeze::ConnectionPtr& connection, 
-	const std::string& dbName, 
-	bool createDb = true) :
+	const std::string& dbName,
+	bool createDb = true,
+	const Compare& compare = Compare()) :
 	_communicator(connection->getCommunicator())
-    {
+    {	
+	KeyCompareBasePtr keyCompare = 
+	    new KeyCompare<key_type, KeyCodec, Compare>(compare, _communicator);
 	std::vector<MapIndexBasePtr> indices;
+
 	_helper.reset(MapHelper::create(connection, dbName, 
-					KeyCodec::typeId(), ValueCodec::typeId(), 
-					indices, createDb));
+					KeyCodec::typeId(), ValueCodec::typeId(),
+					keyCompare, indices, createDb));
     }
 
-    template <class _InputIterator>
+    template<class _InputIterator>
     Map(const Freeze::ConnectionPtr& connection, 
 	const std::string& dbName, 
 	bool createDb,
-	_InputIterator first, _InputIterator last) :
+	_InputIterator first, _InputIterator last,
+	const Compare& compare = Compare()) :
 	_communicator(connection->getCommunicator())
     {
+	KeyCompareBasePtr keyCompare = 
+	    new KeyCompare<key_type, KeyCodec, Compare>(compare, _communicator);
+
 	std::vector<MapIndexBasePtr> indices;
+
 	_helper.reset(MapHelper::create(connection, dbName, 
 					KeyCodec::typeId(), ValueCodec::typeId(),
-					indices, createDb));
+					keyCompare, indices, createDb));
 	while(first != last)
 	{
 	    put(*first);
@@ -916,16 +1115,47 @@ public:
 
     }
 
-    std::pair<iterator, iterator> equal_range(const key_type& key)
+    iterator lower_bound(const key_type& key)
     {
-	iterator p = find(key);
-	return std::pair<iterator,iterator>(p,p);
+	Key k;
+	KeyCodec::write(key, k, _communicator);
+
+	return iterator(_helper->lowerBound(k, false), _communicator);
+    }
+    
+    const_iterator lower_bound(const key_type& key) const
+    {
+	Key k;
+	KeyCodec::write(key, k, _communicator);
+
+	return iterator(_helper->lowerBound(k, true), _communicator);
     }
 
-    std::pair<const_iterator, const_iterator> equal_range(const key_type& key) const
+    iterator upper_bound(const key_type& key)
     {
-	const_iterator p = find(key);
-	return std::pair<const_iterator,const_iterator>(p,p);
+	Key k;
+	KeyCodec::write(key, k, _communicator);
+
+	return iterator(_helper->upperBound(k, false), _communicator);
+    }
+    
+    const_iterator upper_bound(const key_type& key) const
+    {
+	Key k;
+	KeyCodec::write(key, k, _communicator);
+
+	return iterator(_helper->upperBound(k, true), _communicator);
+    }
+    
+    std::pair<iterator, iterator> equal_range(const key_type& key)
+    {
+	return std::make_pair(lower_bound(key), upper_bound(key));
+    }
+
+    std::pair<const_iterator, const_iterator> 
+    equal_range(const key_type& key) const
+    {
+	return std::make_pair(lower_bound(key), upper_bound(key));
     }
 
     const Ice::CommunicatorPtr&
@@ -933,7 +1163,6 @@ public:
     {
 	return _communicator();
     }
-
 
 protected:
 
@@ -957,16 +1186,20 @@ namespace std
 {
 
 // TODO: update.
-template <class key_type, class mapped_type, class KeyCodec, class ValueCodec>
+template <class key_type, class mapped_type, 
+	  class KeyCodec, class ValueCodec, class Compare>
 inline pair<const key_type, const mapped_type>*
-value_type(const Freeze::Iterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
+value_type(const Freeze::Iterator<key_type, mapped_type, 
+	   KeyCodec, ValueCodec, Compare>&)
 {
     return (pair<const key_type, const mapped_type>*)0;
 }
 
-template <class key_type, class mapped_type, class KeyCodec, class ValueCodec>
+template <class key_type, class mapped_type, 
+	  class KeyCodec, class ValueCodec, class Compare>
 inline pair<const key_type, const mapped_type>*
-value_type(const Freeze::ConstIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
+value_type(const Freeze::ConstIterator<key_type, mapped_type, 
+	   KeyCodec, ValueCodec, Compare>&)
 {
     return (pair<const key_type, const mapped_type>*)0;
 }

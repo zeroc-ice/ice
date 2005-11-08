@@ -44,6 +44,20 @@ checkTypes(const SharedDb& sharedDb, const string& key, const string& value)
 }
 }
 
+extern "C" 
+{
+static int customCompare(DB* db, const DBT* dbt1, const DBT* dbt2)
+{
+    SharedDb* me = static_cast<SharedDb*>(db->app_private);
+    Byte* first = static_cast<Byte*>(dbt1->data);
+    Key k1(first, first + dbt1->size);
+    first = static_cast<Byte*>(dbt2->data);
+    Key k2(first, first + dbt2->size);
+
+    return me->getKeyCompare()->compare(k1, k2);
+}
+}
+
 Freeze::SharedDb::SharedDbMap* Freeze::SharedDb::sharedDbMap = 0;
 
 const string&
@@ -57,6 +71,7 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
 		      const string& dbName,
 		      const string& key,
 		      const string& value,
+		      const KeyCompareBasePtr& keyCompare,
 		      const vector<MapIndexBasePtr>& indices,
 		      bool createDb)
 {
@@ -96,7 +111,8 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
     //
     // MapKey not found, let's create and open a new Db
     //
-    auto_ptr<SharedDb> result(new SharedDb(mapKey, key, value, connection, indices, createDb));
+    auto_ptr<SharedDb> result(new SharedDb(mapKey, key, value, connection, 
+					   keyCompare, indices, createDb));
     
     //
     // Insert it into the map
@@ -221,10 +237,12 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
 			   const string& key,
 			   const string& value,
 			   const ConnectionIPtr& connection, 
+			   const KeyCompareBasePtr& keyCompare,
 			   const vector<MapIndexBasePtr>& indices,
 			   bool createDb) :
     Db(connection->dbEnv()->getEnv(), 0),
     _mapKey(mapKey),
+    _keyCompare(keyCompare),
     _refCount(0),
     _trace(connection->trace())
 {
@@ -234,7 +252,8 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
 	out << "opening Db \"" << _mapKey.dbName << "\"";
     }
 
-    ConnectionPtr catalogConnection = createConnection(_mapKey.communicator, connection->dbEnv()->getEnvName());
+    ConnectionPtr catalogConnection = 
+	createConnection(_mapKey.communicator, connection->dbEnv()->getEnvName());
     Catalog catalog(catalogConnection, _catalogName);
     
     Catalog::iterator ci = catalog.find(_mapKey.dbName);
@@ -256,6 +275,12 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
     {
 	_key = key;
 	_value = value;
+    }
+
+    set_app_private(this);
+    if(_keyCompare->compareEnabled())
+    {
+	set_bt_compare(&customCompare);
     }
 
     try

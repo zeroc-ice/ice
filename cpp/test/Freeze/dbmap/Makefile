@@ -16,7 +16,8 @@ TARGETS		= $(CLIENT)
 OBJS		= Client.o \
                   ByteIntMap.o \
                   IntIdentityMap.o \
-                  IntIdentityMapWithIndex.o
+                  IntIdentityMapWithIndex.o \
+                  SortedMap.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -40,9 +41,12 @@ IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp: $(SLICE2FREEZE)
 	rm -f IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp
 	$(SLICE2FREEZE) --ice $(SLICE2CPPFLAGS) --dict Test::IntIdentityMapWithIndex,int,Ice::Identity --dict-index Test::IntIdentityMapWithIndex,category IntIdentityMapWithIndex $(slicedir)/Ice/Identity.ice
 
+SortedMap.h SortedMap.cpp: $(SLICE2FREEZE)
+	rm -f SortedMap.h SortedMap.cpp
+	$(SLICE2FREEZE)  --ice $(SLICE2CPPFLAGS) --dict Test::SortedMap,int,Ice::Identity,sort SortedMap --dict-index "Test::SortedMap,category,sort,std::greater<std::string>" $(slicedir)/Ice/Identity.ice
 
 clean::
-	rm -f ByteIntMap.h ByteIntMap.cpp IntIdentityMap.h IntIdentityMap.cpp IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp
+	rm -f ByteIntMap.h ByteIntMap.cpp IntIdentityMap.h IntIdentityMap.cpp IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp SortedMap.h SortedMap.cpp
 
 clean::
 	rm -f db/binary db/binary.* db/intIdentity db/intIdentity.* db/__catalog db/log.*

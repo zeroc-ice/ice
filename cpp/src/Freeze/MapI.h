@@ -23,7 +23,8 @@ class IteratorHelperI : public IteratorHelper
 {  
 public:
 
-    IteratorHelperI(const MapHelperI& m, bool readOnly, const MapIndexBasePtr& index);
+    IteratorHelperI(const MapHelperI& m, bool readOnly, 
+		    const MapIndexBasePtr& index, bool onlyDups);
     IteratorHelperI(const IteratorHelperI&);
 
     virtual 
@@ -31,6 +32,12 @@ public:
   
     bool 
     find(const Key& k) const;
+
+    bool 
+    lowerBound(const Key& k) const;
+
+    bool 
+    upperBound(const Key& k) const;
 
     virtual IteratorHelper*
     clone() const;
@@ -49,6 +56,8 @@ public:
 
     virtual bool
     next() const;
+
+    bool next(bool) const;
 
     void
     close();
@@ -86,6 +95,7 @@ private:
     const MapHelperI& _map;
     Dbc* _dbc;
     const bool _indexed;
+    const bool _onlyDups;
     TxPtr _tx;
 
     mutable Key _key;
@@ -99,12 +109,19 @@ public:
    
     MapHelperI(const ConnectionIPtr&, const std::string&, 
 	       const std::string&, const std::string&,
+	       const KeyCompareBasePtr&,
 	       const std::vector<MapIndexBasePtr>&, bool);
 
     virtual ~MapHelperI();
 
     virtual IteratorHelper*
     find(const Key&, bool) const;
+
+    virtual IteratorHelper*
+    lowerBound(const Key&, bool) const;
+
+    virtual IteratorHelper*
+    upperBound(const Key&, bool) const;
 
     virtual void
     put(const Key&, const Value&);

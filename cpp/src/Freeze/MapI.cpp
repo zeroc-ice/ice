@@ -27,7 +27,10 @@ Freeze::MapIndexBase::~MapIndexBase()
 {
 }
 
-Freeze::MapIndexBase::MapIndexBase(const string& name) :
+Freeze::MapIndexBase::MapIndexBase(
+    const string& name,
+    bool enabled) :
+    KeyCompareBase(enabled),
     _name(name),
     _impl(0),
     _map(0)
@@ -41,15 +44,40 @@ MapIndexBase::name() const
 }
 
 IteratorHelper*
-Freeze::MapIndexBase::untypedFind(const Key& k, bool ro) const
+Freeze::MapIndexBase::untypedFind(const Key& k, bool ro, bool onlyDups) const
 {
-    return _impl->untypedFind(k, ro, *_map);
+    return _impl->untypedFind(k, ro, *_map, onlyDups);
+}
+
+IteratorHelper*
+Freeze::MapIndexBase::untypedLowerBound(const Key& k, bool ro) const
+{
+    return _impl->untypedLowerBound(k, ro, *_map);
+}
+
+IteratorHelper*
+Freeze::MapIndexBase::untypedUpperBound(const Key& k, bool ro) const
+{
+    return _impl->untypedUpperBound(k, ro, *_map);
 }
 
 int 
 Freeze::MapIndexBase::untypedCount(const Key& k) const
 {
     return _impl->untypedCount(k, _map->connection());
+}
+
+//
+// KeyCompareBase
+//
+Freeze::KeyCompareBase::KeyCompareBase(bool enabled) :
+    _enabled(enabled)
+{}
+
+bool
+Freeze::KeyCompareBase::compareEnabled() const
+{
+    return _enabled;
 }
 
 //
@@ -61,11 +89,12 @@ Freeze::MapHelper::create(const Freeze::ConnectionPtr& connection,
 			  const string& dbName,
 			  const string& key,
 			  const string& value,
+			  const Freeze::KeyCompareBasePtr& keyCompare,
 			  const std::vector<MapIndexBasePtr>& indices,
 			  bool createDb)
 {
     Freeze::ConnectionIPtr connectionI = Freeze::ConnectionIPtr::dynamicCast(connection);
-    return new MapHelperI(connectionI, dbName, key, value, indices, createDb);
+    return new MapHelperI(connectionI, dbName, key, value, keyCompare, indices, createDb);
 }
 
 Freeze::MapHelper::~MapHelper()
@@ -82,7 +111,8 @@ Freeze::IteratorHelper::create(const MapHelper& m, bool readOnly)
 {
     const MapHelperI& actualMap = dynamic_cast<const MapHelperI&>(m);
 
-    auto_ptr<IteratorHelperI> r(new IteratorHelperI(actualMap, readOnly, 0));
+    auto_ptr<IteratorHelperI> r(new IteratorHelperI(actualMap, readOnly, 
+						    0, false));
     if(r->next())
     {
 	return r.release();
@@ -104,11 +134,13 @@ Freeze::IteratorHelper::~IteratorHelper()
 //
 
 Freeze::IteratorHelperI::IteratorHelperI(const MapHelperI& m, bool readOnly, 
-					 const MapIndexBasePtr& index) :
+					 const MapIndexBasePtr& index,
+					 bool onlyDups) :
     _map(m),
     _dbc(0),
     _indexed(index != 0),
-    _tx(0)
+    _tx(0),
+    _onlyDups(onlyDups)
 {
     if(_map._trace >= 2)
     {
@@ -157,7 +189,8 @@ Freeze::IteratorHelperI::IteratorHelperI(const IteratorHelperI& it) :
     _map(it._map),
     _dbc(0),
     _indexed(it._indexed),
-    _tx(0)
+    _tx(0),
+    _onlyDups(it._onlyDups)
 {
     if(_map._trace >= 2)
     {
@@ -227,6 +260,85 @@ Freeze::IteratorHelperI::find(const Key& key) const
 	throw ex;
     }
 }
+
+bool 
+Freeze::IteratorHelperI::lowerBound(const Key& key) const
+{
+    //
+    // We retrieve the action key for upperBound
+    //
+    Dbt dbKey;
+    _key = key;
+    initializeOutDbt(_key, dbKey);
+    dbKey.set_size(static_cast<u_int32_t>(_key.size()));
+
+    //
+    // Keep 0 length since we're not interested in the data
+    //
+    Dbt dbValue;
+    dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+
+    for(;;)
+    {
+	try
+	{
+	    int err = _dbc->get(&dbKey, &dbValue, DB_SET_RANGE);
+	    if(err == 0)
+	    {
+		_key.resize(dbKey.get_size());
+		return true;
+	    }
+	    else if(err == DB_NOTFOUND)
+	    {
+		return false;
+	    }
+	    else
+	    {
+		//
+		// Bug in Freeze
+		//
+		assert(0);
+		throw DatabaseException(__FILE__, __LINE__);
+	    }
+	}
+	catch(const ::DbDeadlockException& dx)
+	{
+	    if(_tx != 0)
+	    {
+		_tx->dead();
+	    }
+	    
+	    DeadlockException ex(__FILE__, __LINE__);
+	    ex.message = dx.what();
+	    throw ex;
+	}
+	catch(const ::DbException& dx)
+	{
+	    handleDbException(dx, _key, dbKey, __FILE__, __LINE__);
+	}
+    }
+}
+
+bool 
+Freeze::IteratorHelperI::upperBound(const Key& key) const
+{
+    if(lowerBound(key))
+    {
+	if(_key == key)
+	{
+	    return next(true);
+	}
+	else
+	{
+	    return true;
+	}
+    }
+    else
+    {
+	return false;
+    }
+}
+
 
 Freeze::IteratorHelper*
 Freeze::IteratorHelperI::clone() const
@@ -478,8 +590,14 @@ Freeze::IteratorHelperI::erase()
     }
 }
 
-bool
+bool 
 Freeze::IteratorHelperI::next() const
+{
+    return next(false);
+}
+
+bool
+Freeze::IteratorHelperI::next(bool skipDups) const
 {
     //
     // Keep 0 length since we're not interested in the data
@@ -489,7 +607,15 @@ Freeze::IteratorHelperI::next() const
     Dbt dbValue;
     dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
-    int flags = _indexed ? DB_NEXT_DUP : DB_NEXT;
+    int flags = DB_NEXT;
+    if(skipDups)
+    {
+	flags = DB_NEXT_NODUP;
+    }
+    else if(_indexed && _onlyDups)
+    {
+	flags = DB_NEXT_DUP;
+    }
 
     try
     {
@@ -660,10 +786,11 @@ Freeze::MapHelperI::MapHelperI(const ConnectionIPtr& connection,
 			       const string& dbName,
 			       const string& key,
 			       const string& value,
+			       const KeyCompareBasePtr& keyCompare,
 			       const vector<MapIndexBasePtr>& indices,
 			       bool createDb) :
     _connection(connection),
-    _db(SharedDb::get(connection, dbName, key, value, indices, createDb)),
+    _db(SharedDb::get(connection, dbName, key, value, keyCompare, indices, createDb)),
     _dbName(dbName),
     _trace(connection->trace())
 { 
@@ -698,7 +825,7 @@ Freeze::MapHelperI::find(const Key& k, bool readOnly) const
     {
 	try
 	{  
-	    auto_ptr<IteratorHelperI> r(new IteratorHelperI(*this, readOnly, 0));
+	    auto_ptr<IteratorHelperI> r(new IteratorHelperI(*this, readOnly, 0, false));
 	    if(r->find(k))
 	    {
 		return r.release();
@@ -720,6 +847,86 @@ Freeze::MapHelperI::find(const Key& k, bool readOnly) const
 		{
 		    Warning out(_connection->communicator()->getLogger());
 		    out << "Deadlock in Freeze::MapHelperI::find on Map \"" 
+			<< _dbName << "\"; retrying ...";
+		}
+
+		//
+		// Ignored, try again
+		//
+	    }
+	}
+    }
+}
+
+Freeze::IteratorHelper*
+Freeze::MapHelperI::lowerBound(const Key& k, bool readOnly) const
+{
+    for(;;)
+    {
+	try
+	{  
+	    auto_ptr<IteratorHelperI> r(new IteratorHelperI(*this, readOnly, 0, false));
+	    if(r->lowerBound(k))
+	    {
+		return r.release();
+	    }
+	    else
+	    {
+		return 0;
+	    }
+	}
+	catch(const DeadlockException&)
+	{
+	    if(_connection->dbTxn() != 0)
+	    {
+		throw;
+	    }
+	    else
+	    {
+		if(_connection->deadlockWarning())
+		{
+		    Warning out(_connection->communicator()->getLogger());
+		    out << "Deadlock in Freeze::MapHelperI::lowerBound on Map \"" 
+			<< _dbName << "\"; retrying ...";
+		}
+
+		//
+		// Ignored, try again
+		//
+	    }
+	}
+    }
+}
+
+Freeze::IteratorHelper*
+Freeze::MapHelperI::upperBound(const Key& k, bool readOnly) const
+{
+    for(;;)
+    {
+	try
+	{  
+	    auto_ptr<IteratorHelperI> r(new IteratorHelperI(*this, readOnly, 0, false));
+	    if(r->upperBound(k))
+	    {
+		return r.release();
+	    }
+	    else
+	    {
+		return 0;
+	    }
+	}
+	catch(const DeadlockException&)
+	{
+	    if(_connection->dbTxn() != 0)
+	    {
+		throw;
+	    }
+	    else
+	    {
+		if(_connection->deadlockWarning())
+		{
+		    Warning out(_connection->communicator()->getLogger());
+		    out << "Deadlock in Freeze::MapHelperI::upperBound on Map \"" 
 			<< _dbName << "\"; retrying ...";
 		}
 
@@ -1144,6 +1351,20 @@ Freeze::MapHelperI::closeAllIteratorsExcept(const IteratorHelperI::TxPtr& tx) co
 // MapIndexI
 //
 
+extern "C" 
+{
+static int customIndexCompare(DB* db, const DBT* dbt1, const DBT* dbt2)
+{
+    MapIndexI* me = static_cast<MapIndexI*>(db->app_private);
+    Byte* first = static_cast<Byte*>(dbt1->data);
+    Key k1(first, first + dbt1->size);
+    first = static_cast<Byte*>(dbt2->data);
+    Key k2(first, first + dbt2->size);
+
+    return me->getKeyCompare()->compare(k1, k2);
+}
+}
+
 static int 
 callback(Db* secondary, const Dbt* key, const Dbt* value, Dbt* result)
 {
@@ -1172,6 +1393,13 @@ Freeze::MapIndexI::MapIndexI(const ConnectionIPtr& connection, SharedDb& db,
 
     _dbName = db.dbName() + "." + _index->name();
 
+    _db->set_app_private(this);
+
+    if(index->compareEnabled())
+    {
+	_db->set_bt_compare(&customIndexCompare);
+    }
+
     _db->open(txn, _dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
 
     //
@@ -1191,11 +1419,42 @@ Freeze::MapIndexI::~MapIndexI()
 }
 
 IteratorHelper* 
-Freeze::MapIndexI::untypedFind(const Key& k, bool ro, const MapHelperI& m) const
+Freeze::MapIndexI::untypedFind(const Key& k, bool ro, const MapHelperI& m, 
+			       bool onlyDups) const
 {
-    auto_ptr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index));
+    auto_ptr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index, onlyDups));
 
     if(r->find(k))
+    {
+	return r.release();
+    }
+    else
+    {
+	return 0;
+    }
+}
+
+IteratorHelper* 
+Freeze::MapIndexI::untypedLowerBound(const Key& k, bool ro, const MapHelperI& m) const
+{
+    auto_ptr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index, false));
+
+    if(r->lowerBound(k))
+    {
+	return r.release();
+    }
+    else
+    {
+	return 0;
+    }
+}
+
+IteratorHelper* 
+Freeze::MapIndexI::untypedUpperBound(const Key& k, bool ro, const MapHelperI& m) const
+{
+    auto_ptr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index, false));
+
+    if(r->upperBound(k))
     {
 	return r.release();
     }

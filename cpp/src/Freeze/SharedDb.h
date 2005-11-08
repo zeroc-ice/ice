@@ -34,7 +34,10 @@ public:
 
     ~MapIndexI();
    
-    IteratorHelper* untypedFind(const Key&, bool, const MapHelperI&) const;
+    IteratorHelper* untypedFind(const Key&, bool, const MapHelperI&, bool) const;
+    IteratorHelper* untypedLowerBound(const Key&, bool, const MapHelperI&) const;
+    IteratorHelper* untypedUpperBound(const Key&, bool, const MapHelperI&) const;
+
     int untypedCount(const Key&, const ConnectionIPtr&) const;
     
     int
@@ -48,6 +51,11 @@ public:
     Db* db() const
     {
 	return _db.get();
+    }
+
+    const MapIndexBasePtr& getKeyCompare() const
+    {
+	return _index;
     }
 
 private:
@@ -66,6 +74,7 @@ public:
 
     static SharedDbPtr get(const ConnectionIPtr&, const std::string&,
 			   const std::string&, const std::string&,
+			   const KeyCompareBasePtr&,
 			   const std::vector<MapIndexBasePtr>&, bool);
 
     static SharedDbPtr openCatalog(SharedDbEnv&);
@@ -83,6 +92,9 @@ public:
 
     const std::string&
     value() const;
+
+    const KeyCompareBasePtr&
+    getKeyCompare() const;
 
 #ifdef __HP_aCC
     
@@ -110,7 +122,8 @@ private:
     typedef std::map<MapKey, Freeze::SharedDb*> SharedDbMap;
    
     SharedDb(const MapKey&, const std::string&, const std::string&,
-	     const ConnectionIPtr&, const std::vector<MapIndexBasePtr>&, bool);
+	     const ConnectionIPtr&, const KeyCompareBasePtr&,
+	     const std::vector<MapIndexBasePtr>&, bool);
     
     SharedDb(const MapKey&, DbEnv*);
     
@@ -123,6 +136,7 @@ private:
     int _refCount;
     Ice::Int _trace;
 
+    KeyCompareBasePtr _keyCompare;
     IndexMap _indices;
 
     static SharedDbMap* sharedDbMap;
@@ -146,6 +160,11 @@ SharedDb::value() const
     return _value;
 }
 
+inline const Freeze::KeyCompareBasePtr&
+SharedDb::getKeyCompare() const
+{
+    return _keyCompare;
+}
 
 inline bool 
 SharedDb::MapKey::operator<(const MapKey& rhs) const

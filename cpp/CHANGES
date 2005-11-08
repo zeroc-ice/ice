@@ -1,18 +1,38 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Added custom-compare to Freeze Maps: 
+  you can now provide your own compare functors for keys and indices. See 
+  the slice2freeze usage for the new options. The default compare uses 
+  compares binary strings encoded using the Ice encoding (like in previous
+  releases).
+  Map have 4 new functions:
+    - lower_bound (const and non-const)
+    - upper_bound (const and non-const)
+  In addition, the implementation of equal_range is now correct. 
+
+  Generated index classes have 6 new functions:
+    - lowerBoundFor<name> (const and non-const)
+    - upperBoundFor<name> (const and non-const)
+    - equalRangeFor<name> (const and non-const)
+  The findBy<name> also takes a new bool parameter, "onlyDups"; its default
+  value is true for compatibility with previous releases. When onlyDups is
+  true, findBy<name> returns only the elements that match the given index
+  value; when false, the iterator returns first these elements and then
+  lets you iterate over the remainder of the database (according to the order
+  defined by the index).
+
 - Fixed a deadlock during shutdown that could happen with
   bi-directional connections.
 
 - Removed ice_default() method from proxies.
 
-- Added downgrade() to IceUtil::RWRecMutex and fixed a bug in
-  upgrade(): previously, upgrade() was equivalent to calling unlock()
-  followed by writeLock(), which could allow a thread to acquire a
-  write lock while another thread was in the middle an
-  upgrade. upgrade() is now atomic, so whatever state is protected by
-  a read lock is guaranteed to be still unchanged when upgrade()
-  completes.
+- Added downgrade() to IceUtil::RWRecMutex and fixed a bug in upgrade():
+  previously, upgrade() was equivalent to calling unlock() followed
+  by writeLock(), which could allow a thread to acquire a write lock while 
+  another thread was in the middle an upgrade. upgrade() is now atomic, so
+  whatever state is protected by a read lock is guaranteed to be still 
+  unchanged when upgrade() completes.
 
 - Connection::close(false) (i.e., graceful connection shutdown) now
   waits until all outstanding requests have completed.

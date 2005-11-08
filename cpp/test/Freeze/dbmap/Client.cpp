@@ -13,6 +13,7 @@
 #include <ByteIntMap.h>
 #include <IntIdentityMap.h>
 #include <IntIdentityMapWithIndex.h>
+#include <SortedMap.h>
 #include <Freeze/TransactionHolder.h>
 
 #include <algorithm>
@@ -199,8 +200,9 @@ private:
 
 
 int
-run(const CommunicatorPtr& communicator, const string& envName, const string& dbName)
+run(const CommunicatorPtr& communicator, const string& envName)
 {
+    const string dbName = "binary";
     Freeze::ConnectionPtr connection = createConnection(communicator, envName);
     ByteIntMap m(connection, dbName);
     
@@ -617,6 +619,110 @@ run(const CommunicatorPtr& communicator, const string& envName, const string& db
 	}
 	iim.clear();
     }
+    cout << "ok" << endl;
+
+    cout << "testing sorting... " << flush;
+    { 
+	SortedMap sm(connection, "sortedIntIdentity");
+	    
+	TransactionHolder txHolder(connection);
+	for(int i = 0; i < 1000; i++)
+	{
+	    int k = rand() % 1000; 
+
+	    Ice::Identity id;
+	    id.name = "foo";
+	    id.category = 'a' + static_cast<char>(k % 26);
+
+	    sm.put(SortedMap::value_type(k, id));
+	}
+	txHolder.commit();
+    }
+    
+    { 
+	SortedMap sm(connection, "sortedIntIdentity");
+	{
+	    for(int i = 0; i < 100; ++i)
+	    {
+		int k = rand() % 1000;
+		SortedMap::iterator p = sm.lower_bound(k);
+		if(p != sm.end())
+		{
+		    test(p->first >= k);
+		    SortedMap::iterator q = sm.upper_bound(k);
+		    if(q == sm.end())
+		    {
+			test(p->first == k);
+		    }
+		    else
+		    {
+			test((p->first == k && q->first > k) || 
+			     (p->first > k && q->first == p->first));
+		    }
+		}
+	    }
+	}
+	 
+	{
+	    for(int i = 0; i < 100; ++i)
+	    {
+		string category;
+		category = static_cast<char>('a' + rand() % 26);
+	       
+		SortedMap::iterator p = sm.findByCategory(category);
+		if(p != sm.end())
+		{
+		    SortedMap::iterator q = sm.lowerBoundForCategory(category);
+		    test(p == q);
+		    do
+		    {
+			q++;
+		    } while(q != sm.end() && q->second.category == category);
+		    
+		    if(q != sm.end())
+		    {
+			test(q == sm.upperBoundForCategory(category));
+		    }
+		}
+		else
+		{
+		    SortedMap::iterator q = sm.lowerBoundForCategory(category);
+		    if(q != sm.end())
+		    {
+			test(p != q);
+			test(q->second.category < category);
+			category = q->second.category;
+			
+			do
+			{
+			    q++;
+			} while(q != sm.end() && q->second.category == category);
+			
+			if(q != sm.end())
+			{
+			    test(q == sm.upperBoundForCategory(category));
+			}
+		    }
+		}
+	    }
+	}
+
+	{
+	    string category = "z";
+	    SortedMap::iterator p = sm.lowerBoundForCategory(category);
+	    
+	    while(p != sm.end())
+	    {
+		test(p->second.category <= category);
+		category = p->second.category;
+		// cerr << category << ":" << p->first << endl;
+		++p;
+	    }
+	}
+	
+	sm.clear();
+    }
+
 
     cout << "ok" << endl;
 
@@ -641,7 +747,7 @@ main(int argc, char* argv[])
 	    envName += "db";
 	}
        
-	status = run(communicator, envName, "binary");
+	status = run(communicator, envName);
     }
     catch(const Ice::Exception& ex)
     {
