@@ -63,6 +63,9 @@ Changes since version 2.1.2
   incorrect code to be generated when metadata was used to modify
   dictionary types used as class or struct members.
 
+- Renamed CompressionNotSupportException to a more general
+  FeatureNotSupportedException.
+
 - Added ice_communicator() to proxies. This function returns the
   communicator that was used to create the proxy.
 

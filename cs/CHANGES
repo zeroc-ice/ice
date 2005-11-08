@@ -24,6 +24,9 @@ Changes since version 2.1.2
   now correctly shows the source of such exceptions
   in the stack trace.
 
+- Connection::close(false) (i.e., graceful connection shutdown) now
+  waits until all outstanding requests have completed.
+
 - Added a new object adapter property, <adapter>.ReplicaGroupId, which
   allows adapters to be replicated. See the IceGrid chapter in the
   manual for more information.
@@ -112,6 +115,18 @@ Changes since version 2.1.2
   the generated code. See the C# mapping chapter in the Ice manual for
   more information.
 
+- Added proxy methods to retrieve the proxy adapter id and endpoints
+  (ice_getAdapterId() and ice_getEndpoints()) and to create a new
+  proxy with a new adapter id or new endpoints (ice_newAdapterId() and
+  ice_newEndpoints()).
+
+- Fixed a bug that would cause UDP server connections to be closed on
+  transient errors, thus preventing the reception of any more UDP
+  messages until a server restart.
+
+- Communicator::setDefaultContext() no longer changes the context
+  information set on existing proxies.
+
 - Ice.Communicator.createObjectAdapter() throws
   Ice.AlreadyRegisteredException if it is called with the name of an
   object adapter that already exists.
@@ -129,6 +144,9 @@ Changes since version 2.1.2
 - Fixed a bug in the slice2cs code generator: if an operation had a
   parameter named i or szx, incorrect code was generated in some
   cases.
+
+- Renamed CompressionNotSupportException to a more general
+  FeatureNotSupportedException.
 
 - Added ice_communicator() to proxies. This function returns the
   communicator that was used to create the proxy.
