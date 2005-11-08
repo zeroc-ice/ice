@@ -18,6 +18,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -36,6 +37,21 @@ import IceGrid.Utils;
 
 class AdapterEditor extends ListElementEditor
 {
+    public JComponent getCurrentStatus(Ice.StringHolder title)
+    {
+	JComponent panel = super.getCurrentStatus(title);
+
+	if(panel != null)
+	{
+	    Adapter adapter = getAdapter();
+	    if(adapter == null || adapter.getResolver() == null)
+	    {
+		panel = null;
+	    }
+	}
+	return panel;
+    }
+
     AdapterEditor(JFrame parentFrame)
     {
 	super(true);
@@ -535,18 +551,24 @@ class AdapterEditor extends ListElementEditor
     {
 	Adapter adapter = getAdapter();
 
-	String currentEndpoints = adapter.getCurrentEndpoints();
-	boolean active = (currentEndpoints != null);
-
-	if(currentEndpoints == null)
+	//
+	// Only when not in a template
+	//
+	if(adapter.getResolver() != null)
 	{
-	    _currentStatus.setText("Inactive");
-	    _currentEndpoints.setText("");
-	}
-	else
-	{
-	    _currentStatus.setText("Active");
-	    _currentEndpoints.setText(currentEndpoints);
+	    String currentEndpoints = adapter.getCurrentEndpoints();
+	    boolean active = (currentEndpoints != null);
+	    
+	    if(currentEndpoints == null)
+	    {
+		_currentStatus.setText("Inactive");
+		_currentEndpoints.setText("");
+	    }
+	    else
+	    {
+		_currentStatus.setText("Active");
+		_currentEndpoints.setText(currentEndpoints);
+	    }
 	}
     }
 

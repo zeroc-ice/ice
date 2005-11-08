@@ -92,6 +92,7 @@ class Server extends EditableParent
 	into.activation = from.activation;
 	into.activationTimeout = from.activationTimeout;
 	into.deactivationTimeout = from.deactivationTimeout;
+	into.applicationDistrib = from.applicationDistrib;
 	into.distrib.icepatch = from.distrib.icepatch;
 	into.distrib.directories = from.distrib.directories;
     }
@@ -111,7 +112,7 @@ class Server extends EditableParent
 	    "manual",
 	    "",
 	    "",
-	    false,
+	    true,
 	    new IceGrid.DistributionDescriptor("", new java.util.LinkedList()));
     }
 
@@ -149,7 +150,7 @@ class Server extends EditableParent
 	    "manual",
 	    "",
 	    "",
-	    false,
+	    true,
 	    new IceGrid.DistributionDescriptor("", new java.util.LinkedList()),
 	    new java.util.LinkedList()
 	    );

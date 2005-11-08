@@ -32,6 +32,7 @@ abstract class ListElementEditor extends Editor
 
 	if(model.canUpdate())
 	{    
+	    boolean refreshDisplay = false;
 	    model.disableDisplay();
 
 	    try
@@ -77,6 +78,7 @@ abstract class ListElementEditor extends Editor
 		    _target = parent.findChildWithDescriptor(descriptor);
 		    model.setSelectionPath(_target.getPath());
 		    model.showActions(_target);
+		    refreshDisplay = true;
 		}
 		else if(isSimpleUpdate())
 		{
@@ -123,6 +125,10 @@ abstract class ListElementEditor extends Editor
 	    finally
 	    {
 		model.enableDisplay();
+	    }
+	    if(refreshDisplay)
+	    {
+		model.refreshDisplay();
 	    }
 	}
     }

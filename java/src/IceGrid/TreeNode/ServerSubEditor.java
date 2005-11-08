@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -117,6 +118,19 @@ class ServerSubEditor extends CommunicatorSubEditor
 	_optionButton = new JButton(openOptionDialog);
 
 
+	Action appDistrib = new AbstractAction("Depends on the application distribution")
+	    {
+		public void actionPerformed(ActionEvent e)
+		{
+		    _mainEditor.updated();
+		}
+	    };
+	appDistrib.putValue(Action.SHORT_DESCRIPTION,
+			    "<html>Check this box if this server needs to be restarted<br>"
+			    + "each time the distribution for your application is refreshed.</html>");
+
+	_applicationDistrib = new JCheckBox(appDistrib);
+
 	_distrib = new JComboBox(new Object[]{NO_DISTRIB, DEFAULT_DISTRIB});
 	_distrib.setToolTipText(
 	    "The proxy to the IcePatch2 server holding your files");
@@ -193,6 +207,8 @@ class ServerSubEditor extends CommunicatorSubEditor
 	JComponent c = builder.appendSeparator("Distribution");
 	c.setToolTipText("Files specific to this server");
 
+	builder.append("", _applicationDistrib);
+	builder.nextLine();
 	builder.append("IcePatch2 Proxy");
 	builder.append(_distrib, 3);
 	builder.nextLine();
@@ -222,6 +238,8 @@ class ServerSubEditor extends CommunicatorSubEditor
 	descriptor.activation = _activation.getSelectedItem().toString();
 	descriptor.activationTimeout = _activationTimeout.getText();
 	descriptor.deactivationTimeout = _deactivationTimeout.getText();
+
+	descriptor.applicationDistrib = _applicationDistrib.isSelected();
 
 	if(_distrib.getSelectedItem() == NO_DISTRIB)
 	{
@@ -315,6 +333,9 @@ class ServerSubEditor extends CommunicatorSubEditor
 	_deactivationTimeout.setText(
 	    Utils.substitute(descriptor.deactivationTimeout, detailResolver));
 	_deactivationTimeout.setEditable(isEditable);
+
+	_applicationDistrib.setSelected(descriptor.applicationDistrib);
+	_applicationDistrib.setEnabled(isEditable);
 
 	_distrib.setEnabled(true);
 	_distrib.setEditable(true);
@@ -436,6 +457,8 @@ class ServerSubEditor extends CommunicatorSubEditor
     private ListDialog _optionDialog;
     private JButton _optionButton;
     
+    private JCheckBox _applicationDistrib;
+
     private JComboBox _distrib;
 
     private JTextField _distribDirs = new JTextField(20);
