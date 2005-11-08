@@ -12,7 +12,7 @@
 
 #include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/SslAcceptor.h>
-#include <IceSSL/SslServerTransceiver.h>
+#include <IceSSL/SslTransceiver.h>
 #include <IceSSL/TraceLevels.h>
 
 using namespace std;
