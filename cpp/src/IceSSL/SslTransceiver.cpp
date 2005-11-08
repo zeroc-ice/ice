@@ -147,7 +147,7 @@ IceSSL::SslTransceiver::write(Buffer& buf, int timeout)
             case SSL_ERROR_WANT_WRITE:
 	    {
 		writeSelect(timeout);
-		break;
+		continue;
 	    }
 
 	    //
@@ -157,7 +157,7 @@ IceSSL::SslTransceiver::write(Buffer& buf, int timeout)
             //case SSL_ERROR_WANT_READ:
 	    //{
 	    //	  readSelect(timeout);
-	    //	  break;
+	    //	  continue;
 	    //}
 
             case SSL_ERROR_SYSCALL:
@@ -279,7 +279,7 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
             //case SSL_ERROR_WANT_WRITE:
 	    //{
 	    //	  writeSelect(timeout);
-	    //	  break;
+	    //	  continue;
 	    //}
 
             case SSL_ERROR_SYSCALL:
