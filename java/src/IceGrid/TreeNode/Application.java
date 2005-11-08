@@ -351,7 +351,7 @@ public class Application extends EditableParent
 	super.commit();
 	_origVariables = _descriptor.variables;
 	_origDescription = _descriptor.description;
-	_origDistrib = _descriptor.distrib;
+	_origDistrib = (DistributionDescriptor)_descriptor.distrib.clone();
     }
 
     public Object getDescriptor()
@@ -440,7 +440,7 @@ public class Application extends EditableParent
 	_descriptor = descriptor;
 	_origVariables = _descriptor.variables;
 	_origDescription = _descriptor.description;
-	_origDistrib = _descriptor.distrib;
+	_origDistrib = (DistributionDescriptor)_descriptor.distrib.clone();
 
 	_resolver = new Utils.Resolver(_descriptor.variables);
 	_resolver.put("application", descriptor.name);
@@ -536,7 +536,7 @@ public class Application extends EditableParent
 	if(desc.distrib != null)
 	{
 	    _descriptor.distrib = desc.distrib.value;
-	    _origDistrib = _descriptor.distrib;
+	    _origDistrib = (DistributionDescriptor)_descriptor.distrib.clone();
 	}
 
 	//

@@ -416,7 +416,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 	    }
 	};
 
-    static private final String DEFAULT_DISTRIB = "${application}.IcePatch2";
+    static private final String DEFAULT_DISTRIB = "${application}.IcePatch2/server";
 
     private JTextField _id = new JTextField(20);
     private JTextField _exe = new JTextField(20);

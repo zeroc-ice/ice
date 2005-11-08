@@ -25,6 +25,7 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 
 import IceGrid.ApplicationDescriptor;
+import IceGrid.DistributionDescriptor;
 import IceGrid.ListDialog;
 import IceGrid.Model;
 import IceGrid.TableDialog;
@@ -249,7 +250,7 @@ class ApplicationEditor extends Editor
 	descriptor.name = _name.getText();
 	descriptor.variables = _variablesMap;
 	descriptor.description = _description.getText();
-	
+
 	if(_distrib.getSelectedItem() == NO_DISTRIB)
 	{
 	    descriptor.distrib.icepatch = "";
@@ -366,7 +367,7 @@ class ApplicationEditor extends Editor
 		return "None selected";
 	    }
 	};
-    static private final String DEFAULT_DISTRIB = "${application}.IcePatch2";
+    static private final String DEFAULT_DISTRIB = "${application}.IcePatch2/server";
 
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
