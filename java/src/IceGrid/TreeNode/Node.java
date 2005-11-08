@@ -789,139 +789,227 @@ class Node extends EditableParent
     }
 
 
-    void update(NodeUpdateDescriptor update, Application application)
+    void update(NodeUpdateDescriptor update, 
+		java.util.Set serverTemplates, java.util.Set serviceTemplates)
 	throws UpdateFailedException
     {
-	//
-	// Description
-	//
-	if(update.description != null)
-	{
-	    _descriptor.description = update.description.value;
-	    _origDescription = _descriptor.description;
-	}
+	Application application = getApplication();
 
-	//
-	// Load factor
-	//
-	if(update.loadFactor != null)
-	{
-	    _descriptor.loadFactor = update.loadFactor.value;
-	    _origLoadFactor = _descriptor.loadFactor;
-	}
-
-	//
-	// Variables
-	//
-	for(int i = 0; i < update.removeVariables.length; ++i)
-	{
-	    _descriptor.variables.remove(update.removeVariables[i]);
-	}
-	_descriptor.variables.putAll(update.variables);
-
-	//
-	// One big set of removes
-	//
-	removeChildren(update.removeServers);
-
-	//
-	// Update _descriptor
-	//
-	for(int i = 0; i < update.removeServers.length; ++i)
-	{
-	    _descriptor.serverInstances.remove(update.removeServers[i]);
-	    _descriptor.servers.remove(update.removeServers[i]);
-	} 
-
-	//
-	// One big set of updates, followed by inserts
-	//
 	java.util.Vector newChildren = new java.util.Vector();
 	java.util.Vector updatedChildren = new java.util.Vector();
-	
-	java.util.Iterator p = update.serverInstances.iterator();
-	while(p.hasNext())
-	{
-	    ServerInstanceDescriptor instanceDescriptor = 
-		(ServerInstanceDescriptor)p.next();
-	    
-	    //
-	    // Find template
-	    //
-	    TemplateDescriptor templateDescriptor = 
-		application.findServerTemplateDescriptor(instanceDescriptor.template);
 
-	    assert templateDescriptor != null;
-	    
-	    ServerDescriptor serverDescriptor = 
-		(ServerDescriptor)templateDescriptor.descriptor;
-	    
-	    assert serverDescriptor != null;
-	    
+	if(update != null)
+	{
 	    //
-	    // Build resolver
+	    // Description
 	    //
-	    Utils.Resolver instanceResolver = 
-		new Utils.Resolver(_resolver, 
-				   instanceDescriptor.parameterValues,
-				   templateDescriptor.parameterDefaults);
-	    
-	    String serverId = instanceResolver.substitute(serverDescriptor.id);
-	    instanceResolver.put("server", serverId);
-	    
-	    //
-	    // Lookup server
-	    //
-	    Server server = (Server)findChild(serverId);
-	    if(server != null)
+	    if(update.description != null)
 	    {
-		server.rebuild(instanceResolver, instanceDescriptor, serverDescriptor,
-			       application);
-		updatedChildren.add(server);
-	    }
-	    else
-	    {
-		server = new Server(false, serverId, instanceResolver, instanceDescriptor, 
-				    serverDescriptor, application);
-		newChildren.add(server);
-		_descriptor.serverInstances.add(instanceDescriptor);
+		_descriptor.description = update.description.value;
+		_origDescription = _descriptor.description;
 	    }
 	    
+	    //
+	    // Load factor
+	    //
+	    if(update.loadFactor != null)
+	    {
+		_descriptor.loadFactor = update.loadFactor.value;
+		_origLoadFactor = _descriptor.loadFactor;
+	    }
+	    
+	    //
+	    // Variables
+	    //
+	    for(int i = 0; i < update.removeVariables.length; ++i)
+	    {
+		_descriptor.variables.remove(update.removeVariables[i]);
+	    }
+	    _descriptor.variables.putAll(update.variables);
+	    
+	    //
+	    // One big set of removes
+	    //
+	    removeChildren(update.removeServers);
+	    
+	    //
+	    // Update _descriptor
+	    //
+	    for(int i = 0; i < update.removeServers.length; ++i)
+	    {
+		_descriptor.serverInstances.remove(update.removeServers[i]);
+		_descriptor.servers.remove(update.removeServers[i]);
+	    } 
+	    
+	    //
+	    // One big set of updates, followed by inserts
+	    //
+	    
+	    java.util.Iterator p = update.serverInstances.iterator();
+	    while(p.hasNext())
+	    {
+		ServerInstanceDescriptor instanceDescriptor = 
+		    (ServerInstanceDescriptor)p.next();
+		
+		//
+		// Find template
+		//
+		TemplateDescriptor templateDescriptor = 
+		    application.findServerTemplateDescriptor(instanceDescriptor.template);
+		
+		assert templateDescriptor != null;
+		
+		ServerDescriptor serverDescriptor = 
+		    (ServerDescriptor)templateDescriptor.descriptor;
+		
+		assert serverDescriptor != null;
+		
+		//
+		// Build resolver
+		//
+		Utils.Resolver instanceResolver = 
+		    new Utils.Resolver(_resolver, 
+				       instanceDescriptor.parameterValues,
+				       templateDescriptor.parameterDefaults);
+		
+		String serverId = instanceResolver.substitute(serverDescriptor.id);
+		instanceResolver.put("server", serverId);
+		
+		//
+		// Lookup server
+		//
+		Server server = (Server)findChild(serverId);
+		if(server != null)
+		{
+		    server.rebuild(instanceResolver, instanceDescriptor, serverDescriptor,
+				   application);
+		    updatedChildren.add(server);
+		}
+		else
+		{
+		    server = new Server(false, serverId, instanceResolver, instanceDescriptor, 
+					serverDescriptor, application);
+		    newChildren.add(server);
+		    _descriptor.serverInstances.add(instanceDescriptor);
+		}
+		
+	    }
+	    
+	    //
+	    // Plain servers
+	    //
+	    p = update.servers.iterator();
+	    while(p.hasNext())
+	    {
+		ServerDescriptor serverDescriptor = (ServerDescriptor)p.next();
+		
+		//
+		// Build resolver
+		//
+		Utils.Resolver instanceResolver = new Utils.Resolver(_resolver);
+		String serverId = instanceResolver.substitute(serverDescriptor.id);
+		instanceResolver.put("server", serverId);
+		
+		//
+		// Lookup server
+		//
+		Server server = (Server)findChild(serverId);
+		
+		if(server != null)
+		{
+		    server.rebuild(instanceResolver, null, serverDescriptor,
+				   application);
+		    updatedChildren.add(server);
+		}
+		else
+		{
+		    server = new Server(false, serverId, instanceResolver, null, 
+					serverDescriptor, application);
+		    newChildren.add(server);
+		    _descriptor.servers.add(serverDescriptor);
+		}
+	    }
 	}
 	
+	// 
+	// Find servers affected by template updates
 	//
-	// Plain servers
-	//
-	p = update.servers.iterator();
+	java.util.Set serverSet = new java.util.HashSet();
+
+	java.util.Iterator p = serverTemplates.iterator();
 	while(p.hasNext())
 	{
-	    ServerDescriptor serverDescriptor = (ServerDescriptor)p.next();
-
-	    //
-	    // Build resolver
-	    //
-	    Utils.Resolver instanceResolver = new Utils.Resolver(_resolver);
-	    String serverId = instanceResolver.substitute(serverDescriptor.id);
-	    instanceResolver.put("server", serverId);
-	    
-	    //
-	    // Lookup server
-	    //
-	    Server server = (Server)findChild(serverId);
-	    
-	    if(server != null)
+	    String template = (String)p.next();
+	    java.util.List serverInstances = findServerInstances(template);
+	    java.util.Iterator q = serverInstances.iterator();
+	    while(q.hasNext())
 	    {
-		server.rebuild(instanceResolver, null, serverDescriptor,
-			       application);
-		updatedChildren.add(server);
+		Server server = (Server)q.next();
+		if(!updatedChildren.contains(server) && !newChildren.contains(server))
+		{
+		    serverSet.add(server);
+		}
+	    }
+	}
+
+	p = serviceTemplates.iterator();
+	while(p.hasNext())
+	{
+	    java.util.List serviceInstances = 
+		findServiceInstances((String)p.next());
+	    java.util.Iterator q = serviceInstances.iterator();
+	    while(q.hasNext())
+	    {
+		Service service = (Service)q.next();
+		Server server = (Server)service.getParent().getParent();
+		if(!updatedChildren.contains(server) && !newChildren.contains(server))
+		{
+		    serverSet.add(server);
+		}
+	    }
+	}
+
+	//
+	// Rebuild these servers
+	//
+	p = serverSet.iterator();
+	while(p.hasNext())
+	{
+	    Server server = (Server)p.next();
+
+	    ServerInstanceDescriptor instanceDescriptor = 
+		server.getInstanceDescriptor();
+
+	    ServerDescriptor serverDescriptor;
+	    Utils.Resolver instanceResolver;
+
+	    if(instanceDescriptor == null)
+	    {
+		serverDescriptor = server.getServerDescriptor();
+		assert serverDescriptor != null;
+		instanceResolver = new Utils.Resolver(_resolver);
 	    }
 	    else
 	    {
-		server = new Server(false, serverId, instanceResolver, null, 
-				    serverDescriptor, application);
-		newChildren.add(server);
-		_descriptor.servers.add(serverDescriptor);
+		TemplateDescriptor templateDescriptor = 
+		    application.findServerTemplateDescriptor(instanceDescriptor.template);
+		assert templateDescriptor != null;
+	    
+		serverDescriptor = (ServerDescriptor)templateDescriptor.descriptor;
+		assert serverDescriptor != null;
+
+		instanceResolver = 
+		    new Utils.Resolver(_resolver, 
+				       instanceDescriptor.parameterValues,
+				       templateDescriptor.parameterDefaults);
 	    }
+
+	    String serverId = instanceResolver.substitute(serverDescriptor.id);
+	    assert serverId.equals(server.getId());
+
+	    server.rebuild(instanceResolver, instanceDescriptor, serverDescriptor,
+			   application);
+	    updatedChildren.add(server);
 	}
 	
 	updateChildren((CommonBaseI[])updatedChildren.toArray(new CommonBaseI[0]));
@@ -929,7 +1017,7 @@ class Node extends EditableParent
 
 	if(!_inRegistry)
 	{
-	    ((Nodes)_parent).addDescriptor(update.name, _descriptor);
+	    ((Nodes)_parent).addDescriptor(_id, _descriptor);
 	    _inRegistry = true;
 	}
     }

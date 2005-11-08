@@ -189,7 +189,8 @@ class ServerTemplates extends Templates
 	return getApplication().findServerInstances(templateId);
     }
 
-    void update(java.util.Map updates, String[] removeTemplates)
+    void update(java.util.Map updates, String[] removeTemplates, 
+		java.util.Set serviceTemplates)
 	throws UpdateFailedException
     {
 	//
@@ -226,6 +227,30 @@ class ServerTemplates extends Templates
 	    {
 		child.rebuild(templateDescriptor, application);
 		updatedChildren.add(child);
+	    }
+	}
+	
+	//
+	// Rebuild template affected by service template updates
+	//
+	p = serviceTemplates.iterator();
+	while(p.hasNext())
+	{
+	    java.util.List serviceInstances = 
+		findServiceInstances((String)p.next());
+	    java.util.Iterator q = serviceInstances.iterator();
+	    while(q.hasNext())
+	    {
+		Service service = (Service)q.next();
+		ServerTemplate serverTemplate = 
+		    (ServerTemplate)service.getParent().getParent();
+		
+		if(!updatedChildren.contains(serverTemplate) &&
+		   !newChildren.contains(serverTemplate))
+		{
+		    serverTemplate.rebuild();
+		    updatedChildren.add(serverTemplate);
+		}
 	    }
 	}
 	

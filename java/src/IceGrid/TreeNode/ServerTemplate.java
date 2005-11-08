@@ -275,7 +275,8 @@ class ServerTemplate extends EditableParent
 	{ 
 	    if(_templateDescriptor.descriptor instanceof IceBoxDescriptor)
 	    {
-		IceBoxDescriptor iceBoxDescriptor = (IceBoxDescriptor)_templateDescriptor.descriptor;
+		IceBoxDescriptor iceBoxDescriptor = 
+		    (IceBoxDescriptor)_templateDescriptor.descriptor;
 		
 		_services = new Services(iceBoxDescriptor.services, true, null, 
 					 application);
@@ -297,6 +298,12 @@ class ServerTemplate extends EditableParent
 				     _services != null, null, _model);
 	    addChild(_adapters);
 	}
+    }
+
+    void rebuild()
+	throws UpdateFailedException
+    {
+	rebuild(_templateDescriptor, getApplication());
     }
 
     void removeServiceInstances(String template)

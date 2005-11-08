@@ -540,7 +540,7 @@ public class Application extends EditableParent
 	}
 
 	//
-	// Replicated adapters
+	// Replica groups
 	//
 	for(int i = 0; i < desc.removeReplicaGroups.length; ++i)
 	{
@@ -573,7 +573,8 @@ public class Application extends EditableParent
 	}
 	_descriptor.serverTemplates.putAll(desc.serverTemplates);
 	_serverTemplates.update(desc.serverTemplates, 
-				desc.removeServerTemplates);
+				desc.removeServerTemplates,
+				desc.serviceTemplates.keySet());
 	
 	//
 	// Nodes
@@ -585,7 +586,10 @@ public class Application extends EditableParent
 	//
 	// Updates also _descriptor.nodes
 	//
-	_nodes.update(desc.nodes, desc.removeNodes);
+	_nodes.update(desc.nodes, desc.removeNodes,
+		      desc.serverTemplates.keySet(),
+		      desc.serviceTemplates.keySet());
+
     }
 
     ServerTemplate findServerTemplate(String id)

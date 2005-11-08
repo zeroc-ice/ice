@@ -785,7 +785,6 @@ class Server extends EditableParent
 	    }
 	}
     }
-
     
     public void setParent(CommonBase parent)
     {

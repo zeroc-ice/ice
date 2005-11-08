@@ -203,7 +203,8 @@ public class Nodes extends EditableParent
 	}
     }
 
-    void update(java.util.List updates, String[] removeNodes)
+    void update(java.util.List updates, String[] removeNodes,
+		java.util.Set serverTemplates, java.util.Set serviceTemplates)
 	throws UpdateFailedException
     {
 	Application application = (Application)getParent();
@@ -222,6 +223,7 @@ public class Nodes extends EditableParent
 	// One big set of updates, followed by inserts
 	//
 	java.util.Vector newChildren = new java.util.Vector();
+	java.util.Set updatedNodes = new java.util.HashSet();
 	
 	java.util.Iterator p = updates.iterator();
 	while(p.hasNext())
@@ -242,7 +244,21 @@ public class Nodes extends EditableParent
 	    }
 	    else
 	    {
-		node.update(update, application);
+		node.update(update, serverTemplates, serviceTemplates);
+		updatedNodes.add(node);
+	    }
+	}
+
+	//
+	// Some nodes are only affected by template updates
+	//
+	p = _children.iterator();
+	while(p.hasNext())
+	{
+	    Node node = (Node)p.next();
+	    if(!updatedNodes.contains(node))
+	    {
+		node.update(null, serverTemplates, serviceTemplates);
 	    }
 	}
 	
