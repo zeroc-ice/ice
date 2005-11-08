@@ -32,8 +32,8 @@ OBJS		= BaseCerts.o \
                   OpenSSLJanitors.o \
                   OpenSSLPluginI.o \
                   OpenSSLUtils.o \
-    		  PluginF.o \
-    		  Plugin.o \
+	   	  PluginF.o \
+	  	  Plugin.o \
                   RSACertificateGen.o \
                   RSAKeyPair.o \
                   RSAPrivateKey.o \
@@ -41,11 +41,9 @@ OBJS		= BaseCerts.o \
                   ServerContext.o \
                   SingleCertificateVerifier.o \
                   SslAcceptor.o \
-		  SslClientTransceiver.o \
                   SslConnector.o \
                   SslEndpointI.o \
                   SslException.o \
-		  SslServerTransceiver.o \
 		  SslTransceiver.o \
                   TempCerts.o \
                   TraceLevels.o

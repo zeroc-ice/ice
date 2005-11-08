@@ -114,6 +114,7 @@ Ice::ConnectionI::validate()
 		traceHeader("sending validate connection", os, _logger, _traceLevels);
 		try
 		{
+		    _transceiver->initialize(timeout);
 		    _transceiver->write(os, timeout);
 		}
 		catch(const TimeoutException&)
@@ -128,6 +129,7 @@ Ice::ConnectionI::validate()
 		is.i = is.b.begin();
 		try
 		{
+		    _transceiver->initialize(timeout);
 		    _transceiver->read(is, timeout);
 		}
 		catch(const TimeoutException&)

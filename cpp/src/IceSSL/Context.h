@@ -11,16 +11,17 @@
 #define ICESSL_CONTEXT_H
 
 #include <Ice/CommunicatorF.h>
+#include <IceSSL/TraceLevelsF.h>
+#include <IceSSL/SslTransceiverF.h>
+#include <IceSSL/ContextF.h>
+
 #include <Ice/BuiltinSequences.h>
 #include <IceSSL/OpenSSL.h>
-#include <IceSSL/TraceLevelsF.h>
 #include <IceSSL/CertificateVerifierOpenSSL.h>
 #include <IceSSL/GeneralConfig.h>
 #include <IceSSL/CertificateAuthority.h>
 #include <IceSSL/BaseCerts.h>
 #include <IceSSL/TempCerts.h>
-#include <IceSSL/SslTransceiver.h>
-#include <IceSSL/ContextF.h>
 #include <IceSSL/RSAPublicKey.h>
 #include <IceSSL/RSAKeyPairF.h>
 
@@ -38,20 +39,11 @@ public:
     void cleanUp();
 
     virtual void setCertificateVerifier(const CertificateVerifierPtr&);
-
     virtual void addTrustedCertificateBase64(const std::string&);
-
     virtual void addTrustedCertificate(const Ice::ByteSeq&);
-
     virtual void setRSAKeysBase64(const std::string&, const std::string&);
-
     virtual void setRSAKeys(const Ice::ByteSeq&, const Ice::ByteSeq&);
-
-    virtual void configure(const GeneralConfig&,
-                           const CertificateAuthority&,
-                           const BaseCertificates&);
-
-    // Takes a socket fd as the first parameter, and the initial handshake timeout as the final.
+    virtual void configure(const GeneralConfig&, const CertificateAuthority&, const BaseCertificates&);
     virtual SslTransceiverPtr createTransceiver(int, const OpenSSLPluginIPtr&, int) = 0;
 
 protected:

@@ -10,7 +10,6 @@
 #ifndef ICE_SSL_OPENSSL_PLUGIN_I_H
 #define ICE_SSL_OPENSSL_PLUGIN_I_H
 
-#include <IceUtil/Mutex.h>
 #include <IceUtil/RecMutex.h>
 
 #include <Ice/LoggerF.h>
@@ -18,18 +17,19 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/ProtocolPluginFacadeF.h>
 
-#include <IceSSL/Plugin.h>
 #include <IceSSL/OpenSSLPluginIF.h>
 #include <IceSSL/CertificateVerifierF.h>
 #include <IceSSL/TraceLevelsF.h>
 #include <IceSSL/SslTransceiverF.h>
+#include <IceSSL/RSAPrivateKeyF.h>
+
+#include <IceSSL/Plugin.h>
 #include <IceSSL/CertificateDesc.h>
 #include <IceSSL/CertificateAuthority.h>
 #include <IceSSL/BaseCerts.h>
 #include <IceSSL/TempCerts.h>
 #include <IceSSL/ServerContext.h>
 #include <IceSSL/ClientContext.h>
-#include <IceSSL/RSAPrivateKeyF.h>
 #include <IceSSL/DHParamsF.h>
 
 #include <openssl/ssl.h>
@@ -50,8 +50,8 @@ public:
     OpenSSLPluginI(const IceInternal::ProtocolPluginFacadePtr&);
     virtual ~OpenSSLPluginI();
 
-
-    virtual SslTransceiverPtr createTransceiver(ContextType, int, int);
+    SslTransceiverPtr createServerTransceiver(int, int);
+    SslTransceiverPtr createClientTransceiver(int, int);
 
     virtual bool isConfigured(ContextType);
     virtual void configure();
@@ -138,4 +138,3 @@ private:
 }
 
 #endif
-

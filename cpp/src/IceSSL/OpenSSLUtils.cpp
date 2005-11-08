@@ -10,6 +10,7 @@
 #include <IceUtil/StaticMutex.h>
 #include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/OpenSSLUtils.h>
+#include <IceSSL/SslTransceiver.h>
 
 #include <openssl/err.h>
 

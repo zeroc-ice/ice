@@ -37,6 +37,7 @@ public:
     virtual void read(Buffer&, int) = 0;
     virtual std::string type() const = 0;
     virtual std::string toString() const = 0;
+    virtual void initialize(int) = 0;
 };
 
 }

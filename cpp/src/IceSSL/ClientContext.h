@@ -10,6 +10,7 @@
 #ifndef ICESSL_CLIENT_CONTEXT_H
 #define ICESSL_CLIENT_CONTEXT_H
 
+#include <IceSSL/OpenSSLPluginIF.h>
 #include <IceSSL/Context.h>
 
 namespace IceSSL
@@ -23,8 +24,7 @@ public:
                            const CertificateAuthority&,
                            const BaseCertificates&);
 
-    // Takes a socket fd as the first parameter, and the initial handshake timeout as the final.
-    virtual SslTransceiverPtr createTransceiver(int, const OpenSSLPluginIPtr&, int);
+    SslTransceiverPtr createTransceiver(int, const OpenSSLPluginIPtr&, int);
 
 protected:
 

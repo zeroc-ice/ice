@@ -40,6 +40,7 @@ public:
     virtual void read(Buffer&, int);
     virtual std::string type() const;
     virtual std::string toString() const;
+    virtual void initialize(int);
 
     bool equivalent(const std::string&, int) const;
     int effectivePort() const;

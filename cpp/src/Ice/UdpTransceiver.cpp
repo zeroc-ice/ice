@@ -286,6 +286,11 @@ IceInternal::UdpTransceiver::toString() const
     return fdToString(_fd);
 }
 
+void
+IceInternal::UdpTransceiver::initialize(int)
+{
+}
+
 bool
 IceInternal::UdpTransceiver::equivalent(const string& host, int port) const
 {

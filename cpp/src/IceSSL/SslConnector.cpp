@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <Ice/Logger.h>
 #include <Ice/Network.h>
+#include <Ice/LoggerUtil.h>
 
 #include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/SslConnector.h>
@@ -22,32 +22,23 @@ using namespace IceInternal;
 TransceiverPtr
 IceSSL::SslConnector::connect(int timeout)
 {
-    TraceLevelsPtr traceLevels = _plugin->getTraceLevels();
-    LoggerPtr logger = _plugin->getLogger();
-
-    if(traceLevels->network >= 2)
+    if(_traceLevels->network >= 2)
     {
-	ostringstream s;
-	s << "trying to establish ssl connection to " << toString();
-	logger->trace(traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "trying to establish ssl connection to " << toString();
     }
 
     SOCKET fd = createSocket(false);
     setBlock(fd, false);
     doConnect(fd, _addr, timeout);
 
-    if(traceLevels->network >= 1)
+    if(_traceLevels->network >= 1)
     {
-	ostringstream s;
-	s << "ssl connection established\n" << fdToString(fd);
-	logger->trace(traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "ssl connection established\n" << fdToString(fd);
     }
 
-    SslTransceiverPtr transceiver = _plugin->createTransceiver(IceSSL::Client, fd, timeout);
-
-    transceiver->forceHandshake();
-
-    return transceiver;
+    return _plugin->createClientTransceiver(fd, timeout);
 }
 
 string
@@ -57,7 +48,9 @@ IceSSL::SslConnector::toString() const
 }
 
 IceSSL::SslConnector::SslConnector(const OpenSSLPluginIPtr& plugin, const string& host, int port) :
-    _plugin(plugin)
+    _plugin(plugin),
+    _traceLevels(plugin->getTraceLevels()),
+    _logger(plugin->getLogger())
 {
     getAddress(host, port, _addr);
 }

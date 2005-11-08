@@ -11,8 +11,10 @@
 #define ICE_SSL_CONNECTOR_H
 
 #include <Ice/TransceiverF.h>
-#include <Ice/Connector.h>
+#include <Ice/LoggerF.h>
+#include <IceSSL/TraceLevelsF.h>
 #include <IceSSL/OpenSSLPluginIF.h>
+#include <Ice/Connector.h>
 
 #ifndef _WIN32
 #   include <netinet/in.h> // For struct sockaddr_in
@@ -36,8 +38,10 @@ private:
     virtual ~SslConnector();
     friend class SslEndpointI;
 
-    OpenSSLPluginIPtr _plugin;
+    const OpenSSLPluginIPtr _plugin;
     struct sockaddr_in _addr;
+    const TraceLevelsPtr _traceLevels;
+    const ::Ice::LoggerPtr _logger;
 };
 
 }

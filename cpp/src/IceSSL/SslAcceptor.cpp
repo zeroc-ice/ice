@@ -12,7 +12,7 @@
 
 #include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/SslAcceptor.h>
-#include <IceSSL/SslTransceiver.h>
+#include <IceSSL/SslServerTransceiver.h>
 #include <IceSSL/TraceLevels.h>
 
 using namespace std;
@@ -71,7 +71,7 @@ IceSSL::SslAcceptor::accept(int timeout)
 	out << "accepted ssl connection\n" << fdToString(fd);
     }
 
-    return _plugin->createTransceiver(IceSSL::Server, fd, timeout);
+    return _plugin->createServerTransceiver(fd, timeout);
 }
 
 void

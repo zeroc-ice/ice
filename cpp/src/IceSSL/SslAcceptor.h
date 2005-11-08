@@ -12,9 +12,9 @@
 
 #include <Ice/TransceiverF.h>
 #include <Ice/LoggerF.h>
-#include <Ice/Acceptor.h>
-#include <IceSSL/OpenSSLPluginIF.h>
 #include <IceSSL/TraceLevelsF.h>
+#include <IceSSL/OpenSSLPluginIF.h>
+#include <Ice/Acceptor.h>
 
 #ifndef _WIN32
 #   include <netinet/in.h> // For struct sockaddr_in
@@ -45,9 +45,9 @@ private:
     virtual ~SslAcceptor();
     friend class SslEndpointI;
 
-    OpenSSLPluginIPtr _plugin;
-    TraceLevelsPtr _traceLevels;
-    ::Ice::LoggerPtr _logger;
+    const OpenSSLPluginIPtr _plugin;
+    const TraceLevelsPtr _traceLevels;
+    const ::Ice::LoggerPtr _logger;
     SOCKET _fd;
     int _backlog;
     struct sockaddr_in _addr;

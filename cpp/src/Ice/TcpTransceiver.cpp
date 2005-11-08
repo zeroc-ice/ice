@@ -326,6 +326,11 @@ IceInternal::TcpTransceiver::toString() const
     return _desc;
 }
 
+void
+IceInternal::TcpTransceiver::initialize(int)
+{
+}
+
 IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
