@@ -190,7 +190,13 @@ ServerEntry::ServerEntry(Cache<string, ServerEntry>& cache, const string& id) :
 void
 ServerEntry::sync()
 {
-    syncImpl(false);
+    try
+    {
+	syncImpl(true);
+    }
+    catch(const Ice::Exception&)
+    {
+    }
 }
 
 void

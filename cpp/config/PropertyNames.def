@@ -212,6 +212,7 @@ IceGrid:
     Registry.Admin.ThreadPool.SizeMax
     Registry.Admin.ThreadPool.SizeWarn
     Registry.Admin.ThreadPool.StackSize
+    Registry.AdminSessionTimeout
     Registry.Client.AdapterId
     Registry.Client.ReplicaGroupId
     Registry.Client.Endpoints
