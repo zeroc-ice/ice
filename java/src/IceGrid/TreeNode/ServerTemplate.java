@@ -59,10 +59,33 @@ class ServerTemplate extends EditableParent
 	if(_cellRenderer == null)
 	{
 	    _cellRenderer = new DefaultTreeCellRenderer();
-	    _cellRenderer.setOpenIcon(
-		Utils.getIcon("/icons/16x16/server_template.png"));
-	    _cellRenderer.setClosedIcon(
-		Utils.getIcon("/icons/16x16/server_template.png"));
+	    _plainIcon =
+		Utils.getIcon("/icons/16x16/server_template.png");
+	    _iceboxIcon =
+		Utils.getIcon("/icons/16x16/icebox_server_template.png");
+	}
+
+	if(_templateDescriptor.descriptor instanceof IceBoxDescriptor)
+	{
+	    if(expanded)
+	    {
+		_cellRenderer.setOpenIcon(_iceboxIcon);
+	    }
+	    else
+	    {
+		_cellRenderer.setClosedIcon(_iceboxIcon);
+	    }
+	}
+	else
+	{
+	    if(expanded)
+	    {
+		_cellRenderer.setOpenIcon(_plainIcon);
+	    }
+	    else
+	    {
+		_cellRenderer.setClosedIcon(_plainIcon);
+	    }
 	}
 
 	return _cellRenderer.getTreeCellRendererComponent(
@@ -323,7 +346,9 @@ class ServerTemplate extends EditableParent
     private PropertiesHolder _propertiesHolder;
     private final boolean _ephemeral;
 
-    static private DefaultTreeCellRenderer _cellRenderer;  
+    static private DefaultTreeCellRenderer _cellRenderer;
+    static private Icon _plainIcon;
+    static private Icon _iceboxIcon;
     static private ServerTemplateEditor _editor;
     static private JPopupMenu _popup;
 }
