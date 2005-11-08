@@ -55,7 +55,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
 # ADD LINK32 ws2_32.lib libeay32.lib ssleay32.lib /nologo /dll /incremental:yes /debug /machine:I386 /out:"Release/icessl30.dll" /implib:"Release/icessl.lib" /FIXED:no
-# SUBTRACT LINK32 /pdb:none  /nodefaultlib
+# SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
@@ -202,10 +202,6 @@ SOURCE=.\SslAcceptor.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\SslClientTransceiver.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\SslConnector.cpp
 # End Source File
 # Begin Source File
@@ -215,10 +211,6 @@ SOURCE=.\SslEndpointI.cpp
 # Begin Source File
 
 SOURCE=.\SslException.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslServerTransceiver.cpp
 # End Source File
 # Begin Source File
 
@@ -374,10 +366,6 @@ SOURCE=.\SslAcceptor.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\SslClientTransceiver.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\SslConnection.h
 # End Source File
 # Begin Source File
@@ -391,10 +379,6 @@ SOURCE=.\SslConnector.h
 # Begin Source File
 
 SOURCE=.\SslEndpointI.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SslServerTransceiver.h
 # End Source File
 # Begin Source File
 
