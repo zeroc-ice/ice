@@ -1191,8 +1191,14 @@ ServiceInstanceHelper::instantiate(const Resolver& resolve) const
     
     ServiceInstanceDescriptor desc;
     desc.descriptor = def.instantiate(svcResolve);
-    desc._cpp_template = _template;
-    desc.parameterValues = _parameters;
+    //
+    // NOTE: We can't keep the following attributes in the service
+    // instance otherwise the instance comparison would be based on
+    // the template + parameters which would be wrong (if the template
+    // changed the instance also changed.)
+    //
+    //desc._cpp_template = _template;
+    //desc.parameterValues = _parameters;
     return desc;
 }
 
@@ -2555,7 +2561,6 @@ IceGrid::descriptorEqual(const ServerDescriptorPtr& lhs, const ServerDescriptorP
     {
 	return false;
     }
-
     IceBoxDescriptorPtr lhsIceBox = IceBoxDescriptorPtr::dynamicCast(lhs);
     if(lhsIceBox)
     {

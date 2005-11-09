@@ -1154,7 +1154,7 @@ Database::reload(const ApplicationHelper& oldApp, const ApplicationHelper& newAp
 	} 
 	else if(p->second.node != q->second.node || !descriptorEqual(p->second.descriptor, q->second.descriptor))
 	{
-	    entries.push_back(_serverCache.remove(p->first, false)); // Don't destroy the server if it was updated.
+	    _serverCache.remove(p->first, false); // Don't destroy the server if it was updated.
 	    load.push_back(p->second);
 	}
     }
