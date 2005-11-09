@@ -37,14 +37,10 @@ iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir, 0)
 iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 
 node1Dir = os.path.join(testdir, "db", "node-1")
-if not os.path.exists(node1Dir):
-    os.mkdir(node1Dir)
-IceGridAdmin.cleanServerDir(node1Dir);
+os.mkdir(node1Dir)
 
 node2Dir = os.path.join(testdir, "db", "node-2")
-if not os.path.exists(node2Dir):
-    os.mkdir(node2Dir)
-IceGridAdmin.cleanServerDir(node2Dir);
+os.mkdir(node2Dir)
 
 nodeOverrideOptions = ' --NodePropertiesOverride="' + TestUtil.clientServerOptions.replace("--", "") + \
 	              ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0' + '"'

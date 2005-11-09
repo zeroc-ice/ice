@@ -37,9 +37,7 @@ iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir, 0)
 iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 
 node1Dir = os.path.join(testdir, "db", "node-1")
-if not os.path.exists(node1Dir):
-    os.mkdir(node1Dir)
-IceGridAdmin.cleanServerDir(node1Dir);
+os.mkdir(node1Dir)
     
 print "starting client...",
 clientPipe = os.popen(client + TestUtil.clientServerOptions + additionalOptions + " 2>&1")

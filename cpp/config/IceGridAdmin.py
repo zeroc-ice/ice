@@ -221,29 +221,24 @@ def listAdapters():
 
 def cleanDbDir(path):
     
-    try:
-        cleanServerDir(os.path.join(path, "node", "servers"))
-    except:
-        pass
+    files = os.listdir(path)
+    for filename in files:
+        if filename != "CVS" and filename != ".dummy":
+            fullpath = os.path.join(path, filename);
+            if os.path.isdir(fullpath):
+                cleanDir(fullpath)
+                os.rmdir(fullpath)
+            else:
+                os.remove(fullpath)
 
-    try:
-        TestUtil.cleanDbDir(os.path.join(path, "node", "db"))
-    except:
-        pass
-
-    try:
-        TestUtil.cleanDbDir(os.path.join(path, "registry"))
-    except:
-        pass
-
-def cleanServerDir(path):
+def cleanDir(path):
 
     files = os.listdir(path)
 
     for filename in files:
         fullpath = os.path.join(path, filename);
         if os.path.isdir(fullpath):
-            cleanServerDir(fullpath)
+            cleanDir(fullpath)
             os.rmdir(fullpath)
         else:
             os.remove(fullpath)
