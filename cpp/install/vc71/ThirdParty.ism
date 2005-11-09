@@ -402,6 +402,20 @@
 		<row><td>AdminWelcome</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_NEXT##</td><td>Cancel</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>AdminWelcome</td><td>TextLine1</td><td>Text</td><td>135</td><td>8</td><td>225</td><td>45</td><td>65539</td><td/><td>##IDS__IsAdminInstallPointWelcome_Wizard##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>AdminWelcome</td><td>TextLine2</td><td>Text</td><td>136</td><td>54</td><td>228</td><td>45</td><td>65539</td><td/><td>##IDS__IsAdminInstallPointWelcome_ServerImage##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>Bzip2License</td><td>Back</td><td>PushButton</td><td>164</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING15##</td><td>Next</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>Bzip2License</td><td>BannerLine</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>Bzip2License</td><td>Bitmap1</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>262145</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td>NewBinary20</td></row>
+		<row><td>Bzip2License</td><td>Branding1</td><td>Text</td><td>4</td><td>229</td><td>50</td><td>13</td><td>3</td><td/><td>##ID_STRING20##</td><td/><td/><td/><td/><td/><td/></row>
+		<row><td>Bzip2License</td><td>Branding2</td><td>Text</td><td>3</td><td>228</td><td>50</td><td>13</td><td>65537</td><td/><td>##ID_STRING21##</td><td/><td/><td/><td/><td/><td/></row>
+		<row><td>Bzip2License</td><td>Cancel</td><td>PushButton</td><td>301</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING16##</td><td>Back</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>Bzip2License</td><td>DlgLine</td><td>Line</td><td>48</td><td>234</td><td>326</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>Bzip2License</td><td>Line1</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>Bzip2License</td><td>Line2</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>Bzip2License</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING14##</td><td>RadioButtonGroup1</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>Bzip2License</td><td>RadioButtonGroup1</td><td>RadioButtonGroup</td><td>9</td><td>190</td><td>330</td><td>40</td><td>3</td><td>AgreeToLicense11</td><td/><td>Cancel</td><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>Bzip2License</td><td>ScrollableText1</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td>0</td><td>&lt;ISProjectFolder&gt;\install\packages-common\BZIP2_LICENSE.rtf</td><td/></row>
+		<row><td>Bzip2License</td><td>Text1</td><td>Text</td><td>21</td><td>23</td><td>292</td><td>25</td><td>65539</td><td>NewProperty11</td><td>##NEW_STRING5##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>Bzip2License</td><td>Text2</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td>NewProperty21</td><td>##NEW_STRING6##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
 		<row><td>CancelSetup</td><td>Icon</td><td>Icon</td><td>15</td><td>15</td><td>24</td><td>24</td><td>5242881</td><td/><td/><td/><td/><td>0</td><td/><td/><td>NewBinary4</td></row>
 		<row><td>CancelSetup</td><td>No</td><td>PushButton</td><td>135</td><td>57</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS__IsCancelDlg_No##</td><td>Yes</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>CancelSetup</td><td>Text</td><td>Text</td><td>48</td><td>15</td><td>194</td><td>30</td><td>3</td><td/><td>##IDS__IsCancelDlg_ConfirmCancel##</td><td/><td/><td>0</td><td/><td/><td/></row>
@@ -503,6 +517,21 @@
 		<row><td>DiskSpaceRequirements</td><td>DlgTitle</td><td>Text</td><td>9</td><td>6</td><td>292</td><td>25</td><td>65539</td><td/><td>##IDS__IsFeatureDetailsDlg_DiskSpaceRequirements##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>DiskSpaceRequirements</td><td>List</td><td>VolumeCostList</td><td>8</td><td>55</td><td>358</td><td>125</td><td>393223</td><td/><td>##IDS__IsFeatureDetailsDlg_Numbers##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>DiskSpaceRequirements</td><td>OK</td><td>PushButton</td><td>301</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS__IsFeatureDetailsDlg_OK##</td><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>ExpatLicense</td><td>Back</td><td>PushButton</td><td>164</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING23##</td><td>Next</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>ExpatLicense</td><td>BannerLine</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>ExpatLicense</td><td>Bitmap1</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>262145</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td>NewBinary20</td></row>
+		<row><td>ExpatLicense</td><td>Branding1</td><td>Text</td><td>4</td><td>229</td><td>50</td><td>13</td><td>3</td><td/><td>##ID_STRING28##</td><td/><td/><td/><td/><td/><td/></row>
+		<row><td>ExpatLicense</td><td>Branding2</td><td>Text</td><td>3</td><td>228</td><td>50</td><td>13</td><td>65537</td><td/><td>##ID_STRING29##</td><td/><td/><td/><td/><td/><td/></row>
+		<row><td>ExpatLicense</td><td>Cancel</td><td>PushButton</td><td>301</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING24##</td><td>Back</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>ExpatLicense</td><td>DlgLine</td><td>Line</td><td>48</td><td>234</td><td>326</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>ExpatLicense</td><td>Line1</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>ExpatLicense</td><td>Line2</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>ExpatLicense</td><td>Line3</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>ExpatLicense</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING22##</td><td>RadioButtonGroup1</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>ExpatLicense</td><td>RadioButtonGroup1</td><td>RadioButtonGroup</td><td>9</td><td>190</td><td>330</td><td>40</td><td>3</td><td>AgreeToLicense111</td><td/><td>Cancel</td><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>ExpatLicense</td><td>ScrollableText1</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td>0</td><td>&lt;ISProjectFolder&gt;\install\packages-common\EXPAT_LICENSE.rtf</td><td/></row>
+		<row><td>ExpatLicense</td><td>Text1</td><td>Text</td><td>21</td><td>23</td><td>292</td><td>25</td><td>65539</td><td>NewProperty111</td><td>##NEW_STRING9##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>ExpatLicense</td><td>Text2</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td>NewProperty211</td><td>##NEW_STRING10##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
 		<row><td>FilesInUse</td><td>Banner</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td>NewBinary20</td></row>
 		<row><td>FilesInUse</td><td>BannerLine</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>FilesInUse</td><td>Branding1</td><td>Text</td><td>4</td><td>229</td><td>50</td><td>13</td><td>3</td><td/><td>##IDS_INSTALLSHIELD_FORMATTED##</td><td/><td/><td>0</td><td/><td/><td/></row>
@@ -539,7 +568,39 @@
 		<row><td>InstallWelcome</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_NEXT##</td><td>Cancel</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>InstallWelcome</td><td>TextLine1</td><td>Text</td><td>135</td><td>8</td><td>225</td><td>45</td><td>65539</td><td/><td>##IDS__IsWelcomeDlg_WelcomeProductName##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>InstallWelcome</td><td>TextLine2</td><td>Text</td><td>135</td><td>55</td><td>228</td><td>45</td><td>65539</td><td/><td>##IDS__IsWelcomeDlg_InstallProductName##</td><td/><td/><td>0</td><td/><td/><td/></row>
-		<row><td>LicenseAgreement</td><td>Agree</td><td>RadioButtonGroup</td><td>8</td><td>190</td><td>330</td><td>40</td><td>3</td><td>AgreeToLicense</td><td/><td>Back</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>Back</td><td>PushButton</td><td>164</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING31##</td><td>Next</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>BannerLine</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>Bitmap1</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>262145</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td>NewBinary20</td></row>
+		<row><td>JGoodiesFormsLicense</td><td>Branding1</td><td>Text</td><td>4</td><td>229</td><td>50</td><td>13</td><td>3</td><td/><td>##ID_STRING36##</td><td/><td/><td/><td/><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>Branding2</td><td>Text</td><td>3</td><td>228</td><td>50</td><td>13</td><td>65537</td><td/><td>##ID_STRING37##</td><td/><td/><td/><td/><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>Cancel</td><td>PushButton</td><td>301</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING32##</td><td>Back</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>DlgLine</td><td>Line</td><td>48</td><td>234</td><td>326</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>Line1</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>Line2</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>Line3</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>Line4</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING30##</td><td>RadioButtonGroup1</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>RadioButtonGroup1</td><td>RadioButtonGroup</td><td>9</td><td>187</td><td>330</td><td>40</td><td>3</td><td>AgreeToLicense1111</td><td>##NEW_STRING15##</td><td>Cancel</td><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>ScrollableText1</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td>0</td><td>&lt;ISProjectFolder&gt;\install\packages-common\JGOODIES_FORMS_LICENSE.rtf</td><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>Text1</td><td>Text</td><td>21</td><td>23</td><td>292</td><td>25</td><td>65539</td><td>NewProperty1111</td><td>##NEW_STRING13##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>Text2</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td>NewProperty2111</td><td>##NEW_STRING14##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>Back</td><td>PushButton</td><td>164</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING39##</td><td>Next</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>BannerLine</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>Bitmap1</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>262145</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td>NewBinary20</td></row>
+		<row><td>JGoodiesLooksLicense</td><td>Branding1</td><td>Text</td><td>4</td><td>229</td><td>50</td><td>13</td><td>3</td><td/><td>##ID_STRING44##</td><td/><td/><td/><td/><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>Branding2</td><td>Text</td><td>3</td><td>228</td><td>50</td><td>13</td><td>65537</td><td/><td>##ID_STRING45##</td><td/><td/><td/><td/><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>Cancel</td><td>PushButton</td><td>301</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING40##</td><td>Back</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>DlgLine</td><td>Line</td><td>48</td><td>234</td><td>326</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>Line1</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>Line2</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>Line3</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>Line4</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING38##</td><td>RadioButtonGroup1</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>RadioButtonGroup1</td><td>RadioButtonGroup</td><td>9</td><td>189</td><td>330</td><td>40</td><td>3</td><td>AgreeToLicense1112</td><td>##NEW_STRING20##</td><td>Cancel</td><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>ScrollableText1</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td>0</td><td>&lt;ISProjectFolder&gt;\install\packages-common\JGOODIES_LOOKS_LICENSE.rtf</td><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>Text1</td><td>Text</td><td>21</td><td>23</td><td>292</td><td>25</td><td>65539</td><td>NewProperty1112</td><td>##NEW_STRING18##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>Text2</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td>NewProperty2112</td><td>##NEW_STRING19##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>LicenseAgreement</td><td>Agree</td><td>RadioButtonGroup</td><td>9</td><td>190</td><td>330</td><td>40</td><td>3</td><td>AgreeToLicense</td><td/><td>Back</td><td/><td>0</td><td>0</td><td/><td/></row>
 		<row><td>LicenseAgreement</td><td>Back</td><td>PushButton</td><td>164</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_BACK##</td><td>Next</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>LicenseAgreement</td><td>Banner</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td>NewBinary20</td></row>
 		<row><td>LicenseAgreement</td><td>BannerLine</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
@@ -549,7 +610,7 @@
 		<row><td>LicenseAgreement</td><td>DlgDesc</td><td>Text</td><td>21</td><td>23</td><td>292</td><td>25</td><td>65539</td><td/><td>##IDS__IsLicenseDlg_ReadLicenseAgreement##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>LicenseAgreement</td><td>DlgLine</td><td>Line</td><td>48</td><td>234</td><td>326</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>LicenseAgreement</td><td>DlgTitle</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td/><td>##IDS__IsLicenseDlg_LicenseAgreement##</td><td/><td/><td>0</td><td/><td/><td/></row>
-		<row><td>LicenseAgreement</td><td>Memo</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td/><td>&lt;ISProjectFolder&gt;\install\packages-common\LICENSE.rtf</td><td/></row>
+		<row><td>LicenseAgreement</td><td>Memo</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td>0</td><td>&lt;ISProjectFolder&gt;\install\packages-common\BERKELEY_DB_LICENSE.rtf</td><td/></row>
 		<row><td>LicenseAgreement</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_NEXT##</td><td>Cancel</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>MaintenanceType</td><td>Back</td><td>PushButton</td><td>164</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_BACK##</td><td>Next</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>MaintenanceType</td><td>Banner</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td>NewBinary20</td></row>
@@ -575,6 +636,19 @@
 		<row><td>MaintenanceWelcome</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_NEXT##</td><td>Cancel</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>MaintenanceWelcome</td><td>TextLine1</td><td>Text</td><td>135</td><td>8</td><td>225</td><td>45</td><td>65539</td><td/><td>##IDS__IsMaintenanceWelcome_WizardWelcome##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>MaintenanceWelcome</td><td>TextLine2</td><td>Text</td><td>135</td><td>55</td><td>228</td><td>50</td><td>65539</td><td/><td>##IDS__IsMaintenanceWelcome_MaintenanceOptionsDescription##</td><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>OpenSSLLicense</td><td>Back</td><td>PushButton</td><td>164</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING7##</td><td>Next</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>OpenSSLLicense</td><td>BannerLine</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>OpenSSLLicense</td><td>Bitmap1</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>262145</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td>NewBinary20</td></row>
+		<row><td>OpenSSLLicense</td><td>Branding1</td><td>Text</td><td>4</td><td>229</td><td>50</td><td>13</td><td>3</td><td/><td>##ID_STRING12##</td><td/><td/><td/><td/><td/><td/></row>
+		<row><td>OpenSSLLicense</td><td>Branding2</td><td>Text</td><td>3</td><td>228</td><td>50</td><td>13</td><td>65537</td><td/><td>##ID_STRING13##</td><td/><td/><td/><td/><td/><td/></row>
+		<row><td>OpenSSLLicense</td><td>Cancel</td><td>PushButton</td><td>301</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING8##</td><td>RadioButtonGroup1</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>OpenSSLLicense</td><td>DlgLine</td><td>Line</td><td>48</td><td>234</td><td>326</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
+		<row><td>OpenSSLLicense</td><td>Line1</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>OpenSSLLicense</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING6##</td><td>Cancel</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>OpenSSLLicense</td><td>RadioButtonGroup1</td><td>RadioButtonGroup</td><td>9</td><td>190</td><td>330</td><td>40</td><td>3</td><td>AgreeToLicense1</td><td/><td>Back</td><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>OpenSSLLicense</td><td>ScrollableText1</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td>0</td><td>&lt;ISProjectFolder&gt;\install\packages-common\OPENSSL_LICENSE.rtf</td><td/></row>
+		<row><td>OpenSSLLicense</td><td>Text1</td><td>Text</td><td>21</td><td>23</td><td>292</td><td>25</td><td>65539</td><td>NewProperty1</td><td>##NEW_STRING1##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>OpenSSLLicense</td><td>Text2</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td>NewProperty2</td><td>##NEW_STRING2##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
 		<row><td>OutOfSpace</td><td>Banner</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td>NewBinary20</td></row>
 		<row><td>OutOfSpace</td><td>BannerLine</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>OutOfSpace</td><td>Branding1</td><td>Text</td><td>4</td><td>229</td><td>50</td><td>13</td><td>3</td><td/><td>##IDS_INSTALLSHIELD_FORMATTED##</td><td/><td/><td>0</td><td/><td/><td/></row>
@@ -735,6 +809,8 @@
 		<col key="yes" def="s50">Control_</col>
 		<col key="yes" def="s50">Action</col>
 		<col key="yes" def="s255">Condition</col>
+		<row><td>Bzip2License</td><td>Next</td><td>Disable</td><td>AgreeToLicense11 &lt;&gt; "Yes"</td></row>
+		<row><td>Bzip2License</td><td>Next</td><td>Enable</td><td>AgreeToLicense11 = "Yes"</td></row>
 		<row><td>CustomSetup</td><td>ChangeFolder</td><td>Hide</td><td>Installed</td></row>
 		<row><td>CustomSetup</td><td>Details</td><td>Hide</td><td>Installed</td></row>
 		<row><td>CustomSetup</td><td>InstallLabel</td><td>Hide</td><td>Installed</td></row>
@@ -746,10 +822,18 @@
 		<row><td>CustomerInformation</td><td>RadioGroup</td><td>Hide</td><td>Version9X</td></row>
 		<row><td>CustomerInformation</td><td>SerialLabel</td><td>Show</td><td>SERIALNUMSHOW</td></row>
 		<row><td>CustomerInformation</td><td>SerialNumber</td><td>Show</td><td>SERIALNUMSHOW</td></row>
+		<row><td>ExpatLicense</td><td>Next</td><td>Disable</td><td>AgreeToLicense111 &lt;&gt; "Yes"</td></row>
+		<row><td>ExpatLicense</td><td>Next</td><td>Enable</td><td>AgreeToLicense111 = "Yes"</td></row>
 		<row><td>InstallWelcome</td><td>Copyright</td><td>Hide</td><td>SHOWCOPYRIGHT="No"</td></row>
 		<row><td>InstallWelcome</td><td>Copyright</td><td>Show</td><td>SHOWCOPYRIGHT="Yes"</td></row>
+		<row><td>JGoodiesFormsLicense</td><td>Next</td><td>Disable</td><td>AgreeToLicense1111 &lt;&gt; "Yes"</td></row>
+		<row><td>JGoodiesFormsLicense</td><td>Next</td><td>Enable</td><td>AgreeToLicense1111 = "Yes"</td></row>
+		<row><td>JGoodiesLooksLicense</td><td>Next</td><td>Disable</td><td>AgreeToLicense1112 &lt;&gt; "Yes"</td></row>
+		<row><td>JGoodiesLooksLicense</td><td>Next</td><td>Enable</td><td>AgreeToLicense1112 = "Yes"</td></row>
 		<row><td>LicenseAgreement</td><td>Next</td><td>Disable</td><td>AgreeToLicense &lt;&gt; "Yes"</td></row>
 		<row><td>LicenseAgreement</td><td>Next</td><td>Enable</td><td>AgreeToLicense = "Yes"</td></row>
+		<row><td>OpenSSLLicense</td><td>Next</td><td>Disable</td><td>AgreeToLicense1 &lt;&gt; "Yes"</td></row>
+		<row><td>OpenSSLLicense</td><td>Next</td><td>Enable</td><td>AgreeToLicense1 = "Yes"</td></row>
 		<row><td>ReadyToInstall</td><td>DlgTitle</td><td>Show</td><td>ProgressType0="Modify"</td></row>
 		<row><td>ReadyToInstall</td><td>DlgTitle2</td><td>Show</td><td>ProgressType0="Repair"</td></row>
 		<row><td>ReadyToInstall</td><td>DlgTitle3</td><td>Show</td><td>ProgressType0="install"</td></row>
@@ -825,6 +909,9 @@
 		<row><td>AdminNetworkLocation</td><td>InstallNow</td><td>SetTargetPath</td><td>TARGETDIR</td><td>1</td><td>1</td></row>
 		<row><td>AdminWelcome</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
 		<row><td>AdminWelcome</td><td>Next</td><td>NewDialog</td><td>AdminNetworkLocation</td><td>1</td><td>0</td></row>
+		<row><td>Bzip2License</td><td>Back</td><td>NewDialog</td><td>LicenseAgreement</td><td>1</td><td>1</td></row>
+		<row><td>Bzip2License</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>1</td></row>
+		<row><td>Bzip2License</td><td>Next</td><td>NewDialog</td><td>ExpatLicense</td><td>AgreeToLicense11 = "Yes"</td><td>1</td></row>
 		<row><td>CancelSetup</td><td>No</td><td>EndDialog</td><td>Return</td><td>1</td><td>0</td></row>
 		<row><td>CancelSetup</td><td>Yes</td><td>EndDialog</td><td>Exit</td><td>1</td><td>2</td></row>
 		<row><td>CustomSetup</td><td>Back</td><td>NewDialog</td><td>DestinationFolder</td><td>Installed</td><td>0</td></row>
@@ -854,6 +941,9 @@
 		<row><td>DestinationFolder</td><td>ChangeFolder</td><td>[_BrowseProperty]</td><td>INSTALLDIR</td><td>1</td><td>2</td></row>
 		<row><td>DestinationFolder</td><td>Next</td><td>NewDialog</td><td>ReadyToInstall</td><td>1</td><td>0</td></row>
 		<row><td>DiskSpaceRequirements</td><td>OK</td><td>EndDialog</td><td>Return</td><td>1</td><td>0</td></row>
+		<row><td>ExpatLicense</td><td>Back</td><td>NewDialog</td><td>Bzip2License</td><td>1</td><td>1</td></row>
+		<row><td>ExpatLicense</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>1</td></row>
+		<row><td>ExpatLicense</td><td>Next</td><td>NewDialog</td><td>OpenSSLLicense</td><td>AgreeToLicense111 = "Yes"</td><td>1</td></row>
 		<row><td>FilesInUse</td><td>Exit</td><td>EndDialog</td><td>Exit</td><td>1</td><td>0</td></row>
 		<row><td>FilesInUse</td><td>Ignore</td><td>EndDialog</td><td>Ignore</td><td>1</td><td>0</td></row>
 		<row><td>FilesInUse</td><td>Retry</td><td>EndDialog</td><td>Retry</td><td>1</td><td>0</td></row>
@@ -866,9 +956,15 @@
 		<row><td>InstallWelcome</td><td>Back</td><td>NewDialog</td><td>SplashBitmap</td><td>Display_IsBitmapDlg</td><td>0</td></row>
 		<row><td>InstallWelcome</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
 		<row><td>InstallWelcome</td><td>Next</td><td>NewDialog</td><td>LicenseAgreement</td><td>1</td><td>0</td></row>
-		<row><td>LicenseAgreement</td><td>Back</td><td>NewDialog</td><td>InstallWelcome</td><td>1</td><td>0</td></row>
+		<row><td>JGoodiesFormsLicense</td><td>Back</td><td>NewDialog</td><td>OpenSSLLicense</td><td>1</td><td>1</td></row>
+		<row><td>JGoodiesFormsLicense</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>1</td></row>
+		<row><td>JGoodiesFormsLicense</td><td>Next</td><td>NewDialog</td><td>JGoodiesLooksLicense</td><td>AgreeToLicense1111 = "Yes"</td><td>1</td></row>
+		<row><td>JGoodiesLooksLicense</td><td>Back</td><td>NewDialog</td><td>JGoodiesFormsLicense</td><td>1</td><td>1</td></row>
+		<row><td>JGoodiesLooksLicense</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>1</td></row>
+		<row><td>JGoodiesLooksLicense</td><td>Next</td><td>NewDialog</td><td>DestinationFolder</td><td>AgreeToLicense1112 = "Yes"</td><td>1</td></row>
+		<row><td>LicenseAgreement</td><td>Back</td><td>NewDialog</td><td>InstallWelcome</td><td>1</td><td>1</td></row>
 		<row><td>LicenseAgreement</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
-		<row><td>LicenseAgreement</td><td>Next</td><td>NewDialog</td><td>DestinationFolder</td><td>AgreeToLicense = "Yes"</td><td>0</td></row>
+		<row><td>LicenseAgreement</td><td>Next</td><td>NewDialog</td><td>Bzip2License</td><td>AgreeToLicense = "Yes"</td><td>1</td></row>
 		<row><td>MaintenanceType</td><td>Back</td><td>NewDialog</td><td>MaintenanceWelcome</td><td>1</td><td>0</td></row>
 		<row><td>MaintenanceType</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
 		<row><td>MaintenanceType</td><td>Next</td><td>NewDialog</td><td>CustomSetup</td><td>_IsMaintenance = "Change"</td><td>12</td></row>
@@ -886,6 +982,9 @@
 		<row><td>MaintenanceType</td><td>Next</td><td>[ProgressType3]</td><td>repairs</td><td>_IsMaintenance = "Reinstall"</td><td>8</td></row>
 		<row><td>MaintenanceWelcome</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
 		<row><td>MaintenanceWelcome</td><td>Next</td><td>NewDialog</td><td>MaintenanceType</td><td>1</td><td>0</td></row>
+		<row><td>OpenSSLLicense</td><td>Back</td><td>NewDialog</td><td>ExpatLicense</td><td>1</td><td>1</td></row>
+		<row><td>OpenSSLLicense</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>1</td></row>
+		<row><td>OpenSSLLicense</td><td>Next</td><td>NewDialog</td><td>JGoodiesFormsLicense</td><td>AgreeToLicense1 = "Yes"</td><td>1</td></row>
 		<row><td>OutOfSpace</td><td>Resume</td><td>NewDialog</td><td>AdminNetworkLocation</td><td>ACTION = "ADMIN"</td><td>0</td></row>
 		<row><td>OutOfSpace</td><td>Resume</td><td>NewDialog</td><td>CustomSetup</td><td>ACTION &lt;&gt; "ADMIN"</td><td>0</td></row>
 		<row><td>PatchWelcome</td><td>Back</td><td>NewDialog</td><td>SplashBitmap</td><td>Display_IsBitmapDlg</td><td>0</td></row>
@@ -986,6 +1085,7 @@
 		<row><td>AdminChangeFolder</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>Tail</td><td>OK</td><td>Cancel</td><td>Install Point Browse</td><td/><td>0</td><td/></row>
 		<row><td>AdminNetworkLocation</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>InstallNow</td><td>InstallNow</td><td>Cancel</td><td>Network Location</td><td/><td>0</td><td/></row>
 		<row><td>AdminWelcome</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>Next</td><td>Next</td><td>Cancel</td><td>Administration Welcome</td><td/><td>0</td><td/></row>
+		<row><td>Bzip2License</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##ID_STRING19##</td><td>RadioButtonGroup1</td><td>Next</td><td>Cancel</td><td>Interior</td><td/><td>0</td><td/></row>
 		<row><td>CancelSetup</td><td>50</td><td>50</td><td>260</td><td>85</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>No</td><td>No</td><td>No</td><td>Cancel</td><td/><td>0</td><td/></row>
 		<row><td>CustomSetup</td><td>50</td><td>50</td><td>374</td><td>266</td><td>35</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>Tree</td><td>Next</td><td>Cancel</td><td>Custom Selection</td><td/><td>0</td><td/></row>
 		<row><td>CustomSetupTips</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>OK</td><td>OK</td><td>OK</td><td>Custom Setup Tips</td><td/><td>0</td><td/></row>
@@ -993,12 +1093,16 @@
 		<row><td>DatabaseFolder</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>Next</td><td>Next</td><td>Cancel</td><td>Database Folder</td><td/><td>0</td><td/></row>
 		<row><td>DestinationFolder</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>Next</td><td>Next</td><td>Cancel</td><td>Destination Folder</td><td/><td>0</td><td/></row>
 		<row><td>DiskSpaceRequirements</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>OK</td><td>OK</td><td>OK</td><td>Feature Details</td><td/><td>0</td><td/></row>
+		<row><td>ExpatLicense</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##ID_STRING27##</td><td>RadioButtonGroup1</td><td>Next</td><td>Cancel</td><td>Interior</td><td/><td>0</td><td/></row>
 		<row><td>FilesInUse</td><td>50</td><td>50</td><td>374</td><td>266</td><td>19</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>Retry</td><td>Retry</td><td>Exit</td><td>Files in Use</td><td/><td>0</td><td/></row>
 		<row><td>InstallChangeFolder</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>Tail</td><td>OK</td><td>Cancel</td><td>Browse</td><td/><td>0</td><td/></row>
 		<row><td>InstallWelcome</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>Next</td><td>Next</td><td>Cancel</td><td>Welcome Panel</td><td/><td>0</td><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##ID_STRING35##</td><td>RadioButtonGroup1</td><td>Next</td><td>Cancel</td><td>Interior</td><td/><td>0</td><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##ID_STRING43##</td><td>RadioButtonGroup1</td><td>Next</td><td>Cancel</td><td>Interior</td><td/><td>0</td><td/></row>
 		<row><td>LicenseAgreement</td><td>50</td><td>50</td><td>374</td><td>266</td><td>2</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>Agree</td><td>Next</td><td>Cancel</td><td>License Agreement</td><td/><td>0</td><td/></row>
 		<row><td>MaintenanceType</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>RadioGroup</td><td>Next</td><td>Cancel</td><td>Change, Reinstall, Remove</td><td/><td>0</td><td/></row>
 		<row><td>MaintenanceWelcome</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>Next</td><td>Next</td><td>Cancel</td><td>Maintenance Welcome</td><td/><td>0</td><td/></row>
+		<row><td>OpenSSLLicense</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##ID_STRING11##</td><td>RadioButtonGroup1</td><td>Next</td><td>Cancel</td><td>Interior</td><td/><td>0</td><td/></row>
 		<row><td>OutOfSpace</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>Resume</td><td>Resume</td><td>Resume</td><td>Out Of Disk Space</td><td/><td>0</td><td/></row>
 		<row><td>PatchWelcome</td><td>50</td><td>50</td><td>374</td><td>266</td><td>3</td><td>##IDS__IsPatchDlg_PatchWizard##</td><td>Next</td><td>Next</td><td>Cancel</td><td>Patch Panel</td><td/><td>0</td><td/></row>
 		<row><td>ReadyToInstall</td><td>50</td><td>50</td><td>374</td><td>266</td><td>35</td><td>##IDS_PRODUCTNAME_INSTALLSHIELD##</td><td>InstallNow</td><td>InstallNow</td><td>Cancel</td><td>Ready to Install</td><td/><td>0</td><td/></row>
@@ -2323,11 +2427,61 @@
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.0.0 Third Party Packages</td><td>0</td><td/><td>890854351</td></row>
+		<row><td>ID_STRING11</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033470955</td></row>
+		<row><td>ID_STRING12</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
+		<row><td>ID_STRING13</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
+		<row><td>ID_STRING14</td><td>1033</td><td>&amp;Next &gt;</td><td>0</td><td/><td>1033471019</td></row>
+		<row><td>ID_STRING15</td><td>1033</td><td>&lt; &amp;Back</td><td>0</td><td/><td>1033471019</td></row>
+		<row><td>ID_STRING16</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>1033471019</td></row>
+		<row><td>ID_STRING19</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033471019</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-1860585904</td></row>
+		<row><td>ID_STRING20</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033471019</td></row>
+		<row><td>ID_STRING21</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033471019</td></row>
+		<row><td>ID_STRING22</td><td>1033</td><td>&amp;Next &gt;</td><td>0</td><td/><td>1033481291</td></row>
+		<row><td>ID_STRING23</td><td>1033</td><td>&lt; &amp;Back</td><td>0</td><td/><td>1033481291</td></row>
+		<row><td>ID_STRING24</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>1033481291</td></row>
+		<row><td>ID_STRING27</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033481291</td></row>
+		<row><td>ID_STRING28</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033481291</td></row>
+		<row><td>ID_STRING29</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033481291</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>http://www.zeroc.com</td><td>0</td><td/><td>-1860628848</td></row>
+		<row><td>ID_STRING30</td><td>1033</td><td>&amp;Next &gt;</td><td>0</td><td/><td>1033487467</td></row>
+		<row><td>ID_STRING31</td><td>1033</td><td>&lt; &amp;Back</td><td>0</td><td/><td>1033487467</td></row>
+		<row><td>ID_STRING32</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>1033487467</td></row>
+		<row><td>ID_STRING35</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033487467</td></row>
+		<row><td>ID_STRING36</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033487467</td></row>
+		<row><td>ID_STRING37</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033487467</td></row>
+		<row><td>ID_STRING38</td><td>1033</td><td>&amp;Next &gt;</td><td>0</td><td/><td>1033477259</td></row>
+		<row><td>ID_STRING39</td><td>1033</td><td>&lt; &amp;Back</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>Ice 3.0.0 Third Party Packages for Visual Studio .NET 2003</td><td>0</td><td/><td>890864591</td></row>
+		<row><td>ID_STRING40</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>1033477259</td></row>
+		<row><td>ID_STRING43</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033477259</td></row>
+		<row><td>ID_STRING44</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033477259</td></row>
+		<row><td>ID_STRING45</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>Third Party tools, files and libraries for compiling the Internet Communications Engine (Ice).</td><td>0</td><td/><td>1234769780</td></row>
+		<row><td>ID_STRING6</td><td>1033</td><td>&amp;Next &gt;</td><td>0</td><td/><td>1033470955</td></row>
+		<row><td>ID_STRING7</td><td>1033</td><td>&lt; &amp;Back</td><td>0</td><td/><td>1033470955</td></row>
+		<row><td>ID_STRING8</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>479664453</td></row>
+		<row><td>NEW_STRING1</td><td>1033</td><td>Please read the following license agreement carefully.</td><td>0</td><td/><td>1033487371</td></row>
+		<row><td>NEW_STRING10</td><td>1033</td><td>{&amp;MSSansBold8}License Agreement</td><td>0</td><td/><td>1033456747</td></row>
+		<row><td>NEW_STRING11</td><td>1033</td><td>I &amp;do not accept the terms in the license agreement</td><td>0</td><td/><td>1033456747</td></row>
+		<row><td>NEW_STRING12</td><td>1033</td><td>I &amp;accept the terms in the license agreement</td><td>0</td><td/><td>1033456747</td></row>
+		<row><td>NEW_STRING13</td><td>1033</td><td>Please read the following license agreement carefully.</td><td>0</td><td/><td>1033450635</td></row>
+		<row><td>NEW_STRING14</td><td>1033</td><td>{&amp;MSSansBold8}License Agreement</td><td>0</td><td/><td>1033450635</td></row>
+		<row><td>NEW_STRING16</td><td>1033</td><td>I &amp;do not accept the terms in the license agreement</td><td>0</td><td/><td>1033450635</td></row>
+		<row><td>NEW_STRING17</td><td>1033</td><td>I &amp;accept the terms in the license agreement</td><td>0</td><td/><td>1033450635</td></row>
+		<row><td>NEW_STRING18</td><td>1033</td><td>Please read the following license agreement carefully.</td><td>0</td><td/><td>1033497739</td></row>
+		<row><td>NEW_STRING19</td><td>1033</td><td>{&amp;MSSansBold8}License Agreement</td><td>0</td><td/><td>1033497739</td></row>
+		<row><td>NEW_STRING2</td><td>1033</td><td>{&amp;MSSansBold8}License Agreement</td><td>0</td><td/><td>1033487371</td></row>
+		<row><td>NEW_STRING21</td><td>1033</td><td>I &amp;do not accept the terms in the license agreement</td><td>0</td><td/><td>1033497739</td></row>
+		<row><td>NEW_STRING22</td><td>1033</td><td>I &amp;accept the terms in the license agreement</td><td>0</td><td/><td>1033497739</td></row>
+		<row><td>NEW_STRING3</td><td>1033</td><td>I &amp;do not accept the terms in the license agreement</td><td>0</td><td/><td>1033487371</td></row>
+		<row><td>NEW_STRING4</td><td>1033</td><td>I &amp;accept the terms in the license agreement</td><td>0</td><td/><td>1033487371</td></row>
+		<row><td>NEW_STRING5</td><td>1033</td><td>Please read the following license agreement carefully.</td><td>0</td><td/><td>1033448523</td></row>
+		<row><td>NEW_STRING6</td><td>1033</td><td>{&amp;MSSansBold8}License Agreement</td><td>0</td><td/><td>1033448523</td></row>
+		<row><td>NEW_STRING7</td><td>1033</td><td>I &amp;do not accept the terms in the license agreement</td><td>0</td><td/><td>1033448523</td></row>
+		<row><td>NEW_STRING8</td><td>1033</td><td>I &amp;accept the terms in the license agreement</td><td>0</td><td/><td>1033448523</td></row>
+		<row><td>NEW_STRING9</td><td>1033</td><td>Please read the following license agreement carefully.</td><td>0</td><td/><td>1033456747</td></row>
 	</table>
 
 	<table name="ISTargetImage">
@@ -2705,6 +2859,11 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ARPPRODUCTICON</td><td>ARPPRODUCTICON.exe</td><td/></row>
 		<row><td>ARPURLINFOABOUT</td><td>##ID_STRING3##</td><td/></row>
 		<row><td>AgreeToLicense</td><td>No</td><td/></row>
+		<row><td>AgreeToLicense1</td><td>No</td><td/></row>
+		<row><td>AgreeToLicense11</td><td>No</td><td/></row>
+		<row><td>AgreeToLicense111</td><td>No</td><td/></row>
+		<row><td>AgreeToLicense1111</td><td>No</td><td/></row>
+		<row><td>AgreeToLicense1112</td><td>No</td><td/></row>
 		<row><td>ApplicationUsers</td><td>AllUsers</td><td/></row>
 		<row><td>DWUSINTERVAL</td><td>30</td><td/></row>
 		<row><td>DefaultUIFont</td><td>Tahoma8</td><td/></row>
@@ -2723,6 +2882,16 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ISVROOT_PORT_NO</td><td>0</td><td/></row>
 		<row><td>InstallChoice</td><td>AR</td><td/></row>
 		<row><td>Manufacturer</td><td>##COMPANY_NAME##</td><td/></row>
+		<row><td>NewProperty1</td><td>0</td><td/></row>
+		<row><td>NewProperty11</td><td>0</td><td/></row>
+		<row><td>NewProperty111</td><td>0</td><td/></row>
+		<row><td>NewProperty1111</td><td>0</td><td/></row>
+		<row><td>NewProperty1112</td><td>0</td><td/></row>
+		<row><td>NewProperty2</td><td>0</td><td/></row>
+		<row><td>NewProperty21</td><td>0</td><td/></row>
+		<row><td>NewProperty211</td><td>0</td><td/></row>
+		<row><td>NewProperty2111</td><td>0</td><td/></row>
+		<row><td>NewProperty2112</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
 		<row><td>ProductCode</td><td>{0106D699-7D86-4CB5-B185-6DF557502853}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
@@ -2761,8 +2930,18 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<col def="L64">Text</col>
 		<col def="L50">Help</col>
 		<col def="I4">ISControlId</col>
-		<row><td>AgreeToLicense</td><td>1</td><td>No</td><td>0</td><td>15</td><td>295</td><td>15</td><td>##IDS__AgreeToLicense_0##</td><td/><td/></row>
-		<row><td>AgreeToLicense</td><td>2</td><td>Yes</td><td>0</td><td>0</td><td>295</td><td>15</td><td>##IDS__AgreeToLicense_1##</td><td/><td/></row>
+		<row><td>AgreeToLicense</td><td>1</td><td>No</td><td>0</td><td>15</td><td>295</td><td>15</td><td>##IDS__AgreeToLicense_0##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense</td><td>2</td><td>Yes</td><td>0</td><td>0</td><td>295</td><td>15</td><td>##IDS__AgreeToLicense_1##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense1</td><td>1</td><td>No</td><td>0</td><td>15</td><td>295</td><td>15</td><td>##NEW_STRING3##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense1</td><td>2</td><td>Yes</td><td>0</td><td>0</td><td>295</td><td>15</td><td>##NEW_STRING4##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense11</td><td>1</td><td>No</td><td>0</td><td>15</td><td>295</td><td>15</td><td>##NEW_STRING7##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense11</td><td>2</td><td>Yes</td><td>0</td><td>0</td><td>295</td><td>15</td><td>##NEW_STRING8##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense111</td><td>1</td><td>No</td><td>0</td><td>15</td><td>295</td><td>15</td><td>##NEW_STRING11##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense111</td><td>2</td><td>Yes</td><td>0</td><td>0</td><td>295</td><td>15</td><td>##NEW_STRING12##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense1111</td><td>1</td><td>No</td><td>0</td><td>18</td><td>295</td><td>15</td><td>##NEW_STRING16##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense1111</td><td>2</td><td>Yes</td><td>0</td><td>3</td><td>295</td><td>15</td><td>##NEW_STRING17##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense1112</td><td>1</td><td>No</td><td>0</td><td>16</td><td>295</td><td>15</td><td>##NEW_STRING21##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense1112</td><td>2</td><td>Yes</td><td>0</td><td>1</td><td>295</td><td>15</td><td>##NEW_STRING22##</td><td/><td>0</td></row>
 		<row><td>ApplicationUsers</td><td>1</td><td>AllUsers</td><td>1</td><td>7</td><td>290</td><td>14</td><td>##IDS__IsRegisterUserDlg_Anyone##</td><td/><td/></row>
 		<row><td>ApplicationUsers</td><td>2</td><td>OnlyCurrentUser</td><td>1</td><td>23</td><td>290</td><td>14</td><td>##IDS__IsRegisterUserDlg_OnlyMe##</td><td/><td/></row>
 		<row><td>_IsMaintenance</td><td>1</td><td>Change</td><td>0</td><td>0</td><td>290</td><td>14</td><td>##IDS__IsMaintenanceDlg_Modify##</td><td/><td/></row>

@@ -93,6 +93,7 @@
 		<include name="**.rtf"/>
 	    </fileset>
 	</copy>
+	<copy file="${doc.dir}/THIRD_PARTY_LICENSE.rtf" tofile="${stage.dir}/packages-common/LICENSE.rtf"/>
 
 	<!-- README, licenses, etc. -->
 	<mkdir dir="${stage.dir}/packages-common/doc"/>
@@ -308,6 +309,8 @@
 	<copy todir="${stage.dir}/ice-csharp/runtime/bin">
 	    <fileset dir="${icecs.dir}/bin">
 		<include name="*.dll"/>
+		<include name="iceboxnet.exe"/>
+		<include name="iceboxnet.exe"/>
 	    </fileset>
 	</copy>
 
@@ -527,7 +530,7 @@
 	<copy todir="${stage.dir}/berkeley/dev/bin">
 	    <fileset dir="${env.BERKELEY_HOME}/build_win32/Debug">
 		<include name="*.dll"/>
-		<include name="*.pdb"/>
+		<include name="libdb*.pdb"/>
 		<exclude name="*java*"/>
 	    </fileset>
 	</copy>
