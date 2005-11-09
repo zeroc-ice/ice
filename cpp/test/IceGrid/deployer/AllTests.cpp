@@ -64,7 +64,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(query);
 
     cout << "testing object registration... " << flush;
-    Ice::ObjectProxySeq objs = query->findAllObjectsWithType("::Test");
+    Ice::ObjectProxySeq objs = query->findAllObjectsByType("::Test");
     test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(),"Server1")) != objs.end());
     test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(),"Server2")) != objs.end());
     test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(),"SimpleServer")) != objs.end());
@@ -93,20 +93,12 @@ allTests(const Ice::CommunicatorPtr& comm)
 	     id == "SimpleIceBox-SimpleService" || "ReplicatedObject");
     }
 
-    try
     {
 	Ice::ObjectPrx obj = query->findObjectByType("::Foo");
-    }
-    catch(const ObjectNotRegisteredException&)
-    {
-    }
+	test(!obj);
 
-    try
-    {
-	Ice::ObjectPrx obj = query->findObjectByTypeOnLeastLoadedNode("::Foo", LoadSample15);
-    }
-    catch(const ObjectNotRegisteredException&)
-    {
+	obj = query->findObjectByTypeOnLeastLoadedNode("::Foo", LoadSample15);
+	test(!obj);
     }
 
     cout << "ok" << endl;

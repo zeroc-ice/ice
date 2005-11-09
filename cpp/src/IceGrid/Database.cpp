@@ -913,14 +913,14 @@ Database::getObjectProxy(const Ice::Identity& id)
 Ice::ObjectPrx
 Database::getObjectByType(const string& type)
 {
-    Ice::ObjectProxySeq objs = getObjectsWithType(type);
+    Ice::ObjectProxySeq objs = getObjectsByType(type);
     return objs[rand() % objs.size()];
 }
 
 Ice::ObjectPrx
 Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample)
 {
-    Ice::ObjectProxySeq objs = getObjectsWithType(type);
+    Ice::ObjectProxySeq objs = getObjectsByType(type);
     random_shuffle(objs.begin(), objs.end());
     vector<pair<Ice::ObjectPrx, float> > objectsWithLoad;
     objectsWithLoad.reserve(objs.size());
@@ -944,9 +944,9 @@ Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample
 
 
 Ice::ObjectProxySeq
-Database::getObjectsWithType(const string& type)
+Database::getObjectsByType(const string& type)
 {
-    Ice::ObjectProxySeq proxies = _objectCache.getObjectsWithType(type);
+    Ice::ObjectProxySeq proxies = _objectCache.getObjectsByType(type);
 
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     IdentityObjectInfoDict objects(connection, _objectDbName);    

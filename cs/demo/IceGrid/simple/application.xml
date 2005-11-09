@@ -15,7 +15,7 @@
 
     <node name="localhost">
 
-      <server id="SimpleServer" exe="./server.exe" pwd="." activation="on-demand">
+      <server id="SimpleServer" exe="./server.exe" activation="on-demand">
 	<adapter name="Hello" endpoints="tcp" register-process="true">
 	  <object identity="hello" type="::Demo::Hello"/>
 	</adapter>

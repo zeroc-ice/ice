@@ -28,25 +28,53 @@ QueryI::~QueryI()
 Ice::ObjectPrx
 QueryI::findObjectById(const Ice::Identity& id, const Ice::Current&) const
 {
-    return _database->getObjectProxy(id);
+    try
+    {
+	return _database->getObjectProxy(id);
+    }
+    catch(const ObjectNotRegisteredException&)
+    {
+	return 0;
+    }
 }
 
 Ice::ObjectPrx 
 QueryI::findObjectByType(const string& type, const Ice::Current&) const
 {
-    return _database->getObjectByType(type);
+    try
+    {
+	return _database->getObjectByType(type);
+    }
+    catch(const ObjectNotRegisteredException&)
+    {
+	return 0;
+    }
 }
 
 Ice::ObjectPrx 
 QueryI::findObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample, const Ice::Current&) const
 {
-    return _database->getObjectByTypeOnLeastLoadedNode(type, sample);
+    try
+    {
+	return _database->getObjectByTypeOnLeastLoadedNode(type, sample);
+    }
+    catch(const ObjectNotRegisteredException&)
+    {
+	return 0;
+    }
 }
 
 Ice::ObjectProxySeq 
-QueryI::findAllObjectsWithType(const string& type, const Ice::Current&) const
+QueryI::findAllObjectsByType(const string& type, const Ice::Current&) const
 {
-    return _database->getObjectsWithType(type);
+    try
+    {
+	return _database->getObjectsByType(type);
+    }
+    catch(const ObjectNotRegisteredException&)
+    {
+	return Ice::ObjectProxySeq();
+    }
 }
 
 

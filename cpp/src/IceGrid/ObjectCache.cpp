@@ -95,7 +95,7 @@ ObjectCache::remove(const Ice::Identity& id)
 }
 
 Ice::ObjectProxySeq
-ObjectCache::getObjectsWithType(const string& type)
+ObjectCache::getObjectsByType(const string& type)
 {
     Lock sync(*this);
     Ice::ObjectProxySeq proxies;

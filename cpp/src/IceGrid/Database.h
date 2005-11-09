@@ -88,7 +88,7 @@ public:
     Ice::ObjectPrx getObjectProxy(const Ice::Identity&);
     Ice::ObjectPrx getObjectByType(const std::string&);
     Ice::ObjectPrx getObjectByTypeOnLeastLoadedNode(const std::string&, LoadSample);
-    Ice::ObjectProxySeq getObjectsWithType(const std::string&);
+    Ice::ObjectProxySeq getObjectsByType(const std::string&);
     ObjectInfo getObjectInfo(const Ice::Identity&);
     ObjectInfoSeq getAllObjectInfos(const std::string& = std::string());
 

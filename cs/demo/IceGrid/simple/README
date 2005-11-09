@@ -10,7 +10,7 @@ Note for Mono:
     if you want to run with Mono under Windows, edit application.xml
     and change the server element to read:
 
-    <server id="SimpleServer" exe="mono.bat" pwd="." activation="on-demand">
+    <server id="SimpleServer" exe="mono.bat" activation="on-demand">
       <option>./server.exe</option>
 
     Note that the server executable is "mono.bat", and that the actual

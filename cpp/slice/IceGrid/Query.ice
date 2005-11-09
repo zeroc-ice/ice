@@ -46,14 +46,10 @@ interface Query
      *
      * @param id The identity.
      *
-     * @return The proxy.
-     *
-     * @throws ObjectNotFoundException Raised if no objects can be
-     * found.
+     * @return The proxy or null if no such object has been found.
      *
      **/
-    nonmutating Object* findObjectById(Ice::Identity id)
-	throws ObjectNotRegisteredException;
+    nonmutating Object* findObjectById(Ice::Identity id);
 
     /**
      *
@@ -62,14 +58,10 @@ interface Query
      *
      * @param type The object type.
      *
-     * @return The proxy.
-     *
-     * @throws ObjectNotRegisteredException Raised if no objects can be
-     * found.
+     * @return The proxy or null if no such object has been found.
      *
      **/
-    nonmutating Object* findObjectByType(string type)
-	throws ObjectNotRegisteredException;
+    nonmutating Object* findObjectByType(string type);
 
 
     /**
@@ -82,14 +74,10 @@ interface Query
      *
      * @param type The object type.
      *
-     * @return The proxy.
-     *
-     * @throws ObjectNotRegisteredException Raised if no objects can be
-     * found.
+     * @return The proxy or null if no such object has been found.
      *
      **/
-    nonmutating Object* findObjectByTypeOnLeastLoadedNode(string type, LoadSample sample)
-	throws ObjectNotRegisteredException;
+    nonmutating Object* findObjectByTypeOnLeastLoadedNode(string type, LoadSample sample);
 
     /**
      *
@@ -97,14 +85,11 @@ interface Query
      *
      * @param type The object type.
      *
-     * @return The proxies.
-     *
-     * @throws ObjectNotRegisteredException Raised if no objects can be
-     * found.
+     * @return The proxies or an empty sequence if no such objects
+     * have been found.
      *
      **/
-    nonmutating Ice::ObjectProxySeq findAllObjectsWithType(string type)
-	throws ObjectNotRegisteredException;
+    nonmutating Ice::ObjectProxySeq findAllObjectsByType(string type);
 };
 
 };

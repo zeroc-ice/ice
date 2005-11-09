@@ -1064,7 +1064,7 @@ Parser::findObject(const list<string>& args)
 
     try
     {
-	Ice::ObjectProxySeq objects = _query->findAllObjectsWithType(*(args.begin()));
+	Ice::ObjectProxySeq objects = _query->findAllObjectsByType(*(args.begin()));
 	for (Ice::ObjectProxySeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
 	{
 	    cout << _communicator->proxyToString(*p) << endl;
