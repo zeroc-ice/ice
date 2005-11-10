@@ -67,7 +67,7 @@ public:
 	    }
 	    
 	    Ice::Warning out(_traceLevels->logger);
-	    out << "failed to load `" + _id + "' on node `" << _node << "':\n" << ex;
+	    out << "failed to load `" + _id + "' on node `" << _node << "':\n" << ex << "\nreason: " << ex.reason;
 	    ostringstream os;
 	    os << ex << "\nreason: " << ex.reason;
 	    _server->exception(NodeUnreachableException(_node, os.str()));

@@ -416,10 +416,10 @@ Parser::describeServerTemplate(const list<string>& args)
 	TemplateDescriptorDict::const_iterator q = application.serverTemplates.find(templ);
 	if(q != application.serverTemplates.end())
 	{
-	    out << "server template '" << templ << "'";
+	    out << "server template `" << templ << "'";
 	    out << sb;
 
-	    out << nl << "parameters = '" << toString(q->second.parameters) << "'";
+	    out << nl << "parameters = `" << toString(q->second.parameters) << "'";
 	    out << nl;
 	    ServerDescriptorPtr server = ServerDescriptorPtr::dynamicCast(q->second.descriptor);
 	    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server);
@@ -504,11 +504,11 @@ Parser::describeServiceTemplate(const list<string>& args)
 	TemplateDescriptorDict::const_iterator q = application.serviceTemplates.find(templ);
 	if(q != application.serviceTemplates.end())
 	{
-	    out << "service template '" << templ << "'";
+	    out << "service template `" << templ << "'";
 	    out << sb;
 	    if(!q->second.parameters.empty())
 	    {
-		out << nl << "parameters = '" << toString(q->second.parameters) << "'";
+		out << nl << "parameters = `" << toString(q->second.parameters) << "'";
 	    }
 	    out << nl;
 	    ServiceDescriptorPtr service = ServiceDescriptorPtr::dynamicCast(q->second.descriptor);
@@ -1087,8 +1087,8 @@ Parser::describeObject(const list<string>& args)
 	    if(arg.find('*') == string::npos)
 	    {
 		ObjectInfo info = _admin->getObjectInfo(Ice::stringToIdentity(arg));
-		cout << "proxy = '" << _communicator->proxyToString(info.proxy) << "'" << endl;
-		cout << "type = '" << info.type << "'" << endl;
+		cout << "proxy = `" << _communicator->proxyToString(info.proxy) << "'" << endl;
+		cout << "type = `" << info.type << "'" << endl;
 		return;
 	    }
 	    else

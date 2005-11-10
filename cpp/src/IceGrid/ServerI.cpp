@@ -117,7 +117,7 @@ public:
     }
 
     void
-    failed(const DeploymentException& ex)
+    failed(const Ice::Exception& ex)
     {
 	for(vector<AMD_Node_loadServerPtr>::const_iterator p = _loadCB.begin(); p != _loadCB.end(); ++p)
 	{
@@ -1198,6 +1198,10 @@ ServerI::update()
 	    }    
 	    _load->finished(_this, adapters, _activationTimeout, _deactivationTimeout);
 	}
+	catch(const Ice::Exception& ex)
+	{
+	    _load->failed(ex);
+	}
 	catch(const string& msg)
 	{
 	    _load->failed(DeploymentException(msg));
@@ -1842,9 +1846,7 @@ ServerI::updateDbEnv(const string& serverDir, const DbEnvDescriptor& dbEnv)
     configfile.open(file.c_str(), ios::out);
     if(!configfile)
     {
-	DeploymentException ex;
-	ex.reason = "couldn't create configuration file: " + file;
-	throw ex;
+	throw DeploymentException("couldn't create configuration file: " + file);
     }
 
     for(PropertyDescriptorSeq::const_iterator p = dbEnv.properties.begin(); p != dbEnv.properties.end(); ++p)

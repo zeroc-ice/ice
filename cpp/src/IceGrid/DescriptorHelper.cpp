@@ -688,8 +688,8 @@ CommunicatorHelper::print(Output& out) const
 void 
 CommunicatorHelper::printDbEnv(Output& out, const DbEnvDescriptor& dbEnv) const
 {
-    out << nl << "database environment '" << dbEnv.name << "'";
-    if(!dbEnv.dbHome.empty() || !dbEnv.properties.empty())
+    out << nl << "database environment `" << dbEnv.name << "'";
+    if(!dbEnv.dbHome.empty() || !dbEnv.properties.empty() || !dbEnv.description.empty())
     {
 	out << sb;
 	if(!dbEnv.dbHome.empty())
@@ -717,11 +717,21 @@ CommunicatorHelper::printDbEnv(Output& out, const DbEnvDescriptor& dbEnv) const
 void
 CommunicatorHelper::printObjectAdapter(Output& out, const AdapterDescriptor& adapter) const
 {
-    out << nl << "adapter '" << adapter.name << "'";
+    out << nl << "adapter `" << adapter.name << "'";
     out << sb;
-    out << nl << "id = `" << adapter.id << "'";
-    out << nl << "replica group id = `" << adapter.replicaGroupId << "'";
-    out << nl << "endpoints = `" << getProperty(adapter.name + ".Endpoints") << "'";
+    if(!adapter.id.empty())
+    {
+	out << nl << "id = `" << adapter.id << "'";
+    }
+    if(!adapter.replicaGroupId.empty())
+    {
+	out << nl << "replica group id = `" << adapter.replicaGroupId << "'";
+    }
+    string endpoints = getProperty(adapter.name + ".Endpoints");
+    if(!endpoints.empty())
+    {
+	out << nl << "endpoints = `" << endpoints << "'";
+    }
     out << nl << "register process = `" << (adapter.registerProcess ? "true" : "false") << "'";
     out << nl << "wait for activation = `" << (adapter.waitForActivation ? "true" : "false") << "'";
     for(ObjectDescriptorSeq::const_iterator p = adapter.objects.begin(); p != adapter.objects.end(); ++p)
@@ -972,15 +982,15 @@ ServerHelper::printImpl(Output& out, const string& application, const string& no
     out << nl << "activation = `" << _desc->activation << "'";
     if(!_desc->activationTimeout.empty() && _desc->activationTimeout != "0")
     {
-	out << nl << "activationTimeout = " << _desc->activationTimeout;
+	out << nl << "activationTimeout = `" << _desc->activationTimeout << "'";
     }
     if(!_desc->deactivationTimeout.empty() && _desc->deactivationTimeout != "0")
     {
-	out << nl << "deactivationTimeout = " << _desc->deactivationTimeout;
+	out << nl << "deactivationTimeout = `" << _desc->deactivationTimeout << "'";
     }
     if(!_desc->applicationDistrib)
     {
-	out << nl << "application distribution = false";
+	out << nl << "application distribution = `false'";
     }
     if(!_desc->options.empty())
     {
@@ -995,7 +1005,10 @@ ServerHelper::printImpl(Output& out, const string& application, const string& no
 	out << nl << "distribution";
 	out << sb;
 	out << nl << "proxy = `" << _desc->distrib.icepatch << "'";
-	out << nl << "directories = " << toString(_desc->distrib.directories);
+	if(!_desc->distrib.directories.empty())
+	{
+	    out << nl << "directories = `" << toString(_desc->distrib.directories) << "'";
+	}
 	out << eb;
     }
     CommunicatorHelper::print(out);
@@ -1221,7 +1234,7 @@ ServiceInstanceHelper::print(Output& out) const
 	assert(!_template.empty());
 	out << nl << "service instance";
 	out << sb;
-	out << nl << "template = " << _template;
+	out << nl << "template = `" << _template << "'";
 	out << nl << "parameters";
 	out << sb;
 	for(StringStringDict::const_iterator p = _parameters.begin(); p != _parameters.end(); ++p)
@@ -1750,7 +1763,7 @@ NodeHelper::hasServer(const string& name) const
 void
 NodeHelper::print(Output& out) const
 {
-    out << nl << "node '" << _name << "'";
+    out << nl << "node `" << _name << "'";
     out << sb;
     if(!_instance.loadFactor.empty())
     {
@@ -2231,11 +2244,11 @@ ApplicationHelper::getDistributions(DistributionDescriptor& distribution,
 void
 ApplicationHelper::print(Output& out) const
 {
-    out << "application '" << _instance.name << "'";
+    out << "application `" << _instance.name << "'";
     out << sb;
     if(!_instance.description.empty())
     {
-	out << nl << "description = " << _instance.description;
+	out << nl << "description = `" << _instance.description << "'";
     }
     if(!_instance.variables.empty())
     {
@@ -2253,7 +2266,10 @@ ApplicationHelper::print(Output& out) const
 	out << nl << "distribution";
 	out << sb;
 	out << nl << "proxy = `" << _instance.distrib.icepatch << "'";
-	out << nl << "directories = " << toString(_instance.distrib.directories);
+	if(!_instance.distrib.directories.empty())
+	{
+	    out << nl << "directories = `" << toString(_instance.distrib.directories) << "'";
+	}
 	out << eb;
     }
     if(!_instance.replicaGroups.empty())
