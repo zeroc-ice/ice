@@ -15,6 +15,25 @@ import RPMTools
 #   * Tidying and tracing.
 #   * Python is used in some places for 'sed' like functionality. This
 #     could be replaced by Python code.
+#  
+#  XXX: runprog provides a way for to get fail on unexpected error codes from
+#  external programs. I haven't figured out how to get commands with
+#  pipes or redirections to work properly. Stay tuned.
+#
+
+class ExtProgramError:
+    def __init__(self, error = None):
+	self.msg = error
+	
+    def __str__(self):
+	return repr(self.msg)
+
+def runprog(commandstring):
+    commandtuple = commandstring.split()
+    result = os.spawnvpe(os.P_WAIT, commandtuple[0], commandtuple, os.environ)
+    if result != 0:
+	msg = 'Command %s failed with error code %d' % (commandstring, result)
+	raise ExtProgramError(msg)
 
 def getIceVersion(file):
     """Extract the ICE version string from a file."""
@@ -93,7 +112,7 @@ def getVersion(cvsTag, buildDir):
     os.chdir(buildDir)
     if getPlatform() == 'aix':
         os.environ['LIBPATH'] = ''
-    os.system('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/include/IceUtil/Config.h')
+    runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/include/IceUtil/Config.h')
 
     result = [ getIceVersion('ice/include/IceUtil/Config.h'), getIceSoVersion('ice/include/IceUtil/Config.h')]
     os.remove('ice/include/IceUtil/Config.h')
@@ -111,10 +130,11 @@ def getInstallFiles(cvsTag, buildDir, version):
     """Gets the install sources for this revision"""
     cwd = os.getcwd()
     os.chdir(buildDir)
-    os.system('rm -rf ' + buildDir + '/ice/install')
-    os.system('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/unix')
-    os.system('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/rpm')
-    os.system('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/thirdparty')
+    runprog('rm -rf ' + buildDir + '/ice/install')
+    runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/unix')
+    runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/common')
+    runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/rpm')
+    runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/thirdparty')
     snapshot = os.walk('./ice/install/unix')
     for dirInfo in snapshot:
 	for f in dirInfo[2]:
@@ -141,9 +161,9 @@ def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
     if len(tag) > 0:
 	print 'Making disribution ' + cvsdir + ' with tag ' + tag
     if cvsdir in ['icepy', 'ice', 'icephp']:
-        os.system("./makedist.py " + tag)
+        runprog("./makedist.py " + tag)
     else:
-        os.system("./makedist.py " + tag)
+        runprog("./makedist.py " + tag)
     shutil.copy("dist/" + distro + ".tar.gz", sourceDir)
     os.chdir(cwd)
 
@@ -205,16 +225,16 @@ ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
     $(error Ice distribution not found, please set ICE_HOME!)
 endif
 """
-	    elif state == 'untilprefix':
-		if line.startswith('prefix'):
-		    state = 'done'
-	#
-        # Dependency files are all going to be bogus.  The makedepend
-        # script doesn't seem to work properly for the slice files.
-	#
-        os.chdir("..")
-        os.system("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
-	makefile.close()
+	elif state == 'untilprefix':
+	    if line.startswith('prefix'):
+		state = 'done'
+    #
+    # Dependency files are all going to be bogus.  The makedepend
+    # script doesn't seem to work properly for the slice files.
+    #
+    os.chdir("..")
+    os.system("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
+    makefile.close()
 
 def updateIceVersion(filename, version):
     f = fileinput.input(filename, True)
@@ -235,7 +255,6 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
        Ice"""
     cwd = os.getcwd()
     os.chdir(buildDir + "/demotree")
-    print "gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/config " + distro + "/certs"
     os.system("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/config " + distro + "/certs")
 	
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo" + demoDir)
@@ -246,15 +265,22 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
     # 
     if not os.path.exists(buildDir + "/Ice-" + version + "-demos/certs"):
 	os.mkdir(buildDir + "/Ice-" + version + "-demos/certs")
+	
+    if not os.path.exists(buildDir + "/Ice-" + version + "-demos/config"):
+	os.mkdir(buildDir + "/Ice-" + version + "-demos/config")
 
-    os.system("cp -pR " + distro + "/certs/* " + buildDir + "/Ice-" + version + "-demos/certs")
+    if os.path.exists('%s/certs' % distro):
+	runprog("cp -pR " + distro + "/certs " + buildDir + "/Ice-" + version + "-demos")
 
-    #
-    # 'System' copying of files here because its just easier!  We don't
-    # need any configuration out of the Python tree.
-    # 
-    if not demoDir == "py":
-	os.system("cp " + distro + "/config/* " + buildDir + "/Ice-" + version + "-demos/config")
+    srcConfigDir = '%s/%s/config' % (os.getcwd(), distro)
+    destConfigDir = '%s/Ice-%s-demos/config' % (buildDir, version)
+
+    if not demoDir == 'py' and os.path.exists(srcConfigDir):
+	for f in os.listdir(srcConfigDir):
+	    src = os.path.join(srcConfigDir, f)
+	    dest = os.path.join(destConfigDir, f)
+	    if not os.path.isdir(f) and not os.path.islink(f):
+		shutil.copy(src, dest)
 
     #
     # Collect files to remove from the demo distribution.
@@ -312,8 +338,8 @@ def archiveDemoTree(buildDir, version, installFiles):
     os.system("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.sln\" ` ; do rm -rf $f ; done'")
     os.system("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.csproj\" ` ; do rm -rf $f ; done'")
 
-    os.system("tar cf Ice-" + version + "-demos.tar Ice-" + version + "-demos")
-    os.system("gzip -9 Ice-" + version + "-demos.tar")
+    runprog("tar cf Ice-" + version + "-demos.tar Ice-" + version + "-demos")
+    runprog("gzip -9 Ice-" + version + "-demos.tar")
     os.chdir(cwd)
 
 def makeInstall(sources, buildDir, installDir, distro, clean, version):
@@ -324,7 +350,10 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
         shutil.rmtree(distro, True)
         
     if not os.path.exists(distro):
-        os.system('gzip -dc ' + sources + '/' + distro + '.tar.gz | tar xf -')
+	filename = sources + '/' + distro + '.tar'
+        runprog('gzip -d %s.gz' % filename)
+	runprog('tar xf %s' % filename)
+        runprog('gzip -9 %s' % filename)
         
     os.chdir(distro)
 
@@ -339,7 +368,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
 	# Shelling out to a copy is easier (and more likely to always
 	# work) than shutil.copytree().
 	#
-	os.system('cp -pR ' + buildDir + '/' + distro + '/ant ' + installDir)
+	runprog('cp -pR ' + buildDir + '/' + distro + '/ant ' + installDir)
 	os.system('find ' + installDir + '/ant  -name "*.java" | xargs rm')
 	destDir = os.path.join(installDir, 'config')
 	if not os.path.exists(destDir):
@@ -389,8 +418,8 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     # 
     # XXX- Optimizations need to be turned on for the release.
     #
-    os.system('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=/opt/Ice-%s' % version)
-    os.system('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=%s install' % installDir)
+    runprog('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=/opt/Ice-%s' % version)
+    runprog('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=%s install' % installDir)
     os.chdir(cwd)
     
 def shlibExtensions(versionString, versionInt):
@@ -545,21 +574,24 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
     root, ext = os.path.splitext(phpFile)
     untarCmd = ''
     if ext.endswith('bz2'):
-	untarCmd = 'bunzip2 -dc '
+	uncompress = 'bunzip2 -d '
+	compress = 'bzip2 -9 '
     else:
-	untarCmd = 'gzip -dc '
+	uncompress = 'gzip -d '
+	compress = 'gzip -9 '
 
     origWD = os.getcwd()
     os.chdir(buildDir)
-    untarCmd = untarCmd + phpFile + ' | tar xf -  ' 
-    os.system(untarCmd)
+    runprog(uncompress + phpFile)
+    runprog('tar xf %s' % root)
+    runprog(compress + root)
     os.chdir(origWD)
 
     # 
     # return the likely root directory name for the php distro.
     #
     phpDir = buildDir + '/php-' + phpVersion
-    os.system('ln -sf ' + buildDir + '/IcePHP-' + version + '/src/ice ' + phpDir + '/ext')
+    runprog('ln -sf ' + buildDir + '/IcePHP-' + version + '/src/ice ' + phpDir + '/ext')
     cwd = os.getcwd()
     os.chdir(phpDir)
     platform = getPlatform()
@@ -579,12 +611,12 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
 	#
 	# Our HP-UX platform doesn't seem to have a libxml installed.
 	#
-	os.system('./configure --disable-libxml --with-ice=shared,' + installDir + '/Ice-' + version)
+	runprog('./configure --disable-libxml --with-ice=shared,' + installDir + '/Ice-' + version)
     else:
 	#
 	# Everything else should be dynamic and pretty much basic.
 	#
-	os.system('./configure --with-ice=shared,' + installDir + '/Ice-' + version)
+	runprog('./configure --with-ice=shared,' + installDir + '/Ice-' + version)
 
     # 
     # Need to make some changes to the PHP distribution.
@@ -665,7 +697,7 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
                 
     makefile.close()
 
-    os.system('gmake')
+    runprog('gmake')
 
     if platform == 'macosx':
         phpModuleExtension = '.so'
@@ -916,21 +948,30 @@ def main():
         os.environ[dylibEnvironmentVar] = installDir + '/Ice-' + version + '/lib:' + currentLibraryPath
         os.environ['PATH'] = installDir + '/Ice-' + version + '/bin:' + os.environ['PATH']
 
-        for cvs, tarball, demoDir in sourceTarBalls:
-            if collectSources:
+	#
+	# Collect all of the distributions first. This prevents having
+	# to go through costly builds before finding out that one of the
+	# distributions doesn't build.
+	#
+	if collectSources:
+	    for cvs, tarball, demoDir in sourceTarBalls:
                 collectSourceDistributions(cvsTag, sources, cvs, tarball)
-	    if getPlatform() == 'linux':
+
+	#
+	# Package up demo distribution.
+	#
+	if getPlatform() == 'linux':
+	    for cvs, tarball, demoDir in sourceTarBalls:
 		extractDemos(sources, buildDir, version, tarball, demoDir)
 		shutil.copy(installFiles + '/unix/README.DEMOS', buildDir + '/Ice-' + version + '-demos/README.DEMOS') 
-            makeInstall(sources, buildDir, installDir + '/Ice-' + version, tarball, clean, version)
-
-        #
-        # Pack up demos
-        #
-	if getPlatform() == 'linux':
 	    archiveDemoTree(buildDir, version, installFiles)
-	    shutil.move(buildDir + '/Ice-' + version + '-demos.tar.gz', installDir + '/Ice-' + version + 
-		    '-demos.tar.gz')
+	    shutil.move(buildDir + '/Ice-' + version + '-demos.tar.gz', installDir + '/Ice-' + version + '-demos.tar.gz')
+
+	#
+	# Everything should be set for building stuff up now.
+	#
+        for cvs, tarball, demoDir in sourceTarBalls:
+            makeInstall(sources, buildDir, installDir + '/Ice-' + version, tarball, clean, version)	    
 
     elif cvsMode:
 	collectSources = False
@@ -959,11 +1000,11 @@ def main():
 	    print 'Going to directory ' + d
 	    if d == 'icej':
 		shutil.copy('lib/Ice.jar', installDir +'/Ice-' + version + '/lib')
-		os.system('cp -pR ant ' + installDir + '/Ice-' + version)
-		os.system('find ' + installDir + '/Ice-' + version + ' -name "*.java" | xargs rm')
+		runprog('cp -pR ant ' + installDir + '/Ice-' + version)
+		runprog('find ' + installDir + '/Ice-' + version + ' -name "*.java" | xargs rm')
 	    else:
-		os.system('perl -pi -e "s/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/" config/Make.rules')
-		os.system('gmake INSTALL_ROOT=' + installDir + '/Ice-' + version + ' install')
+		runprog('perl -pi -e "s/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/" config/Make.rules')
+		runprog('gmake INSTALL_ROOT=' + installDir + '/Ice-' + version + ' install')
 	    os.chdir(currentDir)
 
     #
@@ -989,10 +1030,10 @@ def main():
 
     if getPlatform() == 'hpux':
 	ssl = os.environ['OPENSSL_HOME']
-	os.system('cp ' + ssl + '/bin/* Ice-' + version + '/bin')
-	os.system('cp -R ' + ssl + '/include/* Ice-' + version + '/include')
-	os.system('cp -R ' + ssl + '/lib/* Ice-' + version + '/lib')
-	os.system('rm -rf Ice-' + version + '/lib/libfips*')
+	runprog('cp ' + ssl + '/bin/* Ice-' + version + '/bin')
+	runprog('cp -R ' + ssl + '/include/* Ice-' + version + '/include')
+	runprog('cp -R ' + ssl + '/lib/* Ice-' + version + '/lib')
+	runprog('rm -rf Ice-' + version + '/lib/libfips*')
 
     uname = readcommand('uname')
     platformSpecificFiles = [ 'README', 'SOURCES', 'THIRD_PARTY_LICENSE' ]
@@ -1001,12 +1042,12 @@ def main():
 	if os.path.exists(cf):
 	    shutil.copy(cf, os.path.join('Ice-' + version, psf))
 
-    shutil.copy(installFiles + os.path.join(installFiles, 'common', 'iceproject.xml'))
+    shutil.copy(os.path.join(installFiles, 'common', 'iceproject.xml'), os.path.join('Ice-' + version, 'config'))
 
     makePHPbinary(sources, buildDir, installDir, version, clean)
 
-    os.system('tar cf Ice-' + version + '-bin-' + getPlatform() + '.tar Ice-' + version)
-    os.system('gzip -9 Ice-' + version + '-bin-' + getPlatform() + '.tar')
+    runprog('tar cf Ice-' + version + '-bin-' + getPlatform() + '.tar Ice-' + version)
+    runprog('gzip -9 Ice-' + version + '-bin-' + getPlatform() + '.tar')
     os.chdir(cwd)
 
     #
