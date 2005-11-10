@@ -1,8 +1,8 @@
 <icegrid>
 
   <!-- Include service templates -->
-  <include descriptor="service.xml"/>
-  <include descriptor="freezeservice.xml"/>
+  <include file="service.xml"/>
+  <include file="freezeservice.xml"/>
 
   <server-template id="IceBoxTemplate">
     <parameter name="name"/>

@@ -5,8 +5,8 @@
     <description>APP ${AppVar}</description>
 
     <!-- Include server templates -->
-    <include descriptor="icebox.xml"/>
-    <include descriptor="server.xml"/>    
+    <include file="icebox.xml"/>
+    <include file="server.xml"/>    
 
     <replica-group id="ReplicatedAdapter">
       <description>REPLICA GROUP ${AppVar}</description>
@@ -62,7 +62,7 @@
           <description>DBENV ${NodeVar}</description>
         </dbenv>
         <option>--Test.Test=2</option>
-        <include descriptor="varproperties.xml"/>
+        <include file="varproperties.xml"/>
         <env>MY_ENV_VARIABLE=12</env>
       </server>
 
@@ -75,7 +75,7 @@
 	  <property name="${service}.Identity" value="${server}-${service}"/>
 	  <property name="${service}.Type" value="standard"/>
 	  <property name="${service}.ServiceName" value="${service}"/>
-	  <include descriptor="varproperties.xml"/>
+	  <include file="varproperties.xml"/>
 	</service>
       </icebox>
 

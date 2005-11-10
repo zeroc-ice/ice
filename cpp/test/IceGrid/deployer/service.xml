@@ -12,7 +12,7 @@
       <property name="${name}.Type" value="standard"/>
       <property name="${name}.ServiceName" value="${name}"/>
 
-      <include descriptor="varproperties.xml"/>
+      <include file="varproperties.xml"/>
 
       <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
       <property name="NodeVarOverridedByParamProp" value="${NodeVarOverridedByParam}"/>

@@ -144,7 +144,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	else if(name == "include")
 	{
 	    string targets = attributes("targets", "");
-	    string file = attributes("descriptor");
+	    string file = attributes("file");
 	    if(file[0] != '/')
 	    {
 		string::size_type end = _filename.find_last_of('/');
