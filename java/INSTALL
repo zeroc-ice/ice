@@ -82,10 +82,10 @@ Win32 Release" project. For details, please see:
 
 http://www.sleepycat.com/docs/index.html
 
-Due to optimization bugs with the GCC compiler that comes packaged with
-Fedora Core 4 Linux it is necessary on that platform to change the
-optimization level when you configure Berkeley DB. We recommend you use 
-the following syntax when you run configure:
+On Fedora Core 4, it is necessary to change the compiler's default
+optimization level when building Berkeley DB in order to avoid a bug
+in the packaged GCC compiler. We recommend you use the following
+syntax when you run configure:
 
 $ CFLAGS="-O1" ../dist/configure <your configure options>
 

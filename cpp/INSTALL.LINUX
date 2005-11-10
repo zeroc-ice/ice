@@ -34,11 +34,11 @@ Ice has dependencies on a number of third-party libraries:
   Thread Library), set LD_ASSUME_KERNEL=2.4.1 before running
   configure.
 
-  If you are using Fedora Core 4 we recommend that you change the 
-  optimization level that Berkeley DB uses due to optimization 
-  issues with the GCC compiler that comes with Fedora Core 4. If you 
-  are building with java support this is absolutely necessary. We
-  recommend that you use the following syntax when you run configure:
+  On Fedora Core 4, we recommend changing the default optimization
+  level when building Berkeley DB in order to avoid a compiler bug
+  in the FC4 version of GCC. If you are building with java support
+  this is absolutely necessary. We recommend that you use the
+  following syntax when you run configure:
 
   $ CFLAGS="-O1" ../dist/configure <your configure options>
 
