@@ -88,7 +88,7 @@ public final class Network
 	// BUGFIX: We check for EINVAL because shutdown() under Mac OS
 	// X returns EINVAL if the server side is gone.
 	//
-	else if(msg.indexOf("Invalid argument") != -1)
+	else if(msg.indexOf("invalid argument") != -1)
 	{
 	    return true;
 	}
