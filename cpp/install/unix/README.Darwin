@@ -131,7 +131,7 @@ To use Ice for Python, the PYTHONPATH environment variable must be
 updated so that the interpreter can load the Ice extension and
 supporting Python files:
 
-$ export PYTHONPATH=$ICE_HOME/python:$ICE_HOME/lib:$PYTHONPATH
+$ export PYTHONPATH=$ICE_HOME/python:$PYTHONPATH
 
 
 ======================================================================

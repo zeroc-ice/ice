@@ -248,10 +248,6 @@ transforms = [ ('file', 'ice.ini', 'etc/php.d/ice.ini'),
 	       ('dir', 'bin', 'usr/bin'),
 	       ('dir', 'include', 'usr/include'),
 	       ('dir', 'python', 'usr/lib/Ice-%version%/python'),
-	       ('file', 'usr/lib/IcePy.so.%version%', 'usr/lib/Ice-%version%/python/IcePy.so.%version%'),
-	       ('file', 'usr/lib/IcePy.so', 'usr/lib/Ice-%version%/python/IcePy.so'),
-	       # XXX The IcePy.so.n needs to be made variable. 
-	       ('file', 'usr/lib/IcePy.so.30', 'usr/lib/Ice-%version%/python/IcePy.so.30'),
                ('dir', 'doc', 'usr/share/doc/Ice-%version%/doc'),
                ('file', 'README', 'usr/share/doc/Ice-%version%/README'),
                ('file', 'ICE_LICENSE', 'usr/share/doc/Ice-%version%/ICE_LICENSE'),
@@ -431,12 +427,7 @@ fileLists = [
 
 noarchFileList = [
     Package('ice-java',
-	    #
-	    # FC-4 doesn't have a current db4-java. 
-	    # 'ice = %version%, db4-java >= 4.3.27',
-	    #
-	    # 'ice = %version%, db4 >= 4.3.27, ice-third-party >= %version%',
-	    'ice = %version%, db4 >= 4.3.27',
+	    'ice = %version%, db4-java >= 4.3.27, ice-third-party >= %version%',
 	    'The Ice runtime for Java',
 	    'System Environment/Libraries',
 	    iceDescription,

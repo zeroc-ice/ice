@@ -192,7 +192,7 @@ set PATH=%ICE_HOME%\bin;%PATH%
 Finally, set PYTHONPATH so that the Python interpreter is able to load
 the Ice extension:
 
-set PYTHONPATH=%ICE_HOME%\bin;%ICE_HOME%\python
+set PYTHONPATH=%ICE_HOME%\python
 
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and type 'python Server.py' to start the server. In a

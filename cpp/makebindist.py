@@ -962,8 +962,17 @@ def main():
 	# distributions doesn't build.
 	#
 	if collectSources:
+	    toCollect = sourceTarBalls
+	    toCollect.append(('icevb', 'IceVB-' + version, 'vb'))
 	    for cvs, tarball, demoDir in sourceTarBalls:
                 collectSourceDistributions(cvsTag, sources, cvs, tarball)
+
+	print '''
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+>>                                                                      <<
+>>                   Sources have been collected!                       <<
+>>                                                                      <<
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'''
 
 	#
 	# Package up demo distribution.
