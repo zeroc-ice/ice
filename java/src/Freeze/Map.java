@@ -9,31 +9,51 @@
 
 package Freeze;
 
-public abstract class Map extends java.util.AbstractMap
+public abstract class Map extends java.util.AbstractMap 
+    implements java.util.SortedMap, KeyCodec
 {
+    public abstract byte[] encodeValue(Object o, Ice.Communicator communicator);
+    public abstract Object decodeValue(byte[] b, Ice.Communicator communicator);
+
     public
-    Map(Connection connection, String dbName, String key, String value, boolean createDb)
+    Map(Connection connection, String dbName, String key, String value, 
+	boolean createDb, java.util.Comparator comparator)
     {
 	_connection = (ConnectionI) connection;
+	_comparator = (comparator == null) ? null : new Comparator(comparator);
+		
 	_errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\"): ";
 	_trace = _connection.trace();
 	
-	init(null, dbName, key, value, createDb);
+	init(null, dbName, key, value, createDb, null);
     }
 
     protected
-    Map(Connection connection, String dbName)
+    Map(Connection connection, String dbName, java.util.Comparator comparator)
     {
 	_connection = (ConnectionI) connection;
+	_comparator = (comparator == null) ? null : new Comparator(comparator);
+
 	_errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\"): ";
 	_trace = _connection.trace();
     }
 
     protected void
-    init(Freeze.Map.Index[] indices, String dbName, String key, String value, boolean createDb)
+    init(Freeze.Map.Index[] indices, String dbName, 
+	 String key, String value, boolean createDb, java.util.Map indexComparators)
     {
-	_db = Freeze.SharedDb.get(_connection, dbName, key, value, indices, createDb);
+	_db = Freeze.SharedDb.get(_connection, dbName, key, 
+				  value, indices, createDb, _comparator,
+				  indexComparators);
 	_token = _connection.registerMap(this);
+
+	if(indices != null)
+	{
+	    for(int i = 0; i < indices.length; ++i)
+	    {
+		_indexMap.put(indices[i].name(), indices[i]);
+	    }
+	}
     }
 
     public void
@@ -41,17 +61,196 @@ public abstract class Map extends java.util.AbstractMap
     {
 	close(false);
     }
-	
-    //
-    // A concrete implementation of a Freeze.Map must provide
-    // implementations of the following to encode & decode the
-    // key/value pairs.
-    //
-    public abstract byte[] encodeKey(Object o, Ice.Communicator communicator);
-    public abstract Object decodeKey(byte[] b, Ice.Communicator communicator);
-    public abstract byte[] encodeValue(Object o, Ice.Communicator communicator);
-    public abstract Object decodeValue(byte[] b, Ice.Communicator communicator);
 
+    //
+    // SortedMap methods
+    //
+
+    public java.util.Comparator
+    comparator()
+    {
+	if(_comparator == null)
+	{
+	    return null;
+	}
+	else
+	{
+	    //
+	    // Return's the user's comparator, not the DB comparator.
+	    //
+	    return _comparator.comparator();
+	}
+    }
+
+    public Object firstKey()
+    {
+	return firstKey(null, null);
+    }
+    
+    public Object lastKey()
+    {
+	return lastKey(null, null);
+    }
+
+    Object firstKey(Object fromKey, Object toKey)
+    {
+	byte[] fk = fromKey == null ? null :
+	    encodeKey(fromKey, _connection.communicator());
+
+	byte[] k = getFirstOrLastKey(_db.db(), _db.dbName(), fk, true);
+	if(k == null)
+	{
+	    throw new NoSuchElementException();
+	}
+	else
+	{
+	    Object key = decodeKey(k, _connection.communicator());
+	    if(toKey != null && comparator().compare(key, toKey) >= 0)
+	    {
+		throw new NoSuchElementException();
+	    }
+	    return key;
+	}
+    }
+
+    Object lastKey(Object fromKey, Object toKey)
+    {
+	byte[] tk = toKey == null ? null :
+	    encodeKey(toKey, _connection.communicator());
+
+	byte[] k = getFirstOrLastKey(_db.db(), _db.dbName(), tk, false);
+	if(k == null)
+	{
+	    throw new NoSuchElementException();
+	}
+	else
+	{
+	    Object key = decodeKey(k, _connection.communicator());
+	    if(fromKey != null && comparator().compare(fromKey, key) > 0)
+	    {
+		throw new NoSuchElementException();
+	    }
+	    return key;
+	}
+    }
+
+    public java.util.SortedMap headMap(Object toKey)
+    {
+	if(toKey == null)
+	{
+	    throw new NullPointerException();
+	}
+	if(_comparator == null)
+	{
+	    throw new UnsupportedOperationException();
+	}
+
+	return new SubMap(this, null, toKey);
+    }
+    
+    public java.util.SortedMap tailMap(Object fromKey)
+    {
+	if(fromKey == null)
+	{
+	    throw new NullPointerException();
+	}
+	if(_comparator == null)
+	{
+	    throw new UnsupportedOperationException();
+	}
+
+	return new SubMap(this, fromKey, null);
+    } 
+   
+    public java.util.SortedMap subMap(Object fromKey, Object toKey)
+    {
+	if(fromKey == null || toKey == null )
+	{
+	    throw new NullPointerException();
+	}
+	if(_comparator == null)
+	{
+	    throw new UnsupportedOperationException();
+	}
+	return new SubMap(this, fromKey, toKey);
+    }
+
+    
+    //
+    // Additional non-standard xxMapForIndex methods
+    //
+    public java.util.SortedMap headMapForIndex(String indexName, Object toKey)
+    {
+	if(toKey == null)
+	{
+	    throw new NullPointerException();
+	}
+	
+	Map.Index index = (Map.Index)_indexMap.get(indexName);
+	if(index == null)
+	{
+	    throw new IllegalArgumentException("Can't find index '" + indexName + "'");
+	}
+	else if(index.comparator() == null)
+	{
+	    throw new IllegalArgumentException("Index '" + indexName + "' has no user-defined comparator");
+	}
+	return new SubMap(index, null, toKey);
+    }
+    
+    public java.util.SortedMap tailMapForIndex(String indexName, Object fromKey)
+    {
+	if(fromKey == null)
+	{
+	    throw new NullPointerException();
+	}
+	Map.Index index = (Map.Index)_indexMap.get(indexName);
+	if(index == null)
+	{
+	    throw new IllegalArgumentException("Can't find index '" + indexName + "'");
+	}
+	else if(index.comparator() == null)
+	{
+	    throw new IllegalArgumentException("Index '" + indexName + "' has no user-defined comparator");
+	}
+	return new SubMap(index, fromKey, null);
+    } 
+   
+    public java.util.SortedMap subMapForIndex(String indexName, Object fromKey, Object toKey)
+    {
+	if(fromKey == null || toKey == null )
+	{
+	    throw new NullPointerException();
+	}
+	Map.Index index = (Map.Index)_indexMap.get(indexName);
+	if(index == null)
+	{
+	    throw new IllegalArgumentException("Can't find index '" + indexName + "'");
+	}
+	else if(index.comparator() == null)
+	{
+	    throw new IllegalArgumentException("Index '" + indexName + "' has no user-defined comparator");
+	}
+	return new SubMap(index, fromKey, toKey);
+    }
+
+    public java.util.SortedMap mapForIndex(String indexName)
+    {
+	Map.Index index = (Map.Index)_indexMap.get(indexName);
+	if(index == null)
+	{
+	    throw new IllegalArgumentException("Can't find index '" + indexName + "'");
+	}
+	else if(index.comparator() == null)
+	{
+	    throw new IllegalArgumentException("Index '" + indexName + "' has no user-defined comparator");
+	}
+	return new SubMap(index, null, null);
+    }
+    
+    //
+    // Plain Map methods
+    //
     public int
     size()
     {
@@ -111,7 +310,6 @@ public abstract class Map extends java.util.AbstractMap
 			Entry e = (Entry)p.next();
 			if(e.getValue() == null)
 			{
-			    p.close();
 			    return true;
 			}
 		    }
@@ -123,7 +321,6 @@ public abstract class Map extends java.util.AbstractMap
 			Entry e = (Entry)p.next();
 			if(value.equals(e.getValue()))
 			{
-			    p.close();
 			    return true;
 			}
 		    }
@@ -173,28 +370,21 @@ public abstract class Map extends java.util.AbstractMap
 	byte[] k = encodeKey(key, _connection.communicator());
 
 	com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
-
 	com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
 	dbValue.setPartial(true);
 
 	if(_trace >= 1)
 	{
-	    _connection.communicator().getLogger().trace("Freeze.Map", "checking key in Db \"" + _db.dbName() + "\"");
+	    _connection.communicator().getLogger().trace(
+		"Freeze.Map", "checking key in Db \"" + _db.dbName() + "\"");
 	}
 
 	for(;;)
 	{
 	    try
 	    {
-		com.sleepycat.db.OperationStatus rc = _db.db().get(_connection.dbTxn(), dbKey, dbValue, null);
-		if(rc == com.sleepycat.db.OperationStatus.SUCCESS)
-		{
-		    return true;
-		}
-		else
-		{
-		    return false;
-		}
+		return _db.db().get(_connection.dbTxn(), dbKey, dbValue, null)
+		    == com.sleepycat.db.OperationStatus.SUCCESS;
 	    }
 	    catch(com.sleepycat.db.DeadlockException e)
 	    {
@@ -209,11 +399,11 @@ public abstract class Map extends java.util.AbstractMap
 		{
 		    if(_connection.deadlockWarning())
 		    {
-			_connection.communicator().getLogger().warning("Deadlock in Freeze.Map.containsKey while " +
-								       "reading Db \"" + _db.dbName() +
-								       "\"; retrying...");
+			_connection.communicator().getLogger().warning(
+			    "Deadlock in Freeze.Map.containsKey while " +
+			    "reading Db \"" + _db.dbName() +
+			    "\"; retrying...");
 		    }
-
 		    //
 		    // Try again
 		    //
@@ -362,7 +552,7 @@ public abstract class Map extends java.util.AbstractMap
 		public java.util.Iterator
 		iterator()
 		{
-		    return new EntryIterator(null, null);
+		    return new EntryIteratorImpl(null, null, null, false, false);
 		}
 		
 		public boolean
@@ -432,7 +622,7 @@ public abstract class Map extends java.util.AbstractMap
 		Object obj = p.next();
 		if(obj != except)
 		{
-		    ((EntryIterator) obj).close(finalizing);
+		    ((EntryIteratorImpl)obj).close(finalizing);
 		}
 	    }
 	}
@@ -468,11 +658,151 @@ public abstract class Map extends java.util.AbstractMap
 	    }
 	}
     }
+
+    EntryIterator 
+    createIterator(Index index, Object fromKey, Object toKey)
+    {
+	KeyCodec codec = index == null ? (KeyCodec)this : (KeyCodec)index;
+
+	Ice.Communicator communicator = _connection.getCommunicator();
+
+	return new EntryIteratorImpl(index, 
+				 fromKey == null ? null : codec.encodeKey(fromKey, communicator),
+				 toKey == null ? null : codec.encodeKey(toKey, communicator),
+				 false, true);
+    }
 	
+    ConnectionI connection()
+    {
+	return _connection;
+    }
+
     private static boolean
     valEquals(Object o1, Object o2)
     {
         return (o1 == null ? o2 == null : o1.equals(o2));
+    }
+
+    private byte[]
+    getFirstOrLastKey(com.sleepycat.db.Database db, String dbName, byte[] key, boolean first)
+    {
+	if(db == null)
+	{
+	    DatabaseException ex = new DatabaseException();
+	    ex.message = _errorPrefix + "\"" + dbName + "\" has been closed";
+	    throw ex;
+	}
+	
+	if(_trace >= 1)
+	{
+	    _connection.communicator().getLogger().trace(
+		"Freeze.Map", "Searching db \"" + dbName + "\"");
+	}
+	
+	com.sleepycat.db.DatabaseEntry dbKey = key == null ?
+	    new com.sleepycat.db.DatabaseEntry():
+	    new com.sleepycat.db.DatabaseEntry(key);
+
+	com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
+	dbValue.setPartial(true); // not interested in value
+
+	try
+	{
+	    for(;;)
+	    {
+		com.sleepycat.db.Cursor dbc = null;
+		try
+		{
+		    dbc = db.openCursor(_connection.dbTxn(), null);
+		    com.sleepycat.db.OperationStatus status;
+
+		    if(key == null)
+		    {
+			status = first ?
+			    dbc.getFirst(dbKey, dbValue, null) : dbc.getLast(dbKey, dbValue, null);
+		    }
+		    else if(first)
+		    {
+			status = dbc.getSearchKeyRange(dbKey, dbValue, null);
+		    }
+		    else
+		    {
+			status = dbc.getSearchKeyRange(dbKey, dbValue, null);
+
+			if(status == com.sleepycat.db.OperationStatus.SUCCESS)
+			{
+			    //
+			    // goto the previous pair, which must be < key
+			    //
+			    status = dbc.getPrevNoDup(dbKey, dbValue, null);
+			}
+			else if(status == com.sleepycat.db.OperationStatus.NOTFOUND)
+			{
+			    //
+			    // All keys < desired toKey, so we pick the largest of
+			    // all, the last one
+			    //
+			    status = dbc.getLast(dbKey, dbValue, null);
+			}
+		    }
+		   
+		    if(status == com.sleepycat.db.OperationStatus.SUCCESS)
+		    {
+			return dbKey.getData();
+		    }
+		    else
+		    {
+			return null;
+		    }
+		}
+		catch(com.sleepycat.db.DeadlockException dx)
+		{
+		    if(_connection.dbTxn() != null)
+		    {
+			DeadlockException ex = new DeadlockException();
+			ex.initCause(dx);
+			ex.message = _errorPrefix + "Dbc.getXXX: " + dx.getMessage();
+			throw ex;
+		    }
+		    else
+		    {
+			if(_connection.deadlockWarning())
+			{
+			    _connection.communicator().getLogger().warning(
+				"Deadlock in Freeze.Map while searching \"" + db.getDatabaseName() +
+				"\"; retrying...");
+			}
+			
+			//
+			// Retry
+			//
+		    }
+		}
+		finally
+		{
+		    if(dbc != null)
+		    {
+			try
+			{
+			    dbc.close();
+			}
+			catch(com.sleepycat.db.DeadlockException dx)
+			{
+			    //
+			    // Ignored
+			    //
+			}
+		    }
+		}
+	    }
+	}
+	catch(com.sleepycat.db.DatabaseException dx)
+	{
+	    DatabaseException ex = new DatabaseException();
+	    ex.initCause(dx);
+	    ex.message = _errorPrefix + "Db.openCursor/Dbc.getXXX: " + dx.getMessage();
+	    throw ex; 
+	}
     }
 
     private byte[]
@@ -666,7 +996,37 @@ public abstract class Map extends java.util.AbstractMap
 	}
     }
 
-    protected abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
+    private class Comparator implements java.util.Comparator
+    {
+	Comparator(java.util.Comparator comparator)
+	{
+	    _comparator = comparator;
+	}
+	
+	public java.util.Comparator comparator()
+	{
+	    return _comparator;
+	}
+	
+	public int compare(Object o1, Object o2)
+	{
+	    byte[] d1 = (byte[])o1;
+	    byte[] d2 = (byte[])o2;
+
+	    Ice.Communicator communicator = _connection.communicator();
+
+	    return _comparator.compare(decodeKey(d1, communicator),
+				       decodeKey(d2, communicator));
+	}
+
+	//
+	// The user-supplied comparator
+	//
+	private final java.util.Comparator _comparator;
+    }
+
+    public abstract class Index 
+	implements com.sleepycat.db.SecondaryKeyCreator, java.util.Comparator, KeyCodec
     {
 	//
 	// Implementation details
@@ -686,13 +1046,18 @@ public abstract class Map extends java.util.AbstractMap
 	    result.setSize(secondaryKey.length);
 	    return true;
 	}
-
+	
 	com.sleepycat.db.SecondaryDatabase
 	db()
 	{
 	    return _db;
 	}
 	
+	String name()
+	{
+	    return _name;
+	}
+
 	protected Index(String name)
 	{
 	    _name = name;
@@ -700,10 +1065,13 @@ public abstract class Map extends java.util.AbstractMap
 
 	void
 	associate(String dbName, com.sleepycat.db.Database db, 
-		  com.sleepycat.db.Transaction txn, boolean createDb)
+		  com.sleepycat.db.Transaction txn, boolean createDb,
+		  java.util.Comparator comparator)
 	    throws com.sleepycat.db.DatabaseException, java.io.FileNotFoundException
 	{
 	    _dbName = dbName + "." + _name;
+	    _comparator = comparator;
+
 	    assert(txn != null);
 	    assert(_db == null);
 
@@ -712,6 +1080,10 @@ public abstract class Map extends java.util.AbstractMap
 	    config.setAllowPopulate(true); // We always populate empty indices
 	    config.setSortedDuplicates(true);
 	    config.setType(com.sleepycat.db.DatabaseType.BTREE);
+	    if(_comparator != null)
+	    {
+		config.setBtreeComparator(this);
+	    }
 	    config.setKeyCreator(this);
 
 	    _db = _connection.dbEnv().getEnv().openSecondaryDatabase(txn, _dbName, null, db, config);
@@ -724,6 +1096,59 @@ public abstract class Map extends java.util.AbstractMap
 
 	    _dbName = from._dbName;
 	    _db = from._db;
+	    _comparator = from._comparator;
+	}
+
+	java.util.Comparator comparator()
+	{
+	    return _comparator;
+	}
+	
+	Map parent()
+	{
+	    return Map.this;
+	}
+
+	Object firstKey(Object fromKey, Object toKey)
+	{
+	    byte[] fk = fromKey == null ? null :
+		encodeKey(fromKey, _connection.communicator());
+	    
+	    byte[] k = getFirstOrLastKey(_db, _dbName, fk, true);
+	    if(k == null)
+	    {
+		throw new NoSuchElementException();
+	    }
+	    else
+	    {
+		Object key = decodeKey(k, _connection.communicator());
+		if(toKey != null && _comparator.compare(key, toKey) >= 0)
+		{
+		    throw new NoSuchElementException();
+		}
+		return key;
+	    }
+	}
+
+	Object lastKey(Object fromKey, Object toKey)
+	{
+	    byte[] tk = toKey == null ? null :
+		encodeKey(toKey, _connection.communicator());
+	    
+	    byte[] k = getFirstOrLastKey(_db, _dbName, tk, false);
+	    if(k == null)
+	    {
+		throw new NoSuchElementException();
+	    }
+	    else
+	    {
+		Object key = decodeKey(k, _connection.communicator());
+		if(fromKey != null && _comparator.compare(fromKey, key) > 0)
+		{
+		    throw new NoSuchElementException();
+		}
+		return key;
+	    }
 	}
 
 	void close()
@@ -751,14 +1176,17 @@ public abstract class Map extends java.util.AbstractMap
 	}
     
 	public EntryIterator 
-	untypedFind(byte[] k)
+	untypedFind(Object key, boolean onlyDups)
 	{
-	    return new EntryIterator(this, k);
+	    byte[] k = encodeKey(key, _connection.communicator());
+	    return new EntryIteratorImpl(this, k, null, onlyDups, false);
 	}
 
 	public int
-	untypedCount(byte[] k)
+	untypedCount(Object key)
 	{
+	    byte[] k = encodeKey(key, _connection.communicator());
+
 	    com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
 	    com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
 	    //
@@ -823,27 +1251,102 @@ public abstract class Map extends java.util.AbstractMap
 	    }
 	} 
 	
-	protected abstract byte[]
-	marshalKey(byte[] value);
+	boolean containsKey(Object key)
+	{
+	    byte[] k = encodeKey(key, _connection.communicator());
+
+	    com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
+	    com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
+	    dbValue.setPartial(true);
+
+	    if(_trace >= 1)
+	    {
+		_connection.communicator().getLogger().trace(
+		    "Freeze.Map.Index", "checking key in Db \"" + _dbName + "\"");
+	    }
+	    
+	    for(;;)
+	    {
+		try
+		{
+		    return _db.get(_connection.dbTxn(), dbKey, dbValue, null)
+			== com.sleepycat.db.OperationStatus.SUCCESS;
+		}
+		catch(com.sleepycat.db.DeadlockException e)
+		{
+		    if(_connection.dbTxn() != null)
+		    {
+			DeadlockException ex = new DeadlockException();
+			ex.initCause(e);
+			ex.message = _errorPrefix + "Db.get: " + e.getMessage();
+			throw ex;
+		    }
+		    else
+		    {
+			if(_connection.deadlockWarning())
+			{
+			    _connection.communicator().getLogger().warning(
+				"Deadlock in Freeze.Map.Index.containsKey while " +
+				"reading Db \"" + _dbName + "\"; retrying...");
+			}
+			//
+			// Try again
+			//
+		    }
+		}
+		catch(com.sleepycat.db.DatabaseException e)
+		{
+		    DatabaseException ex = new DatabaseException();
+		    ex.initCause(e);
+		    ex.message = _errorPrefix + "Db.get: " + e.getMessage();
+		    throw ex;
+		}
+	    }
+	}
+	
+	//
+	// Extracts the index key from this value
+	//
+	public abstract Object extractKey(Object value);
+
+	protected byte[] marshalKey(byte[] value)
+	{
+	    Object decodedValue = decodeValue(value, _connection.communicator());
+	    return encodeKey(extractKey(decodedValue), _connection.communicator());
+	}
+
+	//
+	// The user-supplied comparator
+	//
+	protected java.util.Comparator _comparator;
 
 	private String _name;
 	private String _dbName;
 	private com.sleepycat.db.SecondaryDatabase _db;
     }
 
-
     /**
      *
-     * The entry iterator class needs to be public to allow clients to
-     * explicitly close the iterator and free resources allocated for
-     * the iterator as soon as possible.
+     * The entry iterator allows clients to explicitly close the iterator 
+     * and free resources allocated for the iterator as soon as possible.
      *
      **/
-    public class EntryIterator implements java.util.Iterator
+    public interface EntryIterator extends java.util.Iterator
     {
-        EntryIterator(Index index, byte[] k)
+	void close();
+	void destroy(); // an alias for close
+    }
+
+    class EntryIteratorImpl implements EntryIterator
+    {
+        EntryIteratorImpl(Index index, byte[] fromKey, byte[] toKey, 
+			  boolean onlyFromKeyDups, boolean skipDups)
         {
-	    _indexed = (index != null);
+	    _index = index;
+	    _fromKey = fromKey;
+	    _toKey = toKey;
+	    _onlyFromKeyDups = onlyFromKeyDups;
+	    _skipDups = skipDups;
 
 	    try
 	    {
@@ -894,38 +1397,6 @@ public abstract class Map extends java.util.AbstractMap
 		throw ex;
 	    }
 
-	    if(_indexed)
-	    {
-		com.sleepycat.db.DatabaseEntry dbIKey = new com.sleepycat.db.DatabaseEntry(k);
-		com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry();
-		com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
-
-		try
-		{
-		    com.sleepycat.db.SecondaryCursor c = (com.sleepycat.db.SecondaryCursor)_cursor;
-		    if(c.getSearchKey(dbIKey, dbKey, dbValue, null) == com.sleepycat.db.OperationStatus.SUCCESS)
-		    {
-			_current = new Entry(this, Map.this, _connection.communicator(), dbKey, dbValue.getData());
-		    }
-		}
-		catch(com.sleepycat.db.DeadlockException dx)
-		{
-		    dead();
-		    DeadlockException ex = new DeadlockException();
-		    ex.initCause(dx);
-		    ex.message = _errorPrefix + "Dbc.get: " + dx.getMessage();
-		    throw ex;
-		}
-		catch(com.sleepycat.db.DatabaseException dx)
-		{
-		    dead();
-		    DatabaseException ex = new DatabaseException();
-		    ex.initCause(dx);
-		    ex.message = _errorPrefix + "Dbc.get: " + dx.getMessage();
-		    throw ex;
-		}
-	    }
-
 	    synchronized(_iteratorList)
 	    {
 		_iteratorList.addFirst(this);
@@ -938,47 +1409,60 @@ public abstract class Map extends java.util.AbstractMap
         public boolean
         hasNext()
         {
-	    if(_indexed && _current == null)
-	    {
-		return false;
-	    }
-
 	    if(_current == null || _current == _lastReturned)
 	    {
-		//
-		// Move _cursor, set _current
-		//
-		
 		com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry();
 		com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
+		com.sleepycat.db.DatabaseEntry dbIKey = new com.sleepycat.db.DatabaseEntry();
+		com.sleepycat.db.OperationStatus status = null;
 
 		try
 		{
-		    com.sleepycat.db.OperationStatus err;
-		    if(_indexed)
+		    if(_index != null)
 		    {
 			com.sleepycat.db.SecondaryCursor c = (com.sleepycat.db.SecondaryCursor)_cursor;
-			com.sleepycat.db.DatabaseEntry dbIKey = new com.sleepycat.db.DatabaseEntry();
-			//
-			// dlen is 0, so we should not retrieve any value 
-			// 
-			dbIKey.setPartial(true);
-
-			err = c.getNextDup(dbIKey, dbKey, dbValue, null);
+			if(_current == null)
+			{
+			    //
+			    // First key
+			    //
+			    if(_fromKey != null)
+			    {
+				dbIKey.setData(_fromKey);
+				status = c.getSearchKey(dbIKey, dbKey, dbValue, null);
+			    }
+			    else
+			    {
+				status = c.getFirst(dbIKey, dbKey, dbValue, null);
+			    }
+			}
+			else
+			{   
+			    if(_onlyFromKeyDups)
+			    {
+				status = c.getNextDup(dbIKey, dbKey, dbValue, null);
+			    }
+			    else if(_skipDups)
+			    {
+				status = c.getNextNoDup(dbIKey, dbKey, dbValue, null);
+			    }
+			    else
+			    {
+				status = c.getNext(dbIKey, dbKey, dbValue, null);
+			    }
+			}
 		    }
 		    else
 		    {
-			err = _cursor.getNext(dbKey, dbValue, null);
-		    }
-
-		    if(err == com.sleepycat.db.OperationStatus.SUCCESS)
-		    {
-			_current = new Entry(this, Map.this, _connection.communicator(), dbKey, dbValue.getData());
-			return true;
-		    }
-		    else
-		    {
-			return false;
+			if(_current == null && _fromKey != null)
+			{
+			    dbKey.setData(_fromKey);
+			    status = _cursor.getSearchKey(dbKey, dbValue, null);
+			}
+			else
+			{
+			    status = _cursor.getNext(dbKey, dbValue, null);
+			}
 		    }
 		}
 		catch(com.sleepycat.db.DeadlockException dx)
@@ -991,11 +1475,41 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		catch(com.sleepycat.db.DatabaseException dx)
 		{
+		    dead();
 		    DatabaseException ex = new DatabaseException();
 		    ex.initCause(dx);
 		    ex.message = _errorPrefix + "Dbc.get: " + dx.getMessage();
 		    throw ex;
 		}
+		
+		if(status == com.sleepycat.db.OperationStatus.SUCCESS)
+		{
+		    //
+		    // Verify it's < _toKey
+		    //
+		    boolean inRange = true;
+		    if(_toKey != null)
+		    {
+			if(_index != null)
+			{
+			    inRange = _index.compare(dbIKey, 
+						     new com.sleepycat.db.DatabaseEntry(_toKey)) < 0;
+			}
+			else
+			{
+			    inRange = _comparator.compare(dbKey,
+							  new com.sleepycat.db.DatabaseEntry(_toKey)) < 0;
+			}
+		    }
+		    
+		    if(inRange)
+		    {
+			_current = new Entry(this, Map.this, _connection.communicator(), dbKey, 
+					     dbValue.getData(), dbIKey.getData());
+			return true;
+		    }
+		}
+		return false;
 	    }
 	    else
 	    {
@@ -1068,9 +1582,9 @@ public abstract class Map extends java.util.AbstractMap
 		//
 		// This works only for non-index iterators
 		//
-		if(_indexed)
+		if(_index != null)
 		{
-		    throw new IllegalStateException();
+		    throw new UnsupportedOperationException();
 		}
 
 		com.sleepycat.db.Cursor clone = null;
@@ -1234,11 +1748,10 @@ public abstract class Map extends java.util.AbstractMap
 	void
 	setValue(Map.Entry entry, Object value)
 	{
-	    if(_indexed)
+	    if(_index != null)
 	    {
-		DatabaseException ex = new DatabaseException();
-		ex.message = _errorPrefix + "Cannot set an iterator retrieved through an index";
-		throw ex;
+		throw new UnsupportedOperationException(
+		    _errorPrefix + "Cannot set an iterator retrieved through an index");
 	    }
 
 	    if(_txn != null)
@@ -1427,21 +1940,26 @@ public abstract class Map extends java.util.AbstractMap
         private Entry _current;
         private Entry _lastReturned;
 	private java.util.Iterator _iteratorListToken;
-	private boolean _indexed;
-
+	
+	private final Index _index;
+	private final byte[] _fromKey;
+	private final byte[] _toKey;
+	private final boolean _onlyFromKeyDups;
+	private final boolean _skipDups;
     }
 
     static class Entry implements java.util.Map.Entry 
     {
         public
-        Entry(Map.EntryIterator iterator, Map map, Ice.Communicator communicator, 
-	      com.sleepycat.db.DatabaseEntry dbKey, byte[] valueBytes)
+        Entry(EntryIteratorImpl iterator, Map map, Ice.Communicator communicator, 
+	      com.sleepycat.db.DatabaseEntry dbKey, byte[] valueBytes, byte[] indexBytes)
         {
             _iterator = iterator;
 	    _map = map;
 	    _communicator = communicator;
             _dbKey = dbKey;
 	    _valueBytes = valueBytes;
+	    _indexBytes = indexBytes;
         }
 
 	public Object
@@ -1470,6 +1988,12 @@ public abstract class Map extends java.util.AbstractMap
 		_valueBytes = null;
             }
 	    return _value;
+	}
+
+	public byte[]
+	getIndexBytes()
+	{
+	    return _indexBytes;
 	}
 
 	public Object
@@ -1518,11 +2042,12 @@ public abstract class Map extends java.util.AbstractMap
 	    return (o1 == null ? o2 == null : o1.equals(o2));
 	}
 
-	private Map.EntryIterator _iterator;
+	private EntryIteratorImpl _iterator;
 	private Map _map;
 	private Ice.Communicator _communicator;
 	private com.sleepycat.db.DatabaseEntry _dbKey;
 	private byte[] _valueBytes;
+	private byte[] _indexBytes;
 	private Object _key;
         private boolean _haveKey = false;
 	private Object _value;
@@ -1560,6 +2085,8 @@ public abstract class Map extends java.util.AbstractMap
     }
     
     protected ConnectionI _connection;
+    private final Comparator _comparator;
+
     protected java.util.Iterator _token;
     protected SharedDb _db;
     protected String _errorPrefix;
@@ -1567,4 +2094,5 @@ public abstract class Map extends java.util.AbstractMap
 
     private java.util.Set _entrySet;
     private LinkedList _iteratorList = new LinkedList();
+    private java.util.Map _indexMap = new java.util.HashMap();
 }

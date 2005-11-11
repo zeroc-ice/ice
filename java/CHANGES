@@ -1,6 +1,30 @@
 Changes since version 2.1.2
 ---------------------------
 
+- Added custom-compare to Freeze Maps:
+  you can now provide your own Comparator object for keys and indices.
+  The constructor for a generated Freeze Map takes two new optional
+  parameters: a Comparator object (the comparator for the primary key)
+  and a java.util.Map string-to-Comparator, which provides the 
+  Comparators for the indices. When the comparator is null or not
+  provided, Freeze compares binary strings encoded using the Ice 
+  encoding.
+  Freeze Map now implements the java.util.SortedMap interface, and in
+  addition provides 4 new non-standard methods:
+   - SortedMap headMapForIndex(String indexName, Object toKey)
+   - SortedMap mapForIndex(String indexName)
+   - SortedMap subMapForIndex(String indexName, Object fromKey, Object toKey)
+   - SortedMap tailMapForIndex(String indexName, Object fromKey)
+  
+  The returned SortedMap is a map index-key to java.util.Set of 
+  Map.Entry objects of the main Freeze Map.
+
+  ((java.util.Set)map.subMapForIndex("foo").get(bar)).entrySet().iterator()
+  is similar but not identical to map.findByFoo(bar):
+    - the parameter ("bar") must be an Object (not a byte or int for example)
+    - get(bar) returns null if there is no entry with this index, while
+     findByFoo() always returns an iterator (sometimes with 0 elements).
+
 - Fixed a deadlock during shutdown that could happen with
   bi-directional connections.
 

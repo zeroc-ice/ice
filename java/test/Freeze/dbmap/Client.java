@@ -492,7 +492,7 @@ public class Client
 		e.setValue(new Integer(18));
 		test(false);
 	    }
-	    catch(Freeze.DatabaseException ex)
+	    catch(UnsupportedOperationException ex)
 	    {
 		// Expected
 	    }
@@ -621,9 +621,162 @@ public class Client
 	    iim.closeAllIterators();
 	    iim.clear();
 	}
-
 	System.out.println("ok");
+	
+	System.out.print("testing sorting... ");
+	System.out.flush();
 
+
+	final java.util.Comparator less =
+	    new java.util.Comparator()
+	    {
+		public int compare(Object o1, Object o2)
+		{
+		    if(o1 == o2)
+		    {
+			return 0;
+		    }
+		    else if(o1 == null)
+		    {
+			return -((Comparable)o2).compareTo(o1);
+		    }
+		    else
+		    {
+			return ((Comparable)o1).compareTo(o2);
+		    }
+		}
+	    };
+	
+	java.util.Comparator greater =
+	    new java.util.Comparator()
+	    {
+		public int compare(Object o1, Object o2)
+		{
+		    return -less.compare(o1, o2);
+		}
+	    };
+	
+	java.util.Map indexComparators = new java.util.HashMap();
+	indexComparators.put("category", greater);
+	java.util.Random rand = new java.util.Random();
+
+	{
+	    SortedMap sm = new SortedMap(connection, "sortedMap", true, less, indexComparators);
+
+	    Transaction tx = connection.beginTransaction();
+	    for(int i = 0; i < 500; i++)
+	    {
+		int k = rand.nextInt(1000); 
+		
+		Ice.Identity id = new Ice.Identity("foo",
+						   String.valueOf(alphabet.charAt(k % 26)));
+						   
+		
+		sm.fastPut(new Integer(k), id);
+	    }
+	    tx.commit();
+	    sm.close();
+	}
+
+	{
+	    SortedMap sm = new SortedMap(connection, "sortedMap", true, less, indexComparators);
+	    
+	    //
+	    // Primary key
+	    //
+	    for(int i = 0; i < 100; i++)
+	    {
+		int k = rand.nextInt(1000);
+
+		java.util.SortedMap subMap = sm.tailMap(new Integer(k));
+		try
+		{
+		    Integer fk = (Integer)subMap.firstKey();
+		    test(fk.intValue() >= k);
+		}
+		catch(NoSuchElementException e)
+		{
+		    // Expected from time to time
+		}
+		
+		subMap = sm.headMap(new Integer(k));
+		try
+		{
+		    Integer lk = (Integer)subMap.lastKey();
+		    test(lk.intValue() < k);
+		}
+		catch(NoSuchElementException e)
+		{
+		    // Expected from time to time
+		}
+	    }
+
+	    //
+	    // Category index
+	    //
+	    for(int i = 0; i < 100; i++)
+	    {
+		int k = rand.nextInt(1000);
+		String category = String.valueOf(alphabet.charAt(k % 26));
+		
+		java.util.SortedMap subMap = sm.tailMapForIndex("category", category);
+		try
+		{
+		    String fk = (String)subMap.firstKey();
+		    test(greater.compare(fk, category) >= 0);
+		}
+		catch(NoSuchElementException e)
+		{
+		    // Expected from time to time
+		}
+		
+		subMap = sm.headMapForIndex("category", category);
+		try
+		{
+		    String lk = (String)subMap.lastKey();
+		    test(greater.compare(lk, category) < 0);
+		}
+		catch(NoSuchElementException e)
+		{
+		    // Expected from time to time
+		}
+	    }
+	    
+	    java.util.SortedMap subMap = sm.mapForIndex("category");
+	    java.util.Iterator p = subMap.entrySet().iterator();
+	    String category = null;
+
+	    while(p.hasNext())
+	    {
+		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+		
+		if(category != null)
+		{
+		    test(greater.compare(category, entry.getKey()) < 0);
+		}
+		category = (String)entry.getKey();
+		// System.out.println("*******Category == " + category);
+
+		
+		java.util.Iterator q = ((java.util.Set)entry.getValue()).iterator();
+		while(q.hasNext())
+		{
+		    //
+		    // All my map entries
+		    //
+		    entry = (java.util.Map.Entry)q.next();
+		    Ice.Identity id = (Ice.Identity)entry.getValue();
+		    test(category.equals(id.category));
+		    
+		    // System.out.println("Key == " + entry.getKey().toString());
+
+		}
+	    }
+	    sm.closeAllIterators();
+	    sm.clear();
+	    sm.close();
+	}
+	System.out.println("ok");
 	connection.close();
 	
 	return 0;

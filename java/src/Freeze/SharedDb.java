@@ -12,10 +12,12 @@ package Freeze;
 class SharedDb
 {
     public static SharedDb
-    get(ConnectionI connection, String dbName, String key, String value, Map.Index[] indices, boolean createDb)
+    get(ConnectionI connection, String dbName, String key, String value, 
+	Map.Index[] indices, boolean createDb, java.util.Comparator comparator,
+	java.util.Map indexComparators)
     {
 	MapKey mapKey = new MapKey(connection.envName(), connection.communicator(), dbName);
-	
+
 	if(dbName.equals(Util.catalogName()))
 	{
 	    //
@@ -34,7 +36,8 @@ class SharedDb
 	    {
 		try
 		{
-		    result = new SharedDb(mapKey, key, value, connection, indices, createDb);
+		    result = new SharedDb(mapKey, key, value, connection, 
+					  indices, createDb, comparator, indexComparators);
 		}
 		catch(com.sleepycat.db.DatabaseException dx)
 		{
@@ -147,7 +150,7 @@ class SharedDb
     }
 
     private SharedDb(MapKey mapKey, String key, String value, ConnectionI connection, Map.Index[] indices,
-		     boolean createDb)
+		     boolean createDb, java.util.Comparator comparator, java.util.Map indexComparators)
 	throws com.sleepycat.db.DatabaseException
     {	
 	_mapKey = mapKey;
@@ -159,7 +162,7 @@ class SharedDb
 	try
 	{
 	    Catalog catalog = new Catalog(catalogConnection, Util.catalogName(), true);
-	    CatalogData catalogData = (CatalogData) catalog.get(_mapKey.dbName);
+	    CatalogData catalogData = (CatalogData)catalog.get(_mapKey.dbName);
 	    if(catalogData != null)
 	    {
 		if(catalogData.evictor)
@@ -186,6 +189,10 @@ class SharedDb
 		com.sleepycat.db.DatabaseConfig config = new com.sleepycat.db.DatabaseConfig();
 		config.setAllowCreate(createDb);
 		config.setType(com.sleepycat.db.DatabaseType.BTREE);
+		if(comparator != null)
+		{
+		    config.setBtreeComparator(comparator);
+		}
 
 		if(_trace >= 1)
 		{
@@ -198,7 +205,13 @@ class SharedDb
 		{
 		    for(int i = 0; i < _indices.length; ++i)
 		    {
-			_indices[i].associate(mapKey.dbName, _db, txn, createDb);
+			java.util.Comparator indexComparator = null;
+			if(indexComparators != null)
+			{
+			    indexComparator = (java.util.Comparator)indexComparators.get(_indices[i].name());
+			}
+
+			_indices[i].associate(mapKey.dbName, _db, txn, createDb, indexComparator);
 		    }
 		}
 

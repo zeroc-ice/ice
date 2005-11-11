@@ -51,6 +51,14 @@
            <dict name="IntIdentityMapWithIndex" key="int" value="Ice::Identity"/>
            <dictindex name="IntIdentityMapWithIndex" member="category"/>  
         </slice2freezej>
+        <slice2freezej ice="on" outputdir="${generated.dir}">
+           <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Ice" includes="Identity.ice"/>
+           <dict name="SortedMap" key="int" value="Ice::Identity"/>
+           <dictindex name="SortedMap" member="category"/>  
+        </slice2freezej>
     </target>
 
     <target name="compile" depends="generate">

@@ -80,7 +80,6 @@ private:
     std::string _name;
     MapIndexI* _impl;
     const MapHelperI* _map;
-    const KeyCompareBasePtr _keyCompare;
 };
 typedef IceUtil::Handle<MapIndexBase> MapIndexBasePtr;
 

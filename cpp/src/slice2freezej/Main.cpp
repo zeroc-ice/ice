@@ -53,6 +53,9 @@ public:
     bool generate(UnitPtr&, const Index&);
 
 private:
+    string varToObject(const TypePtr&, const string&);
+    string objectToVar(const TypePtr&, const string&);
+
     string _prog;
 };
 
@@ -60,6 +63,106 @@ FreezeGenerator::FreezeGenerator(const string& prog, const string& dir)
     : JavaGenerator(dir),
       _prog(prog)
 {
+}
+
+string
+FreezeGenerator::varToObject(const TypePtr& type, const string& param)
+{
+    string result = param;
+    
+    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    if(b != 0)
+    {
+	switch(b->kind())
+	{
+	    case Builtin::KindByte:
+	    {
+		result = string("new java.lang.Byte(") + param + ")";
+		break;
+	    }
+	    case Builtin::KindBool:
+	    {
+		result = string("new java.lang.Boolean(") + param + ")";
+		break;
+	    }
+	    case Builtin::KindShort:
+	    {
+		result = string("new java.lang.Short(") + param + ")";
+		break;
+	    }
+	    case Builtin::KindInt:
+	    {
+		result = string("new java.lang.Integer(") + param + ")";
+		break;
+	    }
+	    case Builtin::KindLong:
+	    {
+		result = string("new java.lang.Long(") + param + ")";
+		break;
+	    }
+	    case Builtin::KindFloat:
+	    {
+		result = string("new java.lang.Float(") + param + ")";
+		break;
+	    }
+	    case Builtin::KindDouble:
+	    {
+		result = string("new java.lang.Double(") + param + ")";
+		break;
+	    }
+	}
+    }
+    return result;
+}
+
+string 
+FreezeGenerator::objectToVar(const TypePtr& type, const string& param)
+{
+    string result = string("((") + typeToString(type, TypeModeIn) + ")" + param + ")";
+    
+    BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+    if(b != 0)
+    {
+	switch(b->kind())
+	{
+	    case Builtin::KindByte:
+	    {
+		result = string("((java.lang.Byte)") + param + ").byteValue()";
+		break;
+	    }
+	    case Builtin::KindBool:
+	    {
+		result = string("((java.lang.Boolean)") + param + ").booleanValue()";
+		break;
+	    }
+	    case Builtin::KindShort:
+	    {
+		result = string("((java.lang.Short)") + param + ").shortValue()";
+		break;
+	    }
+	    case Builtin::KindInt:
+	    {
+		result = string("((java.lang.Integer)") + param + ").intValue()";
+		break;
+	    }
+	    case Builtin::KindLong:
+	    {
+		result = string("((java.lang.Long)") + param + ").longValue()";
+		break;
+	    }
+	    case Builtin::KindFloat:
+	    {
+		result = string("((java.lang.Float)") + param + ").floatValue()";
+		break;
+	    }
+	    case Builtin::KindDouble:
+	    {
+		result = string("((java.lang.Double)") + param + ").doubleValue()";
+		break;
+	    }
+	}
+    }
+    return result;
 }
 
 bool
@@ -231,20 +334,16 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     out << sb;
 
     //
-    // Constructor
+    // Constructors
     //
-    out << sp << nl << "public" << nl << name 
-	<< "(Freeze.Connection __connection, String __dbName, boolean __createDb)";
-    out << sb;
-
-    if(dict.indices.size() == 0)
+    if(dict.indices.size() > 0)
     {
-	out << nl << "super(__connection,  __dbName, \"" << keyType->typeId() << "\", \""
-	    << valueType->typeId() << "\", __createDb);";
-    }
-    else
-    {
-	out << nl << "super(__connection, __dbName);";
+	out << sp << nl << "public" << nl << name 
+	    << "(Freeze.Connection __connection, String __dbName, boolean __createDb, "
+	    << "java.util.Comparator __comparator, java.util.Map __indexComparators)";
+	out << sb;
+	
+	out << nl << "super(__connection, __dbName, __comparator);";
 	out << nl << "_indices = new Freeze.Map.Index[" << dict.indices.size() << "];";
 	for(i = 0; i < dict.indices.size(); ++i)
 	{
@@ -252,27 +351,59 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 		<< "Index(\"" << indexNames[i] << "\");";
 	}
 	out << nl << "init(_indices, __dbName, \"" << keyType->typeId() << "\", \""
-	    << valueType->typeId() << "\", __createDb);";
+	    << valueType->typeId() << "\", __createDb, __indexComparators);";
+	out << eb;
     }
+
+    out << sp << nl << "public" << nl << name 
+	<< "(Freeze.Connection __connection, String __dbName, boolean __createDb, "
+	<< "java.util.Comparator __comparator)";
+    out << sb;
+    if(dict.indices.size() > 0)
+    {
+	out << nl << "this(__connection, __dbName, __createDb, __comparator, null);";
+    }
+    else
+    {
+	out << nl << "super(__connection,  __dbName, \"" << keyType->typeId() << "\", \""
+	    << valueType->typeId() << "\", __createDb, __comparator);";
+    }
+    out << eb;
+    
+    out << sp << nl << "public" << nl << name 
+	<< "(Freeze.Connection __connection, String __dbName, boolean __createDb)";
+    out << sb;
+    out << nl << "this(__connection, __dbName, __createDb, null);";
+    out << eb;
+
+    out << sp << nl << "public" << nl << name 
+	<< "(Freeze.Connection __connection, String __dbName)";
+    out << sb;
+    out << nl << "this(__connection, __dbName, true);";
     out << eb;
 
     //
-    // findBy, count and encode methods
+    // findBy and count methods
     // 
-
     for(i = 0; i < capitalizedMembers.size(); ++i)
     {
 	string indexClassName = capitalizedMembers[i] + "Index";
 
 	out << sp << nl << "public Freeze.Map.EntryIterator";
 	out << nl << "findBy" << capitalizedMembers[i] << "("
+	    << typeToString(indexTypes[i], TypeModeIn) << " __index, boolean __onlyDups)";
+	out << sb;
+	out << nl << "return _indices[" << i << "].untypedFind("
+	    << varToObject(indexTypes[i], "__index") << ", __onlyDups);"; 
+	out << eb;
+
+	out << sp << nl << "public Freeze.Map.EntryIterator";
+	out << nl << "findBy" << capitalizedMembers[i] << "("
 	    << typeToString(indexTypes[i], TypeModeIn) << " __index)";
 	out << sb;
 	out << nl << "return _indices[" << i << "].untypedFind("
-	    << "encode" << indexClassName 
-	    << "(__index, ((Freeze.Connection)_connection).getCommunicator()));"; 
+	    << varToObject(indexTypes[i], "__index") << ", true);"; 
 	out << eb;
-	
 	
 	string countMethod = dict.indices[i].member.empty() ?
 	    "valueCount" : dict.indices[i].member + "Count";
@@ -281,90 +412,12 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 	    << typeToString(indexTypes[i], TypeModeIn) << " __index)";
 	out << sb;
 	out << nl << "return _indices[" << i << "].untypedCount("
-	    << "encode" << indexClassName 
-	    << "(__index, ((Freeze.Connection)_connection).getCommunicator()));";
-	out << eb;
-
-
-	out << sp << nl << "private byte[]";
-	out << nl << "encode" << indexClassName << "(" << typeToString(indexTypes[i], TypeModeIn) 
-	    << " __key, Ice.Communicator __communicator)";
-	out << sb;
-	if(dict.indices[i].member.empty() && dict.indices[i].caseSensitive)
-	{
-	    string param;
-	    BuiltinPtr b = BuiltinPtr::dynamicCast(indexTypes[i]);
-	    if(b != 0)
-	    {
-		switch(b->kind())
-		{
-		    case Builtin::KindByte:
-		    {
-			param = "new java.lang.Byte(__key)";
-			break;
-		    }
-		    case Builtin::KindBool:
-		    {
-			param = "new java.lang.Boolean(__key)";
-			break;
-		    }
-		    case Builtin::KindShort:
-		    {
-			param = "new java.lang.Short(__key)";
-			break;
-		    }
-		    case Builtin::KindInt:
-		    {
-			param = "new java.lang.Integer(__key)";
-			break;
-		    }
-		    case Builtin::KindLong:
-		    {
-			param = "new java.lang.Long(__key)";
-			break;
-		    }
-		    case Builtin::KindFloat:
-		    {
-			param = "new java.lang.Float(__key)";
-			break;
-		    }
-		    case Builtin::KindDouble:
-		    {
-			param = "new java.lang.Double(__key)";
-			break;
-		    }
-		    default:
-		    {
-			param = "__key";
-			break;
-		    }
-		}
-	    }
-	    
-	    out << nl << "return encodeValue(" << param << ", __communicator);";
-	}
-	else
-	{
-	    string valueS = dict.indices[i].caseSensitive ? "__key" : "__key.toLowerCase()";
-
-	    out << nl << "IceInternal.BasicStream __os = "
-		<< "new IceInternal.BasicStream(Ice.Util.getInstance(__communicator));";
-	    int iter = 0;
-	    writeMarshalUnmarshalCode(out, "", indexTypes[i], valueS, true, iter, false);
-	    if(indexTypes[i]->usesClasses())
-	    {
-		out << nl << "__os.writePendingObjects();";
-	    }
-	    out << nl << "java.nio.ByteBuffer __buf = __os.prepareWrite();";
-	    out << nl << "byte[] __r = new byte[__buf.limit()];";
-	    out << nl << "__buf.get(__r);";
-	    out << nl << "return __r;";
-	}
+	    << varToObject(indexTypes[i], "__index") << ");"; 
 	out << eb;
     }
     
     //
-    // encode/decode
+    // Top-level encode/decode
     //
     for(i = 0; i < 2; i++)
     {
@@ -388,63 +441,18 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             encaps = true;
         }
 
-        string typeS, valS;
+	string valS = objectToVar(type, "o");
+	string typeS;
+
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        if(b)
+        if(b != 0)
         {
             typeS = builtinTable[b->kind()];
-            switch(b->kind())
-            {
-                case Builtin::KindByte:
-                {
-                    valS = "((java.lang.Byte)o).byteValue()";
-                    break;
-                }
-                case Builtin::KindBool:
-                {
-                    valS = "((java.lang.Boolean)o).booleanValue()";
-                    break;
-                }
-                case Builtin::KindShort:
-                {
-                    valS = "((java.lang.Short)o).shortValue()";
-                    break;
-                }
-                case Builtin::KindInt:
-                {
-                    valS = "((java.lang.Integer)o).intValue()";
-                    break;
-                }
-                case Builtin::KindLong:
-                {
-                    valS = "((java.lang.Long)o).longValue()";
-                    break;
-                }
-                case Builtin::KindFloat:
-                {
-                    valS = "((java.lang.Float)o).floatValue()";
-                    break;
-                }
-                case Builtin::KindDouble:
-                {
-                    valS = "((java.lang.Double)o).doubleValue()";
-                    break;
-                }
-                case Builtin::KindString:
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindLocalObject:
-                {
-                    valS = "((" + typeS + ")o)";
-                    break;
-                }
-            }
-        }
-        else
-        {
-            typeS = typeToString(type, TypeModeIn);
-            valS = "((" + typeS + ")o)";
-        }
+	}
+	else
+	{
+	    typeS = typeToString(type, TypeModeIn);
+	}
 
         int iter;
 
@@ -591,28 +599,203 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 	out << sp << nl << "private class " << indexClassName << " extends Freeze.Map.Index";
 	out << sb;
 
-	out << sp << nl << "protected byte[]";
-	out << nl << "marshalKey(byte[] __value)";
+	//
+	// encodeKey
+	//
+	out << sp << nl << "public byte[]";
+	out << nl << "encodeKey(Object key, Ice.Communicator communicator)";
 	out << sb;
-	if(dict.indices[i].member.empty() && dict.indices[i].caseSensitive)
+	if(dict.indices[i].member.empty())
 	{
-	    out << nl << "return __value;";
+	    //
+	    // Encode the full value (with an encaps!)
+	    //
+	    string keyS = "key";
+	    if(!dict.indices[i].caseSensitive)
+	    {
+		keyS = "((String)key).toLowerCase()";
+	    }
+
+	    out << nl << "return encodeValue(" << keyS << ", communicator);";
+	}
+	else
+	{
+	    //
+	    // No encaps
+	    //
+	    string keyS = dict.indices[i].caseSensitive ? 
+		"key" : "((String)key).toLowerCase()";
+
+	    keyS = objectToVar(indexTypes[i], keyS);
+
+	    out << nl << "IceInternal.BasicStream __os = "
+		<< "new IceInternal.BasicStream(Ice.Util.getInstance(communicator));";
+	    int iter = 0;
+	    writeMarshalUnmarshalCode(out, "", indexTypes[i], keyS, true, iter, false);
+	    assert(!indexTypes[i]->usesClasses());
+
+	    out << nl << "java.nio.ByteBuffer buf = __os.prepareWrite();";
+	    out << nl << "byte[] r = new byte[buf.limit()];";
+	    out << nl << "buf.get(r);";
+	    out << nl << "return r;";
+	}
+	out << eb;
+
+	//
+	// decodekey
+	//
+	out << sp << nl << "public Object";
+	out << nl << "decodeKey(byte[] bytes, Ice.Communicator communicator)";
+	out << sb;
+	if(dict.indices[i].member.empty())
+	{
+	    //
+	    // Decode the full value (with an encaps!)
+	    //
+	    out << nl << "return decodeValue(bytes, communicator);";
+	}
+	else
+	{
+	    out << nl << "IceInternal.BasicStream __is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));";
+	    out << nl << "__is.resize(bytes.length, true);";
+	    out << nl << "java.nio.ByteBuffer buf = __is.prepareRead();";
+	    out << nl << "buf.position(0);";
+	    out << nl << "buf.put(bytes);";
+	    out << nl << "buf.position(0);";
+	    
+	    int iter = 0;
+	    list<string> metaData;
+	    string patchParams;
+
+	    string typeS;
+	    BuiltinPtr b = BuiltinPtr::dynamicCast(indexTypes[i]);
+	    if(b != 0)
+	    {
+		typeS = builtinTable[b->kind()];
+	    }
+	    else
+	    {
+		typeS = typeToString(indexTypes[i], TypeModeIn);
+	    }
+            out << nl << typeS << " r;";
+	 
+	    if(b != 0)
+	    {
+		switch(b->kind())
+		{
+		    case Builtin::KindByte:
+		    {
+			out << nl << "r = new java.lang.Byte(__is.readByte());";
+			break;
+		    }
+		    case Builtin::KindBool:
+		    {
+			out << nl << "r = new java.lang.Boolean(__is.readBool());";
+			break;
+		    }
+		    case Builtin::KindShort:
+		    {
+			out << nl << "r = new java.lang.Short(__is.readShort());";
+			break;
+		    }
+		    case Builtin::KindInt:
+		    {
+			out << nl << "r = new java.lang.Integer(__is.readInt());";
+			break;
+		    }
+		    case Builtin::KindLong:
+		    {
+			out << nl << "r = new java.lang.Long(__is.readLong());";
+			break;
+		    }
+		    case Builtin::KindFloat:
+		    {
+			out << nl << "r = new java.lang.Float(__is.readFloat());";
+			break;
+		    }
+		    case Builtin::KindDouble:
+		    {
+			out << nl << "r = new java.lang.Double(__is.readDouble());";
+			break;
+		    }
+		    case Builtin::KindString:
+		    case Builtin::KindObject:
+		    case Builtin::KindObjectProxy:
+		    case Builtin::KindLocalObject:
+		    {
+			writeMarshalUnmarshalCode(out, "", indexTypes[i], "r", false, iter, false, metaData, patchParams);
+			break;
+		    }
+		}
+	    }
+	    else
+	    {
+		writeMarshalUnmarshalCode(out, "", indexTypes[i], "r", false, iter, false, metaData, patchParams);
+	    }
+            out << nl << "return r;";
+        }
+        out << eb;
+
+	//
+	// compare
+	//
+	out << sp << nl << "public int";
+	out << nl << "compare(Object o1, Object o2)";
+	out << sb;
+	out << nl << "assert _comparator != null;";
+	out << nl << "byte[] d1 = (byte[])o1;";
+	out << nl << "byte[] d2 = (byte[])o2;";
+	out << nl << "Ice.Communicator communicator = ((Freeze.Connection)_connection).getCommunicator();";
+	out << nl << "return _comparator.compare(";
+	out.inc();
+	out << nl << "decodeKey(d1, communicator),";
+	out << nl << "decodeKey(d2, communicator));";
+	out.dec();
+	out << eb;
+
+	//
+	// extractKey from value
+	//
+	out << sp << nl << "public Object";
+	out << nl << "extractKey(Object value)";
+	out << sb;
+	if(dict.indices[i].member.empty())
+	{
+	    if(dict.indices[i].caseSensitive)
+	    {
+		out << nl << "return value;";
+	    }
+	    else
+	    {
+		out << nl << "return value.toLowerCase();";
+	    }
 	}
 	else
 	{
 	    out << nl << typeToString(valueType, TypeModeIn)
-		<< " __x = ("
-		<< typeToString(valueType, TypeModeIn) << 
-		")decodeValue(__value, ((Freeze.Connection)_connection).getCommunicator());";
-	    string param = "__x";
-	    if(!dict.indices[i].member.empty())
+		<< " typedValue = ("
+		<< typeToString(valueType, TypeModeIn) << ")value;";
+	 
+	    string member = string("typedValue.") + dict.indices[i].member;
+	    if(!dict.indices[i].caseSensitive)
 	    {
-		param += "." + dict.indices[i].member;
+		member += ".toLowerCase()";
 	    }
-	    out << nl << "return encode" << indexClassName << "(" << param 
-		<< ", ((Freeze.Connection)_connection).getCommunicator());";
+	    out << nl << "return " << varToObject(indexTypes[i], member) << ";";
 	}
 	out << eb;
+	
+	//
+	// marshalKey optimization
+	//
+	if(dict.indices[i].member.empty() && dict.indices[i].caseSensitive)
+	{
+	    out << sp << nl << "protected byte[]";
+	    out << nl << "marshalKey(byte[] value)";
+	    out << sb;
+	    out << nl << "return value;";
+	    out << eb;
+	}
 
 	out << sp << nl << "private " << indexClassName << "(String name)";
 	out << sb;

@@ -623,7 +623,7 @@ run(const CommunicatorPtr& communicator, const string& envName)
 
     cout << "testing sorting... " << flush;
     { 
-	SortedMap sm(connection, "sortedIntIdentity");
+	SortedMap sm(connection, "sortedMap");
 	    
 	TransactionHolder txHolder(connection);
 	for(int i = 0; i < 1000; i++)
@@ -640,7 +640,7 @@ run(const CommunicatorPtr& communicator, const string& envName)
     }
     
     { 
-	SortedMap sm(connection, "sortedIntIdentity");
+	SortedMap sm(connection, "sortedMap");
 	{
 	    for(int i = 0; i < 100; ++i)
 	    {
