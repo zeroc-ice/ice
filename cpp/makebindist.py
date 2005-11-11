@@ -35,6 +35,14 @@ def runprog(commandstring):
 	msg = 'Command %s failed with error code %d' % (commandstring, result)
 	raise ExtProgramError(msg)
 
+def copyfiles(srcDir, destDir):
+    '''Copy the contents of one directory to another (non-recursive)'''
+    for f in os.listdir(srcDir):
+	src = os.path.join(srcDir, f)
+	dest = os.path.join(destDir, f)
+	if not os.path.isdir(src) and not os.path.islink(src):
+	    shutil.copy(src, dest)
+
 def getIceVersion(file):
     """Extract the ICE version string from a file."""
     config = open(file, 'r')
@@ -1030,9 +1038,9 @@ def main():
 
     if getPlatform() == 'hpux':
 	ssl = os.environ['OPENSSL_HOME']
-	runprog('cp ' + ssl + '/bin/* Ice-' + version + '/bin')
-	runprog('cp -R ' + ssl + '/include/* Ice-' + version + '/include')
-	runprog('cp -R ' + ssl + '/lib/* Ice-' + version + '/lib')
+	copyfiles('%s/bin' % ssl, 'Ice-%s/bin' % version)
+	runprog('cp -R ' + ssl + '/include Ice-' + version)
+	runprog('cp -R ' + ssl + '/lib Ice-' + version)
 	runprog('rm -rf Ice-' + version + '/lib/libfips*')
 
     uname = readcommand('uname')
