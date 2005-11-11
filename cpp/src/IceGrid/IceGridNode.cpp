@@ -345,8 +345,8 @@ NodeService::start(int argc, char* argv[])
         // activator to each activated server).
         //
 	const string instanceNameProperty = "IceGrid.InstanceName";
-	const string locatorId = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid") + "/Locator";	
-        string locatorPrx = locatorId + ":" + properties->getProperty("IceGrid.Registry.Client.Endpoints");
+	const string locatorId = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid") + "/Locator";
+	string locatorPrx = locatorId + ":" + properties->getProperty("IceGrid.Registry.Client.Endpoints");
         properties->setProperty("Ice.Default.Locator", locatorPrx);
     }
     else if(properties->getProperty("Ice.Default.Locator").empty())

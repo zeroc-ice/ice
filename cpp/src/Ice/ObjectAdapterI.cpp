@@ -86,45 +86,28 @@ Ice::ObjectAdapterI::activate()
 		 Ice::voidMemFun(&IncomingConnectionFactory::activate));	
     }
 
-    //
-    // We must get and call on the locator registry outside the thread
-    // synchronization to avoid deadlocks. (we can't make remote calls
-    // within the OA synchronization because the remote call will
-    // indirectly call isLocal() on this OA with the OA factory
-    // locked).
-    //
-    LocatorRegistryPrx locatorRegistry;
-    if(locatorInfo)
-    {
-	locatorRegistry = locatorInfo->getLocatorRegistry();
-    }
-
-    if(registerProcess)
-    {
-	if(!locatorRegistry)
-	{
-	    Warning out(communicator->getLogger());
-	    out << "object adapter `" << _name << "' cannot register the process without a locator registry";
-	    registerProcess = false;
-	}
-	else if(serverId.empty())
-	{
-	    Warning out(communicator->getLogger());
-	    out << "object adapter `" << _name << "' cannot register the process without a value for Ice.ServerId";
-	    registerProcess = false;
-	}
-    }
-
-    if(locatorRegistry)
+    if(registerProcess || !_id.empty())
     {
 	//
-	// TODO: This might throw if we can't connect to the
-	// locator. Shall we raise a special exception for the
-	// activate operation instead of a non obvious network
-	// exception?
+	// We must get and call on the locator registry outside the thread
+	// synchronization to avoid deadlocks. (we can't make remote calls
+	// within the OA synchronization because the remote call will
+	// indirectly call isLocal() on this OA with the OA factory
+	// locked).
 	//
-
-	if(!_id.empty())
+	LocatorRegistryPrx locatorRegistry;
+	if(locatorInfo)
+	{
+	    //
+	    // TODO: This might throw if we can't connect to the
+	    // locator. Shall we raise a special exception for the
+	    // activate operation instead of a non obvious network
+	    // exception?
+	    //
+	    locatorRegistry = locatorInfo->getLocatorRegistry();
+	}
+	
+	if(locatorRegistry && !_id.empty())
 	{
 	    try
 	    {
@@ -163,26 +146,39 @@ Ice::ObjectAdapterI::activate()
 		ex.id = _id;
 		throw ex;
 	    }
-	}
+	}	    
 
-        if(registerProcess)
-        {
-	    try
+	if(registerProcess)
+	{
+	    if(!locatorRegistry)
 	    {
-		ProcessPtr servant = new ProcessI(communicator);
-		Ice::ObjectPrx proxy = createDirectProxy(addWithUUID(servant)->ice_getIdentity());
-		locatorRegistry->setServerProcessProxy(serverId, ProcessPrx::uncheckedCast(proxy));
+		Warning out(communicator->getLogger());
+		out << "object adapter `" << _name << "' cannot register the process without a locator registry";
 	    }
-	    catch(const ObjectAdapterDeactivatedException&)
+	    else if(serverId.empty())
 	    {
-		// IGNORE: The object adapter is already inactive.
+		Warning out(communicator->getLogger());
+		out << "object adapter `" << _name << "' cannot register the process without a value for Ice.ServerId";
 	    }
-	    catch(const ServerNotFoundException&)
+	    else
 	    {
-		NotRegisteredException ex(__FILE__, __LINE__);
-		ex.kindOfObject = "server";
-		ex.id = serverId;
-		throw ex;
+		try
+		{
+		    ProcessPtr servant = new ProcessI(communicator);
+		    Ice::ObjectPrx proxy = createDirectProxy(addWithUUID(servant)->ice_getIdentity());
+		    locatorRegistry->setServerProcessProxy(serverId, ProcessPrx::uncheckedCast(proxy));
+		}
+		catch(const ObjectAdapterDeactivatedException&)
+		{
+		    // IGNORE: The object adapter is already inactive.
+		}
+		catch(const ServerNotFoundException&)
+		{
+		    NotRegisteredException ex(__FILE__, __LINE__);
+		    ex.kindOfObject = "server";
+		    ex.id = serverId;
+		    throw ex;
+		}
 	    }
 	}
     }

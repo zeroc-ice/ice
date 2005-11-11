@@ -246,7 +246,7 @@ public:
     const NodeDescriptor& getDescriptor() const;
     const NodeDescriptor& getInstance() const;
     void getServerInfos(const std::string&, std::map<std::string, ServerInfo>&) const;
-    DistributionDescriptorDict getDistributions(const std::string&) const;
+    bool hasDistributions(const std::string&) const;
     bool hasServers() const;
     bool hasServer(const std::string&) const;
     void print(IceUtil::Output&) const;
@@ -281,8 +281,7 @@ public:
     const ApplicationDescriptor& getInstance() const;
     TemplateDescriptor getServerTemplate(const std::string&) const;
     TemplateDescriptor getServiceTemplate(const std::string&) const;
-    void getDistributions(DistributionDescriptor&, std::map<std::string, DistributionDescriptorDict>&,
-			  const std::string& = std::string()) const;
+    void getDistributions(DistributionDescriptor&, std::vector<std::string>&,const std::string& = std::string()) const;
 
     void print(IceUtil::Output&) const;
     void printDiff(IceUtil::Output&, const ApplicationHelper&) const;

@@ -39,8 +39,8 @@ public:
     virtual void loadServer_async(const AMD_Node_loadServerPtr&, const std::string&, const ServerDescriptorPtr&, 
 				  const Ice::Current&);
     virtual void destroyServer_async(const AMD_Node_destroyServerPtr&, const std::string&, const Ice::Current&);
-    virtual void patch(const std::string&, const DistributionDescriptor&, const DistributionDescriptorDict&, 
-		       bool, const Ice::Current&);
+    virtual void patch(const std::string&, const std::string&, const DistributionDescriptor&, bool,
+		       const Ice::Current&);
 
     virtual std::string getName(const Ice::Current& = Ice::Current()) const;
     virtual std::string getHostname(const Ice::Current& = Ice::Current()) const;

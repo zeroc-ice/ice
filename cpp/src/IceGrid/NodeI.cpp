@@ -273,8 +273,8 @@ NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB, const string&
 
 void
 NodeI::patch(const string& application, 
+	     const string& server,
 	     const DistributionDescriptor& appDistrib,
-	     const DistributionDescriptorDict& serverDistribs, 
 	     bool shutdown, 
 	     const Ice::Current&)
 {
@@ -288,20 +288,17 @@ NodeI::patch(const string& application,
 	}
 	_patchInProgress.insert(application);
 
-	if(!appDistrib.icepatch.empty())
+	if(server.empty() || !appDistrib.icepatch.empty())
 	{
 	    servers = getApplicationServers(application);
 	}
 	else
 	{
-	    for(DistributionDescriptorDict::const_iterator p = serverDistribs.begin(); p != serverDistribs.end(); ++p)
+	    Ice::Identity id = createServerIdentity(server);
+	    ServerIPtr svr = ServerIPtr::dynamicCast(_adapter->find(id));
+	    if(svr)
 	    {
-		Ice::Identity id = createServerIdentity(p->first);
-		ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
-		if(server)
-		{
-		    servers.insert(server);
-		}
+		servers.insert(svr);
 	    }
 	}
     }
@@ -323,7 +320,7 @@ NodeI::patch(const string& application,
 	    }
 	}
 
-	if(!running.empty())
+	if((servers.empty() || !appDistrib.icepatch.empty()) && !running.empty())
 	{
 	    PatchException ex;
 	    ex.reason = "patch on node `" + _name + "' failed:\n";
@@ -360,16 +357,27 @@ NodeI::patch(const string& application,
 	    }
 
 	    //
-	    // Patch the servers.
+	    // Patch the server(s).
 	    //
-	    for(DistributionDescriptorDict::const_iterator p = serverDistribs.begin(); p != serverDistribs.end(); ++p)
+	    for(s = servers.begin(); s != servers.end(); ++s)
 	    {
-		icepatch = FileServerPrx::checkedCast(getCommunicator()->stringToProxy(p->second.icepatch));
+		if(!server.empty() && (*s)->getId() != server)
+		{
+		    continue;
+		}
+
+		DistributionDescriptor dist = (*s)->getDistribution();
+		icepatch = FileServerPrx::checkedCast(getCommunicator()->stringToProxy(dist.icepatch));
 		if(!icepatch)
 		{
-		    throw "proxy `" + p->second.icepatch + "' is not a file server.";
+		    throw "proxy `" + dist.icepatch + "' is not a file server.";
 		}
-		patch(icepatch, "servers/" + p->first + "/distrib", p->second.directories);
+		patch(icepatch, "servers/" + (*s)->getId() + "/distrib", dist.directories);
+
+		if(!server.empty())
+		{
+		    break;
+		}
 	    }
 	}
 	catch(const Ice::LocalException& ex)

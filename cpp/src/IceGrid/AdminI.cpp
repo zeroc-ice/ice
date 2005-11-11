@@ -312,28 +312,28 @@ AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
 {
     ApplicationHelper helper(_database->getApplicationDescriptor(name));    
     DistributionDescriptor appDistrib;
-    map<string, DistributionDescriptorDict> nodeDistrib;
-    helper.getDistributions(appDistrib, nodeDistrib);
+    vector<string> nodes;
+    helper.getDistributions(appDistrib, nodes);
 
-    if(nodeDistrib.empty())
+    if(nodes.empty())
     {
 	amdCB->ice_response();
 	return;
     }
 
-    PatchAggregatorPtr aggregator = new PatchAggregator(amdCB, _traceLevels, name, nodeDistrib.size());
-    for(map<string, DistributionDescriptorDict>::const_iterator p = nodeDistrib.begin(); p != nodeDistrib.end(); ++p)
+    PatchAggregatorPtr aggregator = new PatchAggregator(amdCB, _traceLevels, name, nodes.size());
+    for(vector<string>::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
     {
 	if(_traceLevels->patch > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-	    out << "started patching of application `" << name << "' on node `" << p->first << "'";
+	    out << "started patching of application `" << name << "' on node `" << *p << "'";
 	}
 
-	AMI_Node_patchPtr cb = new PatchCB(aggregator, p->first);
+	AMI_Node_patchPtr cb = new PatchCB(aggregator, *p);
 	try
 	{
-	    _database->getNode(p->first)->patch_async(cb, name, appDistrib, p->second, shutdown);
+	    _database->getNode(*p)->patch_async(cb, name, "", appDistrib, shutdown);
 	}
 	catch(const Ice::Exception& ex)
 	{
@@ -359,7 +359,15 @@ AdminI::getDefaultApplicationDescriptor(const Current& current) const
 				  "IceGrid.Registry.DefaultTemplates in the IceGrid registry configuration.");
     }
 
-    ApplicationDescriptor desc = DescriptorParser::parseDescriptor(path, current.adapter->getCommunicator());
+    ApplicationDescriptor desc;
+    try
+    {
+	desc = DescriptorParser::parseDescriptor(path, current.adapter->getCommunicator());
+    }
+    catch(const IceXML::ParserException& ex)
+    {
+	throw DeploymentException("can't parse default templates:\n" + ex.reason());
+    }
     desc.name = "";
     if(!desc.nodes.empty())
     {
@@ -479,22 +487,22 @@ AdminI::patchServer_async(const AMD_Admin_patchServerPtr& amdCB, const string& i
     ServerInfo info = _database->getServerInfo(id);
     ApplicationHelper helper(_database->getApplicationDescriptor(info.application));
     DistributionDescriptor appDistrib;
-    map<string, DistributionDescriptorDict> nodeDistrib;
-    helper.getDistributions(appDistrib, nodeDistrib, id);
+    vector<string> nodes;
+    helper.getDistributions(appDistrib, nodes, id);
 
-    if(appDistrib.icepatch.empty() && nodeDistrib.empty())
+    if(appDistrib.icepatch.empty() && nodes.empty())
     {
 	amdCB->ice_response();
 	return;
     }
 
-    assert(nodeDistrib.size() == 1);
+    assert(nodes.size() == 1);
 
-    map<string, DistributionDescriptorDict>::const_iterator p = nodeDistrib.begin();
-    AMI_Node_patchPtr amiCB = new ServerPatchCB(amdCB, _traceLevels, id, p->first);
+    vector<string>::const_iterator p = nodes.begin();
+    AMI_Node_patchPtr amiCB = new ServerPatchCB(amdCB, _traceLevels, id, *p);
     try
     {
-	_database->getNode(p->first)->patch_async(amiCB, info.application, appDistrib, p->second, shutdown);
+	_database->getNode(*p)->patch_async(amiCB, info.application, id, appDistrib, shutdown);
     }
     catch(const Ice::Exception& ex)
     {

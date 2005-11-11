@@ -81,6 +81,7 @@ public:
     std::string getApplication() const;
     ServerActivation getActivationMode() const;
     const std::string& getId() const;
+    DistributionDescriptor getDistribution() const;
 
     void load(const AMD_Node_loadServerPtr&, const std::string&, const ServerDescriptorPtr&);
     bool startPatch(bool);

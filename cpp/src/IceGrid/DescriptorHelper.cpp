@@ -1705,8 +1705,8 @@ NodeHelper::getServerInfos(const string& application, map<string, ServerInfo>& s
     }
 }
 
-DistributionDescriptorDict
-NodeHelper::getDistributions(const string& server) const
+bool
+NodeHelper::hasDistributions(const string& server) const
 {
     //
     // Get the server distributions to patch.
@@ -1719,14 +1719,14 @@ NodeHelper::getDistributions(const string& server) const
 	{
 	    if(!p->second.getServerInstance()->distrib.icepatch.empty())
 	    {
-		distribs.insert(make_pair(p->first, p->second.getServerInstance()->distrib));
+		return true;
 	    }
 	}
 	for(p = _servers.begin(); p != _servers.end(); ++p)
 	{
 	    if(!p->second.getServerInstance()->distrib.icepatch.empty())
 	    {
-		distribs.insert(make_pair(p->first, p->second.getServerInstance()->distrib));
+		return true;
 	    }
 	}
     }
@@ -1736,16 +1736,21 @@ NodeHelper::getDistributions(const string& server) const
 	if(p == _serverInstances.end())
 	{
 	    p = _servers.find(server);
+	    if(p == _servers.end())
+	    {
+		p = _serverInstances.end();
+	    }
 	}
 	if(p != _serverInstances.end())
 	{
 	    if(!p->second.getServerInstance()->distrib.icepatch.empty())
 	    {
-		distribs.insert(make_pair(server, p->second.getServerInstance()->distrib));
+		return true;
 	    }
 	}
     }
-    return distribs;
+
+    return false;
 }
 
 bool
@@ -2217,17 +2222,16 @@ ApplicationHelper::getServerInfos() const
 }
 
 void
-ApplicationHelper::getDistributions(DistributionDescriptor& distribution,
-				    map<string, DistributionDescriptorDict>& nodeDistributions,
+ApplicationHelper::getDistributions(DistributionDescriptor& distribution, 
+				    vector<string>& nodes,
 				    const string& server) const
 {
     distribution = _instance.distrib;
     for(NodeHelperDict::const_iterator n = _nodes.begin(); n != _nodes.end(); ++n)
     {
-	DistributionDescriptorDict distrib = n->second.getDistributions(server);
-	if(!distrib.empty())
+	if(n->second.hasDistributions(server))
 	{
-	    nodeDistributions.insert(make_pair(n->first, distrib));
+	    nodes.push_back(n->first);
 	    if(!server.empty())
 	    {
 		break;
@@ -2236,7 +2240,7 @@ ApplicationHelper::getDistributions(DistributionDescriptor& distribution,
 	else if(!_instance.distrib.icepatch.empty() && 
 		(server.empty() && n->second.hasServers() || n->second.hasServer(server)))
 	{
-	    nodeDistributions.insert(make_pair(n->first, distrib));
+	    nodes.push_back(n->first);
 	}
     }
 }

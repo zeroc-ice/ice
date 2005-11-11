@@ -384,6 +384,16 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    }
 	    _currentCommunicator->addDbEnvProperty(attributes);
 	}
+	else if(name == "description" || name == "option" || name == "env" || name == "directory")
+	{
+	    //
+	    // Nothing to do.
+	    //
+	}
+	else
+	{
+	    error("unknown element `" + name + "'");
+	}
 
 	attributes.checkUnknownAttributes();
     }

@@ -697,6 +697,13 @@ ServerI::getId() const
     return _id;
 }
 
+DistributionDescriptor
+ServerI::getDistribution() const
+{
+    Lock sync(*this);
+    return _desc->distrib;
+}
+
 void
 ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& application, const ServerDescriptorPtr& desc)
 {
