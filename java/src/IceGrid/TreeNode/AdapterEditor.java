@@ -158,7 +158,6 @@ class AdapterEditor extends ListElementEditor
 	_waitForActivation.setToolTipText(
 	    "<html>When starting the enclosing server, "
 	    + "does IceGrid<br>wait for this adapter to become active?</html>");
-	
 	//
 	// Associate updateListener with various fields
 	//
@@ -186,12 +185,8 @@ class AdapterEditor extends ListElementEditor
 		    //
 		    // Recompute default id
 		    //
-		    String defaultAdapterId = getAdapter().getDefaultAdapterId(_name.getText());
-		    
-		    Object id = _id.getSelectedItem();
-		    _id.setModel(new DefaultComboBoxModel(new Object[]
-			{DIRECT_ADAPTER, defaultAdapterId}));
-		    _id.setSelectedItem(id);
+		    _defaultAdapterId = getAdapter().getDefaultAdapterId(_name.getText());
+		    refreshId();
 		}
 	    });
 
@@ -377,10 +372,22 @@ class AdapterEditor extends ListElementEditor
 	{
 	    _id.setSelectedItem(DIRECT_ADAPTER);
 	}
-	else 
+	else if(id.equals(_defaultAdapterId))
+	{
+	    _id.setSelectedItem(DEFAULT_ADAPTER_ID);
+	}
+	else
 	{
 	    _id.setSelectedItem(id);
 	}
+    }
+
+    private void refreshId()
+    {
+	Object id = _id.getSelectedItem();
+	_id.setModel(new DefaultComboBoxModel(new Object[]
+	    {DIRECT_ADAPTER, DEFAULT_ADAPTER_ID}));
+	_id.setSelectedItem(id);
     }
 
     private String getIdAsString()
@@ -390,7 +397,7 @@ class AdapterEditor extends ListElementEditor
 	{
 	    return "";
 	}
-	else
+	else 
 	{
 	    return obj.toString();
 	}
@@ -463,13 +470,12 @@ class AdapterEditor extends ListElementEditor
 	//
 	_id.setEnabled(true);
 	_id.setEditable(true);	
-	String defaultAdapterId = adapter.getDefaultAdapterId();
+	_defaultAdapterId = adapter.getDefaultAdapterId();
+	refreshId();
 	if(descriptor.id == null)
 	{
-	    descriptor.id = defaultAdapterId;
+	    descriptor.id = _defaultAdapterId;
 	}
-	_id.setModel(new DefaultComboBoxModel(new Object[]
-	    {DIRECT_ADAPTER, defaultAdapterId}));
 
 	setId(Utils.substitute(descriptor.id, resolver));
 	_id.setEnabled(isEditable);
@@ -604,13 +610,23 @@ class AdapterEditor extends ListElementEditor
 	return result;
     }
 
+    private String _defaultAdapterId = "";
+
+    private final Object DEFAULT_ADAPTER_ID = new Object()
+	{
+	    public String toString()
+	    {
+		return _defaultAdapterId;
+	    }
+	};
     
     private String _oldName;
     
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
 
-    private JComboBox _id = new JComboBox();
+    private JComboBox _id = new JComboBox(new Object[]
+	{DIRECT_ADAPTER, DEFAULT_ADAPTER_ID});
     private JComboBox _replicaGroupId = new JComboBox();
     private JButton _replicaGroupButton;
 
@@ -644,7 +660,7 @@ class AdapterEditor extends ListElementEditor
 		return "No ID (a direct adapter)";
 	    }
 	};
-
+    
     static private final Object NOT_REPLICATED = new Object()
 	{
 	    public String toString()

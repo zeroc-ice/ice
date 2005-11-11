@@ -109,6 +109,7 @@ class ServerTemplate extends EditableParent
 
 	actions[NEW_ADAPTER] = (_adapters != null && _services == null);
 	actions[NEW_SERVICE] = (_services != null);
+	actions[NEW_SERVICE_FROM_TEMPLATE] = (_services != null);
 	actions[NEW_DBENV] = (_dbEnvs != null);
 
 	return actions;
@@ -134,6 +135,10 @@ class ServerTemplate extends EditableParent
     {
 	_services.newService();
     }
+    public void newServiceFromTemplate()
+    {
+	_services.newServiceFromTemplate();
+    }
 
     public JPopupMenu getPopupMenu()
     {
@@ -151,6 +156,10 @@ class ServerTemplate extends EditableParent
 
 	    item = new JMenuItem(_model.getActions()[NEW_SERVICE]);
 	    item.setText("New service");
+	    _popup.add(item);
+
+	    item = new JMenuItem(_model.getActions()[NEW_SERVICE_FROM_TEMPLATE]);
+	    item.setText("New service from template");
 	    _popup.add(item);
 	}
 	return _popup;
