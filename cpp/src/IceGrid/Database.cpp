@@ -787,7 +787,14 @@ Database::getAllAdapters(const string& expression)
 	    groups.insert(replicaGroupId);
 	}
     }
-    result.insert(result.end(), groups.begin(), groups.end());
+    //
+    // COMPILERFIX: We're not using result.insert() here, this doesn't compile on Sun.
+    //
+    //result.insert(result.end(), groups.begin(), groups.end())
+    for(set<string>::const_iterator q = groups.begin(); q != groups.end(); ++q)
+    {
+	result.push_back(*q);
+    }
     return result;
 }
 
