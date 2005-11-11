@@ -61,45 +61,29 @@ namespace Ice
 		}
 	    }
 
-	    //
-	    // We must get and call on the locator registry outside the thread
-	    // synchronization to avoid deadlocks. (we can't make remote calls
-	    // within the OA synchronization because the remote call will
-	    // indirectly call isLocal() on this OA with the OA factory
-	    // locked).
-	    //
-	    LocatorRegistryPrx locatorRegistry = null;
-	    if(locatorInfo != null)
+	    if(registerProcess || _id.Length > 0)
 	    {
-		locatorRegistry = locatorInfo.getLocatorRegistry();
-	    }
-	    
-	    if(registerProcess)
-	    {
-		if(locatorRegistry == null)
-		{
-		    communicator.getLogger().warning("object adapter `" + _name + "' cannot register the process " +
-						     "without alocator registry");
-		    registerProcess = false;
-		}
-		else if(serverId.Length == 0)
-		{
-		    communicator.getLogger().warning("object adapter `" + _name + "' cannot register the process " +
-						     "without a value for Ice.ServerId");
-		    registerProcess = false;
-		}
-	    }
-
-	    if(locatorRegistry != null)
-	    {
-	    	//
-		// TODO: This might throw if we can't connect to the
-		// locator. Shall we raise a special exception for the
-		// activate operation instead of a non obvious network
-		// exception?
+		//
+		// We must get and call on the locator registry outside the thread
+		// synchronization to avoid deadlocks. (we can't make remote calls
+		// within the OA synchronization because the remote call will
+		// indirectly call isLocal() on this OA with the OA factory
+		// locked).
 		//
 
-		if(_id.Length > 0)
+		LocatorRegistryPrx locatorRegistry = null;
+		if(locatorInfo != null)
+		{
+		    //
+		    // TODO: This might throw if we can't connect to the
+		    // locator. Shall we raise a special exception for the
+		    // activate operation instead of a non obvious network
+		    // exception?
+		    //
+		    locatorRegistry = locatorInfo.getLocatorRegistry();
+		}
+	    
+		if(locatorRegistry != null && _id.Length > 0)
 		{
 		    try 
 		    {
@@ -144,22 +128,35 @@ namespace Ice
 
 		if(registerProcess)
 		{
-		    try
+		    if(locatorRegistry == null)
 		    {
-		        Process servant = new ProcessI(communicator);
-			Ice.ObjectPrx proxy = createDirectProxy(addWithUUID(servant).ice_getIdentity());
-		    	locatorRegistry.setServerProcessProxy(serverId, ProcessPrxHelper.uncheckedCast(proxy));
-		    } 
-		    catch(Ice.ObjectAdapterDeactivatedException)
-		    {
-		        // IGNORE: The object adapter is already inactive.
+			communicator.getLogger().warning("object adapter `" + _name + "' cannot register the " +
+							 "process without alocator registry");
 		    }
-		    catch(ServerNotFoundException)
+		    else if(serverId.Length == 0)
 		    {
-		        NotRegisteredException ex1 = new NotRegisteredException();
-			ex1.id = serverId;
-			ex1.kindOfObject = "server";
-			throw ex1;
+			communicator.getLogger().warning("object adapter `" + _name + "' cannot register the " +
+							 "process without a value for Ice.ServerId");
+		    }
+		    else
+		    {
+			try
+			{
+			    Process servant = new ProcessI(communicator);
+			    Ice.ObjectPrx proxy = createDirectProxy(addWithUUID(servant).ice_getIdentity());
+			    locatorRegistry.setServerProcessProxy(serverId, ProcessPrxHelper.uncheckedCast(proxy));
+			} 
+			catch(Ice.ObjectAdapterDeactivatedException)
+			{
+			    // IGNORE: The object adapter is already inactive.
+			}
+			catch(ServerNotFoundException)
+			{
+			    NotRegisteredException ex1 = new NotRegisteredException();
+			    ex1.id = serverId;
+			    ex1.kindOfObject = "server";
+			    throw ex1;
+			}
 		    }
 		}
 	    }
