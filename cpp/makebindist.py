@@ -245,6 +245,7 @@ endif
     makefile.close()
 
 def updateIceVersion(filename, version):
+    print 'Updating ice version in ' + filename + ' to ' + version
     f = fileinput.input(filename, True)
     for line in f: 
 	print line.rstrip('\n').replace('ICE_VERSION', version)
@@ -289,6 +290,9 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
 	    dest = os.path.join(destConfigDir, f)
 	    if not os.path.isdir(f) and not os.path.islink(f):
 		shutil.copy(src, dest)
+
+    if demoDir == 'j':
+	updateIceVersion(os.path.join(destConfigDir, 'common.xml'), version)
 
     #
     # Collect files to remove from the demo distribution.
@@ -381,9 +385,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
 	destDir = os.path.join(installDir, 'config')
 	if not os.path.exists(destDir):
 	    os.mkdir(destDir)
-        shutil.copy(os.path.join('config', 'common.xml'), destDir)
         shutil.copy(os.path.join('config', 'build.properties'), destDir)
-	updateIceVersion(os.path.join(destDir, 'common.xml'), version)
         os.chdir(cwd)
         return
 
