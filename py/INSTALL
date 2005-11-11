@@ -96,7 +96,7 @@ Unix:
    environment as shown below:
 
    export ICEPY_HOME=/opt/IcePy-@ver@
-   export PYTHONPATH=$ICEPY_HOME/lib:$ICEPY_HOME/python:$PYTHONPATH
+   export PYTHONPATH=$ICEPY_HOME/python:$PYTHONPATH
 
 Windows:
 
@@ -110,7 +110,7 @@ Windows:
    as follows:
 
    set ICEPY_HOME=C:\IcePy-@ver@
-   set PYTHONPATH=%ICEPY_HOME%\bin;%ICEPY_HOME%\python
+   set PYTHONPATH=%ICEPY_HOME%\python
 
 
 =========================================================================

@@ -92,7 +92,7 @@ ICE_LIBS		?= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
 SHELL			= /bin/sh
 VERSION			= 3.0.0
 SOVERSION		= 30
-libdir			= $(top_srcdir)/lib
+libdir			= $(top_srcdir)/python
 
 ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
     slicedir		= $(top_srcdir)/slice
@@ -101,9 +101,13 @@ else
 endif
 
 ifeq ($(LP64),yes)
+#
+# TODO: Where should the shared library be installed if it is a 64 bit
+# build.
+#
     install_libdir	= $(prefix)/lib$(lp64suffix)
 else
-    install_libdir	= $(prefix)/lib
+    install_libdir	= $(prefix)/python
 endif
 
 install_slicedir	= $(prefix)/slice
