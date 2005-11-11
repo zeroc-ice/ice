@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /D "NDEBUG" /D "_WINDOWS" /D "_UNICODE" /D "WIN32" /FD /c /I .
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "$(ICE_HOME)\include" /D "NDEBUG" /D "_WINDOWS" /D "_UNICODE" /D "WIN32" /FD /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -54,12 +54,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 Ice.lib Slice.lib IceUtil.lib python24.lib /nologo /dll /machine:I386 /out:"Release/IcePy.dll" /export:initIcePy
+# ADD LINK32 Ice.lib Slice.lib IceUtil.lib python24.lib /nologo /dll /machine:I386 /libpath:"$(ICE_HOME)\lib" /export:initIcePy
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\IcePy.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\IcePy.dll ..\..\python
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "IcePy - Win32 Debug"
@@ -76,7 +76,7 @@ PostBuild_Cmds=copy $(OutDir)\IcePy.dll ..\..\bin
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "ICE_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /D "_DEBUG" /D "_WINDOWS" /D "_UNICODE" /D "WIN32" /FD /GZ /c /I .
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "$(ICE_HOME)\include" /I "." /D "_DEBUG" /D "_WINDOWS" /D "_UNICODE" /D "WIN32" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -87,12 +87,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 Iced.lib Sliced.lib IceUtild.lib python24_d.lib /nologo /dll /debug /machine:I386 /out:"Debug/IcePy_d.dll" /export:initIcePy
+# ADD LINK32 Iced.lib Sliced.lib IceUtild.lib python24_d.lib /nologo /dll /debug /machine:I386 /out:"Debug/IcePy_d.dll" /libpath:"$(ICE_HOME)\lib" /export:initIcePy
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\IcePy_d.pdb ..\..\bin	copy $(OutDir)\IcePy_d.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\IcePy_d.pdb ..\..\python	copy $(OutDir)\IcePy_d.dll ..\..\python
 # End Special Build Tool
 
 !ENDIF 
@@ -138,11 +138,11 @@ SOURCE=.\Operation.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Proxy.cpp
+SOURCE=.\Properties.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Properties.cpp
+SOURCE=.\Proxy.cpp
 # End Source File
 # Begin Source File
 
