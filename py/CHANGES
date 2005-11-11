@@ -1,6 +1,10 @@
 Changes since version 2.1.2
 ---------------------------
 
+- IcePy shared library has been moved into the python directory,
+  removing the need to add an additional directory to your PYTHONPATH
+  environment variable.
+
 - Removed ice_default() method from proxies.
 
 - Added the proxy method ice_connectionId, which allows an application
