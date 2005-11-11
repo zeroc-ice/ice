@@ -1083,9 +1083,14 @@ def main():
 	    # The demo archive isn't constructed on 64 bit linux so we
 	    # need to rely on the archive being in the sources
 	    # directory.
+	    # 
+	    # XXX shutil.copy() has a bug that causes the second copy to
+	    # fail... maybe it forgot to close the file in the first
+	    # copy? I've changed these to using the external copy for
+	    # the time being.
 	    #
-	    shutil.copy(sources + '/Ice-' + version + '-demos.tar.gz', '/usr/src/redhat/SOURCES')
-	    shutil.copy(sources + '/Ice-' + version + '-demos.tar.gz ', installDir)
+	    runprog('cp ' + sources + '/Ice-' + version + '-demos.tar.gz /usr/src/redhat/SOURCES')
+	    runprog('cp ' + sources + '/Ice-' + version + '-demos.tar.gz '  + installDir)
             iceArchives = glob.glob(sources + '/Ice*' + version + '.gz')
 	    for f in iceArchives:
 		shutil.copy(f, 'usr/src/redhat/SOURCES')
