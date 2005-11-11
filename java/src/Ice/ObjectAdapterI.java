@@ -60,47 +60,29 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    }
 	}
 
-
-
-	//
-	// We must get and call on the locator registry outside the thread
-	// synchronization to avoid deadlocks. (we can't make remote calls
-	// within the OA synchronization because the remote call will
-	// indirectly call isLocal() on this OA with the OA factory
-	// locked).
-	//
-	LocatorRegistryPrx locatorRegistry = null;
-	if(locatorInfo != null)
-	{
-	    locatorRegistry = _locatorInfo.getLocatorRegistry();
-	}
-
-	if(registerProcess)
-	{
-	    if(locatorRegistry == null)
-	    {
-		communicator.getLogger().warning("object adapter `" + _name + "' cannot register the process " +
-						 "without a locator registry");
-		registerProcess = false;
-	    }
-	    else if(serverId.length() == 0)
-	    {
-		communicator.getLogger().warning("object adapter `" + _name + "' cannot register the process " +
-						 "without a value for Ice.ServerId");
-		registerProcess = false;
-	    }
-	}
-
-	if(locatorRegistry != null)
+	if(registerProcess || _id.length() > 0)
 	{
 	    //
-	    // TODO: This might throw if we can't connect to the
-	    // locator. Shall we raise a special exception for the
-	    // activate operation instead of a non obvious network
-	    // exception?
+	    // We must get and call on the locator registry outside the thread
+	    // synchronization to avoid deadlocks. (we can't make remote calls
+	    // within the OA synchronization because the remote call will
+	    // indirectly call isLocal() on this OA with the OA factory
+	    // locked).
 	    //
+
+	    LocatorRegistryPrx locatorRegistry = null;
+	    if(locatorInfo != null)
+	    {
+		//
+		// TODO: This might throw if we can't connect to the
+		// locator. Shall we raise a special exception for the
+		// activate operation instead of a non obvious network
+		// exception?
+		//
+		locatorRegistry = _locatorInfo.getLocatorRegistry();
+	    }
 	    
-	    if(_id.length() > 0)
+	    if(locatorRegistry != null && _id.length() > 0)
 	    {
 		try
 		{
@@ -144,24 +126,37 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 
             if(registerProcess)
             {
-                try
-                {
-		    Process servant = new ProcessI(communicator);
-		    Ice.ObjectPrx proxy = createDirectProxy(addWithUUID(servant).ice_getIdentity());
-                    locatorRegistry.setServerProcessProxy(serverId, ProcessPrxHelper.uncheckedCast(proxy));
-                }
-		catch(ObjectAdapterDeactivatedException ex)
+		if(locatorRegistry == null)
 		{
-		    // IGNORE: The object adapter is already inactive.
+		    communicator.getLogger().warning("object adapter `" + _name + "' cannot register the process " +
+						     "without a locator registry");
 		}
-                catch(ServerNotFoundException ex)
-                {
-                    NotRegisteredException ex1 = new NotRegisteredException();
-                    ex1.id = serverId;
-                    ex1.kindOfObject = "server";
-                    throw ex1;
-                }
-            }
+		else if(serverId.length() == 0)
+		{
+		    communicator.getLogger().warning("object adapter `" + _name + "' cannot register the process " +
+						     "without a value for Ice.ServerId");
+		}
+		else
+		{
+		    try
+		    {
+			Process servant = new ProcessI(communicator);
+			Ice.ObjectPrx proxy = createDirectProxy(addWithUUID(servant).ice_getIdentity());
+			locatorRegistry.setServerProcessProxy(serverId, ProcessPrxHelper.uncheckedCast(proxy));
+		    }
+		    catch(ObjectAdapterDeactivatedException ex)
+		    {
+			// IGNORE: The object adapter is already inactive.
+		    }
+		    catch(ServerNotFoundException ex)
+		    {
+			NotRegisteredException ex1 = new NotRegisteredException();
+			ex1.id = serverId;
+			ex1.kindOfObject = "server";
+			throw ex1;
+		    }
+		}
+	    }
 	}
 
 	if(printAdapterReady)
