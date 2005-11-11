@@ -124,25 +124,16 @@
 		<include name="icegrid30.dll"/>
 	    </fileset>
 	    <fileset dir="${ice.dir}/src">
-
-		<include name="Ice/Release/ice30.pdb"/>
-		<include name="Freeze/Release/freeze30.pdb"/>
-		<include name="IceSSL/Release/icessl30.pdb"/>
-		<include name="IceUtil/Release/iceutil30.pdb"/>
-
 		<include name="FreezeScript/Release/dumpdb.exe"/>
 		<include name="FreezeScript/Release/transformdb.exe"/>
 		<include name="Glacier2/Release/glacier2router.exe"/>
-		<include name="Glacier2/Release/glacier230.pdb"/>
 		<include name="IceBox/Release/icebox.exe"/>
-		<include name="IceBox/Release/icebox.pdb"/>
 		<include name="IceBox/Release/iceboxadmin.exe"/>
 		<include name="icecpp/Release/icecpp.exe"/>
 		<include name="IcePatch2/Release/icepatch2calc.exe"/>
 		<include name="IcePatch2/Release/icepatch2client.exe"/>
 		<include name="IcePatch2/Release/icepatch2server.exe"/>
 		<include name="IceStorm/Release/icestormadmin.exe"/>
-		<include name="IceStorm/Release/icestorm30.pdb"/>
 		<include name="slice2docbook/Release/slice2docbook.exe"/>
 		<include name="IceGrid/Release/icegridadmin.exe"/>
 		<include name="IceGrid/Release/icegridnode.exe"/>
@@ -310,7 +301,6 @@
 	    <fileset dir="${icecs.dir}/bin">
 		<include name="*.dll"/>
 		<include name="iceboxnet.exe"/>
-		<include name="iceboxnet.exe"/>
 	    </fileset>
 	</copy>
 
@@ -419,19 +409,12 @@
     <!-- Ice for Python Runtime -->
     <target name="ice-python-runtime" depends="setup">
 
-	<!-- Binaries -->
-	<mkdir dir="${stage.dir}/ice-python/runtime/bin"/>
-	<copy todir="${stage.dir}/ice-python/runtime/bin">
-	    <fileset dir="${icepy.dir}/bin">
-		<include name="*.dll"/>
-	    </fileset>
-	</copy>
-
 	<!-- Python Files -->
 	<mkdir dir="${stage.dir}/ice-python/runtime/python"/>
 	<copy todir="${stage.dir}/ice-python/runtime/python">
 	    <fileset dir="${icepy.dir}/python">
 		<include name="**/*.py"/>
+		<include name="*.dll"/>
 	    </fileset>
 	</copy>
 

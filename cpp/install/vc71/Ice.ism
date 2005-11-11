@@ -375,7 +375,7 @@
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="i2">Level</col>
 		<col def="S255">Condition</col>
-		<row><td>ice_runtime_dotnet</td><td>200</td><td>AdminUser and (MsiNetAssemblySupport &gt;= "1.1.4322")</td></row>
+		<row><td>ice_runtime_dotnet</td><td>1</td><td>AdminUser and (MsiNetAssemblySupport &gt;= "1.1.4322")</td></row>
 	</table>
 
 	<table name="Control">
@@ -869,9 +869,9 @@
 		<row><td>CustomSetup</td><td>ChangeFolder</td><td>SelectionBrowse</td><td>InstallChangeFolder</td><td>1</td><td>0</td></row>
 		<row><td>CustomSetup</td><td>Details</td><td>SelectionBrowse</td><td>DiskSpaceRequirements</td><td>1</td><td>1</td></row>
 		<row><td>CustomSetup</td><td>Help</td><td>SpawnDialog</td><td>CustomSetupTips</td><td>1</td><td>1</td></row>
-		<row><td>CustomSetup</td><td>Next</td><td>NewDialog</td><td>OutOfSpace</td><td>OutOfNoRbDiskSpace = 1</td><td>0</td></row>
-		<row><td>CustomSetup</td><td>Next</td><td>NewDialog</td><td>ReadyToInstall</td><td>OutOfNoRbDiskSpace &lt;&gt; 1</td><td>0</td></row>
-		<row><td>CustomSetup</td><td>Next</td><td>[_IsSetupTypeMin]</td><td>Custom</td><td>1</td><td>0</td></row>
+		<row><td>CustomSetup</td><td>Next</td><td>NewDialog</td><td>OutOfSpace</td><td>OutOfNoRbDiskSpace = 1</td><td>1</td></row>
+		<row><td>CustomSetup</td><td>Next</td><td>NewDialog</td><td>ReadyToInstall</td><td>OutOfNoRbDiskSpace &lt;&gt; 1</td><td>2</td></row>
+		<row><td>CustomSetup</td><td>Next</td><td>[_IsSetupTypeMin]</td><td>Custom</td><td>1</td><td>3</td></row>
 		<row><td>CustomSetupTips</td><td>OK</td><td>EndDialog</td><td>Return</td><td>1</td><td>1</td></row>
 		<row><td>CustomerInformation</td><td>Back</td><td>NewDialog</td><td>LicenseAgreement</td><td>1</td><td>1</td></row>
 		<row><td>CustomerInformation</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
@@ -979,7 +979,7 @@
 		<row><td>SetupType</td><td>Next</td><td>NewDialog</td><td>CustomSetup</td><td>_IsSetupTypeMin = "Custom"</td><td>1</td></row>
 		<row><td>SetupType</td><td>Next</td><td>NewDialog</td><td>ReadyToInstall</td><td>_IsSetupTypeMin &lt;&gt; "Custom"</td><td>2</td></row>
 		<row><td>SetupType</td><td>Next</td><td>SetInstallLevel</td><td>100</td><td>_IsSetupTypeMin = "Typical"</td><td>3</td></row>
-		<row><td>SetupType</td><td>Next</td><td>SetInstallLevel</td><td>200</td><td>AdminUser and (MsiNetAssemblySupport &gt;= "1.1.4322")</td><td/></row>
+		<row><td>SetupType</td><td>Next</td><td>SetInstallLevel</td><td>200</td><td>AdminUser and (MsiNetAssemblySupport &gt;= "1.1.4322")</td><td>4</td></row>
 		<row><td>SplashBitmap</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>0</td></row>
 		<row><td>SplashBitmap</td><td>Next</td><td>NewDialog</td><td>InstallWelcome</td><td>1</td><td>0</td></row>
 	</table>
@@ -1004,10 +1004,8 @@
 		<row><td>ISSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFiles</td><td/></row>
 		<row><td>ISSelfRegisterFinalize</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFinalize</td><td/></row>
 		<row><td>ISUnSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISUnSelfRegisterFiles</td><td/></row>
-		<row><td>RegisterIceOfficeCodeGroups</td><td>1650</td><td>CMD_EXE</td><td>/c FOR %f in (glacier2cs,icecs,icepatch2cs,icestormcs, icegridcs, iceboxcs) DO [WindowsFolder]\microsoft.net\framework\v1.1.4322\CasPol.exe -q -m -ag Trusted_Zone -strong -file [INSTALLDIR]bin\%f.dll  %f -noversion FullTrust -name %f</td><td/></row>
 		<row><td>SetARPINSTALLLOCATION</td><td>51</td><td>ARPINSTALLLOCATION</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>SetAllUsersProfileNT</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%SystemRoot]\Profiles\All Users</td><td/></row>
-		<row><td>UnRegisterIceOfficeCodeGroups</td><td>1650</td><td>CMD_EXE</td><td>/c FOR %f in (glacier2cs,icecs,icepatch2cs,icestormcs, icegridcs, iceboxcs) DO [WindowsFolder]\microsoft.net\framework\v1.1.4322\CasPol.exe -q -m -rg %f</td><td/></row>
 		<row><td>setAllUsersProfile2K</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%ALLUSERSPROFILE]</td><td/></row>
 		<row><td>setUserProfileNT</td><td>51</td><td>USERPROFILE</td><td>[%USERPROFILE]</td><td/></row>
 	</table>
@@ -2631,7 +2629,6 @@
 		<row><td>RegisterComPlus</td><td/><td>5700</td><td>RegisterComPlus</td><td/></row>
 		<row><td>RegisterExtensionInfo</td><td/><td>4700</td><td>RegisterExtensionInfo</td><td/></row>
 		<row><td>RegisterFonts</td><td/><td>5300</td><td>RegisterFonts</td><td/></row>
-		<row><td>RegisterIceOfficeCodeGroups</td><td>(&amp;ice_dev_csharp=3) Or (&amp;ice_dev_vbasic=3)</td><td>6268</td><td/><td/></row>
 		<row><td>RegisterMIMEInfo</td><td/><td>4900</td><td>RegisterMIMEInfo</td><td/></row>
 		<row><td>RegisterProduct</td><td/><td>6100</td><td>RegisterProduct</td><td/></row>
 		<row><td>RegisterProgIdInfo</td><td/><td>4800</td><td>RegisterProgIdInfo</td><td/></row>
@@ -2653,7 +2650,6 @@
 		<row><td>SetODBCFolders</td><td/><td>1100</td><td>SetODBCFolders</td><td/></row>
 		<row><td>StartServices</td><td>VersionNT</td><td>5900</td><td>StartServices</td><td/></row>
 		<row><td>StopServices</td><td>VersionNT</td><td>1900</td><td>StopServices</td><td/></row>
-		<row><td>UnRegisterIceOfficeCodeGroups</td><td>(&amp;ice_dev_csharp=3) Or (&amp;ice_dev_vbasic=3)</td><td>6259</td><td/><td/></row>
 		<row><td>UnpublishComponents</td><td/><td>1700</td><td>UnpublishComponents</td><td/></row>
 		<row><td>UnpublishFeatures</td><td/><td>1800</td><td>UnpublishFeatures</td><td/></row>
 		<row><td>UnregisterClassInfo</td><td/><td>2700</td><td>UnregisterClassInfo</td><td/></row>
@@ -2895,7 +2891,6 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>AdminWarning</td><td>0</td><td/></row>
 		<row><td>AgreeToLicense</td><td>No</td><td/></row>
 		<row><td>ApplicationUsers</td><td>AllUsers</td><td/></row>
-		<row><td>CMD_EXE</td><td/><td/></row>
 		<row><td>ContinueNotAdminText</td><td>0</td><td/></row>
 		<row><td>DWUSINTERVAL</td><td>30</td><td/></row>
 		<row><td>DefaultUIFont</td><td>Tahoma8</td><td/></row>
