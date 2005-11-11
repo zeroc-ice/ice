@@ -1164,7 +1164,7 @@ ServerI::terminated()
 
 	if(_state != ServerI::Destroying)
 	{
-	    setStateNoSync(ServerI::Inactive);
+	    setStateNoSync(ServerI::Inactive, "The server terminated unexpectedly.");
 	    command = nextCommand();
 	}
 	else

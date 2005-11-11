@@ -288,12 +288,39 @@ NodeI::patch(const string& application,
 	}
 	_patchInProgress.insert(application);
 
-	if(server.empty() || !appDistrib.icepatch.empty())
+	if(!appDistrib.icepatch.empty())
 	{
+	    //
+	    // Get all the application servers (even the ones which
+	    // don't have a distribution since they depend on the
+	    // application distribution).
+	    //
 	    servers = getApplicationServers(application);
+	}
+	else if(server.empty())
+	{
+	    //
+	    // Get all the application servers which have a distribution.
+	    //
+	    servers = getApplicationServers(application);
+	    set<ServerIPtr>::iterator s = servers.begin();
+	    while(s != servers.end())
+	    {
+		if((*s)->getDistribution().icepatch.empty())
+		{
+		    servers.erase(s++);
+		}
+		else
+		{
+		    ++s;
+		}
+	    }
 	}
 	else
 	{
+	    //
+	    // Get the given server.
+	    //
 	    Ice::Identity id = createServerIdentity(server);
 	    ServerIPtr svr = ServerIPtr::dynamicCast(_adapter->find(id));
 	    if(svr)
@@ -361,12 +388,12 @@ NodeI::patch(const string& application,
 	    //
 	    for(s = servers.begin(); s != servers.end(); ++s)
 	    {
-		if(!server.empty() && (*s)->getId() != server)
+		DistributionDescriptor dist = (*s)->getDistribution();
+		if(dist.icepatch.empty() || (!server.empty() && (*s)->getId() != server))
 		{
 		    continue;
 		}
 
-		DistributionDescriptor dist = (*s)->getDistribution();
 		icepatch = FileServerPrx::checkedCast(getCommunicator()->stringToProxy(dist.icepatch));
 		if(!icepatch)
 		{
