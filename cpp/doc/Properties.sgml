@@ -2286,12 +2286,11 @@ IceGrid.Registry.AdminSessionTimeout=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-&IceGrid; admin clients might establish a session with the registry to
+&IceGrid; administrative clients might establish a session with the registry to
 receive updates on the state of the &IceGrid; registry and nodes. This
-session must be refreshed periodically. If an admin client does not
-refresh its session within <replaceable>num</replaceable> seconds, the
-session is destroyed. If not specified, the default value is 10
-seconds.
+session must be refreshed periodically. If the client does not refresh its
+session within <replaceable>num</replaceable> seconds, the session is destroyed.
+If not specified, the default value is 10 seconds.
 </para>
 </section>
 </section>
