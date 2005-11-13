@@ -2,8 +2,8 @@ Ice for C# currently does not support the following features of Ice
 for C++:
 
 - Protocol encryption
-
-- Any of the Ice services (Freeze and IceBox)
+- Freeze
+- IceBox
 
 Protocol compression is supported. Note that, for compression to work,
 libbz2 must be installed and in your %PATH% or $LD_LIBRARY_PATH. If
@@ -14,7 +14,6 @@ http://sources.redhat.com/bzip2.
 Supported environments:
 
 - Visual C# (Windows)
-
 - Mono
 
 See INSTALL.VISUAL_C# or INSTALL.MONO for installation information.
