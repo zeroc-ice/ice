@@ -66,7 +66,7 @@ IceInternal::UdpTransceiver::shutdownReadWrite()
     assert(_fd != INVALID_SOCKET);
     shutdownSocketReadWrite(_fd);
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__sun) || defined(__hppa) || defined(__aix)
     //
     // This is required to unblock the select call when using thread per connection.
     //
