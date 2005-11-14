@@ -255,6 +255,8 @@ for x in filesToRemove:
         os.remove(x)
 shutil.rmtree(os.path.join("ice", "certs", "openssl"))
 shutil.rmtree(os.path.join("ice", "install"))
+shutil.rmtree(os.path.join("ice", "src", "slice2cppe"))
+shutil.rmtree(os.path.join("ice", "src", "slice2javae"))
 
 #
 # Generate bison files.
