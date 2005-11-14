@@ -371,7 +371,7 @@ Activator::activate(const string& name,
 	    }
 	    path = absbuf;
 	}
-	else
+   	else if(!pwd.empty())
 	{
 	    path = pwd + "/" + path;
 	}
