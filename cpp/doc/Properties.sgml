@@ -4053,7 +4053,7 @@ a denial-of-service attack from hostile clients. Use caution!
 </section>
 </section>
 
-<section><title>Glacier2.SessionManager</title>
+<section id="Glacier2.SessionManager"><title>Glacier2.SessionManager</title>
 <section><title>Synopsis</title>
 <synopsis>
 Glacier2.SessionManager=<replaceable>proxy</replaceable>
@@ -4067,6 +4067,29 @@ Specifies the proxy of an object that implements the
 The router invokes this proxy to create a new session
 for a client, but only after the router validates the
 client's username and password.
+</para>
+</section>
+</section>
+
+<section><title>Glacier2.SessionManager.CloseCount</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier2.SessionManager.CloseCount=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+it represents the maxmimum number of invocations the router makes on
+on the session manager proxy over a single connection. After the
+maximum is reached, the router establishes a new connection to the
+session manager. Existing connections remain open and are closed
+when no longer in use. This property is useful when the session
+manager is a replicated object because, with each new connection,
+the router might use a session manager in a different server. If not
+defined or set to zero, the router maintains a single connection to
+the session manager indefinitely.
 </para>
 </section>
 </section>
