@@ -115,7 +115,7 @@ SOURCE=.\Hello.ice
 
 !IF  "$(CFG)" == "simpleC - Win32 Release"
 
-USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	"..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
+USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Hello.ice
 
@@ -131,6 +131,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "simpleC - Win32 Debug"
 
+USERDEP__HELLO="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Hello.ice
 
