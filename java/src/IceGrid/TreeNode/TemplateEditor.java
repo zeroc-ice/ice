@@ -57,7 +57,7 @@ class TemplateEditor extends Editor
 		}
 	    };
 	openParametersDialog.putValue(Action.SHORT_DESCRIPTION,
-				      "Editor parameters");
+				      "Edit parameters");
 	_parametersButton = new JButton(openParametersDialog);
     }
 

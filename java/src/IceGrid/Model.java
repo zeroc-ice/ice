@@ -352,8 +352,6 @@ public class Model
     {	
 	assert(_latestSerial == -1);
 	_latestSerial = serial;
-	System.err.println("Registry init: serial == " + _latestSerial);
-
 	_root.init(applications);
     }
 
@@ -398,8 +396,6 @@ public class Model
     
     boolean proceedWithUpdate(int serial)
     {
-	System.err.println("Proceed with update serial == " + serial);
-
 	if(_latestSerial == -1 || serial <= _latestSerial)
 	{
 	    //
@@ -516,7 +512,6 @@ public class Model
 	{
 	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	    _writeSerial = _sessionKeeper.getSession().startUpdate();
-	    System.err.println("New write serial == " + _writeSerial);
 	}
 	catch(AccessDeniedException e)
 	{
@@ -622,9 +617,6 @@ public class Model
 
     private boolean saveUpdates()
     {
-	System.err.println("write serial == " + _writeSerial);
-	System.err.println("latest serial == " + _latestSerial);
-
 	assert _writeSerial == _latestSerial;
 	_mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	
@@ -1231,8 +1223,6 @@ public class Model
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
-		    System.err.println("Action fired");
-
 		    helpContents();
 		}	
 	    };
@@ -1859,8 +1849,6 @@ public class Model
     //
     private void destroyCommunicator()
     {
-	System.err.println("Destroying communicator");
-
 	try	   
 	{
 	    _communicator.destroy();

@@ -90,8 +90,6 @@ class DbEnvs extends ListParent
 
     CommonBase addNewChild(Object d) throws UpdateFailedException
     {
-	System.err.println("Adding new child to " + _id);
-
 	DbEnvDescriptor descriptor = (DbEnvDescriptor)d;
        
 	try

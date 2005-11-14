@@ -56,8 +56,7 @@ abstract class ListParent extends Parent
 
 	java.util.List newChildren = new java.util.LinkedList();
 	java.util.List list = _parent.findAllInstances(this);
-	System.err.println("Parent == " + _parent.getId());
-	System.err.println("Found " + list.size() + " instances");
+
 	java.util.Iterator p = list.iterator();
 	while(p.hasNext())
 	{
