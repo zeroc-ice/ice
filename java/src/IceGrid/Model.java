@@ -814,15 +814,17 @@ public class Model
 	    {
 		str += ":" + info.routerEndpoints;
 	    }
-	    Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.
-		uncheckedCast(_communicator.stringToProxy(str));
 	    
-	    //
-	    // The session must be routed through this router
-	    //
-	    _communicator.setDefaultRouter(router);
 	    try
 	    {
+		Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.
+		    uncheckedCast(_communicator.stringToProxy(str));
+
+		//
+		// The session must be routed through this router
+		//
+		_communicator.setDefaultRouter(router);
+
 		Glacier2.SessionPrx s =
 		    router.createSession(
 			info.routerUsername, new String(info.routerPassword));
