@@ -4053,7 +4053,7 @@ a denial-of-service attack from hostile clients. Use caution!
 </section>
 </section>
 
-<section id="Glacier2.SessionManager"><title>Glacier2.SessionManager</title>
+<section><title>Glacier2.SessionManager</title>
 <section><title>Synopsis</title>
 <synopsis>
 Glacier2.SessionManager=<replaceable>proxy</replaceable>
