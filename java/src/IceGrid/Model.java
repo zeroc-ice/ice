@@ -939,8 +939,6 @@ public class Model
 	
 	if(router == null)
 	{
-	    System.err.println("Getting local adapter");
-
 	    if(_localAdapter == null)
 	    {
 		_localAdapter = 
@@ -951,7 +949,6 @@ public class Model
 	}
 	else
 	{
-	    System.err.println("Getting routed adapter");
 	    if(_routedAdapter == null)
 	    {
 		//
