@@ -25,7 +25,7 @@ Ice has dependencies on a number of third-party libraries:
   If you intend to use Ice for Java with Berkeley DB, you must also
   include the option --enable-java.
 
-- OpenSSL 0.96 or 0.97
+- OpenSSL 0.9.6 or later
 
 - expat 1.9x
 
