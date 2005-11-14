@@ -16,7 +16,6 @@
 
        <parameter name="instance-name" default="${application}.IcePatch2"/>
        <parameter name="endpoints" default="default"/>
-       <parameter name="admin-endpoints" default="default"/>
        <parameter name="directory"/>
 
        <server id="${instance-name}" exe="icepatch2server" application-distrib="false" activation="on-demand">
@@ -25,9 +24,8 @@
            <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
          </adapter>
 
-         <adapter name="IcePatch2.Admin" endpoints="${admin-endpoints}">
-           <object identity="${instance-name}/admin" type="::IcePatch2::Admin"/>
-         </adapter>
+         <adapter name="IcePatch2.Admin" id=""
+                  endpoints="tcp -h 127.0.0.1" register-process="true"/>
 
          <property name="IcePatch2.InstanceName" value="${instance-name}"/>
          <property name="IcePatch2.Directory" value="${directory}"/>
@@ -48,7 +46,6 @@
       <parameter name="session-manager" default=""/>
       <parameter name="session-manager-close-count" default="0"/>
       
-      <parameter name="server-adapter-id" default=""/>
       <parameter name="crypt-passwords" default="passwords"/>      
       <parameter name="permissions-verifier" default=""/>
       <parameter name="add-user-to-allow-categories" default="0"/>
@@ -68,11 +65,11 @@
          <adapter name="Glacier2.Client" id=""
                   endpoints="${client-endpoints}"/>
 
-         <adapter name="Glacier2.Server" id="${server-adapter-id}"
-                  endpoints="${server-endpoints}"/>
+         <adapter name="Glacier2.Server" id="" 
+		  endpoints="${server-endpoints}"/>
 
          <adapter name="Glacier2.Admin" id=""
-                  endpoints="tcp -h 127.0.0.1" register-process="true"/>                 
+                  endpoints="tcp -h 127.0.0.1" register-process="true"/>
 
          <property name="Glacier2.InstanceName" value="${instance-name}"/>
          <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
@@ -133,7 +130,7 @@
       <parameter name="publish-endpoints" default="default"/>
       <parameter name="flush-timeout" default="1000"/>
 
-      <icebox id="${instance-name}" exe="icebox" activation="on-demand" pwd=".">
+      <icebox id="${instance-name}" exe="icebox" activation="on-demand">
         <service-instance template="IceStorm"
 			  instance-name="${instance-name}" 
 			  topic-manager-endpoints="${topic-manager-endpoints}"
