@@ -57,7 +57,7 @@ LINK32=link.exe
 OutDir=.\Release
 TargetName=icebox
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin	copy $(OutDir)\$(TargetName).pdb ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin	
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "iceboxS - Win32 Debug"
@@ -89,7 +89,7 @@ LINK32=link.exe
 OutDir=.\Debug
 TargetName=iceboxd
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin	copy $(OutDir)\$(TargetName).pdb ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
