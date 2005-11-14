@@ -69,7 +69,7 @@ Berkeley DB
 ======================================================================
 
 This distribution includes the C++ and Java runtime for Berkeley DB
-4.3.28. The C++ runtime was built using IBM VisualAge 6. The Berkeley
+4.3.29. The C++ runtime was built using IBM VisualAge 6. The Berkeley
 DB license is provided in the file THIRD_PARTY_LICENSE.
 
 

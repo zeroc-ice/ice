@@ -70,7 +70,7 @@ Berkeley DB and OpenSSL
 ======================================================================
 
 This distribution includes the C++ and Java runtime for Berkeley DB
-4.3.28 and the OpenSSL libraries. The Berkeley DB C++ runtime was 
+4.3.29 and the OpenSSL libraries. The Berkeley DB C++ runtime was 
 built using HP aC++ version A.03.37. The Berkeley DB and OpenSSL
 licenses are provided in the file THIRD_PARTY_LICENSE.
 
