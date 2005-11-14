@@ -22,6 +22,7 @@ public sealed class ThroughputI : ThroughputDisp_
         _structSeq = new StringDouble[StringDoubleSeqSize.value];
         for(int i = 0; i < StringDoubleSeqSize.value; ++i)
         {
+	    _structSeq[i] = new StringDouble();
             _structSeq[i].s = "hello";
             _structSeq[i].d = 3.14;
         }

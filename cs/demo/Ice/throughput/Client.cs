@@ -66,6 +66,7 @@ public class Client : Ice.Application
         StringDouble[] structSeq = new StringDouble[StringDoubleSeqSize.value];
         for(int i = 0; i < StringDoubleSeqSize.value; ++i)
         {
+	    structSeq[i] = new StringDouble();
             structSeq[i].s = "hello";
             structSeq[i].d = 3.14;
         }
