@@ -21,7 +21,18 @@ sys.path.insert(0, os.path.join(toplevel, "python"))
 sys.path.insert(0, os.path.join(toplevel, "lib"))
 
 import Ice
-Ice.loadSlice('Test.ice')
+
+#
+# Find Slice directory.
+#
+slice_dir = os.getenv('ICEPY_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
+    slice_dir = os.getenv('ICE_HOME', '')
+if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
+    print sys.argv[0] + ': Slice directory not found. Define ICEPY_HOME or ICE_HOME.'
+    sys.exit(1)
+
+Ice.loadSlice('-I' + slice_dir + '/slice Test.ice')
 import Test
 
 class ServerLocatorRegistry(Ice.LocatorRegistry):
@@ -29,12 +40,19 @@ class ServerLocatorRegistry(Ice.LocatorRegistry):
         self._adapters = {}
         self._objects = {}
 
-    def setAdapterDirectProxy_async(self, cb, adapterId, replicaId, obj, current=None):
-        self._adapters[adapterId] = obj
+    def setAdapterDirectProxy_async(self, cb, adapter, obj, current=None):
+        self._adapters[adapter] = obj
+	cb.ice_response()
+
+    def setReplicatedAdapterDirectProxy_async(self, cb, adapter, replica, obj, current=None):
+        self._adapters[adapter] = obj
 	cb.ice_response()
 
     def setServerProcessProxy_async(self, id, proxy, current=None):
 	cb.ice_response()
+
+    def addObject(self, obj, current=None):
+        self._objects[obj.ice_getIdentity()] = obj
 
     def getAdapter(self, adapter):
         if not self._adapters.has_key(adapter):
@@ -45,9 +63,6 @@ class ServerLocatorRegistry(Ice.LocatorRegistry):
         if not self._objects.has_key(id):
             raise Ice.ObjectNotFoundException()
         return self._objects[id]
-
-    def addObject(self, obj):
-        self._objects[obj.ice_getIdentity()] = obj
 
 class ServerLocator(Ice.Locator):
 
@@ -65,8 +80,9 @@ class ServerLocator(Ice.Locator):
         return self._registryPrx
 
 class ServerManagerI(Test.ServerManager):
-    def __init__(self, adapter):
+    def __init__(self, adapter, registry):
         self._adapter = adapter
+	self._registry = registry
         self._communicators = []
     
     def startServer(self, current=None):
@@ -86,12 +102,20 @@ class ServerManagerI(Test.ServerManager):
         serverCommunicator.getProperties().setProperty("TestAdapter.AdapterId", "TestAdapter")
         adapter = serverCommunicator.createObjectAdapter("TestAdapter")
 
+        serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", "default")
+        serverCommunicator.getProperties().setProperty("TestAdapter2.AdapterId", "TestAdapter2")
+        adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2")
+
         locator = serverCommunicator.stringToProxy("locator:default -p 12345")
         adapter.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
+        adapter2.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
 
-        object = TestI(adapter)
-        proxy = adapter.add(object, Ice.stringToIdentity("test"))
+        object = TestI(adapter, adapter2, self._registry)
+	self._registry.addObject(adapter.add(object, Ice.stringToIdentity("test")))
+	self._registry.addObject(adapter.add(object, Ice.stringToIdentity("test2")))
+
         adapter.activate()
+        adapter2.activate()
 
     def shutdown(self, current=None):
         for i in self._communicators:
@@ -103,16 +127,24 @@ class HelloI(Test.Hello):
         pass
 
 class TestI(Test.TestIntf):
-    def __init__(self, adapter):
-        self._adapter = adapter
-        servant = HelloI()
-        self._adapter.add(servant, Ice.stringToIdentity("hello")) 
+    def __init__(self, adapter, adapter2, registry):
+        self._adapter1 = adapter
+        self._adapter2 = adapter2
+        self._registry = registry
+        self._registry.addObject(self._adapter1.add(HelloI(), Ice.stringToIdentity("hello")))
 
     def shutdown(self, current=None):
-        self._adapter.getCommunicator().shutdown()
+        self._adapter1.getCommunicator().shutdown()
 
     def getHello(self, current=None):
-        return Test.HelloPrx.uncheckedCast(self._adapter.createProxy(Ice.stringToIdentity("hello")))
+        return Test.HelloPrx.uncheckedCast(self._adapter1.createProxy(Ice.stringToIdentity("hello")))
+
+    def migrateHello(self, current=None):
+	id = Ice.stringToIdentity("hello")
+	try:
+	    self._registry.addObject(self._adapter2.add(self._adapter1.remove(id), id))
+	except Ice.NotRegisteredException:
+	    self._registry.addObject(self._adapter1.add(self._adapter2.remove(id), id))
 
 def run(args, communicator):
     #
@@ -126,9 +158,6 @@ def run(args, communicator):
 
     adapter = communicator.createObjectAdapter("ServerManager")
 
-    object = ServerManagerI(adapter)
-    adapter.add(object, Ice.stringToIdentity("ServerManager"))
-
     #
     # We also register a sample server locator which implements the
     # locator interface, this locator is used by the clients and the
@@ -136,7 +165,8 @@ def run(args, communicator):
     #
     registry = ServerLocatorRegistry()
     registry.addObject(adapter.createProxy(Ice.stringToIdentity("ServerManager")))
-    registry.addObject(communicator.stringToProxy("test@TestAdapter"))
+    object = ServerManagerI(adapter, registry)
+    adapter.add(object, Ice.stringToIdentity("ServerManager"))
 
     registryPrx = Ice.LocatorRegistryPrx.uncheckedCast(adapter.add(registry, Ice.stringToIdentity("registry")))
 
