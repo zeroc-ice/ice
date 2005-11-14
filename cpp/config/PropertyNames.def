@@ -417,6 +417,7 @@ Glacier2:
     Admin.Endpoints
     AdminIdentity
     Admin.PublishedEndpoints
+    Admin.RegisterProcess
     AllowCategories
     Client.AlwaysBatch
     Client.Buffered
@@ -440,6 +441,7 @@ Glacier2:
     Server.Trace.Override
     Server.Trace.Request
     SessionManager
+    SessionManager.CloseCount
     SessionTimeout
     Trace.RoutingTable
     Trace.Session

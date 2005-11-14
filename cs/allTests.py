@@ -62,7 +62,7 @@ tests = [ \
     "Ice/location", \
     "Ice/adapterDeactivation", \
     "Ice/slicing/exceptions", \
-    "Ice/slicing/objects", \
+    #"Ice/slicing/objects", \
     "Ice/checksum", \
     "Ice/stream", \
     "Glacier2/router", \
