@@ -15,7 +15,7 @@
 using namespace std;
 using namespace Test;
 
-TestIntfPrx
+void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
@@ -33,10 +33,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     obj->ice_ping();
     cout << "ok" << endl;
 
-    return obj;
+    cout << "shutting down server... " << flush;
+    obj->shutdown();
+    cout << "ok" << endl;
 }
 
-TestIntfPrx
+void
 allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
@@ -128,7 +130,7 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     {
 	test(false);
     }
-    cout << "ok" << endl;    
+    cout << "ok" << endl;
 
-    return obj;
+    admin->stopServer("server");
 }

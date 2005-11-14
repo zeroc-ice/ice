@@ -34,7 +34,13 @@ ReapThread::run()
 	    {
 		if((IceUtil::Time::now() - p->first->timestamp()) > _timeout)
 		{
-		    p->second->destroy();
+		    try
+		    {
+			p->second->destroy();
+		    }
+		    catch(const Ice::LocalException&)
+		    {
+		    }
 		    p = _sessions.erase(p);
 		}
 		else

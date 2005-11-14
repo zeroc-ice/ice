@@ -28,21 +28,15 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	}
     }
 
-    TestIntfPrx obj;
-
     if(!withDeploy)
     {
-	TestIntfPrx allTests(const Ice::CommunicatorPtr&);
-	obj = allTests(communicator);
-
-	cout << "shutting down server... " << flush;
-	obj->shutdown();
-	cout << "ok" << endl;
+	void allTests(const Ice::CommunicatorPtr&);
+	allTests(communicator);
     }
     else
     {
-	TestIntfPrx allTestsWithDeploy(const Ice::CommunicatorPtr&);
-	obj = allTestsWithDeploy(communicator);
+	void allTestsWithDeploy(const Ice::CommunicatorPtr&);
+	allTestsWithDeploy(communicator);
     }
 
     return EXIT_SUCCESS;

@@ -981,6 +981,7 @@ ServerI::activate()
 	}
     }
 
+    string failure;
     try
     {
 	int pid = _node->getActivator()->activate(desc->id, desc->exe, desc->pwd, options, envs, this);
@@ -998,10 +999,11 @@ ServerI::activate()
 	{
 	    command->execute();
 	}
+	return;
     }
     catch(const std::string& ex)
-    {	
-	setState(ServerI::Inactive, ex);
+    {
+	failure = ex;
     }
     catch(const Ice::SyscallException& ex)
     {
@@ -1011,8 +1013,19 @@ ServerI::activate()
 
 	ostringstream os;
 	os << ex;
-	setState(ServerI::Inactive, os.str());
+	failure = os.str();
     }
+    for(ServerAdapterDict::iterator p = adpts.begin(); p != adpts.end(); ++p)
+    {
+	try
+	{
+	    p->second->activationFailed(true);
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+    }    
+    setState(ServerI::Inactive, failure);
 }
 
 void
@@ -1823,7 +1836,14 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
     }
     for(PropertyDescriptorSeq::const_iterator r = props.begin(); r != props.end(); ++r)
     {
-	configfile << r->name << "=" << r->value << endl;
+	if(r->value.empty() && r->name.find('#') == 0)
+	{
+	    configfile << r->name << endl;
+	}
+	else
+	{
+	    configfile << r->name << "=" << r->value << endl;
+	}
     }
     configfile.close();
 }
