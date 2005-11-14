@@ -20,7 +20,7 @@ public class AllTests
         }
     }
 
-    public static TestIntfPrx
+    public static void
     allTests(Ice.Communicator communicator)
     {
 	System.out.print("testing stringToProxy... ");
@@ -42,10 +42,13 @@ public class AllTests
 	obj.ice_ping();
 	System.out.println("ok");
 	
-	return obj;
+	System.out.print("shutting down server... ");
+	System.out.flush();
+	obj.shutdown();
+	System.out.println("ok");	
     }
 
-    public static TestIntfPrx
+    public static void
     allTestsWithDeploy(Ice.Communicator communicator)
     {
 	System.out.print("testing stringToProxy... ");
@@ -167,6 +170,17 @@ public class AllTests
 	}
 	System.out.println("ok");
 
-	return obj;
+	try
+	{
+	    admin.stopServer("server");
+	}
+	catch(IceGrid.ServerNotExistException ex)
+	{
+	    test(false);
+	}
+	catch(IceGrid.NodeUnreachableException ex)
+	{
+	    test(false);
+	}
     }
 }

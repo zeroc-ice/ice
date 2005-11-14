@@ -24,21 +24,14 @@ public class Client
 	    }
 	}
 
-	TestIntfPrx obj;
-
 	if(!withDeploy)
 	{
-	    obj = AllTests.allTests(communicator);
+	    AllTests.allTests(communicator);
 	}
 	else
 	{
-	    obj = AllTests.allTestsWithDeploy(communicator);
+	    AllTests.allTestsWithDeploy(communicator);
 	}
-	
-	System.Console.Out.Write("shutting down server... ");
-	System.Console.Out.Flush();
-	obj.shutdown();
-	System.Console.Out.WriteLine("ok");
 
 	return 0;
     }

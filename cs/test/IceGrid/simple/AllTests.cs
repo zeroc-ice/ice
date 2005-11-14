@@ -21,7 +21,7 @@ public class AllTests
         }
     }
 
-    public static TestIntfPrx allTests(Ice.Communicator communicator)
+    public static void allTests(Ice.Communicator communicator)
     {
 	Console.Out.Write("testing stringToProxy... ");
 	Console.Out.Flush();
@@ -42,10 +42,13 @@ public class AllTests
 	obj.ice_ping();
 	Console.Out.WriteLine("ok");
 	
-	return obj;
+	System.Console.Out.Write("shutting down server... ");
+	System.Console.Out.Flush();
+	obj.shutdown();
+	System.Console.Out.WriteLine("ok");
     }
 
-    public static TestIntfPrx
+    public static void
     allTestsWithDeploy(Ice.Communicator communicator)
     {
 	Console.Out.Write("testing stringToProxy... ");
@@ -166,7 +169,18 @@ public class AllTests
 	    test(false);
 	}
 	Console.Out.WriteLine("ok");
-
-	return obj;
+	
+	try
+	{
+	    admin.stopServer("server");
+	}
+	catch(IceGrid.ServerNotExistException)
+	{
+	    test(false);
+	}
+	catch(IceGrid.NodeUnreachableException)
+	{
+	    test(false);
+	}
     }
 }

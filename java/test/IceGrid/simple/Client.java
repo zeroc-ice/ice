@@ -24,21 +24,16 @@ public class Client
 	    }
 	}
 
-	TestIntfPrx obj;
+	;
 
 	if(!withDeploy)
 	{
-	    obj = AllTests.allTests(communicator);
+	    AllTests.allTests(communicator);
 	}
 	else
 	{
-	    obj = AllTests.allTestsWithDeploy(communicator);
-	}
-	
-	System.out.print("shutting down server... ");
-	System.out.flush();
-	obj.shutdown();
-	System.out.println("ok");
+	    AllTests.allTestsWithDeploy(communicator);
+	}	
 
 	return 0;
     }
