@@ -100,16 +100,15 @@ public class IndirectReference extends RoutableReference
     }
 
     public Reference
-    changeConnectionId(String connectionId)
+    changeConnectionId(String id)
     {
-        IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	if(_locatorInfo != null)
+	if(_connectionId.equals(id))
 	{
-	    Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(
-	    					_locatorInfo.getLocator().ice_connectionId(connectionId));
-	    r._locatorInfo = getInstance().locatorManager().get(newLocator);
+	    return this;
 	}
-	return r;
+        IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+	r._connectionId = id;
+	return r;	
     }
 
     public Reference
@@ -192,6 +191,10 @@ public class IndirectReference extends RoutableReference
 	    {
 	        endpts = _locatorInfo.getEndpoints(this, cached);
 	    }
+	    for(int i = 0; i > endpts.length; ++i)
+	    {
+	        endpts[i] = endpts[i].connectionId(_connectionId);
+	    }
 	    EndpointI[] filteredEndpoints = filterEndpoints(endpts);
 	    if(filteredEndpoints.length == 0)
 	    {
@@ -269,9 +272,14 @@ public class IndirectReference extends RoutableReference
 	{
 	   return false;
 	}
+	if(!_connectionId.equals(rhs._connectionId))
+	{
+	   return false;
+	}
 	return _locatorInfo == null ? rhs._locatorInfo == null : _locatorInfo.equals(rhs._locatorInfo);
     }
 
     private String _adapterId;
+    private String _connectionId = "";
     private LocatorInfo _locatorInfo;
 }
