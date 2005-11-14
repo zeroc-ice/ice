@@ -939,6 +939,8 @@ public class Model
 	
 	if(router == null)
 	{
+	    System.err.println("Getting local adapter");
+
 	    if(_localAdapter == null)
 	    {
 		_localAdapter = 
@@ -949,6 +951,7 @@ public class Model
 	}
 	else
 	{
+	    System.err.println("Getting routed adapter");
 	    if(_routedAdapter == null)
 	    {
 		//
@@ -1073,22 +1076,51 @@ public class Model
 
     static private Ice.Communicator createCommunicator(String[] args)
     {
-	//
-	// TODO: work-around bug #542 
-	//
+	Ice.StringSeqHolder argSeq = new Ice.StringSeqHolder(args);
 
-	Ice.Properties properties = Ice.Util.createProperties();
-	properties.setProperty("Ice.Override.ConnectTimeout", "5000");
-	properties.setProperty("IceGrid.AdminGUI.Endpoints", "tcp -t 10000");
-	
+	Ice.Properties properties = Ice.Util.createProperties(argSeq);
+
+	//
+	// Set various default values
+	//
+	if(properties.getProperty("Ice.Override.ConnectTimeout").equals(""))
+	{
+	    properties.setProperty("Ice.Override.ConnectTimeout", "5000");
+	}
+
+	if(properties.getProperty("IceGrid.AdminGUI.Endpoints").equals(""))
+	{
+	    properties.setProperty("IceGrid.AdminGUI.Endpoints", "tcp -t 10000");
+	}
+	   
+        //
+        // For SSL
+        //
+	if(properties.getProperty("Ice.ThreadPerConnection").equals(""))
+	{
+	    properties.setProperty("Ice.ThreadPerConnection", "1");
+	}
+
 	//
 	// For Glacier
 	//
-	properties.setProperty("Ice.ACM.Client", "0");
-	properties.setProperty("Ice.MonitorConnections", "5");
-	properties.setProperty("Ice.RetryIntervals", "-1");
+	if(properties.getProperty("Ice.ACM.Client").equals(""))
+	{
+	    properties.setProperty("Ice.ACM.Client", "0");
+	}
+	if(properties.getProperty("Ice.MonitorConnections").equals(""))
+	{
+	    properties.setProperty("Ice.MonitorConnections", "5");
+	}
+	
+	//
+	// Retries are not useful when using Glacier2, however
+	// they are not harmful either. 
+	//
+        // For now we retry to work-around bug #574:
+	// properties.setProperty("Ice.RetryIntervals", "-1");
 
-	return Ice.Util.initializeWithProperties(args, properties);
+	return Ice.Util.initializeWithProperties(argSeq, properties);
     }
 
     Model(JFrame mainFrame, String[] args, Preferences prefs, StatusBar statusBar)
