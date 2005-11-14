@@ -148,11 +148,13 @@ $ mono server.exe
 PHP
 ---
 
-The Ice extension for PHP must be added to your PHP configuration
-by editing php.ini and adding the following lines:
+The Ice extension for PHP is loaded automatically when the
+interpreter loads the contents of the file /etc/php.d/ice.ini:
 
-extension_dir = /usr/lib
-extension = icephp.so
+extension=icephp.so
+
+You can modify this file to include additional configuration
+directives, such as those used by the Ice extension.
 
 At run time, the PHP interpreter requires the Ice shared libraries
 as well as the Slice preprocessor (icecpp).

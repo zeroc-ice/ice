@@ -18,6 +18,9 @@ definitions required by this example. In php.ini, set this directive:
 
 ice.slice=/opt/icephp/demo/Ice/hello/Hello.ice
 
+For a Linux RPM installation, this directive can be added to
+/etc/php.d/ice.ini.
+
 Finally, start the hello server on the Web server host and try out the
 script.
 
