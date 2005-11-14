@@ -789,7 +789,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << sb;
 	    if(isArray)
 	    {
-		if(st->hasMetaData("clr:class"))
+		if(!isValueType(st))
 		{
 		    out << nl << param << "[ix__] = new " << typeS << "();";
 		}
