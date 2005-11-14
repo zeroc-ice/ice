@@ -110,6 +110,11 @@ FreezeGenerator::varToObject(const TypePtr& type, const string& param)
 		result = string("new java.lang.Double(") + param + ")";
 		break;
 	    }
+	    case Builtin::KindString:
+	    case Builtin::KindObject:
+	    case Builtin::KindObjectProxy:
+	    case Builtin::KindLocalObject:
+		break;
 	}
     }
     return result;
@@ -160,6 +165,11 @@ FreezeGenerator::objectToVar(const TypePtr& type, const string& param)
 		result = string("((java.lang.Double)") + param + ").doubleValue()";
 		break;
 	    }
+	    case Builtin::KindString:
+	    case Builtin::KindObject:
+	    case Builtin::KindObjectProxy:
+	    case Builtin::KindLocalObject:
+		break;
 	}
     }
     return result;
