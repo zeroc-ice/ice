@@ -32,9 +32,10 @@ public:
     }
 
     void
-    ice_exception(const Ice::Exception&)
+    ice_exception(const Ice::Exception& ex)
     {
-	// Ignore
+	Ice::Warning out(_observer->ice_communicator()->getLogger());
+	out << "couldn't initialize registry observer:\n" << ex;    
     }
 
 private:
@@ -64,7 +65,8 @@ public:
     void
     ice_exception(const Ice::Exception& ex)
     {
-	// Ignore
+	Ice::Warning out(_observer->ice_communicator()->getLogger());
+	out << "couldn't initialize node observer:\n" << ex;    
     }
     
 private:
@@ -204,10 +206,6 @@ NodeObserverTopic::subscribe(const NodeObserverPrx& observer, int serial)
 		}
 		serial = _serial;
 	    }
-	    //
-	    // TODO: Race conditions are possible here, we should
-	    // check the serial and eventually retry if it changed.
-	    //
 	    observer->init_async(new NodeInitCB(this, observer, serial), nodes);
 	    return;
 	}
