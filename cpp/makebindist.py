@@ -28,10 +28,11 @@ class ExtProgramError:
     def __str__(self):
 	return repr(self.msg)
 
-def runprog(commandstring):
-    commandtuple = commandstring.split()
-    result = os.spawnvpe(os.P_WAIT, commandtuple[0], commandtuple, os.environ)
-    if result != 0:
+def runprog(commandstring, haltOnError = True):
+    #commandtuple = commandstring.split()
+    #result = os.spawnvpe(os.P_WAIT, commandtuple[0], commandtuple, os.environ)
+    result = os.system(commandstring)
+    if result != 0 and haltOnError:
 	msg = 'Command %s failed with error code %d' % (commandstring, result)
 	raise ExtProgramError(msg)
 

@@ -118,7 +118,7 @@ class Package:
 	ofile.write('%clean\n')
 	ofile.write('\n')
 	ofile.write('%changelog\n')
-	ofile.write('* Tue Mar 8 2005 ZeroC Staff\n')
+	ofile.write('* Tue Nov 15 2005 ZeroC Staff\n')
 	ofile.write('- See source distributions or the ZeroC website for more information\n')
 	ofile.write('  about the changes in this release\n') 
 	ofile.write('\n')
