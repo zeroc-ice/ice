@@ -1160,15 +1160,14 @@ namespace IceInternal
 	    return r;
 	}
 
-	public override Reference changeConnectionId(string connectionId)
+	public override Reference changeConnectionId(string id)
 	{
-	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	    if(locatorInfo_ != null)
+	    if(connectionId_.Equals(id))
 	    {
-		Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(
-						    locatorInfo_.getLocator().ice_connectionId(connectionId));
-		r.locatorInfo_ = getInstance().locatorManager().get(newLocator);
+		return this;
 	    }
+	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+	    r.connectionId_ = id;
 	    return r;
 	}
 
@@ -1246,6 +1245,13 @@ namespace IceInternal
 		{
 		    endpts = locatorInfo_.getEndpoints(this, out cached);
 		}
+		//
+		// Apply the cached connection id to each endpoint.
+		//
+		for(int i = 0; i < endpts.Length; ++i)
+		{
+		    endpts[i] = endpts[i].connectionId(connectionId_);
+		}
 		EndpointI[] filteredEndpoints = filterEndpoints(endpts);
 		if(filteredEndpoints.Length == 0)
 		{
@@ -1322,6 +1328,10 @@ namespace IceInternal
 	    {
 		return false;
 	    }
+	    if(!connectionId_.Equals(rhs.connectionId_))
+	    {
+		return false;
+	    }
 	    return object.ReferenceEquals(locatorInfo_, rhs.locatorInfo_) ||
 		(locatorInfo_ != null && rhs.locatorInfo_ != null && rhs.locatorInfo_.Equals(locatorInfo_));
 	}
@@ -1335,6 +1345,7 @@ namespace IceInternal
         }
 
 	private string adapterId_;
+	private string connectionId_ = "";
 	private LocatorInfo locatorInfo_;
     }
 }

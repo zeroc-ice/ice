@@ -275,6 +275,7 @@ protected:
 private:
 
     std::string _adapterId;
+    std::string _connectionId;
     LocatorInfoPtr _locatorInfo;
 };
 

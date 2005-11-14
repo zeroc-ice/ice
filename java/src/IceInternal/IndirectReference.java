@@ -191,7 +191,7 @@ public class IndirectReference extends RoutableReference
 	    {
 	        endpts = _locatorInfo.getEndpoints(this, cached);
 	    }
-	    for(int i = 0; i > endpts.length; ++i)
+	    for(int i = 0; i < endpts.length; ++i)
 	    {
 	        endpts[i] = endpts[i].connectionId(_connectionId);
 	    }
