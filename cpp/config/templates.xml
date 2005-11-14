@@ -39,13 +39,28 @@
     <server-template id="Glacier2">
         
       <parameter name="instance-name" default="${application}.Glacier2"/>
-      <parameter name="client-endpoints"/>
-      <parameter name="session-timeout"/>
+      <parameter name="client-endpoints"/>   
       <parameter name="server-endpoints"/>
-      <parameter name="session-manager"/>
+      <parameter name="session-timeout"/>
+
+      <!-- All the following parameters correspond to properties with a default value -->
+     
+      <parameter name="session-manager" default=""/>
+     
       <parameter name="server-adapter-id" default=""/>
-      <parameter name="passwords-file" default="passwords"/>      
-      <parameter name="permission-verifier" default=""/>
+      <parameter name="crypt-passwords" default="passwords"/>      
+      <parameter name="permissions-verifier" default=""/>
+
+      <parameter name="client-buffered" default="1"/>
+      <parameter name="client-sleep-time" default="0"/>
+      <parameter name="server-buffered" default="1"/>
+      <parameter name="server-sleep-time" default="0"/>
+    
+      <parameter name="ssl-plugin" default=""/>
+      <parameter name="ssl-client-cert-path" default=""/>
+      <parameter name="ssl-client-config" default="sslconfig.xml"/>
+      <parameter name="ssl-server-cert-path" default=""/>
+      <parameter name="ssl-server-config" default="sslconfig.xml"/>
 
       <server id="${instance-name}" exe="glacier2router">
          <adapter name="Glacier2.Client" id=""
@@ -59,12 +74,23 @@
 
          <property name="Glacier2.InstanceName" value="${instance-name}"/>
          <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
-         <property name="Glacier2.CryptPasswords" value="${passwords-file}"/>
-         <property name="Glacier2.PermissionVerifier" value="${permission-verifier}"/>
-         <property name="Glacier2.SessionManager"  value="${session-manager}"/>
+         <property name="Glacier2.CryptPasswords" value="${crypt-passwords}"/>
+         <property name="Glacier2.PermissionsVerifier" value="${permissions-verifier}"/>
+         <property name="Glacier2.SessionManager" value="${session-manager}"/>
+        
+         <property name="Glacier2.Client.Buffered" value="${client-buffered}"/>
+         <property name="Glacier2.Client.SleepTime" value="${client-sleep-time}"/>
+         <property name="Glacier2.Server.Buffered" value="${server-buffered}"/>
+         <property name="Glacier2.Server.SleepTime" value="${server-sleep-time}"/>
 
-         <!-- TODO: SSL configuration -->
-     </server>
+         <!-- Minimal SSL configuration -->
+         <property name="Ice.Plugin.IceSSL" value="${ssl-plugin}"/>
+         <property name="IceSSL.Client.CertPath" value="${ssl-client-cert-path}"/>  
+         <property name="IceSSL.Client.Config" value="${ssl-client-config}"/>
+         <property name="IceSSL.Server.CertPath" value="${ssl-server-cert-path}"/>
+         <property name="IceSSL.Server.Config" value="${ssl-server-config}"/>
+
+      </server>
 
     </server-template>
    
