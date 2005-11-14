@@ -109,13 +109,11 @@ public class Subscriber : Ice.Application
             communicator().waitForShutdown();
         }
 
-Console.WriteLine("unsubscribe");
         //
         // Unsubscribe all subscribed objects.
         //
 	foreach(DictionaryEntry entry in (Hashtable)subscribers)
         {
-Console.WriteLine("unsubscribe from " + (string)entry.Key);
             try
             {
                 IceStorm.TopicPrx topic = manager.retrieve((string)entry.Key);
