@@ -32,9 +32,11 @@ def runprog(commandstring, haltOnError = True):
     #commandtuple = commandstring.split()
     #result = os.spawnvpe(os.P_WAIT, commandtuple[0], commandtuple, os.environ)
     result = os.system(commandstring)
-    if result != 0 and haltOnError:
-	msg = 'Command %s failed with error code %d' % (commandstring, result)
-	raise ExtProgramError(msg)
+    if result != 0:
+	msg = 'Command %s returned error code %d' % (commandstring, result)
+	if haltOnError: 
+	    raise ExtProgramError(msg)
+
 
 def copyfiles(srcDir, destDir):
     '''Copy the contents of one directory to another (non-recursive)'''
@@ -242,7 +244,7 @@ endif
     # script doesn't seem to work properly for the slice files.
     #
     os.chdir("..")
-    os.system("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
+    runprog("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
     makefile.close()
 
 def updateIceVersion(filename, version):
@@ -265,7 +267,8 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
        Ice"""
     cwd = os.getcwd()
     os.chdir(buildDir + "/demotree")
-    os.system("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/config " + distro + "/certs")
+    runprog("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/config " + distro +
+	    "/certs", False)
 	
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo" + demoDir)
 
@@ -336,20 +339,20 @@ def archiveDemoTree(buildDir, version, installFiles):
     # 
     # Remove compiled Java.
     # 
-    os.system("sh -c 'for f in `find Ice-" + version + "-demos/demoj -name classes -type d` ; do rm -rf $f/* ; done'")
+    runprog("sh -c 'for f in `find Ice-" + version + "-demos/demoj -name classes -type d` ; do rm -rf $f/* ; done'")
 
     #
     # Remove generated source files.
     #
-    os.system("sh -c 'for f in `find Ice-" + version + "-demos/demoj -name generated -type d` ; do rm -rf $f/* ; done'")
+    runprog("sh -c 'for f in `find Ice-" + version + "-demos/demoj -name generated -type d` ; do rm -rf $f/* ; done'")
 
     #
     # Remove Windows project files.
     #
-    os.system("sh -c 'for f in `find Ice-" + version + "-demos -name \"*\.dsp\" ` ; do rm -rf $f ; done'")
-    os.system("sh -c 'for f in `find Ice-" + version + "-demos -name \"*\.dsw\" ` ; do rm -rf $f ; done'")
-    os.system("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.sln\" ` ; do rm -rf $f ; done'")
-    os.system("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.csproj\" ` ; do rm -rf $f ; done'")
+    runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*\.dsp\" ` ; do rm -rf $f ; done'")
+    runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*\.dsw\" ` ; do rm -rf $f ; done'")
+    runprog("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.sln\" ` ; do rm -rf $f ; done'")
+    runprog("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.csproj\" ` ; do rm -rf $f ; done'")
 
     runprog("tar cf Ice-" + version + "-demos.tar Ice-" + version + "-demos")
     runprog("gzip -9 Ice-" + version + "-demos.tar")
@@ -382,7 +385,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
 	# work) than shutil.copytree().
 	#
 	runprog('cp -pR ' + buildDir + '/' + distro + '/ant ' + installDir)
-	os.system('find ' + installDir + '/ant  -name "*.java" | xargs rm')
+	runprog('find ' + installDir + '/ant  -name "*.java" | xargs rm')
 	destDir = os.path.join(installDir, 'config')
 	if not os.path.exists(destDir):
 	    os.mkdir(destDir)
@@ -395,9 +398,9 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
 	return
 
     if distro.startswith('IceCS'):
-	os.system('perl -pi -e \'s/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/\' config/Make.rules.cs')
+	runprog('perl -pi -e \'s/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/\' config/Make.rules.cs')
     else:
-	os.system('perl -pi -e \'s/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/\' config/Make.rules')
+	runprog('perl -pi -e \'s/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/\' config/Make.rules')
 
     if distro.startswith('IcePy'):
         try:
@@ -409,14 +412,14 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
             logging.info('PYTHON_HOME is not set, figuring it out and trying that')
             pyHome = sys.exec_prefix
             
-        os.system("perl -pi -e 's/^PYTHON.HOME.*$/PYTHON\_HOME \?= "+ pyHome.replace("/", "\/") + \
+        runprog("perl -pi -e 's/^PYTHON.HOME.*$/PYTHON\_HOME \?= "+ pyHome.replace("/", "\/") + \
 		"/' config/Make.rules")
         
     if not getPlatform().startswith('linux'):
 	if distro.startswith('IcePy'):
-	    os.system("perl -pi -e 's/^PYTHON.INCLUDE.DIR.*$/PYTHON_INCLUDE_DIR = " +
+	    runprog("perl -pi -e 's/^PYTHON.INCLUDE.DIR.*$/PYTHON_INCLUDE_DIR = " +
 	              "\$\(PYTHON_HOME\)\/include\/\$\(PYTHON_VERSION\)/' config/Make.rules")
-	    os.system("perl -pi -e 's/^PYTHON.LIB.DIR.*$/PYTHON_LIB_DIR = " + 
+	    runprog("perl -pi -e 's/^PYTHON.LIB.DIR.*$/PYTHON_LIB_DIR = " + 
 	              "\$\(PYTHON_HOME\)\/lib\/\$\(PYTHON_VERSION\)\/config/' config/Make.rules")
 
     #
@@ -612,11 +615,12 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
 	os.environ['CXX'] = 'CC'
 
     if platform == 'hpux':
-	os.system('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure-hpux.gz > configure')
+	runprog('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure-hpux.gz > configure', False)
     elif platform == 'linux':
-	os.system('gzip -dc ' + buildDir + '/ice/install/thirdparty/php/configure*.gz > configure')
+	runprog('gzip -dc ' + buildDir + '/ice/install/thirdparty/php/configure*.gz > configure', False)
+		
     else:
-	os.system('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure.gz > configure')
+	runprog('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure.gz > configure', False)
 
     if platform == 'hpux':
 	#
@@ -1102,9 +1106,9 @@ def main():
 	    shutil.copy(installFiles + '/thirdparty/php/ice.ini', '/usr/src/redhat/SOURCES')
 	    shutil.copy(installFiles + '/thirdparty/php/configure.5.0.4.gz', 
 		    '/usr/src/redhat/SOURCES')
-            iceArchives = glob.glob(sources + '/Ice*' + version + '.gz')
+            iceArchives = glob.glob(sources + '/Ice*' + version + '*.gz')
 	    for f in iceArchives:
-		shutil.copy(f, 'usr/src/redhat/SOURCES')
+		shutil.copy(f, '/usr/src/redhat/SOURCES')
 	    RPMTools.createRPMSFromBinaries(buildDir, installDir, version, soVersion)
 
     #

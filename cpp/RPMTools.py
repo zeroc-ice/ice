@@ -618,8 +618,9 @@ sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/Ice-%{vers
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePy-%{version}/config/Make.rules
 %setup -q -n IceCS-%{version} -T -D -b 3 
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
+%setup -q -n Ice-%{version}-demos -T -D -b 4 
 cd $RPM_BUILD_DIR
-tar xfz $RPM_SOURCE_DIR/IcePHP-%{version}
+tar xfz $RPM_SOURCE_DIR/IcePHP-%{version}.tar.gz
 tar xfj $RPM_SOURCE_DIR/php-5.0.4.tar.bz2
 rm -f $RPM_BUILD_DIR/php-5.0.4/ext/ice
 ln -s $RPM_BUILD_DIR/IcePHP-%{version}/src/ice $RPM_BUILD_DIR/php-5.0.4/ext
@@ -630,13 +631,13 @@ gzip -dc $RPM_SOURCE_DIR/configure.5.0.4.gz > $RPM_BUILD_DIR/php-5.0.4/configure
 def writeBuildCommands(ofile, version):
     ofile.write("""
 cd $RPM_BUILD_DIR/Ice-%{version}
-gmake OPTIMIZE=yes RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr
+gmake OPTIMIZE=yes RPM_BUILD_ROOT=$RPM_BUILD_ROOT
 cd $RPM_BUILD_DIR/IcePy-%{version}
-gmake  OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr
+gmake  OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT
 cd $RPM_BUILD_DIR/IceCS-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
-gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr
+gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT
 cd $RPM_BUILD_DIR/php-5.0.4
 ./configure --with-ice=shared,$RPM_BUILD_DIR/Ice-%{version}
 sed -i -e 's/^EXTRA_CXXFLAGS.*$/EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE/' $RPM_BUILD_DIR/php-5.0.4/Makefile
@@ -646,28 +647,27 @@ gmake
 def writeInstallCommands(ofile, version):
     ofile.write("""
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/usr
-mkdir -p $RPM_BUILD_ROOT/usr/bin
-mkdir -p $RPM_BUILD_ROOT/usr/lib
-mkdir -p $RPM_BUILD_ROOT/usr/include
-mkdir -p $RPM_BUILD_ROOT/usr/doc
-mkdir -p $RPM_BUILD_ROOT/etc
-mkdir -p $RPM_BUILD_ROOT/etc/php.d
 cd $RPM_BUILD_DIR/Ice-%{version}
-gmake RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr install
-cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/Ice.jar $RPM_BUILD_ROOT/usr/lib/Ice.jar
-cp -pR $RPM_BUILD_DIR/IceJ-%{version}/ant $RPM_BUILD_ROOT/usr
+gmake RPM_BUILD_ROOT=$RPM_BUILD_ROOT install
+cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/Ice.jar $RPM_BUILD_ROOT/lib/Ice.jar
+cp -pR $RPM_BUILD_DIR/IceJ-%{version}/ant $RPM_BUILD_ROOT
 cd $RPM_BUILD_DIR/IcePy-%{version}
-gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr install
+gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT install
 cd $RPM_BUILD_DIR/IceCS-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
-gmake NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr install
-cp $RPM_SOURCE_DIR/README.Linux-RPM $RPM_BUILD_ROOT/usr/README
-cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_ROOT/etc/php.d
+gmake NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT install
+cp $RPM_SOURCE_DIR/README.Linux-RPM $RPM_BUILD_ROOT/README
+cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_ROOT/ice.ini
+cp $RPM_BUILD_DIR/php-5.0.4/modules/ice.so $RPM_BUILD_ROOT/lib/icephp.so
+cp -pR $RPM_BUILD_DIR/Ice-%{version}-demos/config $RPM_BUILD_ROOT
 """)
 
 def writeTransformCommands(ofile, version):
+    #
+    #  XXX- this needs serious revisiting after changing how the
+    #  transforms work to accomodate files for /etc.
+    #
     ofile.write('#\n')
     ofile.write('# The following commands transform a standard Ice installation directory\n')
     ofile.write('# structure to a directory structure more suited to integrating into a\n')
@@ -677,19 +677,23 @@ def writeTransformCommands(ofile, version):
 	dest = dest.replace('%version%', version)
 	source = source.replace('%version%', version)
 	if type == 'file':
-	    ofile.write('mkdir -p $RPM_BUILD_ROOT/usr/' + os.path.dirname(dest) + '\n')
-	    ofile.write('mv $RPM_BUILD_ROOT/usr/' + source + ' $RPM_BUILD_ROOT/usr/' + dest + '\n')
+	    ofile.write('# Rule 1\n')
+	    ofile.write('mkdir -p $RPM_BUILD_ROOT/' + os.path.dirname(dest) + '\n')
+	    ofile.write('mv $RPM_BUILD_ROOT/' + source + ' $RPM_BUILD_ROOT/' + dest + '\n')
 	elif type == 'dir':
 	    if os.path.dirname(dest) <> '' and source.split('/')[0] == dest.split('/')[0]:
+		ofile.write('# Rule 2\n')
 		ofile.write('mkdir -p $RPM_BUILD_ROOT/arraftmp\n')
 		ofile.write('mv $RPM_BUILD_ROOT/usr/' + source + ' $RPM_BUILD_ROOT/arraftmp/' + source + '\n')
 		ofile.write('mkdir -p $RPM_BUILD_ROOT/usr/' + os.path.dirname(dest) + '\n')
-		ofile.write('mv $RPM_BUILD_ROOT/arraftmp/' + source + ' $RPM_BUILD_ROOT/usr/' + dest + '\n')
+		ofile.write('mv $RPM_BUILD_ROOT/arraftmp/' + source + ' $RPM_BUILD_ROOT/' + dest + '\n')
 		ofile.write('rm -rf $RPM_BUILD_ROOT/arraftmp\n')
 	    elif os.path.dirname(dest) <> '':
-		ofile.write('mkdir -p $RPM_BUILD_ROOT/usr/' + os.path.dirname(dest) + '\n')
-		ofile.write('mv $RPM_BUILD_ROOT/usr/' + source + ' $RPM_BUILD_ROOT/usr/' + dest + '\n')
+		ofile.write('# Rule 3\n')
+		ofile.write('mkdir -p $RPM_BUILD_ROOT/' + os.path.dirname(dest) + '\n')
+		ofile.write('mv $RPM_BUILD_ROOT/' + source + ' $RPM_BUILD_ROOT/' + dest + '\n')
 	    else:
+		ofile.write('# Rule 4\n')
 		ofile.write('mv $RPM_BUILD_ROOT/usr/' + source + ' $RPM_BUILD_ROOT/usr/' + dest + '\n')
 
 def writeDemoPkgCommands(ofile, version):
