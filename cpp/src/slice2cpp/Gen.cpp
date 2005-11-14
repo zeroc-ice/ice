@@ -429,7 +429,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	string paramName = fixKwd((*q)->name());
 	string typeName = inputTypeToString((*q)->type());
 	allTypes.push_back(typeName);
-	allParamDecls.push_back(typeName + " __" + paramName);
+	allParamDecls.push_back(typeName + " __ice_" + paramName);
     }
 
     if(base)
@@ -437,7 +437,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	DataMemberList baseDataMembers = base->allDataMembers();
 	for(q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
 	{
-	    baseParams.push_back("__" + fixKwd((*q)->name()));
+	    baseParams.push_back("__ice_" + fixKwd((*q)->name()));
 	}
     }
 
@@ -540,7 +540,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	    {
 	        C << ",";
 	    }
-	    C << nl << *pi << "(__" << *pi << ')';
+	    C << nl << *pi << "(__ice_" << *pi << ')';
 	}
 	if(p->isLocal() || !baseParams.empty() || !params.empty())
 	{
@@ -2328,7 +2328,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	string paramName = fixKwd((*q)->name());
 	string typeName = inputTypeToString((*q)->type());
 	allTypes.push_back(typeName);
-	allParamDecls.push_back(typeName + " __" + paramName);
+	allParamDecls.push_back(typeName + " __ice_" + paramName);
     }
 
     if(!p->isInterface())
@@ -2345,7 +2345,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 
 	/*
-	 * Strong guarantee: commented-out code marked "String guarantee" generates
+	 * Strong guarantee: commented-out code marked "Strong guarantee" generates
 	 * a copy-assignment operator that provides the strong exception guarantee.
 	 * For now, this is commented out, and we use the compiler-generated
 	 * copy-assignment operator. However, that one does not provide the strong
@@ -2418,7 +2418,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 		{
 		    C << ',' << nl;
 		}
-		C << *pi << '(' << "__" << *pi << ')';
+		C << *pi << '(' << "__ice_" << *pi << ')';
 	    }
 	    C.dec();
 	    C << sb;
