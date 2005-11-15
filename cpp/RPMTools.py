@@ -91,6 +91,7 @@ class Package:
 	ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/configure.5.0.4.gz\n')
 	ofile.write('Source8: http://www.zeroc.com/download/Ice/' + minorVer + '/php-5.0.4.tar.bz2\n')
 	ofile.write('Source9: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePHP-%{version}.tar.gz\n')
+	ofile.write('Source10: http://www.zeroc.com/download/Ice/' + minorVer + '/iceproject.xml\n')
 	ofile.write('\n')
 	if len(installDir) != 0:
 	    ofile.write('BuildRoot: ' + installDir + '\n')
@@ -661,6 +662,7 @@ cp $RPM_SOURCE_DIR/README.Linux-RPM $RPM_BUILD_ROOT/README
 cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_ROOT/ice.ini
 cp $RPM_BUILD_DIR/php-5.0.4/modules/ice.so $RPM_BUILD_ROOT/lib/icephp.so
 cp -pR $RPM_BUILD_DIR/Ice-%{version}-demos/config $RPM_BUILD_ROOT
+cp $RPM_SOURCE_DIR/iceproject.xml $RPM_BUILD_ROOT/config
 """)
 
 def writeTransformCommands(ofile, version):

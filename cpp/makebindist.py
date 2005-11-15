@@ -1039,6 +1039,13 @@ def main():
     binaries.extend(glob.glob(installDir + '/Ice-' + version + '/lib/*' + shlibExtensions(version, soVersion)[0]))
     cwd = os.getcwd()
     os.chdir(installDir)
+
+    #
+    # XXX- make configurable.
+    #
+    runprog('cp ~/java/looks-1.3.2.jar Ice-%s/lib' % version)
+    runprog('cp ~/java/forms-1.0.5.jar Ice-%s/lib' % version)
+
     if not getPlatform().startswith('linux'):
 	#
 	# Get third party libraries.
@@ -1106,6 +1113,7 @@ def main():
 	    shutil.copy(installFiles + '/thirdparty/php/ice.ini', '/usr/src/redhat/SOURCES')
 	    shutil.copy(installFiles + '/thirdparty/php/configure.5.0.4.gz', 
 		    '/usr/src/redhat/SOURCES')
+	    shutil.copy(installFiles + '/common/iceproject.xml', '/usr/src/redhat/SOURCES')
             iceArchives = glob.glob(sources + '/Ice*' + version + '*.gz')
 	    for f in iceArchives:
 		shutil.copy(f, '/usr/src/redhat/SOURCES')
