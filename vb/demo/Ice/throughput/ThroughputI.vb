@@ -20,6 +20,7 @@ Public NotInheritable Class ThroughputI
         Next
         _structSeq = New StringDouble(StringDoubleSeqSize.value) {}
         For i As Integer = 0 To StringDoubleSeqSize.value - 1
+	    _structSeq(i) = New StringDouble
             _structSeq(i).s = "hello"
             _structSeq(i).d = 3.14
         Next

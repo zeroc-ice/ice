@@ -61,6 +61,7 @@ Module ThroughputC
 
             Dim structSeq() As StringDouble = New StringDouble(StringDoubleSeqSize.value - 1) {}
             For i As Integer = 0 To StringDoubleSeqSize.value - 1
+		structSeq(i) = New StringDouble
                 structSeq(i).s = "hello"
                 structSeq(i).d = 3.14
             Next
