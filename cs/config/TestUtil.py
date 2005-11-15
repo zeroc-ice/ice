@@ -102,7 +102,7 @@ def getServerPid(serverPipe):
 def getAdapterReady(serverPipe):
 
     output = serverPipe.readline().strip()
-    if compress and output == "warning: bzip2 support not available, Ice.Override.Compress ignored\n":
+    if compress and output.strip() == "warning: bzip2 support not available, Ice.Override.Compress ignored":
         output = serverPipe.readline()
 
     if not output:
