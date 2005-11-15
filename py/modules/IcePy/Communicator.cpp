@@ -196,8 +196,13 @@ static void
 communicatorDealloc(CommunicatorObject* self)
 {
     CommunicatorMap::iterator p = _communicatorMap.find(*self->communicator);
-    assert(p != _communicatorMap.end());
-    _communicatorMap.erase(p);
+    //
+    // find() can fail if an error occurred during communicator initialization.
+    //
+    if(p != _communicatorMap.end())
+    {
+	_communicatorMap.erase(p);
+    }
 
     if(self->shutdownThread)
     {
