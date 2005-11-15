@@ -25,6 +25,7 @@
     <property name="src.dir" value="src"/>
     <property name="generated.dir" value="generated"/>
     <property name="cache.dir" value="depcache"/>
+    <property name="gui.dir" value="admin"/>
 
     <property file="config/build.properties"/>
 
@@ -137,17 +138,49 @@
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
         <depend srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
-        <javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
-            source="1.4" debug="${debug}" optimize="${optimize}" deprecation="on">
-        </javac>
+	<javac srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}"
+	    source="1.4" debug="${debug}" optimize="${optimize}"
+	    excludes="IceGrid/**"
+	    includes="**"
+	    deprecation="on"/>
+        <javac srcdir="${generated.dir}" destdir="${lib.dir}"
+	    source="1.4" debug="${debug}" optimize="${optimize}"
+	    includes="IceGrid/**"
+	    classpath="${lib.dir}:${classpath}"
+	    deprecation="on"/>
     </target>
 
     <target name="jar" depends="compile">
-        <jar jarfile="${lib.dir}/Ice.jar" basedir="${lib.dir}"
-            excludes="Ice.jar"/>
+	<jar jarfile="${lib.dir}/Ice.jar" basedir="${lib.dir}">
+	    <include name="**/*.class"/>
+	    <exclude name="*.jar"/>
+	</jar>
     </target>
 
-    <target name="all" depends="jar">
+    <target name="compile-admin-gui" depends="compile">
+        <mkdir dir="${gui.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${gui.dir}"
+	    source="1.4" debug="${debug}" optimize="${optimize}"
+	    includes="IceGrid/**"
+	    classpath="${lib.dir}"
+	    deprecation="on"/>
+    </target>
+
+    <target name="icegrid-jar" depends="compile, compile-admin-gui">
+	<manifest file="${lib.dir}/icegridmanifest.mf">
+	    <attribute name="Main-Class" value="IceGrid.AdminGUI"/>
+	    <attribute name="Class-Path" value="Ice.jar looks-1.3.2.jar forms-1.0.5.jar"/>
+	</manifest>
+	<jar jarfile="${lib.dir}/IceGridAdmin.jar" manifest="${lib.dir}/icegridmanifest.mf" basedir="${gui.dir}">
+	    <include name="IceGrid/**"/>
+	</jar>
+	<jar jarfile="${lib.dir}/IceGridAdmin.jar" manifest="${lib.dir}/icegridmanifest.mf" basedir="resources"
+	    update="true">
+	    <include name="**"/>
+	</jar>
+    </target>
+
+    <target name="all" depends="jar, icegrid-jar">
         <ant inheritAll="false" dir="demo"/>
         <ant inheritAll="false" dir="test"/>
     </target>
