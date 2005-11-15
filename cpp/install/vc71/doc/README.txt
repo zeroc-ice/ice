@@ -179,8 +179,8 @@ Running the Python demos
 
 The Python demos are in the demopy directory.
 
-You need Python 2.4 or later to run the demos. A binary installer for
-Python 2.4 can be downloaded from:
+You need Python 2.4.2 to run the demos. A binary installer for Python
+can be downloaded from:
 
 http://www.python.org/download
 
@@ -205,7 +205,7 @@ Running the PHP demos
 
 Two PHP demos are provided in the demophp directory.
 
-To run the PHP demos, you need PHP 5.0.4. It can be downloaded from:
+To run the PHP demos, you need PHP 5.0.5. It can be downloaded from:
 
 http://www.php.net/downloads.php
 
