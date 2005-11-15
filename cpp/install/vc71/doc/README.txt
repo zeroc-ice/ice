@@ -61,6 +61,22 @@ libraries, and executables.
 - Add <Ice installation root directory>\bin
 
 
+Using the IceGrid Administrative Console
+----------------------------------------
+
+A Java-based graphical tool for administering IceGrid applications
+is included in this distribution. The Java archive (JAR) file is
+installed as
+
+<Ice installation root directory>\bin\IceGridGUI.jar
+
+With a suitable Java installation, you can execute the application
+directly by double-clicking on its icon, or you can start it from
+a command prompt:
+
+> java -jar IceGridGUI.jar
+
+
 Building and running the C++ demos
 ----------------------------------
 
