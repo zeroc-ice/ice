@@ -85,10 +85,11 @@ class Client(Ice.Application):
                             hello = hellos[index]
                             hello.sayHello()
                         else:
-                            print "index is too high. " + str(len(hellos)) + " exist so far. " +\
-                                  "Use 'c' to create a new hello object."
+                            print "Index is too high. " + str(len(hellos)) + " hello objects exist so far.\n" +\
+                                  "Use `c' to create a new hello object."
                     elif c == 'c':
                         hellos.append(session.createHello())
+			print "Created hello object",len(hellos) - 1
                     elif c == 's':
 			destroy = False
 			shutdown = True
