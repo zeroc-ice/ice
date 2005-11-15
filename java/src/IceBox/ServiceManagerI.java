@@ -49,7 +49,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
 	    Ice.Properties properties = _server.communicator().getProperties();
 
-	    String identity = properties.getPropertyWithDefault("IceBox.ServiceManager.Identity", "ServiceManager");
+	    String identity = properties.getProperty("IceBox.ServiceManager.Identity");
 	    if(identity.length() == 0)
 	    {
 		identity = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox") + "/ServiceManager";

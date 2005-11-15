@@ -58,39 +58,44 @@ public final class Admin
             }
 
             Ice.Properties properties = communicator().getProperties();
-	    String namePrefix = properties.getProperty("IceBox.Name");
-	    if(namePrefix.length() > 0)
+
+	    String managerIdentity = properties.getProperty("IceBox.ServiceManager.Identity");
+	    if(managerIdentity.length() == 0)
 	    {
-		namePrefix += ".";
+		managerIdentity =
+		    properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox") + "/ServiceManager";
 	    }
 
 	    String managerProxy;
 
-	    String managerEndpoints = properties.getProperty("IceBox.ServiceManager.Endpoints");
-	    if(managerEndpoints.length() == 0)
+	    if(properties.getProperty("Ice.Default.Locator").length() == 0)
 	    {
-		if(properties.getProperty("Ice.Default.Locator").length() > 0 && namePrefix.length() > 0)
-		{
-		    managerProxy = namePrefix + "ServiceManager@" + namePrefix + "ServiceManagerAdapter";
-		}
-		else
+		String managerEndpoints = properties.getProperty("IceBox.ServiceManager.Endpoints");
+		if(managerEndpoints.length() == 0)
 		{
 		    System.err.println(appName() + ": property `IceBox.ServiceManager.Endpoints' is not set");
 		    return 1;
 		}
+
+		managerProxy = managerIdentity + ":" + managerEndpoints;
 	    }
 	    else
 	    {
-		String managerIdentity = properties.getPropertyWithDefault("IceBox.ServiceManager.Identity", 
-									   "ServiceManager");
-		managerProxy = namePrefix + managerIdentity + ":" + managerEndpoints;
+		String managerAdapterId = properties.getProperty("IceBox.ServiceManager.AdapterId");
+		if(managerAdapterId.length() == 0)
+		{
+		    System.err.println(appName() + ": property `IceBox.ServiceManager.AdapterId' is not set");
+		    return 1;
+		}
+
+		managerProxy = managerIdentity + ":" + managerAdapterId;
 	    }
 
             Ice.ObjectPrx base = communicator().stringToProxy(managerProxy);
             IceBox.ServiceManagerPrx manager = IceBox.ServiceManagerPrxHelper.checkedCast(base);
             if(manager == null)
             {
-                System.err.println(appName() + ": `" + managerEndpoints + "' is not running");
+                System.err.println(appName() + ": `" + managerProxy + "' is not running");
                 return 1;
             }
 
