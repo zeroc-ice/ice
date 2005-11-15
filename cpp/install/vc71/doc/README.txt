@@ -283,9 +283,10 @@ Apache1 only:
 2) Create a php.ini file. You can create an empty one, or copy a
    sample file that is included in the PHP5 distribution. In the
    default configuration, the php.ini file is expected to reside in
-   the Apache directory. For example:
+   the Windows system directory (e.g., C:\WINDOWS or C:\WINNT).
+   For example:
 
-   > cd \Program Files\Apache Group\Apache
+   > cd \WINDOWS
    > copy C:\PHP5\php.ini-recommended php.ini
 
 Apache2 only:
@@ -303,9 +304,10 @@ Apache2 only:
 2) Create a php.ini file. You can create an empty one, or copy a
    sample file that is provided in the PHP5 distribution. In the
    default configuration, the php.ini file is expected to reside in
-   the Apache directory. For example:
+   the Windows system directory (e.g., C:\WINDOWS or C:\WINNT).
+   For example:
 
-   > cd \Program Files\Apache Group\Apache2
+   > cd \WINDOWS
    > copy C:\PHP5\php.ini-recommended php.ini
 
    To place the file in a different directory, add the PHPIniDir
@@ -347,6 +349,7 @@ Apache1 and Apache2:
    iceutil30.dll
    slice30.dll
    icecpp.exe
+   bzip2.dll
    msvcp71.dll
    msvcr71.dll
 
