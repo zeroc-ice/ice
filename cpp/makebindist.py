@@ -379,6 +379,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     # 
     if distro.startswith('IceJ'):
         shutil.copy(buildDir + '/' + distro + '/lib/Ice.jar', installDir + '/lib')
+        shutil.copy(buildDir + '/' + distro + '/lib/IceGridGUI.jar', installDir + '/lib')
 	#
 	# We really just want to copy the files, not move them.
 	# Shelling out to a copy is easier (and more likely to always
@@ -1044,8 +1045,6 @@ def main():
     #
     # XXX- make configurable.
     #
-    runprog('cp ~/java/looks-1.3.2.jar Ice-%s/lib' % version)
-    runprog('cp ~/java/forms-1.0.5.jar Ice-%s/lib' % version)
 
     if not getPlatform().startswith('linux'):
 	#
