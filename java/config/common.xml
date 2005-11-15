@@ -132,6 +132,9 @@
 	    <fileset dir="${lib.dir}">
 		<include name="*.jar"/>
 	    </fileset>
+	    <fileset dir="/usr/share/java">
+		<include name="db.jar"/>
+	    </fileset>
 	</path>
     </target>
     
