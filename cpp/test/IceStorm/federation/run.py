@@ -24,7 +24,11 @@ import TestUtil
 name = os.path.join("IceStorm", "federation")
 testdir = os.path.join(toplevel, "test", name)
 
-iceBox = os.path.join(toplevel, "bin", "icebox")
+if TestUtil.isWin32() and os.path.exists(os.path.join(toplevel, "bin", "iceboxd.exe")):
+    iceBox = os.path.join(toplevel, "bin", "iceboxd")
+else:
+    iceBox = os.path.join(toplevel, "bin", "icebox")
+
 iceBoxAdmin = os.path.join(toplevel, "bin", "iceboxadmin")
 iceStormAdmin = os.path.join(toplevel, "bin", "icestormadmin")
 
