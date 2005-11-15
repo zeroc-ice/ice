@@ -217,11 +217,11 @@ os.system("ant" + quiet)
 # Clean out the lib directory but save the jar files.
 #
 os.rename(os.path.join("lib", "Ice.jar"), "Ice.jar")
-os.rename(os.path.join("lib", "IceGridAdmin.jar"), "IceGridAdmin.jar")
+os.rename(os.path.join("lib", "IceGridGUI.jar"), "IceGridGUI.jar")
 shutil.rmtree("lib")
 os.mkdir("lib")
 os.rename("Ice.jar", os.path.join("lib", "Ice.jar"))
-os.rename("IceGridAdmin.jar", os.path.join("lib", "IceGridAdmin.jar"))
+os.rename("IceGridGUI.jar", os.path.join("lib", "IceGridGUI.jar"))
 
 #
 # Remove "generated" subdirectories.

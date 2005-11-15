@@ -72,6 +72,24 @@
 	</and>
     </condition>
 
+    <condition property="hasProguard">
+	<available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" />
+    </condition>
+
+    <condition property="hasJGoodies">
+	<and>
+	    <available classname="com.jgoodies.looks.Options" classpath="${env.CLASSPATH}" />
+	    <available classname="com.jgoodies.forms.factories.Borders" classpath="${env.CLASSPATH}" />
+	</and>
+    </condition>
+
+    <condition property="hasProguardAndJGoodies">
+	<and>
+	    <isset property="hasProguard" />
+	    <isset property="hasJGoodies" />
+	</and>
+    </condition>
+
     <target name="properties-cvs" if="is-cvs">
         <available file="${env.ICE_HOME}/slice" property="is-cvs-valid"/>
 	<fail message="ICE_HOME is not set to a valid directory" unless="is-cvs-valid"/>

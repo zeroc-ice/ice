@@ -180,10 +180,39 @@
 	</jar>
     </target>
 
+    <condition property="icegrid-pro-precond">
+	<and>
+	    <isset property="hasProguard" />
+	    <available file="${jgoodies.looks}" />
+	    <available file="${jgoodies.forms}" />
+	    <available file="${berkeleydb.jar}" />
+	</and>	
+    </condition>
+
+    <target name="icegrid-pro" depends="icegrid-jar" if="icegrid-pro-precond">
+	<taskdef resource="proguard/ant/task.properties"/>
+	<proguard>
+	    -injars ${lib.dir}/IceGridAdmin.jar
+	    -injars ${lib.dir}/Ice.jar(!META-INF/**)
+	    -injars ${jgoodies.looks}(!META-INF/**)
+	    -injars ${jgoodies.forms}(!META-INF/**)
+
+	    -outjars ${lib.dir}/IceGridGUI.jar
+
+	    -libraryjars ${berkeleydb.jar}
+
+	    -include config/icegridgui.pro
+	</proguard>
+    </target>
+
+    <target name="pseudo-icegrid-pro" unless="icegrid-pro-precond">
+	<move file="${lib.dir}/IceGridAdmin.jar" tofile="${lib.dir}/IceGridGUI.jar" />
+    </target>
+
     <target name="compile" depends="ice-compile, icegrid-gui">
     </target>
 
-    <target name="jar" depends="ice-jar, icegrid-jar">
+    <target name="jar" depends="ice-jar, icegrid-pro, pseudo-icegrid-pro">
     </target>
 
     <target name="all" depends="jar">
