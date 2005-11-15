@@ -101,12 +101,6 @@ the RPM installation of Berkeley DB, the bash command is shown below:
 
 $ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 
-Finally, the IceGrid graphical client requires the JGoodies
-libraries:
-
-$ export CLASSPATH=/usr/lib/Ice-@ver@/looks-1.3.2.jar:$CLASSPATH
-$ export CLASSPATH=/usr/lib/Ice-@ver@/forms-1.0.5.jar:$CLASSPATH
-
 
 Python
 ------
@@ -162,6 +156,22 @@ as well as the Slice preprocessor (icecpp).
 You can verify that the Ice extension is installed properly by
 examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
+
+
+======================================================================
+Using the IceGrid Administrative Console
+======================================================================
+
+A Java-based graphical tool for administering IceGrid applications
+is included in this distribution. The Java archive file is installed
+as
+
+/usr/lib/Ice-@ver@/IceGridGUI.jar
+
+With a suitable Java installation, you can execute the application
+using the following command:
+
+$ java -jar IceGridGUI.jar
 
 
 ======================================================================

@@ -133,11 +133,21 @@ In addition, the JVM requires that the directory containing the
 Berkeley DB libraries be listed in java.library.path, therefore you
 must add this directory to LIBPATH.
 
-Finally, the IceGrid graphical client requires the JGoodies
-libraries:
 
-$ export CLASSPATH=$ICE_HOME/lib/looks-1.3.2.jar:$CLASSPATH
-$ export CLASSPATH=$ICE_HOME/lib/forms-1.0.5.jar:$CLASSPATH
+======================================================================
+Using the IceGrid Administrative Console
+======================================================================
+
+A Java-based graphical tool for administering IceGrid applications
+is included in this distribution. The Java archive file is installed
+as
+
+$ICE_HOME/lib/IceGridGUI.jar
+
+With a suitable Java installation, you can execute the application
+using the following command:
+
+$ java -jar IceGridGUI.jar
 
 
 ======================================================================
