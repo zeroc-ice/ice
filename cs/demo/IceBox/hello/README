@@ -1,7 +1,7 @@
 To run this demo, open two terminal windows. In the first window,
 start the IceBox server:
 
-$ iceboxnet --Ice.Config=config
+$ ../../../bin/iceboxnet --Ice.Config=config
 
 In the second window, run the client:
 
