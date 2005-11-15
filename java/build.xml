@@ -203,6 +203,7 @@
 
 	    -include config/icegridgui.pro
 	</proguard>
+	<delete file="${lib.dir}/IceGridAdmin.jar" />
     </target>
 
     <target name="pseudo-icegrid-pro" unless="icegrid-pro-precond">
