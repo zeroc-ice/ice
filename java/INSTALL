@@ -129,6 +129,19 @@ The libraries are available here:
 http://www.jgoodies.com/downloads/libraries.html
 
 
+ProGuard
+--------
+
+ProGuard is used to create the JAR file for the IceGrid graphical
+application. You do not need to download ProGuard unless you intend
+to recompile the Ice for Java source code. See "Compiling the Source"
+below for more information.
+
+ProGuard is available here:
+
+http://proguard.sourceforge.net
+
+
 Python
 ------
 
