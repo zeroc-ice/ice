@@ -1006,7 +1006,7 @@ IceSSL::SslTransceiver::showClientCAList(BIO* bio, const char* connType)
 // Private Methods
 //
 
-IceSSL::SslTransceiver::SslTransceiver(const ContextType contextType,
+IceSSL::SslTransceiver::SslTransceiver(ContextType contextType,
 				       const OpenSSLPluginIPtr& plugin,
                                        SOCKET fd,
 		                       const CertificateVerifierPtr& certificateVerifier,
