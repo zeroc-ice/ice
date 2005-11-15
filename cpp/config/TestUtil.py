@@ -47,15 +47,6 @@ host = "127.0.0.1"
 
 import sys, os, re
 
-def isOptimize():
-
-    rules = open(os.path.join(toplevel, "config", "Make.rules"), "r")
-    optimize = re.compile("^OPTIMIZE[ \t=]*yes", re.M).search(rules.read())
-    if optimize == None:
-        return 0
-    else:
-        return 1
-
 def getIceVersion():
 
     config = open(os.path.join(toplevel, "include", "IceUtil", "Config.h"), "r")

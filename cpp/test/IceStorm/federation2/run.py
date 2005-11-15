@@ -26,11 +26,7 @@ testdir = os.path.join(toplevel, "test", name)
 
 exedir = os.path.join(toplevel, "test", "IceStorm", "federation")
 
-if TestUtil.isWin32() and not TestUtil.isOptimize():
-    iceBox = os.path.join(toplevel, "bin", "iceboxd")
-else:
-    iceBox = os.path.join(toplevel, "bin", "icebox")
-
+iceBox = os.path.join(toplevel, "bin", "icebox")
 iceBoxAdmin = os.path.join(toplevel, "bin", "iceboxadmin")
 iceStormAdmin = os.path.join(toplevel, "bin", "icestormadmin")
 
