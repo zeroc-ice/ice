@@ -178,6 +178,7 @@
 	    update="true">
 	    <include name="**"/>
 	</jar>
+	<delete file="${lib.dir}/icegridmanifest.mf" />
     </target>
 
     <condition property="icegrid-pro-precond">
