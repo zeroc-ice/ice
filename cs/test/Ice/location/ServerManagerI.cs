@@ -23,6 +23,13 @@ public class ServerManagerI : ServerManagerDisp_
     {
         string[] argv = new string[0];
         
+	foreach(Ice.Communicator c in _communicators)
+	{
+	    c.waitForShutdown();
+	    c.destroy();
+	}
+	_communicators.Clear();
+
         //
         // Simulate a server: create a new communicator and object
         // adapter. The object adapter is started on a system allocated

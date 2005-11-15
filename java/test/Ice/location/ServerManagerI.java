@@ -22,6 +22,14 @@ public class ServerManagerI extends _ServerManagerDisp
     startServer(Ice.Current current)
     {
 	String[] argv = new String[0];
+        java.util.Iterator i = _communicators.iterator();
+	while(i.hasNext())
+	{
+	    Ice.Communicator c = (Ice.Communicator)i.next();
+	    c.waitForShutdown();
+	    c.destroy();
+	}
+	_communicators.clear();
 
 	//
 	// Simulate a server: create a new communicator and object
