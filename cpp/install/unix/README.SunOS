@@ -65,8 +65,8 @@ Python
 ------
 
 The Ice extension for Python included in this distribution requires
-Python 2.3.3. It was built using the python 2.3.3 binary package from
-http://www.sunfreeware.com. If you prefer to use Python 2.4, you can
+Python 2.4.2. It was compiled against a source distribution from
+http://www.python.org. If you prefer to use Python 2.3, you can
 download the Ice for Python source code from the ZeroC web site at
 http://www.zeroc.com/download.html.
 

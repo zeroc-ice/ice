@@ -97,16 +97,18 @@ Python
 ------
 
 The Ice extension for Python included in this distribution requires
-Python 2.4.2. The Python runtime RPM is python-2.4.1-2. If you prefer to
-use Python 2.4.2, you can download the Ice for Python source code from
-the ZeroC web site at http://www.zeroc.com/download.html.
+Python 2.4.1. The Python runtime RPM is python-2.4.1-2. If you prefer
+to use a different version of Python, you can download the Ice for
+Python source code from the ZeroC web site at
+
+http://www.zeroc.com/download.html
 
 
 C#
 --
 
-Ice for C# requires Mono 1.1.9. The following RPM can be downloaded at
-http://www.mono-project.com/Downloads:
+Ice for C# requires Mono 1.1.9 or later. The following RPM can be
+downloaded at http://www.mono-project.com/Downloads:
 
 mono-core-1.1.9-1.novell.i586.rpm
 
