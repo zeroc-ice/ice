@@ -1015,11 +1015,11 @@ ServerI::activate()
 	os << ex;
 	failure = os.str();
     }
-    for(ServerAdapterDict::iterator p = adpts.begin(); p != adpts.end(); ++p)
+    for(ServerAdapterDict::iterator r = adpts.begin(); r != adpts.end(); ++r)
     {
 	try
 	{
-	    p->second->activationFailed(true);
+	    r->second->activationFailed(true);
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
