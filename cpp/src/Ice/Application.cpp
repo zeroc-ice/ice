@@ -56,7 +56,7 @@ const DWORD SIGHUP = CTRL_LOGOFF_EVENT;
 
 static void holdInterruptCallback(int signal)
 {
-    CtrlCHandlerCallback callback;
+    CtrlCHandlerCallback callback = 0;
     {
 	StaticMutex::Lock lock(_mutex);
 	while(!_released)

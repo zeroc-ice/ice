@@ -306,7 +306,7 @@ ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas)
 {
     ReplicaSeq replicas;
     bool adaptive = false;
-    LoadSample loadSample;
+    LoadSample loadSample = LoadSample1;
     {
 	Lock sync(*this);
 	if(_replicas.empty())

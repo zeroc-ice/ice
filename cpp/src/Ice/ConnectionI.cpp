@@ -37,7 +37,7 @@ void IceInternal::decRef(ConnectionI* p) { p->__decRef(); }
 void
 Ice::ConnectionI::validate()
 {
-    bool active;
+    bool active = false;
 
     if(!_endpoint->datagram()) // Datagram connections are always implicitly validated.
     {

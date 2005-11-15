@@ -240,8 +240,8 @@ IceUtil::RWRecMutex::timedWriteLock(const Time& timeout) const
 void
 IceUtil::RWRecMutex::unlock() const
 {
-    bool ww;
-    bool wr;
+    bool ww = false;
+    bool wr = false;
     {
 	Mutex::Lock lock(_mutex);
 
