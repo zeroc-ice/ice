@@ -243,6 +243,7 @@ transforms = [ ('file', 'ice.ini', 'etc/php.d/ice.ini'),
 	       ('dir', 'lib', 'usr/lib'),
 	       ('file', 'usr/lib/icephp.so', 'usr/lib/php/modules/icephp.so'),
 	       ('file', 'usr/lib/Ice.jar', 'usr/lib/Ice-%version%/Ice.jar' ),
+	       ('file', 'usr/lib/IceGridGUI.jar', 'usr/lib/Ice-%version%/IceGridGUI.jar' ),
 	       ('dir', 'ant', 'usr/lib/Ice-%version%/ant'),
 	       ('dir', 'config', 'usr/share/doc/Ice-%version%/config'),
 	       ('dir', 'slice', 'usr/share/slice'),
@@ -308,6 +309,7 @@ fileLists = [
              ('lib', 'lib/libIceXML.so.VERSION'),
              ('lib', 'lib/libSlice.so.VERSION'),
              ('lib', 'lib/libIceGrid.so.VERSION'),
+	     ('dir', 'lib/Ice-%version%/IceGridGUI.jar'),
              ('dir', 'share/slice'),
              ('dir', 'share/doc/Ice-%version%/doc'),
              ('xdir', 'share/doc/Ice-%version%/certs'),
@@ -651,6 +653,7 @@ rm -rf $RPM_BUILD_ROOT
 cd $RPM_BUILD_DIR/Ice-%{version}
 gmake RPM_BUILD_ROOT=$RPM_BUILD_ROOT install
 cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/Ice.jar $RPM_BUILD_ROOT/lib/Ice.jar
+cp -p $RPM_BUILD_DIR/IceJ-%{version}/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/IceGridGUI.jar
 cp -pR $RPM_BUILD_DIR/IceJ-%{version}/ant $RPM_BUILD_ROOT
 cd $RPM_BUILD_DIR/IcePy-%{version}
 gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT install

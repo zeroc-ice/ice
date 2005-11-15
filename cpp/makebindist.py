@@ -1024,6 +1024,7 @@ def main():
 	    print 'Going to directory ' + d
 	    if d == 'icej':
 		shutil.copy('lib/Ice.jar', installDir +'/Ice-' + version + '/lib')
+		shutil.copy('lib/IceGridGUI.jar', installDir +'/Ice-' + version + '/lib')
 		runprog('cp -pR ant ' + installDir + '/Ice-' + version)
 		runprog('find ' + installDir + '/Ice-' + version + ' -name "*.java" | xargs rm')
 	    else:
