@@ -206,6 +206,9 @@ include\IceUtil\Config.h and remove the following lines:
 #       define _WIN32_WINNT 0x0400
 #   endif
 
+The IceGrid Node is not available on Windows 98, 98SE and ME, because
+it requires a DLL that is not available on these versions of Windows.
+
 On Windows 98, Windows 98 SE and Windows ME, we also recommend that
 you increase the number of connections supported by TCP/IP (to 500 for
 example). See MaxConnections at
