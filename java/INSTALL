@@ -119,8 +119,8 @@ algorithm and therefore add significant latency to Ice requests.
 JGoodies
 --------
 
-The graphical IceGrid client requires JGoodies Looks and JGoodies
-Forms, available from
+The graphical IceGrid administrative tool (see below) requires
+JGoodies Looks and JGoodies Forms, available from
 
 http://www.jgoodies.com/downloads/libraries.html
 
@@ -163,6 +163,21 @@ Then in a separate window enter the following command to start the
 client:
 
 $ java Client
+
+
+======================================================================
+IceGrid Administrative Console
+======================================================================
+
+A graphical administrative tool for IceGrid is provided in the
+file
+
+lib/IceGridAdmin.jar
+
+To run the application, ensure that Ice.jar and the JGoodies archives
+are in your CLASSPATH, and run
+
+$ java IceGrid.AdminGUI
 
 
 ======================================================================
