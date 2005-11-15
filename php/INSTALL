@@ -354,9 +354,9 @@ Dependencies
 =========================================================================
 
 Whether you build a dynamic or static Ice extension, PHP will need
-to be able to locate the Ice run-time libraries "Ice", "Slice" and
-"IceUtil". In general, these libraries must reside in a directory of
-the user's PATH.
+to be able to locate the Ice run-time libraries "Ice", "Slice",
+"IceUtil" and "bzip2" (Windows) or "libbz2" (Unix). In general, these
+libraries must reside in a directory of the user's PATH.
 
 For Web servers, the libraries may need to reside in a system
 directory. For example, on Linux you can add the directory containing
