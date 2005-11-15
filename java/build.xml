@@ -134,7 +134,7 @@
         </slice2java>
     </target>
 
-    <target name="compile" depends="generate">
+    <target name="ice-compile" depends="generate">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
         <depend srcdir="${generated.dir}:${src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
@@ -150,14 +150,14 @@
 	    deprecation="on"/>
     </target>
 
-    <target name="jar" depends="compile">
+    <target name="ice-jar" depends="ice-compile">
 	<jar jarfile="${lib.dir}/Ice.jar" basedir="${lib.dir}">
 	    <include name="**/*.class"/>
 	    <exclude name="*.jar"/>
 	</jar>
     </target>
 
-    <target name="compile-admin-gui" depends="compile">
+    <target name="icegrid-gui" depends="ice-compile">
         <mkdir dir="${gui.dir}"/>
         <javac srcdir="${src.dir}" destdir="${gui.dir}"
 	    source="1.4" debug="${debug}" optimize="${optimize}"
@@ -166,7 +166,7 @@
 	    deprecation="on"/>
     </target>
 
-    <target name="icegrid-jar" depends="compile, compile-admin-gui">
+    <target name="icegrid-jar" depends="icegrid-gui">
 	<manifest file="${lib.dir}/icegridmanifest.mf">
 	    <attribute name="Main-Class" value="IceGrid.AdminGUI"/>
 	    <attribute name="Class-Path" value="Ice.jar looks-1.3.2.jar forms-1.0.5.jar"/>
@@ -180,7 +180,13 @@
 	</jar>
     </target>
 
-    <target name="all" depends="jar, icegrid-jar">
+    <target name="compile" depends="ice-compile, icegrid-gui">
+    </target>
+
+    <target name="jar" depends="ice-jar, icegrid-jar">
+    </target>
+
+    <target name="all" depends="jar">
         <ant inheritAll="false" dir="demo"/>
         <ant inheritAll="false" dir="test"/>
     </target>
@@ -188,6 +194,7 @@
     <target name="clean" depends="config-init">
         <delete dir="${generated.dir}"/>
         <delete deleteonexit="true" dir="${lib.dir}"/>
+        <delete deleteonexit="true" dir="${gui.dir}"/>
         <delete dir="${cache.dir}"/>
         <ant inheritAll="false" dir="demo" target="clean"/>
         <ant inheritAll="false" dir="test" target="clean"/>
