@@ -119,13 +119,14 @@ algorithm and therefore add significant latency to Ice requests.
 JGoodies
 --------
 
-The graphical IceGrid administrative tool (see below) requires
-JGoodies Looks and JGoodies Forms, available from
+The graphical IceGrid administrative tool (see below) uses
+JGoodies Looks and JGoodies Forms. You do not need to download
+these libraries unless you intend to recompile the Ice for Java
+source code.
+
+The libraries are available here:
 
 http://www.jgoodies.com/downloads/libraries.html
-
-If you want to run the client, or recompile the Ice for Java source
-code, then these JAR files must be in your CLASSPATH.
 
 
 Python
@@ -169,22 +170,21 @@ $ java Client
 IceGrid Administrative Console
 ======================================================================
 
-A graphical administrative tool for IceGrid is provided in the
-file
+A graphical administrative tool for IceGrid is provided in the file
 
-lib/IceGridAdmin.jar
+lib/IceGridGUI.jar
 
-To run the application, ensure that Ice.jar and the JGoodies archives
-are in your CLASSPATH, and run
+This archive is completely self-contained. You can start the
+application with the following command:
 
-$ java IceGrid.AdminGUI
+$ java -jar IceGridGUI.jar
 
 
 ======================================================================
 Compiling the Source
 ======================================================================
 
-There is generally no need to compile Ice for Java, because this
+There is generally no need to compile Ice for Java because this
 distribution already contains the class files for the Ice core, Ice
 services, examples and tests.
 
@@ -195,6 +195,17 @@ http://ant.apache.org/
 
 Ice requires ant 1.6.2 or later, but we recommend using the most
 recent release.
+
+The third-party dependencies that Ice requires must be in your
+CLASSPATH.
+
+If you want to create a standalone JAR file for the IceGrid
+administrative console, you must have ProGuard in your CLASSPATH,
+and you should review config/build.properties to ensure the pathnames
+are correct. If ProGuard's JAR file is not present in your CLASSPATH
+during the build, the resulting IceGridGUI.jar file will not be a
+standalone JAR file but instead depend on Ice.jar and the JGoodies
+libraries.
 
 After installing ant, run the following commands to completely rebuild
 the Ice for Java source code:
