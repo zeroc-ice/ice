@@ -48,9 +48,11 @@
 # Your application may contain more items that need to be preserved; 
 # typically classes that are dynamically created using Class.forName:
 
--keep class IceGrid.**
+-keepnames public class Ice.**
+-keep public class IceGrid.**
+-keep public class IceSSL.**
 -keep interface IceGrid.**
 -keep class com.jgoodies.looks.plastic.PlasticXPLookAndFeel
--keep class javax.**
+-keep public class javax.**
 -keep interface javax.**
 -keep class * implements javax.**
