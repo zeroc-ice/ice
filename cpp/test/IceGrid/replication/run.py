@@ -34,9 +34,9 @@ else:
     os.environ["LD_LIBRARY_PATH_64"] = testdir + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
 
 if TestUtil.isWin32() and os.path.exists(os.path.join(toplevel, "bin", "iceboxd.exe")):
-    useIceboxd = 1
+    iceBox = os.path.join(toplevel, "bin", "iceboxd")
 else:
-    useIceboxd = 0
+    iceBox = os.path.join(toplevel, "bin", "icebox")
 
 #
 # Add locator options for the client and server. Since the server
@@ -57,7 +57,7 @@ iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 
 print "registering application with icegrid...",
 IceGridAdmin.addApplication(os.path.join(testdir, "application.xml"),
-                            "ice.dir=" + toplevel + " " + "test.dir=" + testdir);
+                            "ice.dir=" + toplevel + " " + "test.dir=" + testdir + " icebox.exe=" + iceBox);
 print "ok"
 
 print "starting client...",

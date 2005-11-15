@@ -33,9 +33,9 @@ else:
     os.environ["LD_LIBRARY_PATH_64"] = testdir + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
 
 if TestUtil.isWin32() and os.path.exists(os.path.join(toplevel, "bin", "iceboxd.exe")):
-    useIceboxd = 1
+    iceBox = os.path.join(toplevel, "bin", "iceboxd")
 else:
-    useIceboxd = 0
+    iceBox = os.path.join(toplevel, "bin", "icebox")
 
 #
 # Start the client.
@@ -69,7 +69,7 @@ iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 #
 print "deploying application...",
 IceGridAdmin.addApplication(os.path.join(testdir, "application.xml"), \
-                            "ice.dir=" + toplevel + " " + "test.dir=" + testdir);
+                            "ice.dir=" + toplevel + " test.dir=" + testdir + " icebox.exe=" + iceBox);
 print "ok"
 
 status = startClient("")
@@ -92,7 +92,8 @@ if status:
 #
 print "deploying application with target...",
 IceGridAdmin.addApplication(os.path.join(testdir, "application.xml"), \
-                            "moreservers moreservices moreproperties ice.dir=" + toplevel + " test.dir=" + testdir)
+                            "moreservers moreservices moreproperties ice.dir=" + toplevel + " test.dir=" + testdir + \
+			    " icebox.exe=" + iceBox)
 print "ok"
 
 status = startClient("-t")
