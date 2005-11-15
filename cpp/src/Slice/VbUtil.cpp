@@ -827,7 +827,7 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out.inc();
 	    if(isArray)
 	    {
-		if(st->hasMetaData("clr:class"))
+		if(!isValueType(st))
 		{
 		    out << nl << param << "(ix__) = New " << typeS;
 		}
