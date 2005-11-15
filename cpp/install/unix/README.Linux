@@ -55,21 +55,21 @@ Note: Under Mono, binary compatibility currently does not work due to
 Requirements
 ======================================================================
 
-This binary distribution was compiled on Linux Fedora Core 3 (FC3)
-using FC3's default C++ compiler, GCC 3.4.2.
+This binary distribution was compiled on Linux Fedora Core 4 (FC4)
+using FC4's default current C++ compiler, GCC 4.0.1.
 
 This distribution depends on a number of third-party libraries:
 
-- Berkeley DB 4.3.28
+- Berkeley DB 4.3.27
 - expat 1.95
 - OpenSSL 0.9.7
 - bzip2 1.0.2
-- readline 4.3
+- readline 5.0
 - ncurses 5.4
-- libgcc 3.4.2
-- libstdc++ 3.4.2
+- libgcc 4.0.1
+- libstdc++ 4.0.1 
 
-All of these libraries are included with your FC3 distribution in the
+All of these libraries are included with your FC4 distribution in the
 following RPMs:
 
 Berkeley DB    db4, db4-utils, db4-java
@@ -97,29 +97,25 @@ Python
 ------
 
 The Ice extension for Python included in this distribution requires
-Python 2.3.4. The Python runtime RPM is python-2.3.4-11. If you
-prefer to use Python 2.4, you can download the Ice for Python source
-code from the ZeroC web site at http://www.zeroc.com/download.html.
+Python 2.4.2. The Python runtime RPM is python-2.4.1-2. If you prefer to
+use Python 2.4.2, you can download the Ice for Python source code from
+the ZeroC web site at http://www.zeroc.com/download.html.
 
 
 C#
 --
 
-Ice for C# requires Mono 1.1.7. The following RPM can be downloaded at
+Ice for C# requires Mono 1.1.9. The following RPM can be downloaded at
 http://www.mono-project.com/Downloads:
 
-mono-core-1.1.7-1.novell.i586.rpm
-
-Note that this RPM depends on libicu 2.6, which can be obtained by
-installing libicu-2.6.2-1.1.fc3.rf.i386.rpm, available from
-http://dag.wieers.com/packages/icu/.
+mono-core-1.1.9-1.novell.i586.rpm
 
 
 PHP
 ---
 
 The Ice extension for PHP included in this distribution requires
-PHP 5.0.5. You can obtain a PHP source code distribution from
+PHP 5.0.4. You can obtain a PHP source code distribution from
 http://www.php.net.
 
 
