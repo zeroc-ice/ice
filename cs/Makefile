@@ -32,6 +32,16 @@ install::
 	    $(call mkdir,$(install_slicedir)) ; \
 	fi
 
+	@if test -d slice ; \
+	then \
+	    cd slice ; \
+	    for subdir in * ; \
+	    do \
+		echo "Copying slice/$$subdir to $(install_slicedir)..." ; \
+		cp -fpr $$subdir $(install_slicedir) ; \
+	    done ; \
+	fi
+
 	@if test ! -d $(install_docdir) ; \
 	then \
 	    echo "Creating $(install_docdir)..." ; \
