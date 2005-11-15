@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
-# SUBTRACT CPP /Z<none> /Fr /YX
+# SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -57,7 +57,7 @@ LINK32=link.exe
 OutDir=.\Release
 TargetName=icebox
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin	
+PostBuild_Cmds=del /Q ..\..\bin\iceboxd.exe	del /Q ..\..\bin\iceboxd.pdb	copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "iceboxS - Win32 Debug"
@@ -89,7 +89,7 @@ LINK32=link.exe
 OutDir=.\Debug
 TargetName=iceboxd
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin	copy $(OutDir)\$(TargetName).pdb ..\..\bin
+PostBuild_Cmds=del /Q ..\..\bin\icebox.exe	copy $(OutDir)\$(TargetName).exe ..\..\bin	copy $(OutDir)\$(TargetName).pdb ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
