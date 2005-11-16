@@ -378,8 +378,14 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     # with the Jar already built.
     # 
     if distro.startswith('IceJ'):
-        shutil.copy(buildDir + '/' + distro + '/lib/Ice.jar', installDir + '/lib')
-        shutil.copy(buildDir + '/' + distro + '/lib/IceGridGUI.jar', installDir + '/lib')
+	if getPlatform() == 'linux64':
+	    shutil.copy(buildDir + '/' + distro + '/lib/Ice.jar',
+		    installDir + '/lib64')
+	    shutil.copy(buildDir + '/' + distro + '/lib/IceGridGUI.jar',
+		    installDir + '/lib64')
+	else:
+	    shutil.copy(buildDir + '/' + distro + '/lib/Ice.jar', installDir + '/lib')
+	    shutil.copy(buildDir + '/' + distro + '/lib/IceGridGUI.jar', installDir + '/lib')
 	#
 	# We really just want to copy the files, not move them.
 	# Shelling out to a copy is easier (and more likely to always
