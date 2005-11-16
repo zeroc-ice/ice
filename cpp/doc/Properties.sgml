@@ -2181,6 +2181,7 @@ If defined, the identities of the &IceGrid; objects become
 <listitem><para><replaceable>name</replaceable><literal>/Admin</literal></para></listitem>
 <listitem><para><replaceable>name</replaceable><literal>/Locator</literal></para></listitem>
 <listitem><para><replaceable>name</replaceable><literal>/Query</literal></para></listitem>
+<listitem><para><replaceable>name</replaceable><literal>/SessionManager</literal></para></listitem>
 </itemizedlist>
 If not specified, the default identity category is <literal>IceGrid</literal>.
 </para>
