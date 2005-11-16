@@ -432,6 +432,8 @@ fileLists = [
 		('lib', 'lib/libSlice.so'),
 		('xdir', 'share/doc/Ice-%version%'),
 		('dir', 'share/doc/Ice-%version%/demo'),
+		('exe', 'share/doc/Ice-%version%/demo/Freeze/backup/backup'),
+		('exe', 'share/doc/Ice-%version%/demo/Freeze/backup/restore'),
 		('xdir', 'share/doc/Ice-%version%/config'),
 		('file', 'share/doc/Ice-%version%/config/Make.rules'),
 		('file', 'share/doc/Ice-%version%/config/Make.rules.Linux'),
