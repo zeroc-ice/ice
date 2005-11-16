@@ -88,7 +88,7 @@ ifeq ($(CXX),c++)
 
    mklib		= ar cr $(1) $(2)
 
-   LDPLATFORMFLAGS 	= -Xlinker -rpath -Xlinker $(prefix)/lib$(lp64suffix)
+   LDPLATFORMFLAGS 	= -Xlinker -rpath -Xlinker $(install_libdir)
 
 endif
 
