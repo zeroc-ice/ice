@@ -408,7 +408,7 @@ fileLists = [
 	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.xml'),
 	     ('file', 'share/doc/Ice-%version%/README.DEMOS')]),
     Subpackage('c++-devel',
-               'ice = %version',
+               'ice = %version%',
                'Tools and demos for developing Ice applications in C++',
                'Development/Tools',
 	       iceDescription,
@@ -512,7 +512,7 @@ fileLists = [
 
 noarchFileList = [
     Package('ice-java',
-	    'ice = %version%, db4-java >= 4.3.27, ice-third-party >= %version%',
+	    'ice = %version%, db4-java >= 4.3.27',
 	    'The Ice runtime for Java',
 	    'System Environment/Libraries',
 	    iceDescription,

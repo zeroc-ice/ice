@@ -202,7 +202,36 @@ slicedir = $(ICE_DIR)/slice
 endif
 """
 	    elif reIceLocation.search(line) <> None:
-		print line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
+		output = line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
+		if line.startswith('libdir'):
+		    print 'ifeq ($(LP64),yes)'
+		    print '    ' + output + '$(lp64suffix)'
+		    print 'else'
+		    print '    '  + output
+		    print 'endif'
+		elif line.startswith('bindir'):
+		    print output
+		    #
+		    # NOTE!!! Magic occurs...
+		    # It simplifies building the demos for the user if
+		    # we try to detect whether the executables are 64
+		    # bit and, if so, set LP64=yes automagically.
+		    #
+		    print ''
+		    print '#'
+		    print '# If LP64 is unset, sample an Ice executable to see if it is 64 bit'
+		    print '# and set automatically. This avoids having to set LP64 if there is'
+		    print '# Ice installation in a well-known location.'
+		    print '#'
+		    print 'ifeq ($(LP64),)'
+		    print '    ifneq ($(shell file $(bindir)/slice2cpp | grep 64-bit),)'
+		    print '        LP64=yes'	    
+		    print '    endif'
+		    print 'endif'
+		    print ''
+		else:
+		    print output
+
 	    elif line.startswith('install_'):
 		#
 		# Do nothing.
@@ -228,13 +257,18 @@ endif
 
 ifeq ($(ICE_HOME),)
     ICE_DIR = /usr
+    ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
+	$(error Ice distribution not found, please set ICE_HOME!)
+    endif
 else
     ICE_DIR = $(ICE_HOME)
+    ifneq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
+	$(error Ice distribution not found, please set ICE_HOME!)
+    endif
 endif
 
-ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
-    $(error Ice distribution not found, please set ICE_HOME!)
-endif
+prefix = $(ICE_DIR)
+
 """
 	elif state == 'untilprefix':
 	    if line.startswith('prefix'):
