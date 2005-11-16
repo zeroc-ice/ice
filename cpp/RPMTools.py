@@ -262,7 +262,8 @@ x64_transforms = [
                ('dir', 'doc', 'usr/share/doc/Ice-%version%/doc'),
 	       ('dir', 'bin', 'usr/bin'),
 	       ('dir', 'include', 'usr/include'),
-	       ('dir', 'lib', 'usr/lib'),
+	       ('dir', 'lib', 'usr/lib64'),
+	       ('file', 'usr/lib64/IceGridGUI.jar', 'usr/lib64/Ice-%version%/IceGridGUI.jar' ),
                ('file', 'README', 'usr/share/doc/Ice-%version%/README'),
                ('file', 'ICE_LICENSE', 'usr/share/doc/Ice-%version%/ICE_LICENSE'),
                ('file', 'LICENSE', 'usr/share/doc/Ice-%version%/LICENSE')
@@ -272,6 +273,87 @@ x64_transforms = [
 # fileLists is an in-memory representation of the package contents of
 # the Ice spec file.
 # 
+fileLists64 = [
+    Package('ice',
+            '',
+	    'The Ice base runtime and services',
+            'System Environment/Libraries',
+	    iceDescription,
+	    '',
+            [('xdir', 'share/doc/Ice-%version%'),
+             ('doc', 'share/doc/Ice-%version%/ICE_LICENSE'),
+             ('doc', 'share/doc/Ice-%version%/LICENSE'),
+             ('doc', 'share/doc/Ice-%version%/README'),
+             ('exe', 'bin/dumpdb'),
+             ('exe', 'bin/transformdb'),
+             ('exe', 'bin/glacier2router'),
+             ('exe', 'bin/icebox'),
+             ('exe', 'bin/iceboxadmin'),
+             ('exe', 'bin/icecpp'),
+             ('exe', 'bin/icepatch2calc'),
+             ('exe', 'bin/icepatch2client'),
+             ('exe', 'bin/icepatch2server'),
+             ('exe', 'bin/icestormadmin'),
+             ('exe', 'bin/slice2docbook'), 
+             ('exe', 'bin/icegridadmin'), 
+             ('exe', 'bin/icegridnode'), 
+             ('exe', 'bin/icegridregistry'), 
+             ('lib', 'lib64/libFreeze.so.VERSION'),
+             ('lib', 'lib64/libGlacier2.so.VERSION'),
+             ('lib', 'lib64/libIceBox.so.VERSION'),
+             ('lib', 'lib64/libIcePatch2.so.VERSION'),
+             ('lib', 'lib64/libIce.so.VERSION'),
+             ('lib', 'lib64/libIceSSL.so.VERSION'),
+             ('lib', 'lib64/libIceStormService.so.VERSION'),
+             ('lib', 'lib64/libIceStorm.so.VERSION'),
+             ('lib', 'lib64/libIceUtil.so.VERSION'),
+             ('lib', 'lib64/libIceXML.so.VERSION'),
+             ('lib', 'lib64/libSlice.so.VERSION'),
+             ('lib', 'lib64/libIceGrid.so.VERSION'),
+	     ('dir', 'lib64/Ice-%version%/IceGridGUI.jar'),
+             ('dir', 'share/slice'),
+             ('dir', 'share/doc/Ice-%version%/doc'),
+             ('xdir', 'share/doc/Ice-%version%/certs'),
+	     ('file', 'share/doc/Ice-%version%/certs/cacert.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/c_dh1024.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/client_sslconfig.xml'),
+	     ('file', 'share/doc/Ice-%version%/certs/server_sslconfig.xml'),
+	     ('file', 'share/doc/Ice-%version%/certs/c_rsa1024_priv.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/c_rsa1024_pub.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/s_dh1024.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/s_rsa1024_priv.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/s_rsa1024_pub.pem'),
+	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.dtd'),
+	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.xml'),
+	     ('file', 'share/doc/Ice-%version%/README.DEMOS')]),
+    Subpackage('c++-devel',
+               '',
+               'Tools and demos for developing Ice applications in C++',
+               'Development/Tools',
+	       iceDescription,
+	       '',
+               [('exe', 'bin/slice2cpp'),
+                ('exe', 'bin/slice2freeze'),
+                ('dir', 'include'),
+		('lib', 'lib64/libFreeze.so'),
+		('lib', 'lib64/libGlacier2.so'),
+		('lib', 'lib64/libIceBox.so'),
+		('lib', 'lib64/libIceGrid.so'),
+		('lib', 'lib64/libIcePatch2.so'),
+		('lib', 'lib64/libIce.so'),
+		('lib', 'lib64/libIceSSL.so'),
+		('lib', 'lib64/libIceStormService.so'),
+		('lib', 'lib64/libIceStorm.so'),
+		('lib', 'lib64/libIceUtil.so'),
+		('lib', 'lib64/libIceXML.so'),
+		('lib', 'lib64/libSlice.so'),
+		('xdir', 'share/doc/Ice-%version%'),
+		('dir', 'share/doc/Ice-%version%/demo'),
+		('xdir', 'share/doc/Ice-%version%/config'),
+		('file', 'share/doc/Ice-%version%/config/Make.rules'),
+		('file', 'share/doc/Ice-%version%/config/Make.rules.Linux'),
+		])
+    ]
 fileLists = [
     Package('ice',
             '',
@@ -517,7 +599,7 @@ def createFullSpecFile(ofile, installDir, version, soVersion, buildReq = True):
     fullFileList.extend(fileLists)
     fullFileList.append(
 	    Subpackage("java",
-		"ice = %version%, db4-java >= 4.2.52",
+		"ice = %version%, db4-java >= 4.3.27",
 		"Ice runtime for Ice Java applciations",
 		"Development/Libraries",
 		"",
@@ -589,11 +671,11 @@ def createRPMSFromBinaries64(buildDir, installDir, version, soVersion):
     os.system("tar xfz " + installDir + "/../Ice-" + version + "-demos.tar.gz -C " + installDir)
 
     ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
-    fileLists[0].writeHdr(ofile, version, '1', installDir, [])
-    fileLists[1].writeHdr(ofile, version, '1', installDir, [])
+    fileLists64[0].writeHdr(ofile, version, '1', installDir, [])
+    fileLists64[1].writeHdr(ofile, version, '1', installDir, [])
     ofile.write('\n\n\n')
-    fileLists[0].writeFiles(ofile, version, soVersion, installDir)
-    fileLists[1].writeFiles(ofile, version, soVersion, installDir)
+    fileLists64[0].writeFiles(ofile, version, soVersion, installDir)
+    fileLists64[1].writeFiles(ofile, version, soVersion, installDir)
     ofile.write('\n')
 
     ofile.flush()
