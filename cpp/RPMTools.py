@@ -260,7 +260,7 @@ x64_transforms = [
 	       ('dir', 'config', 'usr/share/doc/Ice-%version%/config'),
 	       ('dir', 'slice', 'usr/share/slice'),
                ('dir', 'doc', 'usr/share/doc/Ice-%version%/doc'),
-	       ('dir', 'bin64', 'usr/bin'),
+	       ('dir', 'bin', 'usr/bin'),
 	       ('dir', 'include', 'usr/include'),
 	       ('dir', 'lib64', 'usr/lib64'),
 	       ('file', 'usr/lib64/IceGridGUI.jar', 'usr/lib64/Ice-%version%/IceGridGUI.jar' ),
