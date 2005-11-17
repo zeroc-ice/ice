@@ -470,9 +470,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    
 	    if(stdOutFilename != "")
 	    {
-#ifdef _WIN32
 		freopenP(stdOutFilename.c_str(), "a", stdout);
-#endif
 	    }
 	    
 	    if(stdErrFilename != "")
