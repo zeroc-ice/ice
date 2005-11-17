@@ -3,8 +3,9 @@ Note for Mono:
     For this demo to work properly using Mono on Linux, you must
     configure Linux to recognize Mono binaries. Configuration
     instructions are provided in INSTALL.MONO at the top level of the
-    Ice for C# source distribution or, if you have installed the demos
-    from the Ice demo package, in README.DEMOS.
+    Ice for C# source distribution or, in README at the top level of
+    the Ice binary distribution (in /usr/share/doc/Ice-@ver@ if you
+    have installed Ice from RPMs).
 
     Alternatively, if you do not want to reconfigure your kernel, or
     if you want to run with Mono under Windows, edit application.xml
