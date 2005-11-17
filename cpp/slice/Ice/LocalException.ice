@@ -799,7 +799,7 @@ local exception NoObjectFactoryException extends MarshalException
 {
     /**
      *
-     * The absolute Slice type name of the object for which we
+     * The absolute Slice type id of the object for which we
      * could not find a factory.
      *
      **/
