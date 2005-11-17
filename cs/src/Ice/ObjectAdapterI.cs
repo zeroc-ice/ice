@@ -327,6 +327,11 @@ namespace Ice
 		_threadPool = null;
 		_servantManager = null;
 		_communicator = null;
+		_incomingConnectionFactories = null;
+		_routerEndpoints = null;
+		_routerInfos = null;
+		_publishedEndpoints = null;
+		_locatorInfo = null;
 	    }
 	}
 	

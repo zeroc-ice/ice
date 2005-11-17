@@ -326,6 +326,10 @@ Ice::ObjectAdapterI::waitForDeactivate()
 	_threadPool = 0;
 	_servantManager = 0;
 	_communicator = 0;
+	_routerEndpoints.clear();
+	_routerInfos.clear();
+	_publishedEndpoints.clear();
+	_locatorInfo = 0;
     }
 }
 

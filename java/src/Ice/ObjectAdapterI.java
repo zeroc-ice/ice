@@ -334,6 +334,10 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    _threadPool = null;
 	    _servantManager = null;
 	    _communicator = null;
+	    _routerEndpoints = null;
+	    _routerInfos = null;
+	    _publishedEndpoints = null;
+	    _locatorInfo = null;
 	}
     }
 
