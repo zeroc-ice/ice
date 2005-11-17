@@ -18,6 +18,18 @@ def prependEnvPathList(name, list):
     for path in list:
 	prependEnvPath(name, path)
 
+class ExtProgramError:
+    def __init__(self, msg):
+	self.msg = msg
+
+    def __str__(self):
+	return repr(self.msg)
+
+def runprog(command, haltOnError = True):
+    result = os.system(command)
+    if not result == 0 and haltOnError:
+	raise ExtProgramError('Command %s failed with error code %d' % (command, result))
+
 def usage():
     """Print usage/help information"""
     print "Usage: " + sys.argv[0] + " [options]"
@@ -37,36 +49,36 @@ def cleanIceDists(sourcesDir, sourcesVersion, installVersion):
 	#
 	os.chdir(iceHome)
 	print "Cleaning in " + os.getcwd() + "..."
-	os.system("devenv all.sln /useenv /clean Debug")
-	os.system("devenv all.sln /useenv /clean Release")
+	runprog("devenv all.sln /useenv /clean Debug")
+	runprog("devenv all.sln /useenv /clean Release")
 
 	#
 	# Ice for Java 
 	#
 	os.chdir(os.path.join(sourcesDir, "IceJ-" + sourcesVersion))
 	print "Cleaning in " + os.getcwd() + "..."
-	os.system("ant clean")
+	runprog("ant clean")
 
 	#
 	# Ice for C#
 	#
 	os.chdir(os.path.join(sourcesDir, "IceCS-" + sourcesVersion))
 	print "Cleaning in " + os.getcwd() + "..."
-	os.system("devenv all.sln /useenv /clean Debug")
+	runprog("devenv all.sln /useenv /clean Debug")
 
 	#
 	# Ice for PHP
 	#
 	os.chdir(os.path.join(sourcesDir, "IcePHP-" + sourcesVersion))
 	print "Cleaning in " + os.getcwd() + "..."
-	os.system("devenv icephp.sln /useenv /clean Release")
+	runprog("devenv icephp.sln /useenv /clean Release")
 
 	#
 	# Ice for Python
 	#
 	os.chdir(os.path.join(sourcesDir, "IcePy-" + sourcesVersion))
 	print "Cleaning in " + os.getcwd() + "..."
-	os.system("devenv all.sln /useenv /clean Release")
+	runprog("devenv all.sln /useenv /clean Release")
 
 	#
 	# Ice for Visual Basic
@@ -74,13 +86,13 @@ def cleanIceDists(sourcesDir, sourcesVersion, installVersion):
 	os.rename(os.path.join(sourcesDir, "IceCS-" + sourcesVersion), os.path.join(sourcesDir, "IceCS")) # XXX temp
 	os.chdir(os.path.join(sourcesDir, "IceVB-" + sourcesVersion))
 	print "Cleaning in " + os.getcwd() + "..."
-	os.system("devenv all.sln /useenv /clean Debug")
+	runprog("devenv all.sln /useenv /clean Debug")
 	os.rename(os.path.join(sourcesDir, "IceCS"), os.path.join(sourcesDir, "IceCS-" + sourcesVersion)) # XXX temp
     elif installVersion == "vc60":
 	os.chdir(iceHome)
 	print "Cleaning in " + os.getcwd() + "..."
-	os.system("msdev all.dsw /useenv /make all - Win32 Debug /clean")
-	os.system("msdev all.dsw /useenv /make all - Win32 Release /clean")
+	runprog("msdev all.dsw /useenv /make all - Win32 Debug /clean")
+	runprog("msdev all.dsw /useenv /make all - Win32 Release /clean")
 
 def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     """Build all Ice distributions."""
@@ -132,22 +144,22 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	#
 	os.chdir(iceHome)
 	print "Building in " + os.getcwd() + "..."
-	os.system("devenv all.sln /useenv /build Debug")
-	os.system("devenv all.sln /useenv /build Release")
+	runprog("devenv all.sln /useenv /build Debug")
+	runprog("devenv all.sln /useenv /build Release")
 
 	#
 	# Ice for Java 
 	#
 	os.chdir(os.path.join(sourcesDir, "IceJ-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
-	os.system("ant")
+	runprog("ant")
 
 	#
 	# Ice for C#
 	#
 	os.chdir(os.path.join(sourcesDir, "IceCS-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
-	os.system("devenv all.sln /useenv /build Debug")
+	runprog("devenv all.sln /useenv /build Debug")
 
 	#
 	# Ice for PHP
@@ -170,7 +182,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 
 	os.chdir(os.path.join(sourcesDir, "IcePHP-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
-	os.system("devenv icephp.sln /useenv /build Release")
+	runprog("devenv icephp.sln /useenv /build Release")
 
 	#
 	# Ice for Python
@@ -181,22 +193,22 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 
 	os.chdir(os.path.join(sourcesDir, "IcePy-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
-	os.system("devenv all.sln /useenv /build Release")
+	runprog("devenv all.sln /useenv /build Release")
 
 	#
 	# Ice for Visual Basic
 	#
 	os.chdir(os.path.join(sourcesDir, "IceVB-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
-	os.system("devenv all.sln /useenv /build Debug")
+	runprog("devenv all.sln /useenv /build Debug")
     elif installVersion == "vc60":
 	#
 	# Ice for C++ 
 	#
 	os.chdir(iceHome)
 	print "Building in " + os.getcwd() + "..."
-	os.system('msdev all.dsw /useenv /make "all - Win32 Debug"')
-	os.system('msdev all.dsw /useenv /make "all - Win32 Release"')
+	runprog('msdev all.dsw /useenv /make "all - Win32 Debug"')
+	runprog('msdev all.dsw /useenv /make "all - Win32 Release"')
 
 def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
     """Build third party merge modules."""
@@ -209,11 +221,13 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
 	("ExpatDevKit", "EXPAT_DEV_KIT"),
 	("ExpatRuntime", "EXPAT_RUNTIME"),
 	("OpenSSLDevKit", "OPENSSL_DEV_KIT"),
-	("OpenSSLRuntime", "OPENSSL_RUNTIME"),
-	("JGoodies", "JGOODIES_RUNTIME")
+	("OpenSSLRuntime", "OPENSSL_RUNTIME")
     ]
     if installVersion == "vc60":
 	extras = [ ("STLPortDevKit", "STLPORT_DEV_KIT"), ("STLPortRuntime", "STLPORT_RUNTIME") ]
+	modules.extend(extras)
+    elif installVersion == "vc71":
+	extras = [ ("JGoodies", "JGOODIES_RUNTIME") ]
 	modules.extend(extras)
 
     #
@@ -221,7 +235,7 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
     #
     os.chdir(startDir)
     for project, release in modules:
-	os.system(os.environ['INSTALLSHIELD_HOME'] + "\IsCmdBld -c COMP -a ZEROC -p " + project + ".ism -r " + release)
+	runprog(os.environ['INSTALLSHIELD_HOME'] + "\IsCmdBld -c COMP -a ZEROC -p " + project + ".ism -r " + release)
 
     #
     # Archive modules in the stage directory root.
@@ -243,7 +257,7 @@ def buildInstallers(startDir, stageDir, sourcesVersion, installVersion):
     #
     os.chdir(startDir)
     for project, release in installers:
-	os.system("ISCmdBld -c COMP -a ZEROC -p " + project + ".ism -r " + release)
+	runprog("ISCmdBld -c COMP -a ZEROC -p " + project + ".ism -r " + release)
 	msi = project + "-" + sourcesVersion + "-" + installVersion.upper() + ".msi"
 	msiPath = os.path.join(os.getcwd(), project, "ZEROC", release, "DiskImages/DISK1", msi)
 	shutil.copy(msiPath, stageDir)
@@ -384,7 +398,7 @@ def main():
     # rebuilt 'out-of-band' so there is no way for the script to pickup
     # changes in them.
     #
-    os.system("ant" + antOptions + " clean")
+    runprog("ant" + antOptions + " clean")
 
     if clean:
 	cleanIceDists(sourcesDir, sourcesVersion, installVersion)
@@ -393,7 +407,7 @@ def main():
     # Stage the third party packages.
     #
     if installer:
-	os.system("ant" + antOptions + " packages-stage-" + installVersion)
+	runprog("ant" + antOptions + " packages-stage-" + installVersion)
 
     #
     # Build the Ice distributions.
@@ -405,7 +419,7 @@ def main():
     # Build the merge module and installer projects.
     #
     if installer:
-	os.system("ant" + antOptions + " ice-stage-" + installVersion)
+	runprog("ant" + antOptions + " ice-stage-" + installVersion)
 	buildMergeModules(startDir, stageDir, sourcesVersion, installVersion)
 	buildInstallers(startDir, stageDir, sourcesVersion, installVersion)
 

@@ -140,6 +140,7 @@
 		<include name="IceGrid/Release/icegridregistry.exe"/>
 	    </fileset>
 	</copy>
+	<copy file="${icej.dir}/lib/IceGridGUI.jar" todir="${stage.dir}/ice-cpp/runtime/bin" flatten="true"/>
 
 	<!-- Certificates -->
 	<mkdir dir="${stage.dir}/ice-cpp/runtime/certs"/>
@@ -179,7 +180,7 @@
 		<include name="iceutil30d.*"/>
 		<include name="icexml30d.*"/>
 		<include name="slice30d.*"/>
-		<include name="icegrid30d.dll"/>
+		<include name="icegrid30d.*"/>
 	    </fileset>
 	</copy>
 
@@ -195,10 +196,10 @@
 	    </fileset>
 	</copy>
 
-	<copy file="${ice.dir}/src/IceBox/Debug/icebox.exe" tofile="${stage.dir}/ice-cpp/dev/bin/iceboxd.exe">
+	<copy file="${ice.dir}/src/IceBox/Debug/iceboxd.exe" tofile="${stage.dir}/ice-cpp/dev/bin/iceboxd.exe">
 	</copy>
 
-	<copy file="${ice.dir}/src/IceBox/Debug/icebox.pdb" tofile="${stage.dir}/ice-cpp/dev/bin/iceboxd.pdb">
+	<copy file="${ice.dir}/src/IceBox/Debug/iceboxd.pdb" tofile="${stage.dir}/ice-cpp/dev/bin/iceboxd.pdb">
 	</copy>
 
 	<!-- Libraries -->
@@ -737,8 +738,7 @@
 		     openssl-dev,
 		     openssl-runtime,
 		     stlport-dev,
-		     stlport-runtime,
-		     jgoodies-runtime">
+		     stlport-runtime">
 	<mkdir dir="${stage.dir}/microsoft/runtime/bin"/>
 	<copy file="${env.SystemRoot}/System32/msvcrt.dll" todir="${stage.dir}/microsoft/runtime/bin"/>
 	<copy file="${env.SystemRoot}/System32/msvcp60.dll" todir="${stage.dir}/microsoft/runtime/bin"/>
