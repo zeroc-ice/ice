@@ -28,7 +28,11 @@ IceUtil::Time::now()
 {
 #ifdef _WIN32
     struct _timeb tb;
+#   if _MSC_VER >= 1400
+    _ftime_s(&tb);
+#   else
     _ftime(&tb);
+#   endif
     return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + 
 		tb.millitm * 1000);
 #else
@@ -109,7 +113,13 @@ IceUtil::Time::toString() const
 
     struct tm* t;
 #ifdef _WIN32
+#   if _MSC_VER >= 1400
+    struct tm tms;
+    t = &tms;
+    localtime_s(t, &time);
+#   else
     t = localtime(&time);
+#   endif
 #else
     struct tm tr;
     localtime_r(&time, &tr);
