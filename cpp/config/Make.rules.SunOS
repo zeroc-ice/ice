@@ -81,7 +81,7 @@ ifeq ($(CXX),CC)
 
     mklib		    = $(CXX) -xar -o $(1) $(2)
 
-    LDPLATFORMFLAGS	    = -R $(prefix)/lib
+    LDPLATFORMFLAGS	    = -R $(install_libdir)
 
 endif
 
