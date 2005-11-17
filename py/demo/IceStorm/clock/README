@@ -1,0 +1,20 @@
+To run the demo:
+
+Start the IceStorm service:
+
+$ icebox --Ice.Config=config_service
+
+This configuration assumes there is a subdirectory named db in the
+current working directory.
+
+In a separate window:
+
+$ icestormadmin --Ice.Config=config -e "create time"
+$ python Subscriber.py
+
+In another window:
+
+$ python Publisher.py
+
+Ten "tick" messages should be displayed in the subscriber window for
+each run of the publisher.

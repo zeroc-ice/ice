@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+# **********************************************************************
+#
+# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+import sys, traceback, Ice
+
+Ice.loadSlice('Hello.ice')
+import Demo
+
+class HelloI(Demo.Hello):
+    def __init__(self, name):
+        self.name = name
+
+    def sayHello(self, current=None):
+        print self.name + " says Hello World!"
+
+    def shutdown(self, current=None):
+        print self.name + " shutting down..."
+        current.adapter.getCommunicator().shutdown()
+
+class Server(Ice.Application):
+    def run(self, args):
+        properties = self.communicator().getProperties()
+	adapter = self.communicator().createObjectAdapter("Hello")
+	id = Ice.stringToIdentity(properties.getProperty("Identity"))
+	adapter.add(HelloI(properties.getProperty("Ice.ServerId")), id)
+	adapter.activate()
+	self.communicator().waitForShutdown()
+	return True
+
+app = Server()
+sys.exit(app.main(sys.argv))
