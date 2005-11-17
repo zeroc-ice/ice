@@ -471,13 +471,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    if(stdOutFilename != "")
 	    {
 #ifdef _WIN32
-		FILE* file = freopenP(stdOutFilename.c_str(), "a", stdout);
+		freopenP(stdOutFilename.c_str(), "a", stdout);
 #endif
 	    }
 	    
 	    if(stdErrFilename != "")
 	    {
-		FILE* file = freopenP(stdErrFilename.c_str(), "a", stderr);
+		freopenP(stdErrFilename.c_str(), "a", stderr);
 	    }
 	    
 	    unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
