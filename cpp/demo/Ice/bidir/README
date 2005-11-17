@@ -1,4 +1,4 @@
-This demo shows how to use bi-directional connections for
+This demo shows how to use bidirectional connections for
 callbacks. This is typically used if the server cannot open a
 connection to the client to send callbacks, for example, because
 firewalls block incoming connections to the client.
