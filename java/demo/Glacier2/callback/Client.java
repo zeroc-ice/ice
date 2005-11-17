@@ -79,10 +79,6 @@ public class Client extends Ice.Application
             {
                 ex.printStackTrace();
             }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-            }
 	}
 
 	String category = router.getServerProxy().ice_getIdentity().category;

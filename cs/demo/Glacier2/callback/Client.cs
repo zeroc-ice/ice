@@ -48,36 +48,29 @@ public class Client : Ice.Application
 	{
 	    Console.WriteLine("This demo accepts any user-id / password combination.");
 
+	    String id;
+	    Console.Write("user id: ");
+	    Console.Out.Flush();
+	    id = Console.In.ReadLine();
+		
+	    String pw;
+	    Console.Write("password: ");
+	    Console.Out.Flush();
+	    pw = Console.In.ReadLine();
+		
 	    try
 	    {
-		String id;
-		Console.Write("user id: ");
-		Console.Out.Flush();
-		id = Console.In.ReadLine();
-		
-		String pw;
-		Console.Write("password: ");
-		Console.Out.Flush();
-		pw = Console.In.ReadLine();
-		
-		try
-		{
-		    router.createSession(id, pw);
-		    break;
-		}
-		catch(Glacier2.PermissionDeniedException ex)
-		{
-		    Console.Write("permission denied:\n" + ex.reason);
-		}
-		catch(Glacier2.CannotCreateSessionException ex)
-		{
-		    Console.Write("cannot create session:\n" + ex.reason);
-		}
+		router.createSession(id, pw);
+		break;
 	    }
-            catch(System.Exception ex)
-            {
-                Console.Error.WriteLine(ex);
-            }
+	    catch(Glacier2.PermissionDeniedException ex)
+	    {
+		Console.Write("permission denied:\n" + ex.reason);
+	    }
+	    catch(Glacier2.CannotCreateSessionException ex)
+	    {
+		Console.Write("cannot create session:\n" + ex.reason);
+	    }
 	}
 
 	String category = router.getServerProxy().ice_getIdentity().category;
