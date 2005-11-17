@@ -44,28 +44,25 @@ Module Glacier2callbackC
             While True
                 Console.WriteLine("This demo accepts any user-id / password combination.")
 
-                Try
-                    Dim id As String
-                    Console.Write("user id: ")
-                    Console.Out.Flush()
-                    id = Console.In.ReadLine()
+		Dim id As String
+		Console.Write("user id: ")
+		Console.Out.Flush()
+		id = Console.In.ReadLine()
 
-                    Dim pw As String
-                    Console.Write("password: ")
-                    Console.Out.Flush()
-                    pw = Console.In.ReadLine()
+		Dim pw As String
+		Console.Write("password: ")
+		Console.Out.Flush()
+		pw = Console.In.ReadLine()
 
-                    Try
-                        router.createSession(id, pw)
-                        Exit While
-                    Catch ex As Glacier2.PermissionDeniedException
-                        Console.Write("permission denied:\n" & ex.reason)
-                    Catch ex As Glacier2.CannotCreateSessionException
-                        Console.Write("cannot create session:\n" & ex.reason)
-                    End Try
-                Catch ex As System.Exception
-                    Console.Error.WriteLine(ex)
-                End Try
+		Try
+		    router.createSession(id, pw)
+		    Exit While
+		Catch ex As Glacier2.PermissionDeniedException
+		    Console.Write("permission denied:\n" & ex.reason)
+		Catch ex As Glacier2.CannotCreateSessionException
+		    Console.Write("cannot create session:\n" & ex.reason)
+		End Try
+
             End While
 
             Dim category As String = router.getServerProxy().ice_getIdentity().category
