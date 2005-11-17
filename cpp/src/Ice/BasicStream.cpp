@@ -733,6 +733,17 @@ IceInternal::BasicStream::read(vector<Byte>& v)
     }
 }
 
+template<class InputIterator, class OutputIterator>
+OutputIterator
+copyP(InputIterator first, InputIterator last, OutputIterator dest)
+{
+#if _WIN32 && _MSC_VER == 1400
+    return ::stdext::unchecked_copy(first, last, dest);
+#else
+    return ::std::copy(first, last, dest);
+#endif
+}
+
 void
 IceInternal::BasicStream::write(const vector<bool>& v)
 {
@@ -742,7 +753,7 @@ IceInternal::BasicStream::write(const vector<bool>& v)
     {
 	Container::size_type pos = b.size();
 	resize(pos + sz);
-	copy(v.begin(), v.end(), b.begin() + pos);
+	copyP(v.begin(), v.end(), b.begin() + pos);
     }
 }
 
@@ -846,7 +857,7 @@ IceInternal::BasicStream::read(vector<Short>& v)
 	    dest += 2 * sizeof(Short);
 	}
 #else
-	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
+	copyP(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
@@ -949,7 +960,7 @@ IceInternal::BasicStream::read(vector<Int>& v)
 	    dest += 2 * sizeof(Int);
 	}
 #else
-	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
+	copyP(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
@@ -1076,7 +1087,7 @@ IceInternal::BasicStream::read(vector<Long>& v)
 	    dest += 2 * sizeof(Long);
 	}
 #else
-	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
+	copyP(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
@@ -1179,7 +1190,7 @@ IceInternal::BasicStream::read(vector<Float>& v)
 	    dest += 2 * sizeof(Float);
 	}
 #else
-	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
+	copyP(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
@@ -1306,7 +1317,7 @@ IceInternal::BasicStream::read(vector<Double>& v)
 	    dest += 2 * sizeof(Double);
 	}
 #else
-	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
+	copyP(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
