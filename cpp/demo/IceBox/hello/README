@@ -6,7 +6,11 @@ start the IceBox server:
 
 $ icebox --Ice.Config=config
 
+Note that for debug Windows builds you will need to use iceboxd rather
+than icebox as the executable name.
+
 In the second window, run the client:
+
 
 $ client
 
