@@ -1140,7 +1140,7 @@ ServerI::destroy()
 }
 
 void
-ServerI::terminated()
+ServerI::terminated(const string& msg)
 {
     ServerAdapterDict adpts;
     {
@@ -1177,7 +1177,14 @@ ServerI::terminated()
 
 	if(_state != ServerI::Destroying)
 	{
-	    setStateNoSync(ServerI::Inactive, "The server terminated unexpectedly.");
+	    if(msg.empty())
+	    {
+		setStateNoSync(ServerI::Inactive, "The server terminated unexpectedly.");
+	    }
+	    else
+	    {
+		setStateNoSync(ServerI::Inactive, "The server terminated unexpectedly:\n" + msg);
+	    }
 	    command = nextCommand();
 	}
 	else

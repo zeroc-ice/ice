@@ -68,8 +68,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 	obj2 = TestIntfPrx::checkedCast(base2);
 	obj2->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	cerr << ex << endl;
 	test(false);
     }
     cout << "ok" << endl;    
@@ -92,8 +93,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 	obj2 = TestIntfPrx::checkedCast(base2);
 	obj2->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	cerr << ex << endl;
 	test(false);
     }
     obj->shutdown();
@@ -103,8 +105,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 	obj2 = TestIntfPrx::checkedCast(base2);
 	obj2->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	cerr << ex << endl;
 	test(false);
     }
     try
@@ -112,8 +115,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 	obj3 = TestIntfPrx::checkedCast(base3);
 	obj3->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	cerr << ex << endl;
 	test(false);
     }
     obj->shutdown();
@@ -124,8 +128,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 	obj2 = TestIntfPrx::checkedCast(base2);
 	obj2->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	cerr << ex << endl;
 	test(false);
     }
     obj->shutdown();
@@ -135,8 +140,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 	obj3 = TestIntfPrx::checkedCast(base3);
 	obj3->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	cerr << ex << endl;
 	test(false);
     }
     obj->shutdown();
@@ -146,8 +152,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 	obj2 = TestIntfPrx::checkedCast(base2);
 	obj2->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	cerr << ex << endl;
 	test(false);
     }
     obj->shutdown();
@@ -158,8 +165,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 	obj5 = TestIntfPrx::checkedCast(base5);
 	obj5->ice_ping();
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	cerr << ex << endl;
 	test(false);
     }
     cout << "ok" << endl;

@@ -100,7 +100,7 @@ public:
     void deactivate();
     void update();
     void destroy();
-    void terminated();
+    void terminated(const std::string& = std::string());
 
 private:
     

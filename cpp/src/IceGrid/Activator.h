@@ -62,6 +62,7 @@ private:
 #else
 	pid_t pid;
 	int pipeFd;
+	std::string msg;
 #endif
 	ServerIPtr server;
     };
