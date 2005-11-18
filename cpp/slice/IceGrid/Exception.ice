@@ -113,7 +113,7 @@ exception DeploymentException
  **/
 exception NodeUnreachableException
 {
-    /** The name of the node which is not reachable. */
+    /** The name of the node that is not reachable. */
     string name;
 
     /** The reason why the node couldn't be reached. */
@@ -132,7 +132,7 @@ exception BadSignalException
 
 /**
  *
- * This exception is raised if the patching failed.
+ * This exception is raised if a patch failed.
  *
  **/
 exception PatchException

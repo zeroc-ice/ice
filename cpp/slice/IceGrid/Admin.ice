@@ -79,7 +79,7 @@ dictionary<string, Object*> StringObjectProxyDict;
 
 /**
  *
- * Information on an Ice object.
+ * Information about an Ice object.
  *
  **/
 struct ObjectInfo
@@ -108,7 +108,7 @@ sequence<ObjectInfo> ObjectInfoSeq;
 
 /**
  *
- * Information on an adapter registered with the &IceGrid; registry.
+ * Information about an adapter registered with the &IceGrid; registry.
  *
  **/
 struct AdapterInfo
@@ -122,7 +122,7 @@ struct AdapterInfo
 
     /** 
      *
-     * The replica group id of the object adapter or empty if the
+     * The replica group id of the object adapter, or empty if the
      * adapter doesn't belong to a replica group.
      *
      **/
@@ -132,7 +132,7 @@ dictionary<string, AdapterInfo> AdapterInfoDict;
 
 /**
  *
- * Information on a server managed by an IceGrid node.
+ * Information about a server managed by an &IceGrid; node.
  *
  **/
 struct ServerInfo
@@ -159,6 +159,11 @@ struct ServerInfo
     ServerDescriptor descriptor;
 };
 
+/**
+ *
+ * Information about an &IceGrid; node.
+ *
+ **/
 struct NodeInfo
 {
     /**
@@ -235,7 +240,7 @@ interface Admin
 {
     /**
      *
-     * Add an application to &IceGrid;. An application is a set of servers.
+     * Add an application to &IceGrid;.
      *
      * @param descriptor The application descriptor.
      *
@@ -305,7 +310,7 @@ interface Admin
     /**
      *
      * Patch the given application data. If the patch argument is an
-     * empty string, all the application servers depending on patch
+     * empty string, all of the application's servers that depend on patch
      * data will be patched.
      *
      * @param name The application name.
@@ -372,7 +377,7 @@ interface Admin
      *
      * Get a server's state.
      *
-     * @param id The id of the server.
+     * @param id The server id.
      *
      * @return The server state.
      * 
@@ -390,9 +395,9 @@ interface Admin
      * Get a server's system process id. The process id is operating
      * system dependent.
      *
-     * @param id The id of the server.
+     * @param id The server id.
      *
-     * @return The server process id.
+     * @return The server's process id.
      * 
      * @throws ServerNotExistException Raised if the server doesn't exist.
      *
@@ -407,10 +412,10 @@ interface Admin
      *
      * Enable or disable a server. A disabled server can't be started
      * on demand or administratively. The enable state of the server
-     * is not persistent, if the node is shutdown and restarted, the
+     * is not persistent: if the node is shutdown and restarted, the
      * server will be enabled by default.
      *
-     * @param id The id of the server.
+     * @param id The server id.
      *
      * @param enabled True to enable the server, false to disable it.
      *
@@ -427,7 +432,7 @@ interface Admin
      *
      * Check if the server is enabled or disabled.
      *
-     * @param id The id of the server.
+     * @param id The server id.
      *
      * @throws ServerNotExistException Raised if the server doesn't
      * exist.
@@ -443,7 +448,7 @@ interface Admin
      *
      * Start a server and wait for its activation.
      *
-     * @param id The id of the server.
+     * @param id The server id.
      *
      * @return True if the server was successfully started, false
      * otherwise.
@@ -462,7 +467,7 @@ interface Admin
      *
      * Stop a server.
      *
-     * @param id The id of the server.
+     * @param id The server id.
      *
      * @throws ServerNotExistException Raised if the server doesn't
      * exist.
@@ -478,7 +483,7 @@ interface Admin
      *
      * Patch a server.
      *
-     * @param id The id of the server.
+     * @param id The server id.
      *
      * @param shutdown If true, servers depending on the data to patch
      * will be shutdown if necessary.
@@ -499,7 +504,7 @@ interface Admin
      *
      * Send signal to a server.
      *
-     * @param id The id of the server.
+     * @param id The server id.
      *
      * @param signal The signal, for example SIGTERM or 15.
      *
@@ -518,9 +523,9 @@ interface Admin
 
     /**
      *
-     * Write message on server stdout or stderr
+     * Write message on server stdout or stderr.
      *
-     * @param id The id of the server.
+     * @param id The server id.
      *
      * @param message The message.
      *

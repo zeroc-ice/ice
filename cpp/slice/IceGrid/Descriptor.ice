@@ -147,7 +147,7 @@ struct DbEnvDescriptor
 
     /**
      *
-     * The home of the database environment (i.e.: the directory where
+     * The home of the database environment (i.e., the directory where
      * the database files will be stored). If empty, the node will
      * provide a default database directory, otherwise the directory
      * must exist.

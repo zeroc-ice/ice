@@ -48,7 +48,7 @@ struct ServerDynamicInfo
     
     /**
      *
-     * Whether or not the server is enabled or disabled.
+     * Indicates whether the server is enabled.
      *
      **/
     bool enabled;
@@ -213,8 +213,8 @@ interface RegistryObserver
      * observer to communicate the current state of the registry to the
      * observer implementation.
      *
-     * @param serial The current serial of the registry database. This
-     * serial allows observers to make sure that their internal state
+     * @param serial The current serial number of the registry database. This
+     * serial number allows observers to make sure that their internal state
      * is synchronized with the registry.
      *
      * @param applications The applications currently registered with
@@ -267,15 +267,15 @@ interface Session extends Glacier2::Session
 {
     /**
      *
-     * Keep alive the session. Clients should call this method
-     * regularily to ensure the server won't reap the session.
+     * Keep the session alive. Clients should call this method
+     * regularly to prevent the server from reaping the session.
      *
      **/
     void keepAlive();
 
     /**
      *
-     * Get the session timeout configure for the node.
+     * Get the session timeout configured for the node.
      *
      **/
     nonmutating int getTimeout();
@@ -312,7 +312,7 @@ interface Session extends Glacier2::Session
      * Set the identities of the observer objects that will receive
      * notifications from the servers when the state of the registry
      * or nodes changes. This method should be used by clients which
-     * are using a bi-directional connection to communicate with the
+     * are using a bidirectional connection to communicate with the
      * session.
      *
      * @param registryObs The registry observer identity.
@@ -324,8 +324,7 @@ interface Session extends Glacier2::Session
 
     /**
      *
-     * Acquires to registry exclusive lock to start updating the
-     * registry applications.
+     * Acquires an exclusive lock to start updating the registry applications.
      *
      * @return The current serial.
      * 
@@ -387,8 +386,7 @@ interface Session extends Glacier2::Session
 
     /**
      *
-     * Finish to update the registry and release the exclusive
-     * lock.
+     * Finish updating the registry and release the exclusive lock.
      *
      * @throws AccessDeniedException Raised if the session doesn't hold the
      * exclusive lock.
@@ -404,9 +402,9 @@ interface SessionManager extends Glacier2::SessionManager
      *
      * Create a local session.
      *
-     * @param userId An identifier to identify the session user.
+     * @param userId Identifies the session user.
      *
-     * @return The proxy on the local session.
+     * @return The proxy of the local session.
      *
      **/
     Session* createLocalSession(string userId);

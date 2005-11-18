@@ -66,10 +66,10 @@ interface Query
 
     /**
      *
-     * Find an object by type on the least loaded node. If the IceGrid
-     * registry can't figure out the node that hosts the object (e.g.:
+     * Find an object by type on the least loaded node. If the
+     * registry can't figure out the node that hosts the object (e.g.,
      * if the object was registered with a direct proxy), the registry
-     * assumes the object is hosted on a node which has a load average
+     * assumes the object is hosted on a node that has a load average
      * of 1.0.
      *
      * @param type The object type.
