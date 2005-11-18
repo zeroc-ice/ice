@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/DefaultsAndOverrides.h>
@@ -413,34 +414,6 @@ IceInternal::Instance::getDefaultContext() const
     return _defaultContext;
 }
 
-static FILE*
-freopenP(const char* path, const char* mode, FILE* stream)
-{
-    FILE* file;
-
-#if _WIN32 && _MSC_VER >= 1400
-    ::freopen_s(&file, path, mode, stream);
-    if(file == 0)
-    {
-	FileException ex(__FILE__, __LINE__);
-	ex.path = path;
-	char buf[1024];
-	ex.error = _strerror_s(buf, sizeof(buf), "freopen_s failed");
-	throw ex;
-    }
-#else
-    file = ::freopen(path, mode, stream);
-    if(file == 0)
-    {
-	FileException ex(__FILE__, __LINE__);
-	ex.path = path;
-	ex.error = getSystemErrno();
-	throw ex;
-    }
-#endif
-
-    return file;
-}
 
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties,
 				const LoggerPtr& logger) :
@@ -470,12 +443,26 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    
 	    if(stdOutFilename != "")
 	    {
-		freopenP(stdOutFilename.c_str(), "a", stdout);
+		FILE* file = freopen(stdOutFilename.c_str(), "a", stdout);
+		if(file == 0)
+		{
+		    FileException ex(__FILE__, __LINE__);
+		    ex.path = stdOutFilename;
+		    ex.error = getSystemErrno();
+		    throw ex;
+		}
 	    }
 	    
 	    if(stdErrFilename != "")
 	    {
-		freopenP(stdErrFilename.c_str(), "a", stderr);
+		FILE* file = freopen(stdErrFilename.c_str(), "a", stderr);
+		if(file == 0)
+		{
+		    FileException ex(__FILE__, __LINE__);
+		    ex.path = stdErrFilename;
+		    ex.error = getSystemErrno();
+		    throw ex;
+		}
 	    }
 	    
 	    unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());

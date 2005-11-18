@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Gen.h>
 #include <Slice/Checksum.h>
 #include <IceUtil/Functional.h>

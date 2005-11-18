@@ -120,13 +120,6 @@
 #      pragma warning( disable : 4275 )
 //      ...: decorated name length exceeded, name was truncated
 #      pragma warning( disable : 4503 )  
-//
-//
-//     TEMPORARY: move deprecated warning on VC8 to level 4
-#      if _MSC_VER==1400
-#         pragma warning( 4 : 4996 )   
-#      endif
-
 #   endif
 #endif
 

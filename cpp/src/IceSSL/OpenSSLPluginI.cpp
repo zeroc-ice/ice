@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
+
 #include <IceSSL/OpenSSLPluginI.h>
 
 #include <Ice/LoggerUtil.h>

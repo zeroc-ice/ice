@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>
 #include <IceStorm/WeightedGraph.h>

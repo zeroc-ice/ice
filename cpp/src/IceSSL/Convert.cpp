@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Config.h>
 #include <IceSSL/Convert.h>
 #include <iterator>

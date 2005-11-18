@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/IceUtil.h>
 #include <IcePatch2/Util.h>
 #include <openssl/sha.h>

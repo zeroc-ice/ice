@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <FreezeScript/Data.h>
 #include <FreezeScript/Util.h>
 #include <FreezeScript/Exception.h>

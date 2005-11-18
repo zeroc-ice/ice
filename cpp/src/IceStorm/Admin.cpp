@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Options.h>
 #include <Ice/Application.h>
 #include <Ice/SliceChecksums.h>

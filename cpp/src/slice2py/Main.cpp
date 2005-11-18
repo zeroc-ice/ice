@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Options.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/PythonUtil.h>

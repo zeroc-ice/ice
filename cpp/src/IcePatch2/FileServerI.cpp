@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <IcePatch2/FileServerI.h>
 #include <sys/types.h>
 #include <sys/stat.h>

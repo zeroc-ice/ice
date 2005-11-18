@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/EventHandler.h>
 #include <Ice/Network.h>

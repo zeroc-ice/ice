@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Instance.h>
 #include <Ice/Object.h>
@@ -733,17 +734,6 @@ IceInternal::BasicStream::read(vector<Byte>& v)
     }
 }
 
-template<class InputIterator, class OutputIterator>
-OutputIterator
-copyP(InputIterator first, InputIterator last, OutputIterator dest)
-{
-#if _WIN32 && _MSC_VER == 1400
-    return ::stdext::unchecked_copy(first, last, dest);
-#else
-    return ::std::copy(first, last, dest);
-#endif
-}
-
 void
 IceInternal::BasicStream::write(const vector<bool>& v)
 {
@@ -753,7 +743,7 @@ IceInternal::BasicStream::write(const vector<bool>& v)
     {
 	Container::size_type pos = b.size();
 	resize(pos + sz);
-	copyP(v.begin(), v.end(), b.begin() + pos);
+	copy(v.begin(), v.end(), b.begin() + pos);
     }
 }
 
@@ -857,7 +847,7 @@ IceInternal::BasicStream::read(vector<Short>& v)
 	    dest += 2 * sizeof(Short);
 	}
 #else
-	copyP(begin, i, reinterpret_cast<Byte*>(&v[0]));
+	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
@@ -960,7 +950,7 @@ IceInternal::BasicStream::read(vector<Int>& v)
 	    dest += 2 * sizeof(Int);
 	}
 #else
-	copyP(begin, i, reinterpret_cast<Byte*>(&v[0]));
+	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
@@ -1087,7 +1077,7 @@ IceInternal::BasicStream::read(vector<Long>& v)
 	    dest += 2 * sizeof(Long);
 	}
 #else
-	copyP(begin, i, reinterpret_cast<Byte*>(&v[0]));
+	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
@@ -1190,7 +1180,7 @@ IceInternal::BasicStream::read(vector<Float>& v)
 	    dest += 2 * sizeof(Float);
 	}
 #else
-	copyP(begin, i, reinterpret_cast<Byte*>(&v[0]));
+	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
@@ -1317,7 +1307,7 @@ IceInternal::BasicStream::read(vector<Double>& v)
 	    dest += 2 * sizeof(Double);
 	}
 #else
-	copyP(begin, i, reinterpret_cast<Byte*>(&v[0]));
+	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
