@@ -54,10 +54,13 @@ def cleanIceDists(sourcesDir, sourcesVersion, installVersion):
 
 	#
 	# Ice for Java 
+	# 
+	# XXX-  Its very unclear why we would rebuild Java since all of
+	# the files we need here are already built.
 	#
-	os.chdir(os.path.join(sourcesDir, "IceJ-" + sourcesVersion))
-	print "Cleaning in " + os.getcwd() + "..."
-	runprog("ant clean")
+	# os.chdir(os.path.join(sourcesDir, "IceJ-" + sourcesVersion))
+	# print "Cleaning in " + os.getcwd() + "..."
+	# runprog("ant clean")
 
 	#
 	# Ice for C#
@@ -148,11 +151,14 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	runprog("devenv all.sln /useenv /build Release")
 
 	#
-	# Ice for Java 
+	# Ice for Java  
 	#
-	os.chdir(os.path.join(sourcesDir, "IceJ-" + sourcesVersion))
-	print "Building in " + os.getcwd() + "..."
-	runprog("ant")
+	# XXX-  Its very unclear why we would rebuild Java since all of
+	# the files we need here are already built.
+	#
+	# os.chdir(os.path.join(sourcesDir, "IceJ-" + sourcesVersion))
+	# print "Building in " + os.getcwd() + "..."
+	# runprog("ant")
 
 	#
 	# Ice for C#
