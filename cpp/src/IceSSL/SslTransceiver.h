@@ -68,6 +68,7 @@ private:
     static void addTransceiver(SSL*, SslTransceiver*);
     static void removeTransceiver(SSL*);
 
+#ifdef ICE_SSL_EXTRA_TRACING
     void showCertificateChain(BIO*);
     void showPeerCertificate(BIO*, const char*);
     void showSharedCiphers(BIO*);
@@ -75,6 +76,7 @@ private:
     void showSelectedCipherInfo(BIO*);
     void showHandshakeStats(BIO*);
     void showClientCAList(BIO*, const char*);
+#endif
 
     static SslTransceiverMap _transceiverMap;
     static IceUtil::StaticMutex _transceiverRepositoryMutex;

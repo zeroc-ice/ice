@@ -420,9 +420,9 @@ IceSSL::SslTransceiver::initialize(int timeout)
 	    //
 	    // Init finished, look at the connection information.
 	    //
-	    if((_traceLevels->security >= IceSSL::SECURITY_PROTOCOL_DEBUG) && 0)
+#ifdef ICE_SSL_EXTRA_TRACING	
+	    if(_traceLevels->security >= IceSSL::SECURITY_PROTOCOL_DEBUG)
 	    {
-#ifdef ICE_SSL_EXTRA_TRACING
 		//
 		// Only in extreme cases do we enable this, partially because it doesn't use the Logger.
 		//
@@ -440,8 +440,8 @@ IceSSL::SslTransceiver::initialize(int timeout)
 		showHandshakeStats(bio);
 		
 		showSessionInfo(bio);
-#endif
 	    }
+#endif
 	    return;
 	}
 
@@ -823,6 +823,8 @@ IceSSL::SslTransceiver::removeTransceiver(SSL* sslPtr)
     _transceiverMap.erase(sslPtr);
 }
 
+#ifdef ICE_SSL_EXTRA_TRACING
+
 void
 IceSSL::SslTransceiver::showCertificateChain(BIO* bio)
 {
@@ -1001,6 +1003,7 @@ IceSSL::SslTransceiver::showClientCAList(BIO* bio, const char* connType)
     }
 }
 
+#endif
 
 //
 // Private Methods
