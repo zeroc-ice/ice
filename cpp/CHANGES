@@ -1,6 +1,10 @@
 Changes since version 3.0.0
 ---------------------------
 
+- Added --enable-new-dtags to Linux linker options.
+
+- Added support for Apple Xcode 2.2.
+
 - Windows x64 port; INSTALL.WINDOWS now shows how to target the
   x64 platform.
 
