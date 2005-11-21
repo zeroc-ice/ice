@@ -720,7 +720,6 @@ TestApp::run(int argc, char* argv[])
     _connection = Freeze::createConnection(communicator(), _envName);
 
     cout << "IntIntMap" << endl;
- 
 #if defined(_MSC_VER) && (_MSC_VER < 1310)
     {
 	IntIntMap* dummy = 0;
@@ -730,6 +729,16 @@ TestApp::run(int argc, char* argv[])
     IntIntMapTest<IntIntMap>("IntIntMap");
 #endif
     
+    cout << "IntIntMap with index" << endl;
+#if defined(_MSC_VER) && (_MSC_VER < 1310)
+    {
+	IndexedIntIntMap* dummy = 0;
+	IntIntMapTest("IndexedIntIntMap", dummy);
+    }
+#else
+    IntIntMapTest<IndexedIntIntMap>("IndexedIntIntMap");
+#endif
+
     cout <<"Struct1Struct2Map" << endl;
 #if defined(_MSC_VER) && (_MSC_VER < 1310)
     {
@@ -738,6 +747,16 @@ TestApp::run(int argc, char* argv[])
     }
 #else
     Struct1Struct2MapTest<Struct1Struct2Map>("Struct1Struct2Map");
+#endif
+
+    cout <<"Struct1Struct2Map with index" << endl;
+#if defined(_MSC_VER) && (_MSC_VER < 1310)
+    {
+	IndexedStruct1Struct2Map* dummy = 0;
+	Struct1Struct2MapTest("IndexedStruct1Struct2Map", dummy);
+    }
+#else
+    Struct1Struct2MapTest<IndexedStruct1Struct2Map>("IndexedStruct1Struct2Map");
 #endif
 
     cout <<"Struct1Class1Map" << endl;
@@ -750,6 +769,16 @@ TestApp::run(int argc, char* argv[])
     Struct1Class1MapTest<Struct1Class1Map>("Struct1Class1Map");
 #endif
 
+    cout <<"Struct1Class1Map with index" << endl;
+#if defined(_MSC_VER) && (_MSC_VER < 1310)
+    {
+	IndexedStruct1Class1Map* dummy = 0;
+	Struct1Class1MapTest("IndexedStruct1Class1Map", dummy);
+    }
+#else
+    Struct1Class1MapTest<IndexedStruct1Class1Map>("IndexedStruct1Class1Map");
+#endif
+
     MyFactoryPtr factory = new MyFactory();
     factory->install(communicator());
     
@@ -757,7 +786,6 @@ TestApp::run(int argc, char* argv[])
     Struct1ObjectMapTest();
 
     cout <<"IntIntMap (read test)" << endl;
-
 #if defined(_MSC_VER) && (_MSC_VER < 1310)  
     {
 	IntIntMap* dummy = 0;
@@ -767,6 +795,16 @@ TestApp::run(int argc, char* argv[])
     IntIntMapReadTest<IntIntMap>("IntIntMap");
 #endif
 
+    cout <<"IntIntMap with index(read test)" << endl;
+#if defined(_MSC_VER) && (_MSC_VER < 1310)  
+    {
+	IndexedIntIntMap* dummy = 0;
+	IntIntMapReadTest("IndexedIntIntMap", dummy);
+    }
+#else
+    IntIntMapReadTest<IndexedIntIntMap>("IndexedIntIntMap");
+#endif
+    
     _connection->close();
     
     return EXIT_SUCCESS;
