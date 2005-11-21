@@ -295,7 +295,7 @@ ReplicaGroupEntry::removeReplica(const string& replicaId)
 	{
 	    _replicas.erase(p);		
 	    // Make sure _lastReplica is still within the bounds.
-	    _lastReplica = _replicas.empty() ? 0 : _lastReplica % _replicas.size();
+	    _lastReplica = _replicas.empty() ? 0 : _lastReplica % static_cast<int>(_replicas.size());
 	    break;
 	}
     }
@@ -314,7 +314,7 @@ ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas)
 	    return vector<pair<string, AdapterPrx> >();
 	}
 
-	nReplicas = _loadBalancingNReplicas > 0 ? _loadBalancingNReplicas : _replicas.size();
+	nReplicas = _loadBalancingNReplicas > 0 ? _loadBalancingNReplicas : static_cast<int>(_replicas.size());
 	replicas.reserve(_replicas.size());
 	if(!_loadBalancing)
 	{
@@ -326,7 +326,7 @@ ReplicaGroupEntry::getProxies(bool allRegistered, int& nReplicas)
 	    {
 		replicas.push_back(_replicas[(_lastReplica + i) % _replicas.size()]);
 	    }
-	    _lastReplica = (_lastReplica + 1) % _replicas.size();
+	    _lastReplica = (_lastReplica + 1) % static_cast<int>(_replicas.size());
 	}
 	else if(AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
 	{

@@ -19,14 +19,12 @@ using namespace std;
 #if defined(_MSC_VER)
 const Int64 Int64Min = -9223372036854775808i64;
 const Int64 Int64Max =  9223372036854775807i64;
-#else
-#   if defined(ICE_64)
+#elif defined(ICE_64)
 const Int64 Int64Min = -0x7fffffffffffffffL-1L;
 const Int64 Int64Max = 0x7fffffffffffffffL;
-#   else
+#else
 const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
 const Int64 Int64Max = 0x7fffffffffffffffLL;
-#   endif
 #endif
 
 int

@@ -112,11 +112,12 @@ IcePatch2::FileServerI::getFileCompressed(const string& pa, Int pos, Int num, co
 
     ByteSeq bytes(num);
 #ifdef _WIN32
-    long r;
+    int r;
+    if((r = read(fd, &bytes[0], static_cast<unsigned int>(num))) == -1)
 #else
     ssize_t r;
-#endif
     if((r = read(fd, &bytes[0], static_cast<size_t>(num))) == -1)
+#endif
     {
 	close(fd);
 

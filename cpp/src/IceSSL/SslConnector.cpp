@@ -38,7 +38,8 @@ IceSSL::SslConnector::connect(int timeout)
 	out << "ssl connection established\n" << fdToString(fd);
     }
 
-    return _plugin->createClientTransceiver(fd, timeout);
+    return _plugin->createClientTransceiver(
+	static_cast<int>(fd), timeout);
 }
 
 string

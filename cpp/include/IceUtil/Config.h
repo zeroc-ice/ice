@@ -171,10 +171,13 @@ private:
 //
 // Int64 typedef
 //
-#if defined(ICE_64)
-typedef long Int64;
-#elif defined(_MSC_VER)
+#if defined(_MSC_VER)
+//
+// On Windows, long is always 32-bit
+//
 typedef __int64 Int64;
+#elif defined(ICE_64)
+typedef long Int64;
 #else
 typedef long long Int64;
 #endif
@@ -184,10 +187,10 @@ typedef long long Int64;
 //
 // ICE_INT64: macro for Int64 literal values
 //
-#if defined(ICE_64)
-#   define ICE_INT64(n) n##L
-#elif defined(_MSC_VER)
+#if defined(_MSC_VER)
 #   define ICE_INT64(n) n##i64
+#elif defined(ICE_64)
+#   define ICE_INT64(n) n##L
 #else
 #   define ICE_INT64(n) n##LL
 #endif

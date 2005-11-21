@@ -69,7 +69,8 @@ Ice::EventLoggerI::EventLoggerI(const string& appName) :
     // The event resources are bundled into this DLL, therefore the
     // "EventMessageFile" key should contain the path to this DLL.
     //
-    err = RegSetValueEx(hKey, "EventMessageFile", 0, REG_EXPAND_SZ, (unsigned char*)path, strlen(path) + 1);
+    err = RegSetValueEx(hKey, "EventMessageFile", 0, REG_EXPAND_SZ, 
+			(unsigned char*)path, static_cast<DWORD>(strlen(path) + 1));
     if(err != ERROR_SUCCESS)
     {
         RegCloseKey(hKey);

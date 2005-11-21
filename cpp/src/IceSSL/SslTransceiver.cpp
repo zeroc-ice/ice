@@ -756,22 +756,22 @@ IceSSL::SslTransceiver::select(int timeout, bool write)
         {
             if(write)
             {
-                ret = ::select(fd + 1, 0, &rwFdSet, 0, &tv);
+                ret = ::select(static_cast<int>(fd + 1), 0, &rwFdSet, 0, &tv);
             }
             else
             {
-                ret = ::select(fd + 1, &rwFdSet, 0, 0, &tv);
+                ret = ::select(static_cast<int>(fd + 1), &rwFdSet, 0, 0, &tv);
             }
         }
         else
         {
             if(write)
             {
-                ret = ::select(fd + 1, 0, &rwFdSet, 0, 0);
+                ret = ::select(static_cast<int>(fd + 1), 0, &rwFdSet, 0, 0);
             }
             else
             {
-                ret = ::select(fd + 1, &rwFdSet, 0, 0, 0);
+                ret = ::select(static_cast<int>(fd + 1), &rwFdSet, 0, 0, 0);
             }
         }
     }

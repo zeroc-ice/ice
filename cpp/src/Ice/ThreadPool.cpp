@@ -336,11 +336,11 @@ IceInternal::ThreadPool::run()
 	    struct timeval tv;
 	    tv.tv_sec = _timeout;
 	    tv.tv_usec = 0;
-	    ret = ::select(_maxFd + 1, &fdSet, 0, 0, &tv);
+	    ret = ::select(static_cast<int>(_maxFd + 1), &fdSet, 0, 0, &tv);
 	}
 	else
 	{
-	    ret = ::select(_maxFd + 1, &fdSet, 0, 0, 0);
+	    ret = ::select(static_cast<int>(_maxFd + 1), &fdSet, 0, 0, 0);
 	}
 	
 	if(ret == SOCKET_ERROR)

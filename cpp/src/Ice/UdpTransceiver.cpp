@@ -94,8 +94,14 @@ IceInternal::UdpTransceiver::write(Buffer& buf, int)
 repeat:
 
     assert(_fd != INVALID_SOCKET);
-    ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&buf.b[0]), buf.b.size(), 0);
-    
+#ifdef _WIN32
+    ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&buf.b[0]), 
+			 static_cast<int>(buf.b.size()), 0);
+#else
+    ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&buf.b[0]), 
+			 buf.b.size(), 0);
+#endif    
+
     if(ret == SOCKET_ERROR)
     {
 	if(interrupted())
@@ -109,7 +115,7 @@ repeat:
 
 	    assert(_fd != INVALID_SOCKET);
 	    FD_SET(_fd, &_wFdSet);
-	    int rs = ::select(_fd + 1, 0, &_wFdSet, 0, 0);
+	    int rs = ::select(static_cast<int>(_fd + 1), 0, &_wFdSet, 0, 0);
 	    
 	    if(rs == SOCKET_ERROR)
 	    {
@@ -225,7 +231,7 @@ repeat:
 	    
 	    assert(_fd != INVALID_SOCKET);
 	    FD_SET(_fd, &_rFdSet);
-	    int rs = ::select(_fd + 1, &_rFdSet, 0, 0, 0);
+	    int rs = ::select(static_cast<int>(_fd + 1), &_rFdSet, 0, 0, 0);
 
 	    if(rs == SOCKET_ERROR)
 	    {

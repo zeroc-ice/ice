@@ -1,3 +1,9 @@
+Changes since version 3.0.0
+---------------------------
+
+- Windows x64 port; INSTALL.WINDOWS now shows how to target the
+  x64 platform.
+
 Changes since version 2.1.2
 ---------------------------
 

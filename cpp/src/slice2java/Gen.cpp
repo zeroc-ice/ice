@@ -1691,7 +1691,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	out << nl << "__is.startReadSlice();";
         iter = 0;
 	DataMemberList classMembers = p->classDataMembers();
-	long classMemberCount = allClassMembers.size() - classMembers.size();
+	size_t classMemberCount = allClassMembers.size() - classMembers.size();
         for(d = members.begin(); d != members.end(); ++d)
         {
             StringList metaData = (*d)->getMetaData();
@@ -2002,7 +2002,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	out << nl << "__is.startReadSlice();";
         iter = 0;
 	DataMemberList classMembers = p->classDataMembers();
-	long classMemberCount = allClassMembers.size() - classMembers.size();
+	size_t classMemberCount = allClassMembers.size() - classMembers.size();
         for(d = members.begin(); d != members.end(); ++d)
         {
 	    ostringstream patchParams;

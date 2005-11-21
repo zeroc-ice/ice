@@ -750,7 +750,7 @@ Ice::Service::startService(const string& name, const vector<string>& args)
     // in argv[0], so the argv that is passed to StartService() must *not* include the
     // the service name in argv[0].
     //
-    const int argc = args.size();
+    const int argc = static_cast<int>(args.size());
     LPCSTR* argv = new LPCSTR[argc];
     int i = 0;
     for(vector<string>::const_iterator p = args.begin(); p != args.end(); ++p)
@@ -1264,7 +1264,7 @@ Ice::Service::serviceMain(int argc, char* argv[])
     {
         args[i++] = argv[j];
     }
-    argc += _serviceArgs.size();
+    argc += static_cast<int>(_serviceArgs.size());
 
     //
     // If we can't initialize a communicator, then stop immediately.

@@ -1033,7 +1033,7 @@ Activator::terminationListener()
         //
         // Wait for a child to terminate, or the interrupt event to be signaled.
         //
-        DWORD ret = WaitForMultipleObjects(handles.size(), &handles[0], FALSE, INFINITE);
+        DWORD ret = WaitForMultipleObjects(static_cast<DWORD>(handles.size()), &handles[0], FALSE, INFINITE);
         if(ret == WAIT_FAILED)
         {
             SyscallException ex(__FILE__, __LINE__);

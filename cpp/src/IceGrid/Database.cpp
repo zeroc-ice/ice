@@ -760,7 +760,7 @@ Database::getAdapters(const string& id, bool allRegistered, int& endpointCount)
 	    ++p;
 	}
 	random_shuffle(adpts.begin(), adpts.end());
-	endpointCount = adpts.size();
+	endpointCount = static_cast<int>(adpts.size());
 	return adpts;
     }
 

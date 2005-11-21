@@ -14,18 +14,15 @@
 // This header file disables various annoying compiler warnings that
 // we don't want.
 //
-// IMPORTANT: Do *not* include this header file in another header file!
+// IMPORTANT: Do *not* include this header file in another public header file!
 //            Doing this may potentially disable the warnings in the source
 //            code of our customers, which would be bad. Only include this
 //            header file in Ice *source* files!
 //
 
-#if _WIN32 && _MSC_VER >= 1400
-
+#if defined(_MSC_VER) && _MSC_VER >= 1400
 #    define _CRT_SECURE_NO_DEPRECATE 1	// C4996 '<C function>' was declared deprecated/
-
-#    pragma warning(disable: 4996)	// C4996 'std::<function>' was declared deprecated
-
+#    pragma warning( 4 : 4996 )	// C4996 'std::<function>' was declared deprecated
 #endif
 
 #endif

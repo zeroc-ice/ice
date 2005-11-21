@@ -712,7 +712,11 @@ repeatConnect:
 SOCKET
 IceInternal::doAccept(SOCKET fd, int timeout)
 {
+#ifdef _WIN32
+    SOCKET ret;
+#else
     int ret;
+#endif
 
 repeatAccept:
     if((ret = ::accept(fd, 0, 0)) == INVALID_SOCKET)
@@ -734,11 +738,11 @@ repeatAccept:
 		struct timeval tv;
 		tv.tv_sec = timeout / 1000;
 		tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-		rs = ::select(fd + 1, &fdSet, 0, 0, &tv);
+		rs = ::select(static_cast<int>(fd + 1), &fdSet, 0, 0, &tv);
 	    }
 	    else
 	    {
-		rs = ::select(fd + 1, &fdSet, 0, 0, 0);
+		rs = ::select(static_cast<int>(fd + 1), &fdSet, 0, 0, 0);
 	    }
 	    
 	    if(rs == SOCKET_ERROR)
@@ -1447,7 +1451,9 @@ IceInternal::getLocalAddresses()
         vector<unsigned char> buffer;
         buffer.resize(1024);
         unsigned long len = 0;
-        DWORD rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, &buffer[0], buffer.size(), &len, 0, 0);
+        DWORD rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, 
+			    &buffer[0], static_cast<DWORD>(buffer.size()),
+			    &len, 0, 0);
         if(rs == SOCKET_ERROR)
         {
             //
@@ -1457,7 +1463,9 @@ IceInternal::getLocalAddresses()
             if(getSocketErrno() == WSAEFAULT)
             {
                 buffer.resize(len);
-                rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, &buffer[0], buffer.size(), &len, 0, 0);
+                rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, 
+			      &buffer[0], static_cast<DWORD>(buffer.size()),
+			      &len, 0, 0);
             }
 
             if(rs == SOCKET_ERROR)

@@ -858,10 +858,10 @@ string
 FreezeScript::IntegerData::toString(Ice::Long value)
 {
     char buf[64];
-#ifdef ICE_64
-    sprintf(buf, "%ld", value);
-#elif defined(_WIN32)
+#if defined(_WIN32)
     sprintf(buf, "%I64d", value);
+#elif defined(ICE_64)
+    sprintf(buf, "%ld", value);
 #else
     sprintf(buf, "%lld", value);
 #endif

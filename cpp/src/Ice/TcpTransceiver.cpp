@@ -129,11 +129,11 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 		    struct timeval tv;
 		    tv.tv_sec = timeout / 1000;
 		    tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-		    rs = ::select(_fd + 1, 0, &_wFdSet, 0, &tv);
+		    rs = ::select(static_cast<int>(_fd + 1), 0, &_wFdSet, 0, &tv);
 		}
 		else
 		{
-		    rs = ::select(_fd + 1, 0, &_wFdSet, 0, 0);
+		    rs = ::select(static_cast<int>(_fd + 1), 0, &_wFdSet, 0, 0);
 		}
 		
 		if(rs == SOCKET_ERROR)
@@ -245,11 +245,11 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 		    struct timeval tv;
 		    tv.tv_sec = timeout / 1000;
 		    tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-		    rs = ::select(_fd + 1, &_rFdSet, 0, 0, &tv);
+		    rs = ::select(static_cast<int>(_fd + 1), &_rFdSet, 0, 0, &tv);
 		}
 		else
 		{
-		    rs = ::select(_fd + 1, &_rFdSet, 0, 0, 0);
+		    rs = ::select(static_cast<int>(_fd + 1), &_rFdSet, 0, 0, 0);
 		}
 		
 		if(rs == SOCKET_ERROR)

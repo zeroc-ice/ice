@@ -321,7 +321,7 @@ AdminI::patchApplication_async(const AMD_Admin_patchApplicationPtr& amdCB,
 	return;
     }
 
-    PatchAggregatorPtr aggregator = new PatchAggregator(amdCB, _traceLevels, name, nodes.size());
+    PatchAggregatorPtr aggregator = new PatchAggregator(amdCB, _traceLevels, name, static_cast<int>(nodes.size()));
     for(vector<string>::const_iterator p = nodes.begin(); p != nodes.end(); ++p)
     {
 	if(_traceLevels->patch > 0)
