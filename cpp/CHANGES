@@ -1,6 +1,11 @@
 Changes since version 3.0.0
 ---------------------------
 
+- Fixed a bug where the IceGrid node could incorrectly remove
+  configuration files or database environment directories if they were
+  not specified in alphabetical order (sorted by name) in the
+  descriptor.
+
 - Added --enable-new-dtags to Linux linker options.
 
 - Added support for Apple Xcode 2.2.

@@ -1328,7 +1328,8 @@ ServerI::updateImpl()
 	    knownFiles.push_back("config_" + p->descriptor->name);
 	}
     }
-
+    sort(knownFiles.begin(), knownFiles.end());
+    
     //
     // Remove old configuration files.
     //
@@ -1374,6 +1375,7 @@ ServerI::updateImpl()
 	    }
 	}
     }
+    sort(knownDbEnvs.begin(), knownDbEnvs.end());
 
     //
     // Remove old database environments.
