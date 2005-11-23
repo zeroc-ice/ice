@@ -14,7 +14,7 @@ module MetadataTest
     dictionary<string, Object> ObjectDict;
     ["java:type:java.util.TreeMap"] dictionary<string, Object> ObjectMap;
 
-    class C
+    ["java:getset"] class C
     {
         IntSeq intSeqMember;
         IntList intListMember;

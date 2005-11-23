@@ -527,7 +527,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    out << sb << nl;
 	    if(ret)
 	    {
-		out << nl << "return ";
+		out << "return ";
 	    }
 	    out << opName << spar << args << "null" << epar << ';';
 	    out << eb;
@@ -2455,9 +2455,116 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     ContainerPtr container = p->container();
     ContainedPtr contained = ContainedPtr::dynamicCast(container);
     StringList metaData = p->getMetaData();
-    string s = typeToString(p->type(), TypeModeMember, getPackage(contained), metaData);
+    TypePtr type = p->type();
+    string s = typeToString(type, TypeModeMember, getPackage(contained), metaData);
     Output& out = output();
     out << sp << nl << "public " << s << ' ' << name << ';';
+
+    //
+    // Getter/Setter.
+    //
+    if(p->hasMetaData(_getSetMetaData) || contained->hasMetaData(_getSetMetaData))
+    {
+	string capName = p->name();
+	capName[0] = toupper(capName[0]);
+
+	//
+	// If container is a class, get all of its operations so that we can check for conflicts.
+	//
+	OperationList ops;
+	string file, line;
+	ClassDefPtr cls = ClassDefPtr::dynamicCast(container);
+	if(cls)
+	{
+	    ops = cls->allOperations();
+	    DefinitionContextPtr dc = p->definitionContext();
+	    file = dc->filename();
+	    line = p->line();
+	    if(!validateGetterSetter(ops, "get" + capName, 0, file, line) ||
+	       !validateGetterSetter(ops, "set" + capName, 1, file, line))
+	    {
+		return;
+	    }
+	}
+
+	//
+	// Getter.
+	//
+	out << sp << nl << "public " << s;
+	out << nl << "get" << capName << "()";
+	out << sb;
+	out << nl << "return " << name << ';';
+	out << eb;
+
+	//
+	// Setter.
+	//
+	out << sp << nl << "public void";
+	out << nl << "set" << capName << '(' << s << " _" << name << ')';
+	out << sb;
+	out << nl << name << " = _" << name << ';';
+	out << eb;
+
+	//
+	// Check for bool type.
+	//
+	BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+	if(b && b->kind() == Builtin::KindBool)
+	{
+	    if(cls && !validateGetterSetter(ops, "is" + capName, 0, file, line))
+	    {
+		return;
+	    }
+	    out << sp << nl << "public boolean";
+	    out << nl << "is" << capName << "()";
+	    out << sb;
+	    out << nl << "return " << name << ';';
+	    out << eb;
+	}
+
+	//
+	// Check for unmodified sequence type and emit indexing methods.
+	//
+	SequencePtr seq = SequencePtr::dynamicCast(type);
+	if(seq)
+	{
+	    string md = findMetaData(metaData);
+	    if(md.empty())
+	    {
+		StringList l = seq->getMetaData();
+		md = findMetaData(l);
+	    }
+	    if(md.empty())
+	    {
+		if(cls &&
+		   (!validateGetterSetter(ops, "get" + capName, 1, file, line) ||
+		    !validateGetterSetter(ops, "set" + capName, 2, file, line)))
+		{
+		    return;
+		}
+
+		string elem = typeToString(seq->type(), TypeModeMember, getPackage(contained));
+
+		//
+		// Indexed getter.
+		//
+		out << sp << nl << "public " << elem;
+		out << nl << "get" << capName << "(int _index)";
+		out << sb;
+		out << nl << "return " << name << "[_index];";
+		out << eb;
+
+		//
+		// Indexed setter.
+		//
+		out << sp << nl << "public void";
+		out << nl << "set" << capName << "(int _index, " << elem << " _val)";
+		out << sb;
+		out << nl << name << "[_index] = _val;";
+		out << eb;
+	    }
+	}
+    }
 }
 
 void
@@ -2731,6 +2838,27 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     }
     out << ';' << eb;
     close();
+}
+
+bool
+Slice::Gen::TypesVisitor::validateGetterSetter(const OperationList& ops, const std::string& name, int numArgs,
+					       const string& file, const string& line)
+{
+    for(OperationList::const_iterator i = ops.begin(); i != ops.end(); ++i)
+    {
+	if((*i)->name() == name)
+	{
+	    int numParams = static_cast<int>((*i)->parameters().size());
+	    if(numArgs >= numParams && numArgs - numParams <= 1)
+	    {
+		cerr << file << ":" << line
+		     << ": error: operation `" << name << "' conflicts with getter/setter method" << endl;
+		return false;
+	    }
+	    break;
+	}
+    }
+    return true;
 }
 
 Slice::Gen::HolderVisitor::HolderVisitor(const string& dir, bool stream) :

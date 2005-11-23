@@ -131,11 +131,17 @@ private:
         virtual void visitExceptionEnd(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitStructEnd(const StructPtr&);
+        virtual void visitDataMember(const DataMemberPtr&);
         virtual void visitEnum(const EnumPtr&);
         virtual void visitConst(const ConstPtr&);
-        virtual void visitDataMember(const DataMemberPtr&);
 
     private:
+
+	//
+	// Verifies that a getter/setter method does not conflict with an operation.
+	//
+	bool validateGetterSetter(const OperationList&, const std::string&, int, const std::string&,
+				  const std::string&);
 
         bool _stream;
     };

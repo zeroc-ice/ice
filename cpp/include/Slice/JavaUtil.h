@@ -152,15 +152,17 @@ protected:
                                                  const StringList& = StringList());
 
     //
-    // Find custom sequence metadata.
+    // Find custom type metadata.
+    //
+    // TODO: Rename to findTypeMetaData.
     //
     static std::string findMetaData(const StringList&);
-
-protected:
 
     virtual JavaOutput* createOutput();
 
     Slice::FeatureProfile _featureProfile;
+
+    static const std::string _getSetMetaData;
 
 private:
 
@@ -183,7 +185,8 @@ private:
     private:
 
         StringList getMetaData(const ContainedPtr&);
-	void validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, const std::string&);
+	void validateType(const SyntaxTreeBasePtr&, const StringList&, const std::string&, const std::string&);
+	void validateGetSet(const SyntaxTreeBasePtr&, const StringList&, const std::string&, const std::string&);
 
         StringSet _history;
     };
