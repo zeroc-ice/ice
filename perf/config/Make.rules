@@ -19,6 +19,9 @@
 #
 #ICE_HOME	?= 
 
+OMNIORB_HOME		?= /home/benoit/perf/omniORB-4.0.6
+OMNIORBBUILD_HOME	?= $(OMNIORB_HOME)/build
+
 #
 # Define DEBUG as yes if you want to build with debug information.
 #
@@ -36,9 +39,12 @@ endif
 
 ifeq ($(ICE_HOME),)
   ifeq ($(TAO_HOME),)
-    $(error Please define ICE_HOME or TAO_HOME! See config/Make.rules)
+    ifeq ($(OMNIORB_HOME),)
+      $(error Please define ICE_HOME, OMNIORB_HOME or TAO_HOME! See config/Make.rules)
+    endif
   endif
 endif
+
 
 OPTIMIZE		= yes
 
@@ -70,7 +76,7 @@ SLICE2CPP		= $(ICE_HOME)/bin/slice2cpp
 EVERYTHING		= all depend clean install
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .o .py
+.SUFFIXES:		.cc .cpp .o .py
 
 all:: $(SRCS)
 
@@ -79,6 +85,9 @@ all:: $(SRCS)
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice	
 
 .cpp.o:
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+
+.cc.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
 clean::

@@ -56,7 +56,7 @@ class ClientServerTest(TestUtil.Test) :
     def execute(self, options):
         
         cwd = os.getcwd()
-        os.chdir(os.path.join(toplevel, "src", self.product, options["directory"]))
+        os.chdir(os.path.join(toplevel, "src", self.directory, options["directory"]))
 
         serverPipe = os.popen(os.path.join(".", "server") + " " + options["server"])
         TestUtil.getAdapterReady(serverPipe)
@@ -150,6 +150,49 @@ def runTAOPerfs(expr, results, i):
     test.run("4tp", "Thread_Pool", "throughput struct", "4")
     test.run("tpc", "Thread_Per_Connection", "throughput struct", "")
 
+def runOmniORBPerfs(expr, results, i, unixSockets):
+
+    threadPerConnection = "-ORBthreadPerConnectionPolicy 1"
+    threadPoolWithOpt = "-ORBthreadPerConnectionPolicy 0"
+    threadPoolWithoutOpt = "-ORBthreadPerConnectionPolicy 0 -ORBthreadPoolWatchConnection 0"
+    product = "omniORB (tcp)"
+    
+    if unixSockets:
+        threadPerConnection += " -ORBendPoint giop:unix::"
+        threadPoolWithOpt += " -ORBendPoint giop:unix::"
+        threadPoolWithoutOpt += " -ORBendPoint giop:unix::"
+        product = "omniORB (unix)"
+            
+    test = ClientServerTest(expr, results, i, product, "latency twoway", "omniORB")
+    test.run("1tp", "", "latency twoway", threadPoolWithoutOpt)
+    test.run("1tp w/ opt", "", "latency twoway", threadPoolWithOpt)
+    test.run("tpc", "", "latency twoway", threadPerConnection)
+    
+    test = ClientServerTest(expr, results, i, product, "latency oneway", "omniORB")
+    test.run("1tp", "", "latency oneway", threadPoolWithoutOpt)
+    test.run("1tp w/ opt", "", "latency oneway", threadPoolWithOpt)
+    test.run("tpc", "", "latency oneway", threadPerConnection)
+    
+    test = ClientServerTest(expr, results, i, product, "throughput byte", "omniORB")
+    test.run("1tp", "", "throughput byte", threadPoolWithoutOpt)
+    test.run("1tp w/ opt", "", "throughput byte", threadPoolWithOpt)
+    test.run("tpc", "", "throughput byte", threadPerConnection)
+    
+    test = ClientServerTest(expr, results, i, product, "throughput string seq", "omniORB")
+    test.run("1tp", "", "throughput string", threadPoolWithoutOpt)
+    test.run("1tp w/ opt", "", "throughput string", threadPoolWithOpt)
+    test.run("tpc", "", "throughput string", threadPerConnection)
+    
+    test = ClientServerTest(expr, results, i, product, "throughput long string seq", "omniORB")
+    test.run("1tp", "", "throughput longString", threadPoolWithoutOpt)
+    test.run("1tp w/ opt", "", "throughput longString", threadPoolWithOpt)
+    test.run("tpc", "", "throughput longString", threadPerConnection)
+    
+    test = ClientServerTest(expr, results, i, product, "throughput struct seq", "omniORB")
+    test.run("1tp", "", "throughput struct", threadPoolWithoutOpt)
+    test.run("1tp w/ opt", "", "throughput struct", threadPoolWithOpt)
+    test.run("tpc", "", "throughput struct", threadPerConnection)
+
 try:
     opts, pargs = getopt.getopt(sys.argv[1:], 'hi:o:n:', ['help', 'iter=', 'output=', 'hostname=']);
 except getopt.GetoptError:
@@ -199,6 +242,9 @@ while i <= niter:
             runIcePerfs(expr, results, i)
         if os.environ.has_key('TAO_HOME') or os.environ.has_key('TAO_ROOT'):
             runTAOPerfs(expr, results, i)
+        if os.environ.has_key('OMNIORB_HOME'):
+            runOmniORBPerfs(expr, results, i, 0)
+            runOmniORBPerfs(expr, results, i, 1)
         i += 1
     except KeyboardInterrupt:
         break

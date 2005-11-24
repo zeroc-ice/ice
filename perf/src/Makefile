@@ -17,6 +17,9 @@ ifdef TAO_HOME
     export ACE_ROOT := $(TAO_HOME)/..
     export TAO_ROOT := $(TAO_HOME)
 endif
+ifdef OMNIORB_HOME
+    SUBDIRS := omniORB $(SUBDIRS)
+endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

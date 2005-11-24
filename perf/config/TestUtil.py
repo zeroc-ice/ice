@@ -325,12 +325,16 @@ class AllResults :
         
 class Test :
 
-    def __init__(self, expr, results, i, product, test):
+    def __init__(self, expr, results, i, product, test, directory = ""):
         self.expr = expr
         self.results = results
         self.iteration = i
         self.product = product
         self.test = test
+        if directory != "":
+            self.directory = directory
+        else:
+            self.directory  = product
 
     def run(self, name, options):
 
