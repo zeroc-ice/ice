@@ -208,6 +208,7 @@ IceGrid:
     Registry.Admin.ReplicaGroupId
     Registry.Admin.Endpoints
     Registry.Admin.PublishedEndpoints
+    Registry.Admin.RegisterProcess
     Registry.Admin.ThreadPool.Size
     Registry.Admin.ThreadPool.SizeMax
     Registry.Admin.ThreadPool.SizeWarn
@@ -217,6 +218,7 @@ IceGrid:
     Registry.Client.ReplicaGroupId
     Registry.Client.Endpoints
     Registry.Client.PublishedEndpoints
+    Registry.Client.RegisterProcess
     Registry.Client.ThreadPool.Size
     Registry.Client.ThreadPool.SizeMax
     Registry.Client.ThreadPool.SizeWarn
@@ -228,6 +230,7 @@ IceGrid:
     Registry.Internal.ReplicaGroupId
     Registry.Internal.Endpoints
     Registry.Internal.PublishedEndpoints
+    Register.Internal.RegisterProcess
     Registry.Internal.ThreadPool.Size
     Registry.Internal.ThreadPool.SizeMax
     Registry.Internal.ThreadPool.SizeWarn
@@ -237,6 +240,7 @@ IceGrid:
     Registry.Server.ReplicaGroupId
     Registry.Server.Endpoints
     Registry.Server.PublishedEndpoints
+    Registry.Server.RegisterProcess
     Registry.Server.ThreadPool.Size
     Registry.Server.ThreadPool.SizeMax
     Registry.Server.ThreadPool.SizeWarn
@@ -267,6 +271,7 @@ IcePatch2:
     Admin.ReplicaGroupId
     Admin.Endpoints
     Admin.PublishedEndpoints
+    Admin.RegisterProcess
     Admin.ThreadPool.Size
     Admin.ThreadPool.SizeMax
     Admin.ThreadPool.SizeWarn
@@ -278,6 +283,7 @@ IcePatch2:
     Identity
     InstanceName
     PublishedEndpoints
+    RegisterProcess
     Remove
     Thorough
     ThreadPool.Size
@@ -424,6 +430,7 @@ Glacier2:
     Client.Endpoints
     Client.ForwardContext
     Client.PublishedEndpoints
+    Client.RegisterProcess
     Client.SleepTime
     Client.Trace.Override
     Client.Trace.Reject
@@ -437,6 +444,7 @@ Glacier2:
     Server.Endpoints
     Server.ForwardContext
     Server.PublishedEndpoints
+    Server.RegisterProcess
     Server.SleepTime
     Server.Trace.Override
     Server.Trace.Request
