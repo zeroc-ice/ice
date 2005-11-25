@@ -172,7 +172,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 		error("only one <application> element is allowed");
 	    }
 
-	    if(_admin && attributes("import-default-templates", "false") == "true")
+	    if(_admin && attributes.asBool("import-default-templates", false))
 	    {
 		try
 		{

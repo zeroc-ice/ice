@@ -95,6 +95,52 @@ XmlAttributesHelper::asMap() const
     return _attributes;
 }
 
+bool
+XmlAttributesHelper::asBool(const string& name) const
+{
+    _used.insert(name);
+    IceXML::Attributes::const_iterator p = _attributes.find(name);
+    if(p == _attributes.end())
+    {
+	throw "missing attribute '" + name + "'";	
+    }
+    else if(p->second == "true")
+    {
+	return true;
+    }    
+    else if(p->second == "false")
+    {
+	return false;
+    }
+    else
+    {
+	throw "invalid attribute `" + name + "': value is not 'false' or 'true'";
+    }
+}
+
+bool
+XmlAttributesHelper::asBool(const string& name, bool def) const
+{
+    _used.insert(name);
+    IceXML::Attributes::const_iterator p = _attributes.find(name);
+    if(p == _attributes.end())
+    {
+	return def;
+    }
+    else if(p->second == "true")
+    {
+	return true;
+    }    
+    else if(p->second == "false")
+    {
+	return false;
+    }
+    else
+    {
+	throw "invalid attribute `" + name + "': value is not 'false' or 'true'";
+    }
+}
+
 void
 DescriptorBuilder::addVariable(const XmlAttributesHelper&)
 {
@@ -423,14 +469,14 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
 	desc.id = fqn + "." + desc.name;
     }
     desc.replicaGroupId = attrs("replica-group", "");
-    desc.registerProcess = attrs("register-process", "false") == "true";
+    desc.registerProcess = attrs.asBool("register-process", false);
     if(desc.id == "" && attrs.contains("wait-for-activation"))
     {
 	throw "the attribute `wait-for-activation' can only be set if the adapter has an non empty id";
     }
     else
     {
-	desc.waitForActivation = attrs("wait-for-activation", "true") == "true";
+	desc.waitForActivation = attrs.asBool("wait-for-activation", true);
     }
     _descriptor->adapters.push_back(desc);
 
@@ -530,7 +576,7 @@ ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttribut
     _descriptor->deactivationTimeout = attrs("deactivation-timeout", "");
     _descriptor->pwd = attrs("pwd", "");
     _descriptor->activation = attrs("activation", "manual");
-    _descriptor->applicationDistrib = attrs("application-distrib", "true") != "false";
+    _descriptor->applicationDistrib = attrs.asBool("application-distrib", true);
 }
 
 ServiceDescriptorBuilder*
@@ -621,14 +667,14 @@ IceBoxDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     assert(desc.name == "IceBox.ServiceManager");
     desc.id = attrs("id", desc.id);
     desc.replicaGroupId = attrs("replica-group", desc.replicaGroupId);
-    desc.registerProcess = attrs("register-process", desc.registerProcess ? "true" : "false") == "true";
+    desc.registerProcess = attrs.asBool("register-process", desc.registerProcess);
     if(desc.id == "" && attrs.contains("wait-for-activation"))
     {
 	throw "the attribute `wait-for-activation' can only be set if the adapter has an non empty id";
     }
     else
     {
-	desc.waitForActivation = attrs("wait-for-activation", desc.waitForActivation ? "true" : "false") == "true";
+	desc.waitForActivation = attrs.asBool("wait-for-activation", desc.waitForActivation);
     }
 
     if(attrs.contains("endpoints"))

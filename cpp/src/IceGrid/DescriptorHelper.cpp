@@ -309,20 +309,40 @@ Resolver::operator()(const string& value, const string& name, bool allowEmpty, b
 {
     try
     {
-	string val = substitute(value, useParams);
-	if(!allowEmpty && val.empty())
+	string val;
+	try
 	{
-	    throw "empty value";
+	    val = substitute(value, useParams);
+	}
+	catch(const string& reason)
+	{
+	    throw "invalid variable `" + value + "': " + reason;
+	}
+	catch(const char* reason)
+	{
+	    throw "invalid variable `" + value + "': " + reason;
+	}
+
+	if(!allowEmpty)
+	{
+	    if(value.empty())
+	    {
+		throw "empty string";
+	    }
+	    else if(val.empty())
+	    {
+		throw "the value of the variable `" + value + "' is an empty string";
+	    }
 	}
 	return val;
     }
     catch(const string& reason)
     {
-	exception("invalid value `" + value + "' for `" + name + "': " + reason);
+	exception("invalid value for attribute `" + name + "': " + reason);
     }
     catch(const char* reason)
     {
-	exception("invalid value `" + value + "' for `" + name + "': " + reason);
+	exception("invalid value for attribute `" + name + "': " + reason);
     }
     return ""; // To prevent compiler warning.
 }
@@ -444,7 +464,7 @@ Resolver::substitute(const string& v, bool useParams) const
 	end = value.find("}", beg);
 	if(end == string::npos)
 	{
-	    throw "malformed variable name";
+	    throw "malformed variable name `" + value + "'";
 	}
 
 	//

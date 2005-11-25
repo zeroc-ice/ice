@@ -27,6 +27,9 @@ public:
     bool contains(const std::string&) const;
     std::map<std::string, std::string> asMap() const;
 
+    bool asBool(const std::string&) const;
+    bool asBool(const std::string&, bool) const;
+
     std::string operator()(const std::string&) const;
     std::string operator()(const std::string&, const std::string&) const;
 
