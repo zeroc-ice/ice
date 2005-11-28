@@ -465,7 +465,11 @@ IcePatch2::readDirectory(const string& pa)
 #ifdef _WIN32
 
     struct _finddata_t data;
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+    long h = _findfirst(simplify((path + "/*")).c_str(), &data);
+#else
     intptr_t h = _findfirst(simplify((path + "/*")).c_str(), &data);
+#endif
     if(h == -1)
     {
 	throw "cannot read directory `" + path + "':\n" + lastError();

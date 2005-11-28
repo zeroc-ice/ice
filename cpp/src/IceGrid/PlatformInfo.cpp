@@ -45,22 +45,17 @@ PlatformInfo::PlatformInfo(const Ice::CommunicatorPtr& communicator, const Trace
     // Initialization of the necessary data structures to get the load average.
     //
 #if defined(_WIN32)
-    PDH_STATUS err = PdhOpenQuery(0, 0, &_query);
-    if(err != ERROR_SUCCESS)
-    {
-        Ice::SyscallException ex(__FILE__, __LINE__);
-        ex.error = err;
-	Ice::Warning out(_traceLevels->logger);
-	out << "can't open performance data query:\n" << ex;
-    }
-    err = PdhAddCounter(_query, "\\Processor(_Total)\\% Processor Time", 0, &_counter);
-    if(err != ERROR_SUCCESS)
-    {
-        Ice::SyscallException ex(__FILE__, __LINE__);
-        ex.error = err;
-	Ice::Warning out(_traceLevels->logger);
-	out << "can't add performance counter:\n" << ex;
-    }
+    //
+    // The performance counter query is lazy initialized. We can't
+    // initialize it in the constructor because it might be called
+    // when IceGrid is started on boot as a Windows service with the
+    // Windows service control manager (SCM) locked. The query
+    // initialization would fail (hang) because it requires to start
+    // the "WMI Windows Adapter" service (which can't be started
+    // because the SCM is locked...).
+    //
+    _query = NULL;
+    _counter = NULL;
     _usages1.insert(_usages1.end(), 1 * 60 / 5, 0); // 1 sample every 5 seconds during 1 minutes.
     _usages5.insert(_usages5.end(), 5 * 60 / 5, 0); // 1 sample every 5 seconds during 5 minutes.
     _usages15.insert(_usages15.end(), 15 * 60 / 5, 0); // 1 sample every 5 seconds during 15 minutes.
@@ -172,7 +167,10 @@ PlatformInfo::PlatformInfo(const Ice::CommunicatorPtr& communicator, const Trace
 PlatformInfo::~PlatformInfo()
 {
 #ifdef _WIN32
-    PdhCloseQuery(_query);
+    if(_query != NULL)
+    {
+	PdhCloseQuery(_query);
+    }
 #elif defined(_AIX)
     if(_kmem > 0)
     {
@@ -197,7 +195,26 @@ PlatformInfo::getLoadInfo()
 
 #if defined(_WIN32)
     int usage = 100;
-    if(PdhCollectQueryData(_query) == ERROR_SUCCESS)
+    if(_query == NULL)
+    {
+	PDH_STATUS err = PdhOpenQuery(0, 0, &_query);
+	if(err != ERROR_SUCCESS)
+	{
+	    Ice::SyscallException ex(__FILE__, __LINE__);
+	    ex.error = err;
+	    Ice::Warning out(_traceLevels->logger);
+	    out << "can't open performance data query:\n" << ex;
+	}
+	err = PdhAddCounter(_query, "\\Processor(_Total)\\% Processor Time", 0, &_counter);
+	if(err != ERROR_SUCCESS)
+	{
+	    Ice::SyscallException ex(__FILE__, __LINE__);
+	    ex.error = err;
+	    Ice::Warning out(_traceLevels->logger);
+	    out << "can't add performance counter:\n" << ex;
+	}
+    }
+    if(_query != NULL && PdhCollectQueryData(_query) == ERROR_SUCCESS)
     {
 	DWORD type;
 	PDH_FMT_COUNTERVALUE value;
