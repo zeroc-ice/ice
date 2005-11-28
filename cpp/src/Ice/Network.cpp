@@ -1397,6 +1397,7 @@ IceInternal::getLocalHosts()
         int rs = ioctl(fd, cmd, &ifc);
         if(rs == SOCKET_ERROR)
         {
+	    free(ifc.ifc_buf);
     	    closeSocketNoThrow(fd);
     	    SocketException ex(__FILE__, __LINE__);
     	    ex.error = getSocketErrno();
