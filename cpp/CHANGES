@@ -1,6 +1,9 @@
 Changes since version 3.0.0
 ---------------------------
 
+- Fixed a bug where the IceGrid node, if installed as a Windows
+  service, wouldn't correctly start on boot.
+
 - Fixed a bug where the IceGrid node could incorrectly remove
   configuration files or database environment directories if they were
   not specified in alphabetical order (sorted by name) in the
