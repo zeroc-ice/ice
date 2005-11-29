@@ -1545,6 +1545,7 @@ main(int argc, char* argv[])
 
     string fileH = args[0];
     fileH += "." + headerExtension;
+    string includeH = fileH;
     string fileC = args[0];
     fileC += "." + sourceExtension;
     if(!output.empty())
@@ -1695,7 +1696,7 @@ main(int argc, char* argv[])
 	{
 	    C << include << '/';
 	}
-	C << fileH << '>';
+	C << includeH << '>';
 
 	printVersionCheck(H);
 	printVersionCheck(C);

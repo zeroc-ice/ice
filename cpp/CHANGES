@@ -1,6 +1,10 @@
 Changes since version 3.0.0
 ---------------------------
 
+- Fixed a bug in slice2freeze in which using the --output-dir
+  option was causing include paths to be modified in generated
+  files.
+
 - Fixed a bug where the IceGrid node, if installed as a Windows
   service, wouldn't correctly start on boot.
 
