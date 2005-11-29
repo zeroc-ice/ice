@@ -13,8 +13,8 @@
 # protocol. Otherwise TCP is used.
 #
 
-#protocol = ""
-protocol = "ssl"
+protocol = ""
+#protocol = "ssl"
 
 #
 # Set compressed to 1 in case you want to run the tests with
@@ -229,6 +229,8 @@ commonServerOptions = " --Ice.PrintAdapterReady" + \
                       " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
                       " --Ice.ThreadPool.Server.SizeWarn=0"
 
+securityFileOptions = " -Djava.security.egd=file:/dev/urandom"
+
 clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions
 clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
@@ -247,8 +249,8 @@ cppClientServerOptions = cppClientServerProtocol + defaultHost + cppCommonServer
 
 def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions):
 
-    server = "java -ea Server --Ice.ProgramName=Server "
-    client = "java -ea Client --Ice.ProgramName=Client "
+    server = "java " + securityFileOptions + " -ea Server --Ice.ProgramName=Server "
+    client = "java " + securityFileOptions + " -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
     serverPipe = os.popen(server + serverOptions + additionalServerOptions  + " 2>&1")
@@ -270,8 +272,8 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
 
 def clientServerTestWithClasspath(serverClasspath, clientClasspath):
 
-    server = "java -ea Server --Ice.ProgramName=Server"
-    client = "java -ea Client --Ice.ProgramName=Client"
+    server = "java " + securityFileOptions + " -ea Server --Ice.ProgramName=Server"
+    client = "java " + securityFileOptions + " -ea Client --Ice.ProgramName=Client"
 
     classpath = os.getenv("CLASSPATH", "")
     scp = serverClasspath + sep + classpath
@@ -306,8 +308,8 @@ def clientServerTest():
 
 def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOptions):
 
-    server = "java -ea Server --Ice.ProgramName=Server "
-    client = "java -ea Client --Ice.ProgramName=Client "
+    server = "java " + securityFileOptions + " -ea Server --Ice.ProgramName=Server "
+    client = "java " + securityFileOptions + " -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
     serverPipe = os.popen(server + clientServerOptions + additionalServerOptions + " 2>&1")
@@ -333,7 +335,7 @@ def mixedClientServerTest():
 
 def collocatedTestWithOptions(additionalOptions):
 
-    collocated = "java -ea Collocated --Ice.ProgramName=Collocated "
+    collocated = "java " + securityFileOptions + " -ea Collocated --Ice.ProgramName=Collocated "
 
     print "starting collocated...",
     collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions + " 2>&1")

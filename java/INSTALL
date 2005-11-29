@@ -46,7 +46,9 @@ http://www.hp.com/products1/unix/java/java2/sdkrte14/downloads/index_pa-risc.htm
 When using the Ice for Java SSL plugin, you may experience occasional
 hangs. The most common reason is that your system's entropy pool is
 empty. A workaround is to edit <java.home>/jre/lib/security/java.security
-to use /dev/urandom instead of /dev/random.
+to use /dev/urandom instead of /dev/random. Alternatively, if you do not have
+permission to modify the security file you can use the -Djava.security.egd=file:/dev/urandom
+java command line option.
 
 
 Slice to Java translator
