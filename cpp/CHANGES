@@ -1,6 +1,10 @@
 Changes since version 3.0.0
 ---------------------------
 
+- Fixed a bug in IceGrid, in which on Windows environment variables
+  set in server descriptors would not override those already set in
+  the nodes environment.
+
 - Fixed a bug in slice2freeze in which using the --output-dir
   option was causing include paths to be modified in generated
   files.
