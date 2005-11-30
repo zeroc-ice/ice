@@ -481,6 +481,8 @@ Activator::activate(const string& name,
     //
     // Create the environment block for the child process. We start with the environment
     // of this process, and then merge environment variables from the server description.
+    // Since Windows is case insensitive wrt environment variables we convert the keys to
+    // uppercase to ensure matches are found.
     //
     const char* env = NULL;
     string envbuf;
@@ -506,7 +508,9 @@ Activator::activate(const string& name,
             string::size_type pos = s.find('=');
             if(pos != string::npos)
             {
-                envMap.insert(map<string, string>::value_type(s.substr(0, pos), s.substr(pos + 1)));
+	    	string key = s.substr(0, pos);
+		std::transform(key.begin(), key.end(), key.begin(), toupper);
+                envMap.insert(map<string, string>::value_type(key, s.substr(pos + 1)));
             }
             var += s.size();
             var++; // Skip the '\0' byte
@@ -518,7 +522,10 @@ Activator::activate(const string& name,
             string::size_type pos = s.find('=');
             if(pos != string::npos)
             {
-                envMap.insert(map<string, string>::value_type(s.substr(0, pos), s.substr(pos + 1)));
+	        string key = s.substr(0, pos);
+		std::transform(key.begin(), key.end(), key.begin(), toupper);
+		envMap.erase(key);
+                envMap.insert(map<string, string>::value_type(key, s.substr(pos + 1)));
             }
         }
         for(map<string, string>::const_iterator q = envMap.begin(); q != envMap.end(); ++q)
