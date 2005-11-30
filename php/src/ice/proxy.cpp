@@ -67,14 +67,18 @@ static zend_object_handlers _endpointHandlers;
 extern "C"
 {
 static zend_object_value handleProxyAlloc(zend_class_entry* TSRMLS_DC);
-static void handleProxyFreeStorage(zend_object* TSRMLS_DC);
+static void handleProxyFreeStorage(void* TSRMLS_DC);
 static zend_object_value handleProxyClone(zval* TSRMLS_DC);
+#if PHP_API_VERSION >= 20041225
+static union _zend_function* handleProxyGetMethod(zval**, char*, int TSRMLS_DC);
+#else
 static union _zend_function* handleProxyGetMethod(zval*, char*, int TSRMLS_DC);
+#endif
 static int handleProxyCompare(zval*, zval* TSRMLS_DC);
 ZEND_FUNCTION(Ice_ObjectPrx_call);
 
 static zend_object_value handleEndpointAlloc(zend_class_entry* TSRMLS_DC);
-static void handleEndpointFreeStorage(zend_object* TSRMLS_DC);
+static void handleEndpointFreeStorage(void* TSRMLS_DC);
 }
 
 namespace IcePHP
@@ -1292,26 +1296,26 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
             decl = Slice::ClassDeclPtr::dynamicCast(type);
         }
 
-        string scoped = decl->scoped();
-
         if(!decl)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "type %s is not a class or interface", scoped.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "type %s is not a class or interface", id);
             RETURN_NULL();
         }
 
         if(decl->isLocal())
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s is a local type", scoped.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s is a local type", id);
             RETURN_NULL();
         }
 
         Slice::ClassDefPtr def = decl->definition();
         if(!def)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s is declared but not defined", scoped.c_str());
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s is declared but not defined", id);
             RETURN_NULL();
         }
+
+        string scoped = decl->scoped();
 
         //
         // Verify that the script has compiled the Slice definition for this type.
@@ -1427,7 +1431,8 @@ IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, co
     Slice::ParamDeclList::const_iterator p;
     for(p = params.begin(), i = 0; p != params.end(); ++p, ++i)
     {
-        MarshalerPtr m = Marshaler::createMarshaler((*p)->type() TSRMLS_CC);
+	Slice::TypePtr paramType = (*p)->type();
+        MarshalerPtr m = Marshaler::createMarshaler(paramType TSRMLS_CC);
         if(!m)
         {
             break;
@@ -1436,6 +1441,20 @@ IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, co
         argInfo[i].name = NULL;
         argInfo[i].class_name = NULL;
         argInfo[i].allow_null = 1;
+#if PHP_API_VERSION >= 20041225
+	Slice::ContainedPtr cont = Slice::ContainedPtr::dynamicCast(paramType);
+	if(cont)
+	{
+	    argInfo[i].array_type_hint = ((cont->containedType() == Slice::Contained::ContainedTypeSequence ||
+					   cont->containedType() == Slice::Contained::ContainedTypeDictionary) ? 1 : 0);
+	}
+	else
+	{
+	    argInfo[i].array_type_hint = 0;
+	}
+        argInfo[i].return_reference = 0;
+        argInfo[i].required_num_args = static_cast<zend_uint>(params.size());
+#endif
         if((*p)->isOutParam())
         {
             argInfo[i].pass_by_reference = 1;
@@ -1457,6 +1476,10 @@ IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, co
     _zendFunction->num_args = static_cast<zend_uint>(params.size());
     _zendFunction->arg_info = argInfo;
     _zendFunction->pass_rest_by_reference = 0;
+#if PHP_API_VERSION >= 20041225
+    _zendFunction->required_num_args = _zendFunction->num_args;
+    _zendFunction->return_reference = 0;
+#endif
     _zendFunction->handler = ZEND_FN(Ice_ObjectPrx_call);
 }
 
@@ -1778,7 +1801,8 @@ handleProxyAlloc(zend_class_entry* ce TSRMLS_DC)
     ice_object* obj = newObject(ce TSRMLS_CC);
     assert(obj);
 
-    result.handle = zend_objects_store_put(obj, NULL, handleProxyFreeStorage, NULL TSRMLS_CC);
+    result.handle = zend_objects_store_put(obj, NULL, (zend_objects_free_object_storage_t)handleProxyFreeStorage,
+					   NULL TSRMLS_CC);
     result.handlers = &_proxyHandlers;
 
     return result;
@@ -1788,14 +1812,14 @@ handleProxyAlloc(zend_class_entry* ce TSRMLS_DC)
 extern "C"
 #endif
 static void
-handleProxyFreeStorage(zend_object* p TSRMLS_DC)
+handleProxyFreeStorage(void* p TSRMLS_DC)
 {
     ice_object* obj = (ice_object*)p;
     Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     delete _this;
 
-    zend_objects_free_object_storage(p TSRMLS_CC);
+    zend_objects_free_object_storage((zend_object*)p TSRMLS_CC);
 }
 
 #ifdef WIN32
@@ -1843,8 +1867,13 @@ handleProxyClone(zval* zv TSRMLS_DC)
 #ifdef WIN32
 extern "C"
 #endif
+#if PHP_API_VERSION >= 20041225
+static union _zend_function*
+handleProxyGetMethod(zval** zv, char* method, int len TSRMLS_DC)
+#else
 static union _zend_function*
 handleProxyGetMethod(zval* zv, char* method, int len TSRMLS_DC)
+#endif
 {
     zend_function* result;
 
@@ -1856,7 +1885,11 @@ handleProxyGetMethod(zval* zv, char* method, int len TSRMLS_DC)
     result = zend_get_std_object_handlers()->get_method(zv, method, len TSRMLS_CC);
     if(result == NULL)
     {
+#if PHP_API_VERSION >= 20041225
+        ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(*zv TSRMLS_CC));
+#else
         ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
+#endif
         assert(obj->ptr);
         Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
@@ -1939,7 +1972,8 @@ handleEndpointAlloc(zend_class_entry* ce TSRMLS_DC)
     ice_object* obj = newObject(ce TSRMLS_CC);
     assert(obj);
 
-    result.handle = zend_objects_store_put(obj, NULL, handleEndpointFreeStorage, NULL TSRMLS_CC);
+    result.handle = zend_objects_store_put(obj, NULL, (zend_objects_free_object_storage_t)handleEndpointFreeStorage,
+					   NULL TSRMLS_CC);
     result.handlers = &_endpointHandlers;
 
     return result;
@@ -1949,12 +1983,12 @@ handleEndpointAlloc(zend_class_entry* ce TSRMLS_DC)
 extern "C"
 #endif
 static void
-handleEndpointFreeStorage(zend_object* p TSRMLS_DC)
+handleEndpointFreeStorage(void* p TSRMLS_DC)
 {
     ice_object* obj = (ice_object*)p;
     Ice::EndpointPtr* _this = static_cast<Ice::EndpointPtr*>(obj->ptr);
 
     delete _this;
 
-    zend_objects_free_object_storage(p TSRMLS_CC);
+    zend_objects_free_object_storage((zend_object*)p TSRMLS_CC);
 }

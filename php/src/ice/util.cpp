@@ -289,8 +289,12 @@ IcePHP::newObject(zend_class_entry* ce TSRMLS_DC)
 
     obj = static_cast<ice_object*>(emalloc(sizeof(ice_object)));
     obj->zobj.ce = ce;
+#if PHP_API_VERSION >= 20041225
+    obj->zobj.guards = NULL;
+#else
     obj->zobj.in_get = 0;
     obj->zobj.in_set = 0;
+#endif
     obj->ptr = 0;
 
     obj->zobj.properties = static_cast<HashTable*>(emalloc(sizeof(HashTable)));

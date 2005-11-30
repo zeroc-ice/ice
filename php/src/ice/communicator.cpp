@@ -34,9 +34,14 @@ static zend_object_handlers _handlers;
 extern "C"
 {
 static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
-static void handleFreeStorage(zend_object* TSRMLS_DC);
 static zend_object_value handleClone(zval* TSRMLS_DC);
+static void handleFreeStorage(void* TSRMLS_DC);
+
+#if PHP_API_VERSION >= 20041225
+static union _zend_function* handleGetMethod(zval**, char*, int TSRMLS_DC);
+#else
 static union _zend_function* handleGetMethod(zval*, char*, int TSRMLS_DC);
+#endif
 }
 
 static void initCommunicator(ice_object* TSRMLS_DC);
@@ -527,7 +532,8 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
     ice_object* obj = newObject(ce TSRMLS_CC);
     assert(obj);
 
-    result.handle = zend_objects_store_put(obj, NULL, handleFreeStorage, NULL TSRMLS_CC);
+    result.handle = zend_objects_store_put(obj, NULL, (zend_objects_free_object_storage_t)handleFreeStorage,
+					   NULL TSRMLS_CC);
     result.handlers = &_handlers;
 
     return result;
@@ -536,8 +542,20 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
 #ifdef WIN32
 extern "C"
 #endif
+static zend_object_value
+handleClone(zval* zv TSRMLS_DC)
+{
+    zend_object_value result;
+    memset(&result, 0, sizeof(zend_object_value));
+    php_error_docref(NULL TSRMLS_CC, E_ERROR, "__clone is not supported for Ice_Communicator");
+    return result;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
 static void
-handleFreeStorage(zend_object* p TSRMLS_DC)
+handleFreeStorage(void* p TSRMLS_DC)
 {
     ice_object* obj = (ice_object*)p;
     if(obj->ptr)
@@ -556,26 +574,19 @@ handleFreeStorage(zend_object* p TSRMLS_DC)
         delete _this;
     }
 
-    zend_objects_free_object_storage(p TSRMLS_CC);
+    zend_objects_free_object_storage((zend_object*)p TSRMLS_CC);
 }
 
 #ifdef WIN32
 extern "C"
 #endif
-static zend_object_value
-handleClone(zval* zv TSRMLS_DC)
-{
-    zend_object_value result;
-    memset(&result, 0, sizeof(zend_object_value));
-    php_error_docref(NULL TSRMLS_CC, E_ERROR, "__clone is not supported for Ice_Communicator");
-    return result;
-}
-
-#ifdef WIN32
-extern "C"
-#endif
+#if PHP_API_VERSION >= 20041225
+static union _zend_function*
+handleGetMethod(zval** zv, char* method, int len TSRMLS_DC)
+#else
 static union _zend_function*
 handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
+#endif
 {
     //
     // Delegate to the standard implementation of get_method. We're simply using this hook
@@ -584,7 +595,11 @@ handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
     zend_function* result = zend_get_std_object_handlers()->get_method(zv, method, len TSRMLS_CC);
     if(result)
     {
+#if PHP_API_VERSION >= 20041225
+        ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(*zv TSRMLS_CC));
+#else
         ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
+#endif
         if(!obj->ptr)
         {
 	    if(ICE_G(profile) == NULL)
