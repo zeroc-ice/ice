@@ -2169,6 +2169,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     out << sp << nl << "public boolean" << nl << "equals(java.lang.Object rhs)";
     out << sb;
+    out << nl << "if(this == rhs)";
+    out << sb;
+    out << nl << "return true;";
+    out << eb;
     out << nl << typeS << " _r = null;";
     out << nl << "try";
     out << sb;
