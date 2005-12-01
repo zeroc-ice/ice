@@ -41,7 +41,7 @@ public:
     virtual SessionPrx createSession(const std::string&, const std::string&, const Ice::Current&);
     virtual void destroySession_async(const AMD_Router_destroySessionPtr&, const ::Ice::Current&);
 
-    RouterIPtr getRouter(const Ice::ConnectionPtr&) const;    
+    RouterIPtr getRouter(const Ice::ConnectionPtr&, const Ice::Identity&) const;    
     RouterIPtr getRouter(const std::string&) const;    
 
     void expireSessions();
@@ -51,6 +51,7 @@ private:
     const Ice::PropertiesPtr _properties;
     const Ice::LoggerPtr _logger;
     const int _sessionTraceLevel;
+    const int _rejectTraceLevel;
     const Ice::ObjectAdapterPtr _clientAdapter;
     const Ice::ObjectAdapterPtr _serverAdapter;
     const PermissionsVerifierPrx _verifier;

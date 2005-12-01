@@ -1,6 +1,9 @@
 Changes since version 3.0.0
 ---------------------------
 
+- The Glacier2 router now logs a warning if a request arrives on
+  an unknown connection if Glacier2.Client.Trace.Reject >= 1
+
 - Fixed a bug in IceGrid, in which on Windows environment variables
   set in server descriptors would not override those already set in
   the nodes environment.

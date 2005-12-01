@@ -30,7 +30,7 @@ public:
     virtual ObjectPtr
     locate(const Current& current, LocalObjectPtr&)
     {
-	return _sessionRouter->getRouter(current.con)->getClientBlobject();
+	return _sessionRouter->getRouter(current.con, current.id)->getClientBlobject();
     }
 
     virtual void
@@ -85,6 +85,7 @@ Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
     _properties(clientAdapter->getCommunicator()->getProperties()),
     _logger(clientAdapter->getCommunicator()->getLogger()),
     _sessionTraceLevel(_properties->getPropertyAsInt("Glacier2.Trace.Session")),
+    _rejectTraceLevel(_properties->getPropertyAsInt("Glacier2.Client.Trace.Reject")),
     _clientAdapter(clientAdapter),
     _serverAdapter(serverAdapter),
     _verifier(verifier),
@@ -213,19 +214,19 @@ Glacier2::SessionRouterI::destroy()
 ObjectPrx
 Glacier2::SessionRouterI::getClientProxy(const Current& current) const
 {
-    return getRouter(current.con)->getClientProxy(current); // Forward to the per-client router.
+    return getRouter(current.con, current.id)->getClientProxy(current); // Forward to the per-client router.
 }
 
 ObjectPrx
 Glacier2::SessionRouterI::getServerProxy(const Current& current) const
 {
-    return getRouter(current.con)->getServerProxy(current); // Forward to the per-client router.
+    return getRouter(current.con, current.id)->getServerProxy(current); // Forward to the per-client router.
 }
 
 void
 Glacier2::SessionRouterI::addProxy(const ObjectPrx& proxy, const Current& current)
 {
-    getRouter(current.con)->addProxy(proxy, current); // Forward to the per-client router.
+    getRouter(current.con, current.id)->addProxy(proxy, current); // Forward to the per-client router.
 }
 
 SessionPrx
@@ -559,7 +560,7 @@ Glacier2::SessionRouterI::destroySession_async(const AMD_Router_destroySessionPt
 }
 
 RouterIPtr
-Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection) const
+Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection, const Ice::Identity& id) const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
@@ -585,6 +586,12 @@ Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection) const
     }
     else
     {
+	if(_rejectTraceLevel >= 1)
+	{
+	    Trace out(_logger, "Glacier2");
+	    out << "rejecting request. no session is associated with the connection.\n";
+	    out << "identity: " << identityToString(id);
+	}
 	connection->close(true);
 	throw ObjectNotExistException(__FILE__, __LINE__);
     }
