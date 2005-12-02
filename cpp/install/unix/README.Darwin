@@ -56,6 +56,14 @@ Python 2.3 installed with Mac OS X 10.3. If you prefer to use Python
 2.4, you can download the Ice for Python source code from the ZeroC
 web site at http://www.zeroc.com/download.html.
 
+C#
+--
+
+Ice for C# requires Mono 1.1.10 or later. The following image can
+be downloaded at http://www.mono-project.com/Downloads:
+
+MonoFramework-1.1.10.dmg
+
 
 ======================================================================
 Berkeley DB and Expat
@@ -126,6 +134,19 @@ updated so that the interpreter can load the Ice extension and
 supporting Python files:
 
 $ export PYTHONPATH=$ICE_HOME/python:$PYTHONPATH
+
+C#/Mono
+-------
+
+You can update MONO_PATH with the directory containing the Ice for C#
+runtime libraries, as the following bash command shows:
+
+$ export MONO_PATH=$ICE_HOME/bin:$MONO_PATH
+
+Alternatively, you can add the libraries to the GAC yourself using a
+command like this:
+
+$ gacutil -i bin/icecs.dll
 
 
 ======================================================================
