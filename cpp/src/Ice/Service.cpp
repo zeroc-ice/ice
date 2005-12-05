@@ -669,7 +669,7 @@ Ice::Service::installService(const string& name, const string& display, const st
         hSCM,
         name.c_str(),
         disp.c_str(),
-        SC_MANAGER_ALL_ACCESS,
+        SERVICE_ALL_ACCESS,
         SERVICE_WIN32_OWN_PROCESS,
         SERVICE_AUTO_START,
         SERVICE_ERROR_NORMAL,
@@ -703,7 +703,7 @@ Ice::Service::uninstallService(const string& name)
         return EXIT_FAILURE;
     }
 
-    SC_HANDLE hService = OpenService(hSCM, name.c_str(), SC_MANAGER_ALL_ACCESS);
+    SC_HANDLE hService = OpenService(hSCM, name.c_str(), SERVICE_ALL_ACCESS);
     if(hService == NULL)
     {
         syserror("unable to open service `" + name + "'");
@@ -737,7 +737,7 @@ Ice::Service::startService(const string& name, const vector<string>& args)
         return EXIT_FAILURE;
     }
 
-    SC_HANDLE hService = OpenService(hSCM, name.c_str(), SC_MANAGER_ALL_ACCESS);
+    SC_HANDLE hService = OpenService(hSCM, name.c_str(), SERVICE_ALL_ACCESS);
     if(hService == NULL)
     {
         syserror("unable to open service `" + name + "'");
@@ -820,7 +820,7 @@ Ice::Service::stopService(const string& name)
         return EXIT_FAILURE;
     }
 
-    SC_HANDLE hService = OpenService(hSCM, name.c_str(), SC_MANAGER_ALL_ACCESS);
+    SC_HANDLE hService = OpenService(hSCM, name.c_str(), SERVICE_ALL_ACCESS);
     if(hService == NULL)
     {
         syserror("unable to open service `" + name + "'");
