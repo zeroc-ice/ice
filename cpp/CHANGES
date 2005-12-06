@@ -1,6 +1,9 @@
 Changes since version 3.0.0
 ---------------------------
 
+- Fixed a bug where the IceGrid node would fail to retrieve the CPU
+  utilization on localized Windows versions.
+
 - The Glacier2 router now logs a warning if a request arrives on
   an unknown connection if Glacier2.Client.Trace.Reject >= 1
 
