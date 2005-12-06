@@ -317,18 +317,28 @@ ServerEntry::getProxy(int& activationTimeout, int& deactivationTimeout, string& 
 	}
     }
 
-    syncImpl(true);
-
+    while(true)
     {
-	Lock sync(*this);
-	if(!_proxy)
+	syncImpl(true);
+
 	{
-	    throw ServerNotExistException(_id);
+	    Lock sync(*this);
+	    if(_proxy)
+	    {
+		activationTimeout = _activationTimeout;
+		deactivationTimeout = _deactivationTimeout;
+		node = _loaded->node;
+		return _proxy;
+	    }
+	    else if(_load.get())
+	    {
+		continue; // Retry
+	    }
+	    else
+	    {
+		throw ServerNotExistException(_id);
+	    }
 	}
-	activationTimeout = _activationTimeout;
-	deactivationTimeout = _deactivationTimeout;
-	node = _loaded->node;
-	return _proxy;
     }
 }
 
@@ -341,7 +351,16 @@ ServerEntry::getAdapter(const string& id)
 	Lock sync(*this);
 	if(_proxy) // Synced
 	{
-	    proxy = _adapters[id];
+	    AdapterPrxDict::const_iterator p = _adapters.find(id);
+	    if(p != _adapters.end())
+	    {
+		proxy = p->second;
+		assert(proxy);
+	    }
+	    else
+	    {
+		throw AdapterNotExistException(id);
+	    }
 	}
     }
 
@@ -350,23 +369,40 @@ ServerEntry::getAdapter(const string& id)
 	try
 	{
 	    proxy->ice_ping();
-	    return proxy;
+ 	    return proxy;
 	}
 	catch(const Ice::LocalException&)
 	{
 	}
     }
 
-    syncImpl(true);
-
+    while(true)
     {    
-	Lock sync(*this);
-	proxy = _adapters[id];
-	if(!proxy)
+	syncImpl(true);
+
 	{
-	    throw AdapterNotExistException(id);
+	    Lock sync(*this);
+	    if(_proxy) // Synced
+	    {
+		AdapterPrxDict::const_iterator p = _adapters.find(id);
+		if(p != _adapters.end())
+		{
+		    return p->second;
+		}
+		else
+		{
+		    throw AdapterNotExistException(id);		    
+		}
+	    }
+	    else if(_load.get())
+	    {
+		continue; // Retry
+	    }
+	    else
+	    {
+		throw AdapterNotExistException(id);		    
+	    }
 	}
-	return proxy;
     }
 }
 

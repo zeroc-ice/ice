@@ -184,13 +184,18 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _traceLevels(traceLevels),
     _name(name),
     _proxy(proxy),
-    _waitTime(adapter->getCommunicator()->getProperties()->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60)),
+    _waitTime(0),
     _serial(1),
     _platform(adapter->getCommunicator(), _traceLevels)
 {
     _dataDir = _platform.getDataDir();
     _serversDir = _dataDir + "/servers";
     _tmpDir = _dataDir + "/tmp";
+
+    Ice::PropertiesPtr properties = getCommunicator()->getProperties();
+    const string instanceNameProperty = "IceGrid.InstanceName";
+    const_cast<string&>(_instName) = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
+    const_cast<Ice::Int&>(_waitTime) = properties->getPropertyAsIntWithDefault("IceGrid.Node.WaitTime", 60);
 }
 
 NodeI::~NodeI()
@@ -540,10 +545,7 @@ NodeI::keepAlive()
     {
 	try
 	{
-	    Ice::PropertiesPtr properties = getCommunicator()->getProperties();
-	    const string instanceNameProperty = "IceGrid.InstanceName";
-	    string instName = properties->getPropertyWithDefault(instanceNameProperty, "IceGrid");
-	    Ice::ObjectPrx obj = getCommunicator()->stringToProxy(instName + "/Registry@IceGrid.Registry.Internal");
+	    Ice::ObjectPrx obj = getCommunicator()->stringToProxy(_instName + "/Registry@IceGrid.Registry.Internal");
 	    RegistryPrx registry = RegistryPrx::uncheckedCast(obj);
 	    NodeObserverPrx observer;
 	    setSession(registry->registerNode(_name, _proxy, _platform.getNodeInfo(), observer), observer);
@@ -893,7 +895,7 @@ Ice::Identity
 NodeI::createServerIdentity(const string& name)
 {
     Ice::Identity id;
-    id.category = "IceGridServer";
+    id.category = _instName + "-Server";
     id.name = name;
     return id;
 }

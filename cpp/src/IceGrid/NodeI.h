@@ -79,6 +79,7 @@ private:
     const std::string _name;
     const NodePrx _proxy;
     const Ice::Int _waitTime;
+    const std::string _instName;
     std::string _dataDir;
     std::string _serversDir;
     std::string _tmpDir;

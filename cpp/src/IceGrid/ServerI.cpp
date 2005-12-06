@@ -1743,7 +1743,7 @@ ServerI::addAdapter(const AdapterDescriptor& desc, const CommunicatorDescriptorP
     assert(!desc.id.empty());
 
     Ice::Identity id;
-    id.category = "IceGridServerAdapter";
+    id.category = _this->ice_getIdentity().category + "Adapter";
     id.name = _desc->id + "-" + desc.id;
     AdapterPrx proxy = AdapterPrx::uncheckedCast(_node->getAdapter()->createProxy(id));
     ServerAdapterIPtr servant = ServerAdapterIPtr::dynamicCast(_node->getAdapter()->find(id));
