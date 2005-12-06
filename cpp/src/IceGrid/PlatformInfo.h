@@ -37,6 +37,10 @@ public:
 
 private:
 
+#if defined(_WIN32)
+    void initQuery();
+#endif    
+
     const TraceLevelsPtr _traceLevels;
     NodeInfo _info;
     std::string _hostname;

@@ -20,6 +20,7 @@
 
 #if defined(_WIN32)
 #   include <direct.h> // For _getcwd
+#   include <pdhmsg.h> // For PDH_MORE_DATA
 #else
 #   include <sys/utsname.h>
 #   if defined(__APPLE__)
@@ -36,6 +37,37 @@
 
 using namespace std;
 using namespace IceGrid;
+
+#ifdef _WIN32
+namespace IceGrid
+{
+
+string
+getLocalizedPerfName(const map<string, string>& perfNames, const string& name)
+{
+    unsigned long idx;
+    map<string, string>::const_iterator p = perfNames.find(name);
+    if(p == perfNames.end())
+    {
+	return "";
+    }
+    istringstream is(p->second);
+    is >> idx;
+    
+    vector<char> localized;
+    unsigned long size = 256;
+    localized.resize(size);
+    while(PdhLookupPerfNameByIndex(0, idx, &localized[0], &size) == PDH_MORE_DATA)
+    {
+	size += 256;
+	localized.resize(size);
+    }
+    return string(&localized[0]);
+}
+
+};
+
+#endif
 
 PlatformInfo::PlatformInfo(const Ice::CommunicatorPtr& communicator, const TraceLevelsPtr& traceLevels) : 
     _traceLevels(traceLevels),
@@ -197,24 +229,9 @@ PlatformInfo::getLoadInfo()
     int usage = 100;
     if(_query == NULL)
     {
-	PDH_STATUS err = PdhOpenQuery(0, 0, &_query);
-	if(err != ERROR_SUCCESS)
-	{
-	    Ice::SyscallException ex(__FILE__, __LINE__);
-	    ex.error = err;
-	    Ice::Warning out(_traceLevels->logger);
-	    out << "can't open performance data query:\n" << ex;
-	}
-	err = PdhAddCounter(_query, "\\Processor(_Total)\\% Processor Time", 0, &_counter);
-	if(err != ERROR_SUCCESS)
-	{
-	    Ice::SyscallException ex(__FILE__, __LINE__);
-	    ex.error = err;
-	    Ice::Warning out(_traceLevels->logger);
-	    out << "can't add performance counter:\n" << ex;
-	}
+	initQuery();
     }
-    if(_query != NULL && PdhCollectQueryData(_query) == ERROR_SUCCESS)
+    if(_query != NULL && _counter != NULL && PdhCollectQueryData(_query) == ERROR_SUCCESS)
     {
 	DWORD type;
 	PDH_FMT_COUNTERVALUE value;
@@ -289,3 +306,69 @@ PlatformInfo::getDataDir() const
 {
     return _info.dataDir;
 }
+
+#ifdef _WIN32
+void
+PlatformInfo::initQuery()
+{
+    //
+    // Open the query
+    //
+    PDH_STATUS err = PdhOpenQuery(0, 0, &_query);
+    if(err != ERROR_SUCCESS)
+    {
+	Ice::SyscallException ex(__FILE__, __LINE__);
+	ex.error = err;
+	Ice::Warning out(_traceLevels->logger);
+	out << "can't open performance data query:\n" << ex;
+	return;
+    }
+
+    //
+    // Load the english perf name table.
+    //
+    vector<unsigned char> buffer;
+    unsigned long size = 32768; 
+    buffer.resize(size);
+    while(RegQueryValueEx(HKEY_PERFORMANCE_DATA, "Counter 09", 0, 0, &buffer[0], &size) == ERROR_MORE_DATA)
+    {
+	size += 8192;
+	buffer.resize(size);
+    }
+
+    map<string, string> perfNames;
+    const char* buf = reinterpret_cast<const char*>(&buffer[0]);
+    unsigned int i = 0;
+    while(i < buffer.size() && buf[i])
+    {
+	string index(&buf[i]);
+	i += index.size() + 1;
+	if(i >= buffer.size())
+	{
+	    break;
+	}
+	string name(&buf[i]);
+	i += name.size() + 1;
+	perfNames.insert(make_pair(name, index));
+    }
+
+    //
+    // Get the localized version of "Processor" and "%Processor Time"
+    //
+    string proc = getLocalizedPerfName(perfNames, "Processor");
+    string proctime = getLocalizedPerfName(perfNames, "% Processor Time");
+
+    //
+    // Add the counter
+    //
+    const string name = "\\" + proc + "(_Total)\\" + proctime;
+    err = PdhAddCounter(_query, name.c_str(), 0, &_counter);
+    if(err != ERROR_SUCCESS)
+    {
+	Ice::SyscallException ex(__FILE__, __LINE__);
+	ex.error = err;
+	Ice::Warning out(_traceLevels->logger);
+	out << "can't add performance counter `" << name << "':\n" << ex;
+    }
+}
+#endif
