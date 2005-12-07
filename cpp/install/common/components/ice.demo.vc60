@@ -1,0 +1,3 @@
+##% filespec
+include=*.cpp
+include=**/*.cpp

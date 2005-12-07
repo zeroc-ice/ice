@@ -1,0 +1,4 @@
+f,Release/libexpat.lib
+f,Release-w/libexpatw.lib
+f,Debug/libexpatd.lib
+f,Debug-w/libexpatwd.lib

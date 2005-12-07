@@ -1,0 +1,14 @@
+f,FreezeScript/Release/dumpdb		 
+f,FreezeScript/Release/transformdb
+f,Glacier2/Release/glacier2router
+f,IceBox/Release/icebox
+f,IceBox/Release/iceboxadmin
+f,icecpp/Release/icecpp
+f,IcePatch2/Release/icepatch2calc
+f,IcePatch2/Release/icepatch2client
+f,IcePatch2/Release/icepatch2server
+f,IceStorm/Release/icestormadmin
+f,slice2docbook/Release/slice2docbook
+f,IceGrid/Release/icegridadmin
+f,IceGrid/Release/icegridnode
+f,IceGrid/Release/icegridregistry

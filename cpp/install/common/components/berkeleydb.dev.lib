@@ -1,0 +1,2 @@
+f,build_win32/Debug/libdb%(dbver)sd.lib
+f,build_win32/Release/libdb%(dbver)s.lib
