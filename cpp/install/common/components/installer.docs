@@ -1,0 +1,3 @@
+include=*.*
+exclude=**.rtf
+exclude=THIRD_PARTY_SOURCES

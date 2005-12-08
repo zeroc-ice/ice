@@ -1,3 +1,14 @@
-##% filespec
-include=*.cpp
-include=**/*.cpp
+README
+include=**/*.*
+exclude=**/*.ncb
+exclude=**/*.suo
+exclude=**/*.exe
+exclude=**/*.ilk
+exclude=**/*.pdb
+exclude=**/*.plg
+exclude=**/.depend
+exclude=**/.dummy
+exclude=**/Makefile
+exclude=**/Debug/**
+exclude=**/Release/**
+exclude=Freeze/backup/**
