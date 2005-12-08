@@ -1,2 +1,4 @@
-##% filespec
-
+include=*.*
+exclude=**/.dummy
+exclude=**/classes/**
+exclude=**/generated/**

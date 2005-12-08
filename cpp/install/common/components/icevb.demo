@@ -1,1 +1,12 @@
-##% filespec
+*.*
+include=**/*.*
+exclude=**/*.vbproj*
+exclude=**/*.exe
+exclude=**/*.pdb
+exclude=**/*.dll
+exclude=**/*.bat
+exclude=**/.depend
+exclude=**/.dummy
+exclude=**/Makefile
+exclude=**/generated/**
+exclude=**/obj/**
