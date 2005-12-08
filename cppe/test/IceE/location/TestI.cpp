@@ -30,6 +30,13 @@ ServerManagerI::startServer(const Ice::Current&)
     int argc = 0;
     char** argv = 0;
 
+    for(::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
+    {
+	(*i)->waitForShutdown();
+	(*i)->destroy();
+    }
+    _communicators.clear();
+
     //
     // Simulate a server: create a new communicator and object
     // adapter. The object adapter is started on a system allocated
