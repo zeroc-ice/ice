@@ -153,7 +153,7 @@ Parser::addApplication(const list<string>& origArgs)
 
     if(args.size() < 1)
     {
-	error("`application add' requires at least one argument\n(`help' for more info)");
+	invalidCommand("`application add' requires at least one argument");
 	return;
     }
 
@@ -212,7 +212,7 @@ Parser::removeApplication(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`application remove' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`application remove' requires exactly one argument");
 	return;
     }
 
@@ -235,7 +235,7 @@ Parser::describeApplication(const list<string>& args)
 {
     if(args.size() < 1)
     {
-	error("`application describe' requires at least one argument\n(`help' for more info)");
+	invalidCommand("`application describe' requires at least one argument");
 	return;
     }
 
@@ -261,7 +261,7 @@ Parser::diffApplication(const list<string>& args)
 {
     if(args.size() < 1)
     {
-	error("`application diff' requires at least one argument\n(`help' for more info)");
+	invalidCommand("`application diff' requires at least one argument");
 	return;
     }
 
@@ -307,7 +307,7 @@ Parser::updateApplication(const list<string>& args)
 {
     if(args.size() < 1)
     {
-	error("`application diff' requires at least one argument\n(`help' for more info)");
+	invalidCommand("`application diff' requires at least one argument");
 	return;
     }
 
@@ -365,7 +365,7 @@ Parser::patchApplication(const list<string>& origArgs)
 
     if(args.size() != 1)
     {
-	error("`application patch' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`application patch' requires exactly one argument");
 	return;
     }
 
@@ -400,7 +400,7 @@ Parser::describeServerTemplate(const list<string>& args)
 {
     if(args.size() != 2)
     {
-	error("`server template describe' requires exactly two arguments\n(`help' for more info)");
+	invalidCommand("`server template describe' requires exactly two arguments");
 	return;
     }
 
@@ -451,7 +451,7 @@ Parser::instantiateServerTemplate(const list<string>& args)
 {
     if(args.size() < 3)
     {
-	error("`server template instantiate' requires at least three arguments\n(`help' for more info)");
+	invalidCommand("`server template instantiate' requires at least three arguments");
 	return;
     }
 
@@ -488,7 +488,7 @@ Parser::describeServiceTemplate(const list<string>& args)
 {
     if(args.size() != 2)
     {
-	error("`service template describe' requires exactly two arguments\n(`help' for more info)");
+	invalidCommand("`service template describe' requires exactly two arguments");
 	return;
     }
 
@@ -527,7 +527,7 @@ Parser::describeServiceTemplate(const list<string>& args)
 	}
 	else
 	{
-	    error("no service template with id `" + templ + "'");
+	    invalidCommand("no service template with id `" + templ + "'");
 	}
     }
     catch(const Ice::Exception& ex)
@@ -541,7 +541,7 @@ Parser::describeNode(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`node describe' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`node describe' requires exactly one argument");
 	return;
     }
 
@@ -571,7 +571,7 @@ Parser::pingNode(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`node ping' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`node ping' requires exactly one argument");
 	return;
     }
 
@@ -597,7 +597,7 @@ Parser::printLoadNode(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`node load' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`node load' requires exactly one argument");
 	return;
     }
 
@@ -617,7 +617,7 @@ Parser::shutdownNode(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`node shutdown' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`node shutdown' requires exactly one argument");
 	return;
     }
 
@@ -650,7 +650,7 @@ Parser::removeServer(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`server start' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`server start' requires exactly one argument");
 	return;
     }
 
@@ -676,7 +676,7 @@ Parser::startServer(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`server start' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`server start' requires exactly one argument");
 	return;
     }
 
@@ -699,7 +699,7 @@ Parser::stopServer(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`server stop' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`server stop' requires exactly one argument");
 	return;
     }
 
@@ -738,7 +738,7 @@ Parser::patchServer(const list<string>& origArgs)
 
     if(args.size() != 1)
     {
-	error("`server patch' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`server patch' requires exactly one argument");
 	return;
     }
 
@@ -757,7 +757,7 @@ Parser::signalServer(const list<string>& args)
 {
     if(args.size() != 2)
     {
-	error("`server signal' requires exactly two arguments\n(`help' for more info)");
+	invalidCommand("`server signal' requires exactly two arguments");
 	return;
     }
 
@@ -779,7 +779,7 @@ Parser::writeMessage(const list<string>& args, int fd)
 {
     if(args.size() != 2)
     {
-	error("`server stdout or server stderr' requires exactly two arguments\n(`help' for more info)");
+	invalidCommand("`server stdout or server stderr' requires exactly two arguments");
 	return;
     }
 
@@ -800,7 +800,7 @@ Parser::describeServer(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`server describe' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`server describe' requires exactly one argument");
 	return;
     }
     
@@ -830,7 +830,7 @@ Parser::stateServer(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`server state' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`server state' requires exactly one argument");
 	return;
     }
 
@@ -881,7 +881,7 @@ Parser::pidServer(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`server pid' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`server pid' requires exactly one argument");
 	return;
     }
 
@@ -902,11 +902,11 @@ Parser::enableServer(const list<string>& args, bool enable)
     {
 	if(enable)
 	{
-	    error("`server enable' requires exactly one argument\n(`help' for more info)");
+	    invalidCommand("`server enable' requires exactly one argument");
 	}
 	else
 	{
-	    error("`server disable' requires exactly one argument\n(`help' for more info)");
+	    invalidCommand("`server disable' requires exactly one argument");
 	}
 	return;
     }
@@ -940,7 +940,7 @@ Parser::endpointsAdapter(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`adapter endpoints' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`adapter endpoints' requires exactly one argument");
 	return;
     }
 
@@ -975,7 +975,7 @@ Parser::removeAdapter(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`adapter remove' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`adapter remove' requires exactly one argument");
 	return;
     }
 
@@ -1008,7 +1008,7 @@ Parser::addObject(const list<string>& args)
 {
     if(args.size() < 1)
     {
-	error("`object add' requires at least one argument\n(`help' for more info)");
+	invalidCommand("`object add' requires at least one argument");
 	return;
     }
 
@@ -1039,7 +1039,7 @@ Parser::removeObject(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`object remove' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`object remove' requires exactly one argument");
 	return;
     }
 
@@ -1058,7 +1058,7 @@ Parser::findObject(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`object find' requires exactly one argument\n(`help' for more info)");
+	invalidCommand("`object find' requires exactly one argument");
 	return;
     }
 
@@ -1360,6 +1360,18 @@ Parser::scanPosition(const char* s)
 	    _currentFile = line;
 	}
     }
+}
+
+void
+Parser::invalidCommand(const char* s)
+{
+    error(string(s) + "\n(`help' for more info)");
+}
+
+void
+Parser::invalidCommand(const string& s)
+{
+    invalidCommand(s.c_str());
 }
 
 void

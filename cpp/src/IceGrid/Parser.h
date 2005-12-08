@@ -122,6 +122,9 @@ public:
     const char* getPrompt();
     void scanPosition(const char*);
 
+    void invalidCommand(const char*);
+    void invalidCommand(const std::string&);
+
     void error(const char*);
     void error(const std::string&);
 
