@@ -260,9 +260,9 @@
 		<row><td>NewBinary16</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\InstallFirstUse.ico</td></row>
 		<row><td>NewBinary17</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\InstallPartial.ico</td></row>
 		<row><td>NewBinary18</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\InstallStateMenu.ico</td></row>
-		<row><td>NewBinary19</td><td/><td>&lt;ISProjectFolder&gt;\install\ice-common\installer-main.bmp</td></row>
+		<row><td>NewBinary19</td><td/><td>&lt;ISProjectFolder&gt;\install\ice\common\installer-main.bmp</td></row>
 		<row><td>NewBinary2</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\New.ibd</td></row>
-		<row><td>NewBinary20</td><td/><td>&lt;ISProjectFolder&gt;\install\ice-common\installer-header.bmp</td></row>
+		<row><td>NewBinary20</td><td/><td>&lt;ISProjectFolder&gt;\install\ice\common\installer-header.bmp</td></row>
 		<row><td>NewBinary3</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\Up.ibd</td></row>
 		<row><td>NewBinary4</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\WarningIcon.ibd</td></row>
 		<row><td>NewBinary5</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\IsDialogBitmap.ibd</td></row>
@@ -553,7 +553,7 @@
 		<row><td>LicenseAgreement</td><td>DlgDesc</td><td>Text</td><td>21</td><td>23</td><td>292</td><td>25</td><td>65539</td><td/><td>##IDS__IsLicenseDlg_ReadLicenseAgreement##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>LicenseAgreement</td><td>DlgLine</td><td>Line</td><td>48</td><td>234</td><td>326</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>LicenseAgreement</td><td>DlgTitle</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td/><td>##IDS__IsLicenseDlg_LicenseAgreement##</td><td/><td/><td>0</td><td/><td/><td/></row>
-		<row><td>LicenseAgreement</td><td>Memo</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td/><td>&lt;ISProjectFolder&gt;\install\ice-common\LICENSE.rtf</td><td/></row>
+		<row><td>LicenseAgreement</td><td>Memo</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td>0</td><td>&lt;ISProjectFolder&gt;\install\ice\common\LICENSE.rtf</td><td/></row>
 		<row><td>LicenseAgreement</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_NEXT##</td><td>Cancel</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>MaintenanceType</td><td>Back</td><td>PushButton</td><td>164</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_BACK##</td><td>Next</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>MaintenanceType</td><td>Banner</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td>NewBinary20</td></row>
@@ -1483,11 +1483,11 @@
 		<col def="S255">IncludeFiles</col>
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>IceCppDemo</td><td>&lt;ISProjectFolder&gt;\install\ice-cpp\demo</td><td>4</td><td/><td/><td>2</td></row>
-		<row><td>IceCppDev</td><td>&lt;ISProjectFolder&gt;\install\ice-cpp\dev</td><td>4</td><td/><td/><td>2</td></row>
-		<row><td>IceCppRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice-cpp\runtime</td><td>4</td><td/><td/><td>2</td></row>
-		<row><td>IceDoc</td><td>&lt;ISProjectFolder&gt;\install\ice-common\doc</td><td>4</td><td/><td/><td>0</td></row>
-		<row><td>IceManual</td><td>&lt;ISProjectFolder&gt;\install\ice-common\html</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceCppDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\demo</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceCppDev</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceCppRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceDoc</td><td>&lt;ISProjectFolder&gt;\install\ice\common\doc</td><td>4</td><td/><td/><td>0</td></row>
+		<row><td>IceManual</td><td>&lt;ISProjectFolder&gt;\install\ice\common\html</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>VisualStudioRuntime</td><td>&lt;ISProjectFolder&gt;\install\microsoft\runtime</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
