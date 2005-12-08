@@ -91,6 +91,7 @@
 	<copy todir="${stage.dir}/packages-common">
 	    <fileset dir="${doc.dir}">
 		<include name="**.rtf"/>
+		<!-- should be explicit -->
 	    </fileset>
 	</copy>
 	<copy file="${doc.dir}/THIRD_PARTY_LICENSE.rtf" tofile="${stage.dir}/packages-common/LICENSE.rtf"/>
@@ -102,13 +103,18 @@
 
     </target>
 
+    <!-- XXX Just about all of the copy overwrites are left to their default of
+    false.  This is either a good thing or a bad thing. It all depends if you
+    want to make it so you can edit something in the staging area and not have
+    it overwritten. -->
+
     <!-- Ice for C++ Runtime-->
     <target name="ice-cpp-runtime" depends="setup">
 
 	<!-- Binaries -->
 	<mkdir dir="${stage.dir}/ice-cpp/runtime/bin"/>
-	<copy todir="${stage.dir}/ice-cpp/runtime/bin" flatten="true">
-	    <fileset dir="${ice.dir}/bin">
+	<copy todir="${stage.dir}/ice-cpp/runtime/bin" flatten="true" verbose="true">
+	    <filelist dir="${ice.dir}/bin">
 		<include name="freeze30.dll"/>
 		<include name="glacier230.dll"/>
 		<include name="ice30.dll"/>
@@ -122,8 +128,8 @@
 		<include name="icexml30.dll"/>
 		<include name="slice30.dll"/>
 		<include name="icegrid30.dll"/>
-	    </fileset>
-	    <fileset dir="${ice.dir}/src">
+	    </filelist>
+	    <filelist dir="${ice.dir}/src">
 		<include name="FreezeScript/Release/dumpdb.exe"/>
 		<include name="FreezeScript/Release/transformdb.exe"/>
 		<include name="Glacier2/Release/glacier2router.exe"/>
@@ -138,7 +144,7 @@
 		<include name="IceGrid/Release/icegridadmin.exe"/>
 		<include name="IceGrid/Release/icegridnode.exe"/>
 		<include name="IceGrid/Release/icegridregistry.exe"/>
-	    </fileset>
+	    </filelist>
 	</copy>
 	<copy file="${icej.dir}/lib/IceGridGUI.jar" todir="${stage.dir}/ice-cpp/runtime/bin" flatten="true"/>
 
