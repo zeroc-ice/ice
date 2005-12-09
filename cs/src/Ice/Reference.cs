@@ -721,7 +721,7 @@ namespace IceInternal
 	    if(filteredConns.Length == 0)
 	    {
 		Ice.NoEndpointException ex = new Ice.NoEndpointException();
-		ex.proxy = ToString();
+		ex.proxy = ""; // No stringified representation for fixed proxies.
 		throw ex;
 	    }
 

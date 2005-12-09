@@ -470,7 +470,7 @@ IceInternal::FixedReference::getConnection() const
 	if(_fixedConnections.empty())
 	{
 	    NoEndpointException ex(__FILE__, __LINE__);
-	    ex.proxy = toString();
+	    ex.proxy = ""; // No stringified representation for fixed proxies.
 	    throw ex;
 	}
 

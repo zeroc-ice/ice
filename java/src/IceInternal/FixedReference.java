@@ -132,7 +132,7 @@ public class FixedReference extends Reference
 	if(filteredConns.length == 0)
 	{
 	    Ice.NoEndpointException ex = new Ice.NoEndpointException();
-	    ex.proxy = toString();
+	    ex.proxy = ""; // No stringified representation for fixed proxies.
 	    throw ex;
 	}
 
