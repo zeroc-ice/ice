@@ -1,12 +1,181 @@
-*.*
-include=**/*.*
-exclude=**/*.csproj*
-exclude=**/*.exe
-exclude=**/*.pdb
-exclude=**/*.dll
-exclude=**/*.bat
-exclude=**/.depend
-exclude=**/.dummy
-exclude=**/Makefile
-exclude=**/generated/**
-exclude=**/obj/**
+
+# To create an explicit listing for the demos run the following command
+# in the demo directory of the IceCS distribution:
+# find . -name "*" -type f | sed -e '/generated\|obj\|.exe$\|.dll$\|.depend\|\
+#      Makefile\|.pdb$\|\*.bat$\|.dummy\|[^D].csproj.*$/d' # | \
+#      sed -e 's/^\.\///' \
+# >> file
+#
+# If you want to use wild card searches instead of explicitly listing
+# files, you can delete the filenames and uncomment the following lines:
+#
+# *.*
+# include=**/*.*
+# exclude=**/*.csproj*
+# exclude=**/*.exe
+# exclude=**/*.pdb
+# exclude=**/*.dll
+# exclude=**/*.bat
+# exclude=**/.depend
+# exclude=**/.dummy
+# exclude=**/Makefile
+# exclude=**/generated/**
+# exclude=**/obj/**
+#
+# Stop uncommenting here
+# Delete from here to EOF
+
+book/evictor/EvictorBase.cs
+book/evictor/LinkedList.cs
+book/evictor/README
+book/printer/Client.cs
+book/printer/Printer.ice
+book/printer/printerCD.csproj
+book/printer/printerSD.csproj
+book/printer/README
+book/printer/Server.cs
+book/README
+book/simple_filesystem/Client.cs
+book/simple_filesystem/DirectoryI.cs
+book/simple_filesystem/FileI.cs
+book/simple_filesystem/Filesystem.ice
+book/simple_filesystem/README
+book/simple_filesystem/Server.cs
+book/simple_filesystem/simpleFSCD.csproj
+book/simple_filesystem/simpleFSSD.csproj
+demo.sln
+Glacier2/callback/Callback.ice
+Glacier2/callback/CallbackI.cs
+Glacier2/callback/CallbackReceiverI.cs
+Glacier2/callback/Client.cs
+Glacier2/callback/config
+Glacier2/callback/config.glacier2
+Glacier2/callback/config.server
+Glacier2/callback/config.sessionserver
+Glacier2/callback/glacier2callbackCD.csproj
+Glacier2/callback/glacier2callbackSD.csproj
+Glacier2/callback/glacier2callbackSSD.csproj
+Glacier2/callback/README
+Glacier2/callback/Server.cs
+Glacier2/callback/SessionI.cs
+Glacier2/callback/SessionManagerI.cs
+Glacier2/callback/SessionServer.cs
+Glacier2/README
+Ice/bidir/bidirCD.csproj
+Ice/bidir/bidirSD.csproj
+Ice/bidir/Callback.ice
+Ice/bidir/CallbackReceiverI.cs
+Ice/bidir/CallbackSenderI.cs
+Ice/bidir/Client.cs
+Ice/bidir/config
+Ice/bidir/README
+Ice/bidir/Server.cs
+Ice/callback/Callback.ice
+Ice/callback/callbackCD.csproj
+Ice/callback/CallbackReceiverI.cs
+Ice/callback/callbackSD.csproj
+Ice/callback/CallbackSenderI.cs
+Ice/callback/Client.cs
+Ice/callback/config
+Ice/callback/README
+Ice/callback/Server.cs
+Ice/hello/Client.cs
+Ice/hello/config
+Ice/hello/Hello.ice
+Ice/hello/helloCD.csproj
+Ice/hello/HelloI.cs
+Ice/hello/helloSD.csproj
+Ice/hello/README
+Ice/hello/Server.cs
+Ice/invoke/Client.cs
+Ice/invoke/config
+Ice/invoke/invokeCD.csproj
+Ice/invoke/invokeSD.csproj
+Ice/invoke/Printer.ice
+Ice/invoke/PrinterI.cs
+Ice/invoke/README
+Ice/invoke/Server.cs
+Ice/latency/Client.cs
+Ice/latency/config
+Ice/latency/Latency.ice
+Ice/latency/latencyCD.csproj
+Ice/latency/latencySD.csproj
+Ice/latency/README
+Ice/latency/Server.cs
+Ice/minimal/Client.cs
+Ice/minimal/Hello.ice
+Ice/minimal/HelloI.cs
+Ice/minimal/minimalCD.csproj
+Ice/minimal/minimalSD.csproj
+Ice/minimal/README
+Ice/minimal/Server.cs
+Ice/nested/Client.cs
+Ice/nested/config
+Ice/nested/Nested.ice
+Ice/nested/nestedCD.csproj
+Ice/nested/NestedI.cs
+Ice/nested/nestedSD.csproj
+Ice/nested/README
+Ice/nested/Server.cs
+Ice/README
+Ice/session/Client.cs
+Ice/session/config
+Ice/session/HelloI.cs
+Ice/session/README
+Ice/session/ReapThread.cs
+Ice/session/Server.cs
+Ice/session/Session.ice
+Ice/session/sessionCD.csproj
+Ice/session/SessionFactoryI.cs
+Ice/session/SessionI.cs
+Ice/session/sessionSD.csproj
+Ice/throughput/Client.cs
+Ice/throughput/config
+Ice/throughput/README
+Ice/throughput/Server.cs
+Ice/throughput/Throughput.ice
+Ice/throughput/throughputCD.csproj
+Ice/throughput/ThroughputI.cs
+Ice/throughput/throughputSD.csproj
+Ice/value/Client.cs
+Ice/value/config
+Ice/value/DerivedPrinterI.cs
+Ice/value/InitialI.cs
+Ice/value/ObjectFactory.cs
+Ice/value/PrinterI.cs
+Ice/value/README
+Ice/value/Server.cs
+Ice/value/Value.ice
+Ice/value/valueCD.csproj
+Ice/value/valueSD.csproj
+IceBox/hello/Client.cs
+IceBox/hello/config
+IceBox/hello/Hello.ice
+IceBox/hello/HelloI.cs
+IceBox/hello/helloIceBoxCD.csproj
+IceBox/hello/helloIceBoxSD.csproj
+IceBox/hello/HelloServiceI.cs
+IceBox/hello/README
+IceBox/README
+IceGrid/simple/application.xml
+IceGrid/simple/application_with_replication.xml
+IceGrid/simple/application_with_template.xml
+IceGrid/simple/Client.cs
+IceGrid/simple/config
+IceGrid/simple/Hello.ice
+IceGrid/simple/HelloI.cs
+IceGrid/simple/README
+IceGrid/simple/Server.cs
+IceGrid/simple/simpleIceGridCD.csproj
+IceGrid/simple/simpleIceGridSD.csproj
+IceStorm/clock/Clock.ice
+IceStorm/clock/clockCD.csproj
+IceStorm/clock/ClockI.cs
+IceStorm/clock/clockSD.csproj
+IceStorm/clock/config
+IceStorm/clock/config_service
+IceStorm/clock/Publisher.cs
+IceStorm/clock/README
+IceStorm/clock/Subscriber.cs
+IceStorm/README
+README
