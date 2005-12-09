@@ -26,8 +26,8 @@
 #ifdef ICEE_HAS_ROUTER
 #    include <IceE/RouterInfo.h>
 #    include <IceE/Router.h>
-#    include <IceE/Endpoint.h>
 #endif
+#include <IceE/Endpoint.h>
 #include <IceE/LoggerUtil.h>
 #include <ctype.h>
 
