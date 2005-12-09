@@ -3,7 +3,6 @@
 echo "">$1
 
 cat >$1 <<\_CMTFILE
-
 # To create an explicit listing for the demos run the following command
 # in the demo directory of the ice distribution.:
 # find . -name "*" -type f | sed -e '/Debug\|Release\|.dsp$\|.dsw$\|.exe$\

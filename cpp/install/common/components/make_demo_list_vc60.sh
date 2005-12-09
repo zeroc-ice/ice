@@ -3,11 +3,11 @@
 echo "">$1
 
 cat >$1 <<\_CMTFILE
-
 # To create an explicit listing for the demos run the following command
 # in the demo directory of the ice distribution.:
-# find . -name "*" -type f| sed -e '/Debug\|Release\|.exe$\|.ilk$\|.plg$\|.depend\|Makefile\|.pdb$\|.ncb$\|*.suo$\|.dummy/d' |
-# sed -e '/^Freeze\/backup/d' | sed -e 's/^\.\///' >> file
+# find . -name "*" -type f| sed -e '/Debug\|Release\|.exe$\|.ilk$\|.plg$\
+#      \|.depend\|Makefile\|.pdb$\|.ncb$\|*.suo$\|.dummy/d' |
+#      sed -e '/^Freeze\/backup/d' | sed -e 's/^\.\///' >> file
 #
 # If you want to use wild card searches instead of explicitly listing
 # files, you can delete the filenames and uncomment the following lines:

@@ -1,3 +1,8 @@
+#!/bin/bash
+
+echo "">$1
+
+cat >$1 <<\_CMTFILE
 # To create an explicit listing for the demos run the following command
 # in the demo directory of the IcePHP distribution.:
 # find . -name "*" -type f | sed -e 's/^\.\///' >> $1
@@ -11,11 +16,6 @@
 # Stop uncommenting here!
 # Delete from here to EOF
 
-Ice/hello/Hello.ice
-Ice/hello/hello.php
-Ice/hello/README
-Ice/README
-Ice/value/Client.php
-Ice/value/php.ini
-Ice/value/README
-Ice/value/Value.ice
+_CMTFILE
+
+find . -name "*" -type f | sed -e 's/^\.\///' >> $1

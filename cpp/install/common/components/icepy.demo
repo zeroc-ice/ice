@@ -1,2 +1,55 @@
-*.*
-**/*.*
+
+# To create an explicit listing for the demos run the following command
+# in the demo directory of the IcePy distribution.:
+# find . -name "*" -type f | sed -e 's/^\.\///' >> $1
+#
+# If you want to use wild card searches instead of explicitly listing
+# files, you can delete the filenames and uncomment the following lines:
+#
+# include=*.*
+# include=**/*.*
+#
+# Stop uncommenting here!
+# Delete from here to EOF
+
+Ice/bidir/Callback.ice
+Ice/bidir/Client.py
+Ice/bidir/config
+Ice/bidir/README
+Ice/bidir/Server.py
+Ice/callback/Callback.ice
+Ice/callback/Client.py
+Ice/callback/config
+Ice/callback/README
+Ice/callback/Server.py
+Ice/hello/Client.py
+Ice/hello/config
+Ice/hello/Hello.ice
+Ice/hello/README
+Ice/hello/Server.py
+Ice/latency/Client.py
+Ice/latency/config
+Ice/latency/Latency.ice
+Ice/latency/README
+Ice/latency/Server.py
+Ice/minimal/Client.py
+Ice/minimal/Hello.ice
+Ice/minimal/README
+Ice/minimal/Server.py
+Ice/README
+Ice/session/Client.py
+Ice/session/config
+Ice/session/README
+Ice/session/Server.py
+Ice/session/Session.ice
+Ice/throughput/Client.py
+Ice/throughput/config
+Ice/throughput/README
+Ice/throughput/Server.py
+Ice/throughput/Throughput.ice
+Ice/value/Client.py
+Ice/value/config
+Ice/value/Printer.py
+Ice/value/README
+Ice/value/Server.py
+Ice/value/Value.ice

@@ -1,12 +1,166 @@
-*.*
-include=**/*.*
-exclude=**/*.vbproj*
-exclude=**/*.exe
-exclude=**/*.pdb
-exclude=**/*.dll
-exclude=**/*.bat
-exclude=**/.depend
-exclude=**/.dummy
-exclude=**/Makefile
-exclude=**/generated/**
-exclude=**/obj/**
+
+# To create an explicit listing for the demos run the following command
+# in the demo directory of the IceCS distribution:
+# find . -name "*" -type f | sed -e '/generated\|obj\|.exe$\|.dll$\|.depend\|\
+#      Makefile\|.pdb$\|\*.bat$\|.dummy\|[^D].vbproj.*$/d' # | \
+#      sed -e 's/^\.\///' \
+# >> file
+#
+# If you want to use wild card searches instead of explicitly listing
+# files, you can delete the filenames and uncomment the following lines:
+#
+# *.*
+# include=**/*.*
+# exclude=**/*.csproj*
+# exclude=**/*.exe
+# exclude=**/*.pdb
+# exclude=**/*.dll
+# exclude=**/*.bat
+# exclude=**/.depend
+# exclude=**/.dummy
+# exclude=**/Makefile
+# exclude=**/generated/**
+# exclude=**/obj/**
+#
+# Stop uncommenting here
+# Delete from here to EOF
+
+book/evictor/EvictorBase.vb
+book/evictor/LinkedList.vb
+book/evictor/README
+book/printer/Client.vb
+book/printer/Printer.ice
+book/printer/printerCD.vbproj
+book/printer/printerCommonD.vbproj
+book/printer/printerSD.vbproj
+book/printer/README
+book/printer/Server.vb
+book/README
+book/simple_filesystem/Client.vb
+book/simple_filesystem/DirectoryI.vb
+book/simple_filesystem/FileI.vb
+book/simple_filesystem/Filesystem.ice
+book/simple_filesystem/README
+book/simple_filesystem/Server.vb
+book/simple_filesystem/simpleFSCD.vbproj
+book/simple_filesystem/simpleFSCommonD.vbproj
+book/simple_filesystem/simpleFSSD.vbproj
+compileSlice.vcproj
+demo.sln
+Glacier2/callback/Callback.ice
+Glacier2/callback/CallbackI.vb
+Glacier2/callback/CallbackReceiverI.vb
+Glacier2/callback/Client.vb
+Glacier2/callback/config
+Glacier2/callback/config.glacier2
+Glacier2/callback/config.server
+Glacier2/callback/config.sessionserver
+Glacier2/callback/glacier2callbackCD.vbproj
+Glacier2/callback/glacier2callbackCommonD.vbproj
+Glacier2/callback/glacier2callbackSD.vbproj
+Glacier2/callback/glacier2callbackSSD.vbproj
+Glacier2/callback/README
+Glacier2/callback/Server.vb
+Glacier2/callback/SessionI.vb
+Glacier2/callback/SessionManagerI.vb
+Glacier2/callback/SessionServer.vb
+Glacier2/README
+Ice/bidir/bidirCD.vbproj
+Ice/bidir/bidirCommonD.vbproj
+Ice/bidir/bidirSD.vbproj
+Ice/bidir/Callback.ice
+Ice/bidir/CallbackReceiverI.vb
+Ice/bidir/CallbackSenderI.vb
+Ice/bidir/Client.vb
+Ice/bidir/config
+Ice/bidir/README
+Ice/bidir/Server.vb
+Ice/callback/Callback.ice
+Ice/callback/callbackCD.vbproj
+Ice/callback/callbackCommonD.vbproj
+Ice/callback/CallbackReceiverI.vb
+Ice/callback/callbackSD.vbproj
+Ice/callback/CallbackSenderI.vb
+Ice/callback/Client.vb
+Ice/callback/config
+Ice/callback/README
+Ice/callback/Server.vb
+Ice/hello/Client.vb
+Ice/hello/config
+Ice/hello/Hello.ice
+Ice/hello/helloCD.vbproj
+Ice/hello/helloCommonD.vbproj
+Ice/hello/HelloI.vb
+Ice/hello/helloSD.vbproj
+Ice/hello/README
+Ice/hello/Server.vb
+Ice/invoke/.Printer.stream
+Ice/invoke/Client.vb
+Ice/invoke/config
+Ice/invoke/invokeCD.vbproj
+Ice/invoke/invokeCommonD.vbproj
+Ice/invoke/invokeSD.vbproj
+Ice/invoke/Printer.ice
+Ice/invoke/PrinterI.vb
+Ice/invoke/README
+Ice/invoke/Server.vb
+Ice/latency/Client.vb
+Ice/latency/config
+Ice/latency/Latency.ice
+Ice/latency/latencyCD.vbproj
+Ice/latency/latencyCommonD.vbproj
+Ice/latency/latencySD.vbproj
+Ice/latency/README
+Ice/latency/Server.vb
+Ice/minimal/Client.vb
+Ice/minimal/Hello.ice
+Ice/minimal/HelloI.vb
+Ice/minimal/minimalCD.vbproj
+Ice/minimal/minimalCommonD.vbproj
+Ice/minimal/minimalSD.vbproj
+Ice/minimal/README
+Ice/minimal/Server.vb
+Ice/nested/Client.vb
+Ice/nested/config
+Ice/nested/Nested.ice
+Ice/nested/nestedCD.vbproj
+Ice/nested/nestedCommonD.vbproj
+Ice/nested/NestedI.vb
+Ice/nested/nestedSD.vbproj
+Ice/nested/README
+Ice/nested/Server.vb
+Ice/README
+Ice/session/Client.vb
+Ice/session/config
+Ice/session/HelloI.vb
+Ice/session/README
+Ice/session/ReapThread.vb
+Ice/session/Server.vb
+Ice/session/Session.ice
+Ice/session/sessionCD.vbproj
+Ice/session/sessionCommonD.vbproj
+Ice/session/SessionFactoryI.vb
+Ice/session/SessionI.vb
+Ice/session/sessionSD.vbproj
+Ice/throughput/Client.vb
+Ice/throughput/config
+Ice/throughput/README
+Ice/throughput/Server.vb
+Ice/throughput/Throughput.ice
+Ice/throughput/throughputCD.vbproj
+Ice/throughput/throughputCommonD.vbproj
+Ice/throughput/ThroughputI.vb
+Ice/throughput/throughputSD.vbproj
+Ice/value/Client.vb
+Ice/value/config
+Ice/value/DerivedPrinterI.vb
+Ice/value/InitialI.vb
+Ice/value/ObjectFactory.vb
+Ice/value/PrinterI.vb
+Ice/value/README
+Ice/value/Server.vb
+Ice/value/Value.ice
+Ice/value/valueCD.vbproj
+Ice/value/valueCommonD.vbproj
+Ice/value/valueSD.vbproj
+README
