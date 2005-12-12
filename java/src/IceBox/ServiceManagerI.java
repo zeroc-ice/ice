@@ -207,7 +207,16 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	else
 	{
 	    className = value.substring(0, pos);
-	    args = value.substring(pos).trim().split("[ \t\n]+", pos);
+	    try
+	    {
+		args = IceUtil.Options.split(value.substring(pos));
+	    }
+	    catch(IceUtil.Options.BadQuote ex)
+	    {
+		FailureException e = new FailureException();
+		e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.toString();
+		throw e;
+	    }
 	}
 
 	start(name, className, args);
