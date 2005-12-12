@@ -31,6 +31,14 @@ public:
 	Ice::PropertiesPtr properties = Ice::createProperties();
         loadConfig(properties);
 
+	//
+	// For blocking client change retry interval from default.
+	//
+	if(properties->getProperty("Ice.Blocking") != "0")
+	{
+	    properties->setProperty("Ice.RetryIntervals", "0 0");
+	}
+
 	properties->setProperty("Ice.Default.Locator",
 				properties->getPropertyWithDefault("Location.Locator", "locator:default -p 12345"));
         setCommunicator(Ice::initializeWithProperties(argc, argv, properties));

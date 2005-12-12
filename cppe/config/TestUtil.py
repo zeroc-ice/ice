@@ -9,6 +9,14 @@
 # **********************************************************************
 
 #
+# Set blocking to 1 in case you want to run the tests in
+# blocking mode.
+#
+
+blocking = 0
+#blocking = 1
+
+#
 # If you don't set "host" below, then the IceE library will try to find
 # out the IP address of this host. For the IceE test suite, it's best
 # to set the IP address explicitly to 127.0.0.1. This avoid problems
@@ -183,6 +191,11 @@ else:
 clientProtocol = ""
 serverProtocol = ""
 clientServerProtocol = ""
+
+if blocking:
+    clientProtocol += " --Ice.Blocking"
+    serverProtocol += " --Ice.Blocking"
+    clientServerProtocol += " --Ice.Blocking"
 
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host

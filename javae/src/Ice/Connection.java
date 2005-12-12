@@ -328,9 +328,12 @@ public final class Connection
 		os.writeInt(requestId);
 
 		//
-		// Add to the requests map.
+		// Add to the requests map if not blocking.
 		//
-		_requests.put(requestId, out);
+		if(!_blocking)
+		{
+		    _requests.put(requestId, out);
+		}
 	    }
 
 	    //
@@ -364,6 +367,47 @@ public final class Connection
 		//
 		IceInternal.TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
 		_transceiver.write(os, _endpoint.timeout());
+
+		if(out != null && _blocking)
+		{
+		    IceInternal.BasicStream stream = new IceInternal.BasicStream(_instance);
+		    try
+		    {
+		        readStream(stream);
+
+		        MessageInfo info = new MessageInfo(stream);
+
+		        synchronized(this)
+		        {
+		            if(_state != StateClosed)
+			    {
+			        parseMessage(info, out, requestId);
+			    }
+
+			    //
+			    // parseMessage() can close the connection, so we must
+			    // check for closed state again.
+			    //
+			    if(_state == StateClosed)
+			    {
+			        try
+			        {
+			            _transceiver.close();
+			        }
+			        catch(LocalException ex)
+			        {
+			        }
+
+			        _transceiver = null;
+			        out.finished(_exception);
+			    }
+			}
+		    }
+		    finally
+		    {
+		        stream.reset();
+		    }
+		}
 	    }
 	}
 	catch(LocalException ex)
@@ -376,7 +420,7 @@ public final class Connection
 		    IceUtil.Debug.Assert(_exception != null);
 		}
 		
-		if(out != null)
+		if(out != null && !_blocking)
 		{
 		    //
 		    // If the request has already been removed from
@@ -820,6 +864,7 @@ public final class Connection
         _dispatchCount = 0;
         _state = StateNotValidated;
 	_stateTime = System.currentTimeMillis();
+	_blocking = _instance.blocking() && _adapter == null;
 
 	if(_adapter != null)
 	{
@@ -830,34 +875,41 @@ public final class Connection
 	    _servantManager = null;
 	}
 
-	try
+	if(_blocking)
 	{
-	    //
-	    // If we are in thread per connection mode, create the thread
-	    // for this connection.
-	    //
-	    _threadPerConnection = new ThreadPerConnection(this);
-	    _threadPerConnection.start();
+	    validate();
 	}
-	catch(java.lang.Exception ex)
+	else
 	{
-	    ex.printStackTrace();
-	    String s = "cannot create thread for connection:\n";;
-	    s += ex.toString();
-	    _instance.logger().error(s);
-	    
 	    try
 	    {
-		_transceiver.close();
+	        //
+	        // If we are in thread per connection mode, create the thread
+	        // for this connection.
+	        //
+	        _threadPerConnection = new ThreadPerConnection(this);
+	        _threadPerConnection.start();
 	    }
-	    catch(LocalException e)
+	    catch(java.lang.Exception ex)
 	    {
-		// Here we ignore any exceptions in close().
-	    }
+	        ex.printStackTrace();
+	        String s = "cannot create thread for connection:\n";;
+	        s += ex.toString();
+	        _instance.logger().error(s);
 	    
-	    Ice.SyscallException e = new Ice.SyscallException();
-	    e.initCause(ex);
-	    throw e;
+	        try
+	        {
+		    _transceiver.close();
+	        }
+	        catch(LocalException e)
+	        {
+		    // Here we ignore any exceptions in close().
+	        }
+	    
+	        Ice.SyscallException e = new Ice.SyscallException();
+	        e.initCause(ex);
+	        throw e;
+	    }
 	}
     }
 
@@ -1164,6 +1216,19 @@ public final class Connection
             {
                 setState(StateClosed, ex);
             }
+
+	    if(_state != StateClosed && _blocking)
+	    {
+	        try
+		{
+		    _transceiver.close();
+		}
+		catch(LocalException ex)
+		{
+		}
+		_transceiver = null;
+		_state = StateClosed;
+	    }
         }
     }
 
@@ -1224,7 +1289,7 @@ public final class Connection
     }
 
     private void
-    parseMessage(MessageInfo info)
+    parseMessage(MessageInfo info, IceInternal.Outgoing outb, int requestId)
     {
 	if(IceUtil.Debug.ASSERT)
 	{
@@ -1253,94 +1318,131 @@ public final class Connection
 	    }
 	    info.stream.pos(IceInternal.Protocol.headerSize);
 
-	    switch(messageType)
+	    if(_blocking)
 	    {
-		case IceInternal.Protocol.closeConnectionMsg:
-		{
-		    IceInternal.TraceUtil.traceHeader("received close connection", info.stream, _logger, _traceLevels);
-		    setState(StateClosed, new CloseConnectionException());
-		    break;
-		}
+	        switch(messageType)
+	        {
+		    case IceInternal.Protocol.closeConnectionMsg:
+		    {
+		        IceInternal.TraceUtil.traceHeader("received close connection", info.stream, _logger,
+							  _traceLevels);
+		        setState(StateClosed, new CloseConnectionException());
+		        break;
+		    }
 
-		case IceInternal.Protocol.requestMsg:
-		{
-		    if(_state == StateClosing)
+		    case IceInternal.Protocol.replyMsg:
 		    {
-			IceInternal.TraceUtil.traceRequest("received request during closing\n" +
-							   "(ignored by server, client will retry)",
-							   info.stream, _logger, _traceLevels);
+		        IceInternal.TraceUtil.traceReply("received reply", info.stream, _logger, _traceLevels);
+		        info.requestId = info.stream.readInt();
+			if(info.requestId != requestId)
+		        {
+		            throw new UnknownRequestIdException();
+		        }
+			outb.finished(info.stream);
+		        break;
 		    }
-		    else
-		    {
-			IceInternal.TraceUtil.traceRequest("received request", info.stream, _logger, _traceLevels);
-			info.requestId = info.stream.readInt();
-			info.invokeNum = 1;
-			info.servantManager = _servantManager;
-			info.adapter = _adapter;
-			++_dispatchCount;
-		    }
-		    break;
-		}
 
-		case IceInternal.Protocol.requestBatchMsg:
-		{
-		    if(_state == StateClosing)
+		    default:
 		    {
-			IceInternal.TraceUtil.traceBatchRequest("received batch request during closing\n" +
-								"(ignored by server, client will retry)",
-								info.stream, _logger, _traceLevels);
+		        IceInternal.TraceUtil.traceHeader("received unexpected message\n" +
+						          "(invalid, closing connection)", info.stream, _logger,
+						          _traceLevels);
+		        throw new UnknownMessageException();
 		    }
-		    else
-		    {
-			IceInternal.TraceUtil.traceBatchRequest("received batch request", info.stream, _logger,
-								_traceLevels);
-			info.invokeNum = info.stream.readInt();
-			if(info.invokeNum < 0)
-			{
-			    info.invokeNum = 0;
-			    throw new NegativeSizeException();
-			}
-			info.servantManager = _servantManager;
-			info.adapter = _adapter;
-			_dispatchCount += info.invokeNum;
-		    }
-		    break;
 		}
+	    }
+	    else
+	    {
+	        switch(messageType)
+	        {
+		    case IceInternal.Protocol.closeConnectionMsg:
+		    {
+		        IceInternal.TraceUtil.traceHeader("received close connection", info.stream, _logger,
+							  _traceLevels);
+		        setState(StateClosed, new CloseConnectionException());
+		        break;
+		    }
 
-		case IceInternal.Protocol.replyMsg:
-		{
-		    IceInternal.TraceUtil.traceReply("received reply", info.stream, _logger, _traceLevels);
-		    info.requestId = info.stream.readInt();
-		    IceInternal.Outgoing out = (IceInternal.Outgoing)_requests.remove(info.requestId);
-		    if(out != null)
+		    case IceInternal.Protocol.requestMsg:
 		    {
-			out.finished(info.stream);
+		        if(_state == StateClosing)
+		        {
+			    IceInternal.TraceUtil.traceRequest("received request during closing\n" +
+							       "(ignored by server, client will retry)",
+							       info.stream, _logger, _traceLevels);
+		        }
+		        else
+		        {
+			    IceInternal.TraceUtil.traceRequest("received request", info.stream, _logger, _traceLevels);
+			    info.requestId = info.stream.readInt();
+			    info.invokeNum = 1;
+			    info.servantManager = _servantManager;
+			    info.adapter = _adapter;
+			    ++_dispatchCount;
+		        }
+		        break;
 		    }
-		    else
-		    {
-		        throw new UnknownRequestIdException();
-		    }
-		    break;
-		}
 
-		case IceInternal.Protocol.validateConnectionMsg:
-		{
-		    IceInternal.TraceUtil.traceHeader("received validate connection", info.stream, _logger,
-						      _traceLevels);
-		    if(_warn)
+		    case IceInternal.Protocol.requestBatchMsg:
 		    {
-			_logger.warning("ignoring unexpected validate connection message:\n" + _desc);
+		        if(_state == StateClosing)
+		        {
+			    IceInternal.TraceUtil.traceBatchRequest("received batch request during closing\n" +
+								    "(ignored by server, client will retry)",
+								    info.stream, _logger, _traceLevels);
+		        }
+		        else
+		        {
+			    IceInternal.TraceUtil.traceBatchRequest("received batch request", info.stream, _logger,
+								    _traceLevels);
+			    info.invokeNum = info.stream.readInt();
+			    if(info.invokeNum < 0)
+			    {
+			        info.invokeNum = 0;
+			        throw new NegativeSizeException();
+			    }
+			    info.servantManager = _servantManager;
+			    info.adapter = _adapter;
+			    _dispatchCount += info.invokeNum;
+		        }
+		        break;
 		    }
-		    break;
-		}
 
-		default:
-		{
-		    IceInternal.TraceUtil.traceHeader("received unknown message\n" +
-						      "(invalid, closing connection)", info.stream, _logger,
-						      _traceLevels);
-		    throw new UnknownMessageException();
-		}
+		    case IceInternal.Protocol.replyMsg:
+		    {
+		        IceInternal.TraceUtil.traceReply("received reply", info.stream, _logger, _traceLevels);
+		        info.requestId = info.stream.readInt();
+		        IceInternal.Outgoing out = (IceInternal.Outgoing)_requests.remove(info.requestId);
+		        if(out != null)
+		        {
+			    out.finished(info.stream);
+		        }
+		        else
+		        {
+		            throw new UnknownRequestIdException();
+		        }
+		        break;
+		    }
+
+		    case IceInternal.Protocol.validateConnectionMsg:
+		    {
+		        IceInternal.TraceUtil.traceHeader("received validate connection", info.stream, _logger,
+						          _traceLevels);
+		        if(_warn)
+		        {
+			    _logger.warning("ignoring unexpected validate connection message:\n" + _desc);
+		        }
+		        break;
+		    }
+
+		    default:
+		    {
+		        IceInternal.TraceUtil.traceHeader("received unknown message\n" +
+						          "(invalid, closing connection)", info.stream, _logger,
+						          _traceLevels);
+		        throw new UnknownMessageException();
+		    }
+	        }
 	    }
 	}
 	catch(LocalException ex)
@@ -1537,78 +1639,7 @@ public final class Connection
 
 	    try
 	    {
-		try
-		{
-		    stream.resize(IceInternal.Protocol.headerSize, true);
-		    stream.pos(0);
-		    _transceiver.read(stream, -1);
-
-		    int pos = stream.pos();
-		    if(IceUtil.Debug.ASSERT)
-		    {
-			IceUtil.Debug.Assert(pos >= IceInternal.Protocol.headerSize);
-		    }
-		    stream.pos(0);
-		    byte[] m = stream.readBlob(4);
-		    if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
-		       m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
-		    {
-			BadMagicException ex = new BadMagicException();
-			ex.badMagic = m;
-			throw ex;
-		    }
-		    byte pMajor = stream.readByte();
-		    byte pMinor = stream.readByte();
-		    if(pMajor != IceInternal.Protocol.protocolMajor)
-		    {
-			UnsupportedProtocolException e = new UnsupportedProtocolException();
-			e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-			e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-			e.major = IceInternal.Protocol.protocolMajor;
-			e.minor = IceInternal.Protocol.protocolMinor;
-			throw e;
-		    }
-		    byte eMajor = stream.readByte();
-		    byte eMinor = stream.readByte();
-		    if(eMajor != IceInternal.Protocol.encodingMajor)
-		    {
-			UnsupportedEncodingException e = new UnsupportedEncodingException();
-			e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-			e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-			e.major = IceInternal.Protocol.encodingMajor;
-			e.minor = IceInternal.Protocol.encodingMinor;
-			throw e;
-		    }
-		    byte messageType = stream.readByte();
-		    byte compress = stream.readByte();
-		    int size = stream.readInt();
-		    if(size < IceInternal.Protocol.headerSize)
-		    {
-			throw new IllegalMessageSizeException();
-		    }
-		    if(size > _instance.messageSizeMax())
-		    {
-			throw new MemoryLimitException();
-		    }
-		    if(size > stream.size())
-		    {
-			stream.resize(size, true);
-		    }
-		    stream.pos(pos);
-
-		    if(pos != stream.size())
-		    {
-			_transceiver.read(stream, -1);
-			if(IceUtil.Debug.ASSERT)
-			{
-			    IceUtil.Debug.Assert(stream.pos() == stream.size());
-			}
-		    }
-		}
-		catch(LocalException ex)
-		{
-		    exception(ex);
-		}
+	        readStream(stream);
 
 		MessageInfo info = new MessageInfo(stream);
 
@@ -1631,7 +1662,7 @@ public final class Connection
 		    
 		    if(_state != StateClosed)
 		    {
-			parseMessage(info);
+			parseMessage(info, null, -1);
 		    }
 
 		    //
@@ -1720,6 +1751,83 @@ public final class Connection
     {
         String s = msg + ":\n" + _desc + ex.toString();
         _logger.error(s);
+    }
+
+    private void
+    readStream(IceInternal.BasicStream stream)
+    {
+	try
+	{
+	    stream.resize(IceInternal.Protocol.headerSize, true);
+	    stream.pos(0);
+	    _transceiver.read(stream, -1);
+
+	    int pos = stream.pos();
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(pos >= IceInternal.Protocol.headerSize);
+	    }
+	    stream.pos(0);
+	    byte[] m = stream.readBlob(4);
+	    if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
+	       m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
+	    {
+		BadMagicException ex = new BadMagicException();
+		ex.badMagic = m;
+		throw ex;
+	    }
+	    byte pMajor = stream.readByte();
+	    byte pMinor = stream.readByte();
+	    if(pMajor != IceInternal.Protocol.protocolMajor)
+	    {
+		UnsupportedProtocolException e = new UnsupportedProtocolException();
+		e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
+		e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
+		e.major = IceInternal.Protocol.protocolMajor;
+		e.minor = IceInternal.Protocol.protocolMinor;
+		throw e;
+	    }
+	    byte eMajor = stream.readByte();
+	    byte eMinor = stream.readByte();
+	    if(eMajor != IceInternal.Protocol.encodingMajor)
+	    {
+		UnsupportedEncodingException e = new UnsupportedEncodingException();
+		e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+		e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+		e.major = IceInternal.Protocol.encodingMajor;
+		e.minor = IceInternal.Protocol.encodingMinor;
+		throw e;
+	    }
+	    byte messageType = stream.readByte();
+	    byte compress = stream.readByte();
+	    int size = stream.readInt();
+	    if(size < IceInternal.Protocol.headerSize)
+	    {
+		throw new IllegalMessageSizeException();
+	    }
+	    if(size > _instance.messageSizeMax())
+	    {
+		throw new MemoryLimitException();
+	    }
+	    if(size > stream.size())
+	    {
+		stream.resize(size, true);
+	    }
+	    stream.pos(pos);
+
+	    if(pos != stream.size())
+	    {
+		_transceiver.read(stream, -1);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(stream.pos() == stream.size());
+		}
+	    }
+	}
+	catch(LocalException ex)
+	{
+	    exception(ex);
+	}
     }
 
     private IceInternal.Incoming
@@ -1840,6 +1948,8 @@ public final class Connection
 
     private int _state; // The current state.
     private long _stateTime; // The last time when the state was changed.
+
+    private boolean _blocking;
 
     //
     // We have a separate mutex for sending, so that we don't block

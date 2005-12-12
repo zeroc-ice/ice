@@ -64,6 +64,10 @@ public:
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
 #endif
 
+#if defined(ICEE_BLOCKING_CLIENT) && !defined(ICEE_PURE_BLOCKING_CLIENT)
+    bool blocking() const;
+#endif
+
 private:
 
     Instance(const Ice::CommunicatorPtr&, const Ice::PropertiesPtr&);
@@ -100,6 +104,10 @@ private:
 
 #ifndef ICEE_PURE_CLIENT
     ObjectAdapterFactoryPtr _objectAdapterFactory;
+#endif
+
+#if defined(ICEE_BLOCKING_CLIENT) && !defined(ICEE_PURE_BLOCKING_CLIENT)
+    const bool _blocking;
 #endif
 };
 

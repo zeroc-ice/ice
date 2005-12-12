@@ -9,6 +9,14 @@
 # **********************************************************************
 
 #
+# Set blocking to 1 in case you want to run the tests in
+# blocking mode.
+#
+
+blocking = 0
+#blocking = 1
+
+#
 # If you don't set "host" below, then the Ice library will try to find
 # out the IP address of this host. For the Ice test suite, it's best
 # to set the IP address explicitly to 127.0.0.1. This avoid problems
@@ -139,6 +147,14 @@ clientServerProtocol = ""
 cppClientProtocol = ""
 cppServerProtocol = ""
 cppClientServerProtocol = ""
+
+if blocking:
+    clientProtocol += " --Ice.Blocking"
+    serverProtocol += " --Ice.Blocking"
+    clientServerProtocol += " --Ice.Blocking"
+    cppClientProtocol += " --Ice.Blocking"
+    cppServerProtocol += " --Ice.Blocking"
+    cppClientServerProtocol += " --Ice.Blocking"
 
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host

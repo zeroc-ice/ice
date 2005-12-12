@@ -35,6 +35,16 @@ public:
         loadConfig(properties);
 
 	//
+	// For blocking client test, set timeout so CloseConnection send will
+	// return quickly. Otherwise server will hang since client is not 
+	// listening for these messages.
+	//
+	if(properties->getProperty("Ice.Blocking") != "0")
+	{
+	    properties->setProperty("Ice.Override.Timeout", "100");
+	}
+
+	//
 	// These properties cannot be overridden. The OAs started by
 	// the ServerManager must be local.
 	//

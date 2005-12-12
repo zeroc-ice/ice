@@ -135,13 +135,17 @@ private:
     void initiateShutdown() const;
 
 #ifndef ICEE_PURE_CLIENT
-    void parseMessage(IceInternal::BasicStream&, Int&, Int&, 
-		      IceInternal::ServantManagerPtr&, ObjectAdapterPtr&);
+    void parseMessage(IceInternal::BasicStream&, Int&, IceInternal::Outgoing*, Int&, 
+    		      IceInternal::ServantManagerPtr&, ObjectAdapterPtr&);
     void invokeAll(IceInternal::BasicStream&, Int, Int,
 		   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
 #else
-    void parseMessage(IceInternal::BasicStream&, Int&);
+    void parseMessage(IceInternal::BasicStream&, Int&, IceInternal::Outgoing*);
 #endif
+
+    void readStream(IceInternal::BasicStream&);
+
+#ifndef ICEE_PURE_BLOCKING_CLIENT
 
     void run();
 
@@ -159,6 +163,7 @@ private:
     friend class ThreadPerConnection;
     // Defined as mutable because "isFinished() const" sets this to 0.
     mutable IceUtil::ThreadPtr _threadPerConnection;
+#endif
 
     const IceInternal::InstancePtr _instance;
     IceInternal::TransceiverPtr _transceiver;
@@ -183,8 +188,10 @@ private:
 
     Int _nextRequestId;
 
+#ifndef ICEE_PURE_BLOCKING_CLIENT
     std::map<Int, IceInternal::Outgoing*> _requests;
     std::map<Int, IceInternal::Outgoing*>::iterator _requestsHint;
+#endif
 
     std::auto_ptr<LocalException> _exception;
 
@@ -193,6 +200,10 @@ private:
     IceInternal::BasicStream _batchStream;
     bool _batchStreamInUse;
     int _batchRequestNum;
+#endif
+
+#if defined(ICEE_BLOCKING_CLIENT) && !defined(ICEE_PURE_BLOCKING_CLIENT)
+    bool _blocking;
 #endif
 
     //

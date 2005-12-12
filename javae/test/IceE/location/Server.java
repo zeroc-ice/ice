@@ -23,6 +23,16 @@ public class Server
 	}
 
 	//
+        // For blocking client test, set timeout so CloseConnection send will
+        // return quickly. Otherwise server will hang since client is not 
+        // listening for these messages.
+        //
+        if(communicator.getProperties().getProperty("Ice.Blocking") != "0")
+        {
+            communicator.getProperties().setProperty("Ice.Override.Timeout", "100");
+        }
+
+	//
 	// Register the server manager. The server manager creates a new
 	// 'server' (a server isn't a different process, it's just a new
 	// communicator and object adapter).

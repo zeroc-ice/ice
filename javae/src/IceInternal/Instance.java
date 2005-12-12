@@ -124,6 +124,12 @@ public class Instance
         return _objectAdapterFactory;
     }
 
+    public boolean
+    blocking()
+    {
+        return _blocking;
+    }
+
     public int
     threadPerConnectionStackSize()
     {
@@ -248,6 +254,8 @@ public class Instance
 		    _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
 		}
 	    }
+
+	    _blocking = _properties.getPropertyAsInt("Ice.Blocking") > 0;
 
 	    {
 		int stackSize = _properties.getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
@@ -445,6 +453,7 @@ public class Instance
     private ProxyFactory _proxyFactory;
     private OutgoingConnectionFactory _outgoingConnectionFactory;
     private ObjectAdapterFactory _objectAdapterFactory;
+    private final boolean _blocking;
     private final int _threadPerConnectionStackSize;
     private EndpointFactory _endpointFactory;
     private java.util.Hashtable _defaultContext;
