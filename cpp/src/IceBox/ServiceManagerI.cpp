@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Options.h>
 #include <Ice/Ice.h>
 #include <Ice/DynamicLibrary.h>
 #include <Ice/SliceChecksums.h>
@@ -20,7 +21,7 @@ typedef IceBox::Service* (*SERVICE_FACTORY)(CommunicatorPtr);
 
 IceBox::ServiceManagerI::ServiceManagerI(Application* server, int& argc, char* argv[])
     : _server(server)
-{
+{ 
     _logger = _server->communicator()->getLogger();
 
     if(argc > 0)
@@ -206,23 +207,8 @@ IceBox::ServiceManagerI::load(const string& name, const string& value)
     else
     {
         entryPoint = value.substr(0, pos);
-        string::size_type beg = value.find_first_not_of(" \t\n", pos);
-        while(beg != string::npos)
-        {
-            string::size_type end = value.find_first_of(" \t\n", beg);
-            if(end == string::npos)
-            {
-                args.push_back(value.substr(beg));
-                beg = end;
-            }
-            else
-            {
-                args.push_back(value.substr(beg, end - beg));
-                beg = value.find_first_not_of(" \t\n", end);
-            }
-        }
+	args = IceUtil::Options::split(value.substr(pos + 1));
     }
-
     start(name, entryPoint, args);
 }
 
@@ -311,14 +297,11 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    serviceArgs = properties->parseCommandLineOptions(service, serviceArgs);
 	}
 	else
-	{
-	    int argc = 0;
-	    char **argv = 0;
-	    
+	{	
 	    PropertiesPtr serviceProperties = properties->clone();
 
 	    //
-	    // Append the service name to the program name if not empty.
+	    //  Append the service name to the program name if not empty.
 	    //
 	    string name = serviceProperties->getProperty("Ice.ProgramName");
 	    if(name != service)
@@ -326,14 +309,43 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 		name = name.empty() ? service : name + "-" + service;
 	    }
 
+	    //
+	    // Load property file eventually specified with
+	    // --Ice.Config and add the properties from the file to
+	    // the service properties.
+	    //
 	    PropertiesPtr fileProperties = createProperties(serviceArgs);
 	    serviceProperties->parseCommandLineOptions("", fileProperties->getCommandLineOptions());
+
 	    serviceProperties->setProperty("Ice.ProgramName", name);
 
+	    //
+	    // Parse Ice and <service>.* command line options.
+	    //
 	    serviceArgs = serviceProperties->parseIceCommandLineOptions(serviceArgs);
 	    serviceArgs = serviceProperties->parseCommandLineOptions(service, serviceArgs);
 
+	    //
+	    // Remaining command line options are passed to the
+	    // communicator with argc/argv. This is necessary for Ice
+	    // plugin properties (e.g.: IceSSL).
+	    //
+	    int argc = serviceArgs.size();
+	    char** argv = new char*[argc + 1];
+	    int i = 0;
+	    for(Ice::StringSeq::const_iterator p = serviceArgs.begin(); p != serviceArgs.end(); ++p, ++i)
+	    {
+		argv[i] = strdup(p->c_str());
+	    }
+	    argv[argc] = 0;
+
 	    info.communicator = initializeWithProperties(argc, argv, serviceProperties);
+
+	    for(i = 0; i < argc + 1; ++i)
+	    {
+		free(argv[i]);
+	    }
+	    delete[] argv;
 	}
 	
 	CommunicatorPtr communicator = info.communicator ? info.communicator : _server->communicator();

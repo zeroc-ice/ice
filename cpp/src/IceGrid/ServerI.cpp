@@ -1787,7 +1787,8 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 	    {
 		ServiceDescriptorPtr s = ServiceDescriptorPtr::dynamicCast(p->descriptor);
 		const string path = serverDir + "/config/config_" + s->name;
-		props.push_back(createProperty("IceBox.Service." + s->name, s->entry + " --Ice.Config=" + path));
+		props.push_back(createProperty("IceBox.Service." + s->name, 
+					       s->entry + " --Ice.Config=\"" + path + "\""));
 		servicesStr += s->name + " ";
 	    }
 	    props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
