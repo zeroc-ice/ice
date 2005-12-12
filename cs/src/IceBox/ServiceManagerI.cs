@@ -202,8 +202,16 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 	    if(pos != -1)
 	    {
 		entryPoint = value.Substring(0, pos);
-		char[] delims = { ' ', '\t', '\n' };
-		args = value.Substring(pos).Trim().Split(delims, pos);
+		try
+		{
+		    args = IceUtil.Options.split(value.Substring(pos));
+		}
+		catch(IceUtil.Options.BadQuote ex)
+		{
+		    IceBox.FailureException e = new IceBox.FailureException();
+		    e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.ToString();
+		    throw e;
+		}
 	    }
 	}
 	
