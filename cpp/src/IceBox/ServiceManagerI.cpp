@@ -207,7 +207,16 @@ IceBox::ServiceManagerI::load(const string& name, const string& value)
     else
     {
         entryPoint = value.substr(0, pos);
-	args = IceUtil::Options::split(value.substr(pos + 1));
+	try
+	{
+	    args = IceUtil::Options::split(value.substr(pos + 1));
+	}
+	catch(const IceUtil::Options::BadQuote& ex)
+	{
+	    FailureException e(__FILE__, __LINE__);
+	    e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.reason;
+	    throw e;	    
+	}
     }
     start(name, entryPoint, args);
 }
