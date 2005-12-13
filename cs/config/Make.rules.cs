@@ -8,6 +8,13 @@
 # **********************************************************************
 
 #
+# If you are building from a CVS source tree, define cvs_build = yes.
+# Otherwise, for an Ice for C# distribution, leave it commented out.
+#
+
+cvs_build = yes
+
+#
 # Set this to the root of the Ice for C++ source tree if you want to
 # build using the Slice definitions from the C++ source tree.
 # (You must set slice_home to a pathname that is relative to $(top_srcdir),
@@ -84,9 +91,14 @@ endif
 ifndef slicedir
 slicedir := $(slice_home)/slice
 endif
-install_bindir		= $(prefix)/bin
 install_libdir		= $(prefix)/lib
 install_slicedir	= $(prefix)/slice
+
+ifdef cvs_build
+ref = -r:$(bindir)/$(1).dll
+else
+ref = -pkg:$(1)
+endif
 
 INSTALL			= cp -fp
 INSTALL_PROGRAM		= ${INSTALL}

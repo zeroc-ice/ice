@@ -32,12 +32,12 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I.
 
 client.exe: $(C_SRCS) $(GEN_SRCS) $(CGEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $^
 
 server.exe: $(S_SRCS) $(GEN_SRCS) $(SGEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $^
 
 serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS) $(SAMD_GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $^
 
 include .depend

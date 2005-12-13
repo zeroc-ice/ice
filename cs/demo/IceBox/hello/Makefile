@@ -27,9 +27,9 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $^
 
 helloservice.dll: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -target:library -out:$@ -r:$(bindir)/iceboxcs.dll -r:$(bindir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,iceboxcs) $(call ref,icecs) $^
 
 include .depend

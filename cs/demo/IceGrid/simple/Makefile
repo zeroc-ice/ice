@@ -27,9 +27,9 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll -r:$(bindir)/icegridcs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(call ref,icegridcs) $^
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $^
 
 include .depend

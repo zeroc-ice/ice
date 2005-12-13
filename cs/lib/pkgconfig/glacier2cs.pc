@@ -1,0 +1,10 @@
+version = 3.0.0
+mono_root = /opt/mono
+
+name = glacier2cs
+
+Name: glacier2cs
+Description: Glacier2 run-time support"
+Version: ${version}
+Libs: -r:${mono_root}/lib/mono/gac/${name}/${version}.0__1f998c50fec78381/${name}.dll
+Requires: icecs = ${version}

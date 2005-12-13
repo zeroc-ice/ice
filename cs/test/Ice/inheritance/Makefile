@@ -28,12 +28,12 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I.
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $^
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $^
 
 collocated.exe: $(COL_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $^
 
 include .depend

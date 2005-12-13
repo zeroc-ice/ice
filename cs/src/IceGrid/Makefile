@@ -9,7 +9,8 @@
 
 top_srcdir	= ../..
 
-LIBNAME		= icegridcs.dll
+PKG		= icegridcs
+LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)/$(LIBNAME)
 
 SRCS		= AssemblyInfo.cs
@@ -30,18 +31,12 @@ MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(TARGETS) -unsafe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -r:$(bindir)/glacier2cs.dll -r:$(bindir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) $(call ref,glacier2cs) $(call ref,icecs) $^
 
 ifeq ($(NOGAC),)
 
 install:: all
-	$(call installprogram,$(bindir)/$(LIBNAME),$(install_bindir))
-	cd $(install_bindir) && $(GACUTIL) -i $(LIBNAME) && cd -
-
-else
-
-install:: all
-	$(call installprogram,$(bindir)/$(LIBNAME),$(install_bindir))
+	$(GACUTIL) -i $(bindir)/$(LIBNAME)
 
 endif
 

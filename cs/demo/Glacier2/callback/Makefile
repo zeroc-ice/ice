@@ -28,12 +28,12 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll -r:$(bindir)/glacier2cs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(call ref,glacier2cs) $^
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $^
 
 sessionserver.exe: $(SS_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll -r:$(bindir)/glacier2cs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(call ref,glacier2cs) $^
 
 include .depend

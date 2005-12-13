@@ -20,9 +20,5 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCulture("")]		
 [assembly: AssemblyVersion("3.0.0")]
 [assembly: AssemblyDelaySign(false)]
-#if __MonoCS__
-[assembly: AssemblyKeyFile("IceGridcsKey.snk")] // mcs uses different search algorithm.
-#else
-[assembly: AssemblyKeyFile(@"..\..\IceGridcsKey.snk")]
-#endif
+[assembly: AssemblyKeyFile("../../config/IcecsKey.snk")]
 [assembly: AssemblyKeyName("")]

@@ -27,9 +27,9 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
 publisher.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll -r:$(bindir)/icestormcs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(call ref,icestormcs) $^
 
 subscriber.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll -r:$(bindir)/icestormcs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(call ref,icestormcs) $^
 
 include .depend

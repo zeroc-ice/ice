@@ -9,7 +9,9 @@
 
 top_srcdir	= ../..
 
-TARGETS		= $(bindir)/iceboxnet.exe $(bindir)/iceboxcs.dll
+PKG		= iceboxcs
+LIBNAME		= $(PKG).dll
+TARGETS		= $(bindir)/iceboxnet.exe $(bindir)/$(LIBNAME)
 
 L_SRCS		= AssemblyInfo.cs
 I_SRCS		= Server.cs ServiceManagerI.cs
@@ -25,26 +27,17 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
-$(bindir)/iceboxnet.exe: $(I_SRCS) $(bindir)/iceboxcs.dll
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/iceboxcs.dll -r:$(bindir)/icecs.dll $(I_SRCS)
+$(bindir)/iceboxnet.exe: $(I_SRCS) $(bindir)/$(LIBNAME)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,$(PKG)) $(call ref,icecs) $(I_SRCS)
 
-$(bindir)/iceboxcs.dll: $(L_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -target:library -out:$(bindir)/iceboxcs.dll -unsafe -r:$(bindir)/glacier2cs.dll -r:$(bindir)/icecs.dll $^
+$(bindir)/$(LIBNAME): $(L_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -target:library -out:$(bindir)/$(LIBNAME) -unsafe $(call ref,glacier2cs) $(call ref,icecs) $^
 
 ifeq ($(NOGAC),)
 
 install:: all
-	$(call installprogram,$(bindir)/iceboxcs.dll,$(install_bindir))
-	cd $(install_bindir) && $(GACUTIL) -i iceboxcs.dll && cd -
-	$(call installprogram,$(bindir)/iceboxnet.exe,$(install_bindir))
-
-else
-
-install:: all
-	$(call installprogram,$(bindir)/iceboxcs.dll,$(install_bindir))
-	$(call installprogram,$(bindir)/iceboxnet.exe,$(install_bindir))
+	$(GACUTIL) -i $(bindir)/$(LIBNAME)
 
 endif
-
 
 include .depend

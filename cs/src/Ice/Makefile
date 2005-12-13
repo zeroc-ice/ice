@@ -9,7 +9,8 @@
 
 top_srcdir	= ../..
 
-LIBNAME		= icecs.dll
+PKG		= icecs
+LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)/$(LIBNAME)
 
 SRCS		= Acceptor.cs \
@@ -137,14 +138,8 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 ifeq ($(NOGAC),)
 
 install:: all
-	$(call installprogram,$(bindir)/$(LIBNAME),$(install_bindir))
-	cd $(install_bindir) && $(GACUTIL) -i $(LIBNAME) && cd -
+	$(GACUTIL) -i $(bindir)/$(LIBNAME)
 	
-else
-
-install:: all
-	$(call installprogram,$(bindir)/$(LIBNAME),$(install_bindir))
-
 endif
 
 include .depend
