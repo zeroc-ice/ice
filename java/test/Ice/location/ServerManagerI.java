@@ -43,6 +43,7 @@ public class ServerManagerI extends _ServerManagerDisp
 	_communicators.add(serverCommunicator);
 	serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
 	serverCommunicator.getProperties().setProperty("TestAdapter.AdapterId", "TestAdapter");
+	serverCommunicator.getProperties().setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
 	Ice.ObjectAdapter adapter = serverCommunicator.createObjectAdapter("TestAdapter");
 
 	serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", "default");

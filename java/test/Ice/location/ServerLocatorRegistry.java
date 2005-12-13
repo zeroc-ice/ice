@@ -22,6 +22,7 @@ public class ServerLocatorRegistry extends Test._TestLocatorRegistryDisp
 					  String replica, Ice.ObjectPrx object, Ice.Current current)
     {
 	_adapters.put(adapter, object);
+	_adapters.put(replica, object);
 	cb.ice_response();
     }
 

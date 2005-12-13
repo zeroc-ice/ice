@@ -34,6 +34,7 @@ public class AllTests
 	Ice.ObjectPrx base3 = communicator.stringToProxy("test");
 	Ice.ObjectPrx base4 = communicator.stringToProxy("ServerManager");
 	Ice.ObjectPrx base5 = communicator.stringToProxy("test2");
+	Ice.ObjectPrx base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
 	System.out.println("ok");
 
 	//
@@ -58,6 +59,8 @@ public class AllTests
 	test(obj4 != null);
 	TestIntfPrx obj5 = TestIntfPrxHelper.checkedCast(base5);
 	test(obj5 != null);
+	TestIntfPrx obj6 = TestIntfPrxHelper.checkedCast(base6);
+	test(obj6 != null);
 	System.out.println("ok");
  
 	System.out.print("testing id@AdapterId indirect proxy... ");
@@ -67,6 +70,21 @@ public class AllTests
 	try
 	{
 	    obj2.ice_ping();
+	}
+	catch(Ice.LocalException ex)
+	{
+	    test(false);
+	}
+	System.out.println("ok");    
+    
+	System.out.print("testing id@ReplicaGroupId indirect proxy... ");
+        System.out.flush();
+	obj.shutdown();
+	manager.startServer();
+	try
+	{
+	    obj6 = TestIntfPrxHelper.checkedCast(base6);
+	    obj6.ice_ping();
 	}
 	catch(Ice.LocalException ex)
 	{
@@ -185,6 +203,9 @@ public class AllTests
 	System.out.print("testing object reference from server... ");
         System.out.flush();
 	HelloPrx hello = obj.getHello();
+	test(hello.ice_getAdapterId().equals("TestAdapter"));
+	hello = obj.getReplicatedHello();
+	test(hello.ice_getAdapterId().equals("ReplicatedAdapter"));
 	hello.sayHello();
 	System.out.println("ok");
 
