@@ -302,7 +302,7 @@ Ice::Connection::prepareRequest(BasicStream* os)
 }
 
 void
-Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
+Ice::Connection::sendRequest(BasicStream* os, BasicStream* is, Outgoing* out)
 {
     Int requestId;
 
@@ -391,8 +391,7 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 #endif
 	   )
 	{
-	    BasicStream stream(_instance.get());
-	    readStream(stream);
+	    readStream(*is);
 
 #ifndef ICEE_PURE_CLIENT
 	    Int invokeNum = 0;
@@ -406,9 +405,9 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	        if(_state != StateClosed)
 	        {
 #ifndef ICEE_PURE_CLIENT
-		    parseMessage(stream, requestId, out, invokeNum, servantManager, adapter);
+		    parseMessage(*is, requestId, invokeNum, servantManager, adapter);
 #else
-		    parseMessage(stream, requestId, out);
+		    parseMessage(*is, requestId);
 #endif
 	        }
 
@@ -762,6 +761,14 @@ Ice::Connection::endpoint() const
     return _endpoint; // No mutex protection necessary, _endpoint is immutable.
 }
 
+#if defined(ICEE_BLOCKING_CLIENT) && !defined(ICEE_PURE_BLOCKING_CLIENT)
+bool
+Ice::Connection::blocking() const
+{
+    return _blocking;
+}
+#endif
+
 #ifndef ICEE_PURE_CLIENT
 
 void
@@ -882,7 +889,7 @@ Ice::Connection::Connection(const InstancePtr& instance,
 {
 #ifndef ICEE_PURE_BLOCKING_CLIENT
 #  ifdef ICEE_BLOCKING_CLIENT
-    _blocking = _instance->blocking()
+    _blocking = _instance->properties()->getPropertyAsInt("Ice.Blocking") > 0
 #    ifndef ICEE_PURE_CLIENT
                 && !_adapter
 #    endif
@@ -1356,7 +1363,7 @@ Ice::Connection::initiateShutdown() const
 }
 
 void
-Ice::Connection::parseMessage(BasicStream& stream, Int& requestId, Outgoing* out
+Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
 #ifndef ICEE_PURE_CLIENT
 			      ,Int& invokeNum, ServantManagerPtr& servantManager, ObjectAdapterPtr& adapter
 #endif
@@ -1410,7 +1417,6 @@ Ice::Connection::parseMessage(BasicStream& stream, Int& requestId, Outgoing* out
 		    {
 		        throw UnknownRequestIdException(__FILE__, __LINE__);
 		    }
-		    out->finished(stream);
 		    break;
 		}			
 		
@@ -1813,9 +1819,9 @@ Ice::Connection::run()
 	    if(_state != StateClosed)
 	    {
 #ifndef ICEE_PURE_CLIENT
-		parseMessage(stream, requestId, 0, invokeNum, servantManager, adapter);
+		parseMessage(stream, requestId, invokeNum, servantManager, adapter);
 #else
-		parseMessage(stream, requestId, 0);
+		parseMessage(stream, requestId);
 #endif
 	    }
 

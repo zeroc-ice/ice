@@ -65,87 +65,99 @@ public final class Outgoing
         {
             case Reference.ModeTwoway:
             {
-		//
-		// We let all exceptions raised by sending directly
-		// propagate to the caller, because they can be
-		// retried without violating "at-most-once". In case
-		// of such exceptions, the connection object does not
-		// call back on this object, so we don't need to lock
-		// the mutex, keep track of state, or save exceptions.
-		//
-		_connection.sendRequest(_os, this);
 
-		//
-		// Wait until the request has completed, or until the
-		// request times out.
-		//
-
-		boolean timedOut = false;
-
-                synchronized(this)
-                {
+	        if(!_connection.blocking())
+		{
 		    //
-		    // It's possible that the request has already
-		    // completed, due to a regular response, or because of
-		    // an exception. So we only change the state to "in
-		    // progress" if it is still "unsent".
+		    // We let all exceptions raised by sending directly
+		    // propagate to the caller, because they can be
+		    // retried without violating "at-most-once". In case
+		    // of such exceptions, the connection object does not
+		    // call back on this object, so we don't need to lock
+		    // the mutex, keep track of state, or save exceptions.
 		    //
-		    if(_state == StateUnsent)
-		    {
-			_state = StateInProgress;
-		    }
+		    _connection.sendRequest(_os, null, this);
 
-                    int timeout = _connection.timeout();
-                    while(_state == StateInProgress && !timedOut)
+		    //
+		    // Wait until the request has completed, or until the
+		    // request times out.
+		    //
+
+		    boolean timedOut = false;
+
+                    synchronized(this)
                     {
-                        try
+		        //
+		        // It's possible that the request has already
+		        // completed, due to a regular response, or because of
+		        // an exception. So we only change the state to "in
+		        // progress" if it is still "unsent".
+		        //
+		        if(_state == StateUnsent)
+		        {
+			    _state = StateInProgress;
+		        }
+
+                        int timeout = _connection.timeout();
+                        while(_state == StateInProgress && !timedOut)
                         {
-                            if(timeout >= 0)
+                            try
                             {
-                                wait(timeout);
-				
-                                if(_state == StateInProgress)
+                                if(timeout >= 0)
                                 {
-                                    timedOut = true;
+                                    wait(timeout);
+				
+                                    if(_state == StateInProgress)
+                                    {
+                                        timedOut = true;
+                                    }
+                                }
+                                else
+                                {
+                                    wait();
                                 }
                             }
-                            else
+                            catch(InterruptedException ex)
                             {
-                                wait();
                             }
                         }
-                        catch(InterruptedException ex)
-                        {
-                        }
                     }
-                }
 		
-		if(timedOut)
-		{
-                    //
-                    // Must be called outside the synchronization of
-                    // this object
-                    //
-                    _connection.exception(new Ice.TimeoutException());
-
-		    //
-		    // We must wait until the exception set above has
-		    // propagated to this Outgoing object.
-		    //
-		    synchronized(this)
+		    if(timedOut)
 		    {
-			while(_state == StateInProgress)
-			{
-			    try
+                        //
+                        // Must be called outside the synchronization of
+                        // this object
+                        //
+                        _connection.exception(new Ice.TimeoutException());
+
+		        //
+		        // We must wait until the exception set above has
+		        // propagated to this Outgoing object.
+		        //
+		        synchronized(this)
+		        {
+			    while(_state == StateInProgress)
 			    {
-				wait();
+			        try
+			        {
+				    wait();
+			        }
+			        catch(InterruptedException ex)
+			        {
+			        }
 			    }
-			    catch(InterruptedException ex)
-			    {
-			    }
-			}
+		        }
+                    }
+		}
+		else
+		{
+		    _connection.sendRequest(_os, _is, this);
+		    if(_exception == null)
+		    {
+		        finishedInternal();
 		    }
-                }
+		}
 
                 if(_exception != null)
                 {
@@ -203,7 +215,7 @@ public final class Outgoing
                 // violating "at-most-once".
 		//
 		_state = StateInProgress;
-		_connection.sendRequest(_os, null);
+		_connection.sendRequest(_os, _is, null);
                 break;
             }
 
@@ -275,6 +287,13 @@ public final class Outgoing
 	}
 	
 	_is.swap(is);
+	finishedInternal();
+        notify();
+    }
+
+    private  void
+    finishedInternal()
+    {
 	int status = (int)_is.readByte();
 	
 	switch(status)
@@ -414,8 +433,6 @@ public final class Outgoing
 		break;
 	    }
 	}
-
-        notify();
     }
 
     public synchronized void

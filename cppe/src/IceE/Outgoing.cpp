@@ -113,78 +113,94 @@ IceInternal::Outgoing::invoke()
     {
 	case Reference::ModeTwoway:
 	{
-	    //
-	    // We let all exceptions raised by sending directly
-	    // propagate to the caller, because they can be retried
-	    // without violating "at-most-once". In case of such
-	    // exceptions, the connection object does not call back on
-	    // this object, so we don't need to lock the mutex, keep
-	    // track of state, or save exceptions.
-	    //
-	    _connection->sendRequest(&_os, this);
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+#ifdef ICEE_BLOCKING_CLIENT
+	    if(!_connection->blocking())
+	    {
+#endif
+	        //
+	        // We let all exceptions raised by sending directly
+	        // propagate to the caller, because they can be retried
+	        // without violating "at-most-once". In case of such
+	        // exceptions, the connection object does not call back on
+	        // this object, so we don't need to lock the mutex, keep
+	        // track of state, or save exceptions.
+	        //
+	        _connection->sendRequest(&_os, 0, this);
 	    
-	    //
-	    // Wait until the request has completed, or until the
-	    // request times out.
-	    //
+	        //
+	        // Wait until the request has completed, or until the
+	        // request times out.
+	        //
 
-	    bool timedOut = false;
+	        bool timedOut = false;
 
-	    {
-		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-		//
-                // It's possible that the request has already
-                // completed, due to a regular response, or because of
-                // an exception. So we only change the state to "in
-                // progress" if it is still "unsent".
-		//
-		if(_state == StateUnsent)
-		{
-		    _state = StateInProgress;
-		}
-		
-		Int timeout = _connection->timeout();
-		while(_state == StateInProgress && !timedOut)
-		{
-		    if(timeout >= 0)
-		    {	
-			timedWait(IceUtil::Time::milliSeconds(timeout));
-			
-			if(_state == StateInProgress)
-			{
-			    timedOut = true;
-			}
-		    }
-		    else
-		    {
-			wait();
-		    }
-		}
-	    }
-
-	    if(timedOut)
-	    {
-		//
-		// Must be called outside the synchronization of this
-		// object.
-		//
-		_connection->exception(TimeoutException(__FILE__, __LINE__));
-
-		//
-		// We must wait until the exception set above has
-		// propagated to this Outgoing object.
-		//
-		{
+	        {
 		    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-		    
-		    while(_state == StateInProgress)
+
+		    //
+                    // It's possible that the request has already
+                    // completed, due to a regular response, or because of
+                    // an exception. So we only change the state to "in
+                    // progress" if it is still "unsent".
+		    //
+		    if(_state == StateUnsent)
 		    {
-			wait();
+		        _state = StateInProgress;
 		    }
+		
+		    Int timeout = _connection->timeout();
+		    while(_state == StateInProgress && !timedOut)
+		    {
+		        if(timeout >= 0)
+		        {	
+			    timedWait(IceUtil::Time::milliSeconds(timeout));
+			
+			    if(_state == StateInProgress)
+			    {
+			        timedOut = true;
+			    }
+		        }
+		        else
+		        {
+			    wait();
+		        }
+		    }
+	        }
+
+	        if(timedOut)
+	        {
+		    //
+		    // Must be called outside the synchronization of this
+		    // object.
+		    //
+		    _connection->exception(TimeoutException(__FILE__, __LINE__));
+
+		    //
+		    // We must wait until the exception set above has
+		    // propagated to this Outgoing object.
+		    //
+		    {
+		        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+		    
+		        while(_state == StateInProgress)
+		        {
+			    wait();
+		        }
+		    }
+	        }
+#ifdef ICEE_BLOCKING_CLIENT
+	    }
+	    else
+	    {
+	        _connection->sendRequest(&_os, &_is, this);
+		if(!_exception.get())
+		{
+		    finishedInternal();
 		}
 	    }
-
+#endif
+#endif
 	    if(_exception.get())
 	    {
 		//
@@ -232,7 +248,7 @@ IceInternal::Outgoing::invoke()
 	    // violating "at-most-once".
 	    //
 	    _state = StateInProgress;
-	    _connection->sendRequest(&_os, 0);
+	    _connection->sendRequest(&_os, 0, 0);
 	    break;
 	}
 
@@ -297,6 +313,13 @@ IceInternal::Outgoing::finished(BasicStream& is)
     assert(_state <= StateInProgress);
 
     _is.swap(is);
+    finishedInternal();
+    notify();
+}
+
+void
+IceInternal::Outgoing::finishedInternal()
+{
     Byte status;
     _is.read(status);
     
@@ -449,8 +472,6 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    break;
 	}
     }
-
-    notify();
 }
 
 void

@@ -289,7 +289,7 @@ public final class Connection
     }
 
     public void
-    sendRequest(IceInternal.BasicStream os, IceInternal.Outgoing out)
+    sendRequest(IceInternal.BasicStream os, IceInternal.BasicStream is, IceInternal.Outgoing out)
     {
 	int requestId = 0;
 
@@ -370,42 +370,34 @@ public final class Connection
 
 		if(out != null && _blocking)
 		{
-		    IceInternal.BasicStream stream = new IceInternal.BasicStream(_instance);
-		    try
+		    readStream(is);
+
+		    MessageInfo info = new MessageInfo(is);
+
+		    synchronized(this)
 		    {
-		        readStream(stream);
-
-		        MessageInfo info = new MessageInfo(stream);
-
-		        synchronized(this)
-		        {
-		            if(_state != StateClosed)
-			    {
-			        parseMessage(info, out, requestId);
-			    }
-
-			    //
-			    // parseMessage() can close the connection, so we must
-			    // check for closed state again.
-			    //
-			    if(_state == StateClosed)
-			    {
-			        try
-			        {
-			            _transceiver.close();
-			        }
-			        catch(LocalException ex)
-			        {
-			        }
-
-			        _transceiver = null;
-			        out.finished(_exception);
-			    }
+		        if(_state != StateClosed)
+			{
+			    parseMessage(info, requestId);
 			}
-		    }
-		    finally
-		    {
-		        stream.reset();
+
+			//
+			// parseMessage() can close the connection, so we must
+			// check for closed state again.
+			//
+			if(_state == StateClosed)
+			{
+			    try
+			    {
+			        _transceiver.close();
+			    }
+			    catch(LocalException ex)
+			    {
+			    }
+
+			    _transceiver = null;
+			    out.finished(_exception);
+			}
 		    }
 		}
 	    }
@@ -770,6 +762,12 @@ public final class Connection
         return _endpoint;
     }
 
+    public boolean
+    blocking()
+    {
+        return _blocking;
+    }
+
     public synchronized void
     setAdapter(ObjectAdapter adapter)
     {
@@ -864,7 +862,7 @@ public final class Connection
         _dispatchCount = 0;
         _state = StateNotValidated;
 	_stateTime = System.currentTimeMillis();
-	_blocking = _instance.blocking() && _adapter == null;
+	_blocking = _instance.properties().getPropertyAsInt("Ice.Blocking") > 0 && _adapter == null;
 
 	if(_adapter != null)
 	{
@@ -1288,7 +1286,7 @@ public final class Connection
     }
 
     private void
-    parseMessage(MessageInfo info, IceInternal.Outgoing outb, int requestId)
+    parseMessage(MessageInfo info, int requestId)
     {
 	if(IceUtil.Debug.ASSERT)
 	{
@@ -1337,7 +1335,6 @@ public final class Connection
 		        {
 		            throw new UnknownRequestIdException();
 		        }
-			outb.finished(info.stream);
 		        break;
 		    }
 
@@ -1661,7 +1658,7 @@ public final class Connection
 		    
 		    if(_state != StateClosed)
 		    {
-			parseMessage(info, null, -1);
+			parseMessage(info, -1);
 		    }
 
 		    //

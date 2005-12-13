@@ -58,14 +58,12 @@ public:
 #endif
     void setDefaultContext(const ::Ice::Context&);
     ::Ice::Context getDefaultContext() const;
+#ifndef ICEE_PURE_BLOCKING_CLIENT
     size_t threadPerConnectionStackSize() const;
+#endif
 
 #ifndef ICEE_PURE_CLIENT
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
-#endif
-
-#if defined(ICEE_BLOCKING_CLIENT) && !defined(ICEE_PURE_BLOCKING_CLIENT)
-    bool blocking() const;
 #endif
 
 private:
@@ -89,7 +87,9 @@ private:
     const TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
     const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     const size_t _messageSizeMax; // Immutable, not reset by destroy().
+#ifndef ICEE_PURE_BLOCKING_CLIENT
     const size_t _threadPerConnectionStackSize;
+#endif
 #ifdef ICEE_HAS_ROUTER
     RouterManagerPtr _routerManager;
 #endif
@@ -104,10 +104,6 @@ private:
 
 #ifndef ICEE_PURE_CLIENT
     ObjectAdapterFactoryPtr _objectAdapterFactory;
-#endif
-
-#if defined(ICEE_BLOCKING_CLIENT) && !defined(ICEE_PURE_BLOCKING_CLIENT)
-    const bool _blocking;
 #endif
 };
 

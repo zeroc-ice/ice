@@ -65,6 +65,8 @@ public:
 
 private:
 
+    void finishedInternal();
+
     //
     // Optimization. The connection and the reference may not be
     // deleted while a stack-allocated Outgoing still holds it.

@@ -75,7 +75,7 @@ public:
     void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
 
     void prepareRequest(IceInternal::BasicStream*);
-    void sendRequest(IceInternal::BasicStream*, IceInternal::Outgoing*);
+    void sendRequest(IceInternal::BasicStream*, IceInternal::BasicStream*, IceInternal::Outgoing*);
 
 #ifdef ICEE_HAS_BATCH
     void prepareBatchRequest(IceInternal::BasicStream*);
@@ -90,6 +90,10 @@ public:
 #endif
 
     IceInternal::EndpointPtr endpoint() const;
+
+#if defined(ICEE_BLOCKING_CLIENT) && !defined(ICEE_PURE_BLOCKING_CLIENT)
+    bool blocking() const;
+#endif
 
 #ifndef ICEE_PURE_CLIENT
     void setAdapter(const ObjectAdapterPtr&); // From Connection.
@@ -135,12 +139,10 @@ private:
     void initiateShutdown() const;
 
 #ifndef ICEE_PURE_CLIENT
-    void parseMessage(IceInternal::BasicStream&, Int&, IceInternal::Outgoing*, Int&, 
-    		      IceInternal::ServantManagerPtr&, ObjectAdapterPtr&);
-    void invokeAll(IceInternal::BasicStream&, Int, Int,
-		   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
+    void parseMessage(IceInternal::BasicStream&, Int&, Int&, IceInternal::ServantManagerPtr&, ObjectAdapterPtr&);
+    void invokeAll(IceInternal::BasicStream&, Int, Int, const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
 #else
-    void parseMessage(IceInternal::BasicStream&, Int&, IceInternal::Outgoing*);
+    void parseMessage(IceInternal::BasicStream&, Int&);
 #endif
 
     void readStream(IceInternal::BasicStream&);

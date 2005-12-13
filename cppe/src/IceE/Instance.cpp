@@ -202,20 +202,14 @@ IceInternal::Instance::objectAdapterFactory() const
 }
 #endif
 
-#if defined(ICEE_BLOCKING_CLIENT) && !defined(ICEE_PURE_BLOCKING_CLIENT)
-bool
-IceInternal::Instance::blocking() const
-{
-    return _blocking;
-}
-#endif
-
+#ifndef ICEE_PURE_BLOCKING_CLIENT
 size_t
 IceInternal::Instance::threadPerConnectionStackSize() const
 {
     // No mutex lock, immutable.
     return _threadPerConnectionStackSize;
 }
+#endif
 
 EndpointFactoryPtr
 IceInternal::Instance::endpointFactory() const
@@ -298,10 +292,9 @@ IceInternal::Instance::getDefaultContext() const
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
     _state(StateActive),
     _properties(properties),
-    _messageSizeMax(0),
-    _threadPerConnectionStackSize(0)
-#if defined(ICEE_BLOCKING_CLIENT) && !defined(ICEE_PURE_BLOCKING_CLIENT)
-    , _blocking(false)
+    _messageSizeMax(0)
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+    , _threadPerConnectionStackSize(0)
 #endif
 {
     try
@@ -450,10 +443,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	}
 
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-#  ifdef ICEE_BLOCKING_CLIENT
-	const_cast<bool&>(_blocking) = _properties->getPropertyAsInt("Ice.Blocking") > 0;
-#  endif
-
 	{
 	    Int stackSize = _properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
 	    if(stackSize < 0)
