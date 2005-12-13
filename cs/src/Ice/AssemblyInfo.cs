@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -25,6 +26,6 @@ using System.Runtime.CompilerServices;
 #if __MonoCS__
 [assembly: AssemblyKeyFile("../../config/IcecsKey.snk")] // mcs uses different search algorithm.
 #else
-[assembly: AssemblyKeyFile("../../../../config\IcecsKey.snk")]
+[assembly: AssemblyKeyFile("../../../../config/IcecsKey.snk")]
 #endif
 [assembly: AssemblyKeyName("")]
