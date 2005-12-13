@@ -23,5 +23,9 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCulture("")]		
 [assembly: AssemblyVersion("3.0.0")]
 [assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyKeyFile("../../config/IcecsKey.snk")]
+#if __MonoCS__
+[assembly: AssemblyKeyFile("../../config/IcecsKey.snk")] // mcs uses different search algorithm
+#else
+[assembly: AssemblyKeyFile("../../../../config/IcecsKey.snk")]
+#endif
 [assembly: AssemblyKeyName("")]

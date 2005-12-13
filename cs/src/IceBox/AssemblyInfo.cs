@@ -7,8 +7,11 @@
 //
 // **********************************************************************
 
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+
+[assembly: CLSCompliant(true)]
 
 [assembly: AssemblyTitle("iceboxcs")]
 [assembly: AssemblyDescription("IceBox run-time support")]
@@ -20,5 +23,9 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCulture("")]		
 [assembly: AssemblyVersion("3.0.0")]
 [assembly: AssemblyDelaySign(false)]
+#if __MonoCS__
 [assembly: AssemblyKeyFile("../../config/IcecsKey.snk")] // mcs uses different search algorithm.
+#else
+[assembly: AssemblyKeyFile("../../../../config/IcecsKey.snk")]
+#endif
 [assembly: AssemblyKeyName("")]
