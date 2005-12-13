@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 Ice.lib IceUtil.lib /nologo /subsystem:windows /incremental:yes /machine:I386 /out:"client.exe" /libpath:"../../../../lib" /FIXED:no
+# ADD LINK32 Ice.lib IceUtil.lib /nologo /subsystem:windows /incremental:yes /debug /machine:I386 /out:"client.exe" /libpath:"../../../../lib" /FIXED:no
 
 !ELSEIF  "$(CFG)" == "mfchelloC - Win32 Debug"
 
