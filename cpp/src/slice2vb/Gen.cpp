@@ -988,7 +988,7 @@ Slice::Gen::generateChecksums(const UnitPtr& p)
     ChecksumMap map = createChecksums(p);
     if(!map.empty())
     {
-        string className = "_" + IceUtil::generateUUID();
+        string className = "X" + IceUtil::generateUUID();
         for(string::size_type pos = 1; pos < className.size(); ++pos)
         {
             if(!isalnum(className[pos]))
