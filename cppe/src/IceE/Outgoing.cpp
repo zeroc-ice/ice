@@ -116,8 +116,8 @@ IceInternal::Outgoing::invoke()
 #ifndef ICEE_PURE_BLOCKING_CLIENT
 #ifdef ICEE_BLOCKING_CLIENT
 	    if(!_connection->blocking())
-	    {
 #endif
+	    {
 	        //
 	        // We let all exceptions raised by sending directly
 	        // propagate to the caller, because they can be retried
@@ -189,9 +189,12 @@ IceInternal::Outgoing::invoke()
 		        }
 		    }
 	        }
-#ifdef ICEE_BLOCKING_CLIENT
 	    }
+#ifdef ICEE_BLOCKING_CLIENT
 	    else
+#endif
+#endif
+#ifdef ICEE_BLOCKING_CLIENT
 	    {
 	        _connection->sendRequest(&_os, &_is, this);
 		if(!_exception.get())
@@ -199,7 +202,6 @@ IceInternal::Outgoing::invoke()
 		    finishedInternal();
 		}
 	    }
-#endif
 #endif
 	    if(_exception.get())
 	    {
