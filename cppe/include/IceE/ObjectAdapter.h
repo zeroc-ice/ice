@@ -68,7 +68,10 @@ public:
     ObjectPtr findByProxy(const ObjectPrx&) const;
 
     ObjectPrx createProxy(const Identity&) const;
+#ifdef ICEE_HAS_LOCATOR
     ObjectPrx createDirectProxy(const Identity&) const;
+    ObjectPrx createIndirectProxy(const Identity&) const;
+#endif
     ObjectPrx createReverseProxy(const Identity&) const;
 
 #ifdef ICEE_HAS_ROUTER
@@ -96,6 +99,9 @@ private:
     
     ObjectPrx newProxy(const Identity&, const std::string&) const;
     ObjectPrx newDirectProxy(const Identity&, const std::string&) const;
+#ifdef ICEE_HAS_LOCATOR
+    ObjectPrx newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
+#endif
     void checkForDeactivation() const;
     static void checkIdentity(const Identity&);
     std::vector<IceInternal::EndpointPtr> parseEndpoints(const std::string&) const;
@@ -106,7 +112,10 @@ private:
     IceInternal::ServantManagerPtr _servantManager;
     bool _printAdapterReadyDone;
     const std::string _name;
+#ifdef ICEE_HAS_LOCATOR
     const std::string _id;
+    const std::string _replicaGroupId;
+#endif
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
 #ifdef ICEE_HAS_ROUTER
     std::vector<IceInternal::EndpointPtr> _routerEndpoints;

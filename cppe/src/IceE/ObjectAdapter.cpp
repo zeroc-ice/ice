@@ -88,7 +88,7 @@ void
 Ice::ObjectAdapter::activate()
 {
 #ifdef ICEE_HAS_LOCATOR
-    LocatorRegistryPrx locatorRegistry;
+    LocatorInfoPtr locatorInfo;
 #endif
     bool printAdapterReady = false;
 
@@ -100,10 +100,7 @@ Ice::ObjectAdapter::activate()
 	if(!_printAdapterReadyDone)
 	{
 #ifdef ICEE_HAS_LOCATOR
-	    if(_locatorInfo && !_id.empty())
-	    {
-		locatorRegistry = _locatorInfo->getLocatorRegistry();
-	    }
+	    locatorInfo = _locatorInfo;
 #endif
 	    printAdapterReady = _instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 	    _printAdapterReadyDone = true;
@@ -113,41 +110,57 @@ Ice::ObjectAdapter::activate()
 		 Ice::voidMemFun(&IncomingConnectionFactory::activate));	
     }
 
-    //
-    // We must call on the locator registry outside the thread
-    // synchronization, to avoid deadlocks.
-    //
 #ifdef ICEE_HAS_LOCATOR
-    if(locatorRegistry)
+    if(!_id.empty())
     {
 	//
-	// TODO: This might throw if we can't connect to the
-	// locator. Shall we raise a special exception for the
-	// activate operation instead of a non obvious network
-	// exception?
+	// We must call on the locator registry outside the thread
+	// synchronization, to avoid deadlocks.
 	//
-	try
+	LocatorRegistryPrx locatorRegistry;
+	if(locatorInfo)
 	{
-	    Identity ident;
-	    ident.name = "dummy";
-	    locatorRegistry->setAdapterDirectProxy(_id, createDirectProxy(ident));
+	    //
+	    // TODO: This might throw if we can't connect to the
+	    // locator. Shall we raise a special exception for the
+	    // activate operation instead of a non obvious network
+	    // exception?
+	    //
+	    locatorRegistry = locatorInfo->getLocatorRegistry();
 	}
-	catch(const ObjectAdapterDeactivatedException&)
+
+	if(locatorRegistry)
 	{
-	    // IGNORE: The object adapter is already inactive.
-	}
-	catch(const AdapterNotFoundException&)
-	{
-	    NotRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = "object adapter";
-	    ex.id = _id;
-	    throw ex;
-	}
-	catch(const AdapterAlreadyActiveException&)
-	{
-	    ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
-	    ex.id = _id;
-	    throw ex;
+	    try
+	    {
+		Identity ident;
+		ident.name = "dummy";
+		if(_replicaGroupId.empty())
+		{
+		    locatorRegistry->setAdapterDirectProxy(_id, createDirectProxy(ident));
+		}
+		else
+		{
+		    locatorRegistry->setReplicatedAdapterDirectProxy(_id, _replicaGroupId, createDirectProxy(ident));
+		}
+	    }
+	    catch(const ObjectAdapterDeactivatedException&)
+	    {
+		// IGNORE: The object adapter is already inactive.
+	    }
+	    catch(const AdapterNotFoundException&)
+	    {
+		NotRegisteredException ex(__FILE__, __LINE__);
+		ex.kindOfObject = "object adapter";
+		ex.id = _id;
+		throw ex;
+	    }
+	    catch(const AdapterAlreadyActiveException&)
+	    {
+		ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
+		ex.id = _id;
+		throw ex;
+	    }
 	}
     }
 #endif
@@ -400,6 +413,7 @@ Ice::ObjectAdapter::createProxy(const Identity& ident) const
     return newProxy(ident, "");
 }
 
+#ifdef ICEE_HAS_LOCATOR
 ObjectPrx
 Ice::ObjectAdapter::createDirectProxy(const Identity& ident) const
 {
@@ -410,6 +424,18 @@ Ice::ObjectAdapter::createDirectProxy(const Identity& ident) const
 
     return newDirectProxy(ident, "");
 }
+
+ObjectPrx
+Ice::ObjectAdapter::createIndirectProxy(const Identity& ident) const
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+    
+    checkForDeactivation();
+    checkIdentity(ident);
+
+    return newIndirectProxy(ident, "", _id);
+}
+#endif
 
 ObjectPrx
 Ice::ObjectAdapter::createReverseProxy(const Identity& ident) const
@@ -658,7 +684,10 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
     _servantManager(new ServantManager(instance, name)),
     _printAdapterReadyDone(false),
     _name(name),
+#ifdef ICEE_HAS_LOCATOR
     _id(instance->properties()->getProperty(name + ".AdapterId")),
+    _replicaGroupId(instance->properties()->getProperty(name + ".ReplicaGroupId")),
+#endif
     _directCount(0),
     _waitForDeactivate(false)
 {
@@ -756,24 +785,13 @@ Ice::ObjectAdapter::newProxy(const Identity& ident, const string& facet) const
 	return newDirectProxy(ident, facet);
 #ifdef ICEE_HAS_LOCATOR
     }
+    else if(_replicaGroupId.empty())
+    {
+	return newIndirectProxy(ident, facet, _id);
+    }
     else
     {
-	//
-	// Create a reference with the adapter id.
-	//
-#ifdef ICEE_HAS_ROUTER
-	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet,Reference::ModeTwoway, false,
-								 _id, 0, _locatorInfo);
-
-#else
-	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet, Reference::ModeTwoway, false,
-								 _id, _locatorInfo);
-#endif
-
-	//
-	// Return a proxy for the reference. 
-	//
-	return _instance->proxyFactory()->referenceToProxy(ref);
+	return newIndirectProxy(ident, facet, _replicaGroupId);
     }
 #endif
 }
@@ -805,6 +823,29 @@ Ice::ObjectAdapter::newDirectProxy(const Identity& ident, const string& facet) c
     return _instance->proxyFactory()->referenceToProxy(ref);
 
 }
+
+#ifdef ICEE_HAS_LOCATOR
+ObjectPrx
+Ice::ObjectAdapter::newIndirectProxy(const Identity& ident, const string& facet, const string& id) const
+{
+    //
+    // Create a reference with the adapter id.
+    //
+#ifdef ICEE_HAS_ROUTER
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet,Reference::ModeTwoway, false,
+							     id, 0, _locatorInfo);
+    
+#else
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), facet, Reference::ModeTwoway, false,
+							     id, _locatorInfo);
+#endif
+
+    //
+    // Return a proxy for the reference. 
+    //
+    return _instance->proxyFactory()->referenceToProxy(ref);
+}
+#endif
 
 void
 Ice::ObjectAdapter::checkForDeactivation() const
