@@ -155,6 +155,13 @@ Ice::ObjectAdapter::activate()
 		ex.id = _id;
 		throw ex;
 	    }
+	    catch(const InvalidReplicaGroupIdException&)
+	    {
+		NotRegisteredException ex(__FILE__, __LINE__);
+		ex.kindOfObject = "replica group";
+		ex.id = _replicaGroupId;
+		throw ex;
+	    }
 	    catch(const AdapterAlreadyActiveException&)
 	    {
 		ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
