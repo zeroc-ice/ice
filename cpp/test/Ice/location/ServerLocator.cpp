@@ -29,9 +29,11 @@ ServerLocatorRegistry::setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistr
 void 
 ServerLocatorRegistry::setReplicatedAdapterDirectProxy_async(
     const Ice::AMD_LocatorRegistry_setReplicatedAdapterDirectProxyPtr& cb,
-    const std::string& adapter, const ::std::string&, const ::Ice::ObjectPrx& object, const ::Ice::Current&)
+    const std::string& adapter, const ::std::string& replicaGroup, const ::Ice::ObjectPrx& object, 
+    const ::Ice::Current&)
 {
     _adapters[adapter] = object;
+    _adapters[replicaGroup] = object;
     cb->ice_response();
 }
 

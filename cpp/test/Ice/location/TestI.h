@@ -45,6 +45,7 @@ public:
 
     virtual void shutdown(const Ice::Current&);
     virtual ::Test::HelloPrx getHello(const Ice::Current&);
+    virtual ::Test::HelloPrx getReplicatedHello(const Ice::Current&);
     virtual void migrateHello(const Ice::Current&);
 
 private:

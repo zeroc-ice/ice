@@ -40,6 +40,8 @@ interface TestIntf
 
     Hello* getHello();
 
+    Hello* getReplicatedHello();
+
     void migrateHello();
 };
 

@@ -43,6 +43,7 @@ ServerManagerI::startServer(const Ice::Current&)
     _communicators.push_back(serverCommunicator);
     serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints", "default");
     serverCommunicator->getProperties()->setProperty("TestAdapter.AdapterId", "TestAdapter");
+    serverCommunicator->getProperties()->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
     Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
 
     serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default");
@@ -88,6 +89,12 @@ TestI::shutdown(const Ice::Current&)
 
 HelloPrx
 TestI::getHello(const Ice::Current&)
+{
+    return HelloPrx::uncheckedCast(_adapter1->createIndirectProxy(Ice::stringToIdentity("hello")));
+}
+
+HelloPrx
+TestI::getReplicatedHello(const Ice::Current&)
 {
     return HelloPrx::uncheckedCast(_adapter1->createProxy(Ice::stringToIdentity("hello")));
 }
