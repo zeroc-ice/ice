@@ -1729,7 +1729,16 @@ Ice::Connection::readStream(IceInternal::BasicStream& stream)
     
         if(stream.i != stream.b.end())
         {
-    	    _transceiver->read(stream, -1);
+            _transceiver->read(stream,
+#ifdef ICEE_PURE_BLOCKING_CLIENT
+			       _endpoint->timeout()
+#else
+#  ifdef ICEE_BLOCKING_CLIENT
+	                       _blocking ? _endpoint->timeout() :
+#  endif
+			       -1
+#endif
+			       );
     	    assert(stream.i == stream.b.end());
         }
     }
