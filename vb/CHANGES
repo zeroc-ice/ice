@@ -1,6 +1,10 @@
 Changes since version 3.0.0
 ---------------------------
 
+- Fixed a bug in slice2cs that prevented the generated code
+  from being marked as CLS-compliant if the --checksum option
+  was used.
+
 - Added IceBox, IceGrid and IceStorm demos.
 
 Changes since version 2.1.2
