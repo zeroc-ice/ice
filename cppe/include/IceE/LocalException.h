@@ -439,18 +439,6 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICE_API ConnectionTimeoutException : public ::Ice::TimeoutException
-{
-public:
-
-    ConnectionTimeoutException(const char*, int);
-
-    virtual const ::std::string ice_name() const;
-    virtual ::std::string  toString() const;
-    virtual ::Ice::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-};
-
 class ICE_API ProtocolException : public ::Ice::LocalException
 {
 public:

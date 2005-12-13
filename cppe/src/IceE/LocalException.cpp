@@ -1154,35 +1154,6 @@ Ice::CloseTimeoutException::ice_throw() const
     throw *this;
 }
 
-Ice::ConnectionTimeoutException::ConnectionTimeoutException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    TimeoutException(__file, __line)
-#else
-    ::Ice::TimeoutException(__file, __line)
-#endif
-{
-}
-
-static const char* __Ice__ConnectionTimeoutException_name = "Ice::ConnectionTimeoutException";
-
-const ::std::string
-Ice::ConnectionTimeoutException::ice_name() const
-{
-    return __Ice__ConnectionTimeoutException_name;
-}
-
-::Ice::Exception*
-Ice::ConnectionTimeoutException::ice_clone() const
-{
-    return new ConnectionTimeoutException(*this);
-}
-
-void
-Ice::ConnectionTimeoutException::ice_throw() const
-{
-    throw *this;
-}
-
 Ice::ProtocolException::ProtocolException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     LocalException(__file, __line)
@@ -2063,14 +2034,6 @@ Ice::CloseTimeoutException::toString() const
 {
     string out = Exception::toString();
     out += ":\ntimeout while closing a connection";
-    return out;
-}
-
-string
-Ice::ConnectionTimeoutException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nconnection has timed out";
     return out;
 }
 

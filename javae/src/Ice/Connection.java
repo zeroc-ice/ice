@@ -1104,7 +1104,6 @@ public final class Connection
 		    // Don't warn about certain expected exceptions.
 		    //
 		    if(!(_exception instanceof CloseConnectionException ||
-			 _exception instanceof ConnectionTimeoutException ||
 			 _exception instanceof CommunicatorDestroyedException ||
 			 _exception instanceof ObjectAdapterDeactivatedException ||
 			 (_exception instanceof ConnectionLostException && _state == StateClosing)))
@@ -1760,7 +1759,7 @@ public final class Connection
 	{
 	    stream.resize(IceInternal.Protocol.headerSize, true);
 	    stream.pos(0);
-	    _transceiver.read(stream, -1);
+	    _transceiver.read(stream, _blocking ? _endpoint.timeout() : -1);
 
 	    int pos = stream.pos();
 	    if(IceUtil.Debug.ASSERT)

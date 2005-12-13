@@ -473,17 +473,6 @@ local exception CloseTimeoutException extends TimeoutException
 
 /**
  *
- * This exception is a specialization of [TimeoutException], and
- * indicates that a connection has been shut down because it has been
- * idle for some time.
- *
- **/
-local exception ConnectionTimeoutException extends TimeoutException
-{
-};
-
-/**
- *
  * A generic exception base for all kinds of protocol error
  * conditions.
  *

@@ -1182,7 +1182,6 @@ Ice::Connection::setState(State state, const LocalException& ex)
 		//
 		if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
 		     dynamic_cast<const ForcedCloseConnectionException*>(_exception.get()) ||
-		     dynamic_cast<const ConnectionTimeoutException*>(_exception.get()) ||
 		     dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
 #ifndef ICEE_PURE_CLIENT
 		     dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get()) ||
@@ -1654,7 +1653,16 @@ Ice::Connection::readStream(IceInternal::BasicStream& stream)
     {
         stream.b.resize(headerSize);
         stream.i = stream.b.begin();
-        _transceiver->read(stream, -1);
+        _transceiver->read(stream,
+#ifdef ICEE_PURE_BLOCKING_CLIENT
+			   _endpoint->timeout()
+#else
+#  ifdef ICEE_BLOCKING_CLIENT
+	                   _blocking ? _endpoint->timeout() :
+#  endif
+			   -1
+#endif
+			   );
     
         ptrdiff_t pos = stream.i - stream.b.begin();
         assert(pos >= headerSize);
