@@ -1813,7 +1813,7 @@ public final class Connection
 
 	    if(pos != stream.size())
 	    {
-		_transceiver.read(stream, -1);
+	        _transceiver.read(stream, _blocking ? _endpoint.timeout() : -1);
 		if(IceUtil.Debug.ASSERT)
 		{
 		    IceUtil.Debug.Assert(stream.pos() == stream.size());
