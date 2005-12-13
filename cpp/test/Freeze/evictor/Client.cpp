@@ -64,12 +64,15 @@ private:
     vector<Test::ServantPrx>& _servants;
 };
 
-class ReadForeverThread : public Thread
+class ReadForeverThread : public Thread, public IceUtil::Monitor<IceUtil::RecMutex>
 {
 public:
 
+    enum State { StateRunning, StateDeactivating, StateDeactivated };
+
     ReadForeverThread(vector<Test::ServantPrx>& servants) :
-	_servants(servants)
+	_servants(servants),
+	_state(StateRunning)
     {
     }
     
@@ -82,7 +85,15 @@ public:
 	    {
 		for(int i = 0; i < static_cast<int>(_servants.size()); ++i)
 		{
-		    test(_servants[i]->slowGetValue() == i);
+		    if(getState() == StateDeactivated)
+		    {
+			_servants[i]->slowGetValue();
+			test(false);
+		    }
+		    else
+		    {
+			test(_servants[i]->slowGetValue() == i);
+		    }
 		}
 	    }
 	    catch(const Ice::SocketException&)
@@ -90,6 +101,7 @@ public:
 		//
 		// Expected
 		//
+		test(validEx());
 		return;
 	    }
 	    catch(const Ice::LocalException& e)
@@ -106,33 +118,74 @@ public:
 	}
     }
 
+    State
+    getState()
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	return _state;
+    }
+
+    bool
+    validEx()
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	return _state == StateDeactivating || _state == StateDeactivated;
+    }
+
+    void
+    setState(State s)
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	_state = s;
+    }
+
 private:
     vector<Test::ServantPrx>& _servants;
+    State _state;
 };
+typedef IceUtil::Handle<ReadForeverThread> ReadForeverThreadPtr;
 
-class AddForeverThread : public Thread
+class AddForeverThread : public Thread, public IceUtil::Monitor<IceUtil::RecMutex>
 {
 public:
 
-    AddForeverThread(const Test::RemoteEvictorPrx& evictor, int id) :
+    enum State { StateRunning, StateDeactivating, StateDeactivated };
+
+    AddForeverThread(const Test::RemoteEvictorPrx& evictor, int prefix) :
 	_evictor(evictor),
-	_id(id)
+	_state(StateRunning)
     {
+	ostringstream ostr;
+	ostr << prefix;
+	_prefix = ostr.str();
     }
     
     virtual void
     run()
     {
-	int index = _id * 100000;
+	int index = 0;
 
 	for(;;)
 	{
+	    ostringstream ostr;
+	    ostr << _prefix << "-" << index;
+	    index++;
+	    string id = ostr.str();
 	    try
 	    {
-		_evictor->createServant(index++, 0);
+		if(getState() == StateDeactivated)
+		{
+		    _evictor->createServant(id, 0);
+		    test(false);
+		}
+		else
+		{
+		    _evictor->createServant(id, 0);
+		}
 	    }
 	    catch(const Test::EvictorDeactivatedException&)
 	    {
+		test(validEx());
 		//
 		// Expected
 		//
@@ -140,6 +193,7 @@ public:
 	    }
 	    catch(const Ice::ObjectNotExistException&)
 	    {
+		test(validEx());
 		//
 		// Expected
 		//
@@ -173,12 +227,32 @@ public:
 	}
     }
 
+    State
+    getState()
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	return _state;
+    }
+    bool
+    validEx()
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	return _state == StateDeactivating || _state == StateDeactivated;
+    }
+
+    void
+    setState(State s)
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	_state = s;
+    }
+
 private:
     Test::RemoteEvictorPrx _evictor;
-    int _id;
+    string _prefix;
+    State _state;
 };
-
-
+typedef IceUtil::Handle<AddForeverThread> AddForeverThreadPtr;
 
 class CreateDestroyThread : public Thread
 {
@@ -186,9 +260,11 @@ public:
 
     CreateDestroyThread(const Test::RemoteEvictorPrx& evictor, int id, int size) :
 	_evictor(evictor),
-	_id(id),
 	_size(size)
     {
+	ostringstream ostr;
+	ostr << id;
+	_id = ostr.str();
     }
     
     virtual void
@@ -201,7 +277,10 @@ public:
 	    {
 		for(int i = 0; i < _size; i++)
 		{
-		    if(i == _id)
+		    ostringstream ostr;
+		    ostr << i;
+		    string id = ostr.str();
+		    if(id == _id)
 		    {
 			//
 			// Create when odd, destroy when even.
@@ -209,7 +288,7 @@ public:
 			
 			if(loops % 2 == 0)
 			{
-			    Test::ServantPrx servant = _evictor->getServant(i);
+			    Test::ServantPrx servant = _evictor->getServant(id);
 			    servant->destroy();
 			    
 			    //
@@ -227,14 +306,14 @@ public:
 			}
 			else
 			{
-			    Test::ServantPrx servant = _evictor->createServant(i, i);
+			    Test::ServantPrx servant = _evictor->createServant(id, i);
 			    
 			    //
 			    // Twice
 			    //
 			    try
 			    {
-				servant = _evictor->createServant(i, 0);
+				servant = _evictor->createServant(id, 0);
 				test(false);
 			    }
 			    catch(const Test::AlreadyRegisteredException&)
@@ -248,7 +327,7 @@ public:
 			//
 			// Just read/write the value
 			//
-			Test::ServantPrx servant = _evictor->getServant(i);
+			Test::ServantPrx servant = _evictor->getServant(id);
 			try
 			{
 			    int val = servant->getValue();
@@ -273,11 +352,9 @@ public:
     }
 private:
     Test::RemoteEvictorPrx _evictor;
-    int _id;
+    string _id;
     int _size;
 };
-
-
 
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
@@ -302,7 +379,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     vector<Test::ServantPrx> servants;
     for(i = 0; i < size; i++)
     {
-	servants.push_back(evictor->createServant(i, i));
+	ostringstream ostr;
+	ostr << i;
+	string id = ostr.str();
+	servants.push_back(evictor->createServant(id, i));
 	servants[i]->ice_ping();
 	
 	Test::FacetPrx facet1 = Test::FacetPrx::uncheckedCast(servants[i], "facet1");
@@ -495,7 +575,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     servants.clear();
     for(i = 0; i < size; i++)
     {
-	servants.push_back(evictor->createServant(i, i));
+	ostringstream ostr;
+	ostr << i;
+	string id = ostr.str();
+	servants.push_back(evictor->createServant(id, i));
 	servants[i]->setTransientValue(i);
     }
     
@@ -594,7 +677,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     evictor->setSize(size);
     for(i = 0; i < size; i++)
     {
-	servants[i] = evictor->getServant(i);
+	ostringstream ostr;
+	ostr << i;
+	string id = ostr.str();
+
+	servants[i] = evictor->getServant(id);
 	test(servants[i]->getValue() == i);
     }
 
@@ -669,7 +756,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     servants.clear();
     for(i = 0; i < size; i++)
     {
-	servants.push_back(evictor->createServant(i, i));
+	ostringstream ostr;
+	ostr << i;
+	string id = ostr.str();
+	servants.push_back(evictor->createServant(id, i));
     }
 
     //
@@ -679,7 +769,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	const int threadCount = size;
 	
-	ThreadPtr threads[threadCount];
+	ReadForeverThreadPtr threads[threadCount];
 	for(i = 0; i < threadCount; i++)
 	{
 	    threads[i] = new ReadForeverThread(servants);
@@ -687,7 +777,15 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	}
 
 	ThreadControl::sleep(Time::milliSeconds(500));
+	for(i = 0; i < threadCount; i++)
+	{
+	    threads[i]->setState(ReadForeverThread::StateDeactivating);
+	}
 	evictor->deactivate();
+	for(i = 0; i < threadCount; i++)
+	{
+	    threads[i]->setState(ReadForeverThread::StateDeactivated);
+	}
 
 	for(i = 0; i < threadCount; i++)
 	{
@@ -707,7 +805,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	const int threadCount = size;
 	
-	ThreadPtr threads[threadCount];
+	AddForeverThreadPtr threads[threadCount];
 	for(i = 0; i < threadCount; i++)
 	{
 	    threads[i] = new AddForeverThread(evictor, i);
@@ -715,7 +813,15 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	}
 
 	ThreadControl::sleep(Time::milliSeconds(500));
+	for(i = 0; i < threadCount; i++)
+	{
+	    threads[i]->setState(AddForeverThread::StateDeactivating);
+	}
 	evictor->deactivate();
+	for(i = 0; i < threadCount; i++)
+	{
+	    threads[i]->setState(AddForeverThread::StateDeactivated);
+	}
 	
 	for(i = 0; i < threadCount; i++)
 	{

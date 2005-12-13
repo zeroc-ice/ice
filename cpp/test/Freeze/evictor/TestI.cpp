@@ -263,13 +263,11 @@ Test::RemoteEvictorI::setSize(Int size, const Current&)
 }
 
 Test::ServantPrx
-Test::RemoteEvictorI::createServant(Int id, Int value, const Current&)
+Test::RemoteEvictorI::createServant(const string& id, Int value, const Current&)
 {
     Identity ident;
     ident.category = _category;
-    ostringstream ostr;
-    ostr << id;
-    ident.name = ostr.str();
+    ident.name = id;
     ServantPtr servant = new ServantI(this, _evictor, value);
     try
     {
@@ -291,13 +289,11 @@ Test::RemoteEvictorI::createServant(Int id, Int value, const Current&)
 }
 
 Test::ServantPrx
-Test::RemoteEvictorI::getServant(Int id, const Current&)
+Test::RemoteEvictorI::getServant(const string& id, const Current&)
 {
     Identity ident;
     ident.category = _category;
-    ostringstream ostr;
-    ostr << id;
-    ident.name = ostr.str();
+    ident.name = id;
     return ServantPrx::uncheckedCast(_evictorAdapter->createProxy(ident));
 }
 

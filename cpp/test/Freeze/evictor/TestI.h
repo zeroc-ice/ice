@@ -94,9 +94,9 @@ public:
 
     virtual void setSize(::Ice::Int, const Ice::Current&);
 
-    virtual ::Test::ServantPrx createServant(::Ice::Int, ::Ice::Int, const Ice::Current&);
+    virtual ::Test::ServantPrx createServant(const std::string&, ::Ice::Int, const Ice::Current&);
 
-    virtual ::Test::ServantPrx getServant(::Ice::Int, const Ice::Current&);
+    virtual ::Test::ServantPrx getServant(const std::string&, const Ice::Current&);
 
     virtual void saveNow(const Ice::Current&);
 

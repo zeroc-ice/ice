@@ -60,10 +60,10 @@ interface RemoteEvictor
 {
     void setSize(int size);
 
-    Servant* createServant(int id, int value) 
+    Servant* createServant(string id, int value) 
 	throws AlreadyRegisteredException, EvictorDeactivatedException;
 
-    Servant* getServant(int id);
+    Servant* getServant(string id);
 
     void saveNow();
 

@@ -64,12 +64,12 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     }
 
     public Test.ServantPrx
-    createServant(int id, int value, Ice.Current current)
+    createServant(String id, int value, Ice.Current current)
 	throws Test.AlreadyRegisteredException, Test.EvictorDeactivatedException
     {
         Ice.Identity ident = new Ice.Identity();
         ident.category = _category;
-        ident.name = "" + id;
+        ident.name = id;
 	Test._ServantTie tie = new Test._ServantTie();
 	tie.ice_delegate(new ServantI(tie, this, _evictor, value));
 	try
@@ -96,11 +96,11 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     }
 
     public Test.ServantPrx
-    getServant(int id, Ice.Current current)
+    getServant(String id, Ice.Current current)
     {
         Ice.Identity ident = new Ice.Identity();
         ident.category = _category;
-        ident.name = "" + id;
+        ident.name = id;
         return Test.ServantPrxHelper.uncheckedCast(_evictorAdapter.createProxy(ident));
     }
 

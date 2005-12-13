@@ -67,6 +67,10 @@ public class Client
 	private Test.ServantPrx[] _servants;
     }
 
+    public static final int StateRunning = 0;
+    public static final int StateDeactivating = 1;
+    public static final int StateDeactivated = 2;
+
     static class ReadForeverThread extends Thread
     {
 	ReadForeverThread(Test.ServantPrx[] servants)
@@ -83,7 +87,15 @@ public class Client
 		{
 		    for(int i = 0; i < _servants.length; ++i)
 		    {
-			test(_servants[i].slowGetValue() == i);
+			if(getState() == StateDeactivated)
+			{
+			    _servants[i].slowGetValue();
+			    test(false);
+			}
+			else
+			{
+			    test(_servants[i].slowGetValue() == i);
+			}
 		    }
 		}
 		catch(Ice.SocketException e)
@@ -91,6 +103,7 @@ public class Client
 		    //
 		    // Expected
 		    //
+		    test(validEx());
 		    return;
 		}
 		catch(Ice.LocalException e)
@@ -107,34 +120,63 @@ public class Client
 	    }
 	}
 
+	synchronized int
+	getState()
+	{
+	    return _state;
+	}
+	
+	synchronized boolean
+	validEx()
+	{
+	    return _state == StateDeactivating || _state == StateDeactivated;
+	}
+	
+	synchronized void
+	setState(int s)
+	{
+	    _state = s;
+	}
+
 	private Test.ServantPrx[] _servants;
+	private int _state = StateRunning;
     }
 
 
     static class AddForeverThread extends Thread
     {	
-	AddForeverThread(Test.RemoteEvictorPrx evictor, int id)
+	AddForeverThread(Test.RemoteEvictorPrx evictor, int prefix)
 	{
 	    _evictor = evictor;
-	    _id = id;
+	    _prefix = "" + prefix;
 	}
 
 	public void
 	run()
 	{
-	    int index = _id * 1000;
+	    int index = 0;
 	    
 	    for(;;)
 	    {
 		try
 		{
-		    _evictor.createServant(index++, 0);
+		    String id = _prefix + "-" + index++;
+		    if(getState() == StateDeactivated)
+		    {
+			_evictor.createServant(id, 0);
+			test(false);
+		    }
+		    else
+		    {
+			_evictor.createServant(id, 0);
+		    }
 		}
 		catch(Test.EvictorDeactivatedException e)
 		{
 		    //
 		    // Expected
 		    //
+		    test(validEx());
 		    return;
 		}
 		catch(Ice.ObjectNotExistException e)
@@ -142,6 +184,7 @@ public class Client
 		    //
 		    // Expected
 		    //
+		    test(validEx());
 		    return;
 		}
 		catch(Test.AlreadyRegisteredException e)
@@ -167,8 +210,27 @@ public class Client
 	    }
 	}
 
+	synchronized int
+	getState()
+	{
+	    return _state;
+	}
+	
+	synchronized boolean
+	validEx()
+	{
+	    return _state == StateDeactivating || _state == StateDeactivated;
+	}
+	
+	synchronized void
+	setState(int s)
+	{
+	    _state = s;
+	}
+
 	private Test.RemoteEvictorPrx _evictor;
-	private int _id;
+	private String _prefix;
+	private int _state = StateRunning;
     }
 
 
@@ -177,7 +239,7 @@ public class Client
 	CreateDestroyThread(Test.RemoteEvictorPrx evictor, int id, int size) 
 	{
 	    _evictor = evictor;
-	    _id = id;
+	    _id = "" + id;
 	    _size = size;
 	}
 		   
@@ -191,7 +253,8 @@ public class Client
 		{
 		    for(int i = 0; i < _size; i++)
 		    {
-			if(i == _id)
+			String id = "" + i;
+			if(id.equals(_id))
 			{
 			    //
 			    // Create when odd, destroy when even.
@@ -199,7 +262,7 @@ public class Client
 			    
 			    if(loops % 2 == 0)
 			    {
-				Test.ServantPrx servant = _evictor.getServant(i);
+				Test.ServantPrx servant = _evictor.getServant(id);
 				servant.destroy();
 				
 				//
@@ -217,14 +280,14 @@ public class Client
 			    }
 			    else
 			    {
-				Test.ServantPrx servant = _evictor.createServant(i, i);
+				Test.ServantPrx servant = _evictor.createServant(id, i);
 				
 				//
 				// Twice
 				//
 				try
 				{
-				    servant = _evictor.createServant(i, 0);
+				    servant = _evictor.createServant(id, 0);
 				    test(false);
 				}
 				catch(Test.AlreadyRegisteredException e)
@@ -238,7 +301,7 @@ public class Client
 			    //
 			    // Just read/write the value
 			    //
-			    Test.ServantPrx servant = _evictor.getServant(i);
+			    Test.ServantPrx servant = _evictor.getServant(id);
 			    try
 			    {
 				int val = servant.getValue();
@@ -263,7 +326,7 @@ public class Client
 	}
 
 	private Test.RemoteEvictorPrx _evictor;
-	private int _id;
+	private String _id;
 	private int _size;
     }
 
@@ -293,7 +356,8 @@ public class Client
 	Test.ServantPrx[] servants = new Test.ServantPrx[size];
 	for(int i = 0; i < size; i++)
 	{
-	    servants[i] = evictor.createServant(i, i);
+	    String id = "" + i;
+	    servants[i] = evictor.createServant(id, i);
 	    servants[i].ice_ping();
 	    
 	    Test.FacetPrx facet1 = Test.FacetPrxHelper.uncheckedCast(servants[i], "facet1");
@@ -494,7 +558,8 @@ public class Client
 	//  
 	for(int i = 0; i < size; i++)
 	{
-	    servants[i] = evictor.createServant(i, i);
+	    String id = "" + i;
+	    servants[i] = evictor.createServant(id, i);
 	    servants[i].setTransientValue(i);
 	}
 
@@ -590,7 +655,8 @@ public class Client
 	evictor.setSize(size);
 	for(int i = 0; i < size; i++)
 	{
-	    servants[i] = evictor.getServant(i);
+	    String id = "" + i;
+	    servants[i] = evictor.getServant(id);
 	    test(servants[i].getValue() == i);
 	}
 	
@@ -686,7 +752,8 @@ public class Client
 	servants = new Test.ServantPrx[size];
 	for(int i = 0; i < size; i++)
 	{
-	    servants[i] = evictor.createServant(i, i);
+	    String id = "" + i;
+	    servants[i] = evictor.createServant(id, i);
 	}
 	
 	//
@@ -711,7 +778,17 @@ public class Client
 	    {
 	    }
 
+	    for(int i = 0; i < threadCount; i++)
+	    {
+		ReadForeverThread t = (ReadForeverThread)threads[i];
+		t.setState(StateDeactivating);
+	    }
 	    evictor.deactivate();
+	    for(int i = 0; i < threadCount; i++)
+	    {
+		ReadForeverThread t = (ReadForeverThread)threads[i];
+		t.setState(StateDeactivating);
+	    }
 	    
 	    for(int i = 0; i < threadCount; i++)
 	    {
@@ -755,8 +832,19 @@ public class Client
 	    catch(InterruptedException e)
 	    {
 	    }
+
+	    for(int i = 0; i < threadCount; i++)
+	    {
+		AddForeverThread t = (AddForeverThread)threads[i];
+		t.setState(StateDeactivating);
+	    }
 	    evictor.deactivate();
-	    
+	    for(int i = 0; i < threadCount; i++)
+	    {
+		AddForeverThread t = (AddForeverThread)threads[i];
+		t.setState(StateDeactivating);
+	    }
+
 	    for(int i = 0; i < threadCount; i++)
 	    {
 		for(;;)
