@@ -103,6 +103,12 @@ TestI::shutdown(const Ice::Current&)
 HelloPrx
 TestI::getHello(const Ice::Current&)
 {
+    return HelloPrx::uncheckedCast(_adapter1->createIndirectProxy(Ice::stringToIdentity("hello")));
+}
+
+HelloPrx
+TestI::getReplicatedHello(const Ice::Current&)
+{
     return HelloPrx::uncheckedCast(_adapter1->createProxy(Ice::stringToIdentity("hello")));
 }
 

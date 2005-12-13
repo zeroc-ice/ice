@@ -33,6 +33,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Ice::ObjectPrx base3 = communicator->stringToProxy("test");
     Ice::ObjectPrx base4 = communicator->stringToProxy("ServerManager"); 
     Ice::ObjectPrx base5 = communicator->stringToProxy("test2");
+    Ice::ObjectPrx base6 = communicator->stringToProxy("test @ ReplicatedAdapter");
     tprintf("ok\n");
 
     tprintf("starting server...");
@@ -53,6 +54,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(obj4);
     TestIntfPrx obj5 = TestIntfPrx::checkedCast(base5);
     test(obj5);
+    TestIntfPrx obj6 = TestIntfPrx::checkedCast(base6);
+    test(obj6);
     tprintf("ok\n");
  
     tprintf("testing id@AdapterId indirect proxy...");
@@ -62,6 +65,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
 	obj2 = TestIntfPrx::checkedCast(base2);
 	obj2->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
+    tprintf("ok\n");
+
+    tprintf("testing id@ReplicaGroupId indirect proxy...");
+    obj->shutdown();
+    manager->startServer();
+    try
+    {
+	obj6 = TestIntfPrx::checkedCast(base6);
+	obj6->ice_ping();
     }
     catch(const Ice::LocalException&)
     {
@@ -189,6 +206,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     tprintf("testing object reference from server...");
     HelloPrx hello = obj->getHello();
     hello->sayHello();
+    test(communicator->proxyToString(hello).find("TestAdapter") != string::npos);
+    hello = obj->getReplicatedHello();
+    hello->sayHello();
+    test(communicator->proxyToString(hello).find("ReplicatedAdapter") != string::npos);
     tprintf("ok\n");
 
     tprintf("testing object reference from server after shutdown...");

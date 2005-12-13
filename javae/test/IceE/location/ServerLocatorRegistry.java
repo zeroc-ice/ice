@@ -18,6 +18,8 @@ public class ServerLocatorRegistry extends Ice._LocatorRegistryDisp
     public void
     setReplicatedAdapterDirectProxy(String adapter, String replicaId, Ice.ObjectPrx object, Ice.Current current)
     {
+	_adapters.put(adapter, object);
+	_adapters.put(replicaId, object);
     }
 
     public Ice.ObjectPrx

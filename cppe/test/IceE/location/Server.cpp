@@ -50,6 +50,7 @@ public:
 	//
 	properties->setProperty("TestAdapter.Endpoints", "default");
 	properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
+	properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
 	properties->setProperty("TestAdapter2.Endpoints", "default");
 	properties->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
 

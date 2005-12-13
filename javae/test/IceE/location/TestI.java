@@ -29,6 +29,12 @@ public class TestI extends _TestIntfDisp
     public HelloPrx
     getHello(Ice.Current current)
     {
+	return HelloPrxHelper.uncheckedCast(_adapter1.createIndirectProxy(Ice.Util.stringToIdentity("hello")));
+    }
+
+    public HelloPrx
+    getReplicatedHello(Ice.Current current)
+    {
 	return HelloPrxHelper.uncheckedCast(_adapter1.createProxy(Ice.Util.stringToIdentity("hello")));
     }
 
