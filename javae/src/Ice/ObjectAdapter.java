@@ -31,7 +31,7 @@ public final class ObjectAdapter
     public void
     activate()
     {
-	Ice.LocatorRegistryPrx locatorRegistry = null;
+	IceInternal.LocatorInfo locatorInfo = null;
 	boolean printAdapterReady = false;
 
 	synchronized(this)
@@ -40,11 +40,7 @@ public final class ObjectAdapter
 	    
 	    if(!_printAdapterReadyDone)
 	    {
-		if(_locatorInfo != null && _id.length() > 0)
-		{
-		    locatorRegistry = _locatorInfo.getLocatorRegistry();
-		}
-
+		locatorInfo = _locatorInfo;
 		printAdapterReady = _instance.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 		_printAdapterReadyDone = true;
 	    }
@@ -59,41 +55,68 @@ public final class ObjectAdapter
 	    }
 	}
 
-	//
-	// We must call on the locator registry outside the thread
-	// synchronization, to avoid deadlocks.
-	//
-	if(locatorRegistry != null)
+	if(_id.length() > 0)
 	{
 	    //
-	    // TODO: This might throw if we can't connect to the
-	    // locator. Shall we raise a special exception for the
-	    // activate operation instead of a non obvious network
-	    // exception?
+	    // We must get and call on the locator registry outside the thread
+	    // synchronization to avoid deadlocks. (we can't make remote calls
+	    // within the OA synchronization because the remote call will
+	    // indirectly call isLocal() on this OA with the OA factory
+	    // locked).
 	    //
-	    try
+
+	    LocatorRegistryPrx locatorRegistry = null;
+	    if(locatorInfo != null)
 	    {
-		Identity ident = new Identity();
-		ident.category = "";
-		ident.name = "dummy";
-		locatorRegistry.setAdapterDirectProxy(_id, createDirectProxy(ident));
+		//
+		// TODO: This might throw if we can't connect to the
+		// locator. Shall we raise a special exception for the
+		// activate operation instead of a non obvious network
+		// exception?
+		//
+		locatorRegistry = _locatorInfo.getLocatorRegistry();
 	    }
-	    catch(ObjectAdapterDeactivatedException ex)
+	    
+	    if(locatorRegistry != null)
 	    {
-		// IGNORE: The object adapter is already inactive.
-	    }
-	    catch(AdapterNotFoundException ex)
-	    {
-		NotRegisteredException ex1 = new NotRegisteredException();
-		ex1.id = _id;
-		ex1.kindOfObject = "object adapter";
-		throw ex1;
-	    }
-	    catch(AdapterAlreadyActiveException ex)
-	    {
-		ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
-		ex1.id = _id;
-		throw ex1;
+		try
+		{
+		    Identity ident = new Identity();
+		    ident.category = "";
+		    ident.name = "dummy";
+		    if(_replicaGroupId.length() == 0)
+		    {
+			locatorRegistry.setAdapterDirectProxy(_id, createDirectProxy(ident));
+		    }
+		    else
+		    {
+			locatorRegistry.setReplicatedAdapterDirectProxy(_id, _replicaGroupId,createDirectProxy(ident));
+		    }
+		}
+		catch(ObjectAdapterDeactivatedException ex)
+		{
+		    // IGNORE: The object adapter is already inactive.
+		}
+		catch(AdapterNotFoundException ex)
+		{
+		    NotRegisteredException ex1 = new NotRegisteredException();
+		    ex1.kindOfObject = "object adapter";
+		    ex1.id = _id;
+		    throw ex1;
+		}
+		catch(InvalidReplicaGroupIdException ex)
+		{
+		    NotRegisteredException ex1 = new NotRegisteredException();
+		    ex1.kindOfObject = "replica group";
+		    ex1.id = _replicaGroupId;
+		    throw ex1;
+		}
+		catch(AdapterAlreadyActiveException ex)
+		{
+		    ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
+		    ex1.id = _id;
+		    throw ex1;
+		}
 	    }
 	}
 
@@ -386,6 +409,15 @@ public final class ObjectAdapter
         checkIdentity(ident);
 
         return newDirectProxy(ident, "");
+    }
+
+    public synchronized ObjectPrx
+    createIndirectProxy(Identity ident)
+    {
+	checkForDeactivation();
+        checkIdentity(ident);
+
+        return newIndirectProxy(ident, "", _id);
     }
 
     public synchronized ObjectPrx
@@ -700,6 +732,7 @@ public final class ObjectAdapter
 	_printAdapterReadyDone = false;
         _name = name;
 	_id = instance.properties().getProperty(name + ".AdapterId");
+	_replicaGroupId = instance.properties().getProperty(name + ".ReplicaGroupId");
 	_directCount = 0;
 	_waitForDeactivate = false;
 	
@@ -778,19 +811,13 @@ public final class ObjectAdapter
 	{
 	    return newDirectProxy(ident, facet);
 	}
-	else
+	else if(_replicaGroupId.length() == 0)
 	{	    
-	    //
-	    // Create a reference with the adapter id and return a
-	    // proxy for the reference.
-	    //
-	    IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
-            Connection[] connections = new Connection[0];
-	    IceInternal.Reference reference =
-		_instance.referenceFactory().create(ident, new java.util.Hashtable(), facet,
-		                                    IceInternal.Reference.ModeTwoway, false, _id, null,
-                                                    _locatorInfo);
-	    return _instance.proxyFactory().referenceToProxy(reference);
+	    return newIndirectProxy(ident, facet, _id);
+	}
+	else
+	{
+	    return newIndirectProxy(ident, facet, _replicaGroupId);
 	}
     }
 
@@ -839,6 +866,22 @@ public final class ObjectAdapter
 	    _instance.referenceFactory().create(ident, new java.util.Hashtable(), facet,
 						IceInternal.Reference.ModeTwoway, false, endpoints, null);
         return _instance.proxyFactory().referenceToProxy(reference);
+    }
+
+    private ObjectPrx
+    newIndirectProxy(Identity ident, String facet, String id)
+    {
+	//
+	// Create a reference with the adapter id and return a
+	// proxy for the reference.
+	//
+	IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
+	Connection[] connections = new Connection[0];
+	IceInternal.Reference reference =
+	    _instance.referenceFactory().create(ident, new java.util.Hashtable(), facet,
+						IceInternal.Reference.ModeTwoway, false, id, null,
+						_locatorInfo);
+	return _instance.proxyFactory().referenceToProxy(reference);
     }
 
     private void
@@ -932,6 +975,7 @@ public final class ObjectAdapter
     private boolean _printAdapterReadyDone;
     private /*final*/ String _name;
     private /*final*/ String _id;
+    private /*final*/ String _replicaGroupId;
     private java.util.Vector _incomingConnectionFactories = new java.util.Vector();
     private java.util.Vector _routerEndpoints = new java.util.Vector();
     private java.util.Vector _routerInfos = new java.util.Vector();

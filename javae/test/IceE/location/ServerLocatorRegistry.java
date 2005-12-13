@@ -15,6 +15,11 @@ public class ServerLocatorRegistry extends Ice._LocatorRegistryDisp
 	_adapters.put(adapter, object);
     }
 
+    public void
+    setReplicatedAdapterDirectProxy(String adapter, String replicaId, Ice.ObjectPrx object, Ice.Current current)
+    {
+    }
+
     public Ice.ObjectPrx
     getAdapter(String adapter)
 	throws Ice.AdapterNotFoundException
