@@ -142,6 +142,9 @@ if icecs_home:
     fileMatchAndReplace(os.path.join(icecs_home, "config", "Make.rules.cs"),
                         [("VERSION[\t\s]*= ([0-9]*\.[0-9]*\.[0-9]*)", version)])
 
+    for f in find(icecs_home, "*.pc"):
+        fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]*([0-9]*\.[0-9]*\.[0-9]*)", version)])
+
 #
 # Fix version in IcePHP
 #
