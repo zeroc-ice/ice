@@ -19,21 +19,14 @@ OBJS		= cccp.o \
 
 include $(top_srcdir)/config/Make.rules
 
-cccp.o: cccp.c
-	$(CC) -I. -c $<
-
-cexp.o: cexp.c
-	$(CC) -I. -c $<
-
-prefix.o: prefix.c
-	$(CC) -I. -DPREFIX=\"\" -c $<
+CFLAGS += -I. -DPREFIX=\"\"
 
 cexp.c: cexp.y
 	bison -o cexp.c cexp.y
 
 $(NAME): $(OBJS)
 	rm -f $@
-	$(CC) -o $@ $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS)
 
 install:: all
 	$(call installprogram,$(NAME),$(install_bindir))
