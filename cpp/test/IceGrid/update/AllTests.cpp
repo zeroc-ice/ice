@@ -364,6 +364,99 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	admin->removeApplication("TestApp");
     }
 
+
+    {
+	ApplicationDescriptor testApp;
+	testApp.name = "TestApp";
+	admin->addApplication(testApp);
+
+	ApplicationUpdateDescriptor empty;
+	empty.name = "TestApp";
+	NodeUpdateDescriptor node;
+	node.name = "localnode";
+	empty.nodes.push_back(node);
+
+	ApplicationUpdateDescriptor update = empty;
+
+	cout << "testing icebox server add... " << flush;
+
+	ServiceDescriptorPtr service = new ServiceDescriptor();
+	service->name = "Service1";
+	service->entry = "TestService:create";
+	AdapterDescriptor adapter;
+	adapter.name = "${service}";
+	adapter.id = "${server}.${service}";
+	adapter.registerProcess = true;
+	service->adapters.push_back(adapter);
+ 	
+	IceBoxDescriptorPtr server = new IceBoxDescriptor();
+	server->id = "IceBox";
+	server->exe = properties->getProperty("IceDir") + "/bin/icebox";
+	server->services.resize(3);
+	server->services[0].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
+	service->name = "Service2";
+	server->services[1].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
+	service->name = "Service3";
+	server->services[2].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
+
+	update.nodes[0].servers.push_back(server);
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    cerr << ex.reason << endl;
+	    test(false);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	cout << "ok" << endl;
+	
+	cout << "testing service add... " << flush;
+	service->name = "First";
+	server->services.resize(4);
+	server->services[3].descriptor = service;
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    cerr << ex.reason << endl;
+	    test(false);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	cout << "ok" << endl;
+
+	cout << "testing service remove... " << flush;
+	server->services.resize(3);
+	try
+	{
+	    admin->updateApplication(update);
+	}
+	catch(const DeploymentException& ex)
+	{
+	    cerr << ex.reason << endl;
+	    test(false);
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    test(false);
+	}
+	cout << "ok" << endl;
+
+	admin->removeApplication("TestApp");
+    }
+
     {
 	cout << "testing node add... " << flush;
 
