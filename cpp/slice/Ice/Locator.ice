@@ -25,6 +25,12 @@ exception AdapterNotFoundException
 {
 };
 
+/**
+ *
+ * This exception is raised if the replica group provided by the
+ * server is invalid.
+ *
+ **/
 exception InvalidReplicaGroupIdException
 {
 };
