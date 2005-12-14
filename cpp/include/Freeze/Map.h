@@ -770,14 +770,11 @@ protected:
 #endif
 
 //
-// This is an STL container that matches the requirements of a
-// Associated Container - with the restriction that operator[] isn't
-// implemented. It also supports the same interface as a Hashed
-// Associative Container (with the above restrictions), except the
-// hasher & key_equal methods.
+// A sorted map, similar to a std::map, with one notable difference:
+// operator[] is not provided.
 //
-// TODO: If necessary it would be possible to implement reverse and
-// bidirectional iterators.
+//
+// TODO: implement bidirectional iterators.
 //
 template<typename key_type, typename mapped_type, 
 	 typename KeyCodec, typename ValueCodec,
@@ -787,12 +784,6 @@ class Map
 public:
 
     typedef std::pair<const key_type, const mapped_type> value_type;
-
-    //
-    // These are not supported:
-    //
-    // hasher, key_equal, key_compare, value_compare
-    //
 
     typedef Iterator<key_type, mapped_type, 
 		     KeyCodec, ValueCodec, Compare> iterator;
@@ -856,13 +847,6 @@ public:
     ~Map()
     {
     }
-
-    //
-    // Neither of these operations are supported.
-    //
-    // key_compare key_comp() const, value_compare value_comp() const,
-    // hasher hash_funct() const, key_equal key_eq() const
-    //
 
     bool operator==(const Map& rhs) const
     {
@@ -964,7 +948,7 @@ public:
 
     //
     // This method isn't in the STLport library - but it's referenced
-    // in "STL Tutorial and Refrence Guide, Second Edition". It's not
+    // in "STL Tutorial and Reference Guide, Second Edition". It's not
     // currently implemented.
     //
     // const mapped_type& operator[](const key_type& key) const;
@@ -1082,7 +1066,7 @@ public:
 
     
     //
-    // destroy is not in STL
+    // destroy is not a standard function
     //
     void destroy()
     {
