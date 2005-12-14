@@ -48,7 +48,7 @@ private:
     std::auto_ptr<Ice::LocalException> _ex;
 };
 
-class ICE_API Outgoing : private IceUtil::noncopyable, public IceUtil::Monitor<IceUtil::Mutex >
+class ICE_API Outgoing : private IceUtil::noncopyable
 {
 public:
 
@@ -56,7 +56,9 @@ public:
 
     bool invoke(); // Returns true if ok, false if user exception.
     void abort(const Ice::LocalException&);
+#ifndef ICEE_PURE_BLOCKING_CLIENT
     void finished(BasicStream&);
+#endif
     void finished(const Ice::LocalException&);
 
     // Inlined for speed optimization.
@@ -75,6 +77,9 @@ private:
     Reference* _reference;
 
     std::auto_ptr<Ice::LocalException> _exception;
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+    std::auto_ptr<IceUtil::Monitor<IceUtil::Mutex > > _monitor;
+#endif
 
     enum
     {
