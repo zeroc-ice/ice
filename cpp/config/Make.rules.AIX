@@ -44,7 +44,7 @@ else
 endif
 
 
-LDPLATFORMFLAGS		= -Wl,-blibpath:$(prefix)/lib:/usr/lpp/xlopt:/usr/lib/threads:/usr/vacpp/lib:/usr/lib:/lib
+LDPLATFORMFLAGS		= -Wl,-blibpath:$(install_libdir):/usr/lpp/xlopt:/usr/lib/threads:/usr/vacpp/lib:/usr/lib:/lib
 
 mklibfilename		= lib$(1).a
 

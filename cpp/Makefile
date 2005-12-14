@@ -27,7 +27,7 @@ install::
 	    if test ! -d $$subdir ; \
 	    then \
 		echo "Creating $$subdir..." ; \
-		mkdir $$subdir ; \
+		mkdir -p $$subdir ; \
 		chmod a+rx $$subdir ; \
 	    fi ; \
 	done

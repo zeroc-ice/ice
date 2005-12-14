@@ -72,7 +72,7 @@ ifneq ($(EXPAT_HOME),)
    LIBPATH              += -L$(EXPAT_HOME)/$(libsubdir)
 endif
 
-LDPLATFORMFLAGS         =  -Wl,+s -Wl,+b$(prefix)/$(libsubdir) $(LIBPATH)
+LDPLATFORMFLAGS         = -Wl,+s -Wl,+b$(install_libdir) $(LIBPATH)
 
 mklibfilename           = $(if $(2),lib$(1).$(2),lib$(1).sl)
 mksoname                = $(if $(2),lib$(1).$(2),lib$(1).sl)
