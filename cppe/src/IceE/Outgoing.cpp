@@ -43,7 +43,9 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
     _os(ref->getInstance().get())
 {
 #ifndef ICEE_PURE_BLOCKING_CLIENT
+#ifdef ICEE_BLOCKING_CLIENT
     if(!_connection->blocking())
+#endif
     {
         _monitor.reset(new IceUtil::Monitor<IceUtil::Mutex >());
     }
@@ -489,7 +491,9 @@ void
 IceInternal::Outgoing::finished(const LocalException& ex)
 {
 #ifndef ICEE_PURE_BLOCKING_CLIENT
+#ifdef ICEE_BLOCKING_CLIENT
     if(!_connection->blocking())
+#endif
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*_monitor.get());
     }
@@ -502,7 +506,9 @@ IceInternal::Outgoing::finished(const LocalException& ex)
     _state = StateLocalException;
     _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 #ifndef ICEE_PURE_BLOCKING_CLIENT
+#ifdef ICEE_BLOCKING_CLIENT
     if(!_connection->blocking())
+#endif
     {
         _monitor->notify();
     }
