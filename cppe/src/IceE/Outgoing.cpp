@@ -500,9 +500,6 @@ IceInternal::Outgoing::finished(const LocalException& ex)
     _state = StateLocalException;
     _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-    if(!_connection->blocking())
-    {
-        notify();
-    }
+     notify();
 #endif
 }
