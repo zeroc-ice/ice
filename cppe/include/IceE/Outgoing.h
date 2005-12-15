@@ -49,6 +49,9 @@ private:
 };
 
 class ICE_API Outgoing : private IceUtil::noncopyable
+#ifndef ICEE_PURE_BLOCKING_CLIENTS
+			 , public IceUtil::Monitor<IceUtil::Mutex >
+#endif
 {
 public:
 
@@ -77,9 +80,6 @@ private:
     Reference* _reference;
 
     std::auto_ptr<Ice::LocalException> _exception;
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-    std::auto_ptr<IceUtil::Monitor<IceUtil::Mutex > > _monitor;
-#endif
 
     enum
     {

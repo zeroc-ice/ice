@@ -42,15 +42,6 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
     _is(ref->getInstance().get()),
     _os(ref->getInstance().get())
 {
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-#ifdef ICEE_BLOCKING_CLIENT
-    if(!_connection->blocking())
-#endif
-    {
-        _monitor.reset(new IceUtil::Monitor<IceUtil::Mutex >());
-    }
-#endif
-
     switch(_reference->getMode())
     {
 	case Reference::ModeTwoway:
@@ -145,7 +136,7 @@ IceInternal::Outgoing::invoke()
 	        bool timedOut = false;
 
 	        {
-		    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*_monitor.get());
+		    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 		    //
                     // It's possible that the request has already
@@ -163,7 +154,7 @@ IceInternal::Outgoing::invoke()
 		    {
 		        if(timeout >= 0)
 		        {	
-			    _monitor->timedWait(IceUtil::Time::milliSeconds(timeout));
+			    timedWait(IceUtil::Time::milliSeconds(timeout));
 			
 			    if(_state == StateInProgress)
 			    {
@@ -172,7 +163,7 @@ IceInternal::Outgoing::invoke()
 		        }
 		        else
 		        {
-			    _monitor->wait();
+			    wait();
 		        }
 		    }
 	        }
@@ -190,11 +181,11 @@ IceInternal::Outgoing::invoke()
 		    // propagated to this Outgoing object.
 		    //
 		    {
-		        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*_monitor.get());
+		        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 		    
 		        while(_state == StateInProgress)
 		        {
-			    _monitor->wait();
+			    wait();
 		        }
 		    }
 	        }
@@ -205,6 +196,10 @@ IceInternal::Outgoing::invoke()
 #endif
 #ifdef ICEE_BLOCKING_CLIENT
 	    {
+	        //
+		// For blocking sends the reply is written directly
+		// into the incoming stream.
+		//
 	        _connection->sendRequest(&_os, &_is, this);
 		if(!_exception.get())
 		{
@@ -318,7 +313,7 @@ IceInternal::Outgoing::abort(const LocalException& ex)
 void
 IceInternal::Outgoing::finished(BasicStream& is)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*_monitor.get());
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
 
@@ -326,7 +321,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 
     _is.swap(is);
     finishedInternal();
-    _monitor->notify();
+    notify();
 }
 #endif
 
@@ -491,12 +486,7 @@ void
 IceInternal::Outgoing::finished(const LocalException& ex)
 {
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-#ifdef ICEE_BLOCKING_CLIENT
-    if(!_connection->blocking())
-#endif
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*_monitor.get());
-    }
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 #endif
     
     assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
@@ -506,11 +496,6 @@ IceInternal::Outgoing::finished(const LocalException& ex)
     _state = StateLocalException;
     _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-#ifdef ICEE_BLOCKING_CLIENT
-    if(!_connection->blocking())
-#endif
-    {
-        _monitor->notify();
-    }
+    notify();
 #endif
 }
