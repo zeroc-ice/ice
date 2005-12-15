@@ -126,7 +126,7 @@ IceInternal::Outgoing::invoke()
 	        // this object, so we don't need to lock the mutex, keep
 	        // track of state, or save exceptions.
 	        //
-	        _connection->sendRequest(&_os, 0, this);
+	        _connection->sendRequest(&_os, this);
 	    
 	        //
 	        // Wait until the request has completed, or until the
@@ -200,7 +200,7 @@ IceInternal::Outgoing::invoke()
 		// For blocking sends the reply is written directly
 		// into the incoming stream.
 		//
-	        _connection->sendRequest(&_os, &_is, this);
+	        _connection->sendBlockingRequest(&_os, &_is, this);
 		if(!_exception.get())
 		{
 		    finishedInternal();
@@ -254,7 +254,11 @@ IceInternal::Outgoing::invoke()
 	    // violating "at-most-once".
 	    //
 	    _state = StateInProgress;
-	    _connection->sendRequest(&_os, 0, 0);
+#ifdef ICEE_BLOCKING_CLIENT
+	    _connection->sendBlockingRequest(&_os, 0, 0);
+#else
+	    _connection->sendRequest(&_os, 0);
+#endif
 	    break;
 	}
 
@@ -496,6 +500,9 @@ IceInternal::Outgoing::finished(const LocalException& ex)
     _state = StateLocalException;
     _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-    notify();
+    if(!_connection->blocking())
+    {
+        notify();
+    }
 #endif
 }

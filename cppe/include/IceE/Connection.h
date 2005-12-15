@@ -75,7 +75,13 @@ public:
     void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
 
     void prepareRequest(IceInternal::BasicStream*);
-    void sendRequest(IceInternal::BasicStream*, IceInternal::BasicStream*, IceInternal::Outgoing*);
+#ifdef ICEE_BLOCKING_CLIENT
+    void sendBlockingRequest(IceInternal::BasicStream*, IceInternal::BasicStream*, IceInternal::Outgoing*);
+#endif
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+    void sendRequest(IceInternal::BasicStream*, IceInternal::Outgoing*);
+#endif
+
 
 #ifdef ICEE_HAS_BATCH
     void prepareBatchRequest(IceInternal::BasicStream*);
@@ -116,6 +122,11 @@ private:
 	       const IceInternal::EndpointPtr&);
 #endif
     ~Connection();
+
+    Int fillRequestId(IceInternal::BasicStream*);
+    void sendRequest(IceInternal::BasicStream*);
+
+
 #ifndef ICEE_PURE_CLIENT
     friend class IceInternal::IncomingConnectionFactory;
 #endif
