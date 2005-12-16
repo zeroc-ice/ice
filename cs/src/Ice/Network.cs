@@ -686,34 +686,39 @@ namespace IceInternal
 	    
 	    if(numeric)
 	    {
-		retry = 5;
-
-	    repeatGetHostByName:
-		string numericHost;
-		try
-		{
-		    numericHost = Dns.GetHostByName(hostname).AddressList[0].ToString();
-		}
-		catch(Win32Exception ex)
-		{
-		    if(ex.NativeErrorCode == WSATRY_AGAIN && --retry >= 0)
-		    {
-			goto repeatGetHostByName;
-		    }
-		    Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
-		    e.host = hostname;
-		    throw e;
-		}
-		catch(System.Exception ex)
-		{
-		    Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
-		    e.host = hostname;
-		    throw e;
-		}
-		hostname = numericHost;
+	        hostname = getNumericHost(hostname);
 	    }
 
 	    return hostname;
+	}
+
+	public static string getNumericHost(string hostname)
+	{
+	    int retry = 5;
+
+	repeatGetHostByName:
+	    string numericHost;
+	    try
+	    {
+	        numericHost = Dns.GetHostByName(hostname).AddressList[0].ToString();
+	    }
+	    catch(Win32Exception ex)
+	    {
+	        if(ex.NativeErrorCode == WSATRY_AGAIN && --retry >= 0)
+	        {
+	    	    goto repeatGetHostByName;
+	        }
+	        Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
+	        e.host = hostname;
+	        throw e;
+	    }
+		catch(System.Exception ex)
+	    {
+	        Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
+	        e.host = hostname;
+	        throw e;
+	    }
+	    return numericHost;
 	}
 
 	public static string[] getLocalHosts()

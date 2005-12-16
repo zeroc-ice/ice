@@ -535,7 +535,14 @@ namespace IceInternal
 	
 	private void calcHashValue()
 	{
-	    _hashCode = _host.GetHashCode();
+	    try
+	    {
+	        _hashCode = Network.getNumericHost(_host).GetHashCode();
+	    }
+	    catch(Ice.DNSException ex)
+	    {
+	        _hashCode = _host.GetHashCode();
+	    }
 	    _hashCode = 5 * _hashCode + _port;
 	    _hashCode = 5 * _hashCode + _timeout;
 	    _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
