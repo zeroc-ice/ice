@@ -546,11 +546,11 @@ public final class ObjectAdapter
 	    //
             for(int i = 0; i < _routerEndpoints.size() - 1; ++i)
             {
-                java.lang.Object o1 = _routerEndpoints.get(i);
-                java.lang.Object o2 = _routerEndpoints.get(i + 1);
+                java.lang.Object o1 = _routerEndpoints.elementAt(i);
+                java.lang.Object o2 = _routerEndpoints.elementAt(i + 1);
                 if(o1.equals(o2))
                 {
-                    _routerEndpoints.remove(i);
+                    _routerEndpoints.removeElementAt(i);
                 }
             }
 

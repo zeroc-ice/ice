@@ -29,7 +29,7 @@ public class ServerManagerI extends _ServerManagerDisp
 	    c.waitForShutdown();
 	    c.destroy();
 	}
-	_communicators.clear();
+	_communicators.removeAllElements();
 
 	//
 	// Simulate a server: create a new communicator and object
