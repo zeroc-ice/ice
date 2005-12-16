@@ -2777,6 +2777,29 @@ temporary files.
 </section>
 </section>
 
+<section><title>IceGrid.Node.DisableOnFailure</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceGrid.Node.DisableOnFailure=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The node considers a server to have terminated improperly
+if it has a non-zero exit code or if it exits due to one of the
+signals SIGABRT, SIGBUS, SIGILL, SIGFPE or SIGSEGV. The node
+marks such a server as disabled if <replaceable>num</replaceable>
+is a non-zero value; a disabled server cannot be activated on
+demand. For values of <replaceable>num</replaceable> greater than
+zero, the server is disabled for <replaceable>num</replaceable> seconds.
+If <replaceable>num</replaceable> is a negative value, the server
+is disabled indefinitely, or until it is explicitly enabled or
+started via an administrative action.
+</para>
+</section>
+</section>
+
 <section><title>IceGrid.Node.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
