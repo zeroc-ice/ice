@@ -2795,7 +2795,8 @@ demand. For values of <replaceable>num</replaceable> greater than
 zero, the server is disabled for <replaceable>num</replaceable> seconds.
 If <replaceable>num</replaceable> is a negative value, the server
 is disabled indefinitely, or until it is explicitly enabled or
-started via an administrative action.
+started via an administrative action. The default value is zero,
+meaning the node does not disable servers in this situation.
 </para>
 </section>
 </section>
