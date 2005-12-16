@@ -41,7 +41,8 @@ typedef struct stat structstat;
 
 #endif
 
-ICE_PATCH2_API int stat(const std::string&, structstat*);
+// BUGFIX: aCC errors if this is stat.
+ICE_PATCH2_API int osstat(const std::string&, structstat*);
 ICE_PATCH2_API int remove(const std::string&);
 ICE_PATCH2_API int rename(const std::string&, const std::string&);
 ICE_PATCH2_API int rmdir(const std::string&);

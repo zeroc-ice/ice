@@ -434,7 +434,7 @@ IcePatch2::remove(const string& pa)
     const string path = simplify(pa);
 
     OS::structstat buf;
-    if(OS::stat(path, &buf) == -1)
+    if(OS::osstat(path, &buf) == -1)
     {
 	throw "cannot stat `" + path + "':\n" + lastError();
     }
@@ -461,7 +461,7 @@ IcePatch2::removeRecursive(const string& pa)
     const string path = simplify(pa);
 
     OS::structstat buf;
-    if(OS::stat(path, &buf) == -1)
+    if(OS::osstat(path, &buf) == -1)
     {
 	throw "cannot stat `" + path + "':\n" + lastError();
     }
@@ -768,7 +768,7 @@ IcePatch2::setFileFlags(const string& pa, const FileInfo& info)
 #ifndef _WIN32 // Windows doesn't support the executable flag
     const string path = simplify(pa);
     OS::structstat buf;
-    if(OS::stat(path, &buf) == -1)
+    if(OS::osstat(path, &buf) == -1)
     {
 	throw "cannot stat `" + path + "':\n" + lastError();
     }
@@ -803,7 +803,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 	else
 	{
 	    OS::structstat buf;
-	    if(OS::stat(getWithoutSuffix(path), &buf) == -1)
+	    if(OS::osstat(getWithoutSuffix(path), &buf) == -1)
 	    {
 		if(errno == ENOENT)
 		{
@@ -833,7 +833,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
     else
     {
 	OS::structstat buf;
-	if(OS::stat(path, &buf) == -1)
+	if(OS::osstat(path, &buf) == -1)
 	{
 	    throw "cannot stat `" + path + "':\n" + lastError();
 	}
@@ -911,7 +911,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 		    OS::structstat bufBZ2;
 		    const string pathBZ2 = path + ".bz2";
 
-		    if(compress >= 2 || OS::stat(pathBZ2, &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
+		    if(compress >= 2 || OS::osstat(pathBZ2, &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
 		    {
 			if(cb && !cb->compress(relPath))
 			{
@@ -930,7 +930,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 			
 			OS::rename(pathBZ2Temp, pathBZ2);
 
-			if(OS::stat(pathBZ2, &bufBZ2) == -1)
+			if(OS::osstat(pathBZ2, &bufBZ2) == -1)
 			{
 			    throw "cannot stat `" + pathBZ2 + "':\n" + lastError();
 			}

@@ -15,7 +15,7 @@ using namespace OS;
 
 #ifdef _WIN32
 int
-OS::stat(const string& path, structstat* buf)
+OS::osstat(const string& path, structstat* buf)
 {
     return ::_wstat(IceUtil::stringToWstring(path).c_str(), buf);
 }
@@ -71,7 +71,7 @@ OS::getcwd(string& cwd)
 #else
 
 int
-OS::stat(const string& path, structstat* buf)
+OS::osstat(const string& path, structstat* buf)
 {
     return ::stat(path.c_str(), buf);
 }
