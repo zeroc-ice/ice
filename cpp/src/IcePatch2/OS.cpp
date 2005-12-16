@@ -59,13 +59,13 @@ OS::open(const string& path, int flags)
 int
 OS::getcwd(string& cwd)
 {
-	wchar_t cwdbuf[_MAX_PATH];
-	if(_wgetcwd(cwdbuf, _MAX_PATH) == NULL)
-	{
-	    return -1;
-	}
-	cwd = IceUtil::wstringToString(cwdbuf);
-	return 0;
+    wchar_t cwdbuf[_MAX_PATH];
+    if(_wgetcwd(cwdbuf, _MAX_PATH) == NULL)
+    {
+	return -1;
+    }
+    cwd = IceUtil::wstringToString(cwdbuf);
+    return 0;
 }
 
 #else
@@ -79,7 +79,7 @@ OS::stat(const string& path, structstat* buf)
 int
 OS::remove(const string& path)
 {
-    ::remove(toPath.c_str());
+    return ::remove(path.c_str());
 }
 
 int
@@ -116,7 +116,7 @@ int
 OS::getcwd(string& cwd)
 {
     char cwdbuf[PATH_MAX];
-    if(getcwd(cwdbuf, PATH_MAX) == NULL)
+    if(::getcwd(cwdbuf, PATH_MAX) == NULL)
     {
 	return -1;
     }

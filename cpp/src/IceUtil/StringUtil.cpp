@@ -76,10 +76,14 @@ escapeChar(string::value_type b, string& s, const string& special)
     }
     default:
     {
-        if(static_cast<signed char>(b) <= 31 || b == 127)
+	//
+	// Octal encode anything that is outside 32 to 126.
+	//
+    	unsigned char i = static_cast<unsigned char>(b);
+        if(i < 32 || i > 126)
         {
             s.push_back('\\');
-            string octal = toOctalString(b);
+            string octal = toOctalString(i);
 
             //
             // Add leading zeroes so that we avoid problems during
@@ -208,14 +212,15 @@ IceUtil::unescapeString(const string& s, string::size_type start, string::size_t
             }
             default:
             {
-                if(static_cast<signed char>(ch) <= 31 || ch == 127)
-                {
-                    return false; // Malformed encoding.
-                }
-                else
-                {
-                    result.push_back(ch);
-                }
+		unsigned char i = static_cast<unsigned char>(ch);
+		if(i < 32 || i > 126)
+		{
+		    return false; // Malformed encoding.
+		}
+		else
+		{
+		    result.push_back(ch);
+		}
             }
             }
         }

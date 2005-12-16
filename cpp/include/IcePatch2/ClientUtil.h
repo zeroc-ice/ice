@@ -88,7 +88,7 @@ private:
     FileInfoSeq _updateFlags;
     FileInfoSeq _removeFiles;
 
-    std::ofstream _log;
+    FILE* _log;
 };
 
 typedef IceUtil::Handle<Patcher> PatcherPtr;

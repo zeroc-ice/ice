@@ -147,7 +147,8 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
     _dataDir(simplify(communicator->getProperties()->getPropertyWithDefault("IcePatch2.Directory", "."))),
     _thorough(communicator->getProperties()->getPropertyAsInt("IcePatch2.Thorough") > 0),
     _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100)),
-    _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.Remove", 1))
+    _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.Remove", 1)),
+    _log(0)
 {
     PropertiesPtr properties = communicator->getProperties();
 
@@ -569,8 +570,11 @@ IcePatch2::Patcher::patch(const string& d)
 void
 IcePatch2::Patcher::finish()
 {
-    fclose(_log);
-    _log = 0;
+    if(_log != 0)
+    {
+	fclose(_log);
+	_log = 0;
+    }
 
     saveFileInfoSeq(_dataDir, _localFiles);
 }

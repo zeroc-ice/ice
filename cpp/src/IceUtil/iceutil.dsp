@@ -90,7 +90,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\iceutild.lib ..\..\lib	copy $(OutDir)\iceutil30d.pdb ..\..\bin	copy $(OutDir)\iceutil30d.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\iceutild.lib ..\..\lib	copy $(OutDir)\iceutil30d.dll ..\..\bin	copy $(OutDir)\iceutil30d.pdb ..\..\bin
 # End Special Build Tool
 
 !ENDIF 

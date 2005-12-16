@@ -23,7 +23,8 @@ TARGETS         = $(LIBTARGETS) $(SERVER) $(CLIENT) $(CALC)
 OBJS		= Util.o \
 		  ClientUtil.o \
 		  FileInfo.o \
-		  FileServer.o
+		  FileServer.o \
+		  OS.o
 
 SOBJS		= Server.o \
 		  FileServerI.o
@@ -45,7 +46,7 @@ SDIR		= $(slicedir)/IcePatch2
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_PATCH2_API_EXPORTS $(OPENSSL_FLAGS) $(BZIP2_FLAGS)
+CPPFLAGS	:= -I. -I.. $(CPPFLAGS) -DICE_PATCH2_API_EXPORTS $(OPENSSL_FLAGS) $(BZIP2_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir IcePatch2 --dll-export ICE_PATCH2_API $(SLICE2CPPFLAGS)
 LINKWITH	:= -lIce -lIceUtil $(OPENSSL_LIBS) $(BZIP2_LIBS)
 

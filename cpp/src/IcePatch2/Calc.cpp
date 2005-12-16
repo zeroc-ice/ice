@@ -8,11 +8,9 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
+#include <IceUtil/Unicode.h>
 #include <IcePatch2/Util.h>
-
-#ifdef _WIN32
-#   include <direct.h>
-#endif
+#include <OS.h>
 
 using namespace std;
 using namespace Ice;
@@ -186,30 +184,22 @@ main(int argc, char* argv[])
 	StringSeq::iterator p;
 	string absDataDir = dataDir;
     
-#ifdef _WIN32
-	char cwd[_MAX_PATH];
-	if(_getcwd(cwd, _MAX_PATH) == NULL)
+	string cwd;
+	if(OS::getcwd(cwd) != 0)
 	{
 	    throw "cannot get the current directory:\n" + lastError();
 	}
-#else
-	char cwd[PATH_MAX];
-	if(getcwd(cwd, PATH_MAX) == NULL)
-	{
-	    throw "cannot get the current directory:\n" + lastError();
-	}
-#endif	
 
 	if(!isAbsolute(absDataDir))
 	{
-	    absDataDir = simplify(string(cwd) + '/' + absDataDir);
+	    absDataDir = simplify(cwd + '/' + absDataDir);
 	}
 	
 	for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
 	{
 	    if(!isAbsolute(*p))
 	    {
-		*p = string(cwd) + '/' + *p;
+		*p = cwd + '/' + *p;
 	    }
 	}
 

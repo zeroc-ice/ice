@@ -13,15 +13,11 @@
 #include <openssl/sha.h>
 #include <bzlib.h>
 #include <iomanip>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
+#include <OS.h>
 
 #ifdef _WIN32
 #   include <direct.h>
 #   include <io.h>
-#   define S_ISDIR(mode) ((mode) & _S_IFDIR)
-#   define S_ISREG(mode) ((mode) & _S_IFREG)
 #else
 #   include <unistd.h>
 #   include <dirent.h>
@@ -103,6 +99,52 @@ alphasort(const void* v1, const void* v2)
 using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
+
+bool
+IcePatch2::writeFileInfo(FILE* fp, const FileInfo& info)
+{
+    int rc = fprintf(fp, "%s\t%s\t%d\t%d\n", 
+		     IceUtil::escapeString(info.path, "").c_str(),
+		     bytesToString(info.checksum).c_str(),
+		     info.size,
+		     static_cast<int>(info.executable));
+    return rc > 0;
+}
+
+bool
+IcePatch2::readFileInfo(FILE* fp, FileInfo& info)
+{
+    string data;
+    char buf[BUFSIZ];
+    while(fgets(buf, sizeof(buf), fp) != 0)
+    {
+	data += buf;
+
+	int len = strlen(buf);
+	if(buf[len-1] == '\n')
+	{
+	    break;
+	}
+    }
+    if(data.empty())
+    {
+	return false;
+    }
+
+    istringstream is(data);
+
+    string s;
+    getline(is, s, '\t');
+    IceUtil::unescapeString(s, 0, s.size(), info.path);
+
+    getline(is, s, '\t');
+    info.checksum = stringToBytes(s);
+
+    is >> info.size;
+    is >> info.executable;
+
+    return true;
+}
 
 string
 IcePatch2::lastError()
@@ -378,9 +420,9 @@ IcePatch2::rename(const string& fromPa, const string& toPa)
     const string fromPath = simplify(fromPa);
     const string toPath = simplify(toPa);
 
-    ::remove(toPath.c_str()); // We ignore errors, as the file we are renaming to might not exist.
+    OS::remove(toPath); // We ignore errors, as the file we are renaming to might not exist.
 
-    if(::rename(fromPath.c_str(), toPath.c_str()) == -1)
+    if(OS::rename(fromPath ,toPath) == -1)
     {
 	throw "cannot rename `" + fromPath + "' to  `" + toPath + "': " + lastError();
     }
@@ -391,26 +433,22 @@ IcePatch2::remove(const string& pa)
 {
     const string path = simplify(pa);
 
-    struct stat buf;
-    if(stat(path.c_str(), &buf) == -1)
+    OS::structstat buf;
+    if(OS::stat(path, &buf) == -1)
     {
 	throw "cannot stat `" + path + "':\n" + lastError();
     }
 
     if(S_ISDIR(buf.st_mode))
     {
-#ifdef _WIN32
-	if(_rmdir(path.c_str()) == -1)
-#else
-	if(rmdir(path.c_str()) == -1)
-#endif
+	if(OS::rmdir(path) == -1)
 	{
 	    throw "cannot remove directory `" + path + "':\n" + lastError();
 	}
     }
     else
     {
-	if(::remove(path.c_str()) == -1)
+	if(OS::remove(path) == -1)
 	{
 	    throw "cannot remove file `" + path + "':\n" + lastError();
 	}
@@ -422,8 +460,8 @@ IcePatch2::removeRecursive(const string& pa)
 {
     const string path = simplify(pa);
 
-    struct stat buf;
-    if(stat(path.c_str(), &buf) == -1)
+    OS::structstat buf;
+    if(OS::stat(path, &buf) == -1)
     {
 	throw "cannot stat `" + path + "':\n" + lastError();
     }
@@ -438,11 +476,7 @@ IcePatch2::removeRecursive(const string& pa)
 
 	if(!isRoot(path))
 	{
-#ifdef _WIN32
-	    if(_rmdir(path.c_str()) == -1)
-#else
-	    if(rmdir(path.c_str()) == -1)
-#endif
+	    if(OS::rmdir(path) == -1)
 	    {
 		throw "cannot remove directory `" + path + "':\n" + lastError();
 	    }
@@ -450,7 +484,7 @@ IcePatch2::removeRecursive(const string& pa)
     }
     else
     {
-	if(::remove(path.c_str()) == -1)
+	if(OS::remove(path) == -1)
 	{
 	    throw "cannot remove file `" + path + "':\n" + lastError();
 	}
@@ -464,11 +498,16 @@ IcePatch2::readDirectory(const string& pa)
 
 #ifdef _WIN32
 
-    struct _finddata_t data;
+    struct _wfinddata_t data;
+    const wstring fs = IceUtil::stringToWstring(simplify(path + "/*"));
+
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-    long h = _findfirst(simplify((path + "/*")).c_str(), &data);
+    //
+    // TODO: Why is this cast necessary?
+    //
+    long h = _wfindfirst(const_cast<wchar_t*>(fs.c_str()), &data);
 #else
-    intptr_t h = _findfirst(simplify((path + "/*")).c_str(), &data);
+    intptr_t h = _wfindfirst(fs.c_str(), &data);
 #endif
     if(h == -1)
     {
@@ -479,7 +518,7 @@ IcePatch2::readDirectory(const string& pa)
 
     while(true)
     {
-	string name = data.name;
+	string name = IceUtil::wstringToString(data.name);
 	assert(!name.empty());
 
 	if(name != ".." && name != ".")
@@ -487,7 +526,7 @@ IcePatch2::readDirectory(const string& pa)
 	    result.push_back(name);
 	}
 
-	if(_findnext(h, &data) == -1)
+	if(_wfindnext(h, &data) == -1)
 	{
 	    if(errno == ENOENT)
 	    {
@@ -542,11 +581,7 @@ IcePatch2::createDirectory(const string& pa)
 {
     const string path = simplify(pa);
 
-#ifdef _WIN32
-    if(_mkdir(path.c_str()) == -1)
-#else
-    if(mkdir(path.c_str(), 0777) == -1)
-#endif
+    if(OS::mkdir(path, 0777) == -1)
     {
 	if(errno != EEXIST)
 	{
@@ -566,11 +601,7 @@ IcePatch2::createDirectoryRecursive(const string& pa)
 	createDirectoryRecursive(dir);
     }
 
-#ifdef _WIN32
-    if(_mkdir(path.c_str()) == -1)
-#else
-    if(mkdir(path.c_str(), 0777) == -1)
-#endif
+    if(OS::mkdir(path, 0777) == -1)
     {
 	if(errno != EEXIST)
 	{
@@ -584,7 +615,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
 {
     const string path = simplify(pa);
 
-    FILE* stdioFile = fopen(path.c_str(), "wb");
+    FILE* stdioFile = OS::fopen(path, "wb");
     if(!stdioFile)
     {
 	throw "cannot open `" + path + "' for writing:\n" + lastError();
@@ -637,91 +668,107 @@ IcePatch2::decompressFile(const string& pa)
     const string path = simplify(pa);
     const string pathBZ2 = path + ".bz2";
 
-    ofstream file(path.c_str(), ios::binary);
-    if(!file)
-    {
-	throw "cannot open `" + path + "' for writing:\n" + lastError();
-    }
-
-    FILE* stdioFileBZ2 = fopen(pathBZ2.c_str(), "rb");
-    if(!stdioFileBZ2)
-    {
-	throw "cannot open `" + pathBZ2 + "' for reading:\n" + lastError();
-    }
-
+    FILE* fp = 0;
+    FILE* stdioFileBZ2 = 0;
     int bzError;
-    BZFILE* bzFile = BZ2_bzReadOpen(&bzError, stdioFileBZ2, 0, 0, 0, 0);
-    if(bzError != BZ_OK)
+    BZFILE* bzFile = 0;
+
+    try
     {
-	string ex = "BZ2_bzReadOpen failed";
-	if(bzError == BZ_IO_ERROR)
+	fp = OS::fopen(path, "wb");
+	if(!fp)
 	{
-	    ex += string(": ") + lastError();
+	    throw "cannot open `" + path + "' for writing:\n" + lastError();
 	}
-	fclose(stdioFileBZ2);
-	throw ex;
-    }
-
-    const Int numBZ2 = 64 * 1024;
-    Byte bytesBZ2[numBZ2];
-
-    while(bzError != BZ_STREAM_END)
-    {
-	int sz = BZ2_bzRead(&bzError, bzFile, bytesBZ2, numBZ2);
-	if(bzError != BZ_OK && bzError != BZ_STREAM_END)
+	
+	stdioFileBZ2 = OS::fopen(pathBZ2, "rb");
+	if(!stdioFileBZ2)
 	{
-	    string ex = "BZ2_bzRead failed";
+	    throw "cannot open `" + pathBZ2 + "' for reading:\n" + lastError();
+	}
+
+	bzFile = BZ2_bzReadOpen(&bzError, stdioFileBZ2, 0, 0, 0, 0);
+	if(bzError != BZ_OK)
+	{
+	    string ex = "BZ2_bzReadOpen failed";
 	    if(bzError == BZ_IO_ERROR)
 	    {
 		ex += string(": ") + lastError();
 	    }
-	    BZ2_bzReadClose(&bzError, bzFile);
-	    fclose(stdioFileBZ2);
 	    throw ex;
 	}
-
-	if(sz > 0)
+	
+	const Int numBZ2 = 64 * 1024;
+	Byte bytesBZ2[numBZ2];
+	
+	while(bzError != BZ_STREAM_END)
 	{
-	    long pos = ftell(stdioFileBZ2);
-	    if(pos == -1)
+	    int sz = BZ2_bzRead(&bzError, bzFile, bytesBZ2, numBZ2);
+	    if(bzError != BZ_OK && bzError != BZ_STREAM_END)
 	    {
-		BZ2_bzReadClose(&bzError, bzFile);
-		fclose(stdioFileBZ2);
-		throw "cannot get read position for `" + pathBZ2 + "':\n" + lastError();
+		string ex = "BZ2_bzRead failed";
+		if(bzError == BZ_IO_ERROR)
+		{
+		    ex += string(": ") + lastError();
+		}
+		throw ex;
 	    }
-
-	    file.write(reinterpret_cast<char*>(bytesBZ2), sz);
-	    if(!file)
+	    
+	    if(sz > 0)
 	    {
-		BZ2_bzReadClose(&bzError, bzFile);
-		fclose(stdioFileBZ2);
-		throw "cannot write to `" + path + "':\n" + lastError();
+		long pos = ftell(stdioFileBZ2);
+		if(pos == -1)
+		{
+		    throw "cannot get read position for `" + pathBZ2 + "':\n" + lastError();
+		}
+		
+		if(fwrite(bytesBZ2, sz, 1, fp) != 1)
+		{
+		    throw "cannot write to `" + path + "':\n" + lastError();
+		}
 	    }
+	}
+	
+	BZ2_bzReadClose(&bzError, bzFile);
+	bzFile = 0;
+	if(bzError != BZ_OK)
+	{
+	    string ex = "BZ2_bzReadClose failed";
+	    if(bzError == BZ_IO_ERROR)
+	    {
+		ex += string(": ") + lastError();
+	    }
+	    throw ex;
 	}
     }
-
-    BZ2_bzReadClose(&bzError, bzFile);
-    if(bzError != BZ_OK)
+    catch(...)
     {
-	string ex = "BZ2_bzReadClose failed";
-	if(bzError == BZ_IO_ERROR)
+	if(bzFile != 0)
 	{
-	    ex += string(": ") + lastError();
+	    BZ2_bzReadClose(&bzError, bzFile);
 	}
-	fclose(stdioFileBZ2);
-	throw ex;
+	if(stdioFileBZ2 != 0)
+	{
+	    fclose(stdioFileBZ2);
+	}
+	if(fp != 0)
+	{
+	    fclose(fp);
+	}
+	throw;
     }
 
     fclose(stdioFileBZ2);
-};
+    fclose(fp);
+}
 
 void
 IcePatch2::setFileFlags(const string& pa, const FileInfo& info)
 {
 #ifndef _WIN32 // Windows doesn't support the executable flag
     const string path = simplify(pa);
-    struct stat buf;
-    if(stat(path.c_str(), &buf) == -1)
+    OS::structstat buf;
+    if(OS::stat(path, &buf) == -1)
     {
 	throw "cannot stat `" + path + "':\n" + lastError();
     }
@@ -755,8 +802,8 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 	}
 	else
 	{
-	    struct stat buf;
-	    if(stat(getWithoutSuffix(path).c_str(), &buf) == -1)
+	    OS::structstat buf;
+	    if(OS::stat(getWithoutSuffix(path), &buf) == -1)
 	    {
 		if(errno == ENOENT)
 		{
@@ -785,8 +832,8 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
     }
     else
     {
-	struct stat buf;
-	if(stat(path.c_str(), &buf) == -1)
+	OS::structstat buf;
+	if(OS::stat(path, &buf) == -1)
 	{
 	    throw "cannot stat `" + path + "':\n" + lastError();
 	}
@@ -840,11 +887,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 
 	    if(buf.st_size != 0)
 	    {
-#ifdef _WIN32
-		int fd = open(path.c_str(), _O_RDONLY | _O_BINARY);
-#else
-		int fd = open(path.c_str(), O_RDONLY);
-#endif
+		int fd = OS::open(path.c_str(), O_BINARY|O_RDONLY);
 		if(fd == -1)
 		{
 		    throw "cannot open `" + path + "' for reading:\n" + lastError();
@@ -865,10 +908,10 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 		//
 		if(compress > 0)
 		{
-		    struct stat bufBZ2;
+		    OS::structstat bufBZ2;
 		    const string pathBZ2 = path + ".bz2";
 
-		    if(compress >= 2 || stat(pathBZ2.c_str(), &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
+		    if(compress >= 2 || OS::stat(pathBZ2, &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
 		    {
 			if(cb && !cb->compress(relPath))
 			{
@@ -885,9 +928,9 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 
 			compressBytesToFile(pathBZ2Temp, bytes, static_cast<Int>(relPath.size()));
 			
-			rename(pathBZ2Temp, pathBZ2);
+			OS::rename(pathBZ2Temp, pathBZ2);
 
-			if(stat(pathBZ2.c_str(), &bufBZ2) == -1)
+			if(OS::stat(pathBZ2, &bufBZ2) == -1)
 			{
 			    throw "cannot stat `" + pathBZ2 + "':\n" + lastError();
 			}
@@ -952,16 +995,27 @@ IcePatch2::saveFileInfoSeq(const string& pa, const FileInfoSeq& infoSeq)
     {
 	const string path = simplify(pa + '/' + checksumFile);
 	
-	ofstream os(path.c_str());
-	if(!os)
+	FILE* fp = OS::fopen(path, "w");
+	if(!fp)
 	{
 	    throw "cannot open `" + path + "' for writing:\n" + lastError();
 	}
-	
-	for(FileInfoSeq::const_iterator p = infoSeq.begin(); p != infoSeq.end(); ++p)
+	try
 	{
-	    os << *p << '\n';
+	    for(FileInfoSeq::const_iterator p = infoSeq.begin(); p != infoSeq.end(); ++p)
+	    {
+		if(!writeFileInfo(fp, *p))
+		{
+		    throw "error writing `" + path + "':\n" + lastError();
+		}
+	    }
 	}
+	catch(...)
+	{
+	    fclose(fp);
+	    throw;
+	}
+	fclose(fp);
     }
 
     {
@@ -983,22 +1037,25 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
     {
 	const string path = simplify(pa + '/' + checksumFile);
 
-	ifstream is(path.c_str());
-	if(!is)
+	FILE* fp = OS::fopen(path, "r");
+	if(!fp)
 	{
 	    throw "cannot open `" + path + "' for reading:\n" + lastError();
 	}
 
-	while(is.good())
+	while(true)
 	{
 	    FileInfo info;
-	    is >> info;
-
-	    if(is.good())
+    	    if(readFileInfo(fp, info))
 	    {
 		infoSeq.push_back(info);
 	    }
+	    else
+	    {
+		break;
+	    }
 	}
+	fclose(fp);
 
 	sort(infoSeq.begin(), infoSeq.end(), FileInfoLess());
 	infoSeq.erase(unique(infoSeq.begin(), infoSeq.end(), FileInfoEqual()), infoSeq.end());
@@ -1007,32 +1064,36 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
     {
 	const string pathLog = simplify(pa + '/' + logFile);
 
-	ifstream is(pathLog.c_str());
-	if(is)
+	FILE* fp = OS::fopen(pathLog, "r");
+	if(fp != 0)
 	{
 	    FileInfoSeq remove;
 	    FileInfoSeq update;
 	    
-	    while(is.good())
+	    while(true)
 	    {
-		char c;
-		is >> c;
+		int c = fgetc(fp);
+		if(c == EOF)
+		{
+		    break;
+		}
 
 		FileInfo info;
-		is >> info;
-
-		if(is.good())
+		if(!readFileInfo(fp, info))
 		{
-		    if(c == '-')
-		    {
-			remove.push_back(info);
-		    }
-		    else if(c == '+')
-		    {
-			update.push_back(info);
-		    }
+		    break;
+		}
+
+		if(c == '-')
+		{
+		    remove.push_back(info);
+		}
+		else if(c == '+')
+		{
+		    update.push_back(info);
 		}
 	    }
+	    fclose(fp);
 
 	    sort(remove.begin(), remove.end(), FileInfoLess());
 	    remove.erase(unique(remove.begin(), remove.end(), FileInfoEqual()), remove.end());
@@ -1130,31 +1191,3 @@ IcePatch2::getFileTree0(const FileInfoSeq& infoSeq, FileTree0& tree0)
     }
 }
 
-ostream&
-IcePatch2::operator<<(ostream& os, const FileInfo& info)
-{
-    os << IceUtil::escapeString(info.path, "") << '\t'
-       << bytesToString(info.checksum) << '\t'
-       << info.size << '\t'
-       << info.executable;
-    return os;
-}
-
-istream&
-IcePatch2::operator>>(istream& is, FileInfo& info)
-{
-    string s;
-
-    getline(is, s, '\t');
-    IceUtil::unescapeString(s, 0, s.size(), info.path);
-
-    getline(is, s, '\t');
-    info.checksum = stringToBytes(s);
-
-    is >> info.size;
-    is >> info.executable;
-
-    getline(is, s); // Read until the EOL
-
-    return is;
-}

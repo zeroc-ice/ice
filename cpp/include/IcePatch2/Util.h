@@ -168,8 +168,8 @@ ICE_PATCH2_API bool getFileInfoSeqSubDir(const std::string&, const std::string&,
 ICE_PATCH2_API void saveFileInfoSeq(const std::string&, const FileInfoSeq&);
 ICE_PATCH2_API void loadFileInfoSeq(const std::string&, FileInfoSeq&);
 
-ICE_PATCH2_API std::ostream& operator<<(std::ostream&, const FileInfo&);
-ICE_PATCH2_API std::istream& operator>>(std::istream&, FileInfo&);
+ICE_PATCH2_API bool readFileInfo(FILE*, FileInfo&);
+ICE_PATCH2_API bool writeFileInfo(FILE*, const FileInfo&);
 
 struct FileTree1
 {

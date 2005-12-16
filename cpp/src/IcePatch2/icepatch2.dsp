@@ -118,6 +118,10 @@ SOURCE=.\FileServer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\OS.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Util.cpp
 # End Source File
 # End Group
@@ -135,6 +139,10 @@ SOURCE=..\..\include\icepatch2\FileInfo.h
 # Begin Source File
 
 SOURCE=..\..\include\icepatch2\FileServer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\OS.h
 # End Source File
 # Begin Source File
 

@@ -11,10 +11,7 @@
 #include <Ice/Service.h>
 #include <IcePatch2/FileServerI.h>
 #include <IcePatch2/Util.h>
-
-#ifdef _WIN32
-#   include <direct.h>
-#endif
+#include <OS.h>
 
 using namespace std;
 using namespace Ice;
@@ -123,18 +120,13 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     {
 	if(!isAbsolute(dataDir))
 	{
-#ifdef _WIN32
-	    char cwd[_MAX_PATH];
-	    if(_getcwd(cwd, _MAX_PATH) == NULL)
-#else
-	    char cwd[PATH_MAX];
-	    if(getcwd(cwd, PATH_MAX) == NULL)
-#endif
+	    string cwd;
+	    if(OS::getcwd(cwd) != 0)
 	    {
 		throw "cannot get the current directory:\n" + lastError();
 	    }
 	    
-	    dataDir = string(cwd) + '/' + dataDir;
+	    dataDir = cwd + '/' + dataDir;
 	}
 
 	loadFileInfoSeq(dataDir, infoSeq);
@@ -169,7 +161,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     string instanceName = properties->getPropertyWithDefault(instanceNameProperty, "IcePatch2");
 
     const string idProperty = "IcePatch2.Identity";
-    string idStr= properties->getProperty(idProperty);
+    string idStr = properties->getProperty(idProperty);
     if(idStr.empty())
     {
 	idStr = instanceName + "/server";
