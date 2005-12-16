@@ -20,8 +20,12 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <signal.h>
 #include <fcntl.h>
+
+#ifndef _WIN32
+#   include <sys/wait.h>
+#   include <signal.h>
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -54,7 +58,7 @@ private:
 
 #define ICE_STRING(X) #X
 
-namespace
+namespace IceGrid
 {
 
 #ifndef _WIN32
@@ -742,7 +746,7 @@ Activator::deactivate(const string& name, const Ice::ProcessPrx& process)
 	//
 	return;
     }
-#endif 
+#endif
 
     //
     // Try to shut down the server gracefully using the process proxy.
@@ -820,16 +824,9 @@ Activator::kill(const string& name)
         throw ex;
     }
 
-    BOOL b = TerminateProcess(hnd, 1);
+    BOOL b = TerminateProcess(hnd, 0); // We use 0 for the exit code to make sure it's not considered as a crash.
 
     CloseHandle(hnd);
-
-    if(!b)
-    {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
-    }
 
     if(_traceLevels->activator > 1)
     {
@@ -962,19 +959,23 @@ Activator::destroy()
 void
 Activator::runTerminationListener()
 {
-    try
+    while(true)
     {
-	terminationListener();
-    }
-    catch(const Exception& ex)
-    {
-	Error out(_traceLevels->logger);
-	out << "exception in process termination listener:\n" << ex;
-    }
-    catch(...)
-    {
-	Error out(_traceLevels->logger);
-	out << "unknown exception in process termination listener";
+	try
+	{
+	    terminationListener();
+	    break;
+	}
+	catch(const Exception& ex)
+	{
+	    Error out(_traceLevels->logger);
+	    out << "exception in process termination listener:\n" << ex;
+	}
+	catch(...)
+	{
+	    Error out(_traceLevels->logger);
+	    out << "unknown exception in process termination listener";
+	}
     }
 }
 
@@ -1052,7 +1053,7 @@ Activator::terminationListener()
         assert(pos < handles.size());
         HANDLE hnd = handles[pos];
 
-	vector<ServerIPtr> terminated;
+	vector<Process> terminated;
 	bool deactivated = false;
 	{
 	    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
@@ -1067,15 +1068,7 @@ Activator::terminationListener()
 		{
 		    if(p->second.hnd == hnd)
 		    {
-			if(_traceLevels->activator > 0)
-			{
-			    Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-			    out << "detected termination of server `" << p->first << "'";
-			}
-			
-			terminated.push_back(p->second.server);
-			
-			CloseHandle(hnd);
+			terminated.push_back(p->second);
 			_processes.erase(p);
 			break;
 		    }
@@ -1085,16 +1078,31 @@ Activator::terminationListener()
 	    deactivated = _deactivating && _processes.empty();
 	}
 	
-	for(vector<ServerIPtr>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
+	for(vector<Process>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
 	{
+	    DWORD status;
+	    BOOL b = GetExitCodeProcess(p->hnd, &status);
+	    CloseHandle(p->hnd);
+	    assert(status != STILL_ACTIVE);
+
+	    if(_traceLevels->activator > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+		out << "detected termination of server `" << p->server->getId() << "'";
+		if(status != 0)
+		{
+		    out << "\nexit code = " << status;
+		}
+	    }
+
 	    try
 	    {
-		(*p)->terminated();
+		p->server->terminated("", status);
 	    }
 	    catch(const Ice::LocalException& ex)
 	    {
 		Ice::Warning out(_traceLevels->logger);
-		out << "unexpected exception raised by server `" << (*p)->getId() << "' termination:\n" << ex;
+		out << "unexpected exception raised by server `" << p->server->getId() << "' termination:\n" << ex;
 	    }
 	}
 
@@ -1148,7 +1156,7 @@ Activator::terminationListener()
 	    throw ex;
 	}
 	
-	vector<pair<std::string, ServerIPtr> > terminated;
+	vector<Process> terminated;
 	bool deactivated = false;
 	{
 	    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
@@ -1210,17 +1218,7 @@ Activator::terminationListener()
 		    // If the pipe was closed, the process has terminated.
 		    //
 
-		    if(_traceLevels->activator > 0)
-		    {
-			Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-                        out << "detected termination of server `" << p->first << "':";
-			if(!p->second.msg.empty())
-			{
-			    out << "\n" << p->second.msg;
-			}
-		    }
-
-		    terminated.push_back(make_pair(p->second.msg, p->second.server));
+		    terminated.push_back(p->second);
     
 		    close(p->second.pipeFd);
 		    _processes.erase(p++);
@@ -1233,16 +1231,44 @@ Activator::terminationListener()
 	    deactivated = _deactivating && _processes.empty();
 	}
 	
-	for(vector<pair<string, ServerIPtr> >::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
+	for(vector<Process>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
 	{
+	    int status;
+	    pid_t pid = waitpid(p->pid, &status, 0);
+	    if(pid < 0)
+	    {
+		SyscallException ex(__FILE__, __LINE__);
+		ex.error = getSystemErrno();
+		throw ex;
+	    }
+	    assert(pid == p->pid);
+
+	    if(_traceLevels->activator > 0)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+		out << "detected termination of server `" << p->server->getId() << "'";
+		if(!p->msg.empty())
+		{
+		    out << "\nreason = " << p->msg;
+		}
+		if(WIFEXITED(status) && status != 0)
+		{
+		    out << "\nexit code = " << WEXITSTATUS(status);
+		}
+		else if(WIFSIGNALED(status))
+		{
+		    out << "\nsignal = " << signalToString(WTERMSIG(status));
+		}
+	    }
+
 	    try
 	    {
-		p->second->terminated(p->first);
+		p->server->terminated(p->msg, status);
 	    }
 	    catch(const Ice::LocalException& ex)
 	    {
 		Ice::Warning out(_traceLevels->logger);
-		out << "unexpected exception raised by server `" << p->second->getId() << "' termination:\n" << ex;
+		out << "unexpected exception raised by server `" << p->server->getId() << "' termination:\n" << ex;
 	    }
 	}
 

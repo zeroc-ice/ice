@@ -27,12 +27,7 @@
 #   define S_ISDIR(mode) ((mode) & _S_IFDIR)
 #   define S_ISREG(mode) ((mode) & _S_IFREG)
 #else
-#   include <csignal>
-#   include <signal.h>
-#   include <sys/wait.h>
-#   include <sys/types.h>
 #   include <sys/stat.h>
-#   include <unistd.h>
 #endif
 
 using namespace std;
@@ -142,35 +137,6 @@ private:
 
 } // End of namespace IceGrid
 
-#ifndef _WIN32
-extern "C"
-{
-
-static void
-childHandler(int)
-{
-    //
-    // Call wait to de-allocate any resources allocated for the child
-    // process and avoid zombie processes. See man wait or waitpid for
-    // more information.
-    //
-    int olderrno = errno;
-
-    pid_t pid;
-    do
-    {
-	pid = waitpid(-1, 0, WNOHANG);
-    }
-    while(pid > 0);
-
-    assert(pid != -1 || errno == ECHILD);
-
-    errno = olderrno;
-}
-
-}
-#endif
-
 CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& communicator, const ActivatorPtr& activator) :
     RegistryI(communicator), 
     _activator(activator)
@@ -226,18 +192,6 @@ NodeService::shutdown()
 bool
 NodeService::start(int argc, char* argv[])
 {
-#ifndef _WIN32
-    //
-    // This application forks, so we need a signal handler for child termination.
-    //
-    struct sigaction action;
-    action.sa_handler = childHandler;
-    sigemptyset(&action.sa_mask);
-    sigaddset(&action.sa_mask, SIGCHLD);
-    action.sa_flags = 0;
-    sigaction(SIGCHLD, &action, 0);
-#endif
-
     bool nowarn = false;
     bool checkdb = false;
     string desc;

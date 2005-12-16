@@ -208,6 +208,7 @@ ServerAdapterI::activationFailed(bool destroyed)
 	}
     }
 
+    Lock sync(*this);
     for(vector<AMD_Adapter_activatePtr>::const_iterator p = _activateCB.begin(); p != _activateCB.end(); ++p)
     {
 	(*p)->ice_response(0);

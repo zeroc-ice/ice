@@ -24,6 +24,7 @@
 
 #ifdef _WIN32
 #   include <direct.h>
+#   include <signal.h>
 #else
 #   include <unistd.h>
 #   include <dirent.h>
@@ -493,11 +494,14 @@ ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& ser
     _id(id),
     _waitTime(wt),
     _serversDir(serversDir),
+    _disableOnFailure(0),
     _state(ServerI::Inactive),
     _activation(ServerI::Manual),
     _pid(0)
 {
     assert(_node->getActivator());
+    const_cast<int&>(_disableOnFailure) = 
+	_node->getCommunicator()->getProperties()->getPropertyAsIntWithDefault("IceGrid.Node.DisableOnFailure", 0);
 }
 
 ServerI::~ServerI()
@@ -516,6 +520,21 @@ ServerI::start_async(const AMD_Server_startPtr& amdCB, const Ice::Current&)
 	    throw ServerStartException(_id, "The server is being destroyed.");
 	}
 	
+	//
+	// The server is disabled because it failed and if the time of
+	// the failure is now past the configured duration or if the
+	// server is manualy started, we re-enable the server.
+	//
+	if(_activation == Disabled &&
+	   _failureTime != IceUtil::Time() &&
+	   (amdCB || 
+	    (_disableOnFailure > 0 &&
+	     (_failureTime + IceUtil::Time::seconds(_disableOnFailure) < IceUtil::Time::now()))))
+	{
+	    _failureTime = IceUtil::Time();
+	    _activation = _previousActivation;
+	}
+
 	//
 	// If the amd callback is set, it's a remote start call to
 	// manually activate the server. Otherwise it's a call to
@@ -629,6 +648,8 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
 	{
 	    return;
 	}
+
+	_failureTime = IceUtil::Time();
 	_activation = enabled ? (_desc->activation  == "on-demand" ? OnDemand : Manual) : Disabled;
     }
     
@@ -688,7 +709,7 @@ ServerI::ServerActivation
 ServerI::getActivationMode() const
 {
     Lock sync(*this);
-    return _activation;
+    return _desc->activation  == "on-demand" ? OnDemand : Manual;
 }
 
 const string&
@@ -1140,7 +1161,7 @@ ServerI::destroy()
 }
 
 void
-ServerI::terminated(const string& msg)
+ServerI::terminated(const string& msg, int status)
 {
     ServerAdapterDict adpts;
     {
@@ -1175,16 +1196,45 @@ ServerI::terminated(const string& msg)
 	_process = 0;
 	_pid = 0;
 
+	if(_disableOnFailure != 0 && _activation != Disabled)
+	{
+	    bool failed = false;
+#ifndef _WIN32
+	    failed = WIFEXITED(status) && WEXITSTATUS(status) != 0;
+	    if(WIFSIGNALED(status))
+	    {
+		int s = WTERMSIG(status);
+		failed = s == SIGABRT || s == SIGILL || s == SIGBUS || s == SIGFPE || s == SIGSEGV;
+	    }
+#else
+	    failed = status != 0;
+#endif
+	    if(failed)
+	    {
+		_previousActivation = _activation;
+		_activation = Disabled;
+		_failureTime = IceUtil::Time::now();
+	    }
+	}
+	
 	if(_state != ServerI::Destroying)
 	{
-	    if(msg.empty())
+	    ostringstream os;
+	    os << "The server terminated unexpectedly";
+#ifndef _WIN32
+	    if(WIFEXITED(status))
 	    {
-		setStateNoSync(ServerI::Inactive, "The server terminated unexpectedly.");
+		os << " with exit code " << WEXITSTATUS(status);
 	    }
-	    else
+	    else if(WIFSIGNALED(status))
 	    {
-		setStateNoSync(ServerI::Inactive, "The server terminated unexpectedly:\n" + msg);
+		os << " with signal " << signalToString(WTERMSIG(status));
 	    }
+#else
+	    os << " with exit code " << status;
+#endif
+	    os << (msg.empty() ? "." : ":\n" + msg);
+	    setStateNoSync(ServerI::Inactive, os.str());
 	    command = nextCommand();
 	}
 	else
