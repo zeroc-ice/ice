@@ -7,6 +7,14 @@
 //
 // **********************************************************************
 
+//
+// We need to include io.h first to get the proper signature for
+// _wfindfirst
+//
+#ifdef _WIN32
+#   include <io.h>
+#endif
+
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/IceUtil.h>
 #include <IcePatch2/Util.h>
@@ -17,7 +25,6 @@
 
 #ifdef _WIN32
 #   include <direct.h>
-#   include <io.h>
 #else
 #   include <unistd.h>
 #   include <dirent.h>
@@ -502,10 +509,7 @@ IcePatch2::readDirectory(const string& pa)
     const wstring fs = IceUtil::stringToWstring(simplify(path + "/*"));
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-    //
-    // TODO: Why is this cast necessary?
-    //
-    long h = _wfindfirst(const_cast<wchar_t*>(fs.c_str()), &data);
+    long h = _wfindfirst(fs.c_str()), &data);
 #else
     intptr_t h = _wfindfirst(fs.c_str(), &data);
 #endif
