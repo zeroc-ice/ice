@@ -176,5 +176,4 @@ of the <prefix>/include directory to the compiler with the -I option,
 and the location of the <prefix>/lib directory with the -L option.
 
 If you built in 64 bit mode, the libraries are installed in
-<prefix>/lib/pa20_64 and the programs are installed in
-<prefix>/bin/pa20_64. No other changes are necessary.
+<prefix>/lib/pa20_64. No other changes are necessary.
