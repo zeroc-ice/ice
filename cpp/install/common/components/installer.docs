@@ -1,3 +1,4 @@
-include=*.*
-exclude=**.rtf
-exclude=THIRD_PARTY_SOURCES
+LICENSE
+README.txt
+SOURCES
+THIRD_PARTY_LICENSE
