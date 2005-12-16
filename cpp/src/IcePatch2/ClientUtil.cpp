@@ -7,14 +7,12 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Unicode.h>
 #include <IcePatch2/ClientUtil.h>
 #include <IcePatch2/Util.h>
 #include <IcePatch2/FileServerI.h>
 #include <list>
-
-#ifdef _WIN32
-#   include <direct.h>
-#endif
+#include <OS.h>
 
 using namespace std;
 using namespace Ice;
@@ -69,13 +67,16 @@ public:
     }
 
     void
-    log(ofstream& os)
+    log(FILE* fp)
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
 	for(FileInfoSeq::const_iterator p = _filesDone.begin(); p != _filesDone.end(); ++p)
 	{
-	    os << '+' << *p << endl;
+	    if(fputc('+', fp) == EOF || !writeFileInfo(fp, *p))
+	    {
+		throw "error writing log file:\n" + lastError();
+	    }
 	}
 
 	_filesDone.clear();
@@ -450,7 +451,7 @@ IcePatch2::Patcher::prepare()
     sort(_updateFlags.begin(), _updateFlags.end(), FileInfoLess());
 		
     string pathLog = simplify(_dataDir + '/' + logFile);
-    _log.open(pathLog.c_str());
+    _log = OS::fopen(pathLog, "w");
     if(!_log)
     {
 	throw "cannot open `" + pathLog + "' for writing:\n" + lastError();
@@ -568,7 +569,8 @@ IcePatch2::Patcher::patch(const string& d)
 void
 IcePatch2::Patcher::finish()
 {
-    _log.close();
+    fclose(_log);
+    _log = 0;
 
     saveFileInfoSeq(_dataDir, _localFiles);
 }
@@ -605,21 +607,12 @@ IcePatch2::Patcher::init(const FileServerPrx& server)
 
     if(!isAbsolute(_dataDir))
     {
-#ifdef _WIN32
-	char cwd[_MAX_PATH];
-	if(_getcwd(cwd, _MAX_PATH) == NULL)
+	string cwd;
+	if(OS::getcwd(cwd) != 0)
 	{
 	    throw "cannot get the current directory:\n" + lastError();
 	}
-#else
-	char cwd[PATH_MAX];
-	if(getcwd(cwd, PATH_MAX) == NULL)
-	{
-	    throw "cannot get the current directory:\n" + lastError();
-	}
-#endif
-    
-	const_cast<string&>(_dataDir) = simplify(string(cwd) + '/' + _dataDir);
+	const_cast<string&>(_dataDir) = simplify(cwd + '/' + _dataDir);
     }
 	
     const_cast<FileServerPrx&>(_serverCompress) = FileServerPrx::uncheckedCast(server->ice_compress(true));
@@ -639,7 +632,10 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
 	try
 	{
 	    remove(_dataDir + '/' + p->path);
-	    _log << '-' << *p << endl;
+	    if(fputc('-', _log) == EOF || ! writeFileInfo(_log, *p))
+	    {
+		throw "error writing log file:\n" + lastError();
+	    }
 	}
 	catch(...)
 	{
@@ -788,7 +784,10 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 	if(p->size < 0) // Directory?
 	{
 	    createDirectoryRecursive(_dataDir + '/' + p->path);
-	    _log << '+' << *p << endl;
+	    if(fputc('+', _log) == EOF || !writeFileInfo(_log, *p))
+	    {
+		throw "error writing log file:\n" + lastError();
+	    }
 	}
 	else // Regular file.
 	{
@@ -800,7 +799,12 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 	    if(p->size == 0)
 	    {
 		string path = simplify(_dataDir + '/' + p->path);
-		ofstream file(path.c_str(), ios::binary);
+		FILE* fp = OS::fopen(path, "wb");
+		if(fp == 0)
+		{
+		    throw "cannot open `" + path +"' for writing:\n" + lastError();
+		}
+		fclose(fp);
 	    }
 	    else
 	    {
@@ -820,86 +824,93 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 		{
 		}
 		
-		ofstream fileBZ2(pathBZ2.c_str(), ios::binary);
-		if(!fileBZ2)
+		FILE* fileBZ2 = OS::fopen(pathBZ2, "wb");
+		if(fileBZ2 == 0)
 		{
 		    throw "cannot open `" + pathBZ2 + "' for writing:\n" + lastError();
 		}
-	    
-		Int pos = 0;
-	    
-		while(pos < p->size)
-		{
-		    if(!curCB)
-		    {
-			assert(!nxtCB);
-			curCB = new AMIGetFileCompressed;
-			nxtCB = new AMIGetFileCompressed;
-			_serverNoCompress->getFileCompressed_async(curCB, p->path, pos, _chunkSize);
-		    }
-		    else
-		    {
-			assert(nxtCB);
-			swap(nxtCB, curCB);
-		    }
-		    
-		    if(pos + _chunkSize < p->size)
-		    {
-			_serverNoCompress->getFileCompressed_async(nxtCB, p->path, pos + _chunkSize, _chunkSize);
-		    }
-		    else
-		    {
-			FileInfoSeq::const_iterator q = p + 1;
-			
-			while(q != files.end() && q->size <= 0)
-			{
-			    ++q;
-			}
-			
-			if(q != files.end())
-			{
-			    _serverNoCompress->getFileCompressed_async(nxtCB, q->path, 0, _chunkSize);
-			}
-		    }
 
-		    ByteSeq bytes;
-		
-		    try
+		try
+		{
+		    Int pos = 0;
+
+		    while(pos < p->size)
 		    {
-			bytes = curCB->getFileCompressed();
-		    }
-		    catch(const FileAccessException& ex)
-		    {
-			throw "server error for `" + p->path + "': " + ex.reason;
-		    }
-		
-		    if(bytes.empty())
-		    {
-			throw "size mismatch for `" + p->path + "'";
-		    }
-		
-		    fileBZ2.write(reinterpret_cast<char*>(&bytes[0]), bytes.size());
-		
-		    if(!fileBZ2)
-		    {
-			throw ": cannot write `" + pathBZ2 + "':\n" + lastError();
-		    }
-		
-		    pos += static_cast<int>(bytes.size());
-		    updated += bytes.size();
-		
-		    if(!_feedback->patchProgress(pos, p->size, updated, total))
-		    {
-			return false;
+			if(!curCB)
+			{
+			    assert(!nxtCB);
+			    curCB = new AMIGetFileCompressed;
+			    nxtCB = new AMIGetFileCompressed;
+			    _serverNoCompress->getFileCompressed_async(curCB, p->path, pos, _chunkSize);
+			}
+			else
+			{
+			    assert(nxtCB);
+			    swap(nxtCB, curCB);
+			}
+
+			if(pos + _chunkSize < p->size)
+			{
+			    _serverNoCompress->getFileCompressed_async(nxtCB, p->path, pos + _chunkSize, _chunkSize);
+			}
+			else
+			{
+			    FileInfoSeq::const_iterator q = p + 1;
+
+			    while(q != files.end() && q->size <= 0)
+			    {
+				++q;
+			    }
+
+			    if(q != files.end())
+			    {
+				_serverNoCompress->getFileCompressed_async(nxtCB, q->path, 0, _chunkSize);
+			    }
+			}
+
+			ByteSeq bytes;
+
+			try
+			{
+			    bytes = curCB->getFileCompressed();
+			}
+			catch(const FileAccessException& ex)
+			{
+			    throw "server error for `" + p->path + "': " + ex.reason;
+			}
+
+			if(bytes.empty())
+			{
+			    throw "size mismatch for `" + p->path + "'";
+			}
+
+			if(fwrite(reinterpret_cast<char*>(&bytes[0]), bytes.size(), 1, fileBZ2) != 1)
+			{
+			    throw ": cannot write `" + pathBZ2 + "':\n" + lastError();
+			}
+
+			pos += static_cast<int>(bytes.size());
+			updated += bytes.size();
+
+			if(!_feedback->patchProgress(pos, p->size, updated, total))
+			{
+			    fclose(fileBZ2);
+			    return false;
+			}
 		    }
 		}
-	    
-		fileBZ2.close();
-
+		catch(...)
+		{
+		    fclose(fileBZ2);
+		    throw;
+		}
+		
+		fclose(fileBZ2);
+		
 		decompressor->log(_log);
 		decompressor->add(*p);
 	    }
-	
+	    
 	    if(!_feedback->patchEnd())
 	    {
 		return false;
