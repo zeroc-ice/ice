@@ -50,9 +50,7 @@ final class TcpEndpointI extends EndpointI
             String option = arr[i++];
             if(option.length() != 2 || option.charAt(0) != '-')
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException();
-		e.str = "tcp " + str;
-		throw e;
+		throw new Ice.EndpointParseException("tcp " + str);
             }
 
             String argument = null;
@@ -67,9 +65,7 @@ final class TcpEndpointI extends EndpointI
                 {
                     if(argument == null)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("tcp " + str);
                     }
 
                     _host = argument;
@@ -80,9 +76,7 @@ final class TcpEndpointI extends EndpointI
                 {
                     if(argument == null)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("tcp " + str);
                     }
 
                     try
@@ -91,10 +85,13 @@ final class TcpEndpointI extends EndpointI
                     }
                     catch(NumberFormatException ex)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("tcp " + str);
                     }
+
+		    if(_port < 0 || _port > 65535)
+		    {
+			throw new Ice.EndpointParseException("tcp " + str);
+		    }
 
                     break;
                 }
@@ -103,9 +100,7 @@ final class TcpEndpointI extends EndpointI
                 {
                     if(argument == null)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("tcp " + str);
                     }
 
                     try
@@ -114,9 +109,7 @@ final class TcpEndpointI extends EndpointI
                     }
                     catch(NumberFormatException ex)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("tcp " + str);
                     }
 
                     break;
@@ -126,9 +119,7 @@ final class TcpEndpointI extends EndpointI
                 {
                     if(argument != null)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "tcp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("tcp " + str);
                     }
 
                     _compress = true;
@@ -137,9 +128,7 @@ final class TcpEndpointI extends EndpointI
 
                 default:
                 {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-		    e.str = "tcp " + str;
-		    throw e;
+		    throw new Ice.EndpointParseException("tcp " + str);
                 }
             }
         }

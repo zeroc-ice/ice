@@ -217,7 +217,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
 	    case 'p':
 	    {
 		istringstream p(argument);
-		if(!(p >> const_cast<Int&>(_port)) || !p.eof())
+		if(!(p >> const_cast<Int&>(_port)) || !p.eof() || _port < 0 || _port > 65535)
 		{
 		    EndpointParseException ex(__FILE__, __LINE__);
 		    ex.str = "udp " + str;

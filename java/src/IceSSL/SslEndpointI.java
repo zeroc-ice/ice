@@ -50,9 +50,7 @@ final class SslEndpointI extends IceInternal.EndpointI
 	    String option = arr[i++];
 	    if(option.length() != 2 || option.charAt(0) != '-')
 	    {
-		Ice.EndpointParseException e = new Ice.EndpointParseException();
-		e.str = "ssl " + str;
-		throw e;
+		throw new Ice.EndpointParseException("ssl " + str);
 	    }
 
 	    String argument = null;
@@ -67,9 +65,7 @@ final class SslEndpointI extends IceInternal.EndpointI
 		{
 		    if(argument == null)
 		    {
-			Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "ssl " + str;
-			throw e;
+			throw new Ice.EndpointParseException("ssl " + str);
 		    }
 
 		    _host = argument;
@@ -80,9 +76,7 @@ final class SslEndpointI extends IceInternal.EndpointI
 		{
 		    if(argument == null)
 		    {
-			Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "ssl " + str;
-			throw e;
+			throw new Ice.EndpointParseException("ssl " + str);
 		    }
 
 		    try
@@ -91,9 +85,12 @@ final class SslEndpointI extends IceInternal.EndpointI
 		    }
 		    catch(NumberFormatException ex)
 		    {
-			Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "ssl " + str;
-			throw e;
+			throw new Ice.EndpointParseException("ssl " + str);
+		    }
+
+		    if(_port < 0 || _port > 65535)
+		    {
+			throw new Ice.EndpointParseException("ssl " + str);
 		    }
 
 		    break;
@@ -103,9 +100,7 @@ final class SslEndpointI extends IceInternal.EndpointI
 		{
 		    if(argument == null)
 		    {
-			Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "ssl " + str;
-			throw e;
+			throw new Ice.EndpointParseException("ssl " + str);
 		    }
 
 		    try
@@ -114,9 +109,7 @@ final class SslEndpointI extends IceInternal.EndpointI
 		    }
 		    catch(NumberFormatException ex)
 		    {
-			Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "ssl " + str;
-			throw e;
+			throw new Ice.EndpointParseException("ssl " + str);
 		    }
 
 		    break;
@@ -126,9 +119,7 @@ final class SslEndpointI extends IceInternal.EndpointI
 		{
 		    if(argument != null)
 		    {
-			Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "ssl " + str;
-			throw e;
+			throw new Ice.EndpointParseException("ssl " + str);
 		    }
 
 		    _compress = true;
@@ -137,9 +128,7 @@ final class SslEndpointI extends IceInternal.EndpointI
 
 		default:
 		{
-		    Ice.EndpointParseException e = new Ice.EndpointParseException();
-		    e.str = "ssl " + str;
-		    throw e;
+		    throw new Ice.EndpointParseException("ssl " + str);
 		}
 	    }
 	}

@@ -91,6 +91,13 @@ final class TcpEndpoint implements Endpoint
 			throw e;
                     }
 
+		    if(_port < 0 || _port > 65535)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+			e.str = "tcp " + str;
+			throw e;
+                    }
+
                     break;
                 }
 

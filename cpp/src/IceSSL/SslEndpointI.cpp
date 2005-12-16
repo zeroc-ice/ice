@@ -96,25 +96,25 @@ IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string
 
 	    case 'p':
 	    {
-		if(argument.empty())
+		istringstream p(argument);
+		if(!(p >> const_cast<Int&>(_port)) || !p.eof() || _port < 0 || _port > 65535)
 		{
 		    EndpointParseException ex(__FILE__, __LINE__);
 		    ex.str = "ssl " + str;
 		    throw ex;
 		}
-		const_cast<Int&>(_port) = atoi(argument.c_str());
 		break;
 	    }
 
 	    case 't':
 	    {
-		if(argument.empty())
+		istringstream t(argument);
+		if(!(t >> const_cast<Int&>(_timeout)) || !t.eof())
 		{
 		    EndpointParseException ex(__FILE__, __LINE__);
 		    ex.str = "ssl " + str;
 		    throw ex;
 		}
-		const_cast<Int&>(_timeout) = atoi(argument.c_str());
 		break;
 	    }
 

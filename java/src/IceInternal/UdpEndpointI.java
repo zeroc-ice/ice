@@ -58,9 +58,7 @@ final class UdpEndpointI extends EndpointI
             String option = arr[i++];
             if(option.length() != 2 || option.charAt(0) != '-')
             {
-                Ice.EndpointParseException e = new Ice.EndpointParseException();
-		e.str = "udp " + str;
-		throw e;
+		throw new Ice.EndpointParseException("udp " + str);
             }
 
             String argument = null;
@@ -75,17 +73,13 @@ final class UdpEndpointI extends EndpointI
                 {
                     if(argument == null)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("udp " + str);
                     }
 
 		    int pos = argument.indexOf('.');
                     if(pos == -1)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("udp " + str);
                     }
 
 		    String majStr = argument.substring(0, pos);
@@ -99,16 +93,12 @@ final class UdpEndpointI extends EndpointI
 		    }
                     catch(NumberFormatException ex)
 		    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("udp " + str);
 		    }
 
 		    if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
 		    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("udp " + str);
 		    }
 
 		    if(majVersion != Protocol.protocolMajor)
@@ -131,17 +121,13 @@ final class UdpEndpointI extends EndpointI
                 {
                     if(argument == null)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("udp " + str);
                     }
 
 		    int pos = argument.indexOf('.');
                     if(pos == -1)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("udp " + str);
                     }
 
 		    String majStr = argument.substring(0, pos);
@@ -155,16 +141,12 @@ final class UdpEndpointI extends EndpointI
 		    }
                     catch(NumberFormatException ex)
 		    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("udp " + str);
 		    }
 
 		    if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
 		    {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("udp " + str);
 		    }
 
 		    if(majVersion != Protocol.encodingMajor)
@@ -187,9 +169,7 @@ final class UdpEndpointI extends EndpointI
                 {
                     if(argument == null)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("udp " + str);
                     }
 
                     _host = argument;
@@ -200,9 +180,7 @@ final class UdpEndpointI extends EndpointI
                 {
                     if(argument == null)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("udp " + str);
                     }
 
                     try
@@ -211,10 +189,13 @@ final class UdpEndpointI extends EndpointI
                     }
                     catch(NumberFormatException ex)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("udp " + str);
                     }
+
+		    if(_port < 0 || _port > 65535)
+		    {
+			throw new Ice.EndpointParseException("udp " + str);
+		    }
 
                     break;
                 }
@@ -223,9 +204,7 @@ final class UdpEndpointI extends EndpointI
                 {
                     if(argument != null)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("udp " + str);
                     }
 
                     _connect = true;
@@ -236,9 +215,7 @@ final class UdpEndpointI extends EndpointI
                 {
                     if(argument != null)
                     {
-                        Ice.EndpointParseException e = new Ice.EndpointParseException();
-			e.str = "udp " + str;
-			throw e;
+			throw new Ice.EndpointParseException("udp " + str);
                     }
 
                     _compress = true;
@@ -247,9 +224,7 @@ final class UdpEndpointI extends EndpointI
 
                 default:
                 {
-                    Ice.EndpointParseException e = new Ice.EndpointParseException();
-		    e.str = "udp " + str;
-		    throw e;
+		    throw new Ice.EndpointParseException("udp " + str);
                 }
             }
         }

@@ -218,6 +218,13 @@ namespace IceInternal
 			    e.str = "udp " + str;
 			    throw e;
 			}
+
+			if(_port < 0 || _port > 65535)
+			{
+			    Ice.EndpointParseException e = new Ice.EndpointParseException();
+			    e.str = "udp " + str;
+			    throw e;
+			}
 			
 			break;
 		    }
