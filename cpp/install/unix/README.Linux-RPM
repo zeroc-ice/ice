@@ -41,17 +41,6 @@ http://www.zeroc.com/download.html
 
 
 ======================================================================
-64 bit builds on x86-64
-======================================================================
-
-The RPMs provided by ZeroC contain only 32-bit binaries. If you need
-64-bit binaries, you can download the Ice sources from the ZeroC web
-site at http://www.zeroc.com/download.html and build Ice in 64-bit
-mode. See the INSTALL.LINUX file of the source distribution for more
-details.
-
-
-======================================================================
 Setting up your environment to use Ice
 ======================================================================
 
@@ -80,26 +69,10 @@ installation of Berkeley DB, the bash command is shown below:
 
 $ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 
+On a x86_64 system with a 64-bit JVM, the 64-bit Berkeley DB 
+libraries are installed in /usr/lib64, so use instead:
 
-Java
-----
-
-To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
-CLASSPATH, as shown below:
-
-$ export CLASSPATH=/usr/lib/Ice-@ver@/Ice.jar:$CLASSPATH
-
-If you plan to use Freeze for persistence, you must also add the
-Berkeley DB JAR file (db.jar) to your CLASSPATH:
-
-$ export CLASSPATH=$DB_HOME/lib/db.jar:$CLASSPATH
-
-In addition, the JVM requires that the directory containing the
-Berkeley DB libraries be listed in java.library.path, therefore you
-must add this directory to LD_LIBRARY_PATH. Assuming you are using
-the RPM installation of Berkeley DB, the bash command is shown below:
-
-$ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
+$ export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
 
 
 Python

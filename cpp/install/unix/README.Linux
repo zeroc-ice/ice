@@ -122,16 +122,6 @@ http://www.php.net.
 
 
 ======================================================================
-64 bit builds on x86-64
-======================================================================
-
-This distribution only contains 32-bit binaries. If you need a 64-bit
-version, you can download the Ice sources from the ZeroC web site at
-http://www.zeroc.com/download.html and build Ice in 64-bit mode. See
-the INSTALL.LINUX file of the source distribution for more details.
-
-
-======================================================================
 Setting up your environment to use Ice
 ======================================================================
 
@@ -149,6 +139,10 @@ LD_LIBRARY_PATH, as shown in the bash commands below:
 $ export PATH=$ICE_HOME/bin:$PATH
 $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
 
+With the x86_64 distribution, libraries are installed in 
+$ICE_HOME/lib64; if you use this distribution, set your 
+LD_LIBRARY_PATH as follows:
+$ export LD_LIBRARY_PATH=$ICE_HOME/lib64:$LD_LIBRARY_PATH
 
 C++
 ---
@@ -160,9 +154,10 @@ and libIceUtil, so a typical link command would look like this:
 
 $ c++ -o myprogram myprogram.o -L$ICE_HOME/lib -lIce -lIceUtil
 
+Use -L$ICE_HOME/lib64 instead of -L$ICE_HOME/lib for 64-bit builds.
+
 Additional libraries are necessary if you are using an Ice service
 such as IceGrid or Glacier2.
-
 
 Java
 ----
@@ -179,7 +174,7 @@ $ export CLASSPATH=$DB_HOME/lib/db.jar:$CLASSPATH
 
 In addition, the JVM requires that the directory containing the
 Berkeley DB libraries be listed in java.library.path, therefore you
-must add this directory to LD_LIBRARY_PATH.
+must add this directory to your LD_LIBRARY_PATH.
 
 
 Python
@@ -235,6 +230,9 @@ by editing php.ini and adding the following lines:
 
 extension_dir = <ICE_HOME>/lib
 extension = icephp.so
+
+(With the x86_64 distribution, use <ICE_HOME>/lib64 instead of 
+<ICE_HOME>/lib)
 
 At run time, the PHP interpreter requires the Ice shared libraries
 as well as the Slice preprocessor ($ICE_HOME/bin/icecpp), therefore
