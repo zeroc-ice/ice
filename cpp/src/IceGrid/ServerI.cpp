@@ -26,6 +26,8 @@
 #   include <direct.h>
 #   include <signal.h>
 #else
+#   include <sys/wait.h>
+#   include <signal.h>
 #   include <unistd.h>
 #   include <dirent.h>
 #endif
