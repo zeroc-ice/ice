@@ -740,7 +740,15 @@ final class UdpEndpointI extends EndpointI
     private void
     calcHashValue()
     {
-        _hashCode = _host.hashCode();
+        try
+        {
+            java.net.InetAddress addr = java.net.InetAddress.getByName(_host);
+            _hashCode = addr.getHostAddress().hashCode();
+        }
+        catch(java.net.UnknownHostException ex)
+        {
+            _hashCode = _host.hashCode();
+        }
         _hashCode = 5 * _hashCode + _port;
         _hashCode = 5 * _hashCode + (_connect ? 1 : 0);
         _hashCode = 5 * _hashCode + _connectionId.hashCode();
