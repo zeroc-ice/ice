@@ -19,5 +19,3 @@ IllegalLocal.ice:66: non-local struct`s2' cannot contain local member `m'
 IllegalLocal.ice:72: non-local struct`s3' cannot contain local member `e'
 IllegalLocal.ice:77: non-local interface `i5' cannot have local parameter `p' in operation `op'
 IllegalLocal.ice:78: non-local interface `i5' cannot have operation `op2' with local return type
-IllegalLocal.ice:87: operation `op' cannot have a throws clause because it is an operation on a local interface
-IllegalLocal.ice:92: operation `op' cannot have a throws clause because it is an operation on a local class
