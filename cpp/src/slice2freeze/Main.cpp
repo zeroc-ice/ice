@@ -98,7 +98,7 @@ usage(const char* n)
 	"                      By default, keys are sorted using their binary\n"
 	"                      Ice-encoding representation. Use 'sort' to sort\n"
 	"                      with the COMPARE functor class. COMPARE's default\n"
-	"                      value is std::less<secondary key type>\n."
+	"                      value is std::less<secondary key type>.\n"
         "--output-dir DIR      Create files in the directory DIR.\n"
         "-d, --debug           Print debug messages.\n"
         "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
