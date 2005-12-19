@@ -1,9 +1,6 @@
-stlport
 stlport/algorithm
-stlport/BC50
 stlport/BC50/algorith.h
 stlport/BC50/alloc.h
-stlport/BC50/bak
 stlport/BC50/bak/stddef.h
 stlport/BC50/bak/stdlib.h
 stlport/BC50/bitset.h
@@ -60,7 +57,6 @@ stlport/BC50/streambuf.h
 stlport/BC50/string.h
 stlport/BC50/strstrea.h
 stlport/BC50/typeinfo.h
-stlport/BC50/using
 stlport/BC50/using/cstring.h
 stlport/BC50/using/fstream.h
 stlport/BC50/using/iomanip.h
@@ -85,8 +81,6 @@ stlport/climits
 stlport/clocale
 stlport/cmath
 stlport/complex
-stlport/config
-stlport/config/new_compiler
 stlport/config/new_compiler/configure
 stlport/config/new_compiler/configure.in
 stlport/config/new_compiler/README
@@ -169,7 +163,6 @@ stlport/mmemory.h
 stlport/new
 stlport/new.h
 stlport/numeric
-stlport/old_hp
 stlport/old_hp/algo.h
 stlport/old_hp/algobase.h
 stlport/old_hp/alloc.h
@@ -218,11 +211,9 @@ stlport/stdio.h
 stlport/stdiostream.h
 stlport/stdio_streambuf
 stlport/stdlib.h
-stlport/stl
 stlport/stl/char_traits.h
 stlport/stl/concept_checks.h
 stlport/stl/c_locale.h
-stlport/stl/debug
 stlport/stl/debug/_debug.c
 stlport/stl/debug/_debug.h
 stlport/stl/debug/_deque.h
@@ -237,7 +228,6 @@ stlport/stl/debug/_tree.h
 stlport/stl/debug/_vector.h
 stlport/stl/msl_string.h
 stlport/stl/type_traits.h
-stlport/stl/wrappers
 stlport/stl/wrappers/_deque.h
 stlport/stl/wrappers/_hash_map.h
 stlport/stl/wrappers/_hash_set.h
@@ -379,11 +369,9 @@ stlport/strstream.h
 stlport/time.h
 stlport/typeinfo
 stlport/typeinfo.h
-stlport/using
 stlport/using/cstring
 stlport/using/export
 stlport/using/fstream
-stlport/using/h
 stlport/using/h/fstream.h
 stlport/using/h/iomanip.h
 stlport/using/h/iostream.h
@@ -405,11 +393,9 @@ stlport/valarray
 stlport/vector
 stlport/wchar.h
 stlport/wctype.h
-stlport/wrap_std
 stlport/wrap_std/complex
 stlport/wrap_std/export
 stlport/wrap_std/fstream
-stlport/wrap_std/h
 stlport/wrap_std/h/fstream.h
 stlport/wrap_std/h/iostream.h
 stlport/wrap_std/h/streambuf.h
