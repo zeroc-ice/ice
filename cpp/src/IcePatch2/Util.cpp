@@ -509,7 +509,7 @@ IcePatch2::readDirectory(const string& pa)
     const wstring fs = IceUtil::stringToWstring(simplify(path + "/*"));
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-    long h = _wfindfirst(fs.c_str()), &data);
+    long h = _wfindfirst(fs.c_str(), &data);
 #else
     intptr_t h = _wfindfirst(fs.c_str(), &data);
 #endif
