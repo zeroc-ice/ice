@@ -1,6 +1,9 @@
 Changes since version 1.0.0
 ---------------------------
 
+- Fixed a bug in the Slice parser that caused problems if an
+  included file contained white space in the file name.
+
 - Fixed a deadlock during shutdown that could happen with
   bi-directional connections.
 

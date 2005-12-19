@@ -951,6 +951,7 @@ public:
 private:
 
     Unit(bool, bool, bool, bool);
+    static void eraseWhiteSpace(::std::string&);
 
     bool _ignRedefs;
     bool _all;

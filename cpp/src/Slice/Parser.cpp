@@ -4736,78 +4736,104 @@ Slice::Unit::scanPosition(const char* s)
 {
     assert(*s == '#');
 
-    const char* p = s + 1; // Skip leading #
-    while(isspace(*p))
+    string line(s + 1);			     // Skip leading #
+    eraseWhiteSpace(line);
+    if(line.find("line", 0) == 0)	     // Erase optional "line"
     {
-        ++p;
-    }
-    if(strncmp(p, "line", 4) == 0)
-    {
-        p += 4;
+        line.erase(0, 4);
+	eraseWhiteSpace(line);
     }
 
-    string line(p);
     string::size_type idx;
 
-    idx = line.find_first_not_of(" \t\r#");
+    _currentLine = atoi(line.c_str()) - 1;   // Read line number
+
+    idx = line.find_first_of(" \t\r");       // Erase line number
     if(idx != string::npos)
     {
 	line.erase(0, idx);
     }
+    eraseWhiteSpace(line);
 
-    _currentLine = atoi(line.c_str()) - 1;
+    //
+    // If the string ends in <whitespace>1 or <whitespace>2, it is a push or pop directive.
+    //
+    enum LineType { File, Push, Pop };
 
-    idx = line.find_first_of(" \t\r");
+    LineType type;
+
+    idx = line.find_last_of(" \t\r");
     if(idx != string::npos)
     {
-	line.erase(0, idx);
-    }
-
-    idx = line.find_first_not_of(" \t\r\"");
-    if(idx != string::npos)
-    {
-	line.erase(0, idx);
-
-        string currentFile;
-
-	idx = line.find_first_of(" \t\r\"");
-	if(idx != string::npos)
+	++idx;
+	if(line.substr(idx) == "1")
 	{
-	    currentFile = line.substr(0, idx);
-	    line.erase(0, idx + 1);
+	    type = Push;
+	    line.erase(idx);
+	    eraseWhiteSpace(line);
+
+	}
+	else if(line.substr(idx) == "2")
+	{
+	    type = Pop;
+	    line.erase(idx);
+	    eraseWhiteSpace(line);
+	}
+    }
+    else
+    {
+	type = File;
+    }
+
+    string currentFile;
+    if(!line.empty())
+    {
+	if(line[0] == '"')
+	{
+	    idx = line.rfind('"');
+	    if(idx != string::npos)
+	    {
+	        currentFile = line.substr(1, idx - 1);
+	    }
 	}
 	else
 	{
 	    currentFile = line;
 	}
+    }
 
-	idx = line.find_first_not_of(" \t\r");
-	if(idx != string::npos)
+    switch(type)
+    {
+	case Push:
 	{
-	    line.erase(0, idx);
-	    int val = atoi(line.c_str());
-	    if(val == 1)
+	    if(++_currentIncludeLevel == 1)
 	    {
-		if(++_currentIncludeLevel == 1)
+		if(find(_includeFiles.begin(), _includeFiles.end(), currentFile) == _includeFiles.end())
 		{
-		    if(find(_includeFiles.begin(), _includeFiles.end(), currentFile) == _includeFiles.end())
-		    {
-			_includeFiles.push_back(currentFile);
-		    }
+		    _includeFiles.push_back(currentFile);
 		}
-                pushDefinitionContext();
 	    }
-	    else if(val == 2)
-	    {
-		--_currentIncludeLevel;
-                popDefinitionContext();
-	    }
+	    pushDefinitionContext();
 	    _currentComment = "";
+	    break;
 	}
-
-        DefinitionContextPtr dc = currentDefinitionContext();
-        assert(dc);
-        dc->setFilename(currentFile);
+	case Pop:
+	{
+	    --_currentIncludeLevel;
+	    popDefinitionContext();
+	    _currentComment = "";
+	    break;
+	}
+        default:
+	{
+	    break; // Do nothing
+	}
+    }
+    if(!currentFile.empty())
+    {
+	DefinitionContextPtr dc = currentDefinitionContext();
+	assert(dc);
+	dc->setFilename(currentFile);
     }
 }
 
@@ -5226,6 +5252,21 @@ Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool caseSensit
     _errors(0)
 {
     _unit = this;
+}
+
+void
+Slice::Unit::eraseWhiteSpace(string& s)
+{
+    string::size_type idx = s.find_first_not_of(" \t\r");
+    if(idx != string::npos)
+    {
+        s.erase(0, idx);
+    }
+    idx = s.find_last_not_of(" \t\r");
+    if(idx != string::npos)
+    {
+        s.erase(++idx);
+    }
 }
 
 // ----------------------------------------------------------------------

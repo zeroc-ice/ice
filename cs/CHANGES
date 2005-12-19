@@ -1,6 +1,9 @@
 Changes since version 3.0.0
 ---------------------------
 
+- Fixed a bug in the Slice parser that caused problems if an
+  included file contained white space in the file name.
+
 - Fixed a bug in slice2cs that prevented the generated code
   from being marked as CLS-compliant if the --checksum option
   was used.
