@@ -1565,7 +1565,7 @@
 		<col def="S255">IncludeFiles</col>
 		<col def="S255">ExcludeFiles</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>CommonDoc</td><td>&lt;ISProjectFolder&gt;\install\packages\common\doc</td><td>4</td><td/><td/><td>0</td></row>
+		<row><td>CommonDoc</td><td>&lt;ISProjectFolder&gt;\install\packages\common\doc</td><td>4</td><td/><td>*.rtf</td><td>0</td></row>
 		<row><td>VisualStudioRuntime</td><td>&lt;ISProjectFolder&gt;\install\microsoft\runtime</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
