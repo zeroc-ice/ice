@@ -1,6 +1,15 @@
 Changes since version 3.0.0
 ---------------------------
 
+- IceUtil::Time::toString() has been deprecated and should no longer
+  be used. Instead, use IceUtil::Time::toDateTime() to get a date
+  and time string. (toString() will continue to work as a synonym for
+  two more releases and will then be removed.)
+
+  IceUtil::Time::toDuration() is a new function that returns a duration
+  string of the form "days hh:mm:ss.usec". (The number of days and micro
+  seconds is printed only if they are non-zero.)
+
 - Fixed a bug in the Slice parser that caused problems if an
   included file contained white space in the file name.
 

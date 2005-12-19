@@ -46,7 +46,9 @@ public:
     double toMilliSecondsDouble() const;
     double toMicroSecondsDouble() const;
 
-    std::string toString() const;
+    std::string toString() const; // Deprecated, use toDateTime() instead
+    std::string toDateTime() const;
+    std::string toDuration() const;
 
     Time operator-() const
     {

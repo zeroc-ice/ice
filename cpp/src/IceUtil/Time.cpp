@@ -9,6 +9,7 @@
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Time.h>
+#include <iomanip>
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
@@ -104,7 +105,7 @@ IceUtil::Time::toMicroSecondsDouble() const
 }
 
 std::string
-IceUtil::Time::toString() const
+IceUtil::Time::toDateTime() const
 {
     time_t time = static_cast<long>(_usec / 1000000);
 
@@ -121,10 +122,44 @@ IceUtil::Time::toString() const
     strftime(buf, sizeof(buf), "%x %H:%M:%S", t);
 
     std::ostringstream os;
-    os << buf << ":";
+    os << buf << ".";
     os.fill('0');
     os.width(3);
     os << static_cast<long>(_usec % 1000000 / 1000);
+    return os.str();
+}
+
+//
+// TODO: toString() is deprecated. Leave for two more releases after 3.0.0 and then remove it.
+//
+std::string
+IceUtil::Time::toString() const
+{
+    return toDateTime();
+}
+
+std::string
+IceUtil::Time::toDuration() const
+{
+    Int64 usecs = _usec % 1000000;
+    Int64 secs = _usec / 1000000 % 60;
+    Int64 mins = _usec / 1000000 / 60 % 60;
+    Int64 hours = _usec / 1000000 / 60 / 60 % 24;
+    Int64 days = _usec / 1000000 / 60 / 60 / 24;
+
+    using namespace std;
+
+    ostringstream os;
+    if(days != 0)
+    {
+        os << days << "d ";
+    }
+    os << setfill('0') << setw(2) << hours << ":" << setw(2) << mins << ":" << setw(2) << secs;
+    if(usecs != 0)
+    {
+        os << "." << setw(3) << (usecs / 1000);
+    }
+
     return os.str();
 }
 
