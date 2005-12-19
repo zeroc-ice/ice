@@ -37,7 +37,7 @@ IceInternal::Buffer::Container::swap(Container& other)
     {
 	if(other._buf == other._fixed)
 	{
-	    value_type tmp[_fixedSize];
+	    value_type tmp[ICE_BUFFER_FIXED_SIZE];
 	    memcpy(tmp, _fixed, _size);
 	    memcpy(_fixed, other._fixed, other._size);
 	    memcpy(other._fixed, tmp, _size);

@@ -12,7 +12,8 @@
 
 #include <IceE/Config.h>
 
-//#define ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+#define ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+#define ICE_BUFFER_FIXED_SIZE 64
 
 namespace IceInternal
 {
@@ -47,7 +48,7 @@ public:
 	Container() :
 	    _buf(_fixed),
 	    _size(0),
-	    _capacity(_fixedSize)
+	    _capacity(ICE_BUFFER_FIXED_SIZE)
 	{
 	}
 #else
@@ -112,7 +113,7 @@ public:
 		_buf = _fixed;
 	    }
 	    _size = 0;
-	    _capacity = _fixedSize;
+	    _capacity = ICE_BUFFER_FIXED_SIZE;
 #else
 	    free(_buf);
 	    _buf = 0;
@@ -156,8 +157,7 @@ public:
 	// a buffer size larger than _fixedSize is requested, we
 	// allocate memory dynamically.
 	//
-	static const size_type _fixedSize = 64;
-	value_type _fixed[_fixedSize];
+	value_type _fixed[ICE_BUFFER_FIXED_SIZE];
 #endif
     };
 
