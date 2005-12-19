@@ -49,7 +49,7 @@ private:
 };
 
 class ICE_API Outgoing : private IceUtil::noncopyable
-#ifndef ICEE_PURE_BLOCKING_CLIENTS
+#ifndef ICEE_PURE_BLOCKING_CLIENT
 			 , public IceUtil::Monitor<IceUtil::Mutex >
 #endif
 {
