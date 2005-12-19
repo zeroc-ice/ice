@@ -18,29 +18,22 @@ namespace Generate
 {
     class Generate
     {
-        
 	static void Main(string[] args)
-	{            
-            //
-            // VS 7.1 can't deal with paths that contain spaces, and double quoting the $(SolutionDir) macro
-            // in the pre-build event command line doesn't work. So, sadly, to deal with path names that contain
-            // spaces, we have to pass an explicit single quote and then post-process it here.
-            //
-            int index = 0;
-foreach(string a in args)
-    Console.WriteLine("arg: " + a);
-            string solDir;
-            nextArg(args, ref index, out solDir);
-            string projDir;
-            nextArg(args, ref index, out projDir);
-     Console.WriteLine("solDir: " + solDir);
-            Console.WriteLine("projDir: " + projDir);
-            string projName;
-            nextArg(args, ref index, out projName);
-	    
-            try
+	{   
+	    try
 	    {
+
+		string progName = AppDomain.CurrentDomain.FriendlyName;
+		if(args.Length < 3)
+		{
+		    Console.Error.WriteLine("usage: {0} solution_dir project_dir project_name [args]", progName);
+		    Environment.Exit(1);
+		}
+
 		const string slice2csName = "slice2cs";
+		string solDir = args[0];
+		string projDir = args[1];
+		string projName = args[2];
 		string iceHome = Environment.GetEnvironmentVariable("ICE_HOME");
 		if(iceHome == null)
 		{
@@ -63,11 +56,11 @@ foreach(string a in args)
 		string includes = "";
 		if(Directory.Exists(Path.Combine(solDir, "slice")))
 		{
-		    includes = "-I\"" + Path.Combine(solDir, "slice") + "\"";
+		    includes = "-I" + Path.Combine(solDir, "slice");
 		}
 		if(Directory.Exists(Path.Combine(iceHome, "slice")))
 		{
-		    includes += " -I\"" + Path.Combine(iceHome, "slice") + "\"";
+		    includes += " -I" + Path.Combine(iceHome, "slice");
 		}
 
 		if(sliceFiles.Count == 0)
@@ -110,19 +103,16 @@ foreach(string a in args)
 		}
 
 		string outputDir = Path.Combine(projDir, "generated");
-		string cmdArgs = "--ice -I. " + includes + " --output-dir \"" + outputDir + "\"";
-
-                while(index < args.Length)
-                {
-                    string arg;
-                    nextArg(args, ref index, out arg);
-		    if(arg.IndexOf(' ') != -1)
+		string cmdArgs = "--ice -I. " + includes + " --output-dir " + outputDir;
+		for(int i = 3; i < args.Length; ++i)
+		{
+		    if(args[i].IndexOf(' ') != -1)
 		    {
-			cmdArgs += " \"" + arg + "\"";
+			cmdArgs += " \"" + args[i] + "\"";
 		    }
 		    else
 		    {
-			cmdArgs += " " + arg;
+			cmdArgs += " " + args[i];
 		    }
 		}
 
@@ -133,7 +123,7 @@ foreach(string a in args)
 		    string csFile = Path.Combine(outputDir, Path.ChangeExtension(Path.GetFileName(sliceFile), ".cs"));
 		    if(!File.Exists(csFile) || sliceTime > File.GetLastWriteTime(csFile))
 		    {
-			cmdArgs += " \"" + sliceFile + "\"";
+			cmdArgs += " " + sliceFile;
 			Console.Out.WriteLine(Path.GetFileName(sliceFile));
 			needCompile = true;
 		    }
@@ -171,60 +161,6 @@ foreach(string a in args)
 		Environment.Exit(1);
 	    }
 	}
-
-        private static string progName = AppDomain.CurrentDomain.FriendlyName;
-
-        private static void usage()
-        {
-            Console.Error.WriteLine("usage: {0} solution_dir project_dir project_name [args]", progName);
-            Environment.Exit(1);
-        }
-
-        private static void nextArg(string[] args, ref int index, out string arg)
-        {
-            if(index >= args.Length)
-            {
-                usage();
-            }
-
-            if(args[index][0] != '\'')
-            {
-                arg = args[index++];
-                return;
-            }
-
-            int startIndex = index;
-            bool found = false;
-            arg = "";
-            while(index < args.Length && !found)
-            {
-                if(index == startIndex)
-                {
-                    if(args[index][args[index].Length - 1] == '\'')
-                    {
-                        arg = args[index].Substring(1, args[index].Length - 2);
-                        found = true;
-                    }
-                    else
-                    {
-                        arg = args[index].Substring(1, args[index].Length - 1);
-                    }
-                }
-                else
-                {
-                    if(args[index][args[index].Length - 1] == '\'')
-                    {
-                        arg = arg + " " + args[index].Substring(0, args[index].Length - 1);
-                        found = true;
-                    }
-                    else
-                    {
-                        arg = arg + " " + args[index];
-                    }
-                }
-                ++index;
-            }
-        }
 
         //
         // Return all the files ending in ".ice" in the specified dir.
