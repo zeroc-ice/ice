@@ -295,7 +295,11 @@ def stage(filename, componentdir, stageDirectory, group, defaults):
 				logging.log(logging.DEBUG, 'Adding templatized name %s' % computedName)
 				worker.add(computedName)
 			    else:
-				worker.add(current % defaults)
+				try:
+				    worker.add(current % defaults)
+				except Exception, e:
+				    print str(e) + ": occured while adding %s to worker in element %d in %s" % \
+				    (current, i, section)
 
 			if worker == None: 	
 			    msg = "Component file %s is empty." % filename

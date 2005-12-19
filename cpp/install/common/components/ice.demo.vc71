@@ -1,8 +1,8 @@
-
 # To create an explicit listing for the demos run the following command
 # in the demo directory of the ice distribution.:
-# find . -name "*" | sed -e '/Debug\|Release\|.dsp$\|.dsw$\|.exe$\|.ilk$\|.plg$\|.depend\|Makefile\|.pdb$\|.ncb$\|*.suo$\|.dummy/d' |
-# sed -e '/^Freeze\/backup/d' >> file
+# find . -name "*" -type f | sed -e '/Debug\|Release\|.dsp$\|.dsw$\|.exe$\
+#        \|.ilk$\|.plg$\|.depend\|Makefile\|.pdb$\|.ncb$\|.suo$\|\.dummy/d' | \
+#        sed -e '/^Freeze\/backup/d' | sed -e 's/^\.\///' >> file
 #
 # If you want to use wild card searches instead of explicitly listing
 # files, you can delete the filenames and uncomment the following lines:
@@ -25,6 +25,7 @@
 # exclude=Freeze/backup/**
 #
 # Stop uncommenting here!
+# Delete from here to EOF
 
 book/evictor/EvictorBase.cpp
 book/evictor/EvictorBase.h
@@ -33,6 +34,8 @@ book/printer/Client.cpp
 book/printer/Printer.cpp
 book/printer/Printer.h
 book/printer/Printer.ice
+book/printer/printerC.vcproj
+book/printer/printerS.vcproj
 book/printer/README
 book/printer/Server.cpp
 book/README
@@ -44,6 +47,11 @@ book/simple_filesystem/FilesystemI.cpp
 book/simple_filesystem/FilesystemI.h
 book/simple_filesystem/README
 book/simple_filesystem/Server.cpp
+book/simple_filesystem/simplefsC.vcproj
+book/simple_filesystem/simplefsS.vcproj
+demo.sln
+demo.vcproj
+Freeze/bench/bench.vcproj
 Freeze/bench/BenchTypes.cpp
 Freeze/bench/BenchTypes.h
 Freeze/bench/Client.cpp
@@ -58,14 +66,18 @@ Freeze/library/books
 Freeze/library/Client.cpp
 Freeze/library/Collocated.cpp
 Freeze/library/config
+Freeze/library/dummyinclude/unistd.h
 Freeze/library/Grammar.cpp
 Freeze/library/Grammar.h
 Freeze/library/Grammar.y
 Freeze/library/Library.cpp
 Freeze/library/Library.h
 Freeze/library/Library.ice
+Freeze/library/libraryC.vcproj
+Freeze/library/libraryCOL.vcproj
 Freeze/library/LibraryI.cpp
 Freeze/library/LibraryI.h
+Freeze/library/libraryS.vcproj
 Freeze/library/LibraryTypes.cpp
 Freeze/library/LibraryTypes.h
 Freeze/library/Parser.cpp
@@ -81,6 +93,7 @@ Freeze/phonebook/config
 Freeze/phonebook/ContactFactory.cpp
 Freeze/phonebook/ContactFactory.h
 Freeze/phonebook/contacts
+Freeze/phonebook/dummyinclude/unistd.h
 Freeze/phonebook/Grammar.cpp
 Freeze/phonebook/Grammar.h
 Freeze/phonebook/Grammar.y
@@ -91,8 +104,11 @@ Freeze/phonebook/Parser.h
 Freeze/phonebook/PhoneBook.cpp
 Freeze/phonebook/PhoneBook.h
 Freeze/phonebook/PhoneBook.ice
+Freeze/phonebook/phonebookC.vcproj
+Freeze/phonebook/phonebookCOL.vcproj
 Freeze/phonebook/PhoneBookI.cpp
 Freeze/phonebook/PhoneBookI.h
+Freeze/phonebook/phonebookS.vcproj
 Freeze/phonebook/README
 Freeze/phonebook/RunParser.cpp
 Freeze/phonebook/Scanner.cpp
@@ -109,6 +125,9 @@ Glacier2/callback/config
 Glacier2/callback/config.glacier2
 Glacier2/callback/config.server
 Glacier2/callback/config.sessionserver
+Glacier2/callback/glacier2callbackC.vcproj
+Glacier2/callback/glacier2callbackS.vcproj
+Glacier2/callback/glacier2callbackSS.vcproj
 Glacier2/callback/README
 Glacier2/callback/Server.cpp
 Glacier2/callback/SessionI.cpp
@@ -117,6 +136,8 @@ Glacier2/callback/SessionServer.cpp
 Glacier2/chat/Chat.cpp
 Glacier2/chat/Chat.h
 Glacier2/chat/Chat.ice
+Glacier2/chat/chatC.vcproj
+Glacier2/chat/chatS.vcproj
 Glacier2/chat/ChatSessionI.cpp
 Glacier2/chat/ChatSessionI.h
 Glacier2/chat/Client.cpp
@@ -126,6 +147,8 @@ Glacier2/chat/config.server
 Glacier2/chat/README
 Glacier2/chat/Server.cpp
 Glacier2/README
+Ice/bidir/bidirC.vcproj
+Ice/bidir/bidirS.vcproj
 Ice/bidir/Callback.cpp
 Ice/bidir/Callback.h
 Ice/bidir/Callback.ice
@@ -138,6 +161,8 @@ Ice/bidir/Server.cpp
 Ice/callback/Callback.cpp
 Ice/callback/Callback.h
 Ice/callback/Callback.ice
+Ice/callback/callbackC.vcproj
+Ice/callback/callbackS.vcproj
 Ice/callback/CallbackSenderI.cpp
 Ice/callback/CallbackSenderI.h
 Ice/callback/Client.cpp
@@ -149,12 +174,16 @@ Ice/hello/config
 Ice/hello/Hello.cpp
 Ice/hello/Hello.h
 Ice/hello/Hello.ice
+Ice/hello/helloC.vcproj
 Ice/hello/HelloI.cpp
 Ice/hello/HelloI.h
+Ice/hello/helloS.vcproj
 Ice/hello/README
 Ice/hello/Server.cpp
 Ice/invoke/Client.cpp
 Ice/invoke/config
+Ice/invoke/invokeC.vcproj
+Ice/invoke/invokeS.vcproj
 Ice/invoke/Printer.cpp
 Ice/invoke/Printer.h
 Ice/invoke/Printer.ice
@@ -167,6 +196,8 @@ Ice/latency/config
 Ice/latency/Latency.cpp
 Ice/latency/Latency.h
 Ice/latency/Latency.ice
+Ice/latency/latencyC.vcproj
+Ice/latency/latencyS.vcproj
 Ice/latency/README
 Ice/latency/Server.cpp
 Ice/MFC/client/config
@@ -178,6 +209,7 @@ Ice/MFC/client/HelloClient.h
 Ice/MFC/client/HelloClient.rc
 Ice/MFC/client/HelloClientDlg.cpp
 Ice/MFC/client/HelloClientDlg.h
+Ice/MFC/client/mfchelloC.vcproj
 Ice/MFC/client/README
 Ice/MFC/client/res/HelloClient.ico
 Ice/MFC/client/res/HelloClient.rc2
@@ -197,6 +229,7 @@ Ice/MFC/server/HelloServerDlg.cpp
 Ice/MFC/server/HelloServerDlg.h
 Ice/MFC/server/LogI.cpp
 Ice/MFC/server/LogI.h
+Ice/MFC/server/mfchelloS.vcproj
 Ice/MFC/server/README
 Ice/MFC/server/res/HelloServer.ico
 Ice/MFC/server/res/HelloServer.rc2
@@ -209,6 +242,8 @@ Ice/minimal/Hello.h
 Ice/minimal/Hello.ice
 Ice/minimal/HelloI.cpp
 Ice/minimal/HelloI.h
+Ice/minimal/minimalC.vcproj
+Ice/minimal/minimalS.vcproj
 Ice/minimal/README
 Ice/minimal/Server.cpp
 Ice/nested/Client.cpp
@@ -216,8 +251,10 @@ Ice/nested/config
 Ice/nested/Nested.cpp
 Ice/nested/Nested.h
 Ice/nested/Nested.ice
+Ice/nested/nestedC.vcproj
 Ice/nested/NestedI.cpp
 Ice/nested/NestedI.h
+Ice/nested/nestedS.vcproj
 Ice/nested/README
 Ice/nested/Server.cpp
 Ice/README
@@ -230,10 +267,12 @@ Ice/session/Server.cpp
 Ice/session/Session.cpp
 Ice/session/Session.h
 Ice/session/Session.ice
+Ice/session/sessionC.vcproj
 Ice/session/SessionFactoryI.cpp
 Ice/session/SessionFactoryI.h
 Ice/session/SessionI.cpp
 Ice/session/SessionI.h
+Ice/session/sessionS.vcproj
 Ice/throughput/Client.cpp
 Ice/throughput/config
 Ice/throughput/README
@@ -241,8 +280,10 @@ Ice/throughput/Server.cpp
 Ice/throughput/Throughput.cpp
 Ice/throughput/Throughput.h
 Ice/throughput/Throughput.ice
+Ice/throughput/throughputC.vcproj
 Ice/throughput/ThroughputI.cpp
 Ice/throughput/ThroughputI.h
+Ice/throughput/throughputS.vcproj
 Ice/value/Client.cpp
 Ice/value/config
 Ice/value/ObjectFactory.cpp
@@ -252,8 +293,10 @@ Ice/value/Server.cpp
 Ice/value/Value.cpp
 Ice/value/Value.h
 Ice/value/Value.ice
+Ice/value/valueC.vcproj
 Ice/value/ValueI.cpp
 Ice/value/ValueI.h
+Ice/value/valueS.vcproj
 IceBox/hello/Client.cpp
 IceBox/hello/config
 IceBox/hello/Hello.cpp
@@ -261,6 +304,8 @@ IceBox/hello/Hello.h
 IceBox/hello/Hello.ice
 IceBox/hello/HelloI.cpp
 IceBox/hello/HelloI.h
+IceBox/hello/helloiceboxC.vcproj
+IceBox/hello/helloiceboxS.vcproj
 IceBox/hello/helloservice.dll
 IceBox/hello/helloservice.exp
 IceBox/hello/helloservice.lib
@@ -283,6 +328,9 @@ IceGrid/simple/HelloI.cpp
 IceGrid/simple/HelloI.h
 IceGrid/simple/README
 IceGrid/simple/Server.cpp
+IceGrid/simple/simpleC.vcproj
+IceGrid/simple/simpleS.vcproj
+IcePatch2/MFC/mfcpatchC.vcproj
 IcePatch2/MFC/PatchClient.cpp
 IcePatch2/MFC/PatchClient.h
 IcePatch2/MFC/PatchClient.ico
@@ -297,8 +345,10 @@ IcePatch2/README
 IceStorm/clock/Clock.cpp
 IceStorm/clock/Clock.h
 IceStorm/clock/Clock.ice
+IceStorm/clock/clockC.vcproj
 IceStorm/clock/ClockI.cpp
 IceStorm/clock/ClockI.h
+IceStorm/clock/clockS.vcproj
 IceStorm/clock/config
 IceStorm/clock/config_service
 IceStorm/clock/Publisher.cpp
@@ -308,4 +358,5 @@ IceStorm/README
 IceUtil/README
 IceUtil/workqueue/README
 IceUtil/workqueue/WorkQueue.cpp
+IceUtil/workqueue/workqueue.vcproj
 README
