@@ -45,7 +45,7 @@ CFG=ice - Win32 Debug
 SLICE2CPPEFLAGS=-DICEE
 CPP=cl.exe
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I ".." /I "../../include" /D "NDEBUG" /D "_USRDLL" /D "ICE_API_EXPORTS" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /Zi /O1 /I ".." /I "../../include" /D "NDEBUG" /D "_USRDLL" /D "ICE_API_EXPORTS" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /Fr /YX
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -58,12 +58,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /dll /incremental:yes /machine:I386 /out:"Release/icee10.dll" /implib:"Release/icee.lib"
-# SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
+# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /dll /incremental:yes /debug /machine:I386 /out:"Release/icee10.dll" /implib:"Release/icee.lib"
+# SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icee.lib ..\..\lib\	copy $(OutDir)\icee10.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\icee.lib ..\..\lib\	copy $(OutDir)\icee10.dll ..\..\bin	copy $(OutDir)\icee10.pdb ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ice - Win32 Debug"
@@ -116,11 +116,11 @@ PostBuild_Cmds=copy $(OutDir)\iceed.lib ..\..\lib\	copy $(OutDir)\icee10d.pdb ..
 # PROP Intermediate_Dir "ReleaseStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-SLICE2CPPEFLAGS=-DICEE
 MTL=midl.exe
+SLICE2CPPEFLAGS=-DICEE
 CPP=cl.exe
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O1 /I ".." /I "../../include" /D "NDEBUG" /D "ICEE_STATIC_LIBS" /D "_LIB" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /Zi /O1 /I ".." /I "../../include" /D "NDEBUG" /D "ICEE_STATIC_LIBS" /D "_LIB" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /Fr /YX
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -133,7 +133,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                   $(OutDir)\icee.lib                                   ..\..\lib\ 
+PostBuild_Cmds=copy                                    $(OutDir)\icee.lib                                    ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ice - Win32 Debug Static"
@@ -149,8 +149,8 @@ PostBuild_Cmds=copy                                   $(OutDir)\icee.lib        
 # PROP Intermediate_Dir "DebugStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-SLICE2CPPEFLAGS=-DICEE
 MTL=midl.exe
+SLICE2CPPEFLAGS=-DICEE
 CPP=cl.exe
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_LIB" /Yu"stdafx.h" /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_DEBUG" /D "ICEE_STATIC_LIBS" /D "_LIB" /D "WIN32_LEAN_AND_MEAN" /D FD_SETSIZE=1024 /D "_CONSOLE" /FD /GZ /c
@@ -166,7 +166,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                  $(OutDir)\iceed.lib                                  ..\..\lib\ 
+PostBuild_Cmds=copy                                   $(OutDir)\iceed.lib                                   ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
