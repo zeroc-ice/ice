@@ -87,7 +87,7 @@ public class Client
 		{
 		    for(int i = 0; i < _servants.length; ++i)
 		    {
-			if(getState() == StateDeactivated)
+			if(getEvictorState() == StateDeactivated)
 			{
 			    _servants[i].slowGetValue();
 			    test(false);
@@ -121,7 +121,7 @@ public class Client
 	}
 
 	synchronized int
-	getState()
+	getEvictorState()
 	{
 	    return _state;
 	}
@@ -133,7 +133,7 @@ public class Client
 	}
 	
 	synchronized void
-	setState(int s)
+	setEvictorState(int s)
 	{
 	    _state = s;
 	}
@@ -161,7 +161,7 @@ public class Client
 		try
 		{
 		    String id = _prefix + "-" + index++;
-		    if(getState() == StateDeactivated)
+		    if(getEvictorState() == StateDeactivated)
 		    {
 			_evictor.createServant(id, 0);
 			test(false);
@@ -211,7 +211,7 @@ public class Client
 	}
 
 	synchronized int
-	getState()
+	getEvictorState()
 	{
 	    return _state;
 	}
@@ -223,7 +223,7 @@ public class Client
 	}
 	
 	synchronized void
-	setState(int s)
+	setEvictorState(int s)
 	{
 	    _state = s;
 	}
@@ -781,13 +781,13 @@ public class Client
 	    for(int i = 0; i < threadCount; i++)
 	    {
 		ReadForeverThread t = (ReadForeverThread)threads[i];
-		t.setState(StateDeactivating);
+		t.setEvictorState(StateDeactivating);
 	    }
 	    evictor.deactivate();
 	    for(int i = 0; i < threadCount; i++)
 	    {
 		ReadForeverThread t = (ReadForeverThread)threads[i];
-		t.setState(StateDeactivating);
+		t.setEvictorState(StateDeactivated);
 	    }
 	    
 	    for(int i = 0; i < threadCount; i++)
@@ -836,13 +836,13 @@ public class Client
 	    for(int i = 0; i < threadCount; i++)
 	    {
 		AddForeverThread t = (AddForeverThread)threads[i];
-		t.setState(StateDeactivating);
+		t.setEvictorState(StateDeactivating);
 	    }
 	    evictor.deactivate();
 	    for(int i = 0; i < threadCount; i++)
 	    {
 		AddForeverThread t = (AddForeverThread)threads[i];
-		t.setState(StateDeactivating);
+		t.setEvictorState(StateDeactivated);
 	    }
 
 	    for(int i = 0; i < threadCount; i++)
