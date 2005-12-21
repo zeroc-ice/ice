@@ -1,4 +1,5 @@
-The bzip2-1.0.2 distribution does not directly support creating DLLs. Apply the
-bzlib.patch to the bzlib.h header file and use the Makefile.mak file in this
-directory to build the debug and release DLLs. The makefile creates both
-versions of the libraries in one run.
+The bzip2-1.0.3 distribution does not directly support creating DLLs. In
+order to re-create the DLL included in the Ice distribution, apply the
+patch bzlib.patch to the bzlib.h header and run 'nmake /f Makefile.mak'
+using the supplied Makefile.mak file. This will build the release and debug
+versions of the bzip2 DLLs.
