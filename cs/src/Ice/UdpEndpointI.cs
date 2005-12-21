@@ -730,7 +730,7 @@ namespace IceInternal
             {
                 _hashCode = Network.getNumericHost(_host).GetHashCode();
             }
-            catch(Ice.DNSException ex)
+            catch(Ice.DNSException)
             {
                 _hashCode = _host.GetHashCode();
             }
