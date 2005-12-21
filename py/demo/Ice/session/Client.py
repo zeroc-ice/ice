@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import sys, traceback, threading, Ice
+import sys, threading, Ice
 
 Ice.loadSlice('Session.ice')
 import Demo
@@ -30,8 +30,8 @@ class SessionRefreshThread(threading.Thread):
 		if not self._terminated:
                     try:
                         self._session.refresh()
-                    except:
-                        _logger.warning("SessionRefreshThread: " + traceback.format_exc())
+                    except Ice.LocalException, ex:
+                        self._logger.warning("SessionRefreshThread: " + str(ex))
                         self._terminated = True
 	finally:
 	    self._cond.release()
