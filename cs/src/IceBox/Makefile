@@ -37,6 +37,7 @@ ifeq ($(NOGAC),)
 
 install:: all
 	$(GACUTIL) -i $(bindir)/$(LIBNAME)
+	$(call installprogram,$(bindir)/iceboxnet.exe,$(install_bindir))
 
 endif
 

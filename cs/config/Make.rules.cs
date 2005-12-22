@@ -91,6 +91,7 @@ endif
 ifndef slicedir
 slicedir := $(slice_home)/slice
 endif
+install_bindir		= $(prefix)/bin
 install_libdir		= $(prefix)/lib
 install_slicedir	= $(prefix)/slice
 
