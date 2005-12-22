@@ -155,38 +155,10 @@ class Package:
         ofile.write('\n')    
 
     def writePostInstall(self, ofile, version, intVersion, installDir):
-	ofile.write('cd /usr\n')
-	for perm, f in self.filelist:
-	    if perm == "dll":
-		ofile.write('gacutil -i ' + f + ' > /dev/null\n')
-	ofile.write('\n')
+	pass
 
     def writePostUninstall(self, ofile, version, intVersion, installDir):
-	for perm, f in self.filelist:
-	    if perm == 'dll':
-		if os.path.exists(installDir + '/usr/' + f):
-		    #
-                    # We need to trap the assembly name from the
-		    # DLL. We can use the monodis command to do this.
-		    #
-		    pipe_stdin, pipe_stdout = os.popen2('monodis --assembly ' + installDir + '/usr/' + f);
-		    lines = pipe_stdout.readlines()
-		    pipe_stdin.close()
-		    pipe_stdout.close()
-		    assemblyName = ''
-		    assemblyVersion = ''
-		    for l in lines:
-			if l.startswith('Name:'):
-			    assemblyName = l.split(':')[1].strip()
-			elif l.startswith('Version:'):
-			    assemblyVersion = l.split(':')[1].strip()
-
-		    ofile.write('gacutil -u ' + assemblyName + ', version=' + assemblyVersion + ' > /dev/null\n')
-		else:
-		    ofile.write('# Unable to determine assembly information for ' + f)
-		    ofile.write(', please adjust the file manually\n')
-
-	ofile.write('\n')
+	pass
 
     def writeFiles(self, ofile, version, intVersion, installDir):
         ofile.write('%files\n')
@@ -244,6 +216,17 @@ transforms = [ ('file', 'ice.ini', 'etc/php.d/ice.ini'),
 	       ('file', 'usr/lib/icephp.so', 'usr/lib/php/modules/icephp.so'),
 	       ('file', 'usr/lib/Ice.jar', 'usr/lib/Ice-%version%/Ice.jar' ),
 	       ('file', 'usr/lib/IceGridGUI.jar', 'usr/lib/Ice-%version%/IceGridGUI.jar' ),
+	       ('file', 'bin/icecs.dll', 'usr/lib/mono/gac/icecs/%version%.0__1f998c50fec78381/icecs.dll'),
+	       ('file', 'bin/glacier2cs.dll',
+		       'usr/lib/mono/gac/glacier2cs/%version%.0__1f998c50fec78381/glacier2cs.dll'),
+	       ('file', 'bin/iceboxcs.dll',
+		       'usr/lib/mono/gac/iceboxcs/%version%.0__1f998c50fec78381/iceboxcs.dll'),
+	       ('file', 'bin/icegridcs.dll',
+		       'usr/lib/mono/gac/icegridcs/%version%.0__1f998c50fec78381/icegridcs.dll'),
+	       ('file', 'bin/icepatch2cs.dll',
+		       'usr/lib/mono/gac/icepatch2cs/%version%.0__1f998c50fec78381/icepatch2cs.dll'),
+	       ('file', 'bin/icestormcs.dll',
+		       'usr/lib/mono/gac/icestormcs/%version%.0__1f998c50fec78381/icestormcs.dll'),
 	       ('dir', 'ant', 'usr/lib/Ice-%version%/ant'),
 	       ('dir', 'config', 'usr/share/doc/Ice-%version%/config'),
 	       ('dir', 'slice', 'usr/share/slice'),
@@ -325,6 +308,8 @@ fileLists64 = [
 	     ('file', 'share/doc/Ice-%version%/certs/s_rsa1024_pub.pem'),
 	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.dtd'),
 	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.xml'),
+	     ('xdir', 'share/doc/Ice-%version%/config'),
+	     ('file', 'share/doc/Ice-%version%/config/templates.xml'),
 	     ('file', 'share/doc/Ice-%version%/README.DEMOS')]),
     Subpackage('c++-devel',
                'ice = %version%',
@@ -408,6 +393,8 @@ fileLists = [
 	     ('file', 'share/doc/Ice-%version%/certs/s_rsa1024_pub.pem'),
 	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.dtd'),
 	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.xml'),
+	     ('xdir', 'share/doc/Ice-%version%/config'),
+	     ('file', 'share/doc/Ice-%version%/config/templates.xml'),
 	     ('file', 'share/doc/Ice-%version%/README.DEMOS')]),
     Subpackage('c++-devel',
                'ice = %version%',
@@ -438,19 +425,6 @@ fileLists = [
 		('file', 'share/doc/Ice-%version%/config/Make.rules'),
 		('file', 'share/doc/Ice-%version%/config/Make.rules.Linux'),
 		]),
-    Subpackage('dotnet',
-               'ice = %version%, mono-core >= 1.1.9',
-               'The Ice runtime for C# applications',
-               'System Environment/Libraries',
-	       iceDescription,
-	       '',
-               [('dll', 'bin/glacier2cs.dll'), 
-	        ('dll', 'bin/icecs.dll'), 
-		('dll', 'bin/icegridcs.dll'),
-                ('dll', 'bin/icepatch2cs.dll'), 
-		('dll', 'bin/icestormcs.dll'),
-		('dll', 'bin/iceboxcs.dll'),
-		('exe', 'bin/iceboxnet.exe')]),
     Subpackage('csharp-devel',
                'ice-dotnet = %version%',
                'Tools and demos for developing Ice applications in C#',
@@ -523,7 +497,20 @@ noarchFileList = [
 	    'BuildArch: noarch',
 	    [ ('xdir', 'lib/Ice-%version%'),
               ('dir', 'lib/Ice-%version%/Ice.jar')
-	    ])
+	    ]),
+    Subpackage('dotnet',
+               'ice = %version%, mono-core >= 1.1.9',
+               'The Ice runtime for C# applications',
+               'System Environment/Libraries',
+	       iceDescription,
+	       '',
+               [('dll', 'lib/mono/gac/glacier2cs/%version%.0__1f998c50fec78381/glacier2cs.dll'),
+	        ('dll', 'lib/mono/gac/icecs/%version%.0__1f998c50fec78381/icecs.dll'),
+	        ('dll', 'lib/mono/gac/iceboxcs/%version%.0__1f998c50fec78381/iceboxcs.dll'),
+	        ('dll', 'lib/mono/gac/icegridcs/%version%.0__1f998c50fec78381/icegridcs.dll'),
+	        ('dll', 'lib/mono/gac/icepatch2cs/%version%.0__1f998c50fec78381/icepatch2cs.dll'),
+	        ('dll', 'lib/mono/gac/icestormcs/%version%.0__1f998c50fec78381/icestormcs.dll'),
+		('exe', 'bin/iceboxnet.exe')]),
     ]
 
 def _transformDirectories(transforms, version, installDir):
@@ -544,6 +531,7 @@ def _transformDirectories(transforms, version, installDir):
 
 	if os.path.exists('./tmp'):
 	    shutil.rmtree('./tmp')
+
 	try:
 	    if not os.path.isdir(sourcedir):
 		os.renames(source, dest)
@@ -610,6 +598,21 @@ def createFullSpecFile(ofile, installDir, version, soVersion, buildReq = True):
 		"",
 		[("dir", "lib/Ice-%version%/Ice.jar")
 		]))
+    fullFileList.append(
+	    Subpackage('dotnet',
+		'ice = %version%, mono-core >= 1.1.9',
+		'The Ice runtime for C# applications',
+		'System Environment/Libraries',
+		iceDescription,
+		'',
+		[
+	        ('dll', 'lib/mono/gac/glacier2cs/%version%.0__1f998c50fec78381/glacier2cs.dll'),
+	        ('dll', 'lib/mono/gac/icecs/%version%.0__1f998c50fec78381/icecs.dll'),
+	        ('dll', 'lib/mono/gac/iceboxcs/%version%.0__1f998c50fec78381/iceboxcs.dll'),
+	        ('dll', 'lib/mono/gac/icegridcs/%version%.0__1f998c50fec78381/icegridcs.dll'),
+	        ('dll', 'lib/mono/gac/icepatch2cs/%version%.0__1f998c50fec78381/icepatch2cs.dll'),
+	        ('dll', 'lib/mono/gac/icestormcs/%version%.0__1f998c50fec78381/icestormcs.dll'),
+		('exe', 'bin/iceboxnet.exe')]))
     fullFileList[0].addPrepGenerator(writeUnpackingCommands)
     fullFileList[0].addBuildGenerator(writeBuildCommands)
     fullFileList[0].addInstallGenerator(writeInstallCommands)

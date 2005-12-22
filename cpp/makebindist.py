@@ -473,8 +473,19 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     # 
     # XXX- Optimizations need to be turned on for the release.
     #
-    runprog('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=/opt/Ice-%s' % version)
-    runprog('gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=%s install' % installDir)
+    try:
+	runprog('gmake NOGAC=yes OPTIMIZE=no INSTALL_ROOT=/opt/Ice-%s' % version)
+	runprog('gmake NOGAC=yes OPTIMIZE=no INSTALL_ROOT=%s install' % installDir)
+    except ExtProgramError:
+	print "gmake failed for makeInstall(%s, %s, %s, %s, %s, %s)" % (sources, buildDir, installDir, distro, str(clean), version) 
+	raise
+
+    if distro.startswith('IceCS'):
+	assemblies = ["glacier2cs", "iceboxcs", "icecs", "icegridcs", "icepatch2cs", "icestormcs"]
+	for a in assemblies:
+	    shutil.copy("bin/%s.dll" % a, "%s/bin/%s.dll" % (installDir, a))
+	shutil.copy("bin/iceboxnet.exe", "%s/bin/iceboxnet.exe" % installDir)
+
     os.chdir(cwd)
     
 def shlibExtensions(versionString, versionInt):
@@ -1010,7 +1021,7 @@ def main():
 	# distributions doesn't build.
 	#
 	if collectSources:
-	    toCollect = sourceTarBalls
+	    toCollect = list(sourceTarBalls)
 	    toCollect.append(('icevb', 'IceVB-' + version, 'vb'))
 	    for cvs, tarball, demoDir in sourceTarBalls:
                 collectSourceDistributions(cvsTag, sources, cvs, tarball)
