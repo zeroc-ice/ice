@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <OS.h>
 #include <IceUtil/Unicode.h>
 
