@@ -116,7 +116,7 @@ Module Generate
             '
             ' Set output directory.
             '
-            Const generatedDir = "generated"
+            Const generatedDir As String = "generated"
             Dim outputDir As String = currentDir
             If Directory.Exists(Path.Combine(currentDir, generatedDir)) Then
                 outputDir = Path.Combine(currentDir, generatedDir)
@@ -134,24 +134,24 @@ Module Generate
                 Select Case _action
                     Case BuildAction.build
                         Dim sliceTime As DateTime = File.GetLastWriteTime(sliceFile)
-                        Dim needCompile = Not File.Exists(vbFile)
+                        Dim needCompile As Boolean = Not File.Exists(vbFile)
                         If Not needCompile Then
                             needCompile = sliceTime > File.GetLastWriteTime(vbFile)
                         End If
                         If needCompile Then
                             Console.WriteLine(Path.GetFileName(sliceFile))
-                            Dim exitCode = doCompile(sliceFile, outputDir)
+                            Dim exitCode As Integer = doCompile(sliceFile, outputDir)
                             If rc = 0 Then
                                 rc = exitCode
                             End If
                         End If
-                    Case BuildAction.build.rebuild
+                    Case BuildAction.rebuild
                         Console.WriteLine(Path.GetFileName(sliceFile))
-                        Dim exitCode = doCompile(sliceFile, outputDir)
+                        Dim exitCode As Integer = doCompile(sliceFile, outputDir)
                         If rc = 0 Then
                             rc = exitCode
                         End If
-                    Case BuildAction.build.clean
+                    Case BuildAction.clean
                         If File.Exists(vbFile) Then
                             File.Delete(vbFile)
                             Console.WriteLine(vbFile & ": deleted")
@@ -198,9 +198,9 @@ Module Generate
 	If args(1).Equals("build") Then
 	    action = BuildAction.build
 	ElseIf args(1).Equals("rebuild") Then
-	    action = BuildAction.build.rebuild
+	    action = BuildAction.rebuild
 	ElseIf args(1).Equals("clean") Then
-	    action = BuildAction.build.clean
+	    action = BuildAction.clean
 	Else
 	    usage()
 	End If
