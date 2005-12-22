@@ -76,7 +76,7 @@ public final class Outgoing
 		    // call back on this object, so we don't need to lock
 		    // the mutex, keep track of state, or save exceptions.
 		    //
-		    _connection.sendRequest(_os, null, this);
+		    _connection.sendRequest(_os, this);
 
 		    //
 		    // Wait until the request has completed, or until the
@@ -152,7 +152,7 @@ public final class Outgoing
 		}
 		else
 		{
-		    _connection.sendRequest(_os, _is, this);
+		    _connection.sendBlockingRequest(_os, _is, this);
 		    if(_exception == null)
 		    {
 		        finishedInternal();
@@ -215,7 +215,7 @@ public final class Outgoing
                 // violating "at-most-once".
 		//
 		_state = StateInProgress;
-		_connection.sendRequest(_os, _is, null);
+		_connection.sendRequest(_os, null);
                 break;
             }
 
@@ -291,7 +291,7 @@ public final class Outgoing
         notify();
     }
 
-    private  void
+    private void
     finishedInternal()
     {
 	int status = (int)_is.readByte();

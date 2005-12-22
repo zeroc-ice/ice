@@ -288,8 +288,141 @@ public final class Connection
         os.writeBlob(_requestHdr);
     }
 
+    private int
+    fillRequestId(IceInternal.BasicStream os)
+    {
+	//
+	// Create a new unique request ID.
+	//
+	int requestId = _nextRequestId++;
+	if(requestId <= 0)
+	{
+	    _nextRequestId = 1;
+	    requestId = _nextRequestId++;
+	}
+
+	//
+	// Fill in the request ID.
+	//
+	os.pos(IceInternal.Protocol.headerSize);
+	os.writeInt(requestId);
+
+	return requestId;
+    }
+
+    private void
+    sendRequest(IceInternal.BasicStream os)
+    {
+	if(_transceiver == null) // Has the transceiver already been closed?
+	{
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_exception != null);
+	    }
+	    throw _exception; // The exception is immutable at this point.
+	}
+
+	//
+	// Send the request.
+	//
+	IceInternal.TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
+	_transceiver.write(os, _endpoint.timeout());
+    }
+
     public void
-    sendRequest(IceInternal.BasicStream os, IceInternal.BasicStream is, IceInternal.Outgoing out)
+    sendBlockingRequest(IceInternal.BasicStream os, IceInternal.BasicStream is, IceInternal.Outgoing out)
+    {
+	int requestId = 0;
+
+	synchronized(this)
+	{
+	    if(_exception != null)
+	    {
+		throw _exception;
+	    }
+
+	    if(IceUtil.Debug.ASSERT)
+	    {
+		IceUtil.Debug.Assert(_state > StateNotValidated);
+		IceUtil.Debug.Assert(_state < StateClosing);
+	    }
+
+	    //
+	    // Fill in request id if this is a twoway call.
+	    //
+	    if(out != null)
+	    {
+	        requestId = fillRequestId(os);
+	    }
+
+	    //
+	    // Compression not supported.
+	    //
+	    os.pos(9);
+	    os.writeByte((byte)(0));
+
+	    //
+	    // Fill in the message size.
+	    //
+	    os.pos(10);
+	    os.writeInt(os.size());
+	}
+
+	try
+	{
+	    synchronized(_sendMutex)
+	    {
+	        sendRequest(os);
+
+		if(out != null)
+		{
+		    readStream(is);
+		}
+	    }
+
+	    synchronized(this)
+	    {
+		if(_state != StateClosed)
+		{
+		    MessageInfo info = new MessageInfo(is);
+		    parseMessage(info, requestId);
+		}
+
+		//
+		// parseMessage() can close the connection, so we must
+		// check for closed state again.
+		//
+		if(_state == StateClosed)
+		{
+		    try
+		    {
+		        _transceiver.close();
+		    }
+		    catch(LocalException ex)
+		    {
+		    }
+
+		    _transceiver = null;
+		    out.finished(_exception);
+		}
+	    }
+	}
+	catch(LocalException ex)
+	{
+	    synchronized(this)
+	    {
+		setState(StateClosed, ex);
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_exception != null);
+		}
+		throw _exception;
+	    }
+	}
+    }
+
+    public void
+    sendRequest(IceInternal.BasicStream os, IceInternal.Outgoing out)
     {
 	int requestId = 0;
 
@@ -311,29 +444,8 @@ public final class Connection
 	    //
 	    if(out != null)
 	    {
-		//
-		// Create a new unique request ID.
-		//
-		requestId = _nextRequestId++;
-		if(requestId <= 0)
-		{
-		    _nextRequestId = 1;
-		    requestId = _nextRequestId++;
-		}
-
-		//
-		// Fill in the request ID.
-		//
-		os.pos(IceInternal.Protocol.headerSize);
-		os.writeInt(requestId);
-
-		//
-		// Add to the requests map if not blocking.
-		//
-		if(!_blocking)
-		{
-		    _requests.put(requestId, out);
-		}
+	        requestId = fillRequestId(os);
+		_requests.put(requestId, out);
 	    }
 
 	    //
@@ -353,53 +465,7 @@ public final class Connection
 	{
 	    synchronized(_sendMutex)
 	    {
-		if(_transceiver == null) // Has the transceiver already been closed?
-		{
-		    if(IceUtil.Debug.ASSERT)
-		    {
-			IceUtil.Debug.Assert(_exception != null);
-		    }
-		    throw _exception; // The exception is immutable at this point.
-		}
-
-		//
-		// Send the request.
-		//
-		IceInternal.TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
-		_transceiver.write(os, _endpoint.timeout());
-
-		if(out != null && _blocking)
-		{
-		    readStream(is);
-
-		    MessageInfo info = new MessageInfo(is);
-
-		    synchronized(this)
-		    {
-		        if(_state != StateClosed)
-			{
-			    parseMessage(info, requestId);
-			}
-
-			//
-			// parseMessage() can close the connection, so we must
-			// check for closed state again.
-			//
-			if(_state == StateClosed)
-			{
-			    try
-			    {
-			        _transceiver.close();
-			    }
-			    catch(LocalException ex)
-			    {
-			    }
-
-			    _transceiver = null;
-			    out.finished(_exception);
-			}
-		    }
-		}
+	        sendRequest(os);
 	    }
 	}
 	catch(LocalException ex)
@@ -412,7 +478,7 @@ public final class Connection
 		    IceUtil.Debug.Assert(_exception != null);
 		}
 		
-		if(out != null && !_blocking)
+		if(out != null)
 		{
 		    //
 		    // If the request has already been removed from
