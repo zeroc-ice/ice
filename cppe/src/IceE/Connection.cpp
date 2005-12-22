@@ -382,48 +382,49 @@ Ice::Connection::sendBlockingRequest(BasicStream* os, BasicStream* is, Outgoing*
 
     try
     {
-	IceUtil::Mutex::Lock sendSync(_sendMutex);
-	sendRequest(os);
+        {
+	    IceUtil::Mutex::Lock sendSync(_sendMutex);
+	    sendRequest(os);
+
+	    if(out)
+	    {
+	        readStream(*is);
+ 	    }
+	}
 
 	if(out)
 	{
-	    readStream(*is);
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-#ifndef ICEE_PURE_CLIENT
-	    Int invokeNum = 0;
-	    ServantManagerPtr servantManager;
-	    ObjectAdapterPtr adapter;
-#endif
-	
+	    if(_state != StateClosed)
 	    {
-	        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-	        if(_state != StateClosed)
-	        {
 #ifndef ICEE_PURE_CLIENT
-		    parseMessage(*is, requestId, invokeNum, servantManager, adapter);
-#else
-		    parseMessage(*is, requestId);
-#endif
-	        }
+	        Int invokeNum = 0;
+	        ServantManagerPtr servantManager;
+	        ObjectAdapterPtr adapter;
 
-	        //
-                // parseMessage() can close the connection, so we must
-                // check for closed state again.
-	        //
-	        if(_state == StateClosed)
+	        parseMessage(*is, requestId, invokeNum, servantManager, adapter);
+#else
+	        parseMessage(*is, requestId);
+#endif
+	    }
+
+	    //
+            // parseMessage() can close the connection, so we must
+            // check for closed state again.
+	    //
+	    if(_state == StateClosed)
+	    {
+	        try
 	        {
-		    try
-		    {
-		        _transceiver->close();
-		    }
-		    catch(const LocalException&)
-		    {
-		    }
-		
-		    _transceiver = 0;
-	    	    out->finished(*_exception.get());
+	            _transceiver->close();
 	        }
+	        catch(const LocalException&)
+	        {
+	        }
+	
+	        _transceiver = 0;
+    	        out->finished(*_exception.get());
 	    }
 	}
     }
