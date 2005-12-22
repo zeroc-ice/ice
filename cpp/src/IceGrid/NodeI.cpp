@@ -614,6 +614,7 @@ NodeI::checkConsistency()
 	}
 	session = getSession();
 	servers = session ? session->getServers() : Ice::StringSeq();
+	sort(servers.begin(), servers.end());
     }
     while(session);
 }
@@ -659,27 +660,26 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 		}
 	    }
 	    
-	    if(canRemoveServerDirectory(*p))
+	    try
 	    {
-		//
-		// If the server directory can be removed and we
-		// either remove it or back it up before to remove it.
-		//
-		try
+		if(canRemoveServerDirectory(*p))
 		{
+		    //
+		    // If the server directory can be removed and we
+		    // either remove it or back it up before to remove it.
+		    //
 		    removeRecursive(_serversDir + "/" + *p);
+		    p = remove.erase(p);
+		    continue;
 		}
-		catch(const string& msg)
-		{
-		    Ice::Warning out(_traceLevels->logger);
-		    out << "removing server directory `" << _serversDir << "/" << *p << "' failed:" << msg;
-		}
-		p = remove.erase(p);
 	    }
-	    else
+	    catch(const string& msg)
 	    {
-		++p;
+		Ice::Warning out(_traceLevels->logger);
+		out << "removing server directory `" << _serversDir << "/" << *p << "' failed:" << msg;
 	    }
+
+	    ++p;
 	}
     }
 	
@@ -707,10 +707,11 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 	ostringstream os;
 	os << "servers-" << contents.size();
 	contents.push_back(os.str());
+	sort(contents.begin(), contents.end(), greater<string>());
     }
-    sort(contents.begin(), contents.end(), greater<string>());
-    if(contents.size() == 10)
+    else if(contents.size() == 10)
     {
+	sort(contents.begin(), contents.end(), greater<string>());
 	try
 	{
 	    removeRecursive(_tmpDir + "/" + *contents.begin());
@@ -730,7 +731,6 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 	    rename(_tmpDir + "/" + *(p + 1), _tmpDir + "/" + *p);
 	}
 	createDirectoryRecursive(_tmpDir + "/servers-0");
-	
 	for(p = remove.begin(); p != remove.end(); ++p)
 	{
 	    rename(_serversDir + "/" + *p, _tmpDir + "/servers-0/" + *p);
@@ -739,7 +739,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     catch(const string& msg)
     {
 	Ice::Warning out(_traceLevels->logger);
-	out << "rotation failed:" << msg;
+	out << "rotation failed: " << msg;
     }
 }
 
@@ -757,9 +757,9 @@ NodeI::canRemoveServerDirectory(const string& name)
     {
 	return false;
     }
-
+    
     contents = readDirectory(_serversDir + "/" + name + "/config");
-
+    
     Ice::StringSeq::const_iterator p;
     for(p = contents.begin() ; p != contents.end(); ++p)
     {
@@ -768,7 +768,7 @@ NodeI::canRemoveServerDirectory(const string& name)
 	    return false;
 	}
     }
-
+    
     contents = readDirectory(_serversDir + "/" + name + "/dbs");
     for(p = contents.begin() ; p != contents.end(); ++p)
     {

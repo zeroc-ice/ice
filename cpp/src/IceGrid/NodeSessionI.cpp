@@ -102,6 +102,7 @@ NodeSessionI::getInfo() const
 const LoadInfo&
 NodeSessionI::getLoadInfo() const
 {
+    Lock sync(*this);
     return _load;
 }
 
