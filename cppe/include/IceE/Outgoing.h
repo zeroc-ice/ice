@@ -61,8 +61,8 @@ public:
     void abort(const Ice::LocalException&);
 #ifndef ICEE_PURE_BLOCKING_CLIENT
     void finished(BasicStream&);
-#endif
     void finished(const Ice::LocalException&);
+#endif
 
     // Inlined for speed optimization.
     BasicStream* is() { return &_is; }

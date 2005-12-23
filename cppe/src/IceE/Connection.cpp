@@ -424,7 +424,7 @@ Ice::Connection::sendBlockingRequest(BasicStream* os, BasicStream* is, Outgoing*
 	        }
 	
 	        _transceiver = 0;
-    	        out->finished(*_exception.get());
+		_exception->ice_throw();
 	    }
 	}
     }

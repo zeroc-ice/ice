@@ -403,7 +403,7 @@ public final class Connection
 		    }
 
 		    _transceiver = null;
-		    out.finished(_exception);
+		    throw _exception;
 		}
 	    }
 	}

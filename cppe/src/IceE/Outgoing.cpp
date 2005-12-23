@@ -200,10 +200,15 @@ IceInternal::Outgoing::invoke()
 		// For blocking sends the reply is written directly
 		// into the incoming stream.
 		//
-	        _connection->sendBlockingRequest(&_os, &_is, this);
-		if(!_exception.get())
+		try
 		{
+	            _connection->sendBlockingRequest(&_os, &_is, this);
 		    finishedInternal();
+		}
+		catch(const LocalException& ex)
+		{
+    		    _state = StateLocalException;
+    		    _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 		}
 	    }
 #endif
@@ -486,12 +491,12 @@ IceInternal::Outgoing::finishedInternal()
     }
 }
 
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+
 void
 IceInternal::Outgoing::finished(const LocalException& ex)
 {
-#ifndef ICEE_PURE_BLOCKING_CLIENT
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-#endif
     
     assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
 
@@ -499,7 +504,7 @@ IceInternal::Outgoing::finished(const LocalException& ex)
     
     _state = StateLocalException;
     _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
-#ifndef ICEE_PURE_BLOCKING_CLIENT
      notify();
-#endif
 }
+
+#endif

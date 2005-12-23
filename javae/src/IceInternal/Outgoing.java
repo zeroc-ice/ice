@@ -152,10 +152,15 @@ public final class Outgoing
 		}
 		else
 		{
-		    _connection.sendBlockingRequest(_os, _is, this);
-		    if(_exception == null)
+		    try
 		    {
+		        _connection.sendBlockingRequest(_os, _is, this);
 		        finishedInternal();
+		    }
+		    catch(Ice.LocalException ex)
+		    {
+        		_state = StateLocalException;
+	        	_exception = ex;
 		    }
 		}
 
