@@ -155,7 +155,16 @@ class Package:
         ofile.write('\n')    
 
     def writePostInstall(self, ofile, version, intVersion, installDir):
-	pass
+	ofile.write('''x=`which mono 2> /dev/null | grep mono`
+if test ! "x$x" == "x"; 
+then
+    mono_home=`dirname $x | sed -e "s/\/bin$//"`
+    for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs;
+    do
+    	sed -pi.bak -e 's/^mono_root.*$/mono_root = $mono_home/' /usr/lib/pkgconfig/$f ; 
+    done
+fi
+	''')
 
     def writePostUninstall(self, ofile, version, intVersion, installDir):
 	pass

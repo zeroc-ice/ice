@@ -482,9 +482,17 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
 
     if distro.startswith('IceCS'):
 	assemblies = ["glacier2cs", "iceboxcs", "icecs", "icegridcs", "icepatch2cs", "icestormcs"]
+
+	# 
+	# We are relying on pkgconfig to deal with some mono library
+	# configuration, so we need to copy these files into place.
+	#
+	if not os.path.exists("%s/lib/pkgconfig" % installDir):
+	    os.makedirs("%s/lib/pkgconfig" % installDir)
+
 	for a in assemblies:
 	    shutil.copy("bin/%s.dll" % a, "%s/bin/%s.dll" % (installDir, a))
-	shutil.copy("bin/iceboxnet.exe", "%s/bin/iceboxnet.exe" % installDir)
+	    shutil.copy("lib/pkgconfig/%s.pc" % a, "%s/lib/pkgconfig" % installDir)
 
     os.chdir(cwd)
     
@@ -1092,10 +1100,6 @@ def main():
     binaries.extend(glob.glob(installDir + '/Ice-' + version + '/lib/*' + shlibExtensions(version, soVersion)[0]))
     cwd = os.getcwd()
     os.chdir(installDir)
-
-    #
-    # XXX- make configurable.
-    #
 
     if not getPlatform().startswith('linux'):
 	#
