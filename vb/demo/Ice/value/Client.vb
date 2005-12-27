@@ -47,8 +47,8 @@ Module ValueC
             Console.Out.WriteLine("[press enter]")
             Console.In.ReadLine()
 
-            Dim printer As printer
-            Dim printerProxy As PrinterPrx
+            Dim printer As printer = Nothing
+            Dim printerProxy As PrinterPrx = Nothing
             Try
                 initial.getPrinter(printer, printerProxy)
                 Console.Error.WriteLine("Did not get the expected NoObjectFactoryException!")

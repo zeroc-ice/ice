@@ -54,7 +54,7 @@ Module InvokeC
                         Exit Try
                     End If
 
-                    Dim outParams As Byte()
+                    Dim outParams As Byte() = Nothing
 
                     If line.Equals("1") Then
                         '
