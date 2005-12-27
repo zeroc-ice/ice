@@ -64,12 +64,12 @@
                 <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
                 <Reference
                     Name = "iceboxcs"
                     AssemblyName = "iceboxcs"
-                    HintPath = "..\..\..\..\icecs\bin\iceboxcs.dll"
+                    HintPath = "..\..\..\bin\iceboxcs.dll"
                 />
 		<Reference
 		    Name = "helloIceBoxCommon"
