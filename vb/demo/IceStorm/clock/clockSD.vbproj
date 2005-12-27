@@ -69,12 +69,12 @@
                 <Reference
                     Name = "icecs"
                     AssemblyName = "icecs"
-                    HintPath = "..\..\..\bin\icecs.dll"
+                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
                 />
                 <Reference
                     Name = "icestormcs"
                     AssemblyName = "icestormcs"
-                    HintPath = "..\..\..\bin\icestormcs.dll"
+                    HintPath = "..\..\..\..\icecs\bin\icestormcs.dll"
                 />
             </References>
             <Imports>

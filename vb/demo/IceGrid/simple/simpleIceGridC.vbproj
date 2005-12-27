@@ -69,7 +69,7 @@
                 <Reference
                     Name = "icegridcs"
                     AssemblyName = "icegridcs"
-                    HintPath = "..\..\..\..\icecs\bin\icecs.dll"
+                    HintPath = "..\..\..\..\icecs\bin\icegridcs.dll"
                 />
                 <Reference
                     Name = "simpleIceGridCommon"
