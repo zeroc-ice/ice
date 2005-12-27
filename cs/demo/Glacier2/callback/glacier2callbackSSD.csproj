@@ -72,7 +72,7 @@
                 <Reference
                     Name = "glacier2cs"
                     AssemblyName = "glacier2cs"
-                    HintPath = "..\..\bin\glacier2cs.dll"
+                    HintPath = "..\..\..\bin\glacier2cs.dll"
                 />
                 <Reference
                     Name = "icecs"
