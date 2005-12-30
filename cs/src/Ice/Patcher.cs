@@ -49,7 +49,7 @@ namespace IceInternal
 	public override void patch(Ice.Object v)
 	{
             Debug.Assert(type_ != null);
-	    if(!type_.IsInstanceOfType(v))
+	    if(v != null && !type_.IsInstanceOfType(v))
 	    {
                 throw new System.InvalidCastException("expected element of type " + type()
                     + " but received " + v.GetType().FullName);
