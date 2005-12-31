@@ -20,7 +20,7 @@ default_ca = ice
 
 
 [ ice ]
-default_days     = 365     # How long certs are valid.
+default_days     = 1825    # How long certs are valid.
 default_md       = md5     # The Message Digest type.
 preserve         = no      # Keep passed DN ordering?
 

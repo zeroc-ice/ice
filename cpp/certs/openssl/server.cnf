@@ -30,7 +30,7 @@ serial           = $dir/serial              # The current serial number.
 certs            = $dir                     # Where issued certs are kept.
 RANDFILE         = $dir/.rand               # Private random number file.
 
-default_days     = 365                      # How long certs are valid.
+default_days     = 1825                     # How long certs are valid.
 default_md       = md5                      # The Message Digest type.
 preserve         = yes                      # Keep passed DN ordering?
 
