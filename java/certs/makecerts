@@ -35,21 +35,25 @@ fi
 if ! [ -f server.jks ]; then
     echo "Generating server's private key and certificate..."
     keytool -genkey -alias rsakey -keyalg RSA -keysize 1024 -keypass password -validity 1825 -keystore server.jks \
-	-storepass password -dname "CN=Ice Server, OU=Development, O=Your Company, L=Somewhere, S=Some State, C=US"
+	-storepass password -dname "CN=Ice Server, OU=Development, O=Your Company, L=Somewhere, S=Some State, C=US" \
+	|| exit 1
 
     echo "Importing trusted CA certificate..."
-    keytool -import -alias cacert -file $CA_HOME/cacert.der -keystore server.jks -storepass password -noprompt
+    keytool -import -alias cacert -file $CA_HOME/cacert.der -keystore server.jks -storepass password -noprompt \
+	|| exit 1
 
     # TODO: Not sure why this is necesssary, but without it openssl fails.
     rm -f $CA_HOME/ca/index.txt
     touch $CA_HOME/ca/index.txt
 
     echo "Signing server's certificate..."
-    keytool -certreq -alias rsakey -keystore server.jks -keypass password -storepass password -file server_rsa.csr
+    keytool -certreq -alias rsakey -keystore server.jks -keypass password -storepass password -file server_rsa.csr \
+	|| exit 1
     openssl ca -config $CA_HOME/server.cnf -batch -in server_rsa.csr -out server_rsa.pem \
-	-cert $ICE_HOME/certs/cacert.pem -keyfile $ICE_HOME/certs/ca/cakey.pem -days 1825
+	-cert $ICE_HOME/certs/cacert.pem -keyfile $ICE_HOME/certs/cakey.pem -days 1825
     openssl x509 -in server_rsa.pem -outform DER -out server_rsa.der
-    keytool -import -alias rsakey -keystore server.jks -storepass password -file server_rsa.der
+    keytool -import -alias rsakey -keystore server.jks -storepass password -file server_rsa.der \
+	|| exit 1
 
     rm -f server_rsa.*
 else
@@ -62,21 +66,25 @@ fi
 if ! [ -f client.jks ]; then
     echo "Generating client's private key and certificate..."
     keytool -genkey -alias rsakey -keyalg RSA -keysize 1024 -keypass password -validity 1825 -keystore client.jks \
-	-storepass password -dname "CN=Ice Client, OU=Development, O=Your Company, L=Somewhere, S=Some State, C=US"
+	-storepass password -dname "CN=Ice Client, OU=Development, O=Your Company, L=Somewhere, S=Some State, C=US" \
+	    || exit 1
 
     echo "Importing trusted CA certificate..."
-    keytool -import -alias cacert -file $CA_HOME/cacert.der -keystore client.jks -storepass password -noprompt
+    keytool -import -alias cacert -file $CA_HOME/cacert.der -keystore client.jks -storepass password -noprompt \
+	|| exit 1
 
     # TODO: Not sure why this is necesssary, but without it openssl fails.
     rm -f $CA_HOME/ca/index.txt
     touch $CA_HOME/ca/index.txt
 
     echo "Signing client's certificate..."
-    keytool -certreq -alias rsakey -keystore client.jks -keypass password -storepass password -file client_rsa.csr
+    keytool -certreq -alias rsakey -keystore client.jks -keypass password -storepass password -file client_rsa.csr \
+	|| exit 1
     openssl ca -config $CA_HOME/client.cnf -batch -in client_rsa.csr -out client_rsa.pem \
-	-cert $ICE_HOME/certs/cacert.pem -keyfile $ICE_HOME/certs/ca/cakey.pem -days 1825
+	-cert $ICE_HOME/certs/cacert.pem -keyfile $ICE_HOME/certs/cakey.pem -days 1825
     openssl x509 -in client_rsa.pem -outform DER -out client_rsa.der
-    keytool -import -alias rsakey -keystore client.jks -storepass password -file client_rsa.der
+    keytool -import -alias rsakey -keystore client.jks -storepass password -file client_rsa.der \
+	|| exit 1
 
     rm -f client_rsa.*
 else
@@ -88,7 +96,8 @@ fi
 #
 if ! [ -f certs.jks ]; then
     echo "Creating truststore..."
-    keytool -import -alias cacert -file $CA_HOME/cacert.der -keystore certs.jks -storepass password -noprompt
+    keytool -import -alias cacert -file $CA_HOME/cacert.der -keystore certs.jks -storepass password -noprompt \
+	|| exit 1
 else
     echo "Skipping truststore..."
 fi
