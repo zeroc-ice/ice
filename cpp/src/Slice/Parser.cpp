@@ -4760,7 +4760,7 @@ Slice::Unit::scanPosition(const char* s)
     //
     enum LineType { File, Push, Pop };
 
-    LineType type;
+    LineType type = File;
 
     idx = line.find_last_of(" \t\r");
     if(idx != string::npos)
@@ -4779,10 +4779,6 @@ Slice::Unit::scanPosition(const char* s)
 	    line.erase(idx);
 	    eraseWhiteSpace(line);
 	}
-    }
-    else
-    {
-	type = File;
     }
 
     string currentFile;
