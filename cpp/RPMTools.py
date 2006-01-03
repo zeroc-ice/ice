@@ -48,9 +48,13 @@ solution, and much more.'''
 # TODO: The package should really write the RPM header has well.
 #
 class Package:
-    '''Encapsulates RPM spec file information to be used to generate a
-       spec file on Linux and create RPMs for Ice'''
-    def __init__(self, name, requires, summary, group, description, other, filelist):
+
+    '''Encapsulates RPM spec file information to be used to generate a spec file on Linux and create RPMs for Ice.
+    Root packages have the restriction that they cannot be noarch specific. If this becomes a problem in the future,
+    the thing to do would be to remove the %ifnarch noarch/%endif pairs from Package and create a new subclass that
+    writes these pairs and delegates the guts of the file populating to Package.'''
+
+    def __init__(self, name, requires, summary, group, description, other, filelist, arch):
         self.name = name
         self.requires = requires
         self.summary = summary
@@ -61,6 +65,7 @@ class Package:
 	self.prepTextGen = []
 	self.buildTextGen = []
 	self.installTextGen = []
+	self.arch = arch 
         
     def writeHdr(self, ofile, version, release, installDir, buildRequires):
 	ofile.write('%define _unpackaged_files_terminate_build 0\n')
@@ -151,10 +156,10 @@ class Package:
 		ofile.write(f + '\n')
 	    else:
 		ofile.write(prefix + '/usr/' + f + '\n')
-
         ofile.write('\n')    
 
     def writePostInstall(self, ofile, version, intVersion, installDir):
+	ofile.write('\n%ifnarch noarch\n')
 	ofile.write('''x=`which mono 2> /dev/null | grep mono`
 if test ! "x$x" == "x"; 
 then
@@ -165,13 +170,16 @@ then
     done
 fi
 	''')
+	ofile.write('\n%endif\n')
 
     def writePostUninstall(self, ofile, version, intVersion, installDir):
 	pass
 
     def writeFiles(self, ofile, version, intVersion, installDir):
         ofile.write('%files\n')
+	ofile.write('\n%ifnarch noarch\n')
         self.writeFileList(ofile, version, intVersion, installDir)
+	ofile.write('\n%endif\n')
 	ofile.write('\n')
 
 	ofile.write('%post\n')
@@ -195,6 +203,7 @@ fi
 #
 class Subpackage(Package):
     def writeHdr(self, ofile, version, release, installDir, buildRequires):
+        ofile.write('\n%%ifarch %s\n' % self.arch)	
         ofile.write('%package ' + self.name + '\n')
         ofile.write('Summary: ' + self.summary + '\n')
         ofile.write('Group: ' + self.group + '\n')
@@ -206,8 +215,10 @@ class Subpackage(Package):
 	    ofile.write(self.other + '\n')
         ofile.write('%description ' + self.name + '\n')
         ofile.write(self.description)
+	ofile.write('\n%endif\n')
 
     def writeFiles(self, ofile, version, intVersion, installDir):
+        ofile.write('\n%%ifarch %s\n' % self.arch)	
         ofile.write('%files ' + self.name + '\n')
         self.writeFileList(ofile, version, intVersion, installDir)
 
@@ -216,6 +227,7 @@ class Subpackage(Package):
 
 	ofile.write('%postun ' + self.name + '\n')
 	self.writePostUninstall(ofile, version, intVersion, installDir)
+	ofile.write('\n%endif\n')
 
 #
 # NOTE: File transforms should be listed before directory transforms.
@@ -319,7 +331,7 @@ fileLists64 = [
 	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.xml'),
 	     ('xdir', 'share/doc/Ice-%version%/config'),
 	     ('file', 'share/doc/Ice-%version%/config/templates.xml'),
-	     ('file', 'share/doc/Ice-%version%/README.DEMOS')]),
+	     ('file', 'share/doc/Ice-%version%/README.DEMOS')], 'x86_64'),
     Subpackage('c++-devel',
                'ice = %version%',
                'Tools and demos for developing Ice applications in C++',
@@ -348,8 +360,9 @@ fileLists64 = [
 		('xdir', 'share/doc/Ice-%version%/config'),
 		('file', 'share/doc/Ice-%version%/config/Make.rules'),
 		('file', 'share/doc/Ice-%version%/config/Make.rules.Linux'),
-		])
+		], 'x86_64')
     ]
+
 fileLists = [
     Package('ice',
             '',
@@ -404,7 +417,7 @@ fileLists = [
 	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.xml'),
 	     ('xdir', 'share/doc/Ice-%version%/config'),
 	     ('file', 'share/doc/Ice-%version%/config/templates.xml'),
-	     ('file', 'share/doc/Ice-%version%/README.DEMOS')]),
+	     ('file', 'share/doc/Ice-%version%/README.DEMOS')], 'i386'),
     Subpackage('c++-devel',
                'ice = %version%',
                'Tools and demos for developing Ice applications in C++',
@@ -429,11 +442,11 @@ fileLists = [
 		('xdir', 'share/doc/Ice-%version%'),
 		('dir', 'share/doc/Ice-%version%/demo'),
 		('exe', 'share/doc/Ice-%version%/demo/Freeze/backup/backup'),
-		('exe', 'share/doc/Ice-%version%/demo/Freeze/backup/restore'),
+		('exe', 'share/doc/Ice-%version%/demo/Freeze/backup/recover'),
 		('xdir', 'share/doc/Ice-%version%/config'),
 		('file', 'share/doc/Ice-%version%/config/Make.rules'),
 		('file', 'share/doc/Ice-%version%/config/Make.rules.Linux'),
-		]),
+		], 'i386'),
     Subpackage('csharp-devel',
                'ice-dotnet = %version%',
                'Tools and demos for developing Ice applications in C#',
@@ -444,7 +457,7 @@ fileLists = [
 		('xdir', 'share/doc/Ice-%version%'),
 		('xdir', 'share/doc/Ice-%version%/config'),
 		('file', 'share/doc/Ice-%version%/config/Make.rules.cs'),
-	        ('dir', 'share/doc/Ice-%version%/democs')]),
+	        ('dir', 'share/doc/Ice-%version%/democs')], 'i386'),
     Subpackage('java-devel',
                'ice-java = %version%',
                'Tools and demos for developing Ice applications in Java',
@@ -464,14 +477,14 @@ fileLists = [
 	        ('file', 'share/doc/Ice-%version%/config/build.properties'),
 	        ('file', 'share/doc/Ice-%version%/config/common.xml'),
 	        ('file', 'share/doc/Ice-%version%/config/iceproject.xml'),
-		('dir', 'share/doc/Ice-%version%/demoj')]),
+		('dir', 'share/doc/Ice-%version%/demoj')], 'i386'),
     Subpackage('python',
                'ice = %version%, python >= 2.4.1',
                'The Ice runtime for Python applications',
                'System Environment/Libraries',
 	       iceDescription,
 	       '',
-               [('dir', 'lib/Ice-%version%/python')]),
+               [('dir', 'lib/Ice-%version%/python')], 'i386'),
     Subpackage('python-devel',
                'ice-python = %version%',
                'Tools and demos for developing Ice applications in Python',
@@ -480,33 +493,30 @@ fileLists = [
 	       '',
                [('exe', 'bin/slice2py'),
 		('xdir', 'share/doc/Ice-%version%'),
-	        ('dir', 'share/doc/Ice-%version%/demopy')]),
+	        ('dir', 'share/doc/Ice-%version%/demopy')], 'i386'),
     Subpackage('php',
 	       'ice = %version%, php = 5.0.4',
 	       'The Ice runtime for PHP applications',
 	       'System Environment/Libraries',
 	       iceDescription,
 	       '',
-	       [('lib', 'lib/php/modules'), ('cfg', '/etc/php.d/ice.ini')]),
+	       [('lib', 'lib/php/modules'), ('cfg', '/etc/php.d/ice.ini')], 'i386'),
     Subpackage('php-devel',
 	       'ice = %version%, php = 5.0.4, ice-php = %version%',
 	       'Demos for developing Ice applications in PHP',
 	       'Development/Tools',
 	       iceDescription,
 	       '',
-	       [('dir', 'share/doc/Ice-%version%/demophp')])
-    ]
-
-noarchFileList = [
-    Package('ice-java',
-	    'ice = %version%, db4-java >= 4.3.27',
-	    'The Ice runtime for Java',
-	    'System Environment/Libraries',
-	    iceDescription,
-	    'BuildArch: noarch',
-	    [ ('xdir', 'lib/Ice-%version%'),
-              ('dir', 'lib/Ice-%version%/Ice.jar')
-	    ]),
+	       [('dir', 'share/doc/Ice-%version%/demophp')], 'i386'),
+    Subpackage('java',
+	       'ice = %version%, db4-java >= 4.3.27',
+	       'The Ice runtime for Java',
+	       'System Environment/Libraries',
+	       iceDescription,
+	       '',
+	       [ ('xdir', 'lib/Ice-%version%'),
+	       ('dir', 'lib/Ice-%version%/Ice.jar')
+	       ], 'noarch'),
     Subpackage('dotnet',
                'ice = %version%, mono-core >= 1.1.9',
                'The Ice runtime for C# applications',
@@ -519,7 +529,7 @@ noarchFileList = [
 	        ('dll', 'lib/mono/gac/icegridcs/%version%.0__1f998c50fec78381/icegridcs.dll'),
 	        ('dll', 'lib/mono/gac/icepatch2cs/%version%.0__1f998c50fec78381/icepatch2cs.dll'),
 	        ('dll', 'lib/mono/gac/icestormcs/%version%.0__1f998c50fec78381/icestormcs.dll'),
-		('exe', 'bin/iceboxnet.exe')]),
+		('exe', 'bin/iceboxnet.exe')], 'noarch')
     ]
 
 def _transformDirectories(transforms, version, installDir):
@@ -577,51 +587,13 @@ def createArchSpecFile(ofile, installDir, version, soVersion, buildReq = True):
 	v.writeFiles(ofile, version, soVersion, installDir)
 	ofile.write("\n")
 
-def createNoArchSpecFile(ofile, installDir, version, soVersion, buildReq = True):
-    if not buildReq:
-	reqs = []
-    else:
-	reqs = buildRequires
-
-    for v in noarchFileList:
-	v.writeHdr(ofile, version, "1", installDir, reqs)
-	ofile.write("\n\n\n")
-    for v in noarchFileList:
-	v.writeFiles(ofile, version, soVersion, installDir)
-	ofile.write("\n")
-
 def createFullSpecFile(ofile, installDir, version, soVersion, buildReq = True):
     if not buildReq:
 	reqs = []
     else:
 	reqs = buildRequires
 
-    fullFileList = []
-    fullFileList.extend(fileLists)
-    fullFileList.append(
-	    Subpackage("java",
-		"ice = %version%, db4-java >= 4.3.27",
-		"Ice runtime for Ice Java applciations",
-		"Development/Libraries",
-		"",
-		"",
-		[("dir", "lib/Ice-%version%/Ice.jar")
-		]))
-    fullFileList.append(
-	    Subpackage('dotnet',
-		'ice = %version%, mono-core >= 1.1.9',
-		'The Ice runtime for C# applications',
-		'System Environment/Libraries',
-		iceDescription,
-		'',
-		[
-	        ('dll', 'lib/mono/gac/glacier2cs/%version%.0__1f998c50fec78381/glacier2cs.dll'),
-	        ('dll', 'lib/mono/gac/icecs/%version%.0__1f998c50fec78381/icecs.dll'),
-	        ('dll', 'lib/mono/gac/iceboxcs/%version%.0__1f998c50fec78381/iceboxcs.dll'),
-	        ('dll', 'lib/mono/gac/icegridcs/%version%.0__1f998c50fec78381/icegridcs.dll'),
-	        ('dll', 'lib/mono/gac/icepatch2cs/%version%.0__1f998c50fec78381/icepatch2cs.dll'),
-	        ('dll', 'lib/mono/gac/icestormcs/%version%.0__1f998c50fec78381/icestormcs.dll'),
-		('exe', 'bin/iceboxnet.exe')]))
+    fullFileList = fileLists 
     fullFileList[0].addPrepGenerator(writeUnpackingCommands)
     fullFileList[0].addBuildGenerator(writeBuildCommands)
     fullFileList[0].addInstallGenerator(writeInstallCommands)
@@ -657,22 +629,32 @@ def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
 	shutil.rmtree(installDir + "/Ice-" + version + "-demos")
     cwd = os.getcwd()
     os.chdir(buildDir)
-    os.system("rpmbuild -bb Ice-" + version + ".spec")
 
     # 
-    # Build noarch RPMs
+    # The first run will create all of the architecture specific
+    # packages. The second run will create the noarch packages.
     #
-    ofile = open(buildDir + "/IceJ-" + version + ".spec", "w")
-    createNoArchSpecFile(ofile, installDir, version, soVersion, False)
-    ofile.flush()
-    ofile.close()
-    os.system("rpmbuild --target noarch -bb IceJ-" + version + ".spec")
+    result = os.system("rpmbuild -bb Ice-%s.spec" % version)
+    if result != 0:
+	print 'unable to build arch specific rpms'
+	sys.exit(1)
+    result = os.system("rpmbuild --target noarch -bb Ice-%s.spec" % version)
+    if result != 0:
+	print 'unable to build noarch rpms'
+	sys.exit(1)
 
+    #
+    # Create a spec file to be included in the SRPM that contains shell
+    # code to do all of the necessary builds and transformations.
+    #
     ofile = open(installDir + '/ice-' + version + '.spec', 'w')
     createFullSpecFile(ofile, installDir, version, soVersion)
     ofile.flush()
     ofile.close()
-    os.system('rpmbuild -bs ' + installDir + '/ice-' + version + '.spec')
+    result = os.system('rpmbuild -bs ' + installDir + '/ice-' + version + '.spec')
+    if result != 0:
+	print 'unable to build srpm'
+	sys.exit(1)
 
 #
 # TODO - refactor so this doesn't have to be special cased.

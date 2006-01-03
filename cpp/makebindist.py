@@ -440,6 +440,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
 
     if distro.startswith('IceCS'):
 	runprog('perl -pi -e \'s/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/\' config/Make.rules.cs')
+	runprog('perl -pi -e \'s/^cvs_build.*$/cvs_build = no/\' config/Make.rules.cs')
     else:
 	runprog('perl -pi -e \'s/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/\' config/Make.rules')
 
