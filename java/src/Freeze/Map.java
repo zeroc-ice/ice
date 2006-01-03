@@ -1429,7 +1429,7 @@ public abstract class Map extends java.util.AbstractMap
 			    if(_fromKey != null)
 			    {
 				dbIKey.setData(_fromKey);
-				status = c.getSearchKey(dbIKey, dbKey, dbValue, null);
+				status = c.getSearchKeyRange(dbIKey, dbKey, dbValue, null);
 			    }
 			    else
 			    {
