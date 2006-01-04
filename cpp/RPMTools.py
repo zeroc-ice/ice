@@ -222,15 +222,11 @@ class Subpackage(Package):
 class DotNetPackage(Subpackage):
     def writePostInstall(self, ofile, version, intVersion, installDir):
 	ofile.write('\n%ifarch noarch\n')
-	ofile.write('''x=`which mono 2> /dev/null | grep mono`
-if test ! "x$x" == "x"; 
-then
-    mono_home=`dirname $x | sed -e "s/\/bin$//" | sed -e "s/\//\\x5c\\x5c\\x2f/g"`
-    for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs;
-    do
-    	sed -i.bak -e "s/^mono_root.*$/mono_root = $mono_home/" /usr/lib/pkgconfig/$f.pc ; 
-    done
-fi
+	ofile.write('''
+for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs;
+do
+    sed -i.bak -e "s/^mono_root.*$/mono_root = \/usr/" /usr/lib/pkgconfig/$f.pc ; 
+done
 	''')
 	ofile.write('\n%endif\n')
 
