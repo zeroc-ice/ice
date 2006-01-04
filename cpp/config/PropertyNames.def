@@ -188,6 +188,7 @@ IceGrid:
     Node.RegisterProcess
     Node.CollocateRegistry
     Node.Data
+    Node.DisableOnFailure
     Node.Endpoints
     Node.Name
     Node.Output
