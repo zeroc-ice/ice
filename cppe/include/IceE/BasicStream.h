@@ -102,6 +102,7 @@ public:
 
     void write(const std::vector<Ice::Byte>&);
     void read(std::vector<Ice::Byte>&);
+    void read(std::pair<const Ice::Byte*, const Ice::Byte*>&);
 
     void write(bool v)
     {

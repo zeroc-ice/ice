@@ -620,6 +620,24 @@ IceInternal::BasicStream::readBlob(Ice::Byte* v, Container::size_type sz)
 }
 
 void
+IceInternal::BasicStream::read(pair<const Byte*, const Byte*>& v)
+{
+    Int sz;
+    readSize(sz);
+    if(sz > 0)
+    {
+	checkFixedSeq(sz, 1);
+	v.first = i;
+	v.second = i + sz;
+	i += sz;
+    }
+    else
+    {
+	v.first = v.second = i;
+    }
+}
+
+void
 IceInternal::BasicStream::read(vector<Byte>& v)
 {
     Int sz;
