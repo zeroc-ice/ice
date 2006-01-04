@@ -37,7 +37,6 @@ def runprog(commandstring, haltOnError = True):
 	if haltOnError: 
 	    raise ExtProgramError(msg)
 
-
 def copyfiles(srcDir, destDir):
     '''Copy the contents of one directory to another (non-recursive)'''
     for f in os.listdir(srcDir):
@@ -140,18 +139,41 @@ def fixVersion(filename, version):
 def getInstallFiles(cvsTag, buildDir, version):
     """Gets the install sources for this revision"""
     cwd = os.getcwd()
-    os.chdir(buildDir)
-    runprog('rm -rf ' + buildDir + '/ice/install')
-    runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/unix')
-    runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/common')
-    runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/rpm')
-    runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/thirdparty')
-    snapshot = os.walk('./ice/install/unix')
-    for dirInfo in snapshot:
-	for f in dirInfo[2]:
-	    fixVersion(os.path.join(dirInfo[0], f), version)
+    try:
+	os.chdir(buildDir)
+	runprog('rm -rf ' + buildDir + '/ice/install')
+	runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/unix')
+	runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/common')
+	runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/rpm')
+	runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/thirdparty')
+	snapshot = os.walk('./ice/install/unix')
+	for dirInfo in snapshot:
+	    for f in dirInfo[2]:
+		fixVersion(os.path.join(dirInfo[0], f), version)
+    finally:
+	os.chdir(cwd)
+    return buildDir + '/ice/install'
 
-    os.chdir(cwd)
+def getInstallFilesFromLocalDirectory(cvsTag, buildDir, version):
+    '''Gets the install files from an existing CVS directory, has the
+    advantage of working even if CVS is down allowing the install-O to
+    continue working!'''
+    cwd = os.getcwd()
+    try:
+	os.chdir(buildDir)
+	target = os.path.join(buildDir, 'ice', 'install')
+	if os.path.exists(target):
+	    shutil.rmtree(target)
+	iceloc = os.path.abspath(os.path.join(os.environ['ICE_HOME'],'install'))
+	os.makedirs(target)
+	for f in ['unix', 'common', 'rpm', 'thirdparty']:
+	    shutil.copytree(os.path.join(iceloc, f), os.path.join(target, f)) 
+	snapshot = os.walk('./ice/install/unix')
+	for dirInfo in snapshot:
+	    for f in dirInfo[2]:
+		fixVersion(os.path.join(dirInfo[0], f), version)
+    finally:
+	os.chdir(cwd)
     return buildDir + '/ice/install'
 
 def readcommand(cmd):
@@ -856,6 +878,7 @@ def main():
     printSpecFile = False
     verbose = False
     cvsMode = False    # Use CVS directories.
+    offline = False
 
     #
     # Process args.
@@ -865,7 +888,7 @@ def main():
                                          [ 'build-dir=', 'install-dir=', 'install-root=', 'sources=',
                                            'verbose', 'tag=', 'noclean', 'nobuild', 'specfile',
 					   'stlporthome=', 'bzip2home=', 'dbhome=', 'sslhome=',
-					   'expathome=', 'readlinehome=', 'usecvs'])
+					   'expathome=', 'readlinehome=', 'usecvs', 'offline'])
                
     except getopt.GetoptError:
         usage()
@@ -905,11 +928,17 @@ def main():
 	    buildEnvironment['EXPAT_HOME'] = a
 	elif o == '--readlinehome':
 	    buildEnvironment['READLINE_HOME'] = a
+	elif o == '--offline':
+	    offline = True
 	elif o == '--usecvs':
 	    cvsMode = True
 
     if verbose:
 	logging.getLogger().setLevel(logging.DEBUG)
+
+    if offline and sources == None:
+	logging.error("You must specify a location for the sources if running in offline mode")
+	sys.exit(1)
 
     #
     # Configure environment.
@@ -968,6 +997,10 @@ def main():
 	version = getIceVersion('include/IceUtil/Config.h')
 	soVersion = getIceSoVersion('include/IceUtil/Config.h')
 	installFiles = 'install'
+    elif offline:
+	version = getIceVersion('include/IceUtil/Config.h')
+	soVersion = getIceSoVersion('include/IceUtil/Config.h')
+	installFiles = getInstallFilesFromLocalDirectory(cvsTag, buildDir, version)
     else:
 	version, soVersion = getVersion(cvsTag, buildDir)
 	installFiles = getInstallFiles(cvsTag, buildDir, version)
