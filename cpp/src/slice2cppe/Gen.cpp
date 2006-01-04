@@ -1483,6 +1483,7 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 	string paramName = fixKwd((*q)->name());
 	TypePtr type = (*q)->type();
 	bool isOutParam = (*q)->isOutParam();
+
 	string typeString;
 	if(isOutParam)
 	{
@@ -2164,15 +2165,9 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string classNameAMD = "AMD_" + cl->name();
-    string classScope = fixKwd(cl->scope());
-    string classScopedAMD = classScope + classNameAMD;
 
-    string paramsAMD = "(const " + classScopedAMD + '_' + name + "Ptr&, ";
-    string paramsDeclAMD = "(const " + classScopedAMD + '_' + name + "Ptr& __cb, ";
-    string argsAMD = "(__cb, ";
 
-    TypeStringList inParams;
+    ParamDeclList inParams;
     TypeStringList outParams;
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
@@ -2180,6 +2175,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	string paramName = fixKwd((*q)->name());
 	TypePtr type = (*q)->type();
 	bool isOutParam = (*q)->isOutParam();
+	StringList metaData = (*q)->getMetaData();
+
 	string typeString;
 	if(isOutParam)
 	{
@@ -2188,8 +2185,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	}
 	else
 	{
-	    inParams.push_back(make_pair(type, paramName));
-	    typeString = inputTypeToString((*q)->type());
+	    inParams.push_back(*q);
+	    typeString = inputTypeToString(type, metaData);
 	}
 
 	if(q != paramList.begin())
@@ -2204,18 +2201,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	paramsDecl += ' ';
 	paramsDecl += paramName;
 	args += paramName;
-
-	if(!isOutParam)
-	{
-	    paramsAMD += typeString;
-	    paramsAMD += ", ";
-	    paramsDeclAMD += typeString;
-	    paramsDeclAMD += ' ';
-	    paramsDeclAMD += paramName;
-	    paramsDeclAMD += ", ";
-	    argsAMD += paramName;
-	    argsAMD += ", ";
-	}
     }
 
     if(!cl->isLocal())
@@ -2238,10 +2223,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	args += ')';
     }
 
-    paramsAMD += "const ::Ice::Current& = ::Ice::Current())";
-    paramsDeclAMD += "const ::Ice::Current& __current)";
-    argsAMD += "__current)";
-    
     bool nonmutating = p->mode() == Operation::Nonmutating;
 
     H << sp;
@@ -2284,8 +2265,17 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	{
 	    C << nl << "::IceInternal::BasicStream* __os = __in.os();";
 	}
-	writeAllocateCode(C, inParams, 0);
-	writeUnmarshalCode(C, inParams, 0);
+
+	ParamDeclList::const_iterator pli;
+	for(pli = inParams.begin(); pli != inParams.end(); ++pli)
+	{
+	    C << nl << typeToString((*pli)->type(), (*pli)->getMetaData()) << ' ' << fixKwd((*pli)->name()) << ';';
+	}
+	for(pli = inParams.begin(); pli != inParams.end(); ++pli)
+	{
+	    writeMarshalUnmarshalCode(C, (*pli)->type(), fixKwd((*pli)->name()), false, "", true, 
+	    			      (*pli)->getMetaData());
+	}
 	writeAllocateCode(C, outParams, 0);
 	if(!throws.empty())
 	{
@@ -2716,7 +2706,6 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = p->name();
     string scope = fixKwd(p->scope());
     string cls = scope.substr(2) + name + "I";
-    string classScopedAMD = scope + "AMD_" + name;
 
     ClassList bases = p->bases();
     ClassDefPtr base;
@@ -2769,6 +2758,8 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 H << ',' << nl;
             }
+
+	    StringList metaData = (*q)->getMetaData();
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
 	    //
 	    // Work around for Sun CC 5.5 bug #4853566
@@ -2780,11 +2771,11 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    }
 	    else
 	    {
-	        typeString = inputTypeToString((*q)->type());
+	        typeString = inputTypeToString((*q)->type(), metaData);
 	    }
 #else
             string typeString = (*q)->isOutParam() ?
-                outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+                outputTypeToString((*q)->type()) : inputTypeToString((*q)->type(), metaData);
 #endif
             H << typeString;
         }
@@ -2811,6 +2802,8 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 C << ',' << nl;
             }
+
+	    StringList metaData = (*q)->getMetaData();
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
 	    //
 	    // Work around for Sun CC 5.5 bug #4853566
@@ -2822,11 +2815,11 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    }
 	    else
 	    {
-	        typeString = inputTypeToString((*q)->type());
+	        typeString = inputTypeToString((*q)->type(), metaData);
 	    }
 #else
             string typeString = (*q)->isOutParam() ?
-                outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+                outputTypeToString((*q)->type()) : inputTypeToString((*q)->type(), metaData);
 #endif
             C << typeString << ' ' << fixKwd((*q)->name());
         }

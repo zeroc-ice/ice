@@ -120,7 +120,7 @@ Slice::printDllExportStuff(Output& out, const string& dllExport)
 }
 
 string
-Slice::typeToString(const TypePtr& type)
+Slice::typeToString(const TypePtr& type, const StringList& metaData)
 {
     static const char* builtinTable[] =
     {
@@ -154,6 +154,18 @@ Slice::typeToString(const TypePtr& type)
     {
 	return fixKwd(proxy->_class()->scoped() + "Prx");
     }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        string seqType = findMetaData(metaData);
+	if(seqType == "array")
+	{
+	    TypePtr seqType = seq->type();
+	    string s = typeToString(seqType);
+	    return "::std::pair<const " + s + "*, const " + s + "*>";
+	}
+    }
 	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
@@ -182,7 +194,7 @@ Slice::returnTypeToString(const TypePtr& type)
 }
 
 string
-Slice::inputTypeToString(const TypePtr& type)
+Slice::inputTypeToString(const TypePtr& type, const StringList& metaData)
 {
     static const char* inputBuiltinTable[] =
     {
@@ -221,6 +233,18 @@ Slice::inputTypeToString(const TypePtr& type)
     if(en)
     {
 	return fixKwd(en->scoped());
+    }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        string seqType = findMetaData(metaData);
+	if(seqType == "array")
+	{
+	    TypePtr seqType = seq->type();
+	    string s = typeToString(seqType);
+	    return "const ::std::pair<const " + s + "*, const " + s + "*>&";
+	}
     }
 	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -395,7 +419,7 @@ Slice::fixKwd(const string& name)
 
 void
 Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal,
-				 const string& str, bool pointer)
+				 const string& str, bool pointer, const StringList& metaData)
 {
     string fixedParam = fixKwd(param);
 
@@ -470,16 +494,39 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
+        string seqType = findMetaData(metaData);
 	builtin = BuiltinPtr::dynamicCast(seq->type());
 	if(builtin && builtin->kind() != Builtin::KindObject && builtin->kind() != Builtin::KindObjectProxy)
 	{
-	    out << nl << stream << deref << func << fixedParam << ");";
+	    if(seqType == "array" && builtin->kind() != Builtin::KindByte)
+	    {
+	        out << nl << typeToString(type) << " __" << fixedParam << ";";
+		out << nl << stream << deref << func << "__" << fixedParam << ");";
+	    }
+	    else
+	    {
+	        out << nl << stream << deref << func << fixedParam << ");";
+	    }
 	}
 	else
 	{
 	    string scope = fixKwd(seq->scope());
-	    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
-		<< fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
+	    if(seqType == "array")
+	    {
+	        out << nl << typeToString(type) << " __" << fixedParam << ";";
+	        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", __"
+		    << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
+	    }
+	    else
+	    {
+	        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
+		    << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
+	    }
+	}
+	if(seqType == "array" && (!builtin || builtin->kind() != Builtin::KindByte))
+	{
+	    out << nl << fixedParam << ".first" << " = &__" << fixedParam << ".front();";
+	    out << nl << fixedParam << ".second" << " = &__" << fixedParam << ".back() + 1;";
 	}
 	return;
     }
@@ -935,4 +982,31 @@ Slice::writeStreamUnmarshalCode(Output& out, const list<pair<TypePtr, string> >&
     {
 	writeStreamMarshalUnmarshalCode(out, ret, "__ret", false, "");
     }
+}
+
+string
+Slice::findMetaData(const StringList& metaData)
+{
+    static const string prefix = "cpp:";
+    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    {
+        string str = *q;
+	if(str.find(prefix) == 0)
+	{
+	    string::size_type pos = str.find(':', prefix.size());
+	    if(pos != string::npos)
+	    {
+	        if(str.substr(prefix.size(), pos - prefix.size()) == "type")
+		{
+		    return str.substr(pos + 1);
+		}
+	    }
+	    else
+	    {
+	        return str.substr(prefix.size());
+	    }
+	}
+    }
+
+    return "";
 }

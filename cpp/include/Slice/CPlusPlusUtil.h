@@ -27,16 +27,16 @@ SLICE_API void printHeader(::IceUtil::Output&);
 SLICE_API void printVersionCheck(::IceUtil::Output&);
 SLICE_API void printDllExportStuff(::IceUtil::Output&, const std::string&);
 
-SLICE_API std::string typeToString(const TypePtr&);
+SLICE_API std::string typeToString(const TypePtr&, const StringList& = StringList());
 SLICE_API std::string returnTypeToString(const TypePtr&);
-SLICE_API std::string inputTypeToString(const TypePtr&);
+SLICE_API std::string inputTypeToString(const TypePtr&, const StringList& = StringList());
 SLICE_API std::string outputTypeToString(const TypePtr&);
 SLICE_API std::string operationModeToString(Operation::Mode);
 
 SLICE_API std::string fixKwd(const std::string&);
 
 SLICE_API void writeMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool,
-					 const std::string& = "", bool = true);
+					 const std::string& = "", bool = true, const StringList& = StringList());
 SLICE_API void writeMarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
 				const TypePtr&);
 SLICE_API void writeUnmarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
@@ -49,6 +49,7 @@ SLICE_API void writeStreamMarshalCode(::IceUtil::Output&, const std::list<std::p
                                       const TypePtr&);
 SLICE_API void writeStreamUnmarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
                                         const TypePtr&);
+SLICE_API std::string findMetaData(const StringList&);
 
 }
 
