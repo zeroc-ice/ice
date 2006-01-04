@@ -159,18 +159,7 @@ class Package:
         ofile.write('\n')    
 
     def writePostInstall(self, ofile, version, intVersion, installDir):
-	ofile.write('\n%ifnarch noarch\n')
-	ofile.write('''x=`which mono 2> /dev/null | grep mono`
-if test ! "x$x" == "x"; 
-then
-    mono_home=`dirname $x | sed -e "s/\/bin$//"`
-    for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs;
-    do
-    	sed -pi.bak -e 's/^mono_root.*$/mono_root = $mono_home/' /usr/lib/pkgconfig/$f ; 
-    done
-fi
-	''')
-	ofile.write('\n%endif\n')
+	pass
 
     def writePostUninstall(self, ofile, version, intVersion, installDir):
 	pass
@@ -227,6 +216,22 @@ class Subpackage(Package):
 
 	ofile.write('%postun ' + self.name + '\n')
 	self.writePostUninstall(ofile, version, intVersion, installDir)
+	ofile.write('\n%endif\n')
+
+
+class DotNetPackage(Subpackage):
+    def writePostInstall(self, ofile, version, intVersion, installDir):
+	ofile.write('\n%ifarch noarch\n')
+	ofile.write('''x=`which mono 2> /dev/null | grep mono`
+if test ! "x$x" == "x"; 
+then
+    mono_home=`dirname $x | sed -e "s/\/bin$//" | sed -e "s/\//\\x5c\\x5c\\x2f/g"`
+    for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs;
+    do
+    	sed -i.bak -e "s/^mono_root.*$/mono_root = $mono_home/" /usr/lib/pkgconfig/$f.pc ; 
+    done
+fi
+	''')
 	ofile.write('\n%endif\n')
 
 #
@@ -517,19 +522,25 @@ fileLists = [
 	       [ ('xdir', 'lib/Ice-%version%'),
 	       ('dir', 'lib/Ice-%version%/Ice.jar')
 	       ], 'noarch'),
-    Subpackage('dotnet',
-               'ice = %version%, mono-core >= 1.1.9',
-               'The Ice runtime for C# applications',
-               'System Environment/Libraries',
-	       iceDescription,
-	       '',
-               [('dll', 'lib/mono/gac/glacier2cs/%version%.0__1f998c50fec78381/glacier2cs.dll'),
-	        ('dll', 'lib/mono/gac/icecs/%version%.0__1f998c50fec78381/icecs.dll'),
-	        ('dll', 'lib/mono/gac/iceboxcs/%version%.0__1f998c50fec78381/iceboxcs.dll'),
-	        ('dll', 'lib/mono/gac/icegridcs/%version%.0__1f998c50fec78381/icegridcs.dll'),
-	        ('dll', 'lib/mono/gac/icepatch2cs/%version%.0__1f998c50fec78381/icepatch2cs.dll'),
-	        ('dll', 'lib/mono/gac/icestormcs/%version%.0__1f998c50fec78381/icestormcs.dll'),
-		('exe', 'bin/iceboxnet.exe')], 'noarch')
+    DotNetPackage('dotnet',
+                  'ice = %version%, mono-core >= 1.1.9',
+		  'The Ice runtime for C# applications',
+		  'System Environment/Libraries',
+		  iceDescription,
+		  '',
+		  [('dll', 'lib/mono/gac/glacier2cs/%version%.0__1f998c50fec78381/glacier2cs.dll'),
+		  ('dll', 'lib/mono/gac/icecs/%version%.0__1f998c50fec78381/icecs.dll'),
+		  ('dll', 'lib/mono/gac/iceboxcs/%version%.0__1f998c50fec78381/iceboxcs.dll'),
+		  ('dll', 'lib/mono/gac/icegridcs/%version%.0__1f998c50fec78381/icegridcs.dll'),
+		  ('dll', 'lib/mono/gac/icepatch2cs/%version%.0__1f998c50fec78381/icepatch2cs.dll'),
+		  ('dll', 'lib/mono/gac/icestormcs/%version%.0__1f998c50fec78381/icestormcs.dll'),
+		  ('file', 'lib/pkgconfig/icecs.pc'),
+		  ('file', 'lib/pkgconfig/glacier2cs.pc'),
+		  ('file', 'lib/pkgconfig/iceboxcs.pc'),
+		  ('file', 'lib/pkgconfig/icegridcs.pc'),
+		  ('file', 'lib/pkgconfig/icepatch2cs.pc'),
+		  ('file', 'lib/pkgconfig/icestormcs.pc'),
+		  ('exe', 'bin/iceboxnet.exe')], 'noarch')
     ]
 
 def _transformDirectories(transforms, version, installDir):
