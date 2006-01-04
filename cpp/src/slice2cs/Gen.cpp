@@ -2819,15 +2819,25 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sb;
     if(!valueIsValue)
     {
-	_out << nl << "if(vlhs__[i] == null && vrhs__[i] != null)";
+	_out << nl << "if(vlhs__[i] == null)";
+	_out << sb;
+	_out << nl << "if(vrhs__[i] != null)";
+	_out << sb;
+	_out << nl << "return false;";
+	_out << eb;
+	_out << eb;
+	_out << nl << "else if(!vlhs__[i].Equals(vrhs__[i]))";
 	_out << sb;
 	_out << nl << "return false;";
 	_out << eb;
     }
-    _out << nl << "if(!vlhs__[i].Equals(vrhs__[i]))";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
+    else
+    {
+	_out << nl << "if(!vlhs__[i].Equals(vrhs__[i]))";
+	_out << sb;
+	_out << nl << "return false;";
+	_out << eb;
+    }
     _out << eb;
     _out << nl << "return true;";
     _out << eb;
