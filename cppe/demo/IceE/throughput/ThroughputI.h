@@ -19,7 +19,7 @@ public:
 
     ThroughputI(int);
 
-    virtual void sendByteSeq(const Demo::ByteSeq&, const Ice::Current&);
+    virtual void sendByteSeq(const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
     virtual Demo::ByteSeq recvByteSeq(const Ice::Current&);
     virtual Demo::ByteSeq echoByteSeq(const Demo::ByteSeq&, const Ice::Current&);
     virtual void sendStringSeq(const Demo::StringSeq&, const Ice::Current&);

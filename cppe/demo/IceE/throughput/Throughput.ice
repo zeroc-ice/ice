@@ -38,7 +38,7 @@ const int FixedSeqSize = 50000;
 
 interface Throughput
 {
-    void sendByteSeq(ByteSeq seq);
+    void sendByteSeq(["cpp:array"] ByteSeq seq);
     ByteSeq recvByteSeq();
     ByteSeq echoByteSeq(ByteSeq seq);
 
