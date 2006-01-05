@@ -109,6 +109,8 @@ private:
 
     private:
 
+	void invokeObjectMethod(const TypePtr&, const std::string&, const std::string&, const std::string&);
+
         bool _stream;
     };
 
