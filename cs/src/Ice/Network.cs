@@ -636,7 +636,11 @@ namespace IceInternal
 	repeatGetHostByName:
 	    try
 	    {
+#if DOTNET_2X
+		IPHostEntry e = Dns.GetHostEntry(host);
+#else
 		IPHostEntry e = Dns.GetHostByName(host);
+#endif
 		Debug.Assert(e.AddressList.Length != 0);
 		return new IPEndPoint(e.AddressList[0], port);
 	    }
@@ -646,13 +650,13 @@ namespace IceInternal
 		{
 		    goto repeatGetHostByName;
 		}
-		Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
+		Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
 		e.host = host;
 		throw e;
 	    }
 	    catch(System.Exception ex)
 	    {
-		Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
+		Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
 		e.host = host;
 		throw e;
 	    }
@@ -700,7 +704,11 @@ namespace IceInternal
 	    string numericHost;
 	    try
 	    {
+#if DOTNET_2X
+	        numericHost = Dns.GetHostEntry(hostname).AddressList[0].ToString();
+#else
 	        numericHost = Dns.GetHostByName(hostname).AddressList[0].ToString();
+#endif
 	    }
 	    catch(Win32Exception ex)
 	    {
@@ -708,13 +716,13 @@ namespace IceInternal
 	        {
 	    	    goto repeatGetHostByName;
 	        }
-	        Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
+	        Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
 	        e.host = hostname;
 	        throw e;
 	    }
 		catch(System.Exception ex)
 	    {
-	        Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
+	        Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
 	        e.host = hostname;
 	        throw e;
 	    }
@@ -730,7 +738,11 @@ namespace IceInternal
 	repeatGetHostByName:
 	    try
 	    {
+#if DOTNET_2X
+	        IPHostEntry e = Dns.GetHostEntry(Dns.GetHostName());
+#else
 	        IPHostEntry e = Dns.GetHostByName(Dns.GetHostName());
+#endif
 		hosts = new string[e.AddressList.Length + 1];
 		for(int i = 0; i < e.AddressList.Length; ++i)
 		{
@@ -744,13 +756,13 @@ namespace IceInternal
 	        {
 	    	goto repeatGetHostByName;
 	        }
-	        Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
+	        Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
 	        e.host = "0.0.0.0";
 	        throw e;
 	    }
 	    catch(System.Exception ex)
 	    {
-	        Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
+	        Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
 	        e.host = "0.0.0.0";
 	        throw e;
 	    }
