@@ -1065,7 +1065,7 @@ def main():
 	if collectSources:
 	    toCollect = list(sourceTarBalls)
 	    toCollect.append(('icevb', 'IceVB-' + version, 'vb'))
-	    for cvs, tarball, demoDir in sourceTarBalls:
+	    for cvs, tarball, demoDir in toCollect:
                 collectSourceDistributions(cvsTag, sources, cvs, tarball)
 
 	print '''
