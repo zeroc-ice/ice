@@ -1,23 +1,52 @@
 Build instructions
 ------------------
 
-The code has been built and tested with Visual Basic Version 7.1.3088
-and .NET Framework 1.1 Version 1.1.4322.
+The code has been built and tested using Visual Basic .NET 2003
+(version 7.1.3088) with .NET Framework 1.1 (Version 1.1.4322), and
+Visual Basic 2005 with .NET Framework 2.0.
 
 Unpack the archive. The sources will be contained in the 
 IceVB-@ver@ subdirectory.
 
 You can either build the slice2vb compiler from the Ice for C++ source
-distribution, or you can download the Ice binary package for Windows,
-which contains a compiled version of slice2vb. Make sure that the
-directory containing slice2vb is in your PATH. Note that icecpp.exe
-must be in your path as well, as must be the Ice for C++ run-time
-libraries iceutil and slice.
+distribution, or you can download the Ice binary installer for
+Windows, which contains a compiled version of slice2vb. Make sure that
+the directory containing slice2vb is in your PATH. Note that the
+Slice preprocessor (icecpp.exe) must also be in your path, as must be
+the Ice for C++ run-time libraries iceutil and slice.
 
-Open All.sln in Visual Basic# and build the "All" solution (both
-debug and release builds are supported). Note that Ice for Visual
-Basic is just a language mapping on top of Ice for C# -- the actual
-run-time support is provided by icecs.dll. The build environment
-expects icecs.dll to be installed in $(solutiondir)/icecs/bin.
-Alternatively, you can install icecs.dll in the GAC. (See Ice for C#
-for details of how to do this.)
+Ice for Visual Basic is a language mapping on top of Ice for C# -- the
+actual run-time support is provided by the Ice for C# assembly
+(icecs.dll). The Ice for Visual Basic build environment expects
+icecs.dll to be installed in $(solutiondir)\..\icecs\bin.
+Alternatively, you can install icecs.dll in the Global Assembly Cache
+(GAC). If you have installed the Ice binary distribution for Windows,
+the icecs.dll assembly has already been installed in the GAC. If you
+prefer to install the assembly in the GAC yourself, refer to the
+INSTALL file included with the Ice for C# source distribution for
+instructions.
+
+Building with Visual Basic .NET 2003
+------------------------------------
+
+Open All.sln in Visual Basic and build the "All" solution (both
+debug and release builds are supported).
+
+Building with Visual Basic 2005
+-------------------------------
+
+Open All.sln in Visual Basic and convert the solution to the new
+format. Note that the "compileSlice" project cannot be converted
+unless you are using a version of Visual Studio that includes C++
+support. This project is used to compile the Slice files in the
+distribution, but an alternate approach is described below.
+
+Build the "generate" project first, which creates the executable
+$(solutiondir)\bin\generatevb.exe. Open a command window, change to
+$(solutiondir), and execute the following command:
+
+bin\generatevb . build
+
+This program runs the slice2vb code generator for every Slice file in
+the distribution. Upon successful completion, you are now ready to
+compile the rest of the distribution by building the "All" solution.
