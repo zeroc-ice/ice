@@ -30,7 +30,7 @@ Freeze::handleDbException(const DbException& dx,
 #if (DB_VERSION_MAJOR == 4) && (DB_VERSION_MINOR == 2)
 	(dx.get_errno() == ENOMEM);
 #else
-        (dx.get_errno() == DB_BUFFER_SMALL);
+        (dx.get_errno() == DB_BUFFER_SMALL || dx.get_errno() == ENOMEM);
 #endif	
 	
     if(bufferSmallException && (dbKey.get_size() > dbKey.get_ulen()))
@@ -60,7 +60,7 @@ Freeze::handleDbException(const DbException& dx,
 #if (DB_VERSION_MAJOR == 4) && (DB_VERSION_MINOR == 2)
 	(dx.get_errno() == ENOMEM);
 #else
-        (dx.get_errno() == DB_BUFFER_SMALL);
+        (dx.get_errno() == DB_BUFFER_SMALL || dx.get_errno() == ENOMEM);
 #endif	
 
     bool resized = false;	
