@@ -307,12 +307,12 @@ Slice::ChecksumVisitor::updateMap(const string& scoped, const string& data)
 }
 
 Slice::ChecksumMap
-Slice::createChecksums(const UnitPtr& unit)
+Slice::createChecksums(const UnitPtr& u)
 {
     ChecksumMap result;
 
     ChecksumVisitor visitor(result);
-    unit->visit(&visitor, false);
+    u->visit(&visitor, false);
 
     return result;
 }

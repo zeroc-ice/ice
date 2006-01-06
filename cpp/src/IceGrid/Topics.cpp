@@ -196,7 +196,6 @@ NodeObserverTopic::subscribe(const NodeObserverPrx& observer, int serial)
 	if(serial == -1)
 	{
 	    NodeDynamicInfoSeq nodes;
-	    int serial;
 	    {
 		Lock sync(*this);
 		nodes.reserve(_nodes.size());
@@ -328,7 +327,6 @@ RegistryObserverTopic::subscribe(const RegistryObserverPrx& observer, int serial
 	if(serial == -1)
 	{
 	    ApplicationDescriptorSeq applications;
-	    int serial;
 	    {
 		Lock sync(*this);
 		assert(_serial != -1);

@@ -19,7 +19,6 @@ FreezeScript::typeToString(const TypePtr& type)
 {
     BuiltinPtr b = BuiltinPtr::dynamicCast(type);
     ContainedPtr c = ContainedPtr::dynamicCast(type);
-    ProxyPtr p = ProxyPtr::dynamicCast(type);
     if(b)
     {
         return b->kindAsString();
@@ -53,20 +52,19 @@ FreezeScript::ignoreType(const string& type)
 }
 
 void
-FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& unit)
+FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& u)
 {
-    string scoped;
     Slice::TypeList l;
     Slice::ContainedList c;
 
     //
     // Create the Ice module if necessary.
     //
-    c = unit->lookupContained("Ice", false);
+    c = u->lookupContained("Ice", false);
     Slice::ModulePtr ice;
     if(c.empty())
     {
-        ice = unit->createModule("Ice");
+        ice = u->createModule("Ice");
     }
     else
     {
@@ -80,13 +78,13 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& unit)
     //
     // Create the Slice definition for Ice::Identity if it doesn't exist.
     //
-    scoped = "::Ice::Identity";
-    l = unit->lookupTypeNoBuiltin(scoped, false);
+    string scoped = "::Ice::Identity";
+    l = u->lookupTypeNoBuiltin(scoped, false);
     Slice::StructPtr identity;
     if(l.empty())
     {
         identity = ice->createStruct("Identity", false);
-        Slice::TypePtr str = unit->builtin(Slice::Builtin::KindString);
+        Slice::TypePtr str = u->builtin(Slice::Builtin::KindString);
         identity->createDataMember("name", str);
         identity->createDataMember("category", str);
     }
@@ -103,11 +101,11 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& unit)
     //
     // Create the Freeze module if necessary.
     //
-    c = unit->lookupContained("Freeze", false);
+    c = u->lookupContained("Freeze", false);
     Slice::ModulePtr freeze;
     if(c.empty())
     {
-        freeze = unit->createModule("Freeze");
+        freeze = u->createModule("Freeze");
     }
     else
     {
@@ -123,12 +121,12 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& unit)
     // Create the Slice definition for Freeze::Statistics if it doesn't exist.
     //
     scoped = "::Freeze::Statistics";
-    l = unit->lookupTypeNoBuiltin(scoped, false);
+    l = u->lookupTypeNoBuiltin(scoped, false);
     Slice::StructPtr stats;
     if(l.empty())
     {
         stats = freeze->createStruct("Statistics", false);
-        Slice::TypePtr tl = unit->builtin(Slice::Builtin::KindLong);
+        Slice::TypePtr tl = u->builtin(Slice::Builtin::KindLong);
         stats->createDataMember("creationTime", tl);
         stats->createDataMember("lastSaveTime", tl);
         stats->createDataMember("avgSaveTime", tl);
@@ -147,11 +145,11 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& unit)
     // Create the Slice definition for Freeze::ObjectRecord if it doesn't exist.
     //
     scoped = "::Freeze::ObjectRecord";
-    l = unit->lookupTypeNoBuiltin(scoped, false);
+    l = u->lookupTypeNoBuiltin(scoped, false);
     if(l.empty())
     {
         Slice::StructPtr rec = freeze->createStruct("ObjectRecord", false);
-        Slice::TypePtr obj = unit->builtin(Slice::Builtin::KindObject);
+        Slice::TypePtr obj = u->builtin(Slice::Builtin::KindObject);
         rec->createDataMember("servant", obj);
         rec->createDataMember("stats", stats);
     }

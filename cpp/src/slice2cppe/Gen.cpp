@@ -1565,7 +1565,6 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 #endif
     for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
     {
-	string scoped = (*i)->scoped();
 	C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
 	C << sb;
 	C << nl << "throw;";
@@ -1693,7 +1692,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
-    DataMemberList::const_iterator q;
 
     if(!p->isLocal())
     {
@@ -1734,6 +1732,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     vector<string> params;
     vector<string> allTypes;
     vector<string> allParamDecls;
+    DataMemberList::const_iterator q;
     vector<string>::const_iterator pi;
 
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -3000,10 +2999,10 @@ Slice::Gen::MetaDataVisitor::validate(const ContainedPtr& cont)
 }
 
 void
-Slice::Gen::validateMetaData(const UnitPtr& unit)
+Slice::Gen::validateMetaData(const UnitPtr& u)
 {
     MetaDataVisitor visitor;
-    unit->visit(&visitor, false);
+    u->visit(&visitor, false);
 }
 
 void

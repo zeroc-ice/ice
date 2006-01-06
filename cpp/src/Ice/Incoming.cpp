@@ -88,16 +88,18 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     //
     // For compatibility with the old FacetPath.
     //
-    vector<string> facetPath;
-    _is.read(facetPath);
     string facet;
-    if(!facetPath.empty())
     {
-	if(facetPath.size() > 1)
+	vector<string> facetPath;
+	_is.read(facetPath);
+	if(!facetPath.empty())
 	{
-	    throw MarshalException(__FILE__, __LINE__);
+	    if(facetPath.size() > 1)
+	    {
+		throw MarshalException(__FILE__, __LINE__);
+	    }
+	    facet.swap(facetPath[0]);
 	}
-	facet.swap(facetPath[0]);
     }
     _current.facet.swap(facet);
 

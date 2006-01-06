@@ -220,15 +220,17 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
     _out << nl << "{ _";
     _out.inc();
 
-    StringList::const_iterator q = ids.begin();
-    while(q != ids.end())
     {
-        _out << nl << '"' << *q << '"';
-	if(++q != ids.end())
+	StringList::const_iterator q = ids.begin();
+	while(q != ids.end())
 	{
-	    _out << ',';
+	    _out << nl << '"' << *q << '"';
+	    if(++q != ids.end())
+	    {
+		_out << ',';
+	    }
+	    _out << " _";
 	}
-	_out << " _";
     }
     _out.dec();
     _out << nl << '}';
@@ -1007,15 +1009,15 @@ Slice::Gen::generateChecksums(const UnitPtr& p)
 	     << " = new _System.Collections.Hashtable()";
         _out << sp << nl << "Shared Sub New()";
         _out.inc();
-        for(ChecksumMap::const_iterator p = map.begin(); p != map.end(); ++p)
+        for(ChecksumMap::const_iterator q = map.begin(); q != map.end(); ++q)
         {
-            _out << nl << "map.Add(\"" << p->first << "\", \"";
+            _out << nl << "map.Add(\"" << q->first << "\", \"";
             ostringstream str;
             str.flags(ios_base::hex);
             str.fill('0');
-            for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+            for(vector<unsigned char>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
             {
-                str << (int)(*q);
+                str << (int)(*r);
             }
             _out << str.str() << "\")";
         }
@@ -1339,7 +1341,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	writeDispatch(p);
 
 	DataMemberList members = p->dataMembers();
-	DataMemberList::const_iterator d;
 
 	_out.zeroIndent();
 	_out << sp << nl << "#Region \"Marshaling support\"";
@@ -2396,7 +2397,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    //
 	    // Emit placeholder functions to catch errors.
 	    //
-            string scoped = p->scoped();
 	    _out << sp << nl << "Public Overloads Overrides Sub write__(ByVal outS__ As Ice.OutputStream)";
 	    _out.inc();
 	    _out << nl << "Dim ex As Ice.MarshalException = New Ice.MarshalException";
@@ -3497,7 +3497,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     {
 	OperationPtr op = *r;
 	bool amd = !p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd"));
-	string name = amd ? (op->name() + "_async") : fixId(op->name(), DotNet::ICloneable, true);
+	string opname = amd ? (op->name() + "_async") : fixId(op->name(), DotNet::ICloneable, true);
 
 	TypePtr ret;
 	vector<string> params;
@@ -3516,7 +3516,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 
 	_out << sp << nl;
 	emitAttributes(op);
-	_out << vbOp << ' ' << name << spar << params;
+	_out << vbOp << ' ' << opname << spar << params;
 	if(!noCurrent && !p->isLocal())
 	{
 	    _out << "ByVal current__ As Ice.Current";
@@ -5407,7 +5407,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
 	    }
 	}
 	_out.inc();
-	for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+	for(i = params.begin(); i != params.end(); ++i)
 	{
 	    if((*i)->isOutParam())
 	    {

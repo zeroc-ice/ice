@@ -35,14 +35,14 @@ public:
     {
     }
 
-    virtual bool 
+    bool 
     has(const Key& key)
     {
 	Lock sync(*this);
 	return getImpl(key);
     }
 
-    virtual ValuePtr
+    ValuePtr
     remove(const Key& key)
     {
 	Lock sync(*this);
@@ -85,7 +85,7 @@ protected:
 	{
 	    if(create)
 	    {
-		return addImpl(key);
+		return createAndAddImpl(key);
 	    }
 	    else
 	    {
@@ -95,7 +95,7 @@ protected:
     }
 
     virtual ValuePtr
-    addImpl(const Key& key)
+    createAndAddImpl(const Key& key)
     {
 	return addImpl(key, createEntry(key));
     }

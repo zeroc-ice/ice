@@ -2923,10 +2923,10 @@ Slice::JavaGenerator::createOutput()
 }
 
 void
-Slice::JavaGenerator::validateMetaData(const UnitPtr& unit)
+Slice::JavaGenerator::validateMetaData(const UnitPtr& u)
 {
     MetaDataVisitor visitor;
-    unit->visit(&visitor, true);
+    u->visit(&visitor, true);
 }
 
 bool

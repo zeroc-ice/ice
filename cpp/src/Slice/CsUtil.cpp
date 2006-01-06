@@ -976,10 +976,10 @@ Slice::CsGenerator::toArrayAlloc(const string& decl, const string& sz)
 }
 
 void
-Slice::CsGenerator::validateMetaData(const UnitPtr& unit)
+Slice::CsGenerator::validateMetaData(const UnitPtr& u)
 {
     MetaDataVisitor visitor;
-    unit->visit(&visitor, true);
+    u->visit(&visitor, true);
 }
 
 Slice::CsGenerator::MetaDataVisitor::MetaDataVisitor()

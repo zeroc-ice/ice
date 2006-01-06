@@ -482,7 +482,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    //
 	    // The operation is not defined in this class.
 	    //
-	    ClassList bases = p->bases();
 	    if(!bases.empty())
 	    {
 	        //
@@ -1112,7 +1111,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 	OperationPtr op = *r;
         ContainerPtr container = op->container();
 	ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-	string name = op->name();
+	string opname = op->name();
 
 	TypePtr ret;
 	vector<string> params;
@@ -1134,7 +1133,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 	ExceptionList throws = op->throws();
 	throws.sort();
 	throws.unique();
-	out << sp << nl << retS << ' ' << (amd ? name + "_async" : fixKwd(name)) << spar << params;
+	out << sp << nl << retS << ' ' << (amd ? opname + "_async" : fixKwd(opname)) << spar << params;
 	if(!noCurrent && !p->isLocal())
 	{
 	    out << "Ice.Current __current";
@@ -2080,7 +2079,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             //
             // Emit placeholder functions to catch errors.
             //
-            string scoped = p->scoped();
             out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __outS)";
             out << sb;
             out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";

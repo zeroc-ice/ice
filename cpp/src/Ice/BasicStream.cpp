@@ -1388,9 +1388,9 @@ IceInternal::BasicStream::read(vector<string>& v)
     {
 	startSeq(sz, 1);
 	v.resize(sz);
-	for(int i = 0; i < sz; ++i)
+	for(int j = 0; j < sz; ++j)
 	{
-	    read(v[i]);
+	    read(v[j]);
 	    checkSeq();
 	    endElement();
 	}

@@ -1025,10 +1025,10 @@ Slice::VbGenerator::toArrayAlloc(const string& decl, const string& sz)
 }
 
 void
-Slice::VbGenerator::validateMetaData(const UnitPtr& unit)
+Slice::VbGenerator::validateMetaData(const UnitPtr& u)
 {
     MetaDataVisitor visitor;
-    unit->visit(&visitor, false);
+    u->visit(&visitor, false);
 }
 
 Slice::VbGenerator::MetaDataVisitor::MetaDataVisitor()

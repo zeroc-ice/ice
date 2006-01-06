@@ -304,6 +304,9 @@ struct CallbackData
     Handler* handler;
 };
 
+extern "C"
+{
+
 static void
 startElementHandler(void* data, const XML_Char* name, const XML_Char** attr)
 {
@@ -338,6 +341,8 @@ characterDataHandler(void* data, const XML_Char* s, int len)
     int line = XML_GetCurrentLineNumber(cb->parser);
     int column = XML_GetCurrentColumnNumber(cb->parser);
     cb->handler->characters(str, line, column);
+}
+
 }
 
 //

@@ -967,11 +967,11 @@ Ice::ConnectionI::flushBatchRequests()
 	    // No compression, just fill in the message size.
 	    //
 	    Int sz = static_cast<Int>(_batchStream.b.size());
-	    const Byte* p = reinterpret_cast<const Byte*>(&sz);
+	    const Byte* q = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIG_ENDIAN
-	    reverse_copy(p, p + sizeof(Int), _batchStream.b.begin() + 10);
+	    reverse_copy(q, q + sizeof(Int), _batchStream.b.begin() + 10);
 #else
-	    copy(p, p + sizeof(Int), _batchStream.b.begin() + 10);
+	    copy(q, q + sizeof(Int), _batchStream.b.begin() + 10);
 #endif
 	    
 	    //

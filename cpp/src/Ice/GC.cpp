@@ -255,7 +255,7 @@ IceInternal::GC::collectGarbage()
     counts.clear();
 
     {
-	Monitor<Mutex>::Lock sync(*this);
+	Monitor<Mutex>::Lock sync2(*this);
 
 	_collecting = false;
     }

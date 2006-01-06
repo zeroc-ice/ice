@@ -83,7 +83,7 @@ public:
 
     ServerEntryPtr add(const ServerInfo&);
     ServerEntryPtr get(const std::string&);
-    virtual bool has(const std::string&);
+    bool has(const std::string&);
     ServerEntryPtr remove(const std::string&, bool = true);
 
     void clear(const std::string&);

@@ -190,13 +190,15 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     _out << sp << nl << "public static new string[] ids__ = ";
     _out << sb;
 
-    StringList::const_iterator q = ids.begin();
-    while(q != ids.end())
     {
-        _out << nl << '"' << *q << '"';
-	if(++q != ids.end())
+	StringList::const_iterator q = ids.begin();
+	while(q != ids.end())
 	{
-	    _out << ',';
+	    _out << nl << '"' << *q << '"';
+	    if(++q != ids.end())
+	    {
+		_out << ',';
+	    }
 	}
     }
     _out << eb << ";";
@@ -1001,9 +1003,9 @@ Slice::Gen::generateImplTie(const UnitPtr& p)
 }
 
 void
-Slice::Gen::generateChecksums(const UnitPtr& p)
+Slice::Gen::generateChecksums(const UnitPtr& u)
 {
-    ChecksumMap map = createChecksums(p);
+    ChecksumMap map = createChecksums(u);
     if(!map.empty())
     {
         string className = "X" + IceUtil::generateUUID();
@@ -2256,7 +2258,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    //
 	    // Emit placeholder functions to catch errors.
 	    //
-            string scoped = p->scoped();
 	    _out << sp << nl << "public override void write__(Ice.OutputStream outS__)";
 	    _out << sb;
 	    _out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
@@ -3183,8 +3184,8 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     {
 	OperationPtr op = *r;
 	bool amd = !p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd"));
-	string name = amd ? (op->name() + "_async") : fixId(op->name(), DotNet::ICloneable, true);
-
+	string opname = amd ? (op->name() + "_async") : fixId(op->name(), DotNet::ICloneable, true);
+	
 	TypePtr ret;
 	vector<string> params;
 
@@ -3203,7 +3204,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 
 	_out << sp << nl;
 	emitAttributes(op);
-	_out << retS << ' ' << name << spar << params;
+	_out << retS << ' ' << opname << spar << params;
 	if(!noCurrent && !p->isLocal())
 	{ 
 	    _out << "Ice.Current current__";
@@ -4157,35 +4158,35 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
 	bool amd = p->hasMetaData("amd") || (*op)->hasMetaData("amd");
 
-	string name = (*op)->name();
+	string opname = (*op)->name();
 	vector<string> params;
 	vector<string> args;
 	TypePtr ret;
 
 	if(amd)
 	{
-	    name = name + "_async";
+	    opname = opname + "_async";
 	    params = getParamsAsync(*op, true);
 	    args = getArgsAsync(*op);
 	}
 	else
 	{
-	    name = fixId(name, DotNet::ICloneable, true);
+	    opname = fixId(opname, DotNet::ICloneable, true);
 	    params = getParams(*op);
 	    ret = (*op)->returnType();
 	    args = getArgs(*op);
 	}
 
-	_out << sp << nl << "public " << typeToString(ret) << " " << name << spar << params << epar;
+	_out << sp << nl << "public " << typeToString(ret) << " " << opname << spar << params << epar;
 	_out << sb << nl;
 	if(ret)
 	{
 	    _out << "return ";
 	}
-	_out << name << spar << args << "Ice.ObjectImpl.defaultCurrent" << epar << ';';
+	_out << opname << spar << args << "Ice.ObjectImpl.defaultCurrent" << epar << ';';
 	_out << eb;
 
-	_out << sp << nl << "public abstract " << typeToString(ret) << " " << name << spar << params;
+	_out << sp << nl << "public abstract " << typeToString(ret) << " " << opname << spar << params;
 	if(!p->isLocal())
 	{
 	    _out << "Ice.Current current__";
@@ -4777,7 +4778,6 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
     TypePtr ret = op->returnType();
     string retS = typeToString(ret);
     ParamDeclList params = op->parameters();
-    ParamDeclList::const_iterator i;
 
     if(comment)
     {
@@ -4788,6 +4788,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
 	_out << sp << nl;
     }
 
+	ParamDeclList::const_iterator i;
     if(!cl->isLocal() && (cl->hasMetaData("amd") || op->hasMetaData("amd")))
     {
         vector<string> pDecl = getParamsAsync(op, true);

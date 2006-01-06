@@ -946,8 +946,7 @@ Parser::endpointsAdapter(const list<string>& args)
 
     try
     {
-	list<string>::const_iterator p = args.begin();
-	string adapterId = *p++;
+	string adapterId = args.front();
 	StringObjectProxyDict proxies = _admin->getAdapterEndpoints(adapterId);
 	if(proxies.size() == 1 && proxies.begin()->first == adapterId)
 	{

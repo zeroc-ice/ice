@@ -110,7 +110,6 @@ ifeq ($(CXX),g++)
     mkshlib		    = $(CXX) -shared $(LDFLAGS) -o $(1) -h $(2) $(3) $(4)
 
     mklib		    = ar cr $(1) $(2)
-
 endif
 
 BASELIBS		    = -lIceUtil -lpthread

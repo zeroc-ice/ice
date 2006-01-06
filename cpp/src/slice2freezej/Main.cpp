@@ -1145,8 +1145,8 @@ main(int argc, char* argv[])
     }
     if(opts.isSet("dict"))
     {
-	vector<string> args = opts.argVec("dict");
-	for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+	vector<string> optargs = opts.argVec("dict");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
 	{
 	    string s = *i;
 	    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
@@ -1194,8 +1194,8 @@ main(int argc, char* argv[])
     }
     if(opts.isSet("index"))
     {
-	vector<string> args = opts.argVec("index");
-	for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+	vector<string> optargs = opts.argVec("index");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
 	{
 	    string s = *i;
 	    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
@@ -1263,8 +1263,8 @@ main(int argc, char* argv[])
     }
     if(opts.isSet("dict-index"))
     {
-	vector<string> args = opts.argVec("dict-index");
-	for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+	vector<string> optargs = opts.argVec("dict-index");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
 	{
 	    string s = *i;
 	    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());

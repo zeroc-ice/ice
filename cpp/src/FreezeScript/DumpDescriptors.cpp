@@ -1888,8 +1888,8 @@ FreezeScript::DumpVisitor::dump(const DataPtr& data)
         // object's actual type. If no descriptor is found, attempt to find a
         // descriptor for the object's base types (including Ice::Object).
         //
-        ObjectDataPtr data = obj->getValue();
-        Slice::TypePtr cls = data->getType(); // Actual type
+        ObjectDataPtr objData = obj->getValue();
+        Slice::TypePtr cls = objData->getType(); // Actual type
         bool checkContents = true;
         while(cls)
         {
@@ -1899,7 +1899,7 @@ FreezeScript::DumpVisitor::dump(const DataPtr& data)
             if(p != _info->dumpMap.end())
             {
                 SymbolTablePtr sym = new SymbolTableI(_factory, _unit, _errorReporter, _info, _info->symbolTable);
-                sym->add("value", data);
+                sym->add("value", objData);
                 p->second->execute(sym, _info);
                 base = p->second->base();
                 if(checkContents)

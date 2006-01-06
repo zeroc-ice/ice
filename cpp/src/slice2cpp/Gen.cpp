@@ -326,15 +326,15 @@ Slice::Gen::generate(const UnitPtr& p)
         {
             C << sp << nl << "static const char* __sliceChecksums[] =";
             C << sb;
-            for(ChecksumMap::const_iterator p = map.begin(); p != map.end(); ++p)
+            for(ChecksumMap::const_iterator q = map.begin(); q != map.end(); ++q)
             {
-                C << nl << "\"" << p->first << "\", \"";
+                C << nl << "\"" << q->first << "\", \"";
                 ostringstream str;
                 str.flags(ios_base::hex);
                 str.fill('0');
-                for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                for(vector<unsigned char>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
                 {
-                    str << (int)(*q);
+                    str << (int)(*r);
                 }
                 C << str.str() << "\",";
             }
@@ -1078,7 +1078,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	C << nl << "while(sz--)";
 	C << sb;
 	C << nl << "::std::pair<const " << ks << ", " << vs << "> pair;";
-	string pf = string("const_cast<") + ks + "&>(pair.first)";
+	const string pf = string("const_cast<") + ks + "&>(pair.first)";
 	writeMarshalUnmarshalCode(C, keyType, pf, false);
 	C << nl << scoped << "::iterator __i = v.insert(v.end(), pair);";
 	writeMarshalUnmarshalCode(C, valueType, "__i->second", false);
@@ -1106,7 +1106,6 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	    C << nl << "while(sz--)";
 	    C << sb;
 	    C << nl << "::std::pair<const " << ks << ", " << vs << "> pair;";
-	    string pf = string("const_cast<") + ks + "&>(pair.first)";
 	    writeStreamMarshalUnmarshalCode(C, keyType, pf, false);
 	    C << nl << scoped << "::iterator __i = v.insert(v.end(), pair);";
 	    writeStreamMarshalUnmarshalCode(C, valueType, "__i->second", false);
@@ -1982,7 +1981,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 #endif
     for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
     {
-	string scoped = (*i)->scoped();
 	C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
 	C << sb;
 	C << nl << "throw;";
@@ -2280,7 +2278,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
-    DataMemberList::const_iterator q;
 
     H << sp << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
@@ -2317,6 +2314,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     vector<string> allTypes;
     vector<string> allParamDecls;
     vector<string>::const_iterator pi;
+    DataMemberList::const_iterator q;
 
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
@@ -2544,8 +2542,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         assert(scopedIter != ids.end());
         StringList::difference_type scopedPos = ice_distance(firstIter, scopedIter);
 
-	StringList::const_iterator q;
-
 	H << sp;
 	H << nl << "virtual bool ice_isA"
 	  << "(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) const;";
@@ -2563,11 +2559,12 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << sp;
 	C << nl << "static const ::std::string " << flatName << '[' << ids.size() << "] =";
 	C << sb;
-	q = ids.begin();
-	while(q != ids.end())
+
+	StringList::const_iterator r = ids.begin();
+	while(r != ids.end())
 	{
-	    C << nl << '"' << *q << '"';
-	    if(++q != ids.end())
+	    C << nl << '"' << *r << '"';
+	    if(++r != ids.end())
 	    {
 		C << ',';
 	    }
@@ -4461,10 +4458,10 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 }
 
 void
-Slice::Gen::validateMetaData(const UnitPtr& unit)
+Slice::Gen::validateMetaData(const UnitPtr& u)
 {
     MetaDataVisitor visitor;
-    unit->visit(&visitor, false);
+    u->visit(&visitor, false);
 }
 
 bool
