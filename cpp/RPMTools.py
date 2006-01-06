@@ -709,6 +709,7 @@ sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/Ice-%{vers
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePy-%{version}/config/Make.rules
 %setup -q -n IceCS-%{version} -T -D -b 3 
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
+sed -i -e 's/^cvs_build.*$/cvs_build = no/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
 %setup -q -n Ice-%{version}-demos -T -D -b 4 
 cd $RPM_BUILD_DIR
 tar xfz $RPM_SOURCE_DIR/IcePHP-%{version}.tar.gz
@@ -754,6 +755,17 @@ cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_ROOT/ice.ini
 cp $RPM_BUILD_DIR/php-5.0.4/modules/ice.so $RPM_BUILD_ROOT/lib/icephp.so
 cp -pR $RPM_BUILD_DIR/Ice-%{version}-demos/config $RPM_BUILD_ROOT
 cp $RPM_SOURCE_DIR/iceproject.xml $RPM_BUILD_ROOT/config
+if test ! -d $RPM_BUILD_ROOT/usr/lib/pkgconfig ; 
+then 
+    mkdir $RPM_BUILD_ROOT/lib/pkgconfig
+fi
+
+for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs; 
+do 
+    cp $RPM_BUILD_DIR/IceCS-%{version}/bin/$f.dll $RPM_BUILD_ROOT/bin
+    cp $RPM_BUILD_DIR/IceCS-%{version}/lib/pkgconfig/$f.pc $RPM_BUILD_ROOT/lib/pkgconfig 
+done
+
 """)
 
 def writeTransformCommands(ofile, version):
