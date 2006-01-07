@@ -26,14 +26,15 @@ namespace Generate
 		string progName = AppDomain.CurrentDomain.FriendlyName;
 		if(args.Length < 3)
 		{
-		    Console.Error.WriteLine("usage: {0} solution_dir project_dir project_name [args]", progName);
+		    Console.Error.WriteLine("usage: {0} solution_dir project_dir slice_name [args]",
+					    progName);
 		    Environment.Exit(1);
 		}
 
 		const string slice2csName = "slice2cs";
 		string solDir = args[0];
 		string projDir = args[1];
-		string projName = args[2];
+		string sliceName = args[2];
 		string iceHome = Environment.GetEnvironmentVariable("ICE_HOME");
 		if(iceHome == null)
 		{
@@ -51,7 +52,7 @@ namespace Generate
 		Directory.SetCurrentDirectory(projDir);
 
 		string sliceDir = projDir;
-		ArrayList sliceFiles = getSliceFiles(projDir);
+		ArrayList sliceFiles = getSliceFiles(sliceDir);
 
 		string includes = "";
 		if(Directory.Exists(Path.Combine(solDir, "slice")))
@@ -65,7 +66,7 @@ namespace Generate
 
 		if(sliceFiles.Count == 0)
 		{
-		    sliceDir = Path.Combine(Path.Combine(solDir, "slice"), projName);
+		    sliceDir = Path.Combine(Path.Combine(solDir, "slice"), sliceName);
 		    if(Directory.Exists(sliceDir))
 		    {
 			sliceFiles = getSliceFiles(sliceDir);
@@ -73,7 +74,7 @@ namespace Generate
 		}
 		if(sliceFiles.Count == 0)
 		{
-		    sliceDir = Path.Combine(Path.Combine(iceHome, "slice"), projName);
+		    sliceDir = Path.Combine(Path.Combine(iceHome, "slice"), sliceName);
 		    if(Directory.Exists(sliceDir))
 		    {
 			sliceFiles = getSliceFiles(sliceDir);
