@@ -704,10 +704,10 @@ namespace IceInternal
 	    string numericHost;
 	    try
 	    {
-#if DOTNET_2X
-	        numericHost = Dns.GetHostEntry(hostname).AddressList[0].ToString();
-#else
+#if ICE_DOTNET_1X
 	        numericHost = Dns.GetHostByName(hostname).AddressList[0].ToString();
+#else
+	        numericHost = Dns.GetHostEntry(hostname).AddressList[0].ToString();
 #endif
 	    }
 	    catch(Win32Exception ex)
@@ -738,10 +738,10 @@ namespace IceInternal
 	repeatGetHostByName:
 	    try
 	    {
-#if DOTNET_2X
-	        IPHostEntry e = Dns.GetHostEntry(Dns.GetHostName());
-#else
+#if ICE_DOTNET_1X
 	        IPHostEntry e = Dns.GetHostByName(Dns.GetHostName());
+#else
+	        IPHostEntry e = Dns.GetHostEntry(Dns.GetHostName());
 #endif
 		hosts = new string[e.AddressList.Length + 1];
 		for(int i = 0; i < e.AddressList.Length; ++i)
