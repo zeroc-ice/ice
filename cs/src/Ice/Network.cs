@@ -636,10 +636,10 @@ namespace IceInternal
 	repeatGetHostByName:
 	    try
 	    {
-#if DOTNET_2X
-		IPHostEntry e = Dns.GetHostEntry(host);
-#else
+#if ICE_DOTNET_1X
 		IPHostEntry e = Dns.GetHostByName(host);
+#else
+		IPHostEntry e = Dns.GetHostEntry(host);
 #endif
 		Debug.Assert(e.AddressList.Length != 0);
 		return new IPEndPoint(e.AddressList[0], port);

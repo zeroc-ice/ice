@@ -24,10 +24,10 @@ namespace Ice
 	    // 
 	    try
 	    {
-#if DOTNET_2X
-		_host = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName()).AddressList[0];
-#else
+#if ICE_DOTNET_1X
 		_host = System.Net.Dns.GetHostByName(System.Net.Dns.GetHostName()).AddressList[0];
+#else
+		_host = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName()).AddressList[0];
 #endif
 		_socket = new UdpClient();
 		_socket.Connect(_host, _port);

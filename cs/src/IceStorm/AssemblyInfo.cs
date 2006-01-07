@@ -25,7 +25,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyDelaySign(false)]
 #if __MonoCS__
 [assembly: AssemblyKeyFile("../../config/IcecsKey.snk")] // mcs uses different search algorithm.
-#else
+#elif ICE_DOTNET_1X
 [assembly: AssemblyKeyFile("../../../../config/IcecsKey.snk")]
 #endif
 [assembly: AssemblyKeyName("")]

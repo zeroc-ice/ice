@@ -1655,7 +1655,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "#region ArrayList members";
 
-    _out << sp << nl << "#if !DOTNET_2X";
+    _out << sp << nl << "#if ICE_DOTNET_1X";
     _out << nl << "public virtual int Capacity";
     _out << sb;
     _out << nl << "get";
