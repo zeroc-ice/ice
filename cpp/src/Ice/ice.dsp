@@ -406,6 +406,10 @@ SOURCE=.\StreamI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StringConverter.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TcpAcceptor.cpp
 # End Source File
 # Begin Source File
@@ -923,6 +927,10 @@ SOURCE=..\..\include\ice\StreamF.h
 # Begin Source File
 
 SOURCE=.\StreamI.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\StringConverter.h
 # End Source File
 # Begin Source File
 

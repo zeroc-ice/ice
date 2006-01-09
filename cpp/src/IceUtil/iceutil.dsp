@@ -112,6 +112,10 @@ SOURCE=.\Cond.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ConvertUTF.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\CountDownLatch.cpp
 # End Source File
 # Begin Source File
@@ -197,6 +201,10 @@ SOURCE=..\..\include\iceutil\Cond.h
 # Begin Source File
 
 SOURCE=..\..\include\iceutil\Config.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\ConvertUTF.h
 # End Source File
 # Begin Source File
 

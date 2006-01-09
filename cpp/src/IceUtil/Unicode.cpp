@@ -8,151 +8,169 @@
 // **********************************************************************
 
 #include <IceUtil/Unicode.h>
-#include <algorithm>
-
-#if defined(_WIN32)
-#   define SIZEOF_WCHAR_T 2
-#elif (defined(__sun) && defined(__sparc)) || \
-      ((defined(__linux) || defined(__FreeBSD__)) && (defined(__i386) || defined(__x86_64)))
-#   define SIZEOF_WCHAR_T 4
-#endif
+#include <IceUtil/ConvertUTF.h>
 
 using namespace std;
+using namespace IceUtil;
+
+namespace
+{
+//
+// Helper class, base never defined
+// Usage: WstringHelper<sizeof(wchar_t)>::toUTF8 and fromUTF8.
+//
+template<size_t wcharSize> 
+struct WstringHelper
+{
+    static ConversionResult toUTF8(
+	const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
+	Byte*& targetStart, Byte* targetEnd, ConversionFlags flags);
+
+    static ConversionResult fromUTF8(
+	const Byte*& sourceStart, const Byte* sourceEnd, 
+	wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags);
+};
+
+template<>
+struct WstringHelper<2>
+{
+    static ConversionResult toUTF8(
+	const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
+	Byte*& targetStart, Byte* targetEnd, ConversionFlags flags)
+    {
+	return ConvertUTF16toUTF8(
+	    reinterpret_cast<const UTF16**>(&sourceStart),
+	    reinterpret_cast<const UTF16*>(sourceEnd),
+	    &targetStart, targetEnd, flags);
+    }
+    
+    static ConversionResult fromUTF8(
+	const Byte*& sourceStart, const Byte* sourceEnd, 
+	wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags)
+    {
+	return ConvertUTF8toUTF16(
+	    &sourceStart, sourceEnd,
+	    reinterpret_cast<UTF16**>(&targetStart),
+	    reinterpret_cast<UTF16*>(targetEnd), flags);
+    }
+};
+
+template<>
+struct WstringHelper<4>
+{
+    static ConversionResult toUTF8(
+	const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
+	Byte*& targetStart, Byte* targetEnd, ConversionFlags flags)
+    {
+	return ConvertUTF32toUTF8(
+	    reinterpret_cast<const UTF32**>(&sourceStart),
+	    reinterpret_cast<const UTF32*>(sourceEnd),
+	    &targetStart, targetEnd, flags);
+    }
+    
+    static ConversionResult fromUTF8(
+	const Byte*& sourceStart, const Byte* sourceEnd, 
+	wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags)
+    {
+	return ConvertUTF8toUTF32(
+	    &sourceStart, sourceEnd,
+	    reinterpret_cast<UTF32**>(&targetStart),
+	    reinterpret_cast<UTF32*>(targetEnd), flags);
+    }
+};
+}
+
+//
+// convertXXX functions
+//
+
+ConversionResult 
+IceUtil::convertUTFWstringToUTF8(
+    const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
+    Byte*& targetStart, Byte* targetEnd, ConversionFlags flags)
+{
+    return WstringHelper<sizeof(wchar_t)>::toUTF8(
+	sourceStart, sourceEnd, targetStart, targetEnd, flags);
+}
+
+ConversionResult
+IceUtil::convertUTF8ToUTFWstring(
+    const Byte*& sourceStart, const Byte* sourceEnd, 
+    wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags)
+{
+    return WstringHelper<sizeof(wchar_t)>::fromUTF8(
+	sourceStart, sourceEnd, targetStart, targetEnd, flags);
+}
+
+ConversionResult 
+IceUtil::convertUTF8ToUTFWstring(const Byte*& sourceStart, const Byte* sourceEnd, 
+				 std::wstring& target, ConversionFlags flags)
+{
+    //
+    // Could be reimplemented without this temporary wchar_t buffer
+    //
+    size_t size = static_cast<size_t>(sourceEnd - sourceStart);
+    wchar_t* outBuf = new wchar_t[size];
+    wchar_t* targetStart = outBuf; 
+    wchar_t* targetEnd = targetStart + size;
+
+    ConversionResult result =  
+	convertUTF8ToUTFWstring(sourceStart, sourceEnd, targetStart,
+				targetEnd, flags);
+
+    if(result == conversionOK)
+    {
+	std::wstring s(outBuf, static_cast<size_t>(targetStart - outBuf));
+	s.swap(target);
+    }
+    delete[] outBuf;
+    return result;
+}
+
+
+//
+// wstringToString and stringToWstring
+//
 
 string
-IceUtil::wstringToString(const wstring& str)
+IceUtil::wstringToString(const wstring& wstr)
 {
-    string result;
-    result.reserve(str.length() * 2);
+    string target;
+    
+    size_t size = wstr.size() * 3 * (sizeof(wchar_t) / 2);
 
-    for(unsigned int i = 0; i < str.length(); ++i)
+    Byte* outBuf = new Byte[size];
+    Byte* targetStart = outBuf; 
+    Byte* targetEnd = outBuf + size;
+
+    const wchar_t* sourceStart = wstr.data();
+  
+    ConversionResult result = 
+	convertUTFWstringToUTF8(
+	    sourceStart, sourceStart + wstr.size(), 
+	    targetStart, targetEnd, lenientConversion);
+	
+    if(result == conversionOK)
     {
-	wchar_t wc;
-	wc = str[i];
-
-	if(wc < 0x80)
-	{
-	    result += static_cast<char>(wc);
-	}
-	else if(wc < 0x800)
-	{
-	    result += 0xc0 | (wc>>6);
-	    result += 0x80 | (wc & 0x3f);
-	}
-	else if(wc < 0x10000)
-	{
-	    result += 0xe0 | (wc>>12);
-	    result += 0x80 | ((wc>>6) & 0x3f);
-	    result += 0x80 | (wc & 0x3f);
-	}
-#if SIZEOF_WCHAR_T >= 4
-	else if(wc < 0x10FFFF)
-	{
-	    result += 0xf0 | (wc>>18);
-	    result += 0x80 | ((wc>>12) & 0x3f);
-	    result += 0x80 | ((wc>>6) & 0x3f);
-	    result += 0x80 | (wc & 0x3f);
-	}
-#endif
-	else
-	{
-	    return result; // Error, not encodable.
-	}
+	string s(reinterpret_cast<char*>(outBuf),
+		 static_cast<size_t>(targetStart - outBuf));
+	s.swap(target);
     }
-
-    return result;
+    delete[] outBuf;
+    return target;
 }
 
 wstring
 IceUtil::stringToWstring(const string& str)
 {
     wstring result;
-    result.reserve(str.length());
-
-    unsigned int len;
-    for(unsigned int i = 0; i < str.length(); i += len)
-    {
-	unsigned char c = str[i];
-	wchar_t wc;
-	int minval;
-
-	if(c < 0x80)
-	{
-	    wc = c;
-	    len = 1;
-	    minval = 0;
-	}
-	else if(c < 0xc0) // Lead byte must not be 10xxxxxx
-	{
-	    return result; // Error, not encodable.
-	}
-	else if(c < 0xe0) // 110xxxxx
-	{
-	    wc = c & 0x1f;
-	    len = 2;
-	    minval = 0x80;
-	}
-	else if(c < 0xf0) // 1110xxxx
-	{
-	    wc = c & 0xf;
-	    len = 3;
-	    minval = 0x800;
-	}
-#if SIZEOF_WCHAR_T >= 4
-	else if(c < 0xf8) // 11110xxx
-	{
-	    wc = c & 7;
-	    len = 4;
-	    minval = 0x10000;
-	}
-	else if(c < 0xfc) // 111110xx
-	{
-	    // Length 5 and 6 is declared invalid in Unicode 3.1 and ISO 10646:2003.
-	    wc = c & 3;
-	    len = 5;
-	    minval = 0x110000;
-	}
-	else if(c < 0xfe) // 1111110x
-	{
-	    // Length 5 and 6 is declared invalid in Unicode 3.1 and ISO 10646:2003.
-	    wc = c & 1;
-	    len = 6;
-	    minval = 0x4000000;
-	}
-#endif
-	else
-	{
-	    return result; // Error, not encodable.
-	}
-
-	if(i + len - 1 < str.length())
-	{
-	    for(unsigned int j = 1; j < len; ++j)
-	    {
-		if((str[i + j] & 0xc0) != 0x80) // All other bytes must be 10xxxxxx
-		{
-		    return result; // Error, not encodable.
-		}
-		
-		wc <<= 6;
-		wc |= str[i + j] & 0x3f;
-	    }
-
-	    if(wc < minval)
-	    {
-		return result; // Error, non-shortest form.
-	    }
-	    else
-	    {
-		result += wc;
-	    }
-	}
-	else
-	{
-	    return result; // Error, not encodable.
-	}
-    }
-
+    const Byte* sourceStart = reinterpret_cast<const Byte*>(str.data());
+    
+    convertUTF8ToUTFWstring(sourceStart, sourceStart + str.size(),
+			    result, lenientConversion);
+    //
+    // TODO: check the ConversionResult and do something with it!
+    //
     return result;
 }
 
@@ -166,28 +184,24 @@ IceUtil::stringToWstring(const string& str)
 string
 IceUtil::wstringToString(const basic_string<__wchar_t>& str)
 {
-    assert(sizeof(__wchar_t) == SIZEOF_WCHAR_T);
     return wstringToString(*reinterpret_cast<const wstring*>(&str));
 }
 
 basic_string<__wchar_t>
 IceUtil::stringToNativeWstring(const string& str)
 {
-    assert(sizeof(__wchar_t) == SIZEOF_WCHAR_T);
     return reinterpret_cast<basic_string<__wchar_t>& >(stringToWstring(str));
 }
 #   else
 string
 IceUtil::wstringToString(const basic_string<unsigned short>& str)
 {
-    assert(sizeof(__wchar_t) == SIZEOF_WCHAR_T);
     return wstringToString(*reinterpret_cast<const wstring*>(&str));
 }
 
 basic_string<unsigned short>
 IceUtil::stringToTypedefWstring(const string& str)
 {
-    assert(sizeof(__wchar_t) == SIZEOF_WCHAR_T);
     return reinterpret_cast<basic_string<unsigned short>& >(stringToWstring(str));
 }
 

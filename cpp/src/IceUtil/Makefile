@@ -17,6 +17,7 @@ TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(li
 
 OBJS		= Base64.o \
 		  Cond.o \
+                  ConvertUTF.o \
 		  CountDownLatch.o \
 		  CtrlCHandler.o \
 		  Exception.o \

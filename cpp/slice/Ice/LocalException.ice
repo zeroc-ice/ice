@@ -819,6 +819,18 @@ local exception MemoryLimitException extends MarshalException
 
 /**
  *
+ * This exception is a specialization of [MarshalException] that is
+ * raised when a string conversion to or from UTF-8 fails during 
+ * marshaling or unmarshaling.
+ *
+ **/
+local exception StringConversionException extends MarshalException
+{
+};
+
+
+/**
+ *
  * This exception is a specialization of [MarshalException],
  * indicating a malformed data encapsulation.
  *

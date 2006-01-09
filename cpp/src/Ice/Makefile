@@ -99,6 +99,7 @@ OBJS		= Acceptor.o \
 		  Stats.o \
 		  StreamI.o \
 		  Stream.o \
+                  StringConvert.o \
 		  SysLoggerI.o \
 		  TcpAcceptor.o \
 		  TcpConnector.o \

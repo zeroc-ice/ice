@@ -442,6 +442,17 @@ Ice::MemoryLimitException::ice_print(ostream& out) const
 }
 
 void
+Ice::StringConversionException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: string conversion failed";
+    if(!reason.empty())
+    {
+	out << " (" << reason << ")";
+    }
+}
+
+void
 Ice::EncapsulationException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
