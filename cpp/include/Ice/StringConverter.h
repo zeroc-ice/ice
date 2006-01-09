@@ -28,6 +28,8 @@ class ICE_API UTF8Buffer
 {
 public:
     virtual Byte* getMoreBytes(size_t howMany, Byte* firstUnused) = 0;
+    
+    virtual ~UTF8Buffer() {}
 };
 
 //

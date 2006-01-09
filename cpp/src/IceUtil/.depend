@@ -1,5 +1,6 @@
 Base64.o: Base64.cpp ../../include/IceUtil/Base64.h ../../include/IceUtil/Config.h
 Cond.o: Cond.cpp ../../include/IceUtil/Cond.h ../../include/IceUtil/Config.h ../../include/IceUtil/Time.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h
+ConvertUTF.o: ConvertUTF.cpp ../IceUtil/ConvertUTF.h ../../include/IceUtil/Unicode.h ../../include/IceUtil/Config.h
 CountDownLatch.o: CountDownLatch.cpp ../../include/IceUtil/CountDownLatch.h ../../include/IceUtil/Config.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h
 CtrlCHandler.o: CtrlCHandler.cpp ../../include/IceUtil/CtrlCHandler.h ../../include/IceUtil/Config.h ../../include/IceUtil/Exception.h ../../include/IceUtil/StaticMutex.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h
 Exception.o: Exception.cpp ../../include/IceUtil/Exception.h ../../include/IceUtil/Config.h
@@ -15,6 +16,6 @@ StaticMutex.o: StaticMutex.cpp ../../include/IceUtil/StaticMutex.h ../../include
 StringUtil.o: StringUtil.cpp ../../include/IceUtil/StringUtil.h ../../include/IceUtil/Config.h
 Thread.o: Thread.cpp ../../include/IceUtil/Thread.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h ../../include/IceUtil/Mutex.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Time.h
 ThreadException.o: ThreadException.cpp ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h ../../include/IceUtil/Config.h
-Time.o: Time.cpp ../../include/IceUtil/Time.h ../../include/IceUtil/Config.h
+Time.o: Time.cpp ../../include/IceUtil/DisableWarnings.h ../../include/IceUtil/Time.h ../../include/IceUtil/Config.h
 UUID.o: UUID.cpp ../../include/IceUtil/UUID.h ../../include/IceUtil/Config.h ../../include/IceUtil/Exception.h ../../include/IceUtil/StaticMutex.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h
-Unicode.o: Unicode.cpp ../../include/IceUtil/Unicode.h ../../include/IceUtil/Config.h
+Unicode.o: Unicode.cpp ../../include/IceUtil/Unicode.h ../../include/IceUtil/Config.h ../IceUtil/ConvertUTF.h
