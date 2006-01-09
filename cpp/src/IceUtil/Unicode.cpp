@@ -132,6 +132,60 @@ IceUtil::convertUTF8ToUTFWstring(const Byte*& sourceStart, const Byte* sourceEnd
 // wstringToString and stringToWstring
 //
 
+const char* IceUtil::UTFConversionException::_name = "IceUtil::UTFConversionException";
+
+IceUtil::UTFConversionException::UTFConversionException(const char* file, int line, 
+							ConversionResult cr): 
+    Exception(file, line),
+    _conversionResult(cr)
+{}
+
+const string
+IceUtil::UTFConversionException::ice_name() const
+{
+    return _name;
+}
+
+void
+IceUtil::UTFConversionException::ice_print(ostream& os) const
+{
+    Exception::ice_print(os);
+    switch(_conversionResult)
+    {
+	case sourceExhausted:
+	    os << ": source exhausted";
+	    break;
+	case targetExhausted:
+	    os << ": target exhausted";
+	    break;
+	case sourceIllegal:
+	    os << ": illegal source";
+	    break;
+	default:
+	    assert(0);
+	    break;
+    };
+}
+
+IceUtil::Exception*
+IceUtil::UTFConversionException::ice_clone() const
+{
+    return new UTFConversionException(*this);
+}
+
+void
+IceUtil::UTFConversionException::ice_throw() const
+{
+    throw *this;
+}
+
+IceUtil::ConversionResult
+IceUtil::UTFConversionException::conversionResult() const
+{
+    return _conversionResult;
+}
+
+
 string
 IceUtil::wstringToString(const wstring& wstr)
 {
@@ -145,17 +199,20 @@ IceUtil::wstringToString(const wstring& wstr)
 
     const wchar_t* sourceStart = wstr.data();
   
-    ConversionResult result = 
+    ConversionResult cr = 
 	convertUTFWstringToUTF8(
 	    sourceStart, sourceStart + wstr.size(), 
 	    targetStart, targetEnd, lenientConversion);
 	
-    if(result == conversionOK)
+    if(cr != conversionOK)
     {
-	string s(reinterpret_cast<char*>(outBuf),
-		 static_cast<size_t>(targetStart - outBuf));
-	s.swap(target);
+	delete[] outBuf;
+	throw UTFConversionException(__FILE__, __LINE__, cr);
     }
+    
+    string s(reinterpret_cast<char*>(outBuf),
+	     static_cast<size_t>(targetStart - outBuf));
+    s.swap(target);
     delete[] outBuf;
     return target;
 }
@@ -166,11 +223,14 @@ IceUtil::stringToWstring(const string& str)
     wstring result;
     const Byte* sourceStart = reinterpret_cast<const Byte*>(str.data());
     
-    convertUTF8ToUTFWstring(sourceStart, sourceStart + str.size(),
-			    result, lenientConversion);
-    //
-    // TODO: check the ConversionResult and do something with it!
-    //
+    ConversionResult cr 
+	= convertUTF8ToUTFWstring(sourceStart, sourceStart + str.size(),
+				  result, lenientConversion);
+
+    if(cr != conversionOK)
+    {
+	throw UTFConversionException(__FILE__, __LINE__, cr);
+    }
     return result;
 }
 

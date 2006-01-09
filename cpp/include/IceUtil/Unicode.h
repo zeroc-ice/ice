@@ -11,6 +11,7 @@
 #define ICE_UTIL_UNICODE_H
 
 #include <IceUtil/Config.h>
+#include <IceUtil/Exception.h>
 
 namespace IceUtil
 {
@@ -102,6 +103,7 @@ enum ConversionResult
 	sourceIllegal		/* source sequence is illegal/malformed */
 };
 
+
 enum ConversionFlags 
 {
     strictConversion = 0,
@@ -124,6 +126,30 @@ convertUTF8ToUTFWstring(const Byte*& sourceStart, const Byte* sourceEnd,
 ICE_UTIL_API ConversionResult 
 convertUTF8ToUTFWstring(const Byte*& sourceStart, const Byte* sourceEnd, 
 			std::wstring& target, ConversionFlags flags);
+
+
+
+
+//
+// UTFConversionException is raised by wstringToString() or stringToWstring()
+// to report a conversion error 
+//
+class ICE_UTIL_API UTFConversionException : public Exception
+{
+public:
+    
+    UTFConversionException(const char*, int, ConversionResult);
+    virtual const std::string ice_name() const;
+    virtual void ice_print(std::ostream&) const;
+    virtual Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    ConversionResult conversionResult() const;
+private:
+
+    const ConversionResult _conversionResult;
+    static const char* _name;    
+};
 
 }
 
