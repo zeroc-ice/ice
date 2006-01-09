@@ -528,6 +528,31 @@ MyApplication::run(int argc, char* argv[])
     cout << "testing leaf nodes... " << flush;
 
     {
+        NNPtr nn = new NN;
+	nn->l = new NL;
+	test(getNum() == 2);
+	Ice::collectGarbage();
+	test(getNum() == 2);
+    }
+    Ice::collectGarbage();
+    test(getNum() == 0);
+
+    {
+        NLPtr p;
+	{
+	    NNPtr nn = new NN;
+	    p = new NL;
+	    nn->l = p;
+	    test(getNum() == 2);
+	    Ice::collectGarbage();
+	    test(getNum() == 2);
+	}
+	Ice::collectGarbage();
+	test(getNum() == 1);
+    }
+    test(getNum() == 0);
+
+    {
 	NNPtr nn = new NN;
 	NLPtr nl = new NL;
 	nn->l = nl;

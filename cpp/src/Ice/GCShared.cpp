@@ -73,14 +73,3 @@ IceInternal::GCShared::__setNoDelete(bool b)
     _noDelete = b;
     gcRecMutex._m->unlock();
 }
-
-void
-IceInternal::GCShared::__addObject(GCObjectMultiSet& c, GCShared* p)
-{
-    gcRecMutex._m->lock();
-    if(p)
-    {
-	c.insert(p);
-    }
-    gcRecMutex._m->unlock();
-}

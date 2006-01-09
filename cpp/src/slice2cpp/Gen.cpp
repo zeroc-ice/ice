@@ -3158,10 +3158,10 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 
     //
     // A class can potentially be part of a cycle if it (recursively) contains class
-    // members. If so, we override __incRef() and __decRef() and, hence, consider instances
-    // of the class as candidates for collection by the garbage collector.
-    // We override __incRef() and __decRef() only once, in the basemost potentially cyclic class
-    // in an inheritance hierarchy.
+    // members. If so, we override __incRef(), __decRef(), and __addObject() and, hence, consider
+    // instances of the class as candidates for collection by the garbage collector.
+    // We override __incRef(), __decRef(), and __addObject() only once, in the basemost potentially
+    // cyclic class in an inheritance hierarchy.
     //
     bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
     bool canBeCyclic = p->canBeCyclic();
@@ -3224,6 +3224,20 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 	C << nl << "delete this;";
 	C << eb;
 	C << eb;
+
+	H << nl << "virtual void __addObject(::IceInternal::GCObjectMultiSet&);";
+
+	C << sp << nl << "void" << nl << scoped.substr(2) << "::__addObject(::IceInternal::GCObjectMultiSet& _c)";
+	C << sb;
+	C << nl << "_c.insert(this);";
+	C << eb;
+
+	H << nl << "virtual bool __usesClasses();";
+
+	C << sp << nl << "bool" << nl << scoped.substr(2) << "::__usesClasses()";
+	C << sb;
+	C << nl << "return true;";
+	C << eb;
     }
 
     //
@@ -3279,7 +3293,10 @@ Slice::Gen::ObjectVisitor::emitGCInsertCode(const TypePtr& p, const string& pref
     if((BuiltinPtr::dynamicCast(p) && BuiltinPtr::dynamicCast(p)->kind() == Builtin::KindObject)
        || ClassDeclPtr::dynamicCast(p))
     {
-	C << nl << "__addObject(_c, " << prefix << name << ".get());";
+	C << nl << "if(" << prefix << name << ')';
+	C << sb;
+	C << nl << prefix << name << "->__addObject(_c);";
+	C << eb;
     }
     else if(StructPtr s = StructPtr::dynamicCast(p))
     {
@@ -3330,8 +3347,15 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& prefi
     {
 	C << nl << "if(" << prefix << name << ")";
 	C << sb;
+	C << nl << "if(" << prefix << name << "->__usesClasses())";
+	C << sb;
 	C << nl << prefix << name << "->__decRefUnsafe();";
 	C << nl << prefix << name << ".__clearHandleUnsafe();";
+	C << eb;
+	C << nl << "else";
+	C << sb;
+	C << nl << prefix << name << " = 0;";
+	C << eb;
 	C << eb;
     }
     else if(StructPtr s = StructPtr::dynamicCast(p))

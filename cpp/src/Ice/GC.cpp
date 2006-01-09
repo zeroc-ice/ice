@@ -163,10 +163,11 @@ IceInternal::GC::collectGarbage()
     //
     // gcObjects contains the set of class instances that have at least one member of class type,
     // that is, gcObjects contains all those instances that can point at other instances.
-    // Call this the the candiate set.
+    // Call this the candidate set.
     // Build a multiset of instances that are immediately (not recursively) reachable from instances
-    // in the candidate set. This adds leaf nodes (class instances that are pointed at, but cannot
-    // point at anything themselves) to the multiset.
+    // in the candidate set. This adds adds all immediately reachable nodes to the reachable set, but
+    // does not add nodes that cannot participate in a cycle (class instances that are pointed at, but cannot
+    // point at anything themselves because they have no class members) to the multiset.
     //
     GCObjectMultiSet reachable;
     {
@@ -177,7 +178,7 @@ IceInternal::GC::collectGarbage()
     }
 
     //
-    // Create a map of reference counts.
+    // Create a map of reference counts of all objects in the reachable set.
     //
     typedef map<GCShared*, int> ObjectCounts;
     ObjectCounts counts;
@@ -188,7 +189,7 @@ IceInternal::GC::collectGarbage()
 	    pos = counts.find(*i);
 
 	    //
-	    // If this instance is not in the counts set yet, insert it with its reference count - 1;
+	    // If this instance is not in the counts map yet, insert it with its reference count - 1;
 	    // otherwise, decrement its reference count.
 	    //
 	    if(pos == counts.end())
@@ -203,8 +204,8 @@ IceInternal::GC::collectGarbage()
     }
 
     //
-    // Any instances with a ref count > 0 are referenced from outside the set of class instances (and therefore
-    // reachable from the program, for example, via Ptr variable on the stack). Remove these instances
+    // Any instances with a ref count > 0 are referenced from outside the reachable class instances (and
+    // therefore reachable from the program, for example, via Ptr variable on the stack). Remove these instances
     // (and all instances reachable from them) from the overall set of objects.
     //
     {
@@ -230,7 +231,15 @@ IceInternal::GC::collectGarbage()
 	ObjectCounts::const_iterator i;
 	for(i = counts.begin(); i != counts.end(); ++i)
 	{
-	    i->first->__gcClear(); // Decrement ref count of objects pointed at by this object.
+	    //
+	    // For classes with members that point at potentially-cyclic instances, __gcClear()
+	    // decrements the reference count of those instances and clears the
+	    // corrsponding Ptr members.
+	    // For classes that cannot be part of a cycle (because they do not contain class members)
+	    // and are therefore true leaves, __gcClear() assigns 0 to the corresponding class member,
+	    // which either decrements the ref count or, if it reaches zero, deletes the instance as usual.
+	    //
+	    i->first->__gcClear();
 	}
 	for(i = counts.begin(); i != counts.end(); ++i)
 	{
@@ -255,7 +264,7 @@ IceInternal::GC::collectGarbage()
     counts.clear();
 
     {
-	Monitor<Mutex>::Lock sync2(*this);
+	Monitor<Mutex>::Lock sync(*this);
 
 	_collecting = false;
     }
