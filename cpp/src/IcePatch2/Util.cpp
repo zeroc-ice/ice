@@ -132,8 +132,8 @@ IcePatch2::readFileInfo(FILE* fp, FileInfo& info)
     {
 	data += buf;
 
-	int len = strlen(buf);
-	if(buf[len-1] == '\n')
+	size_t len = strlen(buf);
+	if(buf[len - 1] == '\n')
 	{
 	    break;
 	}

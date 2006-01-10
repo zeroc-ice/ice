@@ -342,13 +342,13 @@ PlatformInfo::initQuery()
     while(i < buffer.size() && buf[i])
     {
 	string index(&buf[i]);
-	i += index.size() + 1;
+	i += static_cast<int>(index.size()) + 1;
 	if(i >= buffer.size())
 	{
 	    break;
 	}
 	string name(&buf[i]);
-	i += name.size() + 1;
+	i += static_cast<int>(name.size()) + 1;
 	perfNames.insert(make_pair(name, index));
     }
 
