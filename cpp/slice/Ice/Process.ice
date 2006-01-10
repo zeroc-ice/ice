@@ -16,8 +16,7 @@ module Ice
 /**
  *
  * An administrative interface for process management. Managed servers must
- * implement this interface and invoke [ObjectAdapter::setProcess] to register
- * the process proxy.
+ * implement this interface.
  *
  * <note><para> A servant implementing this interface is a potential target
  * for denial-of-service attacks, therefore proper security precautions
