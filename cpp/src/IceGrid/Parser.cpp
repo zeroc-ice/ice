@@ -512,7 +512,8 @@ Parser::describeServiceTemplate(const list<string>& args)
 		out << nl << "parameters = `" << toString(q->second.parameters) << "'";
 	    }
 	    out << nl;
-	    ServiceHelper(ServiceDescriptorPtr::dynamicCast(q->second.descriptor)).print(out);
+	    ServiceDescriptorPtr desc = ServiceDescriptorPtr::dynamicCast(q->second.descriptor);
+	    ServiceHelper(desc).print(out);
 	    out << eb;
 	    out << nl;
 	}
