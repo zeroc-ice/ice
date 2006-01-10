@@ -1734,7 +1734,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     vector<string> allParamDecls;
     DataMemberList::const_iterator q;
     vector<string>::const_iterator pi;
-    DataMemberList::const_iterator q;
 
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
