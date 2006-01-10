@@ -954,7 +954,6 @@ Slice::VbGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	}
 	out << nl << "For block__ As Integer = 0 To 0";
 	out.inc();
-        string func = ProxyPtr::dynamicCast(type) ? "read__" : "read";
 	out << nl << "Dim szx__ As Integer = " << stream << ".readSize()";
 	if(!streamingAPI)
 	{
