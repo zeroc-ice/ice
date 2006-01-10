@@ -4791,6 +4791,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
 	ParamDeclList::const_iterator i;
     if(!cl->isLocal() && (cl->hasMetaData("amd") || op->hasMetaData("amd")))
     {
+	ParamDeclList::const_iterator i;
         vector<string> pDecl = getParamsAsync(op, true);
 
 	_out << "public ";

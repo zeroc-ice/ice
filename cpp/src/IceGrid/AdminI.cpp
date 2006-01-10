@@ -751,6 +751,7 @@ AdminI::getNodeHostname(const string& name, const Current&) const
 	ostringstream os;
 	os << ex;
 	throw NodeUnreachableException(name, os.str());
+	return ""; // Keep the compiler happy.
     }
 	return ""; // Keep the compiler happy.
 }

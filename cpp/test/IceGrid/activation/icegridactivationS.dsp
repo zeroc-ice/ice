@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="icegridsimpleS" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="icegridactivationS" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=icegridsimpleS - Win32 Debug
+CFG=icegridactivationS - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "icegridsimpleS.mak".
+!MESSAGE NMAKE /f "icegridactivationS.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "icegridsimpleS.mak" CFG="icegridsimpleS - Win32 Debug"
+!MESSAGE NMAKE /f "icegridactivationS.mak" CFG="icegridactivationS - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "icegridsimpleS - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "icegridsimpleS - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "icegridactivationS - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "icegridactivationS - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=icegridsimpleS - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "icegridsimpleS - Win32 Release"
+!IF  "$(CFG)" == "icegridactivationS - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -54,7 +54,7 @@ LINK32=link.exe
 # ADD LINK32 /nologo /subsystem:console /incremental:yes /debug /machine:I386 /out:"server.exe" /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "icegridsimpleS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "icegridactivationS - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -84,8 +84,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "icegridsimpleS - Win32 Release"
-# Name "icegridsimpleS - Win32 Debug"
+# Name "icegridactivationS - Win32 Release"
+# Name "icegridactivationS - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -121,7 +121,7 @@ SOURCE=.\TestI.h
 
 SOURCE=.\Test.ice
 
-!IF  "$(CFG)" == "icegridsimpleS - Win32 Release"
+!IF  "$(CFG)" == "icegridactivationS - Win32 Release"
 
 USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
@@ -137,8 +137,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "icegridsimpleS - Win32 Debug"
-
+!ELSEIF  "$(CFG)" == "icegridactivationS - Win32 Debug"
 USERDEP__TEST_="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Test.ice

@@ -88,6 +88,7 @@ tests = [ \
     "IceGrid/deployer", \
     "IceGrid/session", \
     "IceGrid/update", \
+    "IceGrid/activation", \
     "IceGrid/replication", \
     "Glacier2/router", \
     ]
