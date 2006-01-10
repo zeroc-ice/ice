@@ -1825,7 +1825,8 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	_timer = new DelayedStart(this);
 	_node->getWaitQueue()->add(_timer, IceUtil::Time::seconds(_disableOnFailure));
     }
-    else if(_state == Inactive && _activation == Always && previous != Activating && previous != ActivationTimeout)
+    else if(_state == Inactive && _activation == Always && 
+	    previous != Activating && previous != ActivationTimeout && previous != WaitForActivation)
     {
 	if(!_start)
 	{
