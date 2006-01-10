@@ -105,7 +105,7 @@ ifeq ($(LP64),yes)
 # TODO: Where should the shared library be installed if it is a 64 bit
 # build.
 #
-    install_libdir	= $(prefix)/lib$(lp64suffix)
+    install_libdir	= $(prefix)/python
 else
     install_libdir	= $(prefix)/python
 endif
