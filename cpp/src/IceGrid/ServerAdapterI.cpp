@@ -69,7 +69,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
     //
     try
     {
-	_server->start_async(0);
+	_server->start(ServerI::OnDemand);
 	return;
     }
     catch(const ServerStartException&)
@@ -189,7 +189,7 @@ ServerAdapterI::clear()
 }
 
 void 
-ServerAdapterI::activationFailed(bool destroyed)
+ServerAdapterI::activationFailed(bool timeout)
 {
 
     //
@@ -198,7 +198,7 @@ ServerAdapterI::activationFailed(bool destroyed)
     if(_node->getTraceLevels()->adapter > 1)
     {
 	Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
-	if(!destroyed)
+	if(timeout)
 	{
 	    out << "server `" + _serverId + "' adapter `" << _id << "' activation timed out";
 	}

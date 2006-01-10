@@ -58,7 +58,7 @@ WaitQueue::run()
 	    //
 	    // Notify expired items.
 	    //
-	    while(!_waitQueue.empty())
+	    while(!_waitQueue.empty() && !_destroyed)
 	    {
 		WaitItemPtr item = _waitQueue.front();		    
 		if(item->getExpirationTime() <= IceUtil::Time::now())
@@ -76,7 +76,7 @@ WaitQueue::run()
 		    // Wait until the next item expire or a notification. Note: in any case we 
 		    // get out of this loop to get a chance to execute the work queue.
 		    //
-		    timedWait(item->getExpirationTime() - IceUtil::Time::now());
+		    timedWait(item->getExpirationTime() - IceUtil::Time::now());	    		    
 		}
 	    }
 	}
@@ -96,6 +96,11 @@ WaitQueue::run()
 		    //
 		}
 	    }
+	}
+
+	if(_destroyed)
+	{
+	    break;
 	}
     }
     
@@ -134,26 +139,19 @@ WaitQueue::add(const WaitItemPtr& item, const IceUtil::Time& wait)
     //
     bool notifyThread = _waitQueue.empty();
 
-    if(wait == IceUtil::Time::seconds(0))
+    IceUtil::Time expire = IceUtil::Time::now() + wait;
+    item->setExpirationTime(expire);
+    
+    list<WaitItemPtr>::iterator p = _waitQueue.begin();
+    while(p != _waitQueue.end())
     {
-	item->setExpirationTime(IceUtil::Time::now());
-    }
-    else
-    {
-	IceUtil::Time expire = IceUtil::Time::now() + wait;
-	item->setExpirationTime(expire);
-	
-	list<WaitItemPtr>::iterator p = _waitQueue.begin();
-	while(p != _waitQueue.end())
+	if((*p)->getExpirationTime() >= expire)
 	{
-	    if((*p)->getExpirationTime() >= expire)
-	    {
-		break;
-	    }
-	    ++p;
+	    break;
 	}
-	_waitQueue.insert(p, item);
+	++p;
     }
+    _waitQueue.insert(p, item);
 
     if(notifyThread)
     {

@@ -711,6 +711,7 @@ AdminI::getNodeLoad(const string& name, const Current&) const
 	os << ex;
 	throw NodeUnreachableException(name, os.str());
     }    
+    return LoadInfo(); // Keep the compiler happy.
 }
 
 void

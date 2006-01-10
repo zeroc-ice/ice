@@ -512,16 +512,7 @@ Parser::describeServiceTemplate(const list<string>& args)
 		out << nl << "parameters = `" << toString(q->second.parameters) << "'";
 	    }
 	    out << nl;
-	    ServiceDescriptorPtr service = ServiceDescriptorPtr::dynamicCast(q->second.descriptor);
-	    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(service);
-	    if(iceBox)
-	    {
-		IceBoxHelper(iceBox).print(out);
-	    }
-	    else
-	    {
-		ServiceHelper(service).print(out);
-	    }
+	    ServiceHelper(ServiceDescriptorPtr::dynamicCast(q->second.descriptor)).print(out);
 	    out << eb;
 	    out << nl;
 	}

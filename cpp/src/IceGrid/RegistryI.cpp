@@ -401,14 +401,20 @@ RegistryI::stop()
 {
     _reaper->terminate();
     _reaper->getThreadControl().join();
+    _reaper = 0;
 
     if(_adminReaper)
     {
 	_adminReaper->terminate();
 	_adminReaper->getThreadControl().join();
+	_adminReaper = 0;
     }
 
     _iceStorm->stop();
+    _iceStorm = 0;
+
+    _database->destroy();
+    _database = 0;
 }
 
 NodeSessionPrx

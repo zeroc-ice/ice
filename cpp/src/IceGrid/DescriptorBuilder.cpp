@@ -102,7 +102,8 @@ XmlAttributesHelper::asBool(const string& name) const
     IceXML::Attributes::const_iterator p = _attributes.find(name);
     if(p == _attributes.end())
     {
-	throw "missing attribute '" + name + "'";	
+	throw "missing attribute '" + name + "'";
+	return true; // Keep the compiler happy.
     }
     else if(p->second == "true")
     {
@@ -115,6 +116,7 @@ XmlAttributesHelper::asBool(const string& name) const
     else
     {
 	throw "invalid attribute `" + name + "': value is not 'false' or 'true'";
+	return true; // Keep the compiler happy.
     }
 }
 
@@ -138,6 +140,7 @@ XmlAttributesHelper::asBool(const string& name, bool def) const
     else
     {
 	throw "invalid attribute `" + name + "': value is not 'false' or 'true'";
+	return true; // Keep the compiler happy.
     }
 }
 

@@ -32,7 +32,7 @@ class ServerEntry : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mut
 public:
     
     ServerEntry(Cache<std::string, ServerEntry>&, const std::string&);
-    
+
     void sync();
     void update(const ServerInfo&);
     void destroy();

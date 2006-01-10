@@ -163,6 +163,12 @@ Database::~Database()
 {
 }
 
+void
+Database::destroy()
+{
+    _nodeCache.destroy(); // Break cyclic reference count.
+}
+
 std::string
 Database::getInstanceName() const
 {

@@ -67,7 +67,7 @@ public:
 
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
     
-    virtual void print(IceUtil::Output&) const;
+    void print(IceUtil::Output&) const;
 
 protected:
 
@@ -120,7 +120,8 @@ public:
     ServerDescriptorPtr getDescriptor() const;
     virtual ServerDescriptorPtr instantiate(const Resolver&) const;
 
-    void print(IceUtil::Output&, const std::string& = std::string(), const std::string& = std::string()) const;
+    void print(IceUtil::Output&) const;
+    void print(IceUtil::Output&, const std::string&, const std::string&) const;
 
 protected:
 
@@ -149,7 +150,8 @@ public:
 
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
 
-    void print(IceUtil::Output&, const std::string& = std::string(), const std::string& = std::string()) const;
+    void print(IceUtil::Output&) const;
+    void print(IceUtil::Output&, const std::string&, const std::string&) const;
 
 protected:
 

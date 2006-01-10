@@ -46,6 +46,8 @@ public:
     
     Database(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&, int, const TraceLevelsPtr&);
     virtual ~Database();
+    
+    void destroy();
 
     std::string getInstanceName() const;
 

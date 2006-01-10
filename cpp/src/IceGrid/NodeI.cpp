@@ -797,7 +797,7 @@ NodeI::initObserver(const Ice::StringSeq& servers)
 	{
 	    try
 	    {
-		server->addDynamicInfo(serverInfos, adapterInfos);
+		server->getDynamicInfo(serverInfos, adapterInfos);
 	    }
 	    catch(const Ice::ObjectNotExistException&)
 	    {

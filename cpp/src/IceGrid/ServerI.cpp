@@ -278,7 +278,8 @@ public:
     {
     }
 
-    static bool isStarted(ServerI::InternalServerState state)
+    static bool 
+    isStarted(ServerI::InternalServerState state)
     {
 	return state == ServerI::ActivationTimeout || state == ServerI::Active;
     }
@@ -351,7 +352,8 @@ public:
     {
     }
 
-    static bool isStopped(ServerI::InternalServerState state)
+    static bool 
+    isStopped(ServerI::InternalServerState state)
     {
 	return state == ServerI::Inactive || state == ServerI::Patching || state == ServerI::Loading;
     }
@@ -401,6 +403,36 @@ public:
 private:
 
     vector<AMD_Server_stopPtr> _stopCB;
+};
+
+class DelayedStart : public WaitItem
+{
+public:
+ 
+    DelayedStart(const ServerIPtr& server) : 
+	_server(server)
+    {
+    }
+    
+    virtual void expired(bool destroyed)
+    {
+	if(!destroyed)
+	{
+	    try
+	    {
+		_server->start(ServerI::Always);
+	    }
+	    catch(const ServerStartException& ex)
+	    {
+		cerr << ex.reason << endl;
+		// TODO: Log?
+	    }
+	}
+    }
+
+private:
+
+    const ServerIPtr _server;
 };
 
 struct EnvironmentEval : std::unary_function<string, string>
@@ -513,66 +545,7 @@ ServerI::~ServerI()
 void
 ServerI::start_async(const AMD_Server_startPtr& amdCB, const Ice::Current&)
 {
-    ServerCommandPtr command;
-    {
-	Lock sync(*this);
-	checkDestroyed();
-	if(_state == Destroying)
-	{
-	    throw ServerStartException(_id, "The server is being destroyed.");
-	}
-	
-	//
-	// The server is disabled because it failed and if the time of
-	// the failure is now past the configured duration or if the
-	// server is manualy started, we re-enable the server.
-	//
-	if(_activation == Disabled &&
-	   _failureTime != IceUtil::Time() &&
-	   (amdCB || 
-	    (_disableOnFailure > 0 &&
-	     (_failureTime + IceUtil::Time::seconds(_disableOnFailure) < IceUtil::Time::now()))))
-	{
-	    _failureTime = IceUtil::Time();
-	    _activation = _previousActivation;
-	}
-
-	//
-	// If the amd callback is set, it's a remote start call to
-	// manually activate the server. Otherwise it's a call to
-	// activate the server on demand (called from ServerAdapterI).
-	//
-	if(_activation == Disabled)
-	{
-	    throw ServerStartException(_id, "The server is disabled.");
-	}
-	else if(_activation == Manual && !amdCB)
-	{
-	    throw ServerStartException(_id, "The server activation doesn't allow this activation mode.");
-	}
-	else if(_state == ActivationTimeout)
-	{
-	    throw ServerStartException(_id, "The server activation timed out.");
-	}
-	else if(_state == Active)
-	{
-	    throw ServerStartException(_id, "The server is already active.");
-	}
-
-	if(!_start)
-	{
-	    _start = new StartCommand(this, _node->getWaitQueue(), _activationTimeout);
-	}
-	if(amdCB)
-	{
-	    _start->addCallback(amdCB);
-	}
-	command = nextCommand();
-    }
-    if(command)
-    {
-	command->execute();
-    }
+    start(Manual, amdCB);
 }
 
 void
@@ -615,7 +588,7 @@ ServerI::sendSignal(const string& signal, const Ice::Current& current)
 void
 ServerI::writeMessage(const string& message, Ice::Int fd, const Ice::Current& current)
 {
-    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(*this);
     if(_process != 0)
     {
 	try
@@ -644,17 +617,32 @@ ServerI::getPid(const Ice::Current&) const
 void 
 ServerI::setEnabled(bool enabled, const ::Ice::Current&)
 {
+    bool activate = false;
     {
 	Lock sync(*this);
-	if(enabled && _activation < Disabled || !enabled && _activation == Disabled)
+	if(enabled && _activation < Disabled || 
+	   !enabled && _activation == Disabled && _failureTime == IceUtil::Time())
 	{
 	    return;
 	}
 
 	_failureTime = IceUtil::Time();
-	_activation = enabled ? (_desc->activation  == "on-demand" ? OnDemand : Manual) : Disabled;
+	_activation = enabled ? toServerActivation(_desc->activation) : Disabled;
+	activate = _state == Inactive && _activation == Always;
     }
-    
+
+    if(activate)
+    {
+	try
+	{
+	    start(Always);
+	}
+	catch(const ServerStartException&)
+	{
+	    // TODO: Log?
+	}
+    }
+
     NodeObserverPrx observer = _node->getObserver();
     if(observer)
     {
@@ -728,10 +716,110 @@ ServerI::getDistribution() const
 }
 
 void
+ServerI::getDynamicInfo(ServerDynamicInfoSeq& serverInfos, AdapterDynamicInfoSeq& adapterInfos) const
+{
+    //
+    // Add server info if it's not inactive.
+    //
+    ServerAdapterDict adapters;
+    {
+	Lock sync(*this);
+	if(_state == ServerI::Inactive && _activation != Disabled)
+	{
+	    return;
+	}
+	adapters = _adapters;
+	serverInfos.push_back(getDynamicInfo());
+    }
+
+    //
+    // Add adapters info.
+    //
+    for(ServerAdapterDict::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+    {
+	try
+	{
+	    AdapterDynamicInfo adapter;
+	    adapter.id = p->first;
+	    adapter.proxy = p->second->getDirectProxy();
+	    adapterInfos.push_back(adapter);
+	}
+	catch(const AdapterNotActiveException&)
+	{
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
+    }
+}
+
+void
+ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
+{
+    ServerCommandPtr command;
+    {
+	Lock sync(*this);
+	checkDestroyed();
+
+	//
+	// Re-enable the server if disabled because of a failure and if
+	// activated manually.
+	//
+	enableAfterFailure(activation == Manual);
+
+	//
+	// Check the current activation mode and the requested activation.
+	//
+	if(_activation == Disabled)
+	{
+	    throw ServerStartException(_id, "The server is disabled.");
+	}
+	else if(_activation == Manual && activation != Manual)
+	{
+	    throw ServerStartException(_id, "The server activation doesn't allow this activation mode.");
+	}
+	else if(_activation != Always && activation == Always)
+	{
+	    assert(!amdCB);
+	    return; // Nothing to do.
+	}
+
+	//
+	// Check the current state.
+	//
+	if(_state == ActivationTimeout)
+	{
+	    throw ServerStartException(_id, "The server activation timed out.");
+	}
+	else if(_state == Active)
+	{
+	    throw ServerStartException(_id, "The server is already active.");
+	}
+	else if(_state == Destroying)
+	{
+	    throw ServerStartException(_id, "The server is being destroyed.");
+	}
+
+	if(!_start)
+	{
+	    _start = new StartCommand(this, _node->getWaitQueue(), _activationTimeout);
+	}
+	if(amdCB)
+	{
+	    _start->addCallback(amdCB);
+	}
+	command = nextCommand();
+    }
+    if(command)
+    {
+	command->execute();
+    }
+}
+
+void
 ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& application, const ServerDescriptorPtr& desc)
 {
     stop_async(0);
-
     ServerCommandPtr command;
     {
 	Lock sync(*this);
@@ -761,6 +849,28 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& application, co
 	if(amdCB)
 	{
 	    _load->addCallback(amdCB);
+	}
+	command = nextCommand();
+    }
+    if(command)
+    {
+	command->execute();
+    }
+}
+
+void
+ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB)
+{
+    ServerCommandPtr command;
+    {
+	Lock sync(*this);
+	if(!_destroy)
+	{
+	    _destroy = new DestroyCommand(this, _state != Inactive && _state != Loading && _state != Patching);
+	}
+	if(amdCB)
+	{
+	    _destroy->addCallback(amdCB);
 	}
 	command = nextCommand();
     }
@@ -821,28 +931,6 @@ ServerI::finishPatch()
 }
 
 void
-ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB)
-{
-    ServerCommandPtr command;
-    {
-	Lock sync(*this);
-	if(!_destroy)
-	{
-	    _destroy = new DestroyCommand(this, _state != Inactive && _state != Loading && _state != Patching);
-	}
-	if(amdCB)
-	{
-	    _destroy->addCallback(amdCB);
-	}
-	command = nextCommand();
-    }
-    if(command)
-    {
-	command->execute();
-    }
-}
-
-void
 ServerI::adapterActivated(const string& id)
 {
     ServerCommandPtr command;
@@ -866,6 +954,39 @@ ServerI::checkDestroyed()
 	Ice::ObjectNotExistException ex(__FILE__, __LINE__);
 	ex.id = _this->ice_getIdentity();
 	throw ex;
+    }
+}
+
+void
+ServerI::disableOnFailure()
+{
+    if(_disableOnFailure != 0 && _activation != Disabled)
+    {
+	_previousActivation = _activation;
+	_activation = Disabled;
+	_failureTime = IceUtil::Time::now();
+    }
+}
+
+void
+ServerI::enableAfterFailure(bool force)
+{
+    if(_disableOnFailure == 0 || _failureTime == IceUtil::Time())
+    {
+	return;
+    }
+
+    if(force || 
+       _disableOnFailure > 0 && (_failureTime + IceUtil::Time::seconds(_disableOnFailure) < IceUtil::Time::now()))
+    {
+	_activation = _previousActivation;
+	_failureTime = IceUtil::Time();
+    }
+
+    if(_timer)
+    {
+	_node->getWaitQueue()->remove(_timer);
+	_timer = 0;
     }
 }
 
@@ -917,7 +1038,7 @@ ServerI::activationFailed(bool destroyed)
     {
 	try
 	{
-	    p->second->activationFailed(destroyed);
+	    p->second->activationFailed(!destroyed);
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
@@ -926,44 +1047,6 @@ ServerI::activationFailed(bool destroyed)
     if(command)
     {
 	command->execute();
-    }
-}
-
-void
-ServerI::addDynamicInfo(ServerDynamicInfoSeq& serverInfos, AdapterDynamicInfoSeq& adapterInfos) const
-{
-    //
-    // Add server info if it's not inactive.
-    //
-    ServerAdapterDict adapters;
-    {
-	Lock sync(*this);
-	if(_state == ServerI::Inactive && _activation != Disabled)
-	{
-	    return;
-	}
-	adapters = _adapters;
-	serverInfos.push_back(getDynamicInfo());
-    }
-
-    //
-    // Add adapters info.
-    //
-    for(ServerAdapterDict::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
-    {
-	try
-	{
-	    AdapterDynamicInfo adapter;
-	    adapter.id = p->first;
-	    adapter.proxy = p->second->getDirectProxy();
-	    adapterInfos.push_back(adapter);
-	}
-	catch(const AdapterNotActiveException&)
-	{
-	}
-	catch(const Ice::ObjectNotExistException&)
-	{
-	}
     }
 }
 
@@ -1012,7 +1095,13 @@ ServerI::activate()
 	ServerCommandPtr command;
 	{
 	    Lock sync(*this);
-	    assert(_state == Activating);
+	    if(_state != Activating)
+	    {
+		//
+		// It's possible that the server has already terminated.
+		//
+		return;
+	    }
 	    _pid = pid;
 	    setStateNoSync(ServerI::WaitForActivation);
  	    checkActivation();
@@ -1038,17 +1127,29 @@ ServerI::activate()
 	os << ex;
 	failure = os.str();
     }
+
     for(ServerAdapterDict::iterator r = adpts.begin(); r != adpts.end(); ++r)
     {
 	try
 	{
-	    r->second->activationFailed(true);
+	    r->second->activationFailed(false);
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
 	}
-    }    
-    setState(ServerI::Inactive, failure);
+    }
+    
+    ServerCommandPtr command;
+    {
+	Lock sync(*this);
+	disableOnFailure();
+	setStateNoSync(ServerI::Inactive, failure);
+	command = nextCommand();
+    }
+    if(command)
+    {
+	command->execute();
+    }
 }
 
 void
@@ -1198,25 +1299,20 @@ ServerI::terminated(const string& msg, int status)
 	_process = 0;
 	_pid = 0;
 
-	if(_disableOnFailure != 0 && _activation != Disabled)
-	{
-	    bool failed = false;
+	bool failed = false;
 #ifndef _WIN32
-	    failed = WIFEXITED(status) && WEXITSTATUS(status) != 0;
-	    if(WIFSIGNALED(status))
-	    {
-		int s = WTERMSIG(status);
-		failed = s == SIGABRT || s == SIGILL || s == SIGBUS || s == SIGFPE || s == SIGSEGV;
-	    }
+	failed = WIFEXITED(status) && WEXITSTATUS(status) != 0;
+	if(WIFSIGNALED(status))
+	{
+	    int s = WTERMSIG(status);
+	    failed = s == SIGABRT || s == SIGILL || s == SIGBUS || s == SIGFPE || s == SIGSEGV;
+	}
 #else
-	    failed = status != 0;
+	failed = status != 0;
 #endif
-	    if(failed)
-	    {
-		_previousActivation = _activation;
-		_activation = Disabled;
-		_failureTime = IceUtil::Time::now();
-	    }
+	if(failed)
+	{
+	    disableOnFailure();
 	}
 	
 	if(_state != ServerI::Destroying)
@@ -1317,9 +1413,16 @@ ServerI::updateImpl()
 	}
     }
 
-    if(_activation < Disabled)
+    if(_activation != Disabled || _failureTime != IceUtil::Time())
     {
-	_activation = _desc->activation  == "on-demand" ? OnDemand : Manual;
+	_activation = toServerActivation(_desc->activation);
+	_failureTime = IceUtil::Time();
+    }
+
+    if(_timer)
+    {
+	_node->getWaitQueue()->remove(_timer);
+	_timer = 0;
     }
 	
     istringstream at(_desc->activationTimeout);
@@ -1700,6 +1803,10 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 
     if(_state == Destroyed && !_load)
     {
+	//
+	// If the server is destroyed and there's no load command, we
+	// remove the servant from the ASM.
+	//
 	try
 	{
 	    _node->getAdapter()->remove(_this->ice_getIdentity());
@@ -1708,6 +1815,24 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	{
 	}
     }
+    else if(_state == Inactive && _activation == Disabled && 
+	    _disableOnFailure > 0 && _failureTime != IceUtil::Time() && _previousActivation == Always)
+    {
+	//
+	// If the server was disabled because it failed, we schedule a
+	// callback to re-enable it.
+	//
+	_timer = new DelayedStart(this);
+	_node->getWaitQueue()->add(_timer, IceUtil::Time::seconds(_disableOnFailure));
+    }
+    else if(_state == Inactive && _activation == Always && previous != Activating && previous != ActivationTimeout)
+    {
+	if(!_start)
+	{
+	    _start = new StartCommand(this, _node->getWaitQueue(), _activationTimeout);
+	}
+    }
+
 
     if(toServerState(previous) != toServerState(_state))
     {
@@ -1840,7 +1965,7 @@ ServerI::updateConfigFile(const string& serverDir, const CommunicatorDescriptorP
 		ServiceDescriptorPtr s = ServiceDescriptorPtr::dynamicCast(p->descriptor);
 		const string path = serverDir + "/config/config_" + s->name;
 		props.push_back(createProperty("IceBox.Service." + s->name, 
-					       s->entry + " --Ice.Config=\"" + path + "\""));
+					       s->entry + " --Ice.Config=" + path));
 		servicesStr += s->name + " ";
 	    }
 	    props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
@@ -1987,6 +2112,29 @@ ServerI::toServerState(InternalServerState st) const
     default:
 	assert(false);
 	return IceGrid::Destroyed;
+    }
+}
+
+ServerI::ServerActivation
+ServerI::toServerActivation(const string& activation) const
+{
+    if(activation == "on-demand")
+    {
+	return OnDemand;
+    }
+    else if(activation == "always")
+    {
+	return Always;
+    }
+    else if(activation == "manual" || activation.empty())
+    {
+	return Manual;
+    }
+    else
+    {
+	Ice::Warning out(_node->getTraceLevels()->logger);
+	out << "unknown activation mode `" << activation << "' for server `" << _id << "'";
+	return Manual;
     }
 }
 

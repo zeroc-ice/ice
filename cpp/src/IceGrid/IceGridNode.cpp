@@ -518,6 +518,7 @@ NodeService::stop()
     }
     catch(...)
     {
+	assert(false);
     }
 
     //
@@ -531,6 +532,7 @@ NodeService::stop()
     }
     catch(...)
     {
+	assert(false);
     }
 
     //
@@ -553,6 +555,7 @@ NodeService::stop()
     }
     catch(...)
     {
+	assert(false);
     }
 
     _activator = 0;

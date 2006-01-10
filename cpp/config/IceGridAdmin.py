@@ -21,6 +21,24 @@ else:
 
 iceGridPort = "0";
 
+nodeOptions = r' --Ice.Warn.Connections=0' + \
+              r' --IceGrid.Node.Endpoints=default' + \
+              r' --IceGrid.Node.WaitTime=30' + \
+              r' --Ice.ProgramName=icegridnode' + \
+              r' --IceGrid.Node.Trace.Activator=0' + \
+              r' --IceGrid.Node.Trace.Adapter=0' + \
+              r' --IceGrid.Node.Trace.Server=0' + \
+              r' --IceGrid.Node.PrintServersReady=node' + \
+	      r' --Ice.NullHandleAbort';
+
+registryOptions = r' --Ice.Warn.Connections=0' + \
+                  r' --IceGrid.Registry.Server.Endpoints=default' + \
+                  r' --IceGrid.Registry.Internal.Endpoints=default' + \
+                  r' --IceGrid.Registry.Admin.Endpoints=default' + \
+                  r' --IceGrid.Registry.Server.Endpoints=default' + \
+                  r' --IceGrid.Registry.Internal.Endpoints=default' + \
+                  r' --IceGrid.Registry.Admin.Endpoints=default';
+
 class ReaderThread(Thread):
     def __init__(self, pipe, token):
         self.pipe = pipe
@@ -55,20 +73,10 @@ def startIceGridRegistry(port, testdir, dynamicRegistration):
         os.mkdir(dataDir)
 
     print "starting icegrid registry...",
-    command = iceGrid + TestUtil.clientServerOptions + ' --nowarn ' + \
+    command = iceGrid + TestUtil.clientServerOptions + ' --nowarn ' + registryOptions + \
               r' --IceGrid.Registry.Client.Endpoints="default -p ' + iceGridPort + ' -t 30000" ' + \
-              r' --Ice.Warn.Connections=0' + \
-              r' --IceGrid.Registry.Server.Endpoints=default' + \
-              r' --IceGrid.Registry.Internal.Endpoints=default' + \
-              r' --IceGrid.Registry.Admin.Endpoints=default' + \
               r' --IceGrid.Registry.Data=' + dataDir + \
-              r' --IceGrid.Registry.DefaultTemplates=' + os.path.join(toplevel, "config", "templates.xml") + \
-	      r' --IceGrid.Registry.Trace.Server=0' + \
-              r' --IceGrid.Registry.Trace.Adapter=0' + \
-              r' --IceGrid.Registry.Trace.Object=0' + \
-              r' --IceGrid.Registry.Trace.Node=0' + \
-              r' --Ice.ProgramName=icegridregistry' + \
-	      r' --Ice.NullHandleAbort'
+              r' --IceGrid.Registry.DefaultTemplates=' + os.path.join(toplevel, "config", "templates.xml")
 
     if dynamicRegistration:
         command += ' --IceGrid.Registry.DynamicRegistration'        
@@ -97,20 +105,11 @@ def startIceGridNode(testdir):
 	              ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0' + '"'
 
     print "starting icegrid node...",
-    command = iceGrid + TestUtil.clientServerOptions + ' --nowarn ' + \
+    command = iceGrid + TestUtil.clientServerOptions + ' --nowarn ' + nodeOptions + \
               r' "--Ice.Default.Locator=IceGrid/Locator:default -p ' + iceGridPort + '" ' + \
-              r' --Ice.Warn.Connections=0' + \
-              r' --IceGrid.Node.Endpoints=default' + \
-              r' --IceGrid.Node.WaitTime=30' + \
               r' --IceGrid.Node.Data=' + dataDir + \
               r' --IceGrid.Node.Name=localnode' + \
-              r' --IceGrid.Node.PropertiesOverride=' + overrideOptions + \
-              r' --Ice.ProgramName=icegridnode' + \
-              r' --IceGrid.Node.Trace.Activator=0' + \
-              r' --IceGrid.Node.Trace.Adapter=0' + \
-              r' --IceGrid.Node.Trace.Server=0' + \
-              r' --IceGrid.Node.PrintServersReady=node' + \
-	      r' --Ice.NullHandleAbort'
+              r' --IceGrid.Node.PropertiesOverride=' + overrideOptions
     
     (stdin, iceGridPipe) = os.popen4(command)
     TestUtil.getServerPid(iceGridPipe)
@@ -202,6 +201,23 @@ def startServer(name):
               r' -e "server start \"' + name + '\\""' + " 2>&1"
 
     iceGridAdminPipe = os.popen(command)
+    TestUtil.printOutputFromPipe(iceGridAdminPipe)
+    iceGridAdminStatus = iceGridAdminPipe.close()
+    if iceGridAdminStatus:
+        TestUtil.killServers()
+        sys.exit(1)
+
+def stopServer(name):
+
+    global iceGridPort
+    iceGridAdmin = os.path.join(toplevel, "bin", "icegridadmin")
+
+    command = iceGridAdmin + TestUtil.clientOptions + \
+              r' "--Ice.Default.Locator=IceGrid/Locator:default -p ' + iceGridPort + '" ' + \
+              r' -e "server stop \"' + name + '\\""' + " 2>&1"
+
+    iceGridAdminPipe = os.popen(command)
+    TestUtil.printOutputFromPipe(iceGridAdminPipe)
     iceGridAdminStatus = iceGridAdminPipe.close()
     if iceGridAdminStatus:
         TestUtil.killServers()

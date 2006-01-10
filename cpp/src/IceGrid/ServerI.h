@@ -57,6 +57,7 @@ public:
 
     enum ServerActivation
     {
+	Always,
 	OnDemand,
 	Manual,
 	Disabled
@@ -82,18 +83,19 @@ public:
     ServerActivation getActivationMode() const;
     const std::string& getId() const;
     DistributionDescriptor getDistribution() const;
+    void getDynamicInfo(ServerDynamicInfoSeq&, AdapterDynamicInfoSeq&) const;
 
+    void start(ServerActivation, const AMD_Server_startPtr& = AMD_Server_startPtr());
     void load(const AMD_Node_loadServerPtr&, const std::string&, const ServerDescriptorPtr&);
+    void destroy(const AMD_Node_destroyServerPtr&);
     bool startPatch(bool);
     bool waitForPatch();
     void finishPatch();
-    void destroy(const AMD_Node_destroyServerPtr&);
 
     void adapterActivated(const std::string&);
     void adapterDeactivated(const std::string&);
     void activationFailed(bool);
     void deactivationFailed();
-    void addDynamicInfo(ServerDynamicInfoSeq&, AdapterDynamicInfoSeq&) const;
 
     void activate();
     void kill();
@@ -107,6 +109,8 @@ private:
     void updateImpl();
     void checkActivation();
     void checkDestroyed();
+    void disableOnFailure();
+    void enableAfterFailure(bool);
 
     void setState(InternalServerState, const std::string& = std::string());
     ServerCommandPtr nextCommand();
@@ -117,6 +121,7 @@ private:
     void updateDbEnv(const std::string&, const DbEnvDescriptor&);
     PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
     ServerState toServerState(InternalServerState) const;
+    ServerActivation toServerActivation(const std::string&) const;
     ServerDynamicInfo getDynamicInfo() const;
 
     const NodeIPtr _node;
@@ -140,6 +145,7 @@ private:
     std::set<std::string> _activeAdapters;
     IceUtil::Time _failureTime;
     ServerActivation _previousActivation;
+    WaitItemPtr _timer;
 
     DestroyCommandPtr _destroy;
     StopCommandPtr _stop;

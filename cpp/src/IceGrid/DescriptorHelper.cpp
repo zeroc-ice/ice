@@ -526,6 +526,7 @@ Resolver::getVariable(const string& name, bool checkParams, bool& param) const
     }    
 
     throw "undefined variable `" + name + "'";
+    return ""; // To keep the compiler happy.
 }
 
 map<string, string>
@@ -938,7 +939,8 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance, const Resolve
     instance->pwd = resolve(_desc->pwd, "working directory path");
     instance->activation = resolve(_desc->activation, "activation");
     instance->applicationDistrib = _desc->applicationDistrib;
-    if(!instance->activation.empty() && instance->activation != "manual" && instance->activation != "on-demand")
+    if(!instance->activation.empty() && 
+       instance->activation != "manual" && instance->activation != "on-demand" && instance->activation != "always")
     {
 	resolve.exception("unknown activation `" + instance->activation + "'");
     }
@@ -972,6 +974,12 @@ ServerHelper::instantiate(const Resolver& resolver) const
     ServerDescriptorPtr server = new ServerDescriptor();
     instantiateImpl(server, resolver);
     return server;
+}
+
+void
+ServerHelper::print(Output& out) const
+{
+    print(out, "", "");
 }
 
 void
@@ -1096,6 +1104,12 @@ IceBoxHelper::instantiateImpl(const IceBoxDescriptorPtr& instance, const Resolve
     {
 	instance->services.push_back(p->instantiate(resolver));
     }
+}
+
+void
+IceBoxHelper::print(Output& out) const
+{
+    print(out, "", "");
 }
 
 void
@@ -1252,7 +1266,7 @@ ServiceInstanceHelper::print(Output& out) const
     else
     {
 	assert(!_template.empty());
-	out << nl << "service instance";
+	out << "service instance";
 	out << sb;
 	out << nl << "template = `" << _template << "'";
 	out << nl << "parameters";

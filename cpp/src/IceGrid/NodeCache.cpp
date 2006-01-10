@@ -159,6 +159,15 @@ NodeCache::NodeCache(int sessionTimeout) : _sessionTimeout(sessionTimeout)
 {
 }
 
+void
+NodeCache::destroy()
+{
+    for(map<string, NodeEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
+    {
+	p->second->setSession(0); // Break cyclic reference count.
+    }    
+}
+
 NodeEntryPtr
 NodeCache::get(const string& name, bool create) const
 {

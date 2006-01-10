@@ -68,6 +68,8 @@ public:
 
     NodeCache(int);
 
+    void destroy();
+
     NodeEntryPtr get(const std::string&, bool = false) const;
 
     int getSessionTimeout() { return _sessionTimeout; }
