@@ -6,15 +6,16 @@ Requirements
 Windows version
 ---------------
 
-Ice has been extensively tested with Windows XP, Windows 2000 and
-Windows 98 SE. Ice is also expected to work on Windows 98, Windows ME,
-Windows NT 3.51, Windows NT 4.0 and Windows Server 2003.
+Ice has been extensively tested with Windows XP, Windows 2003 Server,
+Windows 2000 and Windows 98 SE. Ice is also expected to work on 
+Windows 98, Windows ME, Windows NT 3.51 and Windows NT 4.0.
 
-Ice binary distributions for Visual Studio 6.0 and .NET 2003 are
-available from http://www.zeroc.com/download.html. These binary
-distributions include everything necessary to build Ice applications
-and require Windows NT 4.0, Windows 2000, Windows XP or Windows Server
-2003.
+Ice binary distributions for Visual Studio 6.0, Visual Studio .NET 
+2003 and Visual Studio 2005 are available from:
+  http://www.zeroc.com/download.html. 
+These binary distributions include everything necessary to build Ice 
+applications and require Windows NT 4.0, Windows 2000, Windows XP or 
+Windows Server 2003.
 
 
 C++ compiler
@@ -26,13 +27,14 @@ The following Microsoft Visual C++ compilers are supported:
 
 - Visual C++ .NET 2003 (aka VC++ 7.1)
 
-- Visual C++ .NET 2005 (aka VC++ 8.0)
+- Visual C++ 2005 (aka VC++ 8.0)
 
 The STL (Standard Template Library) that is included with Visual C++
 6.0 is not supported. You must use STLport 4.5 (or later) with Visual
 C++ 6.0.
 
-For Visual C++ .NET 2003 and 2005, you can use the included STL library.
+For Visual C++ .NET 2003 and Visual C++ 2005, you can use the 
+included STL library.
 
 
 Third-party libraries
@@ -46,14 +48,13 @@ Ice has dependencies on a number of third-party libraries:
 - OpenSSL 0.9.6 or later
 - bzip2 1.0
 
-Except for Visual C++ 2005, if you have downloaded an Ice binary installer,
-you already have all of the required third-party libraries and do not need
-to download any additional packages, nor do you need to compile the Ice source
-code. (For Visual C++ .NET 2005, you will need to compile and install the 
-third-party libraries from source.)
+If you have downloaded an Ice binary installer, you already have all 
+of the required third-party libraries and do not need to download any 
+additional packages, nor do you need to compile the Ice source
+code.
 
-You can download an installer containing binaries for all of the required
-third-party libraries (except for Visual C++ 2005) from the ZeroC web site at
+You can download an installer containing binaries for all of the 
+required third-party libraries from the ZeroC web site at
 http://www.zeroc.com/download.html
 
 Finally, if you prefer to download and install the third-party
@@ -127,7 +128,10 @@ third-party packages (include files, libraries, and DLLs):
 
   * Visual C++ 6.0: Tools->Options->Directories
 
-  * Visual C++ .NET: Tools->Options->Projects->VC++ Directories
+  * Visual C++ .NET 2003: Tools->Options->Projects->VC++ Directories
+
+  * Visual C++ 2005: Tools->Options->Projects and Solutions->
+                                                    VC++ Directories
 
 - Select "Include files".
 
@@ -156,18 +160,20 @@ third-party packages (include files, libraries, and DLLs):
   OpenSSL and bzip2 (and STLport, if required).
 
 Now you are ready to compile Ice, so open the "all.dsw" workspace. If
-you are using Visual C++ .NET, then the project files must first be
-converted from Visual C++ 6.0 to .NET format.
+you are using Visual C++ .NET 2003 or Visual C++ 2005, then the 
+project files must first be converted from Visual C++ 6.0 to the new
+solution and project file format.
 
 Set your active project to either "all" or "minimal". "all" will
 compile everything including the tests and demos. "minimal" will not
 compile the tests or demos. To set your active project with Visual C++
-6.0, use Project->Set Active Project. For Visual C++ .NET, click on
-"all" or "minimal" in the class view, then use Project->Set as StartUp
-Project.
+6.0, use Project->Set Active Project. For Visual C++ .NET 2003 and
+Visual C++ 2005, click on "all" or "minimal" in the class view, 
+then use Project->Set as StartUp Project.
 
 To start the compilation, use Build->Build for Visual C++ 6.0, or
-Build->Build all/minimal for Visual C++ .NET, respectively.
+Build->Build all/minimal for Visual C++ .NET 2003 or Visual C++
+2005.
 
 If you built the tests you can run the test suite, provided that you
 have installed Python. Open a command prompt and change to the top-
@@ -186,9 +192,9 @@ Ice DLLs and executables.
 x64 Platform
 ======================================================================
 You can target the x64 platform when building Ice with Visual C++ 
-.NET  2005. Follow these steps when converting the Ice Visual C++ 6.0 
-projects into Visual Studio .NET 2005 projects:
- - Let Visual Studio .NET 2005 convert automatically all your project
+2005. Follow these steps when converting the Ice Visual C++ 6.0 
+projects into Visual Studio 2005 projects:
+ - Let Visual Studio 2005 convert automatically all your project
    files.
  - In Build/Configuration Manager/Active solution plaform, create
    a new solution platform named x64 (from the drop-down list).
@@ -196,11 +202,10 @@ projects into Visual Studio .NET 2005 projects:
    Create new project platforms)
  - Then in the Solution Explorer window, select all projects.
  - Select the Project/Properties menu
+ - Select All Configurations in the Configuration drop-down list
  - In Configuration Properties/General, change "Ouput Directory"
    to be just $(ConfigurationName) and "Intermediate Directory"
    to be just $(ConfigurationName)
- - You need to perform the previous step for both "Debug" and
-   "Release" configurations (or All configurations).
  - Finally, save all your project files.
 
 ======================================================================
