@@ -1,6 +1,12 @@
 Changes since version 3.0.0
 ---------------------------
 
+- Fixed a bug in endpoint comparisons that would cause new
+  connections to be created needlessly.  This would occur when 
+  the representation of the host differed between the proxy and 
+  endpoint configuration, with one containing the hostname and 
+  the other the numeric host address.
+
 - Fixed a bug in the marshaling code that caused an exception
   if a null reference for a Slice class was passed as a parameter.
 
