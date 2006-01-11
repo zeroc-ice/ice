@@ -27,27 +27,17 @@ public final class LocatorInfo
     public boolean
     equals(java.lang.Object obj)
     {
-	if(obj == null)
-	{
-	    return false;
-	}
-
-	if(obj == this)
+	if(this == obj)
 	{
 	    return true;
 	}
 
-        LocatorInfo rhs = null;
-        try
-        {
-            rhs = (LocatorInfo)obj;
-        }
-        catch (ClassCastException ex)
-        {
-            return false;
-        }
+	if(obj instanceof LocatorInfo)
+	{
+	    return _locator.equals(((LocatorInfo)obj)._locator);
+	}
 
-        return _locator.equals(rhs._locator);
+	return false;
     }
 
     public Ice.LocatorPrx

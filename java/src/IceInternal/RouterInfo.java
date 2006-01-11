@@ -31,27 +31,17 @@ public final class RouterInfo
     public boolean
     equals(java.lang.Object obj)
     {
-	if(obj == null)
-	{
-	    return false;
-	}
-
-	if(obj == this)
+	if(this == obj)
 	{
 	    return true;
 	}
 
-        RouterInfo rhs = null;
-        try
-        {
-            rhs = (RouterInfo)obj;
-        }
-        catch(ClassCastException ex)
-        {
-            return false;
-        }
+	if(obj instanceof RouterInfo)
+	{
+	    return _router.equals(((RouterInfo)obj)._router);
+	}
 
-        return _router.equals(rhs._router);
+	return false;
     }
 
     public Ice.RouterPrx

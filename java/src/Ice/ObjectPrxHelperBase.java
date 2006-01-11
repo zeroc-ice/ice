@@ -559,8 +559,17 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     equals(java.lang.Object r)
     {
-        ObjectPrxHelperBase rhs = (ObjectPrxHelperBase)r;
-        return _reference.equals(rhs._reference);
+	if(this == r)
+	{
+	    return true;
+	}
+
+	if(r instanceof ObjectPrxHelperBase)
+	{
+	    return _reference.equals(((ObjectPrxHelperBase)r)._reference);
+	}
+
+	return false;
     }
 
     public final IceInternal.Reference

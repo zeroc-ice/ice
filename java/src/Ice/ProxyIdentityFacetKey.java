@@ -40,8 +40,18 @@ public class ProxyIdentityFacetKey
     public boolean
     equals(java.lang.Object obj)
     {
-        ProxyIdentityFacetKey other = (ProxyIdentityFacetKey)obj;
-        return (_hashCode == other._hashCode) && _identity.equals(other._identity) && _facet.equals(other._facet);
+	if(this == obj)
+	{
+	    return true;
+	}
+
+	if(obj instanceof ProxyIdentityFacetKey)
+	{
+	    ProxyIdentityFacetKey other = (ProxyIdentityFacetKey)obj;
+	    return (_hashCode == other._hashCode) && _identity.equals(other._identity) && _facet.equals(other._facet);
+	}
+
+	return false;
     }
 
     public Ice.ObjectPrx

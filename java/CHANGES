@@ -1,17 +1,20 @@
 Changes since version 3.0.0
 ---------------------------
 
-- Fixed a bug in endpoint comparisons that would cause new
-  connections to be created needlessly.  This would occur when
-  the representation of the host differed between the proxy and
-  endpoint configuration, with one containing the hostname and 
-  the other the numeric host address.
+- Changed the ObjectPrx.equals() method to eliminate the possibility
+  of a ClassCastException.
 
-- Fixed a bug in the Slice parser that caused problems if an
-  included file contained white space in the file name.
+- Fixed a bug in endpoint comparisons that would cause new connections
+  to be created needlessly. This would occur when the representation
+  of the host differed between the proxy and endpoint configuration,
+  with one containing the hostname and the other the numeric host
+  address.
 
-- Fixed bug where ObjectAdapter.createProxy() didn't create
-  indirect proxies with the object adapter replica group id.
+- Fixed a bug in the Slice parser that caused problems if an included
+  file contained white space in the file name.
+
+- Fixed bug where ObjectAdapter.createProxy() didn't create indirect
+  proxies with the object adapter replica group id.
 
 Changes since version 2.1.2
 ---------------------------
