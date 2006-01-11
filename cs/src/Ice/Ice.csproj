@@ -329,6 +329,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "ProxyIdentityKey.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "ReadObjectCallback.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

@@ -15,6 +15,7 @@ namespace Ice
     using System.Diagnostics;
     using System.IO;
     using System.Text;
+    using System.Globalization;
 
     public sealed class Util
     {
@@ -304,7 +305,9 @@ namespace Ice
 	    }
 	}
 	
-	public static int proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
+	
+	public static int
+	proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
 	{
 	    if(lhs == null && rhs == null)
 	    {
@@ -323,14 +326,15 @@ namespace Ice
 		Identity lhsIdentity = lhs.ice_getIdentity();
 		Identity rhsIdentity = rhs.ice_getIdentity();
 		int n;
-		if((n = lhsIdentity.name.CompareTo(rhsIdentity.name)) != 0)
+		n = string.Compare(lhsIdentity.name, rhsIdentity.name, false, CultureInfo.InvariantCulture);
+		if(n != 0)
 		{
 		    return n;
 		}
-		return lhsIdentity.category.CompareTo(rhsIdentity.category);
+		return string.Compare(lhsIdentity.category, rhsIdentity.category, false, CultureInfo.InvariantCulture);
 	    }
 	}
-	
+
 	public static int proxyIdentityAndFacetCompare(ObjectPrx lhs, ObjectPrx rhs)
 	{
 	    if(lhs == null && rhs == null)
@@ -350,11 +354,13 @@ namespace Ice
 		Identity lhsIdentity = lhs.ice_getIdentity();
 		Identity rhsIdentity = rhs.ice_getIdentity();
 		int n;
-		if((n = lhsIdentity.name.CompareTo(rhsIdentity.name)) != 0)
+		n = string.Compare(lhsIdentity.name, rhsIdentity.name, false, CultureInfo.InvariantCulture);
+		if(n != 0)
 		{
 		    return n;
 		}
-		if((n = lhsIdentity.category.CompareTo(rhsIdentity.category)) != 0)
+		n = string.Compare(lhsIdentity.category, rhsIdentity.category, false, CultureInfo.InvariantCulture);
+                if(n != 0)
 		{
 		    return n;
 		}
@@ -375,7 +381,7 @@ namespace Ice
                 }
                 else
                 {
-                    return lhsFacet.CompareTo(rhsFacet);
+                    return string.Compare(lhsFacet, rhsFacet, false, CultureInfo.InvariantCulture);
                 }
 	    }
 	}

@@ -64,6 +64,7 @@ SRCS		= Acceptor.cs \
 		  Protocol.cs \
 		  Proxy.cs \
 		  ProxyFactory.cs \
+		  ProxyIdentityKey.cs \
 		  ReadObjectCallback.cs \
 		  Reference.cs \
 		  ReferenceFactory.cs \
