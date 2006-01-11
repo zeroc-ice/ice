@@ -26,7 +26,8 @@ The following Sun compilers are supported:
 Builds with the following compilers are expected to succeed, but these
 compilers are not supported at this time:
 
-- Sun C++ 5.6 and 5.7 (Sun Studio 9 and Sun Studio 10)
+- Sun C++ 5.6, 5.7 and 5.8 (Sun Studio 9, Sun Studio 10 and Sun Studio
+  11 respectively)
 
 - GCC 3.4.2
 

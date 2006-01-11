@@ -6,13 +6,13 @@ Requirements
 Operating System
 ----------------
 
-MacOS X 10.3.x
+MacOS X 10.3.x or 10.4.x
 
 
 C++ compiler
 ------------
 
-GCC 3.3
+GCC 3.3 or 4.0.1
 
 
 Third-party libraries
