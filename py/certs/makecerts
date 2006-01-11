@@ -37,6 +37,7 @@ if ! [ -f $CA_HOME/cakey.pem ]; then
     openssl req -config $ICE_HOME/certs/openssl/ice_ca.cnf -x509 -days 1825 -newkey rsa -out $CA_HOME/cacert.pem \
 	-outform PEM $PASSPHRASE
     cp $CA_HOME/cacert.pem $ICE_HOME/certs
+    cp $CA_HOME/cakey.pem $ICE_HOME/certs
 
     #
     # Create our Server certificate and key.
