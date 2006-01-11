@@ -33,6 +33,7 @@ public class AllTests
         Ice.ObjectPrx base3 = communicator.stringToProxy("test");
         Ice.ObjectPrx base4 = communicator.stringToProxy("ServerManager");
 	Ice.ObjectPrx base5 = communicator.stringToProxy("test2");
+	Ice.ObjectPrx base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
         Console.Out.WriteLine("ok");
         
         //
@@ -57,6 +58,8 @@ public class AllTests
         test(obj4 != null);
 	TestIntfPrx obj5 = TestIntfPrxHelper.checkedCast(base5);
 	test(obj5 != null);
+	TestIntfPrx obj6 = TestIntfPrxHelper.checkedCast(base6);
+	test(obj6 != null);
         Console.Out.WriteLine("ok");
         
         Console.Out.Write("testing id@AdapterId indirect proxy... ");
@@ -66,6 +69,20 @@ public class AllTests
         try
         {
             obj2.ice_ping();
+        }
+        catch(Ice.LocalException)
+        {
+            test(false);
+        }
+        Console.Out.WriteLine("ok");
+
+        Console.Out.Write("testing id@ReplicaGroupId indirect proxy... ");
+        Console.Out.Flush();
+        obj.shutdown();
+        manager.startServer();
+        try
+        {	
+            obj6.ice_ping();
         }
         catch(Ice.LocalException)
         {
@@ -184,6 +201,10 @@ public class AllTests
         Console.Out.Flush();
         HelloPrx hello = obj.getHello();
         hello.sayHello();
+	test(hello.ice_getAdapterId().Equals("TestAdapter"));
+	hello = obj.getReplicatedHello();
+        hello.sayHello();
+	test(hello.ice_getAdapterId().Equals("ReplicatedAdapter"));
         Console.Out.WriteLine("ok");
         
 	Console.Out.Write("testing object reference from server after shutdown... ");

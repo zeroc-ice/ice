@@ -27,6 +27,11 @@ public class TestI : TestIntfDisp_
     
     public override HelloPrx getHello(Ice.Current current)
     {
+        return HelloPrxHelper.uncheckedCast(_adapter1.createIndirectProxy(Ice.Util.stringToIdentity("hello")));
+    }
+
+    public override HelloPrx getReplicatedHello(Ice.Current current)
+    {
         return HelloPrxHelper.uncheckedCast(_adapter1.createProxy(Ice.Util.stringToIdentity("hello")));
     }
 

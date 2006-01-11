@@ -236,7 +236,10 @@ namespace IceInternal
 			throw new Ice.TimeoutException();
 		    }
 		    ret = _fd.Receive(buf.rawBytes(), 0, buf.limit(), SocketFlags.None);
-		    Debug.Assert(ret != 0);
+		    if(ret == 0)
+		    {
+			throw new Ice.ConnectionLostException();
+		    }
 		}
 		if(_connect)
 		{

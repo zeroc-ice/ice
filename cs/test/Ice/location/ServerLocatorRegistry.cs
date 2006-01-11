@@ -29,6 +29,7 @@ public class ServerLocatorRegistry : Ice.LocatorRegistryDisp_
 	string adapter, string replica, Ice.ObjectPrx obj, Ice.Current current)
     {
         _adapters[adapter] = obj;
+        _adapters[replica] = obj;
 	cb.ice_response();
     }
   

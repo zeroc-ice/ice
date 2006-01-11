@@ -15,7 +15,7 @@ public class Client
     run(string[] args, Ice.Communicator communicator)
     {
 	bool withDeploy = false;
-	for(int i = 1; i < args.Length; i++)
+	for(int i = 0; i < args.Length; i++)
 	{
 	    if(args[i].Equals("--with-deploy"))
 	    {
