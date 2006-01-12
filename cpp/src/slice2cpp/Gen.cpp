@@ -1649,8 +1649,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	  << ("const " + classScopedAMI + '_' + name + "Ptr& __cb") << paramsDeclAMI << "const ::Ice::Context& __ctx"
 	  << epar;
 	C << sb;
-	// Async requests may only be sent twoway.
-	C << nl << "__checkTwowayOnly(\"" << name << "\");";
 	C << nl << "__cb->__invoke" << spar << "this" << argsAMI << "__ctx" << epar << ';';
 	C << eb;
     }
@@ -4179,6 +4177,15 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	C << nl << "static const ::std::string __operation(\"" << name << "\");";
 	C << nl << "__prepare(__prx, " << flatName << ", " << operationModeToString(p->mode()) << ", __ctx);";
+	if(p->returnsData())
+	{
+	    C << nl << "if(!__prx->ice_isTwoway())";
+	    C << sb;
+	    C << nl << "::Ice::TwowayOnlyException ex(__FILE__, __LINE__);";
+	    C << nl << "ex.operation = __operation;";
+	    C << nl << "throw ex;";
+	    C << eb;
+	}
 	writeMarshalCode(C, inParams, 0);
 	if(p->sendsClasses())
 	{

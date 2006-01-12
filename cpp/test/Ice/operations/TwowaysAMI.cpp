@@ -102,6 +102,25 @@ public:
 
 typedef IceUtil::Handle<AMI_MyClass_opByteI> AMI_MyClass_opByteIPtr;
 
+class AMI_MyClass_opByteExI : public Test::AMI_MyClass_opByte, public CallbackBase
+{
+public:
+
+    virtual void ice_response(::Ice::Byte r, ::Ice::Byte b)
+    {
+	test(false);
+    }
+
+    virtual void ice_exception(const ::Ice::Exception& ex)
+    {
+	test(dynamic_cast<const ::Ice::Exception*>(&ex));
+        called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_MyClass_opByteExI> AMI_MyClass_opByteExIPtr;
+
+
 class AMI_MyClass_opBoolI : public Test::AMI_MyClass_opBool, public CallbackBase
 {
 public:
@@ -802,6 +821,30 @@ typedef IceUtil::Handle<AMI_MyDerivedClass_opDerivedI> AMI_MyDerivedClass_opDeri
 void
 twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
+    {
+        // Check that we can invoke a void operation via a oneway proxy.
+	Test::MyClassPrx oneway = Test::MyClassPrx::uncheckedCast(p->ice_oneway());
+	AMI_MyClass_opVoidIPtr cb = new AMI_MyClass_opVoidI;
+	oneway->opVoid_async(cb);
+	test(cb->check());
+    }
+
+    {
+        // Check that a call to a twoway operation raises TwowayOnlyException
+	// in the ice_exception() callback instead of at the point of call.
+	Test::MyClassPrx oneway = Test::MyClassPrx::uncheckedCast(p->ice_oneway());
+	AMI_MyClass_opByteExIPtr cb = new AMI_MyClass_opByteExI;
+	try
+	{
+	    oneway->opByte_async(cb, 0, 0);
+	}
+	catch(const Ice::Exception&)
+	{
+	    test(false);
+	}
+	test(cb->check());
+    }
+
     {
 	AMI_MyClass_opVoidIPtr cb = new AMI_MyClass_opVoidI;
 	p->opVoid_async(cb);
