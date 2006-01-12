@@ -850,7 +850,28 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	admin->startServer("node-1");
 	admin->startServer("node-2");
-	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(3));
+
+	//
+	// We need to wait because the node might not be fully started
+	// here (the node adapter isn't indirect, so we can't use the
+	// wait-for-activation feature here.)
+	//
+	int retry = 0;
+	while(retry < 20)
+	{
+	    try
+	    {
+		if(admin->pingNode("node-1") && admin->pingNode("node-2"))
+		{
+		    break;
+		}
+	    }
+	    catch(const NodeNotExistException&)
+	    {
+	    }
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+	    ++retry;
+	}
 	test(admin->pingNode("node-1"));
 	test(admin->pingNode("node-2"));
 
@@ -915,6 +936,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	admin->startServer("Server");
 	test(admin->getServerState("Server") == Active);
+
 	IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
 
 	update = ApplicationUpdateDescriptor();
