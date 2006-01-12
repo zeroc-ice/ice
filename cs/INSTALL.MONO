@@ -30,7 +30,7 @@ that binary, like so:
 
 $ mono foo
 
-If you want to avoid having to explictly invoke the Mono interpreter,
+If you want to avoid having to explicitly invoke the Mono interpreter,
 you can run the following commands (as root) to make your kernel
 recognize Mono binaries and automatically launch the interpreter.
 (Replace /opt/mono/bin/mono with the location of your mono interpreter
@@ -94,17 +94,36 @@ README file in each demo directory for a description of each demo.
 Installation
 ------------
 
-Put the bin/icecs.dll file where you want it and add that directory
-to your MONO_PATH. When building applications, you need to reference
-the library with the -r option to mcs.
+On Linux, open config/Make.rules.cs and change the "prefix" variable
+to hold the top-level installation directory. This directory will be
+created automatically if necessary. Also review the comments for the
+"no_gac" variable and decide whether to enable it. Next, run
 
-Alternatively, you can add icecs.dll to the global assembly cache. To
-do this, use
+    make install
 
-    gacutil -i <path_to_icecs.dll>
+On other platforms, copy the libraries from IceCS-@ver@/bin to the
+desired location.
 
-Once installed in the cache, the assembly will always be located
+After installation, add the directory containing the libraries to
+your MONO_PATH. When building applications, you need to reference
+the libraries with the -r option to mcs.
+
+Alternatively, you can add the libraries to the global assembly cache.
+To do this, use
+
+    gacutil -i <path_to_lib.dll>
+
+Once installed in the cache, the assemblies will always be located
 correctly without having to set environment variables.
 
-Another option is to copy icecs.dll into the directory that contains
-the .exe for your application.
+Finally, you could also copy the necessary libraries into the
+directory that contains the .exe for your application.
+
+
+Known Issues
+------------
+
+- Binary compatibility: Mono currently has issues with forwarding
+  requests to load a particular version of the runtime to a different
+  version. Until this is resolved in Mono, you cannot run applications
+  compiled with 3.0.0 against the 3.0.1 runtime.
