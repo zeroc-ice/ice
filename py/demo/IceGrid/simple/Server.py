@@ -32,7 +32,7 @@ class Server(Ice.Application):
 	adapter.add(HelloI(properties.getProperty("Ice.ServerId")), id)
 	adapter.activate()
 	self.communicator().waitForShutdown()
-	return True
+	return 0
 
 app = Server()
 sys.exit(app.main(sys.argv))
