@@ -1,6 +1,8 @@
 Changes since version 3.0.0
 ---------------------------
 
+- Fixed a bug where Ice plugin command line options were not parsed.
+
 - Fixed a bug in the Slice parser that caused problems if an
   included file contained white space in the file name.
 
