@@ -148,9 +148,8 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     seq = props->parseIceCommandLineOptions(seq);
 
     //
-    // Remaining command line options are passed to the
-    // communicator with argc/argv. This is necessary for Ice
-    // plugin properties (e.g.: IceSSL).
+    // Remaining command line options are passed to the communicator
+    // as an argument vector in case they contain plugin properties.
     //
     int argc = seq.size();
     char** argv = new char*[argc + 1];
@@ -173,9 +172,23 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 	    free(argv[i]);
 	}
 	delete[] argv;
-	    
+
 	setPythonException(ex);
 	return -1;
+    }
+    
+    //
+    // Replace the contents of the given argument list with the filtered arguments.
+    //
+    if(arglist)
+    {
+	PyList_SetSlice(arglist, 0, PyList_Size(arglist), NULL); // Clear the list.
+
+	for(i = 0; i < argc; ++i)
+	{
+	    PyObjectHandle str = Py_BuildValue(STRCAST("s"), argv[i]);
+	    PyList_Append(arglist, str.get());
+	}
     }
 
     for(i = 0; i < argc + 1; ++i)
@@ -183,21 +196,6 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 	free(argv[i]);
     }
     delete[] argv;
-    
-    //
-    // Replace the contents of the given argument list with the filtered arguments.
-    //
-    if(arglist)
-    {
-	if(PyList_SetSlice(arglist, 0, PyList_Size(arglist), NULL) < 0)
-	{
-	    return -1;
-	}
-	if(!stringSeqToList(seq, arglist))
-	{
-	    return -1;
-	}
-    }
 
     self->communicator = new Ice::CommunicatorPtr(communicator);
     ObjectFactoryPtr factory = new ObjectFactory;
