@@ -2053,7 +2053,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << eb;
     _out << nl << "if(!(other__ is " << name << "))";
     _out << sb;
-    _out << nl << "throw new _System.ArgumentException(\"expected argument of type `" << name << "'\", \"other__\");";
+    _out << nl << "return false;";
     _out << eb;
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {

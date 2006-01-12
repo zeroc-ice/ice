@@ -2189,8 +2189,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "End If";
     _out << nl << "If Not TypeOf other__ Is " << name << " Then";
     _out.inc();
-    _out << nl << "Throw New _System.ArgumentException(\"expected argument of type `" << p->name()
-         << "'\", \"other__\")";
+    _out << nl << "Return False";
     _out.dec();
     _out << nl << "End If";
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
