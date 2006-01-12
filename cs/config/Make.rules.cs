@@ -8,13 +8,6 @@
 # **********************************************************************
 
 #
-# If you are building from a CVS source tree, define cvs_build = yes.
-# Otherwise, for an Ice for C# distribution, leave it commented out.
-#
-
-cvs_build = yes
-
-#
 # Set this to the root of the Ice for C++ source tree if you want to
 # build using the Slice definitions from the C++ source tree.
 # (You must set slice_home to a pathname that is relative to $(top_srcdir),
@@ -75,6 +68,13 @@ KERBEROS_HOME		?= /usr/kerberos
 #
 
 #EXPAT_HOME		?= /opt/expat
+
+#
+# If you are building from a CVS source tree, define cvs_build = yes.
+# Otherwise, for an Ice for C# distribution, leave it commented out.
+#
+
+cvs_build=yes
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!

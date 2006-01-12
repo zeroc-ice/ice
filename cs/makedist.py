@@ -53,6 +53,28 @@ def fixVersion(files, version):
         os.remove(origfile)
 
 #
+# Comment out lines containing a keyword in a makefile.
+#
+def editMakefile(file, keyword):
+    origfile = file + ".orig"
+    os.rename(file, origfile)
+    oldFile = open(origfile, "r")
+    newFile = open(file, "w")
+    origLines = oldFile.readlines()
+
+    newLines = []
+    for x in origLines:
+        if x.find(keyword) == -1:
+            newLines.append(x)
+	else:
+            newLines.append('#' + x)
+
+    newFile.writelines(newLines)
+    newFile.close()
+    oldFile.close()
+    os.remove(origfile)
+
+#
 # Are we on Windows?
 #
 win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
@@ -166,6 +188,11 @@ for x in filesToRemove:
 #
 config = open(os.path.join("icecs", "src", "Ice", "AssemblyInfo.cs"), "r")
 version = re.search("AssemblyVersion.*\"([0-9\.]*)\"", config.read()).group(1)
+
+#
+# Fix Make.rules.cs.
+#
+editMakefile(os.path.join("icecs", "config", "Make.rules.cs"), "cvs_build=yes")
 
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icecs", "README*"), version)
