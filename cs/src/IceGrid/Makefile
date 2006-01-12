@@ -38,6 +38,11 @@ ifeq ($(NOGAC),)
 install:: all
 	$(GACUTIL) -i $(bindir)/$(LIBNAME)
 
+else
+
+install:: all
+	$(call installlibrary,$(bindir)/icegridcs.dll,$(install_bindir))
+
 endif
 
 include .depend

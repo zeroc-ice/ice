@@ -38,6 +38,11 @@ ifeq ($(NOGAC),)
 install:: all
 	$(GACUTIL) -i $(bindir)/$(LIBNAME)
 
+else
+
+install:: all
+	$(call installlibrary,$(bindir)/iceboxcs.dll,$(install_bindir))
+
 endif
 
 install:: all

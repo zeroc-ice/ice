@@ -35,6 +35,11 @@ ifeq ($(NOGAC),)
 install:: all
 	$(GACUTIL) -i $(bindir)/$(LIBNAME)
 
+else
+
+install:: all
+	$(call installlibrary,$(bindir)/icepatch2cs.dll,$(install_bindir))
+
 endif
 
 include .depend

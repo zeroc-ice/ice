@@ -81,7 +81,7 @@ cvs_build=yes
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.0.0
+VERSION			= 3.0.1
 bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib
 slicedir := $(shell test -d $(top_srcdir)/slice && echo $(top_srcdir))
@@ -124,6 +124,11 @@ endif
 
 ifeq ($(installprogram),)
     installprogram	= $(INSTALL_PROGRAM) $(1) $(2); \
+			  chmod a+rx $(2)/$(notdir $(1))
+endif
+
+ifeq ($(installlibrary),)
+    installlibrary	= $(INSTALL_LIBRARY) $(1) $(2); \
 			  chmod a+rx $(2)/$(notdir $(1))
 endif
 

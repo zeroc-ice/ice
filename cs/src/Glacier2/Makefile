@@ -39,6 +39,11 @@ ifeq ($(NOGAC),)
 install:: all
 	$(GACUTIL) -i $(bindir)/$(LIBNAME)
 
+else
+
+install:: all
+	$(call installlibrary,$(bindir)/glacier2cs.dll,$(install_bindir))
+
 endif
 
 include .depend
