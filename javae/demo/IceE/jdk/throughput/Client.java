@@ -383,7 +383,7 @@ public class Client
 		    {
 			mbit *= 2;
 		    }
-		    System.out.println("throughput: " + mbit + " MBit/s");
+		    System.out.println("throughput: " + mbit + " Mbps");
 		}
 		else if(line.equals("s"))
 		{

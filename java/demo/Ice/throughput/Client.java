@@ -371,7 +371,7 @@ public class Client extends Ice.Application
 		    {
 			mbit *= 2;
 		    }
-		    System.out.println("throughput: " + mbit + " MBit/s");
+		    System.out.println("throughput: " + mbit + " Mbps");
 		}
 		else if(line.equals("s"))
 		{

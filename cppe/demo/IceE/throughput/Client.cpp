@@ -372,7 +372,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		{
 		    mbit *= 2;
 		}
-		printf("throughput: %f MBit/s\n", mbit);
+		printf("throughput: %f Mbps\n", mbit);
 	    }
 	    else if(c == 's')
 	    {

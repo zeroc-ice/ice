@@ -351,7 +351,7 @@ ThroughputClient::run(int argc, char* argv[])
 		{
 		    mbit *= 2;
 		}
-		cout << "throughput: " << mbit << " MBit/s" << endl;
+		cout << "throughput: " << mbit << " Mbps" << endl;
 	    }
 	    else if(c == 's')
 	    {
