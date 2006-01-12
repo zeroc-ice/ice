@@ -25,7 +25,14 @@
 # section must be an identifier followed by a colon, such as
 # "ice:". The section label is optionally followed by a boolean
 # which is used to determine whether command line processing is
-# done on this section by default. The default is true.
+# done on this section by default. The default is true. If set to
+# true, command line options matching the section label will be
+# parsed by PropertiesI::parseIceCommandLineOptions(). If set to
+# false, command line options matching the section label won't be
+# parsed by PropertiesI::parseIceCommandLineOptions. This is useful
+# for plugin properties (e.g.: IceSSL) which are parsed when the
+# plugin is loaded (see PluginManagerI::loadPlugins()).
+#
 # Section labels must appear on a line by themselves (possibly
 # followed by a comment).  Leading and trailing whitespace is
 # ignored. Each section must occur only once in a file. "validProps"
