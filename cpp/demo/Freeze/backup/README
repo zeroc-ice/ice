@@ -40,12 +40,12 @@ information on Berkeley DB hot backups.
 Note that the Ice config file (named config) disables the automatic
 deletion of old log files:
 
-Freeze.DbEnv.db.OldLogsAutoDelete=0
+Freeze.DbEnv.backup.OldLogsAutoDelete=0
 
 and also sets DbPrivate to 0 to allow db_archive to access the db 
 environment while the client is running:
 
-Freeze.DbEnv.db.DbPrivate=0
+Freeze.DbEnv.backup.DbPrivate=0
 
 The db/DB_CONFIG file is used to put the data files and log files in
 different sub-directories, which simplifies archiving.

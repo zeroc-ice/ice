@@ -29,7 +29,7 @@ case $1 in
           echo "====== Please run now ======"
           echo "% db_recover -c -h db"
           echo "or"
-          echo "client with Freeze.DbEnv.db.DbRecoverFatal=1"
+          echo "client with Freeze.DbEnv.backup.DbRecoverFatal=1"
           ;;
 
   *) echo "Usage: $0 [full | incremental]"
