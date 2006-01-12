@@ -36,7 +36,7 @@ prefix			= /opt/icecs-$(VERSION)
 # The default behavior of 'make install' attempts to add the Ice for C#
 # libraries to the Global Assembly Cache (GAC). If you would prefer not
 # to install these libraries to the GAC, or if you do not have sufficient
-# priveleges to do so, then enable no_gac and the libraries will be
+# privileges to do so, then enable no_gac and the libraries will be
 # copied to $(prefix)/bin instead.
 #
 
