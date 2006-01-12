@@ -1019,7 +1019,7 @@ class TwowaysAMI
     twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
     {
         {
-	    // Check taht we can invoke a void operation via a oneway proxy.
+	    // Check that we can invoke a void operation via a oneway proxy.
 	    Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
 	    AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
 	    oneway.opVoid_async(cb);
@@ -1027,7 +1027,7 @@ class TwowaysAMI
 	}
 
 	{
-	    // Check that a call to a twoway operation raqises TwowayOnlyException
+	    // Check that a call to a twoway operation raises TwowayOnlyException
 	    // in the ice_exception() callback instead of at the point of call.
 	    Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
 	    AMI_MyClass_opByteExI cb = new AMI_MyClass_opByteExI();
