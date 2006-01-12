@@ -100,6 +100,27 @@ public class TwowaysAMI
         
         private Callback callback = new Callback();
     }
+
+    private class AMI_MyClass_opByteExI : Test.AMI_MyClass_opByte
+    {
+	public override void ice_response(byte r, byte b)
+	{
+	    test(false);
+	}
+
+	public override void ice_exception(Ice.Exception ex)
+	{
+	    test(ex is Ice.TwowayOnlyException);
+	    callback.called();
+	}
+
+	public virtual bool check()
+	{
+	    return callback.check();
+	}
+
+	private Callback callback = new Callback();
+    }
     
     private class AMI_MyClass_opBoolI : Test.AMI_MyClass_opBool
     {
@@ -907,6 +928,30 @@ public class TwowaysAMI
     
     internal static void twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
     {
+        {
+	    // Check that we can invoke a void operation via a oneway proxy.
+	    Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
+	    AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
+	    oneway.opVoid_async(cb);
+	    test(cb.check());
+	}
+
+	{
+	    // Check that a call to a twoway operation raises TwowayOnlyException
+	    // in the ice_exception() callback instead of at the point of call.
+	    Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
+	    AMI_MyClass_opByteExI cb = new AMI_MyClass_opByteExI();
+	    try
+	    {
+	        oneway.opByte_async(cb, (byte)0, (byte)0);
+	    }
+	    catch(Ice.Exception)
+	    {
+	        test(false);
+	    }
+	    test(cb.check());
+	}
+
         {
             AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
             p.opVoid_async(cb);

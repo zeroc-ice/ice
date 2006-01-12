@@ -3127,8 +3127,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << "java.util.Map __ctx"
 		<< epar;
 	    out << sb;
-	    // Async requests may only be sent twoway.
-	    out << nl << "__checkTwowayOnly(\"" << p->name() << "\");";
 	    out << nl << "__cb.__invoke" << spar << "this" << argsAMI << "__ctx" << epar << ';';
 	    out << eb;
 	}
@@ -4553,6 +4551,13 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	out << nl << "try";
 	out << sb;
 	out << nl << "__prepare(__prx, \"" << p->name() << "\", " << sliceModeToIceMode(p) << ", __ctx);";
+	if(p->returnsData())
+	{
+	    out << nl << "if(!__prx.ice_isTwoway())";
+	    out << sb;
+	    out << nl << "throw new Ice.TwowayOnlyException(\"" << p->name() << "\");";
+	    out << eb;
+	}
         iter = 0;
 	for(pli = inParams.begin(); pli != inParams.end(); ++pli)
 	{

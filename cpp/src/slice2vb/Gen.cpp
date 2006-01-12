@@ -3708,7 +3708,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	         << "ByVal ctx__ As Ice.Context" << epar
 	         << " Implements " << name << "Prx." << opName << "_async"; // TODO: should be containing class?
 	    _out.inc();
-	    _out << nl << "checkTwowayOnly__(\"" << p->name() << "\")";
 	    _out << nl << "cb__.invoke__" << spar << "Me" << argsAMI << "ctx__" << epar;
 	    _out.dec();
 	    _out << nl << "End Sub";
@@ -4792,6 +4791,16 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out << nl << "Try";
 	_out.inc();
 	_out << nl << "prepare__(prx__, \"" << p->name() << "\", " << sliceModeToIceMode(p) << ", ctx__)";
+	if(p->returnsData())
+	{
+	    _out << nl << "If Not prx__.ice_isTwoway() Then";
+	    _out.inc();
+	    _out << nl << "Dim ex As Ice.TwowayOnlyException = New Ice.TwowayOnlyException()";
+	    _out << nl << "ex.operation = \"" << p->name() << "\"";
+	    _out << nl << "Throw ex";
+	    _out.dec();
+	    _out << nl << "End If";
+	}
 	for(q = inParams.begin(); q != inParams.end(); ++q)
 	{
 	    string typeS = typeToString(q->first);

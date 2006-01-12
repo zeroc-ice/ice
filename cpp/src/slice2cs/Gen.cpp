@@ -3360,7 +3360,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	    _out << nl << "public void " << opName << "_async" << spar << paramsAMI << "Ice.Context ctx__" << epar;
 	    _out << sb;
-	    _out << nl << "checkTwowayOnly__(\"" << p->name() << "\");";
 	    _out << nl << "cb__.invoke__" << spar << "this" << argsAMI << "ctx__" << epar << ';';
 	    _out << eb;
 	}
@@ -4312,6 +4311,15 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out << nl << "try";
 	_out << sb;
 	_out << nl << "prepare__(prx__, \"" << name << "\", " << sliceModeToIceMode(p) << ", ctx__);";
+	if(p->returnsData())
+	{
+	    _out << nl << "if(!prx__.ice_isTwoway())";
+	    _out << sb;
+	    _out << nl << "Ice.TwowayOnlyException ex = new Ice.TwowayOnlyException();";
+	    _out << nl << "ex.operation = \"" << name << "\";";
+	    _out << nl << "throw ex;";
+	    _out << eb;
+	}
 	for(q = inParams.begin(); q != inParams.end(); ++q)
 	{
 	    string typeS = typeToString(q->first);
