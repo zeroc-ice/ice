@@ -324,14 +324,28 @@ public class ServiceManagerI extends _ServiceManagerDisp
 		    name = name.length() == 0 ? service : name + "-" + service;
 		}
 
+		//
+		// Load property file eventually specified with
+		// --Ice.Config and add the properties from the file to
+		// the service properties.
+		//
 		Ice.Properties fileProperties = Ice.Util.createProperties(serviceArgs);
 		serviceProperties.parseCommandLineOptions("", fileProperties.getCommandLineOptions());
+
 		serviceProperties.setProperty("Ice.ProgramName", name);
 
+		//
+		// Parse Ice and <service>.* command line options.
+		//
 		serviceArgs = serviceProperties.parseIceCommandLineOptions(serviceArgs);
 		serviceArgs = serviceProperties.parseCommandLineOptions(service, serviceArgs);
 
-		info.communicator = Ice.Util.initializeWithProperties(new String[0], serviceProperties);
+		//
+		// Remaining command line options are passed to the
+		// communicator with argc/argv. This is necessary for Ice
+		// plugin properties (e.g.: IceSSL).
+		//
+		info.communicator = Ice.Util.initializeWithProperties(serviceArgs, serviceProperties);
 	    }
 	
 	    Ice.Communicator communicator = info.communicator != null ? info.communicator : _server.communicator();

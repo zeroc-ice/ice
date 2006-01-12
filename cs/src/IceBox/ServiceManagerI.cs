@@ -349,15 +349,23 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 		    name = name.Length == 0 ? service : name + "-" + service;
 		}
 
+		//
+		// Load property file eventually specified with
+		// --Ice.Config and add the properties from the file to
+		// the service properties.
+		//
 		Ice.Properties fileProperties = Ice.Util.createProperties(ref serviceArgs);
 		serviceProperties.parseCommandLineOptions("", fileProperties.getCommandLineOptions());
+
 		serviceProperties.setProperty("Ice.ProgramName", name);
 
+		//
+		// Parse Ice and <service>.* command line options.
+		//
 		serviceArgs = serviceProperties.parseIceCommandLineOptions(serviceArgs);
 		serviceArgs = serviceProperties.parseCommandLineOptions(service, serviceArgs);
 
-		string[] emptyArgs = new string[0];
-		info.communicator = Ice.Util.initializeWithProperties(ref emptyArgs, serviceProperties);
+		info.communicator = Ice.Util.initializeWithProperties(ref serviceArgs, serviceProperties);
 	    }
 	
 	    Ice.Communicator communicator = info.communicator != null ? info.communicator :
