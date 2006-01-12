@@ -198,17 +198,18 @@ else:
     os.environ["LD_LIBRARY_PATH_64"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
 
 if protocol == "ssl":
+    certs		 = os.path.abspath(os.path.join(toplevel, "certs"))
     plugin		 = " --Ice.Plugin.IceSSL=IceSSL:create"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Client.CertPath=" + certs + \
                            " --IceSSL.Client.Config=client_sslconfig.xml"
     serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Server.CertPath=" + certs + \
                            " --IceSSL.Server.Config=server_sslconfig.xml"
     clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Client.CertPath=" + certs + \
                            " --IceSSL.Client.Config=sslconfig.xml" + \
-                           " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "certs") + \
+                           " --IceSSL.Server.CertPath=" + certs + \
                            " --IceSSL.Server.Config=sslconfig.xml"
 else:
     clientProtocol = ""
