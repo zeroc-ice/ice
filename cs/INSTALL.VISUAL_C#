@@ -19,8 +19,8 @@ Make sure that the directory containing slice2cs is in your PATH. Note
 that icecpp.exe must be in your path as well, as must be the Ice for
 C++ run-time libraries iceutil and slice.
 
-Open All.sln in Visual C# and build the "All" solution (both
-debug and release builds are supported).
+Open All.sln in Visual C# and build the "All" solution (both debug and
+release builds are supported).
 
 Note: The first time you build, you will most likely find that you get
 errors for the following projects:
@@ -42,8 +42,9 @@ To run the tests, you will need Python:
 
 http://www.python.org/download
 
-Run "python allTests.py" from the top-level directory to run all of the
-tests, or "python allTests.py -l" to run the tests in an endless loop.
+Run "python allTests.py" from the top-level directory to run all of
+the tests, or "python allTests.py -l" to run the tests in an endless
+loop.
 
 You can also run individual tests in the various test directories with
 "python run.py".
@@ -58,25 +59,26 @@ Running the demos
 -----------------
 
 To run the demos, you need to have the Ice bin directory in your PATH.
-See the README file in each demo directory for a description of each
+See the README file in each demo directory for a description of the
 demo.
 
 
 Installation
 ------------
 
-You can copy the generated bin/icecs.dll file where you want it
-and then reference it in your appliation code.
+You can copy the assembly files where you want them and then reference
+them in your application code.
 
-Alternatively, you can add icecs.dll to the global assembly cache. To
-do this, open Explorer and navigate to C:\WINDOWS\assembly. Then drag
-and drop (or copy and paste) icecs.dll into the right-hand pane to
-install it in the cache.
+Alternatively, you can add the assemblies to the Global Assembly
+Cache (GAC). To do this, open Explorer and navigate to the directory
+C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
+assemblies from IceCS-@ver@\bin into the right-hand pane to
+install them in the cache.
 
 Or you can use gacutil from the command line to achieve the same
 thing:
 
-    gacutil /i "path_to_icecs.dll"
+    gacutil /i "path_to_lib.dll"
 
 You can find gacutil.exe in the SDK\Tools\Bin folder of your Visual C#
 installation. For example, assuming that you have installed Visual C#
@@ -84,12 +86,12 @@ in C:\Program Files, the path to gacutil is
 
     C:\Program Files\Microsoft Visual Studio .NET 2003\SDK\v1.1\Bin\gacutil.exe
 
-Once installed in the cache, the assembly will always be located
-correctly without having to set environment variables or copying it
+Once installed in the cache, the assemblies will always be located
+correctly without having to set environment variables or copy them
 into the directory of a .exe.
 
 If you want line numbers for stack traces, you must also install the
-icecs.pdb file in the GAC. Unfortunately, you cannot do this using
+PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
 Explorer, so you have to do it from the command line. Open a command
 shell window and navigate to C:\WINDOWS\assembly\GAC\icecs. (Assuming
 C:\WINDOWS is your system root.) Doing a directory listing there, you
@@ -98,9 +100,111 @@ will find a directory named @ver@__<UUID>, for example:
     @ver@__1f998c50fec78381
 
 Change to that directory (making sure that you use the correct version
-number for this release of Ice). In this directory, you will a file
-called __AssemblyInfo__.ini and the icecs.dll you installed into the
-GAC in the preceding step. Now copy the icecs.pdb file into this
+number for this release of Ice). In this directory, you will see a
+file called __AssemblyInfo__.ini and the icecs.dll you installed into
+the GAC in the preceding step. Now copy the icecs.pdb file into this
 directory:
 
     copy <path_to_icecs.pdb> .
+
+
+Binary compatibility
+--------------------
+
+Patch releases of Ice are binary compatible. For example, version 3.0.1
+is compatible with 3.0.0, so you can run applications compiled with
+3.0.0 with the 3.0.1 runtime without having to recompile.
+
+If you want to run already deployed 3.0.0 applications with the 3.0.1
+runtime on a machine, follow the steps under (1) or (2) below:
+
+1) On a machine with the Ice source tree and Visual Studio installed:
+
+   - Start a command shell.
+
+   - Run the following commands:
+
+	gacutil /u policy.3.0.icecs
+	gacutil /u policy.3.0.iceboxcs
+	gacutil /u policy.3.0.icegridcs
+	gacutil /u policy.3.0.icepatch2cs
+	gacutil /u policy.3.0.icestormcs
+	gacutil /u policy.3.0.glacier2cs
+
+     These commands uninstall the 3.0.0 Ice runtime. gacutil.exe is
+     installed in C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322
+     (assuming that you are running build 4322 of the .NET framework).
+
+   - Build the solution.
+
+   - In a command shell, change directory to the bin directory of the
+     icecs source tree.
+
+   - Run the following commands:
+
+	gacutil.exe /i policy.3.0.icecs.dll
+	gacutil.exe /i policy.3.0.iceboxcs.dll
+	gacutil.exe /i policy.3.0.icegridcs.dll
+	gacutil.exe /i policy.3.0.icepatch2.dll
+	gacutil.exe /i policy.3.0.icestormcs.dll
+	gacutil.exe /i policy.3.0.glacier2cs.dll
+
+     These commands cause applications requesting the 3.0.0 runtime to
+     load the 3.0.1 runtime instead.
+
+   - From the bin directory, run the commands:
+
+	gacutil /i icecs.dll
+	gacutil /i iceboxcs.dll
+	gacutil /i icegridcs.dll
+	gacutil /i icepatch2cs.dll
+	gacutil /i icestormcs.dll
+	gacutil /i glacier2cs.dll
+
+     These commands install the 3.0.1 dlls into the GAC.
+
+2) On a machine without the Ice source tree and without Visual Studio:
+
+   - Copy all the files beginning with "policy", and all files ending
+     in ".dll" from the bin directory of the machine on which you
+     compiled Ice for C# into a single directory on the target
+     machine.
+
+   - Start a command shell.
+
+   - Run the following commands:
+
+	gacutil /u policy.3.0.icecs
+	gacutil /u policy.3.0.iceboxcs
+	gacutil /u policy.3.0.icegridcs
+	gacutil /u policy.3.0.icepatch2cs
+	gacutil /u policy.3.0.icestormcs
+	gacutil /u policy.3.0.glacier2cs
+
+     These commands uninstall the 3.0.0 Ice runtime. gacutil.exe is
+     installed in C:\WINDOWS\Microsoft.NET\Framework\v1.1.4322
+     (assuming that you are running build 4322 of the .NET framework).
+
+   - Change to the directory containing the policy and .dll files you
+     copied previously and run the following commands:
+
+	gacutil.exe /i policy.3.0.icecs.dll
+	gacutil.exe /i policy.3.0.iceboxcs.dll
+	gacutil.exe /i policy.3.0.icegridcs.dll
+	gacutil.exe /i policy.3.0.icepatch2.dll
+	gacutil.exe /i policy.3.0.icestormcs.dll
+	gacutil.exe /i policy.3.0.glacier2cs.dll
+
+     These commands cause applications requesting the 3.0.0 runtime to
+     load the 3.0.1 runtime instead.
+
+   - Then run the commands:
+
+	gacutil /i icecs.dll
+	gacutil /i iceboxcs.dll
+	gacutil /i icegridcs.dll
+	gacutil /i icepatch2cs.dll
+	gacutil /i icestormcs.dll
+	gacutil /i glacier2cs.dll
+
+     These commands install the 3.0.1 dlls into the GAC.
