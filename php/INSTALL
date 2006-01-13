@@ -2,7 +2,7 @@
 Requirements
 =========================================================================
 
-- PHP 5.0.5 (http://www.php.net/downloads.php)
+- PHP 5.0.5 or 5.1.2 (http://www.php.net/downloads.php)
 - Ice for C++ @ver@ Development Kit
 
 
@@ -58,11 +58,18 @@ Updating configure
 ------------------
 
 In order to make the PHP build system aware of the Ice extension, the
-configure script must be updated. The IcePHP distribution includes a
-replacement script that you can install:
+configure script must be updated. The IcePHP distribution includes
+replacement scripts that you can install. For PHP 5.0.5, use the
+following commands:
 
 $ cd <phpdir>
 $ cp <icephpdir>/configure.gz .
+$ gunzip configure
+
+For PHP 5.1.2, use a different configure script:
+
+$ cd <phpdir>
+$ cp <icephpdir>/configure-5.1.2.gz configure.gz
 $ gunzip configure
 
 Alternatively, you can regenerate the configure script yourself if you
