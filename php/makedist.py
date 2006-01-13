@@ -109,6 +109,11 @@ fixVersion(find("icephp", "INSTALL*"), version)
 #
 icephpver = "IcePHP-" + version
 os.rename("icephp", icephpver)
+os.system("chmod -R u+rw,go+r-w . " + icephpver)
+os.system("find " + icephpver + " \\( -name \"*.php\" -or -name \"*.ice\" \\) -exec chmod a-x {} \\;")
+os.system("find " + icephpver + " \\( -name \"README*\" -or -name \"INSTALL*\" \\) -exec chmod a-x {} \\;")
+os.system("find " + icephpver + " -type d -exec chmod a+x {} \\;")
+os.system("find " + icephpver + " -perm +111 -exec chmod a+x {} \\;")
 os.system("tar cvf " + icephpver + ".tar " + icephpver)
 os.system("gzip -9 " + icephpver + ".tar")
 os.system("zip -9r " + icephpver + ".zip " + icephpver)

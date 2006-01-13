@@ -252,6 +252,12 @@ if verbose:
     quiet = "v"
 else:
     quiet = ""
+os.system("chmod -R u+rw,go+r-w . " + icever)
+os.system("find " + icever + " \\( -name \"*.java\" -or -name \"*.ice\" \\) -exec chmod a-x {} \\;")
+os.system("find " + icever + " \\( -name \"README*\" -or -name \"INSTALL*\" \\) -exec chmod a-x {} \\;")
+os.system("find " + icever + " \\( -name \"*.xml\" -or -name \"*.html\" \\) -exec chmod a-x {} \\;")
+os.system("find " + icever + " -type d -exec chmod a+x {} \\;")
+os.system("find " + icever + " -perm +111 -exec chmod a+x {} \\;")
 os.system("tar c" + quiet + "zf " + icever + ".tar.gz " + icever)
 if verbose:
     quiet = ""

@@ -379,8 +379,13 @@ if verbose:
     quiet = "v"
 else:
     quiet = ""
-os.system("chmod -R u+rw,go+r . " + icever)
+os.system("chmod -R u+rw,go+r-w . " + icever)
+os.system("find " + icever + " \\( -name \"*.h\" -or -name \"*.cpp\" -or -name \"*.ice\" \\) -exec chmod a-x {} \\;")
+os.system("find " + icever + " \\( -name \"README*\" -or -name \"INSTALL*\" \\) -exec chmod a-x {} \\;")
+os.system("find " + icever + " \\( -name \"*.xml\" -or -name \"*.mc\" \\) -exec chmod a-x {} \\;")
+os.system("find " + icever + " \\( -name \"Makefile\" -or -name \"*.dsp\" \\) -exec chmod a-x {} \\;")
 os.system("find " + icever + " -type d -exec chmod a+x {} \\;")
+os.system("find " + icever + " -perm +111 -exec chmod a+x {} \\;")
 os.system("tar c" + quiet + "f " + icever + ".tar " + icever)
 os.system("gzip -9 " + icever + ".tar")
 if verbose:
