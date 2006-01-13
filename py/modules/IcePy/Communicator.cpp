@@ -151,7 +151,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     // Remaining command line options are passed to the communicator
     // as an argument vector in case they contain plugin properties.
     //
-    int argc = seq.size();
+    int argc = static_cast<int>(seq.size());
     char** argv = new char*[argc + 1];
     int i = 0;
     for(Ice::StringSeq::const_iterator s = seq.begin(); s != seq.end(); ++s, ++i)
