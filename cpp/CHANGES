@@ -9,26 +9,25 @@ Changes since version 3.0.0
   and time string. (toString() will continue to work as a synonym for
   two more releases and will then be removed.)
 
-  IceUtil::Time::toDuration() is a new function that returns a duration
-  string of the form "days hh:mm:ss.usec". (The number of days and micro
-  seconds is printed only if they are non-zero.)
+  IceUtil::Time::toDuration() is a new function that returns a
+  duration string of the form "days hh:mm:ss.usec". (The number of
+  days and micro seconds is printed only if they are non-zero.)
 
-- Fixed a bug in the Slice parser that caused problems if an
-  included file contained white space in the file name.
+- Fixed a bug in the Slice parser that caused problems if an included
+  file contained white space in the file name.
 
 - Fixed a bug where the IceGrid node would fail to retrieve the CPU
   utilization on localized Windows versions.
 
-- The Glacier2 router now logs a warning if a request arrives on
-  an unknown connection if Glacier2.Client.Trace.Reject >= 1
+- The Glacier2 router now logs a warning if a request arrives on an
+  unknown connection if Glacier2.Client.Trace.Reject >= 1.
 
-- Fixed a bug in IceGrid, in which on Windows environment variables
-  set in server descriptors would not override those already set in
-  the nodes environment.
+- Fixed a bug in IceGrid on Windows where environment variables set
+  in server descriptors would not override those already set in the
+  node's environment.
 
-- Fixed a bug in slice2freeze in which using the --output-dir
-  option was causing include paths to be modified in generated
-  files.
+- Fixed a bug in slice2freeze in which using the --output-dir option
+  was causing include paths to be modified in generated files.
 
 - Fixed a bug where the IceGrid node, if installed as a Windows
   service, wouldn't correctly start on boot.
@@ -42,8 +41,8 @@ Changes since version 3.0.0
 
 - Added support for Apple Xcode 2.2.
 
-- Windows x64 port; INSTALL.WINDOWS now shows how to target the
-  x64 platform.
+- Windows x64 port; INSTALL.WINDOWS now shows how to target the x64
+  platform.
 
 Changes since version 2.1.2
 ---------------------------
