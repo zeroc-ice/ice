@@ -259,8 +259,26 @@ To build the Ice extension in a static configuration:
     definition of the BUILD_CLI variable and change "$(CC)" to
     "$(CXX)".
 
+    If you are using PHP 5.1.2, you will also need to modify the
+    definition of BUILD_CLI to replace the following portion
+
+    sed 's/\([A-Za-z0-9_]*\)\.lo/.libs\/\1.o/g'
+
+    with
+
+    sed 's/\([A-Za-z0-9_]*\)\.lo/\1.o/g'
+
   - If the CGI interpreter is being built, search for the definition
     of the BUILD_CGI variable and change "$(CC)" to "$(CXX)".
+
+    If you are using PHP 5.1.2, you will also need to modify the
+    definition of BUILD_CGI to replace the following portion
+
+    sed 's/\([A-Za-z0-9_]*\)\.lo/.libs\/\1.o/g'
+
+    with
+
+    sed 's/\([A-Za-z0-9_]*\)\.lo/\1.o/g'
 
   - If a Web server module is being built, search for the line
     beginning with "libphp5.la:", and change "$(CC)" to "$(CXX)" in
