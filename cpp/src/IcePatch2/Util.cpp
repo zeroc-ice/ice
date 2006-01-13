@@ -937,7 +937,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 
 			compressBytesToFile(pathBZ2Temp, bytes, static_cast<Int>(relPath.size()));
 			
-			OS::rename(pathBZ2Temp, pathBZ2);
+			rename(pathBZ2Temp, pathBZ2);
 
 			if(OS::osstat(pathBZ2, &bufBZ2) == -1)
 			{
