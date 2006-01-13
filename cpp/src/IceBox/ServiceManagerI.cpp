@@ -340,7 +340,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    // communicator with argc/argv. This is necessary for Ice
 	    // plugin properties (e.g.: IceSSL).
 	    //
-	    int argc = serviceArgs.size();
+	    int argc = static_cast<int>(serviceArgs.size());
 	    char** argv = new char*[argc + 1];
 	    int i = 0;
 	    for(Ice::StringSeq::const_iterator p = serviceArgs.begin(); p != serviceArgs.end(); ++p, ++i)
