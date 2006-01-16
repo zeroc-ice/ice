@@ -99,7 +99,7 @@ def doTest(batch):
     print "checking " + name + " lockfile removal...",
     lockCount = 0
     while os.path.isfile(subscriberLockFile):
-        if lockCount > 10:
+        if lockCount > 60:
             print "failed!"
             TestUtil.killServers()
             sys.exit(1)

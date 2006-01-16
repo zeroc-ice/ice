@@ -166,15 +166,16 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     {
         qos["reliability"] = "batch";
     }
+
+    TopicPrx fed1;
+    TopicPrx fed2;
+    TopicPrx fed3;
+
     try
     {
-        TopicPrx topic;
-        topic = manager->retrieve("fed1");
-	topic->subscribe(qos, objFed1);
-        topic = manager->retrieve("fed2");
-	topic->subscribe(qos, objFed2);
-        topic = manager->retrieve("fed3");
-	topic->subscribe(qos, objFed3);
+        fed1 = manager->retrieve("fed1");
+        fed2 = manager->retrieve("fed2");
+        fed3 = manager->retrieve("fed3");
     }
     catch(const IceStorm::NoSuchTopic& e)
     {
@@ -182,9 +183,17 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
+    fed1->subscribe(qos, objFed1);
+    fed2->subscribe(qos, objFed2);
+    fed3->subscribe(qos, objFed3);
+
     createLock(lockfile);
 
     communicator->waitForShutdown();
+
+    fed1->unsubscribe(objFed1);
+    fed2->unsubscribe(objFed2);
+    fed3->unsubscribe(objFed3);
 
     deleteLock(lockfile);
 
