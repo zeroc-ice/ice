@@ -1,11 +1,14 @@
+Changes since version 3.0.1
+---------------------------
+
+- Fixed a bug in the class garbage collector that could result in
+  double deallocation of class instances.
+
 Changes since version 3.0.0
 ---------------------------
 
 - Fixed an assert that could occur during connection establishment if
   the communicator was shutdown or destroyed concurrently.
-
-- Fixed a bug in the class garbage collector that could result in double
-  deallocation of class instances.
 
 - IceUtil::Time::toString() has been deprecated and should no longer
   be used. Instead, use IceUtil::Time::toDateTime() to get a date
