@@ -56,7 +56,12 @@ namespace Ice
 			return;
 		    }
 
-		    Debug.Assert(_state == StateNotValidated);
+		    Debug.Assert(_state == StateNotValidated || _state == StateClosed);
+		    if(_state == StateClosed)
+		    {
+			Debug.Assert(_exception != null);
+			throw _exception;
+		    }
 
 		    if(_adapter != null)
 		    {

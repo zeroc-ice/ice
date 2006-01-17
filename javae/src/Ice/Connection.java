@@ -1002,7 +1002,15 @@ public final class Connection
 	{
 	    if(IceUtil.Debug.ASSERT)
 	    {
-		IceUtil.Debug.Assert(_state == StateNotValidated);
+		IceUtil.Debug.Assert(_state == StateNotValidated || _state == StateClosed);
+	    }
+	    if(_state == StateClosed)
+	    {
+		if(IceUtil.Debug.ASSERT)
+		{
+		    IceUtil.Debug.Assert(_exception != null);
+		}
+		throw _exception;
 	    }
 		
 	    if(_adapter != null)

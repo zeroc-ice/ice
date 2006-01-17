@@ -1046,7 +1046,16 @@ Ice::Connection::validate()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	    
-        assert(_state == StateNotValidated);
+	//
+	// The connection might already be closed (e.g.: the communicator 
+	// was destroyed or object adapter deactivated.)
+	//
+	assert(_state == StateNotValidated || _state == StateClosed);
+	if(_state == StateClosed)
+	{
+	    assert(_exception.get());
+	    _exception->ice_throw();
+	}
         
         if(_adapter)
         {

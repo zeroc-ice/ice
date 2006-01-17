@@ -61,7 +61,16 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    return;
 		}
 		
-		assert(_state == StateNotValidated);
+		//
+		// The connection might already be closed (e.g.: the communicator 
+		// was destroyed or object adapter deactivated.)
+		//
+		assert(_state == StateNotValidated || _state == StateClosed);
+		if(_state == StateClosed)
+		{
+		    assert(_exception != null);
+		    throw _exception;
+		}
 		
 		if(_adapter != null)
 		{
