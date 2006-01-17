@@ -636,6 +636,30 @@ class Twoways
 
 		communicator.setDefaultContext(new java.util.Hashtable());
 		test(!p2.opContext().isEmpty());
+
+		communicator.setDefaultContext(dflt);
+		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
+					communicator.stringToProxy("test:default -p 12345 -t 10000"));
+		test(c.opContext().equals(dflt));
+
+		dflt.put("a", "c");
+		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_newContext(dflt));
+		test(c2.opContext().get("a").equals("c"));
+
+		dflt.clear();
+		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_newContext(dflt));
+		test(c3.opContext().get("a") == null);
+
+		Test.MyClassPrx c4 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
+		test(c4.opContext().get("a").equals("b"));
+
+		dflt.put("a", "d");
+		communicator.setDefaultContext(dflt);
+
+		Test.MyClassPrx c5 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
+		test(c5.opContext().get("a").equals("d"));
+
+		communicator.setDefaultContext(new java.util.HashMap());
 	    }
 	}
     }

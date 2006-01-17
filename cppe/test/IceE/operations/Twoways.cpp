@@ -658,6 +658,43 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
 	    communicator->setDefaultContext(Ice::Context());
 	    test(!p2->opContext().empty());
+
+	    communicator->setDefaultContext(dflt);
+	    Test::MyClassPrx c = Test::MyClassPrx::checkedCast(
+	    				communicator->stringToProxy("test:default -p 12345 -t 10000"));
+	    test(c->opContext() == dflt);
+
+	    dflt["a"] = "c";
+	    Test::MyClassPrx c2 = Test::MyClassPrx::uncheckedCast(c->ice_newContext(dflt));
+	    test(c2->opContext()["a"] == "c");
+
+	    dflt.clear();
+	    Test::MyClassPrx c3 = Test::MyClassPrx::uncheckedCast(c2->ice_newContext(dflt));
+	    Ice::Context tmp = c3->opContext();
+	    test(tmp.find("a") == tmp.end());
+
+	    Test::MyClassPrx c4 = Test::MyClassPrx::uncheckedCast(c2->ice_defaultContext());
+	    test(c4->opContext()["a"] == "b");
+
+	    dflt["a"] = "d";
+	    communicator->setDefaultContext(dflt);
+
+	    Test::MyClassPrx c5 = Test::MyClassPrx::uncheckedCast(c->ice_defaultContext());
+	    test(c5->opContext()["a"] == "d");
+
+	    //
+	    // TODO: The succeeds with the line below commented out, even though it should
+	    // fail. What is going on is that the last setDefaultContext call leaves a
+	    // context with an entry <"a", "d">. In Alltests.cpp, we call twoways() (this
+	    // function) a second time, on a derived proxy. Above, the structure test (line 164)
+	    // calls an operation that returns a proxy. Because the default context
+	    // is still <"a", "d">, that returned proxy should get that default context.
+	    // However, it doesn't.
+	    //
+	    // If you comment out the setDefaultContext call below in Java or C# and run
+	    // the tests, you see the failure that should be caused here, but isn't.
+
+	    //communicator->setDefaultContext(Ice::Context());
 	}
     }
 }

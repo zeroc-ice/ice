@@ -1,6 +1,17 @@
 Changes since version 3.0.0
 ---------------------------
 
+- Fixed a bug in the treatment of default contexts: proxies
+  were created with an empty context instead of the default
+  context on the communicator in some cases.
+
+- Fixed a bug in the code generator that cause Clone()
+  on sequences and dictionaries to behave incorrectly.
+
+- Fixed a bug in the code generator that could cause
+  Equals() comparisons to fail for containers that contained
+  null references.
+
 - Added ProxyIdentityKey and ProxyIdentityFacetKey helper
   classes to allow proxies to be inserted into collections
   and use only the identity, or the identity and facet name
