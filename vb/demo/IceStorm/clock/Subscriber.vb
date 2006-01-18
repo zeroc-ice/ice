@@ -7,6 +7,8 @@
 '
 ' **********************************************************************
 
+Imports System.Collections
+
 Module ClockS
 
     Class Subscriber

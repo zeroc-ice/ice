@@ -78,10 +78,7 @@
                 />
             </References>
             <Imports>
-                <Import Namespace = "Microsoft.VisualBasic" />
                 <Import Namespace = "System" />
-                <Import Namespace = "System.Collections" />
-                <Import Namespace = "System.Diagnostics" />
             </Imports>
         </Build>
         <Files>
