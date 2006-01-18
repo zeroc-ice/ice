@@ -50,13 +50,6 @@ prefix			= /opt/icecs-$(VERSION)
 DEBUG			= yes
 
 #
-# If libbzip2 is not installed in a standard location where the compiler 
-# can find it, set BZIP2_HOME to the bzip2 installation directory.
-#
-
-#BZIP2_HOME		?= /opt/bzip2
-
-#
 # If Berkeley DB is not installed in a standard location where the
 # compiler can find it, set DB_HOME to the Berkeley DB installation
 # directory.
