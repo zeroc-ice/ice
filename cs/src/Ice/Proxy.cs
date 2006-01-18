@@ -593,7 +593,7 @@ namespace Ice
         public override bool Equals(object r)
         {
             ObjectPrxHelperBase rhs = r as ObjectPrxHelperBase;
-            return rhs == null ? false : _reference.Equals(rhs._reference);
+            return object.ReferenceEquals(rhs, null) ? false : _reference.Equals(rhs._reference);
         }
 
         public static bool Equals(Ice.ObjectPrxHelperBase lhs, Ice.ObjectPrxHelperBase rhs)

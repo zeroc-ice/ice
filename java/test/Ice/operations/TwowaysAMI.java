@@ -1414,6 +1414,59 @@ class TwowaysAMI
 		    p2.opContext_async(cb);
 		    test(cb.check());
 		}
+
+		communicator.setDefaultContext(dflt);
+		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
+						communicator.stringToProxy("test:default -p 12345 -t 10000"));
+		{
+		    java.util.HashMap tmp = new java.util.HashMap();
+		    tmp.put("a", "b");
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
+		    c.opContext_async(cb);
+		    test(cb.check());
+		}
+
+		dflt.put("a", "c");
+		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_newContext(dflt));
+		{
+		    java.util.HashMap tmp = new java.util.HashMap();
+		    tmp.put("a", "c");
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
+		    c2.opContext_async(cb);
+		    test(cb.check());
+		}
+
+		dflt.clear();
+		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_newContext(dflt));
+		{
+		    java.util.HashMap tmp = new java.util.HashMap();
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
+		    c3.opContext_async(cb);
+		    test(cb.check());
+		}
+
+		Test.MyClassPrx c4 = Test.MyClassPrxHelper.uncheckedCast(c.ice_defaultContext());
+		{
+		    java.util.HashMap tmp = new java.util.HashMap();
+		    tmp.put("a", "b");
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
+		    c4.opContext_async(cb);
+		    test(cb.check());
+		}
+
+		dflt.put("a", "d");
+		communicator.setDefaultContext(dflt);
+
+		Test.MyClassPrx c5 = Test.MyClassPrxHelper.uncheckedCast(c.ice_defaultContext());
+		{
+		    java.util.HashMap tmp = new java.util.HashMap();
+		    tmp.put("a", "d");
+		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
+		    c5.opContext_async(cb);
+		    test(cb.check());
+		}
+
+		communicator.setDefaultContext(new java.util.HashMap());
 	    }
 	}
 

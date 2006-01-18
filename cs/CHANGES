@@ -1,10 +1,20 @@
 Changes since version 3.0.0
 ---------------------------
 
-- Added ProxyIdentityKey and ProxyIdentityFacetKey helper classes to
-  allow proxies to be inserted into collections and use only the
-  identity, or the identity and facet name as the key. (See section
-  14.11.3 in the doc.)
+- Fixed a bug in the treatment of default contexts: proxies
+  were created with an empty context instead of the default
+  context on the communicator in some cases.
+
+- Fixed a bug in the code generator that cause Clone()
+  on sequences and dictionaries to behave incorrectly.
+
+- Fixed a bug in the code generator that could cause
+  Equals() comparisons to fail for containers that contained
+  null references.
+
+- Added ProxyIdentityKey and ProxyIdentityFacetKey helper
+  classes to allow proxies to be inserted into collections
+  and use only the identity, or the identity and facet name
 
 - Fixed a bug in endpoint comparisons that would cause new connections
   to be created needlessly. This would occur when the representation

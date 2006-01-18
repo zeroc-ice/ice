@@ -41,7 +41,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isA(String __id)
     {
-        return ice_isA(__id, null);
+        return ice_isA(__id, _reference.getContext());
     }
 
     public final boolean
@@ -70,7 +70,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final void
     ice_ping()
     {
-        ice_ping(null);
+        ice_ping(_reference.getContext());
     }
 
     public final void
@@ -100,7 +100,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public String[]
     ice_ids()
     {
-        return ice_ids(null);
+        return ice_ids(_reference.getContext());
     }
 
     public String[]
@@ -129,7 +129,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public String
     ice_id()
     {
-        return ice_id(null);
+        return ice_id(_reference.getContext());
     }
 
     public String
@@ -158,7 +158,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams)
     {
-        return ice_invoke(operation, mode, inParams, outParams, null);
+        return ice_invoke(operation, mode, inParams, outParams, _reference.getContext());
     }
 
     public final boolean
@@ -194,7 +194,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final void
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams)
     {
-        ice_invoke_async(cb, operation, mode, inParams, null);
+        ice_invoke_async(cb, operation, mode, inParams, _reference.getContext());
     }
 
     public final void

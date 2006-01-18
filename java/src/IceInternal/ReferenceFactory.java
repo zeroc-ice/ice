@@ -388,7 +388,7 @@ public final class ReferenceFactory
 
 	if(beg == -1)
 	{
-	    return create(ident, new java.util.HashMap(), facet, mode, secure, "", routerInfo, locatorInfo,
+	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, "", routerInfo, locatorInfo,
 			  _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	}
 
@@ -440,7 +440,7 @@ public final class ReferenceFactory
 
 	    EndpointI[] endp = new EndpointI[endpoints.size()];
 	    endpoints.toArray(endp);
-	    return create(ident, new java.util.HashMap(), facet, mode, secure, endp, routerInfo,
+	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, endp, routerInfo,
 			  _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	}
 	else if(s.charAt(beg) == '@')
@@ -481,7 +481,7 @@ public final class ReferenceFactory
 		throw e;
 	    }
 	    adapter = token.value;
-	    return create(ident, new java.util.HashMap(), facet, mode, secure, adapter, routerInfo, locatorInfo,
+	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, adapter, routerInfo, locatorInfo,
 			  _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	}
 
@@ -543,14 +543,14 @@ public final class ReferenceFactory
 	    {
 		endpoints[i] = _instance.endpointFactoryManager().read(s);
 	    }
-	    return create(ident, new java.util.HashMap(), facet, mode, secure, endpoints, routerInfo,
+	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, endpoints, routerInfo,
 			  _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	}
 	else
 	{
 	    endpoints = new EndpointI[0];
 	    adapterId = s.readString();
-	    return create(ident, new java.util.HashMap(), facet, mode, secure,
+	    return create(ident, _instance.getDefaultContext(), facet, mode, secure,
 	                  adapterId, routerInfo, locatorInfo,
 			  _instance.defaultsAndOverrides().defaultCollocationOptimization);
 	}

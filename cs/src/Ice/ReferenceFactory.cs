@@ -400,7 +400,7 @@ namespace IceInternal
 
 	    if(beg == -1)
 	    {
-		return create(ident, new Ice.Context(), facet, mode, secure, "", routerInfo, locatorInfo,
+		return create(ident, instance_.getDefaultContext(), facet, mode, secure, "", routerInfo, locatorInfo,
 			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 
@@ -451,7 +451,7 @@ namespace IceInternal
 		}
 
 		EndpointI[] ep = (EndpointI[])endpoints.ToArray(typeof(EndpointI));
-		return create(ident, new Ice.Context(), facet, mode, secure, ep, routerInfo,
+		return create(ident, instance_.getDefaultContext(), facet, mode, secure, ep, routerInfo,
 			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	    else if(s[beg] == '@')
@@ -490,7 +490,7 @@ namespace IceInternal
 		    e.str = s;
 		    throw e;
 		}
-		return create(ident, new Ice.Context(), facet, mode, secure, adapter, routerInfo, locatorInfo,
+		return create(ident, instance_.getDefaultContext(), facet, mode, secure, adapter, routerInfo, locatorInfo,
 			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 
@@ -551,14 +551,14 @@ namespace IceInternal
 		{
 		    endpoints[i] = instance_.endpointFactoryManager().read(s);
 		}
-		return create(ident, new Ice.Context(), facet, (Reference.Mode)mode, secure, endpoints, routerInfo,
+		return create(ident, instance_.getDefaultContext(), facet, (Reference.Mode)mode, secure, endpoints, routerInfo,
 			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	    else
 	    {
 		endpoints = new EndpointI[0];
 		adapterId = s.readString();
-		return create(ident, new Ice.Context(), facet, (Reference.Mode)mode, secure, adapterId, routerInfo,
+		return create(ident, instance_.getDefaultContext(), facet, (Reference.Mode)mode, secure, adapterId, routerInfo,
 			      locatorInfo, instance_.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	}

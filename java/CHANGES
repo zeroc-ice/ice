@@ -1,6 +1,9 @@
 Changes since version 3.0.0
 ---------------------------
 
+- The contents of the default context set on a communicator were
+  ignored, so an empty default context was marshaled. Fixed this.
+ 
 - Changed the ObjectPrx.equals() method to eliminate the possibility
   of a ClassCastException.
 
