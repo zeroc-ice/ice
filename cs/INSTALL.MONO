@@ -14,11 +14,31 @@ Binary distributions for the supported platforms are available at
 
 http://www.zeroc.com/download.html
 
+
 To build Ice for C#, run
 
 $ make
 
 in the top-level directory.
+
+
+If you are building from a binary tar (not RPM) archive, follow
+these instructions:
+
+1) Edit all the *.pc files in lib/pkgconfig and change
+   the setting of the mono_root variable to reflect the
+   top level directory in which you have installed Mono.
+   
+2) Either:
+
+   - add the lib/pkgconfig directory in the source distribution
+     to your (exported) PKG_CONFIG_PATH
+
+   or:
+
+   - copy the *.pc files lib/pkgconfig to /usr/lib/pkgconfig.
+
+This is necessary for the -pkg option to mcs to work correctly with the Ice assemblies.
 
 
 Configuring Linux to recognize Mono binaries
