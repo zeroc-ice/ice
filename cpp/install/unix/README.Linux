@@ -208,12 +208,12 @@ run the following commands as root (replace /usr/bin/mono with the
 location of your mono interpreter):
 
     if [ ! -e /proc/sys/fs/binfmt_misc/register ]; then
-	/sbin/modprobe binfmt_misc mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
+        /sbin/modprobe binfmt_misc mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
     fi 
     if [ -e /proc/sys/fs/binfmt_misc/register ]; then
-	echo ':CLR:M::MZ::/usr/bin/mono:' > /proc/sys/fs/binfmt_misc/register
+        echo ':CLR:M::MZ::/usr/bin/mono:' > /proc/sys/fs/binfmt_misc/register
     else
-	echo "No binfmt_misc support" exit 1
+        echo "No binfmt_misc support" exit 1
     fi 
 
 If you don't want to do this you need to run the executable with
@@ -224,20 +224,21 @@ $ mono server.exe
 If you are building from a binary tar (not RPM) archive, follow
 these instructions:
 
-1) Edit all the *.pc files in lib/pkgconfig and change
-   the setting of the mono_root variable to reflect the
-   top level directory in which you have installed Mono.
+1) Edit all the *.pc files in lib/pkgconfig and change the setting of
+   the mono_root variable to reflect the top level directory in which
+   you have installed Mono.
    
 2) Either:
 
-   - add the lib/pkgconfig directory in the source distribution
-     to your (exported) PKG_CONFIG_PATH
+   - add the lib/pkgconfig directory in the source distribution to
+     your (exported) PKG_CONFIG_PATH
 
    or:
 
-   - copy the *.pc files lib/pkgconfig to /usr/lib/pkgconfig.
+   - copy the *.pc files from lib/pkgconfig to /usr/lib/pkgconfig.
 
-This is necessary for the -pkg option to mcs to work correctly with the Ice assemblies.
+This is necessary for the -pkg option to mcs to work correctly with
+the Ice assemblies.
 
 
 PHP

@@ -22,23 +22,24 @@ $ make
 in the top-level directory.
 
 
-If you are building from a binary tar (not RPM) archive, follow
-these instructions:
+If you are building from a binary tar (not RPM) archive, follow these
+instructions:
 
-1) Edit all the *.pc files in lib/pkgconfig and change
-   the setting of the mono_root variable to reflect the
-   top level directory in which you have installed Mono.
+1) Edit all the *.pc files in lib/pkgconfig and change the setting of
+   the mono_root variable to reflect the top level directory in which
+   you have installed Mono.
    
 2) Either:
 
-   - add the lib/pkgconfig directory in the source distribution
-     to your (exported) PKG_CONFIG_PATH
+   - add the lib/pkgconfig directory in the source distribution to
+     your (exported) PKG_CONFIG_PATH
 
    or:
 
-   - copy the *.pc files lib/pkgconfig to /usr/lib/pkgconfig.
+   - copy the *.pc files from lib/pkgconfig to /usr/lib/pkgconfig.
 
-This is necessary for the -pkg option to mcs to work correctly with the Ice assemblies.
+This is necessary for the -pkg option to mcs to work correctly with
+the Ice assemblies.
 
 
 Configuring Linux to recognize Mono binaries
@@ -57,12 +58,12 @@ recognize Mono binaries and automatically launch the interpreter.
 in the commands below.)
 
     if [ ! -e /proc/sys/fs/binfmt_misc/register ]; then
-	/sbin/modprobe binfmt_misc mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
+        /sbin/modprobe binfmt_misc mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
     fi 
     if [ -e /proc/sys/fs/binfmt_misc/register ]; then
-	echo ':CLR:M::MZ::/usr/bin/mono:' > /proc/sys/fs/binfmt_misc/register
+        echo ':CLR:M::MZ::/usr/bin/mono:' > /proc/sys/fs/binfmt_misc/register
     else
-	echo "No binfmt_misc support" exit 1
+        echo "No binfmt_misc support" exit 1
     fi 
 
 With this change, assuming that the execute bit is set on the binary,
