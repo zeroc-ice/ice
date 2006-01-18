@@ -33,6 +33,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getEndpoints);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_newEndpoints);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getContext);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_newContext);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_defaultContext);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_newFacet);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_twoway);
@@ -74,6 +75,7 @@ ZEND_FUNCTION(Ice_Endpoint_toString);
     ZEND_FE(Ice_ObjectPrx_ice_newEndpoints,      NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getContext,        NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_newContext,        NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_defaultContext,    NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getFacet,          NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_newFacet,          NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_twoway,            NULL) \
