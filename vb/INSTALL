@@ -10,10 +10,19 @@ IceVB-@ver@ subdirectory.
 
 You can either build the slice2vb compiler from the Ice for C++ source
 distribution, or you can download the Ice binary installer for
-Windows, which contains a compiled version of slice2vb. Make sure that
-the directory containing slice2vb is in your PATH. Note that the
-Slice preprocessor (icecpp.exe) must also be in your path, as must be
-the Ice for C++ run-time libraries iceutil and slice.
+Windows, which contains a compiled version of slice2vb. 
+
+Add the directory containing slice2vb to the list of "Executable
+files" directories in Visual Studio:
+
+- In the IDE, choose Tools->Options->Projects->VC++ Directories
+
+- Select "Executable files"
+
+- Add <Ice installation root directory>\bin
+
+Alternatively, you can set the environment variable ICE_HOME to the
+location of your Ice installation root directory.
 
 Ice for Visual Basic is a language mapping on top of Ice for C# -- the
 actual run-time support is provided by the Ice for C# assembly

@@ -229,9 +229,9 @@ Module Generate
                     If Not File.Exists(slice2vb) And Not File.Exists(slice2vb & ".exe") Then
                         slice2vb = slice2vbName
                     End If
+                Else
+                    slice2vb = slice2vbName
                 End If
-            Else
-                slice2vb = slice2vbName
             End If
 
             Dim includes As String = ""
@@ -251,7 +251,7 @@ Module Generate
 
         Catch ex As System.ComponentModel.Win32Exception
             If ex.NativeErrorCode = 2 Then
-                Console.Error.WriteLine("Cannot find slice2cs.exe: set ICE_HOME or add slice2cs.exe to your PATH")
+                Console.Error.WriteLine("Cannot find slice2vb.exe: set ICE_HOME or add the slice2vb.exe directory to the list of 'Executable files' directories in the Visual Studio options.")
                 System.Environment.Exit(1)
             End If
         Catch ex As Exception
