@@ -1765,7 +1765,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "public static " << name << " Repeat(" << s << " value, int count)";
     _out << sb;
-    _out << nl << name << " r = new " << name << "();";
+    _out << nl << name << " r = new " << name << "(count);";
     _out << nl << "for(int i = 0; i < count; ++i)";
     _out << sb;
     _out << nl << "r.Add(value);";
@@ -1879,7 +1879,9 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "public object Clone()";
     _out << sb;
-    _out << nl << "return MemberwiseClone();";
+    _out << nl << name << " s = new " << name << "(Count);";
+    _out << nl << "s.InnerList.AddRange(InnerList);";
+    _out << nl << "return s;";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // ICloneable members
@@ -1923,15 +1925,24 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << sb;
     if(!isValue)
     {
-	_out << nl << "if(InnerList[i__] == null && ((" << name << ")other)[i__] != null)";
+	_out << nl << "if(InnerList[i__] == null)";
+	_out << sb;
+	_out << nl << "if(((" << name << ")other)[i__] != null)";
 	_out << sb;
 	_out << nl << "return false;";
 	_out << eb;
+	_out << eb;
+	_out << nl << "else";
+	_out << sb;
     }
     _out << nl << "if(!((" << s << ")(InnerList[i__])).Equals(((" << name << ")other)[i__]))";
     _out << sb;
     _out << nl << "return false;";
     _out << eb;
+    if(!isValue)
+    {
+        _out << eb;
+    }
     _out << eb;
     _out << nl << "return true;";
     _out << eb;
@@ -2058,10 +2069,27 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string memberName = fixId((*q)->name(), DotNet::ApplicationException);
+	bool isValue = isValueType((*q)->type());
+	if(!isValue)
+	{
+	    _out << nl << "if(" << memberName << " == null)";
+	    _out << sb;
+	    _out << nl << "if(((" << name << ")other__)." << memberName << " != null)";
+	    _out << sb;
+	    _out << nl << "return false;";
+	    _out << eb;
+	    _out << eb;
+	    _out << nl << "else";
+	    _out << sb;
+	}
 	_out << nl << "if(!" << memberName << ".Equals(((" << name << ")other__)." << memberName << "))";
 	_out << sb;
 	_out << nl << "return false;";
 	_out << eb;
+	if(!isValue)
+	{
+	    _out << eb;
+	}
     }
     _out << nl << "return true;";
     _out << eb;
@@ -2741,7 +2769,12 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp << nl << "public object Clone()";
     _out << sb;
-    _out << nl << "return MemberwiseClone();";
+    _out << nl << name << " d = new " << name << "();";
+    _out << nl << "foreach(_System.Collections.DictionaryEntry e in InnerHashtable)";
+    _out << sb;
+    _out << nl << "d.InnerHashtable.Add(e.Key, e.Value);";
+    _out << eb;
+    _out << nl << "return d;";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // ICloneable members

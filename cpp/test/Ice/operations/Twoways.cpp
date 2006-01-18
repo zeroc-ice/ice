@@ -658,6 +658,31 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
 	    communicator->setDefaultContext(Ice::Context());
 	    test(!p2->opContext().empty());
+
+	    communicator->setDefaultContext(dflt);
+	    Test::MyClassPrx c = Test::MyClassPrx::checkedCast(
+	    				communicator->stringToProxy("test:default -p 12345 -t 10000"));
+	    test(c->opContext() == dflt);
+
+	    dflt["a"] = "c";
+	    Test::MyClassPrx c2 = Test::MyClassPrx::uncheckedCast(c->ice_newContext(dflt));
+	    test(c2->opContext()["a"] == "c");
+
+	    dflt.clear();
+	    Test::MyClassPrx c3 = Test::MyClassPrx::uncheckedCast(c2->ice_newContext(dflt));
+	    Ice::Context tmp = c3->opContext();
+	    test(tmp.find("a") == tmp.end());
+
+	    Test::MyClassPrx c4 = Test::MyClassPrx::uncheckedCast(c2->ice_defaultContext());
+	    test(c4->opContext()["a"] == "b");
+
+	    dflt["a"] = "d";
+	    communicator->setDefaultContext(dflt);
+
+	    Test::MyClassPrx c5 = Test::MyClassPrx::uncheckedCast(c->ice_defaultContext());
+	    test(c5->opContext()["a"] == "d");
+
+	    communicator->setDefaultContext(Ice::Context());
 	}
     }
 }
