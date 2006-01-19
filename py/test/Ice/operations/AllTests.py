@@ -16,8 +16,7 @@ def test(b):
 
 def allTests(communicator):
     print "testing stringToProxy...",
-    #ref = "test:default -p 12345 -t 10000"
-    ref = "test:default -p 12345"
+    ref = "test:default -p 12345 -t 10000"
     base = communicator.stringToProxy(ref)
     test(base)
     print "ok"
@@ -51,33 +50,32 @@ def allTests(communicator):
 
     print "ok"
 
-    print "testing checked cast with context... ",
-    #cref = "context:default -p 12345 -t 10000";
-    cref = "context:default -p 12345";
-    cbase = communicator.stringToProxy(cref);
-    test(cbase != None);
+    print "testing checked cast with context...",
+    cref = "context:default -p 12345 -t 10000"
+    cbase = communicator.stringToProxy(cref)
+    test(cbase != None)
 
-    tccp = Test.TestCheckedCastPrx.checkedCast(cbase);
-    c = tccp.getContext();
-    test(c == None or len(c) == 0);
+    tccp = Test.TestCheckedCastPrx.checkedCast(cbase)
+    c = tccp.getContext()
+    test(c == None or len(c) == 0)
 
     c = { }
-    c["one"] = "hello";
-    c["two"] =  "world";
-    tccp = Test.TestCheckedCastPrx.checkedCast(cbase, c);
-    c2 = tccp.getContext();
+    c["one"] = "hello"
+    c["two"] =  "world"
+    tccp = Test.TestCheckedCastPrx.checkedCast(cbase, c)
+    c2 = tccp.getContext()
     test(c == c2)
     print "ok"
 
     print "testing twoway operations...",
-    Twoways.twoways(cl)
-    Twoways.twoways(derived)
+    Twoways.twoways(communicator, cl)
+    Twoways.twoways(communicator, derived)
     derived.opDerived()
     print "ok"
 
     print "testing twoway operations with AMI...",
-    TwowaysAMI.twowaysAMI(cl)
-    TwowaysAMI.twowaysAMI(derived)
+    TwowaysAMI.twowaysAMI(communicator, cl)
+    TwowaysAMI.twowaysAMI(communicator, derived)
     print "ok"
 
     return cl

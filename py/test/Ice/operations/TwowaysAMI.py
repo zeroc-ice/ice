@@ -48,6 +48,17 @@ class AMI_MyClass_opVoidI(CallbackBase):
     def ice_exception(self, ex):
         test(False)
 
+class AMI_MyClass_opVoidExI(CallbackBase):
+    def __init__(self):
+        CallbackBase.__init__(self)
+
+    def ice_response(self):
+        test(False)
+
+    def ice_exception(self, ex):
+        test(isinstance(ex, Ice.TwowayOnlyException))
+        self.called()
+
 class AMI_MyClass_opByteI(CallbackBase):
     def __init__(self):
         CallbackBase.__init__(self)
@@ -59,6 +70,17 @@ class AMI_MyClass_opByteI(CallbackBase):
 
     def ice_exception(self, ex):
         test(False)
+
+class AMI_MyClass_opByteExI(CallbackBase):
+    def __init__(self):
+        CallbackBase.__init__(self)
+
+    def ice_response(self, r, b):
+        test(False)
+
+    def ice_exception(self, ex):
+        test(isinstance(ex, Ice.TwowayOnlyException))
+        self.called()
 
 class AMI_MyClass_opBoolI(CallbackBase):
     def __init__(self):
@@ -496,7 +518,27 @@ class AMI_MyDerivedClass_opDerivedI(CallbackBase):
     def ice_exception(self, ex):
         test(False)
 
-def twowaysAMI(p):
+def twowaysAMI(communicator, p):
+    # Check that a call to a void operation raises TwowayOnlyException
+    # in the ice_exception() callback instead of at the point of call.
+    oneway = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
+    cb = AMI_MyClass_opVoidExI()
+    try:
+	oneway.opVoid_async(cb)
+    except Ice.Exception:
+	test(False)
+    test(cb.check())
+
+    # Check that a call to a twoway operation raises TwowayOnlyException
+    # in the ice_exception() callback instead of at the point of call.
+    oneway = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
+    cb = AMI_MyClass_opByteExI()
+    try:
+	oneway.opByte_async(cb, 0, 0)
+    except Ice.Exception:
+	test(False)
+    test(cb.check())
+
     #
     # opVoid
     #
@@ -746,6 +788,63 @@ def twowaysAMI(p):
     cb = AMI_MyClass_opContextEqualI(ctx)
     p2.opContext_async(cb, ctx)
     test(cb.check())
+
+    #
+    # Test that default context is obtained correctly from communicator.
+    #
+    dflt = {'a': 'b'}
+    communicator.setDefaultContext(dflt)
+    cb = AMI_MyClass_opContextNotEqualI(dflt)
+    p.opContext_async(cb)
+    test(cb.check())
+
+    p2 = Test.MyClassPrx.uncheckedCast(p.ice_newContext({}))
+    cb = AMI_MyClass_opContextEqualI({})
+    p2.opContext_async(cb)
+    test(cb.check())
+
+    p2 = Test.MyClassPrx.uncheckedCast(p.ice_defaultContext())
+    cb = AMI_MyClass_opContextEqualI(dflt)
+    p2.opContext_async(cb)
+    test(cb.check())
+
+    communicator.setDefaultContext({})
+    cb = AMI_MyClass_opContextNotEqualI({})
+    p2.opContext_async(cb)
+    test(cb.check())
+
+    communicator.setDefaultContext(dflt)
+    c = Test.MyClassPrx.checkedCast(communicator.stringToProxy("test:default -p 12345 -t 10000"))
+    cb = AMI_MyClass_opContextEqualI({'a': 'b'})
+    c.opContext_async(cb)
+    test(cb.check())
+
+    dflt['a'] = 'c'
+    c2 = Test.MyClassPrx.uncheckedCast(c.ice_newContext(dflt))
+    cb = AMI_MyClass_opContextEqualI({'a': 'c'})
+    c2.opContext_async(cb)
+    test(cb.check())
+
+    dflt = {}
+    c3 = Test.MyClassPrx.uncheckedCast(c2.ice_newContext(dflt))
+    cb = AMI_MyClass_opContextEqualI({})
+    c3.opContext_async(cb)
+    test(cb.check())
+
+    c4 = Test.MyClassPrx.uncheckedCast(c2.ice_defaultContext())
+    cb = AMI_MyClass_opContextEqualI({'a': 'b'})
+    c4.opContext_async(cb)
+    test(cb.check())
+
+    dflt['a'] = 'd'
+    communicator.setDefaultContext(dflt)
+
+    c5 = Test.MyClassPrx.uncheckedCast(c.ice_defaultContext())
+    cb = AMI_MyClass_opContextEqualI({'a': 'd'})
+    c5.opContext_async(cb)
+    test(cb.check())
+
+    communicator.setDefaultContext({})
 
     derived = Test.MyDerivedClassPrx.checkedCast(p)
     test(derived)
