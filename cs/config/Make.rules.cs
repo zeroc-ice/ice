@@ -8,24 +8,6 @@
 # **********************************************************************
 
 #
-# If you are building an Ice for C# source distribution, define
-# src_build = yes. Disable src_build if you've installed a binary
-# distribution (e.g., an RPM).
-#
-
-src_build		= yes
-
-#
-# Set this to the root of the Ice for C++ source tree if you want to
-# build using the Slice definitions from the C++ source tree.
-# (You must set slice_home to a pathname that is relative to $(top_srcdir),
-# which is the current directory.) If you do not have the Ice for C++
-# source tree around, the setting of slice_home does not matter.
-#
-
-slice_home		= $(top_srcdir)/../ice
-
-#
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
@@ -49,45 +31,17 @@ prefix			= /opt/icecs-$(VERSION)
 
 DEBUG			= yes
 
-#
-# If Berkeley DB is not installed in a standard location where the
-# compiler can find it, set DB_HOME to the Berkeley DB installation
-# directory.
-#
-
-#DB_HOME		?= /opt/db
-
-#
-# If OpenSSL is not installed in a standard location where the
-# compiler can find it, set OPENSSL_HOME to the OpenSSL installation
-# directory.
-#
-
-#OPENSSL_HOME		?= /opt/openssl
-
-#
-# Define if your OpenSSL requires Kerberos, and if Kerberos is not
-# installed in a standard location.
-#
-
-KERBEROS_HOME		?= /usr/kerberos
-
-#
-# If expat is not installed in a standard location where the
-# compiler can find it, set EXPAT_HOME to the expat
-# installation directory.
-#
-
-#EXPAT_HOME		?= /opt/expat
-
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
+
+src_build		= yes
 
 SHELL			= /bin/sh
 VERSION			= 3.0.1
 bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib
+slice_home		= $(top_srcdir)/../ice
 slicedir := $(shell test -d $(top_srcdir)/slice && echo $(top_srcdir))
 ifdef slicedir
 slicedir := $(slicedir)/slice
