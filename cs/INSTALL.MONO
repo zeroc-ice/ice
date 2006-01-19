@@ -21,6 +21,9 @@ $ make
 
 in the top-level directory.
 
+You need to set (and export) ICE_HOME to the top-level directory of an Ice for C++
+installation. (The makefiles look there for a bin directory that contains slice2cs.)
+
 
 Configuring Linux to recognize Mono binaries
 --------------------------------------------

@@ -8,6 +8,23 @@
 # **********************************************************************
 
 #
+# Checks for ICE_HOME environment variable.  If it isn't present it will
+# attempt to find an Ice installation in /usr.
+#
+
+ifeq ($(ICE_HOME),)
+    ICE_DIR = /usr
+    ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
+$(error Ice distribution not found, please set ICE_HOME!)
+    endif
+else
+    ICE_DIR = $(ICE_HOME)
+    ifneq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
+$(error Ice distribution not found, please set ICE_HOME!)
+    endif
+endif
+
+#
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
@@ -39,16 +56,16 @@ src_build		= yes
 
 SHELL			= /bin/sh
 VERSION			= 3.0.1
+
 bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib
-slice_home		= $(top_srcdir)/../ice
-slicedir := $(shell test -d $(top_srcdir)/slice && echo $(top_srcdir))
-ifdef slicedir
-slicedir := $(slicedir)/slice
-endif
+
+slice_home		= $(ICE_DIR)/slice
+slicedir := $(shell test -d $(slice_home) && echo $(slice_home))
 ifndef slicedir
-slicedir := $(slice_home)/slice
+slicedir := $(top_srcdir)/slice
 endif
+
 install_bindir		= $(prefix)/bin
 install_libdir		= $(prefix)/lib
 install_slicedir	= $(prefix)/slice
@@ -99,8 +116,7 @@ ifeq ($(mkdir),)
 			  chmod a+rx $(1)
 endif
 
-SLICE2CS		= slice2cs
-SLICE2CSFLAGS		=
+SLICE2CS		= $(ICE_DIR)/bin/slice2cs
 
 GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
 CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))
