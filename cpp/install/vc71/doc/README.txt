@@ -99,11 +99,6 @@ window, type 'client' to start the client.
 Some demo directories contain README files if additional requirements
 are necessary.
 
-Note that the IceBox demo has special requirements if you compiled
-the demos in the Debug configuration. In this case, you will need to
-use the debug version of the IceBox executable, which is located
-in bin\iceboxd.exe.
-
 
 Building and running the Java demos
 -----------------------------------
