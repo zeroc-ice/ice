@@ -171,9 +171,9 @@ specified by the "prefix" variable in config/Make.rules.
 
 After installation, make sure that the <prefix>/bin directory is in
 your PATH, and the <prefix>/lib directory is in your SHLIB_PATH. When
-compiling Ice programs, you must also make sure to pass the location
-of the <prefix>/include directory to the compiler with the -I option,
-and the location of the <prefix>/lib directory with the -L option.
+compiling Ice programs, you must pass the location of the
+<prefix>/include directory to the compiler with the -I option, and the
+location of the <prefix>/lib directory with the -L option.
 
 If you built in 64 bit mode, the libraries are installed in
 <prefix>/lib/pa20_64. No other changes are necessary.
