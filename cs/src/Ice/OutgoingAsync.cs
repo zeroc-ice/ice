@@ -263,6 +263,11 @@ namespace IceInternal
                     {
                         Monitor.Wait(_monitor);
                     }
+
+		    //
+		    // Can't call sync via a oneway proxy.
+		    //
+		    ((Ice.ObjectPrxHelperBase)prx).checkTwowayOnly__(operation);
 		    
                     _reference = ((Ice.ObjectPrxHelperBase)prx).reference__();;
                     Debug.Assert(_connection == null);

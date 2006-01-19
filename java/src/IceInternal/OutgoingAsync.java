@@ -274,6 +274,11 @@ public abstract class OutgoingAsync
 		    {
 		    }
 		}
+
+		//
+		// Can't call async via a oneway proxy.
+		//
+		((Ice.ObjectPrxHelperBase)prx).__checkTwowayOnly(operation);
 		
 		_reference = ((Ice.ObjectPrxHelperBase)prx).__reference();
 		assert(_connection == null);

@@ -4551,13 +4551,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	out << nl << "try";
 	out << sb;
 	out << nl << "__prepare(__prx, \"" << p->name() << "\", " << sliceModeToIceMode(p) << ", __ctx);";
-	if(p->returnsData())
-	{
-	    out << nl << "if(!__prx.ice_isTwoway())";
-	    out << sb;
-	    out << nl << "throw new Ice.TwowayOnlyException(\"" << p->name() << "\");";
-	    out << eb;
-	}
         iter = 0;
 	for(pli = inParams.begin(); pli != inParams.end(); ++pli)
 	{
