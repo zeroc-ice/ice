@@ -200,7 +200,7 @@ command like this:
 
 $ gacutil -i bin/icecs.dll
 
-You also need to add $MONO_PATH/lib to your LD_LIBRARY_PATH.
+You also need to add <mono_install_dir>/lib to your LD_LIBRARY_PATH.
 
 The instructions for running the demos assume that you have configured
 your kernel to automatically execute the Mono interpreter. To do this,
@@ -220,25 +220,6 @@ If you don't want to do this you need to run the executable with
 mono. For example,
 
 $ mono server.exe
-
-If you are building from a binary tar (not RPM) archive, follow
-these instructions:
-
-1) Edit all the *.pc files in lib/pkgconfig and change the setting of
-   the mono_root variable to reflect the top level directory in which
-   you have installed Mono.
-   
-2) Either:
-
-   - add the lib/pkgconfig directory in the source distribution to
-     your (exported) PKG_CONFIG_PATH
-
-   or:
-
-   - copy the *.pc files from lib/pkgconfig to /usr/lib/pkgconfig.
-
-This is necessary for the -pkg option to mcs to work correctly with
-the Ice assemblies.
 
 
 PHP
