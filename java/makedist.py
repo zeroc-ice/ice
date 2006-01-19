@@ -230,6 +230,12 @@ filesToRemove = find(".", "*generated") # generated, cgenerated, sgenerated
 for x in filesToRemove:
     shutil.rmtree(x)
 
+#
+# Remove other unnecessary subdirectories.
+#
+shutil.rmtree("admin")
+shutil.rmtree("depcache")
+
 os.chdir(cwd)
 
 #
