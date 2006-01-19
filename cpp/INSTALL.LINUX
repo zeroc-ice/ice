@@ -14,6 +14,7 @@ C++ compiler
 
 - GCC 3.2, 3.3, 3.4, or 4.0.1 or later
 
+
 Third-party libraries
 ---------------------
 
@@ -33,7 +34,7 @@ Ice has dependencies on a number of third-party libraries:
 
   On Fedora Core 4, we recommend changing the default optimization
   level when building Berkeley DB in order to avoid a compiler bug
-  in the FC4 version of GCC. If you are building with java support
+  in the FC4 version of GCC. If you are building with Java support
   this is absolutely necessary. We recommend that you use the
   following syntax when you run configure:
 
@@ -142,11 +143,11 @@ specified by the "prefix" variable in config/Make.rules.
 
 After installation, make sure that the <prefix>/bin directory is in
 your PATH, and the <prefix>/lib directory is in your LD_LIBRARY_PATH.
-Also if you built Berkeley DB yourself, please insure that it's 
-installation lib directory is in your LD_LIBRARY_PATH as well. When 
-compiling Ice programs, you must also make sure to pass the location 
-of the <prefix>/include directory to the compiler with the -I option, 
-and the location of the <prefix>/lib directory with the -L option.  
+If you built Berkeley DB yourself, please ensure that its installation
+lib directory is also in your LD_LIBRARY_PATH. When compiling Ice
+programs, you must pass the location of the <prefix>/include directory
+to the compiler with the -I option, and the location of the
+<prefix>/lib directory with the -L option.  
 
 If LP64 is set to yes, the libraries are installed in <prefix>/lib64.
 No other changes are necessary.

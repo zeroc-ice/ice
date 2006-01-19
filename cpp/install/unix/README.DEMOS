@@ -18,7 +18,7 @@ specific INSTALL file included with your Ice installation.
 
 You can build the demos by visiting each demo directory (e.g., demo,
 demoj, democs) and running 'gmake' or 'ant' as appropriate. The Ice
-for Python demos do not need to be compiled.
+for Python and Ice for PHP demos do not need to be compiled.
 
 gmake 3.80 is required to build the C++ and C# demos. The 'ant'
 utility is required to build the Java demos, and can be downloaded
@@ -108,7 +108,8 @@ Running the PHP demos
 
 Two PHP demos are provided in the demophp directory.
 
-To run the PHP demos, you need PHP 5.0.5. It can be downloaded from:
+You'll need PHP 5.0.5 or 5.1.2 to use the demos. Source and binary
+distributions of PHP can be obtained from
 
 http://www.php.net/downloads.php
 
