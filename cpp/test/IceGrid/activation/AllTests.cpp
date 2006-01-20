@@ -169,6 +169,51 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(false);
     }
     cout << "ok" << endl;
+    
+    cout << "testing activation failure... " << flush;
+    try
+    {
+	Ice::ObjectPrx twowayInvalidExe = communicator->stringToProxy("invalid-exe");
+	Ice::ObjectPrx onewayInvalidExe = communicator->stringToProxy("invalid-exe")->ice_oneway();
+	for(int i = 0; i < 10; i++)
+	{
+	    try
+	    {
+		onewayInvalidExe->ice_ping();
+		onewayInvalidExe->ice_ping();
+		onewayInvalidExe->ice_ping();
+		onewayInvalidExe->ice_ping();
+		onewayInvalidExe->ice_ping();
+		twowayInvalidExe->ice_ping();
+	    }
+	    catch(const Ice::NoEndpointException&)
+	    {
+	    }
+	}
+	Ice::ObjectPrx twowayInvalidPwd = communicator->stringToProxy("invalid-pwd");
+	Ice::ObjectPrx onewayInvalidPwd = communicator->stringToProxy("invalid-pwd")->ice_oneway();
+	for(int i = 0; i < 10; i++)
+	{
+	    try
+	    {
+		onewayInvalidPwd->ice_ping();
+		onewayInvalidPwd->ice_ping();
+		onewayInvalidPwd->ice_ping();
+		onewayInvalidPwd->ice_ping();
+		onewayInvalidPwd->ice_ping();
+		twowayInvalidPwd->ice_ping();
+	    }
+	    catch(const Ice::NoEndpointException&)
+	    {
+	    }
+	}
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	cerr << ex << endl;
+	test(false);
+    }
+    cout << "ok" << endl;
 
     cout << "testing server enable... " << flush;
     try
@@ -400,6 +445,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	cerr << ex << endl;
 	test(false);
     }
-    cout << "ok" << endl;	
+    cout << "ok" << endl;
 }
 

@@ -39,6 +39,17 @@
       <server-instance template="Server" id="server-always" activation="always"/>
       <server-instance template="Server" id="server-activation-timeout" activation-delay="5"/>
       <server-instance template="Server" id="server-deactivation-timeout" deactivation-delay="60"/>
+
+      <server id="invalid-exe" exe="server2" activation="on-demand">
+        <adapter name="TestAdapter" endpoints="default" register-process="true">
+	  <object identity="${server}" type="Test"/>
+	</adapter>
+      </server>
+      <server id="invalid-pwd" exe="./server" pwd="./bogus">
+        <adapter name="TestAdapter" endpoints="default" register-process="true">
+	  <object identity="${server}" type="Test"/>
+	</adapter>
+      </server>
     </node>
 
     <node name="node-1">
