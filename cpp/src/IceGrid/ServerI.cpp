@@ -1128,6 +1128,19 @@ ServerI::activate()
 	failure = os.str();
     }
 
+    ServerCommandPtr command;
+    {
+	Lock sync(*this);
+	disableOnFailure();
+	setStateNoSync(ServerI::Inactive, failure);
+	command = nextCommand();
+    }
+
+    //
+    // It's important to notify the adapters after changing the state!
+    // Otherwise, a race condition could occur if an adapter is
+    // activated after the notification and the state change.
+    //
     for(ServerAdapterDict::iterator r = adpts.begin(); r != adpts.end(); ++r)
     {
 	try
@@ -1138,14 +1151,7 @@ ServerI::activate()
 	{
 	}
     }
-    
-    ServerCommandPtr command;
-    {
-	Lock sync(*this);
-	disableOnFailure();
-	setStateNoSync(ServerI::Inactive, failure);
-	command = nextCommand();
-    }
+
     if(command)
     {
 	command->execute();
