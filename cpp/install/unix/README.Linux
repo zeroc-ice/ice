@@ -200,8 +200,6 @@ command like this:
 
 $ gacutil -i bin/icecs.dll
 
-You also need to add <mono_install_dir>/lib to your LD_LIBRARY_PATH.
-
 The instructions for running the demos assume that you have configured
 your kernel to automatically execute the Mono interpreter. To do this,
 run the following commands as root (replace /usr/bin/mono with the

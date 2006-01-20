@@ -62,8 +62,6 @@ the kernel or Mono.
 Running the tests
 -----------------
 
-You must add <mono_install_dir>/lib to your LD_LIBRARY_PATH.
-
 You must add IceCS-@ver@/bin to your MONO_PATH. (Don't forget to export
 MONO_PATH). Alternatively, you can install the Ice DLLs (from the bin
 directory) in the Global Assembly Cache (GAC), using gacutil -i
