@@ -173,9 +173,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing activation failure... " << flush;
     try
     {
+	int i;
 	Ice::ObjectPrx twowayInvalidExe = communicator->stringToProxy("invalid-exe");
 	Ice::ObjectPrx onewayInvalidExe = communicator->stringToProxy("invalid-exe")->ice_oneway();
-	for(int i = 0; i < 10; i++)
+	for(i = 0; i < 10; i++)
 	{
 	    try
 	    {
@@ -192,7 +193,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	Ice::ObjectPrx twowayInvalidPwd = communicator->stringToProxy("invalid-pwd");
 	Ice::ObjectPrx onewayInvalidPwd = communicator->stringToProxy("invalid-pwd")->ice_oneway();
-	for(int i = 0; i < 10; i++)
+	for(i = 0; i < 10; i++)
 	{
 	    try
 	    {
