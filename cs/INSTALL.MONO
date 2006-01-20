@@ -79,10 +79,9 @@ tests, or "python allTests.py -l" to run the tests in an endless loop.
 You can also run individual tests in the various test directories with
 "python run.py".
 
-If you have the Mono run time installed under Windows (see
-INSTALL.WINDOWS), you can also execute the tests using the Mono run
-time (instead of the .NET run time). To do this, add the -m option to
-allTests.py or run.py.
+If you have the Mono run time installed under Windows, you can also
+execute the tests using the Mono run time (instead of the .NET run time).
+To do this, add the -m option to allTests.py or run.py.
 
 
 Running the demos
