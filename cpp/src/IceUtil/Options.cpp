@@ -135,12 +135,25 @@ IceUtil::Options::split(const string& line)
 		    {
 			//
 			// Ignore a backslash at the end of the string,
-			// and strip backslash-newline pairs. Anything
-			// else following a backslash is taken literally.
+			// and strip backslash-newline pairs. If a
+			// backslash is followed by a space, we just
+			// write the space. Anything else following a
+			// backslash is preserved, including the backslash.
+			// (This deviates from bash quoting rules, but is
+			// necessary so we don't drop backslashes from Windows
+			// path names.)
 			//
 			if(i < l.size() - 1 && l[++i] != '\n')
 			{
-			    arg.push_back(l[i]);
+			    if(l[i] == ' ')
+			    {
+				arg.push_back(' ');
+			    }
+			    else
+			    {
+				arg.push_back('\\');
+				arg.push_back(l[i]);
+			    }
 			}
 			break;
 		    }
@@ -371,7 +384,7 @@ IceUtil::Options::split(const string& line)
 				    // Bash does not define what should happen if a \c
 				    // is not followed by a recognized control character.
 				    // We simply treat this case like other unrecognized
-				    // escape sequences, that is, we preserver the escape
+				    // escape sequences, that is, we preserve the escape
 				    // sequence unchanged.
 				    //
 				    arg.push_back('\\');

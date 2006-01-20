@@ -40,130 +40,148 @@ namespace IceUtil
 		char c = line[i];
 		switch(state)
 		{
-		case State.Normal:
-		{
-		    switch(c)
+		    case State.Normal:
 		    {
-		    case '\\':
-		    {
-			//
-			// Ignore a backslash at the end of the string,
-			// and strip backslash-newline pairs. Anything
-			// else following a backslash is taken literally.
-			//
-			if(i < line.Length - 1 && line[++i] != '\n')
+			switch(c)
 			{
-			    arg += line[i];
+			    case '\\':
+			    {
+				//
+				// Ignore a backslash at the end of the string,
+				// and strip backslash-newline pairs. If a
+				// backslash is followed by a space, we just
+				// write the space. Anything else following a
+				// backslash is preserved, including the backslash.
+				// (This deviates from bash quoting rules, but is
+				// necessary so we don't drop backslashes from Windows
+				// path names.)
+				//
+				if(i < line.Length - 1 && line[++i] != '\n')
+				{
+				    if(line[i] == ' ')
+				    {
+					arg += ' ';
+				    }
+				    else
+				    {
+					arg += '\\';
+					arg += line[i];
+				    }
+				}
+				break;
+			    }
+			    case '\'':
+			    {
+				state = State.SingleQuote;
+				break;
+			    }
+			    case '"':
+			    {
+				state = State.DoubleQuote;
+				break;
+			    }
+			    default:
+			    {
+				if(IFS.IndexOf(line[i]) != -1)
+				{
+				    vec.Add(arg);
+				    arg = "";
+				    
+				    //
+				    // Move to start of next argument.
+				    //
+				    while(++i < line.Length && IFS.IndexOf(line[i]) != -1)
+				    {
+					;
+				    }
+				    --i;
+				}
+				else
+				{
+				    arg += line[i];
+				}
+				break;
+			    }
 			}
 			break;
 		    }
-		    case '\'':
+		    case State.DoubleQuote:
 		    {
-			state = State.SingleQuote;
+			//
+			// Within double quotes, only backslash retains its special
+			// meaning, and only if followed by double quote, backslash,
+			// or newline. If not followed by one of these characters,
+			// both the backslash and the character are preserved.
+			//
+			if(c == '\\' && i < line.Length - 1)
+			{
+			    switch(c = line[++i])
+			    {
+				case '"':
+				case '\\':
+				case '\n':
+				{
+				    arg += c;
+				    break;
+				}
+				default:
+				{
+				    arg += '\\';
+				    arg += c;
+				    break;
+				}
+			    }
+			}
+			else if(c == '"') // End of double-quote mode.
+			{
+			    state = State.Normal;
+			}
+			else
+			{
+			    arg += c; // Everything else is taken literally.
+			}
 			break;
 		    }
-		    case '"':
+		    case State.SingleQuote:
 		    {
-			state = State.DoubleQuote;
+			if(c == '\'') // End of single-quote mode.
+			{
+			    state = State.Normal;
+			}
+			else
+			{
+			    arg += c; // Everything else is taken literally.
+			}
 			break;
 		    }
 		    default:
 		    {
-			if(IFS.IndexOf(line[i]) != -1)
-			{
-			    vec.Add(arg);
-			    arg = "";
-			    
-			    //
-			    // Move to start of next argument.
-			    //
-			    while(++i < line.Length && IFS.IndexOf(line[i]) != -1);
-			    --i;
-			}
-			else
-			{
-			    arg += line[i];
-			}
+			Debug.Assert(false);
 			break;
 		    }
-		    }
-		    break;
-		}
-		case State.DoubleQuote:
-		{
-		    //
-		    // Within double quotes, only backslash retains its special
-		    // meaning, and only if followed by double quote, backslash,
-		    // or newline. If not followed by one of these characters,
-		    // both the backslash and the character are preserved.
-		    //
-		    if(c == '\\' && i < line.Length - 1)
-		    {
-			switch(c = line[++i])
-			{
-			case '"':
-			case '\\':
-			case '\n':
-			{
-			    arg += c;
-			    break;
-			}
-			default:
-			{
-			    arg += '\\';
-			    arg += c;
-			    break;
-			}
-			}
-		    }
-		    else if(c == '"') // End of double-quote mode.
-		    {
-			state = State.Normal;
-		    }
-		    else
-		    {
-			arg += c; // Everything else is taken literally.
-		    }
-		    break;
-	    }
-		case State.SingleQuote:
-		{
-		    if(c == '\'') // End of single-quote mode.
-		    {
-			state = State.Normal;
-		    }
-		    else
-		    {
-			arg += c; // Everything else is taken literally.
-		    }
-		    break;
-		}
-		default:
-		    Debug.Assert(false);
-		    break;
 		}
 	    }
 	    
 	    switch(state)
 	    {
-	    case State.Normal:
-	    {
-		vec.Add(arg);
-		break;
-	    }
-	    case State.SingleQuote:
-	    {
-		throw new BadQuote("missing closing single quote");
-	    }
-	    case State.DoubleQuote:
-	    {
-		throw new BadQuote("missing closing double quote");
-	    }
-	    default:
-	    {
-		Debug.Assert(false);
-		break;
-	    }
+		case State.Normal:
+		{
+		    vec.Add(arg);
+		    break;
+		}
+		case State.SingleQuote:
+		{
+		    throw new BadQuote("missing closing single quote");
+		}
+		case State.DoubleQuote:
+		{
+		    throw new BadQuote("missing closing double quote");
+		}
+		default:
+		{
+		    Debug.Assert(false);
+		    break;
+		}
 	    }
 	    
 	    return (string[])vec.ToArray(typeof(string));
