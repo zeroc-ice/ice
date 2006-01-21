@@ -10,6 +10,7 @@
 import getopt, os, re, shutil, string, sys, zipfile
 import logging, cStringIO, glob
 import components
+import textwrap
 
 # 
 # Current default third party library versions.
@@ -276,33 +277,168 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	print "Building in " + os.getcwd() + "..."
 	runprog('msdev all.dsw /useenv /make "all - Win32 Debug"')
 	runprog('msdev all.dsw /useenv /make "all - Win32 Release"')
+    elif installVersion in ["vc80", "vc80_x64"]:
+	#
+	# Ice for C++ 
+	#
+	os.chdir(iceHome)
+	print "Building in " + os.getcwd() + "..."
+	runprog("devenv all.sln /useenv /build Debug")
+	runprog("devenv all.sln /useenv /build Release")
+
+def list2english(l):
+    if len(l) == 1:
+	return l[0]
+    elif len(l) == 2:
+	return l[0] + " and " + list2english(l[1:])
+    else:
+	return l[0] + ", " + list2english(l[1:]) 
+
+def convertLicensesToRTF(toolDir, installTarget):
+    openssl = (os.path.join(os.environ["OPENSSL_HOME"], "LICENSE"), "OpenSSL", "OPENSSL_LICENSE.rtf")
+    berkeleydb = (os.path.join(os.environ["DB_HOME"], "LICENSE"), "Berkeley DB", "BERKELEY_DB_LICENSE.rtf")
+    expat = (os.path.join(os.environ["EXPAT_HOME"], "COPYING"), "Expat", "EXPAT_LICENSE.rtf")
+    bzip2 = (os.path.join(os.environ["BZIP2_HOME"], "LICENSE"), "bzip2/libbzip2", "BZIP2_LICENSE.rtf")
+
+    section_header = "License agreement for %s:\n"
+    line_string = "-------------------------------------------------------------------------------------------"
+    rtfhdr = file(os.path.join(toolDir, "docs", "rtf.hdr")).readlines()
+    rtfftr = file(os.path.join(toolDir, "docs", "rtf.footer")).readlines()
+    
+    core = [ berkeleydb, bzip2, openssl, expat ]
+
+    collection = core
+    jgoodies =[(os.path.join(os.environ["JGOODIES_FORMS"], "license.txt"), "JGoodies Forms", 
+			    "JGOODIES_FORMS_LICENSE.rtf"),
+	       (os.path.join(os.environ["JGOODIES_LOOKS"], "license.txt"), "JGoodies Looks", 
+			    "JGOODIES_LOOKS_LICENSE.rtf")]
+    if installTarget == "vc60":
+	collection.append((os.path.join(os.environ["STLPORT_HOME"], "doc", "license.html"),  
+	                   "STLport", "STLPORT_LICENSE.rtf"))
+    elif installTarget in ["vc71", "vc80", "vc80_x64"]:
+	collection.extend(jgoodies)
+
+    third_party_sources_file_hdr = """Source Code
+-----------
+
+"""
+
+    if not os.path.exists(os.path.join(toolDir, "docs")):
+	os.mkdir(os.path.join(toolDir, "docs"))
+    names = []
+    for e in collection:
+	names.append(e[1])
+
+    text = "The source distributions of " + list2english(names)
+    text = text + " used to build this distribution can be downloaded at no cost from http://www.zeroc.com/download.html."
+    licensefile = file(os.path.join(toolDir, "docs", "THIRD_PARTY_SOURCES"), "w")
+
+    #
+    # textwrap module has got to be one of the coolest things since
+    # sliced bread. 
+    #
+    licensefile.write(third_party_sources_file_hdr)
+    licensefile.write(textwrap.fill(text, 75))
+    licensefile.close()
+
+    #
+    # THIRD_PARTY_SOURCES is the file used by the Ice installer while
+    # SOURCES is used by the third party installer.
+    #
+    shutil.copy(os.path.join(toolDir, "docs", "THIRD_PARTY_SOURCES"), os.path.join(toolDir, "docs", "SOURCES")) 
+
+    licensefile = file(os.path.join(toolDir, "docs", "LICENSE"), "w")
+    for f in collection:
+	contents = None
+	if f[0].endswith(".html"):
+	    # 
+	    # Here's me wishing the Python standard library had a class
+	    # for converting HTML to plain text. In the meantime, we'll
+	    # have to leverage 'links' in cygwin.
+	    #
+	    pipe_stdin, pipe_stdout = os.popen2("cygpath %s" % f[0])
+	    lines = pipe_stdout.readlines()
+	    pipe_stdin.close()
+	    pipe_stdout.close()
+	    cygname = lines[0].strip()
+	    pipe_stdin, pipe_stdout = os.popen2("links -dump %s" % cygname)
+	    lines = pipe_stdout.readlines()
+	    contents = lines[2:]
+	else:
+	    contents = file(f[0]).readlines()
+	hdr = section_header % f[1]
+	
+	licensefile.write(hdr)
+	licensefile.write(line_string[:len(hdr)] + "\n\n")
+	licensefile.writelines(contents)
+	licensefile.write("\n\n")
+	rtffile = file(os.path.join(toolDir, "docs", os.path.basename(f[2])), "w")
+	rtffile.writelines(rtfhdr)
+	rtffile.write(hdr + "\\par")
+	rtffile.write(line_string[:len(hdr)] + "\\par\n")
+	for l in contents:
+	    rtffile.write(l.rstrip("\n") + "\\par\n")
+	rtffile.writelines(rtfftr)
+	rtffile.close()
+
+    #
+    # Technically, the JGoodies stuff isn't part of the Ice 6.0.0 target
+    # but we include it in our third party installer as a convenience to
+    # IceJ builders.
+    #
+    if installTarget == "vc60":
+	for f in jgoodies:
+	    contents = file(f[0]).readlines()
+	    hdr = section_header % f[1]
+	    rtffile = file(os.path.join(toolDir, "docs", os.path.basename(f[2])), "w")
+	    rtffile.writelines(rtfhdr)
+	    rtffile.write(hdr + "\\par")
+	    rtffile.write(line_string[:len(hdr)] + "\\par\n")
+	    for l in contents:
+		rtffile.write(l.rstrip("\n") + "\\par\n")
+	    rtffile.writelines(rtfftr)
+	    rtffile.close()
+
+    licensefile.close()
+    shutil.copyfile(os.path.join(toolDir, "docs", "LICENSE"), os.path.join(toolDir, "docs", "THIRD_PARTY_LICENSE"))
+    lines = file(os.path.join(toolDir, "docs", "LICENSE")).readlines()
+    rtflicense = file(os.path.join(toolDir, "docs", "LICENSE.rtf"), "w")
+    rtflicense.writelines(rtfhdr)
+    for l in lines:
+	rtflicense.write(l.rstrip("\n") + "\\par\n")
+    rtflicense.writelines(rtfftr)
+    rtflicense.close()
 
 def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
     """Build third party merge modules."""
     modules = [
 	("BerkeleyDBDevKit", "BERKELEYDB_DEV_KIT"),
 	("BerkeleyDBRuntime", "BERKELEYDB_RUNTIME"),
-	("BerkeleyDBJava", "BERKELEYDB_JAVA"),
 	("BZip2DevKit", "BZIP2_DEV_KIT"),
 	("BZip2Runtime", "BZIP2_RUNTIME"),
 	("ExpatDevKit", "EXPAT_DEV_KIT"),
 	("ExpatRuntime", "EXPAT_RUNTIME"),
 	("OpenSSLDevKit", "OPENSSL_DEV_KIT"),
-	("OpenSSLRuntime", "OPENSSL_RUNTIME")
+	("OpenSSLRuntime", "OPENSSL_RUNTIME"),
+	("JGoodies", "JGOODIES_RUNTIME") 
     ]
     if installVersion == "vc60":
 	extras = [ ("STLPortDevKit", "STLPORT_DEV_KIT"), ("STLPortRuntime", "STLPORT_RUNTIME") ]
 	modules.extend(extras)
-    elif installVersion == "vc71":
-	extras = [ ("JGoodies", "JGOODIES_RUNTIME") ]
-	modules.extend(extras)
 
+    if installVersion != "vc60":
+	modules.append(("BerkeleyDBJava", "BERKELEYDB_JAVA"))
     #
     # Build modules.
     #
     os.chdir(startDir)
     for project, release in modules:
-	runprog(os.environ['INSTALLSHIELD_HOME'] + "\IsCmdBld -c COMP -a ZEROC -p " + project + ".ism -r " + release)
+	#
+	# The -w -x flags indicate that the build should stop on any
+	# warning or error. This is preferable since it catches staging
+	# errors and forces us to keep our projects clean.
+	#
+	runprog(os.environ['INSTALLSHIELD_HOME'] + "\IsCmdBld -x -w -c COMP -a ZEROC -p " + project + ".ism -r " + release)
 
     #
     # Archive modules in the stage directory root.
@@ -321,16 +457,14 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
 	zip.write(msmPath, os.path.basename(msmPath))
     zip.close()
 
-def buildInstallers(startDir, stageDir, sourcesVersion, installVersion):
-    """Build MSI installers."""
-    installers = [("ThirdParty", "THIRD_PARTY_MSI"), ("Ice", "ICE_MSI")]
+def buildInstallers(startDir, stageDir, sourcesVersion, installVersion, installers):
 
     #
     # Build and copy to the stage directory root.
     #
     os.chdir(startDir)
     for project, release in installers:
-	runprog(os.environ['INSTALLSHIELD_HOME'] + "\ISCmdBld -c COMP -a ZEROC -p " + project + ".ism -r " + release)
+	runprog(os.environ['INSTALLSHIELD_HOME'] + "\ISCmdBld -x -w -c COMP -a ZEROC -p " + project + ".ism -r " + release)
 	msi = project + "-" + sourcesVersion + "-" + installVersion.upper() + ".msi"
 	msiPath = os.path.join(os.getcwd(), project, "ZEROC", release, "DiskImages/DISK1", msi)
 	shutil.copy(msiPath, stageDir)
@@ -370,7 +504,7 @@ def main():
 	try:
 	    optionList, args = getopt.getopt(
 		sys.argv[1:], "dhil:", [ "help", "clean", "skip-build", "skip-installer", "info", "debug", 
-		"logfile", "vc60", "vc71", "sslhome=", "expathome=", "dbhome=", "stlporthome=", "bzip2home=", 
+		"logfile", "vc60", "vc71", "vc80", "vc80_x64", "sslhome=", "expathome=", "dbhome=", "stlporthome=", "bzip2home=", 
 		"thirdparty="])
 	except getopt.GetoptError:
 	    usage()
@@ -406,6 +540,10 @@ def main():
 		target = 'vc60'
 	    elif o == '--vc71':
 		target = 'vc71'
+	    elif o == '--vc80':
+		target = 'vc80'
+	    elif o == '--vc80_x64':
+		target = 'vc80_x64'
 	    elif o == '--sources':
 		os.environ['SOURCES'] = a
 	    elif o == '--buildDir':
@@ -520,10 +658,16 @@ libraries."""
 		os.path.join(os.path.dirname(components.__file__), "components"), stageDir, "packages", defaults)
 
 	#
+	# Gather and generate license files.
+	#
+	convertLicensesToRTF(os.path.dirname(__file__), target)
+
+	#
 	# Build the merge module projects.
 	# 
 	if installer:
 	    buildMergeModules(targetDir, stageDir, sourcesVersion, target)
+	    buildInstallers(targetDir, stageDir, sourcesVersion, target, [("ThirdParty", "THIRD_PARTY_MSI")])
 
 	#
 	# Build the Ice distributions.
@@ -541,7 +685,7 @@ libraries."""
 	# Build the installer projects.
 	#
 	if installer:
-	    buildInstallers(targetDir, stageDir, sourcesVersion, target)
+	    buildInstallers(targetDir, stageDir, sourcesVersion, target, [("Ice", "ICE_MSI")])
 
     finally:
 	#

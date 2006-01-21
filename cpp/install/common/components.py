@@ -218,7 +218,10 @@ class FileSpecWorker:
 	    s = os.path.join(self.source, current)
 	    d = os.path.join(targetDirectory, targetFile)
 	    try:
-		shutil.copy2(s, d) 
+		if os.path.isdir(s):
+		    os.mkdir(d)
+		else:
+		    shutil.copy2(s, d) 
 	    except IOError, e:
 		logging.info('Copying %s to %s failed: %s' %  (s, d, str(e)))
 		raise
