@@ -1,7 +1,7 @@
-
 # To create an explicit listing for the demos run the following command
 # in the demo directory of the IcePy distribution.:
 # find . -name "*" -type f | sed -e 's/^\.\///' >> $1
+# find . -name "*" -type d | grep \/db |  sed -e 's/^\.\///' | sed -e '/^Freeze\/backup/d'  >> file
 #
 # If you want to use wild card searches instead of explicitly listing
 # files, you can delete the filenames and uncomment the following lines:
@@ -12,6 +12,16 @@
 # Stop uncommenting here!
 # Delete from here to EOF
 
+Glacier2/callback/Callback.ice
+Glacier2/callback/Client.py
+Glacier2/callback/config
+Glacier2/callback/config.glacier2
+Glacier2/callback/config.server
+Glacier2/callback/config.sessionserver
+Glacier2/callback/README
+Glacier2/callback/Server.py
+Glacier2/callback/SessionServer.py
+Glacier2/README
 Ice/bidir/Callback.ice
 Ice/bidir/Client.py
 Ice/bidir/config
@@ -53,3 +63,23 @@ Ice/value/Printer.py
 Ice/value/README
 Ice/value/Server.py
 Ice/value/Value.ice
+IceGrid/simple/application.xml
+IceGrid/simple/application_with_replication.xml
+IceGrid/simple/application_with_template.xml
+IceGrid/simple/Client.py
+IceGrid/simple/config
+IceGrid/simple/Hello.ice
+IceGrid/simple/README
+IceGrid/simple/Server.py
+IceStorm/clock/Clock.ice
+IceStorm/clock/config
+IceStorm/clock/config_service
+IceStorm/clock/Publisher.py
+IceStorm/clock/README
+IceStorm/clock/Subscriber.py
+IceStorm/README
+README
+IceGrid/simple/db
+IceGrid/simple/db/node
+IceGrid/simple/db/registry
+IceStorm/clock/db

@@ -1,10 +1,10 @@
-
 # To create an explicit listing for the demos run the following command
-# in the demo directory of the IceCS distribution:
+# in the demo directory of the IceVB distribution:
 # find . -name "*" -type f | sed -e '/generated\|obj\|.exe$\|.dll$\|.depend\|\
-#      Makefile\|.pdb$\|\*.bat$\|.dummy\|[^D].vbproj.*$/d' # | \
+#      Makefile\|.pdb$\|\*.bat$\|\.dummy\|[^D].vbproj.*$/d' # | \
 #      sed -e 's/^\.\///' \
 # >> file
+# find . -name "*" -type d | grep \/db |  sed -e 's/^\.\///' | sed -e '/^Freeze\/backup/d'  >> file
 #
 # If you want to use wild card searches instead of explicitly listing
 # files, you can delete the filenames and uncomment the following lines:
@@ -163,4 +163,41 @@ Ice/value/Value.ice
 Ice/value/valueCD.vbproj
 Ice/value/valueCommonD.vbproj
 Ice/value/valueSD.vbproj
+IceBox/hello/Client.vb
+IceBox/hello/config
+IceBox/hello/Hello.ice
+IceBox/hello/HelloI.vb
+IceBox/hello/helloIceBoxCD.vbproj
+IceBox/hello/helloIceBoxCommonD.vbproj
+IceBox/hello/helloIceBoxSD.vbproj
+IceBox/hello/HelloServiceI.vb
+IceBox/hello/README
+IceBox/README
+IceGrid/simple/application.xml
+IceGrid/simple/application_with_replication.xml
+IceGrid/simple/application_with_template.xml
+IceGrid/simple/Client.vb
+IceGrid/simple/config
+IceGrid/simple/Hello.ice
+IceGrid/simple/HelloI.vb
+IceGrid/simple/README
+IceGrid/simple/Server.vb
+IceGrid/simple/simpleIceGridCD.vbproj
+IceGrid/simple/simpleIceGridCommonD.vbproj
+IceGrid/simple/simpleIceGridSD.vbproj
+IceStorm/clock/Clock.ice
+IceStorm/clock/clockCD.vbproj
+IceStorm/clock/clockCommonD.vbproj
+IceStorm/clock/ClockI.vb
+IceStorm/clock/clockSD.vbproj
+IceStorm/clock/config
+IceStorm/clock/config_service
+IceStorm/clock/Publisher.vb
+IceStorm/clock/README
+IceStorm/clock/Subscriber.vb
+IceStorm/README
 README
+IceGrid/simple/db
+IceGrid/simple/db/node
+IceGrid/simple/db/registry
+IceStorm/clock/db

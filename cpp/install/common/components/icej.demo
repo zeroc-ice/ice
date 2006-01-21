@@ -1,8 +1,8 @@
-
 # To create an explicit listing for the demos run the following command
-# in the demo directory of the ice distribution.:
+# in the demo directory of the IceJ distribution.:
 # find . -name "*" -type f | sed -e # '/\/generated\/\|\/classes\/\|\
 #        .dummy/d' | sed -e 's/^\.\///' >> file
+# find . -name "*" -type d | grep \/db |  sed -e 's/^\.\///' | sed -e '/^Freeze\/backup/d'  >> file
 #
 # If you want to use wild card searches instead of explicitly listing
 # files, you can delete the filenames and uncomment the following lines:
@@ -201,3 +201,10 @@ IceStorm/clock/README
 IceStorm/clock/Subscriber.java
 IceStorm/README
 README
+Freeze/bench/db
+Freeze/library/db
+Freeze/phonebook/db
+IceGrid/simple/db
+IceGrid/simple/db/node
+IceGrid/simple/db/registry
+IceStorm/clock/db

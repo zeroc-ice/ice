@@ -105,6 +105,7 @@ IceGrid/Descriptor
 IceGrid/Admin
 IceGrid/Observer
 IceUtil/Iterator
+IceUtil/DisableWarnings
 IceUtil/Cond
 IceUtil/MD5
 IceUtil/Handle

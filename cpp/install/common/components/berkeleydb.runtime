@@ -9,3 +9,4 @@ f,build_win32/Release/db_stat.exe
 f,build_win32/Release/db_upgrade.exe
 f,build_win32/Release/db_verify.exe
 f,build_win32/Release/libdb%(dbver)s.dll
+f,build_win32/Debug/libdb%(dbver)sd.dll
