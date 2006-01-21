@@ -4,8 +4,8 @@ Changes since version 3.0.0
 - Fixed a bug in the Slice parser that caused problems if an
   included file contained white space in the file name.
 
-- Added source compatibility with PHP 5.1.1. A configure script for
-  PHP 5.1.1 is provided as configure-5.1.1.gz.
+- Added source compatibility with PHP 5.1.2. A configure script for
+  PHP 5.1.2 is provided as configure-5.1.2.gz.
 
 Changes since version 2.1.2
 ---------------------------
