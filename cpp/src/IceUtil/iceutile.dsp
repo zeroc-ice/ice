@@ -130,7 +130,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\ReleaseStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                   $(OutDir)\iceutil.lib                                   ..\..\lib\ 
+PostBuild_Cmds=copy                                    $(OutDir)\iceutil.lib                                    ..\..\lib\ 
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "iceutile - Win32 Debug Static"
@@ -162,7 +162,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 OutDir=.\DebugStatic
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy                                  $(OutDir)\iceutild.lib                                  ..\..\lib\ 
+PostBuild_Cmds=copy                                   $(OutDir)\iceutild.lib                                   ..\..\lib\ 
 # End Special Build Tool
 
 !ENDIF 
@@ -183,6 +183,10 @@ SOURCE=.\Base64.cpp
 # Begin Source File
 
 SOURCE=.\Cond.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ConvertUTF.cpp
 # End Source File
 # Begin Source File
 
@@ -271,6 +275,10 @@ SOURCE=..\..\include\iceutil\Cond.h
 # Begin Source File
 
 SOURCE=..\..\include\iceutil\Config.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ConvertUTF.h
 # End Source File
 # Begin Source File
 
