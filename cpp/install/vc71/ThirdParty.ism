@@ -250,6 +250,7 @@
 		<col key="yes" def="s72">Name</col>
 		<col def="V0">Data</col>
 		<col def="S255">ISBuildSourcePath</col>
+		<row><td>ISSELFREG.DLL</td><td/><td>&lt;ISProductFolder&gt;\redist\language independent\i386\isregsvr.dll</td></row>
 		<row><td>NewBinary1</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\IsDialogBanner.ibd</td></row>
 		<row><td>NewBinary10</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\CompleteSetupIco.ibd</td></row>
 		<row><td>NewBinary11</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\CustomSetupIco.ibd</td></row>
@@ -579,7 +580,7 @@
 		<row><td>JGoodiesFormsLicense</td><td>Line3</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
 		<row><td>JGoodiesFormsLicense</td><td>Line4</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
 		<row><td>JGoodiesFormsLicense</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING30##</td><td>RadioButtonGroup1</td><td/><td>0</td><td/><td/><td/></row>
-		<row><td>JGoodiesFormsLicense</td><td>RadioButtonGroup1</td><td>RadioButtonGroup</td><td>9</td><td>187</td><td>330</td><td>40</td><td>3</td><td>AgreeToLicense1111</td><td>##NEW_STRING15##</td><td>Cancel</td><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesFormsLicense</td><td>RadioButtonGroup1</td><td>RadioButtonGroup</td><td>9</td><td>187</td><td>330</td><td>40</td><td>3</td><td>AgreeToLicense1111</td><td/><td>Cancel</td><td/><td>0</td><td>0</td><td/><td/></row>
 		<row><td>JGoodiesFormsLicense</td><td>ScrollableText1</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td>0</td><td>&lt;ISProjectFolder&gt;\install\packages\common\JGOODIES_FORMS_LICENSE.rtf</td><td/></row>
 		<row><td>JGoodiesFormsLicense</td><td>Text1</td><td>Text</td><td>21</td><td>23</td><td>292</td><td>25</td><td>65539</td><td>NewProperty1111</td><td>##NEW_STRING13##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
 		<row><td>JGoodiesFormsLicense</td><td>Text2</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td>NewProperty2111</td><td>##NEW_STRING14##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
@@ -595,7 +596,7 @@
 		<row><td>JGoodiesLooksLicense</td><td>Line3</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
 		<row><td>JGoodiesLooksLicense</td><td>Line4</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td>0</td><td/><td/></row>
 		<row><td>JGoodiesLooksLicense</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##ID_STRING38##</td><td>RadioButtonGroup1</td><td/><td>0</td><td/><td/><td/></row>
-		<row><td>JGoodiesLooksLicense</td><td>RadioButtonGroup1</td><td>RadioButtonGroup</td><td>9</td><td>189</td><td>330</td><td>40</td><td>3</td><td>AgreeToLicense1112</td><td>##NEW_STRING20##</td><td>Cancel</td><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>JGoodiesLooksLicense</td><td>RadioButtonGroup1</td><td>RadioButtonGroup</td><td>9</td><td>189</td><td>330</td><td>40</td><td>3</td><td>AgreeToLicense1112</td><td/><td>Cancel</td><td/><td>0</td><td>0</td><td/><td/></row>
 		<row><td>JGoodiesLooksLicense</td><td>ScrollableText1</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td>0</td><td>&lt;ISProjectFolder&gt;\install\packages\common\JGOODIES_LOOKS_LICENSE.rtf</td><td/></row>
 		<row><td>JGoodiesLooksLicense</td><td>Text1</td><td>Text</td><td>21</td><td>23</td><td>292</td><td>25</td><td>65539</td><td>NewProperty1112</td><td>##NEW_STRING18##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
 		<row><td>JGoodiesLooksLicense</td><td>Text2</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td>NewProperty2112</td><td>##NEW_STRING19##</td><td/><td/><td>0</td><td>0</td><td/><td/></row>
@@ -934,7 +935,7 @@
 		<row><td>DatabaseFolder</td><td>ChangeFolder</td><td>SpawnDialog</td><td>InstallChangeFolder</td><td>1</td><td>1</td></row>
 		<row><td>DatabaseFolder</td><td>ChangeFolder</td><td>[_BrowseProperty]</td><td>DATABASEDIR</td><td>1</td><td>2</td></row>
 		<row><td>DatabaseFolder</td><td>Next</td><td>NewDialog</td><td>SetupType</td><td>1</td><td>1</td></row>
-		<row><td>DestinationFolder</td><td>Back</td><td>NewDialog</td><td>LicenseAgreement</td><td>1</td><td>0</td></row>
+		<row><td>DestinationFolder</td><td>Back</td><td>NewDialog</td><td>JGoodiesLooksLicense</td><td>1</td><td>1</td></row>
 		<row><td>DestinationFolder</td><td>Cancel</td><td>SpawnDialog</td><td>CancelSetup</td><td>1</td><td>1</td></row>
 		<row><td>DestinationFolder</td><td>ChangeFolder</td><td>SpawnDialog</td><td>InstallChangeFolder</td><td>1</td><td>1</td></row>
 		<row><td>DestinationFolder</td><td>ChangeFolder</td><td>[_BrowseProperty]</td><td>INSTALLDIR</td><td>1</td><td>2</td></row>
@@ -1056,6 +1057,10 @@
 		<col def="S255">ISComments</col>
 		<row><td>CheckForProductUpdates</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall"</td><td>Checks for product updates</td></row>
 		<row><td>CheckForProductUpdatesOnReboot</td><td>226</td><td>ISUpdateServiceFolder</td><td>[ISUpdateServiceFolder]agent.exe "/au[ProductCode] /EndOfInstall /Reboot"</td><td>Checks for product updates on reboot</td></row>
+		<row><td>ISSelfRegisterCosting</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterCosting</td><td/></row>
+		<row><td>ISSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFiles</td><td/></row>
+		<row><td>ISSelfRegisterFinalize</td><td>1</td><td>ISSELFREG.DLL</td><td>ISSelfRegisterFinalize</td><td/></row>
+		<row><td>ISUnSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISUnSelfRegisterFiles</td><td/></row>
 		<row><td>SetARPINSTALLLOCATION</td><td>51</td><td>ARPINSTALLLOCATION</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>SetAllUsersProfileNT</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%SystemRoot]\Profiles\All Users</td><td/></row>
 		<row><td>setAllUsersProfile2K</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%ALLUSERSPROFILE]</td><td/></row>
@@ -1131,8 +1136,8 @@
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE_2.1.0_THIRD_PARTY_PACKAGES</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0-ThirdParty</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.0.0_THIRDPARTY</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.0.0-ThirdParty</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_3.0.0_THIRDPARTY</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.0.1_THIRDPARTY</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.0.1-ThirdParty</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_3.0.1_THIRDPARTY</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
@@ -1785,7 +1790,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.0.0-VC71</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.0.1-VC71</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
 	</table>
 
@@ -1819,7 +1824,7 @@
 		<col def="S255">CDBrowser</col>
 		<col def="S255">DotNetBuildConfiguration</col>
 		<col def="S255">MsiCommandLine</col>
-		<row><td>THIRD_PARTY_MSI</td><td>ZEROC</td><td>&lt;ISProjectDataFolder&gt;</td><td>PackageName</td><td>1</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>0</td><td>0</td><td>1</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>8396812</td><td/><td/><td/></row>
+		<row><td>THIRD_PARTY_MSI</td><td>ZEROC</td><td>&lt;ISProjectDataFolder&gt;</td><td>PackageName</td><td>1</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>0</td><td>0</td><td>1</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>8527884</td><td/><td/><td/></row>
 	</table>
 
 	<table name="ISReleaseExtended">
@@ -2421,7 +2426,7 @@
 		<row><td>IDS__TargetReq_DESC_PROCESSOR</td><td>1033</td><td>The processor is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RAM</td><td>1033</td><td>The amount of RAM is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDS__TargetReq_DESC_RESOLUTION</td><td>1033</td><td>The screen resolution is not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
-		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.0.0 Third Party Packages</td><td>0</td><td/><td>890854351</td></row>
+		<row><td>ID_STRING1</td><td>1033</td><td>Ice 3.0.1 Third Party Packages</td><td>0</td><td/><td>890854351</td></row>
 		<row><td>ID_STRING11</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING12</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
 		<row><td>ID_STRING13</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033470955</td></row>
@@ -2447,7 +2452,7 @@
 		<row><td>ID_STRING37</td><td>1033</td><td>{&amp;Tahoma8}InstallShield</td><td>0</td><td/><td>1033487467</td></row>
 		<row><td>ID_STRING38</td><td>1033</td><td>&amp;Next &gt;</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING39</td><td>1033</td><td>&lt; &amp;Back</td><td>0</td><td/><td>1033477259</td></row>
-		<row><td>ID_STRING4</td><td>1033</td><td>Ice 3.0.0 Third Party Packages for Visual Studio .NET 2003</td><td>0</td><td/><td>890864591</td></row>
+		<row><td>ID_STRING4</td><td>1033</td><td>Ice 3.0.1 Third Party Packages for Visual Studio .NET 2003</td><td>0</td><td/><td>890864591</td></row>
 		<row><td>ID_STRING40</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING43</td><td>1033</td><td>[ProductName] - InstallShield Wizard</td><td>0</td><td/><td>1033477259</td></row>
 		<row><td>ID_STRING44</td><td>1033</td><td>{&amp;MSSWhiteSerif8}InstallShield</td><td>0</td><td/><td>1033477259</td></row>
@@ -2570,6 +2575,10 @@
 		<row><td>DuplicateFiles</td><td/><td>4210</td><td>DuplicateFiles</td><td/></row>
 		<row><td>FileCost</td><td/><td>900</td><td>FileCost</td><td/></row>
 		<row><td>FindRelatedProducts</td><td>NOT ISSETUPDRIVEN</td><td>420</td><td>FindRelatedProducts</td><td/></row>
+		<row><td>ISSelfRegisterCosting</td><td/><td>2201</td><td/><td/></row>
+		<row><td>ISSelfRegisterFiles</td><td/><td>5601</td><td/><td/></row>
+		<row><td>ISSelfRegisterFinalize</td><td/><td>6601</td><td/><td/></row>
+		<row><td>ISUnSelfRegisterFiles</td><td/><td>2202</td><td/><td/></row>
 		<row><td>InstallFiles</td><td/><td>4000</td><td>InstallFiles</td><td/></row>
 		<row><td>InstallFinalize</td><td/><td>6600</td><td>InstallFinalize</td><td/></row>
 		<row><td>InstallInitialize</td><td/><td>1501</td><td>InstallInitialize</td><td/></row>
@@ -2884,11 +2893,11 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>NewProperty2111</td><td>0</td><td/></row>
 		<row><td>NewProperty2112</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{0106D699-7D86-4CB5-B185-6DF557502853}</td><td/></row>
+		<row><td>ProductCode</td><td>{D9959A5C-8ABF-46F7-BD76-48CFC07B3818}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.0.0 Third Party Packages for Visual Studio .NET 2003</td><td/></row>
-		<row><td>ProductVersion</td><td>3.0.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.0.1 Third Party Packages for Visual Studio .NET 2003</td><td/></row>
+		<row><td>ProductVersion</td><td>3.0.1</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2897,7 +2906,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{2A2B281D-B122-4B3C-A338-FB7D6645068E}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{EFD875EC-7D96-4493-81FE-B6F1CB54CD80}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

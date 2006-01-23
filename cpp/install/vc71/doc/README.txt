@@ -25,18 +25,18 @@ this distribution.
 Binary compatibility
 --------------------
 
-Patch releases of Ice are binary compatible. For example, version 2.1.1
-is compatible with 2.1.0, so you can run applications compiled with
-2.1.0 with the 2.1.1 runtime without having to recompile.
+Patch releases of Ice are binary compatible. For example, version 3.0.1
+is compatible with 3.0.0, so you can run applications compiled with
+3.0.0 with the 3.0.1 runtime without having to recompile.
 
 With the binary installers, simply uninstall the previous version of
 Ice and install the new one. Already deployed applications that were
-compiled against the 2.1.0 runtime will automatically use the 2.1.1
+compiled against the 3.0.0 runtime will automatically use the 3.0.1
 runtime.
 
 Note: Under Mono, binary compatibility currently does not work due to
       issues with Mono. Until this problem in Mono is fixed, you cannot
-      run 2.1.0 applications against the 2.1.1 runtime.
+      run 3.0.0 applications against the 3.0.1 runtime.
 
 
 Setting up Visual Studio .NET

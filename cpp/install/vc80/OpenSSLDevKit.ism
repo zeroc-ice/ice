@@ -1,0 +1,1894 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="is.xsl" ?>
+<!DOCTYPE msi [
+   <!ELEMENT msi   (summary,table*)>
+   <!ATTLIST msi version    CDATA #REQUIRED>
+   <!ATTLIST msi xmlns:dt   CDATA #IMPLIED
+                 codepage   CDATA #IMPLIED
+                 compression (MSZIP|LZX|none) "LZX">
+   
+   <!ELEMENT summary       (codepage?,title?,subject?,author?,keywords?,comments?,
+                            template,lastauthor?,revnumber,lastprinted?,
+                            createdtm?,lastsavedtm?,pagecount,wordcount,
+                            charcount?,appname?,security?)>
+                            
+   <!ELEMENT codepage      (#PCDATA)>
+   <!ELEMENT title         (#PCDATA)>
+   <!ELEMENT subject       (#PCDATA)>
+   <!ELEMENT author        (#PCDATA)>
+   <!ELEMENT keywords      (#PCDATA)>
+   <!ELEMENT comments      (#PCDATA)>
+   <!ELEMENT template      (#PCDATA)>
+   <!ELEMENT lastauthor    (#PCDATA)>
+   <!ELEMENT revnumber     (#PCDATA)>
+   <!ELEMENT lastprinted   (#PCDATA)>
+   <!ELEMENT createdtm     (#PCDATA)>
+   <!ELEMENT lastsavedtm   (#PCDATA)>
+   <!ELEMENT pagecount     (#PCDATA)>
+   <!ELEMENT wordcount     (#PCDATA)>
+   <!ELEMENT charcount     (#PCDATA)>
+   <!ELEMENT appname       (#PCDATA)>
+   <!ELEMENT security      (#PCDATA)>                            
+                                
+   <!ELEMENT table         (col+,row*)>
+   <!ATTLIST table
+                name        CDATA #REQUIRED>
+
+   <!ELEMENT col           (#PCDATA)>
+   <!ATTLIST col
+                 key       (yes|no) #IMPLIED
+                 def       CDATA #IMPLIED>
+                 
+   <!ELEMENT row            (td+)>
+   
+   <!ELEMENT td             (#PCDATA)>
+   <!ATTLIST td
+                 href       CDATA #IMPLIED
+                 dt:dt     (string|bin.base64) #IMPLIED
+                 md5        CDATA #IMPLIED>
+]>
+<msi version="2.0" xmlns:dt="urn:schemas-microsoft-com:datatypes">
+	
+	<summary>
+		<codepage>1252</codepage>
+		<title>Installation Database</title>
+		<subject>OpenSSL Dev Kit for Visual Studio 2005</subject>
+		<author>##ID_STRING2##</author>
+		<keywords>MergeModule,MSI,Database</keywords>
+		<comments>Contact:  Your local administrator</comments>
+		<template>Intel;1033</template>
+		<lastauthor>Administrator</lastauthor>
+		<revnumber>{A5CC9B52-A285-4179-AFE5-2AE588DBAE08}</revnumber>
+		<lastprinted/>
+		<createdtm>06/21/1999 04:30</createdtm>
+		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
+		<pagecount>200</pagecount>
+		<wordcount>0</wordcount>
+		<charcount/>
+		<appname>InstallShield Developer</appname>
+		<security>1</security>
+	</summary>
+	
+	<table name="ActionText">
+		<col key="yes" def="s72">Action</col>
+		<col def="L64">Description</col>
+		<col def="L128">Template</col>
+	</table>
+
+	<table name="AdminExecuteSequence">
+		<col key="yes" def="s72">Action</col>
+		<col def="S255">Condition</col>
+		<col def="I2">Sequence</col>
+		<col def="S255">ISComments</col>
+		<col def="I4">ISAttributes</col>
+	</table>
+
+	<table name="AdminUISequence">
+		<col key="yes" def="s72">Action</col>
+		<col def="S255">Condition</col>
+		<col def="I2">Sequence</col>
+		<col def="S255">ISComments</col>
+		<col def="I4">ISAttributes</col>
+	</table>
+
+	<table name="AdvtExecuteSequence">
+		<col key="yes" def="s72">Action</col>
+		<col def="S255">Condition</col>
+		<col def="I2">Sequence</col>
+		<col def="S255">ISComments</col>
+		<col def="I4">ISAttributes</col>
+	</table>
+
+	<table name="AdvtUISequence">
+		<col key="yes" def="s72">Action</col>
+		<col def="S255">Condition</col>
+		<col def="I2">Sequence</col>
+		<col def="S255">ISComments</col>
+		<col def="I4">ISAttributes</col>
+	</table>
+
+	<table name="AppId">
+		<col key="yes" def="s38">AppId</col>
+		<col def="S255">RemoteServerName</col>
+		<col def="S255">LocalService</col>
+		<col def="S255">ServiceParameters</col>
+		<col def="S255">DllSurrogate</col>
+		<col def="I2">ActivateAtStorage</col>
+		<col def="I2">RunAsInteractiveUser</col>
+	</table>
+
+	<table name="AppSearch">
+		<col key="yes" def="s72">Property</col>
+		<col key="yes" def="s72">Signature_</col>
+	</table>
+
+	<table name="Binary">
+		<col key="yes" def="s72">Name</col>
+		<col def="V0">Data</col>
+		<col def="S255">ISBuildSourcePath</col>
+	</table>
+
+	<table name="BindImage">
+		<col key="yes" def="s72">File_</col>
+		<col def="S255">Path</col>
+	</table>
+
+	<table name="CheckBox">
+		<col key="yes" def="s72">Property</col>
+		<col def="S64">Value</col>
+	</table>
+
+	<table name="Class">
+		<col key="yes" def="s38">CLSID</col>
+		<col key="yes" def="s32">Context</col>
+		<col key="yes" def="s72">Component_</col>
+		<col def="S255">ProgId_Default</col>
+		<col def="L255">Description</col>
+		<col def="S38">AppId_</col>
+		<col def="S255">FileTypeMask</col>
+		<col def="S72">Icon_</col>
+		<col def="I2">IconIndex</col>
+		<col def="S32">DefInprocHandler</col>
+		<col def="S255">Argument</col>
+		<col def="s38">Feature_</col>
+		<col def="I2">Attributes</col>
+	</table>
+
+	<table name="ComboBox">
+		<col key="yes" def="s72">Property</col>
+		<col key="yes" def="i2">Order</col>
+		<col def="s64">Value</col>
+		<col def="L64">Text</col>
+	</table>
+
+	<table name="CompLocator">
+		<col key="yes" def="s72">Signature_</col>
+		<col def="s38">ComponentId</col>
+		<col def="I2">Type</col>
+	</table>
+
+	<table name="Complus">
+		<col key="yes" def="s72">Component_</col>
+		<col key="yes" def="I2">ExpType</col>
+	</table>
+
+	<table name="Component">
+		<col key="yes" def="s72">Component</col>
+		<col def="S38">ComponentId</col>
+		<col def="s72">Directory_</col>
+		<col def="i2">Attributes</col>
+		<col def="S255">Condition</col>
+		<col def="S72">KeyPath</col>
+		<col def="I4">ISAttributes</col>
+		<col def="S255">ISComments</col>
+		<col def="S255">ISScanAtBuildFile</col>
+		<col def="S255">ISRegFileToMergeAtBuild</col>
+		<col def="S0">ISDotNetInstallerArgsInstall</col>
+		<col def="S0">ISDotNetInstallerArgsCommit</col>
+		<col def="S0">ISDotNetInstallerArgsUninstall</col>
+		<col def="S0">ISDotNetInstallerArgsRollback</col>
+		<row><td>OpenSSLDevKit.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>{5A24A5F9-4CF1-480B-A916-792EEDA51C84}</td><td>INSTALLDIR.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+	</table>
+
+	<table name="Condition">
+		<col key="yes" def="s38">Feature_</col>
+		<col key="yes" def="i2">Level</col>
+		<col def="S255">Condition</col>
+	</table>
+
+	<table name="Control">
+		<col key="yes" def="s72">Dialog_</col>
+		<col key="yes" def="s50">Control</col>
+		<col def="s20">Type</col>
+		<col def="i2">X</col>
+		<col def="i2">Y</col>
+		<col def="i2">Width</col>
+		<col def="i2">Height</col>
+		<col def="I4">Attributes</col>
+		<col def="S72">Property</col>
+		<col def="L0">Text</col>
+		<col def="S50">Control_Next</col>
+		<col def="L50">Help</col>
+		<col def="I4">ISWindowStyle</col>
+		<col def="I4">ISControlId</col>
+		<col def="S255">ISBuildSourcePath</col>
+		<col def="S72">Binary_</col>
+	</table>
+
+	<table name="ControlCondition">
+		<col key="yes" def="s72">Dialog_</col>
+		<col key="yes" def="s50">Control_</col>
+		<col key="yes" def="s50">Action</col>
+		<col key="yes" def="s255">Condition</col>
+	</table>
+
+	<table name="ControlEvent">
+		<col key="yes" def="s72">Dialog_</col>
+		<col key="yes" def="s50">Control_</col>
+		<col key="yes" def="s50">Event</col>
+		<col key="yes" def="s255">Argument</col>
+		<col key="yes" def="S255">Condition</col>
+		<col def="I2">Ordering</col>
+	</table>
+
+	<table name="CreateFolder">
+		<col key="yes" def="s72">Directory_</col>
+		<col key="yes" def="s72">Component_</col>
+	</table>
+
+	<table name="CustomAction">
+		<col key="yes" def="s72">Action</col>
+		<col def="i2">Type</col>
+		<col def="S64">Source</col>
+		<col def="S0">Target</col>
+		<col def="S255">ISComments</col>
+		<row><td>SetAllUsersProfileNT</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%SystemRoot]\Profiles\All Users</td><td/></row>
+		<row><td>setAllUsersProfile2K</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%ALLUSERSPROFILE]</td><td/></row>
+		<row><td>setUserProfileNT</td><td>51</td><td>USERPROFILE</td><td>[%USERPROFILE]</td><td/></row>
+	</table>
+
+	<table name="Dialog">
+		<col key="yes" def="s72">Dialog</col>
+		<col def="i2">HCentering</col>
+		<col def="i2">VCentering</col>
+		<col def="i2">Width</col>
+		<col def="i2">Height</col>
+		<col def="I4">Attributes</col>
+		<col def="L128">Title</col>
+		<col def="s50">Control_First</col>
+		<col def="S50">Control_Default</col>
+		<col def="S50">Control_Cancel</col>
+		<col def="S255">ISComments</col>
+		<col def="S72">TextStyle_</col>
+		<col def="I4">ISWindowStyle</col>
+		<col def="I4">ISResourceId</col>
+	</table>
+
+	<table name="Directory">
+		<col key="yes" def="s72">Directory</col>
+		<col def="S72">Directory_Parent</col>
+		<col def="l255">DefaultDir</col>
+		<col def="S255">ISDescription</col>
+		<col def="I4">ISAttributes</col>
+		<col def="S255">ISFolderName</col>
+		<row><td>ALLUSERSPROFILE</td><td>TARGETDIR</td><td>.:ALLUSE~1|All Users</td><td/><td>0</td><td/></row>
+		<row><td>AdminToolsFolder</td><td>TARGETDIR</td><td>.:Admint~1|AdminTools</td><td/><td>0</td><td/></row>
+		<row><td>AppDataFolder</td><td>TARGETDIR</td><td>.:APPLIC~1|Application Data</td><td/><td>0</td><td/></row>
+		<row><td>CommonAppDataFolder</td><td>TARGETDIR</td><td>.:Common~1|CommonAppData</td><td/><td>0</td><td/></row>
+		<row><td>CommonFiles64Folder</td><td>TARGETDIR</td><td>.:Common64</td><td/><td>0</td><td/></row>
+		<row><td>CommonFilesFolder</td><td>TARGETDIR</td><td>.:Common</td><td/><td>0</td><td/></row>
+		<row><td>DesktopFolder</td><td>TARGETDIR</td><td>.:Desktop</td><td/><td>3</td><td/></row>
+		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
+		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
+		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>TARGETDIR</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>LocalAppDataFolder</td><td>TARGETDIR</td><td>.:LocalA~1|LocalAppData</td><td/><td>0</td><td/></row>
+		<row><td>MyPicturesFolder</td><td>TARGETDIR</td><td>.:MyPict~1|MyPictures</td><td/><td>0</td><td/></row>
+		<row><td>PersonalFolder</td><td>TARGETDIR</td><td>.:Personal</td><td/><td>0</td><td/></row>
+		<row><td>PrimaryVolumePath</td><td>TARGETDIR</td><td>.:Primar~1|PrimaryVolumePath</td><td/><td>0</td><td/></row>
+		<row><td>ProgramFiles64Folder</td><td>TARGETDIR</td><td>.:Prog64~1|Program Files 64</td><td/><td>0</td><td/></row>
+		<row><td>ProgramFilesFolder</td><td>TARGETDIR</td><td>.:PROGRA~1|program files</td><td/><td>0</td><td/></row>
+		<row><td>ProgramMenuFolder</td><td>TARGETDIR</td><td>.:Programs</td><td/><td>3</td><td/></row>
+		<row><td>SendToFolder</td><td>TARGETDIR</td><td>.:SendTo</td><td/><td>3</td><td/></row>
+		<row><td>StartMenuFolder</td><td>TARGETDIR</td><td>.:STARTM~1|Start Menu</td><td/><td>3</td><td/></row>
+		<row><td>StartupFolder</td><td>TARGETDIR</td><td>.:StartUp</td><td/><td>3</td><td/></row>
+		<row><td>System16Folder</td><td>TARGETDIR</td><td>.:System</td><td/><td>0</td><td/></row>
+		<row><td>System64Folder</td><td>TARGETDIR</td><td>.:System64</td><td/><td>0</td><td/></row>
+		<row><td>SystemFolder</td><td>TARGETDIR</td><td>.:System32</td><td/><td>0</td><td/></row>
+		<row><td>TARGETDIR</td><td/><td>SourceDir</td><td/><td>0</td><td/></row>
+		<row><td>TempFolder</td><td>TARGETDIR</td><td>.:Temp</td><td/><td>0</td><td/></row>
+		<row><td>TemplateFolder</td><td>TARGETDIR</td><td>.:ShellNew</td><td/><td>0</td><td/></row>
+		<row><td>USERPROFILE</td><td>TARGETDIR</td><td>.:USERPR~1|UserProfile</td><td/><td>0</td><td/></row>
+		<row><td>WindowsFolder</td><td>TARGETDIR</td><td>.:Windows</td><td/><td>0</td><td/></row>
+		<row><td>WindowsVolume</td><td>TARGETDIR</td><td>.:WinRoot</td><td/><td>0</td><td/></row>
+	</table>
+
+	<table name="DrLocator">
+		<col key="yes" def="s72">Signature_</col>
+		<col key="yes" def="S72">Parent</col>
+		<col key="yes" def="S255">Path</col>
+		<col def="I2">Depth</col>
+	</table>
+
+	<table name="DuplicateFile">
+		<col key="yes" def="s72">FileKey</col>
+		<col def="s72">Component_</col>
+		<col def="s72">File_</col>
+		<col def="L255">DestName</col>
+		<col def="S72">DestFolder</col>
+	</table>
+
+	<table name="Environment">
+		<col key="yes" def="s72">Environment</col>
+		<col def="l255">Name</col>
+		<col def="L255">Value</col>
+		<col def="s72">Component_</col>
+	</table>
+
+	<table name="EventMapping">
+		<col key="yes" def="s72">Dialog_</col>
+		<col key="yes" def="s50">Control_</col>
+		<col key="yes" def="s50">Event</col>
+		<col def="s50">Attribute</col>
+	</table>
+
+	<table name="Extension">
+		<col key="yes" def="s255">Extension</col>
+		<col key="yes" def="s72">Component_</col>
+		<col def="S255">ProgId_</col>
+		<col def="S64">MIME_</col>
+		<col def="s38">Feature_</col>
+	</table>
+
+	<table name="FeatureComponents">
+		<col key="yes" def="s38">Feature_</col>
+		<col key="yes" def="s72">Component_</col>
+	</table>
+
+	<table name="File">
+		<col key="yes" def="s72">File</col>
+		<col def="s72">Component_</col>
+		<col def="s255">FileName</col>
+		<col def="i4">FileSize</col>
+		<col def="S72">Version</col>
+		<col def="S20">Language</col>
+		<col def="I2">Attributes</col>
+		<col def="i2">Sequence</col>
+		<col def="S255">ISBuildSourcePath</col>
+		<col def="I4">ISAttributes</col>
+		<col def="S72">ISComponentSubFolder_</col>
+	</table>
+
+	<table name="FileSFPCatalog">
+		<col key="yes" def="s72">File_</col>
+		<col key="yes" def="s255">SFPCatalog_</col>
+	</table>
+
+	<table name="Font">
+		<col key="yes" def="s72">File_</col>
+		<col def="S128">FontTitle</col>
+	</table>
+
+	<table name="ISComCatalogAttribute">
+		<col key="yes" def="s72">ISComCatalogObject_</col>
+		<col key="yes" def="s255">ItemName</col>
+		<col def="S0">ItemValue</col>
+	</table>
+
+	<table name="ISComCatalogCollection">
+		<col key="yes" def="s72">ISComCatalogCollection</col>
+		<col def="s72">ISComCatalogObject_</col>
+		<col def="s255">CollectionName</col>
+	</table>
+
+	<table name="ISComCatalogCollectionObjects">
+		<col key="yes" def="s72">ISComCatalogCollection_</col>
+		<col key="yes" def="s72">ISComCatalogObject_</col>
+	</table>
+
+	<table name="ISComCatalogObject">
+		<col key="yes" def="s72">ISComCatalogObject</col>
+		<col def="s255">DisplayName</col>
+	</table>
+
+	<table name="ISComPlusApplication">
+		<col key="yes" def="s72">ISComCatalogObject_</col>
+		<col def="S255">ComputerName</col>
+		<col def="s72">Component_</col>
+		<col def="I2">ISAttributes</col>
+	</table>
+
+	<table name="ISComponentExtended">
+		<col key="yes" def="s72">Component_</col>
+		<col def="I4">OS</col>
+		<col def="S0">Language</col>
+		<col def="s72">FilterProperty</col>
+		<col def="I4">Platforms</col>
+		<col def="S0">FTPLocation</col>
+		<col def="S0">HTTPLocation</col>
+		<col def="S0">Miscellaneous</col>
+		<row><td>OpenSSLDevKit.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td/><td/><td>_C0F55031_4B3F_409F_8399_1764D1357C2D_FILTER</td><td/><td/><td/><td/></row>
+	</table>
+
+	<table name="ISDLLWrapper">
+		<col key="yes" def="s72">EntryPoint</col>
+		<col def="I4">Type</col>
+		<col def="s0">Source</col>
+		<col def="s255">Target</col>
+	</table>
+
+	<table name="ISDependency">
+		<col key="yes" def="S50">ISDependency</col>
+		<col def="I2">Exclude</col>
+	</table>
+
+	<table name="ISDisk1File">
+		<col key="yes" def="s72">ISDisk1File</col>
+		<col def="s255">ISBuildSourcePath</col>
+		<col def="I4">Disk</col>
+	</table>
+
+	<table name="ISDynamicFile">
+		<col key="yes" def="s72">Component_</col>
+		<col key="yes" def="s255">SourceFolder</col>
+		<col def="I2">IncludeFlags</col>
+		<col def="S255">IncludeFiles</col>
+		<col def="S255">ExcludeFiles</col>
+		<col def="I4">ISAttributes</col>
+		<row><td>OpenSSLDevKit.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>&lt;ISProjectFolder&gt;\install\openssl\dev</td><td>4</td><td/><td/><td>2</td></row>
+	</table>
+
+	<table name="ISFeatureMergeModuleExcludes">
+		<col key="yes" def="s38">Feature_</col>
+		<col key="yes" def="s255">ModuleID</col>
+		<col key="yes" def="i2">Language</col>
+	</table>
+
+	<table name="ISFeatureMergeModules">
+		<col key="yes" def="s38">Feature_</col>
+		<col key="yes" def="s255">ISMergeModule_</col>
+		<col key="yes" def="i2">Language_</col>
+	</table>
+
+	<table name="ISInstallScriptAction">
+		<col key="yes" def="s72">EntryPoint</col>
+		<col def="I4">Type</col>
+		<col def="s72">Source</col>
+		<col def="S255">Target</col>
+	</table>
+
+	<table name="ISLanguage">
+		<col key="yes" def="s50">ISLanguage</col>
+		<col def="I2">Included</col>
+		<row><td>1033</td><td>1</td></row>
+	</table>
+
+	<table name="ISLinkerLibrary">
+		<col key="yes" def="s72">ISLinkerLibrary</col>
+		<col def="s255">Library</col>
+		<col def="i4">Order</col>
+		<row><td>_IsrtObl</td><td>&lt;ISProductFolder&gt;\Script\ISRT\Lib\isrt.obl</td><td>2</td></row>
+		<row><td>_IswiObl</td><td>&lt;ISProductFolder&gt;\Script\ISWi\Lib\iswi.obl</td><td>1</td></row>
+	</table>
+
+	<table name="ISLocalControl">
+		<col key="yes" def="s72">Dialog_</col>
+		<col key="yes" def="s50">Control_</col>
+		<col key="yes" def="s50">ISLanguage_</col>
+		<col def="I4">Attributes</col>
+		<col def="I2">X</col>
+		<col def="I2">Y</col>
+		<col def="I2">Width</col>
+		<col def="I2">Height</col>
+		<col def="S72">Binary_</col>
+		<col def="S255">ISBuildSourcePath</col>
+	</table>
+
+	<table name="ISLocalDialog">
+		<col key="yes" def="S50">Dialog_</col>
+		<col key="yes" def="S50">ISLanguage_</col>
+		<col def="I4">Attributes</col>
+		<col def="S72">TextStyle_</col>
+		<col def="i2">Width</col>
+		<col def="i2">Height</col>
+	</table>
+
+	<table name="ISLocalRadioButton">
+		<col key="yes" def="s72">Property</col>
+		<col key="yes" def="i2">Order</col>
+		<col key="yes" def="s50">ISLanguage_</col>
+		<col def="i2">X</col>
+		<col def="i2">Y</col>
+		<col def="i2">Width</col>
+		<col def="i2">Height</col>
+	</table>
+
+	<table name="ISLogicalDisk">
+		<col key="yes" def="i2">DiskId</col>
+		<col key="yes" def="s255">ISProductConfiguration_</col>
+		<col key="yes" def="s255">ISRelease_</col>
+		<col def="i2">LastSequence</col>
+		<col def="L64">DiskPrompt</col>
+		<col def="S255">Cabinet</col>
+		<col def="S32">VolumeLabel</col>
+		<col def="S32">Source</col>
+	</table>
+
+	<table name="ISLogicalDiskFeatures">
+		<col key="yes" def="i2">ISLogicalDisk_</col>
+		<col key="yes" def="s255">ISProductConfiguration_</col>
+		<col key="yes" def="s255">ISRelease_</col>
+		<col key="yes" def="S38">Feature_</col>
+		<col def="i2">Sequence</col>
+		<col def="I4">ISAttributes</col>
+	</table>
+
+	<table name="ISMergeModule">
+		<col key="yes" def="s255">ISMergeModule</col>
+		<col key="yes" def="i2">Language</col>
+		<col def="s255">Name</col>
+		<col def="S255">Destination</col>
+		<col def="I4">ISAttributes</col>
+	</table>
+
+	<table name="ISMergeModuleCfgValues">
+		<col key="yes" def="s255">ISMergeModule_</col>
+		<col key="yes" def="i2">Language_</col>
+		<col key="yes" def="s72">ModuleConfiguration_</col>
+		<col def="L0">Value</col>
+		<col def="i2">Format</col>
+		<col def="L255">Type</col>
+		<col def="L255">ContextData</col>
+		<col def="L255">DefaultValue</col>
+		<col def="I2">Attributes</col>
+		<col def="L255">DisplayName</col>
+		<col def="L255">Description</col>
+		<col def="L255">HelpLocation</col>
+		<col def="L255">HelpKeyword</col>
+	</table>
+
+	<table name="ISObject">
+		<col key="yes" def="s50">ObjectName</col>
+		<col def="s15">Language</col>
+	</table>
+
+	<table name="ISObjectProperty">
+		<col key="yes" def="S50">ObjectName</col>
+		<col key="yes" def="S50">Property</col>
+		<col def="S0">Value</col>
+		<col def="I2">IncludeInBuild</col>
+	</table>
+
+	<table name="ISPathVariable">
+		<col key="yes" def="s32">ISPathVariable</col>
+		<col def="S255">Value</col>
+		<col def="S255">TestValue</col>
+		<col def="i4">Type</col>
+		<row><td>CommonFilesFolder</td><td/><td/><td>1</td></row>
+		<row><td>ISPROJECTDIR</td><td/><td/><td>1</td></row>
+		<row><td>ISProductFolder</td><td/><td/><td>1</td></row>
+		<row><td>ISProjectDataFolder</td><td/><td/><td>1</td></row>
+		<row><td>ISProjectFolder</td><td/><td/><td>1</td></row>
+		<row><td>ProgramFilesFolder</td><td/><td/><td>1</td></row>
+		<row><td>SystemFolder</td><td/><td/><td>1</td></row>
+		<row><td>WindowsFolder</td><td/><td/><td>1</td></row>
+	</table>
+
+	<table name="ISProductConfiguration">
+		<col key="yes" def="s72">ISProductConfiguration</col>
+		<col def="S255">ProductConfigurationFlags</col>
+		<col def="I4">GeneratePackageCode</col>
+		<row><td>ZEROC</td><td/><td>1</td></row>
+	</table>
+
+	<table name="ISProductConfigurationInstance">
+		<col key="yes" def="s72">ISProductConfiguration_</col>
+		<col key="yes" def="i2">InstanceId</col>
+		<col key="yes" def="s72">Property</col>
+		<col def="s255">Value</col>
+	</table>
+
+	<table name="ISProductConfigurationProperty">
+		<col key="yes" def="s72">ISProductConfiguration_</col>
+		<col key="yes" def="s72">Property</col>
+		<col def="L255">Value</col>
+		<row><td>ZEROC</td><td>SetupFileName</td><td>setup</td></row>
+	</table>
+
+	<table name="ISRelease">
+		<col key="yes" def="s72">ISRelease</col>
+		<col key="yes" def="s72">ISProductConfiguration_</col>
+		<col def="s255">BuildLocation</col>
+		<col def="s255">PackageName</col>
+		<col def="i4">Type</col>
+		<col def="s255">SupportedLanguagesUI</col>
+		<col def="i4">MsiSourceType</col>
+		<col def="i4">ReleaseType</col>
+		<col def="s72">Platforms</col>
+		<col def="S255">SupportedLanguagesData</col>
+		<col def="s6">DefaultLanguage</col>
+		<col def="i4">SupportedOSs</col>
+		<col def="s50">DiskSize</col>
+		<col def="i4">DiskSizeUnit</col>
+		<col def="i4">DiskClusterSize</col>
+		<col def="S255">ReleaseFlags</col>
+		<col def="i4">DiskSpanning</col>
+		<col def="S255">SynchMsi</col>
+		<col def="s255">MediaLocation</col>
+		<col def="S255">URLLocation</col>
+		<col def="S255">DigitalURL</col>
+		<col def="S255">DigitalPVK</col>
+		<col def="S255">DigitalSPC</col>
+		<col def="S255">Password</col>
+		<col def="S255">VersionCopyright</col>
+		<col def="i4">Attributes</col>
+		<col def="S255">CDBrowser</col>
+		<col def="S255">DotNetBuildConfiguration</col>
+		<col def="S255">MsiCommandLine</col>
+		<row><td>OPENSSL_DEV_KIT</td><td>ZEROC</td><td>&lt;ISProjectDataFolder&gt;</td><td>PackageName</td><td>1</td><td>1033</td><td>0</td><td>1</td><td>Intel</td><td/><td>1033</td><td>0</td><td>0</td><td>0</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>44</td><td/><td/><td/></row>
+	</table>
+
+	<table name="ISReleaseExtended">
+		<col key="yes" def="s72">ISRelease_</col>
+		<col key="yes" def="s72">ISProductConfiguration_</col>
+		<col def="I4">WebType</col>
+		<col def="S255">WebURL</col>
+		<col def="I4">WebCabSize</col>
+		<col def="S255">OneClickCabName</col>
+		<col def="S255">OneClickHtmlName</col>
+		<col def="S255">WebLocalCachePath</col>
+		<col def="I4">EngineLocation</col>
+		<col def="S255">Win9xMsiUrl</col>
+		<col def="S255">WinNTMsiUrl</col>
+		<col def="I4">ISEngineLocation</col>
+		<col def="S255">ISEngineURL</col>
+		<col def="I4">OneClickTargetBrowser</col>
+		<col def="S255">DigitalCertificateIdNS</col>
+		<col def="S255">DigitalCertificateDBaseNS</col>
+		<col def="S255">DigitalCertificatePasswordNS</col>
+		<col def="I4">DotNetRedistLocation</col>
+		<col def="S255">DotNetRedistURL</col>
+		<col def="I4">DotNetVersion</col>
+		<col def="S255">DotNetBaseLanguage</col>
+		<col def="S255">DotNetLangaugePacks</col>
+		<col def="S255">DotNetFxCmdLine</col>
+		<col def="S255">DotNetLangPackCmdLine</col>
+		<col def="S50">JSharpCmdLine</col>
+		<col def="I4">Attributes</col>
+		<col def="I4">JSharpRedistLocation</col>
+		<row><td>OPENSSL_DEV_KIT</td><td>ZEROC</td><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/><td/></row>
+	</table>
+
+	<table name="ISScriptFile">
+		<col key="yes" def="s255">ISScriptFile</col>
+	</table>
+
+	<table name="ISSelfReg">
+		<col key="yes" def="s72">FileKey</col>
+		<col def="I2">Cost</col>
+		<col def="I2">Order</col>
+		<col def="S50">CmdLine</col>
+	</table>
+
+	<table name="ISStorages">
+		<col key="yes" def="s72">Name</col>
+		<col def="S0">ISBuildSourcePath</col>
+	</table>
+
+	<table name="ISString">
+		<col key="yes" def="s255">ISString</col>
+		<col key="yes" def="s50">ISLanguage_</col>
+		<col def="S0">Value</col>
+		<col def="I2">Encoded</col>
+		<col def="S0">Comment</col>
+		<col def="I4">TimeStamp</col>
+		<row><td>ID_STRING1</td><td>1033</td><td>OpenSSL Dev Kit for Visual Studio 2005</td><td>0</td><td/><td>1218057227</td></row>
+		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-2129046420</td></row>
+	</table>
+
+	<table name="Icon">
+		<col key="yes" def="s72">Name</col>
+		<col def="V0">Data</col>
+		<col def="S255">ISBuildSourcePath</col>
+		<col def="I2">ISIconIndex</col>
+	</table>
+
+	<table name="IniFile">
+		<col key="yes" def="s72">IniFile</col>
+		<col def="l255">FileName</col>
+		<col def="S72">DirProperty</col>
+		<col def="l255">Section</col>
+		<col def="l128">Key</col>
+		<col def="s255">Value</col>
+		<col def="i2">Action</col>
+		<col def="s72">Component_</col>
+	</table>
+
+	<table name="IniLocator">
+		<col key="yes" def="s72">Signature_</col>
+		<col def="s255">FileName</col>
+		<col def="s96">Section</col>
+		<col def="s128">Key</col>
+		<col def="I2">Field</col>
+		<col def="I2">Type</col>
+	</table>
+
+	<table name="InstallExecuteSequence">
+		<col key="yes" def="s72">Action</col>
+		<col def="S255">Condition</col>
+		<col def="I2">Sequence</col>
+		<col def="S255">ISComments</col>
+		<col def="I4">ISAttributes</col>
+	</table>
+
+	<table name="InstallShield">
+		<col key="yes" def="s72">Property</col>
+		<col def="S0">Value</col>
+		<row><td>ActiveLanguage</td><td>1033</td></row>
+		<row><td>Comments</td><td/></row>
+		<row><td>CurrentMedia</td><td dt:dt="bin.base64" md5="8c0d8c2542706ed33cddde068af58852">
+TwBQAEUATgBTAFMATABfAEQARQBWAF8ASwBJAFQAAQBaAEUAUgBPAEMA
+			</td></row>
+		<row><td>ISCompilerOption_CompileBeforeBuild</td><td>1</td></row>
+		<row><td>ISCompilerOption_Debug</td><td>0</td></row>
+		<row><td>ISCompilerOption_IncludePath</td><td/></row>
+		<row><td>ISCompilerOption_MaxErrors</td><td>50</td></row>
+		<row><td>ISCompilerOption_MaxWarnings</td><td>50</td></row>
+		<row><td>ISCompilerOption_OutputPath</td><td>&lt;ISProjectDataFolder&gt;\Script Files</td></row>
+		<row><td>ISCompilerOption_PreProcessor</td><td/></row>
+		<row><td>ISCompilerOption_WarningsAsErrors</td><td>1</td></row>
+		<row><td>ISDialogLangID</td><td/></row>
+		<row><td>IsProjectFileText</td><td>1</td></row>
+		<row><td>MsiExecCmdLineOptions</td><td/></row>
+		<row><td>MsiLogFile</td><td/></row>
+		<row><td>OnUpgrade</td><td>1</td></row>
+		<row><td>Owner</td><td/></row>
+		<row><td>SccEnabled</td><td>0</td></row>
+		<row><td>SccPath</td><td/></row>
+		<row><td>SchemaVersion</td><td>755</td></row>
+		<row><td>Type</td><td>MSM</td></row>
+	</table>
+
+	<table name="InstallUISequence">
+		<col key="yes" def="s72">Action</col>
+		<col def="S255">Condition</col>
+		<col def="I2">Sequence</col>
+		<col def="S255">ISComments</col>
+		<col def="I4">ISAttributes</col>
+	</table>
+
+	<table name="IsolatedComponent">
+		<col key="yes" def="s72">Component_Shared</col>
+		<col key="yes" def="s72">Component_Application</col>
+	</table>
+
+	<table name="LaunchCondition">
+		<col key="yes" def="s255">Condition</col>
+		<col def="l255">Description</col>
+	</table>
+
+	<table name="ListBox">
+		<col key="yes" def="s72">Property</col>
+		<col key="yes" def="i2">Order</col>
+		<col def="s64">Value</col>
+		<col def="L64">Text</col>
+	</table>
+
+	<table name="ListView">
+		<col key="yes" def="s72">Property</col>
+		<col key="yes" def="i2">Order</col>
+		<col def="s64">Value</col>
+		<col def="L64">Text</col>
+		<col def="S72">Binary_</col>
+	</table>
+
+	<table name="LockPermissions">
+		<col key="yes" def="s72">LockObject</col>
+		<col key="yes" def="s32">Table</col>
+		<col key="yes" def="S255">Domain</col>
+		<col key="yes" def="s255">User</col>
+		<col def="I4">Permission</col>
+	</table>
+
+	<table name="MIME">
+		<col key="yes" def="s64">ContentType</col>
+		<col def="s255">Extension_</col>
+		<col def="S38">CLSID</col>
+	</table>
+
+	<table name="ModuleAdminExecuteSequence">
+		<col key="yes" def="s64">Action</col>
+		<col def="I2">Sequence</col>
+		<col def="S64">BaseAction</col>
+		<col def="I2">After</col>
+		<col def="S255">Condition</col>
+	</table>
+
+	<table name="ModuleAdminUISequence">
+		<col key="yes" def="s64">Action</col>
+		<col def="I2">Sequence</col>
+		<col def="S64">BaseAction</col>
+		<col def="I2">After</col>
+		<col def="S255">Condition</col>
+	</table>
+
+	<table name="ModuleAdvtExecuteSequence">
+		<col key="yes" def="s64">Action</col>
+		<col def="I2">Sequence</col>
+		<col def="S64">BaseAction</col>
+		<col def="I2">After</col>
+		<col def="S255">Condition</col>
+	</table>
+
+	<table name="ModuleAdvtUISequence">
+		<col key="yes" def="s64">Action</col>
+		<col def="I2">Sequence</col>
+		<col def="S64">BaseAction</col>
+		<col def="I2">After</col>
+		<col def="S255">Condition</col>
+	</table>
+
+	<table name="ModuleComponents">
+		<col key="yes" def="s72">Component</col>
+		<col key="yes" def="s72">ModuleID</col>
+		<col key="yes" def="i2">Language</col>
+		<row><td>OpenSSLDevKit.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>OpenSSLDevKit.VC80.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>0</td></row>
+	</table>
+
+	<table name="ModuleConfiguration">
+		<col key="yes" def="s72">Name</col>
+		<col def="i2">Format</col>
+		<col def="S72">Type</col>
+		<col def="L0">ContextData</col>
+		<col def="L0">DefaultValue</col>
+		<col def="I4">Attributes</col>
+		<col def="L72">DisplayName</col>
+		<col def="L0">Description</col>
+		<col def="S0">HelpLocation</col>
+		<col def="S0">HelpKeyword</col>
+	</table>
+
+	<table name="ModuleDependency">
+		<col key="yes" def="s72">ModuleID</col>
+		<col key="yes" def="i2">ModuleLanguage</col>
+		<col key="yes" def="s72">RequiredID</col>
+		<col key="yes" def="i2">RequiredLanguage</col>
+		<col def="S32">RequiredVersion</col>
+	</table>
+
+	<table name="ModuleExclusion">
+		<col key="yes" def="s72">ModuleID</col>
+		<col key="yes" def="i2">ModuleLanguage</col>
+		<col key="yes" def="s72">ExcludedID</col>
+		<col key="yes" def="i2">ExcludedLanguage</col>
+		<col def="S32">ExcludedMinVersion</col>
+		<col def="S32">ExcludedMaxVersion</col>
+	</table>
+
+	<table name="ModuleIgnoreTable">
+		<col key="yes" def="s72">Table</col>
+		<row><td>ModuleConfiguration</td></row>
+		<row><td>ModuleSubstitution</td></row>
+	</table>
+
+	<table name="ModuleInstallExecuteSequence">
+		<col key="yes" def="s64">Action</col>
+		<col def="I2">Sequence</col>
+		<col def="S64">BaseAction</col>
+		<col def="I2">After</col>
+		<col def="S255">Condition</col>
+	</table>
+
+	<table name="ModuleInstallUISequence">
+		<col key="yes" def="s64">Action</col>
+		<col def="I2">Sequence</col>
+		<col def="S64">BaseAction</col>
+		<col def="I2">After</col>
+		<col def="S255">Condition</col>
+		<row><td>ResolveSource</td><td>525</td><td/><td/><td/></row>
+		<row><td>SetAllUsersProfileNT</td><td/><td>setAllUsersProfile2K</td><td>0</td><td>VersionNT = 400</td></row>
+		<row><td>setAllUsersProfile2K</td><td/><td>ResolveSource</td><td>0</td><td>VersionNT &gt;= 500</td></row>
+		<row><td>setUserProfileNT</td><td/><td>SetAllUsersProfileNT</td><td>0</td><td>VersionNT</td></row>
+	</table>
+
+	<table name="ModuleSignature">
+		<col key="yes" def="s72">ModuleID</col>
+		<col key="yes" def="i2">Language</col>
+		<col def="s32">Version</col>
+		<row><td>OpenSSLDevKit.VC80.57608B33_8C6D_4798_86DF_DBF72F6F3BF1</td><td>0</td><td>1.0.0.0</td></row>
+	</table>
+
+	<table name="ModuleSubstitution">
+		<col key="yes" def="s72">Table</col>
+		<col key="yes" def="s0">Row</col>
+		<col key="yes" def="s72">Column</col>
+		<col def="L0">Value</col>
+	</table>
+
+	<table name="MoveFile">
+		<col key="yes" def="s72">FileKey</col>
+		<col def="s72">Component_</col>
+		<col def="L255">SourceName</col>
+		<col def="L255">DestName</col>
+		<col def="S72">SourceFolder</col>
+		<col def="s72">DestFolder</col>
+		<col def="i2">Options</col>
+	</table>
+
+	<table name="MsiAssembly">
+		<col key="yes" def="s72">Component_</col>
+		<col def="s38">Feature_</col>
+		<col def="S72">File_Manifest</col>
+		<col def="S72">File_Application</col>
+		<col def="I2">Attributes</col>
+	</table>
+
+	<table name="MsiAssemblyName">
+		<col key="yes" def="s72">Component_</col>
+		<col key="yes" def="s255">Name</col>
+		<col def="s255">Value</col>
+	</table>
+
+	<table name="MsiDigitalCertificate">
+		<col key="yes" def="s72">DigitalCertificate</col>
+		<col def="v0">CertData</col>
+	</table>
+
+	<table name="MsiDigitalSignature">
+		<col key="yes" def="s32">Table</col>
+		<col key="yes" def="s72">SignObject</col>
+		<col def="s72">DigitalCertificate_</col>
+		<col def="V0">Hash</col>
+	</table>
+
+	<table name="MsiFileHash">
+		<col key="yes" def="s72">File_</col>
+		<col def="i2">Options</col>
+		<col def="i4">HashPart1</col>
+		<col def="i4">HashPart2</col>
+		<col def="i4">HashPart3</col>
+		<col def="i4">HashPart4</col>
+	</table>
+
+	<table name="ODBCAttribute">
+		<col key="yes" def="s72">Driver_</col>
+		<col key="yes" def="s40">Attribute</col>
+		<col def="S255">Value</col>
+	</table>
+
+	<table name="ODBCDataSource">
+		<col key="yes" def="s72">DataSource</col>
+		<col def="s72">Component_</col>
+		<col def="s255">Description</col>
+		<col def="s255">DriverDescription</col>
+		<col def="i2">Registration</col>
+	</table>
+
+	<table name="ODBCDriver">
+		<col key="yes" def="s72">Driver</col>
+		<col def="s72">Component_</col>
+		<col def="s255">Description</col>
+		<col def="s72">File_</col>
+		<col def="S72">File_Setup</col>
+	</table>
+
+	<table name="ODBCSourceAttribute">
+		<col key="yes" def="s72">DataSource_</col>
+		<col key="yes" def="s32">Attribute</col>
+		<col def="S255">Value</col>
+	</table>
+
+	<table name="ODBCTranslator">
+		<col key="yes" def="s72">Translator</col>
+		<col def="s72">Component_</col>
+		<col def="s255">Description</col>
+		<col def="s72">File_</col>
+		<col def="S72">File_Setup</col>
+	</table>
+
+	<table name="ProgId">
+		<col key="yes" def="s255">ProgId</col>
+		<col def="S255">ProgId_Parent</col>
+		<col def="S38">Class_</col>
+		<col def="L255">Description</col>
+		<col def="S72">Icon_</col>
+		<col def="I2">IconIndex</col>
+		<col def="I4">ISAttributes</col>
+	</table>
+
+	<table name="Property">
+		<col key="yes" def="s72">Property</col>
+		<col def="L0">Value</col>
+		<col def="S255">ISComments</col>
+	</table>
+
+	<table name="PublishComponent">
+		<col key="yes" def="s38">ComponentId</col>
+		<col key="yes" def="s255">Qualifier</col>
+		<col key="yes" def="s72">Component_</col>
+		<col def="L255">AppData</col>
+		<col def="s38">Feature_</col>
+	</table>
+
+	<table name="RadioButton">
+		<col key="yes" def="s72">Property</col>
+		<col key="yes" def="i2">Order</col>
+		<col def="s64">Value</col>
+		<col def="i2">X</col>
+		<col def="i2">Y</col>
+		<col def="i2">Width</col>
+		<col def="i2">Height</col>
+		<col def="L64">Text</col>
+		<col def="L50">Help</col>
+		<col def="I4">ISControlId</col>
+	</table>
+
+	<table name="RegLocator">
+		<col key="yes" def="s72">Signature_</col>
+		<col def="i2">Root</col>
+		<col def="s255">Key</col>
+		<col def="S255">Name</col>
+		<col def="I2">Type</col>
+	</table>
+
+	<table name="Registry">
+		<col key="yes" def="s72">Registry</col>
+		<col def="i2">Root</col>
+		<col def="s255">Key</col>
+		<col def="S255">Name</col>
+		<col def="S0">Value</col>
+		<col def="s72">Component_</col>
+		<col def="I4">ISAttributes</col>
+	</table>
+
+	<table name="RemoveFile">
+		<col key="yes" def="s72">FileKey</col>
+		<col def="s72">Component_</col>
+		<col def="L255">FileName</col>
+		<col def="s72">DirProperty</col>
+		<col def="i2">InstallMode</col>
+	</table>
+
+	<table name="RemoveIniFile">
+		<col key="yes" def="s72">RemoveIniFile</col>
+		<col def="l255">FileName</col>
+		<col def="S72">DirProperty</col>
+		<col def="l96">Section</col>
+		<col def="l128">Key</col>
+		<col def="L255">Value</col>
+		<col def="i2">Action</col>
+		<col def="s72">Component_</col>
+	</table>
+
+	<table name="RemoveRegistry">
+		<col key="yes" def="s72">RemoveRegistry</col>
+		<col def="i2">Root</col>
+		<col def="l255">Key</col>
+		<col def="L255">Name</col>
+		<col def="s72">Component_</col>
+	</table>
+
+	<table name="ReserveCost">
+		<col key="yes" def="s72">ReserveKey</col>
+		<col def="s72">Component_</col>
+		<col def="S72">ReserveFolder</col>
+		<col def="i4">ReserveLocal</col>
+		<col def="i4">ReserveSource</col>
+	</table>
+
+	<table name="SFPCatalog">
+		<col key="yes" def="s255">SFPCatalog</col>
+		<col def="V0">Catalog</col>
+		<col def="S0">Dependency</col>
+	</table>
+
+	<table name="SelfReg">
+		<col key="yes" def="s72">File_</col>
+		<col def="I2">Cost</col>
+	</table>
+
+	<table name="ServiceControl">
+		<col key="yes" def="s72">ServiceControl</col>
+		<col def="s255">Name</col>
+		<col def="i2">Event</col>
+		<col def="S255">Arguments</col>
+		<col def="I2">Wait</col>
+		<col def="s72">Component_</col>
+	</table>
+
+	<table name="ServiceInstall">
+		<col key="yes" def="s72">ServiceInstall</col>
+		<col def="s255">Name</col>
+		<col def="L255">DisplayName</col>
+		<col def="i4">ServiceType</col>
+		<col def="i4">StartType</col>
+		<col def="i4">ErrorControl</col>
+		<col def="S255">LoadOrderGroup</col>
+		<col def="S255">Dependencies</col>
+		<col def="S255">StartName</col>
+		<col def="S255">Password</col>
+		<col def="S255">Arguments</col>
+		<col def="s72">Component_</col>
+		<col def="L255">Description</col>
+	</table>
+
+	<table name="Shortcut">
+		<col key="yes" def="s72">Shortcut</col>
+		<col def="s72">Directory_</col>
+		<col def="l128">Name</col>
+		<col def="s72">Component_</col>
+		<col def="s255">Target</col>
+		<col def="S255">Arguments</col>
+		<col def="L255">Description</col>
+		<col def="I2">Hotkey</col>
+		<col def="S72">Icon_</col>
+		<col def="I2">IconIndex</col>
+		<col def="I2">ShowCmd</col>
+		<col def="S72">WkDir</col>
+		<col def="S255">ISComments</col>
+		<col def="S255">ISShortcutName</col>
+		<col def="I4">ISAttributes</col>
+	</table>
+
+	<table name="Signature">
+		<col key="yes" def="s72">Signature</col>
+		<col def="s255">FileName</col>
+		<col def="S20">MinVersion</col>
+		<col def="S20">MaxVersion</col>
+		<col def="I4">MinSize</col>
+		<col def="I4">MaxSize</col>
+		<col def="I4">MinDate</col>
+		<col def="I4">MaxDate</col>
+		<col def="S255">Languages</col>
+	</table>
+
+	<table name="TextStyle">
+		<col key="yes" def="s72">TextStyle</col>
+		<col def="s32">FaceName</col>
+		<col def="i2">Size</col>
+		<col def="I4">Color</col>
+		<col def="I2">StyleBits</col>
+		<row><td>Arial8</td><td>Arial</td><td>8</td><td/><td/></row>
+		<row><td>Arial9</td><td>Arial</td><td>9</td><td/><td/></row>
+		<row><td>ArialBlue10</td><td>Arial</td><td>10</td><td>16711680</td><td/></row>
+		<row><td>ArialBlueStrike10</td><td>Arial</td><td>10</td><td>16711680</td><td>8</td></row>
+		<row><td>CourierNew8</td><td>Courier New</td><td>8</td><td/><td/></row>
+		<row><td>CourierNew9</td><td>Courier New</td><td>9</td><td/><td/></row>
+		<row><td>MSGothic9</td><td>MS Gothic</td><td>9</td><td/><td/></row>
+		<row><td>MSSGreySerif8</td><td>MS Sans Serif</td><td>8</td><td>8421504</td><td/></row>
+		<row><td>MSSWhiteSerif8</td><td>Tahoma</td><td>8</td><td>16777215</td><td/></row>
+		<row><td>MSSansBold8</td><td>Tahoma</td><td>8</td><td/><td>1</td></row>
+		<row><td>MSSansSerif8</td><td>MS Sans Serif</td><td>8</td><td/><td/></row>
+		<row><td>MSSansSerif9</td><td>MS Sans Serif</td><td>9</td><td/><td/></row>
+		<row><td>Tahoma10</td><td>Tahoma</td><td>10</td><td/><td/></row>
+		<row><td>Tahoma8</td><td>Tahoma</td><td>8</td><td/><td/></row>
+		<row><td>Tahoma9</td><td>Tahoma</td><td>9</td><td/><td/></row>
+		<row><td>TahomaBold10</td><td>Tahoma</td><td>10</td><td/><td>1</td></row>
+		<row><td>TahomaBold8</td><td>Tahoma</td><td>8</td><td/><td>1</td></row>
+		<row><td>Times8</td><td>Times New Roman</td><td>8</td><td/><td/></row>
+		<row><td>Times9</td><td>Times New Roman</td><td>9</td><td/><td/></row>
+		<row><td>TimesItalic12</td><td>Times New Roman</td><td>12</td><td/><td>2</td></row>
+		<row><td>TimesItalicBlue10</td><td>Times New Roman</td><td>10</td><td>16711680</td><td>2</td></row>
+		<row><td>TimesRed16</td><td>Times New Roman</td><td>16</td><td>255</td><td/></row>
+	</table>
+
+	<table name="TypeLib">
+		<col key="yes" def="s38">LibID</col>
+		<col key="yes" def="i2">Language</col>
+		<col key="yes" def="s72">Component_</col>
+		<col def="I4">Version</col>
+		<col def="L128">Description</col>
+		<col def="S72">Directory_</col>
+		<col def="s38">Feature_</col>
+		<col def="I4">Cost</col>
+	</table>
+
+	<table name="UIText">
+		<col key="yes" def="s72">Key</col>
+		<col def="L255">Text</col>
+	</table>
+
+	<table name="Verb">
+		<col key="yes" def="s255">Extension_</col>
+		<col key="yes" def="s32">Verb</col>
+		<col def="I2">Sequence</col>
+		<col def="L255">Command</col>
+		<col def="L255">Argument</col>
+	</table>
+
+	<table name="_Validation">
+		<col key="yes" def="s32">Table</col>
+		<col key="yes" def="s32">Column</col>
+		<col def="s4">Nullable</col>
+		<col def="I4">MinValue</col>
+		<col def="I4">MaxValue</col>
+		<col def="S255">KeyTable</col>
+		<col def="I2">KeyColumn</col>
+		<col def="S32">Category</col>
+		<col def="S255">Set</col>
+		<col def="S255">Description</col>
+		<row><td>ActionText</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of action to be described.</td></row>
+		<row><td>ActionText</td><td>Description</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Localized description displayed in progress dialog and log when action is executing.</td></row>
+		<row><td>ActionText</td><td>Template</td><td>Y</td><td/><td/><td/><td/><td>Template</td><td/><td>Optional localized format template used to format action data records for display during action execution.</td></row>
+		<row><td>AdminExecuteSequence</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of action to invoke, either in the engine or the handler DLL.</td></row>
+		<row><td>AdminExecuteSequence</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Optional expression which skips the action if evaluates to expFalse.If the expression syntax is invalid, the engine will terminate, returning iesBadActionData.</td></row>
+		<row><td>AdminExecuteSequence</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>This is used to store MM Custom Action Types</td></row>
+		<row><td>AdminExecuteSequence</td><td>ISComments</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Author’s comments on this Sequence.</td></row>
+		<row><td>AdminExecuteSequence</td><td>Sequence</td><td>Y</td><td>-4</td><td>32767</td><td/><td/><td/><td/><td>Number that determines the sort order in which the actions are to be executed.  Leave blank to suppress action.</td></row>
+		<row><td>AdminUISequence</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of action to invoke, either in the engine or the handler DLL.</td></row>
+		<row><td>AdminUISequence</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Optional expression which skips the action if evaluates to expFalse.If the expression syntax is invalid, the engine will terminate, returning iesBadActionData.</td></row>
+		<row><td>AdminUISequence</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>This is used to store MM Custom Action Types</td></row>
+		<row><td>AdminUISequence</td><td>ISComments</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Author’s comments on this Sequence.</td></row>
+		<row><td>AdminUISequence</td><td>Sequence</td><td>Y</td><td>-4</td><td>32767</td><td/><td/><td/><td/><td>Number that determines the sort order in which the actions are to be executed.  Leave blank to suppress action.</td></row>
+		<row><td>AdvtExecuteSequence</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of action to invoke, either in the engine or the handler DLL.</td></row>
+		<row><td>AdvtExecuteSequence</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Optional expression which skips the action if evaluates to expFalse.If the expression syntax is invalid, the engine will terminate, returning iesBadActionData.</td></row>
+		<row><td>AdvtExecuteSequence</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>This is used to store MM Custom Action Types</td></row>
+		<row><td>AdvtExecuteSequence</td><td>ISComments</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Author’s comments on this Sequence.</td></row>
+		<row><td>AdvtExecuteSequence</td><td>Sequence</td><td>Y</td><td>-4</td><td>32767</td><td/><td/><td/><td/><td>Number that determines the sort order in which the actions are to be executed.  Leave blank to suppress action.</td></row>
+		<row><td>AdvtUISequence</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of action to invoke, either in the engine or the handler DLL.</td></row>
+		<row><td>AdvtUISequence</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Optional expression which skips the action if evaluates to expFalse.If the expression syntax is invalid, the engine will terminate, returning iesBadActionData.</td></row>
+		<row><td>AdvtUISequence</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>This is used to store MM Custom Action Types</td></row>
+		<row><td>AdvtUISequence</td><td>ISComments</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Author’s comments on this Sequence.</td></row>
+		<row><td>AdvtUISequence</td><td>Sequence</td><td>Y</td><td>-4</td><td>32767</td><td/><td/><td/><td/><td>Number that determines the sort order in which the actions are to be executed.  Leave blank to suppress action.</td></row>
+		<row><td>AppId</td><td>ActivateAtStorage</td><td>Y</td><td>0</td><td>1</td><td/><td/><td/><td/><td/></row>
+		<row><td>AppId</td><td>AppId</td><td>N</td><td/><td/><td/><td/><td>Guid</td><td/><td/></row>
+		<row><td>AppId</td><td>DllSurrogate</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td/></row>
+		<row><td>AppId</td><td>LocalService</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td/></row>
+		<row><td>AppId</td><td>RemoteServerName</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td/></row>
+		<row><td>AppId</td><td>RunAsInteractiveUser</td><td>Y</td><td>0</td><td>1</td><td/><td/><td/><td/><td/></row>
+		<row><td>AppId</td><td>ServiceParameters</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td/></row>
+		<row><td>AppSearch</td><td>Property</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>The property associated with a Signature</td></row>
+		<row><td>AppSearch</td><td>Signature_</td><td>N</td><td/><td/><td>Signature</td><td>1</td><td>Identifier</td><td/><td>The Signature_ represents a unique file signature and is also the foreign key in the Signature,  RegLocator, IniLocator, CompLocator and the DrLocator tables.</td></row>
+		<row><td>Binary</td><td>Data</td><td>Y</td><td/><td/><td/><td/><td>Binary</td><td/><td>Binary stream. The binary icon data in PE (.DLL or .EXE) or icon (.ICO) format.</td></row>
+		<row><td>Binary</td><td>ISBuildSourcePath</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Full path to the ICO or EXE file.</td></row>
+		<row><td>Binary</td><td>Name</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Unique key identifying the binary data.</td></row>
+		<row><td>BindImage</td><td>File_</td><td>N</td><td/><td/><td>File</td><td>1</td><td>Identifier</td><td/><td>The index into the File table. This must be an executable file.</td></row>
+		<row><td>BindImage</td><td>Path</td><td>Y</td><td/><td/><td/><td/><td>Paths</td><td/><td>A list of ;  delimited paths that represent the paths to be searched for the import DLLS. The list is usually a list of properties each enclosed within square brackets [] .</td></row>
+		<row><td>CheckBox</td><td>Property</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>A named property to be tied to the item.</td></row>
+		<row><td>CheckBox</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The value string associated with the item.</td></row>
+		<row><td>Class</td><td>AppId_</td><td>Y</td><td/><td/><td>AppId</td><td>1</td><td>Guid</td><td/><td>Optional AppID containing DCOM information for associated application (string GUID).</td></row>
+		<row><td>Class</td><td>Argument</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>optional argument for LocalServers.</td></row>
+		<row><td>Class</td><td>Attributes</td><td>Y</td><td/><td>32767</td><td/><td/><td/><td/><td>Class registration attributes.</td></row>
+		<row><td>Class</td><td>CLSID</td><td>N</td><td/><td/><td/><td/><td>Guid</td><td/><td>The CLSID of an OLE factory.</td></row>
+		<row><td>Class</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Required foreign key into the Component Table, specifying the component for which to return a path when called through LocateComponent.</td></row>
+		<row><td>Class</td><td>Context</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>The numeric server context for this server. CLSCTX_xxxx</td></row>
+		<row><td>Class</td><td>DefInprocHandler</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td>1;2;3</td><td>Optional default inproc handler.  Only optionally provided if Context=CLSCTX_LOCAL_SERVER.  Typically "ole32.dll" or "mapi32.dll"</td></row>
+		<row><td>Class</td><td>Description</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Localized description for the Class.</td></row>
+		<row><td>Class</td><td>Feature_</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Required foreign key into the Feature Table, specifying the feature to validate or install in order for the CLSID factory to be operational.</td></row>
+		<row><td>Class</td><td>FileTypeMask</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Optional string containing information for the HKCRthis CLSID) key. If multiple patterns exist, they must be delimited by a semicolon, and numeric subkeys will be generated: 0,1,2...</td></row>
+		<row><td>Class</td><td>IconIndex</td><td>Y</td><td>-32767</td><td>32767</td><td/><td/><td/><td/><td>Optional icon index.</td></row>
+		<row><td>Class</td><td>Icon_</td><td>Y</td><td/><td/><td>Icon</td><td>1</td><td>Identifier</td><td/><td>Optional foreign key into the Icon Table, specifying the icon file associated with this CLSID. Will be written under the DefaultIcon key.</td></row>
+		<row><td>Class</td><td>ProgId_Default</td><td>Y</td><td/><td/><td>ProgId</td><td>1</td><td>Text</td><td/><td>Optional ProgId associated with this CLSID.</td></row>
+		<row><td>ComboBox</td><td>Order</td><td>N</td><td>1</td><td>32767</td><td/><td/><td/><td/><td>A positive integer used to determine the ordering of the items within one list.	The integers do not have to be consecutive.</td></row>
+		<row><td>ComboBox</td><td>Property</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>A named property to be tied to this item. All the items tied to the same property become part of the same combobox.</td></row>
+		<row><td>ComboBox</td><td>Text</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The visible text to be assigned to the item. Optional. If this entry or the entire column is missing, the text is the same as the value.</td></row>
+		<row><td>ComboBox</td><td>Value</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The value string associated with this item. Selecting the line will set the associated property to this value.</td></row>
+		<row><td>CompLocator</td><td>ComponentId</td><td>N</td><td/><td/><td/><td/><td>Guid</td><td/><td>A string GUID unique to this component, version, and language.</td></row>
+		<row><td>CompLocator</td><td>Signature_</td><td>N</td><td/><td/><td>Signature</td><td>1</td><td>Identifier</td><td/><td>The table key. The Signature_ represents a unique file signature and is also the foreign key in the Signature table.</td></row>
+		<row><td>CompLocator</td><td>Type</td><td>Y</td><td>0</td><td>1</td><td/><td/><td/><td/><td>A boolean value that determines if the registry value is a filename or a directory location.</td></row>
+		<row><td>Complus</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key referencing Component that controls the ComPlus component.</td></row>
+		<row><td>Complus</td><td>ExpType</td><td>Y</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>ComPlus component attributes.</td></row>
+		<row><td>Component</td><td>Attributes</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Remote execution option, one of irsEnum</td></row>
+		<row><td>Component</td><td>Component</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key used to identify a particular component record.</td></row>
+		<row><td>Component</td><td>ComponentId</td><td>Y</td><td/><td/><td/><td/><td>Guid</td><td/><td>A string GUID unique to this component, version, and language.</td></row>
+		<row><td>Component</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Condition</td><td/><td>A conditional statement that will disable this component if the specified condition evaluates to the 'True' state. If a component is disabled, it will not be installed, regardless of the 'Action' state associated with the component.</td></row>
+		<row><td>Component</td><td>Directory_</td><td>N</td><td/><td/><td>Directory</td><td>1</td><td>Identifier</td><td/><td>Required key of a Directory table record. This is actually a property name whose value contains the actual path, set either by the AppSearch action or with the default setting obtained from the Directory table.</td></row>
+		<row><td>Component</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>This is used to store Installshield custom properties of a component.</td></row>
+		<row><td>Component</td><td>ISComments</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>User Comments.</td></row>
+		<row><td>Component</td><td>ISDotNetInstallerArgsCommit</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Arguments passed to the key file of the component if if implements the .NET Installer class</td></row>
+		<row><td>Component</td><td>ISDotNetInstallerArgsInstall</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Arguments passed to the key file of the component if if implements the .NET Installer class</td></row>
+		<row><td>Component</td><td>ISDotNetInstallerArgsRollback</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Arguments passed to the key file of the component if if implements the .NET Installer class</td></row>
+		<row><td>Component</td><td>ISDotNetInstallerArgsUninstall</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Arguments passed to the key file of the component if if implements the .NET Installer class</td></row>
+		<row><td>Component</td><td>ISRegFileToMergeAtBuild</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Path and File name of a .REG file to merge into the component at build time.</td></row>
+		<row><td>Component</td><td>ISScanAtBuildFile</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>File used by the Dot Net scanner to populate dependant assemblies' File_Application field.</td></row>
+		<row><td>Component</td><td>KeyPath</td><td>Y</td><td/><td/><td>File;ODBCDataSource;Registry</td><td>1</td><td>Identifier</td><td/><td>Either the primary key into the File table, Registry table, or ODBCDataSource table. This extract path is stored when the component is installed, and is used to detect the presence of the component and to return the path to it.</td></row>
+		<row><td>Condition</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Condition</td><td/><td>Expression evaluated to determine if Level in the Feature table is to change.</td></row>
+		<row><td>Condition</td><td>Feature_</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Reference to a Feature entry in Feature table.</td></row>
+		<row><td>Condition</td><td>Level</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>New selection Level to set in Feature table if Condition evaluates to TRUE.</td></row>
+		<row><td>Control</td><td>Attributes</td><td>Y</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>A 32-bit word that specifies the attribute flags to be applied to this control.</td></row>
+		<row><td>Control</td><td>Binary_</td><td>Y</td><td/><td/><td>Binary</td><td>1</td><td>Identifier</td><td/><td>External key to the Binary table.</td></row>
+		<row><td>Control</td><td>Control</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of the control. This name must be unique within a dialog, but can repeat on different dialogs. </td></row>
+		<row><td>Control</td><td>Control_Next</td><td>Y</td><td/><td/><td>Control</td><td>2</td><td>Identifier</td><td/><td>The name of an other control on the same dialog. This link defines the tab order of the controls. The links have to form one or more cycles!</td></row>
+		<row><td>Control</td><td>Dialog_</td><td>N</td><td/><td/><td>Dialog</td><td>1</td><td>Identifier</td><td/><td>External key to the Dialog table, name of the dialog.</td></row>
+		<row><td>Control</td><td>Height</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>Height of the bounding rectangle of the control.</td></row>
+		<row><td>Control</td><td>Help</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>The help strings used with the button. The text is optional. </td></row>
+		<row><td>Control</td><td>ISBuildSourcePath</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Full path to .rtf file for scrollable text control</td></row>
+		<row><td>Control</td><td>ISControlId</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>A number used to represent the control ID of the Control, Used in Dialog export</td></row>
+		<row><td>Control</td><td>ISWindowStyle</td><td>Y</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>A 32-bit word that specifies non-MSI window styles to be applied to this control.</td></row>
+		<row><td>Control</td><td>Property</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>The name of a defined property to be linked to this control. </td></row>
+		<row><td>Control</td><td>Text</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>A string used to set the initial text contained within a control (if appropriate).</td></row>
+		<row><td>Control</td><td>Type</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>The type of the control.</td></row>
+		<row><td>Control</td><td>Width</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>Width of the bounding rectangle of the control.</td></row>
+		<row><td>Control</td><td>X</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>Horizontal coordinate of the upper left corner of the bounding rectangle of the control.</td></row>
+		<row><td>Control</td><td>Y</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>Vertical coordinate of the upper left corner of the bounding rectangle of the control.</td></row>
+		<row><td>ControlCondition</td><td>Action</td><td>N</td><td/><td/><td/><td/><td/><td>Default;Disable;Enable;Hide;Show</td><td>The desired action to be taken on the specified control.</td></row>
+		<row><td>ControlCondition</td><td>Condition</td><td>N</td><td/><td/><td/><td/><td>Condition</td><td/><td>A standard conditional statement that specifies under which conditions the action should be triggered.</td></row>
+		<row><td>ControlCondition</td><td>Control_</td><td>N</td><td/><td/><td>Control</td><td>2</td><td>Identifier</td><td/><td>A foreign key to the Control table, name of the control.</td></row>
+		<row><td>ControlCondition</td><td>Dialog_</td><td>N</td><td/><td/><td>Dialog</td><td>1</td><td>Identifier</td><td/><td>A foreign key to the Dialog table, name of the dialog.</td></row>
+		<row><td>ControlEvent</td><td>Argument</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>A value to be used as a modifier when triggering a particular event.</td></row>
+		<row><td>ControlEvent</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Condition</td><td/><td>A standard conditional statement that specifies under which conditions an event should be triggered.</td></row>
+		<row><td>ControlEvent</td><td>Control_</td><td>N</td><td/><td/><td>Control</td><td>2</td><td>Identifier</td><td/><td>A foreign key to the Control table, name of the control</td></row>
+		<row><td>ControlEvent</td><td>Dialog_</td><td>N</td><td/><td/><td>Dialog</td><td>1</td><td>Identifier</td><td/><td>A foreign key to the Dialog table, name of the dialog.</td></row>
+		<row><td>ControlEvent</td><td>Event</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>An identifier that specifies the type of the event that should take place when the user interacts with control specified by the first two entries.</td></row>
+		<row><td>ControlEvent</td><td>Ordering</td><td>Y</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>An integer used to order several events tied to the same control. Can be left blank.</td></row>
+		<row><td>CreateFolder</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the Component table.</td></row>
+		<row><td>CreateFolder</td><td>Directory_</td><td>N</td><td/><td/><td>Directory</td><td>1</td><td>Identifier</td><td/><td>Primary key, could be foreign key into the Directory table.</td></row>
+		<row><td>CustomAction</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key, name of action, normally appears in sequence table unless private use.</td></row>
+		<row><td>CustomAction</td><td>ISComments</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Author’s comments for this custom action.</td></row>
+		<row><td>CustomAction</td><td>Source</td><td>Y</td><td/><td/><td/><td/><td>CustomSource</td><td/><td>The table reference of the source of the code.</td></row>
+		<row><td>CustomAction</td><td>Target</td><td>Y</td><td/><td/><td>ISDLLWrapper;ISInstallScriptAction</td><td>1</td><td>Formatted</td><td/><td>Excecution parameter, depends on the type of custom action</td></row>
+		<row><td>CustomAction</td><td>Type</td><td>N</td><td>1</td><td>8191</td><td/><td/><td/><td/><td>The numeric custom action type, consisting of source location, code type, entry, option flags.</td></row>
+		<row><td>Dialog</td><td>Attributes</td><td>Y</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>A 32-bit word that specifies the attribute flags to be applied to this dialog.</td></row>
+		<row><td>Dialog</td><td>Control_Cancel</td><td>Y</td><td/><td/><td>Control</td><td>2</td><td>Identifier</td><td/><td>Defines the cancel control. Hitting escape or clicking on the close icon on the dialog is equivalent to pushing this button.</td></row>
+		<row><td>Dialog</td><td>Control_Default</td><td>Y</td><td/><td/><td>Control</td><td>2</td><td>Identifier</td><td/><td>Defines the default control. Hitting return is equivalent to pushing this button.</td></row>
+		<row><td>Dialog</td><td>Control_First</td><td>N</td><td/><td/><td>Control</td><td>2</td><td>Identifier</td><td/><td>Defines the control that has the focus when the dialog is created.</td></row>
+		<row><td>Dialog</td><td>Dialog</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of the dialog.</td></row>
+		<row><td>Dialog</td><td>HCentering</td><td>N</td><td>0</td><td>100</td><td/><td/><td/><td/><td>Horizontal position of the dialog on a 0-100 scale. 0 means left end, 100 means right end of the screen, 50 center.</td></row>
+		<row><td>Dialog</td><td>Height</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>Height of the bounding rectangle of the dialog.</td></row>
+		<row><td>Dialog</td><td>ISComments</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Author’s comments for this dialog.</td></row>
+		<row><td>Dialog</td><td>ISResourceId</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>A Number the Specifies the Dialog ID to be used in Dialog Export</td></row>
+		<row><td>Dialog</td><td>ISWindowStyle</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>A 32-bit word that specifies non-MSI window styles to be applied to this control. This is only used in Script Based Setups.</td></row>
+		<row><td>Dialog</td><td>TextStyle_</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Foreign Key into TextStyle table, only used in Script Based Projects.</td></row>
+		<row><td>Dialog</td><td>Title</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>A text string specifying the title to be displayed in the title bar of the dialog's window.</td></row>
+		<row><td>Dialog</td><td>VCentering</td><td>N</td><td>0</td><td>100</td><td/><td/><td/><td/><td>Vertical position of the dialog on a 0-100 scale. 0 means top end, 100 means bottom end of the screen, 50 center.</td></row>
+		<row><td>Dialog</td><td>Width</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>Width of the bounding rectangle of the dialog.</td></row>
+		<row><td>Directory</td><td>DefaultDir</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The default sub-path under parent's path.</td></row>
+		<row><td>Directory</td><td>Directory</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Unique identifier for directory entry, primary key. If a property by this name is defined, it contains the full path to the directory.</td></row>
+		<row><td>Directory</td><td>Directory_Parent</td><td>Y</td><td/><td/><td>Directory</td><td>1</td><td>Identifier</td><td/><td>Reference to the entry in this table specifying the default parent directory. A record parented to itself or with a Null parent represents a root of the install tree.</td></row>
+		<row><td>Directory</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td>0;1;2;3;4;5;6;7</td><td>This is used to store Installshield custom properties of a directory.  Currently the only one is Shortcut.</td></row>
+		<row><td>Directory</td><td>ISDescription</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Description of folder</td></row>
+		<row><td>Directory</td><td>ISFolderName</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>This is used in Pro projects because the pro identifier used in the tree wasn't necessarily unique.</td></row>
+		<row><td>DrLocator</td><td>Depth</td><td>Y</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The depth below the path to which the Signature_ is recursively searched. If absent, the depth is assumed to be 0.</td></row>
+		<row><td>DrLocator</td><td>Parent</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>The parent file signature. It is also a foreign key in the Signature table. If null and the Path column does not expand to a full path, then all the fixed drives of the user system are searched using the Path.</td></row>
+		<row><td>DrLocator</td><td>Path</td><td>Y</td><td/><td/><td/><td/><td>AnyPath</td><td/><td>The path on the user system. This is a either a subpath below the value of the Parent or a full path. The path may contain properties enclosed within [ ] that will be expanded.</td></row>
+		<row><td>DrLocator</td><td>Signature_</td><td>N</td><td/><td/><td>Signature</td><td>1</td><td>Identifier</td><td/><td>The Signature_ represents a unique file signature and is also the foreign key in the Signature table.</td></row>
+		<row><td>DuplicateFile</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key referencing Component that controls the duplicate file.</td></row>
+		<row><td>DuplicateFile</td><td>DestFolder</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of a property whose value is assumed to resolve to the full pathname to a destination folder.</td></row>
+		<row><td>DuplicateFile</td><td>DestName</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Filename to be given to the duplicate file.</td></row>
+		<row><td>DuplicateFile</td><td>FileKey</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key used to identify a particular file entry</td></row>
+		<row><td>DuplicateFile</td><td>File_</td><td>N</td><td/><td/><td>File</td><td>1</td><td>Identifier</td><td/><td>Foreign key referencing the source file to be duplicated.</td></row>
+		<row><td>Environment</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the Component table referencing component that controls the installing of the environmental value.</td></row>
+		<row><td>Environment</td><td>Environment</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Unique identifier for the environmental variable setting</td></row>
+		<row><td>Environment</td><td>Name</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The name of the environmental value.</td></row>
+		<row><td>Environment</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The value to set in the environmental settings.</td></row>
+		<row><td>EventMapping</td><td>Attribute</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>The name of the control attribute, that is set when this event is received.</td></row>
+		<row><td>EventMapping</td><td>Control_</td><td>N</td><td/><td/><td>Control</td><td>2</td><td>Identifier</td><td/><td>A foreign key to the Control table, name of the control.</td></row>
+		<row><td>EventMapping</td><td>Dialog_</td><td>N</td><td/><td/><td>Dialog</td><td>1</td><td>Identifier</td><td/><td>A foreign key to the Dialog table, name of the Dialog.</td></row>
+		<row><td>EventMapping</td><td>Event</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>An identifier that specifies the type of the event that the control subscribes to.</td></row>
+		<row><td>Extension</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Required foreign key into the Component Table, specifying the component for which to return a path when called through LocateComponent.</td></row>
+		<row><td>Extension</td><td>Extension</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The extension associated with the table row.</td></row>
+		<row><td>Extension</td><td>Feature_</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Required foreign key into the Feature Table, specifying the feature to validate or install in order for the CLSID factory to be operational.</td></row>
+		<row><td>Extension</td><td>MIME_</td><td>Y</td><td/><td/><td>MIME</td><td>1</td><td>Text</td><td/><td>Optional Context identifier, typically "type/format" associated with the extension</td></row>
+		<row><td>Extension</td><td>ProgId_</td><td>Y</td><td/><td/><td>ProgId</td><td>1</td><td>Text</td><td/><td>Optional ProgId associated with this extension.</td></row>
+		<row><td>FeatureComponents</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key into Component table.</td></row>
+		<row><td>FeatureComponents</td><td>Feature_</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Foreign key into Feature table.</td></row>
+		<row><td>File</td><td>Attributes</td><td>Y</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>Integer containing bit flags representing file attributes (with the decimal value of each bit position in parentheses)</td></row>
+		<row><td>File</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key referencing Component that controls the file.</td></row>
+		<row><td>File</td><td>File</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key, non-localized token, must match identifier in cabinet.  For uncompressed files, this field is ignored.</td></row>
+		<row><td>File</td><td>FileName</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>File name used for installation.  This may contain a "short name|long name" pair.  It may be just a long name, hence it cannot be of the Filename data type.</td></row>
+		<row><td>File</td><td>FileSize</td><td>N</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>Size of file in bytes (long integer).</td></row>
+		<row><td>File</td><td>ISAttributes</td><td>Y</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>This field contains the following attributes: UseSystemSettings(0x1)</td></row>
+		<row><td>File</td><td>ISBuildSourcePath</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Full path, the category is of Text instead of Path because of potential use of path variables.</td></row>
+		<row><td>File</td><td>ISComponentSubFolder_</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Foreign key referencing component subfolder containing this file.  Only for Pro.</td></row>
+		<row><td>File</td><td>Language</td><td>Y</td><td/><td/><td/><td/><td>Language</td><td/><td>List of decimal language Ids, comma-separated if more than one.</td></row>
+		<row><td>File</td><td>Sequence</td><td>N</td><td>1</td><td>32767</td><td/><td/><td/><td/><td>Sequence with respect to the media images; order must track cabinet order.</td></row>
+		<row><td>File</td><td>Version</td><td>Y</td><td/><td/><td>File</td><td>1</td><td>Version</td><td/><td>Version string for versioned files;  Blank for unversioned files.</td></row>
+		<row><td>FileSFPCatalog</td><td>File_</td><td>N</td><td/><td/><td>File</td><td>1</td><td>Identifier</td><td/><td>File associated with the catalog</td></row>
+		<row><td>FileSFPCatalog</td><td>SFPCatalog_</td><td>N</td><td/><td/><td>SFPCatalog</td><td>1</td><td>Text</td><td/><td>Catalog associated with the file</td></row>
+		<row><td>Font</td><td>File_</td><td>N</td><td/><td/><td>File</td><td>1</td><td>Identifier</td><td/><td>Primary key, foreign key into File table referencing font file.</td></row>
+		<row><td>Font</td><td>FontTitle</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Font name.</td></row>
+		<row><td>ISComCatalogAttribute</td><td>ISComCatalogObject_</td><td>N</td><td/><td/><td>ISComCatalogObject</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the ISComCatalogObject table.</td></row>
+		<row><td>ISComCatalogAttribute</td><td>ItemName</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The named attribute for a catalog object.</td></row>
+		<row><td>ISComCatalogAttribute</td><td>ItemValue</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>A value associated with the attribute defined in the ItemName column.</td></row>
+		<row><td>ISComCatalogCollection</td><td>CollectionName</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>A catalog collection name.</td></row>
+		<row><td>ISComCatalogCollection</td><td>ISComCatalogCollection</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>A unique key for the ISComCatalogCollection table.</td></row>
+		<row><td>ISComCatalogCollection</td><td>ISComCatalogObject_</td><td>N</td><td/><td/><td>ISComCatalogObject</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the ISComCatalogObject table.</td></row>
+		<row><td>ISComCatalogCollectionObjects</td><td>ISComCatalogCollection_</td><td>N</td><td/><td/><td>ISComCatalogCollection</td><td>1</td><td>Identifier</td><td/><td>A unique key for the ISComCatalogCollection table.</td></row>
+		<row><td>ISComCatalogCollectionObjects</td><td>ISComCatalogObject_</td><td>N</td><td/><td/><td>ISComCatalogObject</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the ISComCatalogObject table.</td></row>
+		<row><td>ISComCatalogObject</td><td>DisplayName</td><td>N</td><td/><td/><td/><td/><td/><td/><td>The display name of a catalog object.</td></row>
+		<row><td>ISComCatalogObject</td><td>ISComCatalogObject</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>A unique key for the ISComCatalogObject table.</td></row>
+		<row><td>ISComPlusApplication</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the Component table that a COM+ application belongs to.</td></row>
+		<row><td>ISComPlusApplication</td><td>ComputerName</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Computer name that a COM+ application belongs to.</td></row>
+		<row><td>ISComPlusApplication</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>InstallShield custom attributes associated with a COM+ application.</td></row>
+		<row><td>ISComPlusApplication</td><td>ISComCatalogObject_</td><td>N</td><td/><td/><td>ISComCatalogObject</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the ISComCatalogObject table.</td></row>
+		<row><td>ISComponentExtended</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Primary key used to identify a particular component record.</td></row>
+		<row><td>ISComponentExtended</td><td>FTPLocation</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>FTP Location</td></row>
+		<row><td>ISComponentExtended</td><td>FilterProperty</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Property to set if you want to filter a component</td></row>
+		<row><td>ISComponentExtended</td><td>HTTPLocation</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>HTTP Location</td></row>
+		<row><td>ISComponentExtended</td><td>Language</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Language</td></row>
+		<row><td>ISComponentExtended</td><td>Miscellaneous</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Miscellaneous</td></row>
+		<row><td>ISComponentExtended</td><td>OS</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>bitwise addition of OSs</td></row>
+		<row><td>ISComponentExtended</td><td>Platforms</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>bitwise addition of Platforms.</td></row>
+		<row><td>ISDLLWrapper</td><td>EntryPoint</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>This is a foreign key to the target column in the CustomAction table</td></row>
+		<row><td>ISDLLWrapper</td><td>Source</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>This is column points to the source file for the DLLWrapper Custom Action</td></row>
+		<row><td>ISDLLWrapper</td><td>Target</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The function signature</td></row>
+		<row><td>ISDLLWrapper</td><td>Type</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>Type</td></row>
+		<row><td>ISDependency</td><td>Exclude</td><td>Y</td><td/><td/><td/><td/><td/><td/><td/></row>
+		<row><td>ISDependency</td><td>ISDependency</td><td>Y</td><td/><td/><td/><td/><td/><td/><td/></row>
+		<row><td>ISDisk1File</td><td>Disk</td><td>Y</td><td/><td/><td/><td/><td/><td>-1;0;1</td><td>Used to differentiate between disk1(1), last disk(-1), and other(0).</td></row>
+		<row><td>ISDisk1File</td><td>ISBuildSourcePath</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Full path of file to be copied to Disk1 folder</td></row>
+		<row><td>ISDisk1File</td><td>ISDisk1File</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key for ISDisk1File table</td></row>
+		<row><td>ISDynamicFile</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key referencing Component that controls the file.</td></row>
+		<row><td>ISDynamicFile</td><td>ExcludeFiles</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Wildcards for excluded files.</td></row>
+		<row><td>ISDynamicFile</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td>0;1;2;3</td><td>This is used to store Installshield custom properties of a dynamic filet.  Currently the only one is SelfRegister.</td></row>
+		<row><td>ISDynamicFile</td><td>IncludeFiles</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Wildcards for included files.</td></row>
+		<row><td>ISDynamicFile</td><td>IncludeFlags</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>Include flags.</td></row>
+		<row><td>ISDynamicFile</td><td>SourceFolder</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Full path, the category is of Text instead of Path because of potential use of path variables.</td></row>
+		<row><td>ISFeatureMergeModuleExcludes</td><td>Feature_</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Foreign key into Feature table.</td></row>
+		<row><td>ISFeatureMergeModuleExcludes</td><td>Language</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Foreign key into ISMergeModule table.</td></row>
+		<row><td>ISFeatureMergeModuleExcludes</td><td>ModuleID</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Foreign key into ISMergeModule table.
+</td></row>
+		<row><td>ISFeatureMergeModules</td><td>Feature_</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Foreign key into Feature table.</td></row>
+		<row><td>ISFeatureMergeModules</td><td>ISMergeModule_</td><td>N</td><td/><td/><td>ISMergeModule</td><td>1</td><td>Text</td><td/><td>Foreign key into ISMergeModule table.
+</td></row>
+		<row><td>ISFeatureMergeModules</td><td>Language_</td><td>N</td><td/><td/><td>ISMergeModule</td><td>2</td><td/><td/><td>Foreign key into ISMergeModule table.</td></row>
+		<row><td>ISInstallScriptAction</td><td>EntryPoint</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>This is a foreign key to the target column in the CustomAction table</td></row>
+		<row><td>ISInstallScriptAction</td><td>Source</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>This is column points to the source file for the DLLWrapper Custom Action</td></row>
+		<row><td>ISInstallScriptAction</td><td>Target</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>The function signature</td></row>
+		<row><td>ISInstallScriptAction</td><td>Type</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>Type</td></row>
+		<row><td>ISLanguage</td><td>ISLanguage</td><td>N</td><td/><td/><td/><td/><td>Language</td><td/><td>This is the language ID.</td></row>
+		<row><td>ISLanguage</td><td>Included</td><td>Y</td><td/><td/><td/><td/><td/><td>0;1</td><td>Specify whether this language should be included.</td></row>
+		<row><td>ISLinkerLibrary</td><td>ISLinkerLibrary</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Unique identifier for the link library.
+</td></row>
+		<row><td>ISLinkerLibrary</td><td>Library</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Full path of the object library (.obl file).
+</td></row>
+		<row><td>ISLinkerLibrary</td><td>Order</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Order of the Library</td></row>
+		<row><td>ISLocalControl</td><td>Attributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>A 32-bit word that specifies the attribute flags to be applied to this control.</td></row>
+		<row><td>ISLocalControl</td><td>Binary_</td><td>Y</td><td/><td/><td>Binary</td><td>1</td><td>Identifier</td><td/><td>External key to the Binary table.</td></row>
+		<row><td>ISLocalControl</td><td>Control_</td><td>N</td><td/><td/><td>Control</td><td>2</td><td>Identifier</td><td/><td>Name of the control. This name must be unique within a dialog, but can repeat on different dialogs.</td></row>
+		<row><td>ISLocalControl</td><td>Dialog_</td><td>N</td><td/><td/><td>Dialog</td><td>1</td><td>Identifier</td><td/><td>External key to the Dialog table, name of the dialog.</td></row>
+		<row><td>ISLocalControl</td><td>Height</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>Height of the bounding rectangle of the control.</td></row>
+		<row><td>ISLocalControl</td><td>ISBuildSourcePath</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Full path to .rtf file for scrollable text control</td></row>
+		<row><td>ISLocalControl</td><td>ISLanguage_</td><td>N</td><td/><td/><td>ISLanguage</td><td>1</td><td>Language</td><td/><td>This is a foreign key to the ISLanguage table.</td></row>
+		<row><td>ISLocalControl</td><td>Width</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>Width of the bounding rectangle of the control.</td></row>
+		<row><td>ISLocalControl</td><td>X</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>Horizontal coordinate of the upper left corner of the bounding rectangle of the control.</td></row>
+		<row><td>ISLocalControl</td><td>Y</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>Vertical coordinate of the upper left corner of the bounding rectangle of the control.</td></row>
+		<row><td>ISLocalDialog</td><td>Attributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>A 32-bit word that specifies the attribute flags to be applied to this dialog.</td></row>
+		<row><td>ISLocalDialog</td><td>Dialog_</td><td>Y</td><td/><td/><td>Dialog</td><td>1</td><td>Identifier</td><td/><td>Name of the dialog.</td></row>
+		<row><td>ISLocalDialog</td><td>Height</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>Height of the bounding rectangle of the dialog.</td></row>
+		<row><td>ISLocalDialog</td><td>ISLanguage_</td><td>Y</td><td/><td/><td>ISLanguage</td><td>1</td><td>Language</td><td/><td>This is a foreign key to the ISLanguage table.</td></row>
+		<row><td>ISLocalDialog</td><td>TextStyle_</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Foreign Key into TextStyle table, only used in Script Based Projects.</td></row>
+		<row><td>ISLocalDialog</td><td>Width</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>Width of the bounding rectangle of the dialog.</td></row>
+		<row><td>ISLocalRadioButton</td><td>Height</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The height of the button.</td></row>
+		<row><td>ISLocalRadioButton</td><td>ISLanguage_</td><td>N</td><td/><td/><td>ISLanguage</td><td>1</td><td>Language</td><td/><td>This is a foreign key to the ISLanguage table.</td></row>
+		<row><td>ISLocalRadioButton</td><td>Order</td><td>N</td><td>1</td><td>32767</td><td>RadioButton</td><td>2</td><td/><td/><td>A positive integer used to determine the ordering of the items within one list..The integers do not have to be consecutive.</td></row>
+		<row><td>ISLocalRadioButton</td><td>Property</td><td>N</td><td/><td/><td>RadioButton</td><td>1</td><td>Identifier</td><td/><td>A named property to be tied to this radio button. All the buttons tied to the same property become part of the same group.</td></row>
+		<row><td>ISLocalRadioButton</td><td>Width</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The width of the button.</td></row>
+		<row><td>ISLocalRadioButton</td><td>X</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The horizontal coordinate of the upper left corner of the bounding rectangle of the radio button.</td></row>
+		<row><td>ISLocalRadioButton</td><td>Y</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The vertical coordinate of the upper left corner of the bounding rectangle of the radio button.</td></row>
+		<row><td>ISLogicalDisk</td><td>Cabinet</td><td>Y</td><td/><td/><td/><td/><td>Cabinet</td><td/><td>If some or all of the files stored on the media are compressed in a cabinet, the name of that cabinet.</td></row>
+		<row><td>ISLogicalDisk</td><td>DiskId</td><td>N</td><td>1</td><td>32767</td><td/><td/><td/><td/><td>Primary key, integer to determine sort order for table.</td></row>
+		<row><td>ISLogicalDisk</td><td>DiskPrompt</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Disk name: the visible text actually printed on the disk.  This will be used to prompt the user when this disk needs to be inserted.</td></row>
+		<row><td>ISLogicalDisk</td><td>ISProductConfiguration_</td><td>N</td><td/><td/><td>ISProductConfiguration</td><td>1</td><td>Text</td><td/><td>Foreign key into the ISProductConfiguration table.</td></row>
+		<row><td>ISLogicalDisk</td><td>ISRelease_</td><td>N</td><td/><td/><td>ISRelease</td><td>1</td><td>Text</td><td/><td>Foreign key into the ISRelease table.</td></row>
+		<row><td>ISLogicalDisk</td><td>LastSequence</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>File sequence number for the last file for this media.</td></row>
+		<row><td>ISLogicalDisk</td><td>Source</td><td>Y</td><td/><td/><td/><td/><td>Property</td><td/><td>The property defining the location of the cabinet file.</td></row>
+		<row><td>ISLogicalDisk</td><td>VolumeLabel</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>The label attributed to the volume.</td></row>
+		<row><td>ISLogicalDiskFeatures</td><td>Feature_</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Required foreign key into the Feature Table,</td></row>
+		<row><td>ISLogicalDiskFeatures</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>This is used to store Installshield custom properties, like Compressed, etc.</td></row>
+		<row><td>ISLogicalDiskFeatures</td><td>ISLogicalDisk_</td><td>N</td><td>1</td><td>32767</td><td>ISLogicalDisk</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the ISLogicalDisk table.</td></row>
+		<row><td>ISLogicalDiskFeatures</td><td>ISProductConfiguration_</td><td>N</td><td/><td/><td>ISProductConfiguration</td><td>1</td><td>Text</td><td/><td>Foreign key into the ISProductConfiguration table.</td></row>
+		<row><td>ISLogicalDiskFeatures</td><td>ISRelease_</td><td>N</td><td/><td/><td>ISRelease</td><td>1</td><td>Text</td><td/><td>Foreign key into the ISRelease table.</td></row>
+		<row><td>ISLogicalDiskFeatures</td><td>Sequence</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>File sequence number for the file for this media.</td></row>
+		<row><td>ISMergeModule</td><td>Destination</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Destination.
+</td></row>
+		<row><td>ISMergeModule</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>This is used to store Installshield custom properties of a merge module.</td></row>
+		<row><td>ISMergeModule</td><td>ISMergeModule</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The GUID identifying the merge module.
+</td></row>
+		<row><td>ISMergeModule</td><td>Language</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Default decimal language of module.</td></row>
+		<row><td>ISMergeModule</td><td>Name</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Name of the merge module.
+</td></row>
+		<row><td>ISMergeModuleCfgValues</td><td>Attributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>Attributes (from configurable merge module)</td></row>
+		<row><td>ISMergeModuleCfgValues</td><td>ContextData</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>ContextData  (from configurable merge module)</td></row>
+		<row><td>ISMergeModuleCfgValues</td><td>DefaultValue</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>DefaultValue  (from configurable merge module)</td></row>
+		<row><td>ISMergeModuleCfgValues</td><td>Description</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Description (from configurable merge module)</td></row>
+		<row><td>ISMergeModuleCfgValues</td><td>DisplayName</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>DisplayName (from configurable merge module)</td></row>
+		<row><td>ISMergeModuleCfgValues</td><td>Format</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Format (from configurable merge module)</td></row>
+		<row><td>ISMergeModuleCfgValues</td><td>HelpKeyword</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>HelpKeyword (from configurable merge module)</td></row>
+		<row><td>ISMergeModuleCfgValues</td><td>HelpLocation</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>HelpLocation (from configurable merge module)</td></row>
+		<row><td>ISMergeModuleCfgValues</td><td>ISMergeModule_</td><td>N</td><td/><td/><td>ISMergeModule</td><td>1</td><td>Text</td><td/><td>The module signature, a foreign key into the ISMergeModule table</td></row>
+		<row><td>ISMergeModuleCfgValues</td><td>Language_</td><td>N</td><td/><td/><td>ISMergeModule</td><td>2</td><td/><td/><td>Default decimal language of module.</td></row>
+		<row><td>ISMergeModuleCfgValues</td><td>ModuleConfiguration_</td><td>N</td><td/><td/><td>ModuleConfiguration</td><td>1</td><td>Identifier</td><td/><td>Identifier, foreign key into ModuleConfiguration table (ModuleConfiguration.Name)</td></row>
+		<row><td>ISMergeModuleCfgValues</td><td>Type</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Type (from configurable merge module)</td></row>
+		<row><td>ISMergeModuleCfgValues</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Value for this item.</td></row>
+		<row><td>ISObject</td><td>Language</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td/></row>
+		<row><td>ISObject</td><td>ObjectName</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td/></row>
+		<row><td>ISObjectProperty</td><td>IncludeInBuild</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>Boolean, 0 for false non 0 for true</td></row>
+		<row><td>ISObjectProperty</td><td>ObjectName</td><td>Y</td><td/><td/><td>ISObject</td><td>1</td><td>Text</td><td/><td/></row>
+		<row><td>ISObjectProperty</td><td>Property</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td/></row>
+		<row><td>ISObjectProperty</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td/></row>
+		<row><td>ISPathVariable</td><td>ISPathVariable</td><td>N</td><td/><td/><td/><td/><td/><td/><td>The name of the path variable.</td></row>
+		<row><td>ISPathVariable</td><td>TestValue</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>The test value of the path variable.</td></row>
+		<row><td>ISPathVariable</td><td>Type</td><td>N</td><td/><td/><td/><td/><td/><td>1;2;4;8</td><td>The type of the path variable.</td></row>
+		<row><td>ISPathVariable</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>The value of the path variable.</td></row>
+		<row><td>ISProductConfiguration</td><td>GeneratePackageCode</td><td>Y</td><td/><td/><td/><td/><td>Number</td><td>0;1</td><td>Indicates whether or not to generate a package code.
+</td></row>
+		<row><td>ISProductConfiguration</td><td>ISProductConfiguration</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The name of the product configuration.
+</td></row>
+		<row><td>ISProductConfiguration</td><td>ProductConfigurationFlags</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Product configuration (release) flags.
+</td></row>
+		<row><td>ISProductConfigurationInstance</td><td>ISProductConfiguration_</td><td>N</td><td/><td/><td>ISProductConfiguration</td><td>1</td><td>Text</td><td/><td>Foreign key into the ISProductConfiguration table.
+</td></row>
+		<row><td>ISProductConfigurationInstance</td><td>InstanceId</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>Identifies the instance number of this instance. This value is stored in the Property InstanceId.</td></row>
+		<row><td>ISProductConfigurationInstance</td><td>Property</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Product Congiuration property name</td></row>
+		<row><td>ISProductConfigurationInstance</td><td>Value</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>String value for property.</td></row>
+		<row><td>ISProductConfigurationProperty</td><td>ISProductConfiguration_</td><td>N</td><td/><td/><td>ISProductConfiguration</td><td>1</td><td>Text</td><td/><td>Foreign key into the ISProductConfiguration table.
+</td></row>
+		<row><td>ISProductConfigurationProperty</td><td>Property</td><td>N</td><td/><td/><td>Property</td><td>1</td><td>Text</td><td/><td>Product Congiuration property name</td></row>
+		<row><td>ISProductConfigurationProperty</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>String value for property. Never null or empty.
+
+
+
+</td></row>
+		<row><td>ISRelease</td><td>Attributes</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Bitfield holding boolean values for various release attributes.</td></row>
+		<row><td>ISRelease</td><td>BuildLocation</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Build location.</td></row>
+		<row><td>ISRelease</td><td>CDBrowser</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Demoshield browser location.</td></row>
+		<row><td>ISRelease</td><td>DefaultLanguage</td><td>N</td><td/><td/><td/><td/><td>Language</td><td/><td>Default language for setup.</td></row>
+		<row><td>ISRelease</td><td>DigitalPVK</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Digital signing private key (.pvk) file.</td></row>
+		<row><td>ISRelease</td><td>DigitalSPC</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Digital signing Software Publisher Certificate (.spc) file.</td></row>
+		<row><td>ISRelease</td><td>DigitalURL</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Digital signing URL.</td></row>
+		<row><td>ISRelease</td><td>DiskClusterSize</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Disk cluster size.</td></row>
+		<row><td>ISRelease</td><td>DiskSize</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Disk size.</td></row>
+		<row><td>ISRelease</td><td>DiskSizeUnit</td><td>N</td><td/><td/><td/><td/><td/><td>0;1;2</td><td>Disk size units (KB or MB).</td></row>
+		<row><td>ISRelease</td><td>DiskSpanning</td><td>N</td><td/><td/><td/><td/><td/><td>0;1;2</td><td>Disk spanning (automatic, enforce size, etc.).</td></row>
+		<row><td>ISRelease</td><td>DotNetBuildConfiguration</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Build Configuration for .NET solutions.</td></row>
+		<row><td>ISRelease</td><td>ISProductConfiguration_</td><td>N</td><td/><td/><td>ISProductConfiguration</td><td>1</td><td>Text</td><td/><td>Foreign key into the ISProductConfiguration table.</td></row>
+		<row><td>ISRelease</td><td>ISRelease</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The name of the release.
+</td></row>
+		<row><td>ISRelease</td><td>MediaLocation</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Media location on disk.</td></row>
+		<row><td>ISRelease</td><td>MsiCommandLine</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Command line passed to the msi package from setup.exe</td></row>
+		<row><td>ISRelease</td><td>MsiSourceType</td><td>N</td><td>-1</td><td>4</td><td/><td/><td/><td/><td>MSI media source type.</td></row>
+		<row><td>ISRelease</td><td>PackageName</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Package name.</td></row>
+		<row><td>ISRelease</td><td>Password</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Password.</td></row>
+		<row><td>ISRelease</td><td>Platforms</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Platforms supported (Intel, Alpha, etc.).</td></row>
+		<row><td>ISRelease</td><td>ReleaseFlags</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Release flags.</td></row>
+		<row><td>ISRelease</td><td>ReleaseType</td><td>N</td><td/><td/><td/><td/><td/><td>1;2;4</td><td>Release type (single, uncompressed, etc.).</td></row>
+		<row><td>ISRelease</td><td>SupportedLanguagesData</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Languages supported (for component filtering).</td></row>
+		<row><td>ISRelease</td><td>SupportedLanguagesUI</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>UI languages supported.</td></row>
+		<row><td>ISRelease</td><td>SupportedOSs</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Indicate which operating systmes are supported.</td></row>
+		<row><td>ISRelease</td><td>SynchMsi</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>MSI file to synchronize file keys and other data with (patch-like functionality).</td></row>
+		<row><td>ISRelease</td><td>Type</td><td>N</td><td>0</td><td>6</td><td/><td/><td/><td/><td>Release type (CDROM, Network, etc.).</td></row>
+		<row><td>ISRelease</td><td>URLLocation</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Media location via URL.</td></row>
+		<row><td>ISRelease</td><td>VersionCopyright</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Version stamp information.</td></row>
+		<row><td>ISReleaseExtended</td><td>Attributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>Bitfield holding boolean values for various release attributes.</td></row>
+		<row><td>ISReleaseExtended</td><td>DigitalCertificateDBaseNS</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Path to cerificate database for Netscape digital  signature</td></row>
+		<row><td>ISReleaseExtended</td><td>DigitalCertificateIdNS</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Path to cerificate ID for Netscape digital  signature</td></row>
+		<row><td>ISReleaseExtended</td><td>DigitalCertificatePasswordNS</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Password for Netscape digital  signature</td></row>
+		<row><td>ISReleaseExtended</td><td>DotNetBaseLanguage</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Base Languge of .NET Redist</td></row>
+		<row><td>ISReleaseExtended</td><td>DotNetFxCmdLine</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Command Line to pass to DotNetFx.exe</td></row>
+		<row><td>ISReleaseExtended</td><td>DotNetLangPackCmdLine</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Command Line to pass to LangPack.exe</td></row>
+		<row><td>ISReleaseExtended</td><td>DotNetLangaugePacks</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>.NET Redist language packs to include</td></row>
+		<row><td>ISReleaseExtended</td><td>DotNetRedistLocation</td><td>Y</td><td>0</td><td>3</td><td/><td/><td/><td/><td>Location of .NET framework Redist (Web, SetupExe, Source, None)</td></row>
+		<row><td>ISReleaseExtended</td><td>DotNetRedistURL</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>URL to .NET framework Redist</td></row>
+		<row><td>ISReleaseExtended</td><td>DotNetVersion</td><td>Y</td><td>0</td><td>1</td><td/><td/><td/><td/><td>Version of .NET framework Redist (1.0, 1.1)</td></row>
+		<row><td>ISReleaseExtended</td><td>EngineLocation</td><td>Y</td><td>0</td><td>2</td><td/><td/><td/><td/><td>Location of msi engine (Web, SetupExe...)</td></row>
+		<row><td>ISReleaseExtended</td><td>ISEngineLocation</td><td>Y</td><td>0</td><td>2</td><td/><td/><td/><td/><td>Location of ISScript  engine (Web, SetupExe...)</td></row>
+		<row><td>ISReleaseExtended</td><td>ISEngineURL</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>URL to InstallShield scripting engine</td></row>
+		<row><td>ISReleaseExtended</td><td>ISProductConfiguration_</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Foreign key into the ISProductConfiguration table.</td></row>
+		<row><td>ISReleaseExtended</td><td>ISRelease_</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The name of the release.</td></row>
+		<row><td>ISReleaseExtended</td><td>JSharpCmdLine</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Command Line to pass to vjredist.exe</td></row>
+		<row><td>ISReleaseExtended</td><td>JSharpRedistLocation</td><td>Y</td><td>0</td><td>3</td><td/><td/><td/><td/><td>Location of J# framework Redist (Web, SetupExe, Source, None)</td></row>
+		<row><td>ISReleaseExtended</td><td>OneClickCabName</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>File name of generated cabfile</td></row>
+		<row><td>ISReleaseExtended</td><td>OneClickHtmlName</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>File name of generated html page</td></row>
+		<row><td>ISReleaseExtended</td><td>OneClickTargetBrowser</td><td>Y</td><td>0</td><td>2</td><td/><td/><td/><td/><td>Target browser (IE, Netscape, both...)</td></row>
+		<row><td>ISReleaseExtended</td><td>WebCabSize</td><td>Y</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>Size of the cabfile</td></row>
+		<row><td>ISReleaseExtended</td><td>WebLocalCachePath</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Directory to cache downloaded package</td></row>
+		<row><td>ISReleaseExtended</td><td>WebType</td><td>Y</td><td>0</td><td>2</td><td/><td/><td/><td/><td>Type of web install (One Executable, Downloader...)</td></row>
+		<row><td>ISReleaseExtended</td><td>WebURL</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>URL to .msi package</td></row>
+		<row><td>ISReleaseExtended</td><td>Win9xMsiUrl</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>URL to Ansi MSI engine</td></row>
+		<row><td>ISReleaseExtended</td><td>WinNTMsiUrl</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>URL to Unicode MSI engine</td></row>
+		<row><td>ISScriptFile</td><td>ISScriptFile</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>This is the full path of the script file. The path portion may be expressed in path variable form.
+</td></row>
+		<row><td>ISSelfReg</td><td>CmdLine</td><td>Y</td><td/><td/><td/><td/><td/><td/><td/></row>
+		<row><td>ISSelfReg</td><td>Cost</td><td>Y</td><td/><td/><td/><td/><td/><td/><td/></row>
+		<row><td>ISSelfReg</td><td>FileKey</td><td>N</td><td/><td/><td>File</td><td>1</td><td>Identifier</td><td/><td>Foreign key to the file table</td></row>
+		<row><td>ISSelfReg</td><td>Order</td><td>Y</td><td/><td/><td/><td/><td/><td/><td/></row>
+		<row><td>ISStorages</td><td>ISBuildSourcePath</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>Path to the file to stream into sub-storage</td></row>
+		<row><td>ISStorages</td><td>Name</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Name of the sub-storage key</td></row>
+		<row><td>ISString</td><td>Comment</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Comment</td></row>
+		<row><td>ISString</td><td>Encoded</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>Encoding for multi-byte strings.</td></row>
+		<row><td>ISString</td><td>ISLanguage_</td><td>N</td><td/><td/><td/><td/><td>Language</td><td/><td>This is a foreign key to the ISLanguage table.</td></row>
+		<row><td>ISString</td><td>ISString</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>String id.</td></row>
+		<row><td>ISString</td><td>TimeStamp</td><td>Y</td><td/><td/><td/><td/><td>Time/Date</td><td/><td>Time Stamp. MSI's Time/Date column type is just an int, with bits packed in a certain order.</td></row>
+		<row><td>ISString</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>real string value.</td></row>
+		<row><td>Icon</td><td>Data</td><td>Y</td><td/><td/><td/><td/><td>Binary</td><td/><td>Binary stream. The binary icon data in PE (.DLL or .EXE) or icon (.ICO) format.</td></row>
+		<row><td>Icon</td><td>ISBuildSourcePath</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Full path to the ICO or EXE file.</td></row>
+		<row><td>Icon</td><td>ISIconIndex</td><td>Y</td><td>-32767</td><td>32767</td><td/><td/><td/><td/><td>Optional icon index to be extracted.</td></row>
+		<row><td>Icon</td><td>Name</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key. Name of the icon file.</td></row>
+		<row><td>IniFile</td><td>Action</td><td>N</td><td/><td/><td/><td/><td/><td>0;1;3</td><td>The type of modification to be made, one of iifEnum</td></row>
+		<row><td>IniFile</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the Component table referencing component that controls the installing of the .INI value.</td></row>
+		<row><td>IniFile</td><td>DirProperty</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Foreign key into the Directory table denoting the directory where the .INI file is.</td></row>
+		<row><td>IniFile</td><td>FileName</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The .INI file name in which to write the information</td></row>
+		<row><td>IniFile</td><td>IniFile</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key, non-localized token.</td></row>
+		<row><td>IniFile</td><td>Key</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The .INI file key below Section.</td></row>
+		<row><td>IniFile</td><td>Section</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The .INI file Section.</td></row>
+		<row><td>IniFile</td><td>Value</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The value to be written.</td></row>
+		<row><td>IniLocator</td><td>Field</td><td>Y</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The field in the .INI line. If Field is null or 0 the entire line is read.</td></row>
+		<row><td>IniLocator</td><td>FileName</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The .INI file name.</td></row>
+		<row><td>IniLocator</td><td>Key</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Key value (followed by an equals sign in INI file).</td></row>
+		<row><td>IniLocator</td><td>Section</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Section name within in file (within square brackets in INI file).</td></row>
+		<row><td>IniLocator</td><td>Signature_</td><td>N</td><td/><td/><td>Signature</td><td>1</td><td>Identifier</td><td/><td>The table key. The Signature_ represents a unique file signature and is also the foreign key in the Signature table.</td></row>
+		<row><td>IniLocator</td><td>Type</td><td>Y</td><td>0</td><td>2</td><td/><td/><td/><td/><td>An integer value that determines if the .INI value read is a filename or a directory location or to be used as is w/o interpretation.</td></row>
+		<row><td>InstallExecuteSequence</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of action to invoke, either in the engine or the handler DLL.</td></row>
+		<row><td>InstallExecuteSequence</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Optional expression which skips the action if evaluates to expFalse.If the expression syntax is invalid, the engine will terminate, returning iesBadActionData.</td></row>
+		<row><td>InstallExecuteSequence</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>This is used to store MM Custom Action Types</td></row>
+		<row><td>InstallExecuteSequence</td><td>ISComments</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Author’s comments on this Sequence.</td></row>
+		<row><td>InstallExecuteSequence</td><td>Sequence</td><td>Y</td><td>-4</td><td>32767</td><td/><td/><td/><td/><td>Number that determines the sort order in which the actions are to be executed.  Leave blank to suppress action.</td></row>
+		<row><td>InstallShield</td><td>Property</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of property, uppercase if settable by launcher or loader.</td></row>
+		<row><td>InstallShield</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>String value for property.</td></row>
+		<row><td>InstallUISequence</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of action to invoke, either in the engine or the handler DLL.</td></row>
+		<row><td>InstallUISequence</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Optional expression which skips the action if evaluates to expFalse.If the expression syntax is invalid, the engine will terminate, returning iesBadActionData.</td></row>
+		<row><td>InstallUISequence</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>This is used to store MM Custom Action Types</td></row>
+		<row><td>InstallUISequence</td><td>ISComments</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Author’s comments on this Sequence.</td></row>
+		<row><td>InstallUISequence</td><td>Sequence</td><td>Y</td><td>-4</td><td>32767</td><td/><td/><td/><td/><td>Number that determines the sort order in which the actions are to be executed.  Leave blank to suppress action.</td></row>
+		<row><td>IsolatedComponent</td><td>Component_Application</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Key to Component table item for application</td></row>
+		<row><td>IsolatedComponent</td><td>Component_Shared</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Key to Component table item to be isolated</td></row>
+		<row><td>LaunchCondition</td><td>Condition</td><td>N</td><td/><td/><td/><td/><td>Condition</td><td/><td>Expression which must evaluate to TRUE in order for install to commence.</td></row>
+		<row><td>LaunchCondition</td><td>Description</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Localizable text to display when condition fails and install must abort.</td></row>
+		<row><td>ListBox</td><td>Order</td><td>N</td><td>1</td><td>32767</td><td/><td/><td/><td/><td>A positive integer used to determine the ordering of the items within one list..The integers do not have to be consecutive.</td></row>
+		<row><td>ListBox</td><td>Property</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>A named property to be tied to this item. All the items tied to the same property become part of the same listbox.</td></row>
+		<row><td>ListBox</td><td>Text</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>The visible text to be assigned to the item. Optional. If this entry or the entire column is missing, the text is the same as the value.</td></row>
+		<row><td>ListBox</td><td>Value</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The value string associated with this item. Selecting the line will set the associated property to this value.</td></row>
+		<row><td>ListView</td><td>Binary_</td><td>Y</td><td/><td/><td>Binary</td><td>1</td><td>Identifier</td><td/><td>The name of the icon to be displayed with the icon. The binary information is looked up from the Binary Table.</td></row>
+		<row><td>ListView</td><td>Order</td><td>N</td><td>1</td><td>32767</td><td/><td/><td/><td/><td>A positive integer used to determine the ordering of the items within one list..The integers do not have to be consecutive.</td></row>
+		<row><td>ListView</td><td>Property</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>A named property to be tied to this item. All the items tied to the same property become part of the same listview.</td></row>
+		<row><td>ListView</td><td>Text</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>The visible text to be assigned to the item. Optional. If this entry or the entire column is missing, the text is the same as the value.</td></row>
+		<row><td>ListView</td><td>Value</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The value string associated with this item. Selecting the line will set the associated property to this value.</td></row>
+		<row><td>LockPermissions</td><td>Domain</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Domain name for user whose permissions are being set. (usually a property)</td></row>
+		<row><td>LockPermissions</td><td>LockObject</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Foreign key into Registry or File table</td></row>
+		<row><td>LockPermissions</td><td>Permission</td><td>Y</td><td>-2147483647</td><td>2147483647</td><td/><td/><td/><td/><td>Permission Access mask.  Full Control = 268435456 (GENERIC_ALL = 0x10000000)</td></row>
+		<row><td>LockPermissions</td><td>Table</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td>Directory;File;Registry</td><td>Reference to another table name</td></row>
+		<row><td>LockPermissions</td><td>User</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>User for permissions to be set.  (usually a property)</td></row>
+		<row><td>MIME</td><td>CLSID</td><td>Y</td><td/><td/><td>Class</td><td>1</td><td>Guid</td><td/><td>Optional associated CLSID.</td></row>
+		<row><td>MIME</td><td>ContentType</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Primary key. Context identifier, typically "type/format".</td></row>
+		<row><td>MIME</td><td>Extension_</td><td>N</td><td/><td/><td>Extension</td><td>1</td><td>Text</td><td/><td>Optional associated extension (without dot)</td></row>
+		<row><td>ModuleAdminExecuteSequence</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Action to insert</td></row>
+		<row><td>ModuleAdminExecuteSequence</td><td>After</td><td>Y</td><td>0</td><td>1</td><td/><td/><td/><td/><td>Before (0) or After (1)</td></row>
+		<row><td>ModuleAdminExecuteSequence</td><td>BaseAction</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Base action to determine insert location.</td></row>
+		<row><td>ModuleAdminExecuteSequence</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Condition</td><td/><td/></row>
+		<row><td>ModuleAdminExecuteSequence</td><td>Sequence</td><td>Y</td><td>-4</td><td>32767</td><td/><td/><td/><td/><td>Standard Sequence number</td></row>
+		<row><td>ModuleAdminUISequence</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Action to insert</td></row>
+		<row><td>ModuleAdminUISequence</td><td>After</td><td>Y</td><td>0</td><td>1</td><td/><td/><td/><td/><td>Before (0) or After (1)</td></row>
+		<row><td>ModuleAdminUISequence</td><td>BaseAction</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Base action to determine insert location.</td></row>
+		<row><td>ModuleAdminUISequence</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Condition</td><td/><td/></row>
+		<row><td>ModuleAdminUISequence</td><td>Sequence</td><td>Y</td><td>-4</td><td>32767</td><td/><td/><td/><td/><td>Standard Sequence number</td></row>
+		<row><td>ModuleAdvtExecuteSequence</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Action to insert</td></row>
+		<row><td>ModuleAdvtExecuteSequence</td><td>After</td><td>Y</td><td>0</td><td>1</td><td/><td/><td/><td/><td>Before (0) or After (1)</td></row>
+		<row><td>ModuleAdvtExecuteSequence</td><td>BaseAction</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Base action to determine insert location.</td></row>
+		<row><td>ModuleAdvtExecuteSequence</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Condition</td><td/><td/></row>
+		<row><td>ModuleAdvtExecuteSequence</td><td>Sequence</td><td>Y</td><td>-4</td><td>32767</td><td/><td/><td/><td/><td>Standard Sequence number</td></row>
+		<row><td>ModuleAdvtUISequence</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Action to insert</td></row>
+		<row><td>ModuleAdvtUISequence</td><td>After</td><td>Y</td><td>0</td><td>1</td><td/><td/><td/><td/><td>Before (0) or After (1)</td></row>
+		<row><td>ModuleAdvtUISequence</td><td>BaseAction</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Base action to determine insert location.</td></row>
+		<row><td>ModuleAdvtUISequence</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Condition</td><td/><td/></row>
+		<row><td>ModuleAdvtUISequence</td><td>Sequence</td><td>Y</td><td>-4</td><td>32767</td><td/><td/><td/><td/><td>Standard Sequence number</td></row>
+		<row><td>ModuleComponents</td><td>Component</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Component contained in the module.</td></row>
+		<row><td>ModuleComponents</td><td>Language</td><td>N</td><td/><td/><td>ModuleSignature</td><td>2</td><td/><td/><td>Default language ID for module (may be changed by transform).</td></row>
+		<row><td>ModuleComponents</td><td>ModuleID</td><td>N</td><td/><td/><td>ModuleSignature</td><td>1</td><td>Identifier</td><td/><td>Module containing the component.</td></row>
+		<row><td>ModuleConfiguration</td><td>Attributes</td><td>Y</td><td>0</td><td>3</td><td/><td/><td/><td/><td>Additional type-specific attributes.</td></row>
+		<row><td>ModuleConfiguration</td><td>ContextData</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Additional context information about this item.</td></row>
+		<row><td>ModuleConfiguration</td><td>DefaultValue</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Default value for this item.</td></row>
+		<row><td>ModuleConfiguration</td><td>Description</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>A human-readable description.</td></row>
+		<row><td>ModuleConfiguration</td><td>DisplayName</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>A short human-readable name for this item.</td></row>
+		<row><td>ModuleConfiguration</td><td>Format</td><td>N</td><td>0</td><td>3</td><td/><td/><td/><td/><td>Format of this item.</td></row>
+		<row><td>ModuleConfiguration</td><td>HelpKeyword</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Keyword index into the HelpLocation for this item.</td></row>
+		<row><td>ModuleConfiguration</td><td>HelpLocation</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Filename or namespace of the context-sensitive help for this item.</td></row>
+		<row><td>ModuleConfiguration</td><td>Name</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Unique identifier for this row.</td></row>
+		<row><td>ModuleConfiguration</td><td>Type</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Additional type information for this item.</td></row>
+		<row><td>ModuleDependency</td><td>ModuleID</td><td>N</td><td/><td/><td>ModuleSignature</td><td>1</td><td>Identifier</td><td/><td>Module requiring the dependency.</td></row>
+		<row><td>ModuleDependency</td><td>ModuleLanguage</td><td>N</td><td/><td/><td>ModuleSignature</td><td>2</td><td/><td/><td>Language of module requiring the dependency.</td></row>
+		<row><td>ModuleDependency</td><td>RequiredID</td><td>N</td><td/><td/><td/><td/><td/><td/><td>String.GUID of required module.</td></row>
+		<row><td>ModuleDependency</td><td>RequiredLanguage</td><td>N</td><td/><td/><td/><td/><td/><td/><td>LanguageID of the required module.</td></row>
+		<row><td>ModuleDependency</td><td>RequiredVersion</td><td>Y</td><td/><td/><td/><td/><td>Version</td><td/><td>Version of the required version.</td></row>
+		<row><td>ModuleExclusion</td><td>ExcludedID</td><td>N</td><td/><td/><td/><td/><td/><td/><td>String.GUID of excluded module.</td></row>
+		<row><td>ModuleExclusion</td><td>ExcludedLanguage</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Language of excluded module.</td></row>
+		<row><td>ModuleExclusion</td><td>ExcludedMaxVersion</td><td>Y</td><td/><td/><td/><td/><td>Version</td><td/><td>Maximum version of excluded module.</td></row>
+		<row><td>ModuleExclusion</td><td>ExcludedMinVersion</td><td>Y</td><td/><td/><td/><td/><td>Version</td><td/><td>Minimum version of excluded module.</td></row>
+		<row><td>ModuleExclusion</td><td>ModuleID</td><td>N</td><td/><td/><td>ModuleSignature</td><td>1</td><td>Identifier</td><td/><td>String.GUID of module with exclusion requirement.</td></row>
+		<row><td>ModuleExclusion</td><td>ModuleLanguage</td><td>N</td><td/><td/><td>ModuleSignature</td><td>2</td><td/><td/><td>LanguageID of module with exclusion requirement.</td></row>
+		<row><td>ModuleIgnoreTable</td><td>Table</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Table name to ignore during merge operation.</td></row>
+		<row><td>ModuleInstallExecuteSequence</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Action to insert</td></row>
+		<row><td>ModuleInstallExecuteSequence</td><td>After</td><td>Y</td><td>0</td><td>1</td><td/><td/><td/><td/><td>Before (0) or After (1)</td></row>
+		<row><td>ModuleInstallExecuteSequence</td><td>BaseAction</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Base action to determine insert location.</td></row>
+		<row><td>ModuleInstallExecuteSequence</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Condition</td><td/><td/></row>
+		<row><td>ModuleInstallExecuteSequence</td><td>Sequence</td><td>Y</td><td>-4</td><td>32767</td><td/><td/><td/><td/><td>Standard Sequence number</td></row>
+		<row><td>ModuleInstallUISequence</td><td>Action</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Action to insert</td></row>
+		<row><td>ModuleInstallUISequence</td><td>After</td><td>Y</td><td>0</td><td>1</td><td/><td/><td/><td/><td>Before (0) or After (1)</td></row>
+		<row><td>ModuleInstallUISequence</td><td>BaseAction</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Base action to determine insert location.</td></row>
+		<row><td>ModuleInstallUISequence</td><td>Condition</td><td>Y</td><td/><td/><td/><td/><td>Condition</td><td/><td/></row>
+		<row><td>ModuleInstallUISequence</td><td>Sequence</td><td>Y</td><td>-4</td><td>32767</td><td/><td/><td/><td/><td>Standard Sequence number</td></row>
+		<row><td>ModuleSignature</td><td>Language</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Default decimal language of module.</td></row>
+		<row><td>ModuleSignature</td><td>ModuleID</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Module identifier (String.GUID).</td></row>
+		<row><td>ModuleSignature</td><td>Version</td><td>N</td><td/><td/><td/><td/><td>Version</td><td/><td>Version of the module.</td></row>
+		<row><td>ModuleSubstitution</td><td>Column</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Column containing the data to be modified.</td></row>
+		<row><td>ModuleSubstitution</td><td>Row</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Row containing the data to be modified.</td></row>
+		<row><td>ModuleSubstitution</td><td>Table</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Table containing the data to be modified.</td></row>
+		<row><td>ModuleSubstitution</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Template for modification data.</td></row>
+		<row><td>MoveFile</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>If this component is not "selected" for installation or removal, no action will be taken on the associated MoveFile entry</td></row>
+		<row><td>MoveFile</td><td>DestFolder</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of a property whose value is assumed to resolve to the full path to the destination directory</td></row>
+		<row><td>MoveFile</td><td>DestName</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Name to be given to the original file after it is moved or copied.  If blank, the destination file will be given the same name as the source file</td></row>
+		<row><td>MoveFile</td><td>FileKey</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key that uniquely identifies a particular MoveFile record</td></row>
+		<row><td>MoveFile</td><td>Options</td><td>N</td><td>0</td><td>1</td><td/><td/><td/><td/><td>Integer value specifying the MoveFile operating mode, one of imfoEnum</td></row>
+		<row><td>MoveFile</td><td>SourceFolder</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of a property whose value is assumed to resolve to the full path to the source directory</td></row>
+		<row><td>MoveFile</td><td>SourceName</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Name of the source file(s) to be moved or copied.  Can contain the '*' or '?' wildcards.</td></row>
+		<row><td>MsiAssembly</td><td>Attributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>Assembly attributes</td></row>
+		<row><td>MsiAssembly</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key into Component table.</td></row>
+		<row><td>MsiAssembly</td><td>Feature_</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Foreign key into Feature table.</td></row>
+		<row><td>MsiAssembly</td><td>File_Application</td><td>Y</td><td/><td/><td>File</td><td>1</td><td>Identifier</td><td/><td>Foreign key into File table, denoting the application context for private assemblies. Null for global assemblies.</td></row>
+		<row><td>MsiAssembly</td><td>File_Manifest</td><td>Y</td><td/><td/><td>File</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the File table denoting the manifest file for the assembly.</td></row>
+		<row><td>MsiAssemblyName</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key into Component table.</td></row>
+		<row><td>MsiAssemblyName</td><td>Name</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The name part of the name-value pairs for the assembly name.</td></row>
+		<row><td>MsiAssemblyName</td><td>Value</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The value part of the name-value pairs for the assembly name.</td></row>
+		<row><td>MsiDigitalCertificate</td><td>CertData</td><td>N</td><td/><td/><td/><td/><td>Binary</td><td/><td>A certificate context blob for a signer certificate</td></row>
+		<row><td>MsiDigitalCertificate</td><td>DigitalCertificate</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>A unique identifier for the row</td></row>
+		<row><td>MsiDigitalSignature</td><td>DigitalCertificate_</td><td>N</td><td/><td/><td>MsiDigitalCertificate</td><td>1</td><td>Identifier</td><td/><td>Foreign key to MsiDigitalCertificate table identifying the signer certificate</td></row>
+		<row><td>MsiDigitalSignature</td><td>Hash</td><td>Y</td><td/><td/><td/><td/><td>Binary</td><td/><td>The encoded hash blob from the digital signature</td></row>
+		<row><td>MsiDigitalSignature</td><td>SignObject</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Foreign key to Media table</td></row>
+		<row><td>MsiDigitalSignature</td><td>Table</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Reference to another table name (only Media table is supported)</td></row>
+		<row><td>MsiFileHash</td><td>File_</td><td>N</td><td/><td/><td>File</td><td>1</td><td>Identifier</td><td/><td>Primary key, foreign key into File table referencing file with this hash</td></row>
+		<row><td>MsiFileHash</td><td>HashPart1</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Size of file in bytes (long integer).</td></row>
+		<row><td>MsiFileHash</td><td>HashPart2</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Size of file in bytes (long integer).</td></row>
+		<row><td>MsiFileHash</td><td>HashPart3</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Size of file in bytes (long integer).</td></row>
+		<row><td>MsiFileHash</td><td>HashPart4</td><td>N</td><td/><td/><td/><td/><td/><td/><td>Size of file in bytes (long integer).</td></row>
+		<row><td>MsiFileHash</td><td>Options</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>Various options and attributes for this hash.</td></row>
+		<row><td>ODBCAttribute</td><td>Attribute</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Name of ODBC driver attribute</td></row>
+		<row><td>ODBCAttribute</td><td>Driver_</td><td>N</td><td/><td/><td>ODBCDriver</td><td>1</td><td>Identifier</td><td/><td>Reference to ODBC driver in ODBCDriver table</td></row>
+		<row><td>ODBCAttribute</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Value for ODBC driver attribute</td></row>
+		<row><td>ODBCDataSource</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Reference to associated component</td></row>
+		<row><td>ODBCDataSource</td><td>DataSource</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key, non-localized.internal token for data source</td></row>
+		<row><td>ODBCDataSource</td><td>Description</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Text used as registered name for data source</td></row>
+		<row><td>ODBCDataSource</td><td>DriverDescription</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Reference to driver description, may be existing driver</td></row>
+		<row><td>ODBCDataSource</td><td>Registration</td><td>N</td><td>0</td><td>1</td><td/><td/><td/><td/><td>Registration option: 0=machine, 1=user, others t.b.d.</td></row>
+		<row><td>ODBCDriver</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Reference to associated component</td></row>
+		<row><td>ODBCDriver</td><td>Description</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Text used as registered name for driver, non-localized</td></row>
+		<row><td>ODBCDriver</td><td>Driver</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key, non-localized.internal token for driver</td></row>
+		<row><td>ODBCDriver</td><td>File_</td><td>N</td><td/><td/><td>File</td><td>1</td><td>Identifier</td><td/><td>Reference to key driver file</td></row>
+		<row><td>ODBCDriver</td><td>File_Setup</td><td>Y</td><td/><td/><td>File</td><td>1</td><td>Identifier</td><td/><td>Optional reference to key driver setup DLL</td></row>
+		<row><td>ODBCSourceAttribute</td><td>Attribute</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Name of ODBC data source attribute</td></row>
+		<row><td>ODBCSourceAttribute</td><td>DataSource_</td><td>N</td><td/><td/><td>ODBCDataSource</td><td>1</td><td>Identifier</td><td/><td>Reference to ODBC data source in ODBCDataSource table</td></row>
+		<row><td>ODBCSourceAttribute</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Value for ODBC data source attribute</td></row>
+		<row><td>ODBCTranslator</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Reference to associated component</td></row>
+		<row><td>ODBCTranslator</td><td>Description</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Text used as registered name for translator</td></row>
+		<row><td>ODBCTranslator</td><td>File_</td><td>N</td><td/><td/><td>File</td><td>1</td><td>Identifier</td><td/><td>Reference to key translator file</td></row>
+		<row><td>ODBCTranslator</td><td>File_Setup</td><td>Y</td><td/><td/><td>File</td><td>1</td><td>Identifier</td><td/><td>Optional reference to key translator setup DLL</td></row>
+		<row><td>ODBCTranslator</td><td>Translator</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key, non-localized.internal token for translator</td></row>
+		<row><td>ProgId</td><td>Class_</td><td>Y</td><td/><td/><td>Class</td><td>1</td><td>Guid</td><td/><td>The CLSID of an OLE factory corresponding to the ProgId.</td></row>
+		<row><td>ProgId</td><td>Description</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Localized description for the Program identifier.</td></row>
+		<row><td>ProgId</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>This is used to store Installshield custom properties of a component, like ExtractIcon, etc.</td></row>
+		<row><td>ProgId</td><td>IconIndex</td><td>Y</td><td>-32767</td><td>32767</td><td/><td/><td/><td/><td>Optional icon index.</td></row>
+		<row><td>ProgId</td><td>Icon_</td><td>Y</td><td/><td/><td>Icon</td><td>1</td><td>Identifier</td><td/><td>Optional foreign key into the Icon Table, specifying the icon file associated with this ProgId. Will be written under the DefaultIcon key.</td></row>
+		<row><td>ProgId</td><td>ProgId</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The Program Identifier. Primary key.</td></row>
+		<row><td>ProgId</td><td>ProgId_Parent</td><td>Y</td><td/><td/><td>ProgId</td><td>1</td><td>Text</td><td/><td>The Parent Program Identifier. If specified, the ProgId column becomes a version independent prog id.</td></row>
+		<row><td>Property</td><td>ISComments</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>User Comments.</td></row>
+		<row><td>Property</td><td>Property</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of property, uppercase if settable by launcher or loader.</td></row>
+		<row><td>Property</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>String value for property.</td></row>
+		<row><td>PublishComponent</td><td>AppData</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>This is localisable Application specific data that can be associated with a Qualified Component.</td></row>
+		<row><td>PublishComponent</td><td>ComponentId</td><td>N</td><td/><td/><td/><td/><td>Guid</td><td/><td>A string GUID that represents the component id that will be requested by the alien product.</td></row>
+		<row><td>PublishComponent</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the Component table.</td></row>
+		<row><td>PublishComponent</td><td>Feature_</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Foreign key into the Feature table.</td></row>
+		<row><td>PublishComponent</td><td>Qualifier</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>This is defined only when the ComponentId column is an Qualified Component Id. This is the Qualifier for ProvideComponentIndirect.</td></row>
+		<row><td>RadioButton</td><td>Height</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The height of the button.</td></row>
+		<row><td>RadioButton</td><td>Help</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>The help strings used with the button. The text is optional.</td></row>
+		<row><td>RadioButton</td><td>ISControlId</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>A number used to represent the control ID of the Control, Used in Dialog export</td></row>
+		<row><td>RadioButton</td><td>Order</td><td>N</td><td>1</td><td>32767</td><td/><td/><td/><td/><td>A positive integer used to determine the ordering of the items within one list..The integers do not have to be consecutive.</td></row>
+		<row><td>RadioButton</td><td>Property</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>A named property to be tied to this radio button. All the buttons tied to the same property become part of the same group.</td></row>
+		<row><td>RadioButton</td><td>Text</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>The visible title to be assigned to the radio button.</td></row>
+		<row><td>RadioButton</td><td>Value</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The value string associated with this button. Selecting the button will set the associated property to this value.</td></row>
+		<row><td>RadioButton</td><td>Width</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The width of the button.</td></row>
+		<row><td>RadioButton</td><td>X</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The horizontal coordinate of the upper left corner of the bounding rectangle of the radio button.</td></row>
+		<row><td>RadioButton</td><td>Y</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The vertical coordinate of the upper left corner of the bounding rectangle of the radio button.</td></row>
+		<row><td>RegLocator</td><td>Key</td><td>N</td><td/><td/><td/><td/><td>RegPath</td><td/><td>The key for the registry value.</td></row>
+		<row><td>RegLocator</td><td>Name</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The registry value name.</td></row>
+		<row><td>RegLocator</td><td>Root</td><td>N</td><td>0</td><td>3</td><td/><td/><td/><td/><td>The predefined root key for the registry value, one of rrkEnum.</td></row>
+		<row><td>RegLocator</td><td>Signature_</td><td>N</td><td/><td/><td>Signature</td><td>1</td><td>Identifier</td><td/><td>The table key. The Signature_ represents a unique file signature and is also the foreign key in the Signature table. If the type is 0, the registry values refers a directory, and _Signature is not a foreign key.</td></row>
+		<row><td>RegLocator</td><td>Type</td><td>Y</td><td>0</td><td>18</td><td/><td/><td/><td/><td>An integer value that determines if the registry value is a filename or a directory location or to be used as is w/o interpretation.</td></row>
+		<row><td>Registry</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the Component table referencing component that controls the installing of the registry value.</td></row>
+		<row><td>Registry</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>This is used to store Installshield custom properties of a registry item.  Currently the only one is Automatic.</td></row>
+		<row><td>Registry</td><td>Key</td><td>N</td><td/><td/><td/><td/><td>RegPath</td><td/><td>The key for the registry value.</td></row>
+		<row><td>Registry</td><td>Name</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The registry value name.</td></row>
+		<row><td>Registry</td><td>Registry</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key, non-localized token.</td></row>
+		<row><td>Registry</td><td>Root</td><td>N</td><td>-1</td><td>3</td><td/><td/><td/><td/><td>The predefined root key for the registry value, one of rrkEnum.</td></row>
+		<row><td>Registry</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The registry value.</td></row>
+		<row><td>RemoveFile</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key referencing Component that controls the file to be removed.</td></row>
+		<row><td>RemoveFile</td><td>DirProperty</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of a property whose value is assumed to resolve to the full pathname to the folder of the file to be removed.</td></row>
+		<row><td>RemoveFile</td><td>FileKey</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key used to identify a particular file entry</td></row>
+		<row><td>RemoveFile</td><td>FileName</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Name of the file to be removed.</td></row>
+		<row><td>RemoveFile</td><td>InstallMode</td><td>N</td><td/><td/><td/><td/><td/><td>1;2;3</td><td>Installation option, one of iimEnum.</td></row>
+		<row><td>RemoveIniFile</td><td>Action</td><td>N</td><td/><td/><td/><td/><td/><td>2;4</td><td>The type of modification to be made, one of iifEnum.</td></row>
+		<row><td>RemoveIniFile</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the Component table referencing component that controls the deletion of the .INI value.</td></row>
+		<row><td>RemoveIniFile</td><td>DirProperty</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Foreign key into the Directory table denoting the directory where the .INI file is.</td></row>
+		<row><td>RemoveIniFile</td><td>FileName</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The .INI file name in which to delete the information</td></row>
+		<row><td>RemoveIniFile</td><td>Key</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The .INI file key below Section.</td></row>
+		<row><td>RemoveIniFile</td><td>RemoveIniFile</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key, non-localized token.</td></row>
+		<row><td>RemoveIniFile</td><td>Section</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The .INI file Section.</td></row>
+		<row><td>RemoveIniFile</td><td>Value</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The value to be deleted. The value is required when Action is iifIniRemoveTag</td></row>
+		<row><td>RemoveRegistry</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the Component table referencing component that controls the deletion of the registry value.</td></row>
+		<row><td>RemoveRegistry</td><td>Key</td><td>N</td><td/><td/><td/><td/><td>RegPath</td><td/><td>The key for the registry value.</td></row>
+		<row><td>RemoveRegistry</td><td>Name</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The registry value name.</td></row>
+		<row><td>RemoveRegistry</td><td>RemoveRegistry</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key, non-localized token.</td></row>
+		<row><td>RemoveRegistry</td><td>Root</td><td>N</td><td>-1</td><td>3</td><td/><td/><td/><td/><td>The predefined root key for the registry value, one of rrkEnum</td></row>
+		<row><td>ReserveCost</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Reserve a specified amount of space if this component is to be installed.</td></row>
+		<row><td>ReserveCost</td><td>ReserveFolder</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of a property whose value is assumed to resolve to the full path to the destination directory</td></row>
+		<row><td>ReserveCost</td><td>ReserveKey</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key that uniquely identifies a particular ReserveCost record</td></row>
+		<row><td>ReserveCost</td><td>ReserveLocal</td><td>N</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>Disk space to reserve if linked component is installed locally.</td></row>
+		<row><td>ReserveCost</td><td>ReserveSource</td><td>N</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>Disk space to reserve if linked component is installed to run from the source location.</td></row>
+		<row><td>SFPCatalog</td><td>Catalog</td><td>Y</td><td/><td/><td/><td/><td>Binary</td><td/><td>SFP Catalog</td></row>
+		<row><td>SFPCatalog</td><td>Dependency</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>Parent catalog - only used by SFP</td></row>
+		<row><td>SFPCatalog</td><td>SFPCatalog</td><td>N</td><td/><td/><td/><td/><td>Filename</td><td/><td>File name for the catalog.</td></row>
+		<row><td>SelfReg</td><td>Cost</td><td>Y</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The cost of registering the module.</td></row>
+		<row><td>SelfReg</td><td>File_</td><td>N</td><td/><td/><td>File</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the File table denoting the module that needs to be registered.</td></row>
+		<row><td>ServiceControl</td><td>Arguments</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>Arguments for the service.  Separate by [~].</td></row>
+		<row><td>ServiceControl</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Required foreign key into the Component Table that controls the startup of the service</td></row>
+		<row><td>ServiceControl</td><td>Event</td><td>N</td><td>0</td><td>187</td><td/><td/><td/><td/><td>Bit field:  Install:  0x1 = Start, 0x2 = Stop, 0x8 = Delete, Uninstall: 0x10 = Start, 0x20 = Stop, 0x80 = Delete</td></row>
+		<row><td>ServiceControl</td><td>Name</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>Name of a service. /, \, comma and space are invalid</td></row>
+		<row><td>ServiceControl</td><td>ServiceControl</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key, non-localized token.</td></row>
+		<row><td>ServiceControl</td><td>Wait</td><td>Y</td><td>0</td><td>1</td><td/><td/><td/><td/><td>Boolean for whether to wait for the service to fully start</td></row>
+		<row><td>ServiceInstall</td><td>Arguments</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>Arguments to include in every start of the service, passed to WinMain</td></row>
+		<row><td>ServiceInstall</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Required foreign key into the Component Table that controls the startup of the service</td></row>
+		<row><td>ServiceInstall</td><td>Dependencies</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>Other services this depends on to start.  Separate by [~], and end with [~][~]</td></row>
+		<row><td>ServiceInstall</td><td>Description</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Description of service.</td></row>
+		<row><td>ServiceInstall</td><td>DisplayName</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>External Name of the Service</td></row>
+		<row><td>ServiceInstall</td><td>ErrorControl</td><td>N</td><td>-2147483647</td><td>2147483647</td><td/><td/><td/><td/><td>Severity of error if service fails to start</td></row>
+		<row><td>ServiceInstall</td><td>LoadOrderGroup</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>LoadOrderGroup</td></row>
+		<row><td>ServiceInstall</td><td>Name</td><td>N</td><td/><td/><td/><td/><td>Formatted</td><td/><td>Internal Name of the Service</td></row>
+		<row><td>ServiceInstall</td><td>Password</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>password to run service with.  (with StartName)</td></row>
+		<row><td>ServiceInstall</td><td>ServiceInstall</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key, non-localized token.</td></row>
+		<row><td>ServiceInstall</td><td>ServiceType</td><td>N</td><td>-2147483647</td><td>2147483647</td><td/><td/><td/><td/><td>Type of the service</td></row>
+		<row><td>ServiceInstall</td><td>StartName</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>User or object name to run service as</td></row>
+		<row><td>ServiceInstall</td><td>StartType</td><td>N</td><td>0</td><td>4</td><td/><td/><td/><td/><td>Type of the service</td></row>
+		<row><td>Shortcut</td><td>Arguments</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The command-line arguments for the shortcut.</td></row>
+		<row><td>Shortcut</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the Component table denoting the component whose selection gates the the shortcut creation/deletion.</td></row>
+		<row><td>Shortcut</td><td>Description</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>The description for the shortcut.</td></row>
+		<row><td>Shortcut</td><td>Directory_</td><td>N</td><td/><td/><td>Directory</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the Directory table denoting the directory where the shortcut file is created.</td></row>
+		<row><td>Shortcut</td><td>Hotkey</td><td>Y</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The hotkey for the shortcut. It has the virtual-key code for the key in the low-order byte, and the modifier flags in the high-order byte. </td></row>
+		<row><td>Shortcut</td><td>ISAttributes</td><td>Y</td><td/><td/><td/><td/><td/><td/><td>This is used to store Installshield custom properties of a shortcut.  Mainly used in pro project types.</td></row>
+		<row><td>Shortcut</td><td>ISComments</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Author’s comments on this Shortcut.</td></row>
+		<row><td>Shortcut</td><td>ISShortcutName</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>A non-unique name for the shortcut.  Mainly used by pro pro project types.</td></row>
+		<row><td>Shortcut</td><td>IconIndex</td><td>Y</td><td>-32767</td><td>32767</td><td/><td/><td/><td/><td>The icon index for the shortcut.</td></row>
+		<row><td>Shortcut</td><td>Icon_</td><td>Y</td><td/><td/><td>Icon</td><td>1</td><td>Identifier</td><td/><td>Foreign key into the File table denoting the external icon file for the shortcut.</td></row>
+		<row><td>Shortcut</td><td>Name</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The name of the shortcut to be created.</td></row>
+		<row><td>Shortcut</td><td>Shortcut</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Primary key, non-localized token.</td></row>
+		<row><td>Shortcut</td><td>ShowCmd</td><td>Y</td><td/><td/><td/><td/><td/><td>1;3;7</td><td>The show command for the application window.The following values may be used.</td></row>
+		<row><td>Shortcut</td><td>Target</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The shortcut target. This is usually a property that is expanded to a file or a folder that the shortcut points to.</td></row>
+		<row><td>Shortcut</td><td>WkDir</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of property defining location of working directory.</td></row>
+		<row><td>Signature</td><td>FileName</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The name of the file. This may contain a "short name|long name" pair.</td></row>
+		<row><td>Signature</td><td>Languages</td><td>Y</td><td/><td/><td/><td/><td>Language</td><td/><td>The languages supported by the file.</td></row>
+		<row><td>Signature</td><td>MaxDate</td><td>Y</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>The maximum creation date of the file.</td></row>
+		<row><td>Signature</td><td>MaxSize</td><td>Y</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>The maximum size of the file. </td></row>
+		<row><td>Signature</td><td>MaxVersion</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>The maximum version of the file.</td></row>
+		<row><td>Signature</td><td>MinDate</td><td>Y</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>The minimum creation date of the file.</td></row>
+		<row><td>Signature</td><td>MinSize</td><td>Y</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>The minimum size of the file.</td></row>
+		<row><td>Signature</td><td>MinVersion</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>The minimum version of the file.</td></row>
+		<row><td>Signature</td><td>Signature</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>The table key. The Signature represents a unique file signature.</td></row>
+		<row><td>TextStyle</td><td>Color</td><td>Y</td><td>0</td><td>16777215</td><td/><td/><td/><td/><td>A long integer indicating the color of the string in the RGB format (Red, Green, Blue each 0-255, RGB = R + 256*G + 256^2*B).</td></row>
+		<row><td>TextStyle</td><td>FaceName</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>A string indicating the name of the font used. Required. The string must be at most 31 characters long.</td></row>
+		<row><td>TextStyle</td><td>Size</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The size of the font used. This size is given in our units (1/12 of the system font height). Assuming that the system font is set to 12 point size, this is equivalent to the point size.</td></row>
+		<row><td>TextStyle</td><td>StyleBits</td><td>Y</td><td>0</td><td>15</td><td/><td/><td/><td/><td>A combination of style bits.</td></row>
+		<row><td>TextStyle</td><td>TextStyle</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of the style. The primary key of this table. This name is embedded in the texts to indicate a style change.</td></row>
+		<row><td>TypeLib</td><td>Component_</td><td>N</td><td/><td/><td>Component</td><td>1</td><td>Identifier</td><td/><td>Required foreign key into the Component Table, specifying the component for which to return a path when called through LocateComponent.</td></row>
+		<row><td>TypeLib</td><td>Cost</td><td>Y</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>The cost associated with the registration of the typelib. This column is currently optional.</td></row>
+		<row><td>TypeLib</td><td>Description</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td/></row>
+		<row><td>TypeLib</td><td>Directory_</td><td>Y</td><td/><td/><td>Directory</td><td>1</td><td>Identifier</td><td/><td>Optional. The foreign key into the Directory table denoting the path to the help file for the type library.</td></row>
+		<row><td>TypeLib</td><td>Feature_</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>Required foreign key into the Feature Table, specifying the feature to validate or install in order for the type library to be operational.</td></row>
+		<row><td>TypeLib</td><td>Language</td><td>N</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>The language of the library.</td></row>
+		<row><td>TypeLib</td><td>LibID</td><td>N</td><td/><td/><td/><td/><td>Guid</td><td/><td>The GUID that represents the library.</td></row>
+		<row><td>TypeLib</td><td>Version</td><td>Y</td><td>0</td><td>2147483647</td><td/><td/><td/><td/><td>The version of the library. The major version is in the upper 8 bits of the short integer. The minor version is in the lower 8 bits.</td></row>
+		<row><td>UIText</td><td>Key</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>A unique key that identifies the particular string.</td></row>
+		<row><td>UIText</td><td>Text</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>The localized version of the string.</td></row>
+		<row><td>Verb</td><td>Argument</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>Optional value for the command arguments.</td></row>
+		<row><td>Verb</td><td>Command</td><td>Y</td><td/><td/><td/><td/><td>Formatted</td><td/><td>The command text.</td></row>
+		<row><td>Verb</td><td>Extension_</td><td>N</td><td/><td/><td>Extension</td><td>1</td><td>Text</td><td/><td>The extension associated with the table row.</td></row>
+		<row><td>Verb</td><td>Sequence</td><td>Y</td><td>0</td><td>32767</td><td/><td/><td/><td/><td>Order within the verbs for a particular extension. Also used simply to specify the default verb.</td></row>
+		<row><td>Verb</td><td>Verb</td><td>N</td><td/><td/><td/><td/><td>Text</td><td/><td>The verb for the command.</td></row>
+		<row><td>_Validation</td><td>Category</td><td>Y</td><td/><td/><td/><td/><td/><td>"Text";"Formatted";"Template";"Condition";"Guid";"Path";"Version";"Language";"Identifier";"Binary";"UpperCase";"LowerCase";"Filename";"Paths";"AnyPath";"WildCardFilename";"RegPath";"KeyFormatted";"CustomSource";"Property";"Cabinet";"Shortcut";"URL";"DefaultDir"</td><td>String category</td></row>
+		<row><td>_Validation</td><td>Column</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of column</td></row>
+		<row><td>_Validation</td><td>Description</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Description of column</td></row>
+		<row><td>_Validation</td><td>KeyColumn</td><td>Y</td><td>1</td><td>32</td><td/><td/><td/><td/><td>Column to which foreign key connects</td></row>
+		<row><td>_Validation</td><td>KeyTable</td><td>Y</td><td/><td/><td/><td/><td>Identifier</td><td/><td>For foreign key, Name of table to which data must link</td></row>
+		<row><td>_Validation</td><td>MaxValue</td><td>Y</td><td>-2147483647</td><td>2147483647</td><td/><td/><td/><td/><td>Maximum value allowed</td></row>
+		<row><td>_Validation</td><td>MinValue</td><td>Y</td><td>-2147483647</td><td>2147483647</td><td/><td/><td/><td/><td>Minimum value allowed</td></row>
+		<row><td>_Validation</td><td>Nullable</td><td>N</td><td/><td/><td/><td/><td/><td>Y;N;@</td><td>Whether the column is nullable</td></row>
+		<row><td>_Validation</td><td>Set</td><td>Y</td><td/><td/><td/><td/><td>Text</td><td/><td>Set of values that are permitted</td></row>
+		<row><td>_Validation</td><td>Table</td><td>N</td><td/><td/><td/><td/><td>Identifier</td><td/><td>Name of table</td></row>
+	</table>
+</msi>

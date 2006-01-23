@@ -15,8 +15,8 @@ Ice is available under the terms of the GNU General Public License
 customers who wish to use Ice in proprietary products. Please contact
 sales@zeroc.com for more information on licensing Ice.
 
-This file describes how to setup Visual Studio 6.0 for Ice, and
-provides instructions for building and running the sample programs.
+This file describes how to setup Visual Studio for Ice, and provides
+instructions for building and running the sample programs.
 
 See doc/README.html for information on the documentation included with
 this distribution.
@@ -39,31 +39,18 @@ Note: Under Mono, binary compatibility currently does not work due to
       run 3.0.0 applications against the 3.0.1 runtime.
 
 
-Visual Studio Requirements
---------------------------
-
-Ice requires Visual Studio 6.0 Service Pack 5 or later. We recommend
-using the most recent update, Service Pack 6.
-
-
-Setting up Visual Studio 6.0
-----------------------------
+Setting up Visual Studio 2005 
+-----------------------------
 
 Before you can use Ice in your C++ applications, you first need to
 configure Visual Studio with the locations of the Ice header files,
 libraries, and executables.
 
-- In the IDE, choose Tools->Options->Directories
+- In the IDE, choose Tools->Options->Projects and Solutions->VC++ Directories
 
 - Select "Include files"
 
-- Add <Ice installation root directory>\include and <Ice installation
-  root directory>\include\stlport
-
-  Move the stlport include directory to the top of the list, or at
-  least before the Visual C++ include directories. This is necessary
-  so that the compiler uses the STL headers from the STLport library
-  instead of the Visual C++ STL library.
+- Add <Ice installation root directory>\include
 
 - Select "Library files"
 
@@ -74,14 +61,30 @@ libraries, and executables.
 - Add <Ice installation root directory>\bin
 
 
+Using the IceGrid Administrative Console
+----------------------------------------
+
+A Java-based graphical tool for administering IceGrid applications
+is included in this distribution. The Java archive (JAR) file is
+installed as
+
+<Ice installation root directory>\bin\IceGridGUI.jar
+
+With a suitable Java installation, you can execute the application
+directly by double-clicking on its icon, or you can start it from
+a command prompt:
+
+> java -jar IceGridGUI.jar
+
+
 Building and running the C++ demos
 ----------------------------------
 
 The C++ demos are in the demo directory.
 
-To build the C++ demos, start Visual Studio and open the workspace
-demo\demo.dsw. Set your active project to "all" using Project->Set
-Active Project, then start the compilation using Build->Build.
+To build a C++ demo, start Visual Studio 2005 and open the solution
+demo\demo.sln. Right click on the desired demo in the Solution
+Explorer window and select "Build".
 
 To run these demos, you need to add the Ice bin directory to your
 PATH, as shown below:
