@@ -119,7 +119,7 @@ Ice::Object::___ice_ids(Incoming& __inS, const Current& __current)
 {
     BasicStream* __os = __inS.os();
     vector<string> __ret = ice_ids(__current);
-    __os->write(__ret);
+    __os->write(&__ret[0], &__ret[0] + __ret.size());
     return DispatchOK;
 }
 

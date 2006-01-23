@@ -317,13 +317,12 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
 	//
 	if(_reference->getFacet().empty())
 	{
-	    __os->write(vector<string>());
+	    __os->write(static_cast<string*>(0), static_cast<string*>(0));
 	}
 	else
 	{
-	    vector<string> facetPath;
-	    facetPath.push_back(_reference->getFacet());
-	    __os->write(facetPath);
+	    string facet = _reference->getFacet();
+	    __os->write(&facet, &facet + 1);
 	}
 
 	__os->write(operation);

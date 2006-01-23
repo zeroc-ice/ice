@@ -96,7 +96,7 @@ public:
     {
 	b.push_back(v);
     }
-    void write(const std::vector<Ice::Byte>&);
+    void write(const Ice::Byte*, const Ice::Byte*);
     void read(Ice::Byte& v)
     {
 	if(i >= b.end())
@@ -105,13 +105,14 @@ public:
 	}
 	v = *i++;
     }
-    void read(std::vector<Ice::Byte>&);
+    void read(std::pair<const Ice::Byte*, const Ice::Byte*>&);
 
     void write(bool v)
     {
 	b.push_back(static_cast<Ice::Byte>(v));
     }
     void write(const std::vector<bool>&);
+    void write(const bool*, const bool*);
     void read(bool& v)
     {
 	if(i >= b.end())
@@ -123,27 +124,27 @@ public:
     void read(std::vector<bool>&);
 
     void write(Ice::Short);
-    void write(const std::vector<Ice::Short>&);
+    void write(const Ice::Short*, const Ice::Short*);
     void read(Ice::Short&);
     void read(std::vector<Ice::Short>&);
 
     void write(Ice::Int);
-    void write(const std::vector<Ice::Int>&);
+    void write(const Ice::Int*, const Ice::Int*);
     void read(Ice::Int&);
     void read(std::vector<Ice::Int>&);
 
     void write(Ice::Long);
-    void write(const std::vector<Ice::Long>&);
+    void write(const Ice::Long*, const Ice::Long*);
     void read(Ice::Long&);
     void read(std::vector<Ice::Long>&);
 
     void write(Ice::Float);
-    void write(const std::vector<Ice::Float>&);
+    void write(const Ice::Float*, const Ice::Float*);
     void read(Ice::Float&);
     void read(std::vector<Ice::Float>&);
 
     void write(Ice::Double);
-    void write(const std::vector<Ice::Double>&);
+    void write(const Ice::Double*, const Ice::Double*);
     void read(Ice::Double&);
     void read(std::vector<Ice::Double>&);
 
@@ -157,7 +158,7 @@ public:
     void write(const char*);
 
     void write(const std::string&);
-    void write(const std::vector<std::string>&);
+    void write(const std::string*, const std::string*);
     void read(std::string&);
     void read(std::vector<std::string>&);
 

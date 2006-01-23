@@ -917,11 +917,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     string name = fixKwd(p->name());
     TypePtr type = p->type();
     string s = typeToString(type);
-    if(s[0] == ':')
-    {
-	s.insert(0, " ");
-    }
-    H << sp << nl << "typedef ::std::vector<" << s << "> " << name << ';';
+    H << sp << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(!p->isLocal() &&
@@ -931,8 +927,8 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	string scope = fixKwd(p->scope());
 
 	H << sp << nl << "class __U__" << name << " { };";
-	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__" << name
-	  << ");";
+	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << s << "*, const " << s
+	  << "*, __U__" << name << ");";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
 
         if(_stream)
@@ -943,13 +939,13 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         }
 
 	C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
-	  << scoped << "& v, " << scope << "__U__" << name << ")";
+	  << s << "* begin, const " << s << "* end, " << scope << "__U__" << name << ")";
 	C << sb;
-	C << nl << "__os->writeSize(::Ice::Int(v.size()));";
-	C << nl << scoped << "::const_iterator p;";
-	C << nl << "for(p = v.begin(); p != v.end(); ++p)";
+	C << nl << "::Ice::Int size = end - begin;";
+	C << nl << "__os->writeSize(size);";
+	C << nl << "for(int i = 0; i < size; ++i)";
 	C << sb;
-	writeMarshalUnmarshalCode(C, type, "(*p)", true);
+	writeMarshalUnmarshalCode(C, type, "begin[i]", true);
 	C << eb;
 	C << eb;
 

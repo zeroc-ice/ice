@@ -774,11 +774,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     string name = fixKwd(p->name());
     TypePtr type = p->type();
     string s = typeToString(type);
-    if(s[0] == ':')
-    {
-	s.insert(0, " ");
-    }
-    H << sp << nl << "typedef ::std::vector<" << s << "> " << name << ';';
+    H << sp << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(!p->isLocal() &&
@@ -788,18 +784,18 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	string scope = fixKwd(p->scope());
 
 	H << sp << nl << "class __U__" << name << " { };";
-	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__" << name
-	  << ");";
+	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << s << "*, const " << s 
+	  << "*, __U__" << name << ");";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
 
 	C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
-	  << scoped << "& v, " << scope << "__U__" << name << ")";
+	  << s << "* begin, const " << s << "* end, " << scope << "__U__" << name << ")";
 	C << sb;
-	C << nl << "__os->writeSize(::Ice::Int(v.size()));";
-	C << nl << scoped << "::const_iterator p;";
-	C << nl << "for(p = v.begin(); p != v.end(); ++p)";
+	C << nl << "::Ice::Int size = end - begin;";
+	C << nl << "__os->writeSize(size);";
+	C << nl << "for(int i = 0; i < size; ++i)";
 	C << sb;
-	writeMarshalUnmarshalCode(C, type, "(*p)", true);
+	writeMarshalUnmarshalCode(C, type, "begin[i]", true);
 	C << eb;
 	C << eb;
 
@@ -1279,6 +1275,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
 	string paramName = fixKwd((*q)->name());
 
+	StringList metaData = (*q)->getMetaData();
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
 	//
 	// Work around for Sun CC 5.5 bug #4853566
@@ -1290,11 +1287,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	}
 	else
 	{
-	    typeString = inputTypeToString((*q)->type());
+	    typeString = inputTypeToString((*q)->type(), metaData);
 	}
 #else
 	string typeString = (*q)->isOutParam() ? 
-		outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+		outputTypeToString((*q)->type()) : inputTypeToString((*q)->type(), metaData);
 #endif
 
 	params.push_back(typeString);
@@ -1475,7 +1472,7 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
     vector<string> params;
     vector<string> paramsDecl;
 
-    TypeStringList inParams;
+    ParamDeclList inParams;
     TypeStringList outParams;
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
@@ -1483,6 +1480,7 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 	string paramName = fixKwd((*q)->name());
 	TypePtr type = (*q)->type();
 	bool isOutParam = (*q)->isOutParam();
+	StringList metaData = (*q)->getMetaData();
 
 	string typeString;
 	if(isOutParam)
@@ -1492,8 +1490,8 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 	}
 	else
 	{
-	    inParams.push_back(make_pair(type, paramName));
-	    typeString = inputTypeToString(type);
+	    inParams.push_back(*q);
+	    typeString = inputTypeToString(type, metaData);
 	}
 
 	params.push_back(typeString);
@@ -1514,7 +1512,12 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "try";
 	C << sb;
 	C << nl << "::IceInternal::BasicStream* __os = __out.os();";
-	writeMarshalCode(C, inParams, 0);
+	ParamDeclList::const_iterator pli;
+	for(pli = inParams.begin(); pli != inParams.end(); ++pli)
+	{
+	    writeMarshalUnmarshalCode(C, (*pli)->type(), fixKwd((*pli)->name()), true, "", true,
+	    			      (*pli)->getMetaData());
+	}
 	C << eb;
 	C << nl << "catch(const ::Ice::LocalException& __ex)";
 	C << sb;
@@ -1743,7 +1746,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
 	string paramName = fixKwd((*q)->name());
-	string typeName = inputTypeToString((*q)->type());
+	string typeName = inputTypeToString((*q)->type(), (*q)->getMetaData());
 	allTypes.push_back(typeName);
 	allParamDecls.push_back(typeName + " __ice_" + paramName);
     }

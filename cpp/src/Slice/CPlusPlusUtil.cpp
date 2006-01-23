@@ -496,37 +496,111 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     {
         string seqType = findMetaData(metaData);
 	builtin = BuiltinPtr::dynamicCast(seq->type());
-	if(builtin && builtin->kind() != Builtin::KindObject && builtin->kind() != Builtin::KindObjectProxy)
+        if(marshal)
 	{
-	    if(seqType == "array" && builtin->kind() != Builtin::KindByte)
+	    string scope = fixKwd(seq->scope());
+	    if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
 	    {
-	        out << nl << typeToString(type) << " __" << fixedParam << ";";
-		out << nl << stream << deref << func << "__" << fixedParam << ");";
+	        if(seqType == "array")
+		{
+	            out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
+		        << fixedParam << ".first, " << fixedParam << ".second, " << scope
+		        << "__U__" << fixKwd(seq->name()) << "());";
+		}
+		else
+		{
+	            out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", &"
+		        << fixedParam << "[0], &" << fixedParam << "[0] + " << fixedParam << ".size(), " << scope
+		        << "__U__" << fixKwd(seq->name()) << "());";
+		}
+	    }
+	    else if(builtin->kind() == Builtin::KindBool)
+	    {
+	        if(seqType == "array")
+		{
+	            out << nl << stream << deref << func << fixedParam << ".first, " << fixedParam << ".second);";
+		}
+		else
+		{
+	            out << nl << stream << deref << func << fixedParam << ");";
+		}
 	    }
 	    else
 	    {
-	        out << nl << stream << deref << func << fixedParam << ");";
+	        if(seqType == "array")
+		{
+	            out << nl << stream << deref << func << fixedParam << ".first, " << fixedParam << ".second);";
+		}
+		else
+		{
+	            out << nl << stream << deref << func << "&" << fixedParam << "[0], &" << fixedParam 
+		        << "[0] + " << fixedParam << ".size());";
+		}
 	    }
 	}
 	else
 	{
-	    string scope = fixKwd(seq->scope());
-	    if(seqType == "array")
+	    if(builtin && builtin->kind() != Builtin::KindObject && builtin->kind() != Builtin::KindObjectProxy)
 	    {
-	        out << nl << typeToString(type) << " __" << fixedParam << ";";
-	        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", __"
-		    << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
+	        if(seqType == "array")
+		{
+		    if(builtin->kind() == Builtin::KindByte)
+		    {
+		        out << nl << stream << deref << func << fixedParam << ");";
+		    }
+		    else if(builtin->kind() == Builtin::KindBool)
+		    {
+		        out << nl << "IceUtil::auto_array<bool> __" << fixedParam << ";";
+			out << nl << stream << deref << func << fixedParam << ", __" << fixedParam << ");";
+		    }
+		    else
+		    {
+	                out << nl << typeToString(type) << " __" << fixedParam << ";";
+		        out << nl << stream << deref << func << "__" << fixedParam << ");";
+		    }
+	        }
+	        else if(builtin->kind() == Builtin::KindByte)
+	        {
+		        StringList md;
+			md.push_back("cpp:array");
+			string tmpParam = "__" + fixedParam;
+			string::size_type pos = tmpParam.find("[i]");
+			if(pos != string::npos)
+			{
+			    tmpParam = tmpParam.substr(0, pos);
+			}
+	                out << nl << typeToString(type, md) << " " << tmpParam << ";";
+	                out << nl << stream << deref << func << tmpParam << ");";
+			out << nl << "::std::vector< ::Ice::Byte>(" << tmpParam << ".first, " << tmpParam 
+			    << ".second).swap(" << fixedParam << ");";
+		}
+		else
+		{
+	            out << nl << stream << deref << func << fixedParam << ");";
+	        }
 	    }
 	    else
 	    {
-	        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
-		    << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
+	        string scope = fixKwd(seq->scope());
+	        if(seqType == "array")
+	        {
+	            out << nl << typeToString(type) << " __" << fixedParam << ";";
+	            out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", __"
+		        << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
+	        }
+	        else
+	        {
+	            out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
+		        << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
+	        }
 	    }
-	}
-	if(seqType == "array" && (!builtin || builtin->kind() != Builtin::KindByte))
-	{
-	    out << nl << fixedParam << ".first" << " = &__" << fixedParam << ".front();";
-	    out << nl << fixedParam << ".second" << " = &__" << fixedParam << ".back() + 1;";
+	    if(seqType == "array" && 
+	       (!builtin || (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindBool)))
+	    {
+	        out << nl << fixedParam << ".first" << " = &__" << fixedParam << "[0];";
+	        out << nl << fixedParam << ".second" << " = " << fixedParam << ".first + " << "__" 
+		    << fixedParam << ".size();";
+	    }
 	}
 	return;
     }
