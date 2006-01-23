@@ -83,7 +83,7 @@ main(int, char**)
     test(!b && result == 0);
 
     b = stringToInt64("-9223372036854775807", result);
-    test(b && result == ICE_INT64(-9223372036854775807));
+    test(b && result == -ICE_INT64(9223372036854775807));
     b = stringToInt64("-9223372036854775808", result);
     test(b && result == Int64Min);
     b = stringToInt64("-9223372036854775809", result);
@@ -97,7 +97,7 @@ main(int, char**)
     test(!b && result > 0);
 
     b = stringToInt64("-9223372036854775807Q", result);
-    test(b && result == ICE_INT64(-9223372036854775807));
+    test(b && result == -ICE_INT64(9223372036854775807));
     b = stringToInt64("-9223372036854775808Q", result);
     test(b && result == Int64Min);
     b = stringToInt64("-9223372036854775809Q", result);
