@@ -73,13 +73,12 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
     //
     if(_reference->getFacet().empty())
     {
-	_os.write(vector<string>());
+	_os.write(static_cast<string*>(0), static_cast<string*>(0));
     }
     else
     {
-	vector<string> facetPath;
-	facetPath.push_back(_reference->getFacet());
-	_os.write(facetPath);
+	string facet = _reference->getFacet();
+	_os.write(&facet, &facet + 1);
     }
 
     _os.write(operation);

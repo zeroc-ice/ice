@@ -202,13 +202,11 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    //
 	    if(ex.facet.empty())
 	    {
-		_os.write(vector<string>());
+		_os.write(static_cast<string*>(0), static_cast<string*>(0));
 	    }
 	    else
 	    {
-		vector<string> facetPath;
-		facetPath.push_back(ex.facet);
-		_os.write(facetPath);
+		_os.write(&ex.facet, &ex.facet + 1);
 	    }
 
 	    _os.write(ex.operation);
@@ -444,13 +442,11 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    //
 	    if(_current.facet.empty())
 	    {
-		_os.write(vector<string>());
+		_os.write(static_cast<string*>(0), static_cast<string*>(0));
 	    }
 	    else
 	    {
-		vector<string> facetPath;
-		facetPath.push_back(_current.facet);
-		_os.write(facetPath);
+		_os.write(&_current.facet, &_current.facet + 1);
 	    }
 
 	    _os.write(_current.operation);

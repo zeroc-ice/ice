@@ -71,6 +71,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     ThroughputPrx throughputOneway = ThroughputPrx::uncheckedCast(throughput->ice_oneway());
 
     ByteSeq byteSeq(ByteSeqSize / reduce, 0);
+    pair<const Ice::Byte*, const Ice::Byte*> byteArr;
+    byteArr.first = &byteSeq[0];
+    byteArr.second = byteArr.first + byteSeq.size();
 
     StringSeq stringSeq(StringSeqSize / reduce, "hello");
 
@@ -219,13 +222,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		            {
 			        case 't':
 			        {
-			            throughput->sendByteSeq(byteSeq);
+			            throughput->sendByteSeq(byteArr);
 			            break;
 			        }
 			
 			        case 'o':
 			        {
-			            throughputOneway->sendByteSeq(byteSeq);
+			            throughputOneway->sendByteSeq(byteArr);
 			            break;
 			        }
 			

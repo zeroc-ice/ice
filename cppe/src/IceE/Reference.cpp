@@ -166,13 +166,11 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     //
     if(_facet.empty())
     {
-	s->write(vector<string>());
+	s->write(static_cast<string*>(0), static_cast<string*>(0));
     }
     else
     {
-	vector<string> facetPath;
-	facetPath.push_back(_facet);
-	s->write(facetPath);
+	s->write(&_facet, &_facet + 1);
     }
     
     s->write(static_cast<Byte>(_mode));
