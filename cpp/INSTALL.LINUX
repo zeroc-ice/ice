@@ -28,10 +28,6 @@ Ice has dependencies on a number of third-party libraries:
   You can download the Berkeley DB source distribution from
   http://www.sleepycat.com/download
 
-  If you are using RedHat 9 and do not want to use NPTL (New Posix
-  Thread Library), set LD_ASSUME_KERNEL=2.4.1 before running
-  configure.
-
   On Fedora Core 4, we recommend changing the default optimization
   level when building Berkeley DB in order to avoid a compiler bug
   in the FC4 version of GCC. If you are building with Java support

@@ -960,7 +960,22 @@ ServerI::checkDestroyed()
 void
 ServerI::disableOnFailure()
 {
-    if(_disableOnFailure != 0 && _activation != Disabled)
+    assert(_state != Deactivating); // This must be called before switching to the Deactivating state.
+
+    //
+    // If the server is already disabled, nothing to do.
+    //
+    if(_activation == Disabled)
+    {
+	return;
+    }
+
+    //
+    // If disable on failure is configured or if the activation mode
+    // is always and the server wasn't active at the time of the
+    // failure we disable the server.
+    //
+    if(_disableOnFailure != 0 || _activation == Always && _state != Active)
     {
 	_previousActivation = _activation;
 	_activation = Disabled;
@@ -976,7 +991,7 @@ ServerI::enableAfterFailure(bool force)
 	return;
     }
 
-    if(force || 
+    if(force ||
        _disableOnFailure > 0 && (_failureTime + IceUtil::Time::seconds(_disableOnFailure) < IceUtil::Time::now()))
     {
 	_activation = _previousActivation;
@@ -1801,25 +1816,26 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	{
 	}
     }
-    else if(_state == Inactive && _activation == Disabled && 
-	    _disableOnFailure > 0 && _failureTime != IceUtil::Time() && _previousActivation == Always)
+    else if(_state == Inactive)
     {
-	//
-	// If the server was disabled because it failed, we schedule a
-	// callback to re-enable it.
-	//
-	_timer = new DelayedStart(this);
-	_node->getWaitQueue()->add(_timer, IceUtil::Time::seconds(_disableOnFailure));
-    }
-    else if(_state == Inactive && _activation == Always && 
-	    previous != Activating && previous != ActivationTimeout && previous != WaitForActivation)
-    {
-	if(!_start)
+	if(_activation == Disabled && _previousActivation == Always &&
+	   _disableOnFailure > 0 && _failureTime != IceUtil::Time())
 	{
-	    _start = new StartCommand(this, _node->getWaitQueue(), _activationTimeout);
+	    //
+	    // If the server was disabled because it failed, we schedule a
+	    // callback to re-enable it.
+	    //
+	    _timer = new DelayedStart(this);
+	    _node->getWaitQueue()->add(_timer, IceUtil::Time::seconds(_disableOnFailure));
+	}
+	else if(_activation == Always)
+	{
+	    if(!_start)
+	    {
+		_start = new StartCommand(this, _node->getWaitQueue(), _activationTimeout);
+	    }
 	}
     }
-
 
     if(toServerState(previous) != toServerState(_state))
     {

@@ -651,13 +651,10 @@ Activator::activate(const string& name,
 	// Until exec, we can only use async-signal safe functions
 	//
 
-#ifdef __linux
 	//
-	// Create a process group for this child, to be able to send 
-	// a signal to all the thread-processes with killpg
+	// Assign a new process group for this process. 
 	//
-	setpgrp();
-#endif
+	setpgid(0, 0);
 
 	//
 	// Close all file descriptors, except for standard input,
@@ -851,6 +848,7 @@ Activator::sendSignal(const string& name, const string& signal)
 {
     sendSignal(name, stringToSignal(signal));
 }
+
 void
 Activator::sendSignal(const string& name, int signal)
 {
@@ -870,12 +868,7 @@ Activator::sendSignal(const string& name, int signal)
 	return;
     }
 
-#ifdef __linux
-    // Use process groups on Linux instead of processes
-    int ret = ::killpg(static_cast<pid_t>(pid), signal);
-#else
     int ret = ::kill(static_cast<pid_t>(pid), signal);
-#endif
     if(ret != 0 && getSystemErrno() != ESRCH)
     {
 	SyscallException ex(__FILE__, __LINE__);
