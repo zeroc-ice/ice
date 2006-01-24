@@ -509,9 +509,16 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		}
 		else
 		{
+		    out << nl << "if(" << fixedParam << ".size() == 0)";
+		    out << sb;
+		    out << nl << stream << deref << "writeSize(0);";
+		    out << eb;
+		    out << nl << "else";
+		    out << sb;
 	            out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", &"
 		        << fixedParam << "[0], &" << fixedParam << "[0] + " << fixedParam << ".size(), " << scope
 		        << "__U__" << fixKwd(seq->name()) << "());";
+		    out << eb;
 		}
 	    }
 	    else if(builtin->kind() == Builtin::KindBool)
@@ -533,8 +540,15 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		}
 		else
 		{
+		    out << nl << "if(" << fixedParam << ".size() == 0)";
+		    out << sb;
+		    out << nl << stream << deref << "writeSize(0);";
+		    out << eb;
+		    out << nl << "else";
+		    out << sb;
 	            out << nl << stream << deref << func << "&" << fixedParam << "[0], &" << fixedParam 
 		        << "[0] + " << fixedParam << ".size());";
+		    out << eb;
 		}
 	    }
 	}
