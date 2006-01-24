@@ -6,6 +6,7 @@
       <parameter name="activation" default="on-demand"/>
       <parameter name="activation-delay" default="0"/>
       <parameter name="deactivation-delay" default="0"/>
+      <parameter name="fail-on-startup" default="0"/>
       <server id="${id}" exe="${test.dir}/server"
               activation="${activation}" activation-timeout="4" deactivation-timeout="3">
         <adapter name="TestAdapter" endpoints="default" register-process="true">
@@ -13,6 +14,7 @@
 	</adapter>
         <property name="ActivationDelay" value="${activation-delay}"/>
         <property name="DeactivationDelay" value="${deactivation-delay}"/>
+        <property name="FailOnStartup" value="${fail-on-startup}"/>
       </server>
     </server-template>
   
@@ -39,6 +41,7 @@
       <server-instance template="Server" id="server-always" activation="always"/>
       <server-instance template="Server" id="server-activation-timeout" activation-delay="5"/>
       <server-instance template="Server" id="server-deactivation-timeout" deactivation-delay="60"/>
+      <server-instance template="Server" id="fail-on-startup" fail-on-startup="1"/>
 
       <server id="invalid-exe" exe="server2" activation="on-demand">
         <adapter name="TestAdapter" endpoints="default" register-process="true">
@@ -50,6 +53,7 @@
 	  <object identity="${server}" type="Test"/>
 	</adapter>
       </server>
+
     </node>
 
     <node name="node-1">

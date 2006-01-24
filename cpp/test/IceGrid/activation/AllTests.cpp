@@ -15,11 +15,62 @@
 using namespace std;
 using namespace Test;
 
+class PingThread : public IceUtil::Thread, IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+    
+    PingThread(const Ice::ObjectPrx& proxy, int nRepetitions) :
+	_proxy(proxy), _finished(false), _nRepetitions(nRepetitions)
+    {
+    }
+
+    virtual void run()
+    {
+	for(int i = 0; i < _nRepetitions; ++i)
+	{
+	    try
+	    {
+		_proxy->ice_ping();
+	    }
+	    catch(const Ice::LocalException& ex)
+	    {
+		_exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
+	    }
+	    catch(...)
+	    {
+		assert(false);
+	    }
+	}
+
+	Lock sync(*this);
+	_finished = true;
+	notifyAll();
+    }
+
+    virtual auto_ptr<Ice::LocalException>
+    waitUntilFinished()
+    {
+	Lock sync(*this);
+	while(!_finished)
+	{
+	    wait();
+	}
+	return _exception;
+    }
+
+private:
+    
+    Ice::ObjectPrx _proxy;
+    auto_ptr<Ice::LocalException> _exception;
+    bool _finished;
+    int _nRepetitions;
+};
+typedef IceUtil::Handle<PingThread> PingThreadPtr;
+
 void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     IceGrid::AdminPrx admin = IceGrid::AdminPrx::checkedCast(communicator->stringToProxy("IceGrid/Admin"));
-
     cout << "testing on-demand activation... " << flush;
     try
     {
@@ -170,51 +221,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
     
-    cout << "testing activation failure... " << flush;
-    try
-    {
-	int i;
-	Ice::ObjectPrx twowayInvalidExe = communicator->stringToProxy("invalid-exe");
-	Ice::ObjectPrx onewayInvalidExe = communicator->stringToProxy("invalid-exe")->ice_oneway();
-	for(i = 0; i < 10; i++)
-	{
-	    try
-	    {
-		onewayInvalidExe->ice_ping();
-		onewayInvalidExe->ice_ping();
-		onewayInvalidExe->ice_ping();
-		onewayInvalidExe->ice_ping();
-		onewayInvalidExe->ice_ping();
-		twowayInvalidExe->ice_ping();
-	    }
-	    catch(const Ice::NoEndpointException&)
-	    {
-	    }
-	}
-	Ice::ObjectPrx twowayInvalidPwd = communicator->stringToProxy("invalid-pwd");
-	Ice::ObjectPrx onewayInvalidPwd = communicator->stringToProxy("invalid-pwd")->ice_oneway();
-	for(i = 0; i < 10; i++)
-	{
-	    try
-	    {
-		onewayInvalidPwd->ice_ping();
-		onewayInvalidPwd->ice_ping();
-		onewayInvalidPwd->ice_ping();
-		onewayInvalidPwd->ice_ping();
-		onewayInvalidPwd->ice_ping();
-		twowayInvalidPwd->ice_ping();
-	    }
-	    catch(const Ice::NoEndpointException&)
-	    {
-	    }
-	}
-    }
-    catch(const Ice::LocalException& ex)
-    {
-	cerr << ex << endl;
-	test(false);
-    }
-    cout << "ok" << endl;
 
     cout << "testing server enable... " << flush;
     try
@@ -270,16 +276,93 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;	
 
+    cout << "testing activation failure... " << flush;
+    try
+    {
+	int i;
+	const int nThreads = 3;
+	Ice::ObjectPrx invalid = communicator->stringToProxy("invalid-exe");
+
+	vector<PingThreadPtr> threads;
+	threads.reserve(nThreads);
+	vector<PingThreadPtr>::const_iterator p;
+	for(i = 0; i < nThreads; i++)
+	{
+	    threads.push_back(new PingThread(invalid, 10));
+	}
+	for(p = threads.begin(); p != threads.end(); ++p)
+	{
+	    (*p)->start();
+	}
+	for(p = threads.begin(); p != threads.end(); ++p)
+	{
+	    auto_ptr<Ice::LocalException> ex = (*p)->waitUntilFinished();
+	    test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
+	}
+	threads.resize(0);
+
+	invalid = communicator->stringToProxy("invalid-pwd");
+	for(i = 0; i < nThreads; i++)
+	{
+	    threads.push_back(new PingThread(invalid, 10));
+	}
+	for(p = threads.begin(); p != threads.end(); ++p)
+	{
+	    (*p)->start();
+	}
+	for(p = threads.begin(); p != threads.end(); ++p)
+	{
+	    auto_ptr<Ice::LocalException> ex = (*p)->waitUntilFinished();
+	    test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
+	}
+	threads.resize(0);
+
+	invalid = communicator->stringToProxy("fail-on-startup");
+	for(i = 0; i < nThreads; i++)
+	{
+	    threads.push_back(new PingThread(invalid, 5));
+	}
+	for(p = threads.begin(); p != threads.end(); ++p)
+	{
+	    (*p)->start();
+	}
+	for(p = threads.begin(); p != threads.end(); ++p)
+	{
+	    auto_ptr<Ice::LocalException> ex = (*p)->waitUntilFinished();
+	    test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
+	}
+	threads.resize(0);
+
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	cerr << ex << endl;
+	test(false);
+    }
+    cout << "ok" << endl;
+
     cout << "testing activation timeout... " << flush;
     try
     {
 	test(admin->getServerState("server-activation-timeout") == IceGrid::Inactive);
-	try
+	const int nThreads = 5;
+	Ice::ObjectPrx proxy = communicator->stringToProxy("server-activation-timeout");
+	vector<PingThreadPtr> threads;
+	threads.reserve(nThreads);
+	vector<PingThreadPtr>::const_iterator p;
+	int i;
+	for(i = 0; i < nThreads; i++)
 	{
-	    communicator->stringToProxy("server-activation-timeout")->ice_ping();
+	    threads.push_back(new PingThread(proxy, 1));
 	}
-	catch(const Ice::NoEndpointException&)
+	for(p = threads.begin(); p != threads.end(); ++p)
 	{
+	    (*p)->start();
+	}
+	for(p = threads.begin(); p != threads.end(); ++p)
+	{
+	    auto_ptr<Ice::LocalException> ex = (*p)->waitUntilFinished();
+	    test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
 	}
 	admin->stopServer("server-activation-timeout");
     }

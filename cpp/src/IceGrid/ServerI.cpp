@@ -1044,6 +1044,7 @@ ServerI::activationFailed(bool destroyed)
 	{
 	}
     }
+
     if(command)
     {
 	command->execute();
@@ -1128,19 +1129,12 @@ ServerI::activate()
 	failure = os.str();
     }
 
-    ServerCommandPtr command;
     {
 	Lock sync(*this);
 	disableOnFailure();
-	setStateNoSync(ServerI::Inactive, failure);
-	command = nextCommand();
+	setStateNoSync(ServerI::Deactivating, failure);
     }
-
-    //
-    // It's important to notify the adapters after changing the state!
-    // Otherwise, a race condition could occur if an adapter is
-    // activated after the notification and the state change.
-    //
+    
     for(ServerAdapterDict::iterator r = adpts.begin(); r != adpts.end(); ++r)
     {
 	try
@@ -1152,10 +1146,7 @@ ServerI::activate()
 	}
     }
 
-    if(command)
-    {
-	command->execute();
-    }
+    setState(ServerI::Inactive);
 }
 
 void
@@ -1194,7 +1185,7 @@ ServerI::deactivate()
 	}
 	if(_processRegistered && !_process)
 	{
-	    setStateNoSync(DeactivatingWaitForProcess);
+	    setStateNoSync(ServerI::DeactivatingWaitForProcess);
 	    return;
 	}
 	process = _process;
@@ -1273,31 +1264,10 @@ void
 ServerI::terminated(const string& msg, int status)
 {
     ServerAdapterDict adpts;
-    {
-	Lock sync(*this);
-	adpts = _adapters;
-    }
-
-    //
-    // The server has terminated, set its adapter direct proxies to
-    // null to cause the server re-activation if one of its adapter
-    // direct proxy is requested.
-    //
-    for(ServerAdapterDict::iterator p = adpts.begin(); p != adpts.end(); ++p)
-    {
-	try
-	{
-	    p->second->setDirectProxy(0);
-	}
-	catch(const Ice::ObjectNotExistException&)
-	{
-	}
-    }
-
-    ServerCommandPtr command;
     bool destroying = false;
     {
 	Lock sync(*this);
+	adpts = _adapters;
 
 	//
 	// Clear the process proxy and the pid.
@@ -1320,8 +1290,12 @@ ServerI::terminated(const string& msg, int status)
 	{
 	    disableOnFailure();
 	}
-	
-	if(_state != ServerI::Destroying)
+
+	if(_state == ServerI::Destroying)
+	{
+	    destroying = true;
+	}
+	else if(_state != ServerI::Deactivating)
 	{
 	    ostringstream os;
 	    os << "The server terminated unexpectedly";
@@ -1338,22 +1312,33 @@ ServerI::terminated(const string& msg, int status)
 	    os << " with exit code " << status;
 #endif
 	    os << (msg.empty() ? "." : ":\n" + msg);
-	    setStateNoSync(ServerI::Inactive, os.str());
-	    command = nextCommand();
-	}
-	else
-	{
-	    destroying = true;
+	    setStateNoSync(ServerI::Deactivating, os.str());
 	}
     }
 
-    if(command)
+    //
+    // The server has terminated, set its adapter direct proxies to
+    // null to cause the server re-activation if one of its adapter
+    // direct proxy is requested.
+    //
+    for(ServerAdapterDict::iterator p = adpts.begin(); p != adpts.end(); ++p)
     {
-	command->execute();
+	try
+	{
+	    p->second->setDirectProxy(0);
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
     }
-    else if(destroying)
+
+    if(destroying)
     {
 	destroy();
+    }
+    else
+    {
+	setState(ServerI::Inactive);
     }
 }
 
@@ -1709,7 +1694,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	assert(_state == WaitForActivation || _state == ActivationTimeout);
 	break;	
     case Deactivating:
-	assert(_stop && _stop->canExecute(_state));
+	//assert(_stop && _stop->canExecute(_state));
 	break;
     case DeactivatingWaitForProcess:
 	assert(_state == Deactivating);
@@ -1742,11 +1727,6 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
 	{
 	    _patch = 0;
 	}
-	if(_start)
-	{
-	    _start->failed(reason);
-	    _start = 0;
-	}
 	if(_stop)
 	{
 	    _stop->finished();
@@ -1770,7 +1750,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
     case Deactivating:
 	if(_start)
 	{
-	    _start->failed("The server is being deactivated.");
+	    _start->failed(reason.empty() ? string("The server is being deactivated.") : reason);
 	    _start = 0;
 	}
 	break;

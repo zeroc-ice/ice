@@ -370,8 +370,11 @@ Activator::activate(const string& name,
 	    string ext = path.size() <= 4 || path[path.size() - 4] != '.' ? ".exe" : "";
 	    if(SearchPath(NULL, path.c_str(), ext.c_str(), _MAX_PATH, absbuf, &filePart) == 0)
 	    {
-		Error out(_traceLevels->logger);
-		out << "cannot convert `" << path << "' into an absolute path";
+		if(_traceLevels->activator > 0)
+		{
+		    Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+		    out << "cannot convert `" << path << "' into an absolute path";
+		}
 		throw string("The server executable path `" + path + "' can't be converted into an absolute path.");
 	    }
 	    path = absbuf;
@@ -390,8 +393,11 @@ Activator::activate(const string& name,
 	char absbuf[_MAX_PATH];
 	if(_fullpath(absbuf, pwd.c_str(), _MAX_PATH) == NULL)
 	{
-	    Error out(_traceLevels->logger);
-	    out << "cannot convert `" << pwd << "' into an absolute path";
+	    if(_traceLevels->activator > 0)
+	    {
+		Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+		out << "cannot convert `" << pwd << "' into an absolute path";
+	    }
 	    throw string("The server working directory path `" + pwd + "' can't be converted into an absolute path.");
 	}
 	pwd = absbuf;

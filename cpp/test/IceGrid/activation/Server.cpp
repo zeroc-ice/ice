@@ -27,6 +27,10 @@ Server::run(int argc, char* argv[])
     Ice::PropertiesPtr properties = communicator()->getProperties();
     args = properties->parseCommandLineOptions("", args);
     Ice::stringSeqToArgs(args, argc, argv);
+    if(properties->getPropertyAsInt("FailOnStartup") > 0)
+    {
+	return EXIT_FAILURE;
+    }
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
     TestI* test = new TestI(adapter);
