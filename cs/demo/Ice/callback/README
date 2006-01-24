@@ -4,8 +4,8 @@ back into an object provided by the client as part of that invocation.
 
 To run the demo, first start the server:
 
-$ server
+$ server.exe
 
 In a separate window, start the client:
 
-$ client
+$ client.exe

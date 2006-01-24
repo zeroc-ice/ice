@@ -3,8 +3,8 @@ delay of Ice.
 
 To run the demo, first start the server:
 
-$ server
+$ server.exe
 
 In a separate window, start the client:
 
-$ client
+$ client.exe

@@ -3,8 +3,8 @@ the end of the client and server C# mapping chapters.
 
 To run it, start the server in a window:
 
-$ server
+$ server.exe
 
 Then run the client in a separate window:
 
-$ client
+$ client.exe
