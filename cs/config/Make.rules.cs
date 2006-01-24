@@ -29,7 +29,7 @@ endif
 # if it does not exist.
 #
 
-prefix			= /opt/icecs-$(VERSION)
+prefix			= /opt/IceCS-$(VERSION)
 
 #
 # The default behavior of 'make install' attempts to add the Ice for C#
@@ -60,24 +60,32 @@ VERSION			= 3.0.1
 bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib
 
-slice_home		= $(ICE_DIR)/slice
-slicedir := $(shell test -d $(slice_home) && echo $(slice_home))
-ifndef slicedir
-slicedir := $(top_srcdir)/slice
+#
+# If a slice directory is contained along with this distribution -- use it. 
+# Otherwise use paths relative to $(ICE_DIR).
+#
+ifneq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
+    ifeq ($(ICE_DIR),/usr)
+	slicedir = $(ICE_DIR)/share/slice
+    else
+	slicedir = $(ICE_DIR)/slice
+    endif
+else
+    slicedir = $(top_srcdir)/slice
 endif
 
 install_bindir		= $(prefix)/bin
 install_libdir		= $(prefix)/lib
 install_slicedir	= $(prefix)/slice
 
-ifdef src_build
+ifeq ($(src_build),yes)
 ref = -r:$(bindir)/$(1).dll
 else
 ref = -pkg:$(1)
 endif
 
 ifdef no_gac
-NOGAC			= ${no_gac}
+NOGAC			?= $(no_gac)
 endif
 
 INSTALL			= cp -fp
