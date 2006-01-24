@@ -13,27 +13,6 @@ import os, sys, shutil, string, logging, compileall
 # through the package descriptions to set the dependencies.
 #
 
-buildRequires = ('byacc >= 1.9',
-                 'mono-core >= 1.1.9',
-                 'mono-devel >= 1.1.9',
-                 'python >= 2.4.1',
-                 'python-devel >= 2.4.1',
-                 'bzip2-devel >= 1.0.2',
-                 'bzip2-libs >= 1.0.2',
-                 'ant >= 1.6.2',
-                 'expat-devel >= 1.9',
-                 'expat >= 1.9',
-                 'libstdc++ >= 3.2',
-                 'gcc >= 3.2',
-                 'gcc-c++ >= 3.2',
-                 'tar',
-                 'binutils >= 2.10',
-                 'openssl >= 0.9.7f',
-                 'openssl-devel >= 0.9.7f',
-                 'readline >= 5.0',
-                 'ncurses >= 5.4'
-                 )
-
 iceDescription = '''Ice is a modern alternative to object middleware
 such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
 powerful network infrastructure for demanding technical applications. It
@@ -54,7 +33,7 @@ class Package:
     the thing to do would be to remove the %ifnarch noarch/%endif pairs from Package and create a new subclass that
     writes these pairs and delegates the guts of the file populating to Package.'''
 
-    def __init__(self, name, requires, summary, group, description, other, filelist, arch):
+    def __init__(self, name, requires, summary, group, description, other, filelist):
         self.name = name
         self.requires = requires
         self.summary = summary
@@ -65,10 +44,10 @@ class Package:
 	self.prepTextGen = []
 	self.buildTextGen = []
 	self.installTextGen = []
-	self.arch = arch 
         
-    def writeHdr(self, ofile, version, release, installDir, buildRequires):
+    def writeHdr(self, ofile, version, release, installDir):
 	ofile.write('%define _unpackaged_files_terminate_build 0\n')
+	ofile.write('\n%define core_arches %{ix86} x86_64\n')
 	ofile.write('Summary: ' + self.summary + '\n')
 	ofile.write('Name: ' + self.name + '\n')
 	ofile.write('Version: ' + version + '\n')
@@ -103,10 +82,29 @@ class Package:
 	else:
 	    ofile.write('BuildRoot: /var/tmp/Ice-' + version + '-' + release + '-buildroot\n')
         ofile.write('\n')
-        for f in buildRequires:
+	ofile.write('''
+%ifarch x86_64
+%define icelibdir lib64
+%else
+%define icelibdir lib
+%endif
+
+%ifarch noarch
+''')
+	for f in ['mono-core >= 1.1.9', 'mono-devel >= 1.1.9']:
             ofile.write('BuildRequires: ' + f  + '\n')
+
+	ofile.write('\n%endif\n')
+
+        for f in ['python >= 2.4.1', 'python-devel >= 2.4.1', 'bzip2-devel >= 1.0.2', 'bzip2-libs >= 1.0.2', 
+		  'expat-devel >= 1.9', 'expat >= 1.9', 'libstdc++ >= 3.2', 'gcc >= 3.2', 'gcc-c++ >= 3.2', 'tar', 
+		  'binutils >= 2.10', 'openssl >= 0.9.7f', 'openssl-devel >= 0.9.7f', 'readline >= 5.0', 
+		  'ncurses >= 5.4']:
+            ofile.write('BuildRequires: ' + f  + '\n')
+
 	ofile.write('\n')
-	ofile.write('Provides: %s-%s\n' % (self.name, self.arch))
+
+	ofile.write('Provides: %s-%%{_arch}\n' % self.name)
 	ofile.write('%description\n')
 	ofile.write(self.description)
 	ofile.write('\n')
@@ -192,8 +190,8 @@ class Package:
 # Represents subpackages in an RPM spec file.
 #
 class Subpackage(Package):
-    def writeHdr(self, ofile, version, release, installDir, buildRequires):
-        ofile.write('\n%%ifarch %s\n' % self.arch)	
+    def writeHdr(self, ofile, version, release, installDir):
+        ofile.write('\n%%ifarch core_arches\n')	
         ofile.write('%package ' + self.name + '\n')
         ofile.write('Summary: ' + self.summary + '\n')
         ofile.write('Group: ' + self.group + '\n')
@@ -208,7 +206,7 @@ class Subpackage(Package):
 	ofile.write('\n%endif\n')
 
     def writeFiles(self, ofile, version, intVersion, installDir):
-        ofile.write('\n%%ifarch %s\n' % self.arch)	
+        ofile.write('\n%%ifarch core_arches\n')	
         ofile.write('%files ' + self.name + '\n')
         self.writeFileList(ofile, version, intVersion, installDir)
 
@@ -222,11 +220,13 @@ class Subpackage(Package):
 
 class DotNetPackage(Subpackage):
     def writePostInstall(self, ofile, version, intVersion, installDir):
-	ofile.write('\n%ifarch noarch\n')
+	ofile.write('\n%ifnarch noarch\n')
 	ofile.write('''
+pklibdir="%{icelibdir}"
+
 for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs;
 do
-    sed -i.bak -e "s/^mono_root.*$/mono_root = \/usr/" /usr/lib/pkgconfig/$f.pc ; 
+    sed -i.bak -e "s/^mono_root.*$/mono_root = \/usr/" /usr/$pklibdir/pkgconfig/$f.pc ; 
 done
 	''')
 	ofile.write('\n%endif\n')
@@ -235,8 +235,8 @@ done
 # NOTE: File transforms should be listed before directory transforms.
 #
 transforms = [ ('file', 'ice.ini', 'etc/php.d/ice.ini'),
-	       ('dir', 'lib', 'usr/lib'),
-	       ('file', 'usr/lib/icephp.so', 'usr/lib/php/modules/icephp.so'),
+	       ('dir', '%{icelibdir}', 'usr/%{icelibdir}'),
+	       ('file', 'usr/%{icelibdir}/icephp.so', 'usr/%{icelibdir}/php/modules/icephp.so'),
 	       ('file', 'usr/lib/Ice.jar', 'usr/lib/Ice-%version%/Ice.jar' ),
 	       ('file', 'usr/lib/IceGridGUI.jar', 'usr/lib/Ice-%version%/IceGridGUI.jar' ),
 	       ('file', 'bin/icecs.dll', 'usr/lib/mono/gac/icecs/%version%.0__1f998c50fec78381/icecs.dll'),
@@ -255,115 +255,12 @@ transforms = [ ('file', 'ice.ini', 'etc/php.d/ice.ini'),
 	       ('dir', 'slice', 'usr/share/slice'),
 	       ('dir', 'bin', 'usr/bin'),
 	       ('dir', 'include', 'usr/include'),
-	       ('dir', 'python', 'usr/lib/Ice-%version%/python'),
+	       ('dir', 'python', 'usr/%{icelibdir}/Ice-%version%/python'),
                ('dir', 'doc', 'usr/share/doc/Ice-%version%/doc'),
                ('file', 'README', 'usr/share/doc/Ice-%version%/README'),
                ('file', 'ICE_LICENSE', 'usr/share/doc/Ice-%version%/ICE_LICENSE'),
                ('file', 'LICENSE', 'usr/share/doc/Ice-%version%/LICENSE')
                ]
-
-x64_transforms = [ 
-	       ('dir', 'config', 'usr/share/doc/Ice-%version%/config'),
-	       ('dir', 'slice', 'usr/share/slice'),
-               ('dir', 'doc', 'usr/share/doc/Ice-%version%/doc'),
-	       ('dir', 'bin', 'usr/bin'),
-	       ('dir', 'include', 'usr/include'),
-	       ('dir', 'lib64', 'usr/lib64'),
-	       ('file', 'usr/lib64/IceGridGUI.jar', 'usr/lib64/Ice-%version%/IceGridGUI.jar' ),
-               ('file', 'README', 'usr/share/doc/Ice-%version%/README'),
-               ('file', 'ICE_LICENSE', 'usr/share/doc/Ice-%version%/ICE_LICENSE'),
-               ('file', 'LICENSE', 'usr/share/doc/Ice-%version%/LICENSE')
-               ]
-
-#
-# fileLists is an in-memory representation of the package contents of
-# the Ice spec file.
-# 
-fileLists64 = [
-    Package('ice',
-            '',
-	    'The Ice base runtime and services',
-            'System Environment/Libraries',
-	    iceDescription,
-	    'Provides: ice-x86_64',
-            [('xdir', 'share/doc/Ice-%version%'),
-             ('doc', 'share/doc/Ice-%version%/ICE_LICENSE'),
-             ('doc', 'share/doc/Ice-%version%/LICENSE'),
-             ('doc', 'share/doc/Ice-%version%/README'),
-             ('exe', 'bin/dumpdb'),
-             ('exe', 'bin/transformdb'),
-             ('exe', 'bin/glacier2router'),
-             ('exe', 'bin/icebox'),
-             ('exe', 'bin/iceboxadmin'),
-             ('exe', 'bin/icecpp'),
-             ('exe', 'bin/icepatch2calc'),
-             ('exe', 'bin/icepatch2client'),
-             ('exe', 'bin/icepatch2server'),
-             ('exe', 'bin/icestormadmin'),
-             ('exe', 'bin/slice2docbook'), 
-             ('exe', 'bin/icegridadmin'), 
-             ('exe', 'bin/icegridnode'), 
-             ('exe', 'bin/icegridregistry'), 
-             ('lib', 'lib64/libFreeze.so.VERSION'),
-             ('lib', 'lib64/libGlacier2.so.VERSION'),
-             ('lib', 'lib64/libIceBox.so.VERSION'),
-             ('lib', 'lib64/libIcePatch2.so.VERSION'),
-             ('lib', 'lib64/libIce.so.VERSION'),
-             ('lib', 'lib64/libIceSSL.so.VERSION'),
-             ('lib', 'lib64/libIceStormService.so.VERSION'),
-             ('lib', 'lib64/libIceStorm.so.VERSION'),
-             ('lib', 'lib64/libIceUtil.so.VERSION'),
-             ('lib', 'lib64/libIceXML.so.VERSION'),
-             ('lib', 'lib64/libSlice.so.VERSION'),
-             ('lib', 'lib64/libIceGrid.so.VERSION'),
-	     ('dir', 'lib64/Ice-%version%/IceGridGUI.jar'),
-             ('dir', 'share/slice'),
-             ('dir', 'share/doc/Ice-%version%/doc'),
-             ('xdir', 'share/doc/Ice-%version%/certs'),
-	     ('file', 'share/doc/Ice-%version%/certs/cacert.pem'),
-	     ('file', 'share/doc/Ice-%version%/certs/c_dh1024.pem'),
-	     ('file', 'share/doc/Ice-%version%/certs/client_sslconfig.xml'),
-	     ('file', 'share/doc/Ice-%version%/certs/server_sslconfig.xml'),
-	     ('file', 'share/doc/Ice-%version%/certs/c_rsa1024_priv.pem'),
-	     ('file', 'share/doc/Ice-%version%/certs/c_rsa1024_pub.pem'),
-	     ('file', 'share/doc/Ice-%version%/certs/s_dh1024.pem'),
-	     ('file', 'share/doc/Ice-%version%/certs/s_rsa1024_priv.pem'),
-	     ('file', 'share/doc/Ice-%version%/certs/s_rsa1024_pub.pem'),
-	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.dtd'),
-	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.xml'),
-	     ('xdir', 'share/doc/Ice-%version%/config'),
-	     ('file', 'share/doc/Ice-%version%/config/templates.xml'),
-	     ('file', 'share/doc/Ice-%version%/README.DEMOS')], 'x86_64'),
-    Subpackage('c++-devel',
-               'ice = %version%',
-               'Tools and demos for developing Ice applications in C++',
-               'Development/Tools',
-	       iceDescription,
-	       'Requires: ice-x86_64',
-               [('exe', 'bin/slice2cpp'),
-                ('exe', 'bin/slice2freeze'),
-                ('dir', 'include'),
-		('lib', 'lib64/libFreeze.so'),
-		('lib', 'lib64/libGlacier2.so'),
-		('lib', 'lib64/libIceBox.so'),
-		('lib', 'lib64/libIceGrid.so'),
-		('lib', 'lib64/libIcePatch2.so'),
-		('lib', 'lib64/libIce.so'),
-		('lib', 'lib64/libIceSSL.so'),
-		('lib', 'lib64/libIceStormService.so'),
-		('lib', 'lib64/libIceStorm.so'),
-		('lib', 'lib64/libIceUtil.so'),
-		('lib', 'lib64/libIceXML.so'),
-		('lib', 'lib64/libSlice.so'),
-		('xdir', 'share/doc/Ice-%version%'),
-		('dir', 'share/doc/Ice-%version%/demo'),
-		('exe', 'share/doc/Ice-%version%/demo/Freeze/backup/backup'),
-		('exe', 'share/doc/Ice-%version%/demo/Freeze/backup/recover'),
-		('xdir', 'share/doc/Ice-%version%/config'),
-		('file', 'share/doc/Ice-%version%/config/Make.rules'),
-		('file', 'share/doc/Ice-%version%/config/Make.rules.Linux'),
-		], 'x86_64')
-    ]
 
 fileLists = [
     Package('ice',
@@ -371,7 +268,7 @@ fileLists = [
 	    'The Ice base runtime and services',
             'System Environment/Libraries',
 	    iceDescription,
-	    'Provides: ice-i386',
+	    'Provides: ice-%{_arch}',
             [('xdir', 'share/doc/Ice-%version%'),
              ('doc', 'share/doc/Ice-%version%/ICE_LICENSE'),
              ('doc', 'share/doc/Ice-%version%/LICENSE'),
@@ -390,19 +287,19 @@ fileLists = [
              ('exe', 'bin/icegridadmin'), 
              ('exe', 'bin/icegridnode'), 
              ('exe', 'bin/icegridregistry'), 
-             ('lib', 'lib/libFreeze.so.VERSION'),
-             ('lib', 'lib/libGlacier2.so.VERSION'),
-             ('lib', 'lib/libIceBox.so.VERSION'),
-             ('lib', 'lib/libIcePatch2.so.VERSION'),
-             ('lib', 'lib/libIce.so.VERSION'),
-             ('lib', 'lib/libIceSSL.so.VERSION'),
-             ('lib', 'lib/libIceStormService.so.VERSION'),
-             ('lib', 'lib/libIceStorm.so.VERSION'),
-             ('lib', 'lib/libIceUtil.so.VERSION'),
-             ('lib', 'lib/libIceXML.so.VERSION'),
-             ('lib', 'lib/libSlice.so.VERSION'),
-             ('lib', 'lib/libIceGrid.so.VERSION'),
-	     ('dir', 'lib/Ice-%version%/IceGridGUI.jar'),
+             ('lib', '%{icelibdir}/libFreeze.so.VERSION'),
+             ('lib', '%{icelibdir}/libGlacier2.so.VERSION'),
+             ('lib', '%{icelibdir}/libIceBox.so.VERSION'),
+             ('lib', '%{icelibdir}/libIcePatch2.so.VERSION'),
+             ('lib', '%{icelibdir}/libIce.so.VERSION'),
+             ('lib', '%{icelibdir}/libIceSSL.so.VERSION'),
+             ('lib', '%{icelibdir}/libIceStormService.so.VERSION'),
+             ('lib', '%{icelibdir}/libIceStorm.so.VERSION'),
+             ('lib', '%{icelibdir}/libIceUtil.so.VERSION'),
+             ('lib', '%{icelibdir}/libIceXML.so.VERSION'),
+             ('lib', '%{icelibdir}/libSlice.so.VERSION'),
+             ('lib', '%{icelibdir}/libIceGrid.so.VERSION'),
+	     ('dir', '%{icelibdir}/Ice-%version%/IceGridGUI.jar'),
              ('dir', 'share/slice'),
              ('dir', 'share/doc/Ice-%version%/doc'),
              ('xdir', 'share/doc/Ice-%version%/certs'),
@@ -419,28 +316,28 @@ fileLists = [
 	     ('file', 'share/doc/Ice-%version%/certs/sslconfig.xml'),
 	     ('xdir', 'share/doc/Ice-%version%/config'),
 	     ('file', 'share/doc/Ice-%version%/config/templates.xml'),
-	     ('file', 'share/doc/Ice-%version%/README.DEMOS')], 'i386'),
+	     ('file', 'share/doc/Ice-%version%/README.DEMOS')]),
     Subpackage('c++-devel',
                'ice = %version%',
                'Tools and demos for developing Ice applications in C++',
                'Development/Tools',
 	       iceDescription,
-	       'Requires: ice-i386',
+	       'Requires: ice-%{_arch}',
                [('exe', 'bin/slice2cpp'),
                 ('exe', 'bin/slice2freeze'),
                 ('dir', 'include'),
-		('lib', 'lib/libFreeze.so'),
-		('lib', 'lib/libGlacier2.so'),
-		('lib', 'lib/libIceBox.so'),
-		('lib', 'lib/libIceGrid.so'),
-		('lib', 'lib/libIcePatch2.so'),
-		('lib', 'lib/libIce.so'),
-		('lib', 'lib/libIceSSL.so'),
-		('lib', 'lib/libIceStormService.so'),
-		('lib', 'lib/libIceStorm.so'),
-		('lib', 'lib/libIceUtil.so'),
-		('lib', 'lib/libIceXML.so'),
-		('lib', 'lib/libSlice.so'),
+		('lib', '%{icelibdir}/libFreeze.so'),
+		('lib', '%{icelibdir}/libGlacier2.so'),
+		('lib', '%{icelibdir}/libIceBox.so'),
+		('lib', '%{icelibdir}/libIceGrid.so'),
+		('lib', '%{icelibdir}/libIcePatch2.so'),
+		('lib', '%{icelibdir}/libIce.so'),
+		('lib', '%{icelibdir}/libIceSSL.so'),
+		('lib', '%{icelibdir}/libIceStormService.so'),
+		('lib', '%{icelibdir}/libIceStorm.so'),
+		('lib', '%{icelibdir}/libIceUtil.so'),
+		('lib', '%{icelibdir}/libIceXML.so'),
+		('lib', '%{icelibdir}/libSlice.so'),
 		('xdir', 'share/doc/Ice-%version%'),
 		('dir', 'share/doc/Ice-%version%/demo'),
 		('exe', 'share/doc/Ice-%version%/demo/Freeze/backup/backup'),
@@ -448,24 +345,30 @@ fileLists = [
 		('xdir', 'share/doc/Ice-%version%/config'),
 		('file', 'share/doc/Ice-%version%/config/Make.rules'),
 		('file', 'share/doc/Ice-%version%/config/Make.rules.Linux'),
-		], 'i386'),
-    Subpackage('csharp-devel',
+		]),
+    DotNetPackage('csharp-devel',
                'ice-dotnet = %version%',
                'Tools and demos for developing Ice applications in C#',
                'Development/Tools',
 	       iceDescription,
-	       'Requires: ice-i386',
+	       'Requires: ice-%{_arch}',
                [('exe', 'bin/slice2cs'),
 		('xdir', 'share/doc/Ice-%version%'),
 		('xdir', 'share/doc/Ice-%version%/config'),
 		('file', 'share/doc/Ice-%version%/config/Make.rules.cs'),
-	        ('dir', 'share/doc/Ice-%version%/democs')], 'i386'),
+		('file', '%{icelibdir}/pkgconfig/icecs.pc'),
+		('file', '%{icelibdir}/pkgconfig/glacier2cs.pc'),
+		('file', '%{icelibdir}/pkgconfig/iceboxcs.pc'),
+		('file', '%{icelibdir}/pkgconfig/icegridcs.pc'),
+		('file', '%{icelibdir}/pkgconfig/icepatch2cs.pc'),
+		('file', '%{icelibdir}/pkgconfig/icestormcs.pc'),
+	        ('dir', 'share/doc/Ice-%version%/democs')]),
     Subpackage('java-devel',
                'ice-java = %version%',
                'Tools and demos for developing Ice applications in Java',
                'Development/Tools',
 	       iceDescription,
-	       'Requires: ice-i386',
+	       'Requires: ice-%{_arch}',
                [('exe', 'bin/slice2java'),
                 ('exe', 'bin/slice2freezej'),
 		('xdir', 'lib/Ice-%version%'),
@@ -479,37 +382,38 @@ fileLists = [
 	        ('file', 'share/doc/Ice-%version%/config/build.properties'),
 	        ('file', 'share/doc/Ice-%version%/config/common.xml'),
 	        ('file', 'share/doc/Ice-%version%/config/iceproject.xml'),
-		('dir', 'share/doc/Ice-%version%/demoj')], 'i386'),
+		('dir', 'share/doc/Ice-%version%/demoj')]),
     Subpackage('python',
                'ice = %version%, python >= 2.4.1',
                'The Ice runtime for Python applications',
                'System Environment/Libraries',
 	       iceDescription,
-	       'Requires: ice-i386',
-               [('dir', 'lib/Ice-%version%/python')], 'i386'),
+	       'Requires: ice-%{_arch}',
+               [('dir', '%{icelibdir}/Ice-%version%/python')]),
     Subpackage('python-devel',
                'ice-python = %version%',
                'Tools and demos for developing Ice applications in Python',
                'Development/Tools',
 	       iceDescription,
-	       'Requires: ice-i386',
+	       'Requires: ice-%{_arch}',
                [('exe', 'bin/slice2py'),
 		('xdir', 'share/doc/Ice-%version%'),
-	        ('dir', 'share/doc/Ice-%version%/demopy')], 'i386'),
+	        ('dir', 'share/doc/Ice-%version%/demopy')]),
     Subpackage('php',
 	       'ice = %version%, php = 5.0.4',
 	       'The Ice runtime for PHP applications',
 	       'System Environment/Libraries',
 	       iceDescription,
-	       'Requires: ice-i386',
-	       [('lib', 'lib/php/modules'), ('cfg', '/etc/php.d/ice.ini')], 'i386'),
+	       'Requires: ice-%{_arch}',
+	       [('lib', '%{icelibdir}/php/modules'), ('cfg', '/etc/php.d/ice.ini')]
+	       ),
     Subpackage('php-devel',
 	       'ice = %version%, php = 5.0.4, ice-php = %version%',
 	       'Demos for developing Ice applications in PHP',
 	       'Development/Tools',
 	       iceDescription,
-	       'Requires: ice-i386',
-	       [('dir', 'share/doc/Ice-%version%/demophp')], 'i386'),
+	       'Requires: ice-%{_arch}',
+	       [('dir', 'share/doc/Ice-%version%/demophp')]),
     Subpackage('java',
 	       'ice = %version%, db4-java >= 4.3.27',
 	       'The Ice runtime for Java',
@@ -518,8 +422,8 @@ fileLists = [
 	       '',
 	       [ ('xdir', 'lib/Ice-%version%'),
 	       ('dir', 'lib/Ice-%version%/Ice.jar')
-	       ], 'noarch'),
-    DotNetPackage('dotnet',
+	       ]),
+    Subpackage('dotnet',
                   'ice = %version%, mono-core >= 1.1.9',
 		  'The Ice runtime for C# applications',
 		  'System Environment/Libraries',
@@ -531,13 +435,7 @@ fileLists = [
 		  ('dll', 'lib/mono/gac/icegridcs/%version%.0__1f998c50fec78381/icegridcs.dll'),
 		  ('dll', 'lib/mono/gac/icepatch2cs/%version%.0__1f998c50fec78381/icepatch2cs.dll'),
 		  ('dll', 'lib/mono/gac/icestormcs/%version%.0__1f998c50fec78381/icestormcs.dll'),
-		  ('file', 'lib/pkgconfig/icecs.pc'),
-		  ('file', 'lib/pkgconfig/glacier2cs.pc'),
-		  ('file', 'lib/pkgconfig/iceboxcs.pc'),
-		  ('file', 'lib/pkgconfig/icegridcs.pc'),
-		  ('file', 'lib/pkgconfig/icepatch2cs.pc'),
-		  ('file', 'lib/pkgconfig/icestormcs.pc'),
-		  ('exe', 'bin/iceboxnet.exe')], 'noarch')
+		  ('exe', 'bin/iceboxnet.exe')])
     ]
 
 def _transformDirectories(transforms, version, installDir):
@@ -548,10 +446,12 @@ def _transformDirectories(transforms, version, installDir):
     cwd = os.getcwd()
     os.chdir(installDir)
     for type, source, dest in transforms:
-        if dest.find('%version%'):
-            dest = dest.replace('%version%', version)
-	if source.find('%version%'):
-	    source = source.replace('%version%', version)
+	dest = dest.replace('%version%', version)
+	source = source.replace('%version%', version)
+
+	libdir = 'lib' # Key on architecture.
+	dest = dest.replace('%{icelibdir}', libdir)
+	source = source.replace('%{icelibdir}', libdir)
 
         sourcedir = source
         destdir = dest
@@ -582,25 +482,15 @@ def _transformDirectories(transforms, version, installDir):
 
     os.chdir(cwd)
 
-def createArchSpecFile(ofile, installDir, version, soVersion, buildReq = True):
-    if not buildReq:
-	reqs = []
-    else:
-	reqs = buildRequires
-	
+def createArchSpecFile(ofile, installDir, version, soVersion):
     for v in fileLists:
-	v.writeHdr(ofile, version, "1", installDir, reqs)
+	v.writeHdr(ofile, version, "1", installDir)
 	ofile.write("\n\n\n")
     for v in fileLists:
 	v.writeFiles(ofile, version, soVersion, installDir)
 	ofile.write("\n")
 
-def createFullSpecFile(ofile, installDir, version, soVersion, buildReq = True):
-    if not buildReq:
-	reqs = []
-    else:
-	reqs = buildRequires
-
+def createFullSpecFile(ofile, installDir, version, soVersion):
     fullFileList = fileLists 
     fullFileList[0].addPrepGenerator(writeUnpackingCommands)
     fullFileList[0].addBuildGenerator(writeBuildCommands)
@@ -609,7 +499,7 @@ def createFullSpecFile(ofile, installDir, version, soVersion, buildReq = True):
     fullFileList[0].addInstallGenerator(writeDemoPkgCommands)
 
     for v in fullFileList:
-	v.writeHdr(ofile, version, "1", '', reqs)
+	v.writeHdr(ofile, version, "1", '')
 	ofile.write("\n\n\n")
     for v in fullFileList:
 	v.writeFiles(ofile, version, soVersion, '')
@@ -618,21 +508,32 @@ def createFullSpecFile(ofile, installDir, version, soVersion, buildReq = True):
 def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
     if os.path.exists(installDir + "/rpmbase"):
 	shutil.rmtree(installDir + "/rpmbase")
-    shutil.copytree(installDir + "/Ice-" + version, installDir + "/rpmbase")
+    shutil.copytree(installDir + "/Ice-" + version, installDir + "/rpmbase", True)
     installDir = installDir + '/rpmbase'
     compileall.compile_dir(installDir + '/python')
 
     _transformDirectories(transforms, version, installDir)
     os.system("tar xfz " + installDir + "/../Ice-" + version + "-demos.tar.gz -C " + installDir)
 
+
     ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
-    createArchSpecFile(ofile, installDir, version, soVersion, False)
+    createArchSpecFile(ofile, installDir, version, soVersion)
     ofile.flush()
     ofile.close()
     #
     # Copy demo files so the RPM spec file can pick them up.
     #
     os.system("cp -pR " + installDir + "/Ice-" + version + "-demos/* " + installDir + "/usr/share/doc/Ice-" + version)
+
+    #
+    # We need to unset a build define in the Make.rules.cs file.
+    #
+    result = os.system("perl -pi.bak -e 's/^(src_build.*)$/\\# \\1/' " + installDir + "/usr/share/doc/Ice-" + version +
+	    "/config/Make.rules.cs")
+    if result != 0:
+	print 'unable to spot edit Make.rules.cs in demo tree' 
+	sys.exit(1)
+
     if os.path.exists(installDir + "/Ice-" + version + "-demos"):
 	shutil.rmtree(installDir + "/Ice-" + version + "-demos")
     cwd = os.getcwd()
@@ -670,18 +571,18 @@ def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
 def createRPMSFromBinaries64(buildDir, installDir, version, soVersion):
     if os.path.exists(installDir + "/rpmbase"):
 	shutil.rmtree(installDir + "/rpmbase")
-    shutil.copytree(installDir + "/Ice-" + version, installDir + "/rpmbase")
+    shutil.copytree(installDir + "/Ice-" + version, installDir + "/rpmbase", True)
     installDir = installDir + "/rpmbase"
 
     _transformDirectories(x64_transforms, version, installDir)
     os.system("tar xfz " + installDir + "/../Ice-" + version + "-demos.tar.gz -C " + installDir)
 
     ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
-    fileLists64[0].writeHdr(ofile, version, '1', installDir, [])
-    fileLists64[1].writeHdr(ofile, version, '1', installDir, [])
+    for f in fileLists64:
+	f.writeHdr(ofile, version, '1', installDir)
     ofile.write('\n\n\n')
-    fileLists64[0].writeFiles(ofile, version, soVersion, installDir)
-    fileLists64[1].writeFiles(ofile, version, soVersion, installDir)
+    for f in fileLists64:
+	f.writeFiles(ofile, version, soVersion, '')
     ofile.write('\n')
 
     ofile.flush()
@@ -690,6 +591,12 @@ def createRPMSFromBinaries64(buildDir, installDir, version, soVersion):
     # Copy demo files so the RPM spec file can pick them up.
     #
     os.system("cp -pR " + installDir + "/Ice-" + version + "-demos/* " + installDir + "/usr/share/doc/Ice-" + version)
+
+    #
+    # We need to unset a build define in the Make.rules.cs file.
+    #
+    result = os.system("perl -pi.bak -e 's/^(src_build.*)$/\\# \\1/' " + installDir + "/usr/share/doc/Ice-" + version +
+	    "/config/Make.rules.cs")
     if os.path.exists(installDir + "/Ice-" + version + "-demos"):
 	shutil.rmtree(installDir + "/Ice-" + version + "-demos")
     cwd = os.getcwd()
@@ -808,6 +715,7 @@ def writeDemoPkgCommands(ofile, version):
     ofile.write('mkdir -p $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}\n')
     ofile.write('tar xfz $RPM_SOURCE_DIR/Ice-%{version}-demos.tar.gz -C $RPM_BUILD_ROOT/usr/share/doc\n')
     ofile.write('cp -pR $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}-demos/* $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}\n')
+    ofile.write("sed -i.bak -e 's/^\(src_build.*\)$/\\# \\1/' $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}/config/Make.rules.cs\n")
     ofile.write('rm -rf $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}-demos\n')
 	
 if __name__ == "main":

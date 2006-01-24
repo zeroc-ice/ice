@@ -200,6 +200,22 @@ def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
     shutil.copy("dist/" + distro + ".tar.gz", sourceDir)
     os.chdir(cwd)
 
+def editMakeRulesCS(filename, version):
+    '''
+    The make rules in the C# distribution need some simple tweaking to
+    make them suitable for inclusion in the demo distribution.
+    '''
+    reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
+    makefile = fileinput.input(filename, True)
+    for line in makefile:
+	if reIceLocation.search(line) <> None:
+	    print line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
+	elif line.startswith('prefix'):
+	    print 'prefix = $(ICE_DIR)'
+	else:
+	    print line.rstrip('\n')
+    makefile.close()
+
 def editMakeRules(filename, version):
     '''
     Ice distributions contain files with useful build rules. However,
@@ -280,12 +296,12 @@ endif
 ifeq ($(ICE_HOME),)
     ICE_DIR = /usr
     ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
-	$(error Ice distribution not found, please set ICE_HOME!)
+$(error Ice distribution not found, please set ICE_HOME!)
     endif
 else
     ICE_DIR = $(ICE_HOME)
     ifneq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
-	$(error Ice distribution not found, please set ICE_HOME!)
+$(error Ice distribution not found, please set ICE_HOME!)
     endif
 endif
 
@@ -344,7 +360,7 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
     srcConfigDir = '%s/%s/config' % (os.getcwd(), distro)
     destConfigDir = '%s/Ice-%s-demos/config' % (buildDir, version)
 
-    if not demoDir == 'py' and os.path.exists(srcConfigDir):
+    if not demoDir in ['py', 'vb'] and os.path.exists(srcConfigDir):
 	for f in os.listdir(srcConfigDir):
 	    src = os.path.join(srcConfigDir, f)
 	    dest = os.path.join(destConfigDir, f)
@@ -376,9 +392,8 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
 
     if distro.startswith('Ice-'):
 	editMakeRules(os.path.join(basepath, 'Make.rules'), version)
- 
     elif distro.startswith('IceCS-'):
-        editMakeRules(os.path.join(basepath, 'Make.rules.cs'), version)
+	editMakeRulesCS(os.path.join(basepath, 'Make.rules.cs'), version)
 
     #
     # Remove collected files.
@@ -434,14 +449,10 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
     # with the Jar already built.
     # 
     if distro.startswith('IceJ'):
-	if getPlatform() == 'linux64':
-	    shutil.copy(buildDir + '/' + distro + '/lib/Ice.jar',
-		    installDir + '/lib64')
-	    shutil.copy(buildDir + '/' + distro + '/lib/IceGridGUI.jar',
-		    installDir + '/lib64')
-	else:
-	    shutil.copy(buildDir + '/' + distro + '/lib/Ice.jar', installDir + '/lib')
-	    shutil.copy(buildDir + '/' + distro + '/lib/IceGridGUI.jar', installDir + '/lib')
+	if not os.path.exists(os.path.join(installDir, 'lib')):
+	    os.mkdir(os.path.join(installDir, 'lib'))
+	shutil.copy(buildDir + '/' + distro + '/lib/Ice.jar', installDir + '/lib')
+	shutil.copy(buildDir + '/' + distro + '/lib/IceGridGUI.jar', installDir + '/lib')
 	#
 	# We really just want to copy the files, not move them.
 	# Shelling out to a copy is easier (and more likely to always
@@ -462,7 +473,6 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version):
 
     if distro.startswith('IceCS'):
 	runprog('perl -pi -e \'s/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/\' config/Make.rules.cs')
-	runprog('perl -pi -e \'s/^cvs_build.*$/cvs_build = no/\' config/Make.rules.cs')
     else:
 	runprog('perl -pi -e \'s/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/\' config/Make.rules')
 
@@ -610,7 +620,7 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
     """ Create the IcePHP binaries and install to Ice installation directory """
 
     platform = getPlatform()
-    if not platform in ['linux', 'macosx']:
+    if not platform in ['linux', 'macosx', 'linux64']:
         return         
         
     #
@@ -699,7 +709,7 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
 
     if platform == 'hpux':
 	runprog('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure-hpux.gz > configure', False)
-    elif platform == 'linux':
+    elif platform.startswith('linux'):
 	runprog('gzip -dc ' + buildDir + '/ice/install/thirdparty/php/configure*.gz > configure', False)
 		
     else:
@@ -749,6 +759,8 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
             if line.startswith('EXTRA_CXXFLAGS ='):
                 xtraCXXFlags = False
                 print line.rstrip('\n') + ' -DCOMPILE_DL_ICE'
+	    elif platform == 'linux64' and line.startswith('ICE_SHARED_LIBADD'):
+		print line.rstrip('\n').replace("Ice-%s/lib" % version, "Ice-%s/lib64" % version)
             else:
                 print line.strip('\n')
 
@@ -803,7 +815,10 @@ def makePHPbinary(sources, buildDir, installDir, version, clean):
         phpModuleExtension = getPlatformLibExtension()
         
     moduleName = '%s/modules/ice%s' % (phpDir, phpModuleExtension)
-    shutil.copy(moduleName, '%s/Ice-%s/lib/icephp%s' % (installDir, version, phpModuleExtension))
+    if platform == 'linux64':
+	shutil.copy(moduleName, '%s/Ice-%s/lib64/icephp%s' % (installDir, version, phpModuleExtension))
+    else:
+	shutil.copy(moduleName, '%s/Ice-%s/lib/icephp%s' % (installDir, version, phpModuleExtension))
         
     os.chdir(cwd)
 
@@ -1041,10 +1056,10 @@ def main():
 			   ('icephp','IcePHP-' + version, 'php'),
                            ('icej','IceJ-' + version, 'j') ]
 
-	if not getPlatform() in ['aix', 'linux64']:
+	if not getPlatform() in ['aix']:
 	    sourceTarBalls.append(('icepy','IcePy-' + version, 'py'))
 
-	if getPlatform() == 'linux':
+	if getPlatform() == "linux":
 	    sourceTarBalls.append(('icecs','IceCS-' + version, 'cs'))
 
         os.environ['ICE_HOME'] = installDir + '/Ice-' + version
@@ -1079,7 +1094,8 @@ def main():
 	# Package up demo distribution.
 	#
 	if getPlatform() == 'linux':
-	    for cvs, tarball, demoDir in sourceTarBalls:
+	    toCollect = list(sourceTarBalls)
+	    for cvs, tarball, demoDir in toCollect:
 		extractDemos(sources, buildDir, version, tarball, demoDir)
 		shutil.copy(installFiles + '/unix/README.DEMOS', buildDir + '/Ice-' + version + '-demos/README.DEMOS') 
 	    archiveDemoTree(buildDir, version, installFiles)
@@ -1150,10 +1166,13 @@ def main():
 
     if getPlatform() == 'hpux':
 	ssl = os.environ['OPENSSL_HOME']
-	copyfiles('%s/bin' % ssl, 'Ice-%s/bin' % version)
+	shutil.copy('%s/bin/openssl' % ssl, 'Ice-%s/bin' % version)
 	runprog('cp -R ' + ssl + '/include Ice-' + version)
 	runprog('cp -R ' + ssl + '/lib Ice-' + version)
 	runprog('rm -rf Ice-' + version + '/lib/libfips*')
+	runprog('rm -rf Ice-' + version + '/lib/engines')
+	runprog('rm -rf Ice-' + version + '/lib/pkgconfig')
+	runprog('rm -f Ice-' + version + '/lib/*.a')
 
     uname = readcommand('uname')
     platformSpecificFiles = [ 'README', 'SOURCES', 'THIRD_PARTY_LICENSE' ]
@@ -1179,7 +1198,28 @@ def main():
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', '/usr/src/redhat/SOURCES/README.Linux-RPM')
 	shutil.copy(installFiles + '/unix/README.Linux-RPM', installDir + '/Ice-' + version + '/README')
 	shutil.copy(installFiles + '/thirdparty/php/ice.ini', installDir + '/Ice-' + version + '/ice.ini')
+
 	if getPlatform() == 'linux64':
+
+	    # 
+	    # I need to pull the pkgconfig files out of the IceCS
+	    # archive and place them in the installed lib64 directory.
+	    # 
+
+	    cwd = os.getcwd()
+	    os.chdir(buildDir)
+	    distro = "IceCS-%s" % version
+	    shutil.rmtree("IceCS-%s" % version, True)
+	    if not os.path.exists(distro):
+		filename = os.path.join(sources, '%s.tar.gz' % distro)
+		runprog('tar xfz %s' % filename)
+	    os.chdir(distro)
+	    if not os.path.exists(os.path.join(installDir, 'Ice-%s' % version, 'lib64')):
+		os.mkdir(os.path.join(installDir, 'Ice-%s' % version, 'lib64'))
+	    shutil.copytree(os.path.join('lib', 'pkgconfig'), os.path.join(installDir, 'Ice-%s' % version, 'lib64', 'pkgconfig'))
+	    os.chdir(cwd)
+
+
 	    #
 	    # The demo archive isn't constructed on 64 bit linux so we
 	    # need to rely on the archive being in the sources
