@@ -163,11 +163,9 @@ class Package:
     def writePostUninstall(self, ofile, version, intVersion, installDir):
 	pass
 
-    def writeFiles(self, ofile, version, intVersion, installDir):
+    def writeFilesImpl(self, ofile, version, intVersion, installDir):
         ofile.write('%files\n')
-	ofile.write('\n%ifnarch noarch\n')
         self.writeFileList(ofile, version, intVersion, installDir)
-	ofile.write('\n%endif\n')
 	ofile.write('\n')
 
 	ofile.write('%post\n')
@@ -176,6 +174,13 @@ class Package:
 	ofile.write('%postun\n')
 	self.writePostUninstall(ofile, version, intVersion, installDir)
 	ofile.write('\n')
+
+    def writeFiles(self, ofile, version, intVersion, installDir):
+	ofile.write('\n%ifarch %{core_arches}\n')
+	self.writeFilesImpl(ofile, version, intVersion, installDir)
+	ofile.write('\n%else\n')
+	ofile.write('%files\n')
+	ofile.write('\n%endif\n')
 
     def addPrepGenerator(self, gen):
 	self.prepTextGen.append(gen)
@@ -190,8 +195,25 @@ class Package:
 # Represents subpackages in an RPM spec file.
 #
 class Subpackage(Package):
-    def writeHdr(self, ofile, version, release, installDir):
-        ofile.write('\n%%ifarch core_arches\n')	
+
+    def writeFilesImpl(self, ofile, version, intVersion, installDir):
+        ofile.write('%%files %s\n' % self.name)
+        self.writeFileList(ofile, version, intVersion, installDir)
+	ofile.write('\n')
+
+	ofile.write('%%post %s\n' % self.name)
+	self.writePostInstall(ofile, version, intVersion, installDir)
+
+	ofile.write('%%postun %s\n' % self.name)
+	self.writePostUninstall(ofile, version, intVersion, installDir)
+	ofile.write('\n')
+
+    def writeFiles(self, ofile, version, intVersion, installDir):
+	ofile.write('\n%ifarch %{core_arches}\n')
+	self.writeFilesImpl(ofile, version, intVersion, installDir)
+	ofile.write('\n%endif\n')
+
+    def writeSubpackageHeader(self, ofile, version, release, installDir):
         ofile.write('%package ' + self.name + '\n')
         ofile.write('Summary: ' + self.summary + '\n')
         ofile.write('Group: ' + self.group + '\n')
@@ -203,20 +225,22 @@ class Subpackage(Package):
 	    ofile.write(self.other + '\n')
         ofile.write('%description ' + self.name + '\n')
         ofile.write(self.description)
+
+    def writeHdr(self, ofile, version, release, installDir):
+        ofile.write('\n%ifarch %{core_arches}\n')	
+	self.writeSubpackageHeader(ofile, version, release, installDir)
+	ofile.write('\n%endif\n')
+
+class NoarchSubpackage(Subpackage):
+    def writeHdr(self, ofile, version, release, installDir):
+        ofile.write('\n%ifarch noarch\n')	
+	self.writeSubpackageHeader(ofile, version, release, installDir)
 	ofile.write('\n%endif\n')
 
     def writeFiles(self, ofile, version, intVersion, installDir):
-        ofile.write('\n%%ifarch core_arches\n')	
-        ofile.write('%files ' + self.name + '\n')
-        self.writeFileList(ofile, version, intVersion, installDir)
-
-	ofile.write('%post ' + self.name + '\n')
-	self.writePostInstall(ofile, version, intVersion, installDir)
-
-	ofile.write('%postun ' + self.name + '\n')
-	self.writePostUninstall(ofile, version, intVersion, installDir)
+        ofile.write('\n%ifarch noarch\n')	
+	self.writeFilesImpl(ofile, version, intVersion, installDir)
 	ofile.write('\n%endif\n')
-
 
 class DotNetPackage(Subpackage):
     def writePostInstall(self, ofile, version, intVersion, installDir):
@@ -347,22 +371,22 @@ fileLists = [
 		('file', 'share/doc/Ice-%version%/config/Make.rules.Linux'),
 		]),
     DotNetPackage('csharp-devel',
-               'ice-dotnet = %version%',
-               'Tools and demos for developing Ice applications in C#',
-               'Development/Tools',
-	       iceDescription,
-	       'Requires: ice-%{_arch}',
-               [('exe', 'bin/slice2cs'),
-		('xdir', 'share/doc/Ice-%version%'),
-		('xdir', 'share/doc/Ice-%version%/config'),
-		('file', 'share/doc/Ice-%version%/config/Make.rules.cs'),
-		('file', '%{icelibdir}/pkgconfig/icecs.pc'),
-		('file', '%{icelibdir}/pkgconfig/glacier2cs.pc'),
-		('file', '%{icelibdir}/pkgconfig/iceboxcs.pc'),
-		('file', '%{icelibdir}/pkgconfig/icegridcs.pc'),
-		('file', '%{icelibdir}/pkgconfig/icepatch2cs.pc'),
-		('file', '%{icelibdir}/pkgconfig/icestormcs.pc'),
-	        ('dir', 'share/doc/Ice-%version%/democs')]),
+	          'ice-dotnet = %version%',
+		  'Tools and demos for developing Ice applications in C#',
+		  'Development/Tools',
+		  iceDescription,
+		  'Requires: ice-%{_arch}',
+		  [('exe', 'bin/slice2cs'),
+		  ('xdir', 'share/doc/Ice-%version%'),
+		  ('xdir', 'share/doc/Ice-%version%/config'),
+		  ('file', 'share/doc/Ice-%version%/config/Make.rules.cs'),
+		  ('file', '%{icelibdir}/pkgconfig/icecs.pc'),
+		  ('file', '%{icelibdir}/pkgconfig/glacier2cs.pc'),
+		  ('file', '%{icelibdir}/pkgconfig/iceboxcs.pc'),
+		  ('file', '%{icelibdir}/pkgconfig/icegridcs.pc'),
+		  ('file', '%{icelibdir}/pkgconfig/icepatch2cs.pc'),
+		  ('file', '%{icelibdir}/pkgconfig/icestormcs.pc'),
+		  ('dir', 'share/doc/Ice-%version%/democs')]),
     Subpackage('java-devel',
                'ice-java = %version%',
                'Tools and demos for developing Ice applications in Java',
@@ -407,35 +431,35 @@ fileLists = [
 	       'Requires: ice-%{_arch}',
 	       [('lib', '%{icelibdir}/php/modules'), ('cfg', '/etc/php.d/ice.ini')]
 	       ),
-    Subpackage('php-devel',
-	       'ice = %version%, php = 5.0.4, ice-php = %version%',
-	       'Demos for developing Ice applications in PHP',
-	       'Development/Tools',
-	       iceDescription,
-	       'Requires: ice-%{_arch}',
-	       [('dir', 'share/doc/Ice-%version%/demophp')]),
-    Subpackage('java',
-	       'ice = %version%, db4-java >= 4.3.27',
-	       'The Ice runtime for Java',
-	       'System Environment/Libraries',
-	       iceDescription,
-	       '',
-	       [ ('xdir', 'lib/Ice-%version%'),
-	       ('dir', 'lib/Ice-%version%/Ice.jar')
-	       ]),
-    Subpackage('dotnet',
-                  'ice = %version%, mono-core >= 1.1.9',
-		  'The Ice runtime for C# applications',
-		  'System Environment/Libraries',
-		  iceDescription,
-		  '',
-		  [('dll', 'lib/mono/gac/glacier2cs/%version%.0__1f998c50fec78381/glacier2cs.dll'),
-		  ('dll', 'lib/mono/gac/icecs/%version%.0__1f998c50fec78381/icecs.dll'),
-		  ('dll', 'lib/mono/gac/iceboxcs/%version%.0__1f998c50fec78381/iceboxcs.dll'),
-		  ('dll', 'lib/mono/gac/icegridcs/%version%.0__1f998c50fec78381/icegridcs.dll'),
-		  ('dll', 'lib/mono/gac/icepatch2cs/%version%.0__1f998c50fec78381/icepatch2cs.dll'),
-		  ('dll', 'lib/mono/gac/icestormcs/%version%.0__1f998c50fec78381/icestormcs.dll'),
-		  ('exe', 'bin/iceboxnet.exe')])
+    NoarchSubpackage('php-devel',
+	             'ice = %version%, php = 5.0.4, ice-php = %version%',
+		     'Demos for developing Ice applications in PHP',
+		     'Development/Tools',
+		     iceDescription,
+		     'Requires: ice-%{_arch}, ice-php',
+		     [('dir', 'share/doc/Ice-%version%/demophp')]),
+    NoarchSubpackage('java',
+		     'ice = %version%, db4-java >= 4.3.27',
+		     'The Ice runtime for Java',
+		     'System Environment/Libraries',
+		     iceDescription,
+		     'Requires: ice-%{_arch}',
+		     [ ('xdir', 'lib/Ice-%version%'),
+		     ('dir', 'lib/Ice-%version%/Ice.jar')
+		     ]),
+    NoarchSubpackage('dotnet',
+                     'ice = %version%, mono-core >= 1.1.9',
+		     'The Ice runtime for C# applications',
+		     'System Environment/Libraries',
+		     iceDescription,
+		     '',
+		     [('dll', 'lib/mono/gac/glacier2cs/%version%.0__1f998c50fec78381/glacier2cs.dll'),
+		     ('dll', 'lib/mono/gac/icecs/%version%.0__1f998c50fec78381/icecs.dll'),
+		     ('dll', 'lib/mono/gac/iceboxcs/%version%.0__1f998c50fec78381/iceboxcs.dll'),
+		     ('dll', 'lib/mono/gac/icegridcs/%version%.0__1f998c50fec78381/icegridcs.dll'),
+		     ('dll', 'lib/mono/gac/icepatch2cs/%version%.0__1f998c50fec78381/icepatch2cs.dll'),
+		     ('dll', 'lib/mono/gac/icestormcs/%version%.0__1f998c50fec78381/icestormcs.dll'),
+		     ('exe', 'bin/iceboxnet.exe')])
     ]
 
 def _transformDirectories(transforms, version, installDir):
