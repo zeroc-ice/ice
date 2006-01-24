@@ -96,7 +96,7 @@ public:
 			 UTF8Buffer&) const;
 
     virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
-			  const wchar_t*& targetStart, const wchar_t*& targetEnd);
+			  const wchar_t*& targetStart, const wchar_t*& targetEnd) const;
 
     virtual void freeTarget(const wchar_t* targetStart) const;
 

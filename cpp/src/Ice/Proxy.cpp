@@ -1147,12 +1147,14 @@ IceDelegateD::Ice::Object::ice_invoke(const string&,
 				      const Context&)
 {
     throw CollocationOptimizationException(__FILE__, __LINE__);
+    return false;
 }
 
 ConnectionPtr
 IceDelegateD::Ice::Object::ice_connection()
 {
     throw CollocationOptimizationException(__FILE__, __LINE__);
+    return 0;
 }
 
 void

@@ -586,6 +586,7 @@ ServiceDescriptorBuilder*
 ServerDescriptorBuilder::createService(const XmlAttributesHelper& attrs)
 {
     throw "<service> element can only be a child of an <icebox> element";
+    return 0;
 }
 
 void

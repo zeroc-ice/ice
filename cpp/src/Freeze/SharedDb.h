@@ -101,7 +101,7 @@ public:
     virtual int 
     get(DbTxn *txnid, Dbt *key, Dbt *data, u_int32_t flags)
     {
-	::Db::get(txnid, key, data, flags);
+	return ::Db::get(txnid, key, data, flags);
     }
 #endif
 

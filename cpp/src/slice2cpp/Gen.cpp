@@ -2152,6 +2152,10 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	C << sp << nl << retS << nl << "IceDelegateD" << scoped << spar << params << epar;
 	C << sb;
 	C << nl << "throw ::Ice::CollocationOptimizationException(__FILE__, __LINE__);";
+	if(ret != 0)
+	{
+	    C << nl << "return " << retS << "(); // to avoid a warning with some compilers;";
+	}
 	C << eb;
     }
     else
@@ -2510,6 +2514,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	else
 	{
 	    C << nl << "throw ::Ice::CloneNotImplementedException(__FILE__, __LINE__);";
+	    C << nl << "return 0; // to avoid a warning with some compilers";
 	}
 	C << eb;
 

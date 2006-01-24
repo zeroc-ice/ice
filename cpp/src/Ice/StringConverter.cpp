@@ -61,7 +61,7 @@ UnicodeWstringConverter::toUTF8(const wchar_t* sourceStart,
 
 void 
 UnicodeWstringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
-				const wchar_t*& targetStart, const wchar_t*& targetEnd)
+				  const wchar_t*& targetStart, const wchar_t*& targetEnd) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
 	
