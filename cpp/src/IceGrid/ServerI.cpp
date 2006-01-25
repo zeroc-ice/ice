@@ -819,7 +819,6 @@ ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
 void
 ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& application, const ServerDescriptorPtr& desc)
 {
-    stop_async(0);
     ServerCommandPtr command;
     {
 	Lock sync(*this);
@@ -835,6 +834,10 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const string& application, co
 		amdCB->ice_response(_this, adapters, _activationTimeout, _deactivationTimeout);
 	    }
 	    return;
+	}
+	if(!StopCommand::isStopped(_state) && !_stop)
+	{
+	    _stop = new StopCommand(this, _node->getWaitQueue(), _deactivationTimeout);
 	}
 	if(!_load)
 	{
@@ -883,18 +886,20 @@ ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB)
 bool
 ServerI::startPatch(bool shutdown)
 {
-    if(shutdown)
-    {
-	stop_async(0);
-    }
-    
     ServerCommandPtr command;
     {
 	Lock sync(*this);
 	checkDestroyed();
-	if(_state != Inactive && !shutdown)
+	if(!StopCommand::isStopped(_state))
 	{
-	    return false;
+	    if(!shutdown)
+	    {
+		return false;
+	    }
+	    else if(!_stop)
+	    {
+		_stop = new StopCommand(this, _node->getWaitQueue(), _deactivationTimeout);
+	    }
 	}
 	if(!_patch)
 	{
@@ -1310,7 +1315,7 @@ ServerI::terminated(const string& msg, int status)
 	{
 	    destroying = true;
 	}
-	else if(_state != ServerI::Deactivating)
+	else if(_state != ServerI::Deactivating && _state != ServerI::DeactivatingWaitForProcess)
 	{
 	    ostringstream os;
 	    os << "The server terminated unexpectedly";
