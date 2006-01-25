@@ -304,7 +304,14 @@ Ice::OutputStreamI::writeByte(Byte v)
 void
 Ice::OutputStreamI::writeByteSeq(const vector<Byte>& v)
 {
-    _os.write(&v[0], &v[0] + v.size());
+    if(v.size() == 0)
+    {
+        _os.writeSize(0);
+    }
+    else
+    {
+        _os.write(&v[0], &v[0] + v.size());
+    }
 }
 
 void
@@ -316,7 +323,14 @@ Ice::OutputStreamI::writeShort(Short v)
 void
 Ice::OutputStreamI::writeShortSeq(const vector<Short>& v)
 {
-    _os.write(&v[0], &v[0] + v.size());
+    if(v.size() == 0)
+    {
+        _os.writeSize(0);
+    }
+    else
+    {
+        _os.write(&v[0], &v[0] + v.size());
+    }
 }
 
 void
@@ -328,7 +342,14 @@ Ice::OutputStreamI::writeInt(Int v)
 void
 Ice::OutputStreamI::writeIntSeq(const vector<Int>& v)
 {
-    _os.write(&v[0], &v[0] + v.size());
+    if(v.size() == 0)
+    {
+        _os.writeSize(0);
+    }
+    else
+    {
+        _os.write(&v[0], &v[0] + v.size());
+    }
 }
 
 void
@@ -340,7 +361,14 @@ Ice::OutputStreamI::writeLong(Long v)
 void
 Ice::OutputStreamI::writeLongSeq(const vector<Long>& v)
 {
-    _os.write(&v[0], &v[0] + v.size());
+    if(v.size() == 0)
+    {
+        _os.writeSize(0);
+    }
+    else
+    {
+        _os.write(&v[0], &v[0] + v.size());
+    }
 }
 
 void
@@ -352,7 +380,14 @@ Ice::OutputStreamI::writeFloat(Float v)
 void
 Ice::OutputStreamI::writeFloatSeq(const vector<Float>& v)
 {
-    _os.write(&v[0], &v[0] + v.size());
+    if(v.size() == 0)
+    {
+        _os.writeSize(0);
+    }
+    else
+    {
+        _os.write(&v[0], &v[0] + v.size());
+    }
 }
 
 void
@@ -364,7 +399,14 @@ Ice::OutputStreamI::writeDouble(Double v)
 void
 Ice::OutputStreamI::writeDoubleSeq(const vector<Double>& v)
 {
-    _os.write(&v[0], &v[0] + v.size());
+    if(v.size() == 0)
+    {
+        _os.writeSize(0);
+    }
+    else
+    {
+        _os.write(&v[0], &v[0] + v.size());
+    }
 }
 
 void
@@ -376,7 +418,14 @@ Ice::OutputStreamI::writeString(const string& v)
 void
 Ice::OutputStreamI::writeStringSeq(const vector<string>& v)
 {
-    _os.write(&v[0], &v[0] + v.size());
+    if(v.size() == 0)
+    {
+        _os.writeSize(0);
+    }
+    else
+    {
+        _os.write(&v[0], &v[0] + v.size());
+    }
 }
 
 void
