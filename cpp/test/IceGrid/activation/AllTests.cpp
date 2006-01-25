@@ -47,7 +47,7 @@ public:
 	notifyAll();
     }
 
-    virtual auto_ptr<Ice::LocalException>
+    auto_ptr<Ice::LocalException>
     waitUntilFinished()
     {
 	Lock sync(*this);
@@ -296,7 +296,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	for(p = threads.begin(); p != threads.end(); ++p)
 	{
-	    auto_ptr<Ice::LocalException> ex = (*p)->waitUntilFinished();
+	    auto_ptr<Ice::LocalException> ex((*p)->waitUntilFinished());
 	    test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
 	}
 	threads.resize(0);
@@ -312,7 +312,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	for(p = threads.begin(); p != threads.end(); ++p)
 	{
-	    auto_ptr<Ice::LocalException> ex = (*p)->waitUntilFinished();
+	    auto_ptr<Ice::LocalException> ex((*p)->waitUntilFinished());
 	    test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
 	}
 	threads.resize(0);
@@ -328,7 +328,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	for(p = threads.begin(); p != threads.end(); ++p)
 	{
-	    auto_ptr<Ice::LocalException> ex = (*p)->waitUntilFinished();
+	    auto_ptr<Ice::LocalException> ex((*p)->waitUntilFinished());
 	    test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
 	}
 	threads.resize(0);
@@ -361,7 +361,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	for(p = threads.begin(); p != threads.end(); ++p)
 	{
-	    auto_ptr<Ice::LocalException> ex = (*p)->waitUntilFinished();
+	    auto_ptr<Ice::LocalException> ex((*p)->waitUntilFinished());
 	    test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
 	}
 	admin->stopServer("server-activation-timeout");
