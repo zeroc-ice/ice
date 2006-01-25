@@ -57,6 +57,7 @@ public:
     NodeSessionPrx getSession() const;
     void setSession(const NodeSessionPrx&, const NodeObserverPrx&);
     int keepAlive();
+    void waitForSession();
     void stop();
 
 private:
@@ -85,7 +86,7 @@ private:
     std::string _tmpDir;
     unsigned long _serial;
     NodeObserverPrx _observer;
-    IceUtil::Mutex _sessionMutex;
+    IceUtil::Monitor<IceUtil::Mutex> _sessionMonitor;
     NodeSessionPrx _session;
     mutable PlatformInfo _platform;
     std::map<std::string, std::set<ServerIPtr> > _serversByApplication;

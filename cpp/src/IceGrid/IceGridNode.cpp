@@ -491,6 +491,11 @@ NodeService::start(int argc, char* argv[])
     string bundleName = properties->getProperty("IceGrid.Node.PrintServersReady");
     if(!bundleName.empty())
     {
+	//
+	// We wait for the node to be registered with the registry
+	// before to claim it's ready.
+	//
+	_node->waitForSession();
 	print(bundleName + " ready");
     }
 

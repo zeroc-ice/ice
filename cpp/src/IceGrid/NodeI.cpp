@@ -507,24 +507,29 @@ NodeI::getTraceLevels() const
 NodeObserverPrx
 NodeI::getObserver() const
 {
-    IceUtil::Mutex::Lock sync(_sessionMutex);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_sessionMonitor);
     return _observer;
 }
 
 NodeSessionPrx
 NodeI::getSession() const
 {
-    IceUtil::Mutex::Lock sync(_sessionMutex);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_sessionMonitor);
     return _session;
 }
 
 void
 NodeI::setSession(const NodeSessionPrx& session, const NodeObserverPrx& observer)
 {
-    IceUtil::Mutex::Lock sync(_sessionMutex);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_sessionMonitor);
     _session = session;
     _observer = observer;
+    if(_session)
+    {
+	_sessionMonitor.notifyAll();
+    }
 }
+
 
 int
 NodeI::keepAlive()
@@ -564,6 +569,16 @@ NodeI::keepAlive()
 	}
     }
     return 0;
+}
+
+void
+NodeI::waitForSession()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_sessionMonitor);
+    while(!_session)
+    {
+	_sessionMonitor.timedWait(IceUtil::Time::seconds(_waitTime));
+    }
 }
 
 void
