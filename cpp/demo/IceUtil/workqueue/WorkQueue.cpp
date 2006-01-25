@@ -11,10 +11,20 @@
 #include <IceUtil/Exception.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
+#include <IceUtil/StaticMutex.h>
 
 #include <list>
 
 using namespace std;
+
+static IceUtil::StaticMutex outputMutex = ICE_STATIC_MUTEX_INITIALIZER;
+
+void
+mtprint(const string& data)
+{
+    IceUtil::StaticMutex::Lock sync(outputMutex);
+    cout << data << flush;
+}
 
 class WorkQueue : public IceUtil::Thread
 {
@@ -34,7 +44,7 @@ public:
 		break;
 	    }
 
-	    cout << "work item: " << item << endl;
+	    mtprint("work item: " + item + "\n");
 	    IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
 	}
     }
@@ -80,26 +90,28 @@ main()
     {
 	WorkQueuePtr h = new WorkQueue();
 	IceUtil::ThreadControl control = h->start();
-	cout << "Pushing work items";
-	cout << '.' << flush;
+	mtprint("Pushing work items");
+	mtprint(".");
 	h->add("item1");
-	cout << '.' << flush;
+	mtprint(".");
 	h->add("item2");
-	cout << '.' << flush;
+	mtprint(".");
 	h->add("item3");
-	cout << '.' << flush;
+	mtprint(".");
 	h->add("item4");
-	cout << '.' << flush;
+	mtprint(".");
 	h->add("item5");
-	cout << '.' << flush;
+	mtprint(".");
 	h->add("destroy");
-	cout << " ok" << endl;
-	cout << "Waiting for WorkQueue to terminate" << endl;
+	mtprint("ok\n");
+	mtprint("Waiting for WorkQueue to terminate\n");
 	control.join();
     }
     catch(const IceUtil::Exception& ex)
     {
-	cerr << ex << endl;
+    	ostringstream os;
+	os << ex << "\n";
+	mtprint(os.str());
 	return EXIT_FAILURE;
     }
 
