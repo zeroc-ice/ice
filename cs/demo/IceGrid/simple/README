@@ -11,10 +11,10 @@ Note for Mono:
     if you want to run with Mono under Windows, edit application.xml
     and change the server element to read:
 
-    <server id="SimpleServer" exe="mono.bat" activation="on-demand">
+    <server id="SimpleServer" exe="mono" activation="on-demand">
       <option>./server.exe</option>
 
-    Note that the server executable is "mono.bat", and that the actual
+    Note that the server executable is "mono", and that the actual
     server executable is passed as an argument to the Mono
     interepreter.
 
