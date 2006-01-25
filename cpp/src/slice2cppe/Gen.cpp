@@ -791,7 +791,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
 	  << s << "* begin, const " << s << "* end, " << scope << "__U__" << name << ")";
 	C << sb;
-	C << nl << "::Ice::Int size = end - begin;";
+	C << nl << "::Ice::Int size = static_cast< ::Ice::Int>(end - begin);";
 	C << nl << "__os->writeSize(size);";
 	C << nl << "for(int i = 0; i < size; ++i)";
 	C << sb;

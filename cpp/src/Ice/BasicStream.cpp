@@ -707,7 +707,7 @@ IceInternal::BasicStream::readBlob(Ice::Byte* v, Container::size_type sz)
 void
 IceInternal::BasicStream::write(const Byte* begin, const Byte* end)
 {
-    Int sz = end - begin;
+    Int sz = static_cast<Int>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
@@ -751,7 +751,7 @@ IceInternal::BasicStream::write(const vector<bool>& v)
 void
 IceInternal::BasicStream::write(const bool* begin, const bool* end)
 {
-    Int sz = end - begin;
+    Int sz = static_cast<Int>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
@@ -806,7 +806,7 @@ IceInternal::BasicStream::write(Short v)
 void
 IceInternal::BasicStream::write(const Short* begin, const Short* end)
 {
-    Int sz = end - begin;
+    Int sz = static_cast<Int>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
@@ -901,7 +901,7 @@ IceInternal::BasicStream::write(Int v)
 void
 IceInternal::BasicStream::write(const Int* begin, const Int* end)
 {
-    Int sz = end - begin;
+    Int sz = static_cast<Int>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
@@ -1012,7 +1012,7 @@ IceInternal::BasicStream::write(Long v)
 void
 IceInternal::BasicStream::write(const Long* begin, const Long* end)
 {
-    Int sz = end - begin;
+    Int sz = static_cast<Int>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
@@ -1131,7 +1131,7 @@ IceInternal::BasicStream::write(Float v)
 void
 IceInternal::BasicStream::write(const Float* begin, const Float* end)
 {
-    Int sz = end - begin;
+    Int sz = static_cast<Int>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
@@ -1242,7 +1242,7 @@ IceInternal::BasicStream::write(Double v)
 void
 IceInternal::BasicStream::write(const Double* begin, const Double* end)
 {
-    Int sz = end - begin;
+    Int sz = static_cast<Int>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
@@ -1367,7 +1367,7 @@ IceInternal::BasicStream::write(const string& v)
 void
 IceInternal::BasicStream::write(const string* begin, const string* end)
 {
-    Int sz = end - begin;
+    Int sz = static_cast<Int>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
