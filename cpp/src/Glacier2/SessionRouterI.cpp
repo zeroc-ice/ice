@@ -325,7 +325,7 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	
 	try
 	{
-	    ok = _verifier->checkPermissions(userId, password, reason);
+	    ok = _verifier->checkPermissions(userId, password, reason, current.ctx);
 	}
 	catch(const Exception& ex)
 	{
@@ -373,7 +373,7 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 	//
 	if(_sessionManager)
 	{
-	    session = _sessionManager->create(userId);
+	    session = _sessionManager->create(userId, current.ctx);
 	}
     
 	//
