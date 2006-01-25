@@ -709,6 +709,17 @@ public class Client
 		{
 		    // Expected from time to time
 		}
+		
+		//
+		// Now with an iterator
+		//
+		java.util.Iterator p = subMap.keySet().iterator();
+		while(p.hasNext())
+		{
+		    Integer ck = (Integer)p.next();
+		    test(ck.intValue() < k);
+		}
+		sm.closeAllIterators();
 	    }
 
 	    //
@@ -740,6 +751,17 @@ public class Client
 		{
 		    // Expected from time to time
 		}
+
+		//
+		// Now with an iterator
+		//
+		java.util.Iterator p = subMap.keySet().iterator();
+		while(p.hasNext())
+		{
+		    String ck = (String)p.next();
+		    test(greater.compare(ck, category) < 0);
+		}
+		sm.closeAllIterators();
 	    }
 	    
 	    java.util.SortedMap subMap = sm.mapForIndex("category");
