@@ -649,6 +649,11 @@ libraries."""
 	    os.mkdir(stageDir)
 
 	#
+	# Gather and generate license files.
+	#
+	convertLicensesToRTF(os.path.dirname(__file__), target)
+
+	#
 	# The third party packages need to be staged before building the
 	# distributions. This ordering is important because it adds an
 	# additional check that the third party packages that are
@@ -657,10 +662,6 @@ libraries."""
 	components.stage(os.path.join(os.path.dirname(components.__file__), "components", "components.ini"),
 		os.path.join(os.path.dirname(components.__file__), "components"), stageDir, "packages", defaults)
 
-	#
-	# Gather and generate license files.
-	#
-	convertLicensesToRTF(os.path.dirname(__file__), target)
 
 	#
 	# Build the merge module projects.
