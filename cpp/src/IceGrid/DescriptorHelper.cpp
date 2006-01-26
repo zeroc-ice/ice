@@ -647,8 +647,11 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
 	{
 	    ObjectDescriptor obj;
 	    obj.type = resolve(q->type, "object type");
-	    obj.id.name = resolve(q->id.name, "object identity name", false);
-	    obj.id.category = resolve(q->id.category, "object identity category");
+	    obj.id = Ice::stringToIdentity(resolve(Ice::identityToString(q->id), "object identity", false));
+	    if(obj.id.name.empty())
+	    {
+		resolve.exception("invalid object identity `" + Ice::identityToString(q->id) + "': name empty");
+	    }
 	    adapter.objects.push_back(obj);
 	}
 	instance->adapters.push_back(adapter);
@@ -1989,8 +1992,11 @@ ApplicationHelper::instantiate(const Resolver& resolve) const
 	for(ObjectDescriptorSeq::iterator q = r->objects.begin(); q != r->objects.end(); ++q)
 	{
 	    q->type = resolve(q->type, "object type");
-	    q->id.name = resolve(q->id.name, "object identity name", false);
-	    q->id.category = resolve(q->id.category, "object identity category");
+	    q->id = Ice::stringToIdentity(resolve(Ice::identityToString(q->id), "object identity", false));
+	    if(q->id.name.empty())
+	    {
+		resolve.exception("invalid object identity `" + Ice::identityToString(q->id) + "': name empty");
+	    }
 	}
     }
 

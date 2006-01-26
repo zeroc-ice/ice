@@ -27,6 +27,14 @@
     <!-- Variables for parameter test -->
     <variable name="AppVarOverridedByParam" value="Test"/>
 
+    <!-- Variables for object identity test -->
+    <variable name="ObjectId" value="cat/name1"/>
+    <variable name="ObjectName1" value="name1"/>
+    <variable name="ObjectCategory1" value="cat1"/>
+    <variable name="ObjectIdSlash" value="/"/>
+    <variable name="ObjectName2" value="n2\/n2"/>
+    <variable name="ObjectCategory2" value="c2\/c2"/>
+
     <node name="localnode">
       <description>NODE ${NodeVar}</description>
  
@@ -57,6 +65,12 @@
         <adapter name="Server" endpoints="default">
           <description>ADAPTER ${NodeVar}</description>
   	  <object identity="${server}" type="::Test"/>
+          <object identity="cat\/cat/name\/name" type="::Test"/>
+          <object identity="${ObjectId}" type="::TestId1"/>
+          <object identity="${ObjectCategory1}/${ObjectName1}" type="::TestId2"/>
+          <object identity="${ObjectCategory1}${ObjectIdSlash}${ObjectName1}-bis" type="::TestId3"/>
+          <object identity="${ObjectCategory2}/${ObjectName2}" type="::TestId4"/>
+          <object identity="${ObjectIdSlash}${ObjectName2}" type="::TestId5"/>
         </adapter>
         <dbenv name="DbEnv">
           <description>DBENV ${NodeVar}</description>

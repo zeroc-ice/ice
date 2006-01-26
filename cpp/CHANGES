@@ -1,12 +1,18 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Fixed a bug in IceGrid deployment mechanism which would prevent
+  defining with a variable object identities with a category.
+
 - Added Glacier2::Router::getCategoryForClient that should be used to
   get the category for use in Glacier2 client callback objects. This
   should be used instead of getServerProxy()->ice_getIdentity().category.
 
 - The Glacier2 router now forwards the context set by the client when calling
   PermissionsVerifier::checkPermissions and SessionManager::create.
+
+- Fixed a bug in IceBox and IceGrid which would prevent running IceBox
+  servers from a directory containing white spaces.
 
 - Fixed a bug in the class garbage collector that could result in
   double deallocation of class instances.

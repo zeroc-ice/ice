@@ -76,6 +76,14 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(),"ReplicatedObject")) != objs.end());
 
     {
+	test(Ice::identityToString(query->findObjectByType("::TestId1")->ice_getIdentity()) == "cat/name1");
+	test(Ice::identityToString(query->findObjectByType("::TestId2")->ice_getIdentity()) == "cat1/name1");
+	test(Ice::identityToString(query->findObjectByType("::TestId3")->ice_getIdentity()) == "cat1/name1-bis");
+	test(Ice::identityToString(query->findObjectByType("::TestId4")->ice_getIdentity()) == "c2\\/c2/n2\\/n2");
+	test(Ice::identityToString(query->findObjectByType("::TestId5")->ice_getIdentity()) == "n2\\/n2");
+    }
+
+    {
 	Ice::ObjectPrx obj = query->findObjectByType("::Test");
 	string id = Ice::identityToString(obj->ice_getIdentity());
 	test(id == "Server1" || id == "Server2" || id == "SimpleServer" ||
