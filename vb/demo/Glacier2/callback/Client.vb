@@ -65,7 +65,7 @@ Module Glacier2callbackC
 
             End While
 
-            Dim category As String = router.getServerProxy().ice_getIdentity().category
+            Dim category As String = router.getCategoryForClient()
             Dim callbackReceiverIdent As Ice.Identity = New Ice.Identity
             callbackReceiverIdent.name = "callbackReceiver"
             callbackReceiverIdent.category = category

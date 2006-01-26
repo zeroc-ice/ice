@@ -194,7 +194,7 @@ class CallbackClient extends Ice.Application
         {
             System.out.print("getting category from router... ");
             System.out.flush();
-            category = router.getServerProxy().ice_getIdentity().category;
+            category = router.getCategoryForClient();
             System.out.println("ok");
         }
 

@@ -64,6 +64,17 @@ interface Router extends Ice::Router
 {
     /**
      *
+     * This category must be used in the identities of all client’s
+     * callback objects.  This is necessary in order for the router to
+     * forward callback requests to the intended client.
+     *
+     * @return The category.
+     *
+     **/
+    nonmutating string getCategoryForClient();
+
+    /**
+     *
      * Create a per-client session with the router. If a
      * [SessionManager] has been installed, a proxy to a [Session]
      * object is returned to the client. Otherwise, null is returned

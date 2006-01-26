@@ -84,7 +84,7 @@ CallbackClient::run(int argc, char* argv[])
 	}
     }
 
-    string category = router->getServerProxy()->ice_getIdentity().category;
+    string category = router->getCategoryForClient();
     Ice::Identity callbackReceiverIdent;
     callbackReceiverIdent.name = "callbackReceiver";
     callbackReceiverIdent.category = category;

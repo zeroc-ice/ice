@@ -81,7 +81,7 @@ public class Client extends Ice.Application
             }
 	}
 
-	String category = router.getServerProxy().ice_getIdentity().category;
+	String category = router.getCategoryForClient();
 	Ice.Identity callbackReceiverIdent = new Ice.Identity();
 	callbackReceiverIdent.name = "callbackReceiver";
 	callbackReceiverIdent.category = category;

@@ -53,7 +53,7 @@ class Client(Ice.Application):
 	    except Glacier2.PermissionDeniedException, ex:
 	        print "permission denied:\n" + ex.reason
 
-	category = router.getServerProxy().ice_getIdentity().category
+	category = router.getCategoryForClient()
 	callbackReceiverIdent = Ice.Identity()
 	callbackReceiverIdent.name = "callbackReceiver"
 	callbackReceiverIdent.category = category

@@ -226,7 +226,7 @@ CallbackClient::run(int argc, char* argv[])
 
     {
 	cout << "getting category from router... " << flush;
-	category = router->getServerProxy()->ice_getIdentity().category;
+	category = router->getCategoryForClient();
 	cout << "ok" << endl;
     }
 

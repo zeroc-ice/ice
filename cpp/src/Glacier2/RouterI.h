@@ -33,6 +33,7 @@ public:
     virtual Ice::ObjectPrx getClientProxy(const Ice::Current&) const;
     virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
     virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
+    virtual std::string getCategoryForClient(const Ice::Current&) const;
     virtual SessionPrx createSession(const std::string&, const std::string&, const Ice::Current&);
     virtual void destroySession_async(const AMD_Router_destroySessionPtr&, const ::Ice::Current&);
 

@@ -1,6 +1,10 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added Glacier2::Router::getCategoryForClient that should be used to
+  get the category for use in Glacier2 client callback objects. This
+  should be used instead of getServerProxy()->ice_getIdentity().category.
+
 - The Glacier2 router now forwards the context set by the client when calling
   PermissionsVerifier::checkPermissions and SessionManager::create.
 

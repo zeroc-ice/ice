@@ -140,6 +140,13 @@ Glacier2::RouterI::addProxy(const ObjectPrx& proxy, const Current& current)
     _routingTable->add(proxy);
 }
 
+string
+Glacier2::RouterI::getCategoryForClient(const Ice::Current&) const
+{
+    assert(false); // Must not be called in this router implementation.
+    return 0;
+}
+
 SessionPrx
 Glacier2::RouterI::createSession(const std::string&, const std::string&, const Current&)
 {

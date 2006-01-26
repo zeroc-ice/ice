@@ -541,14 +541,15 @@ class SessionKeeper
 	String uuid = Ice.Util.generateUUID();
 	String category;
 
-	Ice.RouterPrx router = _model.getCommunicator().getDefaultRouter();
+	Glacier2.RouterPrx router = Glacier2.RouterPrxHelper.uncheckedCast(
+	    _model.getCommunicator().getDefaultRouter());
 	if(router == null)
 	{
 	    category = "observer";
 	}
 	else
 	{
-	    category = router.getServerProxy().ice_getIdentity().category;
+	    category = router.getCategoryForClient();
 	}
 	
 	//

@@ -180,7 +180,7 @@ public class Client : Ice.Application
         {
             Console.Out.Write("getting category from router... ");
             Console.Out.Flush();
-            category = router.getServerProxy().ice_getIdentity().category;
+            category = router.getCategoryForClient();
             Console.Out.WriteLine("ok");
         }
 
