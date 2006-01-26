@@ -55,11 +55,11 @@ $(CLIENT): $(OBJS) $(COBJS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 $(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) -lFreeze $(LIBS) $(READLINE_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS) $(READLINE_LIBS)
 
 NameIndex.h NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE)
 	rm -f NameIndex.h NameIndex.cpp

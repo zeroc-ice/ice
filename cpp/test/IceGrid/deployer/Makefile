@@ -50,7 +50,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 
 $(SVCFILENAME): $(OBJS) $(SERVICE_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SVCSONAME),$(OBJS) $(SERVICE_OBJS), -lFreeze $(LINKWITH))
+	$(call mkshlib,$@,$(SVCSONAME),$(OBJS) $(SERVICE_OBJS), $(DB_RPATH_LINK) -lFreeze $(LINKWITH))
 
 clean::
 	rm -rf db/node db/registry

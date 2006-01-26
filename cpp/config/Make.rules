@@ -188,42 +188,24 @@ else
     STLPORT_LIBS	=
 endif
 
-ifneq ($(OPENSSL_HOME),)
-    OPENSSL_FLAGS	= -I$(OPENSSL_HOME)/include
-    OPENSSL_LIBS	= -L$(OPENSSL_HOME)/$(libsubdir) -lssl -lcrypto
-else
-    OPENSSL_FLAGS	=
-    OPENSSL_LIBS	= -lssl -lcrypto
-endif
+OPENSSL_FLAGS           = $(if $(OPENSSL_HOME),-I$(OPENSSL_HOME)/include)
+OPENSSL_LIBS            = $(if $(OPENSSL_HOME),-L$(OPENSSL_HOME)/$(libsubdir)) -lssl -lcrypto
+OPENSSL_RPATH_LINK      = $(if $(OPENSSL_HOME),$(call rpathlink,$(OPENSSL_HOME)/$(libsubdir)))
 
 ifneq ($(KERBEROS_HOME),)
     OPENSSL_FLAGS	+= -I$(KERBEROS_HOME)/include
 endif
 
-ifneq ($(BZIP2_HOME),)
-    BZIP2_FLAGS		= -I$(BZIP2_HOME)/include
-    BZIP2_LIBS		= -L$(BZIP2_HOME)/$(libsubdir) -lbz2
-else
-    BZIP2_FLAGS		=
-    BZIP2_LIBS		= -lbz2
-endif
+BZIP2_FLAGS             = $(if $(BZIP2_HOME),-I$(BZIP2_HOME)/include)
+BZIP2_LIBS              = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
 
-ifneq ($(DB_HOME),)
-    DB_FLAGS		= -I$(DB_HOME)/include
-    DB_LIBS		= -L$(DB_HOME)/$(libsubdir) -ldb_cxx
-else
-    DB_FLAGS		=
-    DB_LIBS		= -ldb_cxx
-endif
+DB_FLAGS                = $(if $(DB_HOME),-I$(DB_HOME)/include)
+DB_LIBS                 = $(if $(DB_HOME),-L$(DB_HOME)/$(libsubdir)) -ldb_cxx
+DB_RPATH_LINK           = $(if $(DB_HOME),$(call rpathlink,$(DB_HOME)/$(libsubdir)))
 
-ifneq ($(EXPAT_HOME),)
-    EXPAT_FLAGS		= -I$(EXPAT_HOME)/include
-    EXPAT_LIBS		= -L$(EXPAT_HOME)/$(libsubdir) -lexpat
-else
-    EXPAT_FLAGS		=
-    EXPAT_LIBS		= -lexpat
-endif
-
+EXPAT_FLAGS             = $(if $(EXPAT_HOME),-I$(EXPAT_HOME)/include)
+EXPAT_LIBS              = $(if $(EXPAT_HOME),-L$(EXPAT_HOME)/$(libsubdir)) -lexpat
+EXPAT_RPATH_LINK        = $(if $(EXPAT_HOME),$(call rpathlink,$(EXPAT_HOME)/$(libsubdir)))
 
 #
 # The GPL_BUILD flag is used only where readline may be
@@ -236,13 +218,8 @@ endif
 
 ifeq ($(PLATFORM_HAS_READLINE),yes)
     ifeq ($(USE_READLINE),yes)
-	ifneq ($(READLINE_HOME),)
-	    READLINE_FLAGS	+=  -DHAVE_READLINE -I$(READLINE_HOME)/include
-	    READLINE_LIBS	= -L$(READLINE_HOME)/$(libsubdir) -lreadline -lncurses
-	else
-	    READLINE_FLAGS	+= -DHAVE_READLINE
-	    READLINE_LIBS	= -lreadline -lncurses
-	endif
+        READLINE_FLAGS  = -DHAVE_READLINE $(if $(READLINE_HOME),-I$READLINE_HOME)/include)
+        READLINE_LIBS   = $(if $(READLINE_HOME),-L$(READLINE_HOME)/$(libsubdir)) -lreadline -lncurses        
     endif
 endif
 

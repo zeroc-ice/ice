@@ -70,7 +70,7 @@ CPPFLAGS	:= $(CPPFLAGS) -I.. $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	:= --checksum --ice --dll-export ICE_STORM_API --include-dir IceStorm $(SLICE2CPPFLAGS)
 LINKWITH	:= -lIce -lIceUtil
-SVCLINKWITH	:= -lFreeze -lIceBox -lIce -lIceUtil
+SVCLINKWITH	:= $(DB_RPATH_LINK) -lFreeze -lIceBox -lIce -lIceUtil
 
 IceStorm.o: IceStorm.cpp
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) -DICE_STORM_API_EXPORTS $<
@@ -105,7 +105,7 @@ $(libdir)/$(SVCLIBNAME): $(libdir)/$(SVCSONAME)
 
 $(ADMIN): $(AOBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm -lIceXML $(READLINE_LIBS) $(LIBS) $(EXPAT_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(EXPAT_RPATH_LINK) -lIceXML $(READLINE_LIBS) $(LIBS)
 
 PersistentTopicMap.h PersistentTopicMap.cpp: ../IceStorm/LinkRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
 	rm -f PersistentTopicMap.h PersistentTopicMap.cpp

@@ -101,6 +101,8 @@ ifeq ($(CXX),c++)
 
    mklib		= ar cr $(1) $(2)
 
+   rpathlink            = -Wl,-rpath-link,$(1) 
+
    LDPLATFORMFLAGS 	= -Wl,--enable-new-dtags -Wl,-rpath,$(install_libdir)
 
 endif
@@ -127,6 +129,8 @@ ifeq ($(CXX),icpc)
    mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
 
    mklib		= ar cr $(1) $(2)
+
+   rpathlink            = -Wl,-rpath-link,$(1) 
 
 endif
 

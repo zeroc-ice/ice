@@ -122,18 +122,17 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(ADMIN): $(ADMIN_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lGlacier2 -lIceXML -lIceGrid $(LIBS) $(READLINE_LIBS) \
-	$(EXPAT_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lGlacier2 $(EXPAT_RPATH_LINK) -lIceXML -lIceGrid $(LIBS) $(READLINE_LIBS)
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIceGrid -lIceStormService -lGlacier2 -lFreeze \
-	-lIceBox -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIceGrid -lIceStormService -lGlacier2 $(DB_RPATH_LINK) -lFreeze \
+	-lIceBox $(EXPAT_RPATH_LINK) -lIceXML $(LIBS)
 
 $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIceStormService -lIceBox -lGlacier2 -lIcePatch2 -lFreeze -lIceXML \
-	$(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIceStormService -lIceBox -lGlacier2 -lIcePatch2 $(DB_RPATH_LINK) -lFreeze $(EXPAT_RPATH_LINK) -lIceXML \
+	$(LIBS)
 
 $(LOCAL_HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp

@@ -25,7 +25,7 @@ CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 BenchTypes.h BenchTypes.cpp: Test.ice $(SLICE2FREEZE)
 	rm -f BenchTypes.h BenchTypes.cpp

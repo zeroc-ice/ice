@@ -64,7 +64,7 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
-LINKWITH        := -lIceXML -lIce -lIceUtil $(OPENSSL_LIBS) $(CXXLIBS)
+LINKWITH        := $(EXPAT_RPATH_LINK) -lIceXML -lIce -lIceUtil $(OPENSSL_LIBS) $(CXXLIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@

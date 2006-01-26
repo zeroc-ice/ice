@@ -51,21 +51,7 @@ CXXLIBS			= -lCsup_v2 -lstd_v2
 
 LIBPATH                 =
 
-ifneq ($(OPENSSL_HOME),)
-    LIBPATH             += -L$(OPENSSL_HOME)/$(libsubdir)
-endif
 
-ifneq ($(BZIP2_HOME),)
-   LIBPATH              += -L$(BZIP2_HOME)/$(libsubdir)
-endif
-
-ifneq ($(DB_HOME),)
-   LIBPATH              += -L$(DB_HOME)/$(libsubdir)
-endif
-
-ifneq ($(EXPAT_HOME),)
-   LIBPATH              += -L$(EXPAT_HOME)/$(libsubdir)
-endif
 
 LDPLATFORMFLAGS         = -Wl,+s -Wl,+b$(install_libdir) $(LIBPATH)
 
@@ -76,6 +62,9 @@ ifeq ($(STATICLIBS),)
 endif
 mkshlib                 = $(CXX) -b -Wl,-Bsymbolic $(LDFLAGS) -o $(1) -Wl,+h$(2) $(3) $(4)
 mklib			= ar cr $(1) $(2)
+
+rpathlink               = -L$(1)
+
 
 BASELIBS		= -lIceUtil -lxnet -lpthread
 LIBS			= -lIce $(BASELIBS)

@@ -68,7 +68,7 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(ROUTER): $(ROBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(ROBJS) -lGlacier2 $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(ROBJS) -lGlacier2 $(LIBS) $(OPENSSL_LIBS)
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))

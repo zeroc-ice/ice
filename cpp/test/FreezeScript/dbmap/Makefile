@@ -23,11 +23,11 @@ SLICE_SRCS	= TestOld.ice
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. $(DB_FLAGS) $(CPPFLAGS)
+CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze $(DB_LIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 IntSMap.h IntSMap.cpp: $(SLICE2FREEZE)
 	rm -f IntSMap.h IntSMap.cpp
