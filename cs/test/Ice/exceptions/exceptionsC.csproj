@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Exe"
-                PreBuildEvent = "$(SolutionDir)\bin\generatecs.exe $(SolutionDir) $(ProjectDir) $(ProjectName)"
+                PreBuildEvent = '"$(SolutionDir)."\bin\generatecs.exe "$(SolutionDir)." "$(ProjectDir)." $(ProjectName)'
                 PostBuildEvent = ""
                 RootNamespace = ""
                 RunPostBuildEvent = "OnBuildSuccess"

@@ -57,11 +57,11 @@ namespace Generate
                 string includes = "";
                 if(Directory.Exists(Path.Combine(solDir, "slice")))
                 {
-                    includes = "-I" + Path.Combine(solDir, "slice");
+                    includes = "-I" + handlePathSpaces(Path.Combine(solDir, "slice"));
                 }
                 if(Directory.Exists(Path.Combine(iceHome, "slice")))
                 {
-                    includes += " -I" + Path.Combine(iceHome, "slice");
+                    includes += " -I" + handlePathSpaces(Path.Combine(iceHome, "slice"));
                 }
 
                 if(sliceFiles.Count == 0)
@@ -91,7 +91,7 @@ namespace Generate
                 {
                     if(iceHome != null)
                     {
-                        slice2cs = Path.Combine(Path.Combine(iceHome, "bin"), slice2csName);
+                        slice2cs = handlePathSpaces(Path.Combine(Path.Combine(iceHome, "bin"), slice2csName));
                         if(!File.Exists(slice2cs) && !File.Exists(slice2cs + ".exe"))
                         {
                             slice2cs = slice2csName;
@@ -107,14 +107,7 @@ namespace Generate
                 string cmdArgs = "--ice -I. " + includes + " --output-dir " + outputDir;
                 for(int i = 3; i < args.Length; ++i)
                 {
-                    if(args[i].IndexOf(' ') != -1)
-                    {
-                        cmdArgs += " \"" + args[i] + "\"";
-                    }
-                    else
-                    {
-                        cmdArgs += " " + args[i];
-                    }
+		    cmdArgs += " " + handlePathSpaces(args[i]);
                 }
 
                 bool needCompile = false;
@@ -124,7 +117,7 @@ namespace Generate
                     string csFile = Path.Combine(outputDir, Path.ChangeExtension(Path.GetFileName(sliceFile), ".cs"));
                     if(!File.Exists(csFile) || sliceTime > File.GetLastWriteTime(csFile))
                     {
-                        cmdArgs += " " + sliceFile;
+                        cmdArgs += " " + handlePathSpaces(sliceFile);
                         Console.Out.WriteLine(Path.GetFileName(sliceFile));
                         needCompile = true;
                     }
@@ -209,6 +202,15 @@ namespace Generate
 	    string output = p.StandardError.ReadToEnd();
 	    Console.Error.Write(output);
 	    Console.Error.Flush();
+	}
+
+	private static string handlePathSpaces(string dir)
+	{
+	    if(dir.IndexOf(' ') != -1)
+	    {
+		return "\"" + dir + "\"";
+	    }
+	    return dir;
 	}
     }
 }	    

@@ -16,8 +16,8 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                PreBuildEvent = "$(SolutionDir)\bin\generatecs.exe $(SolutionDir) $(ProjectDir) $(ProjectName)"
-                PostBuildEvent = ""
+                PreBuildEvent = '"$(SolutionDir)."\bin\generatecs.exe "$(SolutionDir)." "$(ProjectDir)." $(ProjectName)'
+                PostBuildEvent = '"%VS71COMNTOOLS%"vsvars32.bat && al.exe /link:"$(ProjectDir)."\policy.3.0.icegridcs /out:"$(ProjectDir)."\policy.3.0.icegridcs.dll /keyfile:"$(SolutionDir)."\config\IcecsKey.snk && move "$(ProjectDir)."\policy.3.0.icegridcs.dll "$(ProjectDir)."\..\..\bin && copy "$(ProjectDir)."\policy.3.0.icegridcs "$(ProjectDir)."\..\..\bin'
                 RootNamespace = ""
                 RunPostBuildEvent = "OnBuildSuccess"
                 StartupObject = ""

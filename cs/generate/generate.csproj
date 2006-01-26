@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Exe"
-                PreBuildEvent = ""
+                PreBuildEvent = ''
                 PostBuildEvent = ""
                 RootNamespace = "generatecs"
                 RunPostBuildEvent = "OnBuildSuccess"
