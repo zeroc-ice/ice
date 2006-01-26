@@ -158,6 +158,34 @@ def getAdapterReady(serverPipe):
         killServers()
         sys.exit(1)
 
+def getIceBox(testdir):
+
+    #
+    # Get and return the path of the IceBox executable
+    #
+
+    iceBox = ""
+    if isWin32():
+	#
+    	# Read the build.txt file from the test directory to figure out 
+    	# how the IceBox service was built ("debug" vs. "release") and 
+	# decide which icebox executable to use.
+    	# 
+    	build = open(os.path.join(testdir, "build.txt"), "r")
+    	type = build.read().strip()
+    	if type == "debug":
+	    iceBox = os.path.join(toplevel, "bin", "iceboxd.exe")
+        elif type == "release":
+            iceBox = os.path.join(toplevel, "bin", "icebox.exe")
+    else:
+	iceBox = os.path.join(toplevel, "bin", "icebox")
+
+    if iceBox == "" or not os.path.exists(iceBox):
+	print "couldn't find icebox executable to run the test"
+	sys.exit(0)
+
+    return iceBox;
+
 def waitServiceReady(pipe, token):
 
     while 1:

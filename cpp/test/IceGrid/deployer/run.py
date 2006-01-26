@@ -32,10 +32,7 @@ else:
     os.environ["LD_LIBRARY_PATH"] = testdir + ":" + os.getenv("LD_LIBRARY_PATH", "")
     os.environ["LD_LIBRARY_PATH_64"] = testdir + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
 
-if TestUtil.isWin32() and os.path.exists(os.path.join(toplevel, "bin", "iceboxd.exe")):
-    iceBox = os.path.join(toplevel, "bin", "iceboxd")
-else:
-    iceBox = os.path.join(toplevel, "bin", "icebox")
+iceBox = TestUtil.getIceBox(testdir)
 
 #
 # Start the client.
