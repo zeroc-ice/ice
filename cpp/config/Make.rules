@@ -22,8 +22,8 @@ prefix			?= /opt/Ice-$(VERSION)
 #OPTIMIZE		= yes
 
 #
-# Define LP64 as yes if you want to build in 64 bit mode on a platform
-# that supports both 32 and 64 bit.
+# Define LP64 as yes or no if you want force a 32 or 64 bit. The default
+# is platform-dependent
 #
 #LP64			:= yes
 
@@ -102,17 +102,18 @@ endif
 #OPENSSL_HOME		?= /opt/openssl
 
 #
-# Define if your OpenSSL requires Kerberos, and if Kerberos is not
-# installed in a standard location.
-#
-
-KERBEROS_HOME		?= /usr/kerberos
-
-#
 # If expat is not installed in a standard location where the
 # compiler can find it, set EXPAT_HOME to the expat
 # installation directory.
 #
+
+#
+# Define if your OpenSSL requires Kerberos, and if Kerberos is not
+# installed in a standard location
+#
+
+KERBEROS_HOME           ?= /usr/kerberos
+
 
 #EXPAT_HOME		?= /opt/expat
 
@@ -188,13 +189,9 @@ else
     STLPORT_LIBS	=
 endif
 
-OPENSSL_FLAGS           = $(if $(OPENSSL_HOME),-I$(OPENSSL_HOME)/include)
+OPENSSL_FLAGS           = $(if $(OPENSSL_HOME),-I$(OPENSSL_HOME)/include) -I$(KERBEROS_HOME)/include
 OPENSSL_LIBS            = $(if $(OPENSSL_HOME),-L$(OPENSSL_HOME)/$(libsubdir)) -lssl -lcrypto
 OPENSSL_RPATH_LINK      = $(if $(OPENSSL_HOME),$(call rpathlink,$(OPENSSL_HOME)/$(libsubdir)))
-
-ifneq ($(KERBEROS_HOME),)
-    OPENSSL_FLAGS	+= -I$(KERBEROS_HOME)/include
-endif
 
 BZIP2_FLAGS             = $(if $(BZIP2_HOME),-I$(BZIP2_HOME)/include)
 BZIP2_LIBS              = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
@@ -218,7 +215,7 @@ endif
 
 ifeq ($(PLATFORM_HAS_READLINE),yes)
     ifeq ($(USE_READLINE),yes)
-        READLINE_FLAGS  = -DHAVE_READLINE $(if $(READLINE_HOME),-I$READLINE_HOME)/include)
+        READLINE_FLAGS  = -DHAVE_READLINE $(if $(READLINE_HOME),-I$(READLINE_HOME)/include)
         READLINE_LIBS   = $(if $(READLINE_HOME),-L$(READLINE_HOME)/$(libsubdir)) -lreadline -lncurses        
     endif
 endif

@@ -6,7 +6,7 @@ Requirements
 Operating System
 ----------------
 
-A recent Linux distribution for x86 (i386) or x86_64.
+A recent Linux distribution for x86 or x86_64.
 
 
 C++ compiler
@@ -123,12 +123,16 @@ To build Ice in 64 bit mode, you need to do the following:
   libraries in the "lib64" directories. For example, put Berkeley DB
   64 bit libraries in $DB_HOME/lib64.
 
-- Set the environment variable LP64 to yes, as shown below:
-
-  $ export LP64=yes
-
 - Build and test as described above (with gcc).
 
+======================================================================
+32 bit builds on x86_64
+======================================================================
+
+By default, builds on x86_64 are 64-bit. To perform a 32-bit build
+on a x86_64 Linux system, set the environment variable LP64 to no,
+as shown below:
+  $ export LP64=no
 
 ======================================================================
 Installation
@@ -145,5 +149,5 @@ programs, you must pass the location of the <prefix>/include directory
 to the compiler with the -I option, and the location of the
 <prefix>/lib directory with the -L option.  
 
-If LP64 is set to yes, the libraries are installed in <prefix>/lib64.
-No other changes are necessary.
+On a x86_64 system, the libraries are installed in <prefix>/lib64
+unless LP64 is set to no. No other changes are necessary.

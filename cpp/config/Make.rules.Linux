@@ -31,6 +31,10 @@ endif
 CFLAGS = -O2
 
 ifeq ($(MACHINE),x86_64)
+   
+   ifeq ($(LP64),)
+      LP64      = yes
+   endif
    ifeq ($(LP64),yes)
       CFLAGS	+= -m64
    else
