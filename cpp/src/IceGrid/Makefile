@@ -131,7 +131,7 @@ $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(LIBTARGETS)
 
 $(NODE_SERVER): $(NODE_SVR_OBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIceStormService -lIceBox -lGlacier2 -lIcePatch2 $(DB_RPATH_LINK) -lFreeze $(EXPAT_RPATH_LINK) -lIceXML \
+	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIceGrid -lIceStormService -lIceBox -lGlacier2 $(OPENSSL_RPATH_LINK) -lIcePatch2 $(DB_RPATH_LINK) -lFreeze $(EXPAT_RPATH_LINK) -lIceXML \
 	$(LIBS)
 
 $(LOCAL_HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)

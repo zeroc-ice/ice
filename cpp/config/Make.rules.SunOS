@@ -112,6 +112,8 @@ ifeq ($(CXX),g++)
     mklib		    = ar cr $(1) $(2)
 endif
 
+rpathlink                   = -L$(1)
+
 BASELIBS		    = -lIceUtil -lpthread
 LIBS			    = -lIce $(BASELIBS)
 
