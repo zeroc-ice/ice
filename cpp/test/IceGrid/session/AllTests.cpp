@@ -709,6 +709,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(false);
 	}
 
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroying)
+	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroyed)
+
 	session1->destroy();
 	adpt1->deactivate();
 	adpt1->waitForDeactivate();
