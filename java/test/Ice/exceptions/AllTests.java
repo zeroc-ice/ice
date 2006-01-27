@@ -73,6 +73,7 @@ public class AllTests
 	public void
 	ice_exception(Ice.LocalException exc)
 	{
+	    exc.printStackTrace();
 	    test(false);
 	}
 
@@ -89,6 +90,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -125,6 +127,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -133,6 +136,7 @@ public class AllTests
 	public void
 	ice_exception(Ice.UserException exc)
 	{
+	    exc.printStackTrace();
 	    test(false);
 	}
 
@@ -166,6 +170,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -174,6 +179,7 @@ public class AllTests
 	public void
 	ice_exception(Ice.UserException exc)
 	{
+	    exc.printStackTrace();
 	    test(false);
 	}
 
@@ -197,6 +203,7 @@ public class AllTests
 	public void
 	ice_exception(Ice.LocalException exc)
 	{
+	    exc.printStackTrace();
 	    test(false);
 	}
 
@@ -217,6 +224,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -242,6 +250,7 @@ public class AllTests
 	public void
 	ice_exception(Ice.LocalException exc)
 	{
+	    exc.printStackTrace();
 	    test(false);
 	}
 
@@ -259,6 +268,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -284,6 +294,7 @@ public class AllTests
 	public void
 	ice_exception(Ice.LocalException exc)
 	{
+	    exc.printStackTrace();
 	    test(false);
 	}
 
@@ -302,6 +313,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -327,6 +339,7 @@ public class AllTests
 	public void
 	ice_exception(Ice.LocalException exc)
 	{
+	    exc.printStackTrace();
 	    test(false);
 	}
 
@@ -344,6 +357,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -369,6 +383,7 @@ public class AllTests
 	public void
 	ice_exception(Ice.LocalException exc)
 	{
+	    exc.printStackTrace();
 	    test(false);
 	}
 
@@ -387,6 +402,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -412,6 +428,7 @@ public class AllTests
 	public void
 	ice_exception(Ice.LocalException exc)
 	{
+	    exc.printStackTrace();
 	    test(false);
 	}
 
@@ -430,6 +447,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -464,6 +482,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -498,6 +517,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -532,6 +552,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -566,6 +587,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -600,6 +622,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -634,6 +657,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -669,6 +693,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    callback.called();
@@ -813,6 +838,7 @@ public class AllTests
         }
         catch(Exception ex)
         {
+	    ex.printStackTrace();
             test(false);
         }
 
@@ -827,6 +853,7 @@ public class AllTests
         }
         catch(Exception ex)
         {
+	    ex.printStackTrace();
             test(false);
         }
 
@@ -841,6 +868,7 @@ public class AllTests
         }
         catch(Exception ex)
         {
+	    ex.printStackTrace();
             test(false);
         }
 
@@ -856,6 +884,7 @@ public class AllTests
         }
         catch(Exception ex)
         {
+	    ex.printStackTrace();
             test(false);
         }
 
@@ -872,6 +901,7 @@ public class AllTests
         }
         catch(Exception ex)
         {
+	    ex.printStackTrace();
             test(false);
         }
 
@@ -891,6 +921,7 @@ public class AllTests
         }
         catch(Exception ex)
         {
+	    ex.printStackTrace();
             test(false);
         }
 
@@ -906,6 +937,7 @@ public class AllTests
         }
         catch(Exception ex)
         {
+	    ex.printStackTrace();
             test(false);
         }
 
@@ -926,6 +958,7 @@ public class AllTests
         }
         catch(Exception ex)
         {
+	    ex.printStackTrace();
             test(false);
         }
 
@@ -942,6 +975,7 @@ public class AllTests
         }
         catch(Exception ex)
         {
+	    ex.printStackTrace();
             test(false);
         }
 
@@ -958,6 +992,7 @@ public class AllTests
         }
         catch(Exception ex)
         {
+	    ex.printStackTrace();
             test(false);
         }
 
@@ -980,6 +1015,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    
@@ -993,6 +1029,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    
@@ -1006,6 +1043,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    
@@ -1032,6 +1070,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	    
@@ -1055,6 +1094,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 	}
@@ -1079,6 +1119,7 @@ public class AllTests
 	}
         catch(Exception ex)
         {
+	    ex.printStackTrace();
             test(false);
         }
 
@@ -1099,6 +1140,7 @@ public class AllTests
         }
         catch(Exception ex)
         {
+	    ex.printStackTrace();
             test(false);
         }
 
@@ -1130,6 +1172,7 @@ public class AllTests
 	}
         catch(Exception ex)
         {
+	    ex.printStackTrace();
             test(false);
         }
 
@@ -1293,6 +1336,7 @@ public class AllTests
 	    }
 	    catch(Exception ex)
 	    {
+		ex.printStackTrace();
 		test(false);
 	    }
 		
