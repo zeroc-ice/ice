@@ -1,4 +1,6 @@
 <?
+error_reporting(E_ALL | E_STRICT);
+
 Ice_loadProfileWithArgs($argv);
 
 function test($b)

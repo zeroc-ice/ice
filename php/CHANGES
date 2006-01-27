@@ -1,3 +1,9 @@
+Changes since version 3.0.1
+---------------------------
+
+- Eliminated the source of deprecation warnings when E_STRICT is
+  enabled.
+
 Changes since version 3.0.0
 ---------------------------
 

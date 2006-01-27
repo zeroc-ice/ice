@@ -1,4 +1,6 @@
 <?
+error_reporting(E_ALL | E_STRICT);
+
 Ice_loadProfileWithArgs($argv);
 
 class BI extends Test_B
