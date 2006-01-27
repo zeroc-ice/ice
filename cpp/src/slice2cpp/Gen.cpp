@@ -609,16 +609,19 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         H << sp << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
         H << nl << "virtual void __read(const ::Ice::InputStreamPtr&, bool);";
 
-	TypeStringList memberList;
-	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    memberList.push_back(make_pair((*q)->type(), (*q)->name()));
-	}
+        TypeStringList memberList;
+        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            memberList.push_back(make_pair((*q)->type(), (*q)->name()));
+        }
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
 	C << sb;
 	C << nl << "__os->write(::std::string(\"" << p->scoped() << "\"));";
 	C << nl << "__os->startWriteSlice();";
-	writeMarshalCode(C, memberList, 0);
+	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true);
+	}
 	C << nl << "__os->endWriteSlice();";
 	if(base)
 	{
@@ -634,7 +637,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	C << nl << "__is->read(myId);";
 	C << eb;
 	C << nl << "__is->startReadSlice();";
-	writeUnmarshalCode(C, memberList, 0);
+	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true);
+	}
 	C << nl << "__is->endReadSlice();";
 	if(base)
 	{
@@ -852,24 +858,31 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             H << nl << _dllExport << "void __read(const ::Ice::InputStreamPtr&);";
         }
 
-	TypeStringList memberList;
-	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    memberList.push_back(make_pair((*q)->type(), (*q)->name()));
-	}
+        TypeStringList memberList;
+        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            memberList.push_back(make_pair((*q)->type(), (*q)->name()));
+        }
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
 	C << sb;
-	writeMarshalCode(C, memberList, 0);
+        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true);
+        }
 	C << eb;
 
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
 	C << sb;
-	writeUnmarshalCode(C, memberList, 0);
+        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true);
+        }
 	C << eb;
 
 	if(_stream)
 	{
-	    C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
+	    C << sp << nl << "void" << nl << scoped.substr(2)
+	      << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
 	    C << sb;
 	    writeStreamMarshalCode(C, memberList, 0);
 	    C << eb;
@@ -1880,8 +1893,8 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     vector<string> params;
     vector<string> paramsDecl;
 
-    TypeStringList inParams;
-    TypeStringList outParams;
+    ParamDeclList inParams;
+    ParamDeclList outParams;
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
@@ -1891,12 +1904,12 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	string typeString;
 	if(isOutParam)
 	{
-	    outParams.push_back(make_pair(type, paramName));
+	    outParams.push_back(*q);
 	    typeString = outputTypeToString(type);
 	}
 	else
 	{
-	    inParams.push_back(make_pair(type, paramName));
+	    inParams.push_back(*q);
 	    typeString = inputTypeToString(type);
 	}
 
@@ -1986,7 +1999,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << eb;
 
-    writeAllocateCode(C, TypeStringList(), ret);
+    writeAllocateCode(C, ParamDeclList(), ret);
     writeUnmarshalCode(C, outParams, ret);
     if(p->returnsClasses())
     {
@@ -2698,7 +2711,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
 	TypeStringList memberList;
 	DataMemberList dataMembers = p->dataMembers();
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	DataMemberList::const_iterator q;
+	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	{
 	    memberList.push_back(make_pair((*q)->type(), (*q)->name()));
 	}
@@ -2708,7 +2722,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << sb;
 	C << nl << "__os->writeTypeId(ice_staticId());";
 	C << nl << "__os->startWriteSlice();";
-	writeMarshalCode(C, memberList, 0);
+        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true);
+        }
 	C << nl << "__os->endWriteSlice();";
 	emitUpcall(base, "::__write(__os);");
 	C << eb;
@@ -2721,7 +2738,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << nl << "__is->readTypeId(myId);";
 	C << eb;
 	C << nl << "__is->startReadSlice();";
-	writeUnmarshalCode(C, memberList, 0);
+        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true);
+        }
 	C << nl << "__is->endReadSlice();";
 	emitUpcall(base, "::__read(__is, true);");
 	C << eb;
@@ -2941,8 +2961,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     string paramsDeclAMD = "(const " + classScopedAMD + '_' + name + "Ptr& __cb, ";
     string argsAMD = "(__cb, ";
 
-    TypeStringList inParams;
-    TypeStringList outParams;
+    ParamDeclList inParams;
+    ParamDeclList outParams;
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
@@ -2952,12 +2972,12 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	string typeString;
 	if(isOutParam)
 	{
-	    outParams.push_back(make_pair(type, paramName));
+	    outParams.push_back(*q);
 	    typeString = outputTypeToString(type);
 	}
 	else
 	{
-	    inParams.push_back(make_pair(type, paramName));
+	    inParams.push_back(*q);
 	    typeString = inputTypeToString((*q)->type());
 	}
 
@@ -4116,8 +4136,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	args.push_back("__ret");
     }
     
-    TypeStringList inParams;
-    TypeStringList outParams;
+    ParamDeclList inParams;
+    ParamDeclList outParams;
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
@@ -4131,14 +4151,14 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    paramsDecl.push_back(typeString + ' ' + paramName);
 	    args.push_back(paramName);
 
-	    outParams.push_back(make_pair(type, paramName));
+	    outParams.push_back(*q);
 	}
 	else
 	{
 	    paramsInvoke.push_back(typeString);
 	    paramsDeclInvoke.push_back(typeString + ' ' + paramName);
 
-	    inParams.push_back(make_pair(type, paramName));
+	    inParams.push_back(*q);
 	}
     }
 
@@ -4359,7 +4379,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	args += "__ret";
     }
     
-    TypeStringList outParams;
+    ParamDeclList outParams;
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
@@ -4382,7 +4402,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	    paramsDecl += paramName;
 	    args += paramName;
 	    
-	    outParams.push_back(make_pair(type, paramName));
+	    outParams.push_back(*q);
 	}
     }
 

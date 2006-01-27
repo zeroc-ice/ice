@@ -262,7 +262,7 @@ private:
         //
         // Generate code to return a dummy value
         //
-        void writeReturn(::IceUtil::Output&, const TypePtr&);
+        void writeReturn(::IceUtil::Output&, const TypePtr&, const StringList&);
     };
 
     class MetaDataVisitor : public ParserVisitor
@@ -288,7 +288,7 @@ private:
 
     private:
 
-        void validate(const ContainedPtr&);
+        void validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, const std::string&);
 
         StringSet _history;
     };
