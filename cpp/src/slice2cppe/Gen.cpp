@@ -61,11 +61,7 @@ Slice::Gen::Gen(const string& name, const string& base,	const string& headerExte
 	}
     }
 
-    string::size_type pos = _base.rfind('/');
-    if(pos == string::npos)
-    {
-        pos = _base.rfind('\\');
-    }
+    string::size_type pos = _base.find_last_of("/\\");
     if(pos != string::npos)
     {
 	_base.erase(0, pos + 1);

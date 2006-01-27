@@ -861,11 +861,7 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
 	string slash = cwd.find('/') == string::npos ? "\\" : "/";
 	free(p);
 
-	string::size_type pos = base.rfind('/');
-	if(pos == string::npos)
-	{
-	    pos = base.rfind('\\');
-	}
+	string::size_type pos = base.find_last_of("/\\");
 	if(pos != string::npos)
 	{
 	    string fileBase(base, pos + 1);
