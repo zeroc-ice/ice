@@ -284,16 +284,23 @@ readStringSequence(::IceInternal::BasicStream* __is, T& seq)
 {
     ::Ice::Int size;
     __is->readSize(size);
-    __is->startSeq(size, 1);
-    seq.resize(size);
-    typedef typename T::iterator I;
-    for(I p = seq.begin(); p != seq.end(); ++p)
+    if(size > 0)
     {
-        __is->read(*p);
-	__is->checkSeq();
-	__is->endElement();
+        __is->startSeq(size, 1);
+        T(size).swap(seq);
+        typedef typename T::iterator I;
+        for(I p = seq.begin(); p != seq.end(); ++p)
+        {
+            __is->read(*p);
+	    __is->checkSeq();
+	    __is->endElement();
+        }
+        __is->endSeq(size);
     }
-    __is->endSeq(size);
+    else
+    {
+        seq.clear();
+    }
 }
 
 template<typename T> void
@@ -301,16 +308,23 @@ readVariableSequence(::IceInternal::BasicStream* __is, T& seq, int minElemSize)
 {
     ::Ice::Int size;
     __is->readSize(size);
-    __is->startSeq(size, minElemSize);
-    seq.resize(size);
-    typedef typename T::iterator I;
-    for(I p = seq.begin(); p != seq.end(); ++p)
+    if(size > 0)
     {
-        (*p).__read(__is);
-	__is->checkSeq();
-	__is->endElement();
+        __is->startSeq(size, minElemSize);
+	T(size).swap(seq);
+        typedef typename T::iterator I;
+        for(I p = seq.begin(); p != seq.end(); ++p)
+        {
+            (*p).__read(__is);
+	    __is->checkSeq();
+	    __is->endElement();
+        }
+        __is->endSeq(size);
     }
-    __is->endSeq(size);
+    else
+    {
+        seq.clear();
+    }
 }
 
 template<typename T> void
@@ -318,14 +332,22 @@ readFixedSequence(::IceInternal::BasicStream* __is, T& seq, int elemSize)
 {
     ::Ice::Int size;
     __is->readSize(size);
-    __is->checkFixedSeq(size, elemSize);
-    seq.resize(size);
-    typedef typename T::iterator I;
-    for(I p = seq.begin(); p != seq.end(); ++p)
+    if(size > 0)
     {
-        (*p).__read(__is);
+        __is->checkFixedSeq(size, elemSize);
+        T(size).swap(seq);
+        typedef typename T::iterator I;
+        for(I p = seq.begin(); p != seq.end(); ++p)
+        {
+            (*p).__read(__is);
+        }
+    }
+    else
+    {
+        seq.clear();
     }
 }
-}
+
+} // End namespace IceInternal
 
 #endif
