@@ -62,6 +62,7 @@ tests = [
     "IceE/location", 
     "IceE/adapterDeactivation", 
     "IceE/slicing", 
+    "IceE/custom", 
     ]
 
 #

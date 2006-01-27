@@ -238,6 +238,94 @@ private:
     SeqData* _seqDataStack;
 };
 
+//
+// Template functions for marshalling alternative sequence mappings
+//
+
+template<typename T> void
+writeBuiltinSequence(::IceInternal::BasicStream* __os, const T& seq)
+{
+    ::Ice::Int size = static_cast< ::Ice::Int>(seq.size());
+    __os->writeSize(size);
+    typedef typename T::const_iterator I;
+    for(I p = seq.begin(); p != seq.end(); ++p)
+    {
+        __os->write(*p);
+    }
+}
+
+template<typename T> void
+writeConstructedSequence(::IceInternal::BasicStream* __os, const T& seq)
+{
+    ::Ice::Int size = static_cast< ::Ice::Int>(seq.size());
+    __os->writeSize(size);
+    typedef typename T::const_iterator I;
+    for(I p = seq.begin(); p != seq.end(); ++p)
+    {
+        (*p).__write(__os);
+    }
+}
+
+template<typename T> void
+readBuiltinSequence(::IceInternal::BasicStream* __is, T& seq)
+{
+    ::Ice::Int size;
+    __is->readSize(size);
+    seq.resize(size);
+    typedef typename T::iterator I;
+    for(I p = seq.begin(); p != seq.end(); ++p)
+    {
+        __is->read(*p);
+    }
+}
+
+template<typename T> void
+readStringSequence(::IceInternal::BasicStream* __is, T& seq)
+{
+    ::Ice::Int size;
+    __is->readSize(size);
+    __is->startSeq(size, 1);
+    seq.resize(size);
+    typedef typename T::iterator I;
+    for(I p = seq.begin(); p != seq.end(); ++p)
+    {
+        __is->read(*p);
+	__is->checkSeq();
+	__is->endElement();
+    }
+    __is->endSeq(size);
+}
+
+template<typename T> void
+readVariableSequence(::IceInternal::BasicStream* __is, T& seq, int minElemSize)
+{
+    ::Ice::Int size;
+    __is->readSize(size);
+    __is->startSeq(size, minElemSize);
+    seq.resize(size);
+    typedef typename T::iterator I;
+    for(I p = seq.begin(); p != seq.end(); ++p)
+    {
+        (*p).__read(__is);
+	__is->checkSeq();
+	__is->endElement();
+    }
+    __is->endSeq(size);
+}
+
+template<typename T> void
+readFixedSequence(::IceInternal::BasicStream* __is, T& seq, int elemSize)
+{
+    ::Ice::Int size;
+    __is->readSize(size);
+    __is->checkFixedSeq(size, elemSize);
+    seq.resize(size);
+    typedef typename T::iterator I;
+    for(I p = seq.begin(); p != seq.end(); ++p)
+    {
+        (*p).__read(__is);
+    }
+}
 }
 
 #endif

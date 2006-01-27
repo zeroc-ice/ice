@@ -19,6 +19,7 @@ SUBDIRS		= operations \
 		  location \
 		  adapterDeactivation \
 		  slicing \
+		  custom \
 		  thread \
 		  uuid
 
