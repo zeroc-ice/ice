@@ -10,6 +10,8 @@
 #include <Ice/Ice.h>
 #include <Throughput.h>
 
+#include <iomanip>
+
 using namespace std;
 using namespace Demo;
 
@@ -351,7 +353,7 @@ ThroughputClient::run(int argc, char* argv[])
 		{
 		    mbit *= 2;
 		}
-		cout << "throughput: " << mbit << " Mbps" << endl;
+		cout << "throughput: " << setprecision(5) << mbit << "Mbps" << endl;
 	    }
 	    else if(c == 's')
 	    {

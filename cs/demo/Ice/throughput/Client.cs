@@ -359,7 +359,7 @@ public class Client : Ice.Application
 		    {
 			mbit *= 2;
 		    }
-		    Console.WriteLine("throughput: " + mbit.ToString("F") + "Mbps");
+		    Console.WriteLine("throughput: " + mbit.ToString("#.##") + "Mbps");
 		}
 		else if(line.Equals("s"))
 		{

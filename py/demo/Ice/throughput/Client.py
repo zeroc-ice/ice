@@ -182,7 +182,7 @@ class Client(Ice.Application):
 		    mbit = repetitions * seqSize * wireSize * 8.0 / tsec / 1000000.0
 		    if c == 'e':
 			mbit = mbit * 2
-		    print "throughput: %.3f Mbps" % mbit
+		    print "throughput: %.3fMbps" % mbit
 		elif c == 's':
 		    throughput.shutdown()
 		elif c == 'x':
