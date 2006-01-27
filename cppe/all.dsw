@@ -194,6 +194,15 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name mfcchatC
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name customC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name customCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name customS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -268,6 +277,60 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "customC"=.\test\IceE\custom\customC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name icec
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "customCOL"=.\test\IceE\custom\customCOL.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "customS"=.\test\IceE\custom\customS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name testCommon
     End Project Dependency
 }}}
 

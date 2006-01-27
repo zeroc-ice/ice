@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
+#include <IceE/IceE.h>
 #include <deque>
 #include <list>
-#include <IceE/IceE.h>
 #include <TestI.h>
 #include <TestCommon.h>
 

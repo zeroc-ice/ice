@@ -7,11 +7,11 @@
 //
 // **********************************************************************
 
-#include <deque>
-#include <list>
 #include <IceE/IceE.h>
 #include <TestCommon.h>
 #include <TestApplication.h>
+#include <deque>
+#include <list>
 #include <TestI.h>
 
 using namespace std;
