@@ -24,7 +24,6 @@ public:
     MyByteSeq(const MyByteSeq&);
     ~MyByteSeq();
 
-    void clear();
     size_t size() const;
     void swap(MyByteSeq&);
     const_iterator begin() const;

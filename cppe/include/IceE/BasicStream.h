@@ -271,18 +271,14 @@ readBuiltinSequence(::IceInternal::BasicStream* __is, T& seq)
 {
     ::Ice::Int size;
     __is->readSize(size);
+    T(size).swap(seq);
     if(size > 0)
     {
-	T(size).swap(seq);
         typedef typename T::iterator I;
         for(I p = seq.begin(); p != seq.end(); ++p)
         {
             __is->read(*p);
         }
-    }
-    else
-    {
-        seq.clear();
     }
 }
 
@@ -291,10 +287,10 @@ readStringSequence(::IceInternal::BasicStream* __is, T& seq)
 {
     ::Ice::Int size;
     __is->readSize(size);
+    T(size).swap(seq);
     if(size > 0)
     {
         __is->startSeq(size, 1);
-        T(size).swap(seq);
         typedef typename T::iterator I;
         for(I p = seq.begin(); p != seq.end(); ++p)
         {
@@ -304,10 +300,6 @@ readStringSequence(::IceInternal::BasicStream* __is, T& seq)
         }
         __is->endSeq(size);
     }
-    else
-    {
-        seq.clear();
-    }
 }
 
 template<typename T> void
@@ -315,10 +307,10 @@ readVariableSequence(::IceInternal::BasicStream* __is, T& seq, int minElemSize)
 {
     ::Ice::Int size;
     __is->readSize(size);
+    T(size).swap(seq);
     if(size > 0)
     {
         __is->startSeq(size, minElemSize);
-	T(size).swap(seq);
         typedef typename T::iterator I;
         for(I p = seq.begin(); p != seq.end(); ++p)
         {
@@ -328,10 +320,6 @@ readVariableSequence(::IceInternal::BasicStream* __is, T& seq, int minElemSize)
         }
         __is->endSeq(size);
     }
-    else
-    {
-        seq.clear();
-    }
 }
 
 template<typename T> void
@@ -339,19 +327,15 @@ readFixedSequence(::IceInternal::BasicStream* __is, T& seq, int elemSize)
 {
     ::Ice::Int size;
     __is->readSize(size);
+    T(size).swap(seq);
     if(size > 0)
     {
         __is->checkFixedSeq(size, elemSize);
-        T(size).swap(seq);
         typedef typename T::iterator I;
         for(I p = seq.begin(); p != seq.end(); ++p)
         {
             (*p).__read(__is);
         }
-    }
-    else
-    {
-        seq.clear();
     }
 }
 

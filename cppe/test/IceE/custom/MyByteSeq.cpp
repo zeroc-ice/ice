@@ -47,17 +47,6 @@ MyByteSeq::~MyByteSeq()
     }
 }
 
-void
-MyByteSeq::clear()
-{
-    if(_data != 0)
-    {
-        free(_data);
-    }
-    _data = 0;
-    _size = 0;
-}
-
 size_t
 MyByteSeq::size() const
 {
