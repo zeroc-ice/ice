@@ -769,15 +769,17 @@ void
 Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     string name = fixKwd(p->name());
-    TypePtr type = p->type();
-    string s = typeToString(type);
+
     StringList metaData = p->getMetaData();
     string seqType = findMetaData(metaData);
-    if(!seqType.empty())
+    if(!seqType.empty() && seqType != "array")
     {
-        return;
+        H << sp << nl << "typedef " << seqType << ' ' << name << ';';
+	return;
     }
-    
+
+    TypePtr type = p->type();
+    string s = typeToString(type);
     H << sp << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);

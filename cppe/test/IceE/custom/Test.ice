@@ -14,13 +14,13 @@ module Test
 {
 
 sequence<bool> BoolSeq;
-["cpp:type:std::list"] sequence<bool> BoolList;
+["cpp:type:std::list<bool>"] sequence<bool> BoolList;
 
 sequence<byte> ByteSeq;
-["cpp:type:std::list"]sequence<byte> ByteList;
+["cpp:type:std::list< ::Ice::Byte>"]sequence<byte> ByteList;
 
 sequence<string> StringSeq;
-["cpp:type:std::list"]sequence<string> StringList;
+["cpp:type:std::list<std::string>"]sequence<string> StringList;
 
 struct Fixed
 {
@@ -28,7 +28,7 @@ struct Fixed
 };
 
 sequence<Fixed> FixedSeq;
-["cpp:type:std::list"]sequence<Fixed> FixedList;
+["cpp:type:std::list< ::Test::Fixed>"]sequence<Fixed> FixedList;
 
 struct Variable
 {
@@ -36,32 +36,36 @@ struct Variable
 };
 
 sequence<Variable> VariableSeq;
-["cpp:type:std::list"]sequence<Variable> VariableList;
+["cpp:type:std::list< ::Test::Variable>"]sequence<Variable> VariableList;
 
 class TestIntf
 {
-    ["cpp:type:std::deque"] BoolSeq 
-    opBoolSeq(["cpp:type:std::deque"] BoolSeq inSeq, out ["cpp:type:std::deque"]BoolSeq outSeq);
+    ["cpp:type:std::deque<bool>"] BoolSeq 
+    opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, out ["cpp:type:std::deque<bool>"]BoolSeq outSeq);
 
     BoolList opBoolList(BoolList inSeq, out BoolList outSeq);
 
-    ["cpp:type:std::deque"] ByteSeq 
-    opByteSeq(["cpp:type:std::deque"] ByteSeq inSeq, out ["cpp:type:std::deque"] ByteSeq outSeq);
+    ["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq 
+    opByteSeq(["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq inSeq, 
+    	      out ["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq outSeq);
 
     ByteList opByteList(ByteList inSeq, out ByteList outSeq);
 
-    ["cpp:type:std::deque"] StringSeq 
-    opStringSeq(["cpp:type:std::deque"] StringSeq inSeq, out ["cpp:type:std::deque"] StringSeq outSeq);
+    ["cpp:type:std::deque<std::string>"] StringSeq 
+    opStringSeq(["cpp:type:std::deque<std::string>"] StringSeq inSeq, 
+    		out ["cpp:type:std::deque<std::string>"] StringSeq outSeq);
 
     StringList opStringList(StringList inSeq, out StringList outSeq);
 
-    ["cpp:type:std::deque"] FixedSeq 
-    opFixedSeq(["cpp:type:std::deque"] FixedSeq inSeq, out ["cpp:type:std::deque"] FixedSeq outSeq);
+    ["cpp:type:std::deque< ::Test::Fixed>"] FixedSeq 
+    opFixedSeq(["cpp:type:std::deque< ::Test::Fixed>"] FixedSeq inSeq,
+               out ["cpp:type:std::deque< ::Test::Fixed>"] FixedSeq outSeq);
 
     FixedList opFixedList(FixedList inSeq, out FixedList outSeq);
 
-    ["cpp:type:std::deque"] VariableSeq 
-    opVariableSeq(["cpp:type:std::deque"] VariableSeq inSeq, out ["cpp:type:std::deque"] VariableSeq outSeq);
+    ["cpp:type:std::deque< ::Test::Variable>"] VariableSeq 
+    opVariableSeq(["cpp:type:std::deque< ::Test::Variable>"] VariableSeq inSeq, 
+    		  out ["cpp:type:std::deque< ::Test::Variable>"] VariableSeq outSeq);
 
     VariableList opVariableList(VariableList inSeq, out VariableList outSeq);
 

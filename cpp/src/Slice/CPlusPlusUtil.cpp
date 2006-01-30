@@ -159,22 +159,17 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData)
     if(seq)
     {
         string seqType = findMetaData(metaData);
-	if(seqType.empty())
-	{
-	    StringList l = seq->getMetaData();
-	    seqType = findMetaData(l);
-	}
 	if(!seqType.empty())
 	{
-	    TypePtr elemType = seq->type();
-	    string s = typeToString(elemType);
 	    if(seqType == "array")
 	    {
+	        TypePtr elemType = seq->type();
+	        string s = typeToString(elemType);
 	        return "::std::pair<const " + s + "*, const " + s + "*>";
 	    }
 	    else
 	    {
-	        return seqType + "<" + (s[0] == ':' ? " " : "") + s + ">";
+	        return seqType;
 	    }
 	}
 	else
@@ -255,22 +250,17 @@ Slice::inputTypeToString(const TypePtr& type, const StringList& metaData)
     if(seq)
     {
         string seqType = findMetaData(metaData);
-        if(seqType.empty())
-        {
-            StringList l = seq->getMetaData();
-            seqType = findMetaData(l);
-        }
         if(!seqType.empty())
         {
-            TypePtr elemType = seq->type();
-            string s = typeToString(elemType);
             if(seqType == "array")
             {
+                TypePtr elemType = seq->type();
+                string s = typeToString(elemType);
                 return "const ::std::pair<const " + s + "*, const " + s + "*>&";
             }
             else
             {
-                return "const " + seqType + "<" + (s[0] == ':' ? " " : "") + s + ">&";
+                return "const " + seqType + "&";
             }
         }
         else
@@ -328,16 +318,9 @@ Slice::outputTypeToString(const TypePtr& type, const StringList& metaData)
     if(seq)
     {
         string seqType = findMetaData(metaData);
-        if(seqType.empty())
-        {
-            StringList l = seq->getMetaData();
-            seqType = findMetaData(l);
-        }
         if(!seqType.empty() && seqType != "array")
         {
-            TypePtr elemType = seq->type();
-            string s = typeToString(elemType);
-            return seqType + "<" + (s[0] == ':' ? " " : "") + s + ">&";
+            return seqType + "&";
         }
         else
         {
