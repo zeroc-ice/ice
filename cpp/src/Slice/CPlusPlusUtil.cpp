@@ -120,7 +120,7 @@ Slice::printDllExportStuff(Output& out, const string& dllExport)
 }
 
 string
-Slice::typeToString(const TypePtr& type, const StringList& metaData)
+Slice::typeToString(const TypePtr& type, const StringList& metaData, bool allowArray)
 {
     static const char* builtinTable[] =
     {
@@ -163,9 +163,16 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData)
 	{
 	    if(seqType == "array")
 	    {
-	        TypePtr elemType = seq->type();
-	        string s = typeToString(elemType);
-	        return "::std::pair<const " + s + "*, const " + s + "*>";
+	        if(allowArray)
+		{
+	            TypePtr elemType = seq->type();
+	            string s = typeToString(elemType);
+	            return "::std::pair<const " + s + "*, const " + s + "*>";
+		}
+		else
+		{
+		    return fixKwd(seq->scoped());
+		}
 	    }
 	    else
 	    {
@@ -201,7 +208,7 @@ Slice::returnTypeToString(const TypePtr& type, const StringList& metaData)
 	return "void";
     }
 
-    return typeToString(type, metaData);
+    return typeToString(type, metaData, false);
 }
 
 string
@@ -454,7 +461,7 @@ Slice::fixKwd(const string& name)
 
 void
 Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal,
-				 const string& str, bool pointer, const StringList& metaData)
+				 const string& str, bool pointer, const StringList& metaData, bool allowArray)
 {
     string fixedParam = fixKwd(param);
 
@@ -530,11 +537,15 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     if(seq)
     {
         string seqType = findMetaData(metaData);
-        if(seqType.empty())
+        if(seqType.empty() || !allowArray && seqType == "array")
         {
             StringList l = seq->getMetaData();
             seqType = findMetaData(l);
         }
+	if(!allowArray && seqType == "array")
+	{
+	    seqType = "";
+	}
 	builtin = BuiltinPtr::dynamicCast(seq->type());
         if(marshal)
 	{
@@ -731,41 +742,46 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 }
 
 void
-Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData)
+Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData,
+			bool allowArray)
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-	writeMarshalUnmarshalCode(out, (*p)->type(), fixKwd((*p)->name()), true, "", true, (*p)->getMetaData());
+	writeMarshalUnmarshalCode(out, (*p)->type(), fixKwd((*p)->name()), true, "", true, (*p)->getMetaData(),
+				  allowArray);
     }
     if(ret)
     {
-	writeMarshalUnmarshalCode(out, ret, "__ret", true, "", true, metaData);
+	writeMarshalUnmarshalCode(out, ret, "__ret", true, "", true, metaData, false);
     }
 }
 
 void
-Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData)
+Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData,
+			  bool allowArray)
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-	writeMarshalUnmarshalCode(out, (*p)->type(), fixKwd((*p)->name()), false, "", true, (*p)->getMetaData());
+	writeMarshalUnmarshalCode(out, (*p)->type(), fixKwd((*p)->name()), false, "", true, (*p)->getMetaData(),
+				  allowArray);
     }
     if(ret)
     {
-	writeMarshalUnmarshalCode(out, ret, "__ret", false, "", true, metaData);
+	writeMarshalUnmarshalCode(out, ret, "__ret", false, "", true, metaData, false);
     }
 }
 
 void
-Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData)
+Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData,
+			 bool allowArray)
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-	out << nl << typeToString((*p)->type(), (*p)->getMetaData()) << ' ' << fixKwd((*p)->name()) << ';';
+	out << nl << typeToString((*p)->type(), (*p)->getMetaData(), allowArray) << ' ' << fixKwd((*p)->name()) << ';';
     }
     if(ret)
     {
-        out << nl << typeToString(ret, metaData) << " __ret;";
+        out << nl << typeToString(ret, metaData, allowArray) << " __ret;";
     }
 }
 

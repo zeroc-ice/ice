@@ -1518,7 +1518,7 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "try";
 	C << sb;
 	C << nl << "::IceInternal::BasicStream* __os = __out.os();";
-	writeMarshalCode(C, inParams, 0);
+	writeMarshalCode(C, inParams, 0, StringList(), true);
 	C << eb;
 	C << nl << "catch(const ::Ice::LocalException& __ex)";
 	C << sb;
@@ -2269,8 +2269,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    C << nl << "::IceInternal::BasicStream* __os = __in.os();";
 	}
 
-	writeAllocateCode(C, inParams, 0);
-	writeUnmarshalCode(C, inParams, 0);
+	writeAllocateCode(C, inParams, 0, StringList(), true);
+	writeUnmarshalCode(C, inParams, 0, StringList(), true);
 	writeAllocateCode(C, outParams, 0);
 	if(!throws.empty())
 	{
@@ -2930,7 +2930,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
         {
             for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
             {
-                if(q->find("cpp:type:", 0) == 0)
+                if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0))
                 {
                     cout << p->definitionContext()->filename() << ":" << p->line()
                          << ": warning: invalid metadata for operation" << endl;
@@ -2940,14 +2940,15 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
         }
         else
         {
-            validate(returnType, metaData, p->definitionContext()->filename(), p->line());
+            validate(returnType, metaData, p->definitionContext()->filename(), p->line(), false);
         }
     }
 
     ParamDeclList params = p->parameters();
     for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
     {
-        validate((*q)->type(), (*q)->getMetaData(), p->definitionContext()->filename(), (*q)->line());
+        validate((*q)->type(), (*q)->getMetaData(), p->definitionContext()->filename(), (*q)->line(), 
+		 !(*q)->isOutParam());
     }
 }
 
@@ -2989,7 +2990,7 @@ Slice::Gen::MetaDataVisitor::visitConst(const ConstPtr& p)
 
 void
 Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const StringList& metaData, 
-				      const string& file, const string& line)
+				      const string& file, const string& line, bool allowArray)
 {
 
     static const string prefix = "cpp:";
@@ -3003,7 +3004,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
 	    	if(SequencePtr::dynamicCast(cont))
 		{
 	            string ss = s.substr(prefix.size());
-		    if(ss.find("type:") == 0)
+		    if(ss.find("type:") == 0 || (allowArray && ss == "array"))
 		    {
 		        continue;
 		    }

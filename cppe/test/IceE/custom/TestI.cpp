@@ -19,6 +19,14 @@ TestIntfI::TestIntfI(const Ice::CommunicatorPtr& communicator)
 {
 }
 
+Test::ByteSeq
+TestIntfI::opByteArray(const std::pair<const Ice::Byte*, const Ice::Byte*>& inSeq,
+		       Test::ByteSeq& outSeq,
+		       const Ice::Current& current)
+{
+    return outSeq;
+}
+
 std::deque<bool>
 TestIntfI::opBoolSeq(const std::deque<bool>& inSeq,
 		     std::deque<bool>& outSeq,

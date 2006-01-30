@@ -17,10 +17,10 @@ sequence<bool> BoolSeq;
 ["cpp:type:std::list<bool>"] sequence<bool> BoolList;
 
 sequence<byte> ByteSeq;
-["cpp:type:std::list< ::Ice::Byte>"]sequence<byte> ByteList;
+["cpp:type:std::list< ::Ice::Byte>"] sequence<byte> ByteList;
 
 sequence<string> StringSeq;
-["cpp:type:std::list<std::string>"]sequence<string> StringList;
+["cpp:type:std::list<std::string>"] sequence<string> StringList;
 
 struct Fixed
 {
@@ -28,7 +28,7 @@ struct Fixed
 };
 
 sequence<Fixed> FixedSeq;
-["cpp:type:std::list< ::Test::Fixed>"]sequence<Fixed> FixedList;
+["cpp:type:std::list< ::Test::Fixed>"] sequence<Fixed> FixedList;
 
 struct Variable
 {
@@ -36,10 +36,15 @@ struct Variable
 };
 
 sequence<Variable> VariableSeq;
-["cpp:type:std::list< ::Test::Variable>"]sequence<Variable> VariableList;
+["cpp:type:std::list< ::Test::Variable>"] sequence<Variable> VariableList;
+
+
+["cpp:array"] sequence<byte> ByteArray;
 
 class TestIntf
 {
+    ["cpp:array"] ByteSeq opByteArray(["cpp:array"] ByteSeq inSeq, out ["cpp:array"] ByteSeq outSeq);
+
     ["cpp:type:std::deque<bool>"] BoolSeq 
     opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, out ["cpp:type:std::deque<bool>"]BoolSeq outSeq);
 
