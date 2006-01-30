@@ -17,16 +17,19 @@ TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
 COBJS		= Test.o \
 		  Client.o \
-		  AllTests.o
+		  AllTests.o \
+		  MyByteSeq.o
 
 SOBJS		= Test.o \
 		  TestI.o \
-		  Server.o
+		  Server.o \
+		  MyByteSeq.o
 
 COLOBJS		= Test.o \
 		  TestI.o \
 		  Collocated.o \
-		  AllTests.o
+		  AllTests.o \
+		  MyByteSeq.o
 
 SRCS		= $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
@@ -37,7 +40,7 @@ SLICE_SRCS	= Test.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	 := -I. -I../../include $(CPPFLAGS)
-SLICE2CPPEFLAGS  := --add-header deque --add-header list $(SLICE2CPPFLAGS)
+SLICE2CPPEFLAGS  := --add-header MyByteSeq.h --add-header deque --add-header list $(SLICE2CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@

@@ -153,6 +153,10 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\MyByteSeq.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Server.cpp
 # End Source File
 # Begin Source File
@@ -167,6 +171,10 @@ SOURCE=.\TestI.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\MyByteSeq.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\Test.h
@@ -189,7 +197,7 @@ SOURCE=.\Test.ice
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. --add-header deque --add-header list Test.ice
+	slice2cppe.exe -I. --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -204,7 +212,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. --add-header deque --add-header list Test.ice
+	slice2cppe.exe -I. --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -219,7 +227,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. --add-header deque --add-header list Test.ice
+	slice2cppe.exe -I. --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -234,7 +242,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. --add-header deque --add-header list Test.ice
+	slice2cppe.exe -I. --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

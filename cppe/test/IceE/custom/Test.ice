@@ -51,6 +51,9 @@ class TestIntf
 
     ByteList opByteList(ByteList inSeq, out ByteList outSeq);
 
+    ["cpp:type:MyByteSeq"] ByteSeq 
+    opMyByteSeq(["cpp:type:MyByteSeq"] ByteSeq inSeq, out ["cpp:type:MyByteSeq"] ByteSeq outSeq);
+
     ["cpp:type:std::deque<std::string>"] StringSeq 
     opStringSeq(["cpp:type:std::deque<std::string>"] StringSeq inSeq, 
     		out ["cpp:type:std::deque<std::string>"] StringSeq outSeq);

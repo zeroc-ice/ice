@@ -34,6 +34,10 @@ public:
 					       std::list< ::Ice::Byte>&,
 					       const Ice::Current&);
 
+    virtual MyByteSeq opMyByteSeq(const MyByteSeq&,
+    				  MyByteSeq&,
+				  const Ice::Current&);
+
     virtual std::deque< ::std::string> opStringSeq(const std::deque< ::std::string>&,
 						   std::deque< ::std::string>&,
 						   const Ice::Current&);

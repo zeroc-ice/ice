@@ -10,6 +10,7 @@
 #include <IceE/IceE.h>
 #include <deque>
 #include <list>
+#include <MyByteSeq.h>
 #include <TestI.h>
 #include <TestCommon.h>
 
@@ -49,6 +50,15 @@ std::list< ::Ice::Byte>
 TestIntfI::opByteList(const std::list< ::Ice::Byte>& inSeq,
 		      std::list< ::Ice::Byte>& outSeq,
 		      const Ice::Current& current)
+{
+    outSeq = inSeq;
+    return inSeq;
+}
+
+MyByteSeq
+TestIntfI::opMyByteSeq(const MyByteSeq& inSeq,
+		       MyByteSeq& outSeq,
+		       const Ice::Current& current)
 {
     outSeq = inSeq;
     return inSeq;

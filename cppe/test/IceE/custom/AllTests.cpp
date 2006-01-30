@@ -12,6 +12,7 @@
 #include <TestCommon.h>
 #include <deque>
 #include <list>
+#include <MyByteSeq.h>
 #include <Test.h>
 
 using namespace std;
@@ -90,6 +91,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	list< ::Ice::Byte> out;
 	list< ::Ice::Byte> ret = t->opByteList(in, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    {
+        MyByteSeq in(5);
+	int i = 0;
+	for(MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
+	{
+	    *p = '1' + i++;
+	}
+
+	MyByteSeq out;
+	MyByteSeq ret = t->opMyByteSeq(in, out);
 	test(out == in);
 	test(ret == in);
     }

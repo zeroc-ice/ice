@@ -1887,6 +1887,69 @@ NODEP_CPP_CLIEN=\
 # End Source File
 # Begin Source File
 
+SOURCE=.\MyByteSeq.cpp
+
+!IF  "$(CFG)" == "customC - Win32 (WCE emulator) Release"
+
+DEP_CPP_MYBYT=\
+	"..\..\..\include\IceE\Config.h"\
+	".\MyByteSeq.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customC - Win32 (WCE emulator) Debug"
+
+DEP_CPP_MYBYT=\
+	"..\..\..\include\IceE\Config.h"\
+	".\MyByteSeq.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customC - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_MYBYT=\
+	"..\..\..\include\IceE\Config.h"\
+	".\MyByteSeq.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customC - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_MYBYT=\
+	"..\..\..\include\IceE\Config.h"\
+	".\MyByteSeq.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customC - Win32 (WCE ARMV4) Debug Static"
+
+DEP_CPP_MYBYT=\
+	"..\..\..\include\IceE\Config.h"\
+	".\MyByteSeq.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customC - Win32 (WCE ARMV4) Release Static"
+
+DEP_CPP_MYBYT=\
+	"..\..\..\include\IceE\Config.h"\
+	".\MyByteSeq.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customC - Win32 (WCE emulator) Debug Static"
+
+DEP_CPP_MYBYT=\
+	"..\..\..\include\IceE\Config.h"\
+	".\MyByteSeq.h"\
+	
+
+!ELSEIF  "$(CFG)" == "customC - Win32 (WCE emulator) Release Static"
+
+DEP_CPP_MYBYT=\
+	"..\..\..\include\IceE\Config.h"\
+	".\MyByteSeq.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\Test.cpp
 
 !IF  "$(CFG)" == "customC - Win32 (WCE emulator) Release"
@@ -2500,6 +2563,10 @@ NODEP_CPP_TEST_=\
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\MyByteSeq.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Test.h
 # End Source File
 # End Group
@@ -2516,7 +2583,7 @@ SOURCE=.\Test.ice
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. -I../../../slice --add-header deque --add-header list Test.ice
+	slice2cppe.exe -I. -I../../../slice --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2531,7 +2598,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. -I../../../slice --add-header deque --add-header list Test.ice
+	slice2cppe.exe -I. -I../../../slice --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2546,7 +2613,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. -I../../../slice --add-header deque --add-header list Test.ice
+	slice2cppe.exe -I. -I../../../slice --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2561,7 +2628,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. -I../../../slice --add-header deque --add-header list Test.ice
+	slice2cppe.exe -I. -I../../../slice --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2576,7 +2643,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. -I../../../slice --add-header deque --add-header list Test.ice
+	slice2cppe.exe -I. -I../../../slice --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2591,7 +2658,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. -I../../../slice --add-header deque --add-header list Test.ice
+	slice2cppe.exe -I. -I../../../slice --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2606,7 +2673,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. -I../../../slice --add-header deque --add-header list Test.ice
+	slice2cppe.exe -I. -I../../../slice --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -2621,7 +2688,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. -I../../../slice --add-header deque --add-header list Test.ice
+	slice2cppe.exe -I. -I../../../slice --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

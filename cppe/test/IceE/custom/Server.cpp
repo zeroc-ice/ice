@@ -12,6 +12,7 @@
 #include <TestApplication.h>
 #include <deque>
 #include <list>
+#include <MyByteSeq.h>
 #include <TestI.h>
 
 using namespace std;
