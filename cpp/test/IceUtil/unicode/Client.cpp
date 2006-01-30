@@ -52,7 +52,7 @@ main(int, char**)
 	    {
 		wchar_t wc = wline[i];
 		const char* buffer = reinterpret_cast<char*>(&wc);
-		for(int j = 0; j < sizeof(wchar_t); ++j)
+		for(size_t j = 0; j < sizeof(wchar_t); ++j)
 		{
 		    test(bis.good());
 		    char c;
@@ -71,7 +71,7 @@ main(int, char**)
 	    //
 	    if(is.good())
 	    {
-		for(int j = 0; j < sizeof(wchar_t); ++j)
+		for(size_t j = 0; j < sizeof(wchar_t); ++j)
 		{
 		    test(bis.good());
 		    char c;
@@ -103,7 +103,7 @@ main(int, char**)
 	    wchar_t wc;
 	    char* buffer = reinterpret_cast<char*>(&wc);
 	    
-	    for(int j = 0; j < sizeof(wchar_t); ++j)
+	    for(size_t j = 0; j < sizeof(wchar_t); ++j)
 	    {
 		if(!bis.good())
 		{
