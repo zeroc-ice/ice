@@ -831,49 +831,24 @@ Slice::VbVisitor::emitAttributes(const ContainedPtr& p)
 
 Slice::Gen::Gen(const string& name, const string& base, const vector<string>& includePaths, const string& dir,
                 bool impl, bool implTie, bool stream)
-    : _base(base),
-      _includePaths(includePaths),
+    : _includePaths(includePaths),
       _stream(stream)
 {
-    string file = base + ".vb";
-    string fileImpl = base + "I.vb";
+    string fileBase = base;
+    string::size_type pos = base.find_last_of("/\\");
+    if(pos != string::npos)
+    {
+	fileBase = base.substr(pos + 1);
+    }
+    string file = fileBase + ".vb";
+    string fileImpl = fileBase + "I.vb";
 
     if(!dir.empty())
     {
-	//
-	// Get the working directory and look at the returned path
-	// to find out whether we need to use a forward or backward slash
-	// as a path separator. (This seems to be one of the very few
-	// portable ways to get the correct separator.)
-	//
-	char* p;
-#if defined(_MSC_VER)
-	p = _getcwd(0, 0);
-#else
-	p = getcwd(0, 0);
-#endif
-	if(p == 0)
-	{
-	    cerr << name << ": cannot get working directory: " << strerror(errno) << endl;
-	    return;
-	}
-	string cwd(p);
-	string slash = cwd.find('/') == string::npos ? "\\" : "/";
-	free(p);
-
-	string::size_type pos = base.find_last_of("/\\");
-	if(pos != string::npos)
-	{
-	    string fileBase(base, pos + 1);
-	    file = dir + slash + fileBase + ".vb";
-	    fileImpl = dir + slash + fileBase + "I.vb";
-	}
-	else
-	{
-	    file = dir + slash + file;
-	    fileImpl = dir + slash + fileImpl;
-	}
+	file = dir + '/' + file;
+	fileImpl = dir + '/' + fileImpl;
     }
+
     _out.open(file.c_str());
     if(!_out)
     {
@@ -882,7 +857,7 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
     }
     printHeader();
 
-    _out << nl << "' Generated from file `" << base << ".ice'";
+    _out << nl << "' Generated from file `" << fileBase << ".ice'";
 
     _out << sp << nl << "Imports _System = System";
     _out << nl << "Imports _Microsoft = Microsoft";

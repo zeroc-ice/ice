@@ -66,7 +66,6 @@ private:
     IceUtil::Output _out;
     IceUtil::Output _impl;
 
-    std::string _base;
     std::vector<std::string> _includePaths;
 
     bool _stream;
