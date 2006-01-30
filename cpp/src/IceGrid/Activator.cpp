@@ -1233,14 +1233,34 @@ Activator::terminationListener()
 	for(vector<Process>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
 	{
 	    int status;
-	    pid_t pid = waitpid(p->pid, &status, 0);
-	    if(pid < 0)
+#if defined(__linux)
+	    int nRetry = 0;
+	    while(true) // The while loop is necessary for the linux workaround.
 	    {
-		SyscallException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		throw ex;
+#endif
+		pid_t pid = waitpid(p->pid, &status, 0);
+		if(pid < 0)
+		{
+#if defined(__linux)
+		    //
+		    // Some Linux distribution have a bogus waitpid(). It doesn't block and report an incorrect ECHILD error on the first call, we must sleep a little and retry to work around this issue (it appears from testing that a single retry is enough but to make sure we retry up to 10 times before to throw.)
+		    //
+		    if(errno == ECHILD && nRetry < 10)
+		    {
+			IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(nRetry * 10 + 1)); // Wait 1ms, 11ms, 21ms, etc.
+			++nRetry;
+			continue;
+		    }
+#endif
+		    SyscallException ex(__FILE__, __LINE__);
+		    ex.error = getSystemErrno();
+		    throw ex;
+		}
+		assert(pid == p->pid);
+#if defined(__linux)
+		break;
 	    }
-	    assert(pid == p->pid);
+#endif
 
 	    if(_traceLevels->activator > 0)
 	    {
