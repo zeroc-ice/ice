@@ -14,89 +14,136 @@
 using namespace IceUtil;
 using namespace std;
 
+//
+// Note that each file starts with a BOM; stringToWstring and wstringToString
+// converts these BOMs back and forth.
+//
 int
 main(int, char**)
 {
-    cout << "testing string/wstring conversion... ";
-
-    string arabic = "لماذا لا يتكلمون اللّغة العربية فحسب؟";
-
-    wstring warabic = stringToWstring(arabic);
-    test(warabic.length() == 37);
-    
-    string arabic2 = wstringToString(warabic);
-    test(arabic2.length() == arabic.length());
-    test(arabic2 == arabic);
-
-    string japanese = "なぜ、みんな日本語を話してくれないのか？";
-
-    wstring wjapanese = stringToWstring(japanese);
-    test(wjapanese.length() == 20);
-    
-    string japanese2 = wstringToString(wjapanese);
-    test(japanese2.length() == japanese.length());
-    test(japanese2 == japanese);
+    ostringstream os;
+    os << "utf" << sizeof(wchar_t) * 8;
+#ifdef ICE_LITTLE_ENDIAN
+    os << "le";
+#else
+    os << "be";
+#endif
+    string wstringEncoding = os.str();
+    string wcoeurFile = string("coeur.") + wstringEncoding;
  
-    cout << "ok" << endl;
-
-    cout << "ditto, but with random unicode text... ";
-
-    ifstream numeric("numeric.txt");
-    test(numeric.good());
-    wstring wrandom;
-    while(numeric)
     {
-	int c;
-	numeric >> c;
-	if(numeric)
+	cout << "testing UTF-8 to wstring (" << wstringEncoding << ") conversion...";
+	
+	ifstream is("coeur.utf8");
+	test(is.good());
+	ifstream bis(wcoeurFile.c_str(), ios_base::binary);
+	test(bis.good());
+	
+	int lineNumber = 0;
+	
+	do
 	{
-	    wrandom += static_cast<wchar_t>(c);
-	}
+	    string line;
+	    getline(is, line, '\n');
+	    lineNumber++;
+	    wstring wline = stringToWstring(line);
+	    
+	    for(size_t i = 0; i < wline.length(); ++i)
+	    {
+		wchar_t wc = wline[i];
+		const char* buffer = reinterpret_cast<char*>(&wc);
+		for(int j = 0; j < sizeof(wchar_t); ++j)
+		{
+		    test(bis.good());
+		    char c;
+		    bis.get(c);
+		    if(buffer[j] != c)
+		    {
+			cerr << "Error at line " << lineNumber << " column " << i << endl;
+			cerr << "buffer[j] == " << hex << (int)static_cast<unsigned char>(buffer[j]) << endl;
+			cerr << "c == " << hex << (int)static_cast<unsigned char>(c) << endl;
+		    }
+		    test(buffer[j] == c);
+		}
+	    }
+	    //
+	    // Skip newline character (Unix-style newline)
+	    //
+	    if(is.good())
+	    {
+		for(int j = 0; j < sizeof(wchar_t); ++j)
+		{
+		    test(bis.good());
+		    char c;
+		    bis.get(c);
+		}
+	    }
+	    else
+	    {
+		char c;
+		bis.get(c);
+		test(bis.eof());
+	    }
+	} while(is.good());
+    
+	cout << "ok" << endl;
     }
-    numeric.close();
 
-    ifstream utf8("utf8.txt");
-    test(utf8.good());
-    string random;
-    while(utf8)
     {
+	cout << "wstring (" << wstringEncoding << ") to UTF-8 conversion...";
+
+	ifstream bis(wcoeurFile.c_str(), ios_base::binary);
+	test(bis.good());
+
+	wstring ws;
 	char c;
-	utf8.get(c);
-	if(utf8)
+
+	do
 	{
-	    random += c;
+	    wchar_t wc;
+	    char* buffer = reinterpret_cast<char*>(&wc);
+	    
+	    for(int j = 0; j < sizeof(wchar_t); ++j)
+	    {
+		if(!bis.good())
+		{
+		    break;
+		}
+		bis.get(c);
+		buffer[j] = c;
+	    }
+
+	    if(bis.good())
+	    {
+		ws.push_back(wc);
+	    }
+	} while(bis.good());
+	
+	string s = wstringToString(ws);
+	
+	ifstream nbis("coeur.utf8", ios_base::binary);
+	test(nbis.good());
+	
+	for(size_t i = 0; i < s.size(); ++i)
+	{
+	    test(nbis.good());
+	    nbis.get(c);	    
+	    char ci = s[i];
+
+	    if(c != ci)
+	    {
+		cerr << "i == " << i << endl;
+		cerr << "ci == " << hex << (int)static_cast<unsigned char>(ci) << endl;
+		cerr << "c == " << hex << (int)static_cast<unsigned char>(c) << endl;
+	    }
+	    test(c == s[i]);
 	}
+	test(!nbis.eof());
+	nbis.get(c);
+	test(nbis.eof());
+
+	cout << "ok" << endl;
     }
-    utf8.close();
-
-    string random2 = wstringToString(wrandom);
-    wstring wrandom2 = stringToWstring(random);
-
-/*
-    unsigned int i;
-
-    ofstream numeric2("numeric2.txt");
-    for(i = 0; i < wrandom2.length(); ++i)
-    {
-	numeric2 << static_cast<int>(wrandom2[i]) << '\n';
-    }
-    numeric2.close();
-
-    ofstream utf82("utf82.txt");
-    for(i = 0; i < random2.length(); ++i)
-    {
-	utf82.put(random2[i]);
-    }
-    utf82.close();
-*/
-
-    test (random2.length() == random.length());
-    test (wrandom2.length() == wrandom.length());
-
-    test (random2 == random);
-    test (wrandom2 == wrandom);
-
-    cout << "ok" << endl;
 
     return EXIT_SUCCESS;
 }
