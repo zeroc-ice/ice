@@ -271,11 +271,18 @@ readBuiltinSequence(::IceInternal::BasicStream* __is, T& seq)
 {
     ::Ice::Int size;
     __is->readSize(size);
-    seq.resize(size);
-    typedef typename T::iterator I;
-    for(I p = seq.begin(); p != seq.end(); ++p)
+    if(size > 0)
     {
-        __is->read(*p);
+	T(size).swap(seq);
+        typedef typename T::iterator I;
+        for(I p = seq.begin(); p != seq.end(); ++p)
+        {
+            __is->read(*p);
+        }
+    }
+    else
+    {
+        seq.clear();
     }
 }
 
