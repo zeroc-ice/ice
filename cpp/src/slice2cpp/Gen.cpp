@@ -3050,7 +3050,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	C << sp;
 	C << nl << "::IceInternal::DispatchStatus" << nl << scope.substr(2) << "___" << name
 	  << "(::IceInternal::Incoming&";
-	if(!paramList.empty() || !p->throws().empty() || ret)
+	if(!paramList.empty() || !p->throws().empty() || ret || amd)
 	{
 	    C << "__inS";
 	}
