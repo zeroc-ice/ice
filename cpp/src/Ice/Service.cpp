@@ -1576,13 +1576,6 @@ Ice::Service::runDaemon(int argc, char* argv[])
         }
 
         //
-        // Conventional wisdom recommends ignoring SIGHUP and forking again in order
-        // to avoid the possibility of acquiring a controlling terminal. However,
-        // doing this means the grandchild is no longer a process group leader, and
-        // that would interfere with signal delivery on non-NPTL Linux systems.
-        //
-/*
-        //
         // Ignore SIGHUP so that the grandchild process is not sent SIGHUP when this
         // process exits.
         //
@@ -1602,7 +1595,6 @@ Ice::Service::runDaemon(int argc, char* argv[])
         {
             exit(0);
         }
-*/
 
         if(_changeDirectory)
         {
