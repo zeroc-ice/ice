@@ -67,7 +67,7 @@ rpathlink               = -L$(1)
 
 
 BASELIBS		= -lIceUtil -lxnet -lpthread
-LIBS			= -lIce $(BASELIBS)
+LIBS			= $(BZIP2_RPATH_LINK) -lIce $(BASELIBS)
 
 ICEUTIL_OS_LIBS         = -lpthread -lrt
 ICE_OS_LIBS             =

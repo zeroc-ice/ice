@@ -48,7 +48,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I.. $(CPPFLAGS) -DICE_PATCH2_API_EXPORTS $(OPENSSL_FLAGS) $(BZIP2_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir IcePatch2 --dll-export ICE_PATCH2_API $(SLICE2CPPFLAGS)
-LINKWITH	:= -lIce -lIceUtil $(OPENSSL_LIBS) $(BZIP2_LIBS)
+LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(OPENSSL_LIBS) $(BZIP2_LIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@

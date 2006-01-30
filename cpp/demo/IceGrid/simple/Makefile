@@ -30,7 +30,7 @@ SLICE_SRCS	= Hello.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
-LINKWITH	:= -lIce -lIceUtil
+LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@

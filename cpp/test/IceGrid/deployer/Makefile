@@ -38,7 +38,7 @@ SLICE_SRCS	= Test.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
-LINKWITH	:= -lIceBox -lIce -lIceUtil
+LINKWITH	:= -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@

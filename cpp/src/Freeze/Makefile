@@ -60,7 +60,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS $(DB_FLAGS) 
 SLICE2CPPFLAGS	:= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
-LINKWITH	:= -lIce -lIceUtil $(DB_LIBS)
+LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(DB_LIBS)
 
 
 $(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice

@@ -52,7 +52,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS $(OPENSSL_FLAGS)
 SLICE2CPPFLAGS	:= --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE2CPPFLAGS)
-LINKWITH	:= -lIce -lIceUtil
+LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@

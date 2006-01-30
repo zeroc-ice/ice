@@ -195,6 +195,7 @@ OPENSSL_RPATH_LINK      = $(if $(OPENSSL_HOME),$(call rpathlink,$(OPENSSL_HOME)/
 
 BZIP2_FLAGS             = $(if $(BZIP2_HOME),-I$(BZIP2_HOME)/include)
 BZIP2_LIBS              = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
+BZIP2_RPATH_LINK        = $(if $(BZIP2_HOME),$(call rpathlink,$(BZIP2_HOME)/$(libsubdir)))
 
 DB_FLAGS                = $(if $(DB_HOME),-I$(DB_HOME)/include)
 DB_LIBS                 = $(if $(DB_HOME),-L$(DB_HOME)/$(libsubdir)) -ldb_cxx

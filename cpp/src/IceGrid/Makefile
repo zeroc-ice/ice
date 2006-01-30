@@ -106,7 +106,7 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= $(CPPFLAGS) -I.. -DICE_GRID_API_EXPORTS $(READLINE_FLAGS)
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS 	:= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API $(SLICE2CPPFLAGS)
-LINKWITH        := -lGlacier2 -lIce -lIceUtil
+LINKWITH        := -lGlacier2 $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(LIB_OBJS)
 	rm -f $@

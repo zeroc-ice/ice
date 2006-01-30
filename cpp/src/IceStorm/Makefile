@@ -69,8 +69,8 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= $(CPPFLAGS) -I.. $(READLINE_FLAGS) 
 ICECPPFLAGS	:= $(ICECPPFLAGS) -I..
 SLICE2CPPFLAGS	:= --checksum --ice --dll-export ICE_STORM_API --include-dir IceStorm $(SLICE2CPPFLAGS)
-LINKWITH	:= -lIce -lIceUtil
-SVCLINKWITH	:= $(DB_RPATH_LINK) -lFreeze -lIceBox -lIce -lIceUtil
+LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
+SVCLINKWITH	:= $(DB_RPATH_LINK) -lFreeze -lIceBox $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 IceStorm.o: IceStorm.cpp
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) -DICE_STORM_API_EXPORTS $<

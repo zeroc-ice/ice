@@ -41,7 +41,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_BOX_API_EXPORTS 
 SLICE2CPPFLAGS	:= --checksum --ice --dll-export ICE_BOX_API --include-dir IceBox $(SLICE2CPPFLAGS)
-LINKWITH	:= -lIce -lIceUtil
+LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
