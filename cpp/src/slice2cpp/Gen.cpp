@@ -3049,7 +3049,12 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
 	C << sp;
 	C << nl << "::IceInternal::DispatchStatus" << nl << scope.substr(2) << "___" << name
-	  << "(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)" << (nonmutating ? " const" : "");
+	  << "(::IceInternal::Incoming&";
+	if(!paramList.empty() || !p->throws().empty() || ret)
+	{
+	    C << "__inS";
+	}
+	C << ", const ::Ice::Current& __current)" << (nonmutating ? " const" : "");
 	C << sb;
 	if(!amd)
 	{

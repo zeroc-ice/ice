@@ -1,6 +1,11 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Fixed a bug in slice2cpp that caused a compiler warning about
+  an unused parameter in the generated code for operations on
+  classes with void return type, no parameters, and no exception
+  specification.
+
 - Fixed a bug in IceGrid deployment mechanism which would prevent
   defining with a variable object identities with a category.
 
