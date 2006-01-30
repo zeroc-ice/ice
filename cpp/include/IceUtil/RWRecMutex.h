@@ -368,7 +368,7 @@ private:
     //
     // If there is an active writer this is the ID of the writer thread.
     //
-    mutable ThreadId _writerId;
+    mutable ThreadControl _writerId;
 
     //
     // Number of waiting writers (including any upgrader).

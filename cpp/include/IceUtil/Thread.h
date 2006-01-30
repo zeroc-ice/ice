@@ -19,37 +19,6 @@ namespace IceUtil
 
 class Time;
 
-#ifdef _WIN32
-struct HandleWrapper : public Shared
-{
-    // Inline for performance reasons.
-    HandleWrapper(HANDLE h, bool r = true) :
-	handle(h), release(r)
-    {
-    }
-
-    // Inline for performance reasons.
-    virtual ~HandleWrapper()
-    {
-	if(handle && release)
-	{
-	    CloseHandle(handle);
-	}
-    }
-
-    HANDLE handle;
-    bool release;
-};
-
-typedef Handle<HandleWrapper> HandleWrapperPtr;
-#endif
-
-#ifdef _WIN32
-    typedef unsigned int ThreadId;
-#else
-    typedef pthread_t ThreadId;
-#endif
-
 class ICE_UTIL_API ThreadControl
 {
 public:
@@ -57,22 +26,19 @@ public:
     ThreadControl();
 
 #ifdef _WIN32
-    ThreadControl(const HandleWrapperPtr&, ThreadId);
+    ThreadControl(HANDLE, DWORD);
 #else
-    ThreadControl(ThreadId);
+    ThreadControl(pthread_t);
 #endif
 
     ThreadControl(const ThreadControl&);
+
+    ~ThreadControl();
+
     ThreadControl& operator=(const ThreadControl&);
 
     bool operator==(const ThreadControl&) const;
     bool operator!=(const ThreadControl&) const;
-    bool operator<(const ThreadControl&) const;
-
-    //
-    // Return the ID of the thread underlying this ThreadControl.
-    //
-    ThreadId id() const;
 
     //
     // Wait until the controlled thread terminates. The call has POSIX
@@ -107,11 +73,12 @@ public:
 
 private:
 
-    Mutex _stateMutex;
 #ifdef _WIN32
-    HandleWrapperPtr _handle;
+    HANDLE _handle;
+    DWORD  _id;
+#else
+    pthread_t _thread;
 #endif
-    ThreadId _id;
 };
 
 class ICE_UTIL_API Thread : virtual public IceUtil::Shared
@@ -120,8 +87,6 @@ public:
 
     Thread();
     virtual ~Thread();
-
-    ThreadId id() const;
 
     virtual void run() = 0;
 
@@ -133,17 +98,20 @@ public:
     bool operator!=(const Thread&) const;
     bool operator<(const Thread&) const;
 
-    Thread(const Thread&);		// Copying is forbidden
-    void operator=(const Thread&);	// Assignment is forbidden
-
-private:
-
+protected:
     Mutex _stateMutex;
+
     bool _started;
 #ifdef _WIN32
-    HandleWrapperPtr _handle;
+    HANDLE _handle;
+    DWORD  _id;
+#else
+    pthread_t _thread;
 #endif
-    ThreadId _id;
+
+private:
+    Thread(const Thread&);		// Copying is forbidden
+    void operator=(const Thread&);	// Assignment is forbidden
 };
 
 typedef Handle<Thread> ThreadPtr;
