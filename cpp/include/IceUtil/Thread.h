@@ -102,7 +102,7 @@ public:
     // This function is an implementation detail;
     // do not call it.
     //
-    void done();
+    void _done();
 
 protected:
     Mutex _stateMutex;

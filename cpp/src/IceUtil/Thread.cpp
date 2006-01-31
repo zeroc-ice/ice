@@ -190,7 +190,7 @@ WINAPI startHook(void* arg)
 	cerr << "IceUtil::Thread::run(): uncaught exception: ";
 	cerr << e << endl;
     } 
-    thread->done();
+    thread->_done();
    
     return 0;
 }
@@ -281,7 +281,7 @@ IceUtil::Thread::isAlive() const
 }
 
 void
-IceUtil::Thread::done()
+IceUtil::Thread::_done()
 {
     IceUtil::Mutex::Lock lock(_stateMutex);
     _running = false;
@@ -411,7 +411,7 @@ startHook(void* arg)
     {
 	cerr << "IceUtil::Thread::run(): uncaught exception" << endl;
     }
-    thread->done();
+    thread->_done();
     
     return 0;
 }
@@ -518,7 +518,7 @@ IceUtil::Thread::isAlive() const
 }
 
 void
-IceUtil::Thread::done()
+IceUtil::Thread::_done()
 {
     IceUtil::Mutex::Lock lock(_stateMutex);
     _running = false;
