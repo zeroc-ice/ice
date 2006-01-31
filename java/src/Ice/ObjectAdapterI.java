@@ -511,7 +511,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         IceInternal.EndpointI[] endpoints = new IceInternal.EndpointI[0];
         ConnectionI[] arr = new ConnectionI[connections.size()];
         connections.toArray(arr);
-        IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.HashMap(), "",
+        IceInternal.Reference ref = _instance.referenceFactory().create(ident, _instance.getDefaultContext(), "",
                                                                         IceInternal.Reference.ModeTwoway, arr);
         return _instance.proxyFactory().referenceToProxy(ref);
     }

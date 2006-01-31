@@ -526,7 +526,7 @@ namespace Ice
 		    connections.CopyTo(arr, 0);
 		}
                 IceInternal.Reference @ref = instance_.referenceFactory().create(
-		    ident, new Ice.Context(), "", IceInternal.Reference.Mode.ModeTwoway, arr);
+		    ident, instance_.getDefaultContext(), "", IceInternal.Reference.Mode.ModeTwoway, arr);
 		return instance_.proxyFactory().referenceToProxy(@ref);
 	    }
 	}
