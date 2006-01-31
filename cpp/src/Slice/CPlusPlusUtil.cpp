@@ -120,7 +120,7 @@ Slice::printDllExportStuff(Output& out, const string& dllExport)
 }
 
 string
-Slice::typeToString(const TypePtr& type, const StringList& metaData, bool allowArray)
+Slice::typeToString(const TypePtr& type, const StringList& metaData, bool inParam)
 {
     static const char* builtinTable[] =
     {
@@ -161,13 +161,33 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, bool allowA
         string seqType = findMetaData(metaData);
 	if(!seqType.empty())
 	{
-	    if(seqType == "array")
+	    if(seqType == "array" || seqType == "range:array")
 	    {
-	        if(allowArray)
+	        if(inParam)
 		{
 	            TypePtr elemType = seq->type();
 	            string s = typeToString(elemType);
 	            return "::std::pair<const " + s + "*, const " + s + "*>";
+		}
+		else
+		{
+		    return fixKwd(seq->scoped());
+		}
+	    }
+	    else if(seqType.find("range") == 0)
+	    {
+	        if(inParam)
+		{
+		    string s;
+	            if(seqType.find("range:") == 0)
+		    {
+		        s = seqType.substr(strlen("range:"));
+		    }
+		    else
+		    {
+	                s = fixKwd(seq->scoped());
+		    }
+		    return "::std::pair<const " + s + "::const_iterator, " + s + "::const_iterator>";
 		}
 		else
 		{
@@ -265,6 +285,19 @@ Slice::inputTypeToString(const TypePtr& type, const StringList& metaData)
                 string s = typeToString(elemType);
                 return "const ::std::pair<const " + s + "*, const " + s + "*>&";
             }
+	    else if(seqType.find("range") == 0)
+	    {
+	        string s;
+	        if(seqType.find("range:") == 0)
+		{
+		    s = seqType.substr(strlen("range:"));
+		}
+		else
+		{
+	            s = fixKwd(seq->scoped());
+		}
+		return "const ::std::pair<const " + s + "::const_iterator, " + s + "::const_iterator>&";
+	    }
             else
             {
                 return "const " + seqType + "&";
@@ -461,7 +494,7 @@ Slice::fixKwd(const string& name)
 
 void
 Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal,
-				 const string& str, bool pointer, const StringList& metaData, bool allowArray)
+				 const string& str, bool pointer, const StringList& metaData, bool inParam)
 {
     string fixedParam = fixKwd(param);
 
@@ -537,12 +570,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     if(seq)
     {
         string seqType = findMetaData(metaData);
-        if(seqType.empty() || !allowArray && seqType == "array")
-        {
-            StringList l = seq->getMetaData();
-            seqType = findMetaData(l);
-        }
-	if(!allowArray && seqType == "array")
+	if(!inParam && seqType == "array")
 	{
 	    seqType = "";
 	}
@@ -588,7 +616,15 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    }
 	    else
 	    {
-	        if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
+                StringList l = seq->getMetaData();
+                seqType = findMetaData(l);
+		if(!seqType.empty() && seqType != "array")
+		{
+		    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", " << fixedParam << ", "
+		        << scope << "__U__" << fixKwd(seq->name()) << "());";
+		}
+	        else if(!builtin || builtin->kind() == Builtin::KindObject ||
+			builtin->kind() == Builtin::KindObjectProxy)
 		{
 		    out << nl << "if(" << fixedParam << ".size() == 0)";
 		    out << sb;
@@ -665,33 +701,23 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		}
 	        if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
 		{
-		    out << nl;
 		    TypePtr elemType = seq->type();
-		    if(elemType->isVariableLength())
-		    {
-		        out << "::IceInternal::readVariableSequence";
-		    }
-		    else
-		    {
-		        out << "::IceInternal::readFixedSequence";
-		    }
-		    out << "<" << typeStr << ">(" << stream << ", " << fixedParam << ", " 
-		        << elemType->minWireSize() << ");";
-		}
-		else if(builtin->kind() ==  Builtin::KindString)
-		{
-		    out << nl << "::IceInternal::readStringSequence<" << typeStr << ">(" << stream << ", "
-		        << fixedParam << ");";
+		    out << nl << "::IceInternal::readConstructedSequence<" << typeStr << ">(" << stream << ", "
+		        << fixedParam << ", " << elemType->minWireSize() << ", " 
+			<< (elemType->isVariableLength() ? "true" : "false") << ");";
 		}
 		else
 		{
 		    out << nl << "::IceInternal::readBuiltinSequence<" << typeStr << ">(" << stream << ", "
-		        << fixedParam << ");";
+		        << fixedParam << ", " << (builtin->kind() ==  Builtin::KindString ? "true" : "false") << ");";
 		}
 	    }
 	    else
 	    {
-	        if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
+                StringList l = seq->getMetaData();
+                seqType = findMetaData(l);
+	        if((!seqType.empty() && seqType != "array") || !builtin || builtin->kind() == Builtin::KindObject || 
+		 	 builtin->kind() == Builtin::KindObjectProxy)
 		{
 	            out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
 		        << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
@@ -743,12 +769,12 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 
 void
 Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData,
-			bool allowArray)
+			bool inParam)
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
 	writeMarshalUnmarshalCode(out, (*p)->type(), fixKwd((*p)->name()), true, "", true, (*p)->getMetaData(),
-				  allowArray);
+				  inParam);
     }
     if(ret)
     {
@@ -758,12 +784,12 @@ Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const TypePtr&
 
 void
 Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData,
-			  bool allowArray)
+			  bool inParam)
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
 	writeMarshalUnmarshalCode(out, (*p)->type(), fixKwd((*p)->name()), false, "", true, (*p)->getMetaData(),
-				  allowArray);
+				  inParam);
     }
     if(ret)
     {
@@ -773,15 +799,15 @@ Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const TypePt
 
 void
 Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData,
-			 bool allowArray)
+			 bool inParam)
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-	out << nl << typeToString((*p)->type(), (*p)->getMetaData(), allowArray) << ' ' << fixKwd((*p)->name()) << ';';
+	out << nl << typeToString((*p)->type(), (*p)->getMetaData(), inParam) << ' ' << fixKwd((*p)->name()) << ';';
     }
     if(ret)
     {
-        out << nl << typeToString(ret, metaData, allowArray) << " __ret;";
+        out << nl << typeToString(ret, metaData, inParam) << " __ret;";
     }
 }
 
@@ -1188,9 +1214,14 @@ Slice::findMetaData(const StringList& metaData)
 	    string::size_type pos = str.find(':', prefix.size());
 	    if(pos != string::npos)
 	    {
-	        if(str.substr(prefix.size(), pos - prefix.size()) == "type")
+	        string ss = str.substr(prefix.size(), pos - prefix.size());
+	        if(ss == "type")
 		{
 		    return str.substr(pos + 1);
+		}
+		else if(ss == "range")
+		{
+		    return str.substr(prefix.size());
 		}
 	    }
 	    else

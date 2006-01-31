@@ -769,87 +769,109 @@ void
 Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     string name = fixKwd(p->name());
-
+    TypePtr type = p->type();
+    string s = typeToString(type);
     StringList metaData = p->getMetaData();
     string seqType = findMetaData(metaData);
     if(!seqType.empty() && seqType != "array")
     {
         H << sp << nl << "typedef " << seqType << ' ' << name << ';';
-	return;
+    }
+    else
+    {
+        H << sp << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
     }
 
-    TypePtr type = p->type();
-    string s = typeToString(type);
-    H << sp << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
-
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(!p->isLocal() &&
-	(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy))
+    if(!p->isLocal())
     {
 	string scoped = fixKwd(p->scoped());
 	string scope = fixKwd(p->scope());
-
+	
 	H << sp << nl << "class __U__" << name << " { };";
-	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << s << "*, const " << s 
-	  << "*, __U__" << name << ");";
-	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
 
-	C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
-	  << s << "* begin, const " << s << "* end, " << scope << "__U__" << name << ")";
-	C << sb;
-	C << nl << "::Ice::Int size = static_cast< ::Ice::Int>(end - begin);";
-	C << nl << "__os->writeSize(size);";
-	C << nl << "for(int i = 0; i < size; ++i)";
-	C << sb;
-	writeMarshalUnmarshalCode(C, type, "begin[i]", true);
-	C << eb;
-	C << eb;
-
-	C << sp << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
-	  << "& v, " << scope << "__U__" << name << ')';
-	C << sb;
-	C << nl << "::Ice::Int sz;";
-	C << nl << "__is->readSize(sz);";
-	if(type->isVariableLength())
+        if(!seqType.empty() && seqType != "array")
 	{
-	    C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");"; // Protect against bogus sequence sizes.
+	    H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__"
+	      << name << ");";
+	    H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
+
+	    C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
+	      << scoped << "& v, " << scope << "__U__" << name << ")";
+	    C << sb;
+	    writeMarshalUnmarshalCode(C, p, "v", true, "", false, p->getMetaData(), false);
+	    C << eb;
+
+	    C << sp << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
+	      << "& v, " << scope << "__U__" << name << ')';
+	    C << sb;
+	    writeMarshalUnmarshalCode(C, p, "v", false, "", false, p->getMetaData(), false);
+	    C << eb;
 	}
-	else
-	{
-	    C << nl << "__is->checkFixedSeq(sz, " << type->minWireSize() << ");";
-	}
-	C << nl << "v.resize(sz);";
-	C << nl << "for(int i = 0; i < sz; ++i)";
-	C << sb;
-	writeMarshalUnmarshalCode(C, type, "v[i]", false);
+	else if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
+        {
+	    H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << s << "*, const " << s 
+	      << "*, __U__" << name << ");";
+	    H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
 
-	//
-	// After unmarshaling each element, check that there are still enough bytes left in the stream
-	// to unmarshal the remainder of the sequence, and decrement the count of elements
-	// yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
-	// of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
-	// abort unmarshaling for bogus sequence sizes at the earliest possible moment.
-	// (For fixed-length sequences, we don't need to do this because the prediction of how many
-	// bytes will be taken up by the sequence is accurate.)
-	//
-	if(type->isVariableLength())
-	{
-	    if(!SequencePtr::dynamicCast(type))
+	    C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
+	      << s << "* begin, const " << s << "* end, " << scope << "__U__" << name << ")";
+	    C << sb;
+	    C << nl << "::Ice::Int size = static_cast< ::Ice::Int>(end - begin);";
+	    C << nl << "__os->writeSize(size);";
+	    C << nl << "for(int i = 0; i < size; ++i)";
+	    C << sb;
+	    writeMarshalUnmarshalCode(C, type, "begin[i]", true);
+	    C << eb;
+	    C << eb;
+
+	    C << sp << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
+	      << "& v, " << scope << "__U__" << name << ')';
+	    C << sb;
+	    C << nl << "::Ice::Int sz;";
+	    C << nl << "__is->readSize(sz);";
+	    if(type->isVariableLength())
 	    {
-		//
-		// No need to check for directly nested sequences because, at the start of each
-		// sequence, we check anyway.
-		//
-		C << nl << "__is->checkSeq();";
+	        // Protect against bogus sequence sizes.
+	        C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");";
 	    }
-	    C << nl << "__is->endElement();";
+	    else
+	    {
+	        C << nl << "__is->checkFixedSeq(sz, " << type->minWireSize() << ");";
+	    }
+	    C << nl << "v.resize(sz);";
+	    C << nl << "for(int i = 0; i < sz; ++i)";
+	    C << sb;
+	    writeMarshalUnmarshalCode(C, type, "v[i]", false);
+
+	    //
+	    // After unmarshaling each element, check that there are still enough bytes left in the stream
+	    // to unmarshal the remainder of the sequence, and decrement the count of elements
+	    // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
+	    // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
+	    // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
+	    // (For fixed-length sequences, we don't need to do this because the prediction of how many
+	    // bytes will be taken up by the sequence is accurate.)
+	    //
+	    if(type->isVariableLength())
+	    {
+	        if(!SequencePtr::dynamicCast(type))
+	        {
+		    //
+		    // No need to check for directly nested sequences because, at the start of each
+		    // sequence, we check anyway.
+		    //
+		    C << nl << "__is->checkSeq();";
+	        }
+	        C << nl << "__is->endElement();";
+	    }
+	    C << eb;
+	    if(type->isVariableLength())
+	    {
+	        C << nl << "__is->endSeq(sz);";
+	    }
+	    C << eb;
 	}
-	C << eb;
-	if(type->isVariableLength())
-	{
-	    C << nl << "__is->endSeq(sz);";
-	}
-	C << eb;
     }
 }
 
@@ -2990,7 +3012,7 @@ Slice::Gen::MetaDataVisitor::visitConst(const ConstPtr& p)
 
 void
 Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const StringList& metaData, 
-				      const string& file, const string& line, bool allowArray)
+				      const string& file, const string& line, bool inParam)
 {
 
     static const string prefix = "cpp:";
@@ -3004,7 +3026,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
 	    	if(SequencePtr::dynamicCast(cont))
 		{
 	            string ss = s.substr(prefix.size());
-		    if(ss.find("type:") == 0 || (allowArray && ss == "array"))
+		    if(ss.find("type:") == 0 || (inParam && (ss == "array" || ss.find("range") == 0)))
 		    {
 		        continue;
 		    }
