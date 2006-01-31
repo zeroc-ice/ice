@@ -136,23 +136,33 @@ IceUtil::Options::split(const string& line)
 			//
 			// Ignore a backslash at the end of the string,
 			// and strip backslash-newline pairs. If a
-			// backslash is followed by a space, we just
-			// write the space. Anything else following a
-			// backslash is preserved, including the backslash.
-			// (This deviates from bash quoting rules, but is
+			// backslash is followed by a space, single quote,
+			// double quote, or dollar sign, we drop the backslash
+			// and write the space, single quote, double quote,
+			// or dollar sign. This is necessary to allow quotes
+			// to be escaped. Dropping the backslash preceding a
+			// space deviates from bash quoting rules, but is
 			// necessary so we don't drop backslashes from Windows
 			// path names.)
 			//
 			if(i < l.size() - 1 && l[++i] != '\n')
 			{
-			    if(l[i] == ' ')
+			    switch(l[i])
 			    {
-				arg.push_back(' ');
-			    }
-			    else
-			    {
-				arg.push_back('\\');
-				arg.push_back(l[i]);
+			        case ' ':
+				case '$':
+				case '\'':
+				case '"':
+				{
+				    arg.push_back(l[i]);
+				    break;
+				}
+				default:
+				{
+				    arg.push_back('\\');
+				    arg.push_back(l[i]);
+				    break;
+				}
 			    }
 			}
 			break;
@@ -176,7 +186,7 @@ IceUtil::Options::split(const string& line)
 			}
 			else
 			{
-			    arg.push_back(l[i]);
+			    arg.push_back('$');
 			}
 			break;
 		    }
@@ -260,6 +270,10 @@ IceUtil::Options::split(const string& line)
 		{
 		    case '\\':
 		    {
+			if(i == l.size() - 1)
+			{
+			    break;
+			}
 			switch(c = l[++i])
 			{
 			    //
@@ -323,16 +337,21 @@ IceUtil::Options::split(const string& line)
 			    case '1':
 			    case '2':
 			    case '3':
+			    case '4':
+			    case '5':
+			    case '6':
+			    case '7':
 			    {
 				static string octalDigits = "01234567";
-				unsigned short us = c - '0';
-				for(string::size_type j = i;
-				    j < i + 2 && j < l.size() && octalDigits.find_first_of(c = l[i]) != string::npos;
+				unsigned short us = 0;
+				string::size_type j;
+				for(j = i;
+				    j < i + 3 && j < l.size() && octalDigits.find_first_of(c = l[j]) != string::npos;
 				    ++j)
 				{
 				    us = us * 8 + c - '0';
-				    ++i;
 				}
+				i = j - 1;
 				arg.push_back(static_cast<char>(us));
 				break;
 			    }
@@ -342,13 +361,16 @@ IceUtil::Options::split(const string& line)
 			    //
 			    case 'x':
 			    {
-				if(i == l.size() - 1)
+				if(i < l.size() - 1 && !isxdigit(l[i + 1]))
 				{
+				    arg.push_back('\\');
 				    arg.push_back('x');
-				    continue;
+				    break;
 				}
+
 				IceUtil::Int64 ull = 0;
-				for(string::size_type j = i + 1; j < i + 3 && j < l.size() && isxdigit(c = l[j]); ++j)
+				string::size_type j;
+				for(j = i + 1; j < i + 3 && j < l.size() && isxdigit(c = l[j]); ++j)
 				{
 				    ull *= 16;
 				    if(isdigit(c))
@@ -363,8 +385,8 @@ IceUtil::Options::split(const string& line)
 				    {
 					ull += c - 'A' + 10;
 				    }
-				    ++i;
 				}
+				i = j - 1;
 				arg.push_back(static_cast<char>(ull));
 				break;
 			    }
