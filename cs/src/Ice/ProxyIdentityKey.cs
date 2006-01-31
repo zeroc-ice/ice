@@ -18,11 +18,20 @@ namespace Ice
     // the identity and the facet name as the hash key.
     //
 
+#if ICE_DOTNET_1X
     public class ProxyIdentityKey : System.Collections.IHashCodeProvider, System.Collections.IComparer
+#else
+    public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Collections.IComparer
+#endif
     {
 	public int GetHashCode(object obj)
 	{
             return ((Ice.ObjectPrx)obj).ice_getIdentity().GetHashCode();
+	}
+
+	public new bool Equals(object obj1, object obj2)
+	{
+	    return Compare(obj1, obj2) == 0;
 	}
 
 	public int Compare(object obj1, object obj2)
@@ -57,7 +66,11 @@ namespace Ice
 	}
     }
 
+#if ICE_DOTNET_1X
     public class ProxyIdentityFacetKey : System.Collections.IHashCodeProvider, System.Collections.IComparer
+#else
+    public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, System.Collections.IComparer
+#endif
     {
 	public int GetHashCode(object obj)
 	{
@@ -65,6 +78,11 @@ namespace Ice
 	    Ice.Identity identity = o.ice_getIdentity();
 	    string facet = o.ice_getFacet();
 	    return 5 * identity.GetHashCode() + facet.GetHashCode();
+	}
+
+	public new bool Equals(object obj1, object obj2)
+	{
+	    return Compare(obj1, obj2) == 0;
 	}
 
         public int Compare(object obj1, object obj2)
