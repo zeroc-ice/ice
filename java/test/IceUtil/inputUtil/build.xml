@@ -1,0 +1,58 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<!DOCTYPE project [
+<!ENTITY common SYSTEM "file:../../../config/common.xml">
+]>
+
+<project name="test_Ice_operations" default="all" basedir=".">
+
+    <!-- set global properties for this build -->
+    <property name="top.dir" value="../../.."/>
+
+    <!-- Include common definitions -->
+    &common;
+
+    <property name="class.dir" value="classes"/>
+    <property name="generated.dir" value="generated"/>
+
+    <target name="init" depends="config-init">
+        <!-- Create the time stamp -->
+        <tstamp/>
+    </target>
+
+    <target name="generate" depends="init">
+        <!-- Create the output directory for generated code -->
+        <mkdir dir="${generated.dir}"/>
+        <slice2java outputdir="${generated.dir}">
+            <fileset dir="." includes="Test.ice"/>
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+        </slice2java>
+    </target>
+
+    <target name="compile" depends="generate">
+        <mkdir dir="${class.dir}"/>
+        <javac srcdir="${generated.dir}" destdir="${class.dir}"
+            source="1.4" classpath="${lib.dir}" debug="${debug}"/>
+        <javac srcdir="." destdir="${class.dir}" source="1.4"
+            classpath="${lib.dir}" excludes="generated/**" debug="${debug}"/>
+    </target>
+
+    <target name="all" depends="compile"/>
+
+    <target name="clean">
+        <delete dir="${generated.dir}"/>
+        <delete dir="${class.dir}"/>
+    </target>
+
+</project>

@@ -52,6 +52,7 @@ def runTests(tests, num = 0):
 # List of all basic tests.
 #
 tests = [ \
+    "IceUtil/inputUtil", \
     "Ice/operations", \
     "Ice/exceptions", \
     "Ice/inheritance", \

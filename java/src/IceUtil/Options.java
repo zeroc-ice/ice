@@ -30,6 +30,10 @@ public final class Options
 	final int ANSIQuoteState = 4;
 
 	line = line.trim();
+	if(line.length() == 0)
+	{
+	    return new String[0];
+	}
 
 	int state = NormalState;
 
@@ -380,6 +384,10 @@ public final class Options
 	case DoubleQuoteState:
 	{
 	    throw new BadQuote("missing closing double quote");
+	}
+	case ANSIQuoteState:
+	{
+	    throw new BadQuote("unterminated $' quote");
 	}
 	default:
 	{
