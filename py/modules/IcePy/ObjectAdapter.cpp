@@ -818,6 +818,12 @@ adapterRemove(ObjectAdapterObject* self, PyObject* args)
         return NULL;
     }
 
+    if(!obj)
+    {
+	Py_INCREF(Py_None);
+	return Py_None;
+    }
+
     ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
     assert(wrapper);
     return wrapper->getObject();
@@ -853,6 +859,12 @@ adapterRemoveFacet(ObjectAdapterObject* self, PyObject* args)
     {
         setPythonException(ex);
         return NULL;
+    }
+
+    if(!obj)
+    {
+	Py_INCREF(Py_None);
+	return Py_None;
     }
 
     ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
@@ -942,6 +954,12 @@ adapterFind(ObjectAdapterObject* self, PyObject* args)
         return NULL;
     }
 
+    if(!obj)
+    {
+	Py_INCREF(Py_None);
+	return Py_None;
+    }
+
     ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
     assert(wrapper);
     return wrapper->getObject();
@@ -977,6 +995,12 @@ adapterFindFacet(ObjectAdapterObject* self, PyObject* args)
     {
         setPythonException(ex);
         return NULL;
+    }
+
+    if(!obj)
+    {
+	Py_INCREF(Py_None);
+	return Py_None;
     }
 
     ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
@@ -1062,6 +1086,12 @@ adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
         return NULL;
     }
 
+    if(!obj)
+    {
+	Py_INCREF(Py_None);
+	return Py_None;
+    }
+
     ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
     assert(wrapper);
     return wrapper->getObject();
@@ -1120,6 +1150,12 @@ adapterFindServantLocator(ObjectAdapterObject* self, PyObject* args)
     {
         setPythonException(ex);
         return NULL;
+    }
+
+    if(!locator)
+    {
+	Py_INCREF(Py_None);
+	return Py_None;
     }
 
     ServantLocatorWrapperPtr wrapper = ServantLocatorWrapperPtr::dynamicCast(locator);

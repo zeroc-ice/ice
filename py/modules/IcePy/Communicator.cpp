@@ -821,6 +821,12 @@ communicatorGetDefaultRouter(CommunicatorObject* self)
         return NULL;
     }
 
+    if(!router)
+    {
+	Py_INCREF(Py_None);
+	return Py_None;
+    }
+
     PyObject* routerProxyType = lookupType("Ice.RouterPrx");
     assert(routerProxyType != NULL);
     return createProxy(router, *self->communicator, routerProxyType);
@@ -873,6 +879,12 @@ communicatorGetDefaultLocator(CommunicatorObject* self)
     {
         setPythonException(ex);
         return NULL;
+    }
+
+    if(!locator)
+    {
+	Py_INCREF(Py_None);
+	return Py_None;
     }
 
     PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
