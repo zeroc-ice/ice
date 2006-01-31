@@ -7,18 +7,19 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../../..
+
+TARGETS		= client.exe
+
+C_SRCS		= Client.cs
+
+SDIR		= .
+
+GDIR		= generated
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= IceUtil Ice Glacier2 IceGrid
+MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
-
-test::
-	@python $(top_srcdir)/allTests.py
+client.exe: $(C_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $^

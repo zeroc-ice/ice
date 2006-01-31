@@ -29,6 +29,10 @@ namespace IceUtil
 	    string IFS = " \t\n";
 	    
 	    string l = line.Trim();
+	    if(l.Length == 0)
+	    {
+		return new string[0];
+	    }
 
 	    State state = State.Normal;
 
