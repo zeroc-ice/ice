@@ -29,45 +29,85 @@ Imports System.Diagnostics
 Imports System.IO
 Imports System.Text
 Imports System.Threading
+Imports Microsoft.VisualBasic
 
 Module Generate
-
     Private proc As Process
     Private progName As String
 
+#If __MonoBASIC__ Then
+
+    Private Function ShortPath(ByVal longPath As String) As String
+        Return longpath
+    End Function
+
+    Private Function ShortExePath(ByVal longPath As String) As String
+        Return longPath
+    End Function
+
+#Else
+    Declare Auto Function GetShortPathName Lib "kernel32.dll" (ByVal longPath As String, _
+        ByVal shortPath As StringBuilder, ByVal size As Long) As Long
+
+    Private Function ShortPath(ByVal longPath as String) As String
+        Dim sp As StringBuilder = New StringBuilder
+        sp.Length = 1024    ' TODO: This should be replaced with MAX_PATH for Win32
+        Dim result As Long = GetShortPathName(longPath, sp, sp.Capacity)
+	If result = 0 Or result > sp.capacity Then
+	    ' Can occur if short pathnames are not supported on the specified filesystem
+            Return longPath
+	End If
+        Return sp.ToString
+    End Function
+
+    Private Function ShortExePath(ByVal longPath As String) As String
+        If Not longPath.EndsWith(".exe") Then
+            longPath = longPath + ".exe"
+        End If
+	return ShortPath(longPath)
+    End Function
+#End If
+
     Private Sub RedirectStandardOutput()
-	Dim output As String = proc.StandardOutput.ReadToEnd()
-	Console.Out.Write(output)
-	Console.Out.Flush()
+        Dim output As String = proc.StandardOutput.ReadToEnd()
+        Console.Out.Write(output)
+        Console.Out.Flush()
     End Sub
 
     Private Sub RedirectStandardError()
-	Dim output As String = proc.StandardError.ReadToEnd()
-	Console.Error.Write(output)
-	Console.Error.Flush()
+        Dim output As String = proc.StandardError.ReadToEnd()
+        Console.Error.Write(output)
+        Console.Error.Flush()
     End Sub
 
+    Private Function handlePathSpaces(ByVal dir As String) As String
+        If dir.IndexOf(" ") > -1 Then
+            Return """" + dir + """"
+        End If
+        Return dir
+    End Function
+
     Enum BuildAction As Integer
-	build
-	rebuild
-	clean
+        build
+        rebuild
+        clean
     End Enum
 
     Class Processor
 
-	Private _slice2vb As String
-	Private _includes As String
-	Private _action As BuildAction
+        Private _slice2vb As String
+        Private _includes As String
+        Private _action As BuildAction
 
-	Public Sub New(ByVal slice2vb As String, ByVal includes As String, ByVal action As BuildAction)
-	    _slice2vb = slice2vb
-	    _includes = includes
-	    _action = action
-	End Sub
+        Public Sub New(ByVal slice2vb As String, ByVal includes As String, ByVal action As BuildAction)
+            _slice2vb = slice2vb
+            _includes = includes
+            _action = action
+        End Sub
 
-	'
-	' Compile a Slice file, redirecting standard output and standard error to the console.
-	'
+        '
+        ' Compile a Slice file, redirecting standard output and standard error to the console.
+        '
         Private Function doCompile(ByVal sliceFile As String, ByVal outputDir As String) As Integer
             '
             ' Terrible hack: because we don't have a pre-build event in the Visual Basic IDE,
@@ -84,7 +124,7 @@ Module Generate
                 sb.Append(" --" & Path.GetExtension(f).Substring(1))
             Next
 
-            Dim cmdArgs As String = "--output-dir " & outputDir & " --ice " & _includes & sb.ToString() & " " & sliceFile
+            Dim cmdArgs As String = "--output-dir " & outputDir & " --ice " & _includes & sb.ToString() & " " & handlePathSpaces(sliceFile)
             Dim info As ProcessStartInfo = New ProcessStartInfo(_slice2vb, cmdArgs)
             info.CreateNoWindow = True
             info.UseShellExecute = False
@@ -178,8 +218,8 @@ Module Generate
     End Class
 
     Private Sub usage()
-	Console.Error.WriteLine("usage: {0} solution_dir build|rebuild|clean", progName)
-	Environment.Exit(1)
+        Console.Error.WriteLine("usage: {0} solution_dir build|rebuild|clean", progName)
+        Environment.Exit(1)
     End Sub
 
     Public Sub Main(ByVal args() As String)
@@ -196,6 +236,9 @@ Module Generate
 
             Const slice2vbName As String = "slice2vb"
             Dim solDir As String = args(0)
+            If solDir.EndsWith("\.") And solDir.Length > 2 Then
+                solDir = Left(solDir, solDir.Length - 2)
+            End If
             Dim action As BuildAction
             If args(1).Equals("build") Then
                 action = BuildAction.build
@@ -222,6 +265,8 @@ Module Generate
                 End If
             End If
 
+            iceHome = ShortPath(iceHome)
+
             Dim slice2vb As String = Path.Combine(Path.Combine(solDir, "bin"), slice2vbName)
             If Not File.Exists(slice2vb) And Not File.Exists(slice2vb & ".exe") Then
                 If Not iceHome Is Nothing Then
@@ -234,12 +279,14 @@ Module Generate
                 End If
             End If
 
+            slice2vb = ShortExePath(slice2vb)
+
             Dim includes As String = ""
             If Directory.Exists(Path.Combine(solDir, "slice")) Then
-                includes = "-I" & Path.Combine(solDir, "slice")
+                includes = handlePathSpaces("-I" & Path.Combine(solDir, "slice"))
             End If
             If Directory.Exists(Path.Combine(iceHome, "slice")) Then
-                includes = includes & " -I" & Path.Combine(iceHome, "slice")
+                includes = includes & " " & "-I" & Path.Combine(iceHome, "slice")
             End If
 
             '
@@ -254,6 +301,8 @@ Module Generate
                 Console.Error.WriteLine("Cannot find slice2vb.exe: set ICE_HOME or add the slice2vb.exe directory to the list of 'Executable files' directories in the Visual Studio options.")
                 System.Environment.Exit(1)
             End If
+            Console.Error.WriteLine(ex)
+            System.Environment.Exit(1)
         Catch ex As Exception
             Console.Error.WriteLine(ex)
             System.Environment.Exit(1)
