@@ -85,7 +85,12 @@ namespace Ice
 	    CommunicatorI p = (CommunicatorI) communicator;
 	    return p.getInstance();
 	}
-	
+
+	public static IceInternal.ProtocolPluginFacade getProtocolPluginFacade(Communicator communicator)
+	{
+	    return new IceInternal.ProtocolPluginFacadeI(communicator);
+	}
+
 	public static Identity stringToIdentity(string s)
 	{
 	    Identity ident = new Identity();
