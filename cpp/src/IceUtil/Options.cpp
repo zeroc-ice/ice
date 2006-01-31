@@ -396,6 +396,7 @@ IceUtil::Options::split(const string& line)
 			    //
 			    case 'c':
 			    {
+				c = l[++i];
 				if(isalpha(c) || c == '@' || (c >= '[' && c <= '_'))
 				{
 				    arg.push_back(static_cast<char>(toupper(c) - '@'));

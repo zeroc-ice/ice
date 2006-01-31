@@ -311,7 +311,10 @@ namespace IceUtil
 				    //
 				    case 'c':
 				    {
-					if((char.ToUpper(c) >= 'A' && char.ToUpper(c) <= 'Z') || c == '@' || (c >= '[' && c <= '_'))
+					c = l[++i]; 
+					if((char.ToUpper(c) >= 'A' && char.ToUpper(c) <= 'Z') || 
+					   c == '@' || 
+					   (c >= '[' && c <= '_'))
                                         {
 					    arg += (char)(char.ToUpper(c) - '@');
 					}
