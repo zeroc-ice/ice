@@ -1,625 +1,420 @@
-<VisualStudioProject>
-    <CSHARP
-        ProjectType = "Local"
-        ProductVersion = "7.10.3077"
-        SchemaVersion = "2.0"
-        ProjectGuid = "{C3630502-8F67-42BF-B4CA-A21D2EA8049E}"
-    >
-        <Build>
-            <Settings
-                ApplicationIcon = ""
-                AssemblyKeyContainerName = ""
-                AssemblyName = "icecs"
-                AssemblyOriginatorKeyFile = ""
-                DefaultClientScript = "JScript"
-                DefaultHTMLPageLayout = "Grid"
-                DefaultTargetSchema = "IE50"
-                DelaySign = "false"
-                OutputType = "Library"
-                PreBuildEvent = '"$(SolutionDir)."\bin\generatecs.exe "$(SolutionDir)." "$(ProjectDir)." $(ProjectName)'
-                PostBuildEvent = ""
-                RootNamespace = ""
-                RunPostBuildEvent = "OnBuildSuccess"
-                StartupObject = ""
-            >
-                <Config
-                    Name = "Debug"
-                    AllowUnsafeBlocks = "true"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = "DEBUG;TRACE"
-                    DocumentationFile = ""
-                    DebugSymbols = "true"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "true"
-                    NoStdLib = "false"
-                    NoWarn = ""
-                    Optimize = "false"
-                    OutputPath = "..\..\bin\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "true"
-                    WarningLevel = "4"
-                />
-                <Config
-                    Name = "Release"
-                    AllowUnsafeBlocks = "true"
-                    BaseAddress = "285212672"
-                    CheckForOverflowUnderflow = "false"
-                    ConfigurationOverrideFile = ""
-                    DefineConstants = "TRACE"
-                    DocumentationFile = ""
-                    DebugSymbols = "false"
-                    FileAlignment = "4096"
-                    IncrementalBuild = "false"
-                    NoStdLib = "false"
-                    NoWarn = ""
-                    Optimize = "true"
-                    OutputPath = "..\..\bin\"
-                    RegisterForComInterop = "false"
-                    RemoveIntegerChecks = "false"
-                    TreatWarningsAsErrors = "true"
-                    WarningLevel = "4"
-                />
-            </Settings>
-            <References>
-                <Reference
-                    Name = "System"
-                    AssemblyName = "System"
-                    HintPath = "..\..\..\..\..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
-                />
-            </References>
-        </Build>
-        <Files>
-            <Include>
-                <File
-                    RelPath = "Acceptor.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Application.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Arrays.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "AssemblyInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "AssemblyUtil.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Assert.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BasicInputStream.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BasicOutputStream.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "BasicStream.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ByteBuffer.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "CommunicatorI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ConnectionFactory.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ConnectionI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ConnectionMonitor.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Connector.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "DefaultsAndOverrides.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Direct.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "EndpointFactory.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "EndpointFactoryManager.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "EndpointI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "EventHandler.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Exception.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Incoming.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "IncomingAsync.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "InputStream.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "InputStreamI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Instance.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "LinkedList.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "LocalObject.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "LocatorInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "LoggerI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Network.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Object.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ObjectAdapterFactory.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ObjectAdapterI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ObjectFactoryManager.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ObjectReader.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ObjectWriter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Options.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Outgoing.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "OutgoingAsync.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "OutputBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "OutputStream.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "OutputStreamI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Patcher.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "PluginManagerI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "PropertiesI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "PropertyNames.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Protocol.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Proxy.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ProxyFactory.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ProxyIdentityKey.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ReadObjectCallback.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Reference.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ReferenceFactory.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "RouterInfo.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "RoutingTable.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ServantManager.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Set.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SliceChecksums.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "StringUtil.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SysLoggerI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "TcpAcceptor.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "TcpConnector.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "TcpEndpointI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "TcpTransceiver.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ThreadPool.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "TieBase.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "TraceLevels.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "TraceUtil.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Transceiver.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "UdpEndpointI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "UdpTransceiver.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "UnknownEndpointI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "UserExceptionFactory.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "Util.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ValueWriter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "XMLOutput.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\BuiltinSequences.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Communicator.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\CommunicatorF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Connection.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\ConnectionF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Current.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Endpoint.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\FacetMap.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Identity.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\LocalException.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Locator.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\LocatorF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Logger.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\LoggerF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\ObjectAdapter.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\ObjectAdapterF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\ObjectFactory.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\ObjectFactoryF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Plugin.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\PluginF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Process.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\ProcessF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Properties.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\PropertiesF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Router.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\RouterF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\ServantLocator.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\ServantLocatorF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\SliceChecksumDict.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\Stats.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "generated\StatsF.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-            </Include>
-        </Files>
-    </CSHARP>
-</VisualStudioProject>
-
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C3630502-8F67-42BF-B4CA-A21D2EA8049E}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>icecs</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>
+    </RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\bin\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\..\bin\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Acceptor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Application.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Arrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssemblyUtil.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Assert.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BasicInputStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BasicOutputStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="BasicStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ByteBuffer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommunicatorI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConnectionFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConnectionI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConnectionMonitor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Connector.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DefaultsAndOverrides.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Direct.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EndpointFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EndpointFactoryManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EndpointI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EventHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Exception.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\BuiltinSequences.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\Communicator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\CommunicatorF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\Connection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\ConnectionF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\Current.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\Endpoint.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\FacetMap.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\Identity.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\LocalException.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\Locator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\LocatorF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\Logger.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\LoggerF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\ObjectAdapter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\ObjectAdapterF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\ObjectFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\ObjectFactoryF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\Plugin.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\PluginF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\Process.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\ProcessF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\Properties.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\PropertiesF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\Router.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\RouterF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\ServantLocator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\ServantLocatorF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\SliceChecksumDict.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\Stats.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="generated\StatsF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Incoming.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IncomingAsync.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="InputStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="InputStreamI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Instance.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LinkedList.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LocalObject.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LocatorInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LoggerI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Network.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Object.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ObjectAdapterFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ObjectAdapterI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ObjectFactoryManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ObjectReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ObjectWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Options.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Outgoing.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OutgoingAsync.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OutputBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OutputStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OutputStreamI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Patcher.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PluginManagerI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PropertiesI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PropertyNames.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Protocol.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ProtocolPluginFacade.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Proxy.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ProxyFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ProxyIdentityKey.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ReadObjectCallback.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Reference.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ReferenceFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RouterInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RoutingTable.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServantManager.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Set.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SliceChecksums.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="StringUtil.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SysLoggerI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TcpAcceptor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TcpConnector.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TcpEndpointI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TcpTransceiver.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ThreadPool.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TieBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TraceLevels.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TraceUtil.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Transceiver.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UdpEndpointI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UdpTransceiver.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UnknownEndpointI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UserExceptionFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Util.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ValueWriter.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="XMLOutput.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>"$(SolutionDir)."\bin\generatecs.exe "$(SolutionDir)." "$(ProjectDir)." $(ProjectName)</PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>
