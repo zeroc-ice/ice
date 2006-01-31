@@ -140,7 +140,7 @@ IceUtil::ThreadControl::yield()
 
 IceUtil::Thread::Thread() :
     _started(false),
-    _running(false)
+    _running(false),
     _handle(0),
     _id(0)
 {
