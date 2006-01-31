@@ -105,12 +105,12 @@ CountDownLatchTest::run()
 	
 	for(i = 0; i < wave1Count; i++)
 	{
-	    test(t1[i]->getThreadControl().isAlive());
+	    test(t1[i]->isAlive());
 	}
 	
 	for(i = 0; i < fullCount - 1; i++)
 	{
-	    test(t2[i]->getThreadControl().isAlive());
+	    test(t2[i]->isAlive());
 	}
 
     } while(latch.getCount() > 1);

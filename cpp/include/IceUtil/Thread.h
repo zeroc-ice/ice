@@ -98,10 +98,22 @@ public:
     bool operator!=(const Thread&) const;
     bool operator<(const Thread&) const;
 
+    //
+    // Is this thread still running?
+    //
+    bool isAlive() const;
+
+    //
+    // This function is an implementation detail;
+    // do not call it.
+    //
+    void done();
+
 protected:
     Mutex _stateMutex;
-
     bool _started;
+    bool _running;
+
 #ifdef _WIN32
     HANDLE _handle;
     DWORD  _id;

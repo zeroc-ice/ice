@@ -93,7 +93,7 @@ private:
 
     const size_t _stackSize;
 
-    std::vector<IceUtil::ThreadControl> _threads; // Control for all threads, running or not.
+    std::vector<IceUtil::ThreadPtr> _threads; // All threads, running or not.
     int _running; // Number of running threads.
     int _inUse; // Number of threads that are currently in use.
     double _load; // Current load in number of threads.

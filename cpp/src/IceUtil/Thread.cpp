@@ -120,16 +120,6 @@ IceUtil::ThreadControl::detach()
     // is closed.
 }
 
-bool
-IceUtil::ThreadControl::isAlive() const
-{
-    DWORD rc;
-    if(GetExitCodeThread(_handle, &rc) == 0)
-    {
-	return false;
-    }
-    return rc == STILL_ACTIVE;
-}
 
 void
 IceUtil::ThreadControl::sleep(const Time& timeout)
@@ -150,6 +140,7 @@ IceUtil::ThreadControl::yield()
 
 IceUtil::Thread::Thread() :
     _started(false),
+    _running(false)
     _handle(0),
     _id(0)
 {
@@ -167,6 +158,11 @@ IceUtil::Thread::~Thread()
 static unsigned int
 WINAPI startHook(void* arg)
 {
+    // Ensure that the thread doesn't go away until run() has
+    // completed.
+    //
+    IceUtil::ThreadPtr thread;
+
     try
     {
 	IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
@@ -181,7 +177,7 @@ WINAPI startHook(void* arg)
 	// Ensure that the thread doesn't go away until run() has
 	// completed.
 	//
-	IceUtil::ThreadPtr thread = rawThread;
+	thread = rawThread;
 
 	//
 	// See the comment in IceUtil::Thread::start() for details.
@@ -193,7 +189,9 @@ WINAPI startHook(void* arg)
     {
 	cerr << "IceUtil::Thread::run(): uncaught exception: ";
 	cerr << e << endl;
-    }
+    } 
+    thread->done();
+   
     return 0;
 }
 
@@ -241,6 +239,7 @@ IceUtil::Thread::start(size_t stackSize)
     }
 
     _started = true;
+    _running = true;
 			
     return ThreadControl(_handle, _id);
 }
@@ -273,6 +272,21 @@ IceUtil::Thread::operator<(const Thread& rhs) const
 {
     return this < &rhs;
 }
+
+bool
+IceUtil::Thread::isAlive() const
+{
+    IceUtil::Mutex::Lock lock(_stateMutex);
+    return _running;
+}
+
+void
+IceUtil::Thread::done()
+{
+    IceUtil::Mutex::Lock lock(_stateMutex);
+    _running = false;
+}
+
 
 #else
 
@@ -338,22 +352,6 @@ IceUtil::ThreadControl::detach()
     }
 }
 
-bool
-IceUtil::ThreadControl::isAlive() const
-{
-    int policy;
-    int ret;
-    struct sched_param param;
-    ret = pthread_getschedparam(_thread, &policy, &param);
-#ifdef __APPLE__
-    if (ret == 0) 
-    {
-	ret = pthread_setschedparam(_thread, policy, &param);
-    }
-#endif 
-    return (ret == 0);
-}
-
 void
 IceUtil::ThreadControl::sleep(const Time& timeout)
 {
@@ -371,7 +369,8 @@ IceUtil::ThreadControl::yield()
 }
 
 IceUtil::Thread::Thread() :
-    _started(false)
+    _started(false),
+    _running(false)
 {
 }
 
@@ -385,15 +384,17 @@ extern "C"
 static void*
 startHook(void* arg)
 {
+    //
+    // Ensure that the thread doesn't go away until run() has
+    // completed.
+    //
+    IceUtil::ThreadPtr thread;
+
     try
     {
 	IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
 
-	//
-	// Ensure that the thread doesn't go away until run() has
-	// completed.
-	//
-	IceUtil::ThreadPtr thread = rawThread;
+	thread = rawThread;
 
 	//
 	// See the comment in IceUtil::Thread::start() for details.
@@ -410,6 +411,8 @@ startHook(void* arg)
     {
 	cerr << "IceUtil::Thread::run(): uncaught exception" << endl;
     }
+    thread->done();
+    
     return 0;
 }
 }
@@ -473,6 +476,7 @@ IceUtil::Thread::start(size_t stackSize)
     }
 
     _started = true;
+    _running = true;
 
     return ThreadControl(_thread);
 }
@@ -504,6 +508,20 @@ bool
 IceUtil::Thread::operator<(const Thread& rhs) const
 {
     return this < &rhs;
+}
+
+bool
+IceUtil::Thread::isAlive() const
+{
+    IceUtil::Mutex::Lock lock(_stateMutex);
+    return _running;
+}
+
+void
+IceUtil::Thread::done()
+{
+    IceUtil::Mutex::Lock lock(_stateMutex);
+    _running = false;
 }
 
 #endif

@@ -317,7 +317,7 @@ Ice::ConnectionI::isFinished() const
 	}
 
 	if(_transceiver || _dispatchCount != 0 ||
-	   (_threadPerConnection && _threadPerConnection->getThreadControl().isAlive()))
+	   (_threadPerConnection && _threadPerConnection->isAlive()))
 	{
 	    return false;
 	}

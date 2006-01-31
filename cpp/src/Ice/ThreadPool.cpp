@@ -95,7 +95,8 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
 	for(int i = 0 ; i < _size ; ++i)
 	{
 	    IceUtil::ThreadPtr thread = new EventHandlerThread(this);
-	    _threads.push_back(thread->start(_stackSize));
+	    thread->start(_stackSize);
+	    _threads.push_back(thread);
 	    ++_running;
 	}
     }
@@ -202,7 +203,8 @@ IceInternal::ThreadPool::promoteFollower()
 		try
 		{
 		    IceUtil::ThreadPtr thread = new EventHandlerThread(this);
-		    _threads.push_back(thread->start(_stackSize));
+		    thread->start(_stackSize);
+		    _threads.push_back(thread);
 		    ++_running;
 		}
 		catch(const IceUtil::Exception& ex)
@@ -225,14 +227,10 @@ IceInternal::ThreadPool::joinWithAllThreads()
     // threads would never terminate.)
     //
     assert(_destroyed);
-#if defined(_MSC_VER) && _MSC_VER <= 1200 // The mem_fun_ref below does not work with VC++ 6.0
-    for(vector<IceUtil::ThreadControl>::iterator p = _threads.begin(); p != _threads.end(); ++p)
+    for(vector<IceUtil::ThreadPtr>::iterator p = _threads.begin(); p != _threads.end(); ++p)
     {
-	p->join();
+	(*p)->getThreadControl().join();
     }
-#else
-    for_each(_threads.begin(), _threads.end(), mem_fun_ref(&IceUtil::ThreadControl::join));
-#endif
 }
 
 string
@@ -667,16 +665,14 @@ IceInternal::ThreadPool::run()
 		assert(_running <= sz);
 		if(_running < sz)
 		{
-		    vector<IceUtil::ThreadControl>::iterator start =
-			partition(_threads.begin(), _threads.end(), mem_fun_ref(&IceUtil::ThreadControl::isAlive));
-#if defined(_MSC_VER) && _MSC_VER <= 1200 // The mem_fun_ref below does not work with VC++ 6.0
-		    for(vector<IceUtil::ThreadControl>::iterator p = start; p != _threads.end(); ++p)
+		    vector<IceUtil::ThreadPtr>::iterator start =
+			partition(_threads.begin(), _threads.end(), IceUtil::constMemFun(&IceUtil::Thread::isAlive));
+
+		    for(vector<IceUtil::ThreadPtr>::iterator p = start; p != _threads.end(); ++p)
 		    {
-			p->join();
+			(*p)->getThreadControl().join();
 		    }
-#else
-		    for_each(start, _threads.end(), mem_fun_ref(&IceUtil::ThreadControl::join));
-#endif
+
 		    _threads.erase(start, _threads.end());
 		}
 		
