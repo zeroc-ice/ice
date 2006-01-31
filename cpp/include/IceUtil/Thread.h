@@ -62,12 +62,6 @@ public:
     //
     void detach();
 
-    //
-    // Check whether a thread is still alive. This is useful to implement
-    // a non-blocking join().
-    //
-    bool isAlive() const;
-
     static void sleep(const Time&);
     static void yield();
 
@@ -99,7 +93,8 @@ public:
     bool operator<(const Thread&) const;
 
     //
-    // Is this thread still running?
+    // Check whether a thread is still alive. This is useful to implement
+    // a non-blocking join().
     //
     bool isAlive() const;
 
