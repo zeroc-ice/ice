@@ -718,12 +718,12 @@ namespace IceInternal
 	    return this;
 	}
 
-	internal byte[] rawBytes()
+	public byte[] rawBytes()
 	{
 	    return _bytes;
 	}
 
-        internal byte[] rawBytes(int offset, int len)
+        public byte[] rawBytes(int offset, int len)
         {
             if(offset + len > _limit)
             {
