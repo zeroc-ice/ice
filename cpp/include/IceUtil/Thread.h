@@ -62,6 +62,16 @@ public:
     //
     void detach();
 
+    //
+    // id() returns the Thread ID on Windows and the underlying pthread_t
+    // on POSIX platforms.
+    //
+#ifdef _WIN32
+    DWORD id() const;
+#else
+    pthread_t id() const;
+#endif 
+
     static void sleep(const Time&);
     static void yield();
 

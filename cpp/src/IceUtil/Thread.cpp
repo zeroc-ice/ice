@@ -120,6 +120,12 @@ IceUtil::ThreadControl::detach()
     // is closed.
 }
 
+DWORD
+IceUtil::ThreadControl::id() const
+{
+    return _id;
+}
+
 
 void
 IceUtil::ThreadControl::sleep(const Time& timeout)
@@ -350,6 +356,12 @@ IceUtil::ThreadControl::detach()
     {
 	throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
+}
+
+pthread_t
+IceUtil::ThreadControl::id() const
+{
+    return _thread;;
 }
 
 void
