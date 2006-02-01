@@ -799,13 +799,59 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	    C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
 	      << scoped << "& v, " << scope << "__U__" << name << ")";
 	    C << sb;
-	    writeMarshalUnmarshalCode(C, p, "v", true, "", false, p->getMetaData(), false);
+	    C << nl << "::Ice::Int size = static_cast< ::Ice::Int>(v.size());";
+	    C << nl << "__os->writeSize(size);";
+	    C << nl << "for(" << name << "::const_iterator p = v.begin(); p != v.end(); ++p)";
+	    C << sb;
+	    writeMarshalUnmarshalCode(C, type, "(*p)", true);
+	    C << eb;
 	    C << eb;
 
 	    C << sp << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
 	      << "& v, " << scope << "__U__" << name << ')';
 	    C << sb;
-	    writeMarshalUnmarshalCode(C, p, "v", false, "", false, p->getMetaData(), false);
+	    C << nl << "::Ice::Int sz;";
+	    C << nl << "__is->readSize(sz);";
+	    C << nl << name << "(sz).swap(v);";
+	    if(type->isVariableLength())
+	    {
+	        // Protect against bogus sequence sizes.
+	        C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");";
+	    }
+	    else
+	    {
+	        C << nl << "__is->checkFixedSeq(sz, " << type->minWireSize() << ");";
+	    }
+	    C << nl << "for(" << name << "::iterator p = v.begin(); p != v.end(); ++p)";
+	    C << sb;
+	    writeMarshalUnmarshalCode(C, type, "(*p)", false);
+
+	    //
+	    // After unmarshaling each element, check that there are still enough bytes left in the stream
+	    // to unmarshal the remainder of the sequence, and decrement the count of elements
+	    // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
+	    // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
+	    // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
+	    // (For fixed-length sequences, we don't need to do this because the prediction of how many
+	    // bytes will be taken up by the sequence is accurate.)
+	    //
+	    if(type->isVariableLength())
+	    {
+	        if(!SequencePtr::dynamicCast(type))
+	        {
+		    //
+		    // No need to check for directly nested sequences because, at the start of each
+		    // sequence, we check anyway.
+		    //
+		    C << nl << "__is->checkSeq();";
+	        }
+	        C << nl << "__is->endElement();";
+	    }
+	    C << eb;
+	    if(type->isVariableLength())
+	    {
+	        C << nl << "__is->endSeq(sz);";
+	    }
 	    C << eb;
 	}
 	else if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)

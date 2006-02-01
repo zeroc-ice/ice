@@ -857,11 +857,18 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		{
 		    StringList md;
 		    md.push_back("cpp:array");
-		    string tmpParam = "__" + fixedParam;
-		    string::size_type pos = tmpParam.find("[i]");
-		    if(pos != string::npos)
+		    string tmpParam = "__";
+		    if(fixedParam.find("(*") == 0)
 		    {
-		        tmpParam = tmpParam.substr(0, pos);
+		        tmpParam += fixedParam.substr(2, fixedParam.size() - 3);
+		    }
+		    else if(fixedParam.find("[i]") != string::npos)
+		    {
+		        tmpParam += fixedParam.substr(0, fixedParam.size() - 5);
+		    }
+		    else
+		    {
+		        tmpParam += fixedParam;
 		    }
 	            out << nl << typeToString(type, md) << " " << tmpParam << ";";
 	            out << nl << stream << deref << func << tmpParam << ");";
