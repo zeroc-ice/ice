@@ -1,6 +1,9 @@
 Changes since version 3.0.1
 ---------------------------
 
+- .NET 2.0 is now the target for All.sln. To build a version of Ice
+  for C# that is compatible with .NET 1.1, use All_11.sln instead.
+
 - createReverseProxy() did not use the default context established
   on the communicator and created a proxy with an empty context
   instead. This has been fixed.
