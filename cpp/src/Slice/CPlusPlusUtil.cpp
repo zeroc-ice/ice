@@ -605,12 +605,82 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		}
 	        if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
 		{
-		    out << nl << "::IceInternal::writeConstructedSequence<" << typeStr << ">(" << stream << ", "
-		        << fixedParam << ");";
+    		    SequencePtr innerSeq = SequencePtr::dynamicCast(seq->type());
+		    if(innerSeq)
+		    {
+	    	        string innerScope = fixKwd(innerSeq->scope());
+                	StringList l = innerSeq->getMetaData();
+                	seqType = findMetaData(l);
+			if(seqType == "array")
+			{
+			    seqType = "";
+			}
+		        builtin = BuiltinPtr::dynamicCast(innerSeq->type());
+			if(!seqType.empty())
+			{
+			    out << nl << "::IceInternal::writeSequence5<"  << typeStr << ", " << innerScope
+			        << fixKwd(innerSeq->name()) << ", " << innerScope << "__U__" 
+				<< fixKwd(innerSeq->name()) << ">("  << stream << ", " << fixedParam << ", "
+				<< innerScope << "__write);";
+			}
+			else if(!builtin || builtin->kind() == Builtin::KindObject ||
+			        builtin->kind() == Builtin::KindObjectProxy)
+			{
+			    out << nl << "::IceInternal::writeSequence4<"  << typeStr << ", "
+			    	<< typeToString(innerSeq->type()) << ", " << innerScope << "__U__" 
+				<< fixKwd(innerSeq->name()) << ">("  << stream << ", " << fixedParam <<  ", "
+				<< innerScope << "__write);";
+			}
+			else if(builtin->kind() == Builtin::KindBool)
+			{
+			    out << nl << "::IceInternal::writeSequence1<" << typeStr << ">(" << stream << ", "
+			        << fixedParam << ");";
+			}
+			else
+			{
+			    out << nl << "::IceInternal::writeSequence3<" << typeStr << ">(" << stream << ", "
+			        << fixedParam << ");";
+			}
+			return;
+		    }
+
+		    DictionaryPtr innerDict = DictionaryPtr::dynamicCast(seq->type());
+		    if(innerDict)
+		    {
+	    	        string innerScope = fixKwd(innerDict->scope());
+		        out << nl << "::IceInternal::writeSequence5<"  << typeStr << ", " << innerScope
+		            << fixKwd(innerDict->name()) << ", " << innerScope << "__U__" << fixKwd(innerDict->name())
+		    	    << ">("  << stream << ", " << fixedParam << ", " << innerScope << "__write);";
+			return;
+		    }
+
+		    EnumPtr innerEnum = EnumPtr::dynamicCast(seq->type());
+		    if(innerEnum)
+		    {
+	    	        string innerScope = fixKwd(innerEnum->scope());
+		        out << nl << "::IceInternal::writeSequence6<"  << typeStr << ", " << innerScope
+		            << fixKwd(innerEnum->name()) << ">("  << stream << ", " << fixedParam << ", "
+			    << innerScope << "__write);";
+			return;
+		    }
+
+    		    ProxyPtr innerProxy = ProxyPtr::dynamicCast(seq->type());
+		    if(innerProxy)
+		    {
+	    	        string innerScope = fixKwd(innerProxy->_class()->scope());
+		        out << nl << "::IceInternal::writeSequence7<"  << typeStr << ", "
+		            << typeToString(innerProxy) << ">("  << stream << ", " << fixedParam << ", "
+			    << innerScope << "__write);";
+			return;
+
+		    }
+
+		    out << nl << "::IceInternal::writeSequence2<" << typeStr << ">(" << stream 
+		        << ", " << fixedParam << ");";
 		}
 		else
 		{
-		    out << nl << "::IceInternal::writeBuiltinSequence<" << typeStr << ">(" << stream << ", "
+		    out << nl << "::IceInternal::writeSequence1<" << typeStr << ">(" << stream << ", "
 		        << fixedParam << ");";
 		}
 	    }
@@ -701,14 +771,75 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		}
 	        if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
 		{
+    		    SequencePtr innerSeq = SequencePtr::dynamicCast(seq->type());
+		    if(innerSeq)
+		    {
+	    	        string innerScope = fixKwd(innerSeq->scope());
+                	StringList l = innerSeq->getMetaData();
+                	seqType = findMetaData(l);
+			if(seqType == "array")
+			{
+			    seqType = "";
+			}
+		        builtin = BuiltinPtr::dynamicCast(innerSeq->type());
+			if(!seqType.empty() || !builtin || builtin->kind() == Builtin::KindObject ||
+			   builtin->kind() == Builtin::KindObjectProxy)
+			{
+			    out << nl << "::IceInternal::readSequence4<"  << typeStr << ", " << innerScope
+			        << fixKwd(innerSeq->name()) << ", " << innerScope << "__U__" << fixKwd(innerSeq->name())
+				<< ">("  << stream << ", " << fixedParam << ", " << innerScope << "__read);";
+			}
+			else if(builtin->kind() == Builtin::KindByte)
+			{
+		            out << nl << "::IceInternal::readSequence3<" << typeStr << ">(" << stream << ", "
+		                << fixedParam << ");";
+			}
+			else
+			{
+		            out << nl << "::IceInternal::readSequence1<" << typeStr << ">(" << stream << ", "
+		                << fixedParam << ", true);";
+			}
+			return;
+		    }
+
+		    DictionaryPtr innerDict = DictionaryPtr::dynamicCast(seq->type());
+		    if(innerDict)
+		    {
+	    	        string innerScope = fixKwd(innerDict->scope());
+			out << nl << "::IceInternal::readSequence4<"  << typeStr << ", " << innerScope
+			    << fixKwd(innerDict->name()) << ", " << innerScope << "__U__" << fixKwd(innerDict->name())
+			    << ">("  << stream << ", " << fixedParam << ", " << innerScope << "__read);";
+			return;
+		    }
+
+		    EnumPtr innerEnum = EnumPtr::dynamicCast(seq->type());
+		    if(innerEnum)
+		    {
+	    	        string innerScope = fixKwd(innerEnum->scope());
+			out << nl << "::IceInternal::readSequence5<"  << typeStr << ", " << innerScope
+			    << fixKwd(innerEnum->name()) << ">("  << stream << ", " << fixedParam << ", " << innerScope
+			    << "__read);";
+		        return;
+		    }
+
+    		    ProxyPtr innerProxy = ProxyPtr::dynamicCast(seq->type());
+		    if(innerProxy)
+		    {
+	    	        string innerScope = fixKwd(innerProxy->_class()->scope());
+			out << nl << "::IceInternal::readSequence5<"  << typeStr << ", " 
+			    << typeToString(innerProxy) << ">("  << stream << ", " << fixedParam << ", " << innerScope
+			    << "__read);";
+		        return;
+		    }
+		    
 		    TypePtr elemType = seq->type();
-		    out << nl << "::IceInternal::readConstructedSequence<" << typeStr << ">(" << stream << ", "
+		    out << nl << "::IceInternal::readSequence2<" << typeStr << ">(" << stream << ", "
 		        << fixedParam << ", " << elemType->minWireSize() << ", " 
 			<< (elemType->isVariableLength() ? "true" : "false") << ");";
 		}
 		else
 		{
-		    out << nl << "::IceInternal::readBuiltinSequence<" << typeStr << ">(" << stream << ", "
+		    out << nl << "::IceInternal::readSequence1<" << typeStr << ">(" << stream << ", "
 		        << fixedParam << ", " << (builtin->kind() ==  Builtin::KindString ? "true" : "false") << ");";
 		}
 	    }

@@ -958,7 +958,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	H << sp << nl << _dllExport << "void __write(::IceInternal::BasicStream*, " << name << ");";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&);";
 
-	C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, " << scoped
+	C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, " << scoped 
 	  << " v)";
 	C << sb;
 	if(sz <= 0x7f)
