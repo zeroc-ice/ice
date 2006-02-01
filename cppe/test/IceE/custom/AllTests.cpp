@@ -213,5 +213,106 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     tprintf("ok\n");
 
+    tprintf("testing custom dictionary sequences... ");
+
+    {
+        deque<Test::StringStringDict> in(5);
+	in[0]["A"] = "a";
+	in[1]["B"] = "b";
+	in[2]["C"] = "c";
+	in[3]["D"] = "d";
+	in[4]["E"] = "e";
+
+	deque<Test::StringStringDict> out;
+	deque<Test::StringStringDict> ret = t->opStringStringDictSeq(in, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    {
+        list<Test::StringStringDict> in;
+	Test::StringStringDict ssd;
+	ssd["A"] = "a";
+	in.push_back(ssd);
+	ssd["B"] = "b";
+	in.push_back(ssd);
+	ssd["C"] = "c";
+	in.push_back(ssd);
+	ssd["D"] = "d";
+	in.push_back(ssd);
+	ssd["E"] = "e";
+	in.push_back(ssd);
+
+	list<Test::StringStringDict> out;
+	list<Test::StringStringDict> ret = t->opStringStringDictList(in, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    tprintf("ok\n");
+
+    tprintf("testing custom enumuration sequences... ");
+
+    {
+        deque<Test::E> in(5);
+	in[0] = Test::E1;
+	in[1] = Test::E2;
+	in[2] = Test::E3;
+	in[3] = Test::E1;
+	in[4] = Test::E3;
+
+	deque<Test::E> out;
+	deque<Test::E> ret = t->opESeq(in, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    {
+        list<Test::E> in;
+	in.push_back(Test::E1);
+	in.push_back(Test::E2);
+	in.push_back(Test::E3);
+	in.push_back(Test::E1);
+	in.push_back(Test::E3);
+
+	list<Test::E> out;
+	list<Test::E> ret = t->opEList(in, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    tprintf("ok\n");
+
+    tprintf("testing custom enumuration sequences... ");
+
+    {
+        deque<Test::CPrx> in(5);
+	in[0] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C1:default -p 12345 -t 10000"));
+	in[1] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C2:default -p 12345 -t 10001"));
+	in[2] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C3:default -p 12345 -t 10002"));
+	in[3] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C4:default -p 12345 -t 10003"));
+	in[4] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C5:default -p 12345 -t 10004"));
+
+	deque<Test::CPrx> out;
+	deque<Test::CPrx> ret = t->opCPrxSeq(in, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    {
+        list<Test::CPrx> in;
+	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C1:default -p 12345 -t 10000")));
+	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C2:default -p 12345 -t 10001")));
+	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C3:default -p 12345 -t 10002")));
+	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C4:default -p 12345 -t 10003")));
+	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C5:default -p 12345 -t 10004")));
+
+	list<Test::CPrx> out;
+	list<Test::CPrx> ret = t->opCPrxList(in, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    tprintf("ok\n");
     return t;
 }

@@ -242,8 +242,10 @@ private:
 // Template functions for marshalling alternative sequence mappings
 //
 
+// Sequences of Builtin Types
+// Sequences of Bool Sequences
 template<typename T> void
-writeBuiltinSequence(::IceInternal::BasicStream* __os, const T& seq)
+writeSequence1(::IceInternal::BasicStream* __os, const T& seq)
 {
     ::Ice::Int size = static_cast< ::Ice::Int>(seq.size());
     __os->writeSize(size);
@@ -254,8 +256,9 @@ writeBuiltinSequence(::IceInternal::BasicStream* __os, const T& seq)
     }
 }
 
+// Sequences of Structures
 template<typename T> void
-writeConstructedSequence(::IceInternal::BasicStream* __os, const T& seq)
+writeSequence2(::IceInternal::BasicStream* __os, const T& seq)
 {
     ::Ice::Int size = static_cast< ::Ice::Int>(seq.size());
     __os->writeSize(size);
@@ -266,15 +269,87 @@ writeConstructedSequence(::IceInternal::BasicStream* __os, const T& seq)
     }
 }
 
+// Sequences of regular Builtin Type Sequences (except Bool)
 template<typename T> void
-readBuiltinSequence(::IceInternal::BasicStream* __is, T& seq, bool isString)
+writeSequence3(::IceInternal::BasicStream* __os, const T& seq)
+{
+    ::Ice::Int size = static_cast< ::Ice::Int>(seq.size());
+    __os->writeSize(size);
+    typedef typename T::const_iterator I;
+    for(I p = seq.begin(); p != seq.end(); ++p)
+    {
+        __os->write(&(*p)[0], &(*p)[0] + (*p).size());
+    }
+}
+
+// Sequences of regular non-Builtin Type Sequences
+template<typename T, typename S, typename C> void
+writeSequence4(::IceInternal::BasicStream* __os, const T& seq, 
+		       void (*func)(::IceInternal::BasicStream*, const S*, const S*, C))
+{
+    ::Ice::Int size = static_cast< ::Ice::Int>(seq.size());
+    __os->writeSize(size);
+    typedef typename T::const_iterator I;
+    for(I p = seq.begin(); p != seq.end(); ++p)
+    {
+        (*func)(__os, &(*p)[0], &(*p)[0] + (*p).size(), C());
+    }
+}
+
+// Sequences of alternative Sequences
+// Sequences of Dictionaries
+template<typename T, typename S, typename C> void
+writeSequence5(::IceInternal::BasicStream* __os, const T& seq, 
+		       void (*func)(::IceInternal::BasicStream*, const S&, C))
+{
+    ::Ice::Int size = static_cast< ::Ice::Int>(seq.size());
+    __os->writeSize(size);
+    typedef typename T::const_iterator I;
+    for(I p = seq.begin(); p != seq.end(); ++p)
+    {
+        (*func)(__os, *p, C());
+    }
+}
+
+// Sequences of Enums
+template<typename T, typename E> void
+writeSequence6(::IceInternal::BasicStream* __os, const T& seq, 
+		  void (*func)(::IceInternal::BasicStream*, E))
+{
+    ::Ice::Int size = static_cast< ::Ice::Int>(seq.size());
+    __os->writeSize(size);
+    typedef typename T::const_iterator I;
+    for(I p = seq.begin(); p != seq.end(); ++p)
+    {
+        (*func)(__os, *p);
+    }
+}
+
+// Sequences of Proxies
+template<typename T, typename P> void
+writeSequence7(::IceInternal::BasicStream* __os, const T& seq, 
+		  void (*func)(::IceInternal::BasicStream*, const P&))
+{
+    ::Ice::Int size = static_cast< ::Ice::Int>(seq.size());
+    __os->writeSize(size);
+    typedef typename T::const_iterator I;
+    for(I p = seq.begin(); p != seq.end(); ++p)
+    {
+        (*func)(__os, *p);
+    }
+}
+
+// Sequences of Builtin Types
+// Sequences of Builtin Type Sequences (except Byte)
+template<typename T> void
+readSequence1(::IceInternal::BasicStream* __is, T& seq, bool isVariable)
 {
     ::Ice::Int size;
     __is->readSize(size);
     T(size).swap(seq);
     if(size > 0)
     {
-        if(isString)
+        if(isVariable)
 	{
 	    __is->startSeq(size, 1);
 	}
@@ -282,21 +357,22 @@ readBuiltinSequence(::IceInternal::BasicStream* __is, T& seq, bool isString)
         for(I p = seq.begin(); p != seq.end(); ++p)
         {
             __is->read(*p);
-	    if(isString)
+	    if(isVariable)
 	    {
 	        __is->checkSeq();
 		__is->endElement();
 	    }
         }
-	if(isString)
+	if(isVariable)
 	{
 	    __is->endSeq(size);
 	}
     }
 }
 
+// Sequences of Structures
 template<typename T> void
-readConstructedSequence(::IceInternal::BasicStream* __is, T& seq, int elemSize, bool isVariable)
+readSequence2(::IceInternal::BasicStream* __is, T& seq, int elemSize, bool isVariable)
 {
     ::Ice::Int size;
     __is->readSize(size);
@@ -325,6 +401,70 @@ readConstructedSequence(::IceInternal::BasicStream* __is, T& seq, int elemSize, 
 	{
             __is->endSeq(size);
 	}
+    }
+}
+
+// Sequences of Byte Sequences
+template<typename T> void
+readSequence3(::IceInternal::BasicStream* __is, T& seq)
+{
+    ::Ice::Int size;
+    __is->readSize(size);
+    T(size).swap(seq);
+    if(size > 0)
+    {
+	__is->startSeq(size, 1);
+        typedef typename T::iterator I;
+        for(I p = seq.begin(); p != seq.end(); ++p)
+        {
+	    std::pair<const Ice::Byte*, const Ice::Byte*> tmp;
+	    __is->read(tmp);
+	    std::vector<Ice::Byte>(tmp.first, tmp.second).swap(*p);
+	    __is->checkSeq();
+	    __is->endElement();
+        }
+	__is->endSeq(size);
+    }
+}
+
+// Sequences of regular Non-Builtin Type Sequences
+// Sequences of Alternative Sequences
+// Sequences of Dictionaries
+template<typename T, typename S, typename C> void
+readSequence4(::IceInternal::BasicStream* __is, T& seq, void (*func)(::IceInternal::BasicStream*, S&, C))
+{
+    ::Ice::Int size;
+    __is->readSize(size);
+    T(size).swap(seq);
+    if(size > 0)
+    {
+	__is->startSeq(size, 1);
+        typedef typename T::iterator I;
+        for(I p = seq.begin(); p != seq.end(); ++p)
+        {
+	    (*func)(__is, *p, C());
+	    __is->checkSeq();
+	    __is->endElement();
+        }
+	__is->endSeq(size);
+    }
+}
+
+// Sequences of Enums
+// Sequences of Proxies
+template<typename T, typename S> void
+readSequence5(::IceInternal::BasicStream* __is, T& seq, void (*func)(::IceInternal::BasicStream*, S&))
+{
+    ::Ice::Int size;
+    __is->readSize(size);
+    T(size).swap(seq);
+    if(size > 0)
+    {
+        typedef typename T::iterator I;
+        for(I p = seq.begin(); p != seq.end(); ++p)
+        {
+	    (*func)(__is, *p);
+        }
     }
 }
 

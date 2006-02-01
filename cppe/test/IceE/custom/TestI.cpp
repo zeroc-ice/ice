@@ -126,6 +126,60 @@ TestIntfI::opVariableList(const std::list< ::Test::Variable>& inSeq,
     return inSeq;
 }
 
+std::deque< ::Test::StringStringDict>
+TestIntfI::opStringStringDictSeq(const std::deque< ::Test::StringStringDict>& inSeq,
+                                       std::deque< ::Test::StringStringDict>& outSeq,
+                                       const Ice::Current& current)
+{
+    outSeq = inSeq;
+    return inSeq;
+}
+
+std::list< ::Test::StringStringDict>
+TestIntfI::opStringStringDictList(const std::list< ::Test::StringStringDict>& inSeq,
+                                        std::list< ::Test::StringStringDict>& outSeq,
+                                        const Ice::Current& current)
+{
+    outSeq = inSeq;
+    return inSeq;
+}
+
+std::deque< ::Test::E>
+TestIntfI::opESeq(const std::deque< ::Test::E>& inSeq,
+                        std::deque< ::Test::E>& outSeq,
+                        const Ice::Current& current)
+{
+    outSeq = inSeq;
+    return inSeq;
+}
+
+std::list< ::Test::E>
+TestIntfI::opEList(const std::list< ::Test::E>& inSeq,
+                         std::list< ::Test::E>& outSeq,
+                         const Ice::Current& current)
+{
+    outSeq = inSeq;
+    return inSeq;
+}
+
+std::deque< ::Test::CPrx>
+TestIntfI::opCPrxSeq(const std::deque< ::Test::CPrx>& inSeq,
+                           std::deque< ::Test::CPrx>& outSeq,
+                           const Ice::Current& current)
+{
+    outSeq = inSeq;
+    return inSeq;
+}
+
+std::list< ::Test::CPrx>
+TestIntfI::opCPrxList(const std::list< ::Test::CPrx>& inSeq,
+                            std::list< ::Test::CPrx>& outSeq,
+                            const Ice::Current& current)
+{
+    outSeq = inSeq;
+    return inSeq;
+}
+
 void
 TestIntfI::shutdown(const Ice::Current& current)
 {

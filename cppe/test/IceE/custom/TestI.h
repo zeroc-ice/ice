@@ -66,6 +66,30 @@ public:
 							std::list< ::Test::Variable>&,
 							const Ice::Current&);
 
+    virtual std::deque< ::Test::StringStringDict> opStringStringDictSeq(const std::deque< ::Test::StringStringDict>&,
+                                                                        std::deque< ::Test::StringStringDict>&,
+                                                                        const Ice::Current&);
+
+    virtual std::list< ::Test::StringStringDict> opStringStringDictList(const std::list< ::Test::StringStringDict>&,
+                                                                        std::list< ::Test::StringStringDict>&,
+                                                                        const Ice::Current&);
+
+    virtual std::deque< ::Test::E> opESeq(const std::deque< ::Test::E>&,
+                                          std::deque< ::Test::E>&,
+                                          const Ice::Current&);
+
+    virtual std::list< ::Test::E> opEList(const std::list< ::Test::E>&,
+                                          std::list< ::Test::E>&,
+                                          const Ice::Current&);
+
+    virtual std::deque< ::Test::CPrx> opCPrxSeq(const std::deque< ::Test::CPrx>&,
+                                                std::deque< ::Test::CPrx>&,
+                                                const Ice::Current&);
+
+    virtual std::list< ::Test::CPrx> opCPrxList(const std::list< ::Test::CPrx>&,
+                                                std::list< ::Test::CPrx>&,
+                                                const Ice::Current&);
+
     virtual void shutdown(const Ice::Current&);
 
 private:
