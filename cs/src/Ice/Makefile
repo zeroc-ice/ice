@@ -62,6 +62,7 @@ SRCS		= Acceptor.cs \
 		  PropertiesI.cs \
 		  PropertyNames.cs \
 		  Protocol.cs \
+		  ProtocolPluginFacade.cs \
 		  Proxy.cs \
 		  ProxyFactory.cs \
 		  ProxyIdentityKey.cs \
