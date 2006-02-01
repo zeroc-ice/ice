@@ -96,8 +96,8 @@ ICE_FLAGS		= -I$(ICE_HOME)/include
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.0.0
-SOVERSION		= 30
+VERSION			= 3.1.0
+SOVERSION		= 31
 libdir			= $(top_srcdir)/python
 
 ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)

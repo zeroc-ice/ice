@@ -53,12 +53,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 rpcrt4.lib /nologo /dll /pdb:none /machine:I386 /out:"Release/iceutil30.dll" /implib:"Release/iceutil.lib" /FIXED:no
+# ADD LINK32 rpcrt4.lib /nologo /dll /pdb:none /machine:I386 /out:"Release/iceutil31.dll" /implib:"Release/iceutil.lib" /FIXED:no
 # SUBTRACT LINK32 /debug
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\iceutil.lib ..\..\lib	copy $(OutDir)\iceutil30.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\iceutil.lib ..\..\lib	copy $(OutDir)\iceutil31.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "iceutil - Win32 Debug"
@@ -85,12 +85,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 rpcrt4.lib /nologo /dll /debug /machine:I386 /out:"Debug/iceutil30d.dll" /implib:"Debug/iceutild.lib" /FIXED:no
+# ADD LINK32 rpcrt4.lib /nologo /dll /debug /machine:I386 /out:"Debug/iceutil31d.dll" /implib:"Debug/iceutild.lib" /FIXED:no
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\iceutild.lib ..\..\lib	copy $(OutDir)\iceutil30d.dll ..\..\bin	copy $(OutDir)\iceutil30d.pdb ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\iceutild.lib ..\..\lib	copy $(OutDir)\iceutil31d.dll ..\..\bin	copy $(OutDir)\iceutil31d.pdb ..\..\bin
 # End Special Build Tool
 
 !ENDIF 

@@ -139,8 +139,8 @@ KERBEROS_HOME           ?= /usr/kerberos
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.0.0
-SOVERSION		= 30
+VERSION			= 3.1.0
+SOVERSION		= 31
 bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib
 includedir		= $(top_srcdir)/include
