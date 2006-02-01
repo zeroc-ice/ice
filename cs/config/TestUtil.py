@@ -45,7 +45,7 @@ host = "127.0.0.1"
 # Don't change anything below this line!
 #
 
-import sys, os, re
+import sys, os, re, errno
 
 def isCygwin():
 
@@ -113,26 +113,33 @@ def getAdapterReady(serverPipe):
 def waitServiceReady(pipe, token):
 
     while 1:
-
         output = pipe.readline().strip()
-
         if not output:
             print "failed!"
             sys.exit(1)
-
         if output == token + " ready":
             break
 
 def printOutputFromPipe(pipe):
 
     while 1:
-
         c = pipe.read(1)
-
         if c == "":
             break
-
         os.write(1, c)
+
+def closePipe(pipe):
+
+    try:
+	status = pipe.close()
+    except IOError, ex:
+	# TODO: There's a waitpid problem on CentOS, so we have to ignore ECHILD.
+	if ex.errno == errno.ECHILD:
+	    status = 0
+	else:
+	    raise
+
+    return status
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -263,8 +270,8 @@ def clientServerTestWithOptionsAndNames(mono, name, additionalServerOptions, add
 
     printOutputFromPipe(clientPipe)
 
-    clientStatus = clientPipe.close()
-    serverStatus = serverPipe.close()
+    clientStatus = closePipe(clientPipe)
+    serverStatus = closePipe(serverPipe)
 
     if clientStatus or serverStatus:
 	killServers()
@@ -298,8 +305,8 @@ def mixedClientServerTestWithOptions(mono, name, additionalServerOptions, additi
 
     printOutputFromPipe(clientPipe)
 
-    clientStatus = clientPipe.close()
-    serverStatus = serverPipe.close()
+    clientStatus = closePipe(clientPipe)
+    serverStatus = closePipe(serverPipe)
 
     if clientStatus or serverStatus:
 	killServers()
@@ -320,7 +327,7 @@ def collocatedTestWithOptions(mono, name, additionalOptions):
 
     printOutputFromPipe(collocatedPipe)
 
-    collocatedStatus = collocatedPipe.close()
+    collocatedStatus = closePipe(collocatedPipe)
 
     if collocatedStatus:
 	killServers()
@@ -341,7 +348,7 @@ def clientTestWithOptions(mono, name, additionalOptions):
 
     printOutputFromPipe(clientPipe)
 
-    clientStatus = clientPipe.close()
+    clientStatus = closePipe(clientPipe)
 
     if clientStatus:
 	killServers()
