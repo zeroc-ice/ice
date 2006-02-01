@@ -4,7 +4,7 @@ mono_root = /opt/mono
 name = icepatch2cs
 
 Name: ${name}
-Description: IcePatch run-time support"
+Description: IcePatch2 run-time support
 Version: ${version}
 Libs: -r:${mono_root}/lib/mono/gac/${name}/${version}.0__1f998c50fec78381/${name}.dll
 Requires: icecs = ${version}
