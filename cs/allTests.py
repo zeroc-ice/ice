@@ -52,6 +52,7 @@ def runTests(mono, tests, num = 0):
 # List of all basic tests.
 #
 tests = [ \
+    "IceUtil/inputUtil", \
     "Ice/operations", \
     "Ice/exceptions", \
     "Ice/inheritance", \
@@ -62,7 +63,7 @@ tests = [ \
     "Ice/location", \
     "Ice/adapterDeactivation", \
     "Ice/slicing/exceptions", \
-    #"Ice/slicing/objects", \
+    "Ice/slicing/objects", \
     "Ice/checksum", \
     "Ice/stream", \
     "Glacier2/router", \
