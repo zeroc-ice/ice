@@ -860,11 +860,11 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		    string tmpParam = "__";
 		    if(fixedParam.find("(*") == 0)
 		    {
-		        tmpParam += fixedParam.substr(2, fixedParam.size() - 3);
+		        tmpParam += fixedParam.substr(2, fixedParam.length() - 2);
 		    }
 		    else if(fixedParam.find("[i]") != string::npos)
 		    {
-		        tmpParam += fixedParam.substr(0, fixedParam.find("[i]"));
+		        tmpParam += fixedParam.substr(0, fixedParam.length() - 3);
 		    }
 		    else
 		    {
