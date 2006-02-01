@@ -196,10 +196,6 @@ extern int c89;
 #define LONG_TYPE_SIZE BITS_PER_WORD
 #endif
 
-#ifndef WCHAR_TYPE_SIZE
-#define WCHAR_TYPE_SIZE INT_TYPE_SIZE
-#endif
-
 #ifndef MAX_CHAR_TYPE_SIZE
 #define MAX_CHAR_TYPE_SIZE CHAR_TYPE_SIZE
 #endif
@@ -212,17 +208,11 @@ extern int c89;
 #define MAX_LONG_TYPE_SIZE LONG_TYPE_SIZE
 #endif
 
-#ifndef MAX_WCHAR_TYPE_SIZE
-#define MAX_WCHAR_TYPE_SIZE WCHAR_TYPE_SIZE
-#endif
 
 #define MAX_CHAR_TYPE_MASK (MAX_CHAR_TYPE_SIZE < HOST_BITS_PER_WIDE_INT \
 			    ? (~ (~ (HOST_WIDE_INT) 0 << MAX_CHAR_TYPE_SIZE)) \
 			    : ~ (HOST_WIDE_INT) 0)
 
-#define MAX_WCHAR_TYPE_MASK (MAX_WCHAR_TYPE_SIZE < HOST_BITS_PER_WIDE_INT \
-			     ? ~ (~ (HOST_WIDE_INT) 0 << MAX_WCHAR_TYPE_SIZE) \
-			     : ~ (HOST_WIDE_INT) 0)
 
 /* Suppose A1 + B1 = SUM1, using 2's complement arithmetic ignoring overflow.
    Suppose A, B and SUM have the same respective signs as A1, B1, and SUM1.
@@ -629,7 +619,7 @@ yylex ()
   register int namelen;
   register unsigned char *tokstart;
   register struct token *toktab;
-  int wide_flag;
+  
   HOST_WIDE_INT mask;
 
  retry:
@@ -659,27 +649,8 @@ yylex ()
   case '\r':
     lexptr++;
     goto retry;
-    
-  case 'L':
-    /* Capital L may start a wide-string or wide-character constant.  */
-    if (lexptr[1] == '\'')
-      {
-	lexptr++;
-	wide_flag = 1;
-	mask = MAX_WCHAR_TYPE_MASK;
-	goto char_constant;
-      }
-    if (lexptr[1] == '"')
-      {
-	lexptr++;
-	wide_flag = 1;
-	mask = MAX_WCHAR_TYPE_MASK;
-	goto string_constant;
-      }
-    break;
 
   case '\'':
-    wide_flag = 0;
     mask = MAX_CHAR_TYPE_MASK;
   char_constant:
     lexptr++;
@@ -707,17 +678,7 @@ yylex ()
       int max_chars;
       char *token_buffer;
 
-      if (wide_flag)
-	{
-	  width = MAX_WCHAR_TYPE_SIZE;
-#ifdef MULTIBYTE_CHARS
-	  max_chars = MB_CUR_MAX;
-#else
-	  max_chars = 1;
-#endif
-	}
-      else
-	max_chars = MAX_LONG_TYPE_SIZE / width;
+      max_chars = MAX_LONG_TYPE_SIZE / width;
 
       token_buffer = (char *) alloca (max_chars + 1);
 
@@ -761,7 +722,7 @@ yylex ()
 	warning ("multi-character character constant");
 
       /* If char type is signed, sign-extend the constant.  */
-      if (! wide_flag)
+      
 	{
 	  int num_bits = num_chars * width;
 
@@ -775,26 +736,6 @@ yylex ()
 	    yylval.integer.value
 	      = result | ~(~ (unsigned_HOST_WIDE_INT) 0
 			   >> (HOST_BITS_PER_WIDE_INT - num_bits));
-	}
-      else
-	{
-#ifdef MULTIBYTE_CHARS
-	  /* Set the initial shift state and convert the next sequence.  */
-	  result = 0;
-	  /* In all locales L'\0' is zero and mbtowc will return zero,
-	     so don't use it.  */
-	  if (num_chars > 1
-	      || (num_chars == 1 && token_buffer[0] != '\0'))
-	    {
-	      wchar_t wc;
-	      (void) mbtowc (NULL_PTR, NULL_PTR, 0);
-	      if (mbtowc (& wc, token_buffer, num_chars) == num_chars)
-		result = wc;
-	      else
-		pedwarn ("Ignoring invalid multibyte character");
-	    }
-#endif
-	  yylval.integer.value = result;
 	}
     }
 

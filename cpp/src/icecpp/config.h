@@ -30,8 +30,8 @@
 #       pragma warning( disable : 4018 )
 #       pragma warning( disable : 4244 )
 //
+//     Move deprecated warning on VC8 to level 4
 //
-//     TEMPORARY: move deprecated warning on VC8 to level 4
 #      if _MSC_VER==1400
 #         pragma warning( 4 : 4996 )
 #         pragma warning( 4 : 4267 )   
@@ -46,13 +46,13 @@
 #endif
 
 #if defined(__hpux) || defined(_AIX)
-#include <alloca.h>
+#   include <alloca.h>
 #endif
 
 #if defined(__sun) || defined(__osf1__)
-#include <alloca.h>
-#include <malloc.h>
-#include <strings.h>
+#   include <alloca.h>
+#   include <malloc.h>
+#   include <strings.h>
 #endif
 
 #define HAVE_SETRLIMIT 1
@@ -66,19 +66,14 @@
 #define HAVE_STRING_H 1
 #define HAVE_STRINGS_H 1
 
-#define CHAR_TYPE_SIZE 1
-#define INT_TYPE_SIZE 4
-#define LONG_TYPE_SIZE 4
-#if defined(_WIN32)
-#   define WCHAR_TYPE_SIZE 2
-#elif (defined(__linux) || defined(__FreeBSD__)) && \
-      (defined(__i386) || defined(__x86_64) || defined(__sparc)) || \
-       defined (__sun) || defined(__hpux) || defined(__APPLE__) || \
-       defined(_AIX) || defined(__osf1__)
-#   define WCHAR_TYPE_SIZE 4
-#else
-#   error "unsupported operating system or platform"
-#endif
+#define CHAR_TYPE_SIZE 8
+#define INT_TYPE_SIZE 32
+
+//
+// Should be sizeof(long) * 8; but 32 works well.
+//
+#define LONG_TYPE_SIZE 32
+
 
 #define TARGET_BELL 007
 #define TARGET_BS 010

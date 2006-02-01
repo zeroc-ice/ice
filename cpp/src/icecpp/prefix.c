@@ -72,6 +72,7 @@ Boston, MA 02111-1307, USA.  */
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef _WIN32
 #include <windows.h>
