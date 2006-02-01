@@ -1139,10 +1139,8 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE_2.1.0_THIRD_PARTY_PACKAGES</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0-ThirdParty-VC60</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.0.1_THIRDPARTY_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.0.1-ThirdParty-VC60</td><td/><td>0</td><td/></row>
-		<row><td>ICE__ICE_VERSION__THIRDPARTY_VC60</td><td>WindowsVolume</td><td>ICE-{I~1|Ice-{ICE_VERSION}-ThirdParty-VC60</td><td/><td>0</td><td/></row>
-		<row><td>INSTALLDIR</td><td>ICE_3.0.1_THIRDPARTY_VC60</td><td>.</td><td/><td>0</td><td/></row>
+		<row><td>ICE_TP_INSTALL_DIR</td><td>WindowsVolume</td><td>ICE-3_~0|Ice-3.0.0-ThirdParty-VC60</td><td/><td>0</td><td/></row>
+		<row><td>INSTALLDIR</td><td>ICE_TP_INSTALL_DIR</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
 		<row><td>ISMyProductDir</td><td>ISMyCompanyDir</td><td>MYPROD~1|My Product Name</td><td/><td>0</td><td/></row>
@@ -1800,7 +1798,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.0.1-VC60</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.0.0-VC60</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
 	</table>
 
@@ -2916,11 +2914,11 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>NewProperty2111</td><td>0</td><td/></row>
 		<row><td>NewProperty2112</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{FA28EDFA-2879-427A-9B82-CF55AC47A4C7}</td><td/></row>
+		<row><td>ProductCode</td><td>{06922e96-804f-4a8c-ae80-b9b1689a1ffe}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.0.1 Third Party Packages for Visual Studio 6.0</td><td/></row>
-		<row><td>ProductVersion</td><td>3.0.1</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.0.0 Third Party Packages for Visual Studio 6.0</td><td/></row>
+		<row><td>ProductVersion</td><td>3.0.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2929,7 +2927,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{663A064C-B545-4D9E-A0FB-8809C8396444}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{4b24c062-588e-4c8d-b060-cf8d122ca3fb}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

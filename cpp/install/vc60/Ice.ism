@@ -1706,7 +1706,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.0.1-VC60</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.0.0-VC60</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
 	</table>
 
@@ -2759,11 +2759,11 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>InstallChoice</td><td>AR</td><td/></row>
 		<row><td>Manufacturer</td><td>##COMPANY_NAME##</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{17B7635F-319B-46EF-88B0-D67877002351}</td><td/></row>
+		<row><td>ProductCode</td><td>{c1e6ab0c-8577-4df5-b83e-2a3361d9e4ad}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.0.1 for Visual Studio 6.0</td><td/></row>
-		<row><td>ProductVersion</td><td>3.0.1</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.0.0 for Visual Studio 6.0</td><td/></row>
+		<row><td>ProductVersion</td><td>3.0.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2772,7 +2772,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{0690A8F9-EDF6-4860-9297-8362BC2DEC95}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{8aaa395e-c45e-4697-a3ba-886e040e0326}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

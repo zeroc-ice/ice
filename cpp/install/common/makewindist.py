@@ -150,6 +150,7 @@ def checkSources(sourceDir):
 	current = m.group(1)
 	keyVersion = maxVersion(keyVersion, current)
 
+    print keyVersion
     prefixes = list(DistPrefixes)
     prefixes.remove("Ice-")
     for prefix in prefixes:
@@ -420,14 +421,13 @@ def buildMergeModules(startDir, stageDir, sourcesVersion, installVersion):
 	("ExpatRuntime", "EXPAT_RUNTIME"),
 	("OpenSSLDevKit", "OPENSSL_DEV_KIT"),
 	("OpenSSLRuntime", "OPENSSL_RUNTIME"),
-	("JGoodies", "JGOODIES_RUNTIME") 
+	("JGoodies", "JGOODIES_RUNTIME"),
+	("BerkeleyDBJava", "BERKELEYDB_JAVA")
     ]
     if installVersion == "vc60":
 	extras = [ ("STLPortDevKit", "STLPORT_DEV_KIT"), ("STLPortRuntime", "STLPORT_RUNTIME") ]
 	modules.extend(extras)
 
-    if installVersion != "vc60":
-	modules.append(("BerkeleyDBJava", "BERKELEYDB_JAVA"))
     #
     # Build modules.
     #

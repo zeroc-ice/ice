@@ -1790,7 +1790,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.0.1-VC71</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>ThirdParty-3.0.0-VC71</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
 	</table>
 
@@ -2893,11 +2893,11 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>NewProperty2111</td><td>0</td><td/></row>
 		<row><td>NewProperty2112</td><td>0</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{D9959A5C-8ABF-46F7-BD76-48CFC07B3818}</td><td/></row>
+		<row><td>ProductCode</td><td>{02c7c677-9a5e-4fa6-8cd9-c1314c44df34}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.0.1 Third Party Packages for Visual Studio .NET 2003</td><td/></row>
-		<row><td>ProductVersion</td><td>3.0.1</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.0.0 Third Party Packages for Visual Studio .NET 2003</td><td/></row>
+		<row><td>ProductVersion</td><td>3.0.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
@@ -2906,7 +2906,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{EFD875EC-7D96-4493-81FE-B6F1CB54CD80}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{15589abb-4887-4aa3-9b01-6b94b556ac76}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>
