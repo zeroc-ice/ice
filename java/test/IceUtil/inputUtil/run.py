@@ -28,9 +28,9 @@ print "starting client...",
 clientPipe = os.popen("java -ea Client 2>&1")
 print "ok"
 
-TestUtil.printOutputFromPipe(clientPipe);
+TestUtil.printOutputFromPipe(clientPipe)
     
-clientStatus = clientPipe.close()
+clientStatus = TestUtil.closePipe(clientPipe)
 
 if clientStatus:
     sys.exit(1)

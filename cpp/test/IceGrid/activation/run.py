@@ -47,9 +47,9 @@ client = os.path.join(testdir, "client")
 print "registering server with icegrid...",
 IceGridAdmin.addApplication(os.path.join(testdir, "application.xml"),
                             "test.dir=" + testdir + " ice.dir=" + toplevel + \
-                            " \\\"properties-override=" + TestUtil.clientServerOptions.replace("--", "") + "\\\"");
-IceGridAdmin.startServer("node-1");
-IceGridAdmin.startServer("node-2");
+                            " \\\"properties-override=" + TestUtil.clientServerOptions.replace("--", "") + "\\\"")
+IceGridAdmin.startServer("node-1")
+IceGridAdmin.startServer("node-2")
 print "ok"
   
 print "starting client...",
@@ -58,12 +58,12 @@ print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
     
-clientStatus = clientPipe.close()
+clientStatus = TestUtil.closePipe(clientPipe)
     
 print "unregister server with icegrid...",
-IceGridAdmin.stopServer("node-1");
-IceGridAdmin.stopServer("node-2");
-IceGridAdmin.removeApplication("Test");
+IceGridAdmin.stopServer("node-1")
+IceGridAdmin.stopServer("node-2")
+IceGridAdmin.removeApplication("Test")
 print "ok"
 
 IceGridAdmin.shutdownIceGridNode()

@@ -49,10 +49,10 @@ clientPipe = os.popen("python " + client + TestUtil.clientOptions + " " + ports 
 print "ok"
 TestUtil.printOutputFromPipe(clientPipe)
 
-clientStatus = clientPipe.close()
+clientStatus = TestUtil.closePipe(clientPipe)
 serverStatus = None
 for i in range(0, num):
-    serverStatus = serverStatus or serverPipes[i].close()
+    serverStatus = serverStatus or TestUtil.closePipe(serverPipes[i])
 
 if clientStatus:
     TestUtil.killServers()

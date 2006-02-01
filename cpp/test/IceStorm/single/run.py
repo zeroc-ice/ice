@@ -51,7 +51,7 @@ print "ok"
 print "creating topic...",
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create single"' + " 2>&1"
 iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = iceStormAdminPipe.close()
+iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
@@ -93,7 +93,7 @@ command = publisher + TestUtil.clientOptions + iceStormReference + " 2>&1"
 publisherPipe = os.popen(command)
 print "ok"
 
-TestUtil.printOutputFromPipe(subscriberPipe);
+TestUtil.printOutputFromPipe(subscriberPipe)
     
 #
 # Verify that the subscriber has terminated.
@@ -115,7 +115,7 @@ print "ok"
 print "destroying topic...",
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy single"' + " 2>&1"
 iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = iceStormAdminPipe.close()
+iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
@@ -127,15 +127,15 @@ print "ok"
 print "shutting down icestorm service...",
 command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown' + " 2>&1"
 iceBoxAdminPipe = os.popen(command)
-iceBoxAdminStatus = iceBoxAdminPipe.close()
+iceBoxAdminStatus = TestUtil.closePipe(iceBoxAdminPipe)
 if iceBoxAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
 print "ok"
 
-iceStormStatus = iceBoxPipe.close()
-subscriberStatus = subscriberPipe.close()
-publisherStatus = publisherPipe.close()
+iceStormStatus = TestUtil.closePipe(iceBoxPipe)
+subscriberStatus = TestUtil.closePipe(subscriberPipe)
+publisherStatus = TestUtil.closePipe(publisherPipe)
 
 if iceStormStatus or subscriberStatus or publisherStatus:
     TestUtil.killServers()

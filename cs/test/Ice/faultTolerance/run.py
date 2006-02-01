@@ -75,7 +75,7 @@ print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
 
-clientStatus = clientPipe.close()
+clientStatus = TestUtil.closePipe(clientPipe)
 serverStatus = None
 
 #
@@ -84,11 +84,14 @@ serverStatus = None
 # is raised. We swallow IOError here to avoid having the test
 # claim that it failed when in fact it succeeded.
 #
+#for i in range(0, num):
+#    try:
+#	serverStatus = serverStatus or serverPipes[i].close()
+#    except IOError, error:
+#	pass
+
 for i in range(0, num):
-    try:
-	serverStatus = serverStatus or serverPipes[i].close()
-    except IOError, error:
-	pass
+    serverStatus = serverStatus or TestUtil.closePipe(serverPipes[i])
 
 if clientStatus:
     TestUtil.killServers()

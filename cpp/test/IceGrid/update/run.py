@@ -54,7 +54,7 @@ try:
 except:
     pass
     
-clientStatus = clientPipe.close()
+clientStatus = TestUtil.closePipe(clientPipe)
 
 IceGridAdmin.shutdownIceGridNode()
 iceGridNodeThread.join()

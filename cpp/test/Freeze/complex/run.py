@@ -37,7 +37,7 @@ print "ok"
 
 TestUtil.printOutputFromPipe(populatePipe)
 
-populateStatus = populatePipe.close()
+populateStatus = TestUtil.closePipe(populatePipe)
 
 if populateStatus:
     sys.exit(1)
@@ -48,7 +48,7 @@ print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
 
-clientStatus = clientPipe.close()
+clientStatus = TestUtil.closePipe(clientPipe)
 
 if clientStatus:
     sys.exit(1)

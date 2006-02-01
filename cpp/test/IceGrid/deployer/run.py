@@ -51,7 +51,7 @@ def startClient(options):
 
     TestUtil.printOutputFromPipe(clientPipe)
     
-    clientStatus = clientPipe.close()
+    clientStatus = TestUtil.closePipe(clientPipe)
     return clientStatus
 
 #
@@ -66,13 +66,13 @@ iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 #
 print "deploying application...",
 IceGridAdmin.addApplication(os.path.join(testdir, "application.xml"), \
-                            "ice.dir=" + toplevel + " test.dir=" + testdir + " icebox.exe=" + iceBox);
+                            "ice.dir=" + toplevel + " test.dir=" + testdir + " icebox.exe=" + iceBox)
 print "ok"
 
 status = startClient("")
 
 print "removing application...",
-IceGridAdmin.removeApplication("test");
+IceGridAdmin.removeApplication("test")
 print "ok"    
 
 if status:
@@ -96,7 +96,7 @@ print "ok"
 status = startClient("-t")
 
 print "removing application...",
-IceGridAdmin.removeApplication("test");
+IceGridAdmin.removeApplication("test")
 print "ok"
 
 #

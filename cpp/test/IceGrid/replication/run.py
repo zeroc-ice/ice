@@ -57,7 +57,7 @@ iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 
 print "registering application with icegrid...",
 IceGridAdmin.addApplication(os.path.join(testdir, "application.xml"),
-                            "ice.dir=" + toplevel + " " + "test.dir=" + testdir + " icebox.exe=" + iceBox);
+                            "ice.dir=" + toplevel + " " + "test.dir=" + testdir + " icebox.exe=" + iceBox)
 print "ok"
 
 print "starting client...",
@@ -69,10 +69,10 @@ try:
 except:
     pass
     
-clientStatus = clientPipe.close()
+clientStatus = TestUtil.closePipe(clientPipe)
 
 print "unregister application with icegrid...",
-IceGridAdmin.removeApplication("test");
+IceGridAdmin.removeApplication("test")
 print "ok"
 
 IceGridAdmin.shutdownIceGridNode()

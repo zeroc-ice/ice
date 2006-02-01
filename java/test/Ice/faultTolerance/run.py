@@ -47,12 +47,12 @@ print "ok"
 TestUtil.printOutputFromPipe(clientPipe)
 
 for i in range(0, num):
-    serverPipes[i].close()
+    TestUtil.closePipe(serverPipes[i])
 
-clientStatus = clientPipe.close()
+clientStatus = TestUtil.closePipe(clientPipe)
 serverStatus = None
 for i in range(0, num):
-    serverStatus = serverStatus or serverPipes[i].close()
+    serverStatus = serverStatus or TestUtil.closePipe(serverPipes[i])
 
 if clientStatus or serverStatus:
     sys.exit(1)

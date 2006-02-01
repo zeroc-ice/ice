@@ -42,7 +42,7 @@ print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
     
-clientStatus = clientPipe.close()
+clientStatus = TestUtil.closePipe(clientPipe)
 
 if clientStatus:
     sys.exit(1)

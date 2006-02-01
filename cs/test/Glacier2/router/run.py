@@ -72,7 +72,7 @@ TestUtil.mixedClientServerTest(mono, name)
 #
 TestUtil.mixedClientServerTestWithOptions(mono, name, "", " --shutdown")
 
-starterStatus = starterPipe.close()
+starterStatus = TestUtil.closePipe(starterPipe)
 
 if starterStatus:
     TestUtil.killServers()

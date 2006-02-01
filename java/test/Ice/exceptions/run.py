@@ -45,8 +45,8 @@ os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + clas
 (clientPipeIn, clientPipe) = os.popen4(client + TestUtil.clientOptions + " --Ice.Warn.Connections=0")
 print "ok"
 TestUtil.printOutputFromPipe(clientPipe)
-clientStatus = clientPipe.close()
-serverStatus = serverPipe.close()
+clientStatus = TestUtil.closePipe(clientPipe)
+serverStatus = TestUtil.closePipe(serverPipe)
 if clientStatus or serverStatus:
     TestUtil.killServers()
     sys.exit(1)

@@ -103,8 +103,8 @@ def doTest(batch):
         lockCount = lockCount + 1    
     print "ok"
 
-    subscriberStatus = subscriberPipe.close()
-    publisherStatus = publisherPipe.close()
+    subscriberStatus = TestUtil.closePipe(subscriberPipe)
+    publisherStatus = TestUtil.closePipe(publisherPipe)
 
     return subscriberStatus or publisherStatus
 
@@ -122,7 +122,7 @@ print "ok"
 print "creating topics...",
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed1 fed2 fed3"' + " 2>&1"
 iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = iceStormAdminPipe.close()
+iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
@@ -131,13 +131,13 @@ print "ok"
 print "linking topics...",
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "link fed1 fed2 10"' + " 2>&1"
 iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = iceStormAdminPipe.close()
+iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "link fed2 fed3 5"' + " 2>&1"
 iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = iceStormAdminPipe.close()
+iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
@@ -159,7 +159,7 @@ batchStatus = doTest(1)
 print "destroying topics...",
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed1 fed2 fed3"' + " 2>&1"
 iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = iceStormAdminPipe.close()
+iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
@@ -171,13 +171,13 @@ print "ok"
 print "shutting down icestorm service...",
 command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown' + " 2>&1"
 iceBoxAdminPipe = os.popen(command)
-iceBoxAdminStatus = iceBoxAdminPipe.close()
+iceBoxAdminStatus = TestUtil.closePipe(iceBoxAdminPipe)
 if iceBoxAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
 print "ok"
 
-iceBoxStatus = iceBoxPipe.close()
+iceBoxStatus = TestUtil.closePipe(iceBoxPipe)
 
 if iceBoxStatus or onewayStatus or batchStatus:
     TestUtil.killServers()
