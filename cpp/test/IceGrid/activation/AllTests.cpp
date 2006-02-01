@@ -76,9 +76,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
 	test(admin->getServerState("server") == IceGrid::Inactive);
 	TestIntfPrx obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server"));
+	int nRetry = 0;
+	while(admin->getServerState("server") != IceGrid::Active && nRetry < 15)
+	{
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+	    ++nRetry;
+	}
 	test(admin->getServerState("server") == IceGrid::Active);
 	obj->shutdown();
-	int nRetry = 0;
+	nRetry = 0;
 	while(admin->getServerState("server") != IceGrid::Inactive && nRetry < 15)
 	{
 	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
@@ -392,9 +398,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
 	test(admin->getServerState("server1") == IceGrid::Inactive);
 	TestIntfPrx obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server1"));
+	int nRetry = 0;
+	while(admin->getServerState("server1") != IceGrid::Active && nRetry < 15)
+	{
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+	    ++nRetry;
+	}
 	test(admin->getServerState("server1") == IceGrid::Active);
 	obj->fail();
-	int nRetry = 0;
+	nRetry = 0;
 	while(admin->getServerState("server1") != IceGrid::Inactive && nRetry < 15)
 	{
 	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
@@ -450,9 +462,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
 	test(admin->getServerState("server2") == IceGrid::Inactive);
 	TestIntfPrx obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server2"));
+	int nRetry = 0;
+	while(admin->getServerState("server2") != IceGrid::Active && nRetry < 15)
+	{
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+	    ++nRetry;
+	}
 	test(admin->getServerState("server2") == IceGrid::Active);
 	obj->fail();
-	int nRetry = 0;
+	nRetry = 0;
 	while(admin->getServerState("server2") != IceGrid::Inactive && nRetry < 15)
 	{
 	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
