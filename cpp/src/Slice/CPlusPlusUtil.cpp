@@ -864,7 +864,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		    }
 		    else if(fixedParam.find("[i]") != string::npos)
 		    {
-		        tmpParam += fixedParam.substr(0, fixedParam.size() - 5);
+		        tmpParam += fixedParam.substr(0, fixedParam.find("[i]"));
 		    }
 		    else
 		    {
