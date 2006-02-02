@@ -791,7 +791,7 @@ Activator::deactivate(const string& name, const Ice::ProcessPrx& process)
             out << "sent Ctrl+Break to server `" << name << "' (pid = " << pid << ")";
         }
     }
-    else
+    else if(GetLastError() != ERROR_INVALID_PARAMETER) // Process with pid doesn't exist anymore.
     {
         SyscallException ex(__FILE__, __LINE__);
         ex.error = getSystemErrno();
