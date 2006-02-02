@@ -422,10 +422,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
-	string paramName = fixKwd((*q)->name());
 	string typeName = inputTypeToString((*q)->type());
 	allTypes.push_back(typeName);
-	allParamDecls.push_back(typeName + " __ice_" + paramName);
+	allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
     }
 
     if(base)
@@ -433,7 +432,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	DataMemberList baseDataMembers = base->allDataMembers();
 	for(q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
 	{
-	    baseParams.push_back("__ice_" + fixKwd((*q)->name()));
+	    baseParams.push_back("__ice_" + (*q)->name());
 	}
     }
 
@@ -2330,10 +2329,9 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
-	string paramName = fixKwd((*q)->name());
 	string typeName = inputTypeToString((*q)->type());
 	allTypes.push_back(typeName);
-	allParamDecls.push_back(typeName + " __ice_" + paramName);
+	allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
     }
 
     if(!p->isInterface())
@@ -2406,7 +2404,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 			{
 			    upcall += ", ";
 			}
-			upcall += fixKwd((*q)->name());
+			upcall += "__ice_" + (*q)->name();
 		    }
 		    upcall += ")";
 		}

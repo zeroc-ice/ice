@@ -1,6 +1,10 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Fixed a bug in slice2cpp that caused one-shot constructors for
+  classes to incorrectly initialize base classes for class hierarchies
+  three or more levels deep.
+
 - Fixed a bug in slice2cpp that caused a compiler warning about
   an unused parameter in the generated code for operations on
   classes with void return type, no parameters, and no exception
