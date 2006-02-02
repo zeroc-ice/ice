@@ -259,7 +259,9 @@ filelist7=ice.config.files
 dest7=config
 
 Chances are that file additions for existing components will simply involve
-adding an appropriate entry to an exisiting file list. 
+adding an appropriate entry to an exisiting file list. However, large changes
+may require more pervasive modifications involving adding file lists, changes
+to the makewindist.py script and the InstallShield projects.
 
 Filelists themselves can simply be a list of filenames or a list of wildcards.
 Wildcards are not recommended as they are a 'best effort' mechanism for
