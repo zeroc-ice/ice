@@ -464,7 +464,10 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
 	H << " {}";
     }
-    H << ';';
+    else
+    {
+	H << ';';
+    }
     if(!allTypes.empty())
     {
 	H << nl;
@@ -2336,7 +2339,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isInterface())
     {
-	H << nl << name << "() {};";
+	H << nl << name << "() {}";
 	if(!allParamDecls.empty())
 	{
 	    H << nl;
