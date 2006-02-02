@@ -86,9 +86,9 @@ sequence<CPrxList> CPrxListSeq;
 
 class TestIntf
 {
-    //BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, BoolSeq outSeq);
-    //ByteList opByteArray(["cpp:array"] ByteList inSeq, ByteList outSeq);
-    //VariableList opVariableArray(["cpp:array"] VariableList inSeq, VariableList outSeq);
+    BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, out BoolSeq outSeq);
+    ByteList opByteArray(["cpp:array"] ByteList inSeq, out ByteList outSeq);
+    VariableList opVariableArray(["cpp:array"] VariableList inSeq, out VariableList outSeq);
 
     BoolSeq opBoolRange(["cpp:range"] BoolSeq inSeq, out BoolSeq outSeq);
     ByteList opByteRange(["cpp:range"] ByteList inSeq, out ByteList outSeq);

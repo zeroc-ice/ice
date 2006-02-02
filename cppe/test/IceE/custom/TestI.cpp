@@ -19,15 +19,32 @@ TestIntfI::TestIntfI(const Ice::CommunicatorPtr& communicator)
 {
 }
 
-/*
-Test::ByteSeq
-TestIntfI::opByteArray(const std::pair<const Ice::Byte*, const Ice::Byte*>& inSeq,
-		       Test::ByteSeq& outSeq,
+Test::BoolSeq
+TestIntfI::opBoolArray(const std::pair<const bool*, const bool*>& inSeq,
+		       Test::BoolSeq& outSeq,
 		       const Ice::Current& current)
 {
+    Test::BoolSeq(inSeq.first, inSeq.second).swap(outSeq);
     return outSeq;
 }
-*/
+
+Test::ByteList
+TestIntfI::opByteArray(const std::pair<const Ice::Byte*, const Ice::Byte*>& inSeq,
+		       Test::ByteList& outSeq,
+		       const Ice::Current& current)
+{
+    Test::ByteList(inSeq.first, inSeq.second).swap(outSeq);
+    return outSeq;
+}
+
+Test::VariableList
+TestIntfI::opVariableArray(const std::pair<const Test::Variable*, const Test::Variable*>& inSeq,
+		           Test::VariableList& outSeq,
+		           const Ice::Current& current)
+{
+    Test::VariableList(inSeq.first, inSeq.second).swap(outSeq);
+    return outSeq;
+}
 
 Test::BoolSeq
 TestIntfI::opBoolRange(const std::pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>& inSeq,

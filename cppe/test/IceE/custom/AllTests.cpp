@@ -33,6 +33,72 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(t == base);
     tprintf("ok\n");
 
+    tprintf("testing arrays... ");
+
+    {
+        Test::BoolSeq in(5);
+	in[0] = false;
+	in[1] = true;
+	in[2] = true;
+	in[3] = false;
+	in[4] = true;
+	bool inArray[5];
+	for(int i = 0; i < 5; ++i)
+	{
+	    inArray[i] = in[i];
+	}
+	pair<const bool*, const bool*> inPair(inArray, inArray + 5);
+
+	Test::BoolSeq out;
+	Test::BoolSeq ret = t->opBoolArray(inPair, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    {
+        Test::ByteList in;
+	Ice::Byte inArray[5];
+	inArray[0] = '1';
+	in.push_back(inArray[0]);
+	inArray[1] = '2';
+	in.push_back(inArray[1]);
+	inArray[2] = '3';
+	in.push_back(inArray[2]);
+	inArray[3] = '4';
+	in.push_back(inArray[3]);
+	inArray[4] = '5';
+	in.push_back(inArray[4]);
+	pair<const Ice::Byte*, const Ice::Byte*> inPair(inArray, inArray + 5);
+
+	Test::ByteList out;
+	Test::ByteList ret = t->opByteArray(inPair, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    {
+        Test::VariableList in;
+	Test::Variable inArray[5];
+	inArray[0].s = "These";
+	in.push_back(inArray[0]);
+	inArray[1].s = "are";
+	in.push_back(inArray[1]);
+	inArray[2].s = "five";
+	in.push_back(inArray[2]);
+	inArray[3].s = "short";
+	in.push_back(inArray[3]);
+	inArray[4].s = "strings.";
+	in.push_back(inArray[4]);
+	pair<const Test::Variable*, const Test::Variable*> inPair(inArray, inArray + 5);
+
+	Test::VariableList out;
+	Test::VariableList ret = t->opVariableArray(inPair, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    tprintf("ok\n");
+
     tprintf("testing ranges... ");
 
     {
@@ -51,7 +117,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        Test::ByteList in(5);
+        Test::ByteList in;
 	in.push_back('1');
 	in.push_back('2');
 	in.push_back('3');
