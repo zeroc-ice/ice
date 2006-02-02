@@ -588,17 +588,37 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    string scope = fixKwd(seq->scope());
 	    if(seqType == "array")
 	    {
-	        if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
+                StringList l = seq->getMetaData();
+                seqType = findMetaData(l);
+		if(seqType == "array" || seqType.find("range") == 0)
 		{
-		    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
-		        << fixedParam << ".first, " << fixedParam << ".second, " << scope
-			<< "__U__" << fixKwd(seq->name()) << "());";
+		    seqType = "";
+		}
+	        if(seqType.empty())
+		{
+	            if(!builtin || builtin->kind() == Builtin::KindObject ||
+		       builtin->kind() == Builtin::KindObjectProxy)
+		    {
+		        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
+		            << fixedParam << ".first, " << fixedParam << ".second, " << scope
+			    << "__U__" << fixKwd(seq->name()) << "());";
+		    }
+		    else
+		    {
+		        out << nl << stream << deref << func << fixedParam << ".first, " << fixedParam << ".second);";
+		    }
 		}
 		else
 		{
-		    out << nl << stream << deref << func << fixedParam << ".first, " << fixedParam << ".second);";
+		    out << nl << "::Ice::Int __sz_" << fixedParam << " = static_cast< ::Ice::Int>(" << fixedParam
+		        << ".second - " << fixedParam << ".first);";
+	            out << nl << stream << deref << "writeSize(__sz_" << fixedParam << ");";
+	            out << nl << "for(int __idx_" << fixedParam << " = 0; __idx_" << fixedParam << " < __sz_" 
+		        << fixedParam << "; ++__idx_" << fixedParam << ")";
+		    out << sb;
+		    writeMarshalUnmarshalCode(out, seq->type(), fixedParam + ".first[__idx_" + fixedParam + "]", true);
+		    out << eb;
 		}
-
 	    }
 	    else if(seqType.find("range") == 0)
 	    {
@@ -751,9 +771,26 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    {
 	        if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
 		{
-	            out << nl << typeToString(type) << " __" << fixedParam << ";";
-	            out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", __"
-		        << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
+                    StringList l = seq->getMetaData();
+                    seqType = findMetaData(l);
+		    if(seqType == "array" || seqType.find("range") == 0)
+	    	    {
+		        seqType = "";
+		    }
+	            if(seqType.empty())
+		    {
+	                out << nl << typeToString(type) << " __" << fixedParam << ";";
+	                out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", __"
+		            << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
+		    }
+		    else
+		    {
+		        seqType = "::std::vector< " + typeToString(seq->type()) + ">";
+		        StringList l;
+			l.push_back("cpp:type:" + seqType);
+		        out << nl << seqType << " __" << fixedParam << ";";
+			writeMarshalUnmarshalCode(out, seq, "__" + fixedParam, false, "", true, l, false);
+		    }
 		}
 		else if(builtin->kind() == Builtin::KindByte)
 		{
@@ -766,7 +803,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		}
 		else
 		{
-		    out << nl << typeToString(type) << " __" << fixedParam << ";";
+		    out << nl << "::std::vector< " << typeToString(seq->type()) << "> __" << fixedParam << ";";
 		    out << nl << stream << deref << func << "__" << fixedParam << ");";
 		}
 
