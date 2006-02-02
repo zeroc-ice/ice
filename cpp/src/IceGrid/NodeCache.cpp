@@ -162,7 +162,8 @@ NodeCache::NodeCache(int sessionTimeout) : _sessionTimeout(sessionTimeout)
 void
 NodeCache::destroy()
 {
-    for(map<string, NodeEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
+    map<string, NodeEntryPtr> entries = _entries; // Copying the map is necessary as setSession might remove the entry.
+    for(map<string, NodeEntryPtr>::const_iterator p = entries.begin(); p != entries.end(); ++p)
     {
 	p->second->setSession(0); // Break cyclic reference count.
     }    
@@ -246,10 +247,6 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
 	_session = session;
 	remove = _servers.empty() && !_session && _descriptors.empty();
     }
-    if(remove)
-    {
-	_cache.remove(_name);
-    }    
     
     if(session)
     {
@@ -277,6 +274,15 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
 	    out << "node `" << _name << "' down";
 	}
     }
+
+    //
+    // NOTE: this needs to be the last thing to do as this will
+    // destroy this entry.
+    //
+    if(remove)
+    {
+	_cache.remove(_name);
+    }    
 }
 
 NodePrx
