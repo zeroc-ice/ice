@@ -18,9 +18,24 @@ public:
 
     TestIntfI(const Ice::CommunicatorPtr&);
 
+/*
     virtual Test::ByteSeq opByteArray(const std::pair<const Ice::Byte*, const Ice::Byte*>&,
 			      Test::ByteSeq&,
 			      const Ice::Current&);
+*/
+
+    virtual Test::BoolSeq opBoolRange(const std::pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>&,
+    				      Test::BoolSeq&,
+				      const Ice::Current&);
+
+    virtual Test::ByteList opByteRange(const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>&,
+    				      Test::ByteList&,
+				      const Ice::Current&);
+
+    virtual Test::VariableList 
+    opVariableRange(const std::pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator>&,
+    		    Test::VariableList&,
+		    const Ice::Current&);
 
     virtual std::deque<bool> opBoolSeq(const std::deque<bool>&,
 				       std::deque<bool>&,

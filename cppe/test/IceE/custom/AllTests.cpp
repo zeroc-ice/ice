@@ -33,6 +33,61 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(t == base);
     tprintf("ok\n");
 
+    tprintf("testing ranges... ");
+
+    {
+        Test::BoolSeq in(5);
+	in[0] = false;
+	in[1] = true;
+	in[2] = true;
+	in[3] = false;
+	in[4] = true;
+	pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator> inPair(in.begin(), in.end());
+
+	Test::BoolSeq out;
+	Test::BoolSeq ret = t->opBoolRange(inPair, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    {
+        Test::ByteList in(5);
+	in.push_back('1');
+	in.push_back('2');
+	in.push_back('3');
+	in.push_back('4');
+	in.push_back('5');
+	pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
+
+	Test::ByteList out;
+	Test::ByteList ret = t->opByteRange(inPair, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    {
+        Test::VariableList in;
+	Test::Variable v;
+	v.s = "These";
+	in.push_back(v);
+	v.s = "are";
+	in.push_back(v);
+	v.s = "five";
+	in.push_back(v);
+	v.s = "short";
+	in.push_back(v);
+	v.s = "strings.";
+	in.push_back(v);
+	pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator> inPair(in.begin(), in.end());
+
+	Test::VariableList out;
+	Test::VariableList ret = t->opVariableRange(inPair, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    tprintf("ok\n");
+    
     tprintf("testing custom bool sequences... ");
 
     {

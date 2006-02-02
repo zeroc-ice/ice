@@ -60,8 +60,6 @@ sequence<Variable> VariableSeq;
 sequence<VariableList> VariableListSeq;
 ["cpp:type:std::list< ::Test::VariableSeq>"] sequence<VariableSeq> VariableSeqList;
 
-["cpp:array"] sequence<byte> ByteArray;
-
 dictionary<string, string> StringStringDict;
 sequence<StringStringDict> StringStringDictSeq;
 ["cpp:type:std::list< ::Test::StringStringDict>"] sequence<StringStringDict> StringStringDictList;
@@ -88,7 +86,13 @@ sequence<CPrxList> CPrxListSeq;
 
 class TestIntf
 {
-    ["cpp:array"] ByteSeq opByteArray(["cpp:array"] ByteSeq inSeq, out ["cpp:array"] ByteSeq outSeq);
+    //BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, BoolSeq outSeq);
+    //ByteList opByteArray(["cpp:array"] ByteList inSeq, ByteList outSeq);
+    //VariableList opVariableArray(["cpp:array"] VariableList inSeq, VariableList outSeq);
+
+    BoolSeq opBoolRange(["cpp:range"] BoolSeq inSeq, out BoolSeq outSeq);
+    ByteList opByteRange(["cpp:range"] ByteList inSeq, out ByteList outSeq);
+    VariableList opVariableRange(["cpp:range"] VariableList inSeq, out VariableList outSeq);
 
     ["cpp:type:std::deque<bool>"] BoolSeq 
     opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, out ["cpp:type:std::deque<bool>"]BoolSeq outSeq);

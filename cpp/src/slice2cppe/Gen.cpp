@@ -773,7 +773,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     string s = typeToString(type);
     StringList metaData = p->getMetaData();
     string seqType = findMetaData(metaData);
-    if(!seqType.empty() && seqType != "array")
+    if(!seqType.empty() && seqType != "array" && seqType.find("range") != 0)
     {
         H << sp << nl << "typedef " << seqType << ' ' << name << ';';
     }
@@ -790,7 +790,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	
 	H << sp << nl << "class __U__" << name << " { };";
 
-        if(!seqType.empty() && seqType != "array")
+        if(!seqType.empty() && seqType != "array" && seqType.find("range") != 0)
 	{
 	    H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__"
 	      << name << ");";
@@ -2998,7 +2998,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
         {
             for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
             {
-                if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0))
+                if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0) || q->find("cpp:range", 0))
                 {
                     cout << p->definitionContext()->filename() << ":" << p->line()
                          << ": warning: invalid metadata for operation" << endl;

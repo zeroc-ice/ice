@@ -187,7 +187,11 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, bool inPara
 		    {
 	                s = fixKwd(seq->scoped());
 		    }
-		    return "::std::pair<const " + s + "::const_iterator, " + s + "::const_iterator>";
+		    if(s[0] == ':')
+		    {
+		        s = " " + s;
+		    }
+		    return "::std::pair<" + s + "::const_iterator, " + s + "::const_iterator>";
 		}
 		else
 		{
@@ -296,7 +300,11 @@ Slice::inputTypeToString(const TypePtr& type, const StringList& metaData)
 		{
 	            s = fixKwd(seq->scoped());
 		}
-		return "const ::std::pair<const " + s + "::const_iterator, " + s + "::const_iterator>&";
+		if(s[0] == ':')
+		{
+		    s = " " + s;
+		}
+		return "const ::std::pair<" + s + "::const_iterator, " + s + "::const_iterator>&";
 	    }
             else
             {
@@ -358,7 +366,7 @@ Slice::outputTypeToString(const TypePtr& type, const StringList& metaData)
     if(seq)
     {
         string seqType = findMetaData(metaData);
-        if(!seqType.empty() && seqType != "array")
+        if(!seqType.empty() && seqType != "array" && seqType.find("range") != 0)
         {
             return seqType + "&";
         }
@@ -570,7 +578,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     if(seq)
     {
         string seqType = findMetaData(metaData);
-	if(!inParam && seqType == "array")
+	if(!inParam && (seqType == "array" || seqType.find("range") == 0))
 	{
 	    seqType = "";
 	}
@@ -592,6 +600,17 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		}
 
 	    }
+	    else if(seqType.find("range") == 0)
+	    {
+	        out << nl << stream << deref << "writeSize(static_cast< ::Ice::Int>(::std::distance(" 
+		    << fixedParam << ".first, " << fixedParam << ".second)));"; 
+	        out << nl << "for(" << fixKwd(seq->scoped()) << "::const_iterator __" << fixedParam << " = "
+		    << fixedParam << ".first; __" << fixedParam << " != " << fixedParam << ".second; ++__"
+		    << fixedParam << ")";
+		out << sb;
+		writeMarshalUnmarshalCode(out, seq->type(), "(*__" + fixedParam + ")", true);
+		out << eb;
+	    }
 	    else if(!seqType.empty())
 	    {
 		string typeStr = typeToString(type, metaData);
@@ -611,7 +630,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    	        string innerScope = fixKwd(innerSeq->scope());
                 	StringList l = innerSeq->getMetaData();
                 	seqType = findMetaData(l);
-			if(seqType == "array")
+			if(seqType == "array" || seqType.find("range") == 0)
 			{
 			    seqType = "";
 			}
@@ -688,7 +707,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    {
                 StringList l = seq->getMetaData();
                 seqType = findMetaData(l);
-		if(!seqType.empty() && seqType != "array")
+		if(!seqType.empty() && seqType != "array" && seqType.find("range") != 0)
 		{
 		    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", " << fixedParam << ", "
 		        << scope << "__U__" << fixKwd(seq->name()) << "());";
@@ -758,6 +777,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		        << fixedParam << ".size();";
 	        }
 	    }
+	    else if(seqType.find("range") == 0)
+	    {
+	        out << nl << typeToString(seq, StringList(), false) << " __" << fixedParam << ";";
+		writeMarshalUnmarshalCode(out, seq, "__" + fixedParam, false);
+		out << nl << fixedParam << ".first = __" << fixedParam << ".begin();";
+		out << nl << fixedParam << ".second = __" << fixedParam << ".end();";
+	    }
 	    else if(!seqType.empty())
 	    {
 		string typeStr = typeToString(type, metaData);
@@ -777,7 +803,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    	        string innerScope = fixKwd(innerSeq->scope());
                 	StringList l = innerSeq->getMetaData();
                 	seqType = findMetaData(l);
-			if(seqType == "array")
+			if(seqType == "array" || seqType.find("range") == 0)
 			{
 			    seqType = "";
 			}
@@ -847,8 +873,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    {
                 StringList l = seq->getMetaData();
                 seqType = findMetaData(l);
-	        if((!seqType.empty() && seqType != "array") || !builtin || builtin->kind() == Builtin::KindObject || 
-		 	 builtin->kind() == Builtin::KindObjectProxy)
+	        if((!seqType.empty() && seqType != "array" && seqType.find("range") != 0) ||
+		    !builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
 		{
 	            out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
 		        << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";

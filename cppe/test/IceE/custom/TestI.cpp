@@ -19,11 +19,41 @@ TestIntfI::TestIntfI(const Ice::CommunicatorPtr& communicator)
 {
 }
 
+/*
 Test::ByteSeq
 TestIntfI::opByteArray(const std::pair<const Ice::Byte*, const Ice::Byte*>& inSeq,
 		       Test::ByteSeq& outSeq,
 		       const Ice::Current& current)
 {
+    return outSeq;
+}
+*/
+
+Test::BoolSeq
+TestIntfI::opBoolRange(const std::pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>& inSeq,
+		       Test::BoolSeq& outSeq,
+		       const Ice::Current&)
+{
+    Test::BoolSeq(inSeq.first, inSeq.second).swap(outSeq);
+    return outSeq;
+}
+
+Test::ByteList
+TestIntfI::opByteRange(const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& inSeq,
+		       Test::ByteList& outSeq,
+		       const Ice::Current&)
+{
+    Test::ByteList(inSeq.first, inSeq.second).swap(outSeq);
+    return outSeq;
+}
+
+Test::VariableList
+TestIntfI::opVariableRange(
+	const std::pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator>& inSeq,
+	Test::VariableList& outSeq,
+	const Ice::Current&)
+{
+    Test::VariableList(inSeq.first, inSeq.second).swap(outSeq);
     return outSeq;
 }
 
