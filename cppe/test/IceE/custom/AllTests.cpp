@@ -470,7 +470,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     tprintf("ok\n");
 
-    tprintf("testing custom enumuration sequences... ");
+    tprintf("testing custom proxy sequences... ");
 
     {
         deque<Test::CPrx> in(5);
