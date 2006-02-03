@@ -18,7 +18,7 @@ class auto_array
 {
 public:
 
-    auto_array(const T* ptr = 0) :
+    auto_array(T* ptr = 0) :
         _ptr(ptr)
     {
     }
@@ -31,7 +31,7 @@ public:
 	}
     }
 
-    void reset(const T* ptr = 0)
+    void reset(T* ptr = 0)
     {
         if(_ptr != 0)
 	{
@@ -59,7 +59,7 @@ public:
 
 private:
 
-    const T* _ptr;
+    T* _ptr;
 };
 
 }; // End of namespace IceUtil
