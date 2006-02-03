@@ -152,6 +152,72 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(ret == in);
     }
 
+    {
+        Test::BoolSeq in(5);
+	in[0] = false;
+	in[1] = true;
+	in[2] = true;
+	in[3] = false;
+	in[4] = true;
+	bool inArray[5];
+	for(int i = 0; i < 5; ++i)
+	{
+	    inArray[i] = in[i];
+	}
+	pair<const bool*, const bool*> inPair(inArray, inArray + 5);
+
+	Test::BoolSeq out;
+	Test::BoolSeq ret = t->opBoolRangeType(inPair, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    {
+        Test::ByteList in;
+        MyByteSeq inSeq(5);
+	int i = 0;
+	for(MyByteSeq::iterator p = inSeq.begin(); p != inSeq.end(); ++p)
+	{
+	    Ice::Byte b = '1' + i++;
+	    *p = b;
+	    in.push_back(b);
+	}
+	pair<MyByteSeq::const_iterator, MyByteSeq::const_iterator> inPair(inSeq.begin(), inSeq.end());
+
+	Test::ByteList out;
+	Test::ByteList ret = t->opByteRangeType(inPair, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    {
+        Test::VariableList in;
+	deque<Test::Variable> inSeq;
+	Test::Variable v;
+	v.s = "These";
+	in.push_back(v);
+	inSeq.push_back(v);
+	v.s = "are";
+	in.push_back(v);
+	inSeq.push_back(v);
+	v.s = "five";
+	in.push_back(v);
+	inSeq.push_back(v);
+	v.s = "short";
+	in.push_back(v);
+	inSeq.push_back(v);
+	v.s = "strings.";
+	in.push_back(v);
+	inSeq.push_back(v);
+	pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator>
+	    inPair(inSeq.begin(), inSeq.end());
+
+	Test::VariableList out;
+	Test::VariableList ret = t->opVariableRangeType(inPair, out);
+	test(out == in);
+	test(ret == in);
+    }
+
     tprintf("ok\n");
     
     tprintf("testing custom bool sequences... ");

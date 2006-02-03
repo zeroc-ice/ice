@@ -158,7 +158,7 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, bool inPara
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        string seqType = findMetaData(metaData);
+        string seqType = findMetaData(metaData, true);
 	if(!seqType.empty())
 	{
 	    if(seqType == "array" || seqType == "range:array")
@@ -280,10 +280,10 @@ Slice::inputTypeToString(const TypePtr& type, const StringList& metaData)
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        string seqType = findMetaData(metaData);
+        string seqType = findMetaData(metaData, true);
         if(!seqType.empty())
         {
-            if(seqType == "array")
+            if(seqType == "array" || seqType == "range:array")
             {
                 TypePtr elemType = seq->type();
                 string s = typeToString(elemType);
@@ -365,8 +365,8 @@ Slice::outputTypeToString(const TypePtr& type, const StringList& metaData)
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        string seqType = findMetaData(metaData);
-        if(!seqType.empty() && seqType != "array" && seqType.find("range") != 0)
+        string seqType = findMetaData(metaData, false);
+        if(!seqType.empty())
         {
             return seqType + "&";
         }
@@ -577,27 +577,26 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        string seqType = findMetaData(metaData);
-	if(!inParam && (seqType == "array" || seqType.find("range") == 0))
-	{
-	    seqType = "";
-	}
+        string seqType = findMetaData(metaData, inParam);
 	builtin = BuiltinPtr::dynamicCast(seq->type());
         if(marshal)
 	{
 	    string scope = fixKwd(seq->scope());
-	    if(seqType == "array")
+	    if(seqType == "array" || seqType == "range:array")
 	    {
-                StringList l = seq->getMetaData();
-                seqType = findMetaData(l);
-		if(seqType == "array" || seqType.find("range") == 0)
+	    	//
+		// Use array (pair<const TYPE*, const TYPE*>). In paramters only.
+		//
+	    	if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
 		{
-		    seqType = "";
-		}
-	        if(seqType.empty())
-		{
-	            if(!builtin || builtin->kind() == Builtin::KindObject ||
-		       builtin->kind() == Builtin::KindObjectProxy)
+		    //
+		    // Sequence type in not handled by BasicStream functions. If the sequence is the
+		    // default vector than we can use the sequences generated write function. Otherwise
+		    // we need to generate marshal code to write each element.
+		    //
+                    StringList l = seq->getMetaData();
+                    seqType = findMetaData(l, false);
+	            if(seqType.empty())
 		    {
 		        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
 		            << fixedParam << ".first, " << fixedParam << ".second, " << scope
@@ -605,34 +604,58 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		    }
 		    else
 		    {
-		        out << nl << stream << deref << func << fixedParam << ".first, " << fixedParam << ".second);";
+		        out << nl << "::Ice::Int __sz_" << fixedParam << " = static_cast< ::Ice::Int>(" << fixedParam
+		            << ".second - " << fixedParam << ".first);";
+	                out << nl << stream << deref << "writeSize(__sz_" << fixedParam << ");";
+	                out << nl << "for(int __i_" << fixedParam << " = 0; __i_" << fixedParam << " < __sz_" 
+		            << fixedParam << "; ++__i_" << fixedParam << ")";
+		        out << sb;
+		        writeMarshalUnmarshalCode(out, seq->type(), fixedParam + ".first[__i_" + fixedParam + "]",
+						  true);
+		        out << eb;
 		    }
 		}
 		else
 		{
-		    out << nl << "::Ice::Int __sz_" << fixedParam << " = static_cast< ::Ice::Int>(" << fixedParam
-		        << ".second - " << fixedParam << ".first);";
-	            out << nl << stream << deref << "writeSize(__sz_" << fixedParam << ");";
-	            out << nl << "for(int __idx_" << fixedParam << " = 0; __idx_" << fixedParam << " < __sz_" 
-		        << fixedParam << "; ++__idx_" << fixedParam << ")";
-		    out << sb;
-		    writeMarshalUnmarshalCode(out, seq->type(), fixedParam + ".first[__idx_" + fixedParam + "]", true);
-		    out << eb;
+		    //
+		    // Use BasicStream write functions.
+		    //
+		    out << nl << stream << deref << func << fixedParam << ".first, " << fixedParam << ".second);";
 		}
 	    }
 	    else if(seqType.find("range") == 0)
 	    {
+	        //
+		// Use range (pair<TYPE::const_iterator, TYPE::const_iterator). Only for in paramaters.
+		// Need to check if the range defines an iterator type other than the actual sequence
+		// type.
+		//
+	        StringList l;
+	        if(seqType.find("range:") == 0)
+		{
+		    seqType = seqType.substr(strlen("range:"));
+		    l.push_back("cpp:" + seqType);
+		}
+		else
+		{
+		    seqType = fixKwd(seq->scoped());
+		}
 	        out << nl << stream << deref << "writeSize(static_cast< ::Ice::Int>(::std::distance(" 
 		    << fixedParam << ".first, " << fixedParam << ".second)));"; 
-	        out << nl << "for(" << fixKwd(seq->scoped()) << "::const_iterator __" << fixedParam << " = "
+	        out << nl << "for(" << seqType << "::const_iterator __" << fixedParam << " = "
 		    << fixedParam << ".first; __" << fixedParam << " != " << fixedParam << ".second; ++__"
 		    << fixedParam << ")";
 		out << sb;
-		writeMarshalUnmarshalCode(out, seq->type(), "(*__" + fixedParam + ")", true);
+		writeMarshalUnmarshalCode(out, seq->type(), "(*__" + fixedParam + ")", true, "", true, l, false);
 		out << eb;
 	    }
 	    else if(!seqType.empty())
 	    {
+	        //
+		// Using alternate sequence type. In this case we use the templated writeSequence functions,
+		// choosing the appropriate function depending on the type contained in the sequence, which
+		// have differing write semantics.
+		//
 		string typeStr = typeToString(type, metaData);
 		if(typeStr[0] == ':')
 		{
@@ -649,11 +672,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		    {
 	    	        string innerScope = fixKwd(innerSeq->scope());
                 	StringList l = innerSeq->getMetaData();
-                	seqType = findMetaData(l);
-			if(seqType == "array" || seqType.find("range") == 0)
-			{
-			    seqType = "";
-			}
+                	seqType = findMetaData(l, false);
 		        builtin = BuiltinPtr::dynamicCast(innerSeq->type());
 			if(!seqType.empty())
 			{
@@ -725,9 +744,12 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    }
 	    else
 	    {
+	        //
+		// No modifying metadata specified. Use appropriate write methods for type.
+		//
                 StringList l = seq->getMetaData();
-                seqType = findMetaData(l);
-		if(!seqType.empty() && seqType != "array" && seqType.find("range") != 0)
+                seqType = findMetaData(l, false);
+		if(!seqType.empty())
 		{
 		    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", " << fixedParam << ", "
 		        << scope << "__U__" << fixKwd(seq->name()) << "());";
@@ -767,16 +789,15 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	else
 	{
 	    string scope = fixKwd(seq->scope());
-	    if(seqType == "array")
+	    if(seqType == "array" || seqType == "range:array")
 	    {
+	    	//
+		// Use array (pair<const TYPE*, const TYPE*>). In paramters only.
+		//
 	        if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
 		{
                     StringList l = seq->getMetaData();
-                    seqType = findMetaData(l);
-		    if(seqType == "array" || seqType.find("range") == 0)
-	    	    {
-		        seqType = "";
-		    }
+                    seqType = findMetaData(l, false);
 	            if(seqType.empty())
 		    {
 	                out << nl << typeToString(type) << " __" << fixedParam << ";";
@@ -816,13 +837,27 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    }
 	    else if(seqType.find("range") == 0)
 	    {
-	        out << nl << typeToString(seq, StringList(), false) << " __" << fixedParam << ";";
-		writeMarshalUnmarshalCode(out, seq, "__" + fixedParam, false);
+	    	//
+		// Use range (pair<TYPE::const_iterator, TYPE::const_iterator>). In paramters only.
+		// Need to check if iterator type other than default is specified.
+		//
+	        StringList l;
+	        if(seqType.find("range:") == 0)
+		{
+		    l.push_back("cpp:type:" + seqType.substr(strlen("range:")));
+		}
+	        out << nl << typeToString(seq, l, false) << " __" << fixedParam << ";";
+		writeMarshalUnmarshalCode(out, seq, "__" + fixedParam, false, "", true, l, false);
 		out << nl << fixedParam << ".first = __" << fixedParam << ".begin();";
 		out << nl << fixedParam << ".second = __" << fixedParam << ".end();";
 	    }
 	    else if(!seqType.empty())
 	    {
+	        //
+		// Using alternate sequence type. In this case we use the templated readSequence functions,
+		// choosing the appropriate function depending on the type contained in the sequence, which
+		// have differing read semantics.
+		//
 		string typeStr = typeToString(type, metaData);
 		if(typeStr[0] == ':')
 		{
@@ -839,11 +874,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		    {
 	    	        string innerScope = fixKwd(innerSeq->scope());
                 	StringList l = innerSeq->getMetaData();
-                	seqType = findMetaData(l);
-			if(seqType == "array" || seqType.find("range") == 0)
-			{
-			    seqType = "";
-			}
+                	seqType = findMetaData(l, false);
 		        builtin = BuiltinPtr::dynamicCast(innerSeq->type());
 			if(!seqType.empty() || !builtin || builtin->kind() == Builtin::KindObject ||
 			   builtin->kind() == Builtin::KindObjectProxy)
@@ -908,10 +939,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    }
 	    else
 	    {
+	        //
+		// No modifying metadata supplied. Just use appropriate read function.
+		//
                 StringList l = seq->getMetaData();
-                seqType = findMetaData(l);
-	        if((!seqType.empty() && seqType != "array" && seqType.find("range") != 0) ||
-		    !builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
+                seqType = findMetaData(l, false);
+	        if(!seqType.empty() || !builtin || builtin->kind() == Builtin::KindObject ||
+		   builtin->kind() == Builtin::KindObjectProxy)
 		{
 	            out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
 		        << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
@@ -1404,7 +1438,7 @@ Slice::writeStreamUnmarshalCode(Output& out, const list<pair<TypePtr, string> >&
 }
 
 string
-Slice::findMetaData(const StringList& metaData)
+Slice::findMetaData(const StringList& metaData, bool inParam)
 {
     static const string prefix = "cpp:";
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
@@ -1420,14 +1454,19 @@ Slice::findMetaData(const StringList& metaData)
 		{
 		    return str.substr(pos + 1);
 		}
-		else if(ss == "range")
+		else if(inParam && ss == "range")
 		{
 		    return str.substr(prefix.size());
 		}
 	    }
-	    else
+	    else if(inParam)
 	    {
-	        return str.substr(prefix.size());
+	        string ss = str.substr(prefix.size());
+		if(ss == "array" || ss == "range")
+		{
+		    return ss;
+		}
+
 	    }
 	}
     }

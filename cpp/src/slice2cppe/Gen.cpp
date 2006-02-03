@@ -772,8 +772,8 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     TypePtr type = p->type();
     string s = typeToString(type);
     StringList metaData = p->getMetaData();
-    string seqType = findMetaData(metaData);
-    if(!seqType.empty() && seqType != "array" && seqType.find("range") != 0)
+    string seqType = findMetaData(metaData, false);
+    if(!seqType.empty())
     {
         H << sp << nl << "typedef " << seqType << ' ' << name << ';';
     }
@@ -790,7 +790,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	
 	H << sp << nl << "class __U__" << name << " { };";
 
-        if(!seqType.empty() && seqType != "array" && seqType.find("range") != 0)
+        if(!seqType.empty())
 	{
 	    H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__"
 	      << name << ");";

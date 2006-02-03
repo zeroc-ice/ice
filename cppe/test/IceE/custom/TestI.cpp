@@ -74,6 +74,34 @@ TestIntfI::opVariableRange(
     return outSeq;
 }
 
+Test::BoolSeq
+TestIntfI::opBoolRangeType(const std::pair<const bool*, const bool*>& inSeq,
+		           Test::BoolSeq& outSeq,
+		           const Ice::Current&)
+{
+    Test::BoolSeq(inSeq.first, inSeq.second).swap(outSeq);
+    return outSeq;
+}
+
+Test::ByteList
+TestIntfI::opByteRangeType(const std::pair<MyByteSeq::const_iterator, MyByteSeq::const_iterator>& inSeq,
+		           Test::ByteList& outSeq,
+		           const Ice::Current&)
+{
+    Test::ByteList(inSeq.first, inSeq.second).swap(outSeq);
+    return outSeq;
+}
+
+Test::VariableList
+TestIntfI::opVariableRangeType(
+	const std::pair<std::deque<Test::Variable>::const_iterator, std::deque<Test::Variable>::const_iterator>& inSeq,
+	Test::VariableList& outSeq,
+	const Ice::Current&)
+{
+    Test::VariableList(inSeq.first, inSeq.second).swap(outSeq);
+    return outSeq;
+}
+
 std::deque<bool>
 TestIntfI::opBoolSeq(const std::deque<bool>& inSeq,
 		     std::deque<bool>& outSeq,

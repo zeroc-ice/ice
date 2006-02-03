@@ -43,6 +43,20 @@ public:
     		    Test::VariableList&,
 		    const Ice::Current&);
 
+    virtual Test::BoolSeq opBoolRangeType(const std::pair<const bool*, const bool*>&,
+    				          Test::BoolSeq&,
+				          const Ice::Current&);
+
+    virtual Test::ByteList opByteRangeType(const std::pair<MyByteSeq::const_iterator, MyByteSeq::const_iterator>&,
+    				           Test::ByteList&,
+				           const Ice::Current&);
+
+    virtual Test::VariableList 
+    opVariableRangeType(const std::pair<std::deque<Test::Variable>::const_iterator,
+    				        std::deque<Test::Variable>::const_iterator>&,
+    		        Test::VariableList&,
+		        const Ice::Current&);
+
     virtual std::deque<bool> opBoolSeq(const std::deque<bool>&,
 				       std::deque<bool>&,
 				       const Ice::Current&);

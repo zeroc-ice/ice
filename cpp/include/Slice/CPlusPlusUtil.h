@@ -50,7 +50,7 @@ SLICE_API void writeStreamMarshalCode(::IceUtil::Output&, const std::list<std::p
                                       const TypePtr&);
 SLICE_API void writeStreamUnmarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
                                         const TypePtr&);
-SLICE_API std::string findMetaData(const StringList&);
+SLICE_API std::string findMetaData(const StringList&, bool);
 
 }
 
