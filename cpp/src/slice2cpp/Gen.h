@@ -236,6 +236,8 @@ private:
 	void emitGCFunctions(const ClassDefPtr&);
 	void emitGCInsertCode(const TypePtr&, const std::string&, const std::string&, int);
 	void emitGCClearCode(const TypePtr&, const std::string&, const std::string&, int);
+	bool emitVirtualBaseInitializers(const ClassDefPtr&, bool);
+	void emitOneShotConstructor(const ClassDefPtr&);
 	void emitUpcall(const ClassDefPtr&, const std::string&);
 
 	::IceUtil::Output& H;

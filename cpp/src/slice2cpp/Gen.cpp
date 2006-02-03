@@ -2322,7 +2322,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     vector<string> params;
     vector<string> allTypes;
     vector<string> allParamDecls;
-    vector<string>::const_iterator pi;
     DataMemberList::const_iterator q;
 
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -2390,46 +2389,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	 * Strong guarantee
 	 */
 
-	if(!allParamDecls.empty())
-	{
-	    C << sp << nl << scoped.substr(2) << "::" << name << spar << allParamDecls << epar << " :";
-	    C.inc();
-	    if(base)
-	    {
-		string upcall;
-		if(!allParamDecls.empty() && base)
-		{
-		    upcall = "(";
-		    DataMemberList baseDataMembers = bases.front()->allDataMembers();
-		    for(q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
-		    {
-			if(q != baseDataMembers.begin())
-			{
-			    upcall += ", ";
-			}
-			upcall += "__ice_" + (*q)->name();
-		    }
-		    upcall += ")";
-		}
-		if(!params.empty())
-		{
-		    upcall += ",";
-		}
-		emitUpcall(base, upcall);
-	    }
-	    C << nl;
-	    for(pi = params.begin(); pi != params.end(); ++pi)
-	    {
-		if(pi != params.begin())
-		{
-		    C << ',' << nl;
-		}
-		C << *pi << '(' << "__ice_" << *pi << ')';
-	    }
-	    C.dec();
-	    C << sb;
-	    C << eb;
-	}
+        emitOneShotConstructor(p);
 
 	/*
 	 * Strong guarantee
@@ -3417,6 +3377,93 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& prefi
 	emitGCClearCode(s->type(), "", string("(*") + iterName + ")", ++level);
 	C << eb;
 	C << eb;;
+    }
+}
+
+bool
+Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p, bool first)
+{
+    DataMemberList allDataMembers = p->allDataMembers();
+    if(allDataMembers.empty())
+    {
+        return false;
+    }
+
+    if(!first)
+    {
+        C << ",";
+    }
+
+    string upcall = "(";
+    DataMemberList::const_iterator q;
+    for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    {
+	if(q != allDataMembers.begin())
+	{
+	    upcall += ", ";
+	}
+	upcall += "__ice_" + (*q)->name();
+    }
+    upcall += ")";
+
+    C << nl << fixKwd(p->name()) << upcall;
+
+    ClassList bases = p->bases();
+    ClassDefPtr base;
+    if(!bases.empty() && !bases.front()->isInterface())
+    {
+	emitVirtualBaseInitializers(bases.front(), false);
+    }
+
+    return true;
+}
+
+void
+Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
+{
+    DataMemberList allDataMembers = p->allDataMembers();
+    DataMemberList::const_iterator q;
+
+    vector<string> allParamDecls;
+
+    for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    {
+	string typeName = inputTypeToString((*q)->type());
+	allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
+    }
+
+    if(!allDataMembers.empty())
+    {
+	C << sp << nl << p->scoped().substr(2) << "::" << fixKwd(p->name()) << spar << allParamDecls << epar << " :";
+	C.inc();
+
+	DataMemberList dataMembers = p->dataMembers();
+
+	ClassList bases = p->bases();
+	ClassDefPtr base;
+	if(!bases.empty() && !bases.front()->isInterface())
+	{
+	    if(emitVirtualBaseInitializers(bases.front(), true) && !dataMembers.empty())
+	    {
+	        C << ',';
+	    }
+	}
+
+	C << nl;
+
+	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    if(q != dataMembers.begin())
+	    {
+		C << ',' << nl;
+	    }
+	    string memberName = fixKwd((*q)->name());
+	    C << memberName << '(' << "__ice_" << memberName << ')';
+	}
+
+	C.dec();
+	C << sb;
+	C << eb;
     }
 }
 
