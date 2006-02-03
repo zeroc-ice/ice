@@ -4,7 +4,6 @@ ICEVER=$1
 
 PRODUCTCODE="{`uuidgen`}"
 UPGRADECODE="{`uuidgen`}"
-PACKAGECODE="{`uuidgen`}"
 
 VERARRAY=(`echo "$ICEVER" | sed -e 's/\./ /g'`)
 

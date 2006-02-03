@@ -280,6 +280,51 @@ the demo file lists. The resultant demo file lists actually include the
 instructions for regenerating the file so if the scripts are lost, the commands
 are still around. 
 
+Getting ready for a release
+---------------------------
+
+There are a few steps in updating the installer projects in preparation
+for a release:
+
+1. Updating codes - MSI installers contain a PackageCode and an
+UpdateCode which are UUID type values that uniquely identify the product
+being installed. To avoid clashing with other installations of Ice, you
+need to change these values. 
+
+2. Update strings in projects -  the Ice version number appears in a few
+different places, the ProductName and ProductVersion properties as well
+as the MSIPackageFileName and installation directories.
+
+3. Check file lists - this may not be necessary, but you may be aware of
+specific files that have been added. Now's a good time to add them to
+the appropriate file list.
+
+4. Add policy assemblies - if this is a patch release, chances are good
+that there are policy assemblies that need to be installed for backwards
+compatability.
+
+There are example scripts in ice/install/windows that you can use to
+modify the XML formatted .ism files. The script is currently only for
+convenience and documenting the changes that are required. These
+currently aren't part of the automated processes because these changes
+only need to occur once prior to release. It should be noted that the
+scripts currently are not authoritative either. It is currently quite
+easily to modify the InstallShield projects in away that interferes with
+the scripts operation.
+
+InstallShield hints
+-------------------
+
+XXX - in progress
+
+- Merge Modules -
+ 
+- Components and Features -
+
+- Redistributables -
+
+Appendix
+
 Example batch files
 -------------------
  -- env_example.bat -- 
