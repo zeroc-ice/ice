@@ -3077,6 +3077,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name iceutil
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -3094,6 +3097,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name iceutil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cpp
     End Project Dependency
 }}}
 
