@@ -84,7 +84,7 @@ sequence<C*> CPrxSeq;
 sequence<CPrxList> CPrxListSeq;
 ["cpp:type:std::list< ::Test::CPrxSeq>"] sequence<CPrxSeq> CPrxSeqList;
 
-["ami"] class TestIntf
+["amd", "ami"] class TestIntf
 {
     BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, out BoolSeq outSeq);
 

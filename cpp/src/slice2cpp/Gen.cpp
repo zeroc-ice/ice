@@ -3849,9 +3849,9 @@ Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c,
 }
 
 void
-Slice::Gen::ImplVisitor::writeDecl(Output& out, const string& name, const TypePtr& type)
+Slice::Gen::ImplVisitor::writeDecl(Output& out, const string& name, const TypePtr& type, const StringList& metaData)
 {
-    out << nl << typeToString(type) << ' ' << name;
+    out << nl << typeToString(type, metaData) << ' ' << name;
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
@@ -3898,7 +3898,7 @@ Slice::Gen::ImplVisitor::writeDecl(Output& out, const string& name, const TypePt
 }
 
 void
-Slice::Gen::ImplVisitor::writeReturn(Output& out, const TypePtr& type)
+Slice::Gen::ImplVisitor::writeReturn(Output& out, const TypePtr& type, const StringList& metaData)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
@@ -3972,7 +3972,7 @@ Slice::Gen::ImplVisitor::writeReturn(Output& out, const TypePtr& type)
 			SequencePtr seq = SequencePtr::dynamicCast(type);
 			if(seq)
 			{
-			    out << nl << "return " << fixKwd(seq->scoped()) << "();";
+			    out << nl << "return " << typeToString(seq, metaData) << "();";
 			}
 			else
 			{
@@ -4111,13 +4111,13 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             if(ret)
             {
-                writeDecl(C, result, ret);
+                writeDecl(C, result, ret, op->getMetaData());
             }
             for(q = paramList.begin(); q != paramList.end(); ++q)
             {
                 if((*q)->isOutParam())
                 {
-                    writeDecl(C, fixKwd((*q)->name()), (*q)->type());
+                    writeDecl(C, fixKwd((*q)->name()), (*q)->type(), (*q)->getMetaData());
                 }
             }
 
@@ -4231,7 +4231,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             if(ret)
             {
-                writeReturn(C, ret);
+                writeReturn(C, ret, op->getMetaData());
             }
 
             C << eb;

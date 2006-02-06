@@ -11,9 +11,10 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 SERVER		= server
+SERVERAMD	= serveramd
 COLLOCATED	= collocated
 
-TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
+TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
 COBJS		= Test.o \
 		  Client.o \
@@ -23,6 +24,11 @@ COBJS		= Test.o \
 SOBJS		= Test.o \
 		  TestI.o \
 		  Server.o \
+		  MyByteSeq.o
+
+SAMDOBJS	= TestAMD.o \
+		  TestAMDI.o \
+		  ServerAMD.o \
 		  MyByteSeq.o
 
 COLOBJS		= Test.o \
@@ -35,7 +41,7 @@ SRCS		= $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
 		  $(COLOBJS:.o=.cpp)
 
-SLICE_SRCS	= Test.ice
+SLICE_SRCS	= Test.ice TestAMD.ice
 
 include $(top_srcdir)/config/Make.rules
 
@@ -49,6 +55,10 @@ $(CLIENT): $(COBJS)
 $(SERVER): $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+
+$(SERVERAMD): $(SAMDOBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(SAMDOBJS) $(LIBS)
 
 $(COLLOCATED): $(COLOBJS)
 	rm -f $@

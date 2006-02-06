@@ -12,16 +12,18 @@
 #include <deque>
 #include <list>
 #include <MyByteSeq.h>
-#include <Test.h>
+#include <TestAMDI.h>
 
 using namespace std;
 
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    Test::TestIntfPrx allTests(const Ice::CommunicatorPtr&, bool);
-    Test::TestIntfPrx test = allTests(communicator, false);
-    test->shutdown();
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+    adapter->add(new TestIntfI(communicator), Ice::stringToIdentity("test"));
+
+    adapter->activate();
+    communicator->waitForShutdown();
 
     return EXIT_SUCCESS;
 }
@@ -34,6 +36,9 @@ main(int argc, char** argv)
 
     try
     {
+        Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
+	properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
+
         communicator = Ice::initialize(argc, argv);
         status = run(argc, argv, communicator);
     }
@@ -57,5 +62,4 @@ main(int argc, char** argv)
     }
 
     return status;
-
 }

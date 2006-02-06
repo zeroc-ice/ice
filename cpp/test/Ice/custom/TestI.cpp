@@ -12,7 +12,6 @@
 #include <list>
 #include <MyByteSeq.h>
 #include <TestI.h>
-#include <TestCommon.h>
 
 TestIntfI::TestIntfI(const Ice::CommunicatorPtr& communicator)
     : _communicator(communicator)
@@ -259,7 +258,4 @@ void
 TestIntfI::shutdown(const Ice::Current& current)
 {
     _communicator->shutdown();
-#ifdef _WIN32_WCE
-    tprintf("The server has shutdown, close the window to terminate the server.");
-#endif
 }

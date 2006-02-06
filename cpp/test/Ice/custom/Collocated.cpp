@@ -23,8 +23,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     adapter->add(new TestIntfI(communicator), Ice::stringToIdentity("test"));
     adapter->activate();
 
-    Test::TestIntfPrx allTests(const Ice::CommunicatorPtr&);
-    allTests(communicator);
+    Test::TestIntfPrx allTests(const Ice::CommunicatorPtr&, bool);
+    allTests(communicator, true);
 
     return EXIT_SUCCESS;
 }
