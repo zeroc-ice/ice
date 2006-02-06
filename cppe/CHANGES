@@ -1,6 +1,10 @@
 Changes since version 1.0.0
 ---------------------------
 
+- Fixed a bug in slice2cpp that caused one-shot constructors for
+  classes to incorrectly initialize base classes for class hierarchies
+  three or more levels deep.
+
 - Fixed a bug in the Slice parser that caused problems if an
   included file contained white space in the file name.
 
