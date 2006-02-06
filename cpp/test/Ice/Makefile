@@ -23,7 +23,8 @@ SUBDIRS		= operations \
 		  gc \
 		  checksum \
 		  stream \
-		  hold
+		  hold \
+		  custom
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -71,6 +71,7 @@ tests = [ \
     "Ice/checksum", \
     "Ice/stream", \
     "Ice/hold", \
+    "Ice/custom", \
     "IceSSL/configuration", \
     "IceSSL/loadPEM", \
     "IceSSL/certificateAndKeyParsing", \

@@ -1,0 +1,57 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+top_srcdir	= ../../..
+
+CLIENT		= client
+SERVER		= server
+COLLOCATED	= collocated
+
+TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
+
+COBJS		= Test.o \
+		  Client.o \
+		  AllTests.o \
+		  MyByteSeq.o
+
+SOBJS		= Test.o \
+		  TestI.o \
+		  Server.o \
+		  MyByteSeq.o
+
+COLOBJS		= Test.o \
+		  TestI.o \
+		  Collocated.o \
+		  AllTests.o \
+		  MyByteSeq.o
+
+SRCS		= $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp) \
+		  $(COLOBJS:.o=.cpp)
+
+SLICE_SRCS	= Test.ice
+
+include $(top_srcdir)/config/Make.rules
+
+CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
+SLICE2CPPFLAGS  := --stream --add-header MyByteSeq.h --add-header deque --add-header list $(SLICE2CPPFLAGS)
+
+$(CLIENT): $(COBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+
+$(SERVER): $(SOBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+
+$(COLLOCATED): $(COLOBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(COLOBJS) $(LIBS)
+
+include .depend

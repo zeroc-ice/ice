@@ -39,17 +39,13 @@ SLICE_API void writeMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, con
 					 const std::string& = "", bool = true, const StringList& = StringList(),
 					 bool = false);
 SLICE_API void writeMarshalCode(::IceUtil::Output&, const ParamDeclList&, const TypePtr&, 
-				const StringList& = StringList(), bool = false);
+				const StringList&, bool = false);
 SLICE_API void writeUnmarshalCode(::IceUtil::Output&, const ParamDeclList&, const TypePtr&,
-				  const StringList& = StringList(), bool = false);
+				  const StringList&, bool = false);
 SLICE_API void writeAllocateCode(::IceUtil::Output&, const ParamDeclList&, const TypePtr&,
-				 const StringList& = StringList(), bool = false);
+				 const StringList&, bool = false);
 SLICE_API void writeStreamMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool,
-                                               const std::string& = "");
-SLICE_API void writeStreamMarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
-                                      const TypePtr&);
-SLICE_API void writeStreamUnmarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
-                                        const TypePtr&);
+                                               const std::string& = "", const StringList& = StringList());
 SLICE_API std::string findMetaData(const StringList&, bool);
 
 }

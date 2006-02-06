@@ -2339,7 +2339,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
 	writeAllocateCode(C, inParams, 0, StringList(), true);
 	writeUnmarshalCode(C, inParams, 0, StringList(), true);
-	writeAllocateCode(C, outParams, 0);
+	writeAllocateCode(C, outParams, 0, StringList());
 	if(!throws.empty())
 	{
 	    C << nl << "try";
@@ -2998,7 +2998,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
         {
             for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
             {
-                if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0) || q->find("cpp:range", 0))
+                if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0) == 0 || q->find("cpp:range", 0) == 0)
                 {
                     cout << p->definitionContext()->filename() << ":" << p->line()
                          << ": warning: invalid metadata for operation" << endl;
@@ -3060,7 +3060,6 @@ void
 Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const StringList& metaData, 
 				      const string& file, const string& line, bool inParam)
 {
-
     static const string prefix = "cpp:";
     for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
     {
@@ -3097,7 +3096,7 @@ Slice::Gen::printHeader(Output& out)
     static const char* header =
 "// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2005 ZeroC, Inc. All rights reserved.\n"
+"// Copyright (c) 2005-2006 ZeroC, Inc. All rights reserved.\n"
 "//\n"
 "// This copy of Ice-E is licensed to you under the terms described in the\n"
 "// ICEE_LICENSE file included in this distribution.\n"

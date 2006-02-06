@@ -379,7 +379,8 @@ private:
 
     private:
 
-        void validate(const ContainedPtr&);
+        void validate(const SyntaxTreeBasePtr&, const StringList&, const std::string&, const std::string&,
+		      bool = false);
 
         StringSet _history;
     };

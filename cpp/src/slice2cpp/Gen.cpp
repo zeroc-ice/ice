@@ -422,7 +422,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
-	string typeName = inputTypeToString((*q)->type());
+	string typeName = inputTypeToString((*q)->type(), (*q)->getMetaData());
 	allTypes.push_back(typeName);
 	allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
     }
@@ -607,18 +607,13 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         H << sp << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
         H << nl << "virtual void __read(const ::Ice::InputStreamPtr&, bool);";
 
-        TypeStringList memberList;
-        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-        {
-            memberList.push_back(make_pair((*q)->type(), (*q)->name()));
-        }
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
 	C << sb;
 	C << nl << "__os->write(::std::string(\"" << p->scoped() << "\"));";
 	C << nl << "__os->startWriteSlice();";
 	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	{
-	    writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true);
+	    writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true, (*q)->getMetaData());
 	}
 	C << nl << "__os->endWriteSlice();";
 	if(base)
@@ -637,7 +632,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	C << nl << "__is->startReadSlice();";
 	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	{
-	    writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true);
+	    writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true, (*q)->getMetaData());
 	}
 	C << nl << "__is->endReadSlice();";
 	if(base)
@@ -648,11 +643,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(_stream)
         {
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
+            C << sp << nl << "void" << nl << scoped.substr(2) 
+	      << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
             C << sb;
             C << nl << "__outS->writeString(::std::string(\"" << p->scoped() << "\"));";
             C << nl << "__outS->startSlice();";
-            writeStreamMarshalCode(C, memberList, 0);
+	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	    {
+	        writeStreamMarshalUnmarshalCode(C, (*q)->type(), (*q)->name(), true, "", (*q)->getMetaData());
+	    }
             C << nl << "__outS->endSlice();";
 	    if(base)
 	    {
@@ -668,7 +667,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             C << nl << "__inS->readString();";
             C << eb;
             C << nl << "__inS->startSlice();";
-            writeStreamUnmarshalCode(C, memberList, 0);
+	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	    {
+	        writeStreamMarshalUnmarshalCode(C, (*q)->type(), (*q)->name(), false, "", (*q)->getMetaData());
+	    }
             C << nl << "__inS->endSlice();";
 	    if(base)
 	    {
@@ -856,16 +858,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             H << nl << _dllExport << "void __read(const ::Ice::InputStreamPtr&);";
         }
 
-        TypeStringList memberList;
-        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-        {
-            memberList.push_back(make_pair((*q)->type(), (*q)->name()));
-        }
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
 	C << sb;
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true);
+            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true, (*q)->getMetaData());
         }
 	C << eb;
 
@@ -873,7 +870,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	C << sb;
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true);
+            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true, (*q)->getMetaData());
         }
 	C << eb;
 
@@ -882,12 +879,18 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    C << sp << nl << "void" << nl << scoped.substr(2)
 	      << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
 	    C << sb;
-	    writeStreamMarshalCode(C, memberList, 0);
+	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	    {
+	        writeStreamMarshalUnmarshalCode(C, (*q)->type(), (*q)->name(), true, "", (*q)->getMetaData());
+	    }
 	    C << eb;
 
 	    C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __inS)";
 	    C << sb;
-	    writeStreamUnmarshalCode(C, memberList, 0);
+	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	    {
+	        writeStreamMarshalUnmarshalCode(C, (*q)->type(), (*q)->name(), false, "", (*q)->getMetaData());
+	    }
 	    C << eb;
 	}
     }
@@ -918,7 +921,7 @@ void
 Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    string s = typeToString(p->type());
+    string s = typeToString(p->type(), p->getMetaData());
     H << nl << s << ' ' << name << ';';
 }
 
@@ -928,108 +931,220 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     string name = fixKwd(p->name());
     TypePtr type = p->type();
     string s = typeToString(type);
-    H << sp << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
+    StringList metaData = p->getMetaData();
+    string seqType = findMetaData(metaData, false);
+    if(!seqType.empty())
+    {
+        H << sp << nl << "typedef " << seqType << ' ' << name << ';';
+    }
+    else
+    {
+        H << sp << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
+    }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(!p->isLocal() &&
-	(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy))
+    if(!p->isLocal())
     {
 	string scoped = fixKwd(p->scoped());
 	string scope = fixKwd(p->scope());
 
 	H << sp << nl << "class __U__" << name << " { };";
-	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << s << "*, const " << s
-	  << "*, __U__" << name << ");";
-	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
 
-        if(_stream)
+        if(!seqType.empty())
         {
-            H << nl << _dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
-              << name << "&);";
-            H << nl << _dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name << "&);";
+            H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__"
+              << name << ");";
+            H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
+
+            if(_stream)
+            {
+                H << nl << _dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
+                  << name << "&);";
+                H << nl << _dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name 
+		  << "&);";
+            }
+
+            C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
+              << scoped << "& v, " << scope << "__U__" << name << ")";
+            C << sb;
+            C << nl << "::Ice::Int size = static_cast< ::Ice::Int>(v.size());";
+            C << nl << "__os->writeSize(size);";
+            C << nl << "for(" << name << "::const_iterator p = v.begin(); p != v.end(); ++p)";
+            C << sb;
+            writeMarshalUnmarshalCode(C, type, "(*p)", true);
+            C << eb;
+            C << eb;
+
+            C << sp << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
+              << "& v, " << scope << "__U__" << name << ')';
+            C << sb;
+            C << nl << "::Ice::Int sz;";
+            C << nl << "__is->readSize(sz);";
+            C << nl << name << "(sz).swap(v);";
+            if(type->isVariableLength())
+            {
+                // Protect against bogus sequence sizes.
+                C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");";
+            }
+            else
+            {
+                C << nl << "__is->checkFixedSeq(sz, " << type->minWireSize() << ");";
+            }
+            C << nl << "for(" << name << "::iterator p = v.begin(); p != v.end(); ++p)";
+            C << sb;
+            writeMarshalUnmarshalCode(C, type, "(*p)", false);
+
+            //
+            // After unmarshaling each element, check that there are still enough bytes left in the stream
+            // to unmarshal the remainder of the sequence, and decrement the count of elements
+            // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
+            // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
+            // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
+            // (For fixed-length sequences, we don't need to do this because the prediction of how many
+            // bytes will be taken up by the sequence is accurate.)
+            //
+            if(type->isVariableLength())
+            {
+                if(!SequencePtr::dynamicCast(type))
+                {
+                    //
+                    // No need to check for directly nested sequences because, at the start of each
+                    // sequence, we check anyway.
+                    //
+                    C << nl << "__is->checkSeq();";
+                }
+                C << nl << "__is->endElement();";
+            }
+            C << eb;
+            if(type->isVariableLength())
+            {
+                C << nl << "__is->endSeq(sz);";
+            }
+            C << eb;
+
+            if(_stream)
+            {
+                C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
+                  << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& v)";
+                C << sb;
+                C << nl << "__outS->writeSize(::Ice::Int(v.size()));";
+                C << nl << scoped << "::const_iterator p;";
+                C << nl << "for(p = v.begin(); p != v.end(); ++p)";
+                C << sb;
+                writeStreamMarshalUnmarshalCode(C, type, "(*p)", true);
+                C << eb;
+                C << eb;
+
+                C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
+                  << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& v)";
+                C << sb;
+                C << nl << "::Ice::Int sz = __inS->readSize();";
+                C << nl << scoped << "(sz).swap(v);";
+                C << nl << scoped << "::iterator p;";
+                C << nl << "for(p = v.begin(); p != v.end(); ++p)";
+                C << sb;
+                writeStreamMarshalUnmarshalCode(C, type, "(*p)", false);
+                C << eb;
+                C << eb;
+            }
         }
+        else if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
+        {
+	    H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << s << "*, const " << s
+	      << "*, __U__" << name << ");";
+	    H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
 
-	C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
-	  << s << "* begin, const " << s << "* end, " << scope << "__U__" << name << ")";
-	C << sb;
-	C << nl << "::Ice::Int size = static_cast< ::Ice::Int>(end - begin);";
-	C << nl << "__os->writeSize(size);";
-	C << nl << "for(int i = 0; i < size; ++i)";
-	C << sb;
-	writeMarshalUnmarshalCode(C, type, "begin[i]", true);
-	C << eb;
-	C << eb;
+            if(_stream)
+            {
+                H << nl << _dllExport << "void ice_write" << p->name() << "(const ::Ice::OutputStreamPtr&, const "
+                  << name << "&);";
+                H << nl << _dllExport << "void ice_read" << p->name() << "(const ::Ice::InputStreamPtr&, " << name 
+		  << "&);";
+            }
 
-	C << sp << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
-	  << "& v, " << scope << "__U__" << name << ')';
-	C << sb;
-	C << nl << "::Ice::Int sz;";
-	C << nl << "__is->readSize(sz);";
-	if(type->isVariableLength())
-	{
-	    C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");"; // Protect against bogus sequence sizes.
-	}
-	else
-	{
-	    C << nl << "__is->checkFixedSeq(sz, " << type->minWireSize() << ");";
-	}
-	C << nl << "v.resize(sz);";
-	C << nl << "for(int i = 0; i < sz; ++i)";
-	C << sb;
-	writeMarshalUnmarshalCode(C, type, "v[i]", false);
+	    C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
+	      << s << "* begin, const " << s << "* end, " << scope << "__U__" << name << ")";
+	    C << sb;
+	    C << nl << "::Ice::Int size = static_cast< ::Ice::Int>(end - begin);";
+	    C << nl << "__os->writeSize(size);";
+	    C << nl << "for(int i = 0; i < size; ++i)";
+	    C << sb;
+	    writeMarshalUnmarshalCode(C, type, "begin[i]", true);
+	    C << eb;
+	    C << eb;
 
-	//
-	// After unmarshaling each element, check that there are still enough bytes left in the stream
-	// to unmarshal the remainder of the sequence, and decrement the count of elements
-	// yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
-	// of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
-	// abort unmarshaling for bogus sequence sizes at the earliest possible moment.
-	// (For fixed-length sequences, we don't need to do this because the prediction of how many
-	// bytes will be taken up by the sequence is accurate.)
-	//
-	if(type->isVariableLength())
-	{
-	    if(!SequencePtr::dynamicCast(type))
+	    C << sp << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
+	      << "& v, " << scope << "__U__" << name << ')';
+	    C << sb;
+	    C << nl << "::Ice::Int sz;";
+	    C << nl << "__is->readSize(sz);";
+	    if(type->isVariableLength())
 	    {
-		//
-		// No need to check for directly nested sequences because, at the start of each
-		// sequence, we check anyway.
-		//
-		C << nl << "__is->checkSeq();";
+		// Protect against bogus sequence sizes.
+	        C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");";
 	    }
-	    C << nl << "__is->endElement();";
-	}
-	C << eb;
-	if(type->isVariableLength())
-	{
-	    C << nl << "__is->endSeq(sz);";
-	}
-	C << eb;
+	    else
+	    {
+	        C << nl << "__is->checkFixedSeq(sz, " << type->minWireSize() << ");";
+	    }
+	    C << nl << "v.resize(sz);";
+	    C << nl << "for(int i = 0; i < sz; ++i)";
+	    C << sb;
+	    writeMarshalUnmarshalCode(C, type, "v[i]", false);
 
-        if(_stream)
-        {
-            C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
-              << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& v)";
-            C << sb;
-            C << nl << "__outS->writeSize(::Ice::Int(v.size()));";
-            C << nl << scoped << "::const_iterator p;";
-            C << nl << "for(p = v.begin(); p != v.end(); ++p)";
-            C << sb;
-            writeStreamMarshalUnmarshalCode(C, type, "(*p)", true);
-            C << eb;
-            C << eb;
+	    //
+	    // After unmarshaling each element, check that there are still enough bytes left in the stream
+	    // to unmarshal the remainder of the sequence, and decrement the count of elements
+	    // yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
+	    // of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
+	    // abort unmarshaling for bogus sequence sizes at the earliest possible moment.
+	    // (For fixed-length sequences, we don't need to do this because the prediction of how many
+	    // bytes will be taken up by the sequence is accurate.)
+	    //
+	    if(type->isVariableLength())
+	    {
+	        if(!SequencePtr::dynamicCast(type))
+	        {
+		    //
+		    // No need to check for directly nested sequences because, at the start of each
+		    // sequence, we check anyway.
+		    //
+		    C << nl << "__is->checkSeq();";
+	        }
+	        C << nl << "__is->endElement();";
+	    }
+	    C << eb;
+	    if(type->isVariableLength())
+	    {
+	        C << nl << "__is->endSeq(sz);";
+	    }
+	    C << eb;
 
-            C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
-              << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& v)";
-            C << sb;
-            C << nl << "::Ice::Int sz = __inS->readSize();";
-            C << nl << "v.resize(sz);";
-            C << nl << "for(int i = 0; i < sz; ++i)";
-            C << sb;
-            writeStreamMarshalUnmarshalCode(C, type, "v[i]", false);
-            C << eb;
-            C << eb;
-        }
+            if(_stream)
+            {
+                C << sp << nl << "void" << nl << scope.substr(2) << "ice_write" << p->name()
+                  << "(const ::Ice::OutputStreamPtr& __outS, const " << scoped << "& v)";
+                C << sb;
+                C << nl << "__outS->writeSize(::Ice::Int(v.size()));";
+                C << nl << scoped << "::const_iterator p;";
+                C << nl << "for(p = v.begin(); p != v.end(); ++p)";
+                C << sb;
+                writeStreamMarshalUnmarshalCode(C, type, "(*p)", true);
+                C << eb;
+                C << eb;
+
+                C << sp << nl << "void" << nl << scope.substr(2) << "ice_read" << p->name()
+                  << "(const ::Ice::InputStreamPtr& __inS, " << scoped << "& v)";
+                C << sb;
+                C << nl << "::Ice::Int sz = __inS->readSize();";
+                C << nl << "v.resize(sz);";
+                C << nl << "for(int i = 0; i < sz; ++i)";
+                C << sb;
+                writeStreamMarshalUnmarshalCode(C, type, "v[i]", false);
+                C << eb;
+                C << eb;
+            }
+	}
     }
 }
 
@@ -1528,7 +1643,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string scope = fixKwd(p->scope());
 
     TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret);
+    string retS = returnTypeToString(ret, p->getMetaData());
 
     vector<string> params;
     vector<string> paramsDecl;
@@ -1543,6 +1658,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
 	string paramName = fixKwd((*q)->name());
 
+	StringList metaData = (*q)->getMetaData();
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
 	//
 	// Work around for Sun CC 5.5 bug #4853566
@@ -1550,14 +1666,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	string typeString;
 	if((*q)->isOutParam())
 	{
-	    typeString = outputTypeToString((*q)->type());
+	    typeString = outputTypeToString((*q)->type(), metaData);
 	}
 	else
 	{
-	    typeString = inputTypeToString((*q)->type());
+	    typeString = inputTypeToString((*q)->type(), metaData);
 	}
 #else
-	string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+	string typeString = (*q)->isOutParam() ? 
+		outputTypeToString((*q)->type(), metaData) : inputTypeToString((*q)->type(), metaData);
 #endif
 
 	params.push_back(typeString);
@@ -1566,7 +1683,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
 	if(!(*q)->isOutParam())
 	{
-	    string inputTypeString = inputTypeToString((*q)->type());
+	    string inputTypeString = inputTypeToString((*q)->type(), metaData);
 
 	    paramsAMI.push_back(inputTypeString);
 	    paramsDeclAMI.push_back(inputTypeString + ' ' + paramName);
@@ -1756,13 +1873,14 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
     string name = fixKwd(p->name());
 
     TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret);
+    string retS = returnTypeToString(ret, p->getMetaData());
 
     vector<string> params;
 
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
+        StringList metaData = (*q)->getMetaData();
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
 	//
 	// Work around for Sun CC 5.5 bug #4853566
@@ -1770,14 +1888,15 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 	string typeString;
 	if((*q)->isOutParam())
 	{
-	    typeString = outputTypeToString((*q)->type());
+	    typeString = outputTypeToString((*q)->type(), metaData);
 	}
 	else
 	{
-	    typeString = inputTypeToString((*q)->type());
+	    typeString = inputTypeToString((*q)->type(), metaData);
 	}
 #else
-	string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+	string typeString = (*q)->isOutParam() ? 
+		outputTypeToString((*q)->type(), metaData) : inputTypeToString((*q)->type(), metaData);
 #endif
 
 	params.push_back(typeString);
@@ -1886,7 +2005,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     string scoped = fixKwd(p->scoped());
 
     TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret);
+    string retS = returnTypeToString(ret, p->getMetaData());
 
     vector<string> params;
     vector<string> paramsDecl;
@@ -1899,16 +2018,17 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	string paramName = fixKwd((*q)->name());
 	TypePtr type = (*q)->type();
 	bool isOutParam = (*q)->isOutParam();
+	StringList metaData = (*q)->getMetaData();
 	string typeString;
 	if(isOutParam)
 	{
 	    outParams.push_back(*q);
-	    typeString = outputTypeToString(type);
+	    typeString = outputTypeToString(type, metaData);
 	}
 	else
 	{
 	    inParams.push_back(*q);
-	    typeString = inputTypeToString(type);
+	    typeString = inputTypeToString(type, metaData);
 	}
 
 	params.push_back(typeString);
@@ -1931,7 +2051,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "try";
 	C << sb;
 	C << nl << "::IceInternal::BasicStream* __os = __og.os();";
-	writeMarshalCode(C, inParams, 0);
+	writeMarshalCode(C, inParams, 0, StringList(), true);
 	if(p->sendsClasses())
 	{
 	    C << nl << "__os->writePendingObjects();";
@@ -1997,8 +2117,8 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << eb;
 
-    writeAllocateCode(C, ParamDeclList(), ret);
-    writeUnmarshalCode(C, outParams, ret);
+    writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData());
+    writeUnmarshalCode(C, outParams, ret, p->getMetaData());
     if(p->returnsClasses())
     {
 	C << nl << "__is->readPendingObjects();";
@@ -2113,7 +2233,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     string scoped = fixKwd(p->scoped());
 
     TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret);
+    string retS = returnTypeToString(ret, p->getMetaData());
 
     vector<string> params;
     vector<string> paramsDecl;
@@ -2124,6 +2244,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     {
 	string paramName = fixKwd((*q)->name());
 
+	StringList metaData = (*q)->getMetaData();
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
 	//
 	// Work around for Sun CC 5.5 bug #4853566
@@ -2131,14 +2252,15 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	string typeString;
 	if((*q)->isOutParam())
 	{
-	    typeString = outputTypeToString((*q)->type());
+	    typeString = outputTypeToString((*q)->type(), metaData);
 	}
 	else
 	{
-	    typeString = inputTypeToString((*q)->type());
+	    typeString = inputTypeToString((*q)->type(), metaData);
 	}
 #else
-	string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+	string typeString = (*q)->isOutParam() ? 
+		outputTypeToString((*q)->type(), metaData) : inputTypeToString((*q)->type(), metaData);
 #endif
 
 	params.push_back(typeString);
@@ -2331,7 +2453,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
-	string typeName = inputTypeToString((*q)->type());
+	string typeName = inputTypeToString((*q)->type(), (*q)->getMetaData());
 	allTypes.push_back(typeName);
 	allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
     }
@@ -2666,22 +2788,17 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
         H << nl << "virtual void __read(const ::Ice::InputStreamPtr&, bool);";
 
-	TypeStringList memberList;
-	DataMemberList dataMembers = p->dataMembers();
-	DataMemberList::const_iterator q;
-	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    memberList.push_back(make_pair((*q)->type(), (*q)->name()));
-	}
 	C << sp;
 	C << nl << "void" << nl << scoped.substr(2)
           << "::__write(::IceInternal::BasicStream* __os) const";
 	C << sb;
 	C << nl << "__os->writeTypeId(ice_staticId());";
 	C << nl << "__os->startWriteSlice();";
+	DataMemberList dataMembers = p->dataMembers();
+	DataMemberList::const_iterator q;
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true);
+            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true, (*q)->getMetaData());
         }
 	C << nl << "__os->endWriteSlice();";
 	emitUpcall(base, "::__write(__os);");
@@ -2697,7 +2814,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << nl << "__is->startReadSlice();";
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true);
+            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true, (*q)->getMetaData());
         }
 	C << nl << "__is->endReadSlice();";
 	emitUpcall(base, "::__read(__is, true);");
@@ -2710,7 +2827,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << sb;
 	    C << nl << "__outS->writeTypeId(ice_staticId());";
 	    C << nl << "__outS->startSlice();";
-	    writeStreamMarshalCode(C, memberList, 0);
+	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	    {
+	        writeStreamMarshalUnmarshalCode(C, (*q)->type(), (*q)->name(), true, "", (*q)->getMetaData());
+	    }
 	    C << nl << "__outS->endSlice();";
 	    emitUpcall(base, "::__write(__outS);");
 	    C << eb;
@@ -2722,7 +2842,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "__inS->readTypeId();";
 	    C << eb;
 	    C << nl << "__inS->startSlice();";
-	    writeStreamUnmarshalCode(C, memberList, 0);
+	    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	    {
+	        writeStreamMarshalUnmarshalCode(C, (*q)->type(), (*q)->name(), false, "", (*q)->getMetaData());
+	    }
 	    C << nl << "__inS->endSlice();";
 	    emitUpcall(base, "::__read(__inS, true);");
 	    C << eb;
@@ -2902,7 +3025,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     string scope = fixKwd(p->scope());
 
     TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret);
+    string retS = returnTypeToString(ret, p->getMetaData());
 
     string params = "(";
     string paramsDecl = "(";
@@ -2930,12 +3053,12 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	if(isOutParam)
 	{
 	    outParams.push_back(*q);
-	    typeString = outputTypeToString(type);
+	    typeString = outputTypeToString(type, (*q)->getMetaData());
 	}
 	else
 	{
 	    inParams.push_back(*q);
-	    typeString = inputTypeToString((*q)->type());
+	    typeString = inputTypeToString((*q)->type(), (*q)->getMetaData());
 	}
 
 	if(q != paramList.begin())
@@ -3046,13 +3169,13 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    {
 		C << nl << "::IceInternal::BasicStream* __os = __inS.os();";
 	    }
-	    writeAllocateCode(C, inParams, 0);
-	    writeUnmarshalCode(C, inParams, 0);
+	    writeAllocateCode(C, inParams, 0, StringList(), true);
+	    writeUnmarshalCode(C, inParams, 0, StringList(), true);
 	    if(p->sendsClasses())
 	    {
 		C << nl << "__is->readPendingObjects();";
 	    }
-	    writeAllocateCode(C, outParams, 0);
+	    writeAllocateCode(C, outParams, 0, StringList());
 	    if(!throws.empty())
 	    {
 		C << nl << "try";
@@ -3064,7 +3187,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 		C << retS << " __ret = ";
 	    }
 	    C << fixKwd(name) << args << ';';
-	    writeMarshalCode(C, outParams, ret);
+	    writeMarshalCode(C, outParams, ret, p->getMetaData());
 	    if(p->returnsClasses())
 	    {
 		C << nl << "__os->writePendingObjects();";
@@ -3092,8 +3215,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    {
 		C << nl << "::IceInternal::BasicStream* __is = __inS.is();";
 	    }
-	    writeAllocateCode(C, inParams, 0);
-	    writeUnmarshalCode(C, inParams, 0);
+	    writeAllocateCode(C, inParams, 0, StringList(), true);
+	    writeUnmarshalCode(C, inParams, 0, StringList(), true);
 	    if(p->sendsClasses())
 	    {
 		C << nl << "__is->readPendingObjects();";
@@ -3126,7 +3249,7 @@ void
 Slice::Gen::ObjectVisitor::visitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    string s = typeToString(p->type());
+    string s = typeToString(p->type(), p->getMetaData());
     H << nl << s << ' ' << name << ';';
 }
 
@@ -3428,7 +3551,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 
     for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
-	string typeName = inputTypeToString((*q)->type());
+	string typeName = inputTypeToString((*q)->type(), (*q)->getMetaData());
 	allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
     }
 
@@ -3938,7 +4061,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         string opName = op->name();
 
         TypePtr ret = op->returnType();
-        string retS = returnTypeToString(ret);
+        string retS = returnTypeToString(ret, op->getMetaData());
 
         if(!p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd")))
         {
@@ -3951,7 +4074,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 if(!(*q)->isOutParam())
                 {
-                    H << ',' << nl << inputTypeToString((*q)->type());
+                    H << ',' << nl << inputTypeToString((*q)->type(), (*q)->getMetaData());
                 }
             }
             H << ',' << nl << "const Ice::Current&";
@@ -3968,7 +4091,8 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 if(!(*q)->isOutParam())
                 {
-                    C << ',' << nl << inputTypeToString((*q)->type()) << ' ' << fixKwd((*q)->name());
+                    C << ',' << nl << inputTypeToString((*q)->type(), (*q)->getMetaData()) << ' ' 
+		      << fixKwd((*q)->name());
                 }
             }
             C << ',' << nl << "const Ice::Current& current";
@@ -4029,6 +4153,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     H << ',' << nl;
                 }
+		StringList metaData = (*q)->getMetaData();
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
 		//
 		// Work around for Sun CC 5.5 bug #4853566
@@ -4036,15 +4161,15 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 		string typeString;
 		if((*q)->isOutParam())
 		{
-		    typeString = outputTypeToString((*q)->type());
+		    typeString = outputTypeToString((*q)->type(), metaData);
 		}
 		else
 		{
-		    typeString = inputTypeToString((*q)->type());
+		    typeString = inputTypeToString((*q)->type(), metaData);
 		}
 #else
                 string typeString = (*q)->isOutParam() ?
-                    outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+                    outputTypeToString((*q)->type(), metaData) : inputTypeToString((*q)->type(), metaData);
 #endif
                 H << typeString;
             }
@@ -4071,6 +4196,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     C << ',' << nl;
                 }
+		StringList metaData = (*q)->getMetaData();
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
 		//
 		// Work around for Sun CC 5.5 bug #4853566
@@ -4078,15 +4204,15 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
 		string typeString;
 		if((*q)->isOutParam())
 		{
-		    typeString = outputTypeToString((*q)->type());
+		    typeString = outputTypeToString((*q)->type(), metaData);
 		}
 		else
 		{
-		    typeString = inputTypeToString((*q)->type());
+		    typeString = inputTypeToString((*q)->type(), metaData);
 		}
 #else
                 string typeString = (*q)->isOutParam() ?
-                    outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+                    outputTypeToString((*q)->type(), metaData) : inputTypeToString((*q)->type(), metaData);
 #endif
                 C << typeString << ' ' << fixKwd((*q)->name());
             }
@@ -4176,7 +4302,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     paramsDeclInvoke.push_back("const " + proxyName + "& __prx");
 
     TypePtr ret = p->returnType();
-    string retS = inputTypeToString(ret);
+    string retS = inputTypeToString(ret, p->getMetaData());
     
     if(ret)
     {
@@ -4192,7 +4318,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     {
 	string paramName = fixKwd((*q)->name());
 	TypePtr type = (*q)->type();
-	string typeString = inputTypeToString(type);
+	string typeString = inputTypeToString(type, (*q)->getMetaData());
 
 	if((*q)->isOutParam())
 	{
@@ -4247,7 +4373,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << sb;
 	C << nl << "static const ::std::string __operation(\"" << name << "\");";
 	C << nl << "__prepare(__prx, " << flatName << ", " << operationModeToString(p->mode()) << ", __ctx);";
-	writeMarshalCode(C, inParams, 0);
+	writeMarshalCode(C, inParams, 0, StringList(), true);
 	if(p->sendsClasses())
 	{
 	    C << nl << "__os->writePendingObjects();";
@@ -4264,7 +4390,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
 	C << sp << nl << "void" << nl << classScopedAMI.substr(2) << '_' << name << "::__response(bool __ok)";
 	C << sb;
-	writeAllocateCode(C, outParams, ret);
+	writeAllocateCode(C, outParams, ret, p->getMetaData());
 	C << nl << "try";
 	C << sb;
 	C << nl << "if(!__ok)";
@@ -4300,7 +4426,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << eb;
 	C << eb;
 
-	writeUnmarshalCode(C, outParams, ret);
+	writeUnmarshalCode(C, outParams, ret, p->getMetaData());
 	if(p->returnsClasses())
 	{
 	    C << nl << "__is->readPendingObjects();";
@@ -4417,7 +4543,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 #endif
 
     TypePtr ret = p->returnType();
-    string retS = inputTypeToString(ret);
+    string retS = inputTypeToString(ret, p->getMetaData());
     
     if(ret)
     {
@@ -4436,7 +4562,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	{
 	    string paramName = fixKwd((*q)->name());
 	    TypePtr type = (*q)->type();
-	    string typeString = inputTypeToString(type);
+	    string typeString = inputTypeToString(type, (*q)->getMetaData());
 	    
 	    if(ret || !outParams.empty())
 	    {
@@ -4488,7 +4614,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "try";
 	C << sb;
 	C << nl << "::IceInternal::BasicStream* __os = this->__os();";
-	writeMarshalCode(C, outParams, ret);
+	writeMarshalCode(C, outParams, ret, p->getMetaData());
 	if(p->returnsClasses())
 	{
 	    C << nl << "__os->writePendingObjects();";
@@ -4559,7 +4685,28 @@ Slice::Gen::validateMetaData(const UnitPtr& u)
 bool
 Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    validate(p);
+    //
+    // Validate global metadata.
+    //
+    DefinitionContextPtr dc = p->definitionContext();
+    assert(dc);
+    StringList globalMetaData = dc->getMetaData();
+    string file = dc->filename();
+    static const string prefix = "cpp:";
+    for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+    {
+        string s = *q;
+        if(_history.count(s) == 0)
+        {
+            if(s.find(prefix) == 0)
+            {
+                cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+            }
+            _history.insert(s);
+        }
+    }
+
+    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
     return true;
 }
 
@@ -4571,13 +4718,13 @@ Slice::Gen::MetaDataVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Gen::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    validate(p);
+    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
 }
 
 bool
 Slice::Gen::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    validate(p);
+    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
     return true;
 }
 
@@ -4589,7 +4736,7 @@ Slice::Gen::MetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
 bool
 Slice::Gen::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    validate(p);
+    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
     return true;
 }
 
@@ -4601,7 +4748,7 @@ Slice::Gen::MetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
 bool
 Slice::Gen::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
-    validate(p);
+    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
     return true;
 }
 
@@ -4613,93 +4760,93 @@ Slice::Gen::MetaDataVisitor::visitStructEnd(const StructPtr&)
 void
 Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
-    validate(p);
+    StringList metaData = p->getMetaData();
+    TypePtr returnType = p->returnType();
+    if(!metaData.empty())
+    {
+        if(!returnType)
+        {
+            for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+            {
+                if(q->find("cpp:type:", 0) == 0 || q->find("cpp:array", 0) == 0 || q->find("cpp:range", 0) == 0)
+                {
+                    cout << p->definitionContext()->filename() << ":" << p->line()
+                         << ": warning: invalid metadata for operation" << endl;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            validate(returnType, metaData, p->definitionContext()->filename(), p->line(), false);
+        }
+    }
+
+    ParamDeclList params = p->parameters();
+    for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+    {
+        validate((*q)->type(), (*q)->getMetaData(), p->definitionContext()->filename(), (*q)->line(),
+                 !(*q)->isOutParam());
+    }
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitParamDecl(const ParamDeclPtr& p)
 {
-    validate(p);
+    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    validate(p);
+    validate(p->type(), p->getMetaData(), p->definitionContext()->filename(), p->line());
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
-    validate(p);
+    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    validate(p);
+    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitEnum(const EnumPtr& p)
 {
-    validate(p);
+    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
 }
 
 void
 Slice::Gen::MetaDataVisitor::visitConst(const ConstPtr& p)
 {
-    validate(p);
+    validate(p, p->getMetaData(), p->definitionContext()->filename(), p->line());
 }
 
 void
-Slice::Gen::MetaDataVisitor::validate(const ContainedPtr& cont)
+Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const StringList& metaData,
+				      const string& file, const string& line, bool inParam)
 {
-    DefinitionContextPtr dc = cont->definitionContext();
-    assert(dc);
-    StringList globalMetaData = dc->getMetaData();
-    string file = dc->filename();
-
-    StringList localMetaData = cont->getMetaData();
-
-    StringList::const_iterator p;
     static const string prefix = "cpp:";
-
-    for(p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
+    for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
     {
         string s = *p;
         if(_history.count(s) == 0)
         {
             if(s.find(prefix) == 0)
             {
-		cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
-            }
-            _history.insert(s);
-        }
-    }
-
-    for(p = localMetaData.begin(); p != localMetaData.end(); ++p)
-    {
-	string s = *p;
-        if(_history.count(s) == 0)
-        {
-            if(s.find(prefix) == 0)
-            {
-	    	if(SequencePtr::dynamicCast(cont))
-		{
-		    if(s.substr(prefix.size()) == "collection")
-		    {
-			continue;
-		    }
-		}
-		if(StructPtr::dynamicCast(cont))
-		{
-		    if(s.substr(prefix.size()) == "class")
-		    {
-		        continue;
-		    }
-		}
-		cout << file << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+                if(SequencePtr::dynamicCast(cont))
+                {
+                    string ss = s.substr(prefix.size());
+                    if(ss.find("type:") == 0 || (inParam && (ss == "array" || ss.find("range") == 0)))
+                    {
+                        continue;
+                    }
+                }
+                cout << file << ":" << line << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }
             _history.insert(s);
         }

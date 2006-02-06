@@ -77,7 +77,7 @@ Slice::printHeader(Output& out)
     static const char* header =
 "// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.\n"
+"// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.\n"
 "//\n"
 "// This copy of Ice is licensed to you under the terms described in the\n"
 "// ICE_LICENSE file included in this distribution.\n"
@@ -1048,7 +1048,7 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const TypePtr
 
 void
 Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal,
-				       const string& str)
+				       const string& str, const StringList& metaData)
 {
     string fixedParam = fixKwd(param);
 
@@ -1233,127 +1233,157 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        builtin = BuiltinPtr::dynamicCast(seq->type());
-        if(!builtin || (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy))
-        {
-            string scope = fixKwd(seq->scope());
-            if(marshal)
+	string seqType = findMetaData(metaData, false);
+	if(!seqType.empty())
+	{
+	    if(marshal)
+	    {
+	        out << nl << stream << "->writeSize(static_cast< ::Ice::Int>(" << fixedParam << ".size()));";
+	        out << nl << seqType << "::const_iterator __" << fixedParam << ";";
+		out << nl << "for(__" << fixedParam << " = " << fixedParam << ".begin(); __" << fixedParam << " != "
+		    << fixedParam << ".end(); ++__" << fixedParam << ")";
+		out << sb;
+		writeStreamMarshalUnmarshalCode(out, seq->type(), "(*__" + fixedParam + ")", true);
+		out << eb;
+	    }
+	    else
+	    {
+	        out << nl << seqType << "(static_cast< ::Ice::Int>(" << stream << "->readSize())).swap("
+		    << fixedParam << ");";
+	        out << nl << seqType << "::iterator __" << fixedParam << ";";
+		out << nl << "for(__" << fixedParam << " = " << fixedParam << ".begin(); __" << fixedParam << " != "
+		    << fixedParam << ".end(); ++__" << fixedParam << ")";
+		out << sb;
+		writeStreamMarshalUnmarshalCode(out, seq->type(), "(*__" + fixedParam + ")", false);
+		out << eb;
+	    }
+	}
+	else
+	{
+    	    seqType = findMetaData(seq->getMetaData(), false);
+            builtin = BuiltinPtr::dynamicCast(seq->type());
+            if(!seqType.empty() || !builtin || (builtin->kind() == Builtin::KindObject || 
+	       builtin->kind() == Builtin::KindObjectProxy))
             {
-                out << nl << scope << "ice_write" << seq->name() << '(' << stream << ", " << fixedParam << ");";
+                string scope = fixKwd(seq->scope());
+                if(marshal)
+                {
+                    out << nl << scope << "ice_write" << seq->name() << '(' << stream << ", " << fixedParam << ");";
+                }
+                else
+                {
+                    out << nl << scope << "ice_read" << seq->name() << '(' << stream << ", " << fixedParam << ");";
+                }
             }
             else
             {
-                out << nl << scope << "ice_read" << seq->name() << '(' << stream << ", " << fixedParam << ");";
-            }
-        }
-        else
-        {
-            switch(builtin->kind())
-            {
-                case Builtin::KindByte:
+                switch(builtin->kind())
                 {
-                    if(marshal)
+                    case Builtin::KindByte:
                     {
-                        out << nl << stream << "->writeByteSeq(" << fixedParam << ");";
+                        if(marshal)
+                        {
+                            out << nl << stream << "->writeByteSeq(" << fixedParam << ");";
+                        }
+                        else
+                        {
+                            out << nl << fixedParam << " = " << stream << "->readByteSeq();";
+                        }
+                        break;
                     }
-                    else
+                    case Builtin::KindBool:
                     {
-                        out << nl << fixedParam << " = " << stream << "->readByteSeq();";
+                        if(marshal)
+                        {
+                            out << nl << stream << "->writeBoolSeq(" << fixedParam << ");";
+                        }
+                        else
+                        {
+                            out << nl << fixedParam << " = " << stream << "->readBoolSeq();";
+                        }
+                        break;
                     }
-                    break;
+                    case Builtin::KindShort:
+                    {
+                        if(marshal)
+                        {
+                            out << nl << stream << "->writeShortSeq(" << fixedParam << ");";
+                        }
+                        else
+                        {
+                            out << nl << fixedParam << " = " << stream << "->readShortSeq();";
+                        }
+                        break;
+                    }
+                    case Builtin::KindInt:
+                    {
+                        if(marshal)
+                        {
+                            out << nl << stream << "->writeIntSeq(" << fixedParam << ");";
+                        }
+                        else
+                        {
+                            out << nl << fixedParam << " = " << stream << "->readIntSeq();";
+                        }
+                        break;
+                    }
+                    case Builtin::KindLong:
+                    {
+                        if(marshal)
+                        {
+                            out << nl << stream << "->writeLongSeq(" << fixedParam << ");";
+                        }
+                        else
+                        {
+                            out << nl << fixedParam << " = " << stream << "->readLongSeq();";
+                        }
+                        break;
+                    }
+                    case Builtin::KindFloat:
+                    {
+                        if(marshal)
+                        {
+                            out << nl << stream << "->writeFloatSeq(" << fixedParam << ");";
+                        }
+                        else
+                        {
+                            out << nl << fixedParam << " = " << stream << "->readFloatSeq();";
+                        }
+                        break;
+                    }
+                    case Builtin::KindDouble:
+                    {
+                        if(marshal)
+                        {
+                            out << nl << stream << "->writeDoubleSeq(" << fixedParam << ");";
+                        }
+                        else
+                        {
+                            out << nl << fixedParam << " = " << stream << "->readDoubleSeq();";
+                        }
+                        break;
+                    }
+                    case Builtin::KindString:
+                    {
+                        if(marshal)
+                        {
+                            out << nl << stream << "->writeStringSeq(" << fixedParam << ");";
+                        }
+                        else
+                        {
+                            out << nl << fixedParam << " = " << stream << "->readStringSeq();";
+                        }
+                        break;
+                    }
+                    case Builtin::KindObject:
+                    case Builtin::KindObjectProxy:
+                    case Builtin::KindLocalObject:
+                    {
+                        assert(false);
+                        break;
+                    }
                 }
-                case Builtin::KindBool:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << "->writeBoolSeq(" << fixedParam << ");";
-                    }
-                    else
-                    {
-                        out << nl << fixedParam << " = " << stream << "->readBoolSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindShort:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << "->writeShortSeq(" << fixedParam << ");";
-                    }
-                    else
-                    {
-                        out << nl << fixedParam << " = " << stream << "->readShortSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindInt:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << "->writeIntSeq(" << fixedParam << ");";
-                    }
-                    else
-                    {
-                        out << nl << fixedParam << " = " << stream << "->readIntSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindLong:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << "->writeLongSeq(" << fixedParam << ");";
-                    }
-                    else
-                    {
-                        out << nl << fixedParam << " = " << stream << "->readLongSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindFloat:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << "->writeFloatSeq(" << fixedParam << ");";
-                    }
-                    else
-                    {
-                        out << nl << fixedParam << " = " << stream << "->readFloatSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindDouble:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << "->writeDoubleSeq(" << fixedParam << ");";
-                    }
-                    else
-                    {
-                        out << nl << fixedParam << " = " << stream << "->readDoubleSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindString:
-                {
-                    if(marshal)
-                    {
-                        out << nl << stream << "->writeStringSeq(" << fixedParam << ");";
-                    }
-                    else
-                    {
-                        out << nl << fixedParam << " = " << stream << "->readStringSeq();";
-                    }
-                    break;
-                }
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindLocalObject:
-                {
-                    assert(false);
-                    break;
-                }
-            }
+	    }
         }
 
 	return;
@@ -1409,32 +1439,6 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
     }
     
     assert(false);
-}
-
-void
-Slice::writeStreamMarshalCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret)
-{
-    for(list<pair<TypePtr, string> >::const_iterator p = params.begin(); p != params.end(); ++p)
-    {
-	writeStreamMarshalUnmarshalCode(out, p->first, p->second, true, "");
-    }
-    if(ret)
-    {
-	writeStreamMarshalUnmarshalCode(out, ret, "__ret", true, "");
-    }
-}
-
-void
-Slice::writeStreamUnmarshalCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret)
-{
-    for(list<pair<TypePtr, string> >::const_iterator p = params.begin(); p != params.end(); ++p)
-    {
-	writeStreamMarshalUnmarshalCode(out, p->first, p->second, false, "");
-    }
-    if(ret)
-    {
-	writeStreamMarshalUnmarshalCode(out, ret, "__ret", false, "");
-    }
 }
 
 string

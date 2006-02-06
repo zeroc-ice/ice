@@ -787,6 +787,36 @@ IceInternal::BasicStream::read(vector<bool>& v)
 }
 
 void
+IceInternal::BasicStream::read(pair<const bool*, const bool*>& v, IceUtil::auto_array<bool>& b)
+{
+    Int sz;
+    readSize(sz);
+    if(sz > 0)
+    {
+        checkFixedSeq(sz, 1);
+#if defined(__APPLE__)
+        bool* array = new bool[sz];
+        for(int idx; idx < sz; ++idx)
+        {
+           array[idx] = (bool)*(i + idx);
+        }
+        v.first = array;
+        v.second = array + sz;
+        b.reset(array);
+#else
+        assert(sizeof(bool) == 1);
+        v.first = reinterpret_cast<bool*>(i);
+        v.second = reinterpret_cast<bool*>(i) + sz;
+#endif
+        i += sz;
+    }
+    else
+    {
+        v.first = v.second = reinterpret_cast<bool*>(i);
+    }
+}
+
+void
 IceInternal::BasicStream::write(Short v)
 {
     Container::size_type pos = b.size();
