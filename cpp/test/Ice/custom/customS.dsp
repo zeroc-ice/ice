@@ -193,7 +193,7 @@ SOURCE=.\Test.ice
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
+	slice2cpp.exe -I. --stream --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -208,7 +208,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
+	slice2cpp.exe -I. --stream --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -223,7 +223,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
+	slice2cpp.exe -I. --stream --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -238,7 +238,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cppe.exe -I. --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
+	slice2cpp.exe -I. --stream --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

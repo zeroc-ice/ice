@@ -1,26 +1,26 @@
-# Microsoft Developer Studio Project File - Name="customC" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="customAMDS" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=customC - Win32 Debug Static
+CFG=customAMDS - Win32 Debug Static
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "customC.mak".
+!MESSAGE NMAKE /f "customAMDS.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "customC.mak" CFG="customC - Win32 Debug Static"
+!MESSAGE NMAKE /f "customAMDS.mak" CFG="customAMDS - Win32 Debug Static"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "customC - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "customC - Win32 Debug" (based on "Win32 (x86) Console Application")
-!MESSAGE "customC - Win32 Debug Static" (based on "Win32 (x86) Console Application")
-!MESSAGE "customC - Win32 Release Static" (based on "Win32 (x86) Console Application")
+!MESSAGE "customAMDS - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "customAMDS - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "customAMDS - Win32 Debug Static" (based on "Win32 (x86) Console Application")
+!MESSAGE "customAMDS - Win32 Release Static" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -30,7 +30,7 @@ CFG=customC - Win32 Debug Static
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "customC - Win32 Release"
+!IF  "$(CFG)" == "customAMDS - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -52,10 +52,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 /nologo /subsystem:console /incremental:yes /debug /machine:I386 /out:"client.exe" /libpath:"../../../lib"
+# ADD LINK32 /nologo /subsystem:console /incremental:yes /debug /machine:I386 /out:"serveramd.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "customC - Win32 Debug"
+!ELSEIF  "$(CFG)" == "customAMDS - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -69,7 +69,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /FD /Zm200 /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /Fr /FD /Zm200 /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -77,15 +77,15 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib" /fixed:no
+# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"serveramd.exe" /pdbtype:sept /libpath:"../../../../lib" /fixed:no
 # SUBTRACT LINK32 /pdb:none
 
-!ELSEIF  "$(CFG)" == "customC - Win32 Debug Static"
+!ELSEIF  "$(CFG)" == "customAMDS - Win32 Debug Static"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "customC___Win32_Debug_Static"
-# PROP BASE Intermediate_Dir "customC___Win32_Debug_Static"
+# PROP BASE Output_Dir "customAMDS___Win32_Debug_Static"
+# PROP BASE Intermediate_Dir "customAMDS___Win32_Debug_Static"
 # PROP BASE Ignore_Export_Lib 0
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
@@ -94,26 +94,26 @@ LINK32=link.exe
 # PROP Intermediate_Dir "DebugStatic"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "_CONSOLE" /FD /GZ /c
-# SUBTRACT BASE CPP /Fr /YX
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "ICEE_STATIC_LIBS" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /FD /Zm200 /GZ /c
+# ADD BASE CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "_CONSOLE" /Fr /FD /GZ /c
+# SUBTRACT BASE CPP /YX
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "ICEE_STATIC_LIBS" /D "WIN32_LEAN_AND_MEAN" /D "_CONSOLE" /Fr /FD /Zm200 /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib"
+# ADD BASE LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../../lib"
 # SUBTRACT BASE LINK32 /incremental:no /nodefaultlib
-# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib" /fixed:no
+# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /subsystem:console /debug /machine:I386 /out:"serveramd.exe" /pdbtype:sept /libpath:"../../../../lib" /fixed:no
 # SUBTRACT LINK32 /pdb:none
 
-!ELSEIF  "$(CFG)" == "customC - Win32 Release Static"
+!ELSEIF  "$(CFG)" == "customAMDS - Win32 Release Static"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "customC___Win32_Release_Static"
-# PROP BASE Intermediate_Dir "customC___Win32_Release_Static"
+# PROP BASE Output_Dir "customAMDS___Win32_Release_Static"
+# PROP BASE Intermediate_Dir "customAMDS___Win32_Release_Static"
 # PROP BASE Ignore_Export_Lib 0
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
@@ -131,37 +131,37 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 /nologo /subsystem:console /incremental:yes /machine:I386 /out:"client.exe" /libpath:"../../../lib"
+# ADD BASE LINK32 /nologo /subsystem:console /incremental:yes /machine:I386 /out:"server.exe" /libpath:"../../../lib"
 # SUBTRACT BASE LINK32 /debug /nodefaultlib
-# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /libpath:"../../../lib"
+# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /subsystem:console /debug /machine:I386 /out:"serveramd.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /incremental:yes /nodefaultlib
 
 !ENDIF 
 
 # Begin Target
 
-# Name "customC - Win32 Release"
-# Name "customC - Win32 Debug"
-# Name "customC - Win32 Debug Static"
-# Name "customC - Win32 Release Static"
+# Name "customAMDS - Win32 Release"
+# Name "customAMDS - Win32 Debug"
+# Name "customAMDS - Win32 Debug Static"
+# Name "customAMDS - Win32 Release Static"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
-# Begin Source File
-
-SOURCE=.\AllTests.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Client.cpp
-# End Source File
 # Begin Source File
 
 SOURCE=.\MyByteSeq.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ServerAMD.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Test.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TestAMDI.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -175,71 +175,75 @@ SOURCE=.\MyByteSeq.h
 
 SOURCE=.\Test.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\TestAMDI.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Test.ice
+SOURCE=.\TestAMD.ice
 
-!IF  "$(CFG)" == "customC - Win32 Release"
+!IF  "$(CFG)" == "customAMDS - Win32 Release"
 
 # Begin Custom Build
-InputPath=.\Test.ice
+InputPath=.\TestAMD.ice
 
 BuildCmds= \
-	slice2cpp.exe -I. --stream --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
+	slice2cpp.exe -I. --stream --add-header MyByteSeq.h --add-header deque --add-header list TestAMD.ice
 
-"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"TestAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"TestAMD.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "customC - Win32 Debug"
+!ELSEIF  "$(CFG)" == "customAMDS - Win32 Debug"
 
 # Begin Custom Build
-InputPath=.\Test.ice
+InputPath=.\TestAMD.ice
 
 BuildCmds= \
-	slice2cpp.exe -I. --stream --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
+	slice2cpp.exe -I. --stream --add-header MyByteSeq.h --add-header deque --add-header list TestAMD.ice
 
-"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"TestAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"TestAMD.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "customC - Win32 Debug Static"
+!ELSEIF  "$(CFG)" == "customAMDS - Win32 Debug Static"
 
 # Begin Custom Build
-InputPath=.\Test.ice
+InputPath=.\TestAMD.ice
 
 BuildCmds= \
-	slice2cpp.exe -I. --stream --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
+	slice2cpp.exe -I. --stream --add-header MyByteSeq.h --add-header deque --add-header list TestAMD.ice
 
-"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"TestAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"TestAMD.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "customC - Win32 Release Static"
+!ELSEIF  "$(CFG)" == "customAMDS - Win32 Release Static"
 
 # Begin Custom Build
-InputPath=.\Test.ice
+InputPath=.\TestAMD.ice
 
 BuildCmds= \
-	slice2cpp.exe -I. --stream --add-header MyByteSeq.h --add-header deque --add-header list Test.ice
+	slice2cpp.exe -I. --stream --add-header MyByteSeq.h --add-header deque --add-header list TestAMD.ice
 
-"Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"TestAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"TestAMD.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
