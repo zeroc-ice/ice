@@ -289,7 +289,7 @@ namespace Ice
 
     public interface AMD_Object_ice_invoke
     {
-        void iceresponse_(bool ok, byte[] outParams);
+        void ice_response(bool ok, byte[] outParams);
         void ice_exception(System.Exception ex);
     }
 
@@ -300,7 +300,7 @@ namespace Ice
         {
         }
 	
-        public void iceresponse_(bool ok, byte[] outParams)
+        public void ice_response(bool ok, byte[] outParams)
         {
 	    try
 	    {
