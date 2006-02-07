@@ -659,7 +659,7 @@ class Twoways
 		Test.MyClassPrx c5 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
 		test(c5.opContext().get("a").equals("d"));
 
-		communicator.setDefaultContext(new java.util.HashMap());
+		communicator.setDefaultContext(new java.util.Hashtable());
 	    }
 	}
     }
