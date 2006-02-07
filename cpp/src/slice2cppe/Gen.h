@@ -190,6 +190,8 @@ private:
 
     private:
 
+	bool emitVirtualBaseInitializers(const ClassDefPtr&, bool);
+	void emitOneShotConstructor(const ClassDefPtr&);
 	void emitUpcall(const ClassDefPtr&, const std::string&);
 
 	::IceUtil::Output& H;
