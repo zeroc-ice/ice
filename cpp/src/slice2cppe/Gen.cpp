@@ -774,7 +774,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     TypePtr type = p->type();
     string s = typeToString(type);
     StringList metaData = p->getMetaData();
-    string seqType = findMetaData(metaData);
+    string seqType = findMetaData(metaData, true);
     if(!seqType.empty() && seqType != "array" && seqType.find("range") != 0)
     {
         H << sp << nl << "typedef " << seqType << ' ' << name << ';';
