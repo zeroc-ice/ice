@@ -17,6 +17,7 @@ namespace IceInternal
     using System.Net;
     using System.Net.Sockets;
     using System.Runtime.InteropServices;
+    using System.Threading;
 
     public sealed class Network
     {
@@ -101,6 +102,13 @@ namespace IceInternal
 		   error == WSAENETRESET;
 	}
 
+	public static bool connectionLost(System.IO.IOException ex)
+	{
+	    return ex.Message.IndexOf("connection was forcibly closed") >= 0 ||
+		   ex.Message.IndexOf("remote party has closed the transport stream") >= 0 ||
+		   ex.Message.IndexOf("established connection was aborted") >= 0;
+	}
+
 	public static bool connectionRefused(Win32Exception ex)
 	{
 	    return ex.NativeErrorCode == WSAECONNREFUSED;
@@ -115,6 +123,11 @@ namespace IceInternal
 	public static bool recvTruncated(Win32Exception ex)
 	{
 	    return ex.NativeErrorCode == WSAEMSGSIZE;
+	}
+
+	public static bool timeout(System.IO.IOException ex)
+	{
+	    return ex.Message.IndexOf("period of time") >= 0;
 	}
 
 	public static Socket createSocket(bool udp)
@@ -459,6 +472,94 @@ namespace IceInternal
 		    {
 		        throw new Ice.ConnectTimeoutException("Connect timed out after " + timeout + " msec");
 		    }
+		}
+	    }
+	}
+
+	internal class AsyncConnectInfo
+	{
+	    internal AsyncConnectInfo(Socket fd)
+	    {
+		this.fd = fd;
+		this.ex = null;
+	    }
+
+	    internal Socket fd;
+	    volatile internal Exception ex;
+	}
+
+	private static void asyncConnectCallback(IAsyncResult ar)
+	{
+	    AsyncConnectInfo info = (AsyncConnectInfo)ar.AsyncState;
+	    lock(info)
+	    {
+		try
+		{
+		    info.fd.EndConnect(ar);
+		}
+		catch(Exception ex)
+		{
+		    info.ex = ex;
+		}
+		finally
+		{
+		    Monitor.Pulse(info);
+		}
+	    }
+	}
+
+	public static void doConnectAsync(Socket socket, EndPoint addr, int timeout)
+	{
+            //
+            // Set larger send buffer size to avoid performance problems on
+            // WIN32.
+            //
+	    if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
+	    {
+		setSendBufferSize(socket, 64 * 1024);
+	    }
+
+	repeatConnect:
+	    try
+	    {
+		AsyncConnectInfo info = new AsyncConnectInfo(socket);
+		IAsyncResult ar = socket.BeginConnect(addr, new AsyncCallback(asyncConnectCallback), info);
+		lock(info)
+		{
+		    if(!Monitor.Wait(info, timeout == -1 ? Timeout.Infinite : timeout))
+		    {
+			throw new Ice.ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+		    }
+		    if(info.ex != null)
+		    {
+			throw info.ex;
+		    }
+		}
+	    }
+	    catch(SocketException ex)
+	    {
+		if(interrupted(ex))
+		{
+		    goto repeatConnect;
+		}
+
+		closeSocketNoThrow(socket);
+
+		//
+		// Check for connectionRefused, and connectFailed
+		// here.
+		//
+		if(connectionRefused(ex))
+		{
+		    throw new Ice.ConnectionRefusedException("Connect refused", ex);
+		}
+		else if(connectFailed(ex))
+		{
+		    throw new Ice.ConnectFailedException("Connection failed", ex);
+		}
+		else
+		{
+		    throw;
 		}
 	    }
 	}
