@@ -566,6 +566,18 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name icegridactivationS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name customAMDS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name customC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name customCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name customS
+    End Project Dependency
 }}}
 
 ###############################################################################

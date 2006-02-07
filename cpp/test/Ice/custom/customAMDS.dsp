@@ -157,7 +157,7 @@ SOURCE=.\ServerAMD.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Test.cpp
+SOURCE=.\TestAMD.cpp
 # End Source File
 # Begin Source File
 
@@ -173,7 +173,7 @@ SOURCE=.\MyByteSeq.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Test.h
+SOURCE=.\TestAMD.h
 # End Source File
 # Begin Source File
 
