@@ -255,6 +255,24 @@ TestIntfI::opCPrxList_async(const Test::AMD_TestIntf_opCPrxListPtr& opCPrxListCB
 }
 
 void
+TestIntfI::opCSeq_async(const Test::AMD_TestIntf_opCSeqPtr& opCSeqCB,
+			 const std::deque<Test::CPtr>& inSeq,
+			 const Ice::Current& current)
+{
+    std::deque<Test::CPtr> outSeq(inSeq);
+    opCSeqCB->ice_response(outSeq, outSeq);
+}
+
+void
+TestIntfI::opCList_async(const Test::AMD_TestIntf_opCListPtr& opCListCB,
+			  const Test::CList& inSeq,
+			  const Ice::Current& current)
+{
+    Test::CList outSeq(inSeq);
+    opCListCB->ice_response(outSeq, outSeq);
+}
+
+void
 TestIntfI::shutdown_async(const Test::AMD_TestIntf_shutdownPtr& shutdownCB,
 			  const Ice::Current& current)
 {

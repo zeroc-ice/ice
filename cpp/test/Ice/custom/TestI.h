@@ -125,6 +125,14 @@ public:
                                                 std::list< ::Test::CPrx>&,
                                                 const Ice::Current&);
 
+    virtual std::deque< ::Test::CPtr> opCSeq(const std::deque< ::Test::CPtr>&,
+                                                std::deque< ::Test::CPtr>&,
+                                                const Ice::Current&);
+
+    virtual std::list< ::Test::CPtr> opCList(const std::list< ::Test::CPtr>&,
+                                                std::list< ::Test::CPtr>&,
+                                                const Ice::Current&);
+
     virtual void shutdown(const Ice::Current&);
 
 private:

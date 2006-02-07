@@ -786,6 +786,73 @@ private:
 
 typedef IceUtil::Handle<AMI_TestIntf_opCPrxListI> AMI_TestIntf_opCPrxListIPtr;
 
+class AMI_TestIntf_opCSeqI : public Test::AMI_TestIntf_opCSeq, public CallbackBase
+{
+public:
+
+    AMI_TestIntf_opCSeqI(deque<Test::CPtr> in)
+        : _in(in)
+    {
+    }
+
+    virtual void ice_response(const deque<Test::CPtr>& out, const deque<Test::CPtr>& ret)
+    {
+	test(out.size() == _in.size());
+	test(ret.size() == _in.size());
+	for(unsigned int i = 1; i < _in.size(); ++i)
+	{
+	    test(out[i] == out[0]);
+	    test(ret[i] == out[i]);
+	}
+        called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+        test(false);
+    }
+
+private:
+
+    deque<Test::CPtr> _in;
+};
+
+typedef IceUtil::Handle<AMI_TestIntf_opCSeqI> AMI_TestIntf_opCSeqIPtr;
+
+class AMI_TestIntf_opCListI : public Test::AMI_TestIntf_opCList, public CallbackBase
+{
+public:
+
+    AMI_TestIntf_opCListI(list<Test::CPtr> in)
+        : _in(in)
+    {
+    }
+
+    virtual void ice_response(const list<Test::CPtr>& out, const list<Test::CPtr>& ret)
+    {
+	test(out.size() == _in.size());
+	test(ret.size() == _in.size());
+	list<Test::CPtr>::const_iterator p1;
+	list<Test::CPtr>::const_iterator p2;
+	for(p1 = out.begin(), p2 = ret.begin(); p1 != out.end(); ++p1, ++p2)
+	{
+	    test(*p1 == *p2);
+	}
+        called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+        test(false);
+    }
+
+private:
+
+    list<Test::CPtr> _in;
+};
+
+typedef IceUtil::Handle<AMI_TestIntf_opCListI> AMI_TestIntf_opCListIPtr;
+
 Test::TestIntfPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
@@ -1233,6 +1300,45 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	test(ret == in);
     }
 
+    {
+        deque<Test::CPtr> in(5);
+	in[0] = new Test::C();
+	in[1] = in[0];
+	in[2] = in[0];
+	in[3] = in[0];
+	in[4] = in[0];
+
+	deque<Test::CPtr> out;
+	deque<Test::CPtr> ret = t->opCSeq(in, out);
+	test(out.size() == in.size());
+	test(ret.size() == in.size());
+	for(unsigned int i = 1; i < in.size(); ++i)
+	{
+	    test(out[i] == out[0]);
+	    test(ret[i] == out[i]);
+	}
+    }
+
+    {
+        list<Test::CPtr> in;
+	in.push_back(new Test::C());
+	in.push_back(new Test::C());
+	in.push_back(new Test::C());
+	in.push_back(new Test::C());
+	in.push_back(new Test::C());
+
+	list<Test::CPtr> out;
+	list<Test::CPtr> ret = t->opCList(in, out);
+	test(out.size() == in.size());
+	test(ret.size() == in.size());
+	list<Test::CPtr>::const_iterator p1;
+	list<Test::CPtr>::const_iterator p2;
+	for(p1 = out.begin(), p2 = ret.begin(); p1 != out.end(); ++p1, ++p2)
+	{
+	    test(*p1 == *p2);
+	}
+    }
+
     cout << "ok" << endl;
 
     if(!collocated)
@@ -1639,6 +1745,32 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
 	    AMI_TestIntf_opCPrxListIPtr cb = new AMI_TestIntf_opCPrxListI(in);
 	    t->opCPrxList_async(cb, in);
+	    test(cb->check());
+        }
+
+        {
+            deque<Test::CPtr> in(5);
+	    in[0] = new Test::C();
+	    in[1] = in[0];
+	    in[2] = in[0];
+	    in[3] = in[0];
+	    in[4] = in[0];
+
+	    AMI_TestIntf_opCSeqIPtr cb = new AMI_TestIntf_opCSeqI(in);
+	    t->opCSeq_async(cb, in);
+	    test(cb->check());
+        }
+    
+        {
+            list<Test::CPtr> in;
+	    in.push_back(new Test::C());
+	    in.push_back(new Test::C());
+	    in.push_back(new Test::C());
+	    in.push_back(new Test::C());
+	    in.push_back(new Test::C());
+
+	    AMI_TestIntf_opCListIPtr cb = new AMI_TestIntf_opCListI(in);
+	    t->opCList_async(cb, in);
 	    test(cb->check());
         }
 

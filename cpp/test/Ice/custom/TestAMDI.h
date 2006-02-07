@@ -124,6 +124,14 @@ public:
 				  const Test::CPrxList&,
 				  const Ice::Current&);
 
+    virtual void opCSeq_async(const Test::AMD_TestIntf_opCSeqPtr&,
+			      const std::deque<Test::CPtr>&,
+			      const Ice::Current&);
+
+    virtual void opCList_async(const Test::AMD_TestIntf_opCListPtr&,
+			       const Test::CList&,
+			       const Ice::Current&);
+
     virtual void shutdown_async(const Test::AMD_TestIntf_shutdownPtr&,
 				const Ice::Current&);
 

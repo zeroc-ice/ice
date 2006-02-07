@@ -730,8 +730,18 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		            << typeToString(innerProxy) << ">("  << stream << ", " << fixedParam << ", "
 			    << innerScope << "__write);";
 			return;
-
 		    }
+
+    		    ClassDeclPtr innerClass = ClassDeclPtr::dynamicCast(seq->type());
+		    if(innerClass)
+		    {
+	    	        string innerScope = fixKwd(innerClass->scope());
+		        out << nl << "::IceInternal::writeSequence7<"  << typeStr << ", "
+		            << typeToString(innerClass) << ">("  << stream << ", " << fixedParam << ", "
+			    << innerScope << "__write);";
+			return;
+		    }
+
 
 		    out << nl << "::IceInternal::writeSequence2<" << typeStr << ">(" << stream 
 		        << ", " << fixedParam << ");";
@@ -926,6 +936,16 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		        return;
 		    }
 		    
+    		    ClassDeclPtr innerClass = ClassDeclPtr::dynamicCast(seq->type());
+		    if(innerClass)
+		    {
+	    	        string innerScope = fixKwd(innerClass->scope());
+		        out << nl << "::IceInternal::readSequence6<" << typeStr << ">(" << stream << ", "
+		            << fixedParam << ", " << innerClass->minWireSize() << ", " 
+			    << innerScope << "__patch__" << innerClass->name() << "Ptr);";
+		        return;
+		    }
+
 		    TypePtr elemType = seq->type();
 		    out << nl << "::IceInternal::readSequence2<" << typeStr << ">(" << stream << ", "
 		        << fixedParam << ", " << elemType->minWireSize() << ", " 

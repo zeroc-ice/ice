@@ -254,6 +254,24 @@ TestIntfI::opCPrxList(const std::list< ::Test::CPrx>& inSeq,
     return inSeq;
 }
 
+std::deque< ::Test::CPtr>
+TestIntfI::opCSeq(const std::deque< ::Test::CPtr>& inSeq,
+                  std::deque< ::Test::CPtr>& outSeq,
+                  const Ice::Current& current)
+{
+    outSeq = inSeq;
+    return inSeq;
+}
+
+std::list< ::Test::CPtr>
+TestIntfI::opCList(const std::list< ::Test::CPtr>& inSeq,
+                   std::list< ::Test::CPtr>& outSeq,
+                   const Ice::Current& current)
+{
+    outSeq = inSeq;
+    return inSeq;
+}
+
 void
 TestIntfI::shutdown(const Ice::Current& current)
 {

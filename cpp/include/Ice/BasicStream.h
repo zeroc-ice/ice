@@ -515,6 +515,27 @@ readSequence5(::IceInternal::BasicStream* __is, T& seq, void (*func)(::IceIntern
     }
 }
 
+// Sequences of Classes
+template<typename T> void
+readSequence6(::IceInternal::BasicStream* __is, T& seq, int elemSize, void (*func)(void*, ::Ice::ObjectPtr&))
+{
+    ::Ice::Int size;
+    __is->readSize(size);
+    T(size).swap(seq);
+    if(size > 0)
+    {
+        __is->startSeq(size, elemSize);
+        typedef typename T::iterator I;
+        for(I p = seq.begin(); p != seq.end(); ++p)
+        {
+	    __is->read(*func, &(*p));
+	    __is->checkSeq();
+	    __is->endElement();
+        }
+        __is->endSeq(size);
+    }
+}
+
 } // End namespace IceInternal
 
 #endif
