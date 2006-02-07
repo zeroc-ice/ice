@@ -50,7 +50,7 @@ namespace Ice
 		s.Append(": ");
 		s.Append(message);
 		s.Append(" ]");
-		s.Replace("\n", "\n ");
+		s.Replace("\n", "\n  ");
 		System.Console.Error.WriteLine(s.ToString());
 	    }
 	}
