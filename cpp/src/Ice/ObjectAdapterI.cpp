@@ -652,7 +652,7 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 	if(info)
 	{
 	    bool isCached;
-	    endpoints = info->getEndpoints(ir, isCached);
+	    endpoints = info->getEndpoints(ir, ir->getLocatorCacheTimeout(), isCached);
 	}
 	else
 	{

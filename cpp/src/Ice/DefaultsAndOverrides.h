@@ -28,6 +28,7 @@ public:
     std::string defaultRouter;
     std::string defaultLocator;
     bool defaultCollocationOptimization;
+    int defaultLocatorCacheTimeout;
 
     bool overrideTimeout;
     Ice::Int overrideTimeoutValue;

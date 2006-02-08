@@ -108,18 +108,21 @@ public:
     ::Ice::Identity ice_getIdentity() const;
     ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
 
-    ::std::string ice_getAdapterId() const;
-    ::Ice::ObjectPrx ice_newAdapterId(const ::std::string&) const;
-
-    ::Ice::EndpointSeq ice_getEndpoints() const;
-    ::Ice::ObjectPrx ice_newEndpoints(const ::Ice::EndpointSeq&) const;
-
     ::Ice::Context ice_getContext() const;
     ::Ice::ObjectPrx ice_newContext(const ::Ice::Context&) const;
     ::Ice::ObjectPrx ice_defaultContext() const;
 
     const ::std::string& ice_getFacet() const;
     ::Ice::ObjectPrx ice_newFacet(const ::std::string&) const;
+
+    ::std::string ice_getAdapterId() const;
+    ::Ice::ObjectPrx ice_newAdapterId(const ::std::string&) const;
+
+    ::Ice::EndpointSeq ice_getEndpoints() const;
+    ::Ice::ObjectPrx ice_newEndpoints(const ::Ice::EndpointSeq&) const;
+
+    ::Ice::ObjectPrx ice_locatorCacheTimeout(int) const;
+    int ice_getLocatorCacheTimeout() const;
 
     ::Ice::ObjectPrx ice_twoway() const;
     bool ice_isTwoway() const;
@@ -137,6 +140,7 @@ public:
     ::Ice::ObjectPrx ice_timeout(int) const;
     ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
     ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
+
     ::Ice::ObjectPrx ice_collocationOptimization(bool) const;
     ::Ice::ObjectPrx ice_connectionId(const ::std::string&) const;
 

@@ -323,6 +323,27 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
     cb->__invoke(this, operation, mode, inParams, context);
 }
 
+Identity
+IceProxy::Ice::Object::ice_getIdentity() const
+{
+    return _reference->getIdentity();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
+{
+    if(newIdentity == _reference->getIdentity())
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changeIdentity(newIdentity));
+	return proxy;
+    }
+}
+
 Context
 IceProxy::Ice::Object::ice_getContext() const
 {
@@ -345,23 +366,23 @@ IceProxy::Ice::Object::ice_defaultContext() const
     return proxy;
 }
 
-Identity
-IceProxy::Ice::Object::ice_getIdentity() const
+const string&
+IceProxy::Ice::Object::ice_getFacet() const
 {
-    return _reference->getIdentity();
+    return _reference->getFacet();
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
+IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
 {
-    if(newIdentity == _reference->getIdentity())
+    if(newFacet == _reference->getFacet())
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(_reference->changeIdentity(newIdentity));
+	proxy->setup(_reference->changeFacet(newFacet));
 	return proxy;
     }
 }
@@ -420,23 +441,23 @@ IceProxy::Ice::Object::ice_newEndpoints(const EndpointSeq& newEndpoints) const
     }
 }
 
-const string&
-IceProxy::Ice::Object::ice_getFacet() const
+int
+IceProxy::Ice::Object::ice_getLocatorCacheTimeout() const
 {
-    return _reference->getFacet();
+    return _reference->getLocatorCacheTimeout();
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
+IceProxy::Ice::Object::ice_locatorCacheTimeout(int newTimeout) const
 {
-    if(newFacet == _reference->getFacet())
+    if(newTimeout == _reference->getLocatorCacheTimeout())
     {
 	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(_reference->changeFacet(newFacet));
+	proxy->setup(_reference->changeLocatorCacheTimeout(newTimeout));
 	return proxy;
     }
 }

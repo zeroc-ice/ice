@@ -12,6 +12,7 @@
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
+#include <IceUtil/Time.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/LocatorF.h>
 #include <Ice/ProxyF.h>
@@ -50,18 +51,20 @@ public:
 
     void clear();
     
-    bool getAdapterEndpoints(const std::string&, ::std::vector<EndpointIPtr>&) const;
+    bool getAdapterEndpoints(const std::string&, int, ::std::vector<EndpointIPtr>&);
     void addAdapterEndpoints(const std::string&, const ::std::vector<EndpointIPtr>&);
     ::std::vector<EndpointIPtr> removeAdapterEndpoints(const std::string&);
 
-    bool getProxy(const Ice::Identity&, Ice::ObjectPrx&) const;
+    bool getProxy(const Ice::Identity&, int, Ice::ObjectPrx&);
     void addProxy(const Ice::Identity&, const Ice::ObjectPrx&);
     Ice::ObjectPrx removeProxy(const Ice::Identity&);
     
 private:
 
-    std::map<std::string, std::vector<EndpointIPtr> > _adapterEndpointsMap;
-    std::map<Ice::Identity, Ice::ObjectPrx > _objectMap;
+    bool checkTTL(const IceUtil::Time&, int) const;
+
+    std::map<std::string, std::pair<IceUtil::Time, std::vector<EndpointIPtr> > > _adapterEndpointsMap;
+    std::map<Ice::Identity, std::pair<IceUtil::Time, Ice::ObjectPrx> > _objectMap;
 };
 
 class LocatorInfo : public IceUtil::Shared, public IceUtil::Mutex
@@ -79,7 +82,7 @@ public:
     Ice::LocatorPrx getLocator() const;
     Ice::LocatorRegistryPrx getLocatorRegistry();
 
-    std::vector<EndpointIPtr> getEndpoints(const IndirectReferencePtr&, bool&);
+    std::vector<EndpointIPtr> getEndpoints(const IndirectReferencePtr&, int, bool&);
     void clearCache(const IndirectReferencePtr&);
     void clearObjectCache(const IndirectReferencePtr&);
 

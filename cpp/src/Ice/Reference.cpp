@@ -425,6 +425,12 @@ IceInternal::FixedReference::getCollocationOptimization() const
     return false;
 }
 
+int
+IceInternal::FixedReference::getLocatorCacheTimeout() const
+{
+    return 0;
+}
+
 ReferencePtr
 IceInternal::FixedReference::changeSecure(bool) const
 {
@@ -480,6 +486,12 @@ ReferencePtr
 IceInternal::FixedReference::changeEndpoints(const vector<EndpointIPtr>& newEndpoints) const
 {
     return FixedReferencePtr(const_cast<FixedReference*>(this));    
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeLocatorCacheTimeout(int) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
 }
 
 void
@@ -746,6 +758,12 @@ IceInternal::DirectReference::getEndpoints() const
     return _endpoints;
 }
 
+int
+IceInternal::DirectReference::getLocatorCacheTimeout() const
+{
+    return 0;
+}
+
 ReferencePtr
 IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
 {
@@ -831,6 +849,12 @@ IceInternal::DirectReference::changeEndpoints(const vector<EndpointIPtr>& newEnd
     DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
     r->_endpoints = newEndpoints;
     return r;
+}
+
+ReferencePtr
+IceInternal::DirectReference::changeLocatorCacheTimeout(int) const
+{
+    return DirectReferencePtr(const_cast<DirectReference*>(this));
 }
 
 void
@@ -970,7 +994,8 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 						  const LocatorInfoPtr& locInfo, bool collocationOpt)
     : RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
       _adapterId(adptid),
-      _locatorInfo(locInfo)
+      _locatorInfo(locInfo),
+      _locatorCacheTimeout(inst->defaultsAndOverrides()->defaultLocatorCacheTimeout)
 {
 }
 
@@ -984,6 +1009,12 @@ vector<EndpointIPtr>
 IceInternal::IndirectReference::getEndpoints() const
 {
     return vector<EndpointIPtr>();
+}
+
+int
+IceInternal::IndirectReference::getLocatorCacheTimeout() const
+{
+    return _locatorCacheTimeout;
 }
 
 ReferencePtr
@@ -1074,6 +1105,18 @@ IceInternal::IndirectReference::changeEndpoints(const vector<EndpointIPtr>& newE
     }
 }
 
+ReferencePtr
+IceInternal::IndirectReference::changeLocatorCacheTimeout(int timeout) const
+{
+    if(timeout == _locatorCacheTimeout)
+    {
+	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
+    }
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_locatorCacheTimeout = timeout;
+    return r;
+}
+
 void
 IceInternal::IndirectReference::streamWrite(BasicStream* s) const
 {
@@ -1125,8 +1168,9 @@ IceInternal::IndirectReference::getConnection(bool& comp) const
 	if(endpts.empty() && _locatorInfo)
 	{
 	    const IndirectReferencePtr self = const_cast<IndirectReference*>(this);
-	    endpts = _locatorInfo->getEndpoints(self, cached);
+	    endpts = _locatorInfo->getEndpoints(self, _locatorCacheTimeout, cached);
 	}
+
 	//
 	// Apply the cached connection id to each endpoint.
 	//
@@ -1202,7 +1246,9 @@ IceInternal::IndirectReference::operator==(const Reference& r) const
     {
         return false;
     }
-    return _adapterId == rhs->_adapterId && _connectionId == rhs->_connectionId && _locatorInfo == rhs->_locatorInfo;
+
+    return _adapterId == rhs->_adapterId && _connectionId == rhs->_connectionId && _locatorInfo == rhs->_locatorInfo &&
+	_locatorCacheTimeout == rhs->_locatorCacheTimeout;
 }
 
 bool
@@ -1235,6 +1281,7 @@ IceInternal::IndirectReference::operator<(const Reference& r) const
             {
                 return false;
             }
+
             if(_connectionId < rhs->_connectionId)
             {
                 return true;
@@ -1243,7 +1290,17 @@ IceInternal::IndirectReference::operator<(const Reference& r) const
             {
                 return false;
             }
-            return _locatorInfo < rhs->_locatorInfo;
+
+            if(_locatorInfo < rhs->_locatorInfo)
+	    {
+		return true;
+	    }
+	    else if(rhs->_locatorInfo < _locatorInfo)
+	    {
+		return false;
+	    }
+	    
+	    return _locatorCacheTimeout < rhs->_locatorCacheTimeout;
         }
     }
     return false;
@@ -1259,7 +1316,8 @@ IceInternal::IndirectReference::IndirectReference(const IndirectReference& r)
     : RoutableReference(r),
       _adapterId(r._adapterId),
       _connectionId(r._connectionId),
-      _locatorInfo(r._locatorInfo)
+      _locatorInfo(r._locatorInfo),
+      _locatorCacheTimeout(r._locatorCacheTimeout)
 {
 }
 

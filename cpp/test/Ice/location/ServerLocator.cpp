@@ -81,7 +81,8 @@ ServerLocatorRegistry::addObject(const Ice::ObjectPrx& object)
 
 ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::Ice::LocatorRegistryPrx& registryPrx) :
     _registry(registry),
-    _registryPrx(registryPrx)
+    _registryPrx(registryPrx),
+    _requestCount(0)
 {
 }
 
@@ -89,6 +90,7 @@ void
 ServerLocator::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& response, const Ice::Identity& id, 
 				    const Ice::Current& current) const
 {
+    ++const_cast<int&>(_requestCount);
     response->ice_response(_registry->getObject(id));
 }
 
@@ -96,6 +98,7 @@ void
 ServerLocator::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& response, const string& id, 
 				     const Ice::Current& current) const
 {
+    ++const_cast<int&>(_requestCount);
     response->ice_response(_registry->getAdapter(id));
 }
 
@@ -105,3 +108,8 @@ ServerLocator::getRegistry(const ::Ice::Current&) const
     return _registryPrx;
 }
 
+int
+ServerLocator::getRequestCount(const ::Ice::Current&) const
+{
+    return _requestCount;
+}

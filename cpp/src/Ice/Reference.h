@@ -56,6 +56,7 @@ public:
     virtual std::string getAdapterId() const = 0;
     virtual std::vector<EndpointIPtr> getEndpoints() const = 0;
     virtual bool getCollocationOptimization() const = 0;
+    virtual int getLocatorCacheTimeout() const = 0;
 
     //
     // The change* methods (here and in derived classes) create
@@ -76,6 +77,7 @@ public:
     virtual ReferencePtr changeCollocationOptimization(bool) const = 0;
     virtual ReferencePtr changeAdapterId(const std::string&) const = 0;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const = 0;
+    virtual ReferencePtr changeLocatorCacheTimeout(int) const = 0;
     
     int hash() const; // Conceptually const.
 
@@ -132,6 +134,7 @@ public:
     const std::vector<Ice::ConnectionIPtr>& getFixedConnections() const;
 
     virtual bool getSecure() const;
+    virtual int getLocatorCacheTimeout() const;
     virtual std::string getAdapterId() const;
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual bool getCollocationOptimization() const;
@@ -143,6 +146,7 @@ public:
     virtual ReferencePtr changeCompress(bool) const;
     virtual ReferencePtr changeTimeout(int) const;
     virtual ReferencePtr changeConnectionId(const std::string&) const;
+    virtual ReferencePtr changeLocatorCacheTimeout(int) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
 
@@ -209,6 +213,7 @@ public:
     DirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
 		    const std::string&, Mode, bool, const std::vector<EndpointIPtr>&, const RouterInfoPtr&, bool);
 
+    virtual int getLocatorCacheTimeout() const;
     virtual std::string getAdapterId() const;
     virtual std::vector<EndpointIPtr> getEndpoints() const;
 
@@ -216,6 +221,7 @@ public:
     virtual ReferencePtr changeCompress(bool) const;
     virtual ReferencePtr changeTimeout(int) const;
     virtual ReferencePtr changeConnectionId(const std::string&) const;
+    virtual ReferencePtr changeLocatorCacheTimeout(int) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
 
@@ -248,6 +254,7 @@ public:
 
     const LocatorInfoPtr& getLocatorInfo() const { return _locatorInfo; }
 
+    virtual int getLocatorCacheTimeout() const;
     virtual std::string getAdapterId() const;
     virtual std::vector<EndpointIPtr> getEndpoints() const;
 
@@ -255,6 +262,7 @@ public:
     virtual ReferencePtr changeCompress(bool) const;
     virtual ReferencePtr changeTimeout(int) const;
     virtual ReferencePtr changeConnectionId(const std::string&) const;
+    virtual ReferencePtr changeLocatorCacheTimeout(int) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
 
@@ -277,6 +285,7 @@ private:
     std::string _adapterId;
     std::string _connectionId;
     LocatorInfoPtr _locatorInfo;
+    int _locatorCacheTimeout;
 };
 
 std::vector<EndpointIPtr> filterEndpoints(const std::vector<EndpointIPtr>&, Reference::Mode, bool);

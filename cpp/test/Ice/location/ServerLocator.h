@@ -44,7 +44,7 @@ private:
 
 typedef ::IceInternal::Handle< ServerLocatorRegistry> ServerLocatorRegistryPtr;
 
-class ServerLocator : public ::Ice::Locator
+class ServerLocator : public Test::TestLocator
 {
 public:
 
@@ -58,10 +58,13 @@ public:
 
     virtual ::Ice::LocatorRegistryPrx getRegistry(const ::Ice::Current&) const;
 
+    virtual int getRequestCount(const Ice::Current&) const;
+
 private:
     
     ServerLocatorRegistryPtr _registry;
     ::Ice::LocatorRegistryPrx _registryPrx;
+    int _requestCount;
 };
 
 #endif

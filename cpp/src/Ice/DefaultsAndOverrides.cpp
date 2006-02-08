@@ -59,4 +59,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 
     const_cast<bool&>(defaultCollocationOptimization) =
 	properties->getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
+
+    const_cast<int&>(defaultLocatorCacheTimeout) = 
+	properties->getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
 }
