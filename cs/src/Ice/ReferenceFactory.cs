@@ -55,7 +55,8 @@ namespace IceInternal
 	                        string adapterId,
 	                        RouterInfo routerInfo,
 	                        LocatorInfo locatorInfo,
-	                        bool collocationOptimization)
+	                        bool collocationOptimization,
+				int locatorCacheTimeout)
 	{
 	    lock(this)
 	    {
@@ -74,7 +75,7 @@ namespace IceInternal
 		//
 		IndirectReference @ref = new IndirectReference(instance_,  _communicator, ident, context, facet, mode,
 							       secure, adapterId, routerInfo, locatorInfo,
-							       collocationOptimization);
+							       collocationOptimization, locatorCacheTimeout);
 		return updateCache(@ref);
 	    }
 	}
@@ -401,7 +402,8 @@ namespace IceInternal
 	    if(beg == -1)
 	    {
 		return create(ident, instance_.getDefaultContext(), facet, mode, secure, "", routerInfo, locatorInfo,
-			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
+			      instance_.defaultsAndOverrides().defaultCollocationOptimization,
+			      instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	    }
 
 	    ArrayList endpoints = new ArrayList();
@@ -490,8 +492,9 @@ namespace IceInternal
 		    e.str = s;
 		    throw e;
 		}
-		return create(ident, instance_.getDefaultContext(), facet, mode, secure, adapter, routerInfo, locatorInfo,
-			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
+		return create(ident, instance_.getDefaultContext(), facet, mode, secure, adapter, routerInfo, 
+			      locatorInfo, instance_.defaultsAndOverrides().defaultCollocationOptimization,
+			      instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	    }
 
 	    Ice.ProxyParseException ex = new Ice.ProxyParseException();
@@ -551,15 +554,17 @@ namespace IceInternal
 		{
 		    endpoints[i] = instance_.endpointFactoryManager().read(s);
 		}
-		return create(ident, instance_.getDefaultContext(), facet, (Reference.Mode)mode, secure, endpoints, routerInfo,
-			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
+		return create(ident, instance_.getDefaultContext(), facet, (Reference.Mode)mode, secure, endpoints, 
+			      routerInfo, instance_.defaultsAndOverrides().defaultCollocationOptimization);
 	    }
 	    else
 	    {
 		endpoints = new EndpointI[0];
 		adapterId = s.readString();
-		return create(ident, instance_.getDefaultContext(), facet, (Reference.Mode)mode, secure, adapterId, routerInfo,
-			      locatorInfo, instance_.defaultsAndOverrides().defaultCollocationOptimization);
+		return create(ident, instance_.getDefaultContext(), facet, (Reference.Mode)mode, secure, adapterId, 
+			      routerInfo, locatorInfo,
+			      instance_.defaultsAndOverrides().defaultCollocationOptimization,
+			      instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	    }
 	}
 

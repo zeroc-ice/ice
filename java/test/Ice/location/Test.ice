@@ -22,6 +22,14 @@ interface TestLocatorRegistry extends ::Ice::LocatorRegistry
     //
     void addObject(Object* obj);
 };
+
+interface TestLocator extends ::Ice::Locator
+{
+    //
+    // Returns the number of request on the locator interface.
+    //
+    nonmutating int getRequestCount();
+};
     
 interface ServerManager
 {

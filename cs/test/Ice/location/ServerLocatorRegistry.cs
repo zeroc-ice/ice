@@ -9,7 +9,7 @@
 
 using System.Collections;
 
-public class ServerLocatorRegistry : Ice.LocatorRegistryDisp_
+public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
 {
     public ServerLocatorRegistry()
     {
@@ -39,6 +39,11 @@ public class ServerLocatorRegistry : Ice.LocatorRegistryDisp_
         cb.ice_response();
     }
 
+    public override void addObject(Ice.ObjectPrx obj, Ice.Current current)
+    {
+        _objects[obj.ice_getIdentity()] = obj;
+    }
+
     public virtual Ice.ObjectPrx getAdapter(string adapter)
     {
         object obj = _adapters[adapter];
@@ -57,11 +62,6 @@ public class ServerLocatorRegistry : Ice.LocatorRegistryDisp_
             throw new Ice.ObjectNotFoundException();
         }
         return (Ice.ObjectPrx)obj;
-    }
-    
-    public virtual void addObject(Ice.ObjectPrx obj)
-    {
-        _objects[obj.ice_getIdentity()] = obj;
     }
     
     private Hashtable _adapters;

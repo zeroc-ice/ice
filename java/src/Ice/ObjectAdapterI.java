@@ -675,7 +675,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    IceInternal.LocatorInfo info = ir.getLocatorInfo();
 	    if(info != null)
 	    {
-		endpoints = info.getEndpoints(ir, new Ice.BooleanHolder());
+		endpoints = info.getEndpoints(ir, ir.getLocatorCacheTimeout(), new Ice.BooleanHolder());
 	    }
 	    else
 	    {
@@ -988,7 +988,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	IceInternal.Reference reference =
 	    _instance.referenceFactory().create(ident, new java.util.HashMap(), facet, 
 						IceInternal.Reference.ModeTwoway, false, id, null, _locatorInfo,
-						_instance.defaultsAndOverrides().defaultCollocationOptimization);
+						_instance.defaultsAndOverrides().defaultCollocationOptimization,
+						_instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	return _instance.proxyFactory().referenceToProxy(reference);
     }
 

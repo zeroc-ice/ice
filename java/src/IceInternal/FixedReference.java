@@ -53,6 +53,12 @@ public class FixedReference extends Reference
     {
         return false;
     }
+    
+    public int
+    getLocatorCacheTimeout()
+    {
+	return 0;
+    }
 
     public Reference
     changeSecure(boolean sec)
@@ -86,6 +92,12 @@ public class FixedReference extends Reference
 
     public Reference
     changeEndpoints(EndpointI[] newEndpoints)
+    {
+        return this;
+    }
+
+    public Reference
+    changeLocatorCacheTimeout(int newTimeout)
     {
         return this;
     }

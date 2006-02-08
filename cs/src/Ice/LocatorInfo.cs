@@ -32,6 +32,11 @@ namespace IceInternal
 	
 	public override bool Equals(object obj)
 	{
+	    if(object.ReferenceEquals(this, obj))
+	    {
+		return true;
+	    }
+
 	    LocatorInfo rhs = obj as LocatorInfo;
 	    return rhs == null ? false : _locator.Equals(rhs._locator);
 	}
@@ -67,7 +72,7 @@ namespace IceInternal
 	    }
 	}
 
-	public EndpointI[] getEndpoints(IndirectReference @ref, out bool cached)
+	public EndpointI[] getEndpoints(IndirectReference @ref, int ttl, out bool cached)
 	{
 	    Debug.Assert(@ref.getEndpoints().Length == 0);
 	    
@@ -81,7 +86,7 @@ namespace IceInternal
 	    {
 		if(adapterId.Length > 0)
 		{
-		    endpoints = _table.getAdapterEndpoints(adapterId);
+		    endpoints = _table.getAdapterEndpoints(adapterId, ttl);
 		    if(endpoints == null)
 		    {
 			cached = false;
@@ -105,7 +110,7 @@ namespace IceInternal
 		else
 		{
 		    bool objectCached = true;
-		    obj = _table.getProxy(identity);
+		    obj = _table.getProxy(identity, ttl);
 		    if(obj == null)
 		    {
 			objectCached = false;
@@ -128,7 +133,7 @@ namespace IceInternal
                             IndirectReference oir = (IndirectReference)r;
                             if(oir.getAdapterId().Length > 0)
                             {
-                                endpoints = getEndpoints(oir, out endpointsCached);
+                                endpoints = getEndpoints(oir, ttl, out endpointsCached);
                             }
                         }
                     }
@@ -375,11 +380,21 @@ namespace IceInternal
             }
         }
 	
-        internal IceInternal.EndpointI[] getAdapterEndpoints(string adapter)
+        internal IceInternal.EndpointI[] getAdapterEndpoints(string adapter, int ttl)
         {
+	    if(ttl == 0) // Locator cache disabled.
+	    {
+		return null;
+	    }
+
             lock(this)
             {
-                return (IceInternal.EndpointI[])_adapterEndpointsTable[adapter];
+		EndpointTableEntry entry = (EndpointTableEntry)_adapterEndpointsTable[adapter];
+		if(entry != null && checkTTL(entry.time, ttl))
+		{
+		    return entry.endpoints;
+		}
+		return null;
             }
         }
 	
@@ -387,7 +402,7 @@ namespace IceInternal
         {
             lock(this)
             {
-                _adapterEndpointsTable[adapter] = endpoints;
+                _adapterEndpointsTable[adapter] = new EndpointTableEntry(System.DateTime.Now.Ticks / 10000, endpoints);
             }
         }
 	
@@ -395,17 +410,27 @@ namespace IceInternal
         {
             lock(this)
             {
-                IceInternal.EndpointI[] endpoints = (IceInternal.EndpointI[])_adapterEndpointsTable[adapter];
+                EndpointTableEntry entry = (EndpointTableEntry)_adapterEndpointsTable[adapter];
                 _adapterEndpointsTable.Remove(adapter);
-                return endpoints;
+                return entry != null ? entry.endpoints : null;
             }
         }
 	
-        internal Ice.ObjectPrx getProxy(Ice.Identity id)
+        internal Ice.ObjectPrx getProxy(Ice.Identity id, int ttl)
         {
+	    if(ttl == 0) // Locator cache disabled.
+	    {
+		return null;
+	    }
+
             lock(this)
             {
-                return (Ice.ObjectPrx)_objectTable[id];
+                ProxyTableEntry entry = (ProxyTableEntry)_objectTable[id];
+		if(entry != null && checkTTL(entry.time, ttl))
+		{
+		    return entry.proxy;
+		}
+		return null;
             }
         }
 	
@@ -413,7 +438,7 @@ namespace IceInternal
         {
             lock(this)
             {
-                _objectTable[id] = proxy;
+                _objectTable[id] = new ProxyTableEntry(System.DateTime.Now.Ticks / 10000, proxy);
             }
         }
 	
@@ -421,12 +446,49 @@ namespace IceInternal
         {
             lock(this)
             {
-                Ice.ObjectPrx obj = (Ice.ObjectPrx)_objectTable[id];
+                ProxyTableEntry entry = (ProxyTableEntry)_objectTable[id];
                 _objectTable.Remove(id);
-                return obj;
+                return entry != null ? entry.proxy : null;
             }
         }
 	
+	private bool checkTTL(long time, int ttl)
+        {
+	    Debug.Assert(ttl != 0);
+	    if(ttl < 0) // TTL = infinite
+	    {
+		return true;
+	    }
+	    else
+	    {
+		return System.DateTime.Now.Ticks / 10000 - time <= ((long)ttl * 1000);
+	    }
+	}
+	
+	sealed private class EndpointTableEntry
+        {
+	    public EndpointTableEntry(long time, IceInternal.EndpointI[] endpoints)
+	    {
+		this.time = time;
+		this.endpoints = endpoints;
+	    }
+
+	    public long time;
+	    public IceInternal.EndpointI[] endpoints;
+	}
+
+	sealed private class ProxyTableEntry
+        {
+	    public ProxyTableEntry(long time, Ice.ObjectPrx proxy)
+	    {
+		this.time = time;
+		this.proxy = proxy;
+	    }
+
+	    public long time;
+	    public Ice.ObjectPrx proxy;
+	}
+
         private Hashtable _adapterEndpointsTable;
         private Hashtable _objectTable;
     }

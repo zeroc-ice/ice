@@ -39,6 +39,12 @@ public class DirectReference extends RoutableReference
         return _endpoints;
     }
 
+    public int
+    getLocatorCacheTimeout()
+    {
+	return 0;
+    }
+
     public Reference
     changeLocator(Ice.LocatorPrx newLocator)
     {
@@ -47,7 +53,8 @@ public class DirectReference extends RoutableReference
 	    LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
 	    return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
 							   getSecure(), "", null, newLocatorInfo,
-							   getCollocationOptimization());
+							   getCollocationOptimization(),
+							   getLocatorCacheTimeout());
 	}
 	else
 	{
@@ -105,7 +112,7 @@ public class DirectReference extends RoutableReference
 	    getInstance().locatorManager().get(getInstance().referenceFactory().getDefaultLocator());
 	return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
 						       getSecure(), newAdapterId, getRouterInfo(), locatorInfo,
-						       getCollocationOptimization());
+						       getCollocationOptimization(), getLocatorCacheTimeout());
     }
 
     public Reference
@@ -118,6 +125,12 @@ public class DirectReference extends RoutableReference
         DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
 	r._endpoints = newEndpoints;
 	return r;
+    }
+
+    public Reference
+    changeLocatorCacheTimeout(int newTimeout)
+    {
+        return this;
     }
 
     public void

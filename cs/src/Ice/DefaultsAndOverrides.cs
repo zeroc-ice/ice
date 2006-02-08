@@ -73,6 +73,8 @@ namespace IceInternal
 
 	    defaultCollocationOptimization =
 		properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
+
+	    defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
 	}
 	
 	public string defaultHost;
@@ -80,6 +82,7 @@ namespace IceInternal
 	public string defaultRouter;
 	public string defaultLocator;
 	public bool defaultCollocationOptimization;
+	public int defaultLocatorCacheTimeout;
 	
 	public bool overrideTimeout;
 	public int overrideTimeoutValue;

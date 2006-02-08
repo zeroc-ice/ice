@@ -316,6 +316,27 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    public final int
+    ice_getLocatorCacheTimeout()
+    {
+	return _reference.getLocatorCacheTimeout();
+    }
+
+    public final ObjectPrx
+    ice_locatorCacheTimeout(int newTimeout)
+    {
+        if(newTimeout == _reference.getLocatorCacheTimeout())
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(_reference.changeLocatorCacheTimeout(newTimeout));
+            return proxy;
+        }
+    }
+
     public final ObjectPrx
     ice_twoway()
     {

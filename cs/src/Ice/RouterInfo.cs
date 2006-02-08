@@ -37,6 +37,11 @@ namespace IceInternal
 	
 	public override bool Equals(System.Object obj)
 	{
+	    if(object.ReferenceEquals(this, obj))
+	    {
+		return true;
+	    }
+
 	    RouterInfo rhs = obj as RouterInfo;
 	    return rhs == null ? false : _router.Equals(rhs._router);
 	}

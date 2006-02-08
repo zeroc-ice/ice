@@ -697,7 +697,7 @@ namespace Ice
 		if(info != null)
 		{
 		    bool isCached;
-		    endpoints = info.getEndpoints(ir, out isCached);
+		    endpoints = info.getEndpoints(ir, ir.getLocatorCacheTimeout(), out isCached);
 		}
 		else
 		{
@@ -1022,7 +1022,8 @@ namespace Ice
 		instance_.referenceFactory().create(ident, instance_.getDefaultContext(), facet,
 						    IceInternal.Reference.Mode.ModeTwoway, 
 						    false, id, null, _locatorInfo, 
-						    instance_.defaultsAndOverrides().defaultCollocationOptimization);
+						    instance_.defaultsAndOverrides().defaultCollocationOptimization,
+						    instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	    return instance_.proxyFactory().referenceToProxy(reference);
 	}
 

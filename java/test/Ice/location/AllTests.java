@@ -26,6 +26,8 @@ public class AllTests
 	ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
 	    communicator.stringToProxy("ServerManager :default -t 10000 -p 12345"));
 	test(manager != null);
+	TestLocatorPrx locator = TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
+	test(locator != null);
 
 	System.out.print("testing stringToProxy... ");
         System.out.flush();
@@ -170,7 +172,7 @@ public class AllTests
 
 	System.out.println("ok");    
 
-	System.out.print("testing reference with unknown identity... ");
+	System.out.print("testing proxy with unknown identity... ");
 	System.out.flush();
 	try
 	{
@@ -185,7 +187,7 @@ public class AllTests
 	}
 	System.out.println("ok");	
 
-	System.out.print("testing reference with unknown adapter... ");
+	System.out.print("testing proxy with unknown adapter... ");
 	System.out.flush();
 	try
 	{
@@ -200,7 +202,56 @@ public class AllTests
 	}
 	System.out.println("ok");	
 
-	System.out.print("testing object reference from server... ");
+	System.out.print("testing locator cache timeout... ");
+	System.out.flush();
+	
+	int count = locator.getRequestCount();
+	communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+	test(++count == locator.getRequestCount());
+	communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+	test(++count == locator.getRequestCount());
+	communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+	test(count == locator.getRequestCount());
+	try
+	{
+	    Thread.sleep(1000);
+        }
+        catch(InterruptedException ex)
+        {
+        }
+	communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+	test(++count == locator.getRequestCount());
+	
+	communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+	count += 2;
+	test(count == locator.getRequestCount());
+	communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
+	test(count == locator.getRequestCount());
+	try
+	{
+	    Thread.sleep(1000);
+        }
+        catch(InterruptedException ex)
+        {
+        }
+	communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
+	count += 2;
+	test(count == locator.getRequestCount());
+	
+	communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(-1).ice_ping(); 
+	test(count == locator.getRequestCount());
+	communicator.stringToProxy("test").ice_locatorCacheTimeout(-1).ice_ping();
+	test(count == locator.getRequestCount());
+	communicator.stringToProxy("test@TestAdapter").ice_ping(); 
+	test(count == locator.getRequestCount());
+	communicator.stringToProxy("test").ice_ping();
+	test(count == locator.getRequestCount());
+
+	test(communicator.stringToProxy("test").ice_locatorCacheTimeout(99).ice_getLocatorCacheTimeout() == 99);
+	
+	System.out.println("ok");
+
+	System.out.print("testing proxy from server... ");
         System.out.flush();
 	HelloPrx hello = obj.getHello();
 	test(hello.ice_getAdapterId().equals("TestAdapter"));
@@ -209,7 +260,7 @@ public class AllTests
 	hello.sayHello();
 	System.out.println("ok");
 
-	System.out.print("testing object reference from server after shutdown... ");
+	System.out.print("testing proxy from server after shutdown... ");
         System.out.flush();
 	obj.shutdown();
 	manager.startServer();
@@ -240,28 +291,23 @@ public class AllTests
             System.out.println("ok");
         }
 
-	System.out.print("testing indirect references to collocated objects... ");
+	System.out.print("testing indirect proxies to collocated objects... ");
 	Ice.Properties properties = communicator.getProperties();
 	properties.setProperty("Ice.PrintAdapterReady", "0");
-	properties.setProperty("Hello.Endpoints",
-			       properties.getPropertyWithDefault("Hello.Endpoints",
-								 "default -p 10001"));
-	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Hello");
-	Ice.LocatorPrx locator =
-	    Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy(
-						   properties.getProperty("Ice.Default.Locator")));
+	Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
 	adapter.setLocator(locator);
 	TestLocatorRegistryPrx registry = TestLocatorRegistryPrxHelper.checkedCast(locator.getRegistry());
 	test(registry != null);
 
 	Ice.Identity id = new Ice.Identity();
-	id.name = Ice.Util.generateUUID().replace(':', '-');
+	id.name = Ice.Util.generateUUID();
 	registry.addObject(adapter.add(new HelloI(), id));
 	adapter.activate();
 
 	try
 	{
-	    HelloPrx helloPrx = HelloPrxHelper.checkedCast(communicator.stringToProxy(id.name));
+ 	    HelloPrx helloPrx = HelloPrxHelper.checkedCast(
+		communicator.stringToProxy("\"" + Ice.Util.identityToString(id) + "\""));
 	    Ice.Connection connection = helloPrx.ice_connection();
 	    test(false);
 	}

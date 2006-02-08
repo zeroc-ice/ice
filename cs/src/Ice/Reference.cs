@@ -65,6 +65,7 @@ namespace IceInternal
 	public abstract string getAdapterId();
 	public abstract EndpointI[] getEndpoints();
 	public abstract bool getCollocationOptimization();
+	public abstract int getLocatorCacheTimeout();
 
 	//
 	// The change* methods (here and in derived classes) create
@@ -131,6 +132,7 @@ namespace IceInternal
 	public abstract Reference changeCollocationOptimization(bool newCollocationOptimization);
 	public abstract Reference changeAdapterId(string newAdapterId);
 	public abstract Reference changeEndpoints(EndpointI[] newEndpoints);
+	public abstract Reference changeLocatorCacheTimeout(int newTimeout);
 
 	public override int GetHashCode()
 	{
@@ -653,6 +655,11 @@ namespace IceInternal
 	    return false;
 	}
 
+	public override int getLocatorCacheTimeout()
+        {
+	    return 0;
+	}
+
 	public override Reference changeSecure(bool sec)
 	{
 	    return this;
@@ -679,6 +686,11 @@ namespace IceInternal
 	}
 
 	public override Reference changeEndpoints(EndpointI[] newEndpoints)
+        {
+	    return this;
+	}
+
+	public override Reference changeLocatorCacheTimeout(int newTimeout)
         {
 	    return this;
 	}
@@ -806,8 +818,7 @@ namespace IceInternal
 	public override Reference changeRouter(Ice.RouterPrx newRouter)
 	{
 	    RouterInfo newRouterInfo = getInstance().routerManager().get(newRouter);
-	    if(object.ReferenceEquals(newRouterInfo, _routerInfo) ||
-		    (newRouterInfo != null && _routerInfo != null && newRouterInfo.Equals(_routerInfo)))
+	    if(newRouterInfo != null && _routerInfo != null && newRouterInfo.Equals(_routerInfo))
 	    {
 		return this;
 	    }
@@ -905,6 +916,11 @@ namespace IceInternal
 	    return _endpoints;
 	}
 
+	public override int getLocatorCacheTimeout()
+	{
+	    return 0;
+	}
+
 	public override Reference changeLocator(Ice.LocatorPrx newLocator)
 	{
 	    if(newLocator != null)
@@ -912,7 +928,7 @@ namespace IceInternal
 		LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
 		return getInstance().referenceFactory().create(
 		    getIdentity(), getContext(), getFacet(), getMode(), getSecure(), "", null, newLocatorInfo,
-		    getCollocationOptimization());
+		    getCollocationOptimization(), getLocatorCacheTimeout());
 	    }
 	    else
 	    {
@@ -966,7 +982,7 @@ namespace IceInternal
 		getInstance().locatorManager().get(getInstance().referenceFactory().getDefaultLocator());
 	    return getInstance().referenceFactory().create(
 		getIdentity(), getContext(), getFacet(), getMode(), getSecure(), newAdapterId, getRouterInfo(),
-		locatorInfo, getCollocationOptimization());
+		locatorInfo, getCollocationOptimization(), getLocatorCacheTimeout());
 	}
 
 	public override Reference changeEndpoints(EndpointI[] newEndpoints)
@@ -978,6 +994,11 @@ namespace IceInternal
 	    DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
 	    r._endpoints = newEndpoints;
 	    return r;
+	}
+
+	public override Reference changeLocatorCacheTimeout(int newTimeout)
+        {
+	    return this;
 	}
 
 	public override void streamWrite(BasicStream s)
@@ -1088,11 +1109,13 @@ namespace IceInternal
 			         string adptid,
 			         RouterInfo rtrInfo,
 			         LocatorInfo locInfo,
-			         bool collocationOpt)
+			         bool collocationOpt,
+				 int locatorCacheTimeout)
 	    : base(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt)
 	{
 	    adapterId_ = adptid;
 	    locatorInfo_ = locInfo;
+	    locatorCacheTimeout_ = locatorCacheTimeout;
 	}
 
 	public LocatorInfo getLocatorInfo()
@@ -1110,6 +1133,11 @@ namespace IceInternal
 	    return new EndpointI[0];
 	}
 
+	public override int getLocatorCacheTimeout()
+	{
+	    return locatorCacheTimeout_;
+	}
+
 	public override Reference changeLocator(Ice.LocatorPrx newLocator)
 	{
 	    //
@@ -1124,9 +1152,7 @@ namespace IceInternal
 	    else
 	    {
 		LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
-
-		if(object.ReferenceEquals(newLocatorInfo, locatorInfo_) ||
-		    (locatorInfo_ != null && newLocatorInfo != null && newLocatorInfo.Equals(locatorInfo_)))
+		if(locatorInfo_ != null && newLocatorInfo != null && newLocatorInfo.Equals(locatorInfo_))
 		{
 		    return this;
 		}
@@ -1193,6 +1219,17 @@ namespace IceInternal
 		getCollocationOptimization());
 	}
 
+	public override Reference changeLocatorCacheTimeout(int newTimeout)
+        {
+	    if(newTimeout == locatorCacheTimeout_)
+	    {
+		return this;
+	    }
+	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+	    r.locatorCacheTimeout_ = newTimeout;
+	    return r;
+	}
+
 	public override void streamWrite(BasicStream s)
 	{
 	    base.streamWrite(s);
@@ -1243,7 +1280,7 @@ namespace IceInternal
 		bool cached = false;
 		if(endpts.Length == 0 && locatorInfo_ != null)
 		{
-		    endpts = locatorInfo_.getEndpoints(this, out cached);
+		    endpts = locatorInfo_.getEndpoints(this, locatorCacheTimeout_, out cached);
 		}
 		//
 		// Apply the cached connection id to each endpoint.
@@ -1332,8 +1369,11 @@ namespace IceInternal
 	    {
 		return false;
 	    }
-	    return object.ReferenceEquals(locatorInfo_, rhs.locatorInfo_) ||
-		(locatorInfo_ != null && rhs.locatorInfo_ != null && rhs.locatorInfo_.Equals(locatorInfo_));
+	    if(locatorInfo_ == null ? rhs.locatorInfo_ != null : !rhs.locatorInfo_.Equals(locatorInfo_))
+	    {
+		return false;
+	    }
+	    return locatorCacheTimeout_ == rhs.locatorCacheTimeout_;
 	}
 
         //
@@ -1347,5 +1387,6 @@ namespace IceInternal
 	private string adapterId_;
 	private string connectionId_ = "";
 	private LocatorInfo locatorInfo_;
+	private int locatorCacheTimeout_;
     }
 }

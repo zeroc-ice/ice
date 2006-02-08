@@ -22,11 +22,13 @@ public class IndirectReference extends RoutableReference
 		      String adptid,
 		      RouterInfo rtrInfo,
 		      LocatorInfo locInfo,
-		      boolean collocationOpt)
+		      boolean collocationOpt,
+		      int locatorCacheTimeout)
     {
     	super(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt);
         _adapterId = adptid;
 	_locatorInfo = locInfo;
+	_locatorCacheTimeout = locatorCacheTimeout;
     }
 
     public final LocatorInfo
@@ -47,6 +49,12 @@ public class IndirectReference extends RoutableReference
         return new EndpointI[0];
     }
 
+    public int
+    getLocatorCacheTimeout()
+    {
+	return _locatorCacheTimeout;
+    }
+
     public Reference
     changeLocator(Ice.LocatorPrx newLocator)
     {
@@ -62,8 +70,7 @@ public class IndirectReference extends RoutableReference
 	else
 	{
 	    LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
-	    if((newLocatorInfo == _locatorInfo) ||
-		(_locatorInfo != null && newLocatorInfo != null && newLocatorInfo.equals(_locatorInfo)))
+	    if(_locatorInfo != null && newLocatorInfo != null && newLocatorInfo.equals(_locatorInfo))
 	    {
 		return this;
 	    }
@@ -76,6 +83,9 @@ public class IndirectReference extends RoutableReference
     public Reference
     changeCompress(boolean newCompress)
     {
+	//
+	// TODO: This is wrong.
+	//
         IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
 	if(_locatorInfo != null)
 	{
@@ -89,6 +99,9 @@ public class IndirectReference extends RoutableReference
     public Reference
     changeTimeout(int newTimeout)
     {
+	//
+	// TODO: This is wrong.
+	//
         IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
 	if(_locatorInfo != null)
 	{
@@ -133,6 +146,18 @@ public class IndirectReference extends RoutableReference
 	return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
 						       getSecure(), newEndpoints, getRouterInfo(),
 						       getCollocationOptimization());	
+    }
+
+    public Reference
+    changeLocatorCacheTimeout(int newTimeout)
+    {
+	if(_locatorCacheTimeout == newTimeout)
+	{
+	    return this;
+	}
+        IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+	r._locatorCacheTimeout = newTimeout;
+	return r;	
     }
 
     public void
@@ -189,7 +214,7 @@ public class IndirectReference extends RoutableReference
 	    Ice.BooleanHolder cached = new Ice.BooleanHolder(false);
 	    if(endpts.length == 0 && _locatorInfo != null)
 	    {
-	        endpts = _locatorInfo.getEndpoints(this, cached);
+	        endpts = _locatorInfo.getEndpoints(this, _locatorCacheTimeout, cached);
 	    }
 	    for(int i = 0; i < endpts.length; ++i)
 	    {
@@ -276,10 +301,15 @@ public class IndirectReference extends RoutableReference
 	{
 	   return false;
 	}
-	return _locatorInfo == null ? rhs._locatorInfo == null : _locatorInfo.equals(rhs._locatorInfo);
+	if(_locatorInfo == null ? rhs._locatorInfo != null : !_locatorInfo.equals(rhs._locatorInfo))
+	{
+	    return false;
+	}
+	return _locatorCacheTimeout == rhs._locatorCacheTimeout;
     }
 
     private String _adapterId;
     private String _connectionId = "";
     private LocatorInfo _locatorInfo;
+    private int _locatorCacheTimeout;
 }

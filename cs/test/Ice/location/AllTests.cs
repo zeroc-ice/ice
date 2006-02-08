@@ -25,6 +25,8 @@ public class AllTests
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
 					communicator.stringToProxy("ServerManager :default -t 10000 -p 12345"));
         test(manager != null);
+	TestLocatorPrx locator = TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
+	test(locator != null);
         
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
@@ -167,7 +169,7 @@ public class AllTests
 	}
         Console.Out.WriteLine("ok");
 
-        Console.Out.Write("testing reference with unknown identity... ");
+        Console.Out.Write("testing proxy with unknown identity... ");
         Console.Out.Flush();
         try
         {
@@ -182,7 +184,7 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-        Console.Out.Write("testing reference with unknown adapter... ");
+        Console.Out.Write("testing proxy with unknown adapter... ");
         Console.Out.Flush();
         try
         {
@@ -197,7 +199,44 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-        Console.Out.Write("testing object reference from server... ");
+	Console.Out.Write("testing locator cache timeout... ");
+	Console.Out.Flush();
+	
+	int count = locator.getRequestCount();
+	communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+	test(++count == locator.getRequestCount());
+	communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+	test(++count == locator.getRequestCount());
+	communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+	test(count == locator.getRequestCount());
+	System.Threading.Thread.Sleep(new System.TimeSpan(10 * 1000 * 1000)); // 1s
+	communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+	test(++count == locator.getRequestCount());
+	
+	communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+	count += 2;
+	test(count == locator.getRequestCount());
+	communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
+	test(count == locator.getRequestCount());
+	System.Threading.Thread.Sleep(new System.TimeSpan(10 * 1000 * 1000)); // 1s
+	communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
+	count += 2;
+	test(count == locator.getRequestCount());
+	
+	communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(-1).ice_ping(); 
+	test(count == locator.getRequestCount());
+	communicator.stringToProxy("test").ice_locatorCacheTimeout(-1).ice_ping();
+	test(count == locator.getRequestCount());
+	communicator.stringToProxy("test@TestAdapter").ice_ping(); 
+	test(count == locator.getRequestCount());
+	communicator.stringToProxy("test").ice_ping();
+	test(count == locator.getRequestCount());
+
+	test(communicator.stringToProxy("test").ice_locatorCacheTimeout(99).ice_getLocatorCacheTimeout() == 99);
+
+	Console.Out.WriteLine("ok");
+
+        Console.Out.Write("testing proxy from server... ");
         Console.Out.Flush();
         HelloPrx hello = obj.getHello();
         hello.sayHello();
@@ -207,7 +246,7 @@ public class AllTests
 	test(hello.ice_getAdapterId().Equals("ReplicatedAdapter"));
         Console.Out.WriteLine("ok");
         
-	Console.Out.Write("testing object reference from server after shutdown... ");
+	Console.Out.Write("testing proxy from server after shutdown... ");
         Console.Out.Flush();
 	obj.shutdown();
 	manager.startServer();
@@ -238,6 +277,34 @@ public class AllTests
             Console.Out.WriteLine("ok");
         }
         
+	Console.Out.Write("testing indirect proxies to collocated objects... ");
+	Console.Out.Flush();
+
+	Ice.Properties properties = communicator.getProperties();
+	properties.setProperty("Ice.PrintAdapterReady", "0");
+	Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
+	adapter.setLocator(locator);
+	TestLocatorRegistryPrx registry = TestLocatorRegistryPrxHelper.checkedCast(locator.getRegistry());
+	test(registry != null);
+
+	Ice.Identity id = new Ice.Identity();
+	id.name = Ice.Util.generateUUID();
+	registry.addObject(adapter.add(new HelloI(), id));
+	adapter.activate();
+
+	try
+	{
+	    HelloPrx helloPrx = HelloPrxHelper.checkedCast(
+		communicator.stringToProxy("\"" + Ice.Util.identityToString(id) + "\""));
+	    helloPrx.ice_connection();
+	    test(false);
+	}
+	catch(Ice.CollocationOptimizationException ex)
+	{
+	    Console.Out.WriteLine("ok");
+	}
+	adapter.deactivate();
+
         Console.Out.Write("shutdown server manager... ");
         Console.Out.Flush();
         manager.shutdown();

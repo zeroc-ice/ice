@@ -48,7 +48,8 @@ public final class ReferenceFactory
            String adapterId,
            RouterInfo routerInfo,
 	   LocatorInfo locatorInfo,
-	   boolean collocationOptimization)
+	   boolean collocationOptimization,
+	   int locatorCacheTimeout)
     {
         if(_instance == null)
         {
@@ -64,7 +65,8 @@ public final class ReferenceFactory
         // Create new reference
         //
         IndirectReference ref = new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure,
-						      adapterId, routerInfo, locatorInfo, collocationOptimization);
+						      adapterId, routerInfo, locatorInfo, collocationOptimization,
+						      locatorCacheTimeout);
 	return updateCache(ref);
     }
 
@@ -389,7 +391,8 @@ public final class ReferenceFactory
 	if(beg == -1)
 	{
 	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, "", routerInfo, locatorInfo,
-			  _instance.defaultsAndOverrides().defaultCollocationOptimization);
+			  _instance.defaultsAndOverrides().defaultCollocationOptimization,
+			  _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	}
 
         java.util.ArrayList endpoints = new java.util.ArrayList();
@@ -482,7 +485,8 @@ public final class ReferenceFactory
 	    }
 	    adapter = token.value;
 	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, adapter, routerInfo, locatorInfo,
-			  _instance.defaultsAndOverrides().defaultCollocationOptimization);
+			  _instance.defaultsAndOverrides().defaultCollocationOptimization,
+			  _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	}
 
 	Ice.ProxyParseException ex = new Ice.ProxyParseException();
@@ -552,7 +556,8 @@ public final class ReferenceFactory
 	    adapterId = s.readString();
 	    return create(ident, _instance.getDefaultContext(), facet, mode, secure,
 	                  adapterId, routerInfo, locatorInfo,
-			  _instance.defaultsAndOverrides().defaultCollocationOptimization);
+			  _instance.defaultsAndOverrides().defaultCollocationOptimization,
+			  _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	}
     }
 

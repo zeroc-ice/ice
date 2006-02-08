@@ -59,6 +59,9 @@ namespace Ice
 	Endpoint[] ice_getEndpoints();
         ObjectPrx ice_newEndpoints(Endpoint[] newEndpoints);
 
+	int ice_getLocatorCacheTimeout();
+	ObjectPrx ice_locatorCacheTimeout(int timeout);
+
         ObjectPrx ice_twoway();
         bool ice_isTwoway();
         ObjectPrx ice_oneway();
@@ -364,6 +367,25 @@ namespace Ice
             {
                 ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
                 proxy.setup(_reference.changeEndpoints((IceInternal.EndpointI[])newEndpoints));
+                return proxy;
+            }
+        }
+
+        public int ice_getLocatorCacheTimeout()
+        {
+            return _reference.getLocatorCacheTimeout();
+        }
+
+        public ObjectPrx ice_locatorCacheTimeout(int newTimeout)
+        {
+            if(newTimeout == _reference.getLocatorCacheTimeout())
+            {
+                return this;
+            }
+            else
+            {
+                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+                proxy.setup(_reference.changeLocatorCacheTimeout(newTimeout));
                 return proxy;
             }
         }

@@ -66,7 +66,7 @@ public final class LocatorInfo
     }
 
     public EndpointI[]
-    getEndpoints(IndirectReference ref, Ice.BooleanHolder cached)
+    getEndpoints(IndirectReference ref, int ttl, Ice.BooleanHolder cached)
     {
 	EndpointI[] endpoints = null;
 	Ice.ObjectPrx object = null;
@@ -78,7 +78,7 @@ public final class LocatorInfo
 	{
 	    if(adapterId.length() > 0)
 	    {
-		endpoints = _table.getAdapterEndpoints(adapterId);
+		endpoints = _table.getAdapterEndpoints(adapterId, ttl);
 		if(endpoints == null)
 		{
 		    cached.value = false;
@@ -102,7 +102,7 @@ public final class LocatorInfo
 	    else
 	    {
 		boolean objectCached = true;
-		object = _table.getProxy(identity);
+		object = _table.getProxy(identity, ttl);
 		if(object == null)
 		{
 		    objectCached = false;
@@ -126,7 +126,7 @@ public final class LocatorInfo
 			if(oir.getAdapterId().length() > 0)
 			{
 			    Ice.BooleanHolder c = new Ice.BooleanHolder();
-			    endpoints = getEndpoints(oir, c);
+			    endpoints = getEndpoints(oir, ttl, c);
 			    endpointsCached = c.value;
 			}
 		    }

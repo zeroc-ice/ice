@@ -66,6 +66,7 @@ public abstract class Reference implements Cloneable
     public abstract String getAdapterId();
     public abstract EndpointI[] getEndpoints();
     public abstract boolean getCollocationOptimization();
+    public abstract int getLocatorCacheTimeout();
 
     //
     // The change* methods (here and in derived classes) create
@@ -127,6 +128,7 @@ public abstract class Reference implements Cloneable
 	return r;
     }
 
+
     public abstract Reference changeSecure(boolean newSecure);
     public abstract Reference changeRouter(Ice.RouterPrx newRouter);
     public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
@@ -136,6 +138,7 @@ public abstract class Reference implements Cloneable
     public abstract Reference changeCollocationOptimization(boolean newCollocationOptimization);
     public abstract Reference changeAdapterId(String newAdapterId);
     public abstract Reference changeEndpoints(EndpointI[] newEndpoints);
+    public abstract Reference changeLocatorCacheTimeout(int newTimeout);
 
     public final synchronized int
     hashCode()

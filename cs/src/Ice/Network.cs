@@ -523,7 +523,7 @@ namespace IceInternal
 	    try
 	    {
 		AsyncConnectInfo info = new AsyncConnectInfo(socket);
-		IAsyncResult ar = socket.BeginConnect(addr, new AsyncCallback(asyncConnectCallback), info);
+		/* IAsyncResult ar = */ socket.BeginConnect(addr, new AsyncCallback(asyncConnectCallback), info);
 		lock(info)
 		{
 		    if(!Monitor.Wait(info, timeout == -1 ? Timeout.Infinite : timeout))

@@ -54,6 +54,9 @@ public interface ObjectPrx
     Endpoint[] ice_getEndpoints();
     ObjectPrx ice_newEndpoints(Endpoint[] newEndpoints);
 
+    int ice_getLocatorCacheTimeout();
+    ObjectPrx ice_locatorCacheTimeout(int newTimeout);
+
     ObjectPrx ice_twoway();
     boolean ice_isTwoway();
     ObjectPrx ice_oneway();
