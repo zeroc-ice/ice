@@ -83,7 +83,7 @@ TestIntfI::opBoolRangeType(const std::pair<const bool*, const bool*>& inSeq,
 }
 
 Test::ByteList
-TestIntfI::opByteRangeType(const std::pair<MyByteSeq::const_iterator, MyByteSeq::const_iterator>& inSeq,
+TestIntfI::opByteRangeType(const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& inSeq,
 		           Test::ByteList& outSeq,
 		           const Ice::Current&)
 {

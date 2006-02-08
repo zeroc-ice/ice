@@ -1006,15 +1006,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     {
         Test::ByteList in;
-        MyByteSeq inSeq(5);
-	int i = 0;
-	for(MyByteSeq::iterator p = inSeq.begin(); p != inSeq.end(); ++p)
-	{
-	    Ice::Byte b = '1' + i++;
-	    *p = b;
-	    in.push_back(b);
-	}
-	pair<MyByteSeq::const_iterator, MyByteSeq::const_iterator> inPair(inSeq.begin(), inSeq.end());
+	in.push_back('1');
+	in.push_back('2');
+	in.push_back('3');
+	in.push_back('4');
+	in.push_back('5');
+	pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
 
 	Test::ByteList out;
 	Test::ByteList ret = t->opByteRangeType(inPair, out);
@@ -1473,15 +1470,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         {
             Test::ByteList in;
-            MyByteSeq inSeq(5);
-	    int i = 0;
-	    for(MyByteSeq::iterator p = inSeq.begin(); p != inSeq.end(); ++p)
-	    {
-	        Ice::Byte b = '1' + i++;
-	        *p = b;
-	        in.push_back(b);
-	    }
-	    pair<MyByteSeq::const_iterator, MyByteSeq::const_iterator> inPair(inSeq.begin(), inSeq.end());
+	    in.push_back('1');
+	    in.push_back('2');
+	    in.push_back('3');
+	    in.push_back('4');
+	    in.push_back('5');
+	    pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
 
 	    AMI_TestIntf_opByteRangeTypeIPtr cb = new AMI_TestIntf_opByteRangeTypeI(in);
 	    t->opByteRangeType_async(cb, inPair);

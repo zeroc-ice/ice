@@ -107,7 +107,7 @@ sequence<CPrxList> CPrxListSeq;
 
     BoolSeq opBoolRangeType(["cpp:range:array"] BoolSeq inSeq, out BoolSeq outSeq);
     
-    ByteList opByteRangeType(["cpp:range:MyByteSeq"] ByteList inSeq, out ByteList outSeq);
+    ByteList opByteRangeType(["cpp:range:::Test::ByteList"] ByteList inSeq, out ByteList outSeq);
 
     VariableList
     opVariableRangeType(["cpp:range:std::deque< ::Test::Variable>"] VariableList inSeq, out VariableList outSeq);

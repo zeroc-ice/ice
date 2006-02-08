@@ -48,7 +48,7 @@ public:
 				       const Ice::Current&);
 
     virtual void opByteRangeType_async(const Test::AMD_TestIntf_opByteRangeTypePtr&,
-				       const std::pair<MyByteSeq::const_iterator, MyByteSeq::const_iterator>&,
+				       const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>&,
 				       const Ice::Current&);
 
     virtual void opVariableRangeType_async(const Test::AMD_TestIntf_opVariableRangeTypePtr&,

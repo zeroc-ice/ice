@@ -84,7 +84,7 @@ TestIntfI::opBoolRangeType_async(const Test::AMD_TestIntf_opBoolRangeTypePtr& op
 
 void
 TestIntfI::opByteRangeType_async(const Test::AMD_TestIntf_opByteRangeTypePtr& opByteRangeTypeCB,
-				 const std::pair<MyByteSeq::const_iterator, MyByteSeq::const_iterator>& inSeq,
+				 const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& inSeq,
 				 const Ice::Current& current)
 {
     Test::ByteList outSeq(inSeq.first, inSeq.second);
