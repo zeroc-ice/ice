@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /I "../../../include/stlport" /D "_CONSOLE" /D "NDEBUG" /D "WIN32_LEAN_AND_MEAN" /FD /c
-# SUBTRACT CPP /Z<none> /Fr /YX
+# SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -115,6 +115,7 @@ SOURCE=.\Session.ice
 
 !IF  "$(CFG)" == "sessionC - Win32 Release"
 
+USERDEP__SESSI="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Session.ice
 
@@ -130,6 +131,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "sessionC - Win32 Debug"
 
+USERDEP__SESSI="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Session.ice
 
