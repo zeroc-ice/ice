@@ -1,6 +1,11 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Added the ability to specify alternate mappings for slice sequences other
+  than std::vector. This is done through metadata in a similar way to
+  which IceJ supports alternate sequence mappings. Please see the Ice  
+  manual for more details.
+
 - Fixed a bug in slice2cpp that caused one-shot constructors for
   classes to incorrectly initialize base classes for class hierarchies
   three or more levels deep.
