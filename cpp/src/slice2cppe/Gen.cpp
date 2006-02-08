@@ -238,6 +238,8 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <IceE/LocalException.h>";
     }
 
+    C << "\n#include <IceE/Iterator.h>";
+
     StringList includes = p->includeFiles();
 
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)

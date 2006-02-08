@@ -239,6 +239,8 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <Ice/SliceChecksums.h>";
     }
 
+    C << "\n#include <IceUtil/Iterator.h>";
+
     StringList includes = p->includeFiles();
 
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
