@@ -154,7 +154,7 @@ IceInternal::LocatorTable::addAdapterEndpoints(const string& adapter, const vect
     }
     else
     {
-	_adapterEndpointsMap.insert(p, make_pair(adapter, make_pair(IceUtil::Time::now(), endpoints)));
+	_adapterEndpointsMap.insert(make_pair(adapter, make_pair(IceUtil::Time::now(), endpoints)));
     }
 }
 
