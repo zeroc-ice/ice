@@ -97,7 +97,11 @@ TestIntfI::opVariableRangeType_async(const Test::AMD_TestIntf_opVariableRangeTyp
 				     		     std::deque<Test::Variable>::const_iterator>& inSeq,
 				     const Ice::Current& current)
 {
-    Test::VariableList outSeq(inSeq.first, inSeq.second);
+    Test::VariableList outSeq;
+    for(std::deque<Test::Variable>::const_iterator p = inSeq.first; p != inSeq.second; ++p)
+    {
+	outSeq.push_back(*p);
+    }
     opVariableRangeTypeCB->ice_response(outSeq, outSeq);
 }
 

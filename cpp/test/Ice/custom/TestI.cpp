@@ -97,7 +97,10 @@ TestIntfI::opVariableRangeType(
 	Test::VariableList& outSeq,
 	const Ice::Current&)
 {
-    Test::VariableList(inSeq.first, inSeq.second).swap(outSeq);
+    for(std::deque<Test::Variable>::const_iterator p = inSeq.first; p != inSeq.second; ++p)
+    {
+	outSeq.push_back(*p);
+    }
     return outSeq;
 }
 
