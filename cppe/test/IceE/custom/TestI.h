@@ -47,7 +47,8 @@ public:
     				          Test::BoolSeq&,
 				          const Ice::Current&);
 
-    virtual Test::ByteList opByteRangeType(const std::pair<MyByteSeq::const_iterator, MyByteSeq::const_iterator>&,
+    virtual Test::ByteList opByteRangeType(const std::pair<Test::ByteList::const_iterator, 
+    							   Test::ByteList::const_iterator>&,
     				           Test::ByteList&,
 				           const Ice::Current&);
 

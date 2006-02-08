@@ -33,7 +33,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(t == base);
     tprintf("ok\n");
 
-    tprintf("testing arrays... ");
+    tprintf("testing alternate sequences... ");
 
     {
         Test::BoolSeq in(5);
@@ -96,10 +96,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(out == in);
 	test(ret == in);
     }
-
-    tprintf("ok\n");
-
-    tprintf("testing ranges... ");
 
     {
         Test::BoolSeq in(5);
@@ -174,15 +170,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         Test::ByteList in;
-        MyByteSeq inSeq(5);
-	int i = 0;
-	for(MyByteSeq::iterator p = inSeq.begin(); p != inSeq.end(); ++p)
-	{
-	    Ice::Byte b = '1' + i++;
-	    *p = b;
-	    in.push_back(b);
-	}
-	pair<MyByteSeq::const_iterator, MyByteSeq::const_iterator> inPair(inSeq.begin(), inSeq.end());
+	in.push_back('1');
+	in.push_back('2');
+	in.push_back('3');
+	in.push_back('4');
+	in.push_back('5');
+	pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> inPair(in.begin(), in.end());
 
 	Test::ByteList out;
 	Test::ByteList ret = t->opByteRangeType(inPair, out);
@@ -218,10 +211,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(ret == in);
     }
 
-    tprintf("ok\n");
-    
-    tprintf("testing custom bool sequences... ");
-
     {
         deque<bool> in(5);
 	in[0] = false;
@@ -249,10 +238,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(out == in);
 	test(ret == in);
     }
-
-    tprintf("ok\n");
-
-    tprintf("testing custom byte sequences... ");
 
     {
         deque< ::Ice::Byte> in(5);
@@ -296,10 +281,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(ret == in);
     }
 
-    tprintf("ok\n");
-
-    tprintf("testing custom string sequences... ");
-
     {
         deque<string> in(5);
 	in[0] = "These";
@@ -328,10 +309,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(ret == in);
     }
 
-    tprintf("ok\n");
-
-    tprintf("testing custom fixed struct sequences... ");
-
     {
         deque<Test::Fixed> in(5);
 	in[0].s = 1;
@@ -359,10 +336,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(out == in);
 	test(ret == in);
     }
-
-    tprintf("ok\n");
-
-    tprintf("testing custom variable struct sequences... ");
 
     {
         deque<Test::Variable> in(5);
@@ -398,10 +371,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(ret == in);
     }
 
-    tprintf("ok\n");
-
-    tprintf("testing custom dictionary sequences... ");
-
     {
         deque<Test::StringStringDict> in(5);
 	in[0]["A"] = "a";
@@ -436,10 +405,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(ret == in);
     }
 
-    tprintf("ok\n");
-
-    tprintf("testing custom enumuration sequences... ");
-
     {
         deque<Test::E> in(5);
 	in[0] = Test::E1;
@@ -467,10 +432,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(out == in);
 	test(ret == in);
     }
-
-    tprintf("ok\n");
-
-    tprintf("testing custom proxy sequences... ");
 
     {
         deque<Test::CPrx> in(5);
@@ -501,5 +462,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     tprintf("ok\n");
+
     return t;
 }
