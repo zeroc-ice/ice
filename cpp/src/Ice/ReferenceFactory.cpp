@@ -86,7 +86,8 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const string& adapterId,
 				      const RouterInfoPtr& routerInfo,
 				      const LocatorInfoPtr& locatorInfo,
-				      bool collocationOptimization)
+				      bool collocationOptimization,
+				      int locatorCacheTimeout)
 {
     Mutex::Lock sync(*this);
 
@@ -104,7 +105,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     // Create new reference
     //
     return new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure,
-				 adapterId, routerInfo, locatorInfo, collocationOptimization);
+				 adapterId, routerInfo, locatorInfo, collocationOptimization, locatorCacheTimeout);
 }
 
 ReferencePtr
@@ -410,7 +411,8 @@ IceInternal::ReferenceFactory::create(const string& str)
     if(beg == string::npos)
     {
 	return create(ident, _instance->getDefaultContext(), facet, mode, secure, "", routerInfo, locatorInfo,
-		      _instance->defaultsAndOverrides()->defaultCollocationOptimization);
+		      _instance->defaultsAndOverrides()->defaultCollocationOptimization, 
+		      _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
     }
 
     vector<EndpointIPtr> endpoints;
@@ -501,7 +503,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 		throw ex;
 	    }
 	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapter, routerInfo,
-			  locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization);
+			  locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
+			  _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
 	    break;
 	}
 	default:
@@ -578,7 +581,8 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     {
 	s->read(adapterId);
 	return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapterId, routerInfo,
-		      locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization);
+		      locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization,
+		      _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
     }
 }
 

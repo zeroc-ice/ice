@@ -250,7 +250,7 @@ public:
 
     IndirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&, 
 		      const std::string&, Mode, bool, const std::string&, const RouterInfoPtr&, const LocatorInfoPtr&,
-		      bool);
+		      bool, int);
 
     const LocatorInfoPtr& getLocatorInfo() const { return _locatorInfo; }
 

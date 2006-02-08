@@ -39,7 +39,7 @@ public:
     //
     ReferencePtr create(const ::Ice::Identity&, const ::Ice::Context&, const ::std::string&,
 			Reference::Mode, bool, const ::std::string&,
-			const RouterInfoPtr&, const LocatorInfoPtr&, bool);
+			const RouterInfoPtr&, const LocatorInfoPtr&, bool, int);
     //
     // Create a fixed reference.
     //

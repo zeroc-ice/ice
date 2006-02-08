@@ -885,6 +885,24 @@ for the &IceGrid; locator is <literal>IceGrid/Locator:tcp -p
 </section>
 </section>
 
+<section id="Ice.Default.LocatorCacheTimeout"><title>Ice.Default.LocatorCacheTimeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Default.LocatorCacheTimeout=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the default locator cache timeout for indirect proxies. If
+<replaceable>num</replaceable> is set to a value larger than zero,
+locator cache entries older than <replaceable>num</replaceable>
+seconds will be ignored. If set to 0, the locator cache won't be
+used. If set to -1, locator cache entries won't expire.
+</para>
+</section>
+</section>
+
 <section><title>Ice.Default.CollocationOptmization</title>
 <section><title>Synopsis</title>
 <synopsis>

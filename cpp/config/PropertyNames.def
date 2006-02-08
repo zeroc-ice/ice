@@ -121,6 +121,7 @@ Ice:
     Default.CollocationOptimization
     Default.Host
     Default.Locator
+    Default.LocatorCacheTimeout
     Default.Package
     Default.Protocol
     Default.Router

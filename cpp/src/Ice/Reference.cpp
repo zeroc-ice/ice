@@ -772,7 +772,8 @@ IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
 	LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
 							 getSecure(), "", 0, newLocatorInfo,
-							 getCollocationOptimization());
+							 getCollocationOptimization(),
+							 getLocatorCacheTimeout());
     }
     else
     {
@@ -831,7 +832,8 @@ IceInternal::DirectReference::changeAdapterId(const string& newAdapterId) const
 	    getInstance()->locatorManager()->get(getInstance()->referenceFactory()->getDefaultLocator());
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
 							 getSecure(), newAdapterId, getRouterInfo(), locatorInfo,
-							 getCollocationOptimization());
+							 getCollocationOptimization(),
+							 getLocatorCacheTimeout());
     }
     else
     {
@@ -991,11 +993,12 @@ void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
 						  const Identity& ident, const Context& ctx, const string& fs, Mode md,
 						  bool sec, const string& adptid, const RouterInfoPtr& rtrInfo,
-						  const LocatorInfoPtr& locInfo, bool collocationOpt)
+						  const LocatorInfoPtr& locInfo, bool collocationOpt,
+						  int locatorCacheTimeout)
     : RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
       _adapterId(adptid),
       _locatorInfo(locInfo),
-      _locatorCacheTimeout(inst->defaultsAndOverrides()->defaultLocatorCacheTimeout)
+      _locatorCacheTimeout(locatorCacheTimeout)
 {
 }
 
