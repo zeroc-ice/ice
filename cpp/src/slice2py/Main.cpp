@@ -526,11 +526,7 @@ main(int argc, char* argv[])
 	    else
 	    {
 		string base = icecpp.getBaseName();
-		string::size_type pos = base.rfind('/');
-		if(pos == string::npos)
-		{
-		    pos = base.rfind('\\');
-		}
+		string::size_type pos = base.find_last_of("/\\");
 		if(pos != string::npos)
 		{
 		    base.erase(0, pos + 1);
