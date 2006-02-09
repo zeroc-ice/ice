@@ -642,11 +642,11 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		}
 	        out << nl << stream << deref << "writeSize(static_cast< ::Ice::Int>(ice_distance(" 
 		    << fixedParam << ".first, " << fixedParam << ".second)));"; 
-	        out << nl << "for(" << seqType << "::const_iterator __" << fixedParam << " = "
-		    << fixedParam << ".first; __" << fixedParam << " != " << fixedParam << ".second; ++__"
+	        out << nl << "for(" << seqType << "::const_iterator ___" << fixedParam << " = "
+		    << fixedParam << ".first; ___" << fixedParam << " != " << fixedParam << ".second; ++___"
 		    << fixedParam << ")";
 		out << sb;
-		writeMarshalUnmarshalCode(out, seq->type(), "(*__" + fixedParam + ")", true, "", true, l, false);
+		writeMarshalUnmarshalCode(out, seq->type(), "(*___" + fixedParam + ")", true, "", true, l, false);
 		out << eb;
 	    }
 	    else if(!seqType.empty())
@@ -717,8 +717,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                     seqType = findMetaData(l, false);
 	            if(seqType.empty())
 		    {
-	                out << nl << typeToString(type) << " __" << fixedParam << ";";
-	                out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", __"
+	                out << nl << typeToString(type) << " ___" << fixedParam << ";";
+	                out << nl << scope << "___" << func << (pointer ? "" : "&") << stream << ", ___"
 		            << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
 		    }
 		    else
@@ -726,29 +726,36 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		        seqType = "::std::vector< " + typeToString(seq->type()) + ">";
 		        StringList l;
 			l.push_back("cpp:type:" + seqType);
-		        out << nl << seqType << " __" << fixedParam << ";";
-			writeMarshalUnmarshalCode(out, seq, "__" + fixedParam, false, "", true, l, false);
+		        out << nl << seqType << " ___" << fixedParam << ";";
+			writeMarshalUnmarshalCode(out, seq, "___" + fixedParam, false, "", true, l, false);
 		    }
 		}
 		else if(builtin->kind() == Builtin::KindByte)
 		{
 		    out << nl << stream << deref << func << fixedParam << ");";
 		}
-		else if(builtin->kind() == Builtin::KindBool)
+		else if(builtin->kind() != Builtin::KindString && builtin->kind() != Builtin::KindObject &&
+		        builtin->kind() != Builtin::KindObjectProxy)
 		{
-		    out << nl << "::IceUtil::auto_array<bool> __" << fixedParam << ";";
-		    out << nl << stream << deref << func << fixedParam << ", __" << fixedParam << ");";
+		    string s = typeToString(builtin);
+		    if(s[0] == ':')
+		    {
+		       s = " " + s;
+		    }
+		    out << nl << "::IceUtil::auto_array<" << s << "> ___" << fixedParam << ";";
+		    out << nl << stream << deref << func << fixedParam << ", ___" << fixedParam << ");";
 		}
 		else
 		{
-		    out << nl << "::std::vector< " << typeToString(seq->type()) << "> __" << fixedParam << ";";
-		    out << nl << stream << deref << func << "__" << fixedParam << ");";
+		    out << nl << "::std::vector< " << typeToString(seq->type()) << "> ___" << fixedParam << ";";
+		    out << nl << stream << deref << func << "___" << fixedParam << ");";
 		}
 
-	        if(!builtin || (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindBool))
+	        if(!builtin || builtin->kind() == Builtin::KindString || builtin->kind() == Builtin::KindObject ||
+		   builtin->kind() == Builtin::KindObjectProxy)
 	        {
-	            out << nl << fixedParam << ".first" << " = &__" << fixedParam << "[0];";
-	            out << nl << fixedParam << ".second" << " = " << fixedParam << ".first + " << "__" 
+	            out << nl << fixedParam << ".first" << " = &___" << fixedParam << "[0];";
+	            out << nl << fixedParam << ".second" << " = " << fixedParam << ".first + " << "___" 
 		        << fixedParam << ".size();";
 	        }
 	    }
@@ -763,10 +770,10 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		{
 		    l.push_back("cpp:type:" + seqType.substr(strlen("range:")));
 		}
-	        out << nl << typeToString(seq, l, false) << " __" << fixedParam << ";";
-		writeMarshalUnmarshalCode(out, seq, "__" + fixedParam, false, "", true, l, false);
-		out << nl << fixedParam << ".first = __" << fixedParam << ".begin();";
-		out << nl << fixedParam << ".second = __" << fixedParam << ".end();";
+	        out << nl << typeToString(seq, l, false) << " ___" << fixedParam << ";";
+		writeMarshalUnmarshalCode(out, seq, "___" + fixedParam, false, "", true, l, false);
+		out << nl << fixedParam << ".first = ___" << fixedParam << ".begin();";
+		out << nl << fixedParam << ".second = ___" << fixedParam << ".end();";
 	    }
 	    else if(!seqType.empty())
 	    {
@@ -822,7 +829,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		{
 		    StringList md;
 		    md.push_back("cpp:array");
-		    string tmpParam = "__";
+		    string tmpParam = "___";
 		    if(fixedParam.find("(*") == 0)
 		    {
 		        tmpParam += fixedParam.substr(2, fixedParam.length() - 3);
@@ -1107,22 +1114,22 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
 	    if(marshal)
 	    {
 	        out << nl << stream << "->writeSize(static_cast< ::Ice::Int>(" << fixedParam << ".size()));";
-	        out << nl << seqType << "::const_iterator __" << fixedParam << ";";
-		out << nl << "for(__" << fixedParam << " = " << fixedParam << ".begin(); __" << fixedParam << " != "
-		    << fixedParam << ".end(); ++__" << fixedParam << ")";
+	        out << nl << seqType << "::const_iterator ___" << fixedParam << ";";
+		out << nl << "for(___" << fixedParam << " = " << fixedParam << ".begin(); ___" << fixedParam << " != "
+		    << fixedParam << ".end(); ++___" << fixedParam << ")";
 		out << sb;
-		writeStreamMarshalUnmarshalCode(out, seq->type(), "(*__" + fixedParam + ")", true);
+		writeStreamMarshalUnmarshalCode(out, seq->type(), "(*___" + fixedParam + ")", true);
 		out << eb;
 	    }
 	    else
 	    {
 	        out << nl << seqType << "(static_cast< ::Ice::Int>(" << stream << "->readSize())).swap("
 		    << fixedParam << ");";
-	        out << nl << seqType << "::iterator __" << fixedParam << ";";
-		out << nl << "for(__" << fixedParam << " = " << fixedParam << ".begin(); __" << fixedParam << " != "
-		    << fixedParam << ".end(); ++__" << fixedParam << ")";
+	        out << nl << seqType << "::iterator ___" << fixedParam << ";";
+		out << nl << "for(___" << fixedParam << " = " << fixedParam << ".begin(); ___" << fixedParam << " != "
+		    << fixedParam << ".end(); ++___" << fixedParam << ")";
 		out << sb;
-		writeStreamMarshalUnmarshalCode(out, seq->type(), "(*__" + fixedParam + ")", false);
+		writeStreamMarshalUnmarshalCode(out, seq->type(), "(*___" + fixedParam + ")", false);
 		out << eb;
 	    }
 	}

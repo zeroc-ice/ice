@@ -18,6 +18,10 @@ public:
 
     TestIntfI(const Ice::CommunicatorPtr&);
 
+    virtual Test::DoubleSeq opDoubleArray(const std::pair<const Ice::Double*, const Ice::Double*>&,
+			      	          Test::DoubleSeq&,
+			      	          const Ice::Current&);
+
     virtual Test::BoolSeq opBoolArray(const std::pair<const bool*, const bool*>&,
 			      	      Test::BoolSeq&,
 			      	      const Ice::Current&);

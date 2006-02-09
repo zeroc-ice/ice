@@ -824,6 +824,46 @@ IceInternal::BasicStream::read(vector<Short>& v)
 }
 
 void
+IceInternal::BasicStream::read(pair<const Short*, const Short*>& v, IceUtil::auto_array<Short>& b)
+{
+    Int sz;
+    readSize(sz);
+    if(sz > 0)
+    {
+        checkFixedSeq(sz, static_cast<int>(sizeof(Short)));
+#if defined(__i386) || defined(_M_IX86)
+        v.first = reinterpret_cast<Short*>(i);
+        i += sz * static_cast<int>(sizeof(Short));
+        v.second = reinterpret_cast<Short*>(i);
+#else
+        Short* array = new Short[sz];
+        v.first = array;
+        v.second = array + sz;
+        b.reset(array);
+
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Short));
+#  ifdef ICE_BIG_ENDIAN
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&array[0]) + sizeof(Short) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Short);
+        }
+#  else
+        copy(begin, i, reinterpret_cast<Byte*>(&array[0]));
+#  endif
+#endif
+    }
+    else
+    {
+        v.first = v.second = 0;
+    }
+}
+
+void
 IceInternal::BasicStream::write(Int v)
 {
     Container::size_type pos = b.size();
@@ -923,6 +963,48 @@ IceInternal::BasicStream::read(vector<Int>& v)
     else
     {
 	v.clear();
+    }
+}
+
+void
+IceInternal::BasicStream::read(pair<const Int*, const Int*>& v, IceUtil::auto_array<Int>& b)
+{
+    Int sz;
+    readSize(sz);
+    if(sz > 0)
+    {
+        checkFixedSeq(sz, static_cast<int>(sizeof(Int)));
+#if defined(__i386) || defined(_M_IX86)
+        v.first = reinterpret_cast<Int*>(i);
+        i += sz * static_cast<int>(sizeof(Int));
+        v.second = reinterpret_cast<Int*>(i);
+#else
+        Int* array = new Int[sz];
+        v.first = array;
+        v.second = array + sz;
+        b.reset(array);
+
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Int));
+#  ifdef ICE_BIG_ENDIAN
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&array[0]) + sizeof(Int) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Int);
+        }
+#  else
+        copy(begin, i, reinterpret_cast<Byte*>(&array[0]));
+#  endif
+#endif
+    }
+    else
+    {
+        v.first = v.second = 0;
     }
 }
 
@@ -1054,6 +1136,52 @@ IceInternal::BasicStream::read(vector<Long>& v)
 }
 
 void
+IceInternal::BasicStream::read(pair<const Long*, const Long*>& v, IceUtil::auto_array<Long>& b)
+{
+    Int sz;
+    readSize(sz);
+    if(sz > 0)
+    {
+        checkFixedSeq(sz, static_cast<int>(sizeof(Long)));
+#if defined(__i386) || defined(_M_IX86)
+        v.first = reinterpret_cast<Long*>(i);
+        i += sz * static_cast<int>(sizeof(Long));
+        v.second = reinterpret_cast<Long*>(i);
+#else
+        Long* array = new Long[sz];
+        v.first = array;
+        v.second = array + sz;
+        b.reset(array);
+
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Long));
+#  ifdef ICE_BIG_ENDIAN
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&array[0]) + sizeof(Long) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Long);
+        }
+#  else
+        copy(begin, i, reinterpret_cast<Byte*>(&array[0]));
+#  endif
+#endif
+    }
+    else
+    {
+        v.first = v.second = 0;
+    }
+}
+
+void
 IceInternal::BasicStream::write(Float v)
 {
     Container::size_type pos = b.size();
@@ -1153,6 +1281,48 @@ IceInternal::BasicStream::read(vector<Float>& v)
     else
     {
 	v.clear();
+    }
+}
+
+void
+IceInternal::BasicStream::read(pair<const Float*, const Float*>& v, IceUtil::auto_array<Float>& b)
+{
+    Int sz;
+    readSize(sz);
+    if(sz > 0)
+    {
+        checkFixedSeq(sz, static_cast<int>(sizeof(Float)));
+#if defined(__i386) || defined(_M_IX86)
+        v.first = reinterpret_cast<Float*>(i);
+        i += sz * static_cast<int>(sizeof(Float));
+        v.second = reinterpret_cast<Float*>(i);
+#else
+        Float* array = new Float[sz];
+        v.first = array;
+        v.second = array + sz;
+        b.reset(array);
+
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Float));
+#  ifdef ICE_BIG_ENDIAN
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&array[0]) + sizeof(Float) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Float);
+        }
+#  else
+        copy(begin, i, reinterpret_cast<Byte*>(&array[0]));
+#  endif
+#endif
+    }
+    else
+    {
+        v.first = v.second = 0;
     }
 }
 
@@ -1282,6 +1452,54 @@ IceInternal::BasicStream::read(vector<Double>& v)
 	v.clear();
     }
 }
+
+void
+IceInternal::BasicStream::read(pair<const Double*, const Double*>& v, IceUtil::auto_array<Double>& b)
+{
+    Int sz;
+    readSize(sz);
+    if(sz > 0)
+    {
+        checkFixedSeq(sz, static_cast<int>(sizeof(Double)));
+#if defined(__i386) || defined(_M_IX86)
+        v.first = reinterpret_cast<Double*>(i);
+        i += sz * static_cast<int>(sizeof(Double));
+        v.second = reinterpret_cast<Double*>(i);
+#else
+        Double* array = new Double[sz];
+        v.first = array;
+        v.second = array + sz;
+        b.reset(array);
+
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Double));
+#  ifdef ICE_BIG_ENDIAN
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&array[0]) + sizeof(Double) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Double);
+        }
+#  else
+        copy(begin, i, reinterpret_cast<Byte*>(&array[0]));
+#  endif
+#endif
+    }
+    else
+    {
+        v.first = v.second = 0;
+    }
+}
+
+
 
 //
 // NOTE: This member function is intentionally omitted in order to

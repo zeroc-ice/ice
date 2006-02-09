@@ -14,7 +14,7 @@ module Demo
 {
 
 sequence<byte> ByteSeq;
-const int ByteSeqSize = 500000;
+const int ByteSeqSize = 50000;
 
 sequence<string> StringSeq;
 const int StringSeqSize = 50000;
@@ -38,7 +38,7 @@ const int FixedSeqSize = 50000;
 
 interface Throughput
 {
-    void sendByteSeq(ByteSeq seq);
+    void sendByteSeq(["cpp:array"] ByteSeq seq);
     ByteSeq recvByteSeq();
     ByteSeq echoByteSeq(ByteSeq seq);
 

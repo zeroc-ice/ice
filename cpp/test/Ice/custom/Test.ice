@@ -93,8 +93,12 @@ sequence<C*> CPrxSeq;
 sequence<CPrxList> CPrxListSeq;
 ["cpp:type:std::list< ::Test::CPrxSeq>"] sequence<CPrxSeq> CPrxSeqList;
 
+sequence<double> DoubleSeq;
+
 ["ami"] class TestIntf
 {
+    DoubleSeq opDoubleArray(["cpp:array"] DoubleSeq inSeq, out DoubleSeq outSeq);
+
     BoolSeq opBoolArray(["cpp:array"] BoolSeq inSeq, out BoolSeq outSeq);
 
     ByteList opByteArray(["cpp:array"] ByteList inSeq, out ByteList outSeq);

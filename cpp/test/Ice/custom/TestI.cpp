@@ -15,6 +15,15 @@ TestIntfI::TestIntfI(const Ice::CommunicatorPtr& communicator)
 {
 }
 
+Test::DoubleSeq
+TestIntfI::opDoubleArray(const std::pair<const Ice::Double*, const Ice::Double*>& inSeq,
+		         Test::DoubleSeq& outSeq,
+		         const Ice::Current& current)
+{
+    Test::DoubleSeq(inSeq.first, inSeq.second).swap(outSeq);
+    return outSeq;
+}
+
 Test::BoolSeq
 TestIntfI::opBoolArray(const std::pair<const bool*, const bool*>& inSeq,
 		       Test::BoolSeq& outSeq,

@@ -16,6 +16,15 @@ TestIntfI::TestIntfI(const Ice::CommunicatorPtr& communicator)
 }
 
 void
+TestIntfI::opDoubleArray_async(const Test::AMD_TestIntf_opDoubleArrayPtr& opDoubleArrayCB,
+			       const std::pair<const Ice::Double*, const Ice::Double*>& inSeq,
+			       const Ice::Current& current)
+{
+    Test::DoubleSeq outSeq(inSeq.first, inSeq.second);
+    opDoubleArrayCB->ice_response(outSeq, outSeq);
+}
+
+void
 TestIntfI::opBoolArray_async(const Test::AMD_TestIntf_opBoolArrayPtr& opBoolArrayCB,
 			     const std::pair<const bool*, const bool*>& inSeq,
 			     const Ice::Current& current)

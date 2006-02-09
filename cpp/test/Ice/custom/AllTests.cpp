@@ -869,6 +869,26 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     cout << "testing alternate sequences... " << flush;
 
     {
+        Test::DoubleSeq in(5);
+	in[0] = 3.14;
+	in[1] = 1 / 3;
+	in[2] = 0.375;
+	in[3] = 4 / 3;
+	in[4] = -5.725;
+	Ice::Double inArray[5];
+	for(int i = 0; i < 5; ++i)
+	{
+	    inArray[i] = in[i];
+	}
+	pair<const Ice::Double*, const Ice::Double*> inPair(inArray, inArray + 5);
+
+	Test::DoubleSeq out;
+	Test::DoubleSeq ret = t->opDoubleArray(inPair, out);
+	test(out == in);
+	test(ret == in);
+    }
+
+    {
         Test::BoolSeq in(5);
 	in[0] = false;
 	in[1] = true;

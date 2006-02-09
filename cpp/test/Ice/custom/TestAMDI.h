@@ -18,6 +18,10 @@ public:
 
     TestIntfI(const Ice::CommunicatorPtr&);
 
+    virtual void opDoubleArray_async(const Test::AMD_TestIntf_opDoubleArrayPtr&,
+				     const std::pair<const Ice::Double*, const Ice::Double*>&,
+				     const Ice::Current&);
+
     virtual void opBoolArray_async(const Test::AMD_TestIntf_opBoolArrayPtr&,
 				   const std::pair<const bool*, const bool*>&,
 				   const Ice::Current&);

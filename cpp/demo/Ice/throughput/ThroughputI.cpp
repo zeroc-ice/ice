@@ -31,7 +31,7 @@ ThroughputI::ThroughputI() :
 }
 
 void
-ThroughputI::sendByteSeq(const Demo::ByteSeq&, const Ice::Current&)
+ThroughputI::sendByteSeq(const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&)
 {
 }
 
