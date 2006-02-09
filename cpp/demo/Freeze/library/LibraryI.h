@@ -10,13 +10,13 @@
 #ifndef LIBRARY_I_H
 #define LIBRARY_I_H
 
-#include <IceUtil/RWRecMutex.h>
+#include <IceUtil/Mutex.h>
 #include <IceUtil/AbstractMutex.h>
 #include <Freeze/Evictor.h>
 #include <Library.h>
 #include <LibraryTypes.h>
 
-class LibraryI : public Demo::Library, public IceUtil::RWRecMutex
+class LibraryI : public Demo::Library, public IceUtil::Mutex
 {
 public:
 
@@ -46,7 +46,7 @@ private:
 
 typedef IceUtil::Handle<LibraryI> LibraryIPtr;
 
-class BookI : public Demo::Book, public IceUtil::AbstractMutexReadI<IceUtil::RWRecMutex>
+class BookI : public Demo::Book, public IceUtil::AbstractMutexI<IceUtil::Mutex>
 {
 public:
 

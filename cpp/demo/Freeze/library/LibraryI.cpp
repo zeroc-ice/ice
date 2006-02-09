@@ -21,24 +21,16 @@ BookI::BookI(const LibraryIPtr& library) :
 void
 BookI::destroy(const Ice::Current&)
 {
-    RLock sync(*this);
-
+    Lock lock(*this);
     if(_destroyed)
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
-
     _destroyed = true;
 
     try
     {
 	_library->remove(description);
-    }
-    catch(const Freeze::NotFoundException&)
-    {
-	//
-	// Raised by remove. Ignore.
-	//
     }
     catch(const Freeze::DatabaseException& ex)
     {
@@ -51,21 +43,23 @@ BookI::destroy(const Ice::Current&)
 Demo::BookDescription
 BookI::getBookDescription(const Ice::Current&) const
 {
-    RLock sync(*this);
+    Lock lock(*this);
 
     if(_destroyed)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    // Immutable
+    //
+    // Returns a copy
+    //
     return description;
 }
 
 string
 BookI::getRenterName(const Ice::Current&) const
 {
-    RLock sync(*this);
+    Lock lock(*this);
 
     if(_destroyed)
     {
@@ -82,7 +76,7 @@ BookI::getRenterName(const Ice::Current&) const
 void
 BookI::rentBook(const string& name, const Ice::Current&)
 {
-    WLock sync(*this);
+    Lock lock(*this);
 
     if(_destroyed)
     {
@@ -99,7 +93,7 @@ BookI::rentBook(const string& name, const Ice::Current&)
 void
 BookI::returnBook(const Ice::Current&)
 {
-    WLock sync(*this);
+    Lock lock(*this);
 
     if(_destroyed)
     {
@@ -161,7 +155,7 @@ LibraryI::LibraryI(const Ice::CommunicatorPtr& communicator,
 Demo::BookPrx
 LibraryI::createBook(const Demo::BookDescription& description, const Ice::Current& c)
 {
-    WLock sync(*this);
+   Lock lock(*this);
 
 #if defined(__SUNPRO_CC)
     //
@@ -227,7 +221,6 @@ LibraryI::findByIsbn(const string& isbn, const Ice::Current& c) const
     // No locking is necessary since no internal mutable state is
     // accessed.
     //
-    //RLock sync(*this);
 
     try
     {
@@ -240,14 +233,14 @@ LibraryI::findByIsbn(const string& isbn, const Ice::Current& c) const
 	//
 	// Book doesn't exist, return a null proxy.
 	//
-	return BookPrx();
+	return 0;
     }
 }
 
 Demo::BookPrxSeq
 LibraryI::findByAuthors(const string& authors, const Ice::Current& c) const
 {
-    RLock sync(*this);
+    Lock lock(*this);
 
     //
     // Lookup all books that match the given authors, and return them
@@ -284,20 +277,18 @@ LibraryI::shutdown(const Ice::Current& current)
 void
 LibraryI::remove(const BookDescription& description)
 {
-    WLock sync(*this);
+    Lock lock(*this);
+    
+    //
+    // Note: no need to catch and retry on deadlock since all access to
+    // _authors is serialized.
+    //
 
     try
     {
 	StringIsbnSeqDict::iterator p = _authors.find(description.authors);
 	
-	//
-	// If the title isn't found then raise a record not found
-	// exception.
-	//
-	if(p == _authors.end())
-	{
-	    throw Freeze::NotFoundException(__FILE__, __LINE__);
-	}
+	assert(p != _authors.end());
 
 	//
 	// Remove the isbn number from the sequence.
@@ -319,7 +310,7 @@ LibraryI::remove(const BookDescription& description)
 	    //
 	    // Otherwise, write back the new record.
 	    //
-	    _authors.put(StringIsbnSeqDict::value_type(description.authors, isbnSeq));
+	    p.set(isbnSeq);
 	}
 
 	//
