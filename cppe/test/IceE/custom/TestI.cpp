@@ -7,10 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceE/IceE.h>
-#include <deque>
-#include <list>
-#include <MyByteSeq.h>
 #include <TestI.h>
 #include <TestCommon.h>
 

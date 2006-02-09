@@ -10,9 +10,6 @@
 #include <IceE/IceE.h>
 #include <IceE/Locator.h>
 #include <TestCommon.h>
-#include <deque>
-#include <list>
-#include <MyByteSeq.h>
 #include <Test.h>
 
 using namespace std;

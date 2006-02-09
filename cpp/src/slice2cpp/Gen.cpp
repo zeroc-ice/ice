@@ -250,6 +250,9 @@ Slice::Gen::generate(const UnitPtr& p)
 
     H << "\n#include <Ice/UndefSysMacros.h>";
 
+    GlobalIncludeVisitor globalIncludeVisitor(H);
+    p->visit(&globalIncludeVisitor, false);
+
     printVersionCheck(H);
     printVersionCheck(C);
 
@@ -372,6 +375,36 @@ Slice::Gen::writeExtraHeaders(IceUtil::Output& out)
 	    out << "\n#endif";
 	}
     }
+}
+
+Slice::Gen::GlobalIncludeVisitor::GlobalIncludeVisitor(Output& h) :
+    H(h), _finished(false)
+{
+}
+
+bool
+Slice::Gen::GlobalIncludeVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if(!_finished)
+    {
+        DefinitionContextPtr dc = p->definitionContext();
+        assert(dc);
+        StringList globalMetaData = dc->getMetaData();
+
+        static const string includePrefix = "cpp:include:";
+    
+        for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+        {
+            string s = *q;
+            if(s.find(includePrefix) == 0)
+            {
+	        H << nl << "#include <" << s.substr(includePrefix.size()) << ">";
+            }
+        }
+	_finished = true;
+    }
+
+    return false;
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport, bool stream) :
@@ -4702,6 +4735,11 @@ Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
         {
             if(s.find(prefix) == 0)
             {
+                string ss = s.substr(prefix.size());
+		if(ss.find("include:") == 0)
+		{
+		    continue;
+		}
                 cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
             }
             _history.insert(s);

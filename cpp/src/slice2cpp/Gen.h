@@ -59,6 +59,21 @@ private:
     bool _checksum;
     bool _stream;
 
+    class GlobalIncludeVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    {
+    public:
+
+	GlobalIncludeVisitor(::IceUtil::Output&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+
+    private:
+
+	::IceUtil::Output& H;
+
+	bool _finished;
+    };
+
     class TypesVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:

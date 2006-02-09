@@ -9,9 +9,6 @@
 
 #include <Ice/Ice.h>
 #include <TestCommon.h>
-#include <deque>
-#include <list>
-#include <MyByteSeq.h>
 #include <TestAMDI.h>
 
 using namespace std;

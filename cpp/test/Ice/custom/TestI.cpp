@@ -7,10 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
-#include <deque>
-#include <list>
-#include <MyByteSeq.h>
+#include <Ice/Communicator.h>
 #include <TestI.h>
 
 TestIntfI::TestIntfI(const Ice::CommunicatorPtr& communicator)

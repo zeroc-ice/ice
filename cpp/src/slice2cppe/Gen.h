@@ -61,6 +61,21 @@ private:
     std::string _dllExport;
     bool _impl;
 
+    class GlobalIncludeVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    {
+    public:
+
+        GlobalIncludeVisitor(::IceUtil::Output&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+
+    private:
+
+        ::IceUtil::Output& H;
+
+        bool _finished;
+    };
+
     class TypesVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:

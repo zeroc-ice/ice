@@ -40,7 +40,7 @@ SLICE_SRCS	= Test.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	 := -I. -I../../include $(CPPFLAGS)
-SLICE2CPPEFLAGS  := --add-header MyByteSeq.h --add-header deque --add-header list $(SLICE2CPPFLAGS)
+SLICE2CPPEFLAGS  := $(SLICE2CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
