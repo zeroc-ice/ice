@@ -10,7 +10,7 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-[["cpp:include <deque>", "cpp:include <list>", "cpp:include \"MyByteSeq.h\""]]
+[["cpp:include:deque", "cpp:include:list", "cpp:include:MyByteSeq.h"]]
 
 module Test
 {
