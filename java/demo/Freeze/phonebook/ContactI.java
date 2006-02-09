@@ -53,7 +53,7 @@ class ContactI extends Contact
 	this.phone = phone;
     }
 
-    synchronized public void
+    public void
     destroy(Ice.Current current)
 	throws DatabaseException
     {

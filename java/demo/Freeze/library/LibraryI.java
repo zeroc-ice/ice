@@ -158,14 +158,8 @@ class LibraryI extends _LibraryDisp
 	{
 	    String[] isbnSeq = (String[])_authors.get(description.authors);
 
-	    //
-	    // If the title isn't found then raise a record not found
-	    // exception.
-	    //
-	    if(isbnSeq == null)
-	    {
-		throw new Freeze.NotFoundException();
-	    }
+	    assert isbnSeq != null;
+	    
 
 	    int i;
 	    for(i = 0; i < isbnSeq.length; ++i)
@@ -176,10 +170,7 @@ class LibraryI extends _LibraryDisp
 		}
 	    }
 
-	    if(i >= isbnSeq.length)
-	    {
-		throw new Freeze.NotFoundException();
-	    }
+	    assert i < isbnSeq.length;
 
 	    if(isbnSeq.length == 1)
 	    {

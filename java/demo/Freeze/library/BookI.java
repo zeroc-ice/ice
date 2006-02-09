@@ -93,12 +93,6 @@ class BookI extends Book
 	{
 	    _library.remove(description);
 	}
-	catch(Freeze.NotFoundException ex)
-	{
-	    //
-	    // Raised by remove. Ignore.
-	    //
-	}
 	catch(Freeze.DatabaseException ex)
 	{
 	    DatabaseException e = new DatabaseException();
