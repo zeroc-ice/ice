@@ -23,7 +23,7 @@ typedef IceUtil::Handle<PhoneBookI> PhoneBookIPtr;
 class ContactI;
 typedef IceUtil::Handle<ContactI> ContactIPtr;
 
-class ContactI : public Demo::Contact, public IceUtil::AbstractMutexReadI<IceUtil::RWRecMutex>
+class ContactI : public Demo::Contact, public IceUtil::AbstractMutexI<IceUtil::Mutex>
 {
 public:
 
