@@ -391,14 +391,14 @@ Slice::Gen::GlobalIncludeVisitor::visitModuleStart(const ModulePtr& p)
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
 
-        static const string includePrefix = "cpp:include:";
+        static const string includePrefix = "cpp:include ";
     
         for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
         {
             string s = *q;
             if(s.find(includePrefix) == 0)
             {
-	        H << nl << "#include <" << s.substr(includePrefix.size()) << ">";
+	        H << nl << "#" << s.substr(strlen("cpp:"));
             }
         }
 	_finished = true;
@@ -4736,7 +4736,7 @@ Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
             if(s.find(prefix) == 0)
             {
                 string ss = s.substr(prefix.size());
-		if(ss.find("include:") == 0)
+		if(ss.find("include ") == 0)
 		{
 		    continue;
 		}
