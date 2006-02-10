@@ -58,12 +58,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /dll /incremental:yes /debug /machine:I386 /out:"Release/iceec10.dll" /implib:"Release/iceec.lib"
+# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /dll /incremental:yes /debug /machine:I386 /out:"Release/iceec11.dll" /implib:"Release/iceec.lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\iceec.lib ..\..\lib\	copy $(OutDir)\iceec10.dll ..\..\bin	copy $(OutDir)\iceec10.pdb ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\iceec.lib ..\..\lib\	copy $(OutDir)\iceec11.dll ..\..\bin	copy $(OutDir)\iceec11.pdb ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "icec - Win32 Debug"
@@ -95,12 +95,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /dll /debug /machine:I386 /out:"Debug/iceec10d.dll" /implib:"Debug/iceecd.lib"
+# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /dll /debug /machine:I386 /out:"Debug/iceec11d.dll" /implib:"Debug/iceecd.lib"
 # SUBTRACT LINK32 /profile /pdb:none /incremental:no /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\iceecd.lib ..\..\lib\	copy $(OutDir)\iceec10d.pdb ..\..\bin	copy $(OutDir)\iceec10d.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\iceecd.lib ..\..\lib\	copy $(OutDir)\iceec11d.pdb ..\..\bin	copy $(OutDir)\iceec11d.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "icec - Win32 Release Static"
