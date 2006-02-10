@@ -93,6 +93,8 @@ public:
     void writeBlob(const Ice::Byte*, Container::size_type);
     void readBlob(Ice::Byte*, Container::size_type);
 
+    void readBlob(std::pair<const Ice::Byte*, const Ice::Byte*>&, Ice::Int);
+
     void write(Ice::Byte v)
     {
 	b.push_back(v);
