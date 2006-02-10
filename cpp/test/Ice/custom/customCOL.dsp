@@ -197,7 +197,7 @@ SOURCE=.\Test.ice
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cpp.exe -I. --stream Test.ice
+	..\..\..\bin\slice2cpp.exe -I. --stream Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -212,7 +212,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cpp.exe -I. --stream Test.ice
+	..\..\..\bin\slice2cpp.exe -I. --stream Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -227,7 +227,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cpp.exe -I. --stream Test.ice
+	..\..\..\bin\slice2cpp.exe -I. --stream Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -242,7 +242,7 @@ BuildCmds= \
 InputPath=.\Test.ice
 
 BuildCmds= \
-	slice2cpp.exe -I. --stream Test.ice
+	..\..\..\bin\slice2cpp.exe -I. --stream Test.ice
 
 "Test.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

@@ -193,7 +193,7 @@ SOURCE=.\TestAMD.ice
 InputPath=.\TestAMD.ice
 
 BuildCmds= \
-	slice2cpp.exe -I. --stream TestAMD.ice
+	..\..\..\bin\slice2cpp.exe -I. --stream TestAMD.ice
 
 "TestAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -208,7 +208,7 @@ BuildCmds= \
 InputPath=.\TestAMD.ice
 
 BuildCmds= \
-	slice2cpp.exe -I. --stream TestAMD.ice
+	..\..\..\bin\slice2cpp.exe -I. --stream TestAMD.ice
 
 "TestAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -223,7 +223,7 @@ BuildCmds= \
 InputPath=.\TestAMD.ice
 
 BuildCmds= \
-	slice2cpp.exe -I. --stream TestAMD.ice
+	..\..\..\bin\slice2cpp.exe -I. --stream TestAMD.ice
 
 "TestAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -238,7 +238,7 @@ BuildCmds= \
 InputPath=.\TestAMD.ice
 
 BuildCmds= \
-	slice2cpp.exe -I. --stream TestAMD.ice
+	..\..\..\bin\slice2cpp.exe -I. --stream TestAMD.ice
 
 "TestAMD.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
