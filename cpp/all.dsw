@@ -639,6 +639,42 @@ Package=<4>
 
 ###############################################################################
 
+Project: "bindingC"=.\test\Ice\binding\bindingC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "bindingS"=.\test\Ice\binding\bindingS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "callbackC"=.\demo\ice\callback\callbackC.dsp - Package Owner=<4>
 
 Package=<5>

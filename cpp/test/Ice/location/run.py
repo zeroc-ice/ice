@@ -22,5 +22,5 @@ import TestUtil
 
 name = os.path.join("Ice", "location")
 
-TestUtil.clientServerTest(name)
+TestUtil.mixedClientServerTest(name)
 sys.exit(0)
