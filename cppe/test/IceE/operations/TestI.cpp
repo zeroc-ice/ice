@@ -359,6 +359,17 @@ MyDerivedClassI::opContext(const Ice::Current& c)
     return c.ctx;
 }
 
+void 
+MyDerivedClassI::opDoubleMarshaling(Ice::Double p1, const Test::DoubleS& p2, const Ice::Current&)
+{
+    Ice::Double d = 1278312346.0 / 13.0;
+    test(p1 == d);
+    for(unsigned int i = 0; i < p2.size(); ++i)
+    {
+        test(p2[i] == d);
+    }
+}
+
 void
 MyDerivedClassI::opDerived(const Ice::Current&)
 {

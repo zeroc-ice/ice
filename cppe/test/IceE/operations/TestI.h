@@ -152,6 +152,8 @@ public:
 
     virtual Ice::Context opContext(const Ice::Current&);
 
+    virtual void opDoubleMarshaling(Ice::Double, const Test::DoubleS&, const Ice::Current&);
+
     virtual void opDerived(const Ice::Current&);
 
 private:

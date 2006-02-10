@@ -685,4 +685,10 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    communicator->setDefaultContext(Ice::Context());
 	}
     }
+
+    {
+        Ice::Double d = 1278312346.0 / 13.0;
+	Test::DoubleS ds(5, d);
+	p->opDoubleMarshaling(d, ds);
+    }
 }

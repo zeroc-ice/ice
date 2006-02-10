@@ -1,6 +1,8 @@
 Changes since version 1.0.0
 ---------------------------
 
+- Fixed the marshalling of doubles on ARM/Linux.
+
 - Added the ability to specify other mappings for slice sequences other
   than std::vector. This is done through metadata in a similar way to
   which IceJ supports alternate sequence mappings. Please see the Ice 
