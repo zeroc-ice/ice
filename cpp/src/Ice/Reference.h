@@ -46,7 +46,9 @@ public:
     const Ice::Identity& getIdentity() const { return _identity; }
     const std::string& getFacet() const { return _facet; }
     const InstancePtr& getInstance() const { return _instance; }
-    const Ice::Context& getContext() const;
+    const Ice::Context& getContext() const { return _context; }
+    const bool getCacheConnection() const { return _cacheConnection; }
+    const Ice::EndpointSelectionType getEndpointSelection() const { return _endpointSelection; }
 
     ReferencePtr defaultContext() const;
 
@@ -67,6 +69,8 @@ public:
     ReferencePtr changeMode(Mode) const;
     ReferencePtr changeIdentity(const Ice::Identity&) const;
     ReferencePtr changeFacet(const std::string&) const;
+    ReferencePtr changeCacheConnection(bool) const;
+    ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const;
 
     virtual ReferencePtr changeSecure(bool) const = 0;
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const = 0;
@@ -117,7 +121,8 @@ private:
     Ice::Identity _identity;
     Ice::Context _context;
     std::string _facet;
-    static std::string _emptyAdapterId;
+    bool _cacheConnection;
+    Ice::EndpointSelectionType _endpointSelection;
 
     IceUtil::Mutex _hashMutex; // For lazy initialization of hash value.
     mutable Ice::Int _hashValue;
@@ -165,6 +170,8 @@ protected:
 
     FixedReference(const FixedReference&);
 
+    std::vector<Ice::ConnectionIPtr> filterConnections(const std::vector<Ice::ConnectionIPtr>&) const;
+
 private:
 
     std::vector<Ice::ConnectionIPtr> _fixedConnections;
@@ -198,6 +205,7 @@ protected:
 		      const std::string&, Mode, bool, const RouterInfoPtr&, bool);
     RoutableReference(const RoutableReference&);
 
+    Ice::ConnectionIPtr createConnection(const std::vector<EndpointIPtr>&, bool&) const;
 
 private:
 
@@ -287,9 +295,6 @@ private:
     LocatorInfoPtr _locatorInfo;
     int _locatorCacheTimeout;
 };
-
-std::vector<EndpointIPtr> filterEndpoints(const std::vector<EndpointIPtr>&, Reference::Mode, bool);
-std::vector<Ice::ConnectionIPtr> filterConnections(const std::vector<Ice::ConnectionIPtr>&, Reference::Mode, bool);
 
 }
 

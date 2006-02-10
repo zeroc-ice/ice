@@ -462,6 +462,48 @@ IceProxy::Ice::Object::ice_locatorCacheTimeout(int newTimeout) const
     }
 }
 
+bool
+IceProxy::Ice::Object::ice_getCacheConnection() const
+{
+    return _reference->getCacheConnection();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_cacheConnection(bool newCache) const
+{
+    if(newCache == _reference->getCacheConnection())
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changeCacheConnection(newCache));
+	return proxy;
+    }
+}
+
+bool
+IceProxy::Ice::Object::ice_getEndpointSelection() const
+{
+    return _reference->getEndpointSelection();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_endpointSelection(EndpointSelectionType newType) const
+{
+    if(newType == _reference->getEndpointSelection())
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changeEndpointSelection(newType));
+	return proxy;
+    }
+}
+
 ObjectPrx
 IceProxy::Ice::Object::ice_twoway() const
 {
@@ -733,17 +775,20 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
 
     _reference = ref;
 
-    if(delegateD)
+    if(_reference->getCacheConnection())
     {
-	Handle< ::IceDelegateD::Ice::Object> delegate = __createDelegateD();
-	delegate->__copyFrom(delegateD);
-	_delegate = delegate;
-    }
-    else if(delegateM)
-    {
-	Handle< ::IceDelegateM::Ice::Object> delegate = __createDelegateM();
-	delegate->__copyFrom(delegateM);
-	_delegate = delegate;
+	if(delegateD)
+	{
+	    Handle< ::IceDelegateD::Ice::Object> delegate = __createDelegateD();
+	    delegate->__copyFrom(delegateD);
+	    _delegate = delegate;
+	}
+	else if(delegateM)
+	{
+	    Handle< ::IceDelegateM::Ice::Object> delegate = __createDelegateM();
+	    delegate->__copyFrom(delegateM);
+	    _delegate = delegate;
+	}
     }
 }
 
@@ -835,39 +880,47 @@ IceProxy::Ice::Object::__getDelegate()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if(!_delegate)
+    if(_delegate)
     {
-	if(_reference->getCollocationOptimization())
-	{
-	    ObjectAdapterPtr adapter = _reference->getInstance()->objectAdapterFactory()->findObjectAdapter(this);
-	    if(adapter)
-	    {
-		Handle< ::IceDelegateD::Ice::Object> delegate = __createDelegateD();
-		delegate->setup(_reference, adapter);
-		_delegate = delegate;
-	    }
-	}
+	return _delegate;
+    }
 
-	if(!_delegate)
+    Handle< ::IceDelegate::Ice::Object> delegate;
+    if(_reference->getCollocationOptimization())
+    {
+	ObjectAdapterPtr adapter = _reference->getInstance()->objectAdapterFactory()->findObjectAdapter(this);
+	if(adapter)
 	{
-	    Handle< ::IceDelegateM::Ice::Object> delegate = __createDelegateM();
-	    delegate->setup(_reference);
-	    _delegate = delegate;
-
-	    //
-	    // If this proxy is for a non-local object, and we are
-	    // using a router, then add this proxy to the router info
-	    // object.
-	    //
-	    RoutableReferencePtr rr = RoutableReferencePtr::dynamicCast(_reference);
-	    if(rr && rr->getRouterInfo())
-	    {
-		rr->getRouterInfo()->addProxy(this);
-	    }
+	    Handle< ::IceDelegateD::Ice::Object> d = __createDelegateD();
+	    d->setup(_reference, adapter);
+	    delegate = d;
 	}
     }
 
-    return _delegate;
+    if(!delegate)
+    {
+	Handle< ::IceDelegateM::Ice::Object> d = __createDelegateM();
+	d->setup(_reference);
+	delegate = d;
+	
+	//
+	// If this proxy is for a non-local object, and we are
+	// using a router, then add this proxy to the router info
+	// object.
+	//
+	RoutableReferencePtr rr = RoutableReferencePtr::dynamicCast(_reference);
+	if(rr && rr->getRouterInfo())
+	{
+	    rr->getRouterInfo()->addProxy(this);
+	}
+    }
+
+    if(_reference->getCacheConnection())
+    {
+	_delegate = delegate;
+    }
+
+    return delegate;
 }
 
 Handle< ::IceDelegateM::Ice::Object>

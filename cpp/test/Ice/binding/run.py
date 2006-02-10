@@ -20,7 +20,7 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-name = os.path.join("Ice", "location")
+name = os.path.join("Ice", "binding")
 
 TestUtil.clientServerTest(name)
 sys.exit(0)

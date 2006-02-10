@@ -33,10 +33,10 @@ using namespace IceInternal;
 void IceInternal::incRef(IceInternal::Reference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::Reference* p) { p->__decRef(); }
 
-const Context&
-IceInternal::Reference::getContext() const
+CommunicatorPtr
+IceInternal::Reference::getCommunicator() const
 {
-    return _context;
+    return _communicator;
 }
 
 ReferencePtr
@@ -45,12 +45,6 @@ IceInternal::Reference::defaultContext() const
     ReferencePtr r = _instance->referenceFactory()->copy(this);
     r->_context = _instance->getDefaultContext();
     return r;
-}
-
-CommunicatorPtr
-IceInternal::Reference::getCommunicator() const
-{
-    return _communicator;
 }
 
 ReferencePtr
@@ -94,6 +88,30 @@ IceInternal::Reference::changeFacet(const string& newFacet) const
     }
     ReferencePtr r = _instance->referenceFactory()->copy(this);
     r->_facet = newFacet;
+    return r;
+}
+
+ReferencePtr
+IceInternal::Reference::changeCacheConnection(bool newCache) const
+{
+    if(newCache == _cacheConnection)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    ReferencePtr r = _instance->referenceFactory()->copy(this);
+    r->_cacheConnection = newCache;
+    return r;
+}
+
+ReferencePtr
+IceInternal::Reference::changeEndpointSelection(EndpointSelectionType newType) const
+{
+    if(newType == _endpointSelection)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    ReferencePtr r = _instance->referenceFactory()->copy(this);
+    r->_endpointSelection = newType;
     return r;
 }
 
@@ -284,6 +302,16 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
+    if(_cacheConnection != r._cacheConnection)
+    {
+	return false;
+    }
+
+    if(_endpointSelection != r._endpointSelection)
+    {
+	return false;
+    }
+
     return true;
 }
 
@@ -335,7 +363,25 @@ IceInternal::Reference::operator<(const Reference& r) const
     {
 	return false;
     }
-
+    
+    if(!_cacheConnection && r._cacheConnection)
+    {
+	return true;
+    }
+    else if(r._cacheConnection < _cacheConnection)
+    {
+	return false;
+    }
+    
+    if(_endpointSelection < r._endpointSelection)
+    {
+	return true;
+    }
+    else if(r._endpointSelection < _endpointSelection)
+    {
+	return false;
+    }
+    
     return false;
 }
 
@@ -369,6 +415,8 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const CommunicatorPtr
       _identity(ident),
       _context(ctx),
       _facet(fs),
+      _cacheConnection(true),
+      _endpointSelection(Random),
       _hashInitialized(false)
 {
 }
@@ -380,6 +428,8 @@ IceInternal::Reference::Reference(const Reference& r)
       _identity(r._identity),
       _context(r._context),
       _facet(r._facet),
+      _cacheConnection(r._cacheConnection),
+      _endpointSelection(r._endpointSelection),
       _hashInitialized(false)
 {
 }
@@ -512,7 +562,7 @@ IceInternal::FixedReference::toString() const
 ConnectionIPtr
 IceInternal::FixedReference::getConnection(bool& compress) const
 {
-    vector<ConnectionIPtr> filteredConns = filterConnections(_fixedConnections, getMode(), getSecure());
+    vector<ConnectionIPtr> filteredConns = filterConnections(_fixedConnections);
     if(filteredConns.empty())
     {
 	NoEndpointException ex(__FILE__, __LINE__);
@@ -580,6 +630,66 @@ IceInternal::FixedReference::FixedReference(const FixedReference& r)
     : Reference(r),
       _fixedConnections(r._fixedConnections)
 {
+}
+
+vector<ConnectionIPtr>
+IceInternal::FixedReference::filterConnections(const vector<ConnectionIPtr>& allConnections) const
+{
+    vector<ConnectionIPtr> connections = allConnections;
+
+    switch(getMode())
+    {
+	case Reference::ModeTwoway:
+	case Reference::ModeOneway:
+	case Reference::ModeBatchOneway:
+	{
+	    //
+	    // Filter out datagram connections.
+	    //
+            connections.erase(remove_if(connections.begin(), connections.end(), ConnectionIsDatagram()),
+			      connections.end());
+	    break;
+	}
+	
+	case Reference::ModeDatagram:
+	case Reference::ModeBatchDatagram:
+	{
+	    //
+	    // Filter out non-datagram connections.
+	    //
+            connections.erase(remove_if(connections.begin(), connections.end(), not1(ConnectionIsDatagram())),
+			      connections.end());
+	    break;
+	}
+    }
+    
+    //
+    // Randomize the order of connections.
+    //
+    random_shuffle(connections.begin(), connections.end());
+    
+    //
+    // If a secure connection is requested, remove all non-secure
+    // connections. Otherwise make non-secure connections preferred over
+    // secure connections by partitioning the connection vector, so that
+    // non-secure connections come first.
+    //
+    if(getSecure())
+    {
+	connections.erase(remove_if(connections.begin(), connections.end(), not1(ConnectionIsSecure())),
+			  connections.end());
+    }
+    else
+    {
+	//
+	// We must use stable_partition() instead of just simply
+	// partition(), because otherwise some STL implementations
+	// order our now randomized connections.
+	//
+	stable_partition(connections.begin(), connections.end(), not1(ConnectionIsSecure()));
+    }
+    
+    return connections;
 }
 
 void IceInternal::incRef(IceInternal::RoutableReference* p) { p->__incRef(); }
@@ -732,6 +842,142 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
       _routerInfo(r._routerInfo),
       _collocationOptimization(r._collocationOptimization)
 {
+}
+
+ConnectionIPtr
+IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& allEndpoints, bool& comp) const
+{
+    vector<EndpointIPtr> endpoints = allEndpoints;
+
+    //
+    // Filter out unknown endpoints.
+    //
+    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::unknown)),
+		    endpoints.end());
+
+    //
+    // Filter out endpoints according to the mode of the reference.
+    //
+    switch(getMode())
+    {
+	case Reference::ModeTwoway:
+	case Reference::ModeOneway:
+	case Reference::ModeBatchOneway:
+	{
+	    //
+	    // Filter out datagram endpoints.
+	    //
+            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::datagram)),
+                            endpoints.end());
+	    break;
+	}
+	
+	case Reference::ModeDatagram:
+	case Reference::ModeBatchDatagram:
+	{
+	    //
+	    // Filter out non-datagram endpoints.
+	    //
+            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
+				      not1(Ice::constMemFun(&EndpointI::datagram))),
+                            endpoints.end());
+	    break;
+	}
+    }
+    
+    //
+    // Sort the endpoints according to the endpoint selection type.
+    //
+    switch(getEndpointSelection())
+    {
+    case Random:
+    {
+	random_shuffle(endpoints.begin(), endpoints.end());
+	break;
+    }
+    case Ordered:
+    {
+	// Nothing to do.
+	break;
+    }
+    default:
+    {
+	assert(false);
+	break;
+    }
+    }
+    
+    //
+    // If a secure connection is requested, remove all non-secure
+    // endpoints. Otherwise make non-secure endpoints preferred over
+    // secure endpoints by partitioning the endpoint vector, so that
+    // non-secure endpoints come first.
+    //
+    if(getSecure())
+    {
+	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&EndpointI::secure))),
+			endpoints.end());
+    }
+    else
+    {
+	//
+	// We must use stable_partition() instead of just simply
+	// partition(), because otherwise some STL implementations
+	// order our now randomized endpoints.
+	//
+	stable_partition(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&EndpointI::secure)));
+    }
+
+    if(endpoints.empty())
+    {
+        NoEndpointException ex(__FILE__, __LINE__);
+	ex.proxy = toString();
+	throw ex;
+    }
+
+    //
+    // Finally, create the connection.
+    //
+    OutgoingConnectionFactoryPtr factory = getInstance()->outgoingConnectionFactory();
+    if(getCacheConnection() || endpoints.size() == 1)
+    {
+	//
+	// Get an existing connection or create one if there's no
+	// existing connection to one of the given endpoints.
+	//
+	return factory->create(endpoints, false, comp);
+    }
+    else
+    {
+	//
+	// Go through the list of endpoints and try to create the
+	// connection until it succeeds. This is different from just
+	// calling create() with the given endpoints since this might
+	// create a new connection even if there's an existing
+	// connection for one of the endpoints.
+	//
+
+	auto_ptr<LocalException> exception;
+	vector<EndpointIPtr> endpoint;
+	endpoint.push_back(0);
+
+	for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+	{
+	    try
+	    {
+		endpoint.back() = *p;
+		return factory->create(endpoint, p + 1 == endpoints.end(), comp);
+	    }
+	    catch(const LocalException& ex)
+	    {
+		exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
+	    }
+	}
+
+	assert(exception.get());
+	exception->ice_throw();
+	return 0; // Keeps the compiler happy.
+    }
 }
 
 void IceInternal::incRef(IceInternal::DirectReference* p) { p->__incRef(); }
@@ -905,17 +1151,8 @@ IceInternal::DirectReference::getConnection(bool& comp) const
     {
 	endpts = _endpoints;
     }
-    vector<EndpointIPtr> filteredEndpoints = filterEndpoints(endpts, getMode(), getSecure());
-    if(filteredEndpoints.empty())
-    {
-        NoEndpointException ex(__FILE__, __LINE__);
-	ex.proxy = toString();
-	throw ex;
-    }
 
-    OutgoingConnectionFactoryPtr factory = getInstance()->outgoingConnectionFactory();
-    ConnectionIPtr connection = factory->create(filteredEndpoints, comp);
-    assert(connection);
+    ConnectionIPtr connection = createConnection(endpts, comp);
 
     //
     // If we have a router, set the object adapter for this router
@@ -985,7 +1222,6 @@ IceInternal::DirectReference::DirectReference(const DirectReference& r)
       _endpoints(r._endpoints)
 {
 }
-
 
 void IceInternal::incRef(IceInternal::IndirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
@@ -1181,19 +1417,15 @@ IceInternal::IndirectReference::getConnection(bool& comp) const
 	{
 	    *p = (*p)->connectionId(_connectionId);
 	}
-	vector<EndpointIPtr> filteredEndpoints = filterEndpoints(endpts, getMode(), getSecure());
-	if(filteredEndpoints.empty())
-	{
-	    NoEndpointException ex(__FILE__, __LINE__);
-	    ex.proxy = toString();
-	    throw ex;
-	}
 
 	try
 	{
-	    OutgoingConnectionFactoryPtr factory = getInstance()->outgoingConnectionFactory();
-	    connection = factory->create(filteredEndpoints, comp);
+	    connection = createConnection(endpts, comp);
 	    assert(connection);
+	}
+	catch(const NoEndpointException& ex)
+	{
+	    throw ex; // No need to retry if there's no endpoints.
 	}
 	catch(const LocalException& ex)
 	{
@@ -1324,129 +1556,3 @@ IceInternal::IndirectReference::IndirectReference(const IndirectReference& r)
 {
 }
 
-vector<EndpointIPtr>
-IceInternal::filterEndpoints(const vector<EndpointIPtr>& allEndpoints, Reference::Mode m, bool sec)
-{
-    vector<EndpointIPtr> endpoints = allEndpoints;
-
-    //
-    // Filter out unknown endpoints.
-    //
-    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::unknown)),
-		    endpoints.end());
-
-    switch(m)
-    {
-	case Reference::ModeTwoway:
-	case Reference::ModeOneway:
-	case Reference::ModeBatchOneway:
-	{
-	    //
-	    // Filter out datagram endpoints.
-	    //
-            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::datagram)),
-                            endpoints.end());
-	    break;
-	}
-	
-	case Reference::ModeDatagram:
-	case Reference::ModeBatchDatagram:
-	{
-	    //
-	    // Filter out non-datagram endpoints.
-	    //
-            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
-				      not1(Ice::constMemFun(&EndpointI::datagram))),
-                            endpoints.end());
-	    break;
-	}
-    }
-    
-    //
-    // Randomize the order of endpoints.
-    //
-    random_shuffle(endpoints.begin(), endpoints.end());
-    
-    //
-    // If a secure connection is requested, remove all non-secure
-    // endpoints. Otherwise make non-secure endpoints preferred over
-    // secure endpoints by partitioning the endpoint vector, so that
-    // non-secure endpoints come first.
-    //
-    if(sec)
-    {
-	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&EndpointI::secure))),
-			endpoints.end());
-    }
-    else
-    {
-	//
-	// We must use stable_partition() instead of just simply
-	// partition(), because otherwise some STL implementations
-	// order our now randomized endpoints.
-	//
-	stable_partition(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&EndpointI::secure)));
-    }
-    
-    return endpoints;
-}
-
-vector<ConnectionIPtr>
-IceInternal::filterConnections(const vector<ConnectionIPtr>& allConnections, Reference::Mode m, bool secure)
-{
-    vector<ConnectionIPtr> connections = allConnections;
-
-    switch(m)
-    {
-	case Reference::ModeTwoway:
-	case Reference::ModeOneway:
-	case Reference::ModeBatchOneway:
-	{
-	    //
-	    // Filter out datagram connections.
-	    //
-            connections.erase(remove_if(connections.begin(), connections.end(), ConnectionIsDatagram()),
-			      connections.end());
-	    break;
-	}
-	
-	case Reference::ModeDatagram:
-	case Reference::ModeBatchDatagram:
-	{
-	    //
-	    // Filter out non-datagram connections.
-	    //
-            connections.erase(remove_if(connections.begin(), connections.end(), not1(ConnectionIsDatagram())),
-			      connections.end());
-	    break;
-	}
-    }
-    
-    //
-    // Randomize the order of connections.
-    //
-    random_shuffle(connections.begin(), connections.end());
-    
-    //
-    // If a secure connection is requested, remove all non-secure
-    // connections. Otherwise make non-secure connections preferred over
-    // secure connections by partitioning the connection vector, so that
-    // non-secure connections come first.
-    //
-    if(secure)
-    {
-	connections.erase(remove_if(connections.begin(), connections.end(), not1(ConnectionIsSecure())),
-			  connections.end());
-    }
-    else
-    {
-	//
-	// We must use stable_partition() instead of just simply
-	// partition(), because otherwise some STL implementations
-	// order our now randomized connections.
-	//
-	stable_partition(connections.begin(), connections.end(), not1(ConnectionIsSecure()));
-    }
-    
-    return connections;
-}

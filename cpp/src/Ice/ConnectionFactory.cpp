@@ -90,7 +90,7 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 }
 
 ConnectionIPtr
-IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpts, bool& compress)
+IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpts, bool moreEndpts, bool& compress)
 {
     assert(!endpts.empty());
     vector<EndpointIPtr> endpoints = endpts;
@@ -318,7 +318,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
 	    Trace out(_instance->logger(), traceLevels->retryCat);
 
 	    out << "connection to endpoint failed";
-	    if(q + 1 != endpoints.end())
+	    if(moreEndpts || q + 1 != endpoints.end())
 	    {
 		out << ", trying next endpoint\n";
 	    }

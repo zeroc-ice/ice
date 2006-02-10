@@ -13,6 +13,12 @@
 module Ice
 {
 
+enum EndpointSelectionType
+{
+    Random,
+    Ordered
+};
+
 /**
  *
  * The user-level interface to an endpoint.
