@@ -115,10 +115,9 @@ public:
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if endpoint was configured with no host set. This
-    // only applies for ObjectAdapter endpoints.
+    // host if endpoint was configured with no host set.
     //
-    virtual std::vector<EndpointIPtr> expand() const = 0;
+    virtual std::vector<EndpointIPtr> expand(bool) const = 0;
 
     //
     // Return whether the endpoint should be published in proxies

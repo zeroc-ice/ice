@@ -27,7 +27,7 @@ final class SslEndpointI extends IceInternal.EndpointI
     }
 
     public
-    SslEndpointI(Instance instance, String str, boolean adapterEndp)
+    SslEndpointI(Instance instance, String str)
     {
 	_instance = instance;
 	_host = null;
@@ -138,17 +138,10 @@ final class SslEndpointI extends IceInternal.EndpointI
 	    _host = _instance.defaultHost();
             if(_host == null)
             {
-	        if(adapterEndp)
-		{
-		    _host = "0.0.0.0";
-		}
-		else
-		{
-                    _host = IceInternal.Network.getLocalHost(true);
-		}
+		_host = "0.0.0.0";
             }
 	}
-	else if(_host.equals("*") && adapterEndp)
+	else if(_host.equals("*"))
 	{
 	    _host = "0.0.0.0";
 	}
@@ -367,7 +360,7 @@ final class SslEndpointI extends IceInternal.EndpointI
     // only applies for ObjectAdapter endpoints.
     //
     public java.util.ArrayList
-    expand()
+    expand(boolean includeLoopback)
     {
         java.util.ArrayList endps = new java.util.ArrayList();
         if(_host.equals("0.0.0.0"))
@@ -377,8 +370,11 @@ final class SslEndpointI extends IceInternal.EndpointI
             while(iter.hasNext())
             {
                 String host = (String)iter.next();
-                endps.add(new SslEndpointI(_instance, host, _port, _timeout, _connectionId, _compress,
-					   hosts.size() == 1 || !host.equals("127.0.0.1")));
+		if(includeLoopback || hosts.size() == 1 || !host.equals("127.0.0.1"))
+		{
+                    endps.add(new SslEndpointI(_instance, host, _port, _timeout, _connectionId, _compress,
+					       hosts.size() == 1 || !host.equals("127.0.0.1")));
+		}
             }
         }
         else

@@ -79,15 +79,6 @@ IceInternal::UnknownEndpoint::acceptor(EndpointPtr& endp) const
     return 0;
 }
 
-vector<EndpointPtr>
-IceInternal::UnknownEndpoint::expand() const
-{
-    assert(false);
-    vector<EndpointPtr> ret;
-    return ret;
-
-}
-
 bool
 IceInternal::UnknownEndpoint::publish() const
 {
@@ -95,6 +86,15 @@ IceInternal::UnknownEndpoint::publish() const
 }
 
 #endif
+
+vector<EndpointPtr>
+IceInternal::UnknownEndpoint::expand(bool includeLoopback) const
+{
+    assert(false);
+    vector<EndpointPtr> ret;
+    return ret;
+
+}
 
 bool
 IceInternal::UnknownEndpoint::equivalent(const TransceiverPtr&) const

@@ -988,14 +988,14 @@ Ice::ObjectAdapterI::parseEndpoints(const string& str) const
 	}
 	
 	string s = endpts.substr(beg, end - beg);
-	EndpointIPtr endp = _instance->endpointFactoryManager()->create(s, true);
+	EndpointIPtr endp = _instance->endpointFactoryManager()->create(s);
 	if(endp == 0)
 	{
 	    EndpointParseException ex(__FILE__, __LINE__);
 	    ex.str = s;
 	    throw ex;
 	}
-	vector<EndpointIPtr> endps = endp->expand();
+	vector<EndpointIPtr> endps = endp->expand(true);
 	endpoints.insert(endpoints.end(), endps.begin(), endps.end());
 
 	++end;

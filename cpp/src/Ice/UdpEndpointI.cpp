@@ -36,7 +36,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
 {
 }
 
-IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& str, bool adapterEndp) :
+IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& str) :
     _instance(instance),
     _port(0),
     _protocolMajor(protocolMajor),
@@ -264,17 +264,10 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
         const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
         if(_host.empty())
         {
-	    if(adapterEndp)
-	    {
-	        const_cast<string&>(_host) = "0.0.0.0";
-	    }
-	    else
-	    {
-                const_cast<string&>(_host) = getLocalHost(true);
-	    }
+	    const_cast<string&>(_host) = "0.0.0.0";
         }
     }
-    else if(_host == "*" && adapterEndp)
+    else if(_host == "*")
     {
         const_cast<string&>(_host) = "0.0.0.0";
     }
@@ -471,7 +464,7 @@ IceInternal::UdpEndpointI::acceptor(EndpointIPtr& endp) const
 }
 
 vector<EndpointIPtr>
-IceInternal::UdpEndpointI::expand() const
+IceInternal::UdpEndpointI::expand(bool includeLoopback) const
 {
     vector<EndpointIPtr> endps;
     if(_host == "0.0.0.0")
@@ -479,8 +472,11 @@ IceInternal::UdpEndpointI::expand() const
         vector<string> hosts = getLocalHosts();
         for(unsigned int i = 0; i < hosts.size(); ++i)
         {
-            endps.push_back(new UdpEndpointI(_instance, hosts[i], _port, _connectionId, _compress, 
-	    				     hosts.size() == 1 || hosts[i] != "127.0.0.1"));
+	    if(includeLoopback || hosts.size() == 1 || hosts[i] != "127.0.0.1")
+	    {
+                endps.push_back(new UdpEndpointI(_instance, hosts[i], _port, _connectionId, _compress, 
+	    				         hosts.size() == 1 || hosts[i] != "127.0.0.1"));
+	    }
         }
     }
     else
@@ -740,9 +736,9 @@ IceInternal::UdpEndpointFactory::protocol() const
 }
 
 EndpointIPtr
-IceInternal::UdpEndpointFactory::create(const std::string& str, bool adapterEndp) const
+IceInternal::UdpEndpointFactory::create(const std::string& str) const
 {
-    return new UdpEndpointI(_instance, str, adapterEndp);
+    return new UdpEndpointI(_instance, str);
 }
 
 EndpointIPtr

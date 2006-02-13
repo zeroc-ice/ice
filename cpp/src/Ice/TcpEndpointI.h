@@ -23,7 +23,7 @@ class TcpEndpointI : public EndpointI
 public:
 
     TcpEndpointI(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&, bool, bool);
-    TcpEndpointI(const InstancePtr&, const std::string&, bool);
+    TcpEndpointI(const InstancePtr&, const std::string&);
     TcpEndpointI(BasicStream*);
 
     virtual void streamWrite(BasicStream*) const;
@@ -41,7 +41,7 @@ public:
     virtual TransceiverPtr serverTransceiver(EndpointIPtr&) const;
     virtual ConnectorPtr connector() const;
     virtual AcceptorPtr acceptor(EndpointIPtr&) const;
-    virtual std::vector<EndpointIPtr> expand() const;
+    virtual std::vector<EndpointIPtr> expand(bool) const;
     virtual bool publish() const;
     virtual bool equivalent(const TransceiverPtr&) const;
     virtual bool equivalent(const AcceptorPtr&) const;
@@ -82,7 +82,7 @@ public:
 
     virtual Ice::Short type() const;
     virtual std::string protocol() const;
-    virtual EndpointIPtr create(const std::string&, bool) const;
+    virtual EndpointIPtr create(const std::string&) const;
     virtual EndpointIPtr read(BasicStream*) const;
     virtual void destroy();
 

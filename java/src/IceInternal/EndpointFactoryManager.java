@@ -45,7 +45,7 @@ public final class EndpointFactoryManager
     }
 
     public synchronized EndpointI
-    create(String str, boolean adapterEndp)
+    create(String str)
     {
         String s = str.trim();
         if(s.length() == 0)
@@ -72,7 +72,7 @@ public final class EndpointFactoryManager
             EndpointFactory f = (EndpointFactory)_factories.get(i);
             if(f.protocol().equals(protocol))
             {
-                return f.create(s.substring(m.end()), adapterEndp);
+                return f.create(s.substring(m.end()));
             }
         }
 

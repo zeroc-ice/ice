@@ -28,7 +28,7 @@ namespace IceSSL
 	    calcHashValue();
 	}
 
-	internal SslEndpointI(Instance instance, string str, bool adapterEndp)
+	internal SslEndpointI(Instance instance, string str)
 	{
 	    instance_ = instance;
 	    host_ = null;
@@ -158,17 +158,10 @@ namespace IceSSL
 		host_ = instance_.defaultHost();
 		if(host_ == null)
 		{
-		    if(adapterEndp)
-		    {
-			host_ = "0.0.0.0";
-		    }
-		    else
-		    {
-			host_ = IceInternal.Network.getLocalHost(true);
-		    }
+		    host_ = "0.0.0.0";
 		}
 	    }
-	    else if(host_.Equals("*") && adapterEndp)
+	    else if(host_.Equals("*"))
 	    {
 		host_ = "0.0.0.0";
 	    }
@@ -370,7 +363,7 @@ namespace IceSSL
 	// host if endpoint was configured with no host set. This
 	// only applies for ObjectAdapter endpoints.
 	//
-	public override ArrayList expand()
+	public override ArrayList expand(bool includeLoopback)
 	{
 	    ArrayList endps = new ArrayList();
 	    if(host_.Equals("0.0.0.0"))
@@ -378,8 +371,11 @@ namespace IceSSL
 		string[] hosts = IceInternal.Network.getLocalHosts();
 		for(int i = 0; i < hosts.Length; ++i)
 		{
-		    endps.Add(new SslEndpointI(instance_, hosts[i], port_, timeout_, connectionId_, compress_,
-					       hosts.Length == 1 || !hosts[i].Equals("127.0.0.1")));
+		    if(includeLoopback || hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
+		    {
+		        endps.Add(new SslEndpointI(instance_, hosts[i], port_, timeout_, connectionId_, compress_,
+					           hosts.Length == 1 || !hosts[i].Equals("127.0.0.1")));
+		    }
 		}
 	    }
 	    else
@@ -580,9 +576,9 @@ namespace IceSSL
 	    return "ssl";
 	}
 
-	public IceInternal.EndpointI create(string str, bool adapterEndp)
+	public IceInternal.EndpointI create(string str)
 	{
-	    return new SslEndpointI(instance_, str, adapterEndp);
+	    return new SslEndpointI(instance_, str);
 	}
 
 	public IceInternal.EndpointI read(IceInternal.BasicStream s)

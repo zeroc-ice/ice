@@ -120,10 +120,9 @@ namespace IceInternal
 
 	//
 	// Expand endpoint out in to separate endpoints for each local
-        // host if endpoint was configured with no host set. This
-        // only applies for ObjectAdapter endpoints.
+        // host if endpoint was configured with no host set.
         //
-        public abstract ArrayList expand();
+        public abstract ArrayList expand(bool includeLoopback);
  
         //
         // Return whether the endpoint should be published in proxies

@@ -54,7 +54,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public EndpointI create(string str, bool adapterEndp)
+	public EndpointI create(string str)
 	{
 	    lock(this)
 	    {
@@ -82,7 +82,7 @@ namespace IceInternal
 		    EndpointFactory f = (EndpointFactory)_factories[i];
 		    if(f.protocol().Equals(protocol))
 		    {
-			return f.create(s.Substring(m.Index + m.Length), adapterEndp);
+			return f.create(s.Substring(m.Index + m.Length));
 		    }
 		}
 		

@@ -12,7 +12,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/IdentityUtil.h>
-#include <Ice/Endpoint.h>
+#include <Ice/EndpointI.h>
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocatorInfo.h>
@@ -435,10 +435,11 @@ IceInternal::ReferenceFactory::create(const string& str)
 		}
 		
 		string es = s.substr(beg, end - beg);
-		EndpointIPtr endp = _instance->endpointFactoryManager()->create(es, false);
+		EndpointIPtr endp = _instance->endpointFactoryManager()->create(es);
 		if(endp != 0)
 		{
-		    endpoints.push_back(endp);
+		    vector<EndpointIPtr> endps = endp->expand(false);
+		    endpoints.insert(endpoints.end(), endps.begin(), endps.end());
 		}
 		else
 		{

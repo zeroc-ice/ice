@@ -11,6 +11,7 @@
 #include <IceE/LocalException.h>
 #include <IceE/Instance.h>
 #include <IceE/IdentityUtil.h>
+#include <IceE/Endpoint.h>
 #include <IceE/EndpointFactory.h>
 #ifdef ICEE_HAS_ROUTER
 #   include <IceE/RouterInfo.h>
@@ -461,10 +462,11 @@ IceInternal::ReferenceFactory::create(const string& str)
 		}
 		
 		string es = s.substr(beg, end - beg);
-		EndpointPtr endp = _instance->endpointFactory()->create(es, false);
+		EndpointPtr endp = _instance->endpointFactory()->create(es);
 		if(endp != 0)
 		{
-		    endpoints.push_back(endp);
+		    vector<EndpointPtr> endps = endp->expand(false);
+		    endpoints.insert(endpoints.end(), endps.begin(), endps.end());
 		}
 		else
 		{

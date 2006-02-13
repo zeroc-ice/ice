@@ -1083,14 +1083,14 @@ namespace Ice
 		}
 
 		string s = endpts.Substring(beg, (end) - (beg));
-		IceInternal.EndpointI endp = instance_.endpointFactoryManager().create(s, true);
+		IceInternal.EndpointI endp = instance_.endpointFactoryManager().create(s);
 		if(endp == null)
 		{
 		    Ice.EndpointParseException e2 = new Ice.EndpointParseException();
 		    e2.str = s;
 		    throw e2;
 		}
-		ArrayList endps = endp.expand();
+		ArrayList endps = endp.expand(true);
 		endpoints.AddRange(endps);
 
 		++end;

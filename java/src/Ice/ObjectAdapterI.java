@@ -1052,14 +1052,14 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    }
 
 	    String s = endpts.substring(beg, end);
-	    IceInternal.EndpointI endp = _instance.endpointFactoryManager().create(s, true);
+	    IceInternal.EndpointI endp = _instance.endpointFactoryManager().create(s);
 	    if(endp == null)
 	    {
 	        Ice.EndpointParseException e = new Ice.EndpointParseException();
 		e.str = s;
 		throw e;
 	    }
-	    java.util.ArrayList endps = endp.expand();
+	    java.util.ArrayList endps = endp.expand(true);
 	    endpoints.addAll(endps);
 
 	    ++end;

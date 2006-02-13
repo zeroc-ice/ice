@@ -1,6 +1,10 @@
 Changes since version 3.0.1
 ---------------------------
 
+- If a proxy is not configured with a -h paramater, Ice will now 
+  attempt to connect using all local interfaces. The loopback interface
+  (127.0.0.1) will only be tried if it is the only local interface present.
+
 - Added the ability to specify alternate mappings for slice sequences other
   than std::vector. This is done through metadata in a similar way to
   which IceJ supports alternate sequence mappings. Please see the Ice  

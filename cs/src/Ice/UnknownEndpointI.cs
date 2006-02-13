@@ -172,7 +172,7 @@ namespace IceInternal
         // only applies for ObjectAdapter endpoints.
         //
         public override ArrayList
-        expand()
+        expand(bool includeLoopback)
         {
             return null;
         }

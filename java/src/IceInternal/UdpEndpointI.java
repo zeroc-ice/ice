@@ -31,7 +31,7 @@ final class UdpEndpointI extends EndpointI
     }
 
     public
-    UdpEndpointI(Instance instance, String str, boolean adapterEndp)
+    UdpEndpointI(Instance instance, String str)
     {
         _instance = instance;
         _host = null;
@@ -234,17 +234,10 @@ final class UdpEndpointI extends EndpointI
             _host = instance.defaultsAndOverrides().defaultHost;
             if(_host == null)
             {
-	        if(adapterEndp)
-		{
-		    _host = "0.0.0.0";
-		}
-		else
-		{
-                    _host = Network.getLocalHost(true);
-		}
+		_host = "0.0.0.0";
             }
         }
-	else if(_host.equals("*") && adapterEndp)
+	else if(_host.equals("*"))
 	{
 	    _host = "0.0.0.0";
 	}
@@ -501,7 +494,7 @@ final class UdpEndpointI extends EndpointI
     // only applies for ObjectAdapter endpoints.
     //
     public java.util.ArrayList
-    expand()
+    expand(boolean includeLoopback)
     {
         java.util.ArrayList endps = new java.util.ArrayList();
         if(_host.equals("0.0.0.0"))
@@ -511,8 +504,11 @@ final class UdpEndpointI extends EndpointI
             while(iter.hasNext())
             {
                 String host = (String)iter.next();
-                endps.add(new UdpEndpointI(_instance, host, _port, _connectionId, _compress,
-					   hosts.size() == 1 || !host.equals("127.0.0.1")));
+		if(includeLoopback || hosts.size() == 1 || !host.equals("127.0.0.1"))
+		{
+                    endps.add(new UdpEndpointI(_instance, host, _port, _connectionId, _compress,
+					       hosts.size() == 1 || !host.equals("127.0.0.1")));
+		}
             }
         }
         else

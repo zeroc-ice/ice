@@ -29,9 +29,9 @@ final class SslEndpointFactory implements IceInternal.EndpointFactory
     }
 
     public IceInternal.EndpointI
-    create(String str, boolean adapterEndp)
+    create(String str)
     {
-	return new SslEndpointI(_instance, str, adapterEndp);
+	return new SslEndpointI(_instance, str);
     }
 
     public IceInternal.EndpointI

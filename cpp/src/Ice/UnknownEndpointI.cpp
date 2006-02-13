@@ -122,7 +122,7 @@ IceInternal::UnknownEndpointI::acceptor(EndpointIPtr& endp) const
 }
 
 vector<EndpointIPtr>
-IceInternal::UnknownEndpointI::expand() const
+IceInternal::UnknownEndpointI::expand(bool loopback) const
 {
     assert(false);
     vector<EndpointIPtr> ret;

@@ -33,7 +33,7 @@ namespace IceInternal
 	    calcHashValue();
 	}
 	
-	public UdpEndpointI(Instance instance, string str, bool adapterEndp)
+	public UdpEndpointI(Instance instance, string str)
 	{
 	    instance_ = instance;
 	    _host = null;
@@ -269,17 +269,10 @@ namespace IceInternal
 		_host = instance.defaultsAndOverrides().defaultHost;
 		if(_host == null)
 		{
-                    if(adapterEndp)
-                    {
-                        _host = "0.0.0.0";
-                    }
-                    else
-                    {
-                        _host = Network.getLocalHost(true);
-                    }
+                    _host = "0.0.0.0";
 		}
 	    }
-	    else if(_host.Equals("*") && adapterEndp)
+	    else if(_host.Equals("*"))
 	    {
 	        _host = "0.0.0.0";
 	    }
@@ -520,7 +513,7 @@ namespace IceInternal
         // only applies for ObjectAdapter endpoints.
         //
         public override ArrayList
-        expand()
+        expand(bool includeLoopback)
         {
             ArrayList endps = new ArrayList();
             if(_host.Equals("0.0.0.0"))
@@ -528,8 +521,11 @@ namespace IceInternal
                 string[] hosts = Network.getLocalHosts();
                 for(int i = 0; i < hosts.Length; ++i)
                 {
-                    endps.Add(new UdpEndpointI(instance_, hosts[i], _port, _connectionId, _compress,
-                                               hosts.Length == 1 || !hosts[i].Equals("127.0.0.1")));
+		    if(includeLoopback || hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
+		    {
+                        endps.Add(new UdpEndpointI(instance_, hosts[i], _port, _connectionId, _compress,
+                                                   hosts.Length == 1 || !hosts[i].Equals("127.0.0.1")));
+		    }
                 }
             }
             else
@@ -771,9 +767,9 @@ namespace IceInternal
             return "udp";
         }
 	
-        public EndpointI create(string str, bool adapterEndp)
+        public EndpointI create(string str)
         {
-            return new UdpEndpointI(instance_, str, adapterEndp);
+            return new UdpEndpointI(instance_, str);
         }
 	
         public EndpointI read(BasicStream s)

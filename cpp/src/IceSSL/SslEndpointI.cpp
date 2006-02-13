@@ -33,7 +33,7 @@ IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string
 {
 }
 
-IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string& str, bool adapterEndp) :
+IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string& str) :
     _plugin(plugin),
     _port(0),
     _timeout(-1),
@@ -144,17 +144,10 @@ IceSSL::SslEndpointI::SslEndpointI(const OpenSSLPluginIPtr& plugin, const string
         const_cast<string&>(_host) = _plugin->getProtocolPluginFacade()->getDefaultHost();
         if(_host.empty())
         {
-	    if(adapterEndp)
-	    {
-	        const_cast<string&>(_host) = "0.0.0.0";
-	    }
-	    else
-	    {
-                 const_cast<string&>(_host) = getLocalHost(true);
-	    }
+	    const_cast<string&>(_host) = "0.0.0.0";
         }
     }
-    else if(_host == "*" && adapterEndp)
+    else if(_host == "*")
     {
         const_cast<string&>(_host) = "0.0.0.0";
     }
@@ -306,7 +299,7 @@ IceSSL::SslEndpointI::acceptor(EndpointIPtr& endp) const
 }
 
 vector<EndpointIPtr>
-IceSSL::SslEndpointI::expand() const
+IceSSL::SslEndpointI::expand(bool includeLoopback) const
 {
     vector<EndpointIPtr> endps;
     if(_host == "0.0.0.0")
@@ -314,8 +307,11 @@ IceSSL::SslEndpointI::expand() const
         vector<string> hosts = getLocalHosts();
         for(unsigned int i = 0; i < hosts.size(); ++i)
         {
-            endps.push_back(new SslEndpointI(_plugin, hosts[i], _port, _timeout, _connectionId, _compress,
-					     hosts.size() == 1 || hosts[i] != "127.0.0.1"));
+	    if(includeLoopback || hosts.size() == 1 || hosts[i] != "127.0.0.1")
+	    {
+                endps.push_back(new SslEndpointI(_plugin, hosts[i], _port, _timeout, _connectionId, _compress,
+					         hosts.size() == 1 || hosts[i] != "127.0.0.1"));
+	    }
         }
     }
     else
@@ -520,9 +516,9 @@ IceSSL::SslEndpointFactory::protocol() const
 }
 
 EndpointIPtr
-IceSSL::SslEndpointFactory::create(const std::string& str, bool adapterEndp) const
+IceSSL::SslEndpointFactory::create(const std::string& str) const
 {
-    return new SslEndpointI(_plugin, str, adapterEndp);
+    return new SslEndpointI(_plugin, str);
 }
 
 EndpointIPtr
