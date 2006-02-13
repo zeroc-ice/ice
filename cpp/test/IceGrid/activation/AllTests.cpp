@@ -498,7 +498,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    {
 	    }
 	}
-	test(admin->isServerEnabled("server2") && admin->getServerState("server2") == IceGrid::Active);
+	test(admin->isServerEnabled("server2"));
+	nRetry = 0;
+	while(admin->getServerState("server2") != IceGrid::Active && nRetry < 15)
+	{
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+	    ++nRetry;
+	}
+	test(admin->getServerState("server2") == IceGrid::Active);
 	obj->ice_ping();
 	admin->stopServer("server2");
 
