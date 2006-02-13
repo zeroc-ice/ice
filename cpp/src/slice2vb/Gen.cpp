@@ -1323,7 +1323,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	_out << nl << "os__.startWriteSlice()";
 	for(d = members.begin(); d != members.end(); ++d)
 	{
-	    StringList metaData = (*d)->getMetaData();
 	    writeMarshalUnmarshalCode(_out, (*d)->type(), fixId((*d)->name(), DotNet::ICloneable, true), true, false,
 				      false);
 	}
@@ -1407,7 +1406,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
 	for(d = members.begin(); d != members.end(); ++d)
 	{
-	    StringList metaData = (*d)->getMetaData();
 	    ostringstream patchParams;
 	    patchParams << "Me";
 	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
@@ -1438,7 +1436,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    _out << nl << "outS__.startSlice()";
 	    for(d = members.begin(); d != members.end(); ++d)
 	    {
-		StringList metaData = (*d)->getMetaData();
 		writeMarshalUnmarshalCode(_out, (*d)->type(),
 					  fixId((*d)->name(), DotNet::ICloneable, true),
 					  true, true, false);
@@ -1459,7 +1456,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    _out << nl << "inS__.startSlice()";
 	    for(d = members.begin(); d != members.end(); ++d)
 	    {
-		StringList metaData = (*d)->getMetaData();
 		ostringstream patchParams;
 		patchParams << "Me";
 		BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
@@ -3258,11 +3254,16 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     int baseTypes = 0;
     bool isClass = false;
+    bool propertyMapping = false;
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
     assert(cont);
     if(StructPtr::dynamicCast(cont) && cont->hasMetaData("clr:class"))
     {
         baseTypes = DotNet::ICloneable;
+	if(cont->hasMetaData("clr:property"))
+	{
+	    propertyMapping = true;
+	}
     }
     else if(ExceptionPtr::dynamicCast(cont))
     {
@@ -3272,10 +3273,44 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
 	baseTypes = DotNet::ICloneable;
 	isClass = true;
+	if(cont->hasMetaData("clr:property"))
+	{
+	    propertyMapping = true;
+	}
     }
     _out << sp << nl;
+
     emitAttributes(p);
-    _out << "Public " << fixId(p->name(), baseTypes, isClass) << " As " << typeToString(p->type());
+
+    string type = typeToString(p->type());
+    string propertyName = fixId(p->name(), baseTypes, isClass);
+    string dataMemberName = propertyName;
+    if(propertyMapping)
+    {
+        dataMemberName += "_prop";
+    }
+
+    _out << (propertyMapping ? "Private" : "Public") << ' ' << dataMemberName << " As " << type;
+
+    if(!propertyMapping)
+    {
+        return;
+    }
+
+    _out << nl << "Public Overridable Property " << propertyName << " As " << type;
+    _out.inc();
+    _out << nl << "Get";
+    _out.inc();
+    _out << nl << "Return " << dataMemberName;
+    _out.dec();
+    _out << nl << "End Get";
+    _out << nl << "Set";
+    _out.inc();
+    _out << nl << dataMemberName << " = Value";
+    _out.dec();
+    _out << nl << "End Set";
+    _out.dec();
+    _out << nl << "End Property";
 }
 
 void

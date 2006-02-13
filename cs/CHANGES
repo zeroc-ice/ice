@@ -4,6 +4,12 @@ Changes since version 3.0.1
 - .NET 2.0 is now the target for All.sln. To build a version of Ice
   for C# that is compatible with .NET 1.1, use All_11.sln instead.
 
+- Added the "clr:property" directive for classes and structures.
+  If used, the property causes Slice data members to be mapped
+  to properties instead. Note that, for a Slice structure,
+  "clr:property" is valid only if "clr:class" is also applied to
+  the structure.
+
 - createReverseProxy() did not use the default context established
   on the communicator and created a proxy with an empty context
   instead. This has been fixed.

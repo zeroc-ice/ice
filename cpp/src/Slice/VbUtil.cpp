@@ -1065,8 +1065,8 @@ Slice::VbGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 	    }
 	}
 	_globalMetaDataDone = true;
-	validate(p);
     }
+    validate(p);
     return true;
 }
 
@@ -1109,6 +1109,15 @@ bool
 Slice::VbGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
     validate(p);
+    if(p->hasMetaData("clr:property"))
+    {
+	if(!p->hasMetaData("clr:class"))
+	{
+	    string file = p->definitionContext()->filename();
+	    cout << file << ":" << p->line() << ": warning: the property mapping applies to Slice "
+	         << "structures only in conjunction with the `clr:class' metadata directive" << endl;
+    	}
+    }
     return true;
 }
 
@@ -1219,6 +1228,17 @@ Slice::VbGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 		if(StructPtr::dynamicCast(cont))
 		{
 		    if(s.substr(prefix.size()) == "class")
+		    {
+		        continue;
+		    }
+		    if(s.substr(prefix.size()) == "property")
+		    {
+		        continue;
+		    }
+		}
+		if(ClassDefPtr::dynamicCast(cont))
+		{
+		    if(s.substr(prefix.size()) == "property")
 		    {
 		        continue;
 		    }

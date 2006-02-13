@@ -1318,7 +1318,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	_out << nl << "os__.startWriteSlice();";
 	for(d = members.begin(); d != members.end(); ++d)
 	{
-	    StringList metaData = (*d)->getMetaData();
 	    writeMarshalUnmarshalCode(_out, (*d)->type(),
 	                              fixId((*d)->name(), DotNet::ICloneable, true),
 				      true, false, false);
@@ -1400,7 +1399,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
 	for(d = members.begin(); d != members.end(); ++d)
 	{
-	    StringList metaData = (*d)->getMetaData();
 	    ostringstream patchParams;
 	    patchParams << "this";
 	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
@@ -1430,7 +1428,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    _out << nl << "outS__.startSlice();";
 	    for(d = members.begin(); d != members.end(); ++d)
 	    {
-		StringList metaData = (*d)->getMetaData();
 		writeMarshalUnmarshalCode(_out, (*d)->type(),
 					  fixId((*d)->name(), DotNet::ICloneable, true),
 					  true, true, false);
@@ -1448,7 +1445,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    _out << nl << "inS__.startSlice();";
 	    for(d = members.begin(); d != members.end(); ++d)
 	    {
-		StringList metaData = (*d)->getMetaData();
 		ostringstream patchParams;
 		patchParams << "this";
 		BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
@@ -2985,11 +2981,16 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     int baseTypes = 0;
     bool isClass = false;
+    bool propertyMapping = false;
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
     assert(cont);
     if(StructPtr::dynamicCast(cont) && cont->hasMetaData("clr:class"))
     {
         baseTypes = DotNet::ICloneable;
+	if(cont->hasMetaData("clr:property"))
+	{
+	    propertyMapping = true;
+	}
     }
     else if(ExceptionPtr::dynamicCast(cont))
     {
@@ -2999,10 +3000,40 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
 	baseTypes = DotNet::ICloneable;
 	isClass = true;
+	if(cont->hasMetaData("clr:property"))
+	{
+	    propertyMapping = true;
+	}
     }
     _out << sp << nl;
+
     emitAttributes(p);
-    _out << "public " << typeToString(p->type()) << " " << fixId(p->name(), baseTypes, isClass) << ";";
+
+    string type = typeToString(p->type());
+    string propertyName = fixId(p->name(), baseTypes, isClass);
+    string dataMemberName = propertyName;
+    if(propertyMapping)
+    {
+	dataMemberName += "_prop";
+    }
+    _out << (propertyMapping ? "private" : "public") << ' ' << type << ' ' << dataMemberName << ';';
+
+    if(!propertyMapping)
+    {
+        return;
+    }
+
+    _out << nl << "public virtual " << type << ' ' << propertyName;
+    _out << sb;
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return " << dataMemberName << ';';
+    _out << eb;
+    _out << nl << "set";
+    _out << sb;
+    _out << nl << dataMemberName << " = value;";
+    _out << eb;
+    _out << eb;
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtil::Output& out)
