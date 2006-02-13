@@ -24,7 +24,8 @@ SUBDIRS		= operations \
 		  checksum \
 		  stream \
 		  hold \
-		  custom
+		  custom \
+		  binding
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
