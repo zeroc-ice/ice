@@ -1,7 +1,7 @@
 Changes since version 3.0.1
 ---------------------------
 
-- If a proxy is not configured with a -h paramater, Ice will now
+- If a proxy is not configured with a -h parameter, Ice will now
   attempt to connect using all local interfaces. The loopback interface 
   (127.0.0.1) will only be tried if it is the only local interface present.
 
