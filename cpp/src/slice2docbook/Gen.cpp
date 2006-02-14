@@ -15,10 +15,12 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
-Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool noGlobals, bool chapter, bool noIndex) :
+Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool noGlobals, bool chapter,
+                bool noIndex, bool sortFields) :
     _standAlone(standAlone),
     _noGlobals(noGlobals),
-    _noIndex(noIndex)
+    _noIndex(noIndex),
+    _sortFields(sortFields)
 {
     if(chapter)
     {
@@ -57,7 +59,7 @@ Slice::Gen::generate(const UnitPtr& p)
     // I don't want the top-level module to be sorted, therefore no
     // p->sort() before or after the p->sortContents().
     //
-    p->sortContents();
+    p->sortContents(_sortFields);
 
     p->visit(this, false);
 }

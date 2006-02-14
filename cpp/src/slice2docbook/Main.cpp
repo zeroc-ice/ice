@@ -33,6 +33,7 @@ usage(const char* n)
         "--chapter            Use \"chapter\" instead of \"section\" as\n"
         "                     top-level element.\n"
 	"--noindex            Suppress generation of index pages.\n"
+	"--sort-fields        Sort fields of structures, classes, and exceptions.\n"
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
         ;
@@ -51,6 +52,7 @@ main(int argc, char* argv[])
     bool debug;
     bool ice;
     bool caseSensitive;
+    bool sortFields;
 
     IceUtil::Options opts;
     opts.addOpt("h", "help");
@@ -63,6 +65,7 @@ main(int argc, char* argv[])
     opts.addOpt("", "no-globals");
     opts.addOpt("", "chapter");
     opts.addOpt("", "noindex");
+    opts.addOpt("", "sort-fields");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "case-sensitive");
@@ -118,6 +121,7 @@ main(int argc, char* argv[])
     noGlobals = opts.isSet("no-globals");
     chapter = opts.isSet("chapter");
     noIndex = opts.isSet("noindex");
+    sortFields = opts.isSet("sort-fields");
     debug = opts.isSet("d") || opts.isSet("debug");
     ice = opts.isSet("ice");
     caseSensitive = opts.isSet("case-sensitive");
@@ -190,7 +194,7 @@ main(int argc, char* argv[])
 
     if(status == EXIT_SUCCESS && !preprocess)
     {
-	Gen gen(argv[0], docbook, standAlone, noGlobals, chapter, noIndex);
+	Gen gen(argv[0], docbook, standAlone, noGlobals, chapter, noIndex, sortFields);
 	if(!gen)
 	{
 	    p->destroy();

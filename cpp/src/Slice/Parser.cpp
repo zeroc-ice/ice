@@ -1756,13 +1756,22 @@ Slice::Container::sort()
 }
 
 void
-Slice::Container::sortContents()
+Slice::Container::sortContents(bool sortFields)
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
 	ContainerPtr container = ContainerPtr::dynamicCast(*p);
 	if(container)
 	{
+	    if(!sortFields)
+	    {
+	        if(StructPtr::dynamicCast(container) ||
+		   ClassDefPtr::dynamicCast(container) ||
+		   ExceptionPtr::dynamicCast(container))
+		{
+		    continue;
+		}
+	    }
 	    //
 	    // Don't sort operation definitions, otherwise parameters are shown in the
 	    // wrong order in the synopsis.
@@ -1771,7 +1780,7 @@ Slice::Container::sortContents()
 	    {
 		container->sort();
 	    }
-	    container->sortContents();
+	    container->sortContents(sortFields);
 	}
     }
 }

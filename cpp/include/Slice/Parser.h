@@ -423,7 +423,7 @@ public:
     std::string thisScope() const;
     void mergeModules();
     void sort();
-    void sortContents();
+    void sortContents(bool);
     virtual void visit(ParserVisitor*, bool);
     void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 

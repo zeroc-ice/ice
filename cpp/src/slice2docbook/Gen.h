@@ -21,7 +21,7 @@ class Gen : private ::IceUtil::noncopyable, public ParserVisitor
 {
 public:
 
-    Gen(const std::string&, const std::string&, bool, bool, bool, bool);
+    Gen(const std::string&, const std::string&, bool, bool, bool, bool, bool);
     virtual ~Gen();
 
     bool operator!() const; // Returns true if there was a constructor error
@@ -61,6 +61,7 @@ private:
     bool _noGlobals;
     std::string _chapter;
     bool _noIndex;
+    bool _sortFields;
 };
 
 }
