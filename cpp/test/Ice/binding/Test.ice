@@ -10,8 +10,6 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-#include <Ice/Locator.ice>
-
 module Test
 {
 

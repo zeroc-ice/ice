@@ -1116,17 +1116,12 @@ ServerI::activate()
 	ServerCommandPtr command;
 	{
 	    Lock sync(*this);
-	    if(_state != Activating)
-	    {
-		//
-		// It's possible that the server has already terminated.
-		//
-		return;
-	    }
+	    assert(_state == Activating);
 	    _pid = pid;
 	    setStateNoSync(ServerI::WaitForActivation);
  	    checkActivation();
 	    command = nextCommand();
+	    notifyAll(); // terminated() might already wait.
 	}
 	if(command)
 	{
@@ -1309,6 +1304,11 @@ ServerI::terminated(const string& msg, int status)
 	if(failed)
 	{
 	    disableOnFailure();
+	}
+
+	while(_state == ServerI::Activating)
+	{
+	    wait(); // Wait for activate() to set the state to WaitForActivation
 	}
 
 	if(_state == ServerI::Destroying)
