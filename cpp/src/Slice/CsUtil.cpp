@@ -1061,15 +1061,6 @@ bool
 Slice::CsGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
     validate(p);
-    if(p->hasMetaData("clr:property"))
-    {
-	if(!p->hasMetaData("clr:class"))
-	{
-	    string file = p->definitionContext()->filename();
-	    cout << file << ":" << p->line() << ": warning: the property mapping applies to Slice "
-	         << "structures only in conjunction with the `clr:class' metadata directive" << endl;
-    	}
-    }
     return true;
 }
 
