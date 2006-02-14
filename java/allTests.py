@@ -58,6 +58,7 @@ tests = [ \
     "Ice/inheritance", \
     "Ice/facets", \
     "Ice/objects", \
+    "Ice/binding", \
     "Ice/faultTolerance", \
     "Ice/location", \
     "Ice/adapterDeactivation", \

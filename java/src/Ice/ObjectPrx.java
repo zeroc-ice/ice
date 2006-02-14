@@ -57,6 +57,12 @@ public interface ObjectPrx
     int ice_getLocatorCacheTimeout();
     ObjectPrx ice_locatorCacheTimeout(int newTimeout);
 
+    boolean ice_getCacheConnection();
+    ObjectPrx ice_cacheConnection(boolean newCache);
+
+    EndpointSelectionType ice_getEndpointSelection();
+    ObjectPrx ice_endpointSelection(EndpointSelectionType newType);
+
     ObjectPrx ice_twoway();
     boolean ice_isTwoway();
     ObjectPrx ice_oneway();

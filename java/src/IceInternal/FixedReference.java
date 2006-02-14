@@ -174,5 +174,109 @@ public class FixedReference extends Reference
 	return java.util.Arrays.equals(_fixedConnections, rhs._fixedConnections);
     }
 
+    //
+    // Filter connections based on criteria from this reference.
+    //
+    private Ice.ConnectionI[]
+    filterConnections(Ice.ConnectionI[] allConnections)
+    {
+        java.util.ArrayList connections = new java.util.ArrayList(allConnections.length);
+
+        switch(getMode())
+        {
+            case Reference.ModeTwoway:
+            case Reference.ModeOneway:
+            case Reference.ModeBatchOneway:
+            {
+                //
+                // Filter out datagram connections.
+                //
+                for(int i = 0; i < allConnections.length; ++i)
+                {
+                    if(!allConnections[i].endpoint().datagram())
+                    {
+                        connections.add(allConnections[i]);
+                    }
+                }
+
+                break;
+            }
+
+            case Reference.ModeDatagram:
+            case Reference.ModeBatchDatagram:
+            {
+                //
+                // Filter out non-datagram connections.
+                //
+                for(int i = 0; i < allConnections.length; i++)
+                {
+                    if(allConnections[i].endpoint().datagram())
+                    {
+                        connections.add(allConnections[i]);
+                    }
+                }
+
+                break;
+            }
+        }
+
+        //
+        // Randomize the order of connections.
+        //
+        java.util.Collections.shuffle(connections);
+
+        //
+        // If a secure connection is requested, remove all non-secure
+        // endpoints. Otherwise make non-secure endpoints preferred over
+        // secure endpoints by partitioning the endpoint vector, so that
+        // non-secure endpoints come first.
+        //
+        if(getSecure())
+        {
+            java.util.Iterator i = connections.iterator();
+            while(i.hasNext())
+            {
+                Ice.ConnectionI connection = (Ice.ConnectionI)i.next();
+                if(!connection.endpoint().secure())
+                {
+                    i.remove();
+                }
+            }
+        }
+        else
+        {
+            java.util.Collections.sort(connections, _connectionComparator);
+        }
+
+        Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.size()];
+        connections.toArray(arr);
+        return arr;
+    }
+
+    static class ConnectionComparator implements java.util.Comparator
+    {
+	public int
+	compare(java.lang.Object l, java.lang.Object r)
+	{
+	    Ice.ConnectionI lc = (Ice.ConnectionI)l;
+	    Ice.ConnectionI rc = (Ice.ConnectionI)r;
+	    boolean ls = lc.endpoint().secure();
+	    boolean rs = rc.endpoint().secure();
+	    if((ls && rs) || (!ls && !rs))
+	    {
+		return 0;
+	    }
+	    else if(!ls && rs)
+	    {
+		return -1;
+	    }
+	    else
+	    {
+		return 1;
+	    }
+	}
+    }
+    
+    private static ConnectionComparator _connectionComparator = new ConnectionComparator();
     private Ice.ConnectionI _fixedConnections[];
 }

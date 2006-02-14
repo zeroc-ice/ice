@@ -48,6 +48,18 @@ public abstract class Reference implements Cloneable
 	return _context;
     }
 
+    public final boolean
+    getCacheConnection()
+    {
+	return _cacheConnection;
+    }
+
+    public final Ice.EndpointSelectionType
+    getEndpointSelection()
+    {
+	return _endpointSelection;
+    }
+
     public final Reference
     defaultContext()
     {
@@ -128,6 +140,29 @@ public abstract class Reference implements Cloneable
 	return r;
     }
 
+    public final Reference
+    changeCacheConnection(boolean newCache)
+    {
+        if(newCache == _cacheConnection)
+	{
+	    return this;
+	}
+	Reference r = _instance.referenceFactory().copy(this);
+	r._cacheConnection = newCache;
+	return r;
+    }
+
+    public final Reference
+    changeEndpointSelection(Ice.EndpointSelectionType newType)
+    {
+        if(newType == _endpointSelection)
+	{
+	    return this;
+	}
+	Reference r = _instance.referenceFactory().copy(this);
+	r._endpointSelection = newType;
+	return r;
+    }
 
     public abstract Reference changeSecure(boolean newSecure);
     public abstract Reference changeRouter(Ice.RouterPrx newRouter);
@@ -329,6 +364,16 @@ public abstract class Reference implements Cloneable
             return false;
         }
 
+	if(_cacheConnection != r._cacheConnection)
+	{
+	    return false;
+	}
+
+	if(_endpointSelection != r._endpointSelection)
+	{
+	    return false;
+	}
+
         return true;
     }
 
@@ -356,6 +401,8 @@ public abstract class Reference implements Cloneable
     private java.util.Map _context;
     private static java.util.HashMap _emptyContext = new java.util.HashMap();
     private String _facet;
+    private boolean _cacheConnection;
+    private Ice.EndpointSelectionType _endpointSelection;
 
     private int _hashValue;
     private boolean _hashInitialized;
@@ -381,229 +428,8 @@ public abstract class Reference implements Cloneable
         _identity = ident;
 	_context = ctx == null ? _emptyContext : ctx;
         _facet = fac;
+	_cacheConnection = true;
+	_endpointSelection = Ice.EndpointSelectionType.Random;
 	_hashInitialized = false;
     }
-
-    //
-    // Filter endpoints based on criteria from this reference.
-    //
-    protected EndpointI[]
-    filterEndpoints(EndpointI[] allEndpoints)
-    {
-        java.util.ArrayList endpoints = new java.util.ArrayList();
-
-        //
-        // Filter out unknown endpoints.
-        //
-        for(int i = 0; i < allEndpoints.length; i++)
-        {
-            if(!allEndpoints[i].unknown())
-            {
-                endpoints.add(allEndpoints[i]);
-            }
-        }
-
-        switch(_mode)
-        {
-            case Reference.ModeTwoway:
-            case Reference.ModeOneway:
-            case Reference.ModeBatchOneway:
-            {
-                //
-                // Filter out datagram endpoints.
-                //
-                java.util.Iterator i = endpoints.iterator();
-                while(i.hasNext())
-                {
-                    EndpointI endpoint = (EndpointI)i.next();
-                    if(endpoint.datagram())
-                    {
-                        i.remove();
-                    }
-                }
-                break;
-            }
-
-            case Reference.ModeDatagram:
-            case Reference.ModeBatchDatagram:
-            {
-                //
-                // Filter out non-datagram endpoints.
-                //
-                java.util.Iterator i = endpoints.iterator();
-                while(i.hasNext())
-                {
-                    EndpointI endpoint = (EndpointI)i.next();
-                    if(!endpoint.datagram())
-                    {
-                        i.remove();
-                    }
-                }
-                break;
-            }
-        }
-
-        //
-        // Randomize the order of endpoints.
-        //
-        java.util.Collections.shuffle(endpoints);
-
-        //
-        // If a secure connection is requested, remove all non-secure
-        // endpoints. Otherwise make non-secure endpoints preferred over
-        // secure endpoints by partitioning the endpoint vector, so that
-        // non-secure endpoints come first.
-        //
-        if(getSecure())
-        {
-            java.util.Iterator i = endpoints.iterator();
-            while(i.hasNext())
-            {
-                EndpointI endpoint = (EndpointI)i.next();
-                if(!endpoint.secure())
-                {
-                    i.remove();
-                }
-            }
-        }
-        else
-        {
-            java.util.Collections.sort(endpoints, _endpointComparator);
-        }
-
-        EndpointI[] arr = new EndpointI[endpoints.size()];
-        endpoints.toArray(arr);
-        return arr;
-    }
-
-    static class EndpointComparator implements java.util.Comparator
-    {
-	public int
-	compare(java.lang.Object l, java.lang.Object r)
-	{
-	    IceInternal.EndpointI le = (IceInternal.EndpointI)l;
-	    IceInternal.EndpointI re = (IceInternal.EndpointI)r;
-	    boolean ls = le.secure();
-	    boolean rs = re.secure();
-	    if((ls && rs) || (!ls && !rs))
-	    {
-		return 0;
-	    }
-	    else if(!ls && rs)
-	    {
-		return -1;
-	    }
-	    else
-	    {
-		return 1;
-	    }
-	}
-    }
-    
-    private static EndpointComparator _endpointComparator = new EndpointComparator();
-
-    //
-    // Filter connections based on criteria from this reference.
-    //
-    public Ice.ConnectionI[]
-    filterConnections(Ice.ConnectionI[] allConnections)
-    {
-        java.util.ArrayList connections = new java.util.ArrayList(allConnections.length);
-
-        switch(_mode)
-        {
-            case Reference.ModeTwoway:
-            case Reference.ModeOneway:
-            case Reference.ModeBatchOneway:
-            {
-                //
-                // Filter out datagram connections.
-                //
-                for(int i = 0; i < allConnections.length; ++i)
-                {
-                    if(!allConnections[i].endpoint().datagram())
-                    {
-                        connections.add(allConnections[i]);
-                    }
-                }
-
-                break;
-            }
-
-            case Reference.ModeDatagram:
-            case Reference.ModeBatchDatagram:
-            {
-                //
-                // Filter out non-datagram connections.
-                //
-                for(int i = 0; i < allConnections.length; i++)
-                {
-                    if(allConnections[i].endpoint().datagram())
-                    {
-                        connections.add(allConnections[i]);
-                    }
-                }
-
-                break;
-            }
-        }
-
-        //
-        // Randomize the order of connections.
-        //
-        java.util.Collections.shuffle(connections);
-
-        //
-        // If a secure connection is requested, remove all non-secure
-        // endpoints. Otherwise make non-secure endpoints preferred over
-        // secure endpoints by partitioning the endpoint vector, so that
-        // non-secure endpoints come first.
-        //
-        if(getSecure())
-        {
-            java.util.Iterator i = connections.iterator();
-            while(i.hasNext())
-            {
-                Ice.ConnectionI connection = (Ice.ConnectionI)i.next();
-                if(!connection.endpoint().secure())
-                {
-                    i.remove();
-                }
-            }
-        }
-        else
-        {
-            java.util.Collections.sort(connections, _connectionComparator);
-        }
-
-        Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.size()];
-        connections.toArray(arr);
-        return arr;
-    }
-
-    static class ConnectionComparator implements java.util.Comparator
-    {
-	public int
-	compare(java.lang.Object l, java.lang.Object r)
-	{
-	    Ice.ConnectionI lc = (Ice.ConnectionI)l;
-	    Ice.ConnectionI rc = (Ice.ConnectionI)r;
-	    boolean ls = lc.endpoint().secure();
-	    boolean rs = rc.endpoint().secure();
-	    if((ls && rs) || (!ls && !rs))
-	    {
-		return 0;
-	    }
-	    else if(!ls && rs)
-	    {
-		return -1;
-	    }
-	    else
-	    {
-		return 1;
-	    }
-	}
-    }
-    
-    private static ConnectionComparator _connectionComparator = new ConnectionComparator();
 }

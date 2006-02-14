@@ -13,6 +13,7 @@
 
     <target name="all">
         <ant dir="adapterDeactivation"/>
+        <ant dir="binding"/>
         <ant dir="exceptions"/>
         <ant dir="exceptionsAMD"/>
         <ant dir="facets"/>

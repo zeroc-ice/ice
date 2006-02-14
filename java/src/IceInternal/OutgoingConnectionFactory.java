@@ -91,7 +91,7 @@ public final class OutgoingConnectionFactory
     }
 
     public Ice.ConnectionI
-    create(EndpointI[] endpts, Ice.BooleanHolder compress)
+    create(EndpointI[] endpts, boolean hasMore, Ice.BooleanHolder compress)
     {
 	assert(endpts.length > 0);
 	EndpointI[] endpoints = new EndpointI[endpts.length];
@@ -341,7 +341,7 @@ public final class OutgoingConnectionFactory
 	    {
 		StringBuffer s = new StringBuffer();
 		s.append("connection to endpoint failed");
-		if(i < endpoints.length - 1)
+		if(hasMore || i < endpoints.length - 1)
 		{
 		    s.append(", trying next endpoint\n");
 		}

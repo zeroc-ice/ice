@@ -122,6 +122,7 @@ public class DirectReference extends RoutableReference
 	{
 	    return this;
 	}
+
         DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
 	r._endpoints = newEndpoints;
 	return r;
@@ -179,16 +180,8 @@ public class DirectReference extends RoutableReference
 	{
 	    endpts = _endpoints;
 	}
-	EndpointI[] filteredEndpoints = filterEndpoints(endpts);
-	if(filteredEndpoints.length == 0)
-	{
-	    Ice.NoEndpointException ex = new Ice.NoEndpointException();
-	    ex.proxy = toString();
-	    throw ex;
-	}
 
-	OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
-	Ice.ConnectionI connection = factory.create(filteredEndpoints, comp);
+	Ice.ConnectionI connection = createConnection(endpts, comp);
 
 	//
 	// If we have a router, set the object adapter for this router

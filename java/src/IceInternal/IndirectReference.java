@@ -220,19 +220,15 @@ public class IndirectReference extends RoutableReference
 	    {
 	        endpts[i] = endpts[i].connectionId(_connectionId);
 	    }
-	    EndpointI[] filteredEndpoints = filterEndpoints(endpts);
-	    if(filteredEndpoints.length == 0)
-	    {
-	        Ice.NoEndpointException ex = new Ice.NoEndpointException();
-		ex.proxy = toString();
-		throw ex;
-	    }
 
 	    try
 	    {
-		OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
-		connection = factory.create(filteredEndpoints, comp);
+		connection = createConnection(endpts, comp);
 		assert(connection != null);
+	    }
+	    catch(Ice.NoEndpointException ex)
+	    {
+		throw ex; // No need to retry if there's no endpoints.
 	    }
 	    catch(Ice.LocalException ex)
 	    {

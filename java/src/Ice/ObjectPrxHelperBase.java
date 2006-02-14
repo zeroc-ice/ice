@@ -310,8 +310,10 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
+	    IceInternal.EndpointI[] edpts = new IceInternal.EndpointI[newEndpoints.length];
+	    edpts = (IceInternal.EndpointI[])java.util.Arrays.asList(newEndpoints).toArray(edpts);
             ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeEndpoints((IceInternal.EndpointI[])newEndpoints));
+            proxy.setup(_reference.changeEndpoints(edpts));
             return proxy;
         }
     }
@@ -333,6 +335,48 @@ public class ObjectPrxHelperBase implements ObjectPrx
         {
             ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
             proxy.setup(_reference.changeLocatorCacheTimeout(newTimeout));
+            return proxy;
+        }
+    }
+
+    public final boolean
+    ice_getCacheConnection()
+    {
+	return _reference.getCacheConnection();
+    }
+
+    public final ObjectPrx
+    ice_cacheConnection(boolean newCache)
+    {
+        if(newCache == _reference.getCacheConnection())
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(_reference.changeCacheConnection(newCache));
+            return proxy;
+        }
+    }
+
+    public final Ice.EndpointSelectionType
+    ice_getEndpointSelection()
+    {
+	return _reference.getEndpointSelection();
+    }
+
+    public final ObjectPrx
+    ice_endpointSelection(Ice.EndpointSelectionType newType)
+    {
+        if(newType == _reference.getEndpointSelection())
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(_reference.changeEndpointSelection(newType));
             return proxy;
         }
     }
@@ -636,18 +680,21 @@ public class ObjectPrxHelperBase implements ObjectPrx
 
         _reference = ref;
 
-        if(delegateD != null)
-        {
-            _ObjectDelD delegate = __createDelegateD();
-            delegate.__copyFrom(delegateD);
-            _delegate = delegate;
-        }
-        else if(delegateM != null)
-        {
-            _ObjectDelM delegate = __createDelegateM();
-            delegate.__copyFrom(delegateM);
-            _delegate = delegate;
-        }
+	if(_reference.getCacheConnection())
+	{
+	    if(delegateD != null)
+	    {
+		_ObjectDelD delegate = __createDelegateD();
+		delegate.__copyFrom(delegateD);
+		_delegate = delegate;
+	    }
+	    else if(delegateM != null)
+	    {
+		_ObjectDelM delegate = __createDelegateM();
+		delegate.__copyFrom(delegateM);
+		_delegate = delegate;
+	    }
+	}
     }
 
     public final int
@@ -702,45 +749,53 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final synchronized _ObjectDel
     __getDelegate()
     {
-        if(_delegate == null)
+        if(_delegate != null)
         {
-	    if(_reference.getCollocationOptimization())
+	    return _delegate;
+	}
+
+	_ObjectDel delegate = null;
+	if(_reference.getCollocationOptimization())
+	{
+	    ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
+	    if(adapter != null)
 	    {
-		ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
-		if(adapter != null)
+		_ObjectDelD d = __createDelegateD();
+		d.setup(_reference, adapter);
+		delegate = d;
+	    }
+	}
+
+	if(delegate == null)
+	{
+	    _ObjectDelM d = __createDelegateM();
+	    d.setup(_reference);
+	    delegate = d;
+
+	    //
+	    // If this proxy is for a non-local object, and we are
+	    // using a router, then add this proxy to the router info
+	    // object.
+	    //
+	    try
+	    {
+		IceInternal.RoutableReference rr = (IceInternal.RoutableReference)_reference;
+		if(rr != null && rr.getRouterInfo() != null)
 		{
-		    _ObjectDelD delegate = __createDelegateD();
-		    delegate.setup(_reference, adapter);
-		    _delegate = delegate;
+		    rr.getRouterInfo().addProxy(this);
 		}
 	    }
+	    catch(ClassCastException e)
+	    {
+	    }
+	}
 
-	    if(_delegate == null)
-            {
-                _ObjectDelM delegate = __createDelegateM();
-                delegate.setup(_reference);
-                _delegate = delegate;
+	if(_reference.getCacheConnection())
+	{
+	    _delegate = delegate;
+	}
 
-                //
-                // If this proxy is for a non-local object, and we are
-                // using a router, then add this proxy to the router info
-                // object.
-                //
-		try
-		{
-		    IceInternal.RoutableReference rr = (IceInternal.RoutableReference)_reference;
-		    if(rr != null && rr.getRouterInfo() != null)
-		    {
-		        rr.getRouterInfo().addProxy(this);
-		    }
-		}
-		catch(ClassCastException e)
-		{
-		}
-            }
-        }
-
-        return _delegate;
+	return delegate;
     }
 
     protected _ObjectDelM
