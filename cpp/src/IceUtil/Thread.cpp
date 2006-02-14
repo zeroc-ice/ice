@@ -34,7 +34,7 @@ IceUtil::ThreadControl::ThreadControl() :
     }
 }
 
-IceUtil::ThreadControl::ThreadControl(HANDLE handle, DWORD id) :
+IceUtil::ThreadControl::ThreadControl(HANDLE handle, IceUtil::ThreadControl::ID id) :
     _id(id)
 {
     HANDLE currentProcess = GetCurrentProcess();    
@@ -120,7 +120,7 @@ IceUtil::ThreadControl::detach()
     // is closed.
 }
 
-DWORD
+IceUtil::ThreadControl::ID
 IceUtil::ThreadControl::id() const
 {
     return _id;
@@ -296,7 +296,7 @@ IceUtil::Thread::_done()
 
 #else
 
-IceUtil::ThreadControl::ThreadControl(pthread_t thread) :
+IceUtil::ThreadControl::ThreadControl(IceUtil::ThreadControl::ID thread) :
     _thread(thread)
 {
 }
@@ -358,7 +358,7 @@ IceUtil::ThreadControl::detach()
     }
 }
 
-pthread_t
+IceUtil::ThreadControl::ID
 IceUtil::ThreadControl::id() const
 {
     return _thread;;

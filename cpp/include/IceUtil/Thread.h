@@ -67,10 +67,11 @@ public:
     // on POSIX platforms.
     //
 #ifdef _WIN32
-    DWORD id() const;
+    typedef DWORD ID;
 #else
-    pthread_t id() const;
+    typedef pthread_t ID;
 #endif 
+    ID id() const;
 
     static void sleep(const Time&);
     static void yield();
