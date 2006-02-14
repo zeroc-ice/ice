@@ -578,6 +578,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name customS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name bindingC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name bindingS
+    End Project Dependency
 }}}
 
 ###############################################################################
