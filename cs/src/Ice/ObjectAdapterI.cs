@@ -563,7 +563,7 @@ namespace Ice
 			System.Object o2 = _routerEndpoints[i + 1];
 			if(o1.Equals(o2))
 			{
-			    _routerEndpoints.Remove(i);
+			    _routerEndpoints.RemoveAt(i);
 			}
 			else
 			{
@@ -605,7 +605,7 @@ namespace Ice
 		    {
 			if(_routerInfos[p] == routerInfo)
 			{
-			    _routerInfos.Remove(p);
+			    _routerInfos.RemoveAt(p);
 			    continue;
 			}
 			ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)routerInfo.getServerProxy();
@@ -627,7 +627,7 @@ namespace Ice
 			System.Object o2 = _routerEndpoints[i + 1];
 			if(o1.Equals(o2))
 			{
-			    _routerEndpoints.Remove(i);
+			    _routerEndpoints.RemoveAt(i);
 			}
 			else
 			{
