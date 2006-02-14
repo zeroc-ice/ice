@@ -251,7 +251,7 @@ private:
 	void emitGCFunctions(const ClassDefPtr&);
 	void emitGCInsertCode(const TypePtr&, const std::string&, const std::string&, int);
 	void emitGCClearCode(const TypePtr&, const std::string&, const std::string&, int);
-	bool emitVirtualBaseInitializers(const ClassDefPtr&, bool);
+	bool emitVirtualBaseInitializers(const ClassDefPtr&);
 	void emitOneShotConstructor(const ClassDefPtr&);
 	void emitUpcall(const ClassDefPtr&, const std::string&);
 

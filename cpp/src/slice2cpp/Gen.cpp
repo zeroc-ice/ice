@@ -3539,7 +3539,7 @@ Slice::Gen::ObjectVisitor::emitGCClearCode(const TypePtr& p, const string& prefi
 }
 
 bool
-Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p, bool first)
+Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p)
 {
     DataMemberList allDataMembers = p->allDataMembers();
     if(allDataMembers.empty())
@@ -3547,9 +3547,13 @@ Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p, boo
         return false;
     }
 
-    if(!first)
+    ClassList bases = p->bases();
+    if(!bases.empty() && !bases.front()->isInterface())
     {
-        C << ",";
+	if(emitVirtualBaseInitializers(bases.front()))
+	{
+	    C << ',';
+	}
     }
 
     string upcall = "(";
@@ -3565,13 +3569,6 @@ Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p, boo
     upcall += ")";
 
     C << nl << fixKwd(p->name()) << upcall;
-
-    ClassList bases = p->bases();
-    ClassDefPtr base;
-    if(!bases.empty() && !bases.front()->isInterface())
-    {
-	emitVirtualBaseInitializers(bases.front(), false);
-    }
 
     return true;
 }
@@ -3601,14 +3598,19 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 	ClassDefPtr base;
 	if(!bases.empty() && !bases.front()->isInterface())
 	{
-	    if(emitVirtualBaseInitializers(bases.front(), true) && !dataMembers.empty())
+	    if(emitVirtualBaseInitializers(bases.front()))
 	    {
-	        C << ',';
+	        if(!dataMembers.empty())
+		{
+		    C << ',';
+		}
 	    }
 	}
 
-	C << nl;
-
+	if(!dataMembers.empty())
+	{
+	    C << nl;
+	}
 	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	{
 	    if(q != dataMembers.begin())
