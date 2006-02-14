@@ -299,7 +299,7 @@ public class AllTests
 	    helloPrx.ice_connection();
 	    test(false);
 	}
-	catch(Ice.CollocationOptimizationException ex)
+	catch(Ice.CollocationOptimizationException)
 	{
 	    Console.Out.WriteLine("ok");
 	}
