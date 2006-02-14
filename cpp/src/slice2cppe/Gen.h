@@ -205,7 +205,7 @@ private:
 
     private:
 
-	bool emitVirtualBaseInitializers(const ClassDefPtr&, bool);
+	bool emitVirtualBaseInitializers(const ClassDefPtr&);
 	void emitOneShotConstructor(const ClassDefPtr&);
 	void emitUpcall(const ClassDefPtr&, const std::string&);
 
