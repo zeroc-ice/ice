@@ -1176,6 +1176,7 @@ public final class Connection
 		    // Don't warn about certain expected exceptions.
 		    //
 		    if(!(_exception instanceof CloseConnectionException ||
+			 _exception instanceof ForcedCloseConnectionException ||
 			 _exception instanceof CommunicatorDestroyedException ||
 			 _exception instanceof ObjectAdapterDeactivatedException ||
 			 (_exception instanceof ConnectionLostException && _state == StateClosing)))
