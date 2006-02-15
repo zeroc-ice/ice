@@ -891,60 +891,27 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 	    info.executable = buf.st_mode & S_IXUSR;
 #endif
 
-	    ByteSeq bytes(relPath.size() + buf.st_size);
-	    copy(relPath.begin(), relPath.end(), bytes.begin());
-
-	    if(buf.st_size != 0)
+            OS::structstat bufBZ2;
+	    const string pathBZ2 = path + ".bz2";
+	    bool doCompress = false;
+	    if(buf.st_size != 0 && compress > 0)
 	    {
-		int fd = OS::open(path.c_str(), O_BINARY|O_RDONLY);
-		if(fd == -1)
-		{
-		    throw "cannot open `" + path + "' for reading:\n" + lastError();
-		}
-
-		if(read(fd, &bytes[relPath.size()], buf.st_size) == -1)
-		{
-		    close(fd);
-		    throw "cannot read from `" + path + "':\n" + lastError();
-		}
-
-		close(fd);
-
 		//
 		// compress == 0: Never compress.
 		// compress == 1: Compress if necessary.
 		// compress >= 2: Always compress.
 		//
-		if(compress > 0)
+	        if(compress >= 2 || OS::osstat(pathBZ2, &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
 		{
-		    OS::structstat bufBZ2;
-		    const string pathBZ2 = path + ".bz2";
-
-		    if(compress >= 2 || OS::osstat(pathBZ2, &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
+		    if(cb && !cb->compress(relPath))
 		    {
-			if(cb && !cb->compress(relPath))
-			{
-			    return false;
-			}
-			
-			//
-			// We compress into a .bz2temp file, and then
-			// move this file to the final .bz2 file. This
-			// way we can be sure that there are no
-			// incomplete .bz2 files in case of a crash.
-			//
-			const string pathBZ2Temp = path + ".bz2temp";
-
-			compressBytesToFile(pathBZ2Temp, bytes, static_cast<Int>(relPath.size()));
-			
-			rename(pathBZ2Temp, pathBZ2);
-
-			if(OS::osstat(pathBZ2, &bufBZ2) == -1)
-			{
-			    throw "cannot stat `" + pathBZ2 + "':\n" + lastError();
-			}
+		        return false;
 		    }
 
+		    doCompress = true;
+		}
+		else
+		{
 		    info.size = static_cast<Int>(bufBZ2.st_size);
 		}
 	    }
@@ -955,15 +922,121 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 	    }
 
 	    ByteSeq bytesSHA(20);
-	    if(!bytes.empty())
-	    {
-		SHA1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(),
-		     reinterpret_cast<unsigned char*>(&bytesSHA[0]));
-	    }
-	    else
+	    if(relPath.size() + buf.st_size == 0)
 	    {
 		fill(bytesSHA.begin(), bytesSHA.end(), 0);
 	    }
+	    else
+	    {
+	    	SHA_CTX ctx;
+	        SHA1_Init(&ctx);
+		if(relPath.size() != 0)
+		{
+	            SHA1_Update(&ctx, reinterpret_cast<const void*>(relPath.c_str()), relPath.size());
+		}
+
+		if(buf.st_size != 0)
+		{
+	            int fd = OS::open(path.c_str(), O_BINARY|O_RDONLY);
+	            if(fd == -1)
+	            {
+	                throw "cannot open `" + path + "' for reading:\n" + lastError();
+	            }
+
+	    	    const string pathBZ2Temp = path + ".bz2temp";
+		    FILE* stdioFile;
+		    int bzError;
+		    BZFILE* bzFile;
+		    if(doCompress)
+		    {
+    		        stdioFile = OS::fopen(simplify(pathBZ2Temp), "wb");
+    		        if(!stdioFile)
+    		        {
+		            close(fd);
+		            throw "cannot open `" + pathBZ2Temp + "' for writing:\n" + lastError();
+    		        }
+
+    		        bzFile = BZ2_bzWriteOpen(&bzError, stdioFile, 5, 0, 0);
+    		        if(bzError != BZ_OK)
+    		        {
+			    string ex = "BZ2_bzWriteOpen failed";
+			    if(bzError == BZ_IO_ERROR)
+			    {
+	    		    ex += string(": ") + lastError();
+			    }
+			    fclose(stdioFile);
+			    close(fd);
+			    throw ex;
+    		        }
+		    }
+
+		    int bytesLeft = buf.st_size;
+	            while(bytesLeft > 0)
+	            {
+		    	ByteSeq bytes(min(bytesLeft, 1024*1024));
+		        if(read(fd, &bytes[0], bytes.size()) == -1)
+		        {
+			    if(doCompress)
+			    {
+			        fclose(stdioFile);
+			    }
+		            close(fd);
+		            throw "cannot read from `" + path + "':\n" + lastError();
+		        }
+			bytesLeft -= bytes.size();
+
+		        if(doCompress)
+		        {
+                            BZ2_bzWrite(&bzError, bzFile, const_cast<Byte*>(&bytes[0]), static_cast<int>(bytes.size()));
+                            if(bzError != BZ_OK)
+                            {
+	                        string ex = "BZ2_bzWrite failed";
+	                        if(bzError == BZ_IO_ERROR)
+	                        {
+	                            ex += string(": ") + lastError();
+	                        }
+	                        BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
+	                        fclose(stdioFile);
+				close(fd);
+	                        throw ex;
+                            }
+		        }
+
+			SHA1_Update(&ctx, reinterpret_cast<const void*>(&bytes[0]), bytes.size());
+	            }
+
+	            close(fd);
+
+		    if(doCompress)
+		    {
+                        BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
+                        if(bzError != BZ_OK)
+                        {
+	                    string ex = "BZ2_bzWriteClose failed";
+	                    if(bzError == BZ_IO_ERROR)
+	                    {
+	                        ex += string(": ") + lastError();
+	                    }
+	                    fclose(stdioFile);
+	                    throw ex;
+                        }
+
+    		        fclose(stdioFile);
+
+	                rename(pathBZ2Temp, pathBZ2);
+
+	                if(OS::osstat(pathBZ2, &bufBZ2) == -1)
+	                {
+	                    throw "cannot stat `" + pathBZ2 + "':\n" + lastError();
+	                }
+
+	                info.size = static_cast<Int>(bufBZ2.st_size);
+		    }
+	        }
+
+		SHA1_Final(reinterpret_cast<unsigned char*>(&bytesSHA[0]), &ctx);
+	    }
+
 	    info.checksum.swap(bytesSHA);
 
 	    infoSeq.push_back(info);
