@@ -96,7 +96,7 @@ public class AllTests
 		test3.ice_ping();
 		test(false);
 	    }
-	    catch(Ice.ConnectionRefusedException ex)
+	    catch(Ice.ConnectionRefusedException)
 	    {
 	    }
 	}
@@ -230,7 +230,7 @@ public class AllTests
 	    {
 		obj.getAdapterName();
 	    }
-	    catch(Ice.ConnectionRefusedException ex)
+	    catch(Ice.ConnectionRefusedException)
 	    {
 	    }
 
@@ -279,7 +279,7 @@ public class AllTests
 		test(test3.ice_connection() == test1.ice_connection());
 		test(false);
 	    }
-	    catch(Ice.ConnectionRefusedException ex)
+	    catch(Ice.ConnectionRefusedException)
 	    {
 	    }
 	}
@@ -357,7 +357,7 @@ public class AllTests
 	    {
 		obj.getAdapterName();
 	    }
-	    catch(Ice.ConnectionRefusedException ex)
+	    catch(Ice.ConnectionRefusedException)
 	    {
 	    }
 
@@ -399,7 +399,7 @@ public class AllTests
 	    {
 		testUDP.getAdapterName();
 	    }
-	    catch(Ice.TwowayOnlyException ex)
+	    catch(Ice.TwowayOnlyException)
 	    {
 	    }
 	}
@@ -448,7 +448,7 @@ public class AllTests
 		    testSecure.ice_ping();
 		    test(false);
 		}
-		catch(Ice.ConnectionRefusedException ex)
+		catch(Ice.ConnectionRefusedException)
 		{
 		}
 
