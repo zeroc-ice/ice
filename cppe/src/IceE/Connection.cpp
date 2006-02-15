@@ -442,7 +442,7 @@ Ice::Connection::sendBlockingRequest(BasicStream* os, BasicStream* is, Outgoing*
 #ifndef ICEE_PURE_BLOCKING_CLIENT
 
 void
-Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
+Ice::Connection::sendRequest(BasicStream* os, OutgoingM* out)
 {
     Int requestId;
 
@@ -467,7 +467,7 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	    //
 	    // Add to the requests map.
 	    //
-	    _requestsHint = _requests.insert(_requests.end(), pair<const Int, Outgoing*>(requestId, out));
+	    _requestsHint = _requests.insert(_requests.end(), pair<const Int, OutgoingM*>(requestId, out));
 	}
     }
 
@@ -498,7 +498,7 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	    // very elaborate and complex design, which would be bad
 	    // for performance.
 	    //
-	    map<Int, Outgoing*>::iterator p = _requests.find(requestId);
+	    map<Int, OutgoingM*>::iterator p = _requests.find(requestId);
 	    if(p != _requests.end())
 	    {
 		if(p == _requestsHint)
@@ -1544,7 +1544,7 @@ Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
 	    
 		    stream.read(requestId);
 	    
-		    map<Int, Outgoing*>::iterator p = _requests.end();
+		    map<Int, OutgoingM*>::iterator p = _requests.end();
 	        
 		    if(_requestsHint != _requests.end())
 		    {
@@ -1860,7 +1860,7 @@ Ice::Connection::run()
 	
 	auto_ptr<LocalException> exception;
 	
-	map<Int, Outgoing*> requests;
+	map<Int, OutgoingM*> requests;
 
 	{
 	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -1927,7 +1927,7 @@ Ice::Connection::run()
 #ifndef ICEE_PURE_CLIENT
 	invokeAll(stream, invokeNum, requestId, servantManager, adapter);
 #endif
-	for(map<Int, Outgoing*>::iterator p = requests.begin(); p != requests.end(); ++p)
+	for(map<Int, OutgoingM*>::iterator p = requests.begin(); p != requests.end(); ++p)
 	{
 	    p->second->finished(*_exception.get()); // The exception is immutable at this point.
 	}

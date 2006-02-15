@@ -10,6 +10,7 @@
 #include <IceE/Proxy.h>
 #include <IceE/ProxyFactory.h>
 #include <IceE/Outgoing.h>
+#include <IceE/Connection.h>
 #include <IceE/Reference.h>
 #include <IceE/Instance.h>
 #include <IceE/BasicStream.h>
@@ -297,57 +298,6 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 #endif
     }
 }
-
-#ifndef ICEE_PURE_CLIENT
-bool
-IceProxy::Ice::Object::ice_invoke(const string& operation,
-				  OperationMode mode,
-				  const vector<Byte>& inParams,
-				  vector<Byte>& outParams)
-{
-    return ice_invoke(operation, mode, inParams, outParams, _reference->getContext());
-}
-
-bool
-IceProxy::Ice::Object::ice_invoke(const string& operation,
-				  OperationMode mode,
-				  const vector<Byte>& inParams,
-				  vector<Byte>& outParams,
-				  const Context& context)
-{
-    int __cnt = 0;
-    while(true)
-    {
-	try
-	{
-	    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    return __del->ice_invoke(operation, mode, inParams, outParams, context);
-	}
-	catch(const NonRepeatable& __ex)
-	{
-	    bool canRetry = mode == Nonmutating || mode == Idempotent;
-	    if(canRetry)
-	    {
-		__handleException(*__ex.get(), __cnt);
-	    }
-	    else
-	    {
-		__rethrowException(*__ex.get());
-	    }
-	}
-	catch(const LocalException& __ex)
-	{
-	    __handleException(__ex, __cnt);
-	}
-#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug.
-	catch(...)
-	{
-	    throw;
-	}
-#endif
-    }
-}
-#endif
 
 Context
 IceProxy::Ice::Object::ice_getContext() const
@@ -714,7 +664,29 @@ bool
 IceDelegate::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
     static const string __operation("ice_isA");
-    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+#ifdef ICEE_BLOCKING_CLIENT
+#  ifndef ICEE_PURE_BLOCKING_CLIENT
+    if(__connection->blocking())
+#  endif
+    {
+        Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+        return __ice_isA(__id, __og);
+    }
+#  ifndef ICEE_PURE_BLOCKING_CLIENT
+    else
+#  endif
+#endif
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+    {
+        OutgoingM __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+        return __ice_isA(__id, __og);
+    }
+#endif
+}
+
+bool
+IceDelegate::Ice::Object::__ice_isA(const string& __id, Outgoing& __og)
+{
     try
     {
 	BasicStream* __os = __og.os();
@@ -756,7 +728,30 @@ void
 IceDelegate::Ice::Object::ice_ping(const Context& __context)
 {
     static const string __operation("ice_ping");
-    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+#ifdef ICEE_BLOCKING_CLIENT
+#  ifndef ICEE_PURE_BLOCKING_CLIENT
+    if(__connection->blocking())
+#  endif
+    {
+        Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+        __ice_ping(__og);
+    }
+#  ifndef ICEE_PURE_BLOCKING_CLIENT
+    else
+#  endif
+#endif
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+    {
+        OutgoingM __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+        __ice_ping(__og);
+    }
+#endif
+
+}
+
+void
+IceDelegate::Ice::Object::__ice_ping(Outgoing& __og)
+{
     bool __ok = __og.invoke();
     try
     {
@@ -786,7 +781,30 @@ vector<string>
 IceDelegate::Ice::Object::ice_ids(const Context& __context)
 {
     static const string __operation("ice_ids");
-    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+#ifdef ICEE_BLOCKING_CLIENT
+#  ifndef ICEE_PURE_BLOCKING_CLIENT
+    if(__connection->blocking())
+#  endif
+    {
+        Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+        return __ice_ids(__og);
+    }
+#  ifndef ICEE_PURE_BLOCKING_CLIENT
+    else
+#  endif
+#endif
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+    {
+        OutgoingM __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+        return __ice_ids(__og);
+    }
+#endif
+
+}
+
+vector<string>
+IceDelegate::Ice::Object::__ice_ids(Outgoing& __og)
+{
     vector<string> __ret;
     bool __ok = __og.invoke();
     try
@@ -819,7 +837,30 @@ string
 IceDelegate::Ice::Object::ice_id(const Context& __context)
 {
     static const string __operation("ice_id");
-    Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+#ifdef ICEE_BLOCKING_CLIENT
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+    if(__connection->blocking())
+#endif
+    {
+        Outgoing __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+        return __ice_id(__og);
+    }
+#  ifndef ICEE_PURE_BLOCKING_CLIENT
+    else
+#  endif
+#endif
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+    {
+        OutgoingM __og(__connection.get(), __reference.get(), __operation, ::Ice::Nonmutating, __context);
+        return __ice_id(__og);
+    }
+#endif
+
+}
+
+string
+IceDelegate::Ice::Object::__ice_id(Outgoing& __og)
+{
     string __ret;
     bool __ok = __og.invoke();
     try
@@ -847,48 +888,6 @@ IceDelegate::Ice::Object::ice_id(const Context& __context)
 #endif
     return __ret;
 }
-
-#ifndef ICEE_PURE_CLIENT
-bool
-IceDelegate::Ice::Object::ice_invoke(const string& operation,
-                                      OperationMode mode,
-				      const vector<Byte>& inParams,
-				      vector<Byte>& outParams,
-				      const Context& context)
-{
-    Outgoing __og(__connection.get(), __reference.get(), operation, mode, context);
-    try
-    {
-	BasicStream* __os = __og.os();
-	__os->writeBlob(inParams);
-    }
-    catch(const ::Ice::LocalException& __ex)
-    {
-	__og.abort(__ex);
-    }
-    bool ok = __og.invoke();
-    if(__reference->getMode() == Reference::ModeTwoway)
-    {
-        try
-        {
-            BasicStream* __is = __og.is();
-            Int sz = __is->getReadEncapsSize();
-            __is->readBlob(outParams, sz);
-        }
-        catch(const ::Ice::LocalException& __ex)
-        {
-            throw ::IceInternal::NonRepeatable(__ex);
-        }
-#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug.
-	catch(...)
-	{
-	    throw;
-	}
-#endif
-    }
-    return ok;
-}
-#endif
 
 ConnectionPtr
 IceDelegate::Ice::Object::ice_connection()

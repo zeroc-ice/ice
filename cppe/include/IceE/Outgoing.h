@@ -13,8 +13,10 @@
 #include <IceE/ConnectionF.h>
 #include <IceE/ReferenceF.h>
 
-#include <IceE/Mutex.h>
-#include <IceE/Monitor.h>
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+#  include <IceE/Mutex.h>
+#  include <IceE/Monitor.h>
+#endif
 #include <IceE/BasicStream.h>
 #include <IceE/OperationMode.h>
 
@@ -49,26 +51,20 @@ private:
 };
 
 class ICE_API Outgoing : private IceUtil::noncopyable
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-			 , public IceUtil::Monitor<IceUtil::Mutex >
-#endif
 {
 public:
 
     Outgoing(Ice::Connection*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context&);
+    virtual ~Outgoing() {}
 
-    bool invoke(); // Returns true if ok, false if user exception.
+    virtual bool invoke(); // Returns true if ok, false if user exception.
     void abort(const Ice::LocalException&);
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-    void finished(BasicStream&);
-    void finished(const Ice::LocalException&);
-#endif
 
     // Inlined for speed optimization.
     BasicStream* is() { return &_is; }
     BasicStream* os() { return &_os; }
 
-private:
+protected:
 
     void finishedInternal();
 
@@ -93,6 +89,20 @@ private:
     BasicStream _is;
     BasicStream _os;
 };
+
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+class ICE_API OutgoingM : public Outgoing , public IceUtil::Monitor<IceUtil::Mutex >
+{
+public:
+
+    OutgoingM(Ice::Connection*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context&);
+    virtual ~OutgoingM() {}
+
+    bool invoke(); // Returns true if ok, false if user exception.
+    void finished(BasicStream&);
+    void finished(const Ice::LocalException&);
+};
+#endif
 
 }
 

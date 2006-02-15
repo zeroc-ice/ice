@@ -60,6 +60,7 @@ LOCAL_OBJS	= BasicStream.o \
 		  ObjectAdapterFactory.o \
 		  OperationMode.o \
 		  Outgoing.o \
+		  OutgoingM.o \
 		  OutgoingConnectionFactory.o \
 		  Properties.o \
 		  Proxy.o \

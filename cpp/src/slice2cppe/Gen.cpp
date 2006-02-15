@@ -212,6 +212,7 @@ Slice::Gen::generate(const UnitPtr& p)
 	H << "\n#  include <IceE/Incoming.h>";
         H << "\n#endif";
 	H << "\n#include <IceE/Outgoing.h>";
+	C << "\n#include <IceE/Connection.h>";
 	C << "\n#include <IceE/LocalException.h>";
     }
 
@@ -1575,6 +1576,7 @@ void
 Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 {
     string name = fixKwd(p->name());
+    string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
 
     TypePtr ret = p->returnType();
@@ -1582,6 +1584,7 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 
     vector<string> params;
     vector<string> paramsDecl;
+    vector<string> paramsName;
 
     ParamDeclList inParams;
     ParamDeclList outParams;
@@ -1607,17 +1610,68 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 
 	params.push_back(typeString);
 	paramsDecl.push_back(typeString + ' ' + paramName);
+	paramsName.push_back(paramName);
     }
 
     params.push_back("const ::Ice::Context&");
     paramsDecl.push_back("const ::Ice::Context& __context");
+    paramsName.push_back("__out");
 
     H << sp << nl << "virtual " << retS << ' ' << name << spar << params << epar << ';';
     C << sp << nl << retS << nl << "IceDelegate" << scoped << spar << paramsDecl << epar;
     C << sb;
     C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
+    C.zeroIndent();
+    C << nl << "#ifdef ICEE_BLOCKING_CLIENT";
+    C << nl << "#  ifndef ICEE_PURE_BLOCKING_CLIENT";
+    C.restoreIndent();
+    C << nl << "if(__connection->blocking())";
+    C.zeroIndent();
+    C << nl << "#  endif";
+    C.restoreIndent();
+    C << sb;
     C << nl << "::IceInternal::Outgoing __out(__connection.get(), __reference.get(), __operation, "
       << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __context);";
+    C << nl;
+    if(ret)
+    {
+        C << "return ";
+    }
+    C << "__" << name << spar << paramsName << epar << ";";
+    C << eb;
+    C.zeroIndent();
+    C << nl << "#  ifndef ICEE_PURE_BLOCKING_CLIENT";
+    C.restoreIndent();
+    C << nl << "else";
+    C.zeroIndent();
+    C << nl << "#  endif";
+    C << nl << "#endif";
+    C << nl << "#ifndef ICEE_PURE_BLOCKING_CLIENT";
+    C.restoreIndent();
+    C << sb;
+    C << nl << "::IceInternal::OutgoingM __out(__connection.get(), __reference.get(), __operation, "
+      << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __context);";
+    C << nl;
+    if(ret)
+    {
+        C << "return ";
+    }
+    C << "__" << name << spar << paramsName << epar << ";";
+    C << eb;
+    C.zeroIndent();
+    C << nl << "#endif";
+    C.restoreIndent();
+    C << eb;
+
+    params.pop_back();
+    paramsDecl.pop_back();
+    params.push_back("::IceInternal::Outgoing&");
+    paramsDecl.push_back("::IceInternal::Outgoing& __out");
+    
+
+    H << sp << nl << "virtual " << retS << " __" << name << spar << params << epar << ';';
+    C << sp << nl << retS << nl << "IceDelegate" << scope << "__" << name << spar << paramsDecl << epar;
+    C << sb;
     if(!inParams.empty())
     {
 	C << nl << "try";

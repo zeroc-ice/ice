@@ -22,6 +22,7 @@
 #include <IceE/Mutex.h>
 #include <IceE/Identity.h>
 #include <IceE/OperationMode.h>
+#include <IceE/Outgoing.h>
 
 #ifdef ICEE_HAS_ROUTER
 
@@ -117,13 +118,6 @@ public:
     ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     ::std::string ice_id();
     ::std::string ice_id(const ::Ice::Context&);
-#ifndef ICEE_PURE_CLIENT
-    bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
-	            ::std::vector< ::Ice::Byte>&); // Returns true if ok, false if user exception.
-    bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
-	            ::std::vector< ::Ice::Byte>&,
-		    const ::Ice::Context&); // Returns true if ok, false if user exception.
-#endif
 
     ::Ice::Identity ice_getIdentity() const;
     ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
@@ -191,10 +185,6 @@ public:
     void ice_ping(const ::Ice::Context&);
     ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     ::std::string ice_id(const ::Ice::Context&);
-#ifndef ICEE_PURE_CLIENT
-    bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
-			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
-#endif
 
     ::Ice::ConnectionPtr ice_connection();
 
@@ -206,6 +196,11 @@ protected:
     ::Ice::ConnectionPtr __connection;
 
 private:
+
+    bool __ice_isA(const ::std::string&, ::IceInternal::Outgoing&);
+    void __ice_ping(::IceInternal::Outgoing&);
+    ::std::vector< ::std::string> __ice_ids(::IceInternal::Outgoing&);
+    ::std::string __ice_id(::IceInternal::Outgoing&);
 
     void setup(const ::IceInternal::ReferencePtr&);
     friend class ::IceProxy::Ice::Object;

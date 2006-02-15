@@ -38,6 +38,9 @@ namespace IceInternal
 {
 
 class Outgoing;
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+class OutgoingM;
+#endif
 class BasicStream;
 
 }
@@ -79,7 +82,7 @@ public:
     void sendBlockingRequest(IceInternal::BasicStream*, IceInternal::BasicStream*, IceInternal::Outgoing*);
 #endif
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-    void sendRequest(IceInternal::BasicStream*, IceInternal::Outgoing*);
+    void sendRequest(IceInternal::BasicStream*, IceInternal::OutgoingM*);
 #endif
 
 
@@ -202,8 +205,8 @@ private:
     Int _nextRequestId;
 
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-    std::map<Int, IceInternal::Outgoing*> _requests;
-    std::map<Int, IceInternal::Outgoing*>::iterator _requestsHint;
+    std::map<Int, IceInternal::OutgoingM*> _requests;
+    std::map<Int, IceInternal::OutgoingM*>::iterator _requestsHint;
 #endif
 
     std::auto_ptr<LocalException> _exception;

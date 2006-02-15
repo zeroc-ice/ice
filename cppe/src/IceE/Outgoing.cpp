@@ -104,6 +104,7 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
 bool
 IceInternal::Outgoing::invoke()
 {
+#ifdef ICEE_BLOCKING_CLIENT
     assert(_state == StateUnsent);
 
     _os.endWriteEncaps();
@@ -112,89 +113,6 @@ IceInternal::Outgoing::invoke()
     {
 	case Reference::ModeTwoway:
 	{
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-#ifdef ICEE_BLOCKING_CLIENT
-	    if(!_connection->blocking())
-#endif
-	    {
-	        //
-	        // We let all exceptions raised by sending directly
-	        // propagate to the caller, because they can be retried
-	        // without violating "at-most-once". In case of such
-	        // exceptions, the connection object does not call back on
-	        // this object, so we don't need to lock the mutex, keep
-	        // track of state, or save exceptions.
-	        //
-	        _connection->sendRequest(&_os, this);
-	    
-	        //
-	        // Wait until the request has completed, or until the
-	        // request times out.
-	        //
-
-	        bool timedOut = false;
-
-	        {
-		    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-		    //
-                    // It's possible that the request has already
-                    // completed, due to a regular response, or because of
-                    // an exception. So we only change the state to "in
-                    // progress" if it is still "unsent".
-		    //
-		    if(_state == StateUnsent)
-		    {
-		        _state = StateInProgress;
-		    }
-		
-		    Int timeout = _connection->timeout();
-		    while(_state == StateInProgress && !timedOut)
-		    {
-		        if(timeout >= 0)
-		        {	
-			    timedWait(IceUtil::Time::milliSeconds(timeout));
-			
-			    if(_state == StateInProgress)
-			    {
-			        timedOut = true;
-			    }
-		        }
-		        else
-		        {
-			    wait();
-		        }
-		    }
-	        }
-
-	        if(timedOut)
-	        {
-		    //
-		    // Must be called outside the synchronization of this
-		    // object.
-		    //
-		    _connection->exception(TimeoutException(__FILE__, __LINE__));
-
-		    //
-		    // We must wait until the exception set above has
-		    // propagated to this Outgoing object.
-		    //
-		    {
-		        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-		    
-		        while(_state == StateInProgress)
-		        {
-			    wait();
-		        }
-		    }
-	        }
-	    }
-#ifdef ICEE_BLOCKING_CLIENT
-	    else
-#endif
-#endif
-#ifdef ICEE_BLOCKING_CLIENT
-	    {
 	        //
 		// For blocking sends the reply is written directly
 		// into the incoming stream.
@@ -209,8 +127,7 @@ IceInternal::Outgoing::invoke()
     		    _state = StateLocalException;
     		    _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 		}
-	    }
-#endif
+
 	    if(_exception.get())
 	    {
 		//
@@ -258,11 +175,7 @@ IceInternal::Outgoing::invoke()
 	    // violating "at-most-once".
 	    //
 	    _state = StateInProgress;
-#ifdef ICEE_BLOCKING_CLIENT
 	    _connection->sendBlockingRequest(&_os, 0, 0);
-#else
-	    _connection->sendRequest(&_os, 0);
-#endif
 	    break;
 	}
 
@@ -288,6 +201,9 @@ IceInternal::Outgoing::invoke()
     }
 
     return true;
+#else
+    assert(false);
+#endif
 }
 
 void
@@ -316,22 +232,6 @@ IceInternal::Outgoing::abort(const LocalException& ex)
     
     ex.ice_throw();
 }
-
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-void
-IceInternal::Outgoing::finished(BasicStream& is)
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-    assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
-
-    assert(_state <= StateInProgress);
-
-    _is.swap(is);
-    finishedInternal();
-    notify();
-}
-#endif
 
 void
 IceInternal::Outgoing::finishedInternal()
@@ -489,21 +389,3 @@ IceInternal::Outgoing::finishedInternal()
 	}
     }
 }
-
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-
-void
-IceInternal::Outgoing::finished(const LocalException& ex)
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    
-    assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
-
-    assert(_state <= StateInProgress);
-    
-    _state = StateLocalException;
-    _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
-     notify();
-}
-
-#endif
