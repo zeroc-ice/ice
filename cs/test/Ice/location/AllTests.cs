@@ -209,7 +209,7 @@ public class AllTests
 	test(++count == locator.getRequestCount());
 	communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
 	test(count == locator.getRequestCount());
-	System.Threading.Thread.Sleep(new System.TimeSpan(10 * 1000 * 1000)); // 1s
+	System.Threading.Thread.Sleep(new System.TimeSpan(10 * 1200 * 1000)); // 1200ms
 	communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
 	test(++count == locator.getRequestCount());
 	
@@ -218,7 +218,7 @@ public class AllTests
 	test(count == locator.getRequestCount());
 	communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
 	test(count == locator.getRequestCount());
-	System.Threading.Thread.Sleep(new System.TimeSpan(10 * 1000 * 1000)); // 1s
+	System.Threading.Thread.Sleep(new System.TimeSpan(10 * 1200 * 1000)); // 1200ms
 	communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
 	count += 2;
 	test(count == locator.getRequestCount());

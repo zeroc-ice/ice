@@ -228,7 +228,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     test(++count == locator->getRequestCount());
     communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
     test(count == locator->getRequestCount());
-    IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1200));
     communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
     test(++count == locator->getRequestCount());
 
@@ -237,7 +237,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     test(count == locator->getRequestCount());
     communicator->stringToProxy("test")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout
     test(count == locator->getRequestCount());
-    IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1200));
     communicator->stringToProxy("test")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout
     count += 2;
     test(count == locator->getRequestCount());
