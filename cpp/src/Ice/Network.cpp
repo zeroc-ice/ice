@@ -1285,16 +1285,9 @@ IceInternal::fdToString(SOCKET fd)
 	return "<closed>";
     }
 
-    socklen_t localLen = static_cast<socklen_t>(sizeof(struct sockaddr_in));
     struct sockaddr_in localAddr;
-    if(getsockname(fd, reinterpret_cast<struct sockaddr*>(&localAddr), &localLen) == SOCKET_ERROR)
-    {
-	closeSocketNoThrow(fd);
-	SocketException ex(__FILE__, __LINE__);
-	ex.error = getSocketErrno();
-	throw ex;
-    }
-    
+    fdToLocalAddress(fd, localAddr);
+
     bool peerNotConnected = false;
     socklen_t remoteLen = static_cast<socklen_t>(sizeof(struct sockaddr_in));
     struct sockaddr_in remoteAddr;
@@ -1324,6 +1317,19 @@ IceInternal::fdToString(SOCKET fd)
 	s << "\nremote address = " << addrToString(remoteAddr);
     }
     return s.str();
+}
+
+void
+IceInternal::fdToLocalAddress(SOCKET fd, struct sockaddr_in& addr)
+{
+    socklen_t len = static_cast<socklen_t>(sizeof(struct sockaddr_in));
+    if(getsockname(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
+    {
+	closeSocketNoThrow(fd);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
+    }
 }
 
 string

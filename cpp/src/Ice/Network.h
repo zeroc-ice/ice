@@ -109,6 +109,7 @@ ICE_API std::string errorToStringDNS(int);
 ICE_API std::string lastErrorToString();
 
 ICE_API std::string fdToString(SOCKET);
+ICE_API void fdToLocalAddress(SOCKET, struct sockaddr_in&);
 ICE_API std::string addrToString(const struct sockaddr_in&);
 
 ICE_API std::vector<std::string> getLocalHosts();
