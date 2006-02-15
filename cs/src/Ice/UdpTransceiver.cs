@@ -84,12 +84,14 @@ namespace IceInternal
 		    throw new Ice.SocketException(ex);
 		}
 
+#if !__MonoCS__
 		//
 		// On Windows, shutting down the socket doesn't unblock a call to
 		// receive or select. Setting an event wakes up the thread in
 		// read().
 		//
 		_shutdownReadWriteEvent.Set();
+#endif
 	    }
 	}
 	
@@ -193,6 +195,130 @@ namespace IceInternal
 	    ByteBuffer buf = stream.prepareRead();
 	    buf.position(0);
 
+#if __MonoCS__
+
+	repeat:
+
+	    //
+	    // Check the shutdown flag.
+	    //
+	    lock(_shutdownReadWriteMutex)
+	    {
+		if(_shutdownReadWrite)
+		{
+		    throw new Ice.ConnectionLostException();
+		}
+	    }
+
+	    try
+	    {
+		int ret;
+		if(_connect)
+		{
+		    //
+		    // If we must connect, then we connect to the first peer that
+		    // sends us a packet.
+		    //
+		    EndPoint peerAddr = new IPEndPoint(IPAddress.Any, 0);
+		    ret = _fd.ReceiveFrom(buf.rawBytes(), 0, buf.limit(), SocketFlags.None, ref peerAddr);
+
+		    Network.doConnect(_fd, peerAddr, -1);
+		    _connect = false; // We're connected now
+			    
+		    if(_traceLevels.network >= 1)
+		    {
+			string s = "connected udp socket\n" + ToString();
+			_logger.trace(_traceLevels.networkCat, s);
+		    }
+		}
+		else
+		{
+		    Debug.Assert(_fd != null);
+		    ret = _fd.Receive(buf.rawBytes(), 0, buf.limit(), SocketFlags.None);
+		}
+
+		if(_traceLevels.network >= 3)
+		{
+		    string s = "received " + ret + " bytes via udp\n" + ToString();
+		    _logger.trace(_traceLevels.networkCat, s);
+		}
+
+		if(_stats != null)
+		{
+		    _stats.bytesReceived(type(), ret);
+		}
+
+		stream.resize(ret, true);
+	    }
+	    catch(Win32Exception e)
+	    {
+		if(Network.interrupted(e))
+		{
+		    goto repeat;
+		}
+
+		if(Network.wouldBlock(e))
+		{
+		repeatPoll:
+		    try
+		    {
+			Network.doPoll(_fd, -1, Network.PollMode.Read);
+		    }
+		    catch(Win32Exception we)
+		    {
+			if(Network.interrupted(we))
+			{
+			    goto repeatPoll;
+			}
+			throw new Ice.SocketException("poll failed", we);
+		    }
+		    catch(System.Exception se)
+		    {
+			throw new Ice.SyscallException("poll failed", se);
+		    }
+
+		    goto repeat;
+		}
+
+		if(Network.recvTruncated(e))
+		{
+		    if(_warn)
+		    {
+			_logger.warning("DatagramLimitException: maximum size of " + packetSize + " exceeded");
+		    }
+		    throw new Ice.DatagramLimitException();
+		}
+
+		if(Network.connectionLost(e))
+		{
+		    throw new Ice.ConnectionLostException();
+		}
+
+		if(Network.connectionRefused(e))
+		{
+		    throw new Ice.ConnectionRefusedException();
+		}
+
+		throw new Ice.SocketException(e);
+	    }
+	    catch(Ice.LocalException)
+	    {
+		throw;
+	    }
+	    catch(System.Exception e)
+	    {
+		throw new Ice.SyscallException(e);
+	    }
+
+#else
+
+	    //
+	    // On Windows, we use asynchronous I/O to properly handle a call to
+	    // shutdownReadWrite. After calling BeginReceiveFrom, we wait for
+	    // the receive to complete or for the _shutdownReadWriteEvent to be
+	    // signaled.
+	    //
+
 	    WaitHandle[] handles = new WaitHandle[2];
 	    handles[0] = _shutdownReadWriteEvent;
 
@@ -272,6 +398,11 @@ namespace IceInternal
 		    throw new Ice.ConnectionLostException();
 		}
 
+		if(Network.connectionRefused(e))
+		{
+		    throw new Ice.ConnectionRefusedException();
+		}
+
 		throw new Ice.SocketException(e);
 	    }
 	    catch(Ice.LocalException)
@@ -282,6 +413,8 @@ namespace IceInternal
 	    {
 		throw new Ice.SyscallException(e);
 	    }
+
+#endif
 	}
 
         public string type()
@@ -487,7 +620,9 @@ namespace IceInternal
 
 	private bool _shutdownReadWrite;
 	private object _shutdownReadWriteMutex = new object();
+#if !__MonoCS__
 	private AutoResetEvent _shutdownReadWriteEvent = new AutoResetEvent(false);
+#endif
     }
 
 }
