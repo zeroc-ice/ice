@@ -17,7 +17,7 @@ namespace IceInternal
     {
 	internal const short TYPE = 3;
 	
-	public UdpEndpointI(Instance instance, string ho, int po, string conId, bool co, bool pub)
+	public UdpEndpointI(Instance instance, string ho, int po, bool conn, string conId, bool co, bool pub)
 	{
 	    instance_ = instance;
 	    _host = ho;
@@ -26,7 +26,7 @@ namespace IceInternal
 	    _protocolMinor = Protocol.protocolMinor;
 	    _encodingMajor = Protocol.encodingMajor;
 	    _encodingMinor = Protocol.encodingMinor;
-	    _connect = false;
+	    _connect = conn;
 	    _connectionId = conId;
 	    _compress = co;
 	    _publish = pub;
@@ -409,7 +409,7 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		return new UdpEndpointI(instance_, _host, _port, _connectionId, compress, _publish);
+		return new UdpEndpointI(instance_, _host, _port, _connect, _connectionId, compress, _publish);
 	    }
 	}
 
@@ -424,7 +424,7 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		return new UdpEndpointI(instance_, _host, _port, connectionId, _compress, _publish);
+		return new UdpEndpointI(instance_, _host, _port, _connect, connectionId, _compress, _publish);
 	    }
 	}
 	
@@ -481,7 +481,8 @@ namespace IceInternal
 	public override Transceiver serverTransceiver(ref EndpointI endpoint)
 	{
 	    UdpTransceiver p = new UdpTransceiver(instance_, _host, _port, _connect);
-	    endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _connectionId, _compress, _publish);
+	    endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _connect, _connectionId, _compress,
+					_publish);
 	    return p;
 	}
 	
@@ -523,7 +524,7 @@ namespace IceInternal
                 {
 		    if(includeLoopback || hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
 		    {
-                        endps.Add(new UdpEndpointI(instance_, hosts[i], _port, _connectionId, _compress,
+                        endps.Add(new UdpEndpointI(instance_, hosts[i], _port, _connect, _connectionId, _compress,
                                                    hosts.Length == 1 || !hosts[i].Equals("127.0.0.1")));
 		    }
                 }
