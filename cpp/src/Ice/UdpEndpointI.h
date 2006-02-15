@@ -22,7 +22,7 @@ class UdpEndpointI : public EndpointI
 {
 public:
 
-    UdpEndpointI(const InstancePtr&, const std::string&, Ice::Int, const std::string&, bool, bool);
+    UdpEndpointI(const InstancePtr&, const std::string&, Ice::Int, bool, const std::string&, bool, bool);
     UdpEndpointI(const InstancePtr&, const std::string&);
     UdpEndpointI(BasicStream*);
 

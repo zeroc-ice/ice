@@ -20,8 +20,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& ho, Int po, const string& conId,
-					bool co, bool pub) :
+IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& ho, Int po, bool conn,
+					const string& conId, bool co, bool pub) :
     _instance(instance),
     _host(ho),
     _port(po),
@@ -29,7 +29,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
     _protocolMinor(protocolMinor),
     _encodingMajor(encodingMajor),
     _encodingMinor(encodingMinor),
-    _connect(false),
+    _connect(conn),
     _connectionId(conId),
     _compress(co),
     _publish(pub)
@@ -395,7 +395,7 @@ IceInternal::UdpEndpointI::connectionId(const string& connectionId) const
     }
     else
     {
-	return new UdpEndpointI(_instance, _host, _port, connectionId, _compress, _publish);
+	return new UdpEndpointI(_instance, _host, _port, _connect, connectionId, _compress, _publish);
     }
 }
 
@@ -414,7 +414,7 @@ IceInternal::UdpEndpointI::compress(bool compress) const
     }
     else
     {
-	return new UdpEndpointI(_instance, _host, _port, _connectionId, compress, _publish);
+	return new UdpEndpointI(_instance, _host, _port, _connect, _connectionId, compress, _publish);
     }
 }
 
@@ -446,7 +446,7 @@ TransceiverPtr
 IceInternal::UdpEndpointI::serverTransceiver(EndpointIPtr& endp) const
 {
     UdpTransceiver* p = new UdpTransceiver(_instance, _host, _port, _connect);
-    endp = new UdpEndpointI(_instance, _host, p->effectivePort(), _connectionId, _compress, _publish);
+    endp = new UdpEndpointI(_instance, _host, p->effectivePort(), _connect, _connectionId, _compress, _publish);
     return p;
 }
 
@@ -474,7 +474,7 @@ IceInternal::UdpEndpointI::expand(bool includeLoopback) const
         {
 	    if(includeLoopback || hosts.size() == 1 || hosts[i] != "127.0.0.1")
 	    {
-                endps.push_back(new UdpEndpointI(_instance, hosts[i], _port, _connectionId, _compress, 
+                endps.push_back(new UdpEndpointI(_instance, hosts[i], _port, _connect, _connectionId, _compress, 
 	    				         hosts.size() == 1 || hosts[i] != "127.0.0.1"));
 	    }
         }

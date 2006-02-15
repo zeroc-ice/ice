@@ -14,7 +14,7 @@ final class UdpEndpointI extends EndpointI
     final static short TYPE = 3;
 
     public
-    UdpEndpointI(Instance instance, String ho, int po, String conId, boolean co, boolean pub)
+    UdpEndpointI(Instance instance, String ho, int po, boolean conn, String conId, boolean co, boolean pub)
     {
         _instance = instance;
         _host = ho;
@@ -23,7 +23,7 @@ final class UdpEndpointI extends EndpointI
 	_protocolMinor = Protocol.protocolMinor;
 	_encodingMajor = Protocol.encodingMajor;
 	_encodingMinor = Protocol.encodingMinor;
-        _connect = false;
+        _connect = conn;
 	_connectionId = conId;
 	_compress = co;
 	_publish = pub;
@@ -381,7 +381,7 @@ final class UdpEndpointI extends EndpointI
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, _port, _connectionId, compress, _publish);
+            return new UdpEndpointI(_instance, _host, _port, _connect, _connectionId, compress, _publish);
         }
     }
 
@@ -397,7 +397,7 @@ final class UdpEndpointI extends EndpointI
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, _port, connectionId, _compress, _publish);
+            return new UdpEndpointI(_instance, _host, _port, _connect, connectionId, _compress, _publish);
         }
     }
 
@@ -460,7 +460,8 @@ final class UdpEndpointI extends EndpointI
     serverTransceiver(EndpointIHolder endpoint)
     {
         UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _connect);
-        endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _connectionId, _compress, _publish);
+        endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _connect, _connectionId, _compress,
+					  _publish);
         return p;
     }
 
@@ -506,7 +507,7 @@ final class UdpEndpointI extends EndpointI
                 String host = (String)iter.next();
 		if(includeLoopback || hosts.size() == 1 || !host.equals("127.0.0.1"))
 		{
-                    endps.add(new UdpEndpointI(_instance, host, _port, _connectionId, _compress,
+                    endps.add(new UdpEndpointI(_instance, host, _port, _connect, _connectionId, _compress,
 					       hosts.size() == 1 || !host.equals("127.0.0.1")));
 		}
             }
