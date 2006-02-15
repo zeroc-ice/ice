@@ -50,6 +50,16 @@ namespace IceInternal
 	    return context_;
 	}
 
+	public bool getCacheConnection()
+	{
+	    return cacheConnection_;
+	}
+
+	public Ice.EndpointSelectionType getEndpointSelection()
+	{
+	    return endpointSelection_;
+	}
+
 	public Reference defaultContext()
 	{
 	    Reference r = instance_.referenceFactory().copy(this);
@@ -122,6 +132,28 @@ namespace IceInternal
 	    r.facet_ = newFacet;
 	    return r;
 	}
+
+	public Reference changeCacheConnection(bool newCache)
+	{
+	    if(newCache == cacheConnection_)
+	    {
+		return this;
+	    }
+	    Reference r = instance_.referenceFactory().copy(this);
+	    r.cacheConnection_ = newCache;
+	    return r;
+	}
+
+	public Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
+	{
+	    if(newType == endpointSelection_)
+	    {
+		return this;
+	    }
+	    Reference r = instance_.referenceFactory().copy(this);
+	    r.endpointSelection_ = newType;
+	    return r;
+	}	
 
 	public abstract Reference changeSecure(bool newSecure);
 	public abstract Reference changeRouter(Ice.RouterPrx newRouter);
@@ -322,6 +354,16 @@ namespace IceInternal
 		return false;
 	    }
 
+	    if(cacheConnection_ != r.cacheConnection_)
+	    {
+		return false;
+	    }
+
+	    if(endpointSelection_ != r.endpointSelection_)
+	    {
+		return false;
+	    }
+
 	    return true;
 	}
 
@@ -340,6 +382,8 @@ namespace IceInternal
 	private Ice.Context context_;
 	private static Ice.Context _emptyContext = new Ice.Context();
 	private string facet_;
+	private bool cacheConnection_;
+	private Ice.EndpointSelectionType endpointSelection_;
 
 	protected int hashValue_;
 	protected bool hashInitialized_;
@@ -364,256 +408,12 @@ namespace IceInternal
 	    identity_ = ident;
 	    context_ = ctx == null ? _emptyContext : ctx;
 	    facet_ = fac;
+	    cacheConnection_ = true;
+	    endpointSelection_ = Ice.EndpointSelectionType.Random;
 	    hashInitialized_ = false;
 	}
 
-	//
-	// Filter endpoints based on criteria from this reference.
-	//
-	protected EndpointI[] filterEndpoints(EndpointI[] allEndpoints)
-	{
-	    ArrayList endpoints = new ArrayList();
-
-	    //
-	    // Filter out unknown endpoints.
-	    //
-	    for(int i = 0; i < allEndpoints.Length; i++)
-	    {
-		if(!allEndpoints[i].unknown())
-		{
-		    endpoints.Add(allEndpoints[i]);
-		}
-	    }
-
-	    switch(mode_)
-	    {
-		case Reference.Mode.ModeTwoway:
-		case Reference.Mode.ModeOneway:
-		case Reference.Mode.ModeBatchOneway:
-		{
-		    //
-		    // Filter out datagram endpoints.
-		    //
-		    ArrayList tmp = new ArrayList();
-		    foreach(EndpointI endpoint in endpoints)
-		    {
-		    	if(!endpoint.datagram())
-			{
-			    tmp.Add(endpoint);
-			}
-		    }
-		    endpoints = tmp;
-		    break;
-		}
-
-		case Reference.Mode.ModeDatagram:
-		case Reference.Mode.ModeBatchDatagram:
-		{
-		    //
-		    // Filter out non-datagram endpoints.
-		    //
-		    ArrayList tmp = new ArrayList();
-		    foreach(EndpointI endpoint in endpoints)
-		    {
-		    	if(endpoint.datagram())
-			{
-			    tmp.Add(endpoint);
-			}
-		    }
-		    endpoints = tmp;
-		    break;
-		}
-	    }
-
-	    //
-	    // Randomize the order of endpoints.
-	    //
-	    for(int i = 0; i < endpoints.Count - 2; ++i)
-	    {
-		int r = _rand.Next(endpoints.Count - i) + i;
-		Debug.Assert(r >= i && r < endpoints.Count);
-		if(r != i)
-		{
-		    object tmp = endpoints[i];
-		    endpoints[i] = endpoints[r];
-		    endpoints[r] = tmp;
-		}
-	    }
-
-	    //
-	    // If a secure connection is requested, remove all non-secure
-	    // endpoints. Otherwise make non-secure endpoints preferred over
-	    // secure endpoints by partitioning the endpoint vector, so that
-	    // non-secure endpoints come first.
-	    //
-	    if(getSecure())
-	    {
-		ArrayList tmp = new ArrayList();
-		foreach(EndpointI endpoint in endpoints)
-		{
-		    if(endpoint.secure())
-		    {
-			tmp.Add(endpoint);
-		    }
-		}
-		endpoints = tmp;
-	    }
-	    else
-	    {
-		endpoints.Sort(_endpointComparator);
-	    }
-	    
-	    EndpointI[] arr = new EndpointI[endpoints.Count];
-	    if(arr.Length != 0)
-	    {
-		endpoints.CopyTo(arr);
-	    }
-	    return arr;
-	}
-
-	private class EndpointComparator : IComparer
-	{
-	    public int Compare(object l, object r)
-	    {
-		IceInternal.EndpointI le = (IceInternal.EndpointI)l;
-		IceInternal.EndpointI re = (IceInternal.EndpointI)r;
-		bool ls = le.secure();
-		bool rs = re.secure();
-		if((ls && rs) || (!ls && !rs))
-		{
-		    return 0;
-		}
-		else if(!ls && rs)
-		{
-		    return -1;
-		}
-		else
-		{
-		    return 1;
-		}
-	    }
-	}
-	
-	private static EndpointComparator _endpointComparator = new EndpointComparator();
-
-	//
-	// Filter connections based on criteria from this reference.
-	//
-	public Ice.ConnectionI[]
-	filterConnections(Ice.ConnectionI[] allConnections)
-	{
-	    ArrayList connections = new ArrayList();
-
-	    switch(mode_)
-	    {
-		case Reference.Mode.ModeTwoway:
-		case Reference.Mode.ModeOneway:
-		case Reference.Mode.ModeBatchOneway:
-		{
-		    //
-		    // Filter out datagram endpoints.
-		    //
-		    for(int i = 0; i < allConnections.Length; ++i)
-		    {
-			if(!allConnections[i].endpoint().datagram())
-			{
-			    connections.Add(allConnections[i]);
-			}
-		    }
-
-		    break;
-		}
-
-		case Reference.Mode.ModeDatagram:
-		case Reference.Mode.ModeBatchDatagram:
-		{
-		    //
-		    // Filter out non-datagram endpoints.
-		    //
-		    for(int i = 0; i < allConnections.Length; ++i)
-		    {
-			if(allConnections[i].endpoint().datagram())
-			{
-			    connections.Add(allConnections[i]);
-			}
-		    }
-
-		    break;
-		}
-	    }
-
-	    //
-	    // Randomize the order of connections.
-	    //
-	    for(int i = 0; i < connections.Count - 2; ++i)
-	    {
-		int r = _rand.Next(connections.Count - i) + i;
-		Debug.Assert(r >= i && r < connections.Count);
-		if(r != i)
-		{
-		    object tmp = connections[i];
-		    connections[i] = connections[r];
-		    connections[r] = tmp;
-		}
-	    }
-
-	    //
-	    // If a secure connection is requested, remove all non-secure
-	    // endpoints. Otherwise make non-secure endpoints preferred over
-	    // secure endpoints by partitioning the endpoint vector, so that
-	    // non-secure endpoints come first.
-	    //
-	    if(getSecure())
-	    {
-		ArrayList tmp = new ArrayList();
-		foreach(Ice.ConnectionI connection in connections)
-		{
-		    if(connection.endpoint().secure())
-		    {
-			tmp.Add(connection);
-		    }
-		}
-		connections = tmp;
-	    }
-	    else
-	    {
-		connections.Sort(_connectionComparator);
-	    }
-	    
-	    Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.Count];
-	    if(arr.Length != 0)
-	    {
-		connections.CopyTo(arr);
-	    }
-	    return arr;
-	}
-
-	private class ConnectionComparator : IComparer
-	{
-	    public int Compare(object l, object r)
-	    {
-		Ice.ConnectionI lc = (Ice.ConnectionI)l;
-		Ice.ConnectionI rc = (Ice.ConnectionI)r;
-		bool ls = lc.endpoint().secure();
-		bool rs = rc.endpoint().secure();
-		if((ls && rs) || (!ls && !rs))
-		{
-		    return 0;
-		}
-		else if(!ls && rs)
-		{
-		    return -1;
-		}
-		else
-		{
-		    return 1;
-		}
-	    }
-	}
-	
-	private static ConnectionComparator _connectionComparator = new ConnectionComparator();
-
-	private static System.Random _rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
+	protected static System.Random rand_ = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
     }
 
     public class FixedReference : Reference
@@ -770,6 +570,122 @@ namespace IceInternal
             return base.GetHashCode();
         }
 
+	//
+	// Filter connections based on criteria from this reference.
+	//
+	public Ice.ConnectionI[]
+	filterConnections(Ice.ConnectionI[] allConnections)
+	{
+	    ArrayList connections = new ArrayList();
+
+	    switch(getMode())
+	    {
+		case Reference.Mode.ModeTwoway:
+		case Reference.Mode.ModeOneway:
+		case Reference.Mode.ModeBatchOneway:
+		{
+		    //
+		    // Filter out datagram endpoints.
+		    //
+		    for(int i = 0; i < allConnections.Length; ++i)
+		    {
+			if(!allConnections[i].endpoint().datagram())
+			{
+			    connections.Add(allConnections[i]);
+			}
+		    }
+
+		    break;
+		}
+
+		case Reference.Mode.ModeDatagram:
+		case Reference.Mode.ModeBatchDatagram:
+		{
+		    //
+		    // Filter out non-datagram endpoints.
+		    //
+		    for(int i = 0; i < allConnections.Length; ++i)
+		    {
+			if(allConnections[i].endpoint().datagram())
+			{
+			    connections.Add(allConnections[i]);
+			}
+		    }
+
+		    break;
+		}
+	    }
+
+	    //
+	    // Randomize the order of connections.
+	    //
+	    for(int i = 0; i < connections.Count - 2; ++i)
+	    {
+		int r = rand_.Next(connections.Count - i) + i;
+		Debug.Assert(r >= i && r < connections.Count);
+		if(r != i)
+		{
+		    object tmp = connections[i];
+		    connections[i] = connections[r];
+		    connections[r] = tmp;
+		}
+	    }
+
+	    //
+	    // If a secure connection is requested, remove all non-secure
+	    // endpoints. Otherwise make non-secure endpoints preferred over
+	    // secure endpoints by partitioning the endpoint vector, so that
+	    // non-secure endpoints come first.
+	    //
+	    if(getSecure())
+	    {
+		ArrayList tmp = new ArrayList();
+		foreach(Ice.ConnectionI connection in connections)
+		{
+		    if(connection.endpoint().secure())
+		    {
+			tmp.Add(connection);
+		    }
+		}
+		connections = tmp;
+	    }
+	    else
+	    {
+		IceUtil.Arrays.Sort(ref connections, _connectionComparator);
+	    }
+	    
+	    Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.Count];
+	    if(arr.Length != 0)
+	    {
+		connections.CopyTo(arr);
+	    }
+	    return arr;
+	}
+
+	private class ConnectionComparator : IComparer
+	{
+	    public int Compare(object l, object r)
+	    {
+		Ice.ConnectionI lc = (Ice.ConnectionI)l;
+		Ice.ConnectionI rc = (Ice.ConnectionI)r;
+		bool ls = lc.endpoint().secure();
+		bool rs = rc.endpoint().secure();
+		if((ls && rs) || (!ls && !rs))
+		{
+		    return 0;
+		}
+		else if(!ls && rs)
+		{
+		    return -1;
+		}
+		else
+		{
+		    return 1;
+		}
+	    }
+	}
+	
+	private static ConnectionComparator _connectionComparator = new ConnectionComparator();
 	private Ice.ConnectionI[] _fixedConnections;
     }
 
@@ -883,6 +799,192 @@ namespace IceInternal
 	    _routerInfo = rtrInfo;
 	    _collocationOptimization = collocationOpt;
 	}
+
+	//
+	// Filter endpoints based on criteria from this reference.
+	//
+	protected Ice.ConnectionI createConnection(EndpointI[] allEndpoints, out bool comp)
+	{
+	    ArrayList endpoints = new ArrayList();
+
+	    //
+	    // Filter out unknown endpoints.
+	    //
+	    for(int i = 0; i < allEndpoints.Length; i++)
+	    {
+		if(!allEndpoints[i].unknown())
+		{
+		    endpoints.Add(allEndpoints[i]);
+		}
+	    }
+	    
+	    //
+	    // Filter out endpoints according to the mode of the reference.
+	    //
+	    switch(getMode())
+	    {
+		case Reference.Mode.ModeTwoway:
+		case Reference.Mode.ModeOneway:
+		case Reference.Mode.ModeBatchOneway:
+		{
+		    //
+		    // Filter out datagram endpoints.
+		    //
+		    ArrayList tmp = new ArrayList();
+		    foreach(EndpointI endpoint in endpoints)
+		    {
+		    	if(!endpoint.datagram())
+			{
+			    tmp.Add(endpoint);
+			}
+		    }
+		    endpoints = tmp;
+		    break;
+		}
+
+		case Reference.Mode.ModeDatagram:
+		case Reference.Mode.ModeBatchDatagram:
+		{
+		    //
+		    // Filter out non-datagram endpoints.
+		    //
+		    ArrayList tmp = new ArrayList();
+		    foreach(EndpointI endpoint in endpoints)
+		    {
+		    	if(endpoint.datagram())
+			{
+			    tmp.Add(endpoint);
+			}
+		    }
+		    endpoints = tmp;
+		    break;
+		}
+	    }
+
+	    //
+	    // Sort the endpoints according to the endpoint selection type.
+	    //
+	    switch(getEndpointSelection())
+	    {
+	    case Ice.EndpointSelectionType.Random:
+		for(int i = 0; i < endpoints.Count - 2; ++i)
+		{
+		    int r = rand_.Next(endpoints.Count - i) + i;
+		    Debug.Assert(r >= i && r < endpoints.Count);
+		    if(r != i)
+		    {
+			object tmp = endpoints[i];
+			endpoints[i] = endpoints[r];
+			endpoints[r] = tmp;
+		    }
+		}
+		break;
+	    case Ice.EndpointSelectionType.Ordered:
+		break; // Nothing to do
+	    default:
+		Debug.Assert(false);
+		break;
+	    }
+
+	    //
+	    // If a secure connection is requested, remove all non-secure
+	    // endpoints. Otherwise make non-secure endpoints preferred over
+	    // secure endpoints by partitioning the endpoint vector, so that
+	    // non-secure endpoints come first.
+	    //
+	    if(getSecure())
+	    {
+		ArrayList tmp = new ArrayList();
+		foreach(EndpointI endpoint in endpoints)
+		{
+		    if(endpoint.secure())
+		    {
+			tmp.Add(endpoint);
+		    }
+		}
+		endpoints = tmp;
+	    }
+	    else
+	    {
+		IceUtil.Arrays.Sort(ref endpoints, _endpointComparator);
+	    }
+	    
+	    if(endpoints.Count == 0)
+	    {
+		Ice.NoEndpointException ex = new Ice.NoEndpointException();
+		ex.proxy = ToString();
+		throw ex;
+	    }
+	    
+	    //
+	    // Finally, create the connection.
+	    //
+	    OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
+	    if(getCacheConnection() || endpoints.Count == 1)
+	    {
+		//
+		// Get an existing connection or create one if there's no
+		// existing connection to one of the given endpoints.
+		//
+		EndpointI[] arr = new EndpointI[endpoints.Count];
+		endpoints.CopyTo(arr);
+		return factory.create(arr, false, out comp);
+	    }
+	    else
+	    {
+		//
+		// Go through the list of endpoints and try to create the
+		// connection until it succeeds. This is different from just
+		// calling create() with the given endpoints since this might
+		// create a new connection even if there's an existing
+		// connection for one of the endpoints.
+		//
+		Ice.LocalException exception = null;
+		EndpointI[] endpoint = new EndpointI[1];
+
+		foreach(EndpointI e in endpoints)
+		{
+		    try
+		    {
+			endpoint[0] = e;
+			return factory.create(endpoint, e != endpoints[endpoints.Count - 1], out comp);
+		    }
+		    catch(Ice.LocalException ex)
+		    {
+			exception = ex;
+		    }
+		}
+
+		Debug.Assert(exception != null);
+		throw exception;
+	    }
+	}
+
+	private class EndpointComparator : IComparer
+	{
+	    public int Compare(object l, object r)
+	    {
+		IceInternal.EndpointI le = (IceInternal.EndpointI)l;
+		IceInternal.EndpointI re = (IceInternal.EndpointI)r;
+		bool ls = le.secure();
+		bool rs = re.secure();
+		if((ls && rs) || (!ls && !rs))
+		{
+		    return 0;
+		}
+		else if(!ls && rs)
+		{
+		    return -1;
+		}
+		else
+		{
+		    return 1;
+		}
+	    }
+	}
+	
+	private static EndpointComparator _endpointComparator = new EndpointComparator();
+
 
 	private bool _secure;
 	private RouterInfo _routerInfo; // Null if no router is used.
@@ -1043,16 +1145,8 @@ namespace IceInternal
 	    {
 		endpts =_endpoints;
 	    }
-	    EndpointI[] filteredEndpoints = filterEndpoints(endpts);
-	    if(filteredEndpoints.Length == 0)
-	    {
-		Ice.NoEndpointException ex = new Ice.NoEndpointException();
-		ex.proxy = ToString();
-		throw ex;
-	    }
 
-	    OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
-	    Ice.ConnectionI connection = factory.create(filteredEndpoints, out comp);
+	    Ice.ConnectionI connection = createConnection(endpts, out comp);
 
 	    //
 	    // If we have a router, set the object adapter for this router
@@ -1289,19 +1383,15 @@ namespace IceInternal
 		{
 		    endpts[i] = endpts[i].connectionId(connectionId_);
 		}
-		EndpointI[] filteredEndpoints = filterEndpoints(endpts);
-		if(filteredEndpoints.Length == 0)
-		{
-		    Ice.NoEndpointException ex = new Ice.NoEndpointException();
-		    ex.proxy = ToString();
-		    throw ex;
-		}
 
 		try
 		{
-		    OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
-		    connection = factory.create(filteredEndpoints, out comp);
+		    connection = createConnection(endpts, out comp);
 		    Debug.Assert(connection != null);
+		}
+		catch(Ice.NoEndpointException ex)
+		{
+		    throw ex; // No need to retry if there's no endpoints.
 		}
 		catch(Ice.LocalException ex)
 		{

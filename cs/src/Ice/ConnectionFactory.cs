@@ -80,10 +80,11 @@ namespace IceInternal
 	    }
 	}
 	
-	public Ice.ConnectionI create(EndpointI[] endpts, out bool compress)
+	public Ice.ConnectionI create(EndpointI[] endpts, bool hasMore, out bool compress)
 	{
 	    Debug.Assert(endpts.Length > 0);
 	    EndpointI[] endpoints = new EndpointI[endpts.Length];
+
 	    for(int i = 0; i < endpoints.Length; ++i)
 	    {
 		endpoints[i] = endpts[i];
@@ -239,7 +240,6 @@ namespace IceInternal
                                     {
                                         compress = endpts[i].compress();
                                     }
-
                                     return conn;
                                 }
                             }
@@ -323,7 +323,7 @@ namespace IceInternal
 		{
 		    System.Text.StringBuilder s = new System.Text.StringBuilder();
 		    s.Append("connection to endpoint failed");
-		    if(i < endpoints.Length - 1)
+		    if(hasMore || i < endpoints.Length - 1)
 		    {
 			s.Append(", trying next endpoint\n");
 		    }

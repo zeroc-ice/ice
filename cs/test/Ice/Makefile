@@ -19,6 +19,7 @@ SUBDIRS		= adapterDeactivation \
 		  hold \
 		  location \
 		  objects \
+		  binding \
 		  operations \
 		  slicing \
 		  checksum \

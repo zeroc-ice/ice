@@ -49,7 +49,7 @@ namespace Ice
         Context ice_getContext();
         ObjectPrx ice_newContext(Context newContext);
         ObjectPrx ice_defaultContext();
-
+	
         string ice_getFacet();
         ObjectPrx ice_newFacet(string newFacet);
 
@@ -61,6 +61,12 @@ namespace Ice
 
 	int ice_getLocatorCacheTimeout();
 	ObjectPrx ice_locatorCacheTimeout(int timeout);
+	
+	bool ice_getCacheConnection();
+	ObjectPrx ice_cacheConnection(bool newCache);
+
+	EndpointSelectionType ice_getEndpointSelection();
+	ObjectPrx ice_endpointSelection(EndpointSelectionType newType);
 
         ObjectPrx ice_twoway();
         bool ice_isTwoway();
@@ -366,7 +372,9 @@ namespace Ice
             else
             {
                 ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changeEndpoints((IceInternal.EndpointI[])newEndpoints));
+		ArrayList arr = ArrayList.Adapter(newEndpoints);
+		IceInternal.EndpointI[] endpts = (IceInternal.EndpointI[])arr.ToArray(typeof(IceInternal.EndpointI));
+                proxy.setup(_reference.changeEndpoints(endpts));
                 return proxy;
             }
         }
@@ -386,6 +394,44 @@ namespace Ice
             {
                 ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
                 proxy.setup(_reference.changeLocatorCacheTimeout(newTimeout));
+                return proxy;
+            }
+        }
+
+        public bool ice_getCacheConnection()
+        {
+            return _reference.getCacheConnection();
+        }
+
+        public ObjectPrx ice_cacheConnection(bool newCache)
+        {
+            if(newCache == _reference.getCacheConnection())
+            {
+                return this;
+            }
+            else
+            {
+                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+                proxy.setup(_reference.changeCacheConnection(newCache));
+                return proxy;
+            }
+        }
+
+        public EndpointSelectionType ice_getEndpointSelection()
+        {
+            return _reference.getEndpointSelection();
+        }
+
+        public ObjectPrx ice_endpointSelection(EndpointSelectionType newType)
+        {
+            if(newType == _reference.getEndpointSelection())
+            {
+                return this;
+            }
+            else
+            {
+                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+                proxy.setup(_reference.changeEndpointSelection(newType));
                 return proxy;
             }
         }
@@ -662,18 +708,21 @@ namespace Ice
 
             _reference = @ref;
 
-            if(delegateD != null)
-            {
-                ObjectDelD_ @delegate = createDelegateD__();
-                @delegate.copyFrom__(delegateD);
-                _delegate = @delegate;
-            }
-            else if(delegateM != null)
-            {
-                ObjectDelM_ @delegate = createDelegateM__();
-                @delegate.copyFrom__(delegateM);
-                _delegate = @delegate;
-            }
+	    if(_reference.getCacheConnection())
+	    {
+		if(delegateD != null)
+		{
+		    ObjectDelD_ @delegate = createDelegateD__();
+		    @delegate.copyFrom__(delegateD);
+		    _delegate = @delegate;
+		}
+		else if(delegateM != null)
+		{
+		    ObjectDelM_ @delegate = createDelegateM__();
+		    @delegate.copyFrom__(delegateM);
+		    _delegate = @delegate;
+		}
+	    }
         }
 
         public int handleException__(LocalException ex, int cnt)
@@ -729,46 +778,54 @@ namespace Ice
         {
             lock(this)
             {
-                if(_delegate == null)
+                if(_delegate != null)
                 {
-                    if(_reference.getCollocationOptimization())
-                    {
-                        ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
-                        if(adapter != null)
-                        {
-                            ObjectDelD_ @delegate = createDelegateD__();
-                            @delegate.setup(_reference, adapter);
-                            _delegate = @delegate;
-                        }
-                    }
+		    return _delegate;
+		}
 
-                    if(_delegate == null)
-                    {
-                        ObjectDelM_ @delegate = createDelegateM__();
-                        @delegate.setup(_reference);
-                        _delegate = @delegate;
-
-                        //
-                        // If this proxy is for a non-local object, and we are
-                        // using a router, then add this proxy to the router info
-                        // object.
-                        //
-                        try
-                        {
-                            IceInternal.RoutableReference rr = (IceInternal.RoutableReference)_reference;
-                            if(rr != null && rr.getRouterInfo() != null)
-                            {
-                                rr.getRouterInfo().addProxy(this);
-                            }
-                        }
-                        catch(InvalidCastException)
-                        {
-                        }
-                    }
-                }
-
-                return _delegate;
-            }
+		ObjectDel_ @delegate = null;
+		if(_reference.getCollocationOptimization())
+		{
+		    ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
+		    if(adapter != null)
+		    {
+			ObjectDelD_ d = createDelegateD__();
+			d.setup(_reference, adapter);
+			@delegate = d;
+		    }
+		}
+		
+		if(@delegate == null)
+		{
+		    ObjectDelM_ d = createDelegateM__();
+		    d.setup(_reference);
+		    @delegate = d;
+		    
+		    //
+		    // If this proxy is for a non-local object, and we are
+		    // using a router, then add this proxy to the router info
+		    // object.
+		    //
+		    try
+		    {
+			IceInternal.RoutableReference rr = (IceInternal.RoutableReference)_reference;
+			if(rr != null && rr.getRouterInfo() != null)
+			{
+			    rr.getRouterInfo().addProxy(this);
+			}
+		    }
+		    catch(InvalidCastException)
+		    {
+		    }
+		}
+	    
+		if(_reference.getCacheConnection())
+		{
+		    _delegate = @delegate;
+		}
+		
+		return @delegate;
+	    }
         }
 
         protected virtual ObjectDelM_ createDelegateM__()
