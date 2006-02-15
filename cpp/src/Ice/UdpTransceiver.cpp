@@ -68,11 +68,35 @@ IceInternal::UdpTransceiver::shutdownReadWrite()
 
 #if defined(_WIN32) || defined(__sun) || defined(__hppa) || defined(_AIX)
     //
-    // This is required to unblock the select call when using thread per connection.
+    // On certain platforms, we have to explicitly wake up a thread blocked in
+    // select(). This is only relevant when using thread per connection.
+    //
+
+    //
+    // Save the local address before disconnecting.
+    //
+    struct sockaddr_in localAddr;
+    fdToLocalAddress(_fd, localAddr);
+
+    //
+    // A connected UDP socket can only receive packets from its associated
+    // peer, so we disconnect the socket.
+    //
+    if(!_connect)
+    {
+	struct sockaddr_in unspec;
+	memset(&unspec, 0, sizeof(unspec));
+	unspec.sin_family = AF_UNSPEC;
+	::connect(_fd, reinterpret_cast<struct sockaddr*>(&unspec), int(sizeof(unspec)));
+    }
+
+    //
+    // Send a dummy packet to the socket. This packet is ignored because we have
+    // already set _shutdownReadWrite.
     //
     SOCKET fd = createSocket(true);
     setBlock(fd, false);
-    doConnect(fd, _addr, -1);
+    doConnect(fd, localAddr, -1);
     ::send(fd, "", 1, 0);
     closeSocket(fd);
 #endif
