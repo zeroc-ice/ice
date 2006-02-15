@@ -737,7 +737,13 @@ namespace IceInternal
 	    }
 	    
 	    int pos = stream.pos();
-	    Debug.Assert(pos >= Protocol.headerSize);
+	    if(pos < Protocol.headerSize)
+	    {
+		//
+		// This situation is possible for small UDP packets.
+		//
+		throw new Ice.IllegalMessageSizeException();
+	    }
 	    stream.pos(0);
 	    byte[] m = new byte[4];
 	    m[0] = stream.readByte();
