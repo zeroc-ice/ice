@@ -214,7 +214,7 @@ public class AllTests
 	test(count == locator.getRequestCount());
 	try
 	{
-	    Thread.sleep(1000);
+	    Thread.sleep(1200);
         }
         catch(InterruptedException ex)
         {
@@ -229,7 +229,7 @@ public class AllTests
 	test(count == locator.getRequestCount());
 	try
 	{
-	    Thread.sleep(1000);
+	    Thread.sleep(1200);
         }
         catch(InterruptedException ex)
         {
