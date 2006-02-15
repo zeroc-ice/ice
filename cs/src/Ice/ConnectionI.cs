@@ -1999,16 +1999,19 @@ namespace Ice
 			//
 			lock(_sendMutex)
 			{
-			    try
+			    if(_transceiver != null)
 			    {
-				_transceiver.close();
-			    }
-			    catch(LocalException)
-			    {
-				// Here we ignore any exceptions in close().
-			    }
+				try
+				{
+				    _transceiver.close();
+				}
+				catch(LocalException)
+				{
+				    // Here we ignore any exceptions in close().
+				}
 
-			    _transceiver = null;
+				_transceiver = null;
+			    }
 			    Monitor.PulseAll(this);
 			    return;
 			}
@@ -2040,7 +2043,13 @@ namespace Ice
 			_transceiver.read(stream, -1);
 
 			int pos = stream.pos();
-			Debug.Assert(pos >= IceInternal.Protocol.headerSize);
+			if(pos < IceInternal.Protocol.headerSize)
+			{
+			    //
+			    // This situation is possible for small UDP packets.
+			    //
+			    throw new IllegalMessageSizeException();
+			}
 			stream.pos(0);
 			byte[] m = stream.readBlob(4);
 			if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
@@ -2251,11 +2260,12 @@ namespace Ice
 	    }
 	    catch(Exception ex)
 	    {
-		instance_.logger().error("exception in thread per connection:\n" + ToString() + ex.ToString());
+		instance_.logger().error("exception in thread per connection:\n" + ToString() + "\n" + ex.ToString());
 	    }
 	    catch(System.Exception ex)
 	    {
-		instance_.logger().error("system exception in thread per connection:\n" + ToString() + ex.ToString());
+		instance_.logger().error("system exception in thread per connection:\n" + ToString() + "\n" +
+					 ex.ToString());
 	    }
 	}
 

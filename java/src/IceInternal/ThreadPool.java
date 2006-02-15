@@ -723,7 +723,7 @@ public final class ThreadPool
 				{
 				    if(_instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0)
 				    {
-				        _instance.logger().warning("datagram connection exception:\n" + ex + 
+				        _instance.logger().warning("datagram connection exception:\n" + ex + "\n" +
 								   handler.toString());
 				    }
 				}
@@ -900,7 +900,13 @@ public final class ThreadPool
         }
 
         int pos = stream.pos();
-        assert(pos >= Protocol.headerSize);
+	if(pos < Protocol.headerSize)
+	{
+	    //
+	    // This situation is possible for small UDP packets.
+	    //
+	    throw new Ice.IllegalMessageSizeException();
+	}
         stream.pos(0);
 	byte[] m = new byte[4];
 	m[0] = stream.readByte();

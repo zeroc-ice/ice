@@ -2105,7 +2105,13 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    _transceiver.read(stream, -1);
 
 		    int pos = stream.pos();
-		    assert(pos >= IceInternal.Protocol.headerSize);
+		    if(pos < IceInternal.Protocol.headerSize)
+		    {
+			//
+			// This situation is possible for small UDP packets.
+			//
+			throw new IllegalMessageSizeException();
+		    }
 		    stream.pos(0);
 		    byte[] m = stream.readBlob(4);
 		    if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
@@ -2185,8 +2191,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	            {
 	                if(_warn)
 		        {
-		            _logger.warning("udp connection exception:\n" + ex + _desc);
+		            _logger.warning("datagram connection exception:\n" + ex + "\n" + _desc);
 		        }
+			continue;
 	            }
 	            else
 	            {
