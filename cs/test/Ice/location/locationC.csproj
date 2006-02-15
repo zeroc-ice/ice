@@ -94,6 +94,7 @@
     <Compile Include="generated\Test.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="HelloI.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
