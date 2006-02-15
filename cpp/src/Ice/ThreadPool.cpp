@@ -755,7 +755,13 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
     }
     
     ptrdiff_t pos = stream.i - stream.b.begin();
-    assert(pos >= headerSize);
+    if(pos < headerSize)
+    {
+	//
+	// This situation is possible for small UDP packets.
+	//
+	throw IllegalMessageSizeException(__FILE__, __LINE__);
+    }
     stream.i = stream.b.begin();
     pair<const Byte*, const Byte*> m;
     stream.readBlob(m, static_cast<Int>(sizeof(magic)));
