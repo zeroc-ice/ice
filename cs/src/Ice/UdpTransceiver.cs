@@ -10,11 +10,13 @@
 namespace IceInternal
 {
 
+    using System;
     using System.Collections;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
+    using System.Threading;
 
     sealed class UdpTransceiver : Transceiver
     {
@@ -81,19 +83,14 @@ namespace IceInternal
 		    }
 		    throw new Ice.SocketException(ex);
 		}
-	    }
 
-#if !__MonoCS__
-	    //
-	    // This is required to unblock the select call when using thread per connection.
-	    //
-	    Socket fd = Network.createSocket(true);
-	    Network.setBlock(fd, false);
-	    Network.doConnect(fd, _addr, -1);
-	    byte[] buf = new byte[1];
-	    fd.Send(buf, 0, 1, SocketFlags.None);
-	    Network.closeSocket(fd);
-#endif
+		//
+		// On Windows, shutting down the socket doesn't unblock a call to
+		// receive or select. Setting an event wakes up the thread in
+		// read().
+		//
+		_shutdownReadWriteEvent.Set();
+	    }
 	}
 	
 	public void write(BasicStream stream, int timeout)
@@ -174,10 +171,11 @@ namespace IceInternal
 		throw new Ice.SyscallException(ex);
 	    }
 	}
-	
+
 	public void read(BasicStream stream, int timeout)
 	{
 	    Debug.Assert(stream.pos() == 0);
+
 	    int packetSize = System.Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
 	    if(packetSize < stream.size())
 	    {
@@ -195,6 +193,11 @@ namespace IceInternal
 	    ByteBuffer buf = stream.prepareRead();
 	    buf.position(0);
 
+	    WaitHandle[] handles = new WaitHandle[2];
+	    handles[0] = _shutdownReadWriteEvent;
+
+	    EndPoint peerAddr = new IPEndPoint(IPAddress.Any, 0);
+
 	    //
 	    // Check the shutdown flag.
 	    //
@@ -208,84 +211,79 @@ namespace IceInternal
 
 	    try
 	    {
-		int ret;
-		try
-		{
-		    Debug.Assert(_fd != null);
-		    ret = _fd.Receive(buf.rawBytes(), 0, buf.limit(), SocketFlags.None);
-		}
-		catch(Win32Exception e)
-		{
-		    if(Network.wouldBlock(e))
-		    {
-			if(timeout == 0)
-			{
-			    throw new Ice.TimeoutException();
-			}
-			ret = 0;
-		    }
-		    else
-		    {
-			throw;
-		    }
-		}
-		if(ret == 0)
-		{
-		    if(!Network.doPoll(_fd, timeout, Network.PollMode.Read))
-		    {
-			throw new Ice.TimeoutException();
-		    }
-		    ret = _fd.Receive(buf.rawBytes(), 0, buf.limit(), SocketFlags.None);
-		    if(ret == 0)
-		    {
-			throw new Ice.ConnectionLostException();
-		    }
-		}
-		if(_connect)
+		IAsyncResult ar = _fd.BeginReceiveFrom(buf.rawBytes(), 0, buf.limit(), SocketFlags.None, ref peerAddr,
+						       null, null);
+		handles[1] = ar.AsyncWaitHandle;
+		int num = WaitHandle.WaitAny(handles);
+		if(num == 0)
 		{
 		    //
-		    // If we must connect, then we connect to the first peer that
-		    // sends us a packet.
+		    // shutdownReadWrite was called.
 		    //
-		    if(ret != 0)
+		    throw new Ice.ConnectionLostException();
+		}
+		else
+		{
+		    int ret = _fd.EndReceiveFrom(ar, ref peerAddr);
+
+		    if(_connect)
 		    {
-			Network.doConnect(_fd, _fd.RemoteEndPoint, -1);
+			//
+			// If we must connect, then we connect to the first peer that
+			// sends us a packet.
+			//
+			Network.doConnect(_fd, peerAddr, -1);
 			_connect = false; // We're connected now
-    				
+				
 			if(_traceLevels.network >= 1)
 			{
 			    string s = "connected udp socket\n" + ToString();
 			    _logger.trace(_traceLevels.networkCat, s);
 			}
 		    }
-		}
-		if(_traceLevels.network >= 3)
-		{
-		    string s = "received " + ret + " bytes via udp\n" + ToString();
-		    _logger.trace(_traceLevels.networkCat, s);
-		}
 
-		if(_stats != null)
-		{
-		    _stats.bytesReceived(type(), ret);
-		}
+		    if(_traceLevels.network >= 3)
+		    {
+			string s = "received " + ret + " bytes via udp\n" + ToString();
+			_logger.trace(_traceLevels.networkCat, s);
+		    }
 
-		stream.resize(ret, true);
+		    if(_stats != null)
+		    {
+			_stats.bytesReceived(type(), ret);
+		    }
+
+		    stream.resize(ret, true);
+		}
 	    }
-	    catch(SocketException ex)
+	    catch(Win32Exception e)
 	    {
-		throw new Ice.SocketException(ex);
+		if(Network.recvTruncated(e))
+		{
+		    if(_warn)
+		    {
+			_logger.warning("DatagramLimitException: maximum size of " + packetSize + " exceeded");
+		    }
+		    throw new Ice.DatagramLimitException();
+		}
+
+		if(Network.connectionLost(e))
+		{
+		    throw new Ice.ConnectionLostException();
+		}
+
+		throw new Ice.SocketException(e);
 	    }
 	    catch(Ice.LocalException)
 	    {
 		throw;
 	    }
-	    catch(System.Exception ex)
+	    catch(System.Exception e)
 	    {
-		throw new Ice.SyscallException(ex);
+		throw new Ice.SyscallException(e);
 	    }
 	}
-	
+
         public string type()
         {
             return "udp";
@@ -489,6 +487,7 @@ namespace IceInternal
 
 	private bool _shutdownReadWrite;
 	private object _shutdownReadWriteMutex = new object();
+	private AutoResetEvent _shutdownReadWriteEvent = new AutoResetEvent(false);
     }
 
 }
