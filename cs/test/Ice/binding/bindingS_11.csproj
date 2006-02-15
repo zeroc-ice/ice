@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{02F2A910-B409-4387-BF54-DCFA522516D8}"
+        ProjectGuid = "{F068EB6A-688B-4CE1-BC8E-07F53DF3DF1D}"
     >
         <Build>
             <Settings
@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Exe"
-                PreBuildEvent = "$(SolutionDir)\bin\generatecs.exe $(SolutionDir) $(ProjectDir) locationS"
+                PreBuildEvent = "$(SolutionDir)\bin\generatecs.exe $(SolutionDir) $(ProjectDir) bindingS"
                 PostBuildEvent = ""
                 RootNamespace = ""
                 RunPostBuildEvent = "OnBuildSuccess"
@@ -79,27 +79,17 @@
         <Files>
             <Include>
                 <File
-                    RelPath = "HelloI.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
                     RelPath = "Server.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ServerLocator.cs"
+                    RelPath = "RemoteCommunicatorI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ServerLocatorRegistry.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "ServerManagerI.cs"
+                    RelPath = "RemoteObjectAdapterI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

@@ -28,7 +28,9 @@ public class Server
         
         try
         {
-            communicator = Ice.Util.initialize(ref args);
+            Ice.Properties properties = Ice.Util.createProperties(ref args);
+            properties.setProperty("Ice.ServerIdleTime", "30");
+            communicator = Ice.Util.initializeWithProperties(ref args, properties);
             status = run(args, communicator);
         }
         catch(Ice.LocalException ex)

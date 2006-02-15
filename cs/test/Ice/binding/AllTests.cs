@@ -209,7 +209,7 @@ public class AllTests
 	    TestIntfPrx obj = createTestIntfPrx(adapters);
 	    obj = TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
 	    test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
-	    int nRetry = 5;
+	    int nRetry = 3;
 	    int i;
 
 	    //
@@ -336,7 +336,7 @@ public class AllTests
 	    test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
 	    obj = TestIntfPrxHelper.uncheckedCast(obj.ice_cacheConnection(false));
 	    test(!obj.ice_getCacheConnection());
-	    int nRetry = 5;
+	    int nRetry = 3;
 	    int i;
 
 	    //

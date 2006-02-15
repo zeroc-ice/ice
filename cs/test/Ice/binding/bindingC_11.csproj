@@ -3,7 +3,7 @@
         ProjectType = "Local"
         ProductVersion = "7.10.3077"
         SchemaVersion = "2.0"
-        ProjectGuid = "{1E1DAD0B-6746-4AF7-B269-3155B81C4D67}"
+        ProjectGuid = "{C1DF9D7E-F381-4A4E-BF7D-FF47EB38889D}"
     >
         <Build>
             <Settings
@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Exe"
-                PreBuildEvent = "$(SolutionDir)\bin\generatecs.exe $(SolutionDir) $(ProjectDir) locationC"
+                PreBuildEvent = "$(SolutionDir)\bin\generatecs.exe $(SolutionDir) $(ProjectDir) bindingC"
                 PostBuildEvent = ""
                 RootNamespace = ""
                 RunPostBuildEvent = "OnBuildSuccess"
@@ -85,11 +85,6 @@
                 />
                 <File
                     RelPath = "Client.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "HelloI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
