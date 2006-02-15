@@ -84,14 +84,11 @@ serverStatus = None
 # is raised. We swallow IOError here to avoid having the test
 # claim that it failed when in fact it succeeded.
 #
-#for i in range(0, num):
-#    try:
-#	serverStatus = serverStatus or serverPipes[i].close()
-#    except IOError, error:
-#	pass
-
 for i in range(0, num):
-    serverStatus = serverStatus or TestUtil.closePipe(serverPipes[i])
+    try:
+	serverStatus = serverStatus or TestUtil.closePipe(serverPipes[i])
+    except IOError, error:
+	pass
 
 if clientStatus:
     TestUtil.killServers()
