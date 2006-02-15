@@ -640,7 +640,7 @@ class Twoways
 		communicator.setDefaultContext(dflt);
 		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
 					communicator.stringToProxy("test:default -p 12345 -t 10000"));
-		test(c.opContext().equals(dflt));
+		test(IceUtil.Hashtable.equals(c.opContext(), dflt)); 
 
 		dflt.put("a", "c");
 		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_newContext(dflt));
