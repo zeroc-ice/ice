@@ -3,7 +3,7 @@
     <ProjectType>Local</ProjectType>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{02F2A910-B409-4387-BF54-DCFA522516D8}</ProjectGuid>
+    <ProjectGuid>{F068EB6A-688B-4CE1-BC8E-07F53DF3DF1D}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ApplicationIcon>
@@ -35,7 +35,7 @@
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;ICE_DOTNET_1X</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
@@ -58,7 +58,7 @@
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;ICE_DOTNET_1X</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <DebugSymbols>false</DebugSymbols>
@@ -88,19 +88,13 @@
     <Compile Include="generated\Test.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="HelloI.cs">
+    <Compile Include="RemoteCommunicatorI.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RemoteObjectAdapterI.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Server.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ServerLocator.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ServerLocatorRegistry.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ServerManagerI.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TestI.cs">
@@ -109,7 +103,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)."\bin\generatecs.exe "$(SolutionDir)." "$(ProjectDir)." $(ProjectName)</PreBuildEvent>
+    <PreBuildEvent>$(SolutionDir)\bin\generatecs.exe $(SolutionDir) $(ProjectDir) bindingS</PreBuildEvent>
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>

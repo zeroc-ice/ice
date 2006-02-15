@@ -321,6 +321,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IceBoxS", "src\IceBox\IceBo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inputUtilC", "test\IceUtil\inputUtil\inputUtilC.csproj", "{86CEBBC9-5ED4-4BE6-BC80-577F5F361677}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bindingS", "test\Ice\binding\bindingS.csproj", "{F068EB6A-688B-4CE1-BC8E-07F53DF3DF1D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bindingC", "test\Ice\binding\bindingC.csproj", "{C1DF9D7E-F381-4A4E-BF7D-FF47EB38889D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -651,6 +655,14 @@ Global
 		{86CEBBC9-5ED4-4BE6-BC80-577F5F361677}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86CEBBC9-5ED4-4BE6-BC80-577F5F361677}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86CEBBC9-5ED4-4BE6-BC80-577F5F361677}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F068EB6A-688B-4CE1-BC8E-07F53DF3DF1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F068EB6A-688B-4CE1-BC8E-07F53DF3DF1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F068EB6A-688B-4CE1-BC8E-07F53DF3DF1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F068EB6A-688B-4CE1-BC8E-07F53DF3DF1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1DF9D7E-F381-4A4E-BF7D-FF47EB38889D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1DF9D7E-F381-4A4E-BF7D-FF47EB38889D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1DF9D7E-F381-4A4E-BF7D-FF47EB38889D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1DF9D7E-F381-4A4E-BF7D-FF47EB38889D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
