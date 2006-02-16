@@ -83,6 +83,36 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name Thread_PoolTAOS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name dummyIceC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name dummyIceS
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "dummyIceC"=.\src\Ice\dummy\dummyIceC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "dummyIceS"=.\src\Ice\dummy\dummyIceS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################
