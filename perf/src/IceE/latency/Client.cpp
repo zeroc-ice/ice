@@ -66,7 +66,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     Ice::ObjectPrx base = communicator->stringToProxy(proxy);
-    LatencyPrx latency = LatencyPrx::checkedCast(base);
+    LatencyPrx latency = LatencyPrx::uncheckedCast(base);
     if(!latency)
     {
 	cerr << argv[0] << ": invalid proxy" << endl;
@@ -77,7 +77,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     LatencyPrx batchprx = LatencyPrx::uncheckedCast(base->ice_batchOneway());
 
     // Initial ping to setup the connection.
-    latency->ice_ping();
+    latency->ping();
 
     IceUtil::Time tm = IceUtil::Time::now();
 
