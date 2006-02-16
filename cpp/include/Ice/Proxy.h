@@ -121,13 +121,13 @@ public:
     ::Ice::EndpointSeq ice_getEndpoints() const;
     ::Ice::ObjectPrx ice_newEndpoints(const ::Ice::EndpointSeq&) const;
 
-    int ice_getLocatorCacheTimeout() const;
-    ::Ice::ObjectPrx ice_locatorCacheTimeout(int) const;
+    ::Ice::Int ice_getLocatorCacheTimeout() const;
+    ::Ice::ObjectPrx ice_locatorCacheTimeout(::Ice::Int) const;
 
     bool ice_getCacheConnection() const;
     ::Ice::ObjectPrx ice_cacheConnection(bool) const;
 
-    bool ice_getEndpointSelection() const;
+    ::Ice::EndpointSelectionType ice_getEndpointSelection() const;
     ::Ice::ObjectPrx ice_endpointSelection(::Ice::EndpointSelectionType) const;
 
     ::Ice::ObjectPrx ice_twoway() const;

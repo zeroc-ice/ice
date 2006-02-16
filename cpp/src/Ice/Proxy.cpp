@@ -441,14 +441,14 @@ IceProxy::Ice::Object::ice_newEndpoints(const EndpointSeq& newEndpoints) const
     }
 }
 
-int
+Int
 IceProxy::Ice::Object::ice_getLocatorCacheTimeout() const
 {
     return _reference->getLocatorCacheTimeout();
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_locatorCacheTimeout(int newTimeout) const
+IceProxy::Ice::Object::ice_locatorCacheTimeout(Int newTimeout) const
 {
     if(newTimeout == _reference->getLocatorCacheTimeout())
     {
@@ -483,7 +483,7 @@ IceProxy::Ice::Object::ice_cacheConnection(bool newCache) const
     }
 }
 
-bool
+EndpointSelectionType
 IceProxy::Ice::Object::ice_getEndpointSelection() const
 {
     return _reference->getEndpointSelection();
