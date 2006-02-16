@@ -7,8 +7,10 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
+#include <IceE/IceE.h>
 #include <Throughput.h>
+
+#include <iostream>
 
 using namespace std;
 using namespace Demo;
@@ -135,7 +137,7 @@ main(int argc, char* argv[])
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
+	cerr << ex.ice_name() << endl;
 	status = EXIT_FAILURE;
     }
 
@@ -147,7 +149,7 @@ main(int argc, char* argv[])
 	}
 	catch(const Ice::Exception& ex)
 	{
-	    cerr << ex << endl;
+	    cerr << ex.ice_name() << endl;
 	    status = EXIT_FAILURE;
 	}
     }

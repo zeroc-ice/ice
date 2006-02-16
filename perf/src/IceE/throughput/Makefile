@@ -7,40 +7,36 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+top_srcdir	= ../../..
 
 CLIENT		= client
 SERVER		= server
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= pingSK.o
+OBJS		= Throughput.o
 
 COBJS		= Client.o
 
 SOBJS		= Server.o
 
-SRCS		= $(OBJS:.o=.cc) \
-		  $(COBJS:.o=.cc) \
-		  $(SOBJS:.o=.cc)
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+SLICE_SRCS	= Throughput.ice
 
 include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.icee.rules
 
-CPPFLAGS	:= -I. -I$(OMNIORB_HOME)/include -D__OSVERSION__=2 -D__linux__ \
-		   -D__x86__ -D__OMNIORB4__ -D_REENTRANT $(CPPFLAGS)
-CXXFLAGS	:= -O3 -Wall -Wno-unused -fexceptions
-LDFLAGS		:=  -L$(OMNIORB_HOME)/lib
-LIBS		:= -lomniORB4 -lomnithread -lpthread
+CPPFLAGS	:= -I. $(ICE_CPPFLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(ICE_LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
-
-pingSK.cc: ping.idl
-	$(OMNIORB_HOME)/bin/omniidl  -bcxx -Wba ping.idl
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(ICE_LIBS)
 
 include .depend

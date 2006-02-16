@@ -46,6 +46,7 @@ def usage():
 threadPoolOne = " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=1 --Ice.ThreadPool.Server.SizeWarn=2"
 threadPoolFour = " --Ice.ThreadPool.Server.Size=4 --Ice.ThreadPool.Server.SizeMax=4 --Ice.ThreadPool.Server.SizeWarn=5"
 threadPerConnection = " --Ice.ThreadPerConnection"
+blocking = " --Ice.Blocking"
 
 class ClientServerTest(TestUtil.Test) :
 
@@ -112,6 +113,36 @@ def runIcePerfs(expr, results, i):
     test.run("1tp", "throughput", "structSeq", threadPoolOne)
     test.run("4tp", "throughput", "structSeq", threadPoolFour)
     test.run("tpc", "throughput", "structSeq " + threadPerConnection, threadPerConnection)
+
+def runIceEPerfs(expr, results, i):
+
+    test = ClientServerTest(expr, results, i, "IceE", "latency twoway")
+    test.run("tpc", "latency", "twoway ", "")
+    test.run("blocking", "latency", "twoway " + blocking, "")
+    
+    test = ClientServerTest(expr, results, i, "IceE", "latency oneway")
+    test.run("tpc", "latency", "oneway ", "")
+    test.run("blocking", "latency", "oneway " + blocking, "")
+    
+    test = ClientServerTest(expr, results, i, "IceE", "latency oneway")
+    test.run("tpc (batch)", "latency", "batch ", "")
+    test.run("blocking (batch)", "latency", "batch " + blocking, "")
+
+    test = ClientServerTest(expr, results, i, "IceE", "throughput byte")
+    test.run("tpc", "throughput", "byte ", "")
+    test.run("blocking", "throughput", "byte " + blocking, "")
+    
+    test = ClientServerTest(expr, results, i, "IceE", "throughput string seq")
+    test.run("tpc", "throughput", "stringSeq ", "")
+    test.run("blocking", "throughput", "stringSeq " + blocking, "")
+    
+    test = ClientServerTest(expr, results, i, "IceE", "throughput long string seq")
+    test.run("tpc", "throughput", "longStringSeq ", "")
+    test.run("blocking", "throughput", "longStringSeq " + blocking, "")
+    
+    test = ClientServerTest(expr, results, i, "IceE", "throughput struct seq")
+    test.run("tpc", "throughput", "structSeq ", "")
+    test.run("blocking", "throughput", "structSeq " + blocking, "")
 
 def runTAOPerfs(expr, results, i):
 
@@ -229,8 +260,11 @@ if not os.environ.has_key('ICE_HOME'):
     if os.path.exists(os.path.join(toplevel, "..", "ice")):
         os.environ['ICE_HOME'] = os.path.join(toplevel, "..", "ice")
 
-if not os.environ.has_key('ICE_HOME') and not os.environ.has_key('TAO_HOME') and not os.environ.has_key('TAO_ROOT'):
-    print "You need to set at least ICE_HOME or TAO_HOME!"
+if not os.environ.has_key('ICE_HOME') and \
+   not os.environ.has_key('TAO_HOME') and \
+   not os.environ.has_key('OMNIORB_HOME') and \
+   not os.environ.has_key('ICEE_HOME'):
+    print "You need to set at least ICE_HOME, ICEE_HOME, OMNIORB_HOME or TAO_HOME!"
     sys.exit(1)
     
 results = TestUtil.HostResults(hostname, outputFile)
@@ -240,7 +274,9 @@ while i <= niter:
     try:
         if os.environ.has_key('ICE_HOME'):
             runIcePerfs(expr, results, i)
-        if os.environ.has_key('TAO_HOME') or os.environ.has_key('TAO_ROOT'):
+        if os.environ.has_key('ICEE_HOME'):
+            runIceEPerfs(expr, results, i)
+        if os.environ.has_key('TAO_HOME'):
             runTAOPerfs(expr, results, i)
         if os.environ.has_key('OMNIORB_HOME'):
             runOmniORBPerfs(expr, results, i, 0)

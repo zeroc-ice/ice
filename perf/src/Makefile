@@ -11,14 +11,22 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= Ice IceStorm 
-ifdef TAO_HOME
-    SUBDIRS := TAO CosEvent $(SUBDIRS)
-    export ACE_ROOT := $(TAO_HOME)/..
-    export TAO_ROOT := $(TAO_HOME)
+SUBDIRS		=
+
+ifdef ICE_HOME
+    SUBDIRS	:= Ice IceStorm  $(SUBDIRS)
 endif
+
+ifdef TAO_HOME
+    SUBDIRS 	:= TAO CosEvent $(SUBDIRS)
+endif
+ 
 ifdef OMNIORB_HOME
-    SUBDIRS := omniORB $(SUBDIRS)
+    SUBDIRS 	:= omniORB $(SUBDIRS)
+endif
+
+ifdef ICEE_HOME
+    SUBDIRS 	:= IceE $(SUBDIRS)
 endif
 
 $(EVERYTHING)::

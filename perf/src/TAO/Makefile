@@ -11,17 +11,20 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-ifdef TAO_ROOT
+
 SUBDIRS		= Thread_Per_Connection \
 		  Thread_Pool
-export ACE_ROOT := $(TAO_ROOT)/..
-else
-SUBDIRS		=
-endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
 	do \
 	    echo "making $@ in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
+	done
+
+clean::
+	@for subdir in $(SUBDIRS); \
+	do \
+	    echo "making $@ in $$subdir"; \
+	    ( cd $$subdir && $(MAKE) realclean ) || exit 1; \
 	done

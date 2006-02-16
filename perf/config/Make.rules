@@ -11,7 +11,7 @@
 # If you want to compile TAO performance tests, set TAO_HOME to the
 # TAO source distribution directory.
 #
-#TAO_ROOT	?=
+#TAO_HOME	?=
 
 #
 # If you want to compile Ice performance tests, set ICE_HOME to the
@@ -19,8 +19,17 @@
 #
 #ICE_HOME	?= 
 
-OMNIORB_HOME		?= /home/benoit/perf/omniORB-4.0.6
-OMNIORBBUILD_HOME	?= $(OMNIORB_HOME)/build
+#
+# If you want to compile IceE performance tests, set ICEE_HOME to the
+# IceE source distribution directory
+#
+#ICEE_HOME	?= 
+
+#
+# If you want to compile OmniORB performance tests, set OMNIORB_HOME to the
+# OmniORB distribution directory
+#
+#OMNIORB_HOME	?= 
 
 #
 # Define DEBUG as yes if you want to build with debug information.
@@ -52,61 +61,17 @@ SHELL			= /bin/sh
 
 UNAME			:= $(shell uname)
 
-slicedir		= $(ICE_HOME)/slice
-configdir		= $(ICE_HOME)/config
-
-ifdef ICE_HOME
-   include	 $(configdir)/Make.rules.$(UNAME)
-endif
-
-CPPFLAGS		=
-ICECPPFLAGS		= -I$(slicedir)
-SLICE2CPPFLAGS		= $(ICECPPFLAGS)
-
-ifeq ($(DEBUG),yes)
-     CXXFLAGS		:= -g $(CXXFLAGS)
-endif
-LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS)
-
-ICE_CPPFLAGS		?= -I$(ICE_HOME)/include
-ICE_LIBS		?= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
-
-SLICE2CPP		= $(ICE_HOME)/bin/slice2cpp
-
 EVERYTHING		= all depend clean install
 
-.SUFFIXES:
-.SUFFIXES:		.cc .cpp .o .py
-
-all:: $(SRCS)
-
-%.h %.cpp: %.ice
-	rm -f $(*F).h $(*F).cpp
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice	
-
-.cpp.o:
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
-
-.cc.o:
-	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+all:: $(SRCS) $(TARGETS)
 
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.pyc *.bak
 
-all:: $(SRCS) $(TARGETS)
-
-depend:: $(SRCS) $(SLICE_SRCS)
-	-rm -f .depend
-	if test -n "$(SRCS)" ; then \
-	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \
-	    $(configdir)/makedepend.py >> .depend; \
-	fi
-
-ifneq ($(TEMPLATE_REPOSITORY),)
+ifneq ($(SLICE_SRCS),)
 clean::
-	rm -fr $(TEMPLATE_REPOSITORY)
+	rm -f $(addsuffix .cpp, $(basename $(notdir $(SLICE_SRCS))))
+	rm -f $(addsuffix .h, $(basename $(notdir $(SLICE_SRCS))))
 endif
-
-install::
 

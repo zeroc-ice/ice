@@ -32,6 +32,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 SLICE_SRCS	= Perf.ice
 
 include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.ice.rules
 
 CPPFLAGS	:= -I. $(ICE_CPPFLAGS) $(CPPFLAGS)
 LIBS		:= -lIceStorm $(ICE_LIBS) $(LIBS)

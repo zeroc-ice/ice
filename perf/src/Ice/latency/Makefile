@@ -27,6 +27,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 SLICE_SRCS	= Latency.ice
 
 include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.ice.rules
 
 CPPFLAGS	:= -I. $(ICE_CPPFLAGS) $(CPPFLAGS)
 
