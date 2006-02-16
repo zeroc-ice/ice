@@ -203,6 +203,7 @@ IceInternal::Outgoing::invoke()
     return true;
 #else
     assert(false);
+    return false;
 #endif
 }
 
