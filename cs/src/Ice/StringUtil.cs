@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using System.Text;
 using System.Diagnostics;
 
 namespace IceUtil
@@ -74,55 +75,61 @@ namespace IceUtil
 	    return -1;
 	}
 	
-	private static void encodeChar(byte b, System.Text.StringBuilder s, string special)
+	//
+	// Write the byte b as an escape sequence if it isn't a printable ASCII
+	// character and append the escape sequence to sb. Additional characters
+	// that should be escape can be passed in special. If b is any of these
+	// characters, b is preceded by a backslash in sb.
+	//
+	private static void encodeChar(byte b, StringBuilder sb, string special)
 	{
 	    switch((char)b)
 	    {
 		case '\\': 
 		{
-		    s.Append("\\\\");
+		    sb.Append("\\\\");
 		    break;
 		}
 		
 		case '\'': 
 		{
-		    s.Append("\\'");
+		    sb.Append("\\'");
 		    break;
 		}
 		
 		case '"': 
 		{
-		    s.Append("\\\"");
+		    sb.Append("\\\"");
 		    break;
 		}
 		
 		case '\b': 
 		{
-		    s.Append("\\b");
+		    sb.Append("\\b");
 		    break;
 		}
 		
 		case '\f': 
 		{
-		    s.Append("\\f");
+		    sb.Append("\\f");
 		    break;
 		}
 		
 		case '\n': 
 		{
-		    s.Append("\\n");
+		    sb.Append("\\n");
 		    break;
 		}
 		
 		case '\r': 
 		{
-		    s.Append("\\r");
+		    sb.Append("\\r");
 		    break;
 		}
 		
 		case '\t': 
 		{
-		    s.Append("\\t");
+		    sb.Append("\\t");
 		    break;
 		}
 		
@@ -130,7 +137,7 @@ namespace IceUtil
 		{
 		    if(b < (byte)32 || b > (byte)126)
 		    {
-			s.Append('\\');
+			sb.Append('\\');
 			string octal = System.Convert.ToString(b, 8);
 			//
 			// Add leading zeroes so that we avoid problems during
@@ -142,18 +149,18 @@ namespace IceUtil
 			//
 			for(int j = octal.Length; j < 3; j++)
 			{
-			    s.Append('0');
+			    sb.Append('0');
 			}
-			s.Append(octal);
+			sb.Append(octal);
 		    }
 		    else if(special != null && special.IndexOf((char)b) != -1)
 		    {
-			s.Append('\\');
-			encodeChar(b, s, null);
+			sb.Append('\\');
+			sb.Append((char)b);
 		    }
 		    else
 		    {
-			s.Append((char)b);
+			sb.Append((char)b);
 		    }
 		}
 		break;
@@ -161,15 +168,24 @@ namespace IceUtil
 	}
 	
         //
-        // Add escape sequences (like "\n", or "\0xxx") to make a string
-        // readable in ASCII.
+        // Add escape sequences (such as "\n", or "\007") to make a string
+        // readable in ASCII. Any characters that appear in special are
+	// prefixed with a backslash in the returned string.
         //
 	public static string escapeString(string s, string special)
 	{
-	    System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding();
+	    for(int i = 0; i < special.Length; ++i)
+	    {
+	        if((int)special[i] < 32 || (int)special[i] > 126)
+		{
+		    throw new System.ArgumentException("special characters must be in ASCII range 32-126", "special");
+		}
+	    }
+
+	    UTF8Encoding utf8 = new UTF8Encoding();
 	    byte[] bytes = utf8.GetBytes(s);
 
-	    System.Text.StringBuilder result = new System.Text.StringBuilder(bytes.Length);
+	    StringBuilder result = new StringBuilder(bytes.Length);
 	    for(int i = 0; i < bytes.Length; i++)
 	    {
 		encodeChar(bytes[i], result, special);
@@ -178,25 +194,151 @@ namespace IceUtil
 	    return result.ToString();
 	}
 	
+	//
+	// Decode the character or escape sequence starting at start and return it in c.
+	// newIndex is set to the index of the first character following the decoded character
+	// or sequence. Return true if successful, false otherwise.
+	//
+	private static bool decodeChar(string s, int start, int end, out int newIndex, out char c)
+	{
+	    Debug.Assert(start >= 0);
+	    Debug.Assert(start < end);
+	    Debug.Assert(end <= s.Length);
+
+	    newIndex = 0;
+	    c = (char)0;
+
+	    if(s[start] != '\\')
+	    {
+		c = s[start];
+		newIndex = start + 1;
+		return true;
+	    }
+
+	    if(start + 1 == end)
+	    {
+		return false;
+	    }
+
+	    switch(s[++start])
+	    {
+		case '\\': 
+		case '\'': 
+		case '"': 
+		{
+		    c = s[start++];
+		    break;
+		}
+		case 'b': 
+		{
+		    c = '\b';
+		    ++start;
+		    break;
+		}
+		case 'f': 
+		{
+		    c = '\f';
+		    ++start;
+		    break;
+		}
+		case 'n': 
+		{
+		    c = '\n';
+		    ++start;
+		    break;
+		}
+		case 'r': 
+		{
+		    c = '\r';
+		    ++start;
+		    break;
+		}
+		case 't': 
+		{
+		    c = '\t';
+		    ++start;
+		    break;
+		}
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		{
+		    if(start + 2 >= end)
+		    {
+		       return false;
+		    }
+		    int oct = 0;
+		    for(int j = 0; j < 3; ++j)
+		    {
+			oct = oct * 8 + s[start++] - '0';
+		    }
+		    c = System.Convert.ToChar(oct);
+		    break;
+		}
+		default:
+		{
+		    c = s[start++];
+		    break;
+		}
+	    }
+	    newIndex = start;
+	    return true;
+	}
+
+	//
+	// Remove escape sequences from s and append the result to sb.
+	// Return true if successful, false otherwise.
+	//
+	private static bool decodeString(string s, int start, int end, StringBuilder sb)
+	{
+	    char c;
+	    while(start < end)
+	    {
+	        if(!decodeChar(s, start, end, out start, out c))
+		{
+		    return false;
+		}
+		sb.Append(c);
+	    }
+            return true;
+	}
+
         //
         // Remove escape sequences added by escapeString.
         //
 	public static bool unescapeString(string s, int start, int end, out string result)
 	{
-	    Debug.Assert(start >= 0);
-	    Debug.Assert(end <= s.Length);
-	    Debug.Assert(start <= end);
+	    if(start < 0)
+	    {
+	        throw new System.ArgumentException("start offset must be >= 0", "start");
+	    }
+	    if(end > s.Length)
+	    {
+	        throw new System.ArgumentException("end offset must be <= s.Length", "end");
+	    }
+	    if(start > end)
+	    {
+	        throw new System.ArgumentException("start offset must be <= end offset");
+	    }
 	    
 	    result = null;
 	    try
 	    {
-		int num = end - start;
-		byte[] arr = new byte[num];
-		for(int i = 0; i < num; ++i)
+		StringBuilder sb = new StringBuilder();
+	        if(!decodeString(s, start, end, sb))
 		{
-		    arr[i] = (byte)s[start + i];
+		    return false;
 		}
-		System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
+		string decodedString = sb.ToString();
+
+		byte[] arr = new byte[decodedString.Length];
+		for(int i = 0; i < arr.Length; ++i)
+		{
+		    arr[i] = (byte)decodedString[i];
+		}
+
+		UTF8Encoding utf8 = new UTF8Encoding(false, true);
 	        result = utf8.GetString(arr);
 		return true;
 	    }
