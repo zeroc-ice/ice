@@ -732,9 +732,6 @@ Slice::Gen::generate(const UnitPtr& p)
     ProxyVisitor proxyVisitor(_dir);
     p->visit(&proxyVisitor, false);
 
-    DelegateVisitor delegateVisitor(_dir);
-    p->visit(&delegateVisitor, false);
-
     DispatcherVisitor dispatcherVisitor(_dir);
     p->visit(&dispatcherVisitor, false);
 }
@@ -2155,14 +2152,32 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = *r;
+        StringList opMetaData = op->getMetaData();
 	ContainerPtr container = op->container();
 	ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
+	int iter;
 
         vector<string> params = getParams(op, package);
         vector<string> args = getArgs(op);
+
+        ParamDeclList inParams;
+        ParamDeclList outParams;
+        ParamDeclList paramList = op->parameters();
+        ParamDeclList::const_iterator pli;
+        for(pli = paramList.begin(); pli != paramList.end(); ++pli)
+        {
+            if((*pli)->isOutParam())
+            {
+                outParams.push_back(*pli);
+            }
+            else
+            {
+                inParams.push_back(*pli);
+            }
+        }
 
         ExceptionList throws = op->throws();
         throws.sort();
@@ -2197,18 +2212,80 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    out << nl << "__checkTwowayOnly(\"" << opName << "\");";
 	}
-        out << nl << "Ice._ObjectDel __delBase = __getDelegate();";
-        out << nl << '_' << name << "Del __del = (_" << name << "Del)__delBase;";
-        out << nl;
+	out << nl << "__checkConnection();";
+        out << nl << "IceInternal.Outgoing __og = _connection.getOutgoing(_reference, \"" << op->name() << "\", "
+            << sliceModeToIceMode(op) << ", __ctx);";
+        out << nl << "try";
+        out << sb;
+        if(!inParams.empty())
+        {
+            out << nl << "try";
+            out << sb;
+            out << nl << "IceInternal.BasicStream __os = __og.os();";
+            iter = 0;
+            for(pli = inParams.begin(); pli != inParams.end(); ++pli)
+            {
+                writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), true, iter, false,
+                                          (*pli)->getMetaData());
+            }
+            out << eb;
+            out << nl << "catch(Ice.LocalException __ex)";
+            out << sb;
+            out << nl << "__og.abort(__ex);";
+            out << eb;
+        }
+        out << nl << "boolean __ok = __og.invoke();";
+        out << nl << "try";
+        out << sb;
+        out << nl << "IceInternal.BasicStream __is = __og.is();";
+        out << nl << "if(!__ok)";
+        out << sb;
+        out << nl << "try";
+        out << sb;
+        out << nl << "__is.throwException();";
+        out << eb;
+        for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
+        {
+            out << nl << "catch(" << getAbsolute(*t, package) << " __ex)";
+            out << sb;
+            out << nl << "throw __ex;";
+            out << eb;
+        }
+        out << nl << "catch(Ice.UserException __ex)";
+        out << sb;
+        out << nl << "Ice.UnknownUserException __uex = new Ice.UnknownUserException();";
+        out << nl << "__uex.unknown = __ex.ice_name();";
+        out << nl << "throw __uex;";
+        out << eb;
+        out << eb;
+        for(pli = outParams.begin(); pli != outParams.end(); ++pli)
+        {
+            writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), false, iter, true,
+                                      (*pli)->getMetaData());
+        }
         if(ret)
         {
-            out << "return ";
+            out << nl << retS << " __ret;";
+            writeMarshalUnmarshalCode(out, package, ret, "__ret", false, iter, false, opMetaData);
         }
-        out << "__del." << opName << spar << args << "__ctx" << epar << ';';
-        if(!ret)
+        if(ret)
         {
-            out << nl << "return;";
+            out << nl << "return __ret;";
         }
+        out << eb;
+        out << nl << "catch(Ice.LocalException __ex)";
+        out << sb;
+        out << nl << "throw new IceInternal.NonRepeatable(__ex);";
+        out << eb;
+        out << eb;
+        out << nl << "finally";
+        out << sb;
+        out << nl << "_connection.reclaimOutgoing(__og);";
+        out << eb;
+	if(!ret)
+	{
+            out << nl << "return ;";
+	}
         out << eb;
         out << nl << "catch(IceInternal.NonRepeatable __ex)";
         out << sb;
@@ -2341,11 +2418,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "d = h;";
     out << eb;
     out << nl << "return d;";
-    out << eb;
-
-    out << sp << nl << "protected Ice._ObjectDel" << nl << "__createDelegate()";
-    out << sb;
-    out << nl << "return new _" << name << "Del();";
     out << eb;
 
     out << sp << nl << "public static void" << nl << "__write(IceInternal.BasicStream __os, " << name << "Prx v)";
@@ -2742,163 +2814,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     out << nl << "public " << retS << ' ' << name << spar << params << "java.util.Hashtable __ctx" << epar;
     writeThrowsClause(package, throws);
     out << ';';
-}
-
-Slice::Gen::DelegateVisitor::DelegateVisitor(const string& dir) :
-    JavaVisitor(dir)
-{
-}
-
-bool
-Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    if(p->isLocal())
-    {
-        return false;
-    }
-
-    string name = p->name();
-    ClassList bases = p->bases();
-    string package = getPackage(p);
-    string absolute = getAbsolute(p, "", "_", "Del");
-
-    if(!open(absolute))
-    {
-        return false;
-    }
-
-    Output& out = output();
-
-    out << sp << nl << "public final class _" << name << "Del extends Ice._ObjectDel";
-    out << sb;
-
-    OperationList ops = p->allOperations();
-
-    OperationList::const_iterator r;
-    for(r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-        StringList opMetaData = op->getMetaData();
-        string opName = fixKwd(op->name());
-        TypePtr ret = op->returnType();
-        string retS = typeToString(ret, TypeModeReturn, package, opMetaData);
-        int iter;
-
-        ParamDeclList inParams;
-        ParamDeclList outParams;
-	ParamDeclList paramList = op->parameters();
-	ParamDeclList::const_iterator pli;
-	for(pli = paramList.begin(); pli != paramList.end(); ++pli)
-	{
-	    if((*pli)->isOutParam())
-	    {
-		outParams.push_back(*pli);
-	    }
-	    else
-	    {
-		inParams.push_back(*pli);
-	    }
-	}
-
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-	//
-	// Arrange exceptions into most-derived to least-derived order. If we don't
-	// do this, a base exception handler can appear before a derived exception
-	// handler, causing compiler warnings and resulting in the base exception
-	// being marshaled instead of the derived exception.
-	//
-#if defined(__SUNPRO_CC)
-	throws.sort(Slice::derivedToBaseCompare);
-#else
-	throws.sort(Slice::DerivedToBaseCompare());
-#endif
-
-        vector<string> params = getParams(op, package);
-
-        out << sp;
-        out << nl << "public " << retS << nl << opName << spar << params << "java.util.Hashtable __ctx" << epar;
-        writeDelegateThrowsClause(package, throws);
-        out << sb;
-
-        out << nl << "IceInternal.Outgoing __og = __connection.getOutgoing(__reference, \"" << op->name() << "\", "
-	    << sliceModeToIceMode(op) << ", __ctx);";
-        out << nl << "try";
-        out << sb;
-        if(!inParams.empty())
-        {
-	    out << nl << "try";
-	    out << sb;
-            out << nl << "IceInternal.BasicStream __os = __og.os();";
-	    iter = 0;
-	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
-	    {
-		writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), true, iter, false,
-					  (*pli)->getMetaData());
-	    }
-	    out << eb;
-	    out << nl << "catch(Ice.LocalException __ex)";
-	    out << sb;
-	    out << nl << "__og.abort(__ex);";
-	    out << eb;
-	}
-	out << nl << "boolean __ok = __og.invoke();";
-	out << nl << "try";
-	out << sb;
-	out << nl << "IceInternal.BasicStream __is = __og.is();";
-        out << nl << "if(!__ok)";
-        out << sb;
-	out << nl << "try";
-	out << sb;
-	out << nl << "__is.throwException();";
-	out << eb;
-	for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
-	{
-	    out << nl << "catch(" << getAbsolute(*t, package) << " __ex)";
-	    out << sb;
-	    out << nl << "throw __ex;";
-	    out << eb;
-	}
-	out << nl << "catch(Ice.UserException __ex)";
-	out << sb;
-        out << nl << "Ice.UnknownUserException __uex = new Ice.UnknownUserException();";
-        out << nl << "__uex.unknown = __ex.ice_name();";
-        out << nl << "throw __uex;";
-	out << eb;
-        out << eb;
-        for(pli = outParams.begin(); pli != outParams.end(); ++pli)
-        {
-            writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), false, iter, true,
-                                      (*pli)->getMetaData());
-        }
-        if(ret)
-        {
-	    out << nl << retS << " __ret;";
-	    writeMarshalUnmarshalCode(out, package, ret, "__ret", false, iter, false, opMetaData);
-        }
-	if(ret)
-	{
-	    out << nl << "return __ret;";
-	}
-	out << eb;
-	out << nl << "catch(Ice.LocalException __ex)";
-	out << sb;
-	out << nl << "throw new IceInternal.NonRepeatable(__ex);";
-	out << eb;
-        out << eb;
-        out << nl << "finally";
-        out << sb;
-        out << nl << "__connection.reclaimOutgoing(__og);";
-        out << eb;
-        out << eb;
-    }
-
-    out << eb;
-    close();
-
-    return false;
 }
 
 Slice::Gen::DispatcherVisitor::DispatcherVisitor(const string& dir) :

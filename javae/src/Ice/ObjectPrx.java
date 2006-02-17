@@ -29,11 +29,6 @@ public interface ObjectPrx
     String ice_id();
     String ice_id(java.util.Hashtable __context);
 
-    // Returns true if ok, false if user exception.
-    boolean ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams);
-    boolean ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
-                       java.util.Hashtable __context);
-
     Identity ice_getIdentity();
     ObjectPrx ice_newIdentity(Identity newIdentity);
 

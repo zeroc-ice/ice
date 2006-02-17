@@ -53,8 +53,43 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
 	        __checkTwowayOnly("ice_isA");
-                _ObjectDel __del = __getDelegate();
-                return __del.ice_isA(__id, __context);
+		__checkConnection();
+                IceInternal.Outgoing __og = _connection.getOutgoing(_reference, "ice_isA", OperationMode.Nonmutating,
+                                                                     __context);
+                try
+                {
+                    try
+                    {
+                        IceInternal.BasicStream __os = __og.os();
+                        __os.writeString(__id);
+                    }
+                    catch(Ice.LocalException __ex)
+                    {
+                        __og.abort(__ex);
+                    }
+                    boolean __ok = __og.invoke();
+                    try
+                    {
+                        IceInternal.BasicStream __is = __og.is();
+                        if(!__ok)
+                        {
+                            __is.throwException();
+                        }
+                        return __is.readBool();
+                    }
+                    catch(UserException __ex)
+                    {
+                        throw new Ice.UnknownUserException(__ex.ice_name());
+                    }
+                    catch(LocalException __ex)
+                    {
+                        throw new IceInternal.NonRepeatable(__ex);
+                    }
+                }
+                finally
+                {
+                    _connection.reclaimOutgoing(__og);
+                }
             }
             catch(IceInternal.NonRepeatable __ex)
             {
@@ -82,8 +117,33 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
 	        __checkTwowayOnly("ice_ping");
-                _ObjectDel __del = __getDelegate();
-                __del.ice_ping(__context);
+		__checkConnection();
+                IceInternal.Outgoing __og = _connection.getOutgoing(_reference, "ice_ping", OperationMode.Nonmutating,
+                                                                    __context);
+                try
+                {
+                    boolean __ok = __og.invoke();
+                    try
+                    {
+                        IceInternal.BasicStream __is = __og.is();
+                        if(!__ok)
+                        {
+                            __is.throwException();
+                        }
+                    }
+                    catch(UserException __ex)
+                    {
+                        throw new Ice.UnknownUserException(__ex.ice_name());
+                    }
+                    catch(LocalException __ex)
+                    {
+                        throw new IceInternal.NonRepeatable(__ex);
+                    }
+                }
+                finally
+                {
+                   _connection.reclaimOutgoing(__og);
+                }
                 return;
             }
             catch(IceInternal.NonRepeatable __ex)
@@ -112,8 +172,34 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
 	        __checkTwowayOnly("ice_ids");
-                _ObjectDel __del = __getDelegate();
-                return __del.ice_ids(__context);
+	        __checkConnection();
+                IceInternal.Outgoing __og = _connection.getOutgoing(_reference, "ice_ids", OperationMode.Nonmutating,
+                                                                    __context);
+                try
+                {
+                    boolean __ok = __og.invoke();
+                    try
+                    {
+                        IceInternal.BasicStream __is = __og.is();
+                        if(!__ok)
+                        {
+                            __is.throwException();
+                        }
+                        return __is.readStringSeq();
+                    }
+                    catch(UserException __ex)
+                    {
+                        throw new Ice.UnknownUserException(__ex.ice_name());
+                    }
+                    catch(LocalException __ex)
+                    {
+                        throw new IceInternal.NonRepeatable(__ex);
+                    }
+                }
+                finally
+                {
+                    _connection.reclaimOutgoing(__og);
+                }
             }
             catch(IceInternal.NonRepeatable __ex)
             {
@@ -141,48 +227,38 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
 	        __checkTwowayOnly("ice_id");
-                _ObjectDel __del = __getDelegate();
-                return __del.ice_id(__context);
+	        __checkConnection();
+                IceInternal.Outgoing __og = _connection.getOutgoing(_reference, "ice_id", OperationMode.Nonmutating,
+                                                                    __context);
+                try
+                {
+                    boolean __ok = __og.invoke();
+                    try
+                    {
+                        IceInternal.BasicStream __is = __og.is();
+                        if(!__ok)
+                        {
+                            __is.throwException();
+                        }
+                        return __is.readString();
+                    }
+                    catch(UserException __ex)
+                    {
+                        throw new Ice.UnknownUserException(__ex.ice_name());
+                    }
+                    catch(LocalException __ex)
+                    {
+                        throw new IceInternal.NonRepeatable(__ex);
+                    }
+                }
+                finally
+                {
+                    _connection.reclaimOutgoing(__og);
+                }
             }
             catch(IceInternal.NonRepeatable __ex)
             {
                 __cnt = __handleException(__ex.get(), __cnt);
-            }
-            catch(LocalException __ex)
-            {
-                __cnt = __handleException(__ex, __cnt);
-            }
-        }
-    }
-
-    public final boolean
-    ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams)
-    {
-        return ice_invoke(operation, mode, inParams, outParams, _reference.getContext());
-    }
-
-    public final boolean
-    ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
-               java.util.Hashtable context)
-    {
-        int __cnt = 0;
-        while(true)
-        {
-            try
-            {
-                _ObjectDel __del = __getDelegate();
-                return __del.ice_invoke(operation, mode, inParams, outParams, context);
-            }
-            catch(IceInternal.NonRepeatable __ex)
-            {
-                if(mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent)
-                {
-                    __cnt = __handleException(__ex.get(), __cnt);
-                }
-                else
-                {
-                    __rethrowException(__ex.get());
-                }
             }
             catch(LocalException __ex)
             {
@@ -377,19 +453,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final Connection
     ice_connection()
     {
-        int __cnt = 0;
-        while(true)
-        {
-            try
-            {
-                _ObjectDel __del = __getDelegate();
-                return __del.ice_connection();
-            }
-            catch(LocalException __ex)
-            {
-                __cnt = __handleException(__ex, __cnt);
-            }
-        }
+	return _connection;
     }
 
     public final boolean
@@ -410,18 +474,12 @@ public class ObjectPrxHelperBase implements ObjectPrx
     {
         ObjectPrxHelperBase h = (ObjectPrxHelperBase)from;
         IceInternal.Reference ref = null;
-        _ObjectDel delegate = null;
+        Connection con = null;
 
         synchronized(from)
         {
             ref = h._reference;
-            try
-            {
-                delegate = (_ObjectDel)h._delegate;
-            }
-            catch(ClassCastException ex)
-            {
-            }
+            con = h._connection;
         }
 
         //
@@ -432,27 +490,22 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	if(IceUtil.Debug.ASSERT)
 	{
 	    IceUtil.Debug.Assert(_reference == null);
-	    IceUtil.Debug.Assert(_delegate == null);
+	    IceUtil.Debug.Assert(_connection == null);
 	}
 
         _reference = ref;
-
-        if(delegate != null)
-        {
-            _delegate = __createDelegate();
-            _delegate.__copyFrom(delegate);
-        }
+	_connection = con;
     }
 
     public final int
     __handleException(LocalException ex, int cnt)
     {
 	//
-	// Only _delegate needs to be mutex protected here.
+	// Only _connection needs to be mutex protected here.
 	//
 	synchronized(this)
 	{
-	    _delegate = null;
+	    _connection = null;
 	}
 
 	IceInternal.ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
@@ -473,7 +526,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final synchronized void
     __rethrowException(LocalException ex)
     {
-        _delegate = null;
+        _connection = null;
         throw ex;
     }
 
@@ -493,14 +546,18 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	}
     }
 
-    public final synchronized _ObjectDel
-    __getDelegate()
+    protected java.util.Hashtable
+    __defaultContext()
     {
-        if(_delegate == null)
-        {
-            _ObjectDel delegate = __createDelegate();
-            delegate.setup(_reference);
-            _delegate = delegate;
+        return _reference.getContext();
+    }
+
+    protected synchronized void
+    __checkConnection()
+    {
+	if(_connection == null)
+	{
+	    _connection = _reference.getConnection();
 
             //
             // If this proxy is for a non-local object, and we are
@@ -518,21 +575,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	    catch(ClassCastException e)
 	    {
 	    }
-        }
-
-        return _delegate;
-    }
-
-    protected _ObjectDel
-    __createDelegate()
-    {
-        return new _ObjectDel();
-    }
-
-    protected java.util.Hashtable
-    __defaultContext()
-    {
-        return _reference.getContext();
+	}
     }
 
     //
@@ -549,12 +592,12 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	if(IceUtil.Debug.ASSERT)
 	{
 	    IceUtil.Debug.Assert(_reference == null);
-	    IceUtil.Debug.Assert(_delegate == null);
+	    IceUtil.Debug.Assert(_connection == null);
 	}
 
         _reference = ref;
     }
 
-    private IceInternal.Reference _reference;
-    private _ObjectDel _delegate;
+    protected IceInternal.Reference _reference;
+    protected Connection _connection;
 }

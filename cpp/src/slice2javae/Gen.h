@@ -184,15 +184,6 @@ private:
         virtual void visitOperation(const OperationPtr&);
     };
 
-    class DelegateVisitor : public JavaVisitor
-    {
-    public:
-
-        DelegateVisitor(const std::string&);
-
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-    };
-
     class DispatcherVisitor : public JavaVisitor
     {
     public:

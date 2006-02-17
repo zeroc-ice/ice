@@ -559,5 +559,5 @@ public final class Outgoing
     private BasicStream _is;
     private BasicStream _os;
 
-    public Outgoing next; // For use by Ice._ObjectDelM
+    public Outgoing next;
 }
