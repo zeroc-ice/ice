@@ -25,26 +25,11 @@ class Object;
 
 }
 
-namespace IceDelegate
-{
-
-namespace Ice
-{
-
-class Object;
-
-}
-
-}
-
 namespace IceInternal
 {
 
 ICE_API void incRef(::IceProxy::Ice::Object*);
 ICE_API void decRef(::IceProxy::Ice::Object*);
-
-ICE_API void incRef(::IceDelegate::Ice::Object*);
-ICE_API void decRef(::IceDelegate::Ice::Object*);
 
 }
 

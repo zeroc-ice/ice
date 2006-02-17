@@ -95,7 +95,7 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
 
     Buffer::Container::difference_type packetSize = 
         static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
-    
+
 #ifdef _WIN32
     //
     // Limit packet size to avoid performance problems on WIN32

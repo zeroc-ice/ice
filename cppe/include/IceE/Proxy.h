@@ -153,47 +153,13 @@ public:
     void __rethrowException(const ::Ice::LocalException&);
     void __checkTwowayOnly(const char*) const;
 
-    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate();
-
 protected:
-
-    virtual ::IceInternal::Handle< ::IceDelegate::Ice::Object> __createDelegate();
 
     const ::Ice::Context& __defaultContext() const;
+    void __checkConnection();
 
-private:
-
-    void setup(const ::IceInternal::ReferencePtr&);
-    friend class ::IceInternal::ProxyFactory;
-
+    ::Ice::ConnectionPtr _connection;
     ::IceInternal::ReferencePtr _reference;
-    ::IceInternal::Handle< ::IceDelegate::Ice::Object> _delegate;
-};
-
-} }
-
-namespace IceDelegate { namespace Ice
-{
-
-class ICE_API Object : public ::IceUtil::Shared
-{
-public:
-
-    ~Object();
-
-    bool ice_isA(const ::std::string&, const ::Ice::Context&);
-    void ice_ping(const ::Ice::Context&);
-    ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
-    ::std::string ice_id(const ::Ice::Context&);
-
-    ::Ice::ConnectionPtr ice_connection();
-
-    void __copyFrom(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&);
-
-protected:
-
-    ::IceInternal::ReferencePtr __reference;
-    ::Ice::ConnectionPtr __connection;
 
 private:
 
@@ -203,7 +169,7 @@ private:
     ::std::string __ice_id(::IceInternal::Outgoing&);
 
     void setup(const ::IceInternal::ReferencePtr&);
-    friend class ::IceProxy::Ice::Object;
+    friend class ::IceInternal::ProxyFactory;
 };
 
 } }

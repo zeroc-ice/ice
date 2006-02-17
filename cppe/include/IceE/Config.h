@@ -24,7 +24,7 @@
 // Comment this out if you want to build without batch mode on the
 // client side.
 //
-#define ICEE_HAS_BATCH
+//#define ICEE_HAS_BATCH
 
 //
 // Comment this out if you want to build without support for blocking
