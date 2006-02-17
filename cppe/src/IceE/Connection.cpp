@@ -298,7 +298,7 @@ Ice::Connection::waitUntilFinished()
 void
 Ice::Connection::prepareRequest(BasicStream* os)
 {
-    os->writeBlob(_requestHdr);
+    os->writeBlob(&_requestHdr[0], headerSize + sizeof(Int));
 }
 
 
@@ -550,7 +550,7 @@ Ice::Connection::prepareBatchRequest(BasicStream* os)
     {
 	try
 	{
-	    _batchStream.writeBlob(_requestBatchHdr);
+	    _batchStream.writeBlob(&_requestBatchHdr[0], headerSize + sizeof(Int));
 	}
 	catch(const LocalException& ex)
 	{
@@ -1085,7 +1085,10 @@ Ice::Connection::validate()
         if(active)
         {
     	    BasicStream os(_instance.get());
-    	    os.writeBlob(magic, sizeof(magic));
+	    os.write(magic[0]);
+	    os.write(magic[1]);
+	    os.write(magic[2]);
+	    os.write(magic[3]);
     	    os.write(protocolMajor);
     	    os.write(protocolMinor);
     	    os.write(encodingMajor);
@@ -1120,14 +1123,17 @@ Ice::Connection::validate()
     	    }
     	    assert(is.i == is.b.end());
     	    is.i = is.b.begin();
-    	    ByteSeq m(sizeof(magic), 0);
-    	    is.readBlob(m, static_cast<Int>(sizeof(magic)));
-    	    if(!equal(m.begin(), m.end(), magic))
-    	    {
-    	        BadMagicException ex(__FILE__, __LINE__);
-    	        ex.badMagic = m;
-    	        throw ex;
-    	    }
+	    Ice::Byte m[4];
+	    is.read(m[0]);
+	    is.read(m[1]);
+	    is.read(m[2]);
+	    is.read(m[3]);
+	    if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
+	    {
+		BadMagicException ex(__FILE__, __LINE__);
+		ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(m));
+		throw ex;
+	    }
     	    Byte pMajor;
     	    Byte pMinor;
     	    is.read(pMajor);
@@ -1381,7 +1387,10 @@ Ice::Connection::initiateShutdown() const
     // Before we shut down, we send a close connection message.
     //
     BasicStream os(_instance.get());
-    os.writeBlob(magic, sizeof(magic));
+    os.write(magic[0]);
+    os.write(magic[1]);
+    os.write(magic[2]);
+    os.write(magic[3]);
     os.write(protocolMajor);
     os.write(protocolMinor);
     os.write(encodingMajor);
@@ -1640,7 +1649,7 @@ Ice::Connection::invokeAll(BasicStream& stream, Int invokeNum, Int requestId,
 	    if(response)
 	    {
 		assert(invokeNum == 1); // No further invocations if a response is expected.
-		os->writeBlob(_replyHdr);
+		os->writeBlob(&_replyHdr[0], headerSize);
 		
 		//
 		// Add the request ID.
@@ -1719,12 +1728,15 @@ Ice::Connection::readStream(IceInternal::BasicStream& stream)
         ptrdiff_t pos = stream.i - stream.b.begin();
         assert(pos >= headerSize);
         stream.i = stream.b.begin();
-        ByteSeq m(sizeof(magic), 0);
-        stream.readBlob(m, static_cast<Int>(sizeof(magic)));
-        if(!equal(m.begin(), m.end(), magic))
+	Ice::Byte m[4];
+	stream.read(m[0]);
+	stream.read(m[1]);
+	stream.read(m[2]);
+	stream.read(m[3]);
+        if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
         {
     	    BadMagicException ex(__FILE__, __LINE__);
-    	    ex.badMagic = m;
+    	    ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(m));
     	    throw ex;
         }
         Byte pMajor;
