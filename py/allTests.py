@@ -50,6 +50,7 @@ def runTests(tests, num = 0):
 #
 tests = [ \
     "Ice/adapterDeactivation", \
+    "Ice/binding", \
     "Ice/exceptions", \
     "Ice/facets", \
     "Ice/faultTolerance", \
