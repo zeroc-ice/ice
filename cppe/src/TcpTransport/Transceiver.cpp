@@ -39,6 +39,7 @@ IceInternal::Transceiver::close()
 	out << "closing tcp connection\n" << toString();
     }
 
+#ifndef ICEE_USE_SOCKET_TIMEOUT
 #ifdef _WIN32
     assert(_event != 0);
     WSACloseEvent(_event);
@@ -47,6 +48,7 @@ IceInternal::Transceiver::close()
     _event = 0;
     _readEvent = 0;
     _writeEvent = 0;
+#endif
 #endif
 
     assert(_fd != INVALID_SOCKET);
@@ -109,10 +111,7 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
     while(buf.i != buf.b.end())
     {
 #ifndef ICEE_USE_SOCKET_TIMEOUT
-	if(timeout > 0)
-	{
-	    doSelect(false, timeout);
-	}
+//	doSelect(false, timeout);
 #else
 	setTimeout(_fd, false, timeout);
 #endif
@@ -147,6 +146,12 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
 		throw TimeoutException(__FILE__, __LINE__);
 	    }
 #endif
+
+	    if(wouldBlock())
+	    {
+		doSelect(false, timeout);
+		continue;
+	    }
 
 	    if(connectionLost())
 	    {
@@ -187,13 +192,13 @@ IceInternal::Transceiver::read(Buffer& buf, int timeout)
     
     while(buf.i != buf.b.end())
     {
-#ifndef ICEE_USE_SOCKET_TIMEOUT
+#if defined(ICEE_USE_SOCKET_TIMEOUT)
+	setTimeout(_fd, true, timeout);
+#elif !defined(_WIN32)
 	if(timeout > 0)
 	{
 	    doSelect(true, timeout);
 	}
-#else
-	setTimeout(_fd, true, timeout);
 #endif
 
     repeatRead:	
@@ -231,12 +236,19 @@ IceInternal::Transceiver::read(Buffer& buf, int timeout)
 		goto repeatRead;
 	    }
 
-#ifdef ICEE_USE_SOCKET_TIMEOUT
+#if defined(ICEE_USE_SOCKET_TIMEOUT)
 	    if(wouldBlock())
 	    {
 		throw TimeoutException(__FILE__, __LINE__);
 	    }
+#elif defined(_WIN32)
+	    if(wouldBlock())
+	    {
+		doSelect(true, timeout);
+		continue;
+	    }
 #endif
+	    
 	    if(connectionLost())
 	    {
 		//
@@ -295,6 +307,7 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
     , _isPeerLocal(isPeerLocal(fd))
 #endif
 {
+#ifndef ICEE_USE_SOCKET_TIMEOUT
 #ifdef _WIN32
     _event = WSACreateEvent();
     _readEvent = WSACreateEvent();
@@ -341,22 +354,24 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
     FD_ZERO(&_wFdSet);
     FD_ZERO(&_rFdSet);
 #endif
+#endif
 }
 
 IceInternal::Transceiver::~Transceiver()
 {
     assert(_fd == INVALID_SOCKET);
+#ifndef ICEE_USE_SOCKET_TIMEOUT
 #ifdef _WIN32
     assert(_event == 0);
     assert(_readEvent == 0);
     assert(_writeEvent == 0);
+#endif
 #endif
 }
 
 void
 IceInternal::Transceiver::doSelect(bool read, int timeout)
 {
-    assert(timeout >= 0);
     while(true)
     {
 #ifdef _WIN32
@@ -367,7 +382,8 @@ IceInternal::Transceiver::doSelect(bool read, int timeout)
 	WSAEVENT events[2];
 	events[0] = _event;
 	events[1] = read ? _readEvent : _writeEvent;
-	DWORD rc = WSAWaitForMultipleEvents(2, events, FALSE, timeout, FALSE);
+	long tout = (timeout >= 0) ? timeout : WSA_INFINITE;
+	DWORD rc = WSAWaitForMultipleEvents(2, events, FALSE, tout, FALSE);
 	if(rc == WSA_WAIT_FAILED)
 	{
 	    SocketException ex(__FILE__, __LINE__);

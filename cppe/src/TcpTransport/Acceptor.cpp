@@ -66,7 +66,14 @@ TransceiverPtr
 IceInternal::Acceptor::accept()
 {
     SOCKET fd = doAccept(_fd);
+#if !defined(_WIN32) || defined(ICEE_USE_SOCKET_TIMEOUT)
+    //
+    // TODO: We can't use blocking sockets on Windows yet because 
+    // the transceiver is using WSAEventSelect (which doesn't play
+    // well with blocking sockets).
+    //
     setBlock(fd, true);
+#endif
 
     if(_traceLevels->network >= 1)
     {

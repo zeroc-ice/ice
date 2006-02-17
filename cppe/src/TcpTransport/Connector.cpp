@@ -34,7 +34,14 @@ Connector::connect(int timeout)
     SOCKET fd = createSocket();
     setBlock(fd, false);
     doConnect(fd, _addr, timeout);
+#if !defined(_WIN32) || defined(ICEE_USE_SOCKET_TIMEOUT)
+    //
+    // TODO: We can't use blocking sockets on Windows yet because 
+    // the transceiver is using WSAEventSelect (which doesn't play
+    // well with blocking sockets).
+    //
     setBlock(fd, true);
+#endif
 
     if(_traceLevels->network >= 1)
     {
