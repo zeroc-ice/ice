@@ -24,7 +24,7 @@
 // Comment this out if you want to build without batch mode on the
 // client side.
 //
-//#define ICEE_HAS_BATCH
+#define ICEE_HAS_BATCH
 
 //
 // Comment this out if you want to build without support for blocking
@@ -33,8 +33,8 @@
 //#define ICEE_BLOCKING_CLIENT
 
 //
-// Uncomment this line if you want to build the pure client library with
-// only blocking support.
+// Comment this line if you don't want the pure client library built
+// with only blocking support.
 //
 //#define ICEE_PURE_BLOCKING_CLIENT
 
