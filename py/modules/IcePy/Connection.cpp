@@ -63,6 +63,26 @@ connectionDealloc(ConnectionObject* self)
 #ifdef WIN32
 extern "C"
 #endif
+static int
+connectionCompare(ConnectionObject* c1, ConnectionObject* c2)
+{
+    if(*c1->connection < *c2->connection)
+    {
+        return -1;
+    }
+    else if(*c1->connection == *c2->connection)
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
+}
+
+#ifdef WIN32
+extern "C"
+#endif
 static PyObject*
 connectionClose(ConnectionObject* self, PyObject* args)
 {
@@ -299,7 +319,7 @@ PyTypeObject ConnectionType =
     0,                              /* tp_print */
     0,                              /* tp_getattr */
     0,                              /* tp_setattr */
-    0,                              /* tp_compare */
+    (cmpfunc)connectionCompare,     /* tp_compare */
     0,                              /* tp_repr */
     0,                              /* tp_as_number */
     0,                              /* tp_as_sequence */

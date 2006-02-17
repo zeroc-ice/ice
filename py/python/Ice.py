@@ -11,14 +11,23 @@
 Ice module
 """
 
-import sys, exceptions, string, imp, os, threading
+import sys, exceptions, string, imp, os, threading, dl
+
+#
+# This is necessary for proper operation of Ice plug-ins.
+# Without it, RTTI problems can occur.
+#
+sys.setdlopenflags(dl.RTLD_NOW|dl.RTLD_GLOBAL)
+
+#
+# Import the Python extension.
+#
 import IcePy
 
 #
 # Add some symbols to the Ice module.
 #
 ObjectPrx = IcePy.ObjectPrx
-Endpoint =  IcePy.Endpoint
 identityToString = IcePy.identityToString
 stringToIdentity = IcePy.stringToIdentity
 generateUUID = IcePy.generateUUID
@@ -120,6 +129,7 @@ sliceChecksums = {}
 import Ice_BuiltinSequences_ice
 import Ice_Communicator_ice
 import Ice_Current_ice
+import Ice_Endpoint_ice
 import Ice_Identity_ice
 import Ice_LocalException_ice
 import Ice_Locator_ice
@@ -129,6 +139,12 @@ import Ice_ObjectFactory_ice
 import Ice_Properties_ice
 import Ice_Router_ice
 import Ice_ServantLocator_ice
+
+#
+# Replace Endpoint with our implementation.
+#
+del Endpoint
+Endpoint =  IcePy.Endpoint
 
 #
 # Communicator wrapper.
