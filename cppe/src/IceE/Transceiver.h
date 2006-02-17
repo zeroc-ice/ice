@@ -50,6 +50,8 @@ private:
     friend class Connector;
     friend class Acceptor;
 
+    void doSelect(bool, int);
+
     const TraceLevelsPtr _traceLevels;
     const Ice::LoggerPtr _logger;
     

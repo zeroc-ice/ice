@@ -85,6 +85,7 @@ void shutdownSocketWrite(SOCKET);
 void shutdownSocketReadWrite(SOCKET);
 
 void setBlock(SOCKET, bool);
+void setTimeout(SOCKET, bool, int);
 void setTcpNoDelay(SOCKET);
 void setKeepAlive(SOCKET);
 void setSendBufferSize(SOCKET, int);
@@ -92,7 +93,7 @@ void setSendBufferSize(SOCKET, int);
 void doBind(SOCKET, struct sockaddr_in&);
 void doListen(SOCKET, int);
 void doConnect(SOCKET, struct sockaddr_in&, int);
-SOCKET doAccept(SOCKET, int);
+SOCKET doAccept(SOCKET);
 
 void getAddress(const std::string&, int, struct sockaddr_in&);
 std::string getLocalHost(bool);

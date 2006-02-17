@@ -34,6 +34,7 @@ Connector::connect(int timeout)
     SOCKET fd = createSocket();
     setBlock(fd, false);
     doConnect(fd, _addr, timeout);
+    setBlock(fd, true);
 
     if(_traceLevels->network >= 1)
     {

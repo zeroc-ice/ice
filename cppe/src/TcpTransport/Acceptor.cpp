@@ -63,10 +63,10 @@ IceInternal::Acceptor::listen()
 }
 
 TransceiverPtr
-IceInternal::Acceptor::accept(int timeout)
+IceInternal::Acceptor::accept()
 {
-    SOCKET fd = doAccept(_fd, timeout);
-    setBlock(fd, false);
+    SOCKET fd = doAccept(_fd);
+    setBlock(fd, true);
 
     if(_traceLevels->network >= 1)
     {
@@ -81,7 +81,7 @@ void
 IceInternal::Acceptor::connectToSelf()
 {
     SOCKET fd = createSocket();
-    setBlock(fd, false);
+//    setBlock(fd, false); // No need to use a non blocking socket here.
     doConnect(fd, _addr, -1);
     closeSocket(fd);
 }
@@ -120,7 +120,6 @@ IceInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host,
     try
     {
 	_fd = createSocket();
-	setBlock(_fd, false);
 	getAddress(host, port, _addr);
 	if(_traceLevels->network >= 2)
 	{

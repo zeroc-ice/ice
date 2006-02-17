@@ -38,7 +38,7 @@ public:
     SOCKET fd();
     void close();
     void listen();
-    TransceiverPtr accept(int);
+    TransceiverPtr accept();
     void connectToSelf();
     std::string toString() const;
 

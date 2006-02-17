@@ -334,6 +334,24 @@ IceInternal::setBlock(SOCKET fd, bool block)
     }
 }
 
+#ifdef ICEE_USE_SOCKET_TIMEOUT
+void
+IceInternal::setTimeout(SOCKET fd, bool recv, int timeout)
+{
+    assert(timeout != 0);
+    struct timeval tv;
+    tv.tv_sec = timeout > 0 ? timeout / 1000 : 0;
+    tv.tv_usec = timeout > 0 ? (timeout - tv.tv_sec * 1000) * 1000 : 0;
+    if(setsockopt(fd, SOL_SOCKET, recv ? SO_RCVTIMEO : SO_SNDTIMEO, (char*)&tv, (int)sizeof(timeval)) == SOCKET_ERROR)
+    {
+	closeSocketNoThrow(fd);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
+    }
+}
+#endif
+
 void
 IceInternal::setTcpNoDelay(SOCKET fd)
 {
@@ -924,7 +942,7 @@ IceInternal::acceptInterrupted()
 }
 
 SOCKET
-IceInternal::doAccept(SOCKET fd, int timeout)
+IceInternal::doAccept(SOCKET fd)
 {
     int ret;
 
@@ -936,45 +954,6 @@ repeatAccept:
 	    goto repeatAccept;
 	}
 
-	if(wouldBlock())
-	{
-	repeatSelect:
-	    int rs;
-	    fd_set fdSet;
-	    FD_ZERO(&fdSet);
-	    FD_SET(fd, &fdSet);
-	    if(timeout >= 0)
-	    {
-		struct timeval tv;
-		tv.tv_sec = timeout / 1000;
-		tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-		rs = ::select(fd + 1, &fdSet, 0, 0, &tv);
-	    }
-	    else
-	    {
-		rs = ::select(fd + 1, &fdSet, 0, 0, 0);
-	    }
-	    
-	    if(rs == SOCKET_ERROR)
-	    {
-		if(interrupted())
-		{
-		    goto repeatSelect;
-		}
-		
-		SocketException ex(__FILE__, __LINE__);
-		ex.error = getSocketErrno();
-		throw ex;
-	    }
-	    
-	    if(rs == 0)
-	    {
-		throw TimeoutException(__FILE__, __LINE__);
-	    }
-	    
-	    goto repeatAccept;
-	}
-	
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;

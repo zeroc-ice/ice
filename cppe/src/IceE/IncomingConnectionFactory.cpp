@@ -318,7 +318,7 @@ IceInternal::IncomingConnectionFactory::run()
 	TransceiverPtr transceiver;
 	try
 	{
-	    transceiver = _acceptor->accept(-1);
+	    transceiver = _acceptor->accept();
 	}
 	catch(const SocketException&)
 	{
