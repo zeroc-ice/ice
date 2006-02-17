@@ -3,54 +3,6 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "Thread_PerConnectionTAOC"=.\src\TAO\Thread_Per_Connection\Thread_Per_ConnectionTAOC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "Thread_Per_ConnectionTAOS"=.\src\TAO\Thread_Per_Connection\Thread_Per_ConnectionTAOS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "Thread_PoolTAOC"=.\src\TAO\Thread_Pool\Thread_PoolTAOC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "Thread_PoolTAOS"=.\src\TAO\Thread_Pool\Thread_PoolTAOS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "all"=.\all.dsp - Package Owner=<4>
 
 Package=<5>
@@ -72,22 +24,16 @@ Package=<4>
     Project_Dep_Name throughputIceS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Thread_Per_ConnectionTAOS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Thread_PerConnectionTAOC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Thread_PoolTAOC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Thread_PoolTAOS
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name dummyIceC
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name dummyIceS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name taoC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name taoS
     End Project Dependency
 }}}
 
@@ -130,6 +76,30 @@ Package=<4>
 ###############################################################################
 
 Project: "latencyIceS"=.\src\Ice\latency\latencyIceS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "taoC"=.\src\TAO\taoC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "taoS"=.\src\TAO\taoS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
