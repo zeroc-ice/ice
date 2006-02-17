@@ -110,10 +110,13 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
 
     while(buf.i != buf.b.end())
     {
-#ifndef ICEE_USE_SOCKET_TIMEOUT
-//	doSelect(false, timeout);
-#else
+#if defined(ICEE_USE_SOCKET_TIMEOUT)
 	setTimeout(_fd, false, timeout);
+#elif !defined(_WIN32)
+	if(timeout > 0)
+	{
+	    doSelect(false, timeout);
+	}
 #endif
 
     repeatSend:
@@ -140,18 +143,18 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
 		goto repeatSend;
 	    }
 	    
-#ifdef ICEE_USE_SOCKET_TIMEOUT
+#if defined(ICEE_USE_SOCKET_TIMEOUT)
 	    if(wouldBlock())
 	    {
 		throw TimeoutException(__FILE__, __LINE__);
 	    }
-#endif
-
+#elif defined(_WIN32)
 	    if(wouldBlock())
 	    {
 		doSelect(false, timeout);
 		continue;
 	    }
+#endif
 
 	    if(connectionLost())
 	    {
