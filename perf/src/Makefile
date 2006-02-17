@@ -35,3 +35,9 @@ $(EVERYTHING)::
 	    echo "making $@ in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
+
+ifdef TAO_HOME
+clean::
+	( cd TAO && make realclean )
+	( cd CosEvent && make realclean )
+endif

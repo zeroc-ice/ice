@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="Thread_PoolTAOC" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="taoC" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=Thread_PoolTAOC - Win32 Debug
+CFG=taoC - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "Thread_PoolTAOC.mak".
+!MESSAGE NMAKE /f "taoC.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Thread_PoolTAOC.mak" CFG="Thread_PoolTAOC - Win32 Debug"
+!MESSAGE NMAKE /f "taoC.mak" CFG="taoC - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Thread_PoolTAOC - Win32 Debug" (based on "Win32 (x86) Console Application")
-!MESSAGE "Thread_PoolTAOC - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "taoC - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "taoC - Win32 Release" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,12 +28,12 @@ CFG=Thread_PoolTAOC - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Thread_PoolTAOC - Win32 Debug"
+!IF  "$(CFG)" == "taoC - Win32 Debug"
 
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "."
-# PROP Intermediate_Dir "Debug\Thread_PoolTAOC"
+# PROP Intermediate_Dir "Debug\taoC"
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD MTL /D "_DEBUG" /nologo /mktyplib203 /win32
@@ -48,7 +48,7 @@ LINK32=link.exe
 # ADD LINK32 advapi32.lib user32.lib TAO_Strategiesd.lib TAO_PortableServerd.lib TAOd.lib ACEd.lib IceUtil.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /out:".\client.exe" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ICE_HOME)\lib"
 # SUBTRACT LINK32 /pdb:none
 
-!ELSEIF  "$(CFG)" == "Thread_PoolTAOC - Win32 Release"
+!ELSEIF  "$(CFG)" == "taoC - Win32 Release"
 
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
@@ -72,8 +72,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "Thread_PoolTAOC - Win32 Debug"
-# Name "Thread_PoolTAOC - Win32 Release"
+# Name "taoC - Win32 Debug"
+# Name "taoC - Win32 Release"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;cxx;c"
@@ -162,7 +162,7 @@ SOURCE="README"
 
 SOURCE="Test.idl"
 
-!IF  "$(CFG)" == "Thread_PoolTAOC - Win32 Debug"
+!IF  "$(CFG)" == "taoC - Win32 Debug"
 
 # PROP Ignore_Default_Tool 1
 USERDEP__TEST_="$(TAO_ROOT)\..\bin\Release\tao_idl.exe"	
@@ -199,7 +199,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Thread_PoolTAOC - Win32 Release"
+!ELSEIF  "$(CFG)" == "taoC - Win32 Release"
 
 # PROP Ignore_Default_Tool 1
 USERDEP__TEST_="$(TAO_ROOT)\..\bin\Release\tao_idl.exe"	

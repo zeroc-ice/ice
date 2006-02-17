@@ -146,40 +146,51 @@ def runIceEPerfs(expr, results, i):
 
 def runTAOPerfs(expr, results, i):
 
+    taoTPConf = " -ORBSvcConf svc.threadPool.conf"
+    taoTCConf = " -ORBSvcConf svc.threadPerConnection.conf"
+    taoReactiveConf = " -ORBSvcConf svc.reactive.conf"
+    taoBlockingConf = " -ORBSvcConf svc.blocking.conf"
+
     test = ClientServerTest(expr, results, i, "TAO", "latency twoway")
-    test.run("1tp", "Thread_Pool", "latency twoway", "1")
-    test.run("4tp", "Thread_Pool", "latency twoway", "4")
-    test.run("tpc", "Thread_Per_Connection", "latency twoway", "")
+    test.run("1tp", "", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 1")
+    test.run("4tp", "", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 4")
+    test.run("tpc", "", taoReactiveConf + " latency twoway", taoTCConf)
+    test.run("blocking", "", taoBlockingConf + " latency twoway", taoTCConf)
 
     test = ClientServerTest(expr, results, i, "TAO", "latency oneway")
-    test.run("1tp", "Thread_Pool", "latency oneway", "1")
-    test.run("4tp", "Thread_Pool", "latency oneway", "4")
-    test.run("tpc", "Thread_Per_Connection", "latency oneway", "")
+    test.run("1tp", "", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 1")
+    test.run("4tp", "", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 4")
+    test.run("tpc", "", taoReactiveConf + " latency oneway", taoTCConf)
+    test.run("blocking", "", taoBlockingConf + " latency oneway", taoTCConf)
     
     test = ClientServerTest(expr, results, i, "TAO", "latency twoway AMI")
-    test.run("1tp", "Thread_Pool", "latency twoway ami", "1")
-    test.run("4tp", "Thread_Pool", "latency twoway ami", "4")
-    test.run("tpc", "Thread_Per_Connection", "latency twoway ami", "")
+    test.run("1tp", "", taoReactiveConf + " latency twoway ami", taoTPConf + " threadPool 1")
+    test.run("4tp", "", taoReactiveConf + " latency twoway ami", taoTPConf + " threadPool 4")
+    test.run("tpc", "", taoReactiveConf + " latency twoway ami", taoTCConf)
 
     test = ClientServerTest(expr, results, i, "TAO", "throughput byte")
-    test.run("1tp", "Thread_Pool", "throughput byte", "1")
-    test.run("4tp", "Thread_Pool", "throughput byte", "4")
-    test.run("tpc", "Thread_Per_Connection", "throughput byte", "")
+    test.run("1tp", "", taoReactiveConf + " throughput byte", taoTPConf + " threadPool 1")
+    test.run("4tp", "", taoReactiveConf + " throughput byte", taoTPConf + " threadPool 4")
+    test.run("tpc", "", taoReactiveConf + " throughput byte", taoTCConf)
+    test.run("blocking", "", taoBlockingConf + " throughput byte", taoTCConf)
     
     test = ClientServerTest(expr, results, i, "TAO", "throughput string seq")
-    test.run("1tp", "Thread_Pool", "throughput string", "1")
-    test.run("4tp", "Thread_Pool", "throughput string", "4")
-    test.run("tpc", "Thread_Per_Connection", "throughput string", "")
+    test.run("1tp", "", taoReactiveConf + " throughput string", taoTPConf + " threadPool 1")
+    test.run("4tp", "", taoReactiveConf + " throughput string", taoTPConf + " threadPool 4")
+    test.run("tpc", "", taoReactiveConf + " throughput string", taoTCConf)
+    test.run("blocking", "", taoBlockingConf + " throughput string", taoTCConf)
     
     test = ClientServerTest(expr, results, i, "TAO", "throughput long string seq")
-    test.run("1tp", "Thread_Pool", "throughput longString", "1")
-    test.run("4tp", "Thread_Pool", "throughput longString", "4")
-    test.run("tpc", "Thread_Per_Connection", "throughput longString", "")
+    test.run("1tp", "", taoReactiveConf + " throughput longString", taoTPConf + " threadPool 1")
+    test.run("4tp", "", taoReactiveConf + " throughput longString", taoTPConf + " threadPool 4")
+    test.run("tpc", "", taoReactiveConf + " throughput longString", taoTCConf)
+    test.run("blocking", "", taoBlockingConf + " throughput longString", taoTCConf)
     
     test = ClientServerTest(expr, results, i, "TAO", "throughput struct seq")
-    test.run("1tp", "Thread_Pool", "throughput struct", "1")
-    test.run("4tp", "Thread_Pool", "throughput struct", "4")
-    test.run("tpc", "Thread_Per_Connection", "throughput struct", "")
+    test.run("1tp", "", taoReactiveConf + " throughput struct", taoTPConf + " threadPool 1")
+    test.run("4tp", "", taoReactiveConf + " throughput struct", taoTPConf + " threadPool 4")
+    test.run("tpc", "", taoReactiveConf + " throughput struct", taoTCConf)
+    test.run("blocking", "", taoBlockingConf + " throughput struct", taoTCConf)
 
 def runOmniORBPerfs(expr, results, i, unixSockets):
 
