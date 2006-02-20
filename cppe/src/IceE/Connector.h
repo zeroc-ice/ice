@@ -37,7 +37,7 @@ public:
     
 private:
     
-    Connector(const InstancePtr&, const std::string&, int);
+    Connector(const InstancePtr&, const std::string&, int, int);
     virtual ~Connector();
     friend class TcpEndpoint;
 
@@ -45,6 +45,7 @@ private:
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
     struct sockaddr_in _addr;
+    int _timeout;
 };
 
 }

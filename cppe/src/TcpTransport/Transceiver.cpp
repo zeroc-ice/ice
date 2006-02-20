@@ -39,7 +39,7 @@ IceInternal::Transceiver::close()
 	out << "closing tcp connection\n" << toString();
     }
 
-#ifndef ICEE_USE_SOCKET_TIMEOUT
+#ifdef ICEE_USE_SOCKET_TIMEOUT
 #ifdef _WIN32
     assert(_event != 0);
     WSACloseEvent(_event);
@@ -93,8 +93,6 @@ IceInternal::Transceiver::shutdownReadWrite()
 void
 IceInternal::Transceiver::write(Buffer& buf, int timeout)
 {
-    assert(timeout != 0);
-
     Buffer::Container::difference_type packetSize = 
         static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
 
@@ -108,81 +106,99 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
     }
 #endif
 
-    while(buf.i != buf.b.end())
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+    if(timeout > 0 && timeout != _timeout)
     {
-#if defined(ICEE_USE_SOCKET_TIMEOUT)
 	setTimeout(_fd, false, timeout);
-#elif !defined(_WIN32)
-	if(timeout > 0)
-	{
-	    doSelect(false, timeout);
-	}
+    }
+
+    try
+    {	
 #endif
-
-    repeatSend:
-	assert(_fd != INVALID_SOCKET);
-	ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&*buf.i), packetSize, 0);
-
-	if(ret == 0)
+	while(buf.i != buf.b.end())
 	{
-	    ConnectionLostException ex(__FILE__, __LINE__);
-	    ex.error = 0;
-	    throw ex;
-	}
+	repeatSend:
+	    assert(_fd != INVALID_SOCKET);
+	    ssize_t ret = ::send(_fd, reinterpret_cast<const char*>(&*buf.i), packetSize, 0);
 
-	if(ret == SOCKET_ERROR)
-	{
-	    if(interrupted())
-	    {
-		goto repeatSend;
-	    }
-
-	    if(noBuffers() && packetSize > 1024)
-	    {
-		packetSize /= 2;
-		goto repeatSend;
-	    }
-	    
-#if defined(ICEE_USE_SOCKET_TIMEOUT)
-	    if(wouldBlock())
-	    {
-		throw TimeoutException(__FILE__, __LINE__);
-	    }
-#elif defined(_WIN32)
-	    if(wouldBlock())
-	    {
-		doSelect(false, timeout);
-		continue;
-	    }
-#endif
-
-	    if(connectionLost())
+	    if(ret == 0)
 	    {
 		ConnectionLostException ex(__FILE__, __LINE__);
-		ex.error = getSocketErrno();
+		ex.error = 0;
 		throw ex;
 	    }
-	    else
+
+	    if(ret == SOCKET_ERROR)
 	    {
-		SocketException ex(__FILE__, __LINE__);
-		ex.error = getSocketErrno();
-		throw ex;
+		if(interrupted())
+		{
+		    goto repeatSend;
+		}
+
+		if(noBuffers() && packetSize > 1024)
+		{
+		    packetSize /= 2;
+		    goto repeatSend;
+		}
+	    
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+		if(wouldBlock())
+		{
+		    throw TimeoutException(__FILE__, __LINE__);
+		}
+#else
+		if(wouldBlock())
+		{
+		    doSelect(false, timeout > 0 ? timeout : _timeout);
+		    continue;
+		}
+#endif
+
+		if(connectionLost())
+		{
+		    ConnectionLostException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
+		}
+		else
+		{
+		    SocketException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
+		}
+	    }
+
+	    if(_traceLevels->network >= 3)
+	    {
+		Trace out(_logger, _traceLevels->networkCat);
+		out << Ice::printfToString("sent %d of %d", ret, packetSize) << " bytes via tcp\n" << toString();
+	    }
+
+	    buf.i += ret;
+
+	    if(packetSize > buf.b.end() - buf.i)
+	    {
+		packetSize = static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
 	    }
 	}
-
-	if(_traceLevels->network >= 3)
-	{
-	    Trace out(_logger, _traceLevels->networkCat);
-	    out << Ice::printfToString("sent %d of %d", ret, packetSize) << " bytes via tcp\n" << toString();
-	}
-
-	buf.i += ret;
-
-	if(packetSize > buf.b.end() - buf.i)
-	{
-	    packetSize = static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
-	}
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
     }
+    catch(const Ice::LocalException&)
+    {
+	if(timeout > 0 && timeout != _timeout)
+	{
+	    try
+	    {
+		setTimeout(_fd, false, _timeout);
+	    }
+	    catch(const Ice::LocalException&)
+	    {
+		// IGNORE
+	    }
+	}
+	throw;
+    }
+#endif
 }
 
 void
@@ -191,102 +207,119 @@ IceInternal::Transceiver::read(Buffer& buf, int timeout)
     assert(timeout != 0);
 
     Buffer::Container::difference_type packetSize = 
-        static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
-    
-    while(buf.i != buf.b.end())
+	static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
+
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS    
+    if(timeout > 0 && timeout != _timeout)
     {
-#if defined(ICEE_USE_SOCKET_TIMEOUT)
 	setTimeout(_fd, true, timeout);
-#elif !defined(_WIN32)
-	if(timeout > 0)
-	{
-	    doSelect(true, timeout);
-	}
+    }
+    try
+    {
 #endif
-
-    repeatRead:	
-	assert(_fd != INVALID_SOCKET);
-	ssize_t ret = ::recv(_fd, reinterpret_cast<char*>(&*buf.i), packetSize, 0);
-	
-	if(ret == 0)
+	while(buf.i != buf.b.end())
 	{
-	    //
-	    // If the connection is lost when reading data, we shut
-	    // down the write end of the socket. This helps to unblock
-	    // threads that are stuck in send() or select() while
-	    // sending data. Note: I don't really understand why
-	    // send() or select() sometimes don't detect a connection
-	    // loss. Therefore this helper to make them detect it.
-	    //
-	    //assert(_fd != INVALID_SOCKET);
-	    //shutdownSocketReadWrite(_fd);
+	repeatRead:	
+	    assert(_fd != INVALID_SOCKET);
+	    ssize_t ret = ::recv(_fd, reinterpret_cast<char*>(&*buf.i), packetSize, 0);
 	    
-	    ConnectionLostException ex(__FILE__, __LINE__);
-	    ex.error = 0;
-	    throw ex;
-	}
-
-	if(ret == SOCKET_ERROR)
-	{
-	    if(interrupted())
-	    {
-		goto repeatRead;
-	    }
-	    
-	    if(noBuffers() && packetSize > 1024)
-	    {
-		packetSize /= 2;
-		goto repeatRead;
-	    }
-
-#if defined(ICEE_USE_SOCKET_TIMEOUT)
-	    if(wouldBlock())
-	    {
-		throw TimeoutException(__FILE__, __LINE__);
-	    }
-#elif defined(_WIN32)
-	    if(wouldBlock())
-	    {
-		doSelect(true, timeout);
-		continue;
-	    }
-#endif
-	    
-	    if(connectionLost())
+	    if(ret == 0)
 	    {
 		//
-		// See the commment above about shutting down the
-		// socket if the connection is lost while reading
-		// data.
+		// If the connection is lost when reading data, we shut
+		// down the write end of the socket. This helps to unblock
+		// threads that are stuck in send() or select() while
+		// sending data. Note: I don't really understand why
+		// send() or select() sometimes don't detect a connection
+		// loss. Therefore this helper to make them detect it.
 		//
 		//assert(_fd != INVALID_SOCKET);
 		//shutdownSocketReadWrite(_fd);
-
+		
 		ConnectionLostException ex(__FILE__, __LINE__);
-		ex.error = getSocketErrno();
+		ex.error = 0;
 		throw ex;
 	    }
-	    else
+	    
+	    if(ret == SOCKET_ERROR)
 	    {
-		SocketException ex(__FILE__, __LINE__);
-		ex.error = getSocketErrno();
-		throw ex;
+		if(interrupted())
+		{
+		    goto repeatRead;
+		}
+		
+		if(noBuffers() && packetSize > 1024)
+		{
+		    packetSize /= 2;
+		    goto repeatRead;
+		}
+		
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+		if(wouldBlock())
+		{
+		    throw TimeoutException(__FILE__, __LINE__);
+		}
+#else
+		if(wouldBlock())
+		{
+		    doSelect(true, timeout > 0 ? timeout : _timeout);
+		    continue;
+		}
+#endif
+	    
+		if(connectionLost())
+		{
+		    //
+		    // See the commment above about shutting down the
+		    // socket if the connection is lost while reading
+		    // data.
+		    //
+		    //assert(_fd != INVALID_SOCKET);
+		    //shutdownSocketReadWrite(_fd);
+		    
+		    ConnectionLostException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
+		}
+		else
+		{
+		    SocketException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
+		}
+	    }
+	    
+	    if(_traceLevels->network >= 3)
+	    {
+		Trace out(_logger, _traceLevels->networkCat);
+		out << Ice::printfToString("received %d of %d", ret, packetSize) << " bytes via tcp\n" << toString();
+	    }
+	    
+	    buf.i += ret;
+	    
+	    if(packetSize > buf.b.end() - buf.i)
+	    {
+		packetSize = static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
 	    }
 	}
-
-	if(_traceLevels->network >= 3)
-	{
-	    Trace out(_logger, _traceLevels->networkCat);
-	    out << Ice::printfToString("received %d of %d", ret, packetSize) << " bytes via tcp\n" << toString();
-	}
-
-	buf.i += ret;
-
-	if(packetSize > buf.b.end() - buf.i)
-	{
-	    packetSize = static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
-	}
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
     }
+    catch(const Ice::LocalException&)
+    {
+	if(timeout > 0 && timeout != _timeout)
+	{
+	    try
+	    {
+		setTimeout(_fd, true, _timeout);
+	    }
+	    catch(const Ice::LocalException&)
+	    {
+		// IGNORE
+	    }
+	}
+	throw;
+    }
+#endif
 }
 
 string
@@ -301,16 +334,25 @@ IceInternal::Transceiver::toString() const
     return _desc;
 }
 
-IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
+IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd, int timeout) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
     _fd(fd),
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+    _timeout(timeout),
+#endif
     _desc(fdToString(fd))
 #ifdef _WIN32
     , _isPeerLocal(isPeerLocal(fd))
 #endif
 {
-#ifndef ICEE_USE_SOCKET_TIMEOUT
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+    if(_timeout > 0)
+    {
+	setTimeout(_fd, false, _timeout);
+	setTimeout(_fd, true, _timeout);
+    }
+#else
 #ifdef _WIN32
     _event = WSACreateEvent();
     _readEvent = WSACreateEvent();
@@ -363,7 +405,7 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
 IceInternal::Transceiver::~Transceiver()
 {
     assert(_fd == INVALID_SOCKET);
-#ifndef ICEE_USE_SOCKET_TIMEOUT
+#ifdef ICEE_USE_SOCKET_TIMEOUT
 #ifdef _WIN32
     assert(_event == 0);
     assert(_readEvent == 0);
@@ -372,6 +414,7 @@ IceInternal::Transceiver::~Transceiver()
 #endif
 }
 
+#ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
 void
 IceInternal::Transceiver::doSelect(bool read, int timeout)
 {
@@ -534,3 +577,4 @@ IceInternal::Transceiver::doSelect(bool read, int timeout)
 #endif
     }
 }
+#endif

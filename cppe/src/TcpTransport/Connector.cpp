@@ -34,12 +34,7 @@ Connector::connect(int timeout)
     SOCKET fd = createSocket();
     setBlock(fd, false);
     doConnect(fd, _addr, timeout);
-#if !defined(_WIN32) || defined(ICEE_USE_SOCKET_TIMEOUT)
-    //
-    // TODO: We can't use blocking sockets on Windows yet because 
-    // the transceiver is using WSAEventSelect (which doesn't play
-    // well with blocking sockets).
-    //
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
     setBlock(fd, true);
 #endif
 
@@ -49,7 +44,7 @@ Connector::connect(int timeout)
 	out << "tcp connection established\n" << fdToString(fd);
     }
 
-    return new Transceiver(_instance, fd);
+    return new Transceiver(_instance, fd, _timeout);
 }
 
 string
@@ -58,10 +53,11 @@ Connector::toString() const
     return addrToString(_addr);
 }
 
-Connector::Connector(const InstancePtr& instance, const string& host, int port) :
+Connector::Connector(const InstancePtr& instance, const string& host, int port, int timeout) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
-    _logger(instance->logger())
+    _logger(instance->logger()),
+    _timeout(timeout)
 {
     getAddress(host, port, _addr);
 }

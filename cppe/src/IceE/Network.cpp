@@ -334,7 +334,7 @@ IceInternal::setBlock(SOCKET fd, bool block)
     }
 }
 
-#ifdef ICEE_USE_SOCKET_TIMEOUT
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
 void
 IceInternal::setTimeout(SOCKET fd, bool recv, int timeout)
 {

@@ -66,12 +66,7 @@ TransceiverPtr
 IceInternal::Acceptor::accept()
 {
     SOCKET fd = doAccept(_fd);
-#if !defined(_WIN32) || defined(ICEE_USE_SOCKET_TIMEOUT)
-    //
-    // TODO: We can't use blocking sockets on Windows yet because 
-    // the transceiver is using WSAEventSelect (which doesn't play
-    // well with blocking sockets).
-    //
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
     setBlock(fd, true);
 #endif
 
@@ -81,14 +76,14 @@ IceInternal::Acceptor::accept()
 	out << "accepted tcp connection\n" << fdToString(fd);
     }
 
-    return new Transceiver(_instance, fd);
+    return new Transceiver(_instance, fd, _timeout);
 }
 
 void
 IceInternal::Acceptor::connectToSelf()
 {
     SOCKET fd = createSocket();
-//    setBlock(fd, false); // No need to use a non blocking socket here.
+    setBlock(fd, false);
     doConnect(fd, _addr, -1);
     closeSocket(fd);
 }
@@ -113,11 +108,12 @@ IceInternal::Acceptor::effectivePort()
     return ntohs(_addr.sin_port);
 }
 
-IceInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host, int port) :
+IceInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host, int port, int timeout) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
-    _backlog(0)
+    _backlog(0),
+    _timeout(timeout)
 {
     if(_backlog <= 0)
     {

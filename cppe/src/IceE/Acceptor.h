@@ -47,7 +47,7 @@ public:
 
 private:
 
-    Acceptor(const InstancePtr&, const std::string&, int);
+    Acceptor(const InstancePtr&, const std::string&, int, int);
     virtual ~Acceptor();
     friend class TcpEndpoint;
 
@@ -57,6 +57,7 @@ private:
     SOCKET _fd;
     int _backlog;
     struct sockaddr_in _addr;
+    int _timeout;
 };
 
 }

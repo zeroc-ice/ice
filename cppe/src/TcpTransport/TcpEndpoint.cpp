@@ -224,7 +224,7 @@ IceInternal::TcpEndpoint::unknown() const
 ConnectorPtr
 IceInternal::TcpEndpoint::connector() const
 {
-    return new Connector(_instance, _host, _port);
+    return new Connector(_instance, _host, _port, _timeout);
 }
 
 bool
@@ -376,7 +376,7 @@ IceInternal::TcpEndpoint::expand(bool includeLoopback) const
 AcceptorPtr
 IceInternal::TcpEndpoint::acceptor(EndpointPtr& endp) const
 {
-    Acceptor* p = new Acceptor(_instance, _host, _port);
+    Acceptor* p = new Acceptor(_instance, _host, _port, _timeout);
     endp = new TcpEndpoint(_instance, _host, p->effectivePort(), _timeout, _publish);
     return p;
 }

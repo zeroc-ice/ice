@@ -1861,7 +1861,14 @@ Ice::Connection::run()
 	//
 
 	BasicStream stream(_instance.get());
-	readStream(stream);
+	try
+	{
+	    readStream(stream);
+	}
+	catch(const Ice::TimeoutException&)
+	{
+	    continue;
+	}
 
 	Int requestId = 0;
 #ifndef ICEE_PURE_CLIENT

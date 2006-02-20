@@ -45,17 +45,20 @@ public:
 
 private:
 
-    Transceiver(const InstancePtr&, SOCKET);
+    Transceiver(const InstancePtr&, SOCKET, int);
     virtual ~Transceiver();
     friend class Connector;
     friend class Acceptor;
 
+#ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
     void doSelect(bool, int);
+#endif
 
     const TraceLevelsPtr _traceLevels;
     const Ice::LoggerPtr _logger;
     
     SOCKET _fd;
+#ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
 #ifdef _WIN32
     WSAEVENT _event;
     WSAEVENT _readEvent;
@@ -63,6 +66,9 @@ private:
 #else
     fd_set _wFdSet;
     fd_set _rFdSet;
+#endif
+#else
+    const int _timeout;
 #endif
 
     const std::string _desc;
