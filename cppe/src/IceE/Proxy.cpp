@@ -172,13 +172,13 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	{
 	    __checkTwowayOnly("ice_isA");
 	    static const string __operation("ice_isA");
-	    __checkConnection();
+	    ConnectionPtr __connection = ice_connection();
 #ifdef ICEE_BLOCKING_CLIENT
 #  ifndef ICEE_PURE_BLOCKING_CLIENT
-            if(_connection->blocking())
+            if(__connection->blocking())
 #  endif
             {
-                Outgoing __og(_connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
+                Outgoing __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
                 return __ice_isA(__id, __og);
             }
 #  ifndef ICEE_PURE_BLOCKING_CLIENT
@@ -187,7 +187,7 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 #endif
 #ifndef ICEE_PURE_BLOCKING_CLIENT
             {
-                OutgoingM __og(_connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
+                OutgoingM __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
                 return __ice_isA(__id, __og);
             }
 #endif
@@ -264,13 +264,13 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 	try
 	{
             static const string __operation("ice_ping");
-	    __checkConnection();
+	    ConnectionPtr __connection = ice_connection();
 #ifdef ICEE_BLOCKING_CLIENT
 #  ifndef ICEE_PURE_BLOCKING_CLIENT
-            if(_connection->blocking())
+            if(__connection->blocking())
 #  endif
             {
-                Outgoing __og(_connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
+                Outgoing __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
                 __ice_ping(__og);
             }
 #  ifndef ICEE_PURE_BLOCKING_CLIENT
@@ -279,7 +279,7 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 #endif
 #ifndef ICEE_PURE_BLOCKING_CLIENT
             {
-                OutgoingM __og(_connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
+                OutgoingM __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
                 __ice_ping(__og);
             }
 #endif
@@ -348,13 +348,13 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 	{
 	    __checkTwowayOnly("ice_ids");
             static const string __operation("ice_ids");
-	    __checkConnection();
+	    ConnectionPtr __connection = ice_connection();
 #ifdef ICEE_BLOCKING_CLIENT
 #  ifndef ICEE_PURE_BLOCKING_CLIENT
-            if(_connection->blocking())
+            if(__connection->blocking())
 #  endif
             {
-                Outgoing __og(_connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
+                Outgoing __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
                 return __ice_ids(__og);
             }
 #  ifndef ICEE_PURE_BLOCKING_CLIENT
@@ -363,7 +363,7 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 #endif
 #ifndef ICEE_PURE_BLOCKING_CLIENT
             {
-                OutgoingM __og(_connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
+                OutgoingM __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
                 return __ice_ids(__og);
             }
 #endif
@@ -432,13 +432,13 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 	{
 	    __checkTwowayOnly("ice_id");
             static const string __operation("ice_id");
-	    __checkConnection();
+	    ConnectionPtr __connection = ice_connection();
 #ifdef ICEE_BLOCKING_CLIENT
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-            if(_connection->blocking())
+            if(__connection->blocking())
 #endif
             {
-                Outgoing __og(_connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
+                Outgoing __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
                 return __ice_id(__og);
             }
 #  ifndef ICEE_PURE_BLOCKING_CLIENT
@@ -447,7 +447,7 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 #endif
 #ifndef ICEE_PURE_BLOCKING_CLIENT
             {
-                OutgoingM __og(_connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
+                OutgoingM __og(__connection.get(), _reference.get(), __operation, ::Ice::Nonmutating, __context);
                 return __ice_id(__og);
             }
 #endif
@@ -692,6 +692,25 @@ IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
 ConnectionPtr
 IceProxy::Ice::Object::ice_connection()
 {
+    ::IceUtil::Mutex::Lock sync(*this);
+
+    if(!_connection)
+    {
+        _connection = _reference->getConnection();
+
+        //
+        // If this proxy is for a non-local object, and we are
+        // using a router, then add this proxy to the router info
+        // object.
+        //
+#ifdef ICEE_HAS_ROUTER
+        RoutableReferencePtr rr = RoutableReferencePtr::dynamicCast(_reference);
+        if(rr && rr->getRouterInfo())
+        {
+            rr->getRouterInfo()->addProxy(this);
+        }
+#endif
+    }
     return _connection;
 }
 
@@ -786,31 +805,6 @@ IceProxy::Ice::Object::__defaultContext() const
 {
     return _reference->getContext();
 }
-
-void
-IceProxy::Ice::Object::__checkConnection() 
-{
-    ::IceUtil::Mutex::Lock sync(*this);
-
-    if(!_connection)
-    {
-        _connection = _reference->getConnection();
-
-        //
-        // If this proxy is for a non-local object, and we are
-        // using a router, then add this proxy to the router info
-        // object.
-        //
-#ifdef ICEE_HAS_ROUTER
-        RoutableReferencePtr rr = RoutableReferencePtr::dynamicCast(_reference);
-        if(rr && rr->getRouterInfo())
-        {
-            rr->getRouterInfo()->addProxy(this);
-        }
-#endif
-    }
-}
-
 
 void
 IceProxy::Ice::Object::setup(const ReferencePtr& ref)

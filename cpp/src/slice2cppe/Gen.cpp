@@ -1425,17 +1425,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "__checkTwowayOnly(\"" << name << "\");";
     }
     C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
-    C << nl << "__checkConnection();";
+    C << nl << "::Ice::ConnectionPtr __connection = ice_connection();";
     C.zeroIndent();
     C << nl << "#ifdef ICEE_BLOCKING_CLIENT";
     C << nl << "#  ifndef ICEE_PURE_BLOCKING_CLIENT";
     C.restoreIndent();
-    C << nl << "if(_connection->blocking())";
+    C << nl << "if(__connection->blocking())";
     C.zeroIndent();
     C << nl << "#  endif";
     C.restoreIndent();
     C << sb;
-    C << nl << "::IceInternal::Outgoing __out(_connection.get(), _reference.get(), __operation, "
+    C << nl << "::IceInternal::Outgoing __out(__connection.get(), _reference.get(), __operation, "
       << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
     C << nl;
     if(ret)
@@ -1454,7 +1454,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "#ifndef ICEE_PURE_BLOCKING_CLIENT";
     C.restoreIndent();
     C << sb;
-    C << nl << "::IceInternal::OutgoingM __out(_connection.get(), _reference.get(), __operation, "
+    C << nl << "::IceInternal::OutgoingM __out(__connection.get(), _reference.get(), __operation, "
       << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
     C << nl;
     if(ret)

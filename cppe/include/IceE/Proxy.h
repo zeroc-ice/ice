@@ -156,9 +156,7 @@ public:
 protected:
 
     const ::Ice::Context& __defaultContext() const;
-    void __checkConnection();
 
-    ::Ice::ConnectionPtr _connection;
     ::IceInternal::ReferencePtr _reference;
 
 private:
@@ -170,6 +168,8 @@ private:
 
     void setup(const ::IceInternal::ReferencePtr&);
     friend class ::IceInternal::ProxyFactory;
+
+    ::Ice::ConnectionPtr _connection;
 };
 
 } }

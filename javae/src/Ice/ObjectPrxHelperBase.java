@@ -53,8 +53,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
 	        __checkTwowayOnly("ice_isA");
-		__checkConnection();
-                IceInternal.Outgoing __og = _connection.getOutgoing(_reference, "ice_isA", OperationMode.Nonmutating,
+		Connection __connection = ice_connection();
+                IceInternal.Outgoing __og = __connection.getOutgoing(_reference, "ice_isA", OperationMode.Nonmutating,
                                                                      __context);
                 try
                 {
@@ -88,7 +88,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
                 }
                 finally
                 {
-                    _connection.reclaimOutgoing(__og);
+                    __connection.reclaimOutgoing(__og);
                 }
             }
             catch(IceInternal.NonRepeatable __ex)
@@ -117,8 +117,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
 	        __checkTwowayOnly("ice_ping");
-		__checkConnection();
-                IceInternal.Outgoing __og = _connection.getOutgoing(_reference, "ice_ping", OperationMode.Nonmutating,
+		Connection __connection = ice_connection();
+                IceInternal.Outgoing __og = __connection.getOutgoing(_reference, "ice_ping", OperationMode.Nonmutating,
                                                                     __context);
                 try
                 {
@@ -142,7 +142,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
                 }
                 finally
                 {
-                   _connection.reclaimOutgoing(__og);
+                   __connection.reclaimOutgoing(__og);
                 }
                 return;
             }
@@ -172,8 +172,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
 	        __checkTwowayOnly("ice_ids");
-	        __checkConnection();
-                IceInternal.Outgoing __og = _connection.getOutgoing(_reference, "ice_ids", OperationMode.Nonmutating,
+	        Connection __connection = ice_connection();
+                IceInternal.Outgoing __og = __connection.getOutgoing(_reference, "ice_ids", OperationMode.Nonmutating,
                                                                     __context);
                 try
                 {
@@ -198,7 +198,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
                 }
                 finally
                 {
-                    _connection.reclaimOutgoing(__og);
+                    __connection.reclaimOutgoing(__og);
                 }
             }
             catch(IceInternal.NonRepeatable __ex)
@@ -227,8 +227,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
             try
             {
 	        __checkTwowayOnly("ice_id");
-	        __checkConnection();
-                IceInternal.Outgoing __og = _connection.getOutgoing(_reference, "ice_id", OperationMode.Nonmutating,
+	        Connection __connection = ice_connection();
+                IceInternal.Outgoing __og = __connection.getOutgoing(_reference, "ice_id", OperationMode.Nonmutating,
                                                                     __context);
                 try
                 {
@@ -253,7 +253,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
                 }
                 finally
                 {
-                    _connection.reclaimOutgoing(__og);
+                    __connection.reclaimOutgoing(__og);
                 }
             }
             catch(IceInternal.NonRepeatable __ex)
@@ -450,9 +450,30 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
-    public final Connection
+    public synchronized final Connection
     ice_connection()
     {
+	if(_connection == null)
+	{
+	    _connection = _reference.getConnection();
+
+            //
+            // If this proxy is for a non-local object, and we are
+            // using a router, then add this proxy to the router info
+            // object.
+            //
+	    try
+	    {
+	        IceInternal.RoutableReference rr = (IceInternal.RoutableReference)_reference;
+	        if(rr != null && rr.getRouterInfo() != null)
+	        {
+	            rr.getRouterInfo().addProxy(this);
+	        }
+	    }
+	    catch(ClassCastException e)
+	    {
+	    }
+	}
 	return _connection;
     }
 
@@ -552,32 +573,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
         return _reference.getContext();
     }
 
-    protected synchronized void
-    __checkConnection()
-    {
-	if(_connection == null)
-	{
-	    _connection = _reference.getConnection();
-
-            //
-            // If this proxy is for a non-local object, and we are
-            // using a router, then add this proxy to the router info
-            // object.
-            //
-	    try
-	    {
-	        IceInternal.RoutableReference rr = (IceInternal.RoutableReference)_reference;
-	        if(rr != null && rr.getRouterInfo() != null)
-	        {
-	            rr.getRouterInfo().addProxy(this);
-	        }
-	    }
-	    catch(ClassCastException e)
-	    {
-	    }
-	}
-    }
-
     //
     // Only for use by IceInternal.ProxyFactory
     //
@@ -599,5 +594,5 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     protected IceInternal.Reference _reference;
-    protected Connection _connection;
+    private Connection _connection;
 }

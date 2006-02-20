@@ -2212,8 +2212,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    out << nl << "__checkTwowayOnly(\"" << opName << "\");";
 	}
-	out << nl << "__checkConnection();";
-        out << nl << "IceInternal.Outgoing __og = _connection.getOutgoing(_reference, \"" << op->name() << "\", "
+	out << nl << "Ice.Connection __connection = ice_connection();";
+        out << nl << "IceInternal.Outgoing __og = __connection.getOutgoing(_reference, \"" << op->name() << "\", "
             << sliceModeToIceMode(op) << ", __ctx);";
         out << nl << "try";
         out << sb;
@@ -2280,7 +2280,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << nl << "finally";
         out << sb;
-        out << nl << "_connection.reclaimOutgoing(__og);";
+        out << nl << "__connection.reclaimOutgoing(__og);";
         out << eb;
 	if(!ret)
 	{
