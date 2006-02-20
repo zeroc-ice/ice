@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceE/DisableWarnings.h>
 #include <IceE/IceE.h>
 #include <TestCommon.h>
 #include <Test.h>
