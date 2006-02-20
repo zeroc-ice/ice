@@ -142,7 +142,7 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
 		}
 	    
 #ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
-		if(wouldBlock())
+		if(timedout())
 		{
 		    throw TimeoutException(__FILE__, __LINE__);
 		}
@@ -255,7 +255,7 @@ IceInternal::Transceiver::read(Buffer& buf, int timeout)
 		}
 		
 #ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
-		if(wouldBlock())
+		if(timedout())
 		{
 		    throw TimeoutException(__FILE__, __LINE__);
 		}

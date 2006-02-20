@@ -92,6 +92,16 @@ IceInternal::wouldBlock()
 }
 
 bool
+IceInternal::timedout()
+{
+#ifdef _WIN32
+    return WSAGetLastError() == WSAETIMEDOUT;
+#else
+    return errno == EAGAIN || errno == EWOULDBLOCK;
+#endif
+}
+
+bool
 IceInternal::connectFailed()
 {
 #ifdef _WIN32

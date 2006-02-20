@@ -73,6 +73,7 @@ bool interrupted();
 bool acceptInterrupted();
 bool noBuffers();
 bool wouldBlock();
+bool timedout();
 bool connectFailed();
 bool connectionRefused();
 bool connectInProgress();
