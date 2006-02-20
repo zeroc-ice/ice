@@ -943,6 +943,8 @@ Ice::Connection::Connection(const InstancePtr& instance,
     {
 	_transceiver->setTimeouts(-1, _endpoint->timeout());
     }
+#elif defined(ICEE_BLOCKING_CLIENT) && defined(ICEE_PURE_BLOCKING_CLIENT)
+    _transceiver->setTimeouts(_endpoint->timeout(), _endpoint->timeout());
 #else
     _transceiver->setTimeouts(-1, _endpoint->timeout());
 #endif
