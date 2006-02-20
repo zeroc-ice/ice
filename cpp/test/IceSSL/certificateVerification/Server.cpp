@@ -152,8 +152,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     kmAdapter->activate();
 
     const string pingerEndpoints =
-	"ssl -p 12345 -t 10000"
-	":ssl -p 12346 -t 10000"
+	"ssl -p 12010 -t 10000"
+	":ssl -p 12011 -t 10000"
 	":ssl -p 12347 -t 10000"
 	":ssl -p 12348 -t 10000"
 	":ssl -p 12349 -t 10000";

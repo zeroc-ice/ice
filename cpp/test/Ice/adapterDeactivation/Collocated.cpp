@@ -33,7 +33,7 @@ main(int argc, char* argv[])
 int
 TestServer::run(int argc, char* argv[])
 {
-    communicator()->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
+    communicator()->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
     ServantLocatorPtr locator = new ServantLocatorI;
     adapter->addServantLocator(locator, "");

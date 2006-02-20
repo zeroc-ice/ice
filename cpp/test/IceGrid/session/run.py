@@ -29,11 +29,11 @@ client = os.path.join(testdir, "client")
 # Add locator options for the client and server. Since the server
 # invokes on the locator it's also considered to be a client.
 #
-additionalOptions = " --Ice.Default.Locator=\"IceGrid/Locator:default -p 12345\" " + \
+additionalOptions = " --Ice.Default.Locator=\"IceGrid/Locator:default -p 12010\" " + \
     "--Ice.PrintAdapterReady=0 --Ice.PrintProcessId=0 --IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\""
 
 IceGridAdmin.cleanDbDir(os.path.join(testdir, "db"))
-iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir, 0)
+iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12010", testdir, 0)
 iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 
 node1Dir = os.path.join(testdir, "db", "node-1")

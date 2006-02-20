@@ -137,7 +137,7 @@ CallbackClient::run(int argc, char* argv[])
 
     {
 	cout << "testing stringToProxy for server object... " << flush;
-	base = communicator()->stringToProxy("c1/callback:tcp -p 12345 -t 10000");
+	base = communicator()->stringToProxy("c1/callback:tcp -p 12010 -t 10000");
 	cout << "ok" << endl;
     }
 	

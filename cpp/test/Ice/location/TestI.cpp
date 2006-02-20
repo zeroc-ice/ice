@@ -50,7 +50,7 @@ ServerManagerI::startServer(const Ice::Current&)
     serverCommunicator->getProperties()->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
     Ice::ObjectAdapterPtr adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
 
-    Ice::ObjectPrx locator = serverCommunicator->stringToProxy("locator:default -p 12345");
+    Ice::ObjectPrx locator = serverCommunicator->stringToProxy("locator:default -p 12010");
     adapter->setLocator(Ice::LocatorPrx::uncheckedCast(locator));
     adapter2->setLocator(Ice::LocatorPrx::uncheckedCast(locator));
 

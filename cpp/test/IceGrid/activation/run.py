@@ -28,14 +28,14 @@ testdir = os.path.join(toplevel, "test", name)
 # Add locator options for the client and server. Since the server
 # invokes on the locator it's also considered to be a client.
 #
-additionalOptions = " --Ice.Default.Locator=\"IceGrid/Locator:default -p 12345\""
+additionalOptions = " --Ice.Default.Locator=\"IceGrid/Locator:default -p 12010\""
 
 IceGridAdmin.cleanDbDir(os.path.join(testdir, "db"))
 
 #
 # Start IceGrid registry and a node.
 #
-iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12345", testdir, 0)
+iceGridRegistryThread = IceGridAdmin.startIceGridRegistry("12010", testdir, 0)
 iceGridNodeThread = IceGridAdmin.startIceGridNode(testdir)
 
 #

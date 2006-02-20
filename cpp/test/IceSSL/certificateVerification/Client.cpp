@@ -19,8 +19,8 @@ using namespace Test;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    const string ref1 = "pinger:ssl -p 12345 -t 10000";
-    const string ref2 = "pinger:ssl -p 12346 -t 10000";
+    const string ref1 = "pinger:ssl -p 12010 -t 10000";
+    const string ref2 = "pinger:ssl -p 12011 -t 10000";
     const string ref3 = "pinger:ssl -p 12347 -t 10000";
     const string ref4 = "pinger:ssl -p 12348 -t 10000";
     const string ref5 = "pinger:ssl -p 12349 -t 10000";

@@ -31,7 +31,7 @@ main(int argc, char* argv[])
 int
 CallbackServer::run(int argc, char* argv[])
 {
-    communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", "tcp -p 12345 -t 10000");
+    communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", "tcp -p 12010 -t 10000");
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackAdapter");
     adapter->add(new CallbackI(), stringToIdentity("c1/callback")); // The test allows "c1" as category.
     adapter->add(new CallbackI(), stringToIdentity("c2/callback")); // The test allows "c2" as category.

@@ -34,7 +34,7 @@ main(int argc, char** argv)
     try
     {
         Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
-	properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
+	properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
 
         communicator = Ice::initialize(argc, argv);
         status = run(argc, argv, communicator);

@@ -17,7 +17,7 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     void allTests(const Ice::CommunicatorPtr&, const string&);
-    allTests(communicator, "ServerManager:default -p 12345 -t 10000");
+    allTests(communicator, "ServerManager:default -p 12010 -t 10000");
     return EXIT_SUCCESS;
 }
 
@@ -30,7 +30,7 @@ main(int argc, char* argv[])
     try
     {
 	Ice::PropertiesPtr properties = Ice::createProperties(argc, argv);
-	properties->setProperty("Ice.Default.Locator", "locator:default -p 12345");
+	properties->setProperty("Ice.Default.Locator", "locator:default -p 12010");
 	communicator = Ice::initializeWithProperties(argc, argv, properties);
 	status = run(argc, argv, communicator);
     }

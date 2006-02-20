@@ -40,7 +40,7 @@ deactivate(const RemoteCommunicatorPrx& com, vector<RemoteObjectAdapterPrx>& ada
 void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    string ref = "communicator:default -p 12345 -t 10000";
+    string ref = "communicator:default -p 12010 -t 10000";
     RemoteCommunicatorPrx com = RemoteCommunicatorPrx::uncheckedCast(communicator->stringToProxy(ref));
 
     cout << "testing binding with single endpoint... " << flush;
