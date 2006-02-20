@@ -1395,7 +1395,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	args.push_back(paramName);
     }
 
-    paramsName.push_back("__out");
+    paramsName.push_back("__outS");
 
     string thisPointer = fixKwd(scope.substr(0, scope.size() - 2)) + "*";
 
@@ -1435,7 +1435,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "#  endif";
     C.restoreIndent();
     C << sb;
-    C << nl << "::IceInternal::Outgoing __out(__connection.get(), _reference.get(), __operation, "
+    C << nl << "::IceInternal::Outgoing __outS(__connection.get(), _reference.get(), __operation, "
       << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
     C << nl;
     if(ret)
@@ -1454,7 +1454,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "#ifndef ICEE_PURE_BLOCKING_CLIENT";
     C.restoreIndent();
     C << sb;
-    C << nl << "::IceInternal::OutgoingM __out(__connection.get(), _reference.get(), __operation, "
+    C << nl << "::IceInternal::OutgoingM __outS(__connection.get(), _reference.get(), __operation, "
       << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
     C << nl;
     if(ret)
@@ -1502,7 +1502,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << eb;
 
     params.push_back("::IceInternal::Outgoing&");
-    paramsDecl.push_back("::IceInternal::Outgoing& __out");
+    paramsDecl.push_back("::IceInternal::Outgoing& __outS");
 
     H << nl << retS << " __" << name << spar << params << epar << ';';
     C << sp << nl << retS << nl << "IceProxy" << scope << "__" << name << spar << paramsDecl << epar;
@@ -1511,18 +1511,18 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "try";
         C << sb;
-        C << nl << "::IceInternal::BasicStream* __os = __out.os();";
+        C << nl << "::IceInternal::BasicStream* __os = __outS.os();";
         writeMarshalCode(C, inParams, 0, StringList(), true);
         C << eb;
         C << nl << "catch(const ::Ice::LocalException& __ex)";
         C << sb;
-        C << nl << "__out.abort(__ex);";
+        C << nl << "__outS.abort(__ex);";
         C << eb;
     }
-    C << nl << "bool __ok = __out.invoke();";
+    C << nl << "bool __ok = __outS.invoke();";
     C << nl << "try";
     C << sb;
-    C << nl << "::IceInternal::BasicStream* __is = __out.is();";
+    C << nl << "::IceInternal::BasicStream* __is = __outS.is();";
     C << nl << "if(!__ok)";
     C << sb;
     C << nl << "try";
@@ -2191,7 +2191,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
 	C << sp;
 	C << nl << "::IceInternal::DispatchStatus" << nl << scope.substr(2) << "___" << name
-	  << "(::IceInternal::Incoming& __in, const ::Ice::Current& __current)" << (nonmutating ? " const" : "");
+	  << "(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)" << (nonmutating ? " const" : "");
 	C << sb;
 
 	ExceptionList throws = p->throws();
@@ -2215,11 +2215,11 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
 	if(!inParams.empty())
 	{
-	    C << nl << "::IceInternal::BasicStream* __is = __in.is();";
+	    C << nl << "::IceInternal::BasicStream* __is = __inS.is();";
 	}
 	if(ret || !outParams.empty() || !throws.empty())
 	{
-	    C << nl << "::IceInternal::BasicStream* __os = __in.os();";
+	    C << nl << "::IceInternal::BasicStream* __os = __inS.os();";
 	}
 
 	writeAllocateCode(C, inParams, 0, StringList(), true);
