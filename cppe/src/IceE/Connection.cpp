@@ -350,7 +350,7 @@ Ice::Connection::sendRequest(BasicStream* os)
     //
     os->i = os->b.begin();
     traceRequest("sending request", *os, _logger, _traceLevels);
-    _transceiver->write(*os, _endpoint->timeout());
+    _transceiver->write(*os);
 }
 
 #ifdef ICEE_BLOCKING_CLIENT
@@ -388,7 +388,14 @@ Ice::Connection::sendBlockingRequest(BasicStream* os, BasicStream* is, Outgoing*
 
 	    if(out)
 	    {
-	        readStream(*is);
+		try
+		{
+		    readStream(*is);
+		}
+		catch(const Ice::LocalException& ex)
+		{
+		    exception(ex);
+		}
  	    }
 	}
 
@@ -677,7 +684,7 @@ Ice::Connection::flushBatchRequests()
 	//
 	_batchStream.i = _batchStream.b.begin();
 	traceBatchRequest("sending batch request", _batchStream, _logger, _traceLevels);
-	_transceiver->write(_batchStream, _endpoint->timeout());
+	_transceiver->write(_batchStream);
     }
     catch(const LocalException& ex)
     {
@@ -736,7 +743,7 @@ Ice::Connection::sendResponse(BasicStream* os)
 	//
 	os->i = os->b.begin();
 	traceReply("sending reply", *os, _logger, _traceLevels);
-	_transceiver->write(*os, _endpoint->timeout());
+	_transceiver->write(*os);
     }
     catch(const LocalException& ex)
     {
@@ -1100,7 +1107,7 @@ Ice::Connection::validate()
     	    traceHeader("sending validate connection", os, _logger, _traceLevels);
     	    try
     	    {
-    	        _transceiver->write(os, timeout);
+    	        _transceiver->writeWithTimeout(os, timeout);
     	    }
     	    catch(const TimeoutException&)
     	    {
@@ -1115,7 +1122,7 @@ Ice::Connection::validate()
     	    is.i = is.b.begin();
     	    try
     	    {
-    	        _transceiver->read(is, timeout);
+    	        _transceiver->readWithTimeout(is, timeout);
     	    }
     	    catch(const TimeoutException&)
     	    {
@@ -1404,7 +1411,7 @@ Ice::Connection::initiateShutdown() const
     //
     os.i = os.b.begin();
     traceHeader("sending close connection", os, _logger, _traceLevels);
-    _transceiver->write(os, _endpoint->timeout());
+    _transceiver->write(os);
 
     //
     // The CloseConnection message should be sufficient. Closing the
@@ -1710,99 +1717,74 @@ Ice::Connection::invokeAll(BasicStream& stream, Int invokeNum, Int requestId,
 void
 Ice::Connection::readStream(IceInternal::BasicStream& stream)
 {
-    try
+    stream.b.resize(headerSize);
+    stream.i = stream.b.begin();
+    _transceiver->read(stream);
+    
+    ptrdiff_t pos = stream.i - stream.b.begin();
+    assert(pos >= headerSize);
+    stream.i = stream.b.begin();
+    Ice::Byte m[4];
+    stream.read(m[0]);
+    stream.read(m[1]);
+    stream.read(m[2]);
+    stream.read(m[3]);
+    if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
     {
-        stream.b.resize(headerSize);
-        stream.i = stream.b.begin();
-        _transceiver->read(stream,
-#ifdef ICEE_PURE_BLOCKING_CLIENT
-			   _endpoint->timeout()
-#else
-#  ifdef ICEE_BLOCKING_CLIENT
-	                   _blocking ? _endpoint->timeout() :
-#  endif
-			   -1
-#endif
-			   );
-    
-        ptrdiff_t pos = stream.i - stream.b.begin();
-        assert(pos >= headerSize);
-        stream.i = stream.b.begin();
-	Ice::Byte m[4];
-	stream.read(m[0]);
-	stream.read(m[1]);
-	stream.read(m[2]);
-	stream.read(m[3]);
-        if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
-        {
-    	    BadMagicException ex(__FILE__, __LINE__);
-    	    ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(m));
-    	    throw ex;
-        }
-        Byte pMajor;
-        Byte pMinor;
-        stream.read(pMajor);
-        stream.read(pMinor);
-        if(pMajor != protocolMajor)
-        {
-    	    UnsupportedProtocolException ex(__FILE__, __LINE__);
-    	    ex.badMajor = static_cast<unsigned char>(pMajor);
-    	    ex.badMinor = static_cast<unsigned char>(pMinor);
-    	    ex.major = static_cast<unsigned char>(protocolMajor);
-    	    ex.minor = static_cast<unsigned char>(protocolMinor);
-    	    throw ex;
-        }
-        Byte eMajor;
-        Byte eMinor;
-        stream.read(eMajor);
-        stream.read(eMinor);
-        if(eMajor != encodingMajor)
-        {
-    	    UnsupportedEncodingException ex(__FILE__, __LINE__);
-    	    ex.badMajor = static_cast<unsigned char>(eMajor);
-    	    ex.badMinor = static_cast<unsigned char>(eMinor);
-    	    ex.major = static_cast<unsigned char>(encodingMajor);
-    	    ex.minor = static_cast<unsigned char>(encodingMinor);
-    	    throw ex;
-        }
-        Byte messageType;
-        stream.read(messageType);
-        Byte compress;
-        stream.read(compress);
-        Int size;
-        stream.read(size);
-        if(size < headerSize)
-        {
-    	    throw IllegalMessageSizeException(__FILE__, __LINE__);
-        }
-        if(size > static_cast<Int>(_instance->messageSizeMax()))
-        {
-    	    throw MemoryLimitException(__FILE__, __LINE__);
-        }
-        if(size > static_cast<Int>(stream.b.size()))
-        {
-    	    stream.b.resize(size);
-        }
-        stream.i = stream.b.begin() + pos;
-    
-        if(stream.i != stream.b.end())
-        {
-            _transceiver->read(stream,
-#ifdef ICEE_PURE_BLOCKING_CLIENT
-			       _endpoint->timeout()
-#else
-#  ifdef ICEE_BLOCKING_CLIENT
-	                       _blocking ? _endpoint->timeout() :
-#  endif
-			       -1
-#endif
-			       );
-    	    assert(stream.i == stream.b.end());
-        }
+	BadMagicException ex(__FILE__, __LINE__);
+	ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(m));
+	throw ex;
     }
-    catch(const LocalException& ex)
+    Byte pMajor;
+    Byte pMinor;
+    stream.read(pMajor);
+    stream.read(pMinor);
+    if(pMajor != protocolMajor)
     {
-        exception(ex);
+	UnsupportedProtocolException ex(__FILE__, __LINE__);
+	ex.badMajor = static_cast<unsigned char>(pMajor);
+	ex.badMinor = static_cast<unsigned char>(pMinor);
+	ex.major = static_cast<unsigned char>(protocolMajor);
+	ex.minor = static_cast<unsigned char>(protocolMinor);
+	throw ex;
+    }
+    Byte eMajor;
+    Byte eMinor;
+    stream.read(eMajor);
+    stream.read(eMinor);
+    if(eMajor != encodingMajor)
+    {
+	UnsupportedEncodingException ex(__FILE__, __LINE__);
+	ex.badMajor = static_cast<unsigned char>(eMajor);
+	ex.badMinor = static_cast<unsigned char>(eMinor);
+	ex.major = static_cast<unsigned char>(encodingMajor);
+	ex.minor = static_cast<unsigned char>(encodingMinor);
+	throw ex;
+    }
+    Byte messageType;
+    stream.read(messageType);
+    Byte compress;
+    stream.read(compress);
+    Int size;
+    stream.read(size);
+    if(size < headerSize)
+    {
+	throw IllegalMessageSizeException(__FILE__, __LINE__);
+    }
+    if(size > static_cast<Int>(_instance->messageSizeMax()))
+    {
+	throw MemoryLimitException(__FILE__, __LINE__);
+    }
+    if(size > static_cast<Int>(stream.b.size()))
+    {
+	stream.b.resize(size);
+    }
+    stream.i = stream.b.begin() + pos;
+    
+    if(stream.i != stream.b.end())
+    {
+	_transceiver->read(stream);
+	assert(stream.i == stream.b.end());
     }
 }
 
@@ -1868,6 +1850,10 @@ Ice::Connection::run()
 	catch(const Ice::TimeoutException&)
 	{
 	    continue;
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    exception(ex);
 	}
 
 	Int requestId = 0;

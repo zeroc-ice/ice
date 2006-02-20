@@ -91,7 +91,7 @@ IceInternal::Transceiver::shutdownReadWrite()
 }
 
 void
-IceInternal::Transceiver::write(Buffer& buf, int timeout)
+IceInternal::Transceiver::writeWithTimeout(Buffer& buf, int timeout)
 {
     Buffer::Container::difference_type packetSize = 
         static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
@@ -202,7 +202,7 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
 }
 
 void
-IceInternal::Transceiver::read(Buffer& buf, int timeout)
+IceInternal::Transceiver::readWithTimeout(Buffer& buf, int timeout)
 {
     assert(timeout != 0);
 
@@ -338,9 +338,7 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd, in
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
     _fd(fd),
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
     _timeout(timeout),
-#endif
     _desc(fdToString(fd))
 #ifdef _WIN32
     , _isPeerLocal(isPeerLocal(fd))

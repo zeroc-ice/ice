@@ -38,8 +38,19 @@ public:
     void close();
     void shutdownWrite();
     void shutdownReadWrite();
-    void write(Buffer&, int);
-    void read(Buffer&, int);
+    void writeWithTimeout(Buffer&, int);
+    void readWithTimeout(Buffer&, int);
+
+    void write(Buffer& buf)
+    {
+	writeWithTimeout(buf, _timeout);
+    }
+
+    void read(Buffer& buf)
+    {
+	readWithTimeout(buf, _timeout);
+    }
+    
     std::string type() const;
     std::string toString() const;
 
@@ -58,6 +69,8 @@ private:
     const Ice::LoggerPtr _logger;
     
     SOCKET _fd;
+    const int _timeout;
+
 #ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
 #ifdef _WIN32
     WSAEVENT _event;
@@ -67,8 +80,6 @@ private:
     fd_set _wFdSet;
     fd_set _rFdSet;
 #endif
-#else
-    const int _timeout;
 #endif
 
     const std::string _desc;
