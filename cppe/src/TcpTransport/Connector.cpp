@@ -44,7 +44,7 @@ Connector::connect(int timeout)
 	out << "tcp connection established\n" << fdToString(fd);
     }
 
-    return new Transceiver(_instance, fd, _timeout);
+    return new Transceiver(_instance, fd);
 }
 
 string
@@ -53,11 +53,10 @@ Connector::toString() const
     return addrToString(_addr);
 }
 
-Connector::Connector(const InstancePtr& instance, const string& host, int port, int timeout) :
+Connector::Connector(const InstancePtr& instance, const string& host, int port) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
-    _timeout(timeout)
+    _logger(instance->logger())
 {
     getAddress(host, port, _addr);
 }

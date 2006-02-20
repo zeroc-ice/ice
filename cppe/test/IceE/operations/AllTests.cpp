@@ -108,6 +108,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
     tprintf("ok\n");
 //XXXX:
 
+    tprintf("testing timeout...");
+    Test::MyClassPrx clTimeout = Test::MyClassPrx::uncheckedCast(cl->ice_timeout(500));
+    try
+    {
+	clTimeout->opSleep(1000);
+	assert(false);
+    }
+    catch(const Ice::TimeoutException&)
+    {
+    }
+    tprintf("ok\n");
+
     tprintf("testing twoway operations... ");
     void twoways(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
     twoways(communicator, cl);

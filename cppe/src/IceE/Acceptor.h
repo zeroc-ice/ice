@@ -42,12 +42,11 @@ public:
     void connectToSelf();
     std::string toString() const;
 
-    bool equivalent(const std::string&, int) const;
     int effectivePort();
 
 private:
 
-    Acceptor(const InstancePtr&, const std::string&, int, int);
+    Acceptor(const InstancePtr&, const std::string&, int);
     virtual ~Acceptor();
     friend class TcpEndpoint;
 
@@ -57,7 +56,6 @@ private:
     SOCKET _fd;
     int _backlog;
     struct sockaddr_in _addr;
-    int _timeout;
 };
 
 }

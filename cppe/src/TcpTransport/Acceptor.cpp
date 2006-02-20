@@ -76,7 +76,7 @@ IceInternal::Acceptor::accept()
 	out << "accepted tcp connection\n" << fdToString(fd);
     }
 
-    return new Transceiver(_instance, fd, _timeout);
+    return new Transceiver(_instance, fd);
 }
 
 void
@@ -94,26 +94,17 @@ IceInternal::Acceptor::toString() const
     return addrToString(_addr);
 }
 
-bool
-IceInternal::Acceptor::equivalent(const string& host, int port) const
-{
-    struct sockaddr_in addr;
-    getAddress(host, port, addr);
-    return compareAddress(addr, _addr);
-}
-
 int
 IceInternal::Acceptor::effectivePort()
 {
     return ntohs(_addr.sin_port);
 }
 
-IceInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host, int port, int timeout) :
+IceInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host, int port) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
-    _backlog(0),
-    _timeout(timeout)
+    _backlog(0)
 {
     if(_backlog <= 0)
     {

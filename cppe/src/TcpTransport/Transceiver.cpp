@@ -23,6 +23,16 @@ using namespace IceInternal;
 void IceInternal::incRef(Transceiver* p) { p->__incRef(); }
 void IceInternal::decRef(Transceiver* p) { p->__decRef(); }
 
+void
+IceInternal::Transceiver::setTimeouts(int readTimeout, int writeTimeout)
+{
+    _readTimeout = readTimeout;
+    setTimeout(_fd, true, _readTimeout);
+
+    _writeTimeout = writeTimeout;
+    setTimeout(_fd, false, _writeTimeout);
+}
+
 SOCKET
 IceInternal::Transceiver::fd()
 {
@@ -107,7 +117,7 @@ IceInternal::Transceiver::writeWithTimeout(Buffer& buf, int timeout)
 #endif
 
 #ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
-    if(timeout > 0 && timeout != _timeout)
+    if(timeout > 0 && timeout != _writeTimeout)
     {
 	setTimeout(_fd, false, timeout);
     }
@@ -149,7 +159,7 @@ IceInternal::Transceiver::writeWithTimeout(Buffer& buf, int timeout)
 #else
 		if(wouldBlock())
 		{
-		    doSelect(false, timeout > 0 ? timeout : _timeout);
+		    doSelect(false, timeout > 0 ? timeout : _writeTimeout);
 		    continue;
 		}
 #endif
@@ -185,11 +195,11 @@ IceInternal::Transceiver::writeWithTimeout(Buffer& buf, int timeout)
     }
     catch(const Ice::LocalException&)
     {
-	if(timeout > 0 && timeout != _timeout)
+	if(timeout > 0 && timeout != _writeTimeout)
 	{
 	    try
 	    {
-		setTimeout(_fd, false, _timeout);
+		setTimeout(_fd, false, _writeTimeout);
 	    }
 	    catch(const Ice::LocalException&)
 	    {
@@ -197,6 +207,18 @@ IceInternal::Transceiver::writeWithTimeout(Buffer& buf, int timeout)
 	    }
 	}
 	throw;
+    }
+
+    if(timeout > 0 && timeout != _writeTimeout)
+    {
+	try
+	{
+	    setTimeout(_fd, false, _writeTimeout);
+	}
+	catch(const Ice::LocalException&)
+	{
+	    // IGNORE
+	}
     }
 #endif
 }
@@ -210,7 +232,7 @@ IceInternal::Transceiver::readWithTimeout(Buffer& buf, int timeout)
 	static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
 
 #ifndef ICEE_USE_SELECT_FOR_TIMEOUTS    
-    if(timeout > 0 && timeout != _timeout)
+    if(timeout > 0 && timeout != _readTimeout)
     {
 	setTimeout(_fd, true, timeout);
     }
@@ -262,7 +284,7 @@ IceInternal::Transceiver::readWithTimeout(Buffer& buf, int timeout)
 #else
 		if(wouldBlock())
 		{
-		    doSelect(true, timeout > 0 ? timeout : _timeout);
+		    doSelect(true, timeout > 0 ? timeout : _readTimeout);
 		    continue;
 		}
 #endif
@@ -306,11 +328,11 @@ IceInternal::Transceiver::readWithTimeout(Buffer& buf, int timeout)
     }
     catch(const Ice::LocalException&)
     {
-	if(timeout > 0 && timeout != _timeout)
+	if(timeout > 0 && timeout != _readTimeout)
 	{
 	    try
 	    {
-		setTimeout(_fd, true, _timeout);
+		setTimeout(_fd, true, _readTimeout);
 	    }
 	    catch(const Ice::LocalException&)
 	    {
@@ -318,6 +340,18 @@ IceInternal::Transceiver::readWithTimeout(Buffer& buf, int timeout)
 	    }
 	}
 	throw;
+    }
+
+    if(timeout > 0 && timeout != _readTimeout)
+    {
+	try
+	{
+	    setTimeout(_fd, true, _readTimeout);
+	}
+	catch(const Ice::LocalException&)
+	{
+	    // IGNORE
+	}
     }
 #endif
 }
@@ -334,23 +368,18 @@ IceInternal::Transceiver::toString() const
     return _desc;
 }
 
-IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd, int timeout) :
+IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
     _fd(fd),
-    _timeout(timeout),
+    _readTimeout(-1),
+    _writeTimeout(-1),
     _desc(fdToString(fd))
 #ifdef _WIN32
     , _isPeerLocal(isPeerLocal(fd))
 #endif
 {
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
-    if(_timeout > 0)
-    {
-	setTimeout(_fd, false, _timeout);
-	setTimeout(_fd, true, _timeout);
-    }
-#else
+#ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
 #ifdef _WIN32
     _event = WSACreateEvent();
     _readEvent = WSACreateEvent();

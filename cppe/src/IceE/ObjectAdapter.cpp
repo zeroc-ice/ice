@@ -570,68 +570,6 @@ Ice::ObjectAdapter::setLocator(const LocatorPrx& locator)
 }
 #endif
 
-bool
-Ice::ObjectAdapter::isLocal(const ObjectPrx& proxy) const
-{
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-    checkForDeactivation();
-
-    ReferencePtr ref = proxy->__reference();
-    vector<EndpointPtr>::const_iterator p;
-
-#ifdef ICEE_HAS_LOCATOR
-    IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(ref);
-    if(ir)
-    {
-	if(!ir->getAdapterId().empty())
-	{
-	    //
-	    // Proxy is local if the reference adapter id matches this
-	    // adapter id.
-	    //
-	    return ir->getAdapterId() == _id;
-	}
-	return false;
-    }
-#endif
-
-    //
-    // Proxies which have at least one endpoint in common with the
-    // endpoints used by this object adapter's incoming connection
-    // factories are considered local.
-    //
-    vector<EndpointPtr> endpoints = ref->getEndpoints();
-    for(p = endpoints.begin(); p != endpoints.end(); ++p)
-    {
-	vector<IncomingConnectionFactoryPtr>::const_iterator q;
-	for(q = _incomingConnectionFactories.begin(); q != _incomingConnectionFactories.end(); ++q)
-	{
-	    if((*q)->equivalent(*p))
-	    {
-		return true;
-	    }
-	}
-    }
-
-    //
-    // Proxies which have at least one endpoint in common with the
-    // router's server proxy endpoints (if any), are also considered
-    // local.
-    //
-#ifdef ICEE_HAS_ROUTER
-    for(p = endpoints.begin(); p != endpoints.end(); ++p)
-    {
-	if(binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
-	{
-	    return true;
-	}
-    }
-#endif
-	
-    return false;
-}
-
 void
 Ice::ObjectAdapter::flushBatchRequests()
 {

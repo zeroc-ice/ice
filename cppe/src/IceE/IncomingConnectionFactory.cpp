@@ -121,18 +121,6 @@ IceInternal::IncomingConnectionFactory::endpoint() const
     return _endpoint;
 }
 
-bool
-IceInternal::IncomingConnectionFactory::equivalent(const EndpointPtr& endp) const
-{
-    if(_transceiver)
-    {
-	return endp->equivalent(_transceiver);
-    }
-    
-    assert(_acceptor);
-    return endp->equivalent(_acceptor);
-}
-
 list<ConnectionPtr>
 IceInternal::IncomingConnectionFactory::connections() const
 {

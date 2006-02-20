@@ -389,14 +389,7 @@ Ice::Connection::sendBlockingRequest(BasicStream* os, BasicStream* is, Outgoing*
 
 	    if(out)
 	    {
-		try
-		{
-		    readStream(*is);
-		}
-		catch(const Ice::LocalException& ex)
-		{
-		    exception(ex);
-		}
+		readStream(*is);
  	    }
 	}
 
@@ -942,6 +935,16 @@ Ice::Connection::Connection(const InstancePtr& instance,
 #  else
     _blocking = _instance->properties()->getPropertyAsInt("Ice.Blocking") > 0 && !_adapter;
 #  endif
+    if(_blocking)
+    {
+	_transceiver->setTimeouts(_endpoint->timeout(), _endpoint->timeout());
+    }
+    else
+    {
+	_transceiver->setTimeouts(-1, _endpoint->timeout());
+    }
+#else
+    _transceiver->setTimeouts(-1, _endpoint->timeout());
 #endif
 
     vector<Byte>& requestHdr = const_cast<vector<Byte>&>(_requestHdr);
@@ -1718,74 +1721,81 @@ Ice::Connection::invokeAll(BasicStream& stream, Int invokeNum, Int requestId,
 void
 Ice::Connection::readStream(IceInternal::BasicStream& stream)
 {
-    stream.b.resize(headerSize);
-    stream.i = stream.b.begin();
-    _transceiver->read(stream);
-    
-    ptrdiff_t pos = stream.i - stream.b.begin();
-    assert(pos >= headerSize);
-    stream.i = stream.b.begin();
-    Ice::Byte m[4];
-    stream.read(m[0]);
-    stream.read(m[1]);
-    stream.read(m[2]);
-    stream.read(m[3]);
-    if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
+    try
     {
-	BadMagicException ex(__FILE__, __LINE__);
-	ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(m));
-	throw ex;
-    }
-    Byte pMajor;
-    Byte pMinor;
-    stream.read(pMajor);
-    stream.read(pMinor);
-    if(pMajor != protocolMajor)
-    {
-	UnsupportedProtocolException ex(__FILE__, __LINE__);
-	ex.badMajor = static_cast<unsigned char>(pMajor);
-	ex.badMinor = static_cast<unsigned char>(pMinor);
-	ex.major = static_cast<unsigned char>(protocolMajor);
-	ex.minor = static_cast<unsigned char>(protocolMinor);
-	throw ex;
-    }
-    Byte eMajor;
-    Byte eMinor;
-    stream.read(eMajor);
-    stream.read(eMinor);
-    if(eMajor != encodingMajor)
-    {
-	UnsupportedEncodingException ex(__FILE__, __LINE__);
-	ex.badMajor = static_cast<unsigned char>(eMajor);
-	ex.badMinor = static_cast<unsigned char>(eMinor);
-	ex.major = static_cast<unsigned char>(encodingMajor);
-	ex.minor = static_cast<unsigned char>(encodingMinor);
-	throw ex;
-    }
-    Byte messageType;
-    stream.read(messageType);
-    Byte compress;
-    stream.read(compress);
-    Int size;
-    stream.read(size);
-    if(size < headerSize)
-    {
-	throw IllegalMessageSizeException(__FILE__, __LINE__);
-    }
-    if(size > static_cast<Int>(_instance->messageSizeMax()))
-    {
-	throw MemoryLimitException(__FILE__, __LINE__);
-    }
-    if(size > static_cast<Int>(stream.b.size()))
-    {
-	stream.b.resize(size);
-    }
-    stream.i = stream.b.begin() + pos;
-    
-    if(stream.i != stream.b.end())
-    {
+	stream.b.resize(headerSize);
+	stream.i = stream.b.begin();
 	_transceiver->read(stream);
-	assert(stream.i == stream.b.end());
+    
+	ptrdiff_t pos = stream.i - stream.b.begin();
+	assert(pos >= headerSize);
+	stream.i = stream.b.begin();
+	Ice::Byte m[4];
+	stream.read(m[0]);
+	stream.read(m[1]);
+	stream.read(m[2]);
+	stream.read(m[3]);
+	if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
+	{
+	    BadMagicException ex(__FILE__, __LINE__);
+	    ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(m));
+	    throw ex;
+	}
+	Byte pMajor;
+	Byte pMinor;
+	stream.read(pMajor);
+	stream.read(pMinor);
+	if(pMajor != protocolMajor)
+	{
+	    UnsupportedProtocolException ex(__FILE__, __LINE__);
+	    ex.badMajor = static_cast<unsigned char>(pMajor);
+	    ex.badMinor = static_cast<unsigned char>(pMinor);
+	    ex.major = static_cast<unsigned char>(protocolMajor);
+	    ex.minor = static_cast<unsigned char>(protocolMinor);
+	    throw ex;
+	}
+	Byte eMajor;
+	Byte eMinor;
+	stream.read(eMajor);
+	stream.read(eMinor);
+	if(eMajor != encodingMajor)
+	{
+	    UnsupportedEncodingException ex(__FILE__, __LINE__);
+	    ex.badMajor = static_cast<unsigned char>(eMajor);
+	    ex.badMinor = static_cast<unsigned char>(eMinor);
+	    ex.major = static_cast<unsigned char>(encodingMajor);
+	    ex.minor = static_cast<unsigned char>(encodingMinor);
+	    throw ex;
+	}
+	Byte messageType;
+	stream.read(messageType);
+	Byte compress;
+	stream.read(compress);
+	Int size;
+	stream.read(size);
+	if(size < headerSize)
+	{
+	    throw IllegalMessageSizeException(__FILE__, __LINE__);
+	}
+	if(size > static_cast<Int>(_instance->messageSizeMax()))
+	{
+	    throw MemoryLimitException(__FILE__, __LINE__);
+	}
+	if(size > static_cast<Int>(stream.b.size()))
+	{
+	    stream.b.resize(size);
+	}
+	stream.i = stream.b.begin() + pos;
+    
+	if(stream.i != stream.b.end())
+	{
+	    _transceiver->read(stream);
+	    assert(stream.i == stream.b.end());
+	}
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	exception(ex);
     }
 }
 
@@ -1844,18 +1854,7 @@ Ice::Connection::run()
 	//
 
 	BasicStream stream(_instance.get());
-	try
-	{
-	    readStream(stream);
-	}
-	catch(const Ice::TimeoutException&)
-	{
-	    continue;
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    exception(ex);
-	}
+	readStream(stream);
 
 	Int requestId = 0;
 #ifndef ICEE_PURE_CLIENT

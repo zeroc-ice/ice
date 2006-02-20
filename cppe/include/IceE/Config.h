@@ -38,6 +38,7 @@
 //
 //#define ICEE_PURE_BLOCKING_CLIENT
 
+
 // ***********************************************************************
 //
 // User should not change anything below this line!
@@ -64,6 +65,15 @@
 //
 #if defined(ICEE_PURE_BLOCKING_CLIENT) && !defined(ICEE_BLOCKING_CLIENT)
 #   define ICEE_BLOCKING_CLIENT
+#endif
+
+//
+// On Windows CE, socket timeouts (SO_SNDTIMEO and SO_RCVTIMEO) are
+// not supported so we use select()/WSAEventSelect to implement
+// timeouts.
+//
+#if defined(_WIN32_WCE)
+#   define ICE_USE_SELECT_FOR_TIMEOUTS
 #endif
 
 //

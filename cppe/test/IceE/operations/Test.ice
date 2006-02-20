@@ -69,7 +69,9 @@ class MyClass
     void shutdown();
 
     void opVoid();
-    
+
+    void opSleep(int duration);
+
     byte opByte(byte p1, byte p2,
 		out byte p3);
 

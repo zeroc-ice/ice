@@ -86,7 +86,9 @@ void shutdownSocketWrite(SOCKET);
 void shutdownSocketReadWrite(SOCKET);
 
 void setBlock(SOCKET, bool);
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
 void setTimeout(SOCKET, bool, int);
+#endif
 void setTcpNoDelay(SOCKET);
 void setKeepAlive(SOCKET);
 void setSendBufferSize(SOCKET, int);

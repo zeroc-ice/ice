@@ -80,7 +80,7 @@ STLport
 Ice-E requires STLport 5.0 or later. You can download STLport at the
 following location:
 
-http://www.stlport.org/download.html
+http://sourceforge.net/projects/stlport
 
 There is no need to compile STLport for use with Ice-E, since Ice-E
 does not require the iostream support provided by STLport.

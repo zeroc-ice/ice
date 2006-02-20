@@ -33,10 +33,6 @@ public:
     virtual bool publish() const;
 #endif
     virtual std::vector<EndpointPtr> expand(bool) const;
-    virtual bool equivalent(const TransceiverPtr&) const;
-#ifndef ICEE_PURE_CLIENT
-    virtual bool equivalent(const AcceptorPtr&) const;
-#endif
 
     virtual bool operator==(const Endpoint&) const;
     virtual bool operator!=(const Endpoint&) const;

@@ -34,6 +34,8 @@ class ICE_API Transceiver : public ::IceUtil::Shared
 {
 public:
 
+    void setTimeouts(int, int);
+
     SOCKET fd();
     void close();
     void shutdownWrite();
@@ -43,12 +45,12 @@ public:
 
     void write(Buffer& buf)
     {
-	writeWithTimeout(buf, _timeout);
+	writeWithTimeout(buf, _writeTimeout);
     }
 
     void read(Buffer& buf)
     {
-	readWithTimeout(buf, _timeout);
+	readWithTimeout(buf, _readTimeout);
     }
     
     std::string type() const;
@@ -56,7 +58,7 @@ public:
 
 private:
 
-    Transceiver(const InstancePtr&, SOCKET, int);
+    Transceiver(const InstancePtr&, SOCKET);
     virtual ~Transceiver();
     friend class Connector;
     friend class Acceptor;
@@ -69,7 +71,8 @@ private:
     const Ice::LoggerPtr _logger;
     
     SOCKET _fd;
-    const int _timeout;
+    int _readTimeout;
+    int _writeTimeout;
 
 #ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
 #ifdef _WIN32

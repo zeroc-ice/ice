@@ -97,20 +97,6 @@ IceInternal::UnknownEndpoint::expand(bool includeLoopback) const
 }
 
 bool
-IceInternal::UnknownEndpoint::equivalent(const TransceiverPtr&) const
-{
-    return false;
-}
-
-#ifndef ICEE_PURE_CLIENT
-bool
-IceInternal::UnknownEndpoint::equivalent(const AcceptorPtr&) const
-{
-    return false;
-}
-#endif
-
-bool
 IceInternal::UnknownEndpoint::operator==(const Endpoint& r) const
 {
     const UnknownEndpoint* p = dynamic_cast<const UnknownEndpoint*>(&r);

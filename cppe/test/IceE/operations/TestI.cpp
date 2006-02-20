@@ -32,6 +32,12 @@ MyDerivedClassI::opVoid(const Ice::Current&)
 {
 }
 
+void
+MyDerivedClassI::opSleep(int duration, const Ice::Current&)
+{
+    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(duration));
+}
+
 Ice::Byte
 MyDerivedClassI::opByte(Ice::Byte p1,
 			Ice::Byte p2,

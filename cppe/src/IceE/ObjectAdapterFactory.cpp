@@ -129,34 +129,6 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
     return adapter;
 }
 
-ObjectAdapterPtr
-IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-    if(!_instance)
-    {
-	return 0;
-    }
-
-    for(map<string, ObjectAdapterPtr>::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
-    {
-	try
-	{
-	    if(p->second->isLocal(proxy))
-	    {
-		return p->second;
-	    }
-	}
-	catch(const ObjectAdapterDeactivatedException&)
-	{
-	    // Ignore.
-	}
-    }
-
-    return 0;
-}
-
 namespace IceInternal {
 
 struct FlushAdapter

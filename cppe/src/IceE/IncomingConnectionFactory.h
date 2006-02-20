@@ -40,7 +40,6 @@ public:
     void waitUntilFinished();
 
     EndpointPtr endpoint() const;
-    bool equivalent(const EndpointPtr&) const;
     std::list<Ice::ConnectionPtr> connections() const;
 #ifdef ICEE_HAS_BATCH
     void flushBatchRequests();

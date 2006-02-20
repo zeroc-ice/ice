@@ -35,9 +35,14 @@ public:
 	properties->setProperty("Ice.MessageSizeMax", "100");
 	//properties->setProperty("Ice.Trace.Network", "5");
 	//properties->setProperty("Ice.Trace.Protocol", "5");
-	
+
 	loadConfig(properties);
 	setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
+
+	//
+	// We don't want connection warnings because of the timeout test.
+	//
+	properties->setProperty("Ice.Warn.Connections", "0");
 
         Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
         Test::MyClassPrx myClass = allTests(communicator());

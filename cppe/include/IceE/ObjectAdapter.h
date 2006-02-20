@@ -82,8 +82,6 @@ public:
     void setLocator(const LocatorPrx&);
 #endif
     
-    bool isLocal(const ObjectPrx&) const;
-
     void flushBatchRequests();
 
     void incDirectCount();

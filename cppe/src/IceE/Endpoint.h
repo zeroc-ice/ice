@@ -96,15 +96,6 @@ public:
 #endif
 
     //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor.
-    //
-    virtual bool equivalent(const TransceiverPtr&) const = 0;
-#ifndef ICEE_PURE_CLIENT
-    virtual bool equivalent(const AcceptorPtr&) const = 0;
-#endif
-
-    //
     // Compare endpoints for sorting purposes.
     //
     virtual bool operator==(const Endpoint&) const = 0;
