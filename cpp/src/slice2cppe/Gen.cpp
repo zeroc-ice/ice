@@ -1442,7 +1442,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         C << "return ";
     }
-    C << "__" << name << spar << paramsName << epar << ";";
+    C << "___" << name << spar << paramsName << epar << ";";
     C << eb;
     C.zeroIndent();
     C << nl << "#  ifndef ICEE_PURE_BLOCKING_CLIENT";
@@ -1461,7 +1461,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         C << "return ";
     }
-    C << "__" << name << spar << paramsName << epar << ";";
+    C << "___" << name << spar << paramsName << epar << ";";
     C << eb;
     C.zeroIndent();
     C << nl << "#endif";
@@ -1504,8 +1504,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     params.push_back("::IceInternal::Outgoing&");
     paramsDecl.push_back("::IceInternal::Outgoing& __outS");
 
-    H << nl << retS << " __" << name << spar << params << epar << ';';
-    C << sp << nl << retS << nl << "IceProxy" << scope << "__" << name << spar << paramsDecl << epar;
+    H << nl << retS << " ___" << name << spar << params << epar << ';';
+    C << sp << nl << retS << nl << "IceProxy" << scope << "___" << name << spar << paramsDecl << epar;
     C << sb;
     if(!inParams.empty())
     {
