@@ -24,7 +24,7 @@ public class AllTests
     {
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
-        string ref_Renamed = "initial:default -p 12345 -t 2000";
+        string ref_Renamed = "initial:default -p 12010 -t 2000";
         Ice.ObjectPrx @base = communicator.stringToProxy(ref_Renamed);
         test(@base != null);
         Console.Out.WriteLine("ok");

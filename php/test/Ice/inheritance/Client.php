@@ -18,7 +18,7 @@ function allTests()
 
     echo "testing stringToProxy... ";
     flush();
-    $ref = "initial:default -p 12345 -t 2000";
+    $ref = "initial:default -p 12010 -t 2000";
     $base = $ICE->stringToProxy($ref);
     test($base != null);
     echo "ok\n";

@@ -40,12 +40,12 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def run(args, communicator):
-    AllTests.allTests(communicator, "ServerManager:default -p 12345 -t 10000")
+    AllTests.allTests(communicator, "ServerManager:default -p 12010 -t 10000")
     return True
 
 try:
     properties = Ice.createProperties(sys.argv)
-    properties.setProperty("Ice.Default.Locator", "locator:default -p 12345")
+    properties.setProperty("Ice.Default.Locator", "locator:default -p 12010")
     communicator = Ice.initializeWithProperties(sys.argv, properties)
     status = run(sys.argv, communicator)
 except:

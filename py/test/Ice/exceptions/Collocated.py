@@ -27,7 +27,7 @@ import Test, TestI, AllTests
 def run(args, communicator):
     properties = communicator.getProperties()
     properties.setProperty("Ice.Warn.Dispatch", "0")
-    properties.setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000")
+    properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000")
     adapter = communicator.createObjectAdapter("TestAdapter")
     object = TestI.ThrowerI(adapter)
     adapter.add(object, Ice.stringToIdentity("thrower"))

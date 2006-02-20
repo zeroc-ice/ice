@@ -61,7 +61,7 @@ class CallbackClient extends Ice.Application
         {
             System.out.print("testing stringToProxy for server object... ");
             System.out.flush();
-            base = communicator().stringToProxy("c1/callback:tcp -p 12345 -t 10000");
+            base = communicator().stringToProxy("c1/callback:tcp -p 12010 -t 10000");
             System.out.println("ok");
         }
             

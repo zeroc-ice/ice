@@ -64,7 +64,7 @@ def allTests(communicator):
     adapter.deactivate()
 
     print "testing stringToProxy... ",
-    ref = "d:default -p 12345 -t 10000"
+    ref = "d:default -p 12010 -t 10000"
     db = communicator.stringToProxy(ref)
     test(db)
     print "ok"

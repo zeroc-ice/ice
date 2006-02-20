@@ -25,7 +25,7 @@ public class Client
         try
         {
             Ice.Properties properties = Ice.Util.createProperties(args);
-	    properties.setProperty("Ice.Default.Locator", "locator:default -p 12345");
+	    properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
 	    //
 	    // This test requires an extra retry interval because it is possible for
 	    // a proxy to encounter two CloseConnectionExceptions in a row during

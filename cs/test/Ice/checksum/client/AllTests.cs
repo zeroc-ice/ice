@@ -24,7 +24,7 @@ public class AllTests
     public static Test.ChecksumPrx
     allTests(Ice.Communicator communicator, bool collocated)
     {
-        string rf = "test:default -p 12345 -t 10000";
+        string rf = "test:default -p 12010 -t 10000";
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         test(baseProxy != null);
 

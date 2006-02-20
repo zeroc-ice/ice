@@ -236,7 +236,7 @@ class AMI_Test_unknownMostDerived2AsBaseI(CallbackBase):
         self.called()
 
 def allTests(communicator):
-    obj = communicator.stringToProxy("Test:default -p 12345")
+    obj = communicator.stringToProxy("Test:default -p 12010")
     t = Test.TestIntfPrx.checkedCast(obj)
 
     print "base... ",

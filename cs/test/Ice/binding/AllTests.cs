@@ -70,7 +70,7 @@ public class AllTests
 
     public static void allTests(Ice.Communicator communicator)
     {
-	string @ref = "communicator:default -p 12345 -t 10000";
+	string @ref = "communicator:default -p 12010 -t 10000";
 	RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
 
 	Console.Out.Write("testing binding with single endpoint... ");

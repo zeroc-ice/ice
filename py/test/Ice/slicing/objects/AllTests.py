@@ -361,7 +361,7 @@ class AMI_Test_useForwardI(CallbackBase):
         test(False)
 
 def allTests(communicator):
-    obj = communicator.stringToProxy("Test:default -p 12345")
+    obj = communicator.stringToProxy("Test:default -p 12010")
     t = Test.TestIntfPrx.checkedCast(obj)
 
     print "base as Object... ",

@@ -50,7 +50,7 @@ public class ServerManagerI extends _ServerManagerDisp
 	serverCommunicator.getProperties().setProperty("TestAdapter2.AdapterId", "TestAdapter2");
 	Ice.ObjectAdapter adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
 
-	Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:default -p 12345 -t 30000");
+	Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:default -p 12010 -t 30000");
 	adapter.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
 	adapter2.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
 

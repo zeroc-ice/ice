@@ -34,7 +34,7 @@ public:
 	// raised as expected.
 	//
 	properties->setProperty("Ice.MessageSizeMax", "100");
-	properties->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
+	properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
 	//properties->setProperty("Ice.Trace.Network", "5");
 	//properties->setProperty("Ice.Trace.Protocol", "5");
 

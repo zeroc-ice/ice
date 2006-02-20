@@ -16,7 +16,7 @@ def test(b):
 
 def allTests(communicator):
     print "testing stringToProxy... ",
-    ref = "initial:default -p 12345 -t 10000"
+    ref = "initial:default -p 12010 -t 10000"
     base = communicator.stringToProxy(ref)
     test(base)
     print "ok"

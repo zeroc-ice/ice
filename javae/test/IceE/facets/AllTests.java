@@ -79,7 +79,7 @@ public class AllTests
 
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = communicator.getProperties().getPropertyWithDefault("Test.Proxy", "d:default -p 12345 -t 10000");
+        String ref = communicator.getProperties().getPropertyWithDefault("Test.Proxy", "d:default -p 12010 -t 10000");
         Ice.ObjectPrx db = communicator.stringToProxy(ref);
         test(db != null);
         out.println("ok");

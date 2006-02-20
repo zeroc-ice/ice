@@ -411,7 +411,7 @@ function twoways($communicator, $p)
 	    test(count($p2->opContext()) > 0);
 
 	    $communicator->setDefaultContext($dflt);
-	    $c = $communicator->stringToProxy("test:default -p 12345 -t 10000")->ice_checkedCast("::Test::MyClass");
+	    $c = $communicator->stringToProxy("test:default -p 12010 -t 10000")->ice_checkedCast("::Test::MyClass");
 	    test($c->opContext() == $dflt);
 
 	    $dflt["a"] = "c";
@@ -446,7 +446,7 @@ function allTests()
 
     echo "testing stringToProxy... ";
     flush();
-    $ref = "test:default -p 12345 -t 2000";
+    $ref = "test:default -p 12010 -t 2000";
     $base = $ICE->stringToProxy($ref);
     test($base != null);
     echo "ok\n";

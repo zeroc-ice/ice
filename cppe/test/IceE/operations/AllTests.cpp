@@ -19,7 +19,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 {
     tprintf("testing stringToProxy... ");
     string ref = communicator->getProperties()->getPropertyWithDefault(
-	"Operations.Proxy", "test:default -p 12345 -t 10000");
+	"Operations.Proxy", "test:default -p 12010 -t 10000");
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     tprintf("ok\n");
@@ -80,7 +80,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     tprintf("testing checked cast with context...");
     ref = communicator->getProperties()->getPropertyWithDefault(
-	"Operations.ContextProxy", "context:default -p 12345 -t 10000");
+	"Operations.ContextProxy", "context:default -p 12010 -t 10000");
     Ice::ObjectPrx cbase = communicator->stringToProxy(ref);
     test(cbase);
 

@@ -80,7 +80,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	try
 	{
 	    Ice::ObjectAdapterPtr second = 
-		communicator->createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12346 -t 10000");
+		communicator->createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011 -t 10000");
 	    test(false);
 	}
 	catch(const Ice::AlreadyRegisteredException&)
@@ -125,7 +125,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     tprintf("testing stringToProxy...");
     string ref = communicator->getProperties()->getPropertyWithDefault(
-	"Exception.Proxy", "thrower:default -p 12345 -t 10000");
+	"Exception.Proxy", "thrower:default -p 12010 -t 10000");
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     tprintf("ok\n");

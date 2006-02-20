@@ -25,7 +25,7 @@ public class Client
         try
         {
             Ice.Properties properties = Ice.Util.createProperties(args);
-	    properties.setProperty("Ice.Default.Locator", "locator:default -p 12345");
+	    properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
             communicator = Ice.Util.initializeWithProperties(args, properties);
             status = run(args, communicator);
         }

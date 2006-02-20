@@ -639,7 +639,7 @@ class Twoways
 
 		communicator.setDefaultContext(dflt);
 		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
-					communicator.stringToProxy("test:default -p 12345 -t 10000"));
+					communicator.stringToProxy("test:default -p 12010 -t 10000"));
 		test(IceUtil.Hashtable.equals(c.opContext(), dflt)); 
 
 		dflt.put("a", "c");

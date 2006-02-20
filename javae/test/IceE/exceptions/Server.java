@@ -25,7 +25,7 @@ public class Server
 	//
 	if(communicator.getProperties().getProperty("TestAdapter.Endpoints").length() == 0)
 	{
-	   communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
+	   communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
 	}
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

@@ -16,7 +16,7 @@ public class Server
         properties.setProperty("Ice.Warn.Dispatch", "0");
 	if(properties.getProperty("TestAdapter.Endpoints").length() == 0)
 	{
-	    properties.setProperty("TestAdapter.Endpoints", "default -p 12345 -t 2000");
+	    properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 2000");
 	}
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

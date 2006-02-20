@@ -49,7 +49,7 @@ public class AllTests
     public static void
     allTests(Ice.Communicator communicator)
     {
-	String ref = "communicator:default -p 12345 -t 10000";
+	String ref = "communicator:default -p 12010 -t 10000";
 	RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(ref));
 
 	System.out.print("testing binding with single endpoint... ");

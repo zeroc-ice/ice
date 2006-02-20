@@ -11,5 +11,5 @@
 # configure proxies and endpoints. Modify the properties listed below as
 # appropriate for the network configuration for your test.
 
-Test.Proxy=initial:default -p 12345 -t 10000
-TestAdapter.Endpoints=default -p 12345 -t 10000
+Test.Proxy=initial:default -p 12010 -t 10000
+TestAdapter.Endpoints=default -p 12010 -t 10000

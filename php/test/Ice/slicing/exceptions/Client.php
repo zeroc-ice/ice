@@ -16,7 +16,7 @@ function allTests()
 {
     global $ICE;
 
-    $obj = $ICE->stringToProxy("Test:default -p 12345");
+    $obj = $ICE->stringToProxy("Test:default -p 12010");
     $test = $obj->ice_checkedCast("::Test::TestIntf");
 
     echo "testing throwing a base exception... ";

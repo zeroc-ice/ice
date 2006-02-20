@@ -23,7 +23,7 @@ public class AllTests
     {
 	Console.Out.Write("testing stringToProxy... ");
 	Console.Out.Flush();
-	string rf = "test:default -p 12345 -t 2000";
+	string rf = "test:default -p 12010 -t 2000";
 	Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
 	test(baseProxy != null);
 	Console.Out.WriteLine("ok");
@@ -45,7 +45,7 @@ public class AllTests
 
 	Console.Out.Write("testing checked cast with context... ");
 	Console.Out.Flush();
-	string cref = "context:default -p 12345 -t 2000";
+	string cref = "context:default -p 12010 -t 2000";
 	Ice.ObjectPrx cbase = communicator.stringToProxy(cref);
 	test(cbase != null);
 

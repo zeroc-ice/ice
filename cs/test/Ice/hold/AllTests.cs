@@ -24,7 +24,7 @@ public class AllTests
     {
 	Console.Out.Write("testing stringToProxy... ");
 	Console.Out.Flush();
-	String @ref = "hold:default -p 12345 -t 10000";
+	String @ref = "hold:default -p 12010 -t 10000";
 	Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
 	test(@base != null);
 	Console.Out.WriteLine("ok");

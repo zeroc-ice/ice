@@ -40,7 +40,7 @@ public:
 	}
 
 	properties->setProperty("Ice.Default.Locator",
-				properties->getPropertyWithDefault("Location.Locator", "locator:default -p 12345"));
+				properties->getPropertyWithDefault("Location.Locator", "locator:default -p 12010"));
         setCommunicator(Ice::initializeWithProperties(argc, argv, properties));
 
         void allTests(const Ice::CommunicatorPtr&);

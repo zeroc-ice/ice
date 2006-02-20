@@ -24,7 +24,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     ServerManagerPrx manager = ServerManagerPrx::checkedCast(
 	communicator->stringToProxy(
 	    communicator->getProperties()->getPropertyWithDefault(
-		"Location.Proxy", "ServerManager:default -p 12345 -t 10000")));
+		"Location.Proxy", "ServerManager:default -p 12010 -t 10000")));
     test(manager);
 
     tprintf("testing stringToProxy...");

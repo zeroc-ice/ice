@@ -814,7 +814,7 @@ def twowaysAMI(communicator, p):
     test(cb.check())
 
     communicator.setDefaultContext(dflt)
-    c = Test.MyClassPrx.checkedCast(communicator.stringToProxy("test:default -p 12345 -t 10000"))
+    c = Test.MyClassPrx.checkedCast(communicator.stringToProxy("test:default -p 12010 -t 10000"))
     cb = AMI_MyClass_opContextEqualI({'a': 'b'})
     c.opContext_async(cb)
     test(cb.check())

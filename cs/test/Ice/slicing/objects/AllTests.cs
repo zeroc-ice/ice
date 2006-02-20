@@ -757,7 +757,7 @@ public class AllTests
     {
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
-        string r = "Test:default -p 12345 -t 2000";
+        string r = "Test:default -p 12010 -t 2000";
         Ice.ObjectPrx basePrx = communicator.stringToProxy(r);
         test(basePrx != null);
         Console.Out.WriteLine("ok");

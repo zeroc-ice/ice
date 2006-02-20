@@ -19,7 +19,7 @@ public class Server
 	//
 	if(communicator.getProperties().getProperty("ServerManagerAdapter.Endpoints").length() == 0)
 	{
-	    communicator.getProperties().setProperty("ServerManagerAdapter.Endpoints", "default -p 12345 -t 30000");
+	    communicator.getProperties().setProperty("ServerManagerAdapter.Endpoints", "default -p 12010 -t 30000");
 	}
 
 	//

@@ -46,7 +46,7 @@ public class Server
     static int
     run(String[] args, Ice.Communicator communicator, String envName)
     {
-        communicator.getProperties().setProperty("Evictor.Endpoints", "default -p 12345");
+        communicator.getProperties().setProperty("Evictor.Endpoints", "default -p 12010");
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Evictor");
     

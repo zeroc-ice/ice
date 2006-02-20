@@ -23,7 +23,7 @@ public class AllTests
     {
         System.out.print("testing stringToProxy... ");
         System.out.flush();
-        String ref = "test:default -p 12345 -t 10000";
+        String ref = "test:default -p 12010 -t 10000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         System.out.println("ok");
@@ -46,7 +46,7 @@ public class AllTests
 
 	System.out.print("testing checked cast with context... ");
 	System.out.flush();
-	String cref = "context:default -p 12345 -t 10000";
+	String cref = "context:default -p 12010 -t 10000";
 	Ice.ObjectPrx cbase = communicator.stringToProxy(cref);
 	test(cbase != null);
 

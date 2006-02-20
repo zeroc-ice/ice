@@ -335,7 +335,7 @@ def allTests(communicator):
     print "ok"
 
     print "testing stringToProxy... ",
-    ref = "thrower:default -p 12345 -t 10000"
+    ref = "thrower:default -p 12010 -t 10000"
     base = communicator.stringToProxy(ref)
     test(base)
     print "ok"

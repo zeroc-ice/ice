@@ -52,7 +52,7 @@ ServerManagerI::startServer(const Ice::Current&)
     Ice::ObjectAdapterPtr adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
 
     // Note that this assumes the server is running port 12345.
-    Ice::ObjectPrx locator = serverCommunicator->stringToProxy("locator:default -p 12345");
+    Ice::ObjectPrx locator = serverCommunicator->stringToProxy("locator:default -p 12010");
 
     adapter->setLocator(Ice::LocatorPrx::uncheckedCast(locator));
     adapter2->setLocator(Ice::LocatorPrx::uncheckedCast(locator));

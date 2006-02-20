@@ -1318,7 +1318,7 @@ public class TwowaysAMI
 
 		communicator.setDefaultContext(dflt);
 		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
-						communicator.stringToProxy("test:default -p 12345 -t 10000"));
+						communicator.stringToProxy("test:default -p 12010 -t 10000"));
 		{
 		    Ice.Context tmp = new Ice.Context();
 		    tmp["a"] = "b";

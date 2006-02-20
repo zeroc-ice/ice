@@ -14,7 +14,7 @@ class CallbackServer extends Ice.Application
     public int
     run(String[] args)
     {
-	communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "tcp -p 12345 -t 10000");
+	communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "tcp -p 12010 -t 10000");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackAdapter");
 	adapter.add(new CallbackI(),
 		    Ice.Util.stringToIdentity("c1/callback")); // The test allows "c1" as category.

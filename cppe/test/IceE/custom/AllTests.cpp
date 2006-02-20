@@ -19,7 +19,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 {
     tprintf("testing stringToProxy... ");
     string ref = communicator->getProperties()->getPropertyWithDefault(
-	"Custom.Proxy", "test:default -p 12345 -t 10000");
+	"Custom.Proxy", "test:default -p 12010 -t 10000");
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     tprintf("ok\n");
@@ -432,11 +432,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         deque<Test::CPrx> in(5);
-	in[0] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C1:default -p 12345 -t 10000"));
-	in[1] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C2:default -p 12345 -t 10001"));
-	in[2] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C3:default -p 12345 -t 10002"));
-	in[3] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C4:default -p 12345 -t 10003"));
-	in[4] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C5:default -p 12345 -t 10004"));
+	in[0] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C1:default -p 12010 -t 10000"));
+	in[1] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C2:default -p 12010 -t 10001"));
+	in[2] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C3:default -p 12010 -t 10002"));
+	in[3] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C4:default -p 12010 -t 10003"));
+	in[4] = Test::CPrx::uncheckedCast(communicator->stringToProxy("C5:default -p 12010 -t 10004"));
 
 	deque<Test::CPrx> out;
 	deque<Test::CPrx> ret = t->opCPrxSeq(in, out);
@@ -446,11 +446,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         list<Test::CPrx> in;
-	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C1:default -p 12345 -t 10000")));
-	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C2:default -p 12345 -t 10001")));
-	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C3:default -p 12345 -t 10002")));
-	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C4:default -p 12345 -t 10003")));
-	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C5:default -p 12345 -t 10004")));
+	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C1:default -p 12010 -t 10000")));
+	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C2:default -p 12010 -t 10001")));
+	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C3:default -p 12010 -t 10002")));
+	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C4:default -p 12010 -t 10003")));
+	in.push_back(Test::CPrx::uncheckedCast(communicator->stringToProxy("C5:default -p 12010 -t 10004")));
 
 	list<Test::CPrx> out;
 	list<Test::CPrx> ret = t->opCPrxList(in, out);

@@ -106,7 +106,7 @@ class ServerManagerI(Test.ServerManager):
         serverCommunicator.getProperties().setProperty("TestAdapter2.AdapterId", "TestAdapter2")
         adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2")
 
-        locator = serverCommunicator.stringToProxy("locator:default -p 12345")
+        locator = serverCommunicator.stringToProxy("locator:default -p 12010")
         adapter.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
         adapter2.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
 
@@ -154,7 +154,7 @@ def run(args, communicator):
     #
     properties = communicator.getProperties()
     properties.setProperty("Ice.ThreadPool.Server.Size", "2")
-    properties.setProperty("ServerManager.Endpoints", "default -p 12345:udp")
+    properties.setProperty("ServerManager.Endpoints", "default -p 12010:udp")
 
     adapter = communicator.createObjectAdapter("ServerManager")
 

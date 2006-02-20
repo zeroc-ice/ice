@@ -25,7 +25,7 @@ Ice.loadSlice('Test.ice')
 import Test, TestI, AllTests
 
 def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000")
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000")
     adapter = communicator.createObjectAdapter("TestAdapter")
     d = TestI.DI()
     adapter.add(d, Ice.stringToIdentity("d"))

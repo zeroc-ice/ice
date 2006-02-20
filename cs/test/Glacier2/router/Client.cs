@@ -60,7 +60,7 @@ public class Client : Ice.Application
         {
             Console.Out.Write("testing stringToProxy for server object... ");
             Console.Out.Flush();
-            @base = communicator().stringToProxy("c1/callback:tcp -p 12345 -t 10000");
+            @base = communicator().stringToProxy("c1/callback:tcp -p 12010 -t 10000");
             Console.Out.WriteLine("ok");
         }
             

@@ -474,7 +474,7 @@ def twoways(communicator, p):
     test(len(p2.opContext()) > 0)
 
     communicator.setDefaultContext(dflt)
-    c = Test.MyClassPrx.checkedCast(communicator.stringToProxy("test:default -p 12345 -t 10000"))
+    c = Test.MyClassPrx.checkedCast(communicator.stringToProxy("test:default -p 12010 -t 10000"))
     test(c.opContext() == dflt)
 
     dflt['a'] = 'c'

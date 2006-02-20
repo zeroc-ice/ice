@@ -24,7 +24,7 @@ public class AllTests
     allTests(Ice.Communicator communicator)
     {
 	ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
-	    communicator.stringToProxy("ServerManager :default -t 10000 -p 12345"));
+	    communicator.stringToProxy("ServerManager :default -t 10000 -p 12010"));
 	test(manager != null);
 	TestLocatorPrx locator = TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
 	test(locator != null);
