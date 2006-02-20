@@ -39,7 +39,7 @@ IceInternal::Transceiver::close()
 	out << "closing tcp connection\n" << toString();
     }
 
-#ifdef ICEE_USE_SOCKET_TIMEOUT
+#ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
 #ifdef _WIN32
     assert(_event != 0);
     WSACloseEvent(_event);
@@ -95,7 +95,7 @@ IceInternal::Transceiver::write(Buffer& buf, int timeout)
 {
     Buffer::Container::difference_type packetSize = 
         static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
-
+    
 #ifdef _WIN32
     //
     // Limit packet size to avoid performance problems on WIN32
@@ -405,7 +405,7 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd, in
 IceInternal::Transceiver::~Transceiver()
 {
     assert(_fd == INVALID_SOCKET);
-#ifdef ICEE_USE_SOCKET_TIMEOUT
+#ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
 #ifdef _WIN32
     assert(_event == 0);
     assert(_readEvent == 0);

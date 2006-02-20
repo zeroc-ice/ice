@@ -510,7 +510,6 @@ repeatConnect:
 		throw ex;
 	    }
 
-#ifdef ICEE_USE_SOCKET_TIMEOUT
 	    //
 	    // This is necessary to be able to set the socket in blocking mode.
 	    //
@@ -525,7 +524,6 @@ repeatConnect:
 		ex.error = error;
 		throw ex;
 	    }
-#endif
 
 	    //
 	    // Now we close the event, because we're finished and
