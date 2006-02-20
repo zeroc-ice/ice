@@ -158,6 +158,7 @@
     <target name="clean">
         <delete dir="${class.dir}"/>
 	<delete dir="tmp"/>
+	<delete dir="generated"/>
 	<delete quiet="true" file="HelloClient.jar"/>
 	<delete quiet="true" file="HelloClient.jad"/>
 	<delete quiet="true" file="HelloServer.jar"/>
