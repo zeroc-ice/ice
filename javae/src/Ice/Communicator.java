@@ -118,21 +118,6 @@ public final class Communicator
         _instance = new IceInternal.Instance(this, properties);
     }
 
-    /**
-      * For compatibility with C#, we do not invoke methods on other objects
-      * from within a finalizer.
-      *
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-        if(!_instance.destroyed())
-        {
-            _instance.logger().warning("Ice::Communicator::destroy() has not been called");
-        }
-    }
-    */
-
     //
     // Certain initialization tasks need to be completed after the
     // constructor.
