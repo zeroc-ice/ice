@@ -112,8 +112,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Test::MyClassPrx clTimeout = Test::MyClassPrx::uncheckedCast(cl->ice_timeout(500));
     try
     {
-	clTimeout->opSleep(1000);
-	assert(false);
+	clTimeout->opSleep(2000);
+	test(false);
     }
     catch(const Ice::TimeoutException&)
     {
