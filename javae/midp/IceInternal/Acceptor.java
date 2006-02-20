@@ -125,13 +125,6 @@ class Acceptor
 	return _addr.getAddress() + ":" + _addr.getPort();
     }
 
-    final boolean
-    equivalent(String host, int port)
-    {
-        InetSocketAddress addr = new InetSocketAddress(host, port);
-        return addr.equals(_addr);
-    }
-
     int
     effectivePort()
     {

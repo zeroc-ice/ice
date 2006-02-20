@@ -134,34 +134,6 @@ public final class ObjectAdapterFactory
         return adapter;
     }
 
-    public synchronized Ice.ObjectAdapter
-    findObjectAdapter(Ice.ObjectPrx proxy)
-    {
-	if(_instance == null)
-	{
-	    return null;
-	}
-
-        java.util.Enumeration i = _adapters.elements();
-        while(i.hasMoreElements())
-        {
-            Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.nextElement();
-	    try
-	    {
-		if(adapter.isLocal(proxy))
-		{
-		    return adapter;
-		}
-	    }
-	    catch(Ice.ObjectAdapterDeactivatedException ex)
-	    {
-		// Ignore.
-	    }
-	}
-
-        return null;
-    }
-
     public void
     flushBatchRequests()
     {

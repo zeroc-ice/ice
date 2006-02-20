@@ -27,6 +27,22 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     {
     }
 
+    public void
+    opSleep(int duration, Ice.Current current)
+    {
+	while(true)
+	{
+	    try
+	    {
+		Thread.currentThread().sleep(duration);
+		break;
+	    }
+	    catch(java.lang.InterruptedException ex)
+	    {
+	    }
+	}
+    }
+
     public boolean
     opBool(boolean p1, boolean p2,
 	   Ice.BooleanHolder p3,

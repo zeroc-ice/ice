@@ -147,21 +147,6 @@ public final class IncomingConnectionFactory
         return _endpoint;
     }
 
-    public boolean
-    equivalent(Endpoint endp)
-    {
-        if(_transceiver != null)
-        {
-            return endp.equivalent(_transceiver);
-        }
-
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(_acceptor != null);
-	}
-        return endp.equivalent(_acceptor);
-    }
-
     public synchronized Ice.Connection[]
     connections()
     {

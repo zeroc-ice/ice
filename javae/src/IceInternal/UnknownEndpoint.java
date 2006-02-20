@@ -131,22 +131,6 @@ final class UnknownEndpoint implements Endpoint
         return null;
     }
 
-    //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor
-    //
-    public boolean
-    equivalent(Transceiver transceiver)
-    {
-        return false;
-    }
-
-    public boolean
-    equivalent(Acceptor acceptor)
-    {
-        return false;
-    }
-
     public int
     hashCode()
     {

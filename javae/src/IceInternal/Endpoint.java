@@ -75,13 +75,6 @@ public interface Endpoint extends IceUtil.Comparable
     Acceptor acceptor(EndpointHolder endpoint);
 
     //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor.
-    //
-    boolean equivalent(Transceiver transceiver);
-    boolean equivalent(Acceptor acceptor);
-
-    //
     // Compare endpoints for sorting purposes.
     //
     boolean equals(java.lang.Object obj);

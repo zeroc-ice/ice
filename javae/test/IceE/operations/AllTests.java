@@ -63,6 +63,21 @@ public class AllTests
 	java.util.Hashtable c2 = tccp.getContext();
 	test(IceUtil.Hashtable.equals(c, c2));
 	out.println("ok");
+
+	out.print("testing timeout... ");
+	out.flush();
+	try
+	{
+	    Test.MyClassPrx clTimeout = Test.MyClassPrxHelper.uncheckedCast(cl.ice_timeout(500));
+	    clTimeout.opSleep(1000);
+	    test(false);
+	}
+	catch(Ice.TimeoutException ex)
+	{
+	}
+
+	out.println("ok");
+
         out.print("testing twoway operations... ");
         out.flush();
         Twoways.twoways(communicator, cl);

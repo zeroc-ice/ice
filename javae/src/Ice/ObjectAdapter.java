@@ -591,65 +591,6 @@ public final class ObjectAdapter
         return locator;
     }
 
-    public synchronized boolean
-    isLocal(ObjectPrx proxy)
-    {
-	checkForDeactivation();
-
-        IceInternal.Reference ref = ((ObjectPrxHelperBase)proxy).__reference();
-        final IceInternal.Endpoint[] endpoints = ref.getEndpoints();
-
-	try
-	{
-	    IceInternal.IndirectReference ir = (IceInternal.IndirectReference)ref;
-	    if(ir.getAdapterId().length() != 0)
-	    {
-		//
-		// Proxy is local if the reference adapter id matches this
-		// adapter name.
-		//
-		return ir.getAdapterId().equals(_id);
-	    }
-	}
-	catch(ClassCastException e)
-	{
-	}
-
-        //
-        // Proxies which have at least one endpoint in common with the
-        // endpoints used by this object adapter's incoming connection
-        // factories are considered local.
-        //
-        for(int i = 0; i < endpoints.length; ++i)
-        {
-            final int sz = _incomingConnectionFactories.size();
-            for(int j = 0; j < sz; j++)
-            {
-                IceInternal.IncomingConnectionFactory factory =
-                    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.elementAt(j);
-                if(factory.equivalent(endpoints[i]))
-                {
-                    return true;
-                }
-            }
-        }
-
-	//
-	// Proxies which have at least one endpoint in common with the
-	// router's server proxy endpoints (if any), are also considered
-	// local.
-	//
-	for(int i = 0; i < endpoints.length; ++i)
-	{
-	    if(IceUtil.Arrays.search(_routerEndpoints, endpoints[i]) >= 0) // _routerEndpoints is sorted.
-	    {
-		return true;
-	    }
-	}
-
-        return false;
-    }
-
     public void
     flushBatchRequests()
     {

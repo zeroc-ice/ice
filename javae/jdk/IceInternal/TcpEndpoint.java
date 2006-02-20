@@ -284,22 +284,6 @@ final class TcpEndpoint implements Endpoint
         return p;
     }
 
-    //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor
-    //
-    public boolean
-    equivalent(Transceiver transceiver)
-    {
-        return false;
-    }
-
-    public boolean
-    equivalent(Acceptor acceptor)
-    {
-        return acceptor.equivalent(_host, _port);
-    }
-
     public int
     hashCode()
     {
