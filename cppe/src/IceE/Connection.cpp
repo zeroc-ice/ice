@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceE/DisableWarnings.h>
 #include <IceE/Connection.h>
 #include <IceE/Instance.h>
 #include <IceE/LoggerUtil.h>

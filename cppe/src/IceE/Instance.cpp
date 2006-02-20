@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceE/DisableWarnings.h>
 #include <IceE/Instance.h>
 #include <IceE/TraceLevels.h>
 #include <IceE/DefaultsAndOverrides.h>

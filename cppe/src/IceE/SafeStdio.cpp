@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceE/DisableWarnings.h>
 #include <IceE/SafeStdio.h>
 #include <stdarg.h>
 #include <stdio.h>

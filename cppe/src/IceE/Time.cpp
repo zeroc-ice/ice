@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceE/DisableWarnings.h>
 #include <IceE/Time.h>
 
 #ifndef _WIN32_WCE

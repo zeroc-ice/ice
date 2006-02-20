@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceE/DisableWarnings.h>
 #include <IceE/Properties.h>
 #include <IceE/StringUtil.h>
 #include <IceE/Initialize.h>
