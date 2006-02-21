@@ -487,13 +487,13 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
             //
             Int tout = timeout();
 	    IceUtil::Time expireTime;
-	    if(tout >= 0)
+	    if(tout > 0)
 	    {
 	        expireTime = IceUtil::Time::now() + IceUtil::Time::milliSeconds(tout);
 	    }
             while(out->state() == Outgoing::StateInProgress && !timedOut)
             {
-                if(tout >= 0)
+                if(tout > 0)
                 {           
 		    IceUtil::Time now = IceUtil::Time::now();
 		    if(now < expireTime)
