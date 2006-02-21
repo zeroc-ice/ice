@@ -9,37 +9,25 @@
 
 package IceInternal;
 
-final public class Incoming extends IncomingBase
+final public class Incoming
 {
     public
-    Incoming(Instance instance, Ice.Connection connection, Ice.ObjectAdapter adapter, boolean response)
+    Incoming(Instance instance, Ice.Connection connection, BasicStream is)
     {
-	super(instance, connection, adapter, response);
+        _os = new BasicStream(instance);
+	_is = is;
+	_connection = connection;
 
-        _is = new BasicStream(instance);
-    }
-
-    //
-    // This function allows this object to be reused, rather than reallocated.
-    //
-    public void
-    reset(Instance instance, Ice.Connection connection, Ice.ObjectAdapter adapter, boolean response)
-    {
-	if(_is == null)
-	{
-	    _is = new BasicStream(instance);
-	}
-	else
-	{
-	    _is.reset();
-	}
-
-	super.reset(instance, connection, adapter, response);
     }
 
     public void
-    invoke(ServantManager servantManager)
+    invoke(boolean response, Ice.ObjectAdapter adapter, ServantManager servantManager)
     {
+        _current = new Ice.Current();
+        _current.id = new Ice.Identity();
+        _current.con = _connection;
+	_current.adapter = adapter;
+
 	//
 	// Read the current.
 	//
@@ -65,20 +53,20 @@ final public class Incoming extends IncomingBase
         _current.operation = _is.readString();
         _current.mode = Ice.OperationMode.convert(_is.readByte());
         int sz = _is.readSize();
+	if(sz > 0)
+	{
+	    _current.ctx = new java.util.Hashtable();
+	}
         while(sz-- > 0)
         {
             String first = _is.readString();
             String second = _is.readString();
-            if(_current.ctx == null)
-            {
-                _current.ctx = new java.util.Hashtable();
-            }
             _current.ctx.put(first, second);
         }
 
         _is.startReadEncaps();
 
-        if(_response)
+        if(response)
         {
 	    if(IceUtil.Debug.ASSERT)
 	    {
@@ -99,12 +87,13 @@ final public class Incoming extends IncomingBase
 
         try
         {
+	    Ice.Object servant = null;
 	    if(servantManager != null)
 	    {
-	        _servant = servantManager.findServant(_current.id, _current.facet);
+	        servant = servantManager.findServant(_current.id, _current.facet);
 	    }
 	    
-	    if(_servant == null)
+	    if(servant == null)
 	    {
 	        if(servantManager != null && servantManager.hasServant(_current.id))
 	        {
@@ -117,7 +106,7 @@ final public class Incoming extends IncomingBase
 	    }
 	    else
 	    {
-	        status = _servant.__dispatch(this, _current);
+	        status = servant.__dispatch(this, _current);
 	    }
 	}
 	catch(Ice.RequestFailedException ex)
@@ -144,7 +133,7 @@ final public class Incoming extends IncomingBase
 		__warning(ex);
 	    }
 
-            if(_response)
+            if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
@@ -202,7 +191,7 @@ final public class Incoming extends IncomingBase
 		__warning(ex);
 	    }
 
-            if(_response)
+            if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
@@ -226,7 +215,7 @@ final public class Incoming extends IncomingBase
 		__warning(ex);
 	    }
 
-            if(_response)
+            if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
@@ -250,7 +239,7 @@ final public class Incoming extends IncomingBase
 		__warning(ex);
 	    }
 
-            if(_response)
+            if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
@@ -274,7 +263,7 @@ final public class Incoming extends IncomingBase
 		__warning(ex);
 	    }
 
-            if(_response)
+            if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
@@ -309,7 +298,7 @@ final public class Incoming extends IncomingBase
 		__warning(ex);
 	    }
 
-            if(_response)
+            if(response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
@@ -338,7 +327,7 @@ final public class Incoming extends IncomingBase
 
 	_is.endReadEncaps();
 
-	if(_response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    
@@ -399,7 +388,27 @@ final public class Incoming extends IncomingBase
         return _os;
     }
 
-    public Incoming next; // For use by Connection.
+    final private void
+    __warning(java.lang.Exception ex)
+    {
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(_os != null);
+	}
 
-    private BasicStream _is;
+	StringBuffer sb = new StringBuffer();
+	sb.append("dispatch exception:");
+	sb.append("\nidentity: " + Ice.Util.identityToString(_current.id));
+	sb.append("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
+	sb.append("\noperation: " + _current.operation);
+	sb.append("\n");
+	sb.append(ex.toString());
+	_os.instance().logger().warning(sb.toString());
+    }
+
+    final private BasicStream _is;
+    final private BasicStream _os;
+    final private Ice.Connection _connection;
+
+    private Ice.Current _current;
 }
