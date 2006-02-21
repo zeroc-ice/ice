@@ -27,15 +27,21 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_id);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_ids);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getIdentity);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_getAdapterId);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_newAdapterId);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_getEndpoints);
-ZEND_FUNCTION(Ice_ObjectPrx_ice_newEndpoints);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getContext);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_newContext);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_defaultContext);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_newFacet);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getAdapterId);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_newAdapterId);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getEndpoints);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_newEndpoints);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getLocatorCacheTimeout);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_locatorCacheTimeout);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getCacheConnection);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_cacheConnection);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getEndpointSelection);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_endpointSelection);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_twoway);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_isTwoway);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_oneway);
@@ -50,12 +56,21 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_secure);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_compress);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionId);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_connection);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_uncheckedCast);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast);
 
 ZEND_FUNCTION(Ice_Endpoint___construct);
 ZEND_FUNCTION(Ice_Endpoint___tostring);
 ZEND_FUNCTION(Ice_Endpoint_toString);
+
+ZEND_FUNCTION(Ice_Connection___construct);
+ZEND_FUNCTION(Ice_Connection___tostring);
+ZEND_FUNCTION(Ice_Connection_close);
+ZEND_FUNCTION(Ice_Connection_flushBatchRequests);
+ZEND_FUNCTION(Ice_Connection_type);
+ZEND_FUNCTION(Ice_Connection_timeout);
+ZEND_FUNCTION(Ice_Connection_toString);
 }
 
 #define ICE_PHP_PROXY_FUNCTIONS \
@@ -92,6 +107,7 @@ ZEND_FUNCTION(Ice_Endpoint_toString);
     ZEND_FE(Ice_ObjectPrx_ice_compress,          NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_timeout,           NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_connectionId,      NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_connection,        NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_uncheckedCast,     NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_checkedCast,       NULL)
 
@@ -99,6 +115,15 @@ ZEND_FUNCTION(Ice_Endpoint_toString);
     ZEND_FE(Ice_Endpoint___construct,           NULL) \
     ZEND_FE(Ice_Endpoint___tostring,            NULL) \
     ZEND_FE(Ice_Endpoint_toString,              NULL)
+
+#define ICE_PHP_CONNECTION_FUNCTIONS \
+    ZEND_FE(Ice_Connection___construct,        NULL) \
+    ZEND_FE(Ice_Connection___tostring,         NULL) \
+    ZEND_FE(Ice_Connection_close,              NULL) \
+    ZEND_FE(Ice_Connection_flushBatchRequests, NULL) \
+    ZEND_FE(Ice_Connection_type,               NULL) \
+    ZEND_FE(Ice_Connection_timeout,            NULL) \
+    ZEND_FE(Ice_Connection_toString,           NULL)
 
 namespace IcePHP
 {
