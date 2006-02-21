@@ -197,7 +197,7 @@ def runOmniORBPerfs(expr, results, i, unixSockets):
     threadPerConnection = "-ORBthreadPerConnectionPolicy 1"
     threadPoolWithOpt = "-ORBthreadPerConnectionPolicy 0"
     threadPoolWithoutOpt = "-ORBthreadPerConnectionPolicy 0 -ORBthreadPoolWatchConnection 0"
-    product = "omniORB (tcp)"
+    product = "omniORB"
     
     if unixSockets:
         threadPerConnection += " -ORBendPoint giop:unix::"
@@ -209,6 +209,7 @@ def runOmniORBPerfs(expr, results, i, unixSockets):
     test.run("1tp", "", "latency twoway", threadPoolWithoutOpt)
     test.run("1tp w/ opt", "", "latency twoway", threadPoolWithOpt)
     test.run("tpc", "", "latency twoway", threadPerConnection)
+    test.run("blocking", "", "latency twoway", threadPerConnection) # Same test as previous
     
     test = ClientServerTest(expr, results, i, product, "latency oneway", "omniORB")
     test.run("1tp", "", "latency oneway", threadPoolWithoutOpt)
