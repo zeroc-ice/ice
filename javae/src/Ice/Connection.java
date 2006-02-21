@@ -861,28 +861,13 @@ public final class Connection
 	    IceUtil.Debug.Assert(_state < StateClosing);
 	}
 
-	_adapter = adapter;
-
-	if(_adapter != null)
-	{
-	    _servantManager = _adapter.getServantManager();
-	}
-	else
-	{
-	    _servantManager = null;
-	}
-
-	//
-	// We never change the thread pool with which we were
-	// initially registered, even if we add or remove an object
-	// adapter.
-	//
+	_in.setAdapter(adapter);
     }
 
     public synchronized ObjectAdapter
     getAdapter()
     {
-	return _adapter;
+	return _in.getAdapter();
     }
 
     public synchronized ObjectPrx
@@ -931,7 +916,6 @@ public final class Connection
 	_desc = transceiver.toString();
         _type = transceiver.type();
         _endpoint = endpoint;
-        _adapter = adapter;
         _logger = instance.logger(); // Cached for better performance.
         _traceLevels = instance.traceLevels(); // Cached for better performance.
 	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
@@ -942,16 +926,9 @@ public final class Connection
         _dispatchCount = 0;
         _state = StateNotValidated;
 	_stateTime = System.currentTimeMillis();
-	_blocking = _instance.properties().getPropertyAsInt("Ice.Blocking") > 0 && _adapter == null;
-
-	if(_adapter != null)
-	{
-	    _servantManager = _adapter.getServantManager();
-	}
-	else
-	{
-	    _servantManager = null;
-	}
+	_blocking = _instance.properties().getPropertyAsInt("Ice.Blocking") > 0 && adapter == null;
+	_stream = new IceInternal.BasicStream(_instance);
+	_in = new IceInternal.Incoming(_instance, this, _stream, adapter);
 
 	if(_blocking)
 	{
@@ -1027,7 +1004,7 @@ public final class Connection
 		throw _exception;
 	    }
 		
-	    if(_adapter != null)
+	    if(_in.getAdapter() != null)
 	    {
 	        active = true; // The server side has the active role for connection validation.
 	    }
@@ -1364,8 +1341,6 @@ public final class Connection
     {
 	int invokeNum;
 	int requestId;
-	IceInternal.ServantManager servantManager;
-	ObjectAdapter adapter;
     }
 
     private void
@@ -1455,8 +1430,6 @@ public final class Connection
 			    IceInternal.TraceUtil.traceRequest("received request", stream, _logger, _traceLevels);
 			    info.requestId = stream.readInt();
 			    info.invokeNum = 1;
-			    info.servantManager = _servantManager;
-			    info.adapter = _adapter;
 			    ++_dispatchCount;
 		        }
 		        break;
@@ -1480,8 +1453,6 @@ public final class Connection
 			        info.invokeNum = 0;
 			        throw new NegativeSizeException();
 			    }
-			    info.servantManager = _servantManager;
-			    info.adapter = _adapter;
 			    _dispatchCount += info.invokeNum;
 		        }
 		        break;
@@ -1546,8 +1517,7 @@ public final class Connection
     };
 
     private void
-    invokeAll(IceInternal.Incoming in, int invokeNum, int requestId, IceInternal.ServantManager servantManager, 
-	      ObjectAdapter adapter)
+    invokeAll(int invokeNum, int requestId)
     {
 	//
 	// Note: In contrast to other private or protected methods, this
@@ -1558,14 +1528,11 @@ public final class Connection
 	{
 	    while(invokeNum > 0)
 	    {
-		
 		//
 		// Prepare the invocation.
 		//
 		boolean response = requestId != 0;
 
-		IceInternal.BasicStream os = in.os();
-		
 		//
 		// Prepare the response if necessary.
 		//
@@ -1575,6 +1542,9 @@ public final class Connection
 		    {
 			IceUtil.Debug.Assert(invokeNum == 1); // No further invocations if a response is expected.
 		    }
+
+		    IceInternal.BasicStream os = _in.os();
+
 		    os.writeBlob(_replyHdr);
 		    
 		    //
@@ -1583,7 +1553,7 @@ public final class Connection
 		    os.writeInt(requestId);
 		}
 		
-		in.invoke(response, adapter, servantManager);
+		_in.invoke(response);
 		
 		--invokeNum;
 	    }
@@ -1688,14 +1658,12 @@ public final class Connection
 
 	boolean closed = false;
 
-	IceInternal.BasicStream stream = new IceInternal.BasicStream(_instance);
-	IceInternal.Incoming in = new IceInternal.Incoming(_instance, this, stream);
 	MessageInfo info = new MessageInfo();
 
 	while(!closed)
 	{
-	    in.os().reset();
-	    in.is().reset();
+	    _in.os().reset();
+	    _in.is().reset();
 
 	    //
 	    // We must accept new connections outside the thread
@@ -1705,7 +1673,7 @@ public final class Connection
 	    info.requestId = 0;
 	    info.invokeNum = 0;
 	    
-	    readStream(stream);
+	    readStream(_stream);
 	    
 	    LocalException exception = null;
 	    IceInternal.IntMap requests = null;
@@ -1725,7 +1693,7 @@ public final class Connection
 		
 		if(_state != StateClosed)
 		{
-		    parseMessage(stream, info, -1);
+		    parseMessage(_stream, info, -1);
 		}
 		
 		//
@@ -1773,7 +1741,7 @@ public final class Connection
 	    // must be done outside the thread synchronization, so that nested
 	    // calls are possible.
 	    //
-	    invokeAll(in, info.invokeNum, info.requestId, info.servantManager, info.adapter);
+	    invokeAll(info.invokeNum, info.requestId);
 	    
 	    if(requests != null)
 	    {
@@ -1951,8 +1919,8 @@ public final class Connection
     private /*final*/ String _type;
     private /*final*/ IceInternal.Endpoint _endpoint;
 
-    private ObjectAdapter _adapter;
-    private IceInternal.ServantManager _servantManager;
+    private /*final*/ IceInternal.BasicStream _stream;
+    private /*final*/ IceInternal.Incoming _in;
 
     private /*final*/ Logger _logger;
     private /*final*/ IceInternal.TraceLevels _traceLevels;

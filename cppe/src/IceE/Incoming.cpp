@@ -18,39 +18,42 @@
 #include <IceE/LoggerUtil.h>
 #include <IceE/Protocol.h>
 #include <IceE/StringUtil.h>
+#include <IceE/ObjectAdapter.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::Incoming::Incoming(Instance* instance, Connection* connection, BasicStream& is) :
-    _os(instance),
+IceInternal::Incoming::Incoming(Instance* inst, Connection* con, BasicStream& is, const ObjectAdapterPtr& adapter) :
+    _os(inst),
     _is(is),
-    _connection(connection)
+    _connection(con)
 {
-    _current.con = connection;
+    setAdapter(adapter);
+
+    _current.con = con;
+    _current.adapter = adapter.get();
 }
 
 void
-IceInternal::Incoming::__warning(const Exception& ex) const
+IceInternal::Incoming::setAdapter(const Ice::ObjectAdapterPtr& adapter)
 {
-    __warning(ex.toString());
+    _adapter = adapter;
+    if(_adapter)
+    {
+	_servantManager = _adapter->getServantManager().get();
+    }
+    else
+    {
+	_servantManager = 0;
+    }
 }
 
 void
-IceInternal::Incoming::__warning(const string& msg) const
+IceInternal::Incoming::invoke(bool response)
 {
-    Warning out(_os.instance()->logger());
-    out << "dispatch exception: " << msg;
-    out << "\nidentity: " << identityToString(_current.id);
-    out << "\nfacet: " << IceUtil::escapeString(_current.facet, "");
-    out << "\noperation: " << _current.operation;
-}
+    assert(_adapter && _servantManager);
 
-void
-IceInternal::Incoming::invoke(bool response, ObjectAdapter* adapter, ServantManager* servantManager)
-{
-    _current.adapter = adapter;
     _current.ctx.clear();
 
     //
@@ -111,14 +114,14 @@ IceInternal::Incoming::invoke(bool response, ObjectAdapter* adapter, ServantMana
     try
     {
 	Ice::ObjectPtr servant;
-	if(servantManager)
+	if(_servantManager)
 	{
-	    servant = servantManager->findServant(_current.id, _current.facet);
+	    servant = _servantManager->findServant(_current.id, _current.facet);
 	}
 	    
 	if(!servant)
 	{
-	    if(servantManager && servantManager->hasServant(_current.id))
+	    if(_servantManager && _servantManager->hasServant(_current.id))
 	    {
 	        status = DispatchFacetNotExist;
 	    }
@@ -445,3 +448,20 @@ IceInternal::Incoming::invoke(bool response, ObjectAdapter* adapter, ServantMana
 	_connection->sendNoResponse();
     }
 }
+
+void
+IceInternal::Incoming::__warning(const Exception& ex) const
+{
+    __warning(ex.toString());
+}
+
+void
+IceInternal::Incoming::__warning(const string& msg) const
+{
+    Warning out(_os.instance()->logger());
+    out << "dispatch exception: " << msg;
+    out << "\nidentity: " << identityToString(_current.id);
+    out << "\nfacet: " << IceUtil::escapeString(_current.facet, "");
+    out << "\noperation: " << _current.operation;
+}
+

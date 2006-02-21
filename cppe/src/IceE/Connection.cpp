@@ -24,7 +24,6 @@
 #include <IceE/BasicStream.h>
 
 #ifndef ICEE_PURE_CLIENT
-#   include <IceE/ObjectAdapter.h>
 #   include <IceE/Incoming.h>
 #endif
 
@@ -403,10 +402,7 @@ Ice::Connection::sendBlockingRequest(BasicStream* os, Outgoing* out)
 	    {
 #ifndef ICEE_PURE_CLIENT
 	        Int invokeNum = 0;
-	        ServantManager* servantManager;
-	        ObjectAdapter* adapter;
-
-	        parseMessage(*os, requestId, invokeNum, servantManager, adapter);
+	        parseMessage(*os, requestId, invokeNum);
 #else
 	        parseMessage(*os, requestId);
 #endif
@@ -901,23 +897,14 @@ Ice::Connection::setAdapter(const ObjectAdapterPtr& adapter)
     
     assert(_state < StateClosing);
 
-    _adapter = adapter;
-
-    if(_adapter)
-    {
-	_servantManager = _adapter->getServantManager();
-    }
-    else
-    {
-	_servantManager = 0;
-    }
+    _in.setAdapter(adapter);
 }
 
 ObjectAdapterPtr
 Ice::Connection::getAdapter() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    return _adapter;
+    return _in.getAdapter();
 }
 
 #endif
@@ -977,9 +964,6 @@ Ice::Connection::Connection(const InstancePtr& instance,
     _desc(transceiver->toString()),
     _type(transceiver->type()),
     _endpoint(endpoint),
-#ifndef ICEE_PURE_CLIENT
-    _adapter(adapter),
-#endif
     _logger(_instance->logger()), // Cached for better performance.
     _traceLevels(_instance->traceLevels()), // Cached for better performance.
     _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
@@ -990,6 +974,10 @@ Ice::Connection::Connection(const InstancePtr& instance,
 #ifndef ICEE_PURE_BLOCKING_CLIENT
     _nextRequestId(1),
     _requestsHint(_requests.end()),
+    _stream(_instance.get()),
+#endif
+#ifndef ICEE_PURE_CLIENT
+    _in(_instance.get(), this, _stream, adapter),
 #endif
 #ifdef ICEE_HAS_BATCH
     _requestBatchHdr(headerSize + sizeof(Int), 0),
@@ -1005,7 +993,7 @@ Ice::Connection::Connection(const InstancePtr& instance,
 #  ifdef ICEE_PURE_CLIENT
     _blocking = _instance->properties()->getPropertyAsInt("Ice.Blocking") > 0;
 #  else
-    _blocking = _instance->properties()->getPropertyAsInt("Ice.Blocking") > 0 && !_adapter;
+    _blocking = _instance->properties()->getPropertyAsInt("Ice.Blocking") > 0 && !adapter;
 #  endif
     if(_blocking)
     {
@@ -1060,10 +1048,6 @@ Ice::Connection::Connection(const InstancePtr& instance,
     replyHdr[8] = replyMsg;
     replyHdr[9] = 0;
 
-    if(_adapter)
-    {
-	_servantManager = _adapter->getServantManager();
-    }
 #endif
 
 #ifdef ICEE_PURE_BLOCKING_CLIENT
@@ -1143,7 +1127,7 @@ Ice::Connection::validate()
 	    _exception->ice_throw();
 	}
         
-        if(_adapter)
+        if(_in.getAdapter())
         {
     	    active = true; // The server side has the active role for connection validation.
         }
@@ -1505,7 +1489,7 @@ Ice::Connection::initiateShutdown() const
 void
 Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
 #ifndef ICEE_PURE_CLIENT
-			      ,Int& invokeNum, ServantManager*& servantManager, ObjectAdapter*& adapter
+			      ,Int& invokeNum
 #endif
 )
 {
@@ -1600,8 +1584,6 @@ Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
 		        traceRequest("received request", stream, _logger, _traceLevels);
 		        stream.read(requestId);
 		        invokeNum = 1;
-		        servantManager = _servantManager.get();
-		        adapter = _adapter.get();
 		        ++_dispatchCount;
 		    }
 		    break;
@@ -1624,8 +1606,6 @@ Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
 			    invokeNum = 0;
 			    throw NegativeSizeException(__FILE__, __LINE__);
 		        }
-		        servantManager = _servantManager.get();
-		        adapter = _adapter.get();
 		        _dispatchCount += invokeNum;
 		    }
 		    break;
@@ -1708,8 +1688,7 @@ Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
 
 #ifndef ICEE_PURE_CLIENT
 void
-Ice::Connection::invokeAll(Incoming& in, Int invokeNum, Int requestId, ServantManager* servantManager, 
-			   ObjectAdapter* adapter)
+Ice::Connection::invokeAll(Int invokeNum, Int requestId)
 {
     //
     // Note: In contrast to other private or protected methods, this
@@ -1724,7 +1703,6 @@ Ice::Connection::invokeAll(Incoming& in, Int invokeNum, Int requestId, ServantMa
 	    // Prepare the invocation.
 	    //
 	    bool response = requestId != 0;
-	    BasicStream* os = in.os();
 
 	    //
 	    // Prepare the response if necessary.
@@ -1732,6 +1710,8 @@ Ice::Connection::invokeAll(Incoming& in, Int invokeNum, Int requestId, ServantMa
 	    if(response)
 	    {
 		assert(invokeNum == 1); // No further invocations if a response is expected.
+
+		BasicStream* os = _in.os();
 		os->writeBlob(&_replyHdr[0], headerSize);
 		
 		//
@@ -1739,8 +1719,8 @@ Ice::Connection::invokeAll(Incoming& in, Int invokeNum, Int requestId, ServantMa
 		//
 		os->write(requestId);
 	    }
-
-	    in.invoke(response, adapter, servantManager);
+	    
+	    _in.invoke(response);
 
 	    --invokeNum;
 	}
@@ -1912,23 +1892,16 @@ Ice::Connection::run()
 
     bool closed = false;
 
-    BasicStream stream(_instance.get());
-#ifndef ICEE_PURE_CLIENT
-    Incoming in(_instance.get(), this, stream);
-#endif
-    
     while(!closed)
     {
 	Int requestId = 0;
 #ifndef ICEE_PURE_CLIENT
 	Int invokeNum = 0;
-	ServantManager* servantManager;
-	ObjectAdapter* adapter;
-	in.os()->resize(0);
-	in.is()->resize(0);
+	_in.os()->resize(0);
+	_in.is()->resize(0);
 #endif
 
-	readStream(stream);
+	readStream(_stream);
 	
 	auto_ptr<LocalException> exception;	
 	map<Int, Outgoing*> requests;
@@ -1945,9 +1918,9 @@ Ice::Connection::run()
 	    if(_state != StateClosed)
 	    {
 #ifndef ICEE_PURE_CLIENT
-		parseMessage(stream, requestId, invokeNum, servantManager, adapter);
+		parseMessage(_stream, requestId, invokeNum);
 #else
-		parseMessage(stream, requestId);
+		parseMessage(_stream, requestId);
 #endif
 	    }
 
@@ -1996,7 +1969,7 @@ Ice::Connection::run()
 	// so that nested calls are possible.
 	//
 #ifndef ICEE_PURE_CLIENT
-	invokeAll(in, invokeNum, requestId, servantManager, adapter);
+	invokeAll(invokeNum, requestId);
 #endif
 	if(requests.size() != 0)
 	{

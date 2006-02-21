@@ -12,21 +12,42 @@ package IceInternal;
 final public class Incoming
 {
     public
-    Incoming(Instance instance, Ice.Connection connection, BasicStream is)
+    Incoming(Instance instance, Ice.Connection connection, BasicStream is, Ice.ObjectAdapter adapter)
     {
         _os = new BasicStream(instance);
 	_is = is;
 	_connection = connection;
 
+	setAdapter(adapter);
+    }
+    
+    public void
+    setAdapter(Ice.ObjectAdapter adapter)
+    {
+	_adapter = adapter;
+	if(_adapter != null)
+	{
+	    _servantManager = _adapter.getServantManager();
+	}
+	else
+	{
+	    _servantManager = null;
+	}
     }
 
+    public Ice.ObjectAdapter
+    getAdapter()
+    {
+	return _adapter;
+    }
+    
     public void
-    invoke(boolean response, Ice.ObjectAdapter adapter, ServantManager servantManager)
+    invoke(boolean response)
     {
         _current = new Ice.Current();
         _current.id = new Ice.Identity();
         _current.con = _connection;
-	_current.adapter = adapter;
+	_current.adapter = _adapter;
 
 	//
 	// Read the current.
@@ -88,14 +109,14 @@ final public class Incoming
         try
         {
 	    Ice.Object servant = null;
-	    if(servantManager != null)
+	    if(_servantManager != null)
 	    {
-	        servant = servantManager.findServant(_current.id, _current.facet);
+	        servant = _servantManager.findServant(_current.id, _current.facet);
 	    }
 	    
 	    if(servant == null)
 	    {
-	        if(servantManager != null && servantManager.hasServant(_current.id))
+	        if(_servantManager != null && _servantManager.hasServant(_current.id))
 	        {
 		    status = DispatchStatus.DispatchFacetNotExist;
 	        }
@@ -406,9 +427,10 @@ final public class Incoming
 	_os.instance().logger().warning(sb.toString());
     }
 
-    final private BasicStream _is;
     final private BasicStream _os;
+    final private BasicStream _is;
     final private Ice.Connection _connection;
-
+    private Ice.ObjectAdapter _adapter;
+    private ServantManager _servantManager;
     private Ice.Current _current;
 }

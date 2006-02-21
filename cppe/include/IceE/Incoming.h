@@ -23,9 +23,12 @@ class ICE_API Incoming : private IceUtil::noncopyable
 {
 public:
 
-    Incoming(Instance*, Ice::Connection*, BasicStream&);
+    Incoming(Instance*, Ice::Connection*, BasicStream&, const Ice::ObjectAdapterPtr&);
 
-    void invoke(bool, Ice::ObjectAdapter*, ServantManager*);
+    void setAdapter(const Ice::ObjectAdapterPtr&);
+    const Ice::ObjectAdapterPtr& getAdapter() const { return _adapter; }
+
+    void invoke(bool);
 
     // Inlined for speed optimization.
     BasicStream* os() { return &_os; }
@@ -36,16 +39,12 @@ protected:
     void __warning(const Ice::Exception&) const;
     void __warning(const std::string&) const;
 
-    Ice::Current _current;
-    bool _response;
     BasicStream _os;
     BasicStream& _is;
-
-    //
-    // Optimization. The connection may not be deleted while a
-    // stack-allocated Incoming still holds it.
-    //
     Ice::Connection* _connection;
+    Ice::ObjectAdapterPtr _adapter;
+    ServantManager* _servantManager;
+    Ice::Current _current;
 };
 
 }

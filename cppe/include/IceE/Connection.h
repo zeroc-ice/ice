@@ -22,6 +22,7 @@
 #   include <IceE/ObjectAdapterF.h>
 #   include <IceE/ServantManagerF.h>
 #   include <IceE/IncomingConnectionFactoryF.h>
+#   include <IceE/Incoming.h>
 #endif
 
 #include <IceE/Mutex.h>
@@ -153,8 +154,8 @@ private:
     void initiateShutdown() const;
 
 #ifndef ICEE_PURE_CLIENT
-    void parseMessage(IceInternal::BasicStream&, Int&, Int&, IceInternal::ServantManager*&, ObjectAdapter*&);
-    void invokeAll(IceInternal::Incoming&, Int, Int, IceInternal::ServantManager*, ObjectAdapter*);
+    void parseMessage(IceInternal::BasicStream&, Int&, Int&);
+    void invokeAll(Int, Int);
 #else
     void parseMessage(IceInternal::BasicStream&, Int&);
 #endif
@@ -187,11 +188,6 @@ private:
     const std::string _type;
     const IceInternal::EndpointPtr _endpoint;
 
-#ifndef ICEE_PURE_CLIENT
-    ObjectAdapterPtr _adapter;
-    IceInternal::ServantManagerPtr _servantManager;
-#endif
-
     const LoggerPtr _logger;
     const IceInternal::TraceLevelsPtr _traceLevels;
 
@@ -207,6 +203,10 @@ private:
 #ifndef ICEE_PURE_BLOCKING_CLIENT
     std::map<Int, IceInternal::Outgoing*> _requests;
     std::map<Int, IceInternal::Outgoing*>::iterator _requestsHint;
+    IceInternal::BasicStream _stream;
+#endif
+#ifndef ICEE_PURE_CLIENT
+    IceInternal::Incoming _in;
 #endif
 
     std::auto_ptr<LocalException> _exception;
