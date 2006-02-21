@@ -836,6 +836,21 @@ public final class Connection
     public synchronized void
     setAdapter(ObjectAdapter adapter)
     {
+	//
+	// Wait for all the incoming to be dispatched (to be consistent
+	// with IceE).
+	//
+	while(_dispatchCount > 0)
+	{
+	    try
+	    {
+		wait();
+	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	}
+	
 	if(_exception != null)
 	{
 	    throw _exception;
