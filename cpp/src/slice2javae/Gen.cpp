@@ -2221,7 +2221,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "try";
             out << sb;
-            out << nl << "IceInternal.BasicStream __os = __og.os();";
+            out << nl << "IceInternal.BasicStream __os = __og.stream();";
             iter = 0;
             for(pli = inParams.begin(); pli != inParams.end(); ++pli)
             {
@@ -2237,7 +2237,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "boolean __ok = __og.invoke();";
         out << nl << "try";
         out << sb;
-        out << nl << "IceInternal.BasicStream __is = __og.is();";
+        out << nl << "IceInternal.BasicStream __is = __og.stream();";
         out << nl << "if(!__ok)";
         out << sb;
         out << nl << "try";
