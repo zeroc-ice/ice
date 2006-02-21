@@ -114,3 +114,34 @@ IceUtil::NullHandleException::ice_throw() const
 {
     throw *this;
 }
+
+IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line) :
+    Exception(file, line)
+{
+}
+
+IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line, const string& r) :
+    Exception(file, line),
+    reason(r)
+{
+}
+
+const char* IceUtil::IllegalArgumentException::_name = "IceUtil::IllegalArgumentException";
+
+const string
+IceUtil::IllegalArgumentException::ice_name() const
+{
+    return _name;
+}
+
+IceUtil::Exception*
+IceUtil::IllegalArgumentException::ice_clone() const
+{
+    return new IllegalArgumentException(*this);
+}
+
+void
+IceUtil::IllegalArgumentException::ice_throw() const
+{
+    throw *this;
+}

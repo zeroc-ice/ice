@@ -1,6 +1,11 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Fixed bug in identityToString() and proxyToString() that could
+  cause incorrect string values to be returned for identities
+  containing characters outside the ASCII range or for characters
+  that must be escaped, such as '/'.
+
 - Fixed bug in addRouter() and removeRouter() that could cause the
   run time to get confused about which routers were active installed.
   

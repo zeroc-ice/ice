@@ -50,6 +50,23 @@ private:
     static const char* _name;
 };
 
+class ICE_API IllegalArgumentException : public Exception
+{
+public:
+
+    IllegalArgumentException(const char*, int);
+    IllegalArgumentException(const char*, int, const std::string&);
+    virtual const std::string ice_name() const;
+    virtual Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    std::string reason;
+
+private:
+
+    static const char* _name;
+};
+
 }
 
 #endif

@@ -78,7 +78,7 @@ namespace IceUtil
 	//
 	// Write the byte b as an escape sequence if it isn't a printable ASCII
 	// character and append the escape sequence to sb. Additional characters
-	// that should be escape can be passed in special. If b is any of these
+	// that should be escaped can be passed in special. If b is any of these
 	// characters, b is preceded by a backslash in sb.
 	//
 	private static void encodeChar(byte b, StringBuilder sb, string special)
@@ -135,7 +135,7 @@ namespace IceUtil
 		
 		default: 
 		{
-		    if(b < (byte)32 || b > (byte)126)
+		    if(!(b >= 32 && b <= 126))
 		    {
 			sb.Append('\\');
 			string octal = System.Convert.ToString(b, 8);
@@ -174,11 +174,14 @@ namespace IceUtil
         //
 	public static string escapeString(string s, string special)
 	{
-	    for(int i = 0; i < special.Length; ++i)
+	    if(special != null)
 	    {
-	        if((int)special[i] < 32 || (int)special[i] > 126)
+		for(int i = 0; i < special.Length; ++i)
 		{
-		    throw new System.ArgumentException("special characters must be in ASCII range 32-126", "special");
+		    if((int)special[i] < 32 || (int)special[i] > 126)
+		    {
+			throw new System.ArgumentException("special characters must be in ASCII range 32-126", "special");
+		    }
 		}
 	    }
 
@@ -194,114 +197,126 @@ namespace IceUtil
 	    return result.ToString();
 	}
 	
+	private static char checkChar(char c)
+	{
+	    if(!(c >= 32 && c <= 126))
+	    {
+		throw new System.ArgumentException("illegal input character");
+	    }
+	    return c;
+	}
+
 	//
-	// Decode the character or escape sequence starting at start and return it in c.
-	// newIndex is set to the index of the first character following the decoded character
-	// or sequence. Return true if successful, false otherwise.
+	// Decode the character or escape sequence starting at start and return it.
+	// end marks the one-past-the-end position of the substring to be scanned.
+	// nextStart is set to the index of the first character following the decoded
+	// character or escape sequence.
 	//
-	private static bool decodeChar(string s, int start, int end, out int newIndex, out char c)
+	private static char decodeChar(string s, int start, int end, out int nextStart)
 	{
 	    Debug.Assert(start >= 0);
 	    Debug.Assert(start < end);
 	    Debug.Assert(end <= s.Length);
 
-	    newIndex = 0;
-	    c = (char)0;
+	    char c;
 
 	    if(s[start] != '\\')
 	    {
-		c = s[start];
-		newIndex = start + 1;
-		return true;
+		c = checkChar(s[start++]);
 	    }
-
-	    if(start + 1 == end)
+	    else
 	    {
-		return false;
-	    }
-
-	    switch(s[++start])
-	    {
-		case '\\': 
-		case '\'': 
-		case '"': 
+		if(start + 1 == end)
 		{
-		    c = s[start++];
-		    break;
+		    throw new System.ArgumentException("trailing backslash in argument");
 		}
-		case 'b': 
+		switch(s[++start])
 		{
-		    c = '\b';
-		    ++start;
-		    break;
-		}
-		case 'f': 
-		{
-		    c = '\f';
-		    ++start;
-		    break;
-		}
-		case 'n': 
-		{
-		    c = '\n';
-		    ++start;
-		    break;
-		}
-		case 'r': 
-		{
-		    c = '\r';
-		    ++start;
-		    break;
-		}
-		case 't': 
-		{
-		    c = '\t';
-		    ++start;
-		    break;
-		}
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		{
-		    if(start + 2 >= end)
+		    case '\\': 
+		    case '\'': 
+		    case '"': 
 		    {
-		       return false;
+			c = s[start++];
+			break;
 		    }
-		    int oct = 0;
-		    for(int j = 0; j < 3; ++j)
+		    case 'b': 
 		    {
-			oct = oct * 8 + s[start++] - '0';
+			++start;
+			c = '\b';
+			break;
 		    }
-		    c = System.Convert.ToChar(oct);
-		    break;
-		}
-		default:
-		{
-		    c = s[start++];
-		    break;
+		    case 'f': 
+		    {
+			++start;
+			c = '\f';
+			break;
+		    }
+		    case 'n': 
+		    {
+			++start;
+			c = '\n';
+			break;
+		    }
+		    case 'r': 
+		    {
+			++start;
+			c = '\r';
+			break;
+		    }
+		    case 't': 
+		    {
+			++start;
+			c = '\t';
+			break;
+		    }
+		    case '0':
+		    case '1':
+		    case '2':
+		    case '3':
+		    case '4':
+		    case '5':
+		    case '6':
+		    case '7':
+		    {
+			int oct = 0;
+			for(int j = 0; j < 3 && start < end; ++j)
+			{
+			    int charVal = s[start++] - '0';
+			    if(charVal < 0 || charVal > 7)
+			    {
+			        --start;
+			        break;
+			    }
+			    oct = oct * 8 + charVal;
+			}
+			if(oct > 255)
+			{
+			    throw new System.ArgumentException("octal value out of range", "s");
+			}
+			c = System.Convert.ToChar(oct);
+			break;
+		    }
+		    default:
+		    {
+			c = checkChar(s[start++]);
+			break;
+		    }
 		}
 	    }
-	    newIndex = start;
-	    return true;
+	    nextStart = start;
+	    return c;
 	}
 
 	//
 	// Remove escape sequences from s and append the result to sb.
 	// Return true if successful, false otherwise.
 	//
-	private static bool decodeString(string s, int start, int end, StringBuilder sb)
+	private static void decodeString(string s, int start, int end, StringBuilder sb)
 	{
-	    char c;
 	    while(start < end)
 	    {
-	        if(!decodeChar(s, start, end, out start, out c))
-		{
-		    return false;
-		}
-		sb.Append(c);
+		sb.Append(decodeChar(s, start, end, out start));
 	    }
-            return true;
 	}
 
         //
@@ -326,10 +341,7 @@ namespace IceUtil
 	    try
 	    {
 		StringBuilder sb = new StringBuilder();
-	        if(!decodeString(s, start, end, sb))
-		{
-		    return false;
-		}
+	        decodeString(s, start, end, sb);
 		string decodedString = sb.ToString();
 
 		byte[] arr = new byte[decodedString.Length];

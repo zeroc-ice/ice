@@ -1,6 +1,10 @@
 Changes since version 1.0.0
 ---------------------------
 
+- Fixed bug in identityToString() and proxyToString() that could
+  cause incorrect string values to be returned for identities
+  containing characters outside the ASCII range.
+
 - The contents of the default context set on a communicator were
   ignored, so an empty default context was marshaled. Fixed this.
 

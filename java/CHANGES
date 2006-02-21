@@ -1,6 +1,10 @@
 Changes since version 3.0.1
 ---------------------------
 
+- Fixed bug in identityToString() and proxyToString() that could
+  cause incorrect string values to be returned for identities
+  containing characters outside the ASCII range.
+
 - If a proxy is not configured with the -h parameter, Ice will now
   attempt to connect using all local interfaces. The loopback
   interface (127.0.0.1) will only be tried if it is the only local
