@@ -1060,9 +1060,16 @@ class Node extends EditableParent
 	_origDescription = _descriptor.description;
 	_origLoadFactor = _descriptor.loadFactor;
 
-	_resolver = new Utils.Resolver(new java.util.Map[]
-	    {_descriptor.variables, application.getVariables()});
-				       
+	
+	java.util.Map[] maps = new java.util.Map[]
+	    {_descriptor.variables, application.getVariables()};
+
+	assert maps[0] == _descriptor.variables;
+	assert maps[1] == application.getVariables();
+	
+
+	_resolver = new Utils.Resolver(maps);
+			       
 	_resolver.put("application", application.getId());
 	_resolver.put("node", getId());
 	

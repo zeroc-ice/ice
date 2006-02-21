@@ -354,7 +354,15 @@ public class Utils
 		    //
 		    _resolvedVariableCache.put(name, _recursiveDefError);
 		    String result = _subResolver.substitute((String)obj);
-		    _resolvedVariableCache.put(name, result);
+		    if(obj.equals(result))
+		    {
+			_resolvedVariableCache.remove(name);
+		    }
+		    else
+		    {
+			System.err.println("Caching: " + name + ": " + result);
+			_resolvedVariableCache.put(name, result);
+		    }
 		    return result;
 		}
 		else
