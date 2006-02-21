@@ -106,7 +106,7 @@ IceInternal::Reference::changeFacet(const string& newFacet) const
 Int
 Reference::hash() const
 {
-    IceUtil::Mutex::Lock sync(_hashMutex);
+    IceUtil::RecMutex::Lock sync(_hashMutex);
 
     if(_hashInitialized)
     {
@@ -590,6 +590,11 @@ IceInternal::RoutableReference::changeRouter(const RouterPrx& newRouter) const
     return r;
 }
 
+int
+IceInternal::RoutableReference::hash() const
+{
+    return Reference::hash();
+}
 
 bool
 IceInternal::RoutableReference::operator==(const Reference& r) const
@@ -1048,6 +1053,23 @@ IceInternal::IndirectReference::getConnection() const
 
     assert(connection);
     return connection;
+}
+
+int
+IceInternal::IndirectReference::hash() const
+{
+    IceUtil::RecMutex::Lock sync(_hashMutex);
+
+    if(_hashInitialized)
+    {
+        return _hashValue;
+    }
+    RoutableReference::hash(); // Initializes _hashValue.
+    for(string::const_iterator p = _adapterId.begin(); p != _adapterId.end(); ++p) // Add hash of adapter ID to base hash.
+    {
+        _hashValue = 5 * _hashValue + *p;
+    }
+    return _hashValue;
 }
 
 bool

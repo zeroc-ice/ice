@@ -206,6 +206,22 @@ public class IndirectReference extends RoutableReference
 	return connection;
     }
 
+    public synchronized int
+    hashCode()
+    {
+        if(_hashInitialized)
+	{
+	    return _hashValue;
+	}
+	super.hashCode();             // Initializes _hashValue.
+	int sz = _adapterId.length(); // Add hash of adapter ID to base hash.
+	for(int i = 0; i < sz; i++)
+	{
+	    _hashValue = 5 * _hashValue + (int)_adapterId.charAt(i);
+	}
+	return _hashValue;
+    }
+
     public boolean
     equals(java.lang.Object obj)
     {

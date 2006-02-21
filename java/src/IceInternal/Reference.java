@@ -175,7 +175,7 @@ public abstract class Reference implements Cloneable
     public abstract Reference changeEndpoints(EndpointI[] newEndpoints);
     public abstract Reference changeLocatorCacheTimeout(int newTimeout);
 
-    public final synchronized int
+    public synchronized int
     hashCode()
     {
 	if(_hashInitialized)
@@ -404,8 +404,8 @@ public abstract class Reference implements Cloneable
     private boolean _cacheConnection;
     private Ice.EndpointSelectionType _endpointSelection;
 
-    private int _hashValue;
-    private boolean _hashInitialized;
+    protected int _hashValue;
+    protected boolean _hashInitialized;
 
     protected
     Reference(Instance inst,

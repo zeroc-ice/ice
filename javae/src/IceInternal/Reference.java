@@ -151,7 +151,7 @@ public abstract class Reference
     public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
     public abstract Reference changeTimeout(int newTimeout);
 
-    public final synchronized int
+    public synchronized int
     hashCode()
     {
 	if(_hashInitialized)
@@ -380,8 +380,8 @@ public abstract class Reference
     private static java.util.Hashtable _emptyContext = new java.util.Hashtable();
     private String _facet;
 
-    private int _hashValue;
-    private boolean _hashInitialized;
+    protected int _hashValue;
+    protected boolean _hashInitialized;
 
     protected
     Reference()

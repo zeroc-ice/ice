@@ -24,7 +24,7 @@
 #endif
 #include <IceE/ConnectionF.h>
 #include <IceE/Shared.h>
-#include <IceE/Mutex.h>
+#include <IceE/RecMutex.h>
 #include <IceE/Identity.h>
 
 namespace IceInternal
@@ -106,6 +106,10 @@ protected:
 	      const std::string&, Mode, bool);
     Reference(const Reference&);
 
+    IceUtil::RecMutex _hashMutex; // For lazy initialization of hash value.
+    mutable Ice::Int _hashValue;
+    mutable bool _hashInitialized;
+
 private:
 
     const InstancePtr _instance;
@@ -116,10 +120,6 @@ private:
     Ice::Identity _identity;
     Ice::Context _context;
     std::string _facet;
-
-    IceUtil::Mutex _hashMutex; // For lazy initialization of hash value.
-    mutable Ice::Int _hashValue;
-    mutable bool _hashInitialized;
 };
 
 class FixedReference : public Reference
@@ -172,6 +172,8 @@ public:
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
 
     virtual Ice::ConnectionPtr getConnection() const = 0;
+
+    int hash() const; // Conceptually const.
 
     virtual bool operator==(const Reference&) const = 0;
     virtual bool operator!=(const Reference&) const = 0;
@@ -271,6 +273,8 @@ public:
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
     virtual Ice::ConnectionPtr getConnection() const;
+
+    int hash() const; // Conceptually const.
 
     virtual bool operator==(const Reference&) const;
     virtual bool operator!=(const Reference&) const;

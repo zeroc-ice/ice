@@ -1471,7 +1471,20 @@ namespace IceInternal
         //
 	public override int GetHashCode()
 	{
-            return base.GetHashCode();
+	    lock(this)
+	    {
+		if(base.hashInitialized_)
+		{
+		    return hashValue_;
+		}
+		base.GetHashCode();         // Initializes hashValue_.
+		int sz = adapterId_.Length; // Add hash of adapter ID to base hash.
+		for(int i = 0; i < sz; i++)
+		{   
+		    hashValue_ = 5 * hashValue_ + (int)adapterId_[i];
+		}
+		return hashValue_;
+	    }
         }
 
 	private string adapterId_;

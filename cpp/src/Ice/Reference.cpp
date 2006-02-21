@@ -118,7 +118,7 @@ IceInternal::Reference::changeEndpointSelection(EndpointSelectionType newType) c
 Int
 Reference::hash() const
 {
-    IceUtil::Mutex::Lock sync(_hashMutex);
+    IceUtil::RecMutex::Lock sync(_hashMutex);
 
     if(_hashInitialized)
     {
@@ -757,6 +757,12 @@ IceInternal::RoutableReference::changeCollocationOptimization(bool newCollocatio
     RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
     r->_collocationOptimization = newCollocationOptimization;
     return r;
+}
+
+int
+IceInternal::RoutableReference::hash() const
+{
+    return Reference::hash();
 }
 
 bool
@@ -1467,6 +1473,23 @@ IceInternal::IndirectReference::getConnection(bool& comp) const
 
     assert(connection);
     return connection;
+}
+
+int
+IceInternal::IndirectReference::hash() const
+{
+    IceUtil::RecMutex::Lock sync(_hashMutex);
+
+    if(_hashInitialized)
+    {
+        return _hashValue;
+    }
+    RoutableReference::hash(); // Initializes _hashValue.
+    for(string::const_iterator p = _adapterId.begin(); p != _adapterId.end(); ++p) // Add hash of adapter ID to base hash.
+    {
+        _hashValue = 5 * _hashValue + *p;
+    }
+    return _hashValue;
 }
 
 bool

@@ -81,6 +81,12 @@ public abstract class RoutableReference extends Reference
 	return r;
     }
 
+    public synchronized int
+    hashCode()
+    {
+        return super.hashCode();
+    }
+
     public boolean
     equals(java.lang.Object obj)
     {

@@ -11,7 +11,7 @@
 #define ICE_REFERENCE_H
 
 #include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
+#include <IceUtil/RecMutex.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/EndpointIF.h>
@@ -83,7 +83,7 @@ public:
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const = 0;
     virtual ReferencePtr changeLocatorCacheTimeout(int) const = 0;
     
-    int hash() const; // Conceptually const.
+    virtual int hash() const; // Conceptually const.
 
     //
     // Marshal the reference.
@@ -112,6 +112,10 @@ protected:
 	      const std::string&, Mode);
     Reference(const Reference&);
 
+    IceUtil::RecMutex _hashMutex; // For lazy initialization of hash value.
+    mutable Ice::Int _hashValue;
+    mutable bool _hashInitialized;
+
 private:
 
     const InstancePtr _instance;
@@ -123,10 +127,6 @@ private:
     std::string _facet;
     bool _cacheConnection;
     Ice::EndpointSelectionType _endpointSelection;
-
-    IceUtil::Mutex _hashMutex; // For lazy initialization of hash value.
-    mutable Ice::Int _hashValue;
-    mutable bool _hashInitialized;
 };
 
 class FixedReference : public Reference
@@ -192,6 +192,8 @@ public:
     virtual ReferencePtr changeCollocationOptimization(bool) const;
 
     virtual Ice::ConnectionIPtr getConnection(bool&) const = 0;
+
+    virtual int hash() const;
 
     virtual bool operator==(const Reference&) const = 0;
     virtual bool operator!=(const Reference&) const = 0;
@@ -277,6 +279,8 @@ public:
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
     virtual Ice::ConnectionIPtr getConnection(bool&) const;
+
+    virtual int hash() const; // Conceptually const.
 
     virtual bool operator==(const Reference&) const;
     virtual bool operator!=(const Reference&) const;
