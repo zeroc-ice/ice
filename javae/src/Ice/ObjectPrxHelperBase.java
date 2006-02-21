@@ -60,7 +60,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
                 {
                     try
                     {
-                        IceInternal.BasicStream __os = __og.os();
+                        IceInternal.BasicStream __os = __og.stream();
                         __os.writeString(__id);
                     }
                     catch(Ice.LocalException __ex)
@@ -70,7 +70,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
                     boolean __ok = __og.invoke();
                     try
                     {
-                        IceInternal.BasicStream __is = __og.is();
+                        IceInternal.BasicStream __is = __og.stream();
                         if(!__ok)
                         {
                             __is.throwException();
@@ -125,7 +125,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
                     boolean __ok = __og.invoke();
                     try
                     {
-                        IceInternal.BasicStream __is = __og.is();
+                        IceInternal.BasicStream __is = __og.stream();
                         if(!__ok)
                         {
                             __is.throwException();
@@ -180,7 +180,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
                     boolean __ok = __og.invoke();
                     try
                     {
-                        IceInternal.BasicStream __is = __og.is();
+                        IceInternal.BasicStream __is = __og.stream();
                         if(!__ok)
                         {
                             __is.throwException();
@@ -235,7 +235,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
                     boolean __ok = __og.invoke();
                     try
                     {
-                        IceInternal.BasicStream __is = __og.is();
+                        IceInternal.BasicStream __is = __og.stream();
                         if(!__ok)
                         {
                             __is.throwException();

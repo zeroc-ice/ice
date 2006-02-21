@@ -18,8 +18,7 @@ public final class Outgoing
         _connection = connection;
         _reference = ref;
         _state = StateUnsent;
-        _is = new BasicStream(ref.getInstance());
-        _os = new BasicStream(ref.getInstance());
+        _stream = new BasicStream(ref.getInstance());
 
         writeHeader(operation, mode, context);
     }
@@ -36,15 +35,9 @@ public final class Outgoing
 
 	if(IceUtil.Debug.ASSERT)
 	{
-	    IceUtil.Debug.Assert(_is != null);
+	    IceUtil.Debug.Assert(_stream != null);
 	}
-        _is.reset();
-
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(_os != null);
-	}
-        _os.reset();
+        _stream.reset();
 
         writeHeader(operation, mode, context);
     }
@@ -59,8 +52,9 @@ public final class Outgoing
 	    IceUtil.Debug.Assert(_state == StateUnsent);
 	}
 
-        _os.endWriteEncaps();
+        _stream.endWriteEncaps();
 
+	_state = StateInProgress;
         switch(_reference.getMode())
         {
             case Reference.ModeTwoway:
@@ -76,85 +70,13 @@ public final class Outgoing
 		    // call back on this object, so we don't need to lock
 		    // the mutex, keep track of state, or save exceptions.
 		    //
-		    _connection.sendRequest(_os, this);
-
-		    //
-		    // Wait until the request has completed, or until the
-		    // request times out.
-		    //
-
-		    boolean timedOut = false;
-
-                    synchronized(this)
-                    {
-		        //
-		        // It's possible that the request has already
-		        // completed, due to a regular response, or because of
-		        // an exception. So we only change the state to "in
-		        // progress" if it is still "unsent".
-		        //
-		        if(_state == StateUnsent)
-		        {
-			    _state = StateInProgress;
-		        }
-
-                        int timeout = _connection.timeout();
-                        while(_state == StateInProgress && !timedOut)
-                        {
-                            try
-                            {
-                                if(timeout >= 0)
-                                {
-                                    wait(timeout);
-				
-                                    if(_state == StateInProgress)
-                                    {
-                                        timedOut = true;
-                                    }
-                                }
-                                else
-                                {
-                                    wait();
-                                }
-                            }
-                            catch(InterruptedException ex)
-                            {
-                            }
-                        }
-                    }
-		
-		    if(timedOut)
-		    {
-                        //
-                        // Must be called outside the synchronization of
-                        // this object
-                        //
-                        _connection.exception(new Ice.TimeoutException());
-
-		        //
-		        // We must wait until the exception set above has
-		        // propagated to this Outgoing object.
-		        //
-		        synchronized(this)
-		        {
-			    while(_state == StateInProgress)
-			    {
-			        try
-			        {
-				    wait();
-			        }
-			        catch(InterruptedException ex)
-			        {
-			        }
-			    }
-		        }
-                    }
+		    _connection.sendRequest(_stream, this);
 		}
 		else
 		{
 		    try
 		    {
-		        _connection.sendBlockingRequest(_os, _is, this);
+		        _connection.sendBlockingRequest(_stream, this);
 		        finishedInternal();
 		    }
 		    catch(Ice.LocalException ex)
@@ -219,8 +141,7 @@ public final class Outgoing
                 // caller, because such exceptions can be retried without
                 // violating "at-most-once".
 		//
-		_state = StateInProgress;
-		_connection.sendRequest(_os, null);
+		_connection.sendRequest(_stream, null);
                 break;
             }
 
@@ -231,8 +152,7 @@ public final class Outgoing
 		// regular oneways (see comment above)
 		// apply.
 		//
-		_state = StateInProgress;
-                _connection.finishBatchRequest(_os);
+                _connection.finishBatchRequest(_stream);
                 break;
             }
 
@@ -281,7 +201,7 @@ public final class Outgoing
 	throw ex;
     }
 
-    public synchronized void
+    public void
     finished(BasicStream is)
     {
 	if(IceUtil.Debug.ASSERT)
@@ -291,15 +211,14 @@ public final class Outgoing
 	    IceUtil.Debug.Assert(_state <= StateInProgress);
 	}
 	
-	_is.swap(is);
+	_stream.swap(is);
 	finishedInternal();
-        notify();
     }
 
     private void
     finishedInternal()
     {
-	int status = (int)_is.readByte();
+	int status = (int)_stream.readByte();
 	
 	switch(status)
 	{
@@ -310,7 +229,7 @@ public final class Outgoing
 		// encapsulation, which makes it possible to forward
 		// oneway requests as blobs.
 		//
-		_is.startReadEncaps();
+		_stream.startReadEncaps();
 		_state = StateOK; // The state must be set last, in case there is an exception.
 		break;
 	    }
@@ -322,7 +241,7 @@ public final class Outgoing
 		// encapsulation, which makes it possible to forward
 		// oneway requests as blobs.
 		//
-		_is.startReadEncaps();
+		_stream.startReadEncaps();
 		_state = StateUserException; // The state must be set last, in case there is an exception.
 		break;
 	    }
@@ -363,12 +282,12 @@ public final class Outgoing
 		}
 		
 		ex.id = new Ice.Identity();
-		ex.id.__read(_is);
+		ex.id.__read(_stream);
 
                 //
                 // For compatibility with the old FacetPath.
                 //
-                String[] facetPath = _is.readStringSeq();
+                String[] facetPath = _stream.readStringSeq();
                 if(facetPath.length > 0)
                 {
 		    if(facetPath.length > 1)
@@ -382,7 +301,7 @@ public final class Outgoing
 		    ex.facet = "";
 		}
 
-		ex.operation = _is.readString();
+		ex.operation = _stream.readString();
 		_exception = ex;
 
 		_state = StateLocalException; // The state must be set last, in case there is an exception.
@@ -424,7 +343,7 @@ public final class Outgoing
 		    }
 		}
 		
-		ex.unknown = _is.readString();
+		ex.unknown = _stream.readString();
 		_exception = ex;
 
 		_state = StateLocalException; // The state must be set last, in case there is an exception.
@@ -440,7 +359,7 @@ public final class Outgoing
 	}
     }
 
-    public synchronized void
+    public void
     finished(Ice.LocalException ex)
     {
 	if(IceUtil.Debug.ASSERT)
@@ -452,19 +371,12 @@ public final class Outgoing
 
 	_state = StateLocalException;
 	_exception = ex;
-	notify();
     }
 
     public BasicStream
-    is()
+    stream()
     {
-        return _is;
-    }
-
-    public BasicStream
-    os()
-    {
-        return _os;
+        return _stream;
     }
 
     private void
@@ -475,13 +387,13 @@ public final class Outgoing
             case Reference.ModeTwoway:
             case Reference.ModeOneway:
             {
-                _connection.prepareRequest(_os);
+                _connection.prepareRequest(_stream);
                 break;
             }
 
             case Reference.ModeBatchOneway:
             {
-                _connection.prepareBatchRequest(_os);
+                _connection.prepareBatchRequest(_stream);
                 break;
             }
 
@@ -496,7 +408,7 @@ public final class Outgoing
 	    }
         }
 
-        _reference.getIdentity().__write(_os);
+        _reference.getIdentity().__write(_stream);
 
         //
         // For compatibility with the old FacetPath.
@@ -504,26 +416,26 @@ public final class Outgoing
 	String facet = _reference.getFacet();
         if(facet == null || facet.length() == 0)
         {
-            _os.writeStringSeq(null);
+            _stream.writeStringSeq(null);
         }
         else
         {
             String[] facetPath = { facet };
-            _os.writeStringSeq(facetPath);
+            _stream.writeStringSeq(facetPath);
         }
 
-        _os.writeString(operation);
+        _stream.writeString(operation);
 
-        _os.writeByte((byte)mode.value());
+        _stream.writeByte((byte)mode.value());
 
         if(context == null)
         {
-            _os.writeSize(0);
+            _stream.writeSize(0);
         }
         else
         {
             final int sz = context.size();
-            _os.writeSize(sz);
+            _stream.writeSize(sz);
             if(sz > 0)
             {
 		java.util.Enumeration e = context.keys();
@@ -531,8 +443,8 @@ public final class Outgoing
                 {
 		    String key = (String)e.nextElement();
 		    String value = (String)context.get(key);
-                    _os.writeString(key);
-                    _os.writeString(value);
+                    _stream.writeString(key);
+                    _stream.writeString(value);
                 }
             }
         }
@@ -542,22 +454,27 @@ public final class Outgoing
         // encapsulation, which makes it possible to forward requests as
         // blobs.
         //
-        _os.startWriteEncaps();
+        _stream.startWriteEncaps();
+    }
+
+    public int
+    state()
+    {
+        return _state;
     }
 
     private Ice.Connection _connection;
     private Reference _reference;
     private Ice.LocalException _exception;
 
-    private static final int StateUnsent = 0;
-    private static final int StateInProgress = 1;
-    private static final int StateOK = 2;
-    private static final int StateUserException = 3;
-    private static final int StateLocalException = 4;
+    public static final int StateUnsent = 0;
+    public static final int StateInProgress = 1;
+    public static final int StateOK = 2;
+    public static final int StateUserException = 3;
+    public static final int StateLocalException = 4;
     private int _state;
 
-    private BasicStream _is;
-    private BasicStream _os;
+    private BasicStream _stream;
 
     public Outgoing next;
 }

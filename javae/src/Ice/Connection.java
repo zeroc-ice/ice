@@ -330,7 +330,7 @@ public final class Connection
     }
 
     public void
-    sendBlockingRequest(IceInternal.BasicStream os, IceInternal.BasicStream is, IceInternal.Outgoing out)
+    sendBlockingRequest(IceInternal.BasicStream os, IceInternal.Outgoing out)
     {
 	int requestId = 0;
 
@@ -376,34 +376,38 @@ public final class Connection
 
 		if(out != null)
 		{
-		    readStream(is);
+		    os.reset();
+		    readStream(os);
 		}
 	    }
 
-	    synchronized(this)
+	    if(out != null)
 	    {
-		if(_state != StateClosed)
-		{
-		    parseMessage(is, new MessageInfo(), requestId);
-		}
-
-		//
-		// parseMessage() can close the connection, so we must
-		// check for closed state again.
-		//
-		if(_state == StateClosed)
-		{
-		    try
+	        synchronized(this)
+	        {
+		    if(_state != StateClosed)
 		    {
-		        _transceiver.close();
-		    }
-		    catch(LocalException ex)
-		    {
+		        parseMessage(os, new MessageInfo(), requestId);
 		    }
 
-		    _transceiver = null;
-		    throw _exception;
-		}
+		    //
+		    // parseMessage() can close the connection, so we must
+		    // check for closed state again.
+		    //
+		    if(_state == StateClosed)
+		    {
+		        try
+		        {
+		            _transceiver.close();
+		        }
+		        catch(LocalException ex)
+		        {
+		        }
+
+		        _transceiver = null;
+		        throw _exception;
+		    }
+	        }
 	    }
 	}
 	catch(LocalException ex)
@@ -460,11 +464,59 @@ public final class Connection
 	    os.writeInt(os.size());
 	}
 
+	boolean timedOut = false;
 	try
 	{
 	    synchronized(_sendMutex)
 	    {
 	        sendRequest(os);
+	    }
+
+	    if(out != null)
+	    {
+	        synchronized(this)
+		{
+		    //
+		    // Wait until the request has completed, or until the
+		    // request times out.
+		    //
+		    int tout = timeout();
+		    long expireTime = 0;
+		    if(tout > 0)
+		    {
+		        expireTime = System.currentTimeMillis() + tout;
+		    }
+		    while(out.state() == IceInternal.Outgoing.StateInProgress && !timedOut)
+		    {
+		        try
+			{
+		            if(tout > 0)
+			    {
+			        long now = System.currentTimeMillis();
+				if(now < expireTime)
+				{
+				    wait(expireTime - now);
+				}
+
+				//
+				// Make sure we woke up because of timeout and not another response.
+				//
+				if(out.state() == IceInternal.Outgoing.StateInProgress && 
+				   System.currentTimeMillis() > expireTime)
+				{
+				    timedOut = true;
+				}
+			    }
+			    else
+			    {
+			        wait();
+			    }
+			}
+			catch(InterruptedException ex)
+			{
+			}
+		    }
+		}
 	    }
 	}
 	catch(LocalException ex)
@@ -508,6 +560,33 @@ public final class Connection
 		else
 		{
 		    throw _exception;
+		}
+	    }
+	}
+
+	if(timedOut)
+	{
+	    //
+	    // Must be called outside the synchronization of this
+	    // object.
+	    //
+	    exception(new TimeoutException());
+
+	    synchronized(this)
+	    {
+	        //
+		// We must wait until the exception has propagted
+		// back to the Outgoing object.
+		//
+		while(out.state() == IceInternal.Outgoing.StateInProgress)
+		{
+		    try
+		    {
+		        wait();
+		    }
+		    catch(InterruptedException ex)
+		    {
+		    }
 		}
 	    }
 	}
@@ -1466,6 +1545,7 @@ public final class Connection
 		        if(out != null)
 		        {
 			    out.finished(stream);
+			    notifyAll(); // Wake up threads waiting in sendRequest()
 		        }
 		        else
 		        {
@@ -1745,12 +1825,16 @@ public final class Connection
 	    
 	    if(requests != null)
 	    {
-		java.util.Enumeration i = requests.elements();
-		while(i.hasMoreElements())
+	        synchronized(this)
 		{
-		    IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.nextElement();
-		    IceInternal.Outgoing out = (IceInternal.Outgoing)e.getValue();
-		    out.finished(_exception); // The exception is immutable at this point.
+		    java.util.Enumeration i = requests.elements();
+		    while(i.hasMoreElements())
+		    {
+		        IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.nextElement();
+		        IceInternal.Outgoing out = (IceInternal.Outgoing)e.getValue();
+		        out.finished(_exception); // The exception is immutable at this point.
+		    }
+		    notifyAll();
 		}
 	    }
 	    
