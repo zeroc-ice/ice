@@ -52,6 +52,7 @@ tests = [ \
     "Ice/operations", \
     "Ice/exceptions", \
     "Ice/inheritance", \
+    "Ice/binding", \
     "Ice/facets", \
     "Ice/objects", \
     "Ice/slicing/exceptions", \
