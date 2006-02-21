@@ -360,7 +360,6 @@ public class Utils
 		    }
 		    else
 		    {
-			System.err.println("Caching: " + name + ": " + result);
 			_resolvedVariableCache.put(name, result);
 		    }
 		    return result;
