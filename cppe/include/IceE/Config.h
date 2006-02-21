@@ -30,7 +30,7 @@
 // Comment this out if you want to build without support for blocking
 // client.
 //
-#define ICEE_BLOCKING_CLIENT
+//#define ICEE_BLOCKING_CLIENT
 
 //
 // Comment this line if you don't want the pure client library built

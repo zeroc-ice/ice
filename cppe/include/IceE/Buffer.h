@@ -122,6 +122,11 @@ public:
 #endif
 	}
 
+	void reset()
+	{
+	    _size = 0;
+	}
+
 	void resize(size_type);
 
 	void push_back(value_type v)

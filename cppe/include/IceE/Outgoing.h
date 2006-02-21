@@ -12,11 +12,6 @@
 
 #include <IceE/ConnectionF.h>
 #include <IceE/ReferenceF.h>
-
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-#  include <IceE/Mutex.h>
-#  include <IceE/Monitor.h>
-#endif
 #include <IceE/BasicStream.h>
 #include <IceE/OperationMode.h>
 
@@ -54,16 +49,29 @@ class ICE_API Outgoing : private IceUtil::noncopyable
 {
 public:
 
+    enum State
+    {
+	StateUnsent,
+	StateInProgress,
+	StateOK,
+	StateUserException,
+	StateLocalException
+    };
+
     Outgoing(Ice::Connection*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context&);
     virtual ~Outgoing() {}
 
     virtual bool invoke(); // Returns true if ok, false if user exception.
     void abort(const Ice::LocalException&);
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+    void finished(BasicStream&);
+    void finished(const Ice::LocalException&);
+#endif
 
     // Inlined for speed optimization.
-    BasicStream* is() { return &_is; }
-    BasicStream* os() { return &_os; }
-
+    BasicStream* stream() { return &_stream; }
+    State state() { return _state; }
+    
 protected:
 
     void finishedInternal();
@@ -77,32 +85,9 @@ protected:
 
     std::auto_ptr<Ice::LocalException> _exception;
 
-    enum
-    {
-	StateUnsent,
-	StateInProgress,
-	StateOK,
-	StateUserException,
-	StateLocalException
-    } _state;
-
-    BasicStream _is;
-    BasicStream _os;
+    State _state;
+    BasicStream _stream;
 };
-
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-class ICE_API OutgoingM : public Outgoing , public IceUtil::Monitor<IceUtil::Mutex >
-{
-public:
-
-    OutgoingM(Ice::Connection*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context&);
-    virtual ~OutgoingM() {}
-
-    bool invoke(); // Returns true if ok, false if user exception.
-    void finished(BasicStream&);
-    void finished(const Ice::LocalException&);
-};
-#endif
 
 }
 

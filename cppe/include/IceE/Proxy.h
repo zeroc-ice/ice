@@ -161,11 +161,6 @@ protected:
 
 private:
 
-    bool __ice_isA(const ::std::string&, ::IceInternal::Outgoing&);
-    void __ice_ping(::IceInternal::Outgoing&);
-    ::std::vector< ::std::string> __ice_ids(::IceInternal::Outgoing&);
-    ::std::string __ice_id(::IceInternal::Outgoing&);
-
     void setup(const ::IceInternal::ReferencePtr&);
     friend class ::IceInternal::ProxyFactory;
 

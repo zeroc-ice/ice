@@ -52,6 +52,12 @@ public:
 	b.resize(sz);
     }
 
+    void reset()
+    {
+        b.reset();
+	i = b.begin();
+    }
+
     void startSeq(int, int);
     void checkSeq();
     void checkSeq(int);

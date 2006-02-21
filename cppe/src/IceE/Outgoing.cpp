@@ -39,22 +39,21 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
     _connection(connection),
     _reference(ref),
     _state(StateUnsent),
-    _is(ref->getInstance().get()),
-    _os(ref->getInstance().get())
+    _stream(ref->getInstance().get())
 {
     switch(_reference->getMode())
     {
 	case Reference::ModeTwoway:
 	case Reference::ModeOneway:
 	{
-	    _connection->prepareRequest(&_os);
+	    _connection->prepareRequest(&_stream);
 	    break;
 	}
 
 	case Reference::ModeBatchOneway:
 #ifdef ICEE_HAS_BATCH
 	{
-	    _connection->prepareBatchRequest(&_os);
+	    _connection->prepareBatchRequest(&_stream);
 	    break;
 	}
 #endif
@@ -66,31 +65,31 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
 	}
     }
 
-    _reference->getIdentity().__write(&_os);
+    _reference->getIdentity().__write(&_stream);
 
     //
     // For compatibility with the old FacetPath.
     //
     if(_reference->getFacet().empty())
     {
-	_os.write(static_cast<string*>(0), static_cast<string*>(0));
+	_stream.write(static_cast<string*>(0), static_cast<string*>(0));
     }
     else
     {
 	string facet = _reference->getFacet();
-	_os.write(&facet, &facet + 1);
+	_stream.write(&facet, &facet + 1);
     }
 
-    _os.write(operation);
+    _stream.write(operation);
 
-    _os.write(static_cast<Byte>(mode));
+    _stream.write(static_cast<Byte>(mode));
 
-    _os.writeSize(Int(context.size()));
+    _stream.writeSize(Int(context.size()));
     Context::const_iterator p;
     for(p = context.begin(); p != context.end(); ++p)
     {
-	_os.write(p->first);
-	_os.write(p->second);
+	_stream.write(p->first);
+	_stream.write(p->second);
     }
     
     //
@@ -98,28 +97,49 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
     // encapsulation, which makes it possible to forward requests as
     // blobs.
     //
-    _os.startWriteEncaps();
+    _stream.startWriteEncaps();
 }
 
 bool
 IceInternal::Outgoing::invoke()
 {
-#ifdef ICEE_BLOCKING_CLIENT
     assert(_state == StateUnsent);
+    _state = StateInProgress;
 
-    _os.endWriteEncaps();
+    _stream.endWriteEncaps();
     
     switch(_reference->getMode())
     {
 	case Reference::ModeTwoway:
 	{
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+#ifdef ICEE_BLOCKING_CLIENT
+	    if(!_connection->blocking())
+#endif
+	    {
+	        //
+	        // We let all exceptions raised by sending directly
+	        // propagate to the caller, because they can be retried
+	        // without violating "at-most-once". In case of such
+	        // exceptions, the connection object does not call back on
+	        // this object, so we don't need to lock the mutex, keep
+	        // track of state, or save exceptions.
+	        //
+	        _connection->sendRequest(&_stream, this);
+	    }
+#ifdef ICEE_BLOCKING_CLIENT
+	    else
+#endif
+#endif
+#ifdef ICEE_BLOCKING_CLIENT
+	    {
 	        //
 		// For blocking sends the reply is written directly
 		// into the incoming stream.
 		//
 		try
 		{
-	            _connection->sendBlockingRequest(&_os, &_is, this);
+	            _connection->sendBlockingRequest(&_stream, this);
 		    finishedInternal();
 		}
 		catch(const LocalException& ex)
@@ -127,7 +147,8 @@ IceInternal::Outgoing::invoke()
     		    _state = StateLocalException;
     		    _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 		}
-
+	    }
+#endif
 	    if(_exception.get())
 	    {
 		//
@@ -174,8 +195,11 @@ IceInternal::Outgoing::invoke()
 	    // caller, because such exceptions can be retried without
 	    // violating "at-most-once".
 	    //
-	    _state = StateInProgress;
-	    _connection->sendBlockingRequest(&_os, 0, 0);
+#ifdef ICEE_BLOCKING_CLIENT
+	    _connection->sendBlockingRequest(&_stream, 0);
+#else
+	    _connection->sendRequest(&_stream, 0);
+#endif
 	    break;
 	}
 
@@ -187,8 +211,7 @@ IceInternal::Outgoing::invoke()
 	    // regular oneways (see comment above)
 	    // apply.
 	    //
-	    _state = StateInProgress;
-	    _connection->finishBatchRequest(&_os);
+	    _connection->finishBatchRequest(&_stream);
 	    break;
 	}
 #endif
@@ -201,10 +224,6 @@ IceInternal::Outgoing::invoke()
     }
 
     return true;
-#else
-    assert(false);
-    return false;
-#endif
 }
 
 void
@@ -234,11 +253,23 @@ IceInternal::Outgoing::abort(const LocalException& ex)
     ex.ice_throw();
 }
 
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+void
+IceInternal::Outgoing::finished(BasicStream& is)
+{
+    assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
+    assert(_state <= StateInProgress);
+
+    _stream.swap(is);
+    finishedInternal();
+}
+#endif
+
 void
 IceInternal::Outgoing::finishedInternal()
 {
     Byte status;
-    _is.read(status);
+    _stream.read(status);
     
     switch(static_cast<DispatchStatus>(status))
     {
@@ -249,7 +280,7 @@ IceInternal::Outgoing::finishedInternal()
 	    // encapsulation, which makes it possible to forward
 	    // oneway requests as blobs.
 	    //
-	    _is.startReadEncaps();
+	    _stream.startReadEncaps();
 	    _state = StateOK; // The state must be set last, in case there is an exception.
 	    break;
 	}
@@ -261,7 +292,7 @@ IceInternal::Outgoing::finishedInternal()
 	    // encapsulation, which makes it possible to forward
 	    // oneway requests as blobs.
 	    //
-	    _is.startReadEncaps();
+	    _stream.startReadEncaps();
 	    _state = StateUserException; // The state must be set last, in case there is an exception.
 	    break;
 	}
@@ -276,13 +307,13 @@ IceInternal::Outgoing::finishedInternal()
 	    // exception, you will have a memory leak.
 	    //
 	    Identity ident;
-	    ident.__read(&_is);
+	    ident.__read(&_stream);
 
 	    //
 	    // For compatibility with the old FacetPath.
 	    //
 	    vector<string> facetPath;
-	    _is.read(facetPath);
+	    _stream.read(facetPath);
 	    string facet;
 	    if(!facetPath.empty())
 	    {
@@ -294,7 +325,7 @@ IceInternal::Outgoing::finishedInternal()
 	    }
 
 	    string operation;
-	    _is.read(operation);
+	    _stream.read(operation);
 	    
 	    RequestFailedException* ex;
 	    switch(static_cast<DispatchStatus>(status))
@@ -344,7 +375,7 @@ IceInternal::Outgoing::finishedInternal()
 	    // exception, you will have a memory leak.
 	    //
 	    string unknown;
-	    _is.read(unknown);
+	    _stream.read(unknown);
 	    
 	    UnknownException* ex;
 	    switch(static_cast<DispatchStatus>(status))
@@ -390,3 +421,17 @@ IceInternal::Outgoing::finishedInternal()
 	}
     }
 }
+
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+
+void
+IceInternal::Outgoing::finished(const LocalException& ex)
+{
+    assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
+    assert(_state <= StateInProgress);
+    
+    _state = StateLocalException;
+    _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
+}
+
+#endif

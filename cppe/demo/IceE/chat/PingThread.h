@@ -11,6 +11,7 @@
 #define CHAT_PING_THREAD_H
 
 #include <IceE/Thread.h>
+#include <IceE/Monitor.h>
 #include <Router.h>
 
 class SessionPingThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>

@@ -1426,92 +1426,13 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
     C << nl << "::Ice::ConnectionPtr __connection = ice_connection();";
-    C.zeroIndent();
-    C << nl << "#ifdef ICEE_BLOCKING_CLIENT";
-    C << nl << "#  ifndef ICEE_PURE_BLOCKING_CLIENT";
-    C.restoreIndent();
-    C << nl << "if(__connection->blocking())";
-    C.zeroIndent();
-    C << nl << "#  endif";
-    C.restoreIndent();
-    C << sb;
     C << nl << "::IceInternal::Outgoing __outS(__connection.get(), _reference.get(), __operation, "
       << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
-    C << nl;
-    if(ret)
-    {
-        C << "return ";
-    }
-    C << "___" << name << spar << paramsName << epar << ";";
-    C << eb;
-    C.zeroIndent();
-    C << nl << "#  ifndef ICEE_PURE_BLOCKING_CLIENT";
-    C.restoreIndent();
-    C << nl << "else";
-    C.zeroIndent();
-    C << nl << "#  endif";
-    C << nl << "#endif";
-    C << nl << "#ifndef ICEE_PURE_BLOCKING_CLIENT";
-    C.restoreIndent();
-    C << sb;
-    C << nl << "::IceInternal::OutgoingM __outS(__connection.get(), _reference.get(), __operation, "
-      << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
-    C << nl;
-    if(ret)
-    {
-        C << "return ";
-    }
-    C << "___" << name << spar << paramsName << epar << ";";
-    C << eb;
-    C.zeroIndent();
-    C << nl << "#endif";
-    C.restoreIndent();
-    if(!ret)
-    {
-	C << nl << "return;";
-    }
-    C << eb;
-    C << nl << "catch(const ::IceInternal::NonRepeatable& __ex)";
-    C << sb;
-    if(p->mode() == Operation::Idempotent || p->mode() == Operation::Nonmutating)
-    {
-	C << nl << "__handleException(*__ex.get(), __cnt);";
-    }
-    else
-    {
-	C << nl << "__rethrowException(*__ex.get());";
-    }
-    C << eb;
-    C << nl << "catch(const ::Ice::LocalException& __ex)";
-    C << sb;
-    C << nl << "__handleException(__ex, __cnt);";
-    C << eb;
-    
-    C.zeroIndent();
-    C << nl << "#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug."; // COMPILERBUG
-    C.restoreIndent();
-    C << nl << "catch(...)";
-    C << sb;
-    C << nl << "throw;";
-    C << eb;
-    C.zeroIndent();
-    C << nl << "#endif";
-    C.restoreIndent();
-
-    C << eb;
-    C << eb;
-
-    params.push_back("::IceInternal::Outgoing&");
-    paramsDecl.push_back("::IceInternal::Outgoing& __outS");
-
-    H << nl << retS << " ___" << name << spar << params << epar << ';';
-    C << sp << nl << retS << nl << "IceProxy" << scope << "___" << name << spar << paramsDecl << epar;
-    C << sb;
     if(!inParams.empty())
     {
         C << nl << "try";
         C << sb;
-        C << nl << "::IceInternal::BasicStream* __os = __outS.os();";
+        C << nl << "::IceInternal::BasicStream* __os = __outS.stream();";
         writeMarshalCode(C, inParams, 0, StringList(), true);
         C << eb;
         C << nl << "catch(const ::Ice::LocalException& __ex)";
@@ -1522,7 +1443,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "bool __ok = __outS.invoke();";
     C << nl << "try";
     C << sb;
-    C << nl << "::IceInternal::BasicStream* __is = __outS.is();";
+    C << nl << "::IceInternal::BasicStream* __is = __outS.stream();";
     C << nl << "if(!__ok)";
     C << sb;
     C << nl << "try";
@@ -1599,7 +1520,39 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C.zeroIndent();
     C << nl << "#endif";
     C.restoreIndent();
+    if(!ret)
+    {
+	C << nl << "return;";
+    }
+    C << eb;
+    C << nl << "catch(const ::IceInternal::NonRepeatable& __ex)";
+    C << sb;
+    if(p->mode() == Operation::Idempotent || p->mode() == Operation::Nonmutating)
+    {
+	C << nl << "__handleException(*__ex.get(), __cnt);";
+    }
+    else
+    {
+	C << nl << "__rethrowException(*__ex.get());";
+    }
+    C << eb;
+    C << nl << "catch(const ::Ice::LocalException& __ex)";
+    C << sb;
+    C << nl << "__handleException(__ex, __cnt);";
+    C << eb;
+    
+    C.zeroIndent();
+    C << nl << "#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug."; // COMPILERBUG
+    C.restoreIndent();
+    C << nl << "catch(...)";
+    C << sb;
+    C << nl << "throw;";
+    C << eb;
+    C.zeroIndent();
+    C << nl << "#endif";
+    C.restoreIndent();
 
+    C << eb;
     C << eb;
 }
 

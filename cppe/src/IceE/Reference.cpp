@@ -365,26 +365,26 @@ IceInternal::Reference::operator<(const Reference& r) const
 
 IceInternal::Reference::Reference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
 				  const Context& ctx, const string& fs, Mode md, bool sec) :
+    _hashInitialized(false),
     _instance(inst),
     _communicator(com),
     _mode(md),
     _secure(sec),
     _identity(ident),
     _context(ctx),
-    _facet(fs),
-    _hashInitialized(false)
+    _facet(fs)
 {
 }
 
 IceInternal::Reference::Reference(const Reference& r) :
+    _hashInitialized(false),
     _instance(r._instance),
     _communicator(r._communicator),
     _mode(r._mode),
     _secure(r._secure),
     _identity(r._identity),
     _context(r._context),
-    _facet(r._facet),
-    _hashInitialized(false)
+    _facet(r._facet)
 {
 }
 

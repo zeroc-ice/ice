@@ -45,7 +45,6 @@ ICE_OBJS	= BasicStream.o \
 		  Network.o \
 		  OperationMode.o \
 		  Outgoing.o \
-		  OutgoingM.o \
 		  OutgoingConnectionFactory.o \
 		  Properties.o \
 		  Proxy.o \
