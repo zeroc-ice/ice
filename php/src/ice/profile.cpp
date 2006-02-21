@@ -98,6 +98,21 @@ static const char* _coreTypes =
     "    }\n"
     "}\n"
     "\n"
+    "class Ice_TwowayOnlyException extends Ice_LocalException\n"
+    "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_LocalException::__construct($message);\n"
+    "    }\n"
+    "\n"
+    "    function __toString()\n"
+    "    {\n"
+    "        return $this->operation;\n"
+    "    }\n"
+    "\n"
+    "    public $operation;\n"
+    "}\n"
+    "\n"
     "class Ice_UnknownException extends Ice_LocalException\n"
     "{\n"
     "    function __construct($message = '')\n"
@@ -474,6 +489,36 @@ createProfile(const string& name, const string& config, const string& options, c
         Slice::TypePtr str = unit->builtin(Slice::Builtin::KindString);
         identity->createDataMember("category", str);
         identity->createDataMember("name", str);
+    }
+
+    //
+    // Create the Slice definition for Ice::EndpointSelectionType if it doesn't exist. The PHP class will
+    // be created automatically by CodeVisitor.
+    //
+    scoped = "::Ice::EndpointSelectionType";
+    l = unit->lookupTypeNoBuiltin(scoped, false);
+    if(l.empty())
+    {
+	Slice::ContainedList c = unit->lookupContained("Ice", false);
+	Slice::ModulePtr module;
+	if(c.empty())
+	{
+	    module = unit->createModule("Ice");
+	}
+	else
+	{
+	    module = Slice::ModulePtr::dynamicCast(c.front());
+	    if(!module)
+	    {
+		php_error_docref(NULL TSRMLS_CC, E_ERROR, "the symbol `::Ice' is defined in Slice but is not a module");
+		return false;
+	    }
+	}
+	Slice::EnumPtr en = module->createEnum("EndpointSelectionType", false);
+	Slice::EnumeratorList el;
+	el.push_back(module->createEnumerator("Random"));
+	el.push_back(module->createEnumerator("Ordered"));
+	en->setEnumerators(el);
     }
 
     //
