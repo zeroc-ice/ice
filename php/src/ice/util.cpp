@@ -332,6 +332,35 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
     {
         ex.ice_throw();
     }
+    catch(const Ice::TwowayOnlyException& e)
+    {
+	string name = e.ice_name();
+	zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
+	if(!cls)
+	{
+	    php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
+	    return;
+	}
+
+	zval* zex;
+	MAKE_STD_ZVAL(zex);
+	if(object_init_ex(zex, cls) != SUCCESS)
+	{
+	    php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+	    return;
+	}
+
+	//
+	// Set the unknown member.
+	//
+	zend_update_property_string(cls, zex, "operation", sizeof("operation") - 1,
+				    const_cast<char*>(e.operation.c_str()) TSRMLS_CC);
+
+	//
+	// Throw the exception.
+	//
+	zend_throw_exception_object(zex TSRMLS_CC);
+    }
     catch(const Ice::UnknownException& e)
     {
         string name = e.ice_name();
