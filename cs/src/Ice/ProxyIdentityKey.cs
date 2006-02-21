@@ -31,7 +31,14 @@ namespace Ice
 
 	public new bool Equals(object obj1, object obj2)
 	{
-	    return Compare(obj1, obj2) == 0;
+	    try
+	    {
+		return Compare(obj1, obj2) == 0;
+	    }
+	    catch(System.Exception)
+	    {
+	        return false;
+	    }
 	}
 
 	public int Compare(object obj1, object obj2)
@@ -82,7 +89,14 @@ namespace Ice
 
 	public new bool Equals(object obj1, object obj2)
 	{
-	    return Compare(obj1, obj2) == 0;
+	    try
+	    {
+		return Compare(obj1, obj2) == 0;
+	    }
+	    catch(System.Exception)
+	    {
+	        return false;
+	    }
 	}
 
         public int Compare(object obj1, object obj2)
