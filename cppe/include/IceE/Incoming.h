@@ -19,46 +19,33 @@
 namespace IceInternal
 {
 
-class ICE_API IncomingBase : private IceUtil::noncopyable
+class ICE_API Incoming : private IceUtil::noncopyable
 {
-protected:
+public:
 
-    IncomingBase(Instance*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool);
-    IncomingBase(IncomingBase& in); // Adopts the argument. It must not be used afterwards.
+    Incoming(Instance*, Ice::Connection*, BasicStream&);
+
+    void invoke(bool, Ice::ObjectAdapter*, ServantManager*);
+
+    // Inlined for speed optimization.
+    BasicStream* os() { return &_os; }
+    BasicStream* is() { return &_is; }
+
+protected:
     
     void __warning(const Ice::Exception&) const;
     void __warning(const std::string&) const;
 
     Ice::Current _current;
-    Ice::ObjectPtr _servant;
-    Ice::LocalObjectPtr _cookie;
-
     bool _response;
-
     BasicStream _os;
+    BasicStream& _is;
 
     //
     // Optimization. The connection may not be deleted while a
     // stack-allocated Incoming still holds it.
     //
     Ice::Connection* _connection;
-};
-
-class ICE_API Incoming : public IncomingBase
-{
-public:
-
-    Incoming(Instance*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool);
-
-    void invoke(const ServantManagerPtr&);
-
-    // Inlined for speed optimization.
-    BasicStream* is() { return &_is; }
-    BasicStream* os() { return &_os; }
-
-private:
-
-    BasicStream _is;
 };
 
 }

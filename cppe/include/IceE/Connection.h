@@ -40,6 +40,7 @@ namespace IceInternal
 class Outgoing;
 #ifndef ICEE_PURE_BLOCKING_CLIENT
 class OutgoingM;
+class Incoming;
 #endif
 class BasicStream;
 
@@ -153,8 +154,8 @@ private:
     void initiateShutdown() const;
 
 #ifndef ICEE_PURE_CLIENT
-    void parseMessage(IceInternal::BasicStream&, Int&, Int&, IceInternal::ServantManagerPtr&, ObjectAdapterPtr&);
-    void invokeAll(IceInternal::BasicStream&, Int, Int, const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
+    void parseMessage(IceInternal::BasicStream&, Int&, Int&, IceInternal::ServantManager*&, ObjectAdapter*&);
+    void invokeAll(IceInternal::Incoming&, Int, Int, IceInternal::ServantManager*, ObjectAdapter*);
 #else
     void parseMessage(IceInternal::BasicStream&, Int&);
 #endif

@@ -401,8 +401,8 @@ Ice::Connection::sendBlockingRequest(BasicStream* os, BasicStream* is, Outgoing*
 	    {
 #ifndef ICEE_PURE_CLIENT
 	        Int invokeNum = 0;
-	        ServantManagerPtr servantManager;
-	        ObjectAdapterPtr adapter;
+	        ServantManager* servantManager;
+	        ObjectAdapter* adapter;
 
 	        parseMessage(*is, requestId, invokeNum, servantManager, adapter);
 #else
@@ -817,6 +817,20 @@ Ice::Connection::setAdapter(const ObjectAdapterPtr& adapter)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
+    //
+    // TODO: Add support for blocking mode here!
+    //
+
+    //
+    // Wait for all the incoming to be dispatched. We can't modify the
+    // _adapter and _servantManager if there's incoming because the
+    // Incoming object is using plain pointers for these objects.
+    //
+    while(_dispatchCount > 0)
+    {
+	wait();
+    }
+
     if(_exception.get())
     {
 	_exception->ice_throw();
@@ -834,11 +848,6 @@ Ice::Connection::setAdapter(const ObjectAdapterPtr& adapter)
     {
 	_servantManager = 0;
     }
-
-    //
-    // We never change the thread pool with which we were initially
-    // registered, even if we add or remove an object adapter.
-    //
 }
 
 ObjectAdapterPtr
@@ -1433,7 +1442,7 @@ Ice::Connection::initiateShutdown() const
 void
 Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
 #ifndef ICEE_PURE_CLIENT
-			      ,Int& invokeNum, ServantManagerPtr& servantManager, ObjectAdapterPtr& adapter
+			      ,Int& invokeNum, ServantManager*& servantManager, ObjectAdapter*& adapter
 #endif
 )
 {
@@ -1528,8 +1537,8 @@ Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
 		        traceRequest("received request", stream, _logger, _traceLevels);
 		        stream.read(requestId);
 		        invokeNum = 1;
-		        servantManager = _servantManager;
-		        adapter = _adapter;
+		        servantManager = _servantManager.get();
+		        adapter = _adapter.get();
 		        ++_dispatchCount;
 		    }
 		    break;
@@ -1552,8 +1561,8 @@ Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
 			    invokeNum = 0;
 			    throw NegativeSizeException(__FILE__, __LINE__);
 		        }
-		        servantManager = _servantManager;
-		        adapter = _adapter;
+		        servantManager = _servantManager.get();
+		        adapter = _adapter.get();
 		        _dispatchCount += invokeNum;
 		    }
 		    break;
@@ -1635,8 +1644,8 @@ Ice::Connection::parseMessage(BasicStream& stream, Int& requestId
 
 #ifndef ICEE_PURE_CLIENT
 void
-Ice::Connection::invokeAll(BasicStream& stream, Int invokeNum, Int requestId,
-			    const ServantManagerPtr& servantManager, const ObjectAdapterPtr& adapter)
+Ice::Connection::invokeAll(Incoming& in, Int invokeNum, Int requestId, ServantManager* servantManager, 
+			   ObjectAdapter* adapter)
 {
     //
     // Note: In contrast to other private or protected methods, this
@@ -1651,11 +1660,8 @@ Ice::Connection::invokeAll(BasicStream& stream, Int invokeNum, Int requestId,
 	    // Prepare the invocation.
 	    //
 	    bool response = requestId != 0;
-	    Incoming in(_instance.get(), this, adapter, response);
-	    BasicStream* is = in.is();
-	    stream.swap(*is);
 	    BasicStream* os = in.os();
-	    
+
 	    //
 	    // Prepare the response if necessary.
 	    //
@@ -1670,15 +1676,9 @@ Ice::Connection::invokeAll(BasicStream& stream, Int invokeNum, Int requestId,
 		os->write(requestId);
 	    }
 
-	    in.invoke(servantManager);
-	    
-	    //
-	    // If there are more invocations, we need the stream back.
-	    //
-	    if(--invokeNum > 0)
-	    {
-		stream.swap(*is);
-	    }
+	    in.invoke(response, adapter, servantManager);
+
+	    --invokeNum;
 	}
     }
     catch(const LocalException& ex)
@@ -1848,25 +1848,25 @@ Ice::Connection::run()
 
     bool closed = false;
 
+    BasicStream stream(_instance.get());
+#ifndef ICEE_PURE_CLIENT
+    Incoming in(_instance.get(), this, stream);
+#endif
+    
     while(!closed)
     {
-	//
-	// We must accept new connections outside the thread
-	// synchronization, because we use blocking accept.
-	//
-
-	BasicStream stream(_instance.get());
-	readStream(stream);
-
 	Int requestId = 0;
 #ifndef ICEE_PURE_CLIENT
 	Int invokeNum = 0;
-	ServantManagerPtr servantManager;
-	ObjectAdapterPtr adapter;
+	ServantManager* servantManager;
+	ObjectAdapter* adapter;
+	in.os()->resize(0);
+	in.is()->resize(0);
 #endif
+
+	readStream(stream);
 	
-	auto_ptr<LocalException> exception;
-	
+	auto_ptr<LocalException> exception;	
 	map<Int, OutgoingM*> requests;
 
 	{
@@ -1932,7 +1932,7 @@ Ice::Connection::run()
 	// so that nested calls are possible.
 	//
 #ifndef ICEE_PURE_CLIENT
-	invokeAll(stream, invokeNum, requestId, servantManager, adapter);
+	invokeAll(in, invokeNum, requestId, servantManager, adapter);
 #endif
 	for(map<Int, OutgoingM*>::iterator p = requests.begin(); p != requests.end(); ++p)
 	{

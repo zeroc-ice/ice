@@ -20,8 +20,8 @@ namespace Ice
 
 struct Current
 {
-    ::Ice::ObjectAdapterPtr adapter;
-    ::Ice::ConnectionPtr con;
+    ::Ice::ObjectAdapter* adapter;
+    ::Ice::Connection* con;
     ::Ice::Identity id;
     ::std::string facet;
     ::std::string operation;

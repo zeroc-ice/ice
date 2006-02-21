@@ -23,36 +23,22 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::IncomingBase::IncomingBase(Instance* instance, Connection* connection, 
-					const ObjectAdapterPtr& adapter,
-					bool response) :
-    _response(response),
+IceInternal::Incoming::Incoming(Instance* instance, Connection* connection, BasicStream& is) :
     _os(instance),
+    _is(is),
     _connection(connection)
 {
-    _current.adapter = adapter;
-    _current.con = _connection;
-}
-
-IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
-    _current(in._current),
-    _servant(in._servant),
-    _cookie(in._cookie),
-    _response(in._response),
-    _os(in._os.instance()),
-    _connection(in._connection)
-{
-    _os.swap(in._os);
+    _current.con = connection;
 }
 
 void
-IceInternal::IncomingBase::__warning(const Exception& ex) const
+IceInternal::Incoming::__warning(const Exception& ex) const
 {
     __warning(ex.toString());
 }
 
 void
-IceInternal::IncomingBase::__warning(const string& msg) const
+IceInternal::Incoming::__warning(const string& msg) const
 {
     Warning out(_os.instance()->logger());
     out << "dispatch exception: " << msg;
@@ -61,17 +47,12 @@ IceInternal::IncomingBase::__warning(const string& msg) const
     out << "\noperation: " << _current.operation;
 }
 
-IceInternal::Incoming::Incoming(Instance* instance, Connection* connection, 
-				const ObjectAdapterPtr& adapter,
-				bool response) :
-    IncomingBase(instance, connection, adapter, response),
-    _is(instance)
-{
-}
-
 void
-IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
+IceInternal::Incoming::invoke(bool response, ObjectAdapter* adapter, ServantManager* servantManager)
 {
+    _current.adapter = adapter;
+    _current.ctx.clear();
+
     //
     // Read the current.
     //
@@ -111,7 +92,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 
     _is.startReadEncaps();
 
-    if(_response)
+    if(response)
     {
 	assert(_os.b.size() == headerSize + 4); // Dispatch status position.
 	_os.write(static_cast<Byte>(0));
@@ -129,12 +110,13 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 
     try
     {
+	Ice::ObjectPtr servant;
 	if(servantManager)
 	{
-	    _servant = servantManager->findServant(_current.id, _current.facet);
+	    servant = servantManager->findServant(_current.id, _current.facet);
 	}
 	    
-	if(!_servant)
+	if(!servant)
 	{
 	    if(servantManager && servantManager->hasServant(_current.id))
 	    {
@@ -147,7 +129,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	}
 	else
 	{
-	    status = _servant->__dispatch(*this, _current);
+	    status = servant->__dispatch(*this, _current);
 	}
     }
     catch(RequestFailedException& ex)
@@ -174,7 +156,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    __warning(ex);
 	}
 
-	if(_response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -229,7 +211,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    __warning(ex);
 	}
 
-	if(_response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -253,7 +235,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    __warning(ex);
 	}
 
-	if(_response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -277,7 +259,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    __warning(ex);
 	}
 
-	if(_response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -301,7 +283,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    __warning(ex);
 	}
 
-	if(_response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -325,7 +307,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    __warning(ex);
 	}
 
-	if(_response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -349,7 +331,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    __warning(ex);
 	}
 
-	if(_response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -373,7 +355,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    __warning(string("std::exception: ") + ex.what());
 	}
 
-	if(_response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -398,7 +380,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    __warning("unknown c++ exception");
 	}
 
-	if(_response)
+	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
@@ -422,7 +404,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     
     _is.endReadEncaps();
 
-    if(_response)
+    if(response)
     {
 	_os.endWriteEncaps();
 	
