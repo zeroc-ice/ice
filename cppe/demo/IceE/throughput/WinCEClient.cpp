@@ -150,6 +150,9 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
 	// Initialize data structures
 	//
 	ByteSeq byteSeq(ByteSeqSize / reduce, 0);
+	pair<const Ice::Byte*, const Ice::Byte*> byteArr;
+	byteArr.first = &byteSeq[0];
+	byteArr.second = byteArr.first + byteSeq.size();
 
 	StringSeq stringSeq(StringSeqSize / reduce, "hello");
 
@@ -240,13 +243,13 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmd
                             {
                                 case 0:
                                 {
-                                    throughput->sendByteSeq(byteSeq);
+                                    throughput->sendByteSeq(byteArr);
                                     break;
                                 }
 
                                 case 1:
                                 {
-                                    throughputOneway->sendByteSeq(byteSeq);
+                                    throughputOneway->sendByteSeq(byteArr);
                                     break;
                                 }
 
