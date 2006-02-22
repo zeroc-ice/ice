@@ -105,7 +105,10 @@ IceUtil::Monitor<T>::unlock() const
 	//
 	// Perform any pending notifications.
 	//
-	notifyImpl(_nnotify);
+	if(_nnotify != 0)
+	{
+	    notifyImpl(_nnotify);
+	}
     }
     _mutex.unlock();
 
@@ -116,7 +119,10 @@ IceUtil::Monitor<T>::unlock() const
 	//
 	// Perform any pending notifications.
 	//
-	notifyImpl(nnotify);
+	if(nnotify != 0)
+        {
+	    notifyImpl(nnotify);
+        }
     }
 */
 }
@@ -142,7 +148,10 @@ IceUtil::Monitor<T>::wait() const
     //
     // Perform any pending notifies
     //
-    notifyImpl(_nnotify);
+    if(_nnotify != 0)
+    {
+	notifyImpl(_nnotify);
+    }
 
     //
     // Wait for a notification
@@ -169,7 +178,10 @@ IceUtil::Monitor<T>::timedWait(const Time& timeout) const
     //
     // Perform any pending notifies.
     //
-    notifyImpl(_nnotify);
+    if(_nnotify != 0)
+    {
+	notifyImpl(_nnotify);
+    }
 
     bool rc;
     //
@@ -220,28 +232,22 @@ template <class T> inline void
 IceUtil::Monitor<T>::notifyImpl(int nnotify) const
 {
     //
-    // Zero indicates no notifies.
+    // -1 means notifyAll.
     //
-    if(nnotify != 0)
+    if(nnotify == -1)
+    {
+	_cond.broadcast();
+	return;
+    }
+    else
     {
 	//
-	// -1 means notifyAll.
+	// Otherwise notify n times.
 	//
-	if(nnotify == -1)
+	while(nnotify > 0)
 	{
-	    _cond.broadcast();
-	    return;
-	}
-	else
-	{
-	    //
-	    // Otherwise notify n times.
-	    //
-	    while(nnotify > 0)
-	    {
-		_cond.signal();
-		--nnotify;
-	    }
+	    _cond.signal();
+	    --nnotify;
 	}
     }
 }

@@ -225,13 +225,6 @@ IceInternal::Instance::endpointFactory() const
     return _endpointFactory;
 }
 
-size_t
-IceInternal::Instance::messageSizeMax() const
-{
-    // No mutex lock, immutable.
-    return _messageSizeMax;
-}
-
 #ifdef ICEE_HAS_BATCH
 void
 IceInternal::Instance::flushBatchRequests()

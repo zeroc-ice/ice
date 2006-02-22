@@ -78,7 +78,7 @@ public:
 #endif
     void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
 
-    void prepareRequest(IceInternal::BasicStream*);
+    const std::vector<Byte>& getRequestHeader() { return _requestHdr; } // Inlined for performance reasons.
 #ifdef ICEE_BLOCKING_CLIENT
     void sendBlockingRequest(IceInternal::BasicStream*, IceInternal::Outgoing*);
 #endif

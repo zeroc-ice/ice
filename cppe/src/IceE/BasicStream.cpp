@@ -21,16 +21,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::BasicStream::BasicStream(Instance* instance) :
-    _instance(instance),
-    _currentReadEncaps(0),
-    _currentWriteEncaps(0),
-    _messageSizeMax(_instance->messageSizeMax()), // Cached for efficiency.
-    _seqDataStack(0)
-{
-}
-
-IceInternal::BasicStream::~BasicStream()
+void
+IceInternal::BasicStream::clear()
 {
     while(_currentReadEncaps && _currentReadEncaps != &_preAllocatedReadEncaps)
     {
@@ -52,12 +44,6 @@ IceInternal::BasicStream::~BasicStream()
 	_seqDataStack = _seqDataStack->previous;
 	delete oldSeqData;
     }
-}
-
-Instance*
-IceInternal::BasicStream::instance() const
-{
-    return _instance;
 }
 
 void
@@ -258,22 +244,6 @@ IceInternal::BasicStream::endSeq(int sz)
     delete oldSeqData;
 }
 
-IceInternal::BasicStream::WriteEncaps::WriteEncaps()
-    : writeIndex(0), previous(0)
-{
-}
-
-IceInternal::BasicStream::WriteEncaps::~WriteEncaps()
-{
-}
-
-void
-IceInternal::BasicStream::WriteEncaps::reset()
-{
-    writeIndex = 0;
-    previous = 0;
-}
-
 void
 IceInternal::BasicStream::WriteEncaps::swap(WriteEncaps& other)
 {
@@ -335,21 +305,6 @@ IceInternal::BasicStream::endWriteEncaps()
     {
 	delete oldEncaps;
     }
-}
-
-IceInternal::BasicStream::ReadEncaps::ReadEncaps()
-    : previous(0)
-{
-}
-
-IceInternal::BasicStream::ReadEncaps::~ReadEncaps()
-{
-}
-
-void
-IceInternal::BasicStream::ReadEncaps::reset()
-{
-    previous = 0;
 }
 
 void
@@ -528,41 +483,6 @@ IceInternal::BasicStream::skipSlice()
     if(i > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
-}
-
-void
-IceInternal::BasicStream::writeSize(Int v)
-{
-    assert(v >= 0);
-    if(v > 254)
-    {
-	write(Byte(255));
-	write(v);
-    }
-    else
-    {
-	write(static_cast<Byte>(v));
-    }
-}
-
-void
-IceInternal::BasicStream::readSize(Ice::Int& v)
-{
-    Byte byte;
-    read(byte);
-    unsigned val = static_cast<unsigned char>(byte);
-    if(val == 255)
-    {
-	read(v);
-	if(v < 0)
-	{
-	    throw NegativeSizeException(__FILE__, __LINE__);
-	}
-    }
-    else
-    {
-	v = static_cast<Int>(static_cast<unsigned char>(byte));
     }
 }
 
@@ -862,51 +782,6 @@ IceInternal::BasicStream::read(pair<const Short*, const Short*>& v, IceUtil::aut
     {
         v.first = v.second = 0;
     }
-}
-
-void
-IceInternal::BasicStream::write(Int v)
-{
-    Container::size_type pos = b.size();
-    resize(pos + sizeof(Int));
-    Byte* dest = &b[pos];
-#ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Int) - 1;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest = *src;
-#else
-    const Byte* src = reinterpret_cast<const Byte*>(&v);
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest = *src;
-#endif
-}
-
-void
-IceInternal::BasicStream::read(Int& v)
-{
-    if(b.end() - i < static_cast<int>(sizeof(Int)))
-    {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
-    const Byte* src = &(*i);
-    i += sizeof(Int);
-#ifdef ICE_BIG_ENDIAN
-    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Int) - 1;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest = *src;
-#else
-    Byte* dest = reinterpret_cast<Byte*>(&v);
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest = *src;
-#endif
 }
 
 void
@@ -1716,6 +1591,12 @@ void
 IceInternal::BasicStream::throwMemoryLimitException(const char* file, int line)
 {
     throw MemoryLimitException(file, line);
+}
+
+void
+IceInternal::BasicStream::throwNegativeSizeException(const char* file, int line)
+{
+    throw NegativeSizeException(file, line);
 }
 
 IceInternal::BasicStream::SeqData::SeqData(int num, int sz) : numElements(num), minSize(sz)

@@ -12,6 +12,8 @@
 #include <IceE/Connection.h>
 #include <IceE/Reference.h>
 #include <IceE/LocalException.h>
+#include <IceE/Instance.h>
+#include <IceE/Protocol.h>
 
 using namespace std;
 using namespace Ice;
@@ -39,14 +41,14 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
     _connection(connection),
     _reference(ref),
     _state(StateUnsent),
-    _stream(ref->getInstance().get())
+    _stream(ref->getInstance().get(), ref->getInstance()->messageSizeMax())
 {
     switch(_reference->getMode())
     {
 	case Reference::ModeTwoway:
 	case Reference::ModeOneway:
 	{
-	    _connection->prepareRequest(&_stream);
+	    _stream.writeBlob(&(_connection->getRequestHeader()[0]), headerSize + sizeof(Int));
 	    break;
 	}
 

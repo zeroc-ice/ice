@@ -122,12 +122,23 @@ public:
 #endif
 	}
 
+	void resize(size_type n) // Inlined for performance reasons.
+        {
+	    if(n == 0 || n > _capacity)
+	    {
+		// Not inlined on purpose (to keep the size of the inlined code down).
+		resizeImpl(n); 
+	    }
+	    else
+	    {
+		_size = n;
+	    }
+	}
+
 	void reset()
 	{
 	    _size = 0;
 	}
-
-	void resize(size_type);
 
 	void push_back(value_type v)
 	{
@@ -151,6 +162,7 @@ public:
 
 	Container(const Container&);
 	void operator=(const Container&);
+	void resizeImpl(size_type);
 
 	pointer _buf;
 	size_type _size;

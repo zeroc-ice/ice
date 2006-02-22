@@ -71,7 +71,7 @@ IceInternal::Buffer::Container::swap(Container& other)
 }
 
 void
-IceInternal::Buffer::Container::resize(size_type n)
+IceInternal::Buffer::Container::resizeImpl(size_type n)
 {
     if(n == 0)
     {

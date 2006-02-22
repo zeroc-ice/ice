@@ -294,15 +294,6 @@ Ice::Connection::waitUntilFinished()
 #endif
 }
 
-//
-// TODO: Should not be a member function of Connection.
-//
-void
-Ice::Connection::prepareRequest(BasicStream* os)
-{
-    os->writeBlob(&_requestHdr[0], headerSize + sizeof(Int));
-}
-
 
 Int 
 Ice::Connection::fillRequestId(BasicStream* os)
@@ -320,11 +311,19 @@ Ice::Connection::fillRequestId(BasicStream* os)
     //
     // Fill in the request ID.
     //
-    const Byte* p = reinterpret_cast<const Byte*>(&requestId);
+    Byte* dest = &(os->b[0]) + headerSize;
 #ifdef ICE_BIG_ENDIAN
-    reverse_copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+    const Byte* src = reinterpret_cast<const Byte*>(&requestId) + sizeof(Ice::Int) - 1;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest = *src;
 #else
-    copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+    const Byte* src = reinterpret_cast<const Byte*>(&requestId);
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest = *src;
 #endif
 
     return requestId;
@@ -339,12 +338,20 @@ Ice::Connection::sendRequest(BasicStream* os)
         _exception->ice_throw(); // The exception is immutable at this point.
     }
 	
-    Int sz = static_cast<Int>(os->b.size());
-    const Byte* p = reinterpret_cast<const Byte*>(&sz);
+    const Int sz = static_cast<Int>(os->b.size());
+    Byte* dest = &(os->b[0]) + 10;
 #ifdef ICE_BIG_ENDIAN
-    reverse_copy(p, p + sizeof(Int), os->b.begin() + 10);
+    const Byte* src = reinterpret_cast<const Byte*>(&sz) + sizeof(Ice::Int) - 1;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest = *src;
 #else
-    copy(p, p + sizeof(Int), os->b.begin() + 10);
+    const Byte* src = reinterpret_cast<const Byte*>(&sz);
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest = *src;
 #endif
 	    
     //
@@ -658,7 +665,7 @@ Ice::Connection::abortBatchRequest()
     // safe old requests in the batch stream, as they might be
     // corrupted due to incomplete marshaling.
     //
-    BasicStream dummy(_instance.get());
+    BasicStream dummy(_instance.get(), _instance->messageSizeMax());
     _batchStream.swap(dummy);
     _batchRequestNum = 0;
 
@@ -717,19 +724,35 @@ Ice::Connection::flushBatchRequests()
 	//
 	// Fill in the number of requests in the batch.
 	//
-	const Byte* p = reinterpret_cast<const Byte*>(&_batchRequestNum);
+	Byte* dest = &(_batchStream.b[0]) + headerSize;
 #ifdef ICE_BIG_ENDIAN
-	reverse_copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
+	Byte* src = reinterpret_cast<const Byte*>(&_batchRequestNum) + sizeof(Ice::Int) - 1;
+	*dest++ = *src--;
+	*dest++ = *src--;
+	*dest++ = *src--;
+	*dest = *src;
 #else
-	copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
+	const Byte* src = reinterpret_cast<const Byte*>(&_batchRequestNum);
+	*dest++ = *src++;
+	*dest++ = *src++;
+	*dest++ = *src++;
+	*dest = *src;
 #endif
 	
-	Int sz = static_cast<Int>(_batchStream.b.size());
-	p = reinterpret_cast<const Byte*>(&sz);
+	const Int sz = static_cast<Int>(_batchStream.b.size());
+	dest = &(_batchStream.b[0]) + 10;
 #ifdef ICE_BIG_ENDIAN
-	reverse_copy(p, p + sizeof(Int), _batchStream.b.begin() + 10);
+	src = reinterpret_cast<const Byte*>(&sz) + sizeof(Ice::Int) - 1;
+	*dest++ = *src--;
+	*dest++ = *src--;
+	*dest++ = *src--;
+	*dest = *src;
 #else
-	copy(p, p + sizeof(Int), _batchStream.b.begin() + 10);
+	src = reinterpret_cast<const Byte*>(&sz);
+	*dest++ = *src++;
+	*dest++ = *src++;
+	*dest++ = *src++;
+	*dest = *src;
 #endif
 	    
 	//
@@ -758,7 +781,7 @@ Ice::Connection::flushBatchRequests()
 	//
 	// Reset the batch stream, and notify that flushing is over.
 	//
-	BasicStream dummy(_instance.get());
+	BasicStream dummy(_instance.get(), _instance->messageSizeMax());
 	_batchStream.swap(dummy);
 	_batchRequestNum = 0;
 	_batchStreamInUse = false;
@@ -783,13 +806,22 @@ Ice::Connection::sendResponse(BasicStream* os)
 	    _exception->ice_throw(); // The exception is immutable at this point.
 	}
 
-	Int sz = static_cast<Int>(os->b.size());
-	const Byte* p = reinterpret_cast<const Byte*>(&sz);
+
+	const Int sz = static_cast<Int>(os->b.size());
+	Byte* dest = &(os->b[0]) + 10;
 #ifdef ICE_BIG_ENDIAN
-	reverse_copy(p, p + sizeof(Int), os->b.begin() + 10);
+	const Byte* src = reinterpret_cast<const Byte*>(&sz) + sizeof(Ice::Int) - 1;
+	*dest++ = *src--;
+	*dest++ = *src--;
+	*dest++ = *src--;
+	*dest = *src;
 #else
-	copy(p, p + sizeof(Int), os->b.begin() + 10);
-#endif    
+	const Byte* src = reinterpret_cast<const Byte*>(&sz);
+	*dest++ = *src++;
+	*dest++ = *src++;
+	*dest++ = *src++;
+	*dest = *src;
+#endif
 	    
 	//
 	// Send the reply.
@@ -974,14 +1006,14 @@ Ice::Connection::Connection(const InstancePtr& instance,
 #ifndef ICEE_PURE_BLOCKING_CLIENT
     _nextRequestId(1),
     _requestsHint(_requests.end()),
-    _stream(_instance.get()),
+    _stream(_instance.get(), _instance->messageSizeMax()),
 #endif
 #ifndef ICEE_PURE_CLIENT
     _in(_instance.get(), this, _stream, adapter),
 #endif
 #ifdef ICEE_HAS_BATCH
     _requestBatchHdr(headerSize + sizeof(Int), 0),
-    _batchStream(_instance.get()),
+    _batchStream(_instance.get(), _instance->messageSizeMax()),
     _batchStreamInUse(false),
     _batchRequestNum(0),
 #endif
@@ -1153,7 +1185,7 @@ Ice::Connection::validate()
 #ifndef ICEE_PURE_CLIENT
         if(active)
         {
-    	    BasicStream os(_instance.get());
+    	    BasicStream os(_instance.get(), _instance->messageSizeMax());
 	    os.write(magic[0]);
 	    os.write(magic[1]);
 	    os.write(magic[2]);
@@ -1179,7 +1211,7 @@ Ice::Connection::validate()
         else
 #endif
         {
-    	    BasicStream is(_instance.get());
+    	    BasicStream is(_instance.get(), _instance->messageSizeMax());
     	    is.b.resize(headerSize);
     	    is.i = is.b.begin();
     	    try
@@ -1455,7 +1487,7 @@ Ice::Connection::initiateShutdown() const
     //
     // Before we shut down, we send a close connection message.
     //
-    BasicStream os(_instance.get());
+    BasicStream os(_instance.get(), _instance->messageSizeMax());
     os.write(magic[0]);
     os.write(magic[1]);
     os.write(magic[2]);

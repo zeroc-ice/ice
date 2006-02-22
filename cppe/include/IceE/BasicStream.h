@@ -31,14 +31,35 @@ class ICE_API BasicStream : public Buffer
 {
 public:
 
-    BasicStream(Instance*);
-    ~BasicStream();
+    BasicStream(Instance* instance, int messageSizeMax) :
+	_instance(instance),
+	_currentReadEncaps(0),
+	_currentWriteEncaps(0),
+	_messageSizeMax(messageSizeMax),
+	_seqDataStack(0)
+    {
+	// Inlined for performance reasons.
+    }
+
+    ~BasicStream()
+    {
+	// Inlined for performance reasons.
+
+	if(_currentReadEncaps != &_preAllocatedReadEncaps ||
+	   _currentWriteEncaps != &_preAllocatedWriteEncaps ||
+	   _seqDataStack)
+	{
+	    clear(); // Not inlined.
+	}
+    }
+
+    void clear();
 
     //
     // Must return Instance*, because we don't hold an InstancePtr for
     // optimization reasons (see comments below).
     //
-    Instance* instance() const;
+    Instance* instance() const { return _instance; } // Inlined for performance reasons.
 
     void swap(BasicStream&);
 
@@ -52,7 +73,7 @@ public:
 	b.resize(sz);
     }
 
-    void reset()
+    void reset() // Inlined for performance reasons.
     {
         b.reset();
 	i = b.begin();
@@ -85,8 +106,39 @@ public:
     void endReadSlice();
     void skipSlice();
 
-    void writeSize(Ice::Int);
-    void readSize(Ice::Int&);
+    void writeSize(Ice::Int v) // Inlined for performance reasons.
+    {
+	assert(v >= 0);
+	if(v > 254)
+	{
+	    write(Ice::Byte(255));
+	    write(v);
+	}
+	else
+	{
+	    write(static_cast<Ice::Byte>(v));
+	}
+    }
+
+    void
+    readSize(Ice::Int& v) // Inlined for performance reasons.
+    {
+	Ice::Byte byte;
+	read(byte);
+	unsigned val = static_cast<unsigned char>(byte);
+	if(val == 255)
+	{
+	    read(v);
+	    if(v < 0)
+	    {
+		throwNegativeSizeException(__FILE__, __LINE__);
+	    }
+	}
+	else
+	{
+	    v = static_cast<Ice::Int>(static_cast<unsigned char>(byte));
+	}
+    }
 
     void writeBlob(const std::vector<Ice::Byte>&);
     void readBlob(std::vector<Ice::Byte>&, Ice::Int);
@@ -94,11 +146,11 @@ public:
     void writeBlob(const Ice::Byte*, Container::size_type);
     void readBlob(Ice::Byte*, Container::size_type);
 
-    void write(Ice::Byte v)
+    void write(Ice::Byte v) // Inlined for performance reasons.
     {
 	b.push_back(v);
     }
-    void read(Ice::Byte& v)
+    void read(Ice::Byte& v) // Inlined for performance reasons.
     {
 	if(i >= b.end())
 	{
@@ -110,13 +162,13 @@ public:
     void write(const Ice::Byte*, const Ice::Byte*);
     void read(std::pair<const Ice::Byte*, const Ice::Byte*>&);
 
-    void write(bool v)
+    void write(bool v) // Inlined for performance reasons.
     {
 	b.push_back(static_cast<Ice::Byte>(v));
     }
     void write(const std::vector<bool>&);
     void write(const bool*, const bool*);
-    void read(bool& v)
+    void read(bool& v) // Inlined for performance reasons.
     {
 	if(i >= b.end())
 	{
@@ -133,8 +185,49 @@ public:
     void read(std::vector<Ice::Short>&);
     void read(std::pair<const Ice::Short*, const Ice::Short*>&, IceUtil::auto_array<Ice::Short>&);
 
-    void write(Ice::Int);
-    void read(Ice::Int&);
+    void
+    write(Ice::Int v) // Inlined for performance reasons.
+    {
+	Container::size_type pos = b.size();
+	resize(pos + sizeof(Ice::Int));
+	Ice::Byte* dest = &b[pos];
+#ifdef ICE_BIG_ENDIAN
+	const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&v) + sizeof(Ice::Int) - 1;
+	*dest++ = *src--;
+	*dest++ = *src--;
+	*dest++ = *src--;
+	*dest = *src;
+#else
+	const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&v);
+	*dest++ = *src++;
+	*dest++ = *src++;
+	*dest++ = *src++;
+	*dest = *src;
+#endif
+    }
+
+    void read(Ice::Int& v) // Inlined for performance reasons.
+    {
+	if(b.end() - i < static_cast<int>(sizeof(Ice::Int)))
+	{
+	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	}
+	const Ice::Byte* src = &(*i);
+	i += sizeof(Ice::Int);
+#ifdef ICE_BIG_ENDIAN
+	Ice::Byte* dest = reinterpret_cast<Ice::Byte*>(&v) + sizeof(Ice::Int) - 1;
+	*dest-- = *src++;
+	*dest-- = *src++;
+	*dest-- = *src++;
+	*dest = *src;
+#else
+	Ice::Byte* dest = reinterpret_cast<Ice::Byte*>(&v);
+	*dest++ = *src++;
+	*dest++ = *src++;
+	*dest++ = *src++;
+	*dest = *src;
+#endif
+    }
     void write(const Ice::Int*, const Ice::Int*);
     void read(std::vector<Ice::Int>&);
     void read(std::pair<const Ice::Int*, const Ice::Int*>&, IceUtil::auto_array<Ice::Int>&);
@@ -187,6 +280,7 @@ private:
     //
     void throwUnmarshalOutOfBoundsException(const char*, int);
     void throwMemoryLimitException(const char*, int);
+    void throwNegativeSizeException(const char*, int);
 
     //
     // Optimization. The instance may not be deleted while a
@@ -198,9 +292,10 @@ private:
     {
     public:
 
-	ReadEncaps();
-	~ReadEncaps();
-	void reset();
+	ReadEncaps() : previous(0) { } // Inlined for performance reasons.
+	~ReadEncaps() { } // Inlined for performance reasons.
+
+	void reset() { previous = 0; } // Inlined for performance reasons.
 	void swap(ReadEncaps&);
 
 	Container::size_type start;
@@ -216,9 +311,10 @@ private:
     {
     public:
 
-	WriteEncaps();
-	~WriteEncaps();
-	void reset();
+	WriteEncaps() : writeIndex(0), previous(0) { } // Inlined for performance reasons.
+	~WriteEncaps() { } // Inlined for performance reasons.
+
+	void reset() { writeIndex = 0; previous = 0; } // Inlined for performance reasons.
 	void swap(WriteEncaps&);
 
 	Container::size_type start;

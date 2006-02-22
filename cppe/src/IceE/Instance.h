@@ -51,7 +51,7 @@ public:
     ProxyFactoryPtr proxyFactory() const;
     OutgoingConnectionFactoryPtr outgoingConnectionFactory() const;
     EndpointFactoryPtr endpointFactory() const;
-    size_t messageSizeMax() const;
+    size_t messageSizeMax() const { return _messageSizeMax; /* Immutable */ }  // Inlined for performance reasons.
     Ice::Int connectionIdleTime() const;
 #ifdef ICEE_HAS_BATCH
     void flushBatchRequests();
