@@ -21,8 +21,8 @@ COBJS		= Client.o
 SOBJS		= Server.o
 
 SRCS		= $(OBJS:.o=.cc) \
-		  $(COBJS:.o=.cc) \
-		  $(SOBJS:.o=.cc)
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
