@@ -120,8 +120,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug Static|Pocket PC 2003 (ARMV4)"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)C"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)C"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -160,9 +160,9 @@
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile="$(PlatformName)\$(ConfigurationName)/latencyC.pch"
-				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)/"
-				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
-				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
+				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)C/"
+				ObjectFile="$(PlatformName)\$(ConfigurationName)C/"
+				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)C/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -188,7 +188,7 @@
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/latencyClient.pdb"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)C/latencyClient.pdb"
 				StackReserveSize="65536"
 				StackCommitSize="4096"
 				EntryPointSymbol="WinMainCRTStartup"
@@ -203,7 +203,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="$(PlatformName)\$(ConfigurationName)/latencyC.bsc"
+				OutputFile="$(PlatformName)\$(ConfigurationName)C/latencyC.bsc"
 			/>
 			<Tool
 				Name="VCCodeSignTool"
@@ -323,8 +323,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Pocket PC 2003 (ARMV4)"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)C"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)C"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -363,9 +363,9 @@
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile="$(PlatformName)\$(ConfigurationName)/latencyC.pch"
-				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)/"
-				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
-				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
+				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)C/"
+				ObjectFile="$(PlatformName)\$(ConfigurationName)C/"
+				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)C/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 			/>
@@ -390,7 +390,7 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../../../lib"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
-				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/latencyClient.pdb"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)C/latencyClient.pdb"
 				StackReserveSize="65536"
 				StackCommitSize="4096"
 				EntryPointSymbol="WinMainCRTStartup"
@@ -405,7 +405,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="$(PlatformName)\$(ConfigurationName)/latencyC.bsc"
+				OutputFile="$(PlatformName)\$(ConfigurationName)C/latencyC.bsc"
 			/>
 			<Tool
 				Name="VCCodeSignTool"
@@ -524,8 +524,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release Static|Pocket PC 2003 (ARMV4)"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)C"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)C"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -564,9 +564,9 @@
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile="$(PlatformName)\$(ConfigurationName)/latencyC.pch"
-				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)/"
-				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
-				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
+				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)C/"
+				ObjectFile="$(PlatformName)\$(ConfigurationName)C/"
+				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)C/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 			/>
@@ -590,7 +590,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
-				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/latencyClient.pdb"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)C/latencyClient.pdb"
 				StackReserveSize="65536"
 				StackCommitSize="4096"
 				EntryPointSymbol="WinMainCRTStartup"
@@ -605,7 +605,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="$(PlatformName)\$(ConfigurationName)/latencyC.bsc"
+				OutputFile="$(PlatformName)\$(ConfigurationName)C/latencyC.bsc"
 			/>
 			<Tool
 				Name="VCCodeSignTool"
@@ -727,8 +727,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Pocket PC 2003 (ARMV4)"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(PlatformName)\$(ConfigurationName)C"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)C"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -767,9 +767,9 @@
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile="$(PlatformName)\$(ConfigurationName)/latencyC.pch"
-				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)/"
-				ObjectFile="$(PlatformName)\$(ConfigurationName)/"
-				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)/"
+				AssemblerListingLocation="$(PlatformName)\$(ConfigurationName)C/"
+				ObjectFile="$(PlatformName)\$(ConfigurationName)C/"
+				ProgramDataBaseFileName="$(PlatformName)\$(ConfigurationName)C/"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -796,7 +796,7 @@
 				AdditionalLibraryDirectories="../../../lib"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/latencyClient.pdb"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)C/latencyClient.pdb"
 				StackReserveSize="65536"
 				StackCommitSize="4096"
 				EntryPointSymbol="WinMainCRTStartup"
@@ -811,7 +811,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="$(PlatformName)\$(ConfigurationName)/latencyC.bsc"
+				OutputFile="$(PlatformName)\$(ConfigurationName)C/latencyC.bsc"
 			/>
 			<Tool
 				Name="VCCodeSignTool"
