@@ -12,7 +12,11 @@
 #include <iostream>
 #include <fstream>
 
-#include <sys/time.h>
+#ifdef _WIN32
+#   include <sys/timeb.h>
+#else
+#   include <sys/time.h>
+#endif
 
 using namespace std;
 using namespace Test;

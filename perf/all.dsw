@@ -123,6 +123,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "omniORBC"=.\src\omniORB\omniORBC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "omniORBS"=.\src\omniORB\omniORBS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "taoC"=.\src\TAO\taoC.dsp - Package Owner=<4>
 
 Package=<5>
