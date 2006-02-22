@@ -27,8 +27,6 @@
 #   include <IceE/Incoming.h>
 #endif
 
-#include <iostream>
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
