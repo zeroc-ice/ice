@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="throughputIceS" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="throughputIceES" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=throughputIceS - Win32 Debug
+CFG=throughputIceES - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "throughputIceS.mak".
+!MESSAGE NMAKE /f "throughputIceES.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "throughputIceS.mak" CFG="throughputIceS - Win32 Debug"
+!MESSAGE NMAKE /f "throughputIceES.mak" CFG="throughputIceES - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "throughputIceS - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "throughputIceS - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "throughputIceES - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "throughputIceES - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=throughputIceS - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "throughputIceS - Win32 Release"
+!IF  "$(CFG)" == "throughputIceES - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -51,10 +51,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 ice.lib iceutil.lib /nologo /subsystem:console /incremental:yes /machine:I386 /out:"server.exe" /libpath:"$(ICE_HOME)/lib"
+# ADD LINK32 icee.lib /nologo /subsystem:console /incremental:yes /machine:I386 /out:"server.exe" /libpath:"$(ICE_HOME)/lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "throughputIceS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "throughputIceES - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -77,15 +77,15 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 iced.lib iceutild.lib /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"$(ICE_HOME)/lib"
+# ADD LINK32 iceed.lib /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"$(ICE_HOME)/lib"
 # SUBTRACT LINK32 /incremental:no /nodefaultlib
 
 !ENDIF 
 
 # Begin Target
 
-# Name "throughputIceS - Win32 Release"
-# Name "throughputIceS - Win32 Debug"
+# Name "throughputIceES - Win32 Release"
+# Name "throughputIceES - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -117,14 +117,14 @@ SOURCE=.\ThroughputI.h
 
 SOURCE=.\Throughput.ice
 
-!IF  "$(CFG)" == "throughputIceS - Win32 Release"
+!IF  "$(CFG)" == "throughputIceES - Win32 Release"
 
-USERDEP__THROU="$(ICE_HOME)\bin\slice2cpp.exe"	"$(ICE_HOME)\lib\slice.lib"	
+USERDEP__THROU="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Throughput.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cpp.exe Throughput.ice
+	$(ICE_HOME)\bin\slice2cppe.exe Throughput.ice
 
 "Throughput.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -133,14 +133,14 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "throughputIceS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "throughputIceES - Win32 Debug"
 
-USERDEP__THROU="$(ICE_HOME)\bin\slice2cpp.exe"	"$(ICE_HOME)\lib\sliced.lib"	
+USERDEP__THROU="$(ICE_HOME)\bin\slice2cppe.exe"	"$(ICE_HOME)\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Throughput.ice
 
 BuildCmds= \
-	$(ICE_HOME)\bin\slice2cpp.exe Throughput.ice
+	$(ICE_HOME)\bin\slice2cppe.exe Throughput.ice
 
 "Throughput.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
