@@ -19,4 +19,3 @@ module Test
       void cœur();
    };  
 };
-

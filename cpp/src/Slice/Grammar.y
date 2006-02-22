@@ -93,6 +93,8 @@ slice_error(const char* s)
 %token ICE_GLOBAL_METADATA_OPEN
 %token ICE_GLOBAL_METADATA_CLOSE
 
+%token BAD_CHAR
+
 %%
 
 

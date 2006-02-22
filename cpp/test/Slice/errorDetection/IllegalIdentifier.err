@@ -1,0 +1,10 @@
+IllegalIdentifier.ice:1: illegal input character: '\357'
+IllegalIdentifier.ice:1: syntax error
+IllegalIdentifier.ice:1: illegal input character: '\273'
+IllegalIdentifier.ice:1: illegal input character: '\277'
+IllegalIdentifier.ice:17: illegal input character: '\305'
+IllegalIdentifier.ice:17: illegal input character: '\222'
+IllegalIdentifier.ice:19: illegal input character: '\305'
+IllegalIdentifier.ice:19: illegal input character: '\223'
+IllegalIdentifier.ice:20: syntax error
+IllegalIdentifier.ice:21: syntax error

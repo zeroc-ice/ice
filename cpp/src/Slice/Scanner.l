@@ -374,6 +374,17 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
 }
 
 . {
+    if(yytext[0] < 32 || yytext[0] > 126)
+    {
+	stringstream s;
+	s << "illegal input character: '\\";
+	s.width(3);
+	s.fill('0');
+	s << oct << static_cast<int>(static_cast<unsigned char>(yytext[0]));
+	s << "'";
+	unit->error(s.str());
+	return BAD_CHAR;
+    }
     return yytext[0];
 }
 
