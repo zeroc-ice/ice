@@ -94,16 +94,16 @@ int main(int argc, char** argv)
 	    }
 	}
 
-	ifstream is("test.ior");
-	string ior;
-	is >> ior;
-	if(ior.empty())
+	FILE* in = fopen("test.ior", "r");
+	if(!in)
 	{
-	    cerr << "Invalid IOR in test.ior" << endl;
+	    cerr << "Cannot open test.ior" << endl;
 	}
-	is.close();
+	char ior[4096];
+	fgets(ior, 4096, in);
+	fclose(in);
 
-	CORBA::Object_var obj = orb->string_to_object(ior.c_str());
+	CORBA::Object_var obj = orb->string_to_object(ior);
 	if(latency)
 	{
 	    Throughput_var pingref = Throughput::_narrow(obj);
@@ -234,7 +234,7 @@ int main(int argc, char** argv)
 
 	orb->destroy();
     }
-    catch(CORBA::COMM_FAILURE& ex) 
+    catch(CORBA::COMM_FAILURE&) 
     {
 	cerr << "Caught system exception COMM_FAILURE -- unable to contact the object." << endl;
     }
