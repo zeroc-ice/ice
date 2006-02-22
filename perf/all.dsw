@@ -159,7 +159,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "throughputIceEC"=.\src\IceE\throughput\throughputIceC.dsp - Package Owner=<4>
+Project: "throughputIceEC"=.\src\IceE\throughput\throughputIceEC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -171,7 +171,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "throughputIceES"=.\src\IceE\throughput\throughputIceS.dsp - Package Owner=<4>
+Project: "throughputIceES"=.\src\IceE\throughput\throughputIceES.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
