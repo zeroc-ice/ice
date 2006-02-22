@@ -35,6 +35,18 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name taoS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name latencyIceEC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name latencyIceES
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name throughputIceEC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name throughputIceES
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -64,6 +76,30 @@ Package=<4>
 ###############################################################################
 
 Project: "latencyIceC"=.\src\Ice\latency\latencyIceC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "latencyIceEC"=.\src\IceE\latency\latencyIceEC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "latencyIceES"=.\src\IceE\latency\latencyIceES.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -112,6 +148,30 @@ Package=<4>
 ###############################################################################
 
 Project: "throughputIceC"=.\src\Ice\throughput\throughputIceC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "throughputIceEC"=.\src\IceE\throughput\throughputIceC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "throughputIceES"=.\src\IceE\throughput\throughputIceS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
