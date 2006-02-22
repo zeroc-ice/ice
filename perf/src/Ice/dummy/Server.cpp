@@ -27,7 +27,11 @@ typedef int ssize_t;
 #   include <netdb.h>
 #endif
 
-#include <sys/time.h>
+#ifdef _WIN32
+#   include <sys/timeb.h>
+#else
+#   include <sys/time.h>
+#endif
 
 #ifndef _WIN32
 #   define SOCKET int
