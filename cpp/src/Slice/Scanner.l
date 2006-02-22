@@ -432,31 +432,10 @@ checkIdentifier(const string& id)
     }
 
     //
-    // Apparently on some platforms, [:alpha:] includes characters outside
-    // the ASCII range (such as the copyright sign). We add an extra scan
-    // here to print a meaningful error message for such platforms.
-    //
-    static const string legalChars = "0123456789abcdefghijklmnopqrstuvwxyz"; // Sorted in increasing ASCII order.
-
-    size_t i;
-
-    for(i = 0; i < id.size(); ++i)
-    {
-	if(!binary_search(legalChars.begin(), legalChars.end(), ::tolower(id[i])))
-	{
-	    stringstream s;
-	    s.width(3);
-	    s.fill('0');
-	    s << oct << static_cast<unsigned int>(static_cast<unsigned char>(id[i]));
-	    unit->error("illegal character in identifier: '\\" + s.str() + "'");
-	}
-    }
-
-    //
     // Weed out identifiers with reserved suffixes.
     //
     static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
-    for(i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
+    for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
     {
 	if(id.find(suffixBlacklist[i], id.size() - suffixBlacklist[i].size()) != string::npos)
 	{
