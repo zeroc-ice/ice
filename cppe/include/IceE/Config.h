@@ -152,8 +152,6 @@
 // the Intel compiler.
 //
 #ifdef _WIN32_WCE
-#  define _STLP_NO_OWN_IOSTREAMS
-#  define _STLP_NO_NEW_IOSTREAMS
 #  define _STLP_NO_IOSTREAMS
 #else
 #  if !defined(NDEBUG) && !defined(_STLP_DEBUG) && !defined(__INTEL_COMPILER)
