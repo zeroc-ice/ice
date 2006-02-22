@@ -11,16 +11,19 @@ Ice-E has been extensively tested with Windows XP.
 C++ compiler
 ------------
 
-The following Microsoft Visual C++ compilers are supported:
+the following microsoft visual c++ compilers are supported:
 
 - Visual C++ 6.0 SP5 with STLport 4.5 (or later)
 
 - Visual C++ .NET 2003 (aka VC 7.1)
 
-The STL (Standard Template Library) that is included with Visual C++ 6.0 
-is not supported. You must use STLport with this compiler.
+- Visual C++ 2005 (aka VC++ 8.0)
 
-For Visual C++ .NET 2003, you can use the included STL library.
+The STL (Standard Template Library) that is included with Visual C++ 
+6.0 is not supported. You must use STLport with this compiler.
+
+For Visual C++ .NET 2003 and Visual C++ 2005, you can use the included
+STL library.
 
 
 Slice-to-Embedded-C++ translator
@@ -80,14 +83,15 @@ Using your favorite Zip tool, unzip the Ice-E archive anywhere you
 like, then start the Microsoft Visual C++ IDE. You are now ready to
 compile Ice-E.
 
-Open the "all.dsw" workspace. If you are using Visual C++ .NET, then
-the project files must first be converted from Visual C++ 6.0 to .NET
-format.
+Open the "all.dsw" workspace. If you are using Visual C++ .NET 2003 or
+Visual C++ 2005, then the project files must first be converted from
+Visual C++ 6.0 to the new solution and project file format.
 
 Set your active project to "all" to compile everything including the
 tests and demos. To set your active project with Visual C++ 6.0,
-use Project->Set Active Project. For Visual C++ .NET, click on "all" 
-in the class view, then use Project->Set as StartUp Project.
+use Project->Set Active Project. For Visual C++ .NET 2003 or Visual 
+C++ 2005, click on "all" in the class view, then use Project->Set as
+StartUp Project.
 
 Four build configurations are supported:
 
@@ -99,9 +103,14 @@ Four build configurations are supported:
 The first two create DLLs for the Ice-E run time, whereas the last two
 generate only static libraries.
 
+For Visual C++ 2005 you should make sure maximum number of parallel
+builds setting is set to 1. Otherwise you may get failures which require
+you run the compilation multiple times. This setting can be found in
+Tools->Options->Projects and Solutions->Build and Run.
+
 After selecting a build configuration, start the compilation using
 Build->Build for Visual C++ 6.0, or Build->Build all for Visual C++
-.NET.
+.NET 2003 or Visual C++ 2005.
 
 If you built the tests you can run the test suite, provided that you
 have installed Python. Open a command prompt and change to the top-
@@ -129,5 +138,11 @@ contains all Ice-E DLLs.
 
 After installation, make sure to add the include directory to the
 Visual C++ "Include files" and the lib directory to the "Library
-files". In Visual C++ 6.0, choose Tools->Options->Directories. In
-Visual C++ .NET, choose Tools->Options->Projects->VC++ Directories.
+files":
+
+  * Visual C++ 6.0: Tools->Options->Directories
+
+  * Visual C++ .NET 2003: Tools->Options->Projects->VC++ Directories
+
+  * Visual C++ 2005: Tools->Options->Projects and Solutions->
+                                                    VC++ Directories
