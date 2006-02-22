@@ -1,11 +1,6 @@
 Instructions on building UNIX binary distributions
 ==================================================
 
-Required tools:
-
- - Python
- - Compilers and build tools for the platform in question
-
 Creating the UNIX installers includes a few manual steps but is
 straightforward. The key stages are:
  * Building Ice
