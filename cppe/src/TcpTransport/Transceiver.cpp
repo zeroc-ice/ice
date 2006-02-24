@@ -27,10 +27,14 @@ void
 IceInternal::Transceiver::setTimeouts(int readTimeout, int writeTimeout)
 {
     _readTimeout = readTimeout;
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS    
     setTimeout(_fd, true, _readTimeout);
+#endif
 
     _writeTimeout = writeTimeout;
+#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS    
     setTimeout(_fd, false, _writeTimeout);
+#endif
 }
 
 SOCKET

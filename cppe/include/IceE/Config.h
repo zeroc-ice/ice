@@ -72,7 +72,7 @@
 // timeouts.
 //
 #if defined(_WIN32_WCE)
-#   define ICE_USE_SELECT_FOR_TIMEOUTS
+#   define ICEE_USE_SELECT_FOR_TIMEOUTS
 #endif
 
 //
