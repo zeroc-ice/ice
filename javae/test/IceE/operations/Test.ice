@@ -148,6 +148,8 @@ class MyClass
     void opByteSOneway(ByteS s);
 
     StringStringD opContext();
+
+    void opDoubleMarshaling(double p1, DoubleS p2);
 };
 
 class MyDerivedClass extends MyClass

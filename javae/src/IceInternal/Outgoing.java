@@ -59,32 +59,15 @@ public final class Outgoing
         {
             case Reference.ModeTwoway:
             {
-
-	        if(!_connection.blocking())
-		{
-		    //
-		    // We let all exceptions raised by sending directly
-		    // propagate to the caller, because they can be
-		    // retried without violating "at-most-once". In case
-		    // of such exceptions, the connection object does not
-		    // call back on this object, so we don't need to lock
-		    // the mutex, keep track of state, or save exceptions.
-		    //
-		    _connection.sendRequest(_stream, this);
-		}
-		else
-		{
-		    try
-		    {
-		        _connection.sendBlockingRequest(_stream, this);
-		        finishedInternal();
-		    }
-		    catch(Ice.LocalException ex)
-		    {
-        		_state = StateLocalException;
-	        	_exception = ex;
-		    }
-		}
+		//
+		// We let all exceptions raised by sending directly
+		// propagate to the caller, because they can be
+		// retried without violating "at-most-once". In case
+		// of such exceptions, the connection object does not
+		// call back on this object, so we don't need to lock
+		// the mutex, keep track of state, or save exceptions.
+		//
+		_connection.sendRequest(_stream, this);
 
                 if(_exception != null)
                 {
@@ -211,13 +194,14 @@ public final class Outgoing
 	    IceUtil.Debug.Assert(_state <= StateInProgress);
 	}
 	
-	_stream.swap(is);
-	finishedInternal();
-    }
+	//
+	// Only swap the stream if the given stream is not this Outgoing object stream!
+	//
+	if(is != _stream)
+	{
+	    _stream.swap(is);
+	}
 
-    private void
-    finishedInternal()
-    {
 	int status = (int)_stream.readByte();
 	
 	switch(status)
@@ -365,7 +349,6 @@ public final class Outgoing
 	if(IceUtil.Debug.ASSERT)
 	{
 	    IceUtil.Debug.Assert(_reference.getMode() == Reference.ModeTwoway); // Can only be called for twoways.
-	
 	    IceUtil.Debug.Assert(_state <= StateInProgress);
 	}
 
@@ -387,7 +370,7 @@ public final class Outgoing
             case Reference.ModeTwoway:
             case Reference.ModeOneway:
             {
-                _connection.prepareRequest(_stream);
+                _stream.writeBlob(_connection.getRequestHeader());
                 break;
             }
 

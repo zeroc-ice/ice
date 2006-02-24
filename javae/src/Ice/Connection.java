@@ -282,199 +282,94 @@ public final class Connection
     //
     // TODO: Should not be a member function of Connection.
     //
-    public void
-    prepareRequest(IceInternal.BasicStream os)
+    public byte[]
+    getRequestHeader()
     {
-        os.writeBlob(_requestHdr);
-    }
-
-    private int
-    fillRequestId(IceInternal.BasicStream os)
-    {
-	//
-	// Create a new unique request ID.
-	//
-	int requestId = _nextRequestId++;
-	if(requestId <= 0)
-	{
-	    _nextRequestId = 1;
-	    requestId = _nextRequestId++;
-	}
-
-	//
-	// Fill in the request ID.
-	//
-	os.pos(IceInternal.Protocol.headerSize);
-	os.writeInt(requestId);
-
-	return requestId;
-    }
-
-    private void
-    sendRequest(IceInternal.BasicStream os)
-    {
-	if(_transceiver == null) // Has the transceiver already been closed?
-	{
-	    if(IceUtil.Debug.ASSERT)
-	    {
-		IceUtil.Debug.Assert(_exception != null);
-	    }
-	    throw _exception; // The exception is immutable at this point.
-	}
-
-	//
-	// Send the request.
-	//
-	IceInternal.TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
-	_transceiver.write(os, _endpoint.timeout());
-    }
-
-    public void
-    sendBlockingRequest(IceInternal.BasicStream os, IceInternal.Outgoing out)
-    {
-	int requestId = 0;
-
-	synchronized(this)
-	{
-	    if(_exception != null)
-	    {
-		throw _exception;
-	    }
-
-	    if(IceUtil.Debug.ASSERT)
-	    {
-		IceUtil.Debug.Assert(_state > StateNotValidated);
-		IceUtil.Debug.Assert(_state < StateClosing);
-	    }
-
-	    //
-	    // Fill in request id if this is a twoway call.
-	    //
-	    if(out != null)
-	    {
-	        requestId = fillRequestId(os);
-	    }
-
-	    //
-	    // Compression not supported.
-	    //
-	    os.pos(9);
-	    os.writeByte((byte)(0));
-
-	    //
-	    // Fill in the message size.
-	    //
-	    os.pos(10);
-	    os.writeInt(os.size());
-	}
-
-	try
-	{
-	    synchronized(_sendMutex)
-	    {
-	        sendRequest(os);
-
-		if(out != null)
-		{
-		    os.reset();
-		    readStream(os);
-		}
-	    }
-
-	    if(out != null)
-	    {
-	        synchronized(this)
-	        {
-		    if(_state != StateClosed)
-		    {
-		        parseMessage(os, new MessageInfo(), requestId);
-		    }
-
-		    //
-		    // parseMessage() can close the connection, so we must
-		    // check for closed state again.
-		    //
-		    if(_state == StateClosed)
-		    {
-		        try
-		        {
-		            _transceiver.close();
-		        }
-		        catch(LocalException ex)
-		        {
-		        }
-
-		        _transceiver = null;
-		        throw _exception;
-		    }
-	        }
-	    }
-	}
-	catch(LocalException ex)
-	{
-	    synchronized(this)
-	    {
-		setState(StateClosed, ex);
-		if(IceUtil.Debug.ASSERT)
-		{
-		    IceUtil.Debug.Assert(_exception != null);
-		}
-		throw _exception;
-	    }
-	}
+	return _requestHdr;
     }
 
     public void
     sendRequest(IceInternal.BasicStream os, IceInternal.Outgoing out)
     {
-	int requestId = 0;
-
-	synchronized(this)
-	{
-	    if(_exception != null)
-	    {
-		throw _exception;
-	    }
-
-	    if(IceUtil.Debug.ASSERT)
-	    {
-		IceUtil.Debug.Assert(_state > StateNotValidated);
-		IceUtil.Debug.Assert(_state < StateClosing);
-	    }
-
-	    //
-	    // Only add to the request map if this is a twoway call.
-	    //
-	    if(out != null)
-	    {
-	        requestId = fillRequestId(os);
-		_requests.put(requestId, out);
-	    }
-
-	    //
-	    // Compression not supported.
-	    //
-	    os.pos(9);
-	    os.writeByte((byte)(0));
-
-	    //
-	    // Fill in the message size.
-	    //
-	    os.pos(10);
-	    os.writeInt(os.size());
-	}
-
-	boolean timedOut = false;
+	boolean requestSent = false;
 	try
 	{
-	    synchronized(_sendMutex)
+	    synchronized(_sendMonitor)
 	    {
-	        sendRequest(os);
-	    }
+		if(_transceiver == null)
+		{
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(_exception != null);
 
-	    if(out != null)
-	    {
-	        synchronized(this)
+		    }
+		    throw _exception;
+		}
+
+		int requestId = 0;
+		if(out != null)
+		{
+		    //
+		    // Create a new unique request ID.
+		    //
+		    requestId = _nextRequestId++;
+		    if(requestId <= 0)
+		    {
+			_nextRequestId = 1;
+			requestId = _nextRequestId++;
+		    }
+		
+		    //
+		    // Fill in the request ID.
+		    //
+		    os.pos(IceInternal.Protocol.headerSize);
+		    os.writeInt(requestId);
+
+		    _requests.put(requestId, out);
+		}
+
+		//
+		// Fill in the message size.
+		//
+		os.pos(10);
+		os.writeInt(os.size());
+		
+		//
+		// Send the request.
+		//
+		IceInternal.TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
+		_transceiver.write(os, _endpoint.timeout());
+		requestSent = true;
+		
+		if(out == null)
+		{
+		    return;
+		}
+		
+		if(_blocking)
+		{
+		    //
+		    // Re-use the stream for reading the reply.
+		    //
+		    os.reset();
+			
+		    //
+		    // Read the reply.
+		    //
+		    MessageInfo info = new MessageInfo();
+		    readStreamAndParseMessage(os, info);
+		    if(info.invokeNum > 0)
+		    {
+			throw new UnknownMessageException();
+		    }
+		    else if(info.requestId != requestId)
+		    {
+			throw new UnknownRequestIdException();
+		    }
+			
+		    out.finished(os);
+		}
+		else
 		{
 		    //
 		    // Wait until the request has completed, or until the
@@ -484,32 +379,33 @@ public final class Connection
 		    long expireTime = 0;
 		    if(tout > 0)
 		    {
-		        expireTime = System.currentTimeMillis() + tout;
+			expireTime = System.currentTimeMillis() + tout;
 		    }
-		    while(out.state() == IceInternal.Outgoing.StateInProgress && !timedOut)
+			
+		    while(out.state() == IceInternal.Outgoing.StateInProgress)
 		    {
-		        try
+			try
 			{
-		            if(tout > 0)
+			    if(tout > 0)
 			    {
-			        long now = System.currentTimeMillis();
+				long now = System.currentTimeMillis();
 				if(now < expireTime)
 				{
-				    wait(expireTime - now);
+				    _sendMonitor.wait(expireTime - now);
 				}
-
+				    
 				//
 				// Make sure we woke up because of timeout and not another response.
 				//
-				if(out.state() == IceInternal.Outgoing.StateInProgress && 
+				if(out.state() == IceInternal.Outgoing.StateInProgress &&  
 				   System.currentTimeMillis() > expireTime)
 				{
-				    timedOut = true;
+				    throw new TimeoutException();
 				}
 			    }
 			    else
 			    {
-			        wait();
+				_sendMonitor.wait();
 			    }
 			}
 			catch(InterruptedException ex)
@@ -528,64 +424,38 @@ public final class Connection
 		{
 		    IceUtil.Debug.Assert(_exception != null);
 		}
-		
-		if(out != null)
-		{
-		    //
-		    // If the request has already been removed from
-		    // the request map, we are out of luck. It would
-		    // mean that finished() has been called already,
-		    // and therefore the exception has been set using
-		    // the Outgoing::finished() callback. In this
-		    // case, we cannot throw the exception here,
-		    // because we must not both raise an exception and
-		    // have Outgoing::finished() called with an
-		    // exception. This means that in some rare cases,
-		    // a request will not be retried even though it
-		    // could. But I honestly don't know how I could
-		    // avoid this, without a very elaborate and
-		    // complex design, which would be bad for
-		    // performance.
-		    //
-		    IceInternal.Outgoing o = (IceInternal.Outgoing)_requests.remove(requestId);
-		    if(o != null)
-		    {
-			if(IceUtil.Debug.ASSERT)
-			{
-			    IceUtil.Debug.Assert(o == out);
-			}
-			throw _exception;
-		    }
-		}
-		else
+		if(!requestSent)
 		{
 		    throw _exception;
 		}
 	    }
-	}
 
-	if(timedOut)
-	{
 	    //
-	    // Must be called outside the synchronization of this
-	    // object.
+	    // If the request was already sent, we don't throw
+	    // directly but instead we set the Outgoing object
+	    // exception with finished().  Throwing directly would
+	    // break "at-most-once" (see also comment in
+	    // Outgoing.invoke())
 	    //
-	    exception(new TimeoutException());
-
-	    synchronized(this)
+	    synchronized(_sendMonitor)
 	    {
-	        //
-		// We must wait until the exception has propagted
-		// back to the Outgoing object.
-		//
-		while(out.state() == IceInternal.Outgoing.StateInProgress)
+		if(_blocking)
 		{
-		    try
+		    out.finished(ex);
+		}
+		else
+		{
+		    // Wait for the connection thread to propagate the exception
+		    // to the Outgoing object.
+		    while(out.state() == IceInternal.Outgoing.StateInProgress)
 		    {
-		        wait();
-		    }
-		    catch(InterruptedException ex)
-		    {
+			try
+			{
+			    _sendMonitor.wait();
+			}
+			catch(java.lang.InterruptedException e)
+			{
+			}
 		    }
 		}
 	    }
@@ -756,7 +626,7 @@ public final class Connection
 
 	try
 	{
-	    synchronized(_sendMutex)
+	    synchronized(_sendMonitor)
 	    {
 		if(_transceiver == null) // Has the transceiver already been closed?
 		{
@@ -809,7 +679,7 @@ public final class Connection
     {
 	try
 	{
-	    synchronized(_sendMutex)
+	    synchronized(_sendMonitor)
 	    {
 		if(_transceiver == null) // Has the transceiver already been closed?
 		{
@@ -906,12 +776,6 @@ public final class Connection
         return _endpoint;
     }
 
-    public boolean
-    blocking()
-    {
-        return _blocking;
-    }
-
     public synchronized void
     setAdapter(ObjectAdapter adapter)
     {
@@ -961,12 +825,6 @@ public final class Connection
         IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.Hashtable(), "",
                                                                         IceInternal.Reference.ModeTwoway, connections);
         return _instance.proxyFactory().referenceToProxy(ref);
-    }
-
-    public synchronized void
-    exception(LocalException ex)
-    {
-	setState(StateClosed, ex);
     }
 
     public String
@@ -1108,7 +966,7 @@ public final class Connection
 
 	    if(active)
 	    {
-		synchronized(_sendMutex)
+		synchronized(_sendMonitor)
 		{
 		    IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
 		    os.writeBlob(IceInternal.Protocol.magic);
@@ -1333,12 +1191,29 @@ public final class Connection
             case StateClosed:
             {
 		//
-		// If we are in thread per connection mode, we
-		// shutdown both for reading and writing. This will
-		// unblock any read call with an exception. The thread
+		// We shutdown both for reading and writing. This will
+		// unblock and read call with an exception. The thread
 		// per connection then closes the transceiver.
 		//
 		_transceiver.shutdownReadWrite();
+
+		//
+		// In blocking mode, we close the transceiver now.
+		//
+		if(_blocking)
+		{
+		    synchronized(_sendMonitor)
+		    {
+			try
+			{
+			    _transceiver.close();
+			}
+			catch(Ice.LocalException ex)
+			{
+			}
+			_transceiver = null;
+		    }
+		}
 		break;
             }
         }
@@ -1353,24 +1228,15 @@ public final class Connection
             try
             {
                 initiateShutdown();
+		if(_blocking)
+		{
+		    setState(StateClosed);
+		}
             }
             catch(LocalException ex)
             {
                 setState(StateClosed, ex);
             }
-
-	    if(_state != StateClosed && _blocking)
-	    {
-	        try
-		{
-		    _transceiver.close();
-		}
-		catch(LocalException ex)
-		{
-		}
-		_transceiver = null;
-		_state = StateClosed;
-	    }
         }
     }
 
@@ -1383,7 +1249,7 @@ public final class Connection
 	    IceUtil.Debug.Assert(_dispatchCount == 0);
 	}
 
-	synchronized(_sendMutex)
+	synchronized(_sendMonitor)
 	{
 	    //
 	    // Before we shut down, we send a close connection
@@ -1423,161 +1289,141 @@ public final class Connection
     }
 
     private void
-    parseMessage(IceInternal.BasicStream stream, MessageInfo info, int requestId)
+    readStreamAndParseMessage(IceInternal.BasicStream stream, MessageInfo info)
     {
+	//
+	// Read the header.
+	//
+	stream.resize(IceInternal.Protocol.headerSize, true);
+	stream.pos(0);
+	_transceiver.read(stream, _blocking ? _endpoint.timeout() : -1);
+	
+	int pos = stream.pos();
 	if(IceUtil.Debug.ASSERT)
 	{
-	    IceUtil.Debug.Assert(_state > StateNotValidated && _state < StateClosed);
+	    IceUtil.Debug.Assert(pos >= IceInternal.Protocol.headerSize);
+	}
+	stream.pos(0);
+	byte[] m = stream.readBlob(4);
+	if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
+	   m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
+	{
+	    BadMagicException ex = new BadMagicException();
+	    ex.badMagic = m;
+	    throw ex;
+	}
+	byte pMajor = stream.readByte();
+	byte pMinor = stream.readByte();
+	if(pMajor != IceInternal.Protocol.protocolMajor)
+	{
+	    UnsupportedProtocolException e = new UnsupportedProtocolException();
+	    e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
+	    e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
+	    e.major = IceInternal.Protocol.protocolMajor;
+	    e.minor = IceInternal.Protocol.protocolMinor;
+	    throw e;
+	}
+	byte eMajor = stream.readByte();
+	byte eMinor = stream.readByte();
+	if(eMajor != IceInternal.Protocol.encodingMajor)
+	{
+	    UnsupportedEncodingException e = new UnsupportedEncodingException();
+	    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+	    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+	    e.major = IceInternal.Protocol.encodingMajor;
+	    e.minor = IceInternal.Protocol.encodingMinor;
+	    throw e;
+	}
+	byte messageType = stream.readByte();
+	byte compress = stream.readByte();
+	if(compress == (byte)2)
+	{
+	    FeatureNotSupportedException ex = new FeatureNotSupportedException();
+	    ex.unsupportedFeature = "compression";
+	    throw ex;
 	}
 
-	try
+	int size = stream.readInt();
+	if(size < IceInternal.Protocol.headerSize)
 	{
-	    //
-	    // We don't need to check magic and version here. This has
-	    // already been done by the ThreadPool or ThreadPerConnection,
-	    // which provides us with the stream.
-	    //
-	    if(IceUtil.Debug.ASSERT)
-	    {
-		IceUtil.Debug.Assert(stream.pos() == stream.size());
-	    }
-	    stream.pos(8);
-	    byte messageType = stream.readByte();
-	    byte compress = stream.readByte();
-	    if(compress == (byte)2)
-	    {
-		FeatureNotSupportedException ex = new FeatureNotSupportedException();
-		ex.unsupportedFeature = "compression";
-		throw ex;
-	    }
-	    stream.pos(IceInternal.Protocol.headerSize);
-
-	    if(_blocking)
-	    {
-	        switch(messageType)
-	        {
-		    case IceInternal.Protocol.closeConnectionMsg:
-		    {
-		        IceInternal.TraceUtil.traceHeader("received close connection", stream, _logger,
-							  _traceLevels);
-		        setState(StateClosed, new CloseConnectionException());
-		        break;
-		    }
-
-		    case IceInternal.Protocol.replyMsg:
-		    {
-		        IceInternal.TraceUtil.traceReply("received reply", stream, _logger, _traceLevels);
-		        info.requestId = stream.readInt();
-			if(info.requestId != requestId)
-		        {
-		            throw new UnknownRequestIdException();
-		        }
-		        break;
-		    }
-
-		    default:
-		    {
-		        IceInternal.TraceUtil.traceHeader("received unexpected message\n" +
-						          "(invalid, closing connection)", stream, _logger,
-						          _traceLevels);
-		        throw new UnknownMessageException();
-		    }
-		}
-	    }
-	    else
-	    {
-	        switch(messageType)
-	        {
-		    case IceInternal.Protocol.closeConnectionMsg:
-		    {
-		        IceInternal.TraceUtil.traceHeader("received close connection", stream, _logger,
-							  _traceLevels);
-		        setState(StateClosed, new CloseConnectionException());
-		        break;
-		    }
-
-		    case IceInternal.Protocol.requestMsg:
-		    {
-		        if(_state == StateClosing)
-		        {
-			    IceInternal.TraceUtil.traceRequest("received request during closing\n" +
-							       "(ignored by server, client will retry)",
-							       stream, _logger, _traceLevels);
-		        }
-		        else
-		        {
-			    IceInternal.TraceUtil.traceRequest("received request", stream, _logger, _traceLevels);
-			    info.requestId = stream.readInt();
-			    info.invokeNum = 1;
-			    ++_dispatchCount;
-		        }
-		        break;
-		    }
-
-		    case IceInternal.Protocol.requestBatchMsg:
-		    {
-		        if(_state == StateClosing)
-		        {
-			    IceInternal.TraceUtil.traceBatchRequest("received batch request during closing\n" +
-								    "(ignored by server, client will retry)",
-								    stream, _logger, _traceLevels);
-		        }
-		        else
-		        {
-			    IceInternal.TraceUtil.traceBatchRequest("received batch request", stream, _logger,
-								    _traceLevels);
-			    info.invokeNum = stream.readInt();
-			    if(info.invokeNum < 0)
-			    {
-			        info.invokeNum = 0;
-			        throw new NegativeSizeException();
-			    }
-			    _dispatchCount += info.invokeNum;
-		        }
-		        break;
-		    }
-
-		    case IceInternal.Protocol.replyMsg:
-		    {
-		        IceInternal.TraceUtil.traceReply("received reply", stream, _logger, _traceLevels);
-		        info.requestId = stream.readInt();
-		        IceInternal.Outgoing out = (IceInternal.Outgoing)_requests.remove(info.requestId);
-		        if(out != null)
-		        {
-			    out.finished(stream);
-			    notifyAll(); // Wake up threads waiting in sendRequest()
-		        }
-		        else
-		        {
-		            throw new UnknownRequestIdException();
-		        }
-		        break;
-		    }
-
-		    case IceInternal.Protocol.validateConnectionMsg:
-		    {
-		        IceInternal.TraceUtil.traceHeader("received validate connection", stream, _logger,
-						          _traceLevels);
-		        if(_warn)
-		        {
-			    _logger.warning("ignoring unexpected validate connection message:\n" + _desc);
-		        }
-		        break;
-		    }
-
-		    default:
-		    {
-		        IceInternal.TraceUtil.traceHeader("received unknown message\n" +
-						          "(invalid, closing connection)", stream, _logger,
-						          _traceLevels);
-		        throw new UnknownMessageException();
-		    }
-	        }
-	    }
+	    throw new IllegalMessageSizeException();
 	}
-	catch(LocalException ex)
+	if(size > _instance.messageSizeMax())
 	{
-	    setState(StateClosed, ex);
+	    throw new MemoryLimitException();
+	}
+	if(size > stream.size())
+	{
+	    stream.resize(size, true);
+	}
+	stream.pos(pos);
+
+	//
+	// Read the rest of the message.
+	//
+	if(pos != stream.size())
+	{
+	    _transceiver.read(stream, _blocking ? _endpoint.timeout() : -1);
+	}
+	
+	if(IceUtil.Debug.ASSERT)
+	{
+	    IceUtil.Debug.Assert(stream.pos() == stream.size());
+	}
+	stream.pos(IceInternal.Protocol.headerSize);
+
+	switch(messageType)
+	{
+	case IceInternal.Protocol.closeConnectionMsg:
+	{
+	    IceInternal.TraceUtil.traceHeader("received close connection", stream, _logger, _traceLevels);
+	    throw new CloseConnectionException();
+	}
+
+	case IceInternal.Protocol.replyMsg:
+	{
+	    IceInternal.TraceUtil.traceReply("received reply", stream, _logger, _traceLevels);
+	    info.requestId = stream.readInt();
+	    break;
+	}
+
+	case IceInternal.Protocol.requestMsg:
+	{
+	    IceInternal.TraceUtil.traceRequest("received request", stream, _logger, _traceLevels);
+	    info.requestId = stream.readInt();
+	    info.invokeNum = 1;
+	    break;
+	}
+
+	case IceInternal.Protocol.requestBatchMsg:
+	{
+	    IceInternal.TraceUtil.traceBatchRequest("received batch request", stream, _logger, _traceLevels);
+	    info.invokeNum = stream.readInt();
+	    if(info.invokeNum < 0)
+	    {
+		info.invokeNum = 0;
+		throw new NegativeSizeException();
+	    }
+	    break;
+	}
+	
+	case IceInternal.Protocol.validateConnectionMsg:
+	{
+	    IceInternal.TraceUtil.traceHeader("received validate connection", stream, _logger, _traceLevels);
+	    if(_warn)
+	    {
+		_logger.warning("ignoring unexpected validate connection message:\n" + _desc);
+	    }
+	    break;
+	}
+
+	default:
+	{
+	    IceInternal.TraceUtil.traceHeader("received unexpected message\n" +
+					      "(invalid, closing connection)", stream, _logger,
+					      _traceLevels);
+	    throw new UnknownMessageException();
+	}
 	}
     }
 
@@ -1595,101 +1441,6 @@ public final class Connection
         (byte)0, // Compression status.
         (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
     };
-
-    private void
-    invokeAll(int invokeNum, int requestId)
-    {
-	//
-	// Note: In contrast to other private or protected methods, this
-	// operation must be called *without* the mutex locked.
-	//
-
-	try
-	{
-	    while(invokeNum > 0)
-	    {
-		//
-		// Prepare the invocation.
-		//
-		boolean response = requestId != 0;
-
-		//
-		// Prepare the response if necessary.
-		//
-		if(response)
-		{
-		    if(IceUtil.Debug.ASSERT)
-		    {
-			IceUtil.Debug.Assert(invokeNum == 1); // No further invocations if a response is expected.
-		    }
-
-		    IceInternal.BasicStream os = _in.os();
-
-		    os.writeBlob(_replyHdr);
-		    
-		    //
-		    // Add the request ID.
-		    //
-		    os.writeInt(requestId);
-		}
-		
-		_in.invoke(response);
-		
-		--invokeNum;
-	    }
-	}
-	catch(LocalException ex)
-	{
-	    synchronized(this)
-	    {
-		setState(StateClosed, ex);
-	    }
-	}
-	catch(IceUtil.AssertionError ex) // Upon assertion, we print the stack trace.
-	{
-	    synchronized(this)
-	    {
-		UnknownException uex = new UnknownException();
-		uex.unknown = ex.toString();
-		_logger.error(uex.unknown);
-		setState(StateClosed, uex);
-	    }
-	}
-	catch(java.lang.Exception ex)
-	{
-	    synchronized(this)
-	    {
-		UnknownException uex = new UnknownException();
-		uex.unknown = ex.toString();
-		setState(StateClosed, uex);
-	    }
-	}
-		
-	//
-	// If invoke() above raised an exception, and therefore
-	// neither sendResponse() nor sendNoResponse() has been
-	// called, then we must decrement _dispatchCount here.
-	//
-	if(invokeNum > 0)
-	{
-	    synchronized(this)
-	    {
-		if(IceUtil.Debug.ASSERT)
-		{
-		    IceUtil.Debug.Assert(_dispatchCount > 0);
-		}
-		_dispatchCount -= invokeNum;
-		if(IceUtil.Debug.ASSERT)
-		{
-		    IceUtil.Debug.Assert(_dispatchCount >= 0);
-		}
-		if(_dispatchCount == 0)
-		{
-		    notifyAll();
-		}
-	    }
-	}
-    }
 
     public void
     run()
@@ -1716,7 +1467,7 @@ public final class Connection
 	        // We must make sure that nobody is sending when
 	        // we close the transceiver.
 	        //
-	        synchronized(_sendMutex)
+	        synchronized(_sendMonitor)
 	        {
 	    	    try
 	    	    {
@@ -1742,24 +1493,70 @@ public final class Connection
 
 	while(!closed)
 	{
-	    _in.os().reset();
-	    _in.is().reset();
-
-	    //
-	    // We must accept new connections outside the thread
-	    // synchronization, because we use blocking accept.
-	    //
-
 	    info.requestId = 0;
 	    info.invokeNum = 0;
+	    _in.os().reset();
+	    _in.is().reset();
 	    
-	    readStream(_stream);
-	    
-	    LocalException exception = null;
-	    IceInternal.IntMap requests = null;
+	    //
+	    // Read and parse the next message. We don't need to lock the
+	    // send monitor here as we have the guarantee that
+	    // _transceiver won't be set to 0 by another thread, the
+	    // thread per connection is the only thread that can set
+	    // _transceiver to 0.
+	    //
+	    try
+	    {
+		readStreamAndParseMessage(_stream, info);
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		synchronized(this)
+		{
+		    setState(StateClosed, ex);
+		}
+	    }
 	    
 	    synchronized(this)
 	    {
+		if(_state != StateClosed)
+		{
+		    if(info.invokeNum > 0) // We received a request or a batch request
+		    {
+			if(_state == StateClosing)
+			{
+			    IceInternal.TraceUtil.traceRequest(
+				"received " + (info.invokeNum > 1 ? "batch request" : "request") + " during closing\n"+
+				"(ignored by server, client will retry)", _stream, _logger, _traceLevels);
+			    info.invokeNum = 0;
+			}
+			_dispatchCount += info.invokeNum;
+		    }
+		    else if(info.requestId > 0)
+		    {
+			try
+			{
+			    synchronized(_sendMonitor)
+			    {
+				IceInternal.Outgoing out = (IceInternal.Outgoing)_requests.remove(info.requestId);
+				if(out != null)
+				{
+				    out.finished(_stream);
+				    _sendMonitor.notifyAll(); // Wake up threads waiting in sendRequest()
+				}
+				else
+				{
+				    throw new UnknownRequestIdException();
+				}
+			    }
+			}
+			catch(Ice.LocalException ex)
+			{
+			    setState(StateClosed, ex);
+			}
+		    }
+		}
+
 		while(_state == StateHolding)
 		{
 		    try
@@ -1771,22 +1568,13 @@ public final class Connection
 		    }
 		}
 		
-		if(_state != StateClosed)
-		{
-		    parseMessage(_stream, info, -1);
-		}
-		
-		//
-		// parseMessage() can close the connection, so we must
-		// check for closed state again.
-		//
 		if(_state == StateClosed)
 		{
 		    //
 		    // We must make sure that nobody is sending when we close
 		    // the transceiver.
 		    //
-		    synchronized(_sendMutex)
+		    synchronized(_sendMonitor)
 		    {
 			try
 			{
@@ -1794,7 +1582,6 @@ public final class Connection
 			}
 			catch(LocalException ex)
 			{
-			    exception = ex;
 			}
 			
 			_transceiver = null;
@@ -1811,8 +1598,18 @@ public final class Connection
 		
 		if(_state == StateClosed || _state == StateClosing)
 		{
-		    requests = _requests;
-		    _requests = new IceInternal.IntMap();
+		    synchronized(_sendMonitor)
+		    {
+			java.util.Enumeration i = _requests.elements();
+			while(i.hasMoreElements())
+			{
+			    IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.nextElement();
+			    IceInternal.Outgoing out = (IceInternal.Outgoing)e.getValue();
+			    out.finished(_exception); // The exception is immutable at this point.
+			}
+			_requests.clear();
+			_sendMonitor.notifyAll(); // Wake up threads waiting in sendRequest()
+		    }
 		}
 	    }
 	    
@@ -1821,30 +1618,83 @@ public final class Connection
 	    // must be done outside the thread synchronization, so that nested
 	    // calls are possible.
 	    //
-	    invokeAll(info.invokeNum, info.requestId);
-	    
-	    if(requests != null)
+	    try
 	    {
-	        synchronized(this)
+		for(; info.invokeNum > 0; --info.invokeNum)
 		{
-		    java.util.Enumeration i = requests.elements();
-		    while(i.hasMoreElements())
+		    //
+		    // Prepare the response if necessary.
+		    //
+		    final boolean response = info.requestId != 0;
+		    if(response)
 		    {
-		        IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.nextElement();
-		        IceInternal.Outgoing out = (IceInternal.Outgoing)e.getValue();
-		        out.finished(_exception); // The exception is immutable at this point.
+			if(IceUtil.Debug.ASSERT)
+			{
+			    // No further invocations if a response is expected.
+			    IceUtil.Debug.Assert(info.invokeNum == 1);
+			}
+
+			//
+			// Add the reply header and request id.
+			//
+			IceInternal.BasicStream os = _in.os();
+			os.writeBlob(_replyHdr);
+			os.writeInt(info.requestId);
 		    }
-		    notifyAll();
+		
+		    _in.invoke(response);
+		}
+	    }
+	    catch(LocalException ex)
+	    {
+		synchronized(this)
+		{
+		    setState(StateClosed, ex);
+		}
+	    }
+	    catch(IceUtil.AssertionError ex) // Upon assertion, we print the stack trace.
+	    {
+		synchronized(this)
+		{
+		    UnknownException uex = new UnknownException();
+		    uex.unknown = ex.toString();
+		    _logger.error(uex.unknown);
+		    setState(StateClosed, uex);
+		}
+	    }
+	    catch(java.lang.Exception ex)
+	    {
+		synchronized(this)
+		{
+		    UnknownException uex = new UnknownException();
+		    uex.unknown = ex.toString();
+		    setState(StateClosed, uex);
 		}
 	    }
 	    
-	    if(exception != null)
+	    //
+	    // If invoke() above raised an exception, and therefore
+	    // neither sendResponse() nor sendNoResponse() has been
+	    // called, then we must decrement _dispatchCount here.
+	    //
+	    if(info.invokeNum > 0)
 	    {
-		if(IceUtil.Debug.ASSERT)
+		synchronized(this)
 		{
-		    IceUtil.Debug.Assert(closed);
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(_dispatchCount > 0);
+		    }
+		    _dispatchCount -= info.invokeNum;
+		    if(IceUtil.Debug.ASSERT)
+		    {
+			IceUtil.Debug.Assert(_dispatchCount >= 0);
+		    }
+		    if(_dispatchCount == 0)
+		    {
+			notifyAll();
+		    }
 		}
-		throw exception;
 	    }
 	}
     }
@@ -1861,83 +1711,6 @@ public final class Connection
     {
         String s = msg + ":\n" + _desc + ex.toString();
         _logger.error(s);
-    }
-
-    private void
-    readStream(IceInternal.BasicStream stream)
-    {
-	try
-	{
-	    stream.resize(IceInternal.Protocol.headerSize, true);
-	    stream.pos(0);
-	    _transceiver.read(stream, _blocking ? _endpoint.timeout() : -1);
-
-	    int pos = stream.pos();
-	    if(IceUtil.Debug.ASSERT)
-	    {
-		IceUtil.Debug.Assert(pos >= IceInternal.Protocol.headerSize);
-	    }
-	    stream.pos(0);
-	    byte[] m = stream.readBlob(4);
-	    if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
-	       m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
-	    {
-		BadMagicException ex = new BadMagicException();
-		ex.badMagic = m;
-		throw ex;
-	    }
-	    byte pMajor = stream.readByte();
-	    byte pMinor = stream.readByte();
-	    if(pMajor != IceInternal.Protocol.protocolMajor)
-	    {
-		UnsupportedProtocolException e = new UnsupportedProtocolException();
-		e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-		e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-		e.major = IceInternal.Protocol.protocolMajor;
-		e.minor = IceInternal.Protocol.protocolMinor;
-		throw e;
-	    }
-	    byte eMajor = stream.readByte();
-	    byte eMinor = stream.readByte();
-	    if(eMajor != IceInternal.Protocol.encodingMajor)
-	    {
-		UnsupportedEncodingException e = new UnsupportedEncodingException();
-		e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-		e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-		e.major = IceInternal.Protocol.encodingMajor;
-		e.minor = IceInternal.Protocol.encodingMinor;
-		throw e;
-	    }
-	    byte messageType = stream.readByte();
-	    byte compress = stream.readByte();
-	    int size = stream.readInt();
-	    if(size < IceInternal.Protocol.headerSize)
-	    {
-		throw new IllegalMessageSizeException();
-	    }
-	    if(size > _instance.messageSizeMax())
-	    {
-		throw new MemoryLimitException();
-	    }
-	    if(size > stream.size())
-	    {
-		stream.resize(size, true);
-	    }
-	    stream.pos(pos);
-
-	    if(pos != stream.size())
-	    {
-	        _transceiver.read(stream, _blocking ? _endpoint.timeout() : -1);
-		if(IceUtil.Debug.ASSERT)
-		{
-		    IceUtil.Debug.Assert(stream.pos() == stream.size());
-		}
-	    }
-	}
-	catch(LocalException ex)
-	{
-	    exception(ex);
-	}
     }
 
     public IceInternal.Outgoing
@@ -2011,10 +1784,6 @@ public final class Connection
 
     private /*final*/ boolean _warn;
 
-    private int _nextRequestId;
-
-    private IceInternal.IntMap _requests = new IceInternal.IntMap();
-
     private LocalException _exception;
 
     private IceInternal.BasicStream _batchStream;
@@ -2030,9 +1799,19 @@ public final class Connection
 
     //
     // We have a separate mutex for sending, so that we don't block
-    // the whole connection when we do a blocking send.
+    // the whole connection when we do a blocking send.  The monitor
+    // is also used by outgoing calls to wait for replies when thread
+    // per connection is used. The _nextRequestId, _requests and
+    // _requestsHint attributes are also protected by this monitor.
+    // Calls on the (non thread-safe) Outgoing objects should also
+    // only be made with this monitor locked.
     //
-    private java.lang.Object _sendMutex = new java.lang.Object();
+    // Finally, it's safe to lock the _sendMonitor with the connection
+    // already locked. The contrary isn't permitted.
+    //
+    private java.lang.Object _sendMonitor = new java.lang.Object();
+    private int _nextRequestId;
+    private IceInternal.IntMap _requests = new IceInternal.IntMap();
 
     private IceInternal.Outgoing _outgoingCache;
     private java.lang.Object _outgoingCacheMutex = new java.lang.Object();
