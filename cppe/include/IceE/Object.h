@@ -59,7 +59,14 @@ protected:
     Object() {};
     virtual ~Object() {} // This class is abstract.
 
-    static void __checkMode(OperationMode, OperationMode);
+    static void __checkMode(OperationMode expected, OperationMode received) // Inline for performance reasons.
+    {
+	if(expected != received)
+	{
+	    __invalidMode(expected, received); // Not inlined.
+	}
+    }
+    static void __invalidMode(OperationMode, OperationMode);
 };
 
 class ICE_API Blobject : public Object

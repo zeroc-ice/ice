@@ -183,15 +183,13 @@ operationModeToString(OperationMode mode)
 }
 
 void
-Ice::Object::__checkMode(OperationMode expected, OperationMode received)
+Ice::Object::__invalidMode(OperationMode expected, OperationMode received)
 {
-    if(expected != received)
-    {
-	Ice::MarshalException ex(__FILE__, __LINE__);
-	ex.reason = Ice::printfToString("unexpected operation mode. expected = %s received = %s", 
-					operationModeToString(expected), operationModeToString(received));
-	throw ex;
-    }
+    assert(expected != received);
+    Ice::MarshalException ex(__FILE__, __LINE__);
+    ex.reason = Ice::printfToString("unexpected operation mode. expected = %s received = %s", 
+				    operationModeToString(expected), operationModeToString(received));
+    throw ex;
 }
 
 DispatchStatus
