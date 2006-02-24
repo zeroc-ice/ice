@@ -1509,7 +1509,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << eb;
 
     C.zeroIndent();
-    C << nl << "#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug."; // COMPILERBUG
+    C << nl << "#if defined(_MSC_VER) && defined(_M_ARM) // ARM bug."; // COMPILERBUG
     C.restoreIndent();
     C << nl << "catch(...)";
     C << sb;
@@ -1540,7 +1540,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     
     C.zeroIndent();
-    C << nl << "#if defined(_MSC_VER) && (_MSC_VER == 1201) && defined(_M_ARM) // EVC4 SP4 bug."; // COMPILERBUG
+    C << nl << "#if defined(_MSC_VER) && defined(_M_ARM) // ARM bug."; // COMPILERBUG
     C.restoreIndent();
     C << nl << "catch(...)";
     C << sb;
