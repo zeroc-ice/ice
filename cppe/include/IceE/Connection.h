@@ -30,10 +30,7 @@
 #include <IceE/Time.h>
 #include <IceE/Thread.h> // For ThreadPerConnection.
 #include <IceE/Identity.h>
-
-#ifdef ICEE_HAS_BATCH
-#    include <IceE/BasicStream.h>
-#endif
+#include <IceE/BasicStream.h>
 
 namespace IceInternal
 {
