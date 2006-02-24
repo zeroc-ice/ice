@@ -147,6 +147,14 @@ support for sending batch messages. This feature cannot be disabled
 in the server library.
 
 
+Blocking Client Support
+-----------------------
+
+If ICEE_PURE_BLOCKING_CLIENT is defined, the Ice-E client library will
+include support only for the blocking client-side concurrency model. If
+it is not defined or the server library is being used the blocking model
+can still be chosen by setting the --Ice.Blocking property.
+
 Installation
 ============
 
