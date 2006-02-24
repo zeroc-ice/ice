@@ -11,6 +11,7 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
+
 #ifndef _WIN32_WCE
 
 #if !defined(NDEBUG) && !defined(_STLP_DEBUG)
@@ -26,6 +27,13 @@
 #endif
 
 #else
+
+#if _MSC_VER >= 1400
+#  define _CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA
+#  ifndef WINVER
+#    define WINVER 0x0400
+#  endif
+#endif
 
 #if (_WIN32_WCE <= 200)
 #error : This project does not support MFCCE 2.00 or earlier, because it requires CControlBar, available only in MFCCE 2.01 or later

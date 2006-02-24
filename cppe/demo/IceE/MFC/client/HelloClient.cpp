@@ -19,7 +19,6 @@
 using namespace std;
 
 BEGIN_MESSAGE_MAP(CHelloClientApp, CWinApp)
-    ON_COMMAND(ID_HELP, CWinApp::OnHelp)
 END_MESSAGE_MAP()
 
 CHelloClientApp::CHelloClientApp()

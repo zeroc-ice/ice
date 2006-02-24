@@ -125,7 +125,7 @@
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="2"
+			UseOfMFC="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
 			>
@@ -192,8 +192,8 @@
 				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/mfcchatC.pdb"
 				StackReserveSize="65536"
 				StackCommitSize="4096"
-				EntryPointSymbol="wWinMainCRTStartup"
-				BaseAddress="0x00010000"
+				EntryPointSymbol=""
+				BaseAddress=""
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -360,7 +360,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories=".,..\..\..\include"
 				PreprocessorDefinitions="DEBUG;ARM;_ARM_;ARMV4;UNDER_CE=$(CEVER);_WIN32_WCE=$(CEVER);$(CePlatform);UNICODE"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
@@ -396,8 +396,8 @@
 				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/mfcchatC.pdb"
 				StackReserveSize="65536"
 				StackCommitSize="4096"
-				EntryPointSymbol="wWinMainCRTStartup"
-				BaseAddress="0x00010000"
+				EntryPointSymbol=""
+				BaseAddress=""
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -531,7 +531,7 @@
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="2"
+			UseOfMFC="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
 			>
@@ -596,8 +596,8 @@
 				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/mfcchatC.pdb"
 				StackReserveSize="65536"
 				StackCommitSize="4096"
-				EntryPointSymbol="wWinMainCRTStartup"
-				BaseAddress="0x00010000"
+				EntryPointSymbol=""
+				BaseAddress=""
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -796,8 +796,8 @@
 				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/mfcchatC.pdb"
 				StackReserveSize="65536"
 				StackCommitSize="4096"
-				EntryPointSymbol="wWinMainCRTStartup"
-				BaseAddress="0x00010000"
+				EntryPointSymbol=""
+				BaseAddress=""
 			/>
 			<Tool
 				Name="VCALinkTool"
