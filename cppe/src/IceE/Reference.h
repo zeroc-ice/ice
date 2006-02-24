@@ -51,7 +51,7 @@ public:
     const Ice::Identity& getIdentity() const { return _identity; }
     const std::string& getFacet() const { return _facet; }
     const InstancePtr& getInstance() const { return _instance; }
-    const Ice::Context& getContext() const;
+    const Ice::Context& getContext() const { return _context; }
 
     ReferencePtr defaultContext() const;
 

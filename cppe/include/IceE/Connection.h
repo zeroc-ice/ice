@@ -63,8 +63,9 @@ public:
 #endif
 	CommunicatorDestroyed
     };
-#ifndef ICEE_PURE_CLIENT
+
     void activate();
+#ifndef ICEE_PURE_CLIENT
     void hold();
 #endif
     void destroy(DestructionReason);
@@ -79,13 +80,8 @@ public:
     void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
 
     const std::vector<Byte>& getRequestHeader() { return _requestHdr; } // Inlined for performance reasons.
-#ifdef ICEE_BLOCKING_CLIENT
-    void sendBlockingRequest(IceInternal::BasicStream*, IceInternal::Outgoing*);
-#endif
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-    void sendRequest(IceInternal::BasicStream*, IceInternal::Outgoing*);
-#endif
 
+    void sendRequest(IceInternal::BasicStream*, IceInternal::Outgoing*);
 
 #ifdef ICEE_HAS_BATCH
     void prepareBatchRequest(IceInternal::BasicStream*);
@@ -101,17 +97,12 @@ public:
 
     IceInternal::EndpointPtr endpoint() const;
 
-#if defined(ICEE_BLOCKING_CLIENT) && !defined(ICEE_PURE_BLOCKING_CLIENT)
-    bool blocking() const;
-#endif
-
 #ifndef ICEE_PURE_CLIENT
     void setAdapter(const ObjectAdapterPtr&); // From Connection.
     ObjectAdapterPtr getAdapter() const; // From Connection.
-#endif
     ObjectPrx createProxy(const Identity&) const; // From Connection.
+#endif
 
-    void exception(const LocalException&);
     std::string type() const; // From Connection.
     Ice::Int timeout() const; // From Connection.
     std::string toString() const;  // From Connection
@@ -126,10 +117,6 @@ private:
 	       const IceInternal::EndpointPtr&);
 #endif
     ~Connection();
-
-    Int fillRequestId(IceInternal::BasicStream*);
-    void sendRequest(IceInternal::BasicStream*);
-
 
 #ifndef ICEE_PURE_CLIENT
     friend class IceInternal::IncomingConnectionFactory;
@@ -154,13 +141,11 @@ private:
     void initiateShutdown() const;
 
 #ifndef ICEE_PURE_CLIENT
-    void parseMessage(IceInternal::BasicStream&, Int&, Int&);
-    void invokeAll(Int, Int);
+    void readStreamAndParseMessage(IceInternal::BasicStream&, Int&, Int&);
 #else
-    void parseMessage(IceInternal::BasicStream&, Int&);
+    void readStreamAndParseMessage(IceInternal::BasicStream&, Int&);
 #endif
 
-    void readStream(IceInternal::BasicStream&);
 
 #ifndef ICEE_PURE_BLOCKING_CLIENT
 
@@ -196,21 +181,11 @@ private:
     const std::vector<Byte> _requestHdr;
 #ifndef ICEE_PURE_CLIENT
     const std::vector<Byte> _replyHdr;
-#endif
-
-    Int _nextRequestId;
-
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-    std::map<Int, IceInternal::Outgoing*> _requests;
-    std::map<Int, IceInternal::Outgoing*>::iterator _requestsHint;
-    IceInternal::BasicStream _stream;
-#endif
-#ifndef ICEE_PURE_CLIENT
     IceInternal::Incoming _in;
 #endif
-
-    std::auto_ptr<LocalException> _exception;
-
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+    IceInternal::BasicStream _stream;
+#endif
 #ifdef ICEE_HAS_BATCH
     const std::vector<Byte> _requestBatchHdr;
     IceInternal::BasicStream _batchStream;
@@ -222,6 +197,8 @@ private:
     bool _blocking;
 #endif
 
+    std::auto_ptr<LocalException> _exception;
+
     //
     // Technically this isn't necessary for PURE_CLIENT, but its a
     // pain to get rid of.
@@ -232,10 +209,18 @@ private:
     IceUtil::Time _stateTime; // The last time when the state was changed.
 
     //
-    // We have a separate mutex for sending, so that we don't block
-    // the whole connection when we do a blocking send.
+    // We have a separate monitor for sending, so that we don't block
+    // the whole connection when we do a blocking send. The monitor
+    // is also used by outgoing calls to wait for replies when thread
+    // per connection is used. The _nextRequestId, _requests and 
+    // _requestsHint attributes are also protected by this monitor.
     //
-    IceUtil::Mutex _sendMutex;
+    IceUtil::Monitor<IceUtil::Mutex> _sendMonitor;
+    Int _nextRequestId;
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+    std::map<Int, IceInternal::Outgoing*> _requests;
+    std::map<Int, IceInternal::Outgoing*>::iterator _requestsHint;
+#endif
 };
 
 }

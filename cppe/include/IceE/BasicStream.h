@@ -14,6 +14,7 @@
 
 #include <IceE/Buffer.h>
 #include <IceE/AutoArray.h>
+#include <IceE/Protocol.h>
 
 namespace Ice
 {
@@ -90,12 +91,120 @@ public:
     }
     void endSeq(int);
 
-    void startWriteEncaps();
-    void endWriteEncaps();
+    void startWriteEncaps()
+    {
+	WriteEncaps* oldEncaps = _currentWriteEncaps;
+	if(!oldEncaps) // First allocated encaps?
+	{
+	    _currentWriteEncaps = &_preAllocatedWriteEncaps;
+	}
+	else
+	{
+	    _currentWriteEncaps = new WriteEncaps();
+	    _currentWriteEncaps->previous = oldEncaps;
+	}
+	_currentWriteEncaps->start = b.size();
 
-    void startReadEncaps();
-    void endReadEncaps();
-    void checkReadEncaps();
+	write(Ice::Int(0)); // Placeholder for the encapsulation length.
+	write(encodingMajor);
+	write(encodingMinor);
+    }
+    void endWriteEncaps()
+    {
+	assert(_currentWriteEncaps);
+	Container::size_type start = _currentWriteEncaps->start;
+	Ice::Int sz = static_cast<Ice::Int>(b.size() - start); // Size includes size and version.
+	Ice::Byte* dest = &(*(b.begin() + start));
+
+#ifdef ICE_BIG_ENDIAN
+	const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&sz) + sizeof(Ice::Int) - 1;
+	*dest++ = *src--;
+	*dest++ = *src--;
+	*dest++ = *src--;
+	*dest = *src;
+#else
+	const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&sz);
+	*dest++ = *src++;
+	*dest++ = *src++;
+	*dest++ = *src++;
+	*dest = *src;
+#endif
+
+	WriteEncaps* oldEncaps = _currentWriteEncaps;
+	_currentWriteEncaps = _currentWriteEncaps->previous;
+	if(oldEncaps == &_preAllocatedWriteEncaps)
+	{
+	    oldEncaps->reset();
+	}
+	else
+	{
+	    delete oldEncaps;
+	}
+    }
+
+    void startReadEncaps()
+    {
+	ReadEncaps* oldEncaps = _currentReadEncaps;
+	if(!oldEncaps) // First allocated encaps?
+	{
+	    _currentReadEncaps = &_preAllocatedReadEncaps;
+	}
+	else
+	{
+	    _currentReadEncaps = new ReadEncaps();
+	    _currentReadEncaps->previous = oldEncaps;
+	}
+	_currentReadEncaps->start = i - b.begin();
+	
+	//
+	// I don't use readSize() and writeSize() for encapsulations,
+	// because when creating an encapsulation, I must know in advance
+	// how many bytes the size information will require in the data
+	// stream. If I use an Int, it is always 4 bytes. For
+	// readSize()/writeSize(), it could be 1 or 5 bytes.
+	//
+	Ice::Int sz;
+	read(sz);
+	if(sz < 0)
+	{
+	    throwNegativeSizeException(__FILE__, __LINE__);
+	}
+	if(i - sizeof(Ice::Int) + sz > b.end())
+	{
+	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	}
+	_currentReadEncaps->sz = sz;
+	
+	Ice::Byte eMajor;
+	Ice::Byte eMinor;
+	read(eMajor);
+	read(eMinor);
+	if(eMajor != encodingMajor
+	   || static_cast<unsigned char>(eMinor) > static_cast<unsigned char>(encodingMinor))
+	{
+	    throwUnsupportedEncodingException(__FILE__, __LINE__, eMajor, eMinor);
+	}
+	_currentReadEncaps->encodingMajor = eMajor;
+	_currentReadEncaps->encodingMinor = eMinor;
+    }
+    void endReadEncaps()
+    {
+	assert(_currentReadEncaps);
+	Container::size_type start = _currentReadEncaps->start;
+	Ice::Int sz = _currentReadEncaps->sz;
+	i = b.begin() + start + sz;
+
+	ReadEncaps* oldEncaps = _currentReadEncaps;
+	_currentReadEncaps = _currentReadEncaps->previous;
+	if(oldEncaps == &_preAllocatedReadEncaps)
+	{
+	    oldEncaps->reset();
+	}
+	else
+	{
+	    delete oldEncaps;
+	}
+    }
     Ice::Int getReadEncapsSize();
     void skipEncaps();
 
@@ -143,8 +252,32 @@ public:
     void writeBlob(const std::vector<Ice::Byte>&);
     void readBlob(std::vector<Ice::Byte>&, Ice::Int);
 
-    void writeBlob(const Ice::Byte*, Container::size_type);
-    void readBlob(Ice::Byte*, Container::size_type);
+    void writeBlob(const Ice::Byte* v, Container::size_type sz)
+    {
+	if(sz > 0)
+	{
+	    Container::size_type pos = b.size();
+	    resize(pos + sz);
+	    memcpy(&b[pos], &v[0], sz);
+	}
+    }
+
+    void readBlob(const Ice::Byte*& v, Container::size_type sz)
+    {
+	if(sz > 0)
+	{
+	    v = i;
+	    if(static_cast<Container::size_type>(b.end() - i) < sz)
+	    {
+		throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	    }
+	    i += sz;
+	}
+	else
+	{
+	    v = i;
+	}
+    }
 
     void write(Ice::Byte v) // Inlined for performance reasons.
     {
@@ -228,6 +361,7 @@ public:
 	*dest = *src;
 #endif
     }
+
     void write(const Ice::Int*, const Ice::Int*);
     void read(std::vector<Ice::Int>&);
     void read(std::pair<const Ice::Int*, const Ice::Int*>&, IceUtil::auto_array<Ice::Int>&);
@@ -259,9 +393,37 @@ public:
     //
     void write(const char*);
 
-    void write(const std::string&);
+    void write(const std::string& v)
+    {
+	Ice::Int sz = static_cast<Ice::Int>(v.size());
+	writeSize(sz);
+	if(sz > 0)
+	{
+	    Container::size_type pos = b.size();
+	    resize(pos + sz);
+	    memcpy(&b[pos], v.c_str(), sz);
+	}
+    }
     void write(const std::string*, const std::string*);
-    void read(std::string&);
+    void read(std::string& v)
+    {
+	Ice::Int sz;
+	readSize(sz);
+	if(sz > 0)
+	{
+	    if(b.end() - i < sz)
+	    {
+		throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	    }
+	    std::string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
+//	    v.assign(reinterpret_cast<const char*>(&(*i)), sz);
+	    i += sz;
+	}
+	else
+	{
+	    v.clear();
+	}
+    }
     void read(std::vector<std::string>&);
 
     void write(const Ice::ObjectPrx&);
@@ -281,6 +443,7 @@ private:
     void throwUnmarshalOutOfBoundsException(const char*, int);
     void throwMemoryLimitException(const char*, int);
     void throwNegativeSizeException(const char*, int);
+    void throwUnsupportedEncodingException(const char*, int, Ice::Byte, Ice::Byte);
 
     //
     // Optimization. The instance may not be deleted while a

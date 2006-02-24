@@ -39,12 +39,6 @@ using namespace IceInternal;
 void IceInternal::incRef(IceInternal::Reference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::Reference* p) { p->__decRef(); }
 
-const Context&
-IceInternal::Reference::getContext() const
-{
-    return _context;
-}
-
 ReferencePtr
 IceInternal::Reference::defaultContext() const
 {

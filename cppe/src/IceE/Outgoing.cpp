@@ -7,11 +7,11 @@
 //
 // **********************************************************************
 
+#include <IceE/LocalException.h> // Need to be included before Outgoing.h because of std::auto_ptr<LocalException>
 #include <IceE/Outgoing.h>
 #include <IceE/DispatchStatus.h>
 #include <IceE/Connection.h>
 #include <IceE/Reference.h>
-#include <IceE/LocalException.h>
 #include <IceE/Instance.h>
 #include <IceE/Protocol.h>
 
@@ -67,19 +67,23 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
 	}
     }
 
-    _reference->getIdentity().__write(&_stream);
+//    _reference->getIdentity().__write(&_stream);
+    _stream.write(_reference->getIdentity().name); // Directly write name for performance reasons.
+    _stream.write(_reference->getIdentity().category); // Directly write category for performance reasons.
 
     //
-    // For compatibility with the old FacetPath.
+    // For compatibility with the old FacetPath we still write an
+    // array of strings (we don't use the basic stream string array
+    // method here for performance reasons.)
     //
     if(_reference->getFacet().empty())
     {
-	_stream.write(static_cast<string*>(0), static_cast<string*>(0));
+	_stream.writeSize(0);
     }
     else
     {
-	string facet = _reference->getFacet();
-	_stream.write(&facet, &facet + 1);
+	_stream.writeSize(1);
+	_stream.write(_reference->getFacet());
     }
 
     _stream.write(operation);
@@ -114,43 +118,16 @@ IceInternal::Outgoing::invoke()
     {
 	case Reference::ModeTwoway:
 	{
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-#ifdef ICEE_BLOCKING_CLIENT
-	    if(!_connection->blocking())
-#endif
-	    {
-	        //
-	        // We let all exceptions raised by sending directly
-	        // propagate to the caller, because they can be retried
-	        // without violating "at-most-once". In case of such
-	        // exceptions, the connection object does not call back on
-	        // this object, so we don't need to lock the mutex, keep
-	        // track of state, or save exceptions.
-	        //
-	        _connection->sendRequest(&_stream, this);
-	    }
-#ifdef ICEE_BLOCKING_CLIENT
-	    else
-#endif
-#endif
-#ifdef ICEE_BLOCKING_CLIENT
-	    {
-	        //
-		// For blocking sends the reply is written directly
-		// into the incoming stream.
-		//
-		try
-		{
-	            _connection->sendBlockingRequest(&_stream, this);
-		    finishedInternal();
-		}
-		catch(const LocalException& ex)
-		{
-    		    _state = StateLocalException;
-    		    _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
-		}
-	    }
-#endif
+	    //
+	    // We let all exceptions raised by sending directly
+	    // propagate to the caller, because they can be retried
+	    // without violating "at-most-once". In case of such
+	    // exceptions, the connection object does not call back on
+	    // this object, so we don't need to lock the mutex, keep
+	    // track of state, or save exceptions.
+	    //
+	    _connection->sendRequest(&_stream, this);
+
 	    if(_exception.get())
 	    {
 		//
@@ -197,11 +174,7 @@ IceInternal::Outgoing::invoke()
 	    // caller, because such exceptions can be retried without
 	    // violating "at-most-once".
 	    //
-#ifdef ICEE_BLOCKING_CLIENT
-	    _connection->sendBlockingRequest(&_stream, 0);
-#else
 	    _connection->sendRequest(&_stream, 0);
-#endif
 	    break;
 	}
 
@@ -255,21 +228,20 @@ IceInternal::Outgoing::abort(const LocalException& ex)
     ex.ice_throw();
 }
 
-#ifndef ICEE_PURE_BLOCKING_CLIENT
 void
 IceInternal::Outgoing::finished(BasicStream& is)
 {
     assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
     assert(_state <= StateInProgress);
 
-    _stream.swap(is);
-    finishedInternal();
-}
-#endif
+    //
+    // Only swap the stream if the given stream is not this Outgoing object stream!
+    //
+    if(&is != &_stream)
+    {
+	_stream.swap(is);
+    }
 
-void
-IceInternal::Outgoing::finishedInternal()
-{
     Byte status;
     _stream.read(status);
     
@@ -424,8 +396,6 @@ IceInternal::Outgoing::finishedInternal()
     }
 }
 
-#ifndef ICEE_PURE_BLOCKING_CLIENT
-
 void
 IceInternal::Outgoing::finished(const LocalException& ex)
 {
@@ -435,5 +405,3 @@ IceInternal::Outgoing::finished(const LocalException& ex)
     _state = StateLocalException;
     _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
 }
-
-#endif

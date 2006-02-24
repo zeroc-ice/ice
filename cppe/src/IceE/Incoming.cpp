@@ -54,28 +54,48 @@ IceInternal::Incoming::invoke(bool response)
 {
     assert(_adapter && _servantManager);
 
+    //
+    // Clear the context from the previous invocation.
+    //
     _current.ctx.clear();
 
     //
     // Read the current.
     //
-    _current.id.__read(&_is);
+    //_current.id.__read(&_is);
+    _is.read(_current.id.name); // Directly read name for performance reasons.
+    _is.read(_current.id.category); // Directly read category for performance reasons.
 
     //
-    // For compatibility with the old FacetPath.
+    // For compatibility with the old FacetPath. Note that we don't use
+    // the stream read vector method for performance reasons.
     //
-    vector<string> facetPath;
-    _is.read(facetPath);
-    string facet;
-    if(!facetPath.empty())
+//     vector<string> facetPath;
+//     _is.read(facetPath);
+//     string facet;
+//     if(!facetPath.empty())
+//     {
+// 	if(facetPath.size() > 1)
+// 	{
+// 	    throw MarshalException(__FILE__, __LINE__);
+// 	}
+// 	facet.swap(facetPath[0]);
+//     }
+//     _current.facet.swap(facet);
+    Int sz;
+    _is.readSize(sz);
+    if(sz > 0)
     {
-	if(facetPath.size() > 1)
+	if(sz > 1)
 	{
 	    throw MarshalException(__FILE__, __LINE__);
 	}
-	facet.swap(facetPath[0]);
+	_is.read(_current.facet);
     }
-    _current.facet.swap(facet);
+    else
+    {
+	_current.facet.clear();
+    }
 
     _is.read(_current.operation);
 
@@ -83,7 +103,6 @@ IceInternal::Incoming::invoke(bool response)
     _is.read(b);
     _current.mode = static_cast<OperationMode>(b);
 
-    Int sz;
     _is.readSize(sz);
     while(sz--)
     {

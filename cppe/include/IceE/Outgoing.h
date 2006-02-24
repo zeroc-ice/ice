@@ -59,22 +59,18 @@ public:
     };
 
     Outgoing(Ice::Connection*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context&);
-    virtual ~Outgoing() {}
+    ~Outgoing() {}
 
-    virtual bool invoke(); // Returns true if ok, false if user exception.
+    bool invoke(); // Returns true if ok, false if user exception.
     void abort(const Ice::LocalException&);
-#ifndef ICEE_PURE_BLOCKING_CLIENT
     void finished(BasicStream&);
     void finished(const Ice::LocalException&);
-#endif
 
     // Inlined for speed optimization.
     BasicStream* stream() { return &_stream; }
     State state() { return _state; }
     
 protected:
-
-    void finishedInternal();
 
     //
     // Optimization. The connection and the reference may not be
