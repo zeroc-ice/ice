@@ -131,9 +131,9 @@ private:
 	StateClosed
     };
 
+    void validate();
     void setState(State, const LocalException&);
     void setState(State);
-    void validate();
 
     void initiateShutdown() const;
 
@@ -207,10 +207,15 @@ private:
 
     //
     // We have a separate monitor for sending, so that we don't block
-    // the whole connection when we do a blocking send. The monitor
-    // is also used by outgoing calls to wait for replies when thread
-    // per connection is used. The _nextRequestId, _requests and 
+    // the whole connection when we do a blocking send. The monitor is
+    // also used by outgoing calls to wait for replies when thread per
+    // connection is used. The _nextRequestId, _requests and
     // _requestsHint attributes are also protected by this monitor.
+    // Calls on the (non thread-safe) Outgoing objects should also
+    // only be made with this monitor locked.
+    //
+    // Finally, it's safe to lock the _sendMonitor with the connection
+    // already locked. The contrary isn't permitted.
     //
     IceUtil::Monitor<IceUtil::Mutex> _sendMonitor;
     Int _nextRequestId;

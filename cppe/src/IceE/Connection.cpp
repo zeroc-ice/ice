@@ -349,7 +349,10 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	    }
 #endif
 	}
-	
+
+	//
+	// Fill in the message size.
+	//
 	const Int sz = static_cast<Int>(os->b.size());
 	Byte* dest = &(os->b[0]) + 10;
 #ifdef ICE_BIG_ENDIAN
@@ -390,7 +393,7 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	    // Re-use the stream for reading the reply.
 	    //
 	    os->reset();
-	    
+		
 	    Int receivedRequestId = 0;
 #ifndef ICEE_PURE_CLIENT
 	    Int invokeNum = 0;
@@ -439,25 +442,11 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 		    // Make sure we woke up because of timeout and not another response.
 		    //
 		    if(out->state() == Outgoing::StateInProgress && IceUtil::Time::now() > expireTime)
-		    {
-			break;
+		    {	
+			throw TimeoutException(__FILE__, __LINE__);
 		    }
 		}
 		else
-		{
-		    _sendMonitor.wait();
-		}
-	    }
-	    
-	    //
-	    // If the outgoing is still not finished, there was a timeout
-	    // so we close the connection and wait until the outgoing gets
-	    // notified of the connection closure.
-	    //
-	    if(out->state() == Outgoing::StateInProgress)
-	    {
-		setState(StateClosed, TimeoutException(__FILE__, __LINE__));
-		while(out->state() == Outgoing::StateInProgress)
 		{
 		    _sendMonitor.wait();
 		}
@@ -467,27 +456,38 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
     }
     catch(const LocalException& ex)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	setState(StateClosed, ex);
-	assert(_exception.get());
-	if(requestSent)
 	{
-	    //
-	    // If the request has been sent we don't throw but instead
-	    // notify the outgoing of the connection. Throwing
-	    // directly would cause the client to retry and would
-	    // violate the "at-most-once" semantics.
-	    //
-	    out->finished(*_exception.get());
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	    setState(StateClosed, ex);
+	    assert(_exception.get());
+	    if(!requestSent)
+	    {
+		_exception->ice_throw();
+	    }
+	}
+	
+	//
+	// If the request was already sent, we don't throw directly
+	// but instead we set the Outgoing object exception with
+	// finished().  Throwing directly would break "at-most-once"
+	// (see also comment in Outgoing.invoke())
+	//
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sendSync(_sendMonitor);
+#ifndef ICEE_PURE_BLOCKING_CLIENT
+	if(_blocking)
+	{
+#endif
+	    out->finished(ex);
+#ifndef ICEE_PURE_BLOCKING_CLIENT
 	}
 	else
 	{
-	    //
-	    // The request wasn't sent, we can safely retry the invocation
-	    // without violating "at-most-once".
-	    //
-	    _exception->ice_throw();
+	    while(out->state() == Outgoing::StateInProgress)
+	    {
+		_sendMonitor.wait(); // Wait for the thread to propagate the exception to the Outgoing object.
+	    }
 	}
+#endif
     }
 }
 
@@ -1415,6 +1415,9 @@ Ice::Connection::readStreamAndParseMessage(IceInternal::BasicStream& stream, Int
 Ice::Connection::readStreamAndParseMessage(IceInternal::BasicStream& stream, Int& requestId)
 #endif
 {
+    //
+    // Read the header.
+    //
     stream.b.resize(headerSize);
     stream.i = stream.b.begin();
     _transceiver->read(stream);
@@ -1632,30 +1635,17 @@ Ice::Connection::run()
 #ifndef ICEE_PURE_CLIENT
 		if(invokeNum > 0) // We received a request or a batch request
 		{
-		    if(_state < StateClosing)
+		    if(_state == StateClosing)
 		    {
-			_dispatchCount += invokeNum;
-		    }
-		    else if(invokeNum == 1)
-		    {
-			invokeNum = 0;
 			if(_traceLevels->protocol >= 1)
 			{
-			    traceRequest("received request during closing\n"
-					 "(ignored by server, client will retry)",
-					 _stream, _logger, _traceLevels);
+			    string req = invokeNum > 1 ? "received batch request" : "received request";
+			    req += " during closing\n(ignored by server, client will retry)";
+			    traceRequest( req.c_str(), _stream, _logger, _traceLevels);
 			}
-		    }
-		    else if(invokeNum > 1)
-		    {
 			invokeNum = 0;
-			if(_traceLevels->protocol >= 1)
-			{
-			    traceBatchRequest("received batch request during closing\n"
-					      "(ignored by server, client will retry)",
-					      _stream, _logger, _traceLevels);
-			}
 		    }
+		    _dispatchCount += invokeNum;
 		}
 		else 
 #endif
@@ -1728,6 +1718,12 @@ Ice::Connection::run()
 		}
 		_transceiver = 0;
 		notifyAll();
+
+		//
+		// We cannot simply return here. We have to make sure
+		// that all requests are notified about the closed
+		// connection below.
+		//
 		closed = true;		
 	    }
 
