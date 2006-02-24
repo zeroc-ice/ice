@@ -469,7 +469,7 @@ IceInternal::BasicStream::read(pair<const bool*, const bool*>& v, IceUtil::auto_
 	checkFixedSeq(sz, 1);
 #if defined(__APPLE__)
 	bool* array = new bool[sz];
-	for(int idx; idx < sz; ++idx)
+	for(int idx = 0; idx < sz; ++idx)
 	{
 	   array[idx] = (bool)*(i + idx);
 	}
