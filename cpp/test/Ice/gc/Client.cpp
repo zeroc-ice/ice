@@ -589,6 +589,17 @@ MyApplication::run(int argc, char* argv[])
     Ice::collectGarbage();
     test(getNum() == 0);
 
+    {
+        NNPtr nn1 = new NN;
+	nn1->n = new NN;
+	test(getNum() == 2);
+	Ice::collectGarbage();
+	test(getNum() == 2);
+    }
+    test(getNum() == 0);
+    Ice::collectGarbage();
+    test(getNum() == 0);
+
     cout << "ok" << endl;
     
 #if defined(_AIX)
