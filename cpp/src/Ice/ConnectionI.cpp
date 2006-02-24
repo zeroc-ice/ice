@@ -148,12 +148,12 @@ Ice::ConnectionI::validate()
 		}
 		assert(is.i == is.b.end());
 		is.i = is.b.begin();
-		pair<const Byte*, const Byte*> m;
+		const Byte* m;
 		is.readBlob(m, static_cast<Int>(sizeof(magic)));
-		if(!equal(m.first, m.second, magic))
+	        if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
 		{
 		    BadMagicException ex(__FILE__, __LINE__);
-		    ex.badMagic = vector<Byte>(m.first, m.second);
+		    ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(magic));
 		    throw ex;
 		}
 		Byte pMajor;
@@ -2365,12 +2365,12 @@ Ice::ConnectionI::run()
 		throw IllegalMessageSizeException(__FILE__, __LINE__);
 	    }
 	    stream.i = stream.b.begin();
-	    pair<const Byte*, const Byte*> m;
+	    const Byte* m;
 	    stream.readBlob(m, static_cast<Int>(sizeof(magic)));
-	    if(!equal(m.first, m.second, magic))
+	    if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
 	    {
 		BadMagicException ex(__FILE__, __LINE__);
-		ex.badMagic = vector<Byte>(m.first, m.second);
+		ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(magic));
 		throw ex;
 	    }
 	    Byte pMajor;

@@ -90,10 +90,32 @@ public:
     void writeBlob(const std::vector<Ice::Byte>&);
     void readBlob(std::vector<Ice::Byte>&, Ice::Int);
 
-    void writeBlob(const Ice::Byte*, Container::size_type);
-    void readBlob(Ice::Byte*, Container::size_type);
+    void writeBlob(const Ice::Byte* v, Container::size_type sz)
+    {
+        if(sz > 0)
+        {
+            Container::size_type pos = b.size();
+            resize(pos + sz);
+            memcpy(&b[pos], &v[0], sz);
+        }
+    }
 
-    void readBlob(std::pair<const Ice::Byte*, const Ice::Byte*>&, Ice::Int);
+    void readBlob(const Ice::Byte*& v, Container::size_type sz)
+    {
+        if(sz > 0)
+        {
+            v = i;
+            if(static_cast<Container::size_type>(b.end() - i) < sz)
+            {
+                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+            }
+            i += sz;
+        }
+        else
+        {
+            v = i;
+        }
+    }
 
     void write(Ice::Byte v)
     {

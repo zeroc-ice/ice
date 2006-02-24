@@ -680,50 +680,6 @@ IceInternal::BasicStream::readBlob(vector<Byte>& v, Int sz)
 }
 
 void
-IceInternal::BasicStream::writeBlob(const Ice::Byte* v, Container::size_type sz)
-{
-    if(sz > 0)
-    {
-	Container::size_type pos = b.size();
-	resize(pos + sz);
-	memcpy(&b[pos], v, sz);
-    }
-}
-
-void
-IceInternal::BasicStream::readBlob(Ice::Byte* v, Container::size_type sz)
-{
-    if(sz > 0)
-    {
-	if(static_cast<Container::size_type>(b.end() - i) < sz)
-	{
-	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-	}
-	memcpy(v, &*i, sz);
-	i += sz;
-    }
-}
-
-void
-IceInternal::BasicStream::readBlob(pair<const Byte*, const Byte*>& v, Int sz)
-{
-    if(sz > 0)
-    {
-	if(b.end() - i < sz)
-	{
-	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-	}
-	v.first = i;
-	v.second = i + sz;
-	i += sz;
-    }
-    else
-    {
-	v.first = v.second = 0;
-    }
-}
-
-void
 IceInternal::BasicStream::write(const Byte* begin, const Byte* end)
 {
     Int sz = static_cast<Int>(end - begin);
