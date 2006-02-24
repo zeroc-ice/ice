@@ -27,16 +27,10 @@
 #define ICEE_HAS_BATCH
 
 //
-// Comment this out if you want to build without support for blocking
-// client.
-//
-//#define ICEE_BLOCKING_CLIENT
-
-//
 // Comment this line if you don't want the pure client library built
 // with only blocking support.
 //
-//#define ICEE_PURE_BLOCKING_CLIENT
+#define ICEE_PURE_BLOCKING_CLIENT
 
 // ***********************************************************************
 //
@@ -57,13 +51,6 @@
 //
 #if !defined(ICEE_PURE_CLIENT) && defined(ICEE_PURE_BLOCKING_CLIENT)
 #   undef ICEE_PURE_BLOCKING_CLIENT
-#endif
-
-//
-// If pure blocking client is defined, blocking client must be as well.
-//
-#if defined(ICEE_PURE_BLOCKING_CLIENT) && !defined(ICEE_BLOCKING_CLIENT)
-#   define ICEE_BLOCKING_CLIENT
 #endif
 
 //

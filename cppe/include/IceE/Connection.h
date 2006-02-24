@@ -190,7 +190,7 @@ private:
     int _batchRequestNum;
 #endif
 
-#if defined(ICEE_BLOCKING_CLIENT) && !defined(ICEE_PURE_BLOCKING_CLIENT)
+#if !defined(ICEE_PURE_BLOCKING_CLIENT)
     bool _blocking;
 #endif
 

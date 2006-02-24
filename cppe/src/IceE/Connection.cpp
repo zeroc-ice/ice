@@ -343,14 +343,10 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 #endif
 
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-#ifdef ICEE_BLOCKING_CLIENT
 	    if(!_blocking)
 	    {
-#endif
 		_requestsHint = _requests.insert(_requests.end(), pair<const Int, Outgoing*>(requestId, out));
-#ifdef ICEE_BLOCKING_CLIENT
 	    }
-#endif
 #endif
 	}
 	
@@ -386,7 +382,6 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	    return;
 	}
 	
-#ifdef ICEE_BLOCKING_CLIENT
 #ifndef ICEE_PURE_BLOCKING_CLIENT
 	if(_blocking)
 	{
@@ -420,9 +415,6 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	}
 	else
 	{
-#endif
-#endif
-#ifndef ICEE_PURE_BLOCKING_CLIENT
 	    //
 	    // Wait until the request has completed, or until the request times out.
 	    //
@@ -470,8 +462,6 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 		    _sendMonitor.wait();
 		}
 	    }
-#endif
-#if defined(ICEE_BLOCKING_CLIENT) && !defined(ICEE_PURE_BLOCKING_CLIENT)
 	}
 #endif
     }
@@ -925,7 +915,7 @@ Ice::Connection::Connection(const InstancePtr& instance,
       , _requestsHint(_requests.end())
 #endif
 {
-#if defined(ICEE_BLOCKING_CLIENT) && !defined(ICEE_PURE_BLOCKING_CLIENT)
+#ifndef ICEE_PURE_BLOCKING_CLIENT
 #  ifdef ICEE_PURE_CLIENT
     _blocking = _instance->properties()->getPropertyAsInt("Ice.Blocking") > 0;
 #  else
@@ -939,10 +929,8 @@ Ice::Connection::Connection(const InstancePtr& instance,
     {
 	_transceiver->setTimeouts(-1, _endpoint->timeout());
     }
-#elif defined(ICEE_BLOCKING_CLIENT) && defined(ICEE_PURE_BLOCKING_CLIENT)
-    _transceiver->setTimeouts(_endpoint->timeout(), _endpoint->timeout());
 #else
-    _transceiver->setTimeouts(-1, _endpoint->timeout());
+    _transceiver->setTimeouts(_endpoint->timeout(), _endpoint->timeout());
 #endif
 
     vector<Byte>& requestHdr = const_cast<vector<Byte>&>(_requestHdr);
@@ -989,13 +977,11 @@ Ice::Connection::Connection(const InstancePtr& instance,
 #ifdef ICEE_PURE_BLOCKING_CLIENT
     validate();
 #else
-#  ifdef ICEE_BLOCKING_CLIENT
     if(_blocking)
     {
     	validate();
     }
     else
-#  endif
     {
         __setNoDelete(true);
         try
@@ -1334,11 +1320,10 @@ Ice::Connection::setState(State state)
 	//
 	// In blocking mode, we close the transceiver now.
 	//
-#ifdef ICEE_BLOCKING_CLIENT
-#  ifndef ICEE_PURE_BLOCKING_CLIENT
+#ifndef ICEE_PURE_BLOCKING_CLIENT
 	if(_blocking)
+#endif
 	{
-#  endif
 	    Lock sync(_sendMonitor);
 	    try
 	    {
@@ -1348,10 +1333,7 @@ Ice::Connection::setState(State state)
 	    {
 	    }
 	    _transceiver = 0;
-#  ifndef ICEE_PURE_BLOCKING_CLIENT
 	}
-#  endif
-#endif
 	break;
     }
     }
@@ -1367,14 +1349,12 @@ Ice::Connection::setState(State state)
 	{
 	    initiateShutdown();
 
-#ifdef ICEE_BLOCKING_CLIENT
-#  ifndef ICEE_PURE_BLOCKING_CLIENT
+#ifndef ICEE_PURE_BLOCKING_CLIENT
 	    if(_blocking)
-#  endif
+#endif
 	    {
 		setState(StateClosed);
 	    }
-#endif
 	}
 	catch(const LocalException& ex)
 	{
