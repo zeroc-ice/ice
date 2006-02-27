@@ -13,10 +13,6 @@ export TAO_ROOT := $(TAO_HOME)/TAO
 
 debug=0
 
-ifndef TAO_ROOT
-  TAO_ROOT = $(ACE_ROOT)/TAO
-endif # ! TAO_ROOT
-
 BIN2 =  Service \
 	Consumer \
 	Supplier \

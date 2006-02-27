@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, time, pickle, getopt, re
+import os, sys, time, pickle, getopt, re, platform
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -51,10 +51,14 @@ for o, a in opts:
     elif o == '-c' or o == "--csv":
         csv = True
 
+
+(system, name, ver, build, machine, processor) = platform.uname()
 if hostname == "":
-    import socket
-    hostname = socket.gethostname()
-outputFile = "results." + sys.platform + "." + hostname
+    hostname = name
+    if hostname.find('.'):
+        hostname = hostname[0:hostname.find('.')]
+outputFile = ("results.ice." + system + "." + hostname).lower()
+
 
 all = TestUtil.AllResults()
 if len(pargs) > 0:

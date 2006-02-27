@@ -37,15 +37,15 @@ RSC=rc.exe
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD MTL /D "_DEBUG" /nologo /mktyplib203 /win32
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Gy /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Gy /I "$(ACE_ROOT)" /I "$(TAO_ROOT)" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /i "$(TAO_ROOT)\.." /i "$(TAO_ROOT)" /d "_DEBUG"
+# ADD RSC /l 0x409 /i "$(ACE_ROOT)" /i "$(TAO_ROOT)" /d "_DEBUG"
 BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 advapi32.lib user32.lib TAO_Messagingd.lib TAO_Strategiesd.lib TAO_PortableServerd.lib TAO_ValueTyped.lib TAOd.lib ACEd.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /out:".\server.exe" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
+# ADD LINK32 advapi32.lib user32.lib TAO_Messagingd.lib TAO_Strategiesd.lib TAO_PortableServerd.lib TAO_ValueTyped.lib TAOd.lib ACEd.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /out:".\server.exe" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "taoS - Win32 Release"
@@ -58,15 +58,15 @@ LINK32=link.exe
 # PROP Target_Dir ""
 MTL=midl.exe
 # ADD MTL /D "NDEBUG" /nologo /mktyplib203 /win32
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "$(TAO_ROOT)\.." /I "$(TAO_ROOT)" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "$(ACE_ROOT)" /I "$(TAO_ROOT)" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409
-# ADD RSC /l 0x409 /i "$(TAO_ROOT)\.." /i "$(TAO_ROOT)" /d "NDEBUG"
+# ADD RSC /l 0x409 /i "$(ACE_ROOT)" /i "$(TAO_ROOT)" /d "NDEBUG"
 BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 advapi32.lib user32.lib TAO_Messaging.lib TAO_Strategies.lib TAO_PortableServer.lib TAO_ValueType.lib TAO.lib ACE.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
+# ADD LINK32 advapi32.lib user32.lib TAO_Messaging.lib TAO_Strategies.lib TAO_PortableServer.lib TAO_ValueType.lib TAO.lib ACE.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(ACE_ROOT)\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
 
 !ENDIF 
 
@@ -165,13 +165,13 @@ SOURCE="Test.idl"
 !IF  "$(CFG)" == "taoS - Win32 Debug"
 
 # PROP Ignore_Default_Tool 1
-USERDEP__TEST_="$(TAO_ROOT)\..\bin\Release\tao_idl.exe"	
-# Begin Custom Build - Invoking $(TAO_ROOT)\..\bin\Release\tao_idl on $(InputPath)
+USERDEP__TEST_="$(ACE_ROOT)\bin\tao_idl.exe"	
+# Begin Custom Build - Invoking $(ACE_ROOT)\bin\tao_idl on $(InputPath)
 InputPath="Test.idl"
 
 BuildCmds= \
-	PATH=%PATH%;$(TAO_ROOT)\..\lib \
-	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	PATH=%PATH%;$(ACE_ROOT)\lib \
+	$(ACE_ROOT)\bin\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
 	
 
 "TestC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -205,13 +205,13 @@ BuildCmds= \
 !ELSEIF  "$(CFG)" == "taoS - Win32 Release"
 
 # PROP Ignore_Default_Tool 1
-USERDEP__TEST_="$(TAO_ROOT)\..\bin\Release\tao_idl.exe"	
-# Begin Custom Build - Invoking $(TAO_ROOT)\..\bin\Release\tao_idl on $(InputPath)
+USERDEP__TEST_="$(ACE_ROOT)\bin\tao_idl.exe"	
+# Begin Custom Build - Invoking $(ACE_ROOT)\bin\tao_idl on $(InputPath)
 InputPath="Test.idl"
 
 BuildCmds= \
-	PATH=%PATH%;$(TAO_ROOT)\..\lib \
-	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	PATH=%PATH%;$(ACE_ROOT)\lib \
+	$(ACE_ROOT)\bin\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
 	
 
 "TestC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

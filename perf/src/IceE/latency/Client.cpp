@@ -80,7 +80,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     latency->ping();
 
     IceUtil::Time tm = IceUtil::Time::now();
-
     for(i = 0; i < repetitions; ++i)
     {
         if(batch)

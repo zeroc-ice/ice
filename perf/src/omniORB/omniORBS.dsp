@@ -46,7 +46,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 advapi32.lib user32.lib omniORB407_rtd.lib omnithread32_rtd.lib msvcstubd.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /out:".\server.exe" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
+# ADD LINK32 advapi32.lib user32.lib omniORB407_rtd.lib omnithread32_rtd.lib msvcstubd.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /out:".\server.exe" /libpath:"$(OMNIORB_HOME)\lib\x86_win32"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "omniORBS - Win32 Release"
@@ -67,7 +67,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 advapi32.lib user32.lib omniORB407_rt.lib omnithread32_rt.lib msvcstub.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"$(TAO_ROOT)\tao\PortableServer" /libpath:"$(TAO_ROOT)\..\ace" /libpath:"$(TAO_ROOT)\tao" /libpath:"$(TAO_ROOT)\tao\Strategies" /libpath:"$(TAO_ROOT)\tao\Messaging" /libpath:"$(TAO_ROOT)\tao\ValueType"
+# ADD LINK32 advapi32.lib user32.lib omniORB407_rt.lib omnithread32_rt.lib msvcstub.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"$(OMNIORB_HOME)\lib\x86_win32"
 
 !ENDIF 
 

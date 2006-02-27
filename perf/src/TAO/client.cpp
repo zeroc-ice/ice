@@ -28,19 +28,19 @@ int do_shutdown = 1;
 int
 main(int argc, char *argv[])
 {
-//     int priority = (ACE_Sched_Params::priority_min(ACE_SCHED_FIFO) +
-// 		    ACE_Sched_Params::priority_max(ACE_SCHED_FIFO)) / 2;
-//     if(ACE_OS::sched_params(ACE_Sched_Params(ACE_SCHED_FIFO, priority, ACE_SCOPE_PROCESS)) != 0)
-//     {
-// 	if(ACE_OS::last_error() == EPERM)
-//         {
-// 	    ACE_DEBUG((LM_DEBUG, "client(%P|%t): user is not superuser, ""test runs in time-shared class\n"));
-//         }
-// 	else
-// 	{
-// 	    ACE_ERROR((LM_ERROR, "client(%P|%t): sched_params failed\n"));
-// 	}
-//     }
+    int priority = (ACE_Sched_Params::priority_min(ACE_SCHED_FIFO) +
+		    ACE_Sched_Params::priority_max(ACE_SCHED_FIFO)) / 2;
+    if(ACE_OS::sched_params(ACE_Sched_Params(ACE_SCHED_FIFO, priority, ACE_SCOPE_PROCESS)) != 0)
+    {
+	if(ACE_OS::last_error() == EPERM)
+        {
+	    ACE_DEBUG((LM_DEBUG, "client(%P|%t): user is not superuser, ""test runs in time-shared class\n"));
+        }
+	else
+	{
+	    ACE_ERROR((LM_ERROR, "client(%P|%t): sched_params failed\n"));
+	}
+    }
     
     ACE_TRY_NEW_ENV
     {

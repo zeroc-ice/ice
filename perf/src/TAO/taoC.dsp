@@ -165,13 +165,13 @@ SOURCE="Test.idl"
 !IF  "$(CFG)" == "taoC - Win32 Debug"
 
 # PROP Ignore_Default_Tool 1
-USERDEP__TEST_="$(TAO_ROOT)\..\bin\Release\tao_idl.exe"	
-# Begin Custom Build - Invoking $(TAO_ROOT)\..\bin\Release\tao_idl on $(InputPath)
+USERDEP__TEST_="$(ACE_ROOT)\bin\tao_idl.exe"	
+# Begin Custom Build - Invoking $(TAO_ROOT)\..\bin\tao_idl on $(InputPath)
 InputPath="Test.idl"
 
 BuildCmds= \
-	PATH=%PATH%;$(TAO_ROOT)\..\lib \
-	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	PATH=%PATH%;$(ACE_ROOT)\lib \
+	$(ACE_ROOT)\bin\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
 	
 
 "TestC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -202,13 +202,13 @@ BuildCmds= \
 !ELSEIF  "$(CFG)" == "taoC - Win32 Release"
 
 # PROP Ignore_Default_Tool 1
-USERDEP__TEST_="$(TAO_ROOT)\..\bin\Release\tao_idl.exe"	
-# Begin Custom Build - Invoking $(TAO_ROOT)\..\bin\Release\tao_idl on $(InputPath)
+USERDEP__TEST_="$(ACE_ROOT)\bin\tao_idl.exe"	
+# Begin Custom Build - Invoking $(ACE_ROOT)\bin\tao_idl on $(InputPath)
 InputPath="Test.idl"
 
 BuildCmds= \
-	PATH=%PATH%;$(TAO_ROOT)\..\lib \
-	$(TAO_ROOT)\..\bin\Release\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
+	PATH=%PATH%;$(ACE_ROOT)\lib \
+	$(ACE_ROOT)\bin\tao_idl -Ge 1 -GC -Wb,pre_include=ace\pre.h -Wb,post_include=ace\post.h -I$(TAO_ROOT) $(InputPath) \
 	
 
 "TestC.inl" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

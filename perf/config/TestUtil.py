@@ -54,7 +54,30 @@ class ValuesMeanAndBest :
         mean /= len(values)
             
         return (mean, best)
-            
+
+
+def splitName(name):
+    return (name.split()[0], name[len(name.split()[0]):].strip())
+
+def compTest((k1, v1), (k2, v2)):
+
+    m1 = 0.0
+    for m in v1.itervalues():
+        m1 += m
+    m1 /= len(v1)
+        
+    m2 = 0.0
+    for m in v2.itervalues():
+        m2 += m
+    m2 /= len(v2)
+
+    if m1 < m2:
+        return -1
+    elif m2 > m1:
+        return 1
+    else:
+        return 0
+     
 class TestResults :
 
     def __init__(self, test):
@@ -118,11 +141,14 @@ class TestResults :
             results[self.test] = { } 
 
         for n in self.names:
+ 
+            (mn, sn) = splitName(n);
+            if not results[self.test].has_key(mn):
+                results[self.test][mn] = { }
 
-            if not results[self.test].has_key(n):
-                results[self.test][n] = { }
+            if not results[self.test][mn].has_key(sn):
+                results[self.test][mn][sn] = { }
                     
-            refmean = -1.0
             if not n in names:
                 names.append(n)
 
@@ -132,18 +158,15 @@ class TestResults :
                     
                     if self.results[n].has_key(p):
                         
-                        if not results[self.test][n].has_key(p):
-                            results[self.test][n][p] = { }
+                        if not results[self.test][mn][sn].has_key(p):
+                            results[self.test][mn][sn][p] = { }
 
                         if not p in products:
                             products.append(p)
 
                         (mean, best) = function.calcMeanAndBest(self.results[n][p])
 
-                        if refmean < 0.0:
-                            refmean = mean
-
-                        results[self.test][n][p][id] = (mean, mean / refmean)
+                        results[self.test][mn][sn][p][id] = mean
 
 class HostResults :
 
@@ -262,20 +285,21 @@ class AllResults :
         print ""
 
         for test in tests:
-            for name in names:
-                if results[test].has_key(name):
-                    print test + "," + name + ",",
+            for n in names:
+                (name, subname) = splitName(n)
+                if results[test].has_key(name) and results[test][name].has_key(subname):
+                    print test + "," + name + "," + subname + ",",
                     for product in products:
-                        if results[test][name].has_key(product):
+                        if results[test][name][subname].has_key(product):
                             for host in hosts:
-                                if not results[test][name][product].has_key(host):
+                                if not results[test][name][subname][product].has_key(host):
                                     print ",",
                                 else:
-                                    (m, r) = results[test][name][product][host]
+                                    m = results[test][name][subname][product][host]
                                     print  str(m) + ",",
                         else:
                             print ",",
-                        
+
                     print ""
 
     def printAllAsText(self, results, tests, names, hosts, products):
@@ -301,21 +325,38 @@ class AllResults :
             for host in hosts:
                 print "+-------------------",
             print ""
-            
-            for name in names:
-                hasTest = False
-                if results[test].has_key(name):
-                    for product in products:
-                        if results[test][name].has_key(product):
-                            hasTest = True
-                            print (" %-" + str(maxLen) + "s") % (product + " " + name),
-                            for host in hosts:
-                                if not results[test][name][product].has_key(host):
-                                    print "| %-18s" % "",
-                                else:
-                                    print "| %10.6f (%#1.3f)" % results[test][name][product][host],
+
+            namesWithSubnames = { }
+            for n in names:
+                (name, subname) = splitName(n)
+                if not namesWithSubnames.has_key(name):
+                    namesWithSubnames[name] = [ ]
+                namesWithSubnames[name].append(subname)
+
+            sortedNames = namesWithSubnames.keys();
+            sortedNames.sort()
+            for name in sortedNames:
+                t = [ ]
+                for subname in namesWithSubnames[name]:
+                    if results[test].has_key(name) and results[test][name].has_key(subname):
+                        for product in products:
+                            if results[test][name][subname].has_key(product):
+                                k = product + " " + name + " " + subname
+                                v = results[test][name][subname][product]
+                                t.append((k,v))
+
+                if len(t) > 0:
+
+                    t.sort(compTest)
+                    for (k, v) in t:
+                        print (" %-" + str(maxLen) + "s") % k,
+                        for host in hosts:
+                            if not v.has_key(host):
+                                print "| %-18s" % "",
+                            else:
+                                print "| %10.6f" % v[host],
                             print ""
-                if hasTest:
+
                     print (" %-" + str(maxLen) + "s") % ("-------------------------------------------"[0:maxLen]),
                     for host in hosts:
                         print "+-------------------",

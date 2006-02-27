@@ -18,6 +18,7 @@ ifdef ICE_HOME
 endif
 
 ifdef TAO_HOME
+    export ACE_ROOT := $(TAO_HOME)
     SUBDIRS 	:= TAO CosEvent $(SUBDIRS)
 endif
  
