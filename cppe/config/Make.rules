@@ -15,11 +15,14 @@
 prefix			= /opt/IceE-$(VERSION)
 
 #
-# Define OPTIMIZE as yes if you want to build with optimization.
-# Otherwise IceE is built with debug information.
+# Define OPTIMIZE_SIZE as yes if you want to build with minimal size.
+# Define OPTIMIZE_SPEED as yes if you want to build with maximum speed.
+# These options are mutually exclusive.
+# If neither is set, IceE is built with debug information.
 #
 
-#OPTIMIZE		= yes
+#OPTIMIZE_SIZE		= yes
+#OPTIMIZE_SPEED		= yes
 
 #
 # Define STATICLIBS as yes if you want to build with static libraries.
@@ -81,6 +84,13 @@ INSTALL_LIBRARY		= ${INSTALL}
 INSTALL_DATA		= ${INSTALL}
 
 UNAME			:= $(shell uname)
+
+ifeq ($(OPTIMIZE_SPEED),yes)
+    OPTIMIZE		= yes
+endif
+ifeq ($(OPTIMIZE_SIZE),yes)
+    OPTIMIZE		= yes
+endif
 
 #
 # Platform specific definitions
