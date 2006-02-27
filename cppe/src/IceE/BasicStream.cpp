@@ -177,36 +177,6 @@ IceInternal::BasicStream::startSeq(int numElements, int minSize)
     }
 }
 
-//
-// Check, given the number of elements requested for this sequence,
-// that this sequence, plus the sum of the sizes of the remaining
-// number of elements of all enclosing sequences, would still fit
-// within the message.
-//
-void
-IceInternal::BasicStream::checkSeq()
-{
-    checkSeq(static_cast<int>(b.end() - i));
-}
-
-void
-IceInternal::BasicStream::checkSeq(int bytesLeft)
-{
-    int size = 0;
-    SeqData* sd = _seqDataStack;
-    do
-    {
-	size += (sd->numElements - 1) * sd->minSize;
-	sd = sd->previous;
-    }
-    while(sd);
-
-    if(size > bytesLeft)
-    {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
-}
-
 void
 IceInternal::BasicStream::checkFixedSeq(int numElements, int elemSize)
 {

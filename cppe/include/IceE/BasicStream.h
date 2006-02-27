@@ -81,8 +81,32 @@ public:
     }
 
     void startSeq(int, int);
-    void checkSeq();
-    void checkSeq(int);
+    void checkSeq()
+    {
+	checkSeq(static_cast<int>(b.end() - i));
+    }
+    void checkSeq(int bytesLeft)
+    {
+	//
+	// Check, given the number of elements requested for this sequence,
+	// that this sequence, plus the sum of the sizes of the remaining
+	// number of elements of all enclosing sequences, would still fit
+	// within the message.
+	//
+	int size = 0;
+	SeqData* sd = _seqDataStack;
+	do
+	{
+	    size += (sd->numElements - 1) * sd->minSize;
+	    sd = sd->previous;
+	}
+	while(sd);
+	
+	if(size > bytesLeft)
+	{
+	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	}
+    }
     void checkFixedSeq(int, int); // For sequences of fixed-size types.
     void endElement()
     {
