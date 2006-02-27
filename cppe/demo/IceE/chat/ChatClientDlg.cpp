@@ -340,7 +340,8 @@ CChatClientDlg::OnLogin()
 
 	    try
 	    {
-		string routerStr = Ice::printfToString("Glacier2/router:tcp -p %s -h %s", port.c_str(), host.c_str());
+		string routerStr = 
+		    Ice::printfToString("DemoGlacier2/router:tcp -p %s -h %s", port.c_str(), host.c_str());
 		_router = Glacier2::RouterPrx::checkedCast(_communicator->stringToProxy(routerStr));
 		assert(_router);
 
