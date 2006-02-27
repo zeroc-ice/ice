@@ -55,6 +55,7 @@ ifeq ($(ICE_HOME),)
 endif
 
 
+OPTIMIZE_SPEED		= yes
 OPTIMIZE		= yes
 
 SHELL			= /bin/sh
