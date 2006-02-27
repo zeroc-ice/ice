@@ -118,31 +118,31 @@ def runIceEPerfs(expr, results, i):
 
     test = ClientServerTest(expr, results, i, "IceE", "latency twoway")
     test.run("tpc", "latency", "twoway ", "")
-    test.run("blocking", "latency", "twoway " + blocking, "")
+    test.run("tpc blocking", "latency", "twoway " + blocking, "")
     
     test = ClientServerTest(expr, results, i, "IceE", "latency oneway")
     test.run("tpc", "latency", "oneway ", "")
-    test.run("blocking", "latency", "oneway " + blocking, "")
+    test.run("tpc blocking", "latency", "oneway " + blocking, "")
     
     test = ClientServerTest(expr, results, i, "IceE", "latency oneway")
     test.run("tpc (batch)", "latency", "batch ", "")
-    test.run("blocking (batch)", "latency", "batch " + blocking, "")
+    test.run("tpc blocking (batch)", "latency", "batch " + blocking, "")
 
     test = ClientServerTest(expr, results, i, "IceE", "throughput byte")
     test.run("tpc", "throughput", "byte ", "")
-    test.run("blocking", "throughput", "byte " + blocking, "")
+    test.run("tpc blocking", "throughput", "byte " + blocking, "")
     
     test = ClientServerTest(expr, results, i, "IceE", "throughput string seq")
     test.run("tpc", "throughput", "stringSeq ", "")
-    test.run("blocking", "throughput", "stringSeq " + blocking, "")
+    test.run("tpc blocking", "throughput", "stringSeq " + blocking, "")
     
     test = ClientServerTest(expr, results, i, "IceE", "throughput long string seq")
     test.run("tpc", "throughput", "longStringSeq ", "")
-    test.run("blocking", "throughput", "longStringSeq " + blocking, "")
+    test.run("tpc blocking", "throughput", "longStringSeq " + blocking, "")
     
     test = ClientServerTest(expr, results, i, "IceE", "throughput struct seq")
     test.run("tpc", "throughput", "structSeq ", "")
-    test.run("blocking", "throughput", "structSeq " + blocking, "")
+    test.run("tpc blocking", "throughput", "structSeq " + blocking, "")
 
 def runTAOPerfs(expr, results, i):
 
@@ -155,13 +155,13 @@ def runTAOPerfs(expr, results, i):
     test.run("1tp", "", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 1")
     test.run("4tp", "", taoReactiveConf + " latency twoway", taoTPConf + " threadPool 4")
     test.run("tpc", "", taoReactiveConf + " latency twoway", taoTCConf)
-    test.run("blocking", "", taoBlockingConf + " latency twoway", taoTCConf)
+    test.run("tpc blocking", "", taoBlockingConf + " latency twoway", taoTCConf)
 
     test = ClientServerTest(expr, results, i, "TAO", "latency oneway")
     test.run("1tp", "", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 1")
     test.run("4tp", "", taoReactiveConf + " latency oneway", taoTPConf + " threadPool 4")
     test.run("tpc", "", taoReactiveConf + " latency oneway", taoTCConf)
-    test.run("blocking", "", taoBlockingConf + " latency oneway", taoTCConf)
+    test.run("tpc blocking", "", taoBlockingConf + " latency oneway", taoTCConf)
     
     test = ClientServerTest(expr, results, i, "TAO", "latency twoway AMI")
     test.run("1tp", "", taoReactiveConf + " latency twoway ami", taoTPConf + " threadPool 1")
@@ -172,25 +172,25 @@ def runTAOPerfs(expr, results, i):
     test.run("1tp", "", taoReactiveConf + " throughput byte", taoTPConf + " threadPool 1")
     test.run("4tp", "", taoReactiveConf + " throughput byte", taoTPConf + " threadPool 4")
     test.run("tpc", "", taoReactiveConf + " throughput byte", taoTCConf)
-    test.run("blocking", "", taoBlockingConf + " throughput byte", taoTCConf)
+    test.run("tpc blocking", "", taoBlockingConf + " throughput byte", taoTCConf)
     
     test = ClientServerTest(expr, results, i, "TAO", "throughput string seq")
     test.run("1tp", "", taoReactiveConf + " throughput string", taoTPConf + " threadPool 1")
     test.run("4tp", "", taoReactiveConf + " throughput string", taoTPConf + " threadPool 4")
     test.run("tpc", "", taoReactiveConf + " throughput string", taoTCConf)
-    test.run("blocking", "", taoBlockingConf + " throughput string", taoTCConf)
+    test.run("tpc blocking", "", taoBlockingConf + " throughput string", taoTCConf)
     
     test = ClientServerTest(expr, results, i, "TAO", "throughput long string seq")
     test.run("1tp", "", taoReactiveConf + " throughput longString", taoTPConf + " threadPool 1")
     test.run("4tp", "", taoReactiveConf + " throughput longString", taoTPConf + " threadPool 4")
     test.run("tpc", "", taoReactiveConf + " throughput longString", taoTCConf)
-    test.run("blocking", "", taoBlockingConf + " throughput longString", taoTCConf)
+    test.run("tpc blocking", "", taoBlockingConf + " throughput longString", taoTCConf)
     
     test = ClientServerTest(expr, results, i, "TAO", "throughput struct seq")
     test.run("1tp", "", taoReactiveConf + " throughput struct", taoTPConf + " threadPool 1")
     test.run("4tp", "", taoReactiveConf + " throughput struct", taoTPConf + " threadPool 4")
     test.run("tpc", "", taoReactiveConf + " throughput struct", taoTCConf)
-    test.run("blocking", "", taoBlockingConf + " throughput struct", taoTCConf)
+    test.run("tpc blocking", "", taoBlockingConf + " throughput struct", taoTCConf)
 
 def runOmniORBPerfs(expr, results, i, unixSockets):
 
@@ -209,7 +209,6 @@ def runOmniORBPerfs(expr, results, i, unixSockets):
     test.run("1tp", "", "latency twoway", threadPoolWithoutOpt)
     test.run("1tp w/ opt", "", "latency twoway", threadPoolWithOpt)
     test.run("tpc", "", "latency twoway", threadPerConnection)
-    test.run("blocking", "", "latency twoway", threadPerConnection) # Same test as previous
     
     test = ClientServerTest(expr, results, i, product, "latency oneway", "omniORB")
     test.run("1tp", "", "latency oneway", threadPoolWithoutOpt)
@@ -281,6 +280,8 @@ if not os.environ.has_key('ICE_HOME') and \
     
 results = TestUtil.HostResults(hostname, outputFile)
 
+os.system("/usr/bin/killall -SIGSTOP emacs")
+
 i = 1        
 while i <= niter:
     try:
@@ -296,6 +297,8 @@ while i <= niter:
         i += 1
     except KeyboardInterrupt:
         break
+
+os.system("/usr/bin/killall -SIGCONT emacs")
 
 print "\n"
 print "All results:"
