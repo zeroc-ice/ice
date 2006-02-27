@@ -280,8 +280,6 @@ if not os.environ.has_key('ICE_HOME') and \
     
 results = TestUtil.HostResults(hostname, outputFile)
 
-os.system("/usr/bin/killall -SIGSTOP emacs")
-
 i = 1        
 while i <= niter:
     try:
@@ -297,8 +295,6 @@ while i <= niter:
         i += 1
     except KeyboardInterrupt:
         break
-
-os.system("/usr/bin/killall -SIGCONT emacs")
 
 print "\n"
 print "All results:"
